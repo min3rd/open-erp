@@ -1,0 +1,16 @@
+apiVersion: v2
+name: open-erp-microservices
+description: A Helm chart for Open ERP Microservices Architecture
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - open-erp
+  - microservices
+  - rabbitmq
+  - nestjs
+maintainers:
+  - name: Open ERP Team
+home: https://github.com/min3rd/open-erp
+sources:
+  - https://github.com/min3rd/open-erp

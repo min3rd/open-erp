@@ -1,0 +1,168 @@
+# Default values for open-erp-microservices
+replicaCount: 2
+
+image:
+  registry: docker.io
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+namespace: open-erp
+
+# RabbitMQ Configuration
+rabbitmq:
+  enabled: true
+  auth:
+    username: admin
+    password: admin123
+    existingSecret: ""
+  persistence:
+    enabled: true
+    size: 5Gi
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: 500m
+
+# Auth Service
+authService:
+  enabled: true
+  image:
+    repository: open-erp/auth-service
+  port: 3001
+  replicaCount: 2
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+  env:
+    jwtExpiration: "1h"
+
+# Order Service
+orderService:
+  enabled: true
+  image:
+    repository: open-erp/order-service
+  port: 3004
+  replicaCount: 2
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+# Inventory Service
+inventoryService:
+  enabled: true
+  image:
+    repository: open-erp/inventory-service
+  port: 3005
+  replicaCount: 2
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+# Observability
+prometheus:
+  enabled: true
+  port: 9090
+
+grafana:
+  enabled: true
+  port: 3000
+  adminUser: admin
+  adminPassword: admin
+
+jaeger:
+  enabled: true
+
+# Global environment variables
+global:
+  env:
+    nodeEnv: production
+    logLevel: info
+    rabbitmqVhost: "/"
+    rabbitmqHeartbeat: "60"
+    rabbitmqPrefetchCount: "10"
+    rabbitmqRetryAttempts: "3"
+    rabbitmqRetryDelay: "1000"
+    rabbitmqEnableTLS: "false"
+
+# Security
+secrets:
+  jwtSecret: "your-secret-key-change-in-production"
+  rabbitmqPassword: "admin123"
+
+# Service Account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# Pod Security Context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  fsGroup: 1001
+
+# Security Context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+
+# Ingress
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: open-erp.local
+      paths:
+        - path: /auth
+          pathType: Prefix
+          service: auth-service
+          port: 3001
+        - path: /orders
+          pathType: Prefix
+          service: order-service
+          port: 3004
+        - path: /inventory
+          pathType: Prefix
+          service: inventory-service
+          port: 3005
+  tls: []
+
+# Autoscaling
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Node labels for pod assignment
+nodeSelector: {}
+
+# Tolerations for pod assignment
+tolerations: []
+
+# Affinity for pod assignment
+affinity: {}
