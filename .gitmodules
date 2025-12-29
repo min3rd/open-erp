@@ -1,0 +1,9 @@
+[submodule "open-erp-backend"]
+	path = open-erp-backend
+	url = https://github.com/min3rd/open-erp-backend
+[submodule "open-erp-mobile"]
+	path = open-erp-mobile
+	url = https://github.com/min3rd/open-erp-mobile.git
+[submodule "open-erp-web"]
+	path = open-erp-web
+	url = https://github.com/min3rd/open-erp-web.git
