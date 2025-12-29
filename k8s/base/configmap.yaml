@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: microservices-config
+  namespace: open-erp
+data:
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+  RABBITMQ_URL: "amqp://rabbitmq-service:5672"
+  RABBITMQ_VHOST: "/"
+  RABBITMQ_HEARTBEAT: "60"
+  RABBITMQ_PREFETCH_COUNT: "10"
+  RABBITMQ_RETRY_ATTEMPTS: "3"
+  RABBITMQ_RETRY_DELAY: "1000"
+  RABBITMQ_ENABLE_TLS: "false"
+  JWT_EXPIRATION: "1h"

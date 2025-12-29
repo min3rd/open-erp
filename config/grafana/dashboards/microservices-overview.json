@@ -1,0 +1,59 @@
+{
+  "dashboard": {
+    "title": "Open ERP Microservices Overview",
+    "tags": ["microservices", "rabbitmq"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Service Health",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "up{job=~\".*-service\"}",
+            "legendFormat": "{{job}}"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Order Creation Rate",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "rate(order_create_success_total[5m])",
+            "legendFormat": "Orders/sec"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Inventory Events Processed",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "targets": [
+          {
+            "expr": "rate(inventory_order_events_processed_total[5m])",
+            "legendFormat": "Events/sec"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "RabbitMQ Queue Depth",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "targets": [
+          {
+            "expr": "rabbitmq_queue_messages",
+            "legendFormat": "{{queue}}"
+          }
+        ]
+      }
+    ],
+    "refresh": "10s",
+    "time": {"from": "now-1h", "to": "now"}
+  }
+}
