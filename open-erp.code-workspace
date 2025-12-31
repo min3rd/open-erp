@@ -1,16 +1,20 @@
 {
 	"folders": [
 		{
+			"name": "open-erp-backend",
 			"path": "open-erp-backend"
 		},
 		{
+			"name": "open-erp-web",
 			"path": "open-erp-web"
 		},
 		{
-			"path": "."
+			"name": "open-erp-mobile",
+			"path": "open-erp-mobile"
 		},
 		{
-			"path": "open-erp-mobile"
+			"name": "open-erp",
+			"path": "."
 		}
 	]
 }
