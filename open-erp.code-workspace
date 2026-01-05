@@ -16,5 +16,15 @@
 			"name": "open-erp",
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"i18n-ally.localesPaths": [
+			"libs/shared/errors/locales",
+			"../../../../../../Users/admin/Documents/open-erp/open-erp-web/public/i18n"
+		],
+		"i18n-ally.enabledFrameworks": [
+			"transloco"
+		],
+		"i18n-ally.keystyle": "nested"
+	}
 }
