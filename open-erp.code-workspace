@@ -11,10 +11,6 @@
 		{
 			"name": "open-erp-mobile",
 			"path": "open-erp-mobile"
-		},
-		{
-			"name": "open-erp",
-			"path": "."
 		}
 	],
 	"settings": {
