@@ -18,5 +18,5 @@ Các yêu cầu bắt buộc phải tuân theo:
   * Chạy lệnh `npm run docker:dev:up` khởi tạo môi trường dữ liệu
   * Chạy lệnh `npm run db:seed-all --drop --confirm --org-count 100 --warehouse-count 100 --user-count 100 --seed-superadmin-password 123456aA@` để khởi tạo data mẫu
   * Đăng nhập hệ thống với thông tin `superadmin@example.com/123456aA@`
-
+* Giao diện cần tham khảo Fluent UI của Microsoft để nhỏ gọn, hiển thị được nhiều thông tin
 ---
