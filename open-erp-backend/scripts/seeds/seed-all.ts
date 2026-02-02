@@ -157,7 +157,7 @@ async function seedAll() {
   console.log(`  Drop existing data: ${opts.drop ? 'YES' : 'NO'}`);
   console.log(`  Dry run: ${opts.dryRun ? 'YES' : 'NO'}`);
   console.log(`  Organization count: ${opts.orgCount || 500}`);
-  console.log(`  User count: ${opts.userCount || 1000}`);
+  console.log(`  User count: ${opts.userCount || 100}`);
   console.log(`  Warehouse count: ${opts.warehouseCount || 20}`);
   console.log('');
 
@@ -275,7 +275,7 @@ async function seedAll() {
       const stats = await seedUsers({
         drop: opts.drop,
         dryRun: opts.dryRun,
-        count: opts.userCount || 10000,
+        count: opts.userCount || 100,
         batchSize: 500,
         seedSuperadminPassword: opts.seedSuperadminPassword,
         domain: 'example.com',
