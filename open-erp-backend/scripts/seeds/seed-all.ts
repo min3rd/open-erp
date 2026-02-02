@@ -63,7 +63,59 @@ interface Options {
 
 function parseArgs(): Options {
   const opts: Options = {};
-  const args = process.argv.slice(2);
+  // Collect args from multiple sources to be robust for different npm invocations:
+  // 1) process.argv when running directly with ts-node
+  // 2) npm injected args via npm_config_argv (when callers use wrong dash placement)
+  // 3) individual npm_config_* env flags (npm converts --flag to npm_config_flag)
+  const argvFromProcess = process.argv.slice(2);
+
+  const argvFromNpm: string[] = [];
+  if (process.env.npm_config_argv) {
+    try {
+      const parsed = JSON.parse(process.env.npm_config_argv as string);
+      if (parsed && Array.isArray(parsed.original)) {
+        // original often looks like ["run","db:seed:all","--","--drop"]
+        // remove 'run' and the lifecycle event name and the literal '--'
+        const lifecycle = process.env.npm_lifecycle_event;
+        parsed.original.forEach((item: string) => {
+          if (item === 'run' || item === lifecycle || item === '--') return;
+          argvFromNpm.push(item);
+        });
+      }
+    } catch (e) {
+      // ignore parse errors
+    }
+  }
+
+  // Check for npm_config_<flag> env vars for flags passed without --
+  const possibleFlags = [
+    'drop',
+    'confirm',
+    'dry-run',
+    'skip-provinces',
+    'skip-wards',
+    'skip-roles',
+    'skip-organizations',
+    'skip-users',
+    'skip-warehouse-types',
+    'skip-warehouses',
+    'skip-relations',
+    'skip-navigation',
+    'skip-product-types',
+    'skip-product-categories',
+  ];
+  const argvFromEnvFlags: string[] = [];
+  possibleFlags.forEach((flag) => {
+    // npm converts dashes to underscores in env var names
+    const envName = `npm_config_${flag.replace(/-/g, '_')}`;
+    if (process.env[envName]) {
+      argvFromEnvFlags.push(`--${flag}`);
+    }
+  });
+
+  // Combine and dedupe, giving precedence to explicit process.argv
+  const combined = [...argvFromProcess, ...argvFromNpm, ...argvFromEnvFlags];
+  const args = Array.from(new Set(combined));
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
