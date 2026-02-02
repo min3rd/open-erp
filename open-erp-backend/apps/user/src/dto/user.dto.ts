@@ -8,7 +8,67 @@ import {
   Matches,
   IsObject,
   IsBoolean,
+  IsArray,
+  IsDateString,
+  ValidateNested,
+  IsNumber,
+  ArrayMaxSize,
+  MaxDate,
+  ValidateIf,
+  IsNotEmpty,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class AddressDto {
+  @ApiPropertyOptional({ description: 'Street address', example: '123 Main St' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(200)
+  street?: string;
+
+  @ApiPropertyOptional({ description: 'District', example: 'Downtown' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  district?: string;
+
+  @ApiPropertyOptional({ description: 'City', example: 'New York' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  city?: string;
+
+  @ApiPropertyOptional({ description: 'Province/State', example: 'NY' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  province?: string;
+
+  @ApiPropertyOptional({ description: 'Postal code', example: '10001' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(20)
+  postalCode?: string;
+}
+
+export class EducationDto {
+  @ApiPropertyOptional({ description: 'Degree', example: 'Bachelor of Science' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(200)
+  degree?: string;
+
+  @ApiPropertyOptional({ description: 'Institution', example: 'MIT' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(200)
+  institution?: string;
+
+  @ApiPropertyOptional({ description: 'Year of graduation', example: 2020 })
+  @IsNumber()
+  @IsOptional()
+  year?: number;
+}
 
 export class CreateUserDto {
   @ApiProperty({ description: 'Username', example: 'john_doe' })
@@ -62,6 +122,42 @@ export class CreateUserDto {
   @IsObject()
   @IsOptional()
   metadata?: Record<string, any>;
+
+  @ApiPropertyOptional({ description: 'Address', type: AddressDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AddressDto)
+  address?: AddressDto;
+
+  @ApiPropertyOptional({ description: 'Date of birth (YYYY-MM-DD)', example: '1990-01-15' })
+  @IsOptional()
+  @IsDateString()
+  @MaxDate(new Date(), { message: 'Date of birth cannot be in the future' })
+  dateOfBirth?: string;
+
+  @ApiPropertyOptional({ description: 'Education history', type: [EducationDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EducationDto)
+  @ArrayMaxSize(20, { message: 'Maximum 20 education entries allowed' })
+  education?: EducationDto[];
+
+  @ApiPropertyOptional({ description: 'Skills', type: [String], example: ['JavaScript', 'TypeScript'] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @MaxLength(100, { each: true, message: 'Each skill must be max 100 characters' })
+  @ArrayMaxSize(50, { message: 'Maximum 50 skills allowed' })
+  skills?: string[];
+
+  @ApiPropertyOptional({ description: 'Hobbies', type: [String], example: ['Reading', 'Swimming'] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @MaxLength(100, { each: true, message: 'Each hobby must be max 100 characters' })
+  @ArrayMaxSize(50, { message: 'Maximum 50 hobbies allowed' })
+  hobbies?: string[];
 }
 
 export class UpdateUserDto {
@@ -115,6 +211,42 @@ export class UpdateUserDto {
   @IsObject()
   @IsOptional()
   metadata?: Record<string, any>;
+
+  @ApiPropertyOptional({ description: 'Address', type: AddressDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AddressDto)
+  address?: AddressDto;
+
+  @ApiPropertyOptional({ description: 'Date of birth (YYYY-MM-DD)', example: '1990-01-15' })
+  @IsOptional()
+  @IsDateString()
+  @MaxDate(new Date(), { message: 'Date of birth cannot be in the future' })
+  dateOfBirth?: string;
+
+  @ApiPropertyOptional({ description: 'Education history', type: [EducationDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EducationDto)
+  @ArrayMaxSize(20, { message: 'Maximum 20 education entries allowed' })
+  education?: EducationDto[];
+
+  @ApiPropertyOptional({ description: 'Skills', type: [String], example: ['JavaScript', 'TypeScript'] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @MaxLength(100, { each: true, message: 'Each skill must be max 100 characters' })
+  @ArrayMaxSize(50, { message: 'Maximum 50 skills allowed' })
+  skills?: string[];
+
+  @ApiPropertyOptional({ description: 'Hobbies', type: [String], example: ['Reading', 'Swimming'] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @MaxLength(100, { each: true, message: 'Each hobby must be max 100 characters' })
+  @ArrayMaxSize(50, { message: 'Maximum 50 hobbies allowed' })
+  hobbies?: string[];
 }
 
 export class ListUsersQueryDto {
@@ -205,6 +337,21 @@ export class UserResponseDto {
 
   @ApiPropertyOptional()
   metadata?: Record<string, any>;
+
+  @ApiPropertyOptional({ type: AddressDto })
+  address?: AddressDto;
+
+  @ApiPropertyOptional()
+  dateOfBirth?: Date;
+
+  @ApiPropertyOptional({ type: [EducationDto] })
+  education?: EducationDto[];
+
+  @ApiPropertyOptional({ type: [String] })
+  skills?: string[];
+
+  @ApiPropertyOptional({ type: [String] })
+  hobbies?: string[];
 
   @ApiProperty()
   createdAt: Date;
