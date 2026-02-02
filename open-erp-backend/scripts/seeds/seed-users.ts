@@ -32,11 +32,9 @@ import {
   connect,
   connection,
   Model,
-  Schema as MongooseSchema,
-  Types,
 } from 'mongoose';
 import { faker } from '@faker-js/faker';
-import { UserSchema, User, RoleAssignment } from '@shared/schemas/user.schema';
+import { UserSchema, User } from '@shared/schemas/user.schema';
 import { Role, RoleSchema } from '@shared/schemas/role.schema';
 import {
   OrganizationSchema,
