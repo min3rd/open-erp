@@ -13,11 +13,11 @@ import {
   ValidateNested,
   IsNumber,
   ArrayMaxSize,
-  MaxDate,
   ValidateIf,
   IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsPastDate } from './validators/is-past-date.validator';
 
 export class AddressDto {
   @ApiPropertyOptional({ description: 'Street address', example: '123 Main St' })
@@ -132,7 +132,7 @@ export class CreateUserDto {
   @ApiPropertyOptional({ description: 'Date of birth (YYYY-MM-DD)', example: '1990-01-15' })
   @IsOptional()
   @IsDateString()
-  @MaxDate(new Date(), { message: 'Date of birth cannot be in the future' })
+  @IsPastDate({ message: 'Date of birth cannot be in the future' })
   dateOfBirth?: string;
 
   @ApiPropertyOptional({ description: 'Education history', type: [EducationDto] })
@@ -221,7 +221,7 @@ export class UpdateUserDto {
   @ApiPropertyOptional({ description: 'Date of birth (YYYY-MM-DD)', example: '1990-01-15' })
   @IsOptional()
   @IsDateString()
-  @MaxDate(new Date(), { message: 'Date of birth cannot be in the future' })
+  @IsPastDate({ message: 'Date of birth cannot be in the future' })
   dateOfBirth?: string;
 
   @ApiPropertyOptional({ description: 'Education history', type: [EducationDto] })
