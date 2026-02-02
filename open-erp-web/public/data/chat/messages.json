@@ -1,0 +1,50 @@
+[
+  {
+    "id": "msg_1",
+    "conversationId": "conv_1",
+    "senderId": "user_2",
+    "content": "Chào Alice! Sáng mai họp lúc 9h nhé.",
+    "contentType": "text",
+    "status": "delivered",
+    "createdAt": "2026-01-04T08:30:00.000Z",
+    "updatedAt": "2026-01-04T08:30:00.000Z"
+  },
+  {
+    "id": "msg_2",
+    "conversationId": "conv_1",
+    "senderId": "user_1",
+    "content": "Ok, mình sẽ chuẩn bị tài liệu.",
+    "contentType": "text",
+    "status": "read",
+    "createdAt": "2026-01-04T08:35:00.000Z"
+  },
+  {
+    "id": "msg_3",
+    "conversationId": "conv_2",
+    "senderId": "user_3",
+    "content": "Đính kèm báo cáo Q4, mọi người check giúp.",
+    "contentType": "text",
+    "attachments": [],
+    "status": "sent",
+    "createdAt": "2026-01-03T14:20:00.000Z"
+  },
+  {
+    "id": "msg_4",
+    "conversationId": "conv_2",
+    "senderId": "user_2",
+    "content": "Ảnh mặt bằng mới.",
+    "contentType": "image",
+    "attachments": [],
+    "status": "sent",
+    "createdAt": "2026-01-03T14:22:00.000Z"
+  },
+  {
+    "id": "msg_5",
+    "conversationId": "conv_3",
+    "senderId": "user_1",
+    "content": "Đang gửi...",
+    "contentType": "text",
+    "status": "sending",
+    "createdAt": "2026-01-05T09:00:00.000Z"
+  }
+]

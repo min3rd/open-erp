@@ -1,0 +1,167 @@
+<div class="min-h-screen flex" id="login-container">
+  <!-- Left Panel - Background Image and Logo (Desktop Only) -->
+  <div
+    id="login-left-panel"
+    class="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-indigo-600 to-purple-700 items-center justify-center p-12"
+  >
+    <div class="absolute inset-0 overflow-hidden" id="login-background-wrapper">
+      <img
+        ngSrc="/images/auth-background.svg"
+        alt=""
+        fill
+        priority
+        class="object-cover opacity-20"
+      />
+    </div>
+    <div class="relative z-10 text-center" id="login-branding">
+      <img
+        ngSrc="/images/logo.svg"
+        alt="Open ERP Logo"
+        width="200"
+        height="80"
+        priority
+        class="mx-auto mb-8"
+      />
+      <h1 class="text-4xl font-bold text-white mb-4" id="login-title-desktop">
+        {{ 'login.title' | transloco }}
+      </h1>
+      <p class="text-xl text-white/90" id="login-subtitle-desktop">{{ 'login.subtitle' | transloco }}</p>
+    </div>
+  </div>
+
+  <!-- Right Panel - Login Form -->
+  <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50" id="login-right-panel">
+    <div class="w-full max-w-md" id="login-form-container">
+      <!-- Mobile Logo -->
+      <div class="lg:hidden text-center mb-8" id="login-mobile-header">
+        <img
+          ngSrc="/images/logo.svg"
+          alt="Open ERP Logo"
+          width="160"
+          height="64"
+          priority
+          class="mx-auto mb-4"
+        />
+        <h1 class="text-3xl font-bold text-gray-900 mb-2" id="login-title-mobile">
+          {{ 'login.title' | transloco }}
+        </h1>
+        <p class="text-lg text-gray-600" id="login-subtitle-mobile">{{ 'login.subtitle' | transloco }}</p>
+      </div>
+
+      <!-- Login Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate id="login-form">
+        <!-- Username/Email Field -->
+        <div class="space-y-2">
+          <label
+            for="login-username"
+            class="block text-sm font-medium text-gray-700"
+            [attr.aria-required]="true"
+          >
+            {{ 'login.form.username.label' | transloco }}
+          </label>
+          <input
+            pInputText
+            id="login-username"
+            type="text"
+            formControlName="email"
+            [placeholder]="'login.form.username.placeholder' | transloco"
+            autocomplete="username"
+            class="w-full"
+            [class.ng-invalid]="
+              loginForm.get('username')?.invalid && loginForm.get('username')?.touched
+            "
+            [class.ng-dirty]="loginForm.get('username')?.touched"
+            [attr.aria-invalid]="
+              loginForm.get('username')?.invalid && loginForm.get('username')?.touched
+            "
+            [attr.aria-describedby]="getFieldError('email') ? 'login-username-error' : null"
+          />
+          @if (getFieldError('email'); as errorKey) {
+          <small id="login-username-error" class="text-red-600 text-sm" role="alert">
+            {{ errorKey | transloco }}
+          </small>
+          }
+        </div>
+
+        <!-- Password Field -->
+        <div class="space-y-2">
+          <label
+            for="login-password"
+            class="block text-sm font-medium text-gray-700"
+            [attr.aria-required]="true"
+          >
+            {{ 'login.form.password.label' | transloco }}
+          </label>
+          <p-password
+            id="login-password"
+            formControlName="password"
+            [placeholder]="'login.form.password.placeholder' | transloco"
+            [toggleMask]="true"
+            [feedback]="false"
+            autocomplete="current-password"
+            class="w-full"
+            inputStyleClass="w-full"
+            [attr.aria-invalid]="
+              loginForm.get('password')?.invalid && loginForm.get('password')?.touched
+            "
+            [attr.aria-describedby]="getFieldError('password') ? 'login-password-error' : null"
+          />
+          @if (getFieldError('password'); as errorKey) {
+          <small id="login-password-error" class="text-red-600 text-sm" role="alert">
+            {{ errorKey | transloco }}
+          </small>
+          }
+        </div>
+
+        <!-- Forgot Password Link -->
+        <div class="flex justify-end" id="login-forgot-password-wrapper">
+          <button
+            type="button"
+            id="login-forgot-password-button"
+            (click)="navigateToForgotPassword()"
+            class="text-sm text-indigo-600 hover:text-indigo-700 underline focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded"
+            [attr.aria-label]="'login.buttons.forgotPassword' | transloco"
+          >
+            {{ 'login.buttons.forgotPassword' | transloco }}
+          </button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col space-y-2 text-center" id="login-actions">
+          <p-button
+            type="submit"
+            id="login-submit-button"
+            [label]="'login.buttons.login' | transloco"
+            [disabled]="!loginForm.valid || isSubmitting()"
+            [loading]="isSubmitting()"
+            styleClass="w-full"
+            severity="primary"
+            [attr.aria-busy]="isSubmitting()"
+          />
+          <p-button
+            type="button"
+            id="login-create-account-button"
+            [label]="'login.buttons.createAccount' | transloco"
+            (onClick)="navigateToRegister()"
+            styleClass="w-full"
+            severity="secondary"
+          />
+        </div>
+      </form>
+
+      <!-- Footer -->
+      <footer class="mt-8 text-center" id="login-footer">
+        <a
+          href="https://github.com/min3rd/open-erp"
+          target="_blank"
+          rel="noopener noreferrer"
+          id="login-github-link"
+          class="text-sm text-gray-600 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded"
+          [attr.aria-label]="'login.footer.githubLink' | transloco"
+        >
+          {{ 'login.footer.githubLink' | transloco }}
+        </a>
+      </footer>
+    </div>
+  </div>
+</div>

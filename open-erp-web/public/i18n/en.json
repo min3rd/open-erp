@@ -1,0 +1,2196 @@
+{
+  "register": {
+    "title": "Create Account",
+    "subtitle": "Join us to get started",
+    "form": {
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter your email",
+        "errors": {
+          "required": "Email is required",
+          "email": "Please enter a valid email address"
+        }
+      },
+      "fullName": {
+        "label": "Full Name",
+        "placeholder": "Enter your full name",
+        "errors": {
+          "required": "Full name is required",
+          "minlength": "Full name must be at least 16 characters"
+        }
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Enter your password",
+        "errors": {
+          "required": "Password is required",
+          "minlength": "Password must be at least 8 characters",
+          "pattern": "Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character"
+        }
+      },
+      "confirmPassword": {
+        "label": "Confirm Password",
+        "placeholder": "Re-enter your password",
+        "errors": {
+          "required": "Please confirm your password",
+          "mismatch": "Passwords do not match"
+        }
+      },
+      "terms": {
+        "label": "I accept the terms and conditions",
+        "errors": {
+          "required": "You must accept the terms and conditions"
+        }
+      }
+    },
+    "buttons": {
+      "register": "Register",
+      "backToLogin": "Back to Login",
+      "viewTerms": "View Terms"
+    },
+    "footer": {
+      "githubLink": "Visit our GitHub repository"
+    },
+    "termsDialog": {
+      "title": "Terms and Conditions",
+      "content": "Welcome to Open ERP. By using this service, you agree to the following terms:\n\n1. Account Usage: You are responsible for maintaining the security of your account.\n\n2. Data Privacy: We respect your privacy and protect your personal information according to applicable laws.\n\n3. Service Usage: You agree to use this service in compliance with all applicable laws and regulations.\n\n4. Intellectual Property: All content and materials available on this service are protected by intellectual property rights.\n\n5. Limitation of Liability: The service is provided 'as is' without warranties of any kind.\n\n6. Changes to Terms: We reserve the right to modify these terms at any time.\n\nFor full terms and conditions, please visit our website.",
+      "closeButton": "Close"
+    }
+  },
+  "login": {
+    "title": "Welcome Back",
+    "subtitle": "Sign in to your account",
+    "form": {
+      "username": {
+        "label": "Email or Username",
+        "placeholder": "Enter your email or username",
+        "errors": {
+          "required": "Email or username is required"
+        }
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Enter your password",
+        "errors": {
+          "required": "Password is required",
+          "minlength": "Password must be at least 8 characters"
+        }
+      }
+    },
+    "buttons": {
+      "login": "Login",
+      "createAccount": "Create Account",
+      "forgotPassword": "Forgot Password?"
+    },
+    "messages": {
+      "loginSuccess": "Login successful! Redirecting...",
+      "loginError": "Login failed. Please check your credentials and try again."
+    },
+    "footer": {
+      "githubLink": "Visit our GitHub repository"
+    }
+  },
+  "verifyAccount": {
+    "title": "Verify Your Email",
+    "subtitle": "Enter the verification code sent to your email",
+    "form": {
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter your email",
+        "errors": {
+          "required": "Email is required",
+          "email": "Please enter a valid email address"
+        }
+      },
+      "verificationCode": {
+        "label": "Verification Code",
+        "placeholder": "Enter 6-digit code",
+        "errors": {
+          "required": "Verification code is required",
+          "minlength": "Code must be at least 6 characters",
+          "pattern": "Please enter a valid verification code"
+        }
+      }
+    },
+    "buttons": {
+      "verify": "Verify Email",
+      "resendCode": "Resend Code",
+      "backToLogin": "Back to Login"
+    },
+    "messages": {
+      "verificationSuccess": "Email verified successfully! Redirecting to login...",
+      "verificationError": "Verification failed. Please check your code and try again.",
+      "resendSuccess": "Verification code sent! Please check your email.",
+      "resendError": "Failed to resend code. Please try again later.",
+      "resendCooldown": "Please wait {{seconds}} seconds before requesting a new code"
+    },
+    "footer": {
+      "githubLink": "Visit our GitHub repository"
+    }
+  },
+  "forgotPassword": {
+    "title": "Forgot Password",
+    "subtitle": "Reset your account password",
+    "form": {
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter your email address",
+        "errors": {
+          "required": "Email is required",
+          "email": "Please enter a valid email address"
+        }
+      }
+    },
+    "info": "Enter the email address associated with your account and we'll send you a link to reset your password.",
+    "checkEmail": "Please check your email inbox and spam folder for the password reset link.",
+    "buttons": {
+      "submit": "Send Reset Link",
+      "resend": "Resend Link",
+      "backToLogin": "Back to Login",
+      "cooldown": "Wait {{seconds}} seconds"
+    },
+    "messages": {
+      "emailSent": "If an account exists with this email, a password reset link has been sent."
+    },
+    "footer": {
+      "githubLink": "Visit our GitHub repository"
+    }
+  },
+  "resetPassword": {
+    "title": "Reset Password",
+    "subtitle": "Create a new password",
+    "form": {
+      "password": {
+        "label": "New Password",
+        "placeholder": "Enter your new password",
+        "strength": {
+          "title": "Password Strength",
+          "requirements": "Password must contain:",
+          "minLength": "At least 8 characters",
+          "uppercase": "At least 1 uppercase letter (A-Z)",
+          "lowercase": "At least 1 lowercase letter (a-z)",
+          "number": "At least 1 number (0-9)",
+          "special": "At least 1 special character (!@#$%^&*...)"
+        },
+        "errors": {
+          "required": "Password is required",
+          "minlength": "Password must be at least 8 characters",
+          "pattern": "Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character"
+        }
+      },
+      "confirmPassword": {
+        "label": "Confirm New Password",
+        "placeholder": "Re-enter your new password",
+        "errors": {
+          "required": "Please confirm your password",
+          "mismatch": "Passwords do not match"
+        }
+      }
+    },
+    "requestNew": "You can request a new password reset link.",
+    "buttons": {
+      "submit": "Reset Password",
+      "backToLogin": "Back to Login",
+      "requestNew": "Request New Link"
+    },
+    "messages": {
+      "resetSuccess": "Password reset successfully! Redirecting to login...",
+      "resetError": "Failed to reset password. Please try again.",
+      "invalidToken": "Invalid or missing reset token.",
+      "tokenExpired": "This password reset link has expired or is invalid."
+    },
+    "footer": {
+      "githubLink": "Visit our GitHub repository"
+    }
+  },
+  "common": {
+    "title": "Open ERP",
+    "appShortName": "ERP"
+  },
+  "auth": {
+    "logout": "Logout"
+  },
+  "navigation": {
+    "main": "Main navigation",
+    "menu": "Navigation menu",
+    "toggle": "Toggle navigation menu"
+  },
+  "quickChat": {
+    "title": "Messages",
+    "panel": "Quick chat",
+    "toggle": "Toggle quick chat",
+    "newConversation": "New conversation",
+    "openConversation": "Open conversation with",
+    "backToConversations": "Back to conversations",
+    "closeConversation": "Close conversation",
+    "conversationOptions": "Conversation options",
+    "attachFile": "Attach file",
+    "typeMessage": "Type a message...",
+    "messageInput": "Message input",
+    "sendMessage": "Send message",
+    "participants": "participants",
+    "noMessages": "No messages yet"
+  },
+  "organization": {
+    "title": "Organization",
+    "navigation": {
+      "register": "Register Organization",
+      "detail": "View Information",
+      "toggleNavMode": "Toggle navigation mode",
+      "toggleMenu": "Toggle menu",
+      "noItems": "No navigation items available"
+    },
+    "tabs": {
+      "register": "Register",
+      "info": "Information"
+    },
+    "detail": {
+      "title": "Organization Details",
+      "loading": "Loading organization details...",
+      "notFound": "Organization not found",
+      "tabs": {
+        "overview": "Overview",
+        "members": "Members",
+        "relations": "Relations & Structure",
+        "activity": "Activity Log",
+        "documents": "Documents"
+      },
+      "info": {
+        "basicInfo": "Basic Information",
+        "taxId": "Tax ID",
+        "name": "Business Name",
+        "internationalName": "International Name",
+        "address": "Headquarters Address",
+        "legalRepresentative": "Legal Representative",
+        "contactPhone": "Contact Phone",
+        "contactEmail": "Contact Email",
+        "foundedDate": "Founded Date",
+        "status": "Status",
+        "businessActivities": "Business Activities",
+        "createdAt": "Created At",
+        "updatedAt": "Last Updated",
+        "copy": "Copy to clipboard",
+        "copied": "Copied!",
+        "noActivities": "No business activities listed"
+      },
+      "actions": {
+        "edit": "Edit",
+        "invite": "Invite Member",
+        "newSubsidiary": "New Subsidiary",
+        "save": "Save",
+        "cancel": "Cancel",
+        "close": "Close"
+      },
+      "members": {
+        "title": "Organization Members",
+        "empty": "No members found",
+        "table": {
+          "name": "Name",
+          "email": "Email",
+          "role": "Role",
+          "status": "Status",
+          "joinedAt": "Joined",
+          "actions": "Actions"
+        },
+        "status": {
+          "active": "Active",
+          "pending": "Pending",
+          "inactive": "Inactive"
+        },
+        "actions": {
+          "remove": "Remove",
+          "promote": "Promote"
+        },
+        "invite": {
+          "title": "Invite Member",
+          "email": "Email Address",
+          "emailPlaceholder": "Enter email address",
+          "role": "Role",
+          "rolePlaceholder": "Select role",
+          "submit": "Send Invitation",
+          "success": "Invitation sent successfully",
+          "error": "Failed to send invitation"
+        }
+      },
+      "relations": {
+        "title": "Organization Structure",
+        "empty": "No relations found",
+        "parent": "Parent Organization",
+        "children": "Subsidiaries",
+        "partners": "Partners",
+        "type": {
+          "subsidiary": "Subsidiary",
+          "parent": "Parent",
+          "partner": "Partner",
+          "joint_venture": "Joint Venture"
+        },
+        "sharePercentage": "Share",
+        "viewDetails": "View Details"
+      },
+      "activity": {
+        "title": "Activity Log",
+        "empty": "No activity recorded",
+        "loadMore": "Load More"
+      },
+      "edit": {
+        "title": "Edit Organization",
+        "success": "Organization updated successfully",
+        "error": "Failed to update organization"
+      }
+    }
+  },
+  "organizationSwitcher": {
+    "label": "Current Organization",
+    "placeholder": "Select organization",
+    "ariaLabel": "Select current organization",
+    "taxId": "Tax ID",
+    "loading": "Loading organizations...",
+    "noOrganizations": "No organizations available",
+    "search": "Search organizations...",
+    "createNew": "Register Organization",
+    "selectOrganization": "Select an organization",
+    "currentOrganization": "Current organization"
+  },
+  "languageSelector": {
+    "label": "Language",
+    "placeholder": "Select language",
+    "ariaLabel": "Select language",
+    "currentLanguage": "Current language",
+    "changeLanguage": "Change language",
+    "allLanguages": "All Languages",
+    "closeDialog": "Close",
+    "searchLanguages": "Search languages...",
+    "selectLanguage": "Select a language"
+  },
+  "verticalNav": {
+    "registerOrganization": "Register Organization",
+    "registerOrganizationShort": "Register",
+    "resizeHandle": "Drag to resize navigation",
+    "companies": "Companies"
+  },
+  "registerBusiness": {
+    "title": "Business Registration",
+    "subtitle": "Register your business with Open ERP",
+    "taxLookup": {
+      "found": "Business Information Found",
+      "autoFilled": "Information auto-filled for {{name}}",
+      "notFound": "Business Not Found",
+      "manualEntry": "Please enter business information manually",
+      "name": "Business Name",
+      "internationalName": "International Name",
+      "address": "Address",
+      "status": "Status",
+      "clear": "Clear lookup data"
+    },
+    "form": {
+      "taxId": {
+        "label": "Tax ID (Mã số thuế)",
+        "placeholder": "Enter 10-13 digit tax ID",
+        "errors": {
+          "required": "Tax ID is required",
+          "pattern": "Tax ID must be 10-13 digits"
+        }
+      },
+      "name": {
+        "label": "Business Name (Vietnamese)",
+        "placeholder": "Enter business name in Vietnamese",
+        "errors": {
+          "required": "Business name is required",
+          "minlength": "Business name must be at least 3 characters"
+        }
+      },
+      "internationalName": {
+        "label": "International Name (English)",
+        "placeholder": "Enter business name in English",
+        "errors": {
+          "required": "International name is required",
+          "minlength": "International name must be at least 3 characters"
+        }
+      },
+      "headquartersAddress": {
+        "label": "Headquarters Address",
+        "placeholder": "Enter headquarters address",
+        "errors": {
+          "required": "Headquarters address is required",
+          "minlength": "Address must be at least 10 characters"
+        }
+      },
+      "legalRepresentative": {
+        "label": "Legal Representative",
+        "placeholder": "Enter full name of legal representative",
+        "errors": {
+          "required": "Legal representative name is required",
+          "minlength": "Name must be at least 3 characters"
+        }
+      },
+      "contactPhone": {
+        "label": "Contact Phone",
+        "placeholder": "Enter contact phone number",
+        "errors": {
+          "required": "Contact phone is required",
+          "invalidPhone": "Please enter a valid Vietnamese phone number"
+        }
+      },
+      "contactEmail": {
+        "label": "Contact Email",
+        "placeholder": "Enter contact email address",
+        "errors": {
+          "required": "Contact email is required",
+          "email": "Please enter a valid email address"
+        }
+      },
+      "foundedDate": {
+        "label": "Founded Date",
+        "placeholder": "Select founded date",
+        "errors": {
+          "required": "Founded date is required"
+        }
+      },
+      "businessActivities": {
+        "label": "Business Activities",
+        "optional": "Optional",
+        "placeholder": "Press Enter to add business activity",
+        "help": "Enter business activities and press Enter after each one"
+      },
+      "type": {
+        "label": "Organization Type",
+        "placeholder": "Select organization type",
+        "errors": {
+          "required": "Organization type is required"
+        }
+      },
+      "status": {
+        "label": "Status",
+        "placeholder": "Select status"
+      },
+      "country": {
+        "label": "Country",
+        "placeholder": "Search and select country",
+        "errors": {
+          "required": "Country is required"
+        }
+      },
+      "description": {
+        "label": "Description",
+        "optional": "Optional",
+        "placeholder": "Enter organization description"
+      },
+      "website": {
+        "label": "Website",
+        "optional": "Optional",
+        "placeholder": "https://example.com",
+        "help": "Enter a valid URL starting with http:// or https://",
+        "errors": {
+          "invalidWebsite": "Please enter a valid URL (must start with http:// or https://)"
+        }
+      }
+    },
+    "buttons": {
+      "register": "Register Business",
+      "backToLogin": "Back to Login"
+    },
+    "messages": {
+      "success": "Registration Successful",
+      "successDetail": "Your business has been registered successfully!",
+      "error": "Registration Failed",
+      "errorDetail": "Failed to register business. Please try again."
+    },
+    "footer": {
+      "helpText": "Need help? Contact our support team"
+    }
+  },
+  "management": {
+    "title": "Management",
+    "navigation": {
+      "user": "User Management",
+      "toggleNavMode": "Toggle navigation mode",
+      "toggleMenu": "Toggle menu",
+      "navigation": "Navigation Management",
+      "noItems": "No navigation items available"
+    },
+    "tabs": {
+      "user": "Users"
+    }
+  },
+  "userList": {
+    "scopeToggle": {
+      "label": "Select user scope",
+      "global": "Global",
+      "organization": "Organization"
+    },
+    "search": {
+      "label": "Search users",
+      "placeholder": "Search by name, email, or phone",
+      "openSearch": "Open search",
+      "closeSearch": "Close search"
+    },
+    "addButton": {
+      "label": "Add new user",
+      "tooltip": "Add new user"
+    },
+    "actionsButton": {
+      "label": "Open actions menu"
+    },
+    "refreshButton": {
+      "label": "Refresh user list",
+      "tooltip": "Refresh"
+    },
+    "filterButton": {
+      "label": "Filter users",
+      "tooltip": "Filter"
+    },
+    "exportButton": {
+      "label": "Export users",
+      "tooltip": "Export"
+    },
+    "actions": {
+      "downloadCSV": "Download CSV",
+      "importUsers": "Import Users",
+      "blockSelected": "Block Selected",
+      "revokeLoginSessions": "Revoke Login Sessions"
+    },
+    "table": {
+      "selectAll": "Select all users on this page",
+      "selectUser": "Select",
+      "avatar": "Avatar",
+      "fullName": "Full Name",
+      "email": "Email",
+      "phone": "Phone",
+      "status": "Status",
+      "lastLogin": "Last Login",
+      "actions": "Actions",
+      "viewDetails": "View details",
+      "editUser": "Edit user",
+      "view": "View",
+      "edit": "Edit"
+    },
+    "mobileList": {
+      "itemActions": "User actions",
+      "invite": "Invite",
+      "disable": "Disable"
+    },
+    "pagination": {
+      "report": "Showing {first} to {last} of {totalRecords} users",
+      "itemsPerPage": "Items per page:",
+      "previous": "Previous page",
+      "next": "Next page",
+      "showing": "{first}–{last} of {total}"
+    },
+    "messages": {
+      "loading": "Loading users...",
+      "loaded": "Loaded {{count}} users",
+      "usersLoaded": "{{count}} users loaded",
+      "noResults": "No users found matching \"{{query}}\"",
+      "noUsers": "No users available",
+      "error": "Error",
+      "success": "Success",
+      "loadFailed": "Failed to load users",
+      "errorLoading": "Error loading users",
+      "exportSuccess": "Users exported successfully",
+      "exportFailed": "Failed to export users",
+      "notImplemented": "Not Implemented",
+      "importSoon": "User import functionality will be implemented soon",
+      "blockSuccess": "{{count}} user(s) blocked successfully",
+      "blockFailed": "Failed to block users",
+      "revokeSuccess": "Login sessions revoked for {{count}} user(s)",
+      "revokeFailed": "Failed to revoke login sessions"
+    },
+    "contextMenu": {
+      "viewDetails": "View Details",
+      "edit": "Edit",
+      "block": "Block User",
+      "revokeSession": "Revoke Session",
+      "sendNotification": "Send Notification",
+      "blockSuccess": "{{name}} has been blocked successfully",
+      "revokeSuccess": "Login session revoked for {{name}}",
+      "sendNotificationSoon": "Send notification functionality will be implemented soon"
+    }
+  },
+  "userDetail": {
+    "drawer": {
+      "label": "User Details",
+      "title": "User Details"
+    },
+    "tabs": {
+      "general": "General",
+      "roles": "Roles & Memberships",
+      "activity": "Activity Log",
+      "password": "Reset Password"
+    },
+    "general": {
+      "profile": "Profile Information",
+      "email": "Email",
+      "username": "Username",
+      "phone": "Phone",
+      "lastLogin": "Last Login",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "never": "Never",
+      "additionalInfo": "Additional Information",
+      "roles": "Roles",
+      "permissions": "Permissions",
+      "noData": "No additional data available"
+    },
+    "roles": {
+      "title": "Organization Memberships",
+      "organization": "Organization",
+      "role": "Role",
+      "status": "Status",
+      "joinedAt": "Joined",
+      "noMemberships": "No organization memberships found"
+    },
+    "rolesAssignment": {
+      "title": "Roles & Membership Management",
+      "scopeSelector": {
+        "global": "Global",
+        "organization": "Organization",
+        "ariaLabel": "Select scope for viewing roles and permissions"
+      },
+      "globalScope": {
+        "title": "Global Scope",
+        "subtitle": "System-wide roles and organization memberships",
+        "rolesPermissions": {
+          "title": "Global Roles & Permissions",
+          "noRoles": "No global roles assigned",
+          "noPermissions": "No global permissions assigned",
+          "roles": "Roles",
+          "permissions": "Permissions",
+          "grantRole": "Grant Global Role",
+          "grantPermission": "Grant Permission"
+        },
+        "organizationMemberships": {
+          "title": "Organization Memberships",
+          "subtitle": "All organizations this user belongs to",
+          "noMemberships": "User is not a member of any organization",
+          "table": {
+            "organization": "Organization",
+            "code": "Code",
+            "roles": "Roles",
+            "joinedAt": "Joined Date",
+            "actions": "Actions"
+          },
+          "actions": {
+            "manageRoles": "Manage Roles",
+            "viewOrg": "View Organization"
+          }
+        },
+        "restricted": {
+          "title": "Access Restricted",
+          "message": "You do not have permission to view global scope settings. This section requires MANAGE_USER or MANAGE_ORG global permissions."
+        }
+      },
+      "organizationScope": {
+        "title": "Organization Scope",
+        "subtitle": "Roles and permissions for the current organization",
+        "currentOrg": "Current Organization",
+        "rolesPermissions": {
+          "title": "Organization Roles & Permissions",
+          "noRoles": "No roles assigned in this organization",
+          "noPermissions": "No permissions assigned in this organization",
+          "roles": "Roles",
+          "permissions": "Permissions",
+          "grantRole": "Grant Role",
+          "revokeRole": "Revoke Role"
+        },
+        "noOrganization": {
+          "title": "No Organization Selected",
+          "message": "Please select an organization to manage roles and permissions."
+        }
+      },
+      "dialogs": {
+        "grantRoles": {
+          "title": "Grant Roles",
+          "subtitle": "Assign roles to user",
+          "selectRoles": "Select Roles",
+          "selectRolesPlaceholder": "Choose one or more roles",
+          "cancel": "Cancel",
+          "grant": "Grant Roles",
+          "success": "Roles granted successfully",
+          "error": "Failed to grant roles"
+        },
+        "revokeRoles": {
+          "title": "Revoke Roles",
+          "subtitle": "Remove roles from user",
+          "selectRoles": "Select Roles to Revoke",
+          "cancel": "Cancel",
+          "revoke": "Revoke Roles",
+          "confirm": "Are you sure you want to revoke the selected roles?",
+          "success": "Roles revoked successfully",
+          "error": "Failed to revoke roles"
+        },
+        "manageOrgRoles": {
+          "title": "Manage Organization Roles",
+          "subtitle": "Manage user roles for {{orgName}}",
+          "currentRoles": "Current Roles",
+          "availableRoles": "Available Roles",
+          "cancel": "Cancel",
+          "save": "Save Changes",
+          "success": "Organization roles updated successfully",
+          "error": "Failed to update organization roles"
+        }
+      },
+      "loading": "Loading roles and permissions...",
+      "loadError": "Failed to load roles and permissions",
+      "noData": "No data available"
+    },
+    "activity": {
+      "title": "Activity History",
+      "loadMore": "Load More",
+      "noActivity": "No activity logs found"
+    },
+    "actions": {
+      "edit": "Edit",
+      "close": "Close",
+      "more": "More Actions",
+      "invite": "Invite",
+      "sendInvitation": "Send Invitation",
+      "resetPassword": "Reset Password",
+      "disable": "Disable User",
+      "enable": "Enable User",
+      "impersonate": "Impersonate User"
+    },
+    "messages": {
+      "loading": "Loading user details...",
+      "error": "Error",
+      "success": "Success",
+      "noData": "No user data available",
+      "loadFailed": "Failed to load user details",
+      "invitationSent": "Invitation sent successfully",
+      "passwordReset": "Password reset email sent successfully",
+      "userDisabled": "User has been disabled successfully",
+      "userEnabled": "User has been enabled successfully",
+      "impersonating": "Impersonating User",
+      "impersonatingDetail": "Now impersonating {{name}}"
+    },
+    "resetPassword": {
+      "title": "Password & Security",
+      "resetPasswordSection": {
+        "title": "Reset Password",
+        "method": {
+          "label": "Reset Method",
+          "autoGenerate": "Auto-generate password",
+          "manual": "Set custom password"
+        },
+        "password": {
+          "label": "New Password",
+          "placeholder": "Enter new password",
+          "showPassword": "Show password",
+          "hidePassword": "Hide password",
+          "copyPassword": "Copy password",
+          "passwordCopied": "Password copied to clipboard",
+          "generated": "Generated Password",
+          "strength": {
+            "label": "Password Strength",
+            "weak": "Weak",
+            "medium": "Medium",
+            "strong": "Strong",
+            "veryStrong": "Very Strong"
+          }
+        },
+        "options": {
+          "forceReset": "Force user to change password on next login",
+          "revokeSessions": "Revoke all sessions after reset",
+          "sendEmail": "Send email notification"
+        },
+        "button": "Reset Password",
+        "reason": {
+          "label": "Reason (optional)",
+          "placeholder": "Enter reason for audit log"
+        }
+      },
+      "sessionsSection": {
+        "title": "Login Sessions",
+        "description": "Revoke all active login sessions for this user",
+        "button": "Revoke All Sessions",
+        "options": {
+          "revokeRefreshTokens": "Revoke refresh tokens",
+          "revokeAllDevices": "Revoke all devices"
+        },
+        "reason": {
+          "label": "Reason (optional)",
+          "placeholder": "Enter reason for revoking sessions"
+        }
+      },
+      "accountStatusSection": {
+        "title": "Account Status",
+        "currentStatus": "Current Status",
+        "active": "Active",
+        "blocked": "Blocked",
+        "blockButton": "Block User",
+        "unblockButton": "Unblock User",
+        "blockOptions": {
+          "softBlock": "Soft block (prevent login but keep sessions)",
+          "revokeSessions": "Revoke sessions when blocking",
+          "sendEmail": "Send email notification"
+        },
+        "unblockOptions": {
+          "sendEmail": "Send email notification"
+        },
+        "reason": {
+          "label": "Reason",
+          "labelOptional": "Reason (optional)",
+          "placeholder": "Enter reason for blocking/unblocking",
+          "required": "Reason is required when blocking a user"
+        }
+      },
+      "confirmDialog": {
+        "resetPassword": {
+          "header": "Confirm Password Reset",
+          "message": "Are you sure you want to reset the password for this user?",
+          "messageWithRevoke": "This will reset the password and revoke all active sessions. The user will be logged out from all devices."
+        },
+        "revokeSessions": {
+          "header": "Confirm Revoke Sessions",
+          "message": "Are you sure you want to revoke all sessions for this user? They will be logged out from all devices immediately."
+        },
+        "blockUser": {
+          "header": "Confirm Block User",
+          "message": "Are you sure you want to block this user? They will not be able to log in."
+        },
+        "unblockUser": {
+          "header": "Confirm Unblock User",
+          "message": "Are you sure you want to unblock this user? They will be able to log in again."
+        },
+        "confirm": "Confirm",
+        "cancel": "Cancel"
+      },
+      "messages": {
+        "passwordResetSuccess": "Password reset successfully",
+        "passwordResetError": "Failed to reset password",
+        "passwordCopied": "Password copied to clipboard",
+        "sessionsRevokedSuccess": "All sessions revoked successfully",
+        "sessionsRevokedError": "Failed to revoke sessions",
+        "userBlockedSuccess": "User blocked successfully",
+        "userBlockedError": "Failed to block user",
+        "userUnblockedSuccess": "User unblocked successfully",
+        "userUnblockedError": "Failed to unblock user",
+        "reasonRequired": "Reason is required when blocking a user"
+      },
+      "validation": {
+        "passwordRequired": "Password is required",
+        "passwordMinLength": "Password must be at least 8 characters",
+        "passwordPattern": "Password must contain uppercase, lowercase, number, and special character",
+        "reasonRequired": "Reason is required"
+      }
+    }
+  },
+  "navigationManagement": {
+    "title": "Navigation Management",
+    "subtitle": "Manage application navigation structure",
+    "tabs": {
+      "global": "Global Navigation",
+      "module": "Module Navigation"
+    },
+    "toolbar": {
+      "addItem": "Add Navigation Item",
+      "addItemTooltip": "Create a new navigation item",
+      "refresh": "Refresh",
+      "refreshTooltip": "Reload navigation data",
+      "preview": "Preview",
+      "previewTooltip": "Preview navigation layout",
+      "testPermissions": "Test Permissions",
+      "testPermissionsTooltip": "Preview navigation with specific permissions",
+      "expandAll": "Expand All",
+      "collapseAll": "Collapse All"
+    },
+    "tree": {
+      "noItems": "No navigation items",
+      "noItemsDescription": "Click the add button to create your first navigation item",
+      "loading": "Loading navigation items...",
+      "dragToReorder": "Drag to reorder",
+      "dropHere": "Drop here to move item"
+    },
+    "editor": {
+      "title": {
+        "create": "Create Navigation Item",
+        "edit": "Edit Navigation Item",
+        "view": "Navigation Item Details"
+      },
+      "form": {
+        "id": {
+          "label": "ID",
+          "placeholder": "Auto-generated from label",
+          "help": "Unique identifier (lowercase, kebab-case)",
+          "autoGenerate": "Auto-generate ID",
+          "regenerate": "Regenerate from label",
+          "preview": "Preview: {{id}}",
+          "checking": "Checking availability...",
+          "errors": {
+            "required": "ID is required",
+            "pattern": "ID must contain only lowercase letters, numbers, hyphens, and underscores",
+            "maxlength": "ID must not exceed 128 characters",
+            "duplicate": "This ID already exists. Please choose a different ID"
+          }
+        },
+        "label": {
+          "label": "Label",
+          "placeholder": "Enter display label",
+          "errors": {
+            "required": "Label is required"
+          }
+        },
+        "icon": {
+          "label": "Icon",
+          "placeholder": "e.g., pi pi-home",
+          "help": "PrimeIcons class name"
+        },
+        "subtitle": {
+          "label": "Subtitle",
+          "placeholder": "Optional subtitle"
+        },
+        "routerLink": {
+          "label": "Router Link",
+          "placeholder": "/path/to/route",
+          "help": "Internal application route"
+        },
+        "url": {
+          "label": "External URL",
+          "placeholder": "https://example.com",
+          "help": "External link (overrides routerLink)"
+        },
+        "scope": {
+          "label": "Scope",
+          "global": "Global",
+          "module": "Module"
+        },
+        "moduleKey": {
+          "label": "Module Key",
+          "placeholder": "Select module",
+          "errors": {
+            "required": "Module key is required for module scope"
+          }
+        },
+        "order": {
+          "label": "Order",
+          "placeholder": "0",
+          "help": "Display order (lower numbers appear first)"
+        },
+        "disabled": {
+          "label": "Disabled",
+          "help": "Item will not be clickable"
+        },
+        "visible": {
+          "label": "Visible",
+          "help": "Item will be shown in navigation"
+        },
+        "separator": {
+          "label": "Separator",
+          "help": "Display as a separator line"
+        },
+        "target": {
+          "label": "Target",
+          "placeholder": "_blank, _self, etc.",
+          "help": "Link target attribute"
+        },
+        "badge": {
+          "label": "Badge",
+          "placeholder": "New, 5, etc.",
+          "help": "Badge text or number"
+        },
+        "badgeClass": {
+          "label": "Badge Class",
+          "placeholder": "CSS classes",
+          "help": "Custom CSS classes for badge"
+        },
+        "tooltip": {
+          "label": "Tooltip",
+          "placeholder": "Tooltip text",
+          "help": "Tooltip shown on hover"
+        },
+        "tooltipPosition": {
+          "label": "Tooltip Position",
+          "top": "Top",
+          "bottom": "Bottom",
+          "left": "Left",
+          "right": "Right"
+        },
+        "shortcut": {
+          "label": "Keyboard Shortcut",
+          "placeholder": "Ctrl+S, Alt+N, etc.",
+          "help": "Keyboard shortcut to activate item"
+        },
+        "class": {
+          "label": "CSS Class",
+          "placeholder": "custom-class",
+          "help": "Custom CSS classes"
+        },
+        "command": {
+          "label": "Command",
+          "placeholder": "JavaScript function name",
+          "help": "Command to execute on click"
+        },
+        "permissions": {
+          "label": "Permissions",
+          "include": "Include Permissions",
+          "exclude": "Exclude Permissions",
+          "includePlaceholder": "Enter permissions to include",
+          "excludePlaceholder": "Enter permissions to exclude",
+          "help": "Control visibility based on user permissions"
+        },
+        "meta": {
+          "label": "Metadata",
+          "placeholder": "{ \"key\": \"value\" }",
+          "help": "Additional metadata in JSON format",
+          "errors": {
+            "invalidJson": "Invalid JSON format"
+          }
+        },
+        "parentItem": {
+          "label": "Parent Item",
+          "placeholder": "Select parent (none for root)",
+          "none": "None (Root Level)"
+        }
+      },
+      "buttons": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "close": "Close"
+      },
+      "audit": {
+        "title": "Audit Information",
+        "createdBy": "Created by",
+        "createdAt": "Created at",
+        "updatedBy": "Updated by",
+        "updatedAt": "Updated at"
+      }
+    },
+    "preview": {
+      "title": "Navigation Preview",
+      "mode": {
+        "label": "Preview Mode",
+        "vertical": "Vertical (Sidebar)",
+        "horizontal": "Horizontal (Top Bar)",
+        "compact": "Compact"
+      },
+      "permissions": {
+        "label": "Test with Permissions",
+        "placeholder": "Enter permission names",
+        "help": "Preview how navigation appears to users with specific permissions"
+      },
+      "noItems": "No items to preview"
+    },
+    "contextMenu": {
+      "addChild": "Add Child Item",
+      "edit": "Edit Item",
+      "duplicate": "Duplicate Item",
+      "delete": "Delete Item",
+      "moveUp": "Move Up",
+      "moveDown": "Move Down",
+      "moveTo": "Move To...",
+      "copyId": "Copy ID",
+      "viewJson": "View as JSON"
+    },
+    "moveDialog": {
+      "title": "Move Navigation Item",
+      "targetParent": "Target Parent",
+      "targetScope": "Target Scope",
+      "targetModule": "Target Module",
+      "targetOrder": "Target Order",
+      "buttons": {
+        "move": "Move",
+        "cancel": "Cancel"
+      }
+    },
+    "deleteDialog": {
+      "title": "Delete Navigation Item",
+      "message": "Are you sure you want to delete \"{{label}}\"?",
+      "warning": "This action cannot be undone. All child items will also be deleted.",
+      "buttons": {
+        "delete": "Delete",
+        "cancel": "Cancel"
+      }
+    },
+    "permissionTestDialog": {
+      "title": "Test Navigation Permissions",
+      "description": "Enter permission names to preview how the navigation appears to users with those permissions.",
+      "permissions": {
+        "label": "Permissions",
+        "placeholder": "Enter permission names (one per line)",
+        "help": "Add permission names to test"
+      },
+      "buttons": {
+        "preview": "Preview",
+        "cancel": "Cancel"
+      }
+    },
+    "messages": {
+      "loading": "Loading navigation...",
+      "loaded": "Navigation loaded successfully",
+      "createSuccess": "Navigation item created successfully",
+      "createError": "Failed to create navigation item",
+      "updateSuccess": "Navigation item updated successfully",
+      "updateError": "Failed to update navigation item",
+      "deleteSuccess": "Navigation item deleted successfully",
+      "deleteError": "Failed to delete navigation item",
+      "reorderSuccess": "Navigation items reordered successfully",
+      "reorderError": "Failed to reorder navigation items",
+      "moveSuccess": "Navigation item moved successfully",
+      "moveError": "Failed to move navigation item",
+      "error": "Error",
+      "success": "Success",
+      "noModule": "No module selected",
+      "selectModule": "Please select a module from the global navigation",
+      "invalidData": "Invalid data provided",
+      "copiedToClipboard": "Copied to clipboard"
+    },
+    "validation": {
+      "requiredField": "This field is required",
+      "invalidUrl": "Please enter a valid URL",
+      "invalidJson": "Invalid JSON format",
+      "invalidIcon": "Please use a valid PrimeIcons class",
+      "duplicateLabel": "A navigation item with this label already exists",
+      "circularReference": "Cannot make an item a child of itself"
+    },
+    "accessibility": {
+      "treeAria": "Navigation items tree",
+      "itemAria": "Navigation item {{label}}",
+      "expandAria": "Expand {{label}}",
+      "collapseAria": "Collapse {{label}}",
+      "dragAria": "Drag to reorder {{label}}",
+      "dropAria": "Drop zone for {{label}}",
+      "selectedAria": "{{label}} is selected",
+      "moveAria": "Move {{label}}",
+      "deleteAria": "Delete {{label}}"
+    }
+  },
+  "provinceList": {
+    "title": "Province Management",
+    "search": {
+      "label": "Search provinces",
+      "placeholder": "Search by name, code, or region...",
+      "openSearch": "Open search",
+      "closeSearch": "Close search"
+    },
+    "addButton": {
+      "label": "Add Province",
+      "tooltip": "Add new province"
+    },
+    "refreshButton": {
+      "label": "Refresh",
+      "tooltip": "Refresh list"
+    },
+    "actionsButton": {
+      "label": "Actions"
+    },
+    "actions": {
+      "exportCSV": "Export to CSV",
+      "exportGeoJSON": "Export to GeoJSON",
+      "import": "Import Provinces"
+    },
+    "table": {
+      "code": "Code",
+      "name": "Name",
+      "region": "Region",
+      "rowActions": "Row actions"
+    },
+    "contextMenu": {
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "pagination": {
+      "report": "Showing {first} to {last} of {totalRecords} provinces",
+      "previous": "Previous page",
+      "next": "Next page",
+      "showing": "Showing {first}-{last} of {total}",
+      "itemsPerPage": "Items per page"
+    },
+    "messages": {
+      "loading": "Loading provinces...",
+      "loaded": "{{count}} provinces loaded",
+      "noResults": "No provinces found for '{{query}}'",
+      "noProvinces": "No provinces available",
+      "error": "Error",
+      "success": "Success",
+      "loadFailed": "Failed to load provinces",
+      "exportSuccess": "Export completed successfully",
+      "exportFailed": "Failed to export provinces",
+      "deleteSuccess": "Province {{name}} deleted successfully",
+      "deleteFailed": "Failed to delete province",
+      "notImplemented": "Not Implemented",
+      "importSoon": "Import functionality coming soon"
+    },
+    "confirmDelete": {
+      "header": "Confirm Delete",
+      "message": "Are you sure you want to delete province {{name}}?",
+      "accept": "Delete",
+      "reject": "Cancel"
+    },
+    "mobileList": {
+      "itemActions": "Item actions"
+    },
+    "geoEditor": {
+      "label": "GeoJSON Geometry",
+      "placeholder": "Paste GeoJSON geometry, Feature, or FeatureCollection here (the first Feature's geometry will be used)",
+      "apply": "Apply",
+      "clear": "Clear",
+      "textTab": "Text Editor",
+      "drawTab": "Draw on Map"
+    }
+  },
+  "provinceForm": {
+    "title": {
+      "create": "Add Province",
+      "edit": "Edit Province"
+    },
+    "drawMap": {
+      "clear": "Clear Drawing"
+    },
+    "fields": {
+      "code": {
+        "label": "Province Code",
+        "placeholder": "Enter province code (e.g., HN, HCM)",
+        "errors": {
+          "required": "Province code is required",
+          "minlength": "Code must be at least 2 characters"
+        }
+      },
+      "name": {
+        "label": "Province Name",
+        "placeholder": "Enter province name",
+        "errors": {
+          "required": "Province name is required",
+          "minlength": "Name must be at least 2 characters"
+        }
+      },
+      "region": {
+        "label": "Region",
+        "placeholder": "Enter region (e.g., North, Central, South)",
+        "errors": {
+          "required": "Region is required"
+        }
+      }
+    },
+    "geometry": {
+      "title": "Geometry (GeoJSON)"
+    },
+    "map": {
+      "title": "Map Preview"
+    },
+    "buttons": {
+      "create": "Create Province",
+      "update": "Update Province",
+      "cancel": "Cancel"
+    },
+    "messages": {
+      "error": "Error",
+      "success": "Success",
+      "loadFailed": "Failed to load province data",
+      "createSuccess": "Province created successfully",
+      "createFailed": "Failed to create province",
+      "updateSuccess": "Province updated successfully",
+      "updateFailed": "Failed to update province"
+    }
+  },
+  "districtList": {
+    "title": "District Management",
+    "search": {
+      "label": "Search districts",
+      "placeholder": "Search by name, code...",
+      "openSearch": "Open search",
+      "closeSearch": "Close search"
+    },
+    "filter": {
+      "allProvinces": "All Provinces",
+      "selectProvince": "Filter by Province"
+    },
+    "addButton": {
+      "label": "Add District",
+      "tooltip": "Add new district"
+    },
+    "refreshButton": {
+      "label": "Refresh",
+      "tooltip": "Refresh list"
+    },
+    "actionsButton": {
+      "label": "Actions"
+    },
+    "actions": {
+      "exportCSV": "Export to CSV",
+      "exportGeoJSON": "Export to GeoJSON",
+      "import": "Import Districts"
+    },
+    "table": {
+      "code": "Code",
+      "name": "Name",
+      "nameEn": "Name (English)",
+      "province": "Province",
+      "rowActions": "Row actions"
+    },
+    "contextMenu": {
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "pagination": {
+      "report": "Showing {first} to {last} of {totalRecords} districts",
+      "previous": "Previous page",
+      "next": "Next page",
+      "showing": "Showing {first}-{last} of {total}",
+      "itemsPerPage": "Items per page"
+    },
+    "messages": {
+      "loading": "Loading districts...",
+      "loaded": "{{count}} districts loaded",
+      "noResults": "No districts found for '{{query}}'",
+      "noDistricts": "No districts available",
+      "error": "Error",
+      "success": "Success",
+      "loadFailed": "Failed to load districts",
+      "provinceLoadFailed": "Failed to load provinces for filter",
+      "exportSuccess": "Export completed successfully",
+      "exportFailed": "Export failed. Please try again.",
+      "notImplemented": "Coming Soon",
+      "importSoon": "Import functionality will be available soon",
+      "deleteSuccess": "District '{{name}}' deleted successfully",
+      "deleteFailed": "Failed to delete district. Please try again."
+    },
+    "confirmDelete": {
+      "header": "Confirm Delete",
+      "message": "Are you sure you want to delete '{{name}}'? This action cannot be undone.",
+      "accept": "Delete",
+      "reject": "Cancel"
+    },
+    "mobileList": {
+      "itemActions": "Item actions",
+      "population": "people"
+    }
+  },
+  "districtForm": {
+    "title": {
+      "create": "Create New District",
+      "edit": "Edit District",
+      "view": "View District"
+    },
+    "fields": {
+      "code": {
+        "label": "District Code",
+        "placeholder": "Enter district code (e.g., D001)",
+        "errors": {
+          "required": "District code is required",
+          "minlength": "District code must be at least 2 characters"
+        }
+      },
+      "name": {
+        "label": "Name (Vietnamese)",
+        "placeholder": "Enter district name in Vietnamese",
+        "errors": {
+          "required": "Vietnamese name is required",
+          "minlength": "Name must be at least 2 characters"
+        }
+      },
+      "nameEn": {
+        "label": "Name (English)",
+        "placeholder": "Enter district name in English (optional)"
+      },
+      "provinceCode": {
+        "label": "Province",
+        "placeholder": "Select province",
+        "errors": {
+          "required": "Province is required"
+        }
+      },
+      "isLegacy": {
+        "label": "Legacy District",
+        "onLabel": "Legacy",
+        "offLabel": "Current"
+      }
+    },
+    "geometry": {
+      "title": "Geometry Editor"
+    },
+    "map": {
+      "title": "Map Preview"
+    },
+    "buttons": {
+      "create": "Create District",
+      "update": "Update District",
+      "cancel": "Cancel"
+    },
+    "messages": {
+      "error": "Error",
+      "success": "Success",
+      "loadFailed": "Failed to load district data",
+      "provinceLoadFailed": "Failed to load provinces for selection",
+      "createSuccess": "District created successfully",
+      "createFailed": "Failed to create district",
+      "updateSuccess": "District updated successfully",
+      "updateFailed": "Failed to update district"
+    }
+  },
+  "wardForm": {
+    "title": {
+      "create": "Create New Ward",
+      "edit": "Edit Ward",
+      "view": "View Ward"
+    },
+    "fields": {
+      "code": {
+        "label": "Ward Code",
+        "placeholder": "Enter ward code (e.g., W001)",
+        "errors": {
+          "required": "Ward code is required",
+          "minlength": "Ward code must be at least 2 characters"
+        }
+      },
+      "name": {
+        "label": "Name (Vietnamese)",
+        "placeholder": "Enter ward name in Vietnamese",
+        "errors": {
+          "required": "Vietnamese name is required",
+          "minlength": "Name must be at least 2 characters"
+        }
+      },
+      "nameEn": {
+        "label": "Name (English)",
+        "placeholder": "Enter ward name in English (optional)"
+      },
+      "provinceCode": {
+        "label": "Province",
+        "placeholder": "Select province",
+        "errors": {
+          "required": "Province is required"
+        }
+      },
+      "districtCode": {
+        "label": "District",
+        "placeholder": "Select district (optional for 2-level government)",
+        "errors": {
+          "required": "District is required"
+        }
+      },
+      "note": {
+        "label": "Note",
+        "placeholder": "Enter additional notes (optional)"
+      },
+      "isLegacy": {
+        "label": "Legacy Ward",
+        "onLabel": "Legacy",
+        "offLabel": "Current"
+      }
+    },
+    "geometry": {
+      "title": "Geometry Editor"
+    },
+    "map": {
+      "title": "Map Preview"
+    },
+    "buttons": {
+      "create": "Create Ward",
+      "update": "Update Ward",
+      "cancel": "Cancel"
+    },
+    "messages": {
+      "error": "Error",
+      "success": "Success",
+      "loadFailed": "Failed to load ward data",
+      "provinceLoadFailed": "Failed to load provinces for selection",
+      "districtLoadFailed": "Failed to load districts for selection",
+      "createSuccess": "Ward created successfully",
+      "createFailed": "Failed to create ward",
+      "updateSuccess": "Ward updated successfully",
+      "updateFailed": "Failed to update ward"
+    }
+  },
+  "warehouseList": {
+    "title": "Warehouse Management",
+    "scope": {
+      "label": "Scope"
+    },
+    "search": {
+      "label": "Search warehouses",
+      "placeholder": "Search by name, code, or address...",
+      "openSearch": "Open search",
+      "closeSearch": "Close search"
+    },
+    "addButton": {
+      "label": "Add Warehouse",
+      "tooltip": "Add new warehouse"
+    },
+    "refreshButton": {
+      "label": "Refresh",
+      "tooltip": "Refresh list"
+    },
+    "actionsButton": {
+      "label": "Actions"
+    },
+    "actions": {
+      "exportCSV": "Export to CSV",
+      "exportGeoJSON": "Export to GeoJSON",
+      "import": "Import Warehouses",
+      "deleteSelected": "Delete Selected"
+    },
+    "table": {
+      "code": "Code",
+      "name": "Name",
+      "organization": "Organization",
+      "address": "Address",
+      "rowActions": "Row actions"
+    },
+    "contextMenu": {
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "mapContextMenu": {
+      "createHere": "Create Warehouse Here",
+      "viewCoordinates": "View Coordinates",
+      "coordinates": "Location Coordinates"
+    },
+    "resultCount": "{{count}} warehouses",
+    "messages": {
+      "loading": "Loading warehouses...",
+      "noResults": "No warehouses found for '{{query}}'",
+      "noWarehouses": "No warehouses available",
+      "error": "Error",
+      "success": "Success",
+      "exportSuccess": "Export completed successfully",
+      "exportFailed": "Failed to export warehouses",
+      "deleteSuccess": "Warehouse {{name}} deleted successfully",
+      "deleteFailed": "Failed to delete warehouse",
+      "bulkDeleteSuccess": "{{count}} warehouses deleted successfully",
+      "bulkDeleteFailed": "Failed to delete warehouses",
+      "notImplemented": "Not Implemented",
+      "importSoon": "Import functionality coming soon"
+    },
+    "confirmDelete": {
+      "header": "Confirm Delete",
+      "message": "Are you sure you want to delete warehouse {{name}}?",
+      "accept": "Delete",
+      "reject": "Cancel"
+    },
+    "confirmBulkDelete": {
+      "header": "Confirm Bulk Delete",
+      "message": "Are you sure you want to delete {{count}} warehouses?",
+      "accept": "Delete",
+      "reject": "Cancel"
+    }
+  },
+  "warehouseForm": {
+    "title": {
+      "new": "Add Warehouse",
+      "edit": "Edit Warehouse",
+      "view": "View Warehouse"
+    },
+    "sections": {
+      "required": "Required Information",
+      "location": "Location & Coordinates",
+      "capacity": "Capacity",
+      "storage": "Storage Conditions",
+      "storageConditions": "Storage Conditions",
+      "operations": "Operations",
+      "security": "Security",
+      "finance": "Finance"
+    },
+    "fields": {
+      "code": {
+        "label": "Warehouse Code",
+        "placeholder": "Enter warehouse code"
+      },
+      "name": {
+        "label": "Warehouse Name",
+        "placeholder": "Enter warehouse name"
+      },
+      "type": {
+        "label": "Warehouse Type",
+        "placeholder": "Select warehouse type"
+      },
+      "status": {
+        "label": "Status",
+        "placeholder": "Select status"
+      },
+      "addressSearch": {
+        "label": "Address",
+        "placeholder": "Search for address...",
+        "hint": "Type to search using Nominatim. Selecting a result will fill coordinates."
+      },
+      "province": {
+        "label": "Province",
+        "placeholder": "Select province"
+      },
+      "ward": {
+        "label": "Ward",
+        "placeholder": "Select ward"
+      },
+      "latitude": {
+        "label": "Latitude",
+        "placeholder": "e.g., 10.8231"
+      },
+      "longitude": {
+        "label": "Longitude",
+        "placeholder": "e.g., 106.6297"
+      },
+      "geometry": {
+        "label": "Geometry Editor"
+      },
+      "mapPreview": {
+        "label": "Map Preview"
+      },
+      "totalAreaM2": {
+        "label": "Total Area (m²)",
+        "placeholder": "Enter total area"
+      },
+      "usableAreaM2": {
+        "label": "Usable Area (m²)",
+        "placeholder": "Enter usable area"
+      },
+      "storageCapacity": {
+        "label": "Storage Capacity",
+        "placeholder": "Enter storage capacity"
+      },
+      "capacityUnit": {
+        "label": "Capacity Unit",
+        "placeholder": "Select unit"
+      },
+      "zonesCount": {
+        "label": "Zones",
+        "placeholder": "Number of zones"
+      },
+      "racksCount": {
+        "label": "Racks",
+        "placeholder": "Number of racks"
+      },
+      "floorsCount": {
+        "label": "Floors",
+        "placeholder": "Number of floors"
+      },
+      "temperatureMin": {
+        "label": "Min Temperature (°C)",
+        "placeholder": "e.g., -20"
+      },
+      "temperatureMax": {
+        "label": "Max Temperature (°C)",
+        "placeholder": "e.g., 25"
+      },
+      "humidityMin": {
+        "label": "Min Humidity (%)",
+        "placeholder": "e.g., 30"
+      },
+      "humidityMax": {
+        "label": "Max Humidity (%)",
+        "placeholder": "e.g., 80"
+      },
+      "managerName": {
+        "label": "Manager Name",
+        "placeholder": "Enter manager name"
+      },
+      "contactPhone": {
+        "label": "Contact Phone",
+        "placeholder": "Enter phone number"
+      },
+      "contactEmail": {
+        "label": "Contact Email",
+        "placeholder": "Enter email address"
+      },
+      "workersCount": {
+        "label": "Workers Count",
+        "placeholder": "Number of workers"
+      },
+      "workingShift": {
+        "label": "Working Shift",
+        "placeholder": "Select working shift"
+      },
+      "operatingHours": {
+        "label": "Operating Hours",
+        "placeholder": "e.g., Mon-Fri 8:00-17:00",
+        "hint": "Example: Mon-Fri 8:00-17:00, Sat 8:00-12:00"
+      },
+      "securityLevel": {
+        "label": "Security Level",
+        "placeholder": "Select security level"
+      },
+      "fireProtectionCert": {
+        "label": "Fire Protection Certificate",
+        "placeholder": "Enter certificate number"
+      },
+      "storageFee": {
+        "label": "Storage Fee",
+        "placeholder": "Enter storage fee"
+      },
+      "handlingFee": {
+        "label": "Handling Fee",
+        "placeholder": "Enter handling fee"
+      },
+      "currency": {
+        "label": "Currency",
+        "placeholder": "Select currency"
+      },
+      "paymentTerm": {
+        "label": "Payment Term",
+        "placeholder": "Select payment term"
+      }
+    },
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close"
+    },
+    "messages": {
+      "error": "Error",
+      "success": "Success",
+      "createSuccess": "Warehouse created successfully",
+      "updateSuccess": "Warehouse updated successfully",
+      "saveFailed": "Failed to save warehouse",
+      "validationFailed": "Please fill in all required fields",
+      "invalidLocation": "Invalid province or ward selection"
+    }
+  },
+  "formEditor": {
+    "title": "Form Editor",
+    "toolbar": {
+      "undo": "Undo",
+      "redo": "Redo",
+      "export": "Export Schema",
+      "clear": "Clear All",
+      "loadExample": "Load Example"
+    },
+    "panels": {
+      "components": "Components",
+      "properties": "Properties",
+      "preview": "Preview"
+    },
+    "categories": {
+      "layout": "Layout Components",
+      "form": "Form Components"
+    },
+    "components": {
+      "layout1Column": "1 Column",
+      "layout2Column": "2 Columns",
+      "layout3Column": "3 Columns",
+      "divider": "Divider",
+      "button": "Button",
+      "input": "Input",
+      "textarea": "Text Area",
+      "select": "Select",
+      "checkbox": "Checkbox",
+      "radioButton": "Radio Button",
+      "datePicker": "Date Picker",
+      "autocomplete": "Autocomplete",
+      "cascadeSelect": "Cascade Select",
+      "colorPicker": "Color Picker",
+      "rating": "Rating",
+      "selectButton": "Select Button",
+      "slider": "Slider",
+      "toggleButton": "Toggle Button",
+      "toggleSwitch": "Toggle Switch"
+    },
+    "defaults": {
+      "button": "Button",
+      "input": "Input Field",
+      "inputPlaceholder": "Enter text",
+      "textarea": "Text Area",
+      "textareaPlaceholder": "Enter text",
+      "select": "Select",
+      "selectPlaceholder": "Choose option",
+      "checkbox": "Checkbox",
+      "radioButton": "Radio Button",
+      "datePicker": "Date Picker",
+      "datePickerPlaceholder": "Select date",
+      "autocomplete": "Autocomplete",
+      "autocompletePlaceholder": "Search...",
+      "cascadeSelect": "Cascade Select",
+      "cascadeSelectPlaceholder": "Select option",
+      "colorPicker": "Color Picker",
+      "rating": "Rating",
+      "selectButton": "Select Button",
+      "slider": "Slider",
+      "toggleButton": "Toggle Button",
+      "toggleSwitch": "Toggle Switch"
+    },
+    "properties": {
+      "general": "General",
+      "label": "Label",
+      "labelKey": "Label i18n Key",
+      "placeholder": "Placeholder",
+      "placeholderKey": "Placeholder i18n Key",
+      "id": "ID",
+      "cssClasses": "CSS Classes",
+      "required": "Required",
+      "disabled": "Disabled",
+      "defaultValue": "Default Value",
+      "validation": "Validation",
+      "minLength": "Min Length",
+      "maxLength": "Max Length",
+      "min": "Minimum",
+      "max": "Maximum",
+      "pattern": "Pattern",
+      "email": "Email Format",
+      "url": "URL Format",
+      "options": "Options",
+      "addOption": "Add Option",
+      "optionLabel": "Label",
+      "optionValue": "Value",
+      "removeOption": "Remove"
+    },
+    "actions": {
+      "addComponent": "Add Component",
+      "removeComponent": "Remove Component",
+      "selectComponent": "Select Component",
+      "dragComponent": "Drag to add"
+    },
+    "messages": {
+      "noComponentSelected": "No component selected. Select a component to edit its properties.",
+      "emptyCanvas": "Drag components from the left panel or click + to add components to your form.",
+      "dropHere": "Drop components here",
+      "exportSuccess": "Schema exported successfully",
+      "exportError": "Failed to export schema",
+      "validationError": "Schema validation failed",
+      "clearConfirm": "Are you sure you want to clear the form? This action cannot be undone.",
+      "componentAdded": "Component added",
+      "componentRemoved": "Component removed",
+      "componentUpdated": "Component updated",
+      "undoAction": "Undo: {{action}}",
+      "redoAction": "Redo: {{action}}"
+    },
+    "validation": {
+      "required": "This field is required",
+      "idRequired": "ID is required",
+      "invalidId": "Invalid ID format"
+    }
+  },
+  "administrativeUnit": {
+    "title": "Administrative Unit Management",
+    "search": {
+      "label": "Search units",
+      "placeholder": "Search by name or code...",
+      "openSearch": "Open search",
+      "closeSearch": "Close search",
+      "clearSearch": "Clear search"
+    },
+    "addButton": {
+      "label": "Add Province",
+      "tooltip": "Add new province"
+    },
+    "refreshButton": {
+      "label": "Refresh",
+      "tooltip": "Refresh list"
+    },
+    "actionsButton": {
+      "label": "Actions"
+    },
+    "actions": {
+      "exportCSV": "Export to CSV",
+      "exportGeoJSON": "Export to GeoJSON",
+      "bulkDelete": "Bulk Delete"
+    },
+    "table": {
+      "name": "Name",
+      "code": "Code",
+      "type": "Type",
+      "region": "Region",
+      "actions": "Actions",
+      "rowActions": "Row actions"
+    },
+    "types": {
+      "province": "Province",
+      "district": "District",
+      "ward": "Ward"
+    },
+    "viewMode": {
+      "2-level": "2 Levels",
+      "3-level": "3 Levels"
+    },
+    "contextMenu": {
+      "view": "View",
+      "edit": "Edit",
+      "createChild": "Create Child",
+      "delete": "Delete"
+    },
+    "pagination": {
+      "showing": "Showing {first}-{last} of {total}",
+      "itemsPerPage": "Items per page",
+      "page": "Page"
+    },
+    "messages": {
+      "loading": "Loading administrative units...",
+      "loaded": "{{count}} units loaded",
+      "noData": "No administrative units found",
+      "error": "Error",
+      "success": "Success",
+      "loadFailed": "Failed to load units",
+      "loadChildrenFailed": "Failed to load children",
+      "deleteSuccess": "{{name}} deleted successfully",
+      "deleteFailed": "Failed to delete unit",
+      "createSuccess": "Unit created successfully",
+      "createFailed": "Failed to create unit",
+      "updateSuccess": "Unit updated successfully",
+      "updateFailed": "Failed to update unit",
+      "refreshed": "List refreshed successfully",
+      "notImplemented": "Not Implemented",
+      "exportSoon": "Export functionality coming soon",
+      "bulkDeleteSoon": "Bulk delete functionality coming soon"
+    },
+    "confirmDelete": {
+      "header": "Confirm Delete",
+      "message": "Are you sure you want to delete {{name}}?",
+      "bulkMessage": "Are you sure you want to delete {{count}} units?",
+      "accept": "Delete",
+      "reject": "Cancel"
+    },
+    "form": {
+      "title": {
+        "create": "Create Administrative Unit",
+        "edit": "Edit Administrative Unit",
+        "view": "View Administrative Unit"
+      },
+      "fields": {
+        "code": {
+          "label": "Code",
+          "placeholder": "Enter code",
+          "errors": {
+            "required": "Code is required",
+            "minlength": "Code must be at least 2 characters"
+          }
+        },
+        "name": {
+          "label": "Name",
+          "placeholder": "Enter name",
+          "errors": {
+            "required": "Name is required",
+            "minlength": "Name must be at least 2 characters"
+          }
+        },
+        "nameEn": {
+          "label": "Name (English)",
+          "placeholder": "Enter English name"
+        },
+        "type": {
+          "label": "Type"
+        },
+        "province": {
+          "label": "Province",
+          "placeholder": "Select province"
+        },
+        "district": {
+          "label": "District",
+          "placeholder": "Select district"
+        },
+        "region": {
+          "label": "Region",
+          "placeholder": "Enter region (e.g., Northern, Central, Southern)"
+        },
+        "population": {
+          "label": "Population",
+          "placeholder": "Enter population"
+        },
+        "note": {
+          "label": "Note",
+          "placeholder": "Enter additional notes"
+        }
+      },
+      "mapPreview": {
+        "label": "Map Preview"
+      },
+      "buttons": {
+        "create": "Create",
+        "update": "Update",
+        "cancel": "Cancel",
+        "close": "Close"
+      }
+    }
+  },
+  "pagination": {
+    "first": "First page",
+    "previous": "Previous page",
+    "next": "Next page",
+    "last": "Last page",
+    "page": "Page {{page}}",
+    "pageSize": "Items per page"
+  },
+  "wardList": {
+    "title": "Ward Management",
+    "search": {
+      "label": "Search wards",
+      "placeholder": "Search by name, code...",
+      "openSearch": "Open search",
+      "closeSearch": "Close search"
+    },
+    "filter": {
+      "allProvinces": "All Provinces",
+      "allDistricts": "All Districts",
+      "selectProvince": "Filter by Province",
+      "selectDistrict": "Filter by District"
+    },
+    "sort": {
+      "label": "Sort by",
+      "nameAsc": "Name (A → Z)",
+      "nameDesc": "Name (Z → A)"
+    },
+    "grouping": {
+      "toggleGroup": "Toggle group {{name}}",
+      "wards": "wards"
+    },
+    "addButton": {
+      "label": "Add Ward",
+      "tooltip": "Add new ward"
+    },
+    "refreshButton": {
+      "label": "Refresh",
+      "tooltip": "Refresh list"
+    },
+    "actionsButton": {
+      "label": "Actions"
+    },
+    "actions": {
+      "exportCSV": "Export to CSV",
+      "exportGeoJSON": "Export to GeoJSON",
+      "import": "Import Wards"
+    },
+    "table": {
+      "code": "Code",
+      "name": "Name",
+      "nameVi": "Name (Vietnamese)",
+      "nameEn": "Name (English)",
+      "province": "Province",
+      "district": "District",
+      "rowActions": "Row actions"
+    },
+    "contextMenu": {
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "pagination": {
+      "report": "Showing {first} to {last} of {totalRecords} wards",
+      "previous": "Previous page",
+      "next": "Next page",
+      "showing": "Showing {first}-{last} of {total}",
+      "itemsPerPage": "Items per page"
+    },
+    "messages": {
+      "loading": "Loading wards...",
+      "loaded": "{{count}} wards loaded",
+      "noResults": "No wards found for '{{query}}'",
+      "noWards": "No wards available",
+      "error": "Error",
+      "success": "Success",
+      "loadFailed": "Failed to load wards",
+      "provinceLoadFailed": "Failed to load provinces for filter",
+      "districtLoadFailed": "Failed to load districts for filter",
+      "exportSuccess": "Export completed successfully",
+      "exportFailed": "Export failed. Please try again.",
+      "notImplemented": "Coming Soon",
+      "importSoon": "Import functionality will be available soon",
+      "deleteSuccess": "Ward '{{name}}' deleted successfully",
+      "deleteFailed": "Failed to delete ward. Please try again."
+    },
+    "confirmDelete": {
+      "header": "Confirm Delete",
+      "message": "Are you sure you want to delete '{{name}}'? This action cannot be undone.",
+      "accept": "Delete",
+      "reject": "Cancel"
+    },
+    "mobileList": {
+      "itemActions": "Item actions"
+    }
+  },
+  "adminUnits": {
+    "title": "Province and Ward Management",
+    "search": {
+      "placeholder": "Search provinces...",
+      "button": "Search",
+      "tooltip": "Search provinces by name or code",
+      "clear": "Clear search"
+    },
+    "addProvince": "Add Province",
+    "addProvinceTooltip": "Add a new province",
+    "addWard": "Add Ward",
+    "editProvince": "Edit Province",
+    "deleteProvince": "Delete Province",
+    "editWard": "Edit Ward",
+    "deleteWard": "Delete Ward",
+    "refresh": "Refresh",
+    "provinceCode": "Code",
+    "region": "Region",
+    "wards": "wards",
+    "noProvinces": "No provinces found",
+    "noWards": "No wards found in this province",
+    "selectProvinceForMap": "Select a province to view on map",
+    "wardSearch": {
+      "placeholder": "Search wards in this province...",
+      "tooltip": "Search wards by name or code"
+    },
+    "exportCSV": "Export CSV",
+    "exportGeoJSON": "Export GeoJSON",
+    "actions": {
+      "label": "Actions",
+      "tooltip": "More actions",
+      "exportCSV": "Export Provinces to CSV",
+      "exportGeoJSON": "Export Provinces to GeoJSON",
+      "refresh": "Refresh All"
+    },
+    "table": {
+      "code": "Code",
+      "name": "Name",
+      "nameEn": "English Name",
+      "districtCode": "District Code",
+      "actions": "Actions"
+    },
+    "messages": {
+      "success": "Success",
+      "error": "Error",
+      "loadFailed": "Failed to load data",
+      "loadWardsFailed": "Failed to load wards",
+      "provinceDeleted": "Province {{name}} deleted successfully",
+      "wardDeleted": "Ward {{name}} deleted successfully",
+      "deleteFailed": "Failed to delete",
+      "refreshed": "Data refreshed successfully",
+      "exported": "Export completed successfully",
+      "exportFailed": "Export failed"
+    },
+    "confirmDelete": {
+      "header": "Confirm Delete",
+      "provinceMessage": "Are you sure you want to delete province {{name}}? This will also delete all associated wards.",
+      "wardMessage": "Are you sure you want to delete ward {{name}}?"
+    },
+    "mapPlaceholder": "Map visualization coming soon"
+  },
+  "auditLogs": {
+    "title": "Audit Logs",
+    "searchPlaceholder": "Search by action or entity...",
+    "empty": "No audit logs found",
+    "table": {
+      "label": "Audit logs table"
+    },
+    "columns": {
+      "action": "Action",
+      "entity": "Entity",
+      "timestamp": "Timestamp",
+      "ipAddress": "IP Address",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "success": "Success",
+      "failure": "Failure"
+    },
+    "actions": {
+      "view": "View details",
+      "viewDetail": "View audit log detail",
+      "close": "Close"
+    },
+    "pagination": {
+      "showing": "Showing",
+      "to": "to",
+      "of": "of",
+      "page": "Page",
+      "previous": "Previous page",
+      "next": "Next page"
+    },
+    "detail": {
+      "title": "Audit Log Details",
+      "loading": "Loading details...",
+      "action": "Action",
+      "entity": "Entity",
+      "description": "Description",
+      "timestamp": "Timestamp",
+      "status": "Status",
+      "networkInfo": "Network Information",
+      "ipAddress": "IP Address",
+      "userAgent": "User Agent",
+      "payload": "Payload / Changes",
+      "metadata": "Metadata"
+    }
+  }
+}

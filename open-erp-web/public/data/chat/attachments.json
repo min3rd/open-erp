@@ -1,0 +1,17 @@
+[
+  {
+    "id": "att_1",
+    "url": "https://cdn.example.com/files/report.pdf",
+    "fileName": "report.pdf",
+    "sizeBytes": 245760,
+    "contentType": "application/pdf",
+    "metadata": { "pages": 10 }
+  },
+  {
+    "id": "att_2",
+    "url": "https://cdn.example.com/images/photo.jpg",
+    "fileName": "photo.jpg",
+    "sizeBytes": 153600,
+    "contentType": "image/jpeg"
+  }
+]

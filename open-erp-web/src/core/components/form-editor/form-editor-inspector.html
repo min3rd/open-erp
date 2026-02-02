@@ -1,0 +1,277 @@
+<div id="form-editor-inspector" class="h-full flex flex-col bg-surface-50 dark:bg-surface-900">
+  <div class="p-4 border-b border-surface-200 dark:border-surface-700">
+    <h2 class="text-lg font-semibold text-surface-900 dark:text-surface-0 m-0">
+      {{ 'formEditor.panels.properties' | transloco }}
+    </h2>
+  </div>
+
+  <div class="flex-1 overflow-y-auto p-4">
+    @if (component()) {
+      <div class="space-y-4">
+        <!-- General Section -->
+        <div class="space-y-3">
+          <h3 class="text-sm font-semibold text-surface-900 dark:text-surface-0">
+            {{ 'formEditor.properties.general' | transloco }}
+          </h3>
+
+          <!-- ID -->
+          <div class="space-y-2">
+            <label
+              [for]="'form-editor-prop-id'"
+              class="block text-sm font-medium text-surface-700 dark:text-surface-300"
+            >
+              {{ 'formEditor.properties.id' | transloco }}
+            </label>
+            <input
+              pInputText
+              [id]="'form-editor-prop-id'"
+              type="text"
+              [(ngModel)]="localComponent.id"
+              (ngModelChange)="onPropertyChange()"
+              class="w-full"
+              [attr.aria-label]="'formEditor.properties.id' | transloco"
+              disabled
+            />
+          </div>
+
+          <!-- Label -->
+          <div class="space-y-2">
+            <label
+              [for]="'form-editor-prop-label'"
+              class="block text-sm font-medium text-surface-700 dark:text-surface-300"
+            >
+              {{ 'formEditor.properties.label' | transloco }}
+            </label>
+            <input
+              pInputText
+              [id]="'form-editor-prop-label'"
+              type="text"
+              [(ngModel)]="localComponent.label"
+              (ngModelChange)="onPropertyChange()"
+              class="w-full"
+              [attr.aria-label]="'formEditor.properties.label' | transloco"
+            />
+          </div>
+
+          <!-- Label i18n Key -->
+          <div class="space-y-2">
+            <label
+              [for]="'form-editor-prop-labelKey'"
+              class="block text-sm font-medium text-surface-700 dark:text-surface-300"
+            >
+              {{ 'formEditor.properties.labelKey' | transloco }}
+            </label>
+            <input
+              pInputText
+              [id]="'form-editor-prop-labelKey'"
+              type="text"
+              [(ngModel)]="localComponent.labelKey"
+              (ngModelChange)="onPropertyChange()"
+              class="w-full"
+              [attr.aria-label]="'formEditor.properties.labelKey' | transloco"
+            />
+          </div>
+
+          <!-- Placeholder (if applicable) -->
+          @if (hasPlaceholder()) {
+            <div class="space-y-2">
+              <label
+                [for]="'form-editor-prop-placeholder'"
+                class="block text-sm font-medium text-surface-700 dark:text-surface-300"
+              >
+                {{ 'formEditor.properties.placeholder' | transloco }}
+              </label>
+              <input
+                pInputText
+                [id]="'form-editor-prop-placeholder'"
+                type="text"
+                [(ngModel)]="localComponent.placeholder"
+                (ngModelChange)="onPropertyChange()"
+                class="w-full"
+                [attr.aria-label]="'formEditor.properties.placeholder' | transloco"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label
+                [for]="'form-editor-prop-placeholderKey'"
+                class="block text-sm font-medium text-surface-700 dark:text-surface-300"
+              >
+                {{ 'formEditor.properties.placeholderKey' | transloco }}
+              </label>
+              <input
+                pInputText
+                [id]="'form-editor-prop-placeholderKey'"
+                type="text"
+                [(ngModel)]="localComponent.placeholderKey"
+                (ngModelChange)="onPropertyChange()"
+                class="w-full"
+                [attr.aria-label]="'formEditor.properties.placeholderKey' | transloco"
+              />
+            </div>
+          }
+
+          <!-- CSS Classes -->
+          <div class="space-y-2">
+            <label
+              [for]="'form-editor-prop-cssClasses'"
+              class="block text-sm font-medium text-surface-700 dark:text-surface-300"
+            >
+              {{ 'formEditor.properties.cssClasses' | transloco }}
+            </label>
+            <input
+              pInputText
+              [id]="'form-editor-prop-cssClasses'"
+              type="text"
+              [(ngModel)]="localComponent.cssClasses"
+              (ngModelChange)="onPropertyChange()"
+              class="w-full"
+              [attr.aria-label]="'formEditor.properties.cssClasses' | transloco"
+            />
+          </div>
+
+          <!-- Required -->
+          <div class="flex items-center gap-2">
+            <p-checkbox
+              [inputId]="'form-editor-prop-required'"
+              [(ngModel)]="localComponent.required"
+              (ngModelChange)="onPropertyChange()"
+              [binary]="true"
+              [attr.aria-label]="'formEditor.properties.required' | transloco"
+            />
+            <label
+              [for]="'form-editor-prop-required'"
+              class="text-sm font-medium text-surface-700 dark:text-surface-300"
+            >
+              {{ 'formEditor.properties.required' | transloco }}
+            </label>
+          </div>
+
+          <!-- Disabled -->
+          <div class="flex items-center gap-2">
+            <p-checkbox
+              [inputId]="'form-editor-prop-disabled'"
+              [(ngModel)]="localComponent.disabled"
+              (ngModelChange)="onPropertyChange()"
+              [binary]="true"
+              [attr.aria-label]="'formEditor.properties.disabled' | transloco"
+            />
+            <label
+              [for]="'form-editor-prop-disabled'"
+              class="text-sm font-medium text-surface-700 dark:text-surface-300"
+            >
+              {{ 'formEditor.properties.disabled' | transloco }}
+            </label>
+          </div>
+        </div>
+
+        <!-- Validation Section (for form fields) -->
+        @if (isFormField()) {
+          <div class="space-y-3 pt-4 border-t border-surface-200 dark:border-surface-700">
+            <h3 class="text-sm font-semibold text-surface-900 dark:text-surface-0">
+              {{ 'formEditor.properties.validation' | transloco }}
+            </h3>
+
+            @if (!fieldValidation()) {
+              <p class="text-sm text-surface-500">
+                {{ 'formEditor.properties.validation' | transloco }}
+              </p>
+            } @else {
+              <!-- Min Length -->
+              <div class="space-y-2">
+                <label
+                  [for]="'form-editor-prop-minLength'"
+                  class="block text-sm font-medium text-surface-700 dark:text-surface-300"
+                >
+                  {{ 'formEditor.properties.minLength' | transloco }}
+                </label>
+                <p-inputNumber
+                  [inputId]="'form-editor-prop-minLength'"
+                  [(ngModel)]="fieldValidation().minLength"
+                  (ngModelChange)="onPropertyChange()"
+                  [min]="0"
+                  class="w-full"
+                  [attr.aria-label]="'formEditor.properties.minLength' | transloco"
+                />
+              </div>
+
+              <!-- Max Length -->
+              <div class="space-y-2">
+                <label
+                  [for]="'form-editor-prop-maxLength'"
+                  class="block text-sm font-medium text-surface-700 dark:text-surface-300"
+                >
+                  {{ 'formEditor.properties.maxLength' | transloco }}
+                </label>
+                <p-inputNumber
+                  [inputId]="'form-editor-prop-maxLength'"
+                  [(ngModel)]="fieldValidation().maxLength"
+                  (ngModelChange)="onPropertyChange()"
+                  [min]="0"
+                  class="w-full"
+                  [attr.aria-label]="'formEditor.properties.maxLength' | transloco"
+                />
+              </div>
+
+              <!-- Pattern -->
+              <div class="space-y-2">
+                <label
+                  [for]="'form-editor-prop-pattern'"
+                  class="block text-sm font-medium text-surface-700 dark:text-surface-300"
+                >
+                  {{ 'formEditor.properties.pattern' | transloco }}
+                </label>
+                <input
+                  pInputText
+                  [id]="'form-editor-prop-pattern'"
+                  type="text"
+                  [(ngModel)]="fieldValidation().pattern"
+                  (ngModelChange)="onPropertyChange()"
+                  class="w-full"
+                  [attr.aria-label]="'formEditor.properties.pattern' | transloco"
+                />
+              </div>
+
+              <!-- Email -->
+              <div class="flex items-center gap-2">
+                <p-checkbox
+                  [inputId]="'form-editor-prop-email'"
+                  [(ngModel)]="fieldValidation().email"
+                  (ngModelChange)="onPropertyChange()"
+                  [binary]="true"
+                  [attr.aria-label]="'formEditor.properties.email' | transloco"
+                />
+                <label
+                  [for]="'form-editor-prop-email'"
+                  class="text-sm font-medium text-surface-700 dark:text-surface-300"
+                >
+                  {{ 'formEditor.properties.email' | transloco }}
+                </label>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Delete Button -->
+        <div class="pt-4 border-t border-surface-200 dark:border-surface-700">
+          <p-button
+            [id]="'form-editor-remove-component-button'"
+            [label]="'formEditor.actions.removeComponent' | transloco"
+            icon="pi pi-trash"
+            severity="danger"
+            (onClick)="onRemove()"
+            class="w-full"
+            [attr.aria-label]="'formEditor.actions.removeComponent' | transloco"
+          />
+        </div>
+      </div>
+    } @else {
+      <div class="text-center py-8">
+        <i class="pi pi-info-circle text-4xl text-surface-400 mb-4" aria-hidden="true"></i>
+        <p class="text-sm text-surface-500">
+          {{ 'formEditor.messages.noComponentSelected' | transloco }}
+        </p>
+      </div>
+    }
+  </div>
+</div>

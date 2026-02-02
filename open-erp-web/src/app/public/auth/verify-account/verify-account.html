@@ -1,0 +1,175 @@
+<div class="min-h-screen flex" id="verify-account-container">
+  <!-- Left Panel - Background Image and Logo (Desktop Only) -->
+  <div
+    id="verify-account-left-panel"
+    class="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-indigo-600 to-purple-700 items-center justify-center p-12"
+  >
+    <div class="absolute inset-0 overflow-hidden" id="verify-account-background-wrapper">
+      <img
+        ngSrc="/images/auth-background.svg"
+        alt=""
+        fill
+        priority
+        class="object-cover opacity-20"
+      />
+    </div>
+    <div class="relative z-10 text-center" id="verify-account-branding">
+      <img
+        ngSrc="/images/logo.svg"
+        alt="Open ERP Logo"
+        width="200"
+        height="80"
+        priority
+        class="mx-auto mb-8"
+      />
+      <h1 class="text-4xl font-bold text-white mb-4" id="verify-account-title-desktop">
+        {{ 'verifyAccount.title' | transloco }}
+      </h1>
+      <p class="text-xl text-white/90" id="verify-account-subtitle-desktop">{{ 'verifyAccount.subtitle' | transloco }}</p>
+    </div>
+  </div>
+
+  <!-- Right Panel - Verification Form -->
+  <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50" id="verify-account-right-panel">
+    <div class="w-full max-w-md" id="verify-account-form-container">
+      <!-- Mobile Logo -->
+      <div class="lg:hidden text-center mb-8" id="verify-account-mobile-header">
+        <img
+          ngSrc="/images/logo.svg"
+          alt="Open ERP Logo"
+          width="160"
+          height="64"
+          priority
+          class="mx-auto mb-4"
+        />
+        <h1 class="text-3xl font-bold text-gray-900 mb-2" id="verify-account-title-mobile">
+          {{ 'verifyAccount.title' | transloco }}
+        </h1>
+        <p class="text-lg text-gray-600" id="verify-account-subtitle-mobile">{{ 'verifyAccount.subtitle' | transloco }}</p>
+      </div>
+
+      <!-- Verification Form -->
+      <form [formGroup]="verifyForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate id="verify-account-form">
+        <!-- Email Field -->
+        <div class="space-y-2">
+          <label
+            for="verify-account-email"
+            class="block text-sm font-medium text-gray-700"
+            [attr.aria-required]="true"
+          >
+            {{ 'verifyAccount.form.email.label' | transloco }}
+          </label>
+          <input
+            pInputText
+            id="verify-account-email"
+            type="email"
+            formControlName="email"
+            [placeholder]="'verifyAccount.form.email.placeholder' | transloco"
+            class="w-full"
+            [class.ng-invalid]="verifyForm.get('email')?.invalid && verifyForm.get('email')?.touched"
+            [class.ng-dirty]="verifyForm.get('email')?.touched"
+            [attr.aria-invalid]="
+              verifyForm.get('email')?.invalid && verifyForm.get('email')?.touched
+            "
+            [attr.aria-describedby]="getFieldError('email') ? 'verify-account-email-error' : null"
+          />
+          @if (getFieldError('email'); as errorKey) {
+          <small id="verify-account-email-error" class="text-red-600 text-sm" role="alert">
+            {{ errorKey | transloco }}
+          </small>
+          }
+        </div>
+
+        <!-- Verification Code Field -->
+        <div class="space-y-2">
+          <label
+            for="verify-account-verificationCode"
+            class="block text-sm font-medium text-gray-700"
+            [attr.aria-required]="true"
+          >
+            {{ 'verifyAccount.form.verificationCode.label' | transloco }}
+          </label>
+          <input
+            pInputText
+            id="verify-account-verificationCode"
+            type="text"
+            formControlName="verificationCode"
+            [placeholder]="'verifyAccount.form.verificationCode.placeholder' | transloco"
+            class="w-full"
+            [class.ng-invalid]="
+              verifyForm.get('verificationCode')?.invalid &&
+              verifyForm.get('verificationCode')?.touched
+            "
+            [class.ng-dirty]="verifyForm.get('verificationCode')?.touched"
+            [attr.aria-invalid]="
+              verifyForm.get('verificationCode')?.invalid &&
+              verifyForm.get('verificationCode')?.touched
+            "
+            [attr.aria-describedby]="
+              getFieldError('verificationCode') ? 'verify-account-verificationCode-error' : null
+            "
+            maxlength="6"
+          />
+          @if (getFieldError('verificationCode'); as errorKey) {
+          <small id="verify-account-verificationCode-error" class="text-red-600 text-sm" role="alert">
+            {{ errorKey | transloco }}
+          </small>
+          }
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col space-y-2" id="verify-account-actions">
+          <p-button
+            type="submit"
+            id="verify-account-submit-button"
+            [label]="'verifyAccount.buttons.verify' | transloco"
+            [disabled]="!verifyForm.valid || isSubmitting()"
+            [loading]="isSubmitting()"
+            styleClass="w-full"
+            severity="primary"
+            [attr.aria-busy]="isSubmitting()"
+          />
+          <p-button
+            type="button"
+            id="verify-account-resend-button"
+            (onClick)="onResendCode()"
+            [disabled]="resendCooldown() > 0 || isResending()"
+            [loading]="isResending()"
+            styleClass="w-full"
+            severity="secondary"
+            [attr.aria-busy]="isResending()"
+          >
+            @if (resendCooldown() > 0) {
+              {{ 'verifyAccount.messages.resendCooldown' | transloco: { seconds: resendCooldown() } }}
+            } @else {
+              {{ 'verifyAccount.buttons.resendCode' | transloco }}
+            }
+          </p-button>
+          <p-button
+            type="button"
+            id="verify-account-back-to-login-button"
+            [label]="'verifyAccount.buttons.backToLogin' | transloco"
+            (onClick)="navigateToLogin()"
+            styleClass="w-full"
+            severity="secondary"
+          />
+        </div>
+      </form>
+
+      <!-- Footer -->
+      <footer class="mt-8 text-center" id="verify-account-footer">
+        <a
+          href="https://github.com/min3rd/open-erp"
+          target="_blank"
+          rel="noopener noreferrer"
+          id="verify-account-github-link"
+          class="text-sm text-gray-600 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded"
+          [attr.aria-label]="'verifyAccount.footer.githubLink' | transloco"
+        >
+          {{ 'verifyAccount.footer.githubLink' | transloco }}
+        </a>
+      </footer>
+    </div>
+  </div>
+</div>
+

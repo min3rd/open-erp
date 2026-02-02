@@ -1,0 +1,57 @@
+{
+  "name": "open-erp-web",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "packageManager": "npm@11.6.2",
+  "dependencies": {
+    "@angular/common": "21.1.1",
+    "@angular/compiler": "21.1.1",
+    "@angular/core": "21.1.1",
+    "@angular/forms": "21.1.1",
+    "@angular/platform-browser": "21.1.1",
+    "@angular/router": "21.1.1",
+    "@jsverse/transloco": "8.2.1",
+    "@primeuix/themes": "2.0.3",
+    "@types/leaflet-draw": "1.0.13",
+    "ajv": "8.17.1",
+    "leaflet": "1.9.4",
+    "leaflet-draw": "1.0.4",
+    "primeicons": "7.0.0",
+    "primeng": "21.0.4",
+    "rxjs": "7.8.2",
+    "tailwindcss-primeui": "0.6.1",
+    "tslib": "2.8.1"
+  },
+  "devDependencies": {
+    "@angular/build": "21.1.1",
+    "@angular/cli": "21.1.1",
+    "@angular/compiler-cli": "21.1.1",
+    "@tailwindcss/postcss": "4.1.18",
+    "@types/geojson": "7946.0.16",
+    "@types/leaflet": "1.9.21",
+    "jsdom": "27.4.0",
+    "postcss": "8.5.6",
+    "tailwindcss": "4.1.18",
+    "typescript": "~5.9.2",
+    "vitest": "4.0.18"
+  }
+}

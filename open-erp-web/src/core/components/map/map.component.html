@@ -1,0 +1,27 @@
+<div class="relative w-full h-full">
+  <div
+    #mapContainer
+    id="core-map-container"
+    class="w-full h-full"
+    role="img"
+    aria-label="Map showing geographic data"
+  ></div>
+  
+  <!-- Base Map Switcher -->
+  <div class="absolute top-2 right-2 z-1000">
+    <p-selectbutton
+      [(ngModel)]="currentBaseMap"
+      [options]="baseMapOptions"
+      (onChange)="switchBaseMap($event)"
+      optionLabel="label"
+      optionValue="value"
+      id="core-map-base-selector"
+      aria-label="Select base map type"
+    >
+      <ng-template #item let-option>
+        <i [class]="option.icon"></i>
+        <span class="ml-2">{{ option.label }}</span>
+      </ng-template>
+    </p-selectbutton>
+  </div>
+</div>

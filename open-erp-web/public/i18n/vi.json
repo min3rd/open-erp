@@ -1,0 +1,992 @@
+{
+  "register": {
+    "title": "Tạo tài khoản",
+    "subtitle": "Tham gia cùng chúng tôi để bắt đầu",
+    "form": {
+      "email": {
+        "label": "Email",
+        "placeholder": "Nhập email của bạn",
+        "errors": {
+          "required": "Email là bắt buộc",
+          "email": "Vui lòng nhập địa chỉ email hợp lệ"
+        }
+      },
+      "fullName": {
+        "label": "Họ và tên",
+        "placeholder": "Nhập họ và tên của bạn",
+        "errors": {
+          "required": "Họ và tên là bắt buộc",
+          "minlength": "Họ và tên phải có ít nhất 16 ký tự"
+        }
+      },
+      "password": {
+        "label": "Mật khẩu",
+        "placeholder": "Nhập mật khẩu của bạn",
+        "errors": {
+          "required": "Mật khẩu là bắt buộc",
+          "minlength": "Mật khẩu phải có ít nhất 8 ký tự",
+          "pattern": "Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt"
+        }
+      },
+      "confirmPassword": {
+        "label": "Xác nhận mật khẩu",
+        "placeholder": "Nhập lại mật khẩu của bạn",
+        "errors": {
+          "required": "Vui lòng xác nhận mật khẩu",
+          "mismatch": "Mật khẩu không khớp"
+        }
+      },
+      "terms": {
+        "label": "Tôi chấp nhận các điều khoản và điều kiện",
+        "errors": {
+          "required": "Bạn phải chấp nhận các điều khoản và điều kiện"
+        }
+      }
+    },
+    "buttons": {
+      "register": "Đăng ký",
+      "backToLogin": "Quay lại đăng nhập",
+      "viewTerms": "Xem điều khoản"
+    },
+    "footer": {
+      "githubLink": "Truy cập kho GitHub của chúng tôi"
+    },
+    "termsDialog": {
+      "title": "Điều khoản và Điều kiện",
+      "content": "Chào mừng đến với Open ERP. Khi sử dụng dịch vụ này, bạn đồng ý với các điều khoản sau:\n\n1. Sử dụng tài khoản: Bạn chịu trách nhiệm duy trì bảo mật tài khoản của mình.\n\n2. Quyền riêng tư dữ liệu: Chúng tôi tôn trọng quyền riêng tư của bạn và bảo vệ thông tin cá nhân theo luật hiện hành.\n\n3. Sử dụng dịch vụ: Bạn đồng ý sử dụng dịch vụ này tuân thủ tất cả các luật và quy định hiện hành.\n\n4. Quyền sở hữu trí tuệ: Tất cả nội dung và tài liệu có sẵn trên dịch vụ này được bảo vệ bởi quyền sở hữu trí tuệ.\n\n5. Giới hạn trách nhiệm: Dịch vụ được cung cấp 'nguyên trạng' không có bảo hành dưới bất kỳ hình thức nào.\n\n6. Thay đổi điều khoản: Chúng tôi bảo lưu quyền sửa đổi các điều khoản này bất cứ lúc nào.\n\nĐể biết điều khoản và điều kiện đầy đủ, vui lòng truy cập trang web của chúng tôi.",
+      "closeButton": "Đóng"
+    }
+  },
+  "login": {
+    "title": "Chào mừng trở lại",
+    "subtitle": "Đăng nhập vào tài khoản của bạn",
+    "form": {
+      "username": {
+        "label": "Email hoặc Tên đăng nhập",
+        "placeholder": "Nhập email hoặc tên đăng nhập",
+        "errors": {
+          "required": "Email hoặc tên đăng nhập là bắt buộc"
+        }
+      },
+      "password": {
+        "label": "Mật khẩu",
+        "placeholder": "Nhập mật khẩu của bạn",
+        "errors": {
+          "required": "Mật khẩu là bắt buộc",
+          "minlength": "Mật khẩu phải có ít nhất 8 ký tự"
+        }
+      }
+    },
+    "buttons": {
+      "login": "Đăng nhập",
+      "createAccount": "Tạo tài khoản",
+      "forgotPassword": "Quên mật khẩu?"
+    },
+    "messages": {
+      "loginSuccess": "Đăng nhập thành công! Đang chuyển hướng...",
+      "loginError": "Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập và thử lại."
+    },
+    "footer": {
+      "githubLink": "Truy cập kho GitHub của chúng tôi"
+    }
+  },
+  "common": {
+    "title": "Open ERP",
+    "appShortName": "ERP"
+  },
+  "auth": {
+    "logout": "Đăng xuất"
+  },
+  "navigation": {
+    "main": "Điều hướng chính",
+    "menu": "Menu điều hướng",
+    "toggle": "Bật/tắt menu điều hướng"
+  },
+  "quickChat": {
+    "title": "Tin nhắn",
+    "panel": "Trò chuyện nhanh",
+    "toggle": "Bật/tắt trò chuyện nhanh",
+    "newConversation": "Cuộc trò chuyện mới",
+    "openConversation": "Mở cuộc trò chuyện với",
+    "backToConversations": "Quay lại cuộc trò chuyện",
+    "closeConversation": "Đóng cuộc trò chuyện",
+    "conversationOptions": "Tùy chọn cuộc trò chuyện",
+    "attachFile": "Đính kèm tệp",
+    "typeMessage": "Nhập tin nhắn...",
+    "messageInput": "Nhập tin nhắn",
+    "sendMessage": "Gửi tin nhắn",
+    "participants": "người tham gia",
+    "noMessages": "Chưa có tin nhắn nào"
+  },
+  "organizationSwitcher": {
+    "label": "Doanh nghiệp hiện tại",
+    "placeholder": "Chọn doanh nghiệp",
+    "ariaLabel": "Chọn doanh nghiệp hiện tại",
+    "taxId": "Mã số thuế",
+    "loading": "Đang tải danh sách doanh nghiệp...",
+    "noOrganizations": "Không có doanh nghiệp nào",
+    "search": "Tìm kiếm doanh nghiệp...",
+    "createNew": "Đăng ký doanh nghiệp",
+    "selectOrganization": "Chọn một doanh nghiệp",
+    "currentOrganization": "Doanh nghiệp hiện tại"
+  },
+  "languageSelector": {
+    "label": "Ngôn ngữ",
+    "placeholder": "Chọn ngôn ngữ",
+    "ariaLabel": "Chọn ngôn ngữ",
+    "currentLanguage": "Ngôn ngữ hiện tại",
+    "changeLanguage": "Thay đổi ngôn ngữ",
+    "allLanguages": "Tất cả ngôn ngữ",
+    "closeDialog": "Đóng",
+    "searchLanguages": "Tìm kiếm ngôn ngữ...",
+    "selectLanguage": "Chọn một ngôn ngữ"
+  },
+  "verticalNav": {
+    "registerOrganization": "Đăng ký doanh nghiệp",
+    "registerOrganizationShort": "Đăng ký",
+    "resizeHandle": "Kéo để thay đổi kích thước thanh điều hướng",
+    "companies": "Công ty"
+  },
+  "provinceList": {
+    "title": "Quản lý Tỉnh/Thành",
+    "search": {
+      "label": "Tìm kiếm tỉnh/thành",
+      "placeholder": "Tìm theo tên, mã, vùng...",
+      "openSearch": "Mở tìm kiếm",
+      "closeSearch": "Đóng tìm kiếm"
+    },
+    "addButton": {
+      "label": "Thêm Tỉnh/Thành",
+      "tooltip": "Thêm tỉnh/thành mới"
+    },
+    "refreshButton": {
+      "label": "Làm mới",
+      "tooltip": "Làm mới danh sách"
+    },
+    "actionsButton": {
+      "label": "Hành động"
+    },
+    "actions": {
+      "exportCSV": "Xuất CSV",
+      "exportGeoJSON": "Xuất GeoJSON",
+      "import": "Nhập Tỉnh/Thành"
+    },
+    "table": {
+      "code": "Mã",
+      "name": "Tên",
+      "region": "Vùng",
+      "rowActions": "Hành động hàng"
+    },
+    "contextMenu": {
+      "view": "Xem",
+      "edit": "Sửa",
+      "delete": "Xóa"
+    },
+    "pagination": {
+      "report": "Hiển thị {first} đến {last} trong tổng số {totalRecords} tỉnh/thành",
+      "previous": "Trang trước",
+      "next": "Trang sau",
+      "showing": "Hiển thị {first}-{last} trong {total}",
+      "itemsPerPage": "Số mục mỗi trang"
+    },
+    "messages": {
+      "loading": "Đang tải danh sách tỉnh/thành...",
+      "loaded": "Đã tải {{count}} tỉnh/thành",
+      "noResults": "Không tìm thấy tỉnh/thành nào cho '{{query}}'",
+      "noProvinces": "Chưa có tỉnh/thành nào",
+      "error": "Lỗi",
+      "success": "Thành công",
+      "loadFailed": "Không thể tải danh sách tỉnh/thành",
+      "exportSuccess": "Xuất dữ liệu thành công",
+      "exportFailed": "Xuất dữ liệu thất bại",
+      "deleteSuccess": "Đã xóa tỉnh/thành {{name}}",
+      "deleteFailed": "Không thể xóa tỉnh/thành",
+      "notImplemented": "Chưa triển khai",
+      "importSoon": "Tính năng nhập dữ liệu sẽ sớm có"
+    },
+    "confirmDelete": {
+      "header": "Xác nhận xóa",
+      "message": "Bạn có chắc chắn muốn xóa tỉnh/thành {{name}}?",
+      "accept": "Xóa",
+      "reject": "Hủy"
+    },
+    "mobileList": {
+      "itemActions": "Hành động mục"
+    },
+    "geoEditor": {
+      "label": "Vùng GeoJSON",
+      "placeholder": "Dán GeoJSON, Feature hoặc FeatureCollection vào đây (sẽ dùng geometry của Feature đầu tiên)",
+      "apply": "Áp dụng",
+      "clear": "Xóa",
+      "textTab": "Soạn thảo văn bản",
+      "drawTab": "Vẽ trên bản đồ"
+    }
+  },
+  "provinceForm": {
+    "title": {
+      "create": "Thêm Tỉnh/Thành",
+      "edit": "Sửa Tỉnh/Thành"
+    },
+    "drawMap": {
+      "clear": "Xóa vẽ"
+    },
+    "fields": {
+      "code": {
+        "label": "Mã Tỉnh/Thành",
+        "placeholder": "Nhập mã tỉnh/thành (ví dụ: HN, HCM)",
+        "errors": {
+          "required": "Mã tỉnh/thành là bắt buộc",
+          "minlength": "Mã phải có ít nhất 2 ký tự"
+        }
+      },
+      "name": {
+        "label": "Tên Tỉnh/Thành",
+        "placeholder": "Nhập tên tỉnh/thành",
+        "errors": {
+          "required": "Tên tỉnh/thành là bắt buộc",
+          "minlength": "Tên phải có ít nhất 2 ký tự"
+        }
+      },
+      "region": {
+        "label": "Vùng",
+        "placeholder": "Nhập vùng (ví dụ: Bắc, Trung, Nam)",
+        "errors": {
+          "required": "Vùng là bắt buộc"
+        }
+      }
+    },
+    "geometry": {
+      "title": "Vùng địa lý (GeoJSON)"
+    },
+    "map": {
+      "title": "Xem trước bản đồ"
+    },
+    "buttons": {
+      "create": "Tạo Tỉnh/Thành",
+      "update": "Cập nhật Tỉnh/Thành",
+      "cancel": "Hủy"
+    },
+    "messages": {
+      "error": "Lỗi",
+      "success": "Thành công",
+      "loadFailed": "Không thể tải dữ liệu tỉnh/thành",
+      "createSuccess": "Tạo tỉnh/thành thành công",
+      "createFailed": "Không thể tạo tỉnh/thành",
+      "updateSuccess": "Cập nhật tỉnh/thành thành công",
+      "updateFailed": "Không thể cập nhật tỉnh/thành"
+    }
+  },
+  "wardList": {
+    "title": "Quản lý Phường/Xã",
+    "search": {
+      "label": "Tìm kiếm phường/xã",
+      "placeholder": "Tìm theo tên, mã...",
+      "openSearch": "Mở tìm kiếm",
+      "closeSearch": "Đóng tìm kiếm"
+    },
+    "filter": {
+      "allProvinces": "Tất cả Tỉnh/Thành",
+      "allDistricts": "Tất cả Quận/Huyện",
+      "selectProvince": "Lọc theo Tỉnh/Thành",
+      "selectDistrict": "Lọc theo Quận/Huyện"
+    },
+    "addButton": {
+      "label": "Thêm Phường/Xã",
+      "tooltip": "Thêm phường/xã mới"
+    },
+    "refreshButton": {
+      "label": "Làm mới",
+      "tooltip": "Làm mới danh sách"
+    },
+    "actionsButton": {
+      "label": "Hành động"
+    },
+    "actions": {
+      "exportCSV": "Xuất ra CSV",
+      "exportGeoJSON": "Xuất ra GeoJSON",
+      "import": "Nhập Phường/Xã"
+    },
+    "table": {
+      "code": "Mã",
+      "name": "Tên",
+      "nameVi": "Tên (Tiếng Việt)",
+      "nameEn": "Tên (Tiếng Anh)",
+      "province": "Tỉnh/Thành",
+      "district": "Quận/Huyện",
+      "rowActions": "Hành động"
+    },
+    "contextMenu": {
+      "view": "Xem",
+      "edit": "Sửa",
+      "delete": "Xóa"
+    },
+    "pagination": {
+      "report": "Hiển thị {first} đến {last} trong tổng số {totalRecords} phường/xã",
+      "previous": "Trang trước",
+      "next": "Trang sau",
+      "showing": "Hiển thị {first}-{last} / {total}",
+      "itemsPerPage": "Số mục mỗi trang"
+    },
+    "messages": {
+      "loading": "Đang tải phường/xã...",
+      "loaded": "Đã tải {{count}} phường/xã",
+      "noResults": "Không tìm thấy phường/xã nào cho '{{query}}'",
+      "noWards": "Không có phường/xã nào",
+      "error": "Lỗi",
+      "success": "Thành công",
+      "loadFailed": "Không thể tải danh sách phường/xã",
+      "provinceLoadFailed": "Không thể tải danh sách tỉnh/thành",
+      "districtLoadFailed": "Không thể tải danh sách quận/huyện",
+      "exportSuccess": "Xuất dữ liệu thành công",
+      "exportFailed": "Xuất dữ liệu thất bại. Vui lòng thử lại.",
+      "notImplemented": "Sắp có",
+      "importSoon": "Chức năng nhập sẽ sớm được cập nhật",
+      "deleteSuccess": "Đã xóa phường/xã '{{name}}' thành công",
+      "deleteFailed": "Không thể xóa phường/xã. Vui lòng thử lại."
+    },
+    "confirmDelete": {
+      "header": "Xác nhận xóa",
+      "message": "Bạn có chắc chắn muốn xóa '{{name}}'? Hành động này không thể hoàn tác.",
+      "accept": "Xóa",
+      "reject": "Hủy"
+    },
+    "mobileList": {
+      "itemActions": "Hành động"
+    }
+  },
+  "wardForm": {
+    "title": {
+      "create": "Tạo Phường/Xã mới",
+      "edit": "Sửa Phường/Xã",
+      "view": "Xem Phường/Xã"
+    },
+    "fields": {
+      "code": {
+        "label": "Mã Phường/Xã",
+        "placeholder": "Nhập mã phường/xã (VD: W001)",
+        "errors": {
+          "required": "Mã phường/xã là bắt buộc",
+          "minlength": "Mã phường/xã phải có ít nhất 2 ký tự"
+        }
+      },
+      "name": {
+        "label": "Tên (Tiếng Việt)",
+        "placeholder": "Nhập tên phường/xã bằng tiếng Việt",
+        "errors": {
+          "required": "Tên tiếng Việt là bắt buộc",
+          "minlength": "Tên phải có ít nhất 2 ký tự"
+        }
+      },
+      "nameEn": {
+        "label": "Tên (Tiếng Anh)",
+        "placeholder": "Nhập tên phường/xã bằng tiếng Anh (tùy chọn)"
+      },
+      "provinceCode": {
+        "label": "Tỉnh/Thành",
+        "placeholder": "Chọn tỉnh/thành",
+        "errors": {
+          "required": "Tỉnh/Thành là bắt buộc"
+        }
+      },
+      "districtCode": {
+        "label": "Quận/Huyện",
+        "placeholder": "Chọn quận/huyện (tùy chọn cho chính quyền 2 cấp)",
+        "errors": {
+          "required": "Quận/Huyện là bắt buộc"
+        }
+      },
+      "note": {
+        "label": "Ghi chú",
+        "placeholder": "Nhập ghi chú bổ sung (tùy chọn)"
+      },
+      "isLegacy": {
+        "label": "Phường/Xã cũ",
+        "onLabel": "Cũ",
+        "offLabel": "Hiện tại"
+      }
+    },
+    "geometry": {
+      "title": "Chỉnh sửa hình học"
+    },
+    "map": {
+      "title": "Xem trước bản đồ"
+    },
+    "buttons": {
+      "create": "Tạo Phường/Xã",
+      "update": "Cập nhật Phường/Xã",
+      "cancel": "Hủy"
+    },
+    "messages": {
+      "error": "Lỗi",
+      "success": "Thành công",
+      "loadFailed": "Không thể tải dữ liệu phường/xã",
+      "provinceLoadFailed": "Không thể tải danh sách tỉnh/thành",
+      "districtLoadFailed": "Không thể tải danh sách quận/huyện",
+      "createSuccess": "Tạo phường/xã thành công",
+      "createFailed": "Không thể tạo phường/xã",
+      "updateSuccess": "Cập nhật phường/xã thành công",
+      "updateFailed": "Không thể cập nhật phường/xã"
+    }
+  },
+  "administrativeUnit": {
+    "title": "Quản lý Đơn vị Hành chính",
+    "search": {
+      "label": "Tìm kiếm",
+      "placeholder": "Tìm theo tên hoặc mã...",
+      "openSearch": "Mở tìm kiếm",
+      "closeSearch": "Đóng tìm kiếm",
+      "clearSearch": "Xóa tìm kiếm"
+    },
+    "addButton": {
+      "label": "Thêm Tỉnh/Thành",
+      "tooltip": "Thêm tỉnh/thành mới"
+    },
+    "refreshButton": {
+      "label": "Làm mới",
+      "tooltip": "Làm mới danh sách"
+    },
+    "actionsButton": {
+      "label": "Thao tác"
+    },
+    "actions": {
+      "exportCSV": "Xuất ra CSV",
+      "exportGeoJSON": "Xuất ra GeoJSON",
+      "bulkDelete": "Xóa hàng loạt"
+    },
+    "table": {
+      "name": "Tên",
+      "code": "Mã",
+      "type": "Loại",
+      "region": "Vùng",
+      "actions": "Thao tác",
+      "rowActions": "Thao tác hàng"
+    },
+    "types": {
+      "province": "Tỉnh/Thành",
+      "district": "Quận/Huyện",
+      "ward": "Phường/Xã"
+    },
+    "viewMode": {
+      "2-level": "2 Cấp",
+      "3-level": "3 Cấp"
+    },
+    "contextMenu": {
+      "view": "Xem",
+      "edit": "Sửa",
+      "createChild": "Tạo đơn vị con",
+      "delete": "Xóa"
+    },
+    "pagination": {
+      "showing": "Hiển thị {first}-{last} trong tổng số {total}",
+      "itemsPerPage": "Số dòng mỗi trang",
+      "page": "Trang"
+    },
+    "messages": {
+      "loading": "Đang tải đơn vị hành chính...",
+      "loaded": "Đã tải {{count}} đơn vị",
+      "noData": "Không tìm thấy đơn vị hành chính",
+      "error": "Lỗi",
+      "success": "Thành công",
+      "loadFailed": "Không thể tải dữ liệu",
+      "loadChildrenFailed": "Không thể tải đơn vị con",
+      "deleteSuccess": "Đã xóa {{name}} thành công",
+      "deleteFailed": "Không thể xóa đơn vị",
+      "createSuccess": "Tạo đơn vị thành công",
+      "createFailed": "Không thể tạo đơn vị",
+      "updateSuccess": "Cập nhật đơn vị thành công",
+      "updateFailed": "Không thể cập nhật đơn vị",
+      "refreshed": "Đã làm mới danh sách",
+      "notImplemented": "Chưa triển khai",
+      "exportSoon": "Chức năng xuất dữ liệu sẽ có sớm",
+      "bulkDeleteSoon": "Chức năng xóa hàng loạt sẽ có sớm"
+    },
+    "confirmDelete": {
+      "header": "Xác nhận Xóa",
+      "message": "Bạn có chắc chắn muốn xóa {{name}}?",
+      "bulkMessage": "Bạn có chắc chắn muốn xóa {{count}} đơn vị?",
+      "accept": "Xóa",
+      "reject": "Hủy"
+    },
+    "form": {
+      "title": {
+        "create": "Tạo Đơn vị Hành chính",
+        "edit": "Sửa Đơn vị Hành chính",
+        "view": "Xem Đơn vị Hành chính"
+      },
+      "fields": {
+        "code": {
+          "label": "Mã",
+          "placeholder": "Nhập mã",
+          "errors": {
+            "required": "Mã là bắt buộc",
+            "minlength": "Mã phải có ít nhất 2 ký tự"
+          }
+        },
+        "name": {
+          "label": "Tên",
+          "placeholder": "Nhập tên",
+          "errors": {
+            "required": "Tên là bắt buộc",
+            "minlength": "Tên phải có ít nhất 2 ký tự"
+          }
+        },
+        "nameEn": {
+          "label": "Tên (Tiếng Anh)",
+          "placeholder": "Nhập tên tiếng Anh"
+        },
+        "type": {
+          "label": "Loại"
+        },
+        "province": {
+          "label": "Tỉnh/Thành",
+          "placeholder": "Chọn tỉnh/thành"
+        },
+        "district": {
+          "label": "Quận/Huyện",
+          "placeholder": "Chọn quận/huyện"
+        },
+        "region": {
+          "label": "Vùng",
+          "placeholder": "Nhập vùng (vd: Miền Bắc, Miền Trung, Miền Nam)"
+        },
+        "population": {
+          "label": "Dân số",
+          "placeholder": "Nhập dân số"
+        },
+        "note": {
+          "label": "Ghi chú",
+          "placeholder": "Nhập ghi chú thêm"
+        }
+      },
+      "mapPreview": {
+        "label": "Xem trước Bản đồ"
+      },
+      "buttons": {
+        "create": "Tạo",
+        "update": "Cập nhật",
+        "cancel": "Hủy",
+        "close": "Đóng"
+      }
+    }
+  },
+  "navigationManagement": {
+    "contextMenu": {
+      "edit": "Chỉnh sửa mục"
+    }
+  },
+  "warehouseList": {
+    "title": "Quản lý Kho hàng",
+    "scope": {
+      "label": "Phạm vi"
+    },
+    "search": {
+      "label": "Tìm kiếm kho hàng",
+      "placeholder": "Tìm theo tên, mã, hoặc địa chỉ...",
+      "openSearch": "Mở tìm kiếm",
+      "closeSearch": "Đóng tìm kiếm"
+    },
+    "addButton": {
+      "label": "Thêm Kho",
+      "tooltip": "Thêm kho mới"
+    },
+    "refreshButton": {
+      "label": "Làm mới",
+      "tooltip": "Làm mới danh sách"
+    },
+    "actionsButton": {
+      "label": "Thao tác"
+    },
+    "actions": {
+      "exportCSV": "Xuất CSV",
+      "exportGeoJSON": "Xuất GeoJSON",
+      "import": "Nhập Kho",
+      "deleteSelected": "Xóa mục đã chọn"
+    },
+    "table": {
+      "code": "Mã",
+      "name": "Tên",
+      "organization": "Tổ chức",
+      "address": "Địa chỉ",
+      "rowActions": "Thao tác hàng"
+    },
+    "contextMenu": {
+      "view": "Xem",
+      "edit": "Sửa",
+      "delete": "Xóa"
+    },
+    "mapContextMenu": {
+      "createHere": "Tạo Kho Tại Đây",
+      "viewCoordinates": "Xem Tọa Độ",
+      "coordinates": "Tọa Độ Vị Trí"
+    },
+    "resultCount": "{{count}} kho hàng",
+    "messages": {
+      "loading": "Đang tải kho hàng...",
+      "noResults": "Không tìm thấy kho nào cho '{{query}}'",
+      "noWarehouses": "Không có kho nào",
+      "error": "Lỗi",
+      "success": "Thành công",
+      "exportSuccess": "Xuất thành công",
+      "exportFailed": "Xuất thất bại",
+      "deleteSuccess": "Đã xóa kho {{name}}",
+      "deleteFailed": "Xóa thất bại",
+      "bulkDeleteSuccess": "Đã xóa {{count}} kho",
+      "bulkDeleteFailed": "Xóa hàng loạt thất bại",
+      "notImplemented": "Chưa triển khai",
+      "importSoon": "Tính năng nhập sẽ có sớm"
+    },
+    "confirmDelete": {
+      "header": "Xác nhận xóa",
+      "message": "Bạn có chắc muốn xóa kho {{name}}?",
+      "accept": "Xóa",
+      "reject": "Hủy"
+    },
+    "confirmBulkDelete": {
+      "header": "Xác nhận xóa hàng loạt",
+      "message": "Bạn có chắc muốn xóa {{count}} kho?",
+      "accept": "Xóa",
+      "reject": "Hủy"
+    }
+  },
+  "warehouseForm": {
+    "title": {
+      "new": "Thêm Kho",
+      "edit": "Sửa Kho",
+      "view": "Xem Kho"
+    },
+    "fields": {
+      "code": {
+        "label": "Mã kho",
+        "placeholder": "Nhập mã kho"
+      },
+      "name": {
+        "label": "Tên kho",
+        "placeholder": "Nhập tên kho"
+      },
+      "locationSearch": {
+        "label": "Tìm Vị Trí",
+        "placeholder": "Nhập để tìm vị trí...",
+        "hint": "Tìm và chọn vị trí để tự động điền địa chỉ và tọa độ"
+      },
+      "address": {
+        "label": "Địa chỉ",
+        "placeholder": "Nhập địa chỉ kho"
+      },
+      "latitude": {
+        "label": "Vĩ độ",
+        "placeholder": "Ví dụ: 10.8231"
+      },
+      "longitude": {
+        "label": "Kinh độ",
+        "placeholder": "Ví dụ: 106.6297"
+      },
+      "location": {
+        "label": "Vị trí (GeoJSON)"
+      },
+      "mapPreview": {
+        "label": "Xem bản đồ"
+      },
+      "type": {
+        "label": "Loại kho",
+        "placeholder": "Chọn hoặc nhập loại kho"
+      },
+      "status": {
+        "label": "Trạng thái",
+        "placeholder": "Chọn trạng thái"
+      }
+    },
+    "actions": {
+      "save": "Lưu",
+      "cancel": "Hủy",
+      "close": "Đóng"
+    },
+    "messages": {
+      "error": "Lỗi",
+      "success": "Thành công",
+      "createSuccess": "Đã tạo kho thành công",
+      "updateSuccess": "Đã cập nhật kho thành công",
+      "saveFailed": "Lưu kho thất bại"
+    }
+  },
+  "adminUnits": {
+    "title": "Quản lý Tỉnh và Xã",
+    "search": {
+      "placeholder": "Tìm kiếm tỉnh...",
+      "button": "Tìm kiếm",
+      "tooltip": "Tìm kiếm tỉnh theo tên hoặc mã",
+      "clear": "Xóa tìm kiếm"
+    },
+    "addProvince": "Thêm Tỉnh",
+    "addProvinceTooltip": "Thêm tỉnh mới",
+    "addWard": "Thêm Xã",
+    "editProvince": "Sửa Tỉnh",
+    "deleteProvince": "Xóa Tỉnh",
+    "editWard": "Sửa Xã",
+    "deleteWard": "Xóa Xã",
+    "refresh": "Làm mới",
+    "provinceCode": "Mã",
+    "region": "Vùng",
+    "wards": "xã",
+    "noProvinces": "Không tìm thấy tỉnh",
+    "noWards": "Không có xã nào trong tỉnh này",
+    "selectProvinceForMap": "Chọn một tỉnh để xem trên bản đồ",
+    "wardSearch": {
+      "placeholder": "Tìm kiếm xã trong tỉnh này...",
+      "tooltip": "Tìm kiếm xã theo tên hoặc mã"
+    },
+    "exportCSV": "Xuất CSV",
+    "exportGeoJSON": "Xuất GeoJSON",
+    "actions": {
+      "label": "Thao tác",
+      "tooltip": "Thêm thao tác",
+      "exportCSV": "Xuất Tỉnh ra CSV",
+      "exportGeoJSON": "Xuất Tỉnh ra GeoJSON",
+      "refresh": "Làm mới tất cả"
+    },
+    "table": {
+      "code": "Mã",
+      "name": "Tên",
+      "nameEn": "Tên tiếng Anh",
+      "districtCode": "Mã Huyện",
+      "actions": "Thao tác"
+    },
+    "messages": {
+      "success": "Thành công",
+      "error": "Lỗi",
+      "loadFailed": "Không thể tải dữ liệu",
+      "loadWardsFailed": "Không thể tải danh sách xã",
+      "provinceDeleted": "Đã xóa tỉnh {{name}} thành công",
+      "wardDeleted": "Đã xóa xã {{name}} thành công",
+      "deleteFailed": "Xóa không thành công",
+      "refreshed": "Đã làm mới dữ liệu thành công",
+      "exported": "Xuất dữ liệu thành công",
+      "exportFailed": "Xuất dữ liệu thất bại"
+    },
+    "confirmDelete": {
+      "header": "Xác nhận xóa",
+      "provinceMessage": "Bạn có chắc chắn muốn xóa tỉnh {{name}}? Điều này cũng sẽ xóa tất cả các xã liên quan.",
+      "wardMessage": "Bạn có chắc chắn muốn xóa xã {{name}}?"
+    }
+  },
+  "userDetail": {
+    "drawer": {
+      "label": "Chi tiết người dùng",
+      "title": "Chi tiết người dùng"
+    },
+    "tabs": {
+      "general": "Thông tin chung",
+      "roles": "Vai trò & Thành viên",
+      "activity": "Nhật ký hoạt động",
+      "password": "Đặt lại mật khẩu"
+    },
+    "general": {
+      "profile": "Thông tin hồ sơ",
+      "email": "Email",
+      "username": "Tên đăng nhập",
+      "phone": "Điện thoại",
+      "lastLogin": "Đăng nhập lần cuối",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật",
+      "never": "Chưa bao giờ",
+      "additionalInfo": "Thông tin bổ sung",
+      "roles": "Vai trò",
+      "permissions": "Quyền",
+      "noData": "Không có dữ liệu bổ sung"
+    },
+    "roles": {
+      "title": "Thành viên tổ chức",
+      "organization": "Tổ chức",
+      "role": "Vai trò",
+      "status": "Trạng thái",
+      "joinedAt": "Tham gia",
+      "noMemberships": "Không tìm thấy thành viên tổ chức"
+    },
+    "activity": {
+      "title": "Lịch sử hoạt động",
+      "loadMore": "Tải thêm",
+      "noActivity": "Không tìm thấy nhật ký hoạt động"
+    },
+    "actions": {
+      "edit": "Sửa",
+      "close": "Đóng",
+      "more": "Thao tác khác",
+      "invite": "Mời",
+      "sendInvitation": "Gửi lời mời",
+      "resetPassword": "Đặt lại mật khẩu",
+      "disable": "Vô hiệu hóa người dùng",
+      "enable": "Kích hoạt người dùng",
+      "impersonate": "Mạo danh người dùng"
+    },
+    "messages": {
+      "loading": "Đang tải chi tiết người dùng...",
+      "error": "Lỗi",
+      "success": "Thành công",
+      "noData": "Không có dữ liệu người dùng",
+      "loadFailed": "Không thể tải chi tiết người dùng",
+      "invitationSent": "Đã gửi lời mời thành công",
+      "passwordReset": "Đã gửi email đặt lại mật khẩu thành công",
+      "userDisabled": "Đã vô hiệu hóa người dùng thành công",
+      "userEnabled": "Đã kích hoạt người dùng thành công",
+      "impersonating": "Đang mạo danh người dùng",
+      "impersonatingDetail": "Đang mạo danh {{name}}"
+    },
+    "resetPassword": {
+      "title": "Mật khẩu & Bảo mật",
+      "resetPasswordSection": {
+        "title": "Đặt lại mật khẩu",
+        "method": {
+          "label": "Phương thức đặt lại",
+          "autoGenerate": "Tự động tạo mật khẩu",
+          "manual": "Đặt mật khẩu tùy chỉnh"
+        },
+        "password": {
+          "label": "Mật khẩu mới",
+          "placeholder": "Nhập mật khẩu mới",
+          "showPassword": "Hiện mật khẩu",
+          "hidePassword": "Ẩn mật khẩu",
+          "copyPassword": "Sao chép mật khẩu",
+          "passwordCopied": "Đã sao chép mật khẩu",
+          "generated": "Mật khẩu được tạo",
+          "strength": {
+            "label": "Độ mạnh mật khẩu",
+            "weak": "Yếu",
+            "medium": "Trung bình",
+            "strong": "Mạnh",
+            "veryStrong": "Rất mạnh"
+          }
+        },
+        "options": {
+          "forceReset": "Bắt buộc người dùng đổi mật khẩu khi đăng nhập lần sau",
+          "revokeSessions": "Thu hồi tất cả phiên sau khi đặt lại",
+          "sendEmail": "Gửi thông báo email"
+        },
+        "button": "Đặt lại mật khẩu",
+        "reason": {
+          "label": "Lý do (tùy chọn)",
+          "placeholder": "Nhập lý do cho nhật ký kiểm toán"
+        }
+      },
+      "sessionsSection": {
+        "title": "Phiên đăng nhập",
+        "description": "Thu hồi tất cả phiên đăng nhập đang hoạt động của người dùng này",
+        "button": "Thu hồi tất cả phiên",
+        "options": {
+          "revokeRefreshTokens": "Thu hồi token làm mới",
+          "revokeAllDevices": "Thu hồi tất cả thiết bị"
+        },
+        "reason": {
+          "label": "Lý do (tùy chọn)",
+          "placeholder": "Nhập lý do thu hồi phiên"
+        }
+      },
+      "accountStatusSection": {
+        "title": "Trạng thái tài khoản",
+        "currentStatus": "Trạng thái hiện tại",
+        "active": "Hoạt động",
+        "blocked": "Bị khóa",
+        "blockButton": "Khóa người dùng",
+        "unblockButton": "Mở khóa người dùng",
+        "blockOptions": {
+          "softBlock": "Khóa mềm (ngăn đăng nhập nhưng giữ phiên)",
+          "revokeSessions": "Thu hồi phiên khi khóa",
+          "sendEmail": "Gửi thông báo email"
+        },
+        "unblockOptions": {
+          "sendEmail": "Gửi thông báo email"
+        },
+        "reason": {
+          "label": "Lý do",
+          "labelOptional": "Lý do (tùy chọn)",
+          "placeholder": "Nhập lý do khóa/mở khóa",
+          "required": "Lý do là bắt buộc khi khóa người dùng"
+        }
+      },
+      "confirmDialog": {
+        "resetPassword": {
+          "header": "Xác nhận đặt lại mật khẩu",
+          "message": "Bạn có chắc chắn muốn đặt lại mật khẩu cho người dùng này?",
+          "messageWithRevoke": "Điều này sẽ đặt lại mật khẩu và thu hồi tất cả phiên hoạt động. Người dùng sẽ bị đăng xuất khỏi tất cả thiết bị."
+        },
+        "revokeSessions": {
+          "header": "Xác nhận thu hồi phiên",
+          "message": "Bạn có chắc chắn muốn thu hồi tất cả phiên của người dùng này? Họ sẽ bị đăng xuất khỏi tất cả thiết bị ngay lập tức."
+        },
+        "blockUser": {
+          "header": "Xác nhận khóa người dùng",
+          "message": "Bạn có chắc chắn muốn khóa người dùng này? Họ sẽ không thể đăng nhập."
+        },
+        "unblockUser": {
+          "header": "Xác nhận mở khóa người dùng",
+          "message": "Bạn có chắc chắn muốn mở khóa người dùng này? Họ sẽ có thể đăng nhập lại."
+        },
+        "confirm": "Xác nhận",
+        "cancel": "Hủy"
+      },
+      "messages": {
+        "passwordResetSuccess": "Đặt lại mật khẩu thành công",
+        "passwordResetError": "Không thể đặt lại mật khẩu",
+        "passwordCopied": "Đã sao chép mật khẩu",
+        "sessionsRevokedSuccess": "Đã thu hồi tất cả phiên thành công",
+        "sessionsRevokedError": "Không thể thu hồi phiên",
+        "userBlockedSuccess": "Đã khóa người dùng thành công",
+        "userBlockedError": "Không thể khóa người dùng",
+        "userUnblockedSuccess": "Đã mở khóa người dùng thành công",
+        "userUnblockedError": "Không thể mở khóa người dùng",
+        "reasonRequired": "Lý do là bắt buộc khi khóa người dùng"
+      },
+      "validation": {
+        "passwordRequired": "Mật khẩu là bắt buộc",
+        "passwordMinLength": "Mật khẩu phải có ít nhất 8 ký tự",
+        "passwordPattern": "Mật khẩu phải chứa chữ hoa, chữ thường, số và ký tự đặc biệt",
+        "reasonRequired": "Lý do là bắt buộc"
+      }
+    }
+  },
+  "auditLogs": {
+    "title": "Nhật Ký Kiểm Tra",
+    "searchPlaceholder": "Tìm kiếm theo hành động hoặc thực thể...",
+    "empty": "Không tìm thấy nhật ký kiểm tra",
+    "table": {
+      "label": "Bảng nhật ký kiểm tra"
+    },
+    "columns": {
+      "action": "Hành Động",
+      "entity": "Thực Thể",
+      "timestamp": "Thời Gian",
+      "ipAddress": "Địa Chỉ IP",
+      "status": "Trạng Thái",
+      "actions": "Thao Tác"
+    },
+    "status": {
+      "success": "Thành Công",
+      "failure": "Thất Bại"
+    },
+    "actions": {
+      "view": "Xem chi tiết",
+      "viewDetail": "Xem chi tiết nhật ký",
+      "close": "Đóng"
+    },
+    "pagination": {
+      "showing": "Hiển thị",
+      "to": "đến",
+      "of": "trong",
+      "page": "Trang",
+      "previous": "Trang trước",
+      "next": "Trang sau"
+    },
+    "detail": {
+      "title": "Chi Tiết Nhật Ký",
+      "loading": "Đang tải chi tiết...",
+      "action": "Hành Động",
+      "entity": "Thực Thể",
+      "description": "Mô Tả",
+      "timestamp": "Thời Gian",
+      "status": "Trạng Thái",
+      "networkInfo": "Thông Tin Mạng",
+      "ipAddress": "Địa Chỉ IP",
+      "userAgent": "User Agent",
+      "payload": "Dữ Liệu / Thay Đổi",
+      "metadata": "Metadata"
+    }
+  }
+}

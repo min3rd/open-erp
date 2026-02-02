@@ -1,0 +1,310 @@
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { Observable, catchError, map, of } from 'rxjs';
+import { API_URI_ORGANIZATION } from '../constant';
+import { ApiResponse, ApiSingleResponse, isApiResponse, unwrap, wrapSuccess } from '../api';
+
+export interface VietQRBusinessResponse {
+  code: string;
+  desc: string;
+  data: {
+    id: string;
+    name: string;
+    internationalName: string;
+    shortName: string;
+    address: string;
+    status: string;
+  };
+}
+
+export type OrganizationType = 'holding' | 'company' | 'joint-venture' | 'partner' | 'branch';
+export type OrganizationStatus = 'active' | 'inactive' | 'pending';
+
+export interface CreateOrganizationDto {
+  taxId: string;
+  name: string;
+  internationalName: string;
+  headquartersAddress: string;
+  legalRepresentative: string;
+  contactPhone: string;
+  contactEmail: string;
+  foundedDate: string;
+  businessActivities?: string[];
+  type: OrganizationType;
+  status?: OrganizationStatus;
+  country: string;
+  description?: string;
+  website?: string;
+}
+
+export interface OrganizationResponse {
+  id: string;
+  taxId: string;
+  name: string;
+  internationalName: string;
+  headquartersAddress: string;
+  legalRepresentative: string;
+  contactPhone: string;
+  contactEmail: string;
+  foundedDate: string;
+  businessActivities?: string[];
+  type: OrganizationType;
+  status: OrganizationStatus;
+  country: string;
+  description?: string;
+  website?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpdateOrganizationDto {
+  taxId?: string;
+  name?: string;
+  internationalName?: string;
+  headquartersAddress?: string;
+  legalRepresentative?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  foundedDate?: string;
+  businessActivities?: string[];
+  type?: OrganizationType;
+  status?: OrganizationStatus;
+  country?: string;
+  description?: string;
+  website?: string;
+}
+
+export interface OrganizationMember {
+  id: string;
+  userId: string;
+  username: string;
+  email: string;
+  fullName: string;
+  role: string;
+  status: 'active' | 'pending' | 'inactive';
+  joinedAt: string;
+}
+
+export interface OrganizationRelation {
+  id: string;
+  relatedOrganizationId: string;
+  relatedOrganization: {
+    id: string;
+    name: string;
+    internationalName: string;
+    taxId: string;
+  };
+  relationType: 'subsidiary' | 'parent' | 'partner' | 'joint_venture';
+  sharePercentage?: number;
+  establishedDate?: string;
+}
+
+export interface OrganizationEvent {
+  id: string;
+  type: string;
+  description: string;
+  userId?: string;
+  username?: string;
+  metadata?: Record<string, any>;
+  createdAt: string;
+}
+
+export interface InviteMemberDto {
+  email: string;
+  role: string;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class OrganizationService {
+  private httpClient = inject(HttpClient);
+  private readonly VIETQR_API_URL = 'https://api.vietqr.io/v2/business';
+
+  /**
+   * Look up business information by tax ID using VietQR API
+   */
+  lookupBusinessByTaxId(taxId: string): Observable<VietQRBusinessResponse | null> {
+    return this.httpClient.get<VietQRBusinessResponse>(`${this.VIETQR_API_URL}/${taxId}`).pipe(
+      map((response) => {
+        if (response.code === '00') {
+          return response;
+        }
+        return null;
+      }),
+      catchError((error) => {
+        console.error('VietQR API error:', error);
+        return of(null);
+      })
+    );
+  }
+
+  /**
+   * Create a new organization
+   */
+  createOrganization(
+    dto: CreateOrganizationDto,
+    version: string = 'v1'
+  ): Observable<OrganizationResponse> {
+    return this.httpClient
+      .post<ApiSingleResponse<OrganizationResponse> | OrganizationResponse>(
+        `${API_URI_ORGANIZATION}/${version}/organizations`,
+        dto
+      )
+      .pipe(
+        map((response) => {
+          if (isApiResponse(response)) {
+            const data = unwrap(response as ApiSingleResponse<OrganizationResponse>);
+            return data.item!;
+          }
+          // Legacy format
+          console.warn('OrganizationService: Received legacy response format for createOrganization');
+          return response as OrganizationResponse;
+        })
+      );
+  }
+
+  /**
+   * Get organization by ID
+   */
+  getOrganization(id: string, version: string = 'v1'): Observable<OrganizationResponse> {
+    return this.httpClient
+      .get<ApiSingleResponse<OrganizationResponse> | OrganizationResponse>(
+        `${API_URI_ORGANIZATION}/${version}/organizations/${id}`
+      )
+      .pipe(
+        map((response) => {
+          if (isApiResponse(response)) {
+            const data = unwrap(response as ApiSingleResponse<OrganizationResponse>);
+            return data.item!;
+          }
+          // Legacy format
+          console.warn('OrganizationService: Received legacy response format for getOrganization');
+          return response as OrganizationResponse;
+        })
+      );
+  }
+
+  /**
+   * Update organization
+   */
+  updateOrganization(
+    id: string,
+    dto: UpdateOrganizationDto,
+    version: string = 'v1'
+  ): Observable<OrganizationResponse> {
+    return this.httpClient
+      .patch<ApiSingleResponse<OrganizationResponse> | OrganizationResponse>(
+        `${API_URI_ORGANIZATION}/${version}/organizations/${id}`,
+        dto
+      )
+      .pipe(
+        map((response) => {
+          if (isApiResponse(response)) {
+            const data = unwrap(response as ApiSingleResponse<OrganizationResponse>);
+            return data.item!;
+          }
+          // Legacy format
+          console.warn('OrganizationService: Received legacy response format for updateOrganization');
+          return response as OrganizationResponse;
+        })
+      );
+  }
+
+  /**
+   * Get organization members
+   */
+  getOrganizationMembers(
+    id: string,
+    page: number = 1,
+    limit: number = 10,
+    version: string = 'v1'
+  ): Observable<{ data: OrganizationMember[]; total: number; page: number; limit: number }> {
+    return this.httpClient.get<{
+      data: OrganizationMember[];
+      total: number;
+      page: number;
+      limit: number;
+    }>(`${API_URI_ORGANIZATION}/${version}/organizations/${id}/members`, {
+      params: { page: page.toString(), limit: limit.toString() },
+    });
+  }
+
+  /**
+   * Get organization relations
+   */
+  getOrganizationRelations(
+    id: string,
+    version: string = 'v1'
+  ): Observable<OrganizationRelation[]> {
+    return this.httpClient.get<OrganizationRelation[]>(
+      `${API_URI_ORGANIZATION}/${version}/organizations/${id}/relations`
+    );
+  }
+
+  /**
+   * Get organization events/activity log
+   */
+  getOrganizationEvents(
+    id: string,
+    page: number = 1,
+    limit: number = 20,
+    version: string = 'v1'
+  ): Observable<{ data: OrganizationEvent[]; total: number; page: number; limit: number }> {
+    return this.httpClient.get<{
+      data: OrganizationEvent[];
+      total: number;
+      page: number;
+      limit: number;
+    }>(`${API_URI_ORGANIZATION}/${version}/organizations/${id}/events`, {
+      params: { page: page.toString(), limit: limit.toString() },
+    });
+  }
+
+  /**
+   * Invite member to organization
+   */
+  inviteMember(
+    id: string,
+    dto: InviteMemberDto,
+    version: string = 'v1'
+  ): Observable<OrganizationMember> {
+    return this.httpClient.post<OrganizationMember>(
+      `${API_URI_ORGANIZATION}/${version}/organizations/${id}/members/invite`,
+      dto
+    );
+  }
+
+  /**
+   * Remove member from organization
+   */
+  removeMember(
+    organizationId: string,
+    memberId: string,
+    version: string = 'v1'
+  ): Observable<void> {
+    return this.httpClient.delete<void>(
+      `${API_URI_ORGANIZATION}/${version}/organizations/${organizationId}/members/${memberId}`
+    );
+  }
+
+  /**
+   * Get organizations that the current user belongs to
+   */
+  getUserOrganizations(version: string = 'v1'): Observable<OrganizationResponse[]> {
+    return this.httpClient
+      .get<ApiResponse<OrganizationResponse[]> | OrganizationResponse[]>(
+        `${API_URI_ORGANIZATION}/${version}/organizations`
+      )
+      .pipe(
+        map((response) => {
+          if (isApiResponse(response)) {
+            return unwrap(response as ApiResponse<OrganizationResponse[]>);
+          }
+          // Legacy format
+          console.warn('OrganizationService: Received legacy response format for getUserOrganizations');
+          return response as OrganizationResponse[];
+        })
+      );
+  }
+}

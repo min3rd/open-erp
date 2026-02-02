@@ -1,0 +1,148 @@
+{
+  "navigation": [
+    {
+      "id": "nav-demo",
+      "label": "Demo",
+      "labelKey": "navigation.demo",
+      "route": "/demo",
+      "icon": "pi pi-palette",
+      "module": "demo",
+      "scope": "global",
+      "order": 1,
+      "permissions": {
+        "include": ["demo.view"]
+      }
+    },
+    {
+      "id": "nav-organization",
+      "label": "Organization",
+      "labelKey": "navigation.organization",
+      "route": "/modules/organization",
+      "icon": "pi pi-building",
+      "module": "organization",
+      "scope": "global",
+      "order": 2,
+      "permissions": {
+        "include": ["organizations.read"]
+      },
+      "meta": {
+        "description": "Manage organizations and company structures"
+      }
+    },
+    {
+      "id": "nav-management",
+      "label": "Management",
+      "labelKey": "navigation.management",
+      "route": "/modules/management",
+      "icon": "pi pi-cog",
+      "module": "management",
+      "scope": "global",
+      "order": 3,
+      "meta": {
+        "description": "System management and administration"
+      }
+    },
+    {
+      "id": "nav-user",
+      "label": "User Management",
+      "labelKey": "navigation.management.user",
+      "route": "/modules/management/user",
+      "icon": "pi pi-users",
+      "module": "management",
+      "scope": "global",
+      "parentId": "nav-management",
+      "order": 1,
+      "permissions": {
+        "include": ["users.read", "users.manage"]
+      },
+      "meta": {
+        "description": "Manage system users and accounts"
+      }
+    },
+    {
+      "id": "nav-province",
+      "label": "Province Management",
+      "labelKey": "navigation.management.province",
+      "route": "/modules/management/province",
+      "icon": "pi pi-map",
+      "module": "management",
+      "scope": "global",
+      "parentId": "nav-management",
+      "order": 2,
+      "permissions": {
+        "include": ["provinces.read", "geography.manage"]
+      },
+      "meta": {
+        "description": "Manage provinces and regions"
+      }
+    },
+    {
+      "id": "nav-district",
+      "label": "District Management",
+      "labelKey": "navigation.management.district",
+      "route": "/modules/management/district",
+      "icon": "pi pi-map-marker",
+      "module": "management",
+      "scope": "global",
+      "parentId": "nav-management",
+      "order": 3,
+      "permissions": {
+        "include": ["districts.read", "geography.manage"]
+      },
+      "meta": {
+        "description": "Manage districts"
+      }
+    },
+    {
+      "id": "nav-ward",
+      "label": "Ward Management",
+      "labelKey": "navigation.management.ward",
+      "route": "/modules/management/ward",
+      "icon": "pi pi-compass",
+      "module": "management",
+      "scope": "global",
+      "parentId": "nav-management",
+      "order": 4,
+      "permissions": {
+        "include": ["wards.read", "geography.manage"]
+      },
+      "meta": {
+        "description": "Manage wards and communes"
+      }
+    },
+    {
+      "id": "nav-administrative-unit",
+      "label": "Administrative Unit",
+      "labelKey": "navigation.management.administrative_unit",
+      "route": "/modules/management/administrative-unit",
+      "icon": "pi pi-flag",
+      "module": "management",
+      "scope": "global",
+      "parentId": "nav-management",
+      "order": 5,
+      "permissions": {
+        "include": ["administrative_units.read", "geography.manage"]
+      },
+      "meta": {
+        "description": "Manage administrative units and divisions"
+      }
+    },
+    {
+      "id": "nav-warehouse",
+      "label": "Warehouse Management",
+      "labelKey": "navigation.management.warehouse",
+      "route": "/modules/management/warehouse",
+      "icon": "pi pi-box",
+      "module": "management",
+      "scope": "global",
+      "parentId": "nav-management",
+      "order": 6,
+      "permissions": {
+        "include": ["warehouses.read", "warehouses.manage"]
+      },
+      "meta": {
+        "description": "Manage warehouses and storage locations"
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+<header
+  id="management-header-tabs"
+  class="bg-surface-0 dark:bg-surface-900 border-b border-surface-200 dark:border-surface-700"
+  role="banner"
+>
+  <div id="management-tabs-container" class="flex items-center px-4">
+    <nav
+      id="management-tabs-nav"
+      class="flex w-full"
+      role="navigation"
+      [attr.aria-label]="'management.title' | transloco"
+    >
+      <!-- User Management Tab -->
+      <a
+        id="management-tab-user"
+        routerLink="user"
+        routerLinkActive="border-b-2 border-primary-500 text-primary-700 dark:text-primary-300"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-0 transition-colors border-b-2 border-transparent"
+        [attr.aria-label]="'management.tabs.user' | transloco"
+        [attr.aria-current]="isActive('user') ? 'page' : null"
+      >
+        <i class="pi pi-users" aria-hidden="true"></i>
+        <span>{{ 'management.tabs.user' | transloco }}</span>
+      </a>
+    </nav>
+  </div>
+</header>

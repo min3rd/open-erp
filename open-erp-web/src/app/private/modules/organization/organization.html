@@ -1,0 +1,31 @@
+<!-- Organization Layout Wrapper -->
+<div
+  id="organization-layout"
+  class="flex flex-col h-full w-full overflow-hidden bg-surface-50 dark:bg-surface-950"
+>
+  <!-- Mobile Header Tabs (visible only on mobile) -->
+  @if (isMobile()) {
+  <organization-header-tabs></organization-header-tabs>
+  }
+
+  <!-- Main Content Area -->
+  <div
+    id="organization-main"
+    class="flex flex-1 h-full overflow-hidden"
+  >
+    <!-- Desktop Navigation Sidebar (hidden on mobile) -->
+    @if (!isMobile()) {
+    <organization-nav></organization-nav>
+    }
+
+    <!-- Content Area -->
+    <main
+      id="organization-content"
+      class="flex-1 overflow-auto"
+      role="main"
+    >
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
+

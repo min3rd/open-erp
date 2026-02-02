@@ -1,0 +1,104 @@
+<div id="form-editor-container" class="flex flex-col h-screen">
+  <!-- Toast for notifications -->
+  <p-toast />
+
+  <!-- Header Toolbar -->
+  <div class="border-b border-surface-200 dark:border-surface-700">
+    <p-toolbar id="form-editor-toolbar">
+      <ng-template #start>
+        <div class="flex items-center gap-2">
+          <i class="pi pi-sitemap text-2xl text-primary" aria-hidden="true"></i>
+          <h1 class="text-xl font-semibold text-surface-900 dark:text-surface-0 m-0">
+            {{ 'formEditor.title' | transloco }}
+          </h1>
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="flex gap-2">
+          <p-button
+            id="form-editor-undo-button"
+            icon="pi pi-undo"
+            [outlined]="true"
+            severity="secondary"
+            [disabled]="!canUndo()"
+            (onClick)="undo()"
+            [pTooltip]="'formEditor.toolbar.undo' | transloco"
+            tooltipPosition="bottom"
+            [attr.aria-label]="'formEditor.toolbar.undo' | transloco"
+          />
+          <p-button
+            id="form-editor-redo-button"
+            icon="pi pi-refresh"
+            [outlined]="true"
+            severity="secondary"
+            [disabled]="!canRedo()"
+            (onClick)="redo()"
+            [pTooltip]="'formEditor.toolbar.redo' | transloco"
+            tooltipPosition="bottom"
+            [attr.aria-label]="'formEditor.toolbar.redo' | transloco"
+          />
+          <p-button
+            id="form-editor-clear-button"
+            icon="pi pi-trash"
+            [outlined]="true"
+            severity="danger"
+            (onClick)="clear()"
+            [pTooltip]="'formEditor.toolbar.clear' | transloco"
+            tooltipPosition="bottom"
+            [attr.aria-label]="'formEditor.toolbar.clear' | transloco"
+          />
+          <p-button
+            id="form-editor-export-button"
+            [label]="'formEditor.toolbar.export' | transloco"
+            icon="pi pi-download"
+            severity="primary"
+            (onClick)="exportSchema()"
+            [pTooltip]="'formEditor.toolbar.export' | transloco"
+            tooltipPosition="bottom"
+            [attr.aria-label]="'formEditor.toolbar.export' | transloco"
+          />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Main Content Area -->
+  <div id="form-editor-content" class="flex-1 flex overflow-hidden">
+    <!-- Left Panel: Component Palette -->
+    <div
+      id="form-editor-left-panel"
+      class="w-64 border-r border-surface-200 dark:border-surface-700 overflow-y-auto"
+    >
+      <form-editor-palette
+        (componentSelected)="onComponentSelected($event)"
+        (componentDragStart)="$event"
+      />
+    </div>
+
+    <!-- Center: Canvas -->
+    <div id="form-editor-center-panel" class="flex-1 overflow-hidden">
+      <form-editor-canvas
+        [components]="schema().components"
+        [selectedComponentId]="selectedComponentId()"
+        (componentSelected)="onCanvasComponentSelected($event)"
+        (componentDropped)="onComponentDropped($event)"
+        (componentMoved)="onComponentMoved($event)"
+        (addComponentRequested)="onAddComponentRequested($event)"
+      />
+    </div>
+
+    <!-- Right Panel: Properties Inspector -->
+    <div
+      id="form-editor-right-panel"
+      class="w-80 border-l border-surface-200 dark:border-surface-700 overflow-y-auto"
+    >
+      <form-editor-inspector
+        [component]="selectedComponent()"
+        (componentChanged)="onComponentChanged($event)"
+        (componentRemoved)="onComponentRemoved($event)"
+      />
+    </div>
+  </div>
+</div>
+
