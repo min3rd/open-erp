@@ -69,10 +69,15 @@ function parseArgs(): Options {
   // 3) individual npm_config_* env flags (npm converts --flag to npm_config_flag)
   const argvFromProcess = process.argv.slice(2);
 
+  console.log('DEBUG: process.argv:', process.argv);
+  console.log('DEBUG: argvFromProcess:', argvFromProcess);
+  console.log('DEBUG: npm_config_argv:', process.env.npm_config_argv);
+
   const argvFromNpm: string[] = [];
   if (process.env.npm_config_argv) {
     try {
       const parsed = JSON.parse(process.env.npm_config_argv as string);
+      console.log('DEBUG: parsed npm_config_argv:', parsed);
       if (parsed && Array.isArray(parsed.original)) {
         // original often looks like ["run","db:seed:all","--","--drop"]
         // remove 'run' and the lifecycle event name and the literal '--'
@@ -84,10 +89,13 @@ function parseArgs(): Options {
       }
     } catch (e) {
       // ignore parse errors
+      console.log('DEBUG: npm_config_argv parse error:', e);
     }
   }
+  console.log('DEBUG: argvFromNpm:', argvFromNpm);
 
   // Check for npm_config_<flag> env vars for flags passed without --
+  // Support both boolean flags and key/value flags (e.g., npm_config_org_count=100)
   const possibleFlags = [
     'drop',
     'confirm',
@@ -103,22 +111,50 @@ function parseArgs(): Options {
     'skip-navigation',
     'skip-product-types',
     'skip-product-categories',
+    'warehouse-count',
+    'org-count',
+    'user-count',
+    'seed-superadmin-password',
   ];
   const argvFromEnvFlags: string[] = [];
   possibleFlags.forEach((flag) => {
     // npm converts dashes to underscores in env var names
     const envName = `npm_config_${flag.replace(/-/g, '_')}`;
-    if (process.env[envName]) {
-      argvFromEnvFlags.push(`--${flag}`);
+    const val = process.env[envName];
+    if (typeof val !== 'undefined') {
+      console.log(`DEBUG: Found env ${envName}=${val}`);
+      // If val is 'true' or empty string, treat as boolean flag
+      if (val === 'true' || val === '') {
+        argvFromEnvFlags.push(`--${flag}`);
+      } else {
+        // For key/value flags, include both the flag and the value
+        argvFromEnvFlags.push(`--${flag}`);
+        argvFromEnvFlags.push(String(val));
+      }
     }
   });
+  console.log('DEBUG: argvFromEnvFlags:', argvFromEnvFlags);
 
-  // Combine and dedupe, giving precedence to explicit process.argv
+  // Combine args from all sources (don't dedupe - values may repeat legitimately)
   const combined = [...argvFromProcess, ...argvFromNpm, ...argvFromEnvFlags];
-  const args = Array.from(new Set(combined));
+  console.log('DEBUG: combined args:', combined);
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
+  // Expand any --key=value style args into ['--key', 'value'] for easier parsing
+  const expandedArgs: string[] = [];
+  combined.forEach((a) => {
+    if (typeof a === 'string' && a.startsWith('--') && a.includes('=')) {
+      const [k, ...rest] = a.split('=');
+      const v = rest.join('=');
+      expandedArgs.push(k);
+      if (v.length > 0) expandedArgs.push(v);
+    } else {
+      expandedArgs.push(a);
+    }
+  });
+  console.log('DEBUG: expandedArgs:', expandedArgs);
+
+  for (let i = 0; i < expandedArgs.length; i++) {
+    const arg = expandedArgs[i];
     switch (arg) {
       case '--drop':
         opts.drop = true;
@@ -163,26 +199,26 @@ function parseArgs(): Options {
         opts.skipProductCategories = true;
         break;
       case '--warehouse-count':
-        if (args[i + 1]) {
-          opts.warehouseCount = parseInt(args[i + 1], 10);
+        if (expandedArgs[i + 1]) {
+          opts.warehouseCount = parseInt(expandedArgs[i + 1], 10);
           i++;
         }
         break;
       case '--org-count':
-        if (args[i + 1]) {
-          opts.orgCount = parseInt(args[i + 1], 10);
+        if (expandedArgs[i + 1]) {
+          opts.orgCount = parseInt(expandedArgs[i + 1], 10);
           i++;
         }
         break;
       case '--user-count':
-        if (args[i + 1]) {
-          opts.userCount = parseInt(args[i + 1], 10);
+        if (expandedArgs[i + 1]) {
+          opts.userCount = parseInt(expandedArgs[i + 1], 10);
           i++;
         }
         break;
       case '--seed-superadmin-password':
-        if (args[i + 1]) {
-          opts.seedSuperadminPassword = args[i + 1];
+        if (expandedArgs[i + 1]) {
+          opts.seedSuperadminPassword = expandedArgs[i + 1];
           i++;
         }
         break;
@@ -194,6 +230,10 @@ function parseArgs(): Options {
 
 async function seedAll() {
   const opts = parseArgs();
+
+  console.log('='.repeat(60));
+  console.log(JSON.stringify(opts, null, 2));
+  console.log('='.repeat(60));
 
   // Validate destructive operations
   if (opts.drop && !opts.confirm) {
