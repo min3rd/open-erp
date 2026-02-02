@@ -51,7 +51,14 @@ export class General implements OnInit, OnDestroy {
   protected newHobby = '';
   protected readonly skillsValue = signal<string[]>([]);
   protected readonly hobbiesValue = signal<string[]>([]);
-  protected readonly maxDate = new Date().toISOString().split('T')[0];
+  protected readonly maxEducationEntries = 20;
+  protected readonly maxYear = new Date().getFullYear() + 10;
+  protected readonly minYear = 1900;
+  
+  // Dynamic getter for max date to ensure it's always current
+  protected get maxDate(): string {
+    return new Date().toISOString().split('T')[0];
+  }
 
   ngOnInit(): void {
     // Initialize form
@@ -176,6 +183,14 @@ export class General implements OnInit, OnDestroy {
   }
 
   protected addEducation(): void {
+    if (this.educationArray.length >= this.maxEducationEntries) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: `Maximum ${this.maxEducationEntries} education entries allowed`,
+      });
+      return;
+    }
     this.educationArray.push(
       this.fb.group({
         degree: [''],
@@ -214,8 +229,12 @@ export class General implements OnInit, OnDestroy {
       updateData.address = formValue.address;
     }
 
-    if (formValue.dateOfBirth) {
+    // Handle date of birth - can be set or cleared
+    if (formValue.dateOfBirth !== undefined && formValue.dateOfBirth !== null) {
       updateData.dateOfBirth = formValue.dateOfBirth;
+    } else if (this.user()?.dateOfBirth && !formValue.dateOfBirth) {
+      // Explicitly clear if it was set before but is now empty
+      updateData.dateOfBirth = null as any;
     }
 
     if (formValue.education && formValue.education.length > 0) {

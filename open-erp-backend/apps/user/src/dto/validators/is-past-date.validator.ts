@@ -10,12 +10,18 @@ export class IsPastDateConstraint implements ValidatorConstraintInterface {
   validate(dateString: string): boolean {
     if (!dateString) return true; // Allow optional fields
     const date = new Date(dateString);
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return false;
+    }
+    
     const now = new Date();
     return date <= now;
   }
 
   defaultMessage(): string {
-    return 'Date of birth cannot be in the future';
+    return 'Date of birth must be a valid date and cannot be in the future';
   }
 }
 
