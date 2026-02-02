@@ -16,7 +16,7 @@ Các yêu cầu bắt buộc phải tuân theo:
   * Vào workspace open-erp-backend
   * Chạy lệnh `npm i` cài đặt dependencies
   * Chạy lệnh `npm run docker:dev:up` khởi tạo môi trường dữ liệu
-  * Chạy lệnh `npm run db:seed-all --drop --confirm --org-count 100 --warehouse-count 100 --user-count 100 --seed-superadmin-password 123456aA@` để khởi tạo data mẫu
+  * Chạy lệnh `npm run db:seed:all --drop --confirm --org-count 100 --warehouse-count 100 --user-count 100 --seed-superadmin-password 123456aA@` để khởi tạo data mẫu
   * Chạy các backend service auth, user,...: `npm run [service-name]:dev`
 * Khởi chạy giao diện web:
   * Vào workspace open-erp-web
