@@ -15,8 +15,8 @@
 	],
 	"settings": {
 		"i18n-ally.localesPaths": [
-			"libs/shared/errors/locales",
-			"../../../../../../Users/admin/Documents/open-erp/open-erp-web/public/i18n"
+			"open-erp-backend/libs/shared/errors/locales",
+			"open-erp-web/public/i18n"
 		],
 		"i18n-ally.enabledFrameworks": [
 			"transloco"
