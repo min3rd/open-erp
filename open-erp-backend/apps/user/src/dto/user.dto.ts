@@ -20,6 +20,12 @@ import { Type } from 'class-transformer';
 import { IsPastDate } from './validators/is-past-date.validator';
 
 export class AddressDto {
+  @ApiPropertyOptional({ description: 'Country', example: 'Vietnam' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  country?: string;
+
   @ApiPropertyOptional({ description: 'Street address', example: '123 Main St' })
   @IsString()
   @IsOptional()

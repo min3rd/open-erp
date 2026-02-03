@@ -22,6 +22,7 @@ export interface UserDetail extends User {
   metadata?: Record<string, any>;
   updatedAt?: string;
   address?: {
+    country?: string;
     street?: string;
     district?: string;
     city?: string;

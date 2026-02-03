@@ -127,6 +127,7 @@
             type="text"
             formControlName="district"
             class="w-full"
+            [placeholder]="'userDetail.general.selectOrEnter' | transloco"
           />
         </div>
         <div>
@@ -152,6 +153,7 @@
             type="text"
             formControlName="province"
             class="w-full"
+            [placeholder]="'userDetail.general.selectOrEnter' | transloco"
           />
         </div>
         <div>
@@ -165,6 +167,18 @@
             class="w-full"
           />
         </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+          {{ 'userDetail.general.country' | transloco }}
+        </label>
+        <input
+          pInputText
+          type="text"
+          formControlName="country"
+          class="w-full"
+        />
       </div>
     </div>
 

@@ -221,6 +221,7 @@ export class User extends Document {
 
   @Prop({
     type: {
+      country: { type: String, default: null },
       street: { type: String, default: null },
       district: { type: String, default: null },
       city: { type: String, default: null },
@@ -230,6 +231,7 @@ export class User extends Document {
     default: null,
   })
   address?: {
+    country?: string;
     street?: string;
     district?: string;
     city?: string;

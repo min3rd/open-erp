@@ -64,6 +64,7 @@ export class General implements OnInit, OnDestroy {
     // Initialize form
     this.editForm = this.fb.group({
       address: this.fb.group({
+        country: [''],
         street: [''],
         district: [''],
         city: [''],
@@ -103,6 +104,7 @@ export class General implements OnInit, OnDestroy {
       this.editForm.get('address')?.patchValue(user.address);
     } else {
       this.editForm.get('address')?.patchValue({
+        country: '',
         street: '',
         district: '',
         city: '',
@@ -339,6 +341,7 @@ export class General implements OnInit, OnDestroy {
   }
 
   protected formatAddress(address?: {
+    country?: string;
     street?: string;
     district?: string;
     city?: string;
@@ -352,6 +355,7 @@ export class General implements OnInit, OnDestroy {
       address.city,
       address.province,
       address.postalCode,
+      address.country,
     ].filter(Boolean);
     return parts.length > 0 ? parts.join(', ') : '-';
   }
