@@ -9,6 +9,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Va
 import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { DatePickerModule } from 'primeng/datepicker';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -26,6 +27,7 @@ import { UserDetailService, UserDetail } from '../services/user-detail.service';
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
+    DatePickerModule,
     TagModule,
     ToastModule,
   ],
@@ -58,6 +60,11 @@ export class General implements OnInit, OnDestroy {
   // Dynamic getter for max date to ensure it's always current
   protected get maxDate(): string {
     return new Date().toISOString().split('T')[0];
+  }
+
+  // Max date as Date object for p-datepicker
+  protected get maxDateObject(): Date {
+    return new Date();
   }
 
   ngOnInit(): void {
@@ -116,8 +123,8 @@ export class General implements OnInit, OnDestroy {
     // Patch date of birth or reset if null
     if (user.dateOfBirth) {
       const date = new Date(user.dateOfBirth);
-      const dateString = date.toISOString().split('T')[0];
-      this.editForm.get('dateOfBirth')?.patchValue(dateString);
+      // p-datepicker expects a Date object
+      this.editForm.get('dateOfBirth')?.patchValue(date);
     } else {
       this.editForm.get('dateOfBirth')?.patchValue(null);
     }
@@ -262,7 +269,9 @@ export class General implements OnInit, OnDestroy {
 
     // Handle date of birth - can be set or cleared
     if (formValue.dateOfBirth !== undefined && formValue.dateOfBirth !== null) {
-      updateData.dateOfBirth = formValue.dateOfBirth;
+      // p-datepicker returns Date object, convert to YYYY-MM-DD string for backend
+      const date = formValue.dateOfBirth instanceof Date ? formValue.dateOfBirth : new Date(formValue.dateOfBirth);
+      updateData.dateOfBirth = date.toISOString().split('T')[0];
     } else if (this.user()?.dateOfBirth && !formValue.dateOfBirth) {
       // Explicitly clear if it was set before but is now empty
       updateData.dateOfBirth = null as any;

@@ -187,12 +187,13 @@
       <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
         {{ 'userDetail.general.dateOfBirth' | transloco }}
       </label>
-      <input
-        pInputText
-        type="date"
+      <p-datepicker
         formControlName="dateOfBirth"
+        [showIcon]="true"
+        [maxDate]="maxDateObject"
+        dateFormat="yy-mm-dd"
+        [iconDisplay]="'input'"
         class="w-full"
-        [max]="maxDate"
       />
     </div>
 
