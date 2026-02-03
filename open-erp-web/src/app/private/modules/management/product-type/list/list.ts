@@ -6,7 +6,6 @@ import {
   inject,
   OnInit,
   OnDestroy,
-  effect,
   ViewChild,
   ElementRef,
 } from '@angular/core';
@@ -14,7 +13,7 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, forkJoin, of } from 'rxjs';
 
 // PrimeNG imports
 import { TableModule } from 'primeng/table';
@@ -213,10 +212,10 @@ export class ProductTypeList implements OnInit, OnDestroy {
     const page = params.page ?? this.currentPage();
     const limit = params.limit ?? this.currentLimit();
 
-    const segments = [`/management/product-type/${scope}/${search}/${page}/${limit}`];
+    const segments = ['/management', 'product-type', scope, search, page.toString(), limit.toString()];
     
     if (params.action && params.id) {
-      segments.push(`${params.id}/${params.action}`);
+      segments.push(params.id, params.action);
     } else if (params.action) {
       segments.push(params.action);
     }
@@ -366,31 +365,23 @@ export class ProductTypeList implements OnInit, OnDestroy {
           this.productTypeService.deleteProductType(pt.id)
         );
         
-        let completed = 0;
-        const total = deleteRequests.length;
-        
-        deleteRequests.forEach((request) => {
-          request.subscribe({
-            next: () => {
-              completed++;
-              if (completed === total) {
-                this.messageService.add({
-                  severity: 'success',
-                  summary: this.translocoService.translate('common.success'),
-                  detail: this.translocoService.translate('productTypeList.messages.bulkDeleted', { count: total }),
-                });
-                this.selectedProductTypesArray = [];
-                this.onRefresh();
-              }
-            },
-            error: () => {
-              this.messageService.add({
-                severity: 'error',
-                summary: this.translocoService.translate('common.error'),
-                detail: this.translocoService.translate('productTypeList.messages.bulkDeleteError'),
-              });
-            }
-          });
+        forkJoin(deleteRequests).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: this.translocoService.translate('common.success'),
+              detail: this.translocoService.translate('productTypeList.messages.bulkDeleted', { count: this.selectedProductTypesArray.length }),
+            });
+            this.selectedProductTypesArray = [];
+            this.onRefresh();
+          },
+          error: () => {
+            this.messageService.add({
+              severity: 'error',
+              summary: this.translocoService.translate('common.error'),
+              detail: this.translocoService.translate('productTypeList.messages.bulkDeleteError'),
+            });
+          }
         });
       },
     });

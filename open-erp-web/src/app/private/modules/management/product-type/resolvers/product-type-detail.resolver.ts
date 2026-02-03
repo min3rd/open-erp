@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { ResolveFn, ActivatedRouteSnapshot } from '@angular/router';
 import { ProductTypeService, ProductType } from '../../../../../../core/services/product-type/product-type.service';
+import { catchError, of } from 'rxjs';
 
 /**
  * Resolver for product type detail
@@ -13,8 +14,10 @@ export const productTypeDetailResolver: ResolveFn<ProductType | null> = (
   const id = route.paramMap.get('id');
 
   if (!id) {
-    return null;
+    return of(null);
   }
 
-  return productTypeService.getProductTypeById(id);
+  return productTypeService.getProductTypeById(id).pipe(
+    catchError(() => of(null))
+  );
 };

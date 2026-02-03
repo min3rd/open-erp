@@ -88,20 +88,15 @@ export class ProductTypeForm implements OnInit, OnDestroy {
 
   // Attribute type options
   protected readonly attributeTypeOptions: AttributeTypeOption[] = [
-    { label: 'String', value: 'string' },
-    { label: 'Number', value: 'number' },
-    { label: 'Boolean', value: 'boolean' },
-    { label: 'Date', value: 'date' },
-    { label: 'Select', value: 'select' },
+    { label: 'productTypeForm.attributes.types.string', value: 'string' },
+    { label: 'productTypeForm.attributes.types.number', value: 'number' },
+    { label: 'productTypeForm.attributes.types.boolean', value: 'boolean' },
+    { label: 'productTypeForm.attributes.types.date', value: 'date' },
+    { label: 'productTypeForm.attributes.types.select', value: 'select' },
   ];
 
   constructor() {
-    // Close drawer when visibility changes
-    effect(() => {
-      if (!this.isVisible()) {
-        this.onClose();
-      }
-    });
+    // No constructor logic needed - drawer close handled by onHide event
   }
 
   ngOnInit(): void {
@@ -114,6 +109,11 @@ export class ProductTypeForm implements OnInit, OnDestroy {
       if (productType) {
         this.productTypeId.set(productType.id);
         this.patchForm(productType);
+        
+        // Disable form in view mode after patching
+        if (this.isViewMode()) {
+          this.form.disable();
+        }
       }
     });
 
@@ -124,11 +124,6 @@ export class ProductTypeForm implements OnInit, OnDestroy {
         this.productTypeId.set(id);
       }
     });
-
-    // Disable form in view mode
-    if (this.isViewMode()) {
-      this.form.disable();
-    }
   }
 
   ngOnDestroy(): void {
@@ -265,7 +260,6 @@ export class ProductTypeForm implements OnInit, OnDestroy {
             this.onClose();
           },
           error: (error: any) => {
-            console.error('Save error:', error);
             this.messageService.add({
               severity: 'error',
               summary: this.translocoService.translate('common.error'),
@@ -288,7 +282,6 @@ export class ProductTypeForm implements OnInit, OnDestroy {
           this.onClose();
         },
         error: (error: any) => {
-          console.error('Save error:', error);
           this.messageService.add({
             severity: 'error',
             summary: this.translocoService.translate('common.error'),
@@ -310,7 +303,7 @@ export class ProductTypeForm implements OnInit, OnDestroy {
     const page = this.route.snapshot.paramMap.get('page') || '1';
     const limit = this.route.snapshot.paramMap.get('limit') || '100';
 
-    this.router.navigate([`/management/product-type/${scope}/${search}/${page}/${limit}`]);
+    this.router.navigate(['/management', 'product-type', scope, search, page, limit]);
   }
 
   /**
@@ -324,7 +317,7 @@ export class ProductTypeForm implements OnInit, OnDestroy {
       const page = this.route.snapshot.paramMap.get('page') || '1';
       const limit = this.route.snapshot.paramMap.get('limit') || '100';
 
-      this.router.navigate([`/management/product-type/${scope}/${search}/${page}/${limit}/${id}/edit`]);
+      this.router.navigate(['/management', 'product-type', scope, search, page, limit, id, 'edit']);
     }
   }
 

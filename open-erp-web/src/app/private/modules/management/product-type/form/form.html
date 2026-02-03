@@ -1,5 +1,5 @@
 <p-drawer
-  [(visible)]="isVisible"
+  [visible]="isVisible()"
   [position]="'right'"
   [modal]="true"
   [style]="{ width: '90vw', maxWidth: '800px' }"
@@ -197,7 +197,14 @@
                       optionValue="value"
                       class="w-full"
                       [placeholder]="'productTypeForm.attributes.fields.type.placeholder' | transloco"
-                    ></p-select>
+                    >
+                      <ng-template let-option pTemplate="item">
+                        {{ option.label | transloco }}
+                      </ng-template>
+                      <ng-template let-option pTemplate="selectedItem">
+                        {{ option.label | transloco }}
+                      </ng-template>
+                    </p-select>
                   </div>
 
                   <!-- Attribute Label -->

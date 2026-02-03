@@ -1,7 +1,8 @@
 import { inject } from '@angular/core';
-import { ResolveFn, ActivatedRouteSnapshot } from '@angular/router';
+import { ResolveFn, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { ProductTypeService } from '../../../../../../core/services/product-type/product-type.service';
 import type { QueryProductTypeParams } from '../product-type.types';
+import { catchError, of } from 'rxjs';
 
 /**
  * Resolver for product type list
@@ -11,6 +12,7 @@ export const productTypeListResolver: ResolveFn<{ items: any[]; total: number; p
   route: ActivatedRouteSnapshot
 ) => {
   const productTypeService = inject(ProductTypeService);
+  const router = inject(Router);
   
   // Extract params from route
   const scope = route.paramMap.get('scope') || 'all';
@@ -33,5 +35,10 @@ export const productTypeListResolver: ResolveFn<{ items: any[]; total: number; p
   }
   // 'all' scope doesn't need isActive filter
 
-  return productTypeService.getProductTypes(params);
+  return productTypeService.getProductTypes(params).pipe(
+    catchError(() => {
+      // Return empty result on error
+      return of({ items: [], total: 0, page: 1, limit: 100 });
+    })
+  );
 };

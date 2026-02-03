@@ -2361,6 +2361,13 @@
           "label": "Default Value",
           "placeholder": "Enter default value"
         }
+      },
+      "types": {
+        "string": "String",
+        "number": "Number",
+        "boolean": "Boolean",
+        "date": "Date",
+        "select": "Select"
       }
     },
     "messages": {

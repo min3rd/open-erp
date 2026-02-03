@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, throwError } from 'rxjs';
 import { API_URI_INVENTORY } from '../../constant';
 import { ApiResponse, ApiPaginatedResponse } from '../../api/interfaces';
 
@@ -125,7 +125,14 @@ export class ProductTypeService {
   createProductType(dto: CreateProductTypeDto): Observable<ProductType> {
     return this.http
       .post<ApiResponse<{ item: ProductType }>>(this.baseUrl, dto)
-      .pipe(map((response) => response.data?.item!));
+      .pipe(
+        map((response) => {
+          if (!response.data?.item) {
+            throw new Error('Invalid response from server');
+          }
+          return response.data.item;
+        })
+      );
   }
 
   /**
@@ -135,7 +142,14 @@ export class ProductTypeService {
   updateProductType(id: string, dto: UpdateProductTypeDto): Observable<ProductType> {
     return this.http
       .put<ApiResponse<{ item: ProductType }>>(`${this.baseUrl}/${id}`, dto)
-      .pipe(map((response) => response.data?.item!));
+      .pipe(
+        map((response) => {
+          if (!response.data?.item) {
+            throw new Error('Invalid response from server');
+          }
+          return response.data.item;
+        })
+      );
   }
 
   /**

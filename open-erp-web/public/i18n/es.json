@@ -2084,6 +2084,13 @@
           "label": "Valor Predeterminado",
           "placeholder": "Ingrese el valor predeterminado"
         }
+      },
+      "types": {
+        "string": "Cadena",
+        "number": "Número",
+        "boolean": "Booleano",
+        "date": "Fecha",
+        "select": "Seleccionar"
       }
     },
     "messages": {

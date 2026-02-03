@@ -6,8 +6,8 @@
         <!-- Left side: Scope selector and search -->
         <p-select
           [options]="scopeOptions"
-          [(ngModel)]="currentScope"
-          (onChange)="onScopeChange($any($event).value)"
+          [ngModel]="currentScope()"
+          (ngModelChange)="onScopeChange($event)"
           optionLabel="label"
           optionValue="value"
           [placeholder]="'productTypeList.scope.placeholder' | transloco"
@@ -27,7 +27,8 @@
           <input
             pInputText
             type="text"
-            [(ngModel)]="searchQuery"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
             (keyup.enter)="onSearch()"
             [placeholder]="'productTypeList.search.placeholder' | transloco"
           />
@@ -226,7 +227,8 @@
             #mobileSearchInput
             pInputText
             type="text"
-            [(ngModel)]="searchQuery"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
             (keyup.enter)="onSearch()"
             [placeholder]="'productTypeList.search.placeholder' | transloco"
           />

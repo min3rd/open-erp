@@ -1157,6 +1157,13 @@
           "label": "Giá trị mặc định",
           "placeholder": "Nhập giá trị mặc định"
         }
+      },
+      "types": {
+        "string": "Chuỗi",
+        "number": "Số",
+        "boolean": "Luận lý",
+        "date": "Ngày",
+        "select": "Lựa chọn"
       }
     },
     "messages": {
