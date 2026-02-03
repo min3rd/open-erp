@@ -39,6 +39,13 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Do NOT use the deprecated `pTemplate` directive syntax
 - Always consult the official PrimeNG documentation for the correct template names for each component
 
+## PrimeNG Table Pagination
+
+- **MANDATORY**: When using PrimeNG `p-table`, use the table's built-in pagination instead of custom pagination components
+- Enable pagination with `[paginator]="true"` and configure `[rows]`, `[totalRecords]`, and `[rowsPerPageOptions]`
+- For server-side pagination, use `[lazy]="true"` with `(onLazyLoad)` event handler
+- Do NOT use separate custom pagination components for tables - the table's paginator is designed to work seamlessly with table features
+
 ## Accessibility Requirements
 
 - It MUST pass all AXE checks.

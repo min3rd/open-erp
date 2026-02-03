@@ -2,7 +2,7 @@
   id="product-type-form-drawer"
   [(visible)]="isVisible"
   position="right"
-  [style]="{ width: '600px' }"
+  [style]="{ width: '100%', maxWidth: '600px' }"
   (onHide)="onClose()"
 >
   <ng-template #header>
@@ -134,7 +134,7 @@
             }
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <!-- Attribute Name -->
             <div>
               <label class="block text-sm font-medium mb-1">
@@ -190,7 +190,7 @@
 
             <!-- Options (only for select type) -->
             @if (isSelectType(i)) {
-            <div class="col-span-2">
+            <div class="col-span-1 sm:col-span-2">
               <label class="block text-sm font-medium mb-1">
                 {{ 'productTypeForm.attribute.options' | transloco }}
               </label>
@@ -206,7 +206,7 @@
             }
 
             <!-- Default Value -->
-            <div class="col-span-2">
+            <div class="col-span-1 sm:col-span-2">
               <label class="block text-sm font-medium mb-1">
                 {{ 'productTypeForm.attribute.defaultValue' | transloco }}
               </label>
