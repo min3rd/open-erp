@@ -10,12 +10,16 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DatePickerModule } from 'primeng/datepicker';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
 // Services and types
 import { UserDetailService, UserDetail } from '../services/user-detail.service';
+import { ProvinceService } from '../../province/services/province.service';
+import { DistrictService } from '../../district/services/district.service';
+import { WardService } from '../../ward/services/ward.service';
 
 @Component({
   selector: 'management-user-general',
@@ -28,6 +32,7 @@ import { UserDetailService, UserDetail } from '../services/user-detail.service';
     ButtonModule,
     InputTextModule,
     DatePickerModule,
+    AutoCompleteModule,
     TagModule,
     ToastModule,
   ],
@@ -38,6 +43,9 @@ import { UserDetailService, UserDetail } from '../services/user-detail.service';
 export class General implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private userDetailService = inject(UserDetailService);
+  private provinceService = inject(ProvinceService);
+  private districtService = inject(DistrictService);
+  private wardService = inject(WardService);
   private fb = inject(FormBuilder);
   private messageService = inject(MessageService);
   private destroy$ = new Subject<void>();
@@ -56,6 +64,14 @@ export class General implements OnInit, OnDestroy {
   protected readonly maxEducationEntries = 20;
   protected readonly maxYear = new Date().getFullYear() + 10;
   protected readonly minYear = 1900;
+
+  // For administrative units autocomplete
+  protected provinces: any[] = [];
+  protected districts: any[] = [];
+  protected wards: any[] = [];
+  protected filteredProvinces: any[] = [];
+  protected filteredDistricts: any[] = [];
+  protected filteredWards: any[] = [];
   
   // Dynamic getter for max date to ensure it's always current
   protected get maxDate(): string {
@@ -103,6 +119,9 @@ export class General implements OnInit, OnDestroy {
           }
         }
       });
+
+    // Load provinces data for autocomplete
+    this.loadProvinces();
   }
 
   private patchFormWithUserData(user: UserDetail): void {
@@ -367,6 +386,82 @@ export class General implements OnInit, OnDestroy {
       address.country,
     ].filter(Boolean);
     return parts.length > 0 ? parts.join(', ') : '-';
+  }
+
+  // Load provinces data for autocomplete
+  private loadProvinces(): void {
+    this.provinceService.getProvinces({ page: 1, limit: 100 })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.provinces = data.items || [];
+        },
+        error: (error) => {
+          console.error('Error loading provinces:', error);
+        }
+      });
+  }
+
+  // Filter provinces based on user input
+  protected filterProvinces(event: any): void {
+    const query = event.query?.toLowerCase() || '';
+    this.filteredProvinces = this.provinces.filter(p => 
+      p.name?.toLowerCase().includes(query) || p.nameEn?.toLowerCase().includes(query)
+    );
+  }
+
+  // Load districts when province is selected or changed
+  protected onProvinceChange(event: any): void {
+    const provinceName = typeof event === 'string' ? event : event?.name || event;
+    const province = this.provinces.find(p => p.name === provinceName || p.nameEn === provinceName);
+    
+    if (province && province.code) {
+      this.districtService.getDistricts({ provinceCode: province.code, page: 1, limit: 200 })
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (data) => {
+            this.districts = data.items || [];
+          },
+          error: (error) => {
+            console.error('Error loading districts:', error);
+          }
+        });
+    }
+  }
+
+  // Filter districts based on user input
+  protected filterDistricts(event: any): void {
+    const query = event.query?.toLowerCase() || '';
+    this.filteredDistricts = this.districts.filter(d => 
+      d.name?.toLowerCase().includes(query) || d.nameEn?.toLowerCase().includes(query)
+    );
+  }
+
+  // Load wards when district is selected or changed
+  protected onDistrictChange(event: any): void {
+    const districtName = typeof event === 'string' ? event : event?.name || event;
+    const district = this.districts.find(d => d.name === districtName || d.nameEn === districtName);
+    
+    if (district && district.code) {
+      this.wardService.getWards({ districtCode: district.code, page: 1, limit: 200 })
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (data) => {
+            this.wards = data.items || [];
+          },
+          error: (error) => {
+            console.error('Error loading wards:', error);
+          }
+        });
+    }
+  }
+
+  // Filter wards based on user input
+  protected filterWards(event: any): void {
+    const query = event.query?.toLowerCase() || '';
+    this.filteredWards = this.wards.filter(w => 
+      w.name?.toLowerCase().includes(query) || w.nameEn?.toLowerCase().includes(query)
+    );
   }
 
   ngOnDestroy(): void {

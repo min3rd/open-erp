@@ -120,24 +120,33 @@
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
-            {{ 'userDetail.general.district' | transloco }}
+            {{ 'userDetail.general.province' | transloco }}
           </label>
-          <input
-            pInputText
-            type="text"
-            formControlName="district"
-            class="w-full"
+          <p-autoComplete
+            formControlName="province"
+            [suggestions]="filteredProvinces"
+            (completeMethod)="filterProvinces($event)"
+            (onSelect)="onProvinceChange($event)"
+            (onBlur)="onProvinceChange($event.target.value)"
+            field="name"
+            [forceSelection]="false"
             [placeholder]="'userDetail.general.selectOrEnter' | transloco"
+            class="w-full"
           />
         </div>
         <div>
           <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
-            {{ 'userDetail.general.city' | transloco }}
+            {{ 'userDetail.general.district' | transloco }}
           </label>
-          <input
-            pInputText
-            type="text"
-            formControlName="city"
+          <p-autoComplete
+            formControlName="district"
+            [suggestions]="filteredDistricts"
+            (completeMethod)="filterDistricts($event)"
+            (onSelect)="onDistrictChange($event)"
+            (onBlur)="onDistrictChange($event.target.value)"
+            field="name"
+            [forceSelection]="false"
+            [placeholder]="'userDetail.general.selectOrEnter' | transloco"
             class="w-full"
           />
         </div>
@@ -146,14 +155,15 @@
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
-            {{ 'userDetail.general.province' | transloco }}
+            {{ 'userDetail.general.city' | transloco }}
           </label>
-          <input
-            pInputText
-            type="text"
-            formControlName="province"
+          <p-autoComplete
+            formControlName="city"
+            [suggestions]="filteredWards"
+            (completeMethod)="filterWards($event)"
+            field="name"
+            [forceSelection]="false"
             class="w-full"
-            [placeholder]="'userDetail.general.selectOrEnter' | transloco"
           />
         </div>
         <div>
