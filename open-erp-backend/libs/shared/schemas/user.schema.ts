@@ -252,6 +252,13 @@ export class User extends Document {
       },
     ],
     default: [],
+    validate: {
+      validator: function (education: any[]) {
+        // Max 20 education entries
+        return education.length <= 20;
+      },
+      message: 'Education must be max 20 entries',
+    },
   })
   education?: {
     degree?: string;

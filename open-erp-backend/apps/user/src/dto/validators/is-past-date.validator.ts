@@ -16,8 +16,12 @@ export class IsPastDateConstraint implements ValidatorConstraintInterface {
       return false;
     }
     
+    // Normalize both dates to date-only (start of day) to avoid timezone/time-of-day issues
+    const inputDateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const now = new Date();
-    return date <= now;
+    const todayDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    return inputDateOnly <= todayDateOnly;
   }
 
   defaultMessage(): string {

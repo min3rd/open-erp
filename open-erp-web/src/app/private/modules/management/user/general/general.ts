@@ -98,16 +98,26 @@ export class General implements OnInit, OnDestroy {
   }
 
   private patchFormWithUserData(user: UserDetail): void {
-    // Patch address
+    // Patch address or reset if null
     if (user.address) {
       this.editForm.get('address')?.patchValue(user.address);
+    } else {
+      this.editForm.get('address')?.patchValue({
+        street: '',
+        district: '',
+        city: '',
+        province: '',
+        postalCode: '',
+      });
     }
 
-    // Patch date of birth
+    // Patch date of birth or reset if null
     if (user.dateOfBirth) {
       const date = new Date(user.dateOfBirth);
       const dateString = date.toISOString().split('T')[0];
       this.editForm.get('dateOfBirth')?.patchValue(dateString);
+    } else {
+      this.editForm.get('dateOfBirth')?.patchValue(null);
     }
 
     // Patch education
@@ -119,7 +129,7 @@ export class General implements OnInit, OnDestroy {
           this.fb.group({
             degree: [edu.degree || ''],
             institution: [edu.institution || ''],
-            year: [edu.year || null],
+            year: [edu.year || null, [Validators.min(1900), Validators.max(new Date().getFullYear() + 10)]],
           })
         );
       });
@@ -140,7 +150,15 @@ export class General implements OnInit, OnDestroy {
   protected addSkillClick(): void {
     if (this.newSkill && this.newSkill.trim()) {
       const skills = [...this.skillsValue()];
-      if (!skills.includes(this.newSkill.trim()) && skills.length < 50) {
+      if (skills.length >= 50) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Warning',
+          detail: 'Maximum 50 skills allowed',
+        });
+        return;
+      }
+      if (!skills.includes(this.newSkill.trim())) {
         skills.push(this.newSkill.trim());
         this.skillsValue.set(skills);
         this.editForm.get('skills')?.patchValue(skills);
@@ -163,7 +181,15 @@ export class General implements OnInit, OnDestroy {
   protected addHobbyClick(): void {
     if (this.newHobby && this.newHobby.trim()) {
       const hobbies = [...this.hobbiesValue()];
-      if (!hobbies.includes(this.newHobby.trim()) && hobbies.length < 50) {
+      if (hobbies.length >= 50) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Warning',
+          detail: 'Maximum 50 hobbies allowed',
+        });
+        return;
+      }
+      if (!hobbies.includes(this.newHobby.trim())) {
         hobbies.push(this.newHobby.trim());
         this.hobbiesValue.set(hobbies);
         this.editForm.get('hobbies')?.patchValue(hobbies);
@@ -191,11 +217,12 @@ export class General implements OnInit, OnDestroy {
       });
       return;
     }
+    const currentYear = new Date().getFullYear();
     this.educationArray.push(
       this.fb.group({
         degree: [''],
         institution: [''],
-        year: [null],
+        year: [null, [Validators.min(1900), Validators.max(currentYear + 10)]],
       })
     );
   }
@@ -224,9 +251,11 @@ export class General implements OnInit, OnDestroy {
     // Prepare update payload
     const updateData: Partial<UserDetail> = {};
 
-    // Only include changed fields
+    // Handle address - send if has data, or explicitly clear if previously had data
     if (formValue.address && this.hasAddressData(formValue.address)) {
       updateData.address = formValue.address;
+    } else if (this.user()?.address && !this.hasAddressData(formValue.address)) {
+      updateData.address = null as any;
     }
 
     // Handle date of birth - can be set or cleared
@@ -237,20 +266,30 @@ export class General implements OnInit, OnDestroy {
       updateData.dateOfBirth = null as any;
     }
 
-    if (formValue.education && formValue.education.length > 0) {
-      updateData.education = formValue.education.filter(
-        (edu: any) => edu.degree || edu.institution || edu.year
-      );
+    // Handle education - always send including empty array if cleared
+    const filteredEducation = formValue.education ? formValue.education.filter(
+      (edu: any) => edu.degree || edu.institution || edu.year
+    ) : [];
+    if (filteredEducation.length > 0) {
+      updateData.education = filteredEducation;
+    } else if (this.user()?.education && this.user()!.education!.length > 0) {
+      updateData.education = [];
     }
 
+    // Handle skills - always send including empty array if cleared
     const skills = this.skillsValue();
-    if (skills && skills.length > 0) {
+    if (skills.length > 0) {
       updateData.skills = skills;
+    } else if (this.user()?.skills && this.user()!.skills!.length > 0) {
+      updateData.skills = [];
     }
 
+    // Handle hobbies - always send including empty array if cleared
     const hobbies = this.hobbiesValue();
-    if (hobbies && hobbies.length > 0) {
+    if (hobbies.length > 0) {
       updateData.hobbies = hobbies;
+    } else if (this.user()?.hobbies && this.user()!.hobbies!.length > 0) {
+      updateData.hobbies = [];
     }
 
     this.userDetailService
@@ -258,7 +297,9 @@ export class General implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedUser) => {
+          // Update user data and re-patch form with the latest data
           this.user.set(updatedUser);
+          this.patchFormWithUserData(updatedUser);
           this.isEditing.set(false);
           this.isSaving.set(false);
           this.messageService.add({
@@ -291,6 +332,9 @@ export class General implements OnInit, OnDestroy {
   protected formatDate(date?: string | Date): string {
     if (!date) return '-';
     const d = new Date(date);
+    if (isNaN(d.getTime())) {
+      return '-';
+    }
     return d.toLocaleDateString();
   }
 
