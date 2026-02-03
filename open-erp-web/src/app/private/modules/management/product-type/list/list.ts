@@ -110,8 +110,8 @@ export class ProductTypeList implements OnInit, OnDestroy {
     { label: 'productTypeList.scope.inactive', value: 'inactive' },
   ];
 
-  // Menu items
-  protected readonly actionMenuItems = computed<MenuItem[]>(() => {
+  // Menu items - using getters for reactivity with translations
+  protected get actionMenuItems(): MenuItem[] {
     const items: MenuItem[] = [
       {
         label: this.translocoService.translate('productTypeList.actions.exportCSV'),
@@ -132,51 +132,55 @@ export class ProductTypeList implements OnInit, OnDestroy {
     }
 
     return items;
-  });
+  }
 
-  protected readonly contextMenuItems = computed<MenuItem[]>(() => [
-    {
-      label: this.translocoService.translate('productTypeList.actions.view'),
-      icon: 'pi pi-eye',
-      command: () => this.onView(),
-    },
-    {
-      label: this.translocoService.translate('productTypeList.actions.edit'),
-      icon: 'pi pi-pencil',
-      command: () => this.onEdit(),
-    },
-    {
-      separator: true,
-    },
-    {
-      label: this.translocoService.translate('productTypeList.actions.delete'),
-      icon: 'pi pi-trash',
-      command: () => this.onDelete(),
-    },
-  ]);
+  protected get contextMenuItems(): MenuItem[] {
+    return [
+      {
+        label: this.translocoService.translate('productTypeList.actions.view'),
+        icon: 'pi pi-eye',
+        command: () => this.onView(),
+      },
+      {
+        label: this.translocoService.translate('productTypeList.actions.edit'),
+        icon: 'pi pi-pencil',
+        command: () => this.onEdit(),
+      },
+      {
+        separator: true,
+      },
+      {
+        label: this.translocoService.translate('productTypeList.actions.delete'),
+        icon: 'pi pi-trash',
+        command: () => this.onDelete(),
+      },
+    ];
+  }
 
-  protected readonly mobileMenuItems = computed<MenuItem[]>(() => [
-    {
-      label: this.translocoService.translate('productTypeList.scope.all'),
-      command: () => this.onScopeChange('all'),
-    },
-    {
-      label: this.translocoService.translate('productTypeList.scope.active'),
-      command: () => this.onScopeChange('active'),
-    },
-    {
-      label: this.translocoService.translate('productTypeList.scope.inactive'),
-      command: () => this.onScopeChange('inactive'),
-    },
-    {
-      separator: true,
-    },
-    {
-      label: this.translocoService.translate('productTypeList.actions.exportCSV'),
-      icon: 'pi pi-download',
-      command: () => this.onExportCSV(),
-    },
-  ]);
+  protected get mobileMenuItems(): MenuItem[] {
+    return [
+      {
+        label: this.translocoService.translate('productTypeList.scope.all'),
+        command: () => this.onScopeChange('all'),
+      },
+      {
+        label: this.translocoService.translate('productTypeList.scope.active'),
+        command: () => this.onScopeChange('active'),
+      },
+      {
+        label: this.translocoService.translate('productTypeList.scope.inactive'),
+        command: () => this.onScopeChange('inactive'),
+      },
+      {
+        separator: true,
+      },
+      {
+        label: this.translocoService.translate('productTypeList.actions.exportCSV'),
+        icon: 'pi pi-download',
+        command: () => this.onExportCSV(),
+      },
+    ];
+  }
 
   constructor() {
     // Handle resize for responsive behavior

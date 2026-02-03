@@ -87,7 +87,7 @@
           <p-menu
             #actionMenu
             id="product-type-list-actions-menu"
-            [model]="actionMenuItems()"
+            [model]="actionMenuItems"
             [popup]="true"
             appendTo="body"
           />
@@ -217,7 +217,7 @@
     <p-menu
       #rowContextMenu
       id="product-type-list-context-menu"
-      [model]="contextMenuItems()"
+      [model]="contextMenuItems"
       [popup]="true"
       appendTo="body"
     />
@@ -244,7 +244,7 @@
             [text]="true"
             (onClick)="mobileMenu.toggle($event)"
           />
-          <p-menu #mobileMenu [model]="mobileMenuItems()" [popup]="true" appendTo="body" />
+          <p-menu #mobileMenu [model]="mobileMenuItems" [popup]="true" appendTo="body" />
         </div>
       </div>
 
@@ -320,7 +320,7 @@
         }
       }
 
-      <p-menu #mobileRowMenu [model]="contextMenuItems()" [popup]="true" appendTo="body" />
+      <p-menu #mobileRowMenu [model]="contextMenuItems" [popup]="true" appendTo="body" />
     </div>
 
     <!-- Mobile Pagination -->
