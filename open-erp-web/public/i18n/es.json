@@ -1517,18 +1517,23 @@
         }
       }
     },
-    "buttons": {
+    "actions": {
       "save": "Guardar",
       "cancel": "Cancelar",
       "close": "Cerrar",
       "saving": "Guardando..."
     },
     "messages": {
+      "error": "Error",
+      "success": "Éxito",
       "createSuccess": "Categoría creada con éxito",
       "createError": "Falló la creación de categoría",
       "updateSuccess": "Categoría actualizada con éxito",
       "updateError": "Falló la actualización de categoría",
-      "loadError": "Falló la carga de categoría"
+      "loadError": "Falló la carga de categoría",
+      "validationFailed": "Validación fallida",
+      "invalidJson": "Formato JSON inválido",
+      "saveFailed": "Falló al guardar categoría"
     }
   },
   "administrativeUnit": {

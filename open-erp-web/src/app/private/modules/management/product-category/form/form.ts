@@ -137,11 +137,12 @@ export class ProductCategoryForm implements OnInit {
     if (formValue.metadata && formValue.metadata.trim()) {
       try {
         metadata = JSON.parse(formValue.metadata);
-      } catch (error) {
+      } catch (error: any) {
         this.messageService.add({
           severity: 'error',
           summary: this.translocoService.translate('productCategoryForm.messages.error'),
-          detail: this.translocoService.translate('productCategoryForm.messages.invalidJson'),
+          detail: this.translocoService.translate('productCategoryForm.messages.invalidJson') + 
+                  (error?.message ? `: ${error.message}` : ''),
         });
         this.isLoading.set(false);
         return;
