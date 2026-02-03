@@ -218,6 +218,81 @@ export class User extends Document {
     default: {},
   })
   metadata?: Map<string, string>;
+
+  @Prop({
+    type: {
+      country: { type: String, default: null },
+      street: { type: String, default: null },
+      district: { type: String, default: null },
+      city: { type: String, default: null },
+      province: { type: String, default: null },
+      postalCode: { type: String, default: null },
+    },
+    default: null,
+  })
+  address?: {
+    country?: string;
+    street?: string;
+    district?: string;
+    city?: string;
+    province?: string;
+    postalCode?: string;
+  };
+
+  @Prop({
+    type: Date,
+    default: null,
+  })
+  dateOfBirth?: Date;
+
+  @Prop({
+    type: [
+      {
+        degree: { type: String, default: null },
+        institution: { type: String, default: null },
+        year: { type: Number, default: null },
+      },
+    ],
+    default: [],
+    validate: {
+      validator: function (education: any[]) {
+        // Max 20 education entries
+        return education.length <= 20;
+      },
+      message: 'Education must be max 20 entries',
+    },
+  })
+  education?: {
+    degree?: string;
+    institution?: string;
+    year?: number;
+  }[];
+
+  @Prop({
+    type: [String],
+    default: [],
+    validate: {
+      validator: function (skills: string[]) {
+        // Max 50 skills, each max 100 characters
+        return skills.length <= 50 && skills.every((s) => s.length <= 100);
+      },
+      message: 'Skills must be max 50 items with each max 100 characters',
+    },
+  })
+  skills?: string[];
+
+  @Prop({
+    type: [String],
+    default: [],
+    validate: {
+      validator: function (hobbies: string[]) {
+        // Max 50 hobbies, each max 100 characters
+        return hobbies.length <= 50 && hobbies.every((h) => h.length <= 100);
+      },
+      message: 'Hobbies must be max 50 items with each max 100 characters',
+    },
+  })
+  hobbies?: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

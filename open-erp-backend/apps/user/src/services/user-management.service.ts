@@ -130,6 +130,24 @@ export class UserManagementService {
         ...(dto.lastName && { lastName: dto.lastName }),
         ...(dto.avatarUrl && { avatarUrl: dto.avatarUrl }),
       };
+
+      // Handle new profile fields - support explicit null/empty values for clearing
+      if (dto.address !== undefined) {
+        updateData.address = dto.address;
+      }
+      if (dto.dateOfBirth !== undefined) {
+        updateData.dateOfBirth = dto.dateOfBirth;
+      }
+      if (dto.education !== undefined) {
+        updateData.education = dto.education;
+      }
+      if (dto.skills !== undefined) {
+        updateData.skills = dto.skills;
+      }
+      if (dto.hobbies !== undefined) {
+        updateData.hobbies = dto.hobbies;
+      }
+
       // Note: phone and displayName from DTO are not persisted as they don't exist in schema yet
 
       const updatedUser = await this.userRepository.update(id, updateData);

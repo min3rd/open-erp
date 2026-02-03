@@ -205,7 +205,18 @@
   },
   "common": {
     "title": "Open ERP",
-    "appShortName": "ERP"
+    "appShortName": "ERP",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "add": "Add",
+    "remove": "Remove",
+    "loading": "Loading...",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "updateSuccess": "Updated successfully",
+    "updateError": "Failed to update"
   },
   "auth": {
     "logout": "Logout"
@@ -629,7 +640,32 @@
       "additionalInfo": "Additional Information",
       "roles": "Roles",
       "permissions": "Permissions",
-      "noData": "No additional data available"
+      "noData": "No additional data available",
+      "profileInfo": "Profile Information",
+      "address": "Address",
+      "country": "Country",
+      "street": "Street Address",
+      "streetPlaceholder": "Enter street address",
+      "district": "District",
+      "city": "City",
+      "province": "Province/State",
+      "postalCode": "Postal Code",
+      "dateOfBirth": "Date of Birth",
+      "education": "Education",
+      "degree": "Degree",
+      "institution": "Institution",
+      "year": "Year",
+      "skills": "Skills",
+      "skillsPlaceholder": "Enter skill and press Enter",
+      "hobbies": "Hobbies",
+      "hobbiesPlaceholder": "Enter hobby and press Enter",
+      "noEducation": "No education records",
+      "addEducation": "Add Education",
+      "removeEducation": "Remove",
+      "maxEducationWarning": "Maximum {max} education entries allowed",
+      "maxSkillsWarning": "Maximum {max} skills allowed",
+      "maxHobbiesWarning": "Maximum {max} hobbies allowed",
+      "selectOrEnter": "Select from list or enter manually"
     },
     "roles": {
       "title": "Organization Memberships",

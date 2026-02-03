@@ -24,6 +24,22 @@ export interface UpdateUserDto {
   verifiedAt?: Date;
   avatarUrl?: string;
   password?: string;
+  address?: {
+    country?: string;
+    street?: string;
+    district?: string;
+    city?: string;
+    province?: string;
+    postalCode?: string;
+  };
+  dateOfBirth?: Date;
+  education?: {
+    degree?: string;
+    institution?: string;
+    year?: number;
+  }[];
+  skills?: string[];
+  hobbies?: string[];
 }
 
 @Injectable()

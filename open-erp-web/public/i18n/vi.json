@@ -92,7 +92,18 @@
   },
   "common": {
     "title": "Open ERP",
-    "appShortName": "ERP"
+    "appShortName": "ERP",
+    "edit": "Chỉnh sửa",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "add": "Thêm",
+    "remove": "Xóa",
+    "loading": "Đang tải...",
+    "success": "Thành công",
+    "error": "Lỗi",
+    "warning": "Cảnh báo",
+    "updateSuccess": "Cập nhật thành công",
+    "updateError": "Cập nhật thất bại"
   },
   "auth": {
     "logout": "Đăng xuất"
@@ -791,7 +802,32 @@
       "additionalInfo": "Thông tin bổ sung",
       "roles": "Vai trò",
       "permissions": "Quyền",
-      "noData": "Không có dữ liệu bổ sung"
+      "noData": "Không có dữ liệu bổ sung",
+      "profileInfo": "Thông tin hồ sơ",
+      "address": "Địa chỉ",
+      "country": "Quốc gia",
+      "street": "Địa chỉ đường phố",
+      "streetPlaceholder": "Nhập địa chỉ đường phố",
+      "district": "Quận/Huyện",
+      "city": "Thành phố",
+      "province": "Tỉnh/Thành phố",
+      "postalCode": "Mã bưu chính",
+      "dateOfBirth": "Ngày sinh",
+      "education": "Học vấn",
+      "degree": "Bằng cấp",
+      "institution": "Trường/Cơ sở đào tạo",
+      "year": "Năm",
+      "skills": "Kỹ năng",
+      "skillsPlaceholder": "Nhập kỹ năng và nhấn Enter",
+      "hobbies": "Sở thích",
+      "hobbiesPlaceholder": "Nhập sở thích và nhấn Enter",
+      "noEducation": "Chưa có thông tin học vấn",
+      "addEducation": "Thêm học vấn",
+      "removeEducation": "Xóa",
+      "maxEducationWarning": "Tối đa {max} mục học vấn được phép",
+      "maxSkillsWarning": "Tối đa {max} kỹ năng được phép",
+      "maxHobbiesWarning": "Tối đa {max} sở thích được phép",
+      "selectOrEnter": "Chọn từ danh sách hoặc nhập thủ công"
     },
     "roles": {
       "title": "Thành viên tổ chức",

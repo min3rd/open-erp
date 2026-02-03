@@ -1,47 +1,368 @@
+<!-- Toast for notifications -->
+<p-toast position="top-right"></p-toast>
+
 @if (user()) {
-<!-- Additional User Information -->
+<!-- User Profile Information -->
 <div class="border border-surface-200 dark:border-surface-700 rounded-lg p-4 mt-4">
-  <h4 class="text-lg font-semibold mb-4">
-    {{ 'userDetail.general.additionalInfo' | transloco }}
-  </h4>
-  <div class="space-y-3">
-    @if (user()!.roles && user()!.roles!.length > 0) {
+  <div class="flex justify-between items-center mb-4">
+    <h4 class="text-lg font-semibold">
+      {{ 'userDetail.general.profileInfo' | transloco }}
+    </h4>
+    @if (!isEditing()) {
+    <button
+      pButton
+      type="button"
+      icon="pi pi-pencil"
+      class="p-button-sm p-button-text"
+      (click)="startEdit()"
+      [label]="'common.edit' | transloco"
+    ></button>
+    }
+  </div>
+
+  @if (!isEditing()) {
+  <!-- View Mode -->
+  <div class="space-y-4">
+    <!-- Address -->
     <div>
       <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
-        {{ 'userDetail.general.roles' | transloco }}
+        {{ 'userDetail.general.address' | transloco }}
       </label>
-      <div class="flex flex-wrap gap-2" id="user-general-roles">
-        @for (role of user()!.roles; track role) {
-        <span
-          class="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-100 rounded-full text-sm"
-        >
-          {{ role }}
+      <p class="text-surface-900 dark:text-surface-100">
+        {{ formatAddress(user()!.address) }}
+      </p>
+    </div>
+
+    <!-- Date of Birth -->
+    <div>
+      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
+        {{ 'userDetail.general.dateOfBirth' | transloco }}
+      </label>
+      <p class="text-surface-900 dark:text-surface-100">
+        {{ formatDate(user()!.dateOfBirth) }}
+      </p>
+    </div>
+
+    <!-- Education -->
+    @if (user()!.education && user()!.education!.length > 0) {
+    <div>
+      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
+        {{ 'userDetail.general.education' | transloco }}
+      </label>
+      <div class="space-y-2">
+        @for (edu of user()!.education; track $index) {
+        <div class="p-3 bg-surface-50 dark:bg-surface-800 rounded">
+          <p class="font-medium">{{ edu.degree || '-' }}</p>
+          <p class="text-sm text-surface-600 dark:text-surface-400">
+            {{ edu.institution || '-' }}
+            @if (edu.year) {
+              <span> ({{ edu.year }})</span>
+            }
+          </p>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- Skills -->
+    @if (user()!.skills && user()!.skills!.length > 0) {
+    <div>
+      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
+        {{ 'userDetail.general.skills' | transloco }}
+      </label>
+      <div class="flex flex-wrap gap-2">
+        @for (skill of user()!.skills; track skill) {
+        <span class="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-100 rounded-full text-sm">
+          {{ skill }}
         </span>
         }
       </div>
     </div>
     }
-    @if (user()!.permissions && user()!.permissions!.length > 0) {
+
+    <!-- Hobbies -->
+    @if (user()!.hobbies && user()!.hobbies!.length > 0) {
     <div>
       <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
-        {{ 'userDetail.general.permissions' | transloco }}
+        {{ 'userDetail.general.hobbies' | transloco }}
       </label>
-      <div class="flex flex-wrap gap-2" id="user-general-permissions">
-        @for (permission of user()!.permissions; track permission) {
-        <span
-          class="px-2 py-1 bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 rounded text-xs"
-        >
-          {{ permission }}
+      <div class="flex flex-wrap gap-2">
+        @for (hobby of user()!.hobbies; track hobby) {
+        <span class="px-3 py-1 bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 rounded-full text-sm">
+          {{ hobby }}
         </span>
         }
       </div>
     </div>
     }
   </div>
+  } @else {
+  <!-- Edit Mode -->
+  <form [formGroup]="editForm" class="space-y-4">
+    <!-- Address Fields -->
+    <div formGroupName="address" class="space-y-3">
+      <h5 class="text-md font-medium mb-2">{{ 'userDetail.general.address' | transloco }}</h5>
+      
+      <div>
+        <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+          {{ 'userDetail.general.street' | transloco }}
+        </label>
+        <input
+          pInputText
+          type="text"
+          formControlName="street"
+          class="w-full"
+          [placeholder]="'userDetail.general.streetPlaceholder' | transloco"
+        />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+            {{ 'userDetail.general.province' | transloco }}
+          </label>
+          <p-autoComplete
+            formControlName="province"
+            [suggestions]="filteredProvinces"
+            (completeMethod)="filterProvinces($event)"
+            (onSelect)="onProvinceChange($event)"
+            (onBlur)="onProvinceChange($any($event.target)?.value)"
+            field="name"
+            [forceSelection]="false"
+            [placeholder]="'userDetail.general.selectOrEnter' | transloco"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+            {{ 'userDetail.general.district' | transloco }}
+          </label>
+          <p-autoComplete
+            formControlName="district"
+            [suggestions]="filteredDistricts"
+            (completeMethod)="filterDistricts($event)"
+            (onSelect)="onDistrictChange($event)"
+            (onBlur)="onDistrictChange($any($event.target)?.value)"
+            field="name"
+            [forceSelection]="false"
+            [placeholder]="'userDetail.general.selectOrEnter' | transloco"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+            {{ 'userDetail.general.city' | transloco }}
+          </label>
+          <p-autoComplete
+            formControlName="city"
+            [suggestions]="filteredWards"
+            (completeMethod)="filterWards($event)"
+            optionLabel="name"
+            [forceSelection]="false"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+            {{ 'userDetail.general.postalCode' | transloco }}
+          </label>
+          <input
+            pInputText
+            type="text"
+            formControlName="postalCode"
+            class="w-full"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+          {{ 'userDetail.general.country' | transloco }}
+        </label>
+        <input
+          pInputText
+          type="text"
+          formControlName="country"
+          class="w-full"
+        />
+      </div>
+    </div>
+
+    <!-- Date of Birth -->
+    <div>
+      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+        {{ 'userDetail.general.dateOfBirth' | transloco }}
+      </label>
+      <p-datepicker
+        formControlName="dateOfBirth"
+        [showIcon]="true"
+        [max]="maxDateObject"
+        [dateFormat]="dateFormat"
+        [placeholder]="'userDetail.general.dateOfBirth' | transloco"
+        styleClass="w-full"
+        inputStyleClass="w-full"
+      />
+    </div>
+
+    <!-- Education -->
+    <div>
+      <div class="flex justify-between items-center mb-2">
+        <label class="block text-sm font-medium text-surface-600 dark:text-surface-400">
+          {{ 'userDetail.general.education' | transloco }}
+        </label>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-plus"
+          class="p-button-sm p-button-text"
+          (click)="addEducation()"
+          [label]="'common.add' | transloco"
+        ></button>
+      </div>
+      <div formArrayName="education" class="space-y-3">
+        @for (eduGroup of educationArray.controls; track $index; let i = $index) {
+        <div [formGroupName]="i" class="p-3 border border-surface-200 dark:border-surface-700 rounded space-y-2">
+          <div class="flex justify-between items-start">
+            <div class="flex-1 space-y-2">
+              <input
+                pInputText
+                type="text"
+                formControlName="degree"
+                class="w-full"
+                [placeholder]="'userDetail.general.degree' | transloco"
+              />
+              <input
+                pInputText
+                type="text"
+                formControlName="institution"
+                class="w-full"
+                [placeholder]="'userDetail.general.institution' | transloco"
+              />
+              <input
+                pInputText
+                type="number"
+                formControlName="year"
+                class="w-full"
+                [placeholder]="'userDetail.general.year' | transloco"
+                [min]="minYear"
+                [max]="maxYear"
+              />
+            </div>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-trash"
+              class="p-button-sm p-button-text p-button-danger ml-2"
+              (click)="removeEducation(i)"
+            ></button>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Skills -->
+    <div>
+      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+        {{ 'userDetail.general.skills' | transloco }}
+      </label>
+      <div class="space-y-2">
+        <div class="flex gap-2">
+          <input
+            pInputText
+            type="text"
+            [(ngModel)]="newSkill"
+            [ngModelOptions]="{standalone: true}"
+            class="flex-1"
+            [placeholder]="'userDetail.general.skillsPlaceholder' | transloco"
+            (keydown.enter)="addSkill($event)"
+          />
+          <button
+            pButton
+            type="button"
+            icon="pi pi-plus"
+            class="p-button-sm"
+            (click)="addSkillClick()"
+            [label]="'common.add' | transloco"
+          ></button>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          @for (skill of skillsValue(); track skill) {
+          <span class="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-100 rounded-full text-sm flex items-center gap-2">
+            {{ skill }}
+            <i class="pi pi-times cursor-pointer" (click)="removeSkill(skill)"></i>
+          </span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Hobbies -->
+    <div>
+      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+        {{ 'userDetail.general.hobbies' | transloco }}
+      </label>
+      <div class="space-y-2">
+        <div class="flex gap-2">
+          <input
+            pInputText
+            type="text"
+            [(ngModel)]="newHobby"
+            [ngModelOptions]="{standalone: true}"
+            class="flex-1"
+            [placeholder]="'userDetail.general.hobbiesPlaceholder' | transloco"
+            (keydown.enter)="addHobby($event)"
+          />
+          <button
+            pButton
+            type="button"
+            icon="pi pi-plus"
+            class="p-button-sm"
+            (click)="addHobbyClick()"
+            [label]="'common.add' | transloco"
+          ></button>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          @for (hobby of hobbiesValue(); track hobby) {
+          <span class="px-3 py-1 bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 rounded-full text-sm flex items-center gap-2">
+            {{ hobby }}
+            <i class="pi pi-times cursor-pointer" (click)="removeHobby(hobby)"></i>
+          </span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-end gap-2 pt-4">
+      <button
+        pButton
+        type="button"
+        [label]="'common.cancel' | transloco"
+        class="p-button-outlined"
+        (click)="cancelEdit()"
+        [disabled]="isSaving()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        [label]="'common.save' | transloco"
+        (click)="saveChanges()"
+        [loading]="isSaving()"
+      ></button>
+    </div>
+  </form>
+  }
 </div>
 } @else {
 <div class="border border-surface-200 dark:border-surface-700 rounded-lg p-4 mt-4">
   <p class="text-surface-500">{{ 'userDetail.general.noData' | transloco }}</p>
 </div>
 }
-

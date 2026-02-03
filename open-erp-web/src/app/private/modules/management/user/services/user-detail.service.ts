@@ -21,6 +21,22 @@ export interface UserDetail extends User {
   memberships?: UserMembership[];
   metadata?: Record<string, any>;
   updatedAt?: string;
+  address?: {
+    country?: string;
+    street?: string;
+    district?: string;
+    city?: string;
+    province?: string;
+    postalCode?: string;
+  };
+  dateOfBirth?: string;
+  education?: {
+    degree?: string;
+    institution?: string;
+    year?: number;
+  }[];
+  skills?: string[];
+  hobbies?: string[];
 }
 
 /**

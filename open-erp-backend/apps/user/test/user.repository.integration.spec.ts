@@ -315,4 +315,123 @@ describe('UserRepository Integration Tests', () => {
       expect(updated?.lastLoginAt).toBeInstanceOf(Date);
     });
   });
+
+  describe('user profile fields', () => {
+    it('should create user with address', async () => {
+      const userData = {
+        username: 'testuser',
+        email: 'test@example.com',
+        address: {
+          street: '123 Main St',
+          district: 'Downtown',
+          city: 'New York',
+          province: 'NY',
+          postalCode: '10001',
+        },
+      };
+
+      const user = await repository.create(userData);
+
+      expect(user).toBeDefined();
+      expect(user.address).toBeDefined();
+      expect(user.address?.street).toBe('123 Main St');
+      expect(user.address?.city).toBe('New York');
+    });
+
+    it('should create user with dateOfBirth', async () => {
+      const userData = {
+        username: 'testuser',
+        email: 'test@example.com',
+        dateOfBirth: new Date('1990-01-15'),
+      };
+
+      const user = await repository.create(userData);
+
+      expect(user).toBeDefined();
+      expect(user.dateOfBirth).toBeDefined();
+      expect(user.dateOfBirth).toBeInstanceOf(Date);
+    });
+
+    it('should create user with education', async () => {
+      const userData = {
+        username: 'testuser',
+        email: 'test@example.com',
+        education: [
+          {
+            degree: 'Bachelor of Science',
+            institution: 'MIT',
+            year: 2015,
+          },
+          {
+            degree: 'Master of Science',
+            institution: 'Stanford',
+            year: 2017,
+          },
+        ],
+      };
+
+      const user = await repository.create(userData);
+
+      expect(user).toBeDefined();
+      expect(user.education).toBeDefined();
+      expect(user.education).toHaveLength(2);
+      expect(user.education?.[0].degree).toBe('Bachelor of Science');
+      expect(user.education?.[1].institution).toBe('Stanford');
+    });
+
+    it('should create user with skills and hobbies', async () => {
+      const userData = {
+        username: 'testuser',
+        email: 'test@example.com',
+        skills: ['JavaScript', 'TypeScript', 'Node.js'],
+        hobbies: ['Reading', 'Swimming', 'Gaming'],
+      };
+
+      const user = await repository.create(userData);
+
+      expect(user).toBeDefined();
+      expect(user.skills).toBeDefined();
+      expect(user.skills).toHaveLength(3);
+      expect(user.skills).toContain('JavaScript');
+      expect(user.hobbies).toBeDefined();
+      expect(user.hobbies).toHaveLength(3);
+      expect(user.hobbies).toContain('Reading');
+    });
+
+    it('should update user profile fields', async () => {
+      const created = await repository.create({
+        username: 'testuser',
+        email: 'test@example.com',
+      });
+
+      const updated = await repository.update(created._id.toString(), {
+        address: {
+          street: '456 Oak Ave',
+          city: 'Boston',
+          province: 'MA',
+        },
+        dateOfBirth: new Date('1992-05-20'),
+        education: [
+          {
+            degree: 'PhD',
+            institution: 'Harvard',
+            year: 2020,
+          },
+        ],
+        skills: ['Python', 'Django', 'React'],
+        hobbies: ['Hiking', 'Photography'],
+      });
+
+      expect(updated).toBeDefined();
+      expect(updated?.address?.street).toBe('456 Oak Ave');
+      expect(updated?.address?.city).toBe('Boston');
+      expect(updated?.dateOfBirth).toBeInstanceOf(Date);
+      expect(updated?.education).toHaveLength(1);
+      expect(updated?.education?.[0].degree).toBe('PhD');
+      expect(updated?.skills).toHaveLength(3);
+      expect(updated?.skills).toContain('Python');
+      expect(updated?.hobbies).toHaveLength(2);
+      expect(updated?.hobbies).toContain('Hiking');
+    });
+  });
 });
