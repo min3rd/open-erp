@@ -13,6 +13,7 @@ import { Select } from 'primeng/select';
 import { MessageService } from 'primeng/api';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { DividerModule } from 'primeng/divider';
+import { TooltipModule } from 'primeng/tooltip';
 
 // Core services
 import {
@@ -41,6 +42,7 @@ interface AttributeTypeOption {
     Select,
     ToggleSwitchModule,
     DividerModule,
+    TooltipModule,
   ],
   templateUrl: './form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
