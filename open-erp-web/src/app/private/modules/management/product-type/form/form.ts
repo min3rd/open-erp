@@ -233,15 +233,20 @@ export class ProductTypeForm implements OnInit {
     });
   }
 
-  protected onClose(): void {
-    this.isVisible.set(false);
+  protected async onClose(): Promise<void> {
     // Navigate back to list - use relative navigation to parent
+    let navigationPromise: Promise<boolean>;
     if (this.productType()) {
       // For edit/view mode: go up 2 levels (../../)
-      this.router.navigate(['../..'], { relativeTo: this.route });
+      navigationPromise = this.router.navigate(['../..'], { relativeTo: this.route });
     } else {
       // For new mode: go up 1 level (../)
-      this.router.navigate(['..'], { relativeTo: this.route });
+      navigationPromise = this.router.navigate(['..'], { relativeTo: this.route });
+    }
+    try {
+      await navigationPromise;
+    } finally {
+      this.isVisible.set(false);
     }
   }
 }
