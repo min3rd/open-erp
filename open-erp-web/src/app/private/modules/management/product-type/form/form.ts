@@ -216,7 +216,7 @@ export class ProductTypeForm implements OnInit, OnDestroy {
   /**
    * Save form
    */
-  protected async onSave(): Promise<void> {
+  protected onSave(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.messageService.add({
@@ -229,60 +229,74 @@ export class ProductTypeForm implements OnInit, OnDestroy {
 
     this.isSaving.set(true);
 
-    try {
-      const formValue = this.form.value;
+    const formValue = this.form.value;
 
-      // Process attributes - convert options from string to array
-      const attributes: AttributeDefinition[] = formValue.attributes.map((attr: any) => ({
-        name: attr.name,
-        type: attr.type,
-        label: attr.label || undefined,
-        description: attr.description || undefined,
-        required: attr.required,
-        options: attr.options ? attr.options.split(',').map((o: string) => o.trim()).filter((o: string) => o) : undefined,
-        defaultValue: attr.defaultValue || undefined,
-      }));
+    // Process attributes - convert options from string to array
+    const attributes: AttributeDefinition[] = formValue.attributes.map((attr: any) => ({
+      name: attr.name,
+      type: attr.type,
+      label: attr.label || undefined,
+      description: attr.description || undefined,
+      required: attr.required,
+      options: attr.options ? attr.options.split(',').map((o: string) => o.trim()).filter((o: string) => o) : undefined,
+      defaultValue: attr.defaultValue || undefined,
+    }));
 
-      const dto: CreateProductTypeDto | UpdateProductTypeDto = {
-        code: formValue.code,
-        name: formValue.name,
-        description: formValue.description || undefined,
-        isActive: formValue.isActive,
-        attributes,
-      };
+    const dto: CreateProductTypeDto | UpdateProductTypeDto = {
+      code: formValue.code,
+      name: formValue.name,
+      description: formValue.description || undefined,
+      isActive: formValue.isActive,
+      attributes,
+    };
 
-      if (this.isEditMode()) {
-        // Update
-        const id = this.productTypeId();
-        if (id) {
-          await this.productTypeService.updateProductType(id, dto as UpdateProductTypeDto).toPromise();
+    if (this.isEditMode()) {
+      // Update
+      const id = this.productTypeId();
+      if (id) {
+        this.productTypeService.updateProductType(id, dto as UpdateProductTypeDto).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: this.translocoService.translate('common.success'),
+              detail: this.translocoService.translate('productTypeForm.messages.updated'),
+            });
+            this.isSaving.set(false);
+            this.onClose();
+          },
+          error: (error: any) => {
+            console.error('Save error:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: this.translocoService.translate('common.error'),
+              detail: error?.error?.message || this.translocoService.translate('productTypeForm.messages.saveError'),
+            });
+            this.isSaving.set(false);
+          }
+        });
+      }
+    } else {
+      // Create
+      this.productTypeService.createProductType(dto as CreateProductTypeDto).subscribe({
+        next: () => {
           this.messageService.add({
             severity: 'success',
             summary: this.translocoService.translate('common.success'),
-            detail: this.translocoService.translate('productTypeForm.messages.updated'),
+            detail: this.translocoService.translate('productTypeForm.messages.created'),
           });
+          this.isSaving.set(false);
+          this.onClose();
+        },
+        error: (error: any) => {
+          console.error('Save error:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: this.translocoService.translate('common.error'),
+            detail: error?.error?.message || this.translocoService.translate('productTypeForm.messages.saveError'),
+          });
+          this.isSaving.set(false);
         }
-      } else {
-        // Create
-        await this.productTypeService.createProductType(dto as CreateProductTypeDto).toPromise();
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translocoService.translate('common.success'),
-          detail: this.translocoService.translate('productTypeForm.messages.created'),
-        });
-      }
-
-      // Close drawer and refresh list
-      this.onClose();
-    } catch (error: any) {
-      console.error('Save error:', error);
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translocoService.translate('common.error'),
-        detail: error?.error?.message || this.translocoService.translate('productTypeForm.messages.saveError'),
       });
-    } finally {
-      this.isSaving.set(false);
     }
   }
 

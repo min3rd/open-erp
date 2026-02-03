@@ -249,43 +249,42 @@ export class ProductTypeList implements OnInit, OnDestroy {
   /**
    * Refresh list
    */
-  protected async onRefresh(): Promise<void> {
+  protected onRefresh(): void {
     this.isLoading.set(true);
-    try {
-      const params: QueryProductTypeParams = {
-        page: this.currentPage(),
-        limit: this.currentLimit(),
-        search: this.searchQuery() || undefined,
-      };
+    const params: QueryProductTypeParams = {
+      page: this.currentPage(),
+      limit: this.currentLimit(),
+      search: this.searchQuery() || undefined,
+    };
 
-      // Add scope filter
-      const scope = this.currentScope();
-      if (scope === 'active') {
-        params.isActive = true;
-      } else if (scope === 'inactive') {
-        params.isActive = false;
-      }
+    // Add scope filter
+    const scope = this.currentScope();
+    if (scope === 'active') {
+      params.isActive = true;
+    } else if (scope === 'inactive') {
+      params.isActive = false;
+    }
 
-      const result = await this.productTypeService.getProductTypes(params).toPromise();
-      if (result) {
+    this.productTypeService.getProductTypes(params).subscribe({
+      next: (result) => {
         this.productTypes.set(result.items);
         this.totalRecords.set(result.total);
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translocoService.translate('common.success'),
+          detail: this.translocoService.translate('productTypeList.messages.refreshed'),
+        });
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translocoService.translate('common.error'),
+          detail: this.translocoService.translate('productTypeList.messages.refreshError'),
+        });
+        this.isLoading.set(false);
       }
-      
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translocoService.translate('common.success'),
-        detail: this.translocoService.translate('productTypeList.messages.refreshed'),
-      });
-    } catch (error) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translocoService.translate('common.error'),
-        detail: this.translocoService.translate('productTypeList.messages.refreshError'),
-      });
-    } finally {
-      this.isLoading.set(false);
-    }
+    });
   }
 
   /**
@@ -328,22 +327,24 @@ export class ProductTypeList implements OnInit, OnDestroy {
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: this.translocoService.translate('common.yes'),
       rejectLabel: this.translocoService.translate('common.no'),
-      accept: async () => {
-        try {
-          await this.productTypeService.deleteProductType(selected.id).toPromise();
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translocoService.translate('common.success'),
-            detail: this.translocoService.translate('productTypeList.messages.deleted'),
-          });
-          this.onRefresh();
-        } catch (error) {
-          this.messageService.add({
-            severity: 'error',
-            summary: this.translocoService.translate('common.error'),
-            detail: this.translocoService.translate('productTypeList.messages.deleteError'),
-          });
-        }
+      accept: () => {
+        this.productTypeService.deleteProductType(selected.id).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: this.translocoService.translate('common.success'),
+              detail: this.translocoService.translate('productTypeList.messages.deleted'),
+            });
+            this.onRefresh();
+          },
+          error: () => {
+            this.messageService.add({
+              severity: 'error',
+              summary: this.translocoService.translate('common.error'),
+              detail: this.translocoService.translate('productTypeList.messages.deleteError'),
+            });
+          }
+        });
       },
     });
   }
@@ -360,27 +361,37 @@ export class ProductTypeList implements OnInit, OnDestroy {
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: this.translocoService.translate('common.yes'),
       rejectLabel: this.translocoService.translate('common.no'),
-      accept: async () => {
-        try {
-          const promises = this.selectedProductTypesArray.map((pt) =>
-            this.productTypeService.deleteProductType(pt.id).toPromise()
-          );
-          await Promise.all(promises);
-          
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translocoService.translate('common.success'),
-            detail: this.translocoService.translate('productTypeList.messages.bulkDeleted', { count: this.selectedProductTypesArray.length }),
+      accept: () => {
+        const deleteRequests = this.selectedProductTypesArray.map((pt) =>
+          this.productTypeService.deleteProductType(pt.id)
+        );
+        
+        let completed = 0;
+        const total = deleteRequests.length;
+        
+        deleteRequests.forEach((request) => {
+          request.subscribe({
+            next: () => {
+              completed++;
+              if (completed === total) {
+                this.messageService.add({
+                  severity: 'success',
+                  summary: this.translocoService.translate('common.success'),
+                  detail: this.translocoService.translate('productTypeList.messages.bulkDeleted', { count: total }),
+                });
+                this.selectedProductTypesArray = [];
+                this.onRefresh();
+              }
+            },
+            error: () => {
+              this.messageService.add({
+                severity: 'error',
+                summary: this.translocoService.translate('common.error'),
+                detail: this.translocoService.translate('productTypeList.messages.bulkDeleteError'),
+              });
+            }
           });
-          this.selectedProductTypesArray = [];
-          this.onRefresh();
-        } catch (error) {
-          this.messageService.add({
-            severity: 'error',
-            summary: this.translocoService.translate('common.error'),
-            detail: this.translocoService.translate('productTypeList.messages.bulkDeleteError'),
-          });
-        }
+        });
       },
     });
   }
@@ -388,22 +399,21 @@ export class ProductTypeList implements OnInit, OnDestroy {
   /**
    * Export to CSV
    */
-  protected async onExportCSV(): Promise<void> {
-    try {
-      const params: QueryProductTypeParams = {
-        search: this.searchQuery() || undefined,
-      };
+  protected onExportCSV(): void {
+    const params: QueryProductTypeParams = {
+      search: this.searchQuery() || undefined,
+    };
 
-      // Add scope filter
-      const scope = this.currentScope();
-      if (scope === 'active') {
-        params.isActive = true;
-      } else if (scope === 'inactive') {
-        params.isActive = false;
-      }
+    // Add scope filter
+    const scope = this.currentScope();
+    if (scope === 'active') {
+      params.isActive = true;
+    } else if (scope === 'inactive') {
+      params.isActive = false;
+    }
 
-      const blob = await this.productTypeService.exportCSV(params).toPromise();
-      if (blob) {
+    this.productTypeService.exportCSV(params).subscribe({
+      next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -416,14 +426,15 @@ export class ProductTypeList implements OnInit, OnDestroy {
           summary: this.translocoService.translate('common.success'),
           detail: this.translocoService.translate('productTypeList.messages.exported'),
         });
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translocoService.translate('common.error'),
+          detail: this.translocoService.translate('productTypeList.messages.exportError'),
+        });
       }
-    } catch (error) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translocoService.translate('common.error'),
-        detail: this.translocoService.translate('productTypeList.messages.exportError'),
-      });
-    }
+    });
   }
 
   /**
