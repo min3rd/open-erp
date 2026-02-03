@@ -114,6 +114,8 @@ export class ProductTypeController {
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 20 })
   @ApiQuery({ name: 'isActive', required: false, type: Boolean })
   @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'sortField', required: false, type: String, example: 'name' })
+  @ApiQuery({ name: 'sortOrder', required: false, type: String, enum: ['asc', 'desc'], example: 'asc' })
   @ApiResponse({
     status: 200,
     description: 'Product types retrieved successfully',
@@ -123,6 +125,8 @@ export class ProductTypeController {
     @Query('limit') limit?: number,
     @Query('isActive') isActive?: boolean,
     @Query('search') search?: string,
+    @Query('sortField') sortField?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
     try {
       const result = await this.productTypeService.findAll({
@@ -130,6 +134,8 @@ export class ProductTypeController {
         limit,
         isActive,
         search,
+        sortField,
+        sortOrder,
       });
 
       return paginated(result.items, result.page, result.limit, result.total);

@@ -130,11 +130,15 @@ export class ProductTypeRepository {
    */
   async search(
     searchTerm: string,
-    options?: { skip?: number; limit?: number },
+    options?: { skip?: number; limit?: number; sort?: Record<string, 1 | -1> },
   ): Promise<ProductTypeDocument[]> {
     let query = this.model.find({
       $text: { $search: searchTerm },
     });
+
+    if (options?.sort) {
+      query = query.sort(options.sort);
+    }
 
     if (options?.skip) {
       query = query.skip(options.skip);
