@@ -17,11 +17,12 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
 
 // PrimeNG imports
-import { TableModule } from 'primeng/table';
+import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToolbarModule } from 'primeng/toolbar';
 import { MenuModule } from 'primeng/menu';
+import { Menu } from 'primeng/menu';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { ContextMenu } from 'primeng/contextmenu';
 import { TooltipModule } from 'primeng/tooltip';
@@ -82,6 +83,7 @@ export class ProductTypeList implements OnInit, OnDestroy {
 
   // Constants
   private readonly SEARCH_FOCUS_DELAY = 100;
+  protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
 
   // State signals
   protected readonly productTypes = signal<ProductType[]>([]);
@@ -94,6 +96,9 @@ export class ProductTypeList implements OnInit, OnDestroy {
   protected readonly totalRecords = signal(0);
   protected readonly isMobile = signal(false);
   protected readonly isSearchOpen = signal(false);
+
+  // Current row menu items - to fix double-click issue
+  protected currentRowMenuItems: MenuItem[] = [];
 
   // Computed values
   protected readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
@@ -502,5 +507,30 @@ export class ProductTypeList implements OnInit, OnDestroy {
         command: () => this.onDeleteProductType(productType),
       },
     ];
+  }
+
+  /**
+   * Handle lazy load event from table paginator
+   */
+  protected onLazyLoad(event: TableLazyLoadEvent): void {
+    const page = event.first !== undefined && event.rows ? Math.floor(event.first / event.rows) + 1 : 1;
+    const pageSize = event.rows || PAGE_SIZE_OPTIONS[0];
+    const search = this.searchQuery() || '-';
+
+    // Only navigate if page or pageSize changed
+    if (page !== this.currentPage() || pageSize !== this.pageSize()) {
+      this.router.navigate(['../../..', search, page, pageSize], {
+        relativeTo: this.route,
+      });
+    }
+  }
+
+  /**
+   * Show row menu - fixes double-click issue by setting menu items before showing
+   */
+  protected onShowRowMenu(event: MouseEvent, productType: ProductType, menu: Menu): void {
+    event.stopPropagation();
+    this.currentRowMenuItems = this.getRowMenuItems(productType);
+    menu.toggle(event);
   }
 }
