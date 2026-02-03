@@ -127,11 +127,11 @@
             [suggestions]="filteredProvinces"
             (completeMethod)="filterProvinces($event)"
             (onSelect)="onProvinceChange($event)"
-            (onBlur)="onProvinceChange($event.target.value)"
-            field="name"
+            optionLabel="name"
             [forceSelection]="false"
             [placeholder]="'userDetail.general.selectOrEnter' | transloco"
-            class="w-full"
+            styleClass="w-full"
+            inputStyleClass="w-full"
           />
         </div>
         <div>
@@ -143,11 +143,11 @@
             [suggestions]="filteredDistricts"
             (completeMethod)="filterDistricts($event)"
             (onSelect)="onDistrictChange($event)"
-            (onBlur)="onDistrictChange($event.target.value)"
-            field="name"
+            optionLabel="name"
             [forceSelection]="false"
             [placeholder]="'userDetail.general.selectOrEnter' | transloco"
-            class="w-full"
+            styleClass="w-full"
+            inputStyleClass="w-full"
           />
         </div>
       </div>
@@ -161,9 +161,10 @@
             formControlName="city"
             [suggestions]="filteredWards"
             (completeMethod)="filterWards($event)"
-            field="name"
+            optionLabel="name"
             [forceSelection]="false"
-            class="w-full"
+            styleClass="w-full"
+            inputStyleClass="w-full"
           />
         </div>
         <div>
@@ -201,9 +202,10 @@
         formControlName="dateOfBirth"
         [showIcon]="true"
         [maxDate]="maxDateObject"
-        dateFormat="yy-mm-dd"
-        [iconDisplay]="'input'"
-        class="w-full"
+        dateFormat="dd/mm/yy"
+        [placeholder]="'userDetail.general.dateOfBirth' | transloco"
+        styleClass="w-full"
+        inputStyleClass="w-full"
       />
     </div>
 

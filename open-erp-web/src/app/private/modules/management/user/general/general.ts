@@ -281,7 +281,24 @@ export class General implements OnInit, OnDestroy {
 
     // Handle address - send if has data, or explicitly clear if previously had data
     if (formValue.address && this.hasAddressData(formValue.address)) {
-      updateData.address = formValue.address;
+      // Extract string values from potential objects (autocomplete returns objects)
+      const addressData = {
+        country: typeof formValue.address.country === 'string' 
+          ? formValue.address.country 
+          : formValue.address.country?.name || formValue.address.country,
+        street: formValue.address.street,
+        district: typeof formValue.address.district === 'string'
+          ? formValue.address.district
+          : formValue.address.district?.name || formValue.address.district,
+        city: typeof formValue.address.city === 'string'
+          ? formValue.address.city
+          : formValue.address.city?.name || formValue.address.city,
+        province: typeof formValue.address.province === 'string'
+          ? formValue.address.province
+          : formValue.address.province?.name || formValue.address.province,
+        postalCode: formValue.address.postalCode,
+      };
+      updateData.address = addressData;
     } else if (this.user()?.address && !this.hasAddressData(formValue.address)) {
       updateData.address = null as any;
     }
@@ -412,10 +429,16 @@ export class General implements OnInit, OnDestroy {
 
   // Load districts when province is selected or changed
   protected onProvinceChange(event: any): void {
-    const provinceName = typeof event === 'string' ? event : event?.name || event;
+    // Extract province name from event (could be object with name property or string)
+    const provinceName = typeof event === 'string' ? event : event?.name || event?.value || event;
+    
+    if (!provinceName) return;
+    
+    // Find province object
     const province = this.provinces.find(p => p.name === provinceName || p.nameEn === provinceName);
     
     if (province && province.code) {
+      // Load both districts and wards for this province
       this.districtService.getDistricts({ provinceCode: province.code, page: 1, limit: 200 })
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -424,6 +447,18 @@ export class General implements OnInit, OnDestroy {
           },
           error: (error) => {
             console.error('Error loading districts:', error);
+          }
+        });
+      
+      // Also load all wards for this province
+      this.wardService.getWards({ provinceCode: province.code, page: 1, limit: 500 })
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (data) => {
+            this.wards = data.items || [];
+          },
+          error: (error) => {
+            console.error('Error loading wards:', error);
           }
         });
     }
@@ -439,7 +474,12 @@ export class General implements OnInit, OnDestroy {
 
   // Load wards when district is selected or changed
   protected onDistrictChange(event: any): void {
-    const districtName = typeof event === 'string' ? event : event?.name || event;
+    // Extract district name from event
+    const districtName = typeof event === 'string' ? event : event?.name || event?.value || event;
+    
+    if (!districtName) return;
+    
+    // Find district object
     const district = this.districts.find(d => d.name === districtName || d.nameEn === districtName);
     
     if (district && district.code) {
