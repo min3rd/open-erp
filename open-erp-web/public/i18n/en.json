@@ -2026,6 +2026,171 @@
       "invalidId": "Invalid ID format"
     }
   },
+  "productCategoryList": {
+    "title": "Product Category Management",
+    "search": {
+      "label": "Search product categories",
+      "placeholder": "Search by name or code...",
+      "openSearch": "Open search",
+      "closeSearch": "Close search"
+    },
+    "addButton": {
+      "label": "Add Category",
+      "tooltip": "Add new product category"
+    },
+    "refreshButton": {
+      "label": "Refresh",
+      "tooltip": "Refresh list"
+    },
+    "actionsButton": {
+      "label": "Actions"
+    },
+    "actions": {
+      "exportCSV": "Export to CSV",
+      "import": "Import from CSV",
+      "deleteSelected": "Delete Selected"
+    },
+    "toolbar": {
+      "selectColumns": "Select columns to display",
+      "columns": "Columns",
+      "filterByStatus": "Filter by status",
+      "sortBy": "Sort by"
+    },
+    "filter": {
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "sort": {
+      "codeAsc": "Code (A-Z)",
+      "codeDesc": "Code (Z-A)",
+      "nameAsc": "Name (A-Z)",
+      "nameDesc": "Name (Z-A)",
+      "orderAsc": "Order (Low to High)",
+      "orderDesc": "Order (High to Low)",
+      "levelAsc": "Level (Low to High)",
+      "levelDesc": "Level (High to Low)"
+    },
+    "table": {
+      "code": "Code",
+      "name": "Name",
+      "parent": "Parent Category",
+      "description": "Description",
+      "status": "Status",
+      "order": "Order",
+      "level": "Level",
+      "createdAt": "Created At",
+      "rowActions": "Row actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "contextMenu": {
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "resultCount": "{{count}} categories",
+    "messages": {
+      "loading": "Loading categories...",
+      "noResults": "No categories found for '{{query}}'",
+      "noProductCategories": "No product categories available",
+      "error": "Error",
+      "success": "Success",
+      "warning": "Warning",
+      "exportSuccess": "Export completed successfully",
+      "exportFailed": "Failed to export categories",
+      "importSuccess": "Successfully imported {{count}} categories",
+      "importPartial": "Imported {{success}} categories, {{error}} failed",
+      "importFailed": "Failed to import categories",
+      "deleteSuccess": "Category {{name}} deleted successfully",
+      "deleteFailed": "Failed to delete category",
+      "bulkDeleteSuccess": "{{count}} categories deleted successfully",
+      "bulkDeleteFailed": "Failed to delete categories"
+    },
+    "confirmDelete": {
+      "header": "Confirm Delete",
+      "message": "Are you sure you want to delete category {{name}}?",
+      "accept": "Delete",
+      "reject": "Cancel"
+    },
+    "confirmBulkDelete": {
+      "header": "Confirm Bulk Delete",
+      "message": "Are you sure you want to delete {{count}} categories?"
+    }
+  },
+  "productCategoryForm": {
+    "title": {
+      "new": "Add Product Category",
+      "edit": "Edit Product Category",
+      "view": "View Product Category"
+    },
+    "fields": {
+      "code": {
+        "label": "Code",
+        "placeholder": "Enter unique code (e.g., electronics)",
+        "errors": {
+          "required": "Code is required",
+          "minlength": "Code must be at least 2 characters",
+          "maxlength": "Code cannot exceed 50 characters"
+        }
+      },
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter category name",
+        "errors": {
+          "required": "Name is required",
+          "minlength": "Name must be at least 2 characters",
+          "maxlength": "Name cannot exceed 100 characters"
+        }
+      },
+      "parentId": {
+        "label": "Parent Category",
+        "placeholder": "Select parent category (optional)"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter category description (optional)",
+        "errors": {
+          "maxlength": "Description cannot exceed 500 characters"
+        }
+      },
+      "isActive": {
+        "label": "Active Status",
+        "help": "Enable this category for use in products"
+      },
+      "order": {
+        "label": "Display Order",
+        "placeholder": "0",
+        "help": "Order of category within parent (lower numbers appear first)",
+        "errors": {
+          "min": "Order must be 0 or greater"
+        }
+      },
+      "metadata": {
+        "label": "Metadata (JSON)",
+        "placeholder": "Enter JSON metadata (optional)",
+        "help": "Additional custom data in JSON format",
+        "errors": {
+          "invalidJson": "Invalid JSON format"
+        }
+      }
+    },
+    "buttons": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "saving": "Saving..."
+    },
+    "messages": {
+      "createSuccess": "Category created successfully",
+      "createError": "Failed to create category",
+      "updateSuccess": "Category updated successfully",
+      "updateError": "Failed to update category",
+      "loadError": "Failed to load category"
+    }
+  },
   "administrativeUnit": {
     "title": "Administrative Unit Management",
     "search": {

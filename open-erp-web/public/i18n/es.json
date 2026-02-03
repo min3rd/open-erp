@@ -1366,6 +1366,171 @@
       "invalidId": "Formato de ID inválido"
     }
   },
+  "productCategoryList": {
+    "title": "Gestión de Categorías de Productos",
+    "search": {
+      "label": "Buscar categorías",
+      "placeholder": "Buscar por nombre o código...",
+      "openSearch": "Abrir búsqueda",
+      "closeSearch": "Cerrar búsqueda"
+    },
+    "addButton": {
+      "label": "Agregar Categoría",
+      "tooltip": "Agregar nueva categoría de producto"
+    },
+    "refreshButton": {
+      "label": "Actualizar",
+      "tooltip": "Actualizar lista"
+    },
+    "actionsButton": {
+      "label": "Acciones"
+    },
+    "actions": {
+      "exportCSV": "Exportar a CSV",
+      "import": "Importar desde CSV",
+      "deleteSelected": "Eliminar Seleccionados"
+    },
+    "toolbar": {
+      "selectColumns": "Seleccionar columnas a mostrar",
+      "columns": "Columnas",
+      "filterByStatus": "Filtrar por estado",
+      "sortBy": "Ordenar por"
+    },
+    "filter": {
+      "all": "Todos",
+      "active": "Activos",
+      "inactive": "Inactivos"
+    },
+    "sort": {
+      "codeAsc": "Código (A-Z)",
+      "codeDesc": "Código (Z-A)",
+      "nameAsc": "Nombre (A-Z)",
+      "nameDesc": "Nombre (Z-A)",
+      "orderAsc": "Orden (Bajo a Alto)",
+      "orderDesc": "Orden (Alto a Bajo)",
+      "levelAsc": "Nivel (Bajo a Alto)",
+      "levelDesc": "Nivel (Alto a Bajo)"
+    },
+    "table": {
+      "code": "Código",
+      "name": "Nombre",
+      "parent": "Categoría Padre",
+      "description": "Descripción",
+      "status": "Estado",
+      "order": "Orden",
+      "level": "Nivel",
+      "createdAt": "Fecha de Creación",
+      "rowActions": "Acciones"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "contextMenu": {
+      "view": "Ver",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "resultCount": "{{count}} categorías",
+    "messages": {
+      "loading": "Cargando categorías...",
+      "noResults": "No se encontraron categorías para '{{query}}'",
+      "noProductCategories": "No hay categorías de productos disponibles",
+      "error": "Error",
+      "success": "Éxito",
+      "warning": "Advertencia",
+      "exportSuccess": "Exportación completada con éxito",
+      "exportFailed": "Falló la exportación de categorías",
+      "importSuccess": "Se importaron {{count}} categorías con éxito",
+      "importPartial": "Se importaron {{success}} categorías, {{error}} fallaron",
+      "importFailed": "Falló la importación de categorías",
+      "deleteSuccess": "Categoría {{name}} eliminada con éxito",
+      "deleteFailed": "Falló la eliminación de categoría",
+      "bulkDeleteSuccess": "{{count}} categorías eliminadas con éxito",
+      "bulkDeleteFailed": "Falló la eliminación de categorías"
+    },
+    "confirmDelete": {
+      "header": "Confirmar Eliminación",
+      "message": "¿Está seguro de que desea eliminar la categoría {{name}}?",
+      "accept": "Eliminar",
+      "reject": "Cancelar"
+    },
+    "confirmBulkDelete": {
+      "header": "Confirmar Eliminación Múltiple",
+      "message": "¿Está seguro de que desea eliminar {{count}} categorías?"
+    }
+  },
+  "productCategoryForm": {
+    "title": {
+      "new": "Agregar Categoría de Producto",
+      "edit": "Editar Categoría de Producto",
+      "view": "Ver Categoría de Producto"
+    },
+    "fields": {
+      "code": {
+        "label": "Código",
+        "placeholder": "Ingrese código único (ej: electronics)",
+        "errors": {
+          "required": "El código es requerido",
+          "minlength": "El código debe tener al menos 2 caracteres",
+          "maxlength": "El código no puede exceder 50 caracteres"
+        }
+      },
+      "name": {
+        "label": "Nombre",
+        "placeholder": "Ingrese nombre de categoría",
+        "errors": {
+          "required": "El nombre es requerido",
+          "minlength": "El nombre debe tener al menos 2 caracteres",
+          "maxlength": "El nombre no puede exceder 100 caracteres"
+        }
+      },
+      "parentId": {
+        "label": "Categoría Padre",
+        "placeholder": "Seleccione categoría padre (opcional)"
+      },
+      "description": {
+        "label": "Descripción",
+        "placeholder": "Ingrese descripción de categoría (opcional)",
+        "errors": {
+          "maxlength": "La descripción no puede exceder 500 caracteres"
+        }
+      },
+      "isActive": {
+        "label": "Estado Activo",
+        "help": "Habilite esta categoría para usar en productos"
+      },
+      "order": {
+        "label": "Orden de Visualización",
+        "placeholder": "0",
+        "help": "Orden de categoría dentro del padre (números menores aparecen primero)",
+        "errors": {
+          "min": "El orden debe ser 0 o mayor"
+        }
+      },
+      "metadata": {
+        "label": "Metadatos (JSON)",
+        "placeholder": "Ingrese metadatos JSON (opcional)",
+        "help": "Datos personalizados adicionales en formato JSON",
+        "errors": {
+          "invalidJson": "Formato JSON inválido"
+        }
+      }
+    },
+    "buttons": {
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "saving": "Guardando..."
+    },
+    "messages": {
+      "createSuccess": "Categoría creada con éxito",
+      "createError": "Falló la creación de categoría",
+      "updateSuccess": "Categoría actualizada con éxito",
+      "updateError": "Falló la actualización de categoría",
+      "loadError": "Falló la carga de categoría"
+    }
+  },
   "administrativeUnit": {
     "title": "Gestión de Unidades Administrativas",
     "search": {
