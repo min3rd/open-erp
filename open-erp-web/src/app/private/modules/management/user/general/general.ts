@@ -1,9 +1,23 @@
-import { ChangeDetectionStrategy, Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  signal,
+  inject,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  FormArray,
+  Validators,
+} from '@angular/forms';
 
 // PrimeNG imports
 import { SkeletonModule } from 'primeng/skeleton';
@@ -55,7 +69,7 @@ export class General implements OnInit, OnDestroy {
   protected readonly isEditing = signal(false);
   protected readonly isSaving = signal(false);
   protected editForm!: FormGroup;
-  
+
   // For managing skills and hobbies
   protected newSkill = '';
   protected newHobby = '';
@@ -72,7 +86,7 @@ export class General implements OnInit, OnDestroy {
   protected filteredProvinces: any[] = [];
   protected filteredDistricts: any[] = [];
   protected filteredWards: any[] = [];
-  
+
   // Dynamic getter for max date to ensure it's always current
   protected get maxDate(): string {
     return new Date().toISOString().split('T')[0];
@@ -109,16 +123,14 @@ export class General implements OnInit, OnDestroy {
     });
 
     // Subscribe to user updates from service
-    this.userDetailService.userUpdated$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((updatedUser) => {
-        if (updatedUser && updatedUser.id === this.user()?.id) {
-          this.user.set(updatedUser);
-          if (!this.isEditing()) {
-            this.patchFormWithUserData(updatedUser);
-          }
+    this.userDetailService.userUpdated$.pipe(takeUntil(this.destroy$)).subscribe((updatedUser) => {
+      if (updatedUser && updatedUser.id === this.user()?.id) {
+        this.user.set(updatedUser);
+        if (!this.isEditing()) {
+          this.patchFormWithUserData(updatedUser);
         }
-      });
+      }
+    });
 
     // Load provinces data for autocomplete
     this.loadProvinces();
@@ -157,8 +169,11 @@ export class General implements OnInit, OnDestroy {
           this.fb.group({
             degree: [edu.degree || ''],
             institution: [edu.institution || ''],
-            year: [edu.year || null, [Validators.min(1900), Validators.max(new Date().getFullYear() + 10)]],
-          })
+            year: [
+              edu.year || null,
+              [Validators.min(1900), Validators.max(new Date().getFullYear() + 10)],
+            ],
+          }),
         );
       });
     }
@@ -196,7 +211,7 @@ export class General implements OnInit, OnDestroy {
   }
 
   protected removeSkill(skill: string): void {
-    const skills = this.skillsValue().filter(s => s !== skill);
+    const skills = this.skillsValue().filter((s) => s !== skill);
     this.skillsValue.set(skills);
     this.editForm.get('skills')?.patchValue(skills);
   }
@@ -227,7 +242,7 @@ export class General implements OnInit, OnDestroy {
   }
 
   protected removeHobby(hobby: string): void {
-    const hobbies = this.hobbiesValue().filter(h => h !== hobby);
+    const hobbies = this.hobbiesValue().filter((h) => h !== hobby);
     this.hobbiesValue.set(hobbies);
     this.editForm.get('hobbies')?.patchValue(hobbies);
   }
@@ -251,7 +266,7 @@ export class General implements OnInit, OnDestroy {
         degree: [''],
         institution: [''],
         year: [null, [Validators.min(1900), Validators.max(currentYear + 10)]],
-      })
+      }),
     );
   }
 
@@ -283,19 +298,23 @@ export class General implements OnInit, OnDestroy {
     if (formValue.address && this.hasAddressData(formValue.address)) {
       // Extract string values from potential objects (autocomplete returns objects)
       const addressData = {
-        country: typeof formValue.address.country === 'string' 
-          ? formValue.address.country 
-          : formValue.address.country?.name || formValue.address.country,
+        country:
+          typeof formValue.address.country === 'string'
+            ? formValue.address.country
+            : formValue.address.country?.name || formValue.address.country,
         street: formValue.address.street,
-        district: typeof formValue.address.district === 'string'
-          ? formValue.address.district
-          : formValue.address.district?.name || formValue.address.district,
-        city: typeof formValue.address.city === 'string'
-          ? formValue.address.city
-          : formValue.address.city?.name || formValue.address.city,
-        province: typeof formValue.address.province === 'string'
-          ? formValue.address.province
-          : formValue.address.province?.name || formValue.address.province,
+        district:
+          typeof formValue.address.district === 'string'
+            ? formValue.address.district
+            : formValue.address.district?.name || formValue.address.district,
+        city:
+          typeof formValue.address.city === 'string'
+            ? formValue.address.city
+            : formValue.address.city?.name || formValue.address.city,
+        province:
+          typeof formValue.address.province === 'string'
+            ? formValue.address.province
+            : formValue.address.province?.name || formValue.address.province,
         postalCode: formValue.address.postalCode,
       };
       updateData.address = addressData;
@@ -306,7 +325,10 @@ export class General implements OnInit, OnDestroy {
     // Handle date of birth - can be set or cleared
     if (formValue.dateOfBirth !== undefined && formValue.dateOfBirth !== null) {
       // p-datepicker returns Date object, convert to YYYY-MM-DD string for backend
-      const date = formValue.dateOfBirth instanceof Date ? formValue.dateOfBirth : new Date(formValue.dateOfBirth);
+      const date =
+        formValue.dateOfBirth instanceof Date
+          ? formValue.dateOfBirth
+          : new Date(formValue.dateOfBirth);
       updateData.dateOfBirth = date.toISOString().split('T')[0];
     } else if (this.user()?.dateOfBirth && !formValue.dateOfBirth) {
       // Explicitly clear if it was set before but is now empty
@@ -314,9 +336,9 @@ export class General implements OnInit, OnDestroy {
     }
 
     // Handle education - always send including empty array if cleared
-    const filteredEducation = formValue.education ? formValue.education.filter(
-      (edu: any) => edu.degree || edu.institution || edu.year
-    ) : [];
+    const filteredEducation = formValue.education
+      ? formValue.education.filter((edu: any) => edu.degree || edu.institution || edu.year)
+      : [];
     if (filteredEducation.length > 0) {
       updateData.education = filteredEducation;
     } else if (this.user()?.education && this.user()!.education!.length > 0) {
@@ -407,7 +429,8 @@ export class General implements OnInit, OnDestroy {
 
   // Load provinces data for autocomplete
   private loadProvinces(): void {
-    this.provinceService.getProvinces({ page: 1, limit: 100 })
+    this.provinceService
+      .getProvinces({ page: 1, limit: 100 })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
@@ -415,15 +438,15 @@ export class General implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading provinces:', error);
-        }
+        },
       });
   }
 
   // Filter provinces based on user input
   protected filterProvinces(event: any): void {
     const query = event.query?.toLowerCase() || '';
-    this.filteredProvinces = this.provinces.filter(p => 
-      p.name?.toLowerCase().includes(query) || p.nameEn?.toLowerCase().includes(query)
+    this.filteredProvinces = this.provinces.filter(
+      (p) => p.name?.toLowerCase().includes(query) || p.nameEn?.toLowerCase().includes(query),
     );
   }
 
@@ -431,15 +454,18 @@ export class General implements OnInit, OnDestroy {
   protected onProvinceChange(event: any): void {
     // Extract province name from event (could be object with name property or string)
     const provinceName = typeof event === 'string' ? event : event?.name || event?.value || event;
-    
+
     if (!provinceName) return;
-    
+
     // Find province object
-    const province = this.provinces.find(p => p.name === provinceName || p.nameEn === provinceName);
-    
+    const province = this.provinces.find(
+      (p) => p.name === provinceName || p.nameEn === provinceName,
+    );
+
     if (province && province.code) {
       // Load both districts and wards for this province
-      this.districtService.getDistricts({ provinceCode: province.code, page: 1, limit: 200 })
+      this.districtService
+        .getDistricts({ provinceCode: province.code, page: 1, limit: 200 })
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (data) => {
@@ -447,11 +473,12 @@ export class General implements OnInit, OnDestroy {
           },
           error: (error) => {
             console.error('Error loading districts:', error);
-          }
+          },
         });
-      
+
       // Also load all wards for this province
-      this.wardService.getWards({ provinceCode: province.code, page: 1, limit: 500 })
+      this.wardService
+        .getWards({ provinceCode: province.code, page: 1, limit: 500 })
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (data) => {
@@ -459,7 +486,7 @@ export class General implements OnInit, OnDestroy {
           },
           error: (error) => {
             console.error('Error loading wards:', error);
-          }
+          },
         });
     }
   }
@@ -467,8 +494,8 @@ export class General implements OnInit, OnDestroy {
   // Filter districts based on user input
   protected filterDistricts(event: any): void {
     const query = event.query?.toLowerCase() || '';
-    this.filteredDistricts = this.districts.filter(d => 
-      d.name?.toLowerCase().includes(query) || d.nameEn?.toLowerCase().includes(query)
+    this.filteredDistricts = this.districts.filter(
+      (d) => d.name?.toLowerCase().includes(query) || d.nameEn?.toLowerCase().includes(query),
     );
   }
 
@@ -476,14 +503,17 @@ export class General implements OnInit, OnDestroy {
   protected onDistrictChange(event: any): void {
     // Extract district name from event
     const districtName = typeof event === 'string' ? event : event?.name || event?.value || event;
-    
+
     if (!districtName) return;
-    
+
     // Find district object
-    const district = this.districts.find(d => d.name === districtName || d.nameEn === districtName);
-    
+    const district = this.districts.find(
+      (d) => d.name === districtName || d.nameEn === districtName,
+    );
+
     if (district && district.code) {
-      this.wardService.getWards({ districtCode: district.code, page: 1, limit: 200 })
+      this.wardService
+        .getWards({ districtCode: district.code, page: 1, limit: 200 })
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (data) => {
@@ -491,7 +521,7 @@ export class General implements OnInit, OnDestroy {
           },
           error: (error) => {
             console.error('Error loading wards:', error);
-          }
+          },
         });
     }
   }
@@ -499,8 +529,8 @@ export class General implements OnInit, OnDestroy {
   // Filter wards based on user input
   protected filterWards(event: any): void {
     const query = event.query?.toLowerCase() || '';
-    this.filteredWards = this.wards.filter(w => 
-      w.name?.toLowerCase().includes(query) || w.nameEn?.toLowerCase().includes(query)
+    this.filteredWards = this.wards.filter(
+      (w) => w.name?.toLowerCase().includes(query) || w.nameEn?.toLowerCase().includes(query),
     );
   }
 
@@ -509,4 +539,3 @@ export class General implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 }
-
