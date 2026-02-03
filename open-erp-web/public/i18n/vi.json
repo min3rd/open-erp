@@ -978,6 +978,143 @@
       }
     }
   },
+  "productTypeList": {
+    "title": "Quản Lý Loại Sản Phẩm",
+    "search": {
+      "label": "Tìm kiếm loại sản phẩm",
+      "placeholder": "Tìm theo tên hoặc mã...",
+      "openSearch": "Mở tìm kiếm",
+      "closeSearch": "Đóng tìm kiếm"
+    },
+    "addButton": {
+      "label": "Thêm Loại Sản Phẩm",
+      "tooltip": "Thêm loại sản phẩm mới"
+    },
+    "refreshButton": {
+      "label": "Làm mới",
+      "tooltip": "Làm mới danh sách"
+    },
+    "actionsButton": {
+      "label": "Hành động"
+    },
+    "actions": {
+      "exportCSV": "Xuất CSV",
+      "import": "Nhập từ CSV",
+      "deleteSelected": "Xóa đã chọn"
+    },
+    "table": {
+      "code": "Mã",
+      "name": "Tên",
+      "description": "Mô tả",
+      "status": "Trạng thái",
+      "createdAt": "Ngày tạo",
+      "rowActions": "Hành động"
+    },
+    "status": {
+      "active": "Hoạt động",
+      "inactive": "Không hoạt động"
+    },
+    "contextMenu": {
+      "view": "Xem",
+      "edit": "Sửa",
+      "delete": "Xóa"
+    },
+    "resultCount": "{{count}} loại sản phẩm",
+    "messages": {
+      "loading": "Đang tải loại sản phẩm...",
+      "noResults": "Không tìm thấy loại sản phẩm cho '{{query}}'",
+      "noProductTypes": "Chưa có loại sản phẩm",
+      "error": "Lỗi",
+      "success": "Thành công",
+      "warning": "Cảnh báo",
+      "exportSuccess": "Xuất dữ liệu thành công",
+      "exportFailed": "Xuất dữ liệu thất bại",
+      "importSuccess": "Nhập thành công {{count}} loại sản phẩm",
+      "importPartial": "Nhập thành công {{success}}, thất bại {{error}}",
+      "importFailed": "Nhập dữ liệu thất bại",
+      "deleteSuccess": "Đã xóa loại sản phẩm {{name}}",
+      "deleteFailed": "Xóa loại sản phẩm thất bại",
+      "bulkDeleteSuccess": "Đã xóa {{count}} loại sản phẩm",
+      "bulkDeleteFailed": "Xóa loại sản phẩm thất bại"
+    },
+    "confirmDelete": {
+      "header": "Xác Nhận Xóa",
+      "message": "Bạn có chắc muốn xóa loại sản phẩm {{name}}?",
+      "accept": "Xóa",
+      "reject": "Hủy"
+    },
+    "confirmBulkDelete": {
+      "header": "Xác Nhận Xóa Nhiều",
+      "message": "Bạn có chắc muốn xóa {{count}} loại sản phẩm?"
+    }
+  },
+  "productTypeForm": {
+    "title": {
+      "new": "Thêm Loại Sản Phẩm",
+      "edit": "Sửa Loại Sản Phẩm",
+      "view": "Xem Loại Sản Phẩm"
+    },
+    "sections": {
+      "attributes": "Thuộc Tính Tùy Chỉnh"
+    },
+    "fields": {
+      "code": {
+        "label": "Mã",
+        "placeholder": "Nhập mã duy nhất (VD: nguyen_lieu)",
+        "errors": {
+          "required": "Mã là bắt buộc",
+          "minlength": "Mã phải có ít nhất 2 ký tự",
+          "maxlength": "Mã không được quá 50 ký tự"
+        }
+      },
+      "name": {
+        "label": "Tên",
+        "placeholder": "Nhập tên hiển thị",
+        "errors": {
+          "required": "Tên là bắt buộc",
+          "minlength": "Tên phải có ít nhất 2 ký tự"
+        }
+      },
+      "description": {
+        "label": "Mô tả",
+        "placeholder": "Nhập mô tả (không bắt buộc)"
+      },
+      "isActive": {
+        "label": "Hoạt động"
+      }
+    },
+    "attribute": {
+      "title": "Thuộc tính",
+      "name": "Tên",
+      "namePlaceholder": "Nhập tên thuộc tính",
+      "type": "Loại",
+      "typePlaceholder": "Chọn loại",
+      "label": "Nhãn",
+      "labelPlaceholder": "Nhãn hiển thị",
+      "required": "Bắt buộc",
+      "options": "Tùy chọn",
+      "optionsPlaceholder": "Giá trị 1, Giá trị 2, Giá trị 3",
+      "optionsHint": "Nhập các giá trị cách nhau bởi dấu phẩy",
+      "defaultValue": "Giá trị mặc định",
+      "defaultValuePlaceholder": "Nhập giá trị mặc định"
+    },
+    "actions": {
+      "save": "Lưu",
+      "cancel": "Hủy",
+      "close": "Đóng",
+      "addAttribute": "Thêm thuộc tính",
+      "removeAttribute": "Xóa thuộc tính"
+    },
+    "messages": {
+      "error": "Lỗi",
+      "success": "Thành công",
+      "createSuccess": "Tạo loại sản phẩm thành công",
+      "updateSuccess": "Cập nhật loại sản phẩm thành công",
+      "saveFailed": "Lưu loại sản phẩm thất bại",
+      "validationFailed": "Vui lòng điền đầy đủ thông tin bắt buộc",
+      "noAttributes": "Chưa có thuộc tính. Nhấn 'Thêm thuộc tính' để tạo."
+    }
+  },
   "auditLogs": {
     "title": "Nhật Ký Kiểm Tra",
     "searchPlaceholder": "Tìm kiếm theo hành động hoặc thực thể...",

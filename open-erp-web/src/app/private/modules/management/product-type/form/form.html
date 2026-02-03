@@ -1,0 +1,252 @@
+<p-drawer
+  id="product-type-form-drawer"
+  [(visible)]="isVisible"
+  position="right"
+  [style]="{ width: '600px' }"
+  (onHide)="onClose()"
+>
+  <ng-template #header>
+    <h2 id="product-type-form-title">
+      @if (isViewMode()) {
+        {{ 'productTypeForm.title.view' | transloco }}
+      } @else if (isEditMode()) {
+        {{ 'productTypeForm.title.edit' | transloco }}
+      } @else {
+        {{ 'productTypeForm.title.new' | transloco }}
+      }
+    </h2>
+  </ng-template>
+
+  <div id="product-type-form-content" class="p-4 overflow-y-auto" style="max-height: calc(100vh - 200px);">
+    <form [formGroup]="form" class="space-y-4">
+      <!-- Code -->
+      <div>
+        <label for="product-type-form-code" class="block text-sm font-medium mb-2">
+          {{ 'productTypeForm.fields.code.label' | transloco }}
+          <span class="text-red-500">*</span>
+        </label>
+        <input
+          id="product-type-form-code"
+          type="text"
+          pInputText
+          formControlName="code"
+          [placeholder]="'productTypeForm.fields.code.placeholder' | transloco"
+          class="w-full"
+        />
+        @if (form.get('code')?.touched && form.get('code')?.hasError('required')) {
+        <small class="text-red-500">{{ 'productTypeForm.fields.code.errors.required' | transloco }}</small>
+        }
+        @if (form.get('code')?.touched && form.get('code')?.hasError('minlength')) {
+        <small class="text-red-500">{{ 'productTypeForm.fields.code.errors.minlength' | transloco }}</small>
+        }
+        @if (form.get('code')?.touched && form.get('code')?.hasError('maxlength')) {
+        <small class="text-red-500">{{ 'productTypeForm.fields.code.errors.maxlength' | transloco }}</small>
+        }
+      </div>
+
+      <!-- Name -->
+      <div>
+        <label for="product-type-form-name" class="block text-sm font-medium mb-2">
+          {{ 'productTypeForm.fields.name.label' | transloco }}
+          <span class="text-red-500">*</span>
+        </label>
+        <input
+          id="product-type-form-name"
+          type="text"
+          pInputText
+          formControlName="name"
+          [placeholder]="'productTypeForm.fields.name.placeholder' | transloco"
+          class="w-full"
+        />
+        @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
+        <small class="text-red-500">{{ 'productTypeForm.fields.name.errors.required' | transloco }}</small>
+        }
+        @if (form.get('name')?.touched && form.get('name')?.hasError('minlength')) {
+        <small class="text-red-500">{{ 'productTypeForm.fields.name.errors.minlength' | transloco }}</small>
+        }
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label for="product-type-form-description" class="block text-sm font-medium mb-2">
+          {{ 'productTypeForm.fields.description.label' | transloco }}
+        </label>
+        <textarea
+          id="product-type-form-description"
+          pTextarea
+          formControlName="description"
+          [placeholder]="'productTypeForm.fields.description.placeholder' | transloco"
+          rows="3"
+          class="w-full"
+        ></textarea>
+      </div>
+
+      <!-- Active Status -->
+      <div class="flex items-center gap-3">
+        <p-toggleSwitch
+          id="product-type-form-active"
+          formControlName="isActive"
+        />
+        <label for="product-type-form-active" class="text-sm font-medium cursor-pointer">
+          {{ 'productTypeForm.fields.isActive.label' | transloco }}
+        </label>
+      </div>
+
+      <p-divider />
+
+      <!-- Attributes Section -->
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold">{{ 'productTypeForm.sections.attributes' | transloco }}</h3>
+          @if (!isViewMode()) {
+          <p-button
+            id="product-type-form-add-attribute"
+            icon="pi pi-plus"
+            [label]="'productTypeForm.actions.addAttribute' | transloco"
+            [text]="true"
+            size="small"
+            (onClick)="addAttribute()"
+          />
+          }
+        </div>
+
+        @if (attributesArray.length === 0) {
+        <div class="text-center py-8 text-surface-500 bg-surface-50 dark:bg-surface-800 rounded-lg">
+          <i class="pi pi-list text-2xl mb-2"></i>
+          <p>{{ 'productTypeForm.messages.noAttributes' | transloco }}</p>
+        </div>
+        }
+
+        @for (attr of attributesArray.controls; track $index; let i = $index) {
+        <div class="p-4 bg-surface-50 dark:bg-surface-800 rounded-lg mb-3 border border-surface-200 dark:border-surface-700">
+          <div class="flex items-center justify-between mb-3">
+            <span class="font-medium">{{ 'productTypeForm.attribute.title' | transloco }} {{ i + 1 }}</span>
+            @if (!isViewMode()) {
+            <p-button
+              icon="pi pi-trash"
+              [rounded]="true"
+              [text]="true"
+              severity="danger"
+              size="small"
+              (onClick)="removeAttribute(i)"
+              [pTooltip]="'productTypeForm.actions.removeAttribute' | transloco"
+            />
+            }
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <!-- Attribute Name -->
+            <div>
+              <label class="block text-sm font-medium mb-1">
+                {{ 'productTypeForm.attribute.name' | transloco }}
+                <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                pInputText
+                [formControl]="$any(attr.get('name'))"
+                [placeholder]="'productTypeForm.attribute.namePlaceholder' | transloco"
+                class="w-full"
+              />
+            </div>
+
+            <!-- Attribute Type -->
+            <div>
+              <label class="block text-sm font-medium mb-1">
+                {{ 'productTypeForm.attribute.type' | transloco }}
+                <span class="text-red-500">*</span>
+              </label>
+              <p-select
+                [formControl]="$any(attr.get('type'))"
+                [options]="attributeTypeOptions"
+                optionLabel="label"
+                optionValue="value"
+                [placeholder]="'productTypeForm.attribute.typePlaceholder' | transloco"
+                [style]="{ width: '100%' }"
+              />
+            </div>
+
+            <!-- Attribute Label -->
+            <div>
+              <label class="block text-sm font-medium mb-1">
+                {{ 'productTypeForm.attribute.label' | transloco }}
+              </label>
+              <input
+                type="text"
+                pInputText
+                [formControl]="$any(attr.get('label'))"
+                [placeholder]="'productTypeForm.attribute.labelPlaceholder' | transloco"
+                class="w-full"
+              />
+            </div>
+
+            <!-- Required Toggle -->
+            <div class="flex items-end gap-3 pb-2">
+              <p-toggleSwitch [formControl]="$any(attr.get('required'))" />
+              <label class="text-sm font-medium cursor-pointer">
+                {{ 'productTypeForm.attribute.required' | transloco }}
+              </label>
+            </div>
+
+            <!-- Options (only for select type) -->
+            @if (isSelectType(i)) {
+            <div class="col-span-2">
+              <label class="block text-sm font-medium mb-1">
+                {{ 'productTypeForm.attribute.options' | transloco }}
+              </label>
+              <input
+                type="text"
+                pInputText
+                [formControl]="$any(attr.get('options'))"
+                [placeholder]="'productTypeForm.attribute.optionsPlaceholder' | transloco"
+                class="w-full"
+              />
+              <small class="text-surface-500">{{ 'productTypeForm.attribute.optionsHint' | transloco }}</small>
+            </div>
+            }
+
+            <!-- Default Value -->
+            <div class="col-span-2">
+              <label class="block text-sm font-medium mb-1">
+                {{ 'productTypeForm.attribute.defaultValue' | transloco }}
+              </label>
+              <input
+                type="text"
+                pInputText
+                [formControl]="$any(attr.get('defaultValue'))"
+                [placeholder]="'productTypeForm.attribute.defaultValuePlaceholder' | transloco"
+                class="w-full"
+              />
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+    </form>
+  </div>
+
+  <ng-template #footer>
+    <div id="product-type-form-actions" class="flex justify-end gap-2">
+      @if (!isViewMode()) {
+      <p-button
+        id="product-type-form-cancel-button"
+        [label]="'productTypeForm.actions.cancel' | transloco"
+        severity="secondary"
+        (onClick)="onClose()"
+      />
+      <p-button
+        id="product-type-form-save-button"
+        [label]="'productTypeForm.actions.save' | transloco"
+        [loading]="isLoading()"
+        (onClick)="onSave()"
+      />
+      } @else {
+      <p-button
+        id="product-type-form-close-button"
+        [label]="'productTypeForm.actions.close' | transloco"
+        (onClick)="onClose()"
+      />
+      }
+    </div>
+  </ng-template>
+</p-drawer>

@@ -1905,6 +1905,143 @@
       "wardMessage": "¿Está seguro de que desea eliminar el distrito {{name}}?"
     }
   },
+  "productTypeList": {
+    "title": "Gestión de Tipos de Producto",
+    "search": {
+      "label": "Buscar tipos de producto",
+      "placeholder": "Buscar por nombre o código...",
+      "openSearch": "Abrir búsqueda",
+      "closeSearch": "Cerrar búsqueda"
+    },
+    "addButton": {
+      "label": "Agregar Tipo de Producto",
+      "tooltip": "Agregar nuevo tipo de producto"
+    },
+    "refreshButton": {
+      "label": "Actualizar",
+      "tooltip": "Actualizar lista"
+    },
+    "actionsButton": {
+      "label": "Acciones"
+    },
+    "actions": {
+      "exportCSV": "Exportar a CSV",
+      "import": "Importar desde CSV",
+      "deleteSelected": "Eliminar Seleccionados"
+    },
+    "table": {
+      "code": "Código",
+      "name": "Nombre",
+      "description": "Descripción",
+      "status": "Estado",
+      "createdAt": "Fecha de Creación",
+      "rowActions": "Acciones"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "contextMenu": {
+      "view": "Ver",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "resultCount": "{{count}} tipos de producto",
+    "messages": {
+      "loading": "Cargando tipos de producto...",
+      "noResults": "No se encontraron tipos de producto para '{{query}}'",
+      "noProductTypes": "No hay tipos de producto disponibles",
+      "error": "Error",
+      "success": "Éxito",
+      "warning": "Advertencia",
+      "exportSuccess": "Exportación completada con éxito",
+      "exportFailed": "Error al exportar tipos de producto",
+      "importSuccess": "{{count}} tipos de producto importados con éxito",
+      "importPartial": "Importados {{success}} tipos de producto, {{error}} fallaron",
+      "importFailed": "Error al importar tipos de producto",
+      "deleteSuccess": "Tipo de producto {{name}} eliminado con éxito",
+      "deleteFailed": "Error al eliminar tipo de producto",
+      "bulkDeleteSuccess": "{{count}} tipos de producto eliminados con éxito",
+      "bulkDeleteFailed": "Error al eliminar tipos de producto"
+    },
+    "confirmDelete": {
+      "header": "Confirmar Eliminación",
+      "message": "¿Está seguro de que desea eliminar el tipo de producto {{name}}?",
+      "accept": "Eliminar",
+      "reject": "Cancelar"
+    },
+    "confirmBulkDelete": {
+      "header": "Confirmar Eliminación Masiva",
+      "message": "¿Está seguro de que desea eliminar {{count}} tipos de producto?"
+    }
+  },
+  "productTypeForm": {
+    "title": {
+      "new": "Agregar Tipo de Producto",
+      "edit": "Editar Tipo de Producto",
+      "view": "Ver Tipo de Producto"
+    },
+    "sections": {
+      "attributes": "Atributos Personalizados"
+    },
+    "fields": {
+      "code": {
+        "label": "Código",
+        "placeholder": "Ingrese código único (ej: materia_prima)",
+        "errors": {
+          "required": "El código es obligatorio",
+          "minlength": "El código debe tener al menos 2 caracteres",
+          "maxlength": "El código no puede exceder 50 caracteres"
+        }
+      },
+      "name": {
+        "label": "Nombre",
+        "placeholder": "Ingrese nombre para mostrar",
+        "errors": {
+          "required": "El nombre es obligatorio",
+          "minlength": "El nombre debe tener al menos 2 caracteres"
+        }
+      },
+      "description": {
+        "label": "Descripción",
+        "placeholder": "Ingrese descripción (opcional)"
+      },
+      "isActive": {
+        "label": "Activo"
+      }
+    },
+    "attribute": {
+      "title": "Atributo",
+      "name": "Nombre",
+      "namePlaceholder": "Ingrese nombre del atributo",
+      "type": "Tipo",
+      "typePlaceholder": "Seleccione tipo",
+      "label": "Etiqueta",
+      "labelPlaceholder": "Etiqueta de visualización",
+      "required": "Obligatorio",
+      "options": "Opciones",
+      "optionsPlaceholder": "Opción1, Opción2, Opción3",
+      "optionsHint": "Ingrese valores separados por comas para opciones de selección",
+      "defaultValue": "Valor por Defecto",
+      "defaultValuePlaceholder": "Ingrese valor por defecto"
+    },
+    "actions": {
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "addAttribute": "Agregar Atributo",
+      "removeAttribute": "Eliminar atributo"
+    },
+    "messages": {
+      "error": "Error",
+      "success": "Éxito",
+      "createSuccess": "Tipo de producto creado con éxito",
+      "updateSuccess": "Tipo de producto actualizado con éxito",
+      "saveFailed": "Error al guardar tipo de producto",
+      "validationFailed": "Por favor complete todos los campos obligatorios",
+      "noAttributes": "No hay atributos personalizados definidos. Haga clic en 'Agregar Atributo' para crear uno."
+    }
+  },
   "auditLogs": {
     "title": "Registros de Auditoría",
     "searchPlaceholder": "Buscar por acción o entidad...",
