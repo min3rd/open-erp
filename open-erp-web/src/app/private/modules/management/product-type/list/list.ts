@@ -326,7 +326,7 @@ export class ProductTypeList implements OnInit, OnDestroy {
         let completed = 0;
         let errors = 0;
         selected.forEach((pt) => {
-          this.productTypeService.deleteProductType(pt._id).subscribe({
+          this.productTypeService.deleteProductType(pt.id).subscribe({
             next: () => {
               completed++;
               if (completed + errors === selected.length) {
@@ -378,14 +378,14 @@ export class ProductTypeList implements OnInit, OnDestroy {
    * View product type details
    */
   protected onViewProductType(productType: ProductType): void {
-    this.router.navigate([productType._id], { relativeTo: this.route });
+    this.router.navigate([productType.id], { relativeTo: this.route });
   }
 
   /**
    * Edit product type
    */
   protected onEditProductType(productType: ProductType): void {
-    this.router.navigate([productType._id, 'edit'], { relativeTo: this.route });
+    this.router.navigate([productType.id, 'edit'], { relativeTo: this.route });
   }
 
   /**
@@ -401,7 +401,7 @@ export class ProductTypeList implements OnInit, OnDestroy {
       acceptLabel: this.translocoService.translate('productTypeList.confirmDelete.accept'),
       rejectLabel: this.translocoService.translate('productTypeList.confirmDelete.reject'),
       accept: () => {
-        this.productTypeService.deleteProductType(productType._id).subscribe({
+        this.productTypeService.deleteProductType(productType.id).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',
@@ -410,7 +410,7 @@ export class ProductTypeList implements OnInit, OnDestroy {
                 name: productType.name,
               }),
             });
-            if (this.selectedProductType()?._id === productType._id) {
+            if (this.selectedProductType()?.id === productType.id) {
               this.selectedProductType.set(null);
             }
             this.onRefresh();
