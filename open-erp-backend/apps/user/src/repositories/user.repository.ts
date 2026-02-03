@@ -25,6 +25,7 @@ export interface UpdateUserDto {
   avatarUrl?: string;
   password?: string;
   address?: {
+    country?: string;
     street?: string;
     district?: string;
     city?: string;
