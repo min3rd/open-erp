@@ -39,7 +39,7 @@ import { PaginationComponent } from '../../../../../../core/components/paginatio
 
 // Services
 import { ProductTypeService } from '../../../../../../core/services/product-type/product-type.service';
-import type { QueryProductTypeParams, ProductType } from '../../product-type.types';
+import type { QueryProductTypeParams, ProductType } from '../product-type.types';
 
 interface ScopeOption {
   label: string;
@@ -242,15 +242,8 @@ export class ProductTypeList implements OnInit, OnDestroy {
   /**
    * Page change handler
    */
-  protected onPageChange(page: number): void {
-    this.navigateToRoute({ page });
-  }
-
-  /**
-   * Page size change handler
-   */
-  protected onPageSizeChange(limit: number): void {
-    this.navigateToRoute({ limit, page: 1 });
+  protected onPageChange(event: { page: number; pageSize: number }): void {
+    this.navigateToRoute({ page: event.page, limit: event.pageSize });
   }
 
   /**

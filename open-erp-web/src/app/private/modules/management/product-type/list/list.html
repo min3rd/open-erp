@@ -139,7 +139,7 @@
             }
           </td>
           <td class="text-center">
-            <span class="text-sm">{{ productType.attributes?.length || 0 }}</span>
+            <span class="text-sm">{{ productType.attributes.length || 0 }}</span>
           </td>
           <td>
             <span class="text-sm">{{ productType.updatedAt | date:'short' }}</span>
@@ -178,14 +178,12 @@
     </p-table>
 
     <!-- Pagination -->
-    <app-pagination
-      [currentPage]="currentPage()"
-      [pageSize]="currentLimit()"
-      [totalRecords]="totalRecords()"
-      [pageSizeOptions]="PAGE_SIZE_OPTIONS"
-      (pageChange)="onPageChange($event)"
-      (pageSizeChange)="onPageSizeChange($event)"
-    ></app-pagination>
+      <core-pagination
+        [currentPage]="currentPage()"
+        [pageSize]="currentLimit()"
+        [totalRecords]="totalRecords()"
+        (pageChange)="onPageChange($event)"
+      ></core-pagination>
 
     <!-- Context Menu -->
     <p-contextmenu #contextMenu [model]="contextMenuItems()"></p-contextmenu>
@@ -281,7 +279,7 @@
               <div class="text-sm text-gray-600 mb-2">{{ productType.description }}</div>
             }
             <div class="flex justify-between items-center text-xs text-gray-500">
-              <span>{{ 'productTypeList.columns.attributes' | transloco }}: {{ productType.attributes?.length || 0 }}</span>
+              <span>{{ 'productTypeList.columns.attributes' | transloco }}: {{ productType.attributes.length || 0 }}</span>
               <span>{{ productType.updatedAt | date:'short' }}</span>
             </div>
           </div>
@@ -293,14 +291,12 @@
 
     <!-- Mobile Pagination -->
     <div class="p-3 border-t bg-white sticky bottom-0">
-      <app-pagination
+      <core-pagination
         [currentPage]="currentPage()"
         [pageSize]="currentLimit()"
         [totalRecords]="totalRecords()"
-        [pageSizeOptions]="PAGE_SIZE_OPTIONS"
         (pageChange)="onPageChange($event)"
-        (pageSizeChange)="onPageSizeChange($event)"
-      ></app-pagination>
+      ></core-pagination>
     </div>
 
     <!-- Mobile FAB -->

@@ -25,7 +25,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import { TextareaModule } from 'primeng/textarea';
 import { Select } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService } from 'primeng/api';
@@ -33,7 +33,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 // Services
 import { ProductTypeService } from '../../../../../../core/services/product-type/product-type.service';
-import type { ProductType, CreateProductTypeDto, UpdateProductTypeDto, AttributeDefinition } from '../../product-type.types';
+import type { ProductType, CreateProductTypeDto, UpdateProductTypeDto, AttributeDefinition } from '../product-type.types';
 
 interface AttributeTypeOption {
   label: string;
@@ -49,7 +49,7 @@ interface AttributeTypeOption {
     DrawerModule,
     ButtonModule,
     InputTextModule,
-    InputTextareaModule,
+    TextareaModule,
     Select,
     CheckboxModule,
     TooltipModule,
@@ -163,7 +163,7 @@ export class ProductTypeForm implements OnInit, OnDestroy {
     // Clear and rebuild attributes array
     this.attributesArray.clear();
     if (productType.attributes && productType.attributes.length > 0) {
-      productType.attributes.forEach((attr) => {
+      productType.attributes.forEach((attr: AttributeDefinition) => {
         this.addAttribute(attr);
       });
     }
@@ -255,7 +255,7 @@ export class ProductTypeForm implements OnInit, OnDestroy {
         // Update
         const id = this.productTypeId();
         if (id) {
-          await this.productTypeService.updateProductType(id, dto).toPromise();
+          await this.productTypeService.updateProductType(id, dto as UpdateProductTypeDto).toPromise();
           this.messageService.add({
             severity: 'success',
             summary: this.translocoService.translate('common.success'),
@@ -264,7 +264,7 @@ export class ProductTypeForm implements OnInit, OnDestroy {
         }
       } else {
         // Create
-        await this.productTypeService.createProductType(dto).toPromise();
+        await this.productTypeService.createProductType(dto as CreateProductTypeDto).toPromise();
         this.messageService.add({
           severity: 'success',
           summary: this.translocoService.translate('common.success'),
