@@ -439,6 +439,171 @@
       "updateFailed": "Không thể cập nhật phường/xã"
     }
   },
+  "productCategoryList": {
+    "title": "Quản Lý Danh Mục Sản Phẩm",
+    "search": {
+      "label": "Tìm kiếm danh mục",
+      "placeholder": "Tìm theo tên hoặc mã...",
+      "openSearch": "Mở tìm kiếm",
+      "closeSearch": "Đóng tìm kiếm"
+    },
+    "addButton": {
+      "label": "Thêm Danh Mục",
+      "tooltip": "Thêm danh mục sản phẩm mới"
+    },
+    "refreshButton": {
+      "label": "Làm mới",
+      "tooltip": "Làm mới danh sách"
+    },
+    "actionsButton": {
+      "label": "Hành động"
+    },
+    "actions": {
+      "exportCSV": "Xuất CSV",
+      "import": "Nhập từ CSV",
+      "deleteSelected": "Xóa đã chọn"
+    },
+    "toolbar": {
+      "selectColumns": "Chọn cột hiển thị",
+      "columns": "Cột",
+      "filterByStatus": "Lọc theo trạng thái",
+      "sortBy": "Sắp xếp theo"
+    },
+    "filter": {
+      "all": "Tất cả",
+      "active": "Hoạt động",
+      "inactive": "Không hoạt động"
+    },
+    "sort": {
+      "codeAsc": "Mã (A-Z)",
+      "codeDesc": "Mã (Z-A)",
+      "nameAsc": "Tên (A-Z)",
+      "nameDesc": "Tên (Z-A)",
+      "orderAsc": "Thứ tự (Thấp đến Cao)",
+      "orderDesc": "Thứ tự (Cao đến Thấp)",
+      "levelAsc": "Cấp độ (Thấp đến Cao)",
+      "levelDesc": "Cấp độ (Cao đến Thấp)"
+    },
+    "table": {
+      "code": "Mã",
+      "name": "Tên",
+      "parent": "Danh Mục Cha",
+      "description": "Mô tả",
+      "status": "Trạng thái",
+      "order": "Thứ tự",
+      "level": "Cấp độ",
+      "createdAt": "Ngày tạo",
+      "rowActions": "Hành động"
+    },
+    "status": {
+      "active": "Hoạt động",
+      "inactive": "Không hoạt động"
+    },
+    "contextMenu": {
+      "view": "Xem",
+      "edit": "Sửa",
+      "delete": "Xóa"
+    },
+    "resultCount": "{{count}} danh mục",
+    "messages": {
+      "loading": "Đang tải danh mục...",
+      "noResults": "Không tìm thấy danh mục cho '{{query}}'",
+      "noProductCategories": "Chưa có danh mục sản phẩm",
+      "error": "Lỗi",
+      "success": "Thành công",
+      "warning": "Cảnh báo",
+      "exportSuccess": "Xuất dữ liệu thành công",
+      "exportFailed": "Xuất dữ liệu thất bại",
+      "importSuccess": "Nhập thành công {{count}} danh mục",
+      "importPartial": "Nhập thành công {{success}} danh mục, {{error}} thất bại",
+      "importFailed": "Nhập dữ liệu thất bại",
+      "deleteSuccess": "Xóa danh mục {{name}} thành công",
+      "deleteFailed": "Xóa danh mục thất bại",
+      "bulkDeleteSuccess": "Xóa {{count}} danh mục thành công",
+      "bulkDeleteFailed": "Xóa danh mục thất bại"
+    },
+    "confirmDelete": {
+      "header": "Xác nhận xóa",
+      "message": "Bạn có chắc chắn muốn xóa danh mục {{name}}?",
+      "accept": "Xóa",
+      "reject": "Hủy"
+    },
+    "confirmBulkDelete": {
+      "header": "Xác nhận xóa hàng loạt",
+      "message": "Bạn có chắc chắn muốn xóa {{count}} danh mục?"
+    }
+  },
+  "productCategoryForm": {
+    "title": {
+      "new": "Thêm Danh Mục Sản Phẩm",
+      "edit": "Sửa Danh Mục Sản Phẩm",
+      "view": "Xem Danh Mục Sản Phẩm"
+    },
+    "fields": {
+      "code": {
+        "label": "Mã",
+        "placeholder": "Nhập mã duy nhất (vd: electronics)",
+        "errors": {
+          "required": "Mã là bắt buộc",
+          "minlength": "Mã phải có ít nhất 2 ký tự",
+          "maxlength": "Mã không được vượt quá 50 ký tự"
+        }
+      },
+      "name": {
+        "label": "Tên",
+        "placeholder": "Nhập tên danh mục",
+        "errors": {
+          "required": "Tên là bắt buộc",
+          "minlength": "Tên phải có ít nhất 2 ký tự",
+          "maxlength": "Tên không được vượt quá 100 ký tự"
+        }
+      },
+      "parentId": {
+        "label": "Danh Mục Cha",
+        "placeholder": "Chọn danh mục cha (tùy chọn)"
+      },
+      "description": {
+        "label": "Mô tả",
+        "placeholder": "Nhập mô tả danh mục (tùy chọn)",
+        "errors": {
+          "maxlength": "Mô tả không được vượt quá 500 ký tự"
+        }
+      },
+      "isActive": {
+        "label": "Trạng thái hoạt động",
+        "help": "Bật để danh mục có thể sử dụng trong sản phẩm"
+      },
+      "order": {
+        "label": "Thứ tự hiển thị",
+        "placeholder": "0",
+        "help": "Thứ tự của danh mục trong cùng cấp cha (số nhỏ hơn hiển thị trước)",
+        "errors": {
+          "min": "Thứ tự phải lớn hơn hoặc bằng 0"
+        }
+      },
+      "metadata": {
+        "label": "Siêu dữ liệu (JSON)",
+        "placeholder": "Nhập dữ liệu JSON (tùy chọn)",
+        "help": "Dữ liệu tùy chỉnh bổ sung ở định dạng JSON",
+        "errors": {
+          "invalidJson": "Định dạng JSON không hợp lệ"
+        }
+      }
+    },
+    "buttons": {
+      "save": "Lưu",
+      "cancel": "Hủy",
+      "close": "Đóng",
+      "saving": "Đang lưu..."
+    },
+    "messages": {
+      "createSuccess": "Tạo danh mục thành công",
+      "createError": "Tạo danh mục thất bại",
+      "updateSuccess": "Cập nhật danh mục thành công",
+      "updateError": "Cập nhật danh mục thất bại",
+      "loadError": "Tải danh mục thất bại"
+    }
+  },
   "administrativeUnit": {
     "title": "Quản lý Đơn vị Hành chính",
     "search": {
