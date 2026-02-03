@@ -20,7 +20,7 @@ import {
   ProductCategory,
   CreateProductCategoryDto,
   UpdateProductCategoryDto,
-} from '../../../../../core/services/product-category/product-category.service';
+} from '../../../../../../core/services/product-category/product-category.service';
 
 interface ParentCategoryOption {
   label: string;
@@ -176,7 +176,7 @@ export class ProductCategoryForm implements OnInit {
         });
         this.onClose();
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Save failed:', error);
         this.messageService.add({
           severity: 'error',
