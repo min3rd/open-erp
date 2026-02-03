@@ -10,19 +10,18 @@ import {
   ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute, RouterOutlet } from '@angular/router';
+import { Router, ActivatedRoute, RouterOutlet, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil, forkJoin, of } from 'rxjs';
 
 // PrimeNG imports
-import { TableModule } from 'primeng/table';
+import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToolbarModule } from 'primeng/toolbar';
 import { MenuModule } from 'primeng/menu';
-import { ContextMenuModule } from 'primeng/contextmenu';
-import { ContextMenu } from 'primeng/contextmenu';
+import { Menu } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
 import { Select } from 'primeng/select';
 import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constant';
@@ -50,6 +49,7 @@ interface ScopeOption {
   imports: [
     CommonModule,
     RouterOutlet,
+    RouterLink,
     FormsModule,
     TranslocoModule,
     TableModule,
@@ -57,7 +57,6 @@ interface ScopeOption {
     InputTextModule,
     ToolbarModule,
     MenuModule,
-    ContextMenuModule,
     TooltipModule,
     Select,
     PaginationComponent,
@@ -71,7 +70,7 @@ interface ScopeOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductTypeList implements OnInit, OnDestroy {
-  @ViewChild('contextMenu') contextMenu!: ContextMenu;
+  @ViewChild('rowContextMenu') rowContextMenu?: Menu;
   @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
 
   private router = inject(Router);
@@ -95,6 +94,8 @@ export class ProductTypeList implements OnInit, OnDestroy {
   protected readonly currentScope = signal('all');
   protected readonly currentPage = signal(1);
   protected readonly currentLimit = signal(100);
+  protected readonly currentSortField = signal<string | null>(null);
+  protected readonly currentSortOrder = signal<number>(1);
   protected readonly totalRecords = signal(0);
   protected readonly isMobile = signal(false);
   protected readonly showMobileSearch = signal(false);
@@ -110,13 +111,28 @@ export class ProductTypeList implements OnInit, OnDestroy {
   ];
 
   // Menu items
-  protected readonly bulkActionMenuItems = computed<MenuItem[]>(() => [
-    {
-      label: this.translocoService.translate('productTypeList.actions.delete'),
-      icon: 'pi pi-trash',
-      command: () => this.onBulkDelete(),
-    },
-  ]);
+  protected readonly actionMenuItems = computed<MenuItem[]>(() => {
+    const items: MenuItem[] = [
+      {
+        label: this.translocoService.translate('productTypeList.actions.exportCSV'),
+        icon: 'pi pi-download',
+        command: () => this.onExportCSV(),
+      },
+    ];
+
+    if (this.selectedProductTypesArray.length > 0) {
+      items.push(
+        { separator: true },
+        {
+          label: this.translocoService.translate('productTypeList.actions.bulkDelete'),
+          icon: 'pi pi-trash',
+          command: () => this.onBulkDelete(),
+        }
+      );
+    }
+
+    return items;
+  });
 
   protected readonly contextMenuItems = computed<MenuItem[]>(() => [
     {
@@ -287,13 +303,6 @@ export class ProductTypeList implements OnInit, OnDestroy {
   }
 
   /**
-   * Open create form
-   */
-  protected onNew(): void {
-    this.navigateToRoute({ action: 'new' });
-  }
-
-  /**
    * Open view form
    */
   protected onView(): void {
@@ -429,12 +438,65 @@ export class ProductTypeList implements OnInit, OnDestroy {
   }
 
   /**
+   * Lazy load handler for p-table
+   */
+  protected onLazyLoad(event: TableLazyLoadEvent): void {
+    if (event.first === undefined || event.rows === undefined) return;
+
+    const page = Math.floor(event.first / event.rows) + 1;
+    const limit = event.rows;
+    
+    // Handle sorting
+    let sortField: string | null = null;
+    let sortOrder = 1;
+    if (event.sortField) {
+      sortField = event.sortField as string;
+      sortOrder = event.sortOrder || 1;
+      this.currentSortField.set(sortField);
+      this.currentSortOrder.set(sortOrder);
+    }
+
+    // Navigate with new pagination/sort
+    this.navigateToRoute({ page, limit });
+  }
+
+  /**
+   * Get routerLink for new action
+   */
+  protected getNewRouteLink(): string[] {
+    const scope = this.currentScope();
+    const search = this.searchQuery() || '-';
+    const page = this.currentPage();
+    const limit = this.currentLimit();
+    return ['/management', 'product-type', scope, search, page.toString(), limit.toString(), 'new'];
+  }
+
+  /**
+   * Navigate to view with routerLink
+   */
+  protected navigateToView(id: string): void {
+    const scope = this.currentScope();
+    const search = this.searchQuery() || '-';
+    const page = this.currentPage();
+    const limit = this.currentLimit();
+    this.router.navigate(['/management', 'product-type', scope, search, page.toString(), limit.toString(), id, 'view']);
+  }
+
+  /**
    * Context menu show handler
    */
   protected onContextMenu(event: MouseEvent, productType: ProductType): void {
     this.selectedProductType.set(productType);
-    this.contextMenu.show(event);
+    this.rowContextMenu?.show(event);
     event.preventDefault();
+  }
+
+  /**
+   * Row menu button click handler
+   */
+  protected onRowMenuClick(event: Event, productType: ProductType): void {
+    this.selectedProductType.set(productType);
+    event.stopPropagation();
   }
 
   /**

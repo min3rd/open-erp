@@ -2235,10 +2235,12 @@
       "placeholder": "Scope",
       "all": "All",
       "active": "Active",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "label": "Scope"
     },
     "search": {
-      "placeholder": "Search by code, name..."
+      "placeholder": "Search by code, name...",
+      "label": "Search"
     },
     "columns": {
       "code": "Code",
@@ -2260,7 +2262,10 @@
       "delete": "Delete",
       "refresh": "Refresh",
       "exportCSV": "Export CSV",
-      "bulkActions": "Bulk Actions"
+      "bulkActions": "Bulk Actions",
+      "label": "Actions",
+      "rowActions": "Row actions",
+      "bulkDelete": "Delete selected"
     },
     "messages": {
       "refreshed": "List refreshed",
@@ -2270,7 +2275,9 @@
       "bulkDeleted": "Deleted {{count}} product types",
       "bulkDeleteError": "Error deleting product types",
       "exported": "Data exported",
-      "exportError": "Error exporting data"
+      "exportError": "Error exporting data",
+      "loading": "Loading...",
+      "noResults": "No results found for \"{{query}}\""
     },
     "confirmDelete": {
       "header": "Confirm Delete",
@@ -2280,7 +2287,8 @@
       "header": "Confirm Delete",
       "message": "Are you sure you want to delete {{count}} selected product types?"
     },
-    "noData": "No data available"
+    "noData": "No data available",
+    "resultCount": "{{count}} results"
   },
   "productTypeForm": {
     "title": {

@@ -1031,10 +1031,12 @@
       "placeholder": "Phạm vi",
       "all": "Tất cả",
       "active": "Đang hoạt động",
-      "inactive": "Không hoạt động"
+      "inactive": "Không hoạt động",
+      "label": "Phạm vi"
     },
     "search": {
-      "placeholder": "Tìm kiếm theo mã, tên..."
+      "placeholder": "Tìm kiếm theo mã, tên...",
+      "label": "Tìm kiếm"
     },
     "columns": {
       "code": "Mã",
@@ -1056,7 +1058,10 @@
       "delete": "Xóa",
       "refresh": "Làm mới",
       "exportCSV": "Xuất CSV",
-      "bulkActions": "Thao tác hàng loạt"
+      "bulkActions": "Thao tác hàng loạt",
+      "label": "Hành động",
+      "rowActions": "Hành động dòng",
+      "bulkDelete": "Xóa đã chọn"
     },
     "messages": {
       "refreshed": "Đã làm mới danh sách",
@@ -1066,7 +1071,9 @@
       "bulkDeleted": "Đã xóa {{count}} loại sản phẩm",
       "bulkDeleteError": "Lỗi khi xóa loại sản phẩm",
       "exported": "Đã xuất dữ liệu",
-      "exportError": "Lỗi khi xuất dữ liệu"
+      "exportError": "Lỗi khi xuất dữ liệu",
+      "loading": "Đang tải...",
+      "noResults": "Không tìm thấy kết quả cho \"{{query}}\""
     },
     "confirmDelete": {
       "header": "Xác nhận xóa",
@@ -1076,7 +1083,8 @@
       "header": "Xác nhận xóa",
       "message": "Bạn có chắc chắn muốn xóa {{count}} loại sản phẩm đã chọn?"
     },
-    "noData": "Không có dữ liệu"
+    "noData": "Không có dữ liệu",
+    "resultCount": "{{count}} kết quả"
   },
   "productTypeForm": {
     "title": {

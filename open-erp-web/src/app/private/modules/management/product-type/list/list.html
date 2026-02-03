@@ -1,219 +1,250 @@
 <!-- Desktop View -->
 @if (!isMobile()) {
-  <div class="product-type-list-container">
-    <p-toolbar styleClass="mb-4">
-      <div class="flex items-center gap-2 flex-wrap w-full">
-        <!-- Left side: Scope selector and search -->
-        <p-select
-          [options]="scopeOptions"
-          [ngModel]="currentScope()"
-          (ngModelChange)="onScopeChange($event)"
-          optionLabel="label"
-          optionValue="value"
-          [placeholder]="'productTypeList.scope.placeholder' | transloco"
-          styleClass="w-40">
-          <ng-template let-option pTemplate="item">
-            {{ option.label | transloco }}
-          </ng-template>
-          <ng-template let-option pTemplate="selectedItem">
-            {{ option.label | transloco }}
-          </ng-template>
-        </p-select>
+  <div id="product-type-list-container" class="flex h-full flex-col">
+    <!-- Compact Toolbar -->
+    <div class="p-2 border-b border-surface-200 dark:border-surface-700">
+      <p-toolbar id="product-type-list-toolbar">
+        <ng-template #start>
+          <!-- Scope Selector -->
+          <p-select
+            id="product-type-list-scope-dropdown"
+            [options]="scopeOptions"
+            [ngModel]="currentScope()"
+            (ngModelChange)="onScopeChange($event)"
+            optionLabel="label"
+            optionValue="value"
+            [style]="{ width: '180px' }"
+            [attr.aria-label]="'productTypeList.scope.label' | transloco">
+            <ng-template let-option pTemplate="item">
+              {{ option.label | transloco }}
+            </ng-template>
+            <ng-template let-option pTemplate="selectedItem">
+              {{ option.label | transloco }}
+            </ng-template>
+          </p-select>
+          
+          <!-- Search Input -->
+          <p-inputgroup class="ml-2">
+            <p-inputgroup-addon>
+              <i class="pi pi-search"></i>
+            </p-inputgroup-addon>
+            <input
+              id="product-type-list-search"
+              pInputText
+              type="text"
+              [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event)"
+              (keyup.enter)="onSearch()"
+              [placeholder]="'productTypeList.search.placeholder' | transloco"
+              class="w-80"
+              [attr.aria-label]="'productTypeList.search.label' | transloco"
+            />
+          </p-inputgroup>
+        </ng-template>
 
-        <p-inputgroup styleClass="w-80">
-          <p-inputgroup-addon>
-            <i class="pi pi-search"></i>
-          </p-inputgroup-addon>
-          <input
-            pInputText
-            type="text"
-            [ngModel]="searchQuery()"
-            (ngModelChange)="searchQuery.set($event)"
-            (keyup.enter)="onSearch()"
-            [placeholder]="'productTypeList.search.placeholder' | transloco"
-          />
-          <button
-            pButton
-            type="button"
-            icon="pi pi-times"
-            class="p-button-text"
-            (click)="searchQuery.set(''); onSearch()"
-            [disabled]="!searchQuery()"
-          ></button>
-        </p-inputgroup>
+        <ng-template #end>
+          <!-- Result Count -->
+          <span id="product-type-list-count" class="text-sm text-surface-600 dark:text-surface-400 mr-4">
+            {{ 'productTypeList.resultCount' | transloco: { count: totalRecords() } }}
+          </span>
 
-        <!-- Right side: Actions -->
-        <div class="ml-auto flex gap-2">
-          <button
-            pButton
-            type="button"
-            icon="pi pi-refresh"
-            class="p-button-outlined"
-            (click)="onRefresh()"
-            [pTooltip]="'productTypeList.actions.refresh' | transloco"
-          ></button>
-
-          <button
-            pButton
-            type="button"
-            icon="pi pi-download"
-            class="p-button-outlined"
-            (click)="onExportCSV()"
-            [pTooltip]="'productTypeList.actions.exportCSV' | transloco"
-          ></button>
-
-          @if (selectedProductTypesArray.length > 0) {
-            <button
-              pButton
-              type="button"
-              icon="pi pi-ellipsis-v"
-              class="p-button-outlined"
-              [label]="'productTypeList.actions.bulkActions' | transloco"
-              (click)="bulkActionMenu.toggle($event)"
-            ></button>
-            <p-menu #bulkActionMenu [model]="bulkActionMenuItems()" [popup]="true"></p-menu>
-          }
-
-          <button
-            pButton
-            type="button"
+          <!-- Add New Button -->
+          <p-button
+            id="product-type-list-add-button"
             icon="pi pi-plus"
-            [label]="'productTypeList.actions.new' | transloco"
-            (click)="onNew()"
-          ></button>
-        </div>
-      </div>
-    </p-toolbar>
+            [rounded]="true"
+            [text]="true"
+            severity="primary"
+            [routerLink]="getNewRouteLink()"
+            [pTooltip]="'productTypeList.actions.new' | transloco"
+            tooltipPosition="bottom"
+            [attr.aria-label]="'productTypeList.actions.new' | transloco"
+          />
 
-    <!-- Table -->
-    <p-table
-      [value]="productTypes()"
-      [loading]="isLoading()"
-      [(selection)]="selectedProductTypesArray"
-      dataKey="id"
-      styleClass="p-datatable-sm"
-      [tableStyle]="{ 'min-width': '60rem' }"
-      (onRowSelect)="onRowSelect($any($event).data)"
-      (onContextMenuSelect)="onContextMenu($any($event).originalEvent, $any($event).data)">
-      
-      <!-- Selection column -->
-      <ng-template pTemplate="header">
-        <tr>
-          <th style="width: 4rem">
-            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-          </th>
-          <th pSortableColumn="code">
-            {{ 'productTypeList.columns.code' | transloco }}
-            <p-sortIcon field="code"></p-sortIcon>
-          </th>
-          <th pSortableColumn="name">
-            {{ 'productTypeList.columns.name' | transloco }}
-            <p-sortIcon field="name"></p-sortIcon>
-          </th>
-          <th>{{ 'productTypeList.columns.description' | transloco }}</th>
-          <th style="width: 8rem">{{ 'productTypeList.columns.status' | transloco }}</th>
-          <th style="width: 8rem">{{ 'productTypeList.columns.attributes' | transloco }}</th>
-          <th style="width: 12rem">{{ 'productTypeList.columns.updatedAt' | transloco }}</th>
-          <th style="width: 8rem">{{ 'productTypeList.columns.actions' | transloco }}</th>
-        </tr>
-      </ng-template>
+          <!-- Refresh Button -->
+          <p-button
+            id="product-type-list-refresh-button"
+            icon="pi pi-refresh"
+            [rounded]="true"
+            [text]="true"
+            (onClick)="onRefresh()"
+            [pTooltip]="'productTypeList.actions.refresh' | transloco"
+            tooltipPosition="bottom"
+            [attr.aria-label]="'productTypeList.actions.refresh' | transloco"
+          />
 
-      <ng-template pTemplate="body" let-productType>
-        <tr (contextmenu)="onContextMenu($event, productType)" (click)="onRowSelect(productType)">
-          <td>
-            <p-tableCheckbox [value]="productType"></p-tableCheckbox>
-          </td>
-          <td>
-            <span class="font-mono text-sm">{{ productType.code }}</span>
-          </td>
-          <td>
-            <span class="font-semibold">{{ productType.name }}</span>
-          </td>
-          <td>
-            <span class="text-sm text-gray-600">{{ productType.description || '-' }}</span>
-          </td>
-          <td>
-            @if (productType.isActive) {
-              <p-tag severity="success" [value]="'productTypeList.status.active' | transloco"></p-tag>
-            } @else {
-              <p-tag severity="danger" [value]="'productTypeList.status.inactive' | transloco"></p-tag>
-            }
-          </td>
-          <td class="text-center">
-            <span class="text-sm">{{ productType.attributes.length || 0 }}</span>
-          </td>
-          <td>
-            <span class="text-sm">{{ productType.updatedAt | date:'short' }}</span>
-          </td>
-          <td>
-            <div class="flex gap-2">
-              <button
-                pButton
-                type="button"
-                icon="pi pi-eye"
-                class="p-button-text p-button-sm"
-                (click)="selectedProductType.set(productType); onView()"
-                [pTooltip]="'productTypeList.actions.view' | transloco"
-              ></button>
-              <button
-                pButton
-                type="button"
-                icon="pi pi-pencil"
-                class="p-button-text p-button-sm"
-                (click)="selectedProductType.set(productType); onEdit()"
-                [pTooltip]="'productTypeList.actions.edit' | transloco"
-              ></button>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
+          <!-- Actions Menu -->
+          <p-button
+            id="product-type-list-actions-button"
+            icon="pi pi-ellipsis-v"
+            [rounded]="true"
+            [text]="true"
+            (onClick)="actionMenu.toggle($event)"
+            [attr.aria-label]="'productTypeList.actions.label' | transloco"
+            aria-haspopup="true"
+            aria-controls="product-type-list-actions-menu"
+          />
+          <p-menu
+            #actionMenu
+            id="product-type-list-actions-menu"
+            [model]="actionMenuItems()"
+            [popup]="true"
+            appendTo="body"
+          />
+        </ng-template>
+      </p-toolbar>
+    </div>
 
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="8" class="text-center py-8">
-            <i class="pi pi-inbox text-4xl text-gray-400 mb-4"></i>
-            <p class="text-gray-600">{{ 'productTypeList.noData' | transloco }}</p>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-
-    <!-- Pagination -->
-      <core-pagination
-        [currentPage]="currentPage()"
-        [pageSize]="currentLimit()"
+    <!-- Table with built-in pagination -->
+    <div class="flex-1 overflow-auto">
+      <p-table
+        id="product-type-list-table"
+        [value]="productTypes()"
+        [loading]="isLoading()"
+        [rowHover]="true"
+        [(selection)]="selectedProductTypesArray"
+        dataKey="id"
+        styleClass="p-datatable-sm"
+        responsiveLayout="scroll"
+        [paginator]="true"
+        [rows]="currentLimit()"
         [totalRecords]="totalRecords()"
-        (pageChange)="onPageChange($event)"
-      ></core-pagination>
+        [lazy]="true"
+        (onLazyLoad)="onLazyLoad($event)"
+        [sortField]="currentSortField()"
+        [sortOrder]="currentSortOrder()"
+        [first]="(currentPage() - 1) * currentLimit()"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="{first} - {last} of {totalRecords}"
+        [rowsPerPageOptions]="PAGE_SIZE_OPTIONS"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 3rem">
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th pSortableColumn="code" pResizableColumn>
+              {{ 'productTypeList.columns.code' | transloco }}
+              <p-sortIcon field="code"></p-sortIcon>
+            </th>
+            <th pSortableColumn="name" pResizableColumn>
+              {{ 'productTypeList.columns.name' | transloco }}
+              <p-sortIcon field="name"></p-sortIcon>
+            </th>
+            <th pResizableColumn>{{ 'productTypeList.columns.description' | transloco }}</th>
+            <th style="width: 8rem" pSortableColumn="isActive">
+              {{ 'productTypeList.columns.status' | transloco }}
+              <p-sortIcon field="isActive"></p-sortIcon>
+            </th>
+            <th style="width: 8rem" class="text-center">
+              {{ 'productTypeList.columns.attributes' | transloco }}
+            </th>
+            <th style="width: 12rem" pSortableColumn="updatedAt">
+              {{ 'productTypeList.columns.updatedAt' | transloco }}
+              <p-sortIcon field="updatedAt"></p-sortIcon>
+            </th>
+            <th style="width: 8rem">{{ 'productTypeList.columns.actions' | transloco }}</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-productType>
+          <tr 
+            [id]="'product-type-list-row-' + productType.id"
+            (contextmenu)="onContextMenu($event, productType)"
+            (click)="onRowSelect(productType)"
+            class="cursor-pointer"
+            [class.bg-primary-50]="selectedProductType()?.id === productType.id"
+            [class.dark:bg-primary-900]="selectedProductType()?.id === productType.id">
+            <td (click)="$event.stopPropagation()">
+              <p-tableCheckbox [value]="productType"></p-tableCheckbox>
+            </td>
+            <td>
+              <span class="font-mono text-sm">{{ productType.code }}</span>
+            </td>
+            <td>
+              <span class="font-semibold">{{ productType.name }}</span>
+            </td>
+            <td>
+              <span class="text-sm text-gray-600">{{ productType.description || '-' }}</span>
+            </td>
+            <td>
+              @if (productType.isActive) {
+                <p-tag severity="success" [value]="'productTypeList.status.active' | transloco"></p-tag>
+              } @else {
+                <p-tag severity="danger" [value]="'productTypeList.status.inactive' | transloco"></p-tag>
+              }
+            </td>
+            <td class="text-center">
+              <span class="text-sm">{{ productType.attributes.length || 0 }}</span>
+            </td>
+            <td>
+              <span class="text-sm">{{ productType.updatedAt | date:'short' }}</span>
+            </td>
+            <td (click)="$event.stopPropagation()">
+              <p-button
+                [id]="'product-type-list-row-menu-' + productType.id"
+                icon="pi pi-ellipsis-v"
+                [rounded]="true"
+                [text]="true"
+                size="small"
+                (onClick)="onRowMenuClick($event, productType)"
+                [attr.aria-label]="'productTypeList.actions.rowActions' | transloco"
+              />
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="8" class="text-center py-8 text-surface-500">
+              @if (isLoading()) {
+                <i class="pi pi-spin pi-spinner text-2xl"></i>
+                <p class="mt-2">{{ 'productTypeList.messages.loading' | transloco }}</p>
+              } @else if (searchQuery()) {
+                <i class="pi pi-search text-2xl"></i>
+                <p class="mt-2">{{ 'productTypeList.messages.noResults' | transloco: { query: searchQuery() } }}</p>
+              } @else {
+                <i class="pi pi-inbox text-2xl"></i>
+                <p class="mt-2">{{ 'productTypeList.noData' | transloco }}</p>
+              }
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
 
     <!-- Context Menu -->
-    <p-contextmenu #contextMenu [model]="contextMenuItems()"></p-contextmenu>
+    <p-menu
+      #rowContextMenu
+      id="product-type-list-context-menu"
+      [model]="contextMenuItems()"
+      [popup]="true"
+      appendTo="body"
+    />
   </div>
 }
 
 <!-- Mobile View -->
 @if (isMobile()) {
-  <div class="product-type-list-mobile">
+  <div id="product-type-list-mobile" class="flex flex-col h-full bg-surface-50 dark:bg-surface-900">
     <!-- Mobile Header -->
-    <div class="p-3 border-b sticky top-0 bg-white z-10">
+    <div class="p-3 border-b border-surface-200 dark:border-surface-700 sticky top-0 bg-surface-0 dark:bg-surface-900 z-10">
       <div class="flex items-center justify-between mb-2">
-        <h2 class="text-xl font-bold">{{ 'productTypeList.title' | transloco }}</h2>
+        <h2 class="text-xl font-bold text-surface-900 dark:text-surface-0">{{ 'productTypeList.title' | transloco }}</h2>
         <div class="flex gap-2">
-          <button
-            pButton
-            type="button"
+          <p-button
             icon="pi pi-search"
-            class="p-button-text"
-            (click)="toggleMobileSearch()"
-          ></button>
-          <button
-            pButton
-            type="button"
+            [rounded]="true"
+            [text]="true"
+            (onClick)="toggleMobileSearch()"
+          />
+          <p-button
             icon="pi pi-ellipsis-v"
-            class="p-button-text"
-            (click)="mobileMenu.toggle($event)"
-          ></button>
-          <p-menu #mobileMenu [model]="mobileMenuItems()" [popup]="true"></p-menu>
+            [rounded]="true"
+            [text]="true"
+            (onClick)="mobileMenu.toggle($event)"
+          />
+          <p-menu #mobileMenu [model]="mobileMenuItems()" [popup]="true" appendTo="body" />
         </div>
       </div>
 
@@ -232,35 +263,37 @@
             (keyup.enter)="onSearch()"
             [placeholder]="'productTypeList.search.placeholder' | transloco"
           />
-          <button
-            pButton
-            type="button"
+          <p-button
             icon="pi pi-times"
-            class="p-button-text"
-            (click)="toggleMobileSearch(); searchQuery.set(''); onSearch()"
-          ></button>
+            [text]="true"
+            (onClick)="toggleMobileSearch(); searchQuery.set(''); onSearch()"
+          />
         </p-inputgroup>
       }
     </div>
 
     <!-- Mobile List -->
-    <div class="p-3">
+    <div class="flex-1 overflow-auto p-3">
       @if (isLoading()) {
         <div class="text-center py-8">
-          <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+          <i class="pi pi-spin pi-spinner text-4xl text-primary-500"></i>
+          <p class="mt-2 text-surface-600 dark:text-surface-400">{{ 'productTypeList.messages.loading' | transloco }}</p>
         </div>
       } @else if (productTypes().length === 0) {
         <div class="text-center py-8">
-          <i class="pi pi-inbox text-4xl text-gray-400 mb-4"></i>
-          <p class="text-gray-600">{{ 'productTypeList.noData' | transloco }}</p>
+          <i class="pi pi-inbox text-4xl text-surface-400 mb-4"></i>
+          <p class="text-surface-600 dark:text-surface-400">{{ 'productTypeList.noData' | transloco }}</p>
         </div>
       } @else {
         @for (productType of productTypes(); track productType.id) {
-          <div class="border rounded-lg p-3 mb-3 bg-white shadow-sm" (click)="onRowSelect(productType); onView()">
+          <div 
+            [id]="'product-type-mobile-row-' + productType.id"
+            class="border border-surface-200 dark:border-surface-700 rounded-lg p-3 mb-3 bg-surface-0 dark:bg-surface-800 shadow-sm" 
+            (click)="onRowSelect(productType); navigateToView(productType.id)">
             <div class="flex justify-between items-start mb-2">
               <div class="flex-1">
-                <div class="font-semibold text-lg mb-1">{{ productType.name }}</div>
-                <div class="text-sm text-gray-600 font-mono">{{ productType.code }}</div>
+                <div class="font-semibold text-lg mb-1 text-surface-900 dark:text-surface-0">{{ productType.name }}</div>
+                <div class="text-sm text-surface-600 dark:text-surface-400 font-mono">{{ productType.code }}</div>
               </div>
               <div class="flex items-center gap-2">
                 @if (productType.isActive) {
@@ -268,19 +301,18 @@
                 } @else {
                   <p-tag severity="danger" [value]="'productTypeList.status.inactive' | transloco"></p-tag>
                 }
-                <button
-                  pButton
-                  type="button"
+                <p-button
                   icon="pi pi-ellipsis-v"
-                  class="p-button-text p-button-sm"
-                  (click)="onMobileRowAction($event, productType); mobileRowMenu.toggle($event)"
-                ></button>
+                  [text]="true"
+                  size="small"
+                  (onClick)="onMobileRowAction($event, productType); mobileRowMenu.toggle($event)"
+                />
               </div>
             </div>
             @if (productType.description) {
-              <div class="text-sm text-gray-600 mb-2">{{ productType.description }}</div>
+              <div class="text-sm text-surface-600 dark:text-surface-400 mb-2">{{ productType.description }}</div>
             }
-            <div class="flex justify-between items-center text-xs text-gray-500">
+            <div class="flex justify-between items-center text-xs text-surface-500 dark:text-surface-400">
               <span>{{ 'productTypeList.columns.attributes' | transloco }}: {{ productType.attributes.length || 0 }}</span>
               <span>{{ productType.updatedAt | date:'short' }}</span>
             </div>
@@ -288,27 +320,30 @@
         }
       }
 
-      <p-menu #mobileRowMenu [model]="contextMenuItems()" [popup]="true"></p-menu>
+      <p-menu #mobileRowMenu [model]="contextMenuItems()" [popup]="true" appendTo="body" />
     </div>
 
     <!-- Mobile Pagination -->
-    <div class="p-3 border-t bg-white sticky bottom-0">
+    <div class="p-3 border-t border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 sticky bottom-0">
       <core-pagination
+        [idPrefix]="'product-type-list-mobile'"
         [currentPage]="currentPage()"
         [pageSize]="currentLimit()"
         [totalRecords]="totalRecords()"
         (pageChange)="onPageChange($event)"
-      ></core-pagination>
+      />
     </div>
 
     <!-- Mobile FAB -->
-    <button
-      pButton
-      type="button"
+    <p-button
       icon="pi pi-plus"
-      class="fixed bottom-20 right-4 rounded-full w-14 h-14 shadow-lg"
-      (click)="onNew()"
-    ></button>
+      [rounded]="true"
+      severity="primary"
+      class="fixed bottom-20 right-4 shadow-lg"
+      [style]="{ width: '3.5rem', height: '3.5rem' }"
+      [routerLink]="getNewRouteLink()"
+      [attr.aria-label]="'productTypeList.actions.new' | transloco"
+    />
   </div>
 }
 

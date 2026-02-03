@@ -1958,10 +1958,12 @@
       "placeholder": "Alcance",
       "all": "Todos",
       "active": "Activo",
-      "inactive": "Inactivo"
+      "inactive": "Inactivo",
+      "label": "Alcance"
     },
     "search": {
-      "placeholder": "Buscar por código, nombre..."
+      "placeholder": "Buscar por código, nombre...",
+      "label": "Buscar"
     },
     "columns": {
       "code": "Código",
@@ -1983,7 +1985,10 @@
       "delete": "Eliminar",
       "refresh": "Actualizar",
       "exportCSV": "Exportar CSV",
-      "bulkActions": "Acciones masivas"
+      "bulkActions": "Acciones masivas",
+      "label": "Acciones",
+      "rowActions": "Acciones de fila",
+      "bulkDelete": "Eliminar seleccionados"
     },
     "messages": {
       "refreshed": "Lista actualizada",
@@ -1993,7 +1998,9 @@
       "bulkDeleted": "{{count}} tipos de producto eliminados",
       "bulkDeleteError": "Error al eliminar tipos de producto",
       "exported": "Datos exportados",
-      "exportError": "Error al exportar datos"
+      "exportError": "Error al exportar datos",
+      "loading": "Cargando...",
+      "noResults": "No se encontraron resultados para \"{{query}}\""
     },
     "confirmDelete": {
       "header": "Confirmar eliminación",
@@ -2003,7 +2010,8 @@
       "header": "Confirmar eliminación",
       "message": "¿Está seguro de que desea eliminar {{count}} tipos de producto seleccionados?"
     },
-    "noData": "No hay datos disponibles"
+    "noData": "No hay datos disponibles",
+    "resultCount": "{{count}} resultados"
   },
   "productTypeForm": {
     "title": {
