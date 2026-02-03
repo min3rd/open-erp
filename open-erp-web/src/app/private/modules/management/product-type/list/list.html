@@ -213,12 +213,12 @@
 
           <ng-template #body let-productType>
             <tr
-              [id]="'product-type-list-row-' + productType._id"
+              [id]="'product-type-list-row-' + productType.id"
               (click)="onRowClick(productType)"
               (contextmenu)="onRowRightClick($event, productType)"
               class="cursor-pointer"
-              [class.bg-primary-50]="selectedProductType()?._id === productType._id"
-              [class.dark:bg-primary-900]="selectedProductType()?._id === productType._id"
+              [class.bg-primary-50]="selectedProductType()?.id === productType.id"
+              [class.dark:bg-primary-900]="selectedProductType()?.id === productType.id"
             >
               <td (click)="$event.stopPropagation()">
                 <p-tableCheckbox [value]="productType" />
@@ -247,7 +247,7 @@
               </td>
               <td (click)="$event.stopPropagation()">
                 <p-button
-                  [id]="'product-type-list-row-menu-' + productType._id"
+                  [id]="'product-type-list-row-menu-' + productType.id"
                   icon="pi pi-ellipsis-v"
                   [rounded]="true"
                   [text]="true"
@@ -332,14 +332,14 @@
           } @else {
           <!-- Product Type Cards -->
           <div class="space-y-2">
-            @for (productType of productTypes(); track productType._id) {
+            @for (productType of productTypes(); track productType.id) {
             <div
-              [id]="'product-type-list-card-' + productType._id"
+              [id]="'product-type-list-card-' + productType.id"
               class="p-3 bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-lg cursor-pointer hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors"
               (click)="onRowClick(productType)"
-              [class.border-primary-500]="selectedProductType()?._id === productType._id"
-              [class.bg-primary-50]="selectedProductType()?._id === productType._id"
-              [class.dark:bg-primary-900]="selectedProductType()?._id === productType._id"
+              [class.border-primary-500]="selectedProductType()?.id === productType.id"
+              [class.bg-primary-50]="selectedProductType()?.id === productType.id"
+              [class.dark:bg-primary-900]="selectedProductType()?.id === productType.id"
             >
               <div class="flex justify-between items-start">
                 <div class="flex-1">
@@ -364,7 +364,7 @@
                 </div>
                 <div (click)="$event.stopPropagation()">
                   <p-button
-                    [id]="'product-type-list-card-menu-' + productType._id"
+                    [id]="'product-type-list-card-menu-' + productType.id"
                     icon="pi pi-ellipsis-v"
                     [rounded]="true"
                     [text]="true"

@@ -205,7 +205,7 @@ export class ProductTypeForm implements OnInit {
     };
 
     const saveOperation = this.productType()
-      ? this.productTypeService.updateProductType(this.productType()!._id, dto)
+      ? this.productTypeService.updateProductType(this.productType()!.id, dto)
       : this.productTypeService.createProductType(dto as CreateProductTypeDto);
 
     saveOperation.subscribe({

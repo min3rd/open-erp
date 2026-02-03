@@ -22,7 +22,7 @@ export interface AttributeDefinition {
  * Product Type interface matching backend schema
  */
 export interface ProductType {
-  _id: string;
+  id: string;
   code: string;
   name: string;
   description?: string;
