@@ -15,9 +15,9 @@ export const productCategoryListResolver: ResolveFn<{
 }> = (route: ActivatedRouteSnapshot) => {
   const service = inject(ProductCategoryService);
   
-  const search = route.paramMap.get('search') || '';
-  const page = parseInt(route.paramMap.get('page') || '1', 10);
-  const limit = parseInt(route.paramMap.get('limit') || '100', 10);
+  const search = route.params['search'] || '';
+  const page = parseInt(route.params['page'] || '1', 10);
+  const limit = parseInt(route.params['limit'] || '100', 10);
   
   // Build query params
   const params: any = {
