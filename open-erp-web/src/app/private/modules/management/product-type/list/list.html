@@ -195,7 +195,8 @@
           [rowHover]="true"
           dataKey="id"
           [(selection)]="selectedProductTypes"
-          [(contextMenuSelection)]="contextMenuSelectedProductType"
+          [contextMenuSelection]="contextMenuSelectedProductType"
+          (contextMenuSelectionChange)="onContextMenuSelectionChange($event)"
           [contextMenu]="cm"
           styleClass="p-datatable-sm"
           responsiveLayout="scroll"
@@ -346,7 +347,7 @@
     <p-contextMenu
       #cm
       id="product-type-list-context-menu"
-      [model]="contextMenuItems"
+      [model]="currentContextMenuItems"
       (onHide)="contextMenuSelectedProductType = null"
       appendTo="body"
     />
