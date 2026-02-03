@@ -85,7 +85,7 @@ export class ProductTypeList implements OnInit, OnDestroy {
 
   // State signals
   protected readonly productTypes = signal<ProductType[]>([]);
-  protected selectedProductTypesArray: ProductType[] = [];
+  protected selectedProductTypes: ProductType[] = []; // For PrimeNG table binding
   protected readonly selectedProductType = signal<ProductType | null>(null);
   protected readonly isLoading = signal(false);
   protected readonly searchQuery = signal('');
@@ -97,6 +97,7 @@ export class ProductTypeList implements OnInit, OnDestroy {
 
   // Computed values
   protected readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
+  protected readonly hasSelectedItems = computed(() => this.selectedProductTypes.length > 0);
 
   // Actions menu items
   protected get actionMenuItems(): MenuItem[] {
@@ -120,7 +121,7 @@ export class ProductTypeList implements OnInit, OnDestroy {
       {
         label: this.translocoService.translate('productTypeList.actions.deleteSelected'),
         icon: 'pi pi-trash',
-        disabled: this.selectedProductTypesArray.length === 0,
+        disabled: this.selectedProductTypes.length === 0,
         command: () => this.onBulkDelete(),
       },
     ];
@@ -309,7 +310,7 @@ export class ProductTypeList implements OnInit, OnDestroy {
    * Bulk delete selected product types
    */
   protected onBulkDelete(): void {
-    const selected = this.selectedProductTypesArray;
+    const selected = this.selectedProductTypes;
     if (selected.length === 0) return;
 
     this.confirmationService.confirm({
@@ -336,7 +337,7 @@ export class ProductTypeList implements OnInit, OnDestroy {
                     count: completed,
                   }),
                 });
-                this.selectedProductTypesArray = [];
+                this.selectedProductTypes = [];
                 this.onRefresh();
               }
             },
