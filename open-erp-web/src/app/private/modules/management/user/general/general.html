@@ -2,375 +2,329 @@
 <p-toast position="top-right"></p-toast>
 
 @if (user()) {
-<!-- User Profile Information -->
-<div class="border border-surface-200 dark:border-surface-700 rounded-lg p-4 mt-4">
-  <div class="flex justify-between items-center mb-4">
-    <h4 class="text-lg font-semibold">
-      {{ 'userDetail.general.profileInfo' | transloco }}
-    </h4>
-    @if (!isEditing()) {
-    <button
-      pButton
-      type="button"
-      icon="pi pi-pencil"
-      class="p-button-sm p-button-text"
-      (click)="startEdit()"
-      label="Edit"
-    ></button>
-    }
-  </div>
-
-  @if (!isEditing()) {
-  <!-- View Mode -->
-  <div class="space-y-4">
-    <!-- Address -->
-    <div>
-      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
-        Address
-      </label>
-      <p class="text-surface-900 dark:text-surface-100">
-        {{ formatAddress(user()!.address) }}
-      </p>
-    </div>
-
-    <!-- Date of Birth -->
-    <div>
-      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
-        Date of Birth
-      </label>
-      <p class="text-surface-900 dark:text-surface-100">
-        {{ formatDate(user()!.dateOfBirth) }}
-      </p>
-    </div>
-
-    <!-- Education -->
-    @if (user()!.education && user()!.education!.length > 0) {
-    <div>
-      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
-        Education
-      </label>
-      <div class="space-y-2">
-        @for (edu of user()!.education; track $index) {
-        <div class="p-3 bg-surface-50 dark:bg-surface-800 rounded">
-          <p class="font-medium">{{ edu.degree || '-' }}</p>
-          <p class="text-sm text-surface-600 dark:text-surface-400">
-            {{ edu.institution || '-' }}
-            @if (edu.year) {
-              <span> ({{ edu.year }})</span>
-            }
-          </p>
-        </div>
-        }
-      </div>
-    </div>
-    }
-
-    <!-- Skills -->
-    @if (user()!.skills && user()!.skills!.length > 0) {
-    <div>
-      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
-        Skills
-      </label>
-      <div class="flex flex-wrap gap-2">
-        @for (skill of user()!.skills; track skill) {
-        <span class="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-100 rounded-full text-sm">
-          {{ skill }}
-        </span>
-        }
-      </div>
-    </div>
-    }
-
-    <!-- Hobbies -->
-    @if (user()!.hobbies && user()!.hobbies!.length > 0) {
-    <div>
-      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
-        Hobbies
-      </label>
-      <div class="flex flex-wrap gap-2">
-        @for (hobby of user()!.hobbies; track hobby) {
-        <span class="px-3 py-1 bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 rounded-full text-sm">
-          {{ hobby }}
-        </span>
-        }
-      </div>
-    </div>
-    }
-  </div>
-  } @else {
-  <!-- Edit Mode -->
-  <form [formGroup]="editForm" class="space-y-4">
-    <!-- Address Fields -->
-    <div formGroupName="address" class="space-y-3">
-      <h5 class="text-md font-medium mb-2">Address</h5>
-      
-      <div>
-        <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
-          Street
-        </label>
-        <input
-          pInputText
-          type="text"
-          formControlName="street"
-          class="w-full"
-          placeholder="Enter street address"
-        />
-      </div>
-
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
-            District
-          </label>
-          <input
-            pInputText
-            type="text"
-            formControlName="district"
-            class="w-full"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
-            City
-          </label>
-          <input
-            pInputText
-            type="text"
-            formControlName="city"
-            class="w-full"
-          />
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
-            Province
-          </label>
-          <input
-            pInputText
-            type="text"
-            formControlName="province"
-            class="w-full"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
-            Postal Code
-          </label>
-          <input
-            pInputText
-            type="text"
-            formControlName="postalCode"
-            class="w-full"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- Date of Birth -->
-    <div>
-      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
-        Date of Birth
-      </label>
-      <input
-        pInputText
-        type="date"
-        formControlName="dateOfBirth"
-        class="w-full"
-        [max]="maxDate"
-      />
-    </div>
-
-    <!-- Education -->
-    <div>
-      <div class="flex justify-between items-center mb-2">
-        <label class="block text-sm font-medium text-surface-600 dark:text-surface-400">
-          Education
-        </label>
+  <!-- User Profile Information -->
+  <div class="border border-surface-200 dark:border-surface-700 rounded-lg p-4 mt-4">
+    <div class="flex justify-between items-center mb-4">
+      <h4 class="text-lg font-semibold">
+        {{ 'userDetail.general.profileInfo' | transloco }}
+      </h4>
+      @if (!isEditing()) {
         <button
           pButton
           type="button"
-          icon="pi pi-plus"
+          icon="pi pi-pencil"
           class="p-button-sm p-button-text"
-          (click)="addEducation()"
-          label="Add"
+          (click)="startEdit()"
+          label="Edit"
         ></button>
-      </div>
-      <div formArrayName="education" class="space-y-3">
-        @for (eduGroup of educationArray.controls; track $index; let i = $index) {
-        <div [formGroupName]="i" class="p-3 border border-surface-200 dark:border-surface-700 rounded space-y-2">
-          <div class="flex justify-between items-start">
-            <div class="flex-1 space-y-2">
-              <input
-                pInputText
-                type="text"
-                formControlName="degree"
-                class="w-full"
-                placeholder="Degree"
-              />
-              <input
-                pInputText
-                type="text"
-                formControlName="institution"
-                class="w-full"
-                placeholder="Institution"
-              />
-              <input
-                pInputText
-                type="number"
-                formControlName="year"
-                class="w-full"
-                placeholder="Year"
-                [min]="minYear"
-                [max]="maxYear"
-              />
+      }
+    </div>
+
+    @if (!isEditing()) {
+      <!-- View Mode -->
+      <div class="space-y-4">
+        <!-- Address -->
+        <div>
+          <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
+            Address
+          </label>
+          <p class="text-surface-900 dark:text-surface-100">
+            {{ formatAddress(user()!.address) }}
+          </p>
+        </div>
+
+        <!-- Date of Birth -->
+        <div>
+          <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
+            Date of Birth
+          </label>
+          <p class="text-surface-900 dark:text-surface-100">
+            {{ formatDate(user()!.dateOfBirth) }}
+          </p>
+        </div>
+
+        <!-- Education -->
+        @if (user()!.education && user()!.education!.length > 0) {
+          <div>
+            <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
+              Education
+            </label>
+            <div class="space-y-2">
+              @for (edu of user()!.education; track $index) {
+                <div class="p-3 bg-surface-50 dark:bg-surface-800 rounded">
+                  <p class="font-medium">{{ edu.degree || '-' }}</p>
+                  <p class="text-sm text-surface-600 dark:text-surface-400">
+                    {{ edu.institution || '-' }}
+                    @if (edu.year) {
+                      <span> ({{ edu.year }})</span>
+                    }
+                  </p>
+                </div>
+              }
             </div>
+          </div>
+        }
+
+        <!-- Skills -->
+        @if (user()!.skills && user()!.skills!.length > 0) {
+          <div>
+            <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
+              Skills
+            </label>
+            <div class="flex flex-wrap gap-2">
+              @for (skill of user()!.skills; track skill) {
+                <span
+                  class="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-100 rounded-full text-sm"
+                >
+                  {{ skill }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Hobbies -->
+        @if (user()!.hobbies && user()!.hobbies!.length > 0) {
+          <div>
+            <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
+              Hobbies
+            </label>
+            <div class="flex flex-wrap gap-2">
+              @for (hobby of user()!.hobbies; track hobby) {
+                <span
+                  class="px-3 py-1 bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 rounded-full text-sm"
+                >
+                  {{ hobby }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Edit Mode -->
+      <form [formGroup]="editForm" class="space-y-4">
+        <!-- Address Fields -->
+        <div formGroupName="address" class="space-y-3">
+          <h5 class="text-md font-medium mb-2">Address</h5>
+
+          <div>
+            <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+              Street
+            </label>
+            <input
+              pInputText
+              type="text"
+              formControlName="street"
+              class="w-full"
+              placeholder="Enter street address"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+                District
+              </label>
+              <input pInputText type="text" formControlName="district" class="w-full" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+                City
+              </label>
+              <input pInputText type="text" formControlName="city" class="w-full" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+                Province
+              </label>
+              <input pInputText type="text" formControlName="province" class="w-full" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+                Postal Code
+              </label>
+              <input pInputText type="text" formControlName="postalCode" class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Date of Birth -->
+        <div>
+          <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+            Date of Birth
+          </label>
+          <input
+            pInputText
+            type="date"
+            formControlName="dateOfBirth"
+            class="w-full"
+            [max]="maxDate"
+          />
+        </div>
+
+        <!-- Education -->
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <label class="block text-sm font-medium text-surface-600 dark:text-surface-400">
+              Education
+            </label>
             <button
               pButton
               type="button"
-              icon="pi pi-trash"
-              class="p-button-sm p-button-text p-button-danger ml-2"
-              (click)="removeEducation(i)"
+              icon="pi pi-plus"
+              class="p-button-sm p-button-text"
+              (click)="addEducation()"
+              label="Add"
             ></button>
           </div>
+          <div formArrayName="education" class="space-y-3">
+            @for (eduGroup of educationArray.controls; track $index; let i = $index) {
+              <div
+                [formGroupName]="i"
+                class="p-3 border border-surface-200 dark:border-surface-700 rounded space-y-2"
+              >
+                <div class="flex justify-between items-start">
+                  <div class="flex-1 space-y-2">
+                    <input
+                      pInputText
+                      type="text"
+                      formControlName="degree"
+                      class="w-full"
+                      placeholder="Degree"
+                    />
+                    <input
+                      pInputText
+                      type="text"
+                      formControlName="institution"
+                      class="w-full"
+                      placeholder="Institution"
+                    />
+                    <input
+                      pInputText
+                      type="number"
+                      formControlName="year"
+                      class="w-full"
+                      placeholder="Year"
+                      [min]="minYear"
+                      [max]="maxYear"
+                    />
+                  </div>
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-trash"
+                    class="p-button-sm p-button-text p-button-danger ml-2"
+                    (click)="removeEducation(i)"
+                  ></button>
+                </div>
+              </div>
+            }
+          </div>
         </div>
-        }
-      </div>
-    </div>
 
-    <!-- Skills -->
-    <div>
-      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
-        Skills
-      </label>
-      <div class="space-y-2">
-        <div class="flex gap-2">
-          <input
-            pInputText
-            type="text"
-            [(ngModel)]="newSkill"
-            [ngModelOptions]="{standalone: true}"
-            class="flex-1"
-            placeholder="Enter skill and press Enter"
-            (keydown.enter)="addSkill($event)"
-          />
+        <!-- Skills -->
+        <div>
+          <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+            Skills
+          </label>
+          <div class="space-y-2">
+            <div class="flex gap-2">
+              <input
+                pInputText
+                type="text"
+                [(ngModel)]="newSkill"
+                [ngModelOptions]="{ standalone: true }"
+                class="flex-1"
+                placeholder="Enter skill and press Enter"
+                (keydown.enter)="addSkill($event)"
+              />
+              <button
+                pButton
+                type="button"
+                icon="pi pi-plus"
+                class="p-button-sm"
+                (click)="addSkillClick()"
+                label="Add"
+              ></button>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              @for (skill of skillsValue(); track skill) {
+                <span
+                  class="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-100 rounded-full text-sm flex items-center gap-2"
+                >
+                  {{ skill }}
+                  <i class="pi pi-times cursor-pointer" (click)="removeSkill(skill)"></i>
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Hobbies -->
+        <div>
+          <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
+            Hobbies
+          </label>
+          <div class="space-y-2">
+            <div class="flex gap-2">
+              <input
+                pInputText
+                type="text"
+                [(ngModel)]="newHobby"
+                [ngModelOptions]="{ standalone: true }"
+                class="flex-1"
+                placeholder="Enter hobby and press Enter"
+                (keydown.enter)="addHobby($event)"
+              />
+              <button
+                pButton
+                type="button"
+                icon="pi pi-plus"
+                class="p-button-sm"
+                (click)="addHobbyClick()"
+                label="Add"
+              ></button>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              @for (hobby of hobbiesValue(); track hobby) {
+                <span
+                  class="px-3 py-1 bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 rounded-full text-sm flex items-center gap-2"
+                >
+                  {{ hobby }}
+                  <i class="pi pi-times cursor-pointer" (click)="removeHobby(hobby)"></i>
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-end gap-2 pt-4">
           <button
             pButton
             type="button"
-            icon="pi pi-plus"
-            class="p-button-sm"
-            (click)="addSkillClick()"
-            label="Add"
+            label="Cancel"
+            class="p-button-outlined"
+            (click)="cancelEdit()"
+            [disabled]="isSaving()"
           ></button>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          @for (skill of skillsValue(); track skill) {
-          <span class="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-100 rounded-full text-sm flex items-center gap-2">
-            {{ skill }}
-            <i class="pi pi-times cursor-pointer" (click)="removeSkill(skill)"></i>
-          </span>
-          }
-        </div>
-      </div>
-    </div>
-
-    <!-- Hobbies -->
-    <div>
-      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1">
-        Hobbies
-      </label>
-      <div class="space-y-2">
-        <div class="flex gap-2">
-          <input
-            pInputText
-            type="text"
-            [(ngModel)]="newHobby"
-            [ngModelOptions]="{standalone: true}"
-            class="flex-1"
-            placeholder="Enter hobby and press Enter"
-            (keydown.enter)="addHobby($event)"
-          />
           <button
             pButton
             type="button"
-            icon="pi pi-plus"
-            class="p-button-sm"
-            (click)="addHobbyClick()"
-            label="Add"
+            label="Save"
+            (click)="saveChanges()"
+            [loading]="isSaving()"
           ></button>
         </div>
-        <div class="flex flex-wrap gap-2">
-          @for (hobby of hobbiesValue(); track hobby) {
-          <span class="px-3 py-1 bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 rounded-full text-sm flex items-center gap-2">
-            {{ hobby }}
-            <i class="pi pi-times cursor-pointer" (click)="removeHobby(hobby)"></i>
-          </span>
-          }
-        </div>
-      </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="flex justify-end gap-2 pt-4">
-      <button
-        pButton
-        type="button"
-        label="Cancel"
-        class="p-button-outlined"
-        (click)="cancelEdit()"
-        [disabled]="isSaving()"
-      ></button>
-      <button
-        pButton
-        type="button"
-        label="Save"
-        (click)="saveChanges()"
-        [loading]="isSaving()"
-      ></button>
-    </div>
-  </form>
-  }
-</div>
-
-<!-- Additional User Information (Roles & Permissions) -->
-<div class="border border-surface-200 dark:border-surface-700 rounded-lg p-4 mt-4">
-  <h4 class="text-lg font-semibold mb-4">
-    Additional Information
-  </h4>
-  <div class="space-y-3">
-    @if (user()!.roles && user()!.roles!.length > 0) {
-    <div>
-      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
-        Roles
-      </label>
-      <div class="flex flex-wrap gap-2" id="user-general-roles">
-        @for (role of user()!.roles; track role) {
-        <span class="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-100 rounded-full text-sm">
-          {{ role }}
-        </span>
-        }
-      </div>
-    </div>
-    }
-    @if (user()!.permissions && user()!.permissions!.length > 0) {
-    <div>
-      <label class="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
-        Permissions
-      </label>
-      <div class="flex flex-wrap gap-2" id="user-general-permissions">
-        @for (permission of user()!.permissions; track permission) {
-        <span class="px-2 py-1 bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 rounded text-xs">
-          {{ permission }}
-        </span>
-        }
-      </div>
-    </div>
+      </form>
     }
   </div>
-</div>
 } @else {
-<div class="border border-surface-200 dark:border-surface-700 rounded-lg p-4 mt-4">
-  <p class="text-surface-500">No user data available</p>
-</div>
+  <div class="border border-surface-200 dark:border-surface-700 rounded-lg p-4 mt-4">
+    <p class="text-surface-500">No user data available</p>
+  </div>
 }
