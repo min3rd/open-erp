@@ -34,6 +34,7 @@ import { UserDetailService, UserDetail } from '../services/user-detail.service';
 import { ProvinceService } from '../../province/services/province.service';
 import { DistrictService } from '../../district/services/district.service';
 import { WardService } from '../../ward/services/ward.service';
+import { userDateFormatString } from '../../../../../../core/utils/date.utils';
 
 @Component({
   selector: 'management-user-general',
@@ -93,8 +94,12 @@ export class General implements OnInit, OnDestroy {
   }
 
   // Max date as Date object for p-datepicker
-  protected get maxDateObject(): Date {
-    return new Date();
+  protected get maxDateObject() {
+    return new Date().getTime();
+  }
+
+  protected get dateFormat(): string {
+    return userDateFormatString();
   }
 
   ngOnInit(): void {
@@ -324,12 +329,7 @@ export class General implements OnInit, OnDestroy {
 
     // Handle date of birth - can be set or cleared
     if (formValue.dateOfBirth !== undefined && formValue.dateOfBirth !== null) {
-      // p-datepicker returns Date object, convert to YYYY-MM-DD string for backend
-      const date =
-        formValue.dateOfBirth instanceof Date
-          ? formValue.dateOfBirth
-          : new Date(formValue.dateOfBirth);
-      updateData.dateOfBirth = date.toISOString().split('T')[0];
+      updateData.dateOfBirth = formValue.dateOfBirth;
     } else if (this.user()?.dateOfBirth && !formValue.dateOfBirth) {
       // Explicitly clear if it was set before but is now empty
       updateData.dateOfBirth = null as any;
