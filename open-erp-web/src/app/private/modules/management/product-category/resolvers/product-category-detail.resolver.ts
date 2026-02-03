@@ -24,7 +24,7 @@ export const productCategoryDetailResolver: ResolveFn<ProductCategory | null> = 
     catchError((error) => {
       console.error('Error fetching product category:', error);
       // Navigate back to list if category not found
-      router.navigate(['../'], { relativeTo: route });
+      router.navigate(['/management/product-category']);
       return of(null);
     })
   );
