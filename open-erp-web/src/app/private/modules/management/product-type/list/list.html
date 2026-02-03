@@ -188,12 +188,15 @@
     <div class="flex flex-col w-full h-full">
       <div class="flex-1 overflow-auto">
         <p-table
+          #dt
           id="product-type-list-table"
           [value]="productTypes()"
           [loading]="isLoading()"
           [rowHover]="true"
           dataKey="id"
           [(selection)]="selectedProductTypes"
+          [(contextMenuSelection)]="contextMenuSelectedProductType"
+          [contextMenu]="cm"
           styleClass="p-datatable-sm"
           responsiveLayout="scroll"
           [paginator]="true"
@@ -203,17 +206,55 @@
           [lazy]="true"
           (onLazyLoad)="onLazyLoad($event)"
           [first]="(currentPage() - 1) * pageSize()"
+          [resizableColumns]="true"
+          columnResizeMode="expand"
+          [reorderableColumns]="true"
+          [sortField]="sortField()"
+          [sortOrder]="sortOrder()"
         >
+          <ng-template #caption>
+            <div class="flex items-center justify-end gap-2">
+              <p-multiselect
+                id="product-type-list-column-toggle"
+                [options]="columnOptions"
+                [(ngModel)]="selectedColumns"
+                optionLabel="header"
+                [placeholder]="'productTypeList.toolbar.selectColumns' | transloco"
+                [showHeader]="false"
+                [filter]="false"
+                styleClass="w-auto"
+                [style]="{ minWidth: '200px' }"
+              >
+                <ng-template let-option #item>
+                  <span>{{ option.header | transloco }}</span>
+                </ng-template>
+                <ng-template #selectedItems>
+                  <span class="flex items-center gap-1">
+                    <i class="pi pi-cog"></i>
+                    <span>{{ 'productTypeList.toolbar.columns' | transloco }}</span>
+                  </span>
+                </ng-template>
+              </p-multiselect>
+            </div>
+          </ng-template>
+
           <ng-template #header>
             <tr>
               <th style="width: 3rem">
                 <p-tableHeaderCheckbox />
               </th>
-              <th>{{ 'productTypeList.table.code' | transloco }}</th>
-              <th>{{ 'productTypeList.table.name' | transloco }}</th>
-              <th>{{ 'productTypeList.table.description' | transloco }}</th>
-              <th style="width: 100px">{{ 'productTypeList.table.status' | transloco }}</th>
-              <th style="width: 180px">{{ 'productTypeList.table.createdAt' | transloco }}</th>
+              @for (col of selectedColumns; track col.field) {
+                @if (col.sortable) {
+                  <th pResizableColumn pReorderableColumn [pSortableColumn]="col.field" [style.width]="col.width">
+                    {{ col.header | transloco }}
+                    <p-sortIcon [field]="col.field" />
+                  </th>
+                } @else {
+                  <th pResizableColumn pReorderableColumn [style.width]="col.width">
+                    {{ col.header | transloco }}
+                  </th>
+                }
+              }
               <th class="w-16"></th>
             </tr>
           </ng-template>
@@ -221,8 +262,8 @@
           <ng-template #body let-productType>
             <tr
               [id]="'product-type-list-row-' + productType.id"
+              [pContextMenuRow]="productType"
               (click)="onRowClick(productType)"
-              (contextmenu)="onRowRightClick($event, productType)"
               class="cursor-pointer"
               [class.bg-primary-50]="selectedProductType()?.id === productType.id"
               [class.dark:bg-primary-900]="selectedProductType()?.id === productType.id"
@@ -230,28 +271,34 @@
               <td (click)="$event.stopPropagation()">
                 <p-tableCheckbox [value]="productType" />
               </td>
-              <td>
-                <span class="font-mono text-sm">{{ productType.code }}</span>
-              </td>
-              <td>
-                <div class="font-medium">{{ productType.name }}</div>
-              </td>
-              <td>
-                <span class="text-surface-600 dark:text-surface-400 text-sm">
-                  {{ productType.description || '-' }}
-                </span>
-              </td>
-              <td>
-                <p-tag
-                  [value]="productType.isActive ? ('productTypeList.status.active' | transloco) : ('productTypeList.status.inactive' | transloco)"
-                  [severity]="productType.isActive ? 'success' : 'danger'"
-                />
-              </td>
-              <td>
-                <span class="text-sm text-surface-500">
-                  {{ productType.createdAt | date:'short' }}
-                </span>
-              </td>
+              @for (col of selectedColumns; track col.field) {
+                <td>
+                  @switch (col.field) {
+                    @case ('code') {
+                      <span class="font-mono text-sm">{{ productType.code }}</span>
+                    }
+                    @case ('name') {
+                      <div class="font-medium">{{ productType.name }}</div>
+                    }
+                    @case ('description') {
+                      <span class="text-surface-600 dark:text-surface-400 text-sm">
+                        {{ productType.description || '-' }}
+                      </span>
+                    }
+                    @case ('isActive') {
+                      <p-tag
+                        [value]="productType.isActive ? ('productTypeList.status.active' | transloco) : ('productTypeList.status.inactive' | transloco)"
+                        [severity]="productType.isActive ? 'success' : 'danger'"
+                      />
+                    }
+                    @case ('createdAt') {
+                      <span class="text-sm text-surface-500">
+                        {{ productType.createdAt | date:'short' }}
+                      </span>
+                    }
+                  }
+                </td>
+              }
               <td (click)="$event.stopPropagation()">
                 <p-button
                   [id]="'product-type-list-row-menu-' + productType.id"
@@ -274,7 +321,7 @@
 
           <ng-template #empty>
             <tr>
-              <td colspan="7" class="text-center py-8 text-surface-500">
+              <td [attr.colspan]="selectedColumns.length + 2" class="text-center py-8 text-surface-500">
                 @if (isLoading()) {
                 <i class="pi pi-spin pi-spinner text-2xl"></i>
                 <p class="mt-2">{{ 'productTypeList.messages.loading' | transloco }}</p>
@@ -294,6 +341,15 @@
       </div>
     </div>
     }
+
+    <!-- Context Menu for Desktop Table -->
+    <p-contextMenu
+      #cm
+      id="product-type-list-context-menu"
+      [model]="contextMenuItems"
+      (onHide)="contextMenuSelectedProductType = null"
+      appendTo="body"
+    />
 
     <!-- Mobile: Card List View -->
     @if (isMobile()) {
@@ -397,14 +453,6 @@
     }
   </div>
 </div>
-
-<!-- Context Menu -->
-<p-contextMenu
-  #contextMenu
-  id="product-type-list-context-menu"
-  [model]="contextMenuItems"
-  appendTo="body"
-/>
 
 <!-- Confirm Dialog -->
 <p-confirmDialog id="product-type-list-confirm-dialog" />

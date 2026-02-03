@@ -1929,6 +1929,10 @@
       "import": "Importar desde CSV",
       "deleteSelected": "Eliminar Seleccionados"
     },
+    "toolbar": {
+      "selectColumns": "Seleccionar columnas a mostrar",
+      "columns": "Columnas"
+    },
     "table": {
       "code": "Código",
       "name": "Nombre",

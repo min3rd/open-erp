@@ -1002,6 +1002,10 @@
       "import": "Nhập từ CSV",
       "deleteSelected": "Xóa đã chọn"
     },
+    "toolbar": {
+      "selectColumns": "Chọn cột hiển thị",
+      "columns": "Cột"
+    },
     "table": {
       "code": "Mã",
       "name": "Tên",

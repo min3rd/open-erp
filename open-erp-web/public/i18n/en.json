@@ -1796,6 +1796,10 @@
       "import": "Import from CSV",
       "deleteSelected": "Delete Selected"
     },
+    "toolbar": {
+      "selectColumns": "Select columns to display",
+      "columns": "Columns"
+    },
     "table": {
       "code": "Code",
       "name": "Name",

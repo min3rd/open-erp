@@ -24,9 +24,9 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { MenuModule } from 'primeng/menu';
 import { Menu } from 'primeng/menu';
 import { ContextMenuModule } from 'primeng/contextmenu';
-import { ContextMenu } from 'primeng/contextmenu';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constant';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { MenuItem } from 'primeng/api';
@@ -43,6 +43,16 @@ import {
   ProductType,
 } from '../../../../../../core/services/product-type/product-type.service';
 
+/**
+ * Column definition interface
+ */
+interface ColumnDef {
+  field: string;
+  header: string;
+  sortable: boolean;
+  width?: string;
+}
+
 @Component({
   selector: 'management-product-type-list',
   imports: [
@@ -58,6 +68,7 @@ import {
     ContextMenuModule,
     TooltipModule,
     TagModule,
+    MultiSelectModule,
     PaginationComponent,
     InputGroupModule,
     InputGroupAddonModule,
@@ -68,7 +79,6 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductTypeList implements OnInit, OnDestroy {
-  @ViewChild('contextMenu') contextMenu!: ContextMenu;
   @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
   @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
 
@@ -85,10 +95,21 @@ export class ProductTypeList implements OnInit, OnDestroy {
   private readonly SEARCH_FOCUS_DELAY = 100;
   protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
 
+  // Column definitions
+  protected readonly columnOptions: ColumnDef[] = [
+    { field: 'code', header: 'productTypeList.table.code', sortable: true, width: '150px' },
+    { field: 'name', header: 'productTypeList.table.name', sortable: true },
+    { field: 'description', header: 'productTypeList.table.description', sortable: false },
+    { field: 'isActive', header: 'productTypeList.table.status', sortable: true, width: '100px' },
+    { field: 'createdAt', header: 'productTypeList.table.createdAt', sortable: true, width: '180px' },
+  ];
+  protected selectedColumns: ColumnDef[] = [...this.columnOptions];
+
   // State signals
   protected readonly productTypes = signal<ProductType[]>([]);
   protected selectedProductTypes: ProductType[] = []; // For PrimeNG table binding
   protected readonly selectedProductType = signal<ProductType | null>(null);
+  protected contextMenuSelectedProductType: ProductType | null = null; // For context menu selection
   protected readonly isLoading = signal(false);
   protected readonly searchQuery = signal('');
   protected readonly currentPage = signal(1);
@@ -96,6 +117,8 @@ export class ProductTypeList implements OnInit, OnDestroy {
   protected readonly totalRecords = signal(0);
   protected readonly isMobile = signal(false);
   protected readonly isSearchOpen = signal(false);
+  protected readonly sortField = signal<string>('name');
+  protected readonly sortOrder = signal<number>(1); // 1 = ascending, -1 = descending
 
   // Current row menu items - to fix double-click issue
   protected currentRowMenuItems: MenuItem[] = [];
@@ -134,7 +157,7 @@ export class ProductTypeList implements OnInit, OnDestroy {
 
   // Context menu items for row actions
   protected get contextMenuItems(): MenuItem[] {
-    const productType = this.selectedProductType();
+    const productType = this.contextMenuSelectedProductType;
     if (!productType) return [];
 
     return [
@@ -371,15 +394,6 @@ export class ProductTypeList implements OnInit, OnDestroy {
   }
 
   /**
-   * Handle row right-click to show context menu
-   */
-  protected onRowRightClick(event: MouseEvent, productType: ProductType): void {
-    event.preventDefault();
-    this.selectedProductType.set(productType);
-    this.contextMenu.show(event);
-  }
-
-  /**
    * View product type details
    */
   protected onViewProductType(productType: ProductType): void {
@@ -517,6 +531,14 @@ export class ProductTypeList implements OnInit, OnDestroy {
     const page = event.first !== undefined ? Math.floor(event.first / rows) + 1 : 1;
     const pageSize = rows;
     const search = this.searchQuery() || '-';
+
+    // Handle sorting from lazy load event
+    if (event.sortField) {
+      this.sortField.set(event.sortField as string);
+      this.sortOrder.set(event.sortOrder || 1);
+      // Refresh data with new sort
+      this.onRefresh();
+    }
 
     // Only navigate if page or pageSize changed
     if (page !== this.currentPage() || pageSize !== this.pageSize()) {
