@@ -80,7 +80,7 @@ export class ProductTypeForm implements OnInit {
   ngOnInit(): void {
     // Initialize form
     this.form = this.fb.group({
-      code: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      code: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50), Validators.pattern(/^[a-z0-9_-]+$/i)]],
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
       description: ['', Validators.maxLength(500)],
       isActive: [true],
