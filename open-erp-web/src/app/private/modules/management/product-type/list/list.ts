@@ -505,8 +505,8 @@ export class ProductTypeList implements OnInit, OnDestroy {
         page: this.currentPage(),
         limit: this.pageSize(),
         search: this.searchQuery() || undefined,
-        sortField: this.sortField(),
-        sortOrder: this.sortOrder() === 1 ? 'asc' : 'desc',
+        sortField: this.sortField() || undefined,
+        sortOrder: this.sortOrder() === 1 ? 'asc' : this.sortOrder() === -1 ? 'desc' : undefined,
       })
       .subscribe({
         next: (data) => {
