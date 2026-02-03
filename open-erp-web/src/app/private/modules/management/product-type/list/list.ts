@@ -513,8 +513,9 @@ export class ProductTypeList implements OnInit, OnDestroy {
    * Handle lazy load event from table paginator
    */
   protected onLazyLoad(event: TableLazyLoadEvent): void {
-    const page = event.first !== undefined && event.rows ? Math.floor(event.first / event.rows) + 1 : 1;
-    const pageSize = event.rows || PAGE_SIZE_OPTIONS[0];
+    const rows = event.rows && event.rows > 0 ? event.rows : PAGE_SIZE_OPTIONS[0];
+    const page = event.first !== undefined ? Math.floor(event.first / rows) + 1 : 1;
+    const pageSize = rows;
     const search = this.searchQuery() || '-';
 
     // Only navigate if page or pageSize changed
