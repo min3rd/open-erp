@@ -127,8 +127,11 @@ export class ProductTypeList implements OnInit, OnDestroy {
   protected readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
   protected readonly hasSelectedItems = computed(() => this.selectedProductTypes.length > 0);
 
-  // Actions menu items
-  protected get actionMenuItems(): MenuItem[] {
+  // Pre-populated action menu items to fix click issue
+  protected currentActionMenuItems: MenuItem[] = [];
+
+  // Build action menu items dynamically
+  private buildActionMenuItems(): MenuItem[] {
     return [
       {
         label: this.translocoService.translate('productTypeList.actions.exportCSV'),
@@ -153,6 +156,14 @@ export class ProductTypeList implements OnInit, OnDestroy {
         command: () => this.onBulkDelete(),
       },
     ];
+  }
+
+  /**
+   * Show action menu - populate items before showing to fix click issue
+   */
+  protected onShowActionMenu(event: MouseEvent, menu: Menu): void {
+    this.currentActionMenuItems = this.buildActionMenuItems();
+    menu.toggle(event);
   }
 
   // Context menu items for row actions
@@ -484,6 +495,8 @@ export class ProductTypeList implements OnInit, OnDestroy {
         page: this.currentPage(),
         limit: this.pageSize(),
         search: this.searchQuery() || undefined,
+        sortField: this.sortField(),
+        sortOrder: this.sortOrder() === 1 ? 'asc' : 'desc',
       })
       .subscribe({
         next: (data) => {

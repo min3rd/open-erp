@@ -68,7 +68,7 @@
           icon="pi pi-ellipsis-v"
           [rounded]="true"
           [text]="true"
-          (onClick)="menu.toggle($event)"
+          (onClick)="onShowActionMenu($event, menu)"
           [attr.aria-label]="'productTypeList.actionsButton.label' | transloco"
           aria-haspopup="true"
           aria-controls="product-type-list-actions-menu"
@@ -76,7 +76,7 @@
         <p-menu
           #menu
           id="product-type-list-actions-menu"
-          [model]="actionMenuItems"
+          [model]="currentActionMenuItems"
           [popup]="true"
           appendTo="body"
         />
@@ -136,7 +136,7 @@
           icon="pi pi-ellipsis-v"
           [rounded]="true"
           [text]="true"
-          (onClick)="mobileMenu.toggle($event)"
+          (onClick)="onShowActionMenu($event, mobileMenu)"
           [attr.aria-label]="'productTypeList.actionsButton.label' | transloco"
           aria-haspopup="true"
           aria-controls="product-type-list-actions-menu-mobile"
@@ -144,7 +144,7 @@
         <p-menu
           #mobileMenu
           id="product-type-list-actions-menu-mobile"
-          [model]="actionMenuItems"
+          [model]="currentActionMenuItems"
           [popup]="true"
           appendTo="body"
         />
