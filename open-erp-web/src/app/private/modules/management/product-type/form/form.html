@@ -1,0 +1,320 @@
+<p-drawer
+  [(visible)]="isVisible"
+  [position]="'right'"
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '800px' }"
+  [closeOnEscape]="true"
+  (onHide)="onClose()">
+  
+  <ng-template pTemplate="header">
+    <div class="flex items-center gap-3">
+      <i class="pi pi-tag text-2xl"></i>
+      <div>
+        <h2 class="text-xl font-bold m-0">
+          @if (isCreateMode()) {
+            {{ 'productTypeForm.title.create' | transloco }}
+          } @else if (isEditMode()) {
+            {{ 'productTypeForm.title.edit' | transloco }}
+          } @else {
+            {{ 'productTypeForm.title.view' | transloco }}
+          }
+        </h2>
+        @if (productTypeId()) {
+          <p class="text-sm text-gray-600 m-0">{{ 'productTypeForm.subtitle' | transloco }}</p>
+        }
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    <form [formGroup]="form" class="p-4">
+      <!-- Basic Information -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold mb-4">{{ 'productTypeForm.sections.basic' | transloco }}</h3>
+
+        <!-- Code -->
+        <div class="mb-4">
+          <label for="code" class="block mb-2 font-medium">
+            {{ 'productTypeForm.fields.code.label' | transloco }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="code"
+            type="text"
+            pInputText
+            formControlName="code"
+            class="w-full"
+            [class.ng-invalid]="hasError('code', 'required')"
+            [placeholder]="'productTypeForm.fields.code.placeholder' | transloco"
+          />
+          @if (hasError('code', 'required')) {
+            <small class="text-red-500">{{ 'productTypeForm.fields.code.errors.required' | transloco }}</small>
+          }
+          @if (hasError('code', 'minlength')) {
+            <small class="text-red-500">{{ 'productTypeForm.fields.code.errors.minlength' | transloco }}</small>
+          }
+          @if (hasError('code', 'maxlength')) {
+            <small class="text-red-500">{{ 'productTypeForm.fields.code.errors.maxlength' | transloco }}</small>
+          }
+        </div>
+
+        <!-- Name -->
+        <div class="mb-4">
+          <label for="name" class="block mb-2 font-medium">
+            {{ 'productTypeForm.fields.name.label' | transloco }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="name"
+            type="text"
+            pInputText
+            formControlName="name"
+            class="w-full"
+            [class.ng-invalid]="hasError('name', 'required')"
+            [placeholder]="'productTypeForm.fields.name.placeholder' | transloco"
+          />
+          @if (hasError('name', 'required')) {
+            <small class="text-red-500">{{ 'productTypeForm.fields.name.errors.required' | transloco }}</small>
+          }
+          @if (hasError('name', 'minlength')) {
+            <small class="text-red-500">{{ 'productTypeForm.fields.name.errors.minlength' | transloco }}</small>
+          }
+          @if (hasError('name', 'maxlength')) {
+            <small class="text-red-500">{{ 'productTypeForm.fields.name.errors.maxlength' | transloco }}</small>
+          }
+        </div>
+
+        <!-- Description -->
+        <div class="mb-4">
+          <label for="description" class="block mb-2 font-medium">
+            {{ 'productTypeForm.fields.description.label' | transloco }}
+          </label>
+          <textarea
+            id="description"
+            pInputTextarea
+            formControlName="description"
+            [rows]="3"
+            class="w-full"
+            [placeholder]="'productTypeForm.fields.description.placeholder' | transloco"
+          ></textarea>
+          @if (hasError('description', 'maxlength')) {
+            <small class="text-red-500">{{ 'productTypeForm.fields.description.errors.maxlength' | transloco }}</small>
+          }
+        </div>
+
+        <!-- Is Active -->
+        <div class="mb-4 flex items-center gap-2">
+          <p-checkbox
+            formControlName="isActive"
+            [binary]="true"
+            inputId="isActive"
+          ></p-checkbox>
+          <label for="isActive" class="font-medium cursor-pointer">
+            {{ 'productTypeForm.fields.isActive.label' | transloco }}
+          </label>
+        </div>
+      </div>
+
+      <!-- Attributes -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold">{{ 'productTypeForm.sections.attributes' | transloco }}</h3>
+          @if (!isViewMode()) {
+            <button
+              pButton
+              type="button"
+              icon="pi pi-plus"
+              [label]="'productTypeForm.attributes.add' | transloco"
+              class="p-button-sm p-button-outlined"
+              (click)="addAttribute()"
+            ></button>
+          }
+        </div>
+
+        @if (attributesArray.length === 0) {
+          <div class="text-center py-8 border border-dashed rounded">
+            <i class="pi pi-inbox text-4xl text-gray-400 mb-2"></i>
+            <p class="text-gray-600">{{ 'productTypeForm.attributes.empty' | transloco }}</p>
+            @if (!isViewMode()) {
+              <button
+                pButton
+                type="button"
+                [label]="'productTypeForm.attributes.addFirst' | transloco"
+                class="p-button-sm mt-2"
+                (click)="addAttribute()"
+              ></button>
+            }
+          </div>
+        } @else {
+          <div formArrayName="attributes" class="space-y-4">
+            @for (attr of attributesArray.controls; track $index) {
+              <div [formGroupName]="$index" class="border rounded p-4 bg-gray-50">
+                <div class="flex items-center justify-between mb-3">
+                  <h4 class="font-semibold">{{ 'productTypeForm.attributes.attribute' | transloco }} {{ $index + 1 }}</h4>
+                  @if (!isViewMode()) {
+                    <button
+                      pButton
+                      type="button"
+                      icon="pi pi-trash"
+                      class="p-button-sm p-button-text p-button-danger"
+                      (click)="removeAttribute($index)"
+                      [pTooltip]="'productTypeForm.attributes.remove' | transloco"
+                    ></button>
+                  }
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <!-- Attribute Name -->
+                  <div>
+                    <label [for]="'attr-name-' + $index" class="block mb-2 text-sm font-medium">
+                      {{ 'productTypeForm.attributes.fields.name.label' | transloco }}
+                      <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      [id]="'attr-name-' + $index"
+                      type="text"
+                      pInputText
+                      formControlName="name"
+                      class="w-full"
+                      [placeholder]="'productTypeForm.attributes.fields.name.placeholder' | transloco"
+                    />
+                    @if (hasAttributeError($index, 'name', 'required')) {
+                      <small class="text-red-500">{{ 'productTypeForm.attributes.fields.name.errors.required' | transloco }}</small>
+                    }
+                  </div>
+
+                  <!-- Attribute Type -->
+                  <div>
+                    <label [for]="'attr-type-' + $index" class="block mb-2 text-sm font-medium">
+                      {{ 'productTypeForm.attributes.fields.type.label' | transloco }}
+                      <span class="text-red-500">*</span>
+                    </label>
+                    <p-select
+                      [inputId]="'attr-type-' + $index"
+                      [options]="attributeTypeOptions"
+                      formControlName="type"
+                      optionLabel="label"
+                      optionValue="value"
+                      class="w-full"
+                      [placeholder]="'productTypeForm.attributes.fields.type.placeholder' | transloco"
+                    ></p-select>
+                  </div>
+
+                  <!-- Attribute Label -->
+                  <div>
+                    <label [for]="'attr-label-' + $index" class="block mb-2 text-sm font-medium">
+                      {{ 'productTypeForm.attributes.fields.label.label' | transloco }}
+                    </label>
+                    <input
+                      [id]="'attr-label-' + $index"
+                      type="text"
+                      pInputText
+                      formControlName="label"
+                      class="w-full"
+                      [placeholder]="'productTypeForm.attributes.fields.label.placeholder' | transloco"
+                    />
+                  </div>
+
+                  <!-- Attribute Default Value -->
+                  <div>
+                    <label [for]="'attr-default-' + $index" class="block mb-2 text-sm font-medium">
+                      {{ 'productTypeForm.attributes.fields.defaultValue.label' | transloco }}
+                    </label>
+                    <input
+                      [id]="'attr-default-' + $index"
+                      type="text"
+                      pInputText
+                      formControlName="defaultValue"
+                      class="w-full"
+                      [placeholder]="'productTypeForm.attributes.fields.defaultValue.placeholder' | transloco"
+                    />
+                  </div>
+
+                  <!-- Attribute Description (full width) -->
+                  <div class="md:col-span-2">
+                    <label [for]="'attr-desc-' + $index" class="block mb-2 text-sm font-medium">
+                      {{ 'productTypeForm.attributes.fields.description.label' | transloco }}
+                    </label>
+                    <textarea
+                      [id]="'attr-desc-' + $index"
+                      pInputTextarea
+                      formControlName="description"
+                      [rows]="2"
+                      class="w-full"
+                      [placeholder]="'productTypeForm.attributes.fields.description.placeholder' | transloco"
+                    ></textarea>
+                  </div>
+
+                  <!-- Options (only for select type) -->
+                  @if (isSelectType($index)) {
+                    <div class="md:col-span-2">
+                      <label [for]="'attr-options-' + $index" class="block mb-2 text-sm font-medium">
+                        {{ 'productTypeForm.attributes.fields.options.label' | transloco }}
+                      </label>
+                      <input
+                        [id]="'attr-options-' + $index"
+                        type="text"
+                        pInputText
+                        formControlName="options"
+                        class="w-full"
+                        [placeholder]="'productTypeForm.attributes.fields.options.placeholder' | transloco"
+                      />
+                      <small class="text-gray-600">{{ 'productTypeForm.attributes.fields.options.hint' | transloco }}</small>
+                    </div>
+                  }
+
+                  <!-- Required -->
+                  <div class="md:col-span-2 flex items-center gap-2">
+                    <p-checkbox
+                      formControlName="required"
+                      [binary]="true"
+                      [inputId]="'attr-required-' + $index"
+                    ></p-checkbox>
+                    <label [for]="'attr-required-' + $index" class="text-sm cursor-pointer">
+                      {{ 'productTypeForm.attributes.fields.required.label' | transloco }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-between gap-2">
+      <button
+        pButton
+        type="button"
+        [label]="'common.cancel' | transloco"
+        class="p-button-outlined"
+        (click)="onClose()"
+        [disabled]="isSaving()"
+      ></button>
+      
+      <div class="flex gap-2">
+        @if (isViewMode()) {
+          <button
+            pButton
+            type="button"
+            icon="pi pi-pencil"
+            [label]="'common.edit' | transloco"
+            (click)="onEdit()"
+          ></button>
+        } @else {
+          <button
+            pButton
+            type="button"
+            icon="pi pi-check"
+            [label]="'common.save' | transloco"
+            (click)="onSave()"
+            [disabled]="form.invalid || isSaving()"
+            [loading]="isSaving()"
+          ></button>
+        }
+      </div>
+    </div>
+  </ng-template>
+</p-drawer>

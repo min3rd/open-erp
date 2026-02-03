@@ -1024,5 +1024,146 @@
       "payload": "Dữ Liệu / Thay Đổi",
       "metadata": "Metadata"
     }
+  },
+  "productTypeList": {
+    "title": "Quản lý Loại Sản phẩm",
+    "scope": {
+      "placeholder": "Phạm vi",
+      "all": "Tất cả",
+      "active": "Đang hoạt động",
+      "inactive": "Không hoạt động"
+    },
+    "search": {
+      "placeholder": "Tìm kiếm theo mã, tên..."
+    },
+    "columns": {
+      "code": "Mã",
+      "name": "Tên",
+      "description": "Mô tả",
+      "status": "Trạng thái",
+      "attributes": "Thuộc tính",
+      "updatedAt": "Cập nhật",
+      "actions": "Thao tác"
+    },
+    "status": {
+      "active": "Hoạt động",
+      "inactive": "Không hoạt động"
+    },
+    "actions": {
+      "new": "Tạo mới",
+      "view": "Xem",
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa",
+      "refresh": "Làm mới",
+      "exportCSV": "Xuất CSV",
+      "bulkActions": "Thao tác hàng loạt"
+    },
+    "messages": {
+      "refreshed": "Đã làm mới danh sách",
+      "refreshError": "Lỗi khi làm mới danh sách",
+      "deleted": "Đã xóa loại sản phẩm",
+      "deleteError": "Lỗi khi xóa loại sản phẩm",
+      "bulkDeleted": "Đã xóa {{count}} loại sản phẩm",
+      "bulkDeleteError": "Lỗi khi xóa loại sản phẩm",
+      "exported": "Đã xuất dữ liệu",
+      "exportError": "Lỗi khi xuất dữ liệu"
+    },
+    "confirmDelete": {
+      "header": "Xác nhận xóa",
+      "message": "Bạn có chắc chắn muốn xóa loại sản phẩm \"{{name}}\"?"
+    },
+    "confirmBulkDelete": {
+      "header": "Xác nhận xóa",
+      "message": "Bạn có chắc chắn muốn xóa {{count}} loại sản phẩm đã chọn?"
+    },
+    "noData": "Không có dữ liệu"
+  },
+  "productTypeForm": {
+    "title": {
+      "create": "Tạo Loại Sản phẩm",
+      "edit": "Chỉnh sửa Loại Sản phẩm",
+      "view": "Xem Loại Sản phẩm"
+    },
+    "subtitle": "Chi tiết loại sản phẩm",
+    "sections": {
+      "basic": "Thông tin cơ bản",
+      "attributes": "Thuộc tính tùy chỉnh"
+    },
+    "fields": {
+      "code": {
+        "label": "Mã",
+        "placeholder": "Nhập mã loại sản phẩm",
+        "errors": {
+          "required": "Mã là bắt buộc",
+          "minlength": "Mã phải có ít nhất 2 ký tự",
+          "maxlength": "Mã không được vượt quá 50 ký tự"
+        }
+      },
+      "name": {
+        "label": "Tên",
+        "placeholder": "Nhập tên loại sản phẩm",
+        "errors": {
+          "required": "Tên là bắt buộc",
+          "minlength": "Tên phải có ít nhất 2 ký tự",
+          "maxlength": "Tên không được vượt quá 100 ký tự"
+        }
+      },
+      "description": {
+        "label": "Mô tả",
+        "placeholder": "Nhập mô tả",
+        "errors": {
+          "maxlength": "Mô tả không được vượt quá 500 ký tự"
+        }
+      },
+      "isActive": {
+        "label": "Đang hoạt động"
+      }
+    },
+    "attributes": {
+      "add": "Thêm thuộc tính",
+      "addFirst": "Thêm thuộc tính đầu tiên",
+      "remove": "Xóa thuộc tính",
+      "empty": "Chưa có thuộc tính nào. Nhấn nút Thêm để tạo.",
+      "attribute": "Thuộc tính",
+      "fields": {
+        "name": {
+          "label": "Tên thuộc tính",
+          "placeholder": "VD: màu sắc",
+          "errors": {
+            "required": "Tên là bắt buộc"
+          }
+        },
+        "type": {
+          "label": "Kiểu dữ liệu",
+          "placeholder": "Chọn kiểu dữ liệu"
+        },
+        "label": {
+          "label": "Nhãn hiển thị",
+          "placeholder": "VD: Màu sắc sản phẩm"
+        },
+        "description": {
+          "label": "Mô tả",
+          "placeholder": "Mô tả thuộc tính"
+        },
+        "required": {
+          "label": "Bắt buộc"
+        },
+        "options": {
+          "label": "Tùy chọn (cho kiểu Select)",
+          "placeholder": "VD: Đỏ, Xanh, Vàng",
+          "hint": "Nhập các tùy chọn cách nhau bởi dấu phẩy"
+        },
+        "defaultValue": {
+          "label": "Giá trị mặc định",
+          "placeholder": "Nhập giá trị mặc định"
+        }
+      }
+    },
+    "messages": {
+      "created": "Đã tạo loại sản phẩm thành công",
+      "updated": "Đã cập nhật loại sản phẩm thành công",
+      "saveError": "Lỗi khi lưu loại sản phẩm",
+      "validationError": "Vui lòng kiểm tra lại thông tin"
+    }
   }
 }

@@ -1951,5 +1951,146 @@
       "payload": "Datos / Cambios",
       "metadata": "Metadatos"
     }
+  },
+  "productTypeList": {
+    "title": "Gestión de Tipos de Producto",
+    "scope": {
+      "placeholder": "Alcance",
+      "all": "Todos",
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "search": {
+      "placeholder": "Buscar por código, nombre..."
+    },
+    "columns": {
+      "code": "Código",
+      "name": "Nombre",
+      "description": "Descripción",
+      "status": "Estado",
+      "attributes": "Atributos",
+      "updatedAt": "Actualizado",
+      "actions": "Acciones"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "actions": {
+      "new": "Nuevo",
+      "view": "Ver",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "refresh": "Actualizar",
+      "exportCSV": "Exportar CSV",
+      "bulkActions": "Acciones masivas"
+    },
+    "messages": {
+      "refreshed": "Lista actualizada",
+      "refreshError": "Error al actualizar lista",
+      "deleted": "Tipo de producto eliminado",
+      "deleteError": "Error al eliminar tipo de producto",
+      "bulkDeleted": "{{count}} tipos de producto eliminados",
+      "bulkDeleteError": "Error al eliminar tipos de producto",
+      "exported": "Datos exportados",
+      "exportError": "Error al exportar datos"
+    },
+    "confirmDelete": {
+      "header": "Confirmar eliminación",
+      "message": "¿Está seguro de que desea eliminar el tipo de producto \"{{name}}\"?"
+    },
+    "confirmBulkDelete": {
+      "header": "Confirmar eliminación",
+      "message": "¿Está seguro de que desea eliminar {{count}} tipos de producto seleccionados?"
+    },
+    "noData": "No hay datos disponibles"
+  },
+  "productTypeForm": {
+    "title": {
+      "create": "Crear Tipo de Producto",
+      "edit": "Editar Tipo de Producto",
+      "view": "Ver Tipo de Producto"
+    },
+    "subtitle": "Detalles del tipo de producto",
+    "sections": {
+      "basic": "Información básica",
+      "attributes": "Atributos personalizados"
+    },
+    "fields": {
+      "code": {
+        "label": "Código",
+        "placeholder": "Ingrese el código del tipo de producto",
+        "errors": {
+          "required": "El código es obligatorio",
+          "minlength": "El código debe tener al menos 2 caracteres",
+          "maxlength": "El código no puede exceder los 50 caracteres"
+        }
+      },
+      "name": {
+        "label": "Nombre",
+        "placeholder": "Ingrese el nombre del tipo de producto",
+        "errors": {
+          "required": "El nombre es obligatorio",
+          "minlength": "El nombre debe tener al menos 2 caracteres",
+          "maxlength": "El nombre no puede exceder los 100 caracteres"
+        }
+      },
+      "description": {
+        "label": "Descripción",
+        "placeholder": "Ingrese la descripción",
+        "errors": {
+          "maxlength": "La descripción no puede exceder los 500 caracteres"
+        }
+      },
+      "isActive": {
+        "label": "Activo"
+      }
+    },
+    "attributes": {
+      "add": "Agregar Atributo",
+      "addFirst": "Agregar Primer Atributo",
+      "remove": "Eliminar Atributo",
+      "empty": "Aún no hay atributos. Haga clic en Agregar para crear uno.",
+      "attribute": "Atributo",
+      "fields": {
+        "name": {
+          "label": "Nombre del Atributo",
+          "placeholder": "ej. color",
+          "errors": {
+            "required": "El nombre es obligatorio"
+          }
+        },
+        "type": {
+          "label": "Tipo de Dato",
+          "placeholder": "Seleccione el tipo de dato"
+        },
+        "label": {
+          "label": "Etiqueta de Visualización",
+          "placeholder": "ej. Color del Producto"
+        },
+        "description": {
+          "label": "Descripción",
+          "placeholder": "Describa este atributo"
+        },
+        "required": {
+          "label": "Obligatorio"
+        },
+        "options": {
+          "label": "Opciones (para tipo Select)",
+          "placeholder": "ej. Rojo, Azul, Amarillo",
+          "hint": "Ingrese opciones separadas por comas"
+        },
+        "defaultValue": {
+          "label": "Valor Predeterminado",
+          "placeholder": "Ingrese el valor predeterminado"
+        }
+      }
+    },
+    "messages": {
+      "created": "Tipo de producto creado exitosamente",
+      "updated": "Tipo de producto actualizado exitosamente",
+      "saveError": "Error al guardar el tipo de producto",
+      "validationError": "Por favor revise el formulario"
+    }
   }
 }

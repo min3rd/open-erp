@@ -2228,5 +2228,146 @@
       "payload": "Payload / Changes",
       "metadata": "Metadata"
     }
+  },
+  "productTypeList": {
+    "title": "Product Type Management",
+    "scope": {
+      "placeholder": "Scope",
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "search": {
+      "placeholder": "Search by code, name..."
+    },
+    "columns": {
+      "code": "Code",
+      "name": "Name",
+      "description": "Description",
+      "status": "Status",
+      "attributes": "Attributes",
+      "updatedAt": "Updated",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "new": "New",
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete",
+      "refresh": "Refresh",
+      "exportCSV": "Export CSV",
+      "bulkActions": "Bulk Actions"
+    },
+    "messages": {
+      "refreshed": "List refreshed",
+      "refreshError": "Error refreshing list",
+      "deleted": "Product type deleted",
+      "deleteError": "Error deleting product type",
+      "bulkDeleted": "Deleted {{count}} product types",
+      "bulkDeleteError": "Error deleting product types",
+      "exported": "Data exported",
+      "exportError": "Error exporting data"
+    },
+    "confirmDelete": {
+      "header": "Confirm Delete",
+      "message": "Are you sure you want to delete product type \"{{name}}\"?"
+    },
+    "confirmBulkDelete": {
+      "header": "Confirm Delete",
+      "message": "Are you sure you want to delete {{count}} selected product types?"
+    },
+    "noData": "No data available"
+  },
+  "productTypeForm": {
+    "title": {
+      "create": "Create Product Type",
+      "edit": "Edit Product Type",
+      "view": "View Product Type"
+    },
+    "subtitle": "Product type details",
+    "sections": {
+      "basic": "Basic Information",
+      "attributes": "Custom Attributes"
+    },
+    "fields": {
+      "code": {
+        "label": "Code",
+        "placeholder": "Enter product type code",
+        "errors": {
+          "required": "Code is required",
+          "minlength": "Code must be at least 2 characters",
+          "maxlength": "Code cannot exceed 50 characters"
+        }
+      },
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter product type name",
+        "errors": {
+          "required": "Name is required",
+          "minlength": "Name must be at least 2 characters",
+          "maxlength": "Name cannot exceed 100 characters"
+        }
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter description",
+        "errors": {
+          "maxlength": "Description cannot exceed 500 characters"
+        }
+      },
+      "isActive": {
+        "label": "Active"
+      }
+    },
+    "attributes": {
+      "add": "Add Attribute",
+      "addFirst": "Add First Attribute",
+      "remove": "Remove Attribute",
+      "empty": "No attributes yet. Click Add to create one.",
+      "attribute": "Attribute",
+      "fields": {
+        "name": {
+          "label": "Attribute Name",
+          "placeholder": "e.g. color",
+          "errors": {
+            "required": "Name is required"
+          }
+        },
+        "type": {
+          "label": "Data Type",
+          "placeholder": "Select data type"
+        },
+        "label": {
+          "label": "Display Label",
+          "placeholder": "e.g. Product Color"
+        },
+        "description": {
+          "label": "Description",
+          "placeholder": "Describe this attribute"
+        },
+        "required": {
+          "label": "Required"
+        },
+        "options": {
+          "label": "Options (for Select type)",
+          "placeholder": "e.g. Red, Blue, Yellow",
+          "hint": "Enter comma-separated options"
+        },
+        "defaultValue": {
+          "label": "Default Value",
+          "placeholder": "Enter default value"
+        }
+      }
+    },
+    "messages": {
+      "created": "Product type created successfully",
+      "updated": "Product type updated successfully",
+      "saveError": "Error saving product type",
+      "validationError": "Please check the form"
+    }
   }
 }
