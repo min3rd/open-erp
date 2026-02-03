@@ -81,7 +81,7 @@ export interface ImportResult {
 })
 export class ProductCategoryService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${API_URI_INVENTORY}/config/product-categories`;
+  private readonly baseUrl = `${API_URI_INVENTORY}/v1/config/product-categories`;
 
   /**
    * Get all product categories with filtering and pagination
