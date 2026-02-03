@@ -2177,18 +2177,23 @@
         }
       }
     },
-    "buttons": {
+    "actions": {
       "save": "Save",
       "cancel": "Cancel",
       "close": "Close",
       "saving": "Saving..."
     },
     "messages": {
+      "error": "Error",
+      "success": "Success",
       "createSuccess": "Category created successfully",
       "createError": "Failed to create category",
       "updateSuccess": "Category updated successfully",
       "updateError": "Failed to update category",
-      "loadError": "Failed to load category"
+      "loadError": "Failed to load category",
+      "validationFailed": "Validation failed",
+      "invalidJson": "Invalid JSON format",
+      "saveFailed": "Failed to save category"
     }
   },
   "administrativeUnit": {

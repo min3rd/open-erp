@@ -590,18 +590,23 @@
         }
       }
     },
-    "buttons": {
+    "actions": {
       "save": "Lưu",
       "cancel": "Hủy",
       "close": "Đóng",
       "saving": "Đang lưu..."
     },
     "messages": {
+      "error": "Lỗi",
+      "success": "Thành công",
       "createSuccess": "Tạo danh mục thành công",
       "createError": "Tạo danh mục thất bại",
       "updateSuccess": "Cập nhật danh mục thành công",
       "updateError": "Cập nhật danh mục thất bại",
-      "loadError": "Tải danh mục thất bại"
+      "loadError": "Tải danh mục thất bại",
+      "validationFailed": "Xác thực thất bại",
+      "invalidJson": "Định dạng JSON không hợp lệ",
+      "saveFailed": "Lưu danh mục thất bại"
     }
   },
   "administrativeUnit": {
