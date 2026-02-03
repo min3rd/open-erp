@@ -19,9 +19,9 @@ import { Subject, takeUntil, forkJoin, of } from 'rxjs';
 import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToolbarModule } from 'primeng/toolbar';
 import { MenuModule } from 'primeng/menu';
-import { Menu } from 'primeng/menu';
+import { ContextMenuModule } from 'primeng/contextmenu';
+import { ContextMenu } from 'primeng/contextmenu';
 import { TooltipModule } from 'primeng/tooltip';
 import { Select } from 'primeng/select';
 import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constant';
@@ -55,8 +55,8 @@ interface ScopeOption {
     TableModule,
     ButtonModule,
     InputTextModule,
-    ToolbarModule,
     MenuModule,
+    ContextMenuModule,
     TooltipModule,
     Select,
     PaginationComponent,
@@ -70,7 +70,7 @@ interface ScopeOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductTypeList implements OnInit, OnDestroy {
-  @ViewChild('rowContextMenu') rowContextMenu?: Menu;
+  @ViewChild('cm') contextMenu?: ContextMenu;
   @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
 
   private router = inject(Router);
@@ -88,7 +88,8 @@ export class ProductTypeList implements OnInit, OnDestroy {
   // State signals
   protected readonly productTypes = signal<ProductType[]>([]);
   protected selectedProductTypesArray: ProductType[] = []; // For PrimeNG table binding
-  protected readonly selectedProductType = signal<ProductType | null>(null);
+  protected selectedProductType = signal<ProductType | null>(null);
+  protected selectedProductTypeForContextMenu: ProductType | null = null; // For p-contextMenu binding
   protected readonly isLoading = signal(false);
   protected readonly searchQuery = signal('');
   protected readonly currentScope = signal('all');
@@ -124,7 +125,7 @@ export class ProductTypeList implements OnInit, OnDestroy {
       items.push(
         { separator: true },
         {
-          label: this.translocoService.translate('productTypeList.actions.bulkDelete'),
+          label: this.translocoService.translate('productTypeList.actions.bulkDelete', { count: this.selectedProductTypesArray.length }),
           icon: 'pi pi-trash',
           command: () => this.onBulkDelete(),
         }
@@ -134,17 +135,21 @@ export class ProductTypeList implements OnInit, OnDestroy {
     return items;
   }
 
+  // Context menu items for the p-contextMenu component
   protected get contextMenuItems(): MenuItem[] {
+    const selected = this.selectedProductTypeForContextMenu;
+    if (!selected) return [];
+    
     return [
       {
         label: this.translocoService.translate('productTypeList.actions.view'),
         icon: 'pi pi-eye',
-        command: () => this.onView(),
+        command: () => this.onViewContextMenu(),
       },
       {
         label: this.translocoService.translate('productTypeList.actions.edit'),
         icon: 'pi pi-pencil',
-        command: () => this.onEdit(),
+        command: () => this.onEditContextMenu(),
       },
       {
         separator: true,
@@ -152,7 +157,7 @@ export class ProductTypeList implements OnInit, OnDestroy {
       {
         label: this.translocoService.translate('productTypeList.actions.delete'),
         icon: 'pi pi-trash',
-        command: () => this.onDelete(),
+        command: () => this.onDeleteContextMenu(),
       },
     ];
   }
@@ -307,10 +312,72 @@ export class ProductTypeList implements OnInit, OnDestroy {
   }
 
   /**
+   * Lazy load handler for table (handles pagination and sorting)
+   */
+  protected onLazyLoad(event: TableLazyLoadEvent): void {
+    const page = event.first !== undefined && event.rows ? Math.floor(event.first / event.rows) + 1 : 1;
+    const limit = event.rows || this.currentLimit();
+    
+    // Update sort state if present
+    if (event.sortField !== undefined) {
+      this.currentSortField.set(event.sortField as string);
+      this.currentSortOrder.set(event.sortOrder || 1);
+    }
+    
+    // Update page state
+    this.currentPage.set(page);
+    this.currentLimit.set(limit);
+    
+    // Load data from API with current filters and sort
+    this.isLoading.set(true);
+    const params: QueryProductTypeParams = {
+      page,
+      limit,
+      search: this.searchQuery() || undefined,
+      sortBy: this.currentSortField() || undefined,
+      sortOrder: this.currentSortOrder() === 1 ? 'ASC' : 'DESC',
+    };
+
+    // Add scope filter
+    const scope = this.currentScope();
+    if (scope === 'active') {
+      params.isActive = true;
+    } else if (scope === 'inactive') {
+      params.isActive = false;
+    }
+
+    this.productTypeService.getProductTypes(params).subscribe({
+      next: (result) => {
+        this.productTypes.set(result.items);
+        this.totalRecords.set(result.total);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translocoService.translate('common.error'),
+          detail: this.translocoService.translate('productTypeList.messages.loadError'),
+        });
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  /**
    * Open view form
    */
   protected onView(): void {
     const selected = this.selectedProductType();
+    if (selected) {
+      this.navigateToRoute({ action: 'view', id: selected.id });
+    }
+  }
+
+  /**
+   * Open view form from context menu
+   */
+  protected onViewContextMenu(): void {
+    const selected = this.selectedProductTypeForContextMenu;
     if (selected) {
       this.navigateToRoute({ action: 'view', id: selected.id });
     }
@@ -327,10 +394,55 @@ export class ProductTypeList implements OnInit, OnDestroy {
   }
 
   /**
+   * Open edit form from context menu
+   */
+  protected onEditContextMenu(): void {
+    const selected = this.selectedProductTypeForContextMenu;
+    if (selected) {
+      this.navigateToRoute({ action: 'edit', id: selected.id });
+    }
+  }
+
+  /**
    * Delete product type
    */
   protected onDelete(): void {
     const selected = this.selectedProductType();
+    if (!selected) return;
+
+    this.confirmationService.confirm({
+      message: this.translocoService.translate('productTypeList.confirmDelete.message', { name: selected.name }),
+      header: this.translocoService.translate('productTypeList.confirmDelete.header'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: this.translocoService.translate('common.yes'),
+      rejectLabel: this.translocoService.translate('common.no'),
+      accept: () => {
+        this.productTypeService.deleteProductType(selected.id).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: this.translocoService.translate('common.success'),
+              detail: this.translocoService.translate('productTypeList.messages.deleted'),
+            });
+            this.onRefresh();
+          },
+          error: () => {
+            this.messageService.add({
+              severity: 'error',
+              summary: this.translocoService.translate('common.error'),
+              detail: this.translocoService.translate('productTypeList.messages.deleteError'),
+            });
+          }
+        });
+      },
+    });
+  }
+
+  /**
+   * Delete product type from context menu
+   */
+  protected onDeleteContextMenu(): void {
+    const selected = this.selectedProductTypeForContextMenu;
     if (!selected) return;
 
     this.confirmationService.confirm({
@@ -465,49 +577,29 @@ export class ProductTypeList implements OnInit, OnDestroy {
   }
 
   /**
-   * Get routerLink for new action
+   * Navigate to view
    */
-  protected getNewRouteLink(): string[] {
-    const scope = this.currentScope();
-    const search = this.searchQuery() || '-';
-    const page = this.currentPage();
-    const limit = this.currentLimit();
-    return ['/management', 'product-type', scope, search, page.toString(), limit.toString(), 'new'];
+  protected navigateToView(productType: ProductType): void {
+    this.navigateToRoute({ action: 'view', id: productType.id });
   }
 
   /**
-   * Navigate to view with routerLink
+   * Navigate to edit
    */
-  protected navigateToView(id: string): void {
-    const scope = this.currentScope();
-    const search = this.searchQuery() || '-';
-    const page = this.currentPage();
-    const limit = this.currentLimit();
-    this.router.navigate(['/management', 'product-type', scope, search, page.toString(), limit.toString(), id, 'view']);
+  protected navigateToEdit(productType: ProductType): void {
+    this.navigateToRoute({ action: 'edit', id: productType.id });
   }
 
   /**
-   * Context menu show handler
+   * Get routerLink for new action - removed, use static array in template
    */
-  protected onContextMenu(event: MouseEvent, productType: ProductType): void {
-    this.selectedProductType.set(productType);
-    this.rowContextMenu?.show(event);
-    event.preventDefault();
-  }
-
-  /**
-   * Row menu button click handler
-   */
-  protected onRowMenuClick(event: Event, productType: ProductType): void {
-    this.selectedProductType.set(productType);
-    event.stopPropagation();
-  }
 
   /**
    * Row select handler
    */
   protected onRowSelect(productType: ProductType): void {
     this.selectedProductType.set(productType);
+  }
   }
 
   /**

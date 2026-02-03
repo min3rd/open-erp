@@ -1,108 +1,108 @@
 <!-- Desktop View -->
 @if (!isMobile()) {
   <div id="product-type-list-container" class="flex h-full flex-col">
-    <!-- Compact Toolbar -->
-    <div class="p-2 border-b border-surface-200 dark:border-surface-700">
-      <p-toolbar id="product-type-list-toolbar">
-        <ng-template #start>
-          <!-- Scope Selector -->
-          <p-select
-            id="product-type-list-scope-dropdown"
-            [options]="scopeOptions"
-            [ngModel]="currentScope()"
-            (ngModelChange)="onScopeChange($event)"
-            optionLabel="label"
-            optionValue="value"
-            [style]="{ width: '180px' }"
-            [attr.aria-label]="'productTypeList.scope.label' | transloco">
-            <ng-template let-option pTemplate="item">
-              {{ option.label | transloco }}
-            </ng-template>
-            <ng-template let-option pTemplate="selectedItem">
-              {{ option.label | transloco }}
-            </ng-template>
-          </p-select>
-          
-          <!-- Search Input -->
-          <p-inputgroup class="ml-2">
-            <p-inputgroup-addon>
-              <i class="pi pi-search"></i>
-            </p-inputgroup-addon>
-            <input
-              id="product-type-list-search"
-              pInputText
-              type="text"
-              [ngModel]="searchQuery()"
-              (ngModelChange)="searchQuery.set($event)"
-              (keyup.enter)="onSearch()"
-              [placeholder]="'productTypeList.search.placeholder' | transloco"
-              class="w-80"
-              [attr.aria-label]="'productTypeList.search.label' | transloco"
-            />
-          </p-inputgroup>
-        </ng-template>
-
-        <ng-template #end>
-          <!-- Result Count -->
-          <span id="product-type-list-count" class="text-sm text-surface-600 dark:text-surface-400 mr-4">
-            {{ 'productTypeList.resultCount' | transloco: { count: totalRecords() } }}
-          </span>
-
-          <!-- Add New Button -->
-          <p-button
-            id="product-type-list-add-button"
-            icon="pi pi-plus"
-            [rounded]="true"
-            [text]="true"
-            severity="primary"
-            [routerLink]="getNewRouteLink()"
-            [pTooltip]="'productTypeList.actions.new' | transloco"
-            tooltipPosition="bottom"
-            [attr.aria-label]="'productTypeList.actions.new' | transloco"
+    <!-- Compact Toolbar - Single Line -->
+    <div id="product-type-list-toolbar" class="flex items-center justify-between gap-2 px-3 py-2 border-b border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900">
+      <div class="flex items-center gap-2">
+        <!-- Scope Selector -->
+        <p-select
+          id="product-type-list-scope-dropdown"
+          [options]="scopeOptions"
+          [ngModel]="currentScope()"
+          (ngModelChange)="onScopeChange($event)"
+          optionLabel="label"
+          optionValue="value"
+          [style]="{ width: '150px' }"
+          [attr.aria-label]="'productTypeList.scope.label' | transloco">
+          <ng-template let-option pTemplate="item">
+            {{ option.label | transloco }}
+          </ng-template>
+          <ng-template let-option pTemplate="selectedItem">
+            {{ option.label | transloco }}
+          </ng-template>
+        </p-select>
+        
+        <!-- Search Input -->
+        <p-inputgroup [style]="{ width: '300px' }">
+          <p-inputgroup-addon>
+            <i class="pi pi-search"></i>
+          </p-inputgroup-addon>
+          <input
+            id="product-type-list-search"
+            pInputText
+            type="text"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            (keyup.enter)="onSearch()"
+            [placeholder]="'productTypeList.search.placeholder' | transloco"
+            [attr.aria-label]="'productTypeList.search.label' | transloco"
           />
+        </p-inputgroup>
+      </div>
 
-          <!-- Refresh Button -->
-          <p-button
-            id="product-type-list-refresh-button"
-            icon="pi pi-refresh"
-            [rounded]="true"
-            [text]="true"
-            (onClick)="onRefresh()"
-            [pTooltip]="'productTypeList.actions.refresh' | transloco"
-            tooltipPosition="bottom"
-            [attr.aria-label]="'productTypeList.actions.refresh' | transloco"
-          />
+      <div class="flex items-center gap-2">
+        <!-- Result Count -->
+        <span id="product-type-list-count" class="text-sm text-surface-600 dark:text-surface-400">
+          {{ 'productTypeList.resultCount' | transloco: { count: totalRecords() } }}
+        </span>
 
-          <!-- Actions Menu -->
-          <p-button
-            id="product-type-list-actions-button"
-            icon="pi pi-ellipsis-v"
-            [rounded]="true"
-            [text]="true"
-            (onClick)="actionMenu.toggle($event)"
-            [attr.aria-label]="'productTypeList.actions.label' | transloco"
-            aria-haspopup="true"
-            aria-controls="product-type-list-actions-menu"
-          />
-          <p-menu
-            #actionMenu
-            id="product-type-list-actions-menu"
-            [model]="actionMenuItems"
-            [popup]="true"
-            appendTo="body"
-          />
-        </ng-template>
-      </p-toolbar>
+        <!-- Add New Button -->
+        <p-button
+          id="product-type-list-add-button"
+          icon="pi pi-plus"
+          [rounded]="true"
+          [text]="true"
+          severity="primary"
+          [routerLink]="['new']"
+          [pTooltip]="'productTypeList.actions.new' | transloco"
+          tooltipPosition="bottom"
+          [attr.aria-label]="'productTypeList.actions.new' | transloco"
+        />
+
+        <!-- Refresh Button -->
+        <p-button
+          id="product-type-list-refresh-button"
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="onRefresh()"
+          [pTooltip]="'productTypeList.actions.refresh' | transloco"
+          tooltipPosition="bottom"
+          [attr.aria-label]="'productTypeList.actions.refresh' | transloco"
+        />
+
+        <!-- Actions Menu -->
+        <p-button
+          id="product-type-list-actions-button"
+          icon="pi pi-ellipsis-v"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="actionMenu.toggle($event)"
+          [attr.aria-label]="'productTypeList.actions.label' | transloco"
+          aria-haspopup="true"
+          aria-controls="product-type-list-actions-menu"
+        />
+        <p-menu
+          #actionMenu
+          id="product-type-list-actions-menu"
+          [model]="actionMenuItems"
+          [popup]="true"
+          appendTo="body"
+        />
+      </div>
     </div>
 
     <!-- Table with built-in pagination -->
     <div class="flex-1 overflow-auto">
       <p-table
+        #productTypeTable
         id="product-type-list-table"
         [value]="productTypes()"
         [loading]="isLoading()"
         [rowHover]="true"
         [(selection)]="selectedProductTypesArray"
+        [(contextMenuSelection)]="selectedProductTypeForContextMenu"
+        [contextMenu]="cm"
         dataKey="id"
         styleClass="p-datatable-sm"
         responsiveLayout="scroll"
@@ -150,7 +150,7 @@
         <ng-template pTemplate="body" let-productType>
           <tr 
             [id]="'product-type-list-row-' + productType.id"
-            (contextmenu)="onContextMenu($event, productType)"
+            [pContextMenuRow]="productType"
             (click)="onRowSelect(productType)"
             class="cursor-pointer"
             [class.bg-primary-50]="selectedProductType()?.id === productType.id"
@@ -181,15 +181,24 @@
               <span class="text-sm">{{ productType.updatedAt | date:'short' }}</span>
             </td>
             <td (click)="$event.stopPropagation()">
-              <p-button
-                [id]="'product-type-list-row-menu-' + productType.id"
-                icon="pi pi-ellipsis-v"
-                [rounded]="true"
-                [text]="true"
-                size="small"
-                (onClick)="onRowMenuClick($event, productType)"
-                [attr.aria-label]="'productTypeList.actions.rowActions' | transloco"
-              />
+              <div class="flex gap-1">
+                <p-button
+                  icon="pi pi-eye"
+                  [rounded]="true"
+                  [text]="true"
+                  size="small"
+                  (onClick)="navigateToView(productType)"
+                  [pTooltip]="'productTypeList.actions.view' | transloco"
+                />
+                <p-button
+                  icon="pi pi-pencil"
+                  [rounded]="true"
+                  [text]="true"
+                  size="small"
+                  (onClick)="navigateToEdit(productType)"
+                  [pTooltip]="'productTypeList.actions.edit' | transloco"
+                />
+              </div>
             </td>
           </tr>
         </ng-template>
@@ -214,11 +223,10 @@
     </div>
 
     <!-- Context Menu -->
-    <p-menu
-      #rowContextMenu
+    <p-contextMenu
+      #cm
       id="product-type-list-context-menu"
       [model]="contextMenuItems"
-      [popup]="true"
       appendTo="body"
     />
   </div>
@@ -341,7 +349,7 @@
       severity="primary"
       class="fixed bottom-20 right-4 shadow-lg"
       [style]="{ width: '3.5rem', height: '3.5rem' }"
-      [routerLink]="getNewRouteLink()"
+      [routerLink]="['new']"
       [attr.aria-label]="'productTypeList.actions.new' | transloco"
     />
   </div>

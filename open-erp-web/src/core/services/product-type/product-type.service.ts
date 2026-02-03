@@ -61,6 +61,8 @@ export interface QueryProductTypeParams {
   limit?: number;
   isActive?: boolean;
   search?: string;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC';
 }
 
 /**
