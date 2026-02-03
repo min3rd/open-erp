@@ -46,6 +46,23 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - For server-side pagination, use `[lazy]="true"` with `(onLazyLoad)` event handler
 - Do NOT use separate custom pagination components for tables - the table's paginator is designed to work seamlessly with table features
 
+- **ENFORCED RULE**: Always use the `p-table` paginator. Do not implement external/custom pagination controls that bypass or replace the table's built-in paginator — this ensures correct interaction with sorting, selection, column virtualization, and lazy loading.
+
+Example (client-side):
+```html
+<p-table [value]="items" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,20,50]">
+  <ng-template #header>...</ng-template>
+  <ng-template #body let-item>...</ng-template>
+</p-table>
+```
+
+Example (server-side lazy):
+```html
+<p-table [value]="items" [paginator]="true" [rows]="20" [totalRecords]="total" [lazy]="true" (onLazyLoad)="loadData($event)">
+  <!-- columns -->
+</p-table>
+```
+
 ## Accessibility Requirements
 
 - It MUST pass all AXE checks.
