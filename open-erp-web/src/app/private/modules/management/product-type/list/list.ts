@@ -101,7 +101,12 @@ export class ProductTypeList implements OnInit, OnDestroy {
     { field: 'name', header: 'productTypeList.table.name', sortable: true },
     { field: 'description', header: 'productTypeList.table.description', sortable: false },
     { field: 'isActive', header: 'productTypeList.table.status', sortable: true, width: '100px' },
-    { field: 'createdAt', header: 'productTypeList.table.createdAt', sortable: true, width: '180px' },
+    {
+      field: 'createdAt',
+      header: 'productTypeList.table.createdAt',
+      sortable: true,
+      width: '180px',
+    },
   ];
   protected selectedColumns: ColumnDef[] = [...this.columnOptions];
 
@@ -382,9 +387,12 @@ export class ProductTypeList implements OnInit, OnDestroy {
                 this.messageService.add({
                   severity: errors > 0 ? 'warn' : 'success',
                   summary: this.translocoService.translate('productTypeList.messages.success'),
-                  detail: this.translocoService.translate('productTypeList.messages.bulkDeleteSuccess', {
-                    count: completed,
-                  }),
+                  detail: this.translocoService.translate(
+                    'productTypeList.messages.bulkDeleteSuccess',
+                    {
+                      count: completed,
+                    },
+                  ),
                 });
                 this.selectedProductTypes = [];
                 this.onRefresh();
@@ -396,7 +404,9 @@ export class ProductTypeList implements OnInit, OnDestroy {
                 this.messageService.add({
                   severity: 'error',
                   summary: this.translocoService.translate('productTypeList.messages.error'),
-                  detail: this.translocoService.translate('productTypeList.messages.bulkDeleteFailed'),
+                  detail: this.translocoService.translate(
+                    'productTypeList.messages.bulkDeleteFailed',
+                  ),
                 });
                 this.onRefresh();
               }
@@ -505,8 +515,7 @@ export class ProductTypeList implements OnInit, OnDestroy {
         page: this.currentPage(),
         limit: this.pageSize(),
         search: this.searchQuery() || undefined,
-        sortField: this.sortField() || undefined,
-        sortOrder: this.sortOrder() === 1 ? 'asc' : this.sortOrder() === -1 ? 'desc' : undefined,
+        sort: new Map([[this.sortField(), this.sortOrder() as 1 | -1]]),
       })
       .subscribe({
         next: (data) => {

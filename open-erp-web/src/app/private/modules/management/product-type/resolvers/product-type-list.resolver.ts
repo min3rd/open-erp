@@ -22,6 +22,8 @@ export const productTypeListResolver: ResolveFn<ProductTypeListResponse | null> 
   const params: QueryProductTypeParams = {
     page,
     limit,
+    isActive: true,
+    sort: new Map<string, 1 | -1>([['name', 1]]),
   };
 
   // Add search if provided

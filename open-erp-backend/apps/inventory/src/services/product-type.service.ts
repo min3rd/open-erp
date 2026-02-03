@@ -48,8 +48,7 @@ export class ProductTypeService {
     limit?: number;
     isActive?: boolean;
     search?: string;
-    sortField?: string;
-    sortOrder?: 'asc' | 'desc';
+    sort?: Map<string, 1 | -1>;
   }): Promise<{
     items: ProductTypeDocument[];
     total: number;
@@ -61,9 +60,9 @@ export class ProductTypeService {
     const skip = (page - 1) * limit;
 
     // Build sort object - default to name ascending
-    const sortField = params.sortField || 'name';
-    const sortDirection = params.sortOrder === 'desc' ? -1 : 1;
-    const sort: Record<string, 1 | -1> = { [sortField]: sortDirection };
+    const _sort: Record<string, 1 | -1> = JSON.parse(
+      (params.sort as any) || '{"name":1}',
+    );
 
     const filter: Record<string, any> = {};
     if (params.isActive !== undefined) {
@@ -74,13 +73,17 @@ export class ProductTypeService {
     let total: number;
 
     if (params.search) {
-      items = await this.repository.search(params.search, { skip, limit, sort });
+      items = await this.repository.search(params.search, {
+        skip,
+        limit,
+        sort: _sort,
+      });
       total = await this.repository.searchCount(params.search);
     } else {
       items = await this.repository.findAll(filter, {
         skip,
         limit,
-        sort,
+        sort: _sort,
       });
       total = await this.repository.count(filter);
     }

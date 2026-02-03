@@ -60,8 +60,7 @@ export interface QueryProductTypeParams {
   limit?: number;
   isActive?: boolean;
   search?: string;
-  sortField?: string;
-  sortOrder?: 'asc' | 'desc';
+  sort?: Map<string, 1 | -1>;
 }
 
 /**
@@ -80,25 +79,29 @@ export class ProductTypeService {
    * GET /config/product-types
    */
   getProductTypes(
-    params: QueryProductTypeParams
+    params: QueryProductTypeParams,
   ): Observable<{ items: ProductType[]; total: number; page: number; limit: number }> {
     let httpParams = new HttpParams();
 
     if (params.page) httpParams = httpParams.set('page', params.page.toString());
     if (params.limit) httpParams = httpParams.set('limit', params.limit.toString());
-    if (params.isActive !== undefined) httpParams = httpParams.set('isActive', params.isActive.toString());
+    if (params.isActive !== undefined)
+      httpParams = httpParams.set('isActive', params.isActive.toString());
     if (params.search) httpParams = httpParams.set('search', params.search);
-    if (params.sortField) httpParams = httpParams.set('sortField', params.sortField);
-    if (params.sortOrder) httpParams = httpParams.set('sortOrder', params.sortOrder);
+    if (params.sort) {
+      httpParams = httpParams.set('sort', JSON.stringify(Object.fromEntries(params.sort)));
+    }
 
-    return this.http.get<ApiPaginatedResponse<ProductType>>(this.baseUrl, { params: httpParams }).pipe(
-      map((response) => ({
-        items: response.data?.items || [],
-        total: response.data?.total || 0,
-        page: response.data?.page || 1,
-        limit: response.data?.limit || 20,
-      }))
-    );
+    return this.http
+      .get<ApiPaginatedResponse<ProductType>>(this.baseUrl, { params: httpParams })
+      .pipe(
+        map((response) => ({
+          items: response.data?.items || [],
+          total: response.data?.total || 0,
+          page: response.data?.page || 1,
+          limit: response.data?.limit || 20,
+        })),
+      );
   }
 
   /**
@@ -126,16 +129,14 @@ export class ProductTypeService {
    * POST /config/product-types
    */
   createProductType(dto: CreateProductTypeDto): Observable<ProductType> {
-    return this.http
-      .post<ApiResponse<{ item: ProductType }>>(this.baseUrl, dto)
-      .pipe(
-        map((response) => {
-          if (!response.data?.item) {
-            throw new Error('No data returned from API');
-          }
-          return response.data.item;
-        })
-      );
+    return this.http.post<ApiResponse<{ item: ProductType }>>(this.baseUrl, dto).pipe(
+      map((response) => {
+        if (!response.data?.item) {
+          throw new Error('No data returned from API');
+        }
+        return response.data.item;
+      }),
+    );
   }
 
   /**
@@ -143,16 +144,14 @@ export class ProductTypeService {
    * PUT /config/product-types/:id
    */
   updateProductType(id: string, dto: UpdateProductTypeDto): Observable<ProductType> {
-    return this.http
-      .put<ApiResponse<{ item: ProductType }>>(`${this.baseUrl}/${id}`, dto)
-      .pipe(
-        map((response) => {
-          if (!response.data?.item) {
-            throw new Error('No data returned from API');
-          }
-          return response.data.item;
-        })
-      );
+    return this.http.put<ApiResponse<{ item: ProductType }>>(`${this.baseUrl}/${id}`, dto).pipe(
+      map((response) => {
+        if (!response.data?.item) {
+          throw new Error('No data returned from API');
+        }
+        return response.data.item;
+      }),
+    );
   }
 
   /**
@@ -177,7 +176,10 @@ export class ProductTypeService {
       pt.updatedAt || '',
     ]);
 
-    const csvContent = [headers.join(','), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n');
+    const csvContent = [
+      headers.join(','),
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
+    ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
