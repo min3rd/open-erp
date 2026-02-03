@@ -1772,6 +1772,143 @@
       "invalidLocation": "Invalid province or ward selection"
     }
   },
+  "productTypeList": {
+    "title": "Product Type Management",
+    "search": {
+      "label": "Search product types",
+      "placeholder": "Search by name or code...",
+      "openSearch": "Open search",
+      "closeSearch": "Close search"
+    },
+    "addButton": {
+      "label": "Add Product Type",
+      "tooltip": "Add new product type"
+    },
+    "refreshButton": {
+      "label": "Refresh",
+      "tooltip": "Refresh list"
+    },
+    "actionsButton": {
+      "label": "Actions"
+    },
+    "actions": {
+      "exportCSV": "Export to CSV",
+      "import": "Import from CSV",
+      "deleteSelected": "Delete Selected"
+    },
+    "table": {
+      "code": "Code",
+      "name": "Name",
+      "description": "Description",
+      "status": "Status",
+      "createdAt": "Created At",
+      "rowActions": "Row actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "contextMenu": {
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "resultCount": "{{count}} product types",
+    "messages": {
+      "loading": "Loading product types...",
+      "noResults": "No product types found for '{{query}}'",
+      "noProductTypes": "No product types available",
+      "error": "Error",
+      "success": "Success",
+      "warning": "Warning",
+      "exportSuccess": "Export completed successfully",
+      "exportFailed": "Failed to export product types",
+      "importSuccess": "Successfully imported {{count}} product types",
+      "importPartial": "Imported {{success}} product types, {{error}} failed",
+      "importFailed": "Failed to import product types",
+      "deleteSuccess": "Product type {{name}} deleted successfully",
+      "deleteFailed": "Failed to delete product type",
+      "bulkDeleteSuccess": "{{count}} product types deleted successfully",
+      "bulkDeleteFailed": "Failed to delete product types"
+    },
+    "confirmDelete": {
+      "header": "Confirm Delete",
+      "message": "Are you sure you want to delete product type {{name}}?",
+      "accept": "Delete",
+      "reject": "Cancel"
+    },
+    "confirmBulkDelete": {
+      "header": "Confirm Bulk Delete",
+      "message": "Are you sure you want to delete {{count}} product types?"
+    }
+  },
+  "productTypeForm": {
+    "title": {
+      "new": "Add Product Type",
+      "edit": "Edit Product Type",
+      "view": "View Product Type"
+    },
+    "sections": {
+      "attributes": "Custom Attributes"
+    },
+    "fields": {
+      "code": {
+        "label": "Code",
+        "placeholder": "Enter unique code (e.g., raw_material)",
+        "errors": {
+          "required": "Code is required",
+          "minlength": "Code must be at least 2 characters",
+          "maxlength": "Code cannot exceed 50 characters"
+        }
+      },
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter display name",
+        "errors": {
+          "required": "Name is required",
+          "minlength": "Name must be at least 2 characters"
+        }
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter description (optional)"
+      },
+      "isActive": {
+        "label": "Active"
+      }
+    },
+    "attribute": {
+      "title": "Attribute",
+      "name": "Name",
+      "namePlaceholder": "Enter attribute name",
+      "type": "Type",
+      "typePlaceholder": "Select type",
+      "label": "Label",
+      "labelPlaceholder": "Display label",
+      "required": "Required",
+      "options": "Options",
+      "optionsPlaceholder": "Option1, Option2, Option3",
+      "optionsHint": "Enter comma-separated values for select options",
+      "defaultValue": "Default Value",
+      "defaultValuePlaceholder": "Enter default value"
+    },
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "addAttribute": "Add Attribute",
+      "removeAttribute": "Remove attribute"
+    },
+    "messages": {
+      "error": "Error",
+      "success": "Success",
+      "createSuccess": "Product type created successfully",
+      "updateSuccess": "Product type updated successfully",
+      "saveFailed": "Failed to save product type",
+      "validationFailed": "Please fill in all required fields",
+      "noAttributes": "No custom attributes defined. Click 'Add Attribute' to create one."
+    }
+  },
   "formEditor": {
     "title": "Form Editor",
     "toolbar": {
