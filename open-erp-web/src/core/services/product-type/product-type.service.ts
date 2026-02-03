@@ -60,6 +60,8 @@ export interface QueryProductTypeParams {
   limit?: number;
   isActive?: boolean;
   search?: string;
+  sortField?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 /**
@@ -86,6 +88,8 @@ export class ProductTypeService {
     if (params.limit) httpParams = httpParams.set('limit', params.limit.toString());
     if (params.isActive !== undefined) httpParams = httpParams.set('isActive', params.isActive.toString());
     if (params.search) httpParams = httpParams.set('search', params.search);
+    if (params.sortField) httpParams = httpParams.set('sortField', params.sortField);
+    if (params.sortOrder) httpParams = httpParams.set('sortOrder', params.sortOrder);
 
     return this.http.get<ApiPaginatedResponse<ProductType>>(this.baseUrl, { params: httpParams }).pipe(
       map((response) => ({
