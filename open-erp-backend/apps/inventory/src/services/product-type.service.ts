@@ -41,13 +41,15 @@ export class ProductTypeService {
   }
 
   /**
-   * Get all product types with pagination and filters
+   * Get all product types with pagination, filters, and sorting
    */
   async findAll(params: {
     page?: number;
     limit?: number;
     isActive?: boolean;
     search?: string;
+    sortField?: string;
+    sortOrder?: 'asc' | 'desc';
   }): Promise<{
     items: ProductTypeDocument[];
     total: number;
@@ -58,6 +60,11 @@ export class ProductTypeService {
     const limit = params.limit || 20;
     const skip = (page - 1) * limit;
 
+    // Build sort object - default to name ascending
+    const sortField = params.sortField || 'name';
+    const sortDirection = params.sortOrder === 'desc' ? -1 : 1;
+    const sort: Record<string, 1 | -1> = { [sortField]: sortDirection };
+
     const filter: Record<string, any> = {};
     if (params.isActive !== undefined) {
       filter.isActive = params.isActive;
@@ -67,13 +74,13 @@ export class ProductTypeService {
     let total: number;
 
     if (params.search) {
-      items = await this.repository.search(params.search, { skip, limit });
+      items = await this.repository.search(params.search, { skip, limit, sort });
       total = items.length; // For text search, we approximate
     } else {
       items = await this.repository.findAll(filter, {
         skip,
         limit,
-        sort: { name: 1 },
+        sort,
       });
       total = await this.repository.count(filter);
     }

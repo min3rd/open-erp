@@ -497,7 +497,6 @@ export class ProductTypeList implements OnInit, OnDestroy {
 
   /**
    * Refresh product type list
-   * Note: Backend API doesn't support sorting, so we only pass page, limit, search
    */
   protected onRefresh(): void {
     this.isLoading.set(true);
@@ -506,6 +505,8 @@ export class ProductTypeList implements OnInit, OnDestroy {
         page: this.currentPage(),
         limit: this.pageSize(),
         search: this.searchQuery() || undefined,
+        sortField: this.sortField(),
+        sortOrder: this.sortOrder() === 1 ? 'asc' : 'desc',
       })
       .subscribe({
         next: (data) => {
