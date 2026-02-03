@@ -75,7 +75,7 @@ export class ProductTypeService {
 
     if (params.search) {
       items = await this.repository.search(params.search, { skip, limit, sort });
-      total = items.length; // For text search, we approximate
+      total = await this.repository.searchCount(params.search);
     } else {
       items = await this.repository.findAll(filter, {
         skip,

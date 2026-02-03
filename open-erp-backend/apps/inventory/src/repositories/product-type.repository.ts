@@ -150,4 +150,11 @@ export class ProductTypeRepository {
 
     return query.exec();
   }
+
+  /**
+   * Count search results
+   */
+  async searchCount(searchTerm: string): Promise<number> {
+    return this.model.countDocuments({ $text: { $search: searchTerm } }).exec();
+  }
 }
