@@ -129,7 +129,7 @@ export class ProductTypeController {
     @Query('limit') limit?: number,
     @Query('isActive') isActive?: boolean,
     @Query('search') search?: string,
-    @Query('sort') sort?: Map<string, 1 | -1>,
+    @Query('sort') sort?: string,
   ) {
     try {
       const result = await this.productTypeService.findAll({

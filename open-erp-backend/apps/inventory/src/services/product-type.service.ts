@@ -48,7 +48,7 @@ export class ProductTypeService {
     limit?: number;
     isActive?: boolean;
     search?: string;
-    sort?: Map<string, 1 | -1>;
+    sort?: string;
   }): Promise<{
     items: ProductTypeDocument[];
     total: number;
@@ -60,9 +60,15 @@ export class ProductTypeService {
     const skip = (page - 1) * limit;
 
     // Build sort object - default to name ascending
-    const _sort: Record<string, 1 | -1> = JSON.parse(
-      (params.sort as any) || '{"name":1}',
-    );
+    let _sort: Record<string, 1 | -1> = { name: 1 };
+    if (params.sort) {
+      try {
+        _sort = JSON.parse(params.sort);
+      } catch (err) {
+        // If JSON parse fails, use default sort
+        _sort = { name: 1 };
+      }
+    }
 
     const filter: Record<string, any> = {};
     if (params.isActive !== undefined) {
