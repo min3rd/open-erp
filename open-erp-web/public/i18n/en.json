@@ -2196,6 +2196,156 @@
       "saveFailed": "Failed to save category"
     }
   },
+  "productList": {
+    "title": "Product Management",
+    "search": {
+      "label": "Search products",
+      "placeholder": "Search by name, SKU, or barcode...",
+      "openSearch": "Open search",
+      "closeSearch": "Close search"
+    },
+    "addButton": {
+      "label": "Add Product",
+      "tooltip": "Add new product"
+    },
+    "refreshButton": {
+      "label": "Refresh",
+      "tooltip": "Refresh list"
+    },
+    "actionsButton": {
+      "label": "Actions"
+    },
+    "actions": {
+      "exportCSV": "Export to CSV",
+      "import": "Import from CSV",
+      "deleteSelected": "Delete Selected",
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "filter": {
+      "label": "Filter by status",
+      "placeholder": "Filter status",
+      "tooltip": "Filter products by status",
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive",
+      "draft": "Draft",
+      "discontinued": "Discontinued"
+    },
+    "sort": {
+      "label": "Sort by",
+      "placeholder": "Sort order",
+      "tooltip": "Sort products",
+      "skuAsc": "SKU (A-Z)",
+      "skuDesc": "SKU (Z-A)",
+      "nameAsc": "Name (A-Z)",
+      "nameDesc": "Name (Z-A)",
+      "typeAsc": "Type (A-Z)",
+      "typeDesc": "Type (Z-A)",
+      "statusAsc": "Status (A-Z)",
+      "statusDesc": "Status (Z-A)"
+    },
+    "table": {
+      "label": "Products table",
+      "selectAll": "Select all products",
+      "selectRow": "Select product",
+      "sku": "SKU",
+      "name": "Name",
+      "type": "Type",
+      "category": "Category",
+      "unit": "Unit",
+      "status": "Status",
+      "barcode": "Barcode",
+      "actions": "Actions"
+    },
+    "contextMenu": {
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "resultCount": "{{count}} products",
+    "empty": {
+      "message": "No products found"
+    },
+    "load": {
+      "error": "Failed to load products"
+    },
+    "delete": {
+      "confirmTitle": "Confirm Delete",
+      "confirmMessage": "Are you sure you want to delete product {{name}}?",
+      "success": "Product deleted",
+      "successDetail": "Product {{name}} has been deleted successfully",
+      "error": "Delete failed",
+      "errorDetail": "Failed to delete product"
+    },
+    "bulkDelete": {
+      "confirmTitle": "Confirm Bulk Delete",
+      "confirmMessage": "Are you sure you want to delete {{count}} products?",
+      "success": "Products deleted",
+      "successDetail": "{{count}} products have been deleted successfully",
+      "error": "Bulk delete failed",
+      "errorDetail": "Failed to delete selected products"
+    },
+    "export": {
+      "success": "Export successful",
+      "error": "Export failed"
+    },
+    "import": {
+      "invalidFile": "Invalid file",
+      "csvOnly": "Please select a CSV file",
+      "success": "Import successful",
+      "successDetail": "{{count}} products imported successfully",
+      "partialSuccess": "Partial import",
+      "partialSuccessDetail": "{{success}} products imported, {{failed}} failed",
+      "error": "Import failed"
+    }
+  },
+  "productType": {
+    "raw_material": "Raw Material",
+    "component": "Component",
+    "ingredient": "Ingredient",
+    "finished_good": "Finished Good",
+    "semi_finished": "Semi-Finished",
+    "work_in_progress": "Work in Progress",
+    "by_product": "By-Product",
+    "packaging": "Packaging",
+    "container": "Container",
+    "consumable": "Consumable",
+    "spare_part": "Spare Part",
+    "tool": "Tool",
+    "equipment": "Equipment",
+    "machinery": "Machinery",
+    "merchandise": "Merchandise",
+    "agricultural": "Agricultural",
+    "seafood": "Seafood",
+    "handicraft": "Handicraft",
+    "textile": "Textile",
+    "electronics": "Electronics",
+    "furniture": "Furniture",
+    "food": "Food",
+    "beverage": "Beverage",
+    "fresh_produce": "Fresh Produce",
+    "processed_food": "Processed Food",
+    "medicine": "Medicine",
+    "medical_device": "Medical Device",
+    "cosmetic": "Cosmetic",
+    "service": "Service",
+    "digital": "Digital",
+    "software": "Software",
+    "book": "Book",
+    "stationery": "Stationery",
+    "toy": "Toy",
+    "jewelry": "Jewelry",
+    "vehicle": "Vehicle",
+    "spare_vehicle_part": "Spare Vehicle Part"
+  },
+  "productStatus": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "discontinued": "Discontinued",
+    "draft": "Draft"
+  },
   "administrativeUnit": {
     "title": "Administrative Unit Management",
     "search": {
