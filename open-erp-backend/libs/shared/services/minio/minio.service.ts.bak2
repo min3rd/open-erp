@@ -118,7 +118,7 @@ export class MinioService implements IMinioService {
     options?: UploadOptions,
   ): Promise<UploadResult> {
     try {
-      await this.ensureBucket(options?.bucket);
+      await this.ensureBucket();
 
       const sanitizedKey = this.sanitizeKey(key);
       this.logger.debug(`Uploading object: ${sanitizedKey}`);
@@ -160,10 +160,10 @@ export class MinioService implements IMinioService {
 
       const result: UploadResult = {
         key: sanitizedKey,
-        url: await this.getObjectUrl(sanitizedKey, options?.bucket),
+        url: await this.getObjectUrl(sanitizedKey),
         etag: uploadResult.etag,
         versionId: uploadResult.versionId || undefined,
-        bucket: this.getBucket(options?.bucket),
+        bucket: this.config.bucket,
         size: options?.size,
         contentType: options?.contentType,
       };
@@ -187,7 +187,7 @@ export class MinioService implements IMinioService {
     options?: PresignedUrlOptions,
   ): Promise<PresignedUploadResult> {
     try {
-      await this.ensureBucket(options?.bucket);
+      await this.ensureBucket();
 
       const sanitizedKey = this.sanitizeKey(key);
       const expiresIn: number = options?.expiresIn || this.config.presignedUrlExpiry || this.DEFAULT_PRESIGNED_URL_EXPIRY;
@@ -288,12 +288,12 @@ export class MinioService implements IMinioService {
         );
       } else if (options?.versionId) {
         // Specific version
-        stream = await this.client.getObject(this.getBucket(options?.bucket), sanitizedKey, {
+        stream = await this.client.getObject(this.config.bucket, sanitizedKey, {
           versionId: options.versionId,
         } as any);
       } else {
         // Latest version
-        stream = await this.client.getObject(this.getBucket(options?.bucket), sanitizedKey);
+        stream = await this.client.getObject(this.config.bucket, sanitizedKey);
       }
 
       return stream;
@@ -357,8 +357,8 @@ export class MinioService implements IMinioService {
   /**
    * Get a specific version of an object
    */
-  async getVersion(key: string, versionId: string, bucket?: string): Promise<Readable> {
-    return this.downloadStream(key, { versionId, bucket });
+  async getVersion(key: string, versionId: string): Promise<Readable> {
+    return this.downloadStream(key, { versionId });
   }
 
   /**
@@ -370,7 +370,7 @@ export class MinioService implements IMinioService {
     options?: CopyOptions,
   ): Promise<UploadResult> {
     try {
-      await this.ensureBucket(options?.bucket);
+      await this.ensureBucket();
 
       const sanitizedSourceKey = this.sanitizeKey(sourceKey);
       const sanitizedDestKey = this.sanitizeKey(destinationKey);
@@ -380,7 +380,7 @@ export class MinioService implements IMinioService {
       );
 
       const conditions = new Minio.CopyConditions();
-      let copySource = `/${this.getBucket(options?.bucket)}/${sanitizedSourceKey}`;
+      let copySource = `/${this.config.bucket}/${sanitizedSourceKey}`;
       if (options?.versionId) {
         copySource += `?versionId=${options.versionId}`;
       }
@@ -397,9 +397,9 @@ export class MinioService implements IMinioService {
 
       const result: UploadResult = {
         key: sanitizedDestKey,
-        url: await this.getObjectUrl(sanitizedDestKey, options?.bucket),
+        url: await this.getObjectUrl(sanitizedDestKey),
         etag,
-        bucket: this.getBucket(options?.bucket),
+        bucket: this.config.bucket,
       };
 
       this.logger.log(
@@ -461,7 +461,7 @@ export class MinioService implements IMinioService {
       } else {
         // Hard delete
         this.logger.debug(`Deleting object: ${sanitizedKey}`);
-        await this.client.removeObject(this.getBucket(options?.bucket), sanitizedKey, {
+        await this.client.removeObject(this.config.bucket, sanitizedKey, {
           versionId: options?.versionId,
         } as any);
         this.logger.log(`Successfully deleted object: ${sanitizedKey}`);
@@ -501,7 +501,7 @@ export class MinioService implements IMinioService {
         const sanitizedKeys = keys.map((key) => this.sanitizeKey(key));
         this.logger.debug(`Deleting ${sanitizedKeys.length} objects`);
 
-        await this.client.removeObjects(this.getBucket(options?.bucket), sanitizedKeys);
+        await this.client.removeObjects(this.config.bucket, sanitizedKeys);
 
         sanitizedKeys.forEach((key) => {
           results.push({
@@ -526,7 +526,7 @@ export class MinioService implements IMinioService {
   /**
    * Get object metadata
    */
-  async getMetadata(key: string, bucket?: string): Promise<ObjectMetadata> {
+  async getMetadata(key: string): Promise<ObjectMetadata> {
     try {
       const sanitizedKey = this.sanitizeKey(key);
       this.logger.debug(`Getting metadata for: ${sanitizedKey}`);
@@ -593,7 +593,7 @@ export class MinioService implements IMinioService {
       await this.client.copyObject(
         this.config.bucket,
         sanitizedKey,
-        `/${this.getBucket(options?.bucket)}/${sanitizedKey}`,
+        `/${this.config.bucket}/${sanitizedKey}`,
         conditions,
       );
 
@@ -613,10 +613,10 @@ export class MinioService implements IMinioService {
   /**
    * Check if an object exists
    */
-  async objectExists(key: string, bucket?: string): Promise<boolean> {
+  async objectExists(key: string): Promise<boolean> {
     try {
       const sanitizedKey = this.sanitizeKey(key);
-      await this.client.statObject(this.getBucket(bucket), sanitizedKey);
+      await this.client.statObject(this.config.bucket, sanitizedKey);
       return true;
     } catch (error: any) {
       if (error.code === 'NotFound' || error.code === 'NoSuchKey') {
@@ -665,9 +665,8 @@ export class MinioService implements IMinioService {
   /**
    * Get the public URL for an object (if bucket is public)
    */
-  private async getObjectUrl(key: string, bucket?: string): Promise<string> {
+  private async getObjectUrl(key: string): Promise<string> {
     const protocol = this.config.useSSL ? 'https' : 'http';
-    const bucketName = bucket || this.config.bucket;
-    return `${protocol}://${this.config.endPoint}:${this.config.port}/${bucketName}/${key}`;
+    return `${protocol}://${this.config.endPoint}:${this.config.port}/${this.config.bucket}/${key}`;
   }
 }

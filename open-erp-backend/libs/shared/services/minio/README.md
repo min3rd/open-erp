@@ -81,6 +81,50 @@ const result = await this.minioService.upload(
 console.log('Uploaded:', result.key, result.url);
 ```
 
+
+### Using Custom Buckets
+
+The MinIO service supports using different buckets for different functional areas. You can specify a custom bucket for each operation:
+
+```typescript
+// Upload to a product-specific bucket
+const result = await this.minioService.upload(
+  'images/product-123.jpg',
+  fileStream,
+  {
+    bucket: 'products', // Custom bucket for products
+    contentType: 'image/jpeg',
+    uploadedBy: userId,
+  }
+);
+
+// Upload to a documents bucket
+await this.minioService.upload(
+  'invoice-456.pdf',
+  documentStream,
+  {
+    bucket: 'documents', // Custom bucket for documents
+    contentType: 'application/pdf',
+  }
+);
+
+// Download from a specific bucket
+const stream = await this.minioService.downloadStream(
+  'reports/monthly-2024.pdf',
+  { bucket: 'reports' }
+);
+```
+
+**Benefits of using custom buckets:**
+- Better organization and separation of concerns
+- Easier to find and manage files
+- Can set different policies per bucket
+- Better performance for large-scale applications
+
+**Default Behavior:**
+If you don't specify a bucket, the service uses the bucket configured in `MINIO_BUCKET` environment variable.
+
+
 ### Generate Presigned Upload URL (Client Direct Upload)
 
 ```typescript

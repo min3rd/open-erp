@@ -80,7 +80,7 @@ export interface IMinioService {
    * @param versionId - Version ID
    * @returns Readable stream of the specific version
    */
-  getVersion(key: string, versionId: string): Promise<Readable>;
+  getVersion(key: string, versionId: string, bucket?: string): Promise<Readable>;
 
   /**
    * Copy an object to a new location
@@ -132,7 +132,7 @@ export interface IMinioService {
    * @param key - Object key/path in the bucket
    * @returns Object metadata
    */
-  getMetadata(key: string): Promise<ObjectMetadata>;
+  getMetadata(key: string, bucket?: string): Promise<ObjectMetadata>;
 
   /**
    * Update object metadata
@@ -150,7 +150,7 @@ export interface IMinioService {
    * @param key - Object key/path in the bucket
    * @returns True if object exists
    */
-  objectExists(key: string): Promise<boolean>;
+  objectExists(key: string, bucket?: string): Promise<boolean>;
 
   /**
    * Check MinIO connectivity and health

@@ -165,3 +165,84 @@ async uploadFileViaServer(file: File, productId: string) {
 4. **Use soft delete**: Allows recovery of accidentally deleted files
 5. **Organize with path prefixes**: Use consistent path structures like `{entity}/{id}/{type}/{filename}`
 6. **Store metadata**: Include relevant information for searching and tracking
+
+## Using Custom Buckets for Different Functional Areas
+
+One of the key features is the ability to use different buckets for different functional areas:
+
+```typescript
+@Controller('products')
+export class ProductController {
+  constructor(private readonly minioService: MinioService) {}
+
+  @Post('upload-image')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadProductImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('productId') productId: string,
+  ) {
+    // Upload to products bucket
+    const result = await this.minioService.upload(
+      `${productId}/images/${file.originalname}`,
+      file.buffer,
+      {
+        bucket: 'products', // Dedicated bucket for products
+        contentType: file.mimetype,
+        size: file.size,
+        originalFilename: file.originalname,
+        uploadedBy: 'user-id-here',
+      }
+    );
+
+    return { success: true, fileUrl: result.url };
+  }
+
+  @Get('download/:productId/:fileName')
+  async downloadImage(
+    @Param('productId') productId: string,
+    @Param('fileName') fileName: string,
+    @Res() res: Response,
+  ) {
+    // Download from products bucket
+    const stream = await this.minioService.downloadStream(
+      `${productId}/images/${fileName}`,
+      { bucket: 'products' }
+    );
+
+    res.setHeader('Content-Type', 'image/jpeg');
+    stream.pipe(res);
+  }
+}
+
+@Controller('documents')
+export class DocumentController {
+  constructor(private readonly minioService: MinioService) {}
+
+  @Post('upload')
+  async uploadDocument(
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    // Upload to documents bucket
+    const result = await this.minioService.upload(
+      `invoices/${file.originalname}`,
+      file.buffer,
+      {
+        bucket: 'documents', // Dedicated bucket for documents
+        contentType: file.mimetype,
+      }
+    );
+
+    return result;
+  }
+}
+```
+
+### Recommended Bucket Structure
+
+- `products` - Product images, catalogs
+- `documents` - Invoices, reports, contracts
+- `user-uploads` - User-generated content
+- `backups` - System backups
+- `temp` - Temporary files (with lifecycle policy for auto-deletion)
+
+This approach provides better organization, easier file management, and improved search capabilities.
