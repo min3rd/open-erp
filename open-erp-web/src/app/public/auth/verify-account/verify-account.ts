@@ -63,8 +63,6 @@ export class VerifyAccount implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.activatedRoute.queryParamMap.pipe(takeUntil(this.unsubscribeAll)).subscribe((params) => {
-      console.log(params);
-      
       this.verifyForm.patchValue({
         email: params.get('email') || '',
       });
