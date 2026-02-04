@@ -98,6 +98,8 @@ export class ProductCategoryService {
       httpParams = httpParams.set('isActive', params.isActive.toString());
     if (params.parentId) httpParams = httpParams.set('parentId', params.parentId);
     if (params.search) httpParams = httpParams.set('search', params.search);
+    if (params.sortBy) httpParams = httpParams.set('sortBy', params.sortBy);
+    if (params.sortOrder) httpParams = httpParams.set('sortOrder', params.sortOrder);
 
     return this.http
       .get<ApiPaginatedResponse<ProductCategory>>(this.baseUrl, { params: httpParams })

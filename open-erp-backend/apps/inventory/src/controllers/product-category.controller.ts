@@ -109,7 +109,7 @@ export class ProductCategoryController {
   @ApiOperation({
     summary: 'Get all product categories with filters',
     description:
-      'Requires PRODUCT_CATEGORY_READ permission. Supports tree view filtering.',
+      'Requires PRODUCT_CATEGORY_READ permission. Supports fuzzy search, filtering, and sorting.',
   })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 100 })
@@ -120,7 +120,25 @@ export class ProductCategoryController {
     type: String,
     description: 'Filter by parent ID. Use "null" for root categories.',
   })
-  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ 
+    name: 'search', 
+    required: false, 
+    type: String,
+    description: 'Fuzzy search on code and name fields'
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    type: String,
+    description: 'Field to sort by (code, name, order, level, createdAt, updatedAt)',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    type: String,
+    enum: ['asc', 'desc'],
+    description: 'Sort order (asc or desc)',
+  })
   @ApiResponse({
     status: 200,
     description: 'Product categories retrieved successfully',
@@ -131,6 +149,8 @@ export class ProductCategoryController {
     @Query('isActive') isActive?: boolean,
     @Query('parentId') parentId?: string,
     @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
     try {
       const result = await this.categoryService.findAll({
@@ -139,6 +159,8 @@ export class ProductCategoryController {
         isActive,
         parentId,
         search,
+        sortBy,
+        sortOrder,
       });
 
       return paginated(result.items, result.page, result.limit, result.total);

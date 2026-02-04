@@ -66,6 +66,8 @@ export class ProductCategoryService {
     isActive?: boolean;
     parentId?: string;
     search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
   }): Promise<{
     items: ProductCategoryDocument[];
     total: number;
@@ -85,17 +87,28 @@ export class ProductCategoryService {
       filter.parentId = params.parentId === 'null' ? null : params.parentId;
     }
 
+    // Build sort object
+    const sort: Record<string, 1 | -1> = {};
+    if (params.sortBy) {
+      sort[params.sortBy] = params.sortOrder === 'desc' ? -1 : 1;
+    } else {
+      // Default sort
+      sort.path = 1;
+      sort.order = 1;
+    }
+
     let items: ProductCategoryDocument[];
     let total: number;
 
     if (params.search) {
-      items = await this.repository.search(params.search, { skip, limit });
-      total = items.length;
+      // Fuzzy search with filters
+      items = await this.repository.search(params.search, { skip, limit, sort });
+      total = await this.repository.searchCount(params.search);
     } else {
       items = await this.repository.findAll(filter, {
         skip,
         limit,
-        sort: { path: 1, order: 1 },
+        sort,
       });
       total = await this.repository.count(filter);
     }
