@@ -18,6 +18,7 @@ export interface MinioConfig {
  * Options for uploading a file
  */
 export interface UploadOptions {
+  bucket?: string; // Optional bucket name, defaults to configured bucket
   contentType?: string;
   metadata?: Record<string, string | number>;
   tags?: Record<string, string>;
@@ -43,6 +44,7 @@ export interface UploadResult {
  * Options for downloading a file
  */
 export interface DownloadOptions {
+  bucket?: string; // Optional bucket name, defaults to configured bucket
   versionId?: string;
   start?: number; // byte range start
   end?: number; // byte range end
@@ -52,6 +54,7 @@ export interface DownloadOptions {
  * Options for generating presigned URLs
  */
 export interface PresignedUrlOptions {
+  bucket?: string; // Optional bucket name, defaults to configured bucket
   expiresIn?: number; // in seconds
   responseHeaders?: {
     'content-type'?: string;
@@ -96,6 +99,7 @@ export interface ObjectVersion {
  * Options for listing object versions
  */
 export interface ListVersionsOptions {
+  bucket?: string; // Optional bucket name, defaults to configured bucket
   maxVersions?: number;
 }
 
@@ -103,6 +107,7 @@ export interface ListVersionsOptions {
  * Options for copying an object
  */
 export interface CopyOptions {
+  bucket?: string; // Optional bucket name, defaults to configured bucket
   metadata?: Record<string, string | number>;
   metadataDirective?: 'COPY' | 'REPLACE';
   versionId?: string;
@@ -112,6 +117,7 @@ export interface CopyOptions {
  * Options for deleting objects
  */
 export interface DeleteOptions {
+  bucket?: string; // Optional bucket name, defaults to configured bucket
   versionId?: string;
   softDelete?: boolean; // Move to trash prefix instead of permanent delete
 }
@@ -142,6 +148,7 @@ export interface ObjectMetadata {
  * Options for updating metadata
  */
 export interface UpdateMetadataOptions {
+  bucket?: string; // Optional bucket name, defaults to configured bucket
   contentType?: string;
   customMetadata?: Record<string, string | number>;
 }
