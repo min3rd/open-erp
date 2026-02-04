@@ -60,6 +60,7 @@ import { WarehouseController } from './controllers/warehouse.controller';
 // Import shared modules
 import { AuthorizationService } from '@shared/authz/authorization.service';
 import { PermissionService } from '@shared/services';
+import { MinioModule } from '@shared/services/minio/minio.module';
 
 @Module({
   imports: [
@@ -94,6 +95,7 @@ import { PermissionService } from '@shared/services';
       },
     ]),
     LoggerModule,
+    MinioModule,
   ],
   controllers: [
     ProductController,
