@@ -367,7 +367,7 @@ export class ProductList implements OnInit, OnDestroy {
     const limit = updates.limit !== undefined ? updates.limit : parseInt(currentParams['limit'], 10);
 
     this.router.navigate([
-      '/private/management/product',
+      '/modules/management/product',
       search || '-',
       status || 'all',
       type || 'all',
