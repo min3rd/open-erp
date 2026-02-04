@@ -78,6 +78,14 @@ export class MinioService implements IMinioService {
   }
 
   /**
+   * Get the default bucket name
+   * @returns The default bucket name from configuration
+   */
+  getDefaultBucket(): string {
+    return this.config.bucket;
+  }
+
+  /**
    * Ensure the bucket exists, create if it doesn't
    */
   private async ensureBucket(bucketName?: string): Promise<void> {

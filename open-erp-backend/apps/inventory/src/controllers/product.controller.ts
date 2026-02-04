@@ -729,7 +729,7 @@ export class ProductController {
         method: presignResult.method,
         expiresAt: presignResult.expiresAt,
         objectKey,
-        bucket: this.minioService['config'].bucket,
+        bucket: this.minioService.getDefaultBucket(),
       });
     } catch (err) {
       if (err instanceof HttpException) {
@@ -761,17 +761,7 @@ export class ProductController {
   @ApiResponse({ status: 404, description: 'Product not found' })
   async registerMedia(
     @Param('id') id: string,
-    @Body() body: {
-      objectKey: string;
-      type: 'thumbnail' | 'image' | 'video' | 'document';
-      url: string;
-      filename: string;
-      contentType: string;
-      size: number;
-      title?: string;
-      description?: string;
-      isPrimary?: boolean;
-    },
+    @Body() body: RegisterMediaDto,
     @CurrentUser() user: UserContext,
   ) {
     try {
@@ -794,7 +784,7 @@ export class ProductController {
           contentType: body.contentType,
           size: body.size,
           minioObjectKey: body.objectKey,
-          minioBucket: this.minioService['config'].bucket,
+          minioBucket: this.minioService.getDefaultBucket(),
         };
       } else {
         // Add to media array
@@ -808,7 +798,7 @@ export class ProductController {
           order: product.media?.length || 0,
           isPrimary: body.isPrimary || false,
           minioObjectKey: body.objectKey,
-          minioBucket: this.minioService['config'].bucket,
+          minioBucket: this.minioService.getDefaultBucket(),
         };
         
         updateData.media = [...(product.media || []), newMedia];
@@ -862,7 +852,7 @@ export class ProductController {
     @Param('id') id: string,
     @Query('objectKey') objectKey?: string,
     @Query('deleteThumbnail') deleteThumbnail?: boolean,
-    @CurrentUser() user: UserContext = {} as UserContext,
+    @CurrentUser() user: UserContext,
   ) {
     try {
       const product = await this.productService.findById(id);
