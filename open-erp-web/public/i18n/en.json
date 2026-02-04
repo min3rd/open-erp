@@ -2231,7 +2231,18 @@
       "active": "Active",
       "inactive": "Inactive",
       "draft": "Draft",
-      "discontinued": "Discontinued"
+      "discontinued": "Discontinued",
+      "statusLabel": "Status",
+      "statusPlaceholder": "Filter by status",
+      "statusTooltip": "Filter by status",
+      "typeLabel": "Type",
+      "typePlaceholder": "Filter by type",
+      "typeTooltip": "Filter by type",
+      "allTypes": "All Types",
+      "categoryLabel": "Category",
+      "categoryPlaceholder": "Filter by category",
+      "categoryTooltip": "Filter by category",
+      "allCategories": "All Categories"
     },
     "sort": {
       "label": "Sort by",

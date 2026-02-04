@@ -40,6 +40,8 @@ import { PaginationComponent, PaginationChange } from '../../../../../../core/co
 
 // Services and types
 import { ProductService, Product, ProductStatus, ProductType } from '../../../../../../core/services/product/product.service';
+import { ProductTypeService } from '../../../../../../core/services/product-type/product-type.service';
+import { ProductCategoryService, ProductCategory } from '../../../../../../core/services/product-category/product-category.service';
 
 /**
  * Column definition interface
@@ -56,7 +58,7 @@ interface ColumnDef {
  */
 interface FilterOption {
   label: string;
-  value: 'all' | ProductStatus;
+  value: string;
 }
 
 /**
@@ -101,6 +103,8 @@ export class ProductList implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private productService = inject(ProductService);
+  private productTypeService = inject(ProductTypeService);
+  private productCategoryService = inject(ProductCategoryService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private translocoService = inject(TranslocoService);
@@ -134,6 +138,10 @@ export class ProductList implements OnInit, OnDestroy {
     { label: 'productList.filter.discontinued', value: ProductStatus.DISCONTINUED },
   ];
 
+  // Type and category filter options - loaded from API
+  protected typeFilterOptions = signal<FilterOption[]>([{ label: 'productList.filter.allTypes', value: 'all' }]);
+  protected categoryFilterOptions = signal<FilterOption[]>([{ label: 'productList.filter.allCategories', value: 'all' }]);
+
   // Sort options
   protected readonly sortOptions: SortOption[] = [
     { label: 'productList.sort.skuAsc', field: 'sku', order: 1 },
@@ -160,7 +168,9 @@ export class ProductList implements OnInit, OnDestroy {
   protected readonly isSearchOpen = signal(false);
   protected readonly sortField = signal<string>('name');
   protected readonly sortOrder = signal<number>(1);
-  protected activeFilterValue: string = 'all';
+  protected activeStatusFilter: string = 'all';
+  protected activeTypeFilter: string = 'all';
+  protected activeCategoryFilter: string = 'all';
   protected selectedSort: SortOption = this.sortOptions[2]; // Default to name ascending
 
   // Current menu items
@@ -265,6 +275,10 @@ export class ProductList implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Load product types and categories for filters
+    this.loadProductTypes();
+    this.loadProductCategories();
+
     // Load data from resolver if available
     this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
       const productListData = data['productList'];
@@ -281,13 +295,18 @@ export class ProductList implements OnInit, OnDestroy {
       const limit = parseInt(params['limit'], 10) || PAGE_SIZE_OPTIONS[0];
       const normalizedLimit = PAGE_SIZE_OPTIONS.includes(limit) ? limit : PAGE_SIZE_OPTIONS[0];
       const search = params['search'] || '';
-      const filter = params['filter'] || 'all';
+      const filterStr = params['filter'] || 'all-all-all';
       const sort = params['sort'] || '[name,asc]';
 
       this.currentPage.set(page);
       this.pageSize.set(normalizedLimit);
       this.searchQuery.set(search === '-' ? '' : search);
-      this.activeFilterValue = filter;
+      
+      // Parse composite filter: status-type-category
+      const filterParts = filterStr.split('-');
+      this.activeStatusFilter = filterParts[0] || 'all';
+      this.activeTypeFilter = filterParts[1] || 'all';
+      this.activeCategoryFilter = filterParts[2] || 'all';
 
       // Parse sort array format [field,order]
       const sortStr = sort.replace(/[\[\]]/g, '');
@@ -346,11 +365,57 @@ export class ProductList implements OnInit, OnDestroy {
     this.router.navigate([
       '/private/management/product',
       search || '-',
-      filter || 'all',
+      filter || 'all-all-all',
       sort || '[name,asc]',
       page,
       limit,
     ]);
+  }
+
+  /**
+   * Load product types from API
+   */
+  private loadProductTypes(): void {
+    this.productTypeService.getProductTypes({ limit: 1000, isActive: true })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          const options: FilterOption[] = [
+            { label: 'productList.filter.allTypes', value: 'all' },
+            ...result.items.map(type => ({
+              label: type.name,
+              value: type.code
+            }))
+          ];
+          this.typeFilterOptions.set(options);
+        },
+        error: (error) => {
+          console.error('Error loading product types:', error);
+        }
+      });
+  }
+
+  /**
+   * Load product categories from API
+   */
+  private loadProductCategories(): void {
+    this.productCategoryService.getProductCategories({ limit: 1000, isActive: true })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          const options: FilterOption[] = [
+            { label: 'productList.filter.allCategories', value: 'all' },
+            ...result.items.map(cat => ({
+              label: cat.name,
+              value: cat.id
+            }))
+          ];
+          this.categoryFilterOptions.set(options);
+        },
+        error: (error) => {
+          console.error('Error loading product categories:', error);
+        }
+      });
   }
 
   /**
@@ -362,11 +427,30 @@ export class ProductList implements OnInit, OnDestroy {
   }
 
   /**
-   * Handle filter change
+   * Handle status filter change
    */
-  protected onFilterChange(filter: string): void {
-    this.activeFilterValue = filter;
-    this.navigateWithParams({ filter, page: 1 });
+  protected onStatusFilterChange(status: string): void {
+    this.activeStatusFilter = status;
+    const filterStr = `${status}-${this.activeTypeFilter}-${this.activeCategoryFilter}`;
+    this.navigateWithParams({ filter: filterStr, page: 1 });
+  }
+
+  /**
+   * Handle type filter change
+   */
+  protected onTypeFilterChange(type: string): void {
+    this.activeTypeFilter = type;
+    const filterStr = `${this.activeStatusFilter}-${type}-${this.activeCategoryFilter}`;
+    this.navigateWithParams({ filter: filterStr, page: 1 });
+  }
+
+  /**
+   * Handle category filter change
+   */
+  protected onCategoryFilterChange(category: string): void {
+    this.activeCategoryFilter = category;
+    const filterStr = `${this.activeStatusFilter}-${this.activeTypeFilter}-${category}`;
+    this.navigateWithParams({ filter: filterStr, page: 1 });
   }
 
   /**
@@ -506,8 +590,16 @@ export class ProductList implements OnInit, OnDestroy {
       params.search = this.searchQuery();
     }
     
-    if (this.activeFilterValue !== 'all') {
-      params.status = this.activeFilterValue;
+    if (this.activeStatusFilter !== 'all') {
+      params.status = this.activeStatusFilter;
+    }
+
+    if (this.activeTypeFilter !== 'all') {
+      params.type = this.activeTypeFilter;
+    }
+
+    if (this.activeCategoryFilter !== 'all') {
+      params.category = this.activeCategoryFilter;
     }
 
     this.productService.exportCSV(params).subscribe({
@@ -616,8 +708,16 @@ export class ProductList implements OnInit, OnDestroy {
       params.search = this.searchQuery();
     }
 
-    if (this.activeFilterValue !== 'all') {
-      params.status = this.activeFilterValue;
+    if (this.activeStatusFilter !== 'all') {
+      params.status = this.activeStatusFilter;
+    }
+
+    if (this.activeTypeFilter !== 'all') {
+      params.type = this.activeTypeFilter;
+    }
+
+    if (this.activeCategoryFilter !== 'all') {
+      params.category = this.activeCategoryFilter;
     }
 
     const sortOrder = this.sortOrder() === 1 ? 'asc' : 'desc';

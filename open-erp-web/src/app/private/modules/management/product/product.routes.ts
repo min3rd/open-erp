@@ -11,7 +11,7 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: '-/all/[name,asc]/1/100',
+        redirectTo: '-/all-all-all/[name,asc]/1/100',
       },
       {
         path: ':search',

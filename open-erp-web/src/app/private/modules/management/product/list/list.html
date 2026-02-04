@@ -33,17 +33,57 @@
           />
         </p-inputgroup>
 
-        <!-- Filter Dropdown -->
+        <!-- Status Filter Dropdown -->
         <p-select
-          id="product-list-filter"
+          id="product-list-status-filter"
           [options]="statusFilterOptions"
-          [(ngModel)]="activeFilterValue"
-          (onChange)="onFilterChange($event.value)"
+          [(ngModel)]="activeStatusFilter"
+          (onChange)="onStatusFilterChange($event.value)"
           optionLabel="label"
           optionValue="value"
-          [placeholder]="'productList.filter.placeholder' | transloco"
+          [placeholder]="'productList.filter.statusPlaceholder' | transloco"
           class="ml-2 w-40"
-          [attr.aria-label]="'productList.filter.label' | transloco"
+          [attr.aria-label]="'productList.filter.statusLabel' | transloco"
+        >
+          <ng-template let-option #item>
+            {{ option.label | transloco }}
+          </ng-template>
+          <ng-template let-option #selectedItem>
+            {{ option.label | transloco }}
+          </ng-template>
+        </p-select>
+
+        <!-- Type Filter Dropdown -->
+        <p-select
+          id="product-list-type-filter"
+          [options]="typeFilterOptions()"
+          [(ngModel)]="activeTypeFilter"
+          (onChange)="onTypeFilterChange($event.value)"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'productList.filter.typePlaceholder' | transloco"
+          class="ml-2 w-40"
+          [attr.aria-label]="'productList.filter.typeLabel' | transloco"
+        >
+          <ng-template let-option #item>
+            {{ option.label | transloco }}
+          </ng-template>
+          <ng-template let-option #selectedItem>
+            {{ option.label | transloco }}
+          </ng-template>
+        </p-select>
+
+        <!-- Category Filter Dropdown -->
+        <p-select
+          id="product-list-category-filter"
+          [options]="categoryFilterOptions()"
+          [(ngModel)]="activeCategoryFilter"
+          (onChange)="onCategoryFilterChange($event.value)"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'productList.filter.categoryPlaceholder' | transloco"
+          class="ml-2 w-40"
+          [attr.aria-label]="'productList.filter.categoryLabel' | transloco"
         >
           <ng-template let-option #item>
             {{ option.label | transloco }}
@@ -133,26 +173,76 @@
           [attr.aria-expanded]="isSearchOpen()"
         />
 
-        <!-- Filter Button -->
+        <!-- Status Filter Button -->
         <p-button
-          id="product-list-filter-button-mobile"
+          id="product-list-status-filter-button-mobile"
           icon="pi pi-filter"
           [rounded]="true"
           [text]="true"
-          (onClick)="filterMenu.toggle($event)"
-          [pTooltip]="'productList.filter.tooltip' | transloco"
+          (onClick)="statusFilterMenu.toggle($event)"
+          [pTooltip]="'productList.filter.statusTooltip' | transloco"
           tooltipPosition="bottom"
-          [attr.aria-label]="'productList.filter.label' | transloco"
+          [attr.aria-label]="'productList.filter.statusLabel' | transloco"
         />
         <p-menu
-          #filterMenu
-          id="product-list-filter-menu-mobile"
+          #statusFilterMenu
+          id="product-list-status-filter-menu-mobile"
           [model]="statusFilterOptions"
           [popup]="true"
           appendTo="body"
         >
           <ng-template let-item #item>
-            <a class="p-menuitem-link" (click)="onFilterChange(item.value)">
+            <a class="p-menuitem-link" (click)="onStatusFilterChange(item.value)">
+              <span class="p-menuitem-text">{{ item.label | transloco }}</span>
+            </a>
+          </ng-template>
+        </p-menu>
+
+        <!-- Type Filter Button -->
+        <p-button
+          id="product-list-type-filter-button-mobile"
+          icon="pi pi-tag"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="typeFilterMenu.toggle($event)"
+          [pTooltip]="'productList.filter.typeTooltip' | transloco"
+          tooltipPosition="bottom"
+          [attr.aria-label]="'productList.filter.typeLabel' | transloco"
+        />
+        <p-menu
+          #typeFilterMenu
+          id="product-list-type-filter-menu-mobile"
+          [model]="typeFilterOptions()"
+          [popup]="true"
+          appendTo="body"
+        >
+          <ng-template let-item #item>
+            <a class="p-menuitem-link" (click)="onTypeFilterChange(item.value)">
+              <span class="p-menuitem-text">{{ item.label | transloco }}</span>
+            </a>
+          </ng-template>
+        </p-menu>
+
+        <!-- Category Filter Button -->
+        <p-button
+          id="product-list-category-filter-button-mobile"
+          icon="pi pi-list"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="categoryFilterMenu.toggle($event)"
+          [pTooltip]="'productList.filter.categoryTooltip' | transloco"
+          tooltipPosition="bottom"
+          [attr.aria-label]="'productList.filter.categoryLabel' | transloco"
+        />
+        <p-menu
+          #categoryFilterMenu
+          id="product-list-category-filter-menu-mobile"
+          [model]="categoryFilterOptions()"
+          [popup]="true"
+          appendTo="body"
+        >
+          <ng-template let-item #item>
+            <a class="p-menuitem-link" (click)="onCategoryFilterChange(item.value)">
               <span class="p-menuitem-text">{{ item.label | transloco }}</span>
             </a>
           </ng-template>
