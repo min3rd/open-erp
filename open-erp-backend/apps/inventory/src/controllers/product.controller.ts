@@ -42,6 +42,7 @@ import { Permissions, Public } from '@shared/authz/decorators';
 import { Permission } from '@shared/types/permission.enum';
 import { CurrentUser } from '@shared/authz/current-user.decorator';
 import { AuthorizationService } from '@shared/authz/authorization.service';
+import { MinioService } from '@shared/services/minio/minio.service';
 
 interface UserContext {
   userId: string;
@@ -58,6 +59,7 @@ export class ProductController {
   constructor(
     private readonly productService: ProductService,
     private readonly authorizationService: AuthorizationService,
+    private readonly minioService: MinioService,
   ) {}
 
   @Post()
@@ -618,6 +620,285 @@ export class ProductController {
       }
       throw new HttpException(
         error('REVERT_ERROR', err.message || 'Failed to revert product'),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // ========== MEDIA MANAGEMENT ENDPOINTS ==========
+
+  @Get(':id/media/presign-upload')
+  @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
+    mode: 'any',
+  })
+  @ApiOperation({ 
+    summary: 'Get presigned URL for uploading product media',
+    description: 'Generates a presigned URL that allows client to upload media directly to MinIO'
+  })
+  @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiQuery({ 
+    name: 'filename', 
+    required: true, 
+    type: String,
+    description: 'Original filename with extension' 
+  })
+  @ApiQuery({ 
+    name: 'contentType', 
+    required: true, 
+    type: String,
+    description: 'MIME type (e.g., image/jpeg, image/png)' 
+  })
+  @ApiQuery({ 
+    name: 'type', 
+    required: false, 
+    enum: ['thumbnail', 'media'],
+    description: 'Type of media (thumbnail or general media)',
+    example: 'thumbnail'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Presigned URL generated successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: true },
+        message: { type: 'null' },
+        error: { type: 'null' },
+        data: {
+          type: 'object',
+          properties: {
+            uploadUrl: { type: 'string', example: 'https://minio.example.com/...' },
+            method: { type: 'string', example: 'PUT' },
+            expiresAt: { type: 'string', format: 'date-time' },
+            objectKey: { type: 'string', example: 'products/org-123/prod-456/image.jpg' },
+            bucket: { type: 'string', example: 'open-erp' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid parameters' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  async getPresignedUploadUrl(
+    @Param('id') id: string,
+    @Query('filename') filename: string,
+    @Query('contentType') contentType: string,
+    @Query('type') type: string = 'media',
+    @CurrentUser() user: UserContext,
+  ) {
+    try {
+      // Verify product exists
+      const product = await this.productService.findById(id);
+
+      // Validate content type for images
+      if (type === 'thumbnail' && !contentType.startsWith('image/')) {
+        throw new BadRequestException('Thumbnail must be an image file');
+      }
+
+      // Validate file type based on media type
+      const allowedTypes = {
+        thumbnail: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+        media: [
+          'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
+          'video/mp4', 'video/webm', 'video/ogg',
+          'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ],
+      };
+
+      if (!allowedTypes[type]?.includes(contentType)) {
+        throw new BadRequestException(`Content type ${contentType} not allowed for ${type}`);
+      }
+
+      // Sanitize filename
+      const sanitizedFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const timestamp = Date.now();
+      
+      // Generate object key: products/{orgId}/{productId}/{type}/{timestamp}-{filename}
+      const orgPrefix = product.organizationId ? `org-${product.organizationId}` : 'global';
+      const objectKey = `products/${orgPrefix}/${id}/${type}/${timestamp}-${sanitizedFilename}`;
+
+      // Generate presigned URL
+      const presignResult = await this.minioService.presignUpload(objectKey, {
+        expiresIn: 3600, // 1 hour
+      });
+
+      return fetched({
+        uploadUrl: presignResult.url,
+        method: presignResult.method,
+        expiresAt: presignResult.expiresAt,
+        objectKey,
+        bucket: this.minioService['config'].bucket,
+      });
+    } catch (err) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
+      throw new HttpException(
+        error('PRESIGN_ERROR', err.message || 'Failed to generate presigned URL'),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post(':id/media/register')
+  @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
+    mode: 'any',
+  })
+  @ApiOperation({ 
+    summary: 'Register uploaded media',
+    description: 'After client uploads media using presigned URL, register the media metadata in the product'
+  })
+  @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Media registered successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  async registerMedia(
+    @Param('id') id: string,
+    @Body() body: {
+      objectKey: string;
+      type: 'thumbnail' | 'image' | 'video' | 'document';
+      url: string;
+      filename: string;
+      contentType: string;
+      size: number;
+      title?: string;
+      description?: string;
+      isPrimary?: boolean;
+    },
+    @CurrentUser() user: UserContext,
+  ) {
+    try {
+      // Verify product exists
+      const product = await this.productService.findById(id);
+
+      // Verify object exists in MinIO
+      const exists = await this.minioService.objectExists(body.objectKey);
+      if (!exists) {
+        throw new BadRequestException('Media file not found in storage');
+      }
+
+      // Update product with media
+      const updateData: any = {};
+      
+      if (body.type === 'thumbnail') {
+        updateData.thumbnail = {
+          url: body.url,
+          filename: body.filename,
+          contentType: body.contentType,
+          size: body.size,
+          minioObjectKey: body.objectKey,
+          minioBucket: this.minioService['config'].bucket,
+        };
+      } else {
+        // Add to media array
+        const newMedia = {
+          type: body.type,
+          url: body.url,
+          title: body.title,
+          description: body.description,
+          mimeType: body.contentType,
+          size: body.size,
+          order: product.media?.length || 0,
+          isPrimary: body.isPrimary || false,
+          minioObjectKey: body.objectKey,
+          minioBucket: this.minioService['config'].bucket,
+        };
+        
+        updateData.media = [...(product.media || []), newMedia];
+      }
+
+      updateData.updatedBy = user.userId;
+
+      const updatedProduct = await this.productService.update(id, updateData);
+      return updated(updatedProduct, 'Media registered successfully');
+    } catch (err) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
+      throw new HttpException(
+        error('MEDIA_REGISTER_ERROR', err.message || 'Failed to register media'),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Delete(':id/media')
+  @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
+    mode: 'any',
+  })
+  @ApiOperation({ 
+    summary: 'Delete product media',
+    description: 'Delete media from product and MinIO storage'
+  })
+  @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiQuery({ 
+    name: 'objectKey', 
+    required: false, 
+    type: String,
+    description: 'MinIO object key to delete (for media items)' 
+  })
+  @ApiQuery({ 
+    name: 'deleteThumbnail', 
+    required: false, 
+    type: Boolean,
+    description: 'Whether to delete thumbnail' 
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Media deleted successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  async deleteMedia(
+    @Param('id') id: string,
+    @Query('objectKey') objectKey?: string,
+    @Query('deleteThumbnail') deleteThumbnail?: boolean,
+    @CurrentUser() user: UserContext = {} as UserContext,
+  ) {
+    try {
+      const product = await this.productService.findById(id);
+
+      const updateData: any = { updatedBy: user.userId };
+
+      // Delete thumbnail
+      if (deleteThumbnail && product.thumbnail) {
+        if (product.thumbnail.minioObjectKey) {
+          await this.minioService.deleteObject(product.thumbnail.minioObjectKey);
+        }
+        updateData.thumbnail = null;
+      }
+
+      // Delete specific media item
+      if (objectKey && product.media) {
+        const mediaIndex = product.media.findIndex(m => m.minioObjectKey === objectKey);
+        if (mediaIndex === -1) {
+          throw new BadRequestException('Media item not found');
+        }
+
+        // Delete from MinIO
+        await this.minioService.deleteObject(objectKey);
+
+        // Remove from array
+        updateData.media = product.media.filter(m => m.minioObjectKey !== objectKey);
+      }
+
+      const updatedProduct = await this.productService.update(id, updateData);
+      return updated(updatedProduct, 'Media deleted successfully');
+    } catch (err) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
+      throw new HttpException(
+        error('MEDIA_DELETE_ERROR', err.message || 'Failed to delete media'),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
