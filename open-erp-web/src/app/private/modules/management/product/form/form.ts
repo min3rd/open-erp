@@ -42,6 +42,8 @@ import { slugify } from '../../../../../../core/utils/slugify';
 interface SelectOption {
   label: string;
   value: string;
+  code?: string;
+  name?: string;
 }
 
 @Component({
@@ -65,6 +67,7 @@ interface SelectOption {
 })
 export class ProductForm implements OnInit {
   @ViewChild('thumbnailInput') thumbnailInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('mediaInput') mediaInput?: ElementRef<HTMLInputElement>;
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -97,8 +100,39 @@ export class ProductForm implements OnInit {
     { label: 'Discontinued', value: ProductStatus.DISCONTINUED },
   ];
 
+  // Unit options from backend enum
+  protected readonly unitOptions: SelectOption[] = [
+    { label: 'Kilogram (kg)', value: 'kg' },
+    { label: 'Gram (g)', value: 'g' },
+    { label: 'Ton', value: 'ton' },
+    { label: 'Pound (lb)', value: 'lb' },
+    { label: 'Liter', value: 'liter' },
+    { label: 'Milliliter (ml)', value: 'ml' },
+    { label: 'Cubic Meter (m³)', value: 'm3' },
+    { label: 'Gallon', value: 'gallon' },
+    { label: 'Meter (m)', value: 'meter' },
+    { label: 'Centimeter (cm)', value: 'cm' },
+    { label: 'Millimeter (mm)', value: 'mm' },
+    { label: 'Inch', value: 'inch' },
+    { label: 'Square Meter (m²)', value: 'm2' },
+    { label: 'Square Foot (sqf)', value: 'sqf' },
+    { label: 'Piece', value: 'piece' },
+    { label: 'Box', value: 'box' },
+    { label: 'Carton', value: 'carton' },
+    { label: 'Pallet', value: 'pallet' },
+    { label: 'Container', value: 'container' },
+    { label: 'Pack', value: 'pack' },
+    { label: 'Set', value: 'set' },
+    { label: 'Pair', value: 'pair' },
+    { label: 'Dozen', value: 'dozen' },
+  ];
+
   protected typeOptions = signal<SelectOption[]>([]);
   protected categoryOptions = signal<SelectOption[]>([]);
+  
+  // Upload-related state
+  protected thumbnailFile: File | null = null;
+  protected mediaFiles = signal<File[]>([]);
 
   protected form!: FormGroup;
 
@@ -118,8 +152,9 @@ export class ProductForm implements OnInit {
       description: ['', [Validators.maxLength(2000)]],
       type: ['', [Validators.required]],
       categoryId: [''],
+      categoryName: [''],
       barcode: ['', [Validators.maxLength(50)]],
-      unit: ['', [Validators.required, Validators.maxLength(20)]],
+      unit: ['piece', [Validators.required]], // Default to 'piece'
       
       // Dimensions tab
       weight: [null],
@@ -146,6 +181,18 @@ export class ProductForm implements OnInit {
           // Only auto-generate for new products
           const slug = slugify(value, 128);
           this.form.get('slug')?.setValue(slug, { emitEvent: false });
+        }
+      });
+
+    // Update categoryName when categoryId changes
+    this.form.get('categoryId')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((categoryId) => {
+        if (categoryId) {
+          const category = this.categoryOptions().find(c => c.value === categoryId);
+          this.form.get('categoryName')?.setValue(category?.name || '', { emitEvent: false });
+        } else {
+          this.form.get('categoryName')?.setValue('', { emitEvent: false });
         }
       });
 
@@ -190,7 +237,9 @@ export class ProductForm implements OnInit {
         const options: SelectOption[] = result.items.map((cat) => ({
           label: cat.name,
           value: cat.id,
-        }));
+          code: cat.code,
+          name: cat.name,
+        } as any));
         this.categoryOptions.set(options);
       },
       error: (error) => {
@@ -262,6 +311,9 @@ export class ProductForm implements OnInit {
       return;
     }
 
+    // Store the file for later upload
+    this.thumbnailFile = file;
+
     // Create preview
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -282,6 +334,7 @@ export class ProductForm implements OnInit {
    */
   protected onClearThumbnail(): void {
     this.thumbnailPreview.set(null);
+    this.thumbnailFile = null;
     if (this.thumbnailInput?.nativeElement) {
       this.thumbnailInput.nativeElement.value = '';
     }
@@ -293,6 +346,8 @@ export class ProductForm implements OnInit {
   protected onRandomize(): void {
     const randomSku = `SKU-${Math.floor(Math.random() * 100000)}`;
     const randomName = `Product ${Math.floor(Math.random() * 1000)}`;
+    const units = ['piece', 'kg', 'box', 'liter', 'meter'];
+    const randomUnit = units[Math.floor(Math.random() * units.length)];
     
     this.form.patchValue({
       sku: randomSku,
@@ -301,7 +356,7 @@ export class ProductForm implements OnInit {
       internationalName: `International ${randomName}`,
       description: 'This is a randomly generated product description for testing purposes.',
       barcode: `${Math.floor(Math.random() * 1000000000000)}`,
-      unit: 'pcs',
+      unit: randomUnit,
       weight: Math.floor(Math.random() * 100) / 10,
       length: Math.floor(Math.random() * 100),
       width: Math.floor(Math.random() * 100),
@@ -327,7 +382,7 @@ export class ProductForm implements OnInit {
   /**
    * Save form (create product)
    */
-  protected onSave(): void {
+  protected async onSave(): Promise<void> {
     // Mark all fields as touched to show validation errors
     Object.keys(this.form.controls).forEach((key) => {
       const control = this.form.get(key);
@@ -348,56 +403,226 @@ export class ProductForm implements OnInit {
     this.isLoading.set(true);
     const formValue = this.form.getRawValue();
 
-    // Build metadata object
-    const metadata: Record<string, any> = {
-      slug: formValue.slug,
-      weight: formValue.weight,
-      length: formValue.length,
-      width: formValue.width,
-      height: formValue.height,
-      storageConditions: formValue.storageConditions,
-      expiryDays: formValue.expiryDays,
-      warehouseSettings: formValue.warehouseSettings,
-      ...formValue.metadata,
-    };
+    try {
+      // Upload thumbnail if selected
+      let thumbnailDto: any = undefined;
+      if (this.thumbnailFile) {
+        const thumbnailUrl = await this.uploadFile(
+          this.thumbnailFile,
+          'thumbnail',
+          formValue.organizationId
+        );
+        thumbnailDto = {
+          url: thumbnailUrl.publicUrl,
+          filename: this.thumbnailFile.name,
+          contentType: this.thumbnailFile.type,
+          size: this.thumbnailFile.size,
+          minioObjectKey: thumbnailUrl.objectKey,
+          minioBucket: thumbnailUrl.bucket,
+        };
+      }
 
-    // Build DTO
-    const dto: CreateProductDto = {
-      scope: formValue.scope,
-      organizationId: formValue.organizationId || undefined,
-      sku: formValue.sku,
-      name: formValue.name,
-      internationalName: formValue.internationalName || undefined,
-      description: formValue.description || undefined,
-      type: formValue.type,
-      status: formValue.status,
-      unit: formValue.unit,
-      categoryId: formValue.categoryId || undefined,
-      barcode: formValue.barcode || undefined,
-      metadata,
-    };
-
-    this.productService.createProduct(dto).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translocoService.translate('productForm.messages.success'),
-          detail: this.translocoService.translate('productForm.messages.createSuccess'),
+      // Upload media files if any
+      const mediaDto: any[] = [];
+      const mediaFiles = this.mediaFiles();
+      for (let i = 0; i < mediaFiles.length; i++) {
+        const file = mediaFiles[i];
+        const mediaUrl = await this.uploadFile(
+          file,
+          'media',
+          formValue.organizationId
+        );
+        const fileType = file.type.startsWith('image/') ? 'image' : 
+                        file.type.startsWith('video/') ? 'video' : 'document';
+        mediaDto.push({
+          type: fileType,
+          url: mediaUrl.publicUrl,
+          title: file.name,
+          mimeType: file.type,
+          size: file.size,
+          order: i,
+          isPrimary: i === 0,
+          minioObjectKey: mediaUrl.objectKey,
+          minioBucket: mediaUrl.bucket,
         });
-        this.onClose();
-      },
-      error: (error) => {
-        console.error('Save failed:', error);
+      }
+
+      // Build category object if categoryId is selected
+      let category: any = undefined;
+      if (formValue.categoryId && formValue.categoryName) {
+        const selectedCategory = this.categoryOptions().find(c => c.value === formValue.categoryId);
+        category = {
+          id: formValue.categoryId,
+          name: formValue.categoryName,
+          code: selectedCategory?.code,
+        };
+      }
+
+      // Build DTO matching backend expectations
+      const dto: any = {
+        scope: formValue.scope,
+        organizationId: formValue.organizationId || undefined,
+        sku: formValue.sku,
+        name: formValue.name,
+        slug: formValue.slug || undefined,
+        internationalName: formValue.internationalName || undefined,
+        description: formValue.description || undefined,
+        type: formValue.type,
+        status: formValue.status,
+        unit: formValue.unit,
+        barcode: formValue.barcode || undefined,
+        thumbnail: thumbnailDto,
+        media: mediaDto.length > 0 ? mediaDto : undefined,
+        category,
+      };
+
+      // Create product via API
+      this.productService.createProduct(dto).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: this.translocoService.translate('productForm.messages.success'),
+            detail: this.translocoService.translate('productForm.messages.createSuccess'),
+          });
+          this.onClose();
+        },
+        error: (error) => {
+          console.error('Save failed:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: this.translocoService.translate('productForm.messages.error'),
+            detail:
+              error?.error?.message ||
+              this.translocoService.translate('productForm.messages.saveFailed'),
+          });
+          this.isLoading.set(false);
+        },
+      });
+    } catch (error: any) {
+      console.error('Upload failed:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translocoService.translate('productForm.messages.error'),
+        detail: error?.message || this.translocoService.translate('productForm.messages.uploadFailed'),
+      });
+      this.isLoading.set(false);
+    }
+  }
+
+  /**
+   * Upload file to MinIO using presigned URL
+   */
+  private async uploadFile(
+    file: File,
+    type: 'thumbnail' | 'media',
+    organizationId?: string
+  ): Promise<{ publicUrl: string; objectKey: string; bucket: string }> {
+    // Get presigned URL from backend
+    const presignData = await this.productService
+      .getPresignedUploadUrl(file.name, file.type, type, organizationId)
+      .toPromise();
+
+    if (!presignData) {
+      throw new Error('Failed to get presigned upload URL');
+    }
+
+    // Upload file to MinIO using presigned URL
+    await this.productService.uploadFileToPresignedUrl(presignData.url, file).toPromise();
+
+    // Return the public URL and object info
+    return {
+      publicUrl: presignData.url.split('?')[0], // Remove query params to get public URL
+      objectKey: presignData.objectKey,
+      bucket: presignData.bucket,
+    };
+  }
+
+  /**
+   * Trigger media file input
+   */
+  protected onSelectMedia(): void {
+    this.mediaInput?.nativeElement?.click();
+  }
+
+  /**
+   * Handle media file selection
+   */
+  protected onMediaSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
+
+    if (!files || files.length === 0) {
+      return;
+    }
+
+    const validTypes = [
+      'image/jpeg', 'image/jpg', 'image/png', 'image/webp',
+      'video/mp4', 'video/webm', 'video/ogg',
+      'application/pdf', 'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+
+    const maxSize = 50 * 1024 * 1024; // 50MB per file
+    const newFiles: File[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      // Validate file type
+      if (!validTypes.includes(file.type)) {
         this.messageService.add({
-          severity: 'error',
+          severity: 'warn',
           summary: this.translocoService.translate('productForm.messages.error'),
-          detail:
-            error?.error?.message ||
-            this.translocoService.translate('productForm.messages.saveFailed'),
+          detail: `${file.name}: ${this.translocoService.translate('productForm.messages.invalidMediaType')}`,
         });
-        this.isLoading.set(false);
-      },
-    });
+        continue;
+      }
+
+      // Validate file size
+      if (file.size > maxSize) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: this.translocoService.translate('productForm.messages.error'),
+          detail: `${file.name}: ${this.translocoService.translate('productForm.messages.mediaTooLarge')}`,
+        });
+        continue;
+      }
+
+      newFiles.push(file);
+    }
+
+    // Add valid files to the list
+    if (newFiles.length > 0) {
+      this.mediaFiles.update(files => [...files, ...newFiles]);
+      this.messageService.add({
+        severity: 'success',
+        summary: this.translocoService.translate('productForm.messages.success'),
+        detail: this.translocoService.translate('productForm.messages.mediaAdded', { count: newFiles.length }),
+      });
+    }
+
+    // Clear input
+    input.value = '';
+  }
+
+  /**
+   * Remove media file from list
+   */
+  protected onRemoveMedia(index: number): void {
+    this.mediaFiles.update(files => files.filter((_, i) => i !== index));
+  }
+
+  /**
+   * Get file type icon
+   */
+  protected getFileIcon(file: File): string {
+    if (file.type.startsWith('image/')) {
+      return 'pi-image';
+    } else if (file.type.startsWith('video/')) {
+      return 'pi-video';
+    } else {
+      return 'pi-file';
+    }
   }
 
   /**

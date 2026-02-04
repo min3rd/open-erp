@@ -2796,6 +2796,9 @@
       "storageConditions": {
         "label": "Storage Conditions",
         "placeholder": "Enter storage conditions"
+      },
+      "media": {
+        "select": "Upload Media"
       }
     },
     "tabs": {
@@ -2807,7 +2810,9 @@
       "warehouse": "Warehouse Settings",
       "warehousePlaceholder": "Warehouse-specific settings coming soon",
       "custom": "Custom Fields",
-      "customPlaceholder": "Custom fields editor coming soon"
+      "customPlaceholder": "Custom fields editor coming soon",
+      "mediaDescription": "Upload images, videos, or documents for this product",
+      "mediaEmpty": "No media files added yet. Click Upload Media to add files."
     },
     "actions": {
       "cancel": "Cancel",
@@ -2825,7 +2830,11 @@
       "validationFailed": "Please fix the validation errors",
       "randomized": "Form filled with random data",
       "invalidFileType": "Invalid file type. Please upload a JPEG, PNG, or WebP image",
-      "fileTooLarge": "File size exceeds 5MB limit"
+      "fileTooLarge": "File size exceeds 5MB limit",
+      "invalidMediaType": "Invalid file type. Supported: images, videos, PDF, Word documents",
+      "mediaTooLarge": "File size exceeds 50MB limit",
+      "mediaAdded": "{{count}} file(s) added successfully",
+      "uploadFailed": "Failed to upload files"
     }
   },
   "productScope": {
