@@ -231,67 +231,7 @@ export class ProductService {
       throw new NotFoundException('Product not found');
     }
 
-    // Cleanup media files from MinIO (soft delete by moving to trash)
-    try {
-      // Delete thumbnail if exists
-      if (product.thumbnail?.minioObjectKey) {
-        await this.minioService.deleteObject(product.thumbnail.minioObjectKey, {
-          permanent: false, // Soft delete
-        });
-        this.logger.log(`Deleted thumbnail: ${product.thumbnail.minioObjectKey}`);
-      }
-
-      // Delete all media items
-      if (product.media && product.media.length > 0) {
-        for (const mediaItem of product.media) {
-          if (mediaItem.minioObjectKey) {
-            await this.minioService.deleteObject(mediaItem.minioObjectKey, {
-              permanent: false, // Soft delete
-            });
-            this.logger.log(`Deleted media: ${mediaItem.minioObjectKey}`);
-          }
-        }
-      }
-    } catch (error) {
-      this.logger.error(`Error cleaning up media for product ${id}:`, error);
-      // Continue with soft delete even if media cleanup fails
-    }
-
     return this.productRepository.softDelete(id, userId);
-  }
-
-  /**
-   * Clean up old media when updating with new media
-   */
-  async cleanupReplacedMedia(
-    productId: string,
-    oldThumbnail?: any,
-    oldMedia?: any[],
-  ): Promise<void> {
-    try {
-      // Clean up old thumbnail
-      if (oldThumbnail?.minioObjectKey) {
-        await this.minioService.deleteObject(oldThumbnail.minioObjectKey, {
-          permanent: false,
-        });
-        this.logger.log(`Cleaned up old thumbnail: ${oldThumbnail.minioObjectKey}`);
-      }
-
-      // Clean up old media items that are no longer in the new media array
-      if (oldMedia && oldMedia.length > 0) {
-        for (const item of oldMedia) {
-          if (item.minioObjectKey) {
-            await this.minioService.deleteObject(item.minioObjectKey, {
-              permanent: false,
-            });
-            this.logger.log(`Cleaned up old media: ${item.minioObjectKey}`);
-          }
-        }
-      }
-    } catch (error) {
-      this.logger.warn(`Error cleaning up replaced media for product ${productId}:`, error);
-      // Don't throw error, just log warning
-    }
   }
 
   async restore(id: string) {
