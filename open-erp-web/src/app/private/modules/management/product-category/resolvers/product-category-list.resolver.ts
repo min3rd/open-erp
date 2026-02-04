@@ -17,7 +17,7 @@ export const productCategoryListResolver: ResolveFn<{
   
   const search = route.params['search'] || '';
   const filter = route.params['filter'] || 'all';
-  const sort = route.params['sort'] || 'name-asc';
+  const sort = route.params['sort'] || '[name,asc]';
   const page = parseInt(route.params['page'] || '1', 10);
   const limit = parseInt(route.params['limit'] || '100', 10);
   
@@ -29,17 +29,11 @@ export const productCategoryListResolver: ResolveFn<{
     isActive = false;
   }
   
-  // Parse sort (field-direction format, e.g., "name-asc" or "code-desc")
-  const sortParts = sort.split('-');
-  const sortBy = sortParts[0];
-  const sortOrder = sortParts[1] === 'desc' ? 'desc' : 'asc';
-  
   // Build query params
   const params: any = {
     page,
     limit,
-    sortBy,
-    sortOrder,
+    sort,
   };
   
   // Add search if not empty or dash

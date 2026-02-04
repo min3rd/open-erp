@@ -66,8 +66,7 @@ export class ProductCategoryService {
     isActive?: boolean;
     parentId?: string;
     search?: string;
-    sortBy?: string;
-    sortOrder?: string;
+    sort?: string;
   }): Promise<{
     items: ProductCategoryDocument[];
     total: number;
@@ -87,18 +86,25 @@ export class ProductCategoryService {
       filter.parentId = params.parentId === 'null' ? null : params.parentId;
     }
 
-    // Build sort object - support multiple fields
+    // Build sort object - support array format [field1,order1,field2,order2,...]
     const sort: Record<string, 1 | -1> = {};
-    if (params.sortBy) {
-      const sortFields = params.sortBy.split(',').map(f => f.trim());
-      const sortOrders = params.sortOrder ? params.sortOrder.split(',').map(o => o.trim()) : [];
+    if (params.sort) {
+      // Remove brackets if present and split by comma
+      const sortStr = params.sort.replace(/[\[\]]/g, '');
+      const sortParts = sortStr.split(',').map(s => s.trim());
       
-      sortFields.forEach((field, index) => {
-        const order = sortOrders[index] || 'asc';
-        sort[field] = order === 'desc' ? -1 : 1;
-      });
-    } else {
-      // Default sort
+      // Parse pairs of field and order
+      for (let i = 0; i < sortParts.length; i += 2) {
+        const field = sortParts[i];
+        const order = sortParts[i + 1];
+        if (field && order) {
+          sort[field] = order === 'desc' ? -1 : 1;
+        }
+      }
+    }
+    
+    // Default sort if none specified
+    if (Object.keys(sort).length === 0) {
       sort.path = 1;
       sort.order = 1;
     }

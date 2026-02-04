@@ -52,8 +52,7 @@ export interface QueryProductCategoryParams {
   isActive?: boolean;
   parentId?: string;
   search?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sort?: string; // Array format: [field1,order1,field2,order2,...]
 }
 
 /**
@@ -98,8 +97,7 @@ export class ProductCategoryService {
       httpParams = httpParams.set('isActive', params.isActive.toString());
     if (params.parentId) httpParams = httpParams.set('parentId', params.parentId);
     if (params.search) httpParams = httpParams.set('search', params.search);
-    if (params.sortBy) httpParams = httpParams.set('sortBy', params.sortBy);
-    if (params.sortOrder) httpParams = httpParams.set('sortOrder', params.sortOrder);
+    if (params.sort) httpParams = httpParams.set('sort', params.sort);
 
     return this.http
       .get<ApiPaginatedResponse<ProductCategory>>(this.baseUrl, { params: httpParams })

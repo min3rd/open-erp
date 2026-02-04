@@ -127,16 +127,10 @@ export class ProductCategoryController {
     description: 'Fuzzy search on code and name fields'
   })
   @ApiQuery({
-    name: 'sortBy',
+    name: 'sort',
     required: false,
     type: String,
-    description: 'Fields to sort by, comma-separated (e.g., "name,order" or "code,level")',
-  })
-  @ApiQuery({
-    name: 'sortOrder',
-    required: false,
-    type: String,
-    description: 'Sort orders for each field, comma-separated (e.g., "asc,desc"). Must match number of sortBy fields.',
+    description: 'Sort specification as array format: [field1,order1,field2,order2,...]. Example: [name,asc,order,desc] sorts by name ascending, then order descending',
   })
   @ApiResponse({
     status: 200,
@@ -148,8 +142,7 @@ export class ProductCategoryController {
     @Query('isActive') isActive?: boolean,
     @Query('parentId') parentId?: string,
     @Query('search') search?: string,
-    @Query('sortBy') sortBy?: string,
-    @Query('sortOrder') sortOrder?: string,
+    @Query('sort') sort?: string,
   ) {
     try {
       const result = await this.categoryService.findAll({
@@ -158,8 +151,7 @@ export class ProductCategoryController {
         isActive,
         parentId,
         search,
-        sortBy,
-        sortOrder,
+        sort,
       });
 
       return paginated(result.items, result.page, result.limit, result.total);
