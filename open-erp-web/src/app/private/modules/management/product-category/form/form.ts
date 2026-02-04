@@ -91,10 +91,21 @@ export class ProductCategoryForm implements OnInit {
     this.isViewMode.set(routePath === 'view');
     this.isEditMode.set(routePath === 'edit');
 
+    // Log for debugging
+    console.log('Form mode:', {
+      isView: this.isViewMode(),
+      isEdit: this.isEditMode(),
+      routePath,
+      snapshot: this.route.snapshot
+    });
+
     // Load data from route resolver
     this.route.data.subscribe((data) => {
+      console.log('Route data received:', data);
+      
       const productCategory = data['productCategory'] as ProductCategory;
       if (productCategory) {
+        console.log('Product category data:', productCategory);
         this.productCategory.set(productCategory);
 
         // Populate form from product category data
@@ -107,6 +118,8 @@ export class ProductCategoryForm implements OnInit {
           order: productCategory.order || 0,
           metadata: productCategory.metadata ? JSON.stringify(productCategory.metadata, null, 2) : '',
         });
+        
+        console.log('Form values after patch:', this.form.value);
 
         if (this.isViewMode()) {
           this.form.disable();
@@ -116,11 +129,14 @@ export class ProductCategoryForm implements OnInit {
 
         // Force change detection
         this.cdr.detectChanges();
+      } else {
+        console.warn('No product category data in resolver');
       }
 
       // Load parent categories from resolver
       const parentCategories = data['parentCategories'] as ProductCategory[];
       if (parentCategories) {
+        console.log('Parent categories:', parentCategories);
         this.parentCategoryOptions.set(
           parentCategories.map((cat) => ({
             label: cat.name,
