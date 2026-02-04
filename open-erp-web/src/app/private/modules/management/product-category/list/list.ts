@@ -279,25 +279,30 @@ export class ProductCategoryList implements OnInit, OnDestroy {
       const normalizedLimit = PAGE_SIZE_OPTIONS.includes(limit) ? limit : PAGE_SIZE_OPTIONS[0];
       const search = params['search'] || '';
       const filter = params['filter'] || 'all';
-      const sort = params['sort'] || 'name-asc';
+      const sort = params['sort'] || '[name,asc]';
 
       this.currentPage.set(page);
       this.pageSize.set(normalizedLimit);
       this.searchQuery.set(search === '-' ? '' : search);
       this.activeFilter.set(filter);
       
-      // Parse sort
-      const sortParts = sort.split('-');
-      this.sortField.set(sortParts[0]);
-      this.sortOrder.set(sortParts[1] === 'desc' ? -1 : 1);
+      // Parse sort array format [field1,order1,field2,order2,...]
+      const sortStr = sort.replace(/[\[\]]/g, '');
+      const sortParts = sortStr.split(',').map((s: string) => s.trim());
       
-      // Update selected sort option
-      const sortOption = this.sortOptions.find(opt => 
-        opt.field === sortParts[0] && 
-        ((opt.order === 1 && sortParts[1] === 'asc') || (opt.order === -1 && sortParts[1] === 'desc'))
-      );
-      if (sortOption) {
-        this.selectedSort = sortOption;
+      // Use first field-order pair for UI
+      if (sortParts.length >= 2) {
+        this.sortField.set(sortParts[0]);
+        this.sortOrder.set(sortParts[1] === 'desc' ? -1 : 1);
+        
+        // Update selected sort option
+        const sortOption = this.sortOptions.find(opt => 
+          opt.field === sortParts[0] && 
+          ((opt.order === 1 && sortParts[1] === 'asc') || (opt.order === -1 && sortParts[1] === 'desc'))
+        );
+        if (sortOption) {
+          this.selectedSort = sortOption;
+        }
       }
     });
   }
@@ -318,7 +323,7 @@ export class ProductCategoryList implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     const searchValue = input.value || '-';
     const filter = this.activeFilter();
-    const sortStr = `${this.sortField()}-${this.sortOrder() === 1 ? 'asc' : 'desc'}`;
+    const sortStr = `[${this.sortField()},${this.sortOrder() === 1 ? 'asc' : 'desc'}]`;
     this.router.navigate(['../../../..', searchValue, filter, sortStr, 1, this.pageSize()], {
       relativeTo: this.route,
     });
@@ -327,10 +332,10 @@ export class ProductCategoryList implements OnInit, OnDestroy {
   /**
    * Handle filter change
    */
-  protected onFilterChange(filter: FilterOption): void {
+  protected onFilterChange(filterValue: 'all' | 'active' | 'inactive'): void {
     const search = this.searchQuery() || '-';
-    const sortStr = `${this.sortField()}-${this.sortOrder() === 1 ? 'asc' : 'desc'}`;
-    this.router.navigate(['../../../..', search, filter.value, sortStr, 1, this.pageSize()], {
+    const sortStr = `[${this.sortField()},${this.sortOrder() === 1 ? 'asc' : 'desc'}]`;
+    this.router.navigate(['../../../..', search, filterValue, sortStr, 1, this.pageSize()], {
       relativeTo: this.route,
     });
   }
@@ -342,7 +347,7 @@ export class ProductCategoryList implements OnInit, OnDestroy {
     this.selectedSort = sort;
     const search = this.searchQuery() || '-';
     const filter = this.activeFilter();
-    const sortStr = `${sort.field}-${sort.order === 1 ? 'asc' : 'desc'}`;
+    const sortStr = `[${sort.field},${sort.order === 1 ? 'asc' : 'desc'}]`;
     this.router.navigate(['../../../..', search, filter, sortStr, 1, this.pageSize()], {
       relativeTo: this.route,
     });
@@ -356,7 +361,7 @@ export class ProductCategoryList implements OnInit, OnDestroy {
     const newPageSize = event.pageSize;
     const search = this.searchQuery() || '-';
     const filter = this.activeFilter();
-    const sortStr = `${this.sortField()}-${this.sortOrder() === 1 ? 'asc' : 'desc'}`;
+    const sortStr = `[${this.sortField()},${this.sortOrder() === 1 ? 'asc' : 'desc'}]`;
 
     this.router.navigate(['../../../..', search, filter, sortStr, newPage, newPageSize], {
       relativeTo: this.route,
@@ -608,7 +613,7 @@ export class ProductCategoryList implements OnInit, OnDestroy {
     this.isSearchOpen.set(false);
     const search = '-';
     const filter = this.activeFilter();
-    const sortStr = `${this.sortField()}-${this.sortOrder() === 1 ? 'asc' : 'desc'}`;
+    const sortStr = `[${this.sortField()},${this.sortOrder() === 1 ? 'asc' : 'desc'}]`;
     this.router.navigate(['../../../..', search, filter, sortStr, 1, this.pageSize()], {
       relativeTo: this.route,
     });
@@ -629,14 +634,16 @@ export class ProductCategoryList implements OnInit, OnDestroy {
       isActive = false;
     }
     
+    // Build sort array format
+    const sortStr = `[${this.sortField()},${this.sortOrder() === 1 ? 'asc' : 'desc'}]`;
+    
     this.productCategoryService
       .getProductCategories({
         page: this.currentPage(),
         limit: this.pageSize(),
         search: this.searchQuery() || undefined,
         isActive,
-        sortBy: this.sortField(),
-        sortOrder: this.sortOrder() === 1 ? 'asc' : 'desc',
+        sort: sortStr,
       })
       .subscribe({
         next: (data) => {
