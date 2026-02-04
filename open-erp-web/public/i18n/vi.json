@@ -1592,6 +1592,9 @@
       "storageConditions": {
         "label": "Điều kiện bảo quản",
         "placeholder": "Nhập điều kiện bảo quản"
+      },
+      "media": {
+        "select": "Tải lên Media"
       }
     },
     "tabs": {
@@ -1603,7 +1606,9 @@
       "warehouse": "Cài đặt kho",
       "warehousePlaceholder": "Cài đặt riêng theo kho sẽ có sớm",
       "custom": "Trường tùy chỉnh",
-      "customPlaceholder": "Trình chỉnh sửa trường tùy chỉnh sẽ có sớm"
+      "customPlaceholder": "Trình chỉnh sửa trường tùy chỉnh sẽ có sớm",
+      "mediaDescription": "Tải lên hình ảnh, video hoặc tài liệu cho sản phẩm",
+      "mediaEmpty": "Chưa có file media nào. Nhấn Tải lên Media để thêm file."
     },
     "actions": {
       "cancel": "Hủy",
@@ -1621,7 +1626,11 @@
       "validationFailed": "Vui lòng kiểm tra lại các trường bắt buộc",
       "randomized": "Đã điền dữ liệu ngẫu nhiên",
       "invalidFileType": "Định dạng file không hợp lệ. Vui lòng tải ảnh JPEG, PNG hoặc WebP",
-      "fileTooLarge": "Kích thước file vượt quá 5MB"
+      "fileTooLarge": "Kích thước file vượt quá 5MB",
+      "invalidMediaType": "Định dạng file không hợp lệ. Hỗ trợ: hình ảnh, video, PDF, Word",
+      "mediaTooLarge": "Kích thước file vượt quá 50MB",
+      "mediaAdded": "Đã thêm {{count}} file thành công",
+      "uploadFailed": "Không thể tải file lên"
     }
   },
   "productScope": {

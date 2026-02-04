@@ -53,22 +53,62 @@ export interface Product {
 }
 
 /**
+ * Thumbnail DTO
+ */
+export interface ThumbnailDto {
+  url: string;
+  filename?: string;
+  contentType?: string;
+  size?: number;
+  minioObjectKey?: string;
+  minioBucket?: string;
+}
+
+/**
+ * Media item DTO
+ */
+export interface MediaItemDto {
+  type: 'image' | 'video' | 'document';
+  url: string;
+  title?: string;
+  description?: string;
+  mimeType?: string;
+  size?: number;
+  order?: number;
+  isPrimary?: boolean;
+  minioObjectKey?: string;
+  minioBucket?: string;
+}
+
+/**
+ * Category snapshot DTO
+ */
+export interface CategorySnapshotDto {
+  id?: string;
+  name: string;
+  code?: string;
+  description?: string;
+}
+
+/**
  * Create Product DTO
  */
 export interface CreateProductDto {
   sku: string;
   name: string;
+  slug?: string;
   internationalName?: string;
   description?: string;
   barcode?: string;
+  thumbnail?: ThumbnailDto;
+  media?: MediaItemDto[];
   scope: ProductScope;
   organizationId?: string;
   type: string;
+  category?: CategorySnapshotDto;
   status: ProductStatus;
   unit: string;
-  categoryId?: string;
   tags?: string[];
-  metadata?: Record<string, any>;
 }
 
 /**
@@ -198,6 +238,43 @@ export class ProductService {
     return this.http
       .post<ApiSingleResponse<Product>>(this.baseUrl, dto)
       .pipe(map((response) => response.data?.item!));
+  }
+
+  /**
+   * Get presigned URL for uploading media before product creation
+   * GET /products/media/presign-upload
+   */
+  getPresignedUploadUrl(
+    filename: string,
+    contentType: string,
+    type: 'thumbnail' | 'media' = 'thumbnail',
+    organizationId?: string
+  ): Observable<{ url: string; objectKey: string; bucket: string }> {
+    let httpParams = new HttpParams()
+      .set('filename', filename)
+      .set('contentType', contentType)
+      .set('type', type);
+    
+    if (organizationId) {
+      httpParams = httpParams.set('organizationId', organizationId);
+    }
+
+    return this.http
+      .get<any>(`${this.baseUrl}/media/presign-upload`, { params: httpParams })
+      .pipe(
+        map((response) => response.data?.item || response.data)
+      );
+  }
+
+  /**
+   * Upload file to presigned URL
+   */
+  uploadFileToPresignedUrl(url: string, file: File): Observable<void> {
+    return this.http.put<void>(url, file, {
+      headers: {
+        'Content-Type': file.type,
+      },
+    });
   }
 
   /**
