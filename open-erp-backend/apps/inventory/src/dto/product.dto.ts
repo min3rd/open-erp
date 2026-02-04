@@ -65,6 +65,48 @@ export class MediaItemDto {
   @IsOptional()
   @IsBoolean()
   isPrimary?: boolean;
+
+  @ApiPropertyOptional({ example: 'products/org-123/image-456.jpg' })
+  @IsOptional()
+  @IsString()
+  minioObjectKey?: string;
+
+  @ApiPropertyOptional({ example: 'open-erp' })
+  @IsOptional()
+  @IsString()
+  minioBucket?: string;
+}
+
+export class ThumbnailDto {
+  @ApiProperty({ example: 'https://example.com/thumbnail.jpg' })
+  @IsUrl()
+  url: string;
+
+  @ApiPropertyOptional({ example: 'thumbnail.jpg' })
+  @IsOptional()
+  @IsString()
+  filename?: string;
+
+  @ApiPropertyOptional({ example: 'image/jpeg' })
+  @IsOptional()
+  @IsString()
+  contentType?: string;
+
+  @ApiPropertyOptional({ example: 1024000, minimum: 0 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  size?: number;
+
+  @ApiPropertyOptional({ example: 'products/org-123/thumbnail-456.jpg' })
+  @IsOptional()
+  @IsString()
+  minioObjectKey?: string;
+
+  @ApiPropertyOptional({ example: 'open-erp' })
+  @IsOptional()
+  @IsString()
+  minioBucket?: string;
 }
 
 export class CustomAttributeDto {
@@ -191,6 +233,16 @@ export class CreateProductDto {
   @MaxLength(200)
   name: string;
 
+  @ApiPropertyOptional({ 
+    example: 'product-name', 
+    description: 'URL-friendly slug (auto-generated from name if not provided)' 
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  @MaxLength(200)
+  slug?: string;
+
   @ApiPropertyOptional({ example: 'International Product Name' })
   @IsOptional()
   @IsString()
@@ -207,6 +259,12 @@ export class CreateProductDto {
   @IsOptional()
   @IsString()
   barcode?: string;
+
+  @ApiPropertyOptional({ type: ThumbnailDto, description: 'Product thumbnail image' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ThumbnailDto)
+  thumbnail?: ThumbnailDto;
 
   @ApiPropertyOptional({ type: [MediaItemDto] })
   @IsOptional()
@@ -327,6 +385,16 @@ export class UpdateProductDto {
   @MaxLength(200)
   name?: string;
 
+  @ApiPropertyOptional({ 
+    example: 'product-name', 
+    description: 'URL-friendly slug' 
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  @MaxLength(200)
+  slug?: string;
+
   @ApiPropertyOptional({ example: 'International Product Name' })
   @IsOptional()
   @IsString()
@@ -343,6 +411,12 @@ export class UpdateProductDto {
   @IsOptional()
   @IsString()
   barcode?: string;
+
+  @ApiPropertyOptional({ type: ThumbnailDto, description: 'Product thumbnail image' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ThumbnailDto)
+  thumbnail?: ThumbnailDto;
 
   @ApiPropertyOptional({ type: [MediaItemDto] })
   @IsOptional()

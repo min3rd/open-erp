@@ -10,6 +10,7 @@ import { ProductRepository } from '../repositories/product.repository';
 import { ProductVersionRepository } from '../repositories/product-version.repository';
 import { CreateProductDto, UpdateProductDto } from '../dto/product.dto';
 import { ProductScope } from '@shared/constants';
+import { generateSlug, generateUniqueSlug } from '../utils/slug.util';
 
 @Injectable()
 export class ProductService {
@@ -42,9 +43,29 @@ export class ProductService {
       throw new ConflictException('Product with this SKU already exists');
     }
 
+    // Generate slug if not provided
+    let slug = createDto.slug;
+    if (!slug) {
+      const baseSlug = generateSlug(createDto.name);
+      slug = await generateUniqueSlug(
+        baseSlug,
+        async (s) => await this.checkSlugExists(s, createDto.organizationId),
+      );
+    } else {
+      // Normalize provided slug
+      slug = generateSlug(slug);
+      
+      // Check if slug already exists
+      const slugExists = await this.checkSlugExists(slug, createDto.organizationId);
+      if (slugExists) {
+        throw new ConflictException('Product with this slug already exists');
+      }
+    }
+
     // Create product with initial version
     const productData: any = {
       ...createDto,
+      slug,
       currentVersion: 1,
       versionCreatedAt: new Date(),
       organizationId: createDto.organizationId
@@ -66,6 +87,20 @@ export class ProductService {
 
     this.logger.log(`Created product: ${product._id} (SKU: ${product.sku})`);
     return product;
+  }
+
+  /**
+   * Check if a slug already exists for the given scope
+   */
+  private async checkSlugExists(
+    slug: string,
+    organizationId?: string,
+  ): Promise<boolean> {
+    const existing = await this.productRepository.findOne({
+      slug,
+      ...(organizationId && { organizationId: new Types.ObjectId(organizationId) }),
+    });
+    return !!existing;
   }
 
   async findById(id: string, options?: { includeDeleted?: boolean }) {

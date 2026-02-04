@@ -173,6 +173,36 @@ export class MediaItem {
 
   @Prop({ type: Boolean, default: false })
   isPrimary: boolean; // Primary/featured image
+
+  @Prop({ type: String })
+  minioObjectKey?: string; // MinIO object key for lifecycle management
+
+  @Prop({ type: String })
+  minioBucket?: string; // MinIO bucket name
+}
+
+/**
+ * Thumbnail sub-schema
+ */
+@Schema({ _id: false })
+export class Thumbnail {
+  @Prop({ required: true, type: String })
+  url: string;
+
+  @Prop({ type: String })
+  filename?: string;
+
+  @Prop({ type: String })
+  contentType?: string;
+
+  @Prop({ type: Number, min: 0 })
+  size?: number; // Size in bytes
+
+  @Prop({ type: String })
+  minioObjectKey?: string; // MinIO object key for lifecycle management
+
+  @Prop({ type: String })
+  minioBucket?: string; // MinIO bucket name
 }
 
 // Define interface for instance methods
@@ -212,6 +242,14 @@ export class Product extends Document {
   @Prop({
     type: String,
     trim: true,
+    lowercase: true,
+    index: true,
+  })
+  slug?: string;
+
+  @Prop({
+    type: String,
+    trim: true,
   })
   internationalName?: string;
 
@@ -230,6 +268,11 @@ export class Product extends Document {
   barcode?: string;
 
   // ========== MEDIA ==========
+  @Prop({
+    type: Thumbnail,
+  })
+  thumbnail?: Thumbnail;
+
   @Prop({
     type: [MediaItem],
     default: [],
@@ -454,6 +497,32 @@ ProductSchema.index(
   {
     unique: true,
     partialFilterExpression: { scope: ProductScope.GLOBAL },
+  },
+);
+
+// Unique index for slug within organization scope
+ProductSchema.index(
+  { organizationId: 1, slug: 1 },
+  {
+    unique: true,
+    sparse: true,
+    partialFilterExpression: { 
+      scope: ProductScope.ORGANIZATION,
+      slug: { $type: 'string' }
+    },
+  },
+);
+
+// Unique index for global scope slug
+ProductSchema.index(
+  { slug: 1 },
+  {
+    unique: true,
+    sparse: true,
+    partialFilterExpression: { 
+      scope: ProductScope.GLOBAL,
+      slug: { $type: 'string' }
+    },
   },
 );
 
