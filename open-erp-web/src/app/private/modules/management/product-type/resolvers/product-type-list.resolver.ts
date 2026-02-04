@@ -23,7 +23,7 @@ export const productTypeListResolver: ResolveFn<ProductTypeListResponse | null> 
     page,
     limit,
     isActive: true,
-    sort: new Map<string, 1 | -1>([['name', 1]]),
+    sort: { name: 1 },
   };
 
   // Add search if provided

@@ -60,7 +60,7 @@ export interface QueryProductTypeParams {
   limit?: number;
   isActive?: boolean;
   search?: string;
-  sort?: Map<string, 1 | -1>;
+  sort?: Record<string, 1 | -1>;
 }
 
 /**
@@ -89,7 +89,7 @@ export class ProductTypeService {
       httpParams = httpParams.set('isActive', params.isActive.toString());
     if (params.search) httpParams = httpParams.set('search', params.search);
     if (params.sort) {
-      httpParams = httpParams.set('sort', JSON.stringify(Object.fromEntries(params.sort)));
+      httpParams = httpParams.set('sort', JSON.stringify(params.sort));
     }
 
     return this.http
