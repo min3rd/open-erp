@@ -136,9 +136,9 @@ ProductCategorySchema.pre('save', async function () {
   if (this.isNew || this.isModified('parentId')) {
     if (this.parentId) {
       // Get parent category
-      const parent = await this.model('ProductCategory').findById(
+      const parent = (await this.model('ProductCategory').findById(
         this.parentId,
-      );
+      )) as ProductCategoryDocument | null;
       if (parent) {
         this.path = `${parent.path}${this._id}/`;
         this.level = parent.level + 1;

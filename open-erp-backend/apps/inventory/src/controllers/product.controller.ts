@@ -963,9 +963,9 @@ export class ProductController {
   @ApiResponse({ status: 404, description: 'Product not found' })
   async deleteMedia(
     @Param('id') id: string,
+    @CurrentUser() user: UserContext,
     @Query('objectKey') objectKey?: string,
     @Query('deleteThumbnail') deleteThumbnail?: boolean,
-    @CurrentUser() user: UserContext,
   ) {
     try {
       const product = await this.productService.findById(id);
