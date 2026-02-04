@@ -693,11 +693,6 @@ export class ProductController {
     @CurrentUser() user: UserContext = {} as UserContext,
   ) {
     try {
-      // Validate content type for images
-      if (type === 'thumbnail' && !contentType.startsWith('image/')) {
-        throw new BadRequestException('Thumbnail must be an image file');
-      }
-
       // Validate file type based on media type
       const allowedTypes = {
         thumbnail: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
