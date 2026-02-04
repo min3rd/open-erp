@@ -526,3 +526,45 @@ export class UpdateProductDto {
   @MaxLength(500)
   changeReason?: string;
 }
+
+export class RegisterMediaDto {
+  @ApiProperty({ example: 'products/org-123/prod-456/media/1234567890-image.jpg' })
+  @IsString()
+  objectKey: string;
+
+  @ApiProperty({ enum: ['thumbnail', 'image', 'video', 'document'], example: 'image' })
+  @IsEnum(['thumbnail', 'image', 'video', 'document'])
+  type: 'thumbnail' | 'image' | 'video' | 'document';
+
+  @ApiProperty({ example: 'https://minio.example.com/...' })
+  @IsUrl()
+  url: string;
+
+  @ApiProperty({ example: 'product-image.jpg' })
+  @IsString()
+  filename: string;
+
+  @ApiProperty({ example: 'image/jpeg' })
+  @IsString()
+  contentType: string;
+
+  @ApiProperty({ example: 1024000, minimum: 0 })
+  @IsNumber()
+  @Min(0)
+  size: number;
+
+  @ApiPropertyOptional({ example: 'Product front view' })
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @ApiPropertyOptional({ example: 'High quality product image' })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiPropertyOptional({ example: true })
+  @IsOptional()
+  @IsBoolean()
+  isPrimary?: boolean;
+}

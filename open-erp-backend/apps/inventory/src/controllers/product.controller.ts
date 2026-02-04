@@ -26,7 +26,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { ProductService } from '../services/product.service';
-import { CreateProductDto, UpdateProductDto } from '../dto/product.dto';
+import { CreateProductDto, UpdateProductDto, RegisterMediaDto } from '../dto/product.dto';
 import {
   created,
   updated,
