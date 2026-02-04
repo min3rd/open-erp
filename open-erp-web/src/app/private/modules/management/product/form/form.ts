@@ -3,15 +3,17 @@ import {
   Component,
   inject,
   OnInit,
+  OnDestroy,
   signal,
-  effect,
   ViewChild,
   ElementRef,
+  DestroyRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // PrimeNG imports
 import { ButtonModule } from 'primeng/button';
@@ -72,6 +74,7 @@ export class ProductForm implements OnInit {
   private readonly productCategoryService = inject(ProductCategoryService);
   private readonly messageService = inject(MessageService);
   private readonly translocoService = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly product = signal<Product | null>(null);
   protected readonly isVisible = signal(true);
@@ -98,22 +101,6 @@ export class ProductForm implements OnInit {
   protected categoryOptions = signal<SelectOption[]>([]);
 
   protected form!: FormGroup;
-
-  constructor() {
-    // Auto-generate slug from name
-    effect(() => {
-      const nameControl = this.form?.get('name');
-      if (nameControl) {
-        nameControl.valueChanges.subscribe((value) => {
-          if (value && !this.product()) {
-            // Only auto-generate for new products
-            const slug = slugify(value, 128);
-            this.form.get('slug')?.setValue(slug, { emitEvent: false });
-          }
-        });
-      }
-    });
-  }
 
   ngOnInit(): void {
     // Initialize form
@@ -150,6 +137,17 @@ export class ProductForm implements OnInit {
       // Custom fields tab
       metadata: [{}],
     });
+
+    // Auto-generate slug from name for new products
+    this.form.get('name')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        if (value && !this.product()) {
+          // Only auto-generate for new products
+          const slug = slugify(value, 128);
+          this.form.get('slug')?.setValue(slug, { emitEvent: false });
+        }
+      });
 
     // Load dropdown data
     this.loadProductTypes();
