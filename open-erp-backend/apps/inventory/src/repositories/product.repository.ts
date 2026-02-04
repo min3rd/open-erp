@@ -15,8 +15,15 @@ export class ProductRepository {
     return product.save();
   }
 
-  async findById(id: string): Promise<ProductDocument | null> {
-    return this.productModel.findById(id).exec();
+  async findById(
+    id: string,
+    options?: { includeDeleted?: boolean },
+  ): Promise<ProductDocument | null> {
+    const query = this.productModel.findById(id);
+    if (options?.includeDeleted) {
+      query.setOptions({ includeDeleted: true });
+    }
+    return query.exec();
   }
 
   async findBySku(
@@ -40,13 +47,37 @@ export class ProductRepository {
       skip?: number;
       limit?: number;
       sort?: any;
+      includeDeleted?: boolean;
+      includeInactive?: boolean;
     } = {},
   ): Promise<{ items: ProductDocument[]; total: number }> {
-    const { skip = 0, limit = 10, sort = { createdAt: -1 } } = options;
+    const {
+      skip = 0,
+      limit = 10,
+      sort = { createdAt: -1 },
+      includeDeleted = false,
+      includeInactive = false,
+    } = options;
+
+    // Add active filter unless includeInactive is true
+    if (!includeInactive && !filter.status) {
+      filter.status = 'active';
+    }
+
+    const queryOptions: any = {};
+    if (includeDeleted) {
+      queryOptions.includeDeleted = true;
+    }
 
     const [items, total] = await Promise.all([
-      this.productModel.find(filter).sort(sort).skip(skip).limit(limit).exec(),
-      this.productModel.countDocuments(filter).exec(),
+      this.productModel
+        .find(filter)
+        .setOptions(queryOptions)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.productModel.countDocuments(filter).setOptions(queryOptions).exec(),
     ]);
 
     return { items, total };
@@ -66,11 +97,17 @@ export class ProductRepository {
     return result !== null;
   }
 
-  async softDelete(id: string): Promise<ProductDocument | null> {
+  async softDelete(id: string, userId: string): Promise<ProductDocument | null> {
     return this.productModel
       .findByIdAndUpdate(
         id,
-        { $set: { deletedAt: new Date(), status: 'inactive' } },
+        {
+          $set: {
+            deletedAt: new Date(),
+            deletedBy: new Types.ObjectId(userId),
+            status: 'inactive',
+          },
+        },
         { new: true },
       )
       .exec();
@@ -79,23 +116,44 @@ export class ProductRepository {
   async search(
     searchText: string,
     filter: any = {},
-    options: { skip?: number; limit?: number } = {},
+    options: {
+      skip?: number;
+      limit?: number;
+      includeDeleted?: boolean;
+      includeInactive?: boolean;
+    } = {},
   ): Promise<{ items: ProductDocument[]; total: number }> {
-    const { skip = 0, limit = 10 } = options;
+    const {
+      skip = 0,
+      limit = 10,
+      includeDeleted = false,
+      includeInactive = false,
+    } = options;
+
+    // Add active filter unless includeInactive is true
+    if (!includeInactive && !filter.status) {
+      filter.status = 'active';
+    }
 
     const searchQuery = {
       ...filter,
       $text: { $search: searchText },
     };
 
+    const queryOptions: any = {};
+    if (includeDeleted) {
+      queryOptions.includeDeleted = true;
+    }
+
     const [items, total] = await Promise.all([
       this.productModel
         .find(searchQuery, { score: { $meta: 'textScore' } })
+        .setOptions(queryOptions)
         .sort({ score: { $meta: 'textScore' } })
         .skip(skip)
         .limit(limit)
         .exec(),
-      this.productModel.countDocuments(searchQuery).exec(),
+      this.productModel.countDocuments(searchQuery).setOptions(queryOptions).exec(),
     ]);
 
     return { items, total };

@@ -68,8 +68,11 @@ export class ProductService {
     return product;
   }
 
-  async findById(id: string) {
-    const product = await this.productRepository.findById(id);
+  async findById(
+    id: string,
+    options?: { includeDeleted?: boolean },
+  ) {
+    const product = await this.productRepository.findById(id, options);
     if (!product) {
       throw new NotFoundException('Product not found');
     }
@@ -90,14 +93,24 @@ export class ProductService {
       type?: string;
       status?: string;
       organizationId?: string;
+      category?: string;
+      tags?: string[];
     } = {},
     options: {
       page?: number;
       limit?: number;
       sort?: any;
+      includeDeleted?: boolean;
+      includeInactive?: boolean;
     } = {},
   ) {
-    const { page = 1, limit = 10, sort } = options;
+    const {
+      page = 1,
+      limit = 10,
+      sort,
+      includeDeleted = false,
+      includeInactive = false,
+    } = options;
     const skip = (page - 1) * limit;
 
     // Build filter query
@@ -108,11 +121,19 @@ export class ProductService {
     if (filter.organizationId) {
       query.organizationId = new Types.ObjectId(filter.organizationId);
     }
+    if (filter.category) {
+      query['category.name'] = filter.category;
+    }
+    if (filter.tags && filter.tags.length > 0) {
+      query.tags = { $in: filter.tags };
+    }
 
     const result = await this.productRepository.findAll(query, {
       skip,
       limit,
       sort,
+      includeDeleted,
+      includeInactive,
     });
 
     return {
@@ -169,18 +190,20 @@ export class ProductService {
     return updatedProduct;
   }
 
-  async softDelete(id: string) {
+  async softDelete(id: string, userId: string) {
     this.logger.log(`Soft deleting product: ${id}`);
     const product = await this.productRepository.findById(id);
     if (!product) {
       throw new NotFoundException('Product not found');
     }
 
-    return this.productRepository.softDelete(id);
+    return this.productRepository.softDelete(id, userId);
   }
 
   async restore(id: string) {
-    const product = await this.productRepository.findById(id);
+    const product = await this.productRepository.findById(id, {
+      includeDeleted: true,
+    });
     if (!product) {
       throw new NotFoundException('Product not found');
     }
@@ -193,13 +216,22 @@ export class ProductService {
     filter: {
       scope?: ProductScope;
       organizationId?: string;
+      category?: string;
+      tags?: string[];
     } = {},
     options: {
       page?: number;
       limit?: number;
+      includeDeleted?: boolean;
+      includeInactive?: boolean;
     } = {},
   ) {
-    const { page = 1, limit = 10 } = options;
+    const {
+      page = 1,
+      limit = 10,
+      includeDeleted = false,
+      includeInactive = false,
+    } = options;
     const skip = (page - 1) * limit;
 
     // Build filter query
@@ -208,10 +240,18 @@ export class ProductService {
     if (filter.organizationId) {
       query.organizationId = new Types.ObjectId(filter.organizationId);
     }
+    if (filter.category) {
+      query['category.name'] = filter.category;
+    }
+    if (filter.tags && filter.tags.length > 0) {
+      query.tags = { $in: filter.tags };
+    }
 
     const result = await this.productRepository.search(searchText, query, {
       skip,
       limit,
+      includeDeleted,
+      includeInactive,
     });
 
     return {

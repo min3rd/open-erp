@@ -415,6 +415,19 @@ export class Product extends Document {
   deletedAt?: Date;
 
   @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'User',
+  })
+  deletedBy?: MongooseSchema.Types.ObjectId;
+
+  @Prop({
+    type: [String],
+    default: [],
+    index: true,
+  })
+  tags: string[];
+
+  @Prop({
     type: Map,
     of: MongooseSchema.Types.Mixed,
     default: {},

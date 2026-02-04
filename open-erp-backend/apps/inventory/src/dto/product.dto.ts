@@ -308,6 +308,12 @@ export class CreateProductDto {
   @Type(() => CustomAttributeDto)
   customAttributes?: CustomAttributeDto[];
 
+  @ApiPropertyOptional({ type: [String], example: ['electronics', 'featured'] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
+
   @ApiProperty({ description: 'User ID who created the product' })
   @IsMongoId()
   createdBy: string;
@@ -429,6 +435,12 @@ export class UpdateProductDto {
   @ValidateNested({ each: true })
   @Type(() => CustomAttributeDto)
   customAttributes?: CustomAttributeDto[];
+
+  @ApiPropertyOptional({ type: [String], example: ['electronics', 'featured'] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
 
   @ApiProperty({ description: 'User ID who updated the product' })
   @IsMongoId()
