@@ -42,9 +42,86 @@ Each media item now includes:
 
 ## API Endpoints
 
-### 1. Get Presigned Upload URL
+### 1. Get Presigned Upload URL (For Product Creation)
 
-Generate a presigned URL for direct client upload to MinIO.
+Generate a presigned URL for direct client upload to MinIO **before** creating a product (no product ID required).
+
+**Endpoint:** `GET /products/media/presign-upload`
+
+**Parameters:**
+- `filename` (query, required): Original filename with extension
+- `contentType` (query, required): MIME type (e.g., `image/jpeg`, `video/mp4`)
+- `type` (query, optional): Media type - `thumbnail` or `media` (default: `media`)
+- `organizationId` (query, optional): Organization ID for organization-scoped products
+
+**Permissions:** `PRODUCT_CREATE` or `PRODUCT_MANAGE`
+
+**Use Case:** Use this endpoint when creating a new product and you need to upload media first (since you don't have a product ID yet).
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": null,
+  "error": null,
+  "data": {
+    "uploadUrl": "https://minio.example.com/open-erp/products/temp/...",
+    "method": "PUT",
+    "expiresAt": "2026-02-04T10:06:25.374Z",
+    "objectKey": "products/temp/org-123/thumbnail/1707041185374-product.jpg",
+    "bucket": "open-erp"
+  }
+}
+```
+
+**Note:** Files are uploaded to a temporary location (`products/temp/...`). After uploading, include the `objectKey` in your product creation request, and the file will remain accessible.
+
+**Example Usage (JavaScript - Create Product Flow):**
+```javascript
+// Step 1: Get presigned URL (no product ID needed)
+const response = await fetch(
+  `/products/media/presign-upload?filename=product.jpg&contentType=image/jpeg&type=thumbnail&organizationId=123`,
+  {
+    headers: { 'Authorization': `Bearer ${token}` }
+  }
+);
+const { data } = await response.json();
+
+// Step 2: Upload file directly to MinIO
+await fetch(data.uploadUrl, {
+  method: 'PUT',
+  body: fileBlob,
+  headers: {
+    'Content-Type': 'image/jpeg'
+  }
+});
+
+// Step 3: Create product with the thumbnail
+const product = await fetch('/products', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    name: 'My Product',
+    sku: 'PROD-001',
+    // ... other fields
+    thumbnail: {
+      url: data.uploadUrl.split('?')[0], // Remove query params
+      filename: 'product.jpg',
+      contentType: 'image/jpeg',
+      size: fileBlob.size,
+      minioObjectKey: data.objectKey,
+      minioBucket: data.bucket
+    }
+  })
+});
+```
+
+### 2. Get Presigned Upload URL (For Existing Product)
+
+Generate a presigned URL for direct client upload to MinIO for an **existing** product.
 
 **Endpoint:** `GET /products/:id/media/presign-upload`
 
@@ -55,6 +132,8 @@ Generate a presigned URL for direct client upload to MinIO.
 - `type` (query, optional): Media type - `thumbnail` or `media` (default: `media`)
 
 **Permissions:** `PRODUCT_UPDATE` or `PRODUCT_MANAGE`
+
+**Use Case:** Use this endpoint when updating an existing product's media.
 
 **Response:**
 ```json
@@ -77,7 +156,7 @@ Generate a presigned URL for direct client upload to MinIO.
 - General media supports images, videos, and documents
 - Filenames are sanitized to prevent path traversal attacks
 
-**Example Usage (JavaScript):**
+**Example Usage (JavaScript - Update Product Flow):**
 ```javascript
 // Step 1: Get presigned URL
 const response = await fetch(
@@ -115,9 +194,11 @@ await fetch(`/products/${productId}/media/register`, {
 });
 ```
 
-### 2. Register Uploaded Media
+### 3. Register Uploaded Media
 
-After uploading to MinIO using the presigned URL, register the media metadata.
+After uploading to MinIO using the presigned URL, register the media metadata. This endpoint is used when **updating an existing product** to add new media items after they've been uploaded.
+
+**Note:** For the **create product flow**, you don't need this endpoint - just include the thumbnail/media metadata directly in the `POST /products` request body.
 
 **Endpoint:** `POST /products/:id/media/register`
 
@@ -160,7 +241,7 @@ After uploading to MinIO using the presigned URL, register the media metadata.
 - For other types, adds to the product's media array
 - Creates a new product version snapshot
 
-### 3. Delete Media
+### 4. Delete Media
 
 Delete media from both the product and MinIO storage.
 

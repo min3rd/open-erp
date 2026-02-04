@@ -44,9 +44,10 @@ This implementation adds comprehensive media management capabilities to the Prod
 
 ## API Endpoints Added
 
-1. **GET /products/:id/media/presign-upload** - Generate presigned upload URL
-2. **POST /products/:id/media/register** - Register uploaded media
-3. **DELETE /products/:id/media** - Delete media
+1. **GET /products/media/presign-upload** - Generate presigned upload URL (for product creation, no ID required)
+2. **GET /products/:id/media/presign-upload** - Generate presigned upload URL (for existing product)
+3. **POST /products/:id/media/register** - Register uploaded media
+4. **DELETE /products/:id/media** - Delete media
 
 ## Files Modified
 
