@@ -65,13 +65,14 @@
             <label for="product-form-org" class="block text-sm font-medium mb-1">
               {{ 'productForm.fields.organizationId.label' | transloco }}
             </label>
-            <input
+            <p-select
               id="product-form-org"
-              type="text"
-              pInputText
               formControlName="organizationId"
+              [options]="organizationOptions()"
+              optionLabel="label"
+              optionValue="value"
               [placeholder]="'productForm.fields.organizationId.placeholder' | transloco"
-              class="w-full"
+              styleClass="w-full"
             />
           </div>
           }
