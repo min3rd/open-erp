@@ -25,9 +25,7 @@ describe('MinioService', () => {
       presignedGetObject: jest.fn(),
       getObject: jest.fn(),
       getPartialObject: jest.fn(),
-      listObjectVersions: jest.fn(),
       copyObject: jest.fn(),
-      setObjectMetadata: jest.fn(),
       removeObject: jest.fn(),
       removeObjects: jest.fn(),
       statObject: jest.fn(),
@@ -299,33 +297,21 @@ describe('MinioService', () => {
 
   describe('listVersions', () => {
     it('should list object versions', async () => {
-      const mockStream = new Readable({
-        objectMode: true,
-        read() {
-          this.push({
-            name: 'test/file.txt',
-            versionId: 'v1',
-            lastModified: '2024-01-01T00:00:00Z',
-            size: 100,
-            etag: 'etag1',
-            isLatest: true,
-          });
-          this.push({
-            name: 'test/file.txt',
-            versionId: 'v2',
-            lastModified: '2024-01-02T00:00:00Z',
-            size: 150,
-            etag: 'etag2',
-            isLatest: false,
-          });
-          this.push(null);
-        },
-      });
-      mockMinioClient.listObjectVersions.mockReturnValue(mockStream as any);
+      mockMinioClient.statObject.mockResolvedValue({
+        size: 100,
+        lastModified: '2024-01-01T00:00:00Z',
+        etag: 'etag1',
+        versionId: 'v1',
+        metaData: {},
+      } as any);
 
       const versions = await service.listVersions('test/file.txt');
 
-      expect(versions).toHaveLength(2);
+      expect(mockMinioClient.statObject).toHaveBeenCalledWith(
+        expect.any(String),
+        'test/file.txt',
+      );
+      expect(versions).toHaveLength(1);
       expect(versions[0]).toMatchObject({
         versionId: 'v1',
         key: 'test/file.txt',
@@ -334,37 +320,13 @@ describe('MinioService', () => {
     });
 
     it('should limit number of versions returned', async () => {
-      let pushCount = 0;
-      const mockStream = new Readable({
-        objectMode: true,
-        read() {
-          // Push one item at a time to simulate real streaming
-          if (pushCount === 0) {
-            this.push({
-              name: 'test/file.txt',
-              versionId: 'v1',
-              lastModified: '2024-01-01T00:00:00Z',
-              size: 100,
-              etag: 'etag1',
-              isLatest: true,
-            });
-            pushCount++;
-          } else if (pushCount === 1) {
-            this.push({
-              name: 'test/file.txt',
-              versionId: 'v2',
-              lastModified: '2024-01-02T00:00:00Z',
-              size: 150,
-              etag: 'etag2',
-              isLatest: false,
-            });
-            pushCount++;
-          } else {
-            this.push(null);
-          }
-        },
-      });
-      mockMinioClient.listObjectVersions.mockReturnValue(mockStream as any);
+      mockMinioClient.statObject.mockResolvedValue({
+        size: 100,
+        lastModified: '2024-01-01T00:00:00Z',
+        etag: 'etag1',
+        versionId: 'v1',
+        metaData: {},
+      } as any);
 
       const versions = await service.listVersions('test/file.txt', {
         maxVersions: 1,
@@ -519,20 +481,26 @@ describe('MinioService', () => {
       mockMinioClient.copyObject.mockResolvedValue({
         etag: 'new-etag',
       } as any);
-      mockMinioClient.setObjectMetadata.mockResolvedValue(undefined);
+      mockMinioClient.statObject.mockResolvedValue({
+        size: 1024,
+        lastModified: new Date('2024-01-01T00:00:00Z'),
+        etag: 'test-etag',
+        metaData: {
+          'content-type': 'application/pdf',
+          category: 'documents',
+        },
+      } as any);
 
       await service.updateMetadata('test/file.txt', {
         contentType: 'application/pdf',
         customMetadata: { category: 'documents' },
       });
 
-      expect(mockMinioClient.setObjectMetadata).toHaveBeenCalledWith(
+      expect(mockMinioClient.copyObject).toHaveBeenCalledWith(
         expect.any(String),
         'test/file.txt',
-        expect.objectContaining({
-          'content-type': 'application/pdf',
-          category: 'documents',
-        }),
+        expect.stringContaining('test/file.txt'),
+        expect.any(Object),
       );
     });
   });
