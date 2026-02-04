@@ -6,6 +6,9 @@ import { catchError, of } from 'rxjs';
 /**
  * Resolver for product list data
  * Pre-loads product list based on route params before navigation
+ * 
+ * Route pattern: /:search/:filter/:sort/:page/:limit
+ * Filter format: status-type-category (e.g., "all-all-all", "active-electronics-all", "all-finished_good-cat123")
  */
 export const productListResolver: ResolveFn<
   { items: Product[]; total: number; page: number; limit: number } | null
@@ -16,13 +19,31 @@ export const productListResolver: ResolveFn<
   const page = parseInt(route.params['page'], 10) || 1;
   const limit = parseInt(route.params['limit'], 10) || 100;
   const search = route.params['search'] || '';
-  const filter = route.params['filter'] || 'all';
+  const filterStr = route.params['filter'] || 'all-all-all';
   const sort = route.params['sort'] || '[name,asc]';
 
-  // Parse filter (status filter)
+  // Parse composite filter: status-type-category
+  const filterParts = filterStr.split('-');
+  const statusFilter = filterParts[0] || 'all';
+  const typeFilter = filterParts[1] || 'all';
+  const categoryFilter = filterParts[2] || 'all';
+
+  // Parse status filter
   let status: ProductStatus | undefined;
-  if (filter !== 'all') {
-    status = filter as ProductStatus;
+  if (statusFilter !== 'all') {
+    status = statusFilter as ProductStatus;
+  }
+
+  // Parse type filter
+  let type: string | undefined;
+  if (typeFilter !== 'all') {
+    type = typeFilter;
+  }
+
+  // Parse category filter
+  let category: string | undefined;
+  if (categoryFilter !== 'all') {
+    category = categoryFilter;
   }
 
   // Parse sort string format: [field,order]
@@ -48,6 +69,14 @@ export const productListResolver: ResolveFn<
 
   if (status) {
     params.status = status;
+  }
+
+  if (type) {
+    params.type = type;
+  }
+
+  if (category) {
+    params.category = category;
   }
 
   if (sortParam) {
