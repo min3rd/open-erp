@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Product } from './product';
 import { ProductList } from './list/list';
+import { ProductForm } from './form/form';
 import { productListResolver } from './resolvers/product-list.resolver';
 
 export const routes: Routes = [
@@ -38,12 +39,12 @@ export const routes: Routes = [
                                   productList: productListResolver,
                                 },
                                 children: [
-                                  // TODO: Add form routes for create/edit/view when form component is implemented
-                                  // {
-                                  //   path: 'new',
-                                  //   pathMatch: 'full',
-                                  //   component: ProductForm,
-                                  // },
+                                  {
+                                    path: 'new',
+                                    pathMatch: 'full',
+                                    component: ProductForm,
+                                  },
+                                  // TODO: Add edit/view routes when needed
                                   // {
                                   //   path: ':id',
                                   //   children: [
