@@ -410,9 +410,6 @@ export class Detail implements OnInit, OnDestroy {
               name: currentUser.fullName,
             }),
           });
-          // Store impersonation token and potentially redirect
-          // This is a placeholder - actual implementation depends on auth flow
-          console.log('Impersonation token:', result.token);
         },
         error: (error) => {
           this.messageService.add({
