@@ -26,7 +26,10 @@ export class AddressDto {
   @MaxLength(100)
   country?: string;
 
-  @ApiPropertyOptional({ description: 'Street address', example: '123 Main St' })
+  @ApiPropertyOptional({
+    description: 'Street address',
+    example: '123 Main St',
+  })
   @IsString()
   @IsOptional()
   @MaxLength(200)
@@ -58,7 +61,10 @@ export class AddressDto {
 }
 
 export class EducationDto {
-  @ApiPropertyOptional({ description: 'Degree', example: 'Bachelor of Science' })
+  @ApiPropertyOptional({
+    description: 'Degree',
+    example: 'Bachelor of Science',
+  })
   @IsString()
   @IsOptional()
   @MaxLength(200)
@@ -135,13 +141,19 @@ export class CreateUserDto {
   @Type(() => AddressDto)
   address?: AddressDto;
 
-  @ApiPropertyOptional({ description: 'Date of birth (YYYY-MM-DD)', example: '1990-01-15' })
+  @ApiPropertyOptional({
+    description: 'Date of birth (YYYY-MM-DD)',
+    example: '1990-01-15',
+  })
   @IsOptional()
   @IsDateString()
   @IsPastDate({ message: 'Date of birth cannot be in the future' })
   dateOfBirth?: string;
 
-  @ApiPropertyOptional({ description: 'Education history', type: [EducationDto] })
+  @ApiPropertyOptional({
+    description: 'Education history',
+    type: [EducationDto],
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
@@ -149,19 +161,33 @@ export class CreateUserDto {
   @ArrayMaxSize(20, { message: 'Maximum 20 education entries allowed' })
   education?: EducationDto[];
 
-  @ApiPropertyOptional({ description: 'Skills', type: [String], example: ['JavaScript', 'TypeScript'] })
+  @ApiPropertyOptional({
+    description: 'Skills',
+    type: [String],
+    example: ['JavaScript', 'TypeScript'],
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  @MaxLength(100, { each: true, message: 'Each skill must be max 100 characters' })
+  @MaxLength(100, {
+    each: true,
+    message: 'Each skill must be max 100 characters',
+  })
   @ArrayMaxSize(50, { message: 'Maximum 50 skills allowed' })
   skills?: string[];
 
-  @ApiPropertyOptional({ description: 'Hobbies', type: [String], example: ['Reading', 'Swimming'] })
+  @ApiPropertyOptional({
+    description: 'Hobbies',
+    type: [String],
+    example: ['Reading', 'Swimming'],
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  @MaxLength(100, { each: true, message: 'Each hobby must be max 100 characters' })
+  @MaxLength(100, {
+    each: true,
+    message: 'Each hobby must be max 100 characters',
+  })
   @ArrayMaxSize(50, { message: 'Maximum 50 hobbies allowed' })
   hobbies?: string[];
 }
@@ -224,13 +250,19 @@ export class UpdateUserDto {
   @Type(() => AddressDto)
   address?: AddressDto;
 
-  @ApiPropertyOptional({ description: 'Date of birth (YYYY-MM-DD)', example: '1990-01-15' })
+  @ApiPropertyOptional({
+    description: 'Date of birth (YYYY-MM-DD)',
+    example: '1990-01-15',
+  })
   @IsOptional()
   @IsDateString()
   @IsPastDate({ message: 'Date of birth cannot be in the future' })
   dateOfBirth?: string;
 
-  @ApiPropertyOptional({ description: 'Education history', type: [EducationDto] })
+  @ApiPropertyOptional({
+    description: 'Education history',
+    type: [EducationDto],
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
@@ -238,19 +270,33 @@ export class UpdateUserDto {
   @ArrayMaxSize(20, { message: 'Maximum 20 education entries allowed' })
   education?: EducationDto[];
 
-  @ApiPropertyOptional({ description: 'Skills', type: [String], example: ['JavaScript', 'TypeScript'] })
+  @ApiPropertyOptional({
+    description: 'Skills',
+    type: [String],
+    example: ['JavaScript', 'TypeScript'],
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  @MaxLength(100, { each: true, message: 'Each skill must be max 100 characters' })
+  @MaxLength(100, {
+    each: true,
+    message: 'Each skill must be max 100 characters',
+  })
   @ArrayMaxSize(50, { message: 'Maximum 50 skills allowed' })
   skills?: string[];
 
-  @ApiPropertyOptional({ description: 'Hobbies', type: [String], example: ['Reading', 'Swimming'] })
+  @ApiPropertyOptional({
+    description: 'Hobbies',
+    type: [String],
+    example: ['Reading', 'Swimming'],
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  @MaxLength(100, { each: true, message: 'Each hobby must be max 100 characters' })
+  @MaxLength(100, {
+    each: true,
+    message: 'Each hobby must be max 100 characters',
+  })
   @ArrayMaxSize(50, { message: 'Maximum 50 hobbies allowed' })
   hobbies?: string[];
 }

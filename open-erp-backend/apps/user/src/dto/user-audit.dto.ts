@@ -1,5 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsInt, Min, IsDateString, IsEnum, Matches } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsInt,
+  Min,
+  IsDateString,
+  IsEnum,
+  Matches,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { UserAuditEventType } from '@shared/schemas';
 
@@ -35,13 +43,15 @@ export class ListUserAuditLogsQueryDto {
   search?: string;
 
   @ApiPropertyOptional({
-    description: 'Sort by field (default: createdAt:desc). Format: field:order where field is one of [createdAt, action, status] and order is [asc, desc]',
+    description:
+      'Sort by field (default: createdAt:desc). Format: field:order where field is one of [createdAt, action, status] and order is [asc, desc]',
     example: 'createdAt:desc',
     pattern: '^(createdAt|action|status):(asc|desc)$',
   })
   @IsOptional()
   @Matches(/^(createdAt|action|status):(asc|desc)$/, {
-    message: 'sortBy must be in format field:order where field is createdAt, action, or status and order is asc or desc',
+    message:
+      'sortBy must be in format field:order where field is createdAt, action, or status and order is asc or desc',
   })
   sortBy?: string = 'createdAt:desc';
 
@@ -114,37 +124,37 @@ export class UserAuditLogBasicDto {
 }
 
 export class UserAuditLogDetailDto extends UserAuditLogBasicDto {
-  @ApiProperty({ 
+  @ApiProperty({
     example: { oldEmail: 'old@example.com', newEmail: 'new@example.com' },
     nullable: true,
-    description: 'Full request/change payload (sanitized if sensitive)'
+    description: 'Full request/change payload (sanitized if sensitive)',
   })
   payload?: any;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
     nullable: true,
-    description: 'Detailed user agent string'
+    description: 'Detailed user agent string',
   })
   userAgent?: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: { requestId: 'req-123', sessionId: 'sess-456' },
     nullable: true,
-    description: 'Any additional context'
+    description: 'Any additional context',
   })
   metadata?: any;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: '507f1f77bcf86cd799439012',
     nullable: true,
-    description: 'User ID who performed the action (for admin actions)'
+    description: 'User ID who performed the action (for admin actions)',
   })
   performedBy?: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: '507f1f77bcf86cd799439011',
-    description: 'User ID being audited'
+    description: 'User ID being audited',
   })
   userId: string;
 }

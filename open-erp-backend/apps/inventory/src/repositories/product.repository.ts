@@ -97,7 +97,10 @@ export class ProductRepository {
     return result !== null;
   }
 
-  async softDelete(id: string, userId: string): Promise<ProductDocument | null> {
+  async softDelete(
+    id: string,
+    userId: string,
+  ): Promise<ProductDocument | null> {
     return this.productModel
       .findByIdAndUpdate(
         id,
@@ -153,7 +156,10 @@ export class ProductRepository {
         .skip(skip)
         .limit(limit)
         .exec(),
-      this.productModel.countDocuments(searchQuery).setOptions(queryOptions).exec(),
+      this.productModel
+        .countDocuments(searchQuery)
+        .setOptions(queryOptions)
+        .exec(),
     ]);
 
     return { items, total };

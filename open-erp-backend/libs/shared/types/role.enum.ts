@@ -56,7 +56,8 @@ export const RoleMetadata: Record<
   },
   [Role.ORGANIZATION_ADMIN]: {
     name: 'Organization Admin',
-    description: 'Organization administrator with full control over the organization',
+    description:
+      'Organization administrator with full control over the organization',
     scope: 'organization',
   },
   [Role.MANAGER]: {

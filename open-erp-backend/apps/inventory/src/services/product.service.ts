@@ -68,10 +68,7 @@ export class ProductService {
     return product;
   }
 
-  async findById(
-    id: string,
-    options?: { includeDeleted?: boolean },
-  ) {
+  async findById(id: string, options?: { includeDeleted?: boolean }) {
     const product = await this.productRepository.findById(id, options);
     if (!product) {
       throw new NotFoundException('Product not found');

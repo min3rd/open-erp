@@ -41,7 +41,10 @@ export class CommonController {
       type: 'object',
       properties: {
         success: { type: 'boolean', example: true },
-        message: { type: 'string', example: 'Global roles retrieved successfully' },
+        message: {
+          type: 'string',
+          example: 'Global roles retrieved successfully',
+        },
         error: { type: 'null' },
         data: {
           type: 'array',
@@ -136,12 +139,18 @@ export class CommonController {
       .map((permissionCode) => {
         const meta = PermissionMetadata[permissionCode];
         if (!meta) {
-          this.logger.warn(`Missing metadata for permission: ${permissionCode}`);
+          this.logger.warn(
+            `Missing metadata for permission: ${permissionCode}`,
+          );
           return null;
         }
         const dotIndex = permissionCode.indexOf('.');
-        const resource = dotIndex > -1 ? permissionCode.substring(0, dotIndex) : permissionCode;
-        const action = dotIndex > -1 ? permissionCode.substring(dotIndex + 1) : '';
+        const resource =
+          dotIndex > -1
+            ? permissionCode.substring(0, dotIndex)
+            : permissionCode;
+        const action =
+          dotIndex > -1 ? permissionCode.substring(dotIndex + 1) : '';
         return {
           code: permissionCode,
           resource,
@@ -151,7 +160,10 @@ export class CommonController {
           scope: meta.scope,
         };
       })
-      .filter((permission): permission is NonNullable<typeof permission> => permission !== null);
+      .filter(
+        (permission): permission is NonNullable<typeof permission> =>
+          permission !== null,
+      );
 
     return ok(permissionsData, 'Global permissions retrieved successfully');
   }

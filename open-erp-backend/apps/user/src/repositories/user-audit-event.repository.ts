@@ -121,7 +121,10 @@ export class UserAuditEventRepository {
           const [field, order] = parts;
           // Validate field and order
           const allowedFields = ['createdAt', 'action', 'status'];
-          if (allowedFields.includes(field) && ['asc', 'desc'].includes(order)) {
+          if (
+            allowedFields.includes(field) &&
+            ['asc', 'desc'].includes(order)
+          ) {
             sort = { [field]: order === 'asc' ? 1 : -1 };
           }
         }

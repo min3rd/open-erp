@@ -38,7 +38,6 @@ export class ProductCategoryRepository {
    * Find all product categories with filters
    */
   async findAll(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filter: any = {},
     options?: {
       skip?: number;
@@ -67,7 +66,7 @@ export class ProductCategoryRepository {
   /**
    * Count product categories with filters
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   async count(filter: any = {}): Promise<number> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return this.model.countDocuments(filter).exec();
@@ -141,8 +140,10 @@ export class ProductCategoryRepository {
    * Get children of a category
    */
   async findChildren(parentId: string): Promise<ProductCategoryDocument[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return this.model.find({ parentId } as any).sort({ order: 1 }).exec();
+    return this.model
+      .find({ parentId } as any)
+      .sort({ order: 1 })
+      .exec();
   }
 
   /**
@@ -177,10 +178,7 @@ export class ProductCategoryRepository {
     // Use regex for fuzzy search on code and name fields
     const searchRegex = new RegExp(searchTerm, 'i');
     let query = this.model.find({
-      $or: [
-        { code: searchRegex },
-        { name: searchRegex },
-      ],
+      $or: [{ code: searchRegex }, { name: searchRegex }],
     });
 
     if (options?.sort) {
@@ -197,26 +195,26 @@ export class ProductCategoryRepository {
 
     return query.exec();
   }
-  
+
   /**
    * Count search results
    */
   async searchCount(searchTerm: string): Promise<number> {
     const searchRegex = new RegExp(searchTerm, 'i');
-    return this.model.countDocuments({
-      $or: [
-        { code: searchRegex },
-        { name: searchRegex },
-      ],
-    }).exec();
+    return this.model
+      .countDocuments({
+        $or: [{ code: searchRegex }, { name: searchRegex }],
+      })
+      .exec();
   }
 
   /**
    * Check if category has children
    */
   async hasChildren(id: string): Promise<boolean> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const count = await this.model.countDocuments({ parentId: id } as any).exec();
+    const count = await this.model
+      .countDocuments({ parentId: id } as any)
+      .exec();
     return count > 0;
   }
 

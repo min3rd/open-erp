@@ -69,7 +69,12 @@ export class ProductTypeService {
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
           const validSort: Record<string, 1 | -1> = {};
           for (const [key, value] of Object.entries(parsed)) {
-            if (value === 1 || value === -1 || value === '1' || value === '-1') {
+            if (
+              value === 1 ||
+              value === -1 ||
+              value === '1' ||
+              value === '-1'
+            ) {
               validSort[key] = Number(value) as 1 | -1;
             }
           }

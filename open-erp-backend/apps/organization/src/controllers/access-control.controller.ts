@@ -55,7 +55,8 @@ export class AccessControlController {
               name: { type: 'string', example: 'Organization Admin' },
               description: {
                 type: 'string',
-                example: 'Organization administrator with full control over the organization',
+                example:
+                  'Organization administrator with full control over the organization',
               },
               scope: { type: 'string', example: 'organization' },
             },
@@ -115,13 +116,17 @@ export class AccessControlController {
           items: {
             type: 'object',
             properties: {
-              code: { type: 'string', example: 'organization.manage_org_users' },
+              code: {
+                type: 'string',
+                example: 'organization.manage_org_users',
+              },
               resource: { type: 'string', example: 'organization' },
               action: { type: 'string', example: 'manage_org_users' },
               name: { type: 'string', example: 'Manage Org Users' },
               description: {
                 type: 'string',
-                example: 'Organization-level permission to manage users within an organization',
+                example:
+                  'Organization-level permission to manage users within an organization',
               },
               scope: { type: 'string', example: 'organization' },
             },
@@ -139,12 +144,16 @@ export class AccessControlController {
       .map((permissionCode) => {
         const meta = PermissionMetadata[permissionCode];
         if (!meta) {
-          this.logger.warn(`Missing metadata for permission: ${permissionCode}`);
+          this.logger.warn(
+            `Missing metadata for permission: ${permissionCode}`,
+          );
           return null;
         }
         const dotIndex = permissionCode.indexOf('.');
         const resource =
-          dotIndex > -1 ? permissionCode.substring(0, dotIndex) : permissionCode;
+          dotIndex > -1
+            ? permissionCode.substring(0, dotIndex)
+            : permissionCode;
         const action =
           dotIndex > -1 ? permissionCode.substring(dotIndex + 1) : '';
         return {
