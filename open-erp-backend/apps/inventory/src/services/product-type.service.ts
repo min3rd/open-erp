@@ -60,12 +60,25 @@ export class ProductTypeService {
     const skip = (page - 1) * limit;
 
     // Build sort object - default to name ascending
+    // Parse JSON sort parameter from client (e.g., {"name":1} or {"code":-1})
     let _sort: Record<string, 1 | -1> = { name: 1 };
     if (params.sort) {
       try {
-        _sort = JSON.parse(params.sort);
+        const parsed = JSON.parse(params.sort);
+        // Validate that parsed object contains only valid sort values (1 or -1)
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          const validSort: Record<string, 1 | -1> = {};
+          for (const [key, value] of Object.entries(parsed)) {
+            if (value === 1 || value === -1 || value === '1' || value === '-1') {
+              validSort[key] = Number(value) as 1 | -1;
+            }
+          }
+          if (Object.keys(validSort).length > 0) {
+            _sort = validSort;
+          }
+        }
       } catch (err) {
-        // If JSON parse fails, use default sort
+        // If JSON parse fails (invalid format), use default sort
         _sort = { name: 1 };
       }
     }
