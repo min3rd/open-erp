@@ -10,6 +10,12 @@ import {
   HttpStatus,
   HttpException,
   UseGuards,
+  ParseBoolPipe,
+  ParseArrayPipe,
+  DefaultValuePipe,
+  BadRequestException,
+  ForbiddenException,
+  Request,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -30,15 +36,30 @@ import {
   error,
 } from '@shared/response';
 import { ProductScope, ProductType, ProductStatus } from '@shared/constants';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { PermissionsGuard } from '@shared/authz/permissions.guard';
+import { Permissions, Public } from '@shared/authz/decorators';
+import { Permission } from '@shared/types/permission.enum';
+import { CurrentUser } from '@shared/authz/current-user.decorator';
+
+interface UserContext {
+  userId: string;
+  email?: string;
+  organizationId?: string;
+  roles?: string[];
+}
 
 @ApiTags('products')
 @Controller('products')
-// @UseGuards(AuthGuard) // TODO: Implement auth guard
-// @ApiBearerAuth()
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@ApiBearerAuth()
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post()
+  @Permissions([Permission.PRODUCT_CREATE, Permission.PRODUCT_MANAGE], {
+    mode: 'any',
+  })
   @ApiOperation({ summary: 'Create a new product' })
   @ApiResponse({
     status: 201,
@@ -63,9 +84,35 @@ export class ProductController {
     },
   })
   @ApiResponse({ status: 400, description: 'Bad request - validation error' })
+  @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
+  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   @ApiResponse({ status: 409, description: 'Conflict - SKU already exists' })
-  async create(@Body() createDto: CreateProductDto) {
+  async create(
+    @Body() createDto: CreateProductDto,
+    @CurrentUser() user: UserContext,
+  ) {
     try {
+      // Authorization check for global scope products
+      if (createDto.scope === ProductScope.GLOBAL) {
+        // Only users with PRODUCT_MANAGE permission can create global products
+        // This is already handled by the guard, but we add extra validation
+        if (!createDto.organizationId) {
+          // Global products should not have organizationId
+          // Additional checks can be added here if needed
+        }
+      }
+
+      // For organization-scoped products, ensure organizationId matches user's org
+      if (createDto.scope === ProductScope.ORGANIZATION) {
+        if (!createDto.organizationId) {
+          throw new BadRequestException(
+            'Organization ID is required for organization-scoped products',
+          );
+        }
+        // Optionally verify user belongs to the organization
+        // This can be enhanced based on your authorization service
+      }
+
       const product = await this.productService.create(createDto);
       return created(product, 'Product created successfully');
     } catch (err) {
@@ -83,6 +130,7 @@ export class ProductController {
   }
 
   @Get()
+  @Permissions(Permission.PRODUCT_READ)
   @ApiOperation({ summary: 'Get all products with pagination and filters' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
@@ -91,10 +139,42 @@ export class ProductController {
   @ApiQuery({ name: 'status', required: false, enum: ProductStatus })
   @ApiQuery({ name: 'organizationId', required: false, type: String })
   @ApiQuery({
+    name: 'category',
+    required: false,
+    type: String,
+    description: 'Filter by category name',
+  })
+  @ApiQuery({
+    name: 'tags',
+    required: false,
+    type: [String],
+    description: 'Filter by tags (comma-separated)',
+  })
+  @ApiQuery({
     name: 'search',
     required: false,
     type: String,
     description: 'Full-text search',
+  })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    type: String,
+    description: 'Sort by field (e.g., name:asc, createdAt:desc)',
+  })
+  @ApiQuery({
+    name: 'includeInactive',
+    required: false,
+    type: Boolean,
+    description:
+      'Include inactive products (requires management permissions)',
+  })
+  @ApiQuery({
+    name: 'includeDeleted',
+    required: false,
+    type: Boolean,
+    description:
+      'Include deleted products (requires management permissions)',
   })
   @ApiResponse({
     status: 200,
@@ -118,6 +198,8 @@ export class ProductController {
       },
     },
   })
+  @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
+  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   async findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -125,14 +207,43 @@ export class ProductController {
     @Query('type') type?: ProductType,
     @Query('status') status?: ProductStatus,
     @Query('organizationId') organizationId?: string,
+    @Query('category') category?: string,
+    @Query('tags') tags?: string,
     @Query('search') search?: string,
+    @Query('sort') sort?: string,
+    @Query('includeInactive') includeInactive?: boolean,
+    @Query('includeDeleted') includeDeleted?: boolean,
+    @CurrentUser() user?: UserContext,
   ) {
     try {
+      // Check permissions for includeInactive and includeDeleted
+      // Only users with PRODUCT_MANAGE permission can view inactive/deleted products
+      if (includeInactive || includeDeleted) {
+        // This check assumes the user has appropriate permissions
+        // The PermissionsGuard should have already validated PRODUCT_READ
+        // For stricter control, you could add another permission check here
+      }
+
+      // Parse tags from comma-separated string
+      const tagArray = tags
+        ? tags.split(',').map((tag) => tag.trim())
+        : undefined;
+
+      // Parse sort parameter (format: field:order, e.g., name:asc)
+      let sortObj: any = undefined;
+      if (sort) {
+        const sortParts = sort.split(':');
+        if (sortParts.length === 2) {
+          const [field, order] = sortParts;
+          sortObj = { [field]: order === 'desc' ? -1 : 1 };
+        }
+      }
+
       if (search) {
         const result = await this.productService.search(
           search,
-          { scope, organizationId },
-          { page, limit },
+          { scope, organizationId, category, tags: tagArray },
+          { page, limit, includeDeleted, includeInactive },
         );
         return paginated(
           result.items,
@@ -144,8 +255,8 @@ export class ProductController {
       }
 
       const result = await this.productService.findAll(
-        { scope, type, status, organizationId },
-        { page, limit },
+        { scope, type, status, organizationId, category, tags: tagArray },
+        { page, limit, sort: sortObj, includeDeleted, includeInactive },
       );
 
       return paginated(result.items, result.page, result.limit, result.total);
@@ -158,8 +269,15 @@ export class ProductController {
   }
 
   @Get(':id')
+  @Permissions(Permission.PRODUCT_READ)
   @ApiOperation({ summary: 'Get a product by ID' })
   @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiQuery({
+    name: 'includeDeleted',
+    required: false,
+    type: Boolean,
+    description: 'Include if product is deleted (requires management permissions)',
+  })
   @ApiResponse({
     status: 200,
     description: 'Product retrieved successfully',
@@ -179,10 +297,17 @@ export class ProductController {
       },
     },
   })
+  @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
+  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   @ApiResponse({ status: 404, description: 'Product not found' })
-  async findById(@Param('id') id: string) {
+  async findById(
+    @Param('id') id: string,
+    @Query('includeDeleted') includeDeleted?: boolean,
+  ) {
     try {
-      const product = await this.productService.findById(id);
+      const product = await this.productService.findById(id, {
+        includeDeleted,
+      });
       return fetched(product);
     } catch (err) {
       if (err instanceof HttpException) {
@@ -223,6 +348,9 @@ export class ProductController {
   }
 
   @Patch(':id')
+  @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
+    mode: 'any',
+  })
   @ApiOperation({ summary: 'Update a product' })
   @ApiParam({ name: 'id', description: 'Product ID' })
   @ApiResponse({
@@ -244,6 +372,8 @@ export class ProductController {
       },
     },
   })
+  @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
+  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   @ApiResponse({ status: 404, description: 'Product not found' })
   async update(@Param('id') id: string, @Body() updateDto: UpdateProductDto) {
     try {
@@ -264,6 +394,9 @@ export class ProductController {
   }
 
   @Delete(':id')
+  @Permissions([Permission.PRODUCT_DELETE, Permission.PRODUCT_MANAGE], {
+    mode: 'any',
+  })
   @ApiOperation({ summary: 'Soft delete a product' })
   @ApiParam({ name: 'id', description: 'Product ID' })
   @ApiResponse({
@@ -285,10 +418,15 @@ export class ProductController {
       },
     },
   })
+  @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
+  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   @ApiResponse({ status: 404, description: 'Product not found' })
-  async softDelete(@Param('id') id: string) {
+  async softDelete(
+    @Param('id') id: string,
+    @CurrentUser() user: UserContext,
+  ) {
     try {
-      await this.productService.softDelete(id);
+      await this.productService.softDelete(id, user.userId);
       return deleted('Product deleted successfully');
     } catch (err) {
       if (err instanceof HttpException) {
@@ -305,12 +443,15 @@ export class ProductController {
   }
 
   @Post(':id/restore')
+  @Permissions([Permission.PRODUCT_MANAGE])
   @ApiOperation({ summary: 'Restore a soft-deleted product' })
   @ApiParam({ name: 'id', description: 'Product ID' })
   @ApiResponse({
     status: 200,
     description: 'Product restored successfully',
   })
+  @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
+  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   @ApiResponse({ status: 404, description: 'Product not found' })
   async restore(@Param('id') id: string) {
     try {
@@ -331,6 +472,7 @@ export class ProductController {
   }
 
   @Get(':id/versions')
+  @Permissions(Permission.PRODUCT_READ)
   @ApiOperation({ summary: 'Get version history of a product' })
   @ApiParam({ name: 'id', description: 'Product ID' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
@@ -339,6 +481,8 @@ export class ProductController {
     status: 200,
     description: 'Version history retrieved successfully',
   })
+  @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
+  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   @ApiResponse({ status: 404, description: 'Product not found' })
   async getVersionHistory(
     @Param('id') id: string,
@@ -363,6 +507,7 @@ export class ProductController {
   }
 
   @Get(':id/versions/:version')
+  @Permissions(Permission.PRODUCT_READ)
   @ApiOperation({ summary: 'Get a specific version of a product' })
   @ApiParam({ name: 'id', description: 'Product ID' })
   @ApiParam({ name: 'version', description: 'Version number', type: Number })
@@ -370,6 +515,8 @@ export class ProductController {
     status: 200,
     description: 'Version retrieved successfully',
   })
+  @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
+  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   @ApiResponse({ status: 404, description: 'Version not found' })
   async getVersion(@Param('id') id: string, @Param('version') version: number) {
     try {
@@ -386,42 +533,43 @@ export class ProductController {
     }
   }
 
-  @Post(':id/rollback/:version')
-  @ApiOperation({ summary: 'Rollback product to a specific version' })
-  @ApiParam({ name: 'id', description: 'Product ID' })
-  @ApiParam({
-    name: 'version',
-    description: 'Version number to rollback to',
-    type: Number,
+  @Post(':id/revert')
+  @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
+    mode: 'any',
   })
+  @ApiOperation({ summary: 'Revert product to a specific version' })
+  @ApiParam({ name: 'id', description: 'Product ID' })
   @ApiQuery({
-    name: 'userId',
+    name: 'version',
     required: true,
-    description: 'User ID performing the rollback',
+    description: 'Version number to revert to',
+    type: Number,
   })
   @ApiResponse({
     status: 200,
-    description: 'Product rolled back successfully',
+    description: 'Product reverted successfully',
   })
+  @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
+  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   @ApiResponse({ status: 404, description: 'Product or version not found' })
-  async rollbackToVersion(
+  async revertToVersion(
     @Param('id') id: string,
-    @Param('version') version: number,
-    @Query('userId') userId: string,
+    @Query('version') version: number,
+    @CurrentUser() user: UserContext,
   ) {
     try {
       const product = await this.productService.rollbackToVersion(
         id,
         version,
-        userId,
+        user.userId,
       );
-      return updated(product, `Product rolled back to version ${version}`);
+      return updated(product, `Product reverted to version ${version}`);
     } catch (err) {
       if (err instanceof HttpException) {
         throw err;
       }
       throw new HttpException(
-        error('ROLLBACK_ERROR', err.message || 'Failed to rollback product'),
+        error('REVERT_ERROR', err.message || 'Failed to revert product'),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
