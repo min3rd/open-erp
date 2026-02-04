@@ -77,6 +77,7 @@ export class ProductForm implements OnInit {
   protected readonly isVisible = signal(true);
   protected readonly isLoading = signal(false);
   protected readonly thumbnailPreview = signal<string | null>(null);
+  protected readonly activeTabIndex = signal<number>(0);
   protected readonly ProductScope = ProductScope;
   protected readonly ProductStatus = ProductStatus;
 
@@ -209,7 +210,7 @@ export class ProductForm implements OnInit {
       organizationId: product.organizationId || '',
       sku: product.sku,
       name: product.name,
-      slug: product.metadata?.slug || '',
+      slug: product.metadata?.['slug'] || '',
       status: product.status,
       internationalName: product.internationalName || '',
       description: product.description || '',
@@ -217,13 +218,13 @@ export class ProductForm implements OnInit {
       categoryId: product.categoryId || '',
       barcode: product.barcode || '',
       unit: product.unit,
-      weight: product.metadata?.weight || null,
-      length: product.metadata?.length || null,
-      width: product.metadata?.width || null,
-      height: product.metadata?.height || null,
-      storageConditions: product.metadata?.storageConditions || '',
-      expiryDays: product.metadata?.expiryDays || null,
-      warehouseSettings: product.metadata?.warehouseSettings || {},
+      weight: product.metadata?.['weight'] || null,
+      length: product.metadata?.['length'] || null,
+      width: product.metadata?.['width'] || null,
+      height: product.metadata?.['height'] || null,
+      storageConditions: product.metadata?.['storageConditions'] || '',
+      expiryDays: product.metadata?.['expiryDays'] || null,
+      warehouseSettings: product.metadata?.['warehouseSettings'] || {},
       metadata: product.metadata || {},
     });
   }

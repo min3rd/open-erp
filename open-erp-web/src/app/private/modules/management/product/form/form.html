@@ -187,9 +187,19 @@
     <!-- Body Section (Scrollable with Tabs) -->
     <div class="flex-1 overflow-y-auto p-4">
       <form [formGroup]="form">
-        <p-tabs [scrollable]="true">
-          <!-- General Info Tab -->
-          <p-tabpanel [header]="'productForm.tabs.general' | transloco">
+        <p-tabs [(value)]="activeTabIndex">
+          <p-tablist>
+            <p-tab [value]="0">{{ 'productForm.tabs.general' | transloco }}</p-tab>
+            <p-tab [value]="1">{{ 'productForm.tabs.media' | transloco }}</p-tab>
+            <p-tab [value]="2">{{ 'productForm.tabs.dimensions' | transloco }}</p-tab>
+            <p-tab [value]="3">{{ 'productForm.tabs.storage' | transloco }}</p-tab>
+            <p-tab [value]="4">{{ 'productForm.tabs.warehouse' | transloco }}</p-tab>
+            <p-tab [value]="5">{{ 'productForm.tabs.custom' | transloco }}</p-tab>
+          </p-tablist>
+          
+          <p-tabpanels>
+            <!-- General Info Tab Panel -->
+            <p-tabpanel [value]="0">
             <div class="space-y-3 py-2">
               <!-- International Name -->
               <div>
@@ -297,8 +307,8 @@
             </div>
           </p-tabpanel>
 
-          <!-- Media Tab -->
-          <p-tabpanel [header]="'productForm.tabs.media' | transloco">
+          <!-- Media Tab Panel -->
+          <p-tabpanel [value]="1">
             <div class="py-2">
               <p class="text-sm text-surface-500 dark:text-surface-400">
                 {{ 'productForm.tabs.mediaPlaceholder' | transloco }}
@@ -306,8 +316,8 @@
             </div>
           </p-tabpanel>
 
-          <!-- Dimensions Tab -->
-          <p-tabpanel [header]="'productForm.tabs.dimensions' | transloco">
+          <!-- Dimensions Tab Panel -->
+          <p-tabpanel [value]="2">
             <div class="space-y-3 py-2">
               <div class="grid grid-cols-2 gap-3">
                 <!-- Weight -->
@@ -383,8 +393,8 @@
             </div>
           </p-tabpanel>
 
-          <!-- Storage Conditions Tab -->
-          <p-tabpanel [header]="'productForm.tabs.storage' | transloco">
+          <!-- Storage Conditions Tab Panel -->
+          <p-tabpanel [value]="3">
             <div class="space-y-3 py-2">
               <!-- Storage Conditions -->
               <div>
@@ -403,8 +413,8 @@
             </div>
           </p-tabpanel>
 
-          <!-- Warehouse Settings Tab -->
-          <p-tabpanel [header]="'productForm.tabs.warehouse' | transloco">
+          <!-- Warehouse Settings Tab Panel -->
+          <p-tabpanel [value]="4">
             <div class="py-2">
               <p class="text-sm text-surface-500 dark:text-surface-400">
                 {{ 'productForm.tabs.warehousePlaceholder' | transloco }}
@@ -412,14 +422,15 @@
             </div>
           </p-tabpanel>
 
-          <!-- Custom Fields Tab -->
-          <p-tabpanel [header]="'productForm.tabs.custom' | transloco">
+          <!-- Custom Fields Tab Panel -->
+          <p-tabpanel [value]="5">
             <div class="py-2">
               <p class="text-sm text-surface-500 dark:text-surface-400">
                 {{ 'productForm.tabs.customPlaceholder' | transloco }}
               </p>
             </div>
           </p-tabpanel>
+          </p-tabpanels>
         </p-tabs>
       </form>
     </div>
