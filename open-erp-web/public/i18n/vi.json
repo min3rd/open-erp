@@ -609,6 +609,156 @@
       "saveFailed": "Lưu danh mục thất bại"
     }
   },
+  "productList": {
+    "title": "Quản Lý Hàng Hóa",
+    "search": {
+      "label": "Tìm kiếm hàng hóa",
+      "placeholder": "Tìm theo tên, mã SKU hoặc mã vạch...",
+      "openSearch": "Mở tìm kiếm",
+      "closeSearch": "Đóng tìm kiếm"
+    },
+    "addButton": {
+      "label": "Thêm Hàng Hóa",
+      "tooltip": "Thêm hàng hóa mới"
+    },
+    "refreshButton": {
+      "label": "Làm mới",
+      "tooltip": "Làm mới danh sách"
+    },
+    "actionsButton": {
+      "label": "Hành động"
+    },
+    "actions": {
+      "exportCSV": "Xuất CSV",
+      "import": "Nhập từ CSV",
+      "deleteSelected": "Xóa đã chọn",
+      "view": "Xem",
+      "edit": "Sửa",
+      "delete": "Xóa"
+    },
+    "filter": {
+      "label": "Lọc theo trạng thái",
+      "placeholder": "Lọc trạng thái",
+      "tooltip": "Lọc hàng hóa theo trạng thái",
+      "all": "Tất cả",
+      "active": "Hoạt động",
+      "inactive": "Không hoạt động",
+      "draft": "Nháp",
+      "discontinued": "Ngừng sản xuất"
+    },
+    "sort": {
+      "label": "Sắp xếp theo",
+      "placeholder": "Thứ tự sắp xếp",
+      "tooltip": "Sắp xếp hàng hóa",
+      "skuAsc": "Mã SKU (A-Z)",
+      "skuDesc": "Mã SKU (Z-A)",
+      "nameAsc": "Tên (A-Z)",
+      "nameDesc": "Tên (Z-A)",
+      "typeAsc": "Loại (A-Z)",
+      "typeDesc": "Loại (Z-A)",
+      "statusAsc": "Trạng thái (A-Z)",
+      "statusDesc": "Trạng thái (Z-A)"
+    },
+    "table": {
+      "label": "Bảng hàng hóa",
+      "selectAll": "Chọn tất cả",
+      "selectRow": "Chọn hàng",
+      "sku": "Mã SKU",
+      "name": "Tên",
+      "type": "Loại",
+      "category": "Danh mục",
+      "unit": "Đơn vị",
+      "status": "Trạng thái",
+      "barcode": "Mã vạch",
+      "actions": "Hành động"
+    },
+    "contextMenu": {
+      "view": "Xem",
+      "edit": "Sửa",
+      "delete": "Xóa"
+    },
+    "resultCount": "{{count}} hàng hóa",
+    "empty": {
+      "message": "Không tìm thấy hàng hóa"
+    },
+    "load": {
+      "error": "Tải hàng hóa thất bại"
+    },
+    "delete": {
+      "confirmTitle": "Xác nhận xóa",
+      "confirmMessage": "Bạn có chắc chắn muốn xóa hàng hóa {{name}}?",
+      "success": "Đã xóa hàng hóa",
+      "successDetail": "Hàng hóa {{name}} đã được xóa thành công",
+      "error": "Xóa thất bại",
+      "errorDetail": "Xóa hàng hóa thất bại"
+    },
+    "bulkDelete": {
+      "confirmTitle": "Xác nhận xóa hàng loạt",
+      "confirmMessage": "Bạn có chắc chắn muốn xóa {{count}} hàng hóa?",
+      "success": "Đã xóa hàng hóa",
+      "successDetail": "{{count}} hàng hóa đã được xóa thành công",
+      "error": "Xóa hàng loạt thất bại",
+      "errorDetail": "Xóa các hàng hóa đã chọn thất bại"
+    },
+    "export": {
+      "success": "Xuất thành công",
+      "error": "Xuất thất bại"
+    },
+    "import": {
+      "invalidFile": "Tệp không hợp lệ",
+      "csvOnly": "Vui lòng chọn tệp CSV",
+      "success": "Nhập thành công",
+      "successDetail": "Nhập thành công {{count}} hàng hóa",
+      "partialSuccess": "Nhập một phần",
+      "partialSuccessDetail": "Nhập thành công {{success}} hàng hóa, {{failed}} thất bại",
+      "error": "Nhập thất bại"
+    }
+  },
+  "productType": {
+    "raw_material": "Nguyên liệu thô",
+    "component": "Linh kiện",
+    "ingredient": "Thành phần",
+    "finished_good": "Thành phẩm",
+    "semi_finished": "Bán thành phẩm",
+    "work_in_progress": "Đang sản xuất",
+    "by_product": "Phụ phẩm",
+    "packaging": "Bao bì",
+    "container": "Thùng chứa",
+    "consumable": "Vật tư tiêu hao",
+    "spare_part": "Phụ tùng",
+    "tool": "Công cụ",
+    "equipment": "Thiết bị",
+    "machinery": "Máy móc",
+    "merchandise": "Hàng hóa thương mại",
+    "agricultural": "Nông sản",
+    "seafood": "Thủy sản",
+    "handicraft": "Thủ công mỹ nghệ",
+    "textile": "Hàng dệt may",
+    "electronics": "Điện tử",
+    "furniture": "Nội thất",
+    "food": "Thực phẩm",
+    "beverage": "Đồ uống",
+    "fresh_produce": "Nông sản tươi",
+    "processed_food": "Thực phẩm chế biến",
+    "medicine": "Thuốc",
+    "medical_device": "Thiết bị y tế",
+    "cosmetic": "Mỹ phẩm",
+    "service": "Dịch vụ",
+    "digital": "Kỹ thuật số",
+    "software": "Phần mềm",
+    "book": "Sách",
+    "stationery": "Văn phòng phẩm",
+    "toy": "Đồ chơi",
+    "jewelry": "Trang sức",
+    "vehicle": "Phương tiện",
+    "spare_vehicle_part": "Phụ tùng xe"
+  },
+  "productStatus": {
+    "active": "Hoạt động",
+    "inactive": "Không hoạt động",
+    "discontinued": "Ngừng sản xuất",
+    "draft": "Nháp"
+  },
   "administrativeUnit": {
     "title": "Quản lý Đơn vị Hành chính",
     "search": {
