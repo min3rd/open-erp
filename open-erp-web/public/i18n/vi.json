@@ -1496,5 +1496,136 @@
       "payload": "Dữ Liệu / Thay Đổi",
       "metadata": "Metadata"
     }
+  },
+  "productForm": {
+    "title": {
+      "new": "Thêm mới Sản phẩm",
+      "edit": "Chỉnh sửa Sản phẩm",
+      "view": "Xem Sản phẩm"
+    },
+    "fields": {
+      "scope": {
+        "label": "Phạm vi",
+        "placeholder": "Chọn phạm vi"
+      },
+      "organizationId": {
+        "label": "Mã tổ chức",
+        "placeholder": "Nhập mã tổ chức"
+      },
+      "sku": {
+        "label": "Mã SKU",
+        "placeholder": "Nhập mã SKU",
+        "errors": {
+          "required": "Mã SKU là bắt buộc"
+        }
+      },
+      "name": {
+        "label": "Tên sản phẩm",
+        "placeholder": "Nhập tên sản phẩm",
+        "errors": {
+          "required": "Tên sản phẩm là bắt buộc"
+        }
+      },
+      "slug": {
+        "label": "Slug",
+        "placeholder": "Tự động từ tên",
+        "hint": "Mã định danh URL (tự động tạo từ tên)"
+      },
+      "status": {
+        "label": "Trạng thái",
+        "placeholder": "Chọn trạng thái"
+      },
+      "thumbnail": {
+        "label": "Hình đại diện",
+        "select": "Tải ảnh lên"
+      },
+      "internationalName": {
+        "label": "Tên quốc tế",
+        "placeholder": "Nhập tên quốc tế"
+      },
+      "description": {
+        "label": "Mô tả",
+        "placeholder": "Nhập mô tả sản phẩm"
+      },
+      "type": {
+        "label": "Loại sản phẩm",
+        "placeholder": "Chọn loại sản phẩm",
+        "errors": {
+          "required": "Loại sản phẩm là bắt buộc"
+        }
+      },
+      "category": {
+        "label": "Danh mục",
+        "placeholder": "Chọn danh mục"
+      },
+      "unit": {
+        "label": "Đơn vị tính",
+        "placeholder": "vd: cái, kg, hộp",
+        "errors": {
+          "required": "Đơn vị tính là bắt buộc"
+        }
+      },
+      "barcode": {
+        "label": "Mã vạch",
+        "placeholder": "Nhập mã vạch"
+      },
+      "weight": {
+        "label": "Khối lượng (kg)",
+        "placeholder": "0.00"
+      },
+      "length": {
+        "label": "Chiều dài (cm)",
+        "placeholder": "0"
+      },
+      "width": {
+        "label": "Chiều rộng (cm)",
+        "placeholder": "0"
+      },
+      "height": {
+        "label": "Chiều cao (cm)",
+        "placeholder": "0"
+      },
+      "expiryDays": {
+        "label": "Hạn sử dụng (ngày)",
+        "placeholder": "Số ngày hết hạn"
+      },
+      "storageConditions": {
+        "label": "Điều kiện bảo quản",
+        "placeholder": "Nhập điều kiện bảo quản"
+      }
+    },
+    "tabs": {
+      "general": "Thông tin chung",
+      "media": "Hình ảnh & Video",
+      "mediaPlaceholder": "Tính năng tải thư viện media sẽ có sớm",
+      "dimensions": "Kích thước & Khối lượng",
+      "storage": "Điều kiện bảo quản",
+      "warehouse": "Cài đặt kho",
+      "warehousePlaceholder": "Cài đặt riêng theo kho sẽ có sớm",
+      "custom": "Trường tùy chỉnh",
+      "customPlaceholder": "Trình chỉnh sửa trường tùy chỉnh sẽ có sớm"
+    },
+    "actions": {
+      "cancel": "Hủy",
+      "randomize": "Ngẫu nhiên",
+      "saveDraft": "Lưu nháp",
+      "create": "Thêm mới",
+      "save": "Lưu"
+    },
+    "messages": {
+      "success": "Thành công",
+      "createSuccess": "Tạo sản phẩm thành công",
+      "updateSuccess": "Cập nhật sản phẩm thành công",
+      "error": "Lỗi",
+      "saveFailed": "Không thể lưu sản phẩm",
+      "validationFailed": "Vui lòng kiểm tra lại các trường bắt buộc",
+      "randomized": "Đã điền dữ liệu ngẫu nhiên",
+      "invalidFileType": "Định dạng file không hợp lệ. Vui lòng tải ảnh JPEG, PNG hoặc WebP",
+      "fileTooLarge": "Kích thước file vượt quá 5MB"
+    }
+  },
+  "productScope": {
+    "global": "Toàn cầu",
+    "organization": "Tổ chức"
   }
 }
