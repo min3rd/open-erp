@@ -1,7 +1,8 @@
 import { ProductScope, ProductType, ProductStatus, Unit, Product } from '../../../../../core/services/product/product.service';
 
 // Re-export types and enums for use in the product module
-export { ProductScope, ProductType, ProductStatus, Unit, Product };
+export { ProductScope, ProductType, ProductStatus, Unit };
+export type { Product };
 
 /**
  * Filter option for product status

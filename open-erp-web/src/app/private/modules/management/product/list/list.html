@@ -282,9 +282,9 @@
           <!-- Dynamic Columns -->
           @for (col of selectedColumns; track col.field) {
           <th
-            [pReorderableColumn]="col.field"
-            [pResizableColumn]="col.field"
-            [pSortableColumn]="col.sortable ? col.field : null"
+            pReorderableColumn
+            pResizableColumn
+            [pSortableColumn]="col.sortable ? col.field : undefined"
             [style.width]="col.width || 'auto'"
             [attr.aria-label]="col.header | transloco"
           >
@@ -520,12 +520,9 @@
     <core-pagination
       id="product-list-pagination"
       [currentPage]="currentPage()"
-      [totalPages]="totalPages()"
       [pageSize]="pageSize()"
       [totalRecords]="totalRecords()"
-      [pageSizeOptions]="PAGE_SIZE_OPTIONS"
-      (pageChange)="onPageChange($event)"
-      (pageSizeChange)="onPageSizeChange($event)"
+      (pageChange)="onPaginationChange($event)"
     />
   </div>
 

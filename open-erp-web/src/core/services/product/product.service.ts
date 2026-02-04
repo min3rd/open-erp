@@ -217,12 +217,18 @@ export class ProductService {
     return this.http
       .get<ApiPaginatedResponse<Product>>(this.baseUrl, { params: httpParams })
       .pipe(
-        map((response) => ({
-          items: response.data.items,
-          total: response.data.total,
-          page: response.data.page,
-          limit: response.data.limit,
-        }))
+        map((response) => {
+          const data = response.data;
+          if (!data) {
+            return { items: [], total: 0, page: 1, limit: 10 };
+          }
+          return {
+            items: data.items,
+            total: data.total,
+            page: data.page,
+            limit: data.limit,
+          };
+        })
       );
   }
 

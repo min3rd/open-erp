@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { ResolveFn, ActivatedRouteSnapshot } from '@angular/router';
-import { ProductService, Product, ProductStatus } from '../../../../../core/services/product/product.service';
+import { ProductService, Product, ProductStatus } from '../../../../../../core/services/product/product.service';
 import { catchError, of } from 'rxjs';
 
 /**

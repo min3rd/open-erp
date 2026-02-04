@@ -36,7 +36,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 // Core components
-import { PaginationComponent } from '../../../../../../core/components/pagination/pagination';
+import { PaginationComponent, PaginationChange } from '../../../../../../core/components/pagination/pagination';
 
 // Services and types
 import { ProductService, Product, ProductStatus, ProductType } from '../../../../../../core/services/product/product.service';
@@ -381,17 +381,10 @@ export class ProductList implements OnInit, OnDestroy {
   }
 
   /**
-   * Handle page change
+   * Handle pagination change
    */
-  protected onPageChange(page: number): void {
-    this.navigateWithParams({ page });
-  }
-
-  /**
-   * Handle page size change
-   */
-  protected onPageSizeChange(size: number): void {
-    this.navigateWithParams({ limit: size, page: 1 });
+  protected onPaginationChange(event: PaginationChange): void {
+    this.navigateWithParams({ page: event.page, limit: event.pageSize });
   }
 
   /**
