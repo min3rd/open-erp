@@ -36,7 +36,6 @@ export class ProductTypeRepository {
    * Find all product types with filters
    */
   async findAll(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filter: any = {},
     options?: {
       skip?: number;
@@ -65,7 +64,7 @@ export class ProductTypeRepository {
   /**
    * Count product types with filters
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   async count(filter: any = {}): Promise<number> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return this.model.countDocuments(filter).exec();

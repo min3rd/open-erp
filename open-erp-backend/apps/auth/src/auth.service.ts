@@ -1052,10 +1052,7 @@ export class AuthService {
       }));
 
     const globalPermissions =
-      await this.authorizationService.getEffectivePermissions(
-        userId,
-        'global',
-      );
+      await this.authorizationService.getEffectivePermissions(userId, 'global');
 
     // Return user profile information with roles and permissions
     return {

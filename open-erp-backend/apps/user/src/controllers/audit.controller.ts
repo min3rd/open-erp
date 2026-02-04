@@ -22,7 +22,10 @@ import { JwtAuthGuard, PermissionsGuard } from '@shared/authz';
 import { Permissions } from '@shared/authz/decorators';
 import { Permission } from '@shared/types/permission.enum';
 import { paginated, fetched, error } from '@shared/response';
-import { USER_NOT_FOUND, AUDIT_LOG_NOT_FOUND } from '@shared/errors/error-codes';
+import {
+  USER_NOT_FOUND,
+  AUDIT_LOG_NOT_FOUND,
+} from '@shared/errors/error-codes';
 
 /**
  * Sanitize sensitive fields from payload
@@ -54,10 +57,10 @@ function sanitizePayload(payload: any): any {
 
   for (const key in sanitized) {
     const lowerKey = key.toLowerCase();
-    
+
     // Check if field name contains sensitive keywords
-    const isSensitive = sensitiveFields.some(field => 
-      lowerKey.includes(field.toLowerCase())
+    const isSensitive = sensitiveFields.some((field) =>
+      lowerKey.includes(field.toLowerCase()),
     );
 
     if (isSensitive) {

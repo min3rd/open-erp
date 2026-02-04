@@ -60,7 +60,11 @@ export class MeController {
                 email: { type: 'string', example: 'user@example.com' },
                 username: { type: 'string', example: 'johndoe' },
                 fullName: { type: 'string', example: 'John Doe' },
-                avatarUrl: { type: 'string', nullable: true, example: 'https://example.com/avatar.jpg' },
+                avatarUrl: {
+                  type: 'string',
+                  nullable: true,
+                  example: 'https://example.com/avatar.jpg',
+                },
                 status: { type: 'string', example: 'active' },
                 verifiedAt: { type: 'string', format: 'date-time' },
                 createdAt: { type: 'string', format: 'date-time' },
@@ -69,10 +73,16 @@ export class MeController {
                   items: {
                     type: 'object',
                     properties: {
-                      id: { type: 'string', example: '507f1f77bcf86cd799439012' },
+                      id: {
+                        type: 'string',
+                        example: '507f1f77bcf86cd799439012',
+                      },
                       code: { type: 'string', example: 'SYSTEM_ADMIN' },
                       name: { type: 'string', example: 'System Administrator' },
-                      description: { type: 'string', example: 'Full system access' },
+                      description: {
+                        type: 'string',
+                        example: 'Full system access',
+                      },
                     },
                     required: ['id', 'code', 'name'],
                   },
@@ -81,7 +91,12 @@ export class MeController {
                 permissions: {
                   type: 'array',
                   items: { type: 'string' },
-                  example: ['users.create', 'users.read', 'users.update', 'users.delete'],
+                  example: [
+                    'users.create',
+                    'users.read',
+                    'users.update',
+                    'users.delete',
+                  ],
                   description: 'Global permissions derived from roles',
                 },
               },

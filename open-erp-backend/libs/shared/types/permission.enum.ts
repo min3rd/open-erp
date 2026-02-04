@@ -291,7 +291,8 @@ export const PermissionMetadata: Record<
     scope: 'global',
   },
   [Permission.MANAGE_ORG_USERS]: {
-    description: 'Organization-level permission to manage users within an organization',
+    description:
+      'Organization-level permission to manage users within an organization',
     scope: 'organization',
   },
 

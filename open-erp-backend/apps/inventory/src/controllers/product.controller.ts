@@ -89,7 +89,10 @@ export class ProductController {
   })
   @ApiResponse({ status: 400, description: 'Bad request - validation error' })
   @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - insufficient permissions',
+  })
   @ApiResponse({ status: 409, description: 'Conflict - SKU already exists' })
   async create(
     @Body() createDto: CreateProductDto,
@@ -170,15 +173,13 @@ export class ProductController {
     name: 'includeInactive',
     required: false,
     type: Boolean,
-    description:
-      'Include inactive products (requires management permissions)',
+    description: 'Include inactive products (requires management permissions)',
   })
   @ApiQuery({
     name: 'includeDeleted',
     required: false,
     type: Boolean,
-    description:
-      'Include deleted products (requires management permissions)',
+    description: 'Include deleted products (requires management permissions)',
   })
   @ApiResponse({
     status: 200,
@@ -203,7 +204,10 @@ export class ProductController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - insufficient permissions',
+  })
   async findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -232,11 +236,12 @@ export class ProductController {
           );
         }
 
-        const hasManagePermission = await this.authorizationService.hasPermission(
-          user.userId,
-          Permission.PRODUCT_MANAGE,
-          { scope: 'organization', organizationId: user.organizationId },
-        );
+        const hasManagePermission =
+          await this.authorizationService.hasPermission(
+            user.userId,
+            Permission.PRODUCT_MANAGE,
+            { scope: 'organization', organizationId: user.organizationId },
+          );
 
         if (!hasManagePermission) {
           throw new ForbiddenException(
@@ -300,7 +305,8 @@ export class ProductController {
     name: 'includeDeleted',
     required: false,
     type: Boolean,
-    description: 'Include if product is deleted (requires management permissions)',
+    description:
+      'Include if product is deleted (requires management permissions)',
   })
   @ApiResponse({
     status: 200,
@@ -322,7 +328,10 @@ export class ProductController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Product not found' })
   async findById(
     @Param('id') id: string,
@@ -397,7 +406,10 @@ export class ProductController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Product not found' })
   async update(@Param('id') id: string, @Body() updateDto: UpdateProductDto) {
     try {
@@ -443,12 +455,12 @@ export class ProductController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Product not found' })
-  async softDelete(
-    @Param('id') id: string,
-    @CurrentUser() user: UserContext,
-  ) {
+  async softDelete(@Param('id') id: string, @CurrentUser() user: UserContext) {
     try {
       await this.productService.softDelete(id, user.userId);
       return deleted('Product deleted successfully');
@@ -475,7 +487,10 @@ export class ProductController {
     description: 'Product restored successfully',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Product not found' })
   async restore(@Param('id') id: string) {
     try {
@@ -506,7 +521,10 @@ export class ProductController {
     description: 'Version history retrieved successfully',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Product not found' })
   async getVersionHistory(
     @Param('id') id: string,
@@ -540,7 +558,10 @@ export class ProductController {
     description: 'Version retrieved successfully',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Version not found' })
   async getVersion(@Param('id') id: string, @Param('version') version: number) {
     try {
@@ -574,7 +595,10 @@ export class ProductController {
     description: 'Product reverted successfully',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Product or version not found' })
   async revertToVersion(
     @Param('id') id: string,

@@ -86,7 +86,10 @@ export class ProductCategoryController {
     @CurrentUser() user: UserContext,
   ) {
     try {
-      const category = await this.categoryService.create(createDto, user.userId);
+      const category = await this.categoryService.create(
+        createDto,
+        user.userId,
+      );
       return created(category, 'Product category created successfully');
     } catch (err) {
       if (err instanceof HttpException) {
@@ -120,17 +123,18 @@ export class ProductCategoryController {
     type: String,
     description: 'Filter by parent ID. Use "null" for root categories.',
   })
-  @ApiQuery({ 
-    name: 'search', 
-    required: false, 
+  @ApiQuery({
+    name: 'search',
+    required: false,
     type: String,
-    description: 'Fuzzy search on code and name fields'
+    description: 'Fuzzy search on code and name fields',
   })
   @ApiQuery({
     name: 'sort',
     required: false,
     type: String,
-    description: 'Sort specification as array format: [field1,order1,field2,order2,...]. Example: [name,asc,order,desc] sorts by name ascending, then order descending',
+    description:
+      'Sort specification as array format: [field1,order1,field2,order2,...]. Example: [name,asc,order,desc] sorts by name ascending, then order descending',
   })
   @ApiResponse({
     status: 200,
@@ -331,7 +335,11 @@ export class ProductCategoryController {
     @CurrentUser() user: UserContext,
   ) {
     try {
-      const category = await this.categoryService.update(id, updateDto, user.userId);
+      const category = await this.categoryService.update(
+        id,
+        updateDto,
+        user.userId,
+      );
       return updated(category, 'Product category updated successfully');
     } catch (err) {
       if (err instanceof HttpException) {

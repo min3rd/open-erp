@@ -91,8 +91,8 @@ export class ProductCategoryService {
     if (params.sort) {
       // Remove brackets if present and split by comma
       const sortStr = params.sort.replace(/[\[\]]/g, '');
-      const sortParts = sortStr.split(',').map(s => s.trim());
-      
+      const sortParts = sortStr.split(',').map((s) => s.trim());
+
       // Parse pairs of field and order
       for (let i = 0; i < sortParts.length; i += 2) {
         const field = sortParts[i];
@@ -102,7 +102,7 @@ export class ProductCategoryService {
         }
       }
     }
-    
+
     // Default sort if none specified
     if (Object.keys(sort).length === 0) {
       sort.path = 1;
@@ -114,7 +114,11 @@ export class ProductCategoryService {
 
     if (params.search) {
       // Fuzzy search with filters
-      items = await this.repository.search(params.search, { skip, limit, sort });
+      items = await this.repository.search(params.search, {
+        skip,
+        limit,
+        sort,
+      });
       total = await this.repository.searchCount(params.search);
     } else {
       items = await this.repository.findAll(filter, {

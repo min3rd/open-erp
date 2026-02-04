@@ -156,8 +156,12 @@ describe('AuthService - GetMe Integration Tests', () => {
         { userId: mockUserId },
       );
 
-      expect(mockAuthorizationService.getUserRolesWithDetails).toHaveBeenCalledWith(mockUserId);
-      expect(mockAuthorizationService.getEffectivePermissions).toHaveBeenCalledWith(mockUserId, 'global');
+      expect(
+        mockAuthorizationService.getUserRolesWithDetails,
+      ).toHaveBeenCalledWith(mockUserId);
+      expect(
+        mockAuthorizationService.getEffectivePermissions,
+      ).toHaveBeenCalledWith(mockUserId, 'global');
     });
 
     it('should return user profile with null avatarUrl if not set', async () => {
@@ -325,8 +329,12 @@ describe('AuthService - GetMe Integration Tests', () => {
       }
 
       // Authorization service should not be called when user is not found
-      expect(mockAuthorizationService.getUserRolesWithDetails).not.toHaveBeenCalled();
-      expect(mockAuthorizationService.getEffectivePermissions).not.toHaveBeenCalled();
+      expect(
+        mockAuthorizationService.getUserRolesWithDetails,
+      ).not.toHaveBeenCalled();
+      expect(
+        mockAuthorizationService.getEffectivePermissions,
+      ).not.toHaveBeenCalled();
     });
 
     it('should throw AUTH_INVALID_CREDENTIALS when user is not active', async () => {
@@ -363,8 +371,12 @@ describe('AuthService - GetMe Integration Tests', () => {
       }
 
       // Authorization service should not be called when user is not active
-      expect(mockAuthorizationService.getUserRolesWithDetails).not.toHaveBeenCalled();
-      expect(mockAuthorizationService.getEffectivePermissions).not.toHaveBeenCalled();
+      expect(
+        mockAuthorizationService.getUserRolesWithDetails,
+      ).not.toHaveBeenCalled();
+      expect(
+        mockAuthorizationService.getEffectivePermissions,
+      ).not.toHaveBeenCalled();
     });
 
     it('should throw AUTH_INVALID_CREDENTIALS when user is locked', async () => {
@@ -398,8 +410,12 @@ describe('AuthService - GetMe Integration Tests', () => {
       }
 
       // Authorization service should not be called when user is locked
-      expect(mockAuthorizationService.getUserRolesWithDetails).not.toHaveBeenCalled();
-      expect(mockAuthorizationService.getEffectivePermissions).not.toHaveBeenCalled();
+      expect(
+        mockAuthorizationService.getUserRolesWithDetails,
+      ).not.toHaveBeenCalled();
+      expect(
+        mockAuthorizationService.getEffectivePermissions,
+      ).not.toHaveBeenCalled();
     });
   });
 });

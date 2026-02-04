@@ -1,6 +1,11 @@
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
-import { UpdateUserDto, CreateUserDto, AddressDto, EducationDto } from '../../src/dto/user.dto';
+import {
+  UpdateUserDto,
+  CreateUserDto,
+  AddressDto,
+  EducationDto,
+} from '../../src/dto/user.dto';
 
 describe('User DTO Validation', () => {
   describe('AddressDto', () => {
@@ -96,7 +101,7 @@ describe('User DTO Validation', () => {
 
       const errors = await validate(dto);
       // Should have error for date in the future
-      const dateError = errors.find(e => e.property === 'dateOfBirth');
+      const dateError = errors.find((e) => e.property === 'dateOfBirth');
       expect(dateError).toBeDefined();
     });
 
@@ -107,7 +112,7 @@ describe('User DTO Validation', () => {
       });
 
       const errors = await validate(dto);
-      const skillsError = errors.find(e => e.property === 'skills');
+      const skillsError = errors.find((e) => e.property === 'skills');
       expect(skillsError).toBeDefined();
     });
 
@@ -118,7 +123,7 @@ describe('User DTO Validation', () => {
       });
 
       const errors = await validate(dto);
-      const skillsError = errors.find(e => e.property === 'skills');
+      const skillsError = errors.find((e) => e.property === 'skills');
       expect(skillsError).toBeDefined();
     });
 
@@ -129,7 +134,7 @@ describe('User DTO Validation', () => {
       });
 
       const errors = await validate(dto);
-      const hobbiesError = errors.find(e => e.property === 'hobbies');
+      const hobbiesError = errors.find((e) => e.property === 'hobbies');
       expect(hobbiesError).toBeDefined();
     });
 
@@ -144,7 +149,7 @@ describe('User DTO Validation', () => {
       });
 
       const errors = await validate(dto);
-      const educationError = errors.find(e => e.property === 'education');
+      const educationError = errors.find((e) => e.property === 'education');
       expect(educationError).toBeDefined();
     });
 
