@@ -41,6 +41,7 @@ import { PermissionsGuard } from '@shared/authz/permissions.guard';
 import { Permissions, Public } from '@shared/authz/decorators';
 import { Permission } from '@shared/types/permission.enum';
 import { CurrentUser } from '@shared/authz/current-user.decorator';
+import { AuthorizationService } from '@shared/authz/authorization.service';
 
 interface UserContext {
   userId: string;
@@ -54,7 +55,10 @@ interface UserContext {
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @ApiBearerAuth()
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly authorizationService: AuthorizationService,
+  ) {}
 
   @Post()
   @Permissions([Permission.PRODUCT_CREATE, Permission.PRODUCT_MANAGE], {
@@ -219,9 +223,29 @@ export class ProductController {
       // Check permissions for includeInactive and includeDeleted
       // Only users with PRODUCT_MANAGE permission can view inactive/deleted products
       if (includeInactive || includeDeleted) {
-        // This check assumes the user has appropriate permissions
-        // The PermissionsGuard should have already validated PRODUCT_READ
-        // For stricter control, you could add another permission check here
+        if (!user || !user.userId) {
+          throw new ForbiddenException(
+            error(
+              'INSUFFICIENT_PERMISSIONS',
+              'Authentication required to view inactive or deleted products.',
+            ),
+          );
+        }
+
+        const hasManagePermission = await this.authorizationService.hasPermission(
+          user.userId,
+          Permission.PRODUCT_MANAGE,
+          { scope: 'organization', organizationId: user.organizationId },
+        );
+
+        if (!hasManagePermission) {
+          throw new ForbiddenException(
+            error(
+              'INSUFFICIENT_PERMISSIONS',
+              'You do not have permission to view inactive or deleted products. PRODUCT_MANAGE permission required.',
+            ),
+          );
+        }
       }
 
       // Parse tags from comma-separated string
