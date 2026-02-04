@@ -13,49 +13,6 @@ export enum ProductScope {
 }
 
 /**
- * Product Type enum (subset of common types)
- */
-export enum ProductType {
-  RAW_MATERIAL = 'raw_material',
-  COMPONENT = 'component',
-  INGREDIENT = 'ingredient',
-  FINISHED_GOOD = 'finished_good',
-  SEMI_FINISHED = 'semi_finished',
-  WORK_IN_PROGRESS = 'work_in_progress',
-  BY_PRODUCT = 'by_product',
-  PACKAGING = 'packaging',
-  CONTAINER = 'container',
-  CONSUMABLE = 'consumable',
-  SPARE_PART = 'spare_part',
-  TOOL = 'tool',
-  EQUIPMENT = 'equipment',
-  MACHINERY = 'machinery',
-  MERCHANDISE = 'merchandise',
-  AGRICULTURAL = 'agricultural',
-  SEAFOOD = 'seafood',
-  HANDICRAFT = 'handicraft',
-  TEXTILE = 'textile',
-  ELECTRONICS = 'electronics',
-  FURNITURE = 'furniture',
-  FOOD = 'food',
-  BEVERAGE = 'beverage',
-  FRESH_PRODUCE = 'fresh_produce',
-  PROCESSED_FOOD = 'processed_food',
-  MEDICINE = 'medicine',
-  MEDICAL_DEVICE = 'medical_device',
-  COSMETIC = 'cosmetic',
-  SERVICE = 'service',
-  DIGITAL = 'digital',
-  SOFTWARE = 'software',
-  BOOK = 'book',
-  STATIONERY = 'stationery',
-  TOY = 'toy',
-  JEWELRY = 'jewelry',
-  VEHICLE = 'vehicle',
-  SPARE_VEHICLE_PART = 'spare_vehicle_part',
-}
-
-/**
  * Product Status enum
  */
 export enum ProductStatus {
@@ -63,35 +20,6 @@ export enum ProductStatus {
   INACTIVE = 'inactive',
   DISCONTINUED = 'discontinued',
   DRAFT = 'draft',
-}
-
-/**
- * Unit of measurement enum
- */
-export enum Unit {
-  KG = 'kg',
-  G = 'g',
-  TON = 'ton',
-  LB = 'lb',
-  LITER = 'liter',
-  ML = 'ml',
-  M3 = 'm3',
-  GALLON = 'gallon',
-  METER = 'meter',
-  CM = 'cm',
-  MM = 'mm',
-  INCH = 'inch',
-  M2 = 'm2',
-  SQF = 'sqf',
-  PIECE = 'piece',
-  BOX = 'box',
-  CARTON = 'carton',
-  PALLET = 'pallet',
-  CONTAINER = 'container',
-  PACK = 'pack',
-  SET = 'set',
-  PAIR = 'pair',
-  DOZEN = 'dozen',
 }
 
 /**
@@ -106,9 +34,9 @@ export interface Product {
   barcode?: string;
   scope: ProductScope;
   organizationId?: string;
-  type: ProductType;
+  type: string; // Changed from ProductType enum to string since types are loaded from API
   status: ProductStatus;
-  unit: Unit;
+  unit: string; // Changed from Unit enum to string
   categoryId?: string;
   category?: {
     id: string;
@@ -135,9 +63,9 @@ export interface CreateProductDto {
   barcode?: string;
   scope: ProductScope;
   organizationId?: string;
-  type: ProductType;
+  type: string;
   status: ProductStatus;
-  unit: Unit;
+  unit: string;
   categoryId?: string;
   tags?: string[];
   metadata?: Record<string, any>;
@@ -155,7 +83,7 @@ export interface QueryProductParams {
   page?: number;
   limit?: number;
   scope?: ProductScope;
-  type?: ProductType;
+  type?: string;
   status?: ProductStatus;
   organizationId?: string;
   category?: string;

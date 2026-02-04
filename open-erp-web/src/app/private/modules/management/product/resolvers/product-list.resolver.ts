@@ -7,8 +7,7 @@ import { catchError, of } from 'rxjs';
  * Resolver for product list data
  * Pre-loads product list based on route params before navigation
  * 
- * Route pattern: /:search/:filter/:sort/:page/:limit
- * Filter format: status-type-category (e.g., "all-all-all", "active-electronics-all", "all-finished_good-cat123")
+ * Route pattern: /:search/:status/:type/:category/:sort/:page/:limit
  */
 export const productListResolver: ResolveFn<
   { items: Product[]; total: number; page: number; limit: number } | null
@@ -19,14 +18,10 @@ export const productListResolver: ResolveFn<
   const page = parseInt(route.params['page'], 10) || 1;
   const limit = parseInt(route.params['limit'], 10) || 100;
   const search = route.params['search'] || '';
-  const filterStr = route.params['filter'] || 'all-all-all';
+  const statusFilter = route.params['status'] || 'all';
+  const typeFilter = route.params['type'] || 'all';
+  const categoryFilter = route.params['category'] || 'all';
   const sort = route.params['sort'] || '[name,asc]';
-
-  // Parse composite filter: status-type-category
-  const filterParts = filterStr.split('-');
-  const statusFilter = filterParts[0] || 'all';
-  const typeFilter = filterParts[1] || 'all';
-  const categoryFilter = filterParts[2] || 'all';
 
   // Parse status filter
   let status: ProductStatus | undefined;

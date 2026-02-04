@@ -39,7 +39,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { PaginationComponent, PaginationChange } from '../../../../../../core/components/pagination/pagination';
 
 // Services and types
-import { ProductService, Product, ProductStatus, ProductType } from '../../../../../../core/services/product/product.service';
+import { ProductService, Product, ProductStatus } from '../../../../../../core/services/product/product.service';
 import { ProductTypeService } from '../../../../../../core/services/product-type/product-type.service';
 import { ProductCategoryService, ProductCategory } from '../../../../../../core/services/product-category/product-category.service';
 
@@ -115,7 +115,6 @@ export class ProductList implements OnInit, OnDestroy {
   private readonly SEARCH_FOCUS_DELAY = 100;
   protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
   protected readonly ProductStatus = ProductStatus;
-  protected readonly ProductType = ProductType;
 
   // Column definitions
   protected readonly columnOptions: ColumnDef[] = [
@@ -295,18 +294,19 @@ export class ProductList implements OnInit, OnDestroy {
       const limit = parseInt(params['limit'], 10) || PAGE_SIZE_OPTIONS[0];
       const normalizedLimit = PAGE_SIZE_OPTIONS.includes(limit) ? limit : PAGE_SIZE_OPTIONS[0];
       const search = params['search'] || '';
-      const filterStr = params['filter'] || 'all-all-all';
+      const statusFilter = params['status'] || 'all';
+      const typeFilter = params['type'] || 'all';
+      const categoryFilter = params['category'] || 'all';
       const sort = params['sort'] || '[name,asc]';
 
       this.currentPage.set(page);
       this.pageSize.set(normalizedLimit);
       this.searchQuery.set(search === '-' ? '' : search);
       
-      // Parse composite filter: status-type-category
-      const filterParts = filterStr.split('-');
-      this.activeStatusFilter = filterParts[0] || 'all';
-      this.activeTypeFilter = filterParts[1] || 'all';
-      this.activeCategoryFilter = filterParts[2] || 'all';
+      // Parse individual filters
+      this.activeStatusFilter = statusFilter;
+      this.activeTypeFilter = typeFilter;
+      this.activeCategoryFilter = categoryFilter;
 
       // Parse sort array format [field,order]
       const sortStr = sort.replace(/[\[\]]/g, '');
@@ -350,22 +350,28 @@ export class ProductList implements OnInit, OnDestroy {
    */
   private navigateWithParams(updates: Partial<{
     search: string;
-    filter: string;
+    status: string;
+    type: string;
+    category: string;
     sort: string;
     page: number;
     limit: number;
   }>): void {
     const currentParams = this.route.snapshot.params;
     const search = updates.search !== undefined ? updates.search : currentParams['search'];
-    const filter = updates.filter !== undefined ? updates.filter : currentParams['filter'];
+    const status = updates.status !== undefined ? updates.status : currentParams['status'];
+    const type = updates.type !== undefined ? updates.type : currentParams['type'];
+    const category = updates.category !== undefined ? updates.category : currentParams['category'];
     const sort = updates.sort !== undefined ? updates.sort : currentParams['sort'];
     const page = updates.page !== undefined ? updates.page : parseInt(currentParams['page'], 10);
     const limit = updates.limit !== undefined ? updates.limit : parseInt(currentParams['limit'], 10);
 
     this.router.navigate([
-      '/modules/management/product',
+      '/private/management/product',
       search || '-',
-      filter || 'all-all-all',
+      status || 'all',
+      type || 'all',
+      category || 'all',
       sort || '[name,asc]',
       page,
       limit,
@@ -407,7 +413,7 @@ export class ProductList implements OnInit, OnDestroy {
             { label: 'productList.filter.allCategories', value: 'all' },
             ...result.items.map(cat => ({
               label: cat.name,
-              value: cat.id
+              value: cat.code
             }))
           ];
           this.categoryFilterOptions.set(options);
@@ -431,8 +437,7 @@ export class ProductList implements OnInit, OnDestroy {
    */
   protected onStatusFilterChange(status: string): void {
     this.activeStatusFilter = status;
-    const filterStr = `${status}-${this.activeTypeFilter}-${this.activeCategoryFilter}`;
-    this.navigateWithParams({ filter: filterStr, page: 1 });
+    this.navigateWithParams({ status, page: 1 });
   }
 
   /**
@@ -440,8 +445,7 @@ export class ProductList implements OnInit, OnDestroy {
    */
   protected onTypeFilterChange(type: string): void {
     this.activeTypeFilter = type;
-    const filterStr = `${this.activeStatusFilter}-${type}-${this.activeCategoryFilter}`;
-    this.navigateWithParams({ filter: filterStr, page: 1 });
+    this.navigateWithParams({ type, page: 1 });
   }
 
   /**
@@ -449,8 +453,7 @@ export class ProductList implements OnInit, OnDestroy {
    */
   protected onCategoryFilterChange(category: string): void {
     this.activeCategoryFilter = category;
-    const filterStr = `${this.activeStatusFilter}-${this.activeTypeFilter}-${category}`;
-    this.navigateWithParams({ filter: filterStr, page: 1 });
+    this.navigateWithParams({ category, page: 1 });
   }
 
   /**
