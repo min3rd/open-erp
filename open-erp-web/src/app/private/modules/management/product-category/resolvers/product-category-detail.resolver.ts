@@ -14,7 +14,7 @@ export const productCategoryDetailResolver: ResolveFn<ProductCategory | null> = 
   const service = inject(ProductCategoryService);
   const router = inject(Router);
   
-  const id = route.paramMap.get('id');
+  const id = route.params['id'];
   
   if (!id) {
     return of(null);

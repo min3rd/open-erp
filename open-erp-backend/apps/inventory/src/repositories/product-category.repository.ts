@@ -168,15 +168,24 @@ export class ProductCategoryRepository {
   }
 
   /**
-   * Search product categories by text
+   * Search product categories by text (fuzzy search on code and name)
    */
   async search(
     searchTerm: string,
-    options?: { skip?: number; limit?: number },
+    options?: { skip?: number; limit?: number; sort?: Record<string, 1 | -1> },
   ): Promise<ProductCategoryDocument[]> {
+    // Use regex for fuzzy search on code and name fields
+    const searchRegex = new RegExp(searchTerm, 'i');
     let query = this.model.find({
-      $text: { $search: searchTerm },
+      $or: [
+        { code: searchRegex },
+        { name: searchRegex },
+      ],
     });
+
+    if (options?.sort) {
+      query = query.sort(options.sort);
+    }
 
     if (options?.skip) {
       query = query.skip(options.skip);
@@ -187,6 +196,19 @@ export class ProductCategoryRepository {
     }
 
     return query.exec();
+  }
+  
+  /**
+   * Count search results
+   */
+  async searchCount(searchTerm: string): Promise<number> {
+    const searchRegex = new RegExp(searchTerm, 'i');
+    return this.model.countDocuments({
+      $or: [
+        { code: searchRegex },
+        { name: searchRegex },
+      ],
+    }).exec();
   }
 
   /**
