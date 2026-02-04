@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { API_URI_INVENTORY } from '../../constant';
-import { ApiResponse, ApiPaginatedResponse } from '../../api/interfaces';
+import { ApiResponse, ApiPaginatedResponse, ApiSingleResponse } from '../../api/interfaces';
 
 /**
  * Product Scope enum
@@ -237,8 +237,8 @@ export class ProductService {
     }
 
     return this.http
-      .get<ApiResponse<Product>>(`${this.baseUrl}/${id}`, { params: httpParams })
-      .pipe(map((response) => response.data.item));
+      .get<ApiSingleResponse<Product>>(`${this.baseUrl}/${id}`, { params: httpParams })
+      .pipe(map((response) => response.data?.item!));
   }
 
   /**
@@ -252,8 +252,8 @@ export class ProductService {
     }
 
     return this.http
-      .get<ApiResponse<Product>>(`${this.baseUrl}/sku/${sku}`, { params: httpParams })
-      .pipe(map((response) => response.data.item));
+      .get<ApiSingleResponse<Product>>(`${this.baseUrl}/sku/${sku}`, { params: httpParams })
+      .pipe(map((response) => response.data?.item!));
   }
 
   /**
@@ -262,8 +262,8 @@ export class ProductService {
    */
   createProduct(dto: CreateProductDto): Observable<Product> {
     return this.http
-      .post<ApiResponse<Product>>(this.baseUrl, dto)
-      .pipe(map((response) => response.data.item));
+      .post<ApiSingleResponse<Product>>(this.baseUrl, dto)
+      .pipe(map((response) => response.data?.item!));
   }
 
   /**
@@ -272,8 +272,8 @@ export class ProductService {
    */
   updateProduct(id: string, dto: UpdateProductDto): Observable<Product> {
     return this.http
-      .patch<ApiResponse<Product>>(`${this.baseUrl}/${id}`, dto)
-      .pipe(map((response) => response.data.item));
+      .patch<ApiSingleResponse<Product>>(`${this.baseUrl}/${id}`, dto)
+      .pipe(map((response) => response.data?.item!));
   }
 
   /**
@@ -292,8 +292,8 @@ export class ProductService {
    */
   restoreProduct(id: string): Observable<Product> {
     return this.http
-      .post<ApiResponse<Product>>(`${this.baseUrl}/${id}/restore`, {})
-      .pipe(map((response) => response.data.item));
+      .post<ApiSingleResponse<Product>>(`${this.baseUrl}/${id}/restore`, {})
+      .pipe(map((response) => response.data?.item!));
   }
 
   /**
@@ -348,7 +348,7 @@ export class ProductService {
     formData.append('file', file);
 
     return this.http
-      .post<ApiResponse<ImportResult>>(`${this.baseUrl}/import/csv`, formData)
-      .pipe(map((response) => response.data.item));
+      .post<ApiSingleResponse<ImportResult>>(`${this.baseUrl}/import/csv`, formData)
+      .pipe(map((response) => response.data?.item!));
   }
 }
