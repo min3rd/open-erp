@@ -627,6 +627,124 @@ export class ProductController {
 
   // ========== MEDIA MANAGEMENT ENDPOINTS ==========
 
+  @Get('media/presign-upload')
+  @Permissions([Permission.PRODUCT_CREATE, Permission.PRODUCT_MANAGE], {
+    mode: 'any',
+  })
+  @ApiOperation({ 
+    summary: 'Get presigned URL for uploading media during product creation',
+    description: 'Generates a presigned URL for uploading media before product is created (no product ID required)'
+  })
+  @ApiQuery({ 
+    name: 'filename', 
+    required: true, 
+    type: String,
+    description: 'Original filename with extension' 
+  })
+  @ApiQuery({ 
+    name: 'contentType', 
+    required: true, 
+    type: String,
+    description: 'MIME type (e.g., image/jpeg, image/png)' 
+  })
+  @ApiQuery({ 
+    name: 'type', 
+    required: false, 
+    enum: ['thumbnail', 'media'],
+    description: 'Type of media (thumbnail or general media)',
+    example: 'thumbnail'
+  })
+  @ApiQuery({ 
+    name: 'organizationId', 
+    required: false, 
+    type: String,
+    description: 'Organization ID (optional, for organization-scoped products)' 
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Presigned URL generated successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: true },
+        message: { type: 'null' },
+        error: { type: 'null' },
+        data: {
+          type: 'object',
+          properties: {
+            uploadUrl: { type: 'string', example: 'https://minio.example.com/...' },
+            method: { type: 'string', example: 'PUT' },
+            expiresAt: { type: 'string', format: 'date-time' },
+            objectKey: { type: 'string', example: 'products/temp/org-123/thumbnail/123456-image.jpg' },
+            bucket: { type: 'string', example: 'open-erp' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid parameters' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  async getPresignedUploadUrlForCreate(
+    @Query('filename') filename: string,
+    @Query('contentType') contentType: string,
+    @Query('type') type: string = 'media',
+    @Query('organizationId') organizationId?: string,
+    @CurrentUser() user: UserContext = {} as UserContext,
+  ) {
+    try {
+      // Validate content type for images
+      if (type === 'thumbnail' && !contentType.startsWith('image/')) {
+        throw new BadRequestException('Thumbnail must be an image file');
+      }
+
+      // Validate file type based on media type
+      const allowedTypes = {
+        thumbnail: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+        media: [
+          'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
+          'video/mp4', 'video/webm', 'video/ogg',
+          'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ],
+      };
+
+      if (!allowedTypes[type]?.includes(contentType)) {
+        throw new BadRequestException(`Content type ${contentType} not allowed for ${type}`);
+      }
+
+      // Sanitize filename
+      const sanitizedFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const timestamp = Date.now();
+      
+      // Generate object key for temp upload: products/temp/{orgId}/{type}/{timestamp}-{filename}
+      // Use organizationId if provided, otherwise use user's organizationId or 'global'
+      const orgId = organizationId || user.organizationId || 'global';
+      const orgPrefix = orgId !== 'global' ? `org-${orgId}` : 'global';
+      const objectKey = `products/temp/${orgPrefix}/${type}/${timestamp}-${sanitizedFilename}`;
+
+      // Generate presigned URL
+      const presignResult = await this.minioService.presignUpload(objectKey, {
+        expiresIn: 3600, // 1 hour
+      });
+
+      return fetched({
+        uploadUrl: presignResult.url,
+        method: presignResult.method,
+        expiresAt: presignResult.expiresAt,
+        objectKey,
+        bucket: this.minioService.getDefaultBucket(),
+      });
+    } catch (err) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
+      throw new HttpException(
+        error('PRESIGN_ERROR', err.message || 'Failed to generate presigned URL'),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @Get(':id/media/presign-upload')
   @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
     mode: 'any',
