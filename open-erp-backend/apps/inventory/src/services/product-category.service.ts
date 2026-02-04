@@ -67,7 +67,7 @@ export class ProductCategoryService {
     parentId?: string;
     search?: string;
     sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
+    sortOrder?: string;
   }): Promise<{
     items: ProductCategoryDocument[];
     total: number;
@@ -87,10 +87,16 @@ export class ProductCategoryService {
       filter.parentId = params.parentId === 'null' ? null : params.parentId;
     }
 
-    // Build sort object
+    // Build sort object - support multiple fields
     const sort: Record<string, 1 | -1> = {};
     if (params.sortBy) {
-      sort[params.sortBy] = params.sortOrder === 'desc' ? -1 : 1;
+      const sortFields = params.sortBy.split(',').map(f => f.trim());
+      const sortOrders = params.sortOrder ? params.sortOrder.split(',').map(o => o.trim()) : [];
+      
+      sortFields.forEach((field, index) => {
+        const order = sortOrders[index] || 'asc';
+        sort[field] = order === 'desc' ? -1 : 1;
+      });
     } else {
       // Default sort
       sort.path = 1;

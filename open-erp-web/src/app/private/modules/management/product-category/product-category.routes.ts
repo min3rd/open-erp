@@ -14,48 +14,58 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: '-/1/100',
+        redirectTo: '-/all/name-asc/1/100',
       },
       {
         path: ':search',
         children: [
           {
-            path: ':page',
+            path: ':filter',
             children: [
               {
-                path: ':limit',
-                component: ProductCategoryList,
-                resolve: {
-                  productCategoryList: productCategoryListResolver,
-                },
+                path: ':sort',
                 children: [
                   {
-                    path: 'new',
-                    pathMatch: 'full',
-                    component: ProductCategoryForm,
-                    resolve: {
-                      parentCategories: parentCategoriesResolver,
-                    },
-                  },
-                  {
-                    path: ':id',
-                    resolve: {
-                      productCategory: productCategoryDetailResolver,
-                      parentCategories: parentCategoriesResolver,
-                    },
+                    path: ':page',
                     children: [
                       {
-                        path: '',
-                        pathMatch: 'full',
-                        redirectTo: 'view',
-                      },
-                      {
-                        path: 'view',
-                        component: ProductCategoryForm,
-                      },
-                      {
-                        path: 'edit',
-                        component: ProductCategoryForm,
+                        path: ':limit',
+                        component: ProductCategoryList,
+                        resolve: {
+                          productCategoryList: productCategoryListResolver,
+                        },
+                        children: [
+                          {
+                            path: 'new',
+                            pathMatch: 'full',
+                            component: ProductCategoryForm,
+                            resolve: {
+                              parentCategories: parentCategoriesResolver,
+                            },
+                          },
+                          {
+                            path: ':id',
+                            resolve: {
+                              productCategory: productCategoryDetailResolver,
+                              parentCategories: parentCategoriesResolver,
+                            },
+                            children: [
+                              {
+                                path: '',
+                                pathMatch: 'full',
+                                redirectTo: 'view',
+                              },
+                              {
+                                path: 'view',
+                                component: ProductCategoryForm,
+                              },
+                              {
+                                path: 'edit',
+                                component: ProductCategoryForm,
+                              },
+                            ],
+                          },
+                        ],
                       },
                     ],
                   },

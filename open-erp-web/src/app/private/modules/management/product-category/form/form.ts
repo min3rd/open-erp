@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -51,6 +51,7 @@ export class ProductCategoryForm implements OnInit {
   private readonly productCategoryService = inject(ProductCategoryService);
   private readonly messageService = inject(MessageService);
   private readonly translocoService = inject(TranslocoService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   protected readonly productCategory = signal<ProductCategory | null>(null);
   protected readonly isEditMode = signal(false);
@@ -60,6 +61,18 @@ export class ProductCategoryForm implements OnInit {
   protected readonly parentCategoryOptions = signal<ParentCategoryOption[]>([]);
 
   protected form!: FormGroup;
+
+  constructor() {
+    // Effect to ensure drawer is visible when form is loaded
+    effect(() => {
+      // When productCategory changes, ensure drawer is visible
+      const category = this.productCategory();
+      if (category || this.isEditMode() || this.isViewMode()) {
+        this.isVisible.set(true);
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
   ngOnInit(): void {
     // Initialize form
@@ -97,7 +110,12 @@ export class ProductCategoryForm implements OnInit {
 
         if (this.isViewMode()) {
           this.form.disable();
+        } else {
+          this.form.enable();
         }
+
+        // Force change detection
+        this.cdr.detectChanges();
       }
 
       // Load parent categories from resolver
