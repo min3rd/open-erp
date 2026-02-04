@@ -157,7 +157,7 @@ export class ProductCategoryList implements OnInit, OnDestroy {
   protected readonly isSearchOpen = signal(false);
   protected readonly sortField = signal<string>('name');
   protected readonly sortOrder = signal<number>(1); // 1 = ascending, -1 = descending
-  protected readonly activeFilter = signal<string>('all'); // 'all', 'active', 'inactive'
+  protected activeFilterValue: string = 'all'; // For ngModel binding
   protected selectedSort: SortOption = this.sortOptions[2]; // Default to name ascending
 
   // Current row menu items - to fix double-click issue
@@ -284,7 +284,7 @@ export class ProductCategoryList implements OnInit, OnDestroy {
       this.currentPage.set(page);
       this.pageSize.set(normalizedLimit);
       this.searchQuery.set(search === '-' ? '' : search);
-      this.activeFilter.set(filter);
+      this.activeFilterValue = filter; // Update regular property for ngModel
       
       // Parse sort array format [field1,order1,field2,order2,...]
       const sortStr = sort.replace(/[\[\]]/g, '');
@@ -322,7 +322,7 @@ export class ProductCategoryList implements OnInit, OnDestroy {
   protected onSearchChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     const searchValue = input.value || '-';
-    const filter = this.activeFilter();
+    const filter = this.activeFilterValue;
     const sortStr = `[${this.sortField()},${this.sortOrder() === 1 ? 'asc' : 'desc'}]`;
     this.router.navigate(['../../../..', searchValue, filter, sortStr, 1, this.pageSize()], {
       relativeTo: this.route,
@@ -346,7 +346,7 @@ export class ProductCategoryList implements OnInit, OnDestroy {
   protected onSortChange(sort: SortOption): void {
     this.selectedSort = sort;
     const search = this.searchQuery() || '-';
-    const filter = this.activeFilter();
+    const filter = this.activeFilterValue;
     const sortStr = `[${sort.field},${sort.order === 1 ? 'asc' : 'desc'}]`;
     this.router.navigate(['../../../..', search, filter, sortStr, 1, this.pageSize()], {
       relativeTo: this.route,
@@ -360,7 +360,7 @@ export class ProductCategoryList implements OnInit, OnDestroy {
     const newPage = event.page;
     const newPageSize = event.pageSize;
     const search = this.searchQuery() || '-';
-    const filter = this.activeFilter();
+    const filter = this.activeFilterValue;
     const sortStr = `[${this.sortField()},${this.sortOrder() === 1 ? 'asc' : 'desc'}]`;
 
     this.router.navigate(['../../../..', search, filter, sortStr, newPage, newPageSize], {
@@ -380,7 +380,7 @@ export class ProductCategoryList implements OnInit, OnDestroy {
    */
   protected onExportCSV(): void {
     // Parse filter to isActive boolean
-    const filter = this.activeFilter();
+    const filter = this.activeFilterValue;
     let isActive: boolean | undefined = undefined;
     if (filter === 'active') {
       isActive = true;
@@ -612,7 +612,7 @@ export class ProductCategoryList implements OnInit, OnDestroy {
   protected closeSearch(): void {
     this.isSearchOpen.set(false);
     const search = '-';
-    const filter = this.activeFilter();
+    const filter = this.activeFilterValue;
     const sortStr = `[${this.sortField()},${this.sortOrder() === 1 ? 'asc' : 'desc'}]`;
     this.router.navigate(['../../../..', search, filter, sortStr, 1, this.pageSize()], {
       relativeTo: this.route,
@@ -626,7 +626,7 @@ export class ProductCategoryList implements OnInit, OnDestroy {
     this.isLoading.set(true);
     
     // Parse filter to isActive boolean
-    const filter = this.activeFilter();
+    const filter = this.activeFilterValue;
     let isActive: boolean | undefined = undefined;
     if (filter === 'active') {
       isActive = true;

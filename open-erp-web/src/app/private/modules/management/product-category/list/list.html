@@ -34,7 +34,7 @@
         <p-select
           id="product-category-list-filter"
           [options]="filterOptions"
-          [(ngModel)]="activeFilter"
+          [(ngModel)]="activeFilterValue"
           (onChange)="onFilterChange($event.value)"
           optionLabel="label"
           optionValue="value"
@@ -43,6 +43,9 @@
           [attr.aria-label]="'productCategoryList.filter.label' | transloco"
         >
           <ng-template let-option #item>
+            {{ option.label | transloco }}
+          </ng-template>
+          <ng-template let-option #selectedItem>
             {{ option.label | transloco }}
           </ng-template>
         </p-select>
@@ -59,6 +62,9 @@
           [attr.aria-label]="'productCategoryList.sort.label' | transloco"
         >
           <ng-template let-option #item>
+            {{ option.label | transloco }}
+          </ng-template>
+          <ng-template let-option #selectedItem>
             {{ option.label | transloco }}
           </ng-template>
         </p-select>

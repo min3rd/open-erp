@@ -117,8 +117,8 @@ export class ProductCategoryService {
    */
   getProductCategoryById(id: string): Observable<ProductCategory | null> {
     return this.http
-      .get<ApiResponse<ProductCategory>>(`${this.baseUrl}/${id}`)
-      .pipe(map((response) => response.data || null));
+      .get<ApiResponse<{ mode: string; item: ProductCategory }>>(`${this.baseUrl}/${id}`)
+      .pipe(map((response) => response.data?.item || null));
   }
 
   /**
