@@ -249,7 +249,7 @@ export class ProductService {
     contentType: string,
     type: 'thumbnail' | 'media' = 'thumbnail',
     organizationId?: string
-  ): Observable<{ url: string; objectKey: string; bucket: string }> {
+  ): Observable<{ uploadUrl: string; objectKey: string; bucket: string; method: string; expiresAt: string }> {
     let httpParams = new HttpParams()
       .set('filename', filename)
       .set('contentType', contentType)
@@ -262,7 +262,16 @@ export class ProductService {
     return this.http
       .get<any>(`${this.baseUrl}/media/presign-upload`, { params: httpParams })
       .pipe(
-        map((response) => response.data?.item || response.data)
+        map((response) => {
+          const item = response.data?.item;
+          return {
+            uploadUrl: item.uploadUrl,
+            objectKey: item.objectKey,
+            bucket: item.bucket,
+            method: item.method,
+            expiresAt: item.expiresAt
+          };
+        })
       );
   }
 

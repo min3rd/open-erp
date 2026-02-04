@@ -37,6 +37,7 @@ import {
 } from '../../../../../../core/services/product/product.service';
 import { ProductTypeService } from '../../../../../../core/services/product-type/product-type.service';
 import { ProductCategoryService } from '../../../../../../core/services/product-category/product-category.service';
+import { OrganizationContextService } from '../../../../../../core/services/organization-context.service';
 import { slugify } from '../../../../../../core/utils/slugify';
 
 interface SelectOption {
@@ -75,6 +76,7 @@ export class ProductForm implements OnInit {
   private readonly productService = inject(ProductService);
   private readonly productTypeService = inject(ProductTypeService);
   private readonly productCategoryService = inject(ProductCategoryService);
+  private readonly organizationContext = inject(OrganizationContextService);
   private readonly messageService = inject(MessageService);
   private readonly translocoService = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
@@ -129,6 +131,7 @@ export class ProductForm implements OnInit {
 
   protected typeOptions = signal<SelectOption[]>([]);
   protected categoryOptions = signal<SelectOption[]>([]);
+  protected organizationOptions = signal<SelectOption[]>([]);
   
   // Upload-related state
   protected thumbnailFile: File | null = null;
@@ -137,11 +140,24 @@ export class ProductForm implements OnInit {
   protected form!: FormGroup;
 
   ngOnInit(): void {
+    // Load user organizations
+    const userOrgs = this.organizationContext.userOrganizations();
+    const orgOptions = userOrgs.map(org => ({
+      label: org.name,
+      value: org.id,
+      code: org.code
+    }));
+    this.organizationOptions.set(orgOptions);
+
+    // Get current organization
+    const currentOrg = this.organizationContext.currentOrganization();
+    const defaultOrgId = currentOrg?.id || '';
+
     // Initialize form
     this.form = this.fb.group({
       // Header fields
       scope: [ProductScope.ORGANIZATION, [Validators.required]],
-      organizationId: [''],
+      organizationId: [defaultOrgId], // Auto-populate with current org
       sku: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(200)]],
       slug: ['', [Validators.maxLength(128)]],
@@ -193,6 +209,22 @@ export class ProductForm implements OnInit {
           this.form.get('categoryName')?.setValue(category?.name || '', { emitEvent: false });
         } else {
           this.form.get('categoryName')?.setValue('', { emitEvent: false });
+        }
+      });
+
+    // Auto-populate organizationId when scope changes
+    this.form.get('scope')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((scope) => {
+        if (scope === ProductScope.ORGANIZATION) {
+          // Auto-populate with current organization
+          const currentOrg = this.organizationContext.currentOrganization();
+          if (currentOrg?.id) {
+            this.form.get('organizationId')?.setValue(currentOrg.id, { emitEvent: false });
+          }
+        } else {
+          // Clear organizationId for global scope
+          this.form.get('organizationId')?.setValue('', { emitEvent: false });
         }
       });
 
@@ -527,11 +559,11 @@ export class ProductForm implements OnInit {
     }
 
     // Upload file to MinIO using presigned URL
-    await this.productService.uploadFileToPresignedUrl(presignData.url, file).toPromise();
+    await this.productService.uploadFileToPresignedUrl(presignData.uploadUrl, file).toPromise();
 
     // Return the public URL and object info
     return {
-      publicUrl: presignData.url.split('?')[0], // Remove query params to get public URL
+      publicUrl: presignData.uploadUrl.split('?')[0], // Remove query params to get public URL
       objectKey: presignData.objectKey,
       bucket: presignData.bucket,
     };
