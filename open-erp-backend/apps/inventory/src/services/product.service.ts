@@ -98,11 +98,12 @@ export class ProductService {
     slug: string,
     organizationId?: string,
   ): Promise<boolean> {
-    const existing = await this.productRepository.findOne({
+    const query: any = {
       slug,
       ...(organizationId && { organizationId: new Types.ObjectId(organizationId) }),
-    });
-    return !!existing;
+    };
+    const result = await this.productRepository.findAll(query, { limit: 1, skip: 0 });
+    return !!(result && result.items && result.items.length > 0);
   }
 
   async findById(id: string, options?: { includeDeleted?: boolean }) {
@@ -235,9 +236,7 @@ export class ProductService {
     try {
       // Delete thumbnail if exists
       if (product.thumbnail?.minioObjectKey) {
-        await this.minioService.deleteObject(product.thumbnail.minioObjectKey, {
-          permanent: false, // Soft delete
-        });
+        await this.minioService.deleteObject(product.thumbnail.minioObjectKey);
         this.logger.log(`Deleted thumbnail: ${product.thumbnail.minioObjectKey}`);
       }
 
@@ -245,9 +244,7 @@ export class ProductService {
       if (product.media && product.media.length > 0) {
         for (const mediaItem of product.media) {
           if (mediaItem.minioObjectKey) {
-            await this.minioService.deleteObject(mediaItem.minioObjectKey, {
-              permanent: false, // Soft delete
-            });
+            await this.minioService.deleteObject(mediaItem.minioObjectKey);
             this.logger.log(`Deleted media: ${mediaItem.minioObjectKey}`);
           }
         }
@@ -271,9 +268,7 @@ export class ProductService {
     try {
       // Clean up old thumbnail
       if (oldThumbnail?.minioObjectKey) {
-        await this.minioService.deleteObject(oldThumbnail.minioObjectKey, {
-          permanent: false,
-        });
+        await this.minioService.deleteObject(oldThumbnail.minioObjectKey);
         this.logger.log(`Cleaned up old thumbnail: ${oldThumbnail.minioObjectKey}`);
       }
 
@@ -281,9 +276,7 @@ export class ProductService {
       if (oldMedia && oldMedia.length > 0) {
         for (const item of oldMedia) {
           if (item.minioObjectKey) {
-            await this.minioService.deleteObject(item.minioObjectKey, {
-              permanent: false,
-            });
+            await this.minioService.deleteObject(item.minioObjectKey);
             this.logger.log(`Cleaned up old media: ${item.minioObjectKey}`);
           }
         }
