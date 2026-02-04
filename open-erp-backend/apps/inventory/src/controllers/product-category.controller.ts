@@ -130,14 +130,13 @@ export class ProductCategoryController {
     name: 'sortBy',
     required: false,
     type: String,
-    description: 'Field to sort by (code, name, order, level, createdAt, updatedAt)',
+    description: 'Fields to sort by, comma-separated (e.g., "name,order" or "code,level")',
   })
   @ApiQuery({
     name: 'sortOrder',
     required: false,
     type: String,
-    enum: ['asc', 'desc'],
-    description: 'Sort order (asc or desc)',
+    description: 'Sort orders for each field, comma-separated (e.g., "asc,desc"). Must match number of sortBy fields.',
   })
   @ApiResponse({
     status: 200,
@@ -150,7 +149,7 @@ export class ProductCategoryController {
     @Query('parentId') parentId?: string,
     @Query('search') search?: string,
     @Query('sortBy') sortBy?: string,
-    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    @Query('sortOrder') sortOrder?: string,
   ) {
     try {
       const result = await this.categoryService.findAll({
