@@ -276,13 +276,29 @@ export class ProductService {
   }
 
   /**
-   * Upload file to presigned URL
+   * Upload file to presigned URL (bypasses interceptors)
+   * Using native fetch to avoid Authorization header and other interceptor modifications
    */
   uploadFileToPresignedUrl(url: string, file: File): Observable<void> {
-    return this.http.put<void>(url, file, {
-      headers: {
-        'Content-Type': file.type,
-      },
+    return new Observable(observer => {
+      fetch(url, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      })
+        .then(response => {
+          if (response.ok) {
+            observer.next();
+            observer.complete();
+          } else {
+            observer.error(new Error(`Upload failed with status ${response.status}`));
+          }
+        })
+        .catch(error => {
+          observer.error(error);
+        });
     });
   }
 
