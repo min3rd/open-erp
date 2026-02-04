@@ -31,6 +31,7 @@ export class MinioService implements IMinioService {
   private readonly client: Minio.Client;
   private readonly config: MinioConfig;
   private readonly trashPrefix = '.trash/';
+  private readonly DEFAULT_PRESIGNED_URL_EXPIRY = 3600; // 1 hour in seconds
 
   constructor(private readonly configService: ConfigService) {
     // Load configuration from environment variables
@@ -181,7 +182,7 @@ export class MinioService implements IMinioService {
       await this.ensureBucket();
 
       const sanitizedKey = this.sanitizeKey(key);
-      const expiresIn: number = options?.expiresIn || this.config.presignedUrlExpiry || 3600;
+      const expiresIn: number = options?.expiresIn || this.config.presignedUrlExpiry || this.DEFAULT_PRESIGNED_URL_EXPIRY;
 
       this.logger.debug(`Generating presigned upload URL for: ${sanitizedKey}`);
 
@@ -217,7 +218,7 @@ export class MinioService implements IMinioService {
   ): Promise<PresignedDownloadResult> {
     try {
       const sanitizedKey = this.sanitizeKey(key);
-      const expiresIn: number = options?.expiresIn || this.config.presignedUrlExpiry || 3600;
+      const expiresIn: number = options?.expiresIn || this.config.presignedUrlExpiry || this.DEFAULT_PRESIGNED_URL_EXPIRY;
 
       this.logger.debug(
         `Generating presigned download URL for: ${sanitizedKey}`,
