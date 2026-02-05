@@ -150,7 +150,6 @@ export class ProductRepository {
     // For partial matches anywhere in the string, full collection scans may occur.
     // SKU and barcode have indexes which can help with prefix matching.
     const searchRegex = new RegExp(escapedSearchText, 'i'); // case-insensitive regex
-    console.log(searchRegex);
     
     const partialMatchQuery = {
       ...filter,
