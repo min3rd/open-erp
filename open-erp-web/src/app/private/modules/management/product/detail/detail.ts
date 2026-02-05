@@ -22,7 +22,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DividerModule } from 'primeng/divider';
 
 // Services and types
-import { ProductService, Product, ProductStatus } from '../../../../../core/services/product/product.service';
+import { ProductService, Product, ProductStatus } from '../../../../../../core/services/product/product.service';
 
 /**
  * Tab definition interface

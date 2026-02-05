@@ -5,7 +5,7 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
 
 // Services and types
-import { Product } from '../../../../../../core/services/product/product.service';
+import { Product } from '../../../../../../../core/services/product/product.service';
 
 @Component({
   selector: 'product-tab-dimensions',

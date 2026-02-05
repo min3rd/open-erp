@@ -8,7 +8,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { DividerModule } from 'primeng/divider';
 
 // Services and types
-import { Product } from '../../../../../../core/services/product/product.service';
+import { Product } from '../../../../../../../core/services/product/product.service';
 
 @Component({
   selector: 'product-tab-general',
@@ -78,12 +78,14 @@ import { Product } from '../../../../../../core/services/product/product.service
               <div class="text-surface-900">{{ product()?.organizationId }}</div>
             </div>
 
-            <div class="field" *ngIf="product()?.tags && product()?.tags.length > 0">
-              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.tags') }}</label>
-              <div class="flex flex-wrap gap-2">
-                <span *ngFor="let tag of product()?.tags" class="px-2 py-1 bg-primary-50 text-primary-700 text-sm rounded">
-                  {{ tag }}
-                </span>
+            <div class="field" *ngIf="product()?.tags as tags">
+              <div *ngIf="tags.length > 0">
+                <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.tags') }}</label>
+                <div class="flex flex-wrap gap-2">
+                  <span *ngFor="let tag of tags" class="px-2 py-1 bg-primary-50 text-primary-700 text-sm rounded">
+                    {{ tag }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

@@ -79,7 +79,7 @@
           <!-- Category -->
           <div class="flex items-center gap-2" *ngIf="product()?.category">
             <span class="text-surface-600">{{ t('productDetail.header.category') }}:</span>
-            <span class="font-medium text-surface-900">{{ product()?.category.name }}</span>
+            <span class="font-medium text-surface-900">{{ product()?.category?.name }}</span>
           </div>
 
           <!-- Scope -->
@@ -139,7 +139,7 @@
           *ngIf="canDeactivate()"
           [label]="t('productDetail.actions.deactivate.label')"
           icon="pi pi-ban"
-          severity="warning"
+          severity="warn"
           [outlined]="true"
           (onClick)="onDeactivate()"
         />
