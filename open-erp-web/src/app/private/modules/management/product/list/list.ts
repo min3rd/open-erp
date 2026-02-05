@@ -468,6 +468,32 @@ export class ProductList implements OnInit, OnDestroy {
   }
 
   /**
+   * Handle table header sort (PrimeNG onSort event)
+   */
+  protected onTableSort(event: any): void {
+    if (event.field) {
+      // Convert PrimeNG sort order (1 for asc, -1 for desc) to our format
+      const order = event.order === 1 ? 'asc' : 'desc';
+      const sortOrder = event.order;
+      
+      // Update local state
+      this.sortField.set(event.field);
+      this.sortOrder.set(sortOrder);
+      
+      // Find and update selected sort option
+      const sortOption = this.sortOptions.find(
+        opt => opt.field === event.field && opt.order === sortOrder
+      );
+      if (sortOption) {
+        this.selectedSort = sortOption;
+      }
+      
+      // Navigate with new sort parameters
+      this.navigateWithParams({ sort: `[${event.field},${order}]`, page: 1 });
+    }
+  }
+
+  /**
    * Handle pagination change
    */
   protected onPaginationChange(event: PaginationChange): void {
@@ -713,6 +739,9 @@ export class ProductList implements OnInit, OnDestroy {
 
     if (this.activeStatusFilter !== 'all') {
       params.status = this.activeStatusFilter;
+    } else {
+      // When status is 'all', include inactive products (draft, inactive, discontinued)
+      params.includeInactive = true;
     }
 
     if (this.activeTypeFilter !== 'all') {

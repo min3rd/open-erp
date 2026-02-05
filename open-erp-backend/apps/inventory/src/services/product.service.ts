@@ -311,6 +311,7 @@ export class ProductService {
       limit?: number;
       includeDeleted?: boolean;
       includeInactive?: boolean;
+      sort?: any;
     } = {},
   ) {
     const {
@@ -318,6 +319,7 @@ export class ProductService {
       limit = 10,
       includeDeleted = false,
       includeInactive = false,
+      sort,
     } = options;
     const skip = (page - 1) * limit;
 
@@ -339,6 +341,7 @@ export class ProductService {
       limit,
       includeDeleted,
       includeInactive,
+      sort,
     });
 
     return {

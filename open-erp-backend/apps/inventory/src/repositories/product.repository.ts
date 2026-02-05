@@ -124,6 +124,7 @@ export class ProductRepository {
       limit?: number;
       includeDeleted?: boolean;
       includeInactive?: boolean;
+      sort?: any;
     } = {},
   ): Promise<{ items: ProductDocument[]; total: number }> {
     const {
@@ -131,6 +132,7 @@ export class ProductRepository {
       limit = 10,
       includeDeleted = false,
       includeInactive = false,
+      sort,
     } = options;
 
     // Add active filter unless includeInactive is true
@@ -138,9 +140,16 @@ export class ProductRepository {
       filter.status = 'active';
     }
 
-    const searchQuery = {
+    // Build partial match query for SKU, name, and barcode (case-insensitive)
+    const searchRegex = new RegExp(searchText, 'i'); // case-insensitive regex
+    const partialMatchQuery = {
       ...filter,
-      $text: { $search: searchText },
+      $or: [
+        { sku: searchRegex },
+        { name: searchRegex },
+        { internationalName: searchRegex },
+        { barcode: searchRegex },
+      ],
     };
 
     const queryOptions: any = {};
@@ -148,16 +157,19 @@ export class ProductRepository {
       queryOptions.includeDeleted = true;
     }
 
+    // Build query with sort if provided
+    let query = this.productModel
+      .find(partialMatchQuery)
+      .setOptions(queryOptions);
+
+    if (sort) {
+      query = query.sort(sort);
+    }
+
     const [items, total] = await Promise.all([
+      query.skip(skip).limit(limit).exec(),
       this.productModel
-        .find(searchQuery, { score: { $meta: 'textScore' } })
-        .setOptions(queryOptions)
-        .sort({ score: { $meta: 'textScore' } })
-        .skip(skip)
-        .limit(limit)
-        .exec(),
-      this.productModel
-        .countDocuments(searchQuery)
+        .countDocuments(partialMatchQuery)
         .setOptions(queryOptions)
         .exec(),
     ]);
