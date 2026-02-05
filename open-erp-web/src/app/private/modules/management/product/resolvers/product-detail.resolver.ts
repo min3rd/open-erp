@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { ResolveFn, Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
-import { ProductService, Product } from '../../../../../core/services/product/product.service';
+import { ProductService, Product } from '../../../../../../core/services/product/product.service';
 
 /**
  * Resolver for product detail - loads product by SKU

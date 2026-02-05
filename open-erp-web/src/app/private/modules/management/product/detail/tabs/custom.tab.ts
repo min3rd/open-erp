@@ -8,7 +8,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { DividerModule } from 'primeng/divider';
 
 // Services and types
-import { Product } from '../../../../../../core/services/product/product.service';
+import { Product } from '../../../../../../../core/services/product/product.service';
 
 @Component({
   selector: 'product-tab-custom',
