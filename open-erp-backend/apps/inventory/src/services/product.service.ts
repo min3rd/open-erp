@@ -119,7 +119,72 @@ export class ProductService {
     if (!product) {
       throw new NotFoundException('Product not found');
     }
-    return product;
+    
+    // Enhance with signed URLs
+    return this.enhanceProductWithSignedUrls(product);
+  }
+
+  /**
+   * Enhance product with signed URLs for media and thumbnail
+   */
+  private async enhanceProductWithSignedUrls(product: any) {
+    const enhancedProduct = product.toObject ? product.toObject() : product;
+    const urlExpiry = 3600; // 1 hour
+
+    // Generate signed URL for thumbnail if it exists
+    if (enhancedProduct.thumbnail?.minioObjectKey) {
+      try {
+        const signedUrl = await this.minioService.getPresignedUrl(
+          enhancedProduct.thumbnail.minioObjectKey,
+          { expiresIn: urlExpiry }
+        );
+        if (signedUrl) {
+          enhancedProduct.thumbnail.url = signedUrl;
+        }
+      } catch (error) {
+        this.logger.warn(`Failed to generate signed URL for thumbnail: ${error.message}`);
+      }
+    }
+
+    // Generate signed URLs for media items
+    if (enhancedProduct.media && Array.isArray(enhancedProduct.media)) {
+      for (const mediaItem of enhancedProduct.media) {
+        if (mediaItem.minioObjectKey) {
+          try {
+            const signedUrl = await this.minioService.getPresignedUrl(
+              mediaItem.minioObjectKey,
+              { expiresIn: urlExpiry }
+            );
+            if (signedUrl) {
+              mediaItem.url = signedUrl;
+            }
+          } catch (error) {
+            this.logger.warn(`Failed to generate signed URL for media: ${error.message}`);
+          }
+        }
+      }
+    }
+
+    // Transform populated fields to show names instead of IDs
+    if (enhancedProduct.organizationId) {
+      if (typeof enhancedProduct.organizationId === 'object' && enhancedProduct.organizationId.name) {
+        enhancedProduct.organizationName = enhancedProduct.organizationId.name;
+      }
+    }
+
+    if (enhancedProduct.createdBy) {
+      if (typeof enhancedProduct.createdBy === 'object' && enhancedProduct.createdBy.fullName) {
+        enhancedProduct.createdByName = enhancedProduct.createdBy.fullName;
+      }
+    }
+
+    if (enhancedProduct.updatedBy) {
+      if (typeof enhancedProduct.updatedBy === 'object' && enhancedProduct.updatedBy.fullName) {
+        enhancedProduct.updatedByName = enhancedProduct.updatedBy.fullName;
+      }
+    }
+
+    return enhancedProduct;
   }
 
   async findAll(
