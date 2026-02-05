@@ -518,14 +518,19 @@ export class ProductList implements OnInit, OnDestroy {
    * View product details
    */
   protected onViewProduct(product: Product): void {
-    this.router.navigate([product.id, 'view'], { relativeTo: this.route });
+    // Navigate to detail view using SKU
+    this.router.navigate(['/private/management/product/view', product.sku]);
   }
 
   /**
    * Edit product
    */
   protected onEditProduct(product: Product): void {
-    this.router.navigate([product.id, 'edit'], { relativeTo: this.route });
+    // Edit route not yet implemented
+    this.messageService.add({
+      severity: 'info',
+      summary: this.translocoService.translate('productList.edit.notImplemented'),
+    });
   }
 
   /**

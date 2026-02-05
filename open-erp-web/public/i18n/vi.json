@@ -723,6 +723,9 @@
       "partialSuccess": "Nhập một phần",
       "partialSuccessDetail": "Nhập thành công {{success}} hàng hóa, {{failed}} thất bại",
       "error": "Nhập thất bại"
+    },
+    "edit": {
+      "notImplemented": "Tính năng sửa sắp ra mắt"
     }
   },
   "productType": {
@@ -769,6 +772,117 @@
     "inactive": "Không hoạt động",
     "discontinued": "Ngừng sản xuất",
     "draft": "Nháp"
+  },
+  "productScope": {
+    "global": "Toàn cục",
+    "organization": "Tổ chức"
+  },
+  "productDetail": {
+    "header": {
+      "noName": "Sản phẩm chưa có tên",
+      "sku": "Mã SKU",
+      "barcode": "Mã vạch",
+      "status": "Trạng thái",
+      "type": "Loại",
+      "category": "Danh mục",
+      "scope": "Phạm vi",
+      "unit": "Đơn vị"
+    },
+    "tabs": {
+      "general": "Thông tin chung",
+      "media": "Ảnh/Video/Tài liệu",
+      "weight": "Khối lượng & Đơn vị & Hạn sử dụng",
+      "dimensions": "Kích thước",
+      "storage": "Điều kiện bảo quản",
+      "warehouse": "Điều kiện kho",
+      "custom": "Thông tin tùy chỉnh"
+    },
+    "general": {
+      "basicInfo": "Thông tin cơ bản",
+      "sku": "Mã SKU",
+      "name": "Tên sản phẩm",
+      "internationalName": "Tên quốc tế",
+      "barcode": "Mã vạch",
+      "description": "Mô tả",
+      "classification": "Phân loại",
+      "type": "Loại sản phẩm",
+      "category": "Danh mục",
+      "unit": "Đơn vị đo",
+      "scope": "Phạm vi",
+      "organizationId": "Mã tổ chức",
+      "tags": "Nhãn",
+      "auditInfo": "Thông tin kiểm tra",
+      "createdBy": "Người tạo",
+      "createdAt": "Ngày tạo",
+      "updatedBy": "Người cập nhật",
+      "updatedAt": "Ngày cập nhật"
+    },
+    "media": {
+      "description": "Hình ảnh, video và tài liệu sản phẩm",
+      "notAvailable": "Không có phương tiện nào"
+    },
+    "weight": {
+      "description": "Thông tin khối lượng, đơn vị đo và hạn sử dụng",
+      "unit": "Đơn vị đo",
+      "notAvailable": "Không có thông tin khối lượng"
+    },
+    "dimensions": {
+      "description": "Thông tin kích thước và định cỡ sản phẩm",
+      "notAvailable": "Không có thông tin kích thước"
+    },
+    "storage": {
+      "description": "Điều kiện và yêu cầu bảo quản",
+      "notAvailable": "Không có thông tin điều kiện bảo quản"
+    },
+    "warehouse": {
+      "description": "Điều kiện kho và tồn kho",
+      "notAvailable": "Không có thông tin điều kiện kho"
+    },
+    "custom": {
+      "description": "Các trường tùy chỉnh và metadata",
+      "metadata": "Metadata",
+      "noMetadata": "Không có metadata",
+      "notAvailable": "Không có thông tin tùy chỉnh"
+    },
+    "actions": {
+      "back": "Quay lại danh sách",
+      "favorite": {
+        "tooltip": "Thêm vào yêu thích",
+        "info": "Tính năng yêu thích sắp ra mắt"
+      },
+      "share": {
+        "tooltip": "Chia sẻ sản phẩm",
+        "info": "Tính năng chia sẻ sắp ra mắt"
+      },
+      "copySku": {
+        "tooltip": "Sao chép SKU vào clipboard",
+        "success": "Đã sao chép SKU",
+        "successDetail": "SKU {{sku}} đã được sao chép vào clipboard",
+        "error": "Không thể sao chép SKU"
+      },
+      "edit": {
+        "label": "Sửa",
+        "notImplemented": "Tính năng sửa sắp ra mắt"
+      },
+      "deactivate": {
+        "label": "Vô hiệu hóa",
+        "confirmTitle": "Xác nhận vô hiệu hóa",
+        "confirmMessage": "Bạn có chắc chắn muốn vô hiệu hóa sản phẩm {{name}} không?",
+        "success": "Đã vô hiệu hóa sản phẩm",
+        "successDetail": "Sản phẩm {{name}} đã được vô hiệu hóa thành công",
+        "error": "Vô hiệu hóa thất bại",
+        "errorDetail": "Không thể vô hiệu hóa sản phẩm"
+      },
+      "delete": {
+        "label": "Xóa",
+        "confirmTitle": "Xác nhận xóa",
+        "confirmMessage": "Bạn có chắc chắn muốn xóa sản phẩm {{name}} không? Hành động này không thể hoàn tác.",
+        "success": "Đã xóa sản phẩm",
+        "successDetail": "Sản phẩm {{name}} đã được xóa thành công",
+        "error": "Xóa thất bại",
+        "errorDetail": "Không thể xóa sản phẩm"
+      }
+    }
   },
   "administrativeUnit": {
     "title": "Quản lý Đơn vị Hành chính",
