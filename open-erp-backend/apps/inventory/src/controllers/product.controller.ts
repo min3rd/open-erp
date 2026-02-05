@@ -279,7 +279,7 @@ export class ProductController {
         const result = await this.productService.search(
           search,
           { scope, organizationId, category, tags: tagArray },
-          { page, limit, includeDeleted, includeInactive },
+          { page, limit, includeDeleted, includeInactive, sort: sortObj },
         );
         return paginated(
           result.items,

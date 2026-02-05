@@ -356,6 +356,7 @@
       styleClass="p-datatable-sm"
       [contextMenuSelection]="contextMenuSelectedProduct"
       (contextMenuSelectionChange)="onContextMenuSelectionChange($event)"
+      (onSort)="onTableSort($event)"
       [attr.aria-label]="'productList.table.label' | transloco"
     >
       <!-- Context Menu -->
