@@ -10,9 +10,8 @@ export const productDetailResolver: ResolveFn<Product | null> = (route) => {
   const productService = inject(ProductService);
   const router = inject(Router);
   const identifier = route.paramMap.get('sku');
-
   if (!identifier) {
-    router.navigate(['/private/management/product']);
+    router.navigate(['/modules/management/product']);
     return of(null);
   }
 
@@ -21,7 +20,7 @@ export const productDetailResolver: ResolveFn<Product | null> = (route) => {
     catchError((error) => {
       console.error('Failed to load product:', error);
       // Navigate back to list on error
-      router.navigate(['/private/management/product']);
+      router.navigate(['/modules/management/product']);
       return of(null);
     })
   );

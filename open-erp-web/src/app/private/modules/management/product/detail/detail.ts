@@ -8,7 +8,7 @@ import {
   computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, ActivatedRoute, RouterOutlet } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -39,8 +39,6 @@ interface TabDef {
   selector: 'management-product-detail',
   imports: [
     CommonModule,
-    RouterLink,
-    RouterLinkActive,
     RouterOutlet,
     TranslocoModule,
     ButtonModule,
@@ -48,8 +46,8 @@ interface TabDef {
     TagModule,
     DrawerModule,
     TabsModule,
-    ConfirmDialogModule,
-  ],
+    ConfirmDialogModule
+],
   providers: [ConfirmationService, ProductDetailStateService],
   templateUrl: './detail.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -120,7 +118,7 @@ export class ProductDetail implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Load product from resolver
-    this.route.parent?.parent?.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
+    this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
       if (data['product']) {
         const product = data['product'];
         this.product.set(product);
