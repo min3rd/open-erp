@@ -34,7 +34,12 @@ export class ProductRepository {
     if (organizationId) {
       query.organizationId = new Types.ObjectId(organizationId);
     }
-    return this.productModel.findOne(query).exec();
+    return this.productModel
+      .findOne(query)
+      .populate('organizationId', 'name code')
+      .populate('createdBy', 'fullName email')
+      .populate('updatedBy', 'fullName email')
+      .exec();
   }
 
   async findByBarcode(barcode: string): Promise<ProductDocument | null> {

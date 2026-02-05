@@ -678,4 +678,34 @@ export class MinioService implements IMinioService {
     const bucketName = bucket || this.config.bucket;
     return `${protocol}://${this.config.endPoint}:${this.config.port}/${bucketName}/${key}`;
   }
+
+  /**
+   * Get a presigned URL for downloading an object
+   * @param key - Object key
+   * @param options - Options including expiry time
+   * @returns Presigned URL string
+   */
+  async getPresignedUrl(
+    key: string,
+    options?: PresignedUrlOptions,
+  ): Promise<string> {
+    try {
+      const bucket = this.getBucket(options?.bucket);
+      const expiresIn: number = options?.expiresIn || this.config.presignedUrlExpiry || this.DEFAULT_PRESIGNED_URL_EXPIRY;
+      
+      this.logger.debug(
+        `Generating presigned URL for ${key} with expiry ${expiresIn}s`,
+      );
+
+      const url = await this.client.presignedGetObject(bucket, key, expiresIn);
+      return url;
+    } catch (error) {
+      this.logger.error(
+        `Error generating presigned URL for ${key}: ${error.message}`,
+        error.stack,
+      );
+      // Return empty string on error instead of throwing
+      return '';
+    }
+  }
 }
