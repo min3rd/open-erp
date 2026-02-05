@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 
 // Services and types
 import { Product } from '../../../../../../../core/services/product/product.service';
+import { ProductDetailStateService } from '../product-detail-state.service';
 
 @Component({
   selector: 'product-tab-weight',
@@ -29,17 +29,13 @@ import { Product } from '../../../../../../../core/services/product/product.serv
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductTabWeight implements OnInit, OnDestroy {
-  private route = inject(ActivatedRoute);
+  private productDetailState = inject(ProductDetailStateService);
   private destroy$ = new Subject<void>();
 
-  protected readonly product = signal<Product | null>(null);
+  protected readonly product = this.productDetailState.product;
 
   ngOnInit(): void {
-    this.route.parent?.parent?.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
-      if (data['product']) {
-        this.product.set(data['product']);
-      }
-    });
+    // Product data is provided by parent detail component via service
   }
 
   ngOnDestroy(): void {

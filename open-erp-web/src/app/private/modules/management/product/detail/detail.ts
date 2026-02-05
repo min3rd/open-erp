@@ -23,6 +23,7 @@ import { DividerModule } from 'primeng/divider';
 
 // Services and types
 import { ProductService, Product, ProductStatus } from '../../../../../../core/services/product/product.service';
+import { ProductDetailStateService } from './product-detail-state.service';
 
 /**
  * Tab definition interface
@@ -49,7 +50,7 @@ interface TabDef {
     ConfirmDialogModule,
     DividerModule,
   ],
-  providers: [ConfirmationService],
+  providers: [ConfirmationService, ProductDetailStateService],
   templateUrl: './detail.html',
   styles: [`
     .active-tab {
@@ -64,6 +65,7 @@ export class ProductDetail implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private productService = inject(ProductService);
+  private productDetailState = inject(ProductDetailStateService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private translocoService = inject(TranslocoService);
@@ -125,7 +127,10 @@ export class ProductDetail implements OnInit, OnDestroy {
     // Load product from resolver
     this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
       if (data['product']) {
-        this.product.set(data['product']);
+        const product = data['product'];
+        this.product.set(product);
+        // Share product data with tabs via service
+        this.productDetailState.setProduct(product);
       }
     });
 
@@ -140,6 +145,7 @@ export class ProductDetail implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.productDetailState.clear();
     this.destroy$.next();
     this.destroy$.complete();
   }
