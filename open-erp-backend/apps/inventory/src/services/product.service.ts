@@ -83,7 +83,7 @@ export class ProductService {
       product._id.toString(),
       1,
       product.toObject(),
-      createDto.createdBy,
+      createDto.createdBy ?? 'system',
       'Initial version',
     );
 
