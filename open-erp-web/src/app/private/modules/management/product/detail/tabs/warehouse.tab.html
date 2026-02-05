@@ -1,10 +1,8 @@
-<div *transloco="let t">
-  <div class="bg-surface-0 rounded-lg shadow-sm p-6">
-    <h2 class="text-xl font-semibold text-surface-900 mb-4">{{ t('productDetail.tabs.warehouse') }}</h2>
-    <p class="text-surface-600">{{ t('productDetail.warehouse.description') }}</p>
-    
-    <div class="mt-6">
-      <p class="text-sm text-surface-500">{{ t('productDetail.warehouse.notAvailable') }}</p>
-    </div>
+<div class="p-6">
+  <h2 class="text-xl font-semibold mb-4">{{ 'productDetail.tabs.warehouse' | transloco }}</h2>
+  <p class="text-color-secondary">{{ 'productDetail.warehouse.description' | transloco }}</p>
+  
+  <div class="mt-6">
+    <p class="text-sm text-color-secondary">{{ 'productDetail.warehouse.notAvailable' | transloco }}</p>
   </div>
 </div>

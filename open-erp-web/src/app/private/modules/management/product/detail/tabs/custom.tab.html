@@ -1,23 +1,27 @@
-<div *transloco="let t">
-  <div class="bg-surface-0 rounded-lg shadow-sm p-6">
-    <h2 class="text-xl font-semibold text-surface-900 mb-4">{{ t('productDetail.tabs.custom') }}</h2>
-    <p class="text-surface-600">{{ t('productDetail.custom.description') }}</p>
-    
-    <div class="mt-6" *ngIf="product()?.metadata">
-      <h3 class="text-lg font-medium text-surface-800 mb-3">{{ t('productDetail.custom.metadata') }}</h3>
+<div class="p-6">
+  <h2 class="text-xl font-semibold mb-4">{{ 'productDetail.tabs.custom' | transloco }}</h2>
+  <p class="text-color-secondary">{{ 'productDetail.custom.description' | transloco }}</p>
+  
+  @if (product()?.metadata) {
+    <div class="mt-6">
+      <h3 class="text-lg font-medium mb-3">{{ 'productDetail.custom.metadata' | transloco }}</h3>
       
-      <div class="space-y-2" *ngIf="hasMetadata()">
-        <div *ngFor="let entry of metadataEntries()" class="field">
-          <label class="block text-sm font-medium text-surface-600 mb-1">{{ entry.key }}</label>
-          <div class="text-surface-900">{{ entry.value }}</div>
+      @if (hasMetadata()) {
+        <div class="space-y-2">
+          @for (entry of metadataEntries(); track entry.key) {
+            <div class="field">
+              <label class="block text-sm font-medium text-color-secondary mb-1">{{ entry.key }}</label>
+              <div>{{ entry.value }}</div>
+            </div>
+          }
         </div>
-      </div>
-      
-      <p *ngIf="!hasMetadata()" class="text-sm text-surface-500">{{ t('productDetail.custom.noMetadata') }}</p>
+      } @else {
+        <p class="text-sm text-color-secondary">{{ 'productDetail.custom.noMetadata' | transloco }}</p>
+      }
     </div>
-    
-    <div class="mt-6" *ngIf="!product()?.metadata">
-      <p class="text-sm text-surface-500">{{ t('productDetail.custom.notAvailable') }}</p>
+  } @else {
+    <div class="mt-6">
+      <p class="text-sm text-color-secondary">{{ 'productDetail.custom.notAvailable' | transloco }}</p>
     </div>
-  </div>
+  }
 </div>
