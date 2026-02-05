@@ -10,22 +10,7 @@ import { ProductDetailStateService } from '../product-detail-state.service';
 @Component({
   selector: 'product-tab-weight',
   imports: [CommonModule, TranslocoModule],
-  template: `
-    <div class="product-tab-weight" *transloco="let t">
-      <div class="bg-surface-0 rounded-lg shadow-sm p-6">
-        <h2 class="text-xl font-semibold text-surface-900 mb-4">{{ t('productDetail.tabs.weight') }}</h2>
-        <p class="text-surface-600">{{ t('productDetail.weight.description') }}</p>
-        
-        <div class="mt-6 space-y-4">
-          <div class="field">
-            <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.weight.unit') }}</label>
-            <div class="text-surface-900">{{ product()?.unit || '-' }}</div>
-          </div>
-          <!-- Additional weight/expiry fields can be added here -->
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './weight.tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductTabWeight implements OnInit, OnDestroy {

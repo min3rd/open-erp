@@ -10,18 +10,7 @@ import { ProductDetailStateService } from '../product-detail-state.service';
 @Component({
   selector: 'product-tab-dimensions',
   imports: [CommonModule, TranslocoModule],
-  template: `
-    <div class="product-tab-dimensions" *transloco="let t">
-      <div class="bg-surface-0 rounded-lg shadow-sm p-6">
-        <h2 class="text-xl font-semibold text-surface-900 mb-4">{{ t('productDetail.tabs.dimensions') }}</h2>
-        <p class="text-surface-600">{{ t('productDetail.dimensions.description') }}</p>
-        
-        <div class="mt-6">
-          <p class="text-sm text-surface-500">{{ t('productDetail.dimensions.notAvailable') }}</p>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './dimensions.tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductTabDimensions implements OnInit, OnDestroy {

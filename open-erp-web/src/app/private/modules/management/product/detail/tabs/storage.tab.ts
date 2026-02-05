@@ -10,18 +10,7 @@ import { ProductDetailStateService } from '../product-detail-state.service';
 @Component({
   selector: 'product-tab-storage',
   imports: [CommonModule, TranslocoModule],
-  template: `
-    <div class="product-tab-storage" *transloco="let t">
-      <div class="bg-surface-0 rounded-lg shadow-sm p-6">
-        <h2 class="text-xl font-semibold text-surface-900 mb-4">{{ t('productDetail.tabs.storage') }}</h2>
-        <p class="text-surface-600">{{ t('productDetail.storage.description') }}</p>
-        
-        <div class="mt-6">
-          <p class="text-sm text-surface-500">{{ t('productDetail.storage.notAvailable') }}</p>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './storage.tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductTabStorage implements OnInit, OnDestroy {

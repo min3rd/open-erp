@@ -13,31 +13,7 @@ import { ProductDetailStateService } from '../product-detail-state.service';
 @Component({
   selector: 'product-tab-custom',
   imports: [CommonModule, TranslocoModule, DividerModule],
-  template: `
-    <div class="product-tab-custom" *transloco="let t">
-      <div class="bg-surface-0 rounded-lg shadow-sm p-6">
-        <h2 class="text-xl font-semibold text-surface-900 mb-4">{{ t('productDetail.tabs.custom') }}</h2>
-        <p class="text-surface-600">{{ t('productDetail.custom.description') }}</p>
-        
-        <div class="mt-6" *ngIf="product()?.metadata">
-          <h3 class="text-lg font-medium text-surface-800 mb-3">{{ t('productDetail.custom.metadata') }}</h3>
-          
-          <div class="space-y-2" *ngIf="hasMetadata()">
-            <div *ngFor="let entry of metadataEntries()" class="field">
-              <label class="block text-sm font-medium text-surface-600 mb-1">{{ entry.key }}</label>
-              <div class="text-surface-900">{{ entry.value }}</div>
-            </div>
-          </div>
-          
-          <p *ngIf="!hasMetadata()" class="text-sm text-surface-500">{{ t('productDetail.custom.noMetadata') }}</p>
-        </div>
-        
-        <div class="mt-6" *ngIf="!product()?.metadata">
-          <p class="text-sm text-surface-500">{{ t('productDetail.custom.notAvailable') }}</p>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './custom.tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductTabCustom implements OnInit, OnDestroy {
