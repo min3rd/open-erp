@@ -16,10 +16,9 @@ import { Subject, takeUntil } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
-import { TabsModule } from 'primeng/tabs';
+import { DrawerModule } from 'primeng/drawer';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DividerModule } from 'primeng/divider';
 
 // Services and types
 import { ProductService, Product, ProductStatus } from '../../../../../../core/services/product/product.service';
@@ -46,17 +45,21 @@ interface TabDef {
     ButtonModule,
     TooltipModule,
     TagModule,
-    TabsModule,
+    DrawerModule,
     ConfirmDialogModule,
-    DividerModule,
   ],
   providers: [ConfirmationService, ProductDetailStateService],
   templateUrl: './detail.html',
   styles: [`
+    :host ::ng-deep .p-drawer .p-drawer-content {
+      display: flex;
+      flex-direction: column;
+    }
+    
     .active-tab {
-      color: var(--primary-color) !important;
-      border-bottom-color: var(--primary-color) !important;
-      background-color: var(--primary-50) !important;
+      color: var(--p-primary-color) !important;
+      border-bottom-color: var(--p-primary-color) !important;
+      background-color: var(--p-primary-50) !important;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -88,6 +91,7 @@ export class ProductDetail implements OnInit, OnDestroy {
   // State signals
   protected readonly product = signal<Product | null>(null);
   protected readonly isLoading = signal(false);
+  protected readonly isVisible = signal(true);
   protected readonly activeTabId = signal<string>('general');
 
   // Computed values
@@ -125,7 +129,7 @@ export class ProductDetail implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Load product from resolver
-    this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
+    this.route.parent?.parent?.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
       if (data['product']) {
         const product = data['product'];
         this.product.set(product);
@@ -151,10 +155,12 @@ export class ProductDetail implements OnInit, OnDestroy {
   }
 
   /**
-   * Navigate back to product list
+   * Close drawer and navigate back to product list
    */
-  protected onBack(): void {
-    this.router.navigate(['/private/management/product']);
+  protected onClose(): void {
+    this.isVisible.set(false);
+    // Navigate back to list (3 levels up: view -> sku -> limit)
+    this.router.navigate(['../../..'], { relativeTo: this.route });
   }
 
   /**
@@ -204,11 +210,8 @@ export class ProductDetail implements OnInit, OnDestroy {
   protected onEdit(): void {
     const product = this.product();
     if (product) {
-      // Navigate to edit route (to be implemented)
-      this.messageService.add({
-        severity: 'info',
-        summary: this.translocoService.translate('productDetail.actions.edit.notImplemented'),
-      });
+      // Navigate to edit route (sibling to view)
+      this.router.navigate(['../edit'], { relativeTo: this.route });
     }
   }
 
@@ -231,6 +234,7 @@ export class ProductDetail implements OnInit, OnDestroy {
         this.productService.updateProduct(product.id, { status: ProductStatus.INACTIVE }).subscribe({
           next: (updated) => {
             this.product.set(updated);
+            this.productDetailState.setProduct(updated);
             this.isLoading.set(false);
             this.messageService.add({
               severity: 'success',
@@ -278,8 +282,8 @@ export class ProductDetail implements OnInit, OnDestroy {
                 name: product.name,
               }),
             });
-            // Navigate back to list after deletion
-            this.onBack();
+            // Close drawer and navigate back to list
+            this.onClose();
           },
           error: (error) => {
             this.isLoading.set(false);

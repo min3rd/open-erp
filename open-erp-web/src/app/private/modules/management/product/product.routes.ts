@@ -25,49 +25,6 @@ export const routes: Routes = [
         pathMatch: 'full',
         redirectTo: '-/all/all/all/[name,asc]/1/100',
       },
-      // Product detail routes (using SKU as identifier)
-      {
-        path: 'view/:sku',
-        component: ProductDetail,
-        resolve: {
-          product: productDetailResolver,
-        },
-        children: [
-          {
-            path: '',
-            pathMatch: 'full',
-            redirectTo: 'general',
-          },
-          {
-            path: 'general',
-            component: ProductTabGeneral,
-          },
-          {
-            path: 'media',
-            component: ProductTabMedia,
-          },
-          {
-            path: 'weight',
-            component: ProductTabWeight,
-          },
-          {
-            path: 'dimensions',
-            component: ProductTabDimensions,
-          },
-          {
-            path: 'storage',
-            component: ProductTabStorage,
-          },
-          {
-            path: 'warehouse',
-            component: ProductTabWarehouse,
-          },
-          {
-            path: 'custom',
-            component: ProductTabCustom,
-          },
-        ],
-      },
       {
         path: ':search',
         children: [
@@ -97,6 +54,63 @@ export const routes: Routes = [
                                     path: 'new',
                                     pathMatch: 'full',
                                     component: ProductForm,
+                                  },
+                                  // Product detail routes (using SKU as identifier)
+                                  {
+                                    path: ':sku',
+                                    resolve: {
+                                      product: productDetailResolver,
+                                    },
+                                    children: [
+                                      {
+                                        path: '',
+                                        pathMatch: 'full',
+                                        redirectTo: 'view',
+                                      },
+                                      {
+                                        path: 'view',
+                                        component: ProductDetail,
+                                        children: [
+                                          {
+                                            path: '',
+                                            pathMatch: 'full',
+                                            redirectTo: 'general',
+                                          },
+                                          {
+                                            path: 'general',
+                                            component: ProductTabGeneral,
+                                          },
+                                          {
+                                            path: 'media',
+                                            component: ProductTabMedia,
+                                          },
+                                          {
+                                            path: 'weight',
+                                            component: ProductTabWeight,
+                                          },
+                                          {
+                                            path: 'dimensions',
+                                            component: ProductTabDimensions,
+                                          },
+                                          {
+                                            path: 'storage',
+                                            component: ProductTabStorage,
+                                          },
+                                          {
+                                            path: 'warehouse',
+                                            component: ProductTabWarehouse,
+                                          },
+                                          {
+                                            path: 'custom',
+                                            component: ProductTabCustom,
+                                          },
+                                        ],
+                                      },
+                                      {
+                                        path: 'edit',
+                                        component: ProductForm,
+                                      },
+                                    ],
                                   },
                                 ],
                               },
