@@ -1,13 +1,11 @@
-<div *transloco="let t">
-  <div class="bg-surface-0 rounded-lg shadow-sm p-6">
-    <h2 class="text-xl font-semibold text-surface-900 mb-4">{{ t('productDetail.tabs.media') }}</h2>
-    <p class="text-surface-600">{{ t('productDetail.media.description') }}</p>
-    
-    <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-      <!-- Placeholder for media items -->
-      <div class="aspect-square bg-surface-100 border-2 border-dashed border-surface-300 rounded-lg flex items-center justify-center">
-        <i class="pi pi-image text-4xl text-surface-400"></i>
-      </div>
+<div class="p-6">
+  <h2 class="text-xl font-semibold mb-4">{{ 'productDetail.tabs.media' | transloco }}</h2>
+  <p class="text-color-secondary">{{ 'productDetail.media.description' | transloco }}</p>
+  
+  <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+    <!-- Placeholder for media items -->
+    <div class="aspect-square bg-emphasis border-2 border-dashed rounded-lg flex items-center justify-center">
+      <i class="pi pi-image text-4xl text-color-secondary"></i>
     </div>
   </div>
 </div>

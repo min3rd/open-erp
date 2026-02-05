@@ -1,39 +1,42 @@
 <p-drawer
   [(visible)]="isVisible"
   position="right"
-  [styleClass]="'w-full md:min-w-240'"
+  [styleClass]="'w-full sm:w-11/12 md:w-10/12 lg:w-9/12 xl:w-8/12 max-w-screen-2xl'"
   (onHide)="onClose()"
-  *transloco="let t"
 >
   <ng-template #header>
-    <div class="flex items-center gap-4 w-full">
+    <div class="flex items-center gap-3 w-full">
       <!-- Thumbnail -->
       <div class="shrink-0">
-        <div class="w-12 h-12 md:w-16 md:h-16 bg-surface-100 border border-surface-200 rounded flex items-center justify-center overflow-hidden">
-          <i class="pi pi-image text-2xl md:text-3xl text-surface-400"></i>
+        <div class="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-emphasis border rounded flex items-center justify-center overflow-hidden">
+          @if (product()?.thumbnail?.url) {
+            <img [src]="product()!.thumbnail!.url" [alt]="product()?.name" class="w-full h-full object-cover" />
+          } @else {
+            <i class="pi pi-image text-xl sm:text-2xl md:text-3xl text-color-secondary"></i>
+          }
         </div>
       </div>
 
       <!-- Product Info -->
       <div class="flex-1 min-w-0">
-        <h2 class="text-lg md:text-xl font-semibold text-surface-900 truncate mb-1">
-          {{ product()?.name || t('productDetail.header.noName') }}
+        <h2 class="text-base sm:text-lg md:text-xl font-semibold truncate mb-1">
+          {{ product()?.name || ('productDetail.header.noName' | transloco) }}
         </h2>
-        <div class="flex items-center gap-3 text-xs md:text-sm text-surface-600 flex-wrap">
-          <span class="font-medium">{{ t('productDetail.header.sku') }}: {{ product()?.sku }}</span>
-          <p-tag [value]="t('productStatus.' + product()?.status)" [severity]="statusSeverity()" />
+        <div class="flex items-center gap-2 text-xs sm:text-sm text-color-secondary flex-wrap">
+          <span class="font-medium">{{ 'productDetail.header.sku' | transloco }}: {{ product()?.sku }}</span>
+          <p-tag [value]="('productStatus.' + product()?.status) | transloco" [severity]="statusSeverity()" />
         </div>
       </div>
       
       <!-- Quick Actions -->
-      <div class="hidden md:flex items-center gap-2 shrink-0">
+      <div class="hidden md:flex items-center gap-1 shrink-0">
         <p-button
           icon="pi pi-star"
           [text]="true"
           [rounded]="true"
           severity="secondary"
           size="small"
-          [pTooltip]="t('productDetail.actions.favorite.tooltip')"
+          [pTooltip]="'productDetail.actions.favorite.tooltip' | transloco"
           (onClick)="onToggleFavorite()"
         />
         <p-button
@@ -42,7 +45,7 @@
           [rounded]="true"
           severity="secondary"
           size="small"
-          [pTooltip]="t('productDetail.actions.share.tooltip')"
+          [pTooltip]="'productDetail.actions.share.tooltip' | transloco"
           (onClick)="onShare()"
         />
         <p-button
@@ -51,7 +54,7 @@
           [rounded]="true"
           severity="secondary"
           size="small"
-          [pTooltip]="t('productDetail.actions.copySku.tooltip')"
+          [pTooltip]="'productDetail.actions.copySku.tooltip' | transloco"
           (onClick)="onCopySku()"
         />
       </div>
@@ -61,71 +64,85 @@
   <!-- Drawer Content -->
   <div class="flex flex-col h-full">
     <!-- Loading overlay -->
-    <div *ngIf="isLoading()" class="absolute inset-0 bg-surface-0/50 z-50 flex items-center justify-center">
-      <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
-    </div>
+    @if (isLoading()) {
+      <div class="absolute inset-0 bg-overlay z-50 flex items-center justify-center">
+        <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+      </div>
+    }
 
     <!-- Product Meta Info -->
-    <div class="px-4 py-3 bg-surface-50 border-b border-surface-200">
-      <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs md:text-sm">
+    <div class="px-3 py-2 sm:px-4 sm:py-3 bg-emphasis border-b">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm">
         <!-- Type -->
-        <div class="flex items-center gap-2" *ngIf="product()?.type">
-          <span class="text-surface-600">{{ t('productDetail.header.type') }}:</span>
-          <span class="font-medium text-surface-900">{{ product()?.type }}</span>
-        </div>
+        @if (product()?.type) {
+          <div class="flex items-center gap-1.5">
+            <span class="text-color-secondary">{{ 'productDetail.header.type' | transloco }}:</span>
+            <span class="font-medium">{{ product()?.type }}</span>
+          </div>
+        }
 
         <!-- Category -->
-        <div class="flex items-center gap-2" *ngIf="product()?.category">
-          <span class="text-surface-600">{{ t('productDetail.header.category') }}:</span>
-          <span class="font-medium text-surface-900">{{ product()?.category?.name }}</span>
-        </div>
+        @if (product()?.category) {
+          <div class="flex items-center gap-1.5">
+            <span class="text-color-secondary">{{ 'productDetail.header.category' | transloco }}:</span>
+            <span class="font-medium">{{ product()?.category?.name }}</span>
+          </div>
+        }
 
         <!-- Scope -->
-        <div class="flex items-center gap-2">
-          <span class="text-surface-600">{{ t('productDetail.header.scope') }}:</span>
-          <span class="font-medium text-surface-900">{{ t('productScope.' + product()?.scope) }}</span>
+        <div class="flex items-center gap-1.5">
+          <span class="text-color-secondary">{{ 'productDetail.header.scope' | transloco }}:</span>
+          <span class="font-medium">{{ ('productScope.' + product()?.scope) | transloco }}</span>
         </div>
 
         <!-- Unit -->
-        <div class="flex items-center gap-2" *ngIf="product()?.unit">
-          <span class="text-surface-600">{{ t('productDetail.header.unit') }}:</span>
-          <span class="font-medium text-surface-900">{{ product()?.unit }}</span>
-        </div>
+        @if (product()?.unit) {
+          <div class="flex items-center gap-1.5">
+            <span class="text-color-secondary">{{ 'productDetail.header.unit' | transloco }}:</span>
+            <span class="font-medium">{{ product()?.unit }}</span>
+          </div>
+        }
 
         <!-- Barcode -->
-        <div class="flex items-center gap-2" *ngIf="product()?.barcode">
-          <span class="text-surface-600">{{ t('productDetail.header.barcode') }}:</span>
-          <span class="font-medium text-surface-900">{{ product()?.barcode }}</span>
-        </div>
+        @if (product()?.barcode) {
+          <div class="flex items-center gap-1.5">
+            <span class="text-color-secondary">{{ 'productDetail.header.barcode' | transloco }}:</span>
+            <span class="font-medium">{{ product()?.barcode }}</span>
+          </div>
+        }
       </div>
     </div>
 
     <!-- Tabs using PrimeNG Tabs -->
     <div class="flex-1 overflow-hidden flex flex-col">
-      <p-tabs [(value)]="activeTabIndex" (valueChange)="onTabChange($event)">
+      <p-tabs [(value)]="activeTabIndex" (valueChange)="onTabChange($event)" [scrollable]="true">
         <p-tablist>
-          <p-tab *ngFor="let tab of tabs; let i = index" [value]="i">
-            <div class="flex items-center gap-2">
-              <i *ngIf="tab.icon" [class]="tab.icon"></i>
-              <span class="hidden sm:inline">{{ t(tab.label) }}</span>
-            </div>
-          </p-tab>
+          @for (tab of tabs; track tab.id) {
+            <p-tab [value]="$index">
+              <div class="flex items-center gap-1.5 sm:gap-2">
+                @if (tab.icon) {
+                  <i [class]="tab.icon"></i>
+                }
+                <span class="hidden sm:inline text-sm">{{ tab.label | transloco }}</span>
+              </div>
+            </p-tab>
+          }
         </p-tablist>
       </p-tabs>
       
       <!-- Router Outlet for Tab Content -->
-      <div class="flex-1 overflow-auto bg-surface-50 p-2 md:p-4">
+      <div class="flex-1 overflow-auto bg-surface-ground p-2 sm:p-3 md:p-4">
         <router-outlet />
       </div>
     </div>
 
     <!-- Footer Actions -->
-    <div class="px-4 py-3 border-t border-surface-200 bg-surface-0 shrink-0">
-      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+    <div class="px-3 py-2 sm:px-4 sm:py-3 border-t bg-surface-card shrink-0">
+      <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2">
         <!-- Left: Close button -->
-        <div class="order-2 sm:order-1">
+        <div class="w-full sm:w-auto">
           <p-button
-            [label]="t('productDetail.actions.back')"
+            [label]="'productDetail.actions.back' | transloco"
             icon="pi pi-times"
             severity="secondary"
             [outlined]="true"
@@ -136,33 +153,39 @@
         </div>
 
         <!-- Right: Action buttons -->
-        <div class="flex flex-wrap items-center gap-2 order-1 sm:order-2">
-          <p-button
-            *ngIf="canDeactivate()"
-            [label]="t('productDetail.actions.deactivate.label')"
-            icon="pi pi-ban"
-            severity="warn"
-            [outlined]="true"
-            size="small"
-            (onClick)="onDeactivate()"
-          />
-          <p-button
-            *ngIf="canDelete()"
-            [label]="t('productDetail.actions.delete.label')"
-            icon="pi pi-trash"
-            severity="danger"
-            [outlined]="true"
-            size="small"
-            (onClick)="onDelete()"
-          />
-          <p-button
-            *ngIf="canEdit()"
-            [label]="t('productDetail.actions.edit.label')"
-            icon="pi pi-pencil"
-            severity="primary"
-            size="small"
-            (onClick)="onEdit()"
-          />
+        <div class="flex flex-wrap items-center justify-end gap-2 w-full sm:w-auto">
+          @if (canDeactivate()) {
+            <p-button
+              [label]="'productDetail.actions.deactivate.label' | transloco"
+              icon="pi pi-ban"
+              severity="warn"
+              [outlined]="true"
+              size="small"
+              [styleClass]="'flex-1 sm:flex-initial'"
+              (onClick)="onDeactivate()"
+            />
+          }
+          @if (canDelete()) {
+            <p-button
+              [label]="'productDetail.actions.delete.label' | transloco"
+              icon="pi pi-trash"
+              severity="danger"
+              [outlined]="true"
+              size="small"
+              [styleClass]="'flex-1 sm:flex-initial'"
+              (onClick)="onDelete()"
+            />
+          }
+          @if (canEdit()) {
+            <p-button
+              [label]="'productDetail.actions.edit.label' | transloco"
+              icon="pi pi-pencil"
+              severity="primary"
+              size="small"
+              [styleClass]="'flex-1 sm:flex-initial'"
+              (onClick)="onEdit()"
+            />
+          }
         </div>
       </div>
     </div>

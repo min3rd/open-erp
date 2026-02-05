@@ -44,6 +44,8 @@ export interface Product {
     code?: string;
   };
   tags?: string[];
+  thumbnail?: ThumbnailDto;
+  media?: MediaItemDto[];
   createdBy: string;
   updatedBy?: string;
   createdAt: string;
