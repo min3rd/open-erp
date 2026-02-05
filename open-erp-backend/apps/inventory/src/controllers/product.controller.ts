@@ -122,6 +122,11 @@ export class ProductController {
         // This can be enhanced based on your authorization service
       }
 
+      // Auto-populate createdBy from authenticated user if not provided
+      if (!createDto.createdBy) {
+        createDto.createdBy = user.userId;
+      }
+
       const product = await this.productService.create(createDto);
       return created(product, 'Product created successfully');
     } catch (err) {

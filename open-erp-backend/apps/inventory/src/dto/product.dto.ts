@@ -31,7 +31,7 @@ export class MediaItemDto {
   type: string;
 
   @ApiProperty({ example: 'https://example.com/image.jpg' })
-  @IsUrl()
+  @IsUrl({ require_tld: false })  // Allow localhost URLs for development
   url: string;
 
   @ApiPropertyOptional({ example: 'Product front view' })
@@ -79,7 +79,7 @@ export class MediaItemDto {
 
 export class ThumbnailDto {
   @ApiProperty({ example: 'https://example.com/thumbnail.jpg' })
-  @IsUrl()
+  @IsUrl({ require_tld: false })  // Allow localhost URLs for development
   url: string;
 
   @ApiPropertyOptional({ example: 'thumbnail.jpg' })
@@ -372,9 +372,10 @@ export class CreateProductDto {
   @IsString({ each: true })
   tags?: string[];
 
-  @ApiProperty({ description: 'User ID who created the product' })
+  @ApiPropertyOptional({ description: 'User ID who created the product (auto-populated from auth context if not provided)' })
+  @IsOptional()
   @IsMongoId()
-  createdBy: string;
+  createdBy?: string;
 }
 
 export class UpdateProductDto {
