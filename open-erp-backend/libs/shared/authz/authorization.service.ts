@@ -4,6 +4,7 @@ import { Model, Schema as MongooseSchema } from 'mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
 import { Role, RoleDocument } from '../schemas/role.schema';
 import { PermissionScope } from '../authz/decorators';
+import { Role as RoleEnum } from '../types/role.enum';
 
 /**
  * Options for permission checking
@@ -44,6 +45,14 @@ export class AuthorizationService {
       if (!user) {
         this.logger.warn(`User not found: ${userId}`);
         return false;
+      }
+
+      // Bypass SUPER_ADMIN
+      if (await this.hasRole(userId, RoleEnum.SUPER_ADMIN)) {
+        this.logger.debug(
+          `Permission '${permission}' automatically granted to SUPER_ADMIN user ${userId}`,
+        );
+        return true;
       }
 
       const scope = options?.scope || 'organization';

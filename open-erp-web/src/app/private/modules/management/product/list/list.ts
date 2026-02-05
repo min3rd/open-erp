@@ -739,9 +739,6 @@ export class ProductList implements OnInit, OnDestroy {
 
     if (this.activeStatusFilter !== 'all') {
       params.status = this.activeStatusFilter;
-    } else {
-      // When status is 'all', include inactive products (draft, inactive, discontinued)
-      params.includeInactive = true;
     }
 
     if (this.activeTypeFilter !== 'all') {

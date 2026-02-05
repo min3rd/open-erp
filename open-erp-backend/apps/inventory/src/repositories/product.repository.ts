@@ -60,9 +60,9 @@ export class ProductRepository {
     } = options;
 
     // Add active filter unless includeInactive is true
-    if (!includeInactive && !filter.status) {
-      filter.status = 'active';
-    }
+    // if (!includeInactive && !filter.status) {
+    //   filter.status = 'active';
+    // }
 
     const queryOptions: any = {};
     if (includeDeleted) {
@@ -136,9 +136,9 @@ export class ProductRepository {
     } = options;
 
     // Add active filter unless includeInactive is true
-    if (!includeInactive && !filter.status) {
-      filter.status = 'active';
-    }
+    // if (!includeInactive && !filter.status) {
+    //   filter.status = 'active';
+    // }
 
     // Escape special regex characters to prevent regex injection
     const escapeRegex = (str: string) => 
@@ -150,6 +150,8 @@ export class ProductRepository {
     // For partial matches anywhere in the string, full collection scans may occur.
     // SKU and barcode have indexes which can help with prefix matching.
     const searchRegex = new RegExp(escapedSearchText, 'i'); // case-insensitive regex
+    console.log(searchRegex);
+    
     const partialMatchQuery = {
       ...filter,
       $or: [
