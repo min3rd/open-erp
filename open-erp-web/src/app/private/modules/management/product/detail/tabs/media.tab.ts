@@ -10,21 +10,7 @@ import { ProductDetailStateService } from '../product-detail-state.service';
 @Component({
   selector: 'product-tab-media',
   imports: [CommonModule, TranslocoModule],
-  template: `
-    <div class="product-tab-media" *transloco="let t">
-      <div class="bg-surface-0 rounded-lg shadow-sm p-6">
-        <h2 class="text-xl font-semibold text-surface-900 mb-4">{{ t('productDetail.tabs.media') }}</h2>
-        <p class="text-surface-600">{{ t('productDetail.media.description') }}</p>
-        
-        <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <!-- Placeholder for media items -->
-          <div class="aspect-square bg-surface-100 border-2 border-dashed border-surface-300 rounded-lg flex items-center justify-center">
-            <i class="pi pi-image text-4xl text-surface-400"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './media.tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductTabMedia implements OnInit, OnDestroy {

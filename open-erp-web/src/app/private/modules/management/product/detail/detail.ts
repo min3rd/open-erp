@@ -17,6 +17,7 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 import { DrawerModule } from 'primeng/drawer';
+import { TabsModule } from 'primeng/tabs';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
@@ -46,22 +47,11 @@ interface TabDef {
     TooltipModule,
     TagModule,
     DrawerModule,
+    TabsModule,
     ConfirmDialogModule,
   ],
   providers: [ConfirmationService, ProductDetailStateService],
   templateUrl: './detail.html',
-  styles: [`
-    :host ::ng-deep .p-drawer .p-drawer-content {
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .active-tab {
-      color: var(--p-primary-color) !important;
-      border-bottom-color: var(--p-primary-color) !important;
-      background-color: var(--p-primary-50) !important;
-    }
-  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductDetail implements OnInit, OnDestroy {
@@ -93,6 +83,7 @@ export class ProductDetail implements OnInit, OnDestroy {
   protected readonly isLoading = signal(false);
   protected readonly isVisible = signal(true);
   protected readonly activeTabId = signal<string>('general');
+  protected activeTabIndex = 0;
 
   // Computed values
   protected readonly statusSeverity = computed(() => {
@@ -141,9 +132,16 @@ export class ProductDetail implements OnInit, OnDestroy {
     // Track active tab from route
     this.route.firstChild?.url.pipe(takeUntil(this.destroy$)).subscribe((segments) => {
       if (segments && segments.length > 0) {
-        this.activeTabId.set(segments[0].path);
+        const tabId = segments[0].path;
+        this.activeTabId.set(tabId);
+        // Update tab index
+        const index = this.tabs.findIndex((t) => t.id === tabId);
+        if (index >= 0) {
+          this.activeTabIndex = index;
+        }
       } else {
         this.activeTabId.set('general');
+        this.activeTabIndex = 0;
       }
     });
   }
@@ -155,12 +153,23 @@ export class ProductDetail implements OnInit, OnDestroy {
   }
 
   /**
+   * Handle tab change
+   */
+  protected onTabChange(index: number | string | undefined): void {
+    const tabIndex = typeof index === 'number' ? index : 0;
+    if (tabIndex >= 0 && tabIndex < this.tabs.length) {
+      const tab = this.tabs[tabIndex];
+      this.router.navigate([tab.route], { relativeTo: this.route });
+    }
+  }
+
+  /**
    * Close drawer and navigate back to product list
    */
   protected onClose(): void {
     this.isVisible.set(false);
-    // Navigate back to list (3 levels up: view -> sku -> limit)
-    this.router.navigate(['../../..'], { relativeTo: this.route });
+    // Navigate back to list (2 levels up: view -> sku)
+    this.router.navigate(['../..'], { relativeTo: this.route });
   }
 
   /**
