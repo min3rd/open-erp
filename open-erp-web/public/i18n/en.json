@@ -2310,6 +2310,9 @@
       "partialSuccess": "Partial import",
       "partialSuccessDetail": "{{success}} products imported, {{failed}} failed",
       "error": "Import failed"
+    },
+    "edit": {
+      "notImplemented": "Edit feature coming soon"
     }
   },
   "productType": {
@@ -2356,6 +2359,117 @@
     "inactive": "Inactive",
     "discontinued": "Discontinued",
     "draft": "Draft"
+  },
+  "productScope": {
+    "global": "Global",
+    "organization": "Organization"
+  },
+  "productDetail": {
+    "header": {
+      "noName": "Unnamed Product",
+      "sku": "SKU",
+      "barcode": "Barcode",
+      "status": "Status",
+      "type": "Type",
+      "category": "Category",
+      "scope": "Scope",
+      "unit": "Unit"
+    },
+    "tabs": {
+      "general": "General Information",
+      "media": "Media",
+      "weight": "Weight & Unit & Expiry",
+      "dimensions": "Dimensions",
+      "storage": "Storage Conditions",
+      "warehouse": "Warehouse Conditions",
+      "custom": "Custom Information"
+    },
+    "general": {
+      "basicInfo": "Basic Information",
+      "sku": "SKU",
+      "name": "Product Name",
+      "internationalName": "International Name",
+      "barcode": "Barcode",
+      "description": "Description",
+      "classification": "Classification",
+      "type": "Product Type",
+      "category": "Category",
+      "unit": "Unit of Measure",
+      "scope": "Scope",
+      "organizationId": "Organization ID",
+      "tags": "Tags",
+      "auditInfo": "Audit Information",
+      "createdBy": "Created By",
+      "createdAt": "Created At",
+      "updatedBy": "Updated By",
+      "updatedAt": "Updated At"
+    },
+    "media": {
+      "description": "Product images, videos, and documents",
+      "notAvailable": "No media available"
+    },
+    "weight": {
+      "description": "Weight, unit of measure, and expiry information",
+      "unit": "Unit of Measure",
+      "notAvailable": "No weight information available"
+    },
+    "dimensions": {
+      "description": "Product dimensions and sizing information",
+      "notAvailable": "No dimension information available"
+    },
+    "storage": {
+      "description": "Storage conditions and requirements",
+      "notAvailable": "No storage condition information available"
+    },
+    "warehouse": {
+      "description": "Warehouse and inventory conditions",
+      "notAvailable": "No warehouse condition information available"
+    },
+    "custom": {
+      "description": "Custom fields and metadata",
+      "metadata": "Metadata",
+      "noMetadata": "No metadata available",
+      "notAvailable": "No custom information available"
+    },
+    "actions": {
+      "back": "Back to List",
+      "favorite": {
+        "tooltip": "Add to favorites",
+        "info": "Favorite feature coming soon"
+      },
+      "share": {
+        "tooltip": "Share product",
+        "info": "Share feature coming soon"
+      },
+      "copySku": {
+        "tooltip": "Copy SKU to clipboard",
+        "success": "SKU copied",
+        "successDetail": "SKU {{sku}} copied to clipboard",
+        "error": "Failed to copy SKU"
+      },
+      "edit": {
+        "label": "Edit",
+        "notImplemented": "Edit feature coming soon"
+      },
+      "deactivate": {
+        "label": "Deactivate",
+        "confirmTitle": "Confirm Deactivate",
+        "confirmMessage": "Are you sure you want to deactivate product {{name}}?",
+        "success": "Product deactivated",
+        "successDetail": "Product {{name}} has been deactivated successfully",
+        "error": "Deactivation failed",
+        "errorDetail": "Failed to deactivate product"
+      },
+      "delete": {
+        "label": "Delete",
+        "confirmTitle": "Confirm Delete",
+        "confirmMessage": "Are you sure you want to delete product {{name}}? This action cannot be undone.",
+        "success": "Product deleted",
+        "successDetail": "Product {{name}} has been deleted successfully",
+        "error": "Delete failed",
+        "errorDetail": "Failed to delete product"
+      }
+    }
   },
   "administrativeUnit": {
     "title": "Administrative Unit Management",

@@ -1,0 +1,143 @@
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { TranslocoModule } from '@jsverse/transloco';
+import { Subject, takeUntil } from 'rxjs';
+
+// PrimeNG imports
+import { DividerModule } from 'primeng/divider';
+
+// Services and types
+import { Product } from '../../../../../../core/services/product/product.service';
+
+@Component({
+  selector: 'product-tab-general',
+  imports: [CommonModule, TranslocoModule, DividerModule],
+  template: `
+    <div class="product-tab-general" *transloco="let t">
+      <div class="bg-surface-0 rounded-lg shadow-sm p-6">
+        <h2 class="text-xl font-semibold text-surface-900 mb-4">{{ t('productDetail.tabs.general') }}</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Basic Information -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-medium text-surface-800 mb-3">{{ t('productDetail.general.basicInfo') }}</h3>
+            
+            <div class="field">
+              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.sku') }}</label>
+              <div class="text-surface-900">{{ product()?.sku || '-' }}</div>
+            </div>
+
+            <div class="field">
+              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.name') }}</label>
+              <div class="text-surface-900">{{ product()?.name || '-' }}</div>
+            </div>
+
+            <div class="field">
+              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.internationalName') }}</label>
+              <div class="text-surface-900">{{ product()?.internationalName || '-' }}</div>
+            </div>
+
+            <div class="field">
+              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.barcode') }}</label>
+              <div class="text-surface-900">{{ product()?.barcode || '-' }}</div>
+            </div>
+
+            <div class="field">
+              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.description') }}</label>
+              <div class="text-surface-900">{{ product()?.description || '-' }}</div>
+            </div>
+          </div>
+
+          <!-- Classification -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-medium text-surface-800 mb-3">{{ t('productDetail.general.classification') }}</h3>
+            
+            <div class="field">
+              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.type') }}</label>
+              <div class="text-surface-900">{{ product()?.type || '-' }}</div>
+            </div>
+
+            <div class="field">
+              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.category') }}</label>
+              <div class="text-surface-900">{{ product()?.category?.name || '-' }}</div>
+            </div>
+
+            <div class="field">
+              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.unit') }}</label>
+              <div class="text-surface-900">{{ product()?.unit || '-' }}</div>
+            </div>
+
+            <div class="field">
+              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.scope') }}</label>
+              <div class="text-surface-900">{{ t('productScope.' + product()?.scope) || '-' }}</div>
+            </div>
+
+            <div class="field" *ngIf="product()?.organizationId">
+              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.organizationId') }}</label>
+              <div class="text-surface-900">{{ product()?.organizationId }}</div>
+            </div>
+
+            <div class="field" *ngIf="product()?.tags && product()?.tags.length > 0">
+              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.tags') }}</label>
+              <div class="flex flex-wrap gap-2">
+                <span *ngFor="let tag of product()?.tags" class="px-2 py-1 bg-primary-50 text-primary-700 text-sm rounded">
+                  {{ tag }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p-divider />
+
+        <!-- Audit Information -->
+        <div class="mt-6">
+          <h3 class="text-lg font-medium text-surface-800 mb-3">{{ t('productDetail.general.auditInfo') }}</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div class="field">
+              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.createdBy') }}</label>
+              <div class="text-surface-900">{{ product()?.createdBy || '-' }}</div>
+            </div>
+
+            <div class="field">
+              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.createdAt') }}</label>
+              <div class="text-surface-900">{{ product()?.createdAt ? (product()?.createdAt | date: 'short') : '-' }}</div>
+            </div>
+
+            <div class="field">
+              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.updatedBy') }}</label>
+              <div class="text-surface-900">{{ product()?.updatedBy || '-' }}</div>
+            </div>
+
+            <div class="field">
+              <label class="block text-sm font-medium text-surface-600 mb-1">{{ t('productDetail.general.updatedAt') }}</label>
+              <div class="text-surface-900">{{ product()?.updatedAt ? (product()?.updatedAt | date: 'short') : '-' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ProductTabGeneral implements OnInit, OnDestroy {
+  private route = inject(ActivatedRoute);
+  private destroy$ = new Subject<void>();
+
+  protected readonly product = signal<Product | null>(null);
+
+  ngOnInit(): void {
+    // Get product from parent route data
+    this.route.parent?.parent?.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
+      if (data['product']) {
+        this.product.set(data['product']);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+}
