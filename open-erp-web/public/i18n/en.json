@@ -2406,27 +2406,51 @@
     },
     "media": {
       "description": "Product images, videos, and documents",
-      "notAvailable": "No media available"
+      "notAvailable": "No media available",
+      "download": "Download"
     },
     "weight": {
       "description": "Weight, unit of measure, and expiry information",
       "unit": "Unit of Measure",
+      "weight": "Weight",
+      "hasExpiryDate": "Has Expiry Date",
+      "shelfLifeDays": "Shelf Life",
+      "days": "days",
+      "yes": "Yes",
+      "no": "No",
       "notAvailable": "No weight information available"
     },
     "dimensions": {
       "description": "Product dimensions and sizing information",
+      "length": "Length",
+      "width": "Width",
+      "height": "Height",
+      "unit": "Dimension Unit",
       "notAvailable": "No dimension information available"
     },
     "storage": {
       "description": "Storage conditions and requirements",
+      "temperatureMin": "Min Temperature",
+      "temperatureMax": "Max Temperature",
+      "humidityMin": "Min Humidity",
+      "humidityMax": "Max Humidity",
+      "requirements": "Requirements",
+      "specialInstructions": "Special Instructions",
       "notAvailable": "No storage condition information available"
     },
     "warehouse": {
       "description": "Warehouse and inventory conditions",
+      "trackingType": "Tracking Type",
+      "hazardLevel": "Hazard Level",
+      "minStockLevel": "Min Stock Level",
+      "maxStockLevel": "Max Stock Level",
+      "reorderPoint": "Reorder Point",
+      "reorderQuantity": "Reorder Quantity",
       "notAvailable": "No warehouse condition information available"
     },
     "custom": {
       "description": "Custom fields and metadata",
+      "customAttributes": "Custom Attributes",
       "metadata": "Metadata",
       "noMetadata": "No metadata available",
       "notAvailable": "No custom information available"
