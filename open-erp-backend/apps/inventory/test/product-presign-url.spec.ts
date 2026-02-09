@@ -59,6 +59,7 @@ describe('ProductController - Presigned URL', () => {
       expect(result.data.item.objectKey).not.toContain('[object');
       
       // Verify the object key contains the correct org ID
+      // Note: The toString() mock returns 'org-789', so final path is 'org-org-789'
       expect(result.data.item.objectKey).toContain('org-org-789');
       expect(result.data.item.objectKey).toMatch(/^products\/temp\/org-org-789\/media\/\d+-test\.jpg$/);
     });

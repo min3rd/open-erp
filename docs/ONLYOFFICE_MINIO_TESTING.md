@@ -9,7 +9,7 @@ This guide covers testing the fixes for OnlyOffice Document Server integration w
 - Backend services running (auth, user, inventory, file-service)
 - Docker containers running (MongoDB, RabbitMQ, MinIO, OnlyOffice)
 - Frontend web app running on http://localhost:4200
-- User logged in as superadmin@example.com/123456aA@
+- User logged in with test credentials (NOTE: superadmin@example.com/123456aA@ are DEVELOPMENT ONLY credentials from seeding script, never use in production)
 
 ## Configuration Setup
 
