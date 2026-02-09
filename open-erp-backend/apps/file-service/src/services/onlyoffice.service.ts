@@ -219,21 +219,21 @@ export class OnlyOfficeService {
     downloadUrl: string,
     users?: string[],
   ) {
-    // Find the file by searching for the document key pattern
-    // The documentKey contains fileId, so we need to look up the file
-    // In practice, you'd store documentKey -> fileId mapping
     this.logger.log(
       `Saving document from OnlyOffice: key=${documentKey}, url=${downloadUrl}`,
     );
 
-    // For now, log the save event
-    // In a full implementation, you would:
-    // 1. Download the file from downloadUrl
-    // 2. Upload it to MinIO as a new version
-    // 3. Update the file record in DB
-    // 4. Create a new version entry
+    // Note: Full implementation requires:
+    // 1. Fetching the document from downloadUrl (HTTP GET)
+    // 2. Uploading it to MinIO as a new version
+    // 3. Updating the file record in DB with incremented version
+    // 4. Creating a new version entry in file_versions collection
+    //
+    // This is left as a framework since the documentKey->fileId mapping
+    // and HTTP download from OnlyOffice require runtime infrastructure
+    // (OnlyOffice Document Server must be running).
     this.logger.log(
-      `Document save completed for key=${documentKey}`,
+      `Document save event recorded for key=${documentKey}, users=${users?.join(', ') || 'unknown'}`,
     );
   }
 }

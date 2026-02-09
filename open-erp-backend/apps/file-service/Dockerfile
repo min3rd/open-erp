@@ -16,7 +16,7 @@ COPY apps/file-service ./apps/file-service
 COPY libs ./libs
 
 # Build the file service
-RUN npm run build file-service
+RUN npm run build:file-service
 
 # Stage 2: Production
 FROM node:20-alpine AS production
