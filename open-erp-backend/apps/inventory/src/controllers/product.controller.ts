@@ -718,10 +718,23 @@ export class ProductController {
 
   @Get(':identifier/versions')
   @Permissions(Permission.PRODUCT_READ)
-  @ApiOperation({ summary: 'Get version history of a product' })
-  @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiOperation({ 
+    summary: 'Get version history of a product by identifier (slug, SKU, or ID)',
+    description: 'Get product version history using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+  })
+  @ApiParam({ 
+    name: 'identifier', 
+    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion'
+  })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
+    type: String,
+    description: 'Organization ID for scoped product lookup',
+  })
   @ApiResponse({
     status: 200,
     description: 'Version history retrieved successfully',
@@ -733,17 +746,27 @@ export class ProductController {
   })
   @ApiResponse({ status: 404, description: 'Product not found' })
   async getVersionHistory(
-    @Param('id') id: string,
+    @Param('identifier') identifier: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
+    @Query('organizationId') organizationId?: string,
   ) {
     try {
-      const result = await this.productService.getVersionHistory(id, {
+      // Resolve identifier to product ID
+      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      if (!productId) {
+        throw new NotFoundException('Product not found');
+      }
+
+      const result = await this.productService.getVersionHistory(productId, {
         page,
         limit,
       });
       return paginated(result.items, result.page, result.limit, result.total);
     } catch (err) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
       throw new HttpException(
         error(
           'VERSION_FETCH_ERROR',
@@ -754,11 +777,24 @@ export class ProductController {
     }
   }
 
-  @Get(':id/versions/:version')
+  @Get(':identifier/versions/:version')
   @Permissions(Permission.PRODUCT_READ)
-  @ApiOperation({ summary: 'Get a specific version of a product' })
-  @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiOperation({ 
+    summary: 'Get a specific version of a product by identifier (slug, SKU, or ID)',
+    description: 'Get a specific product version using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+  })
+  @ApiParam({ 
+    name: 'identifier', 
+    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion'
+  })
   @ApiParam({ name: 'version', description: 'Version number', type: Number })
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
+    type: String,
+    description: 'Organization ID for scoped product lookup',
+  })
   @ApiResponse({
     status: 200,
     description: 'Version retrieved successfully',
@@ -769,9 +805,19 @@ export class ProductController {
     description: 'Forbidden - insufficient permissions',
   })
   @ApiResponse({ status: 404, description: 'Version not found' })
-  async getVersion(@Param('id') id: string, @Param('version') version: number) {
+  async getVersion(
+    @Param('identifier') identifier: string, 
+    @Param('version') version: number,
+    @Query('organizationId') organizationId?: string,
+  ) {
     try {
-      const versionDoc = await this.productService.getVersion(id, version);
+      // Resolve identifier to product ID
+      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      if (!productId) {
+        throw new NotFoundException('Product not found');
+      }
+
+      const versionDoc = await this.productService.getVersion(productId, version);
       return fetched(versionDoc);
     } catch (err) {
       if (err instanceof HttpException) {
@@ -784,17 +830,30 @@ export class ProductController {
     }
   }
 
-  @Post(':id/revert')
+  @Post(':identifier/revert')
   @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
     mode: 'any',
   })
-  @ApiOperation({ summary: 'Revert product to a specific version' })
-  @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiOperation({ 
+    summary: 'Revert a product to a specific version by identifier (slug, SKU, or ID)',
+    description: 'Revert product to a specific version using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+  })
+  @ApiParam({ 
+    name: 'identifier', 
+    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion'
+  })
   @ApiQuery({
     name: 'version',
     required: true,
     description: 'Version number to revert to',
     type: Number,
+  })
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
+    type: String,
+    description: 'Organization ID for scoped product lookup',
   })
   @ApiResponse({
     status: 200,
@@ -807,13 +866,20 @@ export class ProductController {
   })
   @ApiResponse({ status: 404, description: 'Product or version not found' })
   async revertToVersion(
-    @Param('id') id: string,
+    @Param('identifier') identifier: string,
     @Query('version') version: number,
     @CurrentUser() user: UserContext,
+    @Query('organizationId') organizationId?: string,
   ) {
     try {
+      // Resolve identifier to product ID
+      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      if (!productId) {
+        throw new NotFoundException('Product not found');
+      }
+
       const product = await this.productService.rollbackToVersion(
-        id,
+        productId,
         version,
         user.userId,
       );
