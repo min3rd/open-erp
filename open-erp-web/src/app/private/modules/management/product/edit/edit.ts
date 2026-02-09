@@ -760,8 +760,12 @@ export class ProductEdit implements OnInit {
    */
   protected async onClose(): Promise<void> {
     try {
-      // Navigate back to view (sibling route)
-      await this.router.navigate(['../view'], { relativeTo: this.route });
+      // Navigate back to view (sibling route) and bump a query param to allow resolvers to re-run
+      await this.router.navigate(['../view'], {
+        relativeTo: this.route,
+        queryParams: { refresh: Date.now() },
+        queryParamsHandling: 'merge',
+      });
     } finally {
       this.isVisible.set(false);
     }
