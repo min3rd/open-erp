@@ -2432,8 +2432,10 @@
       "description": "Storage conditions and requirements",
       "temperatureMin": "Min Temperature",
       "temperatureMax": "Max Temperature",
+      "temperatureUnit": "°C",
       "humidityMin": "Min Humidity",
       "humidityMax": "Max Humidity",
+      "humidityUnit": "%",
       "requirements": "Requirements",
       "specialInstructions": "Special Instructions",
       "notAvailable": "No storage condition information available"

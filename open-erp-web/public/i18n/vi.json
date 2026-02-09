@@ -845,8 +845,10 @@
       "description": "Điều kiện và yêu cầu bảo quản",
       "temperatureMin": "Nhiệt độ tối thiểu",
       "temperatureMax": "Nhiệt độ tối đa",
+      "temperatureUnit": "°C",
       "humidityMin": "Độ ẩm tối thiểu",
       "humidityMax": "Độ ẩm tối đa",
+      "humidityUnit": "%",
       "requirements": "Yêu cầu",
       "specialInstructions": "Hướng dẫn đặc biệt",
       "notAvailable": "Không có thông tin điều kiện bảo quản"
