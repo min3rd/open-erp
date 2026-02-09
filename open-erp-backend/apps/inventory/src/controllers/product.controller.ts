@@ -722,7 +722,9 @@ export class ProductController {
       
       // Generate object key for temp upload: products/temp/{orgId}/{type}/{timestamp}-{filename}
       // Use organizationId if provided, otherwise use user's organizationId or 'global'
-      const orgId = organizationId || user.organizationId || 'global';
+      // Ensure orgId is always a string (convert ObjectId or object to string)
+      const rawOrgId = organizationId || user.organizationId || 'global';
+      const orgId = rawOrgId === 'global' ? 'global' : String(rawOrgId);
       const orgPrefix = orgId !== 'global' ? `org-${orgId}` : 'global';
       const objectKey = `products/temp/${orgPrefix}/${type}/${timestamp}-${sanitizedFilename}`;
 
@@ -841,7 +843,8 @@ export class ProductController {
       const timestamp = Date.now();
       
       // Generate object key: products/{orgId}/{productId}/{type}/{timestamp}-{filename}
-      const orgPrefix = product.organizationId ? `org-${product.organizationId}` : 'global';
+      // Ensure organizationId is always a string (convert ObjectId or object to string)
+      const orgPrefix = product.organizationId ? `org-${String(product.organizationId)}` : 'global';
       const objectKey = `products/${orgPrefix}/${id}/${type}/${timestamp}-${sanitizedFilename}`;
 
       // Generate presigned URL

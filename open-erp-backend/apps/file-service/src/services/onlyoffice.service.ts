@@ -28,6 +28,7 @@ export class OnlyOfficeService {
   private readonly onlyOfficeUrl: string;
   private readonly jwtSecret: string;
   private readonly callbackSecret: string;
+  private readonly minioUrlForOnlyOffice: string;
 
   constructor(
     private readonly configService: ConfigService,
@@ -45,6 +46,13 @@ export class OnlyOfficeService {
     this.callbackSecret = this.configService.get<string>(
       'ONLYOFFICE_CALLBACK_SECRET',
       '',
+    );
+    // MinIO URL that OnlyOffice Document Server should use
+    // For Docker deployments, set this to http://minio:9000 so OnlyOffice
+    // can reach MinIO via Docker network instead of host.docker.internal
+    this.minioUrlForOnlyOffice = this.configService.get<string>(
+      'ONLYOFFICE_MINIO_URL',
+      '', // Empty means no URL rewriting
     );
   }
 
@@ -85,6 +93,39 @@ export class OnlyOfficeService {
     } catch (err) {
       this.logger.error(`Failed to sign JWT: ${err.message}`);
       return null;
+    }
+  }
+
+  /**
+   * Rewrite MinIO URL for OnlyOffice Document Server access
+   * Replaces the browser-accessible URL with a Docker-internal URL if configured
+   */
+  private rewriteMinioUrlForOnlyOffice(presignedUrl: string): string {
+    if (!this.minioUrlForOnlyOffice) {
+      return presignedUrl;
+    }
+
+    try {
+      const url = new URL(presignedUrl);
+      const targetUrl = new URL(this.minioUrlForOnlyOffice);
+      
+      // Replace the hostname and port with OnlyOffice-accessible endpoint
+      url.hostname = targetUrl.hostname;
+      url.protocol = targetUrl.protocol;
+      if (targetUrl.port) {
+        url.port = targetUrl.port;
+      }
+      
+      const rewrittenUrl = url.toString();
+      this.logger.debug(
+        `Rewrote MinIO URL for OnlyOffice: ${presignedUrl} -> ${rewrittenUrl}`,
+      );
+      return rewrittenUrl;
+    } catch (err) {
+      this.logger.warn(
+        `Failed to rewrite MinIO URL, using original: ${err.message}`,
+      );
+      return presignedUrl;
     }
   }
 
@@ -153,16 +194,19 @@ export class OnlyOfficeService {
       );
     const callbackUrl = `${baseUrl}/v1/onlyoffice/callback`;
 
+    // Rewrite MinIO URL for OnlyOffice Document Server
+    // If ONLYOFFICE_MINIO_URL is set (e.g., http://minio:9000), the presigned URL
+    // will be rewritten to use the Docker-internal hostname instead of host.docker.internal
+    // This allows OnlyOffice Document Server to access MinIO without DNS lookup of private IPs
+    const documentUrl = this.rewriteMinioUrlForOnlyOffice(presignResult.url);
+
     // Build editor config
-    // The presigned URL uses MINIO_ENDPOINT from env. When OnlyOffice runs
-    // in Docker, set MINIO_ENDPOINT=host.docker.internal and add
-    // extra_hosts to docker-compose so both browser and Docker can reach MinIO.
     const editorConfig: Record<string, any> = {
       document: {
         fileType: ext.replace('.', ''),
         key: documentKey,
         title: fname,
-        url: presignResult.url,
+        url: documentUrl,
       },
       documentType,
       editorConfig: {

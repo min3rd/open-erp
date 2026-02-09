@@ -182,7 +182,7 @@ describe('OnlyOfficeService', () => {
   });
 
   describe('presigned URL passthrough', () => {
-    it('should use the presigned URL directly without rewriting', async () => {
+    it('should use the presigned URL directly without rewriting when ONLYOFFICE_MINIO_URL is not set', async () => {
       minioService.presignDownload.mockResolvedValue({
         url: 'http://host.docker.internal:9000/open-erp/test.docx?X-Amz-Signature=abc',
         expiresAt: new Date(),
@@ -197,6 +197,88 @@ describe('OnlyOfficeService', () => {
       expect(result.config.document.url).toBe(
         'http://host.docker.internal:9000/open-erp/test.docx?X-Amz-Signature=abc',
       );
+    });
+  });
+
+  describe('URL rewriting for OnlyOffice', () => {
+    it('should rewrite MinIO URL when ONLYOFFICE_MINIO_URL is configured', async () => {
+      // Update configService to return ONLYOFFICE_MINIO_URL
+      configService.get = jest.fn().mockImplementation((key: string, defaultValue?: string) => {
+        const config: Record<string, string> = {
+          ONLYOFFICE_URL: 'http://localhost:8080',
+          ONLYOFFICE_JWT_SECRET: '',
+          ONLYOFFICE_CALLBACK_SECRET: '',
+          FILE_SERVICE_BASE_URL: 'http://localhost:3008',
+          ONLYOFFICE_MINIO_URL: 'http://minio:9000',
+        };
+        return config[key] || defaultValue;
+      });
+
+      // Recreate service with updated config
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          OnlyOfficeService,
+          { provide: MinioService, useValue: minioService },
+          { provide: FileRepository, useValue: fileRepository },
+          { provide: ConfigService, useValue: configService },
+        ],
+      }).compile();
+
+      const serviceWithRewrite = module.get<OnlyOfficeService>(OnlyOfficeService);
+
+      minioService.presignDownload.mockResolvedValue({
+        url: 'http://host.docker.internal:9000/open-erp/test.docx?X-Amz-Signature=abc',
+        expiresAt: new Date(),
+      });
+
+      const result = await serviceWithRewrite.createSession(
+        undefined, 'view', 'user-1', undefined,
+        'test.docx', 'test.docx', 'open-erp',
+      );
+
+      // The URL should be rewritten to use minio hostname
+      expect(result.config.document.url).toBe(
+        'http://minio:9000/open-erp/test.docx?X-Amz-Signature=abc',
+      );
+    });
+
+    it('should preserve query parameters when rewriting URL', async () => {
+      configService.get = jest.fn().mockImplementation((key: string, defaultValue?: string) => {
+        const config: Record<string, string> = {
+          ONLYOFFICE_URL: 'http://localhost:8080',
+          ONLYOFFICE_JWT_SECRET: '',
+          ONLYOFFICE_CALLBACK_SECRET: '',
+          FILE_SERVICE_BASE_URL: 'http://localhost:3008',
+          ONLYOFFICE_MINIO_URL: 'http://minio:9000',
+        };
+        return config[key] || defaultValue;
+      });
+
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          OnlyOfficeService,
+          { provide: MinioService, useValue: minioService },
+          { provide: FileRepository, useValue: fileRepository },
+          { provide: ConfigService, useValue: configService },
+        ],
+      }).compile();
+
+      const serviceWithRewrite = module.get<OnlyOfficeService>(OnlyOfficeService);
+
+      minioService.presignDownload.mockResolvedValue({
+        url: 'http://localhost:9000/bucket/file.docx?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Signature=xyz',
+        expiresAt: new Date(),
+      });
+
+      const result = await serviceWithRewrite.createSession(
+        undefined, 'edit', 'user-1', undefined,
+        'file.docx', 'file.docx', 'bucket',
+      );
+
+      // Verify query parameters are preserved
+      expect(result.config.document.url).toContain('X-Amz-Algorithm=AWS4-HMAC-SHA256');
+      expect(result.config.document.url).toContain('X-Amz-Signature=xyz');
+      expect(result.config.document.url).toContain('http://minio:9000');
     });
   });
 });
