@@ -468,7 +468,7 @@ export class ProductEdit implements OnInit {
    */
   protected onRemoveMedia(index: number): void {
     const media = this.mediaFiles()[index];
-    
+
     if (media.isExisting) {
       // Mark existing media for deletion
       this.mediaFiles.update((files) =>
@@ -517,6 +517,43 @@ export class ProductEdit implements OnInit {
         summary: this.translocoService.translate('productEdit.messages.reset'),
         detail: this.translocoService.translate('productEdit.messages.resetDetail'),
       });
+    }
+  }
+
+  /**
+   * Handle media deletions
+   */
+  private async handleMediaDeletions(productId: string): Promise<void> {
+    const mediaToDelete = this.mediaFiles().filter((m) => m.isExisting && m.isMarkedForDeletion);
+    for (const media of mediaToDelete) {
+      if (media.minioObjectKey) {
+        await firstValueFrom(this.productService.deleteProductMedia(productId, media.minioObjectKey));
+      }
+    }
+  }
+
+  /**
+   * Handle new media uploads
+   */
+  private async handleMediaUploads(productId: string, organizationId?: string): Promise<void> {
+    const newMedia = this.mediaFiles().filter((m) => !m.isExisting && !m.isMarkedForDeletion);
+    for (const mediaFile of newMedia) {
+      if (mediaFile.file) {
+        const mediaUrl = await this.uploadFile(mediaFile.file, 'media', organizationId);
+        
+        // Register media with product
+        await firstValueFrom(
+          this.productService.registerProductMedia(productId, {
+            type: mediaFile.type,
+            url: mediaUrl.publicUrl,
+            title: mediaFile.filename,
+            mimeType: mediaFile.file.type,
+            size: mediaFile.file.size,
+            minioObjectKey: mediaUrl.objectKey,
+            minioBucket: mediaUrl.bucket,
+          })
+        );
+      }
     }
   }
 
@@ -612,37 +649,9 @@ export class ProductEdit implements OnInit {
         dto.thumbnail = undefined;
       }
 
-      // Handle media deletions
-      const mediaToDelete = this.mediaFiles().filter((m) => m.isExisting && m.isMarkedForDeletion);
-      for (const media of mediaToDelete) {
-        if (media.minioObjectKey) {
-          await firstValueFrom(this.productService.deleteProductMedia(product.id, media.minioObjectKey));
-        }
-      }
-
-      // Handle new media uploads
-      const newMedia = this.mediaFiles().filter((m) => !m.isExisting && !m.isMarkedForDeletion);
-      for (let i = 0; i < newMedia.length; i++) {
-        const mediaFile = newMedia[i];
-        if (mediaFile.file) {
-          const mediaUrl = await this.uploadFile(
-            mediaFile.file,
-            'media',
-            product.organizationId
-          );
-          
-          // Register media with product
-          await firstValueFrom(this.productService.registerProductMedia(product.id, {
-            type: mediaFile.type,
-            url: mediaUrl.publicUrl,
-            title: mediaFile.filename,
-            mimeType: mediaFile.file.type,
-            size: mediaFile.file.size,
-            minioObjectKey: mediaUrl.objectKey,
-            minioBucket: mediaUrl.bucket,
-          }));
-        }
-      }
+      // Handle media operations
+      await this.handleMediaDeletions(product.id);
+      await this.handleMediaUploads(product.id, product.organizationId);
 
       // Update product if there are changes
       if (Object.keys(dto).length > 0) {
