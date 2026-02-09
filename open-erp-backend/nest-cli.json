@@ -71,7 +71,7 @@
         "tsConfigPath": "apps/common-service/tsconfig.json"
       }
     },
-    "file-service": {
+    "file": {
       "type": "application",
       "root": "apps/file-service",
       "entryFile": "main",
