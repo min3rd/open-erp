@@ -56,7 +56,7 @@ export const routes: Routes = [
                                     pathMatch: 'full',
                                     component: ProductForm,
                                   },
-                                  // Product detail routes (using SKU as identifier)
+                                  // Product detail routes (using identifier: slug/SKU/ID)
                                   {
                                     path: ':sku',
                                     resolve: {
