@@ -69,6 +69,8 @@ services:
       - '8080:80'
     environment:
       JWT_ENABLED: 'false'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     networks:
       - erp-network
     healthcheck:

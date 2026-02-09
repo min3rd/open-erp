@@ -24,7 +24,6 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { DrawerModule } from 'primeng/drawer';
-import { DialogModule } from 'primeng/dialog';
 import { Select } from 'primeng/select';
 import { MessageService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
@@ -81,7 +80,6 @@ interface MediaFile {
     InputTextModule,
     TextareaModule,
     DrawerModule,
-    DialogModule,
     Select,
     DividerModule,
     TooltipModule,
