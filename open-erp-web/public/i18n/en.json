@@ -2913,7 +2913,8 @@
       },
       "media": {
         "select": "Upload Media"
-      }
+      },
+      "readonly": "(Read-only)"
     },
     "tabs": {
       "general": "General Info",
@@ -2926,14 +2927,18 @@
       "custom": "Custom Fields",
       "customPlaceholder": "Custom fields editor coming soon",
       "mediaDescription": "Upload images, videos, or documents for this product",
-      "mediaEmpty": "No media files added yet. Click Upload Media to add files."
+      "mediaEmpty": "No media files added yet. Click Upload Media to add files.",
+      "existing": "existing"
     },
     "actions": {
       "cancel": "Cancel",
       "randomize": "Randomize",
       "saveDraft": "Save Draft",
       "create": "Add New",
-      "save": "Save"
+      "save": "Save Changes",
+      "reset": "Reset",
+      "remove": "Remove",
+      "restore": "Restore"
     },
     "messages": {
       "success": "Success",
@@ -2948,7 +2953,148 @@
       "invalidMediaType": "Invalid file type. Supported: images, videos, PDF, Word documents",
       "mediaTooLarge": "File size exceeds 50MB limit",
       "mediaAdded": "{{count}} file(s) added successfully",
-      "uploadFailed": "Failed to upload files"
+      "uploadFailed": "Failed to upload files",
+      "reset": "Form Reset",
+      "resetDetail": "Form has been reset to original values",
+      "noPermission": "You don't have permission to edit this product",
+      "forbidden": "Forbidden: You don't have permission to update this product"
+    }
+  },
+  "productEdit": {
+    "title": "Edit Product",
+    "fields": {
+      "scope": {
+        "label": "Scope",
+        "placeholder": "Select scope"
+      },
+      "organizationId": {
+        "label": "Organization ID",
+        "placeholder": "Enter organization ID"
+      },
+      "sku": {
+        "label": "SKU",
+        "placeholder": "Enter product SKU",
+        "errors": {
+          "required": "SKU is required"
+        }
+      },
+      "name": {
+        "label": "Product Name",
+        "placeholder": "Enter product name",
+        "errors": {
+          "required": "Product name is required"
+        }
+      },
+      "slug": {
+        "label": "Slug",
+        "placeholder": "Auto-generated from name",
+        "hint": "URL-friendly identifier (auto-generated from name)"
+      },
+      "status": {
+        "label": "Status",
+        "placeholder": "Select status"
+      },
+      "thumbnail": {
+        "label": "Thumbnail",
+        "select": "Upload Image"
+      },
+      "internationalName": {
+        "label": "International Name",
+        "placeholder": "Enter international name"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter product description"
+      },
+      "type": {
+        "label": "Product Type",
+        "placeholder": "Select product type",
+        "errors": {
+          "required": "Product type is required"
+        }
+      },
+      "category": {
+        "label": "Category",
+        "placeholder": "Select category"
+      },
+      "unit": {
+        "label": "Unit",
+        "placeholder": "e.g., pcs, kg, box",
+        "errors": {
+          "required": "Unit is required"
+        }
+      },
+      "barcode": {
+        "label": "Barcode",
+        "placeholder": "Enter barcode"
+      },
+      "weight": {
+        "label": "Weight (kg)",
+        "placeholder": "0.00"
+      },
+      "length": {
+        "label": "Length (cm)",
+        "placeholder": "0"
+      },
+      "width": {
+        "label": "Width (cm)",
+        "placeholder": "0"
+      },
+      "height": {
+        "label": "Height (cm)",
+        "placeholder": "0"
+      },
+      "expiryDays": {
+        "label": "Expiry Days",
+        "placeholder": "Days until expiry"
+      },
+      "storageConditions": {
+        "label": "Storage Conditions",
+        "placeholder": "Enter storage conditions"
+      },
+      "media": {
+        "select": "Upload Media"
+      },
+      "readonly": "(Read-only)"
+    },
+    "tabs": {
+      "general": "General Info",
+      "media": "Images & Videos",
+      "mediaPlaceholder": "Media gallery upload feature coming soon",
+      "dimensions": "Dimensions & Weight",
+      "storage": "Storage Conditions",
+      "warehouse": "Warehouse Settings",
+      "warehousePlaceholder": "Warehouse-specific settings coming soon",
+      "custom": "Custom Fields",
+      "customPlaceholder": "Custom fields editor coming soon",
+      "mediaDescription": "Upload images, videos, or documents for this product",
+      "mediaEmpty": "No media files added yet. Click Upload Media to add files.",
+      "existing": "existing"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "reset": "Reset",
+      "saveDraft": "Save Draft",
+      "save": "Save Changes",
+      "remove": "Remove",
+      "restore": "Restore"
+    },
+    "messages": {
+      "success": "Success",
+      "updateSuccess": "Product updated successfully",
+      "error": "Error",
+      "saveFailed": "Failed to save product",
+      "validationFailed": "Please fix the validation errors",
+      "invalidFileType": "Invalid file type. Please upload a JPEG, PNG, or WebP image",
+      "fileTooLarge": "File size exceeds 5MB limit",
+      "invalidMediaType": "Invalid file type. Supported: images, videos, PDF, Word documents",
+      "mediaTooLarge": "File size exceeds 50MB limit",
+      "mediaAdded": "{{count}} file(s) added successfully",
+      "uploadFailed": "Failed to upload files",
+      "reset": "Form Reset",
+      "resetDetail": "Form has been reset to original values",
+      "noPermission": "You don't have permission to edit this product",
+      "forbidden": "Forbidden: You don't have permission to update this product"
     }
   },
   "productScope": {
