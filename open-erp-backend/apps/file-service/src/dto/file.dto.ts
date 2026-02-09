@@ -134,6 +134,13 @@ export class CreateOnlyOfficeSessionDto {
   minioKey?: string;
 
   @ApiPropertyOptional({
+    description: 'MinIO bucket name (required when using minioKey, defaults to configured bucket)',
+  })
+  @IsOptional()
+  @IsString()
+  bucket?: string;
+
+  @ApiPropertyOptional({
     description: 'Original filename (required when using minioKey)',
   })
   @IsOptional()

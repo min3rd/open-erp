@@ -38,6 +38,7 @@ export class OnlyOfficeController {
       undefined,
       dto.minioKey,
       dto.filename,
+      dto.bucket,
     );
     return ok(result);
   }

@@ -125,6 +125,7 @@ describe('OnlyOfficeService', () => {
         undefined,
         'products/org-123/prod-456/media/test.pptx',
         'test.pptx',
+        'my-bucket',
       );
 
       expect(result.editorUrl).toContain('api/documents/api.js');
@@ -134,6 +135,11 @@ describe('OnlyOfficeService', () => {
       expect(result.documentKey).toBeDefined();
       // Should not call fileRepository.findById
       expect(fileRepository.findById).not.toHaveBeenCalled();
+      // Should pass bucket to presignDownload
+      expect(minioService.presignDownload).toHaveBeenCalledWith(
+        'products/org-123/prod-456/media/test.pptx',
+        { bucket: 'my-bucket', expiresIn: 7200 },
+      );
     });
 
     it('should throw BadRequestException when neither fileId nor minioKey provided', async () => {
