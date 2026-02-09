@@ -724,9 +724,20 @@ export class ProductEdit implements OnInit {
     type: 'thumbnail' | 'media',
     organizationId?: string
   ): Promise<{ publicUrl: string; objectKey: string; bucket: string }> {
+    // Determine if we're editing an existing product (product-scoped upload)
+    const productId = this.route.snapshot.paramMap.get('id');
+
     // Get presigned URL from backend
     const presignData = await firstValueFrom(
-      this.productService.getPresignedUploadUrl(file.name, file.type, type, organizationId)
+      productId
+        ? this.productService.getProductPresignedUploadUrl(
+            productId,
+            file.name,
+            file.type,
+            type,
+            organizationId
+          )
+        : this.productService.getPresignedUploadUrl(file.name, file.type, type, organizationId)
     );
 
     if (!presignData) {
