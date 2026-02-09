@@ -668,7 +668,8 @@ export class ProductEdit implements OnInit {
           minioBucket: thumbnailUrl.bucket,
         };
       } else if (this.thumbnailMarkedForDeletion) {
-        dto.thumbnail = undefined;
+        // Explicitly send null so the backend clears the existing thumbnail
+        dto.thumbnail = null;
       }
 
       // Handle media operations
