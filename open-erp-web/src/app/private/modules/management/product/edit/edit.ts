@@ -618,11 +618,13 @@ export class ProductEdit implements OnInit {
       if (hasDimensionChanges) {
         dto.dimensions = {
           weight: formValue.weight || undefined,
-          weightUnit: 'kg',
+          // Preserve existing weight unit when present; default to 'kg' otherwise
+          weightUnit: product.dimensions?.weightUnit || 'kg',
           length: formValue.length || undefined,
           width: formValue.width || undefined,
           height: formValue.height || undefined,
-          unit: 'cm',
+          // Preserve existing dimension unit when present; default to 'cm' otherwise
+          unit: product.dimensions?.unit || 'cm',
         };
       }
 
