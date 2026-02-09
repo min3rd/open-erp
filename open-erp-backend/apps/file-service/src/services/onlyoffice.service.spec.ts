@@ -180,4 +180,51 @@ describe('OnlyOfficeService', () => {
       expect(result.error).toBe(0);
     });
   });
+
+  describe('URL rewriting for Docker', () => {
+    it('should rewrite presigned URL when ONLYOFFICE_FILE_URL_BASE is set', async () => {
+      // Create a new service instance with ONLYOFFICE_FILE_URL_BASE configured
+      const dockerConfigService = {
+        get: jest.fn().mockImplementation((key: string, defaultValue?: any) => {
+          const config: Record<string, any> = {
+            ONLYOFFICE_URL: 'http://localhost:8080',
+            ONLYOFFICE_JWT_SECRET: '',
+            ONLYOFFICE_CALLBACK_SECRET: '',
+            FILE_SERVICE_BASE_URL: 'http://localhost:3008',
+            ONLYOFFICE_FILE_URL_BASE: 'http://minio:9000',
+            MINIO_ENDPOINT: 'localhost',
+            MINIO_PORT: 9000,
+            MINIO_USE_SSL: 'false',
+          };
+          return config[key] !== undefined ? config[key] : defaultValue;
+        }),
+      };
+
+      const dockerModule = await Test.createTestingModule({
+        providers: [
+          OnlyOfficeService,
+          { provide: MinioService, useValue: minioService },
+          { provide: FileRepository, useValue: fileRepository },
+          { provide: ConfigService, useValue: dockerConfigService },
+        ],
+      }).compile();
+
+      const dockerService = dockerModule.get<OnlyOfficeService>(OnlyOfficeService);
+
+      minioService.presignDownload.mockResolvedValue({
+        url: 'http://localhost:9000/open-erp/test.docx?X-Amz-Signature=abc',
+        expiresAt: new Date(),
+      });
+
+      const result = await dockerService.createSession(
+        undefined, 'view', 'user-1', undefined,
+        'test.docx', 'test.docx', 'open-erp',
+      );
+
+      // The URL should be rewritten to use the Docker-internal MinIO address
+      expect(result.config.document.url).toBe(
+        'http://minio:9000/open-erp/test.docx?X-Amz-Signature=abc',
+      );
+    });
+  });
 });
