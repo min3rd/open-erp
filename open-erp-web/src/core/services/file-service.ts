@@ -41,6 +41,13 @@ export class FileApiService {
         `${this.baseUrl}/onlyoffice/session`,
         params
       )
-      .pipe(map((response) => response.data?.item!));
+      .pipe(
+        map((response) => {
+          if (!response.data?.item) {
+            throw new Error('Failed to create OnlyOffice session');
+          }
+          return response.data.item;
+        })
+      );
   }
 }

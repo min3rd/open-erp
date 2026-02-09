@@ -504,7 +504,9 @@ export class ProductEdit implements OnInit {
    */
   protected isOfficeFile(mediaFile: MediaFile): boolean {
     if (!mediaFile.filename) return false;
-    const ext = mediaFile.filename.substring(mediaFile.filename.lastIndexOf('.')).toLowerCase();
+    const dotIndex = mediaFile.filename.lastIndexOf('.');
+    if (dotIndex === -1) return false;
+    const ext = mediaFile.filename.substring(dotIndex).toLowerCase();
     return ['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'].includes(ext);
   }
 
