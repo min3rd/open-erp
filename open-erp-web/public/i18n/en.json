@@ -2934,11 +2934,7 @@
       "cancel": "Cancel",
       "randomize": "Randomize",
       "saveDraft": "Save Draft",
-      "create": "Add New",
-      "save": "Save Changes",
-      "reset": "Reset",
-      "remove": "Remove",
-      "restore": "Restore"
+      "create": "Add New"
     },
     "messages": {
       "success": "Success",
@@ -2953,11 +2949,7 @@
       "invalidMediaType": "Invalid file type. Supported: images, videos, PDF, Word documents",
       "mediaTooLarge": "File size exceeds 50MB limit",
       "mediaAdded": "{{count}} file(s) added successfully",
-      "uploadFailed": "Failed to upload files",
-      "reset": "Form Reset",
-      "resetDetail": "Form has been reset to original values",
-      "noPermission": "You don't have permission to edit this product",
-      "forbidden": "Forbidden: You don't have permission to update this product"
+      "uploadFailed": "Failed to upload files"
     }
   },
   "productEdit": {
