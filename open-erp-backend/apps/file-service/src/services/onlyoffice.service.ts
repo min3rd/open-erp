@@ -112,7 +112,7 @@ export class OnlyOfficeService {
       // Replace the hostname and port with OnlyOffice-accessible endpoint
       url.hostname = targetUrl.hostname;
       url.protocol = targetUrl.protocol;
-      // Set port explicitly, or clear it if target doesn't have one
+      // Set port explicitly; empty string removes port from URL (for default ports)
       url.port = targetUrl.port || '';
       
       const rewrittenUrl = url.toString();
