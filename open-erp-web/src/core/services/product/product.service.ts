@@ -83,6 +83,19 @@ export interface MediaItemDto {
 }
 
 /**
+ * Register Media DTO - matches backend RegisterMediaDto
+ */
+export interface RegisterMediaDto {
+  objectKey: string;
+  type: 'thumbnail' | 'image' | 'video' | 'document';
+  url: string;
+  filename: string;
+  contentType: string;
+  size: number;
+  title?: string;
+}
+
+/**
  * Category snapshot DTO
  */
 export interface CategorySnapshotDto {
@@ -114,9 +127,54 @@ export interface CreateProductDto {
 }
 
 /**
+ * Dimensions DTO
+ */
+export interface DimensionsDto {
+  length?: number;
+  width?: number;
+  height?: number;
+  unit: string;
+  weight?: number;
+  weightUnit: string;
+}
+
+/**
+ * Storage Conditions DTO
+ */
+export interface StorageConditionsDto {
+  temperatureMin?: number;
+  temperatureMax?: number;
+  humidityMin?: number;
+  humidityMax?: number;
+  requirements?: string[];
+  specialInstructions?: string;
+}
+
+/**
  * Update Product DTO
  */
-export type UpdateProductDto = Partial<CreateProductDto>;
+export interface UpdateProductDto {
+  name?: string;
+  slug?: string;
+  internationalName?: string;
+  description?: string;
+  barcode?: string;
+  thumbnail?: ThumbnailDto;
+  media?: MediaItemDto[];
+  type?: string;
+  category?: CategorySnapshotDto;
+  status?: ProductStatus;
+  unit?: string;
+  dimensions?: DimensionsDto;
+  storageConditions?: StorageConditionsDto;
+  hasExpiryDate?: boolean;
+  shelfLifeDays?: number;
+  minStockLevel?: number;
+  maxStockLevel?: number;
+  reorderPoint?: number;
+  reorderQuantity?: number;
+  tags?: string[];
+}
 
 /**
  * Query parameters for product list
@@ -394,7 +452,7 @@ export class ProductService {
    * Register uploaded media with product
    * POST /products/:id/media/register
    */
-  registerProductMedia(productId: string, media: MediaItemDto): Observable<Product> {
+  registerProductMedia(productId: string, media: RegisterMediaDto): Observable<Product> {
     return this.http
       .post<ApiSingleResponse<Product>>(`${this.baseUrl}/${productId}/media/register`, media)
       .pipe(map((response) => response.data?.item!));

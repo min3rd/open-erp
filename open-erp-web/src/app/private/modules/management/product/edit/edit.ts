@@ -35,12 +35,13 @@ import {
   ProductScope,
   ProductStatus,
   UpdateProductDto,
-  MediaItemDto,
+  RegisterMediaDto,
   ThumbnailDto,
 } from '../../../../../../core/services/product/product.service';
 import { ProductTypeService } from '../../../../../../core/services/product-type/product-type.service';
 import { ProductCategoryService } from '../../../../../../core/services/product-category/product-category.service';
 import { OrganizationContextService } from '../../../../../../core/services/organization-context.service';
+import { PRODUCT_STATUS_OPTIONS, PRODUCT_UNIT_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 interface SelectOption {
   label: string;
@@ -115,40 +116,9 @@ export class ProductEdit implements OnInit {
   protected newThumbnailFile: File | null = null;
   protected thumbnailMarkedForDeletion = false;
 
-  // Dropdown options
-  protected readonly statusOptions: SelectOption[] = [
-    { label: 'Draft', value: ProductStatus.DRAFT },
-    { label: 'Active', value: ProductStatus.ACTIVE },
-    { label: 'Inactive', value: ProductStatus.INACTIVE },
-    { label: 'Discontinued', value: ProductStatus.DISCONTINUED },
-  ];
-
-  // Unit options from backend enum
-  protected readonly unitOptions: SelectOption[] = [
-    { label: 'Kilogram (kg)', value: 'kg' },
-    { label: 'Gram (g)', value: 'g' },
-    { label: 'Ton', value: 'ton' },
-    { label: 'Pound (lb)', value: 'lb' },
-    { label: 'Liter', value: 'liter' },
-    { label: 'Milliliter (ml)', value: 'ml' },
-    { label: 'Cubic Meter (m³)', value: 'm3' },
-    { label: 'Gallon', value: 'gallon' },
-    { label: 'Meter (m)', value: 'meter' },
-    { label: 'Centimeter (cm)', value: 'cm' },
-    { label: 'Millimeter (mm)', value: 'mm' },
-    { label: 'Inch', value: 'inch' },
-    { label: 'Square Meter (m²)', value: 'm2' },
-    { label: 'Square Foot (sqf)', value: 'sqf' },
-    { label: 'Piece', value: 'piece' },
-    { label: 'Box', value: 'box' },
-    { label: 'Carton', value: 'carton' },
-    { label: 'Pallet', value: 'pallet' },
-    { label: 'Container', value: 'container' },
-    { label: 'Pack', value: 'pack' },
-    { label: 'Set', value: 'set' },
-    { label: 'Pair', value: 'pair' },
-    { label: 'Dozen', value: 'dozen' },
-  ];
+  // Dropdown options (imported from constants)
+  protected readonly statusOptions = PRODUCT_STATUS_OPTIONS;
+  protected readonly unitOptions = PRODUCT_UNIT_OPTIONS;
 
   protected typeOptions = signal<SelectOption[]>([]);
   protected categoryOptions = signal<CategorySelectOption[]>([]);
@@ -541,16 +511,16 @@ export class ProductEdit implements OnInit {
       if (mediaFile.file) {
         const mediaUrl = await this.uploadFile(mediaFile.file, 'media', organizationId);
         
-        // Register media with product
+        // Register media with product - use correct field names per backend DTO
         await firstValueFrom(
           this.productService.registerProductMedia(productId, {
+            objectKey: mediaUrl.objectKey,
             type: mediaFile.type,
             url: mediaUrl.publicUrl,
-            title: mediaFile.filename,
-            mimeType: mediaFile.file.type,
+            filename: mediaFile.filename,
+            contentType: mediaFile.file.type,
             size: mediaFile.file.size,
-            minioObjectKey: mediaUrl.objectKey,
-            minioBucket: mediaUrl.bucket,
+            title: mediaFile.filename,
           })
         );
       }
@@ -627,6 +597,41 @@ export class ProductEdit implements OnInit {
             name: formValue.categoryName,
             code: selectedCategory?.code,
           };
+        }
+      }
+
+      // Handle dimensions changes
+      const currentDimensions = product.metadata?.['dimensions'] || {};
+      const hasDimensionChanges = 
+        formValue.weight !== (product.metadata?.['weight'] || null) ||
+        formValue.length !== (product.metadata?.['length'] || null) ||
+        formValue.width !== (product.metadata?.['width'] || null) ||
+        formValue.height !== (product.metadata?.['height'] || null);
+
+      if (hasDimensionChanges) {
+        dto.dimensions = {
+          weight: formValue.weight || undefined,
+          weightUnit: 'kg',
+          length: formValue.length || undefined,
+          width: formValue.width || undefined,
+          height: formValue.height || undefined,
+          unit: 'cm',
+        };
+      }
+
+      // Handle storage conditions changes
+      const hasStorageChanges =
+        formValue.storageConditions !== (product.metadata?.['storageConditions'] || '') ||
+        formValue.expiryDays !== (product.metadata?.['expiryDays'] || null);
+
+      if (hasStorageChanges) {
+        dto.storageConditions = {
+          specialInstructions: formValue.storageConditions || undefined,
+        };
+        
+        if (formValue.expiryDays !== (product.metadata?.['expiryDays'] || null)) {
+          dto.shelfLifeDays = formValue.expiryDays || undefined;
+          dto.hasExpiryDate = formValue.expiryDays !== null && formValue.expiryDays > 0;
         }
       }
 
