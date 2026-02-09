@@ -74,6 +74,16 @@
     {
       "type": "node",
       "request": "launch",
+      "cwd": "${workspaceFolder}/open-erp-backend",
+      "name": "File Service (Dev)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:file:dev"],
+      "sourceMaps": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "cwd": "${workspaceFolder}/open-erp-web",
       "name": "Open ERP Web (Dev)",
       "runtimeExecutable": "npm",
