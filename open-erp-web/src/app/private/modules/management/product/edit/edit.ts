@@ -14,6 +14,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 
 // PrimeNG imports
 import { ButtonModule } from 'primeng/button';
@@ -46,6 +47,11 @@ interface SelectOption {
   value: string;
   code?: string;
   name?: string;
+}
+
+interface CategorySelectOption extends SelectOption {
+  code: string;
+  name: string;
 }
 
 interface MediaFile {
@@ -145,7 +151,7 @@ export class ProductEdit implements OnInit {
   ];
 
   protected typeOptions = signal<SelectOption[]>([]);
-  protected categoryOptions = signal<SelectOption[]>([]);
+  protected categoryOptions = signal<CategorySelectOption[]>([]);
 
   protected form!: FormGroup;
 
@@ -232,12 +238,12 @@ export class ProductEdit implements OnInit {
   private loadProductCategories(): void {
     this.productCategoryService.getProductCategories({ limit: 1000, isActive: true }).subscribe({
       next: (result) => {
-        const options: SelectOption[] = result.items.map((cat) => ({
+        const options: CategorySelectOption[] = result.items.map((cat) => ({
           label: cat.name,
           value: cat.id,
-          code: cat.code,
+          code: cat.code || '',
           name: cat.name,
-        } as any));
+        }));
         this.categoryOptions.set(options);
       },
       error: (error) => {
@@ -610,7 +616,7 @@ export class ProductEdit implements OnInit {
       const mediaToDelete = this.mediaFiles().filter((m) => m.isExisting && m.isMarkedForDeletion);
       for (const media of mediaToDelete) {
         if (media.minioObjectKey) {
-          await this.productService.deleteProductMedia(product.id, media.minioObjectKey).toPromise();
+          await firstValueFrom(this.productService.deleteProductMedia(product.id, media.minioObjectKey));
         }
       }
 
@@ -626,7 +632,7 @@ export class ProductEdit implements OnInit {
           );
           
           // Register media with product
-          await this.productService.registerProductMedia(product.id, {
+          await firstValueFrom(this.productService.registerProductMedia(product.id, {
             type: mediaFile.type,
             url: mediaUrl.publicUrl,
             title: mediaFile.filename,
@@ -634,13 +640,13 @@ export class ProductEdit implements OnInit {
             size: mediaFile.file.size,
             minioObjectKey: mediaUrl.objectKey,
             minioBucket: mediaUrl.bucket,
-          }).toPromise();
+          }));
         }
       }
 
       // Update product if there are changes
       if (Object.keys(dto).length > 0) {
-        const updated = await this.productService.updateProduct(product.id, dto).toPromise();
+        const updated = await firstValueFrom(this.productService.updateProduct(product.id, dto));
         if (updated) {
           this.product.set(updated);
           this.originalProduct.set(JSON.parse(JSON.stringify(updated)));
@@ -688,16 +694,16 @@ export class ProductEdit implements OnInit {
     organizationId?: string
   ): Promise<{ publicUrl: string; objectKey: string; bucket: string }> {
     // Get presigned URL from backend
-    const presignData = await this.productService
-      .getPresignedUploadUrl(file.name, file.type, type, organizationId)
-      .toPromise();
+    const presignData = await firstValueFrom(
+      this.productService.getPresignedUploadUrl(file.name, file.type, type, organizationId)
+    );
 
     if (!presignData) {
       throw new Error('Failed to get presigned upload URL');
     }
 
     // Upload file to MinIO using presigned URL
-    await this.productService.uploadFileToPresignedUrl(presignData.uploadUrl, file).toPromise();
+    await firstValueFrom(this.productService.uploadFileToPresignedUrl(presignData.uploadUrl, file));
 
     // Return the public URL and object info
     return {
