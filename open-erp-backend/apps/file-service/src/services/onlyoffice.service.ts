@@ -98,13 +98,15 @@ export class OnlyOfficeService {
     callbackBaseUrl?: string,
     minioKey?: string,
     filename?: string,
+    bucket?: string,
   ) {
     let key: string;
     let fname: string;
     let version = 1;
 
     if (minioKey && filename) {
-      // Direct MinIO key mode (e.g., product media files not in file-service DB)
+      // Direct MinIO key mode — access MinIO directly with bucket and objectKey,
+      // no need for DB lookup
       key = minioKey;
       fname = filename;
     } else if (fileId) {
@@ -130,7 +132,9 @@ export class OnlyOfficeService {
     }
 
     // Generate presigned URL for OnlyOffice to fetch the file
+    // Use the provided bucket or fall back to the default bucket
     const presignResult = await this.minioService.presignDownload(key, {
+      bucket,
       expiresIn: 7200, // 2 hours for editing sessions
     });
 

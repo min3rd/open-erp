@@ -527,6 +527,7 @@ export class ProductEdit implements OnInit {
       const sessionConfig = await firstValueFrom(
         this.fileApiService.createOnlyOfficeSession({
           minioKey: mediaFile.minioObjectKey,
+          bucket: mediaFile.minioBucket,
           filename: mediaFile.filename,
           mode,
         })

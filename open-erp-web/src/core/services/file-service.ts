@@ -32,6 +32,7 @@ export class FileApiService {
     params: {
       fileId?: string;
       minioKey?: string;
+      bucket?: string;
       filename?: string;
       mode?: 'view' | 'edit';
     }
