@@ -178,7 +178,7 @@ export interface UpdateProductDto {
   internationalName?: string;
   description?: string;
   barcode?: string;
-  thumbnail?: ThumbnailDto;
+  thumbnail?: ThumbnailDto | null;
   media?: MediaItemDto[];
   type?: string;
   category?: CategorySnapshotDto;
