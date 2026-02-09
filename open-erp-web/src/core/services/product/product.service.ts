@@ -398,23 +398,85 @@ export class ProductService {
   }
 
   /**
+   * Update a product by identifier (slug, SKU, or ID)
+   * PATCH /products/:identifier
+   * Resolution order: slug → sku → id
+   */
+  updateProductByIdentifier(identifier: string, dto: UpdateProductDto, organizationId?: string): Observable<Product> {
+    let httpParams = new HttpParams();
+    if (organizationId) {
+      httpParams = httpParams.set('organizationId', organizationId);
+    }
+
+    return this.http
+      .patch<ApiSingleResponse<Product>>(`${this.baseUrl}/${identifier}`, dto, { params: httpParams })
+      .pipe(map((response) => response.data?.item!));
+  }
+
+  /**
    * Update a product
    * PATCH /products/:id
+   * @deprecated Use updateProductByIdentifier instead for slug support
    */
   updateProduct(id: string, dto: UpdateProductDto): Observable<Product> {
+    return this.updateProductByIdentifier(id, dto);
+  }
+
+  /**
+   * Soft delete a product by identifier (slug, SKU, or ID)
+   * DELETE /products/:identifier
+   * Resolution order: slug → sku → id
+   */
+  deleteProductByIdentifier(identifier: string, organizationId?: string): Observable<void> {
+    let httpParams = new HttpParams();
+    if (organizationId) {
+      httpParams = httpParams.set('organizationId', organizationId);
+    }
+
     return this.http
-      .patch<ApiSingleResponse<Product>>(`${this.baseUrl}/${id}`, dto)
-      .pipe(map((response) => response.data?.item!));
+      .delete<ApiResponse<void>>(`${this.baseUrl}/${identifier}`, { params: httpParams })
+      .pipe(map(() => undefined));
   }
 
   /**
    * Soft delete a product
    * DELETE /products/:id
+   * @deprecated Use deleteProductByIdentifier instead for slug support
    */
   deleteProduct(id: string): Observable<void> {
+    return this.deleteProductByIdentifier(id);
+  }
+
+  /**
+   * Publish a product (set status to active) by identifier (slug, SKU, or ID)
+   * POST /products/:identifier/publish
+   * Resolution order: slug → sku → id
+   */
+  publishProduct(identifier: string, organizationId?: string): Observable<Product> {
+    let httpParams = new HttpParams();
+    if (organizationId) {
+      httpParams = httpParams.set('organizationId', organizationId);
+    }
+
     return this.http
-      .delete<ApiResponse<void>>(`${this.baseUrl}/${id}`)
-      .pipe(map(() => undefined));
+      .post<ApiSingleResponse<Product>>(`${this.baseUrl}/${identifier}/publish`, {}, { params: httpParams })
+      .pipe(map((response) => response.data?.item!));
+  }
+
+  /**
+   * Mark a product as inactive by identifier (slug, SKU, or ID)
+   * POST /products/:identifier/inactive
+   * Resolution order: slug → sku → id
+   */
+  markProductInactive(identifier: string, organizationId?: string): Observable<Product> {
+    let httpParams = new HttpParams();
+    if (organizationId) {
+      httpParams = httpParams.set('organizationId', organizationId);
+    }
+
+    return this.http
+      .post<ApiSingleResponse<Product>>(`${this.baseUrl}/${identifier}/inactive`, {}, { params: httpParams })
+      .pipe(map((response) => response.data?.item!));
   }
 
   /**

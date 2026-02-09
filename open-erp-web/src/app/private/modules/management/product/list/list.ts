@@ -223,7 +223,7 @@ export class ProductList implements OnInit, OnDestroy {
    * Build context menu items
    */
   private buildContextMenuItems(product: Product): MenuItem[] {
-    return [
+    const items: MenuItem[] = [
       {
         label: this.translocoService.translate('productList.contextMenu.view'),
         icon: 'pi pi-eye',
@@ -237,12 +237,44 @@ export class ProductList implements OnInit, OnDestroy {
       {
         separator: true,
       },
-      {
-        label: this.translocoService.translate('productList.contextMenu.delete'),
-        icon: 'pi pi-trash',
-        command: () => this.onDeleteProduct(product),
-      },
     ];
+
+    // Add status-based actions
+    if (product.status === ProductStatus.DRAFT || product.status === ProductStatus.INACTIVE) {
+      items.push({
+        label: this.translocoService.translate('productList.contextMenu.publish'),
+        icon: 'pi pi-check-circle',
+        command: () => this.onPublishProduct(product),
+      });
+    }
+
+    if (product.status === ProductStatus.ACTIVE) {
+      items.push({
+        label: this.translocoService.translate('productList.contextMenu.markInactive'),
+        icon: 'pi pi-ban',
+        command: () => this.onMarkInactiveProduct(product),
+      });
+    }
+
+    // Statistics action (placeholder for future implementation)
+    items.push({
+      label: this.translocoService.translate('productList.contextMenu.statistics'),
+      icon: 'pi pi-chart-bar',
+      disabled: true, // Disabled until implemented
+      command: () => this.onViewStatistics(product),
+    });
+
+    items.push({
+      separator: true,
+    });
+
+    items.push({
+      label: this.translocoService.translate('productList.contextMenu.delete'),
+      icon: 'pi pi-trash',
+      command: () => this.onDeleteProduct(product),
+    });
+
+    return items;
   }
 
   /**
@@ -518,16 +550,122 @@ export class ProductList implements OnInit, OnDestroy {
    * View product details
    */
   protected onViewProduct(product: Product): void {
-    // Navigate to detail view using SKU (relative to current route)
-    this.router.navigate([product.sku, 'view'], { relativeTo: this.route });
+    // Navigate to detail view using slug (preferred) or SKU as fallback
+    const identifier = product.slug || product.sku;
+    this.router.navigate([identifier, 'view'], { relativeTo: this.route });
   }
 
   /**
    * Edit product
    */
   protected onEditProduct(product: Product): void {
-    // Navigate to edit view using SKU (relative to current route)
-    this.router.navigate([product.sku, 'edit'], { relativeTo: this.route });
+    // Navigate to edit view using slug (preferred) or SKU as fallback
+    const identifier = product.slug || product.sku;
+    this.router.navigate([identifier, 'edit'], { relativeTo: this.route });
+  }
+
+  /**
+   * Publish product (set status to active)
+   */
+  protected onPublishProduct(product: Product): void {
+    this.confirmationService.confirm({
+      header: this.translocoService.translate('productList.publish.confirmTitle'),
+      message: this.translocoService.translate('productList.publish.confirmMessage', {
+        name: product.name,
+      }),
+      icon: 'pi pi-check-circle',
+      acceptButtonStyleClass: 'p-button-success',
+      accept: () => {
+        this.isLoading.set(true);
+        const identifier = product.slug || product.sku || product.id;
+        this.productService.publishProduct(identifier).subscribe({
+          next: (updatedProduct) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: this.translocoService.translate('productList.publish.success'),
+              detail: this.translocoService.translate('productList.publish.successDetail', {
+                name: product.name,
+              }),
+            });
+            // Update the product in the list
+            this.updateProductInList(updatedProduct);
+            this.isLoading.set(false);
+          },
+          error: (error) => {
+            this.isLoading.set(false);
+            this.messageService.add({
+              severity: 'error',
+              summary: this.translocoService.translate('productList.publish.error'),
+              detail: error.message || this.translocoService.translate('productList.publish.errorDetail'),
+            });
+          },
+        });
+      },
+    });
+  }
+
+  /**
+   * Mark product as inactive
+   */
+  protected onMarkInactiveProduct(product: Product): void {
+    this.confirmationService.confirm({
+      header: this.translocoService.translate('productList.markInactive.confirmTitle'),
+      message: this.translocoService.translate('productList.markInactive.confirmMessage', {
+        name: product.name,
+      }),
+      icon: 'pi pi-ban',
+      acceptButtonStyleClass: 'p-button-warning',
+      accept: () => {
+        this.isLoading.set(true);
+        const identifier = product.slug || product.sku || product.id;
+        this.productService.markProductInactive(identifier).subscribe({
+          next: (updatedProduct) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: this.translocoService.translate('productList.markInactive.success'),
+              detail: this.translocoService.translate('productList.markInactive.successDetail', {
+                name: product.name,
+              }),
+            });
+            // Update the product in the list
+            this.updateProductInList(updatedProduct);
+            this.isLoading.set(false);
+          },
+          error: (error) => {
+            this.isLoading.set(false);
+            this.messageService.add({
+              severity: 'error',
+              summary: this.translocoService.translate('productList.markInactive.error'),
+              detail: error.message || this.translocoService.translate('productList.markInactive.errorDetail'),
+            });
+          },
+        });
+      },
+    });
+  }
+
+  /**
+   * View product statistics (placeholder for future implementation)
+   */
+  protected onViewStatistics(product: Product): void {
+    this.messageService.add({
+      severity: 'info',
+      summary: this.translocoService.translate('productList.statistics.title'),
+      detail: this.translocoService.translate('productList.statistics.comingSoon'),
+    });
+  }
+
+  /**
+   * Update a product in the current list after an action
+   */
+  private updateProductInList(updatedProduct: Product): void {
+    const currentProducts = this.products();
+    const index = currentProducts.findIndex(p => p.id === updatedProduct.id);
+    if (index !== -1) {
+      const newProducts = [...currentProducts];
+      newProducts[index] = updatedProduct;
+      this.products.set(newProducts);
+    }
   }
 
   /**
@@ -543,7 +681,8 @@ export class ProductList implements OnInit, OnDestroy {
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
         this.isLoading.set(true);
-        this.productService.deleteProduct(product.id).subscribe({
+        const identifier = product.slug || product.sku || product.id;
+        this.productService.deleteProductByIdentifier(identifier).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',

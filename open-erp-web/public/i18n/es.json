@@ -2262,5 +2262,35 @@
       "payload": "Datos / Cambios",
       "metadata": "Metadatos"
     }
+  },
+  "productList": {
+    "contextMenu": {
+      "view": "Ver",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "publish": "Publicar",
+      "markInactive": "Marcar como inactivo",
+      "statistics": "Estadísticas"
+    },
+    "publish": {
+      "confirmTitle": "Confirmar publicación",
+      "confirmMessage": "¿Está seguro de que desea publicar el producto {{name}}? Esto establecerá su estado como activo.",
+      "success": "Producto publicado",
+      "successDetail": "El producto {{name}} ha sido publicado exitosamente",
+      "error": "Error al publicar",
+      "errorDetail": "No se pudo publicar el producto"
+    },
+    "markInactive": {
+      "confirmTitle": "Confirmar marcar como inactivo",
+      "confirmMessage": "¿Está seguro de que desea marcar el producto {{name}} como inactivo?",
+      "success": "Producto marcado como inactivo",
+      "successDetail": "El producto {{name}} ha sido marcado como inactivo",
+      "error": "Error al marcar inactivo",
+      "errorDetail": "No se pudo marcar el producto como inactivo"
+    },
+    "statistics": {
+      "title": "Estadísticas del producto",
+      "comingSoon": "La función de estadísticas del producto estará disponible pronto"
+    }
   }
 }
