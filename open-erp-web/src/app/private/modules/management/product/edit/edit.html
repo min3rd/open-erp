@@ -1,0 +1,545 @@
+<p-drawer
+  id="product-edit-drawer"
+  [(visible)]="isVisible"
+  position="right"
+  [style]="{ width: '100%', maxWidth: '800px' }"
+  (onHide)="onClose()"
+>
+  <ng-template #header>
+    <h2 id="product-edit-title">
+      {{ 'productEdit.title' | transloco }}: {{ product()?.name || '' }}
+    </h2>
+  </ng-template>
+
+  <!-- Hidden file input for thumbnail -->
+  <input
+    #thumbnailInput
+    type="file"
+    accept="image/jpeg,image/jpg,image/png,image/webp"
+    class="hidden"
+    (change)="onThumbnailSelect($event)"
+  />
+
+  <!-- Hidden file input for media -->
+  <input
+    #mediaInput
+    type="file"
+    accept="image/*,video/*,.pdf,.doc,.docx"
+    multiple
+    class="hidden"
+    (change)="onMediaSelect($event)"
+  />
+
+  <div id="product-edit-content" class="flex flex-col h-full">
+    <!-- Header Section (Fixed) -->
+    <div class="p-4 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800">
+      <form [formGroup]="form" class="space-y-3">
+        <!-- Read-only fields -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <!-- SKU (Read-only) -->
+          <div>
+            <label for="product-edit-sku" class="block text-sm font-medium mb-1">
+              {{ 'productEdit.fields.sku.label' | transloco }}
+              <span class="text-xs text-surface-500 ml-1">{{ 'productEdit.fields.readonly' | transloco }}</span>
+            </label>
+            <input
+              id="product-edit-sku"
+              type="text"
+              pInputText
+              formControlName="sku"
+              class="w-full bg-surface-100 dark:bg-surface-700"
+              readonly
+            />
+          </div>
+
+          <!-- Status -->
+          <div>
+            <label for="product-edit-status" class="block text-sm font-medium mb-1">
+              {{ 'productEdit.fields.status.label' | transloco }}
+              <span class="text-red-500">*</span>
+            </label>
+            <p-select
+              id="product-edit-status"
+              formControlName="status"
+              [options]="statusOptions"
+              optionLabel="label"
+              optionValue="value"
+              [placeholder]="'productEdit.fields.status.placeholder' | transloco"
+              styleClass="w-full"
+            >
+              <ng-template let-option #item>
+                {{ 'productStatus.' + option.value | transloco }}
+              </ng-template>
+              <ng-template let-option #selectedItem>
+                {{ 'productStatus.' + option.value | transloco }}
+              </ng-template>
+            </p-select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <!-- Scope (Read-only) -->
+          <div>
+            <label for="product-edit-scope" class="block text-sm font-medium mb-1">
+              {{ 'productEdit.fields.scope.label' | transloco }}
+              <span class="text-xs text-surface-500 ml-1">{{ 'productEdit.fields.readonly' | transloco }}</span>
+            </label>
+            <input
+              id="product-edit-scope"
+              type="text"
+              pInputText
+              formControlName="scope"
+              class="w-full bg-surface-100 dark:bg-surface-700"
+              readonly
+            />
+          </div>
+
+          <!-- Barcode (Read-only) -->
+          <div>
+            <label for="product-edit-barcode" class="block text-sm font-medium mb-1">
+              {{ 'productEdit.fields.barcode.label' | transloco }}
+              <span class="text-xs text-surface-500 ml-1">{{ 'productEdit.fields.readonly' | transloco }}</span>
+            </label>
+            <input
+              id="product-edit-barcode"
+              type="text"
+              pInputText
+              formControlName="barcode"
+              class="w-full bg-surface-100 dark:bg-surface-700"
+              readonly
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3">
+          <!-- Name -->
+          <div>
+            <label for="product-edit-name" class="block text-sm font-medium mb-1">
+              {{ 'productEdit.fields.name.label' | transloco }}
+              <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="product-edit-name"
+              type="text"
+              pInputText
+              formControlName="name"
+              [placeholder]="'productEdit.fields.name.placeholder' | transloco"
+              class="w-full"
+            />
+            @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
+            <small class="text-red-500">{{ 'productEdit.fields.name.errors.required' | transloco }}</small>
+            }
+          </div>
+
+          <!-- Slug (Read-only) -->
+          <div>
+            <label for="product-edit-slug" class="block text-sm font-medium mb-1">
+              {{ 'productEdit.fields.slug.label' | transloco }}
+              <span class="text-xs text-surface-500 ml-1">{{ 'productEdit.fields.readonly' | transloco }}</span>
+            </label>
+            <input
+              id="product-edit-slug"
+              type="text"
+              pInputText
+              formControlName="slug"
+              class="w-full bg-surface-100 dark:bg-surface-700"
+              readonly
+            />
+          </div>
+        </div>
+
+        <!-- Thumbnail -->
+        <div>
+          <label class="block text-sm font-medium mb-1">
+            {{ 'productEdit.fields.thumbnail.label' | transloco }}
+          </label>
+          <div class="flex gap-2 items-center">
+            @if (thumbnailPreview()) {
+            <div class="relative">
+              <img
+                [src]="thumbnailPreview()"
+                alt="Thumbnail preview"
+                class="w-16 h-16 object-cover rounded border border-surface-200 dark:border-surface-700"
+              />
+              <button
+                type="button"
+                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                (click)="onClearThumbnail()"
+              >
+                ×
+              </button>
+            </div>
+            }
+            <p-button
+              [label]="'productEdit.fields.thumbnail.select' | transloco"
+              icon="pi pi-upload"
+              size="small"
+              severity="secondary"
+              [outlined]="true"
+              (onClick)="onSelectThumbnail()"
+            />
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Body Section (Scrollable with Tabs) -->
+    <div class="flex-1 overflow-y-auto p-4">
+      <form [formGroup]="form">
+        <p-tabs [(value)]="activeTabIndex">
+          <p-tablist>
+            <p-tab [value]="0">{{ 'productEdit.tabs.general' | transloco }}</p-tab>
+            <p-tab [value]="1">{{ 'productEdit.tabs.media' | transloco }}</p-tab>
+            <p-tab [value]="2">{{ 'productEdit.tabs.dimensions' | transloco }}</p-tab>
+            <p-tab [value]="3">{{ 'productEdit.tabs.storage' | transloco }}</p-tab>
+            <p-tab [value]="4">{{ 'productEdit.tabs.warehouse' | transloco }}</p-tab>
+            <p-tab [value]="5">{{ 'productEdit.tabs.custom' | transloco }}</p-tab>
+          </p-tablist>
+
+          <p-tabpanels>
+            <!-- General Info Tab Panel -->
+            <p-tabpanel [value]="0">
+              <div class="space-y-3 py-2">
+                <!-- International Name -->
+                <div>
+                  <label for="product-edit-intl-name" class="block text-sm font-medium mb-1">
+                    {{ 'productEdit.fields.internationalName.label' | transloco }}
+                  </label>
+                  <input
+                    id="product-edit-intl-name"
+                    type="text"
+                    pInputText
+                    formControlName="internationalName"
+                    [placeholder]="'productEdit.fields.internationalName.placeholder' | transloco"
+                    class="w-full"
+                  />
+                </div>
+
+                <!-- Description -->
+                <div>
+                  <label for="product-edit-description" class="block text-sm font-medium mb-1">
+                    {{ 'productEdit.fields.description.label' | transloco }}
+                  </label>
+                  <textarea
+                    id="product-edit-description"
+                    pTextarea
+                    formControlName="description"
+                    [placeholder]="'productEdit.fields.description.placeholder' | transloco"
+                    rows="4"
+                    class="w-full"
+                  ></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <!-- Type -->
+                  <div>
+                    <label for="product-edit-type" class="block text-sm font-medium mb-1">
+                      {{ 'productEdit.fields.type.label' | transloco }}
+                      <span class="text-red-500">*</span>
+                    </label>
+                    <p-select
+                      id="product-edit-type"
+                      formControlName="type"
+                      [options]="typeOptions()"
+                      optionLabel="label"
+                      optionValue="value"
+                      [placeholder]="'productEdit.fields.type.placeholder' | transloco"
+                      styleClass="w-full"
+                    />
+                    @if (form.get('type')?.touched && form.get('type')?.hasError('required')) {
+                    <small class="text-red-500">{{ 'productEdit.fields.type.errors.required' | transloco }}</small>
+                    }
+                  </div>
+
+                  <!-- Category -->
+                  <div>
+                    <label for="product-edit-category" class="block text-sm font-medium mb-1">
+                      {{ 'productEdit.fields.category.label' | transloco }}
+                    </label>
+                    <p-select
+                      id="product-edit-category"
+                      formControlName="categoryId"
+                      [options]="categoryOptions()"
+                      optionLabel="label"
+                      optionValue="value"
+                      [placeholder]="'productEdit.fields.category.placeholder' | transloco"
+                      styleClass="w-full"
+                    />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-3">
+                  <!-- Unit -->
+                  <div>
+                    <label for="product-edit-unit" class="block text-sm font-medium mb-1">
+                      {{ 'productEdit.fields.unit.label' | transloco }}
+                      <span class="text-red-500">*</span>
+                    </label>
+                    <p-select
+                      id="product-edit-unit"
+                      formControlName="unit"
+                      [options]="unitOptions"
+                      optionLabel="label"
+                      optionValue="value"
+                      [placeholder]="'productEdit.fields.unit.placeholder' | transloco"
+                      styleClass="w-full"
+                      [filter]="true"
+                    />
+                    @if (form.get('unit')?.touched && form.get('unit')?.hasError('required')) {
+                    <small class="text-red-500">{{ 'productEdit.fields.unit.errors.required' | transloco }}</small>
+                    }
+                  </div>
+                </div>
+              </div>
+            </p-tabpanel>
+
+            <!-- Media Tab Panel -->
+            <p-tabpanel [value]="1">
+              <div class="py-2 space-y-3">
+                <div class="flex justify-between items-center">
+                  <p class="text-sm font-medium">
+                    {{ 'productEdit.tabs.mediaDescription' | transloco }}
+                  </p>
+                  <p-button
+                    [label]="'productEdit.fields.media.select' | transloco"
+                    icon="pi pi-upload"
+                    size="small"
+                    severity="secondary"
+                    (onClick)="onSelectMedia()"
+                  />
+                </div>
+
+                @if (mediaFiles().length > 0) {
+                <div class="space-y-2">
+                  @for (file of mediaFiles(); track $index) {
+                  <div
+                    class="flex items-center gap-3 p-2 rounded border"
+                    [class.bg-surface-50]="!file.isMarkedForDeletion"
+                    [class.dark:bg-surface-800]="!file.isMarkedForDeletion"
+                    [class.border-surface-200]="!file.isMarkedForDeletion"
+                    [class.dark:border-surface-700]="!file.isMarkedForDeletion"
+                    [class.bg-red-50]="file.isMarkedForDeletion"
+                    [class.dark:bg-red-900/20]="file.isMarkedForDeletion"
+                    [class.border-red-200]="file.isMarkedForDeletion"
+                    [class.dark:border-red-700]="file.isMarkedForDeletion"
+                    [class.opacity-50]="file.isMarkedForDeletion"
+                  >
+                    @if (file.type === 'image') {
+                    <img
+                      [src]="file.url"
+                      alt="Media preview"
+                      class="w-12 h-12 object-cover rounded"
+                    />
+                    } @else {
+                    <i [class]="'pi ' + getFileIcon(file) + ' text-2xl text-primary'"></i>
+                    }
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium truncate">
+                        {{ file.filename }}
+                        @if (file.isExisting) {
+                        <span class="text-xs text-surface-500 ml-1">({{ 'productEdit.tabs.existing' | transloco }})</span>
+                        }
+                      </p>
+                      @if (file.size) {
+                      <p class="text-xs text-surface-500">
+                        {{ (file.size / 1024 / 1024).toFixed(2) }} MB
+                      </p>
+                      }
+                      @if (file.uploadedAt) {
+                      <p class="text-xs text-surface-500">
+                        {{ file.uploadedAt | date: 'short' }}
+                      </p>
+                      }
+                    </div>
+                    @if (file.isMarkedForDeletion) {
+                    <p-button
+                      icon="pi pi-undo"
+                      [rounded]="true"
+                      [text]="true"
+                      size="small"
+                      severity="info"
+                      (onClick)="onRestoreMedia($index)"
+                      [pTooltip]="'productEdit.actions.restore' | transloco"
+                    />
+                    } @else {
+                    <p-button
+                      icon="pi pi-times"
+                      [rounded]="true"
+                      [text]="true"
+                      size="small"
+                      severity="danger"
+                      (onClick)="onRemoveMedia($index)"
+                      [pTooltip]="'productEdit.actions.remove' | transloco"
+                    />
+                    }
+                  </div>
+                  }
+                </div>
+                } @else {
+                <div class="text-center py-8 border-2 border-dashed border-surface-200 dark:border-surface-700 rounded">
+                  <i class="pi pi-cloud-upload text-4xl text-surface-400 mb-2"></i>
+                  <p class="text-surface-500 dark:text-surface-400">
+                    {{ 'productEdit.tabs.mediaEmpty' | transloco }}
+                  </p>
+                </div>
+                }
+              </div>
+            </p-tabpanel>
+
+            <!-- Dimensions Tab Panel -->
+            <p-tabpanel [value]="2">
+              <div class="space-y-3 py-2">
+                <div class="grid grid-cols-2 gap-3">
+                  <!-- Weight -->
+                  <div>
+                    <label for="product-edit-weight" class="block text-sm font-medium mb-1">
+                      {{ 'productEdit.fields.weight.label' | transloco }}
+                    </label>
+                    <p-inputNumber
+                      id="product-edit-weight"
+                      formControlName="weight"
+                      mode="decimal"
+                      [minFractionDigits]="2"
+                      [maxFractionDigits]="2"
+                      [placeholder]="'productEdit.fields.weight.placeholder' | transloco"
+                      styleClass="w-full"
+                    />
+                  </div>
+
+                  <!-- Expiry Days -->
+                  <div>
+                    <label for="product-edit-expiry" class="block text-sm font-medium mb-1">
+                      {{ 'productEdit.fields.expiryDays.label' | transloco }}
+                    </label>
+                    <p-inputNumber
+                      id="product-edit-expiry"
+                      formControlName="expiryDays"
+                      [placeholder]="'productEdit.fields.expiryDays.placeholder' | transloco"
+                      styleClass="w-full"
+                    />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                  <!-- Length -->
+                  <div>
+                    <label for="product-edit-length" class="block text-sm font-medium mb-1">
+                      {{ 'productEdit.fields.length.label' | transloco }}
+                    </label>
+                    <p-inputNumber
+                      id="product-edit-length"
+                      formControlName="length"
+                      [placeholder]="'productEdit.fields.length.placeholder' | transloco"
+                      styleClass="w-full"
+                    />
+                  </div>
+
+                  <!-- Width -->
+                  <div>
+                    <label for="product-edit-width" class="block text-sm font-medium mb-1">
+                      {{ 'productEdit.fields.width.label' | transloco }}
+                    </label>
+                    <p-inputNumber
+                      id="product-edit-width"
+                      formControlName="width"
+                      [placeholder]="'productEdit.fields.width.placeholder' | transloco"
+                      styleClass="w-full"
+                    />
+                  </div>
+
+                  <!-- Height -->
+                  <div>
+                    <label for="product-edit-height" class="block text-sm font-medium mb-1">
+                      {{ 'productEdit.fields.height.label' | transloco }}
+                    </label>
+                    <p-inputNumber
+                      id="product-edit-height"
+                      formControlName="height"
+                      [placeholder]="'productEdit.fields.height.placeholder' | transloco"
+                      styleClass="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </p-tabpanel>
+
+            <!-- Storage Conditions Tab Panel -->
+            <p-tabpanel [value]="3">
+              <div class="space-y-3 py-2">
+                <!-- Storage Conditions -->
+                <div>
+                  <label for="product-edit-storage" class="block text-sm font-medium mb-1">
+                    {{ 'productEdit.fields.storageConditions.label' | transloco }}
+                  </label>
+                  <textarea
+                    id="product-edit-storage"
+                    pTextarea
+                    formControlName="storageConditions"
+                    [placeholder]="'productEdit.fields.storageConditions.placeholder' | transloco"
+                    rows="4"
+                    class="w-full"
+                  ></textarea>
+                </div>
+              </div>
+            </p-tabpanel>
+
+            <!-- Warehouse Settings Tab Panel -->
+            <p-tabpanel [value]="4">
+              <div class="py-2">
+                <p class="text-sm text-surface-500 dark:text-surface-400">
+                  {{ 'productEdit.tabs.warehousePlaceholder' | transloco }}
+                </p>
+              </div>
+            </p-tabpanel>
+
+            <!-- Custom Fields Tab Panel -->
+            <p-tabpanel [value]="5">
+              <div class="py-2">
+                <p class="text-sm text-surface-500 dark:text-surface-400">
+                  {{ 'productEdit.tabs.customPlaceholder' | transloco }}
+                </p>
+              </div>
+            </p-tabpanel>
+          </p-tabpanels>
+        </p-tabs>
+      </form>
+    </div>
+
+    <!-- Footer Section (Fixed) -->
+    <div class="p-4 border-t border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800">
+      <div class="flex flex-wrap gap-2 justify-end">
+        <p-button
+          [label]="'productEdit.actions.cancel' | transloco"
+          icon="pi pi-times"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="onClose()"
+          [disabled]="isLoading()"
+        />
+        <p-button
+          [label]="'productEdit.actions.reset' | transloco"
+          icon="pi pi-refresh"
+          severity="secondary"
+          (onClick)="onReset()"
+          [disabled]="isLoading()"
+        />
+        <p-button
+          [label]="'productEdit.actions.saveDraft' | transloco"
+          icon="pi pi-save"
+          severity="secondary"
+          (onClick)="onSaveDraft()"
+          [loading]="isLoading()"
+          [disabled]="!canEdit()"
+        />
+        <p-button
+          [label]="'productEdit.actions.save' | transloco"
+          icon="pi pi-check"
+          severity="primary"
+          (onClick)="onSave()"
+          [loading]="isLoading()"
+          [disabled]="!canEdit()"
+        />
+      </div>
+    </div>
+  </div>
+</p-drawer>

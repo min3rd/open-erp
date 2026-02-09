@@ -3,6 +3,7 @@ import { Product } from './product';
 import { ProductList } from './list/list';
 import { ProductForm } from './form/form';
 import { ProductDetail } from './detail/detail';
+import { ProductEdit } from './edit/edit';
 import { productListResolver } from './resolvers/product-list.resolver';
 import { productDetailResolver } from './resolvers/product-detail.resolver';
 
@@ -108,7 +109,7 @@ export const routes: Routes = [
                                       },
                                       {
                                         path: 'edit',
-                                        component: ProductForm,
+                                        component: ProductEdit,
                                       },
                                     ],
                                   },

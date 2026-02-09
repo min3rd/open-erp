@@ -389,4 +389,25 @@ export class ProductService {
       .post<ApiSingleResponse<ImportResult>>(`${this.baseUrl}/import/csv`, formData)
       .pipe(map((response) => response.data?.item!));
   }
+
+  /**
+   * Register uploaded media with product
+   * POST /products/:id/media/register
+   */
+  registerProductMedia(productId: string, media: MediaItemDto): Observable<Product> {
+    return this.http
+      .post<ApiSingleResponse<Product>>(`${this.baseUrl}/${productId}/media/register`, media)
+      .pipe(map((response) => response.data?.item!));
+  }
+
+  /**
+   * Delete product media
+   * DELETE /products/:id/media?objectKey=...
+   */
+  deleteProductMedia(productId: string, objectKey: string): Observable<Product> {
+    const httpParams = new HttpParams().set('objectKey', objectKey);
+    return this.http
+      .delete<ApiSingleResponse<Product>>(`${this.baseUrl}/${productId}/media`, { params: httpParams })
+      .pipe(map((response) => response.data?.item!));
+  }
 }
