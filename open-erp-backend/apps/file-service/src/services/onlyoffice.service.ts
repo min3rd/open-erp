@@ -28,6 +28,14 @@ export class OnlyOfficeService {
   private readonly onlyOfficeUrl: string;
   private readonly jwtSecret: string;
   private readonly callbackSecret: string;
+  /**
+   * When OnlyOffice Document Server runs inside Docker it cannot reach the
+   * MinIO presigned URL at `localhost:9000`.  Set ONLYOFFICE_FILE_URL_BASE
+   * (e.g. `http://minio:9000`) so the service rewrites the host portion of
+   * presigned URLs before handing them to OnlyOffice.
+   */
+  private readonly fileUrlBase: string;
+  private readonly minioExternalBase: string;
 
   constructor(
     private readonly configService: ConfigService,
@@ -46,6 +54,30 @@ export class OnlyOfficeService {
       'ONLYOFFICE_CALLBACK_SECRET',
       '',
     );
+    // URL base that OnlyOffice uses to reach MinIO (e.g. http://minio:9000)
+    this.fileUrlBase = this.configService.get<string>(
+      'ONLYOFFICE_FILE_URL_BASE',
+      '',
+    );
+    // External MinIO base that appears in presigned URLs (e.g. http://localhost:9000)
+    const minioEndpoint = this.configService.get<string>('MINIO_ENDPOINT', 'localhost');
+    const minioPort = this.configService.get<number>('MINIO_PORT', 9000);
+    const minioSsl = this.configService.get<string>('MINIO_USE_SSL', 'false') === 'true';
+    this.minioExternalBase = `${minioSsl ? 'https' : 'http'}://${minioEndpoint}:${minioPort}`;
+  }
+
+  /**
+   * Rewrite a presigned MinIO URL so OnlyOffice Document Server (possibly
+   * running inside Docker) can reach MinIO.
+   *
+   * When ONLYOFFICE_FILE_URL_BASE is set (e.g. `http://minio:9000`), the
+   * method replaces the external MinIO host+port (`http://localhost:9000`)
+   * with the Docker-internal address.  When the env var is empty the URL is
+   * returned unchanged.
+   */
+  private rewriteUrlForOnlyOffice(presignedUrl: string): string {
+    if (!this.fileUrlBase) return presignedUrl;
+    return presignedUrl.replace(this.minioExternalBase, this.fileUrlBase);
   }
 
   /**
@@ -154,12 +186,14 @@ export class OnlyOfficeService {
     const callbackUrl = `${baseUrl}/v1/onlyoffice/callback`;
 
     // Build editor config
+    // Rewrite the presigned URL so OnlyOffice (possibly in Docker) can reach MinIO
+    const fileUrl = this.rewriteUrlForOnlyOffice(presignResult.url);
     const editorConfig: Record<string, any> = {
       document: {
         fileType: ext.replace('.', ''),
         key: documentKey,
         title: fname,
-        url: presignResult.url,
+        url: fileUrl,
       },
       documentType,
       editorConfig: {

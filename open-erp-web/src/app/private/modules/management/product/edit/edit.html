@@ -566,56 +566,23 @@
   </div>
 </p-drawer>
 
-<!-- OnlyOffice Editor — Fullscreen Dialog -->
-@if (showOnlyOfficeEditor() && onlyOfficeConfig() && onlyOfficeViewMode() === 'fullscreen') {
-<p-dialog
-  [(visible)]="showOnlyOfficeEditor"
-  [modal]="true"
-  [maximizable]="true"
-  [closable]="true"
-  [draggable]="false"
-  (onHide)="onCloseOnlyOffice()"
-  [breakpoints]="{ '960px': '100vw' }"
-  styleClass="w-[95vw] h-[95vh]"
->
-  <ng-template #header>
-    <div class="flex items-center gap-2 w-full">
-      <span class="font-semibold">{{ onlyOfficeConfig()?.config?.['document']?.['title'] || ('productEdit.onlyOffice.title' | transloco) }}</span>
-      <div class="ml-auto flex gap-1">
-        <p-button icon="pi pi-window-maximize" [rounded]="true" [text]="true" size="small" severity="secondary"
-          [pTooltip]="'productEdit.onlyOffice.fullscreen' | transloco" [disabled]="true" />
-        <p-button icon="pi pi-clone" [rounded]="true" [text]="true" size="small" severity="secondary"
-          (onClick)="onSwitchOnlyOfficeMode('attached')"
-          [pTooltip]="'productEdit.onlyOffice.attached' | transloco" />
-        <p-button icon="pi pi-external-link" [rounded]="true" [text]="true" size="small" severity="secondary"
-          (onClick)="onSwitchOnlyOfficeMode('detached')"
-          [pTooltip]="'productEdit.onlyOffice.detached' | transloco" />
-      </div>
-    </div>
-  </ng-template>
-  <div class="w-full h-full">
-    <div id="onlyoffice-editor-container" class="w-full h-full min-h-96"></div>
-  </div>
-</p-dialog>
-}
-
-<!-- OnlyOffice Editor — Attached Drawer -->
-@if (showOnlyOfficeEditor() && onlyOfficeConfig() && onlyOfficeViewMode() === 'attached') {
+<!-- OnlyOffice Editor — Drawer (default: 2/3 desktop, full mobile) -->
+@if (showOnlyOfficeEditor() && onlyOfficeConfig() && onlyOfficeViewMode() === 'drawer') {
 <p-drawer
   [(visible)]="showOnlyOfficeEditor"
   position="right"
-  styleClass="w-full max-w-5xl"
+  styleClass="w-full lg:w-2/3"
   (onHide)="onCloseOnlyOffice()"
 >
   <ng-template #header>
     <div class="flex items-center gap-2 w-full">
-      <span class="font-semibold">{{ onlyOfficeConfig()?.config?.['document']?.['title'] || ('productEdit.onlyOffice.title' | transloco) }}</span>
+      <span class="font-semibold truncate">{{ onlyOfficeConfig()?.config?.['document']?.['title'] || ('productEdit.onlyOffice.title' | transloco) }}</span>
       <div class="ml-auto flex gap-1">
+        <p-button icon="pi pi-sidebar" [rounded]="true" [text]="true" size="small" severity="secondary"
+          [pTooltip]="'productEdit.onlyOffice.drawer' | transloco" [disabled]="true" />
         <p-button icon="pi pi-window-maximize" [rounded]="true" [text]="true" size="small" severity="secondary"
           (onClick)="onSwitchOnlyOfficeMode('fullscreen')"
           [pTooltip]="'productEdit.onlyOffice.fullscreen' | transloco" />
-        <p-button icon="pi pi-clone" [rounded]="true" [text]="true" size="small" severity="secondary"
-          [pTooltip]="'productEdit.onlyOffice.attached' | transloco" [disabled]="true" />
         <p-button icon="pi pi-external-link" [rounded]="true" [text]="true" size="small" severity="secondary"
           (onClick)="onSwitchOnlyOfficeMode('detached')"
           [pTooltip]="'productEdit.onlyOffice.detached' | transloco" />
@@ -636,4 +603,37 @@
     </div>
   </div>
 </p-drawer>
+}
+
+<!-- OnlyOffice Editor — Fullscreen Dialog -->
+@if (showOnlyOfficeEditor() && onlyOfficeConfig() && onlyOfficeViewMode() === 'fullscreen') {
+<p-dialog
+  [(visible)]="showOnlyOfficeEditor"
+  [modal]="true"
+  [maximizable]="true"
+  [closable]="true"
+  [draggable]="false"
+  (onHide)="onCloseOnlyOffice()"
+  [breakpoints]="{ '960px': '100vw' }"
+  styleClass="w-[95vw] h-[95vh]"
+>
+  <ng-template #header>
+    <div class="flex items-center gap-2 w-full">
+      <span class="font-semibold truncate">{{ onlyOfficeConfig()?.config?.['document']?.['title'] || ('productEdit.onlyOffice.title' | transloco) }}</span>
+      <div class="ml-auto flex gap-1">
+        <p-button icon="pi pi-sidebar" [rounded]="true" [text]="true" size="small" severity="secondary"
+          (onClick)="onSwitchOnlyOfficeMode('drawer')"
+          [pTooltip]="'productEdit.onlyOffice.drawer' | transloco" />
+        <p-button icon="pi pi-window-maximize" [rounded]="true" [text]="true" size="small" severity="secondary"
+          [pTooltip]="'productEdit.onlyOffice.fullscreen' | transloco" [disabled]="true" />
+        <p-button icon="pi pi-external-link" [rounded]="true" [text]="true" size="small" severity="secondary"
+          (onClick)="onSwitchOnlyOfficeMode('detached')"
+          [pTooltip]="'productEdit.onlyOffice.detached' | transloco" />
+      </div>
+    </div>
+  </ng-template>
+  <div class="w-full h-full">
+    <div id="onlyoffice-editor-container" class="w-full h-full min-h-96"></div>
+  </div>
+</p-dialog>
 }

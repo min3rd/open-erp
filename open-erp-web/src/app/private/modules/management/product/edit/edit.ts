@@ -126,8 +126,8 @@ export class ProductEdit implements OnInit, OnDestroy {
   // OnlyOffice state
   protected readonly onlyOfficeConfig = signal<OnlyOfficeSessionConfig | null>(null);
   protected readonly showOnlyOfficeEditor = signal(false);
-  /** 'fullscreen' = maximized dialog, 'attached' = drawer panel, 'detached' = new browser window */
-  protected readonly onlyOfficeViewMode = signal<'fullscreen' | 'attached' | 'detached'>('fullscreen');
+  /** 'drawer' = side panel (default), 'fullscreen' = maximized dialog, 'detached' = new browser tab */
+  protected readonly onlyOfficeViewMode = signal<'drawer' | 'fullscreen' | 'detached'>('drawer');
   private onlyOfficeEditorInstance: any = null;
   private onlyOfficeScriptLoaded = false;
   private detachedWindow: Window | null = null;
@@ -564,7 +564,7 @@ export class ProductEdit implements OnInit, OnDestroy {
   /**
    * Switch OnlyOffice view mode
    */
-  protected onSwitchOnlyOfficeMode(mode: 'fullscreen' | 'attached' | 'detached'): void {
+  protected onSwitchOnlyOfficeMode(mode: 'drawer' | 'fullscreen' | 'detached'): void {
     const config = this.onlyOfficeConfig();
     if (!config) return;
 

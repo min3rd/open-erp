@@ -3123,9 +3123,9 @@
       "loadingEditor": "Loading OnlyOffice editor...",
       "close": "Close Editor",
       "fullscreen": "Fullscreen",
-      "attached": "Attached panel",
-      "detached": "Open in new window",
-      "popupBlocked": "Popup blocked. Please allow popups for this site."
+      "detached": "Open in new tab",
+      "popupBlocked": "Popup blocked. Please allow popups for this site.",
+      "drawer": "Side panel"
     }
   }
 }
