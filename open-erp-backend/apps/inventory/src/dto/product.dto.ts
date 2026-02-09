@@ -31,7 +31,7 @@ export class MediaItemDto {
   type: string;
 
   @ApiProperty({ example: 'https://example.com/image.jpg' })
-  @IsUrl({ require_tld: false })  // Allow localhost URLs for development
+  @IsUrl({ require_tld: false }) // Allow localhost URLs for development
   url: string;
 
   @ApiPropertyOptional({ example: 'Product front view' })
@@ -79,7 +79,7 @@ export class MediaItemDto {
 
 export class ThumbnailDto {
   @ApiProperty({ example: 'https://example.com/thumbnail.jpg' })
-  @IsUrl({ require_tld: false })  // Allow localhost URLs for development
+  @IsUrl({ require_tld: false }) // Allow localhost URLs for development
   url: string;
 
   @ApiPropertyOptional({ example: 'thumbnail.jpg' })
@@ -233,9 +233,9 @@ export class CreateProductDto {
   @MaxLength(200)
   name: string;
 
-  @ApiPropertyOptional({ 
-    example: 'product-name', 
-    description: 'URL-friendly slug (auto-generated from name if not provided)' 
+  @ApiPropertyOptional({
+    example: 'product-name',
+    description: 'URL-friendly slug (auto-generated from name if not provided)',
   })
   @IsOptional()
   @IsString()
@@ -260,7 +260,10 @@ export class CreateProductDto {
   @IsString()
   barcode?: string;
 
-  @ApiPropertyOptional({ type: ThumbnailDto, description: 'Product thumbnail image' })
+  @ApiPropertyOptional({
+    type: ThumbnailDto,
+    description: 'Product thumbnail image',
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => ThumbnailDto)
@@ -372,7 +375,10 @@ export class CreateProductDto {
   @IsString({ each: true })
   tags?: string[];
 
-  @ApiPropertyOptional({ description: 'User ID who created the product (auto-populated from auth context if not provided)' })
+  @ApiPropertyOptional({
+    description:
+      'User ID who created the product (auto-populated from auth context if not provided)',
+  })
   @IsOptional()
   @IsMongoId()
   createdBy?: string;
@@ -386,9 +392,9 @@ export class UpdateProductDto {
   @MaxLength(200)
   name?: string;
 
-  @ApiPropertyOptional({ 
-    example: 'product-name', 
-    description: 'URL-friendly slug' 
+  @ApiPropertyOptional({
+    example: 'product-name',
+    description: 'URL-friendly slug',
   })
   @IsOptional()
   @IsString()
@@ -413,7 +419,10 @@ export class UpdateProductDto {
   @IsString()
   barcode?: string;
 
-  @ApiPropertyOptional({ type: ThumbnailDto, description: 'Product thumbnail image' })
+  @ApiPropertyOptional({
+    type: ThumbnailDto,
+    description: 'Product thumbnail image',
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => ThumbnailDto)
@@ -519,6 +528,7 @@ export class UpdateProductDto {
 
   @ApiProperty({ description: 'User ID who updated the product' })
   @IsMongoId()
+  @IsOptional()
   updatedBy: string;
 
   @ApiPropertyOptional({ example: 'Updated pricing information' })
@@ -529,16 +539,23 @@ export class UpdateProductDto {
 }
 
 export class RegisterMediaDto {
-  @ApiProperty({ example: 'products/org-123/prod-456/media/1234567890-image.jpg' })
+  @ApiProperty({
+    example: 'products/org-123/prod-456/media/1234567890-image.jpg',
+  })
   @IsString()
   objectKey: string;
 
-  @ApiProperty({ enum: ['thumbnail', 'image', 'video', 'document'], example: 'image' })
+  @ApiProperty({
+    enum: ['thumbnail', 'image', 'video', 'document'],
+    example: 'image',
+  })
   @IsEnum(['thumbnail', 'image', 'video', 'document'])
   type: 'thumbnail' | 'image' | 'video' | 'document';
 
   @ApiProperty({ example: 'https://minio.example.com/...' })
-  @IsUrl()
+  @IsUrl({
+    require_tld: false, // Allow localhost URLs for development
+  })
   url: string;
 
   @ApiProperty({ example: 'product-image.jpg' })
