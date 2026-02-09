@@ -3,11 +3,15 @@ import {
   Component,
   inject,
   OnInit,
+  OnDestroy,
   signal,
   ViewChild,
   ElementRef,
   DestroyRef,
   computed,
+  effect,
+  Renderer2,
+  DOCUMENT,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -20,6 +24,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { DrawerModule } from 'primeng/drawer';
+import { DialogModule } from 'primeng/dialog';
 import { Select } from 'primeng/select';
 import { MessageService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
@@ -76,6 +81,7 @@ interface MediaFile {
     InputTextModule,
     TextareaModule,
     DrawerModule,
+    DialogModule,
     Select,
     DividerModule,
     TooltipModule,
@@ -85,7 +91,7 @@ interface MediaFile {
   templateUrl: './edit.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProductEdit implements OnInit {
+export class ProductEdit implements OnInit, OnDestroy {
   @ViewChild('thumbnailInput') thumbnailInput?: ElementRef<HTMLInputElement>;
   @ViewChild('mediaInput') mediaInput?: ElementRef<HTMLInputElement>;
 
@@ -100,6 +106,8 @@ export class ProductEdit implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly translocoService = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly renderer = inject(Renderer2);
+  private readonly document = inject(DOCUMENT);
 
   protected readonly product = signal<Product | null>(null);
   protected readonly originalProduct = signal<Product | null>(null);
@@ -118,6 +126,11 @@ export class ProductEdit implements OnInit {
   // OnlyOffice state
   protected readonly onlyOfficeConfig = signal<OnlyOfficeSessionConfig | null>(null);
   protected readonly showOnlyOfficeEditor = signal(false);
+  /** 'fullscreen' = maximized dialog, 'attached' = drawer panel, 'detached' = new browser window */
+  protected readonly onlyOfficeViewMode = signal<'fullscreen' | 'attached' | 'detached'>('fullscreen');
+  private onlyOfficeEditorInstance: any = null;
+  private onlyOfficeScriptLoaded = false;
+  private detachedWindow: Window | null = null;
 
   /** MS Office MIME types supported for upload */
   private readonly officeMimeTypes = [
@@ -535,6 +548,9 @@ export class ProductEdit implements OnInit {
 
       this.onlyOfficeConfig.set(sessionConfig);
       this.showOnlyOfficeEditor.set(true);
+
+      // Wait for DOM to update then initialize editor
+      this.waitForEditorContainer().then(() => this.initOnlyOfficeEditor());
     } catch (err: any) {
       console.error('Failed to create OnlyOffice session:', err);
       this.messageService.add({
@@ -546,11 +562,174 @@ export class ProductEdit implements OnInit {
   }
 
   /**
+   * Switch OnlyOffice view mode
+   */
+  protected onSwitchOnlyOfficeMode(mode: 'fullscreen' | 'attached' | 'detached'): void {
+    const config = this.onlyOfficeConfig();
+    if (!config) return;
+
+    if (mode === 'detached') {
+      this.openDetachedWindow(config);
+      return;
+    }
+
+    // Destroy current editor instance before switching
+    this.destroyOnlyOfficeEditor();
+    this.onlyOfficeViewMode.set(mode);
+
+    // Re-initialize editor in the new container
+    this.waitForEditorContainer().then(() => this.initOnlyOfficeEditor());
+  }
+
+  /**
+   * Sanitize a string for safe insertion into HTML
+   */
+  private escapeHtml(str: string): string {
+    const div = this.document.createElement('div');
+    div.appendChild(this.document.createTextNode(str));
+    return div.innerHTML;
+  }
+
+  /**
+   * Open OnlyOffice in a detached browser window
+   */
+  private openDetachedWindow(config: OnlyOfficeSessionConfig): void {
+    // Close previous detached window if open
+    if (this.detachedWindow && !this.detachedWindow.closed) {
+      this.detachedWindow.close();
+    }
+
+    const w = window.open('', '_blank', 'width=1200,height=800,menubar=no,toolbar=no,location=no,status=no');
+    if (!w) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: this.translocoService.translate('productEdit.messages.error'),
+        detail: this.translocoService.translate('productEdit.onlyOffice.popupBlocked'),
+      });
+      return;
+    }
+    this.detachedWindow = w;
+
+    const title = this.escapeHtml(config.config?.['document']?.['title'] || 'Document Editor');
+    const safeEditorUrl = this.escapeHtml(config.editorUrl);
+    w.document.write(`<!DOCTYPE html>
+<html><head><title>${title}</title>
+<style>html,body{margin:0;padding:0;height:100%;overflow:hidden;}#editor{height:100%;}</style>
+</head><body><div id="editor"></div>
+<script src="${safeEditorUrl}"><\/script>
+<script>
+  new DocsAPI.DocEditor("editor", ${JSON.stringify(config.config)});
+<\/script></body></html>`);
+    w.document.close();
+
+    // Close the inline editor panel
+    this.destroyOnlyOfficeEditor();
+    this.showOnlyOfficeEditor.set(false);
+  }
+
+  /**
+   * Wait for the editor container element to be present in the DOM
+   */
+  private waitForEditorContainer(maxAttempts = 20): Promise<void> {
+    return new Promise((resolve) => {
+      let attempts = 0;
+      const check = () => {
+        if (this.document.getElementById('onlyoffice-editor-container') || attempts >= maxAttempts) {
+          resolve();
+        } else {
+          attempts++;
+          requestAnimationFrame(check);
+        }
+      };
+      requestAnimationFrame(check);
+    });
+  }
+
+  /**
+   * Load the OnlyOffice Document Server API script
+   */
+  private loadOnlyOfficeScript(editorUrl: string): Promise<void> {
+    if (this.onlyOfficeScriptLoaded && (window as any).DocsAPI) {
+      return Promise.resolve();
+    }
+    return new Promise((resolve, reject) => {
+      const script = this.renderer.createElement('script');
+      script.src = editorUrl;
+      script.type = 'text/javascript';
+      script.onload = () => {
+        this.onlyOfficeScriptLoaded = true;
+        resolve();
+      };
+      script.onerror = () => reject(new Error('Failed to load OnlyOffice API script'));
+      this.renderer.appendChild(this.document.body, script);
+    });
+  }
+
+  /**
+   * Initialize the OnlyOffice editor in the container element
+   */
+  private async initOnlyOfficeEditor(): Promise<void> {
+    const config = this.onlyOfficeConfig();
+    if (!config) return;
+
+    try {
+      await this.loadOnlyOfficeScript(config.editorUrl);
+
+      // Destroy previous instance
+      this.destroyOnlyOfficeEditor();
+
+      const DocsAPI = (window as any).DocsAPI;
+      if (!DocsAPI) {
+        console.error('DocsAPI not available after script load');
+        return;
+      }
+
+      this.onlyOfficeEditorInstance = new DocsAPI.DocEditor(
+        'onlyoffice-editor-container',
+        config.config,
+      );
+    } catch (err) {
+      console.error('Failed to initialize OnlyOffice editor:', err);
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translocoService.translate('productEdit.messages.error'),
+        detail: this.translocoService.translate('productEdit.messages.onlyOfficeFailed'),
+      });
+    }
+  }
+
+  /**
+   * Destroy current OnlyOffice editor instance
+   */
+  private destroyOnlyOfficeEditor(): void {
+    if (this.onlyOfficeEditorInstance) {
+      try {
+        this.onlyOfficeEditorInstance.destroyEditor();
+      } catch {
+        // ignore destroy errors
+      }
+      this.onlyOfficeEditorInstance = null;
+    }
+  }
+
+  /**
    * Close OnlyOffice editor
    */
   protected onCloseOnlyOffice(): void {
+    this.destroyOnlyOfficeEditor();
+    if (this.detachedWindow && !this.detachedWindow.closed) {
+      this.detachedWindow.close();
+      this.detachedWindow = null;
+    }
     this.showOnlyOfficeEditor.set(false);
     this.onlyOfficeConfig.set(null);
+  }
+
+  ngOnDestroy(): void {
+    this.destroyOnlyOfficeEditor();
+    if (this.detachedWindow && !this.detachedWindow.closed) {
+      this.detachedWindow.close();
+    }
   }
 
   /**
