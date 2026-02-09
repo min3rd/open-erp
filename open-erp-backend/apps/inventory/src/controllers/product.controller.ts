@@ -304,6 +304,37 @@ export class ProductController {
     }
   }
 
+  // ========== SPECIFIC ROUTES (must come before :identifier) ==========
+
+  @Get('sku/:sku')
+  @ApiOperation({ summary: 'Get a product by SKU' })
+  @ApiParam({ name: 'sku', description: 'Product SKU' })
+  @ApiQuery({ name: 'organizationId', required: false, type: String })
+  @ApiResponse({
+    status: 200,
+    description: 'Product retrieved successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  async findBySku(
+    @Param('sku') sku: string,
+    @Query('organizationId') organizationId?: string,
+  ) {
+    try {
+      const product = await this.productService.findBySku(sku, organizationId);
+      return fetched(product);
+    } catch (err) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
+      throw new HttpException(
+        error('PRODUCT_FETCH_ERROR', err.message || 'Failed to fetch product'),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // ========== PARAMETERIZED ROUTES ==========
+
   @Get(':identifier')
   @Permissions(Permission.PRODUCT_READ)
   @ApiOperation({ 
@@ -363,33 +394,6 @@ export class ProductController {
         includeDeleted,
         organizationId,
       });
-      return fetched(product);
-    } catch (err) {
-      if (err instanceof HttpException) {
-        throw err;
-      }
-      throw new HttpException(
-        error('PRODUCT_FETCH_ERROR', err.message || 'Failed to fetch product'),
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get('sku/:sku')
-  @ApiOperation({ summary: 'Get a product by SKU' })
-  @ApiParam({ name: 'sku', description: 'Product SKU' })
-  @ApiQuery({ name: 'organizationId', required: false, type: String })
-  @ApiResponse({
-    status: 200,
-    description: 'Product retrieved successfully',
-  })
-  @ApiResponse({ status: 404, description: 'Product not found' })
-  async findBySku(
-    @Param('sku') sku: string,
-    @Query('organizationId') organizationId?: string,
-  ) {
-    try {
-      const product = await this.productService.findBySku(sku, organizationId);
       return fetched(product);
     } catch (err) {
       if (err instanceof HttpException) {

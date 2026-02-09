@@ -17,7 +17,7 @@ export const productDetailResolver: ResolveFn<Product | null> = (route) => {
   }
 
   // Try to fetch product by identifier (slug, SKU, or ID)
-  return productService.getProductBySku(identifier).pipe(
+  return productService.getProductByIdentifier(identifier).pipe(
     catchError((error) => {
       console.error('Failed to load product:', error);
       // Navigate back to list on error
