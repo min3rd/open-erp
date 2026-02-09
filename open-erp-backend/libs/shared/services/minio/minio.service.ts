@@ -113,7 +113,7 @@ export class MinioService implements IMinioService {
     return key
       .replace(/^\/+/, '')
       .split('/')
-      .filter(part => part && part !== '.' && part !== '..')
+      .filter((part) => part && part !== '.' && part !== '..')
       .join('/');
   }
 
@@ -198,7 +198,10 @@ export class MinioService implements IMinioService {
       await this.ensureBucket(options?.bucket);
 
       const sanitizedKey = this.sanitizeKey(key);
-      const expiresIn: number = options?.expiresIn || this.config.presignedUrlExpiry || this.DEFAULT_PRESIGNED_URL_EXPIRY;
+      const expiresIn: number =
+        options?.expiresIn ||
+        this.config.presignedUrlExpiry ||
+        this.DEFAULT_PRESIGNED_URL_EXPIRY;
 
       this.logger.debug(`Generating presigned upload URL for: ${sanitizedKey}`);
 
@@ -234,7 +237,10 @@ export class MinioService implements IMinioService {
   ): Promise<PresignedDownloadResult> {
     try {
       const sanitizedKey = this.sanitizeKey(key);
-      const expiresIn: number = options?.expiresIn || this.config.presignedUrlExpiry || this.DEFAULT_PRESIGNED_URL_EXPIRY;
+      const expiresIn: number =
+        options?.expiresIn ||
+        this.config.presignedUrlExpiry ||
+        this.DEFAULT_PRESIGNED_URL_EXPIRY;
 
       this.logger.debug(
         `Generating presigned download URL for: ${sanitizedKey}`,
@@ -296,12 +302,19 @@ export class MinioService implements IMinioService {
         );
       } else if (options?.versionId) {
         // Specific version
-        stream = await this.client.getObject(this.getBucket(options?.bucket), sanitizedKey, {
-          versionId: options.versionId,
-        } as any);
+        stream = await this.client.getObject(
+          this.getBucket(options?.bucket),
+          sanitizedKey,
+          {
+            versionId: options.versionId,
+          } as any,
+        );
       } else {
         // Latest version
-        stream = await this.client.getObject(this.getBucket(options?.bucket), sanitizedKey);
+        stream = await this.client.getObject(
+          this.getBucket(options?.bucket),
+          sanitizedKey,
+        );
       }
 
       return stream;
@@ -365,7 +378,11 @@ export class MinioService implements IMinioService {
   /**
    * Get a specific version of an object
    */
-  async getVersion(key: string, versionId: string, bucket?: string): Promise<Readable> {
+  async getVersion(
+    key: string,
+    versionId: string,
+    bucket?: string,
+  ): Promise<Readable> {
     return this.downloadStream(key, { versionId, bucket });
   }
 
@@ -469,9 +486,13 @@ export class MinioService implements IMinioService {
       } else {
         // Hard delete
         this.logger.debug(`Deleting object: ${sanitizedKey}`);
-        await this.client.removeObject(this.getBucket(options?.bucket), sanitizedKey, {
-          versionId: options?.versionId,
-        } as any);
+        await this.client.removeObject(
+          this.getBucket(options?.bucket),
+          sanitizedKey,
+          {
+            versionId: options?.versionId,
+          } as any,
+        );
         this.logger.log(`Successfully deleted object: ${sanitizedKey}`);
         return {
           deleted: true,
@@ -509,7 +530,10 @@ export class MinioService implements IMinioService {
         const sanitizedKeys = keys.map((key) => this.sanitizeKey(key));
         this.logger.debug(`Deleting ${sanitizedKeys.length} objects`);
 
-        await this.client.removeObjects(this.getBucket(options?.bucket), sanitizedKeys);
+        await this.client.removeObjects(
+          this.getBucket(options?.bucket),
+          sanitizedKeys,
+        );
 
         sanitizedKeys.forEach((key) => {
           results.push({
@@ -691,8 +715,11 @@ export class MinioService implements IMinioService {
   ): Promise<string> {
     try {
       const bucket = this.getBucket(options?.bucket);
-      const expiresIn: number = options?.expiresIn || this.config.presignedUrlExpiry || this.DEFAULT_PRESIGNED_URL_EXPIRY;
-      
+      const expiresIn: number =
+        options?.expiresIn ||
+        this.config.presignedUrlExpiry ||
+        this.DEFAULT_PRESIGNED_URL_EXPIRY;
+
       this.logger.debug(
         `Generating presigned URL for ${key} with expiry ${expiresIn}s`,
       );
