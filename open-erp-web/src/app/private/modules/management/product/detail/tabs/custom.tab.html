@@ -9,7 +9,12 @@
         @for (attr of product()!.customAttributes!; track attr.name) {
           <div class="field">
             <label class="block text-sm font-medium text-color-secondary mb-1">{{ attr.name }}</label>
-            <div>{{ attr.value }}@if (attr.unit) { <span class="text-color-secondary ml-1">{{ attr.unit }}</span> }</div>
+            <div>
+              {{ attr.value }}
+              @if (attr.unit) {
+                <span class="text-color-secondary ml-1">{{ attr.unit }}</span>
+              }
+            </div>
           </div>
         }
       </div>
