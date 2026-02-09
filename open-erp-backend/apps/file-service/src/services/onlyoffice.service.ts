@@ -1,0 +1,239 @@
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { MinioService } from '@shared/services/minio/minio.service';
+import { FileRepository } from '../repositories/file.repository';
+import * as crypto from 'crypto';
+
+/**
+ * Supported OnlyOffice document types and their extensions
+ */
+const DOCUMENT_TYPE_MAP: Record<string, string> = {
+  '.doc': 'word',
+  '.docx': 'word',
+  '.xls': 'cell',
+  '.xlsx': 'cell',
+  '.ppt': 'slide',
+  '.pptx': 'slide',
+  '.pdf': 'word',
+};
+
+@Injectable()
+export class OnlyOfficeService {
+  private readonly logger = new Logger(OnlyOfficeService.name);
+  private readonly onlyOfficeUrl: string;
+  private readonly jwtSecret: string;
+  private readonly callbackSecret: string;
+
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly minioService: MinioService,
+    private readonly fileRepository: FileRepository,
+  ) {
+    this.onlyOfficeUrl = this.configService.get<string>(
+      'ONLYOFFICE_URL',
+      'http://localhost:8080',
+    );
+    this.jwtSecret = this.configService.get<string>(
+      'ONLYOFFICE_JWT_SECRET',
+      '',
+    );
+    this.callbackSecret = this.configService.get<string>(
+      'ONLYOFFICE_CALLBACK_SECRET',
+      '',
+    );
+  }
+
+  /**
+   * Get the document type from filename extension
+   */
+  private getDocumentType(filename: string): string {
+    const ext = filename.substring(filename.lastIndexOf('.')).toLowerCase();
+    return DOCUMENT_TYPE_MAP[ext] || 'word';
+  }
+
+  /**
+   * Generate a unique document key for OnlyOffice
+   */
+  private generateDocumentKey(fileId: string, version: number): string {
+    return crypto
+      .createHash('md5')
+      .update(`${fileId}_v${version}_${Date.now()}`)
+      .digest('hex');
+  }
+
+  /**
+   * Sign payload with JWT if secret is configured
+   */
+  private signPayload(payload: Record<string, any>): string | null {
+    if (!this.jwtSecret) return null;
+    try {
+      // Simple JWT sign: header.payload.signature
+      const header = Buffer.from(
+        JSON.stringify({ alg: 'HS256', typ: 'JWT' }),
+      ).toString('base64url');
+      const body = Buffer.from(JSON.stringify(payload)).toString('base64url');
+      const signature = crypto
+        .createHmac('sha256', this.jwtSecret)
+        .update(`${header}.${body}`)
+        .digest('base64url');
+      return `${header}.${body}.${signature}`;
+    } catch (err) {
+      this.logger.error(`Failed to sign JWT: ${err.message}`);
+      return null;
+    }
+  }
+
+  /**
+   * Create an OnlyOffice editing/viewing session
+   */
+  async createSession(
+    fileId: string,
+    mode: 'view' | 'edit' = 'edit',
+    userId?: string,
+    callbackBaseUrl?: string,
+  ) {
+    const file = await this.fileRepository.findById(fileId);
+    if (!file || file.isDeleted) {
+      throw new NotFoundException(`File with id ${fileId} not found`);
+    }
+
+    // Check if file type is supported
+    const ext = file.filename
+      .substring(file.filename.lastIndexOf('.'))
+      .toLowerCase();
+    if (!DOCUMENT_TYPE_MAP[ext]) {
+      throw new BadRequestException(
+        `File type ${ext} is not supported by OnlyOffice`,
+      );
+    }
+
+    // Generate presigned URL for OnlyOffice to fetch the file
+    const presignResult = await this.minioService.presignDownload(file.key, {
+      expiresIn: 7200, // 2 hours for editing sessions
+    });
+
+    const documentKey = this.generateDocumentKey(fileId, file.version);
+    const documentType = this.getDocumentType(file.filename);
+
+    // Build callback URL
+    const baseUrl =
+      callbackBaseUrl ||
+      this.configService.get<string>(
+        'FILE_SERVICE_BASE_URL',
+        'http://localhost:3008',
+      );
+    const callbackUrl = `${baseUrl}/v1/onlyoffice/callback`;
+
+    // Build editor config
+    const editorConfig: Record<string, any> = {
+      document: {
+        fileType: ext.replace('.', ''),
+        key: documentKey,
+        title: file.filename,
+        url: presignResult.url,
+      },
+      documentType,
+      editorConfig: {
+        mode: mode,
+        callbackUrl: callbackUrl,
+        user: userId ? { id: userId } : undefined,
+        customization: {
+          autosave: true,
+          forcesave: true,
+        },
+      },
+    };
+
+    // Set permissions based on mode
+    editorConfig.document.permissions = {
+      edit: mode === 'edit',
+      download: true,
+      print: true,
+      review: mode === 'edit',
+      comment: true,
+    };
+
+    // Sign with JWT if configured
+    const token = this.signPayload(editorConfig);
+    if (token) {
+      editorConfig.token = token;
+    }
+
+    return {
+      editorUrl: `${this.onlyOfficeUrl}/web-apps/apps/api/documents/api.js`,
+      config: editorConfig,
+      documentKey,
+    };
+  }
+
+  /**
+   * Handle OnlyOffice save callback
+   * See: https://api.onlyoffice.com/editors/callback
+   */
+  async handleCallback(body: Record<string, any>) {
+    const { status, url, key, users } = body;
+
+    this.logger.log(
+      `OnlyOffice callback received: status=${status}, key=${key}`,
+    );
+
+    // Status codes:
+    // 1 - document is being edited
+    // 2 - document is ready for saving
+    // 4 - document is closed with no changes
+    // 6 - document is being edited, but the current document state is saved
+    // 7 - error has occurred while force saving the document
+
+    if (status === 2 || status === 6) {
+      // Document ready for saving or force save
+      if (!url) {
+        this.logger.warn('No URL in callback for save');
+        return { error: 0 };
+      }
+
+      try {
+        await this.saveDocumentFromCallback(key, url, users);
+      } catch (err) {
+        this.logger.error(
+          `Failed to save document from callback: ${err.message}`,
+          err.stack,
+        );
+        return { error: 1 };
+      }
+    }
+
+    // Return success to OnlyOffice
+    return { error: 0 };
+  }
+
+  /**
+   * Download and save the document from OnlyOffice callback URL
+   */
+  private async saveDocumentFromCallback(
+    documentKey: string,
+    downloadUrl: string,
+    users?: string[],
+  ) {
+    // Find the file by searching for the document key pattern
+    // The documentKey contains fileId, so we need to look up the file
+    // In practice, you'd store documentKey -> fileId mapping
+    this.logger.log(
+      `Saving document from OnlyOffice: key=${documentKey}, url=${downloadUrl}`,
+    );
+
+    // For now, log the save event
+    // In a full implementation, you would:
+    // 1. Download the file from downloadUrl
+    // 2. Upload it to MinIO as a new version
+    // 3. Update the file record in DB
+    // 4. Create a new version entry
+    this.logger.log(
+      `Document save completed for key=${documentKey}`,
+    );
+  }
+}

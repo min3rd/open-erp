@@ -20,3 +20,5 @@ export * from './inventory-stock.schema';
 export * from './inventory-transaction.schema';
 export * from './address.schema';
 export * from './geometry-version.schema';
+export * from './file.schema';
+export * from './file-version.schema';
