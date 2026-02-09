@@ -8,7 +8,7 @@
         <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.storage.temperatureMin' | transloco }}</label>
         <div>
           @if (product()!.storageConditions!.temperatureMin != null) {
-            {{ product()!.storageConditions!.temperatureMin }}°C
+            {{ product()!.storageConditions!.temperatureMin }}{{ 'productDetail.storage.temperatureUnit' | transloco }}
           } @else {
             -
           }
@@ -19,7 +19,7 @@
         <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.storage.temperatureMax' | transloco }}</label>
         <div>
           @if (product()!.storageConditions!.temperatureMax != null) {
-            {{ product()!.storageConditions!.temperatureMax }}°C
+            {{ product()!.storageConditions!.temperatureMax }}{{ 'productDetail.storage.temperatureUnit' | transloco }}
           } @else {
             -
           }
@@ -30,7 +30,7 @@
         <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.storage.humidityMin' | transloco }}</label>
         <div>
           @if (product()!.storageConditions!.humidityMin != null) {
-            {{ product()!.storageConditions!.humidityMin }}%
+            {{ product()!.storageConditions!.humidityMin }}{{ 'productDetail.storage.humidityUnit' | transloco }}
           } @else {
             -
           }
@@ -41,7 +41,7 @@
         <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.storage.humidityMax' | transloco }}</label>
         <div>
           @if (product()!.storageConditions!.humidityMax != null) {
-            {{ product()!.storageConditions!.humidityMax }}%
+            {{ product()!.storageConditions!.humidityMax }}{{ 'productDetail.storage.humidityUnit' | transloco }}
           } @else {
             -
           }
