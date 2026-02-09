@@ -92,6 +92,57 @@ export class ProductService {
   }
 
   /**
+   * Resolve product identifier to product ID
+   * Resolution order: slug -> sku -> id
+   * @param identifier - Can be slug, sku, or MongoDB ObjectId
+   * @param organizationId - Optional organization ID for scoped lookups
+   * @returns Product ID string or null if not found
+   */
+  async resolveIdentifier(
+    identifier: string,
+    organizationId?: string,
+  ): Promise<string | null> {
+    // Try as slug first (most user-friendly)
+    const bySlug = await this.productRepository.findBySlug(identifier, organizationId);
+    if (bySlug) {
+      return bySlug._id.toString();
+    }
+
+    // Try as SKU
+    const bySku = await this.productRepository.findBySku(identifier, organizationId);
+    if (bySku) {
+      return bySku._id.toString();
+    }
+
+    // Try as MongoDB ObjectId
+    if (Types.ObjectId.isValid(identifier)) {
+      const byId = await this.productRepository.findById(identifier);
+      if (byId) {
+        return byId._id.toString();
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Find product by identifier (slug, sku, or id)
+   * @param identifier - Can be slug, sku, or MongoDB ObjectId
+   * @param options - Query options
+   * @returns Product document or null
+   */
+  async findByIdentifier(
+    identifier: string,
+    options?: { includeDeleted?: boolean; organizationId?: string },
+  ) {
+    const productId = await this.resolveIdentifier(identifier, options?.organizationId);
+    if (!productId) {
+      throw new NotFoundException('Product not found');
+    }
+    return this.findById(productId, options);
+  }
+
+  /**
    * Check if a slug already exists for the given scope
    */
   private async checkSlugExists(
@@ -361,6 +412,34 @@ export class ProductService {
     }
 
     return product.restore();
+  }
+
+  /**
+   * Publish a product (set status to active)
+   */
+  async publish(id: string, userId: string) {
+    this.logger.log(`Publishing product: ${id}`);
+    const product = await this.productRepository.findById(id);
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    // Use the schema method to publish
+    return product.publish();
+  }
+
+  /**
+   * Mark a product as inactive
+   */
+  async markInactive(id: string, userId: string) {
+    this.logger.log(`Marking product as inactive: ${id}`);
+    const product = await this.productRepository.findById(id);
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    // Use the schema method to mark inactive
+    return product.markInactive();
   }
 
   async search(
