@@ -35,8 +35,6 @@ import {
   ProductScope,
   ProductStatus,
   UpdateProductDto,
-  RegisterMediaDto,
-  ThumbnailDto,
 } from '../../../../../../core/services/product/product.service';
 import { ProductTypeService } from '../../../../../../core/services/product-type/product-type.service';
 import { ProductCategoryService } from '../../../../../../core/services/product-category/product-category.service';
