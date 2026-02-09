@@ -13,7 +13,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { JwtAuthGuard, CurrentUser, Public } from '@shared/authz';
-import { ok } from '@shared/response';
+import { fetched } from '@shared/response';
 import { OnlyOfficeService } from '../services/onlyoffice.service';
 import { CreateOnlyOfficeSessionDto } from '../dto';
 
@@ -40,7 +40,7 @@ export class OnlyOfficeController {
       dto.filename,
       dto.bucket,
     );
-    return ok(result);
+    return fetched(result);
   }
 
   @Post('callback')
