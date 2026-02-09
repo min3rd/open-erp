@@ -418,8 +418,9 @@ export class ProductController {
     description: 'Forbidden - insufficient permissions',
   })
   @ApiResponse({ status: 404, description: 'Product not found' })
-  async update(@Param('id') id: string, @Body() updateDto: UpdateProductDto) {
+  async update(@Param('id') id: string, @Body() updateDto: UpdateProductDto, @CurrentUser() user: UserContext) {
     try {
+      updateDto.updatedBy = user.userId;
       const product = await this.productService.update(id, updateDto);
       return updated(product, 'Product updated successfully');
     } catch (err) {
