@@ -685,8 +685,11 @@
     },
     "contextMenu": {
       "view": "Xem",
-      "edit": "Sửa",
-      "delete": "Xóa"
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa",
+      "publish": "Xuất bản",
+      "markInactive": "Đánh dấu không hoạt động",
+      "statistics": "Thống kê"
     },
     "resultCount": "{{count}} hàng hóa",
     "empty": {
@@ -726,6 +729,26 @@
     },
     "edit": {
       "notImplemented": "Tính năng sửa sắp ra mắt"
+    },
+    "publish": {
+      "confirmTitle": "Xác nhận xuất bản",
+      "confirmMessage": "Bạn có chắc chắn muốn xuất bản sản phẩm {{name}}? Điều này sẽ đặt trạng thái của nó thành hoạt động.",
+      "success": "Đã xuất bản sản phẩm",
+      "successDetail": "Sản phẩm {{name}} đã được xuất bản thành công",
+      "error": "Xuất bản thất bại",
+      "errorDetail": "Không thể xuất bản sản phẩm"
+    },
+    "markInactive": {
+      "confirmTitle": "Xác nhận đánh dấu không hoạt động",
+      "confirmMessage": "Bạn có chắc chắn muốn đánh dấu sản phẩm {{name}} là không hoạt động?",
+      "success": "Đã đánh dấu sản phẩm không hoạt động",
+      "successDetail": "Sản phẩm {{name}} đã được đánh dấu là không hoạt động",
+      "error": "Đánh dấu không hoạt động thất bại",
+      "errorDetail": "Không thể đánh dấu sản phẩm là không hoạt động"
+    },
+    "statistics": {
+      "title": "Thống kê sản phẩm",
+      "comingSoon": "Tính năng thống kê sản phẩm sẽ sớm có"
     }
   },
   "productType": {
@@ -774,7 +797,7 @@
     "draft": "Nháp"
   },
   "productScope": {
-    "global": "Toàn cục",
+    "global": "Toàn cầu",
     "organization": "Tổ chức"
   },
   "productDetail": {
@@ -1772,9 +1795,5 @@
       "mediaAdded": "Đã thêm {{count}} file thành công",
       "uploadFailed": "Không thể tải file lên"
     }
-  },
-  "productScope": {
-    "global": "Toàn cầu",
-    "organization": "Tổ chức"
   }
 }

@@ -2273,7 +2273,10 @@
     "contextMenu": {
       "view": "View",
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "publish": "Publish",
+      "markInactive": "Mark as Inactive",
+      "statistics": "Statistics"
     },
     "resultCount": "{{count}} products",
     "empty": {
@@ -2313,6 +2316,26 @@
     },
     "edit": {
       "notImplemented": "Edit feature coming soon"
+    },
+    "publish": {
+      "confirmTitle": "Confirm Publish",
+      "confirmMessage": "Are you sure you want to publish product {{name}}? This will set its status to active.",
+      "success": "Product published",
+      "successDetail": "Product {{name}} has been published successfully",
+      "error": "Publish failed",
+      "errorDetail": "Failed to publish product"
+    },
+    "markInactive": {
+      "confirmTitle": "Confirm Mark as Inactive",
+      "confirmMessage": "Are you sure you want to mark product {{name}} as inactive?",
+      "success": "Product marked as inactive",
+      "successDetail": "Product {{name}} has been marked as inactive",
+      "error": "Mark inactive failed",
+      "errorDetail": "Failed to mark product as inactive"
+    },
+    "statistics": {
+      "title": "Product Statistics",
+      "comingSoon": "Product statistics feature is coming soon"
     }
   },
   "productType": {
