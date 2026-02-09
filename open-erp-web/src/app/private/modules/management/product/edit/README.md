@@ -108,11 +108,10 @@ After uploading to MinIO, register the media with the product:
 {
   "type": "image|video|document",
   "url": "https://...",
-  "title": "filename.jpg",
-  "mimeType": "image/jpeg",
+  "filename": "filename.jpg",
+  "contentType": "image/jpeg",
   "size": 123456,
-  "minioObjectKey": "...",
-  "minioBucket": "..."
+  "objectKey": "..."
 }
 ```
 
