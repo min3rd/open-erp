@@ -282,6 +282,8 @@ export class ProductEdit implements OnInit {
         isMarkedForDeletion: false,
       }));
       this.mediaFiles.set(mediaFiles);
+    } else {
+      this.mediaFiles.set([]);
     }
   }
 
