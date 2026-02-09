@@ -1,11 +1,41 @@
-<div class="p-6">
-  <h2 class="text-xl font-semibold mb-4">{{ 'productDetail.tabs.media' | transloco }}</h2>
-  <p class="text-color-secondary">{{ 'productDetail.media.description' | transloco }}</p>
-  
-  <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-    <!-- Placeholder for media items -->
-    <div class="aspect-square bg-emphasis border-2 border-dashed rounded-lg flex items-center justify-center">
-      <i class="pi pi-image text-4xl text-color-secondary"></i>
+<div class="p-4 sm:p-6">
+  <h2 class="text-lg sm:text-xl font-semibold mb-4">{{ 'productDetail.tabs.media' | transloco }}</h2>
+  <p class="text-color-secondary text-sm">{{ 'productDetail.media.description' | transloco }}</p>
+
+  @if (product()?.media?.length) {
+    <div class="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+      @for (item of product()!.media!; track item.url) {
+        <div class="border border-surface-200 dark:border-surface-700 rounded-lg overflow-hidden bg-surface-card">
+          @if (item.type === 'image') {
+            <div class="aspect-square bg-emphasis flex items-center justify-center overflow-hidden">
+              <img [src]="item.url" [alt]="item.title || 'Image'" class="w-full h-full object-cover" />
+            </div>
+          } @else if (item.type === 'video') {
+            <div class="aspect-video bg-emphasis flex items-center justify-center overflow-hidden">
+              <video [src]="item.url" controls class="w-full h-full object-contain" preload="metadata"></video>
+            </div>
+          } @else {
+            <div class="aspect-square bg-emphasis flex items-center justify-center">
+              <i class="pi pi-file text-4xl text-color-secondary"></i>
+            </div>
+          }
+          <div class="p-2 sm:p-3">
+            <div class="text-sm font-medium truncate">{{ item.title || item.mimeType || item.type }}</div>
+            @if (item.size) {
+              <div class="text-xs text-color-secondary mt-1">{{ formatFileSize(item.size) }}</div>
+            }
+            <a [href]="item.url" target="_blank" rel="noopener noreferrer"
+              class="inline-flex items-center gap-1 text-xs text-primary mt-1 hover:underline">
+              <i class="pi pi-download text-xs"></i>
+              {{ 'productDetail.media.download' | transloco }}
+            </a>
+          </div>
+        </div>
+      }
     </div>
-  </div>
+  } @else {
+    <div class="mt-4 sm:mt-6">
+      <p class="text-sm text-color-secondary">{{ 'productDetail.media.notAvailable' | transloco }}</p>
+    </div>
+  }
 </div>

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, computed, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslocoModule } from '@jsverse/transloco';
 import { Subject } from 'rxjs';
@@ -18,6 +18,18 @@ export class ProductTabWarehouse implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   protected readonly product = this.productDetailState.product;
+
+  protected readonly hasWarehouseData = computed(() => {
+    const p = this.product();
+    return p != null && (
+      p.trackingType != null ||
+      p.hazardLevel != null ||
+      p.minStockLevel != null ||
+      p.maxStockLevel != null ||
+      p.reorderPoint != null ||
+      p.reorderQuantity != null
+    );
+  });
 
   ngOnInit(): void {
     // Product data is provided by parent detail component via service

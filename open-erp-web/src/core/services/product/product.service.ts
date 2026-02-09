@@ -65,12 +65,28 @@ export interface Product {
   };
   hasExpiryDate?: boolean;
   shelfLifeDays?: number;
+  trackingType?: string;
+  hazardLevel?: string;
+  minStockLevel?: number;
+  maxStockLevel?: number;
+  reorderPoint?: number;
+  reorderQuantity?: number;
+  customAttributes?: CustomAttributeDto[];
   createdBy: string;
   updatedBy?: string;
   createdAt: string;
   updatedAt: string;
   deletedAt?: string | null;
   metadata?: Record<string, any>;
+}
+
+/**
+ * Custom attribute DTO
+ */
+export interface CustomAttributeDto {
+  name: string;
+  value: string;
+  unit?: string;
 }
 
 /**

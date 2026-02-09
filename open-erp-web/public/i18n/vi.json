@@ -819,27 +819,51 @@
     },
     "media": {
       "description": "Hình ảnh, video và tài liệu sản phẩm",
-      "notAvailable": "Không có phương tiện nào"
+      "notAvailable": "Không có phương tiện nào",
+      "download": "Tải xuống"
     },
     "weight": {
       "description": "Thông tin khối lượng, đơn vị đo và hạn sử dụng",
       "unit": "Đơn vị đo",
+      "weight": "Khối lượng",
+      "hasExpiryDate": "Có hạn sử dụng",
+      "shelfLifeDays": "Thời hạn sử dụng",
+      "days": "ngày",
+      "yes": "Có",
+      "no": "Không",
       "notAvailable": "Không có thông tin khối lượng"
     },
     "dimensions": {
       "description": "Thông tin kích thước và định cỡ sản phẩm",
+      "length": "Chiều dài",
+      "width": "Chiều rộng",
+      "height": "Chiều cao",
+      "unit": "Đơn vị kích thước",
       "notAvailable": "Không có thông tin kích thước"
     },
     "storage": {
       "description": "Điều kiện và yêu cầu bảo quản",
+      "temperatureMin": "Nhiệt độ tối thiểu",
+      "temperatureMax": "Nhiệt độ tối đa",
+      "humidityMin": "Độ ẩm tối thiểu",
+      "humidityMax": "Độ ẩm tối đa",
+      "requirements": "Yêu cầu",
+      "specialInstructions": "Hướng dẫn đặc biệt",
       "notAvailable": "Không có thông tin điều kiện bảo quản"
     },
     "warehouse": {
       "description": "Điều kiện kho và tồn kho",
+      "trackingType": "Loại theo dõi",
+      "hazardLevel": "Mức độ nguy hiểm",
+      "minStockLevel": "Tồn kho tối thiểu",
+      "maxStockLevel": "Tồn kho tối đa",
+      "reorderPoint": "Điểm đặt hàng lại",
+      "reorderQuantity": "Số lượng đặt hàng lại",
       "notAvailable": "Không có thông tin điều kiện kho"
     },
     "custom": {
       "description": "Các trường tùy chỉnh và metadata",
+      "customAttributes": "Thuộc tính tùy chỉnh",
       "metadata": "Metadata",
       "noMetadata": "Không có metadata",
       "notAvailable": "Không có thông tin tùy chỉnh"

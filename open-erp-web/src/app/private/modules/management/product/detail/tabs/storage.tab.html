@@ -1,8 +1,74 @@
-<div class="p-6">
-  <h2 class="text-xl font-semibold mb-4">{{ 'productDetail.tabs.storage' | transloco }}</h2>
-  <p class="text-color-secondary">{{ 'productDetail.storage.description' | transloco }}</p>
-  
-  <div class="mt-6">
-    <p class="text-sm text-color-secondary">{{ 'productDetail.storage.notAvailable' | transloco }}</p>
-  </div>
+<div class="p-4 sm:p-6">
+  <h2 class="text-lg sm:text-xl font-semibold mb-4">{{ 'productDetail.tabs.storage' | transloco }}</h2>
+  <p class="text-color-secondary text-sm">{{ 'productDetail.storage.description' | transloco }}</p>
+
+  @if (product()?.storageConditions) {
+    <div class="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+      <div class="field">
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.storage.temperatureMin' | transloco }}</label>
+        <div>
+          @if (product()!.storageConditions!.temperatureMin != null) {
+            {{ product()!.storageConditions!.temperatureMin }}°C
+          } @else {
+            -
+          }
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.storage.temperatureMax' | transloco }}</label>
+        <div>
+          @if (product()!.storageConditions!.temperatureMax != null) {
+            {{ product()!.storageConditions!.temperatureMax }}°C
+          } @else {
+            -
+          }
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.storage.humidityMin' | transloco }}</label>
+        <div>
+          @if (product()!.storageConditions!.humidityMin != null) {
+            {{ product()!.storageConditions!.humidityMin }}%
+          } @else {
+            -
+          }
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.storage.humidityMax' | transloco }}</label>
+        <div>
+          @if (product()!.storageConditions!.humidityMax != null) {
+            {{ product()!.storageConditions!.humidityMax }}%
+          } @else {
+            -
+          }
+        </div>
+      </div>
+
+      @if (product()!.storageConditions!.requirements?.length) {
+        <div class="field sm:col-span-2">
+          <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.storage.requirements' | transloco }}</label>
+          <div class="flex flex-wrap gap-2">
+            @for (req of product()!.storageConditions!.requirements!; track req) {
+              <span class="px-2 py-1 bg-primary-50 text-primary-700 dark:bg-primary-900 dark:text-primary-300 text-sm rounded">{{ req }}</span>
+            }
+          </div>
+        </div>
+      }
+
+      @if (product()!.storageConditions!.specialInstructions) {
+        <div class="field sm:col-span-2">
+          <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.storage.specialInstructions' | transloco }}</label>
+          <div>{{ product()!.storageConditions!.specialInstructions }}</div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="mt-4 sm:mt-6">
+      <p class="text-sm text-color-secondary">{{ 'productDetail.storage.notAvailable' | transloco }}</p>
+    </div>
+  }
 </div>
