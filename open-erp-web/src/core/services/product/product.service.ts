@@ -29,6 +29,7 @@ export interface Product {
   id: string;
   sku: string;
   name: string;
+  slug?: string;
   internationalName?: string;
   description?: string;
   barcode?: string;
@@ -46,6 +47,24 @@ export interface Product {
   tags?: string[];
   thumbnail?: ThumbnailDto;
   media?: MediaItemDto[];
+  dimensions?: {
+    length?: number;
+    width?: number;
+    height?: number;
+    unit: string;
+    weight?: number;
+    weightUnit: string;
+  };
+  storageConditions?: {
+    temperatureMin?: number;
+    temperatureMax?: number;
+    humidityMin?: number;
+    humidityMax?: number;
+    requirements?: string[];
+    specialInstructions?: string;
+  };
+  hasExpiryDate?: boolean;
+  shelfLifeDays?: number;
   createdBy: string;
   updatedBy?: string;
   createdAt: string;

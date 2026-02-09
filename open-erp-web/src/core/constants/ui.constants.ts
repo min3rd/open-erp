@@ -1,11 +1,12 @@
 import { ProductStatus } from '../services/product/product.service';
 
 /**
- * UI Constants for reusable dropdown options and configurations
+ * Product Module UI Constants
+ * Reusable dropdown options and configurations for product management
  */
 
 /**
- * Product status options for dropdowns
+ * Product status dropdown options
  */
 export const PRODUCT_STATUS_OPTIONS = [
   { label: 'Draft', value: ProductStatus.DRAFT },
@@ -15,7 +16,7 @@ export const PRODUCT_STATUS_OPTIONS = [
 ];
 
 /**
- * Unit of measurement options for products
+ * Product unit of measurement dropdown options
  */
 export const PRODUCT_UNIT_OPTIONS = [
   // Weight units

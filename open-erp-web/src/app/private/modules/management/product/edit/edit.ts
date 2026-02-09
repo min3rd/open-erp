@@ -230,7 +230,7 @@ export class ProductEdit implements OnInit {
       // Read-only fields
       sku: product.sku,
       barcode: product.barcode || '',
-      slug: product.metadata?.['slug'] || '',
+      slug: product.slug || '',
       scope: product.scope,
       organizationId: product.organizationId || '',
 
@@ -242,12 +242,20 @@ export class ProductEdit implements OnInit {
       type: product.type,
       categoryId: product.categoryId || '',
       unit: product.unit,
-      weight: product.metadata?.['weight'] || null,
-      length: product.metadata?.['length'] || null,
-      width: product.metadata?.['width'] || null,
-      height: product.metadata?.['height'] || null,
-      storageConditions: product.metadata?.['storageConditions'] || '',
-      expiryDays: product.metadata?.['expiryDays'] || null,
+      
+      // Dimensions from product.dimensions (not metadata)
+      weight: product.dimensions?.weight || null,
+      length: product.dimensions?.length || null,
+      width: product.dimensions?.width || null,
+      height: product.dimensions?.height || null,
+      
+      // Storage conditions from product.storageConditions (not metadata)
+      storageConditions: product.storageConditions?.specialInstructions || '',
+      
+      // Expiry from product.shelfLifeDays (not metadata)
+      expiryDays: product.shelfLifeDays || null,
+      
+      // Keep metadata for any custom fields
       warehouseSettings: product.metadata?.['warehouseSettings'] || {},
       metadata: product.metadata || {},
     });
@@ -600,13 +608,12 @@ export class ProductEdit implements OnInit {
         }
       }
 
-      // Handle dimensions changes
-      const currentDimensions = product.metadata?.['dimensions'] || {};
+      // Handle dimensions changes (compare with product.dimensions, not metadata)
       const hasDimensionChanges = 
-        formValue.weight !== (product.metadata?.['weight'] || null) ||
-        formValue.length !== (product.metadata?.['length'] || null) ||
-        formValue.width !== (product.metadata?.['width'] || null) ||
-        formValue.height !== (product.metadata?.['height'] || null);
+        formValue.weight !== (product.dimensions?.weight || null) ||
+        formValue.length !== (product.dimensions?.length || null) ||
+        formValue.width !== (product.dimensions?.width || null) ||
+        formValue.height !== (product.dimensions?.height || null);
 
       if (hasDimensionChanges) {
         dto.dimensions = {
@@ -619,17 +626,17 @@ export class ProductEdit implements OnInit {
         };
       }
 
-      // Handle storage conditions changes
+      // Handle storage conditions changes (compare with product.storageConditions, not metadata)
       const hasStorageChanges =
-        formValue.storageConditions !== (product.metadata?.['storageConditions'] || '') ||
-        formValue.expiryDays !== (product.metadata?.['expiryDays'] || null);
+        formValue.storageConditions !== (product.storageConditions?.specialInstructions || '') ||
+        formValue.expiryDays !== (product.shelfLifeDays || null);
 
       if (hasStorageChanges) {
         dto.storageConditions = {
           specialInstructions: formValue.storageConditions || undefined,
         };
         
-        if (formValue.expiryDays !== (product.metadata?.['expiryDays'] || null)) {
+        if (formValue.expiryDays !== (product.shelfLifeDays || null)) {
           dto.shelfLifeDays = formValue.expiryDays || undefined;
           dto.hasExpiryDate = formValue.expiryDays !== null && formValue.expiryDays > 0;
         }
