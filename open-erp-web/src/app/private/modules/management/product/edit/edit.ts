@@ -728,15 +728,7 @@ export class ProductEdit implements OnInit {
 
     // Get presigned URL from backend
     const presignData = await firstValueFrom(
-      productId
-        ? this.productService.getProductPresignedUploadUrl(
-            productId,
-            file.name,
-            file.type,
-            type,
-            organizationId
-          )
-        : this.productService.getPresignedUploadUrl(file.name, file.type, type, organizationId)
+      this.productService.getPresignedUploadUrl(file.name, file.type, type, organizationId)
     );
 
     if (!presignData) {
