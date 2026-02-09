@@ -121,9 +121,24 @@ export class ListFilesQueryDto {
 }
 
 export class CreateOnlyOfficeSessionDto {
-  @ApiProperty({ description: 'File ID' })
+  @ApiPropertyOptional({ description: 'File ID (from file-service DB)' })
+  @IsOptional()
   @IsString()
-  fileId: string;
+  fileId?: string;
+
+  @ApiPropertyOptional({
+    description: 'MinIO object key (alternative to fileId for direct MinIO files)',
+  })
+  @IsOptional()
+  @IsString()
+  minioKey?: string;
+
+  @ApiPropertyOptional({
+    description: 'Original filename (required when using minioKey)',
+  })
+  @IsOptional()
+  @IsString()
+  filename?: string;
 
   @ApiPropertyOptional({
     description: 'Editor mode',

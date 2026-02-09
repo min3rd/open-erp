@@ -38,6 +38,7 @@ import {
 import { ProductTypeService } from '../../../../../../core/services/product-type/product-type.service';
 import { ProductCategoryService } from '../../../../../../core/services/product-category/product-category.service';
 import { OrganizationContextService } from '../../../../../../core/services/organization-context.service';
+import { FileApiService, OnlyOfficeSessionConfig } from '../../../../../../core/services/file-service';
 import { PRODUCT_STATUS_OPTIONS, PRODUCT_UNIT_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 interface SelectOption {
@@ -95,6 +96,7 @@ export class ProductEdit implements OnInit {
   private readonly productTypeService = inject(ProductTypeService);
   private readonly productCategoryService = inject(ProductCategoryService);
   private readonly organizationContext = inject(OrganizationContextService);
+  private readonly fileApiService = inject(FileApiService);
   private readonly messageService = inject(MessageService);
   private readonly translocoService = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
@@ -112,6 +114,20 @@ export class ProductEdit implements OnInit {
   protected readonly mediaFiles = signal<MediaFile[]>([]);
   protected newThumbnailFile: File | null = null;
   protected thumbnailMarkedForDeletion = false;
+
+  // OnlyOffice state
+  protected readonly onlyOfficeConfig = signal<OnlyOfficeSessionConfig | null>(null);
+  protected readonly showOnlyOfficeEditor = signal(false);
+
+  /** MS Office MIME types supported for upload */
+  private readonly officeMimeTypes = [
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  ];
 
   // Dropdown options (imported from constants)
   protected readonly statusOptions = PRODUCT_STATUS_OPTIONS;
@@ -379,6 +395,10 @@ export class ProductEdit implements OnInit {
       'application/pdf',
       'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     ];
 
     const maxSize = 50 * 1024 * 1024; // 50MB per file
@@ -477,6 +497,57 @@ export class ProductEdit implements OnInit {
     } else {
       return 'pi-file';
     }
+  }
+
+  /**
+   * Check if a media file is a Microsoft Office document supported by OnlyOffice
+   */
+  protected isOfficeFile(mediaFile: MediaFile): boolean {
+    if (!mediaFile.filename) return false;
+    const ext = mediaFile.filename.substring(mediaFile.filename.lastIndexOf('.')).toLowerCase();
+    return ['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'].includes(ext);
+  }
+
+  /**
+   * Open OnlyOffice editor for a media file
+   */
+  protected async onOpenOnlyOffice(mediaFile: MediaFile, mode: 'view' | 'edit' = 'view'): Promise<void> {
+    if (!mediaFile.minioObjectKey || !mediaFile.filename) {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translocoService.translate('productEdit.messages.error'),
+        detail: this.translocoService.translate('productEdit.messages.onlyOfficeNoFile'),
+      });
+      return;
+    }
+
+    try {
+      const sessionConfig = await firstValueFrom(
+        this.fileApiService.createOnlyOfficeSession({
+          minioKey: mediaFile.minioObjectKey,
+          filename: mediaFile.filename,
+          mode,
+        })
+      );
+
+      this.onlyOfficeConfig.set(sessionConfig);
+      this.showOnlyOfficeEditor.set(true);
+    } catch (err: any) {
+      console.error('Failed to create OnlyOffice session:', err);
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translocoService.translate('productEdit.messages.error'),
+        detail: err?.error?.message || this.translocoService.translate('productEdit.messages.onlyOfficeFailed'),
+      });
+    }
+  }
+
+  /**
+   * Close OnlyOffice editor
+   */
+  protected onCloseOnlyOffice(): void {
+    this.showOnlyOfficeEditor.set(false);
+    this.onlyOfficeConfig.set(null);
   }
 
   /**

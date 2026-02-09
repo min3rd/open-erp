@@ -24,7 +24,7 @@
   <input
     #mediaInput
     type="file"
-    accept="image/*,video/*,.pdf,.doc,.docx"
+    accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
     multiple
     class="hidden"
     (change)="onMediaSelect($event)"
@@ -362,6 +362,28 @@
                       [pTooltip]="'productEdit.actions.restore' | transloco"
                     />
                     } @else {
+                    @if (file.isExisting && isOfficeFile(file)) {
+                    <p-button
+                      icon="pi pi-eye"
+                      [rounded]="true"
+                      [text]="true"
+                      size="small"
+                      severity="info"
+                      (onClick)="onOpenOnlyOffice(file, 'view')"
+                      [pTooltip]="'productEdit.actions.viewOnlyOffice' | transloco"
+                    />
+                    @if (canEdit()) {
+                    <p-button
+                      icon="pi pi-pencil"
+                      [rounded]="true"
+                      [text]="true"
+                      size="small"
+                      severity="warn"
+                      (onClick)="onOpenOnlyOffice(file, 'edit')"
+                      [pTooltip]="'productEdit.actions.editOnlyOffice' | transloco"
+                    />
+                    }
+                    }
                     <p-button
                       icon="pi pi-times"
                       [rounded]="true"
@@ -543,3 +565,34 @@
     </div>
   </div>
 </p-drawer>
+
+<!-- OnlyOffice Editor Dialog -->
+@if (showOnlyOfficeEditor() && onlyOfficeConfig()) {
+<p-drawer
+  [(visible)]="showOnlyOfficeEditor"
+  position="right"
+  [style]="{ width: '100%', maxWidth: '1200px' }"
+  (onHide)="onCloseOnlyOffice()"
+>
+  <ng-template #header>
+    <h2>{{ 'productEdit.onlyOffice.title' | transloco }}</h2>
+  </ng-template>
+  <div class="flex flex-col h-full">
+    <div class="flex-1">
+      <div id="onlyoffice-editor-container" class="w-full h-full min-h-[600px]">
+        <p class="text-center py-8 text-surface-500">
+          {{ 'productEdit.onlyOffice.loadingEditor' | transloco }}
+        </p>
+      </div>
+    </div>
+    <div class="p-4 border-t border-surface-200 dark:border-surface-700">
+      <p-button
+        [label]="'productEdit.onlyOffice.close' | transloco"
+        icon="pi pi-times"
+        severity="secondary"
+        (onClick)="onCloseOnlyOffice()"
+      />
+    </div>
+  </div>
+</p-drawer>
+}

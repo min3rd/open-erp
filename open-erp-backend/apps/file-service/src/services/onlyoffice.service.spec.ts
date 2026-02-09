@@ -111,6 +111,36 @@ describe('OnlyOfficeService', () => {
         service.createSession('file-id-1', 'edit'),
       ).rejects.toThrow(BadRequestException);
     });
+
+    it('should create a session using minioKey and filename', async () => {
+      minioService.presignDownload.mockResolvedValue({
+        url: 'http://localhost:9000/presigned-url',
+        expiresAt: new Date(),
+      });
+
+      const result = await service.createSession(
+        undefined,
+        'view',
+        'user-1',
+        undefined,
+        'products/org-123/prod-456/media/test.pptx',
+        'test.pptx',
+      );
+
+      expect(result.editorUrl).toContain('api/documents/api.js');
+      expect(result.config.document.title).toBe('test.pptx');
+      expect(result.config.documentType).toBe('slide');
+      expect(result.config.editorConfig.mode).toBe('view');
+      expect(result.documentKey).toBeDefined();
+      // Should not call fileRepository.findById
+      expect(fileRepository.findById).not.toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException when neither fileId nor minioKey provided', async () => {
+      await expect(
+        service.createSession(undefined, 'edit'),
+      ).rejects.toThrow(BadRequestException);
+    });
   });
 
   describe('handleCallback', () => {

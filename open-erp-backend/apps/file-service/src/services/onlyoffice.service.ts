@@ -92,20 +92,37 @@ export class OnlyOfficeService {
    * Create an OnlyOffice editing/viewing session
    */
   async createSession(
-    fileId: string,
+    fileId: string | undefined,
     mode: 'view' | 'edit' = 'edit',
     userId?: string,
     callbackBaseUrl?: string,
+    minioKey?: string,
+    filename?: string,
   ) {
-    const file = await this.fileRepository.findById(fileId);
-    if (!file || file.isDeleted) {
-      throw new NotFoundException(`File with id ${fileId} not found`);
+    let key: string;
+    let fname: string;
+    let version = 1;
+
+    if (minioKey && filename) {
+      // Direct MinIO key mode (e.g., product media files not in file-service DB)
+      key = minioKey;
+      fname = filename;
+    } else if (fileId) {
+      const file = await this.fileRepository.findById(fileId);
+      if (!file || file.isDeleted) {
+        throw new NotFoundException(`File with id ${fileId} not found`);
+      }
+      key = file.key;
+      fname = file.filename;
+      version = file.version;
+    } else {
+      throw new BadRequestException(
+        'Either fileId or minioKey+filename must be provided',
+      );
     }
 
     // Check if file type is supported
-    const ext = file.filename
-      .substring(file.filename.lastIndexOf('.'))
-      .toLowerCase();
+    const ext = fname.substring(fname.lastIndexOf('.')).toLowerCase();
     if (!DOCUMENT_TYPE_MAP[ext]) {
       throw new BadRequestException(
         `File type ${ext} is not supported by OnlyOffice`,
@@ -113,12 +130,15 @@ export class OnlyOfficeService {
     }
 
     // Generate presigned URL for OnlyOffice to fetch the file
-    const presignResult = await this.minioService.presignDownload(file.key, {
+    const presignResult = await this.minioService.presignDownload(key, {
       expiresIn: 7200, // 2 hours for editing sessions
     });
 
-    const documentKey = this.generateDocumentKey(fileId, file.version);
-    const documentType = this.getDocumentType(file.filename);
+    const documentKey = this.generateDocumentKey(
+      fileId || minioKey || key,
+      version,
+    );
+    const documentType = this.getDocumentType(fname);
 
     // Build callback URL
     const baseUrl =
@@ -134,7 +154,7 @@ export class OnlyOfficeService {
       document: {
         fileType: ext.replace('.', ''),
         key: documentKey,
-        title: file.filename,
+        title: fname,
         url: presignResult.url,
       },
       documentType,

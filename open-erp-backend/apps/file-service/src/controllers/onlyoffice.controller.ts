@@ -35,6 +35,9 @@ export class OnlyOfficeController {
       dto.fileId,
       dto.mode || 'edit',
       user?.userId,
+      undefined,
+      dto.minioKey,
+      dto.filename,
     );
     return ok(result);
   }

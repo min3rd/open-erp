@@ -705,7 +705,10 @@ export class ProductController {
         media: [
           'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
           'video/mp4', 'video/webm', 'video/ogg',
-          'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          'application/pdf',
+          'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         ],
       };
 
@@ -822,7 +825,10 @@ export class ProductController {
         media: [
           'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
           'video/mp4', 'video/webm', 'video/ogg',
-          'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          'application/pdf',
+          'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         ],
       };
 
