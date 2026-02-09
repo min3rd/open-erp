@@ -304,16 +304,29 @@ export class ProductController {
     }
   }
 
-  @Get(':id')
+  @Get(':identifier')
   @Permissions(Permission.PRODUCT_READ)
-  @ApiOperation({ summary: 'Get a product by ID' })
-  @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiOperation({ 
+    summary: 'Get a product by identifier (slug, SKU, or ID)',
+    description: 'Retrieve a product using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+  })
+  @ApiParam({ 
+    name: 'identifier', 
+    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion'
+  })
   @ApiQuery({
     name: 'includeDeleted',
     required: false,
     type: Boolean,
     description:
       'Include if product is deleted (requires management permissions)',
+  })
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
+    type: String,
+    description: 'Organization ID for scoped product lookup',
   })
   @ApiResponse({
     status: 200,
@@ -340,13 +353,15 @@ export class ProductController {
     description: 'Forbidden - insufficient permissions',
   })
   @ApiResponse({ status: 404, description: 'Product not found' })
-  async findById(
-    @Param('id') id: string,
+  async findByIdentifier(
+    @Param('identifier') identifier: string,
     @Query('includeDeleted') includeDeleted?: boolean,
+    @Query('organizationId') organizationId?: string,
   ) {
     try {
-      const product = await this.productService.findById(id, {
+      const product = await this.productService.findByIdentifier(identifier, {
         includeDeleted,
+        organizationId,
       });
       return fetched(product);
     } catch (err) {
@@ -387,12 +402,25 @@ export class ProductController {
     }
   }
 
-  @Patch(':id')
+  @Patch(':identifier')
   @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
     mode: 'any',
   })
-  @ApiOperation({ summary: 'Update a product' })
-  @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiOperation({ 
+    summary: 'Update a product by identifier (slug, SKU, or ID)',
+    description: 'Update a product using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+  })
+  @ApiParam({ 
+    name: 'identifier', 
+    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion'
+  })
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
+    type: String,
+    description: 'Organization ID for scoped product lookup',
+  })
   @ApiResponse({
     status: 200,
     description: 'Product updated successfully',
@@ -418,10 +446,21 @@ export class ProductController {
     description: 'Forbidden - insufficient permissions',
   })
   @ApiResponse({ status: 404, description: 'Product not found' })
-  async update(@Param('id') id: string, @Body() updateDto: UpdateProductDto, @CurrentUser() user: UserContext) {
+  async update(
+    @Param('identifier') identifier: string, 
+    @Body() updateDto: UpdateProductDto, 
+    @CurrentUser() user: UserContext,
+    @Query('organizationId') organizationId?: string,
+  ) {
     try {
+      // Resolve identifier to product ID
+      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      if (!productId) {
+        throw new NotFoundException('Product not found');
+      }
+
       updateDto.updatedBy = user.userId;
-      const product = await this.productService.update(id, updateDto);
+      const product = await this.productService.update(productId, updateDto);
       return updated(product, 'Product updated successfully');
     } catch (err) {
       if (err instanceof HttpException) {
@@ -437,12 +476,25 @@ export class ProductController {
     }
   }
 
-  @Delete(':id')
+  @Delete(':identifier')
   @Permissions([Permission.PRODUCT_DELETE, Permission.PRODUCT_MANAGE], {
     mode: 'any',
   })
-  @ApiOperation({ summary: 'Soft delete a product' })
-  @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiOperation({ 
+    summary: 'Soft delete a product by identifier (slug, SKU, or ID)',
+    description: 'Soft delete a product using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+  })
+  @ApiParam({ 
+    name: 'identifier', 
+    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion'
+  })
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
+    type: String,
+    description: 'Organization ID for scoped product lookup',
+  })
   @ApiResponse({
     status: 200,
     description: 'Product deleted successfully',
@@ -468,9 +520,19 @@ export class ProductController {
     description: 'Forbidden - insufficient permissions',
   })
   @ApiResponse({ status: 404, description: 'Product not found' })
-  async softDelete(@Param('id') id: string, @CurrentUser() user: UserContext) {
+  async softDelete(
+    @Param('identifier') identifier: string, 
+    @CurrentUser() user: UserContext,
+    @Query('organizationId') organizationId?: string,
+  ) {
     try {
-      await this.productService.softDelete(id, user.userId);
+      // Resolve identifier to product ID
+      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      if (!productId) {
+        throw new NotFoundException('Product not found');
+      }
+
+      await this.productService.softDelete(productId, user.userId);
       return deleted('Product deleted successfully');
     } catch (err) {
       if (err instanceof HttpException) {
@@ -486,10 +548,23 @@ export class ProductController {
     }
   }
 
-  @Post(':id/restore')
+  @Post(':identifier/restore')
   @Permissions([Permission.PRODUCT_MANAGE])
-  @ApiOperation({ summary: 'Restore a soft-deleted product' })
-  @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiOperation({ 
+    summary: 'Restore a soft-deleted product by identifier (slug, SKU, or ID)',
+    description: 'Restore a soft-deleted product using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+  })
+  @ApiParam({ 
+    name: 'identifier', 
+    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion'
+  })
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
+    type: String,
+    description: 'Organization ID for scoped product lookup',
+  })
   @ApiResponse({
     status: 200,
     description: 'Product restored successfully',
@@ -500,9 +575,18 @@ export class ProductController {
     description: 'Forbidden - insufficient permissions',
   })
   @ApiResponse({ status: 404, description: 'Product not found' })
-  async restore(@Param('id') id: string) {
+  async restore(
+    @Param('identifier') identifier: string,
+    @Query('organizationId') organizationId?: string,
+  ) {
     try {
-      const product = await this.productService.restore(id);
+      // Resolve identifier to product ID
+      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      if (!productId) {
+        throw new NotFoundException('Product not found');
+      }
+
+      const product = await this.productService.restore(productId);
       return updated(product, 'Product restored successfully');
     } catch (err) {
       if (err instanceof HttpException) {
@@ -518,7 +602,121 @@ export class ProductController {
     }
   }
 
-  @Get(':id/versions')
+  @Post(':identifier/publish')
+  @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
+    mode: 'any',
+  })
+  @ApiOperation({ 
+    summary: 'Publish a product (set status to active) by identifier (slug, SKU, or ID)',
+    description: 'Publish a product using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+  })
+  @ApiParam({ 
+    name: 'identifier', 
+    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion'
+  })
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
+    type: String,
+    description: 'Organization ID for scoped product lookup',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Product published successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - insufficient permissions',
+  })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  async publish(
+    @Param('identifier') identifier: string,
+    @CurrentUser() user: UserContext,
+    @Query('organizationId') organizationId?: string,
+  ) {
+    try {
+      // Resolve identifier to product ID
+      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      if (!productId) {
+        throw new NotFoundException('Product not found');
+      }
+
+      const product = await this.productService.publish(productId, user.userId);
+      return updated(product, 'Product published successfully');
+    } catch (err) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
+      throw new HttpException(
+        error(
+          'PRODUCT_PUBLISH_ERROR',
+          err.message || 'Failed to publish product',
+        ),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post(':identifier/inactive')
+  @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
+    mode: 'any',
+  })
+  @ApiOperation({ 
+    summary: 'Mark a product as inactive by identifier (slug, SKU, or ID)',
+    description: 'Mark a product as inactive using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+  })
+  @ApiParam({ 
+    name: 'identifier', 
+    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion'
+  })
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
+    type: String,
+    description: 'Organization ID for scoped product lookup',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Product marked as inactive successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized - not authenticated' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - insufficient permissions',
+  })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  async markInactive(
+    @Param('identifier') identifier: string,
+    @CurrentUser() user: UserContext,
+    @Query('organizationId') organizationId?: string,
+  ) {
+    try {
+      // Resolve identifier to product ID
+      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      if (!productId) {
+        throw new NotFoundException('Product not found');
+      }
+
+      const product = await this.productService.markInactive(productId, user.userId);
+      return updated(product, 'Product marked as inactive successfully');
+    } catch (err) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
+      throw new HttpException(
+        error(
+          'PRODUCT_INACTIVE_ERROR',
+          err.message || 'Failed to mark product as inactive',
+        ),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get(':identifier/versions')
   @Permissions(Permission.PRODUCT_READ)
   @ApiOperation({ summary: 'Get version history of a product' })
   @ApiParam({ name: 'id', description: 'Product ID' })

@@ -42,6 +42,22 @@ export class ProductRepository {
       .exec();
   }
 
+  async findBySlug(
+    slug: string,
+    organizationId?: string,
+  ): Promise<ProductDocument | null> {
+    const query: any = { slug: slug.toLowerCase() };
+    if (organizationId) {
+      query.organizationId = new Types.ObjectId(organizationId);
+    }
+    return this.productModel
+      .findOne(query)
+      .populate('organizationId', 'name code')
+      .populate('createdBy', 'fullName email')
+      .populate('updatedBy', 'fullName email')
+      .exec();
+  }
+
   async findByBarcode(barcode: string): Promise<ProductDocument | null> {
     return this.productModel.findOne({ barcode }).exec();
   }
