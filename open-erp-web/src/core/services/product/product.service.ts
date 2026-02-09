@@ -296,18 +296,31 @@ export class ProductService {
   }
 
   /**
-   * Get a single product by ID
-   * GET /products/:id
+   * Get a product by identifier (slug, SKU, or ID)
+   * GET /products/:identifier
+   * Resolution order: slug → sku → id
    */
-  getProductById(id: string, includeDeleted = false): Observable<Product> {
+  getProductByIdentifier(identifier: string, includeDeleted = false, organizationId?: string): Observable<Product> {
     let httpParams = new HttpParams();
     if (includeDeleted) {
       httpParams = httpParams.set('includeDeleted', 'true');
     }
+    if (organizationId) {
+      httpParams = httpParams.set('organizationId', organizationId);
+    }
 
     return this.http
-      .get<ApiSingleResponse<Product>>(`${this.baseUrl}/${id}`, { params: httpParams })
+      .get<ApiSingleResponse<Product>>(`${this.baseUrl}/${identifier}`, { params: httpParams })
       .pipe(map((response) => response.data?.item!));
+  }
+
+  /**
+   * Get a single product by ID
+   * GET /products/:id
+   * @deprecated Use getProductByIdentifier instead for slug support
+   */
+  getProductById(id: string, includeDeleted = false): Observable<Product> {
+    return this.getProductByIdentifier(id, includeDeleted);
   }
 
   /**
