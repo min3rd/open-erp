@@ -3077,7 +3077,7 @@
     },
     "tabs": {
       "general": "General Info",
-      "media": "Images & Videos",
+      "media": "Media & Documents",
       "mediaPlaceholder": "Media gallery upload feature coming soon",
       "dimensions": "Dimensions & Weight",
       "storage": "Storage Conditions",
@@ -3085,7 +3085,7 @@
       "warehousePlaceholder": "Warehouse-specific settings coming soon",
       "custom": "Custom Fields",
       "customPlaceholder": "Custom fields editor coming soon",
-      "mediaDescription": "Upload images, videos, or documents for this product",
+      "mediaDescription": "Upload images, videos, or documents (including Microsoft Office files) for this product",
       "mediaEmpty": "No media files added yet. Click Upload Media to add files.",
       "existing": "existing"
     },
@@ -3095,7 +3095,9 @@
       "saveDraft": "Save Draft",
       "save": "Save Changes",
       "remove": "Remove",
-      "restore": "Restore"
+      "restore": "Restore",
+      "viewOnlyOffice": "View with OnlyOffice",
+      "editOnlyOffice": "Edit with OnlyOffice"
     },
     "messages": {
       "success": "Success",
@@ -3105,18 +3107,21 @@
       "validationFailed": "Please fix the validation errors",
       "invalidFileType": "Invalid file type. Please upload a JPEG, PNG, or WebP image",
       "fileTooLarge": "File size exceeds 5MB limit",
-      "invalidMediaType": "Invalid file type. Supported: images, videos, PDF, Word documents",
+      "invalidMediaType": "Invalid file type. Supported: images, videos, PDF, Office documents (Word, Excel, PowerPoint)",
       "mediaTooLarge": "File size exceeds 50MB limit",
       "mediaAdded": "{{count}} file(s) added successfully",
       "uploadFailed": "Failed to upload files",
       "reset": "Form Reset",
       "resetDetail": "Form has been reset to original values",
       "noPermission": "You don't have permission to edit this product",
-      "forbidden": "Forbidden: You don't have permission to update this product"
+      "forbidden": "Forbidden: You don't have permission to update this product",
+      "onlyOfficeNoFile": "File is not available for OnlyOffice editing",
+      "onlyOfficeFailed": "Failed to open OnlyOffice editor"
+    },
+    "onlyOffice": {
+      "title": "Document Editor",
+      "loadingEditor": "Loading OnlyOffice editor...",
+      "close": "Close Editor"
     }
-  },
-  "productScope": {
-    "global": "Global",
-    "organization": "Organization"
   }
 }
