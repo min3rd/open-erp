@@ -598,13 +598,19 @@ export class ProductEdit implements OnInit {
 
       // Handle category
       if (formValue.categoryId !== (product.categoryId || '')) {
-        if (formValue.categoryId && formValue.categoryName) {
-          const selectedCategory = this.categoryOptions().find((c) => c.value === formValue.categoryId);
+        const selectedCategory = formValue.categoryId
+          ? this.categoryOptions().find((c) => c.value === formValue.categoryId)
+          : undefined;
+
+        if (formValue.categoryId && selectedCategory) {
           dto.category = {
             id: formValue.categoryId,
-            name: formValue.categoryName,
-            code: selectedCategory?.code,
+            name: (selectedCategory as any).label,
+            code: (selectedCategory as any).code,
           };
+        } else if (!formValue.categoryId && product.categoryId) {
+          // Category was cleared by the user
+          dto.category = null as any;
         }
       }
 
