@@ -203,6 +203,8 @@
             [(contextMenuSelection)]="selectedUser"
             [contextMenu]="contextMenu"
             [loading]="isLoading()"
+            [scrollable]="true"
+            scrollHeight="flex"
             showGridlines
             [resizableColumns]="true"
             columnResizeMode="expand"
@@ -316,6 +318,15 @@
           </p-table>
         }
 
+        <!-- Context Menu for Row Actions (Desktop) -->
+        <p-contextMenu
+          #contextMenu
+          id="user-list-context-menu"
+          [model]="contextMenuItems"
+          (onHide)="selectedUser = null"
+          appendTo="body"
+        />
+
         <!-- Mobile List/Card View -->
         @if (isMobile()) {
           <div id="user-list-mobile" class="p-2">
@@ -413,16 +424,16 @@
               </div>
             }
           </div>
-        }
 
-        <!-- Context Menu for Row Actions (Desktop) -->
-        <p-contextMenu
-          #contextMenu
-          id="user-list-context-menu"
-          [model]="contextMenuItems"
-          (onHide)="selectedUser = null"
-          appendTo="body"
-        />
+          <!-- Context Menu for Row Actions (Mobile) -->
+          <p-contextMenu
+            #contextMenu
+            id="user-list-context-menu"
+            [model]="contextMenuItems"
+            (onHide)="selectedUser = null"
+            appendTo="body"
+          />
+        }
       </div>
 
       <!-- Fixed Footer for Mobile Pagination -->
