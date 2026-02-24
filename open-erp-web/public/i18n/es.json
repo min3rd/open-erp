@@ -229,7 +229,18 @@
     "messageInput": "Entrada de mensaje",
     "sendMessage": "Enviar mensaje",
     "participants": "participantes",
-    "noMessages": "Aún no hay mensajes"
+    "noMessages": "Aún no hay mensajes",
+    "messageDeleted": "Este mensaje fue eliminado",
+    "edited": "editado",
+    "direct": "Directo",
+    "group": "Grupo",
+    "groupTitle": "Nombre del grupo...",
+    "searchUsers": "Buscar por email o nombre...",
+    "noUsersFound": "No se encontraron usuarios",
+    "searchHint": "Escribe al menos 2 caracteres",
+    "startChat": "Iniciar chat",
+    "createGroup": "Crear grupo",
+    "sendMessageHint": "Enviar (Ctrl+Enter)"
   },
   "organization": {
     "title": "Organización",

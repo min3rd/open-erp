@@ -127,7 +127,18 @@
     "messageInput": "Nhập tin nhắn",
     "sendMessage": "Gửi tin nhắn",
     "participants": "người tham gia",
-    "noMessages": "Chưa có tin nhắn nào"
+    "noMessages": "Chưa có tin nhắn nào",
+    "messageDeleted": "Tin nhắn này đã bị xóa",
+    "edited": "đã chỉnh sửa",
+    "direct": "Trực tiếp",
+    "group": "Nhóm",
+    "groupTitle": "Tên nhóm...",
+    "searchUsers": "Tìm theo email hoặc tên...",
+    "noUsersFound": "Không tìm thấy người dùng",
+    "searchHint": "Nhập ít nhất 2 ký tự",
+    "startChat": "Bắt đầu chat",
+    "createGroup": "Tạo nhóm",
+    "sendMessageHint": "Gửi (Ctrl+Enter)"
   },
   "organizationSwitcher": {
     "label": "Doanh nghiệp hiện tại",
