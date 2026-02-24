@@ -3,6 +3,7 @@ import { privateGuard } from '../core/guard/private-guard';
 import { Layout } from '../core/layout/layout';
 import { forkJoin } from 'rxjs';
 import { inject } from '@angular/core';
+import { tap } from 'rxjs/operators';
 import { NavigationService } from '../core/services/navigation-service';
 import { AuthService } from '../core/services/auth-service';
 import { ChatService } from '../core/services/chat-service';
@@ -14,15 +15,20 @@ const initializeData = () => {
   const chatService = inject(ChatService);
   const languageService = inject(LanguageService);
 
-  // Connect WebSocket immediately after auth — fire and forget, does not block routing
-  const token = authService.accessToken;
-  if (token) {
-    chatService.connectSocket(token);
-  }
-
   return forkJoin([
     navigationService.loadModules(),
-    authService.me(),
+    authService.me().pipe(
+      tap((response: any) => {
+        const userId = response?.data?.item?.id ?? null;
+        if (userId) {
+          chatService.setCurrentUser(userId);
+        }
+        const token = authService.accessToken;
+        if (token) {
+          chatService.connectSocket(token);
+        }
+      }),
+    ),
     chatService.loadConversations(),
     languageService.loadLanguages(),
   ]);

@@ -139,7 +139,11 @@
     "startChat": "Bắt đầu chat",
     "createGroup": "Tạo nhóm",
     "sendMessageHint": "Gửi (Ctrl+Enter)",
-    "recentContacts": "Liên hệ gần đây"
+    "recentContacts": "Liên hệ gần đây",
+    "someone": "Ai đó",
+    "sentAttachment": "Đã gửi tệp đính kèm",
+    "failedToSend": "Không thể gửi tin nhắn",
+    "failedToCreateConversation": "Không thể tạo cuộc trò chuyện"
   },
   "organizationSwitcher": {
     "label": "Doanh nghiệp hiện tại",

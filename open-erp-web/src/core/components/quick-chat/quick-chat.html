@@ -141,23 +141,21 @@
               class="flex gap-2 items-end"
               [class.flex-row-reverse]="isSelf(message)"
             >
-              <!-- Sender Avatar -->
-              @if (selectedConversation.participants.length > 1) {
-                @if (getSenderInfo(message)?.avatarUrl) {
-                  <p-avatar
-                    [image]="getSenderInfo(message)!.avatarUrl!"
-                    size="normal"
-                    shape="circle"
-                    class="flex-shrink-0"
-                  />
-                } @else {
-                  <p-avatar
-                    [label]="(getSenderInfo(message)?.fullName ?? '?').charAt(0)"
-                    size="normal"
-                    shape="circle"
-                    class="flex-shrink-0"
-                  />
-                }
+              <!-- Sender Avatar (always shown) -->
+              @if (getSenderInfo(message)?.avatarUrl) {
+                <p-avatar
+                  [image]="getSenderInfo(message)!.avatarUrl!"
+                  size="normal"
+                  shape="circle"
+                  class="flex-shrink-0"
+                />
+              } @else {
+                <p-avatar
+                  [label]="getAvatarLabel(getSenderInfo(message)?.fullName)"
+                  size="normal"
+                  shape="circle"
+                  class="flex-shrink-0"
+                />
               }
 
               <!-- Message Bubble -->
@@ -319,7 +317,7 @@
           size="small"
           (onClick)="sendMessage()"
           [loading]="sendingMessage"
-          [disabled]="(!messageText.trim() && !pendingAttachments.length) || sendingMessage"
+          [disabled]="(!messageText.trim() && !pendingAttachments.length) || sendingMessage || uploading || hasPendingUploads"
           [attr.aria-label]="'quickChat.sendMessage' | transloco"
           pTooltip="{{ 'quickChat.sendMessageHint' | transloco }}"
           tooltipPosition="top"
