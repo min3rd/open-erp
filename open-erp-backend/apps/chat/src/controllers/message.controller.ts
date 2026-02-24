@@ -1,0 +1,107 @@
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Request,
+  HttpCode,
+  HttpStatus,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from '@shared/authz';
+import { ok, created, paginated } from '@shared/response';
+import { MessageService } from '../services/message.service';
+import { SendMessageDto } from '../dto/send-message.dto';
+import { ListMessagesQueryDto } from '../dto/list-messages-query.dto';
+
+interface AuthenticatedRequest {
+  user: { userId: string; email: string };
+}
+
+@ApiTags('messages')
+@Controller('conversations')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+export class MessageController {
+  constructor(private readonly messageService: MessageService) {}
+
+  @Post(':conversationId/messages')
+  @HttpCode(HttpStatus.CREATED)
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @ApiOperation({ summary: 'Send a message to a conversation' })
+  @ApiParam({ name: 'conversationId', description: 'Conversation ID' })
+  @ApiResponse({ status: 201, description: 'Message sent' })
+  @ApiResponse({ status: 400, description: 'Invalid input' })
+  @ApiResponse({ status: 403, description: 'Not a participant' })
+  async sendMessage(
+    @Request() req: AuthenticatedRequest,
+    @Param('conversationId') conversationId: string,
+    @Body() dto: SendMessageDto,
+  ) {
+    const result = await this.messageService.sendMessage(
+      req.user.userId,
+      conversationId,
+      dto.type,
+      dto.content,
+      dto.attachments,
+    );
+    return created(result, 'Message sent');
+  }
+
+  @Get(':conversationId/messages')
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  @ApiOperation({ summary: 'List messages in a conversation with pagination' })
+  @ApiParam({ name: 'conversationId', description: 'Conversation ID' })
+  @ApiResponse({ status: 200, description: 'Messages retrieved' })
+  @ApiResponse({ status: 403, description: 'Not a participant' })
+  async getMessages(
+    @Request() req: AuthenticatedRequest,
+    @Param('conversationId') conversationId: string,
+    @Query() query: ListMessagesQueryDto,
+  ) {
+    const result = await this.messageService.getMessages(
+      req.user.userId,
+      conversationId,
+      query.page,
+      query.limit,
+      query.before,
+    );
+    return paginated(
+      result.items,
+      query.page || 1,
+      query.limit || 50,
+      result.total,
+      undefined,
+      'Messages retrieved',
+    );
+  }
+
+  @Post(':conversationId/read')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Mark all messages in a conversation as read' })
+  @ApiParam({ name: 'conversationId', description: 'Conversation ID' })
+  @ApiResponse({ status: 200, description: 'Messages marked as read' })
+  @ApiResponse({ status: 403, description: 'Not a participant' })
+  async markAsRead(
+    @Request() req: AuthenticatedRequest,
+    @Param('conversationId') conversationId: string,
+  ) {
+    const result = await this.messageService.markAsRead(
+      req.user.userId,
+      conversationId,
+    );
+    return ok(result, 'Messages marked as read');
+  }
+}

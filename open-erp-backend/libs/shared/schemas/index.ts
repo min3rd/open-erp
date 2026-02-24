@@ -22,3 +22,5 @@ export * from './address.schema';
 export * from './geometry-version.schema';
 export * from './file.schema';
 export * from './file-version.schema';
+export * from './conversation.schema';
+export * from './message.schema';

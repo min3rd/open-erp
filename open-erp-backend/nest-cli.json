@@ -79,6 +79,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/file-service/tsconfig.json"
       }
+    },
+    "chat": {
+      "type": "application",
+      "root": "apps/chat",
+      "entryFile": "main",
+      "sourceRoot": "apps/chat/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/chat/tsconfig.json"
+      }
     }
   }
 }

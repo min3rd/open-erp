@@ -84,6 +84,16 @@
     {
       "type": "node",
       "request": "launch",
+      "cwd": "${workspaceFolder}/open-erp-backend",
+      "name": "Chat Service (Dev)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:chat:dev"],
+      "sourceMaps": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "cwd": "${workspaceFolder}/open-erp-web",
       "name": "Open ERP Web (Dev)",
       "runtimeExecutable": "npm",

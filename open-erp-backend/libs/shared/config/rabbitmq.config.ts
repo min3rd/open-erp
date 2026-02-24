@@ -34,6 +34,11 @@ export const RABBITMQ_QUEUES = {
   ORGANIZATION_EVENTS: 'organization.events',
   ORGANIZATION_RPC: 'organization.rpc',
   ORGANIZATION_DLX: 'organization.dlx',
+
+  // Chat service queues
+  CHAT_EVENTS: 'chat.events',
+  CHAT_RPC: 'chat.rpc',
+  CHAT_DLX: 'chat.dlx',
 } as const;
 
 export const RABBITMQ_ROUTING_KEYS = {
@@ -72,6 +77,12 @@ export const RABBITMQ_ROUTING_KEYS = {
   RPC_USER: 'rpc.user',
   RPC_NOTIFICATION: 'rpc.notification',
   RPC_ORGANIZATION: 'rpc.organization',
+  RPC_CHAT: 'rpc.chat',
+
+  // Chat events
+  CHAT_MESSAGE_SENT: 'chat.message.sent',
+  CHAT_CONVERSATION_CREATED: 'chat.conversation.created',
+  CHAT_MESSAGE_READ: 'chat.message.read',
 } as const;
 
 export const RABBITMQ_DEFAULT_CONFIG = {

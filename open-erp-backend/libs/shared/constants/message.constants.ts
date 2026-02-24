@@ -61,6 +61,12 @@ export const RPC_METHODS = {
     GET_NAVIGATION_MODULE: 'getNavigationModule',
     RELOAD_NAVIGATION_CACHE: 'reloadNavigationCache',
   },
+
+  // Chat Service RPC Methods
+  CHAT: {
+    FIND_CONVERSATION: 'findConversation',
+    GET_CONVERSATIONS: 'getConversations',
+  },
 } as const;
 
 /**
@@ -126,6 +132,13 @@ export const EVENT_NAMES = {
     DELETED: 'navigation.deleted',
     MOVED: 'navigation.moved',
   },
+
+  // Chat Events
+  CHAT: {
+    MESSAGE_SENT: 'chat.message.sent',
+    CONVERSATION_CREATED: 'chat.conversation.created',
+    MESSAGE_READ: 'chat.message.read',
+  },
 } as const;
 
 /**
@@ -141,6 +154,8 @@ export type OrganizationRpcMethod =
   (typeof RPC_METHODS.ORGANIZATION)[keyof typeof RPC_METHODS.ORGANIZATION];
 export type ConfigRpcMethod =
   (typeof RPC_METHODS.CONFIG)[keyof typeof RPC_METHODS.CONFIG];
+export type ChatRpcMethod =
+  (typeof RPC_METHODS.CHAT)[keyof typeof RPC_METHODS.CHAT];
 
 /**
  * Type helpers for event names
@@ -157,3 +172,5 @@ export type ConfigEvent =
   (typeof EVENT_NAMES.CONFIG)[keyof typeof EVENT_NAMES.CONFIG];
 export type NavigationEvent =
   (typeof EVENT_NAMES.NAVIGATION)[keyof typeof EVENT_NAMES.NAVIGATION];
+export type ChatEvent =
+  (typeof EVENT_NAMES.CHAT)[keyof typeof EVENT_NAMES.CHAT];
