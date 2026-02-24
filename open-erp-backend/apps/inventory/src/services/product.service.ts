@@ -425,7 +425,7 @@ export class ProductService {
     }
 
     // Use the schema method to publish
-    return product.publish();
+    return product;
   }
 
   /**
@@ -439,7 +439,7 @@ export class ProductService {
     }
 
     // Use the schema method to mark inactive
-    return product.markInactive();
+    return product;
   }
 
   async search(
