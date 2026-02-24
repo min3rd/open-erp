@@ -363,39 +363,44 @@ export class QuickChat implements OnInit, OnDestroy {
     let uploaded = 0;
     files.forEach((file) => {
       // Build local preview URL for instant display while uploading
-      const previewUrl =
+      const localBlobUrl =
         file.type.startsWith('image/') || file.type.startsWith('video/')
           ? URL.createObjectURL(file)
           : undefined;
 
-      // Add a placeholder entry with blob URL while uploading
+      // Add a placeholder entry — identified by object reference
       const placeholder: UploadedAttachment = {
         url: '', // will be replaced by real URL after upload
         filename: file.name,
         mimeType: file.type,
         size: file.size,
-        previewUrl,
+        previewUrl: localBlobUrl,
       };
       this.pendingAttachments = [...this.pendingAttachments, placeholder];
-      const placeholderIndex = this.pendingAttachments.length - 1;
       this.cdr.markForCheck();
 
       // Upload to file service and get public URL
       this.chatService.uploadFile(file).subscribe({
         next: (result) => {
-          // Replace placeholder with uploaded URL
-          const updated = [...this.pendingAttachments];
-          if (previewUrl) URL.revokeObjectURL(previewUrl); // clean up blob
-          updated[placeholderIndex] = {
-            url: result.url,
-            filename: result.filename,
-            mimeType: result.mimeType,
-            size: result.size,
-            previewUrl: result.mimeType.startsWith('image/') || result.mimeType.startsWith('video/')
-              ? result.url
-              : undefined,
-          };
-          this.pendingAttachments = updated;
+          // Revoke blob URL only after we have the real URL
+          if (localBlobUrl) URL.revokeObjectURL(localBlobUrl);
+
+          // Replace placeholder using object identity
+          this.pendingAttachments = this.pendingAttachments.map((a) =>
+            a === placeholder
+              ? {
+                  url: result.url,
+                  filename: result.filename,
+                  mimeType: result.mimeType,
+                  size: result.size,
+                  previewUrl:
+                    result.mimeType.startsWith('image/') ||
+                    result.mimeType.startsWith('video/')
+                      ? result.url
+                      : undefined,
+                }
+              : a,
+          );
           uploaded++;
           this.uploadProgress = Math.round((uploaded / files.length) * 100);
           if (uploaded === files.length) {
@@ -404,11 +409,11 @@ export class QuickChat implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         },
         error: () => {
-          // Remove failed placeholder
+          if (localBlobUrl) URL.revokeObjectURL(localBlobUrl);
+          // Remove failed placeholder using object identity
           this.pendingAttachments = this.pendingAttachments.filter(
-            (_, i) => i !== placeholderIndex,
+            (a) => a !== placeholder,
           );
-          if (previewUrl) URL.revokeObjectURL(previewUrl);
           uploaded++;
           if (uploaded === files.length) {
             this.uploading = false;
@@ -416,7 +421,7 @@ export class QuickChat implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: this.translocoService.translate('common.error'),
-            detail: this.translocoService.translate('quickChat.failedToSend'),
+            detail: this.translocoService.translate('quickChat.failedToUpload'),
             life: 3000,
           });
           this.cdr.markForCheck();

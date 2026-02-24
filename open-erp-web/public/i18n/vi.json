@@ -143,7 +143,8 @@
     "someone": "Ai đó",
     "sentAttachment": "Đã gửi tệp đính kèm",
     "failedToSend": "Không thể gửi tin nhắn",
-    "failedToCreateConversation": "Không thể tạo cuộc trò chuyện"
+    "failedToCreateConversation": "Không thể tạo cuộc trò chuyện",
+    "failedToUpload": "Không thể tải lên tệp"
   },
   "organizationSwitcher": {
     "label": "Doanh nghiệp hiện tại",
