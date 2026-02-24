@@ -8,5 +8,5 @@ export const API_URI_COMMON = 'http://localhost:3007';
 export const API_URI_FILE = 'http://localhost:3008';
 export const API_URI_CHAT = 'http://localhost:3009';
 
-// Pagination constants
-export const PAGE_SIZE_OPTIONS = [100, 500, 1000, 10000];
+// Re-exported from ui.constants.ts for backward compatibility
+export { PAGE_SIZE_OPTIONS } from './constants/ui.constants';
