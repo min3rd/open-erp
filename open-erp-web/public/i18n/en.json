@@ -256,7 +256,8 @@
     "someone": "Someone",
     "sentAttachment": "Sent an attachment",
     "failedToSend": "Failed to send message",
-    "failedToCreateConversation": "Failed to create conversation"
+    "failedToCreateConversation": "Failed to create conversation",
+    "failedToUpload": "Failed to upload file"
   },
   "organization": {
     "title": "Organization",

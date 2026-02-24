@@ -245,7 +245,8 @@
     "someone": "Alguien",
     "sentAttachment": "Envió un archivo adjunto",
     "failedToSend": "Error al enviar el mensaje",
-    "failedToCreateConversation": "Error al crear la conversación"
+    "failedToCreateConversation": "Error al crear la conversación",
+    "failedToUpload": "Error al cargar el archivo"
   },
   "organization": {
     "title": "Organización",

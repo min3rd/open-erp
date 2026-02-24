@@ -226,7 +226,9 @@ export class ChatService implements OnDestroy {
   connectSocket(token: string): Observable<void> {
     if (this._socket?.connected) return of(undefined);
 
-    // Lazy-load socket.io-client to keep initial bundle small
+    // Fire-and-forget: lazily load socket.io-client and connect.
+    // Returns of(undefined) immediately so forkJoin() doesn't block —
+    // socket registration is async and non-blocking by design.
     import('socket.io-client').then(({ io }) => {
       this._socket = io(`${API_URI_CHAT}/chat`, {
         auth: { token },
