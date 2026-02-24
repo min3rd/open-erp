@@ -10,12 +10,9 @@ import {
   HttpStatus,
   HttpException,
   UseGuards,
-  ParseBoolPipe,
-  ParseArrayPipe,
-  DefaultValuePipe,
   BadRequestException,
   ForbiddenException,
-  Request,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -38,7 +35,7 @@ import {
 import { ProductScope, ProductType, ProductStatus } from '@shared/constants';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { PermissionsGuard } from '@shared/authz/permissions.guard';
-import { Permissions, Public } from '@shared/authz/decorators';
+import { Permissions } from '@shared/authz/decorators';
 import { Permission } from '@shared/types/permission.enum';
 import { CurrentUser } from '@shared/authz/current-user.decorator';
 import { AuthorizationService } from '@shared/authz/authorization.service';
