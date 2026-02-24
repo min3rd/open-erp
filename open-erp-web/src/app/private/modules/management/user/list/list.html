@@ -260,7 +260,7 @@
                 <td>
                   <p-avatar
                     [image]="user.avatar"
-                    [label]="user.fullName.charAt(0)"
+                    [label]="user.fullName ? user.fullName.charAt(0) : ''"
                     shape="circle"
                     size="normal"
                   />

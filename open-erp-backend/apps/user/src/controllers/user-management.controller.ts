@@ -10,6 +10,8 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Request,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -29,7 +31,8 @@ import {
 import { JwtAuthGuard } from '@shared/authz';
 import { Permissions } from '@shared/authz/decorators';
 import { Permission } from '@shared/types/permission.enum';
-import { PermissionsGuard } from '@shared/authz';
+import { PermissionsGuard, AuthorizationService } from '@shared/authz';
+import { AuthenticatedRequest } from '@shared/interfaces';
 import {
   created,
   fetched,
@@ -44,7 +47,10 @@ import {
 @Controller('users')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 export class UserManagementController {
-  constructor(private readonly userManagementService: UserManagementService) {}
+  constructor(
+    private readonly userManagementService: UserManagementService,
+    private readonly authorizationService: AuthorizationService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new user (global)' })
@@ -69,11 +75,28 @@ export class UserManagementController {
   @Get()
   @ApiOperation({ summary: 'List/search users' })
   @ApiResponse({ status: 200, description: 'Return list of users' })
-  @Permissions([Permission.USER_READ, Permission.USER_MANAGE], {
-    mode: 'any',
-    scope: 'global',
-  })
-  async listUsers(@Query() query: ListUsersQueryDto) {
+  async listUsers(
+    @Query() query: ListUsersQueryDto,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    const scope =
+      query.scope || (query.organizationId ? 'organization' : 'global');
+    query.scope = scope; // ensure service uses the resolved scope
+    const organizationId = query.organizationId;
+
+    // Custom permission check to allow either global or organization scoped access
+    const hasPermission = await this.authorizationService.hasAnyPermission(
+      req.user.userId,
+      [Permission.USER_READ, Permission.USER_MANAGE],
+      { scope: scope as any, organizationId },
+    );
+
+    if (!hasPermission) {
+      throw new ForbiddenException(
+        'Insufficient permissions to list users in the requested scope',
+      );
+    }
+
     const result = await this.userManagementService.listUsers(query);
     return paginated(
       result.users,
