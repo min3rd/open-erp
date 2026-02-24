@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import {
   ConversationDto,
   MessageDto,
+  MessageType,
   SendMessagePayload,
   CreateDirectConversationPayload,
   CreateGroupConversationPayload,
@@ -334,7 +335,11 @@ export class ChatService implements OnDestroy {
   }
 
   private _normalizeMessage(m: any): MessageDto {
-    const type = (m.type ?? m.contentType ?? 'text') as any;
+    const VALID_TYPES: MessageType[] = ['text', 'image', 'video', 'file', 'audio'];
+    const raw: string = m.type ?? m.contentType ?? 'text';
+    const type: MessageType = (VALID_TYPES as string[]).includes(raw)
+      ? (raw as MessageType)
+      : 'text';
     return {
       id: m.id ?? m._id?.toString(),
       _id: m._id?.toString(),
