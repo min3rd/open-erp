@@ -50,7 +50,7 @@ export class PaginationComponent implements AfterViewInit {
   protected readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
 
   protected readonly totalPages = computed(() =>
-    Math.max(1, Math.ceil(this.totalRecords() / this.pageSize()))
+    Math.max(1, Math.ceil(this.totalRecords() / this.pageSize())),
   );
 
   protected readonly currentPageValue = computed(() => {
@@ -103,9 +103,7 @@ export class PaginationComponent implements AfterViewInit {
   private emitChange(page: number, pageSize: number): void {
     const totalPages = Math.max(1, Math.ceil(this.totalRecords() / pageSize));
     const targetPage = Math.min(Math.max(page, 1), totalPages);
-    if (targetPage === this.currentPageValue() && pageSize === this.pageSize()) {
-      return;
-    }
+
     this.pageChange.emit({ page: targetPage, pageSize });
     this.navigateTo.emit(targetPage);
   }
@@ -134,26 +132,26 @@ export class PaginationComponent implements AfterViewInit {
     this.applyButtonAttributes(
       host.querySelector('button.p-paginator-first') as HTMLButtonElement | null,
       this.firstButtonId(),
-      this.translocoService.translate('pagination.first')
+      this.translocoService.translate('pagination.first'),
     );
     this.applyButtonAttributes(
       host.querySelector('button.p-paginator-prev') as HTMLButtonElement | null,
       this.prevButtonId(),
-      this.translocoService.translate('pagination.previous')
+      this.translocoService.translate('pagination.previous'),
     );
     this.applyButtonAttributes(
       host.querySelector('button.p-paginator-next') as HTMLButtonElement | null,
       this.nextButtonId(),
-      this.translocoService.translate('pagination.next')
+      this.translocoService.translate('pagination.next'),
     );
     this.applyButtonAttributes(
       host.querySelector('button.p-paginator-last') as HTMLButtonElement | null,
       this.lastButtonId(),
-      this.translocoService.translate('pagination.last')
+      this.translocoService.translate('pagination.last'),
     );
 
     const pageButtons = Array.from(
-      host.querySelectorAll('button.p-paginator-page')
+      host.querySelectorAll('button.p-paginator-page'),
     ) as HTMLButtonElement[];
     pageButtons.forEach((button: HTMLButtonElement) => {
       const pageNumber = Number(button.textContent?.trim());
@@ -161,12 +159,12 @@ export class PaginationComponent implements AfterViewInit {
         this.renderer.setAttribute(
           button,
           'id',
-          `${this.idPrefix()}-pagination-page-${pageNumber}`
+          `${this.idPrefix()}-pagination-page-${pageNumber}`,
         );
         this.renderer.setAttribute(
           button,
           'aria-label',
-          this.translocoService.translate('pagination.page', { page: pageNumber })
+          this.translocoService.translate('pagination.page', { page: pageNumber }),
         );
       }
     });
@@ -177,14 +175,14 @@ export class PaginationComponent implements AfterViewInit {
       this.renderer.setAttribute(
         rowsDropdown,
         'aria-label',
-        this.translocoService.translate('pagination.pageSize')
+        this.translocoService.translate('pagination.pageSize'),
       );
       const dropdownButton = rowsDropdown.querySelector('button') as HTMLButtonElement | null;
       if (dropdownButton) {
         this.renderer.setAttribute(
           dropdownButton,
           'aria-label',
-          this.translocoService.translate('pagination.pageSize')
+          this.translocoService.translate('pagination.pageSize'),
         );
       }
     }
@@ -193,7 +191,7 @@ export class PaginationComponent implements AfterViewInit {
   private applyButtonAttributes(
     button: HTMLButtonElement | null,
     id: string,
-    ariaLabel: string
+    ariaLabel: string,
   ): void {
     if (!button) {
       return;

@@ -208,6 +208,18 @@
             columnResizeMode="expand"
             [rowHover]="true"
             dataKey="id"
+            [sortField]="sortField()!"
+            [sortOrder]="sortOrder()"
+            (onSort)="onSort($event)"
+            [paginator]="true"
+            [rows]="pageSize()"
+            [totalRecords]="totalRecords()"
+            [first]="(currentPage() - 1) * pageSize()"
+            [rowsPerPageOptions]="pageSizeOptions"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="{first} - {last} of {totalRecords}"
+            (onPage)="onPageChange($event)"
+            [lazy]="true"
           >
             <ng-template #header>
               <tr>
@@ -413,18 +425,22 @@
         />
       </div>
 
-      <!-- Fixed Footer with Pagination -->
-      <div
-        class="border-t border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 p-4"
-      >
-        <core-pagination
-          [idPrefix]="'user-list'"
-          [totalRecords]="totalRecords()"
-          [currentPage]="currentPage()"
-          [pageSize]="pageSize()"
-          (pageChange)="onPageChange($event)"
-        />
-      </div>
+      <!-- Fixed Footer for Mobile Pagination -->
+      @if (isMobile()) {
+        <div
+          class="border-t border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 p-4"
+        >
+          <p-paginator
+            [first]="(currentPage() - 1) * pageSize()"
+            [rows]="pageSize()"
+            [totalRecords]="totalRecords()"
+            [rowsPerPageOptions]="pageSizeOptions"
+            (onPageChange)="onPageChange($event)"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="{first} - {last} of {totalRecords}"
+          />
+        </div>
+      }
 
       <!-- Screen Reader Status Announcements -->
       <div

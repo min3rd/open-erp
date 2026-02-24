@@ -3,13 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { API_URI_USER } from '../constant';
-import {
-  ApiPaginatedResponse,
-  ApiResponse,
-  unwrap,
-  isApiResponse,
-  ApiResponseError,
-} from '../api';
+import { ApiPaginatedResponse, ApiResponse, unwrap, isApiResponse, ApiResponseError } from '../api';
 
 export interface User {
   id: string;
@@ -37,6 +31,8 @@ export interface GetUsersParams {
   search?: string;
   scope?: 'global' | 'organization';
   organizationId?: string;
+  sortField?: string;
+  sortOrder?: number;
 }
 
 @Injectable({
@@ -62,6 +58,13 @@ export class UserService {
       httpParams = httpParams.set('organizationId', params.organizationId);
     }
 
+    if (params.sortField) {
+      httpParams = httpParams.set('sort', params.sortField);
+      if (params.sortOrder) {
+        httpParams = httpParams.set('order', params.sortOrder === -1 ? 'desc' : 'asc');
+      }
+    }
+
     return this.http
       .get<ApiPaginatedResponse<User> | UserListResponse>(`${API_URI_USER}/v1/users`, {
         params: httpParams,
@@ -81,10 +84,12 @@ export class UserService {
             };
           }
           // Legacy format - return as-is
-          console.warn('UserService: Received legacy response format. Migration to API envelope pending.');
+          console.warn(
+            'UserService: Received legacy response format. Migration to API envelope pending.',
+          );
           return response as UserListResponse;
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -106,7 +111,7 @@ export class UserService {
           // Legacy format - return as-is
           return response as void;
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -128,7 +133,7 @@ export class UserService {
           // Legacy format - return as-is
           return response as void;
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 

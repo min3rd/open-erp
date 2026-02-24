@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, combineLatest, takeUntil } from 'rxjs';
 
 // PrimeNG imports
 import { TableModule } from 'primeng/table';
@@ -24,6 +24,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { MenuModule } from 'primeng/menu';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { PaginatorModule } from 'primeng/paginator';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AvatarModule } from 'primeng/avatar';
 import { TagModule } from 'primeng/tag';
@@ -33,7 +34,6 @@ import { MessageService } from 'primeng/api';
 import { MenuItem } from 'primeng/api';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { PaginationComponent } from '../../../../../../core/components/pagination/pagination';
 
 // Services
 import { UserService, User, GetUsersParams } from '../../../../../../core/services/user-service';
@@ -57,9 +57,9 @@ import { OrganizationContextService } from '../../../../../../core/services/orga
     AvatarModule,
     TagModule,
     TooltipModule,
-    PaginationComponent,
     InputGroupModule,
     InputGroupAddonModule,
+    PaginatorModule,
   ],
   providers: [MessageService],
   templateUrl: './list.html',
@@ -79,6 +79,7 @@ export class List implements OnInit, OnDestroy {
 
   // Constants
   private readonly SEARCH_FOCUS_DELAY = 100; // Delay for focusing search input to ensure DOM is ready
+  protected readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
 
   // State signals
   protected readonly users = signal<User[]>([]);
@@ -89,6 +90,8 @@ export class List implements OnInit, OnDestroy {
   protected readonly pageSize = signal(PAGE_SIZE_OPTIONS[0]);
   protected readonly totalRecords = signal(0);
   protected readonly scope = signal<'global' | 'organization'>('global');
+  protected readonly sortField = signal<string | undefined>(undefined);
+  protected readonly sortOrder = signal<number>(1);
   protected selectedUser: User | null = null; // Used by PrimeNG contextMenuSelection
   protected readonly isMobile = signal(false);
   protected readonly isSearchOpen = signal(false);
@@ -144,11 +147,10 @@ export class List implements OnInit, OnDestroy {
   contextMenuItems!: MenuItem[];
 
   constructor() {
-    // Load users when scope changes
+    // Load users when scope changes (handled in combineLatest)
     effect(() => {
-      this.scope();
-      this.currentPage.set(1); // Reset to first page on scope change
-      this.loadUsers();
+      // We still need to reset page when scope changes exclusively inside the effect?
+      // Actually this causes duplicate calls if we navigate, moving to onScopeChange instead.
     });
 
     // Detect mobile viewport
@@ -169,20 +171,33 @@ export class List implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Subscribe to route params for pagination
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      const page = parseInt(params['page'], 10) || 1;
-      const limit = parseInt(params['limit'], 10) || PAGE_SIZE_OPTIONS[0];
-      const normalizedLimit = PAGE_SIZE_OPTIONS.includes(limit) ? limit : PAGE_SIZE_OPTIONS[0];
-      const search = params['filter'] || '';
+    // Combine route params and query params to avoid duplicate API calls
+    combineLatest([this.route.params, this.route.queryParams])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([params, queryParams]) => {
+        const pageStr = params['page'];
+        const page = pageStr === '' || pageStr === undefined ? 1 : parseInt(pageStr, 10) || 1;
+        const limit = parseInt(params['limit'], 10) || PAGE_SIZE_OPTIONS[0];
+        const normalizedLimit = PAGE_SIZE_OPTIONS.includes(limit) ? limit : PAGE_SIZE_OPTIONS[0];
+        const search = params['filter'] || '';
 
-      this.currentPage.set(page);
-      this.pageSize.set(normalizedLimit);
-      this.searchQuery.set(search === 'all' ? '' : search);
+        this.currentPage.set(page);
+        this.pageSize.set(normalizedLimit);
+        this.searchQuery.set(search === 'all' ? '' : search);
 
-      // Load initial data
-      this.loadUsers();
-    });
+        const scopeParam = queryParams['scope'];
+        if (scopeParam === 'global' || scopeParam === 'organization') {
+          if (this.scope() !== scopeParam) {
+            this.scope.set(scopeParam);
+          }
+        }
+
+        this.sortField.set(queryParams['sort'] || undefined);
+        this.sortOrder.set(queryParams['order'] === 'desc' ? -1 : 1);
+
+        // Load data once when parameters change
+        this.loadUsers();
+      });
 
     // Listen for organization changes
     this.organizationContext.organizationChanged$.pipe(takeUntil(this.destroy$)).subscribe(() => {
@@ -246,6 +261,8 @@ export class List implements OnInit, OnDestroy {
       limit: this.pageSize(),
       search: this.searchQuery() || undefined,
       scope: this.scope(),
+      sortField: this.sortField(),
+      sortOrder: this.sortOrder(),
     };
 
     if (this.scope() === 'organization' && this.currentOrganization()) {
@@ -284,6 +301,7 @@ export class List implements OnInit, OnDestroy {
     // Update URL with relative navigation
     this.router.navigate(['../../../', input.value || 'all', 1, this.pageSize()], {
       relativeTo: this.route,
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -291,20 +309,41 @@ export class List implements OnInit, OnDestroy {
    * Handle scope toggle change
    */
   protected onScopeChange(value: 'global' | 'organization'): void {
-    this.scope.set(value);
+    // Reset page to 1 on scope change
+    this.router.navigate(['../../../', this.searchQuery() || 'all', 1, this.pageSize()], {
+      relativeTo: this.route,
+      queryParams: { scope: value },
+      queryParamsHandling: 'merge',
+    });
     this.selectedUsers.set([]); // Clear selection on scope change
+  }
+
+  /**
+   * Handle sort change
+   */
+  protected onSort(event: any): void {
+    // Keep the current page, update sort queries
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        sort: event.field,
+        order: event.order === 1 ? 'asc' : 'desc',
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 
   /**
    * Handle page change
    */
-  protected onPageChange(event: { page: number; pageSize: number }): void {
-    const newPage = event.page;
-    const newPageSize = event.pageSize;
+  protected onPageChange(event: any): void {
+    const newPage = (event.first ?? 0) / (event.rows ?? this.pageSize()) + 1;
+    const newPageSize = event.rows ?? this.pageSize();
 
-    // Update URL with relative navigation
-    this.router.navigate(['../../..', this.searchQuery(), newPage, newPageSize], {
+    // Preserve existing sort and scope params when changing page
+    this.router.navigate(['../../..', this.searchQuery() || 'all', newPage, newPageSize], {
       relativeTo: this.route,
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -575,6 +614,7 @@ export class List implements OnInit, OnDestroy {
     this.searchQuery.set('');
     this.router.navigate(['../../../', 'all', 1, this.pageSize()], {
       relativeTo: this.route,
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -617,6 +657,7 @@ export class List implements OnInit, OnDestroy {
       const newPage = this.currentPage() - 1;
       this.router.navigate(['../../..', this.searchQuery() || 'all', newPage, this.pageSize()], {
         relativeTo: this.route,
+        queryParamsHandling: 'merge',
       });
     }
   }
@@ -629,6 +670,7 @@ export class List implements OnInit, OnDestroy {
       const newPage = this.currentPage() + 1;
       this.router.navigate(['../../..', this.searchQuery() || 'all', newPage, this.pageSize()], {
         relativeTo: this.route,
+        queryParamsHandling: 'merge',
       });
     }
   }
@@ -640,6 +682,7 @@ export class List implements OnInit, OnDestroy {
     const newPageSize = event.value;
     this.router.navigate(['../../..', this.searchQuery() || 'all', 1, newPageSize], {
       relativeTo: this.route,
+      queryParamsHandling: 'merge',
     });
   }
 

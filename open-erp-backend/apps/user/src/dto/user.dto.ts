@@ -351,6 +351,19 @@ export class ListUsersQueryDto {
   @IsBoolean()
   @IsOptional()
   includeMemberships?: boolean;
+
+  @ApiPropertyOptional({ description: 'Sort field' })
+  @IsString()
+  @IsOptional()
+  sort?: string;
+
+  @ApiPropertyOptional({
+    description: 'Sort order',
+    enum: ['asc', 'desc'],
+  })
+  @IsString()
+  @IsOptional()
+  order?: 'asc' | 'desc';
 }
 
 export class UserResponseDto {

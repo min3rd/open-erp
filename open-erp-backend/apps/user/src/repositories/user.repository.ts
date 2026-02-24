@@ -274,6 +274,7 @@ export class UserRepository {
     username?: string;
     page?: number;
     limit?: number;
+    sort?: any;
   }): Promise<{
     users: User[];
     total: number;
@@ -303,7 +304,12 @@ export class UserRepository {
         query.username = username;
       }
 
-      return await this.findWithPagination({ query, page, limit });
+      return await this.findWithPagination({
+        query,
+        page,
+        limit,
+        sort: options.sort,
+      });
     } catch (error) {
       this.logger.error(`Error searching users: ${error.message}`, error.stack);
       throw error;

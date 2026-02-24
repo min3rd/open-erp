@@ -191,7 +191,16 @@ export class UserManagementService {
         page = 1,
         size = 10,
         includeMemberships = false,
+        sort,
+        order,
       } = query;
+
+      const sortParam: any = {};
+      if (sort) {
+        sortParam[sort] = order === 'desc' ? -1 : 1;
+      } else {
+        sortParam.createdAt = -1;
+      }
 
       // If organization scope is requested, we need to filter by organization membership
       if (scope === 'organization') {
@@ -231,6 +240,7 @@ export class UserManagementService {
         username,
         page,
         limit: size,
+        sort: sortParam,
       });
 
       if (includeMemberships) {
