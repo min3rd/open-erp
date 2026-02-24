@@ -2,7 +2,7 @@
  * Warehouse-related TypeScript interfaces
  */
 
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import {
   WarehouseType,
   WarehouseStatus,
@@ -14,6 +14,13 @@ import {
   Currency,
   SpecialCondition,
 } from '../constants/warehouse.constants';
+import {
+  AdminGeometry,
+  BBox,
+  Centroid,
+  GeometryMeta,
+  GeometrySource,
+} from '@shared/types/geometry.types';
 
 /**
  * Geographic location interface using GeoJSON Point format
@@ -182,7 +189,7 @@ export interface IFinance {
  * Main Warehouse interface
  */
 export interface IWarehouse {
-  _id?: MongooseSchema.Types.ObjectId | string;
+  _id?: Types.ObjectId | string;
 
   // Identification
   warehouseId?: string;
@@ -257,7 +264,7 @@ export interface IWarehouse {
  * Warehouse document interface (for Mongoose documents)
  */
 export interface IWarehouseDocument extends IWarehouse, Document {
-  _id: MongooseSchema.Types.ObjectId;
+  _id: Types.ObjectId;
   softDelete(): Promise<this>;
   restore(): Promise<this>;
 }
