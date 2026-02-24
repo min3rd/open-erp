@@ -25,7 +25,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { BadgeModule } from 'primeng/badge';
 import { DrawerModule } from 'primeng/drawer';
-import { RadioButtonModule } from 'primeng/radiobutton';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
@@ -48,7 +47,6 @@ import { AuthService } from '../../services/auth-service';
     TextareaModule,
     BadgeModule,
     DrawerModule,
-    RadioButtonModule,
     CheckboxModule,
     ProgressBarModule,
     TooltipModule,
@@ -83,7 +81,6 @@ export class QuickChat implements OnInit, OnDestroy {
 
   // New conversation drawer
   drawerVisible = false;
-  newChatMode: 'direct' | 'group' = 'direct';
   userSearchQuery = '';
   searchResults: ChatUserSearchResult[] = [];
   searchLoading = false;
@@ -95,6 +92,33 @@ export class QuickChat implements OnInit, OnDestroy {
   pendingAttachments: UploadedAttachment[] = [];
   uploadProgress = 0;
   uploading = false;
+
+  /** Auto-detected: true when >1 user is selected */
+  get isGroupMode(): boolean {
+    return this.selectedUsers.length > 1;
+  }
+
+  /** Participants from recent conversations (for pre-search suggestions) */
+  get recentContacts(): ChatUserSearchResult[] {
+    if (!this.conversations?.length) return [];
+    const seen = new Set<string>();
+    const contacts: ChatUserSearchResult[] = [];
+    for (const conv of this.conversations) {
+      for (const p of conv.participants) {
+        if (p.id !== this.currentUserId && !seen.has(p.id)) {
+          seen.add(p.id);
+          contacts.push({
+            id: p.id,
+            email: p.email ?? '',
+            fullName: p.fullName ?? p.email ?? '?',
+            avatarUrl: p.avatarUrl ?? null,
+          });
+        }
+      }
+      if (contacts.length >= 20) break;
+    }
+    return contacts;
+  }
 
   ngOnInit(): void {
     // Load current user ID
@@ -137,8 +161,8 @@ export class QuickChat implements OnInit, OnDestroy {
             severity: 'info',
             summary: senderName,
             detail:
-              msg.contentType === 'text'
-                ? msg.content
+              msg.type === 'text'
+                ? msg.content ?? ''
                 : '📎 Sent an attachment',
             life: 4000,
           });
@@ -180,7 +204,7 @@ export class QuickChat implements OnInit, OnDestroy {
         });
       });
 
-    // Load conversations and connect WebSocket
+    // Conversations are loaded by the app resolver; subscribe only
     this._loadConversationsAndConnect();
   }
 
@@ -190,12 +214,14 @@ export class QuickChat implements OnInit, OnDestroy {
     if (this.selectedConversation) {
       this.chatService.leaveConversation(this.selectedConversation.id);
     }
-    this.chatService.disconnectSocket();
     // Revoke any pending blob URLs to prevent memory leaks
     this._clearPendingAttachments();
   }
 
   private _loadConversationsAndConnect(): void {
+    // Conversations are loaded by the common resolver in app.routes.ts.
+    // Socket is also connected there. This method is kept for initial
+    // loadingConversations flag management only.
     this.chatService.loadConversations().subscribe({
       next: () => {
         this.cdr.markForCheck();
@@ -205,12 +231,6 @@ export class QuickChat implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       },
     });
-
-    // Connect WebSocket with auth token
-    const token = this.authService.accessToken;
-    if (token) {
-      this.chatService.connectSocket(token);
-    }
   }
 
   openConversation(conversationId: string): void {
@@ -371,7 +391,6 @@ export class QuickChat implements OnInit, OnDestroy {
 
   openDrawer(): void {
     this.drawerVisible = true;
-    this.newChatMode = 'direct';
     this.userSearchQuery = '';
     this.searchResults = [];
     this.selectedUsers = [];
@@ -388,11 +407,7 @@ export class QuickChat implements OnInit, OnDestroy {
     if (idx >= 0) {
       this.selectedUsers = this.selectedUsers.filter((u) => u.id !== user.id);
     } else {
-      if (this.newChatMode === 'direct') {
-        this.selectedUsers = [user];
-      } else {
-        this.selectedUsers = [...this.selectedUsers, user];
-      }
+      this.selectedUsers = [...this.selectedUsers, user];
     }
     this.cdr.markForCheck();
   }
@@ -405,15 +420,14 @@ export class QuickChat implements OnInit, OnDestroy {
     if (!this.selectedUsers.length || this.creatingConversation) return;
 
     this.creatingConversation = true;
-    const obs =
-      this.newChatMode === 'direct'
-        ? this.chatService.createDirectConversation({
-            participantId: this.selectedUsers[0].id,
-          })
-        : this.chatService.createGroupConversation({
-            name: this.groupTitle.trim() || this.selectedUsers.map((u) => u.fullName).join(', '),
-            participantIds: this.selectedUsers.map((u) => u.id),
-          });
+    const obs = !this.isGroupMode
+      ? this.chatService.createDirectConversation({
+          participantId: this.selectedUsers[0].id,
+        })
+      : this.chatService.createGroupConversation({
+          name: this.groupTitle.trim() || this.selectedUsers.map((u) => u.fullName).join(', '),
+          participantIds: this.selectedUsers.map((u) => u.id),
+        });
 
     obs.subscribe({
       next: (conv) => {
@@ -458,8 +472,12 @@ export class QuickChat implements OnInit, OnDestroy {
   }
 
   getConversationTitle(conv: ConversationDto): string {
+    if (conv.name) return conv.name;
     if (conv.title) return conv.title;
-    const names = conv.participants.map((p) => p.fullName ?? p.email ?? '?');
+    const others = conv.participants.filter((p) => p.id !== this.currentUserId);
+    const names = (others.length ? others : conv.participants).map(
+      (p) => p.fullName ?? p.email ?? '?',
+    );
     return names.join(', ');
   }
 
@@ -470,8 +488,8 @@ export class QuickChat implements OnInit, OnDestroy {
 
   getLastMessageSnippet(conv: ConversationDto): string {
     const msg = conv.lastMessage;
-    if (!msg) return '';
-    if (msg.contentType !== 'text') return '📎 Attachment';
+    if (!msg) return conv.lastMessagePreview ?? '';
+    if (msg.type !== 'text') return '📎 Attachment';
     const content = msg.content ?? '';
     return content.length > 40 ? content.slice(0, 40) + '…' : content;
   }

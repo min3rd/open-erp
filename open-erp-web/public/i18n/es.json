@@ -240,7 +240,8 @@
     "searchHint": "Escribe al menos 2 caracteres",
     "startChat": "Iniciar chat",
     "createGroup": "Crear grupo",
-    "sendMessageHint": "Enviar (Ctrl+Enter)"
+    "sendMessageHint": "Enviar (Ctrl+Enter)",
+    "recentContacts": "Contactos recientes"
   },
   "organization": {
     "title": "Organización",

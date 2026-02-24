@@ -138,7 +138,8 @@
     "searchHint": "Nhập ít nhất 2 ký tự",
     "startChat": "Bắt đầu chat",
     "createGroup": "Tạo nhóm",
-    "sendMessageHint": "Gửi (Ctrl+Enter)"
+    "sendMessageHint": "Gửi (Ctrl+Enter)",
+    "recentContacts": "Liên hệ gần đây"
   },
   "organizationSwitcher": {
     "label": "Doanh nghiệp hiện tại",

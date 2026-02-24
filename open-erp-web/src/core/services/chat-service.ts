@@ -290,20 +290,27 @@ export class ChatService implements OnDestroy {
   }
 
   private _normalizeConversation(c: any): ConversationDto {
+    const convType = c.type ?? (c.participants?.length > 1 ? 'group' : 'direct');
     return {
       id: c.id ?? c._id?.toString(),
       _id: c._id?.toString(),
-      title: c.title ?? c.name ?? null,
+      type: convType,
+      // Backend stores group name in 'name'; keep 'title' alias for display
+      name: c.name ?? null,
+      title: c.name ?? c.title ?? null,
+      avatarUrl: c.avatarUrl ?? null,
       participants: (c.participants ?? []).map((p: any) =>
         this._normalizeParticipant(p),
       ),
       lastMessage: c.lastMessage
         ? this._normalizeMessage(c.lastMessage)
         : null,
+      lastMessageAt: c.lastMessageAt ?? null,
+      lastMessagePreview: c.lastMessagePreview ?? null,
       unreadCount: c.unreadCount ?? 0,
       isMuted: c.isMuted ?? false,
       isPinned: c.isPinned ?? false,
-      isGroup: (c.type === 'group') || (c.participants?.length ?? 0) > 1,
+      isGroup: convType === 'group',
       metadata: c.metadata,
       createdAt: c.createdAt,
       updatedAt: c.updatedAt,
@@ -327,24 +334,27 @@ export class ChatService implements OnDestroy {
   }
 
   private _normalizeMessage(m: any): MessageDto {
-    const contentType = m.type ?? m.contentType ?? 'text';
+    const type = (m.type ?? m.contentType ?? 'text') as any;
     return {
       id: m.id ?? m._id?.toString(),
       _id: m._id?.toString(),
       conversationId: m.conversationId?.toString?.() ?? m.conversationId,
       senderId: m.senderId?.toString?.() ?? m.senderId,
-      content: m.content ?? '',
-      type: contentType,
-      contentType,
+      content: m.content ?? null,
+      type,
+      contentType: type,
       attachments: (m.attachments ?? []).map((a: any) => ({
         url: a.url,
-        filename: a.filename ?? a.fileName,
-        mimeType: a.mimeType ?? a.contentType,
-        size: a.size ?? a.sizeBytes ?? 0,
+        filename: a.filename,
+        mimeType: a.mimeType,
+        size: a.size ?? 0,
       })),
+      readBy: m.readBy ?? [],
+      editedAt: m.editedAt ?? null,
+      deletedAt: m.deletedAt ?? null,
       status: m.status ?? 'sent',
-      edited: m.edited ?? false,
-      deleted: m.deleted ?? false,
+      edited: !!m.editedAt,
+      deleted: !!m.deletedAt,
       metadata: m.metadata,
       createdAt: m.createdAt,
       updatedAt: m.updatedAt,
