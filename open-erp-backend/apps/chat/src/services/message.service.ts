@@ -155,6 +155,56 @@ export class MessageService {
   }
 
   /**
+   * Soft-delete a message (only within configured time window)
+   */
+  private get deleteWindowMs(): number {
+    const minutes = parseInt(
+      process.env.MESSAGE_DELETE_WINDOW_MINUTES || '5',
+      10,
+    );
+    return minutes * 60 * 1000;
+  }
+
+  async deleteMessage(userId: string, messageId: string) {
+    const message = await this.messageRepository.findById(messageId);
+    if (!message) {
+      throw new NotFoundException('Message not found');
+    }
+
+    // Only the original sender can delete
+    if (message.senderId.toString() !== userId) {
+      throw new ForbiddenException('You can only delete your own messages');
+    }
+
+    // Already deleted
+    if (message.deletedAt) {
+      throw new BadRequestException('Message is already deleted');
+    }
+
+    // Check 5-minute window
+    const createdAt = (message as any).createdAt as Date;
+    const elapsed = Date.now() - createdAt.getTime();
+    if (elapsed > this.deleteWindowMs) {
+      const minutes = process.env.MESSAGE_DELETE_WINDOW_MINUTES || '5';
+      throw new BadRequestException(
+        `Messages can only be deleted within ${minutes} minutes of sending`,
+      );
+    }
+
+    const deleted = await this.messageRepository.softDelete(messageId);
+
+    this.logger.log({
+      event: 'message.deleted',
+      messageId,
+      userId,
+      elapsedMs: elapsed,
+      timestamp: new Date().toISOString(),
+    });
+
+    return deleted;
+  }
+
+  /**
    * Get messages for a conversation with pagination
    */
   async getMessages(

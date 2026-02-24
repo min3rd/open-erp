@@ -3,6 +3,7 @@ import {
   Post,
   Get,
   Patch,
+  Delete,
   Body,
   Param,
   Query,
@@ -84,6 +85,28 @@ export class MessageController {
       dto.attachments,
     );
     return ok(result, 'Message edited');
+  }
+
+  @Delete(':conversationId/messages/:messageId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Delete a message (only within 5 minutes of sending)',
+  })
+  @ApiParam({ name: 'conversationId', description: 'Conversation ID' })
+  @ApiParam({ name: 'messageId', description: 'Message ID' })
+  @ApiResponse({ status: 200, description: 'Message deleted' })
+  @ApiResponse({ status: 400, description: 'Delete window expired (5 min)' })
+  @ApiResponse({ status: 403, description: 'Not the message sender' })
+  @ApiResponse({ status: 404, description: 'Message not found' })
+  async deleteMessage(
+    @Request() req: AuthenticatedRequest,
+    @Param('messageId') messageId: string,
+  ) {
+    const result = await this.messageService.deleteMessage(
+      req.user.userId,
+      messageId,
+    );
+    return ok(result, 'Message deleted');
   }
 
   @Get(':conversationId/messages')

@@ -123,6 +123,17 @@ export class MessageRepository {
     });
   }
 
+  /**
+   * Soft delete a message by setting deletedAt
+   */
+  async softDelete(messageId: string): Promise<MessageDocument | null> {
+    return this.messageModel.findByIdAndUpdate(
+      messageId,
+      { $set: { deletedAt: new Date() } },
+      { new: true },
+    );
+  }
+
   async findById(id: string): Promise<MessageDocument | null> {
     return this.messageModel.findById(id);
   }

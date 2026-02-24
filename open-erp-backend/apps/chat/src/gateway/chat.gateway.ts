@@ -243,6 +243,38 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   /**
+   * Client deletes a message via WebSocket (within 5-minute window)
+   */
+  @SubscribeMessage('deleteMessage')
+  async handleDeleteMessage(
+    @ConnectedSocket() client: AuthenticatedSocket,
+    @MessageBody()
+    data: {
+      conversationId: string;
+      messageId: string;
+    },
+  ) {
+    if (!client.userId) return;
+
+    try {
+      await this.messageService.deleteMessage(client.userId, data.messageId);
+
+      // Broadcast deletion to conversation room
+      this.server
+        .to(`conversation:${data.conversationId}`)
+        .emit('messageDeleted', {
+          messageId: data.messageId,
+          conversationId: data.conversationId,
+          deletedBy: client.userId,
+        });
+
+      return { status: 'deleted', messageId: data.messageId };
+    } catch (error) {
+      client.emit('error', { message: error.message });
+    }
+  }
+
+  /**
    * Typing indicator
    */
   @SubscribeMessage('typing')
