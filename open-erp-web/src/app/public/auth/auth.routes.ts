@@ -9,6 +9,11 @@ import { Auth } from './auth';
 export const routes: Routes = [
   {
     path: '',
+    pathMatch: 'full',
+    redirectTo: 'login',
+  },
+  {
+    path: '',
     component: Auth,
     children: [
       {
