@@ -20,6 +20,7 @@ import {
   UpdateMetadataOptions,
   HealthCheckResult,
 } from './types/minio.types';
+import { isDevelopment } from '@shared/config/common.config';
 
 /**
  * Service for interacting with MinIO object storage
@@ -36,7 +37,9 @@ export class MinioService implements IMinioService {
   constructor(private readonly configService: ConfigService) {
     // Load configuration from environment variables
     this.config = {
-      endPoint: this.configService.get<string>('MINIO_ENDPOINT', 'localhost'),
+      endPoint: isDevelopment()
+        ? 'minio' // Use service name for local development with Docker Compose
+        : this.configService.get<string>('MINIO_ENDPOINT', 'localhost'),
       port: this.configService.get<number>('MINIO_PORT', 9000),
       useSSL: this.configService.get<boolean>('MINIO_USE_SSL', false),
       accessKey: this.configService.get<string>(
