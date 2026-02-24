@@ -69,6 +69,7 @@ export class QuickChat implements OnInit, OnDestroy {
   @ViewChild('messagesContainer') messagesContainer?: ElementRef<HTMLDivElement>;
   @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
 
+  currentUserId: string | null = null;
   conversations: ConversationDto[] | null = null;
   messages: MessageDto[] = [];
   selectedConversation: ConversationDto | null = null;
@@ -96,6 +97,13 @@ export class QuickChat implements OnInit, OnDestroy {
   uploading = false;
 
   ngOnInit(): void {
+    // Load current user ID
+    this.authService.user$
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe((user) => {
+        this.currentUserId = user?.id ?? null;
+        this.cdr.markForCheck();
+      });
     // Subscribe to conversations
     this.chatService.conversations$
       .pipe(takeUntil(this._unsubscribeAll))
@@ -183,6 +191,8 @@ export class QuickChat implements OnInit, OnDestroy {
       this.chatService.leaveConversation(this.selectedConversation.id);
     }
     this.chatService.disconnectSocket();
+    // Revoke any pending blob URLs to prevent memory leaks
+    this._clearPendingAttachments();
   }
 
   private _loadConversationsAndConnect(): void {
@@ -253,7 +263,7 @@ export class QuickChat implements OnInit, OnDestroy {
     this.selectedConversation = null;
     this.messages = [];
     this.messageText = '';
-    this.pendingAttachments = [];
+    this._clearPendingAttachments();
     this.chatService.clearMessages();
     this.cdr.markForCheck();
   }
@@ -264,14 +274,9 @@ export class QuickChat implements OnInit, OnDestroy {
     if ((!text && !hasAttachments) || !this.selectedConversation || this.sendingMessage) return;
 
     const conversationId = this.selectedConversation.id;
-    const type =
-      hasAttachments
-        ? this.pendingAttachments[0].mimeType.startsWith('image/')
-          ? 'image'
-          : this.pendingAttachments[0].mimeType.startsWith('video/')
-            ? 'video'
-            : 'file'
-        : 'text';
+    const type = hasAttachments
+      ? this._getAttachmentMessageType(this.pendingAttachments[0].mimeType)
+      : 'text';
 
     this.sendingMessage = true;
     this.chatService
@@ -291,7 +296,7 @@ export class QuickChat implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.messageText = '';
-          this.pendingAttachments = [];
+          this._clearPendingAttachments();
           this.sendingMessage = false;
           this.chatService.sendTyping(conversationId, false);
           this.cdr.markForCheck();
@@ -354,6 +359,10 @@ export class QuickChat implements OnInit, OnDestroy {
   }
 
   removeAttachment(index: number): void {
+    const removed = this.pendingAttachments[index];
+    if (removed?.url?.startsWith('blob:')) {
+      URL.revokeObjectURL(removed.url);
+    }
     this.pendingAttachments = this.pendingAttachments.filter((_, i) => i !== index);
     this.cdr.markForCheck();
   }
@@ -436,16 +445,15 @@ export class QuickChat implements OnInit, OnDestroy {
   }
 
   isSelf(message: MessageDto): boolean {
-    // We don't have currentUserId easily without decoding JWT, so we use a heuristic:
-    // If there's only 1 participant in the conversation, messages from them are "theirs"
-    // For group chats, the last participant slot is typically the "other"
-    // This is a UI concern — the backend will handle actual authorization
-    // For now treat it by checking if senderId matches the first participant (the "other") in direct chats
+    if (this.currentUserId) {
+      return message.senderId === this.currentUserId;
+    }
+    // Fallback: in a direct chat (1 other participant), treat messages
+    // from the other participant as theirs, so all unmatched = ours
     if (!this.selectedConversation) return false;
     if (this.selectedConversation.participants.length === 1) {
-      return message.senderId === this.selectedConversation.participants[0]?.id;
+      return message.senderId !== this.selectedConversation.participants[0]?.id;
     }
-    // For group chats, return false for all (don't style as self)
     return false;
   }
 
@@ -522,6 +530,21 @@ export class QuickChat implements OnInit, OnDestroy {
       const el = this.messagesContainer?.nativeElement;
       if (el) el.scrollTop = el.scrollHeight;
     }, 50);
+  }
+
+  private _getAttachmentMessageType(mimeType: string): string {
+    if (mimeType.startsWith('image/')) return 'image';
+    if (mimeType.startsWith('video/')) return 'video';
+    return 'file';
+  }
+
+  private _clearPendingAttachments(): void {
+    for (const att of this.pendingAttachments) {
+      if (att.url?.startsWith('blob:')) {
+        URL.revokeObjectURL(att.url);
+      }
+    }
+    this.pendingAttachments = [];
   }
 }
 

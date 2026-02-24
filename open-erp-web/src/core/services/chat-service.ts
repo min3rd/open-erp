@@ -303,7 +303,7 @@ export class ChatService implements OnDestroy {
       unreadCount: c.unreadCount ?? 0,
       isMuted: c.isMuted ?? false,
       isPinned: c.isPinned ?? false,
-      isGroup: (c.participants?.length ?? 0) > 1,
+      isGroup: (c.type === 'group') || (c.participants?.length ?? 0) > 1,
       metadata: c.metadata,
       createdAt: c.createdAt,
       updatedAt: c.updatedAt,
