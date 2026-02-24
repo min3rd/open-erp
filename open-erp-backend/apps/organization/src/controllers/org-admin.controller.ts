@@ -28,17 +28,7 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Permissions } from '@shared/authz/decorators';
 import { Permission } from '@shared/types/permission.enum';
 import { ok, fetched, updated, paginated } from '@shared/response';
-
-interface AuthenticatedRequest {
-  user: {
-    userId: string;
-    email: string;
-  };
-  ip?: string;
-  headers?: {
-    'user-agent'?: string;
-  };
-}
+import { AuthenticatedRequest } from '@shared/interfaces';
 
 @ApiTags('org-admin')
 @ApiBearerAuth()
@@ -306,7 +296,7 @@ export class OrgAdminController {
       actorId,
       {
         ipAddress: req.ip,
-        userAgent: req.headers?.['user-agent'],
+        userAgent: req.headers?.['user-agent'] as string | undefined,
       },
     );
 

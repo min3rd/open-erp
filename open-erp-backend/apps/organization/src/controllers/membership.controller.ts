@@ -19,13 +19,7 @@ import { UpdateMemberRolesDto } from '../dto/membership.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Permissions } from '@shared/authz/decorators';
 import { ok, updated, deleted } from '@shared/response';
-
-interface AuthenticatedRequest {
-  user: {
-    userId: string;
-    email: string;
-  };
-}
+import { AuthenticatedRequest } from '@shared/interfaces';
 
 @ApiTags('memberships')
 @ApiBearerAuth()

@@ -24,13 +24,7 @@ import {
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Permissions } from '@shared/authz/decorators';
 import { created, fetched, updated, deleted, ok } from '@shared/response';
-
-interface AuthenticatedRequest {
-  user: {
-    userId: string;
-    email: string;
-  };
-}
+import { AuthenticatedRequest } from '@shared/interfaces';
 
 @ApiTags('organizations')
 @ApiBearerAuth()

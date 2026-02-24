@@ -23,14 +23,11 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@shared/authz';
 import { ok, created, paginated } from '@shared/response';
+import { AuthenticatedRequest } from '@shared/interfaces';
 import { MessageService } from '../services/message.service';
 import { SendMessageDto } from '../dto/send-message.dto';
 import { EditMessageDto } from '../dto/edit-message.dto';
 import { ListMessagesQueryDto } from '../dto/list-messages-query.dto';
-
-interface AuthenticatedRequest {
-  user: { userId: string; email: string };
-}
 
 @ApiTags('messages')
 @Controller('conversations')

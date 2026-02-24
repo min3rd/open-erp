@@ -15,16 +15,7 @@ import {
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { fetched } from '@shared/response';
-
-/**
- * Authenticated request interface with user context
- */
-interface AuthenticatedRequest {
-  user: {
-    userId: string;
-    email: string;
-  };
-}
+import { AuthenticatedRequest } from '@shared/interfaces';
 
 @ApiTags('user')
 @Controller()

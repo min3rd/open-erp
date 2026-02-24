@@ -20,13 +20,10 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@shared/authz';
 import { ok, created, paginated } from '@shared/response';
+import { AuthenticatedRequest } from '@shared/interfaces';
 import { ConversationService } from '../services/conversation.service';
 import { CreateDirectConversationDto } from '../dto/create-direct-conversation.dto';
 import { CreateGroupConversationDto } from '../dto/create-group-conversation.dto';
-
-interface AuthenticatedRequest {
-  user: { userId: string; email: string };
-}
 
 @ApiTags('conversations')
 @Controller('conversations')

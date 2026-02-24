@@ -35,13 +35,7 @@ import {
   ok,
   paginated,
 } from '@shared/response';
-
-interface AuthenticatedRequest {
-  user: {
-    userId: string;
-    email: string;
-  };
-}
+import { AuthenticatedRequest } from '@shared/interfaces';
 
 @ApiTags('warehouses')
 @ApiBearerAuth()
