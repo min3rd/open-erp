@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, isDevMode } from '@angular/core';
 import { API_URI_AUTH } from '../constant';
-import { BehaviorSubject, from, map, Observable, of, switchMap } from 'rxjs';
+import { BehaviorSubject, from, map, Observable, of, switchMap, catchError } from 'rxjs';
 import { UserDto } from '../interfaces/user.types';
 import { ApiResponse, ApiSingleResponse } from '../api';
 
@@ -84,7 +84,7 @@ export class AuthService {
   login(payload: LoginDto, version: string = 'v1') {
     return this.httpClient.post<ApiResponse<LoginResponse>>(
       `${API_URI_AUTH}/${version}/auth/login`,
-      payload
+      payload,
     );
   }
 
@@ -101,17 +101,37 @@ export class AuthService {
       map((response: ApiSingleResponse<UserDto>) => {
         this._user.next(response.data?.item || null);
         return response;
-      })
+      }),
     );
   }
 
-  logOut() {
-    this.clearStoredTokens();
+  logOut(): Observable<boolean> {
+    const refreshToken = this._refreshToken;
 
-    this._accessToken = undefined;
-    this._refreshToken = undefined;
-    this._user.next(null);
+    // Call backend to revoke server-side session, then clear local state
+    const clearLocal = () => {
+      this.clearStoredTokens();
+      this._accessToken = undefined;
+      this._refreshToken = undefined;
+      this._user.next(null);
+    };
 
+    if (refreshToken && this._accessToken) {
+      return this.httpClient.post(`${API_URI_AUTH}/v1/auth/logout`, { refreshToken }).pipe(
+        map(() => {
+          clearLocal();
+          return true;
+        }),
+        catchError(() => {
+          // Clear local tokens even if server call fails
+          clearLocal();
+          return of(true);
+        }),
+      );
+    }
+
+    // No tokens to revoke on server, just clear locally
+    clearLocal();
     return of(true);
   }
 
@@ -211,7 +231,7 @@ export class AuthService {
         const isAccessTokenValid = !this.isExpired(payload.accessToken);
         const isRefreshTokenValid = !this.isExpired(payload.refreshToken);
         return of(isAccessTokenValid || isRefreshTokenValid);
-      })
+      }),
     );
   }
 
@@ -237,7 +257,7 @@ export class AuthService {
         binary
           .split('')
           .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
+          .join(''),
       );
 
       const payload = JSON.parse(payloadJson);

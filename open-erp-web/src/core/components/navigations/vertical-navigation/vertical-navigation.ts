@@ -16,6 +16,7 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { User } from '../../user/user';
 import { ButtonModule } from 'primeng/button';
 import { LayoutService } from '../../../services/layout-service';
+import { AuthService } from '../../../services/auth-service';
 import { OrganizationSwitcher } from '../../organization-switcher/organization-switcher';
 import { LanguageSwitcher } from '../../language-switcher/language-switcher';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
@@ -45,6 +46,7 @@ export class VerticalNavigation implements OnInit, OnDestroy {
 
   private layoutService = inject(LayoutService);
   private navigationService = inject(NavigationService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
@@ -96,7 +98,7 @@ export class VerticalNavigation implements OnInit, OnDestroy {
     // Check if this item is active
     if (item.routerLink) {
       const routerLink = this.normalizeRouterLink(item.routerLink);
-      
+
       // Use router.isActive for accurate matching (handles exact and subset paths)
       const isActive = this.router.isActive(routerLink, {
         paths: 'subset',
@@ -104,7 +106,7 @@ export class VerticalNavigation implements OnInit, OnDestroy {
         fragment: 'ignored',
         matrixParams: 'ignored',
       });
-      
+
       updatedItem.styleClass = isActive
         ? `${item.styleClass || ''} p-menuitem-link-active`.trim()
         : (item.styleClass || '').replace('p-menuitem-link-active', '').trim();
@@ -123,9 +125,9 @@ export class VerticalNavigation implements OnInit, OnDestroy {
    */
   isItemActive(item: MenuItem): boolean {
     if (!item.routerLink) return false;
-    
+
     const routerLink = this.normalizeRouterLink(item.routerLink);
-    
+
     return this.router.isActive(routerLink, {
       paths: 'subset',
       queryParams: 'ignored',
@@ -143,7 +145,9 @@ export class VerticalNavigation implements OnInit, OnDestroy {
   }
 
   logOut(): void {
-    console.log("Haven't implement yet");
+    this.authService.logOut().subscribe(() => {
+      this.router.navigate(['/auth']);
+    });
   }
 
   toggleSidebar(): void {

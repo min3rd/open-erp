@@ -8,6 +8,8 @@ import {
   ValidationPipe,
   HttpCode,
   HttpStatus,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
@@ -18,8 +20,16 @@ import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { LogoutDto } from './dto/logout.dto';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { Public } from '@shared/authz/decorators';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ok, created } from '@shared/response';
 
 @ApiTags('auth')
@@ -219,6 +229,29 @@ export class AuthController {
   async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
     const result = await this.authService.refreshToken(refreshTokenDto);
     return ok(result, 'Token refreshed successfully');
+  }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @ApiOperation({
+    summary: 'Logout and revoke all user sessions',
+    description:
+      'Revokes all refresh tokens for the authenticated user, effectively logging them out of all sessions.',
+  })
+  @ApiResponse({ status: 200, description: 'Successfully logged out' })
+  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid token' })
+  async logout(
+    @Request() req: { user: { userId: string } },
+    @Body() logoutDto: LogoutDto,
+  ) {
+    const result = await this.authService.logout(
+      req.user.userId,
+      logoutDto.refreshToken,
+    );
+    return ok(result, 'Logged out successfully');
   }
 
   @Get('health')

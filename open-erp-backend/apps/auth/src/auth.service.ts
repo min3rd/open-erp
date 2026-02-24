@@ -1015,6 +1015,37 @@ export class AuthService {
     };
   }
 
+  async logout(userId: string, refreshToken?: string) {
+    // If a specific refresh token is provided, revoke it first
+    if (refreshToken) {
+      const tokenHash = hashRefreshToken(refreshToken, this.jwtSecret);
+      await this.refreshTokenRepository.revokeToken(tokenHash, 'user_logout');
+    }
+
+    // Revoke all refresh tokens for this user
+    const revokedCount = await this.refreshTokenRepository.revokeAllUserTokens(
+      new Types.ObjectId(userId),
+      'user_logout',
+    );
+
+    // Publish user logout event
+    this.userClient.emit(EVENT_NAMES.AUTH.USER_LOGOUT, {
+      userId,
+      reason: 'user_logout',
+      timestamp: new Date(),
+    });
+
+    // Log structured event
+    this.logger.log({
+      event: 'user.logout',
+      userId,
+      revokedTokens: revokedCount,
+      timestamp: new Date().toISOString(),
+    });
+
+    return { revokedTokens: revokedCount };
+  }
+
   async getMe(userId: string) {
     // Get user via RPC to user service
     const user = await firstValueFrom(
