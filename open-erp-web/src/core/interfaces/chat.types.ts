@@ -1,16 +1,21 @@
+export type ConversationType = 'direct' | 'group';
+export type MessageType = 'text' | 'image' | 'video' | 'file' | 'audio';
+
+// Keep backward-compat alias used across the component
+export type MessageContentType = MessageType;
+
 export type MessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
-export type MessageContentType = 'text' | 'image' | 'video' | 'file' | 'audio' | 'system' | 'reaction';
 
 export interface AttachmentDto {
-  id?: string;
   url: string;
-  filename?: string;
-  fileName?: string;
-  mimeType?: string;
-  size?: number;
-  sizeBytes?: number;
-  contentType?: string;
-  metadata?: Record<string, unknown>;
+  filename: string;
+  mimeType: string;
+  size: number;
+}
+
+export interface ReadReceipt {
+  userId: string;
+  readAt: string; // ISO 8601
 }
 
 export interface MessageDto {
@@ -18,11 +23,15 @@ export interface MessageDto {
   _id?: string;
   conversationId: string;
   senderId: string;
-  senderInfo?: ParticipantDto;
-  content: string;
-  type?: MessageContentType;
-  contentType: MessageContentType;
+  /** Backend field name is 'type', matching MessageType enum */
+  type: MessageType;
+  /** Alias kept for template compatibility */
+  contentType: MessageType;
+  content: string | null;
   attachments?: ReadonlyArray<AttachmentDto>;
+  readBy?: ReadonlyArray<ReadReceipt>;
+  editedAt?: string | null;
+  deletedAt?: string | null;
   status: MessageStatus;
   edited?: boolean;
   deleted?: boolean;
@@ -42,9 +51,18 @@ export interface ParticipantDto {
 export interface ConversationDto {
   id: string;
   _id?: string;
+  /** Backend field: type ('direct' | 'group') */
+  type?: ConversationType;
+  /** Backend field: name (group conversations); direct chats may be null */
+  name?: string | null;
+  /** Convenience alias for display (falls back to name) */
   title?: string | null;
+  avatarUrl?: string | null;
   participants: ReadonlyArray<ParticipantDto>;
   lastMessage?: MessageDto | null;
+  /** Backend field: ISO date of the last message */
+  lastMessageAt?: string | null;
+  lastMessagePreview?: string | null;
   unreadCount?: number;
   isMuted?: boolean;
   isPinned?: boolean;
@@ -56,14 +74,9 @@ export interface ConversationDto {
 
 export interface SendMessagePayload {
   conversationId: string;
-  type: MessageContentType;
+  type: MessageType;
   content?: string;
-  attachments?: {
-    url: string;
-    filename: string;
-    mimeType: string;
-    size: number;
-  }[];
+  attachments?: AttachmentDto[];
 }
 
 export interface CreateDirectConversationPayload {
@@ -71,6 +84,7 @@ export interface CreateDirectConversationPayload {
 }
 
 export interface CreateGroupConversationPayload {
+  /** Backend field is 'name', not 'title' */
   name: string;
   participantIds: string[];
   avatarUrl?: string;
@@ -94,7 +108,7 @@ export interface WsNewMessageEvent {
   _id: string;
   conversationId: string;
   senderId: string;
-  type: MessageContentType;
+  type: MessageType;
   content?: string;
   attachments?: AttachmentDto[];
   createdAt: string;
@@ -105,3 +119,4 @@ export interface WsMessagesReadEvent {
   conversationId: string;
   markedAsRead: number;
 }
+

@@ -190,7 +190,7 @@
                           @if (isImageType(att.mimeType)) {
                             <img
                               [src]="att.url"
-                              [alt]="att.filename ?? att.fileName ?? 'image'"
+                              [alt]="att.filename ?? 'image'"
                               class="max-w-full rounded cursor-pointer"
                               style="max-height: 200px; object-fit: contain;"
                             />
@@ -209,7 +209,7 @@
                               class="flex items-center gap-1 underline text-xs"
                             >
                               <i class="pi pi-file text-sm"></i>
-                              {{ att.filename ?? att.fileName ?? 'File' }}
+                              {{ att.filename ?? 'File' }}
                             </a>
                           }
                         }
@@ -335,37 +335,16 @@
   [(visible)]="drawerVisible"
   position="right"
   [style]="{ width: '20rem' }"
-  [modal]="true"
+  [modal]="false"
+  [dismissible]="true"
 >
   <ng-template #header>
     <span class="font-semibold text-base">{{ 'quickChat.newConversation' | transloco }}</span>
   </ng-template>
 
   <div class="flex flex-col gap-4 h-full">
-    <!-- Mode Toggle -->
-    <div class="flex gap-4">
-      <div class="flex items-center gap-2">
-        <p-radiobutton
-          inputId="mode-direct"
-          name="newChatMode"
-          value="direct"
-          [(ngModel)]="newChatMode"
-        />
-        <label for="mode-direct" class="cursor-pointer text-sm">{{ 'quickChat.direct' | transloco }}</label>
-      </div>
-      <div class="flex items-center gap-2">
-        <p-radiobutton
-          inputId="mode-group"
-          name="newChatMode"
-          value="group"
-          [(ngModel)]="newChatMode"
-        />
-        <label for="mode-group" class="cursor-pointer text-sm">{{ 'quickChat.group' | transloco }}</label>
-      </div>
-    </div>
-
-    <!-- Group Title (only for group) -->
-    @if (newChatMode === 'group') {
+    <!-- Group Title (only when >1 user selected) -->
+    @if (isGroupMode) {
       <input
         type="text"
         pInputText
@@ -409,9 +388,10 @@
       </div>
     }
 
-    <!-- Search Results -->
+    <!-- User List: Search Results or Recent Contacts -->
     <div class="flex-1 overflow-y-auto -mx-4 px-4">
       @if (searchResults.length > 0) {
+        <!-- Search results -->
         <div class="flex flex-col gap-1">
           @for (user of searchResults; track user.id) {
             <div
@@ -442,7 +422,38 @@
         <div class="text-center text-surface-400 text-sm py-4">
           {{ 'quickChat.noUsersFound' | transloco }}
         </div>
-      } @else if (userSearchQuery.length < 2) {
+      } @else if (recentContacts.length > 0) {
+        <!-- Recent contacts when search is empty -->
+        <div class="mb-2 text-xs font-medium text-surface-500 uppercase tracking-wider px-1">
+          {{ 'quickChat.recentContacts' | transloco }}
+        </div>
+        <div class="flex flex-col gap-1">
+          @for (user of recentContacts; track user.id) {
+            <div
+              class="flex items-center gap-3 p-2 rounded cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors"
+              [class.bg-primary-50]="isUserSelected(user)"
+              [class.dark:bg-primary-900]="isUserSelected(user)"
+              (click)="toggleUserSelection(user)"
+              (keydown.enter)="toggleUserSelection(user)"
+              role="button"
+              tabindex="0"
+            >
+              @if (user.avatarUrl) {
+                <p-avatar [image]="user.avatarUrl!" size="normal" shape="circle" />
+              } @else {
+                <p-avatar [label]="user.fullName.charAt(0)" size="normal" shape="circle" />
+              }
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium truncate">{{ user.fullName }}</div>
+                <div class="text-xs text-surface-500 truncate">{{ user.email }}</div>
+              </div>
+              @if (isUserSelected(user)) {
+                <i class="pi pi-check text-primary-500 text-sm"></i>
+              }
+            </div>
+          }
+        </div>
+      } @else {
         <div class="text-center text-surface-400 text-sm py-4">
           {{ 'quickChat.searchHint' | transloco }}
         </div>
@@ -452,7 +463,7 @@
     <!-- Confirm Button -->
     <div class="pt-2 border-t border-surface-200 dark:border-surface-700">
       <p-button
-        [label]="newChatMode === 'direct' ? ('quickChat.startChat' | transloco) : ('quickChat.createGroup' | transloco)"
+        [label]="!isGroupMode ? ('quickChat.startChat' | transloco) : ('quickChat.createGroup' | transloco)"
         icon="pi pi-comments"
         class="w-full"
         [styleClass]="'w-full'"

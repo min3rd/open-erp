@@ -13,6 +13,13 @@ const initializeData = () => {
   const authService = inject(AuthService);
   const chatService = inject(ChatService);
   const languageService = inject(LanguageService);
+
+  // Connect WebSocket immediately after auth — fire and forget, does not block routing
+  const token = authService.accessToken;
+  if (token) {
+    chatService.connectSocket(token);
+  }
+
   return forkJoin([
     navigationService.loadModules(),
     authService.me(),
