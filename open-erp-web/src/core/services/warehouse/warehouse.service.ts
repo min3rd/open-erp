@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { API_URI_INVENTORY } from '../../constant';
+import { API_URI_ORGANIZATION } from '../../constant';
 import { ApiResponse, ApiPaginatedResponse } from '../../api/interfaces';
 
 /**
@@ -157,7 +157,7 @@ export interface QueryWarehouseParams {
 /**
  * Warehouse service - handles all warehouse-related API calls
  * Backend controller: apps/inventory/src/controllers/warehouse.controller.ts
- * 
+ *
  * Moved to core since warehouse data is used across multiple modules
  */
 @Injectable({
@@ -165,15 +165,17 @@ export interface QueryWarehouseParams {
 })
 export class WarehouseService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${API_URI_INVENTORY}/v1/warehouses`;
+  private readonly baseUrl = `${API_URI_ORGANIZATION}/v1/warehouses`;
 
   /**
    * Get all warehouses with filtering and pagination
    * GET /warehouses
    */
-  getWarehouses(params: QueryWarehouseParams): Observable<{ items: Warehouse[]; total: number; page: number; limit: number }> {
+  getWarehouses(
+    params: QueryWarehouseParams,
+  ): Observable<{ items: Warehouse[]; total: number; page: number; limit: number }> {
     let httpParams = new HttpParams();
-    
+
     if (params.page) httpParams = httpParams.set('page', params.page.toString());
     if (params.limit) httpParams = httpParams.set('limit', params.limit.toString());
     if (params.type) httpParams = httpParams.set('type', params.type);
@@ -193,7 +195,7 @@ export class WarehouseService {
           total: response.data?.total || 0,
           page: response.data?.page || 1,
           limit: response.data?.limit || 10,
-        }))
+        })),
       );
   }
 
@@ -232,9 +234,7 @@ export class WarehouseService {
    * DELETE /warehouses/:id
    */
   deleteWarehouse(id: string): Observable<void> {
-    return this.http
-      .delete<ApiResponse<null>>(`${this.baseUrl}/${id}`)
-      .pipe(map(() => undefined));
+    return this.http.delete<ApiResponse<null>>(`${this.baseUrl}/${id}`).pipe(map(() => undefined));
   }
 
   /**
@@ -273,12 +273,17 @@ export class WarehouseService {
    * Find warehouses nearby a location
    * GET /warehouses/nearby
    */
-  findNearby(longitude: number, latitude: number, radiusKm: number, limit?: number): Observable<Warehouse[]> {
+  findNearby(
+    longitude: number,
+    latitude: number,
+    radiusKm: number,
+    limit?: number,
+  ): Observable<Warehouse[]> {
     let httpParams = new HttpParams()
       .set('longitude', longitude.toString())
       .set('latitude', latitude.toString())
       .set('radiusKm', radiusKm.toString());
-    
+
     if (limit) {
       httpParams = httpParams.set('limit', limit.toString());
     }
@@ -294,7 +299,7 @@ export class WarehouseService {
    */
   exportCSV(params: QueryWarehouseParams): Observable<Blob> {
     let httpParams = new HttpParams();
-    
+
     if (params.type) httpParams = httpParams.set('type', params.type);
     if (params.status) httpParams = httpParams.set('status', params.status);
     if (params.search) httpParams = httpParams.set('search', params.search);
@@ -311,7 +316,7 @@ export class WarehouseService {
    */
   exportGeoJSON(params: QueryWarehouseParams): Observable<Blob> {
     let httpParams = new HttpParams();
-    
+
     if (params.type) httpParams = httpParams.set('type', params.type);
     if (params.status) httpParams = httpParams.set('status', params.status);
     if (params.search) httpParams = httpParams.set('search', params.search);
