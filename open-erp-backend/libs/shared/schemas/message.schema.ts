@@ -39,6 +39,23 @@ export class ReadReceipt {
 
 export const ReadReceiptSchema = SchemaFactory.createForClass(ReadReceipt);
 
+@Schema({ _id: false })
+export class EditHistory {
+  @Prop({ type: String, default: null })
+  previousContent: string | null;
+
+  @Prop({ type: [AttachmentSchema], default: [] })
+  previousAttachments: Attachment[];
+
+  @Prop({ type: Date, required: true, default: Date.now })
+  editedAt: Date;
+
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  editedBy: Types.ObjectId;
+}
+
+export const EditHistorySchema = SchemaFactory.createForClass(EditHistory);
+
 @Schema({
   timestamps: true,
   collection: 'messages',
@@ -74,6 +91,9 @@ export class Message {
 
   @Prop({ type: Date, default: null })
   editedAt: Date | null;
+
+  @Prop({ type: [EditHistorySchema], default: [] })
+  editHistory: EditHistory[];
 
   @Prop({ type: Date, default: null })
   deletedAt: Date | null;

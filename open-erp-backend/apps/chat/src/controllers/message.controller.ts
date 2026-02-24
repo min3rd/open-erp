@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Get,
+  Patch,
   Body,
   Param,
   Query,
@@ -23,6 +24,7 @@ import { JwtAuthGuard } from '@shared/authz';
 import { ok, created, paginated } from '@shared/response';
 import { MessageService } from '../services/message.service';
 import { SendMessageDto } from '../dto/send-message.dto';
+import { EditMessageDto } from '../dto/edit-message.dto';
 import { ListMessagesQueryDto } from '../dto/list-messages-query.dto';
 
 interface AuthenticatedRequest {
@@ -57,6 +59,31 @@ export class MessageController {
       dto.attachments,
     );
     return created(result, 'Message sent');
+  }
+
+  @Patch(':conversationId/messages/:messageId')
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @ApiOperation({
+    summary: 'Edit a message (saves previous content to edit history)',
+  })
+  @ApiParam({ name: 'conversationId', description: 'Conversation ID' })
+  @ApiParam({ name: 'messageId', description: 'Message ID' })
+  @ApiResponse({ status: 200, description: 'Message edited' })
+  @ApiResponse({ status: 403, description: 'Not the message sender' })
+  @ApiResponse({ status: 404, description: 'Message not found' })
+  async editMessage(
+    @Request() req: AuthenticatedRequest,
+    @Param('messageId') messageId: string,
+    @Body() dto: EditMessageDto,
+  ) {
+    const result = await this.messageService.editMessage(
+      req.user.userId,
+      messageId,
+      dto.content,
+      dto.attachments,
+    );
+    return ok(result, 'Message edited');
   }
 
   @Get(':conversationId/messages')

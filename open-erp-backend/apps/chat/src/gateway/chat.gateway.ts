@@ -203,6 +203,46 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   /**
+   * Client edits a message via WebSocket
+   */
+  @SubscribeMessage('editMessage')
+  async handleEditMessage(
+    @ConnectedSocket() client: AuthenticatedSocket,
+    @MessageBody()
+    data: {
+      conversationId: string;
+      messageId: string;
+      content?: string;
+      attachments?: {
+        url: string;
+        filename: string;
+        mimeType: string;
+        size: number;
+      }[];
+    },
+  ) {
+    if (!client.userId) return;
+
+    try {
+      const updated = await this.messageService.editMessage(
+        client.userId,
+        data.messageId,
+        data.content,
+        data.attachments,
+      );
+
+      // Broadcast edited message to conversation room
+      this.server
+        .to(`conversation:${data.conversationId}`)
+        .emit('messageEdited', updated);
+
+      return { status: 'edited', messageId: data.messageId };
+    } catch (error) {
+      client.emit('error', { message: error.message });
+    }
+  }
+
+  /**
    * Typing indicator
    */
   @SubscribeMessage('typing')

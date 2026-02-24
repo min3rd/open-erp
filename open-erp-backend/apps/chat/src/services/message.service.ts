@@ -3,6 +3,7 @@ import {
   Logger,
   BadRequestException,
   ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { MessageRepository } from '../repositories/message.repository';
 import { ConversationRepository } from '../repositories/conversation.repository';
@@ -98,6 +99,59 @@ export class MessageService {
     });
 
     return message;
+  }
+
+  /**
+   * Edit a message (only the original sender can edit).
+   * Previous content is saved to editHistory for audit trail.
+   */
+  async editMessage(
+    userId: string,
+    messageId: string,
+    content?: string,
+    attachments?: {
+      url: string;
+      filename: string;
+      mimeType: string;
+      size: number;
+    }[],
+  ) {
+    if (!content && !attachments) {
+      throw new BadRequestException(
+        'At least one of content or attachments must be provided',
+      );
+    }
+
+    const message = await this.messageRepository.findById(messageId);
+    if (!message) {
+      throw new NotFoundException('Message not found');
+    }
+
+    // Only the original sender can edit their message
+    if (message.senderId.toString() !== userId) {
+      throw new ForbiddenException('You can only edit your own messages');
+    }
+
+    // Cannot edit deleted messages
+    if (message.deletedAt) {
+      throw new BadRequestException('Cannot edit a deleted message');
+    }
+
+    const updated = await this.messageRepository.editMessage(
+      messageId,
+      new Types.ObjectId(userId),
+      { content, attachments },
+    );
+
+    this.logger.log({
+      event: 'message.edited',
+      messageId,
+      userId,
+      editHistoryCount: updated?.editHistory?.length || 0,
+      timestamp: new Date().toISOString(),
+    });
+
+    return updated;
   }
 
   /**

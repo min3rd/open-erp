@@ -87,6 +87,42 @@ export class MessageRepository {
     return result.modifiedCount;
   }
 
+  /**
+   * Edit a message: save previous content to editHistory, update current content
+   */
+  async editMessage(
+    messageId: string,
+    editorId: Types.ObjectId,
+    updates: { content?: string; attachments?: Attachment[] },
+  ): Promise<MessageDocument | null> {
+    const message = await this.messageModel.findById(messageId);
+    if (!message) return null;
+
+    // Push current state to edit history
+    const historyEntry = {
+      previousContent: message.content,
+      previousAttachments: message.attachments || [],
+      editedAt: new Date(),
+      editedBy: editorId,
+    };
+
+    const updateData: any = {
+      $push: { editHistory: historyEntry },
+      $set: { editedAt: new Date() },
+    };
+
+    if (updates.content !== undefined) {
+      updateData.$set.content = updates.content;
+    }
+    if (updates.attachments !== undefined) {
+      updateData.$set.attachments = updates.attachments;
+    }
+
+    return this.messageModel.findByIdAndUpdate(messageId, updateData, {
+      new: true,
+    });
+  }
+
   async findById(id: string): Promise<MessageDocument | null> {
     return this.messageModel.findById(id);
   }
