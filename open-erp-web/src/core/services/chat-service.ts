@@ -1,6 +1,6 @@
 import { inject, Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable, Subject, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject, of, from } from 'rxjs';
+import { map, switchMap, takeUntil } from 'rxjs/operators';
 import {
   ConversationDto,
   MessageDto,
@@ -49,9 +49,23 @@ export class ChatService implements OnDestroy {
   private _activeConversationId: string | null = null;
   private _currentUserId: string | null = null;
 
-  /** Set by the component/resolver after auth.me() resolves */
+  constructor() {
+    // Track current user reactively so `isSelf` checks are always accurate
+    this.authService.user$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((user) => {
+        if (user?.id) this._currentUserId = user.id;
+      });
+  }
+
+  /** Explicit setter — called from app resolver for deterministic ordering */
   setCurrentUser(userId: string): void {
     this._currentUserId = userId;
+  }
+
+  /** Exposed so components can use the same authoritative user ID */
+  get currentUserId(): string | null {
+    return this._currentUserId;
   }
 
   get conversations$(): Observable<ConversationDto[]> {
@@ -201,22 +215,36 @@ export class ChatService implements OnDestroy {
   }
 
   /**
-   * Upload a file to the file service and return the public URL.
+   * Upload a file using the presign flow:
+   * 1. GET /presign/upload?key=<key> → { uploadUrl, objectKey }
+   * 2. PUT the file directly to MinIO via the presigned URL (bypasses Docker-internal routing)
+   * 3. Return the public URL (presigned URL minus query-string), filename, mimeType, size
    */
   uploadFile(file: File): Observable<{ url: string; filename: string; mimeType: string; size: number }> {
-    const formData = new FormData();
-    formData.append('file', file, file.name);
+    const key = `chat/${Date.now()}-${file.name}`;
     return this.httpClient
-      .post<any>(`${API_URI_FILE}/v1/files/upload`, formData)
+      .get<any>(`${API_URI_FILE}/v1/presign/upload`, { params: { key } })
       .pipe(
-        map((res) => {
-          const data = res?.data?.item ?? res?.data ?? res;
-          return {
-            url: data?.url ?? data?.publicUrl ?? '',
-            filename: data?.metadata?.filename ?? data?.filename ?? file.name,
-            mimeType: data?.metadata?.contentType ?? data?.contentType ?? file.type,
-            size: data?.metadata?.size ?? data?.size ?? file.size,
-          };
+        map((res) => res?.data?.item ?? res?.data ?? res),
+        switchMap((presign) => {
+          const uploadUrl: string = presign?.uploadUrl ?? '';
+          return from(
+            fetch(uploadUrl, {
+              method: 'PUT',
+              body: file,
+              headers: { 'Content-Type': file.type },
+            }).then((response) => {
+              if (!response.ok) {
+                throw new Error(`Upload failed with status ${response.status}`);
+              }
+              return {
+                url: uploadUrl.split('?')[0],
+                filename: file.name,
+                mimeType: file.type,
+                size: file.size,
+              };
+            }),
+          );
         }),
       );
   }

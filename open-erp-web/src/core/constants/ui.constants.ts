@@ -52,3 +52,10 @@ export const PRODUCT_UNIT_OPTIONS = [
   { label: 'Pair', value: 'pair' },
   { label: 'Dozen', value: 'dozen' },
 ];
+
+/**
+ * Pagination page size options (rows per page).
+ * Moved from core/constant.ts to keep API URIs and UI constants separate.
+ */
+export const PAGE_SIZE_OPTIONS = [100, 500, 1000, 10000];
+

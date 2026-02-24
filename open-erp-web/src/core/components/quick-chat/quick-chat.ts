@@ -102,11 +102,12 @@ export class QuickChat implements OnInit, OnDestroy {
   /** Participants from recent conversations (for pre-search suggestions) */
   get recentContacts(): ChatUserSearchResult[] {
     if (!this.conversations?.length) return [];
+    const uid = this.chatService.currentUserId ?? this.currentUserId;
     const seen = new Set<string>();
     const contacts: ChatUserSearchResult[] = [];
     for (const conv of this.conversations) {
       for (const p of conv.participants) {
-        if (p.id !== this.currentUserId && !seen.has(p.id)) {
+        if (p.id !== uid && !seen.has(p.id)) {
           seen.add(p.id);
           contacts.push({
             id: p.id,
@@ -514,22 +515,19 @@ export class QuickChat implements OnInit, OnDestroy {
   }
 
   isSelf(message: MessageDto): boolean {
-    if (this.currentUserId) {
-      return message.senderId === this.currentUserId;
-    }
-    // Fallback: in a direct chat (1 other participant), treat messages
-    // from the other participant as theirs, so all unmatched = ours
-    if (!this.selectedConversation) return false;
-    if (this.selectedConversation.participants.length === 1) {
-      return message.senderId !== this.selectedConversation.participants[0]?.id;
+    // Prefer the service's userId (set reactively from user$ + resolver tap)
+    // over the component's local copy to avoid any timing race on init.
+    const uid = this.chatService.currentUserId ?? this.currentUserId;
+    if (uid) {
+      return message.senderId === uid;
     }
     return false;
   }
 
   getConversationTitle(conv: ConversationDto): string {
     if (conv.name) return conv.name;
-    if (conv.title) return conv.title;
-    const others = conv.participants.filter((p) => p.id !== this.currentUserId);
+    const uid = this.chatService.currentUserId ?? this.currentUserId;
+    const others = conv.participants.filter((p) => p.id !== uid);
     const names = (others.length ? others : conv.participants).map(
       (p) => p.fullName ?? p.email ?? '?',
     );
