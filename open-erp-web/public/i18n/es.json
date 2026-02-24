@@ -241,7 +241,11 @@
     "startChat": "Iniciar chat",
     "createGroup": "Crear grupo",
     "sendMessageHint": "Enviar (Ctrl+Enter)",
-    "recentContacts": "Contactos recientes"
+    "recentContacts": "Contactos recientes",
+    "someone": "Alguien",
+    "sentAttachment": "Envió un archivo adjunto",
+    "failedToSend": "Error al enviar el mensaje",
+    "failedToCreateConversation": "Error al crear la conversación"
   },
   "organization": {
     "title": "Organización",

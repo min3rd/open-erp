@@ -1,5 +1,5 @@
 import { inject, Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
   ConversationDto,
@@ -12,7 +12,7 @@ import {
   WsMessagesReadEvent,
 } from '../interfaces/chat.types';
 import { HttpClient } from '@angular/common/http';
-import { API_URI_CHAT, API_URI_USER } from '../constant';
+import { API_URI_CHAT, API_URI_FILE, API_URI_USER } from '../constant';
 import { AuthService } from './auth-service';
 
 export interface ChatUserSearchResult {
@@ -47,6 +47,12 @@ export class ChatService implements OnDestroy {
 
   private _socket: any = null;
   private _activeConversationId: string | null = null;
+  private _currentUserId: string | null = null;
+
+  /** Set by the component/resolver after auth.me() resolves */
+  setCurrentUser(userId: string): void {
+    this._currentUserId = userId;
+  }
 
   get conversations$(): Observable<ConversationDto[]> {
     return this._conversations.asObservable();
@@ -194,10 +200,31 @@ export class ChatService implements OnDestroy {
       );
   }
 
+  /**
+   * Upload a file to the file service and return the public URL.
+   */
+  uploadFile(file: File): Observable<{ url: string; filename: string; mimeType: string; size: number }> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    return this.httpClient
+      .post<any>(`${API_URI_FILE}/v1/files/upload`, formData)
+      .pipe(
+        map((res) => {
+          const data = res?.data?.item ?? res?.data ?? res;
+          return {
+            url: data?.url ?? data?.publicUrl ?? '',
+            filename: data?.metadata?.filename ?? data?.filename ?? file.name,
+            mimeType: data?.metadata?.contentType ?? data?.contentType ?? file.type,
+            size: data?.metadata?.size ?? data?.size ?? file.size,
+          };
+        }),
+      );
+  }
+
   // ── WebSocket ──────────────────────────────────────────────────────────
 
-  connectSocket(token: string): void {
-    if (this._socket?.connected) return;
+  connectSocket(token: string): Observable<void> {
+    if (this._socket?.connected) return of(undefined);
 
     // Lazy-load socket.io-client to keep initial bundle small
     import('socket.io-client').then(({ io }) => {
@@ -220,8 +247,9 @@ export class ChatService implements OnDestroy {
             this._messages.next([...current, msg]);
           }
         }
-        // Update last message & unread count in conversations list
-        this._updateConversationLastMessage(msg.conversationId, msg, true);
+        // Update last message & unread count (only for messages from others)
+        const isSelf = msg.senderId === this._currentUserId;
+        this._updateConversationLastMessage(msg.conversationId, msg, !isSelf);
       });
 
       this._socket.on('messageEdited', (data: any) => {
@@ -249,6 +277,8 @@ export class ChatService implements OnDestroy {
         this._messagesRead$.next(data);
       });
     });
+
+    return of(undefined);
   }
 
   joinConversation(conversationId: string): void {

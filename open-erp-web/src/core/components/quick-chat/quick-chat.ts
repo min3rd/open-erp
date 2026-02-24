@@ -29,7 +29,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth-service';
 
@@ -59,6 +59,7 @@ export class QuickChat implements OnInit, OnDestroy {
   private chatService = inject(ChatService);
   private authService = inject(AuthService);
   private messageService = inject(MessageService);
+  private translocoService = inject(TranslocoService);
   private cdr = inject(ChangeDetectorRef);
 
   private _unsubscribeAll = new Subject<void>();
@@ -156,14 +157,14 @@ export class QuickChat implements OnInit, OnDestroy {
           );
           const senderName =
             conv?.participants.find((p) => p.id === msg.senderId)?.fullName ??
-            'Someone';
+            this.translocoService.translate('quickChat.someone');
           this.messageService.add({
             severity: 'info',
             summary: senderName,
             detail:
               msg.type === 'text'
                 ? msg.content ?? ''
-                : '📎 Sent an attachment',
+                : '📎 ' + this.translocoService.translate('quickChat.sentAttachment'),
             life: 4000,
           });
         }
@@ -292,6 +293,8 @@ export class QuickChat implements OnInit, OnDestroy {
     const text = this.messageText.trim();
     const hasAttachments = this.pendingAttachments.length > 0;
     if ((!text && !hasAttachments) || !this.selectedConversation || this.sendingMessage) return;
+    // Don't send while files are still uploading
+    if (this.uploading || this.pendingAttachments.some((a) => !a.url)) return;
 
     const conversationId = this.selectedConversation.id;
     const type = hasAttachments
@@ -326,8 +329,8 @@ export class QuickChat implements OnInit, OnDestroy {
           this.sendingMessage = false;
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to send message',
+            summary: this.translocoService.translate('common.error'),
+            detail: this.translocoService.translate('quickChat.failedToSend'),
             life: 3000,
           });
           this.cdr.markForCheck();
@@ -353,25 +356,72 @@ export class QuickChat implements OnInit, OnDestroy {
     const files = Array.from(input.files ?? []);
     if (!files.length) return;
 
+    this.uploading = true;
+    this.uploadProgress = 0;
+    this.cdr.markForCheck();
+
+    let uploaded = 0;
     files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const previewUrl =
-          file.type.startsWith('image/') || file.type.startsWith('video/')
-            ? (e.target?.result as string)
-            : undefined;
-        // Use local blob URL for now (production would use presign upload)
-        const attachment: UploadedAttachment = {
-          url: URL.createObjectURL(file),
-          filename: file.name,
-          mimeType: file.type,
-          size: file.size,
-          previewUrl,
-        };
-        this.pendingAttachments = [...this.pendingAttachments, attachment];
-        this.cdr.markForCheck();
+      // Build local preview URL for instant display while uploading
+      const previewUrl =
+        file.type.startsWith('image/') || file.type.startsWith('video/')
+          ? URL.createObjectURL(file)
+          : undefined;
+
+      // Add a placeholder entry with blob URL while uploading
+      const placeholder: UploadedAttachment = {
+        url: '', // will be replaced by real URL after upload
+        filename: file.name,
+        mimeType: file.type,
+        size: file.size,
+        previewUrl,
       };
-      reader.readAsDataURL(file);
+      this.pendingAttachments = [...this.pendingAttachments, placeholder];
+      const placeholderIndex = this.pendingAttachments.length - 1;
+      this.cdr.markForCheck();
+
+      // Upload to file service and get public URL
+      this.chatService.uploadFile(file).subscribe({
+        next: (result) => {
+          // Replace placeholder with uploaded URL
+          const updated = [...this.pendingAttachments];
+          if (previewUrl) URL.revokeObjectURL(previewUrl); // clean up blob
+          updated[placeholderIndex] = {
+            url: result.url,
+            filename: result.filename,
+            mimeType: result.mimeType,
+            size: result.size,
+            previewUrl: result.mimeType.startsWith('image/') || result.mimeType.startsWith('video/')
+              ? result.url
+              : undefined,
+          };
+          this.pendingAttachments = updated;
+          uploaded++;
+          this.uploadProgress = Math.round((uploaded / files.length) * 100);
+          if (uploaded === files.length) {
+            this.uploading = false;
+          }
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          // Remove failed placeholder
+          this.pendingAttachments = this.pendingAttachments.filter(
+            (_, i) => i !== placeholderIndex,
+          );
+          if (previewUrl) URL.revokeObjectURL(previewUrl);
+          uploaded++;
+          if (uploaded === files.length) {
+            this.uploading = false;
+          }
+          this.messageService.add({
+            severity: 'error',
+            summary: this.translocoService.translate('common.error'),
+            detail: this.translocoService.translate('quickChat.failedToSend'),
+            life: 3000,
+          });
+          this.cdr.markForCheck();
+        },
+      });
     });
 
     // Reset input
@@ -380,8 +430,8 @@ export class QuickChat implements OnInit, OnDestroy {
 
   removeAttachment(index: number): void {
     const removed = this.pendingAttachments[index];
-    if (removed?.url?.startsWith('blob:')) {
-      URL.revokeObjectURL(removed.url);
+    if (removed?.previewUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(removed.previewUrl);
     }
     this.pendingAttachments = this.pendingAttachments.filter((_, i) => i !== index);
     this.cdr.markForCheck();
@@ -441,8 +491,8 @@ export class QuickChat implements OnInit, OnDestroy {
         this.creatingConversation = false;
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to create conversation',
+          summary: this.translocoService.translate('common.error'),
+          detail: this.translocoService.translate('quickChat.failedToCreateConversation'),
           life: 3000,
         });
         this.cdr.markForCheck();
@@ -486,6 +536,16 @@ export class QuickChat implements OnInit, OnDestroy {
     return title.charAt(0).toUpperCase();
   }
 
+  /** Returns first 2 uppercase characters from a name for avatar fallback */
+  getAvatarLabel(name?: string | null): string {
+    if (!name) return '?';
+    const words = name.trim().split(/\s+/);
+    if (words.length >= 2) {
+      return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  }
+
   getLastMessageSnippet(conv: ConversationDto): string {
     const msg = conv.lastMessage;
     if (!msg) return conv.lastMessagePreview ?? '';
@@ -527,7 +587,7 @@ export class QuickChat implements OnInit, OnDestroy {
       .map(
         (id) =>
           this.selectedConversation?.participants.find((p) => p.id === id)
-            ?.fullName ?? 'Someone',
+            ?.fullName ?? this.translocoService.translate('quickChat.someone'),
       )
       .join(', ');
     return `${names} is typing…`;
@@ -535,6 +595,10 @@ export class QuickChat implements OnInit, OnDestroy {
 
   get hasTypingUsers(): boolean {
     return [...this.typingUsers.values()].some(Boolean);
+  }
+
+  get hasPendingUploads(): boolean {
+    return this.pendingAttachments.some((a) => !a.url);
   }
 
   get totalUnread(): number {
@@ -558,8 +622,8 @@ export class QuickChat implements OnInit, OnDestroy {
 
   private _clearPendingAttachments(): void {
     for (const att of this.pendingAttachments) {
-      if (att.url?.startsWith('blob:')) {
-        URL.revokeObjectURL(att.url);
+      if (att.previewUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(att.previewUrl);
       }
     }
     this.pendingAttachments = [];
