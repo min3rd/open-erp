@@ -45,7 +45,7 @@
               } @else if (conversation.participants[0]?.avatarUrl) {
                 <p-avatar
                   pRipple
-                  [image]="conversation.participants[0].avatarUrl ?? undefined"
+                  [image]="conversation.participants[0].avatarUrl!"
                   shape="square"
                   size="large"
                 />
@@ -89,7 +89,7 @@
         @if (selectedConversation.participants.length > 1) {
           <p-avatar icon="pi pi-users" size="normal" shape="square" />
         } @else if (selectedConversation.participants[0]?.avatarUrl) {
-          <p-avatar [image]="selectedConversation.participants[0].avatarUrl ?? undefined" size="normal" shape="square" />
+          <p-avatar [image]="selectedConversation.participants[0].avatarUrl!" size="normal" shape="square" />
         } @else {
           <p-avatar [label]="getConversationAvatarLabel(selectedConversation)" size="normal" shape="square" />
         }
@@ -139,13 +139,13 @@
           @for (message of messages; track message.id) {
             <div
               class="flex gap-2 items-end"
-              [class.flex-row-reverse]="message.senderId === selectedConversation.participants[0]?.id && selectedConversation.participants.length === 1"
+              [class.flex-row-reverse]="isSelf(message)"
             >
               <!-- Sender Avatar -->
               @if (selectedConversation.participants.length > 1) {
                 @if (getSenderInfo(message)?.avatarUrl) {
                   <p-avatar
-                    [image]="getSenderInfo(message)!.avatarUrl ?? undefined"
+                    [image]="getSenderInfo(message)!.avatarUrl!"
                     size="normal"
                     shape="circle"
                     class="flex-shrink-0"
@@ -172,11 +172,11 @@
                 @if (!message.deleted) {
                   <div
                     class="rounded-lg px-3 py-2 text-sm break-words"
-                    [class.bg-primary-500]="!isSelf(message)"
-                    [class.text-white]="!isSelf(message)"
-                    [class.bg-surface-100]="isSelf(message)"
-                    [class.dark:bg-surface-700]="isSelf(message)"
-                    [class.dark:text-surface-0]="isSelf(message)"
+                    [class.bg-primary-500]="isSelf(message)"
+                    [class.text-white]="isSelf(message)"
+                    [class.bg-surface-100]="!isSelf(message)"
+                    [class.dark:bg-surface-700]="!isSelf(message)"
+                    [class.dark:text-surface-0]="!isSelf(message)"
                   >
                     <!-- Text content -->
                     @if (message.contentType === 'text' && message.content) {
@@ -424,7 +424,7 @@
               tabindex="0"
             >
               @if (user.avatarUrl) {
-                <p-avatar [image]="user.avatarUrl ?? undefined" size="normal" shape="circle" />
+                <p-avatar [image]="user.avatarUrl!" size="normal" shape="circle" />
               } @else {
                 <p-avatar [label]="user.fullName.charAt(0)" size="normal" shape="circle" />
               }
