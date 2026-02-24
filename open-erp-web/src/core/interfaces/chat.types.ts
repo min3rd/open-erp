@@ -18,11 +18,22 @@ export interface ReadReceipt {
   readAt: string; // ISO 8601
 }
 
+/** Populated sender info — backend populates senderId as an object */
+export interface SenderInfo {
+  id: string;
+  email?: string;
+  fullName?: string | null;
+  avatarUrl?: string | null;
+}
+
 export interface MessageDto {
   id: string;
   _id?: string;
   conversationId: string;
+  /** Always a plain ID string after normalisation */
   senderId: string;
+  /** Populated sender info extracted from the backend-populated senderId object */
+  sender?: SenderInfo | null;
   /** Backend field name is 'type', matching MessageType enum */
   type: MessageType;
   /** Alias kept for template compatibility */
@@ -107,7 +118,8 @@ export interface TypingEvent {
 export interface WsNewMessageEvent {
   _id: string;
   conversationId: string;
-  senderId: string;
+  /** May be a populated object or plain string depending on WS payload */
+  senderId: string | { id: string; email?: string; fullName?: string; avatarUrl?: string | null };
   type: MessageType;
   content?: string;
   attachments?: AttachmentDto[];

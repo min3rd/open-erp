@@ -11,6 +11,7 @@ import {
 import {
   ConversationDto,
   MessageDto,
+  SenderInfo,
   UploadedAttachment,
 } from '../../interfaces/chat.types';
 import { ChatService, ChatUserSearchResult } from '../../services/chat-service';
@@ -509,6 +510,11 @@ export class QuickChat implements OnInit, OnDestroy {
   // ── Helpers ─────────────────────────────────────────────────────────────
 
   getSenderInfo(message: MessageDto) {
+    // Prefer the populated sender info embedded in the message (from backend populate)
+    if (message.sender?.id) {
+      return message.sender;
+    }
+    // Fall back to looking up in the conversation's participants list
     return this.selectedConversation?.participants.find(
       (p) => p.id === message.senderId,
     ) ?? null;

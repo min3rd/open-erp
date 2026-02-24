@@ -5,6 +5,7 @@ import {
   ConversationDto,
   MessageDto,
   MessageType,
+  SenderInfo,
   SendMessagePayload,
   CreateDirectConversationPayload,
   CreateGroupConversationPayload,
@@ -400,11 +401,29 @@ export class ChatService implements OnDestroy {
     const type: MessageType = (VALID_TYPES as string[]).includes(raw)
       ? (raw as MessageType)
       : 'text';
+
+    // Backend populates senderId as an object { id, email, fullName, ... }
+    // or may send it as a plain string ID.
+    let senderId: string;
+    let sender: SenderInfo | null = null;
+    if (typeof m.senderId === 'object' && m.senderId !== null) {
+      senderId = m.senderId.id ?? m.senderId._id?.toString() ?? '';
+      sender = {
+        id: senderId,
+        email: m.senderId.email ?? null,
+        fullName: m.senderId.fullName ?? m.senderId.computedFullName ?? null,
+        avatarUrl: m.senderId.avatarUrl ?? null,
+      };
+    } else {
+      senderId = m.senderId ?? '';
+    }
+
     return {
       id: m.id ?? m._id?.toString(),
       _id: m._id?.toString(),
       conversationId: m.conversationId?.toString?.() ?? m.conversationId,
-      senderId: m.senderId?.toString?.() ?? m.senderId,
+      senderId,
+      sender,
       content: m.content ?? null,
       type,
       contentType: type,
