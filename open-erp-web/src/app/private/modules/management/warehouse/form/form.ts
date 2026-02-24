@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  signal,
+  computed,
+  isDevMode,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -20,9 +28,18 @@ import { GeoEditorComponent } from '../../../../../../core/components/geo-editor
 import { MapComponent } from '../../../../../../core/components/map/map.component';
 
 // Core services
-import { GeocodingService, GeocodingResult } from '../../../../../../core/services/geocoding.service';
+import {
+  GeocodingService,
+  GeocodingResult,
+} from '../../../../../../core/services/geocoding.service';
 import { WarehouseService } from '../../../../../../core/services/warehouse/warehouse.service';
-import type { ProvinceDto, WardDto, CreateWarehouseDto, UpdateWarehouseDto, Warehouse as WarehouseResponse } from '../../../../../../core/services/warehouse/warehouse.service';
+import type {
+  ProvinceDto,
+  WardDto,
+  CreateWarehouseDto,
+  UpdateWarehouseDto,
+  Warehouse as WarehouseResponse,
+} from '../../../../../../core/services/warehouse/warehouse.service';
 
 // Types
 import {
@@ -53,8 +70,8 @@ import {
     AccordionPanel,
     AccordionHeader,
     AccordionContent,
-    MapComponent
-],
+    MapComponent,
+  ],
   templateUrl: './form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -72,6 +89,7 @@ export class WarehouseForm implements OnInit {
   protected readonly isViewMode = signal(false);
   protected readonly isVisible = signal(true);
   protected readonly isLoading = signal(false);
+  protected readonly isDevEnv = isDevMode();
   protected readonly currentGeometry = signal<GeoJSON.Geometry | null>(null);
 
   // Location search
@@ -84,49 +102,49 @@ export class WarehouseForm implements OnInit {
   protected readonly isLoadingWards = signal(false);
 
   // Warehouse type options (from enum)
-  protected readonly warehouseTypeOptions = Object.values(WarehouseType).map(type => ({
+  protected readonly warehouseTypeOptions = Object.values(WarehouseType).map((type) => ({
     label: this.formatEnumLabel(type),
     value: type,
   }));
 
   // Status options (from enum)
-  protected readonly statusOptions = Object.values(WarehouseStatus).map(status => ({
+  protected readonly statusOptions = Object.values(WarehouseStatus).map((status) => ({
     label: this.formatEnumLabel(status),
     value: status,
   }));
 
   // Capacity unit options
-  protected readonly capacityUnitOptions = Object.values(CapacityUnit).map(unit => ({
+  protected readonly capacityUnitOptions = Object.values(CapacityUnit).map((unit) => ({
     label: unit,
     value: unit,
   }));
 
   // Security level options
-  protected readonly securityLevelOptions = Object.values(SecurityLevel).map(level => ({
+  protected readonly securityLevelOptions = Object.values(SecurityLevel).map((level) => ({
     label: this.formatEnumLabel(level),
     value: level,
   }));
 
   // Working shift options
-  protected readonly workingShiftOptions = Object.values(WorkingShift).map(shift => ({
+  protected readonly workingShiftOptions = Object.values(WorkingShift).map((shift) => ({
     label: shift === '24/7' ? '24/7' : this.formatEnumLabel(shift),
     value: shift,
   }));
 
   // Currency options
-  protected readonly currencyOptions = Object.values(Currency).map(currency => ({
+  protected readonly currencyOptions = Object.values(Currency).map((currency) => ({
     label: currency,
     value: currency,
   }));
 
   // Payment term options
-  protected readonly paymentTermOptions = Object.values(PaymentTerm).map(term => ({
+  protected readonly paymentTermOptions = Object.values(PaymentTerm).map((term) => ({
     label: this.formatEnumLabel(term),
     value: term,
   }));
 
   protected form!: FormGroup;
-  
+
   // Computed geometry for map preview
   protected readonly mapGeometry = computed(() => this.currentGeometry());
 
@@ -140,14 +158,14 @@ export class WarehouseForm implements OnInit {
       addressDetail: ['', Validators.required],
       provinceCode: [null, Validators.required],
       wardCode: [null, Validators.required],
-      
+
       // Status defaults to active
       status: [WarehouseStatus.ACTIVE],
-      
+
       // Location fields
       latitude: [null],
       longitude: [null],
-      
+
       // Capacity fields
       totalAreaM2: [null],
       usableAreaM2: [null],
@@ -156,13 +174,13 @@ export class WarehouseForm implements OnInit {
       zonesCount: [null],
       racksCount: [null],
       floorsCount: [null],
-      
+
       // Storage conditions
       temperatureMin: [null],
       temperatureMax: [null],
       humidityMin: [null],
       humidityMax: [null],
-      
+
       // Operations
       managerName: [''],
       contactPhone: [''],
@@ -170,11 +188,11 @@ export class WarehouseForm implements OnInit {
       workersCount: [null],
       workingShift: [null],
       operatingHours: [''],
-      
+
       // Security
       securityLevel: [null],
       fireProtectionCert: [''],
-      
+
       // Finance
       storageFee: [null],
       handlingFee: [null],
@@ -210,13 +228,13 @@ export class WarehouseForm implements OnInit {
     if (queryParams['lat'] && queryParams['lng']) {
       const lat = parseFloat(queryParams['lat']);
       const lng = parseFloat(queryParams['lng']);
-      
+
       if (!isNaN(lat) && !isNaN(lng)) {
         this.form.patchValue({
           latitude: lat,
           longitude: lng,
         });
-        
+
         // Create Point geometry
         const pointGeometry: GeoJSON.Point = {
           type: 'Point',
@@ -231,7 +249,7 @@ export class WarehouseForm implements OnInit {
       const warehouse = data['warehouse'] as WarehouseResponse;
       if (warehouse) {
         this.warehouse.set(warehouse);
-        
+
         // Populate form from warehouse data
         this.form.patchValue({
           code: warehouse.code,
@@ -265,7 +283,7 @@ export class WarehouseForm implements OnInit {
           currency: warehouse.currency,
           paymentTerm: warehouse.paymentTerm,
         });
-        
+
         // Load geometry if available
         if (warehouse.location) {
           const pointGeometry: GeoJSON.Point = {
@@ -273,14 +291,14 @@ export class WarehouseForm implements OnInit {
             coordinates: warehouse.location.coordinates,
           };
           this.currentGeometry.set(pointGeometry);
-          
+
           // Extract lat/lng from coordinates
           this.form.patchValue({
             longitude: warehouse.location.coordinates[0],
             latitude: warehouse.location.coordinates[1],
           });
         }
-        
+
         if (this.isViewMode()) {
           this.form.disable();
         }
@@ -294,7 +312,7 @@ export class WarehouseForm implements OnInit {
   private formatEnumLabel(value: string): string {
     return value
       .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
   }
 
@@ -323,7 +341,7 @@ export class WarehouseForm implements OnInit {
    */
   protected onGeometryChange(geometry: GeoJSON.Geometry | null): void {
     this.currentGeometry.set(geometry);
-    
+
     // Extract lat/lng from point geometry
     if (geometry?.type === 'Point' && Array.isArray(geometry.coordinates)) {
       this.form.patchValue({
@@ -386,7 +404,7 @@ export class WarehouseForm implements OnInit {
 
   protected onSave(): void {
     if (this.form.invalid) {
-      Object.keys(this.form.controls).forEach(key => {
+      Object.keys(this.form.controls).forEach((key) => {
         const control = this.form.get(key);
         if (control?.invalid) {
           control.markAsTouched();
@@ -404,8 +422,8 @@ export class WarehouseForm implements OnInit {
     const formValue = this.form.getRawValue();
 
     // Get selected province and ward
-    const selectedProvince = this.provinces().find(p => p.code === formValue.provinceCode);
-    const selectedWard = this.wards().find(w => w.code === formValue.wardCode);
+    const selectedProvince = this.provinces().find((p) => p.code === formValue.provinceCode);
+    const selectedWard = this.wards().find((w) => w.code === formValue.wardCode);
 
     if (!selectedProvince || !selectedWard) {
       this.messageService.add({
@@ -489,7 +507,7 @@ export class WarehouseForm implements OnInit {
           detail: this.translocoService.translate(
             this.warehouse()
               ? 'warehouseForm.messages.updateSuccess'
-              : 'warehouseForm.messages.createSuccess'
+              : 'warehouseForm.messages.createSuccess',
           ),
         });
         this.onClose();
@@ -499,11 +517,71 @@ export class WarehouseForm implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: this.translocoService.translate('warehouseForm.messages.error'),
-          detail: error?.error?.message || this.translocoService.translate('warehouseForm.messages.saveFailed'),
+          detail:
+            error?.error?.message ||
+            this.translocoService.translate('warehouseForm.messages.saveFailed'),
         });
         this.isLoading.set(false);
       },
     });
+  }
+
+  protected randomizeData(): void {
+    const timeStr = new Date().getTime().toString().slice(-6);
+    const randomItem = <T>(arr: T[]): T | null =>
+      arr.length ? arr[Math.floor(Math.random() * arr.length)] : null;
+
+    this.form.patchValue({
+      code: `TEST-WH-${timeStr}`,
+      name: `Test Warehouse ${timeStr}`,
+      type: randomItem(this.warehouseTypeOptions)?.value,
+      addressDetail: `Test Address ${timeStr}, Random Street`,
+      status: WarehouseStatus.ACTIVE,
+      latitude: 21.028511 + (Math.random() - 0.5) * 0.1,
+      longitude: 105.804817 + (Math.random() - 0.5) * 0.1,
+      totalAreaM2: Math.floor(Math.random() * 5000) + 1000,
+      usableAreaM2: Math.floor(Math.random() * 4000) + 800,
+      storageCapacity: Math.floor(Math.random() * 10000) + 2000,
+      capacityUnit: randomItem(this.capacityUnitOptions)?.value,
+      zonesCount: Math.floor(Math.random() * 10) + 1,
+      racksCount: Math.floor(Math.random() * 50) + 10,
+      floorsCount: Math.floor(Math.random() * 3) + 1,
+      temperatureMin: 15,
+      temperatureMax: 25,
+      humidityMin: 40,
+      humidityMax: 60,
+      managerName: `Test Manager ${timeStr}`,
+      contactPhone:
+        '09' +
+        Math.floor(Math.random() * 100000000)
+          .toString()
+          .padStart(8, '0'),
+      contactEmail: `test.manager.${timeStr}@example.com`,
+      workersCount: Math.floor(Math.random() * 50) + 5,
+      workingShift: randomItem(this.workingShiftOptions)?.value,
+      operatingHours: '08:00 - 17:00 (Test)',
+      securityLevel: randomItem(this.securityLevelOptions)?.value,
+      fireProtectionCert: `TEST-FIRE-CERT-${timeStr}`,
+      storageFee: Math.floor(Math.random() * 500) + 50,
+      handlingFee: Math.floor(Math.random() * 200) + 20,
+      currency: randomItem(this.currencyOptions)?.value,
+      paymentTerm: randomItem(this.paymentTermOptions)?.value,
+    });
+
+    // Simulate province change
+    if (this.provinces().length > 0) {
+      const pCode = randomItem(this.provinces())?.code;
+      if (pCode) {
+        this.form.get('provinceCode')?.setValue(pCode);
+
+        // Let user select ward manually or we can try adding a timeout check
+        setTimeout(() => {
+          if (this.wards().length > 0) {
+            this.form.get('wardCode')?.setValue(randomItem(this.wards())?.code);
+          }
+        }, 500);
+      }
+    }
   }
 
   protected onClose(): void {

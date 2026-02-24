@@ -20,7 +20,7 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'all/1/100',
+        redirectTo: 'all/1/100?sort=fullName&order=asc',
       },
       {
         path: ':filter',
@@ -54,8 +54,8 @@ export const routes: Routes = [
                       {
                         path: 'roles-assignment',
                         component: RolesAssignment,
-                        resolve: { 
-                          rolesPermissionsData: userRolesPermissionsResolver
+                        resolve: {
+                          rolesPermissionsData: userRolesPermissionsResolver,
                         },
                       },
                       {
