@@ -240,7 +240,18 @@
     "messageInput": "Message input",
     "sendMessage": "Send message",
     "participants": "participants",
-    "noMessages": "No messages yet"
+    "noMessages": "No messages yet",
+    "messageDeleted": "This message was deleted",
+    "edited": "edited",
+    "direct": "Direct",
+    "group": "Group",
+    "groupTitle": "Group name...",
+    "searchUsers": "Search by email or name...",
+    "noUsersFound": "No users found",
+    "searchHint": "Type at least 2 characters",
+    "startChat": "Start Chat",
+    "createGroup": "Create Group",
+    "sendMessageHint": "Send (Ctrl+Enter)"
   },
   "organization": {
     "title": "Organization",

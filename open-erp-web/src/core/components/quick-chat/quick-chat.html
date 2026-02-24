@@ -1,4 +1,15 @@
 <div class="flex h-full border-l border-surface-200 dark:border-surface-700" id="quick-chat-container">
+
+  <!-- Hidden file input -->
+  <input
+    #fileInput
+    type="file"
+    class="hidden"
+    multiple
+    accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+    (change)="onFileSelected($event)"
+  />
+
   <!-- Conversation List - Narrow Column with Avatars -->
   <div
     id="quick-chat-conversation-list"
@@ -6,38 +17,51 @@
   >
     <!-- Conversation List - Avatar Only -->
     <div class="flex flex-col flex-auto px-2 py-3 space-y-1 overflow-y-auto" id="quick-chat-conversations">
-      @if (!conversations) { @for (i of [1,2,3,4,5]; track i) {
-      <p-skeleton shape="square" size="3rem" />
-      } } @else { @for (conversation of conversations; track conversation.id) {
-      <div
-        [id]="'quick-chat-conversation-' + conversation.id"
-        (click)="openConversation(conversation.id)"
-        class="flex p-0.5 text-center justify-center cursor-pointer transition-all duration-100 hover:scale-110 rounded-md"
-        [class.bg-primary-50]="conversation.id === selectedConversation?.id"
-        [class.border-primary-500]="conversation.id === selectedConversation?.id"
-        [class.dark:bg-primary-500]="conversation.id === selectedConversation?.id"
-        role="button"
-        tabindex="0"
-        [attr.aria-label]="('quickChat.openConversation' | transloco) + ' ' + conversation.title"
-      >
-        @if(conversation.participants.length > 1){
-        <p-avatar pRipple icon="pi pi-users" size="large" shape="square" />
-        } @else if(conversation.participants[0].avatarUrl) {
-        <p-avatar
-          pRipple
-          [image]="conversation.participants[0].avatarUrl"
-          shape="square"
-          size="large"
-        />
-        } @else {
-        <p-avatar pRipple [label]="conversation.title?.charAt(0)" shape="square" size="large" />
+      @if (loadingConversations) {
+        @for (i of [1,2,3,4,5]; track i) {
+          <p-skeleton shape="square" size="3rem" />
         }
-      </div>
-      } }
+      } @else {
+        @for (conversation of conversations; track conversation.id) {
+          <div
+            [id]="'quick-chat-conversation-' + conversation.id"
+            (click)="openConversation(conversation.id)"
+            (keydown.enter)="openConversation(conversation.id)"
+            (keydown.space)="openConversation(conversation.id)"
+            class="relative flex p-0.5 text-center justify-center cursor-pointer transition-all duration-100 hover:scale-110 rounded-md"
+            [class.bg-primary-50]="conversation.id === selectedConversation?.id"
+            [class.border-primary-500]="conversation.id === selectedConversation?.id"
+            [class.dark:bg-primary-500]="conversation.id === selectedConversation?.id"
+            role="button"
+            tabindex="0"
+            [attr.aria-label]="('quickChat.openConversation' | transloco) + ' ' + getConversationTitle(conversation)"
+          >
+            <p-overlaybadge
+              [value]="conversation.unreadCount && conversation.unreadCount > 0 ? conversation.unreadCount : null"
+              severity="danger"
+            >
+              @if (conversation.participants.length > 1) {
+                <p-avatar pRipple icon="pi pi-users" size="large" shape="square" />
+              } @else if (conversation.participants[0]?.avatarUrl) {
+                <p-avatar
+                  pRipple
+                  [image]="conversation.participants[0].avatarUrl ?? undefined"
+                  shape="square"
+                  size="large"
+                />
+              } @else {
+                <p-avatar pRipple [label]="getConversationAvatarLabel(conversation)" shape="square" size="large" />
+              }
+            </p-overlaybadge>
+          </div>
+        }
+      }
     </div>
+
+    <!-- New Conversation Button -->
     <div
       id="quick-chat-new-conversation-wrapper"
-      class="flex px-2 py-3 items-center justify-center p-3 border-t border-surface-200 dark:border-surface-700"
+      class="flex px-2 py-3 items-center justify-center border-t border-surface-200 dark:border-surface-700"
     >
       <p-button
         id="quick-chat-new-conversation-button"
@@ -45,78 +69,397 @@
         [rounded]="true"
         [text]="true"
         size="small"
-        [aria-label]="'quickChat.newConversation' | transloco"
+        (onClick)="openDrawer()"
+        [attr.aria-label]="'quickChat.newConversation' | transloco"
+        pTooltip="{{ 'quickChat.newConversation' | transloco }}"
+        tooltipPosition="left"
       />
     </div>
   </div>
 
   <!-- Selected Conversation Detail Panel -->
   @if (selectedConversation) {
-  <div class="flex flex-col w-80 bg-surface-0 dark:bg-surface-900 animate-fadeinright" id="quick-chat-detail-panel">
-    <!-- Conversation Header -->
-    <div
-      id="quick-chat-conversation-header"
-      class="flex items-center gap-3 px-4 py-3 border-b border-surface-200 dark:border-surface-700"
-    >
-      <div class="flex-1 min-w-0" id="quick-chat-conversation-info">
-        <div class="font-semibold text-surface-900 dark:text-surface-0 truncate" id="quick-chat-conversation-title">
-          {{ selectedConversation.title || selectedConversation.participants[0].fullName }}
+    <div class="flex flex-col w-80 bg-surface-0 dark:bg-surface-900 animate-fadeinright" id="quick-chat-detail-panel">
+
+      <!-- Conversation Header -->
+      <div
+        id="quick-chat-conversation-header"
+        class="flex items-center gap-2 px-3 py-2 border-b border-surface-200 dark:border-surface-700"
+      >
+        @if (selectedConversation.participants.length > 1) {
+          <p-avatar icon="pi pi-users" size="normal" shape="square" />
+        } @else if (selectedConversation.participants[0]?.avatarUrl) {
+          <p-avatar [image]="selectedConversation.participants[0].avatarUrl ?? undefined" size="normal" shape="square" />
+        } @else {
+          <p-avatar [label]="getConversationAvatarLabel(selectedConversation)" size="normal" shape="square" />
+        }
+
+        <div class="flex-1 min-w-0" id="quick-chat-conversation-info">
+          <div class="font-semibold text-sm text-surface-900 dark:text-surface-0 truncate" id="quick-chat-conversation-title">
+            {{ getConversationTitle(selectedConversation) }}
+          </div>
+          <div class="text-xs text-surface-500 dark:text-surface-400 truncate" id="quick-chat-conversation-participants">
+            {{ selectedConversation.participants.length }} {{ 'quickChat.participants' | transloco }}
+          </div>
         </div>
-        <div class="text-xs text-surface-600 dark:text-surface-400 truncate" id="quick-chat-conversation-participants">
-          {{ selectedConversation.participants.length }} {{ 'quickChat.participants' | transloco }}
-        </div>
+
+        <p-button
+          id="quick-chat-close-conversation-button"
+          (onClick)="closeConversation()"
+          icon="pi pi-times"
+          [text]="true"
+          [rounded]="true"
+          size="small"
+          severity="secondary"
+          [attr.aria-label]="'quickChat.closeConversation' | transloco"
+        />
       </div>
-      <p-button
-        id="quick-chat-close-conversation-button"
-        (onClick)="selectedConversation = null"
-        icon="pi pi-times"
-        [text]="true"
-        [rounded]="true"
-        size="small"
-        class="w-11 h-11"
-        [aria-label]="'quickChat.closeConversation' | transloco"
-      />
+
+      <!-- Messages Area -->
+      <div
+        #messagesContainer
+        class="flex-1 overflow-y-auto p-3 space-y-3"
+        id="quick-chat-messages-area"
+      >
+        @if (loadingMessages) {
+          <div class="flex flex-col space-y-3 px-2">
+            @for (i of [1,2,3]; track i) {
+              <div class="flex gap-2 items-end">
+                <p-skeleton shape="circle" size="1.75rem" />
+                <p-skeleton height="3rem" width="60%" />
+              </div>
+            }
+          </div>
+        } @else if (!messages.length) {
+          <div class="flex flex-col items-center justify-center h-full text-surface-400 dark:text-surface-500 text-sm gap-2">
+            <i class="pi pi-comments text-3xl"></i>
+            <span>{{ 'quickChat.noMessages' | transloco }}</span>
+          </div>
+        } @else {
+          @for (message of messages; track message.id) {
+            <div
+              class="flex gap-2 items-end"
+              [class.flex-row-reverse]="message.senderId === selectedConversation.participants[0]?.id && selectedConversation.participants.length === 1"
+            >
+              <!-- Sender Avatar -->
+              @if (selectedConversation.participants.length > 1) {
+                @if (getSenderInfo(message)?.avatarUrl) {
+                  <p-avatar
+                    [image]="getSenderInfo(message)!.avatarUrl ?? undefined"
+                    size="normal"
+                    shape="circle"
+                    class="flex-shrink-0"
+                  />
+                } @else {
+                  <p-avatar
+                    [label]="(getSenderInfo(message)?.fullName ?? '?').charAt(0)"
+                    size="normal"
+                    shape="circle"
+                    class="flex-shrink-0"
+                  />
+                }
+              }
+
+              <!-- Message Bubble -->
+              <div class="flex flex-col max-w-[75%] gap-0.5">
+                <!-- Sender name for group -->
+                @if (selectedConversation.participants.length > 1) {
+                  <span class="text-xs text-surface-500 dark:text-surface-400 px-1">
+                    {{ getSenderInfo(message)?.fullName ?? '' }}
+                  </span>
+                }
+
+                @if (!message.deleted) {
+                  <div
+                    class="rounded-lg px-3 py-2 text-sm break-words"
+                    [class.bg-primary-500]="!isSelf(message)"
+                    [class.text-white]="!isSelf(message)"
+                    [class.bg-surface-100]="isSelf(message)"
+                    [class.dark:bg-surface-700]="isSelf(message)"
+                    [class.dark:text-surface-0]="isSelf(message)"
+                  >
+                    <!-- Text content -->
+                    @if (message.contentType === 'text' && message.content) {
+                      <span>{{ message.content }}</span>
+                    }
+
+                    <!-- Attachments -->
+                    @if (message.attachments && message.attachments.length > 0) {
+                      <div class="flex flex-col gap-1 mt-1">
+                        @for (att of message.attachments; track att.url) {
+                          @if (isImageType(att.mimeType)) {
+                            <img
+                              [src]="att.url"
+                              [alt]="att.filename ?? att.fileName ?? 'image'"
+                              class="max-w-full rounded cursor-pointer"
+                              style="max-height: 200px; object-fit: contain;"
+                            />
+                          } @else if (isVideoType(att.mimeType)) {
+                            <video
+                              [src]="att.url"
+                              controls
+                              class="max-w-full rounded"
+                              style="max-height: 200px;"
+                            ></video>
+                          } @else {
+                            <a
+                              [href]="att.url"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="flex items-center gap-1 underline text-xs"
+                            >
+                              <i class="pi pi-file text-sm"></i>
+                              {{ att.filename ?? att.fileName ?? 'File' }}
+                            </a>
+                          }
+                        }
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div class="rounded-lg px-3 py-2 text-xs text-surface-400 dark:text-surface-500 italic bg-surface-50 dark:bg-surface-800">
+                    {{ 'quickChat.messageDeleted' | transloco }}
+                  </div>
+                }
+
+                <!-- Timestamp + status -->
+                <div class="flex items-center gap-1 px-1">
+                  <span class="text-[10px] text-surface-400 dark:text-surface-500">
+                    {{ formatTime(message.createdAt) }}
+                  </span>
+                  @if (message.edited) {
+                    <span class="text-[10px] text-surface-400 dark:text-surface-500 italic">
+                      ({{ 'quickChat.edited' | transloco }})
+                    </span>
+                  }
+                  @if (isSelf(message)) {
+                    <i
+                      class="text-[10px]"
+                      [class.pi]="true"
+                      [class.pi-check]="message.status === 'sent' || message.status === 'sending'"
+                      [class.pi-check-circle]="message.status === 'delivered' || message.status === 'read'"
+                      [class.text-primary-400]="message.status === 'read'"
+                      [class.text-surface-400]="message.status !== 'read'"
+                      [attr.title]="message.status"
+                    ></i>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Typing Indicator -->
+          @if (hasTypingUsers) {
+            <div class="flex gap-2 items-center px-2">
+              <span class="text-xs text-surface-400 dark:text-surface-500 italic">{{ getTypingText() }}</span>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Pending Attachments Preview -->
+      @if (pendingAttachments.length > 0) {
+        <div class="flex gap-2 px-3 py-2 border-t border-surface-200 dark:border-surface-700 overflow-x-auto" id="quick-chat-attachments-preview">
+          @for (att of pendingAttachments; track att.url; let i = $index) {
+            <div class="relative flex-shrink-0">
+              @if (isImageType(att.mimeType) && att.previewUrl) {
+                <img [src]="att.previewUrl" alt="{{ att.filename }}" class="w-16 h-16 object-cover rounded" />
+              } @else {
+                <div class="w-16 h-16 flex flex-col items-center justify-center bg-surface-100 dark:bg-surface-700 rounded gap-1">
+                  <i class="pi pi-file text-lg text-surface-500"></i>
+                  <span class="text-[9px] text-surface-500 truncate w-full text-center px-1">{{ att.filename }}</span>
+                </div>
+              }
+              <p-button
+                icon="pi pi-times"
+                [rounded]="true"
+                size="small"
+                severity="danger"
+                class="absolute -top-1 -right-1 w-5 h-5"
+                [style]="{ width: '1.25rem', height: '1.25rem', padding: '0', minWidth: 'unset' }"
+                (onClick)="removeAttachment(i)"
+              />
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Message Input -->
+      <div
+        id="quick-chat-message-input-wrapper"
+        class="flex items-end gap-2 px-3 py-2 border-t border-surface-200 dark:border-surface-700"
+      >
+        <p-button
+          id="quick-chat-attach-button"
+          icon="pi pi-paperclip"
+          [rounded]="true"
+          [text]="true"
+          size="small"
+          severity="secondary"
+          (onClick)="onFileAttach()"
+          [attr.aria-label]="'quickChat.attachFile' | transloco"
+          pTooltip="{{ 'quickChat.attachFile' | transloco }}"
+          tooltipPosition="top"
+        />
+        <textarea
+          pTextarea
+          id="quick-chat-message-input"
+          [(ngModel)]="messageText"
+          [placeholder]="'quickChat.typeMessage' | transloco"
+          class="flex-1 resize-none text-sm"
+          rows="1"
+          style="min-height: 2rem; max-height: 6rem;"
+          (keydown)="onMessageKeydown($event)"
+          [attr.aria-label]="'quickChat.messageInput' | transloco"
+        ></textarea>
+        <p-button
+          id="quick-chat-send-button"
+          icon="pi pi-send"
+          [rounded]="true"
+          size="small"
+          (onClick)="sendMessage()"
+          [loading]="sendingMessage"
+          [disabled]="(!messageText.trim() && !pendingAttachments.length) || sendingMessage"
+          [attr.aria-label]="'quickChat.sendMessage' | transloco"
+          pTooltip="{{ 'quickChat.sendMessageHint' | transloco }}"
+          tooltipPosition="top"
+        />
+      </div>
+    </div>
+  }
+</div>
+
+<!-- New Conversation Drawer -->
+<p-drawer
+  id="quick-chat-new-conversation-drawer"
+  [(visible)]="drawerVisible"
+  position="right"
+  [style]="{ width: '20rem' }"
+  [modal]="true"
+>
+  <ng-template #header>
+    <span class="font-semibold text-base">{{ 'quickChat.newConversation' | transloco }}</span>
+  </ng-template>
+
+  <div class="flex flex-col gap-4 h-full">
+    <!-- Mode Toggle -->
+    <div class="flex gap-4">
+      <div class="flex items-center gap-2">
+        <p-radiobutton
+          inputId="mode-direct"
+          name="newChatMode"
+          value="direct"
+          [(ngModel)]="newChatMode"
+        />
+        <label for="mode-direct" class="cursor-pointer text-sm">{{ 'quickChat.direct' | transloco }}</label>
+      </div>
+      <div class="flex items-center gap-2">
+        <p-radiobutton
+          inputId="mode-group"
+          name="newChatMode"
+          value="group"
+          [(ngModel)]="newChatMode"
+        />
+        <label for="mode-group" class="cursor-pointer text-sm">{{ 'quickChat.group' | transloco }}</label>
+      </div>
     </div>
 
-    <!-- Messages Area -->
-    <div class="flex-1 overflow-y-auto p-4" id="quick-chat-messages-area">
-      <div class="text-center text-surface-500 dark:text-surface-400 text-sm" id="quick-chat-no-messages">
-        {{ 'quickChat.noMessages' | transloco }}
-      </div>
-    </div>
-
-    <!-- Message Input -->
-    <div
-      id="quick-chat-message-input-wrapper"
-      class="flex items-center gap-2 px-4 py-3 border-t border-surface-200 dark:border-surface-700"
-    >
-      <p-button
-        id="quick-chat-attach-button"
-        icon="pi pi-paperclip"
-        [rounded]="true"
-        [text]="true"
-        size="small"
-        class="w-11 h-11"
-        [aria-label]="'quickChat.attachFile' | transloco"
-      />
+    <!-- Group Title (only for group) -->
+    @if (newChatMode === 'group') {
       <input
         type="text"
-        id="quick-chat-message-input"
         pInputText
-        [(ngModel)]="messageText"
-        [placeholder]="'quickChat.typeMessage' | transloco"
-        class="flex-1"
-        [aria-label]="'quickChat.messageInput' | transloco"
+        [(ngModel)]="groupTitle"
+        [placeholder]="'quickChat.groupTitle' | transloco"
+        class="w-full text-sm"
       />
+    }
+
+    <!-- User Search -->
+    <div class="relative">
+      <input
+        type="text"
+        pInputText
+        [(ngModel)]="userSearchQuery"
+        (ngModelChange)="onSearchQueryChange($event)"
+        [placeholder]="'quickChat.searchUsers' | transloco"
+        class="w-full text-sm"
+      />
+      @if (searchLoading) {
+        <i class="pi pi-spin pi-spinner absolute right-3 top-1/2 -translate-y-1/2 text-surface-400"></i>
+      }
+    </div>
+
+    <!-- Selected Users -->
+    @if (selectedUsers.length > 0) {
+      <div class="flex flex-wrap gap-1">
+        @for (user of selectedUsers; track user.id) {
+          <div class="flex items-center gap-1 bg-primary-100 dark:bg-primary-900 rounded-full px-2 py-0.5 text-xs">
+            <span>{{ user.fullName }}</span>
+            <button
+              type="button"
+              class="text-primary-500 hover:text-primary-700 cursor-pointer"
+              (click)="toggleUserSelection(user)"
+              [attr.aria-label]="'Remove ' + user.fullName"
+            >
+              <i class="pi pi-times text-[10px]"></i>
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Search Results -->
+    <div class="flex-1 overflow-y-auto -mx-4 px-4">
+      @if (searchResults.length > 0) {
+        <div class="flex flex-col gap-1">
+          @for (user of searchResults; track user.id) {
+            <div
+              class="flex items-center gap-3 p-2 rounded cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors"
+              [class.bg-primary-50]="isUserSelected(user)"
+              [class.dark:bg-primary-900]="isUserSelected(user)"
+              (click)="toggleUserSelection(user)"
+              (keydown.enter)="toggleUserSelection(user)"
+              role="button"
+              tabindex="0"
+            >
+              @if (user.avatarUrl) {
+                <p-avatar [image]="user.avatarUrl ?? undefined" size="normal" shape="circle" />
+              } @else {
+                <p-avatar [label]="user.fullName.charAt(0)" size="normal" shape="circle" />
+              }
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium truncate">{{ user.fullName }}</div>
+                <div class="text-xs text-surface-500 truncate">{{ user.email }}</div>
+              </div>
+              @if (isUserSelected(user)) {
+                <i class="pi pi-check text-primary-500 text-sm"></i>
+              }
+            </div>
+          }
+        </div>
+      } @else if (userSearchQuery.length >= 2 && !searchLoading) {
+        <div class="text-center text-surface-400 text-sm py-4">
+          {{ 'quickChat.noUsersFound' | transloco }}
+        </div>
+      } @else if (userSearchQuery.length < 2) {
+        <div class="text-center text-surface-400 text-sm py-4">
+          {{ 'quickChat.searchHint' | transloco }}
+        </div>
+      }
+    </div>
+
+    <!-- Confirm Button -->
+    <div class="pt-2 border-t border-surface-200 dark:border-surface-700">
       <p-button
-        id="quick-chat-send-button"
-        icon="pi pi-send"
-        [rounded]="true"
-        size="small"
-        class="w-11 h-11"
-        [aria-label]="'quickChat.sendMessage' | transloco"
+        [label]="newChatMode === 'direct' ? ('quickChat.startChat' | transloco) : ('quickChat.createGroup' | transloco)"
+        icon="pi pi-comments"
+        class="w-full"
+        [styleClass]="'w-full'"
+        (onClick)="createConversation()"
+        [loading]="creatingConversation"
+        [disabled]="selectedUsers.length === 0 || creatingConversation"
       />
     </div>
   </div>
-  }
-</div>
+</p-drawer>
