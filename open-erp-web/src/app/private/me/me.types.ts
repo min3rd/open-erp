@@ -78,3 +78,18 @@ export interface ChangePasswordDto {
   currentPassword: string;
   newPassword: string;
 }
+
+export interface TwoFAStatus {
+  enabled: boolean;
+  hasRecoveryCodes: boolean;
+}
+
+export interface TwoFAPrepareResult {
+  secret: string;
+  otpauthUrl: string;
+  qrData: string;
+}
+
+export interface TwoFAEnableResult {
+  recoveryCodes: string[];
+}

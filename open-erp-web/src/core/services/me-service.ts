@@ -14,6 +14,9 @@ export type {
   MeSession,
   UpdateMeDto,
   ChangePasswordDto,
+  TwoFAStatus,
+  TwoFAPrepareResult,
+  TwoFAEnableResult,
 } from '../../app/private/me/me.types';
 import type {
   MeProfile,
@@ -21,6 +24,9 @@ import type {
   MeSession,
   UpdateMeDto,
   ChangePasswordDto,
+  TwoFAStatus,
+  TwoFAPrepareResult,
+  TwoFAEnableResult,
 } from '../../app/private/me/me.types';
 
 @Injectable({
@@ -140,6 +146,65 @@ export class MeService {
       .post<ApiResponse<{ success: boolean; message: string }>>(
         `${this.baseUrl}/me/delete-account`,
         { password },
+      )
+      .pipe(
+        map((response) => {
+          if (isApiResponse(response)) {
+            return unwrap(response) as { success: boolean; message: string };
+          }
+          return response as unknown as { success: boolean; message: string };
+        }),
+        catchError(this.handleError),
+      );
+  }
+
+  get2FAStatus(): Observable<TwoFAStatus> {
+    return this.http
+      .get<ApiResponse<TwoFAStatus>>(`${this.baseUrl}/me/2fa/status`)
+      .pipe(
+        map((response) => {
+          if (isApiResponse(response)) {
+            return unwrap(response) as TwoFAStatus;
+          }
+          return response as unknown as TwoFAStatus;
+        }),
+        catchError(this.handleError),
+      );
+  }
+
+  prepare2FA(): Observable<TwoFAPrepareResult> {
+    return this.http
+      .post<ApiResponse<TwoFAPrepareResult>>(`${this.baseUrl}/me/2fa/prepare`, {})
+      .pipe(
+        map((response) => {
+          if (isApiResponse(response)) {
+            return unwrap(response) as TwoFAPrepareResult;
+          }
+          return response as unknown as TwoFAPrepareResult;
+        }),
+        catchError(this.handleError),
+      );
+  }
+
+  enable2FA(otp: string): Observable<TwoFAEnableResult> {
+    return this.http
+      .post<ApiResponse<TwoFAEnableResult>>(`${this.baseUrl}/me/2fa/enable`, { otp })
+      .pipe(
+        map((response) => {
+          if (isApiResponse(response)) {
+            return unwrap(response) as TwoFAEnableResult;
+          }
+          return response as unknown as TwoFAEnableResult;
+        }),
+        catchError(this.handleError),
+      );
+  }
+
+  disable2FA(otp: string): Observable<{ success: boolean; message: string }> {
+    return this.http
+      .post<ApiResponse<{ success: boolean; message: string }>>(
+        `${this.baseUrl}/me/2fa/disable`,
+        { otp },
       )
       .pipe(
         map((response) => {

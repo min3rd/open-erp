@@ -48,6 +48,13 @@ import {
 import { Types } from 'mongoose';
 import { AuthorizationService } from '@shared/authz';
 import { MinioService } from '@shared/services/minio/minio.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User, UserDocument } from '@shared/schemas/user.schema';
+import { generateSecret, generate, verify, generateURI } from 'otplib';
+import * as QRCode from 'qrcode';
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -72,6 +79,7 @@ export class AuthService {
     private readonly passwordResetTokenRepository: PasswordResetTokenRepository,
     private readonly authorizationService: AuthorizationService,
     private readonly minioService: MinioService,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {
     this.verificationTokenTTL = parseInt(
       process.env.VERIFICATION_TOKEN_TTL || '15',
@@ -1358,5 +1366,190 @@ export class AuthService {
       success: true,
       message: 'Account deactivated successfully',
     };
+  }
+
+  // ─── 2FA helpers ────────────────────────────────────────────────────────────
+
+  private encrypt2FASecret(secret: string): string {
+    const key = crypto
+      .createHash('sha256')
+      .update(this.jwtSecret)
+      .digest(); // 32-byte key
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+    const encrypted = Buffer.concat([
+      cipher.update(secret, 'utf8'),
+      cipher.final(),
+    ]);
+    return iv.toString('hex') + ':' + encrypted.toString('hex');
+  }
+
+  private decrypt2FASecret(encryptedSecret: string): string {
+    const [ivHex, encHex] = encryptedSecret.split(':');
+    const key = crypto
+      .createHash('sha256')
+      .update(this.jwtSecret)
+      .digest();
+    const iv = Buffer.from(ivHex, 'hex');
+    const encryptedText = Buffer.from(encHex, 'hex');
+    const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+    const decrypted = Buffer.concat([
+      decipher.update(encryptedText),
+      decipher.final(),
+    ]);
+    return decrypted.toString('utf8');
+  }
+
+  private generateRecoveryCodes(count = 10): string[] {
+    const codes: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const code = crypto.randomBytes(5).toString('hex').toUpperCase();
+      codes.push(`${code.slice(0, 5)}-${code.slice(5)}`);
+    }
+    return codes;
+  }
+
+  // ─── 2FA API methods ─────────────────────────────────────────────────────────
+
+  async get2FAStatus(userId: string) {
+    const user = await this.userModel
+      .findById(userId)
+      .select('is2faEnabled twoFactorRecoveryCodes')
+      .exec();
+    if (!user) {
+      throw ErrorFactory.createError({ code: USER_NOT_FOUND });
+    }
+    return {
+      enabled: user.is2faEnabled ?? false,
+      hasRecoveryCodes: (user.twoFactorRecoveryCodes?.length ?? 0) > 0,
+    };
+  }
+
+  async prepare2FA(userId: string) {
+    const user = await firstValueFrom(
+      this.userClient.send(RPC_METHODS.USER.FIND_USER_BY_ID, { userId }),
+    );
+    if (!user) {
+      throw ErrorFactory.createError({ code: USER_NOT_FOUND });
+    }
+
+    const secret = generateSecret();
+    const otpauthUrl = generateURI({
+      issuer: 'OpenERP',
+      label: user.email,
+      secret,
+    });
+    const qrData = await QRCode.toDataURL(otpauthUrl);
+
+    // Store temp secret with 5-minute expiry
+    const expiry = new Date(Date.now() + 5 * 60 * 1000);
+    const encryptedTemp = this.encrypt2FASecret(secret);
+    await this.userModel
+      .findByIdAndUpdate(userId, {
+        twoFactorTempSecret: encryptedTemp,
+        twoFactorTempSecretExpiry: expiry,
+      })
+      .exec();
+
+    this.logger.log({ event: 'user.2fa.prepare', userId });
+
+    return { secret, otpauthUrl, qrData };
+  }
+
+  async enable2FA(userId: string, otp: string) {
+    const user = await this.userModel
+      .findById(userId)
+      .select(
+        '+twoFactorTempSecret twoFactorTempSecretExpiry is2faEnabled',
+      )
+      .exec();
+    if (!user) {
+      throw ErrorFactory.createError({ code: USER_NOT_FOUND });
+    }
+
+    if (!user.twoFactorTempSecret || !user.twoFactorTempSecretExpiry) {
+      throw ErrorFactory.createError({
+        code: AUTH_INVALID_CREDENTIALS,
+        details: { reason: 'No pending 2FA setup. Please call prepare first.' },
+      });
+    }
+
+    if (new Date() > user.twoFactorTempSecretExpiry) {
+      throw ErrorFactory.createError({
+        code: AUTH_INVALID_CREDENTIALS,
+        details: { reason: 'Temporary secret has expired. Please start over.' },
+      });
+    }
+
+    const secret = this.decrypt2FASecret(user.twoFactorTempSecret);
+    const result = await verify({ secret, token: otp });
+    if (!result || !result.valid) {
+      throw ErrorFactory.createError({
+        code: AUTH_INVALID_CREDENTIALS,
+        details: { reason: 'Invalid OTP code' },
+      });
+    }
+
+    // Generate recovery codes
+    const plainCodes = this.generateRecoveryCodes(10);
+    const hashedCodes = await Promise.all(
+      plainCodes.map((code) => bcrypt.hash(code, 10)),
+    );
+
+    // Persist encrypted secret + hashed recovery codes
+    const encryptedSecret = this.encrypt2FASecret(secret);
+    await this.userModel
+      .findByIdAndUpdate(userId, {
+        is2faEnabled: true,
+        twoFactorSecret: encryptedSecret,
+        twoFactorRecoveryCodes: hashedCodes,
+        twoFactorTempSecret: null,
+        twoFactorTempSecretExpiry: null,
+      })
+      .exec();
+
+    this.logger.log({ event: 'user.2fa.enabled', userId });
+
+    return { recoveryCodes: plainCodes };
+  }
+
+  async disable2FA(userId: string, otp: string) {
+    const user = await this.userModel
+      .findById(userId)
+      .select('+twoFactorSecret is2faEnabled')
+      .exec();
+    if (!user) {
+      throw ErrorFactory.createError({ code: USER_NOT_FOUND });
+    }
+
+    if (!user.is2faEnabled || !user.twoFactorSecret) {
+      throw ErrorFactory.createError({
+        code: AUTH_INVALID_CREDENTIALS,
+        details: { reason: '2FA is not enabled for this account.' },
+      });
+    }
+
+    const secret = this.decrypt2FASecret(user.twoFactorSecret);
+    const result = await verify({ secret, token: otp });
+    if (!result || !result.valid) {
+      throw ErrorFactory.createError({
+        code: AUTH_INVALID_CREDENTIALS,
+        details: { reason: 'Invalid OTP code' },
+      });
+    }
+
+    await this.userModel
+      .findByIdAndUpdate(userId, {
+        is2faEnabled: false,
+        twoFactorSecret: null,
+        twoFactorRecoveryCodes: [],
+        twoFactorTempSecret: null,
+        twoFactorTempSecretExpiry: null,
+      })
+      .exec();
+
+    this.logger.log({ event: 'user.2fa.disabled', userId });
+
+    return { success: true, message: '2FA disabled successfully' };
   }
 }
