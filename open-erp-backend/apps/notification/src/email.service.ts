@@ -165,7 +165,128 @@ export class EmailService {
   }
 
   /**
-   * Load verification email template from VERIFY_EMAIL.md file
+   * Send organization invitation email
+   * @param to - Recipient email address
+   * @param fullName - Recipient full name (or email if unknown)
+   * @param inviterName - Name of person sending invitation
+   * @param orgName - Organization name
+   * @param acceptLink - Invitation accept link with token
+   * @param expiryDate - Expiry date string
+   * @param message - Optional custom message from inviter
+   */
+  async sendInvitationEmail(
+    to: string,
+    fullName: string,
+    inviterName: string,
+    orgName: string,
+    acceptLink: string,
+    expiryDate: string,
+    message?: string,
+  ): Promise<void> {
+    try {
+      const { subject, body } = await this.loadInvitationEmailTemplate(
+        fullName,
+        inviterName,
+        orgName,
+        acceptLink,
+        expiryDate,
+        message,
+      );
+
+      if (this.bypassEmail) {
+        this.logger.log(`[BYPASS] Invitation email for ${to}:`);
+        this.logger.log(`Subject: ${subject}`);
+        this.logger.log(`Accept Link: ${acceptLink}`);
+        return;
+      }
+
+      const info = await this.transporter.sendMail({
+        from:
+          process.env.AUTH_EMAIL_FROM || '"Open ERP" <noreply@open-erp.com>',
+        to,
+        subject,
+        text: body,
+        html: this.convertToHtml(body),
+      });
+
+      this.logger.log(
+        `Invitation email sent successfully to ${to}. Message ID: ${info.messageId}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send invitation email to ${to}: ${error.message}`,
+        error.stack,
+      );
+      throw new Error('Failed to send invitation email');
+    }
+  }
+
+  /**
+   * Load invitation email template
+   */
+  private async loadInvitationEmailTemplate(
+    fullName: string,
+    inviterName: string,
+    orgName: string,
+    acceptLink: string,
+    expiryDate: string,
+    message?: string,
+  ): Promise<{ subject: string; body: string }> {
+    try {
+      const templatePath = path.join(
+        __dirname,
+        '../../templates/INVITE_EMAIL.md',
+      );
+      const template = await fs.readFile(templatePath, 'utf-8');
+
+      // Extract subject (first line starting with #)
+      const lines = template.split('\n');
+      const subjectLine = lines.find((line) => line.startsWith('#'));
+      const subject = subjectLine
+        ? subjectLine.replace(/^#+\s*/, '').trim()
+        : `You're invited to join ${orgName} on Open ERP`;
+
+      // Handle optional message block
+      let processedTemplate = template;
+      if (message) {
+        processedTemplate = processedTemplate
+          .replace(/\{\{#if message\}\}/g, '')
+          .replace(/\{\{\/if\}\}/g, '')
+          .replace(/\{\{message\}\}/g, message);
+      } else {
+        // Remove optional message block
+        processedTemplate = processedTemplate.replace(
+          /\{\{#if message\}\}[\s\S]*?\{\{\/if\}\}/g,
+          '',
+        );
+      }
+
+      const body = processedTemplate
+        .replace(/\{\{fullName\}\}/g, fullName)
+        .replace(/\{\{inviterName\}\}/g, inviterName)
+        .replace(/\{\{orgName\}\}/g, orgName)
+        .replace(/\{\{acceptLink\}\}/g, acceptLink)
+        .replace(/\{\{expiryDate\}\}/g, expiryDate);
+
+      return { subject, body };
+    } catch (error) {
+      this.logger.error(
+        `Failed to load invitation email template: ${error.message}`,
+      );
+      // Fallback to default template
+      const subject = `You're invited to join ${orgName} on Open ERP`;
+      const body =
+        `Hello ${fullName},\n\n` +
+        `${inviterName} has invited you to join ${orgName} on Open ERP.\n\n` +
+        (message ? `Message: ${message}\n\n` : '') +
+        `Accept your invitation here: ${acceptLink}\n\n` +
+        `This invitation expires on ${expiryDate}.\n\n` +
+        `Best regards,\nOpen ERP Team`;
+      return { subject, body };
+    }
+  }
+
+  /**
    */
   private async loadVerificationEmailTemplate(
     fullName: string,

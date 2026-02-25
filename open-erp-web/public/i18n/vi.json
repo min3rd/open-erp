@@ -103,7 +103,8 @@
     "error": "Lỗi",
     "warning": "Cảnh báo",
     "updateSuccess": "Cập nhật thành công",
-    "updateError": "Cập nhật thất bại"
+    "updateError": "Cập nhật thất bại",
+    "optional": "tùy chọn"
   },
   "auth": {
     "logout": "Đăng xuất"
@@ -1811,6 +1812,38 @@
       "mediaTooLarge": "Kích thước file vượt quá 50MB",
       "mediaAdded": "Đã thêm {{count}} file thành công",
       "uploadFailed": "Không thể tải file lên"
+    }
+  },
+  "organization": {
+    "detail": {
+      "invite": {
+        "drawer": {
+          "title": "Mời người dùng vào ",
+          "searchLabel": "Tìm kiếm người dùng",
+          "searchPlaceholder": "Tìm kiếm theo tên, email, hoặc tên đăng nhập...",
+          "searchResultsLabel": "Kết quả tìm kiếm",
+          "noResults": "Không tìm thấy người dùng phù hợp",
+          "selectedUsers": "Người dùng đã chọn",
+          "removeUser": "Xóa người dùng",
+          "manualEmailLabel": "Mời qua email",
+          "manualEmailPlaceholder": "Nhập địa chỉ email",
+          "manualEmailHint": "Nhấn Enter hoặc dấu phẩy để thêm từng email",
+          "expiryLabel": "Hạn chấp nhận lời mời",
+          "expiryPlaceholder": "Chọn ngày hết hạn",
+          "messageLabel": "Tin nhắn cá nhân",
+          "messagePlaceholder": "Thêm tin nhắn tùy chọn vào lời mời...",
+          "previewTitle": "Xem trước lời mời",
+          "previewDetail": "Sẽ gửi lời mời đến {{count}} người nhận",
+          "previewExpiry": "Hết hạn vào {{date}}",
+          "sendButton": "Gửi lời mời",
+          "successSummary": "Đã gửi lời mời",
+          "successDetail": "Đã gửi thành công {{count}} lời mời",
+          "partialError": "Một số lời mời thất bại",
+          "partialErrorDetail": "{{failed}}/{{total}} lời mời thất bại",
+          "resultsTitle": "Kết quả gửi lời mời",
+          "inviteMore": "Mời thêm người dùng"
+        }
+      }
     }
   }
 }

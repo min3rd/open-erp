@@ -412,7 +412,7 @@
             icon="pi pi-user-plus"
             severity="primary"
             [outlined]="true"
-            (onClick)="onOpenInviteDialog()"
+            (onClick)="onOpenInviteDrawer()"
             [disabled]="isLoading()"
           />
           <p-button
@@ -760,63 +760,270 @@
   </ng-template>
 </p-dialog>
 
-<!-- Invite Member Dialog -->
-<p-dialog
-  id="organization-invite-dialog"
-  [header]="'organization.detail.members.invite.title' | transloco"
-  [(visible)]="showInviteDialog"
-  [modal]="true"
-  [closable]="true"
-  [style]="{ width: '30rem' }"
-  [breakpoints]="{ '640px': '90vw' }"
+<!-- Invite Members Drawer -->
+<p-drawer
+  id="organization-invite-drawer"
+  [(visible)]="showInviteDrawer"
+  position="right"
+  [style]="{ width: '100%', maxWidth: '560px' }"
+  (onHide)="onCloseInviteDrawer()"
 >
-  <form [formGroup]="inviteForm" class="space-y-4">
+  <ng-template #header>
+    <div class="flex items-center gap-2">
+      <i class="pi pi-user-plus text-primary" aria-hidden="true"></i>
+      <div>
+        <h2 class="m-0 text-lg font-semibold">
+          {{ 'organization.detail.invite.drawer.title' | transloco }}
+          @if (organization()) {
+          <span class="text-primary">{{ organization()!.name }}</span>
+          }
+        </h2>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="flex flex-col gap-4 h-full">
+    <!-- Send results summary (shown after sending) -->
+    @if (inviteSendResults()) {
+    <div class="p-3 rounded-lg bg-surface-100 dark:bg-surface-800">
+      <h4 class="m-0 mb-2 text-sm font-semibold">
+        {{ 'organization.detail.invite.drawer.resultsTitle' | transloco }}
+      </h4>
+      <div class="space-y-1">
+        @for (result of inviteSendResults(); track result.recipient) {
+        <div class="flex items-center gap-2 text-sm">
+          @if (result.status === 'success') {
+          <i class="pi pi-check-circle text-green-500" aria-hidden="true"></i>
+          } @else if (result.status === 'skipped') {
+          <i class="pi pi-info-circle text-yellow-500" aria-hidden="true"></i>
+          } @else {
+          <i class="pi pi-times-circle text-red-500" aria-hidden="true"></i>
+          }
+          <span class="flex-1 truncate">{{ result.recipient }}</span>
+          @if (result.reason) {
+          <span class="text-surface-500 text-xs">{{ result.reason }}</span>
+          }
+        </div>
+        }
+      </div>
+      <p-button
+        class="mt-3"
+        [label]="'organization.detail.invite.drawer.inviteMore' | transloco"
+        severity="secondary"
+        [outlined]="true"
+        size="small"
+        (onClick)="onOpenInviteDrawer()"
+      />
+    </div>
+    } @else {
+    <!-- Search users section -->
     <div>
-      <label for="invite-email" class="block text-sm font-medium mb-1">
-        {{ 'organization.detail.members.invite.email' | transloco }}
+      <label class="block text-sm font-medium mb-1">
+        {{ 'organization.detail.invite.drawer.searchLabel' | transloco }}
       </label>
-      <input
-        pInputText
-        id="invite-email"
-        type="email"
-        formControlName="email"
-        [placeholder]="'organization.detail.members.invite.emailPlaceholder' | transloco"
+      <div class="relative">
+        <input
+          pInputText
+          id="invite-search-input"
+          type="text"
+          [value]="inviteSearchQuery()"
+          (input)="onInviteSearchChange($any($event.target).value)"
+          [placeholder]="'organization.detail.invite.drawer.searchPlaceholder' | transloco"
+          class="w-full pr-8"
+        />
+        @if (isInviteSearching()) {
+        <i
+          class="pi pi-spin pi-spinner absolute right-3 top-1/2 transform -translate-y-1/2 text-surface-400"
+          aria-hidden="true"
+        ></i>
+        }
+      </div>
+
+      <!-- Search results -->
+      @if (inviteSearchResults().length > 0) {
+      <ul
+        class="mt-1 border border-surface-200 dark:border-surface-700 rounded-lg overflow-auto max-h-48 divide-y divide-surface-100 dark:divide-surface-800"
+        role="listbox"
+        [attr.aria-label]="'organization.detail.invite.drawer.searchResultsLabel' | transloco"
+      >
+        @for (user of inviteSearchResults(); track user.id) {
+        <li
+          class="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+          role="option"
+          (click)="onInviteSelectUser(user)"
+          (keydown.enter)="onInviteSelectUser(user)"
+          tabindex="0"
+        >
+          <div
+            class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center shrink-0"
+          >
+            <span class="text-primary text-xs font-bold">{{
+              (user.fullName || user.username || user.email).charAt(0).toUpperCase()
+            }}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-medium truncate">
+              {{ user.fullName || user.username }}
+            </div>
+            <div class="text-xs text-surface-500 truncate">{{ user.email }}</div>
+          </div>
+          <i class="pi pi-plus text-primary text-sm" aria-hidden="true"></i>
+        </li>
+        }
+      </ul>
+      } @else if (inviteSearchQuery().length >= 2 && !isInviteSearching()) {
+      <p class="text-sm text-surface-500 mt-2 px-1">
+        {{ 'organization.detail.invite.drawer.noResults' | transloco }}
+      </p>
+      }
+    </div>
+
+    <!-- Selected users chips -->
+    @if (inviteSelectedUsers().length > 0) {
+    <div>
+      <label class="block text-sm font-medium mb-1">
+        {{ 'organization.detail.invite.drawer.selectedUsers' | transloco }}
+        <span class="text-surface-500">({{ inviteSelectedUsers().length }})</span>
+      </label>
+      <div class="flex flex-wrap gap-2">
+        @for (user of inviteSelectedUsers(); track user.id) {
+        <div
+          class="flex items-center gap-1.5 px-2 py-1 bg-primary-50 dark:bg-primary-900/30 text-primary border border-primary-200 dark:border-primary-700 rounded-full text-sm"
+        >
+          <span class="max-w-[140px] truncate">{{ user.fullName || user.email }}</span>
+          <button
+            type="button"
+            class="ml-0.5 hover:text-primary-700 dark:hover:text-primary-300"
+            (click)="onInviteRemoveUser(user)"
+            [attr.aria-label]="'organization.detail.invite.drawer.removeUser' | transloco"
+          >
+            <i class="pi pi-times text-xs" aria-hidden="true"></i>
+          </button>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    <p-divider />
+
+    <!-- Manual emails section -->
+    <div>
+      <label for="invite-manual-emails" class="block text-sm font-medium mb-1">
+        {{ 'organization.detail.invite.drawer.manualEmailLabel' | transloco }}
+      </label>
+      <textarea
+        pTextarea
+        id="invite-manual-emails"
+        [value]="inviteManualEmails().join(', ')"
+        (blur)="onInviteManualEmailsChange($any($event.target).value)"
+        [placeholder]="'organization.detail.invite.drawer.manualEmailPlaceholder' | transloco"
+        [rows]="2"
+        class="w-full resize-none"
+      ></textarea>
+      <small class="text-surface-500 text-xs mt-1 block">
+        {{ 'organization.detail.invite.drawer.manualEmailHint' | transloco }}
+      </small>
+    </div>
+
+    <!-- Expiry date -->
+    <div>
+      <label for="invite-expiry-date" class="block text-sm font-medium mb-1">
+        {{ 'organization.detail.invite.drawer.expiryLabel' | transloco }}
+      </label>
+      <p-datepicker
+        id="invite-expiry-date"
+        [ngModel]="inviteExpiryDate()"
+        (ngModelChange)="inviteExpiryDate.set($event)"
+        [minDate]="inviteMinDate"
+        [showIcon]="true"
+        dateFormat="dd/mm/yy"
+        [placeholder]="'organization.detail.invite.drawer.expiryPlaceholder' | transloco"
         class="w-full"
       />
     </div>
 
+    <!-- Optional message -->
     <div>
-      <label for="invite-role" class="block text-sm font-medium mb-1">
-        {{ 'organization.detail.members.invite.role' | transloco }}
+      <label for="invite-message" class="block text-sm font-medium mb-1">
+        {{ 'organization.detail.invite.drawer.messageLabel' | transloco }}
+        <span class="text-surface-500 font-normal text-xs ml-1">{{
+          'common.optional' | transloco
+        }}</span>
       </label>
-      <input
-        pInputText
-        id="invite-role"
-        type="text"
-        formControlName="role"
-        [placeholder]="'organization.detail.members.invite.rolePlaceholder' | transloco"
-        class="w-full"
-      />
+      <textarea
+        pTextarea
+        id="invite-message"
+        [ngModel]="inviteMessage()"
+        (ngModelChange)="inviteMessage.set($event)"
+        [placeholder]="'organization.detail.invite.drawer.messagePlaceholder' | transloco"
+        [rows]="3"
+        class="w-full resize-none"
+        maxlength="500"
+      ></textarea>
     </div>
-  </form>
+
+    <!-- Preview summary -->
+    @if (inviteRecipientCount() > 0) {
+    <div class="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+      <div class="flex items-start gap-2">
+        <i class="pi pi-info-circle text-blue-500 mt-0.5" aria-hidden="true"></i>
+        <div class="text-sm text-blue-700 dark:text-blue-300">
+          <p class="m-0 font-medium">
+            {{ 'organization.detail.invite.drawer.previewTitle' | transloco }}
+          </p>
+          <p class="m-0 mt-1">
+            {{
+              'organization.detail.invite.drawer.previewDetail'
+                | transloco : { count: inviteRecipientCount() }
+            }}
+          </p>
+          @if (inviteExpiryDate()) {
+          <p class="m-0 mt-0.5 text-xs">
+            {{
+              'organization.detail.invite.drawer.previewExpiry'
+                | transloco : { date: inviteExpiryDate()!.toLocaleDateString() }
+            }}
+          </p>
+          }
+        </div>
+      </div>
+    </div>
+    }
+    }
+  </div>
 
   <ng-template #footer>
-    <p-button
-      id="invite-dialog-cancel-button"
-      [label]="'organization.detail.actions.cancel' | transloco"
-      icon="pi pi-times"
-      severity="secondary"
-      [outlined]="true"
-      (onClick)="onCloseInviteDialog()"
-    />
-    <p-button
-      id="invite-dialog-send-button"
-      [label]="'organization.detail.members.invite.submit' | transloco"
-      icon="pi pi-send"
-      severity="primary"
-      (onClick)="onSendInvite()"
-      [loading]="isSubmitting()"
-      [disabled]="!inviteForm.valid"
-    />
+    @if (!inviteSendResults()) {
+    <div class="flex gap-2 justify-end w-full">
+      <p-button
+        id="invite-drawer-cancel-button"
+        [label]="'organization.detail.actions.cancel' | transloco"
+        icon="pi pi-times"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="onCloseInviteDrawer()"
+      />
+      <p-button
+        id="invite-drawer-send-button"
+        [label]="'organization.detail.invite.drawer.sendButton' | transloco"
+        icon="pi pi-send"
+        severity="primary"
+        (onClick)="onSendInvites()"
+        [loading]="isInviteSending()"
+        [disabled]="!canSendInvites()"
+      />
+    </div>
+    } @else {
+    <div class="flex gap-2 justify-end w-full">
+      <p-button
+        id="invite-drawer-close-button"
+        [label]="'organization.detail.actions.close' | transloco"
+        icon="pi pi-check"
+        severity="primary"
+        (onClick)="onCloseInviteDrawer()"
+      />
+    </div>
+    }
   </ng-template>
-</p-dialog>
+</p-drawer>

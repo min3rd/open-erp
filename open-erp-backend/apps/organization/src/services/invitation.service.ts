@@ -22,6 +22,7 @@ import {
   MemberRole,
   MemberStatus,
 } from '@shared/schemas';
+import { BulkCreateInvitationDto } from '../dto/invitation.dto';
 
 @Injectable()
 export class InvitationService {
@@ -211,5 +212,142 @@ export class InvitationService {
     );
 
     return invitation;
+  }
+
+  async bulkCreate(
+    organizationId: string,
+    dto: BulkCreateInvitationDto,
+    invitedBy: string,
+  ) {
+    const organization =
+      await this.organizationRepository.findById(organizationId);
+    if (!organization) {
+      throw new NotFoundException('Organization not found');
+    }
+
+    // Calculate expiry
+    let expiresAt: Date;
+    if (dto.expiresAt) {
+      expiresAt = new Date(dto.expiresAt);
+    } else {
+      const expiryDays =
+        dto.expiryDays ||
+        parseInt(process.env.INVITE_EXPIRY_DAYS || '7');
+      expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + expiryDays);
+    }
+
+    const roles = dto.roles?.length ? dto.roles : ['member'];
+    const results: Array<{
+      recipient: string;
+      status: 'success' | 'skipped' | 'error';
+      reason?: string;
+      token?: string;
+      invitationId?: string;
+    }> = [];
+
+    for (const recipient of dto.recipients) {
+      const recipientLabel = recipient.userId || recipient.email || 'unknown';
+      try {
+        // Resolve email for userId-based invitations
+        let inviteeEmail: string | undefined = recipient.email;
+        let inviteeUserId: Types.ObjectId | undefined;
+
+        if (recipient.userId) {
+          inviteeUserId = new Types.ObjectId(recipient.userId);
+          // Check for existing pending invitation for userId
+          const existingByUser =
+            await this.invitationRepository.findByUserId(
+              recipient.userId,
+              InvitationStatus.PENDING,
+            );
+          const duplicateForOrg = existingByUser.find(
+            (inv) => inv.organizationId.toString() === organizationId,
+          );
+          if (duplicateForOrg) {
+            results.push({
+              recipient: recipientLabel,
+              status: 'skipped',
+              reason: 'Active invitation already exists for this user',
+            });
+            continue;
+          }
+        } else if (inviteeEmail) {
+          // Check for existing pending invitation for email
+          const existing =
+            await this.invitationRepository.findPendingByOrgAndEmail(
+              organizationId,
+              inviteeEmail,
+            );
+          if (existing) {
+            results.push({
+              recipient: recipientLabel,
+              status: 'skipped',
+              reason: 'Active invitation already exists for this email',
+            });
+            continue;
+          }
+        } else {
+          results.push({
+            recipient: recipientLabel,
+            status: 'error',
+            reason: 'Recipient must have either userId or email',
+          });
+          continue;
+        }
+
+        const { token, hash } = this.invitationRepository.generateToken();
+
+        const createDto: CreateInvitationDto = {
+          organizationId: new Types.ObjectId(organizationId),
+          inviteeEmail,
+          inviteeUserId,
+          roles,
+          scope: dto.scope || InvitationScope.ORGANIZATION,
+          expiresAt,
+          message: dto.message,
+          invitedBy: new Types.ObjectId(invitedBy),
+        };
+
+        const invitation = await this.invitationRepository.create(
+          createDto,
+          hash,
+        );
+
+        await this.auditService.logEvent(
+          AuditEventType.MEMBER_INVITED,
+          organizationId,
+          invitedBy,
+          { recipientLabel, roles },
+          {
+            description: `Invited ${recipientLabel} to organization`,
+          },
+        );
+
+        results.push({
+          recipient: recipientLabel,
+          status: 'success',
+          token,
+          invitationId: invitation._id.toString(),
+        });
+      } catch (error) {
+        this.logger.error(
+          `Error inviting ${recipientLabel}: ${error.message}`,
+        );
+        results.push({
+          recipient: recipientLabel,
+          status: 'error',
+          reason: error.message,
+        });
+      }
+    }
+
+    return {
+      results,
+      total: dto.recipients.length,
+      success: results.filter((r) => r.status === 'success').length,
+      skipped: results.filter((r) => r.status === 'skipped').length,
+      failed: results.filter((r) => r.status === 'error').length,
+    };
   }
 }
