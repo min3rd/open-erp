@@ -29,6 +29,7 @@ import { ChatGateway } from '../gateway/chat.gateway';
 import { SendMessageDto } from '../dto/send-message.dto';
 import { EditMessageDto } from '../dto/edit-message.dto';
 import { ListMessagesQueryDto } from '../dto/list-messages-query.dto';
+import { MessageType } from '@shared/schemas';
 
 @ApiTags('messages')
 @Controller('conversations')
@@ -56,9 +57,9 @@ export class MessageController {
     const result = await this.messageService.sendMessage(
       req.user.userId,
       conversationId,
-      dto.type,
+      dto.type || MessageType.TEXT,
       dto.content,
-      dto.attachments,
+      dto.attachments as any,
     );
     // Broadcast to WebSocket clients so other participants receive it in real-time
     this.chatGateway
@@ -87,7 +88,7 @@ export class MessageController {
       req.user.userId,
       messageId,
       dto.content,
-      dto.attachments,
+      dto.attachments as any,
     );
     return ok(result, 'Message edited');
   }
