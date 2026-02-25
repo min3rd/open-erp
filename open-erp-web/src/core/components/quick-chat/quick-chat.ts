@@ -260,15 +260,10 @@ export class QuickChat implements OnInit, OnDestroy {
     this.chatService.loadMessages(conversationId).subscribe({
       next: () => {
         this.loadingMessages = false;
-        // Mark as read
+        // Mark as read on the server, and reset the badge in the service's BehaviorSubject
+        // so the count stays 0 even when the service emits next.
         this.chatService.markAsRead(conversationId).subscribe();
-        // Reset unread count locally
-        if (this.conversations) {
-          const updated = this.conversations.map((c) =>
-            c.id === conversationId ? { ...c, unreadCount: 0 } : c,
-          );
-          this.conversations = updated;
-        }
+        this.chatService.resetUnreadCount(conversationId);
         this.cdr.markForCheck();
         this._scrollToBottom();
       },
