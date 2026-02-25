@@ -216,7 +216,8 @@
     "error": "Error",
     "warning": "Warning",
     "updateSuccess": "Updated successfully",
-    "updateError": "Failed to update"
+    "updateError": "Failed to update",
+    "optional": "optional"
   },
   "auth": {
     "logout": "Logout"
@@ -364,6 +365,34 @@
         "title": "Edit Organization",
         "success": "Organization updated successfully",
         "error": "Failed to update organization"
+      },
+      "invite": {
+        "drawer": {
+          "title": "Invite users to ",
+          "searchLabel": "Search users",
+          "searchPlaceholder": "Search by name, email, or username...",
+          "searchResultsLabel": "Search results",
+          "noResults": "No users found matching your search",
+          "selectedUsers": "Selected users",
+          "removeUser": "Remove user",
+          "manualEmailLabel": "Invite by email",
+          "manualEmailPlaceholder": "Enter email addresses",
+          "manualEmailHint": "Press Enter or comma to add each email",
+          "expiryLabel": "Invitation expiry",
+          "expiryPlaceholder": "Select expiry date",
+          "messageLabel": "Personal message",
+          "messagePlaceholder": "Add an optional message to your invitation...",
+          "previewTitle": "Invitation preview",
+          "previewDetail": "Will send invitations to {{count}} recipient(s)",
+          "previewExpiry": "Expires on {{date}}",
+          "sendButton": "Send Invites",
+          "successSummary": "Invitations sent",
+          "successDetail": "{{count}} invitation(s) sent successfully",
+          "partialError": "Some invitations failed",
+          "partialErrorDetail": "{{failed}} of {{total}} invitation(s) failed",
+          "resultsTitle": "Invitation results",
+          "inviteMore": "Invite more users"
+        }
       }
     }
   },

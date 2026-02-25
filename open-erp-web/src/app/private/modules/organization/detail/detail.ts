@@ -29,11 +29,12 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
+import { DrawerModule } from 'primeng/drawer';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { MessageService } from 'primeng/api';
+import { DividerModule } from 'primeng/divider';import { MessageService } from 'primeng/api';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import {
   OrganizationService,
@@ -47,8 +48,12 @@ import {
   InviteMemberDto,
   OrganizationType,
   OrganizationStatus,
+  BulkInviteMembersDto,
+  BulkInviteResponse,
+  InvitationResult,
 } from '../../../../../core/services/organization-service';
 import { CountryService, Country } from '../../../../../core/services/country-service';
+import { UserService, User } from '../../../../../core/services/user-service';
 
 interface BusinessRegistrationForm {
   taxId: FormControl<string>;
@@ -72,6 +77,18 @@ interface InviteForm {
   role: FormControl<string>;
 }
 
+interface InviteDrawerState {
+  searchQuery: string;
+  searchResults: User[];
+  isSearching: boolean;
+  selectedUsers: User[];
+  manualEmails: string[];
+  expiryDate: Date | null;
+  message: string;
+  sendResults: InvitationResult[] | null;
+  isSending: boolean;
+}
+
 @Component({
   selector: 'organization-detail',
   imports: [
@@ -89,10 +106,12 @@ interface InviteForm {
     TableModule,
     TagModule,
     DialogModule,
+    DrawerModule,
     SkeletonModule,
     TooltipModule,
     SelectModule,
     TextareaModule,
+    DividerModule,
   ],
   templateUrl: './detail.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -102,9 +121,11 @@ export class Detail implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private organizationService = inject(OrganizationService);
   private countryService = inject(CountryService);
+  private userService = inject(UserService);
   private messageService = inject(MessageService);
   private translocoService = inject(TranslocoService);
   private destroy$ = new Subject<void>();
+  private inviteSearchSubject$ = new Subject<string>();
 
   protected readonly organizationId = signal<string | null>(null);
   protected readonly organization = signal<OrganizationResponse | null>(null);
@@ -121,6 +142,19 @@ export class Detail implements OnInit, OnDestroy {
 
   protected readonly showEditDialog = signal(false);
   protected readonly showInviteDialog = signal(false);
+  
+  // Invite drawer state
+  protected readonly showInviteDrawer = signal(false);
+  protected readonly inviteSearchQuery = signal('');
+  protected readonly inviteSearchResults = signal<User[]>([]);
+  protected readonly isInviteSearching = signal(false);
+  protected readonly inviteSelectedUsers = signal<User[]>([]);
+  protected readonly inviteManualEmails = signal<string[]>([]);
+  protected readonly inviteExpiryDate = signal<Date | null>(null);
+  protected readonly inviteMessage = signal('');
+  protected readonly inviteSendResults = signal<InvitationResult[] | null>(null);
+  protected readonly isInviteSending = signal(false);
+  protected readonly inviteMinDate = new Date();
   
   protected readonly membersPage = signal(1);
   protected readonly membersLimit = signal(10);
@@ -140,6 +174,13 @@ export class Detail implements OnInit, OnDestroy {
 
   protected readonly isNewMode = computed(() => this.router.url.includes('/new'));
   protected readonly isViewMode = computed(() => !this.isNewMode() && this.organizationId() !== null);
+
+  protected readonly inviteRecipientCount = computed(
+    () => this.inviteSelectedUsers().length + this.inviteManualEmails().length
+  );
+  protected readonly canSendInvites = computed(
+    () => this.inviteRecipientCount() > 0 && !this.isInviteSending()
+  );
 
   // Organization type options
   protected readonly organizationTypeOptions = [
@@ -247,6 +288,18 @@ export class Detail implements OnInit, OnDestroy {
       .subscribe((taxId) => {
         if (taxId && taxId.length >= 10 && this.registrationForm.get('taxId')?.valid) {
           this.lookupTaxId(taxId);
+        }
+      });
+
+    // Setup invite user search with debounce
+    this.inviteSearchSubject$
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((query) => {
+        if (query && query.trim().length >= 2) {
+          this.performInviteSearch(query.trim());
+        } else {
+          this.inviteSearchResults.set([]);
+          this.isInviteSearching.set(false);
         }
       });
   }
@@ -594,6 +647,140 @@ export class Detail implements OnInit, OnDestroy {
 
   protected onCloseInviteDialog(): void {
     this.showInviteDialog.set(false);
+  }
+
+  protected onOpenInviteDrawer(): void {
+    // Reset drawer state
+    this.inviteSearchQuery.set('');
+    this.inviteSearchResults.set([]);
+    this.isInviteSearching.set(false);
+    this.inviteSelectedUsers.set([]);
+    this.inviteManualEmails.set([]);
+    // Default expiry: 7 days from now
+    const defaultExpiry = new Date();
+    defaultExpiry.setDate(defaultExpiry.getDate() + 7);
+    this.inviteExpiryDate.set(defaultExpiry);
+    this.inviteMessage.set('');
+    this.inviteSendResults.set(null);
+    this.isInviteSending.set(false);
+    this.showInviteDrawer.set(true);
+  }
+
+  protected onCloseInviteDrawer(): void {
+    this.showInviteDrawer.set(false);
+  }
+
+  protected onInviteSearchChange(query: string): void {
+    this.inviteSearchQuery.set(query);
+    this.inviteSearchSubject$.next(query);
+    if (query && query.trim().length >= 2) {
+      this.isInviteSearching.set(true);
+    }
+  }
+
+  private performInviteSearch(query: string): void {
+    this.isInviteSearching.set(true);
+    this.userService.getUsers({ search: query, page: 1, limit: 20 }).subscribe({
+      next: (response) => {
+        // Filter out already selected users
+        const selectedIds = this.inviteSelectedUsers().map((u) => u.id);
+        const filtered = response.data.filter((u) => !selectedIds.includes(u.id));
+        this.inviteSearchResults.set(filtered);
+        this.isInviteSearching.set(false);
+      },
+      error: (error) => {
+        console.error('User search failed:', error);
+        this.inviteSearchResults.set([]);
+        this.isInviteSearching.set(false);
+      },
+    });
+  }
+
+  protected onInviteSelectUser(user: User): void {
+    const current = this.inviteSelectedUsers();
+    if (!current.find((u) => u.id === user.id)) {
+      this.inviteSelectedUsers.set([...current, user]);
+    }
+    // Remove from search results
+    this.inviteSearchResults.set(this.inviteSearchResults().filter((u) => u.id !== user.id));
+  }
+
+  protected onInviteRemoveUser(user: User): void {
+    this.inviteSelectedUsers.set(this.inviteSelectedUsers().filter((u) => u.id !== user.id));
+  }
+
+  protected onInviteManualEmailsChange(emailsInput: string | string[]): void {
+    let emails: string[];
+    if (typeof emailsInput === 'string') {
+      emails = emailsInput.split(/[,;\n]+/).map((e) => e.trim()).filter((e) => e.length > 0);
+    } else {
+      emails = emailsInput;
+    }
+    // Validate each email
+    const validEmails = emails.filter((e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+    this.inviteManualEmails.set(validEmails);
+  }
+
+  protected async onSendInvites(): Promise<void> {
+    if (!this.organizationId() || this.inviteRecipientCount() === 0) return;
+
+    this.isInviteSending.set(true);
+    this.inviteSendResults.set(null);
+
+    const recipients = [
+      ...this.inviteSelectedUsers().map((u) => ({ userId: u.id })),
+      ...this.inviteManualEmails().map((e) => ({ email: e })),
+    ];
+
+    const dto: BulkInviteMembersDto = {
+      recipients,
+      roles: ['member'],
+      message: this.inviteMessage() || undefined,
+    };
+
+    const expiry = this.inviteExpiryDate();
+    if (expiry) {
+      dto.expiresAt = expiry.toISOString();
+    }
+
+    this.organizationService.bulkInviteMembers(this.organizationId()!, dto).subscribe({
+      next: (response: BulkInviteResponse) => {
+        this.inviteSendResults.set(response.results);
+        this.isInviteSending.set(false);
+
+        if (response.success > 0) {
+          this.messageService.add({
+            severity: 'success',
+            summary: this.translocoService.translate('organization.detail.invite.drawer.successSummary'),
+            detail: this.translocoService.translate('organization.detail.invite.drawer.successDetail', {
+              count: response.success,
+            }),
+          });
+          // Reload members
+          this.loadMembers(this.organizationId()!);
+        }
+
+        if (response.failed > 0) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: this.translocoService.translate('organization.detail.invite.drawer.partialError'),
+            detail: this.translocoService.translate('organization.detail.invite.drawer.partialErrorDetail', {
+              failed: response.failed,
+              total: response.total,
+            }),
+          });
+        }
+      },
+      error: (error: any) => {
+        console.error('Bulk invite failed:', error);
+        this.isInviteSending.set(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translocoService.translate('organization.detail.members.invite.error'),
+          detail: error?.error?.message || 'Failed to send invitations',
+        });
+      },
+    });
   }
 
   protected async onSendInvite(): Promise<void> {

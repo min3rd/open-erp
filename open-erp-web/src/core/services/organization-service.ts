@@ -114,6 +114,35 @@ export interface InviteMemberDto {
   role: string;
 }
 
+export interface InvitationRecipient {
+  userId?: string;
+  email?: string;
+}
+
+export interface BulkInviteMembersDto {
+  recipients: InvitationRecipient[];
+  roles?: string[];
+  expiresAt?: string;
+  expiryDays?: number;
+  message?: string;
+}
+
+export interface InvitationResult {
+  recipient: string;
+  status: 'success' | 'skipped' | 'error';
+  reason?: string;
+  token?: string;
+  invitationId?: string;
+}
+
+export interface BulkInviteResponse {
+  results: InvitationResult[];
+  total: number;
+  success: number;
+  skipped: number;
+  failed: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -273,6 +302,30 @@ export class OrganizationService {
       `${API_URI_ORGANIZATION}/${version}/organizations/${id}/members/invite`,
       dto
     );
+  }
+
+  /**
+   * Bulk invite members to organization
+   */
+  bulkInviteMembers(
+    organizationId: string,
+    dto: BulkInviteMembersDto,
+    version: string = 'v1'
+  ): Observable<BulkInviteResponse> {
+    return this.httpClient
+      .post<ApiSingleResponse<BulkInviteResponse> | BulkInviteResponse>(
+        `${API_URI_ORGANIZATION}/${version}/invitations/organizations/${organizationId}/bulk`,
+        dto
+      )
+      .pipe(
+        map((response) => {
+          if (isApiResponse(response)) {
+            const data = unwrap(response as ApiSingleResponse<BulkInviteResponse>);
+            return data.item!;
+          }
+          return response as BulkInviteResponse;
+        })
+      );
   }
 
   /**

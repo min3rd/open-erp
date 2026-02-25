@@ -19,6 +19,7 @@ import { InvitationService } from '../services/invitation.service';
 import {
   CreateInvitationDto,
   AcceptInvitationDto,
+  BulkCreateInvitationDto,
 } from '../dto/invitation.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Permissions } from '@shared/authz/decorators';
@@ -52,6 +53,23 @@ export class InvitationController {
       },
     );
     return created(invitation, 'Invitation created successfully');
+  }
+
+  @Post('organizations/:organizationId/bulk')
+  @ApiOperation({ summary: 'Bulk create invitations for organization' })
+  @ApiResponse({ status: 201, description: 'Bulk invitations processed' })
+  @Permissions(['invitation.create', 'organization.manage'], { mode: 'any' })
+  async bulkCreate(
+    @Param('organizationId') organizationId: string,
+    @Body() bulkDto: BulkCreateInvitationDto,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    const result = await this.invitationService.bulkCreate(
+      organizationId,
+      bulkDto,
+      req.user.userId,
+    );
+    return created(result, 'Bulk invitations processed');
   }
 
   @Post('accept')
