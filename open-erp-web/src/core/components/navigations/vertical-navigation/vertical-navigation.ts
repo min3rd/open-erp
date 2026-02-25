@@ -6,6 +6,7 @@ import {
   input,
   OnDestroy,
   OnInit,
+  output,
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -62,8 +63,8 @@ export class VerticalNavigation implements OnInit, OnDestroy {
   // For resize functionality
   isResizing = signal(false);
 
-  // Notification drawer
-  notificationDrawerVisible = signal(false);
+  // Notification
+  notificationToggle = output<void>();
   unreadCount = toSignal(this.notificationService.unreadCount$, { initialValue: 0 });
 
   ngOnInit() {
@@ -158,7 +159,7 @@ export class VerticalNavigation implements OnInit, OnDestroy {
   }
 
   openNotificationDrawer(): void {
-    this.notificationDrawerVisible.set(true);
+    this.notificationToggle.emit();
   }
 
   badgeLabel(): string {

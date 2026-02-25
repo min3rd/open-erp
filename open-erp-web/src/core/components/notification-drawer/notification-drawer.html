@@ -3,7 +3,7 @@
   (visibleChange)="onVisibleChange($event)"
   [position]="'right'"
   [style]="{ width: isMobile() ? '100vw' : '420px' }"
-  [modal]="true"
+  [modal]="isMobile()"
   [id]="'notification-drawer'"
   [ariaLabel]="('notification.drawerTitle' | transloco)"
 >
