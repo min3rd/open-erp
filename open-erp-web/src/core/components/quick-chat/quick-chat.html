@@ -173,6 +173,7 @@
         #messagesContainer
         class="flex-1 overflow-y-auto p-3 space-y-3"
         id="quick-chat-messages-area"
+        (scroll)="onMessagesScroll($event)"
       >
         @if (loadingMessages) {
           <div class="flex flex-col space-y-3 px-2">
@@ -191,6 +192,12 @@
             <span>{{ 'quickChat.noMessages' | transloco }}</span>
           </div>
         } @else {
+          <!-- Loading older messages indicator -->
+          @if (loadingOlderMessages) {
+            <div class="flex justify-center py-1">
+              <i class="pi pi-spin pi-spinner text-surface-400 text-sm"></i>
+            </div>
+          }
           @for (message of messages; track message.id) {
             <div class="flex gap-2 items-end" [class.flex-row-reverse]="isSelf(message)">
               <!-- Sender Avatar (always shown) -->

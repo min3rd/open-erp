@@ -49,6 +49,7 @@ export class ChatService implements OnDestroy {
   private _socket: any = null;
   private _activeConversationId: string | null = null;
   private _currentUserId: string | null = null;
+  private _messagesTotalCount = 0;
 
   constructor() {
     // Track current user reactively so `isSelf` checks are always accurate
@@ -67,6 +68,11 @@ export class ChatService implements OnDestroy {
   /** Exposed so components can use the same authoritative user ID */
   get currentUserId(): string | null {
     return this._currentUserId;
+  }
+
+  /** Total message count returned by the last loadMessages call */
+  get messagesTotalCount(): number {
+    return this._messagesTotalCount;
   }
 
   get conversations$(): Observable<ConversationDto[]> {
@@ -119,6 +125,7 @@ export class ChatService implements OnDestroy {
           const items: MessageDto[] = this._normalizeMessages(
             res?.data?.items ?? res ?? [],
           );
+          this._messagesTotalCount = res?.data?.total ?? items.length;
           // Sort so newest is at bottom
           const sorted = [...items].sort(
             (a, b) =>
@@ -126,6 +133,40 @@ export class ChatService implements OnDestroy {
           );
           this._messages.next(sorted);
           return sorted;
+        }),
+      );
+  }
+
+  loadOlderMessages(
+    conversationId: string,
+    page: number,
+    limit = 50,
+  ): Observable<{ items: MessageDto[]; hasMore: boolean }> {
+    return this.httpClient
+      .get<any>(`${API_URI_CHAT}/v1/conversations/${conversationId}/messages`, {
+        params: { page, limit },
+      })
+      .pipe(
+        map((res) => {
+          const rawItems: MessageDto[] = this._normalizeMessages(
+            res?.data?.items ?? res ?? [],
+          );
+          const total: number = res?.data?.total ?? rawItems.length;
+          const totalPages: number =
+            res?.data?.totalPages ?? Math.ceil(total / limit);
+          // Sort chronologically (oldest first) so prepended messages are in order
+          const sorted = [...rawItems].sort(
+            (a, b) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          );
+          // Prepend to current messages, avoiding duplicates
+          const current = this._messages.getValue();
+          const existingIds = new Set(current.map((m) => m.id));
+          const newItems = sorted.filter((m) => !existingIds.has(m.id));
+          if (newItems.length > 0) {
+            this._messages.next([...newItems, ...current]);
+          }
+          return { items: newItems, hasMore: page < totalPages };
         }),
       );
   }

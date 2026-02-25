@@ -78,6 +78,13 @@ export class QuickChat implements OnInit, OnDestroy {
   loadingMessages = false;
   sendingMessage = false;
 
+  // Pagination for older messages
+  messagesPage = 1;
+  hasMoreMessages = false;
+  loadingOlderMessages = false;
+  private readonly _MESSAGES_PAGE_LIMIT = 50;
+  private readonly _SCROLL_TOP_THRESHOLD = 80;
+
   // Typing indicator
   typingUsers: Map<string, boolean> = new Map();
 
@@ -146,7 +153,9 @@ export class QuickChat implements OnInit, OnDestroy {
       .subscribe((messages) => {
         this.messages = messages;
         this.cdr.markForCheck();
-        this._scrollToBottom();
+        if (!this.loadingOlderMessages) {
+          this._scrollToBottom();
+        }
       });
 
     // Subscribe to real-time new messages for toast notifications
@@ -250,6 +259,8 @@ export class QuickChat implements OnInit, OnDestroy {
     this.selectedConversation = conv;
     this.messages = [];
     this.loadingMessages = true;
+    this.messagesPage = 1;
+    this.hasMoreMessages = false;
     this.typingUsers.clear();
     this.cdr.markForCheck();
 
@@ -260,6 +271,8 @@ export class QuickChat implements OnInit, OnDestroy {
     this.chatService.loadMessages(conversationId).subscribe({
       next: () => {
         this.loadingMessages = false;
+        this.hasMoreMessages =
+          this.chatService.messagesTotalCount > this.messages.length;
         // Mark as read on the server, and reset the badge in the service's BehaviorSubject
         // so the count stays 0 even when the service emits next.
         this.chatService.markAsRead(conversationId).subscribe();
@@ -336,12 +349,64 @@ export class QuickChat implements OnInit, OnDestroy {
   }
 
   onMessageKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+    if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage();
     } else if (this.selectedConversation) {
       this.chatService.sendTyping(this.selectedConversation.id, true);
     }
+  }
+
+  onMessagesScroll(event: Event): void {
+    const el = event.target as HTMLDivElement;
+    if (
+      el.scrollTop <= this._SCROLL_TOP_THRESHOLD &&
+      this.hasMoreMessages &&
+      !this.loadingOlderMessages
+    ) {
+      this._loadOlderMessages();
+    }
+  }
+
+  private _loadOlderMessages(): void {
+    if (
+      !this.selectedConversation ||
+      this.loadingOlderMessages ||
+      !this.hasMoreMessages
+    )
+      return;
+
+    const el = this.messagesContainer?.nativeElement;
+    const prevScrollHeight = el?.scrollHeight ?? 0;
+
+    this.loadingOlderMessages = true;
+    this.messagesPage++;
+    this.cdr.markForCheck();
+
+    this.chatService
+      .loadOlderMessages(
+        this.selectedConversation.id,
+        this.messagesPage,
+        this._MESSAGES_PAGE_LIMIT,
+      )
+      .subscribe({
+        next: ({ items, hasMore }) => {
+          this.hasMoreMessages = hasMore;
+          this.loadingOlderMessages = false;
+          this.cdr.markForCheck();
+          // Restore scroll position so the view doesn't jump to the top
+          if (el && items.length > 0) {
+            setTimeout(() => {
+              el.scrollTop = el.scrollHeight - prevScrollHeight;
+            });
+          }
+        },
+        error: () => {
+          this.messagesPage--;
+          this.loadingOlderMessages = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   onFileAttach(): void {
