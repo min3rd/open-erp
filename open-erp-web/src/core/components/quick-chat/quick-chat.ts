@@ -11,7 +11,6 @@ import {
 import {
   ConversationDto,
   MessageDto,
-  SenderInfo,
   UploadedAttachment,
 } from '../../interfaces/chat.types';
 import { ChatService, ChatUserSearchResult } from '../../services/chat-service';
