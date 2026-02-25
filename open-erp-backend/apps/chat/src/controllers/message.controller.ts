@@ -25,6 +25,7 @@ import { JwtAuthGuard } from '@shared/authz';
 import { ok, created, paginated } from '@shared/response';
 import { AuthenticatedRequest } from '@shared/interfaces';
 import { MessageService } from '../services/message.service';
+import { ChatGateway } from '../gateway/chat.gateway';
 import { SendMessageDto } from '../dto/send-message.dto';
 import { EditMessageDto } from '../dto/edit-message.dto';
 import { ListMessagesQueryDto } from '../dto/list-messages-query.dto';
@@ -34,7 +35,10 @@ import { ListMessagesQueryDto } from '../dto/list-messages-query.dto';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class MessageController {
-  constructor(private readonly messageService: MessageService) {}
+  constructor(
+    private readonly messageService: MessageService,
+    private readonly chatGateway: ChatGateway,
+  ) {}
 
   @Post(':conversationId/messages')
   @HttpCode(HttpStatus.CREATED)
@@ -56,6 +60,10 @@ export class MessageController {
       dto.content,
       dto.attachments,
     );
+    // Broadcast to WebSocket clients so other participants receive it in real-time
+    this.chatGateway
+      .broadcastNewMessage(conversationId, result, req.user.userId)
+      .catch(() => {});
     return created(result, 'Message sent');
   }
 
