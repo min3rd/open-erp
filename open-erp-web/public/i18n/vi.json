@@ -1866,5 +1866,23 @@
         }
       }
     }
+  },
+  "notification": {
+    "title": "Thông báo",
+    "drawerTitle": "Thông báo",
+    "tabAll": "Tất cả",
+    "tabGeneral": "Chung",
+    "tabInvitation": "Lời mời",
+    "tabTask": "Công việc",
+    "tabSystem": "Hệ thống",
+    "empty": "Không có thông báo",
+    "markAllRead": "Đánh dấu tất cả đã đọc",
+    "markRead": "Đánh dấu đã đọc",
+    "markUnread": "Đánh dấu chưa đọc",
+    "delete": "Xóa",
+    "accept": "Chấp nhận",
+    "decline": "Từ chối",
+    "unread": "Chưa đọc",
+    "list": "Danh sách thông báo"
   }
 }

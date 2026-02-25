@@ -14,6 +14,10 @@ async function bootstrap() {
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   const logger = new Logger('NotificationService');
 
+  app.enableCors({
+    origin: '*',
+  });
+
   // Connect RabbitMQ microservice
   const rabbitMQConfig = getRabbitMQConfig();
   const url = formatRabbitMQUrl(rabbitMQConfig);

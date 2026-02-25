@@ -24,3 +24,4 @@ export * from './file.schema';
 export * from './file-version.schema';
 export * from './conversation.schema';
 export * from './message.schema';
+export * from './user-notification.schema';
