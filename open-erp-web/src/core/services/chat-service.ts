@@ -144,9 +144,12 @@ export class ChatService implements OnDestroy {
       .pipe(
         map((res) => {
           const msg = this._normalizeMessage(res?.data?.item ?? res);
-          // Append to messages list
+          // Append to messages list — de-dup by ID to guard against WS event
+          // arriving before the REST response (race condition).
           const current = this._messages.getValue();
-          this._messages.next([...current, msg]);
+          if (!current.find((m) => m.id === msg.id)) {
+            this._messages.next([...current, msg]);
+          }
           // Update last message in conversations
           this._updateConversationLastMessage(payload.conversationId, msg);
           return msg;
@@ -331,6 +334,15 @@ export class ChatService implements OnDestroy {
   disconnectSocket(): void {
     this._socket?.disconnect();
     this._socket = null;
+  }
+
+  /** Reset unread count for a conversation in the service BehaviorSubject */
+  resetUnreadCount(conversationId: string): void {
+    const current = this._conversations.getValue();
+    const updated = current.map((c) =>
+      c.id === conversationId ? { ...c, unreadCount: 0 } : c,
+    );
+    this._conversations.next(updated);
   }
 
   clearMessages(): void {

@@ -102,7 +102,8 @@ export class MessageService {
       timestamp: new Date().toISOString(),
     });
 
-    return message;
+    // Presign attachment URLs so the sender can preview immediately
+    return this._presignMessageAttachments(message);
   }
 
   /**
@@ -244,27 +245,7 @@ export class MessageService {
     // Generate presigned download URLs for attachment URLs so the browser
     // can access the files (raw MinIO URLs require authentication).
     const presignedItems = await Promise.all(
-      items.map(async (msg) => {
-        const plain = (msg as any).toObject
-          ? (msg as any).toObject({ virtuals: true })
-          : { ...msg };
-        if (!plain.attachments?.length) return plain;
-        plain.attachments = await Promise.all(
-          plain.attachments.map(async (att: any) => {
-            try {
-              const key = this._extractMinioKey(att.url ?? '');
-              if (key) {
-                const presigned = await this.minioService.presignDownload(key);
-                return { ...att, url: presigned.url };
-              }
-            } catch {
-              // Fall back to original URL if presigning fails
-            }
-            return att;
-          }),
-        );
-        return plain;
-      }),
+      items.map((msg) => this._presignMessageAttachments(msg)),
     );
 
     return { items: presignedItems, total };
@@ -286,6 +267,32 @@ export class MessageService {
     } catch {
       return null;
     }
+  }
+
+  /**
+   * Convert a Mongoose document (or plain object) to a plain object and
+   * replace all attachment URLs with presigned download URLs.
+   */
+  private async _presignMessageAttachments(msg: any): Promise<any> {
+    const plain = (msg as any).toObject
+      ? (msg as any).toObject({ virtuals: true })
+      : { ...msg };
+    if (!plain.attachments?.length) return plain;
+    plain.attachments = await Promise.all(
+      plain.attachments.map(async (att: any) => {
+        try {
+          const key = this._extractMinioKey(att.url ?? '');
+          if (key) {
+            const presigned = await this.minioService.presignDownload(key);
+            return { ...att, url: presigned.url };
+          }
+        } catch {
+          // Fall back to original URL if presigning fails
+        }
+        return att;
+      }),
+    );
+    return plain;
   }
 
   /**
