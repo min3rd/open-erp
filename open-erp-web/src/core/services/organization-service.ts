@@ -189,7 +189,7 @@ export class OrganizationService {
       catchError((error) => {
         console.error('VietQR API error:', error);
         return of(null);
-      })
+      }),
     );
   }
 
@@ -198,13 +198,12 @@ export class OrganizationService {
    */
   createOrganization(
     dto: CreateOrganizationDto,
-    version: string = 'v1'
+    version: string = 'v1',
   ): Observable<OrganizationResponse> {
     return this.httpClient
-      .post<ApiSingleResponse<OrganizationResponse> | OrganizationResponse>(
-        `${API_URI_ORGANIZATION}/${version}/organizations`,
-        dto
-      )
+      .post<
+        ApiSingleResponse<OrganizationResponse> | OrganizationResponse
+      >(`${API_URI_ORGANIZATION}/${version}/organizations`, dto)
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -212,9 +211,11 @@ export class OrganizationService {
             return data.item!;
           }
           // Legacy format
-          console.warn('OrganizationService: Received legacy response format for createOrganization');
+          console.warn(
+            'OrganizationService: Received legacy response format for createOrganization',
+          );
           return response as OrganizationResponse;
-        })
+        }),
       );
   }
 
@@ -223,9 +224,9 @@ export class OrganizationService {
    */
   getOrganization(id: string, version: string = 'v1'): Observable<OrganizationResponse> {
     return this.httpClient
-      .get<ApiSingleResponse<OrganizationResponse> | OrganizationResponse>(
-        `${API_URI_ORGANIZATION}/${version}/organizations/${id}`
-      )
+      .get<
+        ApiSingleResponse<OrganizationResponse> | OrganizationResponse
+      >(`${API_URI_ORGANIZATION}/${version}/organizations/${id}`)
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -235,7 +236,7 @@ export class OrganizationService {
           // Legacy format
           console.warn('OrganizationService: Received legacy response format for getOrganization');
           return response as OrganizationResponse;
-        })
+        }),
       );
   }
 
@@ -245,13 +246,12 @@ export class OrganizationService {
   updateOrganization(
     id: string,
     dto: UpdateOrganizationDto,
-    version: string = 'v1'
+    version: string = 'v1',
   ): Observable<OrganizationResponse> {
     return this.httpClient
-      .patch<ApiSingleResponse<OrganizationResponse> | OrganizationResponse>(
-        `${API_URI_ORGANIZATION}/${version}/organizations/${id}`,
-        dto
-      )
+      .patch<
+        ApiSingleResponse<OrganizationResponse> | OrganizationResponse
+      >(`${API_URI_ORGANIZATION}/${version}/organizations/${id}`, dto)
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -259,9 +259,11 @@ export class OrganizationService {
             return data.item!;
           }
           // Legacy format
-          console.warn('OrganizationService: Received legacy response format for updateOrganization');
+          console.warn(
+            'OrganizationService: Received legacy response format for updateOrganization',
+          );
           return response as OrganizationResponse;
-        })
+        }),
       );
   }
 
@@ -272,7 +274,7 @@ export class OrganizationService {
     id: string,
     page: number = 1,
     limit: number = 10,
-    version: string = 'v1'
+    version: string = 'v1',
   ): Observable<{ data: OrganizationMember[]; total: number; page: number; limit: number }> {
     return this.httpClient.get<{
       data: OrganizationMember[];
@@ -287,12 +289,9 @@ export class OrganizationService {
   /**
    * Get organization relations
    */
-  getOrganizationRelations(
-    id: string,
-    version: string = 'v1'
-  ): Observable<OrganizationRelation[]> {
+  getOrganizationRelations(id: string, version: string = 'v1'): Observable<OrganizationRelation[]> {
     return this.httpClient.get<OrganizationRelation[]>(
-      `${API_URI_ORGANIZATION}/${version}/organizations/${id}/relations`
+      `${API_URI_ORGANIZATION}/${version}/organizations/${id}/relations`,
     );
   }
 
@@ -303,7 +302,7 @@ export class OrganizationService {
     id: string,
     page: number = 1,
     limit: number = 20,
-    version: string = 'v1'
+    version: string = 'v1',
   ): Observable<{ data: OrganizationEvent[]; total: number; page: number; limit: number }> {
     return this.httpClient.get<{
       data: OrganizationEvent[];
@@ -321,11 +320,11 @@ export class OrganizationService {
   inviteMember(
     id: string,
     dto: InviteMemberDto,
-    version: string = 'v1'
+    version: string = 'v1',
   ): Observable<OrganizationMember> {
     return this.httpClient.post<OrganizationMember>(
       `${API_URI_ORGANIZATION}/${version}/organizations/${id}/members/invite`,
-      dto
+      dto,
     );
   }
 
@@ -335,13 +334,12 @@ export class OrganizationService {
   bulkInviteMembers(
     organizationId: string,
     dto: BulkInviteMembersDto,
-    version: string = 'v1'
+    version: string = 'v1',
   ): Observable<BulkInviteResponse> {
     return this.httpClient
-      .post<ApiSingleResponse<BulkInviteResponse> | BulkInviteResponse>(
-        `${API_URI_ORGANIZATION}/${version}/invitations/organizations/${organizationId}/bulk`,
-        dto
-      )
+      .post<
+        ApiSingleResponse<BulkInviteResponse> | BulkInviteResponse
+      >(`${API_URI_ORGANIZATION}/${version}/invitations/organizations/${organizationId}/bulk`, dto)
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -349,20 +347,16 @@ export class OrganizationService {
             return data.item!;
           }
           return response as BulkInviteResponse;
-        })
+        }),
       );
   }
 
   /**
    * Remove member from organization
    */
-  removeMember(
-    organizationId: string,
-    memberId: string,
-    version: string = 'v1'
-  ): Observable<void> {
+  removeMember(organizationId: string, memberId: string, version: string = 'v1'): Observable<void> {
     return this.httpClient.delete<void>(
-      `${API_URI_ORGANIZATION}/${version}/organizations/${organizationId}/members/${memberId}`
+      `${API_URI_ORGANIZATION}/${version}/organizations/${organizationId}/members/${memberId}`,
     );
   }
 
@@ -371,18 +365,20 @@ export class OrganizationService {
    */
   getUserOrganizations(version: string = 'v1'): Observable<OrganizationResponse[]> {
     return this.httpClient
-      .get<ApiResponse<OrganizationResponse[]> | OrganizationResponse[]>(
-        `${API_URI_ORGANIZATION}/${version}/organizations`
-      )
+      .get<
+        ApiResponse<OrganizationResponse[]> | OrganizationResponse[]
+      >(`${API_URI_ORGANIZATION}/${version}/organizations`)
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
             return unwrap(response as ApiResponse<OrganizationResponse[]>);
           }
           // Legacy format
-          console.warn('OrganizationService: Received legacy response format for getUserOrganizations');
+          console.warn(
+            'OrganizationService: Received legacy response format for getUserOrganizations',
+          );
           return response as OrganizationResponse[];
-        })
+        }),
       );
   }
 
@@ -392,7 +388,7 @@ export class OrganizationService {
   getOrganizationInvitations(
     organizationId: string,
     params?: { status?: InvitationStatus; page?: number; limit?: number; query?: string },
-    version: string = 'v1'
+    version: string = 'v1',
   ): Observable<{ data: OrganizationInvitation[]; total: number }> {
     const httpParams: Record<string, string> = {};
     if (params?.status) httpParams['status'] = params.status;
@@ -401,30 +397,23 @@ export class OrganizationService {
     if (params?.query) httpParams['query'] = params.query;
 
     return this.httpClient
-      .get<ApiSingleResponse<{ data: OrganizationInvitation[]; total: number }> | { data: OrganizationInvitation[]; total: number }>(
-        `${API_URI_ORGANIZATION}/${version}/invitations/organizations/${organizationId}`,
-        { params: httpParams }
-      )
+      .get<
+        | ApiSingleResponse<{ data: OrganizationInvitation[]; total: number }>
+        | { data: OrganizationInvitation[]; total: number }
+      >(`${API_URI_ORGANIZATION}/${version}/invitations/organizations/${organizationId}`, { params: httpParams })
       .pipe(
         map((response) => {
-          if (isApiResponse(response)) {
-            const data = unwrap(response as ApiSingleResponse<{ data: OrganizationInvitation[]; total: number }>);
-            return data.item!;
-          }
-          return response as { data: OrganizationInvitation[]; total: number };
-        })
+          return response.data as any;
+        }),
       );
   }
 
   /**
    * Revoke an invitation
    */
-  revokeInvitation(
-    invitationId: string,
-    version: string = 'v1'
-  ): Observable<void> {
+  revokeInvitation(invitationId: string, version: string = 'v1'): Observable<void> {
     return this.httpClient.delete<void>(
-      `${API_URI_ORGANIZATION}/${version}/invitations/${invitationId}`
+      `${API_URI_ORGANIZATION}/${version}/invitations/${invitationId}`,
     );
   }
 }
