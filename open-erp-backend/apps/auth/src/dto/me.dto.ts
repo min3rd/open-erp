@@ -100,6 +100,22 @@ export class UpdateSettingsDto {
   dateFormat?: string;
 
   @ApiPropertyOptional({
+    description: 'Time format preference',
+    example: 'HH:mm',
+  })
+  @IsString()
+  @IsOptional()
+  timeFormat?: string;
+
+  @ApiPropertyOptional({
+    description: 'Locale preference (BCP 47 language tag)',
+    example: 'vi',
+  })
+  @IsString()
+  @IsOptional()
+  locale?: string;
+
+  @ApiPropertyOptional({
     description: 'Time zone',
     example: 'Asia/Ho_Chi_Minh',
   })
