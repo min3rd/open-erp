@@ -22,6 +22,23 @@ export interface LoginDto {
 }
 
 export interface LoginResponse {
+  accessToken?: string;
+  refreshToken?: string;
+  needs2fa?: boolean;
+  tempAuthToken?: string;
+}
+
+export interface TwoFAVerifyDto {
+  tempAuthToken: string;
+  otp: string;
+}
+
+export interface TwoFARecoveryDisableDto {
+  tempAuthToken: string;
+  recoveryCode: string;
+}
+
+export interface TwoFALoginResponse {
   accessToken: string;
   refreshToken: string;
 }
@@ -94,6 +111,20 @@ export class AuthService {
 
   resetPassword(payload: ResetPasswordDto, version: string = 'v1') {
     return this.httpClient.post(`${API_URI_AUTH}/${version}/auth/reset-password`, payload);
+  }
+
+  verify2FA(payload: TwoFAVerifyDto, version: string = 'v1') {
+    return this.httpClient.post<ApiResponse<TwoFALoginResponse>>(
+      `${API_URI_AUTH}/${version}/auth/2fa/verify`,
+      payload,
+    );
+  }
+
+  disableWith2FARecovery(payload: TwoFARecoveryDisableDto, version: string = 'v1') {
+    return this.httpClient.post<ApiResponse<TwoFALoginResponse>>(
+      `${API_URI_AUTH}/${version}/auth/2fa/recovery/disable`,
+      payload,
+    );
   }
 
   me(version: string = 'v1'): Observable<ApiSingleResponse<UserDto>> {

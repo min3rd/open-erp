@@ -88,11 +88,20 @@ export class Login {
           // Success case
           const loginResponse = response.data!;
 
+          // If user has 2FA enabled, redirect to 2FA screen
+          if (loginResponse.needs2fa && loginResponse.tempAuthToken) {
+            this.router.navigate(['/auth/2fa'], {
+              queryParams: { token: loginResponse.tempAuthToken },
+            });
+            this.isSubmitting.set(false);
+            return;
+          }
+
           try {
             // Encrypt and store tokens
             await this.authService.encryptAndStoreTokens({
-              accessToken: loginResponse.accessToken,
-              refreshToken: loginResponse.refreshToken,
+              accessToken: loginResponse.accessToken!,
+              refreshToken: loginResponse.refreshToken!,
             });
 
             this.messageService.add({

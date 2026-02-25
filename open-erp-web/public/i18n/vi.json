@@ -2030,5 +2030,54 @@
         "saveError": "Không thể lưu cài đặt"
       }
     }
+  },
+  "twoFa": {
+    "title": "Xác thực hai yếu tố",
+    "subtitle": "Xác minh danh tính của bạn",
+    "instruction": "Mở ứng dụng xác thực và nhập mã 6 chữ số để hoàn tất đăng nhập.",
+    "form": {
+      "otp": {
+        "label": "Mã xác thực",
+        "placeholder": "000000",
+        "errors": {
+          "required": "Mã xác thực là bắt buộc",
+          "length": "Mã phải có đúng 6 chữ số"
+        }
+      }
+    },
+    "buttons": {
+      "verify": "Xác nhận",
+      "backToLogin": "Quay lại đăng nhập",
+      "useRecoveryCode": "Mất thiết bị? Dùng mã khôi phục"
+    },
+    "messages": {
+      "success": "Đăng nhập thành công! Đang chuyển hướng...",
+      "invalidOtp": "Mã không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.",
+      "storageError": "Không thể lưu trữ token xác thực"
+    }
+  },
+  "twoFaRecovery": {
+    "title": "Vô hiệu hóa xác thực hai yếu tố",
+    "subtitle": "Sử dụng mã khôi phục",
+    "instruction": "Nhập một trong các mã khôi phục bạn đã lưu khi thiết lập 2FA. Điều này sẽ vô hiệu hóa 2FA trên tài khoản của bạn.",
+    "form": {
+      "recoveryCode": {
+        "label": "Mã khôi phục",
+        "placeholder": "XXXXX-XXXXX",
+        "errors": {
+          "required": "Mã khôi phục là bắt buộc"
+        }
+      }
+    },
+    "buttons": {
+      "disable2fa": "Vô hiệu 2FA và đăng nhập",
+      "backTo2fa": "Quay lại nhập OTP",
+      "backToLogin": "Quay lại đăng nhập"
+    },
+    "messages": {
+      "success": "2FA đã bị vô hiệu. Bạn đã đăng nhập.",
+      "invalidCode": "Mã khôi phục không hợp lệ. Vui lòng thử lại.",
+      "storageError": "Không thể lưu trữ token xác thực"
+    }
   }
 }

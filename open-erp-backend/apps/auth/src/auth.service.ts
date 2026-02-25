@@ -44,6 +44,7 @@ import {
   generateResetToken,
   hashToken,
   hashRefreshToken,
+  verifyToken,
 } from './utils/token.util';
 import { Types } from 'mongoose';
 import { AuthorizationService } from '@shared/authz';
@@ -332,6 +333,47 @@ export class AuthService {
       });
     }
 
+    // Check if user has 2FA enabled
+    const userRecord = await this.userModel
+      .findById(user.id.toString())
+      .select('is2faEnabled')
+      .exec();
+
+    if (userRecord?.is2faEnabled) {
+      // Issue a short-lived tempAuthToken (10 minutes) instead of real tokens
+      const tempAuthToken = generateAccessToken(
+        user.id.toString(),
+        user.email,
+        this.jwtSecret,
+        '10m',
+        undefined,
+        undefined,
+      );
+
+      this.logger.log({
+        event: 'user.login.2fa_required',
+        userId: user.id.toString(),
+        email: user.email,
+        timestamp: new Date().toISOString(),
+      });
+
+      return {
+        needs2fa: true,
+        tempAuthToken,
+      };
+    }
+
+    return this.issueTokensForUser(user);
+  }
+
+  private async issueTokensForUser(user: {
+    id: { toString(): string };
+    email: string;
+    fullName?: string;
+    username?: string;
+    avatarUrl?: string;
+    organizationId?: { toString(): string };
+  }) {
     // Get user with roles for JWT payload
     const userWithRoles = await firstValueFrom(
       this.userClient.send(RPC_METHODS.USER.GET_USER_WITH_ROLES, {
@@ -377,7 +419,7 @@ export class AuthService {
 
     // Save hashed refresh token to database
     await this.refreshTokenRepository.create(
-      new Types.ObjectId(user.id),
+      new Types.ObjectId(user.id.toString()),
       refreshTokenHash,
       refreshTokenExpiresAt,
     );
@@ -413,6 +455,150 @@ export class AuthService {
         avatarUrl: user.avatarUrl || null,
       },
     };
+  }
+
+  async verify2FA(tempAuthToken: string, otp: string) {
+    // Validate tempAuthToken
+    const payload = verifyToken(tempAuthToken, this.jwtSecret);
+    if (!payload || payload.type !== 'access') {
+      throw ErrorFactory.createError({
+        code: AUTH_INVALID_CREDENTIALS,
+        details: { reason: 'Invalid or expired temporary auth token.' },
+      });
+    }
+
+    const userId = payload.sub as string;
+
+    // Load user with 2FA secret
+    const user = await this.userModel
+      .findById(userId)
+      .select('+twoFactorSecret is2faEnabled email fullName username organizationId')
+      .exec();
+
+    if (!user) {
+      throw ErrorFactory.createError({ code: USER_NOT_FOUND });
+    }
+
+    if (!user.is2faEnabled || !user.twoFactorSecret) {
+      throw ErrorFactory.createError({
+        code: AUTH_INVALID_CREDENTIALS,
+        details: { reason: '2FA is not enabled for this account.' },
+      });
+    }
+
+    const secret = this.decrypt2FASecret(user.twoFactorSecret);
+    const result = await verify({ secret, token: otp });
+    if (!result || !result.valid) {
+      this.logger.warn({
+        event: 'user.2fa.verify.failed',
+        userId,
+        timestamp: new Date().toISOString(),
+      });
+      throw ErrorFactory.createError({
+        code: AUTH_INVALID_CREDENTIALS,
+        details: { reason: 'Invalid OTP code.' },
+      });
+    }
+
+    this.logger.log({
+      event: 'user.2fa.verify.success',
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Issue real tokens
+    return this.issueTokensForUser({
+      id: { toString: () => userId },
+      email: user.email,
+      fullName: (user as any).fullName,
+      username: (user as any).username,
+      avatarUrl: (user as any).avatarUrl,
+      organizationId: user.organizationId
+        ? { toString: () => user.organizationId!.toString() }
+        : undefined,
+    });
+  }
+
+  async disableWith2FARecovery(tempAuthToken: string, recoveryCode: string) {
+    // Validate tempAuthToken
+    const payload = verifyToken(tempAuthToken, this.jwtSecret);
+    if (!payload || payload.type !== 'access') {
+      throw ErrorFactory.createError({
+        code: AUTH_INVALID_CREDENTIALS,
+        details: { reason: 'Invalid or expired temporary auth token.' },
+      });
+    }
+
+    const userId = payload.sub as string;
+
+    // Load user with recovery codes
+    const user = await this.userModel
+      .findById(userId)
+      .select('+twoFactorRecoveryCodes is2faEnabled email fullName username organizationId')
+      .exec();
+
+    if (!user) {
+      throw ErrorFactory.createError({ code: USER_NOT_FOUND });
+    }
+
+    if (!user.is2faEnabled) {
+      throw ErrorFactory.createError({
+        code: AUTH_INVALID_CREDENTIALS,
+        details: { reason: '2FA is not enabled for this account.' },
+      });
+    }
+
+    const codes: string[] = (user.twoFactorRecoveryCodes as string[]) || [];
+    let matchIndex = -1;
+    for (let i = 0; i < codes.length; i++) {
+      const isMatch = await bcrypt.compare(recoveryCode, codes[i]);
+      if (isMatch) {
+        matchIndex = i;
+        break;
+      }
+    }
+
+    if (matchIndex === -1) {
+      this.logger.warn({
+        event: 'user.2fa.recovery.failed',
+        userId,
+        timestamp: new Date().toISOString(),
+      });
+      throw ErrorFactory.createError({
+        code: AUTH_INVALID_CREDENTIALS,
+        details: { reason: 'Invalid recovery code.' },
+      });
+    }
+
+    // Consume the used recovery code and disable 2FA
+    codes.splice(matchIndex, 1);
+    await this.userModel
+      .findByIdAndUpdate(userId, {
+        is2faEnabled: false,
+        twoFactorSecret: null,
+        twoFactorRecoveryCodes: codes,
+        twoFactorTempSecret: null,
+        twoFactorTempSecretExpiry: null,
+      })
+      .exec();
+
+    this.logger.log({
+      event: 'user.2fa.recovery.disabled',
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Issue real tokens so the user is logged in
+    return this.issueTokensForUser({
+      id: { toString: () => userId },
+      email: user.email,
+      fullName: (user as any).fullName,
+      username: (user as any).username,
+      avatarUrl: (user as any).avatarUrl,
+      organizationId: user.organizationId
+        ? { toString: () => user.organizationId!.toString() }
+        : undefined,
+    });
   }
 
   async verifyEmail(data: VerifyEmailDto) {

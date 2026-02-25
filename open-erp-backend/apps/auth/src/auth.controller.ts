@@ -21,6 +21,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { LogoutDto } from './dto/logout.dto';
+import { TwoFAVerifyDto, TwoFARecoveryDisableDto } from './dto/two-fa.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -260,5 +261,34 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Service is healthy' })
   health() {
     return ok({ status: 'ok', service: 'auth' }, 'Auth service is healthy');
+  }
+
+  @Post('2fa/verify')
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @ApiOperation({ summary: 'Complete login by verifying TOTP OTP' })
+  @ApiResponse({ status: 200, description: 'Login completed — access token issued' })
+  @ApiResponse({ status: 401, description: 'Invalid OTP or expired temp token' })
+  async verify2FA(@Body() dto: TwoFAVerifyDto) {
+    const result = await this.authService.verify2FA(dto.tempAuthToken, dto.otp);
+    return ok(result, 'Login completed successfully');
+  }
+
+  @Post('2fa/recovery/disable')
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @ApiOperation({ summary: 'Disable 2FA using a recovery code and issue access token' })
+  @ApiResponse({ status: 200, description: '2FA disabled — access token issued' })
+  @ApiResponse({ status: 401, description: 'Invalid recovery code or expired temp token' })
+  async disableWith2FARecovery(@Body() dto: TwoFARecoveryDisableDto) {
+    const result = await this.authService.disableWith2FARecovery(
+      dto.tempAuthToken,
+      dto.recoveryCode,
+    );
+    return ok(result, '2FA disabled successfully');
   }
 }

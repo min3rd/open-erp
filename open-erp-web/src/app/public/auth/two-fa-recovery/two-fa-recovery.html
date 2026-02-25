@@ -1,0 +1,116 @@
+<div class="min-h-screen flex" id="two-fa-recovery-container">
+  <!-- Left Panel -->
+  <div
+    id="two-fa-recovery-left-panel"
+    class="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-indigo-600 to-purple-700 items-center justify-center p-12"
+  >
+    <div class="absolute inset-0 overflow-hidden" id="two-fa-recovery-background-wrapper">
+      <img
+        ngSrc="/images/auth-background.svg"
+        alt=""
+        fill
+        priority
+        class="object-cover opacity-20"
+      />
+    </div>
+    <div class="relative z-10 text-center" id="two-fa-recovery-branding">
+      <img
+        ngSrc="/images/logo.svg"
+        alt="Open ERP Logo"
+        width="200"
+        height="80"
+        priority
+        class="mx-auto mb-8"
+      />
+      <h1 class="text-4xl font-bold text-white mb-4" id="two-fa-recovery-title-desktop">
+        {{ 'twoFaRecovery.title' | transloco }}
+      </h1>
+      <p class="text-xl text-white/90" id="two-fa-recovery-subtitle-desktop">{{ 'twoFaRecovery.subtitle' | transloco }}</p>
+    </div>
+  </div>
+
+  <!-- Right Panel - Recovery Form -->
+  <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50" id="two-fa-recovery-right-panel">
+    <div class="w-full max-w-md" id="two-fa-recovery-form-container">
+      <!-- Mobile Logo -->
+      <div class="lg:hidden text-center mb-8" id="two-fa-recovery-mobile-header">
+        <img
+          ngSrc="/images/logo.svg"
+          alt="Open ERP Logo"
+          width="160"
+          height="64"
+          priority
+          class="mx-auto mb-4"
+        />
+        <h1 class="text-3xl font-bold text-gray-900 mb-2" id="two-fa-recovery-title-mobile">
+          {{ 'twoFaRecovery.title' | transloco }}
+        </h1>
+        <p class="text-lg text-gray-600" id="two-fa-recovery-subtitle-mobile">{{ 'twoFaRecovery.subtitle' | transloco }}</p>
+      </div>
+
+      <!-- Recovery Form -->
+      <form [formGroup]="recoveryForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate id="two-fa-recovery-form">
+        <p class="text-sm text-gray-600" id="two-fa-recovery-instruction">
+          {{ 'twoFaRecovery.instruction' | transloco }}
+        </p>
+
+        <!-- Recovery Code Field -->
+        <div class="space-y-2">
+          <label
+            for="two-fa-recovery-code"
+            class="block text-sm font-medium text-gray-700"
+            [attr.aria-required]="true"
+          >
+            {{ 'twoFaRecovery.form.recoveryCode.label' | transloco }}
+          </label>
+          <input
+            pInputText
+            id="two-fa-recovery-code"
+            type="text"
+            formControlName="recoveryCode"
+            [placeholder]="'twoFaRecovery.form.recoveryCode.placeholder' | transloco"
+            autocomplete="off"
+            class="w-full font-mono tracking-wider"
+            [attr.aria-invalid]="recoveryForm.get('recoveryCode')?.invalid && recoveryForm.get('recoveryCode')?.touched"
+            [attr.aria-describedby]="getFieldError('recoveryCode') ? 'two-fa-recovery-code-error' : null"
+          />
+          @if (getFieldError('recoveryCode'); as errorKey) {
+          <small id="two-fa-recovery-code-error" class="text-red-600 text-sm" role="alert">
+            {{ errorKey | transloco }}
+          </small>
+          }
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col space-y-2 text-center" id="two-fa-recovery-actions">
+          <p-button
+            type="submit"
+            id="two-fa-recovery-submit-button"
+            [label]="'twoFaRecovery.buttons.disable2fa' | transloco"
+            [disabled]="!recoveryForm.valid || isSubmitting()"
+            [loading]="isSubmitting()"
+            styleClass="w-full"
+            severity="primary"
+            [attr.aria-busy]="isSubmitting()"
+          />
+          <p-button
+            type="button"
+            id="two-fa-recovery-back-2fa-button"
+            [label]="'twoFaRecovery.buttons.backTo2fa' | transloco"
+            (onClick)="navigateTo2FA()"
+            styleClass="w-full"
+            severity="secondary"
+          />
+          <p-button
+            type="button"
+            id="two-fa-recovery-back-login-button"
+            [label]="'twoFaRecovery.buttons.backToLogin' | transloco"
+            (onClick)="navigateToLogin()"
+            styleClass="w-full"
+            severity="secondary"
+          />
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
