@@ -221,7 +221,7 @@ export class Detail implements OnInit, OnDestroy {
     'E-commerce',
   ];
 
-  protected readonly registrationForm = new FormGroup<BusinessRegistrationForm>({
+  readonly registrationForm = new FormGroup<BusinessRegistrationForm>({
     taxId: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required, Validators.pattern(/^[0-9]{10,13}$/)],
@@ -908,7 +908,10 @@ export class Detail implements OnInit, OnDestroy {
     this.activeTab.set(this.tabOptions[index].value);
   }
 
-  protected formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString();
+  protected formatDate(dateString: string | null | undefined): string {
+    if (!dateString) return '—';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '—';
+    return date.toLocaleDateString();
   }
 }

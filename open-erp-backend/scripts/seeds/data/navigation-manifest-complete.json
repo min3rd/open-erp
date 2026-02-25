@@ -30,6 +30,56 @@
       }
     },
     {
+      "id": "nav-organization-management",
+      "label": "Organization Management",
+      "labelKey": "navigation.organization.management",
+      "icon": "pi pi-sitemap",
+      "module": "organization",
+      "scope": "global",
+      "parentId": "nav-organization",
+      "order": 1,
+      "permissions": {
+        "include": ["organizations.manage"]
+      },
+      "meta": {
+        "description": "Manage organizations"
+      }
+    },
+    {
+      "id": "nav-organization-new",
+      "label": "Thêm mới org",
+      "labelKey": "navigation.organization.new",
+      "route": "/organization/new",
+      "icon": "pi pi-plus-circle",
+      "module": "organization",
+      "scope": "global",
+      "parentId": "nav-organization-management",
+      "order": 1,
+      "permissions": {
+        "include": ["organizations.create"]
+      },
+      "meta": {
+        "description": "Create a new organization"
+      }
+    },
+    {
+      "id": "nav-organization-detail",
+      "label": "Xem chi tiết org",
+      "labelKey": "navigation.organization.detail",
+      "route": "/organization/detail",
+      "icon": "pi pi-eye",
+      "module": "organization",
+      "scope": "global",
+      "parentId": "nav-organization-management",
+      "order": 2,
+      "permissions": {
+        "include": ["organizations.read"]
+      },
+      "meta": {
+        "description": "View organization details"
+      }
+    },
+    {
       "id": "nav-management",
       "label": "Management",
       "labelKey": "navigation.management",
