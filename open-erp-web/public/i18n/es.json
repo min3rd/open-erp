@@ -2330,5 +2330,23 @@
       "title": "Estadísticas del producto",
       "comingSoon": "La función de estadísticas del producto estará disponible pronto"
     }
+  },
+  "notification": {
+    "title": "Notificaciones",
+    "drawerTitle": "Notificaciones",
+    "tabAll": "Todo",
+    "tabGeneral": "General",
+    "tabInvitation": "Invitaciones",
+    "tabTask": "Tareas",
+    "tabSystem": "Sistema",
+    "empty": "Sin notificaciones",
+    "markAllRead": "Marcar todo como leído",
+    "markRead": "Marcar como leído",
+    "markUnread": "Marcar como no leído",
+    "delete": "Eliminar",
+    "accept": "Aceptar",
+    "decline": "Rechazar",
+    "unread": "No leído",
+    "list": "Lista de notificaciones"
   }
 }

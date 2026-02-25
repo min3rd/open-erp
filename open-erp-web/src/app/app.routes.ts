@@ -8,12 +8,14 @@ import { NavigationService } from '../core/services/navigation-service';
 import { AuthService } from '../core/services/auth-service';
 import { ChatService } from '../core/services/chat-service';
 import { LanguageService } from '../core/services/language.service';
+import { NotificationService } from '../core/services/notification-service';
 
 const initializeData = () => {
   const navigationService = inject(NavigationService);
   const authService = inject(AuthService);
   const chatService = inject(ChatService);
   const languageService = inject(LanguageService);
+  const notificationService = inject(NotificationService);
 
   return forkJoin([
     navigationService.loadModules(),
@@ -26,6 +28,7 @@ const initializeData = () => {
         const token = authService.accessToken;
         if (token) {
           chatService.connectSocket(token);
+          notificationService.connectSocket(token);
         }
       }),
     ),

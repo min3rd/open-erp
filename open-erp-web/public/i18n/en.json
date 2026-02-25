@@ -3217,5 +3217,23 @@
       "popupBlocked": "Popup blocked. Please allow popups for this site.",
       "drawer": "Side panel"
     }
+  },
+  "notification": {
+    "title": "Notifications",
+    "drawerTitle": "Notifications",
+    "tabAll": "All",
+    "tabGeneral": "General",
+    "tabInvitation": "Invitations",
+    "tabTask": "Tasks",
+    "tabSystem": "System",
+    "empty": "No notifications",
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "markUnread": "Mark as unread",
+    "delete": "Delete",
+    "accept": "Accept",
+    "decline": "Decline",
+    "unread": "Unread",
+    "list": "Notification list"
   }
 }

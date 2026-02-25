@@ -8,6 +8,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { NavigationService } from '../../../services/navigation-service';
@@ -23,6 +24,8 @@ import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
 import { NavigationMenu } from '../../navigation-menu/navigation-menu';
+import { NotificationDrawer } from '../../notification-drawer/notification-drawer';
+import { NotificationService } from '../../../services/notification-service';
 
 @Component({
   selector: 'layout-vertical-navigation',
@@ -37,6 +40,7 @@ import { NavigationMenu } from '../../navigation-menu/navigation-menu';
     RouterModule,
     RippleModule,
     NavigationMenu,
+    NotificationDrawer,
   ],
   templateUrl: './vertical-navigation.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,6 +51,7 @@ export class VerticalNavigation implements OnInit, OnDestroy {
   private layoutService = inject(LayoutService);
   private navigationService = inject(NavigationService);
   private authService = inject(AuthService);
+  private notificationService = inject(NotificationService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
@@ -58,6 +63,10 @@ export class VerticalNavigation implements OnInit, OnDestroy {
 
   // For resize functionality
   isResizing = signal(false);
+
+  // Notification drawer
+  notificationDrawerVisible = signal(false);
+  unreadCount = toSignal(this.notificationService.unreadCount$, { initialValue: 0 });
 
   ngOnInit() {
     // Load navigation items
@@ -148,6 +157,15 @@ export class VerticalNavigation implements OnInit, OnDestroy {
     this.authService.logOut().subscribe(() => {
       this.router.navigate(['/auth']);
     });
+  }
+
+  openNotificationDrawer(): void {
+    this.notificationDrawerVisible.set(true);
+  }
+
+  badgeLabel(): string {
+    const count = this.unreadCount();
+    return count > 99 ? '99+' : String(count);
   }
 
   toggleSidebar(): void {
