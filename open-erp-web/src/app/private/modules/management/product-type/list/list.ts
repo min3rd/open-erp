@@ -42,6 +42,7 @@ import {
   ProductTypeService,
   ProductType,
 } from '../../../../../../core/services/product-type/product-type.service';
+import { UserDatePipe } from '../../../../../../core/pipes/user-date.pipe';
 
 /**
  * Column definition interface
@@ -73,6 +74,7 @@ interface ColumnDef {
     InputGroupModule,
     InputGroupAddonModule,
     ConfirmDialogModule,
+    UserDatePipe,
   ],
   providers: [ConfirmationService],
   templateUrl: './list.html',

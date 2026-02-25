@@ -32,6 +32,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth-service';
+import { UserDatePipe } from '../../pipes/user-date.pipe';
 
 @Component({
   selector: 'layout-quick-chat',
@@ -51,6 +52,7 @@ import { AuthService } from '../../services/auth-service';
     ProgressBarModule,
     TooltipModule,
     TranslocoModule,
+    UserDatePipe,
   ],
   templateUrl: './quick-chat.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -126,10 +126,10 @@
               <span class="text-sm text-surface-600 dark:text-surface-400">{{ session.ipAddress || '—' }}</span>
             </td>
             <td class="hidden md:table-cell">
-              <span class="text-sm text-surface-600 dark:text-surface-400">{{ formatDate(session.createdAt) }}</span>
+              <span class="text-sm text-surface-600 dark:text-surface-400">{{ session.createdAt | userDate:'datetime' }}</span>
             </td>
             <td class="hidden md:table-cell">
-              <span class="text-sm text-surface-600 dark:text-surface-400">{{ formatDate(session.expiresAt) }}</span>
+              <span class="text-sm text-surface-600 dark:text-surface-400">{{ session.expiresAt | userDate:'datetime' }}</span>
             </td>
             <td class="text-right">
               <p-button

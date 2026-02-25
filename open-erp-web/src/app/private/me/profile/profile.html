@@ -254,11 +254,11 @@
           </div>
           <div>
             <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">{{ 'me.profile.fields.joinedAt' | transloco }}</p>
-            <p class="text-sm text-surface-800 dark:text-surface-200">{{ formatDate(profile()!.createdAt) }}</p>
+            <p class="text-sm text-surface-800 dark:text-surface-200">{{ profile()!.createdAt | userDate }}</p>
           </div>
           <div>
             <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">{{ 'me.profile.fields.lastLogin' | transloco }}</p>
-            <p class="text-sm text-surface-800 dark:text-surface-200">{{ formatDate(profile()!.lastLoginAt) }}</p>
+            <p class="text-sm text-surface-800 dark:text-surface-200">{{ profile()!.lastLoginAt | userDate }}</p>
           </div>
           @if (profile()!.skills && profile()!.skills!.length > 0) {
             <div class="sm:col-span-2">

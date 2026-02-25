@@ -31,6 +31,18 @@
               ></p-select>
             </div>
 
+            <!-- Time format -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.settings.display.timeFormat' | transloco }}</label>
+              <p-select
+                formControlName="timeFormat"
+                [options]="timeFormats"
+                optionLabel="label"
+                optionValue="value"
+                styleClass="w-full"
+              ></p-select>
+            </div>
+
             <!-- Timezone -->
             <div class="flex flex-col gap-1.5">
               <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.settings.display.timezone' | transloco }}</label>

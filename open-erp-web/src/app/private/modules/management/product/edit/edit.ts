@@ -44,6 +44,7 @@ import { ProductCategoryService } from '../../../../../../core/services/product-
 import { OrganizationContextService } from '../../../../../../core/services/organization-context.service';
 import { FileApiService, OnlyOfficeSessionConfig } from '../../../../../../core/services/file-service';
 import { PRODUCT_STATUS_OPTIONS, PRODUCT_UNIT_OPTIONS } from '../../../../../../core/constants/ui.constants';
+import { UserDatePipe } from '../../../../../../core/pipes/user-date.pipe';
 
 interface SelectOption {
   label: string;
@@ -85,6 +86,7 @@ interface MediaFile {
     TooltipModule,
     TabsModule,
     InputNumberModule,
+    UserDatePipe,
   ],
   templateUrl: './edit.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

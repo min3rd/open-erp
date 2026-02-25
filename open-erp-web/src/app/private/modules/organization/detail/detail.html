@@ -587,7 +587,7 @@
                   >{{ 'organization.detail.info.foundedDate' | transloco }}</label
                 >
                 <span id="org-info-founded-value" class="text-surface-900 dark:text-surface-0">{{
-                  formatDate(organization()?.foundedDate)
+                  organization()?.foundedDate | userDate
                 }}</span>
               </div>
             </div>
@@ -656,7 +656,7 @@
                     {{ 'organization.detail.info.createdAt' | transloco }}
                   </label>
                   <span id="org-overview-created" class="text-surface-900 dark:text-surface-0">{{
-                    formatDate(organization()?.createdAt)
+                    organization()?.createdAt | userDate
                   }}</span>
                 </div>
 
@@ -836,9 +836,9 @@
                             }
                           </div>
                           <div class="text-xs text-surface-400 mt-1">
-                            {{ 'organization.detail.invites.sentAt' | transloco }}: {{ formatDate(invite.createdAt) }}
+                            {{ 'organization.detail.invites.sentAt' | transloco }}: {{ invite.createdAt | userDate }}
                             &bull;
-                            {{ 'organization.detail.invites.expiresAt' | transloco }}: {{ formatDate(invite.expiresAt) }}
+                            {{ 'organization.detail.invites.expiresAt' | transloco }}: {{ invite.expiresAt | userDate }}
                           </div>
                         </div>
 
@@ -925,7 +925,7 @@
                 <p-card>
                   <h4 class="font-semibold">{{ event.type }}</h4>
                   <p class="text-sm">{{ event.description }}</p>
-                  <p class="text-xs text-surface-500">{{ formatDate(event.createdAt) }}</p>
+                  <p class="text-xs text-surface-500">{{ event.createdAt | userDate }}</p>
                 </p-card>
                 }
               </div>

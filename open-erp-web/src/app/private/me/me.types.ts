@@ -43,6 +43,8 @@ export interface MeRole {
 
 export interface MeSettings {
   dateFormat: string;
+  timeFormat: string;
+  locale: string;
   timezone: string;
   theme: 'light' | 'dark' | 'auto';
   language: string;

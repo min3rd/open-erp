@@ -31,6 +31,7 @@ import {
   UserActivityLog,
 } from '../services/user-detail.service';
 import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constant';
+import { UserDatePipe } from '../../../../../../core/pipes/user-date.pipe';
 
 @Component({
   selector: 'management-user-audit-logs',
@@ -47,6 +48,7 @@ import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constant';
     TooltipModule,
     InputGroupModule,
     InputGroupAddonModule,
+    UserDatePipe,
   ],
   templateUrl: './audit-logs.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

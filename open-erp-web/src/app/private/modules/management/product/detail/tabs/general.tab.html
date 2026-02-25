@@ -93,7 +93,7 @@
 
       <div class="field">
         <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.createdAt' | transloco }}</label>
-        <div>{{ product()?.createdAt ? (product()?.createdAt | date: 'short') : '-' }}</div>
+        <div>{{ product()?.createdAt | userDate }}</div>
       </div>
 
       <div class="field">
@@ -103,7 +103,7 @@
 
       <div class="field">
         <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.updatedAt' | transloco }}</label>
-        <div>{{ product()?.updatedAt ? (product()?.updatedAt | date: 'short') : '-' }}</div>
+        <div>{{ product()?.updatedAt | userDate }}</div>
       </div>
     </div>
   </div>

@@ -293,7 +293,7 @@
                     [severity]="getStatusSeverity(user.status)"
                   />
                 </td>
-                <td>{{ formatDate(user.lastLogin || '') }}</td>
+                <td>{{ user.lastLogin | userDate }}</td>
               </tr>
             </ng-template>
 

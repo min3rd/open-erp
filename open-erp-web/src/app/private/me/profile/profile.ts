@@ -34,6 +34,7 @@ import { MeService } from '../../../../core/services/me-service';
 import type { MeProfile, UpdateMeDto } from '../me.types';
 import { API_URI_FILE } from '../../../../core/constant';
 import { AuthService } from '../../../../core/services/auth-service';
+import { UserDatePipe } from '../../../../core/pipes/user-date.pipe';
 
 @Component({
   selector: 'me-profile',
@@ -51,6 +52,7 @@ import { AuthService } from '../../../../core/services/auth-service';
     ConfirmDialogModule,
     DividerModule,
     ChipModule,
+    UserDatePipe,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './profile.html',

@@ -23,6 +23,7 @@ import { MessageService } from 'primeng/api';
 import { MeService } from '../../../../core/services/me-service';
 import type { MeSettings } from '../me.types';
 import { LanguageService, LanguageOption } from '../../../../core/services/language.service';
+import { UserSettingsService } from '../../../../core/services/user-settings.service';
 
 @Component({
   selector: 'me-settings',
@@ -48,6 +49,7 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
   private messageService = inject(MessageService);
   private translocoService = inject(TranslocoService);
   private languageService = inject(LanguageService);
+  private userSettingsService = inject(UserSettingsService);
   private destroy$ = new Subject<void>();
 
   readonly isLoading = signal(true);
@@ -60,6 +62,11 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
     { label: 'DD/MM/YYYY', value: 'DD/MM/YYYY' },
     { label: 'MM/DD/YYYY', value: 'MM/DD/YYYY' },
     { label: 'YYYY-MM-DD', value: 'YYYY-MM-DD' },
+  ];
+
+  readonly timeFormats = [
+    { label: '24h (HH:mm)', value: 'HH:mm' },
+    { label: '12h (hh:mm A)', value: 'hh:mm A' },
   ];
 
   get themes() {
@@ -96,6 +103,8 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
 
     this.settingsForm = this.fb.group({
       dateFormat: ['DD/MM/YYYY'],
+      timeFormat: ['HH:mm'],
+      locale: ['vi'],
       timezone: ['Asia/Ho_Chi_Minh'],
       theme: ['auto'],
       language: ['vi'],
@@ -112,6 +121,8 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
         next: (settings) => {
           this.settingsForm.patchValue({
             dateFormat: settings.dateFormat || 'DD/MM/YYYY',
+            timeFormat: settings.timeFormat || 'HH:mm',
+            locale: settings.locale || settings.language || 'vi',
             timezone: settings.timezone || 'Asia/Ho_Chi_Minh',
             theme: settings.theme || 'auto',
             language: settings.language || 'vi',
@@ -120,6 +131,8 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
             notificationsEmail: settings.notificationsEmail !== false,
             notificationsPush: settings.notificationsPush === true,
           });
+          // Cache the loaded settings so the date pipe can use them immediately
+          this.userSettingsService.applyFromMeSettings(settings);
           this.isLoading.set(false);
         },
         error: () => {
@@ -148,6 +161,8 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
           if (values.theme) {
             this.applyTheme(values.theme);
           }
+          // Update the shared date/time config so pipes re-render immediately
+          this.userSettingsService.applyFromMeSettings(values);
           this.messageService.add({
             severity: 'success',
             summary: this.translocoService.translate('common.success'),
@@ -184,6 +199,8 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
   resetSettings(): void {
     this.settingsForm.patchValue({
       dateFormat: 'DD/MM/YYYY',
+      timeFormat: 'HH:mm',
+      locale: 'vi',
       timezone: 'Asia/Ho_Chi_Minh',
       theme: 'auto',
       language: 'vi',

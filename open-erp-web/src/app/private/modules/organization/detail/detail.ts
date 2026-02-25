@@ -60,6 +60,7 @@ import {
 import { CountryService, Country } from '../../../../../core/services/country-service';
 import { UserService, User } from '../../../../../core/services/user-service';
 import { OrganizationContextService } from '../../../../../core/services/organization-context.service';
+import { UserDatePipe } from '../../../../../core/pipes/user-date.pipe';
 
 interface BusinessRegistrationForm {
   taxId: FormControl<string>;
@@ -108,6 +109,7 @@ interface InviteForm {
     TextareaModule,
     DividerModule,
     ConfirmDialogModule,
+    UserDatePipe,
   ],
   providers: [ConfirmationService],
   templateUrl: './detail.html',
