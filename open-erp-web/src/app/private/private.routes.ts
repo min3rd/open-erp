@@ -16,8 +16,12 @@ export const routes: Routes = [
     component: DemoFormEditor,
   },
   {
+    path: 'me',
+    loadComponent: () => import('./me/me').then((m) => m.Me),
+  },
+  {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'demo',
+    redirectTo: 'me',
   },
 ];
