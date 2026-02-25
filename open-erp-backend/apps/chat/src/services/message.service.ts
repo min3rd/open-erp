@@ -5,9 +5,11 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { MessageRepository } from '../repositories/message.repository';
 import { ConversationRepository } from '../repositories/conversation.repository';
 import { MessageType } from '@shared/schemas';
+import { MinioService } from '@shared/services/minio/minio.service';
 import { Types } from 'mongoose';
 
 @Injectable()
@@ -17,6 +19,8 @@ export class MessageService {
   constructor(
     private readonly messageRepository: MessageRepository,
     private readonly conversationRepository: ConversationRepository,
+    private readonly minioService: MinioService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -230,12 +234,58 @@ export class MessageService {
 
     const beforeDate = before ? new Date(before) : undefined;
 
-    return this.messageRepository.findByConversation(
+    const { items, total } = await this.messageRepository.findByConversation(
       new Types.ObjectId(conversationId),
       page,
       limit,
       beforeDate,
     );
+
+    // Generate presigned download URLs for attachment URLs so the browser
+    // can access the files (raw MinIO URLs require authentication).
+    const presignedItems = await Promise.all(
+      items.map(async (msg) => {
+        const plain = (msg as any).toObject
+          ? (msg as any).toObject({ virtuals: true })
+          : { ...msg };
+        if (!plain.attachments?.length) return plain;
+        plain.attachments = await Promise.all(
+          plain.attachments.map(async (att: any) => {
+            try {
+              const key = this._extractMinioKey(att.url ?? '');
+              if (key) {
+                const presigned = await this.minioService.presignDownload(key);
+                return { ...att, url: presigned.url };
+              }
+            } catch {
+              // Fall back to original URL if presigning fails
+            }
+            return att;
+          }),
+        );
+        return plain;
+      }),
+    );
+
+    return { items: presignedItems, total };
+  }
+
+  /**
+   * Extract the MinIO object key from a full URL.
+   * e.g. "http://minio:9000/open-erp/chat/file.png" → "chat/file.png"
+   */
+  private _extractMinioKey(url: string): string | null {
+    try {
+      const bucket = this.configService.get<string>('MINIO_BUCKET', 'open-erp');
+      const parsed = new URL(url);
+      const prefix = `/${bucket}/`;
+      if (parsed.pathname.startsWith(prefix)) {
+        return parsed.pathname.substring(prefix.length);
+      }
+      return null;
+    } catch {
+      return null;
+    }
   }
 
   /**

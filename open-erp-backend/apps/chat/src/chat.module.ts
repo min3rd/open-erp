@@ -29,11 +29,13 @@ import { MessageRepository } from './repositories/message.repository';
 
 // Gateway
 import { ChatGateway } from './gateway/chat.gateway';
+import { MinioModule } from '@shared/services/minio/minio.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     LoggerModule,
+    MinioModule,
     MongooseModule.forRootAsync({
       useFactory: () => {
         const config = getDatabaseConfig();

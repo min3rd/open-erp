@@ -293,6 +293,35 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   /**
+   * Broadcast a new message to all participants in a conversation.
+   * Called by MessageController when a message is sent via the REST API,
+   * so that clients receive real-time updates regardless of which transport
+   * (WS or HTTP) was used to send the message.
+   */
+  async broadcastNewMessage(
+    conversationId: string,
+    message: any,
+    senderUserId: string,
+  ): Promise<void> {
+    // Notify clients that have joined the conversation room
+    this.server
+      .to(`conversation:${conversationId}`)
+      .emit('newMessage', message);
+
+    // Also notify participants via their personal rooms (for those not in the room)
+    const conversation =
+      await this.conversationRepository.findById(conversationId);
+    if (conversation) {
+      for (const participantId of conversation.participants) {
+        const pid = participantId.toString();
+        if (pid !== senderUserId) {
+          this.server.to(`user:${pid}`).emit('newMessage', message);
+        }
+      }
+    }
+  }
+
+  /**
    * Mark messages as read via WebSocket
    */
   @SubscribeMessage('markAsRead')
