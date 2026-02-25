@@ -3,13 +3,12 @@
   (visibleChange)="onVisibleChange($event)"
   [position]="'right'"
   [style]="{ width: isMobile() ? '100vw' : '420px' }"
-  [modal]="false"
+  [modal]="true"
   [id]="'notification-drawer'"
-  [header]="('notification.drawerTitle' | transloco)"
   [ariaLabel]="('notification.drawerTitle' | transloco)"
 >
   <!-- Header actions -->
-  <ng-template pTemplate="header">
+  <ng-template #header>
     <div class="flex items-center justify-between w-full pr-4" id="notification-drawer-header">
       <span class="text-lg font-semibold text-surface-900 dark:text-surface-0">
         {{ 'notification.drawerTitle' | transloco }}

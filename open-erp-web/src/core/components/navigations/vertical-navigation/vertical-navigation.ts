@@ -24,7 +24,6 @@ import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
 import { NavigationMenu } from '../../navigation-menu/navigation-menu';
-import { NotificationDrawer } from '../../notification-drawer/notification-drawer';
 import { NotificationService } from '../../../services/notification-service';
 
 @Component({
@@ -40,7 +39,6 @@ import { NotificationService } from '../../../services/notification-service';
     RouterModule,
     RippleModule,
     NavigationMenu,
-    NotificationDrawer,
   ],
   templateUrl: './vertical-navigation.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
