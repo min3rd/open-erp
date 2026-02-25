@@ -562,16 +562,20 @@ export class QuickChat implements OnInit, OnDestroy {
     if (!dateStr) return '';
     const date = new Date(dateStr);
     const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) {
+    const isSameDay = date.toDateString() === now.toDateString();
+    if (isSameDay) {
       return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } else if (diffDays === 1) {
-      return 'Yesterday';
-    } else if (diffDays < 7) {
-      return date.toLocaleDateString([], { weekday: 'short' });
     }
-    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    // const diffMs = now.getTime() - date.getTime();
+    // const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    // if (diffDays === 0) {
+    //   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    // } else if (diffDays === 1) {
+    //   return 'Yesterday';
+    // } else if (diffDays < 7) {
+    //   return date.toLocaleDateString([], { weekday: 'short' });
+    // }
+    return date.toLocaleTimeString([], { month: 'long', day: 'numeric', year: 'numeric' });
   }
 
   isImageType(mimeType?: string): boolean {
