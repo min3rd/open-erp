@@ -11,7 +11,7 @@ import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter, Subject, takeUntil } from 'rxjs';
 import { AvatarModule } from 'primeng/avatar';
 import { SkeletonModule } from 'primeng/skeleton';
-import { MeService, MeProfile } from '../../core/services/me-service';
+import { MeProfile, MeService } from '../../../core/services/me-service';
 
 @Component({
   selector: 'app-me',
