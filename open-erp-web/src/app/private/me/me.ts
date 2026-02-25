@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { filter, Subject, takeUntil } from 'rxjs';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { AvatarModule } from 'primeng/avatar';
@@ -19,11 +19,11 @@ import type { MeProfile } from './me.types';
   selector: 'app-me',
   imports: [
     CommonModule,
-    RouterOutlet,
     TranslocoModule,
     AvatarModule,
     SkeletonModule,
-  ],
+    RouterOutlet
+],
   templateUrl: './me.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

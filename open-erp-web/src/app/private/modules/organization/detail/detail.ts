@@ -8,7 +8,7 @@ import {
   computed,
   effect,
 } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
   FormControl,
@@ -83,17 +83,6 @@ interface InviteForm {
   role: FormControl<string>;
 }
 
-interface InviteDrawerState {
-  searchQuery: string;
-  searchResults: User[];
-  isSearching: boolean;
-  selectedUsers: User[];
-  manualEmails: string[];
-  expiryDate: Date | null;
-  message: string;
-  sendResults: InvitationResult[] | null;
-  isSending: boolean;
-}
 
 @Component({
   selector: 'organization-detail',
@@ -126,7 +115,6 @@ interface InviteDrawerState {
 })
 export class Detail implements OnInit, OnDestroy {
   private router = inject(Router);
-  private route = inject(ActivatedRoute);
   private organizationService = inject(OrganizationService);
   private countryService = inject(CountryService);
   private userService = inject(UserService);
