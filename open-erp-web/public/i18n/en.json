@@ -3356,7 +3356,8 @@
         "densities": {
           "comfortable": "Comfortable",
           "compact": "Compact"
-        }
+        },
+        "timeFormat": "Time Format"
       },
       "notifications": {
         "title": "Notifications",

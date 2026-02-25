@@ -24,6 +24,7 @@ import { MeService } from '../../../../core/services/me-service';
 import type { MeSettings } from '../me.types';
 import { LanguageService, LanguageOption } from '../../../../core/services/language.service';
 import { UserSettingsService } from '../../../../core/services/user-settings.service';
+import { ThemeService } from '../../../../core/services/theme.service';
 
 @Component({
   selector: 'me-settings',
@@ -50,6 +51,7 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
   private translocoService = inject(TranslocoService);
   private languageService = inject(LanguageService);
   private userSettingsService = inject(UserSettingsService);
+  private themeService = inject(ThemeService);
   private destroy$ = new Subject<void>();
 
   readonly isLoading = signal(true);
@@ -106,13 +108,22 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
       timeFormat: ['HH:mm'],
       locale: ['vi'],
       timezone: ['Asia/Ho_Chi_Minh'],
-      theme: ['auto'],
+      theme: [this.themeService.theme()],
       language: ['vi'],
       layoutDensity: ['comfortable'],
       notificationsInApp: [true],
       notificationsEmail: [true],
       notificationsPush: [false],
     });
+
+    // Live preview: apply theme immediately as user selects it
+    this.settingsForm.get('theme')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((theme) => {
+        if (theme) {
+          this.themeService.applyTheme(theme, false);
+        }
+      });
 
     this.meService
       .getSettings()
@@ -133,6 +144,10 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
           });
           // Cache the loaded settings so the date pipe can use them immediately
           this.userSettingsService.applyFromMeSettings(settings);
+          // Apply backend theme immediately
+          if (settings.theme) {
+            this.themeService.applyTheme(settings.theme);
+          }
           this.isLoading.set(false);
         },
         error: () => {
@@ -159,7 +174,8 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
             localStorage.setItem('app.lang', values.language);
           }
           if (values.theme) {
-            this.applyTheme(values.theme);
+            // Persist theme choice (live preview applied it without persisting)
+            this.themeService.applyTheme(values.theme);
           }
           // Update the shared date/time config so pipes re-render immediately
           this.userSettingsService.applyFromMeSettings(values);
@@ -180,29 +196,14 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
       });
   }
 
-  private applyTheme(theme: 'light' | 'dark' | 'auto'): void {
-    const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-      localStorage.setItem('app.theme', 'dark');
-    } else if (theme === 'light') {
-      root.classList.remove('dark');
-      localStorage.setItem('app.theme', 'light');
-    } else {
-      // auto: follow system preference
-      localStorage.setItem('app.theme', 'auto');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      prefersDark ? root.classList.add('dark') : root.classList.remove('dark');
-    }
-  }
-
   resetSettings(): void {
+    const defaultTheme = 'auto';
     this.settingsForm.patchValue({
       dateFormat: 'DD/MM/YYYY',
       timeFormat: 'HH:mm',
       locale: 'vi',
       timezone: 'Asia/Ho_Chi_Minh',
-      theme: 'auto',
+      theme: defaultTheme,
       language: 'vi',
       layoutDensity: 'comfortable',
       notificationsInApp: true,

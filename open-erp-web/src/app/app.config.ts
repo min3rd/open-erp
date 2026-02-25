@@ -15,6 +15,7 @@ import { provideTransloco } from '@jsverse/transloco';
 import { httpInterceptor } from '../core/interceptors/http-interceptor';
 import { authInterceptor } from '../core/interceptors/auth-interceptor';
 import { AuthService } from '../core/services/auth-service';
+import { ThemeService } from '../core/services/theme.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -29,6 +30,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([httpInterceptor])),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideEnvironmentInitializer(() => inject(AuthService)),
+    provideEnvironmentInitializer(() => inject(ThemeService)),
     provideTransloco({
       config: {
         availableLangs: ['vi', 'en', 'es'],
