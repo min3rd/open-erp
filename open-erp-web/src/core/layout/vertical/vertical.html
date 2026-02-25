@@ -87,7 +87,7 @@
       [class.flex-col]="isMobile()"
       class="flex h-full bg-surface-0 dark:bg-surface-900 border-r border-surface-200 dark:border-surface-700 w-80 md:w-auto z-50"
     >
-      <layout-vertical-navigation [isMobile]="isMobile()"></layout-vertical-navigation>
+      <layout-vertical-navigation [isMobile]="isMobile()" (notificationToggle)="toggleNotificationDrawer()"></layout-vertical-navigation>
     </div>
   </div>
 
