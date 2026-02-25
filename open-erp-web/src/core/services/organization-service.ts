@@ -143,6 +143,31 @@ export interface BulkInviteResponse {
   failed: number;
 }
 
+export type InvitationStatus = 'pending' | 'accepted' | 'rejected' | 'expired' | 'revoked';
+
+export interface InvitedByUser {
+  id?: string;
+  email: string;
+  fullName?: string;
+  avatarUrl?: string;
+}
+
+export interface OrganizationInvitation {
+  id: string;
+  organizationId: string;
+  inviteeEmail?: string;
+  inviteeUserId?: string;
+  roles: string[];
+  status: InvitationStatus;
+  expiresAt: string;
+  acceptedAt?: string;
+  revokedAt?: string;
+  message?: string;
+  invitedBy: InvitedByUser | string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -359,5 +384,47 @@ export class OrganizationService {
           return response as OrganizationResponse[];
         })
       );
+  }
+
+  /**
+   * Get invitations for an organization
+   */
+  getOrganizationInvitations(
+    organizationId: string,
+    params?: { status?: InvitationStatus; page?: number; limit?: number; query?: string },
+    version: string = 'v1'
+  ): Observable<{ data: OrganizationInvitation[]; total: number }> {
+    const httpParams: Record<string, string> = {};
+    if (params?.status) httpParams['status'] = params.status;
+    if (params?.page) httpParams['page'] = params.page.toString();
+    if (params?.limit) httpParams['limit'] = params.limit.toString();
+    if (params?.query) httpParams['query'] = params.query;
+
+    return this.httpClient
+      .get<ApiSingleResponse<{ data: OrganizationInvitation[]; total: number }> | { data: OrganizationInvitation[]; total: number }>(
+        `${API_URI_ORGANIZATION}/${version}/invitations/organizations/${organizationId}`,
+        { params: httpParams }
+      )
+      .pipe(
+        map((response) => {
+          if (isApiResponse(response)) {
+            const data = unwrap(response as ApiSingleResponse<{ data: OrganizationInvitation[]; total: number }>);
+            return data.item!;
+          }
+          return response as { data: OrganizationInvitation[]; total: number };
+        })
+      );
+  }
+
+  /**
+   * Revoke an invitation
+   */
+  revokeInvitation(
+    invitationId: string,
+    version: string = 'v1'
+  ): Observable<void> {
+    return this.httpClient.delete<void>(
+      `${API_URI_ORGANIZATION}/${version}/invitations/${invitationId}`
+    );
   }
 }

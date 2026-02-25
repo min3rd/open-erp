@@ -113,12 +113,31 @@ export class InvitationRepository {
   async findByOrganizationId(
     organizationId: string,
     status?: InvitationStatus,
-  ): Promise<OrganizationInvitationDocument[]> {
+    options?: { page?: number; limit?: number; query?: string },
+  ): Promise<{ data: OrganizationInvitationDocument[]; total: number }> {
     try {
-      const query: any = { organizationId };
-      if (status) query.status = status;
+      const filter: any = { organizationId };
+      if (status) filter.status = status;
+      if (options?.query) {
+        filter.inviteeEmail = { $regex: options.query, $options: 'i' };
+      }
 
-      return await this.invitationModel.find(query).exec();
+      const page = options?.page ?? 1;
+      const limit = options?.limit ?? 20;
+      const skip = (page - 1) * limit;
+
+      const [data, total] = await Promise.all([
+        this.invitationModel
+          .find(filter)
+          .populate('invitedBy', 'email fullName avatarUrl')
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit)
+          .exec(),
+        this.invitationModel.countDocuments(filter).exec(),
+      ]);
+
+      return { data, total };
     } catch (error) {
       this.logger.error(
         `Error finding invitations by organizationId: ${error.message}`,

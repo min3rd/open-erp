@@ -393,6 +393,27 @@
           "resultsTitle": "Invitation results",
           "inviteMore": "Invite more users"
         }
+      },
+      "invites": {
+        "title": "Invites",
+        "empty": "No invitations found",
+        "filterPlaceholder": "Filter by status",
+        "invitedBy": "Invited by",
+        "sentAt": "Sent",
+        "expiresAt": "Expires",
+        "internalUser": "Internal user",
+        "revokeButton": "Revoke",
+        "confirmRevokeHeader": "Revoke Invitation",
+        "confirmRevoke": "Are you sure you want to revoke the invitation for {{email}}? This action cannot be undone.",
+        "revokeSuccess": "Invitation revoked successfully",
+        "revokeError": "Failed to revoke invitation",
+        "status": {
+          "pending": "Pending",
+          "accepted": "Accepted",
+          "rejected": "Rejected",
+          "expired": "Expired",
+          "revoked": "Revoked"
+        }
       }
     }
   },

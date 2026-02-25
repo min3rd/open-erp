@@ -1843,6 +1843,27 @@
           "resultsTitle": "Kết quả gửi lời mời",
           "inviteMore": "Mời thêm người dùng"
         }
+      },
+      "invites": {
+        "title": "Lời mời",
+        "empty": "Không có lời mời nào",
+        "filterPlaceholder": "Lọc theo trạng thái",
+        "invitedBy": "Người mời",
+        "sentAt": "Gửi lúc",
+        "expiresAt": "Hết hạn",
+        "internalUser": "Người dùng nội bộ",
+        "revokeButton": "Hủy",
+        "confirmRevokeHeader": "Hủy lời mời",
+        "confirmRevoke": "Bạn có chắc chắn muốn hủy lời mời cho {{email}} không? Hành động này không thể hoàn tác.",
+        "revokeSuccess": "Hủy lời mời thành công",
+        "revokeError": "Không thể hủy lời mời",
+        "status": {
+          "pending": "Đang chờ",
+          "accepted": "Đã chấp nhận",
+          "rejected": "Đã từ chối",
+          "expired": "Đã hết hạn",
+          "revoked": "Đã hủy"
+        }
       }
     }
   }

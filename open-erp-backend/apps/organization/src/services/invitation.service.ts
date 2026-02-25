@@ -186,10 +186,15 @@ export class InvitationService {
     }
   }
 
-  async findByOrganization(organizationId: string, status?: InvitationStatus) {
+  async findByOrganization(
+    organizationId: string,
+    status?: InvitationStatus,
+    options?: { page?: number; limit?: number; query?: string },
+  ) {
     return this.invitationRepository.findByOrganizationId(
       organizationId,
       status,
+      options,
     );
   }
 
