@@ -6,6 +6,7 @@ import {
   OnDestroy,
   OnInit,
   computed,
+  effect,
 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -34,7 +35,8 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { DividerModule } from 'primeng/divider';import { MessageService } from 'primeng/api';
+import { DividerModule } from 'primeng/divider';
+import { MessageService } from 'primeng/api';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import {
   OrganizationService,
@@ -54,6 +56,7 @@ import {
 } from '../../../../../core/services/organization-service';
 import { CountryService, Country } from '../../../../../core/services/country-service';
 import { UserService, User } from '../../../../../core/services/user-service';
+import { OrganizationContextService } from '../../../../../core/services/organization-context.service';
 
 interface BusinessRegistrationForm {
   taxId: FormControl<string>;
@@ -126,13 +129,14 @@ export class Detail implements OnInit, OnDestroy {
   private translocoService = inject(TranslocoService);
   private destroy$ = new Subject<void>();
   private inviteSearchSubject$ = new Subject<string>();
+  private organizatonContextService = inject(OrganizationContextService);
 
   protected readonly organizationId = signal<string | null>(null);
   protected readonly organization = signal<OrganizationResponse | null>(null);
   protected readonly members = signal<OrganizationMember[]>([]);
   protected readonly relations = signal<OrganizationRelation[]>([]);
   protected readonly events = signal<OrganizationEvent[]>([]);
-  
+
   protected readonly isLoading = signal(false);
   protected readonly isSubmitting = signal(false);
   protected readonly isTaxLookupLoading = signal(false);
@@ -142,7 +146,7 @@ export class Detail implements OnInit, OnDestroy {
 
   protected readonly showEditDialog = signal(false);
   protected readonly showInviteDialog = signal(false);
-  
+
   // Invite drawer state
   protected readonly showInviteDrawer = signal(false);
   protected readonly inviteSearchQuery = signal('');
@@ -155,7 +159,7 @@ export class Detail implements OnInit, OnDestroy {
   protected readonly inviteSendResults = signal<InvitationResult[] | null>(null);
   protected readonly isInviteSending = signal(false);
   protected readonly inviteMinDate = new Date();
-  
+
   protected readonly membersPage = signal(1);
   protected readonly membersLimit = signal(10);
   protected readonly membersTotal = signal(0);
@@ -173,13 +177,15 @@ export class Detail implements OnInit, OnDestroy {
   ];
 
   protected readonly isNewMode = computed(() => this.router.url.includes('/new'));
-  protected readonly isViewMode = computed(() => !this.isNewMode() && this.organizationId() !== null);
+  protected readonly isViewMode = computed(
+    () => !this.isNewMode() && this.organizationId() !== null,
+  );
 
   protected readonly inviteRecipientCount = computed(
-    () => this.inviteSelectedUsers().length + this.inviteManualEmails().length
+    () => this.inviteSelectedUsers().length + this.inviteManualEmails().length,
   );
   protected readonly canSendInvites = computed(
-    () => this.inviteRecipientCount() > 0 && !this.isInviteSending()
+    () => this.inviteRecipientCount() > 0 && !this.isInviteSending(),
   );
 
   // Organization type options
@@ -302,18 +308,17 @@ export class Detail implements OnInit, OnDestroy {
           this.isInviteSearching.set(false);
         }
       });
-  }
 
-  ngOnInit(): void {
-    // Get organization ID from route params
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      const id = params['id'];
+    effect(() => {
+      const id = this.organizatonContextService.currentOrganization()?.id || null;
       if (id && id !== 'new') {
         this.organizationId.set(id);
         this.loadOrganizationData(id);
       }
     });
   }
+
+  ngOnInit(): void {}
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -322,7 +327,7 @@ export class Detail implements OnInit, OnDestroy {
 
   private loadOrganizationData(id: string): void {
     this.isLoading.set(true);
-    
+
     // Load organization details
     this.organizationService.getOrganization(id).subscribe({
       next: (org) => {
@@ -344,7 +349,7 @@ export class Detail implements OnInit, OnDestroy {
 
     // Load members
     this.loadMembers(id);
-    
+
     // Load relations
     this.organizationService.getOrganizationRelations(id).subscribe({
       next: (relations) => {
@@ -494,7 +499,7 @@ export class Detail implements OnInit, OnDestroy {
     const query = event.query?.toLowerCase() || '';
     if (query) {
       const filtered = this.defaultActivitySuggestions.filter((activity) =>
-        activity.toLowerCase().includes(query)
+        activity.toLowerCase().includes(query),
       );
       this.businessActivitySuggestions.set(filtered);
     } else {
@@ -712,7 +717,10 @@ export class Detail implements OnInit, OnDestroy {
   protected onInviteManualEmailsChange(emailsInput: string | string[]): void {
     let emails: string[];
     if (typeof emailsInput === 'string') {
-      emails = emailsInput.split(/[,;\n]+/).map((e) => e.trim()).filter((e) => e.length > 0);
+      emails = emailsInput
+        .split(/[,;\n]+/)
+        .map((e) => e.trim())
+        .filter((e) => e.length > 0);
     } else {
       emails = emailsInput;
     }
@@ -751,10 +759,15 @@ export class Detail implements OnInit, OnDestroy {
         if (response.success > 0) {
           this.messageService.add({
             severity: 'success',
-            summary: this.translocoService.translate('organization.detail.invite.drawer.successSummary'),
-            detail: this.translocoService.translate('organization.detail.invite.drawer.successDetail', {
-              count: response.success,
-            }),
+            summary: this.translocoService.translate(
+              'organization.detail.invite.drawer.successSummary',
+            ),
+            detail: this.translocoService.translate(
+              'organization.detail.invite.drawer.successDetail',
+              {
+                count: response.success,
+              },
+            ),
           });
           // Reload members
           this.loadMembers(this.organizationId()!);
@@ -763,11 +776,16 @@ export class Detail implements OnInit, OnDestroy {
         if (response.failed > 0) {
           this.messageService.add({
             severity: 'warn',
-            summary: this.translocoService.translate('organization.detail.invite.drawer.partialError'),
-            detail: this.translocoService.translate('organization.detail.invite.drawer.partialErrorDetail', {
-              failed: response.failed,
-              total: response.total,
-            }),
+            summary: this.translocoService.translate(
+              'organization.detail.invite.drawer.partialError',
+            ),
+            detail: this.translocoService.translate(
+              'organization.detail.invite.drawer.partialErrorDetail',
+              {
+                failed: response.failed,
+                total: response.total,
+              },
+            ),
           });
         }
       },
