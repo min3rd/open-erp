@@ -2348,5 +2348,54 @@
     "decline": "Rechazar",
     "unread": "No leído",
     "list": "Lista de notificaciones"
+  },
+  "twoFa": {
+    "title": "Autenticación de dos factores",
+    "subtitle": "Verifica tu identidad",
+    "instruction": "Abre tu aplicación de autenticación e ingresa el código de 6 dígitos para completar el inicio de sesión.",
+    "form": {
+      "otp": {
+        "label": "Código de autenticación",
+        "placeholder": "000000",
+        "errors": {
+          "required": "El código de autenticación es obligatorio",
+          "length": "El código debe tener exactamente 6 dígitos"
+        }
+      }
+    },
+    "buttons": {
+      "verify": "Verificar",
+      "backToLogin": "Volver al inicio de sesión",
+      "useRecoveryCode": "¿Perdiste tu dispositivo? Usa un código de recuperación"
+    },
+    "messages": {
+      "success": "¡Inicio de sesión exitoso! Redirigiendo...",
+      "invalidOtp": "Código inválido o expirado. Por favor intenta de nuevo.",
+      "storageError": "No se pudieron almacenar los tokens de autenticación"
+    }
+  },
+  "twoFaRecovery": {
+    "title": "Deshabilitar autenticación de dos factores",
+    "subtitle": "Usar código de recuperación",
+    "instruction": "Ingresa uno de los códigos de recuperación que guardaste al configurar 2FA. Esto deshabilitará 2FA en tu cuenta.",
+    "form": {
+      "recoveryCode": {
+        "label": "Código de recuperación",
+        "placeholder": "XXXXX-XXXXX",
+        "errors": {
+          "required": "El código de recuperación es obligatorio"
+        }
+      }
+    },
+    "buttons": {
+      "disable2fa": "Deshabilitar 2FA e iniciar sesión",
+      "backTo2fa": "Volver a ingresar OTP",
+      "backToLogin": "Volver al inicio de sesión"
+    },
+    "messages": {
+      "success": "2FA deshabilitado. Has iniciado sesión.",
+      "invalidCode": "Código de recuperación inválido. Por favor intenta de nuevo.",
+      "storageError": "No se pudieron almacenar los tokens de autenticación"
+    }
   }
 }

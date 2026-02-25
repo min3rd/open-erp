@@ -3381,5 +3381,54 @@
         "saveError": "Failed to save settings"
       }
     }
+  },
+  "twoFa": {
+    "title": "Two-Factor Authentication",
+    "subtitle": "Verify your identity",
+    "instruction": "Open your authenticator app and enter the 6-digit code to complete login.",
+    "form": {
+      "otp": {
+        "label": "Authentication Code",
+        "placeholder": "000000",
+        "errors": {
+          "required": "Authentication code is required",
+          "length": "Code must be exactly 6 digits"
+        }
+      }
+    },
+    "buttons": {
+      "verify": "Verify",
+      "backToLogin": "Back to Login",
+      "useRecoveryCode": "Lost access to your device? Use a recovery code"
+    },
+    "messages": {
+      "success": "Login successful! Redirecting...",
+      "invalidOtp": "Invalid or expired code. Please try again.",
+      "storageError": "Failed to securely store authentication tokens"
+    }
+  },
+  "twoFaRecovery": {
+    "title": "Disable Two-Factor Authentication",
+    "subtitle": "Use a recovery code",
+    "instruction": "Enter one of the recovery codes you saved when you set up 2FA. This will disable 2FA on your account.",
+    "form": {
+      "recoveryCode": {
+        "label": "Recovery Code",
+        "placeholder": "XXXXX-XXXXX",
+        "errors": {
+          "required": "Recovery code is required"
+        }
+      }
+    },
+    "buttons": {
+      "disable2fa": "Disable 2FA and Login",
+      "backTo2fa": "Back to OTP Entry",
+      "backToLogin": "Back to Login"
+    },
+    "messages": {
+      "success": "2FA disabled. You are now logged in.",
+      "invalidCode": "Invalid recovery code. Please try again.",
+      "storageError": "Failed to securely store authentication tokens"
+    }
   }
 }

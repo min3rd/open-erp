@@ -1,0 +1,122 @@
+<div class="min-h-screen flex" id="two-fa-container">
+  <!-- Left Panel -->
+  <div
+    id="two-fa-left-panel"
+    class="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-indigo-600 to-purple-700 items-center justify-center p-12"
+  >
+    <div class="absolute inset-0 overflow-hidden" id="two-fa-background-wrapper">
+      <img
+        ngSrc="/images/auth-background.svg"
+        alt=""
+        fill
+        priority
+        class="object-cover opacity-20"
+      />
+    </div>
+    <div class="relative z-10 text-center" id="two-fa-branding">
+      <img
+        ngSrc="/images/logo.svg"
+        alt="Open ERP Logo"
+        width="200"
+        height="80"
+        priority
+        class="mx-auto mb-8"
+      />
+      <h1 class="text-4xl font-bold text-white mb-4" id="two-fa-title-desktop">
+        {{ 'twoFa.title' | transloco }}
+      </h1>
+      <p class="text-xl text-white/90" id="two-fa-subtitle-desktop">{{ 'twoFa.subtitle' | transloco }}</p>
+    </div>
+  </div>
+
+  <!-- Right Panel - OTP Form -->
+  <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50" id="two-fa-right-panel">
+    <div class="w-full max-w-md" id="two-fa-form-container">
+      <!-- Mobile Logo -->
+      <div class="lg:hidden text-center mb-8" id="two-fa-mobile-header">
+        <img
+          ngSrc="/images/logo.svg"
+          alt="Open ERP Logo"
+          width="160"
+          height="64"
+          priority
+          class="mx-auto mb-4"
+        />
+        <h1 class="text-3xl font-bold text-gray-900 mb-2" id="two-fa-title-mobile">
+          {{ 'twoFa.title' | transloco }}
+        </h1>
+        <p class="text-lg text-gray-600" id="two-fa-subtitle-mobile">{{ 'twoFa.subtitle' | transloco }}</p>
+      </div>
+
+      <!-- OTP Form -->
+      <form [formGroup]="twoFAForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate id="two-fa-form">
+        <p class="text-sm text-gray-600" id="two-fa-instruction">
+          {{ 'twoFa.instruction' | transloco }}
+        </p>
+
+        <!-- OTP Field -->
+        <div class="space-y-2">
+          <label
+            for="two-fa-otp"
+            class="block text-sm font-medium text-gray-700"
+            [attr.aria-required]="true"
+          >
+            {{ 'twoFa.form.otp.label' | transloco }}
+          </label>
+          <input
+            pInputText
+            id="two-fa-otp"
+            type="text"
+            formControlName="otp"
+            [placeholder]="'twoFa.form.otp.placeholder' | transloco"
+            autocomplete="one-time-code"
+            inputmode="numeric"
+            maxlength="6"
+            class="w-full text-center text-2xl tracking-widest"
+            [attr.aria-invalid]="twoFAForm.get('otp')?.invalid && twoFAForm.get('otp')?.touched"
+            [attr.aria-describedby]="getFieldError('otp') ? 'two-fa-otp-error' : null"
+          />
+          @if (getFieldError('otp'); as errorKey) {
+          <small id="two-fa-otp-error" class="text-red-600 text-sm" role="alert">
+            {{ errorKey | transloco }}
+          </small>
+          }
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col space-y-2 text-center" id="two-fa-actions">
+          <p-button
+            type="submit"
+            id="two-fa-submit-button"
+            [label]="'twoFa.buttons.verify' | transloco"
+            [disabled]="!twoFAForm.valid || isSubmitting()"
+            [loading]="isSubmitting()"
+            styleClass="w-full"
+            severity="primary"
+            [attr.aria-busy]="isSubmitting()"
+          />
+          <p-button
+            type="button"
+            id="two-fa-back-button"
+            [label]="'twoFa.buttons.backToLogin' | transloco"
+            (onClick)="navigateToLogin()"
+            styleClass="w-full"
+            severity="secondary"
+          />
+        </div>
+      </form>
+
+      <!-- Recovery Link -->
+      <div class="mt-6 text-center" id="two-fa-recovery-link-wrapper">
+        <button
+          type="button"
+          id="two-fa-recovery-button"
+          (click)="navigateToRecovery()"
+          class="text-sm text-indigo-600 hover:text-indigo-700 underline focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded"
+        >
+          {{ 'twoFa.buttons.useRecoveryCode' | transloco }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

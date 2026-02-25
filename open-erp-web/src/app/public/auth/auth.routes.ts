@@ -4,6 +4,8 @@ import { Register } from './register/register';
 import { ForgotPassword } from './forgot-password/forgot-password';
 import { ResetPassword } from './reset-password/reset-password';
 import { VerifyAccount } from './verify-account/verify-account';
+import { TwoFa } from './two-fa/two-fa';
+import { TwoFaRecovery } from './two-fa-recovery/two-fa-recovery';
 import { Auth } from './auth';
 
 export const routes: Routes = [
@@ -35,6 +37,14 @@ export const routes: Routes = [
       {
         path: 'verify-account',
         component: VerifyAccount,
+      },
+      {
+        path: '2fa',
+        component: TwoFa,
+      },
+      {
+        path: '2fa/recovery-disable',
+        component: TwoFaRecovery,
       },
     ],
   },
