@@ -96,12 +96,20 @@ export class InvitationController {
   async findByOrganization(
     @Param('organizationId') organizationId: string,
     @Query('status') status?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('query') query?: string,
   ) {
-    const invitations = await this.invitationService.findByOrganization(
+    const result = await this.invitationService.findByOrganization(
       organizationId,
       status as any,
+      {
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
+        query,
+      },
     );
-    return ok(invitations, 'Invitations retrieved successfully');
+    return ok(result, 'Invitations retrieved successfully');
   }
 
   @Delete(':id')

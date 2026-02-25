@@ -353,7 +353,28 @@
         "overview": "Descripción general",
         "relations": "Relaciones"
       },
-      "title": "Detalles de la organización"
+      "title": "Detalles de la organización",
+      "invites": {
+        "title": "Invitaciones",
+        "empty": "No hay invitaciones",
+        "filterPlaceholder": "Filtrar por estado",
+        "invitedBy": "Invitado por",
+        "sentAt": "Enviado",
+        "expiresAt": "Expira",
+        "internalUser": "Usuario interno",
+        "revokeButton": "Revocar",
+        "confirmRevokeHeader": "Revocar Invitación",
+        "confirmRevoke": "¿Está seguro de que desea revocar la invitación para {{email}}? Esta acción no se puede deshacer.",
+        "revokeSuccess": "Invitación revocada exitosamente",
+        "revokeError": "Error al revocar la invitación",
+        "status": {
+          "pending": "Pendiente",
+          "accepted": "Aceptada",
+          "rejected": "Rechazada",
+          "expired": "Expirada",
+          "revoked": "Revocada"
+        }
+      }
     }
   },
   "organizationSwitcher": {

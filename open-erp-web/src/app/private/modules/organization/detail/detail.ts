@@ -36,7 +36,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import {
   OrganizationService,
@@ -53,6 +54,8 @@ import {
   BulkInviteMembersDto,
   BulkInviteResponse,
   InvitationResult,
+  OrganizationInvitation,
+  InvitationStatus,
 } from '../../../../../core/services/organization-service';
 import { CountryService, Country } from '../../../../../core/services/country-service';
 import { UserService, User } from '../../../../../core/services/user-service';
@@ -115,7 +118,9 @@ interface InviteDrawerState {
     SelectModule,
     TextareaModule,
     DividerModule,
+    ConfirmDialogModule,
   ],
+  providers: [ConfirmationService],
   templateUrl: './detail.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -126,6 +131,7 @@ export class Detail implements OnInit, OnDestroy {
   private countryService = inject(CountryService);
   private userService = inject(UserService);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
   private translocoService = inject(TranslocoService);
   private destroy$ = new Subject<void>();
   private inviteSearchSubject$ = new Subject<string>();
@@ -168,6 +174,16 @@ export class Detail implements OnInit, OnDestroy {
   protected readonly eventsLimit = signal(20);
   protected readonly eventsTotal = signal(0);
 
+  // Invites state
+  protected readonly invites = signal<OrganizationInvitation[]>([]);
+  protected readonly invitesTotal = signal(0);
+  protected readonly isInvitesLoading = signal(false);
+  protected readonly invitesPage = signal(1);
+  protected readonly invitesLimit = signal(20);
+  protected readonly invitesStatusFilter = signal<InvitationStatus | ''>('');
+  protected readonly invitesSearchQuery = signal('');
+  protected readonly isMobileInvitesExpanded = signal(false);
+
   protected readonly activeTab = signal<string>('overview');
   protected readonly tabOptions = [
     { label: 'Overview', value: 'overview' },
@@ -195,6 +211,16 @@ export class Detail implements OnInit, OnDestroy {
     { label: 'Joint Venture', value: 'joint-venture' },
     { label: 'Partner', value: 'partner' },
     { label: 'Branch', value: 'branch' },
+  ];
+
+  // Invitation status filter options
+  protected readonly inviteStatusOptions = [
+    { label: 'All Statuses', value: '' },
+    { label: 'Pending', value: 'pending' },
+    { label: 'Accepted', value: 'accepted' },
+    { label: 'Revoked', value: 'revoked' },
+    { label: 'Expired', value: 'expired' },
+    { label: 'Rejected', value: 'rejected' },
   ];
 
   // Common business activity suggestions for Vietnam
@@ -350,6 +376,9 @@ export class Detail implements OnInit, OnDestroy {
     // Load members
     this.loadMembers(id);
 
+    // Load invitations
+    this.loadInvitations(id);
+
     // Load relations
     this.organizationService.getOrganizationRelations(id).subscribe({
       next: (relations) => {
@@ -376,6 +405,98 @@ export class Detail implements OnInit, OnDestroy {
           console.error('Failed to load members:', error);
         },
       });
+  }
+
+  private loadInvitations(id: string): void {
+    this.isInvitesLoading.set(true);
+    const status = this.invitesStatusFilter();
+    this.organizationService
+      .getOrganizationInvitations(id, {
+        status: status || undefined,
+        page: this.invitesPage(),
+        limit: this.invitesLimit(),
+        query: this.invitesSearchQuery() || undefined,
+      })
+      .subscribe({
+        next: (response) => {
+          this.invites.set(response.data);
+          this.invitesTotal.set(response.total);
+          this.isInvitesLoading.set(false);
+        },
+        error: (error) => {
+          console.error('Failed to load invitations:', error);
+          this.isInvitesLoading.set(false);
+        },
+      });
+  }
+
+  protected onInvitesFilterChange(): void {
+    this.invitesPage.set(1);
+    if (this.organizationId()) {
+      this.loadInvitations(this.organizationId()!);
+    }
+  }
+
+  protected onRevokeInvitation(invite: OrganizationInvitation): void {
+    this.confirmationService.confirm({
+      message: this.translocoService.translate(
+        'organization.detail.invites.confirmRevoke',
+        { email: invite.inviteeEmail || invite.inviteeUserId || '' },
+      ),
+      header: this.translocoService.translate('organization.detail.invites.confirmRevokeHeader'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: this.translocoService.translate('organization.detail.invites.revokeButton'),
+      rejectLabel: this.translocoService.translate('organization.detail.actions.cancel'),
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.organizationService.revokeInvitation(invite.id).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: this.translocoService.translate('organization.detail.invites.revokeSuccess'),
+            });
+            this.loadInvitations(this.organizationId()!);
+          },
+          error: (error: any) => {
+            console.error('Revoke invitation failed:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: this.translocoService.translate('organization.detail.invites.revokeError'),
+              detail: error?.error?.message || 'Failed to revoke invitation',
+            });
+          },
+        });
+      },
+    });
+  }
+
+  protected getInvitedByEmail(invite: OrganizationInvitation): string {
+    if (!invite.invitedBy) return '—';
+    if (typeof invite.invitedBy === 'string') return invite.invitedBy;
+    return invite.invitedBy.fullName || invite.invitedBy.email || '—';
+  }
+
+  protected getInvitationStatusSeverity(
+    status: InvitationStatus,
+  ): 'success' | 'warn' | 'secondary' | 'danger' | 'info' {
+    switch (status) {
+      case 'accepted':
+        return 'success';
+      case 'pending':
+        return 'warn';
+      case 'revoked':
+        return 'danger';
+      case 'expired':
+        return 'secondary';
+      case 'rejected':
+        return 'secondary';
+      default:
+        return 'info';
+    }
+  }
+
+  protected toggleMobileInvites(): void {
+    this.isMobileInvitesExpanded.set(!this.isMobileInvitesExpanded());
   }
 
   private loadEvents(id: string): void {
