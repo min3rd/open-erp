@@ -1091,12 +1091,229 @@ export class AuthService {
       email: user.email,
       username: user.username,
       fullName: user.fullName,
+      displayName: user.displayName,
+      phone: user.phone,
       avatarUrl: user.avatarUrl || null,
       status: user.status,
       verifiedAt: user.verifiedAt,
       createdAt: user.createdAt,
+      lastLoginAt: user.lastLoginAt,
+      address: user.address,
+      dateOfBirth: user.dateOfBirth,
+      skills: user.skills,
+      hobbies: user.hobbies,
       roles: globalRoles,
       permissions: globalPermissions,
+    };
+  }
+
+  async updateMe(userId: string, data: Record<string, any>) {
+    const user = await firstValueFrom(
+      this.userClient.send(RPC_METHODS.USER.FIND_USER_BY_ID, { userId }),
+    );
+
+    if (!user) {
+      throw ErrorFactory.createError({ code: USER_NOT_FOUND });
+    }
+
+    const updated = await firstValueFrom(
+      this.userClient.send(RPC_METHODS.USER.UPDATE_USER, {
+        userId,
+        ...data,
+      }),
+    );
+
+    this.logger.log({ event: 'user.profile.updated', userId });
+
+    return updated;
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    // Get user with password included
+    const user = await firstValueFrom(
+      this.userClient.send(RPC_METHODS.USER.FIND_USER_BY_ID, {
+        userId,
+        includePassword: true,
+      }),
+    );
+
+    if (!user) {
+      throw ErrorFactory.createError({ code: USER_NOT_FOUND });
+    }
+
+    // Verify current password
+    const isValid = await comparePassword(currentPassword, user.password || '');
+    if (!isValid) {
+      throw ErrorFactory.createError({
+        code: AUTH_INVALID_CREDENTIALS,
+        details: { reason: 'Current password is incorrect' },
+      });
+    }
+
+    // Hash new password and update
+    const hashedPassword = await hashPassword(newPassword);
+    await firstValueFrom(
+      this.userClient.send(RPC_METHODS.USER.UPDATE_USER_PASSWORD, {
+        email: user.email,
+        password: hashedPassword,
+      }),
+    );
+
+    this.logger.log({ event: 'user.password.changed', userId });
+
+    return { success: true, message: 'Password changed successfully' };
+  }
+
+  async getSessions(userId: string) {
+    const tokens = await this.refreshTokenRepository.findByUserId(
+      new Types.ObjectId(userId),
+    );
+
+    return tokens.map((t) => ({
+      id: t._id.toString(),
+      deviceInfo: t.deviceInfo || 'Unknown device',
+      ipAddress: t.ipAddress || null,
+      createdAt: (t as any).createdAt,
+      expiresAt: t.expiresAt,
+    }));
+  }
+
+  async revokeSession(userId: string, sessionId: string) {
+    const token = await this.refreshTokenRepository.findById(sessionId);
+
+    if (
+      !token ||
+      token.userId.toString() !== userId
+    ) {
+      throw ErrorFactory.createError({
+        code: AUTH_REFRESH_TOKEN_INVALID,
+        details: { reason: 'Session not found or unauthorized' },
+      });
+    }
+
+    await this.refreshTokenRepository.revokeToken(
+      token.tokenHash,
+      'user_revoked',
+    );
+
+    this.logger.log({ event: 'user.session.revoked', userId, sessionId });
+
+    return { success: true, message: 'Session revoked successfully' };
+  }
+
+  async getSettings(userId: string) {
+    const user = await firstValueFrom(
+      this.userClient.send(RPC_METHODS.USER.FIND_USER_BY_ID, { userId }),
+    );
+
+    if (!user) {
+      throw ErrorFactory.createError({ code: USER_NOT_FOUND });
+    }
+
+    // Return settings stored in user metadata or defaults
+    const metadata = user.metadata || {};
+    return {
+      dateFormat: metadata.dateFormat || 'DD/MM/YYYY',
+      timezone: metadata.timezone || 'Asia/Ho_Chi_Minh',
+      theme: metadata.theme || 'auto',
+      language: metadata.language || 'vi',
+      layoutDensity: metadata.layoutDensity || 'comfortable',
+      notificationsInApp: metadata.notificationsInApp !== 'false',
+      notificationsEmail: metadata.notificationsEmail !== 'false',
+      notificationsPush: metadata.notificationsPush !== 'false',
+    };
+  }
+
+  async updateSettings(userId: string, settings: Record<string, any>) {
+    const user = await firstValueFrom(
+      this.userClient.send(RPC_METHODS.USER.FIND_USER_BY_ID, { userId }),
+    );
+
+    if (!user) {
+      throw ErrorFactory.createError({ code: USER_NOT_FOUND });
+    }
+
+    const existingMetadata = user.metadata || {};
+    const updatedMetadata: Record<string, string> = {
+      ...Object.fromEntries(
+        Object.entries(existingMetadata).map(([k, v]) => [k, String(v)]),
+      ),
+    };
+
+    // Merge new settings into metadata
+    for (const [key, value] of Object.entries(settings)) {
+      if (value !== undefined) {
+        updatedMetadata[key] = String(value);
+      }
+    }
+
+    await firstValueFrom(
+      this.userClient.send(RPC_METHODS.USER.UPDATE_USER, {
+        userId,
+        metadata: updatedMetadata,
+      }),
+    );
+
+    this.logger.log({ event: 'user.settings.updated', userId });
+
+    return {
+      dateFormat: updatedMetadata.dateFormat || 'DD/MM/YYYY',
+      timezone: updatedMetadata.timezone || 'Asia/Ho_Chi_Minh',
+      theme: updatedMetadata.theme || 'auto',
+      language: updatedMetadata.language || 'vi',
+      layoutDensity: updatedMetadata.layoutDensity || 'comfortable',
+      notificationsInApp: updatedMetadata.notificationsInApp !== 'false',
+      notificationsEmail: updatedMetadata.notificationsEmail !== 'false',
+      notificationsPush: updatedMetadata.notificationsPush !== 'false',
+    };
+  }
+
+  async deleteAccount(userId: string, password: string) {
+    // Get user with password
+    const user = await firstValueFrom(
+      this.userClient.send(RPC_METHODS.USER.FIND_USER_BY_ID, {
+        userId,
+        includePassword: true,
+      }),
+    );
+
+    if (!user) {
+      throw ErrorFactory.createError({ code: USER_NOT_FOUND });
+    }
+
+    // Verify password before proceeding
+    const isValid = await comparePassword(password, user.password || '');
+    if (!isValid) {
+      throw ErrorFactory.createError({
+        code: AUTH_INVALID_CREDENTIALS,
+        details: { reason: 'Password is incorrect' },
+      });
+    }
+
+    // Soft-delete: set status to inactive and set deletedAt
+    await firstValueFrom(
+      this.userClient.send(RPC_METHODS.USER.UPDATE_USER, {
+        userId,
+        status: 'inactive',
+        deletedAt: new Date(),
+      }),
+    );
+
+    // Revoke all sessions
+    await this.refreshTokenRepository.revokeAllUserTokens(
+      new Types.ObjectId(userId),
+      'account_deleted',
+    );
+
+    this.logger.log({ event: 'user.account.deleted', userId });
+
+    return {
+      success: true,
+      message: 'Account deactivated successfully',
     };
   }
 }
