@@ -247,7 +247,7 @@
                           @if (isImageType(att.mimeType)) {
                             <img
                               [src]="att.url"
-                              [alt]="att.filename ?? 'image'"
+                              [alt]="att.filename || 'image'"
                               class="max-w-full rounded cursor-pointer"
                               style="max-height: 200px; object-fit: contain"
                             />
@@ -266,7 +266,7 @@
                               class="flex items-center gap-1 underline text-xs"
                             >
                               <i class="pi pi-file text-sm"></i>
-                              {{ att.filename ?? 'File' }}
+                              {{ att.filename || 'File' }}
                             </a>
                           }
                         }

@@ -831,7 +831,7 @@
                               [severity]="getInvitationStatusSeverity(invite.status)"
                               class="text-xs"
                             />
-                            @if (invite.roles?.length) {
+                            @if (invite.roles && invite.roles.length) {
                             <span class="text-xs text-surface-500">{{ invite.roles.join(', ') }}</span>
                             }
                           </div>

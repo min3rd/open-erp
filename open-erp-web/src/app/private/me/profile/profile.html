@@ -284,7 +284,7 @@
             <div class="sm:col-span-2">
               <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">{{ 'me.profile.fields.address' | transloco }}</p>
               <p class="text-sm text-surface-800 dark:text-surface-200">
-                {{ [profile()!.address?.street, profile()!.address?.district, profile()!.address?.city, profile()!.address?.province, profile()!.address?.country].filter(Boolean).join(', ') || '—' }}
+                {{ [profile()!.address?.street, profile()!.address?.district, profile()!.address?.city, profile()!.address?.province, profile()!.address?.country].join(', ') || '—' }}
               </p>
             </div>
           }
