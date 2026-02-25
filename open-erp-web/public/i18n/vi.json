@@ -2005,7 +2005,8 @@
         "densities": {
           "comfortable": "Thoải mái",
           "compact": "Compact"
-        }
+        },
+        "timeFormat": "Định dạng giờ"
       },
       "notifications": {
         "title": "Thông báo",

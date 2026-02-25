@@ -3,6 +3,9 @@
 @import 'tailwindcss';
 @import 'tailwindcss-primeui';
 
+/* Enable class-based dark mode so ThemeService can toggle via .dark on <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @import 'primeicons/primeicons.css';
 
 @import 'leaflet/dist/leaflet.css';
