@@ -12,8 +12,11 @@ import {
   ReactiveFormsModule,
   FormBuilder,
   FormGroup,
+  FormControl,
+  FormArray,
 } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 // PrimeNG
 import { ButtonModule } from 'primeng/button';
@@ -27,7 +30,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
 import { ChipModule } from 'primeng/chip';
 
-import { MeService, MeProfile, UpdateMeDto } from '../../../../core/services/me-service';
+import { MeService } from '../../../../core/services/me-service';
+import type { MeProfile, UpdateMeDto } from '../me.types';
 import { API_URI_FILE } from '../../../../core/constant';
 import { AuthService } from '../../../../core/services/auth-service';
 
@@ -37,6 +41,7 @@ import { AuthService } from '../../../../core/services/auth-service';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    TranslocoModule,
     ButtonModule,
     InputTextModule,
     ToastModule,
@@ -56,6 +61,7 @@ export class MeProfileComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private fb = inject(FormBuilder);
   private messageService = inject(MessageService);
+  private t = inject(TranslocoService);
   private destroy$ = new Subject<void>();
 
   readonly profile = signal<MeProfile | null>(null);
@@ -64,13 +70,34 @@ export class MeProfileComponent implements OnInit, OnDestroy {
   readonly isSaving = signal(false);
   readonly isUploadingAvatar = signal(false);
 
+  // New skill/hobby inputs
+  newSkill = '';
+  newHobby = '';
+
   editForm!: FormGroup;
+
+  get skillsArray(): FormArray {
+    return this.editForm.get('skills') as FormArray;
+  }
+
+  get hobbiesArray(): FormArray {
+    return this.editForm.get('hobbies') as FormArray;
+  }
 
   ngOnInit(): void {
     this.editForm = this.fb.group({
       fullName: [''],
       displayName: [''],
       phone: [''],
+      dateOfBirth: [''],
+      skills: this.fb.array([]),
+      hobbies: this.fb.array([]),
+      country: [''],
+      city: [''],
+      province: [''],
+      district: [''],
+      street: [''],
+      postalCode: [''],
     });
 
     this.meService
@@ -86,19 +113,56 @@ export class MeProfileComponent implements OnInit, OnDestroy {
           this.isLoading.set(false);
           this.messageService.add({
             severity: 'error',
-            summary: 'Lỗi',
-            detail: 'Không thể tải thông tin hồ sơ',
+            summary: this.t.translate('common.error'),
+            detail: this.t.translate('me.profile.messages.loadError'),
           });
         },
       });
   }
 
   private patchForm(profile: MeProfile): void {
+    // Rebuild skill/hobby arrays
+    while (this.skillsArray.length) this.skillsArray.removeAt(0);
+    (profile.skills || []).forEach((s) => this.skillsArray.push(new FormControl(s)));
+    while (this.hobbiesArray.length) this.hobbiesArray.removeAt(0);
+    (profile.hobbies || []).forEach((h) => this.hobbiesArray.push(new FormControl(h)));
+
     this.editForm.patchValue({
       fullName: profile.fullName || '',
       displayName: profile.displayName || '',
       phone: profile.phone || '',
+      dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.substring(0, 10) : '',
+      country: profile.address?.country || '',
+      city: profile.address?.city || '',
+      province: profile.address?.province || '',
+      district: profile.address?.district || '',
+      street: profile.address?.street || '',
+      postalCode: profile.address?.postalCode || '',
     });
+  }
+
+  addSkill(): void {
+    const skill = this.newSkill.trim();
+    if (skill && !this.skillsArray.value.includes(skill)) {
+      this.skillsArray.push(new FormControl(skill));
+    }
+    this.newSkill = '';
+  }
+
+  removeSkill(index: number): void {
+    this.skillsArray.removeAt(index);
+  }
+
+  addHobby(): void {
+    const hobby = this.newHobby.trim();
+    if (hobby && !this.hobbiesArray.value.includes(hobby)) {
+      this.hobbiesArray.push(new FormControl(hobby));
+    }
+    this.newHobby = '';
+  }
+
+  removeHobby(index: number): void {
+    this.hobbiesArray.removeAt(index);
   }
 
   startEdit(): void {
@@ -117,11 +181,22 @@ export class MeProfileComponent implements OnInit, OnDestroy {
     this.isSaving.set(true);
 
     const formValue = this.editForm.value;
-    const updateData: UpdateMeDto = {};
-
-    if (formValue.fullName?.trim()) updateData.fullName = formValue.fullName.trim();
-    if (formValue.displayName?.trim()) updateData.displayName = formValue.displayName.trim();
-    if (formValue.phone?.trim()) updateData.phone = formValue.phone.trim();
+    const updateData: UpdateMeDto = {
+      fullName: formValue.fullName?.trim() || undefined,
+      displayName: formValue.displayName?.trim() || undefined,
+      phone: formValue.phone?.trim() || undefined,
+      dateOfBirth: formValue.dateOfBirth || undefined,
+      skills: this.skillsArray.value,
+      hobbies: this.hobbiesArray.value,
+      address: {
+        country: formValue.country?.trim() || undefined,
+        city: formValue.city?.trim() || undefined,
+        province: formValue.province?.trim() || undefined,
+        district: formValue.district?.trim() || undefined,
+        street: formValue.street?.trim() || undefined,
+        postalCode: formValue.postalCode?.trim() || undefined,
+      },
+    };
 
     this.meService
       .updateProfile(updateData)
@@ -133,16 +208,16 @@ export class MeProfileComponent implements OnInit, OnDestroy {
           this.isSaving.set(false);
           this.messageService.add({
             severity: 'success',
-            summary: 'Thành công',
-            detail: 'Hồ sơ đã được cập nhật',
+            summary: this.t.translate('common.success'),
+            detail: this.t.translate('me.profile.messages.updateSuccess'),
           });
         },
         error: (err) => {
           this.isSaving.set(false);
           this.messageService.add({
             severity: 'error',
-            summary: 'Lỗi',
-            detail: err.message || 'Không thể cập nhật hồ sơ',
+            summary: this.t.translate('common.error'),
+            detail: err.message || this.t.translate('me.profile.messages.updateError'),
           });
         },
       });
@@ -157,8 +232,8 @@ export class MeProfileComponent implements OnInit, OnDestroy {
     if (!allowedTypes.includes(file.type)) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'Cảnh báo',
-        detail: 'Chỉ cho phép ảnh JPG, PNG, GIF, WEBP',
+        summary: this.t.translate('common.warning'),
+        detail: this.t.translate('me.profile.avatar.invalidType'),
       });
       return;
     }
@@ -187,11 +262,11 @@ export class MeProfileComponent implements OnInit, OnDestroy {
       });
       if (!uploadResp.ok) throw new Error('Upload failed');
 
-      // Step 3: Derive public URL and update profile
-      const publicUrl = uploadUrl.split('?')[0];
-
+      // Step 3: Store avatar as MinIO object info { key, bucket }
+      // The bucket is included in the presign response
+      const bucket = presignData?.data?.bucket;
       this.meService
-        .updateProfile({ avatarUrl: publicUrl })
+        .updateProfile({ avatarKey: key, avatarBucket: bucket })
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (updated) => {
@@ -199,16 +274,16 @@ export class MeProfileComponent implements OnInit, OnDestroy {
             this.isUploadingAvatar.set(false);
             this.messageService.add({
               severity: 'success',
-              summary: 'Thành công',
-              detail: 'Ảnh đại diện đã được cập nhật',
+              summary: this.t.translate('common.success'),
+              detail: this.t.translate('me.profile.avatar.uploadSuccess'),
             });
           },
           error: (err) => {
             this.isUploadingAvatar.set(false);
             this.messageService.add({
               severity: 'error',
-              summary: 'Lỗi',
-              detail: err.message || 'Không thể cập nhật ảnh đại diện',
+              summary: this.t.translate('common.error'),
+              detail: err.message || this.t.translate('me.profile.avatar.uploadError'),
             });
           },
         });
@@ -216,8 +291,8 @@ export class MeProfileComponent implements OnInit, OnDestroy {
       this.isUploadingAvatar.set(false);
       this.messageService.add({
         severity: 'error',
-        summary: 'Lỗi',
-        detail: err.message || 'Tải ảnh lên thất bại',
+        summary: this.t.translate('common.error'),
+        detail: err.message || this.t.translate('me.profile.avatar.uploadError'),
       });
     }
   }

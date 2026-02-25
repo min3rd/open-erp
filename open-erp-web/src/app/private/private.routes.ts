@@ -17,22 +17,7 @@ export const routes: Routes = [
   },
   {
     path: 'me',
-    loadComponent: () => import('./me/me').then((m) => m.Me),
-    children: [
-      {
-        path: '',
-        pathMatch: 'full',
-        loadComponent: () => import('./me/profile/profile').then((m) => m.MeProfileComponent),
-      },
-      {
-        path: 'security',
-        loadComponent: () => import('./me/security/security').then((m) => m.MeSecurityComponent),
-      },
-      {
-        path: 'settings',
-        loadComponent: () => import('./me/settings/settings').then((m) => m.MeSettingsComponent),
-      },
-    ],
+    loadChildren: () => import('./me/me.routes').then((m) => m.meRoutes),
   },
   {
     path: '',

@@ -48,10 +48,15 @@ export class UpdateMeDto {
   )
   phone?: string;
 
-  @ApiPropertyOptional({ description: 'Avatar URL' })
+  @ApiPropertyOptional({ description: 'Avatar MinIO object key' })
   @IsString()
   @IsOptional()
-  avatarUrl?: string;
+  avatarKey?: string;
+
+  @ApiPropertyOptional({ description: 'Avatar MinIO bucket name' })
+  @IsString()
+  @IsOptional()
+  avatarBucket?: string;
 
   @ApiPropertyOptional({ description: 'Address details' })
   @IsOptional()

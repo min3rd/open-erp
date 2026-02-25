@@ -29,7 +29,8 @@ import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
-import { MeService, MeSession } from '../../../../core/services/me-service';
+import { MeService } from '../../../../core/services/me-service';
+import type { MeSession } from '../me.types';
 
 function passwordMatchValidator(group: AbstractControl) {
   const newPass = group.get('newPassword')?.value;

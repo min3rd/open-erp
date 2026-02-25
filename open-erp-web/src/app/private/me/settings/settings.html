@@ -15,13 +15,13 @@
       <!-- Display preferences -->
       <div class="bg-white dark:bg-surface-900 rounded-lg border border-surface-200 dark:border-surface-700">
         <div class="px-6 py-4 border-b border-surface-200 dark:border-surface-700">
-          <h3 class="text-base font-semibold text-surface-900 dark:text-surface-100">Hiển thị</h3>
+          <h3 class="text-base font-semibold text-surface-900 dark:text-surface-100">{{ 'me.settings.display.title' | transloco }}</h3>
         </div>
         <div class="p-6 space-y-5">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <!-- Date format -->
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-surface-700 dark:text-surface-300">Định dạng ngày tháng</label>
+              <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.settings.display.dateFormat' | transloco }}</label>
               <p-select
                 formControlName="dateFormat"
                 [options]="dateFormats"
@@ -33,7 +33,7 @@
 
             <!-- Timezone -->
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-surface-700 dark:text-surface-300">Múi giờ</label>
+              <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.settings.display.timezone' | transloco }}</label>
               <p-select
                 formControlName="timezone"
                 [options]="timezones"
@@ -45,7 +45,7 @@
 
             <!-- Theme -->
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-surface-700 dark:text-surface-300">Giao diện</label>
+              <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.settings.display.theme' | transloco }}</label>
               <p-select
                 formControlName="theme"
                 [options]="themes"
@@ -57,10 +57,10 @@
 
             <!-- Language -->
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-surface-700 dark:text-surface-300">Ngôn ngữ</label>
+              <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.settings.display.language' | transloco }}</label>
               <p-select
                 formControlName="language"
-                [options]="languages"
+                [options]="languages()"
                 optionLabel="label"
                 optionValue="value"
                 styleClass="w-full"
@@ -69,7 +69,7 @@
 
             <!-- Layout density -->
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-surface-700 dark:text-surface-300">Mật độ bố cục</label>
+              <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.settings.display.layoutDensity' | transloco }}</label>
               <p-select
                 formControlName="layoutDensity"
                 [options]="densities"
@@ -85,13 +85,13 @@
       <!-- Notification preferences -->
       <div class="bg-white dark:bg-surface-900 rounded-lg border border-surface-200 dark:border-surface-700 mt-6">
         <div class="px-6 py-4 border-b border-surface-200 dark:border-surface-700">
-          <h3 class="text-base font-semibold text-surface-900 dark:text-surface-100">Thông báo</h3>
+          <h3 class="text-base font-semibold text-surface-900 dark:text-surface-100">{{ 'me.settings.notifications.title' | transloco }}</h3>
         </div>
         <div class="p-6 space-y-4">
           <div class="flex items-center justify-between py-1">
             <div>
-              <p class="text-sm font-medium text-surface-800 dark:text-surface-200">Thông báo trong ứng dụng</p>
-              <p class="text-xs text-surface-500 dark:text-surface-400 mt-0.5">Nhận thông báo ngay trong ứng dụng</p>
+              <p class="text-sm font-medium text-surface-800 dark:text-surface-200">{{ 'me.settings.notifications.inApp.label' | transloco }}</p>
+              <p class="text-xs text-surface-500 dark:text-surface-400 mt-0.5">{{ 'me.settings.notifications.inApp.description' | transloco }}</p>
             </div>
             <p-toggleswitch formControlName="notificationsInApp"></p-toggleswitch>
           </div>
@@ -100,8 +100,8 @@
 
           <div class="flex items-center justify-between py-1">
             <div>
-              <p class="text-sm font-medium text-surface-800 dark:text-surface-200">Thông báo qua email</p>
-              <p class="text-xs text-surface-500 dark:text-surface-400 mt-0.5">Nhận thông báo quan trọng qua email</p>
+              <p class="text-sm font-medium text-surface-800 dark:text-surface-200">{{ 'me.settings.notifications.email.label' | transloco }}</p>
+              <p class="text-xs text-surface-500 dark:text-surface-400 mt-0.5">{{ 'me.settings.notifications.email.description' | transloco }}</p>
             </div>
             <p-toggleswitch formControlName="notificationsEmail"></p-toggleswitch>
           </div>
@@ -110,8 +110,8 @@
 
           <div class="flex items-center justify-between py-1">
             <div>
-              <p class="text-sm font-medium text-surface-800 dark:text-surface-200">Thông báo đẩy</p>
-              <p class="text-xs text-surface-500 dark:text-surface-400 mt-0.5">Nhận thông báo đẩy trên trình duyệt</p>
+              <p class="text-sm font-medium text-surface-800 dark:text-surface-200">{{ 'me.settings.notifications.push.label' | transloco }}</p>
+              <p class="text-xs text-surface-500 dark:text-surface-400 mt-0.5">{{ 'me.settings.notifications.push.description' | transloco }}</p>
             </div>
             <p-toggleswitch formControlName="notificationsPush"></p-toggleswitch>
           </div>
@@ -121,14 +121,14 @@
       <!-- Save / Reset buttons -->
       <div class="flex gap-3 justify-end mt-6">
         <p-button
-          label="Đặt lại mặc định"
+          [label]="'me.settings.resetButton' | transloco"
           severity="secondary"
           size="small"
           type="button"
           (onClick)="resetSettings()"
         ></p-button>
         <p-button
-          label="Lưu cài đặt"
+          [label]="'me.settings.saveButton' | transloco"
           icon="pi pi-check"
           size="small"
           type="submit"

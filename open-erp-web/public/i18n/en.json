@@ -3235,5 +3235,150 @@
     "decline": "Decline",
     "unread": "Unread",
     "list": "Notification list"
+  },
+  "me": {
+    "tabs": {
+      "profile": "General Info",
+      "security": "Security",
+      "settings": "Settings"
+    },
+    "profile": {
+      "title": "Personal Information",
+      "editButton": "Edit",
+      "saveButton": "Save Changes",
+      "cancelButton": "Cancel",
+      "fields": {
+        "fullName": "Full Name",
+        "displayName": "Display Name",
+        "email": "Email",
+        "phone": "Phone Number",
+        "dateOfBirth": "Date of Birth",
+        "skills": "Skills",
+        "hobbies": "Hobbies",
+        "address": "Address",
+        "country": "Country",
+        "city": "City",
+        "province": "Province/State",
+        "district": "District",
+        "street": "Street",
+        "postalCode": "Postal Code",
+        "joinedAt": "Member Since",
+        "lastLogin": "Last Login",
+        "roles": "Roles"
+      },
+      "placeholders": {
+        "fullName": "John Doe",
+        "displayName": "Short display name",
+        "phone": "+1 xxx xxx xxxx",
+        "skills": "Type a skill and press Enter",
+        "hobbies": "Type a hobby and press Enter",
+        "country": "United States",
+        "city": "New York",
+        "street": "123 Main St"
+      },
+      "avatar": {
+        "change": "Change Avatar",
+        "uploading": "Uploading...",
+        "invalidType": "Only JPG, PNG, GIF, WEBP images are allowed",
+        "uploadSuccess": "Avatar updated successfully",
+        "uploadError": "Failed to upload avatar"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "messages": {
+        "updateSuccess": "Profile updated successfully",
+        "updateError": "Failed to update profile",
+        "loadError": "Failed to load profile"
+      }
+    },
+    "security": {
+      "changePassword": {
+        "title": "Change Password",
+        "description": "New password must be at least 8 characters including uppercase, lowercase and numbers.",
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm New Password",
+        "submitButton": "Change Password",
+        "placeholders": {
+          "current": "Enter current password",
+          "new": "New password (min 8 characters)",
+          "confirm": "Re-enter new password"
+        },
+        "errors": {
+          "currentRequired": "Please enter your current password",
+          "newInvalid": "Password must be at least 8 characters with uppercase, lowercase and numbers",
+          "mismatch": "Passwords do not match"
+        },
+        "strength": {
+          "weak": "Weak",
+          "medium": "Medium",
+          "strong": "Strong"
+        },
+        "messages": {
+          "success": "Password changed successfully",
+          "error": "Failed to change password"
+        }
+      },
+      "sessions": {
+        "title": "Active Sessions",
+        "description": "Manage devices that are currently logged in.",
+        "columns": {
+          "device": "Device",
+          "ip": "IP",
+          "createdAt": "Created",
+          "expiresAt": "Expires"
+        },
+        "revokeButton": "Logout",
+        "confirmRevoke": "Are you sure you want to logout device \"{device}\"?",
+        "confirmTitle": "Confirm Logout",
+        "empty": "No active sessions",
+        "messages": {
+          "revokeSuccess": "Session revoked successfully",
+          "revokeError": "Failed to revoke session"
+        }
+      }
+    },
+    "settings": {
+      "display": {
+        "title": "Display",
+        "dateFormat": "Date Format",
+        "timezone": "Timezone",
+        "theme": "Theme",
+        "language": "Language",
+        "layoutDensity": "Layout Density",
+        "themes": {
+          "auto": "Auto (system default)",
+          "light": "Light",
+          "dark": "Dark"
+        },
+        "densities": {
+          "comfortable": "Comfortable",
+          "compact": "Compact"
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "inApp": {
+          "label": "In-app notifications",
+          "description": "Receive notifications within the app"
+        },
+        "email": {
+          "label": "Email notifications",
+          "description": "Receive important notifications via email"
+        },
+        "push": {
+          "label": "Push notifications",
+          "description": "Receive push notifications in browser"
+        }
+      },
+      "saveButton": "Save Settings",
+      "resetButton": "Reset to Defaults",
+      "messages": {
+        "saveSuccess": "Settings saved successfully",
+        "saveError": "Failed to save settings"
+      }
+    }
   }
 }

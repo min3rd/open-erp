@@ -30,7 +30,7 @@
           <!-- Upload button -->
           <label
             class="absolute bottom-0 right-0 bg-primary-500 hover:bg-primary-600 text-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer shadow transition-colors"
-            title="Thay đổi ảnh đại diện"
+            [title]="'me.profile.avatar.change' | transloco"
           >
             @if (isUploadingAvatar()) {
               <i class="pi pi-spin pi-spinner text-xs"></i>
@@ -60,7 +60,7 @@
             </div>
             @if (!isEditing()) {
               <p-button
-                label="Chỉnh sửa"
+                [label]="'me.profile.editButton' | transloco"
                 icon="pi pi-pencil"
                 severity="secondary"
                 size="small"
@@ -72,7 +72,7 @@
           <!-- Status badge -->
           <div class="mt-2">
             <p-tag
-              [value]="profile()!.status === 'active' ? 'Hoạt động' : 'Không hoạt động'"
+              [value]="profile()!.status === 'active' ? ('me.profile.status.active' | transloco) : ('me.profile.status.inactive' | transloco)"
               [severity]="profile()!.status === 'active' ? 'success' : 'danger'"
               styleClass="text-xs"
             ></p-tag>
@@ -84,50 +84,148 @@
 
       <!-- Edit form or read-only info -->
       @if (isEditing()) {
-        <form class="p-6 space-y-4" [formGroup]="editForm" (ngSubmit)="saveChanges()">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-surface-700 dark:text-surface-300">Tên đầy đủ</label>
+        <form class="p-6 space-y-6" [formGroup]="editForm" (ngSubmit)="saveChanges()">
+          <!-- Basic info -->
+          <div>
+            <h4 class="text-sm font-semibold text-surface-700 dark:text-surface-300 mb-3">{{ 'me.profile.title' | transloco }}</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.profile.fields.fullName' | transloco }}</label>
+                <input
+                  pInputText
+                  type="text"
+                  formControlName="fullName"
+                  [placeholder]="'me.profile.placeholders.fullName' | transloco"
+                  class="w-full"
+                />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.profile.fields.displayName' | transloco }}</label>
+                <input
+                  pInputText
+                  type="text"
+                  formControlName="displayName"
+                  [placeholder]="'me.profile.placeholders.displayName' | transloco"
+                  class="w-full"
+                />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.profile.fields.phone' | transloco }}</label>
+                <input
+                  pInputText
+                  type="tel"
+                  formControlName="phone"
+                  [placeholder]="'me.profile.placeholders.phone' | transloco"
+                  class="w-full"
+                />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.profile.fields.dateOfBirth' | transloco }}</label>
+                <input
+                  pInputText
+                  type="date"
+                  formControlName="dateOfBirth"
+                  class="w-full"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Skills -->
+          <div>
+            <label class="text-sm font-semibold text-surface-700 dark:text-surface-300 block mb-2">{{ 'me.profile.fields.skills' | transloco }}</label>
+            <div class="flex flex-wrap gap-2 mb-2">
+              @for (skill of skillsArray.controls; track $index) {
+                <p-chip
+                  [label]="skill.value"
+                  [removable]="true"
+                  (onRemove)="removeSkill($index)"
+                  styleClass="text-xs"
+                ></p-chip>
+              }
+            </div>
+            <div class="flex gap-2">
               <input
                 pInputText
                 type="text"
-                formControlName="fullName"
-                placeholder="Nguyễn Văn A"
-                class="w-full"
+                [(ngModel)]="newSkill"
+                [ngModelOptions]="{standalone: true}"
+                [placeholder]="'me.profile.placeholders.skills' | transloco"
+                class="flex-1"
+                (keydown.enter)="$event.preventDefault(); addSkill()"
               />
+              <p-button icon="pi pi-plus" severity="secondary" size="small" type="button" (onClick)="addSkill()"></p-button>
             </div>
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-surface-700 dark:text-surface-300">Tên hiển thị</label>
+          </div>
+
+          <!-- Hobbies -->
+          <div>
+            <label class="text-sm font-semibold text-surface-700 dark:text-surface-300 block mb-2">{{ 'me.profile.fields.hobbies' | transloco }}</label>
+            <div class="flex flex-wrap gap-2 mb-2">
+              @for (hobby of hobbiesArray.controls; track $index) {
+                <p-chip
+                  [label]="hobby.value"
+                  [removable]="true"
+                  (onRemove)="removeHobby($index)"
+                  styleClass="text-xs"
+                ></p-chip>
+              }
+            </div>
+            <div class="flex gap-2">
               <input
                 pInputText
                 type="text"
-                formControlName="displayName"
-                placeholder="Tên hiển thị ngắn"
-                class="w-full"
+                [(ngModel)]="newHobby"
+                [ngModelOptions]="{standalone: true}"
+                [placeholder]="'me.profile.placeholders.hobbies' | transloco"
+                class="flex-1"
+                (keydown.enter)="$event.preventDefault(); addHobby()"
               />
+              <p-button icon="pi pi-plus" severity="secondary" size="small" type="button" (onClick)="addHobby()"></p-button>
             </div>
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-surface-700 dark:text-surface-300">Số điện thoại</label>
-              <input
-                pInputText
-                type="tel"
-                formControlName="phone"
-                placeholder="+84 xxx xxx xxx"
-                class="w-full"
-              />
+          </div>
+
+          <!-- Address -->
+          <div>
+            <h4 class="text-sm font-semibold text-surface-700 dark:text-surface-300 mb-3">{{ 'me.profile.fields.address' | transloco }}</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.profile.fields.country' | transloco }}</label>
+                <input pInputText type="text" formControlName="country" [placeholder]="'me.profile.placeholders.country' | transloco" class="w-full" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.profile.fields.city' | transloco }}</label>
+                <input pInputText type="text" formControlName="city" [placeholder]="'me.profile.placeholders.city' | transloco" class="w-full" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.profile.fields.province' | transloco }}</label>
+                <input pInputText type="text" formControlName="province" class="w-full" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.profile.fields.district' | transloco }}</label>
+                <input pInputText type="text" formControlName="district" class="w-full" />
+              </div>
+              <div class="flex flex-col gap-1 sm:col-span-2">
+                <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.profile.fields.street' | transloco }}</label>
+                <input pInputText type="text" formControlName="street" [placeholder]="'me.profile.placeholders.street' | transloco" class="w-full" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-surface-700 dark:text-surface-300">{{ 'me.profile.fields.postalCode' | transloco }}</label>
+                <input pInputText type="text" formControlName="postalCode" class="w-full" />
+              </div>
             </div>
           </div>
 
           <div class="flex gap-2 justify-end pt-2">
             <p-button
-              label="Hủy"
+              [label]="'me.profile.cancelButton' | transloco"
               severity="secondary"
               size="small"
               type="button"
               (onClick)="cancelEdit()"
             ></p-button>
             <p-button
-              label="Lưu thay đổi"
+              [label]="'me.profile.saveButton' | transloco"
               icon="pi pi-check"
               size="small"
               type="submit"
@@ -139,29 +237,57 @@
         <!-- Read-only info grid -->
         <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
           <div>
-            <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">Tên đầy đủ</p>
+            <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">{{ 'me.profile.fields.fullName' | transloco }}</p>
             <p class="text-sm text-surface-800 dark:text-surface-200">{{ profile()!.fullName || '—' }}</p>
           </div>
           <div>
-            <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">Tên hiển thị</p>
+            <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">{{ 'me.profile.fields.displayName' | transloco }}</p>
             <p class="text-sm text-surface-800 dark:text-surface-200">{{ profile()!.displayName || '—' }}</p>
           </div>
           <div>
-            <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">Email</p>
+            <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">{{ 'me.profile.fields.email' | transloco }}</p>
             <p class="text-sm text-surface-800 dark:text-surface-200">{{ profile()!.email }}</p>
           </div>
           <div>
-            <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">Số điện thoại</p>
+            <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">{{ 'me.profile.fields.phone' | transloco }}</p>
             <p class="text-sm text-surface-800 dark:text-surface-200">{{ profile()!.phone || '—' }}</p>
           </div>
           <div>
-            <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">Ngày tham gia</p>
+            <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">{{ 'me.profile.fields.joinedAt' | transloco }}</p>
             <p class="text-sm text-surface-800 dark:text-surface-200">{{ formatDate(profile()!.createdAt) }}</p>
           </div>
           <div>
-            <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">Đăng nhập lần cuối</p>
+            <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">{{ 'me.profile.fields.lastLogin' | transloco }}</p>
             <p class="text-sm text-surface-800 dark:text-surface-200">{{ formatDate(profile()!.lastLoginAt) }}</p>
           </div>
+          @if (profile()!.skills && profile()!.skills!.length > 0) {
+            <div class="sm:col-span-2">
+              <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-1">{{ 'me.profile.fields.skills' | transloco }}</p>
+              <div class="flex flex-wrap gap-1.5">
+                @for (skill of profile()!.skills; track skill) {
+                  <p-chip [label]="skill" styleClass="text-xs"></p-chip>
+                }
+              </div>
+            </div>
+          }
+          @if (profile()!.hobbies && profile()!.hobbies!.length > 0) {
+            <div class="sm:col-span-2">
+              <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-1">{{ 'me.profile.fields.hobbies' | transloco }}</p>
+              <div class="flex flex-wrap gap-1.5">
+                @for (hobby of profile()!.hobbies; track hobby) {
+                  <p-chip [label]="hobby" styleClass="text-xs"></p-chip>
+                }
+              </div>
+            </div>
+          }
+          @if (profile()!.address) {
+            <div class="sm:col-span-2">
+              <p class="text-xs font-medium text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-0.5">{{ 'me.profile.fields.address' | transloco }}</p>
+              <p class="text-sm text-surface-800 dark:text-surface-200">
+                {{ [profile()!.address?.street, profile()!.address?.district, profile()!.address?.city, profile()!.address?.province, profile()!.address?.country].filter(Boolean).join(', ') || '—' }}
+              </p>
+            </div>
+          }
         </div>
       }
     </div>
@@ -169,7 +295,7 @@
     <!-- Roles card -->
     @if (profile()!.roles && profile()!.roles!.length > 0) {
       <div class="bg-white dark:bg-surface-900 rounded-lg border border-surface-200 dark:border-surface-700 p-6">
-        <h3 class="text-sm font-semibold text-surface-700 dark:text-surface-300 mb-3">Vai trò</h3>
+        <h3 class="text-sm font-semibold text-surface-700 dark:text-surface-300 mb-3">{{ 'me.profile.fields.roles' | transloco }}</h3>
         <div class="flex flex-wrap gap-2">
           @for (role of profile()!.roles; track role.id) {
             <p-chip [label]="role.name" styleClass="text-xs"></p-chip>
