@@ -38,6 +38,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 // Services
 import { UserService, User, GetUsersParams } from '../../../../../../core/services/user-service';
 import { OrganizationContextService } from '../../../../../../core/services/organization-context.service';
+import { UserDatePipe } from '../../../../../../core/pipes/user-date.pipe';
 
 @Component({
   selector: 'management-user-list',
@@ -60,6 +61,7 @@ import { OrganizationContextService } from '../../../../../../core/services/orga
     InputGroupModule,
     InputGroupAddonModule,
     PaginatorModule,
+    UserDatePipe,
   ],
   providers: [MessageService],
   templateUrl: './list.html',

@@ -135,7 +135,7 @@
               {{ notification.title }}
             </span>
             <span class="text-xs text-surface-400 whitespace-nowrap flex-shrink-0">
-              {{ formatTime(notification.createdAt) }}
+              {{ notification.createdAt | userDate:'relative' }}
             </span>
           </div>
           @if (notification.message) {

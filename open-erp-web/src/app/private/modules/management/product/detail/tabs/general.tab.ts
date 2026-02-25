@@ -9,10 +9,11 @@ import { DividerModule } from 'primeng/divider';
 // Services and types
 import { Product } from '../../../../../../../core/services/product/product.service';
 import { ProductDetailStateService } from '../product-detail-state.service';
+import { UserDatePipe } from '../../../../../../../core/pipes/user-date.pipe';
 
 @Component({
   selector: 'product-tab-general',
-  imports: [CommonModule, TranslocoModule, DividerModule],
+  imports: [CommonModule, TranslocoModule, DividerModule, UserDatePipe],
   templateUrl: './general.tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

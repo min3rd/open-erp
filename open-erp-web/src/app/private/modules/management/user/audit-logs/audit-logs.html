@@ -70,7 +70,7 @@
             <span class="font-semibold">{{ log.action }}</span>
           </td>
           <td>{{ log.entity || '-' }}</td>
-          <td>{{ formatTimestamp(log.timestamp || log.createdAt) }}</td>
+          <td>{{ (log.timestamp || log.createdAt) | userDate:'datetime' }}</td>
           <td>
             <span class="text-sm text-surface-600 dark:text-surface-400">
               {{ log.ipAddress || '-' }}
@@ -149,7 +149,7 @@
         <div class="text-xs text-surface-500 space-y-1">
           <div class="flex items-center gap-2">
             <i class="pi pi-clock"></i>
-            <span>{{ formatTimestamp(log.timestamp || log.createdAt) }}</span>
+            <span>{{ (log.timestamp || log.createdAt) | userDate:'datetime' }}</span>
           </div>
           @if (log.ipAddress) {
           <div class="flex items-center gap-2">
@@ -253,7 +253,7 @@
           {{ 'auditLogs.detail.timestamp' | transloco }}
         </label>
         <p class="text-base m-0" id="audit-log-detail-timestamp">
-          {{ formatTimestamp(selectedLog()!.timestamp || selectedLog()!.createdAt) }}
+          {{ (selectedLog()!.timestamp || selectedLog()!.createdAt) | userDate:'datetime' }}
         </p>
       </div>
 

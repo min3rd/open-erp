@@ -347,7 +347,7 @@
                       }
                       @if (file.uploadedAt) {
                       <p class="text-xs text-surface-500">
-                        {{ file.uploadedAt | date: 'short' }}
+                        {{ file.uploadedAt | userDate }}
                       </p>
                       }
                     </div>

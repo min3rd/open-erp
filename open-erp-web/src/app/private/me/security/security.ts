@@ -31,6 +31,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 
 import { MeService } from '../../../../core/services/me-service';
 import type { MeSession } from '../me.types';
+import { UserDatePipe } from '../../../../core/pipes/user-date.pipe';
 
 function passwordMatchValidator(group: AbstractControl) {
   const newPass = group.get('newPassword')?.value;
@@ -55,6 +56,7 @@ function passwordMatchValidator(group: AbstractControl) {
     TableModule,
     TagModule,
     DividerModule,
+    UserDatePipe,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './security.html',

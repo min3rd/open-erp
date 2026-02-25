@@ -35,6 +35,7 @@ import { ProvinceService } from '../../province/services/province.service';
 import { DistrictService } from '../../district/services/district.service';
 import { WardService } from '../../ward/services/ward.service';
 import { userDateFormatString } from '../../../../../../core/utils/date.utils';
+import { UserDatePipe } from '../../../../../../core/pipes/user-date.pipe';
 
 @Component({
   selector: 'management-user-general',
@@ -50,6 +51,7 @@ import { userDateFormatString } from '../../../../../../core/utils/date.utils';
     AutoCompleteModule,
     TagModule,
     ToastModule,
+    UserDatePipe,
   ],
   providers: [MessageService],
   templateUrl: './general.html',

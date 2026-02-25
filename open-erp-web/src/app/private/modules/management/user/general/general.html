@@ -39,7 +39,7 @@
         {{ 'userDetail.general.dateOfBirth' | transloco }}
       </label>
       <p class="text-surface-900 dark:text-surface-100">
-        {{ formatDate(user()!.dateOfBirth) }}
+        {{ user()!.dateOfBirth | userDate }}
       </p>
     </div>
 

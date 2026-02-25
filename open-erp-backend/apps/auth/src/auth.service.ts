@@ -1257,6 +1257,8 @@ export class AuthService {
     const metadata = user.metadata || {};
     return {
       dateFormat: metadata.dateFormat || 'DD/MM/YYYY',
+      timeFormat: metadata.timeFormat || 'HH:mm',
+      locale: metadata.locale || metadata.language || 'vi',
       timezone: metadata.timezone || 'Asia/Ho_Chi_Minh',
       theme: metadata.theme || 'auto',
       language: metadata.language || 'vi',
@@ -1301,6 +1303,8 @@ export class AuthService {
 
     return {
       dateFormat: updatedMetadata.dateFormat || 'DD/MM/YYYY',
+      timeFormat: updatedMetadata.timeFormat || 'HH:mm',
+      locale: updatedMetadata.locale || updatedMetadata.language || 'vi',
       timezone: updatedMetadata.timezone || 'Asia/Ho_Chi_Minh',
       theme: updatedMetadata.theme || 'auto',
       language: updatedMetadata.language || 'vi',

@@ -24,6 +24,7 @@ import {
   NotificationDto,
   NotificationType,
 } from '../../interfaces/notification.types';
+import { UserDatePipe } from '../../pipes/user-date.pipe';
 
 @Component({
   selector: 'notification-drawer',
@@ -36,6 +37,7 @@ import {
     SkeletonModule,
     TooltipModule,
     BadgeModule,
+    UserDatePipe,
   ],
   templateUrl: './notification-drawer.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
