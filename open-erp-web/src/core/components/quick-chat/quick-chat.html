@@ -1,5 +1,7 @@
-<div class="flex h-full border-l border-surface-200 dark:border-surface-700" id="quick-chat-container">
-
+<div
+  class="flex h-full border-l border-surface-200 dark:border-surface-700"
+  id="quick-chat-container"
+>
   <!-- Hidden file input -->
   <input
     #fileInput
@@ -16,9 +18,12 @@
     class="flex flex-col h-full border-r border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 animate-fadeinright"
   >
     <!-- Conversation List - Avatar Only -->
-    <div class="flex flex-col flex-auto px-2 py-3 space-y-1 overflow-y-auto" id="quick-chat-conversations">
+    <div
+      class="flex flex-col flex-auto px-2 py-3 space-y-1 overflow-y-auto"
+      id="quick-chat-conversations"
+    >
       @if (loadingConversations) {
-        @for (i of [1,2,3,4,5]; track i) {
+        @for (i of [1, 2, 3, 4, 5]; track i) {
           <p-skeleton shape="square" size="3rem" />
         }
       } @else {
@@ -34,12 +39,38 @@
             [class.dark:bg-primary-500]="conversation.id === selectedConversation?.id"
             role="button"
             tabindex="0"
-            [attr.aria-label]="('quickChat.openConversation' | transloco) + ' ' + getConversationTitle(conversation)"
+            [attr.aria-label]="
+              ('quickChat.openConversation' | transloco) + ' ' + getConversationTitle(conversation)
+            "
           >
-            <p-overlaybadge
-              [value]="conversation.unreadCount && conversation.unreadCount > 0 ? conversation.unreadCount : null"
-              severity="danger"
-            >
+            @if (conversation.unreadCount && conversation.unreadCount > 0) {
+              <p-overlaybadge
+                [value]="
+                  conversation.unreadCount && conversation.unreadCount > 0
+                    ? conversation.unreadCount
+                    : null
+                "
+                severity="danger"
+              >
+                @if (conversation.participants.length > 1) {
+                  <p-avatar pRipple icon="pi pi-users" size="large" shape="square" />
+                } @else if (conversation.participants[0]?.avatarUrl) {
+                  <p-avatar
+                    pRipple
+                    [image]="conversation.participants[0].avatarUrl!"
+                    shape="square"
+                    size="large"
+                  />
+                } @else {
+                  <p-avatar
+                    pRipple
+                    [label]="getConversationAvatarLabel(conversation)"
+                    shape="square"
+                    size="large"
+                  />
+                }
+              </p-overlaybadge>
+            } @else {
               @if (conversation.participants.length > 1) {
                 <p-avatar pRipple icon="pi pi-users" size="large" shape="square" />
               } @else if (conversation.participants[0]?.avatarUrl) {
@@ -50,9 +81,14 @@
                   size="large"
                 />
               } @else {
-                <p-avatar pRipple [label]="getConversationAvatarLabel(conversation)" shape="square" size="large" />
+                <p-avatar
+                  pRipple
+                  [label]="getConversationAvatarLabel(conversation)"
+                  shape="square"
+                  size="large"
+                />
               }
-            </p-overlaybadge>
+            }
           </div>
         }
       }
@@ -79,8 +115,10 @@
 
   <!-- Selected Conversation Detail Panel -->
   @if (selectedConversation) {
-    <div class="flex flex-col w-80 bg-surface-0 dark:bg-surface-900 animate-fadeinright" id="quick-chat-detail-panel">
-
+    <div
+      class="flex flex-col w-80 bg-surface-0 dark:bg-surface-900 animate-fadeinright"
+      id="quick-chat-detail-panel"
+    >
       <!-- Conversation Header -->
       <div
         id="quick-chat-conversation-header"
@@ -89,17 +127,32 @@
         @if (selectedConversation.participants.length > 1) {
           <p-avatar icon="pi pi-users" size="normal" shape="square" />
         } @else if (selectedConversation.participants[0]?.avatarUrl) {
-          <p-avatar [image]="selectedConversation.participants[0].avatarUrl!" size="normal" shape="square" />
+          <p-avatar
+            [image]="selectedConversation.participants[0].avatarUrl!"
+            size="normal"
+            shape="square"
+          />
         } @else {
-          <p-avatar [label]="getConversationAvatarLabel(selectedConversation)" size="normal" shape="square" />
+          <p-avatar
+            [label]="getConversationAvatarLabel(selectedConversation)"
+            size="normal"
+            shape="square"
+          />
         }
 
         <div class="flex-1 min-w-0" id="quick-chat-conversation-info">
-          <div class="font-semibold text-sm text-surface-900 dark:text-surface-0 truncate" id="quick-chat-conversation-title">
+          <div
+            class="font-semibold text-sm text-surface-900 dark:text-surface-0 truncate"
+            id="quick-chat-conversation-title"
+          >
             {{ getConversationTitle(selectedConversation) }}
           </div>
-          <div class="text-xs text-surface-500 dark:text-surface-400 truncate" id="quick-chat-conversation-participants">
-            {{ selectedConversation.participants.length }} {{ 'quickChat.participants' | transloco }}
+          <div
+            class="text-xs text-surface-500 dark:text-surface-400 truncate"
+            id="quick-chat-conversation-participants"
+          >
+            {{ selectedConversation.participants.length }}
+            {{ 'quickChat.participants' | transloco }}
           </div>
         </div>
 
@@ -123,7 +176,7 @@
       >
         @if (loadingMessages) {
           <div class="flex flex-col space-y-3 px-2">
-            @for (i of [1,2,3]; track i) {
+            @for (i of [1, 2, 3]; track i) {
               <div class="flex gap-2 items-end">
                 <p-skeleton shape="circle" size="1.75rem" />
                 <p-skeleton height="3rem" width="60%" />
@@ -131,16 +184,15 @@
             }
           </div>
         } @else if (!messages.length) {
-          <div class="flex flex-col items-center justify-center h-full text-surface-400 dark:text-surface-500 text-sm gap-2">
+          <div
+            class="flex flex-col items-center justify-center h-full text-surface-400 dark:text-surface-500 text-sm gap-2"
+          >
             <i class="pi pi-comments text-3xl"></i>
             <span>{{ 'quickChat.noMessages' | transloco }}</span>
           </div>
         } @else {
           @for (message of messages; track message.id) {
-            <div
-              class="flex gap-2 items-end"
-              [class.flex-row-reverse]="isSelf(message)"
-            >
+            <div class="flex gap-2 items-end" [class.flex-row-reverse]="isSelf(message)">
               <!-- Sender Avatar (always shown) -->
               @if (getSenderInfo(message)?.avatarUrl) {
                 <p-avatar
@@ -190,14 +242,14 @@
                               [src]="att.url"
                               [alt]="att.filename ?? 'image'"
                               class="max-w-full rounded cursor-pointer"
-                              style="max-height: 200px; object-fit: contain;"
+                              style="max-height: 200px; object-fit: contain"
                             />
                           } @else if (isVideoType(att.mimeType)) {
                             <video
                               [src]="att.url"
                               controls
                               class="max-w-full rounded"
-                              style="max-height: 200px;"
+                              style="max-height: 200px"
                             ></video>
                           } @else {
                             <a
@@ -215,7 +267,9 @@
                     }
                   </div>
                 } @else {
-                  <div class="rounded-lg px-3 py-2 text-xs text-surface-400 dark:text-surface-500 italic bg-surface-50 dark:bg-surface-800">
+                  <div
+                    class="rounded-lg px-3 py-2 text-xs text-surface-400 dark:text-surface-500 italic bg-surface-50 dark:bg-surface-800"
+                  >
                     {{ 'quickChat.messageDeleted' | transloco }}
                   </div>
                 }
@@ -235,7 +289,9 @@
                       class="text-[10px]"
                       [class.pi]="true"
                       [class.pi-check]="message.status === 'sent' || message.status === 'sending'"
-                      [class.pi-check-circle]="message.status === 'delivered' || message.status === 'read'"
+                      [class.pi-check-circle]="
+                        message.status === 'delivered' || message.status === 'read'
+                      "
                       [class.text-primary-400]="message.status === 'read'"
                       [class.text-surface-400]="message.status !== 'read'"
                       [attr.title]="message.status"
@@ -249,7 +305,9 @@
           <!-- Typing Indicator -->
           @if (hasTypingUsers) {
             <div class="flex gap-2 items-center px-2">
-              <span class="text-xs text-surface-400 dark:text-surface-500 italic">{{ getTypingText() }}</span>
+              <span class="text-xs text-surface-400 dark:text-surface-500 italic">{{
+                getTypingText()
+              }}</span>
             </div>
           }
         }
@@ -257,15 +315,26 @@
 
       <!-- Pending Attachments Preview -->
       @if (pendingAttachments.length > 0) {
-        <div class="flex gap-2 px-3 py-2 border-t border-surface-200 dark:border-surface-700 overflow-x-auto" id="quick-chat-attachments-preview">
+        <div
+          class="flex gap-2 px-3 py-2 border-t border-surface-200 dark:border-surface-700 overflow-x-auto"
+          id="quick-chat-attachments-preview"
+        >
           @for (att of pendingAttachments; track att.url; let i = $index) {
             <div class="relative flex-shrink-0">
               @if (isImageType(att.mimeType) && att.previewUrl) {
-                <img [src]="att.previewUrl" alt="{{ att.filename }}" class="w-16 h-16 object-cover rounded" />
+                <img
+                  [src]="att.previewUrl"
+                  alt="{{ att.filename }}"
+                  class="w-16 h-16 object-cover rounded"
+                />
               } @else {
-                <div class="w-16 h-16 flex flex-col items-center justify-center bg-surface-100 dark:bg-surface-700 rounded gap-1">
+                <div
+                  class="w-16 h-16 flex flex-col items-center justify-center bg-surface-100 dark:bg-surface-700 rounded gap-1"
+                >
                   <i class="pi pi-file text-lg text-surface-500"></i>
-                  <span class="text-[9px] text-surface-500 truncate w-full text-center px-1">{{ att.filename }}</span>
+                  <span class="text-[9px] text-surface-500 truncate w-full text-center px-1">{{
+                    att.filename
+                  }}</span>
                 </div>
               }
               <p-button
@@ -306,7 +375,7 @@
           [placeholder]="'quickChat.typeMessage' | transloco"
           class="flex-1 resize-none text-sm"
           rows="1"
-          style="min-height: 2rem; max-height: 6rem;"
+          style="min-height: 2rem; max-height: 6rem"
           (keydown)="onMessageKeydown($event)"
           [attr.aria-label]="'quickChat.messageInput' | transloco"
         ></textarea>
@@ -317,7 +386,12 @@
           size="small"
           (onClick)="sendMessage()"
           [loading]="sendingMessage"
-          [disabled]="(!messageText.trim() && !pendingAttachments.length) || sendingMessage || uploading || hasPendingUploads"
+          [disabled]="
+            (!messageText.trim() && !pendingAttachments.length) ||
+            sendingMessage ||
+            uploading ||
+            hasPendingUploads
+          "
           [attr.aria-label]="'quickChat.sendMessage' | transloco"
           pTooltip="{{ 'quickChat.sendMessageHint' | transloco }}"
           tooltipPosition="top"
@@ -362,7 +436,9 @@
         class="w-full text-sm"
       />
       @if (searchLoading) {
-        <i class="pi pi-spin pi-spinner absolute right-3 top-1/2 -translate-y-1/2 text-surface-400"></i>
+        <i
+          class="pi pi-spin pi-spinner absolute right-3 top-1/2 -translate-y-1/2 text-surface-400"
+        ></i>
       }
     </div>
 
@@ -370,7 +446,9 @@
     @if (selectedUsers.length > 0) {
       <div class="flex flex-wrap gap-1">
         @for (user of selectedUsers; track user.id) {
-          <div class="flex items-center gap-1 bg-primary-100 dark:bg-primary-900 rounded-full px-2 py-0.5 text-xs">
+          <div
+            class="flex items-center gap-1 bg-primary-100 dark:bg-primary-900 rounded-full px-2 py-0.5 text-xs"
+          >
             <span>{{ user.fullName }}</span>
             <button
               type="button"
@@ -460,7 +538,9 @@
     <!-- Confirm Button -->
     <div class="pt-2 border-t border-surface-200 dark:border-surface-700">
       <p-button
-        [label]="!isGroupMode ? ('quickChat.startChat' | transloco) : ('quickChat.createGroup' | transloco)"
+        [label]="
+          !isGroupMode ? ('quickChat.startChat' | transloco) : ('quickChat.createGroup' | transloco)
+        "
         icon="pi pi-comments"
         class="w-full"
         [styleClass]="'w-full'"
