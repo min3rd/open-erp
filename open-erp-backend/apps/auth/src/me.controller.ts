@@ -27,6 +27,8 @@ import {
   UpdateMeDto,
   UpdateSettingsDto,
   DeleteAccountDto,
+  TwoFAEnableDto,
+  TwoFADisableDto,
 } from './dto/me.dto';
 
 @ApiTags('me')
@@ -217,5 +219,51 @@ export class MeController {
       deleteAccountDto.password,
     );
     return ok(result, 'Account deactivated successfully');
+  }
+
+  // ─── 2FA Endpoints ───────────────────────────────────────────────────────────
+
+  @Get('me/2fa/status')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get 2FA status for current user' })
+  @ApiResponse({ status: 200, description: '2FA status retrieved successfully' })
+  async get2FAStatus(@Request() req: AuthenticatedRequest) {
+    const result = await this.authService.get2FAStatus(req.user.userId);
+    return ok(result, '2FA status retrieved successfully');
+  }
+
+  @Post('me/2fa/prepare')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Prepare 2FA setup — generate temp secret + QR code' })
+  @ApiResponse({ status: 200, description: 'Temp secret and QR code generated' })
+  async prepare2FA(@Request() req: AuthenticatedRequest) {
+    const result = await this.authService.prepare2FA(req.user.userId);
+    return ok(result, 'Temp secret generated');
+  }
+
+  @Post('me/2fa/enable')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Enable 2FA after verifying OTP' })
+  @ApiResponse({ status: 200, description: '2FA enabled successfully, returns recovery codes' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
+  async enable2FA(
+    @Request() req: AuthenticatedRequest,
+    @Body() dto: TwoFAEnableDto,
+  ) {
+    const result = await this.authService.enable2FA(req.user.userId, dto.otp);
+    return ok(result, '2FA enabled successfully');
+  }
+
+  @Post('me/2fa/disable')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Disable 2FA after verifying OTP' })
+  @ApiResponse({ status: 200, description: '2FA disabled successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid OTP' })
+  async disable2FA(
+    @Request() req: AuthenticatedRequest,
+    @Body() dto: TwoFADisableDto,
+  ) {
+    const result = await this.authService.disable2FA(req.user.userId, dto.otp);
+    return ok(result, '2FA disabled successfully');
   }
 }

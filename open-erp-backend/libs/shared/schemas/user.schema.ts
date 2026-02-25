@@ -304,6 +304,39 @@ export class User extends Document {
     },
   })
   hobbies?: string[];
+
+  @Prop({
+    type: Boolean,
+    default: false,
+  })
+  is2faEnabled?: boolean;
+
+  @Prop({
+    type: String,
+    default: null,
+    select: false,
+  })
+  twoFactorSecret?: string;
+
+  @Prop({
+    type: [String],
+    default: [],
+    select: false,
+  })
+  twoFactorRecoveryCodes?: string[];
+
+  @Prop({
+    type: String,
+    default: null,
+    select: false,
+  })
+  twoFactorTempSecret?: string;
+
+  @Prop({
+    type: Date,
+    default: null,
+  })
+  twoFactorTempSecretExpiry?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

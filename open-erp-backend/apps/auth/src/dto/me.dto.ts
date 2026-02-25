@@ -169,3 +169,22 @@ export class DeleteAccountDto {
   @IsNotEmpty({ message: 'Password confirmation is required' })
   password: string;
 }
+
+export class TwoFAEnableDto {
+  @ApiProperty({ description: 'TOTP OTP code (6 digits)' })
+  @IsString()
+  @IsNotEmpty()
+  otp: string;
+
+  @ApiPropertyOptional({ description: 'Temp secret returned from prepare' })
+  @IsString()
+  @IsOptional()
+  tempSecret?: string;
+}
+
+export class TwoFADisableDto {
+  @ApiProperty({ description: 'TOTP OTP code (6 digits)' })
+  @IsString()
+  @IsNotEmpty()
+  otp: string;
+}
