@@ -54,7 +54,8 @@ describe('Detail - New Field Validations', () => {
 
     it('should be required', () => {
       const statusControl = component.registrationForm.get('status');
-      statusControl?.setValue('');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      statusControl?.setValue('' as any);
       expect(statusControl?.hasError('required')).toBe(true);
     });
   });

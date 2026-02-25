@@ -449,6 +449,20 @@
             class="h-fit lg:sticky lg:top-0"
           >
             <div class="space-y-3 text-sm">
+              <!-- Status -->
+              <div>
+                <label
+                  id="org-info-status-label"
+                  class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1"
+                  >{{ 'organization.detail.info.status' | transloco }}</label
+                >
+                <p-tag
+                  id="org-info-status-value"
+                  [value]="organization()?.status || '—'"
+                  [severity]="organization()?.status === 'active' ? 'success' : organization()?.status === 'pending' ? 'warn' : 'secondary'"
+                />
+              </div>
+
               <!-- Tax ID -->
               <div>
                 <label
@@ -458,8 +472,9 @@
                 >
                 <div class="flex items-center gap-2">
                   <span id="org-info-taxId-value" class="text-surface-900 dark:text-surface-0">{{
-                    organization()!.taxId
+                    organization()?.taxId || '—'
                   }}</span>
+                  @if (organization()?.taxId) {
                   <p-button
                     id="org-info-taxId-copy"
                     icon="pi pi-copy"
@@ -470,6 +485,7 @@
                     (onClick)="copyToClipboard(organization()!.taxId)"
                     [pTooltip]="'organization.detail.info.copy' | transloco"
                   />
+                  }
                 </div>
               </div>
 
@@ -481,7 +497,31 @@
                   >{{ 'organization.detail.info.internationalName' | transloco }}</label
                 >
                 <span id="org-info-intlName-value" class="text-surface-900 dark:text-surface-0">{{
-                  organization()!.internationalName
+                  organization()?.internationalName || '—'
+                }}</span>
+              </div>
+
+              <!-- Type -->
+              <div>
+                <label
+                  id="org-info-type-label"
+                  class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1"
+                  >{{ 'organization.detail.info.type' | transloco }}</label
+                >
+                <span id="org-info-type-value" class="text-surface-900 dark:text-surface-0">{{
+                  organization()?.type || '—'
+                }}</span>
+              </div>
+
+              <!-- Country -->
+              <div>
+                <label
+                  id="org-info-country-label"
+                  class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1"
+                  >{{ 'organization.detail.info.country' | transloco }}</label
+                >
+                <span id="org-info-country-value" class="text-surface-900 dark:text-surface-0">{{
+                  organization()?.country || '—'
                 }}</span>
               </div>
 
@@ -494,8 +534,9 @@
                 >
                 <div class="flex items-center gap-2">
                   <span id="org-info-phone-value" class="text-surface-900 dark:text-surface-0">{{
-                    organization()!.contactPhone
+                    organization()?.contactPhone || '—'
                   }}</span>
+                  @if (organization()?.contactPhone) {
                   <p-button
                     id="org-info-phone-copy"
                     icon="pi pi-copy"
@@ -506,6 +547,7 @@
                     (onClick)="copyToClipboard(organization()!.contactPhone)"
                     [pTooltip]="'organization.detail.info.copy' | transloco"
                   />
+                  }
                 </div>
               </div>
 
@@ -520,8 +562,9 @@
                   <span
                     id="org-info-email-value"
                     class="text-surface-900 dark:text-surface-0 text-xs break-all"
-                    >{{ organization()!.contactEmail }}</span
+                    >{{ organization()?.contactEmail || '—' }}</span
                   >
+                  @if (organization()?.contactEmail) {
                   <p-button
                     id="org-info-email-copy"
                     icon="pi pi-copy"
@@ -532,6 +575,7 @@
                     (onClick)="copyToClipboard(organization()!.contactEmail)"
                     [pTooltip]="'organization.detail.info.copy' | transloco"
                   />
+                  }
                 </div>
               </div>
 
@@ -543,7 +587,7 @@
                   >{{ 'organization.detail.info.foundedDate' | transloco }}</label
                 >
                 <span id="org-info-founded-value" class="text-surface-900 dark:text-surface-0">{{
-                  formatDate(organization()!.foundedDate)
+                  formatDate(organization()?.foundedDate)
                 }}</span>
               </div>
             </div>
@@ -575,14 +619,89 @@
               >
                 {{ 'organization.detail.tabs.overview' | transloco }}
               </h2>
-              <div class="space-y-3">
-                <p class="text-surface-700 dark:text-surface-300">
-                  {{ organization()!.name }} ({{ organization()!.internationalName }})
-                </p>
-                <p class="text-sm text-surface-600 dark:text-surface-400">
-                  {{ 'organization.detail.info.createdAt' | transloco }}:
-                  {{ formatDate(organization()!.createdAt) }}
-                </p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <!-- Name -->
+                <div>
+                  <label class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+                    {{ 'organization.detail.info.name' | transloco }}
+                  </label>
+                  <span id="org-overview-name" class="text-surface-900 dark:text-surface-0 font-medium">{{
+                    organization()?.name || '—'
+                  }}</span>
+                </div>
+
+                <!-- Headquarters Address -->
+                <div>
+                  <label class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+                    {{ 'organization.detail.info.headquartersAddress' | transloco }}
+                  </label>
+                  <span id="org-overview-address" class="text-surface-900 dark:text-surface-0">{{
+                    organization()?.headquartersAddress || '—'
+                  }}</span>
+                </div>
+
+                <!-- Legal Representative -->
+                <div>
+                  <label class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+                    {{ 'organization.detail.info.legalRepresentative' | transloco }}
+                  </label>
+                  <span id="org-overview-legal-rep" class="text-surface-900 dark:text-surface-0">{{
+                    organization()?.legalRepresentative || '—'
+                  }}</span>
+                </div>
+
+                <!-- Created At -->
+                <div>
+                  <label class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+                    {{ 'organization.detail.info.createdAt' | transloco }}
+                  </label>
+                  <span id="org-overview-created" class="text-surface-900 dark:text-surface-0">{{
+                    formatDate(organization()?.createdAt)
+                  }}</span>
+                </div>
+
+                <!-- Website -->
+                @if (organization()?.website) {
+                <div class="md:col-span-2">
+                  <label class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+                    {{ 'organization.detail.info.website' | transloco }}
+                  </label>
+                  <a
+                    id="org-overview-website"
+                    [href]="organization()!.website"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-primary hover:underline break-all"
+                    >{{ organization()!.website }}</a
+                  >
+                </div>
+                }
+
+                <!-- Description -->
+                @if (organization()?.description) {
+                <div class="md:col-span-2">
+                  <label class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+                    {{ 'organization.detail.info.description' | transloco }}
+                  </label>
+                  <p id="org-overview-description" class="text-surface-700 dark:text-surface-300 whitespace-pre-line">{{
+                    organization()!.description
+                  }}</p>
+                </div>
+                }
+
+                <!-- Business Activities -->
+                @if (organization()?.businessActivities?.length) {
+                <div class="md:col-span-2">
+                  <label class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+                    {{ 'organization.detail.info.businessActivities' | transloco }}
+                  </label>
+                  <div class="flex flex-wrap gap-2">
+                    @for (activity of organization()!.businessActivities!; track activity) {
+                    <p-tag [value]="activity" severity="secondary" />
+                    }
+                  </div>
+                </div>
+                }
               </div>
             </p-card>
             }
