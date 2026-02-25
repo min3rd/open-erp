@@ -10,8 +10,6 @@ import {
   HttpStatus,
   UseGuards,
   Request,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -124,7 +122,6 @@ export class MeController {
 
   @Patch('me')
   @HttpCode(HttpStatus.OK)
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
   @ApiOperation({ summary: 'Update current user profile' })
   @ApiResponse({ status: 200, description: 'Profile updated successfully' })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
@@ -141,7 +138,6 @@ export class MeController {
 
   @Post('me/change-password')
   @HttpCode(HttpStatus.OK)
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @ApiOperation({ summary: 'Change current user password' })
   @ApiResponse({ status: 200, description: 'Password changed successfully' })
   @ApiResponse({ status: 400, description: 'Invalid current password' })
@@ -194,7 +190,6 @@ export class MeController {
 
   @Patch('me/settings')
   @HttpCode(HttpStatus.OK)
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
   @ApiOperation({ summary: 'Update user settings/preferences' })
   @ApiResponse({ status: 200, description: 'Settings updated successfully' })
   async updateSettings(
@@ -210,7 +205,6 @@ export class MeController {
 
   @Post('me/delete-account')
   @HttpCode(HttpStatus.OK)
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @ApiOperation({ summary: 'Deactivate (soft-delete) the current user account' })
   @ApiResponse({ status: 200, description: 'Account deactivated successfully' })
   @ApiResponse({ status: 400, description: 'Invalid password' })

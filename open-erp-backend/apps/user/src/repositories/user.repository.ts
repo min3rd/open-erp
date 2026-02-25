@@ -19,11 +19,16 @@ export interface UpdateUserDto {
   email?: string;
   firstName?: string;
   lastName?: string;
+  fullName?: string;
+  displayName?: string;
+  phone?: string;
   status?: string;
   lastLoginAt?: Date;
   verifiedAt?: Date;
   avatarUrl?: string;
   password?: string;
+  deletedAt?: Date | null;
+  metadata?: Record<string, string>;
   address?: {
     country?: string;
     street?: string;
@@ -40,6 +45,7 @@ export interface UpdateUserDto {
   }[];
   skills?: string[];
   hobbies?: string[];
+  [key: string]: any;
 }
 
 @Injectable()

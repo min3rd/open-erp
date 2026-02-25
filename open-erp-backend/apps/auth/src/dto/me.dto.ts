@@ -8,14 +8,11 @@ import {
   IsObject,
   IsArray,
   IsDateString,
-  ValidateNested,
-  IsNumber,
   ArrayMaxSize,
   IsEnum,
   IsBoolean,
   IsNotEmpty,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 
 export class ChangePasswordDto {
   @ApiProperty({ description: 'Current password' })
