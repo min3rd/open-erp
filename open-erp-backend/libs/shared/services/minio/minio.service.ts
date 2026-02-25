@@ -37,9 +37,7 @@ export class MinioService implements IMinioService {
   constructor(private readonly configService: ConfigService) {
     // Load configuration from environment variables
     this.config = {
-      endPoint: isDevelopment()
-        ? 'minio' // Use service name for local development with Docker Compose
-        : this.configService.get<string>('MINIO_ENDPOINT', 'localhost'),
+      endPoint: this.configService.get<string>('MINIO_ENDPOINT', 'localhost'),
       port: this.configService.get<number>('MINIO_PORT', 9000),
       useSSL: this.configService.get<boolean>('MINIO_USE_SSL', false),
       accessKey: this.configService.get<string>(
@@ -52,9 +50,8 @@ export class MinioService implements IMinioService {
       ),
       region: this.configService.get<string>('MINIO_REGION', 'us-east-1'),
       bucket: this.configService.get<string>('MINIO_BUCKET', 'open-erp'),
-      presignedUrlExpiry: this.configService.get<number>(
-        'MINIO_PRESIGNED_URL_EXPIRY',
-        3600,
+      presignedUrlExpiry: parseInt(
+        this.configService.get<string>('MINIO_PRESIGNED_URL_EXPIRY', '3600'),
       ), // Default 1 hour
     };
 

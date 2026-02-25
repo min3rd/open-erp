@@ -20,8 +20,13 @@ export class AttachmentDto {
   })
   @IsNotEmpty()
   @IsString()
-  @IsUrl({}, { message: 'Attachment URL must be a valid URL' })
-  url: string;
+  @IsUrl(
+    {
+      require_tld: false,
+    },
+    { message: 'Attachment URL must be a valid URL' },
+  )
+  url?: string;
 
   @ApiProperty({
     description: 'Original filename',
@@ -29,7 +34,7 @@ export class AttachmentDto {
   })
   @IsNotEmpty()
   @IsString()
-  filename: string;
+  filename?: string;
 
   @ApiProperty({
     description: 'MIME type of the file',
@@ -37,7 +42,7 @@ export class AttachmentDto {
   })
   @IsNotEmpty()
   @IsString()
-  mimeType: string;
+  mimeType?: string;
 
   @ApiProperty({
     description: 'File size in bytes',
@@ -45,7 +50,7 @@ export class AttachmentDto {
   })
   @IsNotEmpty()
   @IsNumber()
-  size: number;
+  size?: number;
 }
 
 export class SendMessageDto {
@@ -56,7 +61,7 @@ export class SendMessageDto {
   @IsNotEmpty({ message: 'Conversation ID is required' })
   @IsString()
   @IsMongoId({ message: 'Conversation ID must be a valid MongoDB ObjectId' })
-  conversationId: string;
+  conversationId?: string;
 
   @ApiProperty({
     description: 'Type of message',
@@ -65,7 +70,7 @@ export class SendMessageDto {
   })
   @IsNotEmpty({ message: 'Message type is required' })
   @IsEnum(MessageType, { message: 'Invalid message type' })
-  type: MessageType;
+  type?: MessageType;
 
   @ApiPropertyOptional({
     description: 'Text content of the message (required for text messages)',
