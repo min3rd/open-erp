@@ -67,6 +67,14 @@ export class RefreshTokenRepository {
     });
   }
 
+  async findById(id: string): Promise<RefreshTokenDocument | null> {
+    try {
+      return this.refreshTokenModel.findById(id);
+    } catch {
+      return null;
+    }
+  }
+
   async revokeToken(
     tokenHash: string,
     reason: string,

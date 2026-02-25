@@ -70,9 +70,13 @@ export class UserRepository {
     }
   }
 
-  async findById(id: string): Promise<User | null> {
+  async findById(id: string, includePassword: boolean = false): Promise<User | null> {
     try {
-      const user = await this.userModel.findById(id).exec();
+      let query = this.userModel.findById(id);
+      if (includePassword) {
+        query = query.select('+password') as any;
+      }
+      const user = await query.exec();
       return user;
     } catch (error) {
       this.logger.error(

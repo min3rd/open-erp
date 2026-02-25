@@ -71,9 +71,14 @@ export class UserRpcController {
   }
 
   @MessagePattern(RPC_METHODS.USER.FIND_USER_BY_ID)
-  async findUserById(@Payload() params: { userId: string }) {
+  async findUserById(
+    @Payload() params: { userId: string; includePassword?: boolean },
+  ) {
     this.logger.log(`RPC: ${RPC_METHODS.USER.FIND_USER_BY_ID}`);
-    return await this.userRepository.findById(params.userId);
+    return await this.userRepository.findById(
+      params.userId,
+      params.includePassword,
+    );
   }
 
   @MessagePattern(RPC_METHODS.USER.CREATE_USER)
@@ -400,6 +405,27 @@ export class UserRpcController {
     } catch (error) {
       this.logger.error(
         `Error removing role from user via RPC: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  @MessagePattern(RPC_METHODS.USER.UPDATE_USER)
+  async updateUser(
+    @Payload() params: { userId: string } & Record<string, any>,
+  ) {
+    this.logger.log(`RPC: ${RPC_METHODS.USER.UPDATE_USER}`);
+    try {
+      const { userId, ...updateData } = params;
+      const user = await this.userRepository.update(userId, updateData);
+      if (!user) {
+        throw new Error(`User not found with id: ${userId}`);
+      }
+      return user;
+    } catch (error) {
+      this.logger.error(
+        `Error updating user via RPC: ${error.message}`,
         error.stack,
       );
       throw error;

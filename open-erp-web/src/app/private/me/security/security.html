@@ -1,0 +1,150 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="space-y-6">
+  <!-- Change Password -->
+  <div class="bg-white dark:bg-surface-900 rounded-lg border border-surface-200 dark:border-surface-700">
+    <div class="px-6 py-4 border-b border-surface-200 dark:border-surface-700">
+      <h3 class="text-base font-semibold text-surface-900 dark:text-surface-100">Đổi mật khẩu</h3>
+      <p class="text-sm text-surface-500 dark:text-surface-400 mt-0.5">Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số.</p>
+    </div>
+
+    <form class="p-6 space-y-4" [formGroup]="changePasswordForm" (ngSubmit)="submitChangePassword()">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="sm:col-span-2 flex flex-col gap-1">
+          <label class="text-sm font-medium text-surface-700 dark:text-surface-300">Mật khẩu hiện tại</label>
+          <p-password
+            formControlName="currentPassword"
+            [feedback]="false"
+            [toggleMask]="true"
+            placeholder="Nhập mật khẩu hiện tại"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          ></p-password>
+          @if (changePasswordForm.get('currentPassword')?.invalid && changePasswordForm.get('currentPassword')?.touched) {
+            <small class="text-red-500 text-xs">Vui lòng nhập mật khẩu hiện tại</small>
+          }
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-surface-700 dark:text-surface-300">Mật khẩu mới</label>
+          <p-password
+            formControlName="newPassword"
+            [feedback]="true"
+            [toggleMask]="true"
+            placeholder="Mật khẩu mới (tối thiểu 8 ký tự)"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+            weakLabel="Yếu"
+            mediumLabel="Trung bình"
+            strongLabel="Mạnh"
+          ></p-password>
+          @if (changePasswordForm.get('newPassword')?.invalid && changePasswordForm.get('newPassword')?.touched) {
+            <small class="text-red-500 text-xs">
+              Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số
+            </small>
+          }
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-surface-700 dark:text-surface-300">Xác nhận mật khẩu mới</label>
+          <p-password
+            formControlName="confirmPassword"
+            [feedback]="false"
+            [toggleMask]="true"
+            placeholder="Nhập lại mật khẩu mới"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          ></p-password>
+          @if (changePasswordForm.errors?.['passwordMismatch'] && changePasswordForm.get('confirmPassword')?.touched) {
+            <small class="text-red-500 text-xs">Mật khẩu xác nhận không khớp</small>
+          }
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <p-button
+          label="Đổi mật khẩu"
+          icon="pi pi-lock"
+          type="submit"
+          size="small"
+          [disabled]="changePasswordForm.invalid"
+          [loading]="isChangingPassword()"
+        ></p-button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Active Sessions -->
+  <div class="bg-white dark:bg-surface-900 rounded-lg border border-surface-200 dark:border-surface-700">
+    <div class="px-6 py-4 border-b border-surface-200 dark:border-surface-700 flex items-center justify-between">
+      <div>
+        <h3 class="text-base font-semibold text-surface-900 dark:text-surface-100">Phiên hoạt động</h3>
+        <p class="text-sm text-surface-500 dark:text-surface-400 mt-0.5">Quản lý các thiết bị đang đăng nhập.</p>
+      </div>
+    </div>
+
+    @if (isLoadingSessions()) {
+      <div class="p-6 space-y-3">
+        @for (i of [1, 2]; track i) {
+          <div class="flex items-center justify-between py-2">
+            <div class="space-y-1">
+              <p-skeleton width="10rem" height="1rem"></p-skeleton>
+              <p-skeleton width="8rem" height="0.875rem"></p-skeleton>
+            </div>
+            <p-skeleton width="5rem" height="2rem"></p-skeleton>
+          </div>
+        }
+      </div>
+    } @else if (sessions().length === 0) {
+      <div class="p-6 text-center text-surface-400 dark:text-surface-500 text-sm">
+        <i class="pi pi-inbox text-2xl mb-2 block"></i>
+        Không có phiên hoạt động nào
+      </div>
+    } @else {
+      <p-table [value]="sessions()" [tableStyle]="{ 'min-width': '100%' }" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="text-xs font-semibold text-surface-500 uppercase">Thiết bị</th>
+            <th class="text-xs font-semibold text-surface-500 uppercase hidden sm:table-cell">IP</th>
+            <th class="text-xs font-semibold text-surface-500 uppercase hidden md:table-cell">Ngày tạo</th>
+            <th class="text-xs font-semibold text-surface-500 uppercase hidden md:table-cell">Hết hạn</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-session>
+          <tr>
+            <td>
+              <div class="flex items-center gap-2">
+                <i class="pi pi-desktop text-surface-400"></i>
+                <span class="text-sm text-surface-800 dark:text-surface-200 truncate max-w-[10rem]">
+                  {{ session.deviceInfo }}
+                </span>
+              </div>
+            </td>
+            <td class="hidden sm:table-cell">
+              <span class="text-sm text-surface-600 dark:text-surface-400">{{ session.ipAddress || '—' }}</span>
+            </td>
+            <td class="hidden md:table-cell">
+              <span class="text-sm text-surface-600 dark:text-surface-400">{{ formatDate(session.createdAt) }}</span>
+            </td>
+            <td class="hidden md:table-cell">
+              <span class="text-sm text-surface-600 dark:text-surface-400">{{ formatDate(session.expiresAt) }}</span>
+            </td>
+            <td class="text-right">
+              <p-button
+                icon="pi pi-sign-out"
+                severity="danger"
+                size="small"
+                [text]="true"
+                title="Đăng xuất thiết bị này"
+                [loading]="revokingSessionId() === session.id"
+                (onClick)="confirmRevokeSession(session)"
+              ></p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    }
+  </div>
+</div>
