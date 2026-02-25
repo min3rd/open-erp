@@ -5,6 +5,11 @@ import { Detail } from './detail/detail';
 export const routes: Routes = [
   {
     path: '',
+    pathMatch: 'full',
+    redirectTo: 'detail',
+  },
+  {
+    path: '',
     component: Organization,
     children: [
       {
