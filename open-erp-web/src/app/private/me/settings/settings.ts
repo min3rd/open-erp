@@ -9,6 +9,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 // PrimeNG
 import { ButtonModule } from 'primeng/button';
@@ -19,7 +20,9 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { DividerModule } from 'primeng/divider';
 import { MessageService } from 'primeng/api';
 
-import { MeService, MeSettings } from '../../../../core/services/me-service';
+import { MeService } from '../../../../core/services/me-service';
+import type { MeSettings } from '../me.types';
+import { LanguageService, LanguageOption } from '../../../../core/services/language.service';
 
 @Component({
   selector: 'me-settings',
@@ -27,6 +30,7 @@ import { MeService, MeSettings } from '../../../../core/services/me-service';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    TranslocoModule,
     ButtonModule,
     SelectModule,
     ToastModule,
@@ -42,10 +46,13 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
   private meService = inject(MeService);
   private fb = inject(FormBuilder);
   private messageService = inject(MessageService);
+  private translocoService = inject(TranslocoService);
+  private languageService = inject(LanguageService);
   private destroy$ = new Subject<void>();
 
   readonly isLoading = signal(true);
   readonly isSaving = signal(false);
+  readonly languages = signal<{ label: string; value: string }[]>([]);
 
   settingsForm!: FormGroup;
 
@@ -55,21 +62,20 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
     { label: 'YYYY-MM-DD', value: 'YYYY-MM-DD' },
   ];
 
-  readonly themes = [
-    { label: 'Tự động (theo hệ thống)', value: 'auto' },
-    { label: 'Sáng', value: 'light' },
-    { label: 'Tối', value: 'dark' },
-  ];
+  get themes() {
+    return [
+      { label: this.translocoService.translate('me.settings.display.themes.auto'), value: 'auto' },
+      { label: this.translocoService.translate('me.settings.display.themes.light'), value: 'light' },
+      { label: this.translocoService.translate('me.settings.display.themes.dark'), value: 'dark' },
+    ];
+  }
 
-  readonly languages = [
-    { label: 'Tiếng Việt', value: 'vi' },
-    { label: 'English', value: 'en' },
-  ];
-
-  readonly densities = [
-    { label: 'Thoải mái', value: 'comfortable' },
-    { label: 'Compact', value: 'compact' },
-  ];
+  get densities() {
+    return [
+      { label: this.translocoService.translate('me.settings.display.densities.comfortable'), value: 'comfortable' },
+      { label: this.translocoService.translate('me.settings.display.densities.compact'), value: 'compact' },
+    ];
+  }
 
   readonly timezones = [
     { label: 'Asia/Ho_Chi_Minh (GMT+7)', value: 'Asia/Ho_Chi_Minh' },
@@ -81,6 +87,13 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
+    // Load available languages from the language service
+    this.languageService.loadLanguages().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (langs: LanguageOption[]) => {
+        this.languages.set(langs.map((l) => ({ label: l.label, value: l.code })));
+      },
+    });
+
     this.settingsForm = this.fb.group({
       dateFormat: ['DD/MM/YYYY'],
       timezone: ['Asia/Ho_Chi_Minh'],
@@ -127,21 +140,45 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.isSaving.set(false);
+          // Apply settings immediately to the UI
+          if (values.language) {
+            this.translocoService.setActiveLang(values.language);
+            localStorage.setItem('app.lang', values.language);
+          }
+          if (values.theme) {
+            this.applyTheme(values.theme);
+          }
           this.messageService.add({
             severity: 'success',
-            summary: 'Thành công',
-            detail: 'Cài đặt đã được lưu',
+            summary: this.translocoService.translate('common.success'),
+            detail: this.translocoService.translate('me.settings.messages.saveSuccess'),
           });
         },
         error: (err) => {
           this.isSaving.set(false);
           this.messageService.add({
             severity: 'error',
-            summary: 'Lỗi',
-            detail: err.message || 'Không thể lưu cài đặt',
+            summary: this.translocoService.translate('common.error'),
+            detail: err.message || this.translocoService.translate('me.settings.messages.saveError'),
           });
         },
       });
+  }
+
+  private applyTheme(theme: 'light' | 'dark' | 'auto'): void {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      localStorage.setItem('app.theme', 'dark');
+    } else if (theme === 'light') {
+      root.classList.remove('dark');
+      localStorage.setItem('app.theme', 'light');
+    } else {
+      // auto: follow system preference
+      localStorage.setItem('app.theme', 'auto');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      prefersDark ? root.classList.add('dark') : root.classList.remove('dark');
+    }
   }
 
   resetSettings(): void {

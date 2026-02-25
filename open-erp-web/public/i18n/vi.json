@@ -1884,5 +1884,150 @@
     "decline": "Từ chối",
     "unread": "Chưa đọc",
     "list": "Danh sách thông báo"
+  },
+  "me": {
+    "tabs": {
+      "profile": "Thông tin chung",
+      "security": "Bảo mật",
+      "settings": "Cài đặt"
+    },
+    "profile": {
+      "title": "Thông tin cá nhân",
+      "editButton": "Chỉnh sửa",
+      "saveButton": "Lưu thay đổi",
+      "cancelButton": "Hủy",
+      "fields": {
+        "fullName": "Tên đầy đủ",
+        "displayName": "Tên hiển thị",
+        "email": "Email",
+        "phone": "Số điện thoại",
+        "dateOfBirth": "Ngày sinh",
+        "skills": "Kỹ năng",
+        "hobbies": "Sở thích",
+        "address": "Địa chỉ",
+        "country": "Quốc gia",
+        "city": "Thành phố",
+        "province": "Tỉnh/Bang",
+        "district": "Quận/Huyện",
+        "street": "Đường/Phố",
+        "postalCode": "Mã bưu chính",
+        "joinedAt": "Ngày tham gia",
+        "lastLogin": "Đăng nhập lần cuối",
+        "roles": "Vai trò"
+      },
+      "placeholders": {
+        "fullName": "Nguyễn Văn A",
+        "displayName": "Tên hiển thị ngắn",
+        "phone": "+84 xxx xxx xxx",
+        "skills": "Nhập kỹ năng và nhấn Enter",
+        "hobbies": "Nhập sở thích và nhấn Enter",
+        "country": "Việt Nam",
+        "city": "Hà Nội",
+        "street": "123 Đường ABC"
+      },
+      "avatar": {
+        "change": "Thay đổi ảnh đại diện",
+        "uploading": "Đang tải lên...",
+        "invalidType": "Chỉ cho phép ảnh JPG, PNG, GIF, WEBP",
+        "uploadSuccess": "Ảnh đại diện đã được cập nhật",
+        "uploadError": "Tải ảnh lên thất bại"
+      },
+      "status": {
+        "active": "Hoạt động",
+        "inactive": "Không hoạt động"
+      },
+      "messages": {
+        "updateSuccess": "Hồ sơ đã được cập nhật",
+        "updateError": "Không thể cập nhật hồ sơ",
+        "loadError": "Không thể tải thông tin hồ sơ"
+      }
+    },
+    "security": {
+      "changePassword": {
+        "title": "Đổi mật khẩu",
+        "description": "Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số.",
+        "currentPassword": "Mật khẩu hiện tại",
+        "newPassword": "Mật khẩu mới",
+        "confirmPassword": "Xác nhận mật khẩu mới",
+        "submitButton": "Đổi mật khẩu",
+        "placeholders": {
+          "current": "Nhập mật khẩu hiện tại",
+          "new": "Mật khẩu mới (tối thiểu 8 ký tự)",
+          "confirm": "Nhập lại mật khẩu mới"
+        },
+        "errors": {
+          "currentRequired": "Vui lòng nhập mật khẩu hiện tại",
+          "newInvalid": "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số",
+          "mismatch": "Mật khẩu xác nhận không khớp"
+        },
+        "strength": {
+          "weak": "Yếu",
+          "medium": "Trung bình",
+          "strong": "Mạnh"
+        },
+        "messages": {
+          "success": "Mật khẩu đã được thay đổi",
+          "error": "Không thể thay đổi mật khẩu"
+        }
+      },
+      "sessions": {
+        "title": "Phiên hoạt động",
+        "description": "Quản lý các thiết bị đang đăng nhập.",
+        "columns": {
+          "device": "Thiết bị",
+          "ip": "IP",
+          "createdAt": "Ngày tạo",
+          "expiresAt": "Hết hạn"
+        },
+        "revokeButton": "Đăng xuất",
+        "confirmRevoke": "Bạn có chắc muốn đăng xuất thiết bị \"{device}\"?",
+        "confirmTitle": "Xác nhận đăng xuất",
+        "empty": "Không có phiên hoạt động nào",
+        "messages": {
+          "revokeSuccess": "Phiên đã được thu hồi",
+          "revokeError": "Không thể thu hồi phiên"
+        }
+      }
+    },
+    "settings": {
+      "display": {
+        "title": "Hiển thị",
+        "dateFormat": "Định dạng ngày tháng",
+        "timezone": "Múi giờ",
+        "theme": "Giao diện",
+        "language": "Ngôn ngữ",
+        "layoutDensity": "Mật độ bố cục",
+        "themes": {
+          "auto": "Tự động (theo hệ thống)",
+          "light": "Sáng",
+          "dark": "Tối"
+        },
+        "densities": {
+          "comfortable": "Thoải mái",
+          "compact": "Compact"
+        }
+      },
+      "notifications": {
+        "title": "Thông báo",
+        "inApp": {
+          "label": "Thông báo trong ứng dụng",
+          "description": "Nhận thông báo ngay trong ứng dụng"
+        },
+        "email": {
+          "label": "Thông báo qua email",
+          "description": "Nhận thông báo quan trọng qua email"
+        },
+        "push": {
+          "label": "Thông báo đẩy",
+          "description": "Nhận thông báo đẩy trên trình duyệt"
+        }
+      },
+      "saveButton": "Lưu cài đặt",
+      "resetButton": "Đặt lại mặc định",
+      "messages": {
+        "saveSuccess": "Cài đặt đã được lưu",
+        "saveError": "Không thể lưu cài đặt"
+      }
+    }
   }
 }

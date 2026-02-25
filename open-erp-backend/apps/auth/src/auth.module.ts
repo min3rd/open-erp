@@ -27,12 +27,14 @@ import { PasswordResetTokenRepository } from './repositories/password-reset-toke
 import { User, UserSchema } from '@shared/schemas/user.schema';
 import { Role, RoleSchema } from '@shared/schemas/role.schema';
 import { AuthorizationService } from '@shared/authz';
+import { MinioModule } from '@shared/services/minio/minio.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     LoggerModule,
     DatabaseModule,
+    MinioModule,
     RabbitMQClientModule.forRoot(), // Add NestJS ClientProxy for sending messages
     MongooseModule.forFeature([
       { name: VerificationToken.name, schema: VerificationTokenSchema },

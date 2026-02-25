@@ -84,6 +84,17 @@ export class User extends Document {
   avatarUrl?: string;
 
   @Prop({
+    type: {
+      key: { type: String, required: true },
+      bucket: { type: String, required: false },
+    },
+    required: false,
+    default: null,
+    _id: false,
+  })
+  avatar?: { key: string; bucket?: string } | null;
+
+  @Prop({
     required: false,
     select: false, // Don't include password in queries by default
   })

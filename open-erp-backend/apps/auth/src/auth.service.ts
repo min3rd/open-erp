@@ -47,6 +47,7 @@ import {
 } from './utils/token.util';
 import { Types } from 'mongoose';
 import { AuthorizationService } from '@shared/authz';
+import { MinioService } from '@shared/services/minio/minio.service';
 
 @Injectable()
 export class AuthService {
@@ -70,6 +71,7 @@ export class AuthService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly passwordResetTokenRepository: PasswordResetTokenRepository,
     private readonly authorizationService: AuthorizationService,
+    private readonly minioService: MinioService,
   ) {
     this.verificationTokenTTL = parseInt(
       process.env.VERIFICATION_TOKEN_TTL || '15',
@@ -1085,6 +1087,30 @@ export class AuthService {
     const globalPermissions =
       await this.authorizationService.getEffectivePermissions(userId, 'global');
 
+    // Generate presigned download URL for avatar if stored as MinIO key/object info
+    let avatar: { key: string; bucket: string; presignedUrl: string | null } | null = null;
+    let avatarPresignedUrl: string | null = null;
+
+    const avatarData = user.avatar; // stored as { key, bucket } object
+    const avatarKey = avatarData?.key || user.avatarUrl; // fallback to legacy string field
+
+    if (avatarKey) {
+      try {
+        const presignResult = await this.minioService.presignDownload(
+          avatarKey,
+          { bucket: avatarData?.bucket },
+        );
+        avatarPresignedUrl = presignResult.url;
+        avatar = {
+          key: avatarKey,
+          bucket: avatarData?.bucket || this.minioService.getDefaultBucket(),
+          presignedUrl: presignResult.url,
+        };
+      } catch (err) {
+        this.logger.warn(`Failed to generate presigned URL for avatar: ${err.message}`);
+      }
+    }
+
     // Return user profile information with roles and permissions
     return {
       id: user.id.toString(),
@@ -1093,7 +1119,8 @@ export class AuthService {
       fullName: user.fullName,
       displayName: user.displayName,
       phone: user.phone,
-      avatarUrl: user.avatarUrl || null,
+      avatar,
+      avatarUrl: avatarPresignedUrl,
       status: user.status,
       verifiedAt: user.verifiedAt,
       createdAt: user.createdAt,
@@ -1116,16 +1143,28 @@ export class AuthService {
       throw ErrorFactory.createError({ code: USER_NOT_FOUND });
     }
 
+    // Build update payload – store avatar as object { key, bucket }
+    const { avatarKey, avatarBucket, ...rest } = data;
+    const updatePayload: Record<string, any> = { ...rest };
+
+    if (avatarKey) {
+      updatePayload.avatar = {
+        key: avatarKey,
+        bucket: avatarBucket || this.minioService.getDefaultBucket(),
+      };
+    }
+
     const updated = await firstValueFrom(
       this.userClient.send(RPC_METHODS.USER.UPDATE_USER, {
         userId,
-        ...data,
+        ...updatePayload,
       }),
     );
 
     this.logger.log({ event: 'user.profile.updated', userId });
 
-    return updated;
+    // Return updated profile with presigned URL
+    return this.getMe(userId);
   }
 
   async changePassword(

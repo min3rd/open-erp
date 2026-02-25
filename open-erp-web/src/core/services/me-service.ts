@@ -4,75 +4,24 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { API_URI_AUTH } from '../constant';
 import { ApiResponse, ApiSingleResponse, ApiResponseError, isApiResponse, unwrap } from '../api';
-
-export interface MeProfile {
-  id: string;
-  email: string;
-  username?: string;
-  fullName?: string;
-  displayName?: string;
-  phone?: string;
-  avatarUrl?: string | null;
-  status: string;
-  verifiedAt?: string;
-  createdAt: string;
-  lastLoginAt?: string;
-  address?: {
-    country?: string;
-    street?: string;
-    district?: string;
-    city?: string;
-    province?: string;
-    postalCode?: string;
-  };
-  dateOfBirth?: string;
-  skills?: string[];
-  hobbies?: string[];
-  roles?: { id: string; code: string; name: string; description?: string }[];
-  permissions?: string[];
-}
-
-export interface MeSettings {
-  dateFormat: string;
-  timezone: string;
-  theme: 'light' | 'dark' | 'auto';
-  language: string;
-  layoutDensity: 'compact' | 'comfortable';
-  notificationsInApp: boolean;
-  notificationsEmail: boolean;
-  notificationsPush: boolean;
-}
-
-export interface MeSession {
-  id: string;
-  deviceInfo: string;
-  ipAddress?: string | null;
-  createdAt?: string;
-  expiresAt: string;
-}
-
-export interface UpdateMeDto {
-  fullName?: string;
-  displayName?: string;
-  phone?: string;
-  avatarUrl?: string;
-  address?: {
-    country?: string;
-    street?: string;
-    district?: string;
-    city?: string;
-    province?: string;
-    postalCode?: string;
-  };
-  dateOfBirth?: string;
-  skills?: string[];
-  hobbies?: string[];
-}
-
-export interface ChangePasswordDto {
-  currentPassword: string;
-  newPassword: string;
-}
+// Re-export types from canonical types file for backward compatibility
+export type {
+  MeProfile,
+  MeAvatar,
+  MeAddress,
+  MeRole,
+  MeSettings,
+  MeSession,
+  UpdateMeDto,
+  ChangePasswordDto,
+} from '../../app/private/me/me.types';
+import type {
+  MeProfile,
+  MeSettings,
+  MeSession,
+  UpdateMeDto,
+  ChangePasswordDto,
+} from '../../app/private/me/me.types';
 
 @Injectable({
   providedIn: 'root',

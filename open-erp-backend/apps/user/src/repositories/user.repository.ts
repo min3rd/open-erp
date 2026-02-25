@@ -25,6 +25,7 @@ export interface UpdateUserDto {
   status?: string;
   lastLoginAt?: Date;
   verifiedAt?: Date;
+  avatar?: { key: string; bucket?: string } | null;
   avatarUrl?: string;
   password?: string;
   deletedAt?: Date | null;
