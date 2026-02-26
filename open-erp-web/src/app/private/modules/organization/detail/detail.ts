@@ -183,6 +183,14 @@ export class Detail implements OnInit, OnDestroy {
   protected readonly deptFilterOptions = signal<OrgDepartment[]>([]);
   protected readonly positionFilterOptions = signal<OrgPosition[]>([]);
 
+  protected readonly deptFilterSelectOptions = computed(() => [
+    {
+      label: this.translocoService.translate('organization.detail.members.allDepartments'),
+      value: '',
+    },
+    ...this.deptFilterOptions().map((d) => ({ label: d.name, value: d.id })),
+  ]);
+
   private membersSearchSubject$ = new Subject<string>();
 
   protected readonly eventsPage = signal(1);

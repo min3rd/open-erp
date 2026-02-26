@@ -33,6 +33,11 @@ import {
   OrgPosition,
 } from '../../../../../../core/services/organization-service';
 
+interface DeptAssignment {
+  departmentId: string;
+  positionIds: string[];
+}
+
 @Component({
   selector: 'personnel-settings',
   imports: [
@@ -94,9 +99,8 @@ export class PersonnelSettings implements OnInit, OnDestroy {
     level: new FormControl<number>(0),
   });
 
-  // Assignment state (for selected member)
-  protected readonly selectedDeptIds = signal<string[]>([]);
-  protected readonly selectedPositionIds = signal<string[]>([]);
+  // Assignment state (for selected member) - positions tied to departments
+  protected readonly assignments = signal<DeptAssignment[]>([]);
 
   protected readonly activeTab = signal<number>(0);
 
@@ -108,12 +112,21 @@ export class PersonnelSettings implements OnInit, OnDestroy {
     this.positions().map((p) => ({ label: p.name, value: p.id })),
   );
 
+  protected readonly selectedDeptIds = computed(() =>
+    this.assignments().map((a) => a.departmentId),
+  );
+
   constructor() {
     // Sync selection state when the selected member changes
     effect(() => {
       const member = this.selectedMember();
-      this.selectedDeptIds.set(member?.departments?.map((d) => d.id) ?? []);
-      this.selectedPositionIds.set(member?.positions?.map((p) => p.id) ?? []);
+      const memberAssignments = member?.assignments ?? [];
+      this.assignments.set(
+        memberAssignments.map((a) => ({
+          departmentId: a.departmentId,
+          positionIds: a.positionIds.map((p) => p.id),
+        })),
+      );
     });
   }
 
@@ -317,6 +330,31 @@ export class PersonnelSettings implements OnInit, OnDestroy {
 
   // ── Assignment ────────────────────────────────────────────────────────────
 
+  protected onDeptSelectionChange(deptIds: string[]): void {
+    // Keep existing assignments for selected depts; remove deselected
+    const current = this.assignments();
+    const updated = deptIds.map((deptId) => {
+      const existing = current.find((a) => a.departmentId === deptId);
+      return existing ?? { departmentId: deptId, positionIds: [] };
+    });
+    this.assignments.set(updated);
+  }
+
+  protected getAssignmentPositions(deptId: string): string[] {
+    return this.assignments().find((a) => a.departmentId === deptId)?.positionIds ?? [];
+  }
+
+  protected onAssignmentPositionChange(deptId: string, positionIds: string[]): void {
+    const updated = this.assignments().map((a) =>
+      a.departmentId === deptId ? { ...a, positionIds } : a,
+    );
+    this.assignments.set(updated);
+  }
+
+  protected getDeptName(deptId: string): string {
+    return this.departments().find((d) => d.id === deptId)?.name ?? deptId;
+  }
+
   protected onSaveAssignment(): void {
     const member = this.selectedMember();
     if (!member) return;
@@ -324,8 +362,7 @@ export class PersonnelSettings implements OnInit, OnDestroy {
     this.isSubmitting.set(true);
     this.orgService
       .assignMember(this.orgId(), member.id, {
-        departments: this.selectedDeptIds(),
-        positions: this.selectedPositionIds(),
+        assignments: this.assignments(),
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe({

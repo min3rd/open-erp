@@ -754,7 +754,7 @@
                     <p-select
                       [ngModel]="membersDeptFilter()"
                       (ngModelChange)="membersDeptFilter.set($event); onMembersFilterChange()"
-                      [options]="[{ label: ('organization.detail.members.allDepartments' | transloco), value: '' }, ...deptFilterOptions().map(d => ({ label: d.name, value: d.id }))]"
+                      [options]="deptFilterSelectOptions()"
                       optionLabel="label"
                       optionValue="value"
                       class="min-w-[140px]"
@@ -944,7 +944,7 @@
                       <div class="flex-1 min-w-0">
                         <p class="font-semibold text-sm m-0 truncate">{{ member.name || member.fullName }}</p>
                         <p class="text-xs text-surface-500 m-0 truncate">{{ member.email }}</p>
-                        @if (member.departments?.length || member.positions?.length) {
+                        @if (member.departments.length || member.positions.length) {
                         <div class="flex flex-wrap gap-1 mt-1">
                           @for (d of member.departments; track d.id) {
                           <p-tag [value]="d.name" severity="info" styleClass="text-xs" />

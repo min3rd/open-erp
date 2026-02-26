@@ -32,14 +32,14 @@ import { ok, created, updated, deleted, paginated } from '@shared/response';
 
 @ApiTags('org-members')
 @ApiBearerAuth()
-@Controller('organizations/:orgId')
+@Controller('organizations')
 @UseGuards(JwtAuthGuard)
 export class OrgMembersController {
   constructor(private readonly orgMembersService: OrgMembersService) {}
 
   // ── Members ──────────────────────────────────────────────────────────────
 
-  @Get('members')
+  @Get(':orgId/members')
   @ApiOperation({ summary: 'Get paginated organization members with departments and positions' })
   @ApiParam({ name: 'orgId', description: 'Organization ID' })
   @Permissions('membership.read')
@@ -51,14 +51,14 @@ export class OrgMembersController {
     return paginated(
       result.items,
       query.page ?? 1,
-      query.size ?? 20,
+      query.size ?? query.limit ?? 20,
       result.total,
       {},
       'Members retrieved successfully',
     );
   }
 
-  @Patch('members/:memberId')
+  @Patch(':orgId/members/:memberId')
   @ApiOperation({ summary: 'Update member metadata (status, roles)' })
   @ApiParam({ name: 'orgId', description: 'Organization ID' })
   @ApiParam({ name: 'memberId', description: 'Member ID' })
@@ -72,7 +72,7 @@ export class OrgMembersController {
     return updated(member, 'Member updated successfully');
   }
 
-  @Post('members/:memberId/assign')
+  @Post(':orgId/members/:memberId/assign')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Assign departments and positions to a member' })
   @ApiParam({ name: 'orgId', description: 'Organization ID' })
@@ -89,7 +89,7 @@ export class OrgMembersController {
 
   // ── Departments ───────────────────────────────────────────────────────────
 
-  @Get('departments')
+  @Get(':orgId/departments')
   @ApiOperation({ summary: 'Get departments for an organization' })
   @ApiParam({ name: 'orgId', description: 'Organization ID' })
   @Permissions('organization.read')
@@ -98,7 +98,7 @@ export class OrgMembersController {
     return ok(departments, 'Departments retrieved successfully');
   }
 
-  @Post('departments')
+  @Post(':orgId/departments')
   @ApiOperation({ summary: 'Create a department' })
   @ApiParam({ name: 'orgId', description: 'Organization ID' })
   @Permissions(['organization.manage', 'membership.update'], { mode: 'any' })
@@ -110,7 +110,7 @@ export class OrgMembersController {
     return created(dept, 'Department created successfully');
   }
 
-  @Patch('departments/:deptId')
+  @Patch(':orgId/departments/:deptId')
   @ApiOperation({ summary: 'Update a department' })
   @ApiParam({ name: 'orgId', description: 'Organization ID' })
   @ApiParam({ name: 'deptId', description: 'Department ID' })
@@ -124,7 +124,7 @@ export class OrgMembersController {
     return updated(dept, 'Department updated successfully');
   }
 
-  @Delete('departments/:deptId')
+  @Delete(':orgId/departments/:deptId')
   @ApiOperation({ summary: 'Delete a department' })
   @ApiParam({ name: 'orgId', description: 'Organization ID' })
   @ApiParam({ name: 'deptId', description: 'Department ID' })
@@ -139,7 +139,7 @@ export class OrgMembersController {
 
   // ── Positions ─────────────────────────────────────────────────────────────
 
-  @Get('positions')
+  @Get(':orgId/positions')
   @ApiOperation({ summary: 'Get positions for an organization' })
   @ApiParam({ name: 'orgId', description: 'Organization ID' })
   @Permissions('organization.read')
@@ -148,7 +148,7 @@ export class OrgMembersController {
     return ok(positions, 'Positions retrieved successfully');
   }
 
-  @Post('positions')
+  @Post(':orgId/positions')
   @ApiOperation({ summary: 'Create a position' })
   @ApiParam({ name: 'orgId', description: 'Organization ID' })
   @Permissions(['organization.manage', 'membership.update'], { mode: 'any' })
@@ -160,7 +160,7 @@ export class OrgMembersController {
     return created(position, 'Position created successfully');
   }
 
-  @Patch('positions/:posId')
+  @Patch(':orgId/positions/:posId')
   @ApiOperation({ summary: 'Update a position' })
   @ApiParam({ name: 'orgId', description: 'Organization ID' })
   @ApiParam({ name: 'posId', description: 'Position ID' })
@@ -174,7 +174,7 @@ export class OrgMembersController {
     return updated(position, 'Position updated successfully');
   }
 
-  @Delete('positions/:posId')
+  @Delete(':orgId/positions/:posId')
   @ApiOperation({ summary: 'Delete a position' })
   @ApiParam({ name: 'orgId', description: 'Organization ID' })
   @ApiParam({ name: 'posId', description: 'Position ID' })

@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RabbitMQClientModule } from '@shared/rabbitmq';
 import { getDatabaseConfig, getMongooseOptions } from '@shared/database';
+import { MinioModule } from '@shared/services/minio/minio.module';
 
 // Schemas
 import {
@@ -65,6 +66,7 @@ import { WarehouseRepository } from '../../inventory/src/repositories/warehouse.
     ConfigModule.forRoot(),
     LoggerModule,
     RabbitMQClientModule.forRoot(),
+    MinioModule,
     MongooseModule.forRootAsync({
       useFactory: () => {
         const config = getDatabaseConfig();
