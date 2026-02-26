@@ -100,6 +100,33 @@ export enum Permission {
   CONFIG_UPDATE = 'config.update',
   CONFIG_DELETE = 'config.delete',
   CONFIG_MANAGE = 'config.manage',
+
+  // Warehouse Management
+  WAREHOUSE_CREATE = 'warehouse.create',
+  WAREHOUSE_READ = 'warehouse.read',
+  WAREHOUSE_UPDATE = 'warehouse.update',
+  WAREHOUSE_DELETE = 'warehouse.delete',
+  WAREHOUSE_MANAGE = 'warehouse.manage',
+
+  // Inventory Location Management
+  INVENTORY_WAREHOUSE_CREATE = 'inventory.warehouse.create',
+  INVENTORY_WAREHOUSE_READ = 'inventory.warehouse.read',
+  INVENTORY_WAREHOUSE_UPDATE = 'inventory.warehouse.update',
+  INVENTORY_WAREHOUSE_DELETE = 'inventory.warehouse.delete',
+  INVENTORY_ZONE_CREATE = 'inventory.zone.create',
+  INVENTORY_ZONE_READ = 'inventory.zone.read',
+  INVENTORY_ZONE_UPDATE = 'inventory.zone.update',
+  INVENTORY_ZONE_DELETE = 'inventory.zone.delete',
+  INVENTORY_AISLE_CREATE = 'inventory.aisle.create',
+  INVENTORY_AISLE_READ = 'inventory.aisle.read',
+  INVENTORY_AISLE_UPDATE = 'inventory.aisle.update',
+  INVENTORY_AISLE_DELETE = 'inventory.aisle.delete',
+  INVENTORY_BIN_CREATE = 'inventory.bin.create',
+  INVENTORY_BIN_READ = 'inventory.bin.read',
+  INVENTORY_BIN_UPDATE = 'inventory.bin.update',
+  INVENTORY_BIN_DELETE = 'inventory.bin.delete',
+  INVENTORY_BIN_IMPORT = 'inventory.bin.import',
+  INVENTORY_BIN_EXPORT = 'inventory.bin.export',
 }
 
 /**

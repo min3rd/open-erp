@@ -6,6 +6,9 @@ import {
 } from '@nestjs/common';
 import { WarehouseService } from '../src/services/warehouse.service';
 import { WarehouseRepository } from '../src/repositories/warehouse.repository';
+import { ZoneRepository } from '../src/repositories/zone.repository';
+import { AisleRepository } from '../src/repositories/aisle.repository';
+import { BinRepository } from '../src/repositories/bin.repository';
 import {
   CreateWarehouseDto,
   UpdateWarehouseDto,
@@ -51,6 +54,18 @@ describe('WarehouseService', () => {
     findNearby: jest.fn(),
   };
 
+  const mockZoneRepository = {
+    findAll: jest.fn(),
+  };
+
+  const mockAisleRepository = {
+    findByZoneId: jest.fn(),
+  };
+
+  const mockBinRepository = {
+    findByAisleId: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -58,6 +73,18 @@ describe('WarehouseService', () => {
         {
           provide: WarehouseRepository,
           useValue: mockRepository,
+        },
+        {
+          provide: ZoneRepository,
+          useValue: mockZoneRepository,
+        },
+        {
+          provide: AisleRepository,
+          useValue: mockAisleRepository,
+        },
+        {
+          provide: BinRepository,
+          useValue: mockBinRepository,
         },
       ],
     }).compile();
