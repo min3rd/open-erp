@@ -20,7 +20,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { TreeModule } from 'primeng/tree';
 import { TreeDragDropService, TreeNode } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { ToolbarModule } from 'primeng/toolbar';
+import { MpToolbar } from '../../../../../../core/components/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { SelectButtonModule } from 'primeng/selectbutton';
@@ -41,7 +41,7 @@ import { NavigationItemDto } from '../dto/navigation-item.dto';
     TranslocoModule,
     TreeModule,
     ButtonModule,
-    ToolbarModule,
+    MpToolbar,
     TooltipModule,
     SelectButtonModule,
     ContextMenuModule,

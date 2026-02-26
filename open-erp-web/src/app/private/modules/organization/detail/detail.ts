@@ -25,7 +25,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DatePickerModule } from 'primeng/datepicker';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { ToolbarModule } from 'primeng/toolbar';
+import { MpToolbar } from '../../../../../core/components/toolbar';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -100,7 +100,7 @@ interface InviteForm {
     InputTextModule,
     DatePickerModule,
     AutoCompleteModule,
-    ToolbarModule,
+    MpToolbar,
     SelectButtonModule,
     TableModule,
     TagModule,

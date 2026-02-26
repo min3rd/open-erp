@@ -20,7 +20,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToolbarModule } from 'primeng/toolbar';
+import { MpToolbar } from '../../../../../../core/components/toolbar';
 import { MenuModule } from 'primeng/menu';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { ContextMenu } from 'primeng/contextmenu';
@@ -58,7 +58,7 @@ interface ScopeOption {
     TableModule,
     ButtonModule,
     InputTextModule,
-    ToolbarModule,
+    MpToolbar,
     MenuModule,
     ContextMenuModule,
     TooltipModule,

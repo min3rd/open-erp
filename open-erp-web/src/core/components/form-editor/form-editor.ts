@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslocoModule } from '@jsverse/transloco';
-import { Toolbar } from 'primeng/toolbar';
+import { MpToolbar } from '../toolbar';
 import { Button } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
@@ -19,7 +19,7 @@ import { FormComponent } from './form-editor.types';
   imports: [
     CommonModule,
     TranslocoModule,
-    Toolbar,
+    MpToolbar,
     Button,
     Tooltip,
     Toast,
