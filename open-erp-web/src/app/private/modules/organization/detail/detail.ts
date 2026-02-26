@@ -4,11 +4,10 @@ import {
   signal,
   inject,
   OnDestroy,
-  OnInit,
   computed,
   effect,
 } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
   FormControl,
@@ -27,7 +26,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { MpToolbar } from '../../../../../core/components/toolbar';
 import { SelectButtonModule } from 'primeng/selectbutton';
-import { TableModule, TableLazyLoadEvent } from 'primeng/table';
+import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
 import { DrawerModule } from 'primeng/drawer';
@@ -36,35 +35,25 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
-import { PaginatorModule } from 'primeng/paginator';
-import { MessageService, ConfirmationService } from 'primeng/api';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { debounceTime, distinctUntilChanged, filter, startWith, Subject, takeUntil } from 'rxjs';
+import { MessageService } from 'primeng/api';
+import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import {
   OrganizationService,
   CreateOrganizationDto,
   UpdateOrganizationDto,
   VietQRBusinessResponse,
   OrganizationResponse,
-  OrganizationMember,
-  OrganizationRelation,
-  OrganizationEvent,
   InviteMemberDto,
   OrganizationType,
   OrganizationStatus,
   BulkInviteMembersDto,
   BulkInviteResponse,
   InvitationResult,
-  OrganizationInvitation,
-  InvitationStatus,
-  OrgDepartment,
-  OrgPosition,
 } from '../../../../../core/services/organization-service';
 import { CountryService, Country } from '../../../../../core/services/country-service';
 import { UserService, User } from '../../../../../core/services/user-service';
 import { OrganizationContextService } from '../../../../../core/services/organization-context.service';
 import { UserDatePipe } from '../../../../../core/pipes/user-date.pipe';
-import { PersonnelSettings } from './personnel-settings/personnel-settings';
 
 interface BusinessRegistrationForm {
   taxId: FormControl<string>;
@@ -113,23 +102,19 @@ interface InviteForm {
     SelectModule,
     TextareaModule,
     DividerModule,
-    ConfirmDialogModule,
-    PaginatorModule,
+    RouterOutlet,
     UserDatePipe,
-    PersonnelSettings,
   ],
-  providers: [ConfirmationService],
+  providers: [],
   templateUrl: './detail.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Detail implements OnInit, OnDestroy {
+export class Detail implements OnDestroy {
   private router = inject(Router);
-  private route = inject(ActivatedRoute);
   private organizationService = inject(OrganizationService);
   private countryService = inject(CountryService);
   private userService = inject(UserService);
   private messageService = inject(MessageService);
-  private confirmationService = inject(ConfirmationService);
   private translocoService = inject(TranslocoService);
   private destroy$ = new Subject<void>();
   private inviteSearchSubject$ = new Subject<string>();
@@ -137,10 +122,6 @@ export class Detail implements OnInit, OnDestroy {
 
   protected readonly organizationId = signal<string | null>(null);
   protected readonly organization = signal<OrganizationResponse | null>(null);
-  protected readonly members = signal<OrganizationMember[]>([]);
-  protected readonly relations = signal<OrganizationRelation[]>([]);
-  protected readonly events = signal<OrganizationEvent[]>([]);
-
   protected readonly isLoading = signal(false);
   protected readonly isSubmitting = signal(false);
   protected readonly isTaxLookupLoading = signal(false);
@@ -164,53 +145,6 @@ export class Detail implements OnInit, OnDestroy {
   protected readonly isInviteSending = signal(false);
   protected readonly inviteMinDate = new Date();
 
-  protected readonly membersPage = signal(1);
-  protected readonly membersLimit = signal(20);
-  protected readonly membersTotal = signal(0);
-  protected readonly isMembersLoading = signal(false);
-
-  // Enhanced members tab state
-  protected readonly membersSearchQuery = signal('');
-  protected readonly membersDeptFilter = signal('');
-  protected readonly membersPositionFilter = signal('');
-  protected readonly membersRoleFilter = signal('');
-  protected readonly membersStatusFilter = signal('');
-  protected readonly membersSortField = signal('joinedAt');
-  protected readonly membersSortOrder = signal<'asc' | 'desc'>('desc');
-
-  // Personnel settings drawer
-  protected readonly showPersonnelSettings = signal(false);
-  protected readonly personnelMember = signal<OrganizationMember | null>(null);
-
-  // Department/Position filter options (lazy loaded)
-  protected readonly deptFilterOptions = signal<OrgDepartment[]>([]);
-  protected readonly positionFilterOptions = signal<OrgPosition[]>([]);
-
-  protected readonly deptFilterSelectOptions = computed(() => [
-    {
-      label: this.translocoService.translate('organization.detail.members.allDepartments'),
-      value: '',
-    },
-    ...this.deptFilterOptions().map((d) => ({ label: d.name, value: d.id })),
-  ]);
-
-  private membersSearchSubject$ = new Subject<string>();
-
-  protected readonly eventsPage = signal(1);
-  protected readonly eventsLimit = signal(20);
-  protected readonly eventsTotal = signal(0);
-
-  // Invites state
-  protected readonly invites = signal<OrganizationInvitation[]>([]);
-  protected readonly invitesTotal = signal(0);
-  protected readonly isInvitesLoading = signal(false);
-  protected readonly invitesPage = signal(1);
-  protected readonly invitesLimit = signal(20);
-  protected readonly invitesStatusFilter = signal<InvitationStatus | ''>('');
-  protected readonly invitesSearchQuery = signal('');
-  protected readonly isMobileInvitesExpanded = signal(false);
-
-  protected readonly activeTab = signal<string>('general');
   protected readonly tabOptions = [
     { label: 'General', value: 'general' },
     { label: 'Members', value: 'members' },
@@ -238,16 +172,6 @@ export class Detail implements OnInit, OnDestroy {
     { label: 'Joint Venture', value: 'joint-venture' },
     { label: 'Partner', value: 'partner' },
     { label: 'Branch', value: 'branch' },
-  ];
-
-  // Invitation status filter options
-  protected readonly inviteStatusOptions = [
-    { label: 'All Statuses', value: '' },
-    { label: 'Pending', value: 'pending' },
-    { label: 'Accepted', value: 'accepted' },
-    { label: 'Revoked', value: 'revoked' },
-    { label: 'Expired', value: 'expired' },
-    { label: 'Rejected', value: 'rejected' },
   ];
 
   // Common business activity suggestions for Vietnam
@@ -362,15 +286,6 @@ export class Detail implements OnInit, OnDestroy {
         }
       });
 
-    // Setup members search with debounce
-    this.membersSearchSubject$
-      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.membersPage.set(1);
-        const id = this.organizationId();
-        if (id) this.loadMembers(id);
-      });
-
     effect(() => {
       const id = this.organizatonContextService.currentOrganization()?.id || null;
       if (id && id !== 'new') {
@@ -378,26 +293,6 @@ export class Detail implements OnInit, OnDestroy {
         this.loadOrganizationData(id);
       }
     });
-  }
-
-  ngOnInit(): void {
-    // Sync active tab and pre-populate data from resolver on initial load and navigation
-    this.router.events
-      .pipe(
-        filter((e) => e instanceof NavigationEnd),
-        startWith(null),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(() => {
-        const childRoute = this.route.firstChild;
-        if (childRoute) {
-          const tab = childRoute.snapshot.url[0]?.path;
-          if (tab) {
-            this.activeTab.set(tab);
-          }
-          this.applyResolvedData(childRoute.snapshot.data);
-        }
-      });
   }
 
   ngOnDestroy(): void {
@@ -427,163 +322,6 @@ export class Detail implements OnInit, OnDestroy {
       },
     });
 
-    // Load members
-    this.loadMembers(id);
-    this.loadDeptAndPositionFilters(id);
-
-    // Load invitations
-    this.loadInvitations(id);
-
-    // Load relations
-    this.organizationService.getOrganizationRelations(id).subscribe({
-      next: (relations) => {
-        this.relations.set(relations);
-      },
-      error: (error) => {
-        console.error('Failed to load relations:', error);
-      },
-    });
-
-    // Load events
-    this.loadEvents(id);
-  }
-
-  private loadMembers(id: string): void {
-    this.isMembersLoading.set(true);
-    this.organizationService
-      .getOrganizationMembers(id, 1, 20, {
-        page: this.membersPage(),
-        size: this.membersLimit(),
-        q: this.membersSearchQuery() || undefined,
-        department: this.membersDeptFilter() || undefined,
-        position: this.membersPositionFilter() || undefined,
-        role: this.membersRoleFilter() || undefined,
-        status: this.membersStatusFilter() || undefined,
-        sort: `${this.membersSortField()}:${this.membersSortOrder()}`,
-      })
-      .subscribe({
-        next: (response) => {
-          this.members.set(response.data ?? response.items ?? []);
-          this.membersTotal.set(response.total);
-          this.isMembersLoading.set(false);
-        },
-        error: (error) => {
-          console.error('Failed to load members:', error);
-          this.isMembersLoading.set(false);
-        },
-      });
-  }
-
-  private loadInvitations(id: string): void {
-    this.isInvitesLoading.set(true);
-    const status = this.invitesStatusFilter();
-    this.organizationService
-      .getOrganizationInvitations(id, {
-        status: status || undefined,
-        page: this.invitesPage(),
-        limit: this.invitesLimit(),
-        query: this.invitesSearchQuery() || undefined,
-      })
-      .subscribe({
-        next: (response) => {
-          this.invites.set(response.data);
-          this.invitesTotal.set(response.total);
-          this.isInvitesLoading.set(false);
-        },
-        error: (error) => {
-          console.error('Failed to load invitations:', error);
-          this.isInvitesLoading.set(false);
-        },
-      });
-  }
-
-  protected onInvitesFilterChange(): void {
-    this.invitesPage.set(1);
-    if (this.organizationId()) {
-      this.loadInvitations(this.organizationId()!);
-    }
-  }
-
-  protected onInvitesPageChange(event: { page: number; rows: number } | any): void {
-    this.invitesPage.set(event.page + 1);
-    this.invitesLimit.set(event.rows);
-    const id = this.organizationId();
-    if (id) this.loadInvitations(id);
-  }
-
-  protected onRevokeInvitation(invite: OrganizationInvitation): void {
-    this.confirmationService.confirm({
-      message: this.translocoService.translate('organization.detail.invites.confirmRevoke', {
-        email: invite.inviteeEmail || invite.inviteeUserId || '',
-      }),
-      header: this.translocoService.translate('organization.detail.invites.confirmRevokeHeader'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: this.translocoService.translate('organization.detail.invites.revokeButton'),
-      rejectLabel: this.translocoService.translate('organization.detail.actions.cancel'),
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.organizationService.revokeInvitation(invite.id).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: this.translocoService.translate('organization.detail.invites.revokeSuccess'),
-            });
-            this.loadInvitations(this.organizationId()!);
-          },
-          error: (error: any) => {
-            console.error('Revoke invitation failed:', error);
-            this.messageService.add({
-              severity: 'error',
-              summary: this.translocoService.translate('organization.detail.invites.revokeError'),
-              detail: error?.error?.message || 'Failed to revoke invitation',
-            });
-          },
-        });
-      },
-    });
-  }
-
-  protected getInvitedByEmail(invite: OrganizationInvitation): string {
-    if (!invite.invitedBy) return '—';
-    if (typeof invite.invitedBy === 'string') return invite.invitedBy;
-    return invite.invitedBy.fullName || invite.invitedBy.email || '—';
-  }
-
-  protected getInvitationStatusSeverity(
-    status: InvitationStatus,
-  ): 'success' | 'warn' | 'secondary' | 'danger' | 'info' {
-    switch (status) {
-      case 'accepted':
-        return 'success';
-      case 'pending':
-        return 'warn';
-      case 'revoked':
-        return 'danger';
-      case 'expired':
-        return 'secondary';
-      case 'rejected':
-        return 'secondary';
-      default:
-        return 'info';
-    }
-  }
-
-  protected toggleMobileInvites(): void {
-    this.isMobileInvitesExpanded.set(!this.isMobileInvitesExpanded());
-  }
-
-  private loadEvents(id: string): void {
-    this.organizationService
-      .getOrganizationEvents(id, this.eventsPage(), this.eventsLimit())
-      .subscribe({
-        next: (response) => {
-          this.events.set(response.data);
-          this.eventsTotal.set(response.total);
-        },
-        error: (error) => {
-          console.error('Failed to load events:', error);
-        },
-      });
   }
 
   private populateEditForm(org: OrganizationResponse): void {
@@ -963,8 +701,6 @@ export class Detail implements OnInit, OnDestroy {
               },
             ),
           });
-          // Reload members
-          this.loadMembers(this.organizationId()!);
         }
 
         if (response.failed > 0) {
@@ -1019,8 +755,6 @@ export class Detail implements OnInit, OnDestroy {
           });
           this.showInviteDialog.set(false);
           this.isSubmitting.set(false);
-          // Reload members
-          this.loadMembers(this.organizationId()!);
         },
         error: (error: any) => {
           console.error('Invite failed:', error);
@@ -1040,28 +774,6 @@ export class Detail implements OnInit, OnDestroy {
       });
       this.isSubmitting.set(false);
     }
-  }
-
-  protected onRemoveMember(memberId: string): void {
-    if (!this.organizationId()) return;
-
-    this.organizationService.removeMember(this.organizationId()!, memberId).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Member removed successfully',
-        });
-        this.loadMembers(this.organizationId()!);
-      },
-      error: (error: any) => {
-        console.error('Remove member failed:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Failed to remove member',
-          detail: error?.error?.message || 'An error occurred',
-        });
-      },
-    });
   }
 
   protected onNewSubsidiary(): void {
@@ -1087,47 +799,6 @@ export class Detail implements OnInit, OnDestroy {
     }
   }
 
-  protected getMemberStatusSeverity(status: string): 'success' | 'warn' | 'secondary' | 'danger' {
-    switch (status) {
-      case 'active':
-        return 'success';
-      case 'invited':
-      case 'pending':
-        return 'warn';
-      case 'suspended':
-      case 'revoked':
-        return 'danger';
-      default:
-        return 'secondary';
-    }
-  }
-
-  /**
-   * Apply pre-loaded resolver data to component signals for faster initial render.
-   * The component's own data-loading methods will still run to ensure data freshness.
-   */
-  private applyResolvedData(data: Record<string, unknown>): void {
-    if (data['general']) {
-      const org = data['general'] as OrganizationResponse;
-      this.organization.set(org);
-      this.populateEditForm(org);
-    }
-    if (data['members']) {
-      const resolved = data['members'] as { items: OrganizationMember[]; total: number };
-      if (resolved.items) {
-        this.members.set(resolved.items);
-        this.membersTotal.set(resolved.total);
-      }
-    }
-    if (data['invites']) {
-      const resolved = data['invites'] as { data: OrganizationInvitation[]; total: number };
-      if (resolved?.data) {
-        this.invites.set(resolved.data);
-        this.invitesTotal.set(resolved.total);
-      }
-    }
-  }
-
   protected formatDate(dateString: string | null | undefined): string {
     if (!dateString) return '—';
     const date = new Date(dateString);
@@ -1135,83 +806,4 @@ export class Detail implements OnInit, OnDestroy {
     return date.toLocaleDateString();
   }
 
-  // ── Enhanced Members Tab ─────────────────────────────────────────────────
-
-  private loadDeptAndPositionFilters(orgId: string): void {
-    this.organizationService.getDepartments(orgId).subscribe({
-      next: (depts) => this.deptFilterOptions.set(depts),
-      error: () => {},
-    });
-    this.organizationService.getPositions(orgId).subscribe({
-      next: (positions) => this.positionFilterOptions.set(positions),
-      error: () => {},
-    });
-  }
-
-  protected onMembersSearchChange(query: string): void {
-    this.membersSearchQuery.set(query);
-    this.membersSearchSubject$.next(query);
-  }
-
-  protected onMembersFilterChange(): void {
-    this.membersPage.set(1);
-    const id = this.organizationId();
-    if (id) this.loadMembers(id);
-  }
-
-  protected onMembersLazyLoad(event: TableLazyLoadEvent): void {
-    const rows = event.rows && event.rows > 0 ? event.rows : this.membersLimit();
-    const page = event.first !== undefined ? Math.floor(event.first / rows) + 1 : 1;
-    this.membersPage.set(page);
-    this.membersLimit.set(rows);
-    if (event.sortField) {
-      this.membersSortField.set(event.sortField as string);
-      this.membersSortOrder.set(event.sortOrder === 1 ? 'asc' : 'desc');
-    }
-    const id = this.organizationId();
-    if (id) this.loadMembers(id);
-  }
-
-  protected onMembersSort(event: { field: string; order: number }): void {
-    this.membersSortField.set(event.field);
-    this.membersSortOrder.set(event.order === 1 ? 'asc' : 'desc');
-    this.membersPage.set(1);
-    const id = this.organizationId();
-    if (id) this.loadMembers(id);
-  }
-
-  protected onMembersPageChange(event: { page: number; rows: number } | any): void {
-    this.membersPage.set(event.page + 1);
-    this.membersLimit.set(event.rows);
-    const id = this.organizationId();
-    if (id) this.loadMembers(id);
-  }
-
-  protected onOpenPersonnelSettings(member?: OrganizationMember): void {
-    this.personnelMember.set(member ?? null);
-    this.showPersonnelSettings.set(true);
-  }
-
-  protected onPersonnelSettingsSaved(): void {
-    this.showPersonnelSettings.set(false);
-    const id = this.organizationId();
-    if (id) this.loadMembers(id);
-  }
-
-  protected getMemberInitials(member: OrganizationMember): string {
-    const name = member.name || member.fullName || member.email;
-    return name.charAt(0).toUpperCase();
-  }
-
-  protected formatDepartments(member: OrganizationMember): string {
-    return member.departments?.map((d) => d.name).join(', ') || '—';
-  }
-
-  protected formatPositions(member: OrganizationMember): string {
-    return member.positions?.map((p) => p.name).join(', ') || '—';
-  }
-
-  protected formatRoles(member: OrganizationMember): string {
-    return member.roles?.join(', ') || member.role || '—';
-  }
 }

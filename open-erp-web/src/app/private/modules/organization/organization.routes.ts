@@ -25,11 +25,31 @@ export const routes: Routes = [
         component: Detail,
         children: [
           { path: '', redirectTo: 'general', pathMatch: 'full' },
-          { path: 'general', resolve: { general: GeneralResolver } },
-          { path: 'members', resolve: { members: MembersResolver } },
-          { path: 'invites', resolve: { invites: InvitesResolver } },
-          { path: 'relations' },
-          { path: 'activity' },
+          {
+            path: 'general',
+            loadComponent: () => import('./detail/tabs/general/general').then((m) => m.General),
+            resolve: { general: GeneralResolver },
+          },
+          {
+            path: 'members',
+            loadComponent: () => import('./detail/tabs/members/members').then((m) => m.Members),
+            resolve: { members: MembersResolver },
+          },
+          {
+            path: 'invites',
+            loadComponent: () => import('./detail/tabs/invites/invites').then((m) => m.Invites),
+            resolve: { invites: InvitesResolver },
+          },
+          {
+            path: 'relations',
+            loadComponent: () =>
+              import('./detail/tabs/relations/relations').then((m) => m.Relations),
+          },
+          {
+            path: 'activity',
+            loadComponent: () =>
+              import('./detail/tabs/activity/activity').then((m) => m.Activity),
+          },
         ],
       },
     ],
