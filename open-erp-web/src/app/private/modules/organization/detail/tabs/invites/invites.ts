@@ -113,6 +113,11 @@ export class Invites implements OnInit {
     if (id) this.loadInvitations(id);
   }
 
+  protected onStatusFilterChange(value: InvitationStatus | ''): void {
+    this.invitesStatusFilter.set(value);
+    this.onInvitesFilterChange();
+  }
+
   protected onInvitesPageChange(event: { page: number; rows: number } | any): void {
     this.invitesPage.set(event.page + 1);
     this.invitesLimit.set(event.rows);

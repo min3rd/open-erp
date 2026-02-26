@@ -41,7 +41,7 @@
       <!-- Department filter -->
       <p-select
         [ngModel]="membersDeptFilter()"
-        (ngModelChange)="membersDeptFilter.set($event); onMembersFilterChange()"
+        (ngModelChange)="onDeptFilterChange($event)"
         [options]="deptFilterSelectOptions()"
         optionLabel="label"
         optionValue="value"
@@ -50,7 +50,7 @@
       <!-- Status filter -->
       <p-select
         [ngModel]="membersStatusFilter()"
-        (ngModelChange)="membersStatusFilter.set($event); onMembersFilterChange()"
+        (ngModelChange)="onStatusFilterChange($event)"
         [options]="[
           { label: ('organization.detail.members.allStatuses' | transloco), value: '' },
           { label: ('organization.detail.members.status.active' | transloco), value: 'active' },
