@@ -1883,7 +1883,11 @@
     "accept": "Chấp nhận",
     "decline": "Từ chối",
     "unread": "Chưa đọc",
-    "list": "Danh sách thông báo"
+    "list": "Danh sách thông báo",
+    "invite": {
+      "title": "Bạn được mời vào Organization {{orgName}}",
+      "body": "{{inviterName}} mời bạn tham gia {{orgName}}. Hết hạn: {{expiryDate}}"
+    }
   },
   "me": {
     "tabs": {
@@ -2078,6 +2082,26 @@
       "success": "2FA đã bị vô hiệu. Bạn đã đăng nhập.",
       "invalidCode": "Mã khôi phục không hợp lệ. Vui lòng thử lại.",
       "storageError": "Không thể lưu trữ token xác thực"
+    }
+  },
+  "acceptInvite": {
+    "title": "Lời mời tham gia Organization",
+    "loading": "Đang tải...",
+    "accepted": "Bạn đã tham gia tổ chức thành công! Đang chuyển hướng…",
+    "invalidToken": "Liên kết mời không hợp lệ hoặc đã hết hạn.",
+    "description": "Bạn đã nhận được lời mời tham gia một tổ chức trên Open ERP. Nhấn Chấp nhận để xác nhận tham gia.",
+    "accept": "Chấp nhận lời mời",
+    "cancel": "Huỷ",
+    "goHome": "Về trang chủ",
+    "messages": {
+      "success": {
+        "summary": "Thành công",
+        "detail": "Bạn đã tham gia tổ chức thành công!"
+      },
+      "error": {
+        "summary": "Lỗi",
+        "generic": "Có lỗi xảy ra. Vui lòng thử lại."
+      }
     }
   }
 }

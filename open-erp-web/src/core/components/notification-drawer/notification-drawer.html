@@ -132,7 +132,7 @@
               class="text-sm font-semibold text-surface-900 dark:text-surface-0 line-clamp-1"
               [class.font-bold]="!notification.isRead"
             >
-              {{ notification.title }}
+              {{ notification.title | transloco: notification.metadata?.['titleParams'] }}
             </span>
             <span class="text-xs text-surface-400 whitespace-nowrap flex-shrink-0">
               {{ notification.createdAt | userDate:'relative' }}
@@ -143,7 +143,7 @@
               [id]="'notification-msg-' + notification.id"
               class="text-xs text-surface-600 dark:text-surface-400 line-clamp-2 mt-0.5"
             >
-              {{ notification.message }}
+              {{ notification.message | transloco: notification.metadata?.['bodyParams'] }}
             </p>
           }
           @if (notification.sender?.name) {
