@@ -216,6 +216,7 @@ export class WarehouseController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get warehouse by ID' })
   @ApiParam({ name: 'id', description: 'Warehouse ID' })
   @ApiResponse({
     status: HttpStatus.OK,

@@ -26,6 +26,7 @@ import { created, fetched, updated, deleted, paginated, ok } from '@shared/respo
 
 @ApiTags('bins')
 @ApiBearerAuth()
+@Controller()
 @UseGuards(JwtAuthGuard)
 export class BinController {
   constructor(private readonly binService: BinService) {}

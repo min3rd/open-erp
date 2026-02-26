@@ -25,6 +25,7 @@ import { created, fetched, updated, deleted, paginated } from '@shared/response'
 
 @ApiTags('aisles')
 @ApiBearerAuth()
+@Controller()
 @UseGuards(JwtAuthGuard)
 export class AisleController {
   constructor(private readonly aisleService: AisleService) {}

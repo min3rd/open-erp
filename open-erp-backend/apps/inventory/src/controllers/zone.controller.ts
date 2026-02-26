@@ -25,6 +25,7 @@ import { created, fetched, updated, deleted, paginated } from '@shared/response'
 
 @ApiTags('zones')
 @ApiBearerAuth()
+@Controller()
 @UseGuards(JwtAuthGuard)
 export class ZoneController {
   constructor(private readonly zoneService: ZoneService) {}
