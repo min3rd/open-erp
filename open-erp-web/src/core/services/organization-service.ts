@@ -80,9 +80,49 @@ export interface OrganizationMember {
   username: string;
   email: string;
   fullName: string;
+  name: string;
+  avatar?: string | null;
   role: string;
-  status: 'active' | 'pending' | 'inactive';
+  roles: string[];
+  status: 'active' | 'pending' | 'inactive' | 'invited' | 'suspended' | 'revoked';
   joinedAt: string;
+  departments: OrgDepartment[];
+  positions: OrgPosition[];
+  isPrimaryOwner: boolean;
+}
+
+export interface OrgDepartment {
+  id: string;
+  name: string;
+  code: string;
+  description?: string;
+  parentId?: string;
+  status: string;
+}
+
+export interface OrgPosition {
+  id: string;
+  name: string;
+  code: string;
+  description?: string;
+  level?: number;
+  status: string;
+}
+
+export interface AssignMemberDto {
+  departments?: string[];
+  positions?: string[];
+}
+
+export interface MembersQueryParams {
+  page?: number;
+  size?: number;
+  q?: string;
+  department?: string;
+  position?: string;
+  role?: string;
+  status?: string;
+  sort?: string;
 }
 
 export interface OrganizationRelation {
@@ -274,16 +314,155 @@ export class OrganizationService {
     id: string,
     page: number = 1,
     limit: number = 10,
+    params?: MembersQueryParams,
     version: string = 'v1',
-  ): Observable<{ data: OrganizationMember[]; total: number; page: number; limit: number }> {
-    return this.httpClient.get<{
-      data: OrganizationMember[];
-      total: number;
-      page: number;
-      limit: number;
-    }>(`${API_URI_ORGANIZATION}/${version}/organizations/${id}/members`, {
-      params: { page: page.toString(), limit: limit.toString() },
-    });
+  ): Observable<{ data: OrganizationMember[]; total: number; page: number; limit: number; items?: OrganizationMember[] }> {
+    const httpParams: Record<string, string> = {
+      page: (params?.page ?? page).toString(),
+      size: (params?.size ?? limit).toString(),
+    };
+    if (params?.q) httpParams['q'] = params.q;
+    if (params?.department) httpParams['department'] = params.department;
+    if (params?.position) httpParams['position'] = params.position;
+    if (params?.role) httpParams['role'] = params.role;
+    if (params?.status) httpParams['status'] = params.status;
+    if (params?.sort) httpParams['sort'] = params.sort;
+
+    return this.httpClient
+      .get<any>(`${API_URI_ORGANIZATION}/${version}/organizations/${id}/members`, {
+        params: httpParams,
+      })
+      .pipe(
+        map((response) => {
+          // Handle both paginated and legacy formats
+          if (response?.data?.items) {
+            return {
+              data: response.data.items,
+              items: response.data.items,
+              total: response.data.total ?? 0,
+              page: response.data.page ?? page,
+              limit: response.data.limit ?? limit,
+            };
+          }
+          if (Array.isArray(response?.data)) {
+            return { data: response.data, total: response.total ?? 0, page, limit };
+          }
+          return { data: [], total: 0, page, limit };
+        }),
+      );
+  }
+
+  /**
+   * Get departments for an organization
+   */
+  getDepartments(orgId: string, version: string = 'v1'): Observable<OrgDepartment[]> {
+    return this.httpClient
+      .get<any>(`${API_URI_ORGANIZATION}/${version}/organizations/${orgId}/departments`)
+      .pipe(map((r) => r?.data ?? r ?? []));
+  }
+
+  /**
+   * Create a department
+   */
+  createDepartment(
+    orgId: string,
+    dto: { name: string; code: string; description?: string; parentId?: string },
+    version: string = 'v1',
+  ): Observable<OrgDepartment> {
+    return this.httpClient
+      .post<any>(`${API_URI_ORGANIZATION}/${version}/organizations/${orgId}/departments`, dto)
+      .pipe(map((r) => r?.data?.item ?? r?.data ?? r));
+  }
+
+  /**
+   * Update a department
+   */
+  updateDepartment(
+    orgId: string,
+    deptId: string,
+    dto: Partial<{ name: string; code: string; description: string; status: string }>,
+    version: string = 'v1',
+  ): Observable<OrgDepartment> {
+    return this.httpClient
+      .patch<any>(
+        `${API_URI_ORGANIZATION}/${version}/organizations/${orgId}/departments/${deptId}`,
+        dto,
+      )
+      .pipe(map((r) => r?.data?.item ?? r?.data ?? r));
+  }
+
+  /**
+   * Delete a department
+   */
+  deleteDepartment(orgId: string, deptId: string, version: string = 'v1'): Observable<void> {
+    return this.httpClient.delete<void>(
+      `${API_URI_ORGANIZATION}/${version}/organizations/${orgId}/departments/${deptId}`,
+    );
+  }
+
+  /**
+   * Get positions for an organization
+   */
+  getPositions(orgId: string, version: string = 'v1'): Observable<OrgPosition[]> {
+    return this.httpClient
+      .get<any>(`${API_URI_ORGANIZATION}/${version}/organizations/${orgId}/positions`)
+      .pipe(map((r) => r?.data ?? r ?? []));
+  }
+
+  /**
+   * Create a position
+   */
+  createPosition(
+    orgId: string,
+    dto: { name: string; code: string; description?: string; level?: number },
+    version: string = 'v1',
+  ): Observable<OrgPosition> {
+    return this.httpClient
+      .post<any>(`${API_URI_ORGANIZATION}/${version}/organizations/${orgId}/positions`, dto)
+      .pipe(map((r) => r?.data?.item ?? r?.data ?? r));
+  }
+
+  /**
+   * Update a position
+   */
+  updatePosition(
+    orgId: string,
+    posId: string,
+    dto: Partial<{ name: string; code: string; description: string; level: number; status: string }>,
+    version: string = 'v1',
+  ): Observable<OrgPosition> {
+    return this.httpClient
+      .patch<any>(
+        `${API_URI_ORGANIZATION}/${version}/organizations/${orgId}/positions/${posId}`,
+        dto,
+      )
+      .pipe(map((r) => r?.data?.item ?? r?.data ?? r));
+  }
+
+  /**
+   * Delete a position
+   */
+  deletePosition(orgId: string, posId: string, version: string = 'v1'): Observable<void> {
+    return this.httpClient.delete<void>(
+      `${API_URI_ORGANIZATION}/${version}/organizations/${orgId}/positions/${posId}`,
+    );
+  }
+
+  /**
+   * Assign departments and positions to a member
+   */
+  assignMember(
+    orgId: string,
+    memberId: string,
+    dto: AssignMemberDto,
+    version: string = 'v1',
+  ): Observable<OrganizationMember> {
+    return this.httpClient
+      .post<any>(
+        `${API_URI_ORGANIZATION}/${version}/organizations/${orgId}/members/${memberId}/assign`,
+        dto,
+      )
+      .pipe(map((r) => r?.data?.item ?? r?.data ?? r));
   }
 
   /**

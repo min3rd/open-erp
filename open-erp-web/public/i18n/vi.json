@@ -1868,6 +1868,33 @@
           "expired": "Đã hết hạn",
           "revoked": "Đã hủy"
         }
+      },
+      "members": {
+        "table": {
+          "name": "Họ tên",
+          "email": "Email",
+          "role": "Vai trò",
+          "status": "Trạng thái",
+          "joinedAt": "Ngày tham gia",
+          "actions": "Thao tác",
+          "departments": "Phòng ban",
+          "positions": "Chức vụ"
+        },
+        "status": {
+          "active": "Hoạt động",
+          "pending": "Chờ duyệt",
+          "inactive": "Không hoạt động",
+          "invited": "Đã mời",
+          "suspended": "Tạm khóa",
+          "revoked": "Đã thu hồi"
+        },
+        "personnelSettings": "Cài đặt Nhân sự",
+        "searchPlaceholder": "Tìm kiếm theo tên hoặc email...",
+        "allDepartments": "Tất cả phòng ban",
+        "allStatuses": "Tất cả trạng thái",
+        "editAssignments": "Chỉnh sửa phân công",
+        "remove": "Xóa khỏi tổ chức",
+        "empty": "Chưa có thành viên"
       }
     }
   },
@@ -2106,6 +2133,50 @@
         "summary": "Lỗi",
         "generic": "Có lỗi xảy ra. Vui lòng thử lại."
       }
+    }
+  },
+  "personnel": {
+    "title": "Cài đặt Nhân sự",
+    "tabs": {
+      "assign": "Phân công thành viên",
+      "departments": "Phòng ban",
+      "positions": "Chức vụ"
+    },
+    "departments": "Phòng ban",
+    "positions": "Chức vụ",
+    "selectDepartments": "Chọn phòng ban...",
+    "selectPositions": "Chọn chức vụ...",
+    "saveAssignment": "Lưu phân công",
+    "selectMemberFirst": "Chọn một thành viên từ danh sách để phân công phòng ban và chức vụ",
+    "assignmentSaved": "Lưu phân công thành công",
+    "addDepartment": "Thêm phòng ban",
+    "editDepartment": "Sửa phòng ban",
+    "departmentCreated": "Đã tạo phòng ban",
+    "departmentUpdated": "Đã cập nhật phòng ban",
+    "departmentDeleted": "Đã xóa phòng ban",
+    "confirmDeleteDepartment": "Xóa phòng ban \"{{name}}\"? Không thể hoàn tác.",
+    "addPosition": "Thêm chức vụ",
+    "editPosition": "Sửa chức vụ",
+    "positionCreated": "Đã tạo chức vụ",
+    "positionUpdated": "Đã cập nhật chức vụ",
+    "positionDeleted": "Đã xóa chức vụ",
+    "confirmDeletePosition": "Xóa chức vụ \"{{name}}\"? Không thể hoàn tác.",
+    "noDepartments": "Chưa có phòng ban nào. Hãy thêm mới.",
+    "noPositions": "Chưa có chức vụ nào. Hãy thêm mới.",
+    "error": "Lỗi",
+    "table": {
+      "name": "Tên",
+      "code": "Mã",
+      "level": "Cấp độ",
+      "actions": "Thao tác"
+    },
+    "form": {
+      "name": "Tên",
+      "namePlaceholder": "vd. Kỹ thuật",
+      "code": "Mã",
+      "codePlaceholder": "vd. ky-thuat",
+      "description": "Mô tả",
+      "level": "Cấp độ"
     }
   }
 }

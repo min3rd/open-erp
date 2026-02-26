@@ -319,12 +319,17 @@
           "role": "Role",
           "status": "Status",
           "joinedAt": "Joined",
-          "actions": "Actions"
+          "actions": "Actions",
+          "departments": "Departments",
+          "positions": "Positions"
         },
         "status": {
           "active": "Active",
           "pending": "Pending",
-          "inactive": "Inactive"
+          "inactive": "Inactive",
+          "invited": "Invited",
+          "suspended": "Suspended",
+          "revoked": "Revoked"
         },
         "actions": {
           "remove": "Remove",
@@ -339,7 +344,13 @@
           "submit": "Send Invitation",
           "success": "Invitation sent successfully",
           "error": "Failed to send invitation"
-        }
+        },
+        "personnelSettings": "Personnel Settings",
+        "searchPlaceholder": "Search by name or email...",
+        "allDepartments": "All Departments",
+        "allStatuses": "All Statuses",
+        "editAssignments": "Edit Assignments",
+        "remove": "Remove from Org"
       },
       "relations": {
         "title": "Organization Structure",
@@ -3457,6 +3468,50 @@
         "summary": "Error",
         "generic": "An error occurred. Please try again."
       }
+    }
+  },
+  "personnel": {
+    "title": "Personnel Settings",
+    "tabs": {
+      "assign": "Assign Member",
+      "departments": "Departments",
+      "positions": "Positions"
+    },
+    "departments": "Departments",
+    "positions": "Positions",
+    "selectDepartments": "Select departments...",
+    "selectPositions": "Select positions...",
+    "saveAssignment": "Save Assignment",
+    "selectMemberFirst": "Select a member from the list to assign departments and positions",
+    "assignmentSaved": "Assignments saved successfully",
+    "addDepartment": "Add Department",
+    "editDepartment": "Edit Department",
+    "departmentCreated": "Department created",
+    "departmentUpdated": "Department updated",
+    "departmentDeleted": "Department deleted",
+    "confirmDeleteDepartment": "Delete department \"{{name}}\"? This cannot be undone.",
+    "addPosition": "Add Position",
+    "editPosition": "Edit Position",
+    "positionCreated": "Position created",
+    "positionUpdated": "Position updated",
+    "positionDeleted": "Position deleted",
+    "confirmDeletePosition": "Delete position \"{{name}}\"? This cannot be undone.",
+    "noDepartments": "No departments configured. Add one to get started.",
+    "noPositions": "No positions configured. Add one to get started.",
+    "error": "Error",
+    "table": {
+      "name": "Name",
+      "code": "Code",
+      "level": "Level",
+      "actions": "Actions"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "e.g. Engineering",
+      "code": "Code",
+      "codePlaceholder": "e.g. engineering",
+      "description": "Description",
+      "level": "Level"
     }
   }
 }
