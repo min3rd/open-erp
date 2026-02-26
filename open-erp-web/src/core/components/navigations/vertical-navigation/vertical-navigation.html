@@ -30,12 +30,12 @@
       @if (!isMobile()) {
       <p-button
         id="vertical-navigation-toggle-mode"
+        pRipple
         (onClick)="toggleNavMode()"
         [icon]="navMode() === 'narrow' ? 'pi pi-angle-right' : 'pi pi-angle-left'"
         [rounded]="true"
         [text]="true"
         severity="secondary"
-        size="small"
         [pTooltip]="'navigation.toggle' | transloco"
         tooltipPosition="right"
         [showDelay]="500"
