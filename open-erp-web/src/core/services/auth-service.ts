@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, isDevMode } from '@angular/core';
 import { API_URI_AUTH } from '../constant';
-import { BehaviorSubject, from, map, Observable, of, switchMap, catchError } from 'rxjs';
+import { BehaviorSubject, from, map, Observable, of, switchMap, catchError, throwError } from 'rxjs';
 import { UserDto } from '../interfaces/user.types';
 import { ApiResponse, ApiSingleResponse } from '../api';
 
@@ -164,6 +164,33 @@ export class AuthService {
     // No tokens to revoke on server, just clear locally
     clearLocal();
     return of(true);
+  }
+
+  /**
+   * Calls the refresh token endpoint and updates in-memory and stored tokens.
+   * Returns the new access token on success, or throws on failure.
+   */
+  refreshAccessToken(version: string = 'v1'): Observable<string> {
+    return this.httpClient
+      .post<ApiResponse<{ accessToken: string; refreshToken: string }>>(
+        `${API_URI_AUTH}/${version}/auth/refresh`,
+        { refreshToken: this._refreshToken },
+      )
+      .pipe(
+        switchMap((response) => {
+          const data = response?.data;
+          if (!data?.accessToken) {
+            return throwError(() => new Error('Invalid refresh response'));
+          }
+          const newAccessToken = data.accessToken;
+          const newRefreshToken = data.refreshToken ?? this._refreshToken!;
+          this._accessToken = newAccessToken;
+          this._refreshToken = newRefreshToken;
+          return from(
+            this.encryptAndStoreTokens({ accessToken: newAccessToken, refreshToken: newRefreshToken }),
+          ).pipe(map(() => newAccessToken));
+        }),
+      );
   }
 
   /**

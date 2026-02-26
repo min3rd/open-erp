@@ -30,8 +30,7 @@ export const appConfig: ApplicationConfig = {
       },
       ripple: true,
     }),
-    provideHttpClient(withInterceptors([httpInterceptor])),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([httpInterceptor, authInterceptor])),
     provideEnvironmentInitializer(() => inject(AuthService)),
     provideEnvironmentInitializer(() => inject(ThemeService)),
     provideTransloco({
