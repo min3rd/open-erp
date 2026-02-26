@@ -90,6 +90,16 @@ export class OrganizationService {
     return this.organizationRepository.findAll(filters);
   }
 
+  async findUserMemberOrganizations(userId: string) {
+    const memberships = await this.memberRepository.findByUserId(
+      userId,
+      MemberStatus.ACTIVE,
+    );
+    const orgIds = memberships.map((m) => m.organizationId.toString());
+    if (orgIds.length === 0) return [];
+    return this.organizationRepository.findByIds(orgIds);
+  }
+
   async update(id: string, updateDto: UpdateOrganizationDto, userId: string) {
     const organization = await this.organizationRepository.update(id, {
       ...updateDto,

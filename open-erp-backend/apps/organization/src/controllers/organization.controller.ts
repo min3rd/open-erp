@@ -62,12 +62,21 @@ export class OrganizationController {
     @Query('type') type?: string,
     @Query('status') status?: string,
     @Query('country') country?: string,
+    @Request() req?: AuthenticatedRequest,
   ) {
-    const organizations = await this.organizationService.findAll({
-      type,
-      status,
-      country,
-    });
+    const isSuperAdmin = req?.user?.roles?.includes('SUPER_ADMIN') ?? false;
+    if (isSuperAdmin) {
+      const organizations = await this.organizationService.findAll({
+        type,
+        status,
+        country,
+      });
+      return ok(organizations, 'Organizations retrieved successfully');
+    }
+    const organizations =
+      await this.organizationService.findUserMemberOrganizations(
+        req?.user?.userId ?? '',
+      );
     return ok(organizations, 'Organizations retrieved successfully');
   }
 

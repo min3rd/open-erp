@@ -387,7 +387,11 @@
     "search": "Buscar organizaciones...",
     "createNew": "Registrar Organización",
     "selectOrganization": "Seleccionar una organización",
-    "currentOrganization": "Organización actual"
+    "currentOrganization": "Organización actual",
+    "statusActive": "Activo",
+    "statusInactive": "Inactivo",
+    "inactiveOrgTooltip": "Organización inactiva",
+    "inactiveOrgError": "No se puede cambiar a una organización inactiva"
   },
   "languageSelector": {
     "label": "Idioma",

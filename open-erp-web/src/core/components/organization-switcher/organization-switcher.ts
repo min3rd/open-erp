@@ -13,19 +13,24 @@ import { CommonModule } from '@angular/common';
 import { TranslocoModule } from '@jsverse/transloco';
 import { Button } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { TranslocoService } from '@jsverse/transloco';
 import { OrganizationContextService, OrganizationMetadata } from '../../services/organization-context.service';
 import { OrganizationService } from '../../services/organization-service';
+import { AuthService } from '../../services/auth-service';
 import { Popover } from 'primeng/popover';
 import { InputText } from 'primeng/inputtext';
 import { Dialog } from 'primeng/dialog';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { Tooltip } from 'primeng/tooltip';
 
 export interface OrganizationOption {
   id: string;
   code?: string;
   name: string;
   logoUrl?: string;
+  status?: 'active' | 'inactive' | 'pending';
 }
 
 @Component({
@@ -40,6 +45,7 @@ export interface OrganizationOption {
     Dialog,
     InputGroup,
     InputGroupAddon,
+    Tooltip,
   ],
   templateUrl: './organization-switcher.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,6 +53,8 @@ export interface OrganizationOption {
 export class OrganizationSwitcher implements OnInit {
   private organizationContextService = inject(OrganizationContextService);
   private organizationService = inject(OrganizationService);
+  private authService = inject(AuthService);
+  private translocoService = inject(TranslocoService);
 
   // Inputs
   mode = input<'sidebar' | 'narrow'>('sidebar');
@@ -63,6 +71,13 @@ export class OrganizationSwitcher implements OnInit {
   error = signal<string | null>(null);
   searchQuery = signal('');
   showOrgDialog = signal(false);
+
+  // Current user signal for super admin check
+  private _currentUser = toSignal(this.authService.user$, { initialValue: null });
+  isSuperAdmin = computed(() => {
+    const user = this._currentUser();
+    return user?.roles?.includes('SUPER_ADMIN') ?? false;
+  });
 
   // Internal organizations list
   private _internalOrganizations = this.organizationContextService.userOrganizations;
@@ -119,6 +134,12 @@ export class OrganizationSwitcher implements OnInit {
 
   onOrganizationSelect(organizationId: string): void {
     if (organizationId) {
+      const orgs = this.displayOrganizations();
+      const org = orgs.find((o) => o.id === organizationId);
+      if (org && org.status === 'inactive' && !this.isSuperAdmin()) {
+        this.error.set(this.translocoService.translate('organizationSwitcher.inactiveOrgError'));
+        return;
+      }
       const success = this.organizationContextService.switchOrganization(organizationId);
       if (success) {
         this.select.emit(organizationId);
@@ -154,6 +175,11 @@ export class OrganizationSwitcher implements OnInit {
       .slice(0, 2);
   }
 
+  isOrgSelectable(org: OrganizationMetadata | OrganizationOption): boolean {
+    if (this.isSuperAdmin()) return true;
+    return org.status !== 'inactive';
+  }
+
   private loadUserOrganizations(): void {
     this.loading.set(true);
     this.error.set(null);
@@ -165,6 +191,7 @@ export class OrganizationSwitcher implements OnInit {
           name: org.name,
           internationalName: org.internationalName,
           taxId: org.taxId,
+          status: org.status,
         }));
         this.organizationContextService.setUserOrganizations(mappedOrganizations);
         this.loading.set(false);

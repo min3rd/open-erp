@@ -427,7 +427,11 @@
     "search": "Search organizations...",
     "createNew": "Register Organization",
     "selectOrganization": "Select an organization",
-    "currentOrganization": "Current organization"
+    "currentOrganization": "Current organization",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "inactiveOrgTooltip": "Organization inactive",
+    "inactiveOrgError": "Cannot switch to inactive organization"
   },
   "languageSelector": {
     "label": "Language",
