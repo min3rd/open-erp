@@ -1,0 +1,250 @@
+<div class="warehouse-structure-explorer">
+  <!-- Toolbar -->
+  <div class="flex items-center justify-between mb-4 p-2 bg-surface-50 rounded-lg border">
+    <span class="text-sm font-semibold text-surface-700">
+      {{ 'warehouseStructure.title' | transloco }}
+    </span>
+    <div class="flex gap-2">
+      <p-button
+        icon="pi pi-refresh"
+        [rounded]="true"
+        severity="secondary"
+        size="small"
+        [pTooltip]="'warehouseStructure.refresh' | transloco"
+        (onClick)="loadStructure()"
+      />
+      <p-button
+        icon="pi pi-plus"
+        [rounded]="true"
+        severity="primary"
+        size="small"
+        [label]="'warehouseStructure.addZone' | transloco"
+        (onClick)="onAddZone()"
+      />
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="flex justify-center items-center p-8">
+      <p-progressSpinner strokeWidth="4" [style]="{ width: '40px', height: '40px' }" />
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading() && (structure()?.zones?.length ?? 0) === 0) {
+    <div class="text-center py-8 text-surface-400">
+      <i class="pi pi-sitemap text-4xl mb-3 block"></i>
+      <p class="text-sm">{{ 'warehouseStructure.empty' | transloco }}</p>
+      <p-button
+        class="mt-3"
+        icon="pi pi-plus"
+        [label]="'warehouseStructure.addFirstZone' | transloco"
+        severity="primary"
+        size="small"
+        (onClick)="onAddZone()"
+      />
+    </div>
+  }
+
+  <!-- Structure Tree -->
+  @if (!isLoading() && (structure()?.zones?.length ?? 0) > 0) {
+    <div class="structure-tree">
+      @for (zone of structure()?.zones ?? []; track zone.id) {
+        <div class="zone-node mb-3 border rounded-lg overflow-hidden">
+          <!-- Zone Header -->
+          <div class="zone-header flex items-center justify-between px-3 py-2 bg-blue-50 border-b">
+            <div class="flex items-center gap-2">
+              <i class="pi pi-th-large text-blue-600"></i>
+              <span class="font-medium text-sm">{{ zone.code }}</span>
+              <span class="text-surface-500 text-xs">{{ zone.name }}</span>
+              <p-tag [value]="zone.type" severity="secondary" [style]="{ fontSize: '10px' }" />
+              @if (!zone.isActive) {
+                <p-tag value="inactive" severity="danger" [style]="{ fontSize: '10px' }" />
+              }
+            </div>
+            <div class="flex gap-1">
+              <p-button
+                icon="pi pi-plus"
+                [rounded]="true"
+                severity="primary"
+                size="small"
+                [pTooltip]="'warehouseStructure.addAisle' | transloco"
+                (onClick)="onAddAisle(zone.id)"
+              />
+              <p-button
+                icon="pi pi-trash"
+                [rounded]="true"
+                severity="danger"
+                size="small"
+                [pTooltip]="'warehouseStructure.delete' | transloco"
+                (onClick)="onDeleteZone(zone.id)"
+              />
+            </div>
+          </div>
+
+          <!-- Aisles -->
+          @if ((zone.aisles?.length ?? 0) > 0) {
+            <div class="pl-4">
+              @for (aisle of zone.aisles; track aisle.id) {
+                <div class="aisle-node border-b last:border-b-0">
+                  <!-- Aisle Header -->
+                  <div class="aisle-header flex items-center justify-between px-3 py-1.5 bg-purple-50">
+                    <div class="flex items-center gap-2">
+                      <i class="pi pi-align-justify text-purple-600 text-xs"></i>
+                      <span class="font-medium text-xs">{{ aisle.code }}</span>
+                      <span class="text-surface-500 text-xs">{{ aisle.name }}</span>
+                      <span class="text-surface-400 text-xs">{{ aisle.levels }} {{ 'warehouseStructure.levels' | transloco }}</span>
+                    </div>
+                    <div class="flex gap-1">
+                      <p-button
+                        icon="pi pi-plus"
+                        [rounded]="true"
+                        severity="primary"
+                        size="small"
+                        [pTooltip]="'warehouseStructure.addBin' | transloco"
+                        (onClick)="onAddBin(aisle.id)"
+                      />
+                      <p-button
+                        icon="pi pi-trash"
+                        [rounded]="true"
+                        severity="danger"
+                        size="small"
+                        [pTooltip]="'warehouseStructure.delete' | transloco"
+                        (onClick)="onDeleteAisle(aisle.id)"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Bins Grid -->
+                  @if ((aisle.bins?.length ?? 0) > 0) {
+                    <div class="bins-grid flex flex-wrap gap-1 p-2 pl-6 bg-white">
+                      @for (bin of aisle.bins; track bin.id) {
+                        <div
+                          class="bin-card border rounded px-2 py-1 text-xs cursor-pointer hover:shadow-sm transition-shadow"
+                          [class]="getBinOccupancyClass(bin)"
+                          [pTooltip]="bin.code + ' | ' + bin.barcode"
+                        >
+                          <div class="font-mono font-medium">{{ bin.code }}</div>
+                          <div class="text-surface-500">{{ bin.currentQty }}/{{ bin.capacityQty }}</div>
+                          @if (bin.isBlocked) {
+                            <p-button
+                              icon="pi pi-lock-open"
+                              [rounded]="true"
+                              severity="contrast"
+                              size="small"
+                              class="mt-1"
+                              (onClick)="onUnblockBin(bin.id)"
+                            />
+                          } @else {
+                            <p-button
+                              icon="pi pi-lock"
+                              [rounded]="true"
+                              severity="secondary"
+                              size="small"
+                              class="mt-1"
+                              (onClick)="onBlockBin(bin.id)"
+                            />
+                          }
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <div class="pl-6 py-1 text-xs text-surface-400 italic">
+                      {{ 'warehouseStructure.noBins' | transloco }}
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="pl-4 py-2 text-xs text-surface-400 italic">
+              {{ 'warehouseStructure.noAisles' | transloco }}
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Add Zone Dialog -->
+  <p-dialog
+    [(visible)]="showZoneDialog"
+    [header]="'warehouseStructure.addZone' | transloco"
+    [modal]="true"
+    [style]="{ width: '400px' }"
+  >
+    <div class="space-y-3 p-2">
+      <div>
+        <label class="block text-sm font-medium mb-1">{{ 'warehouseStructure.fields.code' | transloco }} *</label>
+        <input pInputText [(ngModel)]="zoneForm.code" class="w-full" placeholder="Z-001" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">{{ 'warehouseStructure.fields.name' | transloco }} *</label>
+        <input pInputText [(ngModel)]="zoneForm.name" class="w-full" placeholder="Zone A" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">{{ 'warehouseStructure.fields.description' | transloco }}</label>
+        <input pInputText [(ngModel)]="zoneForm.description" class="w-full" />
+      </div>
+    </div>
+    <ng-template #footer>
+      <p-button [label]="'common.cancel' | transloco" severity="secondary" (onClick)="showZoneDialog.set(false)" />
+      <p-button [label]="'common.save' | transloco" (onClick)="onSaveZone()" />
+    </ng-template>
+  </p-dialog>
+
+  <!-- Add Aisle Dialog -->
+  <p-dialog
+    [(visible)]="showAisleDialog"
+    [header]="'warehouseStructure.addAisle' | transloco"
+    [modal]="true"
+    [style]="{ width: '400px' }"
+  >
+    <div class="space-y-3 p-2">
+      <div>
+        <label class="block text-sm font-medium mb-1">{{ 'warehouseStructure.fields.code' | transloco }} *</label>
+        <input pInputText [(ngModel)]="aisleForm.code" class="w-full" placeholder="A-001" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">{{ 'warehouseStructure.fields.name' | transloco }} *</label>
+        <input pInputText [(ngModel)]="aisleForm.name" class="w-full" placeholder="Aisle 1" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">{{ 'warehouseStructure.fields.levels' | transloco }}</label>
+        <input pInputText type="number" [(ngModel)]="aisleForm.levels" class="w-full" placeholder="1" />
+      </div>
+    </div>
+    <ng-template #footer>
+      <p-button [label]="'common.cancel' | transloco" severity="secondary" (onClick)="showAisleDialog.set(false)" />
+      <p-button [label]="'common.save' | transloco" (onClick)="onSaveAisle()" />
+    </ng-template>
+  </p-dialog>
+
+  <!-- Add Bin Dialog -->
+  <p-dialog
+    [(visible)]="showBinDialog"
+    [header]="'warehouseStructure.addBin' | transloco"
+    [modal]="true"
+    [style]="{ width: '400px' }"
+  >
+    <div class="space-y-3 p-2">
+      <div>
+        <label class="block text-sm font-medium mb-1">{{ 'warehouseStructure.fields.code' | transloco }} *</label>
+        <input pInputText [(ngModel)]="binForm.code" class="w-full" placeholder="B-001" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">{{ 'warehouseStructure.fields.barcode' | transloco }}</label>
+        <input pInputText [(ngModel)]="binForm.barcode" class="w-full" placeholder="Auto-generated if empty" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">{{ 'warehouseStructure.fields.capacityQty' | transloco }}</label>
+        <input pInputText type="number" [(ngModel)]="binForm.capacityQty" class="w-full" placeholder="100" />
+      </div>
+    </div>
+    <ng-template #footer>
+      <p-button [label]="'common.cancel' | transloco" severity="secondary" (onClick)="showBinDialog.set(false)" />
+      <p-button [label]="'common.save' | transloco" (onClick)="onSaveBin()" />
+    </ng-template>
+  </p-dialog>
+</div>

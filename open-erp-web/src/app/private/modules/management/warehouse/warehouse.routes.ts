@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { Warehouse } from './warehouse';
 import { WarehouseList } from './list/list';
 import { WarehouseForm } from './form/form';
+import { WarehouseStructureExplorer } from './structure/structure';
 import { warehouseDetailResolver } from './resolvers/warehouse-detail.resolver';
 import { warehouseListResolver } from './resolvers/warehouse-list.resolver';
 import { provincesResolver } from './resolvers/provinces.resolver';
@@ -59,6 +60,10 @@ export const routes: Routes = [
                           {
                             path: 'edit',
                             component: WarehouseForm,
+                          },
+                          {
+                            path: 'structure',
+                            component: WarehouseStructureExplorer,
                           },
                         ],
                       },

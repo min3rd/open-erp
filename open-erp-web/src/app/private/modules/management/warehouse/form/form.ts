@@ -595,4 +595,11 @@ export class WarehouseForm implements OnInit {
       this.router.navigate(['..'], { relativeTo: this.route });
     }
   }
+
+  protected onViewStructure(): void {
+    const id = this.warehouse()?.id;
+    if (id) {
+      this.router.navigate(['../structure'], { relativeTo: this.route });
+    }
+  }
 }

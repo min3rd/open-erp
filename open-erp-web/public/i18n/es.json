@@ -1779,7 +1779,8 @@
     "contextMenu": {
       "view": "Ver",
       "edit": "Editar",
-      "delete": "Eliminar"
+      "delete": "Eliminar",
+      "structure": "Ver Estructura"
     },
     "mapContextMenu": {
       "createHere": "Crear Almacén Aquí",
@@ -1972,7 +1973,8 @@
     "actions": {
       "save": "Guardar",
       "cancel": "Cancelar",
-      "close": "Cerrar"
+      "close": "Cerrar",
+      "structure": "Ver Estructura"
     },
     "messages": {
       "error": "Error",
@@ -2482,6 +2484,36 @@
       "codePlaceholder": "ej. ingenieria",
       "description": "Descripción",
       "level": "Nivel"
+    }
+  },
+  "warehouseStructure": {
+    "title": "Estructura del Almacén",
+    "refresh": "Actualizar",
+    "addZone": "Agregar Zona",
+    "addAisle": "Agregar Pasillo",
+    "addBin": "Agregar Bin",
+    "delete": "Eliminar",
+    "empty": "No hay zonas definidas. Agrega una zona para comenzar.",
+    "addFirstZone": "Agregar Primera Zona",
+    "loadError": "Error al cargar la estructura del almacén",
+    "createError": "Error al crear el elemento",
+    "deleteError": "Error al eliminar el elemento",
+    "deleted": "Elemento eliminado exitosamente",
+    "zoneCreated": "Zona creada exitosamente",
+    "aisleCreated": "Pasillo creado exitosamente",
+    "binCreated": "Bin creado exitosamente",
+    "binBlocked": "Bin bloqueado exitosamente",
+    "binUnblocked": "Bin desbloqueado exitosamente",
+    "levels": "nivel(es)",
+    "noAisles": "No hay pasillos en esta zona",
+    "noBins": "No hay bins en este pasillo",
+    "fields": {
+      "code": "Código",
+      "name": "Nombre",
+      "description": "Descripción",
+      "levels": "Niveles",
+      "barcode": "Código de barras",
+      "capacityQty": "Capacidad (Cant.)"
     }
   }
 }
