@@ -97,7 +97,7 @@ describe('MembersResolver', () => {
   });
 
   it('should handle response with items property instead of data', (done) => {
-    const responseWithItems = { items: mockMembersResponse.data, data: [], total: 1, page: 1, limit: 20 };
+    const responseWithItems = { items: mockMembersResponse.data, data: undefined as any, total: 1, page: 1, limit: 20 };
     orgService.getOrganizationMembers.and.returnValue(of(responseWithItems));
 
     const result = TestBed.runInInjectionContext(() =>
@@ -106,6 +106,7 @@ describe('MembersResolver', () => {
 
     (result as any).subscribe((data: any) => {
       expect(data).not.toBeNull();
+      expect(data.items).toEqual(mockMembersResponse.data);
       expect(data.total).toBe(1);
       done();
     });
