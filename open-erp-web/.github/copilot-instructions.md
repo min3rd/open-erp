@@ -1,175 +1,74 @@
+﻿# Frontend (Web) Copilot Instructions
 
-You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
+See root `../.github/copilot-instructions.md` for architecture overview and cross-project conventions.
 
-## TypeScript Best Practices
+## Angular Conventions
 
-- Use strict type checking
-- Prefer type inference when the type is obvious
-- Avoid the `any` type; use `unknown` when type is uncertain
+- **Standalone only**: No NgModules. Do NOT set `standalone: true` (default in Angular 20+)
+- **File naming**: `kebab-case.ts` / `.html`  no `.component` suffix. Classes: PascalCase nouns without "Component" (e.g., `Warehouse`, `Login`)
+- **DI**: Always `inject()` function, never constructor injection
+- **Change detection**: Always `ChangeDetectionStrategy.OnPush`
+- **State**: `signal()` for local state, `computed()` for derived, `update()`/`set()` to modify (never `mutate`)
+- **Control flow**: Native `@if`, `@for`, `@switch`  never `*ngIf`/`*ngFor`
+- **Inputs/outputs**: Use `input()` and `output()` functions, not decorators
+- **Host bindings**: Use `host` object in `@Component`, not `@HostBinding`/`@HostListener`
 
-## Angular Best Practices
+## i18n (Transloco)
 
-- Always use standalone components over NgModules
-- Must NOT set `standalone: true` inside Angular decorators. It's the default in Angular v20+.
-- Use signals for state management
-- Implement lazy loading for feature routes
-- Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead
-- Use `NgOptimizedImage` for all static images.
-  - `NgOptimizedImage` does not work for inline base64 images.
+All user-facing text goes through Transloco  never hardcode strings:
+- Templates: `{{ 'key.path' | transloco }}`
+- TypeScript: `TranslocoService.translate('key')`
+- Translation files: `public/i18n/en.json`, `public/i18n/es.json`
 
-## Internationalization (i18n)
+## PrimeNG
 
-- **MANDATORY**: Use Transloco for all user-facing text and messages
-- Never hardcode English or any language strings in templates or TypeScript files
-- All text must be translatable through Transloco translation keys
-- Define translation keys in `public/i18n/en.json` and `public/i18n/es.json`
-- Use the `transloco` pipe in templates: `{{ 'key.path' | transloco }}`
-- Use `TranslocoService.translate()` in TypeScript files for dynamic translations
-- For parameterized translations, use: `{{ 'key' | transloco: { param: value } }}`
-- Group related translations under logical namespaces (e.g., `userList.*`, `login.*`)
+- Template syntax: `<ng-template #header>`, `<ng-template #body>`  never `pTemplate="..."`
+- Table pagination: Always use built-in `[paginator]="true"` with `[lazy]="true"` for server-side  never custom pagination components
+- Theme: Aura preset with dark mode via `.dark` class selector
 
-## PrimeNG Component Templates
+## Styling
 
-- **MANDATORY**: Use the new PrimeNG template syntax with `#templateName` instead of `pTemplate="templateName"`
-- Examples of correct syntax:
-  - Toolbar: `<ng-template #start>` and `<ng-template #end>`
-  - Table: `<ng-template #header>`, `<ng-template #body>`, `<ng-template #empty>`
-  - SelectButton/Dropdown: `<ng-template #item>`
-  - Dialog: `<ng-template #header>`, `<ng-template #footer>`
-- Do NOT use the deprecated `pTemplate` directive syntax
-- Always consult the official PrimeNG documentation for the correct template names for each component
+- **Tailwind CSS 4** utility classes only  no inline `style=""`, no `ngClass`/`ngStyle`
+- Use `class` bindings for conditional classes
+- Tailwind v4 CSS-based config in `styles.css` (no `tailwind.config.js`)
 
-## PrimeNG Table Pagination
+## API Integration
 
-- **MANDATORY**: When using PrimeNG `p-table`, use the table's built-in pagination instead of custom pagination components
-- Enable pagination with `[paginator]="true"` and configure `[rows]`, `[totalRecords]`, and `[rowsPerPageOptions]`
-- For server-side pagination, use `[lazy]="true"` with `(onLazyLoad)` event handler
-- Do NOT use separate custom pagination components for tables - the table's paginator is designed to work seamlessly with table features
+No proxy  services call backends directly at `http://localhost:PORT/v1/...`:
+```typescript
+import { API_URI_INVENTORY } from 'core/constant';
+import { unwrap, isApiResponse } from 'core/api/http-wrapper';
 
-- **ENFORCED RULE**: Always use the `p-table` paginator. Do not implement external/custom pagination controls that bypass or replace the table's built-in paginator — this ensures correct interaction with sorting, selection, column virtualization, and lazy loading.
-
-Example (client-side):
-```html
-<p-table [value]="items" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,20,50]">
-  <ng-template #header>...</ng-template>
-  <ng-template #body let-item>...</ng-template>
-</p-table>
+this.http.get<ApiPaginatedResponse<Item>>(`${API_URI_INVENTORY}/v1/warehouses`, { params })
+  .pipe(map(res => isApiResponse(res) ? unwrap(res) : res));
 ```
 
-Example (server-side lazy):
-```html
-<p-table [value]="items" [paginator]="true" [rows]="20" [totalRecords]="total" [lazy]="true" (onLazyLoad)="loadData($event)">
-  <!-- columns -->
-</p-table>
-```
+Base URLs in `src/core/constant.ts`. Auth interceptor attaches Bearer token automatically.
 
-## Accessibility Requirements
+## Routing
 
-- It MUST pass all AXE checks.
-- It MUST follow all WCAG AA minimums, including focus management, color contrast, and ARIA attributes.
+- Three-tier lazy loading: `app.routes`  `private.routes`  `modules.routes`  feature routes
+- Data pre-loaded via route resolvers (root resolver loads nav, profile, chat, languages)
+- Layout selected per route via `data: { layout: 'vertical' | 'empty' }` on the `Layout` component
+- Every feature exports `const routes: Routes = [...]`
 
-### Components
+## Data Operation Screens
 
-- Keep components small and focused on a single responsibility
-- Use `input()` and `output()` functions instead of decorators
-- Use `computed()` for derived state
-- Set `changeDetection: ChangeDetectionStrategy.OnPush` in `@Component` decorator
-- Prefer inline templates for small components
-- Prefer Reactive forms instead of Template-driven ones
-- Do NOT use `ngClass`, use `class` bindings instead
-- Do NOT use `ngStyle`, use `style` bindings instead
-- When using external templates/styles, use paths relative to the component TS file.
+- Toolbar at top (`{component}-toolbar`) with title + actions
+- Scrollable content area below (`{component}-content`)
+- Toolbar stays fixed; only content scrolls
 
-## State Management
+## DOM IDs
 
-- Use signals for local component state
-- Use `computed()` for derived state
-- Keep state transformations pure and predictable
-- Do NOT use `mutate` on signals, use `update` or `set` instead
+All interactive elements need unique IDs: `{component}-{field}`, `{component}-{field}-error`, `{component}-{action}-button`. Must pass AXE/WCAG AA checks.
 
-## Templates
+## Testing
 
-- Keep templates simple and avoid complex logic
-- Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
-- Use the async pipe to handle observables
-- Do not assume globals like (`new Date()`) are available.
-- Do not write arrow functions in templates (they are not supported).
-- **Do NOT use inline styles** - use Tailwind CSS utility classes instead
-- Avoid using `[style]` or `style=""` attributes; prefer class bindings and Tailwind classes
+- Vitest 4 with jsdom: `ng test`
+- Co-located `.spec.ts` files
+- Use `TranslocoTestingModule` from `core/testing/` for i18n in tests
+- Import from `vitest`: `describe`, `it`, `expect`, `beforeEach`
 
-## DOM Element ID Requirements
+## Formatting
 
-**CRITICAL: All DOM elements MUST have unique `id` attributes**
-
-### ID Naming Convention
-
-- Use kebab-case for all IDs
-- Prefix IDs with the component/page name to ensure uniqueness
-- Use descriptive names that indicate the element's purpose
-- For form fields, use pattern: `{component}-{field-name}` (e.g., `login-username`, `register-email`)
-- For error messages, use pattern: `{component}-{field-name}-error` (e.g., `login-username-error`)
-- For buttons, use pattern: `{component}-{action}-button` (e.g., `login-submit-button`)
-- For containers/wrappers, use pattern: `{component}-{section}-{type}` (e.g., `login-container`, `login-form-wrapper`)
-
-### Examples
-
-```html
-<!-- Login Component -->
-<div id="login-container">
-  <form id="login-form">
-    <input id="login-username" type="text" />
-    <small id="login-username-error">Error message</small>
-    <button id="login-submit-button">Login</button>
-  </form>
-</div>
-
-<!-- Register Component -->
-<div id="register-container">
-  <form id="register-form">
-    <input id="register-email" type="email" />
-    <small id="register-email-error">Error message</small>
-    <button id="register-submit-button">Register</button>
-  </form>
-</div>
-```
-
-### Why IDs are Required
-
-- **Accessibility**: Screen readers and assistive technologies rely on unique IDs for proper navigation
-- **Testing**: Automated tests use IDs to locate and interact with elements reliably
-- **Debugging**: Unique IDs make it easier to trace and debug issues in the application
-- **SEO**: Search engines use IDs to understand page structure better
-- **Form Labels**: Labels must reference form inputs by ID for accessibility
-
-### Important Notes
-
-- NEVER reuse the same ID across different components or pages
-- Always assign IDs to interactive elements (buttons, inputs, links)
-- Assign IDs to major container elements for navigation and testing
-- IDs must be unique within the entire document, not just the component
-- When in doubt, always add an ID rather than omitting it
-
-## Data Operation Screen Layout
-
-- When creating data operation screens, follow this layout:
-  - **Toolbar:** a header toolbar at the top containing the title and primary actions.
-  - **Content:** the content area below the toolbar containing forms, tables, or interactive components.
-- The overall application layout must fit within a single viewport and must NOT scroll the whole page.
-- Only allow scrolling within the `content` area when its content exceeds the visible height; the toolbar and header must be fixed and always visible.
-- Use IDs for containers with the convention: `{component}-toolbar`, `{component}-content` (e.g., `user-edit-toolbar`, `user-edit-content`).
-- Ensure accessibility: proper keyboard focus management, status/error announcements inside the `content` area, and appropriate ARIA attributes.
-
-## Services
-
-- Design services around a single responsibility
-- Use the `providedIn: 'root'` option for singleton services
-- Use the `inject()` function instead of constructor injection
-
-## Integration & Architecture
-
-- When integrating with backend APIs you **MUST** clone the `open-erp-backend` repository locally and run it to perform integration tests alongside unit tests. Integration PRs should include instructions (or npm scripts) to start the backend for local testing and CI where applicable.
-- Always use Angular **Route Resolvers** to preload data required by a screen; data needed for rendering must be fetched by a resolver so the route activates only after preload completes.
-- Design routes to capture and persist user view state and actions (filters, sorts, active view, pagination). Use route parameters and/or query parameters to enable traceability and reproducibility of user interactions.
-- Do **not** implement branching in the UI to handle legacy vs newest API formats; assume the **newest API format** by default. If legacy support is required, it must be handled in a dedicated compatibility layer and explicitly documented.
-- Common component options (e.g., page size options, base map layers, default tile providers) should be declared as shared UI constants (for example `src/core/ui-constants.ts`) and reused across components to ensure consistency.
-
+Prettier: 100 char width, single quotes, Angular HTML parser.
