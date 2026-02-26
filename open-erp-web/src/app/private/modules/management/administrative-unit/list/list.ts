@@ -19,7 +19,7 @@ import { TreeTableModule } from 'primeng/treetable';
 import { TreeNode } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToolbarModule } from 'primeng/toolbar';
+import { MpToolbar } from '../../../../../../core/components/toolbar';
 import { MenuModule } from 'primeng/menu';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { TooltipModule } from 'primeng/tooltip';
@@ -57,7 +57,7 @@ import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants
     TreeTableModule,
     ButtonModule,
     InputTextModule,
-    ToolbarModule,
+    MpToolbar,
     MenuModule,
     ContextMenuModule,
     TooltipModule,

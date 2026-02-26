@@ -18,7 +18,7 @@ import { tap, catchError } from 'rxjs/operators';
 import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToolbarModule } from 'primeng/toolbar';
+import { MpToolbar } from '../../../../../../core/components/toolbar';
 import { MenuModule } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService, MenuItem } from 'primeng/api';
@@ -54,7 +54,7 @@ import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants
     AccordionModule,
     ButtonModule,
     InputTextModule,
-    ToolbarModule,
+    MpToolbar,
     MenuModule,
     TooltipModule,
     InputGroupModule,

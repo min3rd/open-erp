@@ -1,8 +1,7 @@
 <div class="flex h-full flex-col">
   <!-- Fixed Toolbar - Desktop -->
   @if (!isMobile()) {
-    <div class="p-2 border-b border-surface-200 dark:border-surface-700">
-      <p-toolbar id="user-list-toolbar">
+      <mp-toolbar id="user-list-toolbar">
         <ng-template #start>
           <!-- Scope Toggle -->
           <p-selectButton
@@ -73,14 +72,12 @@
             appendTo="body"
           />
         </ng-template>
-      </p-toolbar>
-    </div>
+      </mp-toolbar>
   }
 
   <!-- Fixed Toolbar - Mobile -->
   @if (isMobile()) {
-    <div class="p-2 border-b border-surface-200 dark:border-surface-700">
-      <p-toolbar id="user-list-toolbar-mobile">
+      <mp-toolbar id="user-list-toolbar-mobile">
         <ng-template #start>
           <!-- Scope Toggle (Icons Only) -->
           <p-selectButton
@@ -158,7 +155,7 @@
             appendTo="body"
           />
         </ng-template>
-      </p-toolbar>
+      </mp-toolbar>
 
       <!-- Expandable Search Input (Mobile) -->
       @if (isSearchOpen()) {
@@ -187,7 +184,6 @@
           </p-inputgroup>
         </div>
       }
-    </div>
   }
   <div class="flex flex-auto h-full overflow-hidden">
     <div class="flex w-full h-full flex-col">

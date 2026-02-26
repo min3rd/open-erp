@@ -14,7 +14,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
 
 // PrimeNG imports
-import { Toolbar } from 'primeng/toolbar';
+import { MpToolbar } from '../../../../../../core/components/toolbar';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -51,7 +51,7 @@ interface ScopeOption {
     CommonModule,
     FormsModule,
     TranslocoModule,
-    Toolbar,
+    MpToolbar,
     SelectButtonModule,
     TableModule,
     TagModule,

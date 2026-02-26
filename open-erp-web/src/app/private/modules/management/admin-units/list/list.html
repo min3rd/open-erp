@@ -10,7 +10,7 @@
       <ng-template #left>
         <div class="flex flex-col h-full">
           <!-- Toolbar -->
-          <p-toolbar id="admin-units-toolbar" styleClass="border-b">
+          <mp-toolbar id="admin-units-toolbar">
             <ng-template #start>
               <h2 class="text-xl font-semibold m-0">
                 {{ 'adminUnits.title' | transloco }}
@@ -85,7 +85,7 @@
                 ></button>
               </div>
             </ng-template>
-          </p-toolbar>
+          </mp-toolbar>
 
           <!-- Content: Accordion -->
           <div id="admin-units-content" class="flex-1 overflow-auto p-4">
@@ -279,7 +279,7 @@
   @if (isMobile()) {
     <div class="flex flex-col h-full">
       <!-- Mobile Toolbar -->
-      <p-toolbar id="admin-units-mobile-toolbar" styleClass="border-b">
+      <mp-toolbar id="admin-units-mobile-toolbar">
         <ng-template #start>
           <h2 class="text-lg font-semibold m-0">
             {{ 'adminUnits.title' | transloco }}
@@ -302,7 +302,7 @@
             class="p-button-sm"
           ></button>
         </ng-template>
-      </p-toolbar>
+      </mp-toolbar>
 
       <!-- Mobile Search -->
       <div class="p-3 border-b">
