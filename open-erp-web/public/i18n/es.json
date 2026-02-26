@@ -362,7 +362,9 @@
         "documents": "Documentos",
         "members": "Miembros",
         "overview": "Descripción general",
-        "relations": "Relaciones"
+        "relations": "Relaciones",
+        "general": "General",
+        "invites": "Invitaciones"
       },
       "title": "Detalles de la organización",
       "invites": {
