@@ -5,7 +5,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, Mongoose, SchemaTypes, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import {
   Department,
   DepartmentDocument,
@@ -198,8 +198,8 @@ export class OrgMembersService {
     const member = await this.memberModel
       .findOneAndUpdate(
         {
-          _id: new SchemaTypes.ObjectId(memberId),
-          organizationId: new SchemaTypes.ObjectId(orgId),
+          _id: new Types.ObjectId(memberId),
+          organizationId: new Types.ObjectId(orgId),
           deletedAt: null,
         },
         { $set: updateDto },
@@ -219,15 +219,15 @@ export class OrgMembersService {
     dto: AssignMemberDto,
   ): Promise<OrganizationMemberDocument> {
     const assignments = dto.assignments.map((a) => ({
-      departmentId: new SchemaTypes.ObjectId(a.departmentId),
-      positionIds: (a.positionIds ?? []).map((id) => new SchemaTypes.ObjectId(id)),
+      departmentId: new Types.ObjectId(a.departmentId),
+      positionIds: (a.positionIds ?? []).map((id) => new Types.ObjectId(id)),
     }));
 
     const member = await this.memberModel
       .findOneAndUpdate(
         {
-          _id: new SchemaTypes.ObjectId(memberId),
-          organizationId: new SchemaTypes.ObjectId(orgId),
+          _id: new Types.ObjectId(memberId),
+          organizationId: new Types.ObjectId(orgId),
           deletedAt: null,
         },
         { $set: { assignments } },
@@ -245,7 +245,7 @@ export class OrgMembersService {
 
   async getDepartments(orgId: string): Promise<DepartmentDocument[]> {
     return this.departmentModel
-      .find({ organizationId: new SchemaTypes.ObjectId(orgId), deletedAt: null })
+      .find({ organizationId: new Types.ObjectId(orgId), deletedAt: null })
       .sort({ name: 1 })
       .exec();
   }
@@ -255,7 +255,7 @@ export class OrgMembersService {
     dto: CreateDepartmentDto,
   ): Promise<DepartmentDocument> {
     const existing = await this.departmentModel
-      .findOne({ organizationId: new SchemaTypes.ObjectId(orgId), code: dto.code })
+      .findOne({ organizationId: new Types.ObjectId(orgId), code: dto.code })
       .exec();
     if (existing) {
       throw new ConflictException(`Department with code '${dto.code}' already exists`);
@@ -266,7 +266,7 @@ export class OrgMembersService {
       name: dto.name,
       code: dto.code,
       description: dto.description,
-      parentId: dto.parentId ? new mongoose.Types.ObjectId(dto.parentId) : null,
+      parentId: dto.parentId ? new Types.ObjectId(dto.parentId) : null,
       status: 'active',
     });
     return dept.save();
@@ -280,8 +280,8 @@ export class OrgMembersService {
     const dept = await this.departmentModel
       .findOneAndUpdate(
         {
-          _id: new SchemaTypes.ObjectId(deptId),
-          organizationId: new SchemaTypes.ObjectId(orgId),
+          _id: new Types.ObjectId(deptId),
+          organizationId: new Types.ObjectId(orgId),
           deletedAt: null,
         },
         { $set: dto },
@@ -299,8 +299,8 @@ export class OrgMembersService {
     const dept = await this.departmentModel
       .findOneAndUpdate(
         {
-          _id: new SchemaTypes.ObjectId(deptId),
-          organizationId: new SchemaTypes.ObjectId(orgId),
+          _id: new Types.ObjectId(deptId),
+          organizationId: new Types.ObjectId(orgId),
           deletedAt: null,
         },
         { $set: { deletedAt: new Date() } },
@@ -317,7 +317,7 @@ export class OrgMembersService {
 
   async getPositions(orgId: string): Promise<PositionDocument[]> {
     return this.positionModel
-      .find({ organizationId: new SchemaTypes.ObjectId(orgId), deletedAt: null })
+      .find({ organizationId: new Types.ObjectId(orgId), deletedAt: null })
       .sort({ level: 1, name: 1 })
       .exec();
   }
@@ -327,14 +327,14 @@ export class OrgMembersService {
     dto: CreatePositionDto,
   ): Promise<PositionDocument> {
     const existing = await this.positionModel
-      .findOne({ organizationId: new SchemaTypes.ObjectId(orgId), code: dto.code })
+      .findOne({ organizationId: new Types.ObjectId(orgId), code: dto.code })
       .exec();
     if (existing) {
       throw new ConflictException(`Position with code '${dto.code}' already exists`);
     }
 
     const position = new this.positionModel({
-      organizationId: new SchemaTypes.ObjectId(orgId),
+      organizationId: new Types.ObjectId(orgId),
       name: dto.name,
       code: dto.code,
       description: dto.description,
@@ -352,8 +352,8 @@ export class OrgMembersService {
     const position = await this.positionModel
       .findOneAndUpdate(
         {
-          _id: new SchemaTypes.ObjectId(posId),
-          organizationId: new SchemaTypes.ObjectId(orgId),
+          _id: new Types.ObjectId(posId),
+          organizationId: new Types.ObjectId(orgId),
           deletedAt: null,
         },
         { $set: dto },
@@ -371,8 +371,8 @@ export class OrgMembersService {
     const position = await this.positionModel
       .findOneAndUpdate(
         {
-          _id: new SchemaTypes.ObjectId(posId),
-          organizationId: new SchemaTypes.ObjectId(orgId),
+          _id: new Types.ObjectId(posId),
+          organizationId: new Types.ObjectId(orgId),
           deletedAt: null,
         },
         { $set: { deletedAt: new Date() } },
