@@ -619,6 +619,15 @@
           (onClick)="randomizeData()"
         />
       }
+      @if (isViewMode() && warehouse()) {
+        <p-button
+          id="warehouse-form-structure-button"
+          icon="pi pi-sitemap"
+          [label]="'warehouseForm.actions.structure' | transloco"
+          severity="secondary"
+          (onClick)="onViewStructure()"
+        />
+      }
       @if (!isViewMode()) {
         <p-button
           id="warehouse-form-cancel-button"

@@ -194,6 +194,11 @@ export class WarehouseList implements OnInit, OnDestroy {
         command: () => this.onEditWarehouse(warehouse),
       },
       {
+        label: this.translocoService.translate('warehouseList.contextMenu.structure'),
+        icon: 'pi pi-sitemap',
+        command: () => this.onViewStructure(warehouse),
+      },
+      {
         separator: true,
       },
       {
@@ -457,6 +462,13 @@ export class WarehouseList implements OnInit, OnDestroy {
   }
 
   /**
+   * Navigate to warehouse structure explorer
+   */
+  protected onViewStructure(warehouse: Warehouse): void {
+    this.router.navigate([warehouse.id, 'structure'], { relativeTo: this.route });
+  }
+
+  /**
    * Delete a warehouse
    */
   protected onDeleteWarehouse(warehouse: Warehouse): void {
@@ -592,6 +604,11 @@ export class WarehouseList implements OnInit, OnDestroy {
         label: this.translocoService.translate('warehouseList.contextMenu.edit'),
         icon: 'pi pi-pencil',
         command: () => this.onEditWarehouse(warehouse),
+      },
+      {
+        label: this.translocoService.translate('warehouseList.contextMenu.structure'),
+        icon: 'pi pi-sitemap',
+        command: () => this.onViewStructure(warehouse),
       },
       {
         separator: true,

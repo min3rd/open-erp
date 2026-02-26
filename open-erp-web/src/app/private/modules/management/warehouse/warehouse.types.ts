@@ -251,3 +251,147 @@ export interface ImportResult {
   failed: number;
   errors: string[];
 }
+
+/**
+ * Zone Type enum
+ */
+export enum ZoneType {
+  STORAGE = 'storage',
+  STAGING = 'staging',
+  RECEIVING = 'receiving',
+  SHIPPING = 'shipping',
+  QUARANTINE = 'quarantine',
+  RETURN = 'return',
+  COLD = 'cold',
+  HAZMAT = 'hazmat',
+}
+
+/**
+ * Zone entity
+ */
+export interface Zone {
+  id: string;
+  warehouseId: string;
+  code: string;
+  name: string;
+  type: ZoneType;
+  sequence: number;
+  isDefault: boolean;
+  isActive: boolean;
+  description?: string;
+  metadata?: Record<string, any>;
+  deletedAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateZoneDto {
+  code: string;
+  name: string;
+  type?: ZoneType;
+  sequence?: number;
+  isDefault?: boolean;
+  isActive?: boolean;
+  description?: string;
+}
+
+export type UpdateZoneDto = Partial<CreateZoneDto>;
+
+/**
+ * Aisle entity
+ */
+export interface Aisle {
+  id: string;
+  zoneId: string;
+  code: string;
+  name: string;
+  sequence: number;
+  levels: number;
+  isActive: boolean;
+  description?: string;
+  metadata?: Record<string, any>;
+  deletedAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateAisleDto {
+  code: string;
+  name: string;
+  sequence?: number;
+  levels?: number;
+  isActive?: boolean;
+  description?: string;
+}
+
+export type UpdateAisleDto = Partial<CreateAisleDto>;
+
+/**
+ * Bin Type enum
+ */
+export enum BinType {
+  STANDARD = 'standard',
+  PALLET = 'pallet',
+  BULK = 'bulk',
+  SHELF = 'shelf',
+  FLOOR = 'floor',
+  RACK = 'rack',
+  DRAWER = 'drawer',
+}
+
+export interface BinDimensions {
+  lengthCm?: number;
+  widthCm?: number;
+  heightCm?: number;
+}
+
+/**
+ * Bin entity
+ */
+export interface Bin {
+  id: string;
+  aisleId: string;
+  code: string;
+  barcode?: string;
+  capacityQty: number;
+  capacityVolume?: number;
+  currentQty: number;
+  allowedSkuTags?: string[];
+  dimensions?: BinDimensions;
+  binType: BinType;
+  isBlocked: boolean;
+  isActive: boolean;
+  metadata?: Record<string, any>;
+  deletedAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateBinDto {
+  code: string;
+  barcode?: string;
+  capacityQty?: number;
+  capacityVolume?: number;
+  allowedSkuTags?: string[];
+  dimensions?: BinDimensions;
+  binType?: BinType;
+  isBlocked?: boolean;
+  isActive?: boolean;
+}
+
+export type UpdateBinDto = Partial<CreateBinDto>;
+
+/**
+ * Warehouse structure tree (Warehouse → Zones → Aisles → Bins)
+ */
+export interface AisleWithBins extends Aisle {
+  bins: Bin[];
+}
+
+export interface ZoneWithAisles extends Zone {
+  aisles: AisleWithBins[];
+}
+
+export interface WarehouseStructure extends Warehouse {
+  zones: ZoneWithAisles[];
+}

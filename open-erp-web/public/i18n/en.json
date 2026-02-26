@@ -1652,7 +1652,8 @@
     "contextMenu": {
       "view": "View",
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "structure": "View Structure"
     },
     "mapContextMenu": {
       "createHere": "Create Warehouse Here",
@@ -1845,7 +1846,8 @@
     "actions": {
       "save": "Save",
       "cancel": "Cancel",
-      "close": "Close"
+      "close": "Close",
+      "structure": "View Structure"
     },
     "messages": {
       "error": "Error",
@@ -3515,6 +3517,36 @@
       "codePlaceholder": "e.g. engineering",
       "description": "Description",
       "level": "Level"
+    }
+  },
+  "warehouseStructure": {
+    "title": "Warehouse Structure",
+    "refresh": "Refresh",
+    "addZone": "Add Zone",
+    "addAisle": "Add Aisle",
+    "addBin": "Add Bin",
+    "delete": "Delete",
+    "empty": "No zones defined. Add a zone to start building the warehouse structure.",
+    "addFirstZone": "Add First Zone",
+    "loadError": "Failed to load warehouse structure",
+    "createError": "Failed to create item",
+    "deleteError": "Failed to delete item",
+    "deleted": "Item deleted successfully",
+    "zoneCreated": "Zone created successfully",
+    "aisleCreated": "Aisle created successfully",
+    "binCreated": "Bin created successfully",
+    "binBlocked": "Bin blocked successfully",
+    "binUnblocked": "Bin unblocked successfully",
+    "levels": "level(s)",
+    "noAisles": "No aisles in this zone",
+    "noBins": "No bins in this aisle",
+    "fields": {
+      "code": "Code",
+      "name": "Name",
+      "description": "Description",
+      "levels": "Levels",
+      "barcode": "Barcode",
+      "capacityQty": "Capacity (Qty)"
     }
   }
 }
