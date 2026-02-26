@@ -26,3 +26,6 @@ export * from './conversation.schema';
 export * from './message.schema';
 export * from './user-notification.schema';
 export * from './position.schema';
+export * from './zone.schema';
+export * from './aisle.schema';
+export * from './bin.schema';

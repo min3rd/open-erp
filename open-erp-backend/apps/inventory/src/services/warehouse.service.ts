@@ -6,6 +6,9 @@ import {
   Logger,
 } from '@nestjs/common';
 import { WarehouseRepository } from '../repositories/warehouse.repository';
+import { ZoneRepository } from '../repositories/zone.repository';
+import { AisleRepository } from '../repositories/aisle.repository';
+import { BinRepository } from '../repositories/bin.repository';
 import {
   CreateWarehouseDto,
   UpdateWarehouseDto,
@@ -17,7 +20,12 @@ import { WarehouseDocument } from '@shared/schemas';
 export class WarehouseService {
   private readonly logger = new Logger(WarehouseService.name);
 
-  constructor(private readonly warehouseRepository: WarehouseRepository) {}
+  constructor(
+    private readonly warehouseRepository: WarehouseRepository,
+    private readonly zoneRepository: ZoneRepository,
+    private readonly aisleRepository: AisleRepository,
+    private readonly binRepository: BinRepository,
+  ) {}
 
   /**
    * Create a new warehouse
@@ -361,5 +369,41 @@ export class WarehouseService {
       radiusKm,
       limit,
     );
+  }
+
+  /**
+   * Get full warehouse structure tree (Warehouse → Zones → Aisles → Bins)
+   */
+  async getStructure(warehouseId: string): Promise<any> {
+    const warehouse = await this.warehouseRepository.findById(warehouseId);
+    if (!warehouse) {
+      throw new NotFoundException(`Warehouse with ID ${warehouseId} not found`);
+    }
+
+    const { items: zones } = await this.zoneRepository.findAll(warehouseId, { limit: 500 });
+
+    const structure = await Promise.all(
+      zones.map(async (zone) => {
+        const aisles = await this.aisleRepository.findByZoneId(zone._id.toString());
+        const aislesWithBins = await Promise.all(
+          aisles.map(async (aisle) => {
+            const bins = await this.binRepository.findByAisleId(aisle._id.toString());
+            return {
+              ...aisle.toJSON(),
+              bins: bins.map((b) => b.toJSON()),
+            };
+          }),
+        );
+        return {
+          ...zone.toJSON(),
+          aisles: aislesWithBins,
+        };
+      }),
+    );
+
+    return {
+      ...warehouse.toJSON(),
+      zones: structure,
+    };
   }
 }

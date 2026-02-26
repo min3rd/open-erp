@@ -139,6 +139,16 @@ export const EVENT_NAMES = {
     CONVERSATION_CREATED: 'chat.conversation.created',
     MESSAGE_READ: 'chat.message.read',
   },
+
+  // Inventory Events
+  INVENTORY: {
+    WAREHOUSE_CREATED: 'inventory.warehouse.created',
+    WAREHOUSE_UPDATED: 'inventory.warehouse.updated',
+    WAREHOUSE_DELETED: 'inventory.warehouse.deleted',
+    ZONE_CHANGED: 'inventory.zone.changed',
+    AISLE_CHANGED: 'inventory.aisle.changed',
+    BIN_UPDATED: 'inventory.bin.updated',
+  },
 } as const;
 
 /**

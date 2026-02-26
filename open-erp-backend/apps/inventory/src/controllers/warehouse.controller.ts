@@ -202,8 +202,20 @@ export class WarehouseController {
     return ok(warehouses, 'Nearby warehouses retrieved successfully');
   }
 
+  @Get(':id/structure')
+  @ApiOperation({ summary: 'Get full warehouse structure tree (zones → aisles → bins)' })
+  @ApiParam({ name: 'id', description: 'Warehouse ID' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Warehouse structure retrieved successfully',
+  })
+  @Permissions('inventory.warehouse.read')
+  async getStructure(@Param('id') id: string) {
+    const structure = await this.warehouseService.getStructure(id);
+    return ok(structure, 'Warehouse structure retrieved successfully');
+  }
+
   @Get(':id')
-  @ApiOperation({ summary: 'Get warehouse by ID' })
   @ApiParam({ name: 'id', description: 'Warehouse ID' })
   @ApiResponse({
     status: HttpStatus.OK,

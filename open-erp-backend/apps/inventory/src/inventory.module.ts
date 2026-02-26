@@ -31,6 +31,12 @@ import {
   UserSchema,
   Role,
   RoleSchema,
+  Zone,
+  ZoneSchema,
+  Aisle,
+  AisleSchema,
+  Bin,
+  BinSchema,
 } from '@shared/schemas';
 
 // Import services
@@ -39,6 +45,9 @@ import { ProductTypeService } from './services/product-type.service';
 import { ProductCategoryService } from './services/product-category.service';
 import { InventoryService } from './services/inventory.service';
 import { WarehouseService } from './services/warehouse.service';
+import { ZoneService } from './services/zone.service';
+import { AisleService } from './services/aisle.service';
+import { BinService } from './services/bin.service';
 
 // Import repositories
 import { ProductRepository } from './repositories/product.repository';
@@ -48,6 +57,9 @@ import { ProductVersionRepository } from './repositories/product-version.reposit
 import { InventoryStockRepository } from './repositories/inventory-stock.repository';
 import { InventoryTransactionRepository } from './repositories/inventory-transaction.repository';
 import { WarehouseRepository } from './repositories/warehouse.repository';
+import { ZoneRepository } from './repositories/zone.repository';
+import { AisleRepository } from './repositories/aisle.repository';
+import { BinRepository } from './repositories/bin.repository';
 
 // Import controllers
 import { ProductController } from './controllers/product.controller';
@@ -56,6 +68,9 @@ import { ProductCategoryController } from './controllers/product-category.contro
 import { InventoryController } from './controllers/inventory.controller';
 import { HealthController } from './controllers/health.controller';
 import { WarehouseController } from './controllers/warehouse.controller';
+import { ZoneController } from './controllers/zone.controller';
+import { AisleController } from './controllers/aisle.controller';
+import { BinController } from './controllers/bin.controller';
 
 // Import shared modules
 import { AuthorizationService } from '@shared/authz/authorization.service';
@@ -87,6 +102,9 @@ import { MinioModule } from '@shared/services/minio/minio.module';
       { name: Organization.name, schema: OrganizationSchema },
       { name: User.name, schema: UserSchema },
       { name: Role.name, schema: RoleSchema },
+      { name: Zone.name, schema: ZoneSchema },
+      { name: Aisle.name, schema: AisleSchema },
+      { name: Bin.name, schema: BinSchema },
     ]),
     ThrottlerModule.forRoot([
       {
@@ -104,6 +122,9 @@ import { MinioModule } from '@shared/services/minio/minio.module';
     InventoryController,
     HealthController,
     WarehouseController,
+    ZoneController,
+    AisleController,
+    BinController,
   ],
   providers: [
     ProductService,
@@ -111,6 +132,9 @@ import { MinioModule } from '@shared/services/minio/minio.module';
     ProductCategoryService,
     InventoryService,
     WarehouseService,
+    ZoneService,
+    AisleService,
+    BinService,
     ProductRepository,
     ProductTypeRepository,
     ProductCategoryRepository,
@@ -118,6 +142,9 @@ import { MinioModule } from '@shared/services/minio/minio.module';
     InventoryStockRepository,
     InventoryTransactionRepository,
     WarehouseRepository,
+    ZoneRepository,
+    AisleRepository,
+    BinRepository,
     AuthorizationService,
     PermissionService,
   ],
