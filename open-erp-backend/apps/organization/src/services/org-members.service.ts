@@ -51,11 +51,35 @@ export class OrgMembersService {
     const size = query.size ?? 20;
     const skip = (page - 1) * size;
 
+    // If text search is provided, first find matching user IDs
+    let userIdFilter: Types.ObjectId[] | null = null;
+    if (query.q) {
+      const q = query.q.trim();
+      const regex = new RegExp(q, 'i');
+      const matchingUsers = await this.userModel
+        .find({
+          $or: [
+            { fullName: regex },
+            { firstName: regex },
+            { lastName: regex },
+            { email: regex },
+            { username: regex },
+          ],
+        })
+        .select('_id')
+        .limit(500)
+        .exec();
+      userIdFilter = matchingUsers.map((u) => u._id as Types.ObjectId);
+    }
+
     const filter: any = {
       organizationId: new Types.ObjectId(orgId),
       deletedAt: null,
     };
 
+    if (userIdFilter !== null) {
+      filter.userId = { $in: userIdFilter };
+    }
     if (query.status) {
       filter.status = query.status;
     }
@@ -91,8 +115,7 @@ export class OrgMembersService {
       this.memberModel.countDocuments(filter).exec(),
     ]);
 
-    // Apply search filter (on populated user fields) and map result
-    let items = memberships.map((m) => {
+    const items = memberships.map((m) => {
       const user = m.userId as any;
       return {
         id: (m._id as any).toHexString(),
@@ -119,18 +142,7 @@ export class OrgMembersService {
       };
     });
 
-    // Text search on name/email/username (applied after population)
-    if (query.q) {
-      const q = query.q.toLowerCase();
-      items = items.filter(
-        (item) =>
-          item.name.toLowerCase().includes(q) ||
-          item.email.toLowerCase().includes(q) ||
-          item.username.toLowerCase().includes(q),
-      );
-    }
-
-    return { items, total: query.q ? items.length : total };
+    return { items, total };
   }
 
   async updateMember(
@@ -191,7 +203,6 @@ export class OrgMembersService {
   async createDepartment(
     orgId: string,
     dto: CreateDepartmentDto,
-    createdBy: string,
   ): Promise<DepartmentDocument> {
     const existing = await this.departmentModel
       .findOne({ organizationId: new Types.ObjectId(orgId), code: dto.code })
@@ -256,7 +267,6 @@ export class OrgMembersService {
   async createPosition(
     orgId: string,
     dto: CreatePositionDto,
-    createdBy: string,
   ): Promise<PositionDocument> {
     const existing = await this.positionModel
       .findOne({ organizationId: new Types.ObjectId(orgId), code: dto.code })
