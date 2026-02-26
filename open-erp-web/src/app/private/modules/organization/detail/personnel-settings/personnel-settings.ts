@@ -31,7 +31,7 @@ import {
   OrganizationMember,
   OrgDepartment,
   OrgPosition,
-} from '../../../../../core/services/organization-service';
+} from '../../../../../../core/services/organization-service';
 
 @Component({
   selector: 'personnel-settings',

@@ -88,7 +88,6 @@ interface InviteForm {
   role: FormControl<string>;
 }
 
-
 @Component({
   selector: 'organization-detail',
   imports: [
@@ -477,10 +476,9 @@ export class Detail implements OnInit, OnDestroy {
 
   protected onRevokeInvitation(invite: OrganizationInvitation): void {
     this.confirmationService.confirm({
-      message: this.translocoService.translate(
-        'organization.detail.invites.confirmRevoke',
-        { email: invite.inviteeEmail || invite.inviteeUserId || '' },
-      ),
+      message: this.translocoService.translate('organization.detail.invites.confirmRevoke', {
+        email: invite.inviteeEmail || invite.inviteeUserId || '',
+      }),
       header: this.translocoService.translate('organization.detail.invites.confirmRevokeHeader'),
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: this.translocoService.translate('organization.detail.invites.revokeButton'),
@@ -1123,7 +1121,7 @@ export class Detail implements OnInit, OnDestroy {
     if (id) this.loadMembers(id);
   }
 
-  protected onMembersPageChange(event: { page: number; rows: number }): void {
+  protected onMembersPageChange(event: { page: number; rows: number } | any): void {
     this.membersPage.set(event.page + 1);
     this.membersLimit.set(event.rows);
     const id = this.organizationId();
