@@ -17,6 +17,7 @@ import {
   UserDocument,
   MemberStatus,
 } from '@shared/schemas';
+import { MinioService } from '@shared/services/minio/minio.service';
 import {
   CreateDepartmentDto,
   UpdateDepartmentDto,
@@ -39,6 +40,7 @@ export class OrgMembersService {
     private memberModel: Model<OrganizationMemberDocument>,
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
+    private readonly minioService: MinioService,
   ) {}
 
   // ── Members ──────────────────────────────────────────────────────────────
@@ -48,7 +50,7 @@ export class OrgMembersService {
     query: MembersQueryDto,
   ): Promise<{ items: any[]; total: number }> {
     const page = query.page ?? 1;
-    const size = query.size ?? 20;
+    const size = query.size ?? query.limit ?? 20;
     const skip = (page - 1) * size;
 
     // If text search is provided, first find matching user IDs
@@ -87,10 +89,10 @@ export class OrgMembersService {
       filter.roles = query.role;
     }
     if (query.department) {
-      filter.departmentIds = new Types.ObjectId(query.department);
+      filter['assignments.departmentId'] = new Types.ObjectId(query.department);
     }
     if (query.position) {
-      filter.positionIds = new Types.ObjectId(query.position);
+      filter['assignments.positionIds'] = new Types.ObjectId(query.position);
     }
 
     // Sort
@@ -105,9 +107,9 @@ export class OrgMembersService {
     const [memberships, total] = await Promise.all([
       this.memberModel
         .find(filter)
-        .populate('userId', 'fullName firstName lastName email username avatarUrl')
-        .populate('departmentIds', 'id name code')
-        .populate('positionIds', 'id name code level')
+        .populate('userId', 'fullName firstName lastName email username avatar avatarUrl')
+        .populate('assignments.departmentId', 'name code')
+        .populate('assignments.positionIds', 'name code level')
         .sort(sort)
         .skip(skip)
         .limit(size)
@@ -115,32 +117,75 @@ export class OrgMembersService {
       this.memberModel.countDocuments(filter).exec(),
     ]);
 
-    const items = memberships.map((m) => {
-      const user = m.userId as any;
-      return {
-        id: (m._id as any).toHexString(),
-        userId: user?._id?.toHexString?.() ?? String(m.userId),
-        name: user?.fullName ?? `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim() ?? '',
-        email: user?.email ?? '',
-        username: user?.username ?? '',
-        avatar: user?.avatarUrl ?? null,
-        departments: (m.departmentIds as any[]).map((d: any) => ({
-          id: d._id?.toHexString?.() ?? String(d),
-          name: d.name ?? '',
-          code: d.code ?? '',
-        })),
-        positions: (m.positionIds as any[]).map((p: any) => ({
-          id: p._id?.toHexString?.() ?? String(p),
-          name: p.name ?? '',
-          code: p.code ?? '',
-          level: p.level ?? 0,
-        })),
-        roles: m.roles,
-        status: m.status,
-        joinedAt: m.joinedAt,
-        isPrimaryOwner: m.isPrimaryOwner,
-      };
-    });
+    // Map results and generate presigned avatar URLs
+    const items = await Promise.all(
+      memberships.map(async (m) => {
+        const user = m.userId as any;
+
+        // Generate presigned URL for avatar
+        let avatarUrl: string | null = null;
+        const avatarData = user?.avatar;
+        const avatarKey = avatarData?.key || user?.avatarUrl;
+        if (avatarKey) {
+          try {
+            const presignResult = await this.minioService.presignDownload(avatarKey, {
+              bucket: avatarData?.bucket,
+            });
+            avatarUrl = presignResult.url;
+          } catch (err) {
+            this.logger.warn(`Failed to generate presigned avatar URL: ${err.message}`);
+          }
+        }
+
+        const assignments = (m.assignments ?? []).map((a: any) => {
+          const dept = a.departmentId as any;
+          return {
+            departmentId: dept?._id?.toHexString?.() ?? String(a.departmentId),
+            departmentName: dept?.name ?? '',
+            departmentCode: dept?.code ?? '',
+            positionIds: (a.positionIds ?? []).map((p: any) => ({
+              id: p?._id?.toHexString?.() ?? String(p),
+              name: p?.name ?? '',
+              code: p?.code ?? '',
+              level: p?.level ?? 0,
+            })),
+          };
+        });
+
+        // Flatten for compatibility: distinct departments and positions
+        const departments = assignments.map((a) => ({
+          id: a.departmentId,
+          name: a.departmentName,
+          code: a.departmentCode,
+        }));
+        const positionsMap = new Map<string, any>();
+        assignments.forEach((a) =>
+          a.positionIds.forEach((p) => {
+            if (!positionsMap.has(p.id)) positionsMap.set(p.id, p);
+          }),
+        );
+        const positions = Array.from(positionsMap.values());
+
+        return {
+          id: (m._id as any).toHexString(),
+          userId: user?._id?.toHexString?.() ?? String(m.userId),
+          name:
+            user?.fullName ??
+            `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim() ??
+            '',
+          email: user?.email ?? '',
+          username: user?.username ?? '',
+          avatar: avatarUrl,
+          departments,
+          positions,
+          assignments,
+          roles: m.roles,
+          status: m.status,
+          joinedAt: m.joinedAt,
+          isPrimaryOwner: m.isPrimaryOwner,
+        };
+      }),
+    );
 
     return { items, total };
   }
@@ -152,7 +197,11 @@ export class OrgMembersService {
   ): Promise<OrganizationMemberDocument> {
     const member = await this.memberModel
       .findOneAndUpdate(
-        { _id: new Types.ObjectId(memberId), organizationId: new Types.ObjectId(orgId), deletedAt: null },
+        {
+          _id: new Types.ObjectId(memberId),
+          organizationId: new Types.ObjectId(orgId),
+          deletedAt: null,
+        },
         { $set: updateDto },
         { new: true },
       )
@@ -169,18 +218,19 @@ export class OrgMembersService {
     memberId: string,
     dto: AssignMemberDto,
   ): Promise<OrganizationMemberDocument> {
-    const update: any = {};
-    if (dto.departments !== undefined) {
-      update.departmentIds = dto.departments.map((id) => new Types.ObjectId(id));
-    }
-    if (dto.positions !== undefined) {
-      update.positionIds = dto.positions.map((id) => new Types.ObjectId(id));
-    }
+    const assignments = dto.assignments.map((a) => ({
+      departmentId: new Types.ObjectId(a.departmentId),
+      positionIds: (a.positionIds ?? []).map((id) => new Types.ObjectId(id)),
+    }));
 
     const member = await this.memberModel
       .findOneAndUpdate(
-        { _id: new Types.ObjectId(memberId), organizationId: new Types.ObjectId(orgId), deletedAt: null },
-        { $set: update },
+        {
+          _id: new Types.ObjectId(memberId),
+          organizationId: new Types.ObjectId(orgId),
+          deletedAt: null,
+        },
+        { $set: { assignments } },
         { new: true },
       )
       .exec();
@@ -229,7 +279,11 @@ export class OrgMembersService {
   ): Promise<DepartmentDocument> {
     const dept = await this.departmentModel
       .findOneAndUpdate(
-        { _id: new Types.ObjectId(deptId), organizationId: new Types.ObjectId(orgId), deletedAt: null },
+        {
+          _id: new Types.ObjectId(deptId),
+          organizationId: new Types.ObjectId(orgId),
+          deletedAt: null,
+        },
         { $set: dto },
         { new: true },
       )
@@ -244,7 +298,11 @@ export class OrgMembersService {
   async deleteDepartment(orgId: string, deptId: string): Promise<void> {
     const dept = await this.departmentModel
       .findOneAndUpdate(
-        { _id: new Types.ObjectId(deptId), organizationId: new Types.ObjectId(orgId), deletedAt: null },
+        {
+          _id: new Types.ObjectId(deptId),
+          organizationId: new Types.ObjectId(orgId),
+          deletedAt: null,
+        },
         { $set: { deletedAt: new Date() } },
         { new: true },
       )
@@ -293,7 +351,11 @@ export class OrgMembersService {
   ): Promise<PositionDocument> {
     const position = await this.positionModel
       .findOneAndUpdate(
-        { _id: new Types.ObjectId(posId), organizationId: new Types.ObjectId(orgId), deletedAt: null },
+        {
+          _id: new Types.ObjectId(posId),
+          organizationId: new Types.ObjectId(orgId),
+          deletedAt: null,
+        },
         { $set: dto },
         { new: true },
       )
@@ -308,7 +370,11 @@ export class OrgMembersService {
   async deletePosition(orgId: string, posId: string): Promise<void> {
     const position = await this.positionModel
       .findOneAndUpdate(
-        { _id: new Types.ObjectId(posId), organizationId: new Types.ObjectId(orgId), deletedAt: null },
+        {
+          _id: new Types.ObjectId(posId),
+          organizationId: new Types.ObjectId(orgId),
+          deletedAt: null,
+        },
         { $set: { deletedAt: new Date() } },
         { new: true },
       )

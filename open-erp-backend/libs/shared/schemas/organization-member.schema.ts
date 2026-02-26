@@ -106,18 +106,28 @@ export class OrganizationMember extends Document {
   isPrimaryOwner: boolean;
 
   @Prop({
-    type: [MongooseSchema.Types.ObjectId],
-    ref: 'Department',
+    type: [
+      {
+        departmentId: {
+          type: MongooseSchema.Types.ObjectId,
+          ref: 'Department',
+          required: true,
+        },
+        positionIds: [
+          {
+            type: MongooseSchema.Types.ObjectId,
+            ref: 'Position',
+          },
+        ],
+      },
+    ],
     default: [],
+    _id: false,
   })
-  departmentIds: MongooseSchema.Types.ObjectId[];
-
-  @Prop({
-    type: [MongooseSchema.Types.ObjectId],
-    ref: 'Position',
-    default: [],
-  })
-  positionIds: MongooseSchema.Types.ObjectId[];
+  assignments: Array<{
+    departmentId: MongooseSchema.Types.ObjectId;
+    positionIds: MongooseSchema.Types.ObjectId[];
+  }>;
 
   @Prop({
     type: Map,

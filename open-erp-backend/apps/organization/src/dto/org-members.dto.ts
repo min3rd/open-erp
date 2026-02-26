@@ -9,6 +9,7 @@ import {
   Matches,
   IsNumber,
   Min,
+  ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -126,18 +127,27 @@ export class UpdatePositionDto {
   status?: string;
 }
 
-export class AssignMemberDto {
-  @ApiPropertyOptional({ type: [String], description: 'Array of department IDs' })
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  departments?: string[];
+export class DepartmentAssignmentDto {
+  @ApiProperty({ description: 'Department ID' })
+  @IsString()
+  departmentId: string;
 
-  @ApiPropertyOptional({ type: [String], description: 'Array of position IDs' })
+  @ApiPropertyOptional({ type: [String], description: 'Position IDs within this department' })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  positions?: string[];
+  positionIds?: string[];
+}
+
+export class AssignMemberDto {
+  @ApiProperty({
+    type: [DepartmentAssignmentDto],
+    description: 'Assignments: each department with its positions for this member',
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => DepartmentAssignmentDto)
+  assignments: DepartmentAssignmentDto[];
 }
 
 export class MembersQueryDto {
@@ -154,6 +164,13 @@ export class MembersQueryDto {
   @IsNumber()
   @Min(1)
   size?: number;
+
+  @ApiPropertyOptional({ example: 20, description: 'Alias for size' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  limit?: number;
 
   @ApiPropertyOptional({ description: 'Search by name/email' })
   @IsOptional()

@@ -88,6 +88,7 @@ export interface OrganizationMember {
   joinedAt: string;
   departments: OrgDepartment[];
   positions: OrgPosition[];
+  assignments: OrgMemberAssignment[];
   isPrimaryOwner: boolean;
 }
 
@@ -109,9 +110,23 @@ export interface OrgPosition {
   status: string;
 }
 
+export interface OrgMemberAssignment {
+  departmentId: string;
+  departmentName: string;
+  departmentCode: string;
+  positionIds: {
+    id: string;
+    name: string;
+    code: string;
+    level: number;
+  }[];
+}
+
 export interface AssignMemberDto {
-  departments?: string[];
-  positions?: string[];
+  assignments: {
+    departmentId: string;
+    positionIds?: string[];
+  }[];
 }
 
 export interface MembersQueryParams {
