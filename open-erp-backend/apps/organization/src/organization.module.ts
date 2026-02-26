@@ -25,6 +25,10 @@ import {
   WardSchema,
   User,
   UserSchema,
+  Department,
+  DepartmentSchema,
+  Position,
+  PositionSchema,
 } from '@shared/schemas';
 
 // Controllers
@@ -35,6 +39,7 @@ import { RelationController } from './controllers/relation.controller';
 import { HealthController } from './controllers/health.controller';
 import { OrgAdminController } from './controllers/org-admin.controller';
 import { AccessControlController } from './controllers/access-control.controller';
+import { OrgMembersController } from './controllers/org-members.controller';
 import { WarehouseController } from '../../inventory/src/controllers/warehouse.controller';
 
 // Services
@@ -44,6 +49,7 @@ import { MembershipService } from './services/membership.service';
 import { RelationService } from './services/relation.service';
 import { AuditService } from './services/audit.service';
 import { OrgAdminService } from './services/org-admin.service';
+import { OrgMembersService } from './services/org-members.service';
 import { WarehouseService } from '../../inventory/src/services/warehouse.service';
 
 // Repositories
@@ -81,6 +87,8 @@ import { WarehouseRepository } from '../../inventory/src/repositories/warehouse.
       { name: Province.name, schema: ProvinceSchema },
       { name: Ward.name, schema: WardSchema },
       { name: User.name, schema: UserSchema },
+      { name: Department.name, schema: DepartmentSchema },
+      { name: Position.name, schema: PositionSchema },
     ]),
   ],
   controllers: [
@@ -91,6 +99,7 @@ import { WarehouseRepository } from '../../inventory/src/repositories/warehouse.
     HealthController,
     OrgAdminController,
     AccessControlController,
+    OrgMembersController,
     WarehouseController,
   ],
   providers: [
@@ -100,6 +109,7 @@ import { WarehouseRepository } from '../../inventory/src/repositories/warehouse.
     RelationService,
     AuditService,
     OrgAdminService,
+    OrgMembersService,
     WarehouseService,
     OrganizationRepository,
     OrganizationRelationRepository,

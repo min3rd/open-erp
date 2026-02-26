@@ -318,7 +318,10 @@
         "status": {
           "active": "Activo",
           "inactive": "Inactivo",
-          "pending": "Pendiente"
+          "pending": "Pendiente",
+          "invited": "Invitado",
+          "suspended": "Suspendido",
+          "revoked": "Revocado"
         },
         "table": {
           "actions": "Comportamiento",
@@ -326,9 +329,17 @@
           "joinedAt": "Unido",
           "name": "Nombre",
           "role": "Role",
-          "status": "Estado"
+          "status": "Estado",
+          "departments": "Departamentos",
+          "positions": "Posiciones"
         },
-        "title": "Miembros de la organización"
+        "title": "Miembros de la organización",
+        "personnelSettings": "Configuración de Personal",
+        "searchPlaceholder": "Buscar por nombre o email...",
+        "allDepartments": "Todos los Departamentos",
+        "allStatuses": "Todos los Estados",
+        "editAssignments": "Editar Asignaciones",
+        "remove": "Eliminar de la Org"
       },
       "notFound": "Organización no encontrada",
       "relations": {
@@ -2424,6 +2435,50 @@
         "summary": "Error",
         "generic": "Ocurrió un error. Por favor, inténtalo de nuevo."
       }
+    }
+  },
+  "personnel": {
+    "title": "Configuración de Personal",
+    "tabs": {
+      "assign": "Asignar Miembro",
+      "departments": "Departamentos",
+      "positions": "Posiciones"
+    },
+    "departments": "Departamentos",
+    "positions": "Posiciones",
+    "selectDepartments": "Seleccionar departamentos...",
+    "selectPositions": "Seleccionar posiciones...",
+    "saveAssignment": "Guardar Asignación",
+    "selectMemberFirst": "Seleccione un miembro de la lista para asignar departamentos y posiciones",
+    "assignmentSaved": "Asignaciones guardadas exitosamente",
+    "addDepartment": "Añadir Departamento",
+    "editDepartment": "Editar Departamento",
+    "departmentCreated": "Departamento creado",
+    "departmentUpdated": "Departamento actualizado",
+    "departmentDeleted": "Departamento eliminado",
+    "confirmDeleteDepartment": "¿Eliminar departamento \"{{name}}\"? Esto no se puede deshacer.",
+    "addPosition": "Añadir Posición",
+    "editPosition": "Editar Posición",
+    "positionCreated": "Posición creada",
+    "positionUpdated": "Posición actualizada",
+    "positionDeleted": "Posición eliminada",
+    "confirmDeletePosition": "¿Eliminar posición \"{{name}}\"? Esto no se puede deshacer.",
+    "noDepartments": "No hay departamentos configurados.",
+    "noPositions": "No hay posiciones configuradas.",
+    "error": "Error",
+    "table": {
+      "name": "Nombre",
+      "code": "Código",
+      "level": "Nivel",
+      "actions": "Acciones"
+    },
+    "form": {
+      "name": "Nombre",
+      "namePlaceholder": "ej. Ingeniería",
+      "code": "Código",
+      "codePlaceholder": "ej. ingenieria",
+      "description": "Descripción",
+      "level": "Nivel"
     }
   }
 }

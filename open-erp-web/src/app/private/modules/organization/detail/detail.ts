@@ -27,7 +27,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ToolbarModule } from 'primeng/toolbar';
 import { SelectButtonModule } from 'primeng/selectbutton';
-import { TableModule } from 'primeng/table';
+import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
 import { DrawerModule } from 'primeng/drawer';
@@ -36,6 +36,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
+import { PaginatorModule } from 'primeng/paginator';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
@@ -56,11 +57,14 @@ import {
   InvitationResult,
   OrganizationInvitation,
   InvitationStatus,
+  OrgDepartment,
+  OrgPosition,
 } from '../../../../../core/services/organization-service';
 import { CountryService, Country } from '../../../../../core/services/country-service';
 import { UserService, User } from '../../../../../core/services/user-service';
 import { OrganizationContextService } from '../../../../../core/services/organization-context.service';
 import { UserDatePipe } from '../../../../../core/pipes/user-date.pipe';
+import { PersonnelSettings } from './personnel-settings/personnel-settings';
 
 interface BusinessRegistrationForm {
   taxId: FormControl<string>;
@@ -109,7 +113,9 @@ interface InviteForm {
     TextareaModule,
     DividerModule,
     ConfirmDialogModule,
+    PaginatorModule,
     UserDatePipe,
+    PersonnelSettings,
   ],
   providers: [ConfirmationService],
   templateUrl: './detail.html',
@@ -157,8 +163,28 @@ export class Detail implements OnInit, OnDestroy {
   protected readonly inviteMinDate = new Date();
 
   protected readonly membersPage = signal(1);
-  protected readonly membersLimit = signal(10);
+  protected readonly membersLimit = signal(20);
   protected readonly membersTotal = signal(0);
+  protected readonly isMembersLoading = signal(false);
+
+  // Enhanced members tab state
+  protected readonly membersSearchQuery = signal('');
+  protected readonly membersDeptFilter = signal('');
+  protected readonly membersPositionFilter = signal('');
+  protected readonly membersRoleFilter = signal('');
+  protected readonly membersStatusFilter = signal('');
+  protected readonly membersSortField = signal('joinedAt');
+  protected readonly membersSortOrder = signal<'asc' | 'desc'>('desc');
+
+  // Personnel settings drawer
+  protected readonly showPersonnelSettings = signal(false);
+  protected readonly personnelMember = signal<OrganizationMember | null>(null);
+
+  // Department/Position filter options (lazy loaded)
+  protected readonly deptFilterOptions = signal<OrgDepartment[]>([]);
+  protected readonly positionFilterOptions = signal<OrgPosition[]>([]);
+
+  private membersSearchSubject$ = new Subject<string>();
 
   protected readonly eventsPage = signal(1);
   protected readonly eventsLimit = signal(20);
@@ -325,6 +351,15 @@ export class Detail implements OnInit, OnDestroy {
         }
       });
 
+    // Setup members search with debounce
+    this.membersSearchSubject$
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.membersPage.set(1);
+        const id = this.organizationId();
+        if (id) this.loadMembers(id);
+      });
+
     effect(() => {
       const id = this.organizatonContextService.currentOrganization()?.id || null;
       if (id && id !== 'new') {
@@ -365,6 +400,7 @@ export class Detail implements OnInit, OnDestroy {
 
     // Load members
     this.loadMembers(id);
+    this.loadDeptAndPositionFilters(id);
 
     // Load invitations
     this.loadInvitations(id);
@@ -384,15 +420,27 @@ export class Detail implements OnInit, OnDestroy {
   }
 
   private loadMembers(id: string): void {
+    this.isMembersLoading.set(true);
     this.organizationService
-      .getOrganizationMembers(id, this.membersPage(), this.membersLimit())
+      .getOrganizationMembers(id, this.membersPage(), this.membersLimit(), {
+        page: this.membersPage(),
+        size: this.membersLimit(),
+        q: this.membersSearchQuery() || undefined,
+        department: this.membersDeptFilter() || undefined,
+        position: this.membersPositionFilter() || undefined,
+        role: this.membersRoleFilter() || undefined,
+        status: this.membersStatusFilter() || undefined,
+        sort: `${this.membersSortField()}:${this.membersSortOrder()}`,
+      })
       .subscribe({
         next: (response) => {
-          this.members.set(response.data);
+          this.members.set(response.data ?? response.items ?? []);
           this.membersTotal.set(response.total);
+          this.isMembersLoading.set(false);
         },
         error: (error) => {
           console.error('Failed to load members:', error);
+          this.isMembersLoading.set(false);
         },
       });
   }
@@ -1004,12 +1052,16 @@ export class Detail implements OnInit, OnDestroy {
     }
   }
 
-  protected getMemberStatusSeverity(status: string): 'success' | 'warn' | 'secondary' {
+  protected getMemberStatusSeverity(status: string): 'success' | 'warn' | 'secondary' | 'danger' {
     switch (status) {
       case 'active':
         return 'success';
+      case 'invited':
       case 'pending':
         return 'warn';
+      case 'suspended':
+      case 'revoked':
+        return 'danger';
       default:
         return 'secondary';
     }
@@ -1024,5 +1076,85 @@ export class Detail implements OnInit, OnDestroy {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return '—';
     return date.toLocaleDateString();
+  }
+
+  // ── Enhanced Members Tab ─────────────────────────────────────────────────
+
+  private loadDeptAndPositionFilters(orgId: string): void {
+    this.organizationService.getDepartments(orgId).subscribe({
+      next: (depts) => this.deptFilterOptions.set(depts),
+      error: () => {},
+    });
+    this.organizationService.getPositions(orgId).subscribe({
+      next: (positions) => this.positionFilterOptions.set(positions),
+      error: () => {},
+    });
+  }
+
+  protected onMembersSearchChange(query: string): void {
+    this.membersSearchQuery.set(query);
+    this.membersSearchSubject$.next(query);
+  }
+
+  protected onMembersFilterChange(): void {
+    this.membersPage.set(1);
+    const id = this.organizationId();
+    if (id) this.loadMembers(id);
+  }
+
+  protected onMembersLazyLoad(event: TableLazyLoadEvent): void {
+    const rows = event.rows && event.rows > 0 ? event.rows : this.membersLimit();
+    const page = event.first !== undefined ? Math.floor(event.first / rows) + 1 : 1;
+    this.membersPage.set(page);
+    this.membersLimit.set(rows);
+    if (event.sortField) {
+      this.membersSortField.set(event.sortField as string);
+      this.membersSortOrder.set(event.sortOrder === 1 ? 'asc' : 'desc');
+    }
+    const id = this.organizationId();
+    if (id) this.loadMembers(id);
+  }
+
+  protected onMembersSort(event: { field: string; order: number }): void {
+    this.membersSortField.set(event.field);
+    this.membersSortOrder.set(event.order === 1 ? 'asc' : 'desc');
+    this.membersPage.set(1);
+    const id = this.organizationId();
+    if (id) this.loadMembers(id);
+  }
+
+  protected onMembersPageChange(event: { page: number; rows: number }): void {
+    this.membersPage.set(event.page + 1);
+    this.membersLimit.set(event.rows);
+    const id = this.organizationId();
+    if (id) this.loadMembers(id);
+  }
+
+  protected onOpenPersonnelSettings(member?: OrganizationMember): void {
+    this.personnelMember.set(member ?? null);
+    this.showPersonnelSettings.set(true);
+  }
+
+  protected onPersonnelSettingsSaved(): void {
+    this.showPersonnelSettings.set(false);
+    const id = this.organizationId();
+    if (id) this.loadMembers(id);
+  }
+
+  protected getMemberInitials(member: OrganizationMember): string {
+    const name = member.name || member.fullName || member.email;
+    return name.charAt(0).toUpperCase();
+  }
+
+  protected formatDepartments(member: OrganizationMember): string {
+    return member.departments?.map((d) => d.name).join(', ') || '—';
+  }
+
+  protected formatPositions(member: OrganizationMember): string {
+    return member.positions?.map((p) => p.name).join(', ') || '—';
+  }
+
+  protected formatRoles(member: OrganizationMember): string {
+    return member.roles?.join(', ') || member.role || '—';
   }
 }
