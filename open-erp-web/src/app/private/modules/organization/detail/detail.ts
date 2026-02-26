@@ -124,7 +124,7 @@ interface InviteForm {
 })
 export class Detail implements OnInit, OnDestroy {
   private router = inject(Router);
-  protected route = inject(ActivatedRoute);
+  private route = inject(ActivatedRoute);
   private organizationService = inject(OrganizationService);
   private countryService = inject(CountryService);
   private userService = inject(UserService);
@@ -1100,10 +1100,6 @@ export class Detail implements OnInit, OnDestroy {
       default:
         return 'secondary';
     }
-  }
-
-  protected onTabChange(tab: string): void {
-    this.router.navigate([tab], { relativeTo: this.route });
   }
 
   /**
