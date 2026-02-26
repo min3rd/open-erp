@@ -15,7 +15,7 @@ import { CommonModule } from '@angular/common';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { PaginatorModule } from 'primeng/paginator';
 import { PaginatorState } from 'primeng/paginator';
-import { PAGE_SIZE_OPTIONS } from '../../constant';
+import { PAGE_SIZE_OPTIONS } from '../../constants/ui.constants';
 
 export interface PaginationChange {
   page: number;

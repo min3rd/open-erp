@@ -25,7 +25,6 @@ import { MenuModule } from 'primeng/menu';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { ContextMenu } from 'primeng/contextmenu';
 import { TooltipModule } from 'primeng/tooltip';
-import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constant';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { MenuItem } from 'primeng/api';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -40,6 +39,7 @@ import { PaginationComponent } from '../../../../../../core/components/paginatio
 // Services
 import { ProvinceService } from '../services/province.service';
 import { Province, GetProvincesParams } from '../province.types';
+import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 @Component({
   selector: 'management-province-list',

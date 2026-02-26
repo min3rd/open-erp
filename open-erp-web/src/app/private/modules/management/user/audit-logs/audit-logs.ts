@@ -30,8 +30,8 @@ import {
   UserDetail,
   UserActivityLog,
 } from '../services/user-detail.service';
-import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constant';
 import { UserDatePipe } from '../../../../../../core/pipes/user-date.pipe';
+import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 @Component({
   selector: 'management-user-audit-logs',

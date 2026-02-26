@@ -39,7 +39,7 @@ import { Scroller } from 'primeng/scroller';
 
 // Core components and constants
 import { MapComponent } from '../../../../../../core/components/map/map.component';
-import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constant';
+import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 // Services
 import { WardService } from '../services/ward.service';
