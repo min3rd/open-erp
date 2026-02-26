@@ -1,0 +1,63 @@
+<p-card id="organization-overview-card">
+  <h2 id="organization-overview-title" class="text-lg font-semibold text-surface-900 dark:text-surface-0 mb-4">
+    {{ 'organization.detail.tabs.overview' | transloco }}
+  </h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+    <!-- Name -->
+    <div>
+      <label class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+        {{ 'organization.detail.info.name' | transloco }}
+      </label>
+      <span id="org-overview-name" class="text-surface-900 dark:text-surface-0 font-medium">{{ organization()?.name || '—' }}</span>
+    </div>
+    <!-- Headquarters Address -->
+    <div>
+      <label class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+        {{ 'organization.detail.info.headquartersAddress' | transloco }}
+      </label>
+      <span id="org-overview-address" class="text-surface-900 dark:text-surface-0">{{ organization()?.headquartersAddress || '—' }}</span>
+    </div>
+    <!-- Legal Representative -->
+    <div>
+      <label class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+        {{ 'organization.detail.info.legalRepresentative' | transloco }}
+      </label>
+      <span id="org-overview-legal-rep" class="text-surface-900 dark:text-surface-0">{{ organization()?.legalRepresentative || '—' }}</span>
+    </div>
+    <!-- Created At -->
+    <div>
+      <label class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+        {{ 'organization.detail.info.createdAt' | transloco }}
+      </label>
+      <span id="org-overview-created" class="text-surface-900 dark:text-surface-0">{{ organization()?.createdAt | userDate }}</span>
+    </div>
+    @if (organization()?.website) {
+    <div class="md:col-span-2">
+      <label class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+        {{ 'organization.detail.info.website' | transloco }}
+      </label>
+      <a id="org-overview-website" [href]="organization()!.website" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline break-all">{{ organization()!.website }}</a>
+    </div>
+    }
+    @if (organization()?.description) {
+    <div class="md:col-span-2">
+      <label class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+        {{ 'organization.detail.info.description' | transloco }}
+      </label>
+      <p id="org-overview-description" class="text-surface-700 dark:text-surface-300 whitespace-pre-line">{{ organization()!.description }}</p>
+    </div>
+    }
+    @if (organization()?.businessActivities?.length) {
+    <div class="md:col-span-2">
+      <label class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+        {{ 'organization.detail.info.businessActivities' | transloco }}
+      </label>
+      <div class="flex flex-wrap gap-2">
+        @for (activity of organization()!.businessActivities!; track activity) {
+        <p-tag [value]="activity" severity="secondary" />
+        }
+      </div>
+    </div>
+    }
+  </div>
+</p-card>
