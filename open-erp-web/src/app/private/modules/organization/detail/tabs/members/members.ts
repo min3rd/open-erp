@@ -127,9 +127,7 @@ export class Members implements OnInit, OnDestroy {
   private loadMembers(id: string): void {
     this.isMembersLoading.set(true);
     this.organizationService
-      .getOrganizationMembers(id, 1, 20, {
-        page: this.membersPage(),
-        size: this.membersLimit(),
+      .getOrganizationMembers(id, this.membersPage(), this.membersLimit(), {
         q: this.membersSearchQuery() || undefined,
         department: this.membersDeptFilter() || undefined,
         position: this.membersPositionFilter() || undefined,
@@ -170,6 +168,16 @@ export class Members implements OnInit, OnDestroy {
     this.membersPage.set(1);
     const id = this.orgId();
     if (id) this.loadMembers(id);
+  }
+
+  protected onDeptFilterChange(value: string): void {
+    this.membersDeptFilter.set(value);
+    this.onMembersFilterChange();
+  }
+
+  protected onStatusFilterChange(value: string): void {
+    this.membersStatusFilter.set(value);
+    this.onMembersFilterChange();
   }
 
   protected onMembersLazyLoad(event: TableLazyLoadEvent): void {
@@ -238,7 +246,7 @@ export class Members implements OnInit, OnDestroy {
           next: () => {
             this.messageService.add({
               severity: 'success',
-              summary: 'Member removed successfully',
+              summary: this.translocoService.translate('organization.detail.members.removeSuccess'),
             });
             this.loadMembers(id);
           },

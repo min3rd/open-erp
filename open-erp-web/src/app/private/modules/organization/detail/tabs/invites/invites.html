@@ -19,7 +19,7 @@
       id="invites-status-filter"
       [options]="inviteStatusOptions"
       [ngModel]="invitesStatusFilter()"
-      (ngModelChange)="invitesStatusFilter.set($event); onInvitesFilterChange()"
+      (ngModelChange)="onStatusFilterChange($event)"
       optionLabel="label"
       optionValue="value"
       [placeholder]="'organization.detail.invites.filterPlaceholder' | transloco"
