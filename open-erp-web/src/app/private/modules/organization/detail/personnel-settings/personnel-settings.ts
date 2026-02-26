@@ -8,6 +8,7 @@ import {
   computed,
   OnInit,
   OnDestroy,
+  effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -106,6 +107,15 @@ export class PersonnelSettings implements OnInit, OnDestroy {
   protected readonly positionOptions = computed(() =>
     this.positions().map((p) => ({ label: p.name, value: p.id })),
   );
+
+  constructor() {
+    // Sync selection state when the selected member changes
+    effect(() => {
+      const member = this.selectedMember();
+      this.selectedDeptIds.set(member?.departments?.map((d) => d.id) ?? []);
+      this.selectedPositionIds.set(member?.positions?.map((p) => p.id) ?? []);
+    });
+  }
 
   ngOnInit(): void {
     this.loadDepartments();
@@ -306,14 +316,6 @@ export class PersonnelSettings implements OnInit, OnDestroy {
   }
 
   // ── Assignment ────────────────────────────────────────────────────────────
-
-  protected onMemberInputChange(): void {
-    const member = this.selectedMember();
-    if (member) {
-      this.selectedDeptIds.set(member.departments?.map((d) => d.id) ?? []);
-      this.selectedPositionIds.set(member.positions?.map((p) => p.id) ?? []);
-    }
-  }
 
   protected onSaveAssignment(): void {
     const member = this.selectedMember();

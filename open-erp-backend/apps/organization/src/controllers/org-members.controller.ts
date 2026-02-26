@@ -8,17 +8,14 @@ import {
   Param,
   Query,
   UseGuards,
-  Request,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
-  ApiResponse,
   ApiBearerAuth,
   ApiParam,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { OrgMembersService } from '../services/org-members.service';
 import {
@@ -32,7 +29,6 @@ import {
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Permissions } from '@shared/authz/decorators';
 import { ok, created, updated, deleted, paginated } from '@shared/response';
-import { AuthenticatedRequest } from '@shared/interfaces';
 
 @ApiTags('org-members')
 @ApiBearerAuth()
@@ -109,9 +105,8 @@ export class OrgMembersController {
   async createDepartment(
     @Param('orgId') orgId: string,
     @Body() dto: CreateDepartmentDto,
-    @Request() req: AuthenticatedRequest,
   ) {
-    const dept = await this.orgMembersService.createDepartment(orgId, dto, req.user.userId);
+    const dept = await this.orgMembersService.createDepartment(orgId, dto);
     return created(dept, 'Department created successfully');
   }
 
@@ -160,9 +155,8 @@ export class OrgMembersController {
   async createPosition(
     @Param('orgId') orgId: string,
     @Body() dto: CreatePositionDto,
-    @Request() req: AuthenticatedRequest,
   ) {
-    const position = await this.orgMembersService.createPosition(orgId, dto, req.user.userId);
+    const position = await this.orgMembersService.createPosition(orgId, dto);
     return created(position, 'Position created successfully');
   }
 
