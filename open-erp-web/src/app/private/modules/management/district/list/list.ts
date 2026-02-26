@@ -37,13 +37,13 @@ import { SplitterModule } from 'primeng/splitter';
 // Core components and constants
 import { MapComponent } from '../../../../../../core/components/map/map.component';
 import { PaginationComponent } from '../../../../../../core/components/pagination/pagination';
-import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constant';
 
 // Services
 import { DistrictService } from '../services/district.service';
 import { ProvinceService } from '../../province/services/province.service';
 import { District } from '../district.types';
 import { Province } from '../../province/province.types';
+import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 @Component({
   selector: 'management-district-list',

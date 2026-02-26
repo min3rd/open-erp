@@ -26,7 +26,6 @@ import { ContextMenuModule } from 'primeng/contextmenu';
 import { ContextMenu } from 'primeng/contextmenu';
 import { TooltipModule } from 'primeng/tooltip';
 import { Select } from 'primeng/select';
-import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constant';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { MenuItem } from 'primeng/api';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -42,6 +41,7 @@ import { PaginationComponent } from '../../../../../../core/components/paginatio
 import { WarehouseService } from '../../../../../../core/services/warehouse/warehouse.service';
 import type { QueryWarehouseParams } from '../../../../../../core/services/warehouse/warehouse.service';
 import { Warehouse } from '../warehouse.types';
+import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 interface ScopeOption {
   label: string;

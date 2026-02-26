@@ -27,7 +27,6 @@ import { ContextMenuModule } from 'primeng/contextmenu';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constant';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { MenuItem } from 'primeng/api';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -43,6 +42,7 @@ import {
   ProductType,
 } from '../../../../../../core/services/product-type/product-type.service';
 import { UserDatePipe } from '../../../../../../core/pipes/user-date.pipe';
+import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 /**
  * Column definition interface

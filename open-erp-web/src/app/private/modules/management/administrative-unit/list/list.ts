@@ -36,7 +36,6 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
 // Core components
 import { MapComponent } from '../../../../../../core/components/map/map.component';
 import { PaginationComponent } from '../../../../../../core/components/pagination/pagination';
-import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constant';
 
 // Services and types
 import { AdministrativeUnitService } from '../services/administrative-unit.service';
@@ -46,6 +45,7 @@ import {
   AdminUnitTreeResponse,
   AdminUnitType,
 } from '../administrative-unit.types';
+import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 @Component({
   selector: 'management-administrative-unit-list',

@@ -29,7 +29,6 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { AvatarModule } from 'primeng/avatar';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constant';
 import { MessageService } from 'primeng/api';
 import { MenuItem } from 'primeng/api';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -39,6 +38,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { UserService, User, GetUsersParams } from '../../../../../../core/services/user-service';
 import { OrganizationContextService } from '../../../../../../core/services/organization-context.service';
 import { UserDatePipe } from '../../../../../../core/pipes/user-date.pipe';
+import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 @Component({
   selector: 'management-user-list',

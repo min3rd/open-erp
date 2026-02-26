@@ -28,7 +28,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
-import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constant';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { MenuItem } from 'primeng/api';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -42,6 +41,7 @@ import { PaginationComponent, PaginationChange } from '../../../../../../core/co
 import { ProductService, Product, ProductStatus } from '../../../../../../core/services/product/product.service';
 import { ProductTypeService } from '../../../../../../core/services/product-type/product-type.service';
 import { ProductCategoryService, ProductCategory } from '../../../../../../core/services/product-category/product-category.service';
+import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 /**
  * Column definition interface

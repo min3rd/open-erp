@@ -32,13 +32,13 @@ import { SplitterModule } from 'primeng/splitter';
 
 // Core components
 import { MapComponent } from '../../../../../../core/components/map/map.component';
-import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constant';
 
 // Services and types
 import { ProvinceService } from '../../province/services/province.service';
 import { WardService } from '../../ward/services/ward.service';
 import { Province } from '../../province/province.types';
 import { Ward } from '../../ward/ward.types';
+import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 /**
  * Admin Units List Component
