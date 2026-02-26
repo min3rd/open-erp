@@ -157,7 +157,11 @@
     "search": "Tìm kiếm doanh nghiệp...",
     "createNew": "Đăng ký doanh nghiệp",
     "selectOrganization": "Chọn một doanh nghiệp",
-    "currentOrganization": "Doanh nghiệp hiện tại"
+    "currentOrganization": "Doanh nghiệp hiện tại",
+    "statusActive": "Hoạt động",
+    "statusInactive": "Ngừng hoạt động",
+    "inactiveOrgTooltip": "Doanh nghiệp không hoạt động",
+    "inactiveOrgError": "Không thể chuyển sang doanh nghiệp không hoạt động"
   },
   "languageSelector": {
     "label": "Ngôn ngữ",

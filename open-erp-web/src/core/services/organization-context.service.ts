@@ -8,6 +8,7 @@ export interface OrganizationMetadata {
   taxId: string;
   logoUrl?: string;
   code?: string;
+  status?: 'active' | 'inactive' | 'pending';
 }
 
 @Injectable({

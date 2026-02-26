@@ -179,6 +179,18 @@ export class OrganizationRepository {
     }
   }
 
+  async findByIds(ids: string[]): Promise<OrganizationDocument[]> {
+    try {
+      return await this.organizationModel.find({ _id: { $in: ids } }).exec();
+    } catch (error) {
+      this.logger.error(
+        `Error finding organizations by ids: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
   async search(query: string): Promise<OrganizationDocument[]> {
     try {
       return await this.organizationModel

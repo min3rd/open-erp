@@ -138,10 +138,13 @@
               type="button"
               [id]="'organization-switcher-narrow-option-' + org.id"
               (click)="onOrganizationSelect(org.id)"
-              class="w-full flex items-center gap-3 px-3 py-2 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg transition-colors text-left"
+              [disabled]="!isOrgSelectable(org)"
+              class="w-full flex items-center gap-3 px-3 py-2 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:disabled:hover:bg-transparent"
               [class.bg-primary-50]="currentOrganization()?.id === org.id"
               [class.dark:bg-primary-900/20]="currentOrganization()?.id === org.id"
               [attr.aria-selected]="currentOrganization()?.id === org.id"
+              [pTooltip]="!isOrgSelectable(org) ? ('organizationSwitcher.inactiveOrgTooltip' | transloco) : ''"
+              tooltipPosition="right"
               role="option"
             >
               @if (org.logoUrl) {
@@ -169,6 +172,15 @@
                 </div>
                 }
               </div>
+              @if (org.status === 'inactive') {
+              <span class="text-xs px-1.5 py-0.5 rounded bg-surface-200 dark:bg-surface-700 text-surface-500 dark:text-surface-400 flex-shrink-0">
+                {{ 'organizationSwitcher.statusInactive' | transloco }}
+              </span>
+              } @else {
+              <span class="text-xs px-1.5 py-0.5 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 flex-shrink-0">
+                {{ 'organizationSwitcher.statusActive' | transloco }}
+              </span>
+              }
               @if (currentOrganization()?.id === org.id) {
               <i class="pi pi-check text-primary-500 flex-shrink-0" aria-hidden="true"></i>
               }
@@ -275,10 +287,13 @@
         type="button"
         [id]="'organization-switcher-dialog-option-' + org.id"
         (click)="onOrganizationSelect(org.id)"
-        class="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-md transition-colors text-left"
+        [disabled]="!isOrgSelectable(org)"
+        class="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-md transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:disabled:hover:bg-transparent"
         [class.bg-primary-50]="currentOrganization()?.id === org.id"
         [class.dark:bg-primary-900/20]="currentOrganization()?.id === org.id"
         [attr.aria-selected]="currentOrganization()?.id === org.id"
+        [pTooltip]="!isOrgSelectable(org) ? ('organizationSwitcher.inactiveOrgTooltip' | transloco) : ''"
+        tooltipPosition="right"
         role="option"
       >
         @if (org.logoUrl) {
@@ -306,6 +321,15 @@
           </div>
           }
         </div>
+        @if (org.status === 'inactive') {
+        <span class="text-xs px-1.5 py-0.5 rounded bg-surface-200 dark:bg-surface-700 text-surface-500 dark:text-surface-400 flex-shrink-0">
+          {{ 'organizationSwitcher.statusInactive' | transloco }}
+        </span>
+        } @else {
+        <span class="text-xs px-1.5 py-0.5 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 flex-shrink-0">
+          {{ 'organizationSwitcher.statusActive' | transloco }}
+        </span>
+        }
         @if (currentOrganization()?.id === org.id) {
         <i class="pi pi-check text-primary-500 text-sm flex-shrink-0" aria-hidden="true"></i>
         }
