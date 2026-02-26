@@ -127,7 +127,9 @@ export class Members implements OnInit, OnDestroy {
   private loadMembers(id: string): void {
     this.isMembersLoading.set(true);
     this.organizationService
-      .getOrganizationMembers(id, this.membersPage(), this.membersLimit(), {
+      .getOrganizationMembers(id, 1, 20, {
+        page: this.membersPage(),
+        size: this.membersLimit(),
         q: this.membersSearchQuery() || undefined,
         department: this.membersDeptFilter() || undefined,
         position: this.membersPositionFilter() || undefined,

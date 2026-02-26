@@ -425,7 +425,8 @@
           "accepted": "Accepted",
           "rejected": "Rejected",
           "expired": "Expired",
-          "revoked": "Revoked"
+          "revoked": "Revoked",
+          "all": "All Statuses"
         }
       }
     }

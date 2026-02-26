@@ -62,15 +62,6 @@ export class Invites implements OnInit {
   protected readonly invitesStatusFilter = signal<InvitationStatus | ''>('');
   protected readonly invitesSearchQuery = signal('');
 
-  protected readonly inviteStatusOptions = [
-    { label: 'All Statuses', value: '' },
-    { label: 'Pending', value: 'pending' },
-    { label: 'Accepted', value: 'accepted' },
-    { label: 'Revoked', value: 'revoked' },
-    { label: 'Expired', value: 'expired' },
-    { label: 'Rejected', value: 'rejected' },
-  ];
-
   ngOnInit(): void {
     const resolved = this.route.snapshot.data['invites'] as
       | { data: OrganizationInvitation[]; total: number }
