@@ -17,7 +17,14 @@
   <div class="flex gap-2 mb-3">
     <p-select
       id="invites-status-filter"
-      [options]="inviteStatusOptions"
+      [options]="[
+        { label: ('organization.detail.invites.status.all' | transloco), value: '' },
+        { label: ('organization.detail.invites.status.pending' | transloco), value: 'pending' },
+        { label: ('organization.detail.invites.status.accepted' | transloco), value: 'accepted' },
+        { label: ('organization.detail.invites.status.revoked' | transloco), value: 'revoked' },
+        { label: ('organization.detail.invites.status.expired' | transloco), value: 'expired' },
+        { label: ('organization.detail.invites.status.rejected' | transloco), value: 'rejected' }
+      ]"
       [ngModel]="invitesStatusFilter()"
       (ngModelChange)="onStatusFilterChange($event)"
       optionLabel="label"

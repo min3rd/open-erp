@@ -385,7 +385,8 @@
           "accepted": "Aceptada",
           "rejected": "Rechazada",
           "expired": "Expirada",
-          "revoked": "Revocada"
+          "revoked": "Revocada",
+          "all": "Todos los estados"
         }
       }
     }
