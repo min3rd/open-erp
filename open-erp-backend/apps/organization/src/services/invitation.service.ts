@@ -3,8 +3,11 @@ import {
   Logger,
   BadRequestException,
   NotFoundException,
+  Inject,
 } from '@nestjs/common';
-import { Types } from 'mongoose';
+import { ClientProxy } from '@nestjs/microservices';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
 import {
   InvitationRepository,
   CreateInvitationDto,
@@ -21,8 +24,14 @@ import {
   InvitationScope,
   MemberRole,
   MemberStatus,
+  User,
+  UserDocument,
 } from '@shared/schemas';
 import { BulkCreateInvitationDto } from '../dto/invitation.dto';
+import {
+  RABBITMQ_NOTIFICATION_CLIENT,
+} from '@shared/rabbitmq';
+import { EVENT_NAMES } from '@shared/constants/message.constants';
 
 @Injectable()
 export class InvitationService {
@@ -33,6 +42,9 @@ export class InvitationService {
     private readonly memberRepository: OrganizationMemberRepository,
     private readonly organizationRepository: OrganizationRepository,
     private readonly auditService: AuditService,
+    @Inject(RABBITMQ_NOTIFICATION_CLIENT)
+    private readonly notificationClient: ClientProxy,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
   async create(
@@ -98,6 +110,18 @@ export class InvitationService {
         { inviteeEmail, roles },
         { description: `Invited ${inviteeEmail} to organization` },
       );
+
+      // Emit notification event (fire-and-forget)
+      this._emitInviteNotification({
+        invitationId: invitation._id.toString(),
+        organizationId,
+        organizationName: organization.name,
+        invitedBy,
+        inviteeEmail,
+        token,
+        expiresAt,
+        message: options?.message,
+      });
 
       return { invitation, token };
     } catch (error) {
@@ -329,6 +353,19 @@ export class InvitationService {
           },
         );
 
+        // Emit notification event (fire-and-forget)
+        this._emitInviteNotification({
+          invitationId: invitation._id.toString(),
+          organizationId,
+          organizationName: organization.name,
+          invitedBy,
+          inviteeEmail,
+          inviteeUserId: inviteeUserId?.toString(),
+          token,
+          expiresAt,
+          message: dto.message,
+        });
+
         results.push({
           recipient: recipientLabel,
           status: 'success',
@@ -354,5 +391,54 @@ export class InvitationService {
       skipped: results.filter((r) => r.status === 'skipped').length,
       failed: results.filter((r) => r.status === 'error').length,
     };
+  }
+
+  private async _emitInviteNotification(data: {
+    invitationId: string;
+    organizationId: string;
+    organizationName: string;
+    invitedBy: string;
+    inviteeEmail?: string;
+    inviteeUserId?: string;
+    token: string;
+    expiresAt: Date;
+    message?: string;
+  }) {
+    try {
+      // Look up inviter info
+      const inviter = await this.userModel
+        .findById(data.invitedBy)
+        .select('email fullName displayName')
+        .lean()
+        .exec();
+
+      const inviterName =
+        (inviter as any)?.fullName ||
+        (inviter as any)?.displayName ||
+        (inviter as any)?.email ||
+        'Unknown';
+
+      const frontendUrl =
+        process.env.FRONTEND_URL || 'http://localhost:4200';
+      const acceptLink = `${frontendUrl}/invitations/accept?token=${data.token}`;
+
+      this.notificationClient.emit(EVENT_NAMES.ORGANIZATION.MEMBER_INVITED, {
+        invitationId: data.invitationId,
+        organizationId: data.organizationId,
+        organizationName: data.organizationName,
+        inviterId: data.invitedBy,
+        inviterName,
+        inviteeEmail: data.inviteeEmail,
+        inviteeUserId: data.inviteeUserId,
+        token: data.token,
+        acceptLink,
+        expiresAt: data.expiresAt,
+        message: data.message,
+      });
+    } catch (error) {
+      this.logger.warn(
+        `Failed to emit invite notification event: ${error.message}`,
+      );
+    }
   }
 }
