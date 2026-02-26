@@ -195,16 +195,13 @@ export class OrgMembersService {
     memberId: string,
     updateDto: { status?: MemberStatus; roles?: string[] },
   ): Promise<OrganizationMemberDocument> {
+    const filter: any = {
+      _id: new Types.ObjectId(memberId),
+      organizationId: new Types.ObjectId(orgId),
+      deletedAt: null,
+    };
     const member = await this.memberModel
-      .findOneAndUpdate(
-        {
-          _id: new Types.ObjectId(memberId),
-          organizationId: new Types.ObjectId(orgId),
-          deletedAt: null,
-        },
-        { $set: updateDto },
-        { new: true },
-      )
+      .findOneAndUpdate(filter, { $set: updateDto }, { new: true })
       .exec();
 
     if (!member) {
@@ -223,16 +220,13 @@ export class OrgMembersService {
       positionIds: (a.positionIds ?? []).map((id) => new Types.ObjectId(id)),
     }));
 
+    const assignFilter: any = {
+      _id: new Types.ObjectId(memberId),
+      organizationId: new Types.ObjectId(orgId),
+      deletedAt: null,
+    };
     const member = await this.memberModel
-      .findOneAndUpdate(
-        {
-          _id: new Types.ObjectId(memberId),
-          organizationId: new Types.ObjectId(orgId),
-          deletedAt: null,
-        },
-        { $set: { assignments } },
-        { new: true },
-      )
+      .findOneAndUpdate(assignFilter, { $set: { assignments } }, { new: true })
       .exec();
 
     if (!member) {
@@ -277,16 +271,13 @@ export class OrgMembersService {
     deptId: string,
     dto: UpdateDepartmentDto,
   ): Promise<DepartmentDocument> {
+    const filter: any = {
+      _id: new Types.ObjectId(deptId),
+      organizationId: new Types.ObjectId(orgId),
+      deletedAt: null,
+    };
     const dept = await this.departmentModel
-      .findOneAndUpdate(
-        {
-          _id: new Types.ObjectId(deptId),
-          organizationId: new Types.ObjectId(orgId),
-          deletedAt: null,
-        },
-        { $set: dto },
-        { new: true },
-      )
+      .findOneAndUpdate(filter, { $set: dto }, { new: true })
       .exec();
 
     if (!dept) {
@@ -296,16 +287,13 @@ export class OrgMembersService {
   }
 
   async deleteDepartment(orgId: string, deptId: string): Promise<void> {
+    const filter: any = {
+      _id: new Types.ObjectId(deptId),
+      organizationId: new Types.ObjectId(orgId),
+      deletedAt: null,
+    };
     const dept = await this.departmentModel
-      .findOneAndUpdate(
-        {
-          _id: new Types.ObjectId(deptId),
-          organizationId: new Types.ObjectId(orgId),
-          deletedAt: null,
-        },
-        { $set: { deletedAt: new Date() } },
-        { new: true },
-      )
+      .findOneAndUpdate(filter, { $set: { deletedAt: new Date() } }, { new: true })
       .exec();
 
     if (!dept) {
@@ -349,16 +337,13 @@ export class OrgMembersService {
     posId: string,
     dto: UpdatePositionDto,
   ): Promise<PositionDocument> {
+    const filter: any = {
+      _id: new Types.ObjectId(posId),
+      organizationId: new Types.ObjectId(orgId),
+      deletedAt: null,
+    };
     const position = await this.positionModel
-      .findOneAndUpdate(
-        {
-          _id: new Types.ObjectId(posId),
-          organizationId: new Types.ObjectId(orgId),
-          deletedAt: null,
-        },
-        { $set: dto },
-        { new: true },
-      )
+      .findOneAndUpdate(filter, { $set: dto }, { new: true })
       .exec();
 
     if (!position) {
@@ -368,16 +353,13 @@ export class OrgMembersService {
   }
 
   async deletePosition(orgId: string, posId: string): Promise<void> {
+    const filter: any = {
+      _id: new Types.ObjectId(posId),
+      organizationId: new Types.ObjectId(orgId),
+      deletedAt: null,
+    };
     const position = await this.positionModel
-      .findOneAndUpdate(
-        {
-          _id: new Types.ObjectId(posId),
-          organizationId: new Types.ObjectId(orgId),
-          deletedAt: null,
-        },
-        { $set: { deletedAt: new Date() } },
-        { new: true },
-      )
+      .findOneAndUpdate(filter, { $set: { deletedAt: new Date() } }, { new: true })
       .exec();
 
     if (!position) {
