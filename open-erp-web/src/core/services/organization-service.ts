@@ -416,4 +416,13 @@ export class OrganizationService {
       `${API_URI_ORGANIZATION}/${version}/invitations/${invitationId}`,
     );
   }
+
+  /**
+   * Accept an invitation using the invitation token
+   */
+  acceptInvitation(token: string, version: string = 'v1'): Observable<any> {
+    return this.httpClient
+      .post<any>(`${API_URI_ORGANIZATION}/${version}/invitations/accept`, { token })
+      .pipe(map((response) => response?.data ?? response));
+  }
 }

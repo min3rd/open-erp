@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Demo } from './demo/demo';
 import { DemoFormEditor } from './demo/form-editor/demo-form-editor';
+import { AcceptInvite } from './modules/organization/accept-invite/accept-invite';
 
 export const routes: Routes = [
   {
@@ -18,6 +19,10 @@ export const routes: Routes = [
   {
     path: 'me',
     loadChildren: () => import('./me/me.routes').then((m) => m.meRoutes),
+  },
+  {
+    path: 'invitations/accept',
+    component: AcceptInvite,
   },
   {
     path: '',
