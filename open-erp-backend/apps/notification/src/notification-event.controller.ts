@@ -100,14 +100,11 @@ export class NotificationEventController {
     // 2. Create in-app notification and push WS for registered users
     if (data.inviteeUserId) {
       try {
-        const title = `Bạn được mời vào Organization ${data.organizationName}`;
-        const body = `${data.inviterName} mời bạn tham gia ${data.organizationName}. Hết hạn: ${expiryDate}`;
-
         const notification = await this.userNotificationService.create({
           userId: data.inviteeUserId,
           type: NotificationType.INVITATION,
-          title,
-          message: body,
+          title: 'notification.invite.title',
+          message: 'notification.invite.body',
           sender: data.inviterId
             ? { id: data.inviterId, name: data.inviterName }
             : { id: '', name: data.inviterName },
@@ -116,6 +113,12 @@ export class NotificationEventController {
             orgId: data.organizationId,
             acceptRoute: data.acceptLink,
             targetRoute: `/invitations/accept?token=${data.token}`,
+            titleParams: { orgName: data.organizationName },
+            bodyParams: {
+              inviterName: data.inviterName,
+              orgName: data.organizationName,
+              expiryDate,
+            },
           },
         });
 

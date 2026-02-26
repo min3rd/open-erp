@@ -3234,7 +3234,11 @@
     "accept": "Accept",
     "decline": "Decline",
     "unread": "Unread",
-    "list": "Notification list"
+    "list": "Notification list",
+    "invite": {
+      "title": "You've been invited to Organization {{orgName}}",
+      "body": "{{inviterName}} invited you to join {{orgName}}. Expires: {{expiryDate}}"
+    }
   },
   "me": {
     "tabs": {
@@ -3429,6 +3433,26 @@
       "success": "2FA disabled. You are now logged in.",
       "invalidCode": "Invalid recovery code. Please try again.",
       "storageError": "Failed to securely store authentication tokens"
+    }
+  },
+  "acceptInvite": {
+    "title": "Organization Invitation",
+    "loading": "Loading...",
+    "accepted": "You have successfully joined the organization! Redirecting…",
+    "invalidToken": "The invitation link is invalid or has expired.",
+    "description": "You have received an invitation to join an organization on Open ERP. Click Accept to confirm.",
+    "accept": "Accept Invitation",
+    "cancel": "Cancel",
+    "goHome": "Go Home",
+    "messages": {
+      "success": {
+        "summary": "Success",
+        "detail": "You have successfully joined the organization!"
+      },
+      "error": {
+        "summary": "Error",
+        "generic": "An error occurred. Please try again."
+      }
     }
   }
 }

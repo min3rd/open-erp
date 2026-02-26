@@ -2347,7 +2347,11 @@
     "accept": "Aceptar",
     "decline": "Rechazar",
     "unread": "No leído",
-    "list": "Lista de notificaciones"
+    "list": "Lista de notificaciones",
+    "invite": {
+      "title": "Has sido invitado a la Organización {{orgName}}",
+      "body": "{{inviterName}} te invitó a unirte a {{orgName}}. Expira: {{expiryDate}}"
+    }
   },
   "twoFa": {
     "title": "Autenticación de dos factores",
@@ -2396,6 +2400,26 @@
       "success": "2FA deshabilitado. Has iniciado sesión.",
       "invalidCode": "Código de recuperación inválido. Por favor intenta de nuevo.",
       "storageError": "No se pudieron almacenar los tokens de autenticación"
+    }
+  },
+  "acceptInvite": {
+    "title": "Invitación a la Organización",
+    "loading": "Cargando...",
+    "accepted": "¡Te has unido a la organización con éxito! Redirigiendo…",
+    "invalidToken": "El enlace de invitación no es válido o ha expirado.",
+    "description": "Has recibido una invitación para unirte a una organización en Open ERP. Haz clic en Aceptar para confirmar.",
+    "accept": "Aceptar Invitación",
+    "cancel": "Cancelar",
+    "goHome": "Ir al inicio",
+    "messages": {
+      "success": {
+        "summary": "Éxito",
+        "detail": "¡Te has unido a la organización con éxito!"
+      },
+      "error": {
+        "summary": "Error",
+        "generic": "Ocurrió un error. Por favor, inténtalo de nuevo."
+      }
     }
   }
 }
