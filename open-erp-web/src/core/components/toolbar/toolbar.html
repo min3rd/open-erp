@@ -1,0 +1,28 @@
+<div
+  class="flex items-center gap-1 py-1 px-2 min-h-10 border-b border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900"
+  [attr.id]="id() || null"
+  role="toolbar"
+>
+  <!-- Start / Left -->
+  @if (startTemplate) {
+    <div class="flex items-center gap-1 flex-none">
+      <ng-container [ngTemplateOutlet]="startTemplate" />
+    </div>
+  }
+
+  <!-- Center -->
+  @if (centerTemplate) {
+    <div class="flex items-center gap-1 flex-1 justify-center">
+      <ng-container [ngTemplateOutlet]="centerTemplate" />
+    </div>
+  } @else {
+    <div class="flex-1"></div>
+  }
+
+  <!-- End / Right -->
+  @if (endTemplate) {
+    <div class="flex items-center gap-1 flex-none">
+      <ng-container [ngTemplateOutlet]="endTemplate" />
+    </div>
+  }
+</div>
