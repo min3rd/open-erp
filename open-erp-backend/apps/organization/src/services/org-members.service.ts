@@ -107,7 +107,10 @@ export class OrgMembersService {
     const [memberships, total] = await Promise.all([
       this.memberModel
         .find(filter)
-        .populate('userId', 'fullName firstName lastName email username avatar avatarUrl')
+        .populate(
+          'userId',
+          'fullName firstName lastName email username avatar avatarUrl',
+        )
         .populate('assignments.departmentId', 'name code')
         .populate('assignments.positionIds', 'name code level')
         .sort(sort)
@@ -128,12 +131,17 @@ export class OrgMembersService {
         const avatarKey = avatarData?.key || user?.avatarUrl;
         if (avatarKey) {
           try {
-            const presignResult = await this.minioService.presignDownload(avatarKey, {
-              bucket: avatarData?.bucket,
-            });
+            const presignResult = await this.minioService.presignDownload(
+              avatarKey,
+              {
+                bucket: avatarData?.bucket,
+              },
+            );
             avatarUrl = presignResult.url;
           } catch (err) {
-            this.logger.warn(`Failed to generate presigned avatar URL: ${err.message}`);
+            this.logger.warn(
+              `Failed to generate presigned avatar URL: ${err.message}`,
+            );
           }
         }
 
@@ -238,21 +246,26 @@ export class OrgMembersService {
   // ── Departments ───────────────────────────────────────────────────────────
 
   async getDepartments(orgId: string): Promise<DepartmentDocument[]> {
-    return this.departmentModel
-      .find({ organizationId: new Types.ObjectId(orgId), deletedAt: null })
-      .sort({ name: 1 })
-      .exec();
+    const filter: any = {
+      organizationId: new Types.ObjectId(orgId),
+      deletedAt: null,
+    };
+    return this.departmentModel.find(filter).sort({ name: 1 }).exec();
   }
 
   async createDepartment(
     orgId: string,
     dto: CreateDepartmentDto,
   ): Promise<DepartmentDocument> {
-    const existing = await this.departmentModel
-      .findOne({ organizationId: new Types.ObjectId(orgId), code: dto.code })
-      .exec();
+    const filter: any = {
+      organizationId: new Types.ObjectId(orgId),
+      code: dto.code,
+    };
+    const existing = await this.departmentModel.findOne(filter).exec();
     if (existing) {
-      throw new ConflictException(`Department with code '${dto.code}' already exists`);
+      throw new ConflictException(
+        `Department with code '${dto.code}' already exists`,
+      );
     }
 
     const dept = new this.departmentModel({
@@ -293,7 +306,11 @@ export class OrgMembersService {
       deletedAt: null,
     };
     const dept = await this.departmentModel
-      .findOneAndUpdate(filter, { $set: { deletedAt: new Date() } }, { new: true })
+      .findOneAndUpdate(
+        filter,
+        { $set: { deletedAt: new Date() } },
+        { new: true },
+      )
       .exec();
 
     if (!dept) {
@@ -304,21 +321,26 @@ export class OrgMembersService {
   // ── Positions ─────────────────────────────────────────────────────────────
 
   async getPositions(orgId: string): Promise<PositionDocument[]> {
-    return this.positionModel
-      .find({ organizationId: new Types.ObjectId(orgId), deletedAt: null })
-      .sort({ level: 1, name: 1 })
-      .exec();
+    const filter: any = {
+      organizationId: new Types.ObjectId(orgId),
+      deletedAt: null,
+    };
+    return this.positionModel.find(filter).sort({ level: 1, name: 1 }).exec();
   }
 
   async createPosition(
     orgId: string,
     dto: CreatePositionDto,
   ): Promise<PositionDocument> {
-    const existing = await this.positionModel
-      .findOne({ organizationId: new Types.ObjectId(orgId), code: dto.code })
-      .exec();
+    const filter: any = {
+      organizationId: new Types.ObjectId(orgId),
+      code: dto.code,
+    };
+    const existing = await this.positionModel.findOne(filter).exec();
     if (existing) {
-      throw new ConflictException(`Position with code '${dto.code}' already exists`);
+      throw new ConflictException(
+        `Position with code '${dto.code}' already exists`,
+      );
     }
 
     const position = new this.positionModel({
@@ -359,7 +381,11 @@ export class OrgMembersService {
       deletedAt: null,
     };
     const position = await this.positionModel
-      .findOneAndUpdate(filter, { $set: { deletedAt: new Date() } }, { new: true })
+      .findOneAndUpdate(
+        filter,
+        { $set: { deletedAt: new Date() } },
+        { new: true },
+      )
       .exec();
 
     if (!position) {
