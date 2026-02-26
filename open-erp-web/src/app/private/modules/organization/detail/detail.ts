@@ -8,7 +8,7 @@ import {
   computed,
   effect,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
   FormControl,
@@ -39,7 +39,7 @@ import { DividerModule } from 'primeng/divider';
 import { PaginatorModule } from 'primeng/paginator';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, startWith, Subject, takeUntil } from 'rxjs';
 import {
   OrganizationService,
   CreateOrganizationDto,
@@ -95,6 +95,8 @@ interface InviteForm {
     ReactiveFormsModule,
     FormsModule,
     TranslocoModule,
+    RouterLink,
+    RouterLinkActive,
     CardModule,
     ButtonModule,
     InputTextModule,
@@ -122,6 +124,7 @@ interface InviteForm {
 })
 export class Detail implements OnInit, OnDestroy {
   private router = inject(Router);
+  protected route = inject(ActivatedRoute);
   private organizationService = inject(OrganizationService);
   private countryService = inject(CountryService);
   private userService = inject(UserService);
@@ -207,10 +210,11 @@ export class Detail implements OnInit, OnDestroy {
   protected readonly invitesSearchQuery = signal('');
   protected readonly isMobileInvitesExpanded = signal(false);
 
-  protected readonly activeTab = signal<string>('overview');
+  protected readonly activeTab = signal<string>('general');
   protected readonly tabOptions = [
-    { label: 'Overview', value: 'overview' },
+    { label: 'General', value: 'general' },
     { label: 'Members', value: 'members' },
+    { label: 'Invites', value: 'invites' },
     { label: 'Relations', value: 'relations' },
     { label: 'Activity', value: 'activity' },
   ];
@@ -376,7 +380,25 @@ export class Detail implements OnInit, OnDestroy {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    // Sync active tab and pre-populate data from resolver on initial load and navigation
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        startWith(null),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        const childRoute = this.route.firstChild;
+        if (childRoute) {
+          const tab = childRoute.snapshot.url[0]?.path;
+          if (tab) {
+            this.activeTab.set(tab);
+          }
+          this.applyResolvedData(childRoute.snapshot.data);
+        }
+      });
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -480,6 +502,13 @@ export class Detail implements OnInit, OnDestroy {
     if (this.organizationId()) {
       this.loadInvitations(this.organizationId()!);
     }
+  }
+
+  protected onInvitesPageChange(event: { page: number; rows: number } | any): void {
+    this.invitesPage.set(event.page + 1);
+    this.invitesLimit.set(event.rows);
+    const id = this.organizationId();
+    if (id) this.loadInvitations(id);
   }
 
   protected onRevokeInvitation(invite: OrganizationInvitation): void {
@@ -1073,8 +1102,34 @@ export class Detail implements OnInit, OnDestroy {
     }
   }
 
-  protected onTabChange(index: number): void {
-    this.activeTab.set(this.tabOptions[index].value);
+  protected onTabChange(tab: string): void {
+    this.router.navigate([tab], { relativeTo: this.route });
+  }
+
+  /**
+   * Apply pre-loaded resolver data to component signals for faster initial render.
+   * The component's own data-loading methods will still run to ensure data freshness.
+   */
+  private applyResolvedData(data: Record<string, unknown>): void {
+    if (data['general']) {
+      const org = data['general'] as OrganizationResponse;
+      this.organization.set(org);
+      this.populateEditForm(org);
+    }
+    if (data['members']) {
+      const resolved = data['members'] as { items: OrganizationMember[]; total: number };
+      if (resolved.items) {
+        this.members.set(resolved.items);
+        this.membersTotal.set(resolved.total);
+      }
+    }
+    if (data['invites']) {
+      const resolved = data['invites'] as { data: OrganizationInvitation[]; total: number };
+      if (resolved?.data) {
+        this.invites.set(resolved.data);
+        this.invitesTotal.set(resolved.total);
+      }
+    }
   }
 
   protected formatDate(dateString: string | null | undefined): string {

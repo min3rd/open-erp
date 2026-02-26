@@ -282,7 +282,9 @@
         "members": "Members",
         "relations": "Relations & Structure",
         "activity": "Activity Log",
-        "documents": "Documents"
+        "documents": "Documents",
+        "general": "General",
+        "invites": "Invitations"
       },
       "info": {
         "basicInfo": "Basic Information",
