@@ -10,7 +10,7 @@
         optionLabel="label"
         optionValue="value"
         [placeholder]="t('stock.selectWarehouse')"
-        class="w-64"
+        class="w-full max-w-64 min-w-0"
       />
       <p-button
         icon="pi pi-refresh"
@@ -77,7 +77,7 @@
     [totalRecords]="totalRecords()"
     [lazy]="true"
     (onLazyLoad)="onPageChange($event)"
-    [rowsPerPageOptions]="[10, 20, 50]"
+    [rowsPerPageOptions]="PAGE_SIZE_OPTIONS"
     [showCurrentPageReport]="true"
     [tableStyle]="{ 'min-width': '60rem' }"
     styleClass="p-datatable-sm p-datatable-gridlines"

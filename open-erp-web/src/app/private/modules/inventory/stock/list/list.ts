@@ -20,6 +20,7 @@ import {
   WarehouseService,
   Warehouse,
 } from '../../../../../../core/services/warehouse/warehouse.service';
+import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 @Component({
   selector: 'stock-list',
@@ -44,6 +45,8 @@ export class StockList implements OnInit {
   private readonly stockService = inject(StockService);
   private readonly warehouseService = inject(WarehouseService);
 
+  protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
+
   // State signals
   stocks = signal<InventoryStock[]>([]);
   warehouses = signal<Warehouse[]>([]);
@@ -52,7 +55,7 @@ export class StockList implements OnInit {
   loading = signal(false);
   totalRecords = signal(0);
   page = signal(1);
-  limit = signal(20);
+  limit = signal(PAGE_SIZE_OPTIONS[0]);
   searchQuery = signal('');
 
   warehouseOptions = computed(() =>
