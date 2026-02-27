@@ -30,3 +30,5 @@ export * from './zone.schema';
 export * from './aisle.schema';
 export * from './bin.schema';
 export * from './layout.schema';
+export * from './lot.schema';
+export * from './serial.schema';
