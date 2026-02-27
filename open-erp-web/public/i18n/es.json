@@ -2514,6 +2514,10 @@
       "levels": "Niveles",
       "barcode": "Código de barras",
       "capacityQty": "Capacidad (Cant.)"
-    }
+    },
+    "legend": "Leyenda",
+    "legendEmpty": "Vacío",
+    "legendFull": "Lleno",
+    "legendBlocked": "Bloqueado"
   }
 }

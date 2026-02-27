@@ -22,6 +22,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MpToolbar } from '../../../../../../core/components/toolbar';
 import { MenuModule } from 'primeng/menu';
+import { Menu } from 'primeng/menu';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { ContextMenu } from 'primeng/contextmenu';
 import { TooltipModule } from 'primeng/tooltip';
@@ -75,7 +76,6 @@ interface ScopeOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WarehouseList implements OnInit, OnDestroy {
-  @ViewChild('contextMenu') contextMenu!: ContextMenu;
   @ViewChild('mapContextMenu') mapContextMenu?: ContextMenu;
   @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
 
@@ -103,6 +103,11 @@ export class WarehouseList implements OnInit, OnDestroy {
   protected readonly totalRecords = signal(0);
   protected readonly isMobile = signal(false);
   protected readonly isSearchOpen = signal(false);
+
+  // Context menu state - using proper PrimeNG pattern (same as product list)
+  protected contextMenuSelectedWarehouse: Warehouse | null = null;
+  protected currentContextMenuItems: MenuItem[] = [];
+  protected currentRowMenuItems: MenuItem[] = [];
 
   // Computed values
   protected readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
@@ -178,10 +183,7 @@ export class WarehouseList implements OnInit, OnDestroy {
   }
 
   // Context menu items for row actions
-  protected get contextMenuItems(): MenuItem[] {
-    const warehouse = this.selectedWarehouse();
-    if (!warehouse) return [];
-
+  private buildContextMenuItems(warehouse: Warehouse): MenuItem[] {
     return [
       {
         label: this.translocoService.translate('warehouseList.contextMenu.view'),
@@ -207,6 +209,25 @@ export class WarehouseList implements OnInit, OnDestroy {
         command: () => this.onDeleteWarehouse(warehouse),
       },
     ];
+  }
+
+  /**
+   * Handle context menu selection change (right-click on table row)
+   */
+  protected onContextMenuSelectionChange(warehouse: Warehouse | null): void {
+    this.contextMenuSelectedWarehouse = warehouse;
+    if (warehouse) {
+      this.selectedWarehouse.set(warehouse);
+      this.currentContextMenuItems = this.buildContextMenuItems(warehouse);
+    }
+  }
+
+  /**
+   * Show per-row action menu on ellipsis button click
+   */
+  protected onShowRowMenu(event: MouseEvent, warehouse: Warehouse, menu: Menu): void {
+    this.currentRowMenuItems = this.buildContextMenuItems(warehouse);
+    menu.toggle(event);
   }
 
   constructor() {
@@ -440,11 +461,12 @@ export class WarehouseList implements OnInit, OnDestroy {
 
   /**
    * Handle row right-click to show context menu
+   * Note: with [contextMenu] binding on p-table, this is handled automatically.
+   * This method remains for manual triggering if needed.
    */
   protected onRowRightClick(event: MouseEvent, warehouse: Warehouse): void {
     event.preventDefault();
-    this.selectedWarehouse.set(warehouse);
-    this.contextMenu.show(event);
+    this.onContextMenuSelectionChange(warehouse);
   }
 
   /**
@@ -591,34 +613,10 @@ export class WarehouseList implements OnInit, OnDestroy {
   }
 
   /**
-   * Get per-row menu items for mobile list
+   * Get per-row menu items (delegates to buildContextMenuItems)
    */
   protected getRowMenuItems(warehouse: Warehouse): MenuItem[] {
-    return [
-      {
-        label: this.translocoService.translate('warehouseList.contextMenu.view'),
-        icon: 'pi pi-eye',
-        command: () => this.onViewWarehouse(warehouse),
-      },
-      {
-        label: this.translocoService.translate('warehouseList.contextMenu.edit'),
-        icon: 'pi pi-pencil',
-        command: () => this.onEditWarehouse(warehouse),
-      },
-      {
-        label: this.translocoService.translate('warehouseList.contextMenu.structure'),
-        icon: 'pi pi-sitemap',
-        command: () => this.onViewStructure(warehouse),
-      },
-      {
-        separator: true,
-      },
-      {
-        label: this.translocoService.translate('warehouseList.contextMenu.delete'),
-        icon: 'pi pi-trash',
-        command: () => this.onDeleteWarehouse(warehouse),
-      },
-    ];
+    return this.buildContextMenuItems(warehouse);
   }
 
   /**
