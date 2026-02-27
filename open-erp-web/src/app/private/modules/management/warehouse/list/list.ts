@@ -201,6 +201,11 @@ export class WarehouseList implements OnInit, OnDestroy {
         command: () => this.onViewStructure(warehouse),
       },
       {
+        label: this.translocoService.translate('warehouseList.contextMenu.designer'),
+        icon: 'pi pi-map',
+        command: () => this.router.navigate([warehouse.id, 'designer'], { relativeTo: this.route }),
+      },
+      {
         separator: true,
       },
       {

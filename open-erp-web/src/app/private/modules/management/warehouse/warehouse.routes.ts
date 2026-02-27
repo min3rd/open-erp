@@ -3,6 +3,7 @@ import { Warehouse } from './warehouse';
 import { WarehouseList } from './list/list';
 import { WarehouseForm } from './form/form';
 import { WarehouseStructureExplorer } from './structure/structure';
+import { StructureDesigner } from './structure-designer/structure-designer';
 import { warehouseDetailResolver } from './resolvers/warehouse-detail.resolver';
 import { warehouseListResolver } from './resolvers/warehouse-list.resolver';
 import { provincesResolver } from './resolvers/provinces.resolver';
@@ -64,6 +65,10 @@ export const routes: Routes = [
                           {
                             path: 'structure',
                             component: WarehouseStructureExplorer,
+                          },
+                          {
+                            path: 'designer',
+                            component: StructureDesigner,
                           },
                         ],
                       },

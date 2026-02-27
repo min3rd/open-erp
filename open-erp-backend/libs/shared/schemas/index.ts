@@ -29,3 +29,4 @@ export * from './position.schema';
 export * from './zone.schema';
 export * from './aisle.schema';
 export * from './bin.schema';
+export * from './layout.schema';

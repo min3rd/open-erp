@@ -1653,7 +1653,8 @@
       "view": "View",
       "edit": "Edit",
       "delete": "Delete",
-      "structure": "View Structure"
+      "structure": "View Structure",
+      "designer": "Structure Designer"
     },
     "mapContextMenu": {
       "createHere": "Create Warehouse Here",
@@ -3552,5 +3553,46 @@
     "legendEmpty": "Empty",
     "legendFull": "Full",
     "legendBlocked": "Blocked"
+  },
+  "structureDesigner": {
+    "title": "Warehouse Structure Designer",
+    "noLayout": "No layout defined for this warehouse.",
+    "initLayout": "Initialize Layout",
+    "initLayoutHint": "Set the physical dimensions of the warehouse floor in meters. This defines the canvas size for the structure designer.",
+    "layoutCreated": "Layout created successfully",
+    "save": "Save",
+    "saveSuccess": "Layout saved successfully",
+    "addObject": "Add Object",
+    "editObject": "Edit Object",
+    "layers": "Layers",
+    "inspector": "Inspector",
+    "create": "Create",
+    "deleted": "Object deleted",
+    "confirmDelete": "Delete object {{code}}? This action cannot be undone.",
+    "deleteTitle": "Delete Object",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "resetView": "Reset View",
+    "undo": "Undo (Ctrl+Z)",
+    "redo": "Redo (Ctrl+Y)",
+    "mode": {
+      "select": "Select / Move",
+      "zone": "Draw Zone",
+      "aisle": "Draw Aisle",
+      "bin": "Draw Bin"
+    },
+    "fields": {
+      "code": "Code",
+      "name": "Name",
+      "type": "Type",
+      "x": "X Position (m)",
+      "y": "Y Position (m)",
+      "widthM": "Width (m)",
+      "lengthM": "Length (m)",
+      "heightM": "Height (m)",
+      "capacityQty": "Capacity (qty)",
+      "barcode": "Barcode",
+      "capacity": "Capacity"
+    }
   }
 }

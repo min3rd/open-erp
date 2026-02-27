@@ -37,6 +37,10 @@ import {
   AisleSchema,
   Bin,
   BinSchema,
+  WarehouseLayout,
+  WarehouseLayoutSchema,
+  LayoutObject,
+  LayoutObjectSchema,
 } from '@shared/schemas';
 
 // Import services
@@ -48,6 +52,7 @@ import { WarehouseService } from './services/warehouse.service';
 import { ZoneService } from './services/zone.service';
 import { AisleService } from './services/aisle.service';
 import { BinService } from './services/bin.service';
+import { LayoutService } from './services/layout.service';
 
 // Import repositories
 import { ProductRepository } from './repositories/product.repository';
@@ -60,6 +65,7 @@ import { WarehouseRepository } from './repositories/warehouse.repository';
 import { ZoneRepository } from './repositories/zone.repository';
 import { AisleRepository } from './repositories/aisle.repository';
 import { BinRepository } from './repositories/bin.repository';
+import { LayoutRepository } from './repositories/layout.repository';
 
 // Import controllers
 import { ProductController } from './controllers/product.controller';
@@ -71,6 +77,7 @@ import { WarehouseController } from './controllers/warehouse.controller';
 import { ZoneController } from './controllers/zone.controller';
 import { AisleController } from './controllers/aisle.controller';
 import { BinController } from './controllers/bin.controller';
+import { LayoutController } from './controllers/layout.controller';
 
 // Import shared modules
 import { AuthorizationService } from '@shared/authz/authorization.service';
@@ -105,6 +112,8 @@ import { MinioModule } from '@shared/services/minio/minio.module';
       { name: Zone.name, schema: ZoneSchema },
       { name: Aisle.name, schema: AisleSchema },
       { name: Bin.name, schema: BinSchema },
+      { name: WarehouseLayout.name, schema: WarehouseLayoutSchema },
+      { name: LayoutObject.name, schema: LayoutObjectSchema },
     ]),
     ThrottlerModule.forRoot([
       {
@@ -125,6 +134,7 @@ import { MinioModule } from '@shared/services/minio/minio.module';
     ZoneController,
     AisleController,
     BinController,
+    LayoutController,
   ],
   providers: [
     ProductService,
@@ -135,6 +145,7 @@ import { MinioModule } from '@shared/services/minio/minio.module';
     ZoneService,
     AisleService,
     BinService,
+    LayoutService,
     ProductRepository,
     ProductTypeRepository,
     ProductCategoryRepository,
@@ -145,6 +156,7 @@ import { MinioModule } from '@shared/services/minio/minio.module';
     ZoneRepository,
     AisleRepository,
     BinRepository,
+    LayoutRepository,
     AuthorizationService,
     PermissionService,
   ],
