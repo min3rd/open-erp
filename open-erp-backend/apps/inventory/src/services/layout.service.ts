@@ -179,10 +179,10 @@ export class LayoutService {
       throw new NotFoundException(`Warehouse with ID ${warehouseId} not found`);
     }
 
+    // Upsert each object by (warehouseId, code) to prevent duplicate-key errors
+    // when the same save is triggered twice or an object has already been persisted.
     return Promise.all(
-      objects.map((obj) =>
-        obj.id ? this.updateObject(obj.id, obj) : this.createObject(warehouseId, obj),
-      ),
+      objects.map((obj) => this.layoutRepository.upsertObject(warehouseId, obj)),
     );
   }
 }

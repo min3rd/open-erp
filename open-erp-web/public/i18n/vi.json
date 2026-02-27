@@ -2221,7 +2221,10 @@
       "heightM": "Chiều cao (m)",
       "capacityQty": "Sức chứa (số lượng)",
       "barcode": "Mã vạch",
-      "capacity": "Sức chứa"
-    }
+      "capacity": "Sức chứa",
+      "parent": "Đối tượng cha"
+    },
+    "noParent": "Không có cha",
+    "autoDetected": "tự động xác định"
   }
 }

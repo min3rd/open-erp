@@ -2562,7 +2562,10 @@
       "heightM": "Alto (m)",
       "capacityQty": "Capacidad (cant.)",
       "barcode": "Código de barras",
-      "capacity": "Capacidad"
-    }
+      "capacity": "Capacidad",
+      "parent": "Elemento padre"
+    },
+    "noParent": "Sin padre",
+    "autoDetected": "detectado automáticamente"
   }
 }

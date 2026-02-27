@@ -296,6 +296,15 @@
               </div>
             </div>
 
+            @if (selectedObject()!.parentId) {
+              <div class="text-xs">
+                <span class="text-surface-500 dark:text-surface-400">{{ 'structureDesigner.fields.parent' | transloco }}</span>
+                <span class="ml-1 font-mono font-medium text-surface-800 dark:text-surface-100">
+                  {{ getParentLabel(selectedObject()!.parentId!) }}
+                </span>
+              </div>
+            }
+
             @if (selectedObject()!.capacityQty > 0) {
               <div class="text-xs">
                 <span class="text-surface-500 dark:text-surface-400">{{ 'structureDesigner.fields.capacity' | transloco }}</span>
@@ -420,6 +429,26 @@
         <input pInputText [(ngModel)]="objectForm.name" class="w-full" placeholder="Zone A" />
       </div>
     </div>
+    <!-- Parent selector (shown for aisle and bin) -->
+    @if (objectForm.type === 'aisle' || objectForm.type === 'bin') {
+      <div>
+        <label class="block text-sm font-medium mb-1 text-surface-700 dark:text-surface-300">
+          {{ 'structureDesigner.fields.parent' | transloco }}
+          @if (objectForm.parentId) {
+            <span class="ml-1 text-xs text-primary font-normal">({{ 'structureDesigner.autoDetected' | transloco }})</span>
+          }
+        </label>
+        <p-select
+          [(ngModel)]="objectForm.parentId"
+          [options]="getParentOptions(objectForm.type!)"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'structureDesigner.noParent' | transloco"
+          [showClear]="true"
+          class="w-full"
+        />
+      </div>
+    }
     <div class="grid grid-cols-2 gap-3">
       <div>
         <label class="block text-sm font-medium mb-1 text-surface-700 dark:text-surface-300">{{ 'structureDesigner.fields.x' | transloco }}</label>
