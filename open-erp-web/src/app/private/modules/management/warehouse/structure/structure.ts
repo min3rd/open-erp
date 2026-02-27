@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 import { ButtonModule } from 'primeng/button';
@@ -17,10 +17,16 @@ import { MessageService } from 'primeng/api';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
+import { DrawerModule } from 'primeng/drawer';
+import { SelectButtonModule } from 'primeng/selectbutton';
 
 import { WarehouseService } from '../../../../../../core/services/warehouse/warehouse.service';
 import type {
   Bin,
+  Aisle,
+  Zone,
+  AisleWithBins,
+  ZoneWithAisles,
   WarehouseStructure,
   CreateZoneDto,
   CreateAisleDto,
@@ -39,19 +45,34 @@ import type {
     ProgressSpinnerModule,
     TagModule,
     DialogModule,
+    DrawerModule,
+    SelectButtonModule,
   ],
   templateUrl: './structure.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WarehouseStructureExplorer implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly warehouseService = inject(WarehouseService);
   private readonly messageService = inject(MessageService);
   private readonly translocoService = inject(TranslocoService);
 
   protected warehouseId = '';
   protected readonly isLoading = signal(false);
+  protected readonly isVisible = signal(true);
   protected readonly structure = signal<WarehouseStructure | null>(null);
+
+  // View mode: 'tree' or 'map'
+  protected viewMode = 'tree';
+  protected readonly viewModeOptions = [
+    { label: '☰ Tree', value: 'tree' },
+    { label: '⬛ Map', value: 'map' },
+  ];
+
+  // Selected items for detail panel
+  protected readonly selectedZone = signal<ZoneWithAisles | null>(null);
+  protected readonly selectedAisle = signal<AisleWithBins | null>(null);
 
   // Dialog states
   protected readonly showZoneDialog = signal(false);
@@ -74,6 +95,12 @@ export class WarehouseStructureExplorer implements OnInit {
         this.loadStructure();
       }
     });
+  }
+
+  protected onClose(): void {
+    this.isVisible.set(false);
+    // Navigate back to the list (go up 3 levels from /:id/structure)
+    this.router.navigate(['../../..'], { relativeTo: this.route });
   }
 
   protected loadStructure(): void {
@@ -272,10 +299,24 @@ export class WarehouseStructureExplorer implements OnInit {
   }
 
   protected getBinOccupancyClass(bin: Bin): string {
-    if (bin.isBlocked) return 'bg-red-100 border-red-300';
+    if (bin.isBlocked) return 'border-red-400 dark:border-red-600 bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300';
     const ratio = bin.capacityQty > 0 ? bin.currentQty / bin.capacityQty : 0;
-    if (ratio >= 1) return 'bg-orange-100 border-orange-300';
-    if (ratio >= 0.8) return 'bg-yellow-100 border-yellow-300';
-    return 'bg-green-100 border-green-300';
+    if (ratio >= 1) return 'border-orange-400 dark:border-orange-600 bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300';
+    if (ratio >= 0.8) return 'border-yellow-400 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300';
+    return 'border-green-400 dark:border-green-600 bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300';
+  }
+
+  protected getBinMapLabel(bin: Bin): string {
+    if (bin.isBlocked) return '🔒';
+    const ratio = bin.capacityQty > 0 ? bin.currentQty / bin.capacityQty : 0;
+    if (ratio >= 1) return '●';
+    if (ratio >= 0.8) return '◕';
+    if (ratio > 0) return '◑';
+    return '○';
+  }
+
+  protected getAllAisles(): AisleWithBins[] {
+    const zones = this.structure()?.zones ?? [];
+    return zones.flatMap(z => z.aisles ?? []);
   }
 }

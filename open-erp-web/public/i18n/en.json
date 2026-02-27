@@ -3547,6 +3547,10 @@
       "levels": "Levels",
       "barcode": "Barcode",
       "capacityQty": "Capacity (Qty)"
-    }
+    },
+    "legend": "Legend",
+    "legendEmpty": "Empty",
+    "legendFull": "Full",
+    "legendBlocked": "Blocked"
   }
 }

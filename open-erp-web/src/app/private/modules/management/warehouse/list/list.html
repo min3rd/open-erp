@@ -204,6 +204,9 @@
             [(selection)]="selectedWarehousesArray"
             styleClass="p-datatable-sm"
             responsiveLayout="scroll"
+            [contextMenu]="contextMenuRef"
+            [contextMenuSelection]="contextMenuSelectedWarehouse"
+            (contextMenuSelectionChange)="onContextMenuSelectionChange($event)"
           >
             <ng-template #header>
               <tr>
@@ -222,7 +225,6 @@
               <tr
                 [id]="'warehouse-list-row-' + warehouse.id"
                 (click)="onRowClick(warehouse)"
-                (contextmenu)="onRowRightClick($event, warehouse)"
                 class="cursor-pointer"
                 [class.bg-primary-50]="selectedWarehouse()?.id === warehouse.id"
                 [class.dark:bg-primary-900]="selectedWarehouse()?.id === warehouse.id"
@@ -246,14 +248,8 @@
                     [rounded]="true"
                     [text]="true"
                     size="small"
-                    (onClick)="rowMenu.toggle($event)"
+                    (onClick)="onShowRowMenu($event, warehouse, sharedRowMenu)"
                     [attr.aria-label]="'warehouseList.table.rowActions' | transloco"
-                  />
-                  <p-menu
-                    #rowMenu
-                    [model]="getRowMenuItems(warehouse)"
-                    [popup]="true"
-                    appendTo="body"
                   />
                 </td>
               </tr>
@@ -375,14 +371,8 @@
                     [rounded]="true"
                     [text]="true"
                     size="small"
-                    (onClick)="cardMenu.toggle($event)"
+                    (onClick)="onShowRowMenu($event, warehouse, sharedRowMenu)"
                     [attr.aria-label]="'warehouseList.table.rowActions' | transloco"
-                  />
-                  <p-menu
-                    #cardMenu
-                    [model]="getRowMenuItems(warehouse)"
-                    [popup]="true"
-                    appendTo="body"
                   />
                 </div>
               </div>
@@ -408,11 +398,20 @@
   </div>
 </div>
 
-<!-- Context Menu -->
+<!-- Context Menu (right-click) -->
 <p-contextMenu
-  #contextMenu
+  #contextMenuRef
   id="warehouse-list-context-menu"
-  [model]="contextMenuItems"
+  [model]="currentContextMenuItems"
+  appendTo="body"
+/>
+
+<!-- Shared Row Action Menu (ellipsis button) -->
+<p-menu
+  #sharedRowMenu
+  id="warehouse-list-row-menu"
+  [model]="currentRowMenuItems"
+  [popup]="true"
   appendTo="body"
 />
 
