@@ -150,7 +150,7 @@
               [class.bg-primary-50]="selectedObject()?.id === obj.id"
               (click)="selectedObject.set(obj); showInspector.set(true)"
             >
-              <i [class]="modeIcon($any(obj.type))" class="text-xs shrink-0 text-surface-500"></i>
+              <i [class]="modeIcon(obj.type)" class="text-xs shrink-0 text-surface-500"></i>
               <span class="truncate">{{ obj.code }}</span>
               @if (obj.isDirty) {
                 <span class="ml-auto text-orange-400">●</span>
@@ -160,22 +160,22 @@
         }
       </aside>
 
-      <!-- Canvas area -->
+      <!-- Canvas area: overflow-hidden, canvas positioned absolutely to allow pan without scrollbars -->
       <main
-        class="flex-1 overflow-auto bg-surface-100 dark:bg-surface-800 relative"
+        class="flex-1 overflow-hidden relative bg-surface-100 dark:bg-surface-800"
         (wheel)="onWheel($event)"
+        (mousedown)="onMouseDown($event)"
+        [class.cursor-grab]="drawMode() === 'pan'"
+        [class.cursor-crosshair]="drawMode() !== 'select' && drawMode() !== 'pan'"
+        [class.cursor-default]="drawMode() === 'select'"
       >
         <div
           #canvas
-          class="relative bg-white dark:bg-surface-900 border border-surface-300 dark:border-surface-600 overflow-visible"
+          class="absolute bg-white dark:bg-surface-900 border border-surface-300 dark:border-surface-600 overflow-visible"
+          [style.left.px]="panX()"
+          [style.top.px]="panY()"
           [style.width.px]="canvasWidthPx()"
           [style.height.px]="canvasHeightPx()"
-          [style.margin]="'16px'"
-          [class.cursor-crosshair]="drawMode() !== 'select'"
-          [class.cursor-default]="drawMode() === 'select'"
-          (mousedown)="onCanvasMouseDown($event)"
-          (mousemove)="onCanvasMouseMove($event)"
-          (mouseup)="onCanvasMouseUp($event)"
         >
           <!-- Grid lines (SVG overlay) -->
           <svg
@@ -203,8 +203,8 @@
             }
           </svg>
 
-          <!-- Layout objects -->
-          @for (obj of objects(); track trackById($index, obj)) {
+          <!-- Layout objects — rendered in zOrder so higher-z objects appear on top -->
+          @for (obj of sortedObjects(); track trackById($index, obj)) {
             <div
               class="absolute border-2 rounded flex flex-col items-start justify-start p-0.5 overflow-hidden text-xs select-none"
               [class]="getObjectClass(obj)"
@@ -213,15 +213,25 @@
               [style.width.px]="obj.widthM * scale()"
               [style.height.px]="obj.heightM * scale()"
               [style.transform]="'rotate(' + obj.rotationDeg + 'deg)'"
+              [style.zIndex]="obj.zOrder ?? 0"
               (click)="selectedObject.set(obj); showInspector.set(true)"
             >
               <span class="font-semibold leading-none text-[9px] truncate w-full px-0.5">{{ obj.code }}</span>
-              <span class="text-[8px] opacity-75 leading-none truncate w-full px-0.5">{{ obj.name }}</span>
+              @if (obj.type !== 'label') {
+                <span class="text-[8px] opacity-75 leading-none truncate w-full px-0.5">{{ obj.name }}</span>
+              } @else {
+                <!-- Label objects show full text prominently -->
+                <span class="text-[10px] font-medium leading-tight truncate w-full px-0.5">{{ obj.name }}</span>
+              }
               @if (obj.type === 'bin' && obj.capacityQty > 0) {
                 <span class="text-[8px] opacity-60 leading-none px-0.5">{{ obj.capacityQty }}u</span>
               }
               @if (obj.isBlocked) {
                 <span class="absolute top-0 right-0 text-[8px]">🔒</span>
+              }
+              @if (obj.type === 'corridor') {
+                <!-- Corridor: show arrow indicator -->
+                <span class="absolute inset-0 flex items-center justify-center text-slate-400 dark:text-slate-500 text-xs pointer-events-none">↔</span>
               }
             </div>
           }

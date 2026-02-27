@@ -262,7 +262,7 @@ export interface WarehouseStructure extends Warehouse {
 
 // ===== Layout =====
 
-export type LayoutObjectType = 'zone' | 'aisle' | 'bin';
+export type LayoutObjectType = 'zone' | 'aisle' | 'bin' | 'label' | 'corridor';
 
 export interface WarehouseLayout {
   id: string;
@@ -293,6 +293,14 @@ export interface LayoutObject {
   capacityVolume?: number;
   allowedSkuTags?: string[];
   metadata?: Record<string, any>;
+  /** Link to existing Zone document */
+  zoneRef?: string | null;
+  /** Link to existing Aisle document */
+  aisleRef?: string | null;
+  /** Link to existing Bin document */
+  binRef?: string | null;
+  /** Visual z-order: higher = drawn on top */
+  zOrder?: number;
   deletedAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
@@ -321,6 +329,10 @@ export interface CreateLayoutObjectDto {
   capacityQty?: number;
   capacityVolume?: number;
   allowedSkuTags?: string[];
+  zoneRef?: string | null;
+  aisleRef?: string | null;
+  binRef?: string | null;
+  zOrder?: number;
 }
 
 /**

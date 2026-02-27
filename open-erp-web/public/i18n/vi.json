@@ -2205,7 +2205,10 @@
       "select": "Chọn / Di chuyển",
       "zone": "Vẽ Vùng",
       "aisle": "Vẽ Lối đi",
-      "bin": "Vẽ Ô chứa"
+      "bin": "Vẽ Ô chứa",
+      "pan": "Dịch chuyển View",
+      "label": "Vẽ Nhãn",
+      "corridor": "Vẽ Hành lang"
     },
     "fields": {
       "code": "Mã",

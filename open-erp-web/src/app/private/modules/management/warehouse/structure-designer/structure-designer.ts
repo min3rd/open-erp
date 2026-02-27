@@ -40,7 +40,7 @@ import type {
 } from '../../../../../../core/services/warehouse/warehouse.service';
 
 /** Supported draw modes */
-export type DrawMode = 'select' | 'zone' | 'aisle' | 'bin';
+export type DrawMode = 'select' | 'zone' | 'aisle' | 'bin' | 'label' | 'corridor' | 'pan';
 
 /** In-memory canvas state for a single object */
 export interface CanvasObject extends LayoutObject {
@@ -110,8 +110,12 @@ export class StructureDesigner implements OnInit, OnDestroy {
 
   // Canvas transform
   protected scale = signal(50); // pixels per meter
-  protected panX = signal(0);
-  protected panY = signal(0);
+  protected panX = signal(16); // initial 16px margin
+  protected panY = signal(16);
+
+  // Panning state
+  private isPanning = false;
+  private panStart = { clientX: 0, clientY: 0, panX: 0, panY: 0 };
 
   // Layout init form
   protected initForm: Partial<CreateLayoutDto> = { widthM: 50, lengthM: 30 };
@@ -168,6 +172,16 @@ export class StructureDesigner implements OnInit, OnDestroy {
     this.objects().filter((o) => o.type === 'bin'),
   );
 
+  /** Objects sorted by zOrder (lowest first = rendered below others) */
+  protected readonly sortedObjects = computed(() =>
+    [...this.objects()].sort((a, b) => (a.zOrder ?? 0) - (b.zOrder ?? 0)),
+  );
+
+  /** Non-zone/aisle/bin objects (labels, corridors) for layers panel */
+  protected readonly decorativeObjects = computed(() =>
+    this.objects().filter((o) => o.type === 'label' || o.type === 'corridor'),
+  );
+
   protected readonly hasDirty = computed(() =>
     this.objects().some((o) => o.isDirty),
   );
@@ -176,13 +190,18 @@ export class StructureDesigner implements OnInit, OnDestroy {
     { label: 'Zone', value: 'zone' as LayoutObjectType },
     { label: 'Aisle', value: 'aisle' as LayoutObjectType },
     { label: 'Bin', value: 'bin' as LayoutObjectType },
+    { label: 'Label', value: 'label' as LayoutObjectType },
+    { label: 'Corridor', value: 'corridor' as LayoutObjectType },
   ];
 
   protected readonly modeButtons: Array<{ mode: DrawMode; icon: string }> = [
     { mode: 'select', icon: 'pi pi-cursor' },
+    { mode: 'pan', icon: 'pi pi-arrows-alt' },
     { mode: 'zone', icon: 'pi pi-th-large' },
     { mode: 'aisle', icon: 'pi pi-align-justify' },
     { mode: 'bin', icon: 'pi pi-box' },
+    { mode: 'label', icon: 'pi pi-tag' },
+    { mode: 'corridor', icon: 'pi pi-arrows-h' },
   ];
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
@@ -283,68 +302,117 @@ export class StructureDesigner implements OnInit, OnDestroy {
     this.drawMode.set(mode);
     this.drawRect.set(null);
     this.drawStart = null;
+    this.isPanning = false;
   }
 
-  protected modeIcon(mode: DrawMode): string {
-    const icons: Record<DrawMode, string> = {
+  protected modeIcon(type: string): string {
+    const icons: Record<string, string> = {
       select: 'pi pi-cursor',
+      pan: 'pi pi-arrows-alt',
       zone: 'pi pi-th-large',
       aisle: 'pi pi-align-justify',
       bin: 'pi pi-box',
+      label: 'pi pi-tag',
+      corridor: 'pi pi-arrows-h',
     };
-    return icons[mode];
+    return icons[type] ?? 'pi pi-circle';
   }
 
   // ─── Canvas interaction ───────────────────────────────────────────────────
 
-  protected onCanvasMouseDown(event: MouseEvent): void {
+  /**
+   * Called on mousedown on the main canvas container.
+   * Handles: pan mode start (pan button or middle-click), object drag start, draw start.
+   */
+  protected onMouseDown(event: MouseEvent): void {
+    // Middle-click (button=1) or pan mode → start panning
+    if (event.button === 1 || this.drawMode() === 'pan') {
+      event.preventDefault();
+      this.isPanning = true;
+      this.panStart = {
+        clientX: event.clientX,
+        clientY: event.clientY,
+        panX: this.panX(),
+        panY: this.panY(),
+      };
+      return;
+    }
+
+    // Only left-click for draw/select
+    if (event.button !== 0) return;
+
     const pos = this.getCanvasPos(event);
+    if (!pos) return; // clicked outside the canvas area
+
     const mode = this.drawMode();
 
     if (mode === 'select') {
-      // Try to pick an object
       const hit = this.hitTest(pos.x, pos.y);
       this.selectedObject.set(hit);
       if (hit) {
         this.showInspector.set(true);
+        this.pushUndo();
         this.dragStart = {
           mouseX: pos.x,
           mouseY: pos.y,
           objX: hit.x,
           objY: hit.y,
         };
-        this.pushUndo();
       }
     } else {
-      // Start drawing
+      // Draw mode — record start point in meters
       this.drawStart = this.snapToGrid(pos.x, pos.y);
     }
   }
 
-  protected onCanvasMouseMove(event: MouseEvent): void {
-    const pos = this.getCanvasPos(event);
+  /** Document-level mousemove handles pan, drag and draw-preview simultaneously */
+  @HostListener('document:mousemove', ['$event'])
+  onGlobalMouseMove(event: MouseEvent): void {
+    // ── Pan ──────────────────────────────────────────────────────────────────
+    if (this.isPanning) {
+      const dx = event.clientX - this.panStart.clientX;
+      const dy = event.clientY - this.panStart.clientY;
+      this.panX.set(this.panStart.panX + dx);
+      this.panY.set(this.panStart.panY + dy);
+      return;
+    }
 
-    if (this.drawMode() === 'select' && this.dragStart) {
+    // ── Object drag ──────────────────────────────────────────────────────────
+    if (this.dragStart && this.drawMode() === 'select') {
       const sel = this.selectedObject();
       if (!sel) return;
 
-      const dx = (pos.x - this.dragStart.mouseX) / this.scale();
-      const dy = (pos.y - this.dragStart.mouseY) / this.scale();
-      const snapped = this.snapToGrid(
-        this.dragStart.objX + dx,
-        this.dragStart.objY + dy,
-      );
+      // Convert client coords to canvas meters (no bounds check needed for drag)
+      const canvas = this.canvasRef?.nativeElement;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const posX = (event.clientX - rect.left) / this.scale();
+      const posY = (event.clientY - rect.top) / this.scale();
 
-      // Update in-memory
+      // Delta is purely in meters — no extra division needed
+      const dx = posX - this.dragStart.mouseX;
+      const dy = posY - this.dragStart.mouseY;
+      const snapped = this.snapToGrid(this.dragStart.objX + dx, this.dragStart.objY + dy);
+
       this.objects.update((objs) =>
         objs.map((o) =>
           o.id === sel.id ? { ...o, x: snapped.x, y: snapped.y, isDirty: true } : o,
         ),
       );
       this.selectedObject.set({ ...sel, x: snapped.x, y: snapped.y });
-    } else if (this.drawStart) {
-      const cur = this.getCanvasPos(event);
-      const snapped = this.snapToGrid(cur.x, cur.y);
+      return;
+    }
+
+    // ── Draw preview ─────────────────────────────────────────────────────────
+    if (this.drawStart) {
+      const canvas = this.canvasRef?.nativeElement;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      // Clamp to canvas bounds for the preview rectangle
+      const px = Math.max(0, Math.min(rect.width, event.clientX - rect.left));
+      const py = Math.max(0, Math.min(rect.height, event.clientY - rect.top));
+      const snapped = this.snapToGrid(px / this.scale(), py / this.scale());
+
       this.drawRect.set({
         x: Math.min(this.drawStart.x, snapped.x) * this.scale(),
         y: Math.min(this.drawStart.y, snapped.y) * this.scale(),
@@ -354,46 +422,67 @@ export class StructureDesigner implements OnInit, OnDestroy {
     }
   }
 
-  protected onCanvasMouseUp(event: MouseEvent): void {
-    if (this.drawMode() !== 'select' && this.drawStart) {
-      const pos = this.getCanvasPos(event);
-      const snapped = this.snapToGrid(pos.x, pos.y);
+  /** Document-level mouseup ends pan, drag or draw */
+  @HostListener('document:mouseup', ['$event'])
+  onGlobalMouseUp(event: MouseEvent): void {
+    if (this.isPanning) {
+      this.isPanning = false;
+      return;
+    }
 
-      const x = Math.min(this.drawStart.x, snapped.x);
-      const y = Math.min(this.drawStart.y, snapped.y);
-      const widthM = Math.abs(snapped.x - this.drawStart.x);
-      const heightM = Math.abs(snapped.y - this.drawStart.y);
+    this.dragStart = null;
 
-      if (widthM >= 0.5 && heightM >= 0.5) {
-        this.objectForm = {
-          type: this.drawMode() as LayoutObjectType,
-          x,
-          y,
-          widthM,
-          heightM,
-          code: this.generateCode(this.drawMode() as LayoutObjectType),
-          name: '',
-        };
-        this.objectDialogMode = 'create';
-        this.showObjectDialog.set(true);
+    if (this.drawStart) {
+      const canvas = this.canvasRef?.nativeElement;
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const px = Math.max(0, Math.min(rect.width, event.clientX - rect.left));
+        const py = Math.max(0, Math.min(rect.height, event.clientY - rect.top));
+        const snapped = this.snapToGrid(px / this.scale(), py / this.scale());
+
+        const x = Math.min(this.drawStart.x, snapped.x);
+        const y = Math.min(this.drawStart.y, snapped.y);
+        const widthM = Math.abs(snapped.x - this.drawStart.x);
+        const heightM = Math.abs(snapped.y - this.drawStart.y);
+
+        if (widthM >= 0.5 && heightM >= 0.5) {
+          const mode = this.drawMode();
+          const objType = mode as LayoutObjectType;
+          this.objectForm = {
+            type: objType,
+            x,
+            y,
+            widthM,
+            heightM,
+            code: this.generateCode(objType),
+            name: '',
+          };
+          this.objectDialogMode = 'create';
+          this.showObjectDialog.set(true);
+        }
       }
-
       this.drawStart = null;
       this.drawRect.set(null);
     }
-    this.dragStart = null;
   }
 
   // ─── Object management ────────────────────────────────────────────────────
 
   protected onAddObject(type: LayoutObjectType): void {
-    const layout = this.layout();
+    const defaultSizes: Record<LayoutObjectType, { w: number; h: number }> = {
+      zone: { w: 10, h: 8 },
+      aisle: { w: 5, h: 4 },
+      bin: { w: 2, h: 1.5 },
+      label: { w: 3, h: 1 },
+      corridor: { w: 8, h: 2 },
+    };
+    const sz = defaultSizes[type] ?? { w: 4, h: 3 };
     this.objectForm = {
       type,
       x: 0,
       y: 0,
-      widthM: type === 'zone' ? 10 : type === 'aisle' ? 5 : 2,
-      heightM: type === 'zone' ? 8 : type === 'aisle' ? 4 : 1.5,
+      widthM: sz.w,
+      heightM: sz.h,
       code: this.generateCode(type),
       name: '',
     };
@@ -539,8 +628,8 @@ export class StructureDesigner implements OnInit, OnDestroy {
   }
 
   protected resetView(): void {
-    this.panX.set(0);
-    this.panY.set(0);
+    this.panX.set(16);
+    this.panY.set(16);
     const layout = this.layout();
     if (layout) this.scale.set(layout.scale || 50);
   }
@@ -577,12 +666,20 @@ export class StructureDesigner implements OnInit, OnDestroy {
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
 
-  private getCanvasPos(event: MouseEvent): { x: number; y: number } {
+  /**
+   * Convert a MouseEvent to canvas-local coordinates in meters.
+   * Returns null if the event is outside the canvas area.
+   * Note: getBoundingClientRect() already reflects the canvas's absolute position
+   * (panX, panY), so NO manual pan subtraction is needed.
+   */
+  private getCanvasPos(event: MouseEvent): { x: number; y: number } | null {
     const canvas = this.canvasRef?.nativeElement;
-    if (!canvas) return { x: 0, y: 0 };
+    if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
-    const px = event.clientX - rect.left - this.panX();
-    const py = event.clientY - rect.top - this.panY();
+    const px = event.clientX - rect.left;
+    const py = event.clientY - rect.top;
+    // Return null if outside canvas bounds (allows click-outside-canvas to pan)
+    if (px < 0 || py < 0 || px > rect.width || py > rect.height) return null;
     return { x: px / this.scale(), y: py / this.scale() };
   }
 
@@ -606,18 +703,27 @@ export class StructureDesigner implements OnInit, OnDestroy {
   }
 
   private generateCode(type: LayoutObjectType): string {
-    const prefix = type === 'zone' ? 'Z' : type === 'aisle' ? 'A' : 'B';
+    const prefixes: Record<LayoutObjectType, string> = {
+      zone: 'Z',
+      aisle: 'A',
+      bin: 'B',
+      label: 'L',
+      corridor: 'C',
+    };
+    const prefix = prefixes[type] ?? 'O';
     const existing = this.objects().filter((o) => o.type === type);
     return `${prefix}-${String(existing.length + 1).padStart(3, '0')}`;
   }
 
   protected getObjectClass(obj: CanvasObject): string {
-    const typeClass: Record<LayoutObjectType, string> = {
+    const typeClass: Record<string, string> = {
       zone: 'bg-blue-100 dark:bg-blue-900 border-blue-400 dark:border-blue-600',
       aisle: 'bg-purple-100 dark:bg-purple-900 border-purple-400 dark:border-purple-600',
       bin: 'bg-green-100 dark:bg-green-900 border-green-400 dark:border-green-600',
+      label: 'bg-yellow-50 dark:bg-yellow-950 border-yellow-300 dark:border-yellow-700',
+      corridor: 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600',
     };
-    const base = typeClass[obj.type] ?? '';
+    const base = typeClass[obj.type] ?? 'bg-surface-100 border-surface-400';
     const selectedClass =
       this.selectedObject()?.id === obj.id
         ? ' ring-2 ring-primary ring-offset-1 dark:ring-offset-surface-900'
