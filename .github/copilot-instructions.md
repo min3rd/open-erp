@@ -75,6 +75,7 @@ Base URLs defined in `open-erp-web/src/core/constant.ts`. All responses use a st
 - **Routing**: Lazy-loaded via `loadChildren`, data pre-fetched via route resolvers
 - **Testing**: Vitest 4 with jsdom — run `ng test`
 - **Formatting**: Prettier (100 char width, single quotes, Angular HTML parser)
+- **UI Dialog policy (NEW / important)**: Prefer drawers/sidebars for edit/detail flows (PrimeNG Sidebar / drawer pattern). Avoid blocking modal dialogs except for critical confirmations. Use drawers for responsive UX on desktop and mobile.
 
 ### Mobile
 
