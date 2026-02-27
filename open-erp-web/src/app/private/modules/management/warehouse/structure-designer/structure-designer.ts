@@ -30,7 +30,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 
-import { forkJoin, of } from 'rxjs';
+import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { WarehouseService } from '../../../../../../core/services/warehouse/warehouse.service';
@@ -40,7 +40,6 @@ import type {
   LayoutObjectType,
   CreateLayoutDto,
   CreateLayoutObjectDto,
-  WarehouseStructure,
 } from '../../../../../../core/services/warehouse/warehouse.service';
 
 /** Supported draw modes */
@@ -256,157 +255,31 @@ export class StructureDesigner implements OnInit, OnDestroy {
     if (!this.warehouseId) return;
     this.isLoading.set(true);
 
-    forkJoin({
-      layoutData: this.warehouseService.getLayout(this.warehouseId).pipe(
-        catchError(() => of(null)),
-      ),
-      structure: this.warehouseService.getWarehouseStructure(this.warehouseId).pipe(
-        catchError(() => of(null)),
-      ),
-    }).subscribe({
-      next: ({ layoutData, structure }) => {
-        this.isLoading.set(false);
-        if (!layoutData?.layout) {
-          this.showInitDialog.set(true);
-        } else {
-          this.layout.set(layoutData.layout);
-          this.scale.set(layoutData.layout.scale || 50);
-          const merged = this.mergeWithStructure(layoutData.objects, structure);
-          this.objects.set(merged);
-        }
-      },
-      error: () => {
-        this.isLoading.set(false);
-        this.showInitDialog.set(true);
-      },
-    });
-  }
-
-  /**
-   * Merge layout objects (from canvas API) with Zone/Aisle/Bin entities (from structure API).
-   * Zone/Aisle/Bin entities that have no corresponding layout object are added to the canvas
-   * at a default position and marked dirty so the user can position them and save.
-   */
-  private mergeWithStructure(
-    layoutObjects: LayoutObject[],
-    structure: WarehouseStructure | null,
-  ): CanvasObject[] {
-    const canvas: CanvasObject[] = layoutObjects.map((o) => ({ ...o, isDirty: false }));
-    if (!structure?.zones?.length) return canvas;
-
-    // Build O(1) lookup maps upfront to avoid O(n*m) complexity inside the loops
-    const linkedZoneIds = new Set(canvas.filter((o) => o.zoneRef).map((o) => o.zoneRef!));
-    const linkedAisleIds = new Set(canvas.filter((o) => o.aisleRef).map((o) => o.aisleRef!));
-    const linkedBinIds = new Set(canvas.filter((o) => o.binRef).map((o) => o.binRef!));
-
-    // Code-keyed maps for backfill (fallback for objects saved before zoneRef was introduced)
-    const zoneByCode = new Map(canvas.filter((o) => o.type === 'zone' && !o.zoneRef).map((o) => [o.code, o]));
-    const aisleByCode = new Map(canvas.filter((o) => o.type === 'aisle' && !o.aisleRef).map((o) => [o.code, o]));
-    const binByCode = new Map(canvas.filter((o) => o.type === 'bin' && !o.binRef).map((o) => [o.code, o]));
-
-    // Auto-position columns for unpositioned entities
-    let unposCol = 0;
-    const COL_W = 12;
-    const ROW_START = 1;
-    const COL_START = 1;
-
-    for (const zone of structure.zones) {
-      if (!linkedZoneIds.has(zone.id) && !zoneByCode.has(zone.code)) {
-        canvas.push({
-          id: `tmp-zone-${zone.id}`,
-          warehouseId: this.warehouseId,
-          parentId: null,
-          type: 'zone',
-          code: zone.code,
-          name: zone.name,
-          x: COL_START + unposCol * COL_W,
-          y: ROW_START,
-          widthM: 10,
-          heightM: 8,
-          rotationDeg: 0,
-          isBlocked: false,
-          capacityQty: 0,
-          zoneRef: zone.id,
-          zOrder: 0,
-          isDirty: true,
-        });
-        unposCol++;
-      } else {
-        // Backfill zoneRef on existing canvas object if missing
-        const existing = zoneByCode.get(zone.code);
-        if (existing) {
-          existing.zoneRef = zone.id;
-          existing.isDirty = true;
-        }
-      }
-
-      // Process aisles
-      for (const aisle of zone.aisles ?? []) {
-        if (!linkedAisleIds.has(aisle.id) && !aisleByCode.has(aisle.code)) {
-          canvas.push({
-            id: `tmp-aisle-${aisle.id}`,
-            warehouseId: this.warehouseId,
-            parentId: null,
-            type: 'aisle',
-            code: aisle.code,
-            name: aisle.name,
-            x: COL_START + unposCol * COL_W,
-            y: ROW_START + 9,
-            widthM: 8,
-            heightM: 4,
-            rotationDeg: 0,
-            isBlocked: false,
-            capacityQty: 0,
-            aisleRef: aisle.id,
-            zOrder: 1,
-            isDirty: true,
-          });
-          unposCol++;
-        } else {
-          const existing = aisleByCode.get(aisle.code);
-          if (existing) {
-            existing.aisleRef = aisle.id;
-            existing.isDirty = true;
-          }
-        }
-
-        // Process bins
-        for (const bin of aisle.bins ?? []) {
-          if (!linkedBinIds.has(bin.id) && !binByCode.has(bin.code)) {
-            canvas.push({
-              id: `tmp-bin-${bin.id}`,
-              warehouseId: this.warehouseId,
-              parentId: null,
-              type: 'bin',
-              code: bin.code,
-              name: bin.code,
-              x: COL_START + unposCol * COL_W,
-              y: ROW_START + 14,
-              widthM: 2,
-              heightM: 1.5,
-              rotationDeg: 0,
-              isBlocked: bin.isBlocked,
-              capacityQty: bin.capacityQty,
-              capacityVolume: bin.capacityVolume,
-              allowedSkuTags: bin.allowedSkuTags,
-              barcode: bin.barcode,
-              binRef: bin.id,
-              zOrder: 2,
-              isDirty: true,
-            });
-            unposCol++;
+    this.warehouseService
+      .getLayout(this.warehouseId)
+      .pipe(catchError(() => of(null)))
+      .subscribe({
+        next: (layoutData) => {
+          this.isLoading.set(false);
+          if (!layoutData?.layout) {
+            this.showInitDialog.set(true);
           } else {
-            const existing = binByCode.get(bin.code);
-            if (existing) {
-              existing.binRef = bin.id;
-              existing.isDirty = true;
-            }
+            this.layout.set(layoutData.layout);
+            this.scale.set(layoutData.layout.scale || 50);
+            // Backend now returns ALL zone/aisle/bin entities (with layout positions)
+            // plus label/corridor objects. No separate structure fetch needed.
+            const canvas: CanvasObject[] = layoutData.objects.map((o: LayoutObject) => ({
+              ...o,
+              isDirty: false,
+            }));
+            this.objects.set(canvas);
           }
-        }
-      }
-    }
-
-    return canvas;
+        },
+        error: () => {
+          this.isLoading.set(false);
+          this.showInitDialog.set(true);
+        },
+      });
   }
 
   protected onInitLayout(): void {

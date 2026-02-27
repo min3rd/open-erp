@@ -42,19 +42,21 @@
         @if (hasDirty()) {
           <p-button
             icon="pi pi-save"
-            [label]="'structureDesigner.save' | transloco"
+            [rounded]="true"
             severity="primary"
             size="small"
             [loading]="isSaving()"
+            [pTooltip]="'structureDesigner.save' | transloco"
             (onClick)="saveAll()"
           />
         }
         @if (layout()) {
           <p-button
             icon="pi pi-plus"
-            [label]="'structureDesigner.addObject' | transloco"
+            [rounded]="true"
             severity="secondary"
             size="small"
+            [pTooltip]="'structureDesigner.addObject' | transloco"
             (onClick)="onAddObject('zone')"
           />
         }
@@ -244,6 +246,7 @@
             [style.top.px]="drawRect()?.y ?? 0"
             [style.width.px]="drawRect()?.w ?? 0"
             [style.height.px]="drawRect()?.h ?? 0"
+            [style.zIndex]="999"
           ></div>
         </div>
       </main>
@@ -317,16 +320,18 @@
             <div class="flex gap-1">
               <p-button
                 icon="pi pi-pencil"
-                [label]="'common.edit' | transloco"
+                [rounded]="true"
                 severity="secondary"
                 size="small"
-                class="flex-1"
+                [pTooltip]="'common.edit' | transloco"
                 (onClick)="onEditObject(selectedObject()!)"
               />
               <p-button
                 icon="pi pi-trash"
+                [rounded]="true"
                 severity="danger"
                 size="small"
+                [pTooltip]="'common.delete' | transloco"
                 (onClick)="promptDeleteObject(selectedObject()!)"
               />
             </div>

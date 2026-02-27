@@ -113,13 +113,15 @@ export class BinRepository {
       .findOneAndUpdate(
         { aisleId, code } as any,
         { $set: updateDoc },
-        { upsert: true, new: true, setDefaultsOnInsert: true, runValidators: false },
+        { upsert: true, new: true, setDefaultsOnInsert: true },
       )
       .exec() as Promise<BinDocument>;
   }
 
   async updateLayout(id: string, name: string, layout: Partial<LayoutPosition>): Promise<BinDocument | null> {
-    return this.binModel.findByIdAndUpdate(id, { $set: { name: name || undefined, layout } }, { new: true }).exec();
+    const update: Record<string, any> = { layout };
+    if (name) update['name'] = name;
+    return this.binModel.findByIdAndUpdate(id, { $set: update }, { new: true }).exec();
   }
 
   async clearLayout(id: string): Promise<BinDocument | null> {

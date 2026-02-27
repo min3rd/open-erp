@@ -84,7 +84,7 @@ export class AisleRepository {
       .findOneAndUpdate(
         { zoneId, code } as any,
         { $set: { name, layout } },
-        { upsert: true, new: true, setDefaultsOnInsert: true, runValidators: false },
+        { upsert: true, new: true, setDefaultsOnInsert: true },
       )
       .exec() as Promise<AisleDocument>;
   }
