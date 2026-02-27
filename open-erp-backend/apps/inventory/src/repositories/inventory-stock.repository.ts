@@ -208,4 +208,77 @@ export class InventoryStockRepository {
 
     return { items, total };
   }
+
+  async getWarehouseStockSummary(warehouseId: string) {
+    const result = await this.stockModel.aggregate([
+      { $match: { warehouseId: new Types.ObjectId(warehouseId) } },
+      {
+        $group: {
+          _id: null,
+          totalSkus: { $sum: 1 },
+          totalAvailable: { $sum: '$availableQuantity' },
+          totalReserved: { $sum: '$reservedQuantity' },
+          totalDamaged: { $sum: '$damagedQuantity' },
+          totalInTransit: { $sum: '$inTransitQuantity' },
+        },
+      },
+    ]);
+
+    const data = result[0] || {
+      totalSkus: 0,
+      totalAvailable: 0,
+      totalReserved: 0,
+      totalDamaged: 0,
+      totalInTransit: 0,
+    };
+
+    return {
+      warehouseId,
+      totalSkus: data.totalSkus,
+      totalAvailable: data.totalAvailable,
+      totalReserved: data.totalReserved,
+      totalDamaged: data.totalDamaged,
+      totalInTransit: data.totalInTransit,
+      totalOnHand: data.totalAvailable + data.totalReserved + data.totalDamaged,
+    };
+  }
+
+  async findExpiryLotsBySku(
+    skuId: string,
+    options: { skip?: number; limit?: number } = {},
+  ): Promise<{ items: any[]; total: number }> {
+    const { skip = 0, limit = 20 } = options;
+
+    const result = await this.stockModel.aggregate([
+      { $match: { productId: new Types.ObjectId(skuId) } },
+      { $unwind: '$lots' },
+      { $match: { 'lots.expiryDate': { $ne: null } } },
+      { $sort: { 'lots.expiryDate': 1 } },
+      {
+        $facet: {
+          items: [
+            { $skip: skip },
+            { $limit: limit },
+            {
+              $project: {
+                lotNumber: '$lots.lotNumber',
+                expiryDate: '$lots.expiryDate',
+                manufactureDate: '$lots.manufactureDate',
+                quantity: '$lots.quantity',
+                costPerUnit: '$lots.costPerUnit',
+                warehouseId: 1,
+                productId: 1,
+              },
+            },
+          ],
+          count: [{ $count: 'total' }],
+        },
+      },
+    ]);
+
+    const items = result[0]?.items || [];
+    const total = result[0]?.count[0]?.total || 0;
+
+    return { items, total };
+  }
 }
