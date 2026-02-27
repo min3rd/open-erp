@@ -611,34 +611,10 @@ export class InventoryService {
   }
 
   async getWarehouseStockSummary(warehouseId: string) {
-    const result = await this.stockRepository.findByWarehouse(warehouseId, {
-      skip: 0,
-      limit: 1000,
-    });
-
-    const items = result.items;
-    let totalAvailable = 0;
-    let totalReserved = 0;
-    let totalDamaged = 0;
-    let totalInTransit = 0;
-    let totalSkus = items.length;
-
-    for (const stock of items) {
-      totalAvailable += stock.availableQuantity || 0;
-      totalReserved += stock.reservedQuantity || 0;
-      totalDamaged += stock.damagedQuantity || 0;
-      totalInTransit += stock.inTransitQuantity || 0;
-    }
-
-    return {
+    const summary = await this.stockRepository.getWarehouseStockSummary(
       warehouseId,
-      totalSkus,
-      totalAvailable,
-      totalReserved,
-      totalDamaged,
-      totalInTransit,
-      totalOnHand: totalAvailable + totalReserved + totalDamaged,
-    };
+    );
+    return summary;
   }
 
   async getStockByLocation(
@@ -699,40 +675,15 @@ export class InventoryService {
     options: { page?: number; limit?: number } = {},
   ) {
     const { page = 1, limit = 20 } = options;
-    const skip = (page - 1) * limit;
 
-    // Get stock records that have lot info for this SKU
-    const result = await this.stockRepository.findByProduct(skuId, {
-      skip: 0,
-      limit: 1000,
+    const result = await this.stockRepository.findExpiryLotsBySku(skuId, {
+      skip: (page - 1) * limit,
+      limit,
     });
 
-    const lots: any[] = [];
-    for (const stock of result.items) {
-      if (stock.lots && stock.lots.length > 0) {
-        for (const lot of stock.lots) {
-          if (lot.expiryDate) {
-            lots.push({
-              ...lot,
-              warehouseId: stock.warehouseId,
-              productId: stock.productId,
-            });
-          }
-        }
-      }
-    }
-
-    // Sort by expiry date ascending
-    lots.sort(
-      (a, b) =>
-        new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime(),
-    );
-
-    const paginatedLots = lots.slice(skip, skip + limit);
-
     return {
-      items: paginatedLots,
-      total: lots.length,
+      items: result.items,
+      total: result.total,
       page,
       limit,
     };

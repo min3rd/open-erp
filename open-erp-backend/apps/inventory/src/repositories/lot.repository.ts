@@ -43,7 +43,12 @@ export class LotRepository {
     }
 
     const [items, total] = await Promise.all([
-      this.lotModel.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 }).exec(),
+      this.lotModel
+        .find(filter)
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .exec(),
       this.lotModel.countDocuments(filter).exec(),
     ]);
 
@@ -58,7 +63,12 @@ export class LotRepository {
     const query: any = { deletedAt: null, ...filter };
 
     const [items, total] = await Promise.all([
-      this.lotModel.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }).exec(),
+      this.lotModel
+        .find(query)
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .exec(),
       this.lotModel.countDocuments(query).exec(),
     ]);
 
