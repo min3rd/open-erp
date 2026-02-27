@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Aisle, AisleDocument } from '@shared/schemas';
+import { LayoutPosition } from '@shared/schemas';
 import { CreateAisleDto, UpdateAisleDto, QueryAisleDto } from '../dto/aisle.dto';
 
 @Injectable()
@@ -64,5 +65,35 @@ export class AisleRepository {
 
   async countByZone(zoneId: string): Promise<number> {
     return this.aisleModel.countDocuments({ zoneId } as any).exec();
+  }
+
+  async findAllByZoneIds(zoneIds: string[]): Promise<AisleDocument[]> {
+    return this.aisleModel
+      .find({ zoneId: { $in: zoneIds } } as any)
+      .sort({ sequence: 1, createdAt: 1 })
+      .exec();
+  }
+
+  async upsertByZoneAndCode(
+    zoneId: string,
+    code: string,
+    name: string,
+    layout: Partial<LayoutPosition>,
+  ): Promise<AisleDocument> {
+    return this.aisleModel
+      .findOneAndUpdate(
+        { zoneId, code } as any,
+        { $set: { name, layout } },
+        { upsert: true, new: true, setDefaultsOnInsert: true, runValidators: false },
+      )
+      .exec() as Promise<AisleDocument>;
+  }
+
+  async updateLayout(id: string, name: string, layout: Partial<LayoutPosition>): Promise<AisleDocument | null> {
+    return this.aisleModel.findByIdAndUpdate(id, { $set: { name, layout } }, { new: true }).exec();
+  }
+
+  async clearLayout(id: string): Promise<AisleDocument | null> {
+    return this.aisleModel.findByIdAndUpdate(id, { $set: { layout: null } }, { new: true }).exec();
   }
 }

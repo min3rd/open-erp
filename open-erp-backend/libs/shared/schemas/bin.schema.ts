@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, HydratedDocument, Schema as MongooseSchema } from 'mongoose';
+import { LayoutPosition, LayoutPositionSchema } from './layout.schema';
 
 export type BinDocument = HydratedDocument<Bin>;
 
@@ -116,6 +117,9 @@ export class Bin extends Document {
     default: null,
   })
   deletedAt?: Date;
+
+  @Prop({ type: LayoutPositionSchema, default: null })
+  layout?: LayoutPosition | null;
 }
 
 export const BinSchema = SchemaFactory.createForClass(Bin);

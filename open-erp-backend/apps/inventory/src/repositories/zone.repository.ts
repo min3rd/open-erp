@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Zone, ZoneDocument } from '@shared/schemas';
+import { LayoutPosition } from '@shared/schemas';
 import { CreateZoneDto, UpdateZoneDto, QueryZoneDto } from '../dto/zone.dto';
 
 @Injectable()
@@ -64,5 +65,29 @@ export class ZoneRepository {
 
   async countByWarehouse(warehouseId: string): Promise<number> {
     return this.zoneModel.countDocuments({ warehouseId } as any).exec();
+  }
+
+  async findAllByWarehouse(warehouseId: string): Promise<ZoneDocument[]> {
+    return this.zoneModel.find({ warehouseId } as any).sort({ sequence: 1, createdAt: 1 }).exec();
+  }
+
+  async upsertByCode(warehouseId: string, code: string, name: string, layout: Partial<LayoutPosition>): Promise<ZoneDocument> {
+    return this.zoneModel
+      .findOneAndUpdate(
+        { warehouseId, code } as any,
+        { $set: { name, layout } },
+        { upsert: true, new: true, setDefaultsOnInsert: true, runValidators: false },
+      )
+      .exec() as Promise<ZoneDocument>;
+  }
+
+  async updateLayout(id: string, name: string, layout: Partial<LayoutPosition>): Promise<ZoneDocument | null> {
+    return this.zoneModel
+      .findByIdAndUpdate(id, { $set: { name, layout } }, { new: true })
+      .exec();
+  }
+
+  async clearLayout(id: string): Promise<ZoneDocument | null> {
+    return this.zoneModel.findByIdAndUpdate(id, { $set: { layout: null } }, { new: true }).exec();
   }
 }
