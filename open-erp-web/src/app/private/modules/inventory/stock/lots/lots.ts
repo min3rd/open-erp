@@ -11,6 +11,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { SelectModule } from 'primeng/select';
 import { StockService, Lot } from '../../../../../../core/services/stock/stock.service';
+import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 @Component({
   selector: 'lots',
@@ -33,11 +34,13 @@ import { StockService, Lot } from '../../../../../../core/services/stock/stock.s
 export class Lots implements OnInit {
   private readonly stockService = inject(StockService);
 
+  protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
+
   lots = signal<Lot[]>([]);
   loading = signal(false);
   totalRecords = signal(0);
   page = signal(1);
-  limit = signal(20);
+  limit = signal(PAGE_SIZE_OPTIONS[0]);
   expiredFilter = signal<string>('');
 
   expiredOptions = [

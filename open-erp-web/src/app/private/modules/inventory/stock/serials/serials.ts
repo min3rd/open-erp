@@ -15,6 +15,7 @@ import {
   Serial,
   SerialStatus,
 } from '../../../../../../core/services/stock/stock.service';
+import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 @Component({
   selector: 'serials',
@@ -37,11 +38,13 @@ import {
 export class Serials implements OnInit {
   private readonly stockService = inject(StockService);
 
+  protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
+
   serials = signal<Serial[]>([]);
   loading = signal(false);
   totalRecords = signal(0);
   page = signal(1);
-  limit = signal(20);
+  limit = signal(PAGE_SIZE_OPTIONS[0]);
   statusFilter = signal<string>('');
 
   statusOptions = [

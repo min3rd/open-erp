@@ -30,7 +30,7 @@
     [totalRecords]="totalRecords()"
     [lazy]="true"
     (onLazyLoad)="onPageChange($event)"
-    [rowsPerPageOptions]="[10, 20, 50]"
+    [rowsPerPageOptions]="PAGE_SIZE_OPTIONS"
     [showCurrentPageReport]="true"
     [tableStyle]="{ 'min-width': '50rem' }"
     styleClass="p-datatable-sm p-datatable-gridlines"
