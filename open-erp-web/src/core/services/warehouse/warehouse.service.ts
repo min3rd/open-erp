@@ -260,6 +260,69 @@ export interface WarehouseStructure extends Warehouse {
   zones: ZoneWithAisles[];
 }
 
+// ===== Layout =====
+
+export type LayoutObjectType = 'zone' | 'aisle' | 'bin';
+
+export interface WarehouseLayout {
+  id: string;
+  warehouseId: string;
+  widthM: number;
+  lengthM: number;
+  units: string;
+  scale: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface LayoutObject {
+  id: string;
+  warehouseId: string;
+  parentId?: string | null;
+  type: LayoutObjectType;
+  code: string;
+  name: string;
+  x: number;
+  y: number;
+  widthM: number;
+  heightM: number;
+  rotationDeg: number;
+  barcode?: string;
+  isBlocked: boolean;
+  capacityQty: number;
+  capacityVolume?: number;
+  allowedSkuTags?: string[];
+  metadata?: Record<string, any>;
+  deletedAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  // UI-only fields (not persisted)
+  selected?: boolean;
+}
+
+export interface CreateLayoutDto {
+  widthM: number;
+  lengthM: number;
+  scale?: number;
+}
+
+export interface CreateLayoutObjectDto {
+  parentId?: string | null;
+  type: LayoutObjectType;
+  code: string;
+  name: string;
+  x?: number;
+  y?: number;
+  widthM: number;
+  heightM: number;
+  rotationDeg?: number;
+  barcode?: string;
+  isBlocked?: boolean;
+  capacityQty?: number;
+  capacityVolume?: number;
+  allowedSkuTags?: string[];
+}
+
 /**
  * Warehouse service - handles all warehouse-related API calls
  * Backend controller: apps/inventory/src/controllers/warehouse.controller.ts
@@ -606,5 +669,89 @@ export class WarehouseService {
     return this.http
       .post<ApiResponse<Bin>>(`${this.inventoryUrl}/bins/${id}/unblock`, {})
       .pipe(map((response) => response.data!));
+  }
+
+  // ===== Layout API =====
+
+  /**
+   * Get warehouse layout + all layout objects
+   * GET /warehouses/:warehouseId/layout
+   */
+  getLayout(warehouseId: string): Observable<{ layout: WarehouseLayout | null; objects: LayoutObject[] }> {
+    return this.http
+      .get<ApiResponse<{ layout: WarehouseLayout | null; objects: LayoutObject[] }>>(
+        `${this.baseUrl}/${warehouseId}/layout`,
+      )
+      .pipe(map((response) => response.data ?? { layout: null, objects: [] }));
+  }
+
+  /**
+   * Create initial layout for a warehouse
+   * POST /warehouses/:warehouseId/layout
+   */
+  createLayout(warehouseId: string, dto: CreateLayoutDto): Observable<WarehouseLayout> {
+    return this.http
+      .post<ApiResponse<{ item: WarehouseLayout }>>(`${this.baseUrl}/${warehouseId}/layout`, dto)
+      .pipe(map((response) => response.data?.item!));
+  }
+
+  /**
+   * Update warehouse layout metadata
+   * PUT /warehouses/:warehouseId/layout
+   */
+  updateLayout(warehouseId: string, dto: Partial<CreateLayoutDto>): Observable<WarehouseLayout> {
+    return this.http
+      .put<ApiResponse<{ item: WarehouseLayout }>>(`${this.baseUrl}/${warehouseId}/layout`, dto)
+      .pipe(map((response) => response.data?.item!));
+  }
+
+  /**
+   * Create a layout object
+   * POST /warehouses/:warehouseId/layout/objects
+   */
+  createLayoutObject(warehouseId: string, dto: CreateLayoutObjectDto): Observable<LayoutObject> {
+    return this.http
+      .post<ApiResponse<{ item: LayoutObject }>>(
+        `${this.baseUrl}/${warehouseId}/layout/objects`,
+        dto,
+      )
+      .pipe(map((response) => response.data?.item!));
+  }
+
+  /**
+   * Batch create/update layout objects
+   * POST /warehouses/:warehouseId/layout/objects/batch
+   */
+  batchSaveLayoutObjects(
+    warehouseId: string,
+    objects: Array<Partial<CreateLayoutObjectDto> & { id?: string }>,
+  ): Observable<LayoutObject[]> {
+    return this.http
+      .post<ApiResponse<LayoutObject[]>>(
+        `${this.baseUrl}/${warehouseId}/layout/objects/batch`,
+        { objects },
+      )
+      .pipe(map((response) => response.data ?? []));
+  }
+
+  /**
+   * Update a layout object (position, size, properties)
+   * PATCH /layout/objects/:id
+   */
+  updateLayoutObject(id: string, dto: Partial<CreateLayoutObjectDto>): Observable<LayoutObject> {
+    return this.http
+      .patch<ApiResponse<{ item: LayoutObject }>>(`${this.inventoryUrl}/layout/objects/${id}`, dto)
+      .pipe(map((response) => response.data?.item!));
+  }
+
+  /**
+   * Delete a layout object
+   * DELETE /layout/objects/:id
+   */
+  deleteLayoutObject(id: string, force = false): Observable<void> {
+    const params = force ? new HttpParams().set('force', 'true') : undefined;
+    return this.http
+      .delete<ApiResponse<null>>(`${this.inventoryUrl}/layout/objects/${id}`, { params })
+      .pipe(map(() => undefined));
   }
 }

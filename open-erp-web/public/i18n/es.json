@@ -1780,7 +1780,8 @@
       "view": "Ver",
       "edit": "Editar",
       "delete": "Eliminar",
-      "structure": "Ver Estructura"
+      "structure": "Ver Estructura",
+      "designer": "Diseñador de Estructura"
     },
     "mapContextMenu": {
       "createHere": "Crear Almacén Aquí",
@@ -2519,5 +2520,46 @@
     "legendEmpty": "Vacío",
     "legendFull": "Lleno",
     "legendBlocked": "Bloqueado"
+  },
+  "structureDesigner": {
+    "title": "Diseñador de Estructura de Almacén",
+    "noLayout": "No hay diseño definido para este almacén.",
+    "initLayout": "Inicializar Diseño",
+    "initLayoutHint": "Establezca las dimensiones físicas del almacén en metros.",
+    "layoutCreated": "Diseño creado exitosamente",
+    "save": "Guardar",
+    "saveSuccess": "Diseño guardado exitosamente",
+    "addObject": "Agregar Objeto",
+    "editObject": "Editar Objeto",
+    "layers": "Capas",
+    "inspector": "Inspector",
+    "create": "Crear",
+    "deleted": "Objeto eliminado",
+    "confirmDelete": "¿Eliminar objeto {{code}}? Esta acción no se puede deshacer.",
+    "deleteTitle": "Eliminar Objeto",
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar",
+    "resetView": "Restablecer vista",
+    "undo": "Deshacer (Ctrl+Z)",
+    "redo": "Rehacer (Ctrl+Y)",
+    "mode": {
+      "select": "Seleccionar / Mover",
+      "zone": "Dibujar Zona",
+      "aisle": "Dibujar Pasillo",
+      "bin": "Dibujar Contenedor"
+    },
+    "fields": {
+      "code": "Código",
+      "name": "Nombre",
+      "type": "Tipo",
+      "x": "Posición X (m)",
+      "y": "Posición Y (m)",
+      "widthM": "Ancho (m)",
+      "lengthM": "Largo (m)",
+      "heightM": "Alto (m)",
+      "capacityQty": "Capacidad (cant.)",
+      "barcode": "Código de barras",
+      "capacity": "Capacidad"
+    }
   }
 }

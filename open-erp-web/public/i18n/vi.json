@@ -1139,7 +1139,8 @@
     "contextMenu": {
       "view": "Xem",
       "edit": "Sửa",
-      "delete": "Xóa"
+      "delete": "Xóa",
+      "designer": "Thiết kế Cấu trúc"
     },
     "mapContextMenu": {
       "createHere": "Tạo Kho Tại Đây",
@@ -2177,6 +2178,47 @@
       "codePlaceholder": "vd. ky-thuat",
       "description": "Mô tả",
       "level": "Cấp độ"
+    }
+  },
+  "structureDesigner": {
+    "title": "Thiết kế Cấu trúc Kho",
+    "noLayout": "Kho chưa có bố cục. Hãy khởi tạo bố cục để bắt đầu thiết kế.",
+    "initLayout": "Khởi tạo Bố cục",
+    "initLayoutHint": "Đặt kích thước thực tế của kho hàng theo mét. Điều này xác định kích thước canvas cho trình thiết kế.",
+    "layoutCreated": "Tạo bố cục thành công",
+    "save": "Lưu",
+    "saveSuccess": "Đã lưu bố cục thành công",
+    "addObject": "Thêm Đối tượng",
+    "editObject": "Sửa Đối tượng",
+    "layers": "Lớp",
+    "inspector": "Thuộc tính",
+    "create": "Tạo",
+    "deleted": "Đã xóa đối tượng",
+    "confirmDelete": "Xóa đối tượng {{code}}? Hành động này không thể hoàn tác.",
+    "deleteTitle": "Xóa Đối tượng",
+    "zoomIn": "Phóng to",
+    "zoomOut": "Thu nhỏ",
+    "resetView": "Đặt lại tầm nhìn",
+    "undo": "Hoàn tác (Ctrl+Z)",
+    "redo": "Làm lại (Ctrl+Y)",
+    "mode": {
+      "select": "Chọn / Di chuyển",
+      "zone": "Vẽ Vùng",
+      "aisle": "Vẽ Lối đi",
+      "bin": "Vẽ Ô chứa"
+    },
+    "fields": {
+      "code": "Mã",
+      "name": "Tên",
+      "type": "Loại",
+      "x": "Vị trí X (m)",
+      "y": "Vị trí Y (m)",
+      "widthM": "Chiều rộng (m)",
+      "lengthM": "Chiều dài (m)",
+      "heightM": "Chiều cao (m)",
+      "capacityQty": "Sức chứa (số lượng)",
+      "barcode": "Mã vạch",
+      "capacity": "Sức chứa"
     }
   }
 }
