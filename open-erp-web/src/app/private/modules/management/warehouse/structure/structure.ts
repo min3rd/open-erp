@@ -306,6 +306,15 @@ export class WarehouseStructureExplorer implements OnInit {
     return 'border-green-400 dark:border-green-600 bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300';
   }
 
+  protected getBinTooltip(bin: Bin): string {
+    return bin.code + (bin.barcode ? ' | ' + bin.barcode : '');
+  }
+
+  protected getBinMapTooltip(bin: Bin): string {
+    const blockedLabel = this.translocoService.translate('warehouseStructure.legendBlocked');
+    return bin.code + '\n' + bin.currentQty + '/' + bin.capacityQty + (bin.isBlocked ? '\n🔒 ' + blockedLabel : '');
+  }
+
   protected getBinMapLabel(bin: Bin): string {
     if (bin.isBlocked) return '🔒';
     const ratio = bin.capacityQty > 0 ? bin.currentQty / bin.capacityQty : 0;

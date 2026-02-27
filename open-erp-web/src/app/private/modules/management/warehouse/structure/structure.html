@@ -136,7 +136,7 @@
                         <div
                           class="bin-card border rounded px-2 py-1 text-xs cursor-pointer hover:shadow-sm transition-shadow"
                           [class]="getBinOccupancyClass(bin)"
-                          [pTooltip]="bin.code + (bin.barcode ? ' | ' + bin.barcode : '')"
+                          [pTooltip]="getBinTooltip(bin)"
                         >
                           <div class="font-mono font-medium">{{ bin.code }}</div>
                           <div class="opacity-75">{{ bin.currentQty }}/{{ bin.capacityQty }}</div>
@@ -238,7 +238,7 @@
                     <div
                       class="bin-cell w-10 h-10 border rounded flex flex-col items-center justify-center text-center cursor-pointer hover:opacity-80 transition-opacity"
                       [class]="getBinOccupancyClass(bin)"
-                      [pTooltip]="bin.code + '\n' + bin.currentQty + '/' + bin.capacityQty + (bin.isBlocked ? '\n🔒 Blocked' : '')"
+                      [pTooltip]="getBinMapTooltip(bin)"
                       tooltipPosition="top"
                     >
                       <span class="font-mono text-[9px] leading-none font-semibold">{{ bin.code }}</span>
