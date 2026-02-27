@@ -200,14 +200,19 @@
                 </div>
               </div>
 
-              <!-- Map Preview -->
+              <!-- Map Preview / Picker -->
               <div>
                 <label class="block text-sm font-medium mb-2">
                   {{ 'warehouseForm.fields.mapPreview.label' | transloco }}
                 </label>
                 <div class="h-64 border border-surface-200 dark:border-surface-700 rounded">
-                  <core-map [geometry]="mapGeometry()" />
+                  <core-map [geometry]="mapGeometry()" (mapClick)="onMapClick($event)" />
                 </div>
+                @if (!isViewMode()) {
+                  <small class="text-surface-500">
+                    {{ 'warehouseForm.fields.mapPreview.hint' | transloco }}
+                  </small>
+                }
               </div>
             </div>
           </p-accordioncontent>

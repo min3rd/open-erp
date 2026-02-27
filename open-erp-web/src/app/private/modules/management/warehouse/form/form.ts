@@ -24,7 +24,6 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { Accordion, AccordionPanel, AccordionHeader, AccordionContent } from 'primeng/accordion';
 
 // Core components
-import { GeoEditorComponent } from '../../../../../../core/components/geo-editor/geo-editor.component';
 import { MapComponent } from '../../../../../../core/components/map/map.component';
 
 // Core services
@@ -349,6 +348,22 @@ export class WarehouseForm implements OnInit {
         latitude: geometry.coordinates[1],
       });
     }
+  }
+
+  /**
+   * Handle map click to pick a point location
+   */
+  protected onMapClick(event: { lat: number; lng: number }): void {
+    this.form.patchValue({
+      latitude: event.lat,
+      longitude: event.lng,
+    });
+
+    const pointGeometry: GeoJSON.Point = {
+      type: 'Point',
+      coordinates: [event.lng, event.lat],
+    };
+    this.currentGeometry.set(pointGeometry);
   }
 
   /**

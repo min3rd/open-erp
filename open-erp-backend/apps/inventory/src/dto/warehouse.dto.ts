@@ -55,6 +55,16 @@ export class WardDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @ApiPropertyOptional({ example: '01', description: 'Province code (populated server-side if omitted)' })
+  @IsOptional()
+  @IsString()
+  provinceCode?: string;
+
+  @ApiPropertyOptional({ example: '001', description: 'District code (populated server-side if available)' })
+  @IsOptional()
+  @IsString()
+  districtCode?: string;
 }
 
 /**

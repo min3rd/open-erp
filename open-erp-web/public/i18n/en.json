@@ -1748,7 +1748,8 @@
         "label": "Geometry Editor"
       },
       "mapPreview": {
-        "label": "Map Preview"
+        "label": "Map Preview",
+        "hint": "Click on the map to set the warehouse location"
       },
       "totalAreaM2": {
         "label": "Total Area (m²)",
