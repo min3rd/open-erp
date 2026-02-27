@@ -126,7 +126,7 @@ export class StructureDesigner implements OnInit, OnDestroy {
 
   // Drawing in progress
   private drawStart: { x: number; y: number } | null = null;
-  private drawRect = signal<{ x: number; y: number; w: number; h: number } | null>(null);
+  public drawRect = signal<{ x: number; y: number; w: number; h: number } | null>(null);
 
   // Drag state
   private dragStart: { mouseX: number; mouseY: number; objX: number; objY: number } | null = null;
