@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -17,6 +17,8 @@ import {
 
 @Injectable()
 export class LayoutRepository {
+  private readonly logger = new Logger(LayoutRepository.name);
+
   constructor(
     @InjectModel(WarehouseLayout.name)
     private readonly layoutModel: Model<WarehouseLayoutDocument>,
@@ -75,6 +77,40 @@ export class LayoutRepository {
     code: string,
   ): Promise<LayoutObjectDocument | null> {
     return this.objectModel.findOne({ warehouseId, code } as any).exec();
+  }
+
+  /**
+   * Upsert a layout object by (warehouseId, code).
+   * If `id` is provided and the document exists, it updates by ID.
+   * Otherwise it does a findOneAndUpdate with upsert=true keyed on (warehouseId, code),
+   * which prevents duplicate-key errors when the same object is saved more than once.
+   */
+  async upsertObject(
+    warehouseId: string,
+    dto: CreateLayoutObjectDto & { id?: string },
+  ): Promise<LayoutObjectDocument> {
+    const { id, ...data } = dto as any;
+
+    // If an existing ID is provided, try to update it directly
+    if (id) {
+      const byId = await this.objectModel
+        .findByIdAndUpdate(id, { $set: data }, { new: true, runValidators: true })
+        .exec();
+      if (byId) return byId;
+      // ID provided but not found: log a warning and fall through to upsert-by-code
+      this.logger.warn(
+        `upsertObject: ID '${id}' not found for code '${dto.code}' — falling back to upsert-by-code`,
+      );
+    }
+
+    // Upsert by (warehouseId, code) – safe even when called concurrently
+    return this.objectModel
+      .findOneAndUpdate(
+        { warehouseId, code: dto.code } as any,
+        { $set: { ...data, warehouseId }, $setOnInsert: { deletedAt: null } },
+        { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true },
+      )
+      .exec() as Promise<LayoutObjectDocument>;
   }
 
   async createObject(

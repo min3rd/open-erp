@@ -3595,7 +3595,10 @@
       "heightM": "Height (m)",
       "capacityQty": "Capacity (qty)",
       "barcode": "Barcode",
-      "capacity": "Capacity"
-    }
+      "capacity": "Capacity",
+      "parent": "Parent"
+    },
+    "noParent": "No parent",
+    "autoDetected": "auto-detected"
   }
 }
