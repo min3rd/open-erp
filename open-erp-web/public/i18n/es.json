@@ -2568,5 +2568,47 @@
     },
     "noParent": "Sin padre",
     "autoDetected": "detectado automáticamente"
+  },
+  "stock": {
+    "title": "Gestión de Inventario",
+    "selectWarehouse": "Seleccionar Almacén",
+    "refresh": "Actualizar",
+    "searchPlaceholder": "Buscar por SKU o nombre de producto...",
+    "totalSkus": "Total SKUs",
+    "available": "Disponible",
+    "reserved": "Reservado",
+    "inTransit": "En Tránsito",
+    "damaged": "Dañado",
+    "onHand": "En Mano",
+    "sku": "SKU",
+    "productName": "Producto",
+    "unit": "Unidad",
+    "location": "Ubicación",
+    "status": "Estado",
+    "inStock": "En Stock",
+    "outOfStock": "Sin Stock",
+    "noData": "No se encontraron datos de inventario",
+    "pageReport": "Mostrando {first} a {last} de {totalRecords}",
+    "lots": {
+      "title": "Gestión de Lotes",
+      "lotCode": "Código de Lote",
+      "skuId": "ID de SKU",
+      "totalQty": "Cantidad Total",
+      "remainingQty": "Restante",
+      "manufacturedAt": "Fabricado",
+      "expiryAt": "Vencimiento",
+      "expired": "Vencido",
+      "valid": "Válido",
+      "filterExpiry": "Filtrar por vencimiento"
+    },
+    "serials": {
+      "title": "Gestión de Números de Serie",
+      "serialNumber": "Número de Serie",
+      "skuId": "ID de SKU",
+      "binId": "Contenedor",
+      "lotId": "Lote",
+      "assignedAt": "Asignado",
+      "filterStatus": "Filtrar por estado"
+    }
   }
 }

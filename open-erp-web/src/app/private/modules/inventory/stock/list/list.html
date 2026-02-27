@@ -1,0 +1,127 @@
+<div class="flex flex-col gap-3 p-3" *transloco="let t">
+  <!-- Header -->
+  <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
+    <h2 class="text-lg font-semibold m-0">{{ t('stock.title') }}</h2>
+    <div class="flex items-center gap-2 flex-wrap">
+      <p-select
+        [options]="warehouseOptions()"
+        [ngModel]="selectedWarehouseId()"
+        (ngModelChange)="onWarehouseChange($event)"
+        optionLabel="label"
+        optionValue="value"
+        [placeholder]="t('stock.selectWarehouse')"
+        class="w-64"
+      />
+      <p-button
+        icon="pi pi-refresh"
+        [rounded]="true"
+        [text]="true"
+        severity="secondary"
+        (click)="refresh()"
+        [pTooltip]="t('stock.refresh')"
+      />
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  @if (summary()) {
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-3 text-center">
+        <div class="text-sm text-surface-500">{{ t('stock.totalSkus') }}</div>
+        <div class="text-xl font-bold mt-1">{{ summary()!.totalSkus }}</div>
+      </div>
+      <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 text-center">
+        <div class="text-sm text-green-600">{{ t('stock.available') }}</div>
+        <div class="text-xl font-bold text-green-700 mt-1">{{ summary()!.totalAvailable }}</div>
+      </div>
+      <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3 text-center">
+        <div class="text-sm text-orange-600">{{ t('stock.reserved') }}</div>
+        <div class="text-xl font-bold text-orange-700 mt-1">{{ summary()!.totalReserved }}</div>
+      </div>
+      <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 text-center">
+        <div class="text-sm text-blue-600">{{ t('stock.inTransit') }}</div>
+        <div class="text-xl font-bold text-blue-700 mt-1">{{ summary()!.totalInTransit }}</div>
+      </div>
+      <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-3 text-center">
+        <div class="text-sm text-red-600">{{ t('stock.damaged') }}</div>
+        <div class="text-xl font-bold text-red-700 mt-1">{{ summary()!.totalDamaged }}</div>
+      </div>
+      <div class="bg-surface-100 dark:bg-surface-700 rounded-lg p-3 text-center">
+        <div class="text-sm text-surface-500">{{ t('stock.onHand') }}</div>
+        <div class="text-xl font-bold mt-1">{{ summary()!.totalOnHand }}</div>
+      </div>
+    </div>
+  }
+
+  <!-- Search -->
+  <div class="flex items-center gap-2">
+    <p-iconfield class="flex-1">
+      <p-inputicon styleClass="pi pi-search" />
+      <input
+        type="text"
+        pInputText
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        [placeholder]="t('stock.searchPlaceholder')"
+        class="w-full"
+      />
+    </p-iconfield>
+  </div>
+
+  <!-- Stock Table -->
+  <p-table
+    [value]="filteredStocks()"
+    [loading]="loading()"
+    [paginator]="true"
+    [rows]="limit()"
+    [totalRecords]="totalRecords()"
+    [lazy]="true"
+    (onLazyLoad)="onPageChange($event)"
+    [rowsPerPageOptions]="[10, 20, 50]"
+    [showCurrentPageReport]="true"
+    [tableStyle]="{ 'min-width': '60rem' }"
+    styleClass="p-datatable-sm p-datatable-gridlines"
+    [currentPageReportTemplate]="t('stock.pageReport')"
+  >
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="productSnapshot.sku" class="w-32">{{ t('stock.sku') }}</th>
+        <th>{{ t('stock.productName') }}</th>
+        <th class="w-20 text-center">{{ t('stock.unit') }}</th>
+        <th class="w-28 text-right">{{ t('stock.onHand') }}</th>
+        <th class="w-28 text-right">{{ t('stock.available') }}</th>
+        <th class="w-28 text-right">{{ t('stock.reserved') }}</th>
+        <th class="w-28 text-right">{{ t('stock.inTransit') }}</th>
+        <th class="w-28 text-right">{{ t('stock.damaged') }}</th>
+        <th class="w-32">{{ t('stock.location') }}</th>
+        <th class="w-20 text-center">{{ t('stock.status') }}</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-stock>
+      <tr>
+        <td class="font-mono text-xs">{{ stock.productSnapshot.sku }}</td>
+        <td>{{ stock.productSnapshot.name }}</td>
+        <td class="text-center">{{ stock.productSnapshot.unit }}</td>
+        <td class="text-right font-semibold">{{ getOnHand(stock) }}</td>
+        <td class="text-right text-green-600">{{ stock.availableQuantity }}</td>
+        <td class="text-right text-orange-600">{{ stock.reservedQuantity }}</td>
+        <td class="text-right text-blue-600">{{ stock.inTransitQuantity }}</td>
+        <td class="text-right text-red-600">{{ stock.damagedQuantity }}</td>
+        <td class="text-xs">{{ stock.location || '-' }}</td>
+        <td class="text-center">
+          <p-tag [severity]="getStockSeverity(stock)" [value]="stock.availableQuantity > 0 ? t('stock.inStock') : t('stock.outOfStock')" />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="10" class="text-center p-6">
+          <div class="flex flex-col items-center gap-2">
+            <i class="pi pi-box text-4xl text-surface-400"></i>
+            <span class="text-surface-500">{{ t('stock.noData') }}</span>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

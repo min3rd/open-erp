@@ -1,0 +1,71 @@
+<div class="flex flex-col gap-3 p-3" *transloco="let t">
+  <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
+    <h2 class="text-lg font-semibold m-0">{{ t('stock.serials.title') }}</h2>
+    <div class="flex items-center gap-2">
+      <p-select
+        [options]="statusOptions"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="statusFilter.set($event); onFilterChange()"
+        optionLabel="label"
+        optionValue="value"
+        [placeholder]="t('stock.serials.filterStatus')"
+        class="w-40"
+      />
+      <p-button
+        icon="pi pi-refresh"
+        [rounded]="true"
+        [text]="true"
+        severity="secondary"
+        (click)="loadSerials()"
+        [pTooltip]="t('stock.refresh')"
+      />
+    </div>
+  </div>
+
+  <p-table
+    [value]="serials()"
+    [loading]="loading()"
+    [paginator]="true"
+    [rows]="limit()"
+    [totalRecords]="totalRecords()"
+    [lazy]="true"
+    (onLazyLoad)="onPageChange($event)"
+    [rowsPerPageOptions]="[10, 20, 50]"
+    [showCurrentPageReport]="true"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    styleClass="p-datatable-sm p-datatable-gridlines"
+  >
+    <ng-template #header>
+      <tr>
+        <th>{{ t('stock.serials.serialNumber') }}</th>
+        <th>{{ t('stock.serials.skuId') }}</th>
+        <th class="text-center">{{ t('stock.status') }}</th>
+        <th>{{ t('stock.serials.binId') }}</th>
+        <th>{{ t('stock.serials.lotId') }}</th>
+        <th>{{ t('stock.serials.assignedAt') }}</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-serial>
+      <tr>
+        <td class="font-mono text-xs">{{ serial.serial }}</td>
+        <td class="text-xs">{{ serial.skuId }}</td>
+        <td class="text-center">
+          <p-tag [severity]="getStatusSeverity(serial.status)" [value]="serial.status" />
+        </td>
+        <td class="text-xs">{{ serial.binId || '-' }}</td>
+        <td class="text-xs">{{ serial.lotId || '-' }}</td>
+        <td class="text-xs">{{ serial.assignedAt ? (serial.assignedAt | date:'mediumDate') : '-' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="6" class="text-center p-6">
+          <div class="flex flex-col items-center gap-2">
+            <i class="pi pi-barcode text-4xl text-surface-400"></i>
+            <span class="text-surface-500">{{ t('stock.noData') }}</span>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

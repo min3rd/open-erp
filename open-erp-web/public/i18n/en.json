@@ -3601,5 +3601,47 @@
     },
     "noParent": "No parent",
     "autoDetected": "auto-detected"
+  },
+  "stock": {
+    "title": "Stock Management",
+    "selectWarehouse": "Select Warehouse",
+    "refresh": "Refresh",
+    "searchPlaceholder": "Search by SKU or product name...",
+    "totalSkus": "Total SKUs",
+    "available": "Available",
+    "reserved": "Reserved",
+    "inTransit": "In Transit",
+    "damaged": "Damaged",
+    "onHand": "On Hand",
+    "sku": "SKU",
+    "productName": "Product",
+    "unit": "Unit",
+    "location": "Location",
+    "status": "Status",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "noData": "No stock data found",
+    "pageReport": "Showing {first} to {last} of {totalRecords}",
+    "lots": {
+      "title": "Lot Management",
+      "lotCode": "Lot Code",
+      "skuId": "SKU ID",
+      "totalQty": "Total Qty",
+      "remainingQty": "Remaining",
+      "manufacturedAt": "Manufactured",
+      "expiryAt": "Expiry",
+      "expired": "Expired",
+      "valid": "Valid",
+      "filterExpiry": "Filter by expiry"
+    },
+    "serials": {
+      "title": "Serial Number Management",
+      "serialNumber": "Serial Number",
+      "skuId": "SKU ID",
+      "binId": "Bin",
+      "lotId": "Lot",
+      "assignedAt": "Assigned",
+      "filterStatus": "Filter by status"
+    }
   }
 }
