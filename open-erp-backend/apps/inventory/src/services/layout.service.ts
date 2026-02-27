@@ -284,8 +284,12 @@ export class LayoutService {
         if (!zone) {
           zone = await this.zoneRepository.upsertByCode(warehouseId, obj.code, obj.name, layout);
         }
-        if (obj.id) idMap.set(obj.id, zone!.id);
-        results.push(this.zoneToObject(zone!, warehouseId));
+        if (!zone) {
+          this.logger.warn(`Failed to upsert zone '${obj.code}', skipping`);
+          continue;
+        }
+        if (obj.id) idMap.set(obj.id, zone.id);
+        results.push(this.zoneToObject(zone, warehouseId));
       } else if (obj.type === 'aisle') {
         // Resolve zone ID from parentId (support tmp-ids via idMap)
         const rawParent = obj.parentId;
@@ -304,8 +308,12 @@ export class LayoutService {
         if (!aisle) {
           aisle = await this.aisleRepository.upsertByZoneAndCode(zoneId, obj.code, obj.name, layout);
         }
-        if (obj.id) idMap.set(obj.id, aisle!.id);
-        results.push(this.aisleToObject(aisle!, warehouseId, zoneId));
+        if (!aisle) {
+          this.logger.warn(`Failed to upsert aisle '${obj.code}', skipping`);
+          continue;
+        }
+        if (obj.id) idMap.set(obj.id, aisle.id);
+        results.push(this.aisleToObject(aisle, warehouseId, zoneId));
       } else if (obj.type === 'bin') {
         const rawParent = obj.parentId;
         const aisleId = rawParent ? (idMap.get(rawParent) ?? rawParent) : null;
@@ -328,8 +336,12 @@ export class LayoutService {
             allowedSkuTags: obj.allowedSkuTags,
           });
         }
-        if (obj.id) idMap.set(obj.id, bin!.id);
-        results.push(this.binToObject(bin!, warehouseId, aisleId));
+        if (!bin) {
+          this.logger.warn(`Failed to upsert bin '${obj.code}', skipping`);
+          continue;
+        }
+        if (obj.id) idMap.set(obj.id, bin.id);
+        results.push(this.binToObject(bin, warehouseId, aisleId));
       } else {
         // label/corridor — use layout_objects collection
         const saved = await this.layoutRepository.upsertObject(warehouseId, obj);
@@ -419,13 +431,13 @@ export class LayoutService {
   }
 
   private buildLayoutFromDto(dto: UpdateLayoutObjectDto): Partial<LayoutPosition> {
-    return {
-      x: dto.x ?? undefined,
-      y: dto.y ?? undefined,
-      widthM: dto.widthM ?? undefined,
-      heightM: dto.heightM ?? undefined,
-      rotationDeg: dto.rotationDeg ?? undefined,
-      zOrder: dto.zOrder ?? undefined,
-    };
+    const layout: Partial<LayoutPosition> = {};
+    if (dto.x !== undefined) layout.x = dto.x;
+    if (dto.y !== undefined) layout.y = dto.y;
+    if (dto.widthM !== undefined) layout.widthM = dto.widthM;
+    if (dto.heightM !== undefined) layout.heightM = dto.heightM;
+    if (dto.rotationDeg !== undefined) layout.rotationDeg = dto.rotationDeg;
+    if (dto.zOrder !== undefined) layout.zOrder = dto.zOrder;
+    return layout;
   }
 }
