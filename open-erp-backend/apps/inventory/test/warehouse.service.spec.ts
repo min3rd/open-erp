@@ -49,6 +49,7 @@ describe('WarehouseService', () => {
     restore: jest.fn(),
     provinceExists: jest.fn(),
     wardExists: jest.fn(),
+    getWard: jest.fn(),
     getAllProvinces: jest.fn(),
     getWardsByProvince: jest.fn(),
     findNearby: jest.fn(),
@@ -109,9 +110,16 @@ describe('WarehouseService', () => {
       region: Region.NORTHERN,
     };
 
-    it('should create a warehouse successfully', async () => {
+    const mockWardDoc = {
+      code: '00001',
+      name: 'Phúc Xá',
+      provinceCode: '01',
+      districtCode: '001',
+    };
+
+    it('should create a warehouse successfully and populate ward.provinceCode', async () => {
       mockRepository.provinceExists.mockResolvedValue(true);
-      mockRepository.wardExists.mockResolvedValue(true);
+      mockRepository.getWard.mockResolvedValue(mockWardDoc);
       mockRepository.findByCode.mockResolvedValue(null);
       mockRepository.create.mockResolvedValue(mockWarehouse);
 
@@ -119,12 +127,18 @@ describe('WarehouseService', () => {
 
       expect(result).toEqual(mockWarehouse);
       expect(mockRepository.provinceExists).toHaveBeenCalledWith('01');
-      expect(mockRepository.wardExists).toHaveBeenCalledWith('00001', '01');
+      expect(mockRepository.getWard).toHaveBeenCalledWith('00001', '01');
       expect(mockRepository.findByCode).toHaveBeenCalledWith(
         'WH-HN-001',
         undefined,
       );
-      expect(mockRepository.create).toHaveBeenCalledWith(createDto, 'user-id');
+      // create() receives the enriched DTO with provinceCode populated
+      expect(mockRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ward: expect.objectContaining({ code: '00001', provinceCode: '01' }),
+        }),
+        'user-id',
+      );
     });
 
     it('should throw BadRequestException if province does not exist', async () => {
@@ -138,17 +152,17 @@ describe('WarehouseService', () => {
 
     it('should throw BadRequestException if ward does not exist', async () => {
       mockRepository.provinceExists.mockResolvedValue(true);
-      mockRepository.wardExists.mockResolvedValue(false);
+      mockRepository.getWard.mockResolvedValue(null);
 
       await expect(service.create(createDto, 'user-id')).rejects.toThrow(
         BadRequestException,
       );
-      expect(mockRepository.wardExists).toHaveBeenCalledWith('00001', '01');
+      expect(mockRepository.getWard).toHaveBeenCalledWith('00001', '01');
     });
 
     it('should throw ConflictException if warehouse code already exists', async () => {
       mockRepository.provinceExists.mockResolvedValue(true);
-      mockRepository.wardExists.mockResolvedValue(true);
+      mockRepository.getWard.mockResolvedValue(mockWardDoc);
       mockRepository.findByCode.mockResolvedValue(mockWarehouse);
 
       await expect(service.create(createDto, 'user-id')).rejects.toThrow(
@@ -168,7 +182,7 @@ describe('WarehouseService', () => {
       };
 
       mockRepository.provinceExists.mockResolvedValue(true);
-      mockRepository.wardExists.mockResolvedValue(true);
+      mockRepository.getWard.mockResolvedValue(mockWardDoc);
       mockRepository.findByCode.mockResolvedValue(null);
 
       await expect(service.create(invalidDto, 'user-id')).rejects.toThrow(
@@ -184,7 +198,7 @@ describe('WarehouseService', () => {
       };
 
       mockRepository.provinceExists.mockResolvedValue(true);
-      mockRepository.wardExists.mockResolvedValue(true);
+      mockRepository.getWard.mockResolvedValue(mockWardDoc);
       mockRepository.findByCode.mockResolvedValue(null);
 
       await expect(service.create(invalidDto, 'user-id')).rejects.toThrow(
@@ -222,7 +236,7 @@ describe('WarehouseService', () => {
 
       // First create - should succeed
       mockRepository.provinceExists.mockResolvedValue(true);
-      mockRepository.wardExists.mockResolvedValue(true);
+      mockRepository.getWard.mockResolvedValue(mockWardDoc);
       mockRepository.findByCode.mockResolvedValueOnce(null); // First code check
       mockRepository.create.mockResolvedValueOnce(firstWarehouse);
 
@@ -239,7 +253,7 @@ describe('WarehouseService', () => {
       // Verify both calls used the same province and ward
       expect(mockRepository.create).toHaveBeenCalledTimes(2);
       expect(mockRepository.provinceExists).toHaveBeenCalledWith('01');
-      expect(mockRepository.wardExists).toHaveBeenCalledWith('00001', '01');
+      expect(mockRepository.getWard).toHaveBeenCalledWith('00001', '01');
     });
   });
 
@@ -318,16 +332,22 @@ describe('WarehouseService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('should validate province if provided in update', async () => {
+    it('should validate province and ward if provided in update and populate provinceCode', async () => {
       const updateWithProvince = {
         ...updateDto,
         province: { code: '79', name: 'Hồ Chí Minh' },
         ward: { code: '26734', name: 'Tân Định' },
       };
 
+      const mockWardDoc = {
+        code: '26734',
+        name: 'Tân Định',
+        provinceCode: '79',
+      };
+
       mockRepository.findById.mockResolvedValue(mockWarehouse);
       mockRepository.provinceExists.mockResolvedValue(true);
-      mockRepository.wardExists.mockResolvedValue(true);
+      mockRepository.getWard.mockResolvedValue(mockWardDoc);
       mockRepository.update.mockResolvedValue({
         ...mockWarehouse,
         ...updateWithProvince,
@@ -340,7 +360,14 @@ describe('WarehouseService', () => {
       );
 
       expect(mockRepository.provinceExists).toHaveBeenCalledWith('79');
-      expect(mockRepository.wardExists).toHaveBeenCalledWith('26734', '79');
+      expect(mockRepository.getWard).toHaveBeenCalledWith('26734', '79');
+      expect(mockRepository.update).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+        expect.objectContaining({
+          ward: expect.objectContaining({ code: '26734', provinceCode: '79' }),
+        }),
+        'user-id',
+      );
     });
   });
 

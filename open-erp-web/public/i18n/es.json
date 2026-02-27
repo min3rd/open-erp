@@ -1875,7 +1875,8 @@
         "label": "Editor de Geometría"
       },
       "mapPreview": {
-        "label": "Vista Previa del Mapa"
+        "label": "Vista Previa del Mapa",
+        "hint": "Haga clic en el mapa para establecer la ubicación del almacén"
       },
       "totalAreaM2": {
         "label": "Área Total (m²)",

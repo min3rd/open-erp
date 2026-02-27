@@ -45,16 +45,11 @@ export class WarehouseService {
       );
     }
 
-    // Validate ward exists and belongs to the province
-    const wardExists = await this.warehouseRepository.wardExists(
-      createDto.ward.code,
-      createDto.province.code,
-    );
-    if (!wardExists) {
-      throw new BadRequestException(
-        `Ward with code ${createDto.ward.code} does not exist in province ${createDto.province.code}`,
-      );
-    }
+    // Validate ward exists and belongs to the province; populate provinceCode/districtCode
+    createDto.ward = {
+      ...createDto.ward,
+      ...(await this.resolveWardSnapshot(createDto.ward.code, createDto.province.code)),
+    };
 
     // Check if warehouse code already exists
     const existingWarehouse = await this.warehouseRepository.findByCode(
@@ -200,17 +195,12 @@ export class WarehouseService {
       }
     }
 
-    // Validate ward if provided
+    // Validate ward if provided; populate provinceCode/districtCode
     if (updateDto.ward && updateDto.province) {
-      const wardExists = await this.warehouseRepository.wardExists(
-        updateDto.ward.code,
-        updateDto.province.code,
-      );
-      if (!wardExists) {
-        throw new BadRequestException(
-          `Ward with code ${updateDto.ward.code} does not exist in province ${updateDto.province.code}`,
-        );
-      }
+      updateDto.ward = {
+        ...updateDto.ward,
+        ...(await this.resolveWardSnapshot(updateDto.ward.code, updateDto.province.code)),
+      };
     }
 
     // Check for code uniqueness if code is being updated
@@ -404,6 +394,28 @@ export class WarehouseService {
     return {
       ...warehouse.toJSON(),
       zones: structure,
+    };
+  }
+
+  /**
+   * Validate that a ward exists in a province and return it enriched with provinceCode/districtCode.
+   * Throws BadRequestException if the ward is not found.
+   */
+  private async resolveWardSnapshot(
+    wardCode: string,
+    provinceCode: string,
+  ): Promise<{ code: string; name: string; provinceCode: string; districtCode?: string }> {
+    const wardDoc = await this.warehouseRepository.getWard(wardCode, provinceCode);
+    if (!wardDoc) {
+      throw new BadRequestException(
+        `Ward with code ${wardCode} does not exist in province ${provinceCode}`,
+      );
+    }
+    return {
+      code: wardDoc.code,
+      name: wardDoc.name,
+      provinceCode: wardDoc.provinceCode,
+      districtCode: wardDoc.districtCode,
     };
   }
 }

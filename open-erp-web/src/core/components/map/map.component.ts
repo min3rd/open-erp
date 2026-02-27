@@ -64,6 +64,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   // Output events
   readonly geometryClick = output<{ lat: number; lng: number; layer: L.Layer }>();
   readonly backgroundClick = output<{ lat: number; lng: number; layer: L.Layer }>();
+  readonly mapClick = output<{ lat: number; lng: number }>();
 
   private map: L.Map | null = null;
   private geoJsonLayer: L.GeoJSON | null = null;
@@ -136,6 +137,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     // Add default base layer
     this.currentBaseLayer = this.baseLayers['osm'];
     this.currentBaseLayer.addTo(this.map);
+
+    // Emit mapClick when user clicks anywhere on the map
+    this.map.on('click', (e: L.LeafletMouseEvent) => {
+      this.mapClick.emit({ lat: e.latlng.lat, lng: e.latlng.lng });
+    });
 
     // Add initial geometries if provided
     const initialBgGeom = this.backgroundGeometry();
