@@ -6,6 +6,9 @@ import {
   Logger,
 } from '@nestjs/common';
 import { LayoutRepository } from '../repositories/layout.repository';
+import { ZoneRepository } from '../repositories/zone.repository';
+import { AisleRepository } from '../repositories/aisle.repository';
+import { BinRepository } from '../repositories/bin.repository';
 import {
   CreateLayoutDto,
   UpdateLayoutDto,
@@ -23,6 +26,9 @@ export class LayoutService {
   constructor(
     private readonly layoutRepository: LayoutRepository,
     private readonly warehouseRepository: WarehouseRepository,
+    private readonly zoneRepository: ZoneRepository,
+    private readonly aisleRepository: AisleRepository,
+    private readonly binRepository: BinRepository,
   ) {}
 
   // ─── Layout ────────────────────────────────────────────────────────────────
@@ -179,10 +185,120 @@ export class LayoutService {
       throw new NotFoundException(`Warehouse with ID ${warehouseId} not found`);
     }
 
-    // Upsert each object by (warehouseId, code) to prevent duplicate-key errors
-    // when the same save is triggered twice or an object has already been persisted.
-    return Promise.all(
-      objects.map((obj) => this.layoutRepository.upsertObject(warehouseId, obj)),
-    );
+    // Process sequentially so zone refs are available before aisles/bins are saved
+    const results: LayoutObjectDocument[] = [];
+    for (const obj of objects) {
+      const enriched = await this.syncEntityRef(warehouseId, obj, results);
+      const saved = await this.layoutRepository.upsertObject(warehouseId, enriched);
+      results.push(saved);
+    }
+    return results;
+  }
+
+  /**
+   * For layout objects of type zone/aisle/bin, ensure a corresponding entity record
+   * exists in the Zone/Aisle/Bin collections.  The entity ref (zoneRef/aisleRef/binRef)
+   * is set on the returned DTO so the caller can persist it.
+   */
+  private async syncEntityRef(
+    warehouseId: string,
+    obj: CreateLayoutObjectDto & { id?: string },
+    alreadySaved: LayoutObjectDocument[],
+  ): Promise<CreateLayoutObjectDto & { id?: string }> {
+    if (obj.type === 'zone') {
+      if (obj.zoneRef) return obj; // already linked
+
+      // Upsert Zone by (warehouseId, code)
+      let zone = await this.zoneRepository.findByCode(warehouseId, obj.code);
+      if (!zone) {
+        zone = await this.zoneRepository.create(warehouseId, { code: obj.code, name: obj.name });
+        this.logger.log(`Auto-created Zone '${obj.code}' for warehouse ${warehouseId}`);
+      }
+      return { ...obj, zoneRef: zone.id as string };
+    }
+
+    if (obj.type === 'aisle') {
+      if (obj.aisleRef) return obj; // already linked
+
+      // Resolve parent zone entity
+      const parentZoneId = await this.resolveParentZoneId(warehouseId, obj, alreadySaved);
+      if (!parentZoneId) {
+        this.logger.warn(`Cannot auto-create Aisle '${obj.code}': no parent zone resolved`);
+        return obj;
+      }
+
+      // Upsert Aisle by (zoneId, code)
+      let aisle = await this.aisleRepository.findByCode(parentZoneId, obj.code);
+      if (!aisle) {
+        aisle = await this.aisleRepository.create(parentZoneId, { code: obj.code, name: obj.name });
+        this.logger.log(`Auto-created Aisle '${obj.code}' under zone ${parentZoneId}`);
+      }
+      return { ...obj, aisleRef: aisle.id as string };
+    }
+
+    if (obj.type === 'bin') {
+      if (obj.binRef) return obj; // already linked
+
+      // Resolve parent aisle entity
+      const parentAisleId = await this.resolveParentAisleId(warehouseId, obj, alreadySaved);
+      if (!parentAisleId) {
+        this.logger.warn(`Cannot auto-create Bin '${obj.code}': no parent aisle resolved`);
+        return obj;
+      }
+
+      // Upsert Bin by (aisleId, code)
+      let bin = await this.binRepository.findByCode(parentAisleId, obj.code);
+      if (!bin) {
+        bin = await this.binRepository.create(parentAisleId, {
+          code: obj.code,
+          capacityQty: obj.capacityQty,
+          barcode: obj.barcode,
+          isBlocked: obj.isBlocked,
+          allowedSkuTags: obj.allowedSkuTags,
+        });
+        this.logger.log(`Auto-created Bin '${obj.code}' under aisle ${parentAisleId}`);
+      }
+      return { ...obj, binRef: bin.id as string };
+    }
+
+    return obj;
+  }
+
+  /** Resolve the Zone entity ID for a given aisle layout object. */
+  private async resolveParentZoneId(
+    warehouseId: string,
+    obj: CreateLayoutObjectDto & { id?: string },
+    alreadySaved: LayoutObjectDocument[],
+  ): Promise<string | null> {
+    // 1. Parent layout object already saved in this batch → check its zoneRef
+    if (obj.parentId) {
+      const parentInBatch = alreadySaved.find((s) => s.id === obj.parentId);
+      if (parentInBatch?.zoneRef) return parentInBatch.zoneRef.toString();
+
+      // 2. Parent layout object exists in DB → get its zoneRef
+      const parentInDb = await this.layoutRepository.findObjectById(obj.parentId);
+      if (parentInDb?.zoneRef) return parentInDb.zoneRef.toString();
+    }
+
+    // 3. No parent → cannot safely determine the zone; caller will skip auto-create
+    return null;
+  }
+
+  /** Resolve the Aisle entity ID for a given bin layout object. */
+  private async resolveParentAisleId(
+    warehouseId: string,
+    obj: CreateLayoutObjectDto & { id?: string },
+    alreadySaved: LayoutObjectDocument[],
+  ): Promise<string | null> {
+    if (obj.parentId) {
+      const parentInBatch = alreadySaved.find((s) => s.id === obj.parentId);
+      if (parentInBatch?.aisleRef) return parentInBatch.aisleRef.toString();
+
+      const parentInDb = await this.layoutRepository.findObjectById(obj.parentId);
+      if (parentInDb?.aisleRef) return parentInDb.aisleRef.toString();
+    }
+
+    // No parent → cannot safely determine the aisle; caller will skip auto-create
+    return null;
   }
 }

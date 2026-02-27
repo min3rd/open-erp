@@ -432,7 +432,9 @@ export class StructureDesigner implements OnInit, OnDestroy {
 
   protected onClose(): void {
     this.isVisible.set(false);
-    this.router.navigate(['../../..'], { relativeTo: this.route });
+    // Navigate back to the warehouse list (:scope/:search/:page/:limit)
+    // Route depth from here: designer → :id → :limit (WarehouseList) — 2 levels up
+    this.router.navigate(['../..'], { relativeTo: this.route });
   }
 
   // ─── Draw mode toolbar ────────────────────────────────────────────────────
@@ -643,6 +645,15 @@ export class StructureDesigner implements OnInit, OnDestroy {
     const form = this.objectForm;
     if (!form.code || !form.name || !form.type) return;
 
+    // Auto z-order: zones are drawn behind, aisles/corridors in the middle, bins/labels on top
+    const defaultZOrder: Record<LayoutObjectType, number> = {
+      zone: 0,
+      corridor: 1,
+      aisle: 2,
+      label: 3,
+      bin: 4,
+    };
+
     if (this.objectDialogMode === 'create') {
       const newObj: CanvasObject = {
         id: `tmp-${Date.now()}`,
@@ -661,6 +672,7 @@ export class StructureDesigner implements OnInit, OnDestroy {
         capacityQty: form.capacityQty ?? 0,
         capacityVolume: form.capacityVolume,
         allowedSkuTags: form.allowedSkuTags,
+        zOrder: form.zOrder ?? defaultZOrder[form.type],
         isDirty: true,
       };
       this.pushUndo();

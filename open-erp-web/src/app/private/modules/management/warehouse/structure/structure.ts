@@ -99,8 +99,9 @@ export class WarehouseStructureExplorer implements OnInit {
 
   protected onClose(): void {
     this.isVisible.set(false);
-    // Navigate back to the list (go up 3 levels from /:id/structure)
-    this.router.navigate(['../../..'], { relativeTo: this.route });
+    // Navigate back to the warehouse list (:scope/:search/:page/:limit)
+    // Route depth from here: structure → :id → :limit (WarehouseList) — 2 levels up
+    this.router.navigate(['../..'], { relativeTo: this.route });
   }
 
   protected loadStructure(): void {
