@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Bin, BinDocument } from '@shared/schemas';
+import { LayoutPosition } from '@shared/schemas';
 import { CreateBinDto, UpdateBinDto, QueryBinDto } from '../dto/bin.dto';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -83,5 +84,37 @@ export class BinRepository {
       { $group: { _id: null, total: { $sum: '$currentQty' } } },
     ]);
     return result[0]?.total ?? 0;
+  }
+
+  async findAllByAisleIds(aisleIds: string[]): Promise<BinDocument[]> {
+    return this.binModel
+      .find({ aisleId: { $in: aisleIds } } as any)
+      .sort({ createdAt: 1 })
+      .exec();
+  }
+
+  async upsertByAisleAndCode(
+    aisleId: string,
+    code: string,
+    name: string,
+    layout: Partial<LayoutPosition>,
+    extra: { barcode?: string; capacityQty?: number; isBlocked?: boolean; allowedSkuTags?: string[] },
+  ): Promise<BinDocument> {
+    const barcode = extra.barcode || `BIN-${code}`;
+    return this.binModel
+      .findOneAndUpdate(
+        { aisleId, code } as any,
+        { $set: { name: name || code, layout, barcode, capacityQty: extra.capacityQty ?? 0, isBlocked: extra.isBlocked ?? false, allowedSkuTags: extra.allowedSkuTags ?? [] } },
+        { upsert: true, new: true, setDefaultsOnInsert: true, runValidators: false },
+      )
+      .exec() as Promise<BinDocument>;
+  }
+
+  async updateLayout(id: string, name: string, layout: Partial<LayoutPosition>): Promise<BinDocument | null> {
+    return this.binModel.findByIdAndUpdate(id, { $set: { name: name || undefined, layout } }, { new: true }).exec();
+  }
+
+  async clearLayout(id: string): Promise<BinDocument | null> {
+    return this.binModel.findByIdAndUpdate(id, { $set: { layout: null } }, { new: true }).exec();
   }
 }

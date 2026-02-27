@@ -69,6 +69,19 @@ WarehouseLayoutSchema.set('toObject', {
   },
 });
 
+// ─── LayoutPosition ───────────────────────────────────────────────────────────
+
+@Schema({ _id: false })
+export class LayoutPosition {
+  @Prop({ type: Number, default: 0 }) x: number;
+  @Prop({ type: Number, default: 0 }) y: number;
+  @Prop({ type: Number, min: 0.1 }) widthM?: number;
+  @Prop({ type: Number, min: 0.1 }) heightM?: number;
+  @Prop({ type: Number, default: 0, min: 0, max: 359 }) rotationDeg: number;
+  @Prop({ type: Number, default: 0 }) zOrder: number;
+}
+export const LayoutPositionSchema = SchemaFactory.createForClass(LayoutPosition);
+
 // ─── LayoutObject ─────────────────────────────────────────────────────────────
 
 export type LayoutObjectDocument = HydratedDocument<LayoutObject>;

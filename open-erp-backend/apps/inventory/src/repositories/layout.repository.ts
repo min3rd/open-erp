@@ -156,4 +156,11 @@ export class LayoutRepository {
       { deletedAt: new Date() },
     ).exec();
   }
+
+  async findLabelCorridorObjects(warehouseId: string): Promise<LayoutObjectDocument[]> {
+    return this.objectModel
+      .find({ warehouseId, type: { $in: ['label', 'corridor'] } } as any)
+      .sort({ zOrder: 1, code: 1 })
+      .exec();
+  }
 }
