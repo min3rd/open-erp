@@ -101,10 +101,18 @@ export class BinRepository {
     extra: { barcode?: string; capacityQty?: number; isBlocked?: boolean; allowedSkuTags?: string[] },
   ): Promise<BinDocument> {
     const barcode = extra.barcode || `BIN-${code}`;
+    const updateDoc = {
+      name: name || code,
+      layout,
+      barcode,
+      capacityQty: extra.capacityQty ?? 0,
+      isBlocked: extra.isBlocked ?? false,
+      allowedSkuTags: extra.allowedSkuTags ?? [],
+    };
     return this.binModel
       .findOneAndUpdate(
         { aisleId, code } as any,
-        { $set: { name: name || code, layout, barcode, capacityQty: extra.capacityQty ?? 0, isBlocked: extra.isBlocked ?? false, allowedSkuTags: extra.allowedSkuTags ?? [] } },
+        { $set: updateDoc },
         { upsert: true, new: true, setDefaultsOnInsert: true, runValidators: false },
       )
       .exec() as Promise<BinDocument>;
