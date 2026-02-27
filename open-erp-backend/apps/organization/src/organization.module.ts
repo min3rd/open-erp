@@ -30,6 +30,12 @@ import {
   DepartmentSchema,
   Position,
   PositionSchema,
+  Zone,
+  ZoneSchema,
+  Aisle,
+  AisleSchema,
+  Bin,
+  BinSchema,
 } from '@shared/schemas';
 
 // Controllers
@@ -60,6 +66,9 @@ import { OrganizationMemberRepository } from './repositories/organization-member
 import { InvitationRepository } from './repositories/invitation.repository';
 import { AuditEventRepository } from './repositories/audit-event.repository';
 import { WarehouseRepository } from '../../inventory/src/repositories/warehouse.repository';
+import { ZoneRepository } from 'apps/inventory/src/repositories/zone.repository';
+import { AisleRepository } from 'apps/inventory/src/repositories/aisle.repository';
+import { BinRepository } from 'apps/inventory/src/repositories/bin.repository';
 
 @Module({
   imports: [
@@ -91,6 +100,9 @@ import { WarehouseRepository } from '../../inventory/src/repositories/warehouse.
       { name: User.name, schema: UserSchema },
       { name: Department.name, schema: DepartmentSchema },
       { name: Position.name, schema: PositionSchema },
+      { name: Zone.name, schema: ZoneSchema },
+      { name: Aisle.name, schema: AisleSchema },
+      { name: Bin.name, schema: BinSchema },
     ]),
   ],
   controllers: [
@@ -119,6 +131,9 @@ import { WarehouseRepository } from '../../inventory/src/repositories/warehouse.
     InvitationRepository,
     AuditEventRepository,
     WarehouseRepository,
+    ZoneRepository,
+    AisleRepository,
+    BinRepository,
   ],
 })
 export class OrganizationModule {}
