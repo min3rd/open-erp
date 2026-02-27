@@ -372,4 +372,129 @@ export class InventoryController {
       );
     }
   }
+
+  @Get('warehouses/:warehouseId/stock/summary')
+  @ApiOperation({ summary: 'Get stock summary for a warehouse' })
+  @ApiParam({ name: 'warehouseId', description: 'Warehouse ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Stock summary retrieved successfully',
+  })
+  async getWarehouseStockSummary(
+    @Param('warehouseId') warehouseId: string,
+  ) {
+    try {
+      const summary =
+        await this.inventoryService.getWarehouseStockSummary(warehouseId);
+      return ok(summary, 'Stock summary retrieved');
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      throw new HttpException(
+        error(
+          'SUMMARY_FETCH_ERROR',
+          err.message || 'Failed to fetch stock summary',
+        ),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('locations/:binId/stock')
+  @ApiOperation({ summary: 'Get stock items in a specific bin/location' })
+  @ApiParam({ name: 'binId', description: 'Bin ID' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiResponse({
+    status: 200,
+    description: 'Location stock retrieved successfully',
+  })
+  async getStockByLocation(
+    @Param('binId') binId: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    try {
+      const result = await this.inventoryService.getStockByLocation(binId, {
+        page,
+        limit,
+      });
+      return paginated(result.items, result.page, result.limit, result.total);
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      throw new HttpException(
+        error(
+          'STOCK_FETCH_ERROR',
+          err.message || 'Failed to fetch location stock',
+        ),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('skus/:skuId/stock')
+  @ApiOperation({ summary: 'Get stock for a specific SKU across warehouses' })
+  @ApiParam({ name: 'skuId', description: 'Product/SKU ID' })
+  @ApiQuery({ name: 'warehouseId', required: false, type: String })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiResponse({
+    status: 200,
+    description: 'SKU stock retrieved successfully',
+  })
+  async getStockBySku(
+    @Param('skuId') skuId: string,
+    @Query('warehouseId') warehouseId?: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    try {
+      const result = await this.inventoryService.getStockBySku(skuId, {
+        warehouseId,
+        page,
+        limit,
+      });
+      return paginated(result.items, result.page, result.limit, result.total);
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      throw new HttpException(
+        error(
+          'STOCK_FETCH_ERROR',
+          err.message || 'Failed to fetch SKU stock',
+        ),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('skus/:skuId/expiry')
+  @ApiOperation({ summary: 'Get lots for a SKU sorted by expiry' })
+  @ApiParam({ name: 'skuId', description: 'Product/SKU ID' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiResponse({
+    status: 200,
+    description: 'SKU expiry lots retrieved successfully',
+  })
+  async getSkuExpiryLots(
+    @Param('skuId') skuId: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    try {
+      const result = await this.inventoryService.getSkuExpiryLots(skuId, {
+        page,
+        limit,
+      });
+      return paginated(result.items, result.page, result.limit, result.total);
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      throw new HttpException(
+        error(
+          'EXPIRY_FETCH_ERROR',
+          err.message || 'Failed to fetch expiry lots',
+        ),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }

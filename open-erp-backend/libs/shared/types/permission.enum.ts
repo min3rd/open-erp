@@ -127,6 +127,13 @@ export enum Permission {
   INVENTORY_BIN_DELETE = 'inventory.bin.delete',
   INVENTORY_BIN_IMPORT = 'inventory.bin.import',
   INVENTORY_BIN_EXPORT = 'inventory.bin.export',
+
+  // Stock Management
+  INVENTORY_STOCK_VIEW = 'inventory.stock.view',
+  INVENTORY_STOCK_MANAGE = 'inventory.stock.manage',
+  INVENTORY_ALLOCATION_MANAGE = 'inventory.allocation.manage',
+  INVENTORY_LOT_MANAGE = 'inventory.lot.manage',
+  INVENTORY_SERIAL_MANAGE = 'inventory.serial.manage',
 }
 
 /**
@@ -226,6 +233,13 @@ export const PermissionGroups = {
     Permission.CONFIG_READ,
     Permission.CONFIG_UPDATE,
     Permission.CONFIG_DELETE,
+  ],
+  INVENTORY_STOCK_FULL: [
+    Permission.INVENTORY_STOCK_VIEW,
+    Permission.INVENTORY_STOCK_MANAGE,
+    Permission.INVENTORY_ALLOCATION_MANAGE,
+    Permission.INVENTORY_LOT_MANAGE,
+    Permission.INVENTORY_SERIAL_MANAGE,
   ],
 };
 
@@ -533,6 +547,28 @@ export const PermissionMetadata: Record<
   [Permission.CONFIG_MANAGE]: {
     description: 'Full configuration management permissions',
     scope: 'global',
+  },
+
+  // Inventory Stock Management
+  [Permission.INVENTORY_STOCK_VIEW]: {
+    description: 'Permission to view inventory stock levels',
+    scope: 'organization',
+  },
+  [Permission.INVENTORY_STOCK_MANAGE]: {
+    description: 'Permission to manage inventory stock (adjust, transfer)',
+    scope: 'organization',
+  },
+  [Permission.INVENTORY_ALLOCATION_MANAGE]: {
+    description: 'Permission to manage stock allocations (reserve, release)',
+    scope: 'organization',
+  },
+  [Permission.INVENTORY_LOT_MANAGE]: {
+    description: 'Permission to manage inventory lots',
+    scope: 'organization',
+  },
+  [Permission.INVENTORY_SERIAL_MANAGE]: {
+    description: 'Permission to manage inventory serial numbers',
+    scope: 'organization',
   },
 };
 

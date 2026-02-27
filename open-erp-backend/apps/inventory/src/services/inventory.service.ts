@@ -609,4 +609,132 @@ export class InventoryService {
       totalPages: Math.ceil(result.total / limit),
     };
   }
+
+  async getWarehouseStockSummary(warehouseId: string) {
+    const result = await this.stockRepository.findByWarehouse(warehouseId, {
+      skip: 0,
+      limit: 1000,
+    });
+
+    const items = result.items;
+    let totalAvailable = 0;
+    let totalReserved = 0;
+    let totalDamaged = 0;
+    let totalInTransit = 0;
+    let totalSkus = items.length;
+
+    for (const stock of items) {
+      totalAvailable += stock.availableQuantity || 0;
+      totalReserved += stock.reservedQuantity || 0;
+      totalDamaged += stock.damagedQuantity || 0;
+      totalInTransit += stock.inTransitQuantity || 0;
+    }
+
+    return {
+      warehouseId,
+      totalSkus,
+      totalAvailable,
+      totalReserved,
+      totalDamaged,
+      totalInTransit,
+      totalOnHand: totalAvailable + totalReserved + totalDamaged,
+    };
+  }
+
+  async getStockByLocation(
+    binId: string,
+    options: { page?: number; limit?: number } = {},
+  ) {
+    const { page = 1, limit = 20 } = options;
+    const skip = (page - 1) * limit;
+
+    const result = await this.stockRepository.findByLocation(binId, {
+      skip,
+      limit,
+    });
+
+    return {
+      items: result.items,
+      total: result.total,
+      page,
+      limit,
+    };
+  }
+
+  async getStockBySku(
+    skuId: string,
+    options: { warehouseId?: string; page?: number; limit?: number } = {},
+  ) {
+    const { page = 1, limit = 20, warehouseId } = options;
+    const skip = (page - 1) * limit;
+
+    if (warehouseId) {
+      const stock = await this.stockRepository.findByProductAndWarehouse(
+        skuId,
+        warehouseId,
+      );
+      return {
+        items: stock ? [stock] : [],
+        total: stock ? 1 : 0,
+        page,
+        limit,
+      };
+    }
+
+    const result = await this.stockRepository.findByProduct(skuId, {
+      skip,
+      limit,
+    });
+
+    return {
+      items: result.items,
+      total: result.total,
+      page,
+      limit,
+    };
+  }
+
+  async getSkuExpiryLots(
+    skuId: string,
+    options: { page?: number; limit?: number } = {},
+  ) {
+    const { page = 1, limit = 20 } = options;
+    const skip = (page - 1) * limit;
+
+    // Get stock records that have lot info for this SKU
+    const result = await this.stockRepository.findByProduct(skuId, {
+      skip: 0,
+      limit: 1000,
+    });
+
+    const lots: any[] = [];
+    for (const stock of result.items) {
+      if (stock.lots && stock.lots.length > 0) {
+        for (const lot of stock.lots) {
+          if (lot.expiryDate) {
+            lots.push({
+              ...lot,
+              warehouseId: stock.warehouseId,
+              productId: stock.productId,
+            });
+          }
+        }
+      }
+    }
+
+    // Sort by expiry date ascending
+    lots.sort(
+      (a, b) =>
+        new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime(),
+    );
+
+    const paginatedLots = lots.slice(skip, skip + limit);
+
+    return {
+      items: paginatedLots,
+      total: lots.length,
+      page,
+      limit,
+    };
+  }
 }

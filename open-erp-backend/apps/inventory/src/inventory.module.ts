@@ -41,6 +41,10 @@ import {
   WarehouseLayoutSchema,
   LayoutObject,
   LayoutObjectSchema,
+  Lot,
+  LotSchema,
+  Serial,
+  SerialSchema,
 } from '@shared/schemas';
 
 // Import services
@@ -53,6 +57,8 @@ import { ZoneService } from './services/zone.service';
 import { AisleService } from './services/aisle.service';
 import { BinService } from './services/bin.service';
 import { LayoutService } from './services/layout.service';
+import { LotService } from './services/lot.service';
+import { SerialService } from './services/serial.service';
 
 // Import repositories
 import { ProductRepository } from './repositories/product.repository';
@@ -66,6 +72,8 @@ import { ZoneRepository } from './repositories/zone.repository';
 import { AisleRepository } from './repositories/aisle.repository';
 import { BinRepository } from './repositories/bin.repository';
 import { LayoutRepository } from './repositories/layout.repository';
+import { LotRepository } from './repositories/lot.repository';
+import { SerialRepository } from './repositories/serial.repository';
 
 // Import controllers
 import { ProductController } from './controllers/product.controller';
@@ -78,6 +86,8 @@ import { ZoneController } from './controllers/zone.controller';
 import { AisleController } from './controllers/aisle.controller';
 import { BinController } from './controllers/bin.controller';
 import { LayoutController } from './controllers/layout.controller';
+import { LotController } from './controllers/lot.controller';
+import { SerialController } from './controllers/serial.controller';
 
 // Import shared modules
 import { AuthorizationService } from '@shared/authz/authorization.service';
@@ -114,6 +124,8 @@ import { MinioModule } from '@shared/services/minio/minio.module';
       { name: Bin.name, schema: BinSchema },
       { name: WarehouseLayout.name, schema: WarehouseLayoutSchema },
       { name: LayoutObject.name, schema: LayoutObjectSchema },
+      { name: Lot.name, schema: LotSchema },
+      { name: Serial.name, schema: SerialSchema },
     ]),
     ThrottlerModule.forRoot([
       {
@@ -135,6 +147,8 @@ import { MinioModule } from '@shared/services/minio/minio.module';
     AisleController,
     BinController,
     LayoutController,
+    LotController,
+    SerialController,
   ],
   providers: [
     ProductService,
@@ -157,6 +171,10 @@ import { MinioModule } from '@shared/services/minio/minio.module';
     AisleRepository,
     BinRepository,
     LayoutRepository,
+    LotRepository,
+    SerialRepository,
+    LotService,
+    SerialService,
     AuthorizationService,
     PermissionService,
   ],

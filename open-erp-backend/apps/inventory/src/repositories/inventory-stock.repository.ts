@@ -192,4 +192,20 @@ export class InventoryStockRepository {
 
     return { items, total };
   }
+
+  async findByLocation(
+    binId: string,
+    options: { skip?: number; limit?: number } = {},
+  ): Promise<{ items: InventoryStockDocument[]; total: number }> {
+    const { skip = 0, limit = 20 } = options;
+
+    const query = { bin: binId };
+
+    const [items, total] = await Promise.all([
+      this.stockModel.find(query).skip(skip).limit(limit).exec(),
+      this.stockModel.countDocuments(query).exec(),
+    ]);
+
+    return { items, total };
+  }
 }
