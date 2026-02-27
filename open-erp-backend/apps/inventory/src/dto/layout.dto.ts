@@ -115,6 +115,27 @@ export class CreateLayoutObjectDto {
   @IsArray()
   @IsString({ each: true })
   allowedSkuTags?: string[];
+
+  @ApiPropertyOptional({ example: 'zone-object-id', description: 'Reference to existing Zone document' })
+  @IsOptional()
+  @IsString()
+  zoneRef?: string;
+
+  @ApiPropertyOptional({ example: 'aisle-object-id', description: 'Reference to existing Aisle document' })
+  @IsOptional()
+  @IsString()
+  aisleRef?: string;
+
+  @ApiPropertyOptional({ example: 'bin-object-id', description: 'Reference to existing Bin document' })
+  @IsOptional()
+  @IsString()
+  binRef?: string;
+
+  @ApiPropertyOptional({ example: 0, description: 'Visual z-order: higher = drawn on top' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  zOrder?: number;
 }
 
 export class UpdateLayoutObjectDto extends PartialType(CreateLayoutObjectDto) {}

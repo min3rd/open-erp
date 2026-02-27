@@ -3579,7 +3579,10 @@
       "select": "Select / Move",
       "zone": "Draw Zone",
       "aisle": "Draw Aisle",
-      "bin": "Draw Bin"
+      "bin": "Draw Bin",
+      "pan": "Pan / Move View",
+      "label": "Draw Label",
+      "corridor": "Draw Corridor"
     },
     "fields": {
       "code": "Code",

@@ -77,6 +77,10 @@ export enum LayoutObjectType {
   ZONE = 'zone',
   AISLE = 'aisle',
   BIN = 'bin',
+  /** Decorative / informational text label on the canvas */
+  LABEL = 'label',
+  /** Passageway / corridor between zones or aisles */
+  CORRIDOR = 'corridor',
 }
 
 @Schema({
@@ -167,6 +171,47 @@ export class LayoutObject extends Document {
 
   @Prop({ type: Date, default: null })
   deletedAt?: Date;
+
+  /**
+   * Optional reference to an existing Zone document.
+   * When set, this layout object is the visual representation of that zone.
+   */
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Zone',
+    default: null,
+    index: true,
+    sparse: true,
+  })
+  zoneRef?: MongooseSchema.Types.ObjectId | null;
+
+  /**
+   * Optional reference to an existing Aisle document.
+   */
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Aisle',
+    default: null,
+    index: true,
+    sparse: true,
+  })
+  aisleRef?: MongooseSchema.Types.ObjectId | null;
+
+  /**
+   * Optional reference to an existing Bin document.
+   */
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Bin',
+    default: null,
+    index: true,
+    sparse: true,
+  })
+  binRef?: MongooseSchema.Types.ObjectId | null;
+
+  /** Visual z-order: higher = rendered on top */
+  @Prop({ type: Number, default: 0 })
+  zOrder: number;
 }
 
 export const LayoutObjectSchema = SchemaFactory.createForClass(LayoutObject);

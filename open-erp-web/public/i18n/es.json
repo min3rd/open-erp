@@ -2546,7 +2546,10 @@
       "select": "Seleccionar / Mover",
       "zone": "Dibujar Zona",
       "aisle": "Dibujar Pasillo",
-      "bin": "Dibujar Contenedor"
+      "bin": "Dibujar Contenedor",
+      "pan": "Mover Vista",
+      "label": "Dibujar Etiqueta",
+      "corridor": "Dibujar Corredor"
     },
     "fields": {
       "code": "Código",

@@ -60,7 +60,7 @@ export class LayoutRepository {
 
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
-      this.objectModel.find(filter).skip(skip).limit(limit).sort({ type: 1, code: 1 }).exec(),
+      this.objectModel.find(filter).skip(skip).limit(limit).sort({ zOrder: 1, type: 1, code: 1 }).exec(),
       this.objectModel.countDocuments(filter).exec(),
     ]);
     return { items, total, page, limit };
