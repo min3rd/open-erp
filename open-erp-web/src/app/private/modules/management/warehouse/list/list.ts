@@ -460,16 +460,6 @@ export class WarehouseList implements OnInit, OnDestroy {
   }
 
   /**
-   * Handle row right-click to show context menu
-   * Note: with [contextMenu] binding on p-table, this is handled automatically.
-   * This method remains for manual triggering if needed.
-   */
-  protected onRowRightClick(event: MouseEvent, warehouse: Warehouse): void {
-    event.preventDefault();
-    this.onContextMenuSelectionChange(warehouse);
-  }
-
-  /**
    * View warehouse details
    */
   protected onViewWarehouse(warehouse: Warehouse): void {
