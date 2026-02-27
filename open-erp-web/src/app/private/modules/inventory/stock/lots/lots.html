@@ -1,6 +1,6 @@
-<div class="flex flex-col gap-3 p-3" *transloco="let t">
+<div class="flex flex-col gap-3 p-3">
   <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
-    <h2 class="text-lg font-semibold m-0">{{ t('stock.lots.title') }}</h2>
+    <h2 class="text-lg font-semibold m-0">{{ 'stock.lots.title' | transloco }}</h2>
     <div class="flex items-center gap-2">
       <p-select
         [options]="expiredOptions"
@@ -8,7 +8,7 @@
         (ngModelChange)="expiredFilter.set($event); onFilterChange()"
         optionLabel="label"
         optionValue="value"
-        [placeholder]="t('stock.lots.filterExpiry')"
+        [placeholder]="'stock.lots.filterExpiry' | transloco"
         class="w-40"
       />
       <p-button
@@ -17,7 +17,7 @@
         [text]="true"
         severity="secondary"
         (click)="loadLots()"
-        [pTooltip]="t('stock.refresh')"
+        [pTooltip]="'stock.refresh' | transloco"
       />
     </div>
   </div>
@@ -37,13 +37,13 @@
   >
     <ng-template #header>
       <tr>
-        <th>{{ t('stock.lots.lotCode') }}</th>
-        <th>{{ t('stock.lots.skuId') }}</th>
-        <th class="text-right">{{ t('stock.lots.totalQty') }}</th>
-        <th class="text-right">{{ t('stock.lots.remainingQty') }}</th>
-        <th>{{ t('stock.lots.manufacturedAt') }}</th>
-        <th>{{ t('stock.lots.expiryAt') }}</th>
-        <th class="text-center">{{ t('stock.status') }}</th>
+        <th>{{ 'stock.lots.lotCode' | transloco }}</th>
+        <th>{{ 'stock.lots.skuId' | transloco }}</th>
+        <th class="text-right">{{ 'stock.lots.totalQty' | transloco }}</th>
+        <th class="text-right">{{ 'stock.lots.remainingQty' | transloco }}</th>
+        <th>{{ 'stock.lots.manufacturedAt' | transloco }}</th>
+        <th>{{ 'stock.lots.expiryAt' | transloco }}</th>
+        <th class="text-center">{{ 'stock.status' | transloco }}</th>
       </tr>
     </ng-template>
     <ng-template #body let-lot>
@@ -57,7 +57,7 @@
         <td class="text-center">
           <p-tag
             [severity]="getExpirySeverity(lot)"
-            [value]="isExpired(lot) ? t('stock.lots.expired') : t('stock.lots.valid')"
+            [value]="isExpired(lot) ? ('stock.lots.expired' | transloco) : ('stock.lots.valid' | transloco)"
           />
         </td>
       </tr>
@@ -67,7 +67,7 @@
         <td colspan="7" class="text-center p-6">
           <div class="flex flex-col items-center gap-2">
             <i class="pi pi-box text-4xl text-surface-400"></i>
-            <span class="text-surface-500">{{ t('stock.noData') }}</span>
+            <span class="text-surface-500">{{ 'stock.noData' | transloco }}</span>
           </div>
         </td>
       </tr>

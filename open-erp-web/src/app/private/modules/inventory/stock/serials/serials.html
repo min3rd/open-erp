@@ -1,6 +1,6 @@
-<div class="flex flex-col gap-3 p-3" *transloco="let t">
+<div class="flex flex-col gap-3 p-3">
   <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
-    <h2 class="text-lg font-semibold m-0">{{ t('stock.serials.title') }}</h2>
+    <h2 class="text-lg font-semibold m-0">{{ 'stock.serials.title' | transloco }}</h2>
     <div class="flex items-center gap-2">
       <p-select
         [options]="statusOptions"
@@ -8,7 +8,7 @@
         (ngModelChange)="statusFilter.set($event); onFilterChange()"
         optionLabel="label"
         optionValue="value"
-        [placeholder]="t('stock.serials.filterStatus')"
+        [placeholder]="'stock.serials.filterStatus' | transloco"
         class="w-40"
       />
       <p-button
@@ -17,7 +17,7 @@
         [text]="true"
         severity="secondary"
         (click)="loadSerials()"
-        [pTooltip]="t('stock.refresh')"
+        [pTooltip]="'stock.refresh' | transloco"
       />
     </div>
   </div>
@@ -37,12 +37,12 @@
   >
     <ng-template #header>
       <tr>
-        <th>{{ t('stock.serials.serialNumber') }}</th>
-        <th>{{ t('stock.serials.skuId') }}</th>
-        <th class="text-center">{{ t('stock.status') }}</th>
-        <th>{{ t('stock.serials.binId') }}</th>
-        <th>{{ t('stock.serials.lotId') }}</th>
-        <th>{{ t('stock.serials.assignedAt') }}</th>
+        <th>{{ 'stock.serials.serialNumber' | transloco }}</th>
+        <th>{{ 'stock.serials.skuId' | transloco }}</th>
+        <th class="text-center">{{ 'stock.status' | transloco }}</th>
+        <th>{{ 'stock.serials.binId' | transloco }}</th>
+        <th>{{ 'stock.serials.lotId' | transloco }}</th>
+        <th>{{ 'stock.serials.assignedAt' | transloco }}</th>
       </tr>
     </ng-template>
     <ng-template #body let-serial>
@@ -62,7 +62,7 @@
         <td colspan="6" class="text-center p-6">
           <div class="flex flex-col items-center gap-2">
             <i class="pi pi-barcode text-4xl text-surface-400"></i>
-            <span class="text-surface-500">{{ t('stock.noData') }}</span>
+            <span class="text-surface-500">{{ 'stock.noData' | transloco }}</span>
           </div>
         </td>
       </tr>
