@@ -2226,5 +2226,47 @@
     },
     "noParent": "Không có cha",
     "autoDetected": "tự động xác định"
+  },
+  "stock": {
+    "title": "Quản lý Tồn kho",
+    "selectWarehouse": "Chọn kho",
+    "refresh": "Làm mới",
+    "searchPlaceholder": "Tìm theo SKU hoặc tên sản phẩm...",
+    "totalSkus": "Tổng SKU",
+    "available": "Có sẵn",
+    "reserved": "Đã đặt",
+    "inTransit": "Đang vận chuyển",
+    "damaged": "Hư hỏng",
+    "onHand": "Tồn kho",
+    "sku": "SKU",
+    "productName": "Sản phẩm",
+    "unit": "Đơn vị",
+    "location": "Vị trí",
+    "status": "Trạng thái",
+    "inStock": "Còn hàng",
+    "outOfStock": "Hết hàng",
+    "noData": "Không có dữ liệu tồn kho",
+    "pageReport": "Hiển thị {first} đến {last} trong {totalRecords}",
+    "lots": {
+      "title": "Quản lý Lô hàng",
+      "lotCode": "Mã lô",
+      "skuId": "ID SKU",
+      "totalQty": "Tổng SL",
+      "remainingQty": "Còn lại",
+      "manufacturedAt": "Ngày sản xuất",
+      "expiryAt": "Hạn sử dụng",
+      "expired": "Hết hạn",
+      "valid": "Còn hạn",
+      "filterExpiry": "Lọc theo hạn"
+    },
+    "serials": {
+      "title": "Quản lý Số Serial",
+      "serialNumber": "Số Serial",
+      "skuId": "ID SKU",
+      "binId": "Vị trí",
+      "lotId": "Lô",
+      "assignedAt": "Ngày gán",
+      "filterStatus": "Lọc theo trạng thái"
+    }
   }
 }
