@@ -2619,5 +2619,54 @@
       "columns": "Columnas"
     },
     "loading": "Cargando..."
+  },
+  "importExport": {
+    "title": "Importar / Exportar",
+    "table": {
+      "type": "Tipo",
+      "entity": "Entidad",
+      "status": "Estado",
+      "total": "Total filas",
+      "created": "Creado",
+      "failed": "Fallidos",
+      "actions": "Acciones",
+      "empty": "No hay trabajos. Comienza una exportación o importación."
+    },
+    "export": {
+      "title": "Exportar datos",
+      "entity": "Entidad",
+      "selectEntity": "Seleccionar entidad...",
+      "format": "Formato",
+      "mode": "Modo de exportación"
+    },
+    "import": {
+      "title": "Importar datos",
+      "entity": "Entidad",
+      "selectEntity": "Seleccionar entidad...",
+      "mode": "Modo de importación",
+      "file": "Subir archivo",
+      "chooseFile": "Elegir archivo"
+    },
+    "buttons": {
+      "export": "Exportar",
+      "import": "Importar",
+      "refresh": "Actualizar",
+      "cancel": "Cancelar",
+      "startExport": "Iniciar exportación",
+      "startImport": "Iniciar importación",
+      "download": "Descargar",
+      "downloadErrors": "Descargar informe de errores"
+    },
+    "messages": {
+      "exportStarted": "Exportación iniciada",
+      "exportStartedDetail": "Su trabajo de exportación ha sido encolado.",
+      "importStarted": "Importación iniciada",
+      "importStartedDetail": "Su trabajo de importación ha sido encolado.",
+      "jobCompleted": "Trabajo completado",
+      "exportFailed": "Exportación fallida. Por favor, inténtelo de nuevo.",
+      "importFailed": "Importación fallida. Por favor, inténtelo de nuevo.",
+      "error": "Error",
+      "downloadFailed": "Descarga fallida. Por favor, inténtelo de nuevo."
+    }
   }
 }

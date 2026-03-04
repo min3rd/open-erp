@@ -38,7 +38,7 @@ export class ExcelParserService {
 
   private async parseXLSX(buffer: Buffer): Promise<ParseResult> {
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(buffer);
+    await workbook.xlsx.load(buffer as unknown as ArrayBuffer);
 
     const sheets: ParsedSheet[] = [];
 

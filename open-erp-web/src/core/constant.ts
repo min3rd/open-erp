@@ -7,3 +7,4 @@ export const API_URI_INVENTORY = 'http://localhost:3006';
 export const API_URI_COMMON = 'http://localhost:3007';
 export const API_URI_FILE = 'http://localhost:3008';
 export const API_URI_CHAT = 'http://localhost:3009';
+export const API_URI_DATA_TRANSFER = 'http://localhost:3010';
