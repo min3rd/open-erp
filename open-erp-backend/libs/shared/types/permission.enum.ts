@@ -134,6 +134,11 @@ export enum Permission {
   INVENTORY_ALLOCATION_MANAGE = 'inventory.allocation.manage',
   INVENTORY_LOT_MANAGE = 'inventory.lot.manage',
   INVENTORY_SERIAL_MANAGE = 'inventory.serial.manage',
+
+  // Import/Export Management
+  IMPORT_EXPORT_MANAGE = 'import.export.manage',
+  IMPORT_EXPORT_EXPORT = 'import.export.export',
+  IMPORT_EXPORT_IMPORT = 'import.export.import',
 }
 
 /**
@@ -240,6 +245,11 @@ export const PermissionGroups = {
     Permission.INVENTORY_ALLOCATION_MANAGE,
     Permission.INVENTORY_LOT_MANAGE,
     Permission.INVENTORY_SERIAL_MANAGE,
+  ],
+  IMPORT_EXPORT_FULL: [
+    Permission.IMPORT_EXPORT_MANAGE,
+    Permission.IMPORT_EXPORT_EXPORT,
+    Permission.IMPORT_EXPORT_IMPORT,
   ],
 };
 
@@ -568,6 +578,18 @@ export const PermissionMetadata: Record<
   },
   [Permission.INVENTORY_SERIAL_MANAGE]: {
     description: 'Permission to manage inventory serial numbers',
+    scope: 'organization',
+  },
+  [Permission.IMPORT_EXPORT_MANAGE]: {
+    description: 'Full import/export management permissions',
+    scope: 'organization',
+  },
+  [Permission.IMPORT_EXPORT_EXPORT]: {
+    description: 'Permission to export data to Excel/CSV',
+    scope: 'organization',
+  },
+  [Permission.IMPORT_EXPORT_IMPORT]: {
+    description: 'Permission to import data from Excel/CSV',
     scope: 'organization',
   },
 };
