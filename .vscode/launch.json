@@ -94,6 +94,16 @@
     {
       "type": "node",
       "request": "launch",
+      "cwd": "${workspaceFolder}/open-erp-backend",
+      "name": "Data Transfer Service (Dev)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:data-transfer:dev"],
+      "sourceMaps": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "cwd": "${workspaceFolder}/open-erp-web",
       "name": "Open ERP Web (Dev)",
       "runtimeExecutable": "npm",
