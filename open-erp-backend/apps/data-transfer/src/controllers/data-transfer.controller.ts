@@ -104,11 +104,22 @@ export class DataTransferController {
   @Permissions(Permission.IMPORT_EXPORT_IMPORT)
   @UseInterceptors(
     FileInterceptor('file', {
+      limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
       fileFilter: (_req, file, cb) => {
-        const allowed = ['.xlsx', '.csv', '.xls'];
+        const allowedExtensions = ['.xlsx', '.csv', '.xls'];
+        const allowedMimeTypes = [
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'application/vnd.ms-excel',
+          'text/csv',
+          'text/plain',
+          'application/csv',
+        ];
         const ext = file.originalname.toLowerCase().slice(file.originalname.lastIndexOf('.'));
-        if (!allowed.includes(ext)) {
-          return cb(new BadRequestException(`File type not allowed. Accepted: ${allowed.join(', ')}`), false);
+        if (!allowedExtensions.includes(ext) || !allowedMimeTypes.includes(file.mimetype)) {
+          return cb(
+            new BadRequestException(`File type not allowed. Accepted extensions: ${allowedExtensions.join(', ')}`),
+            false,
+          );
         }
         cb(null, true);
       },
