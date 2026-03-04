@@ -14,10 +14,11 @@ import { UserDto } from '../../interfaces/user.types';
 import { AvatarModule } from 'primeng/avatar';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'layout-user',
-  imports: [CommonModule, SkeletonModule, AvatarModule, RippleModule, TooltipModule],
+  imports: [CommonModule, SkeletonModule, AvatarModule, RippleModule, TooltipModule, RouterModule],
   templateUrl: './user.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
