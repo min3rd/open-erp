@@ -1,10 +1,25 @@
 import { ExecutionContext } from '@nestjs/common';
+import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants';
 import { CurrentUser } from './current-user.decorator';
-import { UserContext } from './permissions.guard';
+import type { UserContext } from './permissions.guard';
+
+function getDecoratorFactory(
+  Cls: new () => any,
+  methodName: string,
+): (data: unknown, ctx: ExecutionContext) => UserContext {
+  const args = Reflect.getMetadata(ROUTE_ARGS_METADATA, Cls, methodName);
+  return args[Object.keys(args)[0]].factory;
+}
 
 describe('CurrentUser Decorator', () => {
   let mockExecutionContext: ExecutionContext;
   let mockRequest: any;
+
+  class TestController {
+    test(@CurrentUser() user: UserContext) {
+      return user;
+    }
+  }
 
   beforeEach(() => {
     mockRequest = {
@@ -24,8 +39,8 @@ describe('CurrentUser Decorator', () => {
   });
 
   it('should extract user from request', () => {
-    const decorator = CurrentUser();
-    const result = decorator(null, mockExecutionContext);
+    const factory = getDecoratorFactory(TestController, 'test');
+    const result = factory(null, mockExecutionContext);
 
     expect(result).toEqual(mockRequest.user);
     expect(result.userId).toBe('test-user-123');
@@ -35,8 +50,8 @@ describe('CurrentUser Decorator', () => {
   it('should return undefined if user is not set', () => {
     mockRequest.user = undefined;
 
-    const decorator = CurrentUser();
-    const result = decorator(null, mockExecutionContext);
+    const factory = getDecoratorFactory(TestController, 'test');
+    const result = factory(null, mockExecutionContext);
 
     expect(result).toBeUndefined();
   });
@@ -47,8 +62,8 @@ describe('CurrentUser Decorator', () => {
       email: 'minimal@example.com',
     };
 
-    const decorator = CurrentUser();
-    const result = decorator(null, mockExecutionContext);
+    const factory = getDecoratorFactory(TestController, 'test');
+    const result = factory(null, mockExecutionContext);
 
     expect(result.userId).toBe('minimal-user');
     expect(result.organizationId).toBeUndefined();
@@ -64,8 +79,8 @@ describe('CurrentUser Decorator', () => {
       customField: 'custom-value',
     };
 
-    const decorator = CurrentUser();
-    const result = decorator(null, mockExecutionContext);
+    const factory = getDecoratorFactory(TestController, 'test');
+    const result = factory(null, mockExecutionContext);
 
     expect(result.userId).toBe('full-user');
     expect(result.organizationId).toBe('org-789');

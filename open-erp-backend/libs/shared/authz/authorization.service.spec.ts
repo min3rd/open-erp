@@ -71,7 +71,7 @@ describe('AuthorizationService', () => {
       contactEmail: 'test@example.com',
       foundedDate: new Date('2020-01-01'),
       status: 'active',
-      createdBy: new MongooseSchema.Types.ObjectId(),
+      createdBy: new MongooseSchema.Types.ObjectId('000000000000000000000001'),
     });
 
     // Create global admin role
@@ -147,7 +147,7 @@ describe('AuthorizationService', () => {
       const result = await service.hasPermission(
         testUser._id.toString(),
         Permission.USER_CREATE,
-        { scope: 'tenant' },
+        { scope: 'organization' },
       );
       expect(result).toBe(true);
     });
@@ -198,7 +198,7 @@ describe('AuthorizationService', () => {
       const result = await service.hasPermission(
         testUser._id.toString(),
         Permission.USER_MANAGE,
-        { scope: 'tenant' },
+        { scope: 'organization' },
       );
       expect(result).toBe(true);
     });
@@ -243,7 +243,7 @@ describe('AuthorizationService', () => {
 
       const permissions = await service.getEffectivePermissions(
         testUser,
-        'tenant',
+        'organization',
       );
 
       expect(permissions).toContain(Permission.SYSTEM_ADMIN); // global
@@ -253,7 +253,7 @@ describe('AuthorizationService', () => {
     });
 
     it('should respect custom organizationId parameter', async () => {
-      const otherTenant = await organizationModel.create({
+      const otherTenant: any = await (organizationModel.create as any)({
         name: 'Other Tenant',
         slug: 'other-tenant',
         status: 'active',
@@ -262,7 +262,7 @@ describe('AuthorizationService', () => {
       const otherTenantRole = await roleModel.create({
         name: 'Other Tenant Role',
         code: 'OTHER_ROLE',
-        scope: 'tenant',
+        scope: 'organization',
         organizationId: otherTenant._id as any,
         permissions: [Permission.PRODUCT_CREATE],
         status: 'active',
@@ -284,7 +284,7 @@ describe('AuthorizationService', () => {
       // Check with user's default tenant
       const permissionsUserTenant = await service.getEffectivePermissions(
         testUser,
-        'tenant',
+        'organization',
       );
       expect(permissionsUserTenant).toContain(Permission.USER_CREATE);
       expect(permissionsUserTenant).not.toContain(Permission.PRODUCT_CREATE);
@@ -292,7 +292,7 @@ describe('AuthorizationService', () => {
       // Check with other tenant
       const permissionsOtherTenant = await service.getEffectivePermissions(
         testUser,
-        'tenant',
+        'organization',
         otherTenant._id,
       );
       expect(permissionsOtherTenant).not.toContain(Permission.USER_CREATE);
@@ -380,7 +380,7 @@ describe('AuthorizationService', () => {
     });
   });
 
-  describe('isTenantAdmin', () => {
+  describe('isOrganizationAdmin', () => {
     it('should return true for tenant admin of the same tenant', async () => {
       testUser.roleAssignments = [
         {
@@ -390,7 +390,7 @@ describe('AuthorizationService', () => {
       ];
       await testUser.save();
 
-      const result = await service.isTenantAdmin(testUser._id.toString());
+      const result = await service.isOrganizationAdmin(testUser._id.toString());
       expect(result).toBe(true);
     });
 
@@ -403,12 +403,12 @@ describe('AuthorizationService', () => {
       ];
       await testUser.save();
 
-      const result = await service.isTenantAdmin(testUser._id.toString());
+      const result = await service.isOrganizationAdmin(testUser._id.toString());
       expect(result).toBe(false);
     });
 
     it('should return false for tenant admin of different tenant', async () => {
-      const otherTenant = await organizationModel.create({
+      const otherTenant: any = await (organizationModel.create as any)({
         name: 'Other Tenant',
         slug: 'other-tenant',
         status: 'active',
@@ -417,7 +417,7 @@ describe('AuthorizationService', () => {
       const otherTenantAdminRole = await roleModel.create({
         name: 'Other Tenant Admin',
         code: 'TENANT_ADMIN',
-        scope: 'tenant',
+        scope: 'organization',
         organizationId: otherTenant._id as any,
         permissions: [Permission.USER_CREATE],
         status: 'active',
@@ -432,7 +432,7 @@ describe('AuthorizationService', () => {
       ];
       await testUser.save();
 
-      const result = await service.isTenantAdmin(testUser._id.toString());
+      const result = await service.isOrganizationAdmin(testUser._id.toString());
       expect(result).toBe(false);
     });
   });
@@ -445,7 +445,7 @@ describe('AuthorizationService', () => {
       const result = await service.hasAnyPermission(
         testUser._id.toString(),
         [Permission.USER_CREATE, Permission.USER_READ, Permission.USER_DELETE],
-        { scope: 'tenant' },
+        { scope: 'organization' },
       );
 
       expect(result).toBe(true);
@@ -477,7 +477,7 @@ describe('AuthorizationService', () => {
       const result = await service.hasAllPermissions(
         testUser._id.toString(),
         [Permission.USER_READ, Permission.USER_CREATE],
-        { scope: 'tenant' },
+        { scope: 'organization' },
       );
 
       expect(result).toBe(true);
@@ -490,7 +490,7 @@ describe('AuthorizationService', () => {
       const result = await service.hasAllPermissions(
         testUser._id.toString(),
         [Permission.USER_READ, Permission.USER_CREATE],
-        { scope: 'tenant' },
+        { scope: 'organization' },
       );
 
       expect(result).toBe(false);

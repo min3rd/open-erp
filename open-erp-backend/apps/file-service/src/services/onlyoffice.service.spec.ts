@@ -7,9 +7,9 @@ import { FileRepository } from '../repositories/file.repository';
 
 describe('OnlyOfficeService', () => {
   let service: OnlyOfficeService;
-  let minioService: jest.Mocked<Partial<MinioService>>;
-  let fileRepository: jest.Mocked<Partial<FileRepository>>;
-  let configService: jest.Mocked<Partial<ConfigService>>;
+  let minioService: any;
+  let fileRepository: any;
+  let configService: any;
 
   beforeEach(async () => {
     minioService = {

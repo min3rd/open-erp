@@ -103,7 +103,7 @@ describe('AuthService - Login Integration Tests', () => {
         password: 'Password123',
       };
 
-      const result = await service.login(loginDto);
+      const result = await service.login(loginDto) as any;
 
       expect(result).toBeDefined();
       expect(result.accessToken).toBeDefined();
@@ -486,8 +486,8 @@ describe('AuthService - Login Integration Tests', () => {
         password: 'Password123',
       };
 
-      const result1 = await service.login(loginDto);
-      const result2 = await service.login(loginDto);
+      const result1 = await service.login(loginDto) as any;
+      const result2 = await service.login(loginDto) as any;
 
       expect(result1.refreshToken).not.toBe(result2.refreshToken);
     });
@@ -517,7 +517,7 @@ describe('AuthService - Login Integration Tests', () => {
         password: 'Password123',
       };
 
-      const result = await service.login(loginDto);
+      const result = await service.login(loginDto) as any;
 
       // Decode JWT token (without verification for testing)
       const tokenParts = result.accessToken.split('.');

@@ -48,7 +48,7 @@ export class OrdersController {
    * Single permission required with explicit tenant scope
    */
   @Get(':id')
-  @Permissions(Permission.ORDER_READ, { scope: 'tenant' })
+  @Permissions(Permission.ORDER_READ, { scope: 'organization' })
   async getOrder(@Param('id') id: string) {
     return { message: `Order ${id} details` };
   }

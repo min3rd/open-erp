@@ -5,6 +5,7 @@
 import {
   parseNavigationArgs,
   manifestItemToDocument,
+  ManifestNavigationItem,
 } from '../seed-navigation';
 
 describe('Navigation Seed Script', () => {

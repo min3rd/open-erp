@@ -1,8 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  NavigationScope,
-  PermissionConfig,
-} from '../schemas/navigation.schema';
+import type { PermissionConfig } from '../schemas/navigation.schema';
+import { NavigationScope } from '../schemas/navigation.schema';
 
 export class NavigationItemDto {
   @ApiProperty({ description: 'Unique identifier' })

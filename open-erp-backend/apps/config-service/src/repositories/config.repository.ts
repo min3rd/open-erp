@@ -144,7 +144,7 @@ export class ConfigRepository {
           { data, description, updatedBy: userId },
           ownerId,
         );
-        return updated;
+        return updated!;
       } else {
         return await this.create({
           name,

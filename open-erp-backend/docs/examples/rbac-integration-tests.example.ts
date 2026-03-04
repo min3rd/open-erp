@@ -12,7 +12,7 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request = require('supertest');
 import { MongooseModule } from '@nestjs/mongoose';
 import { APP_GUARD } from '@nestjs/core';
 import { PermissionsGuard, AuthorizationService } from '@shared/authz';
@@ -132,7 +132,7 @@ describe('RBAC Authorization Integration Tests (Example)', () => {
       const hasPermission = await authorizationService.hasPermission(
         testUserId,
         Permission.ORDER_READ,
-        { scope: 'tenant', tenantId: testTenantId },
+        { scope: 'organization' },
       );
 
       expect(hasPermission).toBe(true);

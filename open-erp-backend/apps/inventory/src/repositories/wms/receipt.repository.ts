@@ -10,7 +10,8 @@ export class ReceiptRepository {
   ) {}
 
   async create(data: Partial<Receipt>): Promise<ReceiptDocument> {
-    return this.receiptModel.create(data);
+    const doc = new this.receiptModel(data);
+    return doc.save();
   }
 
   async findById(id: string): Promise<ReceiptDocument | null> {

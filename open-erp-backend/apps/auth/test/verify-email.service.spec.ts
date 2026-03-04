@@ -113,7 +113,7 @@ describe('AuthService - Email Verification Tests', () => {
 
       expect(result.success).toBe(true);
       expect(result.message).toContain('verified successfully');
-      expect(result.data.email).toBe(verifyEmailDto.email);
+      expect(result.data!.email).toBe(verifyEmailDto.email);
       expect(result.data.userId).toBe('user123');
 
       // Verify token was marked as used
@@ -253,8 +253,8 @@ describe('AuthService - Email Verification Tests', () => {
 
       expect(result.success).toBe(true);
       expect(result.message).toContain('sent to your email');
-      expect(result.data.email).toBe(resendDto.email);
-      expect(result.data.attemptsRemaining).toBe(1); // 3 max - 1 used - 1 current = 1
+      expect(result.data!.email).toBe(resendDto.email);
+      expect(result.data!.attemptsRemaining).toBe(1); // 3 max - 1 used - 1 current = 1
 
       // Verify new token was created
       expect(mockVerificationTokenRepository.create).toHaveBeenCalled();

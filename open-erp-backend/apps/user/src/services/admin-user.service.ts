@@ -48,7 +48,7 @@ export class AdminUserService {
    * @param identifier - Username or email address
    * @returns User document or null
    */
-  async findUserByIdentifier(identifier: string): Promise<UserDocument | null> {
+  async findUserByIdentifier(identifier: string): Promise<UserDocument> {
     try {
       const normalizedIdentifier = identifier.trim();
 

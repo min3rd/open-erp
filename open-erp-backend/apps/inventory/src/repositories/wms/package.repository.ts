@@ -10,7 +10,8 @@ export class WmsPackageRepository {
   ) {}
 
   async create(data: Partial<WmsPackage>): Promise<WmsPackageDocument> {
-    return this.packageModel.create(data);
+    const doc = new this.packageModel(data);
+    return doc.save();
   }
 
   async findById(id: string): Promise<WmsPackageDocument | null> {

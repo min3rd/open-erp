@@ -28,7 +28,7 @@ import { Permission, isValidPermission } from '@shared/types/permission.enum';
 /**
  * Result type for grant operation
  */
-interface GrantResult {
+export interface GrantResult {
   id: string;
   organizationId: string;
   userId: string;

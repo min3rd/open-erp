@@ -214,8 +214,8 @@ export class ConfigController {
       ownerId: config.ownerId,
       createdBy: config.createdBy,
       updatedBy: config.updatedBy,
-      createdAt: config.createdAt,
-      updatedAt: config.updatedAt,
+      createdAt: config.createdAt!,
+      updatedAt: config.updatedAt!,
     };
   }
 }

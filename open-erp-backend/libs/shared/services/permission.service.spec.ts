@@ -71,7 +71,7 @@ describe('PermissionService', () => {
       contactEmail: 'test@example.com',
       foundedDate: new Date('2020-01-01'),
       status: 'active',
-      createdBy: new MongooseSchema.Types.ObjectId(),
+      createdBy: new MongooseSchema.Types.ObjectId('000000000000000000000001'),
     });
 
     // Create global admin role
@@ -314,7 +314,7 @@ describe('PermissionService', () => {
 
     it('should only include permissions from tenant roles matching user tenant', async () => {
       // Create another tenant and role
-      const otherOrganization = await organizationModel.create({
+      const otherOrganization: any = await (organizationModel.create as any)({
         name: 'Other Tenant',
         slug: 'other-tenant',
         status: 'active',
@@ -323,7 +323,7 @@ describe('PermissionService', () => {
       const otherOrganizationRole = await roleModel.create({
         name: 'Other Tenant Role',
         code: 'OTHER_ROLE',
-        scope: 'tenant',
+        scope: 'organization',
         organizationId: otherOrganization._id as any,
         permissions: [Permission.PRODUCT_CREATE],
         status: 'active',
@@ -388,7 +388,7 @@ describe('PermissionService', () => {
       const role1 = await roleModel.create({
         name: 'Role 1',
         code: 'ROLE_1',
-        scope: 'tenant',
+        scope: 'organization',
         organizationId: testOrganization._id as any,
         permissions: [Permission.USER_READ, Permission.USER_CREATE],
         status: 'active',
@@ -398,7 +398,7 @@ describe('PermissionService', () => {
       const role2 = await roleModel.create({
         name: 'Role 2',
         code: 'ROLE_2',
-        scope: 'tenant',
+        scope: 'organization',
         organizationId: testOrganization._id as any,
         permissions: [Permission.USER_READ, Permission.USER_UPDATE],
         status: 'active',
