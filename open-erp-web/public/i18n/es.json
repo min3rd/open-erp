@@ -2676,5 +2676,58 @@
       "type": "Tipo",
       "status": "Estado"
     }
+  },
+  "wms": {
+    "title": "WMS",
+    "refresh": "Actualizar",
+    "view": "Ver",
+    "navigation": {
+      "toggleNavMode": "Cambiar modo de navegación",
+      "noItems": "No hay elementos de navegación"
+    },
+    "receipts": {
+      "title": "Recepciones",
+      "detail": "Detalle de Recepción",
+      "empty": "No se encontraron recepciones",
+      "allStatuses": "Todos los estados",
+      "poId": "Referencia PO",
+      "supplier": "Proveedor",
+      "lines": "Líneas",
+      "status": "Estado",
+      "createdAt": "Creado",
+      "notes": "Notas",
+      "sku": "SKU",
+      "ordered": "Pedido",
+      "received": "Recibido",
+      "qcStatus": "Estado QC"
+    },
+    "picklists": {
+      "title": "Listas de Picking",
+      "detail": "Detalle de Lista de Picking",
+      "empty": "No se encontraron listas de picking",
+      "allStatuses": "Todos los estados",
+      "id": "ID",
+      "orders": "Órdenes",
+      "lines": "Líneas",
+      "status": "Estado",
+      "createdAt": "Creado",
+      "sku": "SKU",
+      "qty": "Cant.",
+      "picked": "Recogido"
+    },
+    "shipments": {
+      "title": "Envíos",
+      "detail": "Detalle de Envío",
+      "empty": "No se encontraron envíos",
+      "allStatuses": "Todos los estados",
+      "carrier": "Transportista",
+      "trackingNumber": "Nº seguimiento",
+      "recipient": "Destinatario",
+      "address": "Dirección",
+      "status": "Estado",
+      "shippedAt": "Enviado",
+      "deliveredAt": "Entregado",
+      "notes": "Notas"
+    }
   }
 }

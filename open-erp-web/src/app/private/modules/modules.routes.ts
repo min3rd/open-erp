@@ -19,6 +19,10 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./inventory/stock/stock.routes').then((m) => m.routes),
       },
+      {
+        path: 'wms',
+        loadChildren: () => import('./wms/wms.routes').then((m) => m.routes),
+      },
     ],
   },
 ];

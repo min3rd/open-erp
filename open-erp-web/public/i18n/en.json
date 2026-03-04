@@ -3709,5 +3709,58 @@
       "type": "Type",
       "status": "Status"
     }
+  },
+  "wms": {
+    "title": "WMS",
+    "refresh": "Refresh",
+    "view": "View",
+    "navigation": {
+      "toggleNavMode": "Toggle navigation mode",
+      "noItems": "No navigation items available"
+    },
+    "receipts": {
+      "title": "Receipts",
+      "detail": "Receipt Detail",
+      "empty": "No receipts found",
+      "allStatuses": "All Statuses",
+      "poId": "PO Reference",
+      "supplier": "Supplier",
+      "lines": "Lines",
+      "status": "Status",
+      "createdAt": "Created",
+      "notes": "Notes",
+      "sku": "SKU",
+      "ordered": "Ordered",
+      "received": "Received",
+      "qcStatus": "QC Status"
+    },
+    "picklists": {
+      "title": "Picklists",
+      "detail": "Picklist Detail",
+      "empty": "No picklists found",
+      "allStatuses": "All Statuses",
+      "id": "ID",
+      "orders": "Orders",
+      "lines": "Lines",
+      "status": "Status",
+      "createdAt": "Created",
+      "sku": "SKU",
+      "qty": "Qty",
+      "picked": "Picked"
+    },
+    "shipments": {
+      "title": "Shipments",
+      "detail": "Shipment Detail",
+      "empty": "No shipments found",
+      "allStatuses": "All Statuses",
+      "carrier": "Carrier",
+      "trackingNumber": "Tracking #",
+      "recipient": "Recipient",
+      "address": "Address",
+      "status": "Status",
+      "shippedAt": "Shipped",
+      "deliveredAt": "Delivered",
+      "notes": "Notes"
+    }
   }
 }

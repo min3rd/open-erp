@@ -1,0 +1,144 @@
+<div class="flex h-full flex-col">
+  <!-- Toolbar -->
+  <mp-toolbar id="shipment-list-toolbar">
+    <ng-template #start>
+      <span class="text-lg font-semibold">{{ 'wms.shipments.title' | transloco }}</span>
+      <p-select
+        [options]="statusOptions"
+        [ngModel]="selectedStatus()"
+        (ngModelChange)="onStatusChange($event)"
+        optionLabel="label"
+        optionValue="value"
+        [placeholder]="'wms.shipments.allStatuses' | transloco"
+        [showClear]="true"
+        class="ml-2 w-40"
+      />
+    </ng-template>
+    <ng-template #end>
+      <p-button
+        icon="pi pi-refresh"
+        [rounded]="true"
+        [text]="true"
+        (onClick)="refresh()"
+        [pTooltip]="'wms.refresh' | transloco"
+        tooltipPosition="bottom"
+      />
+    </ng-template>
+  </mp-toolbar>
+
+  <!-- Table -->
+  <div class="flex-1 overflow-hidden">
+    <p-table
+      [value]="shipments()"
+      [loading]="loading()"
+      [scrollable]="true"
+      scrollHeight="flex"
+      [resizableColumns]="true"
+      dataKey="id"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template #header>
+        <tr>
+          <th pResizableColumn>{{ 'wms.shipments.carrier' | transloco }}</th>
+          <th pResizableColumn style="width: 180px">{{ 'wms.shipments.trackingNumber' | transloco }}</th>
+          <th pResizableColumn>{{ 'wms.shipments.recipient' | transloco }}</th>
+          <th pResizableColumn style="width: 130px">{{ 'wms.shipments.status' | transloco }}</th>
+          <th pResizableColumn style="width: 160px">{{ 'wms.shipments.shippedAt' | transloco }}</th>
+          <th style="width: 80px"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-shipment>
+        <tr>
+          <td>{{ shipment.carrier || '-' }}</td>
+          <td>{{ shipment.trackingNumber || '-' }}</td>
+          <td>{{ shipment.recipientName || '-' }}</td>
+          <td>
+            <p-tag
+              [value]="shipment.status"
+              [severity]="getStatusSeverity(shipment.status)"
+            />
+          </td>
+          <td>{{ shipment.shippedAt ? (shipment.shippedAt | date:'short') : '-' }}</td>
+          <td>
+            <p-button
+              icon="pi pi-eye"
+              [text]="true"
+              [rounded]="true"
+              size="small"
+              (onClick)="openDetail(shipment)"
+              [pTooltip]="'wms.view' | transloco"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6" class="text-center py-8 text-surface-400">
+            {{ 'wms.shipments.empty' | transloco }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Shipment Detail Drawer -->
+  <p-drawer
+    [visible]="drawerVisible()"
+    (visibleChange)="drawerVisible.set($event)"
+    position="right"
+    [style]="{ width: isMobile() ? '100%' : '560px' }"
+    [header]="'wms.shipments.detail' | transloco"
+  >
+    @if (selectedShipment()) {
+      <div class="flex flex-col gap-4 p-2">
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <span class="text-surface-500">{{ 'wms.shipments.carrier' | transloco }}</span>
+            <p class="font-medium">{{ selectedShipment()!.carrier || '-' }}</p>
+          </div>
+          <div>
+            <span class="text-surface-500">{{ 'wms.shipments.trackingNumber' | transloco }}</span>
+            <p class="font-medium">{{ selectedShipment()!.trackingNumber || '-' }}</p>
+          </div>
+          <div>
+            <span class="text-surface-500">{{ 'wms.shipments.recipient' | transloco }}</span>
+            <p class="font-medium">{{ selectedShipment()!.recipientName || '-' }}</p>
+          </div>
+          <div>
+            <span class="text-surface-500">{{ 'wms.shipments.status' | transloco }}</span>
+            <div class="mt-1">
+              <p-tag
+                [value]="selectedShipment()!.status"
+                [severity]="getStatusSeverity(selectedShipment()!.status)"
+              />
+            </div>
+          </div>
+          @if (selectedShipment()!.recipientAddress) {
+            <div class="col-span-2">
+              <span class="text-surface-500">{{ 'wms.shipments.address' | transloco }}</span>
+              <p class="font-medium">{{ selectedShipment()!.recipientAddress }}</p>
+            </div>
+          }
+          @if (selectedShipment()!.shippedAt) {
+            <div>
+              <span class="text-surface-500">{{ 'wms.shipments.shippedAt' | transloco }}</span>
+              <p class="font-medium">{{ selectedShipment()!.shippedAt | date:'medium' }}</p>
+            </div>
+          }
+          @if (selectedShipment()!.deliveredAt) {
+            <div>
+              <span class="text-surface-500">{{ 'wms.shipments.deliveredAt' | transloco }}</span>
+              <p class="font-medium">{{ selectedShipment()!.deliveredAt | date:'medium' }}</p>
+            </div>
+          }
+        </div>
+        @if (selectedShipment()!.notes) {
+          <div class="text-sm">
+            <span class="text-surface-500">{{ 'wms.shipments.notes' | transloco }}</span>
+            <p class="font-medium">{{ selectedShipment()!.notes }}</p>
+          </div>
+        }
+      </div>
+    }
+  </p-drawer>
+</div>
