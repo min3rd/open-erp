@@ -67,7 +67,7 @@ export interface CreateReceiptDto {
 }
 
 export interface ReceiveLineDto {
-  lineId: string;
+  skuId: string;
   receivedQty: number;
   lotId?: string;
   serials?: string[];

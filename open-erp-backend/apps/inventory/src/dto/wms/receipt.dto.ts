@@ -72,9 +72,9 @@ export class CreateReceiptDto {
 }
 
 export class ReceiveLineDto {
-  @ApiProperty({ description: 'Line index or SKU ID' })
+  @ApiProperty({ description: 'SKU ID of the line to receive' })
   @IsString()
-  lineId: string;
+  skuId: string;
 
   @ApiProperty({ description: 'Received quantity' })
   @IsNumber()
