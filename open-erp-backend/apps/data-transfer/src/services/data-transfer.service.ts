@@ -263,12 +263,17 @@ export class DataTransferService {
       const errors: Array<{ row: number; field: string; message: string; value?: any }> = [];
       let created = 0;
 
+      // Build reverse mapping once: entityField -> columnName (O(1) lookup)
+      const reverseMapping: Record<string, string> = {};
+      Object.entries(mapping).forEach(([col, field]) => {
+        reverseMapping[field] = col;
+      });
+
       for (const row of firstSheet.rows) {
         try {
           const entityData: Record<string, any> = {};
           template.fields.forEach((field) => {
-            // Try mapped column name first, then original field key
-            const columnName = Object.keys(mapping).find((k) => mapping[k] === field.key) || field.label || field.key;
+            const columnName = reverseMapping[field.key] || field.label || field.key;
             const value = row.data[columnName];
             if (value !== undefined && value !== '') {
               entityData[field.key] = value;

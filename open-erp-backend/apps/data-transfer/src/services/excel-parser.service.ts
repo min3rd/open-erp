@@ -76,20 +76,29 @@ export class ExcelParserService {
 
   private parseCSV(buffer: Buffer): ParseResult {
     const content = buffer.toString('utf-8');
-    const lines = content.split('\n').filter((line) => line.trim());
+    // Normalize line endings
+    const lines = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter((line) => line.trim());
 
     if (lines.length === 0) {
       return { sheets: [{ name: 'Sheet1', headers: [], rows: [] }], format: 'csv' };
     }
 
+    // RFC 4180 compliant CSV parser
     const parseCSVLine = (line: string): string[] => {
       const result: string[] = [];
       let current = '';
       let inQuotes = false;
+      let i = 0;
 
-      for (let i = 0; i < line.length; i++) {
+      while (i < line.length) {
         const char = line[i];
         if (char === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            // Escaped double quote inside quoted field
+            current += '"';
+            i += 2;
+            continue;
+          }
           inQuotes = !inQuotes;
         } else if (char === ',' && !inQuotes) {
           result.push(current.trim());
@@ -97,6 +106,7 @@ export class ExcelParserService {
         } else {
           current += char;
         }
+        i++;
       }
       result.push(current.trim());
       return result;

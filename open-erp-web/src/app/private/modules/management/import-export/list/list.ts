@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, interval, switchMap, takeWhile, filter } from 'rxjs';
 
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -77,8 +77,6 @@ export class ImportExportList implements OnInit, OnDestroy {
   private readonly messageService = inject(MessageService);
   private readonly translocoService = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
-  private readonly pollIntervals: ReturnType<typeof setInterval>[] = [];
-  private readonly pollTimeouts: ReturnType<typeof setTimeout>[] = [];
 
   protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
   protected readonly JobStatus = JobStatus;
@@ -140,8 +138,6 @@ export class ImportExportList implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.pollIntervals.forEach((id) => clearInterval(id));
-    this.pollTimeouts.forEach((id) => clearTimeout(id));
   }
 
   private loadJobs(page: number, limit: number): void {
@@ -253,27 +249,21 @@ export class ImportExportList implements OnInit, OnDestroy {
   }
 
   private pollJobStatus(jobId: string): void {
-    const interval = setInterval(() => {
-      this.service.getJob(jobId).subscribe({
-        next: (job) => {
-          if (job.status === JobStatus.COMPLETED || job.status === JobStatus.FAILED) {
-            clearInterval(interval);
-            this.loadJobs(this.currentPage(), this.pageSize());
-            if (job.status === JobStatus.COMPLETED) {
-              this.messageService.add({
-                severity: 'success',
-                summary: this.translocoService.translate('importExport.messages.jobCompleted'),
-                detail: `${job.entity} ${job.type} completed`,
-              });
-            }
-          }
-        },
-        error: () => clearInterval(interval),
-      });
-    }, 2000);
-    this.pollIntervals.push(interval);
-    const timeout = setTimeout(() => clearInterval(interval), 60000);
-    this.pollTimeouts.push(timeout);
+    interval(2000).pipe(
+      takeUntil(this.destroy$),
+      switchMap(() => this.service.getJob(jobId)),
+      takeWhile((job) => job.status !== JobStatus.COMPLETED && job.status !== JobStatus.FAILED, true),
+      filter((job) => job.status === JobStatus.COMPLETED || job.status === JobStatus.FAILED),
+    ).subscribe((job) => {
+      this.loadJobs(this.currentPage(), this.pageSize());
+      if (job.status === JobStatus.COMPLETED) {
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translocoService.translate('importExport.messages.jobCompleted'),
+          detail: `${job.entity} ${job.type} completed`,
+        });
+      }
+    });
   }
 
   protected downloadExport(job: ImportExportJob): void {
