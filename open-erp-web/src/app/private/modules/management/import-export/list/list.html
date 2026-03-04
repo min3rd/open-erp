@@ -38,7 +38,7 @@
         [placeholder]="'importExport.filters.search' | transloco"
         [ngModel]="searchQuery()"
         (ngModelChange)="searchQuery.set($event)"
-        (keyup.enter)="applyFilters()"
+        (keydown)="onSearchKeyDown($event)"
         class="!text-sm"
       />
     </p-iconfield>
