@@ -19,6 +19,8 @@ import {
   WarehouseSchema,
   Organization,
   OrganizationSchema,
+  Role,
+  RoleSchema,
 } from '@shared/schemas';
 
 import { DataTransferController } from './controllers/data-transfer.controller';
@@ -46,6 +48,7 @@ import { PermissionService } from '@shared/services';
       { name: Product.name, schema: ProductSchema },
       { name: Warehouse.name, schema: WarehouseSchema },
       { name: Organization.name, schema: OrganizationSchema },
+      { name: Role.name, schema: RoleSchema },
     ]),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     MulterModule.register({ limits: { fileSize: 50 * 1024 * 1024 } }), // 50MB
