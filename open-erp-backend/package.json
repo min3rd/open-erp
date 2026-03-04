@@ -64,6 +64,7 @@
     "db:seed:users": "ts-node -r tsconfig-paths/register scripts/seeds/seed-users.ts",
     "db:seed:warehouses": "ts-node -r tsconfig-paths/register scripts/seeds/seed-warehouses.ts",
     "db:seed:inventory-stock": "ts-node -r tsconfig-paths/register scripts/seeds/seed-inventory-stock.ts",
+    "db:seed:wms": "ts-node -r tsconfig-paths/register scripts/seeds/seed-wms.ts",
     "db:seed:relations": "ts-node -r tsconfig-paths/register scripts/seeds/seed-relations.ts",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",

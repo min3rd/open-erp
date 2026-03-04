@@ -37,6 +37,7 @@ import { seedRelations } from './seed-relations';
 import { seedNavigation } from './seed-navigation';
 import { seedProductTypes } from './seed-product-types';
 import { seedProductCategories } from './seed-product-categories';
+import { seedWms } from './seed-wms';
 
 require('dotenv').config();
 
@@ -55,6 +56,7 @@ interface Options {
   skipNavigation?: boolean;
   skipProductTypes?: boolean;
   skipProductCategories?: boolean;
+  skipWms?: boolean;
   warehouseCount?: number;
   orgCount?: number;
   userCount?: number;
@@ -111,6 +113,7 @@ function parseArgs(): Options {
     'skip-navigation',
     'skip-product-types',
     'skip-product-categories',
+    'skip-wms',
     'warehouse-count',
     'org-count',
     'user-count',
@@ -197,6 +200,9 @@ function parseArgs(): Options {
         break;
       case '--skip-product-categories':
         opts.skipProductCategories = true;
+        break;
+      case '--skip-wms':
+        opts.skipWms = true;
         break;
       case '--warehouse-count':
         if (expandedArgs[i + 1]) {
@@ -539,6 +545,29 @@ async function seedAll() {
     }
   } else {
     console.log('\nSkipping product categories seeding');
+  }
+
+  // 12. Seed WMS Demo Data
+  if (!opts.skipWms) {
+    console.log('\n' + '='.repeat(60));
+    console.log('STEP 12: Seeding WMS Demo Data');
+    console.log('='.repeat(60));
+    try {
+      await seedWms({
+        drop: opts.drop,
+        dryRun: opts.dryRun,
+        warehouses: Math.min(opts.warehouseCount || 5, 5),
+      });
+      results.push({ name: 'WMS Demo Data', success: true });
+      console.log('✓ WMS demo data seeding completed successfully');
+    } catch (err: any) {
+      const errorMsg = err.message || String(err);
+      results.push({ name: 'WMS Demo Data', success: false, error: errorMsg });
+      console.error('✗ WMS demo data seeding failed:', errorMsg);
+      // Non-fatal: WMS data depends on products which may not exist yet
+    }
+  } else {
+    console.log('\nSkipping WMS demo data seeding');
   }
 
   // Print summary
