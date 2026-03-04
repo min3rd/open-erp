@@ -5,6 +5,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { MulterModule } from '@nestjs/platform-express';
 import { LoggerModule } from '@shared/logger';
 import { getDatabaseConfig, getMongooseOptions } from '@shared/database';
+import { MinioModule } from '@shared/services/minio/minio.module';
 
 import {
   ImportExportJob,
@@ -53,6 +54,7 @@ import { PermissionService } from '@shared/services';
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     MulterModule.register({ limits: { fileSize: 50 * 1024 * 1024 } }), // 50MB
     LoggerModule,
+    MinioModule,
   ],
   controllers: [DataTransferController, HealthController],
   providers: [

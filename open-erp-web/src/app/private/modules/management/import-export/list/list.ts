@@ -11,9 +11,9 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { Subject, takeUntil, interval, switchMap, takeWhile, filter } from 'rxjs';
+import { Subject, takeUntil, interval, switchMap, takeWhile, filter, combineLatest } from 'rxjs';
 
-import { TableModule } from 'primeng/table';
+import { TableModule, TablePageEvent } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { DrawerModule } from 'primeng/drawer';
@@ -24,9 +24,10 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 import { MpToolbar } from '../../../../../../core/components/toolbar';
-import { PaginationComponent } from '../../../../../../core/components/pagination/pagination';
 import { UserDatePipe } from '../../../../../../core/pipes/user-date.pipe';
 import {
   ImportExportService,
@@ -34,12 +35,12 @@ import {
   EntityTemplate,
   ExportFormat,
   ExportMode,
+  ExportScope,
   ImportMode,
   JobStatus,
   JobType,
   CreateExportJobDto,
 } from '../../../../../../core/services/import-export/import-export.service';
-import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 interface SelectOption {
   label: string;
@@ -62,8 +63,9 @@ interface SelectOption {
     ProgressBarModule,
     TooltipModule,
     ToastModule,
+    IconFieldModule,
+    InputIconModule,
     MpToolbar,
-    PaginationComponent,
     UserDatePipe,
   ],
   providers: [MessageService],
@@ -78,34 +80,56 @@ export class ImportExportList implements OnInit, OnDestroy {
   private readonly translocoService = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
-  protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
   protected readonly JobStatus = JobStatus;
   protected readonly JobType = JobType;
 
+  // Table state
   protected readonly jobs = signal<ImportExportJob[]>([]);
   protected readonly isLoading = signal(false);
   protected readonly currentPage = signal(1);
   protected readonly pageSize = signal(20);
   protected readonly totalRecords = signal(0);
 
+  // Filter state
+  protected readonly searchQuery = signal('');
+  protected readonly filterType = signal<string>('');
+  protected readonly filterEntity = signal<string>('');
+  protected readonly filterStatus = signal<string>('');
+
+  // Export drawer
   protected readonly showExportDrawer = signal(false);
   protected readonly templates = signal<EntityTemplate[]>([]);
   protected readonly selectedEntity = signal<string>('');
   protected readonly selectedFormat = signal<ExportFormat>(ExportFormat.XLSX);
   protected readonly selectedExportMode = signal<ExportMode>(ExportMode.FLAT);
+  protected readonly selectedScope = signal<ExportScope>(ExportScope.GLOBAL);
+  protected readonly exportOrgId = signal<string>('');
   protected readonly isExporting = signal(false);
 
+  // Import drawer
   protected readonly showImportDrawer = signal(false);
   protected readonly importEntity = signal<string>('');
   protected readonly importMode = signal<ImportMode>(ImportMode.CREATE_ONLY);
   protected readonly selectedFile = signal<File | null>(null);
   protected readonly isImporting = signal(false);
 
-  protected readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
-
   protected readonly entityOptions = computed<SelectOption[]>(() =>
     this.templates().map((t) => ({ label: t.label, value: t.entity })),
   );
+
+  protected readonly typeFilterOptions: SelectOption[] = [
+    { label: 'All', value: '' },
+    { label: 'Export', value: JobType.EXPORT },
+    { label: 'Import', value: JobType.IMPORT },
+  ];
+
+  protected readonly statusFilterOptions: SelectOption[] = [
+    { label: 'All', value: '' },
+    { label: 'Pending', value: JobStatus.PENDING },
+    { label: 'Processing', value: JobStatus.PROCESSING },
+    { label: 'Completed', value: JobStatus.COMPLETED },
+    { label: 'Failed', value: JobStatus.FAILED },
+  ];
 
   protected readonly formatOptions: SelectOption[] = [
     { label: 'Excel (.xlsx)', value: ExportFormat.XLSX },
@@ -115,6 +139,11 @@ export class ImportExportList implements OnInit, OnDestroy {
   protected readonly exportModeOptions: SelectOption[] = [
     { label: 'Flat (single sheet)', value: ExportMode.FLAT },
     { label: 'Relational (multi-sheet)', value: ExportMode.RELATIONAL },
+  ];
+
+  protected readonly scopeOptions: SelectOption[] = [
+    { label: 'Global (all data)', value: ExportScope.GLOBAL },
+    { label: 'Organization (current org)', value: ExportScope.ORG },
   ];
 
   protected readonly importModeOptions: SelectOption[] = [
@@ -131,7 +160,6 @@ export class ImportExportList implements OnInit, OnDestroy {
       this.pageSize.set(limit);
       this.loadJobs(page, limit);
     });
-
     this.loadTemplates();
   }
 
@@ -142,14 +170,21 @@ export class ImportExportList implements OnInit, OnDestroy {
 
   private loadJobs(page: number, limit: number): void {
     this.isLoading.set(true);
-    this.service.getJobs(page, limit).subscribe({
-      next: (data) => {
-        this.jobs.set(data.items || []);
-        this.totalRecords.set(data.total || 0);
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false),
-    });
+    this.service
+      .getJobs(page, limit, {
+        q: this.searchQuery() || undefined,
+        type: this.filterType() || undefined,
+        entity: this.filterEntity() || undefined,
+        status: this.filterStatus() || undefined,
+      })
+      .subscribe({
+        next: (data) => {
+          this.jobs.set(data.items || []);
+          this.totalRecords.set(data.total || 0);
+          this.isLoading.set(false);
+        },
+        error: () => this.isLoading.set(false),
+      });
   }
 
   private loadTemplates(): void {
@@ -159,8 +194,17 @@ export class ImportExportList implements OnInit, OnDestroy {
     });
   }
 
-  protected onPageChange(event: { page: number; pageSize: number }): void {
-    this.router.navigate(['../../..', '-', event.page, event.pageSize], { relativeTo: this.route });
+  protected onPage(event: TablePageEvent): void {
+    const page = Math.floor((event.first ?? 0) / (event.rows ?? 20)) + 1;
+    const limit = event.rows ?? 20;
+    this.currentPage.set(page);
+    this.pageSize.set(limit);
+    this.router.navigate(['../../..', '-', page, limit], { relativeTo: this.route });
+  }
+
+  protected applyFilters(): void {
+    this.currentPage.set(1);
+    this.loadJobs(1, this.pageSize());
   }
 
   protected openExportDrawer(): void {
@@ -170,6 +214,8 @@ export class ImportExportList implements OnInit, OnDestroy {
   protected closeExportDrawer(): void {
     this.showExportDrawer.set(false);
     this.selectedEntity.set('');
+    this.selectedScope.set(ExportScope.GLOBAL);
+    this.exportOrgId.set('');
   }
 
   protected openImportDrawer(): void {
@@ -190,6 +236,8 @@ export class ImportExportList implements OnInit, OnDestroy {
       entity: this.selectedEntity(),
       format: this.selectedFormat(),
       exportMode: this.selectedExportMode(),
+      scope: this.selectedScope(),
+      orgId: this.selectedScope() === ExportScope.ORG ? this.exportOrgId() : undefined,
     };
 
     this.service.createExportJob(dto).subscribe({
@@ -249,21 +297,23 @@ export class ImportExportList implements OnInit, OnDestroy {
   }
 
   private pollJobStatus(jobId: string): void {
-    interval(2000).pipe(
-      takeUntil(this.destroy$),
-      switchMap(() => this.service.getJob(jobId)),
-      takeWhile((job) => job.status !== JobStatus.COMPLETED && job.status !== JobStatus.FAILED, true),
-      filter((job) => job.status === JobStatus.COMPLETED || job.status === JobStatus.FAILED),
-    ).subscribe((job) => {
-      this.loadJobs(this.currentPage(), this.pageSize());
-      if (job.status === JobStatus.COMPLETED) {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translocoService.translate('importExport.messages.jobCompleted'),
-          detail: `${job.entity} ${job.type} completed`,
-        });
-      }
-    });
+    interval(2000)
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap(() => this.service.getJob(jobId)),
+        takeWhile((job) => job.status !== JobStatus.COMPLETED && job.status !== JobStatus.FAILED, true),
+        filter((job) => job.status === JobStatus.COMPLETED || job.status === JobStatus.FAILED),
+      )
+      .subscribe((job) => {
+        this.loadJobs(this.currentPage(), this.pageSize());
+        if (job.status === JobStatus.COMPLETED) {
+          this.messageService.add({
+            severity: 'success',
+            summary: this.translocoService.translate('importExport.messages.jobCompleted'),
+            detail: `${job.entity} ${job.type} completed`,
+          });
+        }
+      });
   }
 
   protected downloadExport(job: ImportExportJob): void {

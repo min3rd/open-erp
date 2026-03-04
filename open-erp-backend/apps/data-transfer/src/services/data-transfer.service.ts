@@ -18,12 +18,15 @@ import {
   Organization,
   OrganizationDocument,
 } from '@shared/schemas';
+import { MinioService } from '@shared/services/minio/minio.service';
 import { ExcelParserService, ExportData } from './excel-parser.service';
-import { ImportExportJobRepository } from '../repositories/import-export-job.repository';
+import { ImportExportJobRepository, FindJobsOptions } from '../repositories/import-export-job.repository';
 import { MappingTemplateRepository } from '../repositories/mapping-template.repository';
-import { CreateExportJobDto } from '../dto/create-export-job.dto';
+import { CreateExportJobDto, ExportScope } from '../dto/create-export-job.dto';
 import { CreateImportJobDto } from '../dto/create-import-job.dto';
 import { SaveMappingTemplateDto } from '../dto/save-mapping-template.dto';
+
+const EXPORT_BUCKET = 'import-export';
 
 export interface EntityTemplate {
   entity: string;
@@ -88,6 +91,7 @@ export class DataTransferService {
     private readonly excelParser: ExcelParserService,
     private readonly jobRepo: ImportExportJobRepository,
     private readonly mappingRepo: MappingTemplateRepository,
+    private readonly minioService: MinioService,
   ) {}
 
   getTemplates(): EntityTemplate[] {
@@ -98,8 +102,8 @@ export class DataTransferService {
     return this.entityTemplates[entity];
   }
 
-  async getJobs(userId: string, page = 1, limit = 20) {
-    return this.jobRepo.findByUser(userId, page, limit);
+  async getJobs(userId: string, options: FindJobsOptions = {}) {
+    return this.jobRepo.findByUser(userId, options);
   }
 
   async getJobById(id: string): Promise<ImportExportJobDocument> {
@@ -140,7 +144,9 @@ export class DataTransferService {
     userId: string,
   ): Promise<void> {
     try {
-      const data = await this.fetchEntityData(dto.entity, dto.filters, dto.orgId);
+      // Scope: if scope=org and orgId provided, filter by org; if scope=global (default), no org filter
+      const orgFilter = dto.scope === ExportScope.ORG && dto.orgId ? dto.orgId : undefined;
+      const data = await this.fetchEntityData(dto.entity, dto.filters, orgFilter);
       const template = this.entityTemplates[dto.entity];
       const headers = template.fields.map((f) => f.label);
       const rows = data.map((item: any) => {
@@ -154,31 +160,42 @@ export class DataTransferService {
       const exportData: ExportData = { entity: template.label, headers, rows };
       const format = dto.format || ExportFormat.XLSX;
 
-      let fileContent: Buffer | string;
-      let fileName: string;
+      let fileBuffer: Buffer;
+      let fileKey: string;
       let contentType: string;
 
       if (format === ExportFormat.CSV) {
-        fileContent = this.excelParser.generateCSV(exportData);
-        fileName = `${dto.entity}-export-${Date.now()}.csv`;
+        const csv = this.excelParser.generateCSV(exportData);
+        fileBuffer = Buffer.from(csv, 'utf-8');
+        fileKey = `exports/${jobId}-${dto.entity}-${Date.now()}.csv`;
         contentType = 'text/csv';
       } else {
-        fileContent = await this.excelParser.generateXLSX([exportData]);
-        fileName = `${dto.entity}-export-${Date.now()}.xlsx`;
+        fileBuffer = await this.excelParser.generateXLSX([exportData]);
+        fileKey = `exports/${jobId}-${dto.entity}-${Date.now()}.xlsx`;
         contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
       }
 
-      // For now, store as base64 data URL (in production, would upload to MinIO)
-      const base64 = Buffer.isBuffer(fileContent)
-        ? fileContent.toString('base64')
-        : Buffer.from(fileContent).toString('base64');
+      // Upload to MinIO
+      const uploadResult = await this.minioService.upload(fileKey, fileBuffer, {
+        bucket: EXPORT_BUCKET,
+        contentType,
+        originalFilename: `${dto.entity}-export.${format}`,
+        uploadedBy: userId,
+      });
+
+      // Generate presigned download URL (1 hour expiry)
+      const presigned = await this.minioService.presignDownload(uploadResult.key, {
+        bucket: EXPORT_BUCKET,
+        expiresIn: 3600,
+      });
 
       await this.jobRepo.updateById(jobId, {
         status: JobStatus.COMPLETED,
         totalRows: data.length,
         processedRows: data.length,
-        downloadUrl: `data:${contentType};base64,${base64}`,
-        fileKey: fileName,
+        fileKey: uploadResult.key,
+        fileBucket: EXPORT_BUCKET,
+        downloadUrl: presigned.url,
       });
     } catch (err: any) {
       await this.jobRepo.updateById(jobId, {
@@ -367,27 +384,19 @@ export class DataTransferService {
     await this.mappingRepo.deleteById(id);
   }
 
-  async downloadExport(jobId: string): Promise<{ buffer: Buffer; fileName: string; contentType: string }> {
+  async getDownloadUrl(jobId: string): Promise<string> {
     const job = await this.getJobById(jobId);
     if (job.type !== JobType.EXPORT || job.status !== JobStatus.COMPLETED) {
       throw new BadRequestException('Export job not completed');
     }
-
-    if (!job.downloadUrl) {
+    if (!job.fileKey) {
       throw new NotFoundException('Download not available');
     }
-
-    // Parse data URL
-    const matches = job.downloadUrl.match(/^data:([^;]+);base64,(.+)$/);
-    if (!matches) {
-      throw new BadRequestException('Invalid download URL format');
-    }
-
-    const contentType = matches[1];
-    const buffer = Buffer.from(matches[2], 'base64');
-    const ext = contentType.includes('csv') ? 'csv' : 'xlsx';
-    const fileName = `${job.entity}-export-${job._id.toString()}.${ext}`;
-
-    return { buffer, fileName, contentType };
+    // Generate a fresh presigned URL (1 hour expiry)
+    const presigned = await this.minioService.presignDownload(job.fileKey, {
+      bucket: job.fileBucket || EXPORT_BUCKET,
+      expiresIn: 3600,
+    });
+    return presigned.url;
   }
 }

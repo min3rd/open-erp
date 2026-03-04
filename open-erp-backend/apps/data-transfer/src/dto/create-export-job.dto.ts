@@ -2,6 +2,11 @@ import { IsString, IsOptional, IsEnum, IsObject } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ExportFormat, ExportMode } from '@shared/schemas';
 
+export enum ExportScope {
+  GLOBAL = 'global',
+  ORG = 'org',
+}
+
 export class CreateExportJobDto {
   @ApiProperty({ description: 'Entity type to export (e.g. users, products, warehouses)' })
   @IsString()
@@ -26,4 +31,9 @@ export class CreateExportJobDto {
   @IsOptional()
   @IsString()
   orgId?: string;
+
+  @ApiPropertyOptional({ enum: ExportScope, default: ExportScope.GLOBAL, description: 'Export scope: global (all data) or org (organization-scoped)' })
+  @IsOptional()
+  @IsEnum(ExportScope)
+  scope?: ExportScope;
 }

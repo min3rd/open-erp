@@ -1,5 +1,6 @@
 <p-toast />
 <div class="flex flex-col h-full">
+  <!-- Toolbar -->
   <mp-toolbar>
     <ng-template #start>
       <span class="text-lg font-semibold">{{ 'importExport.title' | transloco }}</span>
@@ -27,7 +28,49 @@
     </ng-template>
   </mp-toolbar>
 
-  <div class="flex-1 overflow-auto p-4">
+  <!-- Filters bar -->
+  <div class="flex flex-wrap gap-2 px-4 pt-3 pb-1 items-center">
+    <p-iconfield>
+      <p-inputicon class="pi pi-search" />
+      <input
+        pInputText
+        type="text"
+        [placeholder]="'importExport.filters.search' | transloco"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        (keyup.enter)="applyFilters()"
+        class="!text-sm"
+      />
+    </p-iconfield>
+    <p-select
+      [options]="typeFilterOptions"
+      [ngModel]="filterType()"
+      (ngModelChange)="filterType.set($event); applyFilters()"
+      optionLabel="label"
+      optionValue="value"
+      [placeholder]="'importExport.filters.type' | transloco"
+      styleClass="!text-sm"
+    />
+    <p-select
+      [options]="statusFilterOptions"
+      [ngModel]="filterStatus()"
+      (ngModelChange)="filterStatus.set($event); applyFilters()"
+      optionLabel="label"
+      optionValue="value"
+      [placeholder]="'importExport.filters.status' | transloco"
+      styleClass="!text-sm"
+    />
+    <p-button
+      icon="pi pi-search"
+      severity="secondary"
+      size="small"
+      (onClick)="applyFilters()"
+      [pTooltip]="'importExport.buttons.refresh' | transloco"
+    />
+  </div>
+
+  <!-- Table -->
+  <div class="flex-1 overflow-auto p-4 pt-2">
     <p-table
       [value]="jobs()"
       [loading]="isLoading()"
@@ -35,6 +78,15 @@
       scrollHeight="flex"
       [resizableColumns]="true"
       styleClass="p-datatable-sm"
+      [paginator]="true"
+      [rows]="pageSize()"
+      [totalRecords]="totalRecords()"
+      [lazy]="true"
+      (onPage)="onPage($event)"
+      [first]="(currentPage() - 1) * pageSize()"
+      [rowsPerPageOptions]="[10, 20, 50, 100]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="{first} - {last} / {totalRecords}"
     >
       <ng-template #header>
         <tr>
@@ -42,35 +94,29 @@
           <th pResizableColumn>{{ 'importExport.table.entity' | transloco }}</th>
           <th pResizableColumn>{{ 'importExport.table.status' | transloco }}</th>
           <th pResizableColumn>{{ 'importExport.table.total' | transloco }}</th>
-          <th pResizableColumn>{{ 'importExport.table.created' | transloco }}</th>
           <th pResizableColumn>{{ 'importExport.table.failed' | transloco }}</th>
+          <th pResizableColumn>{{ 'importExport.table.created' | transloco }}</th>
           <th>{{ 'importExport.table.actions' | transloco }}</th>
         </tr>
       </ng-template>
       <ng-template #body let-job>
         <tr>
           <td>
-            <p-tag
-              [value]="job.type"
-              [severity]="job.type === 'export' ? 'info' : 'warn'"
-            />
+            <p-tag [value]="job.type" [severity]="job.type === 'export' ? 'info' : 'warn'" />
           </td>
           <td>{{ job.entity }}</td>
           <td>
-            <p-tag
-              [value]="job.status"
-              [severity]="getStatusSeverity(job.status)"
-            />
+            <p-tag [value]="job.status" [severity]="getStatusSeverity(job.status)" />
           </td>
           <td>{{ job.totalRows }}</td>
-          <td>{{ job.createdAt | userDate }}</td>
           <td>
             @if (job.failedRows > 0) {
-              <span class="text-red-500">{{ job.failedRows }}</span>
+              <span class="text-red-500 font-medium">{{ job.failedRows }}</span>
             } @else {
               <span>{{ job.failedRows }}</span>
             }
           </td>
+          <td>{{ job.createdAt | userDate }}</td>
           <td>
             <div class="flex gap-1 items-center">
               @if (job.type === 'export' && job.status === 'completed') {
@@ -92,7 +138,7 @@
                 />
               }
               @if (job.status === 'processing') {
-                <p-progressbar mode="indeterminate" [style]="{'height': '6px', 'width': '60px'}" />
+                <p-progressbar mode="indeterminate" [style]="{'height': '4px', 'width': '50px'}" />
               }
             </div>
           </td>
@@ -106,13 +152,6 @@
         </tr>
       </ng-template>
     </p-table>
-
-    <core-pagination
-      [totalRecords]="totalRecords()"
-      [currentPage]="currentPage()"
-      [pageSize]="pageSize()"
-      (pageChange)="onPageChange($event)"
-    />
   </div>
 </div>
 
@@ -121,7 +160,7 @@
   [visible]="showExportDrawer()"
   (visibleChange)="showExportDrawer.set($event)"
   position="right"
-  styleClass="w-full md:w-96"
+  styleClass="!w-full sm:!w-[420px]"
 >
   <ng-template #header>
     <span class="font-semibold text-lg">{{ 'importExport.export.title' | transloco }}</span>
@@ -139,6 +178,29 @@
         styleClass="w-full"
       />
     </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-sm font-medium">{{ 'importExport.export.scope' | transloco }}</label>
+      <p-select
+        [options]="scopeOptions"
+        [ngModel]="selectedScope()"
+        (ngModelChange)="selectedScope.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="w-full"
+      />
+    </div>
+    @if (selectedScope() === 'org') {
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium">{{ 'importExport.export.orgId' | transloco }}</label>
+        <input
+          pInputText
+          [ngModel]="exportOrgId()"
+          (ngModelChange)="exportOrgId.set($event)"
+          [placeholder]="'importExport.export.orgIdPlaceholder' | transloco"
+          class="w-full"
+        />
+      </div>
+    }
     <div class="flex flex-col gap-1">
       <label class="text-sm font-medium">{{ 'importExport.export.format' | transloco }}</label>
       <p-select
@@ -185,7 +247,7 @@
   [visible]="showImportDrawer()"
   (visibleChange)="showImportDrawer.set($event)"
   position="right"
-  styleClass="w-full md:w-96"
+  styleClass="!w-full sm:!w-[420px]"
 >
   <ng-template #header>
     <span class="font-semibold text-lg">{{ 'importExport.import.title' | transloco }}</span>
@@ -224,9 +286,7 @@
         (onSelect)="onFileSelect($event)"
       />
       @if (selectedFile()) {
-        <div class="text-sm text-gray-500 mt-1">
-          {{ selectedFile()?.name }}
-        </div>
+        <div class="text-sm text-gray-500 mt-1">{{ selectedFile()?.name }}</div>
       }
     </div>
   </div>

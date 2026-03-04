@@ -52,13 +52,25 @@ export class DataTransferController {
   @ApiOperation({ summary: 'List all jobs for current user' })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'q', required: false, description: 'Search by entity name' })
+  @ApiQuery({ name: 'type', required: false, description: 'Filter by job type (export/import)' })
+  @ApiQuery({ name: 'entity', required: false, description: 'Filter by entity' })
+  @ApiQuery({ name: 'status', required: false, description: 'Filter by status' })
+  @ApiQuery({ name: 'sortField', required: false, description: 'Sort field (default: createdAt)' })
+  @ApiQuery({ name: 'sortOrder', required: false, description: 'Sort order: asc or desc (default: desc)' })
   async getJobs(
     @Req() req: any,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('q') q?: string,
+    @Query('type') type?: string,
+    @Query('entity') entity?: string,
+    @Query('status') status?: string,
+    @Query('sortField') sortField?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
-    const userId = req.user?.id || req.user?.sub;
-    const result = await this.service.getJobs(userId, page, limit);
+    const userId = req.user?.userId;
+    const result = await this.service.getJobs(userId, { q, type, entity, status, sortField, sortOrder, page, limit });
     return paginated(result.items, page, limit, result.total);
   }
 
@@ -73,7 +85,7 @@ export class DataTransferController {
   @ApiOperation({ summary: 'Initiate an export job' })
   @Permissions(Permission.IMPORT_EXPORT_EXPORT)
   async createExport(@Body() dto: CreateExportJobDto, @Req() req: any) {
-    const userId = req.user?.id || req.user?.sub;
+    const userId = req.user?.userId;
     const job = await this.service.createExportJob(dto, userId);
     return created(job, 'Export job created');
   }
@@ -90,12 +102,10 @@ export class DataTransferController {
   }
 
   @Get('export/:jobId/download')
-  @ApiOperation({ summary: 'Download export file' })
-  async downloadExport(@Param('jobId') jobId: string, @Res() res: Response) {
-    const { buffer, fileName, contentType } = await this.service.downloadExport(jobId);
-    res.setHeader('Content-Type', contentType);
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-    res.send(buffer);
+  @ApiOperation({ summary: 'Get presigned download URL for export file' })
+  async downloadExport(@Param('jobId') jobId: string) {
+    const url = await this.service.getDownloadUrl(jobId);
+    return ok({ url });
   }
 
   @Post('import')
@@ -130,7 +140,7 @@ export class DataTransferController {
     @UploadedFile() file: Express.Multer.File,
     @Req() req: any,
   ) {
-    const userId = req.user?.id || req.user?.sub;
+    const userId = req.user?.userId;
     const job = await this.service.createImportJob(dto, file, userId);
     return created(job, 'Import job created');
   }
@@ -171,7 +181,7 @@ export class DataTransferController {
   @ApiOperation({ summary: 'Get mapping templates for entity' })
   @ApiQuery({ name: 'entity', required: true })
   async getMappings(@Query('entity') entity: string, @Req() req: any) {
-    const userId = req.user?.id || req.user?.sub;
+    const userId = req.user?.userId;
     const mappings = await this.service.getMappingTemplates(entity, userId);
     return ok(mappings);
   }
@@ -180,7 +190,7 @@ export class DataTransferController {
   @ApiOperation({ summary: 'Save a mapping template' })
   @Permissions(Permission.IMPORT_EXPORT_MANAGE)
   async saveMapping(@Body() dto: SaveMappingTemplateDto, @Req() req: any) {
-    const userId = req.user?.id || req.user?.sub;
+    const userId = req.user?.userId;
     const mapping = await this.service.saveMappingTemplate(dto, userId);
     return created(mapping, 'Mapping template saved');
   }
