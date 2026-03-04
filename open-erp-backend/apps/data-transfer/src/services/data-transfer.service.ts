@@ -126,8 +126,9 @@ export class DataTransferService {
     });
 
     // Process asynchronously
-    this.processExportJob(job.id, dto, userId).catch((err) => {
-      this.logger.error(`Export job ${job.id} failed: ${err.message}`);
+    const jobId = job._id.toString();
+    this.processExportJob(jobId, dto, userId).catch((err) => {
+      this.logger.error(`Export job ${jobId} failed: ${err.message}`);
     });
 
     return job;
@@ -231,8 +232,9 @@ export class DataTransferService {
     });
 
     // Process asynchronously
-    this.processImportJob(job.id, dto, file.buffer, userId).catch((err) => {
-      this.logger.error(`Import job ${job.id} failed: ${err.message}`);
+    const importJobId = job._id.toString();
+    this.processImportJob(importJobId, dto, file.buffer, userId).catch((err) => {
+      this.logger.error(`Import job ${importJobId} failed: ${err.message}`);
     });
 
     return job;
@@ -379,7 +381,7 @@ export class DataTransferService {
     const contentType = matches[1];
     const buffer = Buffer.from(matches[2], 'base64');
     const ext = contentType.includes('csv') ? 'csv' : 'xlsx';
-    const fileName = `${job.entity}-export-${job.id}.${ext}`;
+    const fileName = `${job.entity}-export-${job._id.toString()}.${ext}`;
 
     return { buffer, fileName, contentType };
   }

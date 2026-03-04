@@ -2277,5 +2277,54 @@
       "columns": "Cột"
     },
     "loading": "Đang tải..."
+  },
+  "importExport": {
+    "title": "Nhập / Xuất",
+    "table": {
+      "type": "Loại",
+      "entity": "Đối tượng",
+      "status": "Trạng thái",
+      "total": "Tổng dòng",
+      "created": "Ngày tạo",
+      "failed": "Lỗi",
+      "actions": "Thao tác",
+      "empty": "Chưa có tác vụ nào. Hãy bắt đầu xuất hoặc nhập dữ liệu."
+    },
+    "export": {
+      "title": "Xuất dữ liệu",
+      "entity": "Đối tượng",
+      "selectEntity": "Chọn đối tượng...",
+      "format": "Định dạng",
+      "mode": "Chế độ xuất"
+    },
+    "import": {
+      "title": "Nhập dữ liệu",
+      "entity": "Đối tượng",
+      "selectEntity": "Chọn đối tượng...",
+      "mode": "Chế độ nhập",
+      "file": "Tải file lên",
+      "chooseFile": "Chọn file"
+    },
+    "buttons": {
+      "export": "Xuất",
+      "import": "Nhập",
+      "refresh": "Làm mới",
+      "cancel": "Hủy",
+      "startExport": "Bắt đầu xuất",
+      "startImport": "Bắt đầu nhập",
+      "download": "Tải xuống",
+      "downloadErrors": "Tải báo cáo lỗi"
+    },
+    "messages": {
+      "exportStarted": "Đã bắt đầu xuất",
+      "exportStartedDetail": "Tác vụ xuất đã được xếp hàng.",
+      "importStarted": "Đã bắt đầu nhập",
+      "importStartedDetail": "Tác vụ nhập đã được xếp hàng.",
+      "jobCompleted": "Tác vụ hoàn thành",
+      "exportFailed": "Xuất thất bại. Vui lòng thử lại.",
+      "importFailed": "Nhập thất bại. Vui lòng thử lại.",
+      "error": "Lỗi",
+      "downloadFailed": "Tải xuống thất bại. Vui lòng thử lại."
+    }
   }
 }

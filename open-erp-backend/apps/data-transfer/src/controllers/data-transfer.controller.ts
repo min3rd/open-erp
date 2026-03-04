@@ -17,7 +17,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiQuery } from '@nestjs/swagger';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { JwtAuthGuard } from '@shared/authz/jwt-auth.guard';
 import { PermissionsGuard } from '@shared/authz/permissions.guard';
 import { Permissions } from '@shared/authz/decorators';
@@ -83,7 +83,7 @@ export class DataTransferController {
   async getExportStatus(@Param('jobId') jobId: string) {
     const job = await this.service.getJobById(jobId);
     return ok({
-      id: job.id,
+      id: job._id.toString(),
       status: job.status,
       progress: job.totalRows > 0 ? Math.round((job.processedRows / job.totalRows) * 100) : 0,
     });
@@ -129,7 +129,7 @@ export class DataTransferController {
   async getImportStatus(@Param('jobId') jobId: string) {
     const job = await this.service.getJobById(jobId);
     return ok({
-      id: job.id,
+      id: job._id.toString(),
       status: job.status,
       totalRows: job.totalRows,
       processedRows: job.processedRows,

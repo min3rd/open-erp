@@ -3652,5 +3652,54 @@
       "columns": "Columns"
     },
     "loading": "Loading..."
+  },
+  "importExport": {
+    "title": "Import / Export",
+    "table": {
+      "type": "Type",
+      "entity": "Entity",
+      "status": "Status",
+      "total": "Total Rows",
+      "created": "Created",
+      "failed": "Failed",
+      "actions": "Actions",
+      "empty": "No jobs found. Start an export or import."
+    },
+    "export": {
+      "title": "Export Data",
+      "entity": "Entity",
+      "selectEntity": "Select entity...",
+      "format": "Format",
+      "mode": "Export Mode"
+    },
+    "import": {
+      "title": "Import Data",
+      "entity": "Entity",
+      "selectEntity": "Select entity...",
+      "mode": "Import Mode",
+      "file": "Upload File",
+      "chooseFile": "Choose File"
+    },
+    "buttons": {
+      "export": "Export",
+      "import": "Import",
+      "refresh": "Refresh",
+      "cancel": "Cancel",
+      "startExport": "Start Export",
+      "startImport": "Start Import",
+      "download": "Download",
+      "downloadErrors": "Download Error Report"
+    },
+    "messages": {
+      "exportStarted": "Export Started",
+      "exportStartedDetail": "Your export job has been queued.",
+      "importStarted": "Import Started",
+      "importStartedDetail": "Your import job has been queued.",
+      "jobCompleted": "Job Completed",
+      "exportFailed": "Export failed. Please try again.",
+      "importFailed": "Import failed. Please try again.",
+      "error": "Error",
+      "downloadFailed": "Download failed. Please try again."
+    }
   }
 }
