@@ -309,7 +309,7 @@ export class ImportExportList implements OnInit, OnDestroy {
     });
   }
 
-  protected getStatusSeverity(status: JobStatus): string {
+  protected getStatusSeverity(status: JobStatus): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
     switch (status) {
       case JobStatus.COMPLETED: return 'success';
       case JobStatus.FAILED: return 'danger';

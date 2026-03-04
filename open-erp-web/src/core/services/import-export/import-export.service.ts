@@ -22,6 +22,9 @@ export type {
   CreateExportJobDto,
   CreateImportJobDto,
   SaveMappingTemplateDto,
+} from './import-export.types';
+
+export {
   JobType,
   JobStatus,
   ExportFormat,
