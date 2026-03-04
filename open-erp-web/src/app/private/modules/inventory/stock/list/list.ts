@@ -72,6 +72,7 @@ export class StockList implements OnInit, OnDestroy {
   private resizeHandler: (() => void) | null = null;
 
   private readonly SEARCH_FOCUS_DELAY = 100;
+  private readonly DEFAULT_SORT_FIELD = 'sku';
   protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
 
   protected readonly columnOptions: ColumnDef[] = [
@@ -98,7 +99,7 @@ export class StockList implements OnInit, OnDestroy {
   currentPage = signal(1);
   pageSize = signal(PAGE_SIZE_OPTIONS[0]);
   searchQuery = signal('');
-  sortField = signal<string>('sku');
+  sortField = signal<string>(this.DEFAULT_SORT_FIELD);
   sortOrder = signal<number>(1);
   isMobile = signal(false);
   isSearchOpen = signal(false);
@@ -272,7 +273,7 @@ export class StockList implements OnInit, OnDestroy {
 
   private buildQueryParams(): Record<string, string> {
     const qp: Record<string, string> = {};
-    if (this.sortField() && this.sortField() !== 'sku') {
+    if (this.sortField() && this.sortField() !== this.DEFAULT_SORT_FIELD) {
       qp['sortField'] = this.sortField();
     }
     if (this.sortOrder() !== 1) {

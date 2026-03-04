@@ -91,7 +91,7 @@ export class InventoryStockRepository {
     const [items, total] = await Promise.all([
       this.stockModel
         .find(query)
-        .sort(Object.keys(sort).length > 0 ? sort : undefined)
+        .sort(sort)
         .skip(skip)
         .limit(limit)
         .exec(),
