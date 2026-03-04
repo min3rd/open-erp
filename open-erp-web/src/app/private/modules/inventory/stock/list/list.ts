@@ -1,26 +1,44 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  signal,
+  computed,
+  effect,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslocoModule } from '@jsverse/transloco';
-import { TableModule } from 'primeng/table';
+import { Router, ActivatedRoute } from '@angular/router';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import {
-  StockService,
-  InventoryStock,
-  StockSummary,
-} from '../../../../../../core/services/stock/stock.service';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { MpToolbar } from '../../../../../../core/components/toolbar';
+import { StockService } from '../../../../../../core/services/stock/stock.service';
+import { InventoryStock, StockSummary } from '../../../../../../core/services/stock/stock.types';
 import {
   WarehouseService,
   Warehouse,
 } from '../../../../../../core/services/warehouse/warehouse.service';
 import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
+import { Subject, takeUntil } from 'rxjs';
+
+interface ColumnDef {
+  field: string;
+  header: string;
+  sortable: boolean;
+  width?: string;
+}
 
 @Component({
   selector: 'stock-list',
@@ -34,18 +52,41 @@ import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants
     SelectModule,
     TagModule,
     TooltipModule,
-    ProgressSpinnerModule,
-    IconFieldModule,
-    InputIconModule,
+    InputGroupModule,
+    InputGroupAddonModule,
+    MultiSelectModule,
+    MpToolbar,
   ],
   templateUrl: './list.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StockList implements OnInit {
+export class StockList implements OnInit, OnDestroy {
+  @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
+
   private readonly stockService = inject(StockService);
   private readonly warehouseService = inject(WarehouseService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly translocoService = inject(TranslocoService);
+  private readonly destroy$ = new Subject<void>();
+  private resizeHandler: (() => void) | null = null;
 
+  private readonly SEARCH_FOCUS_DELAY = 100;
   protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
+
+  protected readonly columnOptions: ColumnDef[] = [
+    { field: 'sku', header: 'stock.sku', sortable: true, width: '150px' },
+    { field: 'name', header: 'stock.productName', sortable: true },
+    { field: 'unit', header: 'stock.unit', sortable: false, width: '80px' },
+    { field: 'onHand', header: 'stock.onHand', sortable: true, width: '120px' },
+    { field: 'available', header: 'stock.available', sortable: true, width: '120px' },
+    { field: 'reserved', header: 'stock.reserved', sortable: true, width: '120px' },
+    { field: 'inTransit', header: 'stock.inTransit', sortable: true, width: '120px' },
+    { field: 'damaged', header: 'stock.damaged', sortable: true, width: '120px' },
+    { field: 'location', header: 'stock.location', sortable: false, width: '140px' },
+    { field: 'status', header: 'stock.status', sortable: false, width: '100px' },
+  ];
+  protected selectedColumns: ColumnDef[] = [...this.columnOptions];
 
   // State signals
   stocks = signal<InventoryStock[]>([]);
@@ -54,26 +95,55 @@ export class StockList implements OnInit {
   selectedWarehouseId = signal<string>('');
   loading = signal(false);
   totalRecords = signal(0);
-  page = signal(1);
-  limit = signal(PAGE_SIZE_OPTIONS[0]);
+  currentPage = signal(1);
+  pageSize = signal(PAGE_SIZE_OPTIONS[0]);
   searchQuery = signal('');
+  sortField = signal<string>('sku');
+  sortOrder = signal<number>(1);
+  isMobile = signal(false);
+  isSearchOpen = signal(false);
 
   warehouseOptions = computed(() =>
     this.warehouses().map((w) => ({ label: `${w.code} - ${w.name}`, value: w.id })),
   );
 
-  filteredStocks = computed(() => {
-    const query = this.searchQuery().toLowerCase();
-    if (!query) return this.stocks();
-    return this.stocks().filter(
-      (s) =>
-        s.productSnapshot.sku.toLowerCase().includes(query) ||
-        s.productSnapshot.name.toLowerCase().includes(query),
-    );
-  });
+  constructor() {
+    this.checkViewport();
+    if (typeof window !== 'undefined') {
+      this.resizeHandler = () => this.checkViewport();
+      window.addEventListener('resize', this.resizeHandler);
+    }
+
+    effect(() => {
+      if (this.isSearchOpen() && this.mobileSearchInput) {
+        setTimeout(() => {
+          this.mobileSearchInput?.nativeElement?.focus();
+        }, this.SEARCH_FOCUS_DELAY);
+      }
+    });
+  }
 
   ngOnInit() {
+    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      const page = parseInt(params['page'], 10) || 1;
+      const limit = parseInt(params['limit'], 10) || PAGE_SIZE_OPTIONS[0];
+      const normalizedLimit = PAGE_SIZE_OPTIONS.includes(limit) ? limit : PAGE_SIZE_OPTIONS[0];
+      const search = params['search'] || '';
+
+      this.currentPage.set(page);
+      this.pageSize.set(normalizedLimit);
+      this.searchQuery.set(search === '-' ? '' : search);
+    });
+
     this.loadWarehouses();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    if (typeof window !== 'undefined' && this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler);
+    }
   }
 
   loadWarehouses() {
@@ -88,8 +158,7 @@ export class StockList implements OnInit {
 
   onWarehouseChange(warehouseId: string) {
     this.selectedWarehouseId.set(warehouseId);
-    this.page.set(1);
-    this.loadStock();
+    this.navigateWithState(1);
   }
 
   loadStock() {
@@ -98,7 +167,7 @@ export class StockList implements OnInit {
 
     this.loading.set(true);
     this.stockService
-      .getWarehouseStock(whId, { page: this.page(), limit: this.limit() })
+      .getWarehouseStock(whId, { page: this.currentPage(), limit: this.pageSize() })
       .subscribe({
         next: (result) => {
           this.stocks.set(result.items);
@@ -113,10 +182,43 @@ export class StockList implements OnInit {
     });
   }
 
-  onPageChange(event: any) {
-    this.page.set(Math.floor(event.first / event.rows) + 1);
-    this.limit.set(event.rows);
+  protected onSearchChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const searchValue = input.value || '-';
+    this.router.navigate(['../../..', searchValue, 1, this.pageSize()], {
+      relativeTo: this.route,
+    });
+  }
+
+  protected onLazyLoad(event: TableLazyLoadEvent): void {
+    const rows = event.rows && event.rows > 0 ? event.rows : PAGE_SIZE_OPTIONS[0];
+    const page = event.first !== undefined ? Math.floor(event.first / rows) + 1 : 1;
+
+    if (event.sortField) {
+      this.sortField.set(event.sortField as string);
+      this.sortOrder.set(event.sortOrder || 1);
+    }
+
+    if (page !== this.currentPage() || rows !== this.pageSize()) {
+      this.navigateWithState(page, rows);
+    } else {
+      this.loadStock();
+    }
+  }
+
+  protected refresh() {
     this.loadStock();
+  }
+
+  protected toggleSearch(): void {
+    this.isSearchOpen.set(!this.isSearchOpen());
+  }
+
+  protected closeSearch(): void {
+    this.isSearchOpen.set(false);
+    this.router.navigate(['../../..', '-', 1, this.pageSize()], {
+      relativeTo: this.route,
+    });
   }
 
   getStockSeverity(stock: InventoryStock): 'success' | 'warn' | 'danger' | 'info' {
@@ -134,7 +236,18 @@ export class StockList implements OnInit {
     );
   }
 
-  refresh() {
-    this.loadStock();
+  private navigateWithState(page?: number, pageSize?: number): void {
+    const search = this.searchQuery() || '-';
+    const p = page ?? this.currentPage();
+    const ps = pageSize ?? this.pageSize();
+    this.router.navigate(['../../..', search, p, ps], {
+      relativeTo: this.route,
+    });
+  }
+
+  private checkViewport(): void {
+    if (typeof window !== 'undefined') {
+      this.isMobile.set(window.innerWidth < 768);
+    }
   }
 }

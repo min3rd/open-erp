@@ -1,76 +1,224 @@
-<div class="flex flex-col gap-3 p-3">
-  <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
-    <h2 class="text-lg font-semibold m-0">{{ 'stock.lots.title' | transloco }}</h2>
-    <div class="flex items-center gap-2">
-      <p-select
-        [options]="expiredOptions"
-        [ngModel]="expiredFilter()"
-        (ngModelChange)="expiredFilter.set($event); onFilterChange()"
-        optionLabel="label"
-        optionValue="value"
-        [placeholder]="'stock.lots.filterExpiry' | transloco"
-        class="w-40"
-      />
-      <p-button
-        icon="pi pi-refresh"
-        [rounded]="true"
-        [text]="true"
-        severity="secondary"
-        (click)="loadLots()"
-        [pTooltip]="'stock.refresh' | transloco"
-      />
+<div class="flex h-full flex-col">
+  <!-- Fixed Toolbar - Desktop -->
+  @if (!isMobile()) {
+    <mp-toolbar id="lots-list-toolbar">
+      <ng-template #start>
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-search"></i>
+          </p-inputgroup-addon>
+          <input
+            id="lots-list-search"
+            type="text"
+            pInputText
+            [placeholder]="'stock.searchPlaceholder' | transloco"
+            (input)="onSearchChange($event)"
+            [value]="searchQuery()"
+            class="w-80"
+            [attr.aria-label]="'stock.searchPlaceholder' | transloco"
+          />
+        </p-inputgroup>
+
+        <p-select
+          [options]="expiredOptions"
+          [ngModel]="expiredFilter()"
+          (ngModelChange)="expiredFilter.set($event); onFilterChange()"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'stock.lots.filterExpiry' | transloco"
+          class="w-40 ml-2"
+        />
+      </ng-template>
+
+      <ng-template #end>
+        <p-button
+          id="lots-list-refresh-button"
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="loadLots()"
+          [pTooltip]="'stock.refresh' | transloco"
+          tooltipPosition="bottom"
+          [attr.aria-label]="'stock.refresh' | transloco"
+        />
+      </ng-template>
+    </mp-toolbar>
+  }
+
+  <!-- Fixed Toolbar - Mobile -->
+  @if (isMobile()) {
+    <mp-toolbar id="lots-list-toolbar-mobile">
+      <ng-template #start>
+        <p-button
+          id="lots-list-search-button-mobile"
+          icon="pi pi-search"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="toggleSearch()"
+          [attr.aria-label]="'stock.searchPlaceholder' | transloco"
+          [attr.aria-expanded]="isSearchOpen()"
+        />
+
+        <p-select
+          [options]="expiredOptions"
+          [ngModel]="expiredFilter()"
+          (ngModelChange)="expiredFilter.set($event); onFilterChange()"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'stock.lots.filterExpiry' | transloco"
+          class="w-32"
+        />
+      </ng-template>
+
+      <ng-template #end>
+        <p-button
+          id="lots-list-refresh-button-mobile"
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="loadLots()"
+          [attr.aria-label]="'stock.refresh' | transloco"
+        />
+      </ng-template>
+    </mp-toolbar>
+
+    @if (isSearchOpen()) {
+    <div class="p-2 bg-surface-50 dark:bg-surface-800 border-t border-surface-200 dark:border-surface-700">
+      <p-inputgroup>
+        <input
+          #mobileSearchInput
+          type="text"
+          pInputText
+          [placeholder]="'stock.searchPlaceholder' | transloco"
+          (input)="onSearchChange($event)"
+          [value]="searchQuery()"
+          class="w-full"
+        />
+        <p-button icon="pi pi-times" (onClick)="closeSearch()" />
+      </p-inputgroup>
+    </div>
+    }
+  }
+
+  <!-- Body Content -->
+  <div class="flex flex-auto h-full overflow-hidden">
+    <div class="flex flex-col w-full h-full">
+      <p-table
+        #dt
+        id="lots-list-table"
+        [value]="lots()"
+        [loading]="loading()"
+        [rowHover]="true"
+        dataKey="id"
+        styleClass="p-datatable-sm"
+        responsiveLayout="scroll"
+        [scrollable]="true"
+        scrollHeight="flex"
+        [paginator]="true"
+        [rows]="pageSize()"
+        [totalRecords]="totalRecords()"
+        [rowsPerPageOptions]="PAGE_SIZE_OPTIONS"
+        [lazy]="true"
+        (onLazyLoad)="onLazyLoad($event)"
+        [first]="(currentPage() - 1) * pageSize()"
+        [resizableColumns]="true"
+        columnResizeMode="expand"
+        [reorderableColumns]="true"
+        [sortField]="sortField()"
+        [sortOrder]="sortOrder()"
+      >
+        <ng-template #caption>
+          <div class="flex items-center justify-end gap-2">
+            <p-multiselect
+              id="lots-list-column-toggle"
+              [options]="columnOptions"
+              [(ngModel)]="selectedColumns"
+              optionLabel="header"
+              [placeholder]="'stock.toolbar.selectColumns' | transloco"
+              [showHeader]="false"
+              [filter]="false"
+              styleClass="w-auto"
+              [style]="{ minWidth: '200px' }"
+            >
+              <ng-template let-option #item>
+                <span>{{ option.header | transloco }}</span>
+              </ng-template>
+              <ng-template #selectedItems>
+                <span class="flex items-center gap-1">
+                  <i class="pi pi-cog"></i>
+                  <span>{{ 'stock.toolbar.columns' | transloco }}</span>
+                </span>
+              </ng-template>
+            </p-multiselect>
+          </div>
+        </ng-template>
+
+        <ng-template #header>
+          <tr>
+            @for (col of selectedColumns; track col.field) {
+              @if (col.sortable) {
+                <th pResizableColumn pReorderableColumn [pSortableColumn]="col.field" [style.width]="col.width">
+                  {{ col.header | transloco }}
+                  <p-sortIcon [field]="col.field" />
+                </th>
+              } @else {
+                <th pResizableColumn pReorderableColumn [style.width]="col.width">
+                  {{ col.header | transloco }}
+                </th>
+              }
+            }
+          </tr>
+        </ng-template>
+
+        <ng-template #body let-lot>
+          <tr>
+            @for (col of selectedColumns; track col.field) {
+              <td>
+                @switch (col.field) {
+                  @case ('lotCode') {
+                    <span class="font-mono text-xs">{{ lot.lotCode }}</span>
+                  }
+                  @case ('skuId') {
+                    <span class="text-xs">{{ lot.skuId }}</span>
+                  }
+                  @case ('totalQty') {
+                    <span class="text-right">{{ lot.totalQty }}</span>
+                  }
+                  @case ('remainingQty') {
+                    <span class="text-right">{{ lot.remainingQty }}</span>
+                  }
+                  @case ('manufacturedAt') {
+                    <span class="text-xs">{{ lot.manufacturedAt ? (lot.manufacturedAt | date:'mediumDate') : '-' }}</span>
+                  }
+                  @case ('expiryAt') {
+                    <span class="text-xs">{{ lot.expiryAt ? (lot.expiryAt | date:'mediumDate') : '-' }}</span>
+                  }
+                  @case ('status') {
+                    <p-tag
+                      [severity]="getExpirySeverity(lot)"
+                      [value]="isExpired(lot) ? ('stock.lots.expired' | transloco) : ('stock.lots.valid' | transloco)"
+                    />
+                  }
+                }
+              </td>
+            }
+          </tr>
+        </ng-template>
+
+        <ng-template #empty>
+          <tr>
+            <td [attr.colspan]="selectedColumns.length" class="text-center py-8 text-surface-500">
+              @if (loading()) {
+              <i class="pi pi-spin pi-spinner text-2xl"></i>
+              <p class="mt-2">{{ 'stock.loading' | transloco }}</p>
+              } @else {
+              <i class="pi pi-box text-2xl"></i>
+              <p class="mt-2">{{ 'stock.noData' | transloco }}</p>
+              }
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
   </div>
-
-  <p-table
-    [value]="lots()"
-    [loading]="loading()"
-    [paginator]="true"
-    [rows]="limit()"
-    [totalRecords]="totalRecords()"
-    [lazy]="true"
-    (onLazyLoad)="onPageChange($event)"
-    [rowsPerPageOptions]="PAGE_SIZE_OPTIONS"
-    [showCurrentPageReport]="true"
-    [tableStyle]="{ 'min-width': '50rem' }"
-    styleClass="p-datatable-sm p-datatable-gridlines"
-  >
-    <ng-template #header>
-      <tr>
-        <th>{{ 'stock.lots.lotCode' | transloco }}</th>
-        <th>{{ 'stock.lots.skuId' | transloco }}</th>
-        <th class="text-right">{{ 'stock.lots.totalQty' | transloco }}</th>
-        <th class="text-right">{{ 'stock.lots.remainingQty' | transloco }}</th>
-        <th>{{ 'stock.lots.manufacturedAt' | transloco }}</th>
-        <th>{{ 'stock.lots.expiryAt' | transloco }}</th>
-        <th class="text-center">{{ 'stock.status' | transloco }}</th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-lot>
-      <tr>
-        <td class="font-mono text-xs">{{ lot.lotCode }}</td>
-        <td class="text-xs">{{ lot.skuId }}</td>
-        <td class="text-right">{{ lot.totalQty }}</td>
-        <td class="text-right">{{ lot.remainingQty }}</td>
-        <td class="text-xs">{{ lot.manufacturedAt ? (lot.manufacturedAt | date:'mediumDate') : '-' }}</td>
-        <td class="text-xs">{{ lot.expiryAt ? (lot.expiryAt | date:'mediumDate') : '-' }}</td>
-        <td class="text-center">
-          <p-tag
-            [severity]="getExpirySeverity(lot)"
-            [value]="isExpired(lot) ? ('stock.lots.expired' | transloco) : ('stock.lots.valid' | transloco)"
-          />
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template #emptymessage>
-      <tr>
-        <td colspan="7" class="text-center p-6">
-          <div class="flex flex-col items-center gap-2">
-            <i class="pi pi-box text-4xl text-surface-400"></i>
-            <span class="text-surface-500">{{ 'stock.noData' | transloco }}</span>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
 </div>

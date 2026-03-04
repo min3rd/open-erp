@@ -3642,6 +3642,15 @@
       "lotId": "Lot",
       "assignedAt": "Assigned",
       "filterStatus": "Filter by status"
-    }
+    },
+    "navigation": {
+      "toggleNavMode": "Toggle navigation mode",
+      "noItems": "No navigation items available"
+    },
+    "toolbar": {
+      "selectColumns": "Select columns",
+      "columns": "Columns"
+    },
+    "loading": "Loading..."
   }
 }

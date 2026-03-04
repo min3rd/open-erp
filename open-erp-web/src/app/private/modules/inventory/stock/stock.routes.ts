@@ -13,15 +13,45 @@ export const routes: Routes = [
       },
       {
         path: 'list',
-        loadComponent: () => import('./list/list').then((m) => m.StockList),
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            redirectTo: '-/1/100',
+          },
+          {
+            path: ':search/:page/:limit',
+            loadComponent: () => import('./list/list').then((m) => m.StockList),
+          },
+        ],
       },
       {
         path: 'lots',
-        loadComponent: () => import('./lots/lots').then((m) => m.Lots),
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            redirectTo: '-/1/100',
+          },
+          {
+            path: ':search/:page/:limit',
+            loadComponent: () => import('./lots/lots').then((m) => m.Lots),
+          },
+        ],
       },
       {
         path: 'serials',
-        loadComponent: () => import('./serials/serials').then((m) => m.Serials),
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            redirectTo: '-/1/100',
+          },
+          {
+            path: ':search/:page/:limit',
+            loadComponent: () => import('./serials/serials').then((m) => m.Serials),
+          },
+        ],
       },
     ],
   },

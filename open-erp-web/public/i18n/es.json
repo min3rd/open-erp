@@ -2609,6 +2609,15 @@
       "lotId": "Lote",
       "assignedAt": "Asignado",
       "filterStatus": "Filtrar por estado"
-    }
+    },
+    "navigation": {
+      "toggleNavMode": "Cambiar modo de navegación",
+      "noItems": "No hay elementos de navegación disponibles"
+    },
+    "toolbar": {
+      "selectColumns": "Seleccionar columnas",
+      "columns": "Columnas"
+    },
+    "loading": "Cargando..."
   }
 }
