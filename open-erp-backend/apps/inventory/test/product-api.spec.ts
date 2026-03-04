@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import * as request from 'supertest';
+import request = require('supertest');
 import { InventoryModule } from '../src/inventory.module';
 import {
   ProductScope,

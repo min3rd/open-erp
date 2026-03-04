@@ -10,7 +10,8 @@ export class PicklistRepository {
   ) {}
 
   async create(data: Partial<Picklist>): Promise<PicklistDocument> {
-    return this.picklistModel.create(data);
+    const doc = new this.picklistModel(data);
+    return doc.save();
   }
 
   async findById(id: string): Promise<PicklistDocument | null> {

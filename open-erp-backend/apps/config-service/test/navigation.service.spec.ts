@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NavigationService } from '../src/services/navigation.service';
 import { NavigationRepository } from '../src/repositories/navigation.repository';
-import { NavigationScope } from '../src/schemas/navigation.schema';
+import { NavigationScope, NavigationFormat } from '../src/schemas/navigation.schema';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { RABBITMQ_USER_CLIENT } from '@shared/rabbitmq';
 import { AuthorizationService } from '@shared/authz/authorization.service';
@@ -417,7 +417,7 @@ describe('NavigationService', () => {
         'user-123',
         NavigationScope.GLOBAL,
         undefined,
-        'tree',
+        NavigationFormat.TREE,
       );
 
       expect(result).toHaveLength(1);
@@ -462,7 +462,7 @@ describe('NavigationService', () => {
         'user-123',
         NavigationScope.GLOBAL,
         undefined,
-        'flat',
+        NavigationFormat.FLAT,
       );
 
       expect(result).toHaveLength(2);

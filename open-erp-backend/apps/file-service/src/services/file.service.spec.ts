@@ -6,8 +6,8 @@ import { FileRepository } from '../repositories/file.repository';
 
 describe('FileService', () => {
   let service: FileService;
-  let minioService: jest.Mocked<Partial<MinioService>>;
-  let fileRepository: jest.Mocked<Partial<FileRepository>>;
+  let minioService: any;
+  let fileRepository: any;
 
   beforeEach(async () => {
     minioService = {
@@ -199,7 +199,7 @@ describe('FileService', () => {
       } as any);
 
       const result = await service.softDelete('file-id-1');
-      expect(result.isDeleted).toBe(true);
+      expect(result!.isDeleted).toBe(true);
       expect(minioService.deleteObject).toHaveBeenCalledWith(
         'files/test.pdf',
         { softDelete: true },

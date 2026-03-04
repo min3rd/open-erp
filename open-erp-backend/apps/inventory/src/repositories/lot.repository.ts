@@ -10,7 +10,8 @@ export class LotRepository {
   ) {}
 
   async create(data: Partial<Lot>): Promise<LotDocument> {
-    return this.lotModel.create(data);
+    const doc = new this.lotModel(data);
+    return doc.save();
   }
 
   async findById(id: string): Promise<LotDocument | null> {

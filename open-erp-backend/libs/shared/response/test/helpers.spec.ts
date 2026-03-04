@@ -75,8 +75,8 @@ describe('Response Helpers', () => {
       const response = updated(item, 'Updated successfully');
 
       expect(response.success).toBe(true);
-      expect(response.data.mode).toBe('update');
-      expect(response.data.item).toEqual(item);
+      expect(response.data!.mode).toBe('update');
+      expect(response.data!.item).toEqual(item);
 
       const validation = ResponseValidator.validate(response, {
         expectSingleResource: true,
@@ -91,8 +91,8 @@ describe('Response Helpers', () => {
 
       expect(response.success).toBe(true);
       expect(response.message).toBe('Deleted successfully');
-      expect(response.data.mode).toBe('delete');
-      expect(response.data.item).toBeNull();
+      expect(response.data!.mode).toBe('delete');
+      expect(response.data!.item).toBeNull();
 
       const validation = ResponseValidator.validate(response, {
         expectSingleResource: true,
@@ -107,8 +107,8 @@ describe('Response Helpers', () => {
       const response = fetched(item, 'Fetched successfully');
 
       expect(response.success).toBe(true);
-      expect(response.data.mode).toBe('get');
-      expect(response.data.item).toEqual(item);
+      expect(response.data!.mode).toBe('get');
+      expect(response.data!.item).toEqual(item);
 
       const validation = ResponseValidator.validate(response, {
         expectSingleResource: true,
@@ -126,11 +126,11 @@ describe('Response Helpers', () => {
       const response = paginated(items, 1, 10, 2);
 
       expect(response.success).toBe(true);
-      expect(response.data.items).toEqual(items);
-      expect(response.data.page).toBe(1);
-      expect(response.data.limit).toBe(10);
-      expect(response.data.total).toBe(2);
-      expect(response.data.totalPages).toBe(1);
+      expect(response.data!.items).toEqual(items);
+      expect(response.data!.page).toBe(1);
+      expect(response.data!.limit).toBe(10);
+      expect(response.data!.total).toBe(2);
+      expect(response.data!.totalPages).toBe(1);
 
       const validation = ResponseValidator.validate(response, {
         expectPaginated: true,
@@ -145,11 +145,11 @@ describe('Response Helpers', () => {
         sort: { by: 'createdAt', order: 'desc' },
       });
 
-      expect(response.data.query).toEqual({
+      expect(response.data!.query).toEqual({
         q: 'search term',
         filters: { status: 'active' },
       });
-      expect(response.data.sort).toEqual({
+      expect(response.data!.sort).toEqual({
         by: 'createdAt',
         order: 'desc',
       });
@@ -162,13 +162,13 @@ describe('Response Helpers', () => {
 
     it('should calculate totalPages correctly', () => {
       const response = paginated([], 1, 10, 25);
-      expect(response.data.totalPages).toBe(3);
+      expect(response.data!.totalPages).toBe(3);
 
       const response2 = paginated([], 1, 10, 30);
-      expect(response2.data.totalPages).toBe(3);
+      expect(response2.data!.totalPages).toBe(3);
 
       const response3 = paginated([], 1, 10, 0);
-      expect(response3.data.totalPages).toBe(0);
+      expect(response3.data!.totalPages).toBe(0);
     });
   });
 

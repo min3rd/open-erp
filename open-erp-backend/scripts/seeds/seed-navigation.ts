@@ -144,7 +144,7 @@ interface NavigationSeedOptions extends SeedOptions {
   pushApi?: string;
 }
 
-interface ManifestNavigationItem {
+export interface ManifestNavigationItem {
   id?: string;
   label: string;
   labelKey?: string;

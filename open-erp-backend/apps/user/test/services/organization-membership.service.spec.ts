@@ -4,7 +4,7 @@ import { OrganizationMembershipService } from '../../src/services/organization-m
 import { UserRepository } from '../../src/repositories/user.repository';
 import { OrganizationMemberRepository } from '../../src/repositories/organization-member.repository';
 import { RABBITMQ_NOTIFICATION_CLIENT } from '@shared/rabbitmq';
-import { TenantRole, MembershipStatus } from '@shared/schemas';
+import { MemberRole, MemberStatus } from '@shared/schemas';
 
 describe('OrganizationMembershipService', () => {
   let service: OrganizationMembershipService;
@@ -23,8 +23,8 @@ describe('OrganizationMembershipService', () => {
     _id: { toString: () => 'membership123' },
     userId: 'user123',
     organizationId: 'org123',
-    role: TenantRole.MEMBER,
-    status: MembershipStatus.ACTIVE,
+    role: MemberRole.MEMBER,
+    status: MemberStatus.ACTIVE,
   };
 
   beforeEach(async () => {
@@ -75,7 +75,7 @@ describe('OrganizationMembershipService', () => {
     it('should invite existing user by email', async () => {
       const inviteDto = {
         identifier: 'test@example.com',
-        role: TenantRole.MEMBER,
+        role: MemberRole.MEMBER,
         sendInviteEmail: true,
       };
 
@@ -107,7 +107,7 @@ describe('OrganizationMembershipService', () => {
     it('should invite existing user by username', async () => {
       const inviteDto = {
         identifier: 'testuser',
-        role: TenantRole.ADMIN,
+        role: MemberRole.ADMIN,
         sendInviteEmail: false,
       };
 
@@ -134,7 +134,7 @@ describe('OrganizationMembershipService', () => {
     it('should throw BadRequestException if user already member', async () => {
       const inviteDto = {
         identifier: 'test@example.com',
-        role: TenantRole.MEMBER,
+        role: MemberRole.MEMBER,
       };
 
       userRepository.findByEmail.mockResolvedValue(mockUser as any);
@@ -150,12 +150,12 @@ describe('OrganizationMembershipService', () => {
     it('should reactivate revoked membership', async () => {
       const inviteDto = {
         identifier: 'test@example.com',
-        role: TenantRole.MEMBER,
+        role: MemberRole.MEMBER,
       };
 
       const revokedMembership = {
         ...mockMembership,
-        status: MembershipStatus.REVOKED,
+        status: MemberStatus.REVOKED,
       };
 
       userRepository.findByEmail.mockResolvedValue(mockUser as any);
@@ -178,7 +178,7 @@ describe('OrganizationMembershipService', () => {
     it('should throw BadRequestException if user not found with username', async () => {
       const inviteDto = {
         identifier: 'nonexistentuser',
-        role: TenantRole.MEMBER,
+        role: MemberRole.MEMBER,
       };
 
       userRepository.findByEmail.mockResolvedValue(null);
@@ -193,8 +193,8 @@ describe('OrganizationMembershipService', () => {
   describe('listOrganizationMembers', () => {
     it('should list organization members with filters', async () => {
       const query = {
-        role: TenantRole.ADMIN,
-        status: MembershipStatus.ACTIVE,
+        role: MemberRole.ADMIN,
+        status: MemberStatus.ACTIVE,
         page: 1,
         size: 10,
       };
@@ -217,8 +217,8 @@ describe('OrganizationMembershipService', () => {
         organizationMemberRepository.listOrganizationMembers,
       ).toHaveBeenCalledWith({
         organizationId: 'org123',
-        role: TenantRole.ADMIN,
-        status: MembershipStatus.ACTIVE,
+        role: MemberRole.ADMIN,
+        status: MemberStatus.ACTIVE,
         page: 1,
         limit: 10,
       });
@@ -228,7 +228,7 @@ describe('OrganizationMembershipService', () => {
   describe('updateMembership', () => {
     it('should update membership role', async () => {
       const updateDto = {
-        role: TenantRole.ADMIN,
+        role: MemberRole.ADMIN,
       };
 
       organizationMemberRepository.findByUserAndOrganization.mockResolvedValue(
@@ -236,7 +236,7 @@ describe('OrganizationMembershipService', () => {
       );
       organizationMemberRepository.update.mockResolvedValue({
         ...mockMembership,
-        role: TenantRole.ADMIN,
+        role: MemberRole.ADMIN,
       } as any);
 
       const result = await service.updateMembership(
@@ -250,7 +250,7 @@ describe('OrganizationMembershipService', () => {
     });
 
     it('should throw NotFoundException if membership not found', async () => {
-      const updateDto = { role: TenantRole.ADMIN };
+      const updateDto = { role: MemberRole.ADMIN };
 
       organizationMemberRepository.findByUserAndOrganization.mockResolvedValue(
         null,
@@ -262,10 +262,10 @@ describe('OrganizationMembershipService', () => {
     });
 
     it('should prevent removing last owner', async () => {
-      const updateDto = { role: TenantRole.MEMBER };
+      const updateDto = { role: MemberRole.MEMBER };
       const ownerMembership = {
         ...mockMembership,
-        role: TenantRole.OWNER,
+        role: MemberRole.OWNER,
       };
 
       organizationMemberRepository.findByUserAndOrganization.mockResolvedValue(
@@ -317,7 +317,7 @@ describe('OrganizationMembershipService', () => {
     it('should prevent removing last owner', async () => {
       const ownerMembership = {
         ...mockMembership,
-        role: TenantRole.OWNER,
+        role: MemberRole.OWNER,
       };
 
       organizationMemberRepository.findByUserAndOrganization.mockResolvedValue(

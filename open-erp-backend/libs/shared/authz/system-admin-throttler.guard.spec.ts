@@ -7,7 +7,7 @@ import { ThrottlerStorage, ThrottlerModuleOptions } from '@nestjs/throttler';
 
 describe('SystemAdminThrottlerGuard', () => {
   let guard: SystemAdminThrottlerGuard;
-  let mockStorage: jest.Mocked<ThrottlerStorage>;
+  let mockStorage: any;
   let mockReflector: jest.Mocked<Reflector>;
 
   beforeEach(async () => {

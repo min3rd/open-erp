@@ -35,7 +35,7 @@ describe('JwtAuthGuard', () => {
   function createMockExecutionContext(
     headers: Record<string, string> = {},
   ): ExecutionContext {
-    const mockRequest = {
+    const mockRequest: any = {
       headers,
       user: undefined,
     };
@@ -174,7 +174,7 @@ describe('JwtAuthGuard', () => {
         { expiresIn: '1h' },
       );
 
-      const mockRequest = {
+      const mockRequest: any = {
         headers: {
           authorization: `Bearer ${validToken}`,
         },
@@ -193,8 +193,8 @@ describe('JwtAuthGuard', () => {
 
       expect(result).toBe(true);
       expect(mockRequest.user).toBeDefined();
-      expect(mockRequest.user.userId).toBe(userId);
-      expect(mockRequest.user.email).toBe(email);
+      expect(mockRequest.user!.userId).toBe(userId);
+      expect(mockRequest.user!.email).toBe(email);
     });
 
     it('should allow access with token containing additional claims', async () => {
@@ -214,7 +214,7 @@ describe('JwtAuthGuard', () => {
         { expiresIn: '1h' },
       );
 
-      const mockRequest = {
+      const mockRequest: any = {
         headers: {
           authorization: `Bearer ${validToken}`,
         },
@@ -233,8 +233,8 @@ describe('JwtAuthGuard', () => {
 
       expect(result).toBe(true);
       expect(mockRequest.user).toBeDefined();
-      expect(mockRequest.user.userId).toBe(userId);
-      expect(mockRequest.user.email).toBe(email);
+      expect(mockRequest.user!.userId).toBe(userId);
+      expect(mockRequest.user!.email).toBe(email);
     });
   });
 });

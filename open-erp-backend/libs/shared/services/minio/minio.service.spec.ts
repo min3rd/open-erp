@@ -424,7 +424,7 @@ describe('MinioService', () => {
 
   describe('deleteObjects', () => {
     it('should delete multiple objects', async () => {
-      mockMinioClient.removeObjects.mockResolvedValue(undefined);
+      mockMinioClient.removeObjects.mockResolvedValue([]);
 
       const results = await service.deleteObjects([
         'test/file1.txt',

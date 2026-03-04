@@ -16,7 +16,7 @@
 
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
-import { AppModule } from '../apps/inventory/src/app.module';
+import { InventoryModule } from '../apps/inventory/src/inventory.module';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product } from '@shared/schemas';
@@ -28,7 +28,7 @@ async function bootstrap() {
   logger.log('Starting slug backfill migration...');
   
   // Create NestJS application context
-  const app = await NestFactory.createApplicationContext(AppModule);
+  const app = await NestFactory.createApplicationContext(InventoryModule);
   
   try {
     // Get Product model

@@ -11,7 +11,8 @@ export class SerialRepository {
   ) {}
 
   async create(data: Partial<Serial>): Promise<SerialDocument> {
-    return this.serialModel.create(data);
+    const doc = new this.serialModel(data);
+    return doc.save();
   }
 
   async findById(id: string): Promise<SerialDocument | null> {

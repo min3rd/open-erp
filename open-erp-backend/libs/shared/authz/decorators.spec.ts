@@ -69,7 +69,7 @@ describe('Authorization Decorators', () => {
         PERMISSION_SCOPE_KEY,
         TestController.prototype.createOrder,
       );
-      expect(scope).toBe('tenant');
+      expect(scope).toBe('organization');
     });
 
     it('should set scope to global when specified', () => {
@@ -190,7 +190,7 @@ describe('Authorization Decorators', () => {
 
     it('should preserve metadata when multiple decorators are used', () => {
       class TestController {
-        @Permissions(['order.create', 'order.update'], { scope: 'tenant' })
+        @Permissions(['order.create', 'order.update'], { scope: 'organization' })
         @Roles('MANAGER')
         manageOrders() {}
       }
@@ -210,7 +210,7 @@ describe('Authorization Decorators', () => {
 
       expect(permissions).toEqual(['order.create', 'order.update']);
       expect(roles).toEqual(['MANAGER']);
-      expect(scope).toBe('tenant');
+      expect(scope).toBe('organization');
     });
   });
 });

@@ -17,7 +17,7 @@ import {
   Headers,
   Res,
 } from '@nestjs/common';
-import { Response } from 'express';
+import type { Response } from 'express';
 import {
   ApiTags,
   ApiOperation,
@@ -40,8 +40,8 @@ import {
   JwtAuthGuard,
   PermissionsGuard,
   CurrentUser,
-  UserContext,
 } from '@shared/authz';
+import type { UserContext } from '@shared/authz';
 import { Permissions, Roles } from '@shared/authz/decorators';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { Permission, Role, RoleGroups } from '@shared/types';

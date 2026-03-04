@@ -10,7 +10,8 @@ export class ShipmentRepository {
   ) {}
 
   async create(data: Partial<Shipment>): Promise<ShipmentDocument> {
-    return this.shipmentModel.create(data);
+    const doc = new this.shipmentModel(data);
+    return doc.save();
   }
 
   async findById(id: string): Promise<ShipmentDocument | null> {
