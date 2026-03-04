@@ -3670,7 +3670,10 @@
       "entity": "Entity",
       "selectEntity": "Select entity...",
       "format": "Format",
-      "mode": "Export Mode"
+      "mode": "Export Mode",
+      "scope": "Scope",
+      "orgId": "Organization ID",
+      "orgIdPlaceholder": "Enter organization ID"
     },
     "import": {
       "title": "Import Data",
@@ -3700,6 +3703,11 @@
       "importFailed": "Import failed. Please try again.",
       "error": "Error",
       "downloadFailed": "Download failed. Please try again."
+    },
+    "filters": {
+      "search": "Search by entity...",
+      "type": "Type",
+      "status": "Status"
     }
   }
 }

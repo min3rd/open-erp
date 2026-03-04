@@ -83,6 +83,9 @@ export class ImportExportJob {
   downloadUrl?: string;
 
   @Prop()
+  fileBucket?: string;
+
+  @Prop()
   errorReportUrl?: string;
 
   @Prop()

@@ -27,6 +27,11 @@ export enum ImportMode {
   UPDATE_ONLY = 'update_only',
 }
 
+export enum ExportScope {
+  GLOBAL = 'global',
+  ORG = 'org',
+}
+
 export interface EntityField {
   key: string;
   label: string;
@@ -85,6 +90,7 @@ export interface CreateExportJobDto {
   exportMode?: ExportMode;
   filters?: Record<string, any>;
   orgId?: string;
+  scope?: ExportScope;
 }
 
 export interface CreateImportJobDto {

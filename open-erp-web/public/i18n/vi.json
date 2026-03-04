@@ -2295,7 +2295,10 @@
       "entity": "Đối tượng",
       "selectEntity": "Chọn đối tượng...",
       "format": "Định dạng",
-      "mode": "Chế độ xuất"
+      "mode": "Chế độ xuất",
+      "scope": "Phạm vi",
+      "orgId": "ID tổ chức",
+      "orgIdPlaceholder": "Nhập ID tổ chức"
     },
     "import": {
       "title": "Nhập dữ liệu",
@@ -2325,6 +2328,11 @@
       "importFailed": "Nhập thất bại. Vui lòng thử lại.",
       "error": "Lỗi",
       "downloadFailed": "Tải xuống thất bại. Vui lòng thử lại."
+    },
+    "filters": {
+      "search": "Tìm theo đối tượng...",
+      "type": "Loại",
+      "status": "Trạng thái"
     }
   }
 }

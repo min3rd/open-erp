@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, switchMap } from 'rxjs';
 import { API_URI_DATA_TRANSFER } from '../../constant';
 import { ApiResponse } from '../../api/interfaces';
 import { unwrap } from '../../api/http-wrapper';
@@ -30,6 +30,7 @@ export {
   ExportFormat,
   ExportMode,
   ImportMode,
+  ExportScope,
 } from './import-export.types';
 
 @Injectable({
@@ -51,8 +52,18 @@ export class ImportExportService {
       .pipe(map(unwrap));
   }
 
-  getJobs(page = 1, limit = 20): Observable<{ items: ImportExportJob[]; total: number; page: number; limit: number }> {
-    const params = new HttpParams().set('page', page).set('limit', limit);
+  getJobs(
+    page = 1,
+    limit = 20,
+    filters?: { q?: string; type?: string; entity?: string; status?: string; sortField?: string; sortOrder?: 'asc' | 'desc' },
+  ): Observable<{ items: ImportExportJob[]; total: number; page: number; limit: number }> {
+    let params = new HttpParams().set('page', page).set('limit', limit);
+    if (filters?.q) params = params.set('q', filters.q);
+    if (filters?.type) params = params.set('type', filters.type);
+    if (filters?.entity) params = params.set('entity', filters.entity);
+    if (filters?.status) params = params.set('status', filters.status);
+    if (filters?.sortField) params = params.set('sortField', filters.sortField);
+    if (filters?.sortOrder) params = params.set('sortOrder', filters.sortOrder);
     return this.http
       .get<any>(`${this.baseUrl}/jobs`, { params })
       .pipe(map((r) => r.data));
@@ -76,8 +87,16 @@ export class ImportExportService {
       .pipe(map(unwrap));
   }
 
+  getExportDownloadUrl(jobId: string): Observable<string> {
+    return this.http
+      .get<ApiResponse<{ url: string }>>(`${this.baseUrl}/export/${jobId}/download`)
+      .pipe(map((r) => unwrap(r).url));
+  }
+
   downloadExport(jobId: string): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/export/${jobId}/download`, { responseType: 'blob' });
+    return this.getExportDownloadUrl(jobId).pipe(
+      switchMap((url) => this.http.get(url, { responseType: 'blob' })),
+    );
   }
 
   createImportJob(dto: CreateImportJobDto, file: File): Observable<ImportExportJob> {

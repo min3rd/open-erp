@@ -2637,7 +2637,10 @@
       "entity": "Entidad",
       "selectEntity": "Seleccionar entidad...",
       "format": "Formato",
-      "mode": "Modo de exportación"
+      "mode": "Modo de exportación",
+      "scope": "Ámbito",
+      "orgId": "ID de organización",
+      "orgIdPlaceholder": "Ingresar ID de organización"
     },
     "import": {
       "title": "Importar datos",
@@ -2667,6 +2670,11 @@
       "importFailed": "Importación fallida. Por favor, inténtelo de nuevo.",
       "error": "Error",
       "downloadFailed": "Descarga fallida. Por favor, inténtelo de nuevo."
+    },
+    "filters": {
+      "search": "Buscar por entidad...",
+      "type": "Tipo",
+      "status": "Estado"
     }
   }
 }
