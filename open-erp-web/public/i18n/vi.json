@@ -2267,6 +2267,15 @@
       "lotId": "Lô",
       "assignedAt": "Ngày gán",
       "filterStatus": "Lọc theo trạng thái"
-    }
+    },
+    "navigation": {
+      "toggleNavMode": "Chuyển đổi chế độ điều hướng",
+      "noItems": "Không có mục điều hướng"
+    },
+    "toolbar": {
+      "selectColumns": "Chọn cột",
+      "columns": "Cột"
+    },
+    "loading": "Đang tải..."
   }
 }

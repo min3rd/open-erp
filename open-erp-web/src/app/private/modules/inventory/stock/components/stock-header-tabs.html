@@ -1,0 +1,48 @@
+<header
+  id="stock-header-tabs"
+  class="bg-surface-0 dark:bg-surface-900 border-b border-surface-200 dark:border-surface-700"
+  role="banner"
+>
+  <div id="stock-tabs-container" class="flex items-center">
+    <nav
+      id="stock-tabs-nav"
+      class="flex w-full overflow-x-auto px-2"
+      role="navigation"
+      [attr.aria-label]="'stock.title' | transloco"
+    >
+      @for (item of items; track item.id) {
+        @if (item.routerLink && !item.disabled) {
+          <a
+            [id]="'stock-tab-' + item.id"
+            [routerLink]="item.routerLink"
+            routerLinkActive="border-b-2 border-primary-500 text-primary-700 dark:text-primary-300"
+            [routerLinkActiveOptions]="{ exact: false }"
+            class="flex-shrink-0 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-0 transition-colors border-b-2 border-transparent min-w-[120px]"
+            [attr.aria-label]="item.label"
+            [attr.aria-current]="isItemActive(item) ? 'page' : null"
+            [title]="item.tooltip || item.label"
+          >
+            @if (item.icon) {
+              <i [class]="item.icon" aria-hidden="true"></i>
+            }
+            <span class="whitespace-nowrap">{{ item.label }}</span>
+            @if (item.badge) {
+              <span
+                class="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-primary-500 text-white"
+                [class]="item.badgeStyleClass"
+              >
+                {{ item.badge }}
+              </span>
+            }
+          </a>
+        }
+      }
+
+      @if (items.length === 0) {
+        <div class="flex-1 flex items-center justify-center px-4 py-3 text-sm text-surface-500 dark:text-surface-400">
+          {{ 'stock.navigation.noItems' | transloco }}
+        </div>
+      }
+    </nav>
+  </div>
+</header>
