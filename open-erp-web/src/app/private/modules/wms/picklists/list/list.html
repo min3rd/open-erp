@@ -1,0 +1,137 @@
+<div class="flex h-full flex-col">
+  <!-- Toolbar -->
+  <mp-toolbar id="picklist-list-toolbar">
+    <ng-template #start>
+      <span class="text-lg font-semibold">{{ 'wms.picklists.title' | transloco }}</span>
+      <p-select
+        [options]="statusOptions"
+        [ngModel]="selectedStatus()"
+        (ngModelChange)="onStatusChange($event)"
+        optionLabel="label"
+        optionValue="value"
+        [placeholder]="'wms.picklists.allStatuses' | transloco"
+        [showClear]="true"
+        class="ml-2 w-40"
+      />
+    </ng-template>
+    <ng-template #end>
+      <p-button
+        icon="pi pi-refresh"
+        [rounded]="true"
+        [text]="true"
+        (onClick)="refresh()"
+        [pTooltip]="'wms.refresh' | transloco"
+        tooltipPosition="bottom"
+      />
+    </ng-template>
+  </mp-toolbar>
+
+  <!-- Table -->
+  <div class="flex-1 overflow-hidden">
+    <p-table
+      [value]="picklists()"
+      [loading]="loading()"
+      [scrollable]="true"
+      scrollHeight="flex"
+      [resizableColumns]="true"
+      dataKey="id"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template #header>
+        <tr>
+          <th pResizableColumn style="width: 160px">{{ 'wms.picklists.id' | transloco }}</th>
+          <th pResizableColumn>{{ 'wms.picklists.orders' | transloco }}</th>
+          <th pResizableColumn style="width: 80px">{{ 'wms.picklists.lines' | transloco }}</th>
+          <th pResizableColumn style="width: 130px">{{ 'wms.picklists.status' | transloco }}</th>
+          <th pResizableColumn style="width: 160px">{{ 'wms.picklists.createdAt' | transloco }}</th>
+          <th style="width: 80px"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-picklist>
+        <tr>
+          <td class="font-mono text-xs">{{ picklist.id }}</td>
+          <td>{{ picklist.orderIds?.length || 0 }}</td>
+          <td>{{ picklist.lines?.length || 0 }}</td>
+          <td>
+            <p-tag
+              [value]="picklist.status"
+              [severity]="getStatusSeverity(picklist.status)"
+            />
+          </td>
+          <td>{{ picklist.createdAt | date:'short' }}</td>
+          <td>
+            <p-button
+              icon="pi pi-eye"
+              [text]="true"
+              [rounded]="true"
+              size="small"
+              (onClick)="openDetail(picklist)"
+              [pTooltip]="'wms.view' | transloco"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6" class="text-center py-8 text-surface-400">
+            {{ 'wms.picklists.empty' | transloco }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Picklist Detail Drawer -->
+  <p-drawer
+    [visible]="drawerVisible()"
+    (visibleChange)="drawerVisible.set($event)"
+    position="right"
+    [style]="{ width: isMobile() ? '100%' : '560px' }"
+    [header]="'wms.picklists.detail' | transloco"
+  >
+    @if (selectedPicklist()) {
+      <div class="flex flex-col gap-4 p-2">
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <span class="text-surface-500">{{ 'wms.picklists.status' | transloco }}</span>
+            <div class="mt-1">
+              <p-tag
+                [value]="selectedPicklist()!.status"
+                [severity]="getStatusSeverity(selectedPicklist()!.status)"
+              />
+            </div>
+          </div>
+          <div>
+            <span class="text-surface-500">{{ 'wms.picklists.createdAt' | transloco }}</span>
+            <p class="font-medium">{{ selectedPicklist()!.createdAt | date:'medium' }}</p>
+          </div>
+        </div>
+
+        <!-- Picklist Lines -->
+        <div>
+          <h3 class="text-sm font-semibold mb-2">{{ 'wms.picklists.lines' | transloco }}</h3>
+          <p-table
+            [value]="selectedPicklist()!.lines"
+            dataKey="skuId"
+            styleClass="p-datatable-sm"
+          >
+            <ng-template #header>
+              <tr>
+                <th>{{ 'wms.picklists.sku' | transloco }}</th>
+                <th style="width: 80px">{{ 'wms.picklists.qty' | transloco }}</th>
+                <th style="width: 100px">{{ 'wms.picklists.picked' | transloco }}</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-line>
+              <tr>
+                <td>{{ line.skuCode || line.skuId }}</td>
+                <td>{{ line.qty }} {{ line.unit || '' }}</td>
+                <td>{{ line.pickedQty }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    }
+  </p-drawer>
+</div>
