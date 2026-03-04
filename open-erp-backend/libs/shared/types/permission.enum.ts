@@ -139,6 +139,15 @@ export enum Permission {
   IMPORT_EXPORT_MANAGE = 'import.export.manage',
   IMPORT_EXPORT_EXPORT = 'import.export.export',
   IMPORT_EXPORT_IMPORT = 'import.export.import',
+
+  // WMS (Warehouse Management System) Permissions
+  WMS_RECEIPT_CREATE = 'wms.receipt.create',
+  WMS_RECEIPT_READ = 'wms.receipt.read',
+  WMS_RECEIPT_UPDATE = 'wms.receipt.update',
+  WMS_QC_MANAGE = 'wms.qc.manage',
+  WMS_PICK_MANAGE = 'wms.pick.manage',
+  WMS_PACK_MANAGE = 'wms.pack.manage',
+  WMS_SHIP_MANAGE = 'wms.ship.manage',
 }
 
 /**
@@ -250,6 +259,15 @@ export const PermissionGroups = {
     Permission.IMPORT_EXPORT_MANAGE,
     Permission.IMPORT_EXPORT_EXPORT,
     Permission.IMPORT_EXPORT_IMPORT,
+  ],
+  WMS_FULL: [
+    Permission.WMS_RECEIPT_CREATE,
+    Permission.WMS_RECEIPT_READ,
+    Permission.WMS_RECEIPT_UPDATE,
+    Permission.WMS_QC_MANAGE,
+    Permission.WMS_PICK_MANAGE,
+    Permission.WMS_PACK_MANAGE,
+    Permission.WMS_SHIP_MANAGE,
   ],
 };
 
@@ -590,6 +608,35 @@ export const PermissionMetadata: Record<
   },
   [Permission.IMPORT_EXPORT_IMPORT]: {
     description: 'Permission to import data from Excel/CSV',
+    scope: 'organization',
+  },
+  // WMS Permissions
+  [Permission.WMS_RECEIPT_CREATE]: {
+    description: 'Permission to create warehouse receipts (PO receiving)',
+    scope: 'organization',
+  },
+  [Permission.WMS_RECEIPT_READ]: {
+    description: 'Permission to view warehouse receipts',
+    scope: 'organization',
+  },
+  [Permission.WMS_RECEIPT_UPDATE]: {
+    description: 'Permission to update warehouse receipts and record received quantities',
+    scope: 'organization',
+  },
+  [Permission.WMS_QC_MANAGE]: {
+    description: 'Permission to manage QC inspections (pass/fail receipt lines)',
+    scope: 'organization',
+  },
+  [Permission.WMS_PICK_MANAGE]: {
+    description: 'Permission to create and manage picklists',
+    scope: 'organization',
+  },
+  [Permission.WMS_PACK_MANAGE]: {
+    description: 'Permission to create and manage packages',
+    scope: 'organization',
+  },
+  [Permission.WMS_SHIP_MANAGE]: {
+    description: 'Permission to create and manage shipments',
     scope: 'organization',
   },
 };

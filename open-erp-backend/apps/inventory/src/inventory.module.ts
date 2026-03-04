@@ -45,6 +45,14 @@ import {
   LotSchema,
   Serial,
   SerialSchema,
+  Receipt,
+  ReceiptSchema,
+  Picklist,
+  PicklistSchema,
+  WmsPackage,
+  WmsPackageSchema,
+  Shipment,
+  ShipmentSchema,
 } from '@shared/schemas';
 
 // Import services
@@ -59,6 +67,11 @@ import { BinService } from './services/bin.service';
 import { LayoutService } from './services/layout.service';
 import { LotService } from './services/lot.service';
 import { SerialService } from './services/serial.service';
+
+// WMS Services
+import { ReceiptService } from './services/wms/receipt.service';
+import { PicklistService } from './services/wms/picklist.service';
+import { ShipmentService } from './services/wms/shipment.service';
 
 // Import repositories
 import { ProductRepository } from './repositories/product.repository';
@@ -75,6 +88,12 @@ import { LayoutRepository } from './repositories/layout.repository';
 import { LotRepository } from './repositories/lot.repository';
 import { SerialRepository } from './repositories/serial.repository';
 
+// WMS Repositories
+import { ReceiptRepository } from './repositories/wms/receipt.repository';
+import { PicklistRepository } from './repositories/wms/picklist.repository';
+import { ShipmentRepository } from './repositories/wms/shipment.repository';
+import { WmsPackageRepository } from './repositories/wms/package.repository';
+
 // Import controllers
 import { ProductController } from './controllers/product.controller';
 import { ProductTypeController } from './controllers/product-type.controller';
@@ -88,6 +107,11 @@ import { BinController } from './controllers/bin.controller';
 import { LayoutController } from './controllers/layout.controller';
 import { LotController } from './controllers/lot.controller';
 import { SerialController } from './controllers/serial.controller';
+
+// WMS Controllers
+import { ReceiptController } from './controllers/wms/receipt.controller';
+import { PicklistController } from './controllers/wms/picklist.controller';
+import { ShipmentController } from './controllers/wms/shipment.controller';
 
 // Import shared modules
 import { AuthorizationService } from '@shared/authz/authorization.service';
@@ -126,6 +150,10 @@ import { MinioModule } from '@shared/services/minio/minio.module';
       { name: LayoutObject.name, schema: LayoutObjectSchema },
       { name: Lot.name, schema: LotSchema },
       { name: Serial.name, schema: SerialSchema },
+      { name: Receipt.name, schema: ReceiptSchema },
+      { name: Picklist.name, schema: PicklistSchema },
+      { name: WmsPackage.name, schema: WmsPackageSchema },
+      { name: Shipment.name, schema: ShipmentSchema },
     ]),
     ThrottlerModule.forRoot([
       {
@@ -149,6 +177,9 @@ import { MinioModule } from '@shared/services/minio/minio.module';
     LayoutController,
     LotController,
     SerialController,
+    ReceiptController,
+    PicklistController,
+    ShipmentController,
   ],
   providers: [
     ProductService,
@@ -175,8 +206,16 @@ import { MinioModule } from '@shared/services/minio/minio.module';
     SerialRepository,
     LotService,
     SerialService,
+    ReceiptService,
+    PicklistService,
+    ShipmentService,
     AuthorizationService,
     PermissionService,
+    // WMS Repositories
+    ReceiptRepository,
+    PicklistRepository,
+    ShipmentRepository,
+    WmsPackageRepository,
   ],
 })
 export class InventoryModule {}

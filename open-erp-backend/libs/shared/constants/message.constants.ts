@@ -149,6 +149,20 @@ export const EVENT_NAMES = {
     AISLE_CHANGED: 'inventory.aisle.changed',
     BIN_UPDATED: 'inventory.bin.updated',
   },
+
+  // WMS Events
+  WMS: {
+    RECEIPT_CREATED: 'wms.receipt.created',
+    RECEIPT_RECEIVED: 'wms.receipt.received',
+    RECEIPT_QC_FAILED: 'wms.receipt.qc.failed',
+    PICKLIST_CREATED: 'wms.picklist.created',
+    PICKLIST_PICKED: 'wms.picklist.picked',
+    PICKLIST_PICKED_PARTIAL: 'wms.picklist.picked.partial',
+    PACKAGE_CREATED: 'wms.package.created',
+    SHIPMENT_CREATED: 'wms.shipment.created',
+    SHIPMENT_SHIPPED: 'wms.shipment.shipped',
+    SHIPMENT_DELIVERED: 'wms.shipment.delivered',
+  },
 } as const;
 
 /**
@@ -184,3 +198,5 @@ export type NavigationEvent =
   (typeof EVENT_NAMES.NAVIGATION)[keyof typeof EVENT_NAMES.NAVIGATION];
 export type ChatEvent =
   (typeof EVENT_NAMES.CHAT)[keyof typeof EVENT_NAMES.CHAT];
+export type WmsEvent =
+  (typeof EVENT_NAMES.WMS)[keyof typeof EVENT_NAMES.WMS];
