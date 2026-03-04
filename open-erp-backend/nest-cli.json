@@ -88,6 +88,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/chat/tsconfig.json"
       }
+    },
+    "data-transfer": {
+      "type": "application",
+      "root": "apps/data-transfer",
+      "entryFile": "main",
+      "sourceRoot": "apps/data-transfer/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/data-transfer/tsconfig.json"
+      }
     }
   }
 }
