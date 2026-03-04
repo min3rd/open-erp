@@ -122,7 +122,7 @@ export class ReceiptList implements OnInit, OnDestroy {
 
   protected onStatusChange(status: ReceiptStatus | undefined) {
     this.selectedStatus.set(status);
-    this.navigateWithState(1);
+    this.loadReceipts();
   }
 
   protected openDetail(receipt: Receipt) {

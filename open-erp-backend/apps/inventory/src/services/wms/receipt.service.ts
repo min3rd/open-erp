@@ -102,11 +102,11 @@ export class ReceiptService {
 
     for (const receiveItem of dto.lines) {
       const lineIndex = updatedLines.findIndex(
-        (l) => l.skuId.toString() === receiveItem.lineId,
+        (l) => l.skuId.toString() === receiveItem.skuId,
       );
 
       if (lineIndex === -1) {
-        this.logger.warn(`Line not found for SKU: ${receiveItem.lineId}`);
+        this.logger.warn(`Line not found for SKU: ${receiveItem.skuId}`);
         continue;
       }
 

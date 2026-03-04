@@ -9,6 +9,7 @@ import {
   ReceiveReceiptDto,
   QcReceiptDto,
   ReceiptStatus,
+  QcStatus,
   Picklist,
   CreatePicklistDto,
   PickDto,
