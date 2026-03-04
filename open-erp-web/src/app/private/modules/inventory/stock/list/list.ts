@@ -31,7 +31,7 @@ import {
   Warehouse,
 } from '../../../../../../core/services/warehouse/warehouse.service';
 import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, combineLatest } from 'rxjs';
 
 interface ColumnDef {
   field: string;
@@ -124,16 +124,36 @@ export class StockList implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      const page = parseInt(params['page'], 10) || 1;
-      const limit = parseInt(params['limit'], 10) || PAGE_SIZE_OPTIONS[0];
-      const normalizedLimit = PAGE_SIZE_OPTIONS.includes(limit) ? limit : PAGE_SIZE_OPTIONS[0];
-      const search = params['search'] || '';
+    combineLatest([this.route.params, this.route.queryParams])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([params, queryParams]) => {
+        const page = parseInt(params['page'], 10) || 1;
+        const limit = parseInt(params['limit'], 10) || PAGE_SIZE_OPTIONS[0];
+        const normalizedLimit = PAGE_SIZE_OPTIONS.includes(limit) ? limit : PAGE_SIZE_OPTIONS[0];
+        const search = params['search'] || '';
 
-      this.currentPage.set(page);
-      this.pageSize.set(normalizedLimit);
-      this.searchQuery.set(search === '-' ? '' : search);
-    });
+        this.currentPage.set(page);
+        this.pageSize.set(normalizedLimit);
+        this.searchQuery.set(search === '-' ? '' : search);
+
+        // Restore sort from query params
+        if (queryParams['sortField']) {
+          this.sortField.set(queryParams['sortField']);
+        }
+        if (queryParams['sortOrder']) {
+          this.sortOrder.set(parseInt(queryParams['sortOrder'], 10) || 1);
+        }
+
+        // Restore warehouse from query params
+        if (queryParams['warehouseId']) {
+          this.selectedWarehouseId.set(queryParams['warehouseId']);
+        }
+
+        // Load stock if warehouse is set, otherwise wait for warehouse load
+        if (this.selectedWarehouseId()) {
+          this.loadStock();
+        }
+      });
 
     this.loadWarehouses();
   }
@@ -149,7 +169,7 @@ export class StockList implements OnInit, OnDestroy {
   loadWarehouses() {
     this.warehouseService.getWarehouses({ page: 1, limit: 100 }).subscribe((result) => {
       this.warehouses.set(result.items);
-      if (result.items.length > 0) {
+      if (result.items.length > 0 && !this.selectedWarehouseId()) {
         this.selectedWarehouseId.set(result.items[0].id);
         this.loadStock();
       }
@@ -167,7 +187,13 @@ export class StockList implements OnInit, OnDestroy {
 
     this.loading.set(true);
     this.stockService
-      .getWarehouseStock(whId, { page: this.currentPage(), limit: this.pageSize() })
+      .getWarehouseStock(whId, {
+        page: this.currentPage(),
+        limit: this.pageSize(),
+        q: this.searchQuery() || undefined,
+        sortField: this.sortField(),
+        sortOrder: this.sortOrder(),
+      })
       .subscribe({
         next: (result) => {
           this.stocks.set(result.items);
@@ -187,6 +213,7 @@ export class StockList implements OnInit, OnDestroy {
     const searchValue = input.value || '-';
     this.router.navigate(['../../..', searchValue, 1, this.pageSize()], {
       relativeTo: this.route,
+      queryParams: this.buildQueryParams(),
     });
   }
 
@@ -199,11 +226,7 @@ export class StockList implements OnInit, OnDestroy {
       this.sortOrder.set(event.sortOrder || 1);
     }
 
-    if (page !== this.currentPage() || rows !== this.pageSize()) {
-      this.navigateWithState(page, rows);
-    } else {
-      this.loadStock();
-    }
+    this.navigateWithState(page, rows);
   }
 
   protected refresh() {
@@ -218,6 +241,7 @@ export class StockList implements OnInit, OnDestroy {
     this.isSearchOpen.set(false);
     this.router.navigate(['../../..', '-', 1, this.pageSize()], {
       relativeTo: this.route,
+      queryParams: this.buildQueryParams(),
     });
   }
 
@@ -242,7 +266,22 @@ export class StockList implements OnInit, OnDestroy {
     const ps = pageSize ?? this.pageSize();
     this.router.navigate(['../../..', search, p, ps], {
       relativeTo: this.route,
+      queryParams: this.buildQueryParams(),
     });
+  }
+
+  private buildQueryParams(): Record<string, string> {
+    const qp: Record<string, string> = {};
+    if (this.sortField() && this.sortField() !== 'sku') {
+      qp['sortField'] = this.sortField();
+    }
+    if (this.sortOrder() !== 1) {
+      qp['sortOrder'] = this.sortOrder().toString();
+    }
+    if (this.selectedWarehouseId()) {
+      qp['warehouseId'] = this.selectedWarehouseId();
+    }
+    return qp;
   }
 
   private checkViewport(): void {
