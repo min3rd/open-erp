@@ -90,10 +90,9 @@ export class ImportExportList implements OnInit, OnDestroy {
   protected readonly pageSize = signal(20);
   protected readonly totalRecords = signal(0);
 
-  // Filter state
+  // Filter state (synced with URL query params)
   protected readonly searchQuery = signal('');
   protected readonly filterType = signal<string>('');
-  protected readonly filterEntity = signal<string>('');
   protected readonly filterStatus = signal<string>('');
 
   // Export drawer
@@ -153,13 +152,23 @@ export class ImportExportList implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      const page = parseInt(params['page'], 10) || 1;
-      const limit = parseInt(params['limit'], 10) || 20;
-      this.currentPage.set(page);
-      this.pageSize.set(limit);
-      this.loadJobs(page, limit);
-    });
+    combineLatest([this.route.params, this.route.queryParams])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([params, queryParams]) => {
+        const page = parseInt(params['page'], 10) || 1;
+        const limit = parseInt(params['limit'], 10) || 20;
+        const search = params['search'] === '-' ? '' : (params['search'] || '');
+
+        this.currentPage.set(page);
+        this.pageSize.set(limit);
+        this.searchQuery.set(search);
+
+        // Restore filters from query params
+        if (queryParams['type']) this.filterType.set(queryParams['type']);
+        if (queryParams['status']) this.filterStatus.set(queryParams['status']);
+
+        this.loadJobs(page, limit);
+      });
     this.loadTemplates();
   }
 
@@ -174,7 +183,6 @@ export class ImportExportList implements OnInit, OnDestroy {
       .getJobs(page, limit, {
         q: this.searchQuery() || undefined,
         type: this.filterType() || undefined,
-        entity: this.filterEntity() || undefined,
         status: this.filterStatus() || undefined,
       })
       .subscribe({
@@ -194,17 +202,34 @@ export class ImportExportList implements OnInit, OnDestroy {
     });
   }
 
+  private buildQueryParams(): Record<string, string> {
+    const qp: Record<string, string> = {};
+    if (this.filterType()) qp['type'] = this.filterType();
+    if (this.filterStatus()) qp['status'] = this.filterStatus();
+    return qp;
+  }
+
+  private navigateWithState(page: number, limit?: number): void {
+    const search = this.searchQuery() || '-';
+    const ps = limit ?? this.pageSize();
+    this.router.navigate(['../../..', search, page, ps], {
+      relativeTo: this.route,
+      queryParams: this.buildQueryParams(),
+    });
+  }
+
   protected onPage(event: TablePageEvent): void {
     const page = Math.floor((event.first ?? 0) / (event.rows ?? 20)) + 1;
     const limit = event.rows ?? 20;
-    this.currentPage.set(page);
-    this.pageSize.set(limit);
-    this.router.navigate(['../../..', '-', page, limit], { relativeTo: this.route });
+    this.navigateWithState(page, limit);
+  }
+
+  protected onSearchKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'Enter') this.applyFilters();
   }
 
   protected applyFilters(): void {
-    this.currentPage.set(1);
-    this.loadJobs(1, this.pageSize());
+    this.navigateWithState(1);
   }
 
   protected openExportDrawer(): void {
@@ -317,14 +342,17 @@ export class ImportExportList implements OnInit, OnDestroy {
   }
 
   protected downloadExport(job: ImportExportJob): void {
-    this.service.downloadExport(job._id).subscribe({
-      next: (blob) => {
-        const url = URL.createObjectURL(blob);
+    // Get presigned URL from our backend, then open it directly in the browser
+    // so the app's auth interceptor does NOT add headers to the MinIO request
+    this.service.getExportDownloadUrl(job._id).subscribe({
+      next: (url) => {
         const a = document.createElement('a');
         a.href = url;
         a.download = `${job.entity}-export.${job.format || 'xlsx'}`;
+        a.rel = 'noopener noreferrer';
+        document.body.appendChild(a);
         a.click();
-        URL.revokeObjectURL(url);
+        document.body.removeChild(a);
       },
       error: () => {
         this.messageService.add({
