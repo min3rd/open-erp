@@ -51,17 +51,50 @@ export class InventoryStockRepository {
 
   async findByWarehouse(
     warehouseId: string,
-    options: { skip?: number; limit?: number; filter?: any } = {},
+    options: {
+      skip?: number;
+      limit?: number;
+      filter?: any;
+      q?: string;
+      sortField?: string;
+      sortOrder?: number;
+    } = {},
   ): Promise<{ items: InventoryStockDocument[]; total: number }> {
-    const { skip = 0, limit = 10, filter = {} } = options;
+    const { skip = 0, limit = 10, filter = {}, q, sortField, sortOrder } = options;
 
-    const query = {
+    const query: any = {
       warehouseId: new Types.ObjectId(warehouseId),
       ...filter,
     };
 
+    if (q) {
+      query.$or = [
+        { 'productSnapshot.sku': { $regex: q, $options: 'i' } },
+        { 'productSnapshot.name': { $regex: q, $options: 'i' } },
+      ];
+    }
+
+    const sort: any = {};
+    if (sortField) {
+      const fieldMap: Record<string, string> = {
+        sku: 'productSnapshot.sku',
+        name: 'productSnapshot.name',
+        available: 'availableQuantity',
+        reserved: 'reservedQuantity',
+        inTransit: 'inTransitQuantity',
+        damaged: 'damagedQuantity',
+        onHand: 'availableQuantity',
+      };
+      sort[fieldMap[sortField] || sortField] = sortOrder === -1 ? -1 : 1;
+    }
+
     const [items, total] = await Promise.all([
-      this.stockModel.find(query).skip(skip).limit(limit).exec(),
+      this.stockModel
+        .find(query)
+        .sort(Object.keys(sort).length > 0 ? sort : undefined)
+        .skip(skip)
+        .limit(limit)
+        .exec(),
       this.stockModel.countDocuments(query).exec(),
     ]);
 

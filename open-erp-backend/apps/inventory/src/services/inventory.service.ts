@@ -64,15 +64,24 @@ export class InventoryService {
   async getStocksByWarehouse(
     warehouseId: string,
     filter: any = {},
-    options: { page?: number; limit?: number } = {},
+    options: {
+      page?: number;
+      limit?: number;
+      q?: string;
+      sortField?: string;
+      sortOrder?: number;
+    } = {},
   ) {
-    const { page = 1, limit = 10 } = options;
+    const { page = 1, limit = 10, q, sortField, sortOrder } = options;
     const skip = (page - 1) * limit;
 
     const result = await this.stockRepository.findByWarehouse(warehouseId, {
       skip,
       limit,
       filter,
+      q,
+      sortField,
+      sortOrder,
     });
 
     return {

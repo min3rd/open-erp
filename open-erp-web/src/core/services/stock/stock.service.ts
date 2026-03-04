@@ -42,11 +42,21 @@ export class StockService {
 
   getWarehouseStock(
     warehouseId: string,
-    params?: { page?: number; limit?: number },
+    params?: {
+      page?: number;
+      limit?: number;
+      q?: string;
+      sortField?: string;
+      sortOrder?: number;
+    },
   ): Observable<{ items: InventoryStock[]; total: number; page: number; limit: number }> {
     let httpParams = new HttpParams();
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.limit) httpParams = httpParams.set('limit', params.limit.toString());
+    if (params?.q) httpParams = httpParams.set('q', params.q);
+    if (params?.sortField) httpParams = httpParams.set('sortField', params.sortField);
+    if (params?.sortOrder !== undefined)
+      httpParams = httpParams.set('sortOrder', params.sortOrder.toString());
 
     return this.http
       .get<ApiPaginatedResponse<InventoryStock>>(
