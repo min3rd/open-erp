@@ -148,6 +148,17 @@ export enum Permission {
   WMS_PICK_MANAGE = 'wms.pick.manage',
   WMS_PACK_MANAGE = 'wms.pack.manage',
   WMS_SHIP_MANAGE = 'wms.ship.manage',
+
+  // Approval Workflow Management
+  APPROVAL_TEMPLATE_CREATE = 'approval.template.create',
+  APPROVAL_TEMPLATE_READ = 'approval.template.read',
+  APPROVAL_TEMPLATE_UPDATE = 'approval.template.update',
+  APPROVAL_TEMPLATE_DELETE = 'approval.template.delete',
+  APPROVAL_TEMPLATE_MANAGE = 'approval.template.manage',
+  APPROVAL_REQUEST_CREATE = 'approval.request.create',
+  APPROVAL_REQUEST_READ = 'approval.request.read',
+  APPROVAL_REQUEST_ACTION = 'approval.request.action',
+  APPROVAL_REQUEST_MANAGE = 'approval.request.manage',
 }
 
 /**
@@ -268,6 +279,19 @@ export const PermissionGroups = {
     Permission.WMS_PICK_MANAGE,
     Permission.WMS_PACK_MANAGE,
     Permission.WMS_SHIP_MANAGE,
+  ],
+  APPROVAL_TEMPLATE_FULL: [
+    Permission.APPROVAL_TEMPLATE_CREATE,
+    Permission.APPROVAL_TEMPLATE_READ,
+    Permission.APPROVAL_TEMPLATE_UPDATE,
+    Permission.APPROVAL_TEMPLATE_DELETE,
+    Permission.APPROVAL_TEMPLATE_MANAGE,
+  ],
+  APPROVAL_REQUEST_FULL: [
+    Permission.APPROVAL_REQUEST_CREATE,
+    Permission.APPROVAL_REQUEST_READ,
+    Permission.APPROVAL_REQUEST_ACTION,
+    Permission.APPROVAL_REQUEST_MANAGE,
   ],
 };
 
@@ -637,6 +661,43 @@ export const PermissionMetadata: Record<
   },
   [Permission.WMS_SHIP_MANAGE]: {
     description: 'Permission to create and manage shipments',
+    scope: 'organization',
+  },
+  // Approval Workflow Permissions
+  [Permission.APPROVAL_TEMPLATE_CREATE]: {
+    description: 'Permission to create approval workflow templates',
+    scope: 'organization',
+  },
+  [Permission.APPROVAL_TEMPLATE_READ]: {
+    description: 'Permission to view approval workflow templates',
+    scope: 'organization',
+  },
+  [Permission.APPROVAL_TEMPLATE_UPDATE]: {
+    description: 'Permission to update approval workflow templates',
+    scope: 'organization',
+  },
+  [Permission.APPROVAL_TEMPLATE_DELETE]: {
+    description: 'Permission to delete approval workflow templates',
+    scope: 'organization',
+  },
+  [Permission.APPROVAL_TEMPLATE_MANAGE]: {
+    description: 'Full approval template management permissions',
+    scope: 'organization',
+  },
+  [Permission.APPROVAL_REQUEST_CREATE]: {
+    description: 'Permission to create approval requests',
+    scope: 'organization',
+  },
+  [Permission.APPROVAL_REQUEST_READ]: {
+    description: 'Permission to view approval requests',
+    scope: 'organization',
+  },
+  [Permission.APPROVAL_REQUEST_ACTION]: {
+    description: 'Permission to approve, reject, or request changes on approval requests',
+    scope: 'organization',
+  },
+  [Permission.APPROVAL_REQUEST_MANAGE]: {
+    description: 'Full approval request management permissions',
     scope: 'organization',
   },
 };

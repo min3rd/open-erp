@@ -97,6 +97,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/data-transfer/tsconfig.json"
       }
+    },
+    "approval": {
+      "type": "application",
+      "root": "apps/approval",
+      "entryFile": "main",
+      "sourceRoot": "apps/approval/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/approval/tsconfig.json"
+      }
     }
   }
 }
