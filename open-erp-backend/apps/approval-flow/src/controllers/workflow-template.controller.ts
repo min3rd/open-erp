@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -23,6 +24,8 @@ import {
   CreateWorkflowTemplateDto,
   UpdateWorkflowTemplateDto,
   CloneWorkflowTemplateDto,
+  UpdateStatusDto,
+  ValidateWorkflowDto,
 } from '../dto/workflow-template.dto';
 import {
   ApprovalScope,
@@ -88,6 +91,17 @@ export class WorkflowTemplateController {
       sortOrder,
     );
     return paginated(result.items, page, limit, result.total);
+  }
+
+  @Post('validate')
+  @Permissions(
+    [Permission.APPROVAL_TEMPLATE_READ, Permission.APPROVAL_TEMPLATE_MANAGE],
+    { mode: 'any' },
+  )
+  @ApiOperation({ summary: 'Validate workflow graph and rules' })
+  async validate(@Body() dto: ValidateWorkflowDto) {
+    const result = this.templateService.validateWorkflow(dto.nodes, dto.edges);
+    return ok(result);
   }
 
   @Get('resolve')
@@ -159,6 +173,23 @@ export class WorkflowTemplateController {
   async archive(@Param('id') id: string) {
     const result = await this.templateService.archive(id);
     return updated(result, 'Workflow template archived successfully');
+  }
+
+  @Patch(':id/status')
+  @Permissions(
+    [Permission.APPROVAL_TEMPLATE_MANAGE],
+    { mode: 'any' },
+  )
+  @ApiOperation({ summary: 'Change workflow template status' })
+  async changeStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateStatusDto,
+  ) {
+    const result = await this.templateService.changeStatus(
+      id,
+      dto.status as TemplateStatus,
+    );
+    return updated(result, 'Workflow template status updated successfully');
   }
 
   @Post(':id/clone')

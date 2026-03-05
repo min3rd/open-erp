@@ -293,3 +293,28 @@ export class CloneWorkflowTemplateDto {
   @IsMongoId()
   departmentId?: string;
 }
+
+export class UpdateStatusDto {
+  @ApiProperty({
+    enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED'],
+    description: 'New status for the template',
+  })
+  @IsEnum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
+  @IsNotEmpty()
+  status: string;
+}
+
+export class ValidateWorkflowDto {
+  @ApiProperty({ type: [WorkflowNodeDto], description: 'Workflow graph nodes to validate' })
+  @IsArray()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => WorkflowNodeDto)
+  nodes: WorkflowNodeDto[];
+
+  @ApiProperty({ type: [WorkflowEdgeDto], description: 'Workflow graph edges to validate' })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => WorkflowEdgeDto)
+  edges: WorkflowEdgeDto[];
+}

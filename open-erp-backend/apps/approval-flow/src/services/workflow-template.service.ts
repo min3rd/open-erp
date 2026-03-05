@@ -216,6 +216,83 @@ export class WorkflowTemplateService {
     });
   }
 
+  async changeStatus(
+    id: string,
+    newStatus: TemplateStatus,
+  ): Promise<ApprovalWorkflowTemplateDocument> {
+    const template = await this.findById(id);
+
+    if (template.status === newStatus) {
+      throw new ConflictException(`Template is already ${newStatus}`);
+    }
+
+    if (newStatus === TemplateStatus.PUBLISHED) {
+      return this.publish(id);
+    }
+
+    const updated = await this.templateRepo.update(id, { status: newStatus });
+    if (!updated) {
+      throw new NotFoundException('Workflow template not found');
+    }
+    return updated;
+  }
+
+  validateWorkflow(
+    nodes: { id: string; type: string; data?: any }[],
+    edges: { id: string; source: string; target: string }[],
+  ): { valid: boolean; errors: string[] } {
+    const errors: string[] = [];
+
+    if (!nodes || nodes.length === 0) {
+      errors.push('Workflow must have at least one node');
+      return { valid: false, errors };
+    }
+
+    const startNodes = nodes.filter((n) => n.type === WorkflowNodeType.START);
+    const endNodes = nodes.filter((n) => n.type === WorkflowNodeType.END);
+    const approvalNodes = nodes.filter(
+      (n) => n.type === WorkflowNodeType.APPROVAL,
+    );
+
+    if (startNodes.length === 0) {
+      errors.push('Workflow must have at least one start node');
+    }
+    if (startNodes.length > 1) {
+      errors.push('Workflow must have exactly one start node');
+    }
+    if (endNodes.length === 0) {
+      errors.push('Workflow must have at least one end node');
+    }
+    if (approvalNodes.length === 0) {
+      errors.push('Workflow must have at least one approval node');
+    }
+
+    // Validate node IDs are unique
+    const nodeIds = new Set(nodes.map((n) => n.id));
+    if (nodeIds.size !== nodes.length) {
+      errors.push('Node IDs must be unique');
+    }
+
+    // Validate edges reference existing nodes
+    for (const edge of edges) {
+      if (!nodeIds.has(edge.source)) {
+        errors.push(`Edge "${edge.id}" references non-existent source node "${edge.source}"`);
+      }
+      if (!nodeIds.has(edge.target)) {
+        errors.push(`Edge "${edge.id}" references non-existent target node "${edge.target}"`);
+      }
+    }
+
+    // Validate approval nodes have approverIds
+    for (const node of approvalNodes) {
+      if (!node.data?.approverIds || node.data.approverIds.length === 0) {
+        errors.push(`Approval node "${node.id}" must have at least one approver`);
+      }
+    }
+
+    return { valid: errors.length === 0, errors };
+  }
+
   async softDelete(id: string): Promise<void> {
     const result = await this.templateRepo.softDelete(id);
     if (!result) {

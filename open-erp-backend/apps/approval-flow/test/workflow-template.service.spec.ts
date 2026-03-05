@@ -298,4 +298,106 @@ describe('WorkflowTemplateService', () => {
       ).rejects.toThrow(NotFoundException);
     });
   });
+
+  describe('changeStatus', () => {
+    it('should change status from DRAFT to ARCHIVED', async () => {
+      mockRepository.findById.mockResolvedValue({ ...mockTemplate, status: TemplateStatus.DRAFT });
+      mockRepository.update.mockResolvedValue({ ...mockTemplate, status: TemplateStatus.ARCHIVED });
+
+      const result = await service.changeStatus(mockTemplate._id, TemplateStatus.ARCHIVED);
+      expect(result.status).toBe(TemplateStatus.ARCHIVED);
+    });
+
+    it('should throw ConflictException if status is already the same', async () => {
+      mockRepository.findById.mockResolvedValue({ ...mockTemplate, status: TemplateStatus.DRAFT });
+
+      await expect(
+        service.changeStatus(mockTemplate._id, TemplateStatus.DRAFT),
+      ).rejects.toThrow(ConflictException);
+    });
+
+    it('should delegate to publish() when changing to PUBLISHED', async () => {
+      mockRepository.findById.mockResolvedValue({ ...mockTemplate, status: TemplateStatus.DRAFT });
+      mockRepository.update.mockResolvedValue({ ...mockTemplate, status: TemplateStatus.PUBLISHED });
+
+      const result = await service.changeStatus(mockTemplate._id, TemplateStatus.PUBLISHED);
+      expect(result.status).toBe(TemplateStatus.PUBLISHED);
+    });
+  });
+
+  describe('validateWorkflow', () => {
+    it('should return valid for a correct workflow', () => {
+      const result = service.validateWorkflow(
+        [
+          { id: 'start-1', type: WorkflowNodeType.START },
+          { id: 'approval-1', type: WorkflowNodeType.APPROVAL, data: { approverIds: ['user1'] } },
+          { id: 'end-1', type: WorkflowNodeType.END },
+        ],
+        [
+          { id: 'e1', source: 'start-1', target: 'approval-1' },
+          { id: 'e2', source: 'approval-1', target: 'end-1' },
+        ],
+      );
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should fail if no nodes provided', () => {
+      const result = service.validateWorkflow([], []);
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Workflow must have at least one node');
+    });
+
+    it('should fail if missing start node', () => {
+      const result = service.validateWorkflow(
+        [
+          { id: 'approval-1', type: WorkflowNodeType.APPROVAL, data: { approverIds: ['user1'] } },
+          { id: 'end-1', type: WorkflowNodeType.END },
+        ],
+        [],
+      );
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Workflow must have at least one start node');
+    });
+
+    it('should fail if missing end node', () => {
+      const result = service.validateWorkflow(
+        [
+          { id: 'start-1', type: WorkflowNodeType.START },
+          { id: 'approval-1', type: WorkflowNodeType.APPROVAL, data: { approverIds: ['user1'] } },
+        ],
+        [],
+      );
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Workflow must have at least one end node');
+    });
+
+    it('should fail if edge references non-existent node', () => {
+      const result = service.validateWorkflow(
+        [
+          { id: 'start-1', type: WorkflowNodeType.START },
+          { id: 'approval-1', type: WorkflowNodeType.APPROVAL, data: { approverIds: ['user1'] } },
+          { id: 'end-1', type: WorkflowNodeType.END },
+        ],
+        [
+          { id: 'e1', source: 'start-1', target: 'nonexistent' },
+        ],
+      );
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Edge "e1" references non-existent target node "nonexistent"');
+    });
+
+    it('should fail if approval node has no approvers', () => {
+      const result = service.validateWorkflow(
+        [
+          { id: 'start-1', type: WorkflowNodeType.START },
+          { id: 'approval-1', type: WorkflowNodeType.APPROVAL, data: {} },
+          { id: 'end-1', type: WorkflowNodeType.END },
+        ],
+        [],
+      );
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Approval node "approval-1" must have at least one approver');
+    });
+  });
 });
