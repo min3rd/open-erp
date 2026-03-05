@@ -9,6 +9,7 @@ import { WorkflowTemplateRepository } from '../repositories/workflow-template.re
 import {
   ApprovalScope,
   TemplateStatus,
+  WorkflowNodeType,
   ApprovalWorkflowTemplateDocument,
 } from '@shared/schemas';
 import {
@@ -29,9 +30,16 @@ export class WorkflowTemplateService {
   ): Promise<ApprovalWorkflowTemplateDocument> {
     this.validateScopeFields(dto.scope, dto.orgId, dto.departmentId);
 
-    const steps = dto.steps.map((step) => ({
-      ...step,
-      approverIds: step.approverIds.map((id) => new Types.ObjectId(id)),
+    const nodes = dto.nodes.map((node) => ({
+      ...node,
+      data: node.data
+        ? {
+            ...node.data,
+            approverIds: node.data.approverIds?.map(
+              (id) => new Types.ObjectId(id),
+            ),
+          }
+        : undefined,
     }));
 
     return this.templateRepo.create({
@@ -45,7 +53,8 @@ export class WorkflowTemplateService {
         : undefined,
       status: TemplateStatus.DRAFT,
       version: 1,
-      steps,
+      nodes,
+      edges: dto.edges,
       createdBy: new Types.ObjectId(userId),
     });
   }
@@ -102,11 +111,21 @@ export class WorkflowTemplateService {
       updateData.orgId = new Types.ObjectId(dto.orgId);
     if (dto.departmentId !== undefined)
       updateData.departmentId = new Types.ObjectId(dto.departmentId);
-    if (dto.steps !== undefined) {
-      updateData.steps = dto.steps.map((step) => ({
-        ...step,
-        approverIds: step.approverIds.map((id) => new Types.ObjectId(id)),
+    if (dto.nodes !== undefined) {
+      updateData.nodes = dto.nodes.map((node) => ({
+        ...node,
+        data: node.data
+          ? {
+              ...node.data,
+              approverIds: node.data.approverIds?.map(
+                (id) => new Types.ObjectId(id),
+              ),
+            }
+          : undefined,
       }));
+    }
+    if (dto.edges !== undefined) {
+      updateData.edges = dto.edges;
     }
 
     const updated = await this.templateRepo.update(id, updateData);
@@ -123,9 +142,22 @@ export class WorkflowTemplateService {
       throw new ConflictException('Template is already published');
     }
 
-    if (!template.steps || template.steps.length === 0) {
+    if (!template.nodes || template.nodes.length === 0) {
       throw new BadRequestException(
-        'Template must have at least one step to publish',
+        'Template must have at least one node to publish',
+      );
+    }
+
+    // Validate graph has at least one start and one approval node
+    const hasStart = template.nodes.some(
+      (n) => n.type === WorkflowNodeType.START,
+    );
+    const hasApproval = template.nodes.some(
+      (n) => n.type === WorkflowNodeType.APPROVAL,
+    );
+    if (!hasStart || !hasApproval) {
+      throw new BadRequestException(
+        'Template must have at least one start node and one approval node to publish',
       );
     }
 
@@ -178,7 +210,8 @@ export class WorkflowTemplateService {
         : undefined,
       status: TemplateStatus.DRAFT,
       version: 1,
-      steps: source.steps,
+      nodes: source.nodes,
+      edges: source.edges,
       createdBy: new Types.ObjectId(userId),
     });
   }

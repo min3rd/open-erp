@@ -2,11 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { ApprovalMode } from './approval-workflow-template.schema';
 
-import {
-  WorkflowBranch,
-  WorkflowStepCondition,
-} from './approval-workflow-template.schema';
-
 export type ApprovalRequestDocument = ApprovalRequest & Document;
 
 export enum ApprovalRequestStatus {
@@ -25,7 +20,7 @@ export enum ApprovalActionType {
   SHARE = 'SHARE',
 }
 
-export class StepApproval {
+export class NodeApproval {
   userId: Types.ObjectId;
   action: ApprovalActionType;
   comment?: string;
@@ -44,15 +39,14 @@ export class ApprovalAttachment {
   publicUrl?: string;
 }
 
-export class RequestStep {
-  order: number;
-  name: string;
+export class RequestNodeState {
+  nodeId: string;
+  label: string;
   approverIds: Types.ObjectId[];
   approvalMode: ApprovalMode;
   quorumCount?: number;
-  branches?: WorkflowBranch[];
   status: ApprovalRequestStatus;
-  approvals: StepApproval[];
+  approvals: NodeApproval[];
   startedAt?: Date;
   completedAt?: Date;
 }
@@ -85,11 +79,19 @@ export class ApprovalRequest {
   })
   status: ApprovalRequestStatus;
 
-  @Prop({ default: 0 })
-  currentStepOrder: number;
+  @Prop({ required: true })
+  currentNodeId: string;
 
   @Prop({ type: [Object], default: [] })
-  steps: RequestStep[];
+  nodeStates: RequestNodeState[];
+
+  @Prop({ type: [Object], default: [] })
+  edges: Array<{
+    id: string;
+    source: string;
+    target: string;
+    data?: { label?: string; conditions?: Array<{ field: string; operator: string; value: any }> };
+  }>;
 
   @Prop({ type: [Object], default: [] })
   auditLog: AuditLogEntry[];
@@ -110,7 +112,7 @@ export class ApprovalRequest {
 export class AuditLogEntry {
   action: string;
   userId: Types.ObjectId;
-  stepOrder?: number;
+  nodeId?: string;
   comment?: string;
   timestamp: Date;
   details?: Record<string, any>;
@@ -124,6 +126,7 @@ ApprovalRequestSchema.index({ templateId: 1 });
 ApprovalRequestSchema.index({ orgId: 1, status: 1 });
 ApprovalRequestSchema.index({ requestedBy: 1 });
 ApprovalRequestSchema.index({
-  'steps.approverIds': 1,
+  'nodeStates.approverIds': 1,
   status: 1,
 });
+

@@ -35,7 +35,7 @@ export class CreateApprovalRequestDto {
   @IsMongoId()
   departmentId?: string;
 
-  @ApiPropertyOptional({ description: 'Additional metadata' })
+  @ApiPropertyOptional({ description: 'Additional metadata for condition evaluation' })
   @IsOptional()
   metadata?: Record<string, any>;
 }

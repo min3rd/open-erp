@@ -22,26 +22,46 @@ export enum TemplateStatus {
   ARCHIVED = 'ARCHIVED',
 }
 
-export class WorkflowStepCondition {
+export enum WorkflowNodeType {
+  START = 'start',
+  APPROVAL = 'approval',
+  CONDITION = 'condition',
+  END = 'end',
+}
+
+export class NodePoint {
+  x: number;
+  y: number;
+}
+
+export class EdgeCondition {
   field: string;
   operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'nin';
   value: any;
 }
 
-export class WorkflowBranch {
-  conditions: WorkflowStepCondition[];
-  nextStepOrder: number;
+export class WorkflowNode {
+  id: string;
+  point: NodePoint;
+  type: WorkflowNodeType;
+  data?: {
+    label?: string;
+    description?: string;
+    approverIds?: Types.ObjectId[];
+    approvalMode?: ApprovalMode;
+    quorumCount?: number;
+    timeoutHours?: number;
+  };
 }
 
-export class WorkflowStep {
-  order: number;
-  name: string;
-  description?: string;
-  approverIds: Types.ObjectId[];
-  approvalMode: ApprovalMode;
-  quorumCount?: number;
-  branches?: WorkflowBranch[];
-  timeoutHours?: number;
+export class WorkflowEdge {
+  id: string;
+  source: string;
+  target: string;
+  data?: {
+    label?: string;
+    conditions?: EdgeCondition[];
+  };
 }
 
 @Schema({
@@ -79,7 +99,10 @@ export class ApprovalWorkflowTemplate {
   version: number;
 
   @Prop({ type: [Object], default: [] })
-  steps: WorkflowStep[];
+  nodes: WorkflowNode[];
+
+  @Prop({ type: [Object], default: [] })
+  edges: WorkflowEdge[];
 
   @Prop({ type: Types.ObjectId, required: true })
   createdBy: Types.ObjectId;
@@ -95,3 +118,4 @@ export const ApprovalWorkflowTemplateSchema = SchemaFactory.createForClass(
 ApprovalWorkflowTemplateSchema.index({ entityType: 1, scope: 1, status: 1 });
 ApprovalWorkflowTemplateSchema.index({ orgId: 1, entityType: 1 });
 ApprovalWorkflowTemplateSchema.index({ departmentId: 1, entityType: 1 });
+

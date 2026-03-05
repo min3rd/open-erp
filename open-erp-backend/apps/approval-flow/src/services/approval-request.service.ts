@@ -12,11 +12,15 @@ import { WorkflowTemplateService } from './workflow-template.service';
 import {
   ApprovalRequestStatus,
   ApprovalActionType,
-  RequestStep,
+  RequestNodeState,
   AuditLogEntry,
   ApprovalRequestDocument,
 } from '@shared/schemas/approval-request.schema';
-import { ApprovalMode } from '@shared/schemas/approval-workflow-template.schema';
+import {
+  ApprovalMode,
+  WorkflowNodeType,
+  WorkflowNode,
+} from '@shared/schemas/approval-workflow-template.schema';
 import {
   CreateApprovalRequestDto,
   SubmitApprovalActionDto,
@@ -55,17 +59,48 @@ export class ApprovalRequestService {
       dto.departmentId,
     );
 
-    // Build request steps from template
-    const steps: RequestStep[] = template.steps.map((step) => ({
-      order: step.order,
-      name: step.name,
-      approverIds: step.approverIds,
-      approvalMode: step.approvalMode,
-      quorumCount: step.quorumCount,
-      branches: step.branches,
+    // Build node states from approval nodes in the template
+    const approvalNodes = template.nodes.filter(
+      (n) => n.type === WorkflowNodeType.APPROVAL,
+    );
+
+    const nodeStates: RequestNodeState[] = approvalNodes.map((node) => ({
+      nodeId: node.id,
+      label: node.data?.label ?? node.id,
+      approverIds: node.data?.approverIds ?? [],
+      approvalMode: node.data?.approvalMode ?? ApprovalMode.ANY,
+      quorumCount: node.data?.quorumCount,
       status: ApprovalRequestStatus.PENDING,
       approvals: [],
     }));
+
+    // Find the start node and determine the first approval node
+    const startNode = template.nodes.find(
+      (n) => n.type === WorkflowNodeType.START,
+    );
+    if (!startNode) {
+      throw new BadRequestException('Template has no start node');
+    }
+
+    const firstNodeId = this.resolveNextNode(
+      startNode.id,
+      template.nodes,
+      template.edges,
+      dto.metadata,
+    );
+
+    if (!firstNodeId) {
+      throw new BadRequestException(
+        'No reachable approval node from start node',
+      );
+    }
+
+    // Activate the first approval node
+    const firstState = nodeStates.find((ns) => ns.nodeId === firstNodeId);
+    if (firstState) {
+      firstState.status = ApprovalRequestStatus.IN_PROGRESS;
+      firstState.startedAt = new Date();
+    }
 
     const auditLog: AuditLogEntry[] = [
       {
@@ -80,12 +115,6 @@ export class ApprovalRequestService {
       },
     ];
 
-    // Set the first step to IN_PROGRESS
-    if (steps.length > 0) {
-      steps[0].status = ApprovalRequestStatus.IN_PROGRESS;
-      steps[0].startedAt = new Date();
-    }
-
     return this.requestRepo.create({
       entityType: dto.entityType,
       entityId: new Types.ObjectId(dto.entityId),
@@ -95,8 +124,9 @@ export class ApprovalRequestService {
         ? new Types.ObjectId(dto.departmentId)
         : undefined,
       status: ApprovalRequestStatus.IN_PROGRESS,
-      currentStepOrder: 0,
-      steps,
+      currentNodeId: firstNodeId,
+      nodeStates,
+      edges: template.edges,
       auditLog,
       metadata: dto.metadata,
       requestedBy: new Types.ObjectId(userId),
@@ -150,30 +180,30 @@ export class ApprovalRequestService {
       return this.handleShareAction(request, dto, userId);
     }
 
-    const currentStep = request.steps.find(
-      (s) => s.order === request.currentStepOrder,
+    const currentState = request.nodeStates.find(
+      (ns) => ns.nodeId === request.currentNodeId,
     );
-    if (!currentStep) {
-      throw new BadRequestException('Current step not found');
+    if (!currentState) {
+      throw new BadRequestException('Current node state not found');
     }
 
-    // Verify user is an approver for the current step
-    const isApprover = currentStep.approverIds.some(
+    // Verify user is an approver for the current node
+    const isApprover = currentState.approverIds.some(
       (id) => id.toString() === userId,
     );
     if (!isApprover) {
       throw new ForbiddenException(
-        'You are not an approver for the current step',
+        'You are not an approver for the current node',
       );
     }
 
-    // Check if user already acted on this step
-    const alreadyActed = currentStep.approvals.some(
+    // Check if user already acted on this node
+    const alreadyActed = currentState.approvals.some(
       (a) => a.userId.toString() === userId,
     );
     if (alreadyActed) {
       throw new BadRequestException(
-        'You have already submitted an action for this step',
+        'You have already submitted an action for this node',
       );
     }
 
@@ -203,7 +233,7 @@ export class ApprovalRequestService {
       : undefined;
 
     // Record the approval action
-    currentStep.approvals.push({
+    currentState.approvals.push({
       userId: new Types.ObjectId(userId),
       action: dto.action,
       comment: dto.comment,
@@ -215,51 +245,63 @@ export class ApprovalRequestService {
     request.auditLog.push({
       action: dto.action,
       userId: new Types.ObjectId(userId),
-      stepOrder: currentStep.order,
+      nodeId: currentState.nodeId,
       comment: dto.comment,
       timestamp: new Date(),
     });
 
-    // Evaluate step completion
-    const stepResult = this.evaluateStepCompletion(currentStep);
+    // Evaluate node completion
+    const nodeResult = this.evaluateNodeCompletion(currentState);
 
-    if (stepResult === 'rejected') {
-      currentStep.status = ApprovalRequestStatus.REJECTED;
-      currentStep.completedAt = new Date();
+    if (nodeResult === 'rejected') {
+      currentState.status = ApprovalRequestStatus.REJECTED;
+      currentState.completedAt = new Date();
       request.status = ApprovalRequestStatus.REJECTED;
       request.completedAt = new Date();
-    } else if (stepResult === 'changes_requested') {
-      currentStep.status = ApprovalRequestStatus.CHANGES_REQUESTED;
+    } else if (nodeResult === 'changes_requested') {
+      currentState.status = ApprovalRequestStatus.CHANGES_REQUESTED;
       request.status = ApprovalRequestStatus.CHANGES_REQUESTED;
-    } else if (stepResult === 'approved') {
-      currentStep.status = ApprovalRequestStatus.APPROVED;
-      currentStep.completedAt = new Date();
+    } else if (nodeResult === 'approved') {
+      currentState.status = ApprovalRequestStatus.APPROVED;
+      currentState.completedAt = new Date();
 
-      // Determine next step (handle branching)
-      const nextStepOrder = this.resolveNextStep(
-        request,
-        currentStep,
+      // Traverse graph to find next node
+      const nextNodeId = this.resolveNextNode(
+        currentState.nodeId,
+        // Build a minimal nodes array from nodeStates + end placeholders
+        request.nodeStates.map((ns) => ({
+          id: ns.nodeId,
+          type: WorkflowNodeType.APPROVAL,
+          point: { x: 0, y: 0 },
+        })),
+        request.edges,
+        request.metadata,
       );
 
-      if (nextStepOrder === null) {
-        // No more steps — request fully approved
+      if (!nextNodeId) {
+        // No more approval nodes — check if we reached end
         request.status = ApprovalRequestStatus.APPROVED;
         request.completedAt = new Date();
       } else {
-        // Move to next step
-        request.currentStepOrder = nextStepOrder;
-        const nextStep = request.steps.find((s) => s.order === nextStepOrder);
-        if (nextStep) {
-          nextStep.status = ApprovalRequestStatus.IN_PROGRESS;
-          nextStep.startedAt = new Date();
+        const nextState = request.nodeStates.find(
+          (ns) => ns.nodeId === nextNodeId,
+        );
+        if (nextState) {
+          request.currentNodeId = nextNodeId;
+          nextState.status = ApprovalRequestStatus.IN_PROGRESS;
+          nextState.startedAt = new Date();
+        } else {
+          // Target is an end node — request is complete
+          request.status = ApprovalRequestStatus.APPROVED;
+          request.completedAt = new Date();
         }
       }
     }
 
     const updated = await this.requestRepo.update(requestId, {
       status: request.status,
-      currentStepOrder: request.currentStepOrder,
-      steps: request.steps,
+      currentNodeId: request.currentNodeId,
+      nodeStates: request.nodeStates,
       auditLog: request.auditLog,
       completedAt: request.completedAt,
     });
@@ -313,14 +355,13 @@ export class ApprovalRequestService {
   }
 
   /**
-   * Evaluate if a step is completed based on its approval mode
+   * Evaluate if an approval node is completed based on its approval mode
    */
-  evaluateStepCompletion(
-    step: RequestStep,
+  evaluateNodeCompletion(
+    nodeState: RequestNodeState,
   ): 'pending' | 'approved' | 'rejected' | 'changes_requested' {
-    const { approvals, approverIds, approvalMode, quorumCount } = step;
+    const { approvals, approverIds, approvalMode, quorumCount } = nodeState;
 
-    // Any rejection in ANY or ALL mode immediately rejects
     const rejections = approvals.filter(
       (a) => a.action === ApprovalActionType.REJECT,
     );
@@ -359,47 +400,77 @@ export class ApprovalRequestService {
   }
 
   /**
-   * Resolve the next step order based on branching conditions.
-   * Branches are evaluated against the request metadata.
-   * If a branch's conditions all match, the request jumps to that branch's nextStepOrder.
-   * Otherwise, it proceeds to the next sequential step.
+   * Traverse the graph from a source node to find the next approval node.
+   * Handles condition nodes by evaluating edge conditions against metadata.
+   * Returns null if the next node is an 'end' node or no outgoing edges.
    */
-  private resolveNextStep(
-    request: ApprovalRequestDocument,
-    currentStep: RequestStep,
-  ): number | null {
-    // Evaluate branches if defined on the current step
-    if (currentStep.branches && currentStep.branches.length > 0 && request.metadata) {
-      for (const branch of currentStep.branches) {
-        if (this.evaluateBranchConditions(branch.conditions, request.metadata)) {
-          // Verify the target step exists
-          const targetStep = request.steps.find(
-            (s) => s.order === branch.nextStepOrder,
-          );
-          if (targetStep) {
-            return branch.nextStepOrder;
-          }
+  resolveNextNode(
+    sourceNodeId: string,
+    nodes: Array<{ id: string; type: WorkflowNodeType; point: { x: number; y: number } }>,
+    edges: Array<{
+      id: string;
+      source: string;
+      target: string;
+      data?: { label?: string; conditions?: Array<{ field: string; operator: string; value: any }> };
+    }>,
+    metadata?: Record<string, any>,
+    visited: Set<string> = new Set(),
+  ): string | null {
+    if (visited.has(sourceNodeId)) return null;
+    visited.add(sourceNodeId);
+
+    // Get outgoing edges from the source node
+    const outgoing = edges.filter((e) => e.source === sourceNodeId);
+    if (outgoing.length === 0) return null;
+
+    for (const edge of outgoing) {
+      // If edge has conditions, evaluate them
+      if (edge.data?.conditions && edge.data.conditions.length > 0) {
+        if (!metadata || !this.evaluateEdgeConditions(edge.data.conditions, metadata)) {
+          continue; // Conditions not met, skip this edge
         }
+      }
+
+      const targetNode = nodes.find((n) => n.id === edge.target);
+      if (!targetNode) {
+        // Target could be an end node not in nodeStates; check edge target
+        // If no node found, this is an end node reference
+        return null;
+      }
+
+      if (targetNode.type === WorkflowNodeType.END) {
+        return null; // Reached end
+      }
+
+      if (targetNode.type === WorkflowNodeType.APPROVAL) {
+        return targetNode.id; // Found next approval node
+      }
+
+      if (targetNode.type === WorkflowNodeType.CONDITION) {
+        // Recursively traverse through condition node
+        const result = this.resolveNextNode(
+          targetNode.id,
+          nodes,
+          edges,
+          metadata,
+          visited,
+        );
+        if (result !== null) return result;
+      }
+
+      if (targetNode.type === WorkflowNodeType.START) {
+        // Should not loop back to start, skip
+        continue;
       }
     }
 
-    // Default: go to next sequential step
-    const sortedSteps = [...request.steps].sort((a, b) => a.order - b.order);
-    const currentIndex = sortedSteps.findIndex(
-      (s) => s.order === currentStep.order,
-    );
-
-    if (currentIndex < sortedSteps.length - 1) {
-      return sortedSteps[currentIndex + 1].order;
-    }
-
-    return null; // No more steps
+    return null;
   }
 
   /**
-   * Evaluate branch conditions against metadata values
+   * Evaluate edge conditions against metadata values
    */
-  private evaluateBranchConditions(
+  private evaluateEdgeConditions(
     conditions: Array<{ field: string; operator: string; value: any }>,
     metadata: Record<string, any>,
   ): boolean {
@@ -429,7 +500,7 @@ export class ApprovalRequestService {
   }
 
   /**
-   * Handle SHARE action — add user to step approvers without counting as approval
+   * Handle SHARE action — log sharing without counting as approval
    */
   private async handleShareAction(
     request: ApprovalRequestDocument,
@@ -445,7 +516,7 @@ export class ApprovalRequestService {
     request.auditLog.push({
       action: 'SHARE',
       userId: new Types.ObjectId(userId),
-      stepOrder: request.currentStepOrder,
+      nodeId: request.currentNodeId,
       comment: dto.comment,
       timestamp: new Date(),
       details: { sharedWith: dto.shareWithUserIds },

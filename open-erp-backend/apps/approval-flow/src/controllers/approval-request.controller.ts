@@ -24,7 +24,7 @@ import {
 import { ApprovalRequestStatus } from '@shared/schemas/approval-request.schema';
 
 @ApiTags('approval-requests')
-@Controller('approval/requests')
+@Controller('approval-flow/requests')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @ApiBearerAuth()
 export class ApprovalRequestController {

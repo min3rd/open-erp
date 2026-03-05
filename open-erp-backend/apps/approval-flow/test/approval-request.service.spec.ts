@@ -17,6 +17,7 @@ import {
   ApprovalMode,
   ApprovalScope,
   TemplateStatus,
+  WorkflowNodeType,
 } from '@shared/schemas/approval-workflow-template.schema';
 
 describe('ApprovalRequestService', () => {
@@ -29,42 +30,69 @@ describe('ApprovalRequestService', () => {
   const templateId = '507f1f77bcf86cd799439055';
   const entityId = '507f1f77bcf86cd799439066';
 
+  // Template with node-edge graph: start → approval1 → approval2 → end
   const mockTemplate = {
     _id: new Types.ObjectId(templateId),
     name: 'Document Approval',
     entityType: 'document',
     scope: ApprovalScope.GLOBAL,
     status: TemplateStatus.PUBLISHED,
-    steps: [
+    nodes: [
       {
-        order: 0,
-        name: 'Manager Review',
-        approverIds: [new Types.ObjectId(userId1)],
-        approvalMode: ApprovalMode.ANY,
+        id: 'start-1',
+        point: { x: 0, y: 200 },
+        type: WorkflowNodeType.START,
+        data: { label: 'Start' },
       },
       {
-        order: 1,
-        name: 'Director Approval',
-        approverIds: [
-          new Types.ObjectId(userId2),
-          new Types.ObjectId(userId3),
-        ],
-        approvalMode: ApprovalMode.ALL,
+        id: 'approval-1',
+        point: { x: 300, y: 200 },
+        type: WorkflowNodeType.APPROVAL,
+        data: {
+          label: 'Manager Review',
+          approverIds: [new Types.ObjectId(userId1)],
+          approvalMode: ApprovalMode.ANY,
+        },
       },
+      {
+        id: 'approval-2',
+        point: { x: 600, y: 200 },
+        type: WorkflowNodeType.APPROVAL,
+        data: {
+          label: 'Director Approval',
+          approverIds: [
+            new Types.ObjectId(userId2),
+            new Types.ObjectId(userId3),
+          ],
+          approvalMode: ApprovalMode.ALL,
+        },
+      },
+      {
+        id: 'end-1',
+        point: { x: 900, y: 200 },
+        type: WorkflowNodeType.END,
+        data: { label: 'End' },
+      },
+    ],
+    edges: [
+      { id: 'e1', source: 'start-1', target: 'approval-1' },
+      { id: 'e2', source: 'approval-1', target: 'approval-2' },
+      { id: 'e3', source: 'approval-2', target: 'end-1' },
     ],
   };
 
+  // Request with node-edge data
   const mockRequest = {
     _id: new Types.ObjectId(),
     entityType: 'document',
     entityId: new Types.ObjectId(entityId),
     templateId: new Types.ObjectId(templateId),
     status: ApprovalRequestStatus.IN_PROGRESS,
-    currentStepOrder: 0,
-    steps: [
+    currentNodeId: 'approval-1',
+    nodeStates: [
       {
-        order: 0,
-        name: 'Manager Review',
+        nodeId: 'approval-1',
+        label: 'Manager Review',
         approverIds: [new Types.ObjectId(userId1)],
         approvalMode: ApprovalMode.ANY,
         status: ApprovalRequestStatus.IN_PROGRESS,
@@ -72,8 +100,8 @@ describe('ApprovalRequestService', () => {
         startedAt: new Date(),
       },
       {
-        order: 1,
-        name: 'Director Approval',
+        nodeId: 'approval-2',
+        label: 'Director Approval',
         approverIds: [
           new Types.ObjectId(userId2),
           new Types.ObjectId(userId3),
@@ -82,6 +110,11 @@ describe('ApprovalRequestService', () => {
         status: ApprovalRequestStatus.PENDING,
         approvals: [],
       },
+    ],
+    edges: [
+      { id: 'e1', source: 'start-1', target: 'approval-1' },
+      { id: 'e2', source: 'approval-1', target: 'approval-2' },
+      { id: 'e3', source: 'approval-2', target: 'end-1' },
     ],
     auditLog: [
       {
@@ -138,7 +171,7 @@ describe('ApprovalRequestService', () => {
   });
 
   describe('create', () => {
-    it('should create an approval request and start first step', async () => {
+    it('should create a request, set currentNodeId to first approval node', async () => {
       mockRequestRepo.findByEntityTypeAndId.mockResolvedValue(null);
       mockTemplateService.resolveTemplate.mockResolvedValue(mockTemplate);
       mockRequestRepo.create.mockResolvedValue(mockRequest);
@@ -156,7 +189,7 @@ describe('ApprovalRequestService', () => {
         expect.objectContaining({
           entityType: 'document',
           status: ApprovalRequestStatus.IN_PROGRESS,
-          currentStepOrder: 0,
+          currentNodeId: 'approval-1',
         }),
       );
     });
@@ -171,10 +204,10 @@ describe('ApprovalRequestService', () => {
   });
 
   describe('submitAction', () => {
-    it('should approve step in ANY mode (single approver)', async () => {
+    it('should approve node in ANY mode and advance to next approval node', async () => {
       const request = JSON.parse(JSON.stringify(mockRequest));
       request._id = mockRequest._id;
-      request.steps[0].approverIds = [new Types.ObjectId(userId1)];
+      request.nodeStates[0].approverIds = [new Types.ObjectId(userId1)];
       request.requestedBy = new Types.ObjectId(requesterId);
 
       mockRequestRepo.findById.mockResolvedValue(request);
@@ -189,14 +222,14 @@ describe('ApprovalRequestService', () => {
         userId1,
       );
 
-      expect(result.steps[0].status).toBe(ApprovalRequestStatus.APPROVED);
-      expect(result.currentStepOrder).toBe(1);
+      expect(result.nodeStates[0].status).toBe(ApprovalRequestStatus.APPROVED);
+      expect(result.currentNodeId).toBe('approval-2');
     });
 
     it('should reject the entire request on REJECT action', async () => {
       const request = JSON.parse(JSON.stringify(mockRequest));
       request._id = mockRequest._id;
-      request.steps[0].approverIds = [new Types.ObjectId(userId1)];
+      request.nodeStates[0].approverIds = [new Types.ObjectId(userId1)];
       request.requestedBy = new Types.ObjectId(requesterId);
 
       mockRequestRepo.findById.mockResolvedValue(request);
@@ -217,7 +250,7 @@ describe('ApprovalRequestService', () => {
     it('should throw ForbiddenException if user is not an approver', async () => {
       const request = JSON.parse(JSON.stringify(mockRequest));
       request._id = mockRequest._id;
-      request.steps[0].approverIds = [new Types.ObjectId(userId1)];
+      request.nodeStates[0].approverIds = [new Types.ObjectId(userId1)];
       request.requestedBy = new Types.ObjectId(requesterId);
 
       mockRequestRepo.findById.mockResolvedValue(request);
@@ -249,11 +282,11 @@ describe('ApprovalRequestService', () => {
     });
   });
 
-  describe('evaluateStepCompletion', () => {
+  describe('evaluateNodeCompletion', () => {
     it('should return approved for ANY mode with 1 approval', () => {
-      const step = {
-        order: 0,
-        name: 'Step',
+      const nodeState = {
+        nodeId: 'approval-1',
+        label: 'Step',
         approverIds: [
           new Types.ObjectId(userId1),
           new Types.ObjectId(userId2),
@@ -269,13 +302,13 @@ describe('ApprovalRequestService', () => {
         ],
       };
 
-      expect(service.evaluateStepCompletion(step as any)).toBe('approved');
+      expect(service.evaluateNodeCompletion(nodeState as any)).toBe('approved');
     });
 
     it('should return pending for ALL mode with partial approvals', () => {
-      const step = {
-        order: 0,
-        name: 'Step',
+      const nodeState = {
+        nodeId: 'approval-1',
+        label: 'Step',
         approverIds: [
           new Types.ObjectId(userId1),
           new Types.ObjectId(userId2),
@@ -291,13 +324,13 @@ describe('ApprovalRequestService', () => {
         ],
       };
 
-      expect(service.evaluateStepCompletion(step as any)).toBe('pending');
+      expect(service.evaluateNodeCompletion(nodeState as any)).toBe('pending');
     });
 
     it('should return approved for ALL mode with all approvals', () => {
-      const step = {
-        order: 0,
-        name: 'Step',
+      const nodeState = {
+        nodeId: 'approval-1',
+        label: 'Step',
         approverIds: [
           new Types.ObjectId(userId1),
           new Types.ObjectId(userId2),
@@ -318,13 +351,13 @@ describe('ApprovalRequestService', () => {
         ],
       };
 
-      expect(service.evaluateStepCompletion(step as any)).toBe('approved');
+      expect(service.evaluateNodeCompletion(nodeState as any)).toBe('approved');
     });
 
     it('should return approved for QUORUM mode when quorum count is met', () => {
-      const step = {
-        order: 0,
-        name: 'Step',
+      const nodeState = {
+        nodeId: 'approval-1',
+        label: 'Step',
         approverIds: [
           new Types.ObjectId(userId1),
           new Types.ObjectId(userId2),
@@ -347,13 +380,13 @@ describe('ApprovalRequestService', () => {
         ],
       };
 
-      expect(service.evaluateStepCompletion(step as any)).toBe('approved');
+      expect(service.evaluateNodeCompletion(nodeState as any)).toBe('approved');
     });
 
     it('should return pending for QUORUM mode when quorum not met', () => {
-      const step = {
-        order: 0,
-        name: 'Step',
+      const nodeState = {
+        nodeId: 'approval-1',
+        label: 'Step',
         approverIds: [
           new Types.ObjectId(userId1),
           new Types.ObjectId(userId2),
@@ -371,13 +404,13 @@ describe('ApprovalRequestService', () => {
         ],
       };
 
-      expect(service.evaluateStepCompletion(step as any)).toBe('pending');
+      expect(service.evaluateNodeCompletion(nodeState as any)).toBe('pending');
     });
 
     it('should return rejected when any approver rejects', () => {
-      const step = {
-        order: 0,
-        name: 'Step',
+      const nodeState = {
+        nodeId: 'approval-1',
+        label: 'Step',
         approverIds: [
           new Types.ObjectId(userId1),
           new Types.ObjectId(userId2),
@@ -393,13 +426,13 @@ describe('ApprovalRequestService', () => {
         ],
       };
 
-      expect(service.evaluateStepCompletion(step as any)).toBe('rejected');
+      expect(service.evaluateNodeCompletion(nodeState as any)).toBe('rejected');
     });
 
     it('should return changes_requested when REQUEST_CHANGES is submitted', () => {
-      const step = {
-        order: 0,
-        name: 'Step',
+      const nodeState = {
+        nodeId: 'approval-1',
+        label: 'Step',
         approverIds: [
           new Types.ObjectId(userId1),
           new Types.ObjectId(userId2),
@@ -415,7 +448,7 @@ describe('ApprovalRequestService', () => {
         ],
       };
 
-      expect(service.evaluateStepCompletion(step as any)).toBe(
+      expect(service.evaluateNodeCompletion(nodeState as any)).toBe(
         'changes_requested',
       );
     });
@@ -450,129 +483,89 @@ describe('ApprovalRequestService', () => {
     });
   });
 
-  describe('branching (via submitAction)', () => {
-    it('should follow branch when conditions match metadata', async () => {
-      const request = {
-        _id: mockRequest._id,
-        entityType: 'document',
-        entityId: new Types.ObjectId(entityId),
-        templateId: new Types.ObjectId(templateId),
-        status: ApprovalRequestStatus.IN_PROGRESS,
-        currentStepOrder: 0,
-        steps: [
-          {
-            order: 0,
-            name: 'Initial Review',
-            approverIds: [new Types.ObjectId(userId1)],
-            approvalMode: ApprovalMode.ANY,
-            branches: [
-              {
-                conditions: [{ field: 'amount', operator: 'gt', value: 1000 }],
-                nextStepOrder: 2,
-              },
-            ],
-            status: ApprovalRequestStatus.IN_PROGRESS,
-            approvals: [],
-            startedAt: new Date(),
-          },
-          {
-            order: 1,
-            name: 'Standard Approval',
-            approverIds: [new Types.ObjectId(userId2)],
-            approvalMode: ApprovalMode.ANY,
-            status: ApprovalRequestStatus.PENDING,
-            approvals: [],
-          },
-          {
-            order: 2,
-            name: 'Director Approval',
-            approverIds: [new Types.ObjectId(userId3)],
-            approvalMode: ApprovalMode.ANY,
-            status: ApprovalRequestStatus.PENDING,
-            approvals: [],
-          },
-        ],
-        auditLog: [],
-        metadata: { amount: 5000 },
-        requestedBy: new Types.ObjectId(requesterId),
-      };
+  describe('resolveNextNode (graph traversal)', () => {
+    it('should traverse start → approval node', () => {
+      const nodes = [
+        { id: 'start-1', type: WorkflowNodeType.START, point: { x: 0, y: 0 } },
+        { id: 'approval-1', type: WorkflowNodeType.APPROVAL, point: { x: 100, y: 0 } },
+        { id: 'end-1', type: WorkflowNodeType.END, point: { x: 200, y: 0 } },
+      ];
+      const edges = [
+        { id: 'e1', source: 'start-1', target: 'approval-1' },
+        { id: 'e2', source: 'approval-1', target: 'end-1' },
+      ];
 
-      mockRequestRepo.findById.mockResolvedValue(request);
-      mockRequestRepo.update.mockImplementation((id, data) => ({
-        ...request,
-        ...data,
-      }));
-
-      const result = await service.submitAction(
-        request._id.toString(),
-        { action: ApprovalActionType.APPROVE },
-        userId1,
-      );
-
-      // Should skip step 1 and jump to step 2 because amount > 1000
-      expect(result.currentStepOrder).toBe(2);
+      const next = service.resolveNextNode('start-1', nodes, edges);
+      expect(next).toBe('approval-1');
     });
 
-    it('should follow sequential order when branch conditions do not match', async () => {
-      const request = {
-        _id: mockRequest._id,
-        entityType: 'document',
-        entityId: new Types.ObjectId(entityId),
-        templateId: new Types.ObjectId(templateId),
-        status: ApprovalRequestStatus.IN_PROGRESS,
-        currentStepOrder: 0,
-        steps: [
-          {
-            order: 0,
-            name: 'Initial Review',
-            approverIds: [new Types.ObjectId(userId1)],
-            approvalMode: ApprovalMode.ANY,
-            branches: [
-              {
-                conditions: [{ field: 'amount', operator: 'gt', value: 1000 }],
-                nextStepOrder: 2,
-              },
-            ],
-            status: ApprovalRequestStatus.IN_PROGRESS,
-            approvals: [],
-            startedAt: new Date(),
-          },
-          {
-            order: 1,
-            name: 'Standard Approval',
-            approverIds: [new Types.ObjectId(userId2)],
-            approvalMode: ApprovalMode.ANY,
-            status: ApprovalRequestStatus.PENDING,
-            approvals: [],
-          },
-          {
-            order: 2,
-            name: 'Director Approval',
-            approverIds: [new Types.ObjectId(userId3)],
-            approvalMode: ApprovalMode.ANY,
-            status: ApprovalRequestStatus.PENDING,
-            approvals: [],
-          },
-        ],
-        auditLog: [],
-        metadata: { amount: 500 },
-        requestedBy: new Types.ObjectId(requesterId),
-      };
+    it('should return null when reaching end node', () => {
+      const nodes = [
+        { id: 'approval-1', type: WorkflowNodeType.APPROVAL, point: { x: 0, y: 0 } },
+        { id: 'end-1', type: WorkflowNodeType.END, point: { x: 100, y: 0 } },
+      ];
+      const edges = [
+        { id: 'e1', source: 'approval-1', target: 'end-1' },
+      ];
 
-      mockRequestRepo.findById.mockResolvedValue(request);
-      mockRequestRepo.update.mockImplementation((id, data) => ({
-        ...request,
-        ...data,
-      }));
+      const next = service.resolveNextNode('approval-1', nodes, edges);
+      expect(next).toBeNull();
+    });
 
-      const result = await service.submitAction(
-        request._id.toString(),
-        { action: ApprovalActionType.APPROVE },
-        userId1,
-      );
+    it('should traverse through condition node following matching edge', () => {
+      const nodes = [
+        { id: 'approval-1', type: WorkflowNodeType.APPROVAL, point: { x: 0, y: 0 } },
+        { id: 'condition-1', type: WorkflowNodeType.CONDITION, point: { x: 100, y: 0 } },
+        { id: 'approval-2', type: WorkflowNodeType.APPROVAL, point: { x: 200, y: -100 } },
+        { id: 'approval-3', type: WorkflowNodeType.APPROVAL, point: { x: 200, y: 100 } },
+      ];
+      const edges = [
+        { id: 'e1', source: 'approval-1', target: 'condition-1' },
+        {
+          id: 'e2',
+          source: 'condition-1',
+          target: 'approval-2',
+          data: { label: 'High value', conditions: [{ field: 'amount', operator: 'gt', value: 1000 }] },
+        },
+        {
+          id: 'e3',
+          source: 'condition-1',
+          target: 'approval-3',
+          data: { label: 'Low value', conditions: [{ field: 'amount', operator: 'lte', value: 1000 }] },
+        },
+      ];
 
-      // Should go to step 1 sequentially because amount <= 1000
-      expect(result.currentStepOrder).toBe(1);
+      // amount = 5000 should match gt 1000 → approval-2
+      const next = service.resolveNextNode('approval-1', nodes, edges, { amount: 5000 });
+      expect(next).toBe('approval-2');
+    });
+
+    it('should follow fallback edge when first condition does not match', () => {
+      const nodes = [
+        { id: 'approval-1', type: WorkflowNodeType.APPROVAL, point: { x: 0, y: 0 } },
+        { id: 'condition-1', type: WorkflowNodeType.CONDITION, point: { x: 100, y: 0 } },
+        { id: 'approval-2', type: WorkflowNodeType.APPROVAL, point: { x: 200, y: -100 } },
+        { id: 'approval-3', type: WorkflowNodeType.APPROVAL, point: { x: 200, y: 100 } },
+      ];
+      const edges = [
+        { id: 'e1', source: 'approval-1', target: 'condition-1' },
+        {
+          id: 'e2',
+          source: 'condition-1',
+          target: 'approval-2',
+          data: { conditions: [{ field: 'amount', operator: 'gt', value: 1000 }] },
+        },
+        {
+          id: 'e3',
+          source: 'condition-1',
+          target: 'approval-3',
+          data: { conditions: [{ field: 'amount', operator: 'lte', value: 1000 }] },
+        },
+      ];
+
+      // amount = 500 should not match gt 1000, should match lte 1000 → approval-3
+      const next = service.resolveNextNode('approval-1', nodes, edges, { amount: 500 });
+      expect(next).toBe('approval-3');
     });
   });
 });

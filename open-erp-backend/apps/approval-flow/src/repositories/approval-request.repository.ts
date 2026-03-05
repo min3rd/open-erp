@@ -52,7 +52,7 @@ export class ApprovalRequestRepository {
     if (filters.requestedBy)
       query.requestedBy = new Types.ObjectId(filters.requestedBy);
     if (filters.approverId) {
-      query['steps.approverIds'] = new Types.ObjectId(filters.approverId);
+      query['nodeStates.approverIds'] = new Types.ObjectId(filters.approverId);
     }
 
     const [items, total] = await Promise.all([
