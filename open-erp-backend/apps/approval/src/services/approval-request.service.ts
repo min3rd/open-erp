@@ -62,6 +62,7 @@ export class ApprovalRequestService {
       approverIds: step.approverIds,
       approvalMode: step.approvalMode,
       quorumCount: step.quorumCount,
+      branches: step.branches,
       status: ApprovalRequestStatus.PENDING,
       approvals: [],
     }));
@@ -358,22 +359,28 @@ export class ApprovalRequestService {
   }
 
   /**
-   * Resolve the next step order based on branching conditions
+   * Resolve the next step order based on branching conditions.
+   * Branches are evaluated against the request metadata.
+   * If a branch's conditions all match, the request jumps to that branch's nextStepOrder.
+   * Otherwise, it proceeds to the next sequential step.
    */
   private resolveNextStep(
     request: ApprovalRequestDocument,
     currentStep: RequestStep,
   ): number | null {
-    // Get the template step to check branches
-    const templateStep = request.steps.find(
-      (s) => s.order === currentStep.order,
-    );
-
-    // Check if there are branches (stored in template, but we check metadata)
-    // For simplicity, branches are evaluated against request metadata
-    if (request.metadata && templateStep) {
-      // We need to get the original template to evaluate branches
-      // For now, we look at the sequential order
+    // Evaluate branches if defined on the current step
+    if (currentStep.branches && currentStep.branches.length > 0 && request.metadata) {
+      for (const branch of currentStep.branches) {
+        if (this.evaluateBranchConditions(branch.conditions, request.metadata)) {
+          // Verify the target step exists
+          const targetStep = request.steps.find(
+            (s) => s.order === branch.nextStepOrder,
+          );
+          if (targetStep) {
+            return branch.nextStepOrder;
+          }
+        }
+      }
     }
 
     // Default: go to next sequential step
@@ -387,6 +394,38 @@ export class ApprovalRequestService {
     }
 
     return null; // No more steps
+  }
+
+  /**
+   * Evaluate branch conditions against metadata values
+   */
+  private evaluateBranchConditions(
+    conditions: Array<{ field: string; operator: string; value: any }>,
+    metadata: Record<string, any>,
+  ): boolean {
+    return conditions.every((cond) => {
+      const fieldValue = metadata[cond.field];
+      switch (cond.operator) {
+        case 'eq':
+          return fieldValue === cond.value;
+        case 'ne':
+          return fieldValue !== cond.value;
+        case 'gt':
+          return fieldValue > cond.value;
+        case 'gte':
+          return fieldValue >= cond.value;
+        case 'lt':
+          return fieldValue < cond.value;
+        case 'lte':
+          return fieldValue <= cond.value;
+        case 'in':
+          return Array.isArray(cond.value) && cond.value.includes(fieldValue);
+        case 'nin':
+          return Array.isArray(cond.value) && !cond.value.includes(fieldValue);
+        default:
+          return false;
+      }
+    });
   }
 
   /**

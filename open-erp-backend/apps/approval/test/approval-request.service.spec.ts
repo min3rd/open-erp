@@ -449,4 +449,130 @@ describe('ApprovalRequestService', () => {
       ).rejects.toThrow(ForbiddenException);
     });
   });
+
+  describe('branching (via submitAction)', () => {
+    it('should follow branch when conditions match metadata', async () => {
+      const request = {
+        _id: mockRequest._id,
+        entityType: 'document',
+        entityId: new Types.ObjectId(entityId),
+        templateId: new Types.ObjectId(templateId),
+        status: ApprovalRequestStatus.IN_PROGRESS,
+        currentStepOrder: 0,
+        steps: [
+          {
+            order: 0,
+            name: 'Initial Review',
+            approverIds: [new Types.ObjectId(userId1)],
+            approvalMode: ApprovalMode.ANY,
+            branches: [
+              {
+                conditions: [{ field: 'amount', operator: 'gt', value: 1000 }],
+                nextStepOrder: 2,
+              },
+            ],
+            status: ApprovalRequestStatus.IN_PROGRESS,
+            approvals: [],
+            startedAt: new Date(),
+          },
+          {
+            order: 1,
+            name: 'Standard Approval',
+            approverIds: [new Types.ObjectId(userId2)],
+            approvalMode: ApprovalMode.ANY,
+            status: ApprovalRequestStatus.PENDING,
+            approvals: [],
+          },
+          {
+            order: 2,
+            name: 'Director Approval',
+            approverIds: [new Types.ObjectId(userId3)],
+            approvalMode: ApprovalMode.ANY,
+            status: ApprovalRequestStatus.PENDING,
+            approvals: [],
+          },
+        ],
+        auditLog: [],
+        metadata: { amount: 5000 },
+        requestedBy: new Types.ObjectId(requesterId),
+      };
+
+      mockRequestRepo.findById.mockResolvedValue(request);
+      mockRequestRepo.update.mockImplementation((id, data) => ({
+        ...request,
+        ...data,
+      }));
+
+      const result = await service.submitAction(
+        request._id.toString(),
+        { action: ApprovalActionType.APPROVE },
+        userId1,
+      );
+
+      // Should skip step 1 and jump to step 2 because amount > 1000
+      expect(result.currentStepOrder).toBe(2);
+    });
+
+    it('should follow sequential order when branch conditions do not match', async () => {
+      const request = {
+        _id: mockRequest._id,
+        entityType: 'document',
+        entityId: new Types.ObjectId(entityId),
+        templateId: new Types.ObjectId(templateId),
+        status: ApprovalRequestStatus.IN_PROGRESS,
+        currentStepOrder: 0,
+        steps: [
+          {
+            order: 0,
+            name: 'Initial Review',
+            approverIds: [new Types.ObjectId(userId1)],
+            approvalMode: ApprovalMode.ANY,
+            branches: [
+              {
+                conditions: [{ field: 'amount', operator: 'gt', value: 1000 }],
+                nextStepOrder: 2,
+              },
+            ],
+            status: ApprovalRequestStatus.IN_PROGRESS,
+            approvals: [],
+            startedAt: new Date(),
+          },
+          {
+            order: 1,
+            name: 'Standard Approval',
+            approverIds: [new Types.ObjectId(userId2)],
+            approvalMode: ApprovalMode.ANY,
+            status: ApprovalRequestStatus.PENDING,
+            approvals: [],
+          },
+          {
+            order: 2,
+            name: 'Director Approval',
+            approverIds: [new Types.ObjectId(userId3)],
+            approvalMode: ApprovalMode.ANY,
+            status: ApprovalRequestStatus.PENDING,
+            approvals: [],
+          },
+        ],
+        auditLog: [],
+        metadata: { amount: 500 },
+        requestedBy: new Types.ObjectId(requesterId),
+      };
+
+      mockRequestRepo.findById.mockResolvedValue(request);
+      mockRequestRepo.update.mockImplementation((id, data) => ({
+        ...request,
+        ...data,
+      }));
+
+      const result = await service.submitAction(
+        request._id.toString(),
+        { action: ApprovalActionType.APPROVE },
+        userId1,
+      );
+
+      // Should go to step 1 sequentially because amount <= 1000
+      expect(result.currentStepOrder).toBe(1);
+    });
+  });
 });
