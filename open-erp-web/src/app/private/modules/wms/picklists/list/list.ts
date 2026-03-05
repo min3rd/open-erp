@@ -10,12 +10,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { TableModule } from 'primeng/table';
+import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { DrawerModule } from 'primeng/drawer';
 import { MpToolbar } from '../../../../../../core/components/toolbar';
 import {
@@ -24,7 +27,14 @@ import {
   PicklistStatus,
 } from '../../../../../../core/services/wms/wms.service';
 import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, combineLatest } from 'rxjs';
+
+interface ColumnDef {
+  field: string;
+  header: string;
+  sortable: boolean;
+  width?: string;
+}
 
 @Component({
   selector: 'picklist-list',
@@ -38,6 +48,9 @@ import { Subject, takeUntil } from 'rxjs';
     TagModule,
     TooltipModule,
     SelectModule,
+    MultiSelectModule,
+    InputGroupModule,
+    InputGroupAddonModule,
     DrawerModule,
     MpToolbar,
   ],
@@ -52,6 +65,15 @@ export class PicklistList implements OnInit, OnDestroy {
 
   protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
 
+  protected readonly columnOptions: ColumnDef[] = [
+    { field: 'lines',     header: 'wms.picklists.linesCount', sortable: false, width: '80px' },
+    { field: 'orders',    header: 'wms.picklists.orders',     sortable: false, width: '80px' },
+    { field: 'status',    header: 'wms.picklists.status',     sortable: true,  width: '130px' },
+    { field: 'notes',     header: 'wms.picklists.notes',      sortable: false },
+    { field: 'createdAt', header: 'wms.picklists.createdAt',  sortable: true,  width: '160px' },
+  ];
+  protected selectedColumns: ColumnDef[] = [...this.columnOptions];
+
   protected readonly statusOptions = Object.values(PicklistStatus).map((s) => ({
     label: s,
     value: s,
@@ -62,7 +84,10 @@ export class PicklistList implements OnInit, OnDestroy {
   totalRecords = signal(0);
   currentPage = signal(1);
   pageSize = signal(PAGE_SIZE_OPTIONS[0]);
+  searchQuery = signal('');
   selectedStatus = signal<PicklistStatus | undefined>(undefined);
+  sortField = signal<string>('createdAt');
+  sortOrder = signal<number>(-1);
   selectedPicklist = signal<Picklist | null>(null);
   drawerVisible = signal(false);
   isMobile = signal(false);
@@ -78,13 +103,20 @@ export class PicklistList implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      const page = parseInt(params['page'], 10) || 1;
-      const limit = parseInt(params['limit'], 10) || PAGE_SIZE_OPTIONS[0];
-      this.currentPage.set(page);
-      this.pageSize.set(PAGE_SIZE_OPTIONS.includes(limit) ? limit : PAGE_SIZE_OPTIONS[0]);
-      this.loadPicklists();
-    });
+    combineLatest([this.route.params, this.route.queryParams])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([params, queryParams]) => {
+        const page = parseInt(params['page'], 10) || 1;
+        const limit = parseInt(params['limit'], 10) || PAGE_SIZE_OPTIONS[0];
+        const search = params['search'] || '';
+        this.currentPage.set(page);
+        this.pageSize.set(PAGE_SIZE_OPTIONS.includes(limit) ? limit : PAGE_SIZE_OPTIONS[0]);
+        this.searchQuery.set(search === '-' ? '' : search);
+        if (queryParams['status']) this.selectedStatus.set(queryParams['status'] as PicklistStatus);
+        if (queryParams['sortField']) this.sortField.set(queryParams['sortField']);
+        if (queryParams['sortOrder']) this.sortOrder.set(parseInt(queryParams['sortOrder'], 10));
+        this.loadPicklists();
+      });
   }
 
   ngOnDestroy(): void {
@@ -102,6 +134,9 @@ export class PicklistList implements OnInit, OnDestroy {
         page: this.currentPage(),
         limit: this.pageSize(),
         status: this.selectedStatus(),
+        q: this.searchQuery() || undefined,
+        sortField: this.sortField(),
+        sortOrder: this.sortOrder() as 1 | -1,
       })
       .subscribe({
         next: (result) => {
@@ -117,9 +152,45 @@ export class PicklistList implements OnInit, OnDestroy {
     this.loadPicklists();
   }
 
+  protected onSearchChange(event: Event) {
+    const value = (event.target as HTMLInputElement).value || '-';
+    this.router.navigate(['../../..', value, 1, this.pageSize()], {
+      relativeTo: this.route,
+      queryParamsHandling: 'merge',
+    });
+  }
+
   protected onStatusChange(status: PicklistStatus | undefined) {
     this.selectedStatus.set(status);
-    this.loadPicklists();
+    const queryParams: any = status ? { status } : {};
+    this.router.navigate(['../../..', this.searchQuery() || '-', 1, this.pageSize()], {
+      relativeTo: this.route,
+      queryParams,
+    });
+  }
+
+  protected onLazyLoad(event: TableLazyLoadEvent) {
+    const rows = event.rows && event.rows > 0 ? event.rows : PAGE_SIZE_OPTIONS[0];
+    const page = event.first !== undefined ? Math.floor(event.first / rows) + 1 : 1;
+
+    const queryParams: any = {};
+    if (event.sortField) {
+      this.sortField.set(event.sortField as string);
+      this.sortOrder.set(event.sortOrder || -1);
+      queryParams.sortField = event.sortField;
+      queryParams.sortOrder = event.sortOrder || -1;
+    }
+    if (this.selectedStatus()) queryParams.status = this.selectedStatus();
+
+    if (page !== this.currentPage() || rows !== this.pageSize()) {
+      this.router.navigate(['../../..', this.searchQuery() || '-', page, rows], {
+        relativeTo: this.route,
+        queryParams,
+        queryParamsHandling: 'merge',
+      });
+    } else {
+      this.loadPicklists();
+    }
   }
 
   protected openDetail(picklist: Picklist) {

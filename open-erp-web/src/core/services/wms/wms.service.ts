@@ -62,6 +62,9 @@ export class WmsService {
     warehouseId?: string;
     poId?: string;
     status?: ReceiptStatus;
+    q?: string;
+    sortField?: string;
+    sortOrder?: number;
     page?: number;
     limit?: number;
   }): Observable<{ items: Receipt[]; total: number; page: number; limit: number }> {
@@ -70,6 +73,9 @@ export class WmsService {
     if (params?.warehouseId) httpParams = httpParams.set('warehouseId', params.warehouseId);
     if (params?.poId) httpParams = httpParams.set('poId', params.poId);
     if (params?.status) httpParams = httpParams.set('status', params.status);
+    if (params?.q) httpParams = httpParams.set('q', params.q);
+    if (params?.sortField) httpParams = httpParams.set('sortField', params.sortField);
+    if (params?.sortOrder !== undefined) httpParams = httpParams.set('sortOrder', params.sortOrder.toString());
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.limit) httpParams = httpParams.set('limit', params.limit.toString());
 
@@ -121,6 +127,9 @@ export class WmsService {
     orgId?: string;
     warehouseId?: string;
     status?: PicklistStatus;
+    q?: string;
+    sortField?: string;
+    sortOrder?: number;
     page?: number;
     limit?: number;
   }): Observable<{ items: Picklist[]; total: number; page: number; limit: number }> {
@@ -128,6 +137,9 @@ export class WmsService {
     if (params?.orgId) httpParams = httpParams.set('orgId', params.orgId);
     if (params?.warehouseId) httpParams = httpParams.set('warehouseId', params.warehouseId);
     if (params?.status) httpParams = httpParams.set('status', params.status);
+    if (params?.q) httpParams = httpParams.set('q', params.q);
+    if (params?.sortField) httpParams = httpParams.set('sortField', params.sortField);
+    if (params?.sortOrder !== undefined) httpParams = httpParams.set('sortOrder', params.sortOrder.toString());
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.limit) httpParams = httpParams.set('limit', params.limit.toString());
 
@@ -207,6 +219,9 @@ export class WmsService {
     orgId?: string;
     warehouseId?: string;
     status?: ShipmentStatus;
+    q?: string;
+    sortField?: string;
+    sortOrder?: number;
     page?: number;
     limit?: number;
   }): Observable<{ items: Shipment[]; total: number; page: number; limit: number }> {
@@ -214,6 +229,9 @@ export class WmsService {
     if (params?.orgId) httpParams = httpParams.set('orgId', params.orgId);
     if (params?.warehouseId) httpParams = httpParams.set('warehouseId', params.warehouseId);
     if (params?.status) httpParams = httpParams.set('status', params.status);
+    if (params?.q) httpParams = httpParams.set('q', params.q);
+    if (params?.sortField) httpParams = httpParams.set('sortField', params.sortField);
+    if (params?.sortOrder !== undefined) httpParams = httpParams.set('sortOrder', params.sortOrder.toString());
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.limit) httpParams = httpParams.set('limit', params.limit.toString());
 

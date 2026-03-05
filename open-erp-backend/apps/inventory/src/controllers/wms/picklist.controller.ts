@@ -56,10 +56,13 @@ export class PicklistController {
 
   @Get('picklists')
   @Permissions(Permission.WMS_PICK_MANAGE)
-  @ApiOperation({ summary: 'List picklists with filters' })
+  @ApiOperation({ summary: 'List picklists with filters, search and sort' })
   @ApiQuery({ name: 'orgId', required: false, type: String })
   @ApiQuery({ name: 'warehouseId', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: PicklistStatus })
+  @ApiQuery({ name: 'q', required: false, type: String, description: 'Text search (SKU, notes)' })
+  @ApiQuery({ name: 'sortField', required: false, type: String, description: 'Field to sort by (default: createdAt)' })
+  @ApiQuery({ name: 'sortOrder', required: false, type: Number, description: 'Sort direction: 1 asc, -1 desc (default: -1)' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Picklists retrieved successfully' })
@@ -67,13 +70,17 @@ export class PicklistController {
     @Query('orgId') orgId?: string,
     @Query('warehouseId') warehouseId?: string,
     @Query('status') status?: PicklistStatus,
+    @Query('q') q?: string,
+    @Query('sortField') sortField?: string,
+    @Query('sortOrder') sortOrder?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
     try {
+      const parsedSortOrder = sortOrder ? (parseInt(sortOrder as string, 10) as 1 | -1) : undefined;
       const result = await this.picklistService.findAll(
-        { orgId, warehouseId, status },
-        { page, limit },
+        { orgId, warehouseId, status, q },
+        { page, limit, sortField, sortOrder: parsedSortOrder },
       );
       return paginated(result.items, result.page, result.limit, result.total);
     } catch (err) {
@@ -141,10 +148,13 @@ export class PicklistController {
 
   @Get('packages')
   @Permissions(Permission.WMS_PACK_MANAGE)
-  @ApiOperation({ summary: 'List packages' })
+  @ApiOperation({ summary: 'List packages with filters, search and sort' })
   @ApiQuery({ name: 'orgId', required: false, type: String })
   @ApiQuery({ name: 'shipmentId', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: WmsPackageStatus })
+  @ApiQuery({ name: 'q', required: false, type: String, description: 'Text search (trackingNumber, notes)' })
+  @ApiQuery({ name: 'sortField', required: false, type: String, description: 'Field to sort by (default: createdAt)' })
+  @ApiQuery({ name: 'sortOrder', required: false, type: Number, description: 'Sort direction: 1 asc, -1 desc (default: -1)' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Packages retrieved successfully' })
@@ -152,13 +162,17 @@ export class PicklistController {
     @Query('orgId') orgId?: string,
     @Query('shipmentId') shipmentId?: string,
     @Query('status') status?: WmsPackageStatus,
+    @Query('q') q?: string,
+    @Query('sortField') sortField?: string,
+    @Query('sortOrder') sortOrder?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
     try {
+      const parsedSortOrder = sortOrder ? (parseInt(sortOrder as string, 10) as 1 | -1) : undefined;
       const result = await this.picklistService.findPackages(
-        { orgId, shipmentId, status },
-        { page, limit },
+        { orgId, shipmentId, status, q },
+        { page, limit, sortField, sortOrder: parsedSortOrder },
       );
       return paginated(result.items, result.page, result.limit, result.total);
     } catch (err) {

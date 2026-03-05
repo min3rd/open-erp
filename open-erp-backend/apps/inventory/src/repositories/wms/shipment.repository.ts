@@ -29,18 +29,36 @@ export class ShipmentRepository {
       orgId?: string;
       warehouseId?: string;
       status?: ShipmentStatus;
+      q?: string;
     } = {},
-    options: { skip?: number; limit?: number } = {},
+    options: {
+      skip?: number;
+      limit?: number;
+      sortField?: string;
+      sortOrder?: 1 | -1;
+    } = {},
   ) {
-    const { skip = 0, limit = 20 } = options;
+    const { skip = 0, limit = 20, sortField = 'createdAt', sortOrder = -1 } = options;
     const query: any = { deletedAt: null };
 
     if (filter.orgId) query.orgId = new Types.ObjectId(filter.orgId);
     if (filter.warehouseId) query.warehouseId = new Types.ObjectId(filter.warehouseId);
     if (filter.status) query.status = filter.status;
+    if (filter.q) {
+      const regex = { $regex: filter.q, $options: 'i' };
+      query.$or = [
+        { carrier: regex },
+        { trackingNumber: regex },
+        { recipientName: regex },
+        { recipientAddress: regex },
+        { notes: regex },
+      ];
+    }
+
+    const sortObj: any = { [sortField]: sortOrder };
 
     const [items, total] = await Promise.all([
-      this.shipmentModel.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }).exec(),
+      this.shipmentModel.find(query).skip(skip).limit(limit).sort(sortObj).exec(),
       this.shipmentModel.countDocuments(query).exec(),
     ]);
 

@@ -1,30 +1,71 @@
 <div class="flex h-full flex-col">
-  <!-- Toolbar -->
-  <mp-toolbar id="shipment-list-toolbar">
-    <ng-template #start>
-      <span class="text-lg font-semibold">{{ 'wms.shipments.title' | transloco }}</span>
-      <p-select
-        [options]="statusOptions"
-        [ngModel]="selectedStatus()"
-        (ngModelChange)="onStatusChange($event)"
-        optionLabel="label"
-        optionValue="value"
-        [placeholder]="'wms.shipments.allStatuses' | transloco"
-        [showClear]="true"
-        class="ml-2 w-40"
-      />
-    </ng-template>
-    <ng-template #end>
-      <p-button
-        icon="pi pi-refresh"
-        [rounded]="true"
-        [text]="true"
-        (onClick)="refresh()"
-        [pTooltip]="'wms.refresh' | transloco"
-        tooltipPosition="bottom"
-      />
-    </ng-template>
-  </mp-toolbar>
+  <!-- Toolbar - Desktop -->
+  @if (!isMobile()) {
+    <mp-toolbar id="shipment-list-toolbar">
+      <ng-template #start>
+        <p-inputgroup>
+          <p-inputgroup-addon><i class="pi pi-search"></i></p-inputgroup-addon>
+          <input
+            type="text"
+            pInputText
+            [placeholder]="'wms.search' | transloco"
+            (input)="onSearchChange($event)"
+            [value]="searchQuery()"
+            class="w-72"
+          />
+        </p-inputgroup>
+        <p-select
+          [options]="statusOptions"
+          [ngModel]="selectedStatus()"
+          (ngModelChange)="onStatusChange($event)"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'wms.shipments.allStatuses' | transloco"
+          [showClear]="true"
+          class="ml-2 w-40"
+        />
+      </ng-template>
+      <ng-template #end>
+        <p-button
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="refresh()"
+          [pTooltip]="'wms.refresh' | transloco"
+          tooltipPosition="bottom"
+        />
+      </ng-template>
+    </mp-toolbar>
+  }
+
+  <!-- Toolbar - Mobile -->
+  @if (isMobile()) {
+    <mp-toolbar id="shipment-list-toolbar-mobile">
+      <ng-template #start>
+        <span class="text-base font-semibold">{{ 'wms.shipments.title' | transloco }}</span>
+      </ng-template>
+      <ng-template #end>
+        <p-select
+          [options]="statusOptions"
+          [ngModel]="selectedStatus()"
+          (ngModelChange)="onStatusChange($event)"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'wms.shipments.allStatuses' | transloco"
+          [showClear]="true"
+          class="w-36"
+        />
+        <p-button
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="refresh()"
+          [pTooltip]="'wms.refresh' | transloco"
+          tooltipPosition="bottom"
+        />
+      </ng-template>
+    </mp-toolbar>
+  }
 
   <!-- Table -->
   <div class="flex-1 overflow-hidden">
@@ -34,31 +75,72 @@
       [scrollable]="true"
       scrollHeight="flex"
       [resizableColumns]="true"
+      columnResizeMode="expand"
+      [reorderableColumns]="true"
+      [paginator]="true"
+      [rows]="pageSize()"
+      [totalRecords]="totalRecords()"
+      [rowsPerPageOptions]="PAGE_SIZE_OPTIONS"
+      [lazy]="true"
+      (onLazyLoad)="onLazyLoad($event)"
+      [first]="(currentPage() - 1) * pageSize()"
+      [sortField]="sortField()"
+      [sortOrder]="sortOrder()"
       dataKey="id"
       styleClass="p-datatable-sm"
+      responsiveLayout="scroll"
     >
+      <ng-template #caption>
+        <div class="flex items-center justify-end">
+          <p-multiselect
+            [options]="columnOptions"
+            [(ngModel)]="selectedColumns"
+            optionLabel="header"
+            [placeholder]="'wms.columns' | transloco"
+            [showHeader]="false"
+            [filter]="false"
+            styleClass="w-auto"
+          >
+            <ng-template let-opt #item><span>{{ opt.header | transloco }}</span></ng-template>
+            <ng-template #selectedItems>
+              <span class="flex items-center gap-1"><i class="pi pi-cog"></i> {{ 'wms.columns' | transloco }}</span>
+            </ng-template>
+          </p-multiselect>
+        </div>
+      </ng-template>
+
       <ng-template #header>
         <tr>
-          <th pResizableColumn>{{ 'wms.shipments.carrier' | transloco }}</th>
-          <th pResizableColumn style="width: 180px">{{ 'wms.shipments.trackingNumber' | transloco }}</th>
-          <th pResizableColumn>{{ 'wms.shipments.recipient' | transloco }}</th>
-          <th pResizableColumn style="width: 130px">{{ 'wms.shipments.status' | transloco }}</th>
-          <th pResizableColumn style="width: 160px">{{ 'wms.shipments.shippedAt' | transloco }}</th>
-          <th style="width: 80px"></th>
+          @for (col of selectedColumns; track col.field) {
+            @if (col.sortable) {
+              <th pResizableColumn pReorderableColumn [pSortableColumn]="col.field" [style.width]="col.width">
+                {{ col.header | transloco }} <p-sortIcon [field]="col.field" />
+              </th>
+            } @else {
+              <th pResizableColumn pReorderableColumn [style.width]="col.width">
+                {{ col.header | transloco }}
+              </th>
+            }
+          }
+          <th style="width: 64px"></th>
         </tr>
       </ng-template>
+
       <ng-template #body let-shipment>
         <tr>
-          <td>{{ shipment.carrier || '-' }}</td>
-          <td>{{ shipment.trackingNumber || '-' }}</td>
-          <td>{{ shipment.recipientName || '-' }}</td>
-          <td>
-            <p-tag
-              [value]="shipment.status"
-              [severity]="getStatusSeverity(shipment.status)"
-            />
-          </td>
-          <td>{{ shipment.shippedAt ? (shipment.shippedAt | date:'short') : '-' }}</td>
+          @for (col of selectedColumns; track col.field) {
+            <td>
+              @switch (col.field) {
+                @case ('carrier') { {{ shipment.carrier || '-' }} }
+                @case ('trackingNumber') { <span class="font-mono text-xs">{{ shipment.trackingNumber || '-' }}</span> }
+                @case ('recipient') { {{ shipment.recipientName || '-' }} }
+                @case ('status') {
+                  <p-tag [value]="shipment.status" [severity]="getStatusSeverity(shipment.status)" />
+                }
+                @case ('shippedAt') { <span class="text-sm text-surface-500">{{ shipment.shippedAt ? (shipment.shippedAt | date:'short') : '-' }}</span> }
+              }
+            </td>
+          }
           <td>
             <p-button
               icon="pi pi-eye"
@@ -71,9 +153,10 @@
           </td>
         </tr>
       </ng-template>
+
       <ng-template #emptymessage>
         <tr>
-          <td colspan="6" class="text-center py-8 text-surface-400">
+          <td [attr.colspan]="selectedColumns.length + 1" class="text-center py-8 text-surface-400">
             {{ 'wms.shipments.empty' | transloco }}
           </td>
         </tr>
@@ -98,7 +181,7 @@
           </div>
           <div>
             <span class="text-surface-500">{{ 'wms.shipments.trackingNumber' | transloco }}</span>
-            <p class="font-medium">{{ selectedShipment()!.trackingNumber || '-' }}</p>
+            <p class="font-medium font-mono text-xs">{{ selectedShipment()!.trackingNumber || '-' }}</p>
           </div>
           <div>
             <span class="text-surface-500">{{ 'wms.shipments.recipient' | transloco }}</span>

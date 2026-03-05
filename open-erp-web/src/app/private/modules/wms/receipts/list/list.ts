@@ -10,12 +10,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { TableModule } from 'primeng/table';
+import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { DrawerModule } from 'primeng/drawer';
@@ -23,6 +24,14 @@ import { MpToolbar } from '../../../../../../core/components/toolbar';
 import { WmsService, Receipt, ReceiptStatus } from '../../../../../../core/services/wms/wms.service';
 import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 import { Subject, takeUntil } from 'rxjs';
+import { combineLatest } from 'rxjs';
+
+interface ColumnDef {
+  field: string;
+  header: string;
+  sortable: boolean;
+  width?: string;
+}
 
 @Component({
   selector: 'receipt-list',
@@ -36,6 +45,7 @@ import { Subject, takeUntil } from 'rxjs';
     TagModule,
     TooltipModule,
     SelectModule,
+    MultiSelectModule,
     InputGroupModule,
     InputGroupAddonModule,
     DrawerModule,
@@ -52,6 +62,15 @@ export class ReceiptList implements OnInit, OnDestroy {
 
   protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
 
+  protected readonly columnOptions: ColumnDef[] = [
+    { field: 'poId',      header: 'wms.receipts.poId',      sortable: true,  width: '160px' },
+    { field: 'supplier',  header: 'wms.receipts.supplier',  sortable: true               },
+    { field: 'lines',     header: 'wms.receipts.lines',     sortable: false, width: '90px' },
+    { field: 'status',    header: 'wms.receipts.status',    sortable: true,  width: '130px' },
+    { field: 'createdAt', header: 'wms.receipts.createdAt', sortable: true,  width: '160px' },
+  ];
+  protected selectedColumns: ColumnDef[] = [...this.columnOptions];
+
   protected readonly statusOptions = Object.values(ReceiptStatus).map((s) => ({
     label: s,
     value: s,
@@ -64,6 +83,8 @@ export class ReceiptList implements OnInit, OnDestroy {
   pageSize = signal(PAGE_SIZE_OPTIONS[0]);
   searchQuery = signal('');
   selectedStatus = signal<ReceiptStatus | undefined>(undefined);
+  sortField = signal<string>('createdAt');
+  sortOrder = signal<number>(-1);
   selectedReceipt = signal<Receipt | null>(null);
   drawerVisible = signal(false);
   isMobile = signal(false);
@@ -79,15 +100,20 @@ export class ReceiptList implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      const page = parseInt(params['page'], 10) || 1;
-      const limit = parseInt(params['limit'], 10) || PAGE_SIZE_OPTIONS[0];
-      const search = params['search'] || '';
-      this.currentPage.set(page);
-      this.pageSize.set(PAGE_SIZE_OPTIONS.includes(limit) ? limit : PAGE_SIZE_OPTIONS[0]);
-      this.searchQuery.set(search === '-' ? '' : search);
-      this.loadReceipts();
-    });
+    combineLatest([this.route.params, this.route.queryParams])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([params, queryParams]) => {
+        const page = parseInt(params['page'], 10) || 1;
+        const limit = parseInt(params['limit'], 10) || PAGE_SIZE_OPTIONS[0];
+        const search = params['search'] || '';
+        this.currentPage.set(page);
+        this.pageSize.set(PAGE_SIZE_OPTIONS.includes(limit) ? limit : PAGE_SIZE_OPTIONS[0]);
+        this.searchQuery.set(search === '-' ? '' : search);
+        if (queryParams['status']) this.selectedStatus.set(queryParams['status'] as ReceiptStatus);
+        if (queryParams['sortField']) this.sortField.set(queryParams['sortField']);
+        if (queryParams['sortOrder']) this.sortOrder.set(parseInt(queryParams['sortOrder'], 10));
+        this.loadReceipts();
+      });
   }
 
   ngOnDestroy(): void {
@@ -105,6 +131,9 @@ export class ReceiptList implements OnInit, OnDestroy {
         page: this.currentPage(),
         limit: this.pageSize(),
         status: this.selectedStatus(),
+        q: this.searchQuery() || undefined,
+        sortField: this.sortField(),
+        sortOrder: this.sortOrder() as 1 | -1,
       })
       .subscribe({
         next: (result) => {
@@ -120,9 +149,38 @@ export class ReceiptList implements OnInit, OnDestroy {
     this.loadReceipts();
   }
 
+  protected onSearchChange(event: Event) {
+    const value = (event.target as HTMLInputElement).value || '-';
+    this.navigateWithState(1, { search: value });
+  }
+
   protected onStatusChange(status: ReceiptStatus | undefined) {
     this.selectedStatus.set(status);
-    this.loadReceipts();
+    this.navigateWithState(1, { status: status || null });
+  }
+
+  protected onLazyLoad(event: TableLazyLoadEvent) {
+    const rows = event.rows && event.rows > 0 ? event.rows : PAGE_SIZE_OPTIONS[0];
+    const page = event.first !== undefined ? Math.floor(event.first / rows) + 1 : 1;
+
+    const queryParams: any = {};
+    if (event.sortField) {
+      this.sortField.set(event.sortField as string);
+      this.sortOrder.set(event.sortOrder || -1);
+      queryParams.sortField = event.sortField;
+      queryParams.sortOrder = event.sortOrder || -1;
+    }
+    if (this.selectedStatus()) queryParams.status = this.selectedStatus();
+
+    if (page !== this.currentPage() || rows !== this.pageSize()) {
+      this.router.navigate(['../../..', this.searchQuery() || '-', page, rows], {
+        relativeTo: this.route,
+        queryParams,
+        queryParamsHandling: 'merge',
+      });
+    } else {
+      this.loadReceipts();
+    }
   }
 
   protected openDetail(receipt: Receipt) {
@@ -152,11 +210,18 @@ export class ReceiptList implements OnInit, OnDestroy {
     return map[status] ?? 'secondary';
   }
 
-  private navigateWithState(page?: number): void {
-    const search = this.searchQuery() || '-';
+  private navigateWithState(page?: number, extra?: Record<string, any>): void {
+    const search = extra?.search ?? (this.searchQuery() || '-');
     const p = page ?? this.currentPage();
+    const queryParams: any = {};
+    const status = extra?.status !== undefined ? extra.status : this.selectedStatus();
+    if (status) queryParams.status = status;
+    if (extra?.sortField) queryParams.sortField = extra.sortField;
+    if (extra?.sortOrder) queryParams.sortOrder = extra.sortOrder;
+
     this.router.navigate(['../../..', search, p, this.pageSize()], {
       relativeTo: this.route,
+      queryParams,
     });
   }
 

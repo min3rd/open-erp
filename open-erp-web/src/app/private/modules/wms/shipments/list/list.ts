@@ -10,12 +10,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { TableModule } from 'primeng/table';
+import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { DrawerModule } from 'primeng/drawer';
 import { MpToolbar } from '../../../../../../core/components/toolbar';
 import {
@@ -24,7 +27,14 @@ import {
   ShipmentStatus,
 } from '../../../../../../core/services/wms/wms.service';
 import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, combineLatest } from 'rxjs';
+
+interface ColumnDef {
+  field: string;
+  header: string;
+  sortable: boolean;
+  width?: string;
+}
 
 @Component({
   selector: 'shipment-list',
@@ -38,6 +48,9 @@ import { Subject, takeUntil } from 'rxjs';
     TagModule,
     TooltipModule,
     SelectModule,
+    MultiSelectModule,
+    InputGroupModule,
+    InputGroupAddonModule,
     DrawerModule,
     MpToolbar,
   ],
@@ -52,6 +65,15 @@ export class ShipmentList implements OnInit, OnDestroy {
 
   protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
 
+  protected readonly columnOptions: ColumnDef[] = [
+    { field: 'carrier',        header: 'wms.shipments.carrier',        sortable: true               },
+    { field: 'trackingNumber', header: 'wms.shipments.trackingNumber', sortable: true,  width: '180px' },
+    { field: 'recipient',      header: 'wms.shipments.recipient',      sortable: true               },
+    { field: 'status',         header: 'wms.shipments.status',         sortable: true,  width: '130px' },
+    { field: 'shippedAt',      header: 'wms.shipments.shippedAt',      sortable: true,  width: '160px' },
+  ];
+  protected selectedColumns: ColumnDef[] = [...this.columnOptions];
+
   protected readonly statusOptions = Object.values(ShipmentStatus).map((s) => ({
     label: s,
     value: s,
@@ -62,7 +84,10 @@ export class ShipmentList implements OnInit, OnDestroy {
   totalRecords = signal(0);
   currentPage = signal(1);
   pageSize = signal(PAGE_SIZE_OPTIONS[0]);
+  searchQuery = signal('');
   selectedStatus = signal<ShipmentStatus | undefined>(undefined);
+  sortField = signal<string>('createdAt');
+  sortOrder = signal<number>(-1);
   selectedShipment = signal<Shipment | null>(null);
   drawerVisible = signal(false);
   isMobile = signal(false);
@@ -78,13 +103,20 @@ export class ShipmentList implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      const page = parseInt(params['page'], 10) || 1;
-      const limit = parseInt(params['limit'], 10) || PAGE_SIZE_OPTIONS[0];
-      this.currentPage.set(page);
-      this.pageSize.set(PAGE_SIZE_OPTIONS.includes(limit) ? limit : PAGE_SIZE_OPTIONS[0]);
-      this.loadShipments();
-    });
+    combineLatest([this.route.params, this.route.queryParams])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([params, queryParams]) => {
+        const page = parseInt(params['page'], 10) || 1;
+        const limit = parseInt(params['limit'], 10) || PAGE_SIZE_OPTIONS[0];
+        const search = params['search'] || '';
+        this.currentPage.set(page);
+        this.pageSize.set(PAGE_SIZE_OPTIONS.includes(limit) ? limit : PAGE_SIZE_OPTIONS[0]);
+        this.searchQuery.set(search === '-' ? '' : search);
+        if (queryParams['status']) this.selectedStatus.set(queryParams['status'] as ShipmentStatus);
+        if (queryParams['sortField']) this.sortField.set(queryParams['sortField']);
+        if (queryParams['sortOrder']) this.sortOrder.set(parseInt(queryParams['sortOrder'], 10));
+        this.loadShipments();
+      });
   }
 
   ngOnDestroy(): void {
@@ -102,6 +134,9 @@ export class ShipmentList implements OnInit, OnDestroy {
         page: this.currentPage(),
         limit: this.pageSize(),
         status: this.selectedStatus(),
+        q: this.searchQuery() || undefined,
+        sortField: this.sortField(),
+        sortOrder: this.sortOrder() as 1 | -1,
       })
       .subscribe({
         next: (result) => {
@@ -117,9 +152,45 @@ export class ShipmentList implements OnInit, OnDestroy {
     this.loadShipments();
   }
 
+  protected onSearchChange(event: Event) {
+    const value = (event.target as HTMLInputElement).value || '-';
+    this.router.navigate(['../../..', value, 1, this.pageSize()], {
+      relativeTo: this.route,
+      queryParamsHandling: 'merge',
+    });
+  }
+
   protected onStatusChange(status: ShipmentStatus | undefined) {
     this.selectedStatus.set(status);
-    this.loadShipments();
+    const queryParams: any = status ? { status } : {};
+    this.router.navigate(['../../..', this.searchQuery() || '-', 1, this.pageSize()], {
+      relativeTo: this.route,
+      queryParams,
+    });
+  }
+
+  protected onLazyLoad(event: TableLazyLoadEvent) {
+    const rows = event.rows && event.rows > 0 ? event.rows : PAGE_SIZE_OPTIONS[0];
+    const page = event.first !== undefined ? Math.floor(event.first / rows) + 1 : 1;
+
+    const queryParams: any = {};
+    if (event.sortField) {
+      this.sortField.set(event.sortField as string);
+      this.sortOrder.set(event.sortOrder || -1);
+      queryParams.sortField = event.sortField;
+      queryParams.sortOrder = event.sortOrder || -1;
+    }
+    if (this.selectedStatus()) queryParams.status = this.selectedStatus();
+
+    if (page !== this.currentPage() || rows !== this.pageSize()) {
+      this.router.navigate(['../../..', this.searchQuery() || '-', page, rows], {
+        relativeTo: this.route,
+        queryParams,
+        queryParamsHandling: 'merge',
+      });
+    } else {
+      this.loadShipments();
+    }
   }
 
   protected openDetail(shipment: Shipment) {
