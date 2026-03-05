@@ -185,10 +185,7 @@ export class WorkflowTemplateController {
     @Param('id') id: string,
     @Body() dto: UpdateStatusDto,
   ) {
-    const result = await this.templateService.changeStatus(
-      id,
-      dto.status as TemplateStatus,
-    );
+    const result = await this.templateService.changeStatus(id, dto.status);
     return updated(result, 'Workflow template status updated successfully');
   }
 
