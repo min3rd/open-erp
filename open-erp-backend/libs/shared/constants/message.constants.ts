@@ -163,6 +163,17 @@ export const EVENT_NAMES = {
     SHIPMENT_SHIPPED: 'wms.shipment.shipped',
     SHIPMENT_DELIVERED: 'wms.shipment.delivered',
   },
+
+  // Approval Events
+  APPROVAL: {
+    REQUEST_CREATED: 'approval.request.created',
+    REQUEST_APPROVED: 'approval.request.approved',
+    REQUEST_REJECTED: 'approval.request.rejected',
+    REQUEST_CHANGES_REQUESTED: 'approval.request.changes_requested',
+    REQUEST_CANCELLED: 'approval.request.cancelled',
+    STEP_COMPLETED: 'approval.step.completed',
+    REQUEST_SHARED: 'approval.request.shared',
+  },
 } as const;
 
 /**
@@ -200,3 +211,5 @@ export type ChatEvent =
   (typeof EVENT_NAMES.CHAT)[keyof typeof EVENT_NAMES.CHAT];
 export type WmsEvent =
   (typeof EVENT_NAMES.WMS)[keyof typeof EVENT_NAMES.WMS];
+export type ApprovalEvent =
+  (typeof EVENT_NAMES.APPROVAL)[keyof typeof EVENT_NAMES.APPROVAL];

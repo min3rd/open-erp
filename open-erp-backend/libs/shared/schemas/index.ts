@@ -38,3 +38,5 @@ export * from './receipt.schema';
 export * from './picklist.schema';
 export * from './wms-package.schema';
 export * from './shipment.schema';
+export * from './approval-workflow-template.schema';
+export * from './approval-request.schema';
