@@ -21,7 +21,11 @@ import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { DrawerModule } from 'primeng/drawer';
 import { MpToolbar } from '../../../../../../core/components/toolbar';
-import { WmsService, Receipt, ReceiptStatus } from '../../../../../../core/services/wms/wms.service';
+import {
+  WmsService,
+  Receipt,
+  ReceiptStatus,
+} from '../../../../../../core/services/wms/wms.service';
 import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 import { Subject, takeUntil } from 'rxjs';
 import { combineLatest } from 'rxjs';
@@ -63,11 +67,11 @@ export class ReceiptList implements OnInit, OnDestroy {
   protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
 
   protected readonly columnOptions: ColumnDef[] = [
-    { field: 'poId',      header: 'wms.receipts.poId',      sortable: true,  width: '160px' },
-    { field: 'supplier',  header: 'wms.receipts.supplier',  sortable: true               },
-    { field: 'lines',     header: 'wms.receipts.lines',     sortable: false, width: '90px' },
-    { field: 'status',    header: 'wms.receipts.status',    sortable: true,  width: '130px' },
-    { field: 'createdAt', header: 'wms.receipts.createdAt', sortable: true,  width: '160px' },
+    { field: 'poId', header: 'wms.receipts.poId', sortable: true, width: '160px' },
+    { field: 'supplier', header: 'wms.receipts.supplier', sortable: true },
+    { field: 'lines', header: 'wms.receipts.lines', sortable: false, width: '90px' },
+    { field: 'status', header: 'wms.receipts.status', sortable: true, width: '130px' },
+    { field: 'createdAt', header: 'wms.receipts.createdAt', sortable: true, width: '160px' },
   ];
   protected selectedColumns: ColumnDef[] = [...this.columnOptions];
 
@@ -210,7 +214,10 @@ export class ReceiptList implements OnInit, OnDestroy {
     return map[status] ?? 'secondary';
   }
 
-  private navigateWithState(page?: number, extra?: Record<string, any>): void {
+  private navigateWithState(
+    page?: number,
+    extra?: { search?: string; status?: ReceiptStatus | null; sortField?: string; sortOrder?: 1 | -1 },
+  ): void {
     const search = extra?.search ?? (this.searchQuery() || '-');
     const p = page ?? this.currentPage();
     const queryParams: any = {};
