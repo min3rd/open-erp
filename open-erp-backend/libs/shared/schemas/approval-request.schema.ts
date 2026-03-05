@@ -86,6 +86,13 @@ export class ApprovalRequest {
   nodeStates: RequestNodeState[];
 
   @Prop({ type: [Object], default: [] })
+  nodes: Array<{
+    id: string;
+    type: string;
+    point: { x: number; y: number };
+  }>;
+
+  @Prop({ type: [Object], default: [] })
   edges: Array<{
     id: string;
     source: string;
