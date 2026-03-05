@@ -43,7 +43,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  const port = process.env.APPROVAL_SERVICE_PORT || 3011;
+  const port = process.env.APPROVAL_FLOW_SERVICE_PORT || 3011;
   await app.listen(port);
   logger.log(`Approval Flow Service running on port ${port}`);
 }

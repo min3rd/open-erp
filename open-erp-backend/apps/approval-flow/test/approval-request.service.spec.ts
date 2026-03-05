@@ -111,6 +111,12 @@ describe('ApprovalRequestService', () => {
         approvals: [],
       },
     ],
+    nodes: [
+      { id: 'start-1', type: WorkflowNodeType.START, point: { x: 0, y: 200 } },
+      { id: 'approval-1', type: WorkflowNodeType.APPROVAL, point: { x: 300, y: 200 } },
+      { id: 'approval-2', type: WorkflowNodeType.APPROVAL, point: { x: 600, y: 200 } },
+      { id: 'end-1', type: WorkflowNodeType.END, point: { x: 900, y: 200 } },
+    ],
     edges: [
       { id: 'e1', source: 'start-1', target: 'approval-1' },
       { id: 'e2', source: 'approval-1', target: 'approval-2' },

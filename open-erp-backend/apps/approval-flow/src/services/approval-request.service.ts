@@ -19,7 +19,6 @@ import {
 import {
   ApprovalMode,
   WorkflowNodeType,
-  WorkflowNode,
 } from '@shared/schemas/approval-workflow-template.schema';
 import {
   CreateApprovalRequestDto,
@@ -126,6 +125,11 @@ export class ApprovalRequestService {
       status: ApprovalRequestStatus.IN_PROGRESS,
       currentNodeId: firstNodeId,
       nodeStates,
+      nodes: template.nodes.map((n) => ({
+        id: n.id,
+        type: n.type,
+        point: n.point,
+      })),
       edges: template.edges,
       auditLog,
       metadata: dto.metadata,
@@ -265,15 +269,10 @@ export class ApprovalRequestService {
       currentState.status = ApprovalRequestStatus.APPROVED;
       currentState.completedAt = new Date();
 
-      // Traverse graph to find next node
+      // Traverse graph to find next node using preserved template nodes
       const nextNodeId = this.resolveNextNode(
         currentState.nodeId,
-        // Build a minimal nodes array from nodeStates + end placeholders
-        request.nodeStates.map((ns) => ({
-          id: ns.nodeId,
-          type: WorkflowNodeType.APPROVAL,
-          point: { x: 0, y: 0 },
-        })),
+        request.nodes as Array<{ id: string; type: WorkflowNodeType; point: { x: number; y: number } }>,
         request.edges,
         request.metadata,
       );
@@ -433,8 +432,7 @@ export class ApprovalRequestService {
 
       const targetNode = nodes.find((n) => n.id === edge.target);
       if (!targetNode) {
-        // Target could be an end node not in nodeStates; check edge target
-        // If no node found, this is an end node reference
+        // Target node not in known nodes — treat as terminal
         return null;
       }
 
