@@ -2,6 +2,11 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { ApprovalMode } from './approval-workflow-template.schema';
 
+import {
+  WorkflowBranch,
+  WorkflowStepCondition,
+} from './approval-workflow-template.schema';
+
 export type ApprovalRequestDocument = ApprovalRequest & Document;
 
 export enum ApprovalRequestStatus {
@@ -45,6 +50,7 @@ export class RequestStep {
   approverIds: Types.ObjectId[];
   approvalMode: ApprovalMode;
   quorumCount?: number;
+  branches?: WorkflowBranch[];
   status: ApprovalRequestStatus;
   approvals: StepApproval[];
   startedAt?: Date;

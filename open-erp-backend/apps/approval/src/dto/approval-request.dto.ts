@@ -6,6 +6,8 @@ import {
   IsEnum,
   IsMongoId,
   IsArray,
+  IsNumber,
+  Min,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -55,6 +57,8 @@ export class ApprovalAttachmentDto {
   fileBucket: string;
 
   @ApiProperty({ description: 'File size in bytes' })
+  @IsNumber()
+  @Min(0)
   fileSize: number;
 
   @ApiProperty({ description: 'MIME type' })
