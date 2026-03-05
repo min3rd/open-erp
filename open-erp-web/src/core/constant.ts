@@ -8,3 +8,4 @@ export const API_URI_COMMON = 'http://localhost:3007';
 export const API_URI_FILE = 'http://localhost:3008';
 export const API_URI_CHAT = 'http://localhost:3009';
 export const API_URI_DATA_TRANSFER = 'http://localhost:3010';
+export const API_URI_APPROVAL = 'http://localhost:3011';

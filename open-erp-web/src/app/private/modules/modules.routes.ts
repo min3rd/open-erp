@@ -23,6 +23,10 @@ export const routes: Routes = [
         path: 'wms',
         loadChildren: () => import('./wms/wms.routes').then((m) => m.routes),
       },
+      {
+        path: 'approval',
+        loadChildren: () => import('./approval/approval.routes').then((m) => m.routes),
+      },
     ],
   },
 ];

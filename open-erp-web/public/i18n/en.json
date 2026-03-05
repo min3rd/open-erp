@@ -3766,5 +3766,136 @@
     },
     "search": "Search...",
     "columns": "Columns"
+  },
+  "workflowTemplate": {
+    "search": {
+      "placeholder": "Search workflow templates...",
+      "label": "Search workflow templates",
+      "openSearch": "Open search",
+      "closeSearch": "Close search"
+    },
+    "resultCount": "{{count}} template(s)",
+    "addButton": {
+      "tooltip": "Create new workflow template",
+      "label": "Create new workflow template"
+    },
+    "refreshButton": {
+      "tooltip": "Refresh list",
+      "label": "Refresh"
+    },
+    "actionsButton": {
+      "label": "Actions"
+    },
+    "toolbar": {
+      "selectColumns": "Select columns",
+      "columns": "Columns"
+    },
+    "table": {
+      "name": "Name",
+      "entityType": "Entity Type",
+      "scope": "Scope",
+      "status": "Status",
+      "createdAt": "Created At",
+      "rowActions": "Row actions"
+    },
+    "contextMenu": {
+      "view": "View",
+      "edit": "Edit",
+      "clone": "Clone",
+      "delete": "Delete"
+    },
+    "actions": {
+      "publish": "Publish",
+      "archive": "Archive",
+      "deleteSelected": "Delete selected"
+    },
+    "confirmDelete": {
+      "header": "Confirm Delete",
+      "message": "Are you sure you want to delete \"{{name}}\"?",
+      "accept": "Delete",
+      "reject": "Cancel"
+    },
+    "confirmBulkDelete": {
+      "header": "Confirm Bulk Delete",
+      "message": "Are you sure you want to delete {{count}} selected template(s)?"
+    },
+    "confirmPublish": {
+      "header": "Confirm Publish",
+      "message": "Are you sure you want to publish \"{{name}}\"? Published templates cannot be edited.",
+      "accept": "Publish",
+      "reject": "Cancel"
+    },
+    "messages": {
+      "success": "Success",
+      "error": "Error",
+      "loading": "Loading workflow templates...",
+      "noResults": "No results found for \"{{query}}\"",
+      "noTemplates": "No workflow templates found. Create one to get started.",
+      "deleteSuccess": "\"{{name}}\" has been deleted.",
+      "deleteFailed": "Failed to delete the workflow template.",
+      "bulkDeleteSuccess": "{{count}} template(s) deleted successfully.",
+      "bulkDeleteFailed": "Failed to delete some templates.",
+      "cloneSuccess": "Template cloned successfully.",
+      "cloneFailed": "Failed to clone template.",
+      "publishSuccess": "Template published successfully.",
+      "publishFailed": "Failed to publish template.",
+      "archiveSuccess": "Template archived successfully.",
+      "archiveFailed": "Failed to archive template.",
+      "createSuccess": "Workflow template created successfully.",
+      "updateSuccess": "Workflow template updated successfully.",
+      "saveFailed": "Failed to save workflow template.",
+      "validationFailed": "Please fix the form errors before saving."
+    },
+    "form": {
+      "title": {
+        "new": "New Workflow Template",
+        "edit": "Edit Workflow Template",
+        "view": "View Workflow Template"
+      },
+      "fields": {
+        "name": {
+          "label": "Name",
+          "placeholder": "Enter template name",
+          "errors": {
+            "required": "Name is required.",
+            "minlength": "Name must be at least 2 characters."
+          }
+        },
+        "description": {
+          "label": "Description",
+          "placeholder": "Enter template description"
+        },
+        "entityType": {
+          "label": "Entity Type",
+          "placeholder": "e.g., document, activity, purchase_order",
+          "errors": {
+            "required": "Entity type is required."
+          }
+        },
+        "scope": {
+          "label": "Scope",
+          "placeholder": "Select scope"
+        },
+        "orgId": {
+          "label": "Organization ID",
+          "placeholder": "Enter organization ID"
+        },
+        "departmentId": {
+          "label": "Department ID",
+          "placeholder": "Enter department ID"
+        },
+        "version": "Version",
+        "nodesCount": "Nodes",
+        "edgesCount": "Edges"
+      },
+      "sections": {
+        "workflowInfo": "Workflow Information"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "close": "Close"
+      }
+    }
   }
 }
