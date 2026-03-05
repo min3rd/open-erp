@@ -71,4 +71,4 @@ import { PermissionService } from '@shared/services';
     PermissionService,
   ],
 })
-export class ApprovalModule {}
+export class ApprovalFlowModule {}

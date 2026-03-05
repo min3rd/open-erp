@@ -3,12 +3,12 @@ import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { GlobalExceptionFilter } from '@shared/errors';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { ApprovalModule } from './approval.module';
+import { ApprovalFlowModule } from './approval-flow.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(ApprovalModule);
+  const app = await NestFactory.create(ApprovalFlowModule);
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
-  const logger = new Logger('ApprovalService');
+  const logger = new Logger('ApprovalFlowService');
 
   app.enableVersioning({
     type: VersioningType.URI,
@@ -30,9 +30,9 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('Approval Workflow API')
+    .setTitle('Approval Flow API')
     .setDescription(
-      'Multi-step approval workflow service with templates, branching, and scope-based resolution',
+      'Multi-step approval workflow service with node-edge graph model, templates, branching, and scope-based resolution. Compatible with ng-vflow visualization.',
     )
     .setVersion('1.0.0')
     .addTag('workflow-templates', 'Workflow template management')
@@ -45,7 +45,7 @@ async function bootstrap() {
 
   const port = process.env.APPROVAL_SERVICE_PORT || 3011;
   await app.listen(port);
-  logger.log(`Approval Service running on port ${port}`);
+  logger.log(`Approval Flow Service running on port ${port}`);
 }
 
 bootstrap();

@@ -98,13 +98,13 @@
         "tsConfigPath": "apps/data-transfer/tsconfig.json"
       }
     },
-    "approval": {
+    "approval-flow": {
       "type": "application",
-      "root": "apps/approval",
+      "root": "apps/approval-flow",
       "entryFile": "main",
-      "sourceRoot": "apps/approval/src",
+      "sourceRoot": "apps/approval-flow/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/approval/tsconfig.json"
+        "tsConfigPath": "apps/approval-flow/tsconfig.json"
       }
     }
   }

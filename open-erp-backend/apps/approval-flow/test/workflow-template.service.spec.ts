@@ -6,6 +6,7 @@ import {
   ApprovalScope,
   TemplateStatus,
   ApprovalMode,
+  WorkflowNodeType,
 } from '@shared/schemas/approval-workflow-template.schema';
 
 describe('WorkflowTemplateService', () => {
@@ -23,14 +24,33 @@ describe('WorkflowTemplateService', () => {
     scope: ApprovalScope.GLOBAL,
     status: TemplateStatus.DRAFT,
     version: 1,
-    steps: [
+    nodes: [
       {
-        order: 0,
-        name: 'Manager Review',
-        approverIds: ['507f1f77bcf86cd799439055'],
-        approvalMode: ApprovalMode.ANY,
-        approvals: [],
+        id: 'start-1',
+        point: { x: 0, y: 200 },
+        type: WorkflowNodeType.START,
+        data: { label: 'Start' },
       },
+      {
+        id: 'approval-1',
+        point: { x: 300, y: 200 },
+        type: WorkflowNodeType.APPROVAL,
+        data: {
+          label: 'Manager Review',
+          approverIds: ['507f1f77bcf86cd799439055'],
+          approvalMode: ApprovalMode.ANY,
+        },
+      },
+      {
+        id: 'end-1',
+        point: { x: 600, y: 200 },
+        type: WorkflowNodeType.END,
+        data: { label: 'End' },
+      },
+    ],
+    edges: [
+      { id: 'e1', source: 'start-1', target: 'approval-1' },
+      { id: 'e2', source: 'approval-1', target: 'end-1' },
     ],
     createdBy: userId,
     deletedAt: null,
@@ -66,7 +86,7 @@ describe('WorkflowTemplateService', () => {
   });
 
   describe('create', () => {
-    it('should create a GLOBAL template', async () => {
+    it('should create a GLOBAL template with nodes and edges', async () => {
       mockRepository.create.mockResolvedValue(mockTemplate);
 
       const result = await service.create(
@@ -74,13 +94,32 @@ describe('WorkflowTemplateService', () => {
           name: 'Document Approval',
           entityType: 'document',
           scope: ApprovalScope.GLOBAL,
-          steps: [
+          nodes: [
             {
-              order: 0,
-              name: 'Manager Review',
-              approverIds: ['507f1f77bcf86cd799439055'],
-              approvalMode: ApprovalMode.ANY,
+              id: 'start-1',
+              point: { x: 0, y: 200 },
+              type: WorkflowNodeType.START,
+              data: { label: 'Start' },
             },
+            {
+              id: 'approval-1',
+              point: { x: 300, y: 200 },
+              type: WorkflowNodeType.APPROVAL,
+              data: {
+                label: 'Manager Review',
+                approverIds: ['507f1f77bcf86cd799439055'],
+                approvalMode: ApprovalMode.ANY,
+              },
+            },
+            {
+              id: 'end-1',
+              point: { x: 600, y: 200 },
+              type: WorkflowNodeType.END,
+            },
+          ],
+          edges: [
+            { id: 'e1', source: 'start-1', target: 'approval-1' },
+            { id: 'e2', source: 'approval-1', target: 'end-1' },
           ],
         },
         userId,
@@ -104,14 +143,14 @@ describe('WorkflowTemplateService', () => {
             name: 'Org Template',
             entityType: 'document',
             scope: ApprovalScope.ORG,
-            steps: [
+            nodes: [
               {
-                order: 0,
-                name: 'Step 1',
-                approverIds: ['507f1f77bcf86cd799439055'],
-                approvalMode: ApprovalMode.ANY,
+                id: 'start-1',
+                point: { x: 0, y: 0 },
+                type: WorkflowNodeType.START,
               },
             ],
+            edges: [],
           },
           userId,
         ),
@@ -126,14 +165,14 @@ describe('WorkflowTemplateService', () => {
             entityType: 'document',
             scope: ApprovalScope.DEPARTMENT,
             orgId,
-            steps: [
+            nodes: [
               {
-                order: 0,
-                name: 'Step 1',
-                approverIds: ['507f1f77bcf86cd799439055'],
-                approvalMode: ApprovalMode.ANY,
+                id: 'start-1',
+                point: { x: 0, y: 0 },
+                type: WorkflowNodeType.START,
               },
             ],
+            edges: [],
           },
           userId,
         ),
@@ -142,7 +181,7 @@ describe('WorkflowTemplateService', () => {
   });
 
   describe('publish', () => {
-    it('should publish a draft template', async () => {
+    it('should publish a draft template with start + approval nodes', async () => {
       mockRepository.findById.mockResolvedValue({ ...mockTemplate, status: TemplateStatus.DRAFT });
       mockRepository.update.mockResolvedValue({ ...mockTemplate, status: TemplateStatus.PUBLISHED });
 
@@ -156,8 +195,19 @@ describe('WorkflowTemplateService', () => {
       await expect(service.publish(mockTemplate._id)).rejects.toThrow(ConflictException);
     });
 
-    it('should throw BadRequestException if no steps', async () => {
-      mockRepository.findById.mockResolvedValue({ ...mockTemplate, steps: [] });
+    it('should throw BadRequestException if no nodes', async () => {
+      mockRepository.findById.mockResolvedValue({ ...mockTemplate, nodes: [] });
+
+      await expect(service.publish(mockTemplate._id)).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException if missing start or approval node', async () => {
+      mockRepository.findById.mockResolvedValue({
+        ...mockTemplate,
+        nodes: [
+          { id: 'end-1', point: { x: 0, y: 0 }, type: WorkflowNodeType.END },
+        ],
+      });
 
       await expect(service.publish(mockTemplate._id)).rejects.toThrow(BadRequestException);
     });

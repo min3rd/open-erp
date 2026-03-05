@@ -30,7 +30,7 @@ import {
 } from '@shared/schemas/approval-workflow-template.schema';
 
 @ApiTags('workflow-templates')
-@Controller('approval/templates')
+@Controller('approval-flow/templates')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @ApiBearerAuth()
 export class WorkflowTemplateController {

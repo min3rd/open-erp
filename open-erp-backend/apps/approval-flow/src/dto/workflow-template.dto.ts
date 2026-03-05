@@ -15,10 +15,21 @@ import { Type } from 'class-transformer';
 import {
   ApprovalScope,
   ApprovalMode,
+  WorkflowNodeType,
 } from '@shared/schemas/approval-workflow-template.schema';
 
-export class WorkflowStepConditionDto {
-  @ApiProperty({ description: 'Field name to evaluate' })
+export class NodePointDto {
+  @ApiProperty({ description: 'X coordinate for visual position' })
+  @IsNumber()
+  x: number;
+
+  @ApiProperty({ description: 'Y coordinate for visual position' })
+  @IsNumber()
+  y: number;
+}
+
+export class EdgeConditionDto {
+  @ApiProperty({ description: 'Metadata field name to evaluate' })
   @IsString()
   @IsNotEmpty()
   field: string;
@@ -35,50 +46,33 @@ export class WorkflowStepConditionDto {
   value: any;
 }
 
-export class WorkflowBranchDto {
-  @ApiProperty({ type: [WorkflowStepConditionDto] })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => WorkflowStepConditionDto)
-  conditions: WorkflowStepConditionDto[];
-
-  @ApiProperty({ description: 'Order number of the next step to jump to' })
-  @IsNumber()
-  @Min(0)
-  nextStepOrder: number;
-}
-
-export class WorkflowStepDto {
-  @ApiProperty({ description: 'Step order number (0-based)' })
-  @IsNumber()
-  @Min(0)
-  order: number;
-
-  @ApiProperty({ description: 'Step name' })
+export class WorkflowNodeDataDto {
+  @ApiPropertyOptional({ description: 'Display label for the node' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  name: string;
+  label?: string;
 
-  @ApiPropertyOptional({ description: 'Step description' })
+  @ApiPropertyOptional({ description: 'Description of the node' })
   @IsOptional()
   @IsString()
   description?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: [String],
-    description: 'User IDs of approvers for this step',
+    description: 'User IDs of approvers (for approval nodes)',
   })
+  @IsOptional()
   @IsArray()
-  @ArrayMinSize(1)
   @IsMongoId({ each: true })
-  approverIds: string[];
+  approverIds?: string[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     enum: ApprovalMode,
-    description: 'Approval mode: ANY (one approver), ALL (all approvers), QUORUM (minimum count)',
+    description: 'Approval mode: ANY, ALL, or QUORUM (for approval nodes)',
   })
+  @IsOptional()
   @IsEnum(ApprovalMode)
-  approvalMode: ApprovalMode;
+  approvalMode?: ApprovalMode;
 
   @ApiPropertyOptional({
     description: 'Minimum approvals needed when mode is QUORUM',
@@ -88,21 +82,82 @@ export class WorkflowStepDto {
   @Min(1)
   quorumCount?: number;
 
-  @ApiPropertyOptional({
-    type: [WorkflowBranchDto],
-    description: 'Conditional branches from this step',
-  })
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => WorkflowBranchDto)
-  branches?: WorkflowBranchDto[];
-
-  @ApiPropertyOptional({ description: 'Timeout in hours for this step' })
+  @ApiPropertyOptional({ description: 'Timeout in hours for approval nodes' })
   @IsOptional()
   @IsNumber()
   @Min(1)
   timeoutHours?: number;
+}
+
+export class WorkflowNodeDto {
+  @ApiProperty({ description: 'Unique node identifier' })
+  @IsString()
+  @IsNotEmpty()
+  id: string;
+
+  @ApiProperty({ type: NodePointDto, description: 'Visual position {x, y}' })
+  @ValidateNested()
+  @Type(() => NodePointDto)
+  point: NodePointDto;
+
+  @ApiProperty({
+    enum: WorkflowNodeType,
+    description: 'Node type: start, approval, condition, or end',
+  })
+  @IsEnum(WorkflowNodeType)
+  type: WorkflowNodeType;
+
+  @ApiPropertyOptional({
+    type: WorkflowNodeDataDto,
+    description: 'Node-specific data',
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => WorkflowNodeDataDto)
+  data?: WorkflowNodeDataDto;
+}
+
+export class WorkflowEdgeDataDto {
+  @ApiPropertyOptional({ description: 'Display label for the edge' })
+  @IsOptional()
+  @IsString()
+  label?: string;
+
+  @ApiPropertyOptional({
+    type: [EdgeConditionDto],
+    description: 'Conditions to evaluate for this edge (used on condition node outputs)',
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EdgeConditionDto)
+  conditions?: EdgeConditionDto[];
+}
+
+export class WorkflowEdgeDto {
+  @ApiProperty({ description: 'Unique edge identifier' })
+  @IsString()
+  @IsNotEmpty()
+  id: string;
+
+  @ApiProperty({ description: 'Source node ID' })
+  @IsString()
+  @IsNotEmpty()
+  source: string;
+
+  @ApiProperty({ description: 'Target node ID' })
+  @IsString()
+  @IsNotEmpty()
+  target: string;
+
+  @ApiPropertyOptional({
+    type: WorkflowEdgeDataDto,
+    description: 'Edge-specific data (label, conditions)',
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => WorkflowEdgeDataDto)
+  data?: WorkflowEdgeDataDto;
 }
 
 export class CreateWorkflowTemplateDto {
@@ -143,12 +198,18 @@ export class CreateWorkflowTemplateDto {
   @IsMongoId()
   departmentId?: string;
 
-  @ApiProperty({ type: [WorkflowStepDto], description: 'Workflow steps' })
+  @ApiProperty({ type: [WorkflowNodeDto], description: 'Workflow graph nodes' })
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
-  @Type(() => WorkflowStepDto)
-  steps: WorkflowStepDto[];
+  @Type(() => WorkflowNodeDto)
+  nodes: WorkflowNodeDto[];
+
+  @ApiProperty({ type: [WorkflowEdgeDto], description: 'Workflow graph edges' })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => WorkflowEdgeDto)
+  edges: WorkflowEdgeDto[];
 }
 
 export class UpdateWorkflowTemplateDto {
@@ -182,15 +243,25 @@ export class UpdateWorkflowTemplateDto {
   departmentId?: string;
 
   @ApiPropertyOptional({
-    type: [WorkflowStepDto],
-    description: 'Updated workflow steps',
+    type: [WorkflowNodeDto],
+    description: 'Updated workflow graph nodes',
   })
   @IsOptional()
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
-  @Type(() => WorkflowStepDto)
-  steps?: WorkflowStepDto[];
+  @Type(() => WorkflowNodeDto)
+  nodes?: WorkflowNodeDto[];
+
+  @ApiPropertyOptional({
+    type: [WorkflowEdgeDto],
+    description: 'Updated workflow graph edges',
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => WorkflowEdgeDto)
+  edges?: WorkflowEdgeDto[];
 }
 
 export class CloneWorkflowTemplateDto {
