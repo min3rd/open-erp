@@ -1,0 +1,176 @@
+<p-drawer
+  id="workflow-template-form-drawer"
+  [(visible)]="isVisible"
+  position="right"
+  [style]="{ width: '100%', maxWidth: '600px' }"
+  (onHide)="onClose()"
+>
+  <ng-template #header>
+    <div class="flex items-center gap-3">
+      <h2 id="workflow-template-form-title">
+        @if (isViewMode()) {
+          {{ 'workflowTemplate.form.title.view' | transloco }}
+        } @else if (isEditMode()) {
+          {{ 'workflowTemplate.form.title.edit' | transloco }}
+        } @else {
+          {{ 'workflowTemplate.form.title.new' | transloco }}
+        }
+      </h2>
+      @if (template()) {
+        <p-tag
+          [value]="template()!.status"
+          [severity]="getStatusSeverity(template()!.status)"
+          styleClass="text-xs"
+        />
+      }
+    </div>
+  </ng-template>
+
+  <div id="workflow-template-form-content" class="p-4 overflow-y-auto" style="max-height: calc(100vh - 200px);">
+    <form [formGroup]="form" class="space-y-4">
+      <!-- Name -->
+      <div>
+        <label for="workflow-template-form-name" class="block text-sm font-medium mb-2">
+          {{ 'workflowTemplate.form.fields.name.label' | transloco }}
+          <span class="text-red-500">*</span>
+        </label>
+        <input
+          id="workflow-template-form-name"
+          type="text"
+          pInputText
+          formControlName="name"
+          [placeholder]="'workflowTemplate.form.fields.name.placeholder' | transloco"
+          class="w-full"
+        />
+        @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
+        <small class="text-red-500">{{ 'workflowTemplate.form.fields.name.errors.required' | transloco }}</small>
+        }
+        @if (form.get('name')?.touched && form.get('name')?.hasError('minlength')) {
+        <small class="text-red-500">{{ 'workflowTemplate.form.fields.name.errors.minlength' | transloco }}</small>
+        }
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label for="workflow-template-form-description" class="block text-sm font-medium mb-2">
+          {{ 'workflowTemplate.form.fields.description.label' | transloco }}
+        </label>
+        <textarea
+          id="workflow-template-form-description"
+          pTextarea
+          formControlName="description"
+          [placeholder]="'workflowTemplate.form.fields.description.placeholder' | transloco"
+          rows="3"
+          class="w-full"
+        ></textarea>
+      </div>
+
+      <!-- Entity Type -->
+      <div>
+        <label for="workflow-template-form-entityType" class="block text-sm font-medium mb-2">
+          {{ 'workflowTemplate.form.fields.entityType.label' | transloco }}
+          <span class="text-red-500">*</span>
+        </label>
+        <input
+          id="workflow-template-form-entityType"
+          type="text"
+          pInputText
+          formControlName="entityType"
+          [placeholder]="'workflowTemplate.form.fields.entityType.placeholder' | transloco"
+          class="w-full"
+        />
+        @if (form.get('entityType')?.touched && form.get('entityType')?.hasError('required')) {
+        <small class="text-red-500">{{ 'workflowTemplate.form.fields.entityType.errors.required' | transloco }}</small>
+        }
+      </div>
+
+      <!-- Scope -->
+      <div>
+        <label for="workflow-template-form-scope" class="block text-sm font-medium mb-2">
+          {{ 'workflowTemplate.form.fields.scope.label' | transloco }}
+          <span class="text-red-500">*</span>
+        </label>
+        <p-select
+          id="workflow-template-form-scope"
+          formControlName="scope"
+          [options]="scopeOptions"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'workflowTemplate.form.fields.scope.placeholder' | transloco"
+          [style]="{ width: '100%' }"
+        />
+      </div>
+
+      <!-- Org ID (conditional) -->
+      @if (form.get('scope')?.value === 'ORG' || form.get('scope')?.value === 'DEPARTMENT') {
+      <div>
+        <label for="workflow-template-form-orgId" class="block text-sm font-medium mb-2">
+          {{ 'workflowTemplate.form.fields.orgId.label' | transloco }}
+        </label>
+        <input
+          id="workflow-template-form-orgId"
+          type="text"
+          pInputText
+          formControlName="orgId"
+          [placeholder]="'workflowTemplate.form.fields.orgId.placeholder' | transloco"
+          class="w-full"
+        />
+      </div>
+      }
+
+      <!-- Department ID (conditional) -->
+      @if (form.get('scope')?.value === 'DEPARTMENT') {
+      <div>
+        <label for="workflow-template-form-departmentId" class="block text-sm font-medium mb-2">
+          {{ 'workflowTemplate.form.fields.departmentId.label' | transloco }}
+        </label>
+        <input
+          id="workflow-template-form-departmentId"
+          type="text"
+          pInputText
+          formControlName="departmentId"
+          [placeholder]="'workflowTemplate.form.fields.departmentId.placeholder' | transloco"
+          class="w-full"
+        />
+      </div>
+      }
+
+      @if (isViewMode() && template()) {
+        <p-divider />
+        <div>
+          <h3 class="text-sm font-semibold mb-2">{{ 'workflowTemplate.form.sections.workflowInfo' | transloco }}</h3>
+          <div class="grid grid-cols-2 gap-2 text-sm">
+            <div class="text-surface-500">{{ 'workflowTemplate.form.fields.version' | transloco }}</div>
+            <div>{{ template()!.version }}</div>
+            <div class="text-surface-500">{{ 'workflowTemplate.form.fields.nodesCount' | transloco }}</div>
+            <div>{{ template()!.nodes?.length || 0 }}</div>
+            <div class="text-surface-500">{{ 'workflowTemplate.form.fields.edgesCount' | transloco }}</div>
+            <div>{{ template()!.edges?.length || 0 }}</div>
+          </div>
+        </div>
+      }
+    </form>
+  </div>
+
+  <ng-template #footer>
+    <div class="flex justify-end gap-2">
+      @if (!isViewMode()) {
+      <p-button
+        [label]="'workflowTemplate.form.actions.cancel' | transloco"
+        severity="secondary"
+        (onClick)="onClose()"
+      />
+      <p-button
+        [label]="'workflowTemplate.form.actions.save' | transloco"
+        [loading]="isLoading()"
+        (onClick)="onSave()"
+      />
+      } @else {
+      <p-button
+        [label]="'workflowTemplate.form.actions.close' | transloco"
+        (onClick)="onClose()"
+      />
+      }
+    </div>
+  </ng-template>
+</p-drawer>
