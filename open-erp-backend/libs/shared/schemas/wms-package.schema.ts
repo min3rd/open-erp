@@ -52,7 +52,6 @@ export class WmsPackage extends Document {
 export const WmsPackageSchema = SchemaFactory.createForClass(WmsPackage);
 
 WmsPackageSchema.index({ orgId: 1, status: 1 });
-WmsPackageSchema.index({ shipmentId: 1 });
 WmsPackageSchema.index({ createdAt: -1 });
 
 WmsPackageSchema.set('toJSON', {

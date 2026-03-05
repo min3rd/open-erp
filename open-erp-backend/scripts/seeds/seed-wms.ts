@@ -553,7 +553,7 @@ async function seedLots(
           { $set: lotData },
           { upsert: true, new: true },
         );
-        allLots.push(result.toObject());
+        allLots.push(result.toObject({ transform: false }));
         inserted++;
       } catch (err: any) {
         console.error(`    ✗ Lot ${lotCode}: ${err.message}`);
@@ -807,7 +807,7 @@ async function seedPicklists(
       total++;
       try {
         const result = await Picklist.create(picklistData);
-        allPicklists.push(result.toObject());
+        allPicklists.push(result.toObject({ transform: false }));
         inserted++;
       } catch (err: any) {
         console.error(`    ✗ Picklist: ${err.message}`);
@@ -873,7 +873,7 @@ async function seedPackages(
       total++;
       try {
         const result = await WmsPackage.create(packageData);
-        allPackages.push(result.toObject());
+        allPackages.push(result.toObject({ transform: false }));
         inserted++;
       } catch (err: any) {
         console.error(`    ✗ Package: ${err.message}`);
