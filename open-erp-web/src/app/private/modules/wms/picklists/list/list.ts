@@ -154,43 +154,49 @@ export class PicklistList implements OnInit, OnDestroy {
 
   protected onSearchChange(event: Event) {
     const value = (event.target as HTMLInputElement).value || '-';
-    this.router.navigate(['../../..', value, 1, this.pageSize()], {
-      relativeTo: this.route,
-      queryParamsHandling: 'merge',
-    });
+    this.searchQuery.set(value === '-' ? '' : value);
+    this.navigateWithState(1);
   }
 
   protected onStatusChange(status: PicklistStatus | undefined) {
     this.selectedStatus.set(status);
-    const queryParams: any = status ? { status } : {};
-    this.router.navigate(['../../..', this.searchQuery() || '-', 1, this.pageSize()], {
-      relativeTo: this.route,
-      queryParams,
-    });
+    this.navigateWithState(1);
   }
 
   protected onLazyLoad(event: TableLazyLoadEvent) {
     const rows = event.rows && event.rows > 0 ? event.rows : PAGE_SIZE_OPTIONS[0];
     const page = event.first !== undefined ? Math.floor(event.first / rows) + 1 : 1;
 
-    const queryParams: any = {};
     if (event.sortField) {
       this.sortField.set(event.sortField as string);
       this.sortOrder.set(event.sortOrder || -1);
-      queryParams.sortField = event.sortField;
-      queryParams.sortOrder = event.sortOrder || -1;
     }
-    if (this.selectedStatus()) queryParams.status = this.selectedStatus();
 
-    if (page !== this.currentPage() || rows !== this.pageSize()) {
-      this.router.navigate(['../../..', this.searchQuery() || '-', page, rows], {
-        relativeTo: this.route,
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    } else {
-      this.loadPicklists();
+    this.navigateWithState(page, rows);
+  }
+
+  private buildQueryParams(): Record<string, string> {
+    const qp: Record<string, string> = {};
+    if (this.sortField() && this.sortField() !== 'createdAt') {
+      qp['sortField'] = this.sortField();
     }
+    if (this.sortOrder() !== -1) {
+      qp['sortOrder'] = this.sortOrder().toString();
+    }
+    if (this.selectedStatus()) {
+      qp['status'] = this.selectedStatus()!;
+    }
+    return qp;
+  }
+
+  private navigateWithState(page?: number, rows?: number): void {
+    const search = this.searchQuery() || '-';
+    const p = page ?? this.currentPage();
+    const r = rows ?? this.pageSize();
+    this.router.navigate(['../../..', search, p, r], {
+      relativeTo: this.route,
+      queryParams: this.buildQueryParams(),
+    });
   }
 
   protected openDetail(picklist: Picklist) {

@@ -155,36 +155,25 @@ export class ReceiptList implements OnInit, OnDestroy {
 
   protected onSearchChange(event: Event) {
     const value = (event.target as HTMLInputElement).value || '-';
-    this.navigateWithState(1, { search: value });
+    this.searchQuery.set(value === '-' ? '' : value);
+    this.navigateWithState(1);
   }
 
   protected onStatusChange(status: ReceiptStatus | undefined) {
     this.selectedStatus.set(status);
-    this.navigateWithState(1, { status: status || null });
+    this.navigateWithState(1);
   }
 
   protected onLazyLoad(event: TableLazyLoadEvent) {
     const rows = event.rows && event.rows > 0 ? event.rows : PAGE_SIZE_OPTIONS[0];
     const page = event.first !== undefined ? Math.floor(event.first / rows) + 1 : 1;
 
-    const queryParams: any = {};
     if (event.sortField) {
       this.sortField.set(event.sortField as string);
       this.sortOrder.set(event.sortOrder || -1);
-      queryParams.sortField = event.sortField;
-      queryParams.sortOrder = event.sortOrder || -1;
     }
-    if (this.selectedStatus()) queryParams.status = this.selectedStatus();
 
-    if (page !== this.currentPage() || rows !== this.pageSize()) {
-      this.router.navigate(['../../..', this.searchQuery() || '-', page, rows], {
-        relativeTo: this.route,
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    } else {
-      this.loadReceipts();
-    }
+    this.navigateWithState(page, rows);
   }
 
   protected openDetail(receipt: Receipt) {
@@ -214,21 +203,27 @@ export class ReceiptList implements OnInit, OnDestroy {
     return map[status] ?? 'secondary';
   }
 
-  private navigateWithState(
-    page?: number,
-    extra?: { search?: string; status?: ReceiptStatus | null; sortField?: string; sortOrder?: 1 | -1 },
-  ): void {
-    const search = extra?.search ?? (this.searchQuery() || '-');
-    const p = page ?? this.currentPage();
-    const queryParams: any = {};
-    const status = extra?.status !== undefined ? extra.status : this.selectedStatus();
-    if (status) queryParams.status = status;
-    if (extra?.sortField) queryParams.sortField = extra.sortField;
-    if (extra?.sortOrder) queryParams.sortOrder = extra.sortOrder;
+  private buildQueryParams(): Record<string, string> {
+    const qp: Record<string, string> = {};
+    if (this.sortField() && this.sortField() !== 'createdAt') {
+      qp['sortField'] = this.sortField();
+    }
+    if (this.sortOrder() !== -1) {
+      qp['sortOrder'] = this.sortOrder().toString();
+    }
+    if (this.selectedStatus()) {
+      qp['status'] = this.selectedStatus()!;
+    }
+    return qp;
+  }
 
-    this.router.navigate(['../../..', search, p, this.pageSize()], {
+  private navigateWithState(page?: number, rows?: number): void {
+    const search = this.searchQuery() || '-';
+    const p = page ?? this.currentPage();
+    const r = rows ?? this.pageSize();
+    this.router.navigate(['../../..', search, p, r], {
       relativeTo: this.route,
-      queryParams,
+      queryParams: this.buildQueryParams(),
     });
   }
 
