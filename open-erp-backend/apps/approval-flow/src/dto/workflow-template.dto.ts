@@ -16,6 +16,7 @@ import {
   ApprovalScope,
   ApprovalMode,
   WorkflowNodeType,
+  TemplateStatus,
 } from '@shared/schemas/approval-workflow-template.schema';
 
 export class NodePointDto {
@@ -296,12 +297,12 @@ export class CloneWorkflowTemplateDto {
 
 export class UpdateStatusDto {
   @ApiProperty({
-    enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED'],
+    enum: TemplateStatus,
     description: 'New status for the template',
   })
-  @IsEnum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
+  @IsEnum(TemplateStatus)
   @IsNotEmpty()
-  status: string;
+  status: TemplateStatus;
 }
 
 export class ValidateWorkflowDto {
