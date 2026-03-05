@@ -56,11 +56,14 @@ export class ReceiptController {
 
   @Get()
   @Permissions(Permission.WMS_RECEIPT_READ)
-  @ApiOperation({ summary: 'List receipts with filters' })
+  @ApiOperation({ summary: 'List receipts with filters, search and sort' })
   @ApiQuery({ name: 'orgId', required: false, type: String })
   @ApiQuery({ name: 'warehouseId', required: false, type: String })
   @ApiQuery({ name: 'poId', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: ReceiptStatus })
+  @ApiQuery({ name: 'q', required: false, type: String, description: 'Text search (poId, supplier, notes)' })
+  @ApiQuery({ name: 'sortField', required: false, type: String, description: 'Field to sort by (default: createdAt)' })
+  @ApiQuery({ name: 'sortOrder', required: false, type: Number, description: 'Sort direction: 1 asc, -1 desc (default: -1)' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Receipts retrieved successfully' })
@@ -69,13 +72,17 @@ export class ReceiptController {
     @Query('warehouseId') warehouseId?: string,
     @Query('poId') poId?: string,
     @Query('status') status?: ReceiptStatus,
+    @Query('q') q?: string,
+    @Query('sortField') sortField?: string,
+    @Query('sortOrder') sortOrder?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
     try {
+      const parsedSortOrder = sortOrder ? (parseInt(sortOrder as string, 10) as 1 | -1) : undefined;
       const result = await this.receiptService.findAll(
-        { orgId, warehouseId, poId, status },
-        { page, limit },
+        { orgId, warehouseId, poId, status, q },
+        { page, limit, sortField, sortOrder: parsedSortOrder },
       );
       return paginated(result.items, result.page, result.limit, result.total);
     } catch (err) {

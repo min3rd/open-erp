@@ -29,18 +29,33 @@ export class WmsPackageRepository {
       orgId?: string;
       shipmentId?: string;
       status?: WmsPackageStatus;
+      q?: string;
     } = {},
-    options: { skip?: number; limit?: number } = {},
+    options: {
+      skip?: number;
+      limit?: number;
+      sortField?: string;
+      sortOrder?: 1 | -1;
+    } = {},
   ) {
-    const { skip = 0, limit = 20 } = options;
+    const { skip = 0, limit = 20, sortField = 'createdAt', sortOrder = -1 } = options;
     const query: any = { deletedAt: null };
 
     if (filter.orgId) query.orgId = new Types.ObjectId(filter.orgId);
     if (filter.shipmentId) query.shipmentId = new Types.ObjectId(filter.shipmentId);
     if (filter.status) query.status = filter.status;
+    if (filter.q) {
+      const regex = { $regex: filter.q, $options: 'i' };
+      query.$or = [
+        { trackingNumber: regex },
+        { notes: regex },
+      ];
+    }
+
+    const sortObj: any = { [sortField]: sortOrder };
 
     const [items, total] = await Promise.all([
-      this.packageModel.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }).exec(),
+      this.packageModel.find(query).skip(skip).limit(limit).sort(sortObj).exec(),
       this.packageModel.countDocuments(query).exec(),
     ]);
 

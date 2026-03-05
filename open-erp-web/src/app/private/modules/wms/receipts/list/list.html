@@ -1,30 +1,71 @@
 <div class="flex h-full flex-col">
-  <!-- Toolbar -->
-  <mp-toolbar id="receipt-list-toolbar">
-    <ng-template #start>
-      <span class="text-lg font-semibold">{{ 'wms.receipts.title' | transloco }}</span>
-      <p-select
-        [options]="statusOptions"
-        [ngModel]="selectedStatus()"
-        (ngModelChange)="onStatusChange($event)"
-        optionLabel="label"
-        optionValue="value"
-        [placeholder]="'wms.receipts.allStatuses' | transloco"
-        [showClear]="true"
-        class="ml-2 w-40"
-      />
-    </ng-template>
-    <ng-template #end>
-      <p-button
-        icon="pi pi-refresh"
-        [rounded]="true"
-        [text]="true"
-        (onClick)="refresh()"
-        [pTooltip]="'wms.refresh' | transloco"
-        tooltipPosition="bottom"
-      />
-    </ng-template>
-  </mp-toolbar>
+  <!-- Toolbar - Desktop -->
+  @if (!isMobile()) {
+    <mp-toolbar id="receipt-list-toolbar">
+      <ng-template #start>
+        <p-inputgroup>
+          <p-inputgroup-addon><i class="pi pi-search"></i></p-inputgroup-addon>
+          <input
+            type="text"
+            pInputText
+            [placeholder]="'wms.search' | transloco"
+            (input)="onSearchChange($event)"
+            [value]="searchQuery()"
+            class="w-72"
+          />
+        </p-inputgroup>
+        <p-select
+          [options]="statusOptions"
+          [ngModel]="selectedStatus()"
+          (ngModelChange)="onStatusChange($event)"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'wms.receipts.allStatuses' | transloco"
+          [showClear]="true"
+          class="ml-2 w-40"
+        />
+      </ng-template>
+      <ng-template #end>
+        <p-button
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="refresh()"
+          [pTooltip]="'wms.refresh' | transloco"
+          tooltipPosition="bottom"
+        />
+      </ng-template>
+    </mp-toolbar>
+  }
+
+  <!-- Toolbar - Mobile -->
+  @if (isMobile()) {
+    <mp-toolbar id="receipt-list-toolbar-mobile">
+      <ng-template #start>
+        <span class="text-base font-semibold">{{ 'wms.receipts.title' | transloco }}</span>
+      </ng-template>
+      <ng-template #end>
+        <p-select
+          [options]="statusOptions"
+          [ngModel]="selectedStatus()"
+          (ngModelChange)="onStatusChange($event)"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'wms.receipts.allStatuses' | transloco"
+          [showClear]="true"
+          class="w-36"
+        />
+        <p-button
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="refresh()"
+          [pTooltip]="'wms.refresh' | transloco"
+          tooltipPosition="bottom"
+        />
+      </ng-template>
+    </mp-toolbar>
+  }
 
   <!-- Table -->
   <div class="flex-1 overflow-hidden">
@@ -34,32 +75,72 @@
       [scrollable]="true"
       scrollHeight="flex"
       [resizableColumns]="true"
+      columnResizeMode="expand"
+      [reorderableColumns]="true"
+      [paginator]="true"
+      [rows]="pageSize()"
       [totalRecords]="totalRecords()"
+      [rowsPerPageOptions]="PAGE_SIZE_OPTIONS"
+      [lazy]="true"
+      (onLazyLoad)="onLazyLoad($event)"
+      [first]="(currentPage() - 1) * pageSize()"
+      [sortField]="sortField()"
+      [sortOrder]="sortOrder()"
       dataKey="id"
       styleClass="p-datatable-sm"
+      responsiveLayout="scroll"
     >
+      <ng-template #caption>
+        <div class="flex items-center justify-end">
+          <p-multiselect
+            [options]="columnOptions"
+            [(ngModel)]="selectedColumns"
+            optionLabel="header"
+            [placeholder]="'wms.columns' | transloco"
+            [showHeader]="false"
+            [filter]="false"
+            styleClass="w-auto"
+          >
+            <ng-template let-opt #item><span>{{ opt.header | transloco }}</span></ng-template>
+            <ng-template #selectedItems>
+              <span class="flex items-center gap-1"><i class="pi pi-cog"></i> {{ 'wms.columns' | transloco }}</span>
+            </ng-template>
+          </p-multiselect>
+        </div>
+      </ng-template>
+
       <ng-template #header>
         <tr>
-          <th pResizableColumn style="width: 160px">{{ 'wms.receipts.poId' | transloco }}</th>
-          <th pResizableColumn>{{ 'wms.receipts.supplier' | transloco }}</th>
-          <th pResizableColumn style="width: 120px">{{ 'wms.receipts.lines' | transloco }}</th>
-          <th pResizableColumn style="width: 130px">{{ 'wms.receipts.status' | transloco }}</th>
-          <th pResizableColumn style="width: 160px">{{ 'wms.receipts.createdAt' | transloco }}</th>
-          <th style="width: 80px"></th>
+          @for (col of selectedColumns; track col.field) {
+            @if (col.sortable) {
+              <th pResizableColumn pReorderableColumn [pSortableColumn]="col.field" [style.width]="col.width">
+                {{ col.header | transloco }} <p-sortIcon [field]="col.field" />
+              </th>
+            } @else {
+              <th pResizableColumn pReorderableColumn [style.width]="col.width">
+                {{ col.header | transloco }}
+              </th>
+            }
+          }
+          <th style="width: 64px"></th>
         </tr>
       </ng-template>
+
       <ng-template #body let-receipt>
         <tr>
-          <td>{{ receipt.poId || '-' }}</td>
-          <td>{{ receipt.supplier || '-' }}</td>
-          <td>{{ receipt.lines?.length || 0 }}</td>
-          <td>
-            <p-tag
-              [value]="receipt.status"
-              [severity]="getStatusSeverity(receipt.status)"
-            />
-          </td>
-          <td>{{ receipt.createdAt | date:'short' }}</td>
+          @for (col of selectedColumns; track col.field) {
+            <td>
+              @switch (col.field) {
+                @case ('poId') { <span class="font-mono text-xs">{{ receipt.poId || '-' }}</span> }
+                @case ('supplier') { {{ receipt.supplier || '-' }} }
+                @case ('lines') { {{ receipt.lines?.length || 0 }} }
+                @case ('status') {
+                  <p-tag [value]="receipt.status" [severity]="getStatusSeverity(receipt.status)" />
+                }
+                @case ('createdAt') { <span class="text-sm text-surface-500">{{ receipt.createdAt | date:'short' }}</span> }
+              }
+            </td>
+          }
           <td>
             <p-button
               icon="pi pi-eye"
@@ -72,9 +153,10 @@
           </td>
         </tr>
       </ng-template>
+
       <ng-template #emptymessage>
         <tr>
-          <td colspan="6" class="text-center py-8 text-surface-400">
+          <td [attr.colspan]="selectedColumns.length + 1" class="text-center py-8 text-surface-400">
             {{ 'wms.receipts.empty' | transloco }}
           </td>
         </tr>
@@ -103,33 +185,27 @@
           </div>
           <div>
             <span class="text-surface-500">{{ 'wms.receipts.status' | transloco }}</span>
-            <p-tag
-              [value]="selectedReceipt()!.status"
-              [severity]="getStatusSeverity(selectedReceipt()!.status)"
-              class="mt-1"
-            />
+            <div class="mt-1">
+              <p-tag
+                [value]="selectedReceipt()!.status"
+                [severity]="getStatusSeverity(selectedReceipt()!.status)"
+              />
+            </div>
           </div>
           <div>
             <span class="text-surface-500">{{ 'wms.receipts.createdAt' | transloco }}</span>
             <p class="font-medium">{{ selectedReceipt()!.createdAt | date:'medium' }}</p>
           </div>
         </div>
-
         @if (selectedReceipt()!.notes) {
           <div class="text-sm">
             <span class="text-surface-500">{{ 'wms.receipts.notes' | transloco }}</span>
             <p class="font-medium">{{ selectedReceipt()!.notes }}</p>
           </div>
         }
-
-        <!-- Receipt Lines -->
         <div>
           <h3 class="text-sm font-semibold mb-2">{{ 'wms.receipts.lines' | transloco }}</h3>
-          <p-table
-            [value]="selectedReceipt()!.lines"
-            dataKey="skuId"
-            styleClass="p-datatable-sm"
-          >
+          <p-table [value]="selectedReceipt()!.lines" dataKey="skuId" styleClass="p-datatable-sm">
             <ng-template #header>
               <tr>
                 <th>{{ 'wms.receipts.sku' | transloco }}</th>

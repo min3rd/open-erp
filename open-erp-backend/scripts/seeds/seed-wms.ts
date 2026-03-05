@@ -665,11 +665,14 @@ async function seedReceipts(
   for (const warehouse of warehouses) {
     const org = randomFrom(orgs);
 
-    // 5 receipts per warehouse
-    for (let r = 0; r < 5; r++) {
+    // 20 receipts per warehouse (covers all status flows, multiple times)
+    for (let r = 0; r < 20; r++) {
       const status = statusFlow[r % statusFlow.length];
       const supplier = randomFrom(SUPPLIERS);
-      const receiptProducts = products.slice(r * 3, r * 3 + 3);
+      // Vary the number of lines: 2-6 products per receipt
+      const lineCount = randomInt(2, 6);
+      const startIdx = (r * lineCount) % Math.max(1, products.length - lineCount);
+      const receiptProducts = products.slice(startIdx, startIdx + lineCount);
 
       const lines = receiptProducts.map((prod) => {
         const orderedQty = randomInt(10, 200);
@@ -759,10 +762,12 @@ async function seedPicklists(
   for (const warehouse of warehouses) {
     const org = randomFrom(orgs);
 
-    // 4 picklists per warehouse
-    for (let p = 0; p < 4; p++) {
+    // 15 picklists per warehouse (covers all statuses, varied line counts)
+    for (let p = 0; p < 15; p++) {
       const status = statuses[p % statuses.length];
-      const pickProducts = products.slice(p * 2, p * 2 + 3);
+      const lineCount = randomInt(2, 5);
+      const startIdx = (p * lineCount) % Math.max(1, products.length - lineCount);
+      const pickProducts = products.slice(startIdx, startIdx + lineCount);
 
       const lines = pickProducts.map((prod) => {
         const qty = randomInt(1, 50);
@@ -844,11 +849,11 @@ async function seedPackages(
       (pl) => pl.status === PicklistStatus.COMPLETED,
     );
 
-    // 2 packages per org
-    for (let pk = 0; pk < 2; pk++) {
+    // 5 packages per org (varied statuses and picklist linkage)
+    for (let pk = 0; pk < 5; pk++) {
       const status = statuses[pk % statuses.length];
       const linkedPicklists = completedPicklists
-        .slice(pk, pk + 1)
+        .slice(pk, pk + randomInt(1, 2))
         .map((pl) => pl._id.toString());
 
       const packageData = {
@@ -934,8 +939,8 @@ async function seedShipments(
       .filter((pk) => pk.orgId.toString() === org._id.toString())
       .map((pk) => pk._id);
 
-    // 3 shipments per warehouse
-    for (let s = 0; s < 3; s++) {
+    // 7 shipments per warehouse (covers all statuses fully with extras)
+    for (let s = 0; s < 7; s++) {
       const status = statuses[s % statuses.length];
       const carrier = randomFrom(CARRIERS);
       const isShipped = [
@@ -949,11 +954,11 @@ async function seedShipments(
         orgId: org._id,
         warehouseId: warehouse._id,
         orderIds: [`ORD-${warehouse.code}-${pad(s + 1, 4)}`],
-        packageIds: orgPackages.slice(0, 1),
+        packageIds: orgPackages.slice(s % Math.max(1, orgPackages.length), s % Math.max(1, orgPackages.length) + 1),
         status,
         carrier,
         trackingNumber: isShipped
-          ? `${carrier.split('(')[0].trim().replace(/\s+/g, '').toUpperCase()}-${Date.now().toString(36).toUpperCase()}`
+          ? `${carrier.split('(')[0].trim().replace(/\s+/g, '').toUpperCase()}-${Date.now().toString(36).toUpperCase()}-${s.toString(36).padStart(2, '0')}`
           : undefined,
         recipientName: randomFrom(recipientNames),
         recipientAddress: randomFrom(recipientAddresses),

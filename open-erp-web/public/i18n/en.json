@@ -3746,7 +3746,9 @@
       "createdAt": "Created",
       "sku": "SKU",
       "qty": "Qty",
-      "picked": "Picked"
+      "picked": "Picked",
+      "linesCount": "Lines",
+      "notes": "Notes"
     },
     "shipments": {
       "title": "Shipments",
@@ -3761,6 +3763,8 @@
       "shippedAt": "Shipped",
       "deliveredAt": "Delivered",
       "notes": "Notes"
-    }
+    },
+    "search": "Search...",
+    "columns": "Columns"
   }
 }

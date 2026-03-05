@@ -2713,7 +2713,9 @@
       "createdAt": "Creado",
       "sku": "SKU",
       "qty": "Cant.",
-      "picked": "Recogido"
+      "picked": "Recogido",
+      "linesCount": "Líneas",
+      "notes": "Notas"
     },
     "shipments": {
       "title": "Envíos",
@@ -2728,6 +2730,8 @@
       "shippedAt": "Enviado",
       "deliveredAt": "Entregado",
       "notes": "Notas"
-    }
+    },
+    "search": "Buscar...",
+    "columns": "Columnas"
   }
 }

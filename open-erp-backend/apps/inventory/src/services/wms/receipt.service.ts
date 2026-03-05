@@ -70,13 +70,14 @@ export class ReceiptService {
       warehouseId?: string;
       poId?: string;
       status?: ReceiptStatus;
+      q?: string;
     } = {},
-    options: { page?: number; limit?: number } = {},
+    options: { page?: number; limit?: number; sortField?: string; sortOrder?: 1 | -1 } = {},
   ) {
-    const { page = 1, limit = 20 } = options;
+    const { page = 1, limit = 20, sortField, sortOrder } = options;
     const skip = (page - 1) * limit;
 
-    const result = await this.receiptRepository.findAll(filter, { skip, limit });
+    const result = await this.receiptRepository.findAll(filter, { skip, limit, sortField, sortOrder });
 
     return {
       items: result.items,
