@@ -3889,12 +3889,19 @@
         "edgesCount": "Edges"
       },
       "sections": {
-        "workflowInfo": "Workflow Information"
+        "workflowInfo": "Workflow Information",
+        "addNode": "Add Node"
       },
       "actions": {
         "cancel": "Cancel",
         "save": "Save",
-        "close": "Close"
+        "close": "Close",
+        "back": "Back to list"
+      },
+      "nodeTypes": {
+        "approval": "Approval",
+        "condition": "Condition",
+        "end": "End"
       }
     }
   }

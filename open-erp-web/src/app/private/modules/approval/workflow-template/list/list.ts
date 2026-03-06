@@ -11,7 +11,7 @@ import {
   ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute, RouterOutlet } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
@@ -60,7 +60,6 @@ interface ColumnDef {
   selector: 'approval-workflow-template-list',
   imports: [
     CommonModule,
-    RouterOutlet,
     FormsModule,
     TranslocoModule,
     TableModule,
@@ -272,15 +271,15 @@ export class WorkflowTemplateList implements OnInit, OnDestroy {
   }
 
   protected onAddTemplate(): void {
-    this.router.navigate(['new'], { relativeTo: this.route });
+    this.router.navigate(['../../..', 'new'], { relativeTo: this.route });
   }
 
   protected onViewTemplate(template: WorkflowTemplate): void {
-    this.router.navigate([template._id], { relativeTo: this.route });
+    this.router.navigate(['../../..', template._id, 'view'], { relativeTo: this.route });
   }
 
   protected onEditTemplate(template: WorkflowTemplate): void {
-    this.router.navigate([template._id, 'edit'], { relativeTo: this.route });
+    this.router.navigate(['../../..', template._id, 'edit'], { relativeTo: this.route });
   }
 
   protected onCloneTemplate(template: WorkflowTemplate): void {
