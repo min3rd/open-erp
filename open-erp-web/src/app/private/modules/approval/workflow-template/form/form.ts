@@ -295,8 +295,11 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
     edges: WorkflowEdge[];
   } {
     const nodes: WorkflowNode[] = this.vflowNodes().map((n) => {
-      const point = typeof n.point === 'function' ? n.point() : n.point;
-      const data = typeof (n as any).data === 'function' ? (n as any).data() : (n as any).data;
+      // ngx-vflow uses WritableSignal for point and data - read via function call
+      const pointSignal = n.point;
+      const point = typeof pointSignal === 'function' ? pointSignal() : pointSignal;
+      const dataSignal = (n as VflowNode<VflowNodeData> & { data?: any }).data;
+      const data: VflowNodeData | undefined = typeof dataSignal === 'function' ? dataSignal() : dataSignal;
       return {
         id: n.id,
         point: { x: point.x, y: point.y },
@@ -312,11 +315,15 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
       };
     });
 
-    const edges: WorkflowEdge[] = this.vflowEdges().map((e) => ({
-      id: e.id,
-      source: typeof e.source === 'string' ? e.source : (e as any).source,
-      target: typeof e.target === 'string' ? e.target : (e as any).target,
-    }));
+    const edges: WorkflowEdge[] = this.vflowEdges().map((e) => {
+      const sourceVal = typeof e.source === 'function' ? (e.source as () => string)() : e.source;
+      const targetVal = typeof e.target === 'function' ? (e.target as () => string)() : e.target;
+      return {
+        id: e.id,
+        source: sourceVal as string,
+        target: targetVal as string,
+      };
+    });
 
     return { nodes, edges };
   }
