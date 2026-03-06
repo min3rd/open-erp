@@ -3844,7 +3844,9 @@
       "createSuccess": "Workflow template created successfully.",
       "updateSuccess": "Workflow template updated successfully.",
       "saveFailed": "Failed to save workflow template.",
-      "validationFailed": "Please fix the form errors before saving."
+      "validationFailed": "Please fix the form errors before saving.",
+      "unpublishSuccess": "Template reverted to draft.",
+      "unpublishFailed": "Failed to revert template."
     },
     "form": {
       "title": {
@@ -3896,12 +3898,36 @@
         "cancel": "Cancel",
         "save": "Save",
         "close": "Close",
-        "back": "Back to list"
+        "back": "Back to list",
+        "delete": "Delete",
+        "publish": "Publish",
+        "unpublish": "Unpublish",
+        "archive": "Archive",
+        "duplicate": "Duplicate",
+        "deleteEdge": "Delete selected edge(s)"
       },
       "nodeTypes": {
         "approval": "Approval",
         "condition": "Condition",
         "end": "End"
+      },
+      "hints": {
+        "edgeHelp": "Drag from a right handle (○) to a left handle (○) to connect nodes. Click an edge to select it, then press Delete to remove it. Double-click a node to edit its settings."
+      },
+      "nodeDialog": {
+        "title": "Node Settings",
+        "label": "Label",
+        "description": "Description",
+        "approvalMode": "Approval Mode",
+        "approverIds": "Approver IDs",
+        "approverIdsPlaceholder": "Enter user IDs separated by commas",
+        "quorumCount": "Quorum Count",
+        "timeoutHours": "Timeout (hours)",
+        "approverIdsHint": "Comma-separated list of user IDs"
+      },
+      "nodeMenu": {
+        "edit": "Edit node",
+        "delete": "Delete node"
       }
     }
   }

@@ -2412,7 +2412,9 @@
       "createSuccess": "Tạo mẫu luồng phê duyệt thành công.",
       "updateSuccess": "Cập nhật mẫu luồng phê duyệt thành công.",
       "saveFailed": "Không thể lưu mẫu luồng phê duyệt.",
-      "validationFailed": "Vui lòng sửa các lỗi trước khi lưu."
+      "validationFailed": "Vui lòng sửa các lỗi trước khi lưu.",
+      "unpublishSuccess": "Mẫu đã được chuyển về nháp.",
+      "unpublishFailed": "Không thể chuyển mẫu về nháp."
     },
     "form": {
       "title": {
@@ -2469,7 +2471,31 @@
         "cancel": "Hủy",
         "save": "Lưu",
         "close": "Đóng",
-        "back": "Quay lại danh sách"
+        "back": "Quay lại danh sách",
+        "delete": "Xóa",
+        "publish": "Xuất bản",
+        "unpublish": "Hủy xuất bản",
+        "archive": "Lưu trữ",
+        "duplicate": "Nhân bản",
+        "deleteEdge": "Xóa liên kết đã chọn"
+      },
+      "hints": {
+        "edgeHelp": "Kéo từ tay nắm phải (○) đến tay nắm trái (○) để kết nối các node. Nhấp vào một liên kết để chọn, sau đó nhấn Delete để xóa. Nhấp đúp vào node để chỉnh sửa thiết lập."
+      },
+      "nodeDialog": {
+        "title": "Thiết lập Node",
+        "label": "Nhãn",
+        "description": "Mô tả",
+        "approvalMode": "Chế độ phê duyệt",
+        "approverIds": "ID người phê duyệt",
+        "approverIdsPlaceholder": "Nhập ID người dùng, phân cách bằng dấu phẩy",
+        "quorumCount": "Số lượng tối thiểu",
+        "timeoutHours": "Thời gian chờ (giờ)",
+        "approverIdsHint": "Danh sách ID người dùng, phân cách bằng dấu phẩy"
+      },
+      "nodeMenu": {
+        "edit": "Sửa node",
+        "delete": "Xóa node"
       }
     }
   }
