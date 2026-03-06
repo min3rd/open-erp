@@ -6,6 +6,8 @@ import {
   OnDestroy,
   signal,
   computed,
+  HostListener,
+  ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -18,10 +20,14 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select } from 'primeng/select';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
+import { DialogModule } from 'primeng/dialog';
+import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 // ngx-vflow
 import {
@@ -35,6 +41,8 @@ import {
   Connection,
   ConnectionSettings,
   ReconnectEvent,
+  EdgeSelectChange,
+  NodeSelectedChange,
 } from 'ngx-vflow';
 
 // Core toolbar
@@ -82,9 +90,14 @@ interface VflowNodeData {
     DividerModule,
     TooltipModule,
     TagModule,
+    DialogModule,
+    ContextMenuModule,
+    ConfirmDialogModule,
+    InputNumberModule,
     MpToolbar,
     ...Vflow,
   ],
+  providers: [ConfirmationService],
   templateUrl: './form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -95,7 +108,10 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
   private readonly templateService = inject(WorkflowTemplateService);
   private readonly messageService = inject(MessageService);
   private readonly translocoService = inject(TranslocoService);
+  private readonly confirmationService = inject(ConfirmationService);
   private readonly destroy$ = new Subject<void>();
+
+  @ViewChild('nodeContextMenu') nodeContextMenu!: ContextMenu;
 
   protected readonly template = signal<WorkflowTemplate | null>(null);
   protected readonly isEditMode = signal(false);
@@ -109,6 +125,19 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
   protected vflowNodes = signal<VflowNode<VflowNodeData>[]>([]);
   protected vflowEdges = signal<VflowEdge[]>([]);
 
+  // Selected entities for deletion
+  protected readonly selectedEdgeIds = signal<Set<string>>(new Set());
+  protected readonly selectedNodeIds = signal<Set<string>>(new Set());
+
+  // Node settings dialog
+  protected readonly showNodeDialog = signal(false);
+  protected readonly editingNodeId = signal<string | null>(null);
+  protected nodeForm!: FormGroup;
+
+  // Context menu for nodes
+  protected readonly contextMenuNode = signal<VflowNode<VflowNodeData> | null>(null);
+  protected nodeMenuItems: MenuItem[] = [];
+
   // Computed flow summary
   protected readonly nodesCount = computed(() => this.vflowNodes().length);
   protected readonly edgesCount = computed(() => this.vflowEdges().length);
@@ -119,8 +148,15 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
     { label: 'Department', value: ApprovalScope.DEPARTMENT },
   ];
 
+  protected readonly approvalModeOptions: ScopeOption[] = [
+    { label: 'Any', value: ApprovalMode.ANY },
+    { label: 'All', value: ApprovalMode.ALL },
+    { label: 'Quorum', value: ApprovalMode.QUORUM },
+  ];
+
   // Expose enum values for template
   protected readonly WorkflowNodeType = WorkflowNodeType;
+  protected readonly TemplateStatus = TemplateStatus;
 
   // Connection settings - allow multiple edges per handle, loose mode
   protected readonly connectionSettings: ConnectionSettings = {
@@ -148,6 +184,17 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
       departmentId: [''],
     });
 
+    this.nodeForm = this.fb.group({
+      label: ['', [Validators.required]],
+      description: [''],
+      approvalMode: [ApprovalMode.ANY],
+      approverIds: [''],
+      quorumCount: [null],
+      timeoutHours: [null],
+    });
+
+    this.buildNodeContextMenu();
+
     const routePath = this.route.snapshot.url[this.route.snapshot.url.length - 1]?.path;
     this.isViewMode.set(routePath === 'view');
     this.isEditMode.set(routePath === 'edit');
@@ -173,10 +220,38 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
     }
   }
 
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    if (this.isViewMode()) return;
+    if (event.key === 'Delete' || event.key === 'Backspace') {
+      // Don't delete if user is typing in an input
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+      this.deleteSelectedEntities();
+    }
+  }
+
   private checkViewport(): void {
     if (typeof window !== 'undefined') {
       this.isMobile.set(window.innerWidth < 768);
     }
+  }
+
+  private buildNodeContextMenu(): void {
+    this.nodeMenuItems = [
+      {
+        label: this.translocoService.translate('workflowTemplate.form.nodeMenu.edit'),
+        icon: 'pi pi-pencil',
+        command: () => this.openNodeSettings(this.contextMenuNode()),
+      },
+      {
+        label: this.translocoService.translate('workflowTemplate.form.nodeMenu.delete'),
+        icon: 'pi pi-trash',
+        command: () => this.deleteNode(this.contextMenuNode()),
+      },
+    ];
   }
 
   private loadTemplateData(wfTemplate: WorkflowTemplate | null | undefined): void {
@@ -339,6 +414,173 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
     this.vflowEdges.set(updatedEdges);
   }
 
+  /**
+   * Handle edge selection changes — track selected edges for deletion
+   */
+  protected onEdgeSelect(changes: EdgeSelectChange[]): void {
+    const selected = new Set(this.selectedEdgeIds());
+    for (const change of changes) {
+      if (change.selected) {
+        selected.add(change.id);
+      } else {
+        selected.delete(change.id);
+      }
+    }
+    this.selectedEdgeIds.set(selected);
+  }
+
+  /**
+   * Handle node selection changes — track selected nodes for deletion
+   */
+  protected onNodeSelect(changes: NodeSelectedChange[]): void {
+    const selected = new Set(this.selectedNodeIds());
+    for (const change of changes) {
+      if (change.selected) {
+        selected.add(change.id);
+      } else {
+        selected.delete(change.id);
+      }
+    }
+    this.selectedNodeIds.set(selected);
+  }
+
+  /**
+   * Delete all selected edges and nodes (triggered by Delete key)
+   */
+  private deleteSelectedEntities(): void {
+    const edgeIds = this.selectedEdgeIds();
+    const nodeIds = this.selectedNodeIds();
+
+    if (edgeIds.size > 0) {
+      this.vflowEdges.set(this.vflowEdges().filter((e) => !edgeIds.has(e.id)));
+      this.selectedEdgeIds.set(new Set());
+    }
+
+    if (nodeIds.size > 0) {
+      this.vflowNodes.set(this.vflowNodes().filter((n) => !nodeIds.has(n.id)));
+      // Also remove edges connected to deleted nodes
+      this.vflowEdges.set(
+        this.vflowEdges().filter((e) => {
+          const source = typeof e.source === 'function' ? (e.source as () => string)() : e.source;
+          const target = typeof e.target === 'function' ? (e.target as () => string)() : e.target;
+          return !nodeIds.has(source as string) && !nodeIds.has(target as string);
+        }),
+      );
+      this.selectedNodeIds.set(new Set());
+    }
+  }
+
+  /**
+   * Open node context menu on right-click
+   */
+  protected onNodeContextMenu(event: MouseEvent, node: VflowNode<VflowNodeData>): void {
+    if (this.isViewMode()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.contextMenuNode.set(node);
+    this.buildNodeContextMenu();
+    this.nodeContextMenu.show(event);
+  }
+
+  /**
+   * Open node settings dialog
+   */
+  protected openNodeSettings(node: VflowNode<VflowNodeData> | null): void {
+    if (!node || this.isViewMode()) return;
+    this.editingNodeId.set(node.id);
+
+    const nodeAny = node as any;
+    const data = typeof nodeAny.data === 'function' ? nodeAny.data() : nodeAny.data;
+
+    this.nodeForm.patchValue({
+      label: data?.label || '',
+      description: data?.description || '',
+      approvalMode: data?.approvalMode || ApprovalMode.ANY,
+      approverIds: (data?.approverIds || []).join(', '),
+      quorumCount: data?.quorumCount || null,
+      timeoutHours: data?.timeoutHours || null,
+    });
+
+    this.showNodeDialog.set(true);
+  }
+
+  /**
+   * Save node settings from dialog
+   */
+  protected saveNodeSettings(): void {
+    const nodeId = this.editingNodeId();
+    if (!nodeId) return;
+
+    const formVal = this.nodeForm.getRawValue();
+    const currentNodes = this.vflowNodes();
+    const nodeIndex = currentNodes.findIndex((n) => n.id === nodeId);
+    if (nodeIndex === -1) return;
+
+    const node = currentNodes[nodeIndex] as any;
+    const existingData = typeof node.data === 'function' ? node.data() : node.data;
+
+    // Parse approverIds from comma-separated string to array
+    const approverIds = typeof formVal.approverIds === 'string'
+      ? formVal.approverIds.split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0)
+      : formVal.approverIds || [];
+
+    // Update the data signal
+    if (typeof node.data === 'function' && typeof node.data.set === 'function') {
+      node.data.set({
+        ...existingData,
+        label: formVal.label,
+        description: formVal.description,
+        approvalMode: formVal.approvalMode,
+        approverIds,
+        quorumCount: formVal.quorumCount,
+        timeoutHours: formVal.timeoutHours,
+      });
+    }
+
+    this.showNodeDialog.set(false);
+    this.editingNodeId.set(null);
+  }
+
+  /**
+   * Delete a specific node
+   */
+  protected deleteNode(node: VflowNode<VflowNodeData> | null): void {
+    if (!node || this.isViewMode()) return;
+    const nodeId = node.id;
+
+    this.vflowNodes.set(this.vflowNodes().filter((n) => n.id !== nodeId));
+    // Remove connected edges
+    this.vflowEdges.set(
+      this.vflowEdges().filter((e) => {
+        const source = typeof e.source === 'function' ? (e.source as () => string)() : e.source;
+        const target = typeof e.target === 'function' ? (e.target as () => string)() : e.target;
+        return source !== nodeId && target !== nodeId;
+      }),
+    );
+  }
+
+  /**
+   * Delete the selected edge (shortcut button)
+   */
+  protected deleteSelectedEdges(): void {
+    const edgeIds = this.selectedEdgeIds();
+    if (edgeIds.size === 0) return;
+    this.vflowEdges.set(this.vflowEdges().filter((e) => !edgeIds.has(e.id)));
+    this.selectedEdgeIds.set(new Set());
+  }
+
+  /**
+   * Get the node type of the currently editing node
+   */
+  protected getEditingNodeType(): WorkflowNodeType | null {
+    const nodeId = this.editingNodeId();
+    if (!nodeId) return null;
+    const node = this.vflowNodes().find((n) => n.id === nodeId) as any;
+    if (!node) return null;
+    const data = typeof node.data === 'function' ? node.data() : node.data;
+    return data?.nodeType || null;
+  }
+
   private extractNodesAndEdges(): {
     nodes: WorkflowNode[];
     edges: WorkflowEdge[];
@@ -464,6 +706,141 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
         },
       });
     }
+  }
+
+  /**
+   * Toolbar actions for existing templates
+   */
+  protected onDelete(): void {
+    const t = this.template();
+    if (!t) return;
+    this.confirmationService.confirm({
+      message: this.translocoService.translate('workflowTemplate.confirmDelete.message', { name: t.name }),
+      header: this.translocoService.translate('workflowTemplate.confirmDelete.header'),
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.isLoading.set(true);
+        this.templateService.deleteTemplate(t._id).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: this.translocoService.translate('workflowTemplate.messages.success'),
+              detail: this.translocoService.translate('workflowTemplate.messages.deleteSuccess', { name: t.name }),
+            });
+            this.onClose();
+          },
+          error: () => {
+            this.messageService.add({
+              severity: 'error',
+              summary: this.translocoService.translate('workflowTemplate.messages.error'),
+              detail: this.translocoService.translate('workflowTemplate.messages.deleteFailed'),
+            });
+            this.isLoading.set(false);
+          },
+        });
+      },
+    });
+  }
+
+  protected onPublish(): void {
+    const t = this.template();
+    if (!t) return;
+    this.isLoading.set(true);
+    this.templateService.publishTemplate(t._id).subscribe({
+      next: (updated) => {
+        this.template.set(updated);
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translocoService.translate('workflowTemplate.messages.success'),
+          detail: this.translocoService.translate('workflowTemplate.messages.publishSuccess'),
+        });
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translocoService.translate('workflowTemplate.messages.error'),
+          detail: this.translocoService.translate('workflowTemplate.messages.publishFailed'),
+        });
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  protected onUnpublish(): void {
+    const t = this.template();
+    if (!t) return;
+    this.isLoading.set(true);
+    this.templateService.changeStatus(t._id, TemplateStatus.DRAFT).subscribe({
+      next: (updated) => {
+        this.template.set(updated);
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translocoService.translate('workflowTemplate.messages.success'),
+          detail: this.translocoService.translate('workflowTemplate.messages.unpublishSuccess'),
+        });
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translocoService.translate('workflowTemplate.messages.error'),
+          detail: this.translocoService.translate('workflowTemplate.messages.unpublishFailed'),
+        });
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  protected onArchive(): void {
+    const t = this.template();
+    if (!t) return;
+    this.isLoading.set(true);
+    this.templateService.archiveTemplate(t._id).subscribe({
+      next: (updated) => {
+        this.template.set(updated);
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translocoService.translate('workflowTemplate.messages.success'),
+          detail: this.translocoService.translate('workflowTemplate.messages.archiveSuccess'),
+        });
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translocoService.translate('workflowTemplate.messages.error'),
+          detail: this.translocoService.translate('workflowTemplate.messages.archiveFailed'),
+        });
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  protected onDuplicate(): void {
+    const t = this.template();
+    if (!t) return;
+    this.isLoading.set(true);
+    this.templateService.cloneTemplate(t._id, { name: `${t.name} (Copy)` }).subscribe({
+      next: (cloned) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translocoService.translate('workflowTemplate.messages.success'),
+          detail: this.translocoService.translate('workflowTemplate.messages.cloneSuccess'),
+        });
+        // Navigate to edit the cloned template
+        this.router.navigate(['../../', cloned._id, 'edit'], { relativeTo: this.route });
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translocoService.translate('workflowTemplate.messages.error'),
+          detail: this.translocoService.translate('workflowTemplate.messages.cloneFailed'),
+        });
+        this.isLoading.set(false);
+      },
+    });
   }
 
   protected onClose(): void {

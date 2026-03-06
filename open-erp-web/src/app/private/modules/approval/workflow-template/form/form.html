@@ -3,7 +3,7 @@
   <!-- Toolbar -->
   <mp-toolbar id="workflow-template-form-toolbar">
     <ng-template #start>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
         <p-button
           icon="pi pi-arrow-left"
           [rounded]="true"
@@ -31,20 +31,87 @@
       </div>
     </ng-template>
     <ng-template #end>
-      @if (!isViewMode()) {
-        <p-button
-          [label]="'workflowTemplate.form.actions.cancel' | transloco"
-          severity="secondary"
-          [text]="true"
-          (onClick)="onClose()"
-        />
-        <p-button
-          [label]="'workflowTemplate.form.actions.save' | transloco"
-          icon="pi pi-check"
-          [loading]="isLoading()"
-          (onClick)="onSave()"
-        />
-      }
+      <div class="flex items-center gap-1">
+        @if (template() && !isViewMode()) {
+          <!-- Duplicate -->
+          <p-button
+            icon="pi pi-copy"
+            [rounded]="true"
+            [text]="true"
+            (onClick)="onDuplicate()"
+            [pTooltip]="'workflowTemplate.form.actions.duplicate' | transloco"
+            tooltipPosition="bottom"
+          />
+          <!-- Publish (only for DRAFT) -->
+          @if (template()!.status === TemplateStatus.DRAFT) {
+            <p-button
+              icon="pi pi-send"
+              [rounded]="true"
+              [text]="true"
+              severity="success"
+              (onClick)="onPublish()"
+              [pTooltip]="'workflowTemplate.form.actions.publish' | transloco"
+              tooltipPosition="bottom"
+            />
+          }
+          <!-- Unpublish (only for PUBLISHED) -->
+          @if (template()!.status === TemplateStatus.PUBLISHED) {
+            <p-button
+              icon="pi pi-undo"
+              [rounded]="true"
+              [text]="true"
+              severity="warn"
+              (onClick)="onUnpublish()"
+              [pTooltip]="'workflowTemplate.form.actions.unpublish' | transloco"
+              tooltipPosition="bottom"
+            />
+          }
+          <!-- Archive -->
+          @if (template()!.status !== TemplateStatus.ARCHIVED) {
+            <p-button
+              icon="pi pi-inbox"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              (onClick)="onArchive()"
+              [pTooltip]="'workflowTemplate.form.actions.archive' | transloco"
+              tooltipPosition="bottom"
+            />
+          }
+          <!-- Delete -->
+          <p-button
+            icon="pi pi-trash"
+            [rounded]="true"
+            [text]="true"
+            severity="danger"
+            (onClick)="onDelete()"
+            [pTooltip]="'workflowTemplate.form.actions.delete' | transloco"
+            tooltipPosition="bottom"
+          />
+          <span class="border-l border-surface-300 dark:border-surface-600 h-6 mx-1"></span>
+        }
+        @if (!isViewMode()) {
+          <p-button
+            icon="pi pi-times"
+            [rounded]="true"
+            [text]="true"
+            severity="secondary"
+            (onClick)="onClose()"
+            [pTooltip]="'workflowTemplate.form.actions.cancel' | transloco"
+            tooltipPosition="bottom"
+          />
+          <p-button
+            icon="pi pi-check"
+            [rounded]="true"
+            [text]="true"
+            severity="primary"
+            [loading]="isLoading()"
+            (onClick)="onSave()"
+            [pTooltip]="'workflowTemplate.form.actions.save' | transloco"
+            tooltipPosition="bottom"
+          />
+        }
+      </div>
     </ng-template>
   </mp-toolbar>
 
@@ -213,6 +280,20 @@
               />
             </div>
           </div>
+          <p-divider />
+          <div>
+            <small class="text-surface-400">{{ 'workflowTemplate.form.hints.edgeHelp' | transloco }}</small>
+          </div>
+          @if (selectedEdgeIds().size > 0) {
+            <p-button
+              icon="pi pi-trash"
+              [label]="'workflowTemplate.form.actions.deleteEdge' | transloco"
+              severity="danger"
+              size="small"
+              [outlined]="true"
+              (onClick)="deleteSelectedEdges()"
+            />
+          }
         }
       </form>
     </div>
@@ -225,15 +306,20 @@
         view="auto"
         [background]="'#dots'"
         [connection]="connectionSettings"
+        [entitiesSelectable]="!isViewMode()"
         (connect)="onConnect($event)"
         (reconnect)="onReconnect($event)"
+        (edgesChanges.select)="onEdgeSelect($event)"
+        (nodesChanges.select)="onNodeSelect($event)"
       >
         <ng-template nodeHtml let-ctx>
           <div
-            class="flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-white text-sm font-medium shadow-md select-none"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-white text-sm font-medium shadow-md cursor-pointer select-none"
             [style.background-color]="getNodeColor($any(ctx).data()?.nodeType)"
             [style.border-color]="getNodeColor($any(ctx).data()?.nodeType)"
             [style.min-width.px]="120"
+            (dblclick)="openNodeSettings($any(ctx))"
+            (contextmenu)="onNodeContextMenu($event, $any(ctx))"
           >
             <i [class]="getNodeIcon($any(ctx).data()?.nodeType)"></i>
             <span>{{ $any(ctx).data()?.label || 'Node' }}</span>
@@ -245,3 +331,124 @@
     </div>
   </div>
 </div>
+
+<!-- Node Context Menu -->
+<p-contextMenu #nodeContextMenu [model]="nodeMenuItems" />
+
+<!-- Node Settings Dialog -->
+<p-dialog
+  [header]="'workflowTemplate.form.nodeDialog.title' | transloco"
+  [(visible)]="showNodeDialog"
+  [modal]="true"
+  [style]="{ width: '28rem' }"
+  [closable]="true"
+>
+  <form [formGroup]="nodeForm" class="space-y-4 pt-2">
+    <!-- Label -->
+    <div>
+      <label for="node-label" class="block text-sm font-medium mb-1">
+        {{ 'workflowTemplate.form.nodeDialog.label' | transloco }}
+      </label>
+      <input
+        id="node-label"
+        type="text"
+        pInputText
+        formControlName="label"
+        class="w-full"
+      />
+    </div>
+
+    <!-- Description -->
+    <div>
+      <label for="node-description" class="block text-sm font-medium mb-1">
+        {{ 'workflowTemplate.form.nodeDialog.description' | transloco }}
+      </label>
+      <textarea
+        id="node-description"
+        pTextarea
+        formControlName="description"
+        rows="2"
+        class="w-full"
+      ></textarea>
+    </div>
+
+    <!-- Approval Mode (only for approval nodes) -->
+    @if (getEditingNodeType() === WorkflowNodeType.APPROVAL) {
+      <div>
+        <label for="node-approval-mode" class="block text-sm font-medium mb-1">
+          {{ 'workflowTemplate.form.nodeDialog.approvalMode' | transloco }}
+        </label>
+        <p-select
+          id="node-approval-mode"
+          formControlName="approvalMode"
+          [options]="approvalModeOptions"
+          optionLabel="label"
+          optionValue="value"
+          [style]="{ width: '100%' }"
+        />
+      </div>
+
+      <!-- Approver IDs -->
+      <div>
+        <label for="node-approver-ids" class="block text-sm font-medium mb-1">
+          {{ 'workflowTemplate.form.nodeDialog.approverIds' | transloco }}
+        </label>
+        <textarea
+          id="node-approver-ids"
+          pTextarea
+          formControlName="approverIds"
+          [placeholder]="'workflowTemplate.form.nodeDialog.approverIdsPlaceholder' | transloco"
+          rows="2"
+          class="w-full"
+        ></textarea>
+        <small class="text-surface-400">{{ 'workflowTemplate.form.nodeDialog.approverIdsHint' | transloco }}</small>
+      </div>
+
+      <!-- Quorum Count -->
+      @if (nodeForm.get('approvalMode')?.value === 'QUORUM') {
+        <div>
+          <label for="node-quorum" class="block text-sm font-medium mb-1">
+            {{ 'workflowTemplate.form.nodeDialog.quorumCount' | transloco }}
+          </label>
+          <p-inputNumber
+            id="node-quorum"
+            formControlName="quorumCount"
+            [min]="1"
+            [style]="{ width: '100%' }"
+          />
+        </div>
+      }
+
+      <!-- Timeout Hours -->
+      <div>
+        <label for="node-timeout" class="block text-sm font-medium mb-1">
+          {{ 'workflowTemplate.form.nodeDialog.timeoutHours' | transloco }}
+        </label>
+        <p-inputNumber
+          id="node-timeout"
+          formControlName="timeoutHours"
+          [min]="0"
+          suffix=" hrs"
+          [style]="{ width: '100%' }"
+        />
+      </div>
+    }
+  </form>
+  <ng-template #footer>
+    <p-button
+      icon="pi pi-times"
+      [label]="'workflowTemplate.form.actions.cancel' | transloco"
+      severity="secondary"
+      [text]="true"
+      (onClick)="showNodeDialog.set(false)"
+    />
+    <p-button
+      icon="pi pi-check"
+      [label]="'workflowTemplate.form.actions.save' | transloco"
+      (onClick)="saveNodeSettings()"
+    />
+  </ng-template>
+</p-dialog>
+
+<!-- Confirm Dialog for Delete -->
+<p-confirmDialog />

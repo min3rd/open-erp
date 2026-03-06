@@ -2811,7 +2811,9 @@
       "createSuccess": "Plantilla de flujo de trabajo creada exitosamente.",
       "updateSuccess": "Plantilla de flujo de trabajo actualizada exitosamente.",
       "saveFailed": "No se pudo guardar la plantilla de flujo de trabajo.",
-      "validationFailed": "Por favor, corrija los errores antes de guardar."
+      "validationFailed": "Por favor, corrija los errores antes de guardar.",
+      "unpublishSuccess": "La plantilla se ha revertido a borrador.",
+      "unpublishFailed": "Error al revertir la plantilla."
     },
     "form": {
       "title": {
@@ -2868,7 +2870,31 @@
         "cancel": "Cancelar",
         "save": "Guardar",
         "close": "Cerrar",
-        "back": "Volver a la lista"
+        "back": "Volver a la lista",
+        "delete": "Eliminar",
+        "publish": "Publicar",
+        "unpublish": "Despublicar",
+        "archive": "Archivar",
+        "duplicate": "Duplicar",
+        "deleteEdge": "Eliminar enlace(s) seleccionado(s)"
+      },
+      "hints": {
+        "edgeHelp": "Arrastra desde un asa derecha (○) a un asa izquierda (○) para conectar nodos. Haz clic en un enlace para seleccionarlo, luego presiona Delete para eliminarlo. Haz doble clic en un nodo para editar su configuración."
+      },
+      "nodeDialog": {
+        "title": "Configuración del Nodo",
+        "label": "Etiqueta",
+        "description": "Descripción",
+        "approvalMode": "Modo de Aprobación",
+        "approverIds": "IDs de Aprobadores",
+        "approverIdsPlaceholder": "Ingrese IDs de usuario separados por comas",
+        "quorumCount": "Recuento de Quórum",
+        "timeoutHours": "Tiempo de espera (horas)",
+        "approverIdsHint": "Lista de IDs de usuario separados por comas"
+      },
+      "nodeMenu": {
+        "edit": "Editar nodo",
+        "delete": "Eliminar nodo"
       }
     }
   }
