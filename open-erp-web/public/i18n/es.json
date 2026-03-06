@@ -2813,7 +2813,8 @@
       "saveFailed": "No se pudo guardar la plantilla de flujo de trabajo.",
       "validationFailed": "Por favor, corrija los errores antes de guardar.",
       "unpublishSuccess": "La plantilla se ha revertido a borrador.",
-      "unpublishFailed": "Error al revertir la plantilla."
+      "unpublishFailed": "Error al revertir la plantilla.",
+      "cloneSuffix": "{{name}} (Copia)"
     },
     "form": {
       "title": {

@@ -3846,7 +3846,8 @@
       "saveFailed": "Failed to save workflow template.",
       "validationFailed": "Please fix the form errors before saving.",
       "unpublishSuccess": "Template reverted to draft.",
-      "unpublishFailed": "Failed to revert template."
+      "unpublishFailed": "Failed to revert template.",
+      "cloneSuffix": "{{name}} (Copy)"
     },
     "form": {
       "title": {

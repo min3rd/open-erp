@@ -405,7 +405,7 @@
       </div>
 
       <!-- Quorum Count -->
-      @if (nodeForm.get('approvalMode')?.value === 'QUORUM') {
+      @if (nodeForm.get('approvalMode')?.value === ApprovalMode.QUORUM) {
         <div>
           <label for="node-quorum" class="block text-sm font-medium mb-1">
             {{ 'workflowTemplate.form.nodeDialog.quorumCount' | transloco }}
