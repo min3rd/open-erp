@@ -157,6 +157,7 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
   // Expose enum values for template
   protected readonly WorkflowNodeType = WorkflowNodeType;
   protected readonly TemplateStatus = TemplateStatus;
+  protected readonly ApprovalMode = ApprovalMode;
 
   // Connection settings - allow multiple edges per handle, loose mode
   protected readonly connectionSettings: ConnectionSettings = {
@@ -229,7 +230,10 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
         return;
       }
-      this.deleteSelectedEntities();
+      if (this.selectedEdgeIds().size > 0 || this.selectedNodeIds().size > 0) {
+        event.preventDefault();
+        this.deleteSelectedEntities();
+      }
     }
   }
 
@@ -821,7 +825,8 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
     const t = this.template();
     if (!t) return;
     this.isLoading.set(true);
-    this.templateService.cloneTemplate(t._id, { name: `${t.name} (Copy)` }).subscribe({
+    const cloneName = this.translocoService.translate('workflowTemplate.messages.cloneSuffix', { name: t.name });
+    this.templateService.cloneTemplate(t._id, { name: cloneName }).subscribe({
       next: (cloned) => {
         this.messageService.add({
           severity: 'success',

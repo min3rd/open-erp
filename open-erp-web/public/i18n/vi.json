@@ -2414,7 +2414,8 @@
       "saveFailed": "Không thể lưu mẫu luồng phê duyệt.",
       "validationFailed": "Vui lòng sửa các lỗi trước khi lưu.",
       "unpublishSuccess": "Mẫu đã được chuyển về nháp.",
-      "unpublishFailed": "Không thể chuyển mẫu về nháp."
+      "unpublishFailed": "Không thể chuyển mẫu về nháp.",
+      "cloneSuffix": "{{name}} (Bản sao)"
     },
     "form": {
       "title": {
