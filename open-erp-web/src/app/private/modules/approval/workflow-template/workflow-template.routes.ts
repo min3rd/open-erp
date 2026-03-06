@@ -16,6 +16,24 @@ export const routes: Routes = [
         redirectTo: '-/1/100',
       },
       {
+        path: 'new',
+        component: WorkflowTemplateForm,
+      },
+      {
+        path: ':id/view',
+        component: WorkflowTemplateForm,
+        resolve: {
+          workflowTemplate: workflowTemplateDetailResolver,
+        },
+      },
+      {
+        path: ':id/edit',
+        component: WorkflowTemplateForm,
+        resolve: {
+          workflowTemplate: workflowTemplateDetailResolver,
+        },
+      },
+      {
         path: ':search',
         children: [
           {
@@ -27,34 +45,6 @@ export const routes: Routes = [
                 resolve: {
                   workflowTemplateList: workflowTemplateListResolver,
                 },
-                children: [
-                  {
-                    path: 'new',
-                    pathMatch: 'full',
-                    component: WorkflowTemplateForm,
-                  },
-                  {
-                    path: ':id',
-                    resolve: {
-                      workflowTemplate: workflowTemplateDetailResolver,
-                    },
-                    children: [
-                      {
-                        path: '',
-                        pathMatch: 'full',
-                        redirectTo: 'view',
-                      },
-                      {
-                        path: 'view',
-                        component: WorkflowTemplateForm,
-                      },
-                      {
-                        path: 'edit',
-                        component: WorkflowTemplateForm,
-                      },
-                    ],
-                  },
-                ],
               },
             ],
           },

@@ -2334,5 +2334,143 @@
       "type": "Loại",
       "status": "Trạng thái"
     }
+  },
+  "workflowTemplate": {
+    "search": {
+      "placeholder": "Tìm kiếm mẫu luồng phê duyệt...",
+      "label": "Tìm kiếm mẫu luồng phê duyệt",
+      "openSearch": "Mở tìm kiếm",
+      "closeSearch": "Đóng tìm kiếm"
+    },
+    "resultCount": "{{count}} mẫu",
+    "addButton": {
+      "tooltip": "Tạo mẫu luồng phê duyệt mới",
+      "label": "Tạo mẫu luồng phê duyệt mới"
+    },
+    "refreshButton": {
+      "tooltip": "Làm mới danh sách",
+      "label": "Làm mới"
+    },
+    "actionsButton": {
+      "label": "Thao tác"
+    },
+    "toolbar": {
+      "selectColumns": "Chọn cột hiển thị",
+      "columns": "Cột"
+    },
+    "table": {
+      "name": "Tên",
+      "entityType": "Loại đối tượng",
+      "scope": "Phạm vi",
+      "status": "Trạng thái",
+      "createdAt": "Ngày tạo",
+      "rowActions": "Thao tác"
+    },
+    "contextMenu": {
+      "view": "Xem",
+      "edit": "Sửa",
+      "clone": "Nhân bản",
+      "delete": "Xóa"
+    },
+    "actions": {
+      "publish": "Phát hành",
+      "archive": "Lưu trữ",
+      "deleteSelected": "Xóa đã chọn"
+    },
+    "confirmDelete": {
+      "header": "Xác nhận xóa",
+      "message": "Bạn có chắc muốn xóa \"{{name}}\"?",
+      "accept": "Xóa",
+      "reject": "Hủy"
+    },
+    "confirmBulkDelete": {
+      "header": "Xác nhận xóa hàng loạt",
+      "message": "Bạn có chắc muốn xóa {{count}} mẫu đã chọn?"
+    },
+    "confirmPublish": {
+      "header": "Xác nhận phát hành",
+      "message": "Bạn có chắc muốn phát hành \"{{name}}\"? Mẫu đã phát hành không thể chỉnh sửa.",
+      "accept": "Phát hành",
+      "reject": "Hủy"
+    },
+    "messages": {
+      "success": "Thành công",
+      "error": "Lỗi",
+      "loading": "Đang tải mẫu luồng phê duyệt...",
+      "noResults": "Không tìm thấy kết quả cho \"{{query}}\"",
+      "noTemplates": "Chưa có mẫu luồng phê duyệt. Tạo mẫu đầu tiên ngay.",
+      "deleteSuccess": "\"{{name}}\" đã được xóa.",
+      "deleteFailed": "Không thể xóa mẫu luồng phê duyệt.",
+      "bulkDeleteSuccess": "{{count}} mẫu đã được xóa thành công.",
+      "bulkDeleteFailed": "Không thể xóa một số mẫu.",
+      "cloneSuccess": "Nhân bản mẫu thành công.",
+      "cloneFailed": "Nhân bản mẫu thất bại.",
+      "publishSuccess": "Phát hành mẫu thành công.",
+      "publishFailed": "Phát hành mẫu thất bại.",
+      "archiveSuccess": "Lưu trữ mẫu thành công.",
+      "archiveFailed": "Lưu trữ mẫu thất bại.",
+      "createSuccess": "Tạo mẫu luồng phê duyệt thành công.",
+      "updateSuccess": "Cập nhật mẫu luồng phê duyệt thành công.",
+      "saveFailed": "Không thể lưu mẫu luồng phê duyệt.",
+      "validationFailed": "Vui lòng sửa các lỗi trước khi lưu."
+    },
+    "form": {
+      "title": {
+        "new": "Tạo mẫu luồng phê duyệt",
+        "edit": "Chỉnh sửa mẫu luồng phê duyệt",
+        "view": "Xem mẫu luồng phê duyệt"
+      },
+      "fields": {
+        "name": {
+          "label": "Tên",
+          "placeholder": "Nhập tên mẫu",
+          "errors": {
+            "required": "Tên là bắt buộc.",
+            "minlength": "Tên phải có ít nhất 2 ký tự."
+          }
+        },
+        "description": {
+          "label": "Mô tả",
+          "placeholder": "Nhập mô tả mẫu"
+        },
+        "entityType": {
+          "label": "Loại đối tượng",
+          "placeholder": "Ví dụ: document, activity, purchase_order",
+          "errors": {
+            "required": "Loại đối tượng là bắt buộc."
+          }
+        },
+        "scope": {
+          "label": "Phạm vi",
+          "placeholder": "Chọn phạm vi"
+        },
+        "orgId": {
+          "label": "ID Tổ chức",
+          "placeholder": "Nhập ID tổ chức"
+        },
+        "departmentId": {
+          "label": "ID Phòng ban",
+          "placeholder": "Nhập ID phòng ban"
+        },
+        "version": "Phiên bản",
+        "nodesCount": "Số nút",
+        "edgesCount": "Số kết nối"
+      },
+      "sections": {
+        "workflowInfo": "Thông tin luồng",
+        "addNode": "Thêm nút"
+      },
+      "nodeTypes": {
+        "approval": "Phê duyệt",
+        "condition": "Điều kiện",
+        "end": "Kết thúc"
+      },
+      "actions": {
+        "cancel": "Hủy",
+        "save": "Lưu",
+        "close": "Đóng",
+        "back": "Quay lại danh sách"
+      }
+    }
   }
 }

@@ -2733,5 +2733,143 @@
     },
     "search": "Buscar...",
     "columns": "Columnas"
+  },
+  "workflowTemplate": {
+    "search": {
+      "placeholder": "Buscar plantillas de flujo de trabajo...",
+      "label": "Buscar plantillas de flujo de trabajo",
+      "openSearch": "Abrir búsqueda",
+      "closeSearch": "Cerrar búsqueda"
+    },
+    "resultCount": "{{count}} plantilla(s)",
+    "addButton": {
+      "tooltip": "Crear nueva plantilla de flujo de trabajo",
+      "label": "Crear nueva plantilla de flujo de trabajo"
+    },
+    "refreshButton": {
+      "tooltip": "Actualizar lista",
+      "label": "Actualizar"
+    },
+    "actionsButton": {
+      "label": "Acciones"
+    },
+    "toolbar": {
+      "selectColumns": "Seleccionar columnas",
+      "columns": "Columnas"
+    },
+    "table": {
+      "name": "Nombre",
+      "entityType": "Tipo de entidad",
+      "scope": "Alcance",
+      "status": "Estado",
+      "createdAt": "Fecha de creación",
+      "rowActions": "Acciones"
+    },
+    "contextMenu": {
+      "view": "Ver",
+      "edit": "Editar",
+      "clone": "Clonar",
+      "delete": "Eliminar"
+    },
+    "actions": {
+      "publish": "Publicar",
+      "archive": "Archivar",
+      "deleteSelected": "Eliminar seleccionados"
+    },
+    "confirmDelete": {
+      "header": "Confirmar eliminación",
+      "message": "¿Está seguro de que desea eliminar \"{{name}}\"?",
+      "accept": "Eliminar",
+      "reject": "Cancelar"
+    },
+    "confirmBulkDelete": {
+      "header": "Confirmar eliminación masiva",
+      "message": "¿Está seguro de que desea eliminar {{count}} plantilla(s) seleccionada(s)?"
+    },
+    "confirmPublish": {
+      "header": "Confirmar publicación",
+      "message": "¿Está seguro de que desea publicar \"{{name}}\"? Las plantillas publicadas no se pueden editar.",
+      "accept": "Publicar",
+      "reject": "Cancelar"
+    },
+    "messages": {
+      "success": "Éxito",
+      "error": "Error",
+      "loading": "Cargando plantillas de flujo de trabajo...",
+      "noResults": "No se encontraron resultados para \"{{query}}\"",
+      "noTemplates": "No hay plantillas de flujo de trabajo. Cree una para comenzar.",
+      "deleteSuccess": "\"{{name}}\" ha sido eliminado.",
+      "deleteFailed": "No se pudo eliminar la plantilla de flujo de trabajo.",
+      "bulkDeleteSuccess": "{{count}} plantilla(s) eliminada(s) exitosamente.",
+      "bulkDeleteFailed": "No se pudieron eliminar algunas plantillas.",
+      "cloneSuccess": "Plantilla clonada exitosamente.",
+      "cloneFailed": "No se pudo clonar la plantilla.",
+      "publishSuccess": "Plantilla publicada exitosamente.",
+      "publishFailed": "No se pudo publicar la plantilla.",
+      "archiveSuccess": "Plantilla archivada exitosamente.",
+      "archiveFailed": "No se pudo archivar la plantilla.",
+      "createSuccess": "Plantilla de flujo de trabajo creada exitosamente.",
+      "updateSuccess": "Plantilla de flujo de trabajo actualizada exitosamente.",
+      "saveFailed": "No se pudo guardar la plantilla de flujo de trabajo.",
+      "validationFailed": "Por favor, corrija los errores antes de guardar."
+    },
+    "form": {
+      "title": {
+        "new": "Nueva plantilla de flujo de trabajo",
+        "edit": "Editar plantilla de flujo de trabajo",
+        "view": "Ver plantilla de flujo de trabajo"
+      },
+      "fields": {
+        "name": {
+          "label": "Nombre",
+          "placeholder": "Ingrese el nombre de la plantilla",
+          "errors": {
+            "required": "El nombre es obligatorio.",
+            "minlength": "El nombre debe tener al menos 2 caracteres."
+          }
+        },
+        "description": {
+          "label": "Descripción",
+          "placeholder": "Ingrese la descripción de la plantilla"
+        },
+        "entityType": {
+          "label": "Tipo de entidad",
+          "placeholder": "Ej: documento, actividad, orden_de_compra",
+          "errors": {
+            "required": "El tipo de entidad es obligatorio."
+          }
+        },
+        "scope": {
+          "label": "Alcance",
+          "placeholder": "Seleccionar alcance"
+        },
+        "orgId": {
+          "label": "ID de organización",
+          "placeholder": "Ingrese el ID de organización"
+        },
+        "departmentId": {
+          "label": "ID de departamento",
+          "placeholder": "Ingrese el ID de departamento"
+        },
+        "version": "Versión",
+        "nodesCount": "Nodos",
+        "edgesCount": "Conexiones"
+      },
+      "sections": {
+        "workflowInfo": "Información del flujo",
+        "addNode": "Agregar nodo"
+      },
+      "nodeTypes": {
+        "approval": "Aprobación",
+        "condition": "Condición",
+        "end": "Fin"
+      },
+      "actions": {
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "close": "Cerrar",
+        "back": "Volver a la lista"
+      }
+    }
   }
 }
