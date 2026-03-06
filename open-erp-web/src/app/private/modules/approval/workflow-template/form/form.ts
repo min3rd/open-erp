@@ -103,6 +103,7 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
   protected readonly isLoading = signal(false);
   protected readonly isMobile = signal(false);
   private resizeHandler: (() => void) | null = null;
+  private edgeIdCounter = 0;
 
   // ngx-vflow nodes and edges
   protected vflowNodes = signal<VflowNode<VflowNodeData>[]>([]);
@@ -307,7 +308,7 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
     if (this.isViewMode()) return;
 
     const newEdge: StaticEdge = {
-      id: `e-${Date.now()}`,
+      id: `e-${Date.now()}-${++this.edgeIdCounter}`,
       source: connection.source,
       target: connection.target,
       sourceHandle: connection.sourceHandle,
@@ -325,20 +326,16 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
     if (this.isViewMode()) return;
 
     const oldEdgeId = event.oldEdge.id;
-    const updatedEdges = this.vflowEdges().map((e) => {
-      if (e.id === oldEdgeId) {
-        const updated: StaticEdge = {
-          id: e.id,
-          source: event.connection.source,
-          target: event.connection.target,
-          sourceHandle: event.connection.sourceHandle,
-          targetHandle: event.connection.targetHandle,
-          reconnectable: true,
-        };
-        return createEdges([updated])[0];
-      }
-      return e;
-    });
+    const updatedStaticEdge: StaticEdge = {
+      id: oldEdgeId,
+      source: event.connection.source,
+      target: event.connection.target,
+      sourceHandle: event.connection.sourceHandle,
+      targetHandle: event.connection.targetHandle,
+      reconnectable: true,
+    };
+    const [newEdge] = createEdges([updatedStaticEdge]);
+    const updatedEdges = this.vflowEdges().map((e) => (e.id === oldEdgeId ? newEdge : e));
     this.vflowEdges.set(updatedEdges);
   }
 
