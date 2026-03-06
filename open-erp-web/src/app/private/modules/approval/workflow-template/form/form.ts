@@ -32,6 +32,9 @@ import {
   StaticEdge,
   createNodes,
   createEdges,
+  Connection,
+  ConnectionSettings,
+  ReconnectEvent,
 } from 'ngx-vflow';
 
 // Core toolbar
@@ -117,6 +120,12 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
 
   // Expose enum values for template
   protected readonly WorkflowNodeType = WorkflowNodeType;
+
+  // Connection settings - allow multiple edges per handle, loose mode
+  protected readonly connectionSettings: ConnectionSettings = {
+    mode: 'loose',
+    curve: 'bezier',
+  };
 
   protected form!: FormGroup;
 
@@ -215,6 +224,7 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
       id: edge.id,
       source: edge.source,
       target: edge.target,
+      reconnectable: true,
     }));
 
     this.vflowNodes.set(createNodes(staticNodes));
@@ -249,8 +259,8 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
     ];
 
     const defaultEdges: StaticEdge[] = [
-      { id: 'e1', source: 'start-1', target: 'approval-1' },
-      { id: 'e2', source: 'approval-1', target: 'end-1' },
+      { id: 'e1', source: 'start-1', target: 'approval-1', reconnectable: true },
+      { id: 'e2', source: 'approval-1', target: 'end-1', reconnectable: true },
     ];
 
     this.vflowNodes.set(createNodes(defaultNodes));
@@ -288,6 +298,48 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
     };
 
     this.vflowNodes.set([...this.vflowNodes(), ...createNodes([newNode])]);
+  }
+
+  /**
+   * Handle new edge connection from user dragging between handles
+   */
+  protected onConnect(connection: Connection): void {
+    if (this.isViewMode()) return;
+
+    const newEdge: StaticEdge = {
+      id: `e-${Date.now()}`,
+      source: connection.source,
+      target: connection.target,
+      sourceHandle: connection.sourceHandle,
+      targetHandle: connection.targetHandle,
+      reconnectable: true,
+    };
+
+    this.vflowEdges.set([...this.vflowEdges(), ...createEdges([newEdge])]);
+  }
+
+  /**
+   * Handle edge reconnection (dragging an existing edge to a different node)
+   */
+  protected onReconnect(event: ReconnectEvent): void {
+    if (this.isViewMode()) return;
+
+    const oldEdgeId = event.oldEdge.id;
+    const updatedEdges = this.vflowEdges().map((e) => {
+      if (e.id === oldEdgeId) {
+        const updated: StaticEdge = {
+          id: e.id,
+          source: event.connection.source,
+          target: event.connection.target,
+          sourceHandle: event.connection.sourceHandle,
+          targetHandle: event.connection.targetHandle,
+          reconnectable: true,
+        };
+        return createEdges([updated])[0];
+      }
+      return e;
+    });
+    this.vflowEdges.set(updatedEdges);
   }
 
   private extractNodesAndEdges(): {
