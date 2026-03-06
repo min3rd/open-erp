@@ -224,6 +224,9 @@
         [edges]="vflowEdges()"
         view="auto"
         [background]="'#dots'"
+        [connection]="connectionSettings"
+        (connect)="onConnect($event)"
+        (reconnect)="onReconnect($event)"
       >
         <ng-template nodeHtml let-ctx>
           <div

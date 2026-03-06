@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { API_URI_APPROVAL } from '../../constant';
-import { ApiPaginatedResponse, ApiResponse } from '../../api/interfaces';
+import { ApiPaginatedResponse, ApiResponse, ApiSingleResponse } from '../../api/interfaces';
 import {
   WorkflowTemplate,
   CreateWorkflowTemplateDto,
@@ -82,8 +82,8 @@ export class WorkflowTemplateService {
    */
   getTemplateById(id: string): Observable<WorkflowTemplate | null> {
     return this.http
-      .get<ApiResponse<WorkflowTemplate>>(`${this.baseUrl}/${id}`)
-      .pipe(map((response) => response.data || null));
+      .get<ApiSingleResponse<WorkflowTemplate>>(`${this.baseUrl}/${id}`)
+      .pipe(map((response) => response.data?.item || null));
   }
 
   /**
@@ -91,12 +91,12 @@ export class WorkflowTemplateService {
    * POST /approval-flow/templates
    */
   createTemplate(dto: CreateWorkflowTemplateDto): Observable<WorkflowTemplate> {
-    return this.http.post<ApiResponse<WorkflowTemplate>>(this.baseUrl, dto).pipe(
+    return this.http.post<ApiSingleResponse<WorkflowTemplate>>(this.baseUrl, dto).pipe(
       map((response) => {
-        if (!response.data) {
+        if (!response.data?.item) {
           throw new Error('No data returned from API');
         }
-        return response.data;
+        return response.data.item;
       }),
     );
   }
@@ -106,12 +106,12 @@ export class WorkflowTemplateService {
    * PUT /approval-flow/templates/:id
    */
   updateTemplate(id: string, dto: UpdateWorkflowTemplateDto): Observable<WorkflowTemplate> {
-    return this.http.put<ApiResponse<WorkflowTemplate>>(`${this.baseUrl}/${id}`, dto).pipe(
+    return this.http.put<ApiSingleResponse<WorkflowTemplate>>(`${this.baseUrl}/${id}`, dto).pipe(
       map((response) => {
-        if (!response.data) {
+        if (!response.data?.item) {
           throw new Error('No data returned from API');
         }
-        return response.data;
+        return response.data.item;
       }),
     );
   }
@@ -122,13 +122,13 @@ export class WorkflowTemplateService {
    */
   changeStatus(id: string, status: string): Observable<WorkflowTemplate> {
     return this.http
-      .patch<ApiResponse<WorkflowTemplate>>(`${this.baseUrl}/${id}/status`, { status })
+      .patch<ApiSingleResponse<WorkflowTemplate>>(`${this.baseUrl}/${id}/status`, { status })
       .pipe(
         map((response) => {
-          if (!response.data) {
+          if (!response.data?.item) {
             throw new Error('No data returned from API');
           }
-          return response.data;
+          return response.data.item;
         }),
       );
   }
@@ -139,13 +139,13 @@ export class WorkflowTemplateService {
    */
   cloneTemplate(id: string, dto: CloneWorkflowTemplateDto): Observable<WorkflowTemplate> {
     return this.http
-      .post<ApiResponse<WorkflowTemplate>>(`${this.baseUrl}/${id}/clone`, dto)
+      .post<ApiSingleResponse<WorkflowTemplate>>(`${this.baseUrl}/${id}/clone`, dto)
       .pipe(
         map((response) => {
-          if (!response.data) {
+          if (!response.data?.item) {
             throw new Error('No data returned from API');
           }
-          return response.data;
+          return response.data.item;
         }),
       );
   }
@@ -179,13 +179,13 @@ export class WorkflowTemplateService {
    */
   publishTemplate(id: string): Observable<WorkflowTemplate> {
     return this.http
-      .post<ApiResponse<WorkflowTemplate>>(`${this.baseUrl}/${id}/publish`, {})
+      .post<ApiSingleResponse<WorkflowTemplate>>(`${this.baseUrl}/${id}/publish`, {})
       .pipe(
         map((response) => {
-          if (!response.data) {
+          if (!response.data?.item) {
             throw new Error('No data returned from API');
           }
-          return response.data;
+          return response.data.item;
         }),
       );
   }
@@ -196,13 +196,13 @@ export class WorkflowTemplateService {
    */
   archiveTemplate(id: string): Observable<WorkflowTemplate> {
     return this.http
-      .post<ApiResponse<WorkflowTemplate>>(`${this.baseUrl}/${id}/archive`, {})
+      .post<ApiSingleResponse<WorkflowTemplate>>(`${this.baseUrl}/${id}/archive`, {})
       .pipe(
         map((response) => {
-          if (!response.data) {
+          if (!response.data?.item) {
             throw new Error('No data returned from API');
           }
-          return response.data;
+          return response.data.item;
         }),
       );
   }
