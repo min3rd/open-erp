@@ -2860,7 +2860,8 @@
       },
       "sections": {
         "workflowInfo": "Información del flujo",
-        "addNode": "Agregar nodo"
+        "addNode": "Agregar nodo",
+        "addEdge": "Agregar conexión"
       },
       "nodeTypes": {
         "approval": "Aprobación",
@@ -2877,10 +2878,11 @@
         "unpublish": "Despublicar",
         "archive": "Archivar",
         "duplicate": "Duplicar",
-        "deleteEdge": "Eliminar enlace(s) seleccionado(s)"
+        "deleteEdge": "Eliminar enlace(s) seleccionado(s)",
+        "toggleSidebar": "Mostrar/ocultar panel"
       },
       "hints": {
-        "edgeHelp": "Arrastra desde un asa derecha (○) a un asa izquierda (○) para conectar nodos. Haz clic en un enlace para seleccionarlo, luego presiona Delete para eliminarlo. Haz doble clic en un nodo para editar su configuración."
+        "edgeHelp": "Arrastre desde un conector (○) para conectar nodos, o use la sección \"Agregar conexión\" abajo. Haga clic en un borde para seleccionarlo, luego presione Suprimir para eliminarlo. Haga doble clic en un nodo para editar su configuración."
       },
       "nodeDialog": {
         "title": "Configuración del Nodo",
@@ -2896,6 +2898,11 @@
       "nodeMenu": {
         "edit": "Editar nodo",
         "delete": "Eliminar nodo"
+      },
+      "edge": {
+        "sourcePlaceholder": "Seleccionar nodo origen...",
+        "targetPlaceholder": "Seleccionar nodo destino...",
+        "addButton": "Agregar conexión"
       }
     }
   }

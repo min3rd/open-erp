@@ -3893,7 +3893,8 @@
       },
       "sections": {
         "workflowInfo": "Workflow Information",
-        "addNode": "Add Node"
+        "addNode": "Add Node",
+        "addEdge": "Add Edge"
       },
       "actions": {
         "cancel": "Cancel",
@@ -3905,7 +3906,8 @@
         "unpublish": "Unpublish",
         "archive": "Archive",
         "duplicate": "Duplicate",
-        "deleteEdge": "Delete selected edge(s)"
+        "deleteEdge": "Delete selected edge(s)",
+        "toggleSidebar": "Toggle form panel"
       },
       "nodeTypes": {
         "approval": "Approval",
@@ -3913,7 +3915,7 @@
         "end": "End"
       },
       "hints": {
-        "edgeHelp": "Drag from a right handle (○) to a left handle (○) to connect nodes. Click an edge to select it, then press Delete to remove it. Double-click a node to edit its settings."
+        "edgeHelp": "Drag from a handle (○) to connect nodes, or use the \"Add Edge\" section below. Click an edge to select it, then press Delete to remove it. Double-click a node to edit its settings."
       },
       "nodeDialog": {
         "title": "Node Settings",
@@ -3929,6 +3931,11 @@
       "nodeMenu": {
         "edit": "Edit node",
         "delete": "Delete node"
+      },
+      "edge": {
+        "sourcePlaceholder": "Select source node...",
+        "targetPlaceholder": "Select target node...",
+        "addButton": "Add Edge"
       }
     }
   }
