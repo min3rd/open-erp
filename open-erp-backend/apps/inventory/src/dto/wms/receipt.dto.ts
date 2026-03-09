@@ -40,7 +40,7 @@ export class CreateReceiptLineDto {
   unit?: string;
 }
 
-export class ReferencDocDto {
+export class ReferenceDocDto {
   @ApiProperty({ description: 'Reference document type (invoice, po, transfer_note)' })
   @IsString()
   type: string;
@@ -96,12 +96,12 @@ export class CreateReceiptDto {
   @Type(() => Date)
   expectedReceiptAt?: Date;
 
-  @ApiPropertyOptional({ description: 'Reference documents', type: [ReferencDocDto] })
+  @ApiPropertyOptional({ description: 'Reference documents', type: [ReferenceDocDto] })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => ReferencDocDto)
-  referenceDocs?: ReferencDocDto[];
+  @Type(() => ReferenceDocDto)
+  referenceDocs?: ReferenceDocDto[];
 
   @ApiPropertyOptional({ description: 'Notes' })
   @IsOptional()
@@ -143,12 +143,12 @@ export class UpdateReceiptDto {
   @Type(() => Date)
   expectedReceiptAt?: Date;
 
-  @ApiPropertyOptional({ description: 'Reference documents', type: [ReferencDocDto] })
+  @ApiPropertyOptional({ description: 'Reference documents', type: [ReferenceDocDto] })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => ReferencDocDto)
-  referenceDocs?: ReferencDocDto[];
+  @Type(() => ReferenceDocDto)
+  referenceDocs?: ReferenceDocDto[];
 
   @ApiPropertyOptional({ description: 'Notes' })
   @IsOptional()

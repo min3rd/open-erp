@@ -301,7 +301,14 @@ export class ReceiptList implements OnInit, OnDestroy {
         obs$ = this.wmsService.approveReceipt(receipt.id, { notes });
         break;
       case 'receive':
-        obs$ = this.wmsService.receiveReceipt(receipt.id, { lines: [] });
+        // Receive with existing lines - partial receive starting from 0
+        obs$ = this.wmsService.receiveReceipt(receipt.id, {
+          lines: receipt.lines?.map((l) => ({
+            lineId: l.lineId,
+            skuId: l.skuId,
+            receivedQty: l.orderedQty - (l.receivedQty || 0),
+          })) ?? [],
+        });
         break;
       case 'finalize':
         obs$ = this.wmsService.finalizeReceipt(receipt.id, { notes });
