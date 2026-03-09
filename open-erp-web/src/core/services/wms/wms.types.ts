@@ -1,13 +1,23 @@
 export enum ReceiptStatus {
   DRAFT = 'draft',
   PENDING = 'pending',
+  UNDER_REVIEW = 'under_review',
+  APPROVED = 'approved',
   PARTIAL = 'partial',
   RECEIVED = 'received',
   QC_PENDING = 'qc_pending',
   QC_PASSED = 'qc_passed',
   QC_FAILED = 'qc_failed',
   COMPLETED = 'completed',
+  FINALIZED = 'finalized',
+  REJECTED = 'rejected',
   CANCELLED = 'cancelled',
+}
+
+export enum ReceiptType {
+  PO_RECEIPT = 'po_receipt',
+  TRANSFER = 'transfer',
+  MANUAL = 'manual',
 }
 
 export enum QcStatus {
@@ -17,7 +27,22 @@ export enum QcStatus {
   PARTIAL = 'partial',
 }
 
+export interface AuditEntry {
+  action: string;
+  userId?: string;
+  timestamp: string;
+  ip?: string;
+  payload?: any;
+}
+
+export interface ReferenceDoc {
+  type: string;
+  refId?: string;
+  url?: string;
+}
+
 export interface ReceiptLine {
+  lineId?: string;
   skuId: string;
   skuCode?: string;
   skuName?: string;
@@ -34,14 +59,30 @@ export interface ReceiptLine {
 
 export interface Receipt {
   id: string;
+  code?: string;
+  type: ReceiptType;
   orgId: string;
   warehouseId: string;
   poId?: string;
+  supplierId?: string;
   supplier?: string;
+  shippingParty?: string;
+  expectedReceiptAt?: string;
+  actualReceiptAt?: string;
+  referenceDocs: ReferenceDoc[];
   status: ReceiptStatus;
   lines: ReceiptLine[];
   notes?: string;
   attachments: string[];
+  reviewers: string[];
+  approvedBy?: string;
+  approvedAt?: string;
+  rejectedBy?: string;
+  rejectedAt?: string;
+  rejectionReason?: string;
+  lockedBy?: string;
+  lockedAt?: string;
+  auditTrail: AuditEntry[];
   createdBy?: string;
   receivedBy?: string;
   receivedAt?: string;
@@ -60,13 +101,45 @@ export interface CreateReceiptLineDto {
 export interface CreateReceiptDto {
   orgId: string;
   warehouseId: string;
+  type?: ReceiptType;
   poId?: string;
+  supplierId?: string;
   supplier?: string;
+  shippingParty?: string;
+  expectedReceiptAt?: string;
+  referenceDocs?: ReferenceDoc[];
   notes?: string;
   lines?: CreateReceiptLineDto[];
 }
 
+export interface UpdateReceiptDto {
+  type?: ReceiptType;
+  poId?: string;
+  supplier?: string;
+  shippingParty?: string;
+  expectedReceiptAt?: string;
+  referenceDocs?: ReferenceDoc[];
+  notes?: string;
+  lines?: CreateReceiptLineDto[];
+}
+
+export interface SubmitReceiptDto {
+  reviewers?: string[];
+  notes?: string;
+}
+
+export interface ReviewReceiptDto {
+  action: 'accept' | 'reject';
+  notes?: string;
+  lineQcResults?: { lineIndex: number; qcStatus: QcStatus; qcNotes?: string; defectQty?: number }[];
+}
+
+export interface ApproveReceiptDto {
+  notes?: string;
+}
+
 export interface ReceiveLineDto {
+  lineId?: string;
   skuId: string;
   receivedQty: number;
   lotId?: string;
@@ -75,7 +148,16 @@ export interface ReceiveLineDto {
 
 export interface ReceiveReceiptDto {
   lines: ReceiveLineDto[];
+  actualReceiptAt?: string;
   partial?: boolean;
+}
+
+export interface FinalizeReceiptDto {
+  notes?: string;
+}
+
+export interface UnlockReceiptDto {
+  reason: string;
 }
 
 export interface QcReceiptDto {

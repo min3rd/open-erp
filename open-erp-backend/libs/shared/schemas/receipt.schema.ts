@@ -6,13 +6,23 @@ export type ReceiptDocument = HydratedDocument<Receipt>;
 export enum ReceiptStatus {
   DRAFT = 'draft',
   PENDING = 'pending',
+  UNDER_REVIEW = 'under_review',
+  APPROVED = 'approved',
   PARTIAL = 'partial',
   RECEIVED = 'received',
   QC_PENDING = 'qc_pending',
   QC_PASSED = 'qc_passed',
   QC_FAILED = 'qc_failed',
   COMPLETED = 'completed',
+  FINALIZED = 'finalized',
+  REJECTED = 'rejected',
   CANCELLED = 'cancelled',
+}
+
+export enum ReceiptType {
+  PO_RECEIPT = 'po_receipt',
+  TRANSFER = 'transfer',
+  MANUAL = 'manual',
 }
 
 export enum QcStatus {
@@ -23,7 +33,44 @@ export enum QcStatus {
 }
 
 @Schema({ _id: false })
+export class AuditEntry {
+  @Prop({ type: String, required: true })
+  action: string;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
+  userId?: MongooseSchema.Types.ObjectId;
+
+  @Prop({ type: Date, default: () => new Date() })
+  timestamp: Date;
+
+  @Prop({ type: String })
+  ip?: string;
+
+  @Prop({ type: MongooseSchema.Types.Mixed })
+  payload?: any;
+}
+
+export const AuditEntrySchema = SchemaFactory.createForClass(AuditEntry);
+
+@Schema({ _id: false })
+export class ReferenceDoc {
+  @Prop({ type: String, required: true })
+  type: string;
+
+  @Prop({ type: String })
+  refId?: string;
+
+  @Prop({ type: String })
+  url?: string;
+}
+
+export const ReferenceDocSchema = SchemaFactory.createForClass(ReferenceDoc);
+
+@Schema({ _id: false })
 export class ReceiptLine {
+  @Prop({ type: String })
+  lineId?: string;
+
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Product', required: true })
   skuId: MongooseSchema.Types.ObjectId;
 
@@ -69,6 +116,12 @@ export const ReceiptLineSchema = SchemaFactory.createForClass(ReceiptLine);
   versionKey: false,
 })
 export class Receipt extends Document {
+  @Prop({ type: String, index: true })
+  code?: string;
+
+  @Prop({ type: String, enum: ReceiptType, default: ReceiptType.MANUAL })
+  type: ReceiptType;
+
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Organization', required: true, index: true })
   orgId: MongooseSchema.Types.ObjectId;
 
@@ -78,8 +131,23 @@ export class Receipt extends Document {
   @Prop({ type: String, index: true })
   poId?: string;
 
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
+  supplierId?: MongooseSchema.Types.ObjectId;
+
   @Prop({ type: String })
   supplier?: string;
+
+  @Prop({ type: String })
+  shippingParty?: string;
+
+  @Prop({ type: Date })
+  expectedReceiptAt?: Date;
+
+  @Prop({ type: Date })
+  actualReceiptAt?: Date;
+
+  @Prop({ type: [ReferenceDocSchema], default: [] })
+  referenceDocs: ReferenceDoc[];
 
   @Prop({ type: String, enum: ReceiptStatus, default: ReceiptStatus.DRAFT, index: true })
   status: ReceiptStatus;
@@ -92,6 +160,33 @@ export class Receipt extends Document {
 
   @Prop({ type: [String], default: [] })
   attachments: string[];
+
+  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'User' }], default: [] })
+  reviewers: MongooseSchema.Types.ObjectId[];
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
+  approvedBy?: MongooseSchema.Types.ObjectId;
+
+  @Prop({ type: Date })
+  approvedAt?: Date;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
+  rejectedBy?: MongooseSchema.Types.ObjectId;
+
+  @Prop({ type: Date })
+  rejectedAt?: Date;
+
+  @Prop({ type: String })
+  rejectionReason?: string;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
+  lockedBy?: MongooseSchema.Types.ObjectId;
+
+  @Prop({ type: Date })
+  lockedAt?: Date;
+
+  @Prop({ type: [AuditEntrySchema], default: [] })
+  auditTrail: AuditEntry[];
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
   createdBy?: MongooseSchema.Types.ObjectId;

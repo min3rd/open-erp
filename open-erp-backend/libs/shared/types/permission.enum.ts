@@ -144,6 +144,9 @@ export enum Permission {
   WMS_RECEIPT_CREATE = 'wms.receipt.create',
   WMS_RECEIPT_READ = 'wms.receipt.read',
   WMS_RECEIPT_UPDATE = 'wms.receipt.update',
+  WMS_RECEIPT_REVIEW = 'wms.receipt.review',
+  WMS_RECEIPT_APPROVE = 'wms.receipt.approve',
+  WMS_RECEIPT_FINALIZE = 'wms.receipt.finalize',
   WMS_QC_MANAGE = 'wms.qc.manage',
   WMS_PICK_MANAGE = 'wms.pick.manage',
   WMS_PACK_MANAGE = 'wms.pack.manage',
@@ -275,6 +278,9 @@ export const PermissionGroups = {
     Permission.WMS_RECEIPT_CREATE,
     Permission.WMS_RECEIPT_READ,
     Permission.WMS_RECEIPT_UPDATE,
+    Permission.WMS_RECEIPT_REVIEW,
+    Permission.WMS_RECEIPT_APPROVE,
+    Permission.WMS_RECEIPT_FINALIZE,
     Permission.WMS_QC_MANAGE,
     Permission.WMS_PICK_MANAGE,
     Permission.WMS_PACK_MANAGE,
@@ -645,6 +651,18 @@ export const PermissionMetadata: Record<
   },
   [Permission.WMS_RECEIPT_UPDATE]: {
     description: 'Permission to update warehouse receipts and record received quantities',
+    scope: 'organization',
+  },
+  [Permission.WMS_RECEIPT_REVIEW]: {
+    description: 'Permission to review and QC warehouse receipts',
+    scope: 'organization',
+  },
+  [Permission.WMS_RECEIPT_APPROVE]: {
+    description: 'Permission to approve warehouse receipts',
+    scope: 'organization',
+  },
+  [Permission.WMS_RECEIPT_FINALIZE]: {
+    description: 'Permission to finalize and lock warehouse receipts',
     scope: 'organization',
   },
   [Permission.WMS_QC_MANAGE]: {

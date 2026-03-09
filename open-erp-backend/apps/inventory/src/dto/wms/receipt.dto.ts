@@ -6,12 +6,13 @@ import {
   IsArray,
   IsNumber,
   IsBoolean,
+  IsDate,
   Min,
   ValidateNested,
   IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { QcStatus } from '@shared/schemas';
+import { QcStatus, ReceiptType } from '@shared/schemas';
 
 export class CreateReceiptLineDto {
   @ApiProperty({ description: 'Product/SKU ID' })
@@ -39,6 +40,22 @@ export class CreateReceiptLineDto {
   unit?: string;
 }
 
+export class ReferencDocDto {
+  @ApiProperty({ description: 'Reference document type (invoice, po, transfer_note)' })
+  @IsString()
+  type: string;
+
+  @ApiPropertyOptional({ description: 'Reference document ID' })
+  @IsOptional()
+  @IsString()
+  refId?: string;
+
+  @ApiPropertyOptional({ description: 'Reference document URL' })
+  @IsOptional()
+  @IsString()
+  url?: string;
+}
+
 export class CreateReceiptDto {
   @ApiProperty({ description: 'Organization ID' })
   @IsMongoId()
@@ -48,15 +65,43 @@ export class CreateReceiptDto {
   @IsMongoId()
   warehouseId: string;
 
+  @ApiPropertyOptional({ description: 'Receipt type', enum: ReceiptType })
+  @IsOptional()
+  @IsEnum(ReceiptType)
+  type?: ReceiptType;
+
   @ApiPropertyOptional({ description: 'Purchase Order ID' })
   @IsOptional()
   @IsString()
   poId?: string;
 
+  @ApiPropertyOptional({ description: 'Supplier ID' })
+  @IsOptional()
+  @IsMongoId()
+  supplierId?: string;
+
   @ApiPropertyOptional({ description: 'Supplier name' })
   @IsOptional()
   @IsString()
   supplier?: string;
+
+  @ApiPropertyOptional({ description: 'Shipping party name' })
+  @IsOptional()
+  @IsString()
+  shippingParty?: string;
+
+  @ApiPropertyOptional({ description: 'Expected receipt date' })
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  expectedReceiptAt?: Date;
+
+  @ApiPropertyOptional({ description: 'Reference documents', type: [ReferencDocDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ReferencDocDto)
+  referenceDocs?: ReferencDocDto[];
 
   @ApiPropertyOptional({ description: 'Notes' })
   @IsOptional()
@@ -71,7 +116,95 @@ export class CreateReceiptDto {
   lines?: CreateReceiptLineDto[];
 }
 
+export class UpdateReceiptDto {
+  @ApiPropertyOptional({ description: 'Receipt type', enum: ReceiptType })
+  @IsOptional()
+  @IsEnum(ReceiptType)
+  type?: ReceiptType;
+
+  @ApiPropertyOptional({ description: 'Purchase Order ID' })
+  @IsOptional()
+  @IsString()
+  poId?: string;
+
+  @ApiPropertyOptional({ description: 'Supplier name' })
+  @IsOptional()
+  @IsString()
+  supplier?: string;
+
+  @ApiPropertyOptional({ description: 'Shipping party name' })
+  @IsOptional()
+  @IsString()
+  shippingParty?: string;
+
+  @ApiPropertyOptional({ description: 'Expected receipt date' })
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  expectedReceiptAt?: Date;
+
+  @ApiPropertyOptional({ description: 'Reference documents', type: [ReferencDocDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ReferencDocDto)
+  referenceDocs?: ReferencDocDto[];
+
+  @ApiPropertyOptional({ description: 'Notes' })
+  @IsOptional()
+  @IsString()
+  notes?: string;
+
+  @ApiPropertyOptional({ description: 'Receipt lines', type: [CreateReceiptLineDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateReceiptLineDto)
+  lines?: CreateReceiptLineDto[];
+}
+
+export class SubmitReceiptDto {
+  @ApiPropertyOptional({ description: 'Reviewer user IDs', type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsMongoId({ each: true })
+  reviewers?: string[];
+
+  @ApiPropertyOptional({ description: 'Notes for reviewers' })
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
+export class ReviewReceiptDto {
+  @ApiProperty({ description: 'Review action', enum: ['accept', 'reject'] })
+  @IsEnum(['accept', 'reject'])
+  action: 'accept' | 'reject';
+
+  @ApiPropertyOptional({ description: 'Review notes' })
+  @IsOptional()
+  @IsString()
+  notes?: string;
+
+  @ApiPropertyOptional({ description: 'QC notes per line', type: [Object] })
+  @IsOptional()
+  @IsArray()
+  lineQcResults?: { lineIndex: number; qcStatus: QcStatus; qcNotes?: string; defectQty?: number }[];
+}
+
+export class ApproveReceiptDto {
+  @ApiPropertyOptional({ description: 'Approval notes' })
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
 export class ReceiveLineDto {
+  @ApiPropertyOptional({ description: 'Line ID' })
+  @IsOptional()
+  @IsString()
+  lineId?: string;
+
   @ApiProperty({ description: 'SKU ID of the line to receive' })
   @IsString()
   skuId: string;
@@ -100,10 +233,29 @@ export class ReceiveReceiptDto {
   @Type(() => ReceiveLineDto)
   lines: ReceiveLineDto[];
 
+  @ApiPropertyOptional({ description: 'Actual receipt date' })
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  actualReceiptAt?: Date;
+
   @ApiPropertyOptional({ description: 'Whether this is a partial receive' })
   @IsOptional()
   @IsBoolean()
   partial?: boolean;
+}
+
+export class FinalizeReceiptDto {
+  @ApiPropertyOptional({ description: 'Notes for finalization' })
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
+export class UnlockReceiptDto {
+  @ApiProperty({ description: 'Reason for unlocking (required for audit)' })
+  @IsString()
+  reason: string;
 }
 
 export class QcReceiptDto {
