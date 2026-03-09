@@ -7,8 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { Router, ActivatedRoute, RouterOutlet } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -31,7 +31,6 @@ import {
   Receipt,
   ReceiptStatus,
   ReceiptType,
-  CreateReceiptDto,
   AuditEntry,
 } from '../../../../../../core/services/wms/wms.service';
 import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
@@ -68,6 +67,7 @@ interface ColumnDef {
     DividerModule,
     TimelineModule,
     MpToolbar,
+    RouterOutlet,
   ],
   templateUrl: './list.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -115,7 +115,6 @@ export class ReceiptList implements OnInit, OnDestroy {
   sortOrder = signal<number>(-1);
   selectedReceipt = signal<Receipt | null>(null);
   detailDrawerVisible = signal(false);
-  createDrawerVisible = signal(false);
   actionDrawerVisible = signal(false);
   actionType = signal<'submit' | 'approve' | 'receive' | 'finalize' | null>(null);
   auditTrail = signal<AuditEntry[]>([]);
@@ -123,7 +122,6 @@ export class ReceiptList implements OnInit, OnDestroy {
   isMobile = signal(false);
   activeTab = signal(0);
 
-  createForm!: FormGroup;
   actionForm!: FormGroup;
 
   private resizeHandler: (() => void) | null = null;
@@ -138,15 +136,6 @@ export class ReceiptList implements OnInit, OnDestroy {
   }
 
   private initForms() {
-    this.createForm = this.fb.group({
-      orgId: ['', Validators.required],
-      warehouseId: ['', Validators.required],
-      type: [ReceiptType.MANUAL],
-      poId: [''],
-      supplier: [''],
-      shippingParty: [''],
-      notes: [''],
-    });
     this.actionForm = this.fb.group({
       notes: [''],
       action: ['accept'],
@@ -234,6 +223,10 @@ export class ReceiptList implements OnInit, OnDestroy {
     this.loadAuditTrail(receipt.id);
   }
 
+  protected openDetailRoute(receipt: Receipt) {
+    this.router.navigate([receipt.id, 'view'], { relativeTo: this.route });
+  }
+
   protected loadAuditTrail(id: string) {
     this.wmsService.getReceiptAudit(id).subscribe({
       next: (entries) => this.auditTrail.set(entries),
@@ -246,30 +239,12 @@ export class ReceiptList implements OnInit, OnDestroy {
     this.selectedReceipt.set(null);
   }
 
-  protected openCreateDrawer() {
-    this.createForm.reset({ type: ReceiptType.MANUAL });
-    this.createDrawerVisible.set(true);
+  protected navigateToCreate() {
+    this.router.navigate(['new'], { relativeTo: this.route });
   }
 
-  protected closeCreateDrawer() {
-    this.createDrawerVisible.set(false);
-  }
-
-  protected submitCreate() {
-    if (this.createForm.invalid) return;
-    this.actionLoading.set(true);
-    const dto: CreateReceiptDto = this.createForm.value;
-    this.wmsService.createReceipt(dto).subscribe({
-      next: (receipt) => {
-        this.actionLoading.set(false);
-        this.createDrawerVisible.set(false);
-        this.loadReceipts();
-        if (receipt) {
-          this.openDetail(receipt);
-        }
-      },
-      error: () => this.actionLoading.set(false),
-    });
+  protected onChildDeactivated() {
+    this.loadReceipts();
   }
 
   protected openActionDrawer(receipt: Receipt, type: 'submit' | 'approve' | 'receive' | 'finalize') {

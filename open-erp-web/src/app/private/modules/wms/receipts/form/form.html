@@ -1,0 +1,375 @@
+<mp-toolbar>
+  <ng-template #start>
+    <div class="flex items-center gap-2">
+      <p-button
+        [text]="true"
+        severity="secondary"
+        icon="pi pi-arrow-left"
+        size="small"
+        (onClick)="cancel()"
+        [pTooltip]="'common.back' | transloco"
+        tooltipPosition="bottom"
+      />
+      <span class="text-sm font-medium text-surface-700">
+        @if (isNew()) {
+          {{ 'wms.receipts.createTitle' | transloco }}
+        } @else if (isView()) {
+          {{ 'wms.receipts.viewTitle' | transloco }} — {{ receipt()?.code }}
+        } @else {
+          {{ 'wms.receipts.editTitle' | transloco }} — {{ receipt()?.code }}
+        }
+      </span>
+      @if (!isNew()) {
+        <p-tag
+          [value]="receipt()?.status ?? ''"
+          [severity]="getStatusSeverity(receipt()?.status!)"
+          class="text-xs"
+        />
+      }
+    </div>
+  </ng-template>
+  <ng-template #end>
+    @if (!isView()) {
+      <p-button
+        [label]="'common.cancel' | transloco"
+        severity="secondary"
+        size="small"
+        (onClick)="cancel()"
+        class="mr-2"
+      />
+      <p-button
+        [label]="'common.save' | transloco"
+        icon="pi pi-save"
+        size="small"
+        [loading]="saving()"
+        [disabled]="form.invalid || saving()"
+        (onClick)="save()"
+      />
+    } @else {
+      @if (receipt()?.status === 'draft') {
+        <p-button
+          [label]="'common.edit' | transloco"
+          icon="pi pi-pencil"
+          size="small"
+          (onClick)="goToEdit()"
+        />
+      }
+    }
+  </ng-template>
+</mp-toolbar>
+
+<div class="p-4 max-w-5xl mx-auto">
+  <form [formGroup]="form">
+    <p-tabs [(value)]="activeTab">
+      <p-tablist>
+        <p-tab [value]="0">{{ 'wms.receipts.tabOverview' | transloco }}</p-tab>
+        <p-tab [value]="1">
+          {{ 'wms.receipts.tabLines' | transloco }}
+          ({{ linesArray.length }})
+        </p-tab>
+        <p-tab [value]="2">
+          {{ 'wms.receipts.tabRefDocs' | transloco }}
+          ({{ referenceDocsArray.length }})
+        </p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <!-- Overview Tab -->
+        <p-tabpanel [value]="0">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+            <!-- Organization (disabled, auto-filled) -->
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-surface-600">
+                {{ 'wms.receipts.org' | transloco }} *
+              </label>
+              <input
+                pInputText
+                [value]="currentOrg()?.name ?? ''"
+                [disabled]="true"
+                class="w-full text-sm"
+                size="small"
+              />
+            </div>
+
+            <!-- Warehouse (searchable dropdown from org) -->
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-surface-600">
+                {{ 'wms.receipts.warehouse' | transloco }} *
+              </label>
+              <p-autocomplete
+                [suggestions]="warehouseSuggestions()"
+                (completeMethod)="searchWarehouse($event)"
+                (onSelect)="onWarehouseSelect($event)"
+                (onClear)="onWarehouseClear()"
+                [ngModel]="selectedWarehouse()"
+                [ngModelOptions]="{ standalone: true }"
+                field="name"
+                [dropdown]="true"
+                [showClear]="true"
+                [forceSelection]="true"
+                [loading]="warehouseLoading()"
+                [placeholder]="'wms.receipts.warehousePlaceholder' | transloco"
+                [disabled]="isView()"
+                styleClass="w-full"
+                size="small"
+              >
+                <ng-template let-wh #item>
+                  <div class="flex flex-col py-1">
+                    <span class="font-medium text-sm">{{ wh.name }}</span>
+                    <span class="text-xs text-surface-500">{{ wh.code }} — {{ wh.addressDetail }}</span>
+                  </div>
+                </ng-template>
+              </p-autocomplete>
+              @if (form.get('warehouseId')?.invalid && form.get('warehouseId')?.touched) {
+                <small class="text-red-500 text-xs">{{ 'common.required' | transloco }}</small>
+              }
+            </div>
+
+            <!-- Type -->
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-surface-600">
+                {{ 'wms.receipts.type' | transloco }} *
+              </label>
+              <p-select
+                formControlName="type"
+                [options]="typeOptions"
+                optionLabel="label"
+                optionValue="value"
+                styleClass="w-full"
+                size="small"
+                [placeholder]="'wms.receipts.typePlaceholder' | transloco"
+              />
+            </div>
+
+            <!-- PO Reference -->
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-surface-600">
+                {{ 'wms.receipts.poId' | transloco }}
+              </label>
+              <input
+                pInputText
+                formControlName="poId"
+                class="w-full text-sm"
+                size="small"
+                [placeholder]="'wms.receipts.poIdPlaceholder' | transloco"
+              />
+            </div>
+
+            <!-- Supplier -->
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-surface-600">
+                {{ 'wms.receipts.supplier' | transloco }}
+              </label>
+              <input
+                pInputText
+                formControlName="supplier"
+                class="w-full text-sm"
+                size="small"
+                [placeholder]="'wms.receipts.supplierPlaceholder' | transloco"
+              />
+            </div>
+
+            <!-- Shipping Party -->
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-surface-600">
+                {{ 'wms.receipts.shippingParty' | transloco }}
+              </label>
+              <input
+                pInputText
+                formControlName="shippingParty"
+                class="w-full text-sm"
+                size="small"
+                [placeholder]="'wms.receipts.shippingPartyPlaceholder' | transloco"
+              />
+            </div>
+
+            <!-- Expected Receipt Date -->
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-surface-600">
+                {{ 'wms.receipts.expectedReceiptAt' | transloco }}
+              </label>
+              <p-datepicker
+                formControlName="expectedReceiptAt"
+                styleClass="w-full"
+                size="small"
+                [showIcon]="true"
+                dateFormat="dd/mm/yy"
+                [placeholder]="'wms.receipts.expectedDatePlaceholder' | transloco"
+              />
+            </div>
+
+            <!-- Notes (full width) -->
+            <div class="flex flex-col gap-1 md:col-span-2">
+              <label class="text-xs font-medium text-surface-600">
+                {{ 'wms.receipts.notes' | transloco }}
+              </label>
+              <textarea
+                pTextarea
+                formControlName="notes"
+                rows="3"
+                class="w-full text-sm"
+                [placeholder]="'wms.receipts.notesPlaceholder' | transloco"
+              ></textarea>
+            </div>
+          </div>
+        </p-tabpanel>
+
+        <!-- Lines Tab -->
+        <p-tabpanel [value]="1">
+          <div class="flex justify-between items-center py-3">
+            <span class="text-sm font-medium text-surface-700">
+              {{ 'wms.receipts.lines' | transloco }}
+            </span>
+            @if (!isView()) {
+              <p-button
+                [label]="'wms.receipts.addLine' | transloco"
+                icon="pi pi-plus"
+                size="small"
+                severity="secondary"
+                (onClick)="addLine()"
+              />
+            }
+          </div>
+
+          @if (linesArray.length === 0) {
+            <div class="text-center py-8 text-surface-400 text-sm">
+              {{ 'wms.receipts.noLines' | transloco }}
+            </div>
+          } @else {
+            <div formArrayName="lines" class="flex flex-col gap-2">
+              @for (line of linesArray.controls; track $index; let i = $index) {
+                <div [formGroupName]="i" class="flex gap-2 items-end bg-surface-50 rounded-lg p-3 border border-surface-200">
+                  <div class="flex flex-col gap-1 flex-1 min-w-0">
+                    <label class="text-xs text-surface-500">{{ 'wms.receipts.skuCode' | transloco }} *</label>
+                    <input
+                      pInputText
+                      formControlName="skuCode"
+                      size="small"
+                      [placeholder]="'wms.receipts.skuCodePlaceholder' | transloco"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1 flex-[2] min-w-0">
+                    <label class="text-xs text-surface-500">{{ 'wms.receipts.skuName' | transloco }}</label>
+                    <input
+                      pInputText
+                      formControlName="skuName"
+                      size="small"
+                      [placeholder]="'wms.receipts.skuNamePlaceholder' | transloco"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1 w-28">
+                    <label class="text-xs text-surface-500">{{ 'wms.receipts.orderedQty' | transloco }} *</label>
+                    <p-inputnumber
+                      formControlName="orderedQty"
+                      [min]="0"
+                      size="small"
+                      styleClass="w-full"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1 w-20">
+                    <label class="text-xs text-surface-500">{{ 'wms.receipts.unit' | transloco }}</label>
+                    <input
+                      pInputText
+                      formControlName="unit"
+                      size="small"
+                      placeholder="pcs"
+                    />
+                  </div>
+                  @if (!isView()) {
+                    <p-button
+                      icon="pi pi-trash"
+                      severity="danger"
+                      [text]="true"
+                      size="small"
+                      class="shrink-0"
+                      (onClick)="removeLine(i)"
+                      [pTooltip]="'common.remove' | transloco"
+                    />
+                  }
+                </div>
+              }
+            </div>
+          }
+        </p-tabpanel>
+
+        <!-- Reference Documents Tab -->
+        <p-tabpanel [value]="2">
+          <div class="flex justify-between items-center py-3">
+            <span class="text-sm font-medium text-surface-700">
+              {{ 'wms.receipts.referenceDocs' | transloco }}
+            </span>
+            @if (!isView()) {
+              <p-button
+                [label]="'wms.receipts.addRefDoc' | transloco"
+                icon="pi pi-plus"
+                size="small"
+                severity="secondary"
+                (onClick)="addReferenceDoc()"
+              />
+            }
+          </div>
+
+          @if (referenceDocsArray.length === 0) {
+            <div class="text-center py-8 text-surface-400 text-sm">
+              {{ 'wms.receipts.noRefDocs' | transloco }}
+            </div>
+          } @else {
+            <div formArrayName="referenceDocs" class="flex flex-col gap-2">
+              @for (doc of referenceDocsArray.controls; track $index; let i = $index) {
+                <div [formGroupName]="i" class="flex gap-2 items-end bg-surface-50 rounded-lg p-3 border border-surface-200">
+                  <div class="flex flex-col gap-1 w-44">
+                    <label class="text-xs text-surface-500">{{ 'wms.receipts.refDocType' | transloco }} *</label>
+                    <p-select
+                      formControlName="type"
+                      [options]="refDocTypes"
+                      optionLabel="label"
+                      optionValue="value"
+                      size="small"
+                      styleClass="w-full"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1 flex-1 min-w-0">
+                    <label class="text-xs text-surface-500">{{ 'wms.receipts.refDocId' | transloco }}</label>
+                    <input
+                      pInputText
+                      formControlName="refId"
+                      size="small"
+                      [placeholder]="'wms.receipts.refDocIdPlaceholder' | transloco"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1 flex-[2] min-w-0">
+                    <label class="text-xs text-surface-500">{{ 'wms.receipts.refDocUrl' | transloco }}</label>
+                    <input
+                      pInputText
+                      formControlName="url"
+                      size="small"
+                      placeholder="https://..."
+                    />
+                  </div>
+                  @if (!isView()) {
+                    <p-button
+                      icon="pi pi-trash"
+                      severity="danger"
+                      [text]="true"
+                      size="small"
+                      class="shrink-0"
+                      (onClick)="removeReferenceDoc(i)"
+                      [pTooltip]="'common.remove' | transloco"
+                    />
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          @if (!isView()) {
+            <p-message
+              severity="info"
+              styleClass="mt-4 w-full"
+              [text]="'wms.receipts.refDocUploadNote' | transloco"
+            />
+          }
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </form>
+</div>

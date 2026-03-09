@@ -10,6 +10,7 @@ import {
   HttpStatus,
   HttpException,
   UseGuards,
+  Inject,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -30,19 +31,24 @@ import {
   FinalizeReceiptDto,
   UnlockReceiptDto,
   QcReceiptDto,
+  RequestUploadUrlDto,
 } from '../../dto/wms/receipt.dto';
 import { ReceiptStatus } from '@shared/schemas';
 import { created, fetched, paginated, error, ok } from '@shared/response';
 import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { Permissions } from '@shared/authz/decorators';
 import { Permission } from '@shared/types/permission.enum';
+import { MinioService } from '@shared/services/minio/minio.service';
 
 @ApiTags('wms-receipts')
 @Controller('wms/receipts')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class ReceiptController {
-  constructor(private readonly receiptService: ReceiptService) {}
+  constructor(
+    private readonly receiptService: ReceiptService,
+    @Inject(MinioService) private readonly minioService: MinioService,
+  ) {}
 
   @Post()
   @Permissions(Permission.WMS_RECEIPT_CREATE)
@@ -327,6 +333,42 @@ export class ReceiptController {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
         error('RECEIPT_COMPLETE_ERROR', err.message || 'Failed to complete receipt'),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post(':id/upload-url')
+  @Permissions(Permission.WMS_RECEIPT_UPDATE)
+  @ApiOperation({ summary: 'Get a presigned upload URL for attaching a reference document to a receipt' })
+  @ApiParam({ name: 'id', description: 'Receipt ID' })
+  @ApiResponse({ status: 200, description: 'Presigned upload URL returned' })
+  async getUploadUrl(@Param('id') id: string, @Body() dto: RequestUploadUrlDto, @Request() req: any) {
+    try {
+      // Verify receipt exists
+      const receipt = await this.receiptService.findById(id);
+      const orgId = receipt.orgId?.toString() ?? 'unknown';
+
+      const ts = Date.now();
+      const fileKey = `receipts/${orgId}/${id}/documents/${ts}-${dto.fileName}`;
+
+      const presigned = await this.minioService.presignUpload(fileKey, {
+        expiresIn: 600, // 10 minutes
+        contentType: dto.mimeType,
+      });
+
+      return ok({
+        uploadUrl: presigned.url,
+        method: presigned.method,
+        fileKey,
+        fileName: dto.fileName,
+        mimeType: dto.mimeType,
+        expiresAt: presigned.expiresAt,
+      }, 'Presigned upload URL generated');
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      throw new HttpException(
+        error('RECEIPT_UPLOAD_URL_ERROR', err.message || 'Failed to generate upload URL'),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

@@ -185,6 +185,18 @@ export class WmsService {
       .pipe(map((response) => response.data!));
   }
 
+  getReceiptUploadUrl(
+    id: string,
+    dto: { fileName: string; mimeType: string; docType?: string },
+  ): Observable<{ uploadUrl: string; method: string; fileKey: string; fileName: string; mimeType: string; expiresAt: string }> {
+    return this.http
+      .post<ApiResponse<{ uploadUrl: string; method: string; fileKey: string; fileName: string; mimeType: string; expiresAt: string }>>(
+        `${this.baseUrl}/wms/receipts/${id}/upload-url`,
+        dto,
+      )
+      .pipe(map((response) => response.data!));
+  }
+
   // ===== Picklists API =====
 
   getPicklists(params?: {

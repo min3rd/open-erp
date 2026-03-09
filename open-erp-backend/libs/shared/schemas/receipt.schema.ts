@@ -62,6 +62,26 @@ export class ReferenceDoc {
 
   @Prop({ type: String })
   url?: string;
+
+  /** MinIO object key (for uploaded files) */
+  @Prop({ type: String })
+  fileKey?: string;
+
+  /** MinIO bucket name */
+  @Prop({ type: String })
+  fileBucket?: string;
+
+  /** Original file name */
+  @Prop({ type: String })
+  fileName?: string;
+
+  /** MIME type */
+  @Prop({ type: String })
+  mimeType?: string;
+
+  /** File size in bytes */
+  @Prop({ type: Number })
+  fileSize?: number;
 }
 
 export const ReferenceDocSchema = SchemaFactory.createForClass(ReferenceDoc);
@@ -190,6 +210,10 @@ export class Receipt extends Document {
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
   createdBy?: MongooseSchema.Types.ObjectId;
+
+  /** Reference to the ApprovalRequest in the approval-flow service */
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'ApprovalRequest', index: true })
+  approvalRequestId?: MongooseSchema.Types.ObjectId;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
   receivedBy?: MongooseSchema.Types.ObjectId;
