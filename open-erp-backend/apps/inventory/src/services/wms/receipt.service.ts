@@ -207,8 +207,7 @@ export class ReceiptService {
       updateData.rejectedAt = new Date();
       updateData.rejectionReason = dto.notes;
     } else {
-      // accept — keep under_review or move to pending for further approvals
-      // Apply line QC results if provided
+      // accept — apply QC results to lines; status remains under_review until explicitly approved
       if (dto.lineQcResults?.length) {
         const updatedLines = [...receipt.lines] as ReceiptLine[];
         for (const qcResult of dto.lineQcResults) {
@@ -221,8 +220,6 @@ export class ReceiptService {
         }
         updateData.lines = updatedLines;
       }
-      // After review accepted, move back to a reviewable state or keep under_review
-      // status remains under_review until explicitly approved
     }
 
     return this.receiptRepository.update(id, updateData);
@@ -262,10 +259,8 @@ export class ReceiptService {
       ReceiptStatus.PENDING,
       ReceiptStatus.DRAFT,
     ];
-    if (!receivableStatuses.includes(receipt.status) && receipt.status !== ReceiptStatus.APPROVED) {
-      if (receipt.status === ReceiptStatus.COMPLETED || receipt.status === ReceiptStatus.FINALIZED || receipt.status === ReceiptStatus.CANCELLED || receipt.status === ReceiptStatus.REJECTED) {
-        throw new BadRequestException(`Cannot receive a receipt in status: ${receipt.status}`);
-      }
+    if (!receivableStatuses.includes(receipt.status)) {
+      throw new BadRequestException(`Cannot receive a receipt in status: ${receipt.status}`);
     }
 
     const updatedLines = [...receipt.lines] as ReceiptLine[];
