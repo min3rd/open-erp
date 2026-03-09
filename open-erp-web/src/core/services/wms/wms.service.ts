@@ -2,11 +2,17 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { API_URI_INVENTORY } from '../../constant';
-import { ApiResponse, ApiPaginatedResponse } from '../../api/interfaces';
+import { ApiResponse, ApiPaginatedResponse, ApiSingleResponse } from '../../api/interfaces';
 import {
   Receipt,
   CreateReceiptDto,
+  UpdateReceiptDto,
+  SubmitReceiptDto,
+  ReviewReceiptDto,
+  ApproveReceiptDto,
   ReceiveReceiptDto,
+  FinalizeReceiptDto,
+  UnlockReceiptDto,
   QcReceiptDto,
   ReceiptStatus,
   QcStatus,
@@ -21,14 +27,23 @@ import {
   CreateShipmentDto,
   ShipShipmentDto,
   ShipmentStatus,
+  AuditEntry,
 } from './wms.types';
 
 export type {
   Receipt,
   CreateReceiptDto,
+  UpdateReceiptDto,
+  SubmitReceiptDto,
+  ReviewReceiptDto,
+  ApproveReceiptDto,
   ReceiveReceiptDto,
+  FinalizeReceiptDto,
+  UnlockReceiptDto,
   QcReceiptDto,
   ReceiptLine,
+  ReferenceDoc,
+  AuditEntry,
   Picklist,
   PicklistLine,
   CreatePicklistDto,
@@ -42,6 +57,7 @@ export type {
 
 export {
   ReceiptStatus,
+  ReceiptType,
   QcStatus,
   PicklistStatus,
   WmsPackageStatus,
@@ -93,19 +109,55 @@ export class WmsService {
 
   getReceiptById(id: string): Observable<Receipt> {
     return this.http
-      .get<ApiResponse<Receipt>>(`${this.baseUrl}/wms/receipts/${id}`)
-      .pipe(map((response) => response.data!));
+      .get<ApiSingleResponse<Receipt>>(`${this.baseUrl}/wms/receipts/${id}`)
+      .pipe(map((response) => response.data?.item!));
   }
 
   createReceipt(dto: CreateReceiptDto): Observable<Receipt> {
     return this.http
-      .post<ApiResponse<{ mode: string; item: Receipt }>>(`${this.baseUrl}/wms/receipts`, dto)
+      .post<ApiSingleResponse<Receipt>>(`${this.baseUrl}/wms/receipts`, dto)
       .pipe(map((response) => response.data?.item!));
+  }
+
+  updateReceipt(id: string, dto: UpdateReceiptDto): Observable<Receipt> {
+    return this.http
+      .patch<ApiResponse<Receipt>>(`${this.baseUrl}/wms/receipts/${id}`, dto)
+      .pipe(map((response) => response.data!));
+  }
+
+  submitReceipt(id: string, dto: SubmitReceiptDto): Observable<Receipt> {
+    return this.http
+      .post<ApiResponse<Receipt>>(`${this.baseUrl}/wms/receipts/${id}/submit`, dto)
+      .pipe(map((response) => response.data!));
+  }
+
+  reviewReceipt(id: string, dto: ReviewReceiptDto): Observable<Receipt> {
+    return this.http
+      .post<ApiResponse<Receipt>>(`${this.baseUrl}/wms/receipts/${id}/review`, dto)
+      .pipe(map((response) => response.data!));
+  }
+
+  approveReceipt(id: string, dto: ApproveReceiptDto): Observable<Receipt> {
+    return this.http
+      .post<ApiResponse<Receipt>>(`${this.baseUrl}/wms/receipts/${id}/approve`, dto)
+      .pipe(map((response) => response.data!));
   }
 
   receiveReceipt(id: string, dto: ReceiveReceiptDto): Observable<Receipt> {
     return this.http
-      .patch<ApiResponse<Receipt>>(`${this.baseUrl}/wms/receipts/${id}/receive`, dto)
+      .post<ApiResponse<Receipt>>(`${this.baseUrl}/wms/receipts/${id}/receive`, dto)
+      .pipe(map((response) => response.data!));
+  }
+
+  finalizeReceipt(id: string, dto: FinalizeReceiptDto): Observable<Receipt> {
+    return this.http
+      .post<ApiResponse<Receipt>>(`${this.baseUrl}/wms/receipts/${id}/finalize`, dto)
+      .pipe(map((response) => response.data!));
+  }
+
+  unlockReceipt(id: string, dto: UnlockReceiptDto): Observable<Receipt> {
+    return this.http
+      .post<ApiResponse<Receipt>>(`${this.baseUrl}/wms/receipts/${id}/unlock`, dto)
       .pipe(map((response) => response.data!));
   }
 
@@ -118,6 +170,18 @@ export class WmsService {
   completeReceipt(id: string): Observable<Receipt> {
     return this.http
       .patch<ApiResponse<Receipt>>(`${this.baseUrl}/wms/receipts/${id}/complete`, {})
+      .pipe(map((response) => response.data!));
+  }
+
+  getReceiptAudit(id: string): Observable<AuditEntry[]> {
+    return this.http
+      .get<ApiResponse<AuditEntry[]>>(`${this.baseUrl}/wms/receipts/${id}/audit`)
+      .pipe(map((response) => response.data || []));
+  }
+
+  getReceiptLabel(id: string): Observable<{ id: string; code: string; url: string; qrData: string }> {
+    return this.http
+      .get<ApiResponse<{ id: string; code: string; url: string; qrData: string }>>(`${this.baseUrl}/wms/receipts/${id}/label`)
       .pipe(map((response) => response.data!));
   }
 

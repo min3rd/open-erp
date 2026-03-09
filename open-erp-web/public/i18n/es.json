@@ -205,7 +205,8 @@
   },
   "common": {
     "title": "Open ERP",
-    "appShortName": "ERP"
+    "appShortName": "ERP",
+    "cancel": "Cancelar"
   },
   "auth": {
     "logout": "Cerrar Sesión"
@@ -2699,7 +2700,35 @@
       "sku": "SKU",
       "ordered": "Pedido",
       "received": "Recibido",
-      "qcStatus": "Estado QC"
+      "qcStatus": "Estado QC",
+      "code": "Código",
+      "type": "Tipo",
+      "create": "Crear Recepción",
+      "shippingParty": "Parte Expedidora",
+      "expectedAt": "Fecha Prevista",
+      "actualAt": "Fecha Real",
+      "approvedAt": "Aprobado El",
+      "rejectionReason": "Motivo de Rechazo",
+      "tabOverview": "Resumen",
+      "tabLines": "Líneas",
+      "tabAudit": "Auditoría",
+      "noAudit": "Sin entradas de auditoría",
+      "submit": "Enviar para Revisión",
+      "approve": "Aprobar",
+      "receive": "Recibir",
+      "finalize": "Finalizar",
+      "locked": "Bloqueado",
+      "orgId": "ID de Organización",
+      "orgIdPlaceholder": "Ingrese ID de organización",
+      "warehouseId": "ID de Almacén",
+      "warehouseIdPlaceholder": "Ingrese ID de almacén",
+      "poIdPlaceholder": "Ingrese referencia PO",
+      "supplierPlaceholder": "Ingrese nombre del proveedor",
+      "shippingPartyPlaceholder": "Ingrese parte expedidora",
+      "notesPlaceholder": "Ingrese notas...",
+      "actionNotesPlaceholder": "Ingrese notas opcionales...",
+      "receiveConfirm": "Confirmar la recepción de artículos.",
+      "finalizeWarning": "Finalizar bloqueará esta recepción. No se puede editar sin desbloqueo de administrador."
     },
     "picklists": {
       "title": "Listas de Picking",
