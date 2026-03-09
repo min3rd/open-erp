@@ -20,7 +20,6 @@ import {
   UpdateMetadataOptions,
   HealthCheckResult,
 } from './types/minio.types';
-import { isDevelopment } from '@shared/config/common.config';
 
 /**
  * Service for interacting with MinIO object storage
@@ -733,6 +732,70 @@ export class MinioService implements IMinioService {
       );
       // Return empty string on error instead of throwing
       return '';
+    }
+  }
+
+  createClient(options: Minio.ClientOptions): Minio.Client {
+    return new Minio.Client({
+      ...options,
+    });
+  }
+
+  /**
+   * Generate a presigned URL for downloading
+   */
+  async presignInternalDownload(
+    key: string,
+    options?: PresignedUrlOptions,
+  ): Promise<PresignedDownloadResult> {
+    try {
+      const sanitizedKey = this.sanitizeKey(key);
+      const expiresIn: number =
+        options?.expiresIn ||
+        this.config.presignedUrlExpiry ||
+        this.DEFAULT_PRESIGNED_URL_EXPIRY;
+
+      this.logger.debug(
+        `Generating presigned download URL for: ${sanitizedKey}`,
+      );
+
+      const reqParams: Record<string, string> = {};
+      if (options?.responseHeaders) {
+        Object.entries(options.responseHeaders).forEach(([k, v]) => {
+          if (v) reqParams[`response-${k}`] = v;
+        });
+      }
+      if (options?.versionId) {
+        reqParams['versionId'] = options.versionId;
+      }
+
+      const url = await this.createClient({
+        endPoint: 'host.docker.internal', // Use internal hostname for Docker communication
+        port: this.config.port,
+        useSSL: false, // Force HTTP for internal access
+        accessKey: this.config.accessKey,
+        secretKey: this.config.secretKey,
+        region: this.config.region,
+      }).presignedGetObject(
+        this.config.bucket,
+        sanitizedKey,
+        expiresIn,
+        reqParams,
+      );
+
+      const expiresAt = new Date();
+      expiresAt.setSeconds(expiresAt.getSeconds() + expiresIn);
+
+      return {
+        url,
+        expiresAt,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error generating presigned download URL for ${key}: ${error.message}`,
+        error.stack,
+      );
+      throw error;
     }
   }
 }

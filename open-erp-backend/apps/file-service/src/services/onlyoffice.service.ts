@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { MinioService } from '@shared/services/minio/minio.service';
 import { FileRepository } from '../repositories/file.repository';
 import * as crypto from 'crypto';
+import { isDevelopment } from '@shared/config/common.config';
 
 /**
  * Supported OnlyOffice document types and their extensions
@@ -133,10 +134,16 @@ export class OnlyOfficeService {
 
     // Generate presigned URL for OnlyOffice to fetch the file
     // Use the provided bucket or fall back to the default bucket
-    const presignResult = await this.minioService.presignDownload(key, {
+    let presignResult = await this.minioService.presignDownload(key, {
       bucket,
       expiresIn: 7200, // 2 hours for editing sessions
     });
+    if (isDevelopment()) {
+      presignResult = await this.minioService.presignInternalDownload(key, {
+        bucket,
+        expiresIn: 7200,
+      });
+    }
 
     const documentKey = this.generateDocumentKey(
       fileId || minioKey || key,

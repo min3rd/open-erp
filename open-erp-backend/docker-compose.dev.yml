@@ -71,6 +71,8 @@ services:
       JWT_ENABLED: 'false'
     extra_hosts:
       - 'host.docker.internal:host-gateway'
+    volumes:
+      - ./docker-compose/onlyoffice/default.json:/etc/onlyoffice/documentserver/default.json
     networks:
       - erp-network
     healthcheck:
