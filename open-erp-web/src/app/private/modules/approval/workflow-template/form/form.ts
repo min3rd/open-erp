@@ -145,10 +145,12 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
   protected readonly edgeTargetId = signal<string>('');
 
   // Node options for edge creation dropdown
+  // Note: ngx-vflow's VflowNode union type doesn't expose `data` directly;
+  // at runtime, `data` is a WritableSignal when nodes are initialized via createNodes().
   protected readonly nodeOptions = computed(() => {
     return this.vflowNodes().map((n) => {
-      const nodeAny = n as any;
-      const data = typeof nodeAny.data === 'function' ? nodeAny.data() : nodeAny.data;
+      const dataSignal = (n as unknown as Record<string, unknown>)['data'];
+      const data = typeof dataSignal === 'function' ? (dataSignal as () => VflowNodeData)() : (dataSignal as VflowNodeData | undefined);
       return {
         label: `${data?.label || 'Node'} (${n.id})`,
         value: n.id,
