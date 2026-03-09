@@ -35,6 +35,19 @@
           [attr.aria-label]="'provinceList.addButton.label' | transloco"
         />
 
+        <!-- Refresh Button -->
+        <p-button
+          id="province-list-refresh-button"
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [text]="true"
+          [loading]="isLoading()"
+          (onClick)="onRefresh()"
+          [pTooltip]="'provinceList.refreshButton.tooltip' | transloco"
+          tooltipPosition="bottom"
+          [attr.aria-label]="'provinceList.refreshButton.label' | transloco"
+        />
+
         <!-- Actions Menu -->
         <p-button
           id="province-list-actions-button"
@@ -82,6 +95,7 @@
           icon="pi pi-refresh"
           [rounded]="true"
           [text]="true"
+          [loading]="isLoading()"
           (onClick)="onRefresh()"
           [pTooltip]="'provinceList.refreshButton.tooltip' | transloco"
           tooltipPosition="bottom"
@@ -369,5 +383,5 @@
   <p-confirmDialog id="province-list-confirm-dialog" />
 
   <!-- Drawer/Modal for Detail/Edit (via router-outlet) -->
-  <router-outlet></router-outlet>
+  <router-outlet (deactivate)="onChildDeactivated()"></router-outlet>
 </div>

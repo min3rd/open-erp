@@ -928,4 +928,19 @@ export class ProductList implements OnInit, OnDestroy {
         return undefined;
     }
   }
+
+  /**
+   * Refresh the product list using current filters and pagination.
+   */
+  protected onRefresh(): void {
+    this.loadProducts();
+  }
+
+  /**
+   * Called when a child route component deactivates (e.g. form closes).
+   * Triggers a list refresh so changes are reflected immediately.
+   */
+  protected onChildDeactivated(): void {
+    this.onRefresh();
+  }
 }

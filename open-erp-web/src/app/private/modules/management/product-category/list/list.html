@@ -94,6 +94,7 @@
           icon="pi pi-refresh"
           [rounded]="true"
           [text]="true"
+          [loading]="isLoading()"
           (onClick)="onRefresh()"
           [pTooltip]="'productCategoryList.refreshButton.tooltip' | transloco"
           tooltipPosition="bottom"
@@ -197,6 +198,7 @@
           icon="pi pi-refresh"
           [rounded]="true"
           [text]="true"
+          [loading]="isLoading()"
           (onClick)="onRefresh()"
           [pTooltip]="'productCategoryList.refreshButton.tooltip' | transloco"
           tooltipPosition="bottom"
@@ -555,4 +557,4 @@
 <p-confirmDialog id="product-category-list-confirm-dialog" />
 
 <!-- Router Outlet for Drawer/Modal Forms -->
-<router-outlet />
+<router-outlet (deactivate)="onChildDeactivated()" />

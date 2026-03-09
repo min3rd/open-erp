@@ -735,4 +735,12 @@ export class ProductCategoryList implements OnInit, OnDestroy {
   protected getSortLabel(option: SortOption): string {
     return this.translocoService.translate(option.label);
   }
+
+  /**
+   * Called when a child route component deactivates (e.g. form closes).
+   * Triggers a list refresh so changes are reflected immediately.
+   */
+  protected onChildDeactivated(): void {
+    this.onRefresh();
+  }
 }

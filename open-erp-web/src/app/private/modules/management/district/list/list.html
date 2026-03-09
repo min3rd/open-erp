@@ -48,6 +48,19 @@
           [attr.aria-label]="'districtList.addButton.label' | transloco"
         />
 
+        <!-- Refresh Button -->
+        <p-button
+          id="district-list-refresh-button"
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [text]="true"
+          [loading]="isLoading()"
+          (onClick)="onRefresh()"
+          [pTooltip]="'districtList.refreshButton.tooltip' | transloco"
+          tooltipPosition="bottom"
+          [attr.aria-label]="'districtList.refreshButton.label' | transloco"
+        />
+
         <!-- Actions Menu -->
         <p-button
           id="district-list-actions-button"
@@ -95,6 +108,7 @@
           icon="pi pi-refresh"
           [rounded]="true"
           [text]="true"
+          [loading]="isLoading()"
           (onClick)="onRefresh()"
           [pTooltip]="'districtList.refreshButton.tooltip' | transloco"
           tooltipPosition="bottom"
@@ -402,5 +416,5 @@
   <p-confirmDialog id="district-list-confirm-dialog" />
 
   <!-- Drawer/Modal for Detail/Edit (via router-outlet) -->
-  <router-outlet></router-outlet>
+  <router-outlet (deactivate)="onChildDeactivated()"></router-outlet>
 </div>

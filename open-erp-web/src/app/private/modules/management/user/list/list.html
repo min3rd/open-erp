@@ -53,6 +53,19 @@
             [attr.aria-label]="'userList.addButton.label' | transloco"
           />
 
+          <!-- Refresh Button -->
+          <p-button
+            id="user-list-refresh-button"
+            icon="pi pi-refresh"
+            [rounded]="true"
+            [text]="true"
+            [loading]="isLoading()"
+            (onClick)="onRefresh()"
+            [pTooltip]="'userList.refreshButton.tooltip' | transloco"
+            tooltipPosition="bottom"
+            [attr.aria-label]="'userList.refreshButton.label' | transloco"
+          />
+
           <!-- Actions Menu -->
           <p-button
             id="user-list-actions-button"
@@ -117,6 +130,7 @@
             icon="pi pi-refresh"
             [rounded]="true"
             [text]="true"
+            [loading]="isLoading()"
             (onClick)="onRefresh()"
             [pTooltip]="'userList.refreshButton.tooltip' | transloco"
             tooltipPosition="bottom"
@@ -466,7 +480,7 @@
     </div>
     @if (true) {
       <div>
-        <router-outlet></router-outlet>
+        <router-outlet (deactivate)="onChildDeactivated()"></router-outlet>
       </div>
     }
   </div>

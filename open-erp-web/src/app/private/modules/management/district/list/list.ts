@@ -482,7 +482,37 @@ export class DistrictList implements OnInit, OnDestroy {
    * Refresh district list
    */
   protected onRefresh(): void {
-    window.location.reload();
+    this.isLoading.set(true);
+    this.districtService
+      .getDistricts({
+        page: this.currentPage(),
+        limit: this.pageSize(),
+        q: this.searchQuery() || undefined,
+        provinceCode:
+          this.selectedProvinceCode() !== 'all-provinces'
+            ? this.selectedProvinceCode()
+            : undefined,
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.districts.set(data.items);
+          this.totalRecords.set(data.total);
+          this.isLoading.set(false);
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.isLoading.set(false);
+        },
+      });
+  }
+
+  /**
+   * Called when a child route component deactivates (e.g. form closes).
+   * Triggers a list refresh so changes are reflected immediately.
+   */
+  protected onChildDeactivated(): void {
+    this.onRefresh();
   }
 
   /**

@@ -405,13 +405,24 @@ export class ProvinceList implements OnInit, OnDestroy {
    * Refresh province list
    */
   protected onRefresh(): void {
+    this.isLoading.set(true);
     this.provinceService
       .getProvinces({
         page: this.currentPage(),
         limit: this.pageSize(),
         search: this.searchQuery() || undefined,
       })
-      .subscribe();
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.provinces.set(data.items);
+          this.totalRecords.set(data.total);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.isLoading.set(false);
+        },
+      });
   }
 
   /**
@@ -472,5 +483,13 @@ export class ProvinceList implements OnInit, OnDestroy {
         command: () => this.onDeleteProvince(province),
       },
     ];
+  }
+
+  /**
+   * Called when a child route component deactivates (e.g. form closes).
+   * Triggers a list refresh so changes are reflected immediately.
+   */
+  protected onChildDeactivated(): void {
+    this.onRefresh();
   }
 }

@@ -28,6 +28,7 @@
           icon="pi pi-refresh"
           [rounded]="true"
           [text]="true"
+          [loading]="isLoading()"
           (onClick)="onRefresh()"
           [pTooltip]="'wardList.refreshButton.tooltip' | transloco"
           tooltipPosition="bottom"
@@ -94,6 +95,7 @@
           icon="pi pi-refresh"
           [rounded]="true"
           [text]="true"
+          [loading]="isLoading()"
           (onClick)="onRefresh()"
           [pTooltip]="'wardList.refreshButton.tooltip' | transloco"
           tooltipPosition="bottom"
@@ -482,5 +484,5 @@
   <p-confirmDialog id="ward-list-confirm-dialog" />
 
   <!-- Drawer/Modal for Detail/Edit (via router-outlet) -->
-  <router-outlet></router-outlet>
+  <router-outlet (deactivate)="onChildDeactivated()"></router-outlet>
 </div>
