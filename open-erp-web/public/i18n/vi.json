@@ -2461,7 +2461,8 @@
       },
       "sections": {
         "workflowInfo": "Thông tin luồng",
-        "addNode": "Thêm nút"
+        "addNode": "Thêm nút",
+        "addEdge": "Thêm liên kết"
       },
       "nodeTypes": {
         "approval": "Phê duyệt",
@@ -2478,10 +2479,11 @@
         "unpublish": "Hủy xuất bản",
         "archive": "Lưu trữ",
         "duplicate": "Nhân bản",
-        "deleteEdge": "Xóa liên kết đã chọn"
+        "deleteEdge": "Xóa liên kết đã chọn",
+        "toggleSidebar": "Mở/đóng bảng thông tin"
       },
       "hints": {
-        "edgeHelp": "Kéo từ tay nắm phải (○) đến tay nắm trái (○) để kết nối các node. Nhấp vào một liên kết để chọn, sau đó nhấn Delete để xóa. Nhấp đúp vào node để chỉnh sửa thiết lập."
+        "edgeHelp": "Kéo từ điểm kết nối (○) để liên kết các node, hoặc dùng phần \"Thêm liên kết\" bên dưới. Nhấp vào edge để chọn, sau đó nhấn Delete để xóa. Nhấp đúp vào node để chỉnh sửa."
       },
       "nodeDialog": {
         "title": "Thiết lập Node",
@@ -2497,6 +2499,11 @@
       "nodeMenu": {
         "edit": "Sửa node",
         "delete": "Xóa node"
+      },
+      "edge": {
+        "sourcePlaceholder": "Chọn node nguồn...",
+        "targetPlaceholder": "Chọn node đích...",
+        "addButton": "Thêm liên kết"
       }
     }
   }

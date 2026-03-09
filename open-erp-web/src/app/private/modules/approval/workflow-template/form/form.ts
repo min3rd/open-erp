@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -77,10 +77,18 @@ interface VflowNodeData {
   timeoutHours?: number;
 }
 
+interface HandleDef {
+  id: string;
+  type: 'source' | 'target';
+  position: 'left' | 'right' | 'top' | 'bottom';
+  offsetY: number;
+}
+
 @Component({
   selector: 'approval-workflow-template-form',
   imports: [
     CommonModule,
+    FormsModule,
     ReactiveFormsModule,
     TranslocoModule,
     ButtonModule,
@@ -128,6 +136,25 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
   // Selected entities for deletion
   protected readonly selectedEdgeIds = signal<Set<string>>(new Set());
   protected readonly selectedNodeIds = signal<Set<string>>(new Set());
+
+  // Mobile sidebar
+  protected readonly showMobileSidebar = signal(false);
+
+  // Manual edge creation (sidebar dropdown-based)
+  protected readonly edgeSourceId = signal<string>('');
+  protected readonly edgeTargetId = signal<string>('');
+
+  // Node options for edge creation dropdown
+  protected readonly nodeOptions = computed(() => {
+    return this.vflowNodes().map((n) => {
+      const nodeAny = n as any;
+      const data = typeof nodeAny.data === 'function' ? nodeAny.data() : nodeAny.data;
+      return {
+        label: `${data?.label || 'Node'} (${n.id})`,
+        value: n.id,
+      };
+    });
+  });
 
   // Node settings dialog
   protected readonly showNodeDialog = signal(false);
@@ -378,6 +405,66 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
     };
 
     this.vflowNodes.set([...this.vflowNodes(), ...createNodes([newNode])]);
+  }
+
+  /**
+   * Create edge manually from sidebar dropdowns
+   */
+  protected addEdgeManually(): void {
+    if (this.isViewMode()) return;
+    const source = this.edgeSourceId();
+    const target = this.edgeTargetId();
+    if (!source || !target || source === target) return;
+
+    const newEdge: StaticEdge = {
+      id: `e-${Date.now()}-${++this.edgeIdCounter}`,
+      source,
+      target,
+      reconnectable: true,
+    };
+
+    this.vflowEdges.set([...this.vflowEdges(), ...createEdges([newEdge])]);
+    this.edgeSourceId.set('');
+    this.edgeTargetId.set('');
+  }
+
+  /**
+   * Get handle definitions for a given node type.
+   * Different node types have different numbers of source/target handles.
+   */
+  protected getHandlesForNodeType(nodeType: WorkflowNodeType): HandleDef[] {
+    switch (nodeType) {
+      case WorkflowNodeType.START:
+        // Start: 1 source (right), no target
+        return [
+          { id: 'source-1', type: 'source', position: 'right', offsetY: 0 },
+        ];
+      case WorkflowNodeType.END:
+        // End: 1 target (left), no source
+        return [
+          { id: 'target-1', type: 'target', position: 'left', offsetY: 0 },
+        ];
+      case WorkflowNodeType.APPROVAL:
+        // Approval: 1 target (left), 2 sources (right, offset)
+        return [
+          { id: 'target-1', type: 'target', position: 'left', offsetY: 0 },
+          { id: 'source-1', type: 'source', position: 'right', offsetY: -8 },
+          { id: 'source-2', type: 'source', position: 'right', offsetY: 8 },
+        ];
+      case WorkflowNodeType.CONDITION:
+        // Condition: 1 target (left), 3 sources (right, offset for yes/no/else)
+        return [
+          { id: 'target-1', type: 'target', position: 'left', offsetY: 0 },
+          { id: 'source-1', type: 'source', position: 'right', offsetY: -12 },
+          { id: 'source-2', type: 'source', position: 'right', offsetY: 0 },
+          { id: 'source-3', type: 'source', position: 'right', offsetY: 12 },
+        ];
+      default:
+        return [
+          { id: 'target-1', type: 'target', position: 'left', offsetY: 0 },
+          { id: 'source-1', type: 'source', position: 'right', offsetY: 0 },
+        ];
+    }
   }
 
   /**

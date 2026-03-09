@@ -116,13 +116,41 @@
   </mp-toolbar>
 
   <!-- Content: Sidebar + Canvas -->
-  <div class="flex flex-1 overflow-hidden">
+  <div class="flex flex-1 overflow-hidden relative">
+    <!-- Mobile sidebar toggle button -->
+    @if (isMobile()) {
+      <p-button
+        [icon]="showMobileSidebar() ? 'pi pi-times' : 'pi pi-bars'"
+        [rounded]="true"
+        severity="secondary"
+        class="absolute top-2 left-2 z-50"
+        [style]="{ position: 'absolute', top: '0.5rem', left: '0.5rem', 'z-index': 50 }"
+        (onClick)="showMobileSidebar.set(!showMobileSidebar())"
+        [pTooltip]="'workflowTemplate.form.actions.toggleSidebar' | transloco"
+        tooltipPosition="right"
+      />
+    }
+
     <!-- Left Sidebar: Form Fields -->
     <div
       class="w-80 flex-shrink-0 border-r border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 overflow-y-auto p-4"
-      [class.hidden]="isMobile()"
-      [class.!w-full]="isMobile()"
+      [class.hidden]="isMobile() && !showMobileSidebar()"
+      [class.!absolute]="isMobile() && showMobileSidebar()"
+      [class.!z-40]="isMobile() && showMobileSidebar()"
+      [class.!h-full]="isMobile() && showMobileSidebar()"
+      [class.!w-80]="isMobile() && showMobileSidebar()"
     >
+      @if (isMobile() && showMobileSidebar()) {
+        <div class="flex justify-end mb-2">
+          <p-button
+            icon="pi pi-times"
+            [rounded]="true"
+            [text]="true"
+            size="small"
+            (onClick)="showMobileSidebar.set(false)"
+          />
+        </div>
+      }
       <form [formGroup]="form" class="space-y-4">
         <!-- Name -->
         <div>
@@ -280,6 +308,44 @@
               />
             </div>
           </div>
+
+          <!-- Add Edge Section -->
+          <p-divider />
+          <div>
+            <h3 class="text-sm font-semibold mb-2">{{ 'workflowTemplate.form.sections.addEdge' | transloco }}</h3>
+            <div class="space-y-2">
+              <p-select
+                [options]="nodeOptions()"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="edgeSourceId"
+                [ngModelOptions]="{ standalone: true }"
+                [placeholder]="'workflowTemplate.form.edge.sourcePlaceholder' | transloco"
+                [style]="{ width: '100%' }"
+                [filter]="true"
+              />
+              <p-select
+                [options]="nodeOptions()"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="edgeTargetId"
+                [ngModelOptions]="{ standalone: true }"
+                [placeholder]="'workflowTemplate.form.edge.targetPlaceholder' | transloco"
+                [style]="{ width: '100%' }"
+                [filter]="true"
+              />
+              <p-button
+                icon="pi pi-arrow-right"
+                [label]="'workflowTemplate.form.edge.addButton' | transloco"
+                severity="secondary"
+                size="small"
+                [outlined]="true"
+                (onClick)="addEdgeManually()"
+                [disabled]="!edgeSourceId() || !edgeTargetId() || edgeSourceId() === edgeTargetId()"
+              />
+            </div>
+          </div>
+
           <p-divider />
           <div>
             <small class="text-surface-400">{{ 'workflowTemplate.form.hints.edgeHelp' | transloco }}</small>
@@ -314,17 +380,22 @@
       >
         <ng-template nodeHtml let-ctx>
           <div
-            class="flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-white text-sm font-medium shadow-md cursor-pointer select-none"
+            class="rounded-lg border-2 text-white text-sm font-medium shadow-md select-none"
             [style.background-color]="getNodeColor($any(ctx).data()?.nodeType)"
             [style.border-color]="getNodeColor($any(ctx).data()?.nodeType)"
-            [style.min-width.px]="120"
+            [style.min-width.px]="140"
             (dblclick)="openNodeSettings($any(ctx))"
             (contextmenu)="onNodeContextMenu($event, $any(ctx))"
           >
-            <i [class]="getNodeIcon($any(ctx).data()?.nodeType)"></i>
-            <span>{{ $any(ctx).data()?.label || 'Node' }}</span>
-            <handle type="source" position="right" />
-            <handle type="target" position="left" />
+            <!-- Node content -->
+            <div class="flex items-center gap-2 px-3 py-2">
+              <i [class]="getNodeIcon($any(ctx).data()?.nodeType)"></i>
+              <span>{{ $any(ctx).data()?.label || 'Node' }}</span>
+            </div>
+            <!-- Handles: multiple source/target per node type -->
+            @for (h of getHandlesForNodeType($any(ctx).data()?.nodeType); track h.id) {
+              <handle [type]="h.type" [position]="h.position" [id]="h.id" [offsetY]="h.offsetY" />
+            }
           </div>
         </ng-template>
       </vflow>
