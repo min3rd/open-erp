@@ -32,7 +32,7 @@
         icon="pi pi-plus"
         [label]="isMobile() ? '' : ('wms.receipts.create' | transloco)"
         size="small"
-        (onClick)="openCreateDrawer()"
+        (onClick)="navigateToCreate()"
         [pTooltip]="'wms.receipts.create' | transloco"
         tooltipPosition="bottom"
       />
@@ -174,7 +174,7 @@
                 [text]="true"
                 [rounded]="true"
                 size="small"
-                (onClick)="openDetail(receipt)"
+                (onClick)="openDetailRoute(receipt)"
                 [pTooltip]="'wms.view' | transloco"
               />
             </div>
@@ -375,68 +375,8 @@
     }
   </p-drawer>
 
-  <!-- Create Receipt Drawer -->
-  <p-drawer
-    [visible]="createDrawerVisible()"
-    (visibleChange)="createDrawerVisible.set($event)"
-    position="right"
-    [style]="{ width: isMobile() ? '100%' : '480px' }"
-    [header]="'wms.receipts.create' | transloco"
-  >
-    <form [formGroup]="createForm" class="flex flex-col gap-4">
-      <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium">{{ 'wms.receipts.orgId' | transloco }} *</label>
-        <input pInputText formControlName="orgId" [placeholder]="'wms.receipts.orgIdPlaceholder' | transloco" />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium">{{ 'wms.receipts.warehouseId' | transloco }} *</label>
-        <input pInputText formControlName="warehouseId" [placeholder]="'wms.receipts.warehouseIdPlaceholder' | transloco" />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium">{{ 'wms.receipts.type' | transloco }}</label>
-        <p-select
-          [options]="typeOptions"
-          formControlName="type"
-          optionLabel="label"
-          optionValue="value"
-          class="w-full"
-        />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium">{{ 'wms.receipts.poId' | transloco }}</label>
-        <input pInputText formControlName="poId" [placeholder]="'wms.receipts.poIdPlaceholder' | transloco" />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium">{{ 'wms.receipts.supplier' | transloco }}</label>
-        <input pInputText formControlName="supplier" [placeholder]="'wms.receipts.supplierPlaceholder' | transloco" />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium">{{ 'wms.receipts.shippingParty' | transloco }}</label>
-        <input pInputText formControlName="shippingParty" [placeholder]="'wms.receipts.shippingPartyPlaceholder' | transloco" />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium">{{ 'wms.receipts.notes' | transloco }}</label>
-        <textarea pTextarea formControlName="notes" [rows]="3" [placeholder]="'wms.receipts.notesPlaceholder' | transloco"></textarea>
-      </div>
-    </form>
-    <ng-template #footer>
-      <div class="flex justify-end gap-2">
-        <p-button
-          [label]="'common.cancel' | transloco"
-          severity="secondary"
-          [text]="true"
-          (onClick)="closeCreateDrawer()"
-        />
-        <p-button
-          [label]="'wms.receipts.create' | transloco"
-          icon="pi pi-plus"
-          [loading]="actionLoading()"
-          [disabled]="createForm.invalid"
-          (onClick)="submitCreate()"
-        />
-      </div>
-    </ng-template>
-  </p-drawer>
+  <!-- Create Receipt Drawer replaced by route-based form component -->
+  <!-- Navigate to 'new' route to create a receipt -->
 
   <!-- Action Drawer (submit / approve / receive / finalize) -->
   <p-drawer
@@ -480,4 +420,7 @@
       </div>
     </ng-template>
   </p-drawer>
+
+  <!-- Child route outlet for create/view/edit form pages -->
+  <router-outlet (deactivate)="onChildDeactivated()" />
 </div>

@@ -50,10 +50,51 @@ export class ReferenceDocDto {
   @IsString()
   refId?: string;
 
-  @ApiPropertyOptional({ description: 'Reference document URL' })
+  @ApiPropertyOptional({ description: 'External URL (for linked documents)' })
   @IsOptional()
   @IsString()
   url?: string;
+
+  @ApiPropertyOptional({ description: 'MinIO object key (for uploaded files)' })
+  @IsOptional()
+  @IsString()
+  fileKey?: string;
+
+  @ApiPropertyOptional({ description: 'MinIO bucket name' })
+  @IsOptional()
+  @IsString()
+  fileBucket?: string;
+
+  @ApiPropertyOptional({ description: 'Original file name' })
+  @IsOptional()
+  @IsString()
+  fileName?: string;
+
+  @ApiPropertyOptional({ description: 'MIME type' })
+  @IsOptional()
+  @IsString()
+  mimeType?: string;
+
+  @ApiPropertyOptional({ description: 'File size in bytes' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  fileSize?: number;
+}
+
+export class RequestUploadUrlDto {
+  @ApiProperty({ description: 'Original file name' })
+  @IsString()
+  fileName: string;
+
+  @ApiProperty({ description: 'MIME type of the file' })
+  @IsString()
+  mimeType: string;
+
+  @ApiPropertyOptional({ description: 'Reference document type' })
+  @IsOptional()
+  @IsString()
+  docType?: string;
 }
 
 export class CreateReceiptDto {

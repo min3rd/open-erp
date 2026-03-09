@@ -23,6 +23,23 @@ export const routes: Routes = [
             path: ':search/:page/:limit',
             loadComponent: () =>
               import('./receipts/list/list').then((m) => m.ReceiptList),
+            children: [
+              {
+                path: 'new',
+                loadComponent: () =>
+                  import('./receipts/form/form').then((m) => m.ReceiptForm),
+              },
+              {
+                path: ':id/view',
+                loadComponent: () =>
+                  import('./receipts/form/form').then((m) => m.ReceiptForm),
+              },
+              {
+                path: ':id/edit',
+                loadComponent: () =>
+                  import('./receipts/form/form').then((m) => m.ReceiptForm),
+              },
+            ],
           },
         ],
       },

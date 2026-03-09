@@ -39,6 +39,11 @@ export interface ReferenceDoc {
   type: string;
   refId?: string;
   url?: string;
+  fileKey?: string;
+  fileBucket?: string;
+  fileName?: string;
+  mimeType?: string;
+  fileSize?: number;
 }
 
 export interface ReceiptLine {
@@ -86,6 +91,7 @@ export interface Receipt {
   createdBy?: string;
   receivedBy?: string;
   receivedAt?: string;
+  approvalRequestId?: string;
   createdAt: string;
   updatedAt: string;
 }
