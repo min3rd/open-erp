@@ -81,6 +81,7 @@
                   pButton
                   icon="pi pi-refresh"
                   (click)="refreshAll()"
+                  [loading]="loading()"
                   [pTooltip]="'adminUnits.refresh' | transloco"
                 ></button>
               </div>
@@ -405,5 +406,5 @@
   }
 
   <!-- Router Outlet for Forms -->
-  <router-outlet />
+  <router-outlet (deactivate)="onChildDeactivated()" />
 </div>

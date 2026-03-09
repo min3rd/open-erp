@@ -475,10 +475,28 @@ export class WardList implements OnInit, OnDestroy {
   }
 
   /**
-   * Refresh ward list
+   * Refresh ward list - clears loaded state and re-fetches for active province.
    */
   protected onRefresh(): void {
-    window.location.reload();
+    const activeCode = this.activeProvinceCode();
+    if (activeCode) {
+      // Clear loaded state so loadWardsForProvince will re-fetch
+      const newMap = new Map(this.wardsByProvinceMap());
+      newMap.delete(activeCode);
+      this.wardsByProvinceMap.set(newMap);
+      this.loadWardsForProvince(activeCode);
+    } else {
+      // No active province - clear all cached data
+      this.wardsByProvinceMap.set(new Map());
+    }
+  }
+
+  /**
+   * Called when a child route component deactivates (e.g. form closes).
+   * Triggers a list refresh so changes are reflected immediately.
+   */
+  protected onChildDeactivated(): void {
+    this.onRefresh();
   }
 
 

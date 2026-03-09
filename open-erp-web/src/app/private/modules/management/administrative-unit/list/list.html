@@ -65,6 +65,7 @@
             class="p-button-text"
             id="administrative-unit-refresh-button"
             (click)="refresh()"
+            [loading]="loading()"
             [pTooltip]="'administrativeUnit.refreshButton.tooltip' | transloco"
             [text]="true"
             [raised]="true"
@@ -350,4 +351,4 @@
 <p-confirmdialog></p-confirmdialog>
 
 <!-- Router Outlet for Form -->
-<router-outlet />
+<router-outlet (deactivate)="onChildDeactivated()" />

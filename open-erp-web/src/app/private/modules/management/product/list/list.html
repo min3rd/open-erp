@@ -131,6 +131,19 @@
           [attr.aria-label]="'productList.addButton.label' | transloco"
         />
 
+        <!-- Refresh Button -->
+        <p-button
+          id="product-list-refresh-button"
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [text]="true"
+          [loading]="isLoading()"
+          (onClick)="onRefresh()"
+          [pTooltip]="'productList.refreshButton.tooltip' | transloco"
+          tooltipPosition="bottom"
+          [attr.aria-label]="'productList.refreshButton.label' | transloco"
+        />
+
         <!-- Actions Menu -->
         <p-button
           id="product-list-actions-button"
@@ -283,6 +296,19 @@
           [pTooltip]="'productList.addButton.tooltip' | transloco"
           tooltipPosition="bottom"
           [attr.aria-label]="'productList.addButton.label' | transloco"
+        />
+
+        <!-- Refresh Button -->
+        <p-button
+          id="product-list-refresh-button-mobile"
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [text]="true"
+          [loading]="isLoading()"
+          (onClick)="onRefresh()"
+          [pTooltip]="'productList.refreshButton.tooltip' | transloco"
+          tooltipPosition="bottom"
+          [attr.aria-label]="'productList.refreshButton.label' | transloco"
         />
 
         <!-- Actions Menu -->
@@ -615,5 +641,5 @@
   </div>
 
   <!-- Router Outlet for Forms/Details -->
-  <router-outlet />
+  <router-outlet (deactivate)="onChildDeactivated()" />
 </div>

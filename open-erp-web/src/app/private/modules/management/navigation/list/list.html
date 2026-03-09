@@ -63,6 +63,7 @@
             icon="pi pi-refresh"
             [rounded]="true"
             [text]="true"
+            [loading]="isLoading()"
             (onClick)="onRefresh()"
             [pTooltip]="'navigationManagement.toolbar.refreshTooltip' | transloco"
             tooltipPosition="bottom"
@@ -316,5 +317,5 @@
   </div>
 
   <!-- Detail Outlet (Drawer will be here) -->
-  <router-outlet></router-outlet>
+  <router-outlet (deactivate)="onChildDeactivated()"></router-outlet>
 </div>
