@@ -3822,7 +3822,19 @@
       "notes": "Notes"
     },
     "search": "Search...",
-    "columns": "Columns"
+    "columns": "Columns",
+    "quickWarehouse": {
+      "title": "Quick-create Warehouse",
+      "name": "Name",
+      "namePlaceholder": "e.g. Main Warehouse",
+      "code": "Code",
+      "codePlaceholder": "Auto-generated",
+      "codeAutoHint": "auto-generated if empty",
+      "address": "Address",
+      "addressPlaceholder": "e.g. 123 Main Street",
+      "randomize": "Randomize",
+      "successMessage": "Warehouse created and selected"
+    }
   },
   "workflowTemplate": {
     "search": {

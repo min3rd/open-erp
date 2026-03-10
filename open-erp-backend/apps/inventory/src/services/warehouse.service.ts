@@ -15,6 +15,7 @@ import {
   QueryWarehouseDto,
 } from '../dto/warehouse.dto';
 import { WarehouseDocument } from '@shared/schemas';
+import { WarehouseType } from '@shared/constants/warehouse.constants';
 
 @Injectable()
 export class WarehouseService {
@@ -28,31 +29,51 @@ export class WarehouseService {
   ) {}
 
   /**
-   * Create a new warehouse
+   * Create a new warehouse.
+   * `code` and `type` are optional – they will be auto-generated / defaulted when omitted.
+   * `province` / `ward` / `addressDetail` are also optional for quick-create flows.
    */
   async create(
     createDto: CreateWarehouseDto,
     userId: string,
   ): Promise<WarehouseDocument> {
-    this.logger.log(`Creating warehouse: ${createDto.code}`);
-    // Validate province exists
-    const provinceExists = await this.warehouseRepository.provinceExists(
-      createDto.province.code,
-    );
-    if (!provinceExists) {
-      throw new BadRequestException(
-        `Province with code ${createDto.province.code} does not exist`,
+    // Auto-generate code when not supplied
+    if (!createDto.code) {
+      createDto.code = await this.generateUniqueCode(
+        createDto.name,
+        createDto.tenantId,
       );
     }
 
-    // Validate ward exists and belongs to the province; populate provinceCode/districtCode
-    createDto.ward = {
-      ...createDto.ward,
-      ...(await this.resolveWardSnapshot(
-        createDto.ward.code,
+    // Default type when not supplied
+    if (!createDto.type) {
+      createDto.type = WarehouseType.GENERAL;
+    }
+
+    this.logger.log(`Creating warehouse: ${createDto.code}`);
+
+    // Validate province and ward only when provided
+    if (createDto.province?.code) {
+      const provinceExists = await this.warehouseRepository.provinceExists(
         createDto.province.code,
-      )),
-    };
+      );
+      if (!provinceExists) {
+        throw new BadRequestException(
+          `Province with code ${createDto.province.code} does not exist`,
+        );
+      }
+    }
+
+    if (createDto.ward?.code && createDto.province?.code) {
+      // Populate provinceCode/districtCode snapshot
+      createDto.ward = {
+        ...createDto.ward,
+        ...(await this.resolveWardSnapshot(
+          createDto.ward.code,
+          createDto.province.code,
+        )),
+      };
+    }
 
     // Check if warehouse code already exists
     const existingWarehouse = await this.warehouseRepository.findByCode(
@@ -437,5 +458,35 @@ export class WarehouseService {
       provinceCode: wardDoc.provinceCode,
       districtCode: wardDoc.districtCode,
     };
+  }
+
+  /**
+   * Auto-generate a unique warehouse code scoped to the tenant.
+   * Pattern: WH-<SLUG>-<TIMESTAMP_SUFFIX>
+   */
+  private async generateUniqueCode(
+    name: string,
+    tenantId?: string,
+  ): Promise<string> {
+    const slug = name
+      .toUpperCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^A-Z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 12);
+
+    let suffix = Date.now().toString().slice(-6);
+    let candidate = `WH-${slug}-${suffix}`;
+    let attempt = 0;
+    while (
+      (await this.warehouseRepository.findByCode(candidate, tenantId)) &&
+      attempt < 10
+    ) {
+      suffix = Date.now().toString().slice(-6);
+      candidate = `WH-${slug}-${suffix}`;
+      attempt++;
+    }
+    return candidate;
   }
 }

@@ -183,11 +183,11 @@ export class CreateWarehouseDto {
   @IsString()
   warehouseId?: string;
 
-  @ApiProperty({ example: 'WH-HN-001', description: 'Unique warehouse code' })
+  @ApiPropertyOptional({ example: 'WH-HN-001', description: 'Unique warehouse code (auto-generated if omitted)' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   @MaxLength(50)
-  code: string;
+  code?: string;
 
   @ApiProperty({ example: 'Kho Hà Nội 1', description: 'Warehouse name' })
   @IsString()
@@ -196,14 +196,14 @@ export class CreateWarehouseDto {
   @MaxLength(200)
   name: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     enum: WarehouseType,
     example: WarehouseType.GENERAL,
-    description: 'Warehouse type',
+    description: 'Warehouse type (defaults to GENERAL)',
   })
+  @IsOptional()
   @IsEnum(WarehouseType)
-  @IsNotEmpty()
-  type: WarehouseType;
+  type?: WarehouseType;
 
   @ApiPropertyOptional({
     enum: WarehouseStatus,
@@ -243,23 +243,23 @@ export class CreateWarehouseDto {
   @IsString()
   customsCode?: string;
 
-  @ApiProperty({ example: '123 Đường ABC', description: 'Detailed address' })
+  @ApiPropertyOptional({ example: '123 Đường ABC', description: 'Detailed address' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   @MaxLength(500)
-  addressDetail: string;
+  addressDetail?: string;
 
-  @ApiProperty({ type: WardDto, description: 'Ward information' })
+  @ApiPropertyOptional({ type: WardDto, description: 'Ward information' })
+  @IsOptional()
   @ValidateNested()
   @Type(() => WardDto)
-  @IsNotEmpty()
-  ward: WardDto;
+  ward?: WardDto;
 
-  @ApiProperty({ type: ProvinceDto, description: 'Province information' })
+  @ApiPropertyOptional({ type: ProvinceDto, description: 'Province information' })
+  @IsOptional()
   @ValidateNested()
   @Type(() => ProvinceDto)
-  @IsNotEmpty()
-  province: ProvinceDto;
+  province?: ProvinceDto;
 
   @ApiPropertyOptional({
     enum: Region,

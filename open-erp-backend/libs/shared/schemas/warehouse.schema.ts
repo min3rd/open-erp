@@ -126,6 +126,7 @@ export class Warehouse extends Document {
     type: String,
     required: true,
     enum: Object.values(WarehouseType),
+    default: WarehouseType.GENERAL,
     index: true,
   })
   type: WarehouseType;
@@ -168,23 +169,20 @@ export class Warehouse extends Document {
   // ========== ADDRESS (2 levels: ward and province, NO district) ==========
   @Prop({
     type: String,
-    required: true,
     trim: true,
     maxlength: 500,
   })
-  addressDetail: string;
+  addressDetail?: string;
 
   @Prop({
     type: WardSnapshot,
-    required: true,
   })
-  ward: WardSnapshot;
+  ward?: WardSnapshot;
 
   @Prop({
     type: ProvinceSnapshot,
-    required: true,
   })
-  province: ProvinceSnapshot;
+  province?: ProvinceSnapshot;
 
   @Prop({
     type: String,
@@ -442,7 +440,8 @@ WarehouseSchema.virtual('isActive').get(function () {
 });
 
 WarehouseSchema.virtual('fullAddress').get(function () {
-  return `${this.addressDetail}, ${this.ward.name}, ${this.province.name}`;
+  const parts = [this.addressDetail, this.ward?.name, this.province?.name].filter(Boolean);
+  return parts.join(', ');
 });
 
 // ========== JSON/OBJECT TRANSFORMATION ==========

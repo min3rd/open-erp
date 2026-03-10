@@ -90,7 +90,7 @@
                     </div>
                   </ng-template>
                 </p-autocomplete>
-                @if (!isView()) {
+                @if (!isView() && canCreateWarehouse()) {
                   <p-button
                     icon="pi pi-plus"
                     severity="secondary"
@@ -496,3 +496,10 @@
     </div>
   </ng-template>
 </p-drawer>
+
+<!-- Quick-create warehouse drawer (nested, appears in front of the receipt drawer) -->
+<app-quick-warehouse-drawer
+  [visible]="quickWarehouseDrawerVisible()"
+  (visibleChange)="quickWarehouseDrawerVisible.set($event)"
+  (warehouseCreated)="onQuickWarehouseCreated($event)"
+/>
