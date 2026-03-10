@@ -1,0 +1,104 @@
+<!-- Quick-create warehouse drawer -->
+<p-drawer
+  [visible]="visible"
+  (onHide)="onHide()"
+  position="right"
+  [style]="drawerStyle()"
+  [modal]="true"
+>
+  <!-- Header -->
+  <ng-template #header>
+    <div class="flex items-center gap-2 flex-1">
+      <i class="pi pi-warehouse text-primary"></i>
+      <span class="font-semibold text-base">
+        {{ 'wms.quickWarehouse.title' | transloco }}
+      </span>
+    </div>
+  </ng-template>
+
+  <!-- Body -->
+  <form [formGroup]="form" class="flex flex-col gap-4 pt-2">
+    <!-- Name (required) -->
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium text-surface-500">
+        {{ 'wms.quickWarehouse.name' | transloco }} *
+      </label>
+      <input
+        pInputText
+        formControlName="name"
+        size="small"
+        class="w-full"
+        [placeholder]="'wms.quickWarehouse.namePlaceholder' | transloco"
+        (input)="onNameInput()"
+      />
+      @if (form.get('name')?.invalid && form.get('name')?.touched) {
+        <small class="text-red-500 text-xs">{{ 'common.required' | transloco }}</small>
+      }
+    </div>
+
+    <!-- Code (auto-generated, editable) -->
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium text-surface-500">
+        {{ 'wms.quickWarehouse.code' | transloco }}
+        <span class="text-surface-400 font-normal ml-1">
+          ({{ 'wms.quickWarehouse.codeAutoHint' | transloco }})
+        </span>
+      </label>
+      <input
+        pInputText
+        formControlName="code"
+        size="small"
+        class="w-full"
+        [placeholder]="'wms.quickWarehouse.codePlaceholder' | transloco"
+      />
+    </div>
+
+    <!-- Address (optional) -->
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium text-surface-500">
+        {{ 'wms.quickWarehouse.address' | transloco }}
+      </label>
+      <input
+        pInputText
+        formControlName="addressDetail"
+        size="small"
+        class="w-full"
+        [placeholder]="'wms.quickWarehouse.addressPlaceholder' | transloco"
+      />
+    </div>
+
+    <!-- Dev-mode Randomize button -->
+    @if (isDevEnv) {
+      <div class="pt-1">
+        <p-button
+          [label]="'wms.quickWarehouse.randomize' | transloco"
+          icon="pi pi-refresh"
+          severity="secondary"
+          size="small"
+          [text]="true"
+          (onClick)="randomize()"
+        />
+      </div>
+    }
+  </form>
+
+  <!-- Footer -->
+  <ng-template #footer>
+    <div class="flex justify-end gap-2">
+      <p-button
+        [label]="'common.cancel' | transloco"
+        severity="secondary"
+        size="small"
+        (onClick)="close()"
+      />
+      <p-button
+        [label]="'common.save' | transloco"
+        icon="pi pi-save"
+        size="small"
+        [loading]="saving()"
+        [disabled]="form.invalid || saving()"
+        (onClick)="save()"
+      />
+    </div>
+  </ng-template>
+</p-drawer>

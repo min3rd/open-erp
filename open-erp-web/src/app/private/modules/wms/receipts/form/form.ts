@@ -7,6 +7,7 @@ import {
   inject,
   signal,
   computed,
+  isDevMode,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -48,6 +49,9 @@ import {
   Warehouse,
 } from '../../../../../../core/services/warehouse/warehouse.service';
 import { ProductService, Product } from '../../../../../../core/services/product/product.service';
+import { AuthService } from '../../../../../../core/services/auth-service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { QuickWarehouseDrawer } from '../quick-warehouse-drawer/quick-warehouse-drawer';
 
 @Component({
   selector: 'receipt-form',
@@ -68,6 +72,7 @@ import { ProductService, Product } from '../../../../../../core/services/product
     TagModule,
     TooltipModule,
     DrawerModule,
+    QuickWarehouseDrawer,
   ],
   templateUrl: './form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,6 +85,7 @@ export class ReceiptForm implements OnInit, OnDestroy {
   private readonly orgContextService = inject(OrganizationContextService);
   private readonly warehouseService = inject(WarehouseService);
   private readonly productService = inject(ProductService);
+  private readonly authService = inject(AuthService);
   private readonly destroy$ = new Subject<void>();
 
   protected readonly ReceiptType = ReceiptType;
@@ -89,6 +95,18 @@ export class ReceiptForm implements OnInit, OnDestroy {
   drawerVisible = signal(false);
   drawerStyle = computed(() => ({ width: this.isMobile() ? '100vw' : '760px' }));
   isMobile = signal(typeof window !== 'undefined' && window.innerWidth < 768);
+
+  // Quick-create warehouse drawer
+  protected readonly quickWarehouseDrawerVisible = signal(false);
+
+  // Permission: can the current user create a warehouse?
+  private readonly _currentUser = toSignal(this.authService.user$, { initialValue: null });
+  protected readonly canCreateWarehouse = computed(() => {
+    const user = this._currentUser();
+    if (!user) return false;
+    const perms: string[] = user.permissions ?? [];
+    return perms.includes('warehouse.create') || perms.includes('warehouse.manage');
+  });
 
   // Form state
   receipt = signal<Receipt | null>(null);
@@ -321,14 +339,20 @@ export class ReceiptForm implements OnInit, OnDestroy {
   }
 
   /**
-   * Quick-create a warehouse with just a name; the backend auto-generates the code.
-   * Navigates to the warehouse creation page while preserving this form's URL so the
-   * user can return to it after creating the warehouse.
+   * Opens the quick-create warehouse drawer.
    */
   protected quickCreateWarehouse() {
-    this.router.navigate(['/management/warehouses/new'], {
-      queryParams: { returnUrl: this.router.url },
-    });
+    this.quickWarehouseDrawerVisible.set(true);
+  }
+
+  /**
+   * Called when the quick-create drawer successfully creates a warehouse.
+   * Adds the new warehouse to the suggestions list and auto-selects it.
+   */
+  protected onQuickWarehouseCreated(warehouse: Warehouse) {
+    this.selectedWarehouse.set(warehouse);
+    this.form.get('warehouseId')?.setValue(warehouse.id);
+    this.warehouseSuggestions.update((list) => [warehouse, ...list]);
   }
 
   // ── Product (SKU) autocomplete ─────────────────────────────────────────

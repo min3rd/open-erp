@@ -2790,7 +2790,19 @@
       "notes": "Notas"
     },
     "search": "Buscar...",
-    "columns": "Columnas"
+    "columns": "Columnas",
+    "quickWarehouse": {
+      "title": "Crear bodega rápidamente",
+      "name": "Nombre",
+      "namePlaceholder": "ej. Bodega Principal",
+      "code": "Código",
+      "codePlaceholder": "Auto-generado",
+      "codeAutoHint": "auto-generado si está vacío",
+      "address": "Dirección",
+      "addressPlaceholder": "ej. Calle Principal 123",
+      "randomize": "Aleatorio",
+      "successMessage": "Bodega creada y seleccionada"
+    }
   },
   "workflowTemplate": {
     "search": {
