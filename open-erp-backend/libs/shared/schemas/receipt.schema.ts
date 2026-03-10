@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, HydratedDocument, Schema as MongooseSchema } from 'mongoose';
+import { MinioObject, MinioObjectSchema } from './minio-object.schema';
 
 export type ReceiptDocument = HydratedDocument<Receipt>;
 
@@ -63,25 +64,13 @@ export class ReferenceDoc {
   @Prop({ type: String })
   url?: string;
 
-  /** MinIO object key (for uploaded files) */
-  @Prop({ type: String })
-  fileKey?: string;
+  /** Attached MinIO file (uploaded from user's computer or pulled from URL) */
+  @Prop({ type: MinioObjectSchema })
+  attachment?: MinioObject;
 
-  /** MinIO bucket name */
-  @Prop({ type: String })
-  fileBucket?: string;
-
-  /** Original file name */
-  @Prop({ type: String })
-  fileName?: string;
-
-  /** MIME type */
-  @Prop({ type: String })
-  mimeType?: string;
-
-  /** File size in bytes */
-  @Prop({ type: Number })
-  fileSize?: number;
+  /** Receipt line IDs this document is linked to */
+  @Prop({ type: [String], default: [] })
+  lineIds?: string[];
 }
 
 export const ReferenceDocSchema = SchemaFactory.createForClass(ReferenceDoc);
@@ -91,8 +80,8 @@ export class ReceiptLine {
   @Prop({ type: String })
   lineId?: string;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Product', required: true })
-  skuId: MongooseSchema.Types.ObjectId;
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Product' })
+  skuId?: MongooseSchema.Types.ObjectId;
 
   @Prop({ type: String })
   skuCode?: string;

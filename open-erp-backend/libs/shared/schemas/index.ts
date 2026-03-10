@@ -34,6 +34,7 @@ export * from './lot.schema';
 export * from './serial.schema';
 export * from './import-export-job.schema';
 export * from './mapping-template.schema';
+export * from './minio-object.schema';
 export * from './receipt.schema';
 export * from './picklist.schema';
 export * from './wms-package.schema';

@@ -3,6 +3,7 @@ import {
   Component,
   OnInit,
   OnDestroy,
+  afterNextRender,
   inject,
   signal,
   computed,
@@ -22,13 +23,14 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { TextareaModule } from 'primeng/textarea';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TabsModule } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { MessageModule } from 'primeng/message';
+import { DrawerModule } from 'primeng/drawer';
 import { Subject, takeUntil } from 'rxjs';
 import {
   WmsService,
@@ -38,20 +40,17 @@ import {
   CreateReceiptDto,
   UpdateReceiptDto,
   ReferenceDoc,
+  MinioObject,
 } from '../../../../../../core/services/wms/wms.service';
 import { OrganizationContextService } from '../../../../../../core/services/organization-context.service';
 import {
   WarehouseService,
   Warehouse,
 } from '../../../../../../core/services/warehouse/warehouse.service';
-import { MpToolbar } from '../../../../../../core/components/toolbar';
-
-interface ProductSuggestion {
-  id: string;
-  code: string;
-  name: string;
-  unit?: string;
-}
+import {
+  ProductService,
+  Product,
+} from '../../../../../../core/services/product/product.service';
 
 @Component({
   selector: 'receipt-form',
@@ -64,14 +63,14 @@ interface ProductSuggestion {
     InputTextModule,
     InputNumberModule,
     SelectModule,
+    MultiSelectModule,
     AutoCompleteModule,
     TextareaModule,
     DatePickerModule,
     TabsModule,
     TagModule,
     TooltipModule,
-    MessageModule,
-    MpToolbar,
+    DrawerModule,
   ],
   templateUrl: './form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -83,12 +82,18 @@ export class ReceiptForm implements OnInit, OnDestroy {
   private readonly wmsService = inject(WmsService);
   private readonly orgContextService = inject(OrganizationContextService);
   private readonly warehouseService = inject(WarehouseService);
+  private readonly productService = inject(ProductService);
   private readonly destroy$ = new Subject<void>();
 
   protected readonly ReceiptType = ReceiptType;
   protected readonly ReceiptStatus = ReceiptStatus;
 
-  // State
+  // Drawer state
+  drawerVisible = signal(false);
+  drawerStyle = computed(() => ({ width: this.isMobile() ? '100vw' : '760px' }));
+  isMobile = signal(typeof window !== 'undefined' && window.innerWidth < 768);
+
+  // Form state
   receipt = signal<Receipt | null>(null);
   loading = signal(false);
   saving = signal(false);
@@ -101,11 +106,28 @@ export class ReceiptForm implements OnInit, OnDestroy {
   selectedWarehouse = signal<Warehouse | null>(null);
   warehouseLoading = signal(false);
 
+  // Product (SKU) autocomplete
+  productSuggestions = signal<Product[]>([]);
+  productLoading = signal(false);
+
+  // File upload per reference doc
+  uploadingDoc = signal<Record<number, boolean>>({});
+
+  // Line options for multi-select in reference docs (computed from linesArray signal won't
+  // reactively update since FormArray isn't a signal, so we keep the getter but call it only
+  // when the template needs it — it is stable enough since linesArray changes trigger CD)
+  protected get lineOptions() {
+    return this.linesArray.controls.map((ctrl, i) => ({
+      label: (ctrl.get('skuCode')?.value as string) || `Line ${i + 1}`,
+      value: String(i),
+    }));
+  }
+
   // Current org from context
   protected readonly currentOrg = this.orgContextService.currentOrganization;
 
   protected readonly typeOptions = Object.values(ReceiptType).map((t) => ({
-    label: t.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+    label: t.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
     value: t,
   }));
 
@@ -129,14 +151,12 @@ export class ReceiptForm implements OnInit, OnDestroy {
     this.isView.set(lastSegment === 'view');
 
     if (!this.isNew()) {
-      // Load from route data (provided by resolver)
       const receiptData = this.route.snapshot.data['receipt'] as Receipt;
       if (receiptData) {
         this.receipt.set(receiptData);
         this.populateForm(receiptData);
       }
     } else {
-      // Pre-fill org from context
       const org = this.currentOrg();
       if (org) {
         this.form.get('orgId')?.setValue(org.id);
@@ -146,11 +166,21 @@ export class ReceiptForm implements OnInit, OnDestroy {
     if (this.isView()) {
       this.form.disable();
     }
+
+    // Open drawer after the first render to allow the host view to be attached
+    afterNextRender(() => this.drawerVisible.set(true));
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  protected onDrawerHide() {
+    if (this.drawerVisible()) {
+      this.drawerVisible.set(false);
+    }
+    this.navigateToList();
   }
 
   private initForm() {
@@ -167,7 +197,6 @@ export class ReceiptForm implements OnInit, OnDestroy {
       referenceDocs: this.fb.array([]),
     });
 
-    // Pre-fill orgId from context (disabled)
     const org = this.currentOrg();
     if (org) {
       this.form.get('orgId')?.setValue(org.id);
@@ -186,41 +215,41 @@ export class ReceiptForm implements OnInit, OnDestroy {
       notes: receipt.notes || '',
     });
 
-    // Load warehouse details for display
     if (receipt.warehouseId) {
-      this.warehouseService.getWarehouseById(receipt.warehouseId)
+      this.warehouseService
+        .getWarehouseById(receipt.warehouseId)
         .pipe(takeUntil(this.destroy$))
-        .subscribe(wh => {
-          if (wh) {
-            this.selectedWarehouse.set(wh);
-          }
+        .subscribe((wh) => {
+          if (wh) this.selectedWarehouse.set(wh);
         });
     }
 
-    // Populate lines
     const linesArray = this.form.get('lines') as FormArray;
     linesArray.clear();
-    (receipt.lines || []).forEach(line => {
-      linesArray.push(this.fb.group({
-        skuId: [line.skuId || ''],
-        skuCode: [line.skuCode || '', Validators.required],
-        skuName: [line.skuName || ''],
-        orderedQty: [line.orderedQty, [Validators.required, Validators.min(0)]],
-        unit: [line.unit || ''],
-      }));
+    (receipt.lines || []).forEach((line) => {
+      linesArray.push(
+        this.fb.group({
+          skuId: [line.skuId || ''],
+          skuCode: [line.skuCode || '', Validators.required],
+          skuName: [line.skuName || ''],
+          orderedQty: [line.orderedQty, [Validators.required, Validators.min(0)]],
+          unit: [line.unit || ''],
+        }),
+      );
     });
 
-    // Populate reference docs
     const docsArray = this.form.get('referenceDocs') as FormArray;
     docsArray.clear();
-    (receipt.referenceDocs || []).forEach(doc => {
-      docsArray.push(this.fb.group({
-        type: [doc.type, Validators.required],
-        refId: [doc.refId || ''],
-        url: [doc.url || ''],
-        fileName: [doc.fileName || ''],
-        fileKey: [doc.fileKey || ''],
-      }));
+    (receipt.referenceDocs || []).forEach((doc) => {
+      docsArray.push(
+        this.fb.group({
+          type: [doc.type, Validators.required],
+          refId: [doc.refId || ''],
+          url: [doc.url || ''],
+          attachment: [doc.attachment ?? null],
+          lineIds: [doc.lineIds || []],
+        }),
+      );
     });
   }
 
@@ -230,13 +259,15 @@ export class ReceiptForm implements OnInit, OnDestroy {
   }
 
   addLine() {
-    this.linesArray.push(this.fb.group({
-      skuId: [''],
-      skuCode: ['', Validators.required],
-      skuName: [''],
-      orderedQty: [1, [Validators.required, Validators.min(1)]],
-      unit: ['pcs'],
-    }));
+    this.linesArray.push(
+      this.fb.group({
+        skuId: [''],
+        skuCode: ['', Validators.required],
+        skuName: [''],
+        orderedQty: [1, [Validators.required, Validators.min(1)]],
+        unit: ['pcs'],
+      }),
+    );
   }
 
   removeLine(index: number) {
@@ -249,23 +280,23 @@ export class ReceiptForm implements OnInit, OnDestroy {
   }
 
   addReferenceDoc() {
-    this.referenceDocsArray.push(this.fb.group({
-      type: ['invoice', Validators.required],
-      refId: [''],
-      url: [''],
-      fileName: [''],
-      fileKey: [''],
-    }));
+    this.referenceDocsArray.push(
+      this.fb.group({
+        type: ['invoice', Validators.required],
+        refId: [''],
+        url: [''],
+        attachment: [null],
+        lineIds: [[]],
+      }),
+    );
   }
 
   removeReferenceDoc(index: number) {
     this.referenceDocsArray.removeAt(index);
   }
 
-  // Warehouse autocomplete
+  // ── Warehouse autocomplete ─────────────────────────────────────────────
   protected searchWarehouse(event: { query: string }) {
-    const org = this.currentOrg();
-    if (!org) return;
     this.warehouseLoading.set(true);
     this.warehouseService
       .getWarehouses({ search: event.query, limit: 20 })
@@ -275,9 +306,7 @@ export class ReceiptForm implements OnInit, OnDestroy {
           this.warehouseSuggestions.set(result.items);
           this.warehouseLoading.set(false);
         },
-        error: () => {
-          this.warehouseLoading.set(false);
-        },
+        error: () => this.warehouseLoading.set(false),
       });
   }
 
@@ -291,7 +320,113 @@ export class ReceiptForm implements OnInit, OnDestroy {
     this.form.get('warehouseId')?.setValue('');
   }
 
-  // Save
+  /**
+   * Quick-create a warehouse with just a name; the backend auto-generates the code.
+   * Navigates to the warehouse creation page while preserving this form's URL so the
+   * user can return to it after creating the warehouse.
+   */
+  protected quickCreateWarehouse() {
+    this.router.navigate(['/management/warehouses/new'], {
+      queryParams: { returnUrl: this.router.url },
+    });
+  }
+
+  // ── Product (SKU) autocomplete ─────────────────────────────────────────
+  protected searchProduct(event: { query: string }) {
+    this.productLoading.set(true);
+    this.productService
+      .getProducts({ search: event.query, limit: 20 } as any)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          this.productSuggestions.set(result.items);
+          this.productLoading.set(false);
+        },
+        error: () => this.productLoading.set(false),
+      });
+  }
+
+  protected onProductSelect(product: Product, lineIndex: number) {
+    const lineGroup = this.linesArray.at(lineIndex);
+    lineGroup.patchValue({
+      skuId: product.id,
+      skuCode: product.sku,
+      skuName: product.name,
+      unit: product.unit || 'pcs',
+    });
+  }
+
+  // ── File upload ────────────────────────────────────────────────────────
+  // Triggers the hidden file input at the given row index.
+  // Note: we use document.getElementById rather than @ViewChildren because the inputs are
+  // inside a *ngFor and dynamically rendered inside a p-drawer portal — the same pattern
+  // used by ProductService.uploadFileToPresignedUrl() in this codebase.
+  protected triggerFileInput(index: number) {
+    (document.getElementById(`file-input-${index}`) as HTMLInputElement | null)?.click();
+  }
+
+  protected onFileSelected(event: Event, index: number) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    // Reset so the same file can be re-selected after clearing
+    input.value = '';
+    if (!file) return;
+
+    const receiptId = this.receipt()?.id;
+    if (!receiptId) return;
+
+    this.uploadingDoc.update((s) => ({ ...s, [index]: true }));
+
+    this.wmsService
+      .getReceiptUploadUrl(receiptId, {
+        fileName: file.name,
+        mimeType: file.type || 'application/octet-stream',
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          // Upload directly to the presigned MinIO URL without sending the JWT auth header
+          // (same pattern as ProductService.uploadFileToPresignedUrl)
+          fetch(result.uploadUrl, {
+            method: result.method || 'PUT',
+            headers: { 'Content-Type': file.type || 'application/octet-stream' },
+            body: file,
+          })
+            .then((resp) => {
+              if (resp.ok) {
+                const attachment: MinioObject = {
+                  fileKey: result.fileKey,
+                  fileName: file.name,
+                  mimeType: file.type,
+                  fileSize: file.size,
+                };
+                this.referenceDocsArray.at(index).patchValue({ attachment });
+              } else {
+                console.error(`File upload failed with HTTP ${resp.status}`);
+              }
+              this.uploadingDoc.update((s) => ({ ...s, [index]: false }));
+            })
+            .catch((err) => {
+              console.error('File upload error:', err);
+              this.uploadingDoc.update((s) => ({ ...s, [index]: false }));
+            });
+        },
+        error: (err) => {
+          console.error('Failed to get upload URL:', err);
+          this.uploadingDoc.update((s) => ({ ...s, [index]: false }));
+        },
+      });
+  }
+
+  protected getDocAttachment(index: number): MinioObject | null {
+    return this.referenceDocsArray.at(index)?.get('attachment')?.value ?? null;
+  }
+
+  protected clearDocAttachment(index: number) {
+    this.referenceDocsArray.at(index)?.get('attachment')?.setValue(null);
+  }
+
+  // ── Save ───────────────────────────────────────────────────────────────
   protected save() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -299,16 +434,16 @@ export class ReceiptForm implements OnInit, OnDestroy {
     }
 
     this.saving.set(true);
-    const rawValue = this.form.getRawValue(); // get disabled fields too
+    const rawValue = this.form.getRawValue();
 
-    // Map lines: use skuCode as skuId if no explicit skuId is provided
     const mapLines = (lines: { skuId: string; skuCode: string; skuName: string; orderedQty: number; unit: string }[]) =>
-      lines
-        .filter((l) => l.skuCode)
-        .map((l) => ({ ...l, skuId: l.skuId || l.skuCode }));
+      lines.filter((l) => l.skuCode).map((l) => ({ ...l, skuId: l.skuId || l.skuCode }));
 
-    const mapDocs = (docs: { type: string; refId: string; url: string; fileName: string; fileKey: string }[]) =>
-      docs.filter((d) => d.type);
+    const mapDocs = (docs: { type: string; refId: string; url: string; attachment: MinioObject | null; lineIds: string[] }[]) =>
+      docs.filter((d) => d.type).map(({ attachment, ...rest }) => ({
+        ...rest,
+        ...(attachment ? { attachment } : {}),
+      }));
 
     if (this.isNew()) {
       const dto: CreateReceiptDto = {
@@ -321,13 +456,13 @@ export class ReceiptForm implements OnInit, OnDestroy {
         expectedReceiptAt: rawValue.expectedReceiptAt?.toISOString?.() || rawValue.expectedReceiptAt,
         notes: rawValue.notes || undefined,
         lines: mapLines(rawValue.lines ?? []),
-        referenceDocs: mapDocs(rawValue.referenceDocs ?? []),
+        referenceDocs: mapDocs(rawValue.referenceDocs ?? []) as any,
       };
 
       this.wmsService.createReceipt(dto).subscribe({
         next: () => {
           this.saving.set(false);
-          this.navigateToList();
+          this.closeDrawer();
         },
         error: () => this.saving.set(false),
       });
@@ -340,7 +475,7 @@ export class ReceiptForm implements OnInit, OnDestroy {
         expectedReceiptAt: rawValue.expectedReceiptAt?.toISOString?.() || rawValue.expectedReceiptAt,
         notes: rawValue.notes || undefined,
         lines: mapLines(rawValue.lines ?? []),
-        referenceDocs: mapDocs(rawValue.referenceDocs ?? []),
+        referenceDocs: mapDocs(rawValue.referenceDocs ?? []) as any,
       };
 
       const receiptId = this.receipt()?.id;
@@ -348,7 +483,7 @@ export class ReceiptForm implements OnInit, OnDestroy {
         this.wmsService.updateReceipt(receiptId, dto).subscribe({
           next: () => {
             this.saving.set(false);
-            this.navigateToList();
+            this.closeDrawer();
           },
           error: () => this.saving.set(false),
         });
@@ -357,7 +492,7 @@ export class ReceiptForm implements OnInit, OnDestroy {
   }
 
   protected cancel() {
-    this.navigateToList();
+    this.closeDrawer();
   }
 
   protected goToEdit() {
@@ -367,8 +502,11 @@ export class ReceiptForm implements OnInit, OnDestroy {
     }
   }
 
+  private closeDrawer() {
+    this.drawerVisible.set(false);
+  }
+
   private navigateToList() {
-    // Navigate to the list (go up: /:search/:page/:limit/<receiptId>/view|edit  → ../../..)
     if (this.isNew()) {
       this.router.navigate(['..'], { relativeTo: this.route });
     } else {

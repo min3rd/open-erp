@@ -195,7 +195,9 @@ export class ReceiptController {
   async submit(@Param('id') id: string, @Body() dto: SubmitReceiptDto, @Request() req: any) {
     try {
       const userId = req.user?.userId || req.user?.sub;
-      const receipt = await this.receiptService.submit(id, dto, userId);
+      // Forward the JWT token so the approval-flow service can authenticate the caller
+      const authToken = req.headers?.authorization as string | undefined;
+      const receipt = await this.receiptService.submit(id, dto, userId, authToken);
       return ok(receipt, 'Receipt submitted for review');
     } catch (err) {
       if (err instanceof HttpException) throw err;

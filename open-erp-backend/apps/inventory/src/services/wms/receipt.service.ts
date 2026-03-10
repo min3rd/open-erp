@@ -5,8 +5,8 @@ import {
   ForbiddenException,
   Logger,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { ConfigService } from '@nestjs/config';
+import { Types } from 'mongoose';
 import { ReceiptRepository } from '../../repositories/wms/receipt.repository';
 import {
   CreateReceiptDto,
@@ -24,9 +24,6 @@ import {
   ReceiptType,
   QcStatus,
   ReceiptLine,
-  ApprovalRequest,
-  ApprovalRequestDocument,
-  ApprovalRequestStatus,
 } from '@shared/schemas';
 
 /** Entity type identifier for approval-flow integration */
@@ -35,12 +32,16 @@ const ENTITY_TYPE_RECEIPT = 'receipt';
 @Injectable()
 export class ReceiptService {
   private readonly logger = new Logger(ReceiptService.name);
+  private readonly approvalFlowUrl: string;
 
   constructor(
     private readonly receiptRepository: ReceiptRepository,
-    @InjectModel(ApprovalRequest.name)
-    private readonly approvalRequestModel: Model<ApprovalRequestDocument>,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.approvalFlowUrl =
+      this.configService.get<string>('APPROVAL_FLOW_SERVICE_URL') ||
+      `http://localhost:${this.configService.get<string>('APPROVAL_FLOW_SERVICE_PORT') || 3011}`;
+  }
 
   private generateCode(): string {
     const ts = Date.now().toString(36).toUpperCase();
@@ -173,7 +174,7 @@ export class ReceiptService {
     };
   }
 
-  async submit(id: string, dto: SubmitReceiptDto, userId?: string) {
+  async submit(id: string, dto: SubmitReceiptDto, userId?: string, authToken?: string) {
     const receipt = await this.findById(id);
 
     if (receipt.status !== ReceiptStatus.DRAFT) {
@@ -195,40 +196,44 @@ export class ReceiptService {
       updateData.notes = dto.notes;
     }
 
-    // Create an ApprovalRequest in the approval-flow service (shared MongoDB)
-    // This treats the receipt as a generic entity to be approved via the approval-flow workflow
+    // Call the approval-flow service via HTTP to create an ApprovalRequest.
+    // The receipt is treated as a generic entity that needs approval.
+    // This is non-fatal: if the approval-flow service is unavailable, the receipt
+    // still transitions to under_review status.
     try {
-      const existingRequest = await this.approvalRequestModel.findOne({
-        entityType: ENTITY_TYPE_RECEIPT,
-        entityId: new Types.ObjectId(id),
-        status: { $nin: [ApprovalRequestStatus.CANCELLED, ApprovalRequestStatus.APPROVED, ApprovalRequestStatus.REJECTED] },
-        deletedAt: null,
-      });
-
-      if (!existingRequest) {
-        const doc = receipt as any;
-        const approvalRequest = await this.approvalRequestModel.create({
+      const doc = receipt as any;
+      const response = await fetch(`${this.approvalFlowUrl}/v1/approval-flow/requests`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authToken ? { Authorization: authToken } : {}),
+        },
+        body: JSON.stringify({
           entityType: ENTITY_TYPE_RECEIPT,
-          entityId: new Types.ObjectId(id),
-          orgId: receipt.orgId,
-          requestedBy: userId ? new Types.ObjectId(userId) : undefined,
-          status: ApprovalRequestStatus.PENDING,
-          nodeStates: [],
+          entityId: id,
+          orgId: receipt.orgId?.toString(),
           metadata: {
             code: doc.code as string | undefined,
             warehouseId: receipt.warehouseId?.toString(),
             type: doc.type as string | undefined,
           },
-          deletedAt: null,
-        });
-        updateData.approvalRequestId = approvalRequest._id;
-        this.logger.log(`Created ApprovalRequest ${approvalRequest._id} for receipt ${id}`);
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const approvalRequestId = result?.data?.item?._id ?? result?.data?._id;
+        if (approvalRequestId) {
+          updateData.approvalRequestId = approvalRequestId;
+          this.logger.log(`Created ApprovalRequest ${approvalRequestId} for receipt ${id} via approval-flow service`);
+        }
       } else {
-        updateData.approvalRequestId = existingRequest._id;
+        const errText = await response.text().catch(() => `HTTP ${response.status} error`);
+        this.logger.warn(`Approval-flow service returned ${response.status} for receipt ${id}: ${errText}`);
       }
     } catch (err) {
-      this.logger.warn(`Failed to create ApprovalRequest for receipt ${id}: ${err.message}`);
-      // Non-fatal: continue with submission even if approval request creation fails
+      this.logger.warn(`Failed to create ApprovalRequest via approval-flow service for receipt ${id}: ${(err as Error).message}`);
+      // Non-fatal: continue with submission even if the approval-flow service is unavailable
     }
 
     return this.receiptRepository.update(id, updateData);

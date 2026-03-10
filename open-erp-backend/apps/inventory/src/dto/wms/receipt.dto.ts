@@ -13,11 +13,13 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { QcStatus, ReceiptType } from '@shared/schemas';
+import { MinioObjectDto } from '@shared/dto/minio-object.dto';
 
 export class CreateReceiptLineDto {
-  @ApiProperty({ description: 'Product/SKU ID' })
+  @ApiPropertyOptional({ description: 'Product/SKU ID (MongoDB ObjectId). Optional — may be resolved from skuCode.' })
+  @IsOptional()
   @IsMongoId()
-  skuId: string;
+  skuId?: string;
 
   @ApiPropertyOptional({ description: 'SKU code' })
   @IsOptional()
@@ -50,36 +52,22 @@ export class ReferenceDocDto {
   @IsString()
   refId?: string;
 
-  @ApiPropertyOptional({ description: 'External URL (for linked documents)' })
+  @ApiPropertyOptional({ description: 'External URL (for linked documents or to be fetched and stored in MinIO)' })
   @IsOptional()
   @IsString()
   url?: string;
 
-  @ApiPropertyOptional({ description: 'MinIO object key (for uploaded files)' })
+  @ApiPropertyOptional({ description: 'Attached MinIO file object', type: MinioObjectDto })
   @IsOptional()
-  @IsString()
-  fileKey?: string;
+  @ValidateNested()
+  @Type(() => MinioObjectDto)
+  attachment?: MinioObjectDto;
 
-  @ApiPropertyOptional({ description: 'MinIO bucket name' })
+  @ApiPropertyOptional({ description: 'Receipt line IDs this document is linked to', type: [String] })
   @IsOptional()
-  @IsString()
-  fileBucket?: string;
-
-  @ApiPropertyOptional({ description: 'Original file name' })
-  @IsOptional()
-  @IsString()
-  fileName?: string;
-
-  @ApiPropertyOptional({ description: 'MIME type' })
-  @IsOptional()
-  @IsString()
-  mimeType?: string;
-
-  @ApiPropertyOptional({ description: 'File size in bytes' })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  fileSize?: number;
+  @IsArray()
+  @IsString({ each: true })
+  lineIds?: string[];
 }
 
 export class RequestUploadUrlDto {
