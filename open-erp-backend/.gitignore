@@ -59,3 +59,4 @@ scripts/data/Việt Nam (phường xã) - 34.geojson
 # Seed script generated files
 scripts/seeds/reports/*.json
 scripts/seeds/exports/*.json
+dist/

@@ -28,6 +28,9 @@ import {
   ShipShipmentDto,
   ShipmentStatus,
   AuditEntry,
+  ReceiptWorkflow,
+  WorkflowTransitionDto,
+  UpdateReceiptLineDto,
 } from './wms.types';
 
 export type {
@@ -54,6 +57,10 @@ export type {
   Shipment,
   CreateShipmentDto,
   ShipShipmentDto,
+  ReceiptWorkflow,
+  WorkflowStep,
+  WorkflowTransitionDto,
+  UpdateReceiptLineDto,
 } from './wms.types';
 
 export {
@@ -63,6 +70,7 @@ export {
   PicklistStatus,
   WmsPackageStatus,
   ShipmentStatus,
+  WorkflowStepStatus,
 } from './wms.types';
 
 @Injectable({
@@ -213,6 +221,24 @@ export class WmsService {
           expiresAt: string;
         }>
       >(`${this.baseUrl}/wms/receipts/${id}/upload-url`, dto)
+      .pipe(map((response) => response.data!));
+  }
+
+  getReceiptWorkflow(id: string): Observable<ReceiptWorkflow> {
+    return this.http
+      .get<ApiResponse<ReceiptWorkflow>>(`${this.baseUrl}/wms/receipts/${id}/workflow`)
+      .pipe(map((response) => response.data!));
+  }
+
+  transitionWorkflow(id: string, dto: WorkflowTransitionDto): Observable<Receipt> {
+    return this.http
+      .post<ApiResponse<Receipt>>(`${this.baseUrl}/wms/receipts/${id}/workflow/transition`, dto)
+      .pipe(map((response) => response.data!));
+  }
+
+  updateReceiptLine(id: string, lineId: string, dto: UpdateReceiptLineDto): Observable<Receipt> {
+    return this.http
+      .patch<ApiResponse<Receipt>>(`${this.baseUrl}/wms/receipts/${id}/lines/${lineId}`, dto)
       .pipe(map((response) => response.data!));
   }
 

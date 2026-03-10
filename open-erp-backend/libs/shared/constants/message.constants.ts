@@ -153,8 +153,13 @@ export const EVENT_NAMES = {
   // WMS Events
   WMS: {
     RECEIPT_CREATED: 'wms.receipt.created',
+    RECEIPT_APPROVED: 'wms.receipt.approved',
     RECEIPT_RECEIVED: 'wms.receipt.received',
+    RECEIPT_QC_UPDATED: 'wms.receipt.qc.updated',
+    RECEIPT_QC_APPROVED: 'wms.receipt.qc.approved',
     RECEIPT_QC_FAILED: 'wms.receipt.qc.failed',
+    RECEIPT_STORED: 'wms.receipt.stored',
+    RECEIPT_COMPLETED: 'wms.receipt.completed',
     PICKLIST_CREATED: 'wms.picklist.created',
     PICKLIST_PICKED: 'wms.picklist.picked',
     PICKLIST_PICKED_PARTIAL: 'wms.picklist.picked.partial',

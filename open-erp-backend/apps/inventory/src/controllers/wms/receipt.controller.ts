@@ -32,6 +32,8 @@ import {
   UnlockReceiptDto,
   QcReceiptDto,
   RequestUploadUrlDto,
+  WorkflowTransitionDto,
+  UpdateReceiptLineDto,
 } from '../../dto/wms/receipt.dto';
 import { ReceiptStatus } from '@shared/schemas';
 import { created, fetched, paginated, error, ok } from '@shared/response';
@@ -478,6 +480,100 @@ export class ReceiptController {
         error(
           'RECEIPT_UPLOAD_URL_ERROR',
           err.message || 'Failed to generate upload URL',
+        ),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get(':id/workflow')
+  @Permissions(Permission.WMS_RECEIPT_READ)
+  @ApiOperation({ summary: 'Get workflow state for a receipt' })
+  @ApiParam({ name: 'id', description: 'Receipt ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Workflow state retrieved successfully',
+  })
+  async getWorkflow(@Param('id') id: string) {
+    try {
+      const workflow = await this.receiptService.getWorkflow(id);
+      return ok(workflow, 'Workflow state retrieved successfully');
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      throw new HttpException(
+        error(
+          'RECEIPT_WORKFLOW_ERROR',
+          err.message || 'Failed to fetch workflow',
+        ),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post(':id/workflow/transition')
+  @Permissions(Permission.WMS_RECEIPT_UPDATE)
+  @ApiOperation({ summary: 'Transition receipt workflow to the next step' })
+  @ApiParam({ name: 'id', description: 'Receipt ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Workflow transitioned successfully',
+  })
+  async transitionWorkflow(
+    @Param('id') id: string,
+    @Body() dto: WorkflowTransitionDto,
+    @Request() req: any,
+  ) {
+    try {
+      const userId = req.user?.userId || req.user?.sub;
+      const authToken = req.headers?.authorization as string | undefined;
+      const receipt = await this.receiptService.transitionWorkflow(
+        id,
+        dto,
+        userId,
+        authToken,
+      );
+      return ok(receipt, 'Workflow transitioned successfully');
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      throw new HttpException(
+        error(
+          'RECEIPT_WORKFLOW_TRANSITION_ERROR',
+          err.message || 'Failed to transition workflow',
+        ),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Patch(':id/lines/:lineId')
+  @Permissions(Permission.WMS_RECEIPT_UPDATE)
+  @ApiOperation({
+    summary: 'Update a single receipt line (QC status, stored location)',
+  })
+  @ApiParam({ name: 'id', description: 'Receipt ID' })
+  @ApiParam({ name: 'lineId', description: 'Line ID' })
+  @ApiResponse({ status: 200, description: 'Line updated successfully' })
+  async updateLine(
+    @Param('id') id: string,
+    @Param('lineId') lineId: string,
+    @Body() dto: UpdateReceiptLineDto,
+    @Request() req: any,
+  ) {
+    try {
+      const userId = req.user?.userId || req.user?.sub;
+      const receipt = await this.receiptService.updateLine(
+        id,
+        lineId,
+        dto,
+        userId,
+      );
+      return ok(receipt, 'Line updated successfully');
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      throw new HttpException(
+        error(
+          'RECEIPT_LINE_UPDATE_ERROR',
+          err.message || 'Failed to update line',
         ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );

@@ -68,6 +68,32 @@ export interface ReceiptLine {
   qcNotes?: string;
   defectQty: number;
   quarantineBin?: string;
+  storedLocation?: string;
+  storedQty: number;
+}
+
+export enum WorkflowStepStatus {
+  PENDING = 'pending',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  SKIPPED = 'skipped',
+  REJECTED = 'rejected',
+}
+
+export interface WorkflowStep {
+  key: string;
+  label: string;
+  status: WorkflowStepStatus;
+  actorId?: string;
+  completedAt?: string;
+  comment?: string;
+  attachments: any[];
+}
+
+export interface ReceiptWorkflow {
+  instanceId?: string;
+  currentStep: string;
+  steps: WorkflowStep[];
 }
 
 export interface Receipt {
@@ -100,6 +126,7 @@ export interface Receipt {
   receivedBy?: string;
   receivedAt?: string;
   approvalRequestId?: string;
+  workflow?: ReceiptWorkflow;
   createdAt: string;
   updatedAt: string;
 }
@@ -180,6 +207,25 @@ export interface QcReceiptDto {
   defectQty?: number;
   quarantineBin?: string;
   lineIndex?: number;
+}
+
+export interface WorkflowTransitionDto {
+  action: string;
+  comment?: string;
+  itemUpdates?: {
+    lineId: string;
+    qcStatus?: QcStatus;
+    qcNotes?: string;
+    storedLocation?: string;
+    storedQty?: number;
+  }[];
+}
+
+export interface UpdateReceiptLineDto {
+  qcStatus?: QcStatus;
+  qcNotes?: string;
+  storedLocation?: string;
+  storedQty?: number;
 }
 
 // Picklists

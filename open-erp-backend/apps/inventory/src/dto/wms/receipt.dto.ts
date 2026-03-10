@@ -347,3 +347,62 @@ export class QcReceiptDto {
   @IsNumber()
   lineIndex?: number;
 }
+
+export class WorkflowTransitionDto {
+  @ApiProperty({
+    description: 'Transition action',
+    enum: [
+      'approve',
+      'reject',
+      'receive',
+      'qc_perform',
+      'qc_approve',
+      'store',
+      'complete',
+    ],
+  })
+  @IsString()
+  action: string;
+
+  @ApiPropertyOptional({ description: 'Comment for the transition' })
+  @IsOptional()
+  @IsString()
+  comment?: string;
+
+  @ApiPropertyOptional({
+    description: 'Item-level updates (QC status, stored location)',
+    type: [Object],
+  })
+  @IsOptional()
+  @IsArray()
+  itemUpdates?: {
+    lineId: string;
+    qcStatus?: QcStatus;
+    qcNotes?: string;
+    storedLocation?: string;
+    storedQty?: number;
+  }[];
+}
+
+export class UpdateReceiptLineDto {
+  @ApiPropertyOptional({ description: 'QC status', enum: QcStatus })
+  @IsOptional()
+  @IsEnum(QcStatus)
+  qcStatus?: QcStatus;
+
+  @ApiPropertyOptional({ description: 'QC notes' })
+  @IsOptional()
+  @IsString()
+  qcNotes?: string;
+
+  @ApiPropertyOptional({ description: 'Storage location' })
+  @IsOptional()
+  @IsString()
+  storedLocation?: string;
+
+  @ApiPropertyOptional({ description: 'Stored quantity' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  storedQty?: number;
+}
