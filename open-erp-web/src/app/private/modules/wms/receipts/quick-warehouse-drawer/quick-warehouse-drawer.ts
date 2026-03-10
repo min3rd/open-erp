@@ -7,7 +7,6 @@ import {
   Output,
   computed,
   inject,
-  isDevMode,
   signal,
 } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -23,6 +22,7 @@ import {
 } from '../../../../../../core/services/warehouse/warehouse.service';
 import { OrganizationContextService } from '../../../../../../core/services/organization-context.service';
 import { slugify } from '../../../../../../core/utils/slugify';
+import { isDev } from '../../../../../../core/utils/env.util';
 
 @Component({
   selector: 'app-quick-warehouse-drawer',
@@ -51,7 +51,7 @@ export class QuickWarehouseDrawer implements OnDestroy {
   @Output() warehouseCreated = new EventEmitter<Warehouse>();
 
   protected readonly saving = signal(false);
-  protected readonly isDevEnv = isDevMode();
+  protected readonly isDevEnv = isDev;
   protected readonly isMobile = signal(
     typeof window !== 'undefined' && window.innerWidth < 768,
   );
