@@ -1,10 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsString,
-  IsOptional,
-  IsMongoId,
-  IsEnum,
-} from 'class-validator';
+import { IsString, IsOptional, IsMongoId, IsEnum } from 'class-validator';
 import { SerialStatus } from '@shared/schemas';
 
 export class CreateSerialDto {

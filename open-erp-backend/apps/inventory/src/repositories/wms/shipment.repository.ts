@@ -6,7 +6,8 @@ import { Shipment, ShipmentDocument, ShipmentStatus } from '@shared/schemas';
 @Injectable()
 export class ShipmentRepository {
   constructor(
-    @InjectModel(Shipment.name) private readonly shipmentModel: Model<ShipmentDocument>,
+    @InjectModel(Shipment.name)
+    private readonly shipmentModel: Model<ShipmentDocument>,
   ) {}
 
   async create(data: Partial<Shipment>): Promise<ShipmentDocument> {
@@ -18,7 +19,10 @@ export class ShipmentRepository {
     return this.shipmentModel.findById(id).exec();
   }
 
-  async update(id: string, data: Partial<Shipment>): Promise<ShipmentDocument | null> {
+  async update(
+    id: string,
+    data: Partial<Shipment>,
+  ): Promise<ShipmentDocument | null> {
     return this.shipmentModel
       .findByIdAndUpdate(id, { $set: data }, { new: true })
       .exec();
@@ -38,11 +42,17 @@ export class ShipmentRepository {
       sortOrder?: 1 | -1;
     } = {},
   ) {
-    const { skip = 0, limit = 20, sortField = 'createdAt', sortOrder = -1 } = options;
+    const {
+      skip = 0,
+      limit = 20,
+      sortField = 'createdAt',
+      sortOrder = -1,
+    } = options;
     const query: any = { deletedAt: null };
 
     if (filter.orgId) query.orgId = new Types.ObjectId(filter.orgId);
-    if (filter.warehouseId) query.warehouseId = new Types.ObjectId(filter.warehouseId);
+    if (filter.warehouseId)
+      query.warehouseId = new Types.ObjectId(filter.warehouseId);
     if (filter.status) query.status = filter.status;
     if (filter.q) {
       const regex = { $regex: filter.q, $options: 'i' };
@@ -58,7 +68,12 @@ export class ShipmentRepository {
     const sortObj: any = { [sortField]: sortOrder };
 
     const [items, total] = await Promise.all([
-      this.shipmentModel.find(query).skip(skip).limit(limit).sort(sortObj).exec(),
+      this.shipmentModel
+        .find(query)
+        .skip(skip)
+        .limit(limit)
+        .sort(sortObj)
+        .exec(),
       this.shipmentModel.countDocuments(query).exec(),
     ]);
 

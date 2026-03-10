@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NavigationService } from '../src/services/navigation.service';
 import { NavigationRepository } from '../src/repositories/navigation.repository';
-import { NavigationScope, NavigationFormat } from '../src/schemas/navigation.schema';
+import {
+  NavigationScope,
+  NavigationFormat,
+} from '../src/schemas/navigation.schema';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { RABBITMQ_USER_CLIENT } from '@shared/rabbitmq';
 import { AuthorizationService } from '@shared/authz/authorization.service';

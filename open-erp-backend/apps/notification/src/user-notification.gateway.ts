@@ -54,12 +54,16 @@ export class UserNotificationGateway
   }
 
   handleDisconnect(client: AuthenticatedSocket) {
-    this.logger.log(`Notification WS disconnected: ${client.userId ?? client.id}`);
+    this.logger.log(
+      `Notification WS disconnected: ${client.userId ?? client.id}`,
+    );
   }
 
   /** Push a new notification to a specific user */
   pushNotification(userId: string, notification: any) {
-    this.server.to(`user:${userId}`).emit('new', { event: 'new', notification });
+    this.server
+      .to(`user:${userId}`)
+      .emit('new', { event: 'new', notification });
   }
 
   /** Push updated unread count to a specific user */

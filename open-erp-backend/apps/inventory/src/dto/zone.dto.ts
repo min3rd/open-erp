@@ -14,7 +14,10 @@ import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { ZoneType } from '@shared/schemas/zone.schema';
 
 export class CreateZoneDto {
-  @ApiProperty({ example: 'Z-001', description: 'Zone code (unique per warehouse)' })
+  @ApiProperty({
+    example: 'Z-001',
+    description: 'Zone code (unique per warehouse)',
+  })
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
@@ -42,17 +45,26 @@ export class CreateZoneDto {
   @Min(0)
   sequence?: number;
 
-  @ApiPropertyOptional({ example: false, description: 'Whether this is the default zone' })
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Whether this is the default zone',
+  })
   @IsOptional()
   @IsBoolean()
   isDefault?: boolean;
 
-  @ApiPropertyOptional({ example: true, description: 'Whether the zone is active' })
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Whether the zone is active',
+  })
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
 
-  @ApiPropertyOptional({ example: 'Main storage zone', description: 'Zone description' })
+  @ApiPropertyOptional({
+    example: 'Main storage zone',
+    description: 'Zone description',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(500)

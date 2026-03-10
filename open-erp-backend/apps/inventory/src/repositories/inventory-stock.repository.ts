@@ -60,7 +60,14 @@ export class InventoryStockRepository {
       sortOrder?: number;
     } = {},
   ): Promise<{ items: InventoryStockDocument[]; total: number }> {
-    const { skip = 0, limit = 10, filter = {}, q, sortField, sortOrder } = options;
+    const {
+      skip = 0,
+      limit = 10,
+      filter = {},
+      q,
+      sortField,
+      sortOrder,
+    } = options;
 
     const query: any = {
       warehouseId: new Types.ObjectId(warehouseId),
@@ -89,12 +96,7 @@ export class InventoryStockRepository {
     }
 
     const [items, total] = await Promise.all([
-      this.stockModel
-        .find(query)
-        .sort(sort)
-        .skip(skip)
-        .limit(limit)
-        .exec(),
+      this.stockModel.find(query).sort(sort).skip(skip).limit(limit).exec(),
       this.stockModel.countDocuments(query).exec(),
     ]);
 

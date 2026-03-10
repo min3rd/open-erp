@@ -131,10 +131,20 @@ export class Receipt extends Document {
   @Prop({ type: String, enum: ReceiptType, default: ReceiptType.MANUAL })
   type: ReceiptType;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Organization', required: true, index: true })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Organization',
+    required: true,
+    index: true,
+  })
   orgId: MongooseSchema.Types.ObjectId;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Warehouse', required: true, index: true })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Warehouse',
+    required: true,
+    index: true,
+  })
   warehouseId: MongooseSchema.Types.ObjectId;
 
   @Prop({ type: String, index: true })
@@ -158,7 +168,12 @@ export class Receipt extends Document {
   @Prop({ type: [ReferenceDocSchema], default: [] })
   referenceDocs: ReferenceDoc[];
 
-  @Prop({ type: String, enum: ReceiptStatus, default: ReceiptStatus.DRAFT, index: true })
+  @Prop({
+    type: String,
+    enum: ReceiptStatus,
+    default: ReceiptStatus.DRAFT,
+    index: true,
+  })
   status: ReceiptStatus;
 
   @Prop({ type: [ReceiptLineSchema], default: [] })
@@ -170,7 +185,10 @@ export class Receipt extends Document {
   @Prop({ type: [String], default: [] })
   attachments: string[];
 
-  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'User' }], default: [] })
+  @Prop({
+    type: [{ type: MongooseSchema.Types.ObjectId, ref: 'User' }],
+    default: [],
+  })
   reviewers: MongooseSchema.Types.ObjectId[];
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
@@ -201,7 +219,11 @@ export class Receipt extends Document {
   createdBy?: MongooseSchema.Types.ObjectId;
 
   /** Reference to the ApprovalRequest in the approval-flow service */
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'ApprovalRequest', index: true })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'ApprovalRequest',
+    index: true,
+  })
   approvalRequestId?: MongooseSchema.Types.ObjectId;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })

@@ -21,7 +21,9 @@ export class ImportExportJobRepository {
     private readonly model: Model<ImportExportJobDocument>,
   ) {}
 
-  async create(data: Partial<ImportExportJob>): Promise<ImportExportJobDocument> {
+  async create(
+    data: Partial<ImportExportJob>,
+  ): Promise<ImportExportJobDocument> {
     return this.model.create(data);
   }
 
@@ -29,15 +31,29 @@ export class ImportExportJobRepository {
     return this.model.findById(id).exec();
   }
 
-  async updateById(id: string, data: Partial<ImportExportJob>): Promise<ImportExportJobDocument | null> {
-    return this.model.findByIdAndUpdate(id, { $set: data }, { new: true }).exec();
+  async updateById(
+    id: string,
+    data: Partial<ImportExportJob>,
+  ): Promise<ImportExportJobDocument | null> {
+    return this.model
+      .findByIdAndUpdate(id, { $set: data }, { new: true })
+      .exec();
   }
 
   async findByUser(
     userId: string,
     options: FindJobsOptions = {},
   ): Promise<{ items: ImportExportJobDocument[]; total: number }> {
-    const { q, type, entity, status, sortField = 'createdAt', sortOrder = 'desc', page = 1, limit = 20 } = options;
+    const {
+      q,
+      type,
+      entity,
+      status,
+      sortField = 'createdAt',
+      sortOrder = 'desc',
+      page = 1,
+      limit = 20,
+    } = options;
 
     const query: Record<string, any> = { userId: new Types.ObjectId(userId) };
     if (type) query.type = type;
@@ -49,18 +65,33 @@ export class ImportExportJobRepository {
       query.entity = entity;
     }
 
-    const sort: Record<string, 1 | -1> = { [sortField]: sortOrder === 'asc' ? 1 : -1 };
+    const sort: Record<string, 1 | -1> = {
+      [sortField]: sortOrder === 'asc' ? 1 : -1,
+    };
 
     const [items, total] = await Promise.all([
-      this.model.find(query).sort(sort).skip((page - 1) * limit).limit(limit).exec(),
+      this.model
+        .find(query)
+        .sort(sort)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .exec(),
       this.model.countDocuments(query).exec(),
     ]);
     return { items, total };
   }
 
-  async findAll(page = 1, limit = 20): Promise<{ items: ImportExportJobDocument[]; total: number }> {
+  async findAll(
+    page = 1,
+    limit = 20,
+  ): Promise<{ items: ImportExportJobDocument[]; total: number }> {
     const [items, total] = await Promise.all([
-      this.model.find().sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).exec(),
+      this.model
+        .find()
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .exec(),
       this.model.countDocuments().exec(),
     ]);
     return { items, total };

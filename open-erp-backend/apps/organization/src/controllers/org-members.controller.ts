@@ -40,7 +40,10 @@ export class OrgMembersController {
   // ── Members ──────────────────────────────────────────────────────────────
 
   @Get(':orgId/members')
-  @ApiOperation({ summary: 'Get paginated organization members with departments and positions' })
+  @ApiOperation({
+    summary:
+      'Get paginated organization members with departments and positions',
+  })
   @ApiParam({ name: 'orgId', description: 'Organization ID' })
   @Permissions('membership.read')
   async getMembers(
@@ -68,7 +71,11 @@ export class OrgMembersController {
     @Param('memberId') memberId: string,
     @Body() updateDto: any,
   ) {
-    const member = await this.orgMembersService.updateMember(orgId, memberId, updateDto);
+    const member = await this.orgMembersService.updateMember(
+      orgId,
+      memberId,
+      updateDto,
+    );
     return updated(member, 'Member updated successfully');
   }
 
@@ -83,7 +90,11 @@ export class OrgMembersController {
     @Param('memberId') memberId: string,
     @Body() dto: AssignMemberDto,
   ) {
-    const member = await this.orgMembersService.assignMember(orgId, memberId, dto);
+    const member = await this.orgMembersService.assignMember(
+      orgId,
+      memberId,
+      dto,
+    );
     return updated(member, 'Member assignments updated successfully');
   }
 
@@ -120,7 +131,11 @@ export class OrgMembersController {
     @Param('deptId') deptId: string,
     @Body() dto: UpdateDepartmentDto,
   ) {
-    const dept = await this.orgMembersService.updateDepartment(orgId, deptId, dto);
+    const dept = await this.orgMembersService.updateDepartment(
+      orgId,
+      deptId,
+      dto,
+    );
     return updated(dept, 'Department updated successfully');
   }
 
@@ -170,7 +185,11 @@ export class OrgMembersController {
     @Param('posId') posId: string,
     @Body() dto: UpdatePositionDto,
   ) {
-    const position = await this.orgMembersService.updatePosition(orgId, posId, dto);
+    const position = await this.orgMembersService.updatePosition(
+      orgId,
+      posId,
+      dto,
+    );
     return updated(position, 'Position updated successfully');
   }
 

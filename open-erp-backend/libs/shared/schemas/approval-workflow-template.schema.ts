@@ -118,4 +118,3 @@ export const ApprovalWorkflowTemplateSchema = SchemaFactory.createForClass(
 ApprovalWorkflowTemplateSchema.index({ entityType: 1, scope: 1, status: 1 });
 ApprovalWorkflowTemplateSchema.index({ orgId: 1, entityType: 1 });
 ApprovalWorkflowTemplateSchema.index({ departmentId: 1, entityType: 1 });
-

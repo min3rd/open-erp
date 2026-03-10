@@ -472,7 +472,9 @@ export class AuthService {
     // Load user with 2FA secret
     const user = await this.userModel
       .findById(userId)
-      .select('+twoFactorSecret is2faEnabled email fullName username organizationId')
+      .select(
+        '+twoFactorSecret is2faEnabled email fullName username organizationId',
+      )
       .exec();
 
     if (!user) {
@@ -534,7 +536,9 @@ export class AuthService {
     // Load user with recovery codes
     const user = await this.userModel
       .findById(userId)
-      .select('+twoFactorRecoveryCodes is2faEnabled email fullName username organizationId')
+      .select(
+        '+twoFactorRecoveryCodes is2faEnabled email fullName username organizationId',
+      )
       .exec();
 
     if (!user) {
@@ -1282,7 +1286,11 @@ export class AuthService {
       await this.authorizationService.getEffectivePermissions(userId, 'global');
 
     // Generate presigned download URL for avatar if stored as MinIO key/object info
-    let avatar: { key: string; bucket: string; presignedUrl: string | null } | null = null;
+    let avatar: {
+      key: string;
+      bucket: string;
+      presignedUrl: string | null;
+    } | null = null;
     let avatarPresignedUrl: string | null = null;
 
     const avatarData = user.avatar; // stored as { key, bucket } object
@@ -1301,7 +1309,9 @@ export class AuthService {
           presignedUrl: presignResult.url,
         };
       } catch (err) {
-        this.logger.warn(`Failed to generate presigned URL for avatar: ${err.message}`);
+        this.logger.warn(
+          `Failed to generate presigned URL for avatar: ${err.message}`,
+        );
       }
     }
 
@@ -1418,10 +1428,7 @@ export class AuthService {
   async revokeSession(userId: string, sessionId: string) {
     const token = await this.refreshTokenRepository.findById(sessionId);
 
-    if (
-      !token ||
-      token.userId.toString() !== userId
-    ) {
+    if (!token || token.userId.toString() !== userId) {
       throw ErrorFactory.createError({
         code: AUTH_REFRESH_TOKEN_INVALID,
         details: { reason: 'Session not found or unauthorized' },
@@ -1557,10 +1564,7 @@ export class AuthService {
   // ─── 2FA helpers ────────────────────────────────────────────────────────────
 
   private encrypt2FASecret(secret: string): string {
-    const key = crypto
-      .createHash('sha256')
-      .update(this.jwtSecret)
-      .digest(); // 32-byte key
+    const key = crypto.createHash('sha256').update(this.jwtSecret).digest(); // 32-byte key
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
     const encrypted = Buffer.concat([
@@ -1572,10 +1576,7 @@ export class AuthService {
 
   private decrypt2FASecret(encryptedSecret: string): string {
     const [ivHex, encHex] = encryptedSecret.split(':');
-    const key = crypto
-      .createHash('sha256')
-      .update(this.jwtSecret)
-      .digest();
+    const key = crypto.createHash('sha256').update(this.jwtSecret).digest();
     const iv = Buffer.from(ivHex, 'hex');
     const encryptedText = Buffer.from(encHex, 'hex');
     const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
@@ -1645,9 +1646,7 @@ export class AuthService {
   async enable2FA(userId: string, otp: string) {
     const user = await this.userModel
       .findById(userId)
-      .select(
-        '+twoFactorTempSecret twoFactorTempSecretExpiry is2faEnabled',
-      )
+      .select('+twoFactorTempSecret twoFactorTempSecretExpiry is2faEnabled')
       .exec();
     if (!user) {
       throw ErrorFactory.createError({ code: USER_NOT_FOUND });

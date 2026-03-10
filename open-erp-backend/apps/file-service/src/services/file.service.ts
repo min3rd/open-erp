@@ -246,7 +246,10 @@ export class FileService {
             await this.minioService.deleteObject(file.key);
           }
         } catch (err) {
-          this.logger.warn(`Failed to delete MinIO object for file ${id}: ${err.message}`, err.stack);
+          this.logger.warn(
+            `Failed to delete MinIO object for file ${id}: ${err.message}`,
+            err.stack,
+          );
         }
       }
       const count = await this.fileRepository.bulkHardDelete(ids);

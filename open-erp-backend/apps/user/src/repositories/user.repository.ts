@@ -77,7 +77,10 @@ export class UserRepository {
     }
   }
 
-  async findById(id: string, includePassword: boolean = false): Promise<User | null> {
+  async findById(
+    id: string,
+    includePassword: boolean = false,
+  ): Promise<User | null> {
     try {
       let query = this.userModel.findById(id);
       if (includePassword) {

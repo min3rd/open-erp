@@ -200,10 +200,9 @@ describe('FileService', () => {
 
       const result = await service.softDelete('file-id-1');
       expect(result!.isDeleted).toBe(true);
-      expect(minioService.deleteObject).toHaveBeenCalledWith(
-        'files/test.pdf',
-        { softDelete: true },
-      );
+      expect(minioService.deleteObject).toHaveBeenCalledWith('files/test.pdf', {
+        softDelete: true,
+      });
     });
   });
 

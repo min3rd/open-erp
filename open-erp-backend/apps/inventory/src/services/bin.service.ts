@@ -19,19 +19,27 @@ export class BinService {
     this.logger.log(`Creating bin ${dto.code} in aisle ${aisleId}`);
     const existing = await this.binRepository.findByCode(aisleId, dto.code);
     if (existing) {
-      throw new ConflictException(`Bin with code ${dto.code} already exists in this aisle`);
+      throw new ConflictException(
+        `Bin with code ${dto.code} already exists in this aisle`,
+      );
     }
     if (dto.barcode) {
-      const barcodeConflict = await this.binRepository.findByBarcode(dto.barcode);
+      const barcodeConflict = await this.binRepository.findByBarcode(
+        dto.barcode,
+      );
       if (barcodeConflict) {
-        throw new ConflictException(`Bin with barcode ${dto.barcode} already exists`);
+        throw new ConflictException(
+          `Bin with barcode ${dto.barcode} already exists`,
+        );
       }
     }
     try {
       return await this.binRepository.create(aisleId, dto);
     } catch (error: any) {
       if (error.code === 11000) {
-        throw new ConflictException(`Bin with code ${dto.code} already exists in this aisle`);
+        throw new ConflictException(
+          `Bin with code ${dto.code} already exists in this aisle`,
+        );
       }
       throw error;
     }
@@ -40,7 +48,12 @@ export class BinService {
   async findAll(
     aisleId: string,
     query: QueryBinDto,
-  ): Promise<{ items: BinDocument[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    items: BinDocument[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     return this.binRepository.findAll(aisleId, query);
   }
 
@@ -60,7 +73,9 @@ export class BinService {
         dto.code,
       );
       if (codeConflict) {
-        throw new ConflictException(`Bin with code ${dto.code} already exists in this aisle`);
+        throw new ConflictException(
+          `Bin with code ${dto.code} already exists in this aisle`,
+        );
       }
     }
 
@@ -70,7 +85,9 @@ export class BinService {
       return updated;
     } catch (error: any) {
       if (error.code === 11000) {
-        throw new ConflictException(`Bin with code ${dto.code} already exists in this aisle`);
+        throw new ConflictException(
+          `Bin with code ${dto.code} already exists in this aisle`,
+        );
       }
       throw error;
     }

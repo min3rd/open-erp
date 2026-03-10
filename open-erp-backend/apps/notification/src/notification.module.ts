@@ -43,4 +43,3 @@ import { UserNotificationGateway } from './user-notification.gateway';
   ],
 })
 export class NotificationModule {}
-

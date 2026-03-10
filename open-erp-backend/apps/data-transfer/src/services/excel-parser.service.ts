@@ -77,10 +77,17 @@ export class ExcelParserService {
   private parseCSV(buffer: Buffer): ParseResult {
     const content = buffer.toString('utf-8');
     // Normalize line endings
-    const lines = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter((line) => line.trim());
+    const lines = content
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n')
+      .split('\n')
+      .filter((line) => line.trim());
 
     if (lines.length === 0) {
-      return { sheets: [{ name: 'Sheet1', headers: [], rows: [] }], format: 'csv' };
+      return {
+        sheets: [{ name: 'Sheet1', headers: [], rows: [] }],
+        format: 'csv',
+      };
     }
 
     // RFC 4180 compliant CSV parser
@@ -155,7 +162,9 @@ export class ExcelParserService {
       worksheet.columns.forEach((column) => {
         if (column && column.values && column.values.length > 0) {
           const maxLength = Math.max(
-            ...column.values.filter((v) => v != null).map((v) => String(v).length),
+            ...column.values
+              .filter((v) => v != null)
+              .map((v) => String(v).length),
             10,
           );
           column.width = Math.min(maxLength + 2, 50);
@@ -173,11 +182,13 @@ export class ExcelParserService {
 
     for (const row of data.rows) {
       lines.push(
-        data.headers.map((h) => {
-          const val = row[h] ?? '';
-          const str = String(val).replace(/"/g, '""');
-          return `"${str}"`;
-        }).join(','),
+        data.headers
+          .map((h) => {
+            const val = row[h] ?? '';
+            const str = String(val).replace(/"/g, '""');
+            return `"${str}"`;
+          })
+          .join(','),
       );
     }
 

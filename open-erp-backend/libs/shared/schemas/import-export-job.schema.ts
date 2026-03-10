@@ -32,7 +32,11 @@ export enum ImportMode {
   UPDATE_ONLY = 'update_only',
 }
 
-@Schema({ collection: 'import_export_jobs', timestamps: true, versionKey: false })
+@Schema({
+  collection: 'import_export_jobs',
+  timestamps: true,
+  versionKey: false,
+})
 export class ImportExportJob {
   @Prop({ required: true, enum: JobType })
   type: JobType;
@@ -92,7 +96,12 @@ export class ImportExportJob {
   errorMessage?: string;
 
   @Prop({ type: [Object], default: [] })
-  sampleErrors?: Array<{ row: number; field: string; message: string; value?: any }>;
+  sampleErrors?: Array<{
+    row: number;
+    field: string;
+    message: string;
+    value?: any;
+  }>;
 
   @Prop()
   originalFileName?: string;
@@ -101,4 +110,5 @@ export class ImportExportJob {
   fileKey?: string;
 }
 
-export const ImportExportJobSchema = SchemaFactory.createForClass(ImportExportJob);
+export const ImportExportJobSchema =
+  SchemaFactory.createForClass(ImportExportJob);

@@ -21,9 +21,7 @@ export class WorkflowTemplateRepository {
     return this.model.create(data);
   }
 
-  async findById(
-    id: string,
-  ): Promise<ApprovalWorkflowTemplateDocument | null> {
+  async findById(id: string): Promise<ApprovalWorkflowTemplateDocument | null> {
     return this.model.findOne({
       _id: new Types.ObjectId(id),
       deletedAt: null,
@@ -83,7 +81,9 @@ export class WorkflowTemplateRepository {
     );
   }
 
-  async softDelete(id: string): Promise<ApprovalWorkflowTemplateDocument | null> {
+  async softDelete(
+    id: string,
+  ): Promise<ApprovalWorkflowTemplateDocument | null> {
     return this.model.findOneAndUpdate(
       { _id: new Types.ObjectId(id), deletedAt: null },
       { $set: { deletedAt: new Date() } },

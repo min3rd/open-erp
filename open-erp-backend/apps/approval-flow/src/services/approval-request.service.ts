@@ -217,10 +217,9 @@ export class ApprovalRequestService {
           dto.attachments.map(async (att) => {
             let publicUrl: string | undefined;
             try {
-              publicUrl = await this.minioService.getPresignedUrl(
-                att.fileKey,
-                { bucket: att.fileBucket },
-              );
+              publicUrl = await this.minioService.getPresignedUrl(att.fileKey, {
+                bucket: att.fileBucket,
+              });
             } catch {
               this.logger.warn(
                 `Failed to generate presigned URL for ${att.fileKey}`,
@@ -272,7 +271,11 @@ export class ApprovalRequestService {
       // Traverse graph to find next node using preserved template nodes
       const nextNodeId = this.resolveNextNode(
         currentState.nodeId,
-        request.nodes as Array<{ id: string; type: WorkflowNodeType; point: { x: number; y: number } }>,
+        request.nodes as Array<{
+          id: string;
+          type: WorkflowNodeType;
+          point: { x: number; y: number };
+        }>,
         request.edges,
         request.metadata,
       );
@@ -405,12 +408,19 @@ export class ApprovalRequestService {
    */
   resolveNextNode(
     sourceNodeId: string,
-    nodes: Array<{ id: string; type: WorkflowNodeType; point: { x: number; y: number } }>,
+    nodes: Array<{
+      id: string;
+      type: WorkflowNodeType;
+      point: { x: number; y: number };
+    }>,
     edges: Array<{
       id: string;
       source: string;
       target: string;
-      data?: { label?: string; conditions?: Array<{ field: string; operator: string; value: any }> };
+      data?: {
+        label?: string;
+        conditions?: Array<{ field: string; operator: string; value: any }>;
+      };
     }>,
     metadata?: Record<string, any>,
     visited: Set<string> = new Set(),
@@ -425,7 +435,10 @@ export class ApprovalRequestService {
     for (const edge of outgoing) {
       // If edge has conditions, evaluate them
       if (edge.data?.conditions && edge.data.conditions.length > 0) {
-        if (!metadata || !this.evaluateEdgeConditions(edge.data.conditions, metadata)) {
+        if (
+          !metadata ||
+          !this.evaluateEdgeConditions(edge.data.conditions, metadata)
+        ) {
           continue; // Conditions not met, skip this edge
         }
       }

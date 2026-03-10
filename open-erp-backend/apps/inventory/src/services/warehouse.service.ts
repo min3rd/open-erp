@@ -48,7 +48,10 @@ export class WarehouseService {
     // Validate ward exists and belongs to the province; populate provinceCode/districtCode
     createDto.ward = {
       ...createDto.ward,
-      ...(await this.resolveWardSnapshot(createDto.ward.code, createDto.province.code)),
+      ...(await this.resolveWardSnapshot(
+        createDto.ward.code,
+        createDto.province.code,
+      )),
     };
 
     // Check if warehouse code already exists
@@ -199,7 +202,10 @@ export class WarehouseService {
     if (updateDto.ward && updateDto.province) {
       updateDto.ward = {
         ...updateDto.ward,
-        ...(await this.resolveWardSnapshot(updateDto.ward.code, updateDto.province.code)),
+        ...(await this.resolveWardSnapshot(
+          updateDto.ward.code,
+          updateDto.province.code,
+        )),
       };
     }
 
@@ -370,14 +376,20 @@ export class WarehouseService {
       throw new NotFoundException(`Warehouse with ID ${warehouseId} not found`);
     }
 
-    const { items: zones } = await this.zoneRepository.findAll(warehouseId, { limit: 500 });
+    const { items: zones } = await this.zoneRepository.findAll(warehouseId, {
+      limit: 500,
+    });
 
     const structure = await Promise.all(
       zones.map(async (zone) => {
-        const aisles = await this.aisleRepository.findByZoneId(zone._id.toString());
+        const aisles = await this.aisleRepository.findByZoneId(
+          zone._id.toString(),
+        );
         const aislesWithBins = await Promise.all(
           aisles.map(async (aisle) => {
-            const bins = await this.binRepository.findByAisleId(aisle._id.toString());
+            const bins = await this.binRepository.findByAisleId(
+              aisle._id.toString(),
+            );
             return {
               ...aisle.toJSON(),
               bins: bins.map((b) => b.toJSON()),
@@ -404,8 +416,16 @@ export class WarehouseService {
   private async resolveWardSnapshot(
     wardCode: string,
     provinceCode: string,
-  ): Promise<{ code: string; name: string; provinceCode: string; districtCode?: string }> {
-    const wardDoc = await this.warehouseRepository.getWard(wardCode, provinceCode);
+  ): Promise<{
+    code: string;
+    name: string;
+    provinceCode: string;
+    districtCode?: string;
+  }> {
+    const wardDoc = await this.warehouseRepository.getWard(
+      wardCode,
+      provinceCode,
+    );
     if (!wardDoc) {
       throw new BadRequestException(
         `Ward with code ${wardCode} does not exist in province ${provinceCode}`,

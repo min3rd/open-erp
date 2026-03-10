@@ -7,14 +7,8 @@ import {
 import { Types } from 'mongoose';
 import { ShipmentRepository } from '../../repositories/wms/shipment.repository';
 import { WmsPackageRepository } from '../../repositories/wms/package.repository';
-import {
-  CreateShipmentDto,
-  ShipShipmentDto,
-} from '../../dto/wms/shipment.dto';
-import {
-  ShipmentStatus,
-  WmsPackageStatus,
-} from '@shared/schemas';
+import { CreateShipmentDto, ShipShipmentDto } from '../../dto/wms/shipment.dto';
+import { ShipmentStatus, WmsPackageStatus } from '@shared/schemas';
 
 @Injectable()
 export class ShipmentService {
@@ -61,12 +55,22 @@ export class ShipmentService {
       status?: ShipmentStatus;
       q?: string;
     } = {},
-    options: { page?: number; limit?: number; sortField?: string; sortOrder?: 1 | -1 } = {},
+    options: {
+      page?: number;
+      limit?: number;
+      sortField?: string;
+      sortOrder?: 1 | -1;
+    } = {},
   ) {
     const { page = 1, limit = 20, sortField, sortOrder } = options;
     const skip = (page - 1) * limit;
 
-    const result = await this.shipmentRepository.findAll(filter, { skip, limit, sortField, sortOrder });
+    const result = await this.shipmentRepository.findAll(filter, {
+      skip,
+      limit,
+      sortField,
+      sortOrder,
+    });
 
     return {
       items: result.items,
@@ -136,4 +140,3 @@ export class ShipmentService {
     } as any);
   }
 }
-

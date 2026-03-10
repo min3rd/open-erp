@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import {
@@ -20,7 +25,10 @@ import {
 } from '@shared/schemas';
 import { MinioService } from '@shared/services/minio/minio.service';
 import { ExcelParserService, ExportData } from './excel-parser.service';
-import { ImportExportJobRepository, FindJobsOptions } from '../repositories/import-export-job.repository';
+import {
+  ImportExportJobRepository,
+  FindJobsOptions,
+} from '../repositories/import-export-job.repository';
 import { MappingTemplateRepository } from '../repositories/mapping-template.repository';
 import { CreateExportJobDto, ExportScope } from '../dto/create-export-job.dto';
 import { CreateImportJobDto } from '../dto/create-import-job.dto';
@@ -31,7 +39,13 @@ const EXPORT_BUCKET = 'import-export';
 export interface EntityTemplate {
   entity: string;
   label: string;
-  fields: Array<{ key: string; label: string; type: string; required: boolean; example?: any }>;
+  fields: Array<{
+    key: string;
+    label: string;
+    type: string;
+    required: boolean;
+    example?: any;
+  }>;
 }
 
 @Injectable()
@@ -43,42 +57,150 @@ export class DataTransferService {
       entity: 'users',
       label: 'Users',
       fields: [
-        { key: 'email', label: 'Email', type: 'string', required: true, example: 'user@example.com' },
-        { key: 'fullName', label: 'Full Name', type: 'string', required: true, example: 'John Doe' },
-        { key: 'phone', label: 'Phone', type: 'string', required: false, example: '+84901234567' },
-        { key: 'isActive', label: 'Active', type: 'boolean', required: false, example: true },
+        {
+          key: 'email',
+          label: 'Email',
+          type: 'string',
+          required: true,
+          example: 'user@example.com',
+        },
+        {
+          key: 'fullName',
+          label: 'Full Name',
+          type: 'string',
+          required: true,
+          example: 'John Doe',
+        },
+        {
+          key: 'phone',
+          label: 'Phone',
+          type: 'string',
+          required: false,
+          example: '+84901234567',
+        },
+        {
+          key: 'isActive',
+          label: 'Active',
+          type: 'boolean',
+          required: false,
+          example: true,
+        },
       ],
     },
     products: {
       entity: 'products',
       label: 'Products',
       fields: [
-        { key: 'sku', label: 'SKU', type: 'string', required: true, example: 'PROD-001' },
-        { key: 'name', label: 'Name', type: 'string', required: true, example: 'Product Name' },
-        { key: 'description', label: 'Description', type: 'string', required: false, example: 'Product description' },
-        { key: 'price', label: 'Price', type: 'number', required: false, example: 99.99 },
-        { key: 'unit', label: 'Unit', type: 'string', required: false, example: 'pcs' },
-        { key: 'status', label: 'Status', type: 'enum', required: false, example: 'active' },
+        {
+          key: 'sku',
+          label: 'SKU',
+          type: 'string',
+          required: true,
+          example: 'PROD-001',
+        },
+        {
+          key: 'name',
+          label: 'Name',
+          type: 'string',
+          required: true,
+          example: 'Product Name',
+        },
+        {
+          key: 'description',
+          label: 'Description',
+          type: 'string',
+          required: false,
+          example: 'Product description',
+        },
+        {
+          key: 'price',
+          label: 'Price',
+          type: 'number',
+          required: false,
+          example: 99.99,
+        },
+        {
+          key: 'unit',
+          label: 'Unit',
+          type: 'string',
+          required: false,
+          example: 'pcs',
+        },
+        {
+          key: 'status',
+          label: 'Status',
+          type: 'enum',
+          required: false,
+          example: 'active',
+        },
       ],
     },
     warehouses: {
       entity: 'warehouses',
       label: 'Warehouses',
       fields: [
-        { key: 'code', label: 'Code', type: 'string', required: true, example: 'WH-001' },
-        { key: 'name', label: 'Name', type: 'string', required: true, example: 'Main Warehouse' },
-        { key: 'address', label: 'Address', type: 'string', required: false, example: '123 Main St' },
-        { key: 'isActive', label: 'Active', type: 'boolean', required: false, example: true },
+        {
+          key: 'code',
+          label: 'Code',
+          type: 'string',
+          required: true,
+          example: 'WH-001',
+        },
+        {
+          key: 'name',
+          label: 'Name',
+          type: 'string',
+          required: true,
+          example: 'Main Warehouse',
+        },
+        {
+          key: 'address',
+          label: 'Address',
+          type: 'string',
+          required: false,
+          example: '123 Main St',
+        },
+        {
+          key: 'isActive',
+          label: 'Active',
+          type: 'boolean',
+          required: false,
+          example: true,
+        },
       ],
     },
     organizations: {
       entity: 'organizations',
       label: 'Organizations',
       fields: [
-        { key: 'name', label: 'Name', type: 'string', required: true, example: 'Org Name' },
-        { key: 'code', label: 'Code', type: 'string', required: true, example: 'ORG-001' },
-        { key: 'email', label: 'Email', type: 'string', required: false, example: 'org@example.com' },
-        { key: 'phone', label: 'Phone', type: 'string', required: false, example: '+84901234567' },
+        {
+          key: 'name',
+          label: 'Name',
+          type: 'string',
+          required: true,
+          example: 'Org Name',
+        },
+        {
+          key: 'code',
+          label: 'Code',
+          type: 'string',
+          required: true,
+          example: 'ORG-001',
+        },
+        {
+          key: 'email',
+          label: 'Email',
+          type: 'string',
+          required: false,
+          example: 'org@example.com',
+        },
+        {
+          key: 'phone',
+          label: 'Phone',
+          type: 'string',
+          required: false,
+          example: '+84901234567',
+        },
       ],
     },
   };
@@ -86,8 +208,10 @@ export class DataTransferService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
-    @InjectModel(Warehouse.name) private warehouseModel: Model<WarehouseDocument>,
-    @InjectModel(Organization.name) private organizationModel: Model<OrganizationDocument>,
+    @InjectModel(Warehouse.name)
+    private warehouseModel: Model<WarehouseDocument>,
+    @InjectModel(Organization.name)
+    private organizationModel: Model<OrganizationDocument>,
     private readonly excelParser: ExcelParserService,
     private readonly jobRepo: ImportExportJobRepository,
     private readonly mappingRepo: MappingTemplateRepository,
@@ -112,7 +236,10 @@ export class DataTransferService {
     return job;
   }
 
-  async createExportJob(dto: CreateExportJobDto, userId: string): Promise<ImportExportJobDocument> {
+  async createExportJob(
+    dto: CreateExportJobDto,
+    userId: string,
+  ): Promise<ImportExportJobDocument> {
     const template = this.entityTemplates[dto.entity];
     if (!template) {
       throw new BadRequestException(`Unknown entity: ${dto.entity}`);
@@ -145,8 +272,13 @@ export class DataTransferService {
   ): Promise<void> {
     try {
       // Scope: if scope=org and orgId provided, filter by org; if scope=global (default), no org filter
-      const orgFilter = dto.scope === ExportScope.ORG && dto.orgId ? dto.orgId : undefined;
-      const data = await this.fetchEntityData(dto.entity, dto.filters, orgFilter);
+      const orgFilter =
+        dto.scope === ExportScope.ORG && dto.orgId ? dto.orgId : undefined;
+      const data = await this.fetchEntityData(
+        dto.entity,
+        dto.filters,
+        orgFilter,
+      );
       const template = this.entityTemplates[dto.entity];
       const headers = template.fields.map((f) => f.label);
       const rows = data.map((item: any) => {
@@ -172,7 +304,8 @@ export class DataTransferService {
       } else {
         fileBuffer = await this.excelParser.generateXLSX([exportData]);
         fileKey = `exports/${jobId}-${dto.entity}-${Date.now()}.xlsx`;
-        contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        contentType =
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
       }
 
       // Upload to MinIO
@@ -184,10 +317,13 @@ export class DataTransferService {
       });
 
       // Generate presigned download URL (1 hour expiry)
-      const presigned = await this.minioService.presignDownload(uploadResult.key, {
-        bucket: EXPORT_BUCKET,
-        expiresIn: 3600,
-      });
+      const presigned = await this.minioService.presignDownload(
+        uploadResult.key,
+        {
+          bucket: EXPORT_BUCKET,
+          expiresIn: 3600,
+        },
+      );
 
       await this.jobRepo.updateById(jobId, {
         status: JobStatus.COMPLETED,
@@ -215,7 +351,12 @@ export class DataTransferService {
 
     switch (entity) {
       case 'users':
-        return this.userModel.find(query).select('-password').limit(1000).lean().exec();
+        return this.userModel
+          .find(query)
+          .select('-password')
+          .limit(1000)
+          .lean()
+          .exec();
       case 'products':
         return this.productModel.find(query).limit(1000).lean().exec();
       case 'warehouses':
@@ -250,9 +391,11 @@ export class DataTransferService {
 
     // Process asynchronously
     const importJobId = job._id.toString();
-    this.processImportJob(importJobId, dto, file.buffer, userId).catch((err) => {
-      this.logger.error(`Import job ${importJobId} failed: ${err.message}`);
-    });
+    this.processImportJob(importJobId, dto, file.buffer, userId).catch(
+      (err) => {
+        this.logger.error(`Import job ${importJobId} failed: ${err.message}`);
+      },
+    );
 
     return job;
   }
@@ -277,7 +420,12 @@ export class DataTransferService {
 
       const mapping = dto.mapping || {};
       const template = this.entityTemplates[dto.entity];
-      const errors: Array<{ row: number; field: string; message: string; value?: any }> = [];
+      const errors: Array<{
+        row: number;
+        field: string;
+        message: string;
+        value?: any;
+      }> = [];
       let created = 0;
 
       // Build reverse mapping once: entityField -> columnName (O(1) lookup)
@@ -290,7 +438,8 @@ export class DataTransferService {
         try {
           const entityData: Record<string, any> = {};
           template.fields.forEach((field) => {
-            const columnName = reverseMapping[field.key] || field.label || field.key;
+            const columnName =
+              reverseMapping[field.key] || field.label || field.key;
             const value = row.data[columnName];
             if (value !== undefined && value !== '') {
               entityData[field.key] = value;
@@ -312,7 +461,11 @@ export class DataTransferService {
           }
 
           if (!dto.dryRun) {
-            await this.upsertEntityData(dto.entity, entityData, dto.importMode || ImportMode.CREATE_ONLY);
+            await this.upsertEntityData(
+              dto.entity,
+              entityData,
+              dto.importMode || ImportMode.CREATE_ONLY,
+            );
             created++;
           }
         } catch (err: any) {
@@ -325,7 +478,10 @@ export class DataTransferService {
       }
 
       await this.jobRepo.updateById(jobId, {
-        status: errors.length === firstSheet.rows.length ? JobStatus.FAILED : JobStatus.COMPLETED,
+        status:
+          errors.length === firstSheet.rows.length
+            ? JobStatus.FAILED
+            : JobStatus.COMPLETED,
         totalRows: firstSheet.rows.length,
         processedRows: firstSheet.rows.length,
         createdRows: created,
@@ -350,14 +506,22 @@ export class DataTransferService {
         if (mode === ImportMode.CREATE_ONLY) {
           await this.productModel.create(data);
         } else if (mode === ImportMode.UPSERT && data.sku) {
-          await this.productModel.findOneAndUpdate({ sku: data.sku }, { $set: data }, { upsert: true, new: true });
+          await this.productModel.findOneAndUpdate(
+            { sku: data.sku },
+            { $set: data },
+            { upsert: true, new: true },
+          );
         }
         break;
       case 'warehouses':
         if (mode === ImportMode.CREATE_ONLY) {
           await this.warehouseModel.create(data);
         } else if (mode === ImportMode.UPSERT && data.code) {
-          await this.warehouseModel.findOneAndUpdate({ code: data.code }, { $set: data }, { upsert: true, new: true });
+          await this.warehouseModel.findOneAndUpdate(
+            { code: data.code },
+            { $set: data },
+            { upsert: true, new: true },
+          );
         }
         break;
       default:

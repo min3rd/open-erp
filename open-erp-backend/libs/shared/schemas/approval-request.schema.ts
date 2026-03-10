@@ -97,7 +97,10 @@ export class ApprovalRequest {
     id: string;
     source: string;
     target: string;
-    data?: { label?: string; conditions?: Array<{ field: string; operator: string; value: any }> };
+    data?: {
+      label?: string;
+      conditions?: Array<{ field: string; operator: string; value: any }>;
+    };
   }>;
 
   @Prop({ type: [Object], default: [] })
@@ -136,4 +139,3 @@ ApprovalRequestSchema.index({
   'nodeStates.approverIds': 1,
   status: 1,
 });
-

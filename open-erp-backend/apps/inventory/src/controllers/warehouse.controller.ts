@@ -203,7 +203,9 @@ export class WarehouseController {
   }
 
   @Get(':id/structure')
-  @ApiOperation({ summary: 'Get full warehouse structure tree (zones → aisles → bins)' })
+  @ApiOperation({
+    summary: 'Get full warehouse structure tree (zones → aisles → bins)',
+  })
   @ApiParam({ name: 'id', description: 'Warehouse ID' })
   @ApiResponse({
     status: HttpStatus.OK,

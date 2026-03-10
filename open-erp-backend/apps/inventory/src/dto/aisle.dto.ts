@@ -12,7 +12,10 @@ import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 
 export class CreateAisleDto {
-  @ApiProperty({ example: 'A-001', description: 'Aisle code (unique per zone)' })
+  @ApiProperty({
+    example: 'A-001',
+    description: 'Aisle code (unique per zone)',
+  })
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
@@ -31,18 +34,27 @@ export class CreateAisleDto {
   @Min(0)
   sequence?: number;
 
-  @ApiPropertyOptional({ example: 3, description: 'Number of levels/shelves in this aisle' })
+  @ApiPropertyOptional({
+    example: 3,
+    description: 'Number of levels/shelves in this aisle',
+  })
   @IsOptional()
   @IsNumber()
   @Min(1)
   levels?: number;
 
-  @ApiPropertyOptional({ example: true, description: 'Whether the aisle is active' })
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Whether the aisle is active',
+  })
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
 
-  @ApiPropertyOptional({ example: 'Main aisle', description: 'Aisle description' })
+  @ApiPropertyOptional({
+    example: 'Main aisle',
+    description: 'Aisle description',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(500)

@@ -102,10 +102,7 @@ describe('ApprovalRequestService', () => {
       {
         nodeId: 'approval-2',
         label: 'Director Approval',
-        approverIds: [
-          new Types.ObjectId(userId2),
-          new Types.ObjectId(userId3),
-        ],
+        approverIds: [new Types.ObjectId(userId2), new Types.ObjectId(userId3)],
         approvalMode: ApprovalMode.ALL,
         status: ApprovalRequestStatus.PENDING,
         approvals: [],
@@ -113,8 +110,16 @@ describe('ApprovalRequestService', () => {
     ],
     nodes: [
       { id: 'start-1', type: WorkflowNodeType.START, point: { x: 0, y: 200 } },
-      { id: 'approval-1', type: WorkflowNodeType.APPROVAL, point: { x: 300, y: 200 } },
-      { id: 'approval-2', type: WorkflowNodeType.APPROVAL, point: { x: 600, y: 200 } },
+      {
+        id: 'approval-1',
+        type: WorkflowNodeType.APPROVAL,
+        point: { x: 300, y: 200 },
+      },
+      {
+        id: 'approval-2',
+        type: WorkflowNodeType.APPROVAL,
+        point: { x: 600, y: 200 },
+      },
       { id: 'end-1', type: WorkflowNodeType.END, point: { x: 900, y: 200 } },
     ],
     edges: [
@@ -293,10 +298,7 @@ describe('ApprovalRequestService', () => {
       const nodeState = {
         nodeId: 'approval-1',
         label: 'Step',
-        approverIds: [
-          new Types.ObjectId(userId1),
-          new Types.ObjectId(userId2),
-        ],
+        approverIds: [new Types.ObjectId(userId1), new Types.ObjectId(userId2)],
         approvalMode: ApprovalMode.ANY,
         status: ApprovalRequestStatus.IN_PROGRESS,
         approvals: [
@@ -315,10 +317,7 @@ describe('ApprovalRequestService', () => {
       const nodeState = {
         nodeId: 'approval-1',
         label: 'Step',
-        approverIds: [
-          new Types.ObjectId(userId1),
-          new Types.ObjectId(userId2),
-        ],
+        approverIds: [new Types.ObjectId(userId1), new Types.ObjectId(userId2)],
         approvalMode: ApprovalMode.ALL,
         status: ApprovalRequestStatus.IN_PROGRESS,
         approvals: [
@@ -337,10 +336,7 @@ describe('ApprovalRequestService', () => {
       const nodeState = {
         nodeId: 'approval-1',
         label: 'Step',
-        approverIds: [
-          new Types.ObjectId(userId1),
-          new Types.ObjectId(userId2),
-        ],
+        approverIds: [new Types.ObjectId(userId1), new Types.ObjectId(userId2)],
         approvalMode: ApprovalMode.ALL,
         status: ApprovalRequestStatus.IN_PROGRESS,
         approvals: [
@@ -417,10 +413,7 @@ describe('ApprovalRequestService', () => {
       const nodeState = {
         nodeId: 'approval-1',
         label: 'Step',
-        approverIds: [
-          new Types.ObjectId(userId1),
-          new Types.ObjectId(userId2),
-        ],
+        approverIds: [new Types.ObjectId(userId1), new Types.ObjectId(userId2)],
         approvalMode: ApprovalMode.ALL,
         status: ApprovalRequestStatus.IN_PROGRESS,
         approvals: [
@@ -439,10 +432,7 @@ describe('ApprovalRequestService', () => {
       const nodeState = {
         nodeId: 'approval-1',
         label: 'Step',
-        approverIds: [
-          new Types.ObjectId(userId1),
-          new Types.ObjectId(userId2),
-        ],
+        approverIds: [new Types.ObjectId(userId1), new Types.ObjectId(userId2)],
         approvalMode: ApprovalMode.ALL,
         status: ApprovalRequestStatus.IN_PROGRESS,
         approvals: [
@@ -493,7 +483,11 @@ describe('ApprovalRequestService', () => {
     it('should traverse start → approval node', () => {
       const nodes = [
         { id: 'start-1', type: WorkflowNodeType.START, point: { x: 0, y: 0 } },
-        { id: 'approval-1', type: WorkflowNodeType.APPROVAL, point: { x: 100, y: 0 } },
+        {
+          id: 'approval-1',
+          type: WorkflowNodeType.APPROVAL,
+          point: { x: 100, y: 0 },
+        },
         { id: 'end-1', type: WorkflowNodeType.END, point: { x: 200, y: 0 } },
       ];
       const edges = [
@@ -507,12 +501,14 @@ describe('ApprovalRequestService', () => {
 
     it('should return null when reaching end node', () => {
       const nodes = [
-        { id: 'approval-1', type: WorkflowNodeType.APPROVAL, point: { x: 0, y: 0 } },
+        {
+          id: 'approval-1',
+          type: WorkflowNodeType.APPROVAL,
+          point: { x: 0, y: 0 },
+        },
         { id: 'end-1', type: WorkflowNodeType.END, point: { x: 100, y: 0 } },
       ];
-      const edges = [
-        { id: 'e1', source: 'approval-1', target: 'end-1' },
-      ];
+      const edges = [{ id: 'e1', source: 'approval-1', target: 'end-1' }];
 
       const next = service.resolveNextNode('approval-1', nodes, edges);
       expect(next).toBeNull();
@@ -520,10 +516,26 @@ describe('ApprovalRequestService', () => {
 
     it('should traverse through condition node following matching edge', () => {
       const nodes = [
-        { id: 'approval-1', type: WorkflowNodeType.APPROVAL, point: { x: 0, y: 0 } },
-        { id: 'condition-1', type: WorkflowNodeType.CONDITION, point: { x: 100, y: 0 } },
-        { id: 'approval-2', type: WorkflowNodeType.APPROVAL, point: { x: 200, y: -100 } },
-        { id: 'approval-3', type: WorkflowNodeType.APPROVAL, point: { x: 200, y: 100 } },
+        {
+          id: 'approval-1',
+          type: WorkflowNodeType.APPROVAL,
+          point: { x: 0, y: 0 },
+        },
+        {
+          id: 'condition-1',
+          type: WorkflowNodeType.CONDITION,
+          point: { x: 100, y: 0 },
+        },
+        {
+          id: 'approval-2',
+          type: WorkflowNodeType.APPROVAL,
+          point: { x: 200, y: -100 },
+        },
+        {
+          id: 'approval-3',
+          type: WorkflowNodeType.APPROVAL,
+          point: { x: 200, y: 100 },
+        },
       ];
       const edges = [
         { id: 'e1', source: 'approval-1', target: 'condition-1' },
@@ -531,27 +543,51 @@ describe('ApprovalRequestService', () => {
           id: 'e2',
           source: 'condition-1',
           target: 'approval-2',
-          data: { label: 'High value', conditions: [{ field: 'amount', operator: 'gt', value: 1000 }] },
+          data: {
+            label: 'High value',
+            conditions: [{ field: 'amount', operator: 'gt', value: 1000 }],
+          },
         },
         {
           id: 'e3',
           source: 'condition-1',
           target: 'approval-3',
-          data: { label: 'Low value', conditions: [{ field: 'amount', operator: 'lte', value: 1000 }] },
+          data: {
+            label: 'Low value',
+            conditions: [{ field: 'amount', operator: 'lte', value: 1000 }],
+          },
         },
       ];
 
       // amount = 5000 should match gt 1000 → approval-2
-      const next = service.resolveNextNode('approval-1', nodes, edges, { amount: 5000 });
+      const next = service.resolveNextNode('approval-1', nodes, edges, {
+        amount: 5000,
+      });
       expect(next).toBe('approval-2');
     });
 
     it('should follow fallback edge when first condition does not match', () => {
       const nodes = [
-        { id: 'approval-1', type: WorkflowNodeType.APPROVAL, point: { x: 0, y: 0 } },
-        { id: 'condition-1', type: WorkflowNodeType.CONDITION, point: { x: 100, y: 0 } },
-        { id: 'approval-2', type: WorkflowNodeType.APPROVAL, point: { x: 200, y: -100 } },
-        { id: 'approval-3', type: WorkflowNodeType.APPROVAL, point: { x: 200, y: 100 } },
+        {
+          id: 'approval-1',
+          type: WorkflowNodeType.APPROVAL,
+          point: { x: 0, y: 0 },
+        },
+        {
+          id: 'condition-1',
+          type: WorkflowNodeType.CONDITION,
+          point: { x: 100, y: 0 },
+        },
+        {
+          id: 'approval-2',
+          type: WorkflowNodeType.APPROVAL,
+          point: { x: 200, y: -100 },
+        },
+        {
+          id: 'approval-3',
+          type: WorkflowNodeType.APPROVAL,
+          point: { x: 200, y: 100 },
+        },
       ];
       const edges = [
         { id: 'e1', source: 'approval-1', target: 'condition-1' },
@@ -559,18 +595,24 @@ describe('ApprovalRequestService', () => {
           id: 'e2',
           source: 'condition-1',
           target: 'approval-2',
-          data: { conditions: [{ field: 'amount', operator: 'gt', value: 1000 }] },
+          data: {
+            conditions: [{ field: 'amount', operator: 'gt', value: 1000 }],
+          },
         },
         {
           id: 'e3',
           source: 'condition-1',
           target: 'approval-3',
-          data: { conditions: [{ field: 'amount', operator: 'lte', value: 1000 }] },
+          data: {
+            conditions: [{ field: 'amount', operator: 'lte', value: 1000 }],
+          },
         },
       ];
 
       // amount = 500 should not match gt 1000, should match lte 1000 → approval-3
-      const next = service.resolveNextNode('approval-1', nodes, edges, { amount: 500 });
+      const next = service.resolveNextNode('approval-1', nodes, edges, {
+        amount: 500,
+      });
       expect(next).toBe('approval-3');
     });
   });

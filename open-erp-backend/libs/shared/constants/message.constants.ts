@@ -209,7 +209,6 @@ export type NavigationEvent =
   (typeof EVENT_NAMES.NAVIGATION)[keyof typeof EVENT_NAMES.NAVIGATION];
 export type ChatEvent =
   (typeof EVENT_NAMES.CHAT)[keyof typeof EVENT_NAMES.CHAT];
-export type WmsEvent =
-  (typeof EVENT_NAMES.WMS)[keyof typeof EVENT_NAMES.WMS];
+export type WmsEvent = (typeof EVENT_NAMES.WMS)[keyof typeof EVENT_NAMES.WMS];
 export type ApprovalEvent =
   (typeof EVENT_NAMES.APPROVAL)[keyof typeof EVENT_NAMES.APPROVAL];

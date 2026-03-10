@@ -37,10 +37,7 @@ export class LotRepository {
     if (expired === true) {
       filter.expiryAt = { $lte: new Date() };
     } else if (expired === false) {
-      filter.$or = [
-        { expiryAt: null },
-        { expiryAt: { $gt: new Date() } },
-      ];
+      filter.$or = [{ expiryAt: null }, { expiryAt: { $gt: new Date() } }];
     }
 
     const [items, total] = await Promise.all([

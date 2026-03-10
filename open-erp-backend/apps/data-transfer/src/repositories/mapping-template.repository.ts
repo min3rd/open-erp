@@ -10,7 +10,9 @@ export class MappingTemplateRepository {
     private readonly model: Model<MappingTemplateDocument>,
   ) {}
 
-  async create(data: Partial<MappingTemplate>): Promise<MappingTemplateDocument> {
+  async create(
+    data: Partial<MappingTemplate>,
+  ): Promise<MappingTemplateDocument> {
     return this.model.create(data);
   }
 
@@ -18,7 +20,10 @@ export class MappingTemplateRepository {
     return this.model.findById(id).exec();
   }
 
-  async findByEntity(entity: string, userId?: string): Promise<MappingTemplateDocument[]> {
+  async findByEntity(
+    entity: string,
+    userId?: string,
+  ): Promise<MappingTemplateDocument[]> {
     const query: any = { entity };
     if (userId) query.userId = new Types.ObjectId(userId);
     return this.model.find(query).exec();

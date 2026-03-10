@@ -20,19 +20,38 @@ export enum ShipmentStatus {
   versionKey: false,
 })
 export class Shipment extends Document {
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Organization', required: true, index: true })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Organization',
+    required: true,
+    index: true,
+  })
   orgId: MongooseSchema.Types.ObjectId;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Warehouse', required: true, index: true })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Warehouse',
+    required: true,
+    index: true,
+  })
   warehouseId: MongooseSchema.Types.ObjectId;
 
   @Prop({ type: [String], default: [] })
   orderIds: string[];
 
-  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'WmsPackage', default: [] })
+  @Prop({
+    type: [MongooseSchema.Types.ObjectId],
+    ref: 'WmsPackage',
+    default: [],
+  })
   packageIds: MongooseSchema.Types.ObjectId[];
 
-  @Prop({ type: String, enum: ShipmentStatus, default: ShipmentStatus.DRAFT, index: true })
+  @Prop({
+    type: String,
+    enum: ShipmentStatus,
+    default: ShipmentStatus.DRAFT,
+    index: true,
+  })
   status: ShipmentStatus;
 
   @Prop({ type: String })

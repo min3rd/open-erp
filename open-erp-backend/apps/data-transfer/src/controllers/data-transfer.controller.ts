@@ -16,7 +16,13 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiQuery,
+} from '@nestjs/swagger';
 import type { Response } from 'express';
 import { JwtAuthGuard } from '@shared/authz/jwt-auth.guard';
 import { PermissionsGuard } from '@shared/authz/permissions.guard';
@@ -52,12 +58,36 @@ export class DataTransferController {
   @ApiOperation({ summary: 'List all jobs for current user' })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
-  @ApiQuery({ name: 'q', required: false, description: 'Search by entity name' })
-  @ApiQuery({ name: 'type', required: false, description: 'Filter by job type (export/import)' })
-  @ApiQuery({ name: 'entity', required: false, description: 'Filter by entity' })
-  @ApiQuery({ name: 'status', required: false, description: 'Filter by status' })
-  @ApiQuery({ name: 'sortField', required: false, description: 'Sort field (default: createdAt)' })
-  @ApiQuery({ name: 'sortOrder', required: false, description: 'Sort order: asc or desc (default: desc)' })
+  @ApiQuery({
+    name: 'q',
+    required: false,
+    description: 'Search by entity name',
+  })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    description: 'Filter by job type (export/import)',
+  })
+  @ApiQuery({
+    name: 'entity',
+    required: false,
+    description: 'Filter by entity',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    description: 'Filter by status',
+  })
+  @ApiQuery({
+    name: 'sortField',
+    required: false,
+    description: 'Sort field (default: createdAt)',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    description: 'Sort order: asc or desc (default: desc)',
+  })
   async getJobs(
     @Req() req: any,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -70,7 +100,16 @@ export class DataTransferController {
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
     const userId = req.user?.userId;
-    const result = await this.service.getJobs(userId, { q, type, entity, status, sortField, sortOrder, page, limit });
+    const result = await this.service.getJobs(userId, {
+      q,
+      type,
+      entity,
+      status,
+      sortField,
+      sortOrder,
+      page,
+      limit,
+    });
     return paginated(result.items, page, limit, result.total);
   }
 
@@ -97,7 +136,10 @@ export class DataTransferController {
     return ok({
       id: job._id.toString(),
       status: job.status,
-      progress: job.totalRows > 0 ? Math.round((job.processedRows / job.totalRows) * 100) : 0,
+      progress:
+        job.totalRows > 0
+          ? Math.round((job.processedRows / job.totalRows) * 100)
+          : 0,
     });
   }
 
@@ -124,10 +166,17 @@ export class DataTransferController {
           'text/plain',
           'application/csv',
         ];
-        const ext = file.originalname.toLowerCase().slice(file.originalname.lastIndexOf('.'));
-        if (!allowedExtensions.includes(ext) || !allowedMimeTypes.includes(file.mimetype)) {
+        const ext = file.originalname
+          .toLowerCase()
+          .slice(file.originalname.lastIndexOf('.'));
+        if (
+          !allowedExtensions.includes(ext) ||
+          !allowedMimeTypes.includes(file.mimetype)
+        ) {
           return cb(
-            new BadRequestException(`File type not allowed. Accepted extensions: ${allowedExtensions.join(', ')}`),
+            new BadRequestException(
+              `File type not allowed. Accepted extensions: ${allowedExtensions.join(', ')}`,
+            ),
             false,
           );
         }
@@ -169,11 +218,16 @@ export class DataTransferController {
 
     const csv = [
       'Row,Field,Message,Value',
-      ...errors.map((e) => `${e.row},"${e.field}","${e.message}","${e.value || ''}"`),
+      ...errors.map(
+        (e) => `${e.row},"${e.field}","${e.message}","${e.value || ''}"`,
+      ),
     ].join('\n');
 
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="import-errors-${jobId}.csv"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="import-errors-${jobId}.csv"`,
+    );
     res.send(csv);
   }
 

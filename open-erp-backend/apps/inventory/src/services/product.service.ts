@@ -56,9 +56,12 @@ export class ProductService {
     } else {
       // Normalize provided slug
       slug = generateSlug(slug);
-      
+
       // Check if slug already exists
-      const slugExists = await this.checkSlugExists(slug, createDto.organizationId);
+      const slugExists = await this.checkSlugExists(
+        slug,
+        createDto.organizationId,
+      );
       if (slugExists) {
         throw new ConflictException('Product with this slug already exists');
       }
@@ -103,13 +106,19 @@ export class ProductService {
     organizationId?: string,
   ): Promise<string | null> {
     // Try as slug first (most user-friendly)
-    const bySlug = await this.productRepository.findBySlug(identifier, organizationId);
+    const bySlug = await this.productRepository.findBySlug(
+      identifier,
+      organizationId,
+    );
     if (bySlug) {
       return bySlug._id.toString();
     }
 
     // Try as SKU
-    const bySku = await this.productRepository.findBySku(identifier, organizationId);
+    const bySku = await this.productRepository.findBySku(
+      identifier,
+      organizationId,
+    );
     if (bySku) {
       return bySku._id.toString();
     }
@@ -135,7 +144,10 @@ export class ProductService {
     identifier: string,
     options?: { includeDeleted?: boolean; organizationId?: string },
   ) {
-    const productId = await this.resolveIdentifier(identifier, options?.organizationId);
+    const productId = await this.resolveIdentifier(
+      identifier,
+      options?.organizationId,
+    );
     if (!productId) {
       throw new NotFoundException('Product not found');
     }
@@ -151,9 +163,14 @@ export class ProductService {
   ): Promise<boolean> {
     const query: any = {
       slug,
-      ...(organizationId && { organizationId: new Types.ObjectId(organizationId) }),
+      ...(organizationId && {
+        organizationId: new Types.ObjectId(organizationId),
+      }),
     };
-    const result = await this.productRepository.findAll(query, { limit: 1, skip: 0 });
+    const result = await this.productRepository.findAll(query, {
+      limit: 1,
+      skip: 0,
+    });
     return !!(result && result.items && result.items.length > 0);
   }
 
@@ -170,7 +187,7 @@ export class ProductService {
     if (!product) {
       throw new NotFoundException('Product not found');
     }
-    
+
     // Enhance with signed URLs
     return this.enhanceProductWithSignedUrls(product);
   }
@@ -187,13 +204,15 @@ export class ProductService {
       try {
         const signedUrl = await this.minioService.getPresignedUrl(
           enhancedProduct.thumbnail.minioObjectKey,
-          { expiresIn: urlExpiry }
+          { expiresIn: urlExpiry },
         );
         if (signedUrl) {
           enhancedProduct.thumbnail.url = signedUrl;
         }
       } catch (error) {
-        this.logger.warn(`Failed to generate signed URL for thumbnail: ${error.message}`);
+        this.logger.warn(
+          `Failed to generate signed URL for thumbnail: ${error.message}`,
+        );
       }
     }
 
@@ -204,13 +223,15 @@ export class ProductService {
           try {
             const signedUrl = await this.minioService.getPresignedUrl(
               mediaItem.minioObjectKey,
-              { expiresIn: urlExpiry }
+              { expiresIn: urlExpiry },
             );
             if (signedUrl) {
               mediaItem.url = signedUrl;
             }
           } catch (error) {
-            this.logger.warn(`Failed to generate signed URL for media: ${error.message}`);
+            this.logger.warn(
+              `Failed to generate signed URL for media: ${error.message}`,
+            );
           }
         }
       }
@@ -218,19 +239,28 @@ export class ProductService {
 
     // Transform populated fields to show names instead of IDs
     if (enhancedProduct.organizationId) {
-      if (typeof enhancedProduct.organizationId === 'object' && enhancedProduct.organizationId.name) {
+      if (
+        typeof enhancedProduct.organizationId === 'object' &&
+        enhancedProduct.organizationId.name
+      ) {
         enhancedProduct.organizationName = enhancedProduct.organizationId.name;
       }
     }
 
     if (enhancedProduct.createdBy) {
-      if (typeof enhancedProduct.createdBy === 'object' && enhancedProduct.createdBy.fullName) {
+      if (
+        typeof enhancedProduct.createdBy === 'object' &&
+        enhancedProduct.createdBy.fullName
+      ) {
         enhancedProduct.createdByName = enhancedProduct.createdBy.fullName;
       }
     }
 
     if (enhancedProduct.updatedBy) {
-      if (typeof enhancedProduct.updatedBy === 'object' && enhancedProduct.updatedBy.fullName) {
+      if (
+        typeof enhancedProduct.updatedBy === 'object' &&
+        enhancedProduct.updatedBy.fullName
+      ) {
         enhancedProduct.updatedByName = enhancedProduct.updatedBy.fullName;
       }
     }
@@ -353,7 +383,9 @@ export class ProductService {
       // Delete thumbnail if exists
       if (product.thumbnail?.minioObjectKey) {
         await this.minioService.deleteObject(product.thumbnail.minioObjectKey);
-        this.logger.log(`Deleted thumbnail: ${product.thumbnail.minioObjectKey}`);
+        this.logger.log(
+          `Deleted thumbnail: ${product.thumbnail.minioObjectKey}`,
+        );
       }
 
       // Delete all media items
@@ -385,7 +417,9 @@ export class ProductService {
       // Clean up old thumbnail
       if (oldThumbnail?.minioObjectKey) {
         await this.minioService.deleteObject(oldThumbnail.minioObjectKey);
-        this.logger.log(`Cleaned up old thumbnail: ${oldThumbnail.minioObjectKey}`);
+        this.logger.log(
+          `Cleaned up old thumbnail: ${oldThumbnail.minioObjectKey}`,
+        );
       }
 
       // Clean up old media items that are no longer in the new media array
@@ -398,7 +432,10 @@ export class ProductService {
         }
       }
     } catch (error) {
-      this.logger.warn(`Error cleaning up replaced media for product ${productId}:`, error);
+      this.logger.warn(
+        `Error cleaning up replaced media for product ${productId}:`,
+        error,
+      );
       // Don't throw error, just log warning
     }
   }

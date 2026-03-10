@@ -650,7 +650,8 @@ export const PermissionMetadata: Record<
     scope: 'organization',
   },
   [Permission.WMS_RECEIPT_UPDATE]: {
-    description: 'Permission to update warehouse receipts and record received quantities',
+    description:
+      'Permission to update warehouse receipts and record received quantities',
     scope: 'organization',
   },
   [Permission.WMS_RECEIPT_REVIEW]: {
@@ -666,7 +667,8 @@ export const PermissionMetadata: Record<
     scope: 'organization',
   },
   [Permission.WMS_QC_MANAGE]: {
-    description: 'Permission to manage QC inspections (pass/fail receipt lines)',
+    description:
+      'Permission to manage QC inspections (pass/fail receipt lines)',
     scope: 'organization',
   },
   [Permission.WMS_PICK_MANAGE]: {
@@ -711,7 +713,8 @@ export const PermissionMetadata: Record<
     scope: 'organization',
   },
   [Permission.APPROVAL_REQUEST_ACTION]: {
-    description: 'Permission to approve, reject, or request changes on approval requests',
+    description:
+      'Permission to approve, reject, or request changes on approval requests',
     scope: 'organization',
   },
   [Permission.APPROVAL_REQUEST_MANAGE]: {

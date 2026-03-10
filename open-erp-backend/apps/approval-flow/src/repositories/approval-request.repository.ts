@@ -45,8 +45,7 @@ export class ApprovalRequestRepository {
     const query: any = { deletedAt: null };
 
     if (filters.entityType) query.entityType = filters.entityType;
-    if (filters.entityId)
-      query.entityId = new Types.ObjectId(filters.entityId);
+    if (filters.entityId) query.entityId = new Types.ObjectId(filters.entityId);
     if (filters.orgId) query.orgId = new Types.ObjectId(filters.orgId);
     if (filters.status) query.status = filters.status;
     if (filters.requestedBy)

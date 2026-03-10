@@ -36,11 +36,7 @@ import {
   NavigationScope,
   NavigationFormat,
 } from '../schemas/navigation.schema';
-import {
-  JwtAuthGuard,
-  PermissionsGuard,
-  CurrentUser,
-} from '@shared/authz';
+import { JwtAuthGuard, PermissionsGuard, CurrentUser } from '@shared/authz';
 import type { UserContext } from '@shared/authz';
 import { Permissions, Roles } from '@shared/authz/decorators';
 import { ThrottlerGuard } from '@nestjs/throttler';

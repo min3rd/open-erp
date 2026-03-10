@@ -59,7 +59,9 @@ export class UserNotificationController {
   @Get('unread-count')
   @ApiOperation({ summary: 'Get unread notification count' })
   async unreadCount(@Request() req: AuthenticatedRequest) {
-    const count = await this.userNotificationService.unreadCount(req.user.userId);
+    const count = await this.userNotificationService.unreadCount(
+      req.user.userId,
+    );
     return ok({ unreadCount: count });
   }
 
@@ -74,7 +76,9 @@ export class UserNotificationController {
       req.user.userId,
       dto.ids,
     );
-    const unreadCount = await this.userNotificationService.unreadCount(req.user.userId);
+    const unreadCount = await this.userNotificationService.unreadCount(
+      req.user.userId,
+    );
     this.gateway.pushUnreadCount(req.user.userId, unreadCount);
     return ok(result);
   }
@@ -90,7 +94,9 @@ export class UserNotificationController {
       req.user.userId,
       dto.ids,
     );
-    const unreadCount = await this.userNotificationService.unreadCount(req.user.userId);
+    const unreadCount = await this.userNotificationService.unreadCount(
+      req.user.userId,
+    );
     this.gateway.pushUnreadCount(req.user.userId, unreadCount);
     return ok(result);
   }
@@ -99,7 +105,9 @@ export class UserNotificationController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Mark all notifications as read' })
   async markAllRead(@Request() req: AuthenticatedRequest) {
-    const result = await this.userNotificationService.markAllRead(req.user.userId);
+    const result = await this.userNotificationService.markAllRead(
+      req.user.userId,
+    );
     this.gateway.pushUnreadCount(req.user.userId, 0);
     return ok(result);
   }
@@ -112,7 +120,10 @@ export class UserNotificationController {
     @Request() req: AuthenticatedRequest,
     @Param('id') id: string,
   ) {
-    const result = await this.userNotificationService.deleteOne(req.user.userId, id);
+    const result = await this.userNotificationService.deleteOne(
+      req.user.userId,
+      id,
+    );
     return ok(result);
   }
 }

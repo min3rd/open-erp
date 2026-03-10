@@ -15,7 +15,9 @@ export class LotService {
   constructor(private readonly lotRepository: LotRepository) {}
 
   async create(createDto: CreateLotDto) {
-    this.logger.log(`Creating lot: ${createDto.lotCode} for SKU: ${createDto.skuId}`);
+    this.logger.log(
+      `Creating lot: ${createDto.lotCode} for SKU: ${createDto.skuId}`,
+    );
 
     const data: any = {
       skuId: new Types.ObjectId(createDto.skuId),

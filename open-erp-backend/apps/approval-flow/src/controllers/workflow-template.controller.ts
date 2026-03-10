@@ -16,9 +16,21 @@ import {
   ApiOperation,
   ApiQuery,
 } from '@nestjs/swagger';
-import { JwtAuthGuard, PermissionsGuard, Permissions, CurrentUser } from '@shared/authz';
+import {
+  JwtAuthGuard,
+  PermissionsGuard,
+  Permissions,
+  CurrentUser,
+} from '@shared/authz';
 import { Permission } from '@shared/types/permission.enum';
-import { ok, created, updated, deleted, fetched, paginated } from '@shared/response';
+import {
+  ok,
+  created,
+  updated,
+  deleted,
+  fetched,
+  paginated,
+} from '@shared/response';
 import { WorkflowTemplateService } from '../services/workflow-template.service';
 import {
   CreateWorkflowTemplateDto,
@@ -37,9 +49,7 @@ import {
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @ApiBearerAuth()
 export class WorkflowTemplateController {
-  constructor(
-    private readonly templateService: WorkflowTemplateService,
-  ) {}
+  constructor(private readonly templateService: WorkflowTemplateService) {}
 
   @Post()
   @Permissions(
@@ -154,10 +164,7 @@ export class WorkflowTemplateController {
   }
 
   @Post(':id/publish')
-  @Permissions(
-    [Permission.APPROVAL_TEMPLATE_MANAGE],
-    { mode: 'any' },
-  )
+  @Permissions([Permission.APPROVAL_TEMPLATE_MANAGE], { mode: 'any' })
   @ApiOperation({ summary: 'Publish a workflow template' })
   async publish(@Param('id') id: string) {
     const result = await this.templateService.publish(id);
@@ -165,10 +172,7 @@ export class WorkflowTemplateController {
   }
 
   @Post(':id/archive')
-  @Permissions(
-    [Permission.APPROVAL_TEMPLATE_MANAGE],
-    { mode: 'any' },
-  )
+  @Permissions([Permission.APPROVAL_TEMPLATE_MANAGE], { mode: 'any' })
   @ApiOperation({ summary: 'Archive a workflow template' })
   async archive(@Param('id') id: string) {
     const result = await this.templateService.archive(id);
@@ -176,15 +180,9 @@ export class WorkflowTemplateController {
   }
 
   @Patch(':id/status')
-  @Permissions(
-    [Permission.APPROVAL_TEMPLATE_MANAGE],
-    { mode: 'any' },
-  )
+  @Permissions([Permission.APPROVAL_TEMPLATE_MANAGE], { mode: 'any' })
   @ApiOperation({ summary: 'Change workflow template status' })
-  async changeStatus(
-    @Param('id') id: string,
-    @Body() dto: UpdateStatusDto,
-  ) {
+  async changeStatus(@Param('id') id: string, @Body() dto: UpdateStatusDto) {
     const result = await this.templateService.changeStatus(id, dto.status);
     return updated(result, 'Workflow template status updated successfully');
   }

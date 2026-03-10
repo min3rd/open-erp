@@ -62,7 +62,10 @@ export class ReceiptController {
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error('RECEIPT_CREATE_ERROR', err.message || 'Failed to create receipt'),
+        error(
+          'RECEIPT_CREATE_ERROR',
+          err.message || 'Failed to create receipt',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -75,9 +78,24 @@ export class ReceiptController {
   @ApiQuery({ name: 'warehouseId', required: false, type: String })
   @ApiQuery({ name: 'poId', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: ReceiptStatus })
-  @ApiQuery({ name: 'q', required: false, type: String, description: 'Text search (poId, supplier, notes)' })
-  @ApiQuery({ name: 'sortField', required: false, type: String, description: 'Field to sort by (default: createdAt)' })
-  @ApiQuery({ name: 'sortOrder', required: false, type: Number, description: 'Sort direction: 1 asc, -1 desc (default: -1)' })
+  @ApiQuery({
+    name: 'q',
+    required: false,
+    type: String,
+    description: 'Text search (poId, supplier, notes)',
+  })
+  @ApiQuery({
+    name: 'sortField',
+    required: false,
+    type: String,
+    description: 'Field to sort by (default: createdAt)',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    type: Number,
+    description: 'Sort direction: 1 asc, -1 desc (default: -1)',
+  })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Receipts retrieved successfully' })
@@ -93,7 +111,9 @@ export class ReceiptController {
     @Query('limit') limit?: number,
   ) {
     try {
-      const parsedSortOrder = sortOrder ? (parseInt(sortOrder as string, 10) as 1 | -1) : undefined;
+      const parsedSortOrder = sortOrder
+        ? (parseInt(sortOrder as string, 10) as 1 | -1)
+        : undefined;
       const result = await this.receiptService.findAll(
         { orgId, warehouseId, poId, status, q },
         { page, limit, sortField, sortOrder: parsedSortOrder },
@@ -130,7 +150,10 @@ export class ReceiptController {
   @Permissions(Permission.WMS_RECEIPT_READ)
   @ApiOperation({ summary: 'Get receipt audit trail' })
   @ApiParam({ name: 'id', description: 'Receipt ID' })
-  @ApiResponse({ status: 200, description: 'Audit trail retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Audit trail retrieved successfully',
+  })
   async getAudit(@Param('id') id: string) {
     try {
       const receipt = await this.receiptService.findById(id);
@@ -139,7 +162,10 @@ export class ReceiptController {
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error('RECEIPT_AUDIT_ERROR', err.message || 'Failed to fetch audit trail'),
+        error(
+          'RECEIPT_AUDIT_ERROR',
+          err.message || 'Failed to fetch audit trail',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -149,16 +175,22 @@ export class ReceiptController {
   @Permissions(Permission.WMS_RECEIPT_READ)
   @ApiOperation({ summary: 'Get receipt QR/barcode label data' })
   @ApiParam({ name: 'id', description: 'Receipt ID' })
-  @ApiResponse({ status: 200, description: 'Label data retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Label data retrieved successfully',
+  })
   async getLabel(@Param('id') id: string) {
     try {
       const receipt = await this.receiptService.findById(id);
-      return ok({
-        id: receipt.id,
-        code: (receipt as any).code,
-        url: `/wms/receipts/${receipt.id}`,
-        qrData: `${receipt.id}`,
-      }, 'Label data retrieved successfully');
+      return ok(
+        {
+          id: receipt.id,
+          code: (receipt as any).code,
+          url: `/wms/receipts/${receipt.id}`,
+          qrData: `${receipt.id}`,
+        },
+        'Label data retrieved successfully',
+      );
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
@@ -173,7 +205,11 @@ export class ReceiptController {
   @ApiOperation({ summary: 'Update a draft receipt' })
   @ApiParam({ name: 'id', description: 'Receipt ID' })
   @ApiResponse({ status: 200, description: 'Receipt updated successfully' })
-  async update(@Param('id') id: string, @Body() dto: UpdateReceiptDto, @Request() req: any) {
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateReceiptDto,
+    @Request() req: any,
+  ) {
     try {
       const userId = req.user?.userId || req.user?.sub;
       const receipt = await this.receiptService.update(id, dto, userId);
@@ -181,7 +217,10 @@ export class ReceiptController {
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error('RECEIPT_UPDATE_ERROR', err.message || 'Failed to update receipt'),
+        error(
+          'RECEIPT_UPDATE_ERROR',
+          err.message || 'Failed to update receipt',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -192,17 +231,29 @@ export class ReceiptController {
   @ApiOperation({ summary: 'Submit receipt for review (draft → under_review)' })
   @ApiParam({ name: 'id', description: 'Receipt ID' })
   @ApiResponse({ status: 200, description: 'Receipt submitted for review' })
-  async submit(@Param('id') id: string, @Body() dto: SubmitReceiptDto, @Request() req: any) {
+  async submit(
+    @Param('id') id: string,
+    @Body() dto: SubmitReceiptDto,
+    @Request() req: any,
+  ) {
     try {
       const userId = req.user?.userId || req.user?.sub;
       // Forward the JWT token so the approval-flow service can authenticate the caller
       const authToken = req.headers?.authorization as string | undefined;
-      const receipt = await this.receiptService.submit(id, dto, userId, authToken);
+      const receipt = await this.receiptService.submit(
+        id,
+        dto,
+        userId,
+        authToken,
+      );
       return ok(receipt, 'Receipt submitted for review');
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error('RECEIPT_SUBMIT_ERROR', err.message || 'Failed to submit receipt'),
+        error(
+          'RECEIPT_SUBMIT_ERROR',
+          err.message || 'Failed to submit receipt',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -213,7 +264,11 @@ export class ReceiptController {
   @ApiOperation({ summary: 'Review a receipt (accept or reject)' })
   @ApiParam({ name: 'id', description: 'Receipt ID' })
   @ApiResponse({ status: 200, description: 'Review applied successfully' })
-  async review(@Param('id') id: string, @Body() dto: ReviewReceiptDto, @Request() req: any) {
+  async review(
+    @Param('id') id: string,
+    @Body() dto: ReviewReceiptDto,
+    @Request() req: any,
+  ) {
     try {
       const userId = req.user?.userId || req.user?.sub;
       const receipt = await this.receiptService.review(id, dto, userId);
@@ -221,7 +276,10 @@ export class ReceiptController {
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error('RECEIPT_REVIEW_ERROR', err.message || 'Failed to review receipt'),
+        error(
+          'RECEIPT_REVIEW_ERROR',
+          err.message || 'Failed to review receipt',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -232,7 +290,11 @@ export class ReceiptController {
   @ApiOperation({ summary: 'Approve a receipt (under_review → approved)' })
   @ApiParam({ name: 'id', description: 'Receipt ID' })
   @ApiResponse({ status: 200, description: 'Receipt approved successfully' })
-  async approve(@Param('id') id: string, @Body() dto: ApproveReceiptDto, @Request() req: any) {
+  async approve(
+    @Param('id') id: string,
+    @Body() dto: ApproveReceiptDto,
+    @Request() req: any,
+  ) {
     try {
       const userId = req.user?.userId || req.user?.sub;
       const receipt = await this.receiptService.approve(id, dto, userId);
@@ -240,7 +302,10 @@ export class ReceiptController {
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error('RECEIPT_APPROVE_ERROR', err.message || 'Failed to approve receipt'),
+        error(
+          'RECEIPT_APPROVE_ERROR',
+          err.message || 'Failed to approve receipt',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -248,10 +313,16 @@ export class ReceiptController {
 
   @Post(':id/receive')
   @Permissions(Permission.WMS_RECEIPT_UPDATE)
-  @ApiOperation({ summary: 'Record receipt of goods (approved → received/partial)' })
+  @ApiOperation({
+    summary: 'Record receipt of goods (approved → received/partial)',
+  })
   @ApiParam({ name: 'id', description: 'Receipt ID' })
   @ApiResponse({ status: 200, description: 'Items received successfully' })
-  async receive(@Param('id') id: string, @Body() dto: ReceiveReceiptDto, @Request() req: any) {
+  async receive(
+    @Param('id') id: string,
+    @Body() dto: ReceiveReceiptDto,
+    @Request() req: any,
+  ) {
     try {
       const userId = req.user?.userId || req.user?.sub;
       const receipt = await this.receiptService.receive(id, dto, userId);
@@ -259,7 +330,10 @@ export class ReceiptController {
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error('RECEIPT_RECEIVE_ERROR', err.message || 'Failed to process receive'),
+        error(
+          'RECEIPT_RECEIVE_ERROR',
+          err.message || 'Failed to process receive',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -270,7 +344,11 @@ export class ReceiptController {
   @ApiOperation({ summary: 'Finalize and lock a receipt' })
   @ApiParam({ name: 'id', description: 'Receipt ID' })
   @ApiResponse({ status: 200, description: 'Receipt finalized successfully' })
-  async finalize(@Param('id') id: string, @Body() dto: FinalizeReceiptDto, @Request() req: any) {
+  async finalize(
+    @Param('id') id: string,
+    @Body() dto: FinalizeReceiptDto,
+    @Request() req: any,
+  ) {
     try {
       const userId = req.user?.userId || req.user?.sub;
       const receipt = await this.receiptService.finalize(id, dto, userId);
@@ -278,7 +356,10 @@ export class ReceiptController {
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error('RECEIPT_FINALIZE_ERROR', err.message || 'Failed to finalize receipt'),
+        error(
+          'RECEIPT_FINALIZE_ERROR',
+          err.message || 'Failed to finalize receipt',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -289,7 +370,11 @@ export class ReceiptController {
   @ApiOperation({ summary: 'Unlock a finalized receipt (admin only)' })
   @ApiParam({ name: 'id', description: 'Receipt ID' })
   @ApiResponse({ status: 200, description: 'Receipt unlocked successfully' })
-  async unlock(@Param('id') id: string, @Body() dto: UnlockReceiptDto, @Request() req: any) {
+  async unlock(
+    @Param('id') id: string,
+    @Body() dto: UnlockReceiptDto,
+    @Request() req: any,
+  ) {
     try {
       const userId = req.user?.userId || req.user?.sub;
       const receipt = await this.receiptService.unlock(id, dto, userId);
@@ -297,7 +382,10 @@ export class ReceiptController {
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error('RECEIPT_UNLOCK_ERROR', err.message || 'Failed to unlock receipt'),
+        error(
+          'RECEIPT_UNLOCK_ERROR',
+          err.message || 'Failed to unlock receipt',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -308,7 +396,11 @@ export class ReceiptController {
   @ApiOperation({ summary: 'Apply QC result to receipt lines' })
   @ApiParam({ name: 'id', description: 'Receipt ID' })
   @ApiResponse({ status: 200, description: 'QC applied successfully' })
-  async applyQc(@Param('id') id: string, @Body() dto: QcReceiptDto, @Request() req: any) {
+  async applyQc(
+    @Param('id') id: string,
+    @Body() dto: QcReceiptDto,
+    @Request() req: any,
+  ) {
     try {
       const userId = req.user?.userId || req.user?.sub;
       const receipt = await this.receiptService.applyQc(id, dto, userId);
@@ -334,7 +426,10 @@ export class ReceiptController {
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error('RECEIPT_COMPLETE_ERROR', err.message || 'Failed to complete receipt'),
+        error(
+          'RECEIPT_COMPLETE_ERROR',
+          err.message || 'Failed to complete receipt',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -342,10 +437,17 @@ export class ReceiptController {
 
   @Post(':id/upload-url')
   @Permissions(Permission.WMS_RECEIPT_UPDATE)
-  @ApiOperation({ summary: 'Get a presigned upload URL for attaching a reference document to a receipt' })
+  @ApiOperation({
+    summary:
+      'Get a presigned upload URL for attaching a reference document to a receipt',
+  })
   @ApiParam({ name: 'id', description: 'Receipt ID' })
   @ApiResponse({ status: 200, description: 'Presigned upload URL returned' })
-  async getUploadUrl(@Param('id') id: string, @Body() dto: RequestUploadUrlDto, @Request() req: any) {
+  async getUploadUrl(
+    @Param('id') id: string,
+    @Body() dto: RequestUploadUrlDto,
+    @Request() req: any,
+  ) {
     try {
       // Verify receipt exists
       const receipt = await this.receiptService.findById(id);
@@ -359,18 +461,24 @@ export class ReceiptController {
         // contentType: dto.mimeType,
       });
 
-      return ok({
-        uploadUrl: presigned.url,
-        method: presigned.method,
-        fileKey,
-        fileName: dto.fileName,
-        mimeType: dto.mimeType,
-        expiresAt: presigned.expiresAt,
-      }, 'Presigned upload URL generated');
+      return ok(
+        {
+          uploadUrl: presigned.url,
+          method: presigned.method,
+          fileKey,
+          fileName: dto.fileName,
+          mimeType: dto.mimeType,
+          expiresAt: presigned.expiresAt,
+        },
+        'Presigned upload URL generated',
+      );
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error('RECEIPT_UPLOAD_URL_ERROR', err.message || 'Failed to generate upload URL'),
+        error(
+          'RECEIPT_UPLOAD_URL_ERROR',
+          err.message || 'Failed to generate upload URL',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

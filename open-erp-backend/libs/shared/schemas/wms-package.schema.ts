@@ -15,7 +15,12 @@ export enum WmsPackageStatus {
   versionKey: false,
 })
 export class WmsPackage extends Document {
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Organization', required: true, index: true })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Organization',
+    required: true,
+    index: true,
+  })
   orgId: MongooseSchema.Types.ObjectId;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Shipment', index: true })
@@ -24,7 +29,12 @@ export class WmsPackage extends Document {
   @Prop({ type: [String], default: [] })
   picklistIds: string[];
 
-  @Prop({ type: String, enum: WmsPackageStatus, default: WmsPackageStatus.OPEN, index: true })
+  @Prop({
+    type: String,
+    enum: WmsPackageStatus,
+    default: WmsPackageStatus.OPEN,
+    index: true,
+  })
   status: WmsPackageStatus;
 
   @Prop({ type: Number })

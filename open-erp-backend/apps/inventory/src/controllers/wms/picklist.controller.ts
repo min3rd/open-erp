@@ -48,7 +48,10 @@ export class PicklistController {
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error('PICKLIST_CREATE_ERROR', err.message || 'Failed to create picklist'),
+        error(
+          'PICKLIST_CREATE_ERROR',
+          err.message || 'Failed to create picklist',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -60,9 +63,24 @@ export class PicklistController {
   @ApiQuery({ name: 'orgId', required: false, type: String })
   @ApiQuery({ name: 'warehouseId', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: PicklistStatus })
-  @ApiQuery({ name: 'q', required: false, type: String, description: 'Text search (SKU, notes)' })
-  @ApiQuery({ name: 'sortField', required: false, type: String, description: 'Field to sort by (default: createdAt)' })
-  @ApiQuery({ name: 'sortOrder', required: false, type: Number, description: 'Sort direction: 1 asc, -1 desc (default: -1)' })
+  @ApiQuery({
+    name: 'q',
+    required: false,
+    type: String,
+    description: 'Text search (SKU, notes)',
+  })
+  @ApiQuery({
+    name: 'sortField',
+    required: false,
+    type: String,
+    description: 'Field to sort by (default: createdAt)',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    type: Number,
+    description: 'Sort direction: 1 asc, -1 desc (default: -1)',
+  })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Picklists retrieved successfully' })
@@ -77,7 +95,9 @@ export class PicklistController {
     @Query('limit') limit?: number,
   ) {
     try {
-      const parsedSortOrder = sortOrder ? (parseInt(sortOrder as string, 10) as 1 | -1) : undefined;
+      const parsedSortOrder = sortOrder
+        ? (parseInt(sortOrder as string, 10) as 1 | -1)
+        : undefined;
       const result = await this.picklistService.findAll(
         { orgId, warehouseId, status, q },
         { page, limit, sortField, sortOrder: parsedSortOrder },
@@ -86,7 +106,10 @@ export class PicklistController {
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error('PICKLIST_FETCH_ERROR', err.message || 'Failed to fetch picklists'),
+        error(
+          'PICKLIST_FETCH_ERROR',
+          err.message || 'Failed to fetch picklists',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -104,7 +127,10 @@ export class PicklistController {
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error('PICKLIST_FETCH_ERROR', err.message || 'Failed to fetch picklist'),
+        error(
+          'PICKLIST_FETCH_ERROR',
+          err.message || 'Failed to fetch picklist',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -140,7 +166,10 @@ export class PicklistController {
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error('PACKAGE_CREATE_ERROR', err.message || 'Failed to create package'),
+        error(
+          'PACKAGE_CREATE_ERROR',
+          err.message || 'Failed to create package',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -152,9 +181,24 @@ export class PicklistController {
   @ApiQuery({ name: 'orgId', required: false, type: String })
   @ApiQuery({ name: 'shipmentId', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: WmsPackageStatus })
-  @ApiQuery({ name: 'q', required: false, type: String, description: 'Text search (trackingNumber, notes)' })
-  @ApiQuery({ name: 'sortField', required: false, type: String, description: 'Field to sort by (default: createdAt)' })
-  @ApiQuery({ name: 'sortOrder', required: false, type: Number, description: 'Sort direction: 1 asc, -1 desc (default: -1)' })
+  @ApiQuery({
+    name: 'q',
+    required: false,
+    type: String,
+    description: 'Text search (trackingNumber, notes)',
+  })
+  @ApiQuery({
+    name: 'sortField',
+    required: false,
+    type: String,
+    description: 'Field to sort by (default: createdAt)',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    type: Number,
+    description: 'Sort direction: 1 asc, -1 desc (default: -1)',
+  })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Packages retrieved successfully' })
@@ -169,7 +213,9 @@ export class PicklistController {
     @Query('limit') limit?: number,
   ) {
     try {
-      const parsedSortOrder = sortOrder ? (parseInt(sortOrder as string, 10) as 1 | -1) : undefined;
+      const parsedSortOrder = sortOrder
+        ? (parseInt(sortOrder as string, 10) as 1 | -1)
+        : undefined;
       const result = await this.picklistService.findPackages(
         { orgId, shipmentId, status, q },
         { page, limit, sortField, sortOrder: parsedSortOrder },

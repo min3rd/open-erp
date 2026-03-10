@@ -162,7 +162,7 @@ export class ProductRepository {
     // }
 
     // Escape special regex characters to prevent regex injection
-    const escapeRegex = (str: string) => 
+    const escapeRegex = (str: string) =>
       str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const escapedSearchText = escapeRegex(searchText);
 
@@ -171,7 +171,7 @@ export class ProductRepository {
     // For partial matches anywhere in the string, full collection scans may occur.
     // SKU and barcode have indexes which can help with prefix matching.
     const searchRegex = new RegExp(escapedSearchText, 'i'); // case-insensitive regex
-    
+
     const partialMatchQuery = {
       ...filter,
       $or: [

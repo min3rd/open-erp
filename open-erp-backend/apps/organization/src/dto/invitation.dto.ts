@@ -51,14 +51,20 @@ export class InvitationRecipientDto {
   @IsOptional()
   userId?: string;
 
-  @ApiProperty({ required: false, description: 'Email for manual/unregistered recipients' })
+  @ApiProperty({
+    required: false,
+    description: 'Email for manual/unregistered recipients',
+  })
   @IsEmail()
   @IsOptional()
   email?: string;
 }
 
 export class BulkCreateInvitationDto {
-  @ApiProperty({ type: [InvitationRecipientDto], description: 'List of recipients (userId or email)' })
+  @ApiProperty({
+    type: [InvitationRecipientDto],
+    description: 'List of recipients (userId or email)',
+  })
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
@@ -76,7 +82,11 @@ export class BulkCreateInvitationDto {
   @IsOptional()
   expiresAt?: string;
 
-  @ApiProperty({ required: false, description: 'Expiry in days (used if expiresAt not set)', default: 7 })
+  @ApiProperty({
+    required: false,
+    description: 'Expiry in days (used if expiresAt not set)',
+    default: 7,
+  })
   @IsNumber()
   @Min(1)
   @Max(365)

@@ -103,10 +103,7 @@ export class SerialController {
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error(
-          'SERIAL_UPDATE_ERROR',
-          err.message || 'Failed to update serial',
-        ),
+        error('SERIAL_UPDATE_ERROR', err.message || 'Failed to update serial'),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

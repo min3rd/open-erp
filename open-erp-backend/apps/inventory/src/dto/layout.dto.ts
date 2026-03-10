@@ -17,17 +17,26 @@ import { LayoutObjectType } from '@shared/schemas/layout.schema';
 // ─── WarehouseLayout DTOs ─────────────────────────────────────────────────────
 
 export class CreateLayoutDto {
-  @ApiProperty({ example: 50, description: 'Physical width of the warehouse floor in meters' })
+  @ApiProperty({
+    example: 50,
+    description: 'Physical width of the warehouse floor in meters',
+  })
   @IsNumber()
   @Min(0.1)
   widthM: number;
 
-  @ApiProperty({ example: 30, description: 'Physical length of the warehouse floor in meters' })
+  @ApiProperty({
+    example: 30,
+    description: 'Physical length of the warehouse floor in meters',
+  })
   @IsNumber()
   @Min(0.1)
   lengthM: number;
 
-  @ApiPropertyOptional({ example: 50, description: 'Display scale: pixels per meter' })
+  @ApiPropertyOptional({
+    example: 50,
+    description: 'Display scale: pixels per meter',
+  })
   @IsOptional()
   @IsNumber()
   @Min(1)
@@ -39,12 +48,19 @@ export class UpdateLayoutDto extends PartialType(CreateLayoutDto) {}
 // ─── LayoutObject DTOs ────────────────────────────────────────────────────────
 
 export class CreateLayoutObjectDto {
-  @ApiPropertyOptional({ example: '60f7e...', description: 'Parent layout object ID (null for zones)' })
+  @ApiPropertyOptional({
+    example: '60f7e...',
+    description: 'Parent layout object ID (null for zones)',
+  })
   @IsOptional()
   @IsString()
   parentId?: string;
 
-  @ApiProperty({ enum: LayoutObjectType, example: LayoutObjectType.ZONE, description: 'Object type' })
+  @ApiProperty({
+    enum: LayoutObjectType,
+    example: LayoutObjectType.ZONE,
+    description: 'Object type',
+  })
   @IsEnum(LayoutObjectType)
   type: LayoutObjectType;
 
@@ -60,12 +76,18 @@ export class CreateLayoutObjectDto {
   @MaxLength(200)
   name: string;
 
-  @ApiPropertyOptional({ example: 0, description: 'X position in meters from origin' })
+  @ApiPropertyOptional({
+    example: 0,
+    description: 'X position in meters from origin',
+  })
   @IsOptional()
   @IsNumber()
   x?: number;
 
-  @ApiPropertyOptional({ example: 0, description: 'Y position in meters from origin' })
+  @ApiPropertyOptional({
+    example: 0,
+    description: 'Y position in meters from origin',
+  })
   @IsOptional()
   @IsNumber()
   y?: number;
@@ -87,24 +109,36 @@ export class CreateLayoutObjectDto {
   @Max(359)
   rotationDeg?: number;
 
-  @ApiPropertyOptional({ example: '1234567890', description: 'Barcode (auto-generated if absent)' })
+  @ApiPropertyOptional({
+    example: '1234567890',
+    description: 'Barcode (auto-generated if absent)',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(100)
   barcode?: string;
 
-  @ApiPropertyOptional({ example: false, description: 'Whether the location is blocked' })
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Whether the location is blocked',
+  })
   @IsOptional()
   @IsBoolean()
   isBlocked?: boolean;
 
-  @ApiPropertyOptional({ example: 100, description: 'Maximum capacity in quantity units' })
+  @ApiPropertyOptional({
+    example: 100,
+    description: 'Maximum capacity in quantity units',
+  })
   @IsOptional()
   @IsNumber()
   @Min(0)
   capacityQty?: number;
 
-  @ApiPropertyOptional({ example: 2.5, description: 'Maximum capacity in cubic meters' })
+  @ApiPropertyOptional({
+    example: 2.5,
+    description: 'Maximum capacity in cubic meters',
+  })
   @IsOptional()
   @IsNumber()
   @Min(0)
@@ -116,22 +150,34 @@ export class CreateLayoutObjectDto {
   @IsString({ each: true })
   allowedSkuTags?: string[];
 
-  @ApiPropertyOptional({ example: 'zone-object-id', description: 'Reference to existing Zone document' })
+  @ApiPropertyOptional({
+    example: 'zone-object-id',
+    description: 'Reference to existing Zone document',
+  })
   @IsOptional()
   @IsString()
   zoneRef?: string;
 
-  @ApiPropertyOptional({ example: 'aisle-object-id', description: 'Reference to existing Aisle document' })
+  @ApiPropertyOptional({
+    example: 'aisle-object-id',
+    description: 'Reference to existing Aisle document',
+  })
   @IsOptional()
   @IsString()
   aisleRef?: string;
 
-  @ApiPropertyOptional({ example: 'bin-object-id', description: 'Reference to existing Bin document' })
+  @ApiPropertyOptional({
+    example: 'bin-object-id',
+    description: 'Reference to existing Bin document',
+  })
   @IsOptional()
   @IsString()
   binRef?: string;
 
-  @ApiPropertyOptional({ example: 0, description: 'Visual z-order: higher = drawn on top' })
+  @ApiPropertyOptional({
+    example: 0,
+    description: 'Visual z-order: higher = drawn on top',
+  })
   @IsOptional()
   @IsNumber()
   @Min(0)
@@ -150,7 +196,10 @@ export class BatchUpdateLayoutObjectsDto {
 }
 
 export class QueryLayoutObjectDto {
-  @ApiPropertyOptional({ enum: LayoutObjectType, description: 'Filter by type' })
+  @ApiPropertyOptional({
+    enum: LayoutObjectType,
+    description: 'Filter by type',
+  })
   @IsOptional()
   @IsEnum(LayoutObjectType)
   type?: LayoutObjectType;

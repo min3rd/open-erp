@@ -126,7 +126,8 @@ export class WorkflowEdgeDataDto {
 
   @ApiPropertyOptional({
     type: [EdgeConditionDto],
-    description: 'Conditions to evaluate for this edge (used on condition node outputs)',
+    description:
+      'Conditions to evaluate for this edge (used on condition node outputs)',
   })
   @IsOptional()
   @IsArray()
@@ -187,7 +188,9 @@ export class CreateWorkflowTemplateDto {
   @IsEnum(ApprovalScope)
   scope: ApprovalScope;
 
-  @ApiPropertyOptional({ description: 'Organization ID (required for ORG/DEPARTMENT scope)' })
+  @ApiPropertyOptional({
+    description: 'Organization ID (required for ORG/DEPARTMENT scope)',
+  })
   @IsOptional()
   @IsMongoId()
   orgId?: string;
@@ -306,14 +309,20 @@ export class UpdateStatusDto {
 }
 
 export class ValidateWorkflowDto {
-  @ApiProperty({ type: [WorkflowNodeDto], description: 'Workflow graph nodes to validate' })
+  @ApiProperty({
+    type: [WorkflowNodeDto],
+    description: 'Workflow graph nodes to validate',
+  })
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => WorkflowNodeDto)
   nodes: WorkflowNodeDto[];
 
-  @ApiProperty({ type: [WorkflowEdgeDto], description: 'Workflow graph edges to validate' })
+  @ApiProperty({
+    type: [WorkflowEdgeDto],
+    description: 'Workflow graph edges to validate',
+  })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => WorkflowEdgeDto)

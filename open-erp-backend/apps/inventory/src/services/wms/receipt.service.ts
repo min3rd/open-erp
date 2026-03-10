@@ -49,7 +49,13 @@ export class ReceiptService {
     return `RCP-${ts}-${rand}`;
   }
 
-  private addAuditEntry(auditTrail: any[], action: string, userId?: string, payload?: any, ip?: string) {
+  private addAuditEntry(
+    auditTrail: any[],
+    action: string,
+    userId?: string,
+    payload?: any,
+    ip?: string,
+  ) {
     auditTrail.push({
       action,
       userId: userId ? new Types.ObjectId(userId) : undefined,
@@ -60,10 +66,15 @@ export class ReceiptService {
   }
 
   async create(dto: CreateReceiptDto, userId?: string) {
-    this.logger.log(`Creating receipt for org: ${dto.orgId}, warehouse: ${dto.warehouseId}`);
+    this.logger.log(
+      `Creating receipt for org: ${dto.orgId}, warehouse: ${dto.warehouseId}`,
+    );
 
     const auditTrail: any[] = [];
-    this.addAuditEntry(auditTrail, 'created', userId, { orgId: dto.orgId, warehouseId: dto.warehouseId });
+    this.addAuditEntry(auditTrail, 'created', userId, {
+      orgId: dto.orgId,
+      warehouseId: dto.warehouseId,
+    });
 
     const data: any = {
       code: this.generateCode(),
@@ -111,19 +122,26 @@ export class ReceiptService {
 
     const allowedStatuses: ReceiptStatus[] = [ReceiptStatus.DRAFT];
     if (!allowedStatuses.includes(receipt.status)) {
-      throw new BadRequestException(`Cannot update receipt in status: ${receipt.status}. Only draft receipts can be updated.`);
+      throw new BadRequestException(
+        `Cannot update receipt in status: ${receipt.status}. Only draft receipts can be updated.`,
+      );
     }
 
     const auditTrail = [...receipt.auditTrail] as any[];
-    this.addAuditEntry(auditTrail, 'updated', userId, { fields: Object.keys(dto) });
+    this.addAuditEntry(auditTrail, 'updated', userId, {
+      fields: Object.keys(dto),
+    });
 
     const updateData: any = { auditTrail };
     if (dto.type !== undefined) updateData.type = dto.type;
     if (dto.poId !== undefined) updateData.poId = dto.poId;
     if (dto.supplier !== undefined) updateData.supplier = dto.supplier;
-    if (dto.shippingParty !== undefined) updateData.shippingParty = dto.shippingParty;
-    if (dto.expectedReceiptAt !== undefined) updateData.expectedReceiptAt = dto.expectedReceiptAt;
-    if (dto.referenceDocs !== undefined) updateData.referenceDocs = dto.referenceDocs;
+    if (dto.shippingParty !== undefined)
+      updateData.shippingParty = dto.shippingParty;
+    if (dto.expectedReceiptAt !== undefined)
+      updateData.expectedReceiptAt = dto.expectedReceiptAt;
+    if (dto.referenceDocs !== undefined)
+      updateData.referenceDocs = dto.referenceDocs;
     if (dto.notes !== undefined) updateData.notes = dto.notes;
     if (dto.lines !== undefined) {
       updateData.lines = dto.lines.map((line, idx) => ({
@@ -159,12 +177,22 @@ export class ReceiptService {
       status?: ReceiptStatus;
       q?: string;
     } = {},
-    options: { page?: number; limit?: number; sortField?: string; sortOrder?: 1 | -1 } = {},
+    options: {
+      page?: number;
+      limit?: number;
+      sortField?: string;
+      sortOrder?: 1 | -1;
+    } = {},
   ) {
     const { page = 1, limit = 20, sortField, sortOrder } = options;
     const skip = (page - 1) * limit;
 
-    const result = await this.receiptRepository.findAll(filter, { skip, limit, sortField, sortOrder });
+    const result = await this.receiptRepository.findAll(filter, {
+      skip,
+      limit,
+      sortField,
+      sortOrder,
+    });
 
     return {
       items: result.items,
@@ -174,15 +202,25 @@ export class ReceiptService {
     };
   }
 
-  async submit(id: string, dto: SubmitReceiptDto, userId?: string, authToken?: string) {
+  async submit(
+    id: string,
+    dto: SubmitReceiptDto,
+    userId?: string,
+    authToken?: string,
+  ) {
     const receipt = await this.findById(id);
 
     if (receipt.status !== ReceiptStatus.DRAFT) {
-      throw new BadRequestException(`Cannot submit receipt in status: ${receipt.status}. Only draft receipts can be submitted.`);
+      throw new BadRequestException(
+        `Cannot submit receipt in status: ${receipt.status}. Only draft receipts can be submitted.`,
+      );
     }
 
     const auditTrail = [...receipt.auditTrail] as any[];
-    this.addAuditEntry(auditTrail, 'submitted', userId, { reviewers: dto.reviewers, notes: dto.notes });
+    this.addAuditEntry(auditTrail, 'submitted', userId, {
+      reviewers: dto.reviewers,
+      notes: dto.notes,
+    });
 
     const updateData: any = {
       status: ReceiptStatus.UNDER_REVIEW,
@@ -202,37 +240,48 @@ export class ReceiptService {
     // still transitions to under_review status.
     try {
       const doc = receipt as any;
-      const response = await fetch(`${this.approvalFlowUrl}/v1/approval-flow/requests`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(authToken ? { Authorization: authToken } : {}),
-        },
-        body: JSON.stringify({
-          entityType: ENTITY_TYPE_RECEIPT,
-          entityId: id,
-          orgId: receipt.orgId?.toString(),
-          metadata: {
-            code: doc.code as string | undefined,
-            warehouseId: receipt.warehouseId?.toString(),
-            type: doc.type as string | undefined,
+      const response = await fetch(
+        `${this.approvalFlowUrl}/v1/approval-flow/requests`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(authToken ? { Authorization: authToken } : {}),
           },
-        }),
-      });
+          body: JSON.stringify({
+            entityType: ENTITY_TYPE_RECEIPT,
+            entityId: id,
+            orgId: receipt.orgId?.toString(),
+            metadata: {
+              code: doc.code as string | undefined,
+              warehouseId: receipt.warehouseId?.toString(),
+              type: doc.type as string | undefined,
+            },
+          }),
+        },
+      );
 
       if (response.ok) {
         const result = await response.json();
         const approvalRequestId = result?.data?.item?._id ?? result?.data?._id;
         if (approvalRequestId) {
           updateData.approvalRequestId = approvalRequestId;
-          this.logger.log(`Created ApprovalRequest ${approvalRequestId} for receipt ${id} via approval-flow service`);
+          this.logger.log(
+            `Created ApprovalRequest ${approvalRequestId} for receipt ${id} via approval-flow service`,
+          );
         }
       } else {
-        const errText = await response.text().catch(() => `HTTP ${response.status} error`);
-        this.logger.warn(`Approval-flow service returned ${response.status} for receipt ${id}: ${errText}`);
+        const errText = await response
+          .text()
+          .catch(() => `HTTP ${response.status} error`);
+        this.logger.warn(
+          `Approval-flow service returned ${response.status} for receipt ${id}: ${errText}`,
+        );
       }
     } catch (err) {
-      this.logger.warn(`Failed to create ApprovalRequest via approval-flow service for receipt ${id}: ${(err as Error).message}`);
+      this.logger.warn(
+        `Failed to create ApprovalRequest via approval-flow service for receipt ${id}: ${(err as Error).message}`,
+      );
       // Non-fatal: continue with submission even if the approval-flow service is unavailable
     }
 
@@ -243,11 +292,15 @@ export class ReceiptService {
     const receipt = await this.findById(id);
 
     if (receipt.status !== ReceiptStatus.UNDER_REVIEW) {
-      throw new BadRequestException(`Cannot review receipt in status: ${receipt.status}. Only under_review receipts can be reviewed.`);
+      throw new BadRequestException(
+        `Cannot review receipt in status: ${receipt.status}. Only under_review receipts can be reviewed.`,
+      );
     }
 
     const auditTrail = [...receipt.auditTrail] as any[];
-    this.addAuditEntry(auditTrail, `review_${dto.action}`, userId, { notes: dto.notes });
+    this.addAuditEntry(auditTrail, `review_${dto.action}`, userId, {
+      notes: dto.notes,
+    });
 
     const updateData: any = { auditTrail };
 
@@ -261,11 +314,15 @@ export class ReceiptService {
       if (dto.lineQcResults?.length) {
         const updatedLines = [...receipt.lines] as ReceiptLine[];
         for (const qcResult of dto.lineQcResults) {
-          if (qcResult.lineIndex >= 0 && qcResult.lineIndex < updatedLines.length) {
+          if (
+            qcResult.lineIndex >= 0 &&
+            qcResult.lineIndex < updatedLines.length
+          ) {
             const line = updatedLines[qcResult.lineIndex];
             line.qcStatus = qcResult.qcStatus;
             if (qcResult.qcNotes) line.qcNotes = qcResult.qcNotes;
-            if (qcResult.defectQty !== undefined) line.defectQty = qcResult.defectQty;
+            if (qcResult.defectQty !== undefined)
+              line.defectQty = qcResult.defectQty;
           }
         }
         updateData.lines = updatedLines;
@@ -278,9 +335,14 @@ export class ReceiptService {
   async approve(id: string, dto: ApproveReceiptDto, userId?: string) {
     const receipt = await this.findById(id);
 
-    const allowedStatuses: ReceiptStatus[] = [ReceiptStatus.UNDER_REVIEW, ReceiptStatus.PENDING];
+    const allowedStatuses: ReceiptStatus[] = [
+      ReceiptStatus.UNDER_REVIEW,
+      ReceiptStatus.PENDING,
+    ];
     if (!allowedStatuses.includes(receipt.status)) {
-      throw new BadRequestException(`Cannot approve receipt in status: ${receipt.status}.`);
+      throw new BadRequestException(
+        `Cannot approve receipt in status: ${receipt.status}.`,
+      );
     }
 
     const auditTrail = [...receipt.auditTrail] as any[];
@@ -288,7 +350,7 @@ export class ReceiptService {
 
     return this.receiptRepository.update(id, {
       status: ReceiptStatus.APPROVED,
-      approvedBy: userId ? new Types.ObjectId(userId) as any : undefined,
+      approvedBy: userId ? (new Types.ObjectId(userId) as any) : undefined,
       approvedAt: new Date(),
       auditTrail,
     } as any);
@@ -310,7 +372,9 @@ export class ReceiptService {
       ReceiptStatus.DRAFT,
     ];
     if (!receivableStatuses.includes(receipt.status)) {
-      throw new BadRequestException(`Cannot receive a receipt in status: ${receipt.status}`);
+      throw new BadRequestException(
+        `Cannot receive a receipt in status: ${receipt.status}`,
+      );
     }
 
     const updatedLines = [...receipt.lines] as ReceiptLine[];
@@ -319,10 +383,14 @@ export class ReceiptService {
       let lineIndex = -1;
       // Match by lineId first, then by skuId
       if (receiveItem.lineId) {
-        lineIndex = updatedLines.findIndex((l) => (l as any).lineId === receiveItem.lineId);
+        lineIndex = updatedLines.findIndex(
+          (l) => (l as any).lineId === receiveItem.lineId,
+        );
       }
       if (lineIndex === -1) {
-        lineIndex = updatedLines.findIndex((l) => l.skuId?.toString() === receiveItem.skuId);
+        lineIndex = updatedLines.findIndex(
+          (l) => l.skuId?.toString() === receiveItem.skuId,
+        );
       }
 
       if (lineIndex === -1) {
@@ -341,7 +409,9 @@ export class ReceiptService {
       }
     }
 
-    const allReceived = updatedLines.every((l) => l.receivedQty >= l.orderedQty);
+    const allReceived = updatedLines.every(
+      (l) => l.receivedQty >= l.orderedQty,
+    );
     const anyReceived = updatedLines.some((l) => l.receivedQty > 0);
     const newStatus = allReceived
       ? ReceiptStatus.RECEIVED
@@ -351,7 +421,10 @@ export class ReceiptService {
 
     const auditTrail = [...receipt.auditTrail] as any[];
     this.addAuditEntry(auditTrail, 'received', userId, {
-      lines: dto.lines.map((l) => ({ skuId: l.skuId, receivedQty: l.receivedQty })),
+      lines: dto.lines.map((l) => ({
+        skuId: l.skuId,
+        receivedQty: l.receivedQty,
+      })),
       partial: !allReceived,
     });
 
@@ -382,7 +455,9 @@ export class ReceiptService {
       ReceiptStatus.APPROVED,
     ];
     if (!finalizableStatuses.includes(receipt.status)) {
-      throw new BadRequestException(`Cannot finalize receipt in status: ${receipt.status}. Receipt must be received or QC-passed first.`);
+      throw new BadRequestException(
+        `Cannot finalize receipt in status: ${receipt.status}. Receipt must be received or QC-passed first.`,
+      );
     }
 
     const auditTrail = [...receipt.auditTrail] as any[];
@@ -390,7 +465,7 @@ export class ReceiptService {
 
     return this.receiptRepository.update(id, {
       status: ReceiptStatus.FINALIZED,
-      lockedBy: userId ? new Types.ObjectId(userId) as any : undefined,
+      lockedBy: userId ? (new Types.ObjectId(userId) as any) : undefined,
       lockedAt: new Date(),
       auditTrail,
     } as any);
@@ -421,13 +496,22 @@ export class ReceiptService {
   async applyQc(id: string, dto: QcReceiptDto, userId?: string) {
     const receipt = await this.findById(id);
 
-    if (receipt.status === ReceiptStatus.CANCELLED || receipt.status === ReceiptStatus.FINALIZED) {
-      throw new BadRequestException(`Cannot apply QC to a receipt in status: ${receipt.status}`);
+    if (
+      receipt.status === ReceiptStatus.CANCELLED ||
+      receipt.status === ReceiptStatus.FINALIZED
+    ) {
+      throw new BadRequestException(
+        `Cannot apply QC to a receipt in status: ${receipt.status}`,
+      );
     }
 
     const updatedLines = [...receipt.lines] as ReceiptLine[];
 
-    if (dto.lineIndex !== undefined && dto.lineIndex >= 0 && dto.lineIndex < updatedLines.length) {
+    if (
+      dto.lineIndex !== undefined &&
+      dto.lineIndex >= 0 &&
+      dto.lineIndex < updatedLines.length
+    ) {
       const line = updatedLines[dto.lineIndex];
       line.qcStatus = dto.qcStatus;
       if (dto.qcNotes) line.qcNotes = dto.qcNotes;
@@ -452,7 +536,10 @@ export class ReceiptService {
         : ReceiptStatus.QC_PENDING;
 
     const auditTrail = [...receipt.auditTrail] as any[];
-    this.addAuditEntry(auditTrail, 'qc_applied', userId, { qcStatus: dto.qcStatus, lineIndex: dto.lineIndex });
+    this.addAuditEntry(auditTrail, 'qc_applied', userId, {
+      qcStatus: dto.qcStatus,
+      lineIndex: dto.lineIndex,
+    });
 
     return this.receiptRepository.update(id, {
       lines: updatedLines,

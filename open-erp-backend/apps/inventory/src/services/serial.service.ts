@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { SerialRepository } from '../repositories/serial.repository';
 import { CreateSerialDto, UpdateSerialDto } from '../dto/serial.dto';

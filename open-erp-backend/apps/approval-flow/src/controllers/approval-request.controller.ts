@@ -13,7 +13,12 @@ import {
   ApiOperation,
   ApiQuery,
 } from '@nestjs/swagger';
-import { JwtAuthGuard, PermissionsGuard, Permissions, CurrentUser } from '@shared/authz';
+import {
+  JwtAuthGuard,
+  PermissionsGuard,
+  Permissions,
+  CurrentUser,
+} from '@shared/authz';
 import { Permission } from '@shared/types/permission.enum';
 import { ok, created, fetched, paginated } from '@shared/response';
 import { ApprovalRequestService } from '../services/approval-request.service';
@@ -28,9 +33,7 @@ import { ApprovalRequestStatus } from '@shared/schemas/approval-request.schema';
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @ApiBearerAuth()
 export class ApprovalRequestController {
-  constructor(
-    private readonly requestService: ApprovalRequestService,
-  ) {}
+  constructor(private readonly requestService: ApprovalRequestService) {}
 
   @Post()
   @Permissions(
@@ -109,11 +112,7 @@ export class ApprovalRequestController {
     @Body() dto: SubmitApprovalActionDto,
     @CurrentUser() user: any,
   ) {
-    const result = await this.requestService.submitAction(
-      id,
-      dto,
-      user.userId,
-    );
+    const result = await this.requestService.submitAction(id, dto, user.userId);
     return ok(result, 'Action submitted successfully');
   }
 

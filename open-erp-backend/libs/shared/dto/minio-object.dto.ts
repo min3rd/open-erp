@@ -1,5 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsNumber, Min } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsNumber,
+  Min,
+} from 'class-validator';
 
 /**
  * Shared DTO for a MinIO-stored file object.
@@ -32,7 +38,9 @@ export class MinioObjectDto {
   @Min(0)
   fileSize?: number;
 
-  @ApiPropertyOptional({ description: 'Public URL (if the object is publicly accessible)' })
+  @ApiPropertyOptional({
+    description: 'Public URL (if the object is publicly accessible)',
+  })
   @IsOptional()
   @IsString()
   publicUrl?: string;

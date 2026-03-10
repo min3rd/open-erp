@@ -3,7 +3,11 @@ import { Document, Types } from 'mongoose';
 
 export type MappingTemplateDocument = MappingTemplate & Document;
 
-@Schema({ collection: 'mapping_templates', timestamps: true, versionKey: false })
+@Schema({
+  collection: 'mapping_templates',
+  timestamps: true,
+  versionKey: false,
+})
 export class MappingTemplate {
   @Prop({ required: true })
   name: string;
@@ -24,4 +28,5 @@ export class MappingTemplate {
   isDefault: boolean;
 }
 
-export const MappingTemplateSchema = SchemaFactory.createForClass(MappingTemplate);
+export const MappingTemplateSchema =
+  SchemaFactory.createForClass(MappingTemplate);

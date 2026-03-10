@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { WorkflowTemplateService } from '../src/services/workflow-template.service';
 import { WorkflowTemplateRepository } from '../src/repositories/workflow-template.repository';
 import {
@@ -182,23 +186,36 @@ describe('WorkflowTemplateService', () => {
 
   describe('publish', () => {
     it('should publish a draft template with start + approval nodes', async () => {
-      mockRepository.findById.mockResolvedValue({ ...mockTemplate, status: TemplateStatus.DRAFT });
-      mockRepository.update.mockResolvedValue({ ...mockTemplate, status: TemplateStatus.PUBLISHED });
+      mockRepository.findById.mockResolvedValue({
+        ...mockTemplate,
+        status: TemplateStatus.DRAFT,
+      });
+      mockRepository.update.mockResolvedValue({
+        ...mockTemplate,
+        status: TemplateStatus.PUBLISHED,
+      });
 
       const result = await service.publish(mockTemplate._id);
       expect(result.status).toBe(TemplateStatus.PUBLISHED);
     });
 
     it('should throw ConflictException if already published', async () => {
-      mockRepository.findById.mockResolvedValue({ ...mockTemplate, status: TemplateStatus.PUBLISHED });
+      mockRepository.findById.mockResolvedValue({
+        ...mockTemplate,
+        status: TemplateStatus.PUBLISHED,
+      });
 
-      await expect(service.publish(mockTemplate._id)).rejects.toThrow(ConflictException);
+      await expect(service.publish(mockTemplate._id)).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('should throw BadRequestException if no nodes', async () => {
       mockRepository.findById.mockResolvedValue({ ...mockTemplate, nodes: [] });
 
-      await expect(service.publish(mockTemplate._id)).rejects.toThrow(BadRequestException);
+      await expect(service.publish(mockTemplate._id)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw BadRequestException if missing start or approval node', async () => {
@@ -209,7 +226,9 @@ describe('WorkflowTemplateService', () => {
         ],
       });
 
-      await expect(service.publish(mockTemplate._id)).rejects.toThrow(BadRequestException);
+      await expect(service.publish(mockTemplate._id)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -271,9 +290,17 @@ describe('WorkflowTemplateService', () => {
     it('should resolve DEPARTMENT template first (highest priority)', async () => {
       mockRepository.resolveTemplate.mockResolvedValue(deptTemplate);
 
-      const result = await service.resolveTemplate('document', orgId, departmentId);
+      const result = await service.resolveTemplate(
+        'document',
+        orgId,
+        departmentId,
+      );
       expect(result.scope).toBe(ApprovalScope.DEPARTMENT);
-      expect(mockRepository.resolveTemplate).toHaveBeenCalledWith('document', orgId, departmentId);
+      expect(mockRepository.resolveTemplate).toHaveBeenCalledWith(
+        'document',
+        orgId,
+        departmentId,
+      );
     });
 
     it('should resolve ORG template when no DEPARTMENT template exists', async () => {
@@ -293,23 +320,35 @@ describe('WorkflowTemplateService', () => {
     it('should throw NotFoundException when no template found', async () => {
       mockRepository.resolveTemplate.mockResolvedValue(null);
 
-      await expect(
-        service.resolveTemplate('unknown-entity'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.resolveTemplate('unknown-entity')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
   describe('changeStatus', () => {
     it('should change status from DRAFT to ARCHIVED', async () => {
-      mockRepository.findById.mockResolvedValue({ ...mockTemplate, status: TemplateStatus.DRAFT });
-      mockRepository.update.mockResolvedValue({ ...mockTemplate, status: TemplateStatus.ARCHIVED });
+      mockRepository.findById.mockResolvedValue({
+        ...mockTemplate,
+        status: TemplateStatus.DRAFT,
+      });
+      mockRepository.update.mockResolvedValue({
+        ...mockTemplate,
+        status: TemplateStatus.ARCHIVED,
+      });
 
-      const result = await service.changeStatus(mockTemplate._id, TemplateStatus.ARCHIVED);
+      const result = await service.changeStatus(
+        mockTemplate._id,
+        TemplateStatus.ARCHIVED,
+      );
       expect(result.status).toBe(TemplateStatus.ARCHIVED);
     });
 
     it('should throw ConflictException if status is already the same', async () => {
-      mockRepository.findById.mockResolvedValue({ ...mockTemplate, status: TemplateStatus.DRAFT });
+      mockRepository.findById.mockResolvedValue({
+        ...mockTemplate,
+        status: TemplateStatus.DRAFT,
+      });
 
       await expect(
         service.changeStatus(mockTemplate._id, TemplateStatus.DRAFT),
@@ -317,10 +356,19 @@ describe('WorkflowTemplateService', () => {
     });
 
     it('should delegate to publish() when changing to PUBLISHED', async () => {
-      mockRepository.findById.mockResolvedValue({ ...mockTemplate, status: TemplateStatus.DRAFT });
-      mockRepository.update.mockResolvedValue({ ...mockTemplate, status: TemplateStatus.PUBLISHED });
+      mockRepository.findById.mockResolvedValue({
+        ...mockTemplate,
+        status: TemplateStatus.DRAFT,
+      });
+      mockRepository.update.mockResolvedValue({
+        ...mockTemplate,
+        status: TemplateStatus.PUBLISHED,
+      });
 
-      const result = await service.changeStatus(mockTemplate._id, TemplateStatus.PUBLISHED);
+      const result = await service.changeStatus(
+        mockTemplate._id,
+        TemplateStatus.PUBLISHED,
+      );
       expect(result.status).toBe(TemplateStatus.PUBLISHED);
     });
   });
@@ -330,7 +378,11 @@ describe('WorkflowTemplateService', () => {
       const result = service.validateWorkflow(
         [
           { id: 'start-1', type: WorkflowNodeType.START },
-          { id: 'approval-1', type: WorkflowNodeType.APPROVAL, data: { approverIds: ['user1'] } },
+          {
+            id: 'approval-1',
+            type: WorkflowNodeType.APPROVAL,
+            data: { approverIds: ['user1'] },
+          },
           { id: 'end-1', type: WorkflowNodeType.END },
         ],
         [
@@ -351,40 +403,56 @@ describe('WorkflowTemplateService', () => {
     it('should fail if missing start node', () => {
       const result = service.validateWorkflow(
         [
-          { id: 'approval-1', type: WorkflowNodeType.APPROVAL, data: { approverIds: ['user1'] } },
+          {
+            id: 'approval-1',
+            type: WorkflowNodeType.APPROVAL,
+            data: { approverIds: ['user1'] },
+          },
           { id: 'end-1', type: WorkflowNodeType.END },
         ],
         [],
       );
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Workflow must have at least one start node');
+      expect(result.errors).toContain(
+        'Workflow must have at least one start node',
+      );
     });
 
     it('should fail if missing end node', () => {
       const result = service.validateWorkflow(
         [
           { id: 'start-1', type: WorkflowNodeType.START },
-          { id: 'approval-1', type: WorkflowNodeType.APPROVAL, data: { approverIds: ['user1'] } },
+          {
+            id: 'approval-1',
+            type: WorkflowNodeType.APPROVAL,
+            data: { approverIds: ['user1'] },
+          },
         ],
         [],
       );
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Workflow must have at least one end node');
+      expect(result.errors).toContain(
+        'Workflow must have at least one end node',
+      );
     });
 
     it('should fail if edge references non-existent node', () => {
       const result = service.validateWorkflow(
         [
           { id: 'start-1', type: WorkflowNodeType.START },
-          { id: 'approval-1', type: WorkflowNodeType.APPROVAL, data: { approverIds: ['user1'] } },
+          {
+            id: 'approval-1',
+            type: WorkflowNodeType.APPROVAL,
+            data: { approverIds: ['user1'] },
+          },
           { id: 'end-1', type: WorkflowNodeType.END },
         ],
-        [
-          { id: 'e1', source: 'start-1', target: 'nonexistent' },
-        ],
+        [{ id: 'e1', source: 'start-1', target: 'nonexistent' }],
       );
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Edge "e1" references non-existent target node "nonexistent"');
+      expect(result.errors).toContain(
+        'Edge "e1" references non-existent target node "nonexistent"',
+      );
     });
 
     it('should fail if approval node has no approvers', () => {
@@ -397,7 +465,9 @@ describe('WorkflowTemplateService', () => {
         [],
       );
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Approval node "approval-1" must have at least one approver');
+      expect(result.errors).toContain(
+        'Approval node "approval-1" must have at least one approver',
+      );
     });
   });
 });

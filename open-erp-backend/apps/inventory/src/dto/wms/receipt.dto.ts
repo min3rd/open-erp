@@ -16,7 +16,10 @@ import { QcStatus, ReceiptType } from '@shared/schemas';
 import { MinioObjectDto } from '@shared/dto/minio-object.dto';
 
 export class CreateReceiptLineDto {
-  @ApiPropertyOptional({ description: 'Product/SKU ID (MongoDB ObjectId). Optional — may be resolved from skuCode.' })
+  @ApiPropertyOptional({
+    description:
+      'Product/SKU ID (MongoDB ObjectId). Optional — may be resolved from skuCode.',
+  })
   @IsOptional()
   @IsMongoId()
   skuId?: string;
@@ -43,7 +46,9 @@ export class CreateReceiptLineDto {
 }
 
 export class ReferenceDocDto {
-  @ApiProperty({ description: 'Reference document type (invoice, po, transfer_note)' })
+  @ApiProperty({
+    description: 'Reference document type (invoice, po, transfer_note)',
+  })
   @IsString()
   type: string;
 
@@ -52,18 +57,27 @@ export class ReferenceDocDto {
   @IsString()
   refId?: string;
 
-  @ApiPropertyOptional({ description: 'External URL (for linked documents or to be fetched and stored in MinIO)' })
+  @ApiPropertyOptional({
+    description:
+      'External URL (for linked documents or to be fetched and stored in MinIO)',
+  })
   @IsOptional()
   @IsString()
   url?: string;
 
-  @ApiPropertyOptional({ description: 'Attached MinIO file object', type: MinioObjectDto })
+  @ApiPropertyOptional({
+    description: 'Attached MinIO file object',
+    type: MinioObjectDto,
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => MinioObjectDto)
   attachment?: MinioObjectDto;
 
-  @ApiPropertyOptional({ description: 'Receipt line IDs this document is linked to', type: [String] })
+  @ApiPropertyOptional({
+    description: 'Receipt line IDs this document is linked to',
+    type: [String],
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
@@ -125,7 +139,10 @@ export class CreateReceiptDto {
   @Type(() => Date)
   expectedReceiptAt?: Date;
 
-  @ApiPropertyOptional({ description: 'Reference documents', type: [ReferenceDocDto] })
+  @ApiPropertyOptional({
+    description: 'Reference documents',
+    type: [ReferenceDocDto],
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
@@ -137,7 +154,10 @@ export class CreateReceiptDto {
   @IsString()
   notes?: string;
 
-  @ApiPropertyOptional({ description: 'Receipt lines', type: [CreateReceiptLineDto] })
+  @ApiPropertyOptional({
+    description: 'Receipt lines',
+    type: [CreateReceiptLineDto],
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
@@ -172,7 +192,10 @@ export class UpdateReceiptDto {
   @Type(() => Date)
   expectedReceiptAt?: Date;
 
-  @ApiPropertyOptional({ description: 'Reference documents', type: [ReferenceDocDto] })
+  @ApiPropertyOptional({
+    description: 'Reference documents',
+    type: [ReferenceDocDto],
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
@@ -184,7 +207,10 @@ export class UpdateReceiptDto {
   @IsString()
   notes?: string;
 
-  @ApiPropertyOptional({ description: 'Receipt lines', type: [CreateReceiptLineDto] })
+  @ApiPropertyOptional({
+    description: 'Receipt lines',
+    type: [CreateReceiptLineDto],
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
@@ -218,7 +244,12 @@ export class ReviewReceiptDto {
   @ApiPropertyOptional({ description: 'QC notes per line', type: [Object] })
   @IsOptional()
   @IsArray()
-  lineQcResults?: { lineIndex: number; qcStatus: QcStatus; qcNotes?: string; defectQty?: number }[];
+  lineQcResults?: {
+    lineIndex: number;
+    qcStatus: QcStatus;
+    qcNotes?: string;
+    defectQty?: number;
+  }[];
 }
 
 export class ApproveReceiptDto {
@@ -256,7 +287,10 @@ export class ReceiveLineDto {
 }
 
 export class ReceiveReceiptDto {
-  @ApiProperty({ description: 'Receipt lines to receive', type: [ReceiveLineDto] })
+  @ApiProperty({
+    description: 'Receipt lines to receive',
+    type: [ReceiveLineDto],
+  })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ReceiveLineDto)
