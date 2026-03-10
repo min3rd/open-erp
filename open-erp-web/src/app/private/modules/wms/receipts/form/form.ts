@@ -6,7 +6,6 @@ import {
   afterNextRender,
   inject,
   signal,
-  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -310,7 +309,8 @@ export class ReceiptForm implements OnInit, OnDestroy {
       });
   }
 
-  protected onWarehouseSelect(warehouse: Warehouse) {
+  protected onWarehouseSelect(event: AutoCompleteSelectEvent) {
+    const warehouse = event.value as Warehouse;
     this.selectedWarehouse.set(warehouse);
     this.form.get('warehouseId')?.setValue(warehouse.id);
   }
@@ -453,7 +453,8 @@ export class ReceiptForm implements OnInit, OnDestroy {
         poId: rawValue.poId || undefined,
         supplier: rawValue.supplier || undefined,
         shippingParty: rawValue.shippingParty || undefined,
-        expectedReceiptAt: rawValue.expectedReceiptAt?.toISOString?.() || rawValue.expectedReceiptAt,
+        expectedReceiptAt:
+          rawValue.expectedReceiptAt?.toISOString?.() || rawValue.expectedReceiptAt,
         notes: rawValue.notes || undefined,
         lines: mapLines(rawValue.lines ?? []),
         referenceDocs: mapDocs(rawValue.referenceDocs ?? []) as any,
@@ -472,7 +473,8 @@ export class ReceiptForm implements OnInit, OnDestroy {
         poId: rawValue.poId || undefined,
         supplier: rawValue.supplier || undefined,
         shippingParty: rawValue.shippingParty || undefined,
-        expectedReceiptAt: rawValue.expectedReceiptAt?.toISOString?.() || rawValue.expectedReceiptAt,
+        expectedReceiptAt:
+          rawValue.expectedReceiptAt?.toISOString?.() || rawValue.expectedReceiptAt,
         notes: rawValue.notes || undefined,
         lines: mapLines(rawValue.lines ?? []),
         referenceDocs: mapDocs(rawValue.referenceDocs ?? []) as any,
@@ -517,7 +519,10 @@ export class ReceiptForm implements OnInit, OnDestroy {
   protected getStatusSeverity(
     status: ReceiptStatus,
   ): 'success' | 'warn' | 'danger' | 'info' | 'secondary' | 'contrast' {
-    const map: Record<ReceiptStatus, 'success' | 'warn' | 'danger' | 'info' | 'secondary' | 'contrast'> = {
+    const map: Record<
+      ReceiptStatus,
+      'success' | 'warn' | 'danger' | 'info' | 'secondary' | 'contrast'
+    > = {
       [ReceiptStatus.COMPLETED]: 'success',
       [ReceiptStatus.QC_PASSED]: 'success',
       [ReceiptStatus.FINALIZED]: 'success',
