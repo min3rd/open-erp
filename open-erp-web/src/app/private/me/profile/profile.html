@@ -21,7 +21,7 @@
         <div class="relative flex-shrink-0">
           <p-avatar
             [image]="profile()!.avatarUrl || undefined"
-            [label]="!profile()!.avatarUrl ? (profile()!.fullName?.[0] || profile()!.email?.[0] || 'U').toUpperCase() : undefined"
+            [label]="!profile()!.avatarUrl ? (profile()!.fullName?.[0] || profile()?.email?.[0] || 'U').toUpperCase() : undefined"
             shape="circle"
             size="xlarge"
             styleClass="w-20 h-20 text-2xl"
