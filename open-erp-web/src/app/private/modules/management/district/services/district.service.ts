@@ -25,9 +25,7 @@ export class DistrictService {
   /**
    * Get districts list with pagination and filtering
    */
-  getDistricts(
-    params: GetDistrictsParams,
-  ): Observable<{
+  getDistricts(params: GetDistrictsParams): Observable<{
     items: District[];
     total: number;
     page: number;

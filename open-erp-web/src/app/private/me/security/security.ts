@@ -267,8 +267,7 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
             severity: 'error',
             summary: this.t.translate('common.error'),
             detail:
-              err.message ||
-              this.t.translate('me.security.sessions.messages.revokeOthersError'),
+              err.message || this.t.translate('me.security.sessions.messages.revokeOthersError'),
           });
         },
       });
