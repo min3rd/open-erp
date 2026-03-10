@@ -109,6 +109,9 @@ export class TwoFa implements OnInit {
             accessToken: loginResponse.accessToken,
             refreshToken: loginResponse.refreshToken,
           });
+          if (loginResponse.sessionId) {
+            this.authService.storeSessionId(loginResponse.sessionId);
+          }
           this.messageService.add({
             severity: 'success',
             summary: this.translocoService.translate('twoFa.messages.success'),

@@ -27,6 +27,7 @@ import {
   UpdateMeDto,
   UpdateSettingsDto,
   DeleteAccountDto,
+  RevokeOtherSessionsDto,
   TwoFAEnableDto,
   TwoFADisableDto,
 } from './dto/me.dto';
@@ -179,6 +180,24 @@ export class MeController {
       sessionId,
     );
     return ok(result, 'Session revoked successfully');
+  }
+
+  @Delete('me/sessions')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Revoke all sessions except the current one' })
+  @ApiResponse({
+    status: 200,
+    description: 'Other sessions revoked successfully',
+  })
+  async revokeOtherSessions(
+    @Request() req: AuthenticatedRequest,
+    @Body() dto: RevokeOtherSessionsDto,
+  ) {
+    const result = await this.authService.revokeOtherSessions(
+      req.user.userId,
+      dto.currentSessionId,
+    );
+    return ok(result, 'Other sessions revoked successfully');
   }
 
   @Get('me/settings')

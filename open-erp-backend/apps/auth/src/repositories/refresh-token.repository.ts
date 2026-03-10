@@ -122,6 +122,23 @@ export class RefreshTokenRepository {
     return result.modifiedCount;
   }
 
+  async revokeOtherUserTokens(
+    userId: Types.ObjectId,
+    excludeSessionId: string,
+    reason: string,
+  ): Promise<number> {
+    const excludeObjectId = new Types.ObjectId(excludeSessionId);
+    const result = await this.refreshTokenModel.updateMany(
+      { userId, revoked: false, _id: { $ne: excludeObjectId } },
+      {
+        revoked: true,
+        revokedAt: new Date(),
+        revokedReason: reason,
+      },
+    );
+    return result.modifiedCount;
+  }
+
   async deleteExpiredTokens(): Promise<number> {
     const result = await this.refreshTokenModel.deleteMany({
       expiresAt: { $lt: new Date() },
