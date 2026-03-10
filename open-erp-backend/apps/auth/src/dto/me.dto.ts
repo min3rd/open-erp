@@ -170,6 +170,13 @@ export class DeleteAccountDto {
   password: string;
 }
 
+export class RevokeOtherSessionsDto {
+  @ApiProperty({ description: 'Current session ID to keep active' })
+  @IsString()
+  @IsNotEmpty({ message: 'Current session ID is required' })
+  currentSessionId: string;
+}
+
 export class TwoFAEnableDto {
   @ApiProperty({ description: 'TOTP OTP code (6 digits)' })
   @IsString()

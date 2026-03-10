@@ -106,6 +106,24 @@ export class MeService {
       );
   }
 
+  revokeOtherSessions(
+    currentSessionId: string,
+  ): Observable<{ success: boolean; revokedCount: number }> {
+    return this.http
+      .delete<
+        ApiResponse<{ success: boolean; revokedCount: number }>
+      >(`${this.baseUrl}/me/sessions`, { body: { currentSessionId } })
+      .pipe(
+        map((response) => {
+          if (isApiResponse(response)) {
+            return unwrap(response) as { success: boolean; revokedCount: number };
+          }
+          return response as unknown as { success: boolean; revokedCount: number };
+        }),
+        catchError(this.handleError),
+      );
+  }
+
   getSettings(): Observable<MeSettings> {
     return this.http.get<ApiResponse<MeSettings>>(`${this.baseUrl}/me/settings`).pipe(
       map((response) => {

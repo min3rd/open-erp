@@ -33,6 +33,7 @@ export interface LoginDto {
 export interface LoginResponse {
   accessToken?: string;
   refreshToken?: string;
+  sessionId?: string;
   needs2fa?: boolean;
   tempAuthToken?: string;
 }
@@ -50,6 +51,7 @@ export interface TwoFARecoveryDisableDto {
 export interface TwoFALoginResponse {
   accessToken: string;
   refreshToken: string;
+  sessionId?: string;
 }
 
 export interface TokenPayload {
@@ -74,6 +76,7 @@ export class AuthService {
   private readonly ENCRYPTION_KEY_NAME = 'erp_enc_key';
   private readonly ACCESS_TOKEN_KEY = 'erp_access_token';
   private readonly REFRESH_TOKEN_KEY = 'erp_refresh_token';
+  private readonly SESSION_ID_KEY = 'erp_session_id';
 
   private _user: BehaviorSubject<UserDto | null> = new BehaviorSubject<any>(null);
   private _accessToken!: string | undefined;
@@ -89,6 +92,18 @@ export class AuthService {
 
   get refreshToken(): string | undefined {
     return this._refreshToken;
+  }
+
+  get sessionId(): string | null {
+    return localStorage.getItem(this.SESSION_ID_KEY);
+  }
+
+  storeSessionId(sessionId: string): void {
+    localStorage.setItem(this.SESSION_ID_KEY, sessionId);
+  }
+
+  clearSessionId(): void {
+    localStorage.removeItem(this.SESSION_ID_KEY);
   }
 
   constructor() {
@@ -289,6 +304,7 @@ export class AuthService {
   clearStoredTokens(): void {
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    localStorage.removeItem(this.SESSION_ID_KEY);
   }
 
   isAuthenticated(): Observable<boolean> {

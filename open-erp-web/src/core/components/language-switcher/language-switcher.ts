@@ -20,6 +20,7 @@ import { SelectButton } from 'primeng/selectbutton';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { LanguageService, LanguageOption } from '../../services/language.service';
+import { MeService } from '../../services/me-service';
 
 @Component({
   selector: 'language-switcher',
@@ -41,6 +42,7 @@ import { LanguageService, LanguageOption } from '../../services/language.service
 export class LanguageSwitcher implements OnInit {
   private translocoService = inject(TranslocoService);
   private languageService = inject(LanguageService);
+  private meService = inject(MeService);
   private readonly STORAGE_KEY = 'app.lang';
 
   // Inputs
@@ -125,13 +127,23 @@ export class LanguageSwitcher implements OnInit {
   onPrimaryLanguageChange(code: string): void {
     if (code) {
       this.selectedLanguage.set(code);
+      this.persistLanguageToBackend(code);
     }
   }
 
   selectLanguage(code: string): void {
     this.selectedLanguage.set(code);
+    this.persistLanguageToBackend(code);
     this.showAllLanguagesDialog.set(false);
     this.searchQuery.set('');
+  }
+
+  private persistLanguageToBackend(lang: string): void {
+    this.meService.updateSettings({ language: lang }).subscribe({
+      error: () => {
+        // Silently ignore errors (e.g., user not logged in or network error)
+      },
+    });
   }
 
   openAllLanguagesDialog(): void {

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal, inject } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -31,6 +31,7 @@ interface LoginForm {
 })
 export class Login {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private messageService = inject(MessageService);
   private translocoService = inject(TranslocoService);
@@ -104,13 +105,23 @@ export class Login {
               refreshToken: loginResponse.refreshToken!,
             });
 
+            // Store session ID for session management (revoke other sessions)
+            if (loginResponse.sessionId) {
+              this.authService.storeSessionId(loginResponse.sessionId);
+            }
+
             this.messageService.add({
               severity: 'success',
               summary: this.translocoService.translate('login.messages.loginSuccess'),
             });
 
-            // Redirect to dashboard or home page after successful login
-            this.router.navigate(['/']);
+            // Redirect to the original URL or dashboard after successful login
+            const redirectURL = this.route.snapshot.queryParams['redirectURL'];
+            if (redirectURL) {
+              this.router.navigateByUrl(redirectURL);
+            } else {
+              this.router.navigate(['/']);
+            }
           } catch (encryptError) {
             this.messageService.add({
               severity: 'error',

@@ -191,6 +191,17 @@
           Quản lý các thiết bị đang đăng nhập.
         </p>
       </div>
+      @if (currentSessionId() && sessions().length > 1) {
+        <p-button
+          label="Đăng xuất phiên khác"
+          icon="pi pi-sign-out"
+          severity="danger"
+          [outlined]="true"
+          size="small"
+          [loading]="isRevokingOthers()"
+          (onClick)="confirmRevokeOtherSessions()"
+        ></p-button>
+      }
     </div>
 
     @if (isLoadingSessions()) {
@@ -239,6 +250,13 @@
                 <span class="text-sm text-surface-800 dark:text-surface-200 truncate max-w-[10rem]">
                   {{ session.deviceInfo }}
                 </span>
+                @if (session.id === currentSessionId()) {
+                  <span
+                    class="text-xs bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 px-1.5 py-0.5 rounded font-medium"
+                  >
+                    Hiện tại
+                  </span>
+                }
               </div>
             </td>
             <td class="hidden sm:table-cell">
@@ -257,15 +275,17 @@
               }}</span>
             </td>
             <td class="text-right">
-              <p-button
-                icon="pi pi-sign-out"
-                severity="danger"
-                size="small"
-                [text]="true"
-                title="Đăng xuất thiết bị này"
-                [loading]="revokingSessionId() === session.id"
-                (onClick)="confirmRevokeSession(session)"
-              ></p-button>
+              @if (session.id !== currentSessionId()) {
+                <p-button
+                  icon="pi pi-sign-out"
+                  severity="danger"
+                  size="small"
+                  [text]="true"
+                  title="Đăng xuất thiết bị này"
+                  [loading]="revokingSessionId() === session.id"
+                  (onClick)="confirmRevokeSession(session)"
+                ></p-button>
+              }
             </td>
           </tr>
         </ng-template>

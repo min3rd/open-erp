@@ -418,7 +418,7 @@ export class AuthService {
     );
 
     // Save hashed refresh token to database
-    await this.refreshTokenRepository.create(
+    const sessionRecord = await this.refreshTokenRepository.create(
       new Types.ObjectId(user.id.toString()),
       refreshTokenHash,
       refreshTokenExpiresAt,
@@ -449,6 +449,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken: refreshTokenValue,
+      sessionId: sessionRecord._id.toString(),
       user: {
         email: user.email,
         fullName: user.fullName || user.username,
@@ -1443,6 +1444,24 @@ export class AuthService {
     this.logger.log({ event: 'user.session.revoked', userId, sessionId });
 
     return { success: true, message: 'Session revoked successfully' };
+  }
+
+  async revokeOtherSessions(userId: string, currentSessionId: string) {
+    const revokedCount =
+      await this.refreshTokenRepository.revokeOtherUserTokens(
+        new Types.ObjectId(userId),
+        currentSessionId,
+        'user_revoked_others',
+      );
+
+    this.logger.log({
+      event: 'user.sessions.revoked_others',
+      userId,
+      currentSessionId,
+      revokedCount,
+    });
+
+    return { success: true, revokedCount };
   }
 
   async getSettings(userId: string) {

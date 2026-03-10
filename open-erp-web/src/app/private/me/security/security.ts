@@ -31,6 +31,7 @@ import { DialogModule } from 'primeng/dialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 import { MeService } from '../../../../core/services/me-service';
+import { AuthService } from '../../../../core/services/auth-service';
 import type { MeSession, TwoFAStatus, TwoFAPrepareResult } from '../me.types';
 import { UserDatePipe } from '../../../../core/pipes/user-date.pipe';
 
@@ -64,6 +65,7 @@ function passwordMatchValidator(group: AbstractControl) {
 })
 export class MeSecurityComponent implements OnInit, OnDestroy {
   private meService = inject(MeService);
+  private authService = inject(AuthService);
   private fb = inject(FormBuilder);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
@@ -73,6 +75,8 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
   readonly isLoadingSessions = signal(true);
   readonly isChangingPassword = signal(false);
   readonly revokingSessionId = signal<string | null>(null);
+  readonly isRevokingOthers = signal(false);
+  readonly currentSessionId = signal<string | null>(this.authService.sessionId);
 
   // 2FA state
   readonly twoFAStatus = signal<TwoFAStatus | null>(null);
@@ -208,6 +212,54 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
             severity: 'error',
             summary: 'Lỗi',
             detail: err.message || 'Không thể thu hồi phiên',
+          });
+        },
+      });
+  }
+
+  confirmRevokeOtherSessions(): void {
+    this.confirmationService.confirm({
+      message: 'Bạn có chắc muốn đăng xuất khỏi tất cả các phiên khác? Phiên hiện tại sẽ không bị ảnh hưởng.',
+      header: 'Xác nhận đăng xuất phiên khác',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Đăng xuất tất cả phiên khác',
+      rejectLabel: 'Hủy',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.revokeOtherSessions(),
+    });
+  }
+
+  private revokeOtherSessions(): void {
+    const sessionId = this.currentSessionId();
+    if (!sessionId) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Cảnh báo',
+        detail: 'Không thể xác định phiên hiện tại',
+      });
+      return;
+    }
+
+    this.isRevokingOthers.set(true);
+    this.meService
+      .revokeOtherSessions(sessionId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          this.isRevokingOthers.set(false);
+          this.sessions.set(this.sessions().filter((s) => s.id === sessionId));
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Thành công',
+            detail: `Đã đăng xuất ${result.revokedCount} phiên khác`,
+          });
+        },
+        error: (err) => {
+          this.isRevokingOthers.set(false);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Lỗi',
+            detail: err.message || 'Không thể thu hồi các phiên khác',
           });
         },
       });

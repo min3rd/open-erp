@@ -9,9 +9,12 @@ export const privateGuard: CanActivateFn = (route, state) => {
   return authService.isAuthenticated().pipe(
     switchMap((authenticated) => {
       if (!authenticated) {
-        const redirectURL = state.url === 'auth/login-out' ? '' : `redirectURL=${state.url}`;
-        const urlTree = router.parseUrl(`auth/login?${redirectURL}`);
-
+        const urlTree = router.createUrlTree(['/auth/login'], {
+          queryParams:
+            state.url && state.url !== '/auth/login-out'
+              ? { redirectURL: state.url }
+              : undefined,
+        });
         return of(urlTree);
       }
       return of(authenticated);
