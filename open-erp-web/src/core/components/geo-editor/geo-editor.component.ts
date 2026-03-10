@@ -20,7 +20,14 @@ import { DrawMapComponent } from '../draw-map/draw-map.component';
  */
 @Component({
   selector: 'core-geo-editor',
-  imports: [FormsModule, TranslocoModule, ButtonModule, TextareaModule, TabsModule, DrawMapComponent],
+  imports: [
+    FormsModule,
+    TranslocoModule,
+    ButtonModule,
+    TextareaModule,
+    TabsModule,
+    DrawMapComponent,
+  ],
   templateUrl: './geo-editor.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -103,7 +110,9 @@ export class GeoEditorComponent {
 
       const geom = this.extractGeometry(parsed);
       if (!geom) {
-        this.parseError.set('Invalid GeoJSON: expected Geometry, Feature or FeatureCollection with at least one Feature');
+        this.parseError.set(
+          'Invalid GeoJSON: expected Geometry, Feature or FeatureCollection with at least one Feature',
+        );
         return;
       }
 

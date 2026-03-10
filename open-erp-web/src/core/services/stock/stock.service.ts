@@ -59,10 +59,9 @@ export class StockService {
       httpParams = httpParams.set('sortOrder', params.sortOrder.toString());
 
     return this.http
-      .get<ApiPaginatedResponse<InventoryStock>>(
-        `${this.baseUrl}/stock/warehouse/${warehouseId}`,
-        { params: httpParams },
-      )
+      .get<
+        ApiPaginatedResponse<InventoryStock>
+      >(`${this.baseUrl}/stock/warehouse/${warehouseId}`, { params: httpParams })
       .pipe(
         map((response) => ({
           items: response.data?.items || [],

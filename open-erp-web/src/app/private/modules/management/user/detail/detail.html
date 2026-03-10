@@ -20,89 +20,92 @@
   <!-- Drawer Content -->
   <div class="h-full flex flex-col" id="user-detail-content">
     @if (isLoading()) {
-    <!-- Skeleton Loading State -->
-    <div class="flex items-center justify-center h-32">
-      <i class="pi pi-spin pi-spinner text-2xl"></i>
-      <p class="ml-2">{{ 'userDetail.messages.loading' | transloco }}</p>
-    </div>
+      <!-- Skeleton Loading State -->
+      <div class="flex items-center justify-center h-32">
+        <i class="pi pi-spin pi-spinner text-2xl"></i>
+        <p class="ml-2">{{ 'userDetail.messages.loading' | transloco }}</p>
+      </div>
     } @else if (user()) {
-
-    <!-- General Detail Header: Fullname, Email, Avatar,... -->
-    <div class="border-b border-surface-200 dark:border-surface-700 p-4" id="user-detail-header">
-      <div class="flex items-center gap-4">
-        <p-avatar
-          [image]="user()!.avatar"
-          [label]="userInitials()"
-          shape="circle"
-          size="xlarge"
-          id="user-detail-avatar"
-        />
-        <div class="flex-1">
-          <h2 id="user-detail-name" class="text-2xl font-semibold m-0 mb-2">
-            {{ user()!.fullName }}
-          </h2>
-          <div class="flex flex-wrap items-center gap-3 text-sm">
-            <div class="flex items-center gap-2">
-              <i class="pi pi-envelope"></i>
-              <span id="user-detail-email">{{ user()!.email }}</span>
+      <!-- General Detail Header: Fullname, Email, Avatar,... -->
+      <div class="border-b border-surface-200 dark:border-surface-700 p-4" id="user-detail-header">
+        <div class="flex items-center gap-4">
+          <p-avatar
+            [image]="user()!.avatar"
+            [label]="userInitials()"
+            shape="circle"
+            size="xlarge"
+            id="user-detail-avatar"
+          />
+          <div class="flex-1">
+            <h2 id="user-detail-name" class="text-2xl font-semibold m-0 mb-2">
+              {{ user()!.fullName }}
+            </h2>
+            <div class="flex flex-wrap items-center gap-3 text-sm">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-envelope"></i>
+                <span id="user-detail-email">{{ user()!.email }}</span>
+              </div>
+              @if (user()!.phone) {
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-phone"></i>
+                  <span id="user-detail-phone">{{ user()!.phone }}</span>
+                </div>
+              }
+              <p-tag
+                [value]="user()!.status | transloco"
+                [severity]="statusSeverity()"
+                id="user-detail-status-tag"
+              />
             </div>
-            @if (user()!.phone) {
-            <div class="flex items-center gap-2">
-              <i class="pi pi-phone"></i>
-              <span id="user-detail-phone">{{ user()!.phone }}</span>
-            </div>
-            }
-            <p-tag
-              [value]="user()!.status | transloco"
-              [severity]="statusSeverity()"
-              id="user-detail-status-tag"
-            />
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Actions Tab: General, Roles Assignment, Reset Password, Audit Logs -->
-    <div class="flex-1 flex flex-col h-full overflow-hidden">
-      <p-tabs [(value)]="activeTab" (onChange)="onTabChange($event)" id="user-detail-tabs" class="flex flex-auto flex-col h-full">
-        <p-tablist id="user-detail-tablist">
-          <p-tab [routerLink]="['general']" value="general" id="user-detail-tab-general">
-            <i class="pi pi-user mr-2"></i>
-            {{ 'userDetail.tabs.general' | transloco }}
-          </p-tab>
-          <p-tab
-            [routerLink]="['roles-assignment']"
-            value="roles-assignment"
-            id="user-detail-tab-roles"
-          >
-            <i class="pi pi-users mr-2"></i>
-            {{ 'userDetail.tabs.roles' | transloco }}
-          </p-tab>
-          <p-tab
-            [routerLink]="['reset-password']"
-            value="reset-password"
-            id="user-detail-tab-password"
-          >
-            <i class="pi pi-key mr-2"></i>
-            {{ 'userDetail.tabs.password' | transloco }}
-          </p-tab>
-          <p-tab [routerLink]="['audit-logs']" value="audit-logs" id="user-detail-tab-logs">
-            <i class="pi pi-history mr-2"></i>
-            {{ 'userDetail.tabs.activity' | transloco }}
-          </p-tab>
-        </p-tablist>
+      <!-- Actions Tab: General, Roles Assignment, Reset Password, Audit Logs -->
+      <div class="flex-1 flex flex-col h-full overflow-hidden">
+        <p-tabs
+          [(value)]="activeTab"
+          (onChange)="onTabChange($event)"
+          id="user-detail-tabs"
+          class="flex flex-auto flex-col h-full"
+        >
+          <p-tablist id="user-detail-tablist">
+            <p-tab [routerLink]="['general']" value="general" id="user-detail-tab-general">
+              <i class="pi pi-user mr-2"></i>
+              {{ 'userDetail.tabs.general' | transloco }}
+            </p-tab>
+            <p-tab
+              [routerLink]="['roles-assignment']"
+              value="roles-assignment"
+              id="user-detail-tab-roles"
+            >
+              <i class="pi pi-users mr-2"></i>
+              {{ 'userDetail.tabs.roles' | transloco }}
+            </p-tab>
+            <p-tab
+              [routerLink]="['reset-password']"
+              value="reset-password"
+              id="user-detail-tab-password"
+            >
+              <i class="pi pi-key mr-2"></i>
+              {{ 'userDetail.tabs.password' | transloco }}
+            </p-tab>
+            <p-tab [routerLink]="['audit-logs']" value="audit-logs" id="user-detail-tab-logs">
+              <i class="pi pi-history mr-2"></i>
+              {{ 'userDetail.tabs.activity' | transloco }}
+            </p-tab>
+          </p-tablist>
 
-        <p-tabpanels class="flex-1 overflow-auto">
-          <router-outlet></router-outlet>
-        </p-tabpanels>
-      </p-tabs>
-    </div>
-
+          <p-tabpanels class="flex-1 overflow-auto">
+            <router-outlet></router-outlet>
+          </p-tabpanels>
+        </p-tabs>
+      </div>
     } @else {
-    <!-- No User Data -->
-    <div class="flex items-center justify-center h-32">
-      <p class="text-surface-500">{{ 'userDetail.messages.noData' | transloco }}</p>
-    </div>
+      <!-- No User Data -->
+      <div class="flex items-center justify-center h-32">
+        <p class="text-surface-500">{{ 'userDetail.messages.noData' | transloco }}</p>
+      </div>
     }
   </div>
 

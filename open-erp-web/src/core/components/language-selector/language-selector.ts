@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, signal, effect, input, ChangeDetectorRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+  effect,
+  input,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Select } from 'primeng/select';

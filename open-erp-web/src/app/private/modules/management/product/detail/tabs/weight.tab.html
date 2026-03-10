@@ -1,15 +1,21 @@
 <div class="p-4 sm:p-6">
-  <h2 class="text-lg sm:text-xl font-semibold mb-4">{{ 'productDetail.tabs.weight' | transloco }}</h2>
+  <h2 class="text-lg sm:text-xl font-semibold mb-4">
+    {{ 'productDetail.tabs.weight' | transloco }}
+  </h2>
   <p class="text-color-secondary text-sm">{{ 'productDetail.weight.description' | transloco }}</p>
 
   <div class="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
     <div class="field">
-      <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.weight.unit' | transloco }}</label>
+      <label class="block text-sm font-medium text-color-secondary mb-1">{{
+        'productDetail.weight.unit' | transloco
+      }}</label>
       <div>{{ product()?.unit || '-' }}</div>
     </div>
 
     <div class="field">
-      <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.weight.weight' | transloco }}</label>
+      <label class="block text-sm font-medium text-color-secondary mb-1">{{
+        'productDetail.weight.weight' | transloco
+      }}</label>
       <div>
         @if (product()?.dimensions?.weight != null) {
           {{ product()!.dimensions!.weight }} {{ product()!.dimensions!.weightUnit || '' }}
@@ -20,10 +26,16 @@
     </div>
 
     <div class="field">
-      <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.weight.hasExpiryDate' | transloco }}</label>
+      <label class="block text-sm font-medium text-color-secondary mb-1">{{
+        'productDetail.weight.hasExpiryDate' | transloco
+      }}</label>
       <div>
         @if (product()?.hasExpiryDate != null) {
-          {{ product()!.hasExpiryDate ? ('productDetail.weight.yes' | transloco) : ('productDetail.weight.no' | transloco) }}
+          {{
+            product()!.hasExpiryDate
+              ? ('productDetail.weight.yes' | transloco)
+              : ('productDetail.weight.no' | transloco)
+          }}
         } @else {
           -
         }
@@ -32,7 +44,9 @@
 
     @if (product()?.hasExpiryDate) {
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.weight.shelfLifeDays' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.weight.shelfLifeDays' | transloco
+        }}</label>
         <div>
           @if (product()?.shelfLifeDays != null) {
             {{ product()!.shelfLifeDays }} {{ 'productDetail.weight.days' | transloco }}

@@ -10,11 +10,11 @@ import { Ward } from '../ward.types';
  * Pre-loads ward data before the route is activated
  */
 export const wardDetailResolver: ResolveFn<Ward | null> = (
-  route: ActivatedRouteSnapshot
+  route: ActivatedRouteSnapshot,
 ): Observable<Ward | null> => {
   const wardService = inject(WardService);
   const code = route.paramMap.get('code');
-  
+
   if (!code) {
     return of(null);
   }
@@ -23,6 +23,6 @@ export const wardDetailResolver: ResolveFn<Ward | null> = (
     catchError((error) => {
       console.error('Failed to resolve ward detail:', error);
       return of(null);
-    })
+    }),
   );
 };

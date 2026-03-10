@@ -48,7 +48,7 @@ export class NavigationManagementService {
           return response.data?.item?.items || [];
         }),
         tap((items) => this.globalNavigationCache$.next(items)),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -57,7 +57,7 @@ export class NavigationManagementService {
    */
   getModuleNavigation(
     moduleId: string,
-    params?: GetNavigationParams
+    params?: GetNavigationParams,
   ): Observable<NavigationItemDto[]> {
     let httpParams = new HttpParams();
     if (params?.includeHidden) {
@@ -74,13 +74,13 @@ export class NavigationManagementService {
           if (!this.moduleNavigationCache$.has(moduleId)) {
             this.moduleNavigationCache$.set(
               moduleId,
-              new BehaviorSubject<NavigationItemDto[] | null>(items)
+              new BehaviorSubject<NavigationItemDto[] | null>(items),
             );
           } else {
             this.moduleNavigationCache$.get(moduleId)!.next(items);
           }
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -91,7 +91,7 @@ export class NavigationManagementService {
     return this.http.get<ApiSingleResponse<NavigationItemDto>>(`${this.baseUrl}/${id}`).pipe(
       map((response: ApiSingleResponse<NavigationItemDto>) => {
         return response;
-      })
+      }),
     );
   }
 
@@ -105,7 +105,7 @@ export class NavigationManagementService {
         // Trigger refetch for the affected scope
         this.refetchCache(dto.scope, dto.moduleId);
       }),
-      catchError(this.handleError)
+      catchError(this.handleError),
     );
   }
 
@@ -119,7 +119,7 @@ export class NavigationManagementService {
         // Trigger refetch for the affected scope
         this.refetchCache(item.scope, item.moduleId);
       }),
-      catchError(this.handleError)
+      catchError(this.handleError),
     );
   }
 
@@ -133,7 +133,7 @@ export class NavigationManagementService {
         // Trigger refetch for all scopes
         this.refetchAllCaches();
       }),
-      catchError(this.handleError)
+      catchError(this.handleError),
     );
   }
 
@@ -147,7 +147,7 @@ export class NavigationManagementService {
         // Trigger refetch for all scopes
         this.refetchAllCaches();
       }),
-      catchError(this.handleError)
+      catchError(this.handleError),
     );
   }
 
@@ -161,7 +161,7 @@ export class NavigationManagementService {
         // Trigger refetch for all scopes
         this.refetchAllCaches();
       }),
-      catchError(this.handleError)
+      catchError(this.handleError),
     );
   }
 
@@ -171,7 +171,7 @@ export class NavigationManagementService {
   previewNavigationWithPermissions(
     scope: 'global' | 'module',
     permissions: PermissionSet,
-    moduleKey?: string
+    moduleKey?: string,
   ): Observable<NavigationItemDto[]> {
     const url =
       scope === 'global'
@@ -180,7 +180,7 @@ export class NavigationManagementService {
 
     return this.http.post<NavigationListResponse>(url, permissions).pipe(
       map((response) => response.items),
-      catchError(this.handleError)
+      catchError(this.handleError),
     );
   }
 
@@ -198,7 +198,7 @@ export class NavigationManagementService {
     if (!this.moduleNavigationCache$.has(moduleKey)) {
       this.moduleNavigationCache$.set(
         moduleKey,
-        new BehaviorSubject<NavigationItemDto[] | null>(null)
+        new BehaviorSubject<NavigationItemDto[] | null>(null),
       );
     }
     return this.moduleNavigationCache$.get(moduleKey)!.asObservable();

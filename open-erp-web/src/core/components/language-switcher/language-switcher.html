@@ -1,72 +1,74 @@
 <!-- Container -->
 <div id="language-switcher-container" class="w-full">
   @if (mode() === 'sidebar') {
-  <!-- Sidebar Mode -->
-  <div class="flex flex-col gap-2 p-2" id="language-switcher-sidebar-mode">
-    <label
-      for="language-switcher-select-button"
-      class="block text-xs font-medium text-surface-600 dark:text-surface-400"
-    >
-      {{ 'languageSelector.label' | transloco }}
-    </label>
-
-    <!-- Compact row with SelectButton and More Languages button -->
-    <div class="flex items-center gap-2">
-      <!-- SelectButton for VI/EN Toggle (flags only) -->
-      <p-selectbutton
-        id="language-switcher-select-button"
-        [options]="primaryLanguageOptions()"
-        [(ngModel)]="selectedLanguage"
-        (ngModelChange)="onPrimaryLanguageChange($event)"
-        optionLabel="label"
-        optionValue="value"
-        [attr.aria-label]="'languageSelector.ariaLabel' | transloco"
+    <!-- Sidebar Mode -->
+    <div class="flex flex-col gap-2 p-2" id="language-switcher-sidebar-mode">
+      <label
+        for="language-switcher-select-button"
+        class="block text-xs font-medium text-surface-600 dark:text-surface-400"
       >
-        <ng-template let-item #item>
-          <img
-            [src]="getFlagForLanguageCode(item.value)"
-            [alt]="item.label"
-            class="w-5 h-5 rounded-sm"
-            aria-hidden="true"
-          />
-        </ng-template>
-      </p-selectbutton>
+        {{ 'languageSelector.label' | transloco }}
+      </label>
 
-      <!-- Arrow button for more languages -->
-      <p-button
-        id="language-switcher-more-button"
-        (onClick)="openAllLanguagesDialog()"
-        icon="pi pi-angle-down"
-        severity="secondary"
-        [text]="true"
-        size="small"
-        [attr.aria-label]="'languageSelector.changeLanguage' | transloco"
-      />
+      <!-- Compact row with SelectButton and More Languages button -->
+      <div class="flex items-center gap-2">
+        <!-- SelectButton for VI/EN Toggle (flags only) -->
+        <p-selectbutton
+          id="language-switcher-select-button"
+          [options]="primaryLanguageOptions()"
+          [(ngModel)]="selectedLanguage"
+          (ngModelChange)="onPrimaryLanguageChange($event)"
+          optionLabel="label"
+          optionValue="value"
+          [attr.aria-label]="'languageSelector.ariaLabel' | transloco"
+        >
+          <ng-template let-item #item>
+            <img
+              [src]="getFlagForLanguageCode(item.value)"
+              [alt]="item.label"
+              class="w-5 h-5 rounded-sm"
+              aria-hidden="true"
+            />
+          </ng-template>
+        </p-selectbutton>
+
+        <!-- Arrow button for more languages -->
+        <p-button
+          id="language-switcher-more-button"
+          (onClick)="openAllLanguagesDialog()"
+          icon="pi pi-angle-down"
+          severity="secondary"
+          [text]="true"
+          size="small"
+          [attr.aria-label]="'languageSelector.changeLanguage' | transloco"
+        />
+      </div>
     </div>
-  </div>
   } @else {
-  <!-- Narrow Mode -->
-  <div class="flex justify-center p-1" id="language-switcher-narrow-mode">
-    <button
-      #narrowTrigger
-      id="language-switcher-narrow-button"
-      type="button"
-      (click)="op.toggle($event)"
-      class="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
-      [attr.aria-label]="currentLanguageOption().label"
-    >
-      <img
-        [src]="getFlagUrl(currentLanguageOption().flagCode)"
-        [alt]="currentLanguageOption().label + ' flag'"
-        class="w-6 h-6 rounded-sm"
-        aria-hidden="true"
-      />
-    </button>
+    <!-- Narrow Mode -->
+    <div class="flex justify-center p-1" id="language-switcher-narrow-mode">
+      <button
+        #narrowTrigger
+        id="language-switcher-narrow-button"
+        type="button"
+        (click)="op.toggle($event)"
+        class="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+        [attr.aria-label]="currentLanguageOption().label"
+      >
+        <img
+          [src]="getFlagUrl(currentLanguageOption().flagCode)"
+          [alt]="currentLanguageOption().label + ' flag'"
+          class="w-6 h-6 rounded-sm"
+          aria-hidden="true"
+        />
+      </button>
 
-    <!-- Popover for narrow mode -->
-    <p-popover #op id="language-switcher-narrow-overlay" appendTo="body">
-      <div class="flex flex-col gap-2 w-64" id="language-switcher-narrow-content">
-          <div class="flex items-center gap-2 px-2 py-1 border-b border-surface-200 dark:border-surface-700">
+      <!-- Popover for narrow mode -->
+      <p-popover #op id="language-switcher-narrow-overlay" appendTo="body">
+        <div class="flex flex-col gap-2 w-64" id="language-switcher-narrow-content">
+          <div
+            class="flex items-center gap-2 px-2 py-1 border-b border-surface-200 dark:border-surface-700"
+          >
             <i class="pi pi-globe text-surface-600 dark:text-surface-400" aria-hidden="true"></i>
             <span class="text-sm font-medium text-surface-900 dark:text-surface-0">
               {{ 'languageSelector.selectLanguage' | transloco }}
@@ -94,43 +96,43 @@
           <!-- Language List -->
           <div class="max-h-80 overflow-y-auto" id="language-switcher-narrow-list" role="listbox">
             @for (lang of filteredLanguages(); track lang.code) {
-            <button
-              type="button"
-              [id]="'language-switcher-narrow-option-' + lang.code"
-              (click)="selectLanguage(lang.code)"
-              class="w-full flex items-center gap-3 px-3 py-2 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg transition-colors text-left"
-              [class.bg-primary-50]="selectedLanguage() === lang.code"
-              [class.dark:bg-primary-900/20]="selectedLanguage() === lang.code"
-              [attr.aria-selected]="selectedLanguage() === lang.code"
-              role="option"
-            >
-              <img
-                [src]="getFlagUrl(lang.flagCode)"
-                [alt]="lang.label + ' flag'"
-                class="w-6 h-6 rounded-sm flex-shrink-0"
-                aria-hidden="true"
-              />
-              <span
-                class="text-sm font-medium text-surface-900 dark:text-surface-0 flex-1 truncate"
+              <button
+                type="button"
+                [id]="'language-switcher-narrow-option-' + lang.code"
+                (click)="selectLanguage(lang.code)"
+                class="w-full flex items-center gap-3 px-3 py-2 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg transition-colors text-left"
+                [class.bg-primary-50]="selectedLanguage() === lang.code"
+                [class.dark:bg-primary-900/20]="selectedLanguage() === lang.code"
+                [attr.aria-selected]="selectedLanguage() === lang.code"
+                role="option"
               >
-                {{ lang.label }}
-              </span>
-              @if (selectedLanguage() === lang.code) {
-              <i class="pi pi-check text-primary-500 flex-shrink-0" aria-hidden="true"></i>
-              }
-            </button>
+                <img
+                  [src]="getFlagUrl(lang.flagCode)"
+                  [alt]="lang.label + ' flag'"
+                  class="w-6 h-6 rounded-sm flex-shrink-0"
+                  aria-hidden="true"
+                />
+                <span
+                  class="text-sm font-medium text-surface-900 dark:text-surface-0 flex-1 truncate"
+                >
+                  {{ lang.label }}
+                </span>
+                @if (selectedLanguage() === lang.code) {
+                  <i class="pi pi-check text-primary-500 flex-shrink-0" aria-hidden="true"></i>
+                }
+              </button>
             } @empty {
-            <div
-              class="px-3 py-4 text-center text-sm text-surface-500 dark:text-surface-400"
-              id="language-switcher-narrow-empty"
-            >
-              {{ 'languageSelector.placeholder' | transloco }}
-            </div>
+              <div
+                class="px-3 py-4 text-center text-sm text-surface-500 dark:text-surface-400"
+                id="language-switcher-narrow-empty"
+              >
+                {{ 'languageSelector.placeholder' | transloco }}
+              </div>
             }
           </div>
         </div>
-    </p-popover>
-  </div>
+      </p-popover>
+    </div>
   }
 </div>
 
@@ -176,36 +178,36 @@
     <!-- Language Grid -->
     <div class="max-h-96 overflow-y-auto" id="language-switcher-dialog-list" role="listbox">
       @for (lang of filteredLanguages(); track lang.code) {
-      <button
-        type="button"
-        [id]="'language-switcher-dialog-option-' + lang.code"
-        (click)="selectLanguage(lang.code)"
-        class="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg transition-colors text-left"
-        [class.bg-primary-50]="selectedLanguage() === lang.code"
-        [class.dark:bg-primary-900/20]="selectedLanguage() === lang.code"
-        [attr.aria-selected]="selectedLanguage() === lang.code"
-        role="option"
-      >
-        <img
-          [src]="getFlagUrl(lang.flagCode)"
-          [alt]="lang.label + ' flag'"
-          class="w-8 h-8 rounded-sm flex-shrink-0"
-          aria-hidden="true"
-        />
-        <span class="text-sm font-medium text-surface-900 dark:text-surface-0 flex-1 truncate">
-          {{ lang.label }}
-        </span>
-        @if (selectedLanguage() === lang.code) {
-        <i class="pi pi-check text-primary-500 flex-shrink-0" aria-hidden="true"></i>
-        }
-      </button>
+        <button
+          type="button"
+          [id]="'language-switcher-dialog-option-' + lang.code"
+          (click)="selectLanguage(lang.code)"
+          class="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg transition-colors text-left"
+          [class.bg-primary-50]="selectedLanguage() === lang.code"
+          [class.dark:bg-primary-900/20]="selectedLanguage() === lang.code"
+          [attr.aria-selected]="selectedLanguage() === lang.code"
+          role="option"
+        >
+          <img
+            [src]="getFlagUrl(lang.flagCode)"
+            [alt]="lang.label + ' flag'"
+            class="w-8 h-8 rounded-sm flex-shrink-0"
+            aria-hidden="true"
+          />
+          <span class="text-sm font-medium text-surface-900 dark:text-surface-0 flex-1 truncate">
+            {{ lang.label }}
+          </span>
+          @if (selectedLanguage() === lang.code) {
+            <i class="pi pi-check text-primary-500 flex-shrink-0" aria-hidden="true"></i>
+          }
+        </button>
       } @empty {
-      <div
-        class="px-3 py-8 text-center text-sm text-surface-500 dark:text-surface-400"
-        id="language-switcher-dialog-empty"
-      >
-        {{ 'languageSelector.placeholder' | transloco }}
-      </div>
+        <div
+          class="px-3 py-8 text-center text-sm text-surface-500 dark:text-surface-400"
+          id="language-switcher-dialog-empty"
+        >
+          {{ 'languageSelector.placeholder' | transloco }}
+        </div>
       }
     </div>
   </div>

@@ -299,7 +299,9 @@ export class ResetPassword implements OnInit, OnDestroy {
       await navigator.clipboard.writeText(password);
       this.messageService.add({
         severity: 'success',
-        summary: this.translocoService.translate('userDetail.resetPassword.messages.passwordCopied'),
+        summary: this.translocoService.translate(
+          'userDetail.resetPassword.messages.passwordCopied',
+        ),
       });
     } catch (error) {
       console.error('Failed to copy password:', error);
@@ -361,7 +363,9 @@ export class ResetPassword implements OnInit, OnDestroy {
           }
           this.messageService.add({
             severity: 'success',
-            summary: this.translocoService.translate('userDetail.resetPassword.messages.passwordResetSuccess'),
+            summary: this.translocoService.translate(
+              'userDetail.resetPassword.messages.passwordResetSuccess',
+            ),
           });
           this.isLoading.set(false);
           // Reset form
@@ -377,7 +381,9 @@ export class ResetPassword implements OnInit, OnDestroy {
         error: (error) => {
           this.messageService.add({
             severity: 'error',
-            summary: this.translocoService.translate('userDetail.resetPassword.messages.passwordResetError'),
+            summary: this.translocoService.translate(
+              'userDetail.resetPassword.messages.passwordResetError',
+            ),
             detail: error.message,
           });
           this.isLoading.set(false);
@@ -416,7 +422,7 @@ export class ResetPassword implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'success',
             summary: this.translocoService.translate(
-              'userDetail.resetPassword.messages.sessionsRevokedSuccess'
+              'userDetail.resetPassword.messages.sessionsRevokedSuccess',
             ),
           });
           this.isLoading.set(false);
@@ -431,7 +437,7 @@ export class ResetPassword implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: this.translocoService.translate(
-              'userDetail.resetPassword.messages.sessionsRevokedError'
+              'userDetail.resetPassword.messages.sessionsRevokedError',
             ),
             detail: error.message,
           });
@@ -468,7 +474,9 @@ export class ResetPassword implements OnInit, OnDestroy {
     if (!formValue.reason) {
       this.messageService.add({
         severity: 'error',
-        summary: this.translocoService.translate('userDetail.resetPassword.messages.reasonRequired'),
+        summary: this.translocoService.translate(
+          'userDetail.resetPassword.messages.reasonRequired',
+        ),
       });
       this.isLoading.set(false);
       return;
@@ -486,7 +494,9 @@ export class ResetPassword implements OnInit, OnDestroy {
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: this.translocoService.translate('userDetail.resetPassword.messages.userBlockedSuccess'),
+            summary: this.translocoService.translate(
+              'userDetail.resetPassword.messages.userBlockedSuccess',
+            ),
           });
           this.isLoading.set(false);
           // Reset form
@@ -500,7 +510,9 @@ export class ResetPassword implements OnInit, OnDestroy {
         error: (error) => {
           this.messageService.add({
             severity: 'error',
-            summary: this.translocoService.translate('userDetail.resetPassword.messages.userBlockedError'),
+            summary: this.translocoService.translate(
+              'userDetail.resetPassword.messages.userBlockedError',
+            ),
             detail: error.message,
           });
           this.isLoading.set(false);
@@ -538,7 +550,7 @@ export class ResetPassword implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'success',
             summary: this.translocoService.translate(
-              'userDetail.resetPassword.messages.userUnblockedSuccess'
+              'userDetail.resetPassword.messages.userUnblockedSuccess',
             ),
           });
           this.isLoading.set(false);
@@ -552,7 +564,7 @@ export class ResetPassword implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: this.translocoService.translate(
-              'userDetail.resetPassword.messages.userUnblockedError'
+              'userDetail.resetPassword.messages.userUnblockedError',
             ),
             detail: error.message,
           });
@@ -582,7 +594,7 @@ export class ResetPassword implements OnInit, OnDestroy {
    */
   protected getPasswordStrengthLabel(): string {
     return this.translocoService.translate(
-      `userDetail.resetPassword.resetPasswordSection.password.strength.${this.passwordStrength()}`
+      `userDetail.resetPassword.resetPasswordSection.password.strength.${this.passwordStrength()}`,
     );
   }
 }

@@ -66,11 +66,16 @@ export class ShipmentList implements OnInit, OnDestroy {
   protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
 
   protected readonly columnOptions: ColumnDef[] = [
-    { field: 'carrier',        header: 'wms.shipments.carrier',        sortable: true               },
-    { field: 'trackingNumber', header: 'wms.shipments.trackingNumber', sortable: true,  width: '180px' },
-    { field: 'recipient',      header: 'wms.shipments.recipient',      sortable: true               },
-    { field: 'status',         header: 'wms.shipments.status',         sortable: true,  width: '130px' },
-    { field: 'shippedAt',      header: 'wms.shipments.shippedAt',      sortable: true,  width: '160px' },
+    { field: 'carrier', header: 'wms.shipments.carrier', sortable: true },
+    {
+      field: 'trackingNumber',
+      header: 'wms.shipments.trackingNumber',
+      sortable: true,
+      width: '180px',
+    },
+    { field: 'recipient', header: 'wms.shipments.recipient', sortable: true },
+    { field: 'status', header: 'wms.shipments.status', sortable: true, width: '130px' },
+    { field: 'shippedAt', header: 'wms.shipments.shippedAt', sortable: true, width: '160px' },
   ];
   protected selectedColumns: ColumnDef[] = [...this.columnOptions];
 

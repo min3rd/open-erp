@@ -29,14 +29,16 @@ export class StockHeaderTabs implements OnInit, OnDestroy {
   items: MenuItem[] = [];
 
   ngOnInit(): void {
-    this.navigationService.getModuleNavigation$('nav-stock')
+    this.navigationService
+      .getModuleNavigation$('nav-stock')
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((items) => {
         this.items = items || [];
         this.cdr.markForCheck();
       });
 
-    this.navigationService.loadModuleNavigation('nav-stock')
+    this.navigationService
+      .loadModuleNavigation('nav-stock')
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe();
 

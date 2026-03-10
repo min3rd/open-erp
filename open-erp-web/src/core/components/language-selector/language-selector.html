@@ -7,12 +7,12 @@
   [class.justify-center]="!showLabel()"
 >
   @if (showLabel()) {
-  <label
-    for="language-selector-dropdown"
-    class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1"
-  >
-    {{ 'languageSelector.label' | transloco }}
-  </label>
+    <label
+      for="language-selector-dropdown"
+      class="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1"
+    >
+      {{ 'languageSelector.label' | transloco }}
+    </label>
   }
   <p-select
     id="language-selector-dropdown"
@@ -36,7 +36,7 @@
           aria-hidden="true"
         />
         @if (showLabel()) {
-        <span class="font-medium ml-2 truncate">{{ lang.label }}</span>
+          <span class="font-medium ml-2 truncate">{{ lang.label }}</span>
         }
       </div>
     </ng-template>
@@ -58,14 +58,14 @@
           aria-hidden="true"
         />
         @if (showLabel()) {
-        <span class="font-medium text-sm ml-2 truncate">{{ lang.label }}</span>
+          <span class="font-medium text-sm ml-2 truncate">{{ lang.label }}</span>
         }
       </div>
     </ng-template>
 
     <ng-template #dropdownicon>
       @if (showLabel()) {
-      <i class="pi pi-chevron-down" aria-hidden="true"></i>
+        <i class="pi pi-chevron-down" aria-hidden="true"></i>
       }
     </ng-template>
   </p-select>

@@ -72,7 +72,12 @@ export class Lots implements OnInit, OnDestroy {
     { field: 'skuId', header: 'stock.lots.skuId', sortable: true },
     { field: 'totalQty', header: 'stock.lots.totalQty', sortable: true, width: '120px' },
     { field: 'remainingQty', header: 'stock.lots.remainingQty', sortable: true, width: '120px' },
-    { field: 'manufacturedAt', header: 'stock.lots.manufacturedAt', sortable: true, width: '150px' },
+    {
+      field: 'manufacturedAt',
+      header: 'stock.lots.manufacturedAt',
+      sortable: true,
+      width: '150px',
+    },
     { field: 'expiryAt', header: 'stock.lots.expiryAt', sortable: true, width: '150px' },
     { field: 'status', header: 'stock.status', sortable: false, width: '100px' },
   ];
@@ -138,11 +143,7 @@ export class Lots implements OnInit, OnDestroy {
   loadLots() {
     this.loading.set(true);
     const expired =
-      this.expiredFilter() === 'true'
-        ? true
-        : this.expiredFilter() === 'false'
-          ? false
-          : undefined;
+      this.expiredFilter() === 'true' ? true : this.expiredFilter() === 'false' ? false : undefined;
 
     this.stockService
       .getLots({ expired, page: this.currentPage(), limit: this.pageSize() })

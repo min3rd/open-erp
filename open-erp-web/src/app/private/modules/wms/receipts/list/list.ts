@@ -247,7 +247,10 @@ export class ReceiptList implements OnInit, OnDestroy {
     this.loadReceipts();
   }
 
-  protected openActionDrawer(receipt: Receipt, type: 'submit' | 'approve' | 'receive' | 'finalize') {
+  protected openActionDrawer(
+    receipt: Receipt,
+    type: 'submit' | 'approve' | 'receive' | 'finalize',
+  ) {
     this.selectedReceipt.set(receipt);
     this.actionType.set(type);
     this.actionForm.reset({ notes: '', action: 'accept', reason: '' });
@@ -278,11 +281,12 @@ export class ReceiptList implements OnInit, OnDestroy {
       case 'receive':
         // Receive with existing lines - partial receive starting from 0
         obs$ = this.wmsService.receiveReceipt(receipt.id, {
-          lines: receipt.lines?.map((l) => ({
-            lineId: l.lineId,
-            skuId: l.skuId,
-            receivedQty: l.orderedQty - (l.receivedQty || 0),
-          })) ?? [],
+          lines:
+            receipt.lines?.map((l) => ({
+              lineId: l.lineId,
+              skuId: l.skuId,
+              receivedQty: l.orderedQty - (l.receivedQty || 0),
+            })) ?? [],
         });
         break;
       case 'finalize':
@@ -312,7 +316,9 @@ export class ReceiptList implements OnInit, OnDestroy {
   }
 
   protected canApprove(receipt: Receipt): boolean {
-    return receipt.status === ReceiptStatus.UNDER_REVIEW || receipt.status === ReceiptStatus.PENDING;
+    return (
+      receipt.status === ReceiptStatus.UNDER_REVIEW || receipt.status === ReceiptStatus.PENDING
+    );
   }
 
   protected canReceive(receipt: Receipt): boolean {
@@ -334,7 +340,10 @@ export class ReceiptList implements OnInit, OnDestroy {
   protected getStatusSeverity(
     status: ReceiptStatus,
   ): 'success' | 'warn' | 'danger' | 'info' | 'secondary' | 'contrast' {
-    const map: Record<ReceiptStatus, 'success' | 'warn' | 'danger' | 'info' | 'secondary' | 'contrast'> = {
+    const map: Record<
+      ReceiptStatus,
+      'success' | 'warn' | 'danger' | 'info' | 'secondary' | 'contrast'
+    > = {
       [ReceiptStatus.COMPLETED]: 'success',
       [ReceiptStatus.QC_PASSED]: 'success',
       [ReceiptStatus.FINALIZED]: 'success',

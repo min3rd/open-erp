@@ -183,9 +183,7 @@ describe('NavigationList', () => {
     component['activeScope'].set('global');
     component['onNodeSelect'](mockEvent);
 
-    const req2 = httpMock.expectOne(
-      `${baseUrl}/module/${moduleItem.moduleKey}?includeHidden=true`
-    );
+    const req2 = httpMock.expectOne(`${baseUrl}/module/${moduleItem.moduleKey}?includeHidden=true`);
     expect(req2.request.method).toBe('GET');
     req2.flush({ items: [], scope: 'module', total: 0 });
 
@@ -262,10 +260,10 @@ describe('NavigationList', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const editButton = compiled.querySelector(
-      '#navigation-list-edit-button button'
+      '#navigation-list-edit-button button',
     ) as HTMLButtonElement;
     const deleteButton = compiled.querySelector(
-      '#navigation-list-delete-button button'
+      '#navigation-list-delete-button button',
     ) as HTMLButtonElement;
 
     expect(editButton?.disabled).toBe(true);
@@ -281,10 +279,10 @@ describe('NavigationList', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const editButton = compiled.querySelector(
-      '#navigation-list-edit-button button'
+      '#navigation-list-edit-button button',
     ) as HTMLButtonElement;
     const deleteButton = compiled.querySelector(
-      '#navigation-list-delete-button button'
+      '#navigation-list-delete-button button',
     ) as HTMLButtonElement;
 
     expect(editButton?.disabled).toBe(false);
@@ -299,11 +297,9 @@ describe('NavigationList', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    const moveUpButton = compiled.querySelector(
-      '#navigation-list-move-up-button'
-    ) as HTMLElement;
+    const moveUpButton = compiled.querySelector('#navigation-list-move-up-button') as HTMLElement;
     const moveDownButton = compiled.querySelector(
-      '#navigation-list-move-down-button'
+      '#navigation-list-move-down-button',
     ) as HTMLElement;
 
     expect(moveUpButton).toBeTruthy();

@@ -74,15 +74,24 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
   get themes() {
     return [
       { label: this.translocoService.translate('me.settings.display.themes.auto'), value: 'auto' },
-      { label: this.translocoService.translate('me.settings.display.themes.light'), value: 'light' },
+      {
+        label: this.translocoService.translate('me.settings.display.themes.light'),
+        value: 'light',
+      },
       { label: this.translocoService.translate('me.settings.display.themes.dark'), value: 'dark' },
     ];
   }
 
   get densities() {
     return [
-      { label: this.translocoService.translate('me.settings.display.densities.comfortable'), value: 'comfortable' },
-      { label: this.translocoService.translate('me.settings.display.densities.compact'), value: 'compact' },
+      {
+        label: this.translocoService.translate('me.settings.display.densities.comfortable'),
+        value: 'comfortable',
+      },
+      {
+        label: this.translocoService.translate('me.settings.display.densities.compact'),
+        value: 'compact',
+      },
     ];
   }
 
@@ -97,11 +106,14 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Load available languages from the language service
-    this.languageService.loadLanguages().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (langs: LanguageOption[]) => {
-        this.languages.set(langs.map((l) => ({ label: l.label, value: l.code })));
-      },
-    });
+    this.languageService
+      .loadLanguages()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (langs: LanguageOption[]) => {
+          this.languages.set(langs.map((l) => ({ label: l.label, value: l.code })));
+        },
+      });
 
     this.settingsForm = this.fb.group({
       dateFormat: ['DD/MM/YYYY'],
@@ -117,8 +129,9 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
     });
 
     // Live preview: apply theme immediately as user selects it
-    this.settingsForm.get('theme')!.valueChanges
-      .pipe(takeUntil(this.destroy$))
+    this.settingsForm
+      .get('theme')!
+      .valueChanges.pipe(takeUntil(this.destroy$))
       .subscribe((theme) => {
         if (theme) {
           this.themeService.applyTheme(theme, false);
@@ -190,7 +203,8 @@ export class MeSettingsComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: this.translocoService.translate('common.error'),
-            detail: err.message || this.translocoService.translate('me.settings.messages.saveError'),
+            detail:
+              err.message || this.translocoService.translate('me.settings.messages.saveError'),
           });
         },
       });

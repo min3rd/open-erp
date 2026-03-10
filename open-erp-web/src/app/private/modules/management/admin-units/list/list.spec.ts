@@ -71,7 +71,7 @@ describe('AdminUnitsList Component', () => {
         page: 1,
         limit: 100,
         totalPages: 1,
-      })
+      }),
     );
     mockWardService.getWards.and.returnValue(
       of({
@@ -80,7 +80,7 @@ describe('AdminUnitsList Component', () => {
         page: 1,
         limit: 100,
         totalPages: 1,
-      })
+      }),
     );
     mockTranslocoService.translate.and.returnValue('Translated');
 
@@ -120,7 +120,7 @@ describe('AdminUnitsList Component', () => {
   it('should load wards when province is expanded', () => {
     const provinceCode = '01';
     component['loadWardsForProvince'](provinceCode);
-    
+
     expect(mockWardService.getWards).toHaveBeenCalledWith({
       provinceCode,
       q: '',
@@ -132,7 +132,7 @@ describe('AdminUnitsList Component', () => {
   it('should update route when global search changes', () => {
     component['globalSearch'].set('test');
     component['onGlobalSearch']();
-    
+
     expect(mockRouter.navigate).toHaveBeenCalled();
   });
 
@@ -148,7 +148,7 @@ describe('AdminUnitsList Component', () => {
       ['ward', 'new'],
       jasmine.objectContaining({
         queryParams: { provinceCode },
-      })
+      }),
     );
   });
 });

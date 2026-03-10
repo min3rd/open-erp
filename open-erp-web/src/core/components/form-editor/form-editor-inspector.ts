@@ -10,15 +10,7 @@ import { FormComponent, FormFieldConfig } from './form-editor.types';
 
 @Component({
   selector: 'form-editor-inspector',
-  imports: [
-    CommonModule,
-    FormsModule,
-    TranslocoModule,
-    InputText,
-    Checkbox,
-    Button,
-    InputNumber,
-  ],
+  imports: [CommonModule, FormsModule, TranslocoModule, InputText, Checkbox, Button, InputNumber],
   templateUrl: './form-editor-inspector.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -66,13 +58,9 @@ export class FormEditorInspector {
 
   isFormField(): boolean {
     const type = this.localComponent.type;
-    return ![
-      'layout-1-column',
-      'layout-2-column',
-      'layout-3-column',
-      'divider',
-      'button',
-    ].includes(type);
+    return !['layout-1-column', 'layout-2-column', 'layout-3-column', 'divider', 'button'].includes(
+      type,
+    );
   }
 
   fieldValidation(): any {

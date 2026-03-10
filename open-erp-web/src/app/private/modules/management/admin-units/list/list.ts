@@ -101,17 +101,16 @@ export class AdminUnitsList implements OnInit, OnDestroy {
   protected readonly filteredProvinces = computed(() => {
     const search = this.globalSearch().toLowerCase().trim();
     if (!search) return this.provinces();
-    
-    return this.provinces().filter(p => 
-      p.name.toLowerCase().includes(search) || 
-      p.code.toLowerCase().includes(search)
+
+    return this.provinces().filter(
+      (p) => p.name.toLowerCase().includes(search) || p.code.toLowerCase().includes(search),
     );
   });
 
   protected readonly activeProvince = computed(() => {
     const code = this.activeProvinceCode();
     if (!code) return null;
-    return this.provinces().find(p => p.code === code) || null;
+    return this.provinces().find((p) => p.code === code) || null;
   });
 
   protected readonly selectedGeometry = computed(() => {
@@ -146,7 +145,7 @@ export class AdminUnitsList implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Initialize mobile state
     this.isMobile.set(window.innerWidth < 768);
-    
+
     // Load initial provinces from resolver
     this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
       const provinces = data['provinces'] as Province[];
@@ -159,28 +158,28 @@ export class AdminUnitsList implements OnInit, OnDestroy {
     this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((qParams) => {
       const search = qParams.get('search') || '';
       this.globalSearch.set(search);
-      
+
       const activeCode = qParams.get('activeProvinceCode');
       this.activeProvinceCode.set(activeCode);
-      
+
       // If there's an active province code and provinces are loaded, load its wards
       if (activeCode && this.provinces().length > 0) {
         this.loadWardsForProvince(activeCode);
       }
-      
+
       // Parse ward search params (format: wards[provinceCode]=searchTerm)
       const wardSearchMap = new Map<string, string>();
-      qParams.keys.forEach(key => {
+      qParams.keys.forEach((key) => {
         const match = key.match(/^wards\[(.+)\]$/);
         if (match) {
           wardSearchMap.set(match[1], qParams.get(key) || '');
         }
       });
       this.provinceWardSearch.set(wardSearchMap);
-      
+
       // Parse page params (format: page[provinceCode]=number)
       const pageMap = new Map<string, number>();
-      qParams.keys.forEach(key => {
+      qParams.keys.forEach((key) => {
         const match = key.match(/^page\[(.+)\]$/);
         if (match) {
           pageMap.set(match[1], parseInt(qParams.get(key) || '1', 10));
@@ -209,7 +208,7 @@ export class AdminUnitsList implements OnInit, OnDestroy {
   protected onTabOpen(event: { index: number }): void {
     const index = event.index;
     const province = this.filteredProvinces()[index];
-    
+
     if (province) {
       // Update route to reflect active province
       this.router.navigate([], {
@@ -217,7 +216,7 @@ export class AdminUnitsList implements OnInit, OnDestroy {
         queryParams: { activeProvinceCode: province.code },
         queryParamsHandling: 'merge',
       });
-      
+
       // Load wards for this province
       this.loadWardsForProvince(province.code);
     }
@@ -242,14 +241,14 @@ export class AdminUnitsList implements OnInit, OnDestroy {
     // Check if already loading
     const loadingSet = this.provinceWardLoading();
     if (loadingSet.has(provinceCode)) return;
-    
+
     // Mark as loading
     loadingSet.add(provinceCode);
     this.provinceWardLoading.set(new Set(loadingSet));
-    
+
     const searchTerm = this.provinceWardSearch().get(provinceCode) || '';
     const page = this.provinceWardPage().get(provinceCode) || 1;
-    
+
     this.wardService
       .getWards({
         provinceCode,
@@ -263,11 +262,11 @@ export class AdminUnitsList implements OnInit, OnDestroy {
           const wardsMap = this.provinceWards();
           wardsMap.set(provinceCode, response.items);
           this.provinceWards.set(new Map(wardsMap));
-          
+
           const totalMap = this.provinceWardTotal();
           totalMap.set(provinceCode, response.total);
           this.provinceWardTotal.set(new Map(totalMap));
-          
+
           // Remove from loading
           const loadingSet = this.provinceWardLoading();
           loadingSet.delete(provinceCode);
@@ -280,7 +279,7 @@ export class AdminUnitsList implements OnInit, OnDestroy {
             summary: this.translocoService.translate('adminUnits.messages.error'),
             detail: this.translocoService.translate('adminUnits.messages.loadWardsFailed'),
           });
-          
+
           // Remove from loading
           const loadingSet = this.provinceWardLoading();
           loadingSet.delete(provinceCode);
@@ -315,14 +314,14 @@ export class AdminUnitsList implements OnInit, OnDestroy {
     const searchMap = this.provinceWardSearch();
     searchMap.set(provinceCode, searchTerm);
     this.provinceWardSearch.set(new Map(searchMap));
-    
+
     // Update URL
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { [`wards[${provinceCode}]`]: searchTerm || null },
       queryParamsHandling: 'merge',
     });
-    
+
     // Reload wards
     this.loadWardsForProvince(provinceCode);
   }
@@ -411,9 +410,9 @@ export class AdminUnitsList implements OnInit, OnDestroy {
    * Add new ward to a province
    */
   protected addWard(provinceCode: string): void {
-    this.router.navigate(['ward', 'new'], { 
+    this.router.navigate(['ward', 'new'], {
       relativeTo: this.route,
-      queryParams: { provinceCode }
+      queryParams: { provinceCode },
     });
   }
 
@@ -468,11 +467,12 @@ export class AdminUnitsList implements OnInit, OnDestroy {
   protected exportProvinces(format: 'csv' | 'geojson'): void {
     const search = this.globalSearch();
     const params = { search };
-    
-    const exportObservable = format === 'csv' 
-      ? this.provinceService.exportToCSV(params)
-      : this.provinceService.exportToGeoJSON(params);
-    
+
+    const exportObservable =
+      format === 'csv'
+        ? this.provinceService.exportToCSV(params)
+        : this.provinceService.exportToGeoJSON(params);
+
     exportObservable.pipe(takeUntil(this.destroy$)).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -481,7 +481,7 @@ export class AdminUnitsList implements OnInit, OnDestroy {
         a.download = `provinces.${format}`;
         a.click();
         window.URL.revokeObjectURL(url);
-        
+
         this.messageService.add({
           severity: 'success',
           summary: this.translocoService.translate('adminUnits.messages.success'),
@@ -504,11 +504,12 @@ export class AdminUnitsList implements OnInit, OnDestroy {
   protected exportWards(provinceCode: string, format: 'csv' | 'geojson'): void {
     const search = this.getWardSearchTerm(provinceCode);
     const params = { provinceCode, q: search };
-    
-    const exportObservable = format === 'csv' 
-      ? this.wardService.exportToCSV(params)
-      : this.wardService.exportToGeoJSON(params);
-    
+
+    const exportObservable =
+      format === 'csv'
+        ? this.wardService.exportToCSV(params)
+        : this.wardService.exportToGeoJSON(params);
+
     exportObservable.pipe(takeUntil(this.destroy$)).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -517,7 +518,7 @@ export class AdminUnitsList implements OnInit, OnDestroy {
         a.download = `wards-${provinceCode}.${format}`;
         a.click();
         window.URL.revokeObjectURL(url);
-        
+
         this.messageService.add({
           severity: 'success',
           summary: this.translocoService.translate('adminUnits.messages.success'),
@@ -568,7 +569,7 @@ export class AdminUnitsList implements OnInit, OnDestroy {
    */
   protected refreshAll(): void {
     this.refreshProvinces();
-    
+
     // Refresh wards for active province if any
     const activeCode = this.activeProvinceCode();
     if (activeCode) {
@@ -581,7 +582,7 @@ export class AdminUnitsList implements OnInit, OnDestroy {
    */
   protected onMapProvinceClick(province: Province): void {
     // Find index of province in filtered list
-    const index = this.filteredProvinces().findIndex(p => p.code === province.code);
+    const index = this.filteredProvinces().findIndex((p) => p.code === province.code);
     if (index >= 0) {
       this.activeProvinceCode.set(province.code);
       this.onTabOpen({ index });

@@ -68,10 +68,10 @@ export class DistrictForm implements OnInit, OnDestroy {
   protected readonly isEditMode = computed(() => this.districtCode() !== null);
   protected readonly currentGeometry = signal<GeoJSON.Geometry | null>(null);
   protected readonly provinces = signal<Province[]>([]);
-  
+
   // Computed province options
   protected readonly provinceOptions = computed(() => {
-    return this.provinces().map(p => ({
+    return this.provinces().map((p) => ({
       label: p.name,
       value: p.code,
     }));
@@ -102,7 +102,7 @@ export class DistrictForm implements OnInit, OnDestroy {
           summary: this.translocoService.translate('districtForm.messages.error'),
           detail: this.translocoService.translate('districtForm.messages.provinceLoadFailed'),
         });
-      }
+      },
     });
 
     // Load district data from resolver
@@ -124,7 +124,7 @@ export class DistrictForm implements OnInit, OnDestroy {
           // Convert centroid to GeoJSON Point
           const centroidPoint: GeoJSON.Point = {
             type: 'Point',
-            coordinates: [district.centroid.lon, district.centroid.lat]
+            coordinates: [district.centroid.lon, district.centroid.lat],
           };
           this.currentGeometry.set(centroidPoint);
         }
@@ -171,7 +171,7 @@ export class DistrictForm implements OnInit, OnDestroy {
     if (geometry && geometry.type === 'Point') {
       centroid = {
         lon: (geometry as GeoJSON.Point).coordinates[0],
-        lat: (geometry as GeoJSON.Point).coordinates[1]
+        lat: (geometry as GeoJSON.Point).coordinates[1],
       };
     }
 

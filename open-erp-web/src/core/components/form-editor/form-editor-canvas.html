@@ -33,7 +33,9 @@
             (click)="onComponentClick($event, component)"
           >
             <!-- Add component button above each component -->
-            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+            <div
+              class="absolute -top-3 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            >
               <button
                 type="button"
                 class="p-1 bg-primary text-white rounded-full shadow-lg hover:bg-primary-600"
@@ -55,7 +57,9 @@
                   />
                 } @else {
                   <!-- Multi-column layout container -->
-                  @if (component.type === 'layout-2-column' || component.type === 'layout-3-column') {
+                  @if (
+                    component.type === 'layout-2-column' || component.type === 'layout-3-column'
+                  ) {
                     <div [ngClass]="component.cssClasses || getDefaultLayoutClasses(component)">
                       @for (colIndex of getColumnIndices(component); track colIndex) {
                         <div
@@ -65,7 +69,10 @@
                         >
                           @if (getColumnChildren(component, colIndex).length > 0) {
                             <div class="space-y-3">
-                              @for (child of getColumnChildren(component, colIndex); track child.id) {
+                              @for (
+                                child of getColumnChildren(component, colIndex);
+                                track child.id
+                              ) {
                                 <div
                                   [id]="'form-editor-canvas-' + child.id"
                                   [class.ring-2]="child.id === selectedComponentId()"
@@ -75,10 +82,7 @@
                                   (click)="onComponentClick($event, child)"
                                 >
                                   <ng-container
-                                    *ngTemplateOutlet="
-                                      fieldTemplate;
-                                      context: { $implicit: child }
-                                    "
+                                    *ngTemplateOutlet="fieldTemplate; context: { $implicit: child }"
                                   />
                                 </div>
                               }
@@ -110,10 +114,7 @@
                               (click)="onComponentClick($event, child)"
                             >
                               <ng-container
-                                *ngTemplateOutlet="
-                                  fieldTemplate;
-                                  context: { $implicit: child }
-                                "
+                                *ngTemplateOutlet="fieldTemplate; context: { $implicit: child }"
                               />
                             </div>
                           }
@@ -128,13 +129,13 @@
                 }
               </div>
             } @else {
-              <ng-container
-                *ngTemplateOutlet="fieldTemplate; context: { $implicit: component }"
-              />
+              <ng-container *ngTemplateOutlet="fieldTemplate; context: { $implicit: component }" />
             }
 
             <!-- Add component button below each component -->
-            <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+            <div
+              class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            >
               <button
                 type="button"
                 class="p-1 bg-primary text-white rounded-full shadow-lg hover:bg-primary-600"

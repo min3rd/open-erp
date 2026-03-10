@@ -16,8 +16,7 @@ export const routes: Routes = [
       },
       {
         path: 'stock',
-        loadChildren: () =>
-          import('./inventory/stock/stock.routes').then((m) => m.routes),
+        loadChildren: () => import('./inventory/stock/stock.routes').then((m) => m.routes),
       },
       {
         path: 'wms',

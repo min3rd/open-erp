@@ -284,7 +284,7 @@
                 <!-- Timestamp + status -->
                 <div class="flex items-center gap-1 px-1">
                   <span class="text-[10px] text-surface-400 dark:text-surface-500">
-                    {{ message.createdAt | userDate:'relative' }}
+                    {{ message.createdAt | userDate: 'relative' }}
                   </span>
                   @if (message.edited) {
                     <span class="text-[10px] text-surface-400 dark:text-surface-500 italic">

@@ -1,4 +1,8 @@
-import { ProductScope, ProductStatus, Product } from '../../../../../core/services/product/product.service';
+import {
+  ProductScope,
+  ProductStatus,
+  Product,
+} from '../../../../../core/services/product/product.service';
 
 // Re-export types and enums for use in the product module
 export { ProductScope, ProductStatus };

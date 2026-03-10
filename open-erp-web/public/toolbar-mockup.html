@@ -1,122 +1,174 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Organization Registration - Toolbar Layout</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; }
-        .container { display: flex; flex-direction: column; height: 100vh; }
-        .toolbar { 
-            background: white; 
-            border-bottom: 1px solid #e5e7eb; 
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: #f5f5f5;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+      .toolbar {
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+      .toolbar-start {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .toolbar-start i {
+        font-size: 1.25rem;
+        color: #6366f1;
+      }
+      .toolbar-start h1 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #111827;
+      }
+      .toolbar-end {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        border: none;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .btn-primary {
+        background: #6366f1;
+        color: white;
+      }
+      .btn-primary:hover {
+        background: #4f46e5;
+      }
+      .content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        max-width: 1200px;
+        background: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .form-group.full-width {
+        grid-column: 1 / -1;
+      }
+      .form-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+      }
+      .form-input {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+      }
+      .required {
+        color: #ef4444;
+      }
+      @media (max-width: 768px) {
+        .form-grid {
+          grid-template-columns: 1fr;
         }
-        .toolbar-start { display: flex; align-items: center; gap: 0.75rem; }
-        .toolbar-start i { font-size: 1.25rem; color: #6366f1; }
-        .toolbar-start h1 { font-size: 1.25rem; font-weight: 600; color: #111827; }
-        .toolbar-end { display: flex; gap: 0.5rem; }
-        .btn { 
-            padding: 0.5rem 1rem; 
-            border-radius: 0.375rem; 
-            border: none; 
-            cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .btn-primary { background: #6366f1; color: white; }
-        .btn-primary:hover { background: #4f46e5; }
-        .content { flex: 1; overflow-y: auto; padding: 1.5rem; }
-        .form-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 1.5rem;
-            max-width: 1200px;
-            background: white;
-            padding: 2rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-        .form-group.full-width { grid-column: 1 / -1; }
-        .form-label { font-size: 0.875rem; font-weight: 500; color: #374151; }
-        .form-input { 
-            padding: 0.5rem 0.75rem; 
-            border: 1px solid #d1d5db; 
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
-        }
-        .required { color: #ef4444; }
-        @media (max-width: 768px) {
-            .form-grid { grid-template-columns: 1fr; }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <!-- Toolbar Header -->
-        <div class="toolbar">
-            <div class="toolbar-start">
-                <i>🏢</i>
-                <h1>Register Organization</h1>
-            </div>
-            <div class="toolbar-end">
-                <button class="btn btn-primary">
-                    ✓ Register Business
-                </button>
-            </div>
+      <!-- Toolbar Header -->
+      <div class="toolbar">
+        <div class="toolbar-start">
+          <i>🏢</i>
+          <h1>Register Organization</h1>
         </div>
+        <div class="toolbar-end">
+          <button class="btn btn-primary">✓ Register Business</button>
+        </div>
+      </div>
 
-        <!-- Content Area (Scrollable) -->
-        <div class="content">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label class="form-label">Tax ID (Mã số thuế) <span class="required">*</span></label>
-                    <input class="form-input" placeholder="Enter 10-13 digit tax ID" />
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Contact Email <span class="required">*</span></label>
-                    <input class="form-input" type="email" placeholder="Enter contact email address" />
-                </div>
-                <div class="form-group full-width">
-                    <label class="form-label">Business Name (Vietnamese) <span class="required">*</span></label>
-                    <input class="form-input" placeholder="Enter business name in Vietnamese" />
-                </div>
-                <div class="form-group full-width">
-                    <label class="form-label">International Name (English) <span class="required">*</span></label>
-                    <input class="form-input" placeholder="Enter business name in English" />
-                </div>
-                <div class="form-group full-width">
-                    <label class="form-label">Headquarters Address <span class="required">*</span></label>
-                    <input class="form-input" placeholder="Enter headquarters address" />
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Legal Representative <span class="required">*</span></label>
-                    <input class="form-input" placeholder="Enter full name of legal representative" />
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Contact Phone <span class="required">*</span></label>
-                    <input class="form-input" type="tel" placeholder="Enter contact phone number" />
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Founded Date <span class="required">*</span></label>
-                    <input class="form-input" type="date" />
-                </div>
-                <div class="form-group full-width">
-                    <label class="form-label">Business Activities (Optional)</label>
-                    <input class="form-input" placeholder="Press Enter to add business activity" />
-                    <small style="color: #6b7280; font-size: 0.75rem;">Enter business activities and press Enter after each one</small>
-                </div>
-            </div>
+      <!-- Content Area (Scrollable) -->
+      <div class="content">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Tax ID (Mã số thuế) <span class="required">*</span></label>
+            <input class="form-input" placeholder="Enter 10-13 digit tax ID" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contact Email <span class="required">*</span></label>
+            <input class="form-input" type="email" placeholder="Enter contact email address" />
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label"
+              >Business Name (Vietnamese) <span class="required">*</span></label
+            >
+            <input class="form-input" placeholder="Enter business name in Vietnamese" />
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label"
+              >International Name (English) <span class="required">*</span></label
+            >
+            <input class="form-input" placeholder="Enter business name in English" />
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label">Headquarters Address <span class="required">*</span></label>
+            <input class="form-input" placeholder="Enter headquarters address" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Legal Representative <span class="required">*</span></label>
+            <input class="form-input" placeholder="Enter full name of legal representative" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contact Phone <span class="required">*</span></label>
+            <input class="form-input" type="tel" placeholder="Enter contact phone number" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Founded Date <span class="required">*</span></label>
+            <input class="form-input" type="date" />
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label">Business Activities (Optional)</label>
+            <input class="form-input" placeholder="Press Enter to add business activity" />
+            <small style="color: #6b7280; font-size: 0.75rem"
+              >Enter business activities and press Enter after each one</small
+            >
+          </div>
         </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>

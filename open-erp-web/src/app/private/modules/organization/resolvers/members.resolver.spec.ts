@@ -35,7 +35,12 @@ describe('MembersResolver', () => {
 
   beforeEach(() => {
     contextService = jasmine.createSpyObj('OrganizationContextService', ['currentOrganization'], {
-      currentOrganization: () => ({ id: 'org-1', name: 'Test Org', internationalName: 'Test Org Ltd', taxId: '1234567890' }),
+      currentOrganization: () => ({
+        id: 'org-1',
+        name: 'Test Org',
+        internationalName: 'Test Org Ltd',
+        taxId: '1234567890',
+      }),
     });
     orgService = jasmine.createSpyObj('OrganizationService', ['getOrganizationMembers']);
 
@@ -97,7 +102,13 @@ describe('MembersResolver', () => {
   });
 
   it('should handle response with items property instead of data', (done) => {
-    const responseWithItems = { items: mockMembersResponse.data, data: undefined as any, total: 1, page: 1, limit: 20 };
+    const responseWithItems = {
+      items: mockMembersResponse.data,
+      data: undefined as any,
+      total: 1,
+      page: 1,
+      limit: 20,
+    };
     orgService.getOrganizationMembers.and.returnValue(of(responseWithItems));
 
     const result = TestBed.runInInjectionContext(() =>

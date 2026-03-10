@@ -17,7 +17,11 @@
     </h2>
   </ng-template>
 
-  <div id="product-category-form-content" class="p-4 overflow-y-auto" style="max-height: calc(100vh - 200px);">
+  <div
+    id="product-category-form-content"
+    class="p-4 overflow-y-auto"
+    style="max-height: calc(100vh - 200px)"
+  >
     <form [formGroup]="form" class="space-y-4">
       <!-- Code -->
       <div>
@@ -34,13 +38,19 @@
           class="w-full"
         />
         @if (form.get('code')?.touched && form.get('code')?.hasError('required')) {
-        <small class="text-red-500">{{ 'productCategoryForm.fields.code.errors.required' | transloco }}</small>
+          <small class="text-red-500">{{
+            'productCategoryForm.fields.code.errors.required' | transloco
+          }}</small>
         }
         @if (form.get('code')?.touched && form.get('code')?.hasError('minlength')) {
-        <small class="text-red-500">{{ 'productCategoryForm.fields.code.errors.minlength' | transloco }}</small>
+          <small class="text-red-500">{{
+            'productCategoryForm.fields.code.errors.minlength' | transloco
+          }}</small>
         }
         @if (form.get('code')?.touched && form.get('code')?.hasError('maxlength')) {
-        <small class="text-red-500">{{ 'productCategoryForm.fields.code.errors.maxlength' | transloco }}</small>
+          <small class="text-red-500">{{
+            'productCategoryForm.fields.code.errors.maxlength' | transloco
+          }}</small>
         }
       </div>
 
@@ -59,13 +69,19 @@
           class="w-full"
         />
         @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
-        <small class="text-red-500">{{ 'productCategoryForm.fields.name.errors.required' | transloco }}</small>
+          <small class="text-red-500">{{
+            'productCategoryForm.fields.name.errors.required' | transloco
+          }}</small>
         }
         @if (form.get('name')?.touched && form.get('name')?.hasError('minlength')) {
-        <small class="text-red-500">{{ 'productCategoryForm.fields.name.errors.minlength' | transloco }}</small>
+          <small class="text-red-500">{{
+            'productCategoryForm.fields.name.errors.minlength' | transloco
+          }}</small>
         }
         @if (form.get('name')?.touched && form.get('name')?.hasError('maxlength')) {
-        <small class="text-red-500">{{ 'productCategoryForm.fields.name.errors.maxlength' | transloco }}</small>
+          <small class="text-red-500">{{
+            'productCategoryForm.fields.name.errors.maxlength' | transloco
+          }}</small>
         }
       </div>
 
@@ -100,16 +116,15 @@
           class="w-full"
         ></textarea>
         @if (form.get('description')?.touched && form.get('description')?.hasError('maxlength')) {
-        <small class="text-red-500">{{ 'productCategoryForm.fields.description.errors.maxlength' | transloco }}</small>
+          <small class="text-red-500">{{
+            'productCategoryForm.fields.description.errors.maxlength' | transloco
+          }}</small>
         }
       </div>
 
       <!-- Active Status -->
       <div class="flex items-center gap-3">
-        <p-toggleSwitch
-          id="product-category-form-active"
-          formControlName="isActive"
-        />
+        <p-toggleSwitch id="product-category-form-active" formControlName="isActive" />
         <label for="product-category-form-active" class="text-sm font-medium cursor-pointer">
           {{ 'productCategoryForm.fields.isActive.label' | transloco }}
         </label>
@@ -128,7 +143,9 @@
           [style]="{ width: '100%' }"
         />
         @if (form.get('order')?.touched && form.get('order')?.hasError('min')) {
-        <small class="text-red-500">{{ 'productCategoryForm.fields.order.errors.min' | transloco }}</small>
+          <small class="text-red-500">{{
+            'productCategoryForm.fields.order.errors.min' | transloco
+          }}</small>
         }
       </div>
 
@@ -145,7 +162,9 @@
           rows="5"
           class="w-full font-mono text-sm"
         ></textarea>
-        <small class="text-surface-500">{{ 'productCategoryForm.fields.metadata.hint' | transloco }}</small>
+        <small class="text-surface-500">{{
+          'productCategoryForm.fields.metadata.hint' | transloco
+        }}</small>
       </div>
     </form>
   </div>
@@ -153,24 +172,24 @@
   <ng-template #footer>
     <div id="product-category-form-actions" class="flex justify-end gap-2">
       @if (!isViewMode()) {
-      <p-button
-        id="product-category-form-cancel-button"
-        [label]="'productCategoryForm.actions.cancel' | transloco"
-        severity="secondary"
-        (onClick)="onClose()"
-      />
-      <p-button
-        id="product-category-form-save-button"
-        [label]="'productCategoryForm.actions.save' | transloco"
-        [loading]="isLoading()"
-        (onClick)="onSave()"
-      />
+        <p-button
+          id="product-category-form-cancel-button"
+          [label]="'productCategoryForm.actions.cancel' | transloco"
+          severity="secondary"
+          (onClick)="onClose()"
+        />
+        <p-button
+          id="product-category-form-save-button"
+          [label]="'productCategoryForm.actions.save' | transloco"
+          [loading]="isLoading()"
+          (onClick)="onSave()"
+        />
       } @else {
-      <p-button
-        id="product-category-form-close-button"
-        [label]="'productCategoryForm.actions.close' | transloco"
-        (onClick)="onClose()"
-      />
+        <p-button
+          id="product-category-form-close-button"
+          [label]="'productCategoryForm.actions.close' | transloco"
+          (onClick)="onClose()"
+        />
       }
     </div>
   </ng-template>

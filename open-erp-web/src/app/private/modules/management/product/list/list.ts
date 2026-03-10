@@ -35,12 +35,22 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 // Core components
-import { PaginationComponent, PaginationChange } from '../../../../../../core/components/pagination/pagination';
+import {
+  PaginationComponent,
+  PaginationChange,
+} from '../../../../../../core/components/pagination/pagination';
 
 // Services and types
-import { ProductService, Product, ProductStatus } from '../../../../../../core/services/product/product.service';
+import {
+  ProductService,
+  Product,
+  ProductStatus,
+} from '../../../../../../core/services/product/product.service';
 import { ProductTypeService } from '../../../../../../core/services/product-type/product-type.service';
-import { ProductCategoryService, ProductCategory } from '../../../../../../core/services/product-category/product-category.service';
+import {
+  ProductCategoryService,
+  ProductCategory,
+} from '../../../../../../core/services/product-category/product-category.service';
 import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
 /**
@@ -138,8 +148,12 @@ export class ProductList implements OnInit, OnDestroy {
   ];
 
   // Type and category filter options - loaded from API
-  protected typeFilterOptions = signal<FilterOption[]>([{ label: 'productList.filter.allTypes', value: 'all' }]);
-  protected categoryFilterOptions = signal<FilterOption[]>([{ label: 'productList.filter.allCategories', value: 'all' }]);
+  protected typeFilterOptions = signal<FilterOption[]>([
+    { label: 'productList.filter.allTypes', value: 'all' },
+  ]);
+  protected categoryFilterOptions = signal<FilterOption[]>([
+    { label: 'productList.filter.allCategories', value: 'all' },
+  ]);
 
   // Sort options
   protected readonly sortOptions: SortOption[] = [
@@ -334,7 +348,7 @@ export class ProductList implements OnInit, OnDestroy {
       this.currentPage.set(page);
       this.pageSize.set(normalizedLimit);
       this.searchQuery.set(search === '-' ? '' : search);
-      
+
       // Parse individual filters
       this.activeStatusFilter = statusFilter;
       this.activeTypeFilter = typeFilter;
@@ -347,10 +361,10 @@ export class ProductList implements OnInit, OnDestroy {
         const [field, order] = sortParts;
         this.sortField.set(field);
         this.sortOrder.set(order === 'asc' ? 1 : -1);
-        
+
         // Update selected sort option
         const sortOption = this.sortOptions.find(
-          (opt) => opt.field === field && opt.order === (order === 'asc' ? 1 : -1)
+          (opt) => opt.field === field && opt.order === (order === 'asc' ? 1 : -1),
         );
         if (sortOption) {
           this.selectedSort = sortOption;
@@ -362,7 +376,7 @@ export class ProductList implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    
+
     if (this.resizeHandler && typeof window !== 'undefined') {
       window.removeEventListener('resize', this.resizeHandler);
     }
@@ -380,15 +394,17 @@ export class ProductList implements OnInit, OnDestroy {
   /**
    * Navigate to a new route with updated params
    */
-  private navigateWithParams(updates: Partial<{
-    search: string;
-    status: string;
-    type: string;
-    category: string;
-    sort: string;
-    page: number;
-    limit: number;
-  }>): void {
+  private navigateWithParams(
+    updates: Partial<{
+      search: string;
+      status: string;
+      type: string;
+      category: string;
+      sort: string;
+      page: number;
+      limit: number;
+    }>,
+  ): void {
     const currentParams = this.route.snapshot.params;
     const search = updates.search !== undefined ? updates.search : currentParams['search'];
     const status = updates.status !== undefined ? updates.status : currentParams['status'];
@@ -396,7 +412,8 @@ export class ProductList implements OnInit, OnDestroy {
     const category = updates.category !== undefined ? updates.category : currentParams['category'];
     const sort = updates.sort !== undefined ? updates.sort : currentParams['sort'];
     const page = updates.page !== undefined ? updates.page : parseInt(currentParams['page'], 10);
-    const limit = updates.limit !== undefined ? updates.limit : parseInt(currentParams['limit'], 10);
+    const limit =
+      updates.limit !== undefined ? updates.limit : parseInt(currentParams['limit'], 10);
 
     this.router.navigate([
       '/modules/management/product',
@@ -414,22 +431,23 @@ export class ProductList implements OnInit, OnDestroy {
    * Load product types from API
    */
   private loadProductTypes(): void {
-    this.productTypeService.getProductTypes({ limit: 1000, isActive: true })
+    this.productTypeService
+      .getProductTypes({ limit: 1000, isActive: true })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (result) => {
           const options: FilterOption[] = [
             { label: 'productList.filter.allTypes', value: 'all' },
-            ...result.items.map(type => ({
+            ...result.items.map((type) => ({
               label: type.name,
-              value: type.code
-            }))
+              value: type.code,
+            })),
           ];
           this.typeFilterOptions.set(options);
         },
         error: (error) => {
           console.error('Error loading product types:', error);
-        }
+        },
       });
   }
 
@@ -437,22 +455,23 @@ export class ProductList implements OnInit, OnDestroy {
    * Load product categories from API
    */
   private loadProductCategories(): void {
-    this.productCategoryService.getProductCategories({ limit: 1000, isActive: true })
+    this.productCategoryService
+      .getProductCategories({ limit: 1000, isActive: true })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (result) => {
           const options: FilterOption[] = [
             { label: 'productList.filter.allCategories', value: 'all' },
-            ...result.items.map(cat => ({
+            ...result.items.map((cat) => ({
               label: cat.name,
-              value: cat.code
-            }))
+              value: cat.code,
+            })),
           ];
           this.categoryFilterOptions.set(options);
         },
         error: (error) => {
           console.error('Error loading product categories:', error);
-        }
+        },
       });
   }
 
@@ -507,19 +526,19 @@ export class ProductList implements OnInit, OnDestroy {
       // Convert PrimeNG sort order (1 for asc, -1 for desc) to our format
       const order = event.order === 1 ? 'asc' : 'desc';
       const sortOrder = event.order;
-      
+
       // Update local state
       this.sortField.set(event.field);
       this.sortOrder.set(sortOrder);
-      
+
       // Find and update selected sort option
       const sortOption = this.sortOptions.find(
-        opt => opt.field === event.field && opt.order === sortOrder
+        (opt) => opt.field === event.field && opt.order === sortOrder,
       );
       if (sortOption) {
         this.selectedSort = sortOption;
       }
-      
+
       // Navigate with new sort parameters
       this.navigateWithParams({ sort: `[${event.field},${order}]`, page: 1 });
     }
@@ -596,7 +615,8 @@ export class ProductList implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: this.translocoService.translate('productList.publish.error'),
-              detail: error.message || this.translocoService.translate('productList.publish.errorDetail'),
+              detail:
+                error.message || this.translocoService.translate('productList.publish.errorDetail'),
             });
           },
         });
@@ -636,7 +656,9 @@ export class ProductList implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: this.translocoService.translate('productList.markInactive.error'),
-              detail: error.message || this.translocoService.translate('productList.markInactive.errorDetail'),
+              detail:
+                error.message ||
+                this.translocoService.translate('productList.markInactive.errorDetail'),
             });
           },
         });
@@ -660,7 +682,7 @@ export class ProductList implements OnInit, OnDestroy {
    */
   private updateProductInList(updatedProduct: Product): void {
     const currentProducts = this.products();
-    const index = currentProducts.findIndex(p => p.id === updatedProduct.id);
+    const index = currentProducts.findIndex((p) => p.id === updatedProduct.id);
     if (index !== -1) {
       const newProducts = [...currentProducts];
       newProducts[index] = updatedProduct;
@@ -699,7 +721,8 @@ export class ProductList implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: this.translocoService.translate('productList.delete.error'),
-              detail: error.message || this.translocoService.translate('productList.delete.errorDetail'),
+              detail:
+                error.message || this.translocoService.translate('productList.delete.errorDetail'),
             });
           },
         });
@@ -742,7 +765,9 @@ export class ProductList implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: this.translocoService.translate('productList.bulkDelete.error'),
-              detail: error.message || this.translocoService.translate('productList.bulkDelete.errorDetail'),
+              detail:
+                error.message ||
+                this.translocoService.translate('productList.bulkDelete.errorDetail'),
             });
           },
         });
@@ -755,11 +780,11 @@ export class ProductList implements OnInit, OnDestroy {
    */
   protected onExportCSV(): void {
     const params: any = {};
-    
+
     if (this.searchQuery() && this.searchQuery() !== '-') {
       params.search = this.searchQuery();
     }
-    
+
     if (this.activeStatusFilter !== 'all') {
       params.status = this.activeStatusFilter;
     }
@@ -780,7 +805,7 @@ export class ProductList implements OnInit, OnDestroy {
         link.download = `products-${new Date().toISOString().split('T')[0]}.csv`;
         link.click();
         window.URL.revokeObjectURL(url);
-        
+
         this.messageService.add({
           severity: 'success',
           summary: this.translocoService.translate('productList.export.success'),
@@ -809,7 +834,7 @@ export class ProductList implements OnInit, OnDestroy {
   protected onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    
+
     if (!file) {
       return;
     }
@@ -829,7 +854,7 @@ export class ProductList implements OnInit, OnDestroy {
     this.productService.importCSV(file).subscribe({
       next: (result) => {
         this.isLoading.set(false);
-        
+
         if (result.failed > 0) {
           this.messageService.add({
             severity: 'warn',
@@ -848,7 +873,7 @@ export class ProductList implements OnInit, OnDestroy {
             }),
           });
         }
-        
+
         // Reload data
         this.loadProducts();
         input.value = '';
@@ -914,7 +939,9 @@ export class ProductList implements OnInit, OnDestroy {
   /**
    * Get status severity for tag display
    */
-  protected getStatusSeverity(status: ProductStatus): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | undefined {
+  protected getStatusSeverity(
+    status: ProductStatus,
+  ): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | undefined {
     switch (status) {
       case ProductStatus.ACTIVE:
         return 'success';

@@ -9,7 +9,7 @@ import { UserDetailService, UserDetail } from '../services/user-detail.service';
  * Fetches user data before the route is activated
  */
 export const userDetailResolver: ResolveFn<UserDetail | null> = (
-  route: ActivatedRouteSnapshot
+  route: ActivatedRouteSnapshot,
 ): Observable<UserDetail | null> => {
   const userDetailService = inject(UserDetailService);
   const userId = route.paramMap.get('id');
@@ -22,6 +22,6 @@ export const userDetailResolver: ResolveFn<UserDetail | null> = (
     catchError((error) => {
       console.error('Failed to resolve user detail:', error);
       return of(null);
-    })
+    }),
   );
 };

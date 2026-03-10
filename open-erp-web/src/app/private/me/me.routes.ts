@@ -8,18 +8,15 @@ export const meRoutes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        loadComponent: () =>
-          import('./profile/profile').then((m) => m.MeProfileComponent),
+        loadComponent: () => import('./profile/profile').then((m) => m.MeProfileComponent),
       },
       {
         path: 'security',
-        loadComponent: () =>
-          import('./security/security').then((m) => m.MeSecurityComponent),
+        loadComponent: () => import('./security/security').then((m) => m.MeSecurityComponent),
       },
       {
         path: 'settings',
-        loadComponent: () =>
-          import('./settings/settings').then((m) => m.MeSettingsComponent),
+        loadComponent: () => import('./settings/settings').then((m) => m.MeSettingsComponent),
       },
     ],
   },

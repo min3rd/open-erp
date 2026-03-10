@@ -21,15 +21,15 @@ import * as L from 'leaflet';
 const MAP_STYLES = {
   // Background layer (e.g., province boundary)
   background: {
-    color: '#94a3b8',      // Lighter border color (slate-400)
+    color: '#94a3b8', // Lighter border color (slate-400)
     weight: 2,
     opacity: 0.6,
-    fillColor: '#cbd5e1',  // Light background fill (slate-300)
-    fillOpacity: 0.15,     // Very transparent - 15% opacity
+    fillColor: '#cbd5e1', // Light background fill (slate-300)
+    fillOpacity: 0.15, // Very transparent - 15% opacity
   },
   // Primary layer (e.g., selected ward)
   primary: {
-    color: '#3b82f6',      // Primary blue color (blue-500)
+    color: '#3b82f6', // Primary blue color (blue-500)
     weight: 2,
     opacity: 0.8,
     fillOpacity: 0.3,
@@ -130,7 +130,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         {
           maxZoom: 19,
           attribution: '&copy; <a href="https://www.esri.com/">Esri</a>',
-        }
+        },
       ),
     };
 

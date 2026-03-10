@@ -29,12 +29,12 @@ describe('OrganizationLayoutService', () => {
       // Clear localStorage and create fresh instance
       localStorage.clear();
       localStorage.setItem('organization.nav.mode', 'narrow');
-      
+
       // Create a new service instance to test loading from localStorage
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({});
       const newService = TestBed.inject(OrganizationLayoutService);
-      
+
       expect(newService.navMode()).toBe('narrow');
     });
 
@@ -61,7 +61,7 @@ describe('OrganizationLayoutService', () => {
     it('should persist nav mode to localStorage', async () => {
       service.setNavMode('narrow');
       // Wait a bit for effect to run
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       expect(localStorage.getItem('organization.nav.mode')).toBe('narrow');
     });
   });

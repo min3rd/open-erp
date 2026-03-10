@@ -37,41 +37,36 @@ export class MeService {
   private readonly baseUrl = `${API_URI_AUTH}/v1`;
 
   getProfile(): Observable<MeProfile> {
-    return this.http
-      .get<ApiSingleResponse<MeProfile>>(`${this.baseUrl}/me`)
-      .pipe(
-        map((response) => {
-          if (isApiResponse(response)) {
-            const data = unwrap(response);
-            return data.item as MeProfile;
-          }
-          return response as unknown as MeProfile;
-        }),
-        catchError(this.handleError),
-      );
+    return this.http.get<ApiSingleResponse<MeProfile>>(`${this.baseUrl}/me`).pipe(
+      map((response) => {
+        if (isApiResponse(response)) {
+          const data = unwrap(response);
+          return data.item as MeProfile;
+        }
+        return response as unknown as MeProfile;
+      }),
+      catchError(this.handleError),
+    );
   }
 
   updateProfile(data: UpdateMeDto): Observable<MeProfile> {
-    return this.http
-      .patch<ApiSingleResponse<MeProfile>>(`${this.baseUrl}/me`, data)
-      .pipe(
-        map((response) => {
-          if (isApiResponse(response)) {
-            const result = unwrap(response);
-            return result.item as MeProfile;
-          }
-          return response as unknown as MeProfile;
-        }),
-        catchError(this.handleError),
-      );
+    return this.http.patch<ApiSingleResponse<MeProfile>>(`${this.baseUrl}/me`, data).pipe(
+      map((response) => {
+        if (isApiResponse(response)) {
+          const result = unwrap(response);
+          return result.item as MeProfile;
+        }
+        return response as unknown as MeProfile;
+      }),
+      catchError(this.handleError),
+    );
   }
 
   changePassword(payload: ChangePasswordDto): Observable<{ success: boolean; message: string }> {
     return this.http
-      .post<ApiResponse<{ success: boolean; message: string }>>(
-        `${this.baseUrl}/me/change-password`,
-        payload,
-      )
+      .post<
+        ApiResponse<{ success: boolean; message: string }>
+      >(`${this.baseUrl}/me/change-password`, payload)
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -84,24 +79,22 @@ export class MeService {
   }
 
   getSessions(): Observable<MeSession[]> {
-    return this.http
-      .get<ApiResponse<MeSession[]>>(`${this.baseUrl}/me/sessions`)
-      .pipe(
-        map((response) => {
-          if (isApiResponse(response)) {
-            return unwrap(response) as MeSession[];
-          }
-          return response as unknown as MeSession[];
-        }),
-        catchError(this.handleError),
-      );
+    return this.http.get<ApiResponse<MeSession[]>>(`${this.baseUrl}/me/sessions`).pipe(
+      map((response) => {
+        if (isApiResponse(response)) {
+          return unwrap(response) as MeSession[];
+        }
+        return response as unknown as MeSession[];
+      }),
+      catchError(this.handleError),
+    );
   }
 
   revokeSession(sessionId: string): Observable<{ success: boolean; message: string }> {
     return this.http
-      .delete<ApiResponse<{ success: boolean; message: string }>>(
-        `${this.baseUrl}/me/sessions/${sessionId}`,
-      )
+      .delete<
+        ApiResponse<{ success: boolean; message: string }>
+      >(`${this.baseUrl}/me/sessions/${sessionId}`)
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -114,39 +107,34 @@ export class MeService {
   }
 
   getSettings(): Observable<MeSettings> {
-    return this.http
-      .get<ApiResponse<MeSettings>>(`${this.baseUrl}/me/settings`)
-      .pipe(
-        map((response) => {
-          if (isApiResponse(response)) {
-            return unwrap(response) as MeSettings;
-          }
-          return response as unknown as MeSettings;
-        }),
-        catchError(this.handleError),
-      );
+    return this.http.get<ApiResponse<MeSettings>>(`${this.baseUrl}/me/settings`).pipe(
+      map((response) => {
+        if (isApiResponse(response)) {
+          return unwrap(response) as MeSettings;
+        }
+        return response as unknown as MeSettings;
+      }),
+      catchError(this.handleError),
+    );
   }
 
   updateSettings(settings: Partial<MeSettings>): Observable<MeSettings> {
-    return this.http
-      .patch<ApiResponse<MeSettings>>(`${this.baseUrl}/me/settings`, settings)
-      .pipe(
-        map((response) => {
-          if (isApiResponse(response)) {
-            return unwrap(response) as MeSettings;
-          }
-          return response as unknown as MeSettings;
-        }),
-        catchError(this.handleError),
-      );
+    return this.http.patch<ApiResponse<MeSettings>>(`${this.baseUrl}/me/settings`, settings).pipe(
+      map((response) => {
+        if (isApiResponse(response)) {
+          return unwrap(response) as MeSettings;
+        }
+        return response as unknown as MeSettings;
+      }),
+      catchError(this.handleError),
+    );
   }
 
   deleteAccount(password: string): Observable<{ success: boolean; message: string }> {
     return this.http
-      .post<ApiResponse<{ success: boolean; message: string }>>(
-        `${this.baseUrl}/me/delete-account`,
-        { password },
-      )
+      .post<
+        ApiResponse<{ success: boolean; message: string }>
+      >(`${this.baseUrl}/me/delete-account`, { password })
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -159,17 +147,15 @@ export class MeService {
   }
 
   get2FAStatus(): Observable<TwoFAStatus> {
-    return this.http
-      .get<ApiResponse<TwoFAStatus>>(`${this.baseUrl}/me/2fa/status`)
-      .pipe(
-        map((response) => {
-          if (isApiResponse(response)) {
-            return unwrap(response) as TwoFAStatus;
-          }
-          return response as unknown as TwoFAStatus;
-        }),
-        catchError(this.handleError),
-      );
+    return this.http.get<ApiResponse<TwoFAStatus>>(`${this.baseUrl}/me/2fa/status`).pipe(
+      map((response) => {
+        if (isApiResponse(response)) {
+          return unwrap(response) as TwoFAStatus;
+        }
+        return response as unknown as TwoFAStatus;
+      }),
+      catchError(this.handleError),
+    );
   }
 
   prepare2FA(): Observable<TwoFAPrepareResult> {
@@ -202,10 +188,9 @@ export class MeService {
 
   disable2FA(otp: string): Observable<{ success: boolean; message: string }> {
     return this.http
-      .post<ApiResponse<{ success: boolean; message: string }>>(
-        `${this.baseUrl}/me/2fa/disable`,
-        { otp },
-      )
+      .post<
+        ApiResponse<{ success: boolean; message: string }>
+      >(`${this.baseUrl}/me/2fa/disable`, { otp })
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -223,9 +208,7 @@ export class MeService {
     }
     if (error instanceof HttpErrorResponse) {
       const msg =
-        error.error?.message ||
-        error.error?.error?.message ||
-        `Server error: ${error.status}`;
+        error.error?.message || error.error?.error?.message || `Server error: ${error.status}`;
       return throwError(() => new Error(msg));
     }
     return throwError(() => new Error('An unexpected error occurred'));

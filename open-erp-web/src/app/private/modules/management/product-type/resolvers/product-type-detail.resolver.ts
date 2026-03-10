@@ -8,7 +8,7 @@ import {
 } from '../../../../../../core/services/product-type/product-type.service';
 
 export const productTypeDetailResolver: ResolveFn<ProductType | null> = (
-  route: ActivatedRouteSnapshot
+  route: ActivatedRouteSnapshot,
 ): Observable<ProductType | null> => {
   const service = inject(ProductTypeService);
   const id = route.paramMap.get('id');
@@ -21,6 +21,6 @@ export const productTypeDetailResolver: ResolveFn<ProductType | null> = (
     catchError((error: any) => {
       console.error('Failed to load product type:', error);
       return of(null);
-    })
+    }),
   );
 };

@@ -25,7 +25,7 @@ export class CountryService {
           console.error('Failed to load countries:', error);
           return of([]);
         }),
-        shareReplay(1)
+        shareReplay(1),
       );
     }
     return this.countries$;
@@ -52,9 +52,9 @@ export class CountryService {
         return countries.filter(
           (country) =>
             country.name.toLowerCase().includes(searchTerm) ||
-            country.code.toLowerCase().includes(searchTerm)
+            country.code.toLowerCase().includes(searchTerm),
         );
-      })
+      }),
     );
   }
 
@@ -63,7 +63,7 @@ export class CountryService {
    */
   getCountryByCode(code: string): Observable<Country | undefined> {
     return this.loadCountries().pipe(
-      map((countries) => countries.find((country) => country.code === code))
+      map((countries) => countries.find((country) => country.code === code)),
     );
   }
 
@@ -72,7 +72,7 @@ export class CountryService {
    */
   isValidCountryCode(code: string): Observable<boolean> {
     return this.loadCountries().pipe(
-      map((countries) => countries.some((country) => country.code === code))
+      map((countries) => countries.some((country) => country.code === code)),
     );
   }
 }

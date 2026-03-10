@@ -40,7 +40,8 @@
           <span
             class="absolute top-0.5 right-0.5 min-w-[1rem] h-4 flex items-center justify-center rounded-full bg-red-500 text-white text-[0.6rem] font-bold px-0.5 leading-none pointer-events-none"
             aria-hidden="true"
-          >{{ notificationBadgeLabel() }}</span>
+            >{{ notificationBadgeLabel() }}</span
+          >
         }
       </div>
       <p-button
@@ -71,12 +72,12 @@
   >
     <!-- Overlay for mobile -->
     @if (isMobile() && sidebarVisible()) {
-    <div
-      id="vertical-layout-sidebar-overlay"
-      (click)="toggleSidebar()"
-      class="fixed inset-0 bg-black/50 animate-fade-in animate-duration-300"
-      aria-hidden="true"
-    ></div>
+      <div
+        id="vertical-layout-sidebar-overlay"
+        (click)="toggleSidebar()"
+        class="fixed inset-0 bg-black/50 animate-fade-in animate-duration-300"
+        aria-hidden="true"
+      ></div>
     }
 
     <!-- Sidebar content -->
@@ -87,7 +88,10 @@
       [class.flex-col]="isMobile()"
       class="flex h-full bg-surface-0 dark:bg-surface-900 border-r border-surface-200 dark:border-surface-700 w-80 md:w-auto z-50"
     >
-      <layout-vertical-navigation [isMobile]="isMobile()" (notificationToggle)="toggleNotificationDrawer()"></layout-vertical-navigation>
+      <layout-vertical-navigation
+        [isMobile]="isMobile()"
+        (notificationToggle)="toggleNotificationDrawer()"
+      ></layout-vertical-navigation>
     </div>
   </div>
 
@@ -99,44 +103,44 @@
   >
     <!-- *ngIf="true" hack is required here for router-outlet to work correctly. Otherwise, layout changes won't be registered and the view won't be updated! -->
     @if (true) {
-    <router-outlet></router-outlet>
+      <router-outlet></router-outlet>
     }
   </main>
 
   <!-- Quick Chat Panel -->
   @if (quickChatVisible() || !isMobile()) {
-  <aside
-    id="vertical-layout-quick-chat"
-    [class.fixed]="isMobile()"
-    [class.right-0]="isMobile()"
-    [class.top-0]="isMobile()"
-    [class.bottom-0]="isMobile()"
-    [class.z-40]="isMobile()"
-    [class.animate-slide-in-right]="isMobile() && quickChatVisible()"
-    [class.hidden]="isMobile() && !quickChatVisible()"
-    class="lg:relative w-full lg:w-auto"
-    role="complementary"
-    [attr.aria-label]="'quickChat.panel' | transloco"
-    [attr.aria-hidden]="isMobile() && !quickChatVisible()"
-  >
-    <!-- Overlay for mobile -->
-    @if (isMobile() && quickChatVisible()) {
-    <div
-      id="vertical-layout-quick-chat-overlay"
-      (click)="toggleQuickChat()"
-      class="fixed inset-0 bg-black/50 animate-fade-in animate-duration-300"
-      aria-hidden="true"
-    ></div>
-    }
-
-    <!-- Quick chat content -->
-    <div
-      class="relative h-full bg-surface-0 dark:bg-surface-900 w-80 lg:w-auto z-40"
-      id="vertical-layout-quick-chat-content"
+    <aside
+      id="vertical-layout-quick-chat"
+      [class.fixed]="isMobile()"
+      [class.right-0]="isMobile()"
+      [class.top-0]="isMobile()"
+      [class.bottom-0]="isMobile()"
+      [class.z-40]="isMobile()"
+      [class.animate-slide-in-right]="isMobile() && quickChatVisible()"
+      [class.hidden]="isMobile() && !quickChatVisible()"
+      class="lg:relative w-full lg:w-auto"
+      role="complementary"
+      [attr.aria-label]="'quickChat.panel' | transloco"
+      [attr.aria-hidden]="isMobile() && !quickChatVisible()"
     >
-      <layout-quick-chat></layout-quick-chat>
-    </div>
-  </aside>
+      <!-- Overlay for mobile -->
+      @if (isMobile() && quickChatVisible()) {
+        <div
+          id="vertical-layout-quick-chat-overlay"
+          (click)="toggleQuickChat()"
+          class="fixed inset-0 bg-black/50 animate-fade-in animate-duration-300"
+          aria-hidden="true"
+        ></div>
+      }
+
+      <!-- Quick chat content -->
+      <div
+        class="relative h-full bg-surface-0 dark:bg-surface-900 w-80 lg:w-auto z-40"
+        id="vertical-layout-quick-chat-content"
+      >
+        <layout-quick-chat></layout-quick-chat>
+      </div>
+    </aside>
   }
 </div>
 

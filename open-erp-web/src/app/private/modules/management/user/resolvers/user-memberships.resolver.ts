@@ -9,7 +9,7 @@ import { UserDetailService, UserMembership } from '../services/user-detail.servi
  * Fetches user membership data before the route is activated
  */
 export const userMembershipsResolver: ResolveFn<UserMembership[] | null> = (
-  route: ActivatedRouteSnapshot
+  route: ActivatedRouteSnapshot,
 ): Observable<UserMembership[] | null> => {
   const userDetailService = inject(UserDetailService);
   const userId = route.parent?.paramMap.get('id');
@@ -22,6 +22,6 @@ export const userMembershipsResolver: ResolveFn<UserMembership[] | null> = (
     catchError((error) => {
       console.error('Failed to resolve user memberships:', error);
       return of(null);
-    })
+    }),
   );
 };

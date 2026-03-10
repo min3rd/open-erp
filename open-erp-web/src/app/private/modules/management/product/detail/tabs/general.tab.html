@@ -1,64 +1,88 @@
 <div class="p-4 sm:p-6">
-  <h2 class="text-lg sm:text-xl font-semibold mb-4">{{ 'productDetail.tabs.general' | transloco }}</h2>
-  
+  <h2 class="text-lg sm:text-xl font-semibold mb-4">
+    {{ 'productDetail.tabs.general' | transloco }}
+  </h2>
+
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
     <!-- Basic Information -->
     <div class="space-y-4">
       <h3 class="text-lg font-medium mb-3">{{ 'productDetail.general.basicInfo' | transloco }}</h3>
-      
+
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.sku' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.general.sku' | transloco
+        }}</label>
         <div>{{ product()?.sku || '-' }}</div>
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.name' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.general.name' | transloco
+        }}</label>
         <div>{{ product()?.name || '-' }}</div>
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.internationalName' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.general.internationalName' | transloco
+        }}</label>
         <div>{{ product()?.internationalName || '-' }}</div>
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.barcode' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.general.barcode' | transloco
+        }}</label>
         <div>{{ product()?.barcode || '-' }}</div>
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.description' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.general.description' | transloco
+        }}</label>
         <div>{{ product()?.description || '-' }}</div>
       </div>
     </div>
 
     <!-- Classification -->
     <div class="space-y-4">
-      <h3 class="text-lg font-medium mb-3">{{ 'productDetail.general.classification' | transloco }}</h3>
-      
+      <h3 class="text-lg font-medium mb-3">
+        {{ 'productDetail.general.classification' | transloco }}
+      </h3>
+
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.type' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.general.type' | transloco
+        }}</label>
         <div>{{ product()?.type || '-' }}</div>
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.category' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.general.category' | transloco
+        }}</label>
         <div>{{ product()?.category?.name || '-' }}</div>
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.unit' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.general.unit' | transloco
+        }}</label>
         <div>{{ product()?.unit || '-' }}</div>
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.scope' | transloco }}</label>
-        <div>{{ ('productScope.' + (product()?.scope || '')) | transloco }}</div>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.general.scope' | transloco
+        }}</label>
+        <div>{{ 'productScope.' + (product()?.scope || '') | transloco }}</div>
       </div>
 
       @if (product()?.organizationId) {
         <div class="field">
-          <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.organizationId' | transloco }}</label>
+          <label class="block text-sm font-medium text-color-secondary mb-1">{{
+            'productDetail.general.organizationId' | transloco
+          }}</label>
           <div>{{ product()?.organizationId }}</div>
         </div>
       }
@@ -66,7 +90,9 @@
       @if (product()?.tags; as tags) {
         @if (tags.length > 0) {
           <div class="field">
-            <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.tags' | transloco }}</label>
+            <label class="block text-sm font-medium text-color-secondary mb-1">{{
+              'productDetail.general.tags' | transloco
+            }}</label>
             <div class="flex flex-wrap gap-2">
               @for (tag of tags; track tag) {
                 <span class="px-2 py-1 bg-primary-50 text-primary-700 text-sm rounded">
@@ -87,22 +113,30 @@
     <h3 class="text-lg font-medium mb-3">{{ 'productDetail.general.auditInfo' | transloco }}</h3>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.createdBy' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.general.createdBy' | transloco
+        }}</label>
         <div>{{ product()?.createdBy || '-' }}</div>
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.createdAt' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.general.createdAt' | transloco
+        }}</label>
         <div>{{ product()?.createdAt | userDate }}</div>
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.updatedBy' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.general.updatedBy' | transloco
+        }}</label>
         <div>{{ product()?.updatedBy || '-' }}</div>
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.general.updatedAt' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.general.updatedAt' | transloco
+        }}</label>
         <div>{{ product()?.updatedAt | userDate }}</div>
       </div>
     </div>

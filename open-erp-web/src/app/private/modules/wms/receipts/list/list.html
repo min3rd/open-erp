@@ -81,9 +81,13 @@
             [filter]="false"
             styleClass="w-auto"
           >
-            <ng-template let-opt #item><span>{{ opt.header | transloco }}</span></ng-template>
+            <ng-template let-opt #item
+              ><span>{{ opt.header | transloco }}</span></ng-template
+            >
             <ng-template #selectedItems>
-              <span class="flex items-center gap-1"><i class="pi pi-cog"></i> {{ 'wms.columns' | transloco }}</span>
+              <span class="flex items-center gap-1"
+                ><i class="pi pi-cog"></i> {{ 'wms.columns' | transloco }}</span
+              >
             </ng-template>
           </p-multiselect>
         </div>
@@ -93,7 +97,12 @@
         <tr>
           @for (col of selectedColumns; track col.field) {
             @if (col.sortable) {
-              <th pResizableColumn pReorderableColumn [pSortableColumn]="col.field" [style.width]="col.width">
+              <th
+                pResizableColumn
+                pReorderableColumn
+                [pSortableColumn]="col.field"
+                [style.width]="col.width"
+              >
                 {{ col.header | transloco }} <p-sortIcon [field]="col.field" />
               </th>
             } @else {
@@ -111,15 +120,29 @@
           @for (col of selectedColumns; track col.field) {
             <td>
               @switch (col.field) {
-                @case ('code') { <span class="font-mono text-xs text-primary">{{ receipt.code || '-' }}</span> }
-                @case ('poId') { <span class="font-mono text-xs">{{ receipt.poId || '-' }}</span> }
-                @case ('supplier') { {{ receipt.supplier || '-' }} }
-                @case ('type') { <span class="text-xs text-surface-500">{{ receipt.type || '-' }}</span> }
-                @case ('lines') { {{ receipt.lines?.length || 0 }} }
+                @case ('code') {
+                  <span class="font-mono text-xs text-primary">{{ receipt.code || '-' }}</span>
+                }
+                @case ('poId') {
+                  <span class="font-mono text-xs">{{ receipt.poId || '-' }}</span>
+                }
+                @case ('supplier') {
+                  {{ receipt.supplier || '-' }}
+                }
+                @case ('type') {
+                  <span class="text-xs text-surface-500">{{ receipt.type || '-' }}</span>
+                }
+                @case ('lines') {
+                  {{ receipt.lines?.length || 0 }}
+                }
                 @case ('status') {
                   <p-tag [value]="receipt.status" [severity]="getStatusSeverity(receipt.status)" />
                 }
-                @case ('createdAt') { <span class="text-sm text-surface-500">{{ receipt.createdAt | date:'short' }}</span> }
+                @case ('createdAt') {
+                  <span class="text-sm text-surface-500">{{
+                    receipt.createdAt | date: 'short'
+                  }}</span>
+                }
               }
             </td>
           }
@@ -205,12 +228,20 @@
         <!-- Header info + status -->
         <div class="flex items-center justify-between">
           <div>
-            <span class="font-mono text-sm font-semibold text-primary">{{ selectedReceipt()!.code || selectedReceipt()!.id }}</span>
+            <span class="font-mono text-sm font-semibold text-primary">{{
+              selectedReceipt()!.code || selectedReceipt()!.id
+            }}</span>
             @if (isLocked(selectedReceipt()!)) {
-              <i class="pi pi-lock ml-2 text-surface-400" [pTooltip]="'wms.receipts.locked' | transloco"></i>
+              <i
+                class="pi pi-lock ml-2 text-surface-400"
+                [pTooltip]="'wms.receipts.locked' | transloco"
+              ></i>
             }
           </div>
-          <p-tag [value]="selectedReceipt()!.status" [severity]="getStatusSeverity(selectedReceipt()!.status)" />
+          <p-tag
+            [value]="selectedReceipt()!.status"
+            [severity]="getStatusSeverity(selectedReceipt()!.status)"
+          />
         </div>
 
         <!-- Action buttons -->
@@ -257,7 +288,11 @@
         <p-tabs [(value)]="activeTab">
           <p-tablist>
             <p-tab [value]="0">{{ 'wms.receipts.tabOverview' | transloco }}</p-tab>
-            <p-tab [value]="1">{{ 'wms.receipts.tabLines' | transloco }} ({{ selectedReceipt()!.lines.length || 0 }})</p-tab>
+            <p-tab [value]="1"
+              >{{ 'wms.receipts.tabLines' | transloco }} ({{
+                selectedReceipt()!.lines.length || 0
+              }})</p-tab
+            >
             <p-tab [value]="2">{{ 'wms.receipts.tabAudit' | transloco }}</p-tab>
           </p-tablist>
           <p-tabpanels>
@@ -265,49 +300,81 @@
             <p-tabpanel [value]="0">
               <div class="grid grid-cols-2 gap-3 text-sm mt-2">
                 <div>
-                  <span class="text-surface-500 text-xs">{{ 'wms.receipts.poId' | transloco }}</span>
+                  <span class="text-surface-500 text-xs">{{
+                    'wms.receipts.poId' | transloco
+                  }}</span>
                   <p class="font-medium">{{ selectedReceipt()!.poId || '-' }}</p>
                 </div>
                 <div>
-                  <span class="text-surface-500 text-xs">{{ 'wms.receipts.type' | transloco }}</span>
+                  <span class="text-surface-500 text-xs">{{
+                    'wms.receipts.type' | transloco
+                  }}</span>
                   <p class="font-medium">{{ selectedReceipt()!.type || '-' }}</p>
                 </div>
                 <div>
-                  <span class="text-surface-500 text-xs">{{ 'wms.receipts.supplier' | transloco }}</span>
+                  <span class="text-surface-500 text-xs">{{
+                    'wms.receipts.supplier' | transloco
+                  }}</span>
                   <p class="font-medium">{{ selectedReceipt()!.supplier || '-' }}</p>
                 </div>
                 <div>
-                  <span class="text-surface-500 text-xs">{{ 'wms.receipts.shippingParty' | transloco }}</span>
+                  <span class="text-surface-500 text-xs">{{
+                    'wms.receipts.shippingParty' | transloco
+                  }}</span>
                   <p class="font-medium">{{ selectedReceipt()!.shippingParty || '-' }}</p>
                 </div>
                 <div>
-                  <span class="text-surface-500 text-xs">{{ 'wms.receipts.expectedAt' | transloco }}</span>
-                  <p class="font-medium">{{ selectedReceipt()!.expectedReceiptAt ? (selectedReceipt()!.expectedReceiptAt | date:'shortDate') : '-' }}</p>
+                  <span class="text-surface-500 text-xs">{{
+                    'wms.receipts.expectedAt' | transloco
+                  }}</span>
+                  <p class="font-medium">
+                    {{
+                      selectedReceipt()!.expectedReceiptAt
+                        ? (selectedReceipt()!.expectedReceiptAt | date: 'shortDate')
+                        : '-'
+                    }}
+                  </p>
                 </div>
                 <div>
-                  <span class="text-surface-500 text-xs">{{ 'wms.receipts.actualAt' | transloco }}</span>
-                  <p class="font-medium">{{ selectedReceipt()!.actualReceiptAt ? (selectedReceipt()!.actualReceiptAt | date:'shortDate') : '-' }}</p>
+                  <span class="text-surface-500 text-xs">{{
+                    'wms.receipts.actualAt' | transloco
+                  }}</span>
+                  <p class="font-medium">
+                    {{
+                      selectedReceipt()!.actualReceiptAt
+                        ? (selectedReceipt()!.actualReceiptAt | date: 'shortDate')
+                        : '-'
+                    }}
+                  </p>
                 </div>
                 <div>
-                  <span class="text-surface-500 text-xs">{{ 'wms.receipts.createdAt' | transloco }}</span>
-                  <p class="font-medium">{{ selectedReceipt()!.createdAt | date:'medium' }}</p>
+                  <span class="text-surface-500 text-xs">{{
+                    'wms.receipts.createdAt' | transloco
+                  }}</span>
+                  <p class="font-medium">{{ selectedReceipt()!.createdAt | date: 'medium' }}</p>
                 </div>
                 @if (selectedReceipt()!.approvedAt) {
                   <div>
-                    <span class="text-surface-500 text-xs">{{ 'wms.receipts.approvedAt' | transloco }}</span>
-                    <p class="font-medium">{{ selectedReceipt()!.approvedAt | date:'medium' }}</p>
+                    <span class="text-surface-500 text-xs">{{
+                      'wms.receipts.approvedAt' | transloco
+                    }}</span>
+                    <p class="font-medium">{{ selectedReceipt()!.approvedAt | date: 'medium' }}</p>
                   </div>
                 }
                 @if (selectedReceipt()!.rejectionReason) {
                   <div class="col-span-2">
-                    <span class="text-surface-500 text-xs">{{ 'wms.receipts.rejectionReason' | transloco }}</span>
+                    <span class="text-surface-500 text-xs">{{
+                      'wms.receipts.rejectionReason' | transloco
+                    }}</span>
                     <p class="font-medium text-red-500">{{ selectedReceipt()!.rejectionReason }}</p>
                   </div>
                 }
               </div>
               @if (selectedReceipt()!.notes) {
                 <div class="mt-3 text-sm">
-                  <span class="text-surface-500 text-xs">{{ 'wms.receipts.notes' | transloco }}</span>
+                  <span class="text-surface-500 text-xs">{{
+                    'wms.receipts.notes' | transloco
+                  }}</span>
                   <p class="font-medium mt-1">{{ selectedReceipt()!.notes }}</p>
                 </div>
               }
@@ -315,7 +382,13 @@
 
             <!-- Lines -->
             <p-tabpanel [value]="1">
-              <p-table [value]="selectedReceipt()!.lines" dataKey="lineId" styleClass="p-datatable-sm mt-2" [scrollable]="true" scrollHeight="400px">
+              <p-table
+                [value]="selectedReceipt()!.lines"
+                dataKey="lineId"
+                styleClass="p-datatable-sm mt-2"
+                [scrollable]="true"
+                scrollHeight="400px"
+              >
                 <ng-template #header>
                   <tr>
                     <th>{{ 'wms.receipts.sku' | transloco }}</th>
@@ -339,7 +412,13 @@
                     <td>
                       <p-tag
                         [value]="line.qcStatus"
-                        [severity]="line.qcStatus === 'passed' ? 'success' : line.qcStatus === 'failed' ? 'danger' : 'warn'"
+                        [severity]="
+                          line.qcStatus === 'passed'
+                            ? 'success'
+                            : line.qcStatus === 'failed'
+                              ? 'danger'
+                              : 'warn'
+                        "
                       />
                     </td>
                   </tr>
@@ -353,20 +432,24 @@
                 <ng-template #content let-event>
                   <div class="text-sm">
                     <span class="font-semibold">{{ event.action }}</span>
-                    <p class="text-xs text-surface-400">{{ event.timestamp | date:'medium' }}</p>
+                    <p class="text-xs text-surface-400">{{ event.timestamp | date: 'medium' }}</p>
                     @if (event.payload?.notes) {
                       <p class="text-xs text-surface-500 mt-1">{{ event.payload.notes }}</p>
                     }
                   </div>
                 </ng-template>
                 <ng-template #marker let-event>
-                  <div class="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs">
+                  <div
+                    class="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs"
+                  >
                     <i class="pi pi-circle-fill text-xs"></i>
                   </div>
                 </ng-template>
               </p-timeline>
               @if (!auditTrail().length) {
-                <p class="text-center text-surface-400 py-4 text-sm">{{ 'wms.receipts.noAudit' | transloco }}</p>
+                <p class="text-center text-surface-400 py-4 text-sm">
+                  {{ 'wms.receipts.noAudit' | transloco }}
+                </p>
               }
             </p-tabpanel>
           </p-tabpanels>
@@ -384,13 +467,18 @@
     (visibleChange)="actionDrawerVisible.set($event)"
     position="right"
     [style]="{ width: isMobile() ? '100%' : '400px' }"
-    [header]="('wms.receipts.' + (actionType() || 'submit')) | transloco"
+    [header]="'wms.receipts.' + (actionType() || 'submit') | transloco"
   >
     <form [formGroup]="actionForm" class="flex flex-col gap-4">
       @if (actionType() !== 'receive') {
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium">{{ 'wms.receipts.notes' | transloco }}</label>
-          <textarea pTextarea formControlName="notes" [rows]="4" [placeholder]="'wms.receipts.actionNotesPlaceholder' | transloco"></textarea>
+          <textarea
+            pTextarea
+            formControlName="notes"
+            [rows]="4"
+            [placeholder]="'wms.receipts.actionNotesPlaceholder' | transloco"
+          ></textarea>
         </div>
       }
       @if (actionType() === 'receive') {
@@ -412,9 +500,15 @@
           (onClick)="closeActionDrawer()"
         />
         <p-button
-          [label]="('wms.receipts.' + (actionType() || 'submit')) | transloco"
+          [label]="'wms.receipts.' + (actionType() || 'submit') | transloco"
           [loading]="actionLoading()"
-          [severity]="actionType() === 'finalize' ? 'warn' : actionType() === 'approve' ? 'success' : 'primary'"
+          [severity]="
+            actionType() === 'finalize'
+              ? 'warn'
+              : actionType() === 'approve'
+                ? 'success'
+                : 'primary'
+          "
           (onClick)="submitAction()"
         />
       </div>

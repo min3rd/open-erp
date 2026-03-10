@@ -1,54 +1,54 @@
 <!-- Desktop Layout (>=768px) -->
 <div class="h-full flex flex-col" [class.hidden]="isMobile()">
   <!-- Toolbar -->
-    <mp-toolbar id="administrative-unit-toolbar">
-      <ng-template #start>
-        <div class="flex items-center gap-4">
-          <h2 class="text-2xl font-semibold m-0">
-            {{ 'administrativeUnit.title' | transloco }}
-          </h2>
-          
-          <!-- View Mode Selector -->
-          <p-selectbutton
-            id="administrative-unit-view-mode"
-            [(ngModel)]="viewMode"
-            [options]="viewModeOptions()"
-            optionLabel="label"
-            optionValue="value"
-          >
-            <ng-template #item let-option>
-              <i [class]="option.icon" class="mr-2"></i>
-              {{ option.label }}
-            </ng-template>
-          </p-selectbutton>
-          
-          <!-- Legacy Toggle -->
-          <p-togglebutton
-            id="administrative-unit-legacy-toggle"
-            [(ngModel)]="showLegacy"
-            onLabel="Hiện Legacy"
-            offLabel="Ẩn Legacy"
-            onIcon="pi pi-eye"
-            offIcon="pi pi-eye-slash"
-          ></p-togglebutton>
-        </div>
-      </ng-template>
-      <ng-template #end>
-        <div class="flex items-center gap-2">
-          <!-- Search Input -->
-          <p-inputgroup id="administrative-unit-search-group" class="w-80">
-            <p-inputgroup-addon>
-              <i class="pi pi-search"></i>
-            </p-inputgroup-addon>
-            <input
-              pInputText
-              type="text"
-              id="administrative-unit-search"
-              [placeholder]="'administrativeUnit.search.placeholder' | transloco"
-              [(ngModel)]="searchTerm"
-              (keyup.enter)="onSearch()"
-            />
-            @if (searchTerm()) {
+  <mp-toolbar id="administrative-unit-toolbar">
+    <ng-template #start>
+      <div class="flex items-center gap-4">
+        <h2 class="text-2xl font-semibold m-0">
+          {{ 'administrativeUnit.title' | transloco }}
+        </h2>
+
+        <!-- View Mode Selector -->
+        <p-selectbutton
+          id="administrative-unit-view-mode"
+          [(ngModel)]="viewMode"
+          [options]="viewModeOptions()"
+          optionLabel="label"
+          optionValue="value"
+        >
+          <ng-template #item let-option>
+            <i [class]="option.icon" class="mr-2"></i>
+            {{ option.label }}
+          </ng-template>
+        </p-selectbutton>
+
+        <!-- Legacy Toggle -->
+        <p-togglebutton
+          id="administrative-unit-legacy-toggle"
+          [(ngModel)]="showLegacy"
+          onLabel="Hiện Legacy"
+          offLabel="Ẩn Legacy"
+          onIcon="pi pi-eye"
+          offIcon="pi pi-eye-slash"
+        ></p-togglebutton>
+      </div>
+    </ng-template>
+    <ng-template #end>
+      <div class="flex items-center gap-2">
+        <!-- Search Input -->
+        <p-inputgroup id="administrative-unit-search-group" class="w-80">
+          <p-inputgroup-addon>
+            <i class="pi pi-search"></i>
+          </p-inputgroup-addon>
+          <input
+            pInputText
+            type="text"
+            id="administrative-unit-search"
+            [placeholder]="'administrativeUnit.search.placeholder' | transloco"
+            [(ngModel)]="searchTerm"
+            (keyup.enter)="onSearch()"
+          />
+          @if (searchTerm()) {
             <p-button
               icon="pi pi-times"
               class="p-button-text"
@@ -56,49 +56,49 @@
               (click)="clearSearch()"
               [pTooltip]="'administrativeUnit.search.clearSearch' | transloco"
             ></p-button>
-            }
-          </p-inputgroup>
+          }
+        </p-inputgroup>
 
-          <!-- Refresh Button -->
-          <p-button
-            icon="pi pi-refresh"
-            class="p-button-text"
-            id="administrative-unit-refresh-button"
-            (click)="refresh()"
-            [loading]="loading()"
-            [pTooltip]="'administrativeUnit.refreshButton.tooltip' | transloco"
-            [text]="true"
-            [raised]="true"
-          ></p-button>
+        <!-- Refresh Button -->
+        <p-button
+          icon="pi pi-refresh"
+          class="p-button-text"
+          id="administrative-unit-refresh-button"
+          (click)="refresh()"
+          [loading]="loading()"
+          [pTooltip]="'administrativeUnit.refreshButton.tooltip' | transloco"
+          [text]="true"
+          [raised]="true"
+        ></p-button>
 
-          <!-- Add Province Button -->
-          <p-button
-            icon="pi pi-plus"
-            id="administrative-unit-add-button"
-            (click)="addNewProvince()"
-            [pTooltip]="'administrativeUnit.addButton.tooltip' | transloco"
-          ></p-button>
+        <!-- Add Province Button -->
+        <p-button
+          icon="pi pi-plus"
+          id="administrative-unit-add-button"
+          (click)="addNewProvince()"
+          [pTooltip]="'administrativeUnit.addButton.tooltip' | transloco"
+        ></p-button>
 
-          <!-- Actions Menu -->
-          <p-menu
-            #actionsMenu
-            id="administrative-unit-actions-menu"
-            [model]="actionsMenuItems()"
-            [popup]="true"
-            appendTo="body"
-          ></p-menu>
-          <p-button
-            icon="pi pi-ellipsis-v"
-            class="p-button-text"
-            id="administrative-unit-actions-button"
-            (click)="actionsMenu.toggle($event)"
-            [pTooltip]="'administrativeUnit.actionsButton.label' | transloco"
-            [text]="true"
-            [raised]="true"
-          ></p-button>
-        </div>
-      </ng-template>
-    </mp-toolbar>
+        <!-- Actions Menu -->
+        <p-menu
+          #actionsMenu
+          id="administrative-unit-actions-menu"
+          [model]="actionsMenuItems()"
+          [popup]="true"
+          appendTo="body"
+        ></p-menu>
+        <p-button
+          icon="pi pi-ellipsis-v"
+          class="p-button-text"
+          id="administrative-unit-actions-button"
+          (click)="actionsMenu.toggle($event)"
+          [pTooltip]="'administrativeUnit.actionsButton.label' | transloco"
+          [text]="true"
+          [raised]="true"
+        ></p-button>
+      </div>
+    </ng-template>
+  </mp-toolbar>
 
   <!-- Content Area with Splitter -->
   <div class="flex-1 overflow-hidden">
@@ -147,7 +147,7 @@
                     [ngClass]="{
                       'bg-blue-100 text-blue-800': !rowData.provinceCode,
                       'bg-green-100 text-green-800': rowData.provinceCode && !rowData.districtCode,
-                      'bg-purple-100 text-purple-800': rowData.districtCode
+                      'bg-purple-100 text-purple-800': rowData.districtCode,
                     }"
                   >
                     {{ getTypeLabelFromData(rowData) }}
@@ -155,7 +155,12 @@
                 </td>
                 <td>{{ rowData.region || '-' }}</td>
                 <td>
-                  <p-menu #rowMenu [model]="contextMenuItems()" [popup]="true" appendTo="body"></p-menu>
+                  <p-menu
+                    #rowMenu
+                    [model]="contextMenuItems()"
+                    [popup]="true"
+                    appendTo="body"
+                  ></p-menu>
                   <p-button
                     icon="pi pi-ellipsis-v"
                     variant="text"
@@ -239,104 +244,111 @@
 
   <!-- Mobile Search Panel -->
   @if (mobileSearchExpanded()) {
-  <div class="p-4 border-b" id="administrative-unit-mobile-search-panel">
-    <p-inputgroup>
-      <p-inputgroup-addon>
-        <i class="pi pi-search"></i>
-      </p-inputgroup-addon>
-      <input
-        pInputText
-        type="text"
-        id="administrative-unit-search-mobile"
-        [placeholder]="'administrativeUnit.search.placeholder' | transloco"
-        [(ngModel)]="searchTerm"
-        (keyup.enter)="onSearch()"
-      />
-      @if (searchTerm()) {
-      <p-button
-        icon="pi pi-times"
-        class="p-button-text"
-        id="administrative-unit-search-clear-mobile"
-        (click)="clearSearch()"
-      ></p-button>
-      }
-    </p-inputgroup>
-  </div>
+    <div class="p-4 border-b" id="administrative-unit-mobile-search-panel">
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-search"></i>
+        </p-inputgroup-addon>
+        <input
+          pInputText
+          type="text"
+          id="administrative-unit-search-mobile"
+          [placeholder]="'administrativeUnit.search.placeholder' | transloco"
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="onSearch()"
+        />
+        @if (searchTerm()) {
+          <p-button
+            icon="pi pi-times"
+            class="p-button-text"
+            id="administrative-unit-search-clear-mobile"
+            (click)="clearSearch()"
+          ></p-button>
+        }
+      </p-inputgroup>
+    </div>
   }
 
   <!-- Mobile Accordion List -->
   <div class="flex-1 overflow-auto p-2" id="administrative-unit-mobile-list">
     @if (loading()) {
-    <div class="text-center p-8">
-      <i class="pi pi-spinner pi-spin text-4xl"></i>
-      <p class="mt-4">{{ 'administrativeUnit.messages.loading' | transloco }}</p>
-    </div>
-    } @if (!loading() && treeNodes().length === 0) {
-    <div class="text-center p-8">
-      <i class="pi pi-inbox text-4xl text-gray-400"></i>
-      <p class="mt-4 text-gray-600">{{ 'administrativeUnit.messages.noData' | transloco }}</p>
-    </div>
-    } @if (!loading() && treeNodes().length > 0) { @for (node of treeNodes(); track node.data.code)
-    {
-    <div class="bg-white rounded-lg shadow-sm p-4 mb-3 border">
-      <div class="flex items-center justify-between mb-2">
-        <div class="flex items-center gap-2">
-          <i [class]="getTypeIconFromData(node.data)"></i>
-          <span class="font-semibold">{{ node.data.name }}</span>
+      <div class="text-center p-8">
+        <i class="pi pi-spinner pi-spin text-4xl"></i>
+        <p class="mt-4">{{ 'administrativeUnit.messages.loading' | transloco }}</p>
+      </div>
+    }
+    @if (!loading() && treeNodes().length === 0) {
+      <div class="text-center p-8">
+        <i class="pi pi-inbox text-4xl text-gray-400"></i>
+        <p class="mt-4 text-gray-600">{{ 'administrativeUnit.messages.noData' | transloco }}</p>
+      </div>
+    }
+    @if (!loading() && treeNodes().length > 0) {
+      @for (node of treeNodes(); track node.data.code) {
+        <div class="bg-white rounded-lg shadow-sm p-4 mb-3 border">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <i [class]="getTypeIconFromData(node.data)"></i>
+              <span class="font-semibold">{{ node.data.name }}</span>
+            </div>
+            <p-menu #rowMenuMobile [model]="contextMenuItems()" [popup]="true"></p-menu>
+            <p-button
+              icon="pi pi-ellipsis-v"
+              class="p-button-text p-button-sm"
+              [id]="'administrative-unit-mobile-item-actions-' + node.data.code"
+              (click)="onRowActionsClick(node, $event, rowMenuMobile)"
+            ></p-button>
+          </div>
+          <div class="text-sm text-gray-600 mb-2">
+            <span class="font-semibold">{{ 'administrativeUnit.table.code' | transloco }}:</span>
+            <span class="ml-2">{{ node.data.code }}</span>
+          </div>
+          <div class="mb-2">
+            <span class="text-sm font-semibold"
+              >{{ 'administrativeUnit.table.type' | transloco }}:</span
+            >
+            <span
+              class="ml-2 px-2 py-1 rounded text-xs"
+              [ngClass]="{
+                'bg-blue-100 text-blue-800': !node.data.provinceCode,
+                'bg-green-100 text-green-800': node.data.provinceCode && !node.data.districtCode,
+                'bg-purple-100 text-purple-800': node.data.districtCode,
+              }"
+            >
+              {{ getTypeLabelFromData(node.data) }}
+            </span>
+          </div>
+          @if (node.data.region) {
+            <div class="text-sm text-gray-600 mb-3">
+              <span class="font-semibold"
+                >{{ 'administrativeUnit.table.region' | transloco }}:</span
+              >
+              <span class="ml-2">{{ node.data.region }}</span>
+            </div>
+          }
+          <div class="flex gap-2">
+            <p-button
+              [label]="'administrativeUnit.contextMenu.view' | transloco"
+              icon="pi pi-eye"
+              class="p-button-sm flex-1"
+              (click)="viewNode(node)"
+            ></p-button>
+            <p-button
+              [label]="'administrativeUnit.contextMenu.edit' | transloco"
+              icon="pi pi-pencil"
+              class="p-button-sm flex-1"
+              (click)="editNode(node)"
+            ></p-button>
+          </div>
         </div>
-        <p-menu #rowMenuMobile [model]="contextMenuItems()" [popup]="true"></p-menu>
-        <p-button
-          icon="pi pi-ellipsis-v"
-          class="p-button-text p-button-sm"
-          [id]="'administrative-unit-mobile-item-actions-' + node.data.code"
-          (click)="onRowActionsClick(node, $event, rowMenuMobile)"
-        ></p-button>
-      </div>
-      <div class="text-sm text-gray-600 mb-2">
-        <span class="font-semibold">{{ 'administrativeUnit.table.code' | transloco }}:</span>
-        <span class="ml-2">{{ node.data.code }}</span>
-      </div>
-      <div class="mb-2">
-        <span class="text-sm font-semibold"
-          >{{ 'administrativeUnit.table.type' | transloco }}:</span
-        >
-        <span
-          class="ml-2 px-2 py-1 rounded text-xs"
-          [ngClass]="{
-            'bg-blue-100 text-blue-800': !node.data.provinceCode,
-            'bg-green-100 text-green-800': node.data.provinceCode && !node.data.districtCode,
-            'bg-purple-100 text-purple-800': node.data.districtCode
-          }"
-        >
-          {{ getTypeLabelFromData(node.data) }}
-        </span>
-      </div>
-      @if (node.data.region) {
-      <div class="text-sm text-gray-600 mb-3">
-        <span class="font-semibold">{{ 'administrativeUnit.table.region' | transloco }}:</span>
-        <span class="ml-2">{{ node.data.region }}</span>
-      </div>
       }
-      <div class="flex gap-2">
-        <p-button
-          [label]="'administrativeUnit.contextMenu.view' | transloco"
-          icon="pi pi-eye"
-          class="p-button-sm flex-1"
-          (click)="viewNode(node)"
-        ></p-button>
-        <p-button
-          [label]="'administrativeUnit.contextMenu.edit' | transloco"
-          icon="pi pi-pencil"
-          class="p-button-sm flex-1"
-          (click)="editNode(node)"
-        ></p-button>
-      </div>
-    </div>
-    } }
+    }
   </div>
 
   <!-- Mobile Pagination -->
-  <div class="border-t border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 p-4">
+  <div
+    class="border-t border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 p-4"
+  >
     <core-pagination
       [idPrefix]="'administrative-unit-mobile'"
       [totalRecords]="total()"

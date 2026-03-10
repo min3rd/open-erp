@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  signal,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -63,9 +57,10 @@ export class Invites implements OnInit {
   protected readonly invitesSearchQuery = signal('');
 
   ngOnInit(): void {
-    const resolved = this.route.snapshot.data['invites'] as
-      | { data: OrganizationInvitation[]; total: number }
-      | null;
+    const resolved = this.route.snapshot.data['invites'] as {
+      data: OrganizationInvitation[];
+      total: number;
+    } | null;
     if (resolved?.data) {
       this.invites.set(resolved.data);
       this.invitesTotal.set(resolved.total);

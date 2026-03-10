@@ -43,18 +43,18 @@ export class DrawMapComponent implements AfterViewInit, OnDestroy {
   private map: L.Map | null = null;
   private drawnItems: L.FeatureGroup | null = null;
   private drawControl: L.Control.Draw | null = null;
-  
+
   // Base map layers
   private baseLayers: { [key: string]: L.TileLayer } = {};
   private currentBaseLayer: L.TileLayer | null = null;
-  
+
   // State for base map selection
   protected readonly currentBaseMap = signal<'osm' | 'satellite'>('osm');
-  
+
   // Options for SelectButton
   protected readonly baseMapOptions = [
     { label: 'Map', value: 'osm', icon: 'pi pi-map' },
-    { label: 'Satellite', value: 'satellite', icon: 'pi pi-globe' }
+    { label: 'Satellite', value: 'satellite', icon: 'pi pi-globe' },
   ];
 
   constructor() {
@@ -103,10 +103,13 @@ export class DrawMapComponent implements AfterViewInit, OnDestroy {
         maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       }),
-      satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.esri.com/">Esri</a>',
-      }),
+      satellite: L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.esri.com/">Esri</a>',
+        },
+      ),
     };
 
     // Add default base layer
@@ -280,7 +283,7 @@ export class DrawMapComponent implements AfterViewInit, OnDestroy {
     // Add new base layer
     this.currentBaseLayer = this.baseLayers[type];
     this.currentBaseLayer.addTo(this.map);
-    
+
     // Update state
     this.currentBaseMap.set(type);
   }

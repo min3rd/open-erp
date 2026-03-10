@@ -254,7 +254,7 @@ export class ProductService {
    * GET /products
    */
   getProducts(
-    params: QueryProductParams
+    params: QueryProductParams,
   ): Observable<{ items: Product[]; total: number; page: number; limit: number }> {
     let httpParams = new HttpParams();
 
@@ -277,22 +277,20 @@ export class ProductService {
       httpParams = httpParams.set('includeDeleted', params.includeDeleted.toString());
     }
 
-    return this.http
-      .get<ApiPaginatedResponse<Product>>(this.baseUrl, { params: httpParams })
-      .pipe(
-        map((response) => {
-          const data = response.data;
-          if (!data) {
-            return { items: [], total: 0, page: 1, limit: 10 };
-          }
-          return {
-            items: data.items,
-            total: data.total,
-            page: data.page,
-            limit: data.limit,
-          };
-        })
-      );
+    return this.http.get<ApiPaginatedResponse<Product>>(this.baseUrl, { params: httpParams }).pipe(
+      map((response) => {
+        const data = response.data;
+        if (!data) {
+          return { items: [], total: 0, page: 1, limit: 10 };
+        }
+        return {
+          items: data.items,
+          total: data.total,
+          page: data.page,
+          limit: data.limit,
+        };
+      }),
+    );
   }
 
   /**
@@ -300,7 +298,11 @@ export class ProductService {
    * GET /products/:identifier
    * Resolution order: slug → sku → id
    */
-  getProductByIdentifier(identifier: string, includeDeleted = false, organizationId?: string): Observable<Product> {
+  getProductByIdentifier(
+    identifier: string,
+    includeDeleted = false,
+    organizationId?: string,
+  ): Observable<Product> {
     let httpParams = new HttpParams();
     if (includeDeleted) {
       httpParams = httpParams.set('includeDeleted', 'true');
@@ -356,31 +358,35 @@ export class ProductService {
     filename: string,
     contentType: string,
     type: 'thumbnail' | 'media' = 'thumbnail',
-    organizationId?: string
-  ): Observable<{ uploadUrl: string; objectKey: string; bucket: string; method: string; expiresAt: string }> {
+    organizationId?: string,
+  ): Observable<{
+    uploadUrl: string;
+    objectKey: string;
+    bucket: string;
+    method: string;
+    expiresAt: string;
+  }> {
     let httpParams = new HttpParams()
       .set('filename', filename)
       .set('contentType', contentType)
       .set('type', type);
-    
+
     if (organizationId) {
       httpParams = httpParams.set('organizationId', organizationId);
     }
 
-    return this.http
-      .get<any>(`${this.baseUrl}/media/presign-upload`, { params: httpParams })
-      .pipe(
-        map((response) => {
-          const item = response.data?.item;
-          return {
-            uploadUrl: item.uploadUrl,
-            objectKey: item.objectKey,
-            bucket: item.bucket,
-            method: item.method,
-            expiresAt: item.expiresAt
-          };
-        })
-      );
+    return this.http.get<any>(`${this.baseUrl}/media/presign-upload`, { params: httpParams }).pipe(
+      map((response) => {
+        const item = response.data?.item;
+        return {
+          uploadUrl: item.uploadUrl,
+          objectKey: item.objectKey,
+          bucket: item.bucket,
+          method: item.method,
+          expiresAt: item.expiresAt,
+        };
+      }),
+    );
   }
 
   /**
@@ -388,7 +394,7 @@ export class ProductService {
    * Using native fetch to avoid Authorization header and other interceptor modifications
    */
   uploadFileToPresignedUrl(url: string, file: File): Observable<void> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       fetch(url, {
         method: 'PUT',
         body: file,
@@ -396,7 +402,7 @@ export class ProductService {
           'Content-Type': file.type,
         },
       })
-        .then(response => {
+        .then((response) => {
           if (response.ok) {
             observer.next();
             observer.complete();
@@ -404,7 +410,7 @@ export class ProductService {
             observer.error(new Error(`Upload failed with status ${response.status}`));
           }
         })
-        .catch(error => {
+        .catch((error) => {
           observer.error(error);
         });
     });
@@ -415,14 +421,20 @@ export class ProductService {
    * PATCH /products/:identifier
    * Resolution order: slug → sku → id
    */
-  updateProductByIdentifier(identifier: string, dto: UpdateProductDto, organizationId?: string): Observable<Product> {
+  updateProductByIdentifier(
+    identifier: string,
+    dto: UpdateProductDto,
+    organizationId?: string,
+  ): Observable<Product> {
     let httpParams = new HttpParams();
     if (organizationId) {
       httpParams = httpParams.set('organizationId', organizationId);
     }
 
     return this.http
-      .patch<ApiSingleResponse<Product>>(`${this.baseUrl}/${identifier}`, dto, { params: httpParams })
+      .patch<
+        ApiSingleResponse<Product>
+      >(`${this.baseUrl}/${identifier}`, dto, { params: httpParams })
       .pipe(map((response) => response.data?.item!));
   }
 
@@ -472,7 +484,9 @@ export class ProductService {
     }
 
     return this.http
-      .post<ApiSingleResponse<Product>>(`${this.baseUrl}/${identifier}/publish`, {}, { params: httpParams })
+      .post<
+        ApiSingleResponse<Product>
+      >(`${this.baseUrl}/${identifier}/publish`, {}, { params: httpParams })
       .pipe(map((response) => response.data?.item!));
   }
 
@@ -488,7 +502,9 @@ export class ProductService {
     }
 
     return this.http
-      .post<ApiSingleResponse<Product>>(`${this.baseUrl}/${identifier}/inactive`, {}, { params: httpParams })
+      .post<
+        ApiSingleResponse<Product>
+      >(`${this.baseUrl}/${identifier}/inactive`, {}, { params: httpParams })
       .pipe(map((response) => response.data?.item!));
   }
 
@@ -575,7 +591,9 @@ export class ProductService {
   deleteProductMedia(productId: string, objectKey: string): Observable<Product> {
     const httpParams = new HttpParams().set('objectKey', objectKey);
     return this.http
-      .delete<ApiSingleResponse<Product>>(`${this.baseUrl}/${productId}/media`, { params: httpParams })
+      .delete<
+        ApiSingleResponse<Product>
+      >(`${this.baseUrl}/${productId}/media`, { params: httpParams })
       .pipe(map((response) => response.data?.item!));
   }
 }

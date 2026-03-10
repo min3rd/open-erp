@@ -11,7 +11,13 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+  FormsModule,
+} from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 // PrimeNG imports
@@ -144,12 +150,12 @@ export class NavigationEditorComponent implements OnInit {
       const formValue = this.form().value;
       const label = formValue.label;
       const currentMode = this.mode();
-      
+
       // Only auto-generate in create mode or when explicitly enabled
       if (this.isAutoGeneratingId() && label && currentMode === 'create') {
         const generatedId = slugify(label, 128);
         this.idPreview.set(generatedId);
-        
+
         // Update the form control without triggering user edit
         const idControl = this.form().get('id');
         if (idControl) {
@@ -252,7 +258,7 @@ export class NavigationEditorComponent implements OnInit {
         (icon) =>
           icon.name.toLowerCase().includes(query) ||
           icon.label.toLowerCase().includes(query) ||
-          icon.category.toLowerCase().includes(query)
+          icon.category.toLowerCase().includes(query),
       );
       this.filteredIcons.set(filtered);
     }
@@ -265,11 +271,7 @@ export class NavigationEditorComponent implements OnInit {
     return this.fb.group({
       id: [
         '',
-        [
-          Validators.required,
-          Validators.maxLength(128),
-          Validators.pattern(/^[a-z0-9\-_]+$/),
-        ],
+        [Validators.required, Validators.maxLength(128), Validators.pattern(/^[a-z0-9\-_]+$/)],
       ],
       label: ['', [Validators.required]],
       icon: [''],
@@ -298,7 +300,7 @@ export class NavigationEditorComponent implements OnInit {
   private patchForm(item: NavigationItemDto): void {
     // When editing an existing item, disable auto-generation
     this.isAutoGeneratingId.set(false);
-    
+
     this.form().patchValue({
       id: item.id,
       label: item.label,
@@ -329,13 +331,14 @@ export class NavigationEditorComponent implements OnInit {
     if (item.permissions?.exclude) {
       this.excludePermissions.set([...item.permissions.exclude]);
     }
-    
+
     // Update ID preview
     this.idPreview.set(item.id);
     // Set parentId if it exists (for compatibility with new field)
     if (item.parentId) {
       this.form().patchValue({ parentId: item.parentId });
-    }  }
+    }
+  }
 
   /**
    * Handle form submission
@@ -411,16 +414,22 @@ export class NavigationEditorComponent implements OnInit {
     }
 
     if (control.errors['required']) {
-      return this.translocoService.translate(`navigationManagement.editor.form.${controlName}.errors.required`);
+      return this.translocoService.translate(
+        `navigationManagement.editor.form.${controlName}.errors.required`,
+      );
     }
     if (control.errors['email']) {
       return this.translocoService.translate('navigationManagement.validation.invalidUrl');
     }
     if (control.errors['pattern']) {
-      return this.translocoService.translate(`navigationManagement.editor.form.${controlName}.errors.pattern`);
+      return this.translocoService.translate(
+        `navigationManagement.editor.form.${controlName}.errors.pattern`,
+      );
     }
     if (control.errors['maxlength']) {
-      return this.translocoService.translate(`navigationManagement.editor.form.${controlName}.errors.maxlength`);
+      return this.translocoService.translate(
+        `navigationManagement.editor.form.${controlName}.errors.maxlength`,
+      );
     }
 
     return '';
@@ -485,7 +494,7 @@ export class NavigationEditorComponent implements OnInit {
   protected toggleAutoGenerateId(): void {
     const newValue = !this.isAutoGeneratingId();
     this.isAutoGeneratingId.set(newValue);
-    
+
     if (newValue) {
       // Re-generate from label
       this.regenerateIdFromLabel();
@@ -513,7 +522,7 @@ export class NavigationEditorComponent implements OnInit {
   protected onIdBlur(): void {
     const idControl = this.form().get('id');
     const currentId = idControl?.value;
-    
+
     // Skip check if ID is empty or invalid
     if (!currentId || idControl?.invalid) {
       return;
@@ -533,7 +542,7 @@ export class NavigationEditorComponent implements OnInit {
       next: () => {
         // ID exists - show error
         this.idUniquenessError.set(
-          this.translocoService.translate('navigationManagement.editor.form.id.errors.duplicate')
+          this.translocoService.translate('navigationManagement.editor.form.id.errors.duplicate'),
         );
         this.isCheckingIdUniqueness.set(false);
       },

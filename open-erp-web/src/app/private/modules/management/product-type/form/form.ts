@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  signal,
+  computed,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
@@ -80,7 +87,15 @@ export class ProductTypeForm implements OnInit {
   ngOnInit(): void {
     // Initialize form
     this.form = this.fb.group({
-      code: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50), Validators.pattern(/^[a-z0-9_-]+$/i)]],
+      code: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(50),
+          Validators.pattern(/^[a-z0-9_-]+$/i),
+        ],
+      ],
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
       description: ['', Validators.maxLength(500)],
       isActive: [true],
@@ -216,7 +231,7 @@ export class ProductTypeForm implements OnInit {
           detail: this.translocoService.translate(
             this.productType()
               ? 'productTypeForm.messages.updateSuccess'
-              : 'productTypeForm.messages.createSuccess'
+              : 'productTypeForm.messages.createSuccess',
           ),
         });
         this.onClose();
@@ -226,7 +241,9 @@ export class ProductTypeForm implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: this.translocoService.translate('productTypeForm.messages.error'),
-          detail: error?.error?.message || this.translocoService.translate('productTypeForm.messages.saveFailed'),
+          detail:
+            error?.error?.message ||
+            this.translocoService.translate('productTypeForm.messages.saveFailed'),
         });
         this.isLoading.set(false);
       },

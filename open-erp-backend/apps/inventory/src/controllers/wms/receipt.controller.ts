@@ -356,7 +356,7 @@ export class ReceiptController {
 
       const presigned = await this.minioService.presignUpload(fileKey, {
         expiresIn: 600, // 10 minutes
-        contentType: dto.mimeType,
+        // contentType: dto.mimeType,
       });
 
       return ok({

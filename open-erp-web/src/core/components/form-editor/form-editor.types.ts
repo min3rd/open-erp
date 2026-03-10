@@ -61,7 +61,10 @@ export interface LayoutComponentConfig extends BaseComponentConfig {
  * Form field component configuration
  */
 export interface FormFieldConfig extends BaseComponentConfig {
-  type: Exclude<ComponentType, 'layout-1-column' | 'layout-2-column' | 'layout-3-column' | 'divider' | 'button'>;
+  type: Exclude<
+    ComponentType,
+    'layout-1-column' | 'layout-2-column' | 'layout-3-column' | 'divider' | 'button'
+  >;
   validation?: {
     required?: boolean;
     minLength?: number;

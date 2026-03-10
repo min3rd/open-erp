@@ -25,11 +25,7 @@ import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 
 // Services and types
-import {
-  UserDetailService,
-  UserDetail,
-  UserActivityLog,
-} from '../services/user-detail.service';
+import { UserDetailService, UserDetail, UserActivityLog } from '../services/user-detail.service';
 import { UserDatePipe } from '../../../../../../core/pipes/user-date.pipe';
 import { PAGE_SIZE_OPTIONS } from '../../../../../../core/constants/ui.constants';
 
@@ -70,16 +66,14 @@ export class AuditLogs implements OnInit, OnDestroy {
   protected readonly sortField = signal<string>('timestamp');
   protected readonly sortOrder = signal<'asc' | 'desc'>('desc');
   protected readonly isMobile = signal(false);
-  
+
   // Detail drawer
   protected readonly selectedLog = signal<UserActivityLog | null>(null);
   protected readonly isDetailDrawerOpen = signal(false);
   protected readonly isLoadingDetail = signal(false);
 
   // Computed
-  protected readonly totalPages = computed(() =>
-    Math.ceil(this.totalRecords() / this.pageSize())
-  );
+  protected readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
 
   // Page size options for dropdown
   protected readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
@@ -151,7 +145,7 @@ export class AuditLogs implements OnInit, OnDestroy {
         this.pageSize(),
         this.searchQuery() || undefined,
         this.sortField(),
-        this.sortOrder()
+        this.sortOrder(),
       )
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -171,9 +165,10 @@ export class AuditLogs implements OnInit, OnDestroy {
    * Handle table lazy load event
    */
   protected onLazyLoad(event: TableLazyLoadEvent): void {
-    const page = event.first !== undefined && event.rows ? Math.floor(event.first / event.rows) + 1 : 1;
+    const page =
+      event.first !== undefined && event.rows ? Math.floor(event.first / event.rows) + 1 : 1;
     const rows = event.rows || this.pageSize();
-    
+
     this.currentPage.set(page);
     this.pageSize.set(rows);
 
@@ -217,7 +212,7 @@ export class AuditLogs implements OnInit, OnDestroy {
   protected onViewDetail(log: UserActivityLog): void {
     this.isLoadingDetail.set(true);
     this.isDetailDrawerOpen.set(true);
-    
+
     // Fetch full log details
     this.userDetailService
       .getAuditLogDetail(log.id)
@@ -297,4 +292,3 @@ export class AuditLogs implements OnInit, OnDestroy {
    */
   protected readonly Object = Object;
 }
-

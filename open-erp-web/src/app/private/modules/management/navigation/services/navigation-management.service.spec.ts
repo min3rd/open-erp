@@ -3,7 +3,11 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideHttpClient } from '@angular/common/http';
 import { NavigationManagementService } from './navigation-management.service';
 import { API_URI_CONFIG } from '../../../../../../core/constant';
-import { NavigationItemDto, CreateNavigationItemDto, UpdateNavigationItemDto } from '../dto/navigation-item.dto';
+import {
+  NavigationItemDto,
+  CreateNavigationItemDto,
+  UpdateNavigationItemDto,
+} from '../dto/navigation-item.dto';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 describe('NavigationManagementService', () => {
@@ -24,11 +28,7 @@ describe('NavigationManagementService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        NavigationManagementService,
-        provideHttpClient(),
-        provideHttpClientTesting(),
-      ],
+      providers: [NavigationManagementService, provideHttpClient(), provideHttpClientTesting()],
     });
     service = TestBed.inject(NavigationManagementService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -316,14 +316,16 @@ describe('NavigationManagementService', () => {
 
   describe('error handling', () => {
     it('should handle 400 Bad Request', () => {
-      service.createNavigationItem({ id: 'nav-error', label: 'Test', scope: 'global', order: 0 }).subscribe({
-        next: () => {
-          throw new Error('should have failed');
-        },
-        error: (error) => {
-          expect(error.message).toContain('Bad request');
-        },
-      });
+      service
+        .createNavigationItem({ id: 'nav-error', label: 'Test', scope: 'global', order: 0 })
+        .subscribe({
+          next: () => {
+            throw new Error('should have failed');
+          },
+          error: (error) => {
+            expect(error.message).toContain('Bad request');
+          },
+        });
 
       const req = httpMock.expectOne(baseUrl);
       req.flush({ message: 'Bad request' }, { status: 400, statusText: 'Bad Request' });

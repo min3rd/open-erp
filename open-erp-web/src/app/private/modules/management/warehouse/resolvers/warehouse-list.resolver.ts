@@ -2,14 +2,17 @@ import { inject } from '@angular/core';
 import { ResolveFn, ActivatedRouteSnapshot } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { WarehouseService, QueryWarehouseParams } from '../../../../../../core/services/warehouse/warehouse.service';
+import {
+  WarehouseService,
+  QueryWarehouseParams,
+} from '../../../../../../core/services/warehouse/warehouse.service';
 import { WarehouseListResponse } from '../warehouse.types';
 
 export const warehouseListResolver: ResolveFn<WarehouseListResponse | null> = (
-  route: ActivatedRouteSnapshot
+  route: ActivatedRouteSnapshot,
 ): Observable<WarehouseListResponse | null> => {
   const service = inject(WarehouseService);
-  
+
   // Get route parameters
   const search = route.paramMap.get('search') || '';
   const page = parseInt(route.paramMap.get('page') || '1', 10);
@@ -38,6 +41,6 @@ export const warehouseListResolver: ResolveFn<WarehouseListResponse | null> = (
     catchError((error: any) => {
       console.error('Failed to load warehouses:', error);
       return of(null);
-    })
+    }),
   );
 };

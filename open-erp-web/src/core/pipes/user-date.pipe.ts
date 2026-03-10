@@ -102,12 +102,7 @@ export class UserDatePipe implements PipeTransform {
     }
   }
 
-  private formatRelative(
-    date: Date,
-    dateFormat: string,
-    timezone: string,
-    locale: string,
-  ): string {
+  private formatRelative(date: Date, dateFormat: string, timezone: string, locale: string): string {
     const diffMs = Date.now() - date.getTime();
     const diffMins = Math.floor(diffMs / 60_000);
     const diffHours = Math.floor(diffMins / 60);

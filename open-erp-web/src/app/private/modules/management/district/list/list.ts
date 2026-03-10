@@ -256,7 +256,7 @@ export class DistrictList implements OnInit, OnDestroy {
       ['../../../..', this.selectedProvinceCode(), input.value || 'all', 1, this.pageSize()],
       {
         relativeTo: this.route,
-      }
+      },
     );
   }
 
@@ -269,7 +269,7 @@ export class DistrictList implements OnInit, OnDestroy {
       ['../../../..', provinceCode, this.searchQuery() || 'all', 1, this.pageSize()],
       {
         relativeTo: this.route,
-      }
+      },
     );
   }
 
@@ -290,7 +290,7 @@ export class DistrictList implements OnInit, OnDestroy {
       ],
       {
         relativeTo: this.route,
-      }
+      },
     );
   }
 
@@ -489,9 +489,7 @@ export class DistrictList implements OnInit, OnDestroy {
         limit: this.pageSize(),
         q: this.searchQuery() || undefined,
         provinceCode:
-          this.selectedProvinceCode() !== 'all-provinces'
-            ? this.selectedProvinceCode()
-            : undefined,
+          this.selectedProvinceCode() !== 'all-provinces' ? this.selectedProvinceCode() : undefined,
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -531,7 +529,7 @@ export class DistrictList implements OnInit, OnDestroy {
         ],
         {
           relativeTo: this.route,
-        }
+        },
       );
     }
   }
@@ -552,7 +550,7 @@ export class DistrictList implements OnInit, OnDestroy {
         ],
         {
           relativeTo: this.route,
-        }
+        },
       );
     }
   }
@@ -566,7 +564,7 @@ export class DistrictList implements OnInit, OnDestroy {
       ['../../../..', this.selectedProvinceCode(), this.searchQuery() || 'all', 1, newPageSize],
       {
         relativeTo: this.route,
-      }
+      },
     );
   }
 

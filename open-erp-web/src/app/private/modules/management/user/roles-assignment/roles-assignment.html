@@ -1,26 +1,26 @@
 <div id="user-roles-assignment-container" class="flex flex-col h-full">
   <!-- Toolbar -->
-    <mp-toolbar id="user-roles-assignment-toolbar">
-      <ng-template #start>
-        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full">
-          <h2 id="user-roles-assignment-title" class="text-lg sm:text-xl font-semibold m-0">
-            {{ 'userDetail.rolesAssignment.title' | transloco }}
-          </h2>
-          
-          <!-- Scope Selector -->
-          <p-selectButton
-            id="user-roles-assignment-scope-selector"
-            [options]="scopeOptions()"
-            [ngModel]="selectedScope()"
-            (onChange)="onScopeChange($event)"
-            optionLabel="label"
-            optionValue="value"
-            [attr.aria-label]="'userDetail.rolesAssignment.scopeSelector.ariaLabel' | transloco"
-            styleClass="w-full sm:w-auto"
-          />
-        </div>
-      </ng-template>
-    </mp-toolbar>
+  <mp-toolbar id="user-roles-assignment-toolbar">
+    <ng-template #start>
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full">
+        <h2 id="user-roles-assignment-title" class="text-lg sm:text-xl font-semibold m-0">
+          {{ 'userDetail.rolesAssignment.title' | transloco }}
+        </h2>
+
+        <!-- Scope Selector -->
+        <p-selectButton
+          id="user-roles-assignment-scope-selector"
+          [options]="scopeOptions()"
+          [ngModel]="selectedScope()"
+          (onChange)="onScopeChange($event)"
+          optionLabel="label"
+          optionValue="value"
+          [attr.aria-label]="'userDetail.rolesAssignment.scopeSelector.ariaLabel' | transloco"
+          styleClass="w-full sm:w-auto"
+        />
+      </div>
+    </ng-template>
+  </mp-toolbar>
 
   <!-- Content Area -->
   <div id="user-roles-assignment-content" class="flex-1 overflow-auto p-3 sm:p-6">
@@ -37,16 +37,28 @@
         @if (hasGlobalPermissions()) {
           <div id="user-roles-global-scope" class="space-y-6">
             <!-- Global Roles & Permissions Section -->
-            <div id="user-roles-global-roles-section" class="border border-surface-200 dark:border-surface-700 rounded-lg p-3 sm:p-4">
-              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4">
+            <div
+              id="user-roles-global-roles-section"
+              class="border border-surface-200 dark:border-surface-700 rounded-lg p-3 sm:p-4"
+            >
+              <div
+                class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4"
+              >
                 <div>
-                  <h3 id="user-roles-global-roles-title" class="text-base sm:text-lg font-semibold m-0">
-                    {{ 'userDetail.rolesAssignment.globalScope.rolesPermissions.title' | transloco }}
+                  <h3
+                    id="user-roles-global-roles-title"
+                    class="text-base sm:text-lg font-semibold m-0"
+                  >
+                    {{
+                      'userDetail.rolesAssignment.globalScope.rolesPermissions.title' | transloco
+                    }}
                   </h3>
                 </div>
                 <p-button
                   id="user-roles-global-grant-button"
-                  [label]="'userDetail.rolesAssignment.globalScope.rolesPermissions.grantRole' | transloco"
+                  [label]="
+                    'userDetail.rolesAssignment.globalScope.rolesPermissions.grantRole' | transloco
+                  "
                   icon="pi pi-plus"
                   size="small"
                   (onClick)="openGrantRolesPanel('global')"
@@ -58,7 +70,9 @@
                 <!-- Global Roles -->
                 <div id="user-roles-global-roles-list">
                   <h4 class="text-sm font-medium mb-2">
-                    {{ 'userDetail.rolesAssignment.globalScope.rolesPermissions.roles' | transloco }}
+                    {{
+                      'userDetail.rolesAssignment.globalScope.rolesPermissions.roles' | transloco
+                    }}
                   </h4>
                   @if (globalRoles().length > 0) {
                     <div class="flex flex-wrap gap-2">
@@ -72,7 +86,10 @@
                     </div>
                   } @else {
                     <p class="text-surface-500 text-sm" id="user-roles-global-no-roles">
-                      {{ 'userDetail.rolesAssignment.globalScope.rolesPermissions.noRoles' | transloco }}
+                      {{
+                        'userDetail.rolesAssignment.globalScope.rolesPermissions.noRoles'
+                          | transloco
+                      }}
                     </p>
                   }
                 </div>
@@ -80,7 +97,10 @@
                 <!-- Global Permissions -->
                 <div id="user-roles-global-permissions-list">
                   <h4 class="text-sm font-medium mb-2">
-                    {{ 'userDetail.rolesAssignment.globalScope.rolesPermissions.permissions' | transloco }}
+                    {{
+                      'userDetail.rolesAssignment.globalScope.rolesPermissions.permissions'
+                        | transloco
+                    }}
                   </h4>
                   @if (globalPermissions().length > 0) {
                     <div class="flex flex-wrap gap-2">
@@ -94,7 +114,10 @@
                     </div>
                   } @else {
                     <p class="text-surface-500 text-sm" id="user-roles-global-no-permissions">
-                      {{ 'userDetail.rolesAssignment.globalScope.rolesPermissions.noPermissions' | transloco }}
+                      {{
+                        'userDetail.rolesAssignment.globalScope.rolesPermissions.noPermissions'
+                          | transloco
+                      }}
                     </p>
                   }
                 </div>
@@ -103,8 +126,8 @@
 
             <!-- Inline Grant Roles Panel for Global Scope -->
             @if (showGrantRolesPanel() && selectedScope() === 'global') {
-              <div 
-                id="user-roles-grant-panel-global" 
+              <div
+                id="user-roles-grant-panel-global"
                 class="border-2 border-primary-200 dark:border-primary-800 bg-primary-50 dark:bg-primary-900/20 rounded-lg p-4 animate-fadein"
               >
                 <div class="flex justify-between items-center mb-4">
@@ -127,7 +150,10 @@
 
                 <div class="space-y-4">
                   <div>
-                    <label for="user-roles-grant-select-panel-global" class="block text-sm font-medium mb-2">
+                    <label
+                      for="user-roles-grant-select-panel-global"
+                      class="block text-sm font-medium mb-2"
+                    >
                       {{ 'userDetail.rolesAssignment.dialogs.grantRoles.selectRoles' | transloco }}
                     </label>
                     <p-multiSelect
@@ -137,7 +163,10 @@
                       (ngModelChange)="onRoleSelectionChange($event)"
                       optionLabel="name"
                       optionValue="id"
-                      [placeholder]="'userDetail.rolesAssignment.dialogs.grantRoles.selectRolesPlaceholder' | transloco"
+                      [placeholder]="
+                        'userDetail.rolesAssignment.dialogs.grantRoles.selectRolesPlaceholder'
+                          | transloco
+                      "
                       display="chip"
                       [panelStyleClass]="'w-full'"
                       styleClass="w-full"
@@ -165,13 +194,25 @@
             }
 
             <!-- Organization Memberships Section -->
-            <div id="user-roles-org-memberships-section" class="border border-surface-200 dark:border-surface-700 rounded-lg p-3 sm:p-4">
+            <div
+              id="user-roles-org-memberships-section"
+              class="border border-surface-200 dark:border-surface-700 rounded-lg p-3 sm:p-4"
+            >
               <div class="mb-4">
-                <h3 id="user-roles-org-memberships-title" class="text-base sm:text-lg font-semibold m-0">
-                  {{ 'userDetail.rolesAssignment.globalScope.organizationMemberships.title' | transloco }}
+                <h3
+                  id="user-roles-org-memberships-title"
+                  class="text-base sm:text-lg font-semibold m-0"
+                >
+                  {{
+                    'userDetail.rolesAssignment.globalScope.organizationMemberships.title'
+                      | transloco
+                  }}
                 </h3>
                 <p class="text-xs sm:text-sm text-surface-500 mt-1">
-                  {{ 'userDetail.rolesAssignment.globalScope.organizationMemberships.subtitle' | transloco }}
+                  {{
+                    'userDetail.rolesAssignment.globalScope.organizationMemberships.subtitle'
+                      | transloco
+                  }}
                 </p>
               </div>
 
@@ -179,12 +220,18 @@
                 <!-- Mobile: Card view -->
                 <div class="block sm:hidden space-y-3">
                   @for (org of organizations(); track org.id) {
-                    <div [id]="'user-org-membership-card-' + org.id" class="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                    <div
+                      [id]="'user-org-membership-card-' + org.id"
+                      class="border border-surface-200 dark:border-surface-700 rounded-lg p-3"
+                    >
                       <div class="font-semibold mb-1">{{ org.name }}</div>
                       <div class="text-sm text-surface-500 mb-2">{{ org.code || '-' }}</div>
                       <p-button
                         [id]="'user-org-manage-roles-mobile-' + org.id"
-                        [label]="'userDetail.rolesAssignment.globalScope.organizationMemberships.actions.manageRoles' | transloco"
+                        [label]="
+                          'userDetail.rolesAssignment.globalScope.organizationMemberships.actions.manageRoles'
+                            | transloco
+                        "
                         icon="pi pi-users"
                         size="small"
                         styleClass="w-full"
@@ -203,9 +250,24 @@
                 >
                   <ng-template #header>
                     <tr>
-                      <th>{{ 'userDetail.rolesAssignment.globalScope.organizationMemberships.table.organization' | transloco }}</th>
-                      <th>{{ 'userDetail.rolesAssignment.globalScope.organizationMemberships.table.code' | transloco }}</th>
-                      <th>{{ 'userDetail.rolesAssignment.globalScope.organizationMemberships.table.actions' | transloco }}</th>
+                      <th>
+                        {{
+                          'userDetail.rolesAssignment.globalScope.organizationMemberships.table.organization'
+                            | transloco
+                        }}
+                      </th>
+                      <th>
+                        {{
+                          'userDetail.rolesAssignment.globalScope.organizationMemberships.table.code'
+                            | transloco
+                        }}
+                      </th>
+                      <th>
+                        {{
+                          'userDetail.rolesAssignment.globalScope.organizationMemberships.table.actions'
+                            | transloco
+                        }}
+                      </th>
                     </tr>
                   </ng-template>
 
@@ -216,7 +278,10 @@
                       <td>
                         <p-button
                           [id]="'user-org-manage-roles-' + org.id"
-                          [label]="'userDetail.rolesAssignment.globalScope.organizationMemberships.actions.manageRoles' | transloco"
+                          [label]="
+                            'userDetail.rolesAssignment.globalScope.organizationMemberships.actions.manageRoles'
+                              | transloco
+                          "
                           icon="pi pi-users"
                           size="small"
                           [text]="true"
@@ -229,7 +294,10 @@
                   <ng-template #empty>
                     <tr>
                       <td colspan="3" class="text-center py-8 text-surface-500">
-                        {{ 'userDetail.rolesAssignment.globalScope.organizationMemberships.noMemberships' | transloco }}
+                        {{
+                          'userDetail.rolesAssignment.globalScope.organizationMemberships.noMemberships'
+                            | transloco
+                        }}
                       </td>
                     </tr>
                   </ng-template>
@@ -237,14 +305,22 @@
               } @else {
                 <div class="text-center py-8 text-surface-500" id="user-roles-no-org-memberships">
                   <i class="pi pi-building text-4xl mb-4"></i>
-                  <p>{{ 'userDetail.rolesAssignment.globalScope.organizationMemberships.noMemberships' | transloco }}</p>
+                  <p>
+                    {{
+                      'userDetail.rolesAssignment.globalScope.organizationMemberships.noMemberships'
+                        | transloco
+                    }}
+                  </p>
                 </div>
               }
             </div>
           </div>
         } @else {
           <!-- Access Restricted Message -->
-          <div id="user-roles-global-restricted" class="border border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20 rounded-lg p-6 text-center">
+          <div
+            id="user-roles-global-restricted"
+            class="border border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20 rounded-lg p-6 text-center"
+          >
             <i class="pi pi-lock text-4xl text-yellow-600 dark:text-yellow-400 mb-4"></i>
             <h3 class="text-lg font-semibold mb-2">
               {{ 'userDetail.rolesAssignment.globalScope.restricted.title' | transloco }}
@@ -261,14 +337,21 @@
         @if (currentOrganization()) {
           <div id="user-roles-org-scope" class="space-y-4 sm:space-y-6">
             <!-- Current Organization Info -->
-            <div id="user-roles-org-info" class="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg p-3 sm:p-4">
+            <div
+              id="user-roles-org-info"
+              class="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg p-3 sm:p-4"
+            >
               <div class="flex items-center gap-3">
-                <i class="pi pi-building text-xl sm:text-2xl text-primary-600 dark:text-primary-400"></i>
+                <i
+                  class="pi pi-building text-xl sm:text-2xl text-primary-600 dark:text-primary-400"
+                ></i>
                 <div class="flex-1 min-w-0">
                   <p class="text-xs sm:text-sm text-surface-600 dark:text-surface-400 mb-1">
                     {{ 'userDetail.rolesAssignment.organizationScope.currentOrg' | transloco }}
                   </p>
-                  <p class="text-base sm:text-lg font-semibold text-primary-700 dark:text-primary-300 truncate">
+                  <p
+                    class="text-base sm:text-lg font-semibold text-primary-700 dark:text-primary-300 truncate"
+                  >
                     {{ currentOrganization()?.name }}
                   </p>
                 </div>
@@ -276,17 +359,31 @@
             </div>
 
             <!-- Organization Roles & Permissions Section -->
-            <div id="user-roles-org-roles-section" class="border border-surface-200 dark:border-surface-700 rounded-lg p-3 sm:p-4">
-              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4">
+            <div
+              id="user-roles-org-roles-section"
+              class="border border-surface-200 dark:border-surface-700 rounded-lg p-3 sm:p-4"
+            >
+              <div
+                class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4"
+              >
                 <div>
-                  <h3 id="user-roles-org-roles-title" class="text-base sm:text-lg font-semibold m-0">
-                    {{ 'userDetail.rolesAssignment.organizationScope.rolesPermissions.title' | transloco }}
+                  <h3
+                    id="user-roles-org-roles-title"
+                    class="text-base sm:text-lg font-semibold m-0"
+                  >
+                    {{
+                      'userDetail.rolesAssignment.organizationScope.rolesPermissions.title'
+                        | transloco
+                    }}
                   </h3>
                 </div>
                 <div class="flex gap-2 w-full sm:w-auto">
                   <p-button
                     id="user-roles-org-grant-button"
-                    [label]="'userDetail.rolesAssignment.organizationScope.rolesPermissions.grantRole' | transloco"
+                    [label]="
+                      'userDetail.rolesAssignment.organizationScope.rolesPermissions.grantRole'
+                        | transloco
+                    "
                     icon="pi pi-plus"
                     size="small"
                     (onClick)="openGrantRolesPanel('organization')"
@@ -299,7 +396,10 @@
                 <!-- Organization Roles -->
                 <div id="user-roles-org-roles-list">
                   <h4 class="text-sm font-medium mb-2">
-                    {{ 'userDetail.rolesAssignment.organizationScope.rolesPermissions.roles' | transloco }}
+                    {{
+                      'userDetail.rolesAssignment.organizationScope.rolesPermissions.roles'
+                        | transloco
+                    }}
                   </h4>
                   @if (orgRoles().length > 0) {
                     <div class="flex flex-wrap gap-2">
@@ -313,7 +413,10 @@
                     </div>
                   } @else {
                     <p class="text-surface-500 text-sm" id="user-roles-org-no-roles">
-                      {{ 'userDetail.rolesAssignment.organizationScope.rolesPermissions.noRoles' | transloco }}
+                      {{
+                        'userDetail.rolesAssignment.organizationScope.rolesPermissions.noRoles'
+                          | transloco
+                      }}
                     </p>
                   }
                 </div>
@@ -321,7 +424,10 @@
                 <!-- Organization Permissions -->
                 <div id="user-roles-org-permissions-list">
                   <h4 class="text-sm font-medium mb-2">
-                    {{ 'userDetail.rolesAssignment.organizationScope.rolesPermissions.permissions' | transloco }}
+                    {{
+                      'userDetail.rolesAssignment.organizationScope.rolesPermissions.permissions'
+                        | transloco
+                    }}
                   </h4>
                   @if (orgPermissions().length > 0) {
                     <div class="flex flex-wrap gap-2">
@@ -335,7 +441,10 @@
                     </div>
                   } @else {
                     <p class="text-surface-500 text-sm" id="user-roles-org-no-permissions">
-                      {{ 'userDetail.rolesAssignment.organizationScope.rolesPermissions.noPermissions' | transloco }}
+                      {{
+                        'userDetail.rolesAssignment.organizationScope.rolesPermissions.noPermissions'
+                          | transloco
+                      }}
                     </p>
                   }
                 </div>
@@ -343,8 +452,8 @@
 
               <!-- Inline Grant Roles Panel (replaces modal dialog) -->
               @if (showGrantRolesPanel() && selectedScope() === 'organization') {
-                <div 
-                  id="user-roles-grant-panel" 
+                <div
+                  id="user-roles-grant-panel"
                   class="mt-4 border-2 border-primary-200 dark:border-primary-800 bg-primary-50 dark:bg-primary-900/20 rounded-lg p-4 animate-fadein"
                 >
                   <div class="flex justify-between items-center mb-4">
@@ -367,8 +476,13 @@
 
                   <div class="space-y-4">
                     <div>
-                      <label for="user-roles-grant-select-panel" class="block text-sm font-medium mb-2">
-                        {{ 'userDetail.rolesAssignment.dialogs.grantRoles.selectRoles' | transloco }}
+                      <label
+                        for="user-roles-grant-select-panel"
+                        class="block text-sm font-medium mb-2"
+                      >
+                        {{
+                          'userDetail.rolesAssignment.dialogs.grantRoles.selectRoles' | transloco
+                        }}
                       </label>
                       <p-multiSelect
                         id="user-roles-grant-select-panel"
@@ -377,7 +491,10 @@
                         (ngModelChange)="onRoleSelectionChange($event)"
                         optionLabel="name"
                         optionValue="id"
-                        [placeholder]="'userDetail.rolesAssignment.dialogs.grantRoles.selectRolesPlaceholder' | transloco"
+                        [placeholder]="
+                          'userDetail.rolesAssignment.dialogs.grantRoles.selectRolesPlaceholder'
+                            | transloco
+                        "
                         display="chip"
                         [panelStyleClass]="'w-full'"
                         styleClass="w-full"
@@ -407,13 +524,18 @@
           </div>
         } @else {
           <!-- No Organization Selected -->
-          <div id="user-roles-no-org" class="border border-surface-200 dark:border-surface-700 rounded-lg p-6 text-center">
+          <div
+            id="user-roles-no-org"
+            class="border border-surface-200 dark:border-surface-700 rounded-lg p-6 text-center"
+          >
             <i class="pi pi-building text-4xl text-surface-400 mb-4"></i>
             <h3 class="text-lg font-semibold mb-2">
               {{ 'userDetail.rolesAssignment.organizationScope.noOrganization.title' | transloco }}
             </h3>
             <p class="text-surface-600 dark:text-surface-400">
-              {{ 'userDetail.rolesAssignment.organizationScope.noOrganization.message' | transloco }}
+              {{
+                'userDetail.rolesAssignment.organizationScope.noOrganization.message' | transloco
+              }}
             </p>
           </div>
         }
@@ -454,7 +576,10 @@
   <div class="space-y-4" id="user-roles-manage-org-dialog-content">
     @if (selectedOrgForManage()) {
       <p class="text-sm sm:text-base text-surface-600 dark:text-surface-400">
-        {{ 'userDetail.rolesAssignment.dialogs.manageOrgRoles.subtitle' | transloco: { orgName: selectedOrgForManage()?.name } }}
+        {{
+          'userDetail.rolesAssignment.dialogs.manageOrgRoles.subtitle'
+            | transloco: { orgName: selectedOrgForManage()?.name }
+        }}
       </p>
 
       <div>
@@ -468,7 +593,9 @@
           (ngModelChange)="onRoleSelectionChange($event)"
           optionLabel="name"
           optionValue="id"
-          [placeholder]="'userDetail.rolesAssignment.dialogs.grantRoles.selectRolesPlaceholder' | transloco"
+          [placeholder]="
+            'userDetail.rolesAssignment.dialogs.grantRoles.selectRolesPlaceholder' | transloco
+          "
           display="chip"
           [panelStyleClass]="'w-full'"
           styleClass="w-full"
@@ -497,4 +624,3 @@
     </div>
   </ng-template>
 </p-dialog>
-

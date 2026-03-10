@@ -101,9 +101,13 @@
             [filter]="false"
             styleClass="w-auto"
           >
-            <ng-template let-opt #item><span>{{ opt.header | transloco }}</span></ng-template>
+            <ng-template let-opt #item
+              ><span>{{ opt.header | transloco }}</span></ng-template
+            >
             <ng-template #selectedItems>
-              <span class="flex items-center gap-1"><i class="pi pi-cog"></i> {{ 'wms.columns' | transloco }}</span>
+              <span class="flex items-center gap-1"
+                ><i class="pi pi-cog"></i> {{ 'wms.columns' | transloco }}</span
+              >
             </ng-template>
           </p-multiselect>
         </div>
@@ -113,7 +117,12 @@
         <tr>
           @for (col of selectedColumns; track col.field) {
             @if (col.sortable) {
-              <th pResizableColumn pReorderableColumn [pSortableColumn]="col.field" [style.width]="col.width">
+              <th
+                pResizableColumn
+                pReorderableColumn
+                [pSortableColumn]="col.field"
+                [style.width]="col.width"
+              >
                 {{ col.header | transloco }} <p-sortIcon [field]="col.field" />
               </th>
             } @else {
@@ -131,13 +140,26 @@
           @for (col of selectedColumns; track col.field) {
             <td>
               @switch (col.field) {
-                @case ('lines') { {{ picklist.lines?.length || 0 }} }
-                @case ('orders') { {{ picklist.orderIds?.length || 0 }} }
-                @case ('status') {
-                  <p-tag [value]="picklist.status" [severity]="getStatusSeverity(picklist.status)" />
+                @case ('lines') {
+                  {{ picklist.lines?.length || 0 }}
                 }
-                @case ('notes') { <span class="text-sm text-surface-500">{{ picklist.notes || '-' }}</span> }
-                @case ('createdAt') { <span class="text-sm text-surface-500">{{ picklist.createdAt | date:'short' }}</span> }
+                @case ('orders') {
+                  {{ picklist.orderIds?.length || 0 }}
+                }
+                @case ('status') {
+                  <p-tag
+                    [value]="picklist.status"
+                    [severity]="getStatusSeverity(picklist.status)"
+                  />
+                }
+                @case ('notes') {
+                  <span class="text-sm text-surface-500">{{ picklist.notes || '-' }}</span>
+                }
+                @case ('createdAt') {
+                  <span class="text-sm text-surface-500">{{
+                    picklist.createdAt | date: 'short'
+                  }}</span>
+                }
               }
             </td>
           }
@@ -186,18 +208,14 @@
           </div>
           <div>
             <span class="text-surface-500">{{ 'wms.picklists.createdAt' | transloco }}</span>
-            <p class="font-medium">{{ selectedPicklist()!.createdAt | date:'medium' }}</p>
+            <p class="font-medium">{{ selectedPicklist()!.createdAt | date: 'medium' }}</p>
           </div>
         </div>
 
         <!-- Picklist Lines -->
         <div>
           <h3 class="text-sm font-semibold mb-2">{{ 'wms.picklists.lines' | transloco }}</h3>
-          <p-table
-            [value]="selectedPicklist()!.lines"
-            dataKey="skuId"
-            styleClass="p-datatable-sm"
-          >
+          <p-table [value]="selectedPicklist()!.lines" dataKey="skuId" styleClass="p-datatable-sm">
             <ng-template #header>
               <tr>
                 <th>{{ 'wms.picklists.sku' | transloco }}</th>

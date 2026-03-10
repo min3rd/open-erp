@@ -131,4 +131,3 @@ export interface WsMessagesReadEvent {
   conversationId: string;
   markedAsRead: number;
 }
-

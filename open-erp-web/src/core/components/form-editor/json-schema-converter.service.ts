@@ -65,7 +65,7 @@ export class JSONSchemaConverter {
     properties: Record<string, JSONSchemaProperty>,
     required: string[],
     uiOrder: string[],
-    uiLayout: UILayoutDefinition[]
+    uiLayout: UILayoutDefinition[],
   ): void {
     for (const component of components) {
       if (this.isLayoutComponent(component)) {
@@ -73,7 +73,7 @@ export class JSONSchemaConverter {
           component as LayoutComponentConfig,
           properties,
           required,
-          uiOrder
+          uiOrder,
         );
         uiLayout.push(layoutDef);
       } else {
@@ -92,13 +92,9 @@ export class JSONSchemaConverter {
    * Check if component is a layout component
    */
   private isLayoutComponent(component: FormComponent): boolean {
-    return [
-      'layout-1-column',
-      'layout-2-column',
-      'layout-3-column',
-      'divider',
-      'button',
-    ].includes(component.type);
+    return ['layout-1-column', 'layout-2-column', 'layout-3-column', 'divider', 'button'].includes(
+      component.type,
+    );
   }
 
   /**
@@ -108,7 +104,7 @@ export class JSONSchemaConverter {
     component: LayoutComponentConfig,
     properties: Record<string, JSONSchemaProperty>,
     required: string[],
-    uiOrder: string[]
+    uiOrder: string[],
   ): UILayoutDefinition {
     const layout: UILayoutDefinition = {
       type: component.type === 'divider' ? 'divider' : 'row',
@@ -137,7 +133,7 @@ export class JSONSchemaConverter {
             child as LayoutComponentConfig,
             properties,
             required,
-            uiOrder
+            uiOrder,
           );
           childLayouts.push(childLayout);
         } else {

@@ -87,7 +87,7 @@ export class ProductCategoryService {
    * GET /config/product-categories
    */
   getProductCategories(
-    params: QueryProductCategoryParams
+    params: QueryProductCategoryParams,
   ): Observable<{ items: ProductCategory[]; total: number; page: number; limit: number }> {
     let httpParams = new HttpParams();
 
@@ -107,7 +107,7 @@ export class ProductCategoryService {
           total: response.data?.total || 0,
           page: response.data?.page || 1,
           limit: response.data?.limit || 10,
-        }))
+        })),
       );
   }
 
@@ -146,9 +146,7 @@ export class ProductCategoryService {
    * DELETE /config/product-categories/:id
    */
   deleteProductCategory(id: string): Observable<void> {
-    return this.http
-      .delete<ApiResponse<null>>(`${this.baseUrl}/${id}`)
-      .pipe(map(() => undefined));
+    return this.http.delete<ApiResponse<null>>(`${this.baseUrl}/${id}`).pipe(map(() => undefined));
   }
 
   /**

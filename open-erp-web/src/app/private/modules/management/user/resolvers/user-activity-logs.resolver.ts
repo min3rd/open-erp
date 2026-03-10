@@ -9,7 +9,7 @@ import { UserDetailService, UserActivityLogsResponse } from '../services/user-de
  * Fetches user activity logs before the route is activated
  */
 export const userActivityLogsResolver: ResolveFn<UserActivityLogsResponse | null> = (
-  route: ActivatedRouteSnapshot
+  route: ActivatedRouteSnapshot,
 ): Observable<UserActivityLogsResponse | null> => {
   const userDetailService = inject(UserDetailService);
   const userId = route.parent?.paramMap.get('id');
@@ -22,6 +22,6 @@ export const userActivityLogsResolver: ResolveFn<UserActivityLogsResponse | null
     catchError((error) => {
       console.error('Failed to resolve user activity logs:', error);
       return of(null);
-    })
+    }),
   );
 };

@@ -321,7 +321,6 @@ export class Detail implements OnDestroy {
         this.router.navigate(['/organization']);
       },
     });
-
   }
 
   private populateEditForm(org: OrganizationResponse): void {
@@ -805,5 +804,4 @@ export class Detail implements OnDestroy {
     if (isNaN(date.getTime())) return '—';
     return date.toLocaleDateString();
   }
-
 }

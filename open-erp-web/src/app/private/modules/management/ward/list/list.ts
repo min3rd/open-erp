@@ -108,9 +108,11 @@ export class WardList implements OnInit, OnDestroy {
   protected readonly sortOrder = signal<'name:asc' | 'name:desc'>('name:asc');
   protected readonly expandedGroups = signal<Set<string>>(new Set()); // Start empty - all collapsed
   protected readonly activeProvinceCode = signal<string | null>(null);
-  
+
   // Map to store wards per province (lazy loaded)
-  protected readonly wardsByProvinceMap = signal<Map<string, { wards: Ward[]; loading: boolean; loaded: boolean }>>(new Map());
+  protected readonly wardsByProvinceMap = signal<
+    Map<string, { wards: Ward[]; loading: boolean; loaded: boolean }>
+  >(new Map());
 
   // Computed values
   protected readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
@@ -137,7 +139,7 @@ export class WardList implements OnInit, OnDestroy {
   protected readonly wardsByProvince = computed(() => {
     const provincesList = this.provinces();
     const wardsMap = this.wardsByProvinceMap();
-    
+
     return provincesList.map((province) => ({
       provinceCode: province.code,
       provinceName: province.name,
@@ -155,8 +157,6 @@ export class WardList implements OnInit, OnDestroy {
     const province = this.provinces().find((p) => p.code === provinceCode);
     return province?.geometry || null;
   });
-
-
 
   // Actions menu items
   protected get actionMenuItems(): MenuItem[] {
@@ -225,8 +225,6 @@ export class WardList implements OnInit, OnDestroy {
         }, this.SEARCH_FOCUS_DELAY);
       }
     });
-
-
   }
 
   ngOnInit(): void {
@@ -247,13 +245,13 @@ export class WardList implements OnInit, OnDestroy {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const provinceCode = params['provinceCode'] || null;
       this.activeProvinceCode.set(provinceCode);
-      
+
       // Auto-expand the active province and close all others
       if (provinceCode) {
         this.expandedGroups.set(new Set([provinceCode]));
         this.loadWardsForProvince(provinceCode);
       }
-      
+
       this.cdr.markForCheck();
     });
 
@@ -261,7 +259,7 @@ export class WardList implements OnInit, OnDestroy {
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((queryParams) => {
       const search = queryParams['search'] || '';
       const sort = queryParams['sort'] || 'name:asc';
-      
+
       this.searchQuery.set(search);
       this.sortOrder.set(sort as 'name:asc' | 'name:desc');
       this.cdr.markForCheck();
@@ -499,8 +497,6 @@ export class WardList implements OnInit, OnDestroy {
     this.onRefresh();
   }
 
-
-
   /**
    * Get per-row menu items for mobile list
    */
@@ -558,27 +554,31 @@ export class WardList implements OnInit, OnDestroy {
     const expanded = this.expandedGroups();
     const groups = this.wardsByProvince();
     const values: number[] = [];
-    
+
     groups.forEach((group, index) => {
       if (expanded.has(group.provinceCode)) {
         values.push(index);
       }
     });
-    
+
     return values;
   }
 
   /**
    * Handle accordion value change - only allow one province to be expanded at a time
    */
-  protected onAccordionValueChange(value: string | number | string[] | number[] | null | undefined): void {
+  protected onAccordionValueChange(
+    value: string | number | string[] | number[] | null | undefined,
+  ): void {
     const groups = this.wardsByProvince();
-    
+
     // Ensure we have an array of numbers
-    const values: number[] = Array.isArray(value) 
-      ? value.map(v => typeof v === 'number' ? v : parseInt(String(v), 10)).filter(v => !isNaN(v))
+    const values: number[] = Array.isArray(value)
+      ? value
+          .map((v) => (typeof v === 'number' ? v : parseInt(String(v), 10)))
+          .filter((v) => !isNaN(v))
       : [];
-    
+
     // Only allow the most recently selected province to be expanded
     if (values.length > 0) {
       const latestIndex = values[values.length - 1];
@@ -586,7 +586,7 @@ export class WardList implements OnInit, OnDestroy {
         const provinceCode = groups[latestIndex].provinceCode;
         this.expandedGroups.set(new Set([provinceCode]));
         this.loadWardsForProvince(provinceCode);
-        
+
         // Navigate to update route with provinceCode
         this.router.navigate(['../', provinceCode], {
           queryParamsHandling: 'preserve',
@@ -605,17 +605,17 @@ export class WardList implements OnInit, OnDestroy {
    */
   private loadWardsForProvince(provinceCode: string): void {
     const currentMap = this.wardsByProvinceMap();
-    
+
     // Check if already loaded or loading
     if (currentMap.get(provinceCode)?.loaded || currentMap.get(provinceCode)?.loading) {
       return;
     }
-    
+
     // Set loading state
     const newMap = new Map(currentMap);
     newMap.set(provinceCode, { wards: [], loading: true, loaded: false });
     this.wardsByProvinceMap.set(newMap);
-    
+
     // Fetch wards for this province
     this.wardService
       .getWards({
@@ -642,7 +642,7 @@ export class WardList implements OnInit, OnDestroy {
             summary: this.translocoService.translate('wardList.messages.error'),
             detail: this.translocoService.translate('wardList.messages.loadFailed'),
           });
-          
+
           // Clear loading state
           const updatedMap = new Map(this.wardsByProvinceMap());
           updatedMap.set(provinceCode, {

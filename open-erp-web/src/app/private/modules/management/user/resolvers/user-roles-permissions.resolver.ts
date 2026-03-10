@@ -21,7 +21,7 @@ export interface UserRolesPermissionsData {
  * Fetches user roles, permissions, and organizations before the route is activated
  */
 export const userRolesPermissionsResolver: ResolveFn<UserRolesPermissionsData | null> = (
-  route: ActivatedRouteSnapshot
+  route: ActivatedRouteSnapshot,
 ): Observable<UserRolesPermissionsData | null> => {
   const userDetailService = inject(UserDetailService);
   const userId = route.parent?.paramMap.get('id');
@@ -36,18 +36,18 @@ export const userRolesPermissionsResolver: ResolveFn<UserRolesPermissionsData | 
       catchError((error) => {
         console.error('Failed to resolve user roles/permissions:', error);
         return of(null);
-      })
+      }),
     ),
     organizations: userDetailService.getUserOrganizations(userId).pipe(
       catchError((error) => {
         console.error('Failed to resolve user organizations:', error);
         return of([]);
-      })
+      }),
     ),
   }).pipe(
     map((result) => ({
       rolesPermissions: result.rolesPermissions,
       organizations: result.organizations,
-    }))
+    })),
   );
 };

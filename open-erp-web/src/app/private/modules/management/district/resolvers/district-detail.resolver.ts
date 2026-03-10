@@ -10,7 +10,7 @@ import { District } from '../district.types';
  * Fetches district data before the route is activated
  */
 export const districtDetailResolver: ResolveFn<District | null> = (
-  route: ActivatedRouteSnapshot
+  route: ActivatedRouteSnapshot,
 ): Observable<District | null> => {
   const districtService = inject(DistrictService);
   const districtCode = route.paramMap.get('code');
@@ -23,6 +23,6 @@ export const districtDetailResolver: ResolveFn<District | null> = (
     catchError((error) => {
       console.error('Failed to resolve district detail:', error);
       return of(null);
-    })
+    }),
   );
 };

@@ -10,9 +10,9 @@ import { ProductCategory } from '../product-category.types';
  */
 export const parentCategoriesResolver: ResolveFn<ProductCategory[]> = () => {
   const service = inject(ProductCategoryService);
-  
+
   // Fetch all active categories for parent selection
-  return service.getProductCategories({ limit: 1000, isActive: true }).pipe(
-    map((response) => response.items || [])
-  );
+  return service
+    .getProductCategories({ limit: 1000, isActive: true })
+    .pipe(map((response) => response.items || []));
 };

@@ -22,7 +22,11 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 // Services and types
-import { ProductService, Product, ProductStatus } from '../../../../../../core/services/product/product.service';
+import {
+  ProductService,
+  Product,
+  ProductStatus,
+} from '../../../../../../core/services/product/product.service';
 import { ProductDetailStateService } from './product-detail-state.service';
 
 /**
@@ -46,8 +50,8 @@ interface TabDef {
     TagModule,
     DrawerModule,
     TabsModule,
-    ConfirmDialogModule
-],
+    ConfirmDialogModule,
+  ],
   providers: [ConfirmationService, ProductDetailStateService],
   templateUrl: './detail.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -67,12 +71,27 @@ export class ProductDetail implements OnInit, OnDestroy {
 
   // Tab definitions
   protected readonly tabs: TabDef[] = [
-    { id: 'general', label: 'productDetail.tabs.general', icon: 'pi pi-info-circle', route: 'general' },
+    {
+      id: 'general',
+      label: 'productDetail.tabs.general',
+      icon: 'pi pi-info-circle',
+      route: 'general',
+    },
     { id: 'media', label: 'productDetail.tabs.media', icon: 'pi pi-images', route: 'media' },
     { id: 'weight', label: 'productDetail.tabs.weight', icon: 'pi pi-box', route: 'weight' },
-    { id: 'dimensions', label: 'productDetail.tabs.dimensions', icon: 'pi pi-arrows-alt', route: 'dimensions' },
+    {
+      id: 'dimensions',
+      label: 'productDetail.tabs.dimensions',
+      icon: 'pi pi-arrows-alt',
+      route: 'dimensions',
+    },
     { id: 'storage', label: 'productDetail.tabs.storage', icon: 'pi pi-cloud', route: 'storage' },
-    { id: 'warehouse', label: 'productDetail.tabs.warehouse', icon: 'pi pi-building', route: 'warehouse' },
+    {
+      id: 'warehouse',
+      label: 'productDetail.tabs.warehouse',
+      icon: 'pi pi-building',
+      route: 'warehouse',
+    },
     { id: 'custom', label: 'productDetail.tabs.custom', icon: 'pi pi-cog', route: 'custom' },
   ];
 
@@ -176,18 +195,23 @@ export class ProductDetail implements OnInit, OnDestroy {
   protected onCopySku(): void {
     const sku = this.product()?.sku;
     if (sku && navigator.clipboard) {
-      navigator.clipboard.writeText(sku).then(() => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translocoService.translate('productDetail.actions.copySku.success'),
-          detail: this.translocoService.translate('productDetail.actions.copySku.successDetail', { sku }),
+      navigator.clipboard
+        .writeText(sku)
+        .then(() => {
+          this.messageService.add({
+            severity: 'success',
+            summary: this.translocoService.translate('productDetail.actions.copySku.success'),
+            detail: this.translocoService.translate('productDetail.actions.copySku.successDetail', {
+              sku,
+            }),
+          });
+        })
+        .catch(() => {
+          this.messageService.add({
+            severity: 'error',
+            summary: this.translocoService.translate('productDetail.actions.copySku.error'),
+          });
         });
-      }).catch(() => {
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translocoService.translate('productDetail.actions.copySku.error'),
-        });
-      });
     }
   }
 
@@ -238,28 +262,37 @@ export class ProductDetail implements OnInit, OnDestroy {
       acceptButtonStyleClass: 'p-button-warning',
       accept: () => {
         this.isLoading.set(true);
-        this.productService.updateProduct(product.id, { status: ProductStatus.INACTIVE }).subscribe({
-          next: (updated) => {
-            this.product.set(updated);
-            this.productDetailState.setProduct(updated);
-            this.isLoading.set(false);
-            this.messageService.add({
-              severity: 'success',
-              summary: this.translocoService.translate('productDetail.actions.deactivate.success'),
-              detail: this.translocoService.translate('productDetail.actions.deactivate.successDetail', {
-                name: product.name,
-              }),
-            });
-          },
-          error: (error) => {
-            this.isLoading.set(false);
-            this.messageService.add({
-              severity: 'error',
-              summary: this.translocoService.translate('productDetail.actions.deactivate.error'),
-              detail: error.message || this.translocoService.translate('productDetail.actions.deactivate.errorDetail'),
-            });
-          },
-        });
+        this.productService
+          .updateProduct(product.id, { status: ProductStatus.INACTIVE })
+          .subscribe({
+            next: (updated) => {
+              this.product.set(updated);
+              this.productDetailState.setProduct(updated);
+              this.isLoading.set(false);
+              this.messageService.add({
+                severity: 'success',
+                summary: this.translocoService.translate(
+                  'productDetail.actions.deactivate.success',
+                ),
+                detail: this.translocoService.translate(
+                  'productDetail.actions.deactivate.successDetail',
+                  {
+                    name: product.name,
+                  },
+                ),
+              });
+            },
+            error: (error) => {
+              this.isLoading.set(false);
+              this.messageService.add({
+                severity: 'error',
+                summary: this.translocoService.translate('productDetail.actions.deactivate.error'),
+                detail:
+                  error.message ||
+                  this.translocoService.translate('productDetail.actions.deactivate.errorDetail'),
+              });
+            },
+          });
       },
     });
   }
@@ -285,9 +318,12 @@ export class ProductDetail implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'success',
               summary: this.translocoService.translate('productDetail.actions.delete.success'),
-              detail: this.translocoService.translate('productDetail.actions.delete.successDetail', {
-                name: product.name,
-              }),
+              detail: this.translocoService.translate(
+                'productDetail.actions.delete.successDetail',
+                {
+                  name: product.name,
+                },
+              ),
             });
             // Close drawer and navigate back to list
             this.onClose();
@@ -297,7 +333,9 @@ export class ProductDetail implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: this.translocoService.translate('productDetail.actions.delete.error'),
-              detail: error.message || this.translocoService.translate('productDetail.actions.delete.errorDetail'),
+              detail:
+                error.message ||
+                this.translocoService.translate('productDetail.actions.delete.errorDetail'),
             });
           },
         });

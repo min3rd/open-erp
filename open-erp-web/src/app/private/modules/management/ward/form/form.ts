@@ -68,10 +68,10 @@ export class WardForm implements OnInit, OnDestroy {
   protected readonly currentGeometry = signal<GeoJSON.Geometry | null>(null);
   protected readonly provinces = signal<Province[]>([]);
   protected readonly districts = signal<District[]>([]);
-  
+
   // Computed province and district options
   protected readonly provinceOptions = computed(() => {
-    return this.provinces().map(p => ({
+    return this.provinces().map((p) => ({
       label: p.name,
       value: p.code,
     }));
@@ -80,13 +80,13 @@ export class WardForm implements OnInit, OnDestroy {
   protected readonly districtOptions = computed(() => {
     const selectedProvince = this.wardForm?.get('provinceCode')?.value;
     const allDistricts = this.districts();
-    
+
     if (!selectedProvince) {
       return [];
     }
-    
-    const filteredDistricts = allDistricts.filter(d => d.provinceCode === selectedProvince);
-    return filteredDistricts.map(d => ({
+
+    const filteredDistricts = allDistricts.filter((d) => d.provinceCode === selectedProvince);
+    return filteredDistricts.map((d) => ({
       label: d.name,
       value: d.code,
     }));
@@ -118,10 +118,13 @@ export class WardForm implements OnInit, OnDestroy {
     });
 
     // Watch province changes to reset district
-    this.wardForm.get('provinceCode')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      // Reset district when province changes
-      this.wardForm.patchValue({ districtCode: '' }, { emitEvent: false });
-    });
+    this.wardForm
+      .get('provinceCode')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        // Reset district when province changes
+        this.wardForm.patchValue({ districtCode: '' }, { emitEvent: false });
+      });
 
     // Load ward data from resolver
     this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
@@ -144,7 +147,7 @@ export class WardForm implements OnInit, OnDestroy {
           // Convert centroid to GeoJSON Point
           const centroidPoint: GeoJSON.Point = {
             type: 'Point',
-            coordinates: [ward.centroid.lon, ward.centroid.lat]
+            coordinates: [ward.centroid.lon, ward.centroid.lat],
           };
           this.currentGeometry.set(centroidPoint);
         }
@@ -191,7 +194,7 @@ export class WardForm implements OnInit, OnDestroy {
     if (geometry && geometry.type === 'Point') {
       centroid = {
         lon: (geometry as GeoJSON.Point).coordinates[0],
-        lat: (geometry as GeoJSON.Point).coordinates[1]
+        lat: (geometry as GeoJSON.Point).coordinates[1],
       };
     }
 

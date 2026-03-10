@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-  OnInit,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -147,7 +141,9 @@ export class WarehouseStructureExplorer implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: this.translocoService.translate('common.error'),
-          detail: err?.error?.message || this.translocoService.translate('warehouseStructure.createError'),
+          detail:
+            err?.error?.message ||
+            this.translocoService.translate('warehouseStructure.createError'),
         });
       },
     });
@@ -163,24 +159,28 @@ export class WarehouseStructureExplorer implements OnInit {
   protected onSaveAisle(): void {
     if (!this.currentZoneId || !this.aisleForm.code || !this.aisleForm.name) return;
 
-    this.warehouseService.createAisle(this.currentZoneId, this.aisleForm as CreateAisleDto).subscribe({
-      next: () => {
-        this.showAisleDialog.set(false);
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translocoService.translate('common.success'),
-          detail: this.translocoService.translate('warehouseStructure.aisleCreated'),
-        });
-        this.loadStructure();
-      },
-      error: (err: any) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translocoService.translate('common.error'),
-          detail: err?.error?.message || this.translocoService.translate('warehouseStructure.createError'),
-        });
-      },
-    });
+    this.warehouseService
+      .createAisle(this.currentZoneId, this.aisleForm as CreateAisleDto)
+      .subscribe({
+        next: () => {
+          this.showAisleDialog.set(false);
+          this.messageService.add({
+            severity: 'success',
+            summary: this.translocoService.translate('common.success'),
+            detail: this.translocoService.translate('warehouseStructure.aisleCreated'),
+          });
+          this.loadStructure();
+        },
+        error: (err: any) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: this.translocoService.translate('common.error'),
+            detail:
+              err?.error?.message ||
+              this.translocoService.translate('warehouseStructure.createError'),
+          });
+        },
+      });
   }
 
   // Bin actions
@@ -207,7 +207,9 @@ export class WarehouseStructureExplorer implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: this.translocoService.translate('common.error'),
-          detail: err?.error?.message || this.translocoService.translate('warehouseStructure.createError'),
+          detail:
+            err?.error?.message ||
+            this.translocoService.translate('warehouseStructure.createError'),
         });
       },
     });
@@ -227,7 +229,9 @@ export class WarehouseStructureExplorer implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: this.translocoService.translate('common.error'),
-          detail: err?.error?.message || this.translocoService.translate('warehouseStructure.deleteError'),
+          detail:
+            err?.error?.message ||
+            this.translocoService.translate('warehouseStructure.deleteError'),
         });
       },
     });
@@ -247,7 +251,9 @@ export class WarehouseStructureExplorer implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: this.translocoService.translate('common.error'),
-          detail: err?.error?.message || this.translocoService.translate('warehouseStructure.deleteError'),
+          detail:
+            err?.error?.message ||
+            this.translocoService.translate('warehouseStructure.deleteError'),
         });
       },
     });
@@ -267,7 +273,9 @@ export class WarehouseStructureExplorer implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: this.translocoService.translate('common.error'),
-          detail: err?.error?.message || this.translocoService.translate('warehouseStructure.deleteError'),
+          detail:
+            err?.error?.message ||
+            this.translocoService.translate('warehouseStructure.deleteError'),
         });
       },
     });
@@ -300,10 +308,13 @@ export class WarehouseStructureExplorer implements OnInit {
   }
 
   protected getBinOccupancyClass(bin: Bin): string {
-    if (bin.isBlocked) return 'border-red-400 dark:border-red-600 bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300';
+    if (bin.isBlocked)
+      return 'border-red-400 dark:border-red-600 bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300';
     const ratio = bin.capacityQty > 0 ? bin.currentQty / bin.capacityQty : 0;
-    if (ratio >= 1) return 'border-orange-400 dark:border-orange-600 bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300';
-    if (ratio >= 0.8) return 'border-yellow-400 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300';
+    if (ratio >= 1)
+      return 'border-orange-400 dark:border-orange-600 bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300';
+    if (ratio >= 0.8)
+      return 'border-yellow-400 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300';
     return 'border-green-400 dark:border-green-600 bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300';
   }
 
@@ -313,7 +324,14 @@ export class WarehouseStructureExplorer implements OnInit {
 
   protected getBinMapTooltip(bin: Bin): string {
     const blockedLabel = this.translocoService.translate('warehouseStructure.legendBlocked');
-    return bin.code + '\n' + bin.currentQty + '/' + bin.capacityQty + (bin.isBlocked ? '\n🔒 ' + blockedLabel : '');
+    return (
+      bin.code +
+      '\n' +
+      bin.currentQty +
+      '/' +
+      bin.capacityQty +
+      (bin.isBlocked ? '\n🔒 ' + blockedLabel : '')
+    );
   }
 
   protected getBinMapLabel(bin: Bin): string {
@@ -327,6 +345,6 @@ export class WarehouseStructureExplorer implements OnInit {
 
   protected getAllAisles(): AisleWithBins[] {
     const zones = this.structure()?.zones ?? [];
-    return zones.flatMap(z => z.aisles ?? []);
+    return zones.flatMap((z) => z.aisles ?? []);
   }
 }

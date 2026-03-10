@@ -100,7 +100,12 @@ export class WorkflowTemplateList implements OnInit, OnDestroy {
   // Column definitions
   protected readonly columnOptions: ColumnDef[] = [
     { field: 'name', header: 'workflowTemplate.table.name', sortable: true },
-    { field: 'entityType', header: 'workflowTemplate.table.entityType', sortable: true, width: '150px' },
+    {
+      field: 'entityType',
+      header: 'workflowTemplate.table.entityType',
+      sortable: true,
+      width: '150px',
+    },
     { field: 'scope', header: 'workflowTemplate.table.scope', sortable: true, width: '120px' },
     { field: 'status', header: 'workflowTemplate.table.status', sortable: true, width: '120px' },
     {
@@ -283,23 +288,25 @@ export class WorkflowTemplateList implements OnInit, OnDestroy {
   }
 
   protected onCloneTemplate(template: WorkflowTemplate): void {
-    this.templateService.cloneTemplate(template._id, { name: `${template.name} (Copy)` }).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translocoService.translate('workflowTemplate.messages.success'),
-          detail: this.translocoService.translate('workflowTemplate.messages.cloneSuccess'),
-        });
-        this.onRefresh();
-      },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translocoService.translate('workflowTemplate.messages.error'),
-          detail: this.translocoService.translate('workflowTemplate.messages.cloneFailed'),
-        });
-      },
-    });
+    this.templateService
+      .cloneTemplate(template._id, { name: `${template.name} (Copy)` })
+      .subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: this.translocoService.translate('workflowTemplate.messages.success'),
+            detail: this.translocoService.translate('workflowTemplate.messages.cloneSuccess'),
+          });
+          this.onRefresh();
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: this.translocoService.translate('workflowTemplate.messages.error'),
+            detail: this.translocoService.translate('workflowTemplate.messages.cloneFailed'),
+          });
+        },
+      });
   }
 
   protected onPublishTemplate(template: WorkflowTemplate): void {
@@ -325,7 +332,9 @@ export class WorkflowTemplateList implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: this.translocoService.translate('workflowTemplate.messages.error'),
-              detail: error?.error?.message || this.translocoService.translate('workflowTemplate.messages.publishFailed'),
+              detail:
+                error?.error?.message ||
+                this.translocoService.translate('workflowTemplate.messages.publishFailed'),
             });
           },
         });

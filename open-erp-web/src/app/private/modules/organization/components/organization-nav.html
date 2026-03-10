@@ -13,12 +13,12 @@
     [class.justify-center]="navMode() === 'narrow'"
   >
     @if (navMode() === 'sidebar') {
-    <h2
-      id="organization-nav-title"
-      class="text-lg font-semibold text-surface-900 dark:text-surface-0"
-    >
-      {{ 'organization.title' | transloco }}
-    </h2>
+      <h2
+        id="organization-nav-title"
+        class="text-lg font-semibold text-surface-900 dark:text-surface-0"
+      >
+        {{ 'organization.title' | transloco }}
+      </h2>
     }
     <p-button
       id="organization-nav-toggle"

@@ -25,12 +25,17 @@
       <h1 class="text-4xl font-bold text-white mb-4" id="two-fa-recovery-title-desktop">
         {{ 'twoFaRecovery.title' | transloco }}
       </h1>
-      <p class="text-xl text-white/90" id="two-fa-recovery-subtitle-desktop">{{ 'twoFaRecovery.subtitle' | transloco }}</p>
+      <p class="text-xl text-white/90" id="two-fa-recovery-subtitle-desktop">
+        {{ 'twoFaRecovery.subtitle' | transloco }}
+      </p>
     </div>
   </div>
 
   <!-- Right Panel - Recovery Form -->
-  <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50" id="two-fa-recovery-right-panel">
+  <div
+    class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50"
+    id="two-fa-recovery-right-panel"
+  >
     <div class="w-full max-w-md" id="two-fa-recovery-form-container">
       <!-- Mobile Logo -->
       <div class="lg:hidden text-center mb-8" id="two-fa-recovery-mobile-header">
@@ -45,11 +50,19 @@
         <h1 class="text-3xl font-bold text-gray-900 mb-2" id="two-fa-recovery-title-mobile">
           {{ 'twoFaRecovery.title' | transloco }}
         </h1>
-        <p class="text-lg text-gray-600" id="two-fa-recovery-subtitle-mobile">{{ 'twoFaRecovery.subtitle' | transloco }}</p>
+        <p class="text-lg text-gray-600" id="two-fa-recovery-subtitle-mobile">
+          {{ 'twoFaRecovery.subtitle' | transloco }}
+        </p>
       </div>
 
       <!-- Recovery Form -->
-      <form [formGroup]="recoveryForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate id="two-fa-recovery-form">
+      <form
+        [formGroup]="recoveryForm"
+        (ngSubmit)="onSubmit()"
+        class="space-y-6"
+        novalidate
+        id="two-fa-recovery-form"
+      >
         <p class="text-sm text-gray-600" id="two-fa-recovery-instruction">
           {{ 'twoFaRecovery.instruction' | transloco }}
         </p>
@@ -71,13 +84,17 @@
             [placeholder]="'twoFaRecovery.form.recoveryCode.placeholder' | transloco"
             autocomplete="off"
             class="w-full font-mono tracking-wider"
-            [attr.aria-invalid]="recoveryForm.get('recoveryCode')?.invalid && recoveryForm.get('recoveryCode')?.touched"
-            [attr.aria-describedby]="getFieldError('recoveryCode') ? 'two-fa-recovery-code-error' : null"
+            [attr.aria-invalid]="
+              recoveryForm.get('recoveryCode')?.invalid && recoveryForm.get('recoveryCode')?.touched
+            "
+            [attr.aria-describedby]="
+              getFieldError('recoveryCode') ? 'two-fa-recovery-code-error' : null
+            "
           />
           @if (getFieldError('recoveryCode'); as errorKey) {
-          <small id="two-fa-recovery-code-error" class="text-red-600 text-sm" role="alert">
-            {{ errorKey | transloco }}
-          </small>
+            <small id="two-fa-recovery-code-error" class="text-red-600 text-sm" role="alert">
+              {{ errorKey | transloco }}
+            </small>
           }
         </div>
 

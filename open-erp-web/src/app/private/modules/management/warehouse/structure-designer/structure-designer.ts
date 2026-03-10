@@ -163,17 +163,11 @@ export class StructureDesigner implements OnInit, OnDestroy {
     return { h, v };
   });
 
-  protected readonly zones = computed(() =>
-    this.objects().filter((o) => o.type === 'zone'),
-  );
+  protected readonly zones = computed(() => this.objects().filter((o) => o.type === 'zone'));
 
-  protected readonly aisles = computed(() =>
-    this.objects().filter((o) => o.type === 'aisle'),
-  );
+  protected readonly aisles = computed(() => this.objects().filter((o) => o.type === 'aisle'));
 
-  protected readonly bins = computed(() =>
-    this.objects().filter((o) => o.type === 'bin'),
-  );
+  protected readonly bins = computed(() => this.objects().filter((o) => o.type === 'bin'));
 
   /** Objects sorted by zOrder (lowest first = rendered below others) */
   protected readonly sortedObjects = computed(() =>
@@ -185,9 +179,7 @@ export class StructureDesigner implements OnInit, OnDestroy {
     this.objects().filter((o) => o.type === 'label' || o.type === 'corridor'),
   );
 
-  protected readonly hasDirty = computed(() =>
-    this.objects().some((o) => o.isDirty),
-  );
+  protected readonly hasDirty = computed(() => this.objects().some((o) => o.isDirty));
 
   protected readonly typeOptions = [
     { label: 'Zone', value: 'zone' as LayoutObjectType },
@@ -557,9 +549,7 @@ export class StructureDesigner implements OnInit, OnDestroy {
       if (!sel) return;
       this.pushUndo();
       this.objects.update((objs) =>
-        objs.map((o) =>
-          o.id === sel.id ? { ...o, ...form, isDirty: true } : o,
-        ),
+        objs.map((o) => (o.id === sel.id ? { ...o, ...form, isDirty: true } : o)),
       );
     }
 
@@ -714,8 +704,10 @@ export class StructureDesigner implements OnInit, OnDestroy {
       const zone = this.objects().find(
         (o) =>
           o.type === 'zone' &&
-          cx >= o.x && cx <= o.x + o.widthM &&
-          cy >= o.y && cy <= o.y + o.heightM,
+          cx >= o.x &&
+          cx <= o.x + o.widthM &&
+          cy >= o.y &&
+          cy <= o.y + o.heightM,
       );
       return zone?.id ?? null;
     }
@@ -724,8 +716,10 @@ export class StructureDesigner implements OnInit, OnDestroy {
       const aisle = this.objects().find(
         (o) =>
           o.type === 'aisle' &&
-          cx >= o.x && cx <= o.x + o.widthM &&
-          cy >= o.y && cy <= o.y + o.heightM,
+          cx >= o.x &&
+          cx <= o.x + o.widthM &&
+          cy >= o.y &&
+          cy <= o.y + o.heightM,
       );
       return aisle?.id ?? null;
     }

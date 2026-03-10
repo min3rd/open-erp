@@ -11,7 +11,13 @@ import {
   effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
@@ -187,7 +193,9 @@ export class PersonnelSettings implements OnInit, OnDestroy {
 
   protected onDeleteDepartment(dept: OrgDepartment): void {
     this.confirmationService.confirm({
-      message: this.translocoService.translate('personnel.confirmDeleteDepartment', { name: dept.name }),
+      message: this.translocoService.translate('personnel.confirmDeleteDepartment', {
+        name: dept.name,
+      }),
       accept: () => {
         this.orgService
           .deleteDepartment(this.orgId(), dept.id)
@@ -268,7 +276,9 @@ export class PersonnelSettings implements OnInit, OnDestroy {
 
   protected onDeletePosition(pos: OrgPosition): void {
     this.confirmationService.confirm({
-      message: this.translocoService.translate('personnel.confirmDeletePosition', { name: pos.name }),
+      message: this.translocoService.translate('personnel.confirmDeletePosition', {
+        name: pos.name,
+      }),
       accept: () => {
         this.orgService
           .deletePosition(this.orgId(), pos.id)
@@ -299,7 +309,12 @@ export class PersonnelSettings implements OnInit, OnDestroy {
       return;
     }
     this.isSubmitting.set(true);
-    const val = this.positionForm.value as { name: string; code: string; description: string; level: number };
+    const val = this.positionForm.value as {
+      name: string;
+      code: string;
+      description: string;
+      level: number;
+    };
     const editing = this.editingPosition();
     const obs$ = editing
       ? this.orgService.updatePosition(this.orgId(), editing.id, val)

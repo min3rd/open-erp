@@ -8,11 +8,7 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import {
-  ConversationDto,
-  MessageDto,
-  UploadedAttachment,
-} from '../../interfaces/chat.types';
+import { ConversationDto, MessageDto, UploadedAttachment } from '../../interfaces/chat.types';
 import { ChatService, ChatUserSearchResult } from '../../services/chat-service';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -133,12 +129,10 @@ export class QuickChat implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Load current user ID
-    this.authService.user$
-      .pipe(takeUntil(this._unsubscribeAll))
-      .subscribe((user) => {
-        this.currentUserId = user?.id ?? null;
-        this.cdr.markForCheck();
-      });
+    this.authService.user$.pipe(takeUntil(this._unsubscribeAll)).subscribe((user) => {
+      this.currentUserId = user?.id ?? null;
+      this.cdr.markForCheck();
+    });
     // Subscribe to conversations
     this.chatService.conversations$
       .pipe(takeUntil(this._unsubscribeAll))
@@ -149,49 +143,41 @@ export class QuickChat implements OnInit, OnDestroy {
       });
 
     // Subscribe to messages
-    this.chatService.messages$
-      .pipe(takeUntil(this._unsubscribeAll))
-      .subscribe((messages) => {
-        this.messages = messages;
-        this.cdr.markForCheck();
-        if (!this.loadingOlderMessages) {
-          this._scrollToBottom();
-        }
-      });
+    this.chatService.messages$.pipe(takeUntil(this._unsubscribeAll)).subscribe((messages) => {
+      this.messages = messages;
+      this.cdr.markForCheck();
+      if (!this.loadingOlderMessages) {
+        this._scrollToBottom();
+      }
+    });
 
     // Subscribe to real-time new messages for toast notifications
-    this.chatService.newMessage$
-      .pipe(takeUntil(this._unsubscribeAll))
-      .subscribe((msg) => {
-        if (msg.conversationId !== this.selectedConversation?.id) {
-          const conv = this.conversations?.find(
-            (c) => c.id === msg.conversationId,
-          );
-          const senderName =
-            conv?.participants.find((p) => p.id === msg.senderId)?.fullName ??
-            this.translocoService.translate('quickChat.someone');
-          this.messageService.add({
-            severity: 'info',
-            summary: senderName,
-            detail:
-              msg.type === 'text'
-                ? msg.content ?? ''
-                : '📎 ' + this.translocoService.translate('quickChat.sentAttachment'),
-            life: 4000,
-          });
-        }
-        this.cdr.markForCheck();
-      });
+    this.chatService.newMessage$.pipe(takeUntil(this._unsubscribeAll)).subscribe((msg) => {
+      if (msg.conversationId !== this.selectedConversation?.id) {
+        const conv = this.conversations?.find((c) => c.id === msg.conversationId);
+        const senderName =
+          conv?.participants.find((p) => p.id === msg.senderId)?.fullName ??
+          this.translocoService.translate('quickChat.someone');
+        this.messageService.add({
+          severity: 'info',
+          summary: senderName,
+          detail:
+            msg.type === 'text'
+              ? (msg.content ?? '')
+              : '📎 ' + this.translocoService.translate('quickChat.sentAttachment'),
+          life: 4000,
+        });
+      }
+      this.cdr.markForCheck();
+    });
 
     // Subscribe to typing events
-    this.chatService.typing$
-      .pipe(takeUntil(this._unsubscribeAll))
-      .subscribe((event) => {
-        if (event.conversationId === this.selectedConversation?.id) {
-          this.typingUsers.set(event.userId, event.isTyping);
-          this.cdr.markForCheck();
-        }
-      });
+    this.chatService.typing$.pipe(takeUntil(this._unsubscribeAll)).subscribe((event) => {
+      if (event.conversationId === this.selectedConversation?.id) {
+        this.typingUsers.set(event.userId, event.isTyping);
+        this.cdr.markForCheck();
+      }
+    });
 
     // Debounced user search
     this._searchQuery$
@@ -272,8 +258,7 @@ export class QuickChat implements OnInit, OnDestroy {
     this.chatService.loadMessages(conversationId).subscribe({
       next: () => {
         this.loadingMessages = false;
-        this.hasMoreMessages =
-          this.chatService.messagesTotalCount > this.messages.length;
+        this.hasMoreMessages = this.chatService.messagesTotalCount > this.messages.length;
         // Mark as read on the server, and reset the badge in the service's BehaviorSubject
         // so the count stays 0 even when the service emits next.
         this.chatService.markAsRead(conversationId).subscribe();
@@ -370,12 +355,7 @@ export class QuickChat implements OnInit, OnDestroy {
   }
 
   private _loadOlderMessages(): void {
-    if (
-      !this.selectedConversation ||
-      this.loadingOlderMessages ||
-      !this.hasMoreMessages
-    )
-      return;
+    if (!this.selectedConversation || this.loadingOlderMessages || !this.hasMoreMessages) return;
 
     const el = this.messagesContainer?.nativeElement;
     const prevScrollHeight = el?.scrollHeight ?? 0;
@@ -385,11 +365,7 @@ export class QuickChat implements OnInit, OnDestroy {
     this.cdr.markForCheck();
 
     this.chatService
-      .loadOlderMessages(
-        this.selectedConversation.id,
-        this.messagesPage,
-        this._MESSAGES_PAGE_LIMIT,
-      )
+      .loadOlderMessages(this.selectedConversation.id, this.messagesPage, this._MESSAGES_PAGE_LIMIT)
       .subscribe({
         next: ({ items, hasMore }) => {
           this.hasMoreMessages = hasMore;
@@ -457,8 +433,7 @@ export class QuickChat implements OnInit, OnDestroy {
                   mimeType: result.mimeType,
                   size: result.size,
                   previewUrl:
-                    result.mimeType.startsWith('image/') ||
-                    result.mimeType.startsWith('video/')
+                    result.mimeType.startsWith('image/') || result.mimeType.startsWith('video/')
                       ? result.url
                       : undefined,
                 }
@@ -474,9 +449,7 @@ export class QuickChat implements OnInit, OnDestroy {
         error: () => {
           if (localBlobUrl) URL.revokeObjectURL(localBlobUrl);
           // Remove failed placeholder using object identity
-          this.pendingAttachments = this.pendingAttachments.filter(
-            (a) => a !== placeholder,
-          );
+          this.pendingAttachments = this.pendingAttachments.filter((a) => a !== placeholder);
           uploaded++;
           if (uploaded === files.length) {
             this.uploading = false;
@@ -576,9 +549,7 @@ export class QuickChat implements OnInit, OnDestroy {
       return message.sender;
     }
     // Fall back to looking up in the conversation's participants list
-    return this.selectedConversation?.participants.find(
-      (p) => p.id === message.senderId,
-    ) ?? null;
+    return this.selectedConversation?.participants.find((p) => p.id === message.senderId) ?? null;
   }
 
   isSelf(message: MessageDto): boolean {
@@ -660,8 +631,8 @@ export class QuickChat implements OnInit, OnDestroy {
     const names = typingUserIds
       .map(
         (id) =>
-          this.selectedConversation?.participants.find((p) => p.id === id)
-            ?.fullName ?? this.translocoService.translate('quickChat.someone'),
+          this.selectedConversation?.participants.find((p) => p.id === id)?.fullName ??
+          this.translocoService.translate('quickChat.someone'),
       )
       .join(', ');
     return `${names} is typing…`;
@@ -676,9 +647,7 @@ export class QuickChat implements OnInit, OnDestroy {
   }
 
   get totalUnread(): number {
-    return (
-      this.conversations?.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0) ?? 0
-    );
+    return this.conversations?.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0) ?? 0;
   }
 
   private _scrollToBottom(): void {
@@ -703,4 +672,3 @@ export class QuickChat implements OnInit, OnDestroy {
     this.pendingAttachments = [];
   }
 }
-

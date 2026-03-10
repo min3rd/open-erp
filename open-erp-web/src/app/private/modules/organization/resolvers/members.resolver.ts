@@ -13,19 +13,20 @@ export interface MembersResolvedData {
   total: number;
 }
 
-export const MembersResolver: ResolveFn<MembersResolvedData | null> =
-  (): Observable<MembersResolvedData | null> => {
-    const contextService = inject(OrganizationContextService);
-    const orgService = inject(OrganizationService);
+export const MembersResolver: ResolveFn<
+  MembersResolvedData | null
+> = (): Observable<MembersResolvedData | null> => {
+  const contextService = inject(OrganizationContextService);
+  const orgService = inject(OrganizationService);
 
-    const orgId = contextService.currentOrganization()?.id;
-    if (!orgId) return of(null);
+  const orgId = contextService.currentOrganization()?.id;
+  if (!orgId) return of(null);
 
-    return orgService.getOrganizationMembers(orgId, 1, 20).pipe(
-      map((response) => ({
-        items: response.data ?? response.items ?? [],
-        total: response.total,
-      })),
-      catchError(() => of(null)),
-    );
-  };
+  return orgService.getOrganizationMembers(orgId, 1, 20).pipe(
+    map((response) => ({
+      items: response.data ?? response.items ?? [],
+      total: response.total,
+    })),
+    catchError(() => of(null)),
+  );
+};

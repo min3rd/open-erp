@@ -322,7 +322,7 @@ export class ReceiptService {
         lineIndex = updatedLines.findIndex((l) => (l as any).lineId === receiveItem.lineId);
       }
       if (lineIndex === -1) {
-        lineIndex = updatedLines.findIndex((l) => l.skuId.toString() === receiveItem.skuId);
+        lineIndex = updatedLines.findIndex((l) => l.skuId?.toString() === receiveItem.skuId);
       }
 
       if (lineIndex === -1) {

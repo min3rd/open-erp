@@ -10,7 +10,7 @@ describe('FormEditorService', () => {
       providers: [FormEditorService],
     });
     service = TestBed.inject(FormEditorService);
-    
+
     // Clear localStorage before each test
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.clear();
@@ -58,7 +58,7 @@ describe('FormEditorService', () => {
           type: 'input' as ComponentType,
           label: 'Nested Input',
         },
-        layoutId
+        layoutId,
       );
 
       const schema = service.schema();
@@ -90,7 +90,7 @@ describe('FormEditorService', () => {
         {
           type: 'input' as ComponentType,
         },
-        layoutId
+        layoutId,
       );
 
       service.removeComponent(inputId);
@@ -165,7 +165,7 @@ describe('FormEditorService', () => {
 
       service.undo();
       expect(service.canRedo()).toBe(true);
-      
+
       service.redo();
 
       const schema = service.schema();
@@ -218,7 +218,7 @@ describe('FormEditorService', () => {
         {
           type: 'input' as ComponentType,
         },
-        layout1Id
+        layout1Id,
       );
 
       service.moveComponent(inputId, layout2Id, 0);

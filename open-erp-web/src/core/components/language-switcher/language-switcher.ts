@@ -78,7 +78,7 @@ export class LanguageSwitcher implements OnInit {
     const query = this.searchQuery().toLowerCase();
     if (!query) return this.allLanguages();
     return this.allLanguages().filter(
-      (lang) => lang.label.toLowerCase().includes(query) || lang.code.toLowerCase().includes(query)
+      (lang) => lang.label.toLowerCase().includes(query) || lang.code.toLowerCase().includes(query),
     );
   });
 
@@ -118,7 +118,7 @@ export class LanguageSwitcher implements OnInit {
   }
 
   getFlagForLanguageCode(code: string): string {
-    const lang = this.primaryLanguages().find(l => l.code === code);
+    const lang = this.primaryLanguages().find((l) => l.code === code);
     return this.getFlagUrl(lang?.flagCode || 'VN');
   }
 

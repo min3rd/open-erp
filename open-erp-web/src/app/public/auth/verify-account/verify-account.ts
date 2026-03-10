@@ -130,14 +130,14 @@ export class VerifyAccount implements OnInit, OnDestroy {
               summary: this.translocoService.translate('verifyAccount.messages.verificationError'),
               detail: this.translocoService.translate(
                 response.error.message ?? 'error.unknown',
-                response.error.details
+                response.error.details,
               ),
             });
           } else {
             this.messageService.add({
               severity: 'success',
               summary: this.translocoService.translate(
-                'verifyAccount.messages.verificationSuccess'
+                'verifyAccount.messages.verificationSuccess',
               ),
             });
             // Navigate to login after 2 seconds
@@ -183,7 +183,7 @@ export class VerifyAccount implements OnInit, OnDestroy {
             summary: this.translocoService.translate('verifyAccount.messages.resendError'),
             detail: this.translocoService.translate(
               response.error.message ?? 'error.unknown',
-              response.error.details
+              response.error.details,
             ),
           });
         } else {

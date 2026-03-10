@@ -28,27 +28,24 @@ export class FileApiService {
    * Create an OnlyOffice editing/viewing session
    * POST /onlyoffice/session
    */
-  createOnlyOfficeSession(
-    params: {
-      fileId?: string;
-      minioKey?: string;
-      bucket?: string;
-      filename?: string;
-      mode?: 'view' | 'edit';
-    }
-  ): Observable<OnlyOfficeSessionConfig> {
+  createOnlyOfficeSession(params: {
+    fileId?: string;
+    minioKey?: string;
+    bucket?: string;
+    filename?: string;
+    mode?: 'view' | 'edit';
+  }): Observable<OnlyOfficeSessionConfig> {
     return this.http
-      .post<ApiSingleResponse<OnlyOfficeSessionConfig>>(
-        `${this.baseUrl}/onlyoffice/session`,
-        params
-      )
+      .post<
+        ApiSingleResponse<OnlyOfficeSessionConfig>
+      >(`${this.baseUrl}/onlyoffice/session`, params)
       .pipe(
         map((response) => {
           if (!response.data?.item) {
             throw new Error('Failed to create OnlyOffice session');
           }
           return response.data.item;
-        })
+        }),
       );
   }
 }

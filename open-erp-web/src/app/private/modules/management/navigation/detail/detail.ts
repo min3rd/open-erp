@@ -163,7 +163,7 @@ export class NavigationDetail implements OnInit, OnDestroy {
               severity: 'success',
               summary: this.translocoService.translate('navigationManagement.messages.success'),
               detail: this.translocoService.translate(
-                'navigationManagement.messages.createSuccess'
+                'navigationManagement.messages.createSuccess',
               ),
             });
             this.isSaving.set(false);
@@ -189,7 +189,7 @@ export class NavigationDetail implements OnInit, OnDestroy {
               severity: 'success',
               summary: this.translocoService.translate('navigationManagement.messages.success'),
               detail: this.translocoService.translate(
-                'navigationManagement.messages.updateSuccess'
+                'navigationManagement.messages.updateSuccess',
               ),
             });
             this.isSaving.set(false);
@@ -211,7 +211,7 @@ export class NavigationDetail implements OnInit, OnDestroy {
   protected onEdit(): void {
     const item = this.item();
     if (item) {
-        this.router.navigate(['./edit'], { relativeTo: this.route });
+      this.router.navigate(['./edit'], { relativeTo: this.route });
     }
   }
 
@@ -223,18 +223,19 @@ export class NavigationDetail implements OnInit, OnDestroy {
       .subscribe((items) => {
         const flatItems = this.flattenNavigationItems(items);
         this.availableParents.set(flatItems);
-        
+
         if (this.defaultScope() === 'module' && this.defaultModule()) {
-           this.navigationService.getModuleNavigation(this.defaultModule()!, { includeHidden: true })
+          this.navigationService
+            .getModuleNavigation(this.defaultModule()!, { includeHidden: true })
             .pipe(takeUntil(this.destroy$))
-            .subscribe(moduleItems => {
-                const flatModuleItems = this.flattenNavigationItems(moduleItems);
-                this.availableParents.update(current => {
-                    // Filter duplicates by ID
-                    const ids = new Set(current.map(i => i.id));
-                    const newItems = flatModuleItems.filter(i => !ids.has(i.id));
-                    return [...current, ...newItems];
-                });
+            .subscribe((moduleItems) => {
+              const flatModuleItems = this.flattenNavigationItems(moduleItems);
+              this.availableParents.update((current) => {
+                // Filter duplicates by ID
+                const ids = new Set(current.map((i) => i.id));
+                const newItems = flatModuleItems.filter((i) => !ids.has(i.id));
+                return [...current, ...newItems];
+              });
             });
         }
       });

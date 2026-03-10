@@ -66,11 +66,11 @@ export class PicklistList implements OnInit, OnDestroy {
   protected readonly PAGE_SIZE_OPTIONS = PAGE_SIZE_OPTIONS;
 
   protected readonly columnOptions: ColumnDef[] = [
-    { field: 'lines',     header: 'wms.picklists.linesCount', sortable: false, width: '80px' },
-    { field: 'orders',    header: 'wms.picklists.orders',     sortable: false, width: '80px' },
-    { field: 'status',    header: 'wms.picklists.status',     sortable: true,  width: '130px' },
-    { field: 'notes',     header: 'wms.picklists.notes',      sortable: false },
-    { field: 'createdAt', header: 'wms.picklists.createdAt',  sortable: true,  width: '160px' },
+    { field: 'lines', header: 'wms.picklists.linesCount', sortable: false, width: '80px' },
+    { field: 'orders', header: 'wms.picklists.orders', sortable: false, width: '80px' },
+    { field: 'status', header: 'wms.picklists.status', sortable: true, width: '130px' },
+    { field: 'notes', header: 'wms.picklists.notes', sortable: false },
+    { field: 'createdAt', header: 'wms.picklists.createdAt', sortable: true, width: '160px' },
   ];
   protected selectedColumns: ColumnDef[] = [...this.columnOptions];
 

@@ -55,7 +55,14 @@ export class ImportExportService {
   getJobs(
     page = 1,
     limit = 20,
-    filters?: { q?: string; type?: string; entity?: string; status?: string; sortField?: string; sortOrder?: 'asc' | 'desc' },
+    filters?: {
+      q?: string;
+      type?: string;
+      entity?: string;
+      status?: string;
+      sortField?: string;
+      sortOrder?: 'asc' | 'desc';
+    },
   ): Observable<{ items: ImportExportJob[]; total: number; page: number; limit: number }> {
     let params = new HttpParams().set('page', page).set('limit', limit);
     if (filters?.q) params = params.set('q', filters.q);
@@ -64,9 +71,7 @@ export class ImportExportService {
     if (filters?.status) params = params.set('status', filters.status);
     if (filters?.sortField) params = params.set('sortField', filters.sortField);
     if (filters?.sortOrder) params = params.set('sortOrder', filters.sortOrder);
-    return this.http
-      .get<any>(`${this.baseUrl}/jobs`, { params })
-      .pipe(map((r) => r.data));
+    return this.http.get<any>(`${this.baseUrl}/jobs`, { params }).pipe(map((r) => r.data));
   }
 
   getJob(jobId: string): Observable<ImportExportJob> {
@@ -76,9 +81,7 @@ export class ImportExportService {
   }
 
   createExportJob(dto: CreateExportJobDto): Observable<ImportExportJob> {
-    return this.http
-      .post<any>(`${this.baseUrl}/export`, dto)
-      .pipe(map((r) => r.data?.item));
+    return this.http.post<any>(`${this.baseUrl}/export`, dto).pipe(map((r) => r.data?.item));
   }
 
   getExportStatus(jobId: string): Observable<{ id: string; status: string; progress: number }> {
@@ -108,9 +111,7 @@ export class ImportExportService {
     if (dto.orgId) formData.append('orgId', dto.orgId);
     if (dto.dryRun !== undefined) formData.append('dryRun', String(dto.dryRun));
 
-    return this.http
-      .post<any>(`${this.baseUrl}/import`, formData)
-      .pipe(map((r) => r.data?.item));
+    return this.http.post<any>(`${this.baseUrl}/import`, formData).pipe(map((r) => r.data?.item));
   }
 
   getImportStatus(jobId: string): Observable<any> {
@@ -133,9 +134,7 @@ export class ImportExportService {
   }
 
   saveMapping(dto: SaveMappingTemplateDto): Observable<MappingTemplate> {
-    return this.http
-      .post<any>(`${this.baseUrl}/mappings`, dto)
-      .pipe(map((r) => r.data?.item));
+    return this.http.post<any>(`${this.baseUrl}/mappings`, dto).pipe(map((r) => r.data?.item));
   }
 
   deleteMapping(id: string): Observable<void> {

@@ -28,7 +28,12 @@ describe('InvitesResolver', () => {
 
   beforeEach(() => {
     contextService = jasmine.createSpyObj('OrganizationContextService', ['currentOrganization'], {
-      currentOrganization: () => ({ id: 'org-1', name: 'Test Org', internationalName: 'Test Org Ltd', taxId: '1234567890' }),
+      currentOrganization: () => ({
+        id: 'org-1',
+        name: 'Test Org',
+        internationalName: 'Test Org Ltd',
+        taxId: '1234567890',
+      }),
     });
     orgService = jasmine.createSpyObj('OrganizationService', ['getOrganizationInvitations']);
 
@@ -58,9 +63,7 @@ describe('InvitesResolver', () => {
   });
 
   it('should return null when org service fails', (done) => {
-    orgService.getOrganizationInvitations.and.returnValue(
-      throwError(() => new Error('Forbidden')),
-    );
+    orgService.getOrganizationInvitations.and.returnValue(throwError(() => new Error('Forbidden')));
 
     const result = TestBed.runInInjectionContext(() =>
       InvitesResolver({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),

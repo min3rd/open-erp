@@ -7,20 +7,24 @@ This implementation adds a read-only product detail view accessible via SKU-base
 ## Key Features
 
 ### 1. SKU-Based Routing
-- Products are accessed via `/private/management/product/view/:sku` 
+
+- Products are accessed via `/private/management/product/view/:sku`
 - Uses SKU instead of internal ID for cleaner, more shareable URLs
 - Automatically resolves product data via `productDetailResolver`
 
 ### 2. Three-Section Layout
 
 #### Header
+
 - Product thumbnail (placeholder)
 - Key info: SKU, name, barcode, status, type, category, scope, unit
 - Quick actions: favorite, share, copy SKU to clipboard
 - Responsive design with flex layout
 
 #### Body (Tabs)
+
 Seven tab sections with child routes:
+
 1. **General** (`/general`) - Basic info, classification, audit data
 2. **Media** (`/media`) - Images, videos, documents (placeholder)
 3. **Weight** (`/weight`) - Weight, unit, expiry info (placeholder)
@@ -30,32 +34,39 @@ Seven tab sections with child routes:
 7. **Custom** (`/custom`) - Metadata and custom fields
 
 Each tab:
+
 - Has its own route for bookmarking
 - Uses lazy-loaded components
 - Shows read-only data
 - Displays "not available" message for placeholder tabs
 
 #### Footer
+
 Action buttons with permission checks:
+
 - **Back** - Returns to product list
 - **Deactivate** - Changes status to inactive (with confirmation)
 - **Delete** - Soft deletes product (with confirmation)
 - **Edit** - Navigate to edit view (placeholder notification)
 
 ### 3. Data Loading & Error Handling
+
 - `productDetailResolver` pre-loads product by SKU
 - Returns null and redirects to list on error/404
 - Loading spinner during operations
 - Toast notifications for success/error states
 
 ### 4. Internationalization
+
 Complete translations added for:
+
 - English (en.json)
 - Vietnamese (vi.json)
 
 All UI text uses Transloco translation keys.
 
 ### 5. Type Safety & Build
+
 - Full TypeScript strict mode compliance
 - Proper null/undefined handling with optional chaining
 - Correct relative import paths (7 levels for detail, 8 for tabs)
@@ -86,6 +97,7 @@ product/
 ## How to Test
 
 ### Prerequisites
+
 1. Backend services running with seeded data
 2. Frontend built and served
 
@@ -155,22 +167,26 @@ product/
 ## Technical Notes
 
 ### Import Paths
+
 - Components in `detail/` use 7 parent directories: `../../../../../../core`
 - Components in `detail/tabs/` use 8 parent directories: `../../../../../../../core`
 
 ### TypeScript Configuration
+
 - Strict mode enabled
 - No implicit any
 - Strict null checks
 - Optional chaining required for nullable fields
 
 ### Styling
+
 - Uses Tailwind CSS with PrimeUI theme variables
 - Custom CSS for active tab state
 - Responsive with mobile-first approach
 - Follows Fluent UI design principles
 
 ### Performance
+
 - Resolver pre-loads data before component mounts
 - Tab components only loaded when accessed
 - Signals used for reactive state management

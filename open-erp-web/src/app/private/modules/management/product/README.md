@@ -7,13 +7,13 @@ This module provides a comprehensive product management interface with list view
 ## Features
 
 ### List View
+
 - **Desktop**: Table view with advanced features
   - Server-side pagination, search, filtering, and sorting
   - Column resizing, reordering, and visibility control
   - Multi-select with bulk operations
   - Context menu on rows
   - Responsive column layout
-  
 - **Mobile**: Optimized card-based list view
   - Touch-friendly interface
   - Compact card display with key information
@@ -21,6 +21,7 @@ This module provides a comprehensive product management interface with list view
   - Action buttons on each card
 
 ### Toolbar Features
+
 - **Search**: Full-text search across product name, SKU, and barcode
 - **Filter**: Filter by product status (Active, Inactive, Draft, Discontinued)
 - **Sort**: Multiple sort options (SKU, Name, Type, Status - ascending/descending)
@@ -30,7 +31,9 @@ This module provides a comprehensive product management interface with list view
   - Bulk delete selected items
 
 ### Server-Side Operations
+
 All data operations are performed server-side for optimal performance:
+
 - Search queries
 - Filtering by status
 - Sorting by various fields
@@ -79,10 +82,12 @@ The module uses a stateful URL pattern to support browser back/forward navigatio
 The module integrates with the following backend endpoints:
 
 ### List & Search
+
 - `GET /v1/products` - Get paginated product list
   - Query params: `page`, `limit`, `search`, `status`, `type`, `scope`, `category`, `tags`, `sort`
 
 ### CRUD Operations
+
 - `GET /v1/products/:id` - Get single product
 - `POST /v1/products` - Create new product
 - `PATCH /v1/products/:id` - Update product
@@ -90,16 +95,20 @@ The module integrates with the following backend endpoints:
 - `POST /v1/products/:id/restore` - Restore deleted product
 
 ### Bulk Operations
+
 - Delete multiple products (implemented client-side via sequential API calls)
 
 ### Import/Export
+
 - `GET /v1/products/export/csv` - Export products to CSV
 - `POST /v1/products/import/csv` - Import products from CSV file
 
 ## Import/Export Format
 
 ### CSV Export
+
 Exports current filtered/searched product list to CSV with the following columns:
+
 - SKU
 - Name
 - International Name
@@ -111,11 +120,14 @@ Exports current filtered/searched product list to CSV with the following columns
 - Description
 
 ### CSV Import
+
 Import CSV file with product data. The file should include:
+
 - Required fields: `sku`, `name`, `type`, `status`, `unit`
 - Optional fields: `internationalName`, `description`, `barcode`, `category`, `scope`, `organizationId`
 
 Import results show:
+
 - Number of successfully imported products
 - Number of failed imports
 - Error details for failed rows
@@ -123,6 +135,7 @@ Import results show:
 ## Permissions
 
 The module respects the following permissions (TODO: Implementation pending):
+
 - `PRODUCT_READ` - View products
 - `PRODUCT_CREATE` - Create new products
 - `PRODUCT_UPDATE` - Edit existing products
@@ -149,6 +162,7 @@ The system supports various product types suitable for different industries:
 ## State Management
 
 The component uses Angular signals for reactive state management:
+
 - `products()` - Current page products
 - `isLoading()` - Loading state
 - `searchQuery()` - Current search text
@@ -160,11 +174,13 @@ The component uses Angular signals for reactive state management:
 ## Translation Keys
 
 All UI text is internationalized using Transloco with keys under:
+
 - `productList.*` - List view translations
 - `productType.*` - Product type translations
 - `productStatus.*` - Product status translations
 
 Supported languages:
+
 - English (`en`)
 - Vietnamese (`vi`)
 
@@ -189,6 +205,7 @@ product/
 ### Running the Application
 
 1. Start backend services:
+
    ```bash
    cd open-erp-backend
    npm i
@@ -198,6 +215,7 @@ product/
    ```
 
 2. Start frontend:
+
    ```bash
    cd open-erp-web
    npm i

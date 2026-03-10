@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  signal,
-  inject,
-  OnDestroy,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, inject, OnDestroy } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';

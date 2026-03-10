@@ -44,10 +44,12 @@ src/app/private/modules/organization/
 ### ✅ Desktop Sidebar Navigation
 
 **Two Modes:**
+
 1. **Sidebar** (256px) - Full labels + icons
 2. **Narrow** (56px) - Icons only + tooltips
 
 **Features:**
+
 - Toggle button switches between modes
 - User preference stored in localStorage
 - Active route highlighting
@@ -58,6 +60,7 @@ src/app/private/modules/organization/
 ### ✅ Mobile Header Tabs
 
 **Features:**
+
 - Tab bar at top with Register and Information tabs
 - Active tab indicator (primary color underline)
 - Touch-friendly (44px minimum height)
@@ -75,6 +78,7 @@ src/app/private/modules/organization/
 ### ✅ State Management
 
 **OrganizationLayoutService manages:**
+
 - Navigation mode (narrow/sidebar)
 - Mobile detection
 - Mobile menu visibility
@@ -136,12 +140,14 @@ src/app/private/modules/organization/
 ## Code Quality
 
 ### TypeScript Best Practices
+
 - ✓ Strict type checking
 - ✓ Type inference where appropriate
 - ✓ No `any` types used
 - ✓ Signals for reactive state
 
 ### Angular Best Practices
+
 - ✓ Standalone components
 - ✓ `input()` and `output()` functions
 - ✓ `computed()` for derived state
@@ -149,6 +155,7 @@ src/app/private/modules/organization/
 - ✓ `inject()` function for DI
 
 ### Accessibility Best Practices
+
 - ✓ Unique IDs on all elements
 - ✓ ARIA attributes properly used
 - ✓ Keyboard navigation support
@@ -195,6 +202,7 @@ Translations available in English and Spanish:
 ## Browser Support
 
 All modern browsers supporting:
+
 - ES2020+
 - CSS Grid & Flexbox
 - localStorage API
@@ -222,6 +230,7 @@ Potential improvements for future iterations:
 ## Screenshots/Mockups
 
 See `WIREFRAMES.md` for detailed ASCII art mockups showing:
+
 - Desktop sidebar mode (full width)
 - Desktop narrow mode (icon-only)
 - Mobile header tabs layout
@@ -232,6 +241,7 @@ See `WIREFRAMES.md` for detailed ASCII art mockups showing:
 ## Support
 
 For issues or questions:
+
 1. Check README.md for architecture details
 2. Review WIREFRAMES.md for visual reference
 3. Run tests: `npm test`

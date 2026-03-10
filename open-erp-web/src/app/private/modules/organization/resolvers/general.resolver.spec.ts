@@ -28,7 +28,12 @@ describe('GeneralResolver', () => {
 
   beforeEach(() => {
     contextService = jasmine.createSpyObj('OrganizationContextService', ['currentOrganization'], {
-      currentOrganization: () => ({ id: 'org-1', name: 'Test Org', internationalName: 'Test Org Ltd', taxId: '1234567890' }),
+      currentOrganization: () => ({
+        id: 'org-1',
+        name: 'Test Org',
+        internationalName: 'Test Org Ltd',
+        taxId: '1234567890',
+      }),
     });
     orgService = jasmine.createSpyObj('OrganizationService', ['getOrganization']);
 

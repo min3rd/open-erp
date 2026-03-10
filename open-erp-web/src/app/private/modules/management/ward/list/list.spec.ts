@@ -19,7 +19,13 @@ describe('WardList Component - Grouping and Sorting', () => {
 
   const mockProvinces: Province[] = [
     { id: '1', code: '01', name: 'Hà Nội', nameEn: 'Hanoi', region: 'northern' } as Province,
-    { id: '2', code: '79', name: 'Hồ Chí Minh', nameEn: 'Ho Chi Minh', region: 'southern' } as Province,
+    {
+      id: '2',
+      code: '79',
+      name: 'Hồ Chí Minh',
+      nameEn: 'Ho Chi Minh',
+      region: 'southern',
+    } as Province,
   ];
 
   const mockDistricts: District[] = [
@@ -56,8 +62,15 @@ describe('WardList Component - Grouping and Sorting', () => {
 
   beforeEach(async () => {
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-    mockWardService = jasmine.createSpyObj('WardService', ['getWards', 'deleteWard', 'exportToCSV', 'exportToGeoJSON']);
-    mockWardService.getWards.and.returnValue(of({ items: mockWards, total: 3, page: 1, limit: 10000, totalPages: 1 }));
+    mockWardService = jasmine.createSpyObj('WardService', [
+      'getWards',
+      'deleteWard',
+      'exportToCSV',
+      'exportToGeoJSON',
+    ]);
+    mockWardService.getWards.and.returnValue(
+      of({ items: mockWards, total: 3, page: 1, limit: 10000, totalPages: 1 }),
+    );
     mockTranslocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
 
     mockActivatedRoute = {
@@ -89,7 +102,10 @@ describe('WardList Component - Grouping and Sorting', () => {
         { provide: WardService, useValue: mockWardService },
         { provide: TranslocoService, useValue: mockTranslocoService },
         { provide: MessageService, useValue: jasmine.createSpyObj('MessageService', ['add']) },
-        { provide: ConfirmationService, useValue: jasmine.createSpyObj('ConfirmationService', ['confirm']) },
+        {
+          provide: ConfirmationService,
+          useValue: jasmine.createSpyObj('ConfirmationService', ['confirm']),
+        },
       ],
     }).compileComponents();
 
@@ -118,11 +134,11 @@ describe('WardList Component - Grouping and Sorting', () => {
         const groups = component['wardsByProvince']();
         expect(groups.length).toBe(2);
 
-        const hanoiGroup = groups.find(g => g.provinceCode === '01');
+        const hanoiGroup = groups.find((g) => g.provinceCode === '01');
         expect(hanoiGroup).toBeDefined();
         expect(hanoiGroup!.provinceName).toBe('Hà Nội');
 
-        const hcmGroup = groups.find(g => g.provinceCode === '79');
+        const hcmGroup = groups.find((g) => g.provinceCode === '79');
         expect(hcmGroup).toBeDefined();
         expect(hcmGroup!.provinceName).toBe('Hồ Chí Minh');
 
@@ -135,7 +151,7 @@ describe('WardList Component - Grouping and Sorting', () => {
 
       setTimeout(() => {
         component['toggleGroup']('01');
-        
+
         expect(mockWardService.getWards).toHaveBeenCalledWith({
           page: 1,
           limit: 10000,
@@ -216,7 +232,7 @@ describe('WardList Component - Grouping and Sorting', () => {
           relativeTo: mockActivatedRoute,
           queryParams: { sort: 'name:desc' },
           queryParamsHandling: 'merge',
-        })
+        }),
       );
     });
   });
@@ -270,19 +286,33 @@ describe('WardList Component - Grouping and Sorting', () => {
     it('should compute active province geometry', (done) => {
       const mockGeometry: GeoJSON.Geometry = {
         type: 'Polygon',
-        coordinates: [[[105.8, 21.0], [105.9, 21.0], [105.9, 21.1], [105.8, 21.1], [105.8, 21.0]]],
+        coordinates: [
+          [
+            [105.8, 21.0],
+            [105.9, 21.0],
+            [105.9, 21.1],
+            [105.8, 21.1],
+            [105.8, 21.0],
+          ],
+        ],
       };
-      
-      const provincesWithGeometry = mockProvinces.map(p => 
-        p.code === '01' ? { ...p, geometry: mockGeometry } : p
+
+      const provincesWithGeometry = mockProvinces.map((p) =>
+        p.code === '01' ? { ...p, geometry: mockGeometry } : p,
       );
-      
+
       mockActivatedRoute.data = of({
-        provinceList: { items: provincesWithGeometry, total: 2, page: 1, limit: 1000, totalPages: 1 },
+        provinceList: {
+          items: provincesWithGeometry,
+          total: 2,
+          page: 1,
+          limit: 1000,
+          totalPages: 1,
+        },
         districtList: { items: mockDistricts, total: 2, page: 1, limit: 10000, totalPages: 1 },
       });
       mockActivatedRoute.params = of({ provinceCode: '01' });
-      
+
       fixture = TestBed.createComponent(WardList);
       component = fixture.componentInstance;
       fixture.detectChanges();
@@ -302,7 +332,7 @@ describe('WardList Component - Grouping and Sorting', () => {
         ['/management/ward', '01'],
         jasmine.objectContaining({
           queryParamsHandling: 'preserve',
-        })
+        }),
       );
     });
   });
@@ -332,7 +362,7 @@ describe('WardList Component - Grouping and Sorting', () => {
           relativeTo: mockActivatedRoute,
           queryParams: { search: 'test query' },
           queryParamsHandling: 'merge',
-        })
+        }),
       );
     });
 
@@ -348,7 +378,7 @@ describe('WardList Component - Grouping and Sorting', () => {
           relativeTo: mockActivatedRoute,
           queryParams: { search: undefined },
           queryParamsHandling: 'merge',
-        })
+        }),
       );
     });
   });
@@ -357,17 +387,17 @@ describe('WardList Component - Grouping and Sorting', () => {
     it('should export to CSV with current filters', (done) => {
       const mockBlob = new Blob(['test'], { type: 'text/csv' });
       mockWardService.exportToCSV.and.returnValue(of(mockBlob));
-      
+
       fixture.detectChanges();
 
       setTimeout(() => {
         component['onExportCSV']();
-        
+
         expect(mockWardService.exportToCSV).toHaveBeenCalledWith({
           q: undefined,
           provinceCode: undefined,
         });
-        
+
         done();
       }, 100);
     });
@@ -375,7 +405,7 @@ describe('WardList Component - Grouping and Sorting', () => {
     it('should export to CSV with active province filter', (done) => {
       const mockBlob = new Blob(['test'], { type: 'text/csv' });
       mockWardService.exportToCSV.and.returnValue(of(mockBlob));
-      
+
       mockActivatedRoute.params = of({ provinceCode: '01' });
       fixture = TestBed.createComponent(WardList);
       component = fixture.componentInstance;
@@ -383,12 +413,12 @@ describe('WardList Component - Grouping and Sorting', () => {
 
       setTimeout(() => {
         component['onExportCSV']();
-        
+
         expect(mockWardService.exportToCSV).toHaveBeenCalledWith({
           q: undefined,
           provinceCode: '01',
         });
-        
+
         done();
       }, 100);
     });
@@ -396,17 +426,17 @@ describe('WardList Component - Grouping and Sorting', () => {
     it('should export to GeoJSON with current filters', (done) => {
       const mockBlob = new Blob(['test'], { type: 'application/geo+json' });
       mockWardService.exportToGeoJSON.and.returnValue(of(mockBlob));
-      
+
       fixture.detectChanges();
 
       setTimeout(() => {
         component['onExportGeoJSON']();
-        
+
         expect(mockWardService.exportToGeoJSON).toHaveBeenCalledWith({
           q: undefined,
           provinceCode: undefined,
         });
-        
+
         done();
       }, 100);
     });

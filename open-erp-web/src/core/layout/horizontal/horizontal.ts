@@ -6,4 +6,4 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   templateUrl: './horizontal.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Horizontal { }
+export class Horizontal {}

@@ -8,7 +8,7 @@ export class ApiResponseError extends Error {
     public readonly code: string,
     message: string,
     public readonly details?: Record<string, any>,
-    public readonly timestamp?: string
+    public readonly timestamp?: string,
   ) {
     super(message);
     this.name = 'ApiResponseError';
@@ -23,12 +23,12 @@ export class ApiResponseError extends Error {
 /**
  * Unwraps an API response envelope and returns the data payload
  * Throws ApiResponseError if the response indicates failure
- * 
+ *
  * @template T - The type of data payload
  * @param response - The API response envelope
  * @returns The unwrapped data payload
  * @throws {ApiResponseError} When success is false or data is missing
- * 
+ *
  * @example
  * ```typescript
  * const response = await http.get<ApiResponse<User>>('/api/users/1');
@@ -44,7 +44,7 @@ export function unwrap<T>(response: ApiResponse<T>): T {
       'UNKNOWN_ERROR',
       response.message || 'An unknown error occurred',
       undefined,
-      new Date().toISOString()
+      new Date().toISOString(),
     );
   }
 
@@ -53,7 +53,7 @@ export function unwrap<T>(response: ApiResponse<T>): T {
       'NO_DATA',
       'Response succeeded but contained no data',
       undefined,
-      new Date().toISOString()
+      new Date().toISOString(),
     );
   }
 
@@ -63,7 +63,7 @@ export function unwrap<T>(response: ApiResponse<T>): T {
 /**
  * Validates that a response has the expected API envelope structure
  * This can be used as a type guard or validation check
- * 
+ *
  * @param response - The response to validate
  * @returns true if response has valid envelope structure
  */
@@ -79,7 +79,7 @@ export function isApiResponse<T = any>(response: any): response is ApiResponse<T
 /**
  * Normalizes various error formats into a consistent ApiError structure
  * Useful for handling legacy responses or non-standard error formats
- * 
+ *
  * @param error - The error to normalize
  * @returns A normalized ApiError object
  */
@@ -119,7 +119,7 @@ export function normalizeError(error: any): ApiError {
 /**
  * Wraps data in a successful API response envelope
  * Useful for creating mock responses or transforming legacy data
- * 
+ *
  * @template T - The type of data payload
  * @param data - The data to wrap
  * @param message - Optional success message
@@ -129,7 +129,7 @@ export function normalizeError(error: any): ApiError {
 export function wrapSuccess<T, M = Record<string, any>>(
   data: T,
   message?: string,
-  meta?: M
+  meta?: M,
 ): ApiResponse<T, M> {
   return {
     success: true,
@@ -143,7 +143,7 @@ export function wrapSuccess<T, M = Record<string, any>>(
 /**
  * Wraps an error in a failed API response envelope
  * Useful for creating mock error responses or transforming legacy errors
- * 
+ *
  * @param error - The error to wrap
  * @param message - Optional error message override
  * @returns A properly formatted API error response

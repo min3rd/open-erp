@@ -3,11 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { API_URI_COMMON } from '../../../../../../core/constant';
-import { 
-  ApiPaginatedResponse, 
-  ApiSingleResponse,
-  unwrap
-} from '../../../../../../core/api';
+import { ApiPaginatedResponse, ApiSingleResponse, unwrap } from '../../../../../../core/api';
 import {
   District,
   GetDistrictsParams,
@@ -21,7 +17,7 @@ import {
 })
 export class DistrictService {
   private http = inject(HttpClient);
-  
+
   // BehaviorSubject to manage district list state
   private districtsSubject = new BehaviorSubject<District[]>([]);
   public districts$ = this.districtsSubject.asObservable();
@@ -29,7 +25,15 @@ export class DistrictService {
   /**
    * Get districts list with pagination and filtering
    */
-  getDistricts(params: GetDistrictsParams): Observable<{ items: District[]; total: number; page: number; limit: number; totalPages: number }> {
+  getDistricts(
+    params: GetDistrictsParams,
+  ): Observable<{
+    items: District[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
     let httpParams = new HttpParams()
       .set('page', (params.page || 1).toString())
       .set('limit', (params.limit || 100).toString());
@@ -51,18 +55,15 @@ export class DistrictService {
     }
 
     return this.http
-      .get<ApiPaginatedResponse<District>>(
-        `${API_URI_COMMON}/v1/districts`,
-        {
-          params: httpParams,
-        }
-      )
+      .get<ApiPaginatedResponse<District>>(`${API_URI_COMMON}/v1/districts`, {
+        params: httpParams,
+      })
       .pipe(
         map((response) => {
           const data = unwrap(response);
           this.districtsSubject.next(data.items);
           return data;
-        })
+        }),
       );
   }
 
@@ -76,7 +77,7 @@ export class DistrictService {
         map((response) => {
           const data = unwrap(response);
           return data.item!;
-        })
+        }),
       );
   }
 
@@ -84,19 +85,17 @@ export class DistrictService {
    * Create a new district
    */
   createDistrict(dto: CreateDistrictDto): Observable<District> {
-    return this.http
-      .post<ApiSingleResponse<District>>(`${API_URI_COMMON}/v1/districts`, dto)
-      .pipe(
-        map((response) => {
-          const data = unwrap(response);
-          return data.item!;
-        }),
-        tap((district) => {
-          // Add the new district to the list
-          const currentList = this.districtsSubject.value;
-          this.districtsSubject.next([district, ...currentList]);
-        })
-      );
+    return this.http.post<ApiSingleResponse<District>>(`${API_URI_COMMON}/v1/districts`, dto).pipe(
+      map((response) => {
+        const data = unwrap(response);
+        return data.item!;
+      }),
+      tap((district) => {
+        // Add the new district to the list
+        const currentList = this.districtsSubject.value;
+        this.districtsSubject.next([district, ...currentList]);
+      }),
+    );
   }
 
   /**
@@ -113,9 +112,9 @@ export class DistrictService {
         tap((district) => {
           // Update the district in the list
           const currentList = this.districtsSubject.value;
-          const updatedList = currentList.map(d => d.code === district.code ? district : d);
+          const updatedList = currentList.map((d) => (d.code === district.code ? district : d));
           this.districtsSubject.next(updatedList);
-        })
+        }),
       );
   }
 
@@ -127,9 +126,9 @@ export class DistrictService {
       tap(() => {
         // Remove the district from the list
         const currentList = this.districtsSubject.value;
-        const updatedList = currentList.filter(d => d.code !== code);
+        const updatedList = currentList.filter((d) => d.code !== code);
         this.districtsSubject.next(updatedList);
-      })
+      }),
     );
   }
 
@@ -161,7 +160,7 @@ export class DistrictService {
       {
         params: httpParams,
         responseType: 'blob',
-      }
+      },
     );
   }
 
@@ -193,7 +192,7 @@ export class DistrictService {
       {
         params: httpParams,
         responseType: 'blob',
-      }
+      },
     );
   }
 
@@ -205,15 +204,12 @@ export class DistrictService {
     formData.append('file', file);
 
     return this.http
-      .post<ApiSingleResponse<ImportResult>>(
-        `${API_URI_COMMON}/v1/districts/import`,
-        formData
-      )
+      .post<ApiSingleResponse<ImportResult>>(`${API_URI_COMMON}/v1/districts/import`, formData)
       .pipe(
         map((response) => {
           const data = unwrap(response);
           return data.item!;
-        })
+        }),
       );
   }
 }

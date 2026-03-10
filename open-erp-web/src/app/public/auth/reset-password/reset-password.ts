@@ -67,7 +67,7 @@ export class ResetPassword implements OnInit, OnDestroy {
         validators: [Validators.required],
       }),
     },
-    { validators: this.passwordMatchValidator }
+    { validators: this.passwordMatchValidator },
   );
 
   ngOnInit(): void {
@@ -196,7 +196,7 @@ export class ResetPassword implements OnInit, OnDestroy {
                 summary: this.translocoService.translate('resetPassword.messages.resetError'),
                 detail: this.translocoService.translate(
                   response.error.message ?? 'error.unknown',
-                  response.error.details
+                  response.error.details,
                 ),
               });
             }

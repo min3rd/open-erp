@@ -1,17 +1,15 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  signal,
-  inject,
-  OnInit,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { AuthService, TwoFAVerifyDto, TwoFALoginResponse } from '../../../../core/services/auth-service';
+import {
+  AuthService,
+  TwoFAVerifyDto,
+  TwoFALoginResponse,
+} from '../../../../core/services/auth-service';
 import { MessageService } from 'primeng/api';
 import { ApiResponse } from '../../../../core/api';
 

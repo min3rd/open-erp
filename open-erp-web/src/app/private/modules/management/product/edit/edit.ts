@@ -42,8 +42,14 @@ import {
 import { ProductTypeService } from '../../../../../../core/services/product-type/product-type.service';
 import { ProductCategoryService } from '../../../../../../core/services/product-category/product-category.service';
 import { OrganizationContextService } from '../../../../../../core/services/organization-context.service';
-import { FileApiService, OnlyOfficeSessionConfig } from '../../../../../../core/services/file-service';
-import { PRODUCT_STATUS_OPTIONS, PRODUCT_UNIT_OPTIONS } from '../../../../../../core/constants/ui.constants';
+import {
+  FileApiService,
+  OnlyOfficeSessionConfig,
+} from '../../../../../../core/services/file-service';
+import {
+  PRODUCT_STATUS_OPTIONS,
+  PRODUCT_UNIT_OPTIONS,
+} from '../../../../../../core/constants/ui.constants';
 import { UserDatePipe } from '../../../../../../core/pipes/user-date.pipe';
 
 interface SelectOption {
@@ -268,19 +274,19 @@ export class ProductEdit implements OnInit, OnDestroy {
       type: product.type,
       categoryId: product.categoryId || '',
       unit: product.unit,
-      
+
       // Dimensions from product.dimensions (not metadata)
       weight: product.dimensions?.weight || null,
       length: product.dimensions?.length || null,
       width: product.dimensions?.width || null,
       height: product.dimensions?.height || null,
-      
+
       // Storage conditions from product.storageConditions (not metadata)
       storageConditions: product.storageConditions?.specialInstructions || '',
-      
+
       // Expiry from product.shelfLifeDays (not metadata)
       expiryDays: product.shelfLifeDays || null,
-      
+
       // Keep metadata for any custom fields
       warehouseSettings: product.metadata?.['warehouseSettings'] || {},
       metadata: product.metadata || {},
@@ -443,8 +449,8 @@ export class ProductEdit implements OnInit, OnDestroy {
       const fileType = file.type.startsWith('image/')
         ? 'image'
         : file.type.startsWith('video/')
-        ? 'video'
-        : 'document';
+          ? 'video'
+          : 'document';
 
       newMediaFiles.push({
         file,
@@ -482,7 +488,7 @@ export class ProductEdit implements OnInit, OnDestroy {
     if (media.isExisting) {
       // Mark existing media for deletion
       this.mediaFiles.update((files) =>
-        files.map((f, i) => (i === index ? { ...f, isMarkedForDeletion: true } : f))
+        files.map((f, i) => (i === index ? { ...f, isMarkedForDeletion: true } : f)),
       );
     } else {
       // Remove new media from list
@@ -495,7 +501,7 @@ export class ProductEdit implements OnInit, OnDestroy {
    */
   protected onRestoreMedia(index: number): void {
     this.mediaFiles.update((files) =>
-      files.map((f, i) => (i === index ? { ...f, isMarkedForDeletion: false } : f))
+      files.map((f, i) => (i === index ? { ...f, isMarkedForDeletion: false } : f)),
     );
   }
 
@@ -526,7 +532,10 @@ export class ProductEdit implements OnInit, OnDestroy {
   /**
    * Open OnlyOffice editor for a media file
    */
-  protected async onOpenOnlyOffice(mediaFile: MediaFile, mode: 'view' | 'edit' = 'view'): Promise<void> {
+  protected async onOpenOnlyOffice(
+    mediaFile: MediaFile,
+    mode: 'view' | 'edit' = 'view',
+  ): Promise<void> {
     if (!mediaFile.minioObjectKey || !mediaFile.filename) {
       this.messageService.add({
         severity: 'error',
@@ -543,7 +552,7 @@ export class ProductEdit implements OnInit, OnDestroy {
           bucket: mediaFile.minioBucket,
           filename: mediaFile.filename,
           mode,
-        })
+        }),
       );
 
       this.onlyOfficeConfig.set(sessionConfig);
@@ -556,7 +565,9 @@ export class ProductEdit implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'error',
         summary: this.translocoService.translate('productEdit.messages.error'),
-        detail: err?.error?.message || this.translocoService.translate('productEdit.messages.onlyOfficeFailed'),
+        detail:
+          err?.error?.message ||
+          this.translocoService.translate('productEdit.messages.onlyOfficeFailed'),
       });
     }
   }
@@ -599,7 +610,11 @@ export class ProductEdit implements OnInit, OnDestroy {
       this.detachedWindow.close();
     }
 
-    const w = window.open('', '_blank', 'width=1200,height=800,menubar=no,toolbar=no,location=no,status=no');
+    const w = window.open(
+      '',
+      '_blank',
+      'width=1200,height=800,menubar=no,toolbar=no,location=no,status=no',
+    );
     if (!w) {
       this.messageService.add({
         severity: 'warn',
@@ -634,7 +649,10 @@ export class ProductEdit implements OnInit, OnDestroy {
     return new Promise((resolve) => {
       let attempts = 0;
       const check = () => {
-        if (this.document.getElementById('onlyoffice-editor-container') || attempts >= maxAttempts) {
+        if (
+          this.document.getElementById('onlyoffice-editor-container') ||
+          attempts >= maxAttempts
+        ) {
           resolve();
         } else {
           attempts++;
@@ -757,7 +775,9 @@ export class ProductEdit implements OnInit, OnDestroy {
     const mediaToDelete = this.mediaFiles().filter((m) => m.isExisting && m.isMarkedForDeletion);
     for (const media of mediaToDelete) {
       if (media.minioObjectKey) {
-        await firstValueFrom(this.productService.deleteProductMedia(productId, media.minioObjectKey));
+        await firstValueFrom(
+          this.productService.deleteProductMedia(productId, media.minioObjectKey),
+        );
       }
     }
   }
@@ -770,7 +790,7 @@ export class ProductEdit implements OnInit, OnDestroy {
     for (const mediaFile of newMedia) {
       if (mediaFile.file) {
         const mediaUrl = await this.uploadFile(mediaFile.file, 'media', organizationId);
-        
+
         // Register media with product - use correct field names per backend DTO
         await firstValueFrom(
           this.productService.registerProductMedia(productId, {
@@ -781,7 +801,7 @@ export class ProductEdit implements OnInit, OnDestroy {
             contentType: mediaFile.file.type,
             size: mediaFile.file.size,
             title: mediaFile.filename,
-          })
+          }),
         );
       }
     }
@@ -867,7 +887,7 @@ export class ProductEdit implements OnInit, OnDestroy {
       }
 
       // Handle dimensions changes (compare with product.dimensions, not metadata)
-      const hasDimensionChanges = 
+      const hasDimensionChanges =
         formValue.weight !== (product.dimensions?.weight || null) ||
         formValue.length !== (product.dimensions?.length || null) ||
         formValue.width !== (product.dimensions?.width || null) ||
@@ -895,7 +915,7 @@ export class ProductEdit implements OnInit, OnDestroy {
         dto.storageConditions = {
           specialInstructions: formValue.storageConditions || undefined,
         };
-        
+
         if (formValue.expiryDays !== (product.shelfLifeDays || null)) {
           dto.shelfLifeDays = formValue.expiryDays || undefined;
           dto.hasExpiryDate = formValue.expiryDays !== null && formValue.expiryDays > 0;
@@ -907,7 +927,7 @@ export class ProductEdit implements OnInit, OnDestroy {
         const thumbnailUrl = await this.uploadFile(
           this.newThumbnailFile,
           'thumbnail',
-          product.organizationId
+          product.organizationId,
         );
         dto.thumbnail = {
           url: thumbnailUrl.publicUrl,
@@ -940,12 +960,12 @@ export class ProductEdit implements OnInit, OnDestroy {
         summary: this.translocoService.translate('productEdit.messages.success'),
         detail: this.translocoService.translate('productEdit.messages.updateSuccess'),
       });
-      
+
       this.isLoading.set(false);
       this.onClose();
     } catch (error: any) {
       console.error('Save failed:', error);
-      
+
       // Handle 403 Forbidden
       if (error?.status === 403) {
         this.messageService.add({
@@ -962,7 +982,7 @@ export class ProductEdit implements OnInit, OnDestroy {
             this.translocoService.translate('productEdit.messages.saveFailed'),
         });
       }
-      
+
       this.isLoading.set(false);
     }
   }
@@ -973,14 +993,14 @@ export class ProductEdit implements OnInit, OnDestroy {
   private async uploadFile(
     file: File,
     type: 'thumbnail' | 'media',
-    organizationId?: string
+    organizationId?: string,
   ): Promise<{ publicUrl: string; objectKey: string; bucket: string }> {
     // Determine if we're editing an existing product (product-scoped upload)
     const productId = this.route.snapshot.paramMap.get('id');
 
     // Get presigned URL from backend
     const presignData = await firstValueFrom(
-      this.productService.getPresignedUploadUrl(file.name, file.type, type, organizationId)
+      this.productService.getPresignedUploadUrl(file.name, file.type, type, organizationId),
     );
 
     if (!presignData) {

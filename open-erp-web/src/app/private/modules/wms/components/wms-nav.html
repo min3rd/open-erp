@@ -12,12 +12,9 @@
     [class.justify-center]="navMode() === 'narrow'"
   >
     @if (navMode() === 'sidebar') {
-    <h2
-      id="wms-nav-title"
-      class="text-lg font-semibold text-surface-900 dark:text-surface-0"
-    >
-      {{ 'wms.title' | transloco }}
-    </h2>
+      <h2 id="wms-nav-title" class="text-lg font-semibold text-surface-900 dark:text-surface-0">
+        {{ 'wms.title' | transloco }}
+      </h2>
     }
     <p-button
       id="wms-nav-toggle"

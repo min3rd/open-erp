@@ -104,15 +104,15 @@ export class AdministrativeUnitList implements OnInit, OnDestroy {
   protected readonly viewMode = signal<'2-level' | '3-level'>('3-level');
   protected readonly showLegacy = signal<boolean>(true);
   protected readonly viewModeOptions = computed(() => [
-    { 
-      label: this.translocoService.translate('administrativeUnit.viewMode.2-level'), 
-      value: '2-level', 
-      icon: 'pi pi-list' 
+    {
+      label: this.translocoService.translate('administrativeUnit.viewMode.2-level'),
+      value: '2-level',
+      icon: 'pi pi-list',
     },
-    { 
-      label: this.translocoService.translate('administrativeUnit.viewMode.3-level'), 
-      value: '3-level', 
-      icon: 'pi pi-sitemap' 
+    {
+      label: this.translocoService.translate('administrativeUnit.viewMode.3-level'),
+      value: '3-level',
+      icon: 'pi pi-sitemap',
     },
   ]);
 
@@ -156,7 +156,7 @@ export class AdministrativeUnitList implements OnInit, OnDestroy {
       () => {
         this.isMobile.set(window.innerWidth < 768);
       },
-      { allowSignalWrites: true }
+      { allowSignalWrites: true },
     );
 
     // Watch view mode changes and reload tree
@@ -164,7 +164,7 @@ export class AdministrativeUnitList implements OnInit, OnDestroy {
       const mode = this.viewMode();
       // Collapse all nodes when switching view mode
       const nodes = this.treeNodes();
-      nodes.forEach(node => {
+      nodes.forEach((node) => {
         node.expanded = false;
         node.children = [];
       });
@@ -202,7 +202,7 @@ export class AdministrativeUnitList implements OnInit, OnDestroy {
           },
         ]);
       },
-      { allowSignalWrites: true }
+      { allowSignalWrites: true },
     );
   }
 
@@ -280,7 +280,9 @@ export class AdministrativeUnitList implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: this.translocoService.translate('administrativeUnit.messages.error'),
-            detail: this.translocoService.translate('administrativeUnit.messages.loadChildrenFailed'),
+            detail: this.translocoService.translate(
+              'administrativeUnit.messages.loadChildrenFailed',
+            ),
           });
           this.treeNodes.set([...this.treeNodes()]);
         },
@@ -310,7 +312,9 @@ export class AdministrativeUnitList implements OnInit, OnDestroy {
     const filterValue = term || 'all';
 
     // Navigate to update the route
-    this.router.navigate([`/private/modules/management/administrative-unit/${filterValue}/1/${this.limit()}`]);
+    this.router.navigate([
+      `/private/modules/management/administrative-unit/${filterValue}/1/${this.limit()}`,
+    ]);
   }
 
   /**
@@ -390,11 +394,11 @@ export class AdministrativeUnitList implements OnInit, OnDestroy {
     const nodeType = this.getNodeType(node);
     // Determine child type based on parent
     const childType = nodeType === 'province' ? 'district' : 'ward';
-    this.router.navigate([childType, 'new'], { 
+    this.router.navigate([childType, 'new'], {
       relativeTo: this.route,
-      queryParams: { 
-        [nodeType === 'province' ? 'provinceCode' : 'districtCode']: unit.code 
-      }
+      queryParams: {
+        [nodeType === 'province' ? 'provinceCode' : 'districtCode']: unit.code,
+      },
     });
   }
 
@@ -419,9 +423,12 @@ export class AdministrativeUnitList implements OnInit, OnDestroy {
               this.messageService.add({
                 severity: 'success',
                 summary: this.translocoService.translate('administrativeUnit.messages.success'),
-                detail: this.translocoService.translate('administrativeUnit.messages.deleteSuccess', {
-                  name: unit.name,
-                }),
+                detail: this.translocoService.translate(
+                  'administrativeUnit.messages.deleteSuccess',
+                  {
+                    name: unit.name,
+                  },
+                ),
               });
               this.refresh();
             },

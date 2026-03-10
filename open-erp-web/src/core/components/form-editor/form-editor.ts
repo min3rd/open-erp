@@ -53,11 +53,20 @@ export class FormEditor {
   /**
    * Handle component drop from palette
    */
-  onComponentDropped(event: { componentType: string; parentId: string | null; columnIndex: number; position: number }): void {
+  onComponentDropped(event: {
+    componentType: string;
+    parentId: string | null;
+    columnIndex: number;
+    position: number;
+  }): void {
     // Find component definition
     const component = this.findComponentDefinition(event.componentType);
     if (component) {
-      const id = this.editorService.addComponent(component.defaultConfig, event.parentId || undefined, event.position >= 0 ? event.position : undefined);
+      const id = this.editorService.addComponent(
+        component.defaultConfig,
+        event.parentId || undefined,
+        event.position >= 0 ? event.position : undefined,
+      );
       this.editorService.selectComponent(id);
     }
   }
@@ -65,11 +74,16 @@ export class FormEditor {
   /**
    * Handle moving existing component
    */
-  onComponentMoved(event: { componentId: string; targetParentId: string | null; columnIndex: number; position: number }): void {
+  onComponentMoved(event: {
+    componentId: string;
+    targetParentId: string | null;
+    columnIndex: number;
+    position: number;
+  }): void {
     this.editorService.moveComponent(
       event.componentId,
       event.targetParentId,
-      event.position >= 0 ? event.position : 0
+      event.position >= 0 ? event.position : 0,
     );
   }
 
@@ -84,7 +98,7 @@ export class FormEditor {
       const id = this.editorService.addComponent(
         defaultComponent.defaultConfig,
         event.parentId || undefined,
-        event.position >= 0 ? event.position : undefined
+        event.position >= 0 ? event.position : undefined,
       );
       this.editorService.selectComponent(id);
     }
