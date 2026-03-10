@@ -196,8 +196,37 @@
 
         <!-- ── Lines Tab ─────────────────────────────────────────────── -->
         <p-tabpanel [value]="1">
-          <div class="flex justify-between items-center py-2">
-            <span class="text-sm font-medium">{{ 'wms.receipts.lines' | transloco }}</span>
+          <!-- Toolbar: scope toggle + add line -->
+          <div class="flex flex-wrap justify-between items-center gap-2 py-2">
+            <!-- Catalog scope toggle -->
+            <div
+              role="group"
+              [attr.aria-label]="'wms.receipts.catalogScope' | transloco"
+              class="flex items-center gap-1 rounded-lg border border-surface p-0.5 bg-surface-ground"
+            >
+              <button
+                type="button"
+                class="px-3 py-1 text-xs font-medium rounded-md transition-colors"
+                [class.bg-primary]="catalogScope() === 'org'"
+                [class.text-white]="catalogScope() === 'org'"
+                [class.text-surface-600]="catalogScope() !== 'org'"
+                (click)="toggleCatalogScope('org')"
+                [disabled]="isView()"
+              >
+                {{ 'wms.receipts.orgCatalog' | transloco }}
+              </button>
+              <button
+                type="button"
+                class="px-3 py-1 text-xs font-medium rounded-md transition-colors"
+                [class.bg-primary]="catalogScope() === 'global'"
+                [class.text-white]="catalogScope() === 'global'"
+                [class.text-surface-600]="catalogScope() !== 'global'"
+                (click)="toggleCatalogScope('global')"
+                [disabled]="isView()"
+              >
+                {{ 'wms.receipts.globalCatalog' | transloco }}
+              </button>
+            </div>
             @if (!isView()) {
               <p-button
                 [label]="'wms.receipts.addLine' | transloco"
@@ -220,7 +249,7 @@
                   [formGroupName]="i"
                   class="rounded-lg border border-surface p-3 flex flex-col gap-2"
                 >
-                  <!-- Row 1: SKU autocomplete + unit + qty -->
+                  <!-- Row 1: SKU autocomplete + quick-create button -->
                   <div class="flex gap-2 items-end">
                     <!-- SKU Code (autocomplete from catalog) -->
                     <div class="flex flex-col gap-1 flex-1 min-w-0">
@@ -250,27 +279,23 @@
                           </div>
                         </ng-template>
                       </p-autocomplete>
-                    </div>
-                    <!-- Ordered Qty -->
-                    <div class="flex flex-col gap-1 w-24">
-                      <label class="text-xs text-surface-400"
-                        >{{ 'wms.receipts.orderedQty' | transloco }} *</label
-                      >
-                      <p-inputnumber
-                        formControlName="orderedQty"
-                        [min]="0"
-                        size="small"
-                        styleClass="w-full"
-                      />
-                    </div>
-                    <!-- Unit -->
-                    <div class="flex flex-col gap-1 w-20">
-                      <label class="text-xs text-surface-400">{{
-                        'wms.receipts.unit' | transloco
-                      }}</label>
-                      <input pInputText formControlName="unit" size="small" placeholder="pcs" />
+                      @if (line.get('skuCode')?.invalid && line.get('skuCode')?.touched) {
+                        <small class="text-red-500 text-xs">{{ 'common.required' | transloco }}</small>
+                      }
                     </div>
                     @if (!isView()) {
+                      <!-- Quick-create SKU button -->
+                      <p-button
+                        icon="pi pi-plus-circle"
+                        severity="secondary"
+                        size="small"
+                        [text]="true"
+                        [pTooltip]="'wms.receipts.quickCreateSku' | transloco"
+                        tooltipPosition="top"
+                        class="shrink-0"
+                        (onClick)="quickCreateSku(i)"
+                      />
+                      <!-- Remove line button -->
                       <p-button
                         icon="pi pi-trash"
                         severity="danger"
@@ -282,6 +307,7 @@
                       />
                     }
                   </div>
+
                   <!-- Row 2: Item Name (auto-filled, editable) -->
                   <div class="flex flex-col gap-1">
                     <label class="text-xs text-surface-400">{{
@@ -294,6 +320,32 @@
                       class="w-full"
                       [placeholder]="'wms.receipts.skuNamePlaceholder' | transloco"
                     />
+                  </div>
+
+                  <!-- Row 3: Ordered Qty + Unit -->
+                  <div class="flex gap-2 items-end">
+                    <!-- Ordered Qty -->
+                    <div class="flex flex-col gap-1 flex-1">
+                      <label class="text-xs text-surface-400"
+                        >{{ 'wms.receipts.orderedQty' | transloco }} *</label
+                      >
+                      <p-inputnumber
+                        formControlName="orderedQty"
+                        [min]="0"
+                        size="small"
+                        styleClass="w-full"
+                      />
+                      @if (line.get('orderedQty')?.invalid && line.get('orderedQty')?.touched) {
+                        <small class="text-red-500 text-xs">{{ 'wms.receipts.qtyMin' | transloco }}</small>
+                      }
+                    </div>
+                    <!-- Unit -->
+                    <div class="flex flex-col gap-1 w-24">
+                      <label class="text-xs text-surface-400">{{
+                        'wms.receipts.unit' | transloco
+                      }}</label>
+                      <input pInputText formControlName="unit" size="small" placeholder="pcs" />
+                    </div>
                   </div>
                 </div>
               }
@@ -502,4 +554,12 @@
   [visible]="quickWarehouseDrawerVisible()"
   (visibleChange)="quickWarehouseDrawerVisible.set($event)"
   (warehouseCreated)="onQuickWarehouseCreated($event)"
+/>
+
+<!-- Quick-create SKU drawer (nested, appears in front of the receipt drawer) -->
+<app-sku-quick-create-drawer
+  [visible]="quickSkuDrawerVisible()"
+  (visibleChange)="quickSkuDrawerVisible.set($event)"
+  [prefillCode]="quickSkuPrefillCode()"
+  (skuCreated)="onSkuCreated($event)"
 />

@@ -3847,7 +3847,13 @@
       "refDocLinesPlaceholder": "Select lines this document relates to",
       "uploadFile": "Upload from computer",
       "saveFirstToUpload": "Save the receipt first to enable file upload",
-      "quickCreateWarehouse": "Quick-create warehouse"
+      "quickCreateWarehouse": "Quick-create warehouse",
+      "globalCatalog": "Global Catalog",
+      "orgCatalog": "Org Catalog",
+      "catalogScope": "Catalog scope",
+      "quickCreateSku": "Quick-create SKU",
+      "createTitle": "Create Receipt",
+      "qtyMin": "Qty must be ≥ 0"
     },
     "picklists": {
       "title": "Picklists",
@@ -3892,6 +3898,20 @@
       "addressPlaceholder": "e.g. 123 Main Street",
       "randomize": "Randomize",
       "successMessage": "Warehouse created and selected"
+    },
+    "quickSku": {
+      "title": "Quick-create SKU",
+      "name": "Name",
+      "namePlaceholder": "e.g. Product A",
+      "code": "SKU Code",
+      "codePlaceholder": "e.g. SKU-001",
+      "codeAutoHint": "auto-generated from name if empty",
+      "unit": "Unit",
+      "unitPlaceholder": "Select unit",
+      "barcode": "Barcode",
+      "barcodePlaceholder": "Optional barcode",
+      "randomize": "Randomize",
+      "successMessage": "SKU created and selected"
     }
   },
   "workflowTemplate": {

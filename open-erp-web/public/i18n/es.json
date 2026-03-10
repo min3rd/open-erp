@@ -2757,7 +2757,13 @@
       "refDocLinesPlaceholder": "Seleccionar líneas relacionadas con este documento",
       "uploadFile": "Subir desde computador",
       "saveFirstToUpload": "Guarde el recibo primero para habilitar la carga de archivos",
-      "quickCreateWarehouse": "Crear bodega rápidamente"
+      "quickCreateWarehouse": "Crear bodega rápidamente",
+      "globalCatalog": "Catálogo Global",
+      "orgCatalog": "Catálogo de Organización",
+      "catalogScope": "Ámbito del catálogo",
+      "quickCreateSku": "Crear SKU rápidamente",
+      "createTitle": "Crear Recepción",
+      "qtyMin": "La cantidad debe ser ≥ 0"
     },
     "picklists": {
       "title": "Listas de Picking",
@@ -2802,6 +2808,20 @@
       "addressPlaceholder": "ej. Calle Principal 123",
       "randomize": "Aleatorio",
       "successMessage": "Bodega creada y seleccionada"
+    },
+    "quickSku": {
+      "title": "Crear SKU rápidamente",
+      "name": "Nombre",
+      "namePlaceholder": "ej. Producto A",
+      "code": "Código SKU",
+      "codePlaceholder": "ej. SKU-001",
+      "codeAutoHint": "auto-generado del nombre si está vacío",
+      "unit": "Unidad",
+      "unitPlaceholder": "Seleccionar unidad",
+      "barcode": "Código de barras",
+      "barcodePlaceholder": "Código de barras opcional",
+      "randomize": "Aleatorio",
+      "successMessage": "SKU creado y seleccionado"
     }
   },
   "workflowTemplate": {

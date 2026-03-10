@@ -47,10 +47,15 @@ import {
   WarehouseService,
   Warehouse,
 } from '../../../../../../core/services/warehouse/warehouse.service';
-import { ProductService, Product } from '../../../../../../core/services/product/product.service';
+import {
+  ProductService,
+  Product,
+  ProductScope,
+} from '../../../../../../core/services/product/product.service';
 import { AuthService } from '../../../../../../core/services/auth-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { QuickWarehouseDrawer } from '../quick-warehouse-drawer/quick-warehouse-drawer';
+import { SkuQuickCreateDrawer } from '../sku-quick-create-drawer/sku-quick-create-drawer';
 
 @Component({
   selector: 'receipt-form',
@@ -72,6 +77,7 @@ import { QuickWarehouseDrawer } from '../quick-warehouse-drawer/quick-warehouse-
     TooltipModule,
     DrawerModule,
     QuickWarehouseDrawer,
+    SkuQuickCreateDrawer,
   ],
   templateUrl: './form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -97,6 +103,15 @@ export class ReceiptForm implements OnInit, OnDestroy {
 
   // Quick-create warehouse drawer
   protected readonly quickWarehouseDrawerVisible = signal(false);
+
+  // Catalog scope toggle: 'global' | 'org'
+  protected readonly catalogScope = signal<'global' | 'org'>('org');
+
+  // Quick-create SKU drawer
+  protected readonly quickSkuDrawerVisible = signal(false);
+  protected readonly quickSkuPrefillCode = signal<string | undefined>(undefined);
+  /** Index of the line that triggered the quick-create SKU drawer */
+  protected readonly quickSkuLineIndex = signal<number | null>(null);
 
   // Permission: can the current user create a warehouse?
   private readonly _currentUser = toSignal(this.authService.user$, { initialValue: null });
@@ -357,8 +372,15 @@ export class ReceiptForm implements OnInit, OnDestroy {
   // ── Product (SKU) autocomplete ─────────────────────────────────────────
   protected searchProduct(event: { query: string }) {
     this.productLoading.set(true);
+    const org = this.currentOrg();
+    const scope = this.catalogScope();
     this.productService
-      .getProducts({ search: event.query, limit: 20 } as any)
+      .getProducts({
+        search: event.query,
+        limit: 20,
+        scope: scope === 'global' ? ProductScope.GLOBAL : ProductScope.ORGANIZATION,
+        ...(scope === 'org' && org?.id ? { organizationId: org.id } : {}),
+      } as any)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (result) => {
@@ -378,6 +400,45 @@ export class ReceiptForm implements OnInit, OnDestroy {
       skuName: product.name,
       unit: product.unit || 'pcs',
     });
+  }
+
+  /**
+   * Toggles the catalog scope between global and org.
+   */
+  protected toggleCatalogScope(scope: 'global' | 'org'): void {
+    this.catalogScope.set(scope);
+    // Clear existing suggestions when scope changes
+    this.productSuggestions.set([]);
+  }
+
+  /**
+   * Opens the quick-create SKU drawer, optionally pre-filling the code from
+   * free-text input on the given line.
+   */
+  protected quickCreateSku(lineIndex: number): void {
+    const currentCode = this.linesArray.at(lineIndex)?.get('skuCode')?.value as string | undefined;
+    this.quickSkuPrefillCode.set(currentCode || undefined);
+    this.quickSkuLineIndex.set(lineIndex);
+    this.quickSkuDrawerVisible.set(true);
+  }
+
+  /**
+   * Called when the quick-create drawer successfully creates a SKU.
+   * Auto-selects the new SKU into the line that triggered the drawer.
+   */
+  protected onSkuCreated(product: Product): void {
+    const lineIndex = this.quickSkuLineIndex();
+    if (lineIndex !== null && lineIndex < this.linesArray.length) {
+      const lineGroup = this.linesArray.at(lineIndex);
+      lineGroup.patchValue({
+        skuId: product.id,
+        skuCode: product.sku,
+        skuName: product.name,
+        unit: product.unit || 'pcs',
+      });
+    }
+    this.quickSkuLineIndex.set(null);
+    this.productSuggestions.update((list) => [product, ...list]);
   }
 
   // ── File upload ────────────────────────────────────────────────────────
