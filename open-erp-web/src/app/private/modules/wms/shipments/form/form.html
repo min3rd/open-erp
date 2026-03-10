@@ -1,0 +1,108 @@
+<!-- Shipment detail drawer -->
+<p-drawer
+  [visible]="drawerVisible()"
+  (onHide)="onDrawerHide()"
+  position="right"
+  [style]="drawerStyle()"
+  [modal]="true"
+  styleClass="shipment-form-drawer"
+>
+  <!-- Header -->
+  <ng-template #header>
+    <div class="flex items-center gap-2 flex-1 min-w-0">
+      <span class="font-semibold text-base truncate">
+        {{ 'wms.shipments.detail' | transloco }}
+      </span>
+      @if (shipment()?.status) {
+        <p-tag
+          [value]="shipment()!.status"
+          [severity]="getStatusSeverity(shipment()!.status)"
+          class="shrink-0"
+        />
+      }
+    </div>
+  </ng-template>
+
+  <!-- Body -->
+  <form [formGroup]="shipmentForm" class="flex flex-col gap-4 pt-2">
+    @if (loading()) {
+      <div class="flex items-center justify-center py-10">
+        <i class="pi pi-spin pi-spinner text-2xl text-surface-400"></i>
+      </div>
+    } @else {
+      <!-- Carrier & Tracking -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1">
+          <label class="text-xs text-surface-400">{{ 'wms.shipments.carrier' | transloco }}</label>
+          <input
+            pInputText
+            formControlName="carrier"
+            size="small"
+            [placeholder]="'wms.shipments.carrier' | transloco"
+          />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs text-surface-400">{{
+            'wms.shipments.trackingNumber' | transloco
+          }}</label>
+          <input
+            pInputText
+            formControlName="trackingNumber"
+            size="small"
+            class="font-mono"
+            [placeholder]="'wms.shipments.trackingNumber' | transloco"
+          />
+        </div>
+      </div>
+
+      <!-- Recipient -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs text-surface-400">{{ 'wms.shipments.recipient' | transloco }}</label>
+        <input
+          pInputText
+          formControlName="recipientName"
+          size="small"
+          [placeholder]="'wms.shipments.recipient' | transloco"
+        />
+      </div>
+
+      <!-- Address -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs text-surface-400">{{ 'wms.shipments.address' | transloco }}</label>
+        <input
+          pInputText
+          formControlName="recipientAddress"
+          size="small"
+          [placeholder]="'wms.shipments.address' | transloco"
+        />
+      </div>
+
+      <!-- Shipped / Delivered dates -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1">
+          <label class="text-xs text-surface-400">{{
+            'wms.shipments.shippedAt' | transloco
+          }}</label>
+          <input pInputText formControlName="shippedAt" size="small" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs text-surface-400">{{
+            'wms.shipments.deliveredAt' | transloco
+          }}</label>
+          <input pInputText formControlName="deliveredAt" size="small" />
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs text-surface-400">{{ 'wms.shipments.notes' | transloco }}</label>
+        <textarea
+          pTextarea
+          formControlName="notes"
+          rows="3"
+          [placeholder]="'wms.shipments.notes' | transloco"
+        ></textarea>
+      </div>
+    }
+  </form>
+</p-drawer>

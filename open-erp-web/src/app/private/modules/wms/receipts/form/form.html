@@ -202,6 +202,7 @@
             <p-selectButton
               [options]="catalogScopeOptions()"
               [ngModel]="catalogScope()"
+              [ngModelOptions]="{ standalone: true }"
               (onChange)="toggleCatalogScope($event.value)"
               optionLabel="label"
               optionValue="value"

@@ -186,66 +186,6 @@
     </p-table>
   </div>
 
-  <!-- Shipment Detail Drawer -->
-  <p-drawer
-    [visible]="drawerVisible()"
-    (visibleChange)="drawerVisible.set($event)"
-    position="right"
-    [style]="{ width: isMobile() ? '100%' : '560px' }"
-    [header]="'wms.shipments.detail' | transloco"
-  >
-    @if (selectedShipment()) {
-      <div class="flex flex-col gap-4 p-2">
-        <div class="grid grid-cols-2 gap-3 text-sm">
-          <div>
-            <span class="text-surface-500">{{ 'wms.shipments.carrier' | transloco }}</span>
-            <p class="font-medium">{{ selectedShipment()!.carrier || '-' }}</p>
-          </div>
-          <div>
-            <span class="text-surface-500">{{ 'wms.shipments.trackingNumber' | transloco }}</span>
-            <p class="font-medium font-mono text-xs">
-              {{ selectedShipment()!.trackingNumber || '-' }}
-            </p>
-          </div>
-          <div>
-            <span class="text-surface-500">{{ 'wms.shipments.recipient' | transloco }}</span>
-            <p class="font-medium">{{ selectedShipment()!.recipientName || '-' }}</p>
-          </div>
-          <div>
-            <span class="text-surface-500">{{ 'wms.shipments.status' | transloco }}</span>
-            <div class="mt-1">
-              <p-tag
-                [value]="selectedShipment()!.status"
-                [severity]="getStatusSeverity(selectedShipment()!.status)"
-              />
-            </div>
-          </div>
-          @if (selectedShipment()!.recipientAddress) {
-            <div class="col-span-2">
-              <span class="text-surface-500">{{ 'wms.shipments.address' | transloco }}</span>
-              <p class="font-medium">{{ selectedShipment()!.recipientAddress }}</p>
-            </div>
-          }
-          @if (selectedShipment()!.shippedAt) {
-            <div>
-              <span class="text-surface-500">{{ 'wms.shipments.shippedAt' | transloco }}</span>
-              <p class="font-medium">{{ selectedShipment()!.shippedAt | date: 'medium' }}</p>
-            </div>
-          }
-          @if (selectedShipment()!.deliveredAt) {
-            <div>
-              <span class="text-surface-500">{{ 'wms.shipments.deliveredAt' | transloco }}</span>
-              <p class="font-medium">{{ selectedShipment()!.deliveredAt | date: 'medium' }}</p>
-            </div>
-          }
-        </div>
-        @if (selectedShipment()!.notes) {
-          <div class="text-sm">
-            <span class="text-surface-500">{{ 'wms.shipments.notes' | transloco }}</span>
-            <p class="font-medium">{{ selectedShipment()!.notes }}</p>
-          </div>
-        }
-      </div>
-    }
-  </p-drawer>
+  <!-- Child route outlet for shipment detail view -->
+  <router-outlet (deactivate)="onChildDeactivated()" />
 </div>
