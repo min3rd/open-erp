@@ -671,7 +671,7 @@ export class ReceiptForm implements OnInit, OnDestroy {
     this.submitting.set(true);
     this.wmsService
       .submitReceipt(receiptId, {
-        notes: 'Workflow started',
+        notes: this.translocoService.translate('wms.receipts.workflow.startWorkflow'),
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe({

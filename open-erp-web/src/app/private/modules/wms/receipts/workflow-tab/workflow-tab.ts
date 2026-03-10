@@ -25,6 +25,7 @@ import {
   Receipt,
   ReceiptWorkflow,
   WorkflowStep,
+  WorkflowStepStatus,
 } from '../../../../../../core/services/wms/wms.service';
 import {
   DEFAULT_WORKFLOW_STEPS,
@@ -75,7 +76,7 @@ export class ReceiptWorkflowTab implements OnDestroy {
         steps: DEFAULT_WORKFLOW_STEPS.map((s, idx) => ({
           key: s.key,
           label: s.label,
-          status: idx === 0 ? 'completed' : ('pending' as any),
+          status: idx === 0 ? WorkflowStepStatus.COMPLETED : WorkflowStepStatus.PENDING,
           attachments: [],
         })),
       });
@@ -328,7 +329,7 @@ export class ReceiptWorkflowTab implements OnDestroy {
         steps: steps.map((s) => ({
           key: s.key,
           label: s.label || s.key,
-          status: wf.steps.find((ws) => ws.key === s.key)?.status ?? ('pending' as any),
+          status: wf.steps.find((ws) => ws.key === s.key)?.status ?? WorkflowStepStatus.PENDING,
           attachments: [],
         })),
       });
