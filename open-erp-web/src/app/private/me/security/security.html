@@ -7,9 +7,9 @@
     class="bg-white dark:bg-surface-900 rounded-lg border border-surface-200 dark:border-surface-700"
   >
     <div class="px-6 py-4 border-b border-surface-200 dark:border-surface-700">
-      <h3 class="text-base font-semibold text-surface-900 dark:text-surface-100">Đổi mật khẩu</h3>
+      <h3 class="text-base font-semibold text-surface-900 dark:text-surface-100">{{ 'me.security.changePassword.title' | transloco }}</h3>
       <p class="text-sm text-surface-500 dark:text-surface-400 mt-0.5">
-        Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số.
+        {{ 'me.security.changePassword.description' | transloco }}
       </p>
     </div>
 
@@ -21,13 +21,13 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="sm:col-span-2 flex flex-col gap-1">
           <label class="text-sm font-medium text-surface-700 dark:text-surface-300"
-            >Mật khẩu hiện tại</label
+            >{{ 'me.security.changePassword.currentPassword' | transloco }}</label
           >
           <p-password
             formControlName="currentPassword"
             [feedback]="false"
             [toggleMask]="true"
-            placeholder="Nhập mật khẩu hiện tại"
+            [placeholder]="'me.security.changePassword.placeholders.current' | transloco"
             styleClass="w-full"
             inputStyleClass="w-full"
           ></p-password>
@@ -35,44 +35,44 @@
             changePasswordForm.get('currentPassword')?.invalid &&
             changePasswordForm.get('currentPassword')?.touched
           ) {
-            <small class="text-red-500 text-xs">Vui lòng nhập mật khẩu hiện tại</small>
+            <small class="text-red-500 text-xs">{{ 'me.security.changePassword.errors.currentRequired' | transloco }}</small>
           }
         </div>
 
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-surface-700 dark:text-surface-300"
-            >Mật khẩu mới</label
+            >{{ 'me.security.changePassword.newPassword' | transloco }}</label
           >
           <p-password
             formControlName="newPassword"
             [feedback]="true"
             [toggleMask]="true"
-            placeholder="Mật khẩu mới (tối thiểu 8 ký tự)"
+            [placeholder]="'me.security.changePassword.placeholders.new' | transloco"
             styleClass="w-full"
             inputStyleClass="w-full"
-            weakLabel="Yếu"
-            mediumLabel="Trung bình"
-            strongLabel="Mạnh"
+            [weakLabel]="'me.security.changePassword.strength.weak' | transloco"
+            [mediumLabel]="'me.security.changePassword.strength.medium' | transloco"
+            [strongLabel]="'me.security.changePassword.strength.strong' | transloco"
           ></p-password>
           @if (
             changePasswordForm.get('newPassword')?.invalid &&
             changePasswordForm.get('newPassword')?.touched
           ) {
             <small class="text-red-500 text-xs">
-              Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số
+              {{ 'me.security.changePassword.errors.newInvalid' | transloco }}
             </small>
           }
         </div>
 
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-surface-700 dark:text-surface-300"
-            >Xác nhận mật khẩu mới</label
+            >{{ 'me.security.changePassword.confirmPassword' | transloco }}</label
           >
           <p-password
             formControlName="confirmPassword"
             [feedback]="false"
             [toggleMask]="true"
-            placeholder="Nhập lại mật khẩu mới"
+            [placeholder]="'me.security.changePassword.placeholders.confirm' | transloco"
             styleClass="w-full"
             inputStyleClass="w-full"
           ></p-password>
@@ -80,14 +80,14 @@
             changePasswordForm.errors?.['passwordMismatch'] &&
             changePasswordForm.get('confirmPassword')?.touched
           ) {
-            <small class="text-red-500 text-xs">Mật khẩu xác nhận không khớp</small>
+            <small class="text-red-500 text-xs">{{ 'me.security.changePassword.errors.mismatch' | transloco }}</small>
           }
         </div>
       </div>
 
       <div class="flex justify-end pt-2">
         <p-button
-          label="Đổi mật khẩu"
+          [label]="'me.security.changePassword.submitButton' | transloco"
           icon="pi pi-lock"
           type="submit"
           size="small"
@@ -104,11 +104,10 @@
   >
     <div class="px-6 py-4 border-b border-surface-200 dark:border-surface-700">
       <h3 class="text-base font-semibold text-surface-900 dark:text-surface-100">
-        Xác thực hai yếu tố (2FA)
+        {{ 'me.security.twoFA.title' | transloco }}
       </h3>
       <p class="text-sm text-surface-500 dark:text-surface-400 mt-0.5">
-        Tăng cường bảo mật tài khoản bằng ứng dụng xác thực TOTP (Google Authenticator, Authy,
-        v.v.).
+        {{ 'me.security.twoFA.description' | transloco }}
       </p>
     </div>
 
@@ -126,21 +125,21 @@
                 class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
               >
                 <i class="pi pi-shield text-xs"></i>
-                Đã bật
+                {{ 'me.security.twoFA.enabledTitle' | transloco }}
               </span>
             } @else {
               <span
                 class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-100 text-surface-600 dark:bg-surface-800 dark:text-surface-400"
               >
                 <i class="pi pi-shield text-xs"></i>
-                Chưa bật
+                {{ 'me.security.twoFA.disabledTitle' | transloco }}
               </span>
             }
             <span class="text-sm text-surface-600 dark:text-surface-400">
               @if (twoFAStatus()?.enabled) {
-                2FA đang bảo vệ tài khoản của bạn.
+                {{ 'me.security.twoFA.enabledDesc' | transloco }}
               } @else {
-                Bật 2FA để bảo vệ tài khoản tốt hơn.
+                {{ 'me.security.twoFA.disabledDesc' | transloco }}
               }
             </span>
           </div>
@@ -148,7 +147,7 @@
           <div class="flex gap-2">
             @if (twoFAStatus()?.enabled) {
               <p-button
-                label="Tắt 2FA"
+                [label]="'me.security.twoFA.disableButton' | transloco"
                 icon="pi pi-times-circle"
                 severity="danger"
                 [outlined]="true"
@@ -157,7 +156,7 @@
               ></p-button>
             } @else {
               <p-button
-                label="Bật 2FA"
+                [label]="'me.security.twoFA.enableButton' | transloco"
                 icon="pi pi-shield"
                 size="small"
                 (onClick)="openEnable2FADialog()"
@@ -185,15 +184,15 @@
     >
       <div>
         <h3 class="text-base font-semibold text-surface-900 dark:text-surface-100">
-          Phiên hoạt động
+          {{ 'me.security.sessions.title' | transloco }}
         </h3>
         <p class="text-sm text-surface-500 dark:text-surface-400 mt-0.5">
-          Quản lý các thiết bị đang đăng nhập.
+          {{ 'me.security.sessions.description' | transloco }}
         </p>
       </div>
       @if (currentSessionId() && sessions().length > 1) {
         <p-button
-          label="Đăng xuất phiên khác"
+          [label]="'me.security.sessions.revokeOthersButton' | transloco"
           icon="pi pi-sign-out"
           severity="danger"
           [outlined]="true"
@@ -219,7 +218,7 @@
     } @else if (sessions().length === 0) {
       <div class="p-6 text-center text-surface-400 dark:text-surface-500 text-sm">
         <i class="pi pi-inbox text-2xl mb-2 block"></i>
-        Không có phiên hoạt động nào
+        {{ 'me.security.sessions.empty' | transloco }}
       </div>
     } @else {
       <p-table
@@ -229,15 +228,15 @@
       >
         <ng-template pTemplate="header">
           <tr>
-            <th class="text-xs font-semibold text-surface-500 uppercase">Thiết bị</th>
+            <th class="text-xs font-semibold text-surface-500 uppercase">{{ 'me.security.sessions.columns.device' | transloco }}</th>
             <th class="text-xs font-semibold text-surface-500 uppercase hidden sm:table-cell">
-              IP
+              {{ 'me.security.sessions.columns.ip' | transloco }}
             </th>
             <th class="text-xs font-semibold text-surface-500 uppercase hidden md:table-cell">
-              Ngày tạo
+              {{ 'me.security.sessions.columns.createdAt' | transloco }}
             </th>
             <th class="text-xs font-semibold text-surface-500 uppercase hidden md:table-cell">
-              Hết hạn
+              {{ 'me.security.sessions.columns.expiresAt' | transloco }}
             </th>
             <th></th>
           </tr>
@@ -254,7 +253,7 @@
                   <span
                     class="text-xs bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 px-1.5 py-0.5 rounded font-medium"
                   >
-                    Hiện tại
+                    {{ 'me.security.sessions.currentSession' | transloco }}
                   </span>
                 }
               </div>
@@ -281,7 +280,7 @@
                   severity="danger"
                   size="small"
                   [text]="true"
-                  title="Đăng xuất thiết bị này"
+                  [title]="'me.security.sessions.revokeButton' | transloco"
                   [loading]="revokingSessionId() === session.id"
                   (onClick)="confirmRevokeSession(session)"
                 ></p-button>
@@ -302,13 +301,13 @@
   [closable]="!isEnabling2FA()"
   [draggable]="false"
   [resizable]="false"
-  header="Bật xác thực hai yếu tố (2FA)"
+  [header]="'me.security.twoFA.setupDialog.title' | transloco"
   styleClass="w-full max-w-lg"
 >
   @if (isPreparing2FA()) {
     <div class="flex flex-col items-center gap-4 py-8">
       <i class="pi pi-spin pi-spinner text-3xl text-primary-500"></i>
-      <p class="text-sm text-surface-500">Đang khởi tạo...</p>
+      <p class="text-sm text-surface-500">{{ 'common.loading' | transloco }}</p>
     </div>
   } @else if (twoFAPrepareData()) {
     <div class="space-y-5">
@@ -350,7 +349,7 @@
             [severity]="secretCopied() ? 'success' : 'secondary'"
             [text]="true"
             size="small"
-            title="Sao chép secret"
+            [title]="'me.security.twoFA.copySecretTitle' | transloco"
             (onClick)="copySecret()"
           ></p-button>
         </div>
@@ -359,7 +358,7 @@
       <!-- OTP Input -->
       <div class="flex flex-col gap-1">
         <label class="text-sm font-medium text-surface-700 dark:text-surface-300">
-          Nhập mã OTP từ ứng dụng
+          {{ 'me.security.twoFA.setupDialog.otpLabel' | transloco }}
         </label>
         <input
           pInputText
@@ -367,21 +366,21 @@
           inputmode="numeric"
           maxlength="6"
           pattern="\d{6}"
-          placeholder="000000"
+          [placeholder]="'me.security.twoFA.setupDialog.otpPlaceholder' | transloco"
           class="text-center tracking-widest font-mono text-lg"
           [ngModel]="enableOtp()"
           (ngModelChange)="enableOtp.set($event)"
           (keyup.enter)="submitEnable2FA()"
-          aria-label="Mã OTP 6 chữ số"
+          [attr.aria-label]="'me.security.twoFA.otpRequired' | transloco"
         />
-        <small class="text-surface-400 text-xs">Mã gồm 6 chữ số, làm mới mỗi 30 giây.</small>
+        <small class="text-surface-400 text-xs">{{ 'me.security.twoFA.setupDialog.otpHint' | transloco }}</small>
       </div>
     </div>
   }
 
   <ng-template pTemplate="footer">
     <p-button
-      label="Hủy"
+      [label]="'me.security.twoFA.setupDialog.cancelButton' | transloco"
       severity="secondary"
       [text]="true"
       size="small"
@@ -389,7 +388,7 @@
       (onClick)="show2FASetupDialog.set(false)"
     ></p-button>
     <p-button
-      label="Xác nhận & Bật 2FA"
+      [label]="'me.security.twoFA.setupDialog.submitButton' | transloco"
       icon="pi pi-check"
       size="small"
       [loading]="isEnabling2FA()"
@@ -407,7 +406,7 @@
   [closable]="!isDisabling2FA()"
   [draggable]="false"
   [resizable]="false"
-  header="Tắt xác thực hai yếu tố (2FA)"
+  [header]="'me.security.twoFA.disableDialog.title' | transloco"
   styleClass="w-full max-w-md"
 >
   <div class="space-y-4">
@@ -416,13 +415,13 @@
     >
       <p class="text-sm text-amber-800 dark:text-amber-300">
         <i class="pi pi-exclamation-triangle mr-1"></i>
-        Tắt 2FA sẽ làm giảm bảo mật tài khoản của bạn.
+        {{ 'me.security.twoFA.disableDialog.description' | transloco }}
       </p>
     </div>
 
     <div class="flex flex-col gap-1">
       <label class="text-sm font-medium text-surface-700 dark:text-surface-300">
-        Nhập mã OTP từ ứng dụng xác thực để xác nhận
+        {{ 'me.security.twoFA.disableDialog.otpLabel' | transloco }}
       </label>
       <input
         pInputText
@@ -430,19 +429,19 @@
         inputmode="numeric"
         maxlength="6"
         pattern="\d{6}"
-        placeholder="000000"
+        [placeholder]="'me.security.twoFA.setupDialog.otpPlaceholder' | transloco"
         class="text-center tracking-widest font-mono text-lg"
         [ngModel]="disableOtp()"
         (ngModelChange)="disableOtp.set($event)"
         (keyup.enter)="submitDisable2FA()"
-        aria-label="Mã OTP 6 chữ số"
+        [attr.aria-label]="'me.security.twoFA.otpRequired' | transloco"
       />
     </div>
   </div>
 
   <ng-template pTemplate="footer">
     <p-button
-      label="Hủy"
+      [label]="'me.security.twoFA.disableDialog.cancelButton' | transloco"
       severity="secondary"
       [text]="true"
       size="small"
@@ -450,7 +449,7 @@
       (onClick)="show2FADisableDialog.set(false)"
     ></p-button>
     <p-button
-      label="Tắt 2FA"
+      [label]="'me.security.twoFA.disableDialog.submitButton' | transloco"
       icon="pi pi-times-circle"
       severity="danger"
       size="small"
@@ -469,7 +468,7 @@
   [closable]="true"
   [draggable]="false"
   [resizable]="false"
-  header="Mã khôi phục (Recovery Codes)"
+  [header]="'me.security.twoFA.recoveryCodesDialog.title' | transloco"
   styleClass="w-full max-w-md"
 >
   <div class="space-y-4">
@@ -478,11 +477,10 @@
     >
       <p class="text-sm text-amber-800 dark:text-amber-300 font-medium mb-1">
         <i class="pi pi-exclamation-triangle mr-1"></i>
-        Lưu mã khôi phục ngay bây giờ!
+        {{ 'me.security.twoFA.recoveryCodesDialog.warning' | transloco }}
       </p>
       <p class="text-xs text-amber-700 dark:text-amber-400">
-        Mỗi mã chỉ dùng một lần. Nếu mất ứng dụng xác thực, dùng các mã này để đăng nhập. Sau khi
-        đóng hộp thoại này, bạn sẽ không xem lại được.
+        {{ 'me.security.twoFA.recoveryCodesDialog.warningDetail' | transloco }}
       </p>
     </div>
 
@@ -498,7 +496,7 @@
 
     <div class="flex gap-2 justify-end">
       <p-button
-        [label]="recoveryCodesCopied() ? 'Đã sao chép!' : 'Sao chép tất cả'"
+        [label]="(recoveryCodesCopied() ? 'me.security.twoFA.recoveryCodesDialog.copiedButton' : 'me.security.twoFA.recoveryCodesDialog.copyButton') | transloco"
         [icon]="recoveryCodesCopied() ? 'pi pi-check' : 'pi pi-copy'"
         [severity]="recoveryCodesCopied() ? 'success' : 'secondary'"
         [outlined]="true"
@@ -506,7 +504,7 @@
         (onClick)="copyRecoveryCodes()"
       ></p-button>
       <p-button
-        label="Tải xuống"
+        [label]="'me.security.twoFA.recoveryCodesDialog.downloadButton' | transloco"
         icon="pi pi-download"
         size="small"
         (onClick)="downloadRecoveryCodes()"
@@ -516,7 +514,7 @@
 
   <ng-template pTemplate="footer">
     <p-button
-      label="Tôi đã lưu mã khôi phục"
+      [label]="'me.security.twoFA.recoveryCodesDialog.confirmSaved' | transloco"
       icon="pi pi-check"
       size="small"
       (onClick)="showRecoveryCodesDialog.set(false)"

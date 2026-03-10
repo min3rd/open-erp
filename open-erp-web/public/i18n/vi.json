@@ -1999,7 +1999,8 @@
         "strength": {
           "weak": "Yếu",
           "medium": "Trung bình",
-          "strong": "Mạnh"
+          "strong": "Mạnh",
+          "good": "Khá"
         },
         "messages": {
           "success": "Mật khẩu đã được thay đổi",
@@ -2021,8 +2022,65 @@
         "empty": "Không có phiên hoạt động nào",
         "messages": {
           "revokeSuccess": "Phiên đã được thu hồi",
-          "revokeError": "Không thể thu hồi phiên"
-        }
+          "revokeError": "Không thể thu hồi phiên",
+          "revokeOthersSuccess": "Đã đăng xuất {{ count }} phiên khác",
+          "revokeOthersError": "Không thể thu hồi các phiên khác"
+        },
+        "revokeOthersButton": "Đăng xuất phiên khác",
+        "currentSession": "Hiện tại",
+        "confirmRevokeOthers": "Bạn có chắc muốn đăng xuất khỏi tất cả các phiên khác? Phiên hiện tại sẽ không bị ảnh hưởng.",
+        "confirmRevokeOthersTitle": "Xác nhận đăng xuất phiên khác",
+        "confirmRevokeOthersAccept": "Đăng xuất tất cả phiên khác",
+        "noCurrentSession": "Không thể xác định phiên hiện tại"
+      },
+      "twoFA": {
+        "title": "Xác thực hai yếu tố",
+        "enabledTitle": "Xác thực hai yếu tố đã được bật",
+        "disabledTitle": "Xác thực hai yếu tố chưa được bật",
+        "enabledDesc": "Tài khoản của bạn được bảo vệ bằng 2FA.",
+        "disabledDesc": "Thêm lớp bảo mật bổ sung cho tài khoản.",
+        "enableButton": "Bật 2FA",
+        "disableButton": "Tắt 2FA",
+        "recoveryCodes": "Mã khôi phục",
+        "hasRecoveryCodes": "Bạn có mã khôi phục",
+        "noRecoveryCodes": "Không có mã khôi phục",
+        "setupDialog": {
+          "title": "Bật xác thực hai yếu tố (2FA)",
+          "step1": "Quét mã QR bằng ứng dụng xác thực hoặc nhập secret thủ công.",
+          "secretLabel": "Secret",
+          "otpLabel": "Mã OTP",
+          "otpPlaceholder": "000000",
+          "submitButton": "Bật 2FA",
+          "cancelButton": "Hủy",
+          "otpHint": "Mã gồm 6 chữ số, làm mới mỗi 30 giây."
+        },
+        "disableDialog": {
+          "title": "Tắt xác thực hai yếu tố",
+          "description": "Nhập mã OTP 6 chữ số từ ứng dụng xác thực để tắt 2FA.",
+          "otpLabel": "Mã OTP",
+          "submitButton": "Tắt 2FA",
+          "cancelButton": "Hủy"
+        },
+        "recoveryCodesDialog": {
+          "title": "Mã khôi phục (Recovery Codes)",
+          "warning": "Lưu mã khôi phục ngay bây giờ!",
+          "warningDetail": "Mỗi mã chỉ dùng một lần. Nếu mất ứng dụng xác thực, dùng các mã này để đăng nhập. Sau khi đóng hộp thoại này, bạn sẽ không xem lại được.",
+          "copyButton": "Sao chép tất cả",
+          "copiedButton": "Đã sao chép!",
+          "downloadButton": "Tải xuống",
+          "confirmSaved": "Tôi đã lưu mã khôi phục"
+        },
+        "messages": {
+          "prepareFailed": "Không thể khởi tạo 2FA",
+          "enableSuccess": "2FA đã được bật",
+          "invalidOtp": "Mã OTP không hợp lệ hoặc đã hết hạn",
+          "disableSuccess": "2FA đã được tắt",
+          "invalidOtpShort": "Mã OTP không hợp lệ"
+        },
+        "otpRequired": "Mã OTP phải gồm 6 chữ số",
+        "otpWarning": "Chú ý",
+        "copySecretTitle": "Sao chép secret",
+        "description": "Tăng cường bảo mật tài khoản bằng ứng dụng xác thực TOTP (Google Authenticator, Authy, v.v.)."
       }
     },
     "settings": {

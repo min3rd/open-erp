@@ -16,6 +16,7 @@ import {
   AbstractControl,
 } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 // PrimeNG
 import { ButtonModule } from 'primeng/button';
@@ -47,6 +48,7 @@ function passwordMatchValidator(group: AbstractControl) {
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    TranslocoModule,
     ButtonModule,
     InputTextModule,
     PasswordModule,
@@ -69,6 +71,7 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  private t = inject(TranslocoService);
   private destroy$ = new Subject<void>();
 
   readonly sessions = signal<MeSession[]>([]);
@@ -164,16 +167,16 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
           this.changePasswordForm.reset();
           this.messageService.add({
             severity: 'success',
-            summary: 'Thành công',
-            detail: 'Mật khẩu đã được thay đổi',
+            summary: this.t.translate('common.success'),
+            detail: this.t.translate('me.security.changePassword.messages.success'),
           });
         },
         error: (err) => {
           this.isChangingPassword.set(false);
           this.messageService.add({
             severity: 'error',
-            summary: 'Lỗi',
-            detail: err.message || 'Không thể thay đổi mật khẩu',
+            summary: this.t.translate('common.error'),
+            detail: err.message || this.t.translate('me.security.changePassword.messages.error'),
           });
         },
       });
@@ -181,11 +184,13 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
 
   confirmRevokeSession(session: MeSession): void {
     this.confirmationService.confirm({
-      message: `Bạn có chắc muốn đăng xuất thiết bị "${session.deviceInfo}"?`,
-      header: 'Xác nhận đăng xuất',
+      message: this.t.translate('me.security.sessions.confirmRevoke', {
+        device: session.deviceInfo,
+      }),
+      header: this.t.translate('me.security.sessions.confirmTitle'),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Đăng xuất',
-      rejectLabel: 'Hủy',
+      acceptLabel: this.t.translate('me.security.sessions.revokeButton'),
+      rejectLabel: this.t.translate('common.cancel'),
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => this.revokeSession(session.id),
     });
@@ -202,16 +207,16 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
           this.sessions.set(this.sessions().filter((s) => s.id !== sessionId));
           this.messageService.add({
             severity: 'success',
-            summary: 'Thành công',
-            detail: 'Phiên đã được thu hồi',
+            summary: this.t.translate('common.success'),
+            detail: this.t.translate('me.security.sessions.messages.revokeSuccess'),
           });
         },
         error: (err) => {
           this.revokingSessionId.set(null);
           this.messageService.add({
             severity: 'error',
-            summary: 'Lỗi',
-            detail: err.message || 'Không thể thu hồi phiên',
+            summary: this.t.translate('common.error'),
+            detail: err.message || this.t.translate('me.security.sessions.messages.revokeError'),
           });
         },
       });
@@ -219,11 +224,11 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
 
   confirmRevokeOtherSessions(): void {
     this.confirmationService.confirm({
-      message: 'Bạn có chắc muốn đăng xuất khỏi tất cả các phiên khác? Phiên hiện tại sẽ không bị ảnh hưởng.',
-      header: 'Xác nhận đăng xuất phiên khác',
+      message: this.t.translate('me.security.sessions.confirmRevokeOthers'),
+      header: this.t.translate('me.security.sessions.confirmRevokeOthersTitle'),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Đăng xuất tất cả phiên khác',
-      rejectLabel: 'Hủy',
+      acceptLabel: this.t.translate('me.security.sessions.confirmRevokeOthersAccept'),
+      rejectLabel: this.t.translate('common.cancel'),
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => this.revokeOtherSessions(),
     });
@@ -234,8 +239,8 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
     if (!sessionId) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'Cảnh báo',
-        detail: 'Không thể xác định phiên hiện tại',
+        summary: this.t.translate('common.warning'),
+        detail: this.t.translate('me.security.sessions.noCurrentSession'),
       });
       return;
     }
@@ -250,16 +255,20 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
           this.sessions.set(this.sessions().filter((s) => s.id === sessionId));
           this.messageService.add({
             severity: 'success',
-            summary: 'Thành công',
-            detail: `Đã đăng xuất ${result.revokedCount} phiên khác`,
+            summary: this.t.translate('common.success'),
+            detail: this.t.translate('me.security.sessions.messages.revokeOthersSuccess', {
+              count: result.revokedCount,
+            }),
           });
         },
         error: (err) => {
           this.isRevokingOthers.set(false);
           this.messageService.add({
             severity: 'error',
-            summary: 'Lỗi',
-            detail: err.message || 'Không thể thu hồi các phiên khác',
+            summary: this.t.translate('common.error'),
+            detail:
+              err.message ||
+              this.t.translate('me.security.sessions.messages.revokeOthersError'),
           });
         },
       });
@@ -290,8 +299,8 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
           this.show2FASetupDialog.set(false);
           this.messageService.add({
             severity: 'error',
-            summary: 'Lỗi',
-            detail: err.message || 'Không thể khởi tạo 2FA',
+            summary: this.t.translate('common.error'),
+            detail: err.message || this.t.translate('me.security.twoFA.messages.prepareFailed'),
           });
         },
       });
@@ -302,8 +311,8 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
     if (otp.length !== 6 || !/^\d+$/.test(otp)) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'Chú ý',
-        detail: 'Mã OTP phải gồm 6 chữ số',
+        summary: this.t.translate('me.security.twoFA.otpWarning'),
+        detail: this.t.translate('me.security.twoFA.otpRequired'),
       });
       return;
     }
@@ -322,16 +331,16 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
           this.twoFAStatus.set({ enabled: true, hasRecoveryCodes: true });
           this.messageService.add({
             severity: 'success',
-            summary: 'Thành công',
-            detail: '2FA đã được bật',
+            summary: this.t.translate('common.success'),
+            detail: this.t.translate('me.security.twoFA.messages.enableSuccess'),
           });
         },
         error: (err) => {
           this.isEnabling2FA.set(false);
           this.messageService.add({
             severity: 'error',
-            summary: 'Lỗi',
-            detail: err.message || 'Mã OTP không hợp lệ hoặc đã hết hạn',
+            summary: this.t.translate('common.error'),
+            detail: err.message || this.t.translate('me.security.twoFA.messages.invalidOtp'),
           });
         },
       });
@@ -347,8 +356,8 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
     if (otp.length !== 6 || !/^\d+$/.test(otp)) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'Chú ý',
-        detail: 'Mã OTP phải gồm 6 chữ số',
+        summary: this.t.translate('me.security.twoFA.otpWarning'),
+        detail: this.t.translate('me.security.twoFA.otpRequired'),
       });
       return;
     }
@@ -364,16 +373,16 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
           this.twoFAStatus.set({ enabled: false, hasRecoveryCodes: false });
           this.messageService.add({
             severity: 'success',
-            summary: 'Thành công',
-            detail: '2FA đã được tắt',
+            summary: this.t.translate('common.success'),
+            detail: this.t.translate('me.security.twoFA.messages.disableSuccess'),
           });
         },
         error: (err) => {
           this.isDisabling2FA.set(false);
           this.messageService.add({
             severity: 'error',
-            summary: 'Lỗi',
-            detail: err.message || 'Mã OTP không hợp lệ',
+            summary: this.t.translate('common.error'),
+            detail: err.message || this.t.translate('me.security.twoFA.messages.invalidOtpShort'),
           });
         },
       });
@@ -413,10 +422,25 @@ export class MeSecurityComponent implements OnInit, OnDestroy {
   getPasswordStrengthLabel(password: string): { label: string; class: string } {
     if (!password) return { label: '', class: '' };
     const strength = this.calculateStrength(password);
-    if (strength < 2) return { label: 'Yếu', class: 'text-red-500' };
-    if (strength < 3) return { label: 'Trung bình', class: 'text-orange-500' };
-    if (strength < 4) return { label: 'Khá', class: 'text-yellow-500' };
-    return { label: 'Mạnh', class: 'text-green-500' };
+    if (strength < 2)
+      return {
+        label: this.t.translate('me.security.changePassword.strength.weak'),
+        class: 'text-red-500',
+      };
+    if (strength < 3)
+      return {
+        label: this.t.translate('me.security.changePassword.strength.medium'),
+        class: 'text-orange-500',
+      };
+    if (strength < 4)
+      return {
+        label: this.t.translate('me.security.changePassword.strength.good'),
+        class: 'text-yellow-500',
+      };
+    return {
+      label: this.t.translate('me.security.changePassword.strength.strong'),
+      class: 'text-green-500',
+    };
   }
 
   private calculateStrength(password: string): number {

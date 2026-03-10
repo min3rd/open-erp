@@ -24,6 +24,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
+      // If the refresh endpoint itself returns 401, logout immediately to avoid infinite loop
+      if (req.url.includes('/auth/refresh')) {
+        isRefreshing = false;
+        refreshTokenSubject.next(null);
+        authService.logOut().subscribe();
+        router.navigate(['/auth/login']);
+        return throwError(() => error);
+      }
+
       // Prevent infinite refresh loops: if this request was already retried, logout
       if (req.headers.has('X-Retry-Attempted')) {
         authService.logOut().subscribe();
