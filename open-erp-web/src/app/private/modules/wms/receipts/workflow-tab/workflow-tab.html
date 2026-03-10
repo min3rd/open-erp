@@ -1,0 +1,144 @@
+@if (workflowLoading()) {
+  <div class="flex justify-center py-10">
+    <i class="pi pi-spin pi-spinner text-2xl text-muted-color"></i>
+  </div>
+} @else if (workflow(); as wf) {
+  <div class="flex flex-col gap-4 pt-3">
+    <!-- Timeline heading -->
+    <span class="text-sm font-semibold text-color">
+      {{ 'wms.receipts.workflow.timeline' | transloco }}
+    </span>
+
+    <!-- Vertical step timeline -->
+    <div class="flex flex-col gap-0">
+      @for (step of wf.steps; track step.key; let i = $index; let last = $last) {
+        <div class="flex gap-3 items-start">
+          <!-- Icon column -->
+          <div class="flex flex-col items-center">
+            <div
+              class="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+              [style.background-color]="getStepColor(step.status)"
+              [style.color]="'var(--p-surface-0)'"
+            >
+              <i [class]="getStepIcon(step.status)" class="text-xs"></i>
+            </div>
+            @if (!last) {
+              <div
+                class="w-px min-h-6 flex-1"
+                [style.background-color]="getStepColor(step.status)"
+              ></div>
+            }
+          </div>
+          <!-- Content -->
+          <div class="flex flex-col gap-0.5 pb-3 flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-sm font-medium text-color">{{ step.label }}</span>
+              <p-tag
+                [value]="step.status"
+                [severity]="getStepSeverity(step.status)"
+                styleClass="text-xs"
+              />
+            </div>
+            @if (step.completedAt) {
+              <span class="text-xs text-muted-color">
+                {{ step.completedAt | date: 'dd/MM/yyyy HH:mm' }}
+              </span>
+            }
+            @if (step.comment) {
+              <span class="text-xs text-color-secondary italic">{{ step.comment }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- QC & Putaway table -->
+    @if (_receipt()?.lines?.length) {
+      <div class="flex flex-col gap-2">
+        <span class="text-sm font-semibold text-color">
+          {{ 'wms.receipts.workflow.qcTable' | transloco }}
+        </span>
+        <div class="overflow-x-auto rounded border border-surface">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="bg-surface-50 dark:bg-surface-800">
+                <th class="text-left py-2 px-2 font-medium text-muted-color">
+                  {{ 'wms.receipts.workflow.lineId' | transloco }}
+                </th>
+                <th class="text-left py-2 px-2 font-medium text-muted-color">
+                  {{ 'wms.receipts.workflow.skuCode' | transloco }}
+                </th>
+                <th class="text-left py-2 px-2 font-medium text-muted-color">
+                  {{ 'wms.receipts.workflow.qcStatus' | transloco }}
+                </th>
+                <th class="text-left py-2 px-2 font-medium text-muted-color">
+                  {{ 'wms.receipts.workflow.qcNotes' | transloco }}
+                </th>
+                <th class="text-left py-2 px-2 font-medium text-muted-color">
+                  {{ 'wms.receipts.workflow.storedLocation' | transloco }}
+                </th>
+                <th class="text-right py-2 px-2 font-medium text-muted-color">
+                  {{ 'wms.receipts.workflow.storedQty' | transloco }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of _receipt()?.lines ?? []; track line.lineId ?? $index) {
+                <tr class="border-t border-surface hover:bg-emphasis transition-colors">
+                  <td class="py-1.5 px-2 text-color">{{ line.lineId ?? '-' }}</td>
+                  <td class="py-1.5 px-2 text-color">{{ line.skuCode ?? '-' }}</td>
+                  <td class="py-1.5 px-2">
+                    <p-tag
+                      [value]="line.qcStatus"
+                      [severity]="getQcSeverity(line.qcStatus)"
+                    />
+                  </td>
+                  <td class="py-1.5 px-2 text-color-secondary">{{ line.qcNotes ?? '-' }}</td>
+                  <td class="py-1.5 px-2 text-color-secondary">{{ line.storedLocation ?? '-' }}</td>
+                  <td class="py-1.5 px-2 text-right text-color">{{ line.storedQty ?? 0 }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <!-- Actions (only for saved receipts with active steps) -->
+    @if (getAvailableActions().length > 0 && !isView) {
+      <div class="flex flex-col gap-2 border-t border-surface pt-3">
+        <!-- Comment input -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-muted-color">
+            {{ 'wms.receipts.workflow.comment' | transloco }}
+          </label>
+          <textarea
+            pTextarea
+            [ngModel]="workflowComment()"
+            (ngModelChange)="workflowComment.set($event)"
+            rows="2"
+            class="w-full"
+            [placeholder]="'wms.receipts.workflow.commentPlaceholder' | transloco"
+          ></textarea>
+        </div>
+        <!-- Action buttons -->
+        <div class="flex gap-2 flex-wrap">
+          @for (act of getAvailableActions(); track act.action) {
+            <p-button
+              [label]="act.label"
+              [icon]="act.icon"
+              [severity]="$any(act.severity)"
+              size="small"
+              [loading]="workflowTransitioning()"
+              (onClick)="transitionWorkflow(act.action)"
+            />
+          }
+        </div>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="text-center py-10 text-muted-color text-sm">
+    {{ 'wms.receipts.workflow.noSteps' | transloco }}
+  </div>
+}

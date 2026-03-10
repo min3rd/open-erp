@@ -29,24 +29,10 @@ import {
   WorkflowStepStatus,
   WorkflowStep,
 } from '@shared/schemas';
-
-/** Entity type identifier for approval-flow integration */
-const ENTITY_TYPE_RECEIPT = 'receipt';
-
-/** Default workflow steps for a receipt */
-const DEFAULT_WORKFLOW_STEPS: Array<{
-  key: string;
-  label: string;
-}> = [
-  { key: 'created', label: 'Created' },
-  { key: 'pending_approval', label: 'Pending Approval' },
-  { key: 'approved', label: 'Approved' },
-  { key: 'receiving', label: 'Receiving' },
-  { key: 'qc_check', label: 'QC Check' },
-  { key: 'qc_approved', label: 'QC Approved' },
-  { key: 'putaway', label: 'Putaway' },
-  { key: 'completed', label: 'Completed' },
-];
+import {
+  ENTITY_TYPE_RECEIPT,
+  DEFAULT_WORKFLOW_STEPS,
+} from '@shared/constants';
 
 @Injectable()
 export class ReceiptService {
@@ -247,6 +233,15 @@ export class ReceiptService {
       auditTrail,
     };
 
+    // Advance workflow from created to pending_approval
+    const doc = receipt as any;
+    let workflow = doc.workflow;
+    if (!workflow?.steps?.length) {
+      workflow = this.buildDefaultWorkflow();
+    }
+    this.advanceStep(workflow, 'created', userId, dto.notes);
+    updateData.workflow = workflow;
+
     if (dto.reviewers?.length) {
       updateData.reviewers = dto.reviewers.map((r) => new Types.ObjectId(r));
     }
@@ -259,7 +254,6 @@ export class ReceiptService {
     // This is non-fatal: if the approval-flow service is unavailable, the receipt
     // still transitions to under_review status.
     try {
-      const doc = receipt as any;
       const response = await fetch(
         `${this.approvalFlowUrl}/v1/approval-flow/requests`,
         {

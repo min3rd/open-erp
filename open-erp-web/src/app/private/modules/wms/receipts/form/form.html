@@ -40,11 +40,9 @@
         <p-tab [value]="2">
           {{ 'wms.receipts.tabRefDocs' | transloco }} ({{ referenceDocsArray.length }})
         </p-tab>
-        @if (!isNew()) {
-          <p-tab [value]="3" (click)="loadWorkflow()">
-            {{ 'wms.receipts.tabWorkflow' | transloco }}
-          </p-tab>
-        }
+        <p-tab [value]="3">
+          {{ 'wms.receipts.tabWorkflow' | transloco }}
+        </p-tab>
       </p-tablist>
 
       <p-tabpanels>
@@ -498,136 +496,14 @@
         </p-tabpanel>
 
         <!-- ── Workflow Tab ─────────────────────────────────────────── -->
-        @if (!isNew()) {
-          <p-tabpanel [value]="3">
-            @if (workflowLoading()) {
-              <div class="flex justify-center py-10">
-                <i class="pi pi-spin pi-spinner text-2xl text-surface-400"></i>
-              </div>
-            } @else if (workflow(); as wf) {
-              <!-- Timeline -->
-              <div class="flex flex-col gap-4 pt-3">
-                <span class="text-sm font-medium">{{ 'wms.receipts.workflow.timeline' | transloco }}</span>
-                <div class="flex flex-col gap-0">
-                  @for (step of wf.steps; track step.key; let i = $index; let last = $last) {
-                    <div class="flex gap-3 items-start">
-                      <!-- Icon column -->
-                      <div class="flex flex-col items-center">
-                        <div
-                          class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs shrink-0"
-                          [style.background-color]="getStepColor(step.status)"
-                        >
-                          <i [class]="getStepIcon(step.status)"></i>
-                        </div>
-                        @if (!last) {
-                          <div
-                            class="w-0.5 min-h-8 flex-1"
-                            [style.background-color]="getStepColor(step.status)"
-                          ></div>
-                        }
-                      </div>
-                      <!-- Content -->
-                      <div class="flex flex-col gap-0.5 pb-4 flex-1 min-w-0">
-                        <div class="flex items-center gap-2 flex-wrap">
-                          <span class="text-sm font-medium">{{ step.label }}</span>
-                          <p-tag
-                            [value]="step.status"
-                            [severity]="getStepSeverity(step.status)"
-                            class="text-xs"
-                          />
-                        </div>
-                        @if (step.completedAt) {
-                          <span class="text-xs text-surface-400">
-                            {{ step.completedAt | date: 'dd/MM/yyyy HH:mm' }}
-                          </span>
-                        }
-                        @if (step.comment) {
-                          <span class="text-xs text-surface-500 italic">{{ step.comment }}</span>
-                        }
-                      </div>
-                    </div>
-                  }
-                </div>
-
-                <!-- QC & Putaway table (only show when receipt has lines) -->
-                @if (receipt()?.lines?.length) {
-                  <div class="flex flex-col gap-2">
-                    <span class="text-sm font-medium">{{ 'wms.receipts.workflow.qcTable' | transloco }}</span>
-                    <div class="overflow-x-auto">
-                      <table class="w-full text-xs border-collapse">
-                        <thead>
-                          <tr class="border-b border-surface">
-                            <th class="text-left py-2 px-2 font-medium text-surface-500">{{ 'wms.receipts.workflow.lineId' | transloco }}</th>
-                            <th class="text-left py-2 px-2 font-medium text-surface-500">{{ 'wms.receipts.workflow.skuCode' | transloco }}</th>
-                            <th class="text-left py-2 px-2 font-medium text-surface-500">{{ 'wms.receipts.workflow.qcStatus' | transloco }}</th>
-                            <th class="text-left py-2 px-2 font-medium text-surface-500">{{ 'wms.receipts.workflow.qcNotes' | transloco }}</th>
-                            <th class="text-left py-2 px-2 font-medium text-surface-500">{{ 'wms.receipts.workflow.storedLocation' | transloco }}</th>
-                            <th class="text-right py-2 px-2 font-medium text-surface-500">{{ 'wms.receipts.workflow.storedQty' | transloco }}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (line of receipt()?.lines ?? []; track line.lineId ?? $index) {
-                            <tr class="border-b border-surface-100 hover:bg-surface-50">
-                              <td class="py-1.5 px-2">{{ line.lineId ?? '-' }}</td>
-                              <td class="py-1.5 px-2">{{ line.skuCode ?? '-' }}</td>
-                              <td class="py-1.5 px-2">
-                                <p-tag
-                                  [value]="line.qcStatus"
-                                  [severity]="getQcSeverity(line.qcStatus)"
-                                />
-                              </td>
-                              <td class="py-1.5 px-2">{{ line.qcNotes ?? '-' }}</td>
-                              <td class="py-1.5 px-2">{{ line.storedLocation ?? '-' }}</td>
-                              <td class="py-1.5 px-2 text-right">{{ line.storedQty ?? 0 }}</td>
-                            </tr>
-                          }
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                }
-
-                <!-- Actions -->
-                @if (getAvailableActions().length > 0) {
-                  <div class="flex flex-col gap-2 border-t border-surface pt-3">
-                    <!-- Comment input -->
-                    <div class="flex flex-col gap-1">
-                      <label class="text-xs font-medium text-surface-500">
-                        {{ 'wms.receipts.workflow.comment' | transloco }}
-                      </label>
-                      <textarea
-                        pTextarea
-                        [ngModel]="workflowComment()"
-                        [ngModelOptions]="{ standalone: true }"
-                        (ngModelChange)="workflowComment.set($event)"
-                        rows="2"
-                        class="w-full"
-                        [placeholder]="'wms.receipts.workflow.commentPlaceholder' | transloco"
-                      ></textarea>
-                    </div>
-                    <!-- Action buttons -->
-                    <div class="flex gap-2 flex-wrap">
-                      @for (act of getAvailableActions(); track act.action) {
-                        <p-button
-                          [label]="act.label"
-                          [icon]="act.icon"
-                          [severity]="$any(act.severity)"
-                          size="small"
-                          [loading]="workflowTransitioning()"
-                          (onClick)="transitionWorkflow(act.action)"
-                        />
-                      }
-                    </div>
-                  </div>
-                }
-              </div>
-            } @else {
-              <div class="text-center py-10 text-surface-400 text-sm">
-                {{ 'wms.receipts.workflow.noSteps' | transloco }}
-              </div>
-            }
-          </p-tabpanel>
-        }
+        <p-tabpanel [value]="3">
+          <receipt-workflow-tab
+            [receipt]="receipt()"
+            [isView]="isView()"
+            [isNew]="isNew()"
+            (receiptUpdated)="onReceiptUpdated($event)"
+          />
+        </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
   </form>
@@ -650,6 +526,16 @@
           [disabled]="form.invalid || saving()"
           (onClick)="save()"
         />
+        @if (!isNew() && receipt()?.status === 'draft') {
+          <p-button
+            [label]="'wms.receipts.workflow.startWorkflow' | transloco"
+            icon="pi pi-play"
+            size="small"
+            severity="info"
+            [loading]="submitting()"
+            (onClick)="startWorkflow()"
+          />
+        }
       } @else {
         @if (receipt()?.status === 'draft') {
           <p-button
@@ -658,12 +544,20 @@
             size="small"
             (onClick)="goToEdit()"
           />
+          <p-button
+            [label]="'wms.receipts.workflow.startWorkflow' | transloco"
+            icon="pi pi-play"
+            size="small"
+            severity="info"
+            [loading]="submitting()"
+            (onClick)="startWorkflow()"
+          />
         }
         <p-button
           [label]="'common.close' | transloco"
           severity="secondary"
           size="small"
-          (onClick)="cancel()"
+          (onClick)="closeDrawer()"
         />
       }
     </div>
