@@ -3893,7 +3893,14 @@
         "statusRejected": "Rejected",
         "transitionSuccess": "Workflow transitioned successfully",
         "lineUpdateSuccess": "Line updated successfully",
-        "startWorkflow": "Start Workflow"
+        "startWorkflow": "Start Workflow",
+        "configSteps": "Configure Steps",
+        "cancelConfig": "Cancel",
+        "saveConfig": "Save Configuration",
+        "addStep": "Add Step",
+        "stepLabelPlaceholder": "Step name...",
+        "rolePlaceholder": "Enter role name...",
+        "userPlaceholder": "Enter user email or ID..."
       },
       "warehouse": "Warehouse",
       "expectedReceiptAt": "Expected Receipt Date"
