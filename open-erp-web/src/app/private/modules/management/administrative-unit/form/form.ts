@@ -26,11 +26,7 @@ import { MapComponent } from '../../../../../../core/components/map/map.componen
 
 // Services and types
 import { AdministrativeUnitService } from '../services/administrative-unit.service';
-import {
-  AdministrativeUnit,
-  AdminUnitType,
-  AdminUnitFormData,
-} from '../administrative-unit.types';
+import { AdministrativeUnit, AdminUnitType, AdminUnitFormData } from '../administrative-unit.types';
 import { Province } from '../../province/province.types';
 import { District } from '../../district/district.types';
 
@@ -133,7 +129,7 @@ export class AdministrativeUnitForm implements OnInit, OnDestroy {
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const parentType = params.get('parentType');
       const parentCode = params.get('parentCode');
-      
+
       this.parentType.set(parentType);
       this.parentCode.set(parentCode);
 

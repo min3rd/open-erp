@@ -7,6 +7,7 @@ The Product Form component provides a comprehensive interface for creating new p
 ## Features
 
 ### Header Section (Fixed)
+
 - **Scope**: Global or Organization selection
 - **Organization ID**: Conditional field (shown when scope is Organization)
 - **SKU**: Required product identifier
@@ -18,6 +19,7 @@ The Product Form component provides a comprehensive interface for creating new p
 ### Body Section (Scrollable with Tabs)
 
 #### 1. General Info Tab
+
 - International Name
 - Description (multi-line)
 - Product Type (dropdown from API)
@@ -26,27 +28,33 @@ The Product Form component provides a comprehensive interface for creating new p
 - Barcode
 
 #### 2. Media Tab
+
 - Placeholder for future image/video gallery implementation
 - Will support multiple file uploads
 
 #### 3. Dimensions & Weight Tab
+
 - Weight (kg) with decimal support
 - Length, Width, Height (cm)
 - Expiry Days
 
 #### 4. Storage Conditions Tab
+
 - Storage conditions text area
 - Free-form text for storage requirements
 
 #### 5. Warehouse Settings Tab
+
 - Placeholder for warehouse-specific configuration
 - Will support per-warehouse settings
 
 #### 6. Custom Fields Tab
+
 - Placeholder for custom key-value fields
 - Will support JSON editor for metadata
 
 ### Footer Section (Fixed)
+
 - **Cancel**: Navigate back to product list (with confirmation if form is dirty)
 - **Randomize**: Fill form with random test data for development
 - **Save Draft**: Save product with Draft status
@@ -55,13 +63,17 @@ The Product Form component provides a comprehensive interface for creating new p
 ## Usage
 
 ### Navigation
+
 From the product list page, click the "+" icon to navigate to the new product form:
+
 ```
 /modules/management/product/:search/:status/:type/:category/:sort/:page/:limit/new
 ```
 
 ### Form Validation
+
 Required fields:
+
 - SKU
 - Name
 - Type
@@ -70,10 +82,13 @@ Required fields:
 - Status
 
 Optional fields:
+
 - All others are optional
 
 ### File Upload
+
 Supported image formats:
+
 - JPEG/JPG
 - PNG
 - WebP
@@ -81,6 +96,7 @@ Supported image formats:
 Maximum file size: 5MB
 
 ### Slug Generation
+
 - Automatically generated from product name
 - Converts to lowercase
 - Removes diacritics and special characters
@@ -90,9 +106,11 @@ Maximum file size: 5MB
 ## API Integration
 
 ### Endpoint
+
 `POST /api/inventory/v1/products`
 
 ### Request Body (CreateProductDto)
+
 ```typescript
 {
   scope: ProductScope;           // 'global' | 'organization'
@@ -111,11 +129,13 @@ Maximum file size: 5MB
 ```
 
 ### Response
+
 Returns created product with 201 status code on success.
 
 ## Development
 
 ### Component Structure
+
 ```
 form/
 ├── form.ts          # Component logic
@@ -124,13 +144,16 @@ form/
 ```
 
 ### Key Dependencies
+
 - Angular 18+ (standalone components)
 - PrimeNG 21.0.4 (UI components)
 - RxJS (reactive programming)
 - Transloco (i18n)
 
 ### Form State Management
+
 Uses Angular Signals for reactive state:
+
 - `isVisible`: Drawer visibility
 - `isLoading`: Form submission state
 - `thumbnailPreview`: Image preview URL
@@ -138,6 +161,7 @@ Uses Angular Signals for reactive state:
 - `product`: Loaded product (null for new)
 
 ### Memory Management
+
 - Uses `takeUntilDestroyed` for automatic subscription cleanup
 - Properly destroys all subscriptions on component destruction
 - No memory leaks
@@ -145,7 +169,9 @@ Uses Angular Signals for reactive state:
 ## Testing
 
 ### Random Data Generation
+
 Click "Randomize" button to fill form with test data:
+
 - Random SKU (SKU-xxxxx)
 - Random product name
 - Auto-generated slug
@@ -157,6 +183,7 @@ Click "Randomize" button to fill form with test data:
 - Random expiry days
 
 ### Manual Testing Steps
+
 1. Navigate to product list
 2. Click "+" icon to open form
 3. Fill required fields (SKU, Name, Type, Unit)
@@ -172,11 +199,14 @@ Click "Randomize" button to fill form with test data:
 ## Localization
 
 ### Supported Languages
+
 - English (en)
 - Vietnamese (vi)
 
 ### Translation Keys
+
 All translation keys are prefixed with `productForm.`:
+
 - `productForm.title.*` - Form titles
 - `productForm.fields.*` - Field labels and placeholders
 - `productForm.tabs.*` - Tab labels
@@ -186,17 +216,20 @@ All translation keys are prefixed with `productForm.`:
 ## Security
 
 ### Validation
+
 - Client-side validation for all required fields
 - File type and size validation for uploads
 - Prevent XSS with Angular's sanitization
 - No sensitive data exposure in errors
 
 ### CodeQL Scan
+
 ✅ Passed with 0 vulnerabilities
 
 ## Future Enhancements
 
 ### Planned Features
+
 1. **Media Gallery**: Full image/video upload with gallery view
 2. **Warehouse Settings**: Per-warehouse configuration UI
 3. **Custom Fields**: Dynamic key-value editor with JSON support
@@ -207,6 +240,7 @@ All translation keys are prefixed with `productForm.`:
 8. **Bulk Import**: CSV import with field mapping
 
 ### Performance Improvements
+
 1. Implement virtual scrolling for large dropdown lists
 2. Add search/filter for product types and categories
 3. Implement debounced slug generation
@@ -229,5 +263,6 @@ All translation keys are prefixed with `productForm.`:
 ## Support
 
 For issues or questions, please refer to:
+
 - GitHub Issues: [open-erp repository](https://github.com/min3rd/open-erp)
 - Documentation: `/docs` directory

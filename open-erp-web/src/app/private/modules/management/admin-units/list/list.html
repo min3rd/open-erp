@@ -61,11 +61,7 @@
                 ></button>
 
                 <!-- Actions Menu -->
-                <p-menu
-                  #actionsMenu
-                  [model]="actionsMenuItems()"
-                  [popup]="true"
-                ></p-menu>
+                <p-menu #actionsMenu [model]="actionsMenuItems()" [popup]="true"></p-menu>
                 <button
                   id="admin-units-actions-button"
                   pButton
@@ -143,112 +139,112 @@
                     <!-- Ward List Content -->
                     <p-accordion-content>
                       <div [id]="'admin-units-ward-content-' + province.code" class="py-2">
-                      <!-- Ward Toolbar -->
-                      <div class="flex justify-between items-center mb-3 pb-2 border-b">
-                        <div class="flex gap-2 items-center">
-                          <p-inputGroup styleClass="w-64">
-                            <input
-                              [id]="'admin-units-ward-search-' + province.code"
-                              type="text"
-                              pInputText
-                              [ngModel]="getWardSearchTerm(province.code)"
-                              (ngModelChange)="onWardSearch(province.code, $event)"
-                              [placeholder]="'adminUnits.wardSearch.placeholder' | transloco"
-                            />
+                        <!-- Ward Toolbar -->
+                        <div class="flex justify-between items-center mb-3 pb-2 border-b">
+                          <div class="flex gap-2 items-center">
+                            <p-inputGroup styleClass="w-64">
+                              <input
+                                [id]="'admin-units-ward-search-' + province.code"
+                                type="text"
+                                pInputText
+                                [ngModel]="getWardSearchTerm(province.code)"
+                                (ngModelChange)="onWardSearch(province.code, $event)"
+                                [placeholder]="'adminUnits.wardSearch.placeholder' | transloco"
+                              />
+                              <button
+                                pButton
+                                icon="pi pi-search"
+                                [pTooltip]="'adminUnits.wardSearch.tooltip' | transloco"
+                              ></button>
+                            </p-inputGroup>
+                          </div>
+                          <div class="flex gap-2">
                             <button
+                              [id]="'admin-units-add-ward-' + province.code"
                               pButton
-                              icon="pi pi-search"
-                              [pTooltip]="'adminUnits.wardSearch.tooltip' | transloco"
+                              icon="pi pi-plus"
+                              [label]="'adminUnits.addWard' | transloco"
+                              (click)="addWard(province.code)"
+                              class="p-button-sm"
                             ></button>
-                          </p-inputGroup>
+                            <button
+                              [id]="'admin-units-export-wards-csv-' + province.code"
+                              pButton
+                              icon="pi pi-file"
+                              [label]="'adminUnits.exportCSV' | transloco"
+                              (click)="exportWards(province.code, 'csv')"
+                              class="p-button-sm p-button-secondary"
+                            ></button>
+                            <button
+                              [id]="'admin-units-export-wards-geojson-' + province.code"
+                              pButton
+                              icon="pi pi-map"
+                              [label]="'adminUnits.exportGeoJSON' | transloco"
+                              (click)="exportWards(province.code, 'geojson')"
+                              class="p-button-sm p-button-secondary"
+                            ></button>
+                          </div>
                         </div>
-                        <div class="flex gap-2">
-                          <button
-                            [id]="'admin-units-add-ward-' + province.code"
-                            pButton
-                            icon="pi pi-plus"
-                            [label]="'adminUnits.addWard' | transloco"
-                            (click)="addWard(province.code)"
-                            class="p-button-sm"
-                          ></button>
-                          <button
-                            [id]="'admin-units-export-wards-csv-' + province.code"
-                            pButton
-                            icon="pi pi-file"
-                            [label]="'adminUnits.exportCSV' | transloco"
-                            (click)="exportWards(province.code, 'csv')"
-                            class="p-button-sm p-button-secondary"
-                          ></button>
-                          <button
-                            [id]="'admin-units-export-wards-geojson-' + province.code"
-                            pButton
-                            icon="pi pi-map"
-                            [label]="'adminUnits.exportGeoJSON' | transloco"
-                            (click)="exportWards(province.code, 'geojson')"
-                            class="p-button-sm p-button-secondary"
-                          ></button>
-                        </div>
-                      </div>
 
-                      <!-- Ward Table -->
-                      @if (isLoadingWards(province.code)) {
-                        <div class="flex justify-center items-center py-8">
-                          <i class="pi pi-spin pi-spinner text-2xl"></i>
-                        </div>
-                      } @else if (getWards(province.code).length === 0) {
-                        <div class="flex flex-col justify-center items-center py-8 text-gray-500">
-                          <i class="pi pi-inbox text-4xl mb-2"></i>
-                          <p>{{ 'adminUnits.noWards' | transloco }}</p>
-                        </div>
-                      } @else {
-                        <p-table
-                          [id]="'admin-units-ward-table-' + province.code"
-                          [value]="getWards(province.code)"
-                          [rows]="10"
-                          [paginator]="true"
-                          [rowsPerPageOptions]="PAGE_SIZE_OPTIONS"
-                          styleClass="p-datatable-sm"
-                        >
-                          <ng-template #header>
-                            <tr>
-                              <th>{{ 'adminUnits.table.code' | transloco }}</th>
-                              <th>{{ 'adminUnits.table.name' | transloco }}</th>
-                              <th>{{ 'adminUnits.table.nameEn' | transloco }}</th>
-                              <th>{{ 'adminUnits.table.districtCode' | transloco }}</th>
-                              <th>{{ 'adminUnits.table.actions' | transloco }}</th>
-                            </tr>
-                          </ng-template>
-                          <ng-template #body let-ward>
-                            <tr [id]="'admin-units-ward-row-' + ward.code">
-                              <td>{{ ward.code }}</td>
-                              <td>{{ ward.name }}</td>
-                              <td>{{ ward.nameEn || '-' }}</td>
-                              <td>{{ ward.districtCode }}</td>
-                              <td>
-                                <div class="flex gap-1">
-                                  <button
-                                    [id]="'admin-units-edit-ward-' + ward.code"
-                                    pButton
-                                    icon="pi pi-pencil"
-                                    class="p-button-text p-button-sm"
-                                    (click)="editWard(ward)"
-                                    [pTooltip]="'adminUnits.editWard' | transloco"
-                                  ></button>
-                                  <button
-                                    [id]="'admin-units-delete-ward-' + ward.code"
-                                    pButton
-                                    icon="pi pi-trash"
-                                    class="p-button-text p-button-sm p-button-danger"
-                                    (click)="deleteWard(ward)"
-                                    [pTooltip]="'adminUnits.deleteWard' | transloco"
-                                  ></button>
-                                </div>
-                              </td>
-                            </tr>
-                          </ng-template>
-                        </p-table>
-                      }
-                    </div>
+                        <!-- Ward Table -->
+                        @if (isLoadingWards(province.code)) {
+                          <div class="flex justify-center items-center py-8">
+                            <i class="pi pi-spin pi-spinner text-2xl"></i>
+                          </div>
+                        } @else if (getWards(province.code).length === 0) {
+                          <div class="flex flex-col justify-center items-center py-8 text-gray-500">
+                            <i class="pi pi-inbox text-4xl mb-2"></i>
+                            <p>{{ 'adminUnits.noWards' | transloco }}</p>
+                          </div>
+                        } @else {
+                          <p-table
+                            [id]="'admin-units-ward-table-' + province.code"
+                            [value]="getWards(province.code)"
+                            [rows]="10"
+                            [paginator]="true"
+                            [rowsPerPageOptions]="PAGE_SIZE_OPTIONS"
+                            styleClass="p-datatable-sm"
+                          >
+                            <ng-template #header>
+                              <tr>
+                                <th>{{ 'adminUnits.table.code' | transloco }}</th>
+                                <th>{{ 'adminUnits.table.name' | transloco }}</th>
+                                <th>{{ 'adminUnits.table.nameEn' | transloco }}</th>
+                                <th>{{ 'adminUnits.table.districtCode' | transloco }}</th>
+                                <th>{{ 'adminUnits.table.actions' | transloco }}</th>
+                              </tr>
+                            </ng-template>
+                            <ng-template #body let-ward>
+                              <tr [id]="'admin-units-ward-row-' + ward.code">
+                                <td>{{ ward.code }}</td>
+                                <td>{{ ward.name }}</td>
+                                <td>{{ ward.nameEn || '-' }}</td>
+                                <td>{{ ward.districtCode }}</td>
+                                <td>
+                                  <div class="flex gap-1">
+                                    <button
+                                      [id]="'admin-units-edit-ward-' + ward.code"
+                                      pButton
+                                      icon="pi pi-pencil"
+                                      class="p-button-text p-button-sm"
+                                      (click)="editWard(ward)"
+                                      [pTooltip]="'adminUnits.editWard' | transloco"
+                                    ></button>
+                                    <button
+                                      [id]="'admin-units-delete-ward-' + ward.code"
+                                      pButton
+                                      icon="pi pi-trash"
+                                      class="p-button-text p-button-sm p-button-danger"
+                                      (click)="deleteWard(ward)"
+                                      [pTooltip]="'adminUnits.deleteWard' | transloco"
+                                    ></button>
+                                  </div>
+                                </td>
+                              </tr>
+                            </ng-template>
+                          </p-table>
+                        }
+                      </div>
                     </p-accordion-content>
                   </p-accordion-panel>
                 }
@@ -262,9 +258,7 @@
       <ng-template #right>
         <div id="admin-units-map-container" class="h-full">
           @if (selectedGeometry()) {
-            <core-map
-              [geometry]="selectedGeometry()"
-            />
+            <core-map [geometry]="selectedGeometry()" />
           } @else {
             <div class="flex flex-col justify-center items-center h-full bg-gray-100 text-gray-500">
               <i class="pi pi-map text-6xl mb-4"></i>
@@ -318,17 +312,9 @@
             (keyup.enter)="onGlobalSearch()"
             class="w-full"
           />
-          <button
-            pButton
-            icon="pi pi-search"
-            (click)="onGlobalSearch()"
-          ></button>
+          <button pButton icon="pi pi-search" (click)="onGlobalSearch()"></button>
           @if (globalSearch()) {
-            <button
-              pButton
-              icon="pi pi-times"
-              (click)="clearGlobalSearch()"
-            ></button>
+            <button pButton icon="pi pi-times" (click)="clearGlobalSearch()"></button>
           }
         </p-inputGroup>
       </div>
@@ -347,7 +333,10 @@
         } @else {
           <p-accordion (onOpen)="onTabOpen($event)" (onClose)="onTabClose()">
             @for (province of filteredProvinces(); track province.code; let idx = $index) {
-              <p-accordion-panel [id]="'admin-units-mobile-province-' + province.code" [value]="idx">
+              <p-accordion-panel
+                [id]="'admin-units-mobile-province-' + province.code"
+                [value]="idx"
+              >
                 <!-- Province Header -->
                 <p-accordion-header>
                   <div class="flex flex-col gap-1 w-full">
@@ -361,41 +350,44 @@
                 <!-- Ward List Content (Mobile) -->
                 <p-accordion-content>
                   <div class="py-2">
-                  @if (isLoadingWards(province.code)) {
-                    <div class="flex justify-center py-4">
-                      <i class="pi pi-spin pi-spinner text-xl"></i>
-                    </div>
-                  } @else {
-                    <div class="flex flex-col gap-2">
-                      @for (ward of getWards(province.code); track ward.code) {
-                        <p-card [id]="'admin-units-mobile-ward-' + ward.code" styleClass="text-sm">
-                          <div class="flex justify-between items-start">
-                            <div>
-                              <div class="font-semibold">{{ ward.name }}</div>
-                              <div class="text-xs text-gray-500">
-                                {{ ward.code }} | {{ ward.districtCode }}
+                    @if (isLoadingWards(province.code)) {
+                      <div class="flex justify-center py-4">
+                        <i class="pi pi-spin pi-spinner text-xl"></i>
+                      </div>
+                    } @else {
+                      <div class="flex flex-col gap-2">
+                        @for (ward of getWards(province.code); track ward.code) {
+                          <p-card
+                            [id]="'admin-units-mobile-ward-' + ward.code"
+                            styleClass="text-sm"
+                          >
+                            <div class="flex justify-between items-start">
+                              <div>
+                                <div class="font-semibold">{{ ward.name }}</div>
+                                <div class="text-xs text-gray-500">
+                                  {{ ward.code }} | {{ ward.districtCode }}
+                                </div>
+                              </div>
+                              <div class="flex gap-1">
+                                <button
+                                  pButton
+                                  icon="pi pi-pencil"
+                                  class="p-button-text p-button-sm"
+                                  (click)="editWard(ward)"
+                                ></button>
+                                <button
+                                  pButton
+                                  icon="pi pi-trash"
+                                  class="p-button-text p-button-sm p-button-danger"
+                                  (click)="deleteWard(ward)"
+                                ></button>
                               </div>
                             </div>
-                            <div class="flex gap-1">
-                              <button
-                                pButton
-                                icon="pi pi-pencil"
-                                class="p-button-text p-button-sm"
-                                (click)="editWard(ward)"
-                              ></button>
-                              <button
-                                pButton
-                                icon="pi pi-trash"
-                                class="p-button-text p-button-sm p-button-danger"
-                                (click)="deleteWard(ward)"
-                              ></button>
-                            </div>
-                          </div>
-                        </p-card>
-                      }
-                    </div>
-                  }
-                </div>
+                          </p-card>
+                        }
+                      </div>
+                    }
+                  </div>
                 </p-accordion-content>
               </p-accordion-panel>
             }

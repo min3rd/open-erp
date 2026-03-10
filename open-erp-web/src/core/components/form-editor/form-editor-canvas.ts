@@ -47,20 +47,26 @@ export class FormEditorCanvas {
   selectedComponentId = input<string | null>(null);
 
   componentSelected = output<FormComponent>();
-  componentDropped = output<{ componentType: string; parentId: string | null; columnIndex: number; position: number }>();
-  componentMoved = output<{ componentId: string; targetParentId: string | null; columnIndex: number; position: number }>();
+  componentDropped = output<{
+    componentType: string;
+    parentId: string | null;
+    columnIndex: number;
+    position: number;
+  }>();
+  componentMoved = output<{
+    componentId: string;
+    targetParentId: string | null;
+    columnIndex: number;
+    position: number;
+  }>();
   addComponentRequested = output<{ parentId: string | null; position: number }>();
 
   private draggedComponent: FormComponent | null = null;
 
   isLayoutComponent(component: FormComponent): boolean {
-    return [
-      'layout-1-column',
-      'layout-2-column',
-      'layout-3-column',
-      'divider',
-      'button',
-    ].includes(component.type);
+    return ['layout-1-column', 'layout-2-column', 'layout-3-column', 'divider', 'button'].includes(
+      component.type,
+    );
   }
 
   getLayoutChildren(component: FormComponent): FormComponent[] {
@@ -120,10 +126,13 @@ export class FormEditorCanvas {
     this.draggedComponent = component;
     if (event.dataTransfer) {
       event.dataTransfer.effectAllowed = 'move';
-      event.dataTransfer.setData('application/json', JSON.stringify({
-        isExisting: true,
-        componentId: component.id
-      }));
+      event.dataTransfer.setData(
+        'application/json',
+        JSON.stringify({
+          isExisting: true,
+          componentId: component.id,
+        }),
+      );
     }
   }
 
@@ -143,14 +152,14 @@ export class FormEditorCanvas {
       if (data) {
         try {
           const parsed = JSON.parse(data);
-          
+
           if (parsed.isExisting) {
             // Moving existing component
             this.componentMoved.emit({
               componentId: parsed.componentId,
               targetParentId: parentId,
               columnIndex,
-              position: -1 // Will be appended
+              position: -1, // Will be appended
             });
           } else {
             // Adding new component from palette
@@ -158,7 +167,7 @@ export class FormEditorCanvas {
               componentType: parsed.type,
               parentId,
               columnIndex,
-              position: -1
+              position: -1,
             });
           }
         } catch (e) {
@@ -170,7 +179,11 @@ export class FormEditorCanvas {
     this.draggedComponent = null;
   }
 
-  onAddComponentClick(event: MouseEvent, parentId: string | null = null, position: number = -1): void {
+  onAddComponentClick(
+    event: MouseEvent,
+    parentId: string | null = null,
+    position: number = -1,
+  ): void {
     event.stopPropagation();
     this.addComponentRequested.emit({ parentId, position });
   }

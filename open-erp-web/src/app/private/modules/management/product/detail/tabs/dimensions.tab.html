@@ -1,11 +1,17 @@
 <div class="p-4 sm:p-6">
-  <h2 class="text-lg sm:text-xl font-semibold mb-4">{{ 'productDetail.tabs.dimensions' | transloco }}</h2>
-  <p class="text-color-secondary text-sm">{{ 'productDetail.dimensions.description' | transloco }}</p>
+  <h2 class="text-lg sm:text-xl font-semibold mb-4">
+    {{ 'productDetail.tabs.dimensions' | transloco }}
+  </h2>
+  <p class="text-color-secondary text-sm">
+    {{ 'productDetail.dimensions.description' | transloco }}
+  </p>
 
   @if (product()?.dimensions) {
     <div class="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.dimensions.length' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.dimensions.length' | transloco
+        }}</label>
         <div>
           @if (product()!.dimensions!.length != null) {
             {{ product()!.dimensions!.length }} {{ product()!.dimensions!.unit || '' }}
@@ -16,7 +22,9 @@
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.dimensions.width' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.dimensions.width' | transloco
+        }}</label>
         <div>
           @if (product()!.dimensions!.width != null) {
             {{ product()!.dimensions!.width }} {{ product()!.dimensions!.unit || '' }}
@@ -27,7 +35,9 @@
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.dimensions.height' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.dimensions.height' | transloco
+        }}</label>
         <div>
           @if (product()!.dimensions!.height != null) {
             {{ product()!.dimensions!.height }} {{ product()!.dimensions!.unit || '' }}
@@ -38,13 +48,17 @@
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.dimensions.unit' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.dimensions.unit' | transloco
+        }}</label>
         <div>{{ product()!.dimensions!.unit || '-' }}</div>
       </div>
     </div>
   } @else {
     <div class="mt-4 sm:mt-6">
-      <p class="text-sm text-color-secondary">{{ 'productDetail.dimensions.notAvailable' | transloco }}</p>
+      <p class="text-sm text-color-secondary">
+        {{ 'productDetail.dimensions.notAvailable' | transloco }}
+      </p>
     </div>
   }
 </div>

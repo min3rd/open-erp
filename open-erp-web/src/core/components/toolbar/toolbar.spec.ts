@@ -82,9 +82,7 @@ describe('MpToolbar', () => {
     });
 
     it('should render toolbar with correct id', () => {
-      const toolbar = fixture.nativeElement.querySelector(
-        '#test-toolbar-no-center',
-      ) as HTMLElement;
+      const toolbar = fixture.nativeElement.querySelector('#test-toolbar-no-center') as HTMLElement;
       expect(toolbar).toBeTruthy();
     });
 

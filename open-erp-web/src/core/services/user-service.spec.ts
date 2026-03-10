@@ -116,7 +116,7 @@ describe('UserService', () => {
     });
 
     const req = httpMock.expectOne(
-      `${API_URI_USER}/v1/users?page=1&size=10&q=nonexistentuser12345`
+      `${API_URI_USER}/v1/users?page=1&size=10&q=nonexistentuser12345`,
     );
     expect(req.request.method).toBe('GET');
     req.flush(mockResponse);
@@ -168,7 +168,7 @@ describe('UserService', () => {
     });
 
     const req = httpMock.expectOne(
-      `${API_URI_USER}/v1/users?page=1&size=10&organizationId=org-123`
+      `${API_URI_USER}/v1/users?page=1&size=10&organizationId=org-123`,
     );
     expect(req.request.method).toBe('GET');
     req.flush(mockResponse);
@@ -282,7 +282,7 @@ describe('UserService', () => {
 
     const req = httpMock.expectOne(`${API_URI_USER}/v1/users?page=1&size=10`);
     req.flush('Internal Server Error', { status: 500, statusText: 'Internal Server Error' });
-    
+
     expect(errorCaught).toBe(true);
   });
 
@@ -306,7 +306,7 @@ describe('UserService', () => {
 
     const req = httpMock.expectOne(`${API_URI_USER}/v1/users?page=1&size=10`);
     req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
-    
+
     expect(errorCaught).toBe(true);
   });
 
@@ -330,7 +330,7 @@ describe('UserService', () => {
 
     const req = httpMock.expectOne(`${API_URI_USER}/v1/users?page=1&size=10`);
     req.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
-    
+
     expect(errorCaught).toBe(true);
   });
 
@@ -339,7 +339,7 @@ describe('UserService', () => {
       const params: GetUsersParams = {
         page: 1,
         limit: 10,
-      totalPages: 1,
+        totalPages: 1,
       };
 
       const mockApiResponse: ApiPaginatedResponse<any> = wrapSuccess({
@@ -355,7 +355,7 @@ describe('UserService', () => {
         ],
         page: 1,
         limit: 10,
-      totalPages: 1,
+        totalPages: 1,
         total: 1,
         totalPages: 1,
       });
@@ -378,7 +378,7 @@ describe('UserService', () => {
       const params: GetUsersParams = {
         page: 1,
         limit: 10,
-      totalPages: 1,
+        totalPages: 1,
       };
 
       const mockErrorResponse = {

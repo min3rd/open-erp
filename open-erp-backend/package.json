@@ -19,6 +19,7 @@
     "build:data-transfer": "nest build data-transfer",
     "build:all": "npm run build:auth && npm run build:user && npm run build:notification && npm run build:config && npm run build:organization && npm run build:inventory && npm run build:common && npm run build:file-service && npm run build:chat && npm run build:data-transfer",
     "format": "prettier --write \"src/**/*.ts\" \"apps/**/*.ts\" \"libs/**/*.ts\" \"test/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"apps/**/*.ts\" \"libs/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",

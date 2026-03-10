@@ -2,7 +2,11 @@ import { Component, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslocoModule } from '@jsverse/transloco';
 import { ComponentDefinition } from './component-definitions';
-import { COMPONENT_DEFINITIONS, getLayoutComponents, getFormComponents } from './component-definitions';
+import {
+  COMPONENT_DEFINITIONS,
+  getLayoutComponents,
+  getFormComponents,
+} from './component-definitions';
 
 @Component({
   selector: 'form-editor-palette',
@@ -30,7 +34,11 @@ import { COMPONENT_DEFINITIONS, getLayoutComponents, getFormComponents } from '.
                 [attr.draggable]="true"
                 (dragstart)="onDragStart($event, component)"
                 (click)="onComponentClick(component)"
-                [attr.aria-label]="(component.labelKey | transloco) + ' - ' + ('formEditor.actions.dragComponent' | transloco)"
+                [attr.aria-label]="
+                  (component.labelKey | transloco) +
+                  ' - ' +
+                  ('formEditor.actions.dragComponent' | transloco)
+                "
               >
                 <i [class]="component.icon + ' text-xl text-primary'" aria-hidden="true"></i>
                 <span class="text-sm text-surface-900 dark:text-surface-0">
@@ -55,7 +63,11 @@ import { COMPONENT_DEFINITIONS, getLayoutComponents, getFormComponents } from '.
                 [attr.draggable]="true"
                 (dragstart)="onDragStart($event, component)"
                 (click)="onComponentClick(component)"
-                [attr.aria-label]="(component.labelKey | transloco) + ' - ' + ('formEditor.actions.dragComponent' | transloco)"
+                [attr.aria-label]="
+                  (component.labelKey | transloco) +
+                  ' - ' +
+                  ('formEditor.actions.dragComponent' | transloco)
+                "
               >
                 <i [class]="component.icon + ' text-xl text-primary'" aria-hidden="true"></i>
                 <span class="text-sm text-surface-900 dark:text-surface-0">

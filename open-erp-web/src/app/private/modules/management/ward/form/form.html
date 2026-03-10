@@ -20,175 +20,171 @@
 
   <div id="ward-form-content" class="flex flex-col h-full">
     @if (isLoading()) {
-    <!-- Loading State -->
-    <div class="flex items-center justify-center py-16">
-      <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
-    </div>
+      <!-- Loading State -->
+      <div class="flex items-center justify-center py-16">
+        <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+      </div>
     } @else {
-    <form [formGroup]="wardForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
-      <!-- Code Field -->
-      <div class="flex flex-col gap-2">
-        <label for="ward-form-code" class="font-medium text-sm">
-          {{ 'wardForm.fields.code.label' | transloco }}
-          <span class="text-red-500">*</span>
-        </label>
-        <input
-          id="ward-form-code"
-          type="text"
-          pInputText
-          formControlName="code"
-          [placeholder]="'wardForm.fields.code.placeholder' | transloco"
-          [attr.aria-label]="'wardForm.fields.code.label' | transloco"
-          [class.border-red-500]="
-            wardForm.get('code')?.touched && wardForm.get('code')?.invalid
-          "
-        />
-        @if (getErrorMessage('code')) {
-        <small id="ward-form-code-error" class="text-red-500">
-          {{ getErrorMessage('code') }}
-        </small>
-        }
-      </div>
-
-      <!-- Province Field -->
-      <div class="flex flex-col gap-2">
-        <label for="ward-form-province" class="font-medium text-sm">
-          {{ 'wardForm.fields.provinceCode.label' | transloco }}
-          <span class="text-red-500">*</span>
-        </label>
-        <p-select
-          id="ward-form-province"
-          formControlName="provinceCode"
-          [options]="provinceOptions()"
-          [placeholder]="'wardForm.fields.provinceCode.placeholder' | transloco"
-          optionLabel="label"
-          optionValue="value"
-          [style]="{ width: '100%' }"
-          [attr.aria-label]="'wardForm.fields.provinceCode.label' | transloco"
-          [class.border-red-500]="
-            wardForm.get('provinceCode')?.touched && wardForm.get('provinceCode')?.invalid
-          "
-        />
-        @if (getErrorMessage('provinceCode')) {
-        <small id="ward-form-province-error" class="text-red-500">
-          {{ getErrorMessage('provinceCode') }}
-        </small>
-        }
-      </div>
-
-      <!-- District Field -->
-      <div class="flex flex-col gap-2">
-        <label for="ward-form-district" class="font-medium text-sm">
-          {{ 'wardForm.fields.districtCode.label' | transloco }}
-        </label>
-        <p-select
-          id="ward-form-district"
-          formControlName="districtCode"
-          [options]="districtOptions()"
-          [placeholder]="'wardForm.fields.districtCode.placeholder' | transloco"
-          optionLabel="label"
-          optionValue="value"
-          [style]="{ width: '100%' }"
-          [attr.aria-label]="'wardForm.fields.districtCode.label' | transloco"
-          [class.border-red-500]="
-            wardForm.get('districtCode')?.touched && wardForm.get('districtCode')?.invalid
-          "
-          [disabled]="!wardForm.get('provinceCode')?.value"
-        />
-        @if (getErrorMessage('districtCode')) {
-        <small id="ward-form-district-error" class="text-red-500">
-          {{ getErrorMessage('districtCode') }}
-        </small>
-        }
-      </div>
-
-      <!-- Name (Vietnamese) Field -->
-      <div class="flex flex-col gap-2">
-        <label for="ward-form-name" class="font-medium text-sm">
-          {{ 'wardForm.fields.name.label' | transloco }}
-          <span class="text-red-500">*</span>
-        </label>
-        <input
-          id="ward-form-name"
-          type="text"
-          pInputText
-          formControlName="name"
-          [placeholder]="'wardForm.fields.name.placeholder' | transloco"
-          [attr.aria-label]="'wardForm.fields.name.label' | transloco"
-          [class.border-red-500]="
-            wardForm.get('name')?.touched && wardForm.get('name')?.invalid
-          "
-        />
-        @if (getErrorMessage('name')) {
-        <small id="ward-form-name-error" class="text-red-500">
-          {{ getErrorMessage('name') }}
-        </small>
-        }
-      </div>
-
-      <!-- Name (English) Field -->
-      <div class="flex flex-col gap-2">
-        <label for="ward-form-name-en" class="font-medium text-sm">
-          {{ 'wardForm.fields.nameEn.label' | transloco }}
-        </label>
-        <input
-          id="ward-form-name-en"
-          type="text"
-          pInputText
-          formControlName="nameEn"
-          [placeholder]="'wardForm.fields.nameEn.placeholder' | transloco"
-          [attr.aria-label]="'wardForm.fields.nameEn.label' | transloco"
-        />
-      </div>
-
-      <!-- Note Field -->
-      <div class="flex flex-col gap-2">
-        <label for="ward-form-note" class="font-medium text-sm">
-          {{ 'wardForm.fields.note.label' | transloco }}
-        </label>
-        <textarea
-          id="ward-form-note"
-          pTextarea
-          formControlName="note"
-          [placeholder]="'wardForm.fields.note.placeholder' | transloco"
-          [attr.aria-label]="'wardForm.fields.note.label' | transloco"
-          rows="3"
-        ></textarea>
-      </div>
-
-      <!-- Is Legacy Toggle -->
-      <div class="flex flex-col gap-2">
-        <label for="ward-form-is-legacy" class="font-medium text-sm">
-          {{ 'wardForm.fields.isLegacy.label' | transloco }}
-        </label>
-        <p-togglebutton
-          id="ward-form-is-legacy"
-          formControlName="isLegacy"
-          [onLabel]="'wardForm.fields.isLegacy.onLabel' | transloco"
-          [offLabel]="'wardForm.fields.isLegacy.offLabel' | transloco"
-          [attr.aria-label]="'wardForm.fields.isLegacy.label' | transloco"
-        />
-      </div>
-
-      <!-- Geometry Editor -->
-      @if (!isViewMode()) {
-      <div class="flex flex-col gap-2">
-        <h3 class="font-medium text-sm">{{ 'wardForm.geometry.title' | transloco }}</h3>
-        <core-geo-editor
-          [geometry]="currentGeometry()"
-          (geometryChange)="onGeometryChange($event)"
-        />
-      </div>
-      }
-
-      <!-- Map Preview -->
-      <div class="flex flex-col gap-2">
-        <h3 class="font-medium text-sm">{{ 'wardForm.map.title' | transloco }}</h3>
-        <div class="h-64 border border-surface-200 dark:border-surface-700 rounded">
-          <core-map [geometry]="currentGeometry()" />
+      <form [formGroup]="wardForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+        <!-- Code Field -->
+        <div class="flex flex-col gap-2">
+          <label for="ward-form-code" class="font-medium text-sm">
+            {{ 'wardForm.fields.code.label' | transloco }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="ward-form-code"
+            type="text"
+            pInputText
+            formControlName="code"
+            [placeholder]="'wardForm.fields.code.placeholder' | transloco"
+            [attr.aria-label]="'wardForm.fields.code.label' | transloco"
+            [class.border-red-500]="wardForm.get('code')?.touched && wardForm.get('code')?.invalid"
+          />
+          @if (getErrorMessage('code')) {
+            <small id="ward-form-code-error" class="text-red-500">
+              {{ getErrorMessage('code') }}
+            </small>
+          }
         </div>
-      </div>
-    </form>
+
+        <!-- Province Field -->
+        <div class="flex flex-col gap-2">
+          <label for="ward-form-province" class="font-medium text-sm">
+            {{ 'wardForm.fields.provinceCode.label' | transloco }}
+            <span class="text-red-500">*</span>
+          </label>
+          <p-select
+            id="ward-form-province"
+            formControlName="provinceCode"
+            [options]="provinceOptions()"
+            [placeholder]="'wardForm.fields.provinceCode.placeholder' | transloco"
+            optionLabel="label"
+            optionValue="value"
+            [style]="{ width: '100%' }"
+            [attr.aria-label]="'wardForm.fields.provinceCode.label' | transloco"
+            [class.border-red-500]="
+              wardForm.get('provinceCode')?.touched && wardForm.get('provinceCode')?.invalid
+            "
+          />
+          @if (getErrorMessage('provinceCode')) {
+            <small id="ward-form-province-error" class="text-red-500">
+              {{ getErrorMessage('provinceCode') }}
+            </small>
+          }
+        </div>
+
+        <!-- District Field -->
+        <div class="flex flex-col gap-2">
+          <label for="ward-form-district" class="font-medium text-sm">
+            {{ 'wardForm.fields.districtCode.label' | transloco }}
+          </label>
+          <p-select
+            id="ward-form-district"
+            formControlName="districtCode"
+            [options]="districtOptions()"
+            [placeholder]="'wardForm.fields.districtCode.placeholder' | transloco"
+            optionLabel="label"
+            optionValue="value"
+            [style]="{ width: '100%' }"
+            [attr.aria-label]="'wardForm.fields.districtCode.label' | transloco"
+            [class.border-red-500]="
+              wardForm.get('districtCode')?.touched && wardForm.get('districtCode')?.invalid
+            "
+            [disabled]="!wardForm.get('provinceCode')?.value"
+          />
+          @if (getErrorMessage('districtCode')) {
+            <small id="ward-form-district-error" class="text-red-500">
+              {{ getErrorMessage('districtCode') }}
+            </small>
+          }
+        </div>
+
+        <!-- Name (Vietnamese) Field -->
+        <div class="flex flex-col gap-2">
+          <label for="ward-form-name" class="font-medium text-sm">
+            {{ 'wardForm.fields.name.label' | transloco }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="ward-form-name"
+            type="text"
+            pInputText
+            formControlName="name"
+            [placeholder]="'wardForm.fields.name.placeholder' | transloco"
+            [attr.aria-label]="'wardForm.fields.name.label' | transloco"
+            [class.border-red-500]="wardForm.get('name')?.touched && wardForm.get('name')?.invalid"
+          />
+          @if (getErrorMessage('name')) {
+            <small id="ward-form-name-error" class="text-red-500">
+              {{ getErrorMessage('name') }}
+            </small>
+          }
+        </div>
+
+        <!-- Name (English) Field -->
+        <div class="flex flex-col gap-2">
+          <label for="ward-form-name-en" class="font-medium text-sm">
+            {{ 'wardForm.fields.nameEn.label' | transloco }}
+          </label>
+          <input
+            id="ward-form-name-en"
+            type="text"
+            pInputText
+            formControlName="nameEn"
+            [placeholder]="'wardForm.fields.nameEn.placeholder' | transloco"
+            [attr.aria-label]="'wardForm.fields.nameEn.label' | transloco"
+          />
+        </div>
+
+        <!-- Note Field -->
+        <div class="flex flex-col gap-2">
+          <label for="ward-form-note" class="font-medium text-sm">
+            {{ 'wardForm.fields.note.label' | transloco }}
+          </label>
+          <textarea
+            id="ward-form-note"
+            pTextarea
+            formControlName="note"
+            [placeholder]="'wardForm.fields.note.placeholder' | transloco"
+            [attr.aria-label]="'wardForm.fields.note.label' | transloco"
+            rows="3"
+          ></textarea>
+        </div>
+
+        <!-- Is Legacy Toggle -->
+        <div class="flex flex-col gap-2">
+          <label for="ward-form-is-legacy" class="font-medium text-sm">
+            {{ 'wardForm.fields.isLegacy.label' | transloco }}
+          </label>
+          <p-togglebutton
+            id="ward-form-is-legacy"
+            formControlName="isLegacy"
+            [onLabel]="'wardForm.fields.isLegacy.onLabel' | transloco"
+            [offLabel]="'wardForm.fields.isLegacy.offLabel' | transloco"
+            [attr.aria-label]="'wardForm.fields.isLegacy.label' | transloco"
+          />
+        </div>
+
+        <!-- Geometry Editor -->
+        @if (!isViewMode()) {
+          <div class="flex flex-col gap-2">
+            <h3 class="font-medium text-sm">{{ 'wardForm.geometry.title' | transloco }}</h3>
+            <core-geo-editor
+              [geometry]="currentGeometry()"
+              (geometryChange)="onGeometryChange($event)"
+            />
+          </div>
+        }
+
+        <!-- Map Preview -->
+        <div class="flex flex-col gap-2">
+          <h3 class="font-medium text-sm">{{ 'wardForm.map.title' | transloco }}</h3>
+          <div class="h-64 border border-surface-200 dark:border-surface-700 rounded">
+            <core-map [geometry]="currentGeometry()" />
+          </div>
+        </div>
+      </form>
     }
   </div>
 
@@ -204,23 +200,23 @@
         [attr.aria-label]="'wardForm.buttons.cancel' | transloco"
       />
       @if (!isViewMode()) {
-      <p-button
-        id="ward-form-submit-button"
-        [label]="
-          isEditMode()
-            ? ('wardForm.buttons.update' | transloco)
-            : ('wardForm.buttons.create' | transloco)
-        "
-        severity="primary"
-        (onClick)="onSubmit()"
-        [loading]="isSaving()"
-        [disabled]="isSaving()"
-        [attr.aria-label]="
-          isEditMode()
-            ? ('wardForm.buttons.update' | transloco)
-            : ('wardForm.buttons.create' | transloco)
-        "
-      />
+        <p-button
+          id="ward-form-submit-button"
+          [label]="
+            isEditMode()
+              ? ('wardForm.buttons.update' | transloco)
+              : ('wardForm.buttons.create' | transloco)
+          "
+          severity="primary"
+          (onClick)="onSubmit()"
+          [loading]="isSaving()"
+          [disabled]="isSaving()"
+          [attr.aria-label]="
+            isEditMode()
+              ? ('wardForm.buttons.update' | transloco)
+              : ('wardForm.buttons.create' | transloco)
+          "
+        />
       }
     </div>
   </ng-template>

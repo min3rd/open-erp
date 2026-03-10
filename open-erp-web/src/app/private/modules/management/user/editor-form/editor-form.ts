@@ -6,4 +6,4 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   templateUrl: './editor-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditorForm { }
+export class EditorForm {}

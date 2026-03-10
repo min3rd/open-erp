@@ -51,9 +51,15 @@ describe('OrganizationService - New Field Tests', () => {
     });
 
     it('should accept all organization types', () => {
-      const types: OrganizationType[] = ['holding', 'company', 'joint-venture', 'partner', 'branch'];
-      
-      types.forEach(type => {
+      const types: OrganizationType[] = [
+        'holding',
+        'company',
+        'joint-venture',
+        'partner',
+        'branch',
+      ];
+
+      types.forEach((type) => {
         const dto: CreateOrganizationDto = {
           taxId: '1234567890',
           name: 'Test Company',
@@ -67,15 +73,15 @@ describe('OrganizationService - New Field Tests', () => {
           status: 'active',
           country: 'VN',
         };
-        
+
         expect(dto.type).toBe(type);
       });
     });
 
     it('should accept all organization statuses', () => {
       const statuses: OrganizationStatus[] = ['active', 'inactive', 'pending'];
-      
-      statuses.forEach(status => {
+
+      statuses.forEach((status) => {
         const dto: CreateOrganizationDto = {
           taxId: '1234567890',
           name: 'Test Company',
@@ -89,7 +95,7 @@ describe('OrganizationService - New Field Tests', () => {
           status: status,
           country: 'VN',
         };
-        
+
         expect(dto.status).toBe(status);
       });
     });
@@ -200,7 +206,7 @@ describe('OrganizationService - New Field Tests', () => {
           mode: 'create' as const,
           item: mockOrg,
         },
-        'Organization created successfully'
+        'Organization created successfully',
       );
 
       service.createOrganization(dto).subscribe((response) => {

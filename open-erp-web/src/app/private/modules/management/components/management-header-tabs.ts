@@ -30,7 +30,8 @@ export class ManagementHeaderTabs implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Load module navigation
-    this.navigationService.getModuleNavigation$('nav-management')
+    this.navigationService
+      .getModuleNavigation$('nav-management')
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((items) => {
         this.items = items || [];
@@ -38,7 +39,8 @@ export class ManagementHeaderTabs implements OnInit, OnDestroy {
       });
 
     // Load module navigation data
-    this.navigationService.loadModuleNavigation('nav-management')
+    this.navigationService
+      .loadModuleNavigation('nav-management')
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe();
 
@@ -69,9 +71,9 @@ export class ManagementHeaderTabs implements OnInit, OnDestroy {
    */
   isItemActive(item: MenuItem): boolean {
     if (!item.routerLink) return false;
-    
+
     const routerLink = this.normalizeRouterLink(item.routerLink);
-    
+
     return this.router.isActive(routerLink, {
       paths: 'subset',
       queryParams: 'ignored',

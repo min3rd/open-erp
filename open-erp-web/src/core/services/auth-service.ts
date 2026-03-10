@@ -1,7 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, isDevMode } from '@angular/core';
 import { API_URI_AUTH } from '../constant';
-import { BehaviorSubject, from, map, Observable, of, switchMap, catchError, throwError } from 'rxjs';
+import {
+  BehaviorSubject,
+  from,
+  map,
+  Observable,
+  of,
+  switchMap,
+  catchError,
+  throwError,
+} from 'rxjs';
 import { UserDto } from '../interfaces/user.types';
 import { ApiResponse, ApiSingleResponse } from '../api';
 
@@ -172,10 +181,9 @@ export class AuthService {
    */
   refreshAccessToken(version: string = 'v1'): Observable<string> {
     return this.httpClient
-      .post<ApiResponse<{ accessToken: string; refreshToken: string }>>(
-        `${API_URI_AUTH}/${version}/auth/refresh`,
-        { refreshToken: this._refreshToken },
-      )
+      .post<
+        ApiResponse<{ accessToken: string; refreshToken: string }>
+      >(`${API_URI_AUTH}/${version}/auth/refresh`, { refreshToken: this._refreshToken })
       .pipe(
         switchMap((response) => {
           const data = response?.data;
@@ -187,7 +195,10 @@ export class AuthService {
           this._accessToken = newAccessToken;
           this._refreshToken = newRefreshToken;
           return from(
-            this.encryptAndStoreTokens({ accessToken: newAccessToken, refreshToken: newRefreshToken }),
+            this.encryptAndStoreTokens({
+              accessToken: newAccessToken,
+              refreshToken: newRefreshToken,
+            }),
           ).pipe(map(() => newAccessToken));
         }),
       );

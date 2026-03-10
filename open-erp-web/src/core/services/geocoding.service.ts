@@ -69,7 +69,7 @@ export class GeocodingService {
         catchError((error) => {
           console.error('Geocoding search failed:', error);
           return of([]);
-        })
+        }),
       );
   }
 

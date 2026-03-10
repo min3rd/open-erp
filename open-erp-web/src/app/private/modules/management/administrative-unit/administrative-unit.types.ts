@@ -176,7 +176,7 @@ export function wardToAdminUnit(ward: Ward): AdministrativeUnit {
  */
 export function mapToTreeNode(
   unit: AdministrativeUnit,
-  hasChildren: boolean = false
+  hasChildren: boolean = false,
 ): AdministrativeUnitTreeNode {
   return {
     data: unit,

@@ -15,6 +15,6 @@ export const privateGuard: CanActivateFn = (route, state) => {
         return of(urlTree);
       }
       return of(authenticated);
-    })
+    }),
   );
 };

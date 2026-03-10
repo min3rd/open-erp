@@ -9,7 +9,7 @@ import {
 import { ProductTypeListResponse } from '../product-type.types';
 
 export const productTypeListResolver: ResolveFn<ProductTypeListResponse | null> = (
-  route: ActivatedRouteSnapshot
+  route: ActivatedRouteSnapshot,
 ): Observable<ProductTypeListResponse | null> => {
   const service = inject(ProductTypeService);
 
@@ -43,6 +43,6 @@ export const productTypeListResolver: ResolveFn<ProductTypeListResponse | null> 
     catchError((error: any) => {
       console.error('Failed to load product types:', error);
       return of(null);
-    })
+    }),
   );
 };

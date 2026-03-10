@@ -1,203 +1,203 @@
 <div class="flex h-full flex-col">
   <!-- Fixed Toolbar - Desktop -->
   @if (!isMobile()) {
-      <mp-toolbar id="user-list-toolbar">
-        <ng-template #start>
-          <!-- Scope Toggle -->
-          <p-selectButton
-            id="user-list-scope-toggle"
-            [options]="scopeOptions"
-            [(ngModel)]="scope"
-            (onChange)="onScopeChange($event.value)"
-            [allowEmpty]="false"
-            optionLabel="label"
-            optionValue="value"
-            class="mr-4"
-            [attr.aria-label]="'userList.scopeToggle.label' | transloco"
-          >
-            <ng-template let-item #item>
-              <i [class]="item.icon"></i>
-              <span class="ml-2 hidden md:block">{{ item.label | transloco }}</span>
-            </ng-template>
-          </p-selectButton>
+    <mp-toolbar id="user-list-toolbar">
+      <ng-template #start>
+        <!-- Scope Toggle -->
+        <p-selectButton
+          id="user-list-scope-toggle"
+          [options]="scopeOptions"
+          [(ngModel)]="scope"
+          (onChange)="onScopeChange($event.value)"
+          [allowEmpty]="false"
+          optionLabel="label"
+          optionValue="value"
+          class="mr-4"
+          [attr.aria-label]="'userList.scopeToggle.label' | transloco"
+        >
+          <ng-template let-item #item>
+            <i [class]="item.icon"></i>
+            <span class="ml-2 hidden md:block">{{ item.label | transloco }}</span>
+          </ng-template>
+        </p-selectButton>
 
-          <!-- Search Input -->
-          <p-inputgroup>
-            <p-inputgroup-addon>
-              <i class="pi pi-search"></i>
-            </p-inputgroup-addon>
-            <input
-              id="user-list-search"
-              type="text"
-              pInputText
-              [placeholder]="'userList.search.placeholder' | transloco"
-              (input)="onSearchChange($event)"
-              [value]="searchQuery()"
-              class="w-80"
-              [attr.aria-label]="'userList.search.label' | transloco"
-            />
-          </p-inputgroup>
-        </ng-template>
+        <!-- Search Input -->
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-search"></i>
+          </p-inputgroup-addon>
+          <input
+            id="user-list-search"
+            type="text"
+            pInputText
+            [placeholder]="'userList.search.placeholder' | transloco"
+            (input)="onSearchChange($event)"
+            [value]="searchQuery()"
+            class="w-80"
+            [attr.aria-label]="'userList.search.label' | transloco"
+          />
+        </p-inputgroup>
+      </ng-template>
 
-        <ng-template #end>
-          <!-- Add New Button -->
-          <p-button
-            id="user-list-add-button"
-            icon="pi pi-plus"
-            [rounded]="true"
-            [text]="true"
-            severity="primary"
-            (onClick)="onAddUser()"
-            [pTooltip]="'userList.addButton.tooltip' | transloco"
-            tooltipPosition="bottom"
-            [attr.aria-label]="'userList.addButton.label' | transloco"
-          />
+      <ng-template #end>
+        <!-- Add New Button -->
+        <p-button
+          id="user-list-add-button"
+          icon="pi pi-plus"
+          [rounded]="true"
+          [text]="true"
+          severity="primary"
+          (onClick)="onAddUser()"
+          [pTooltip]="'userList.addButton.tooltip' | transloco"
+          tooltipPosition="bottom"
+          [attr.aria-label]="'userList.addButton.label' | transloco"
+        />
 
-          <!-- Refresh Button -->
-          <p-button
-            id="user-list-refresh-button"
-            icon="pi pi-refresh"
-            [rounded]="true"
-            [text]="true"
-            [loading]="isLoading()"
-            (onClick)="onRefresh()"
-            [pTooltip]="'userList.refreshButton.tooltip' | transloco"
-            tooltipPosition="bottom"
-            [attr.aria-label]="'userList.refreshButton.label' | transloco"
-          />
+        <!-- Refresh Button -->
+        <p-button
+          id="user-list-refresh-button"
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [text]="true"
+          [loading]="isLoading()"
+          (onClick)="onRefresh()"
+          [pTooltip]="'userList.refreshButton.tooltip' | transloco"
+          tooltipPosition="bottom"
+          [attr.aria-label]="'userList.refreshButton.label' | transloco"
+        />
 
-          <!-- Actions Menu -->
-          <p-button
-            id="user-list-actions-button"
-            icon="pi pi-ellipsis-v"
-            [rounded]="true"
-            [text]="true"
-            (onClick)="menu.toggle($event)"
-            [attr.aria-label]="'userList.actionsButton.label' | transloco"
-            aria-haspopup="true"
-            aria-controls="user-list-actions-menu"
-          />
-          <p-menu
-            #menu
-            id="user-list-actions-menu"
-            [model]="actionMenuItems"
-            [popup]="true"
-            appendTo="body"
-          />
-        </ng-template>
-      </mp-toolbar>
+        <!-- Actions Menu -->
+        <p-button
+          id="user-list-actions-button"
+          icon="pi pi-ellipsis-v"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="menu.toggle($event)"
+          [attr.aria-label]="'userList.actionsButton.label' | transloco"
+          aria-haspopup="true"
+          aria-controls="user-list-actions-menu"
+        />
+        <p-menu
+          #menu
+          id="user-list-actions-menu"
+          [model]="actionMenuItems"
+          [popup]="true"
+          appendTo="body"
+        />
+      </ng-template>
+    </mp-toolbar>
   }
 
   <!-- Fixed Toolbar - Mobile -->
   @if (isMobile()) {
-      <mp-toolbar id="user-list-toolbar-mobile">
-        <ng-template #start>
-          <!-- Scope Toggle (Icons Only) -->
-          <p-selectButton
-            id="user-list-scope-toggle-mobile"
-            [options]="scopeOptions"
-            [(ngModel)]="scope"
-            (onChange)="onScopeChange($event.value)"
-            [allowEmpty]="false"
-            optionLabel="label"
-            optionValue="value"
-            class="mr-2"
-            [attr.aria-label]="'userList.scopeToggle.label' | transloco"
-          >
-            <ng-template let-item #item>
-              <i [class]="item.icon"></i>
-            </ng-template>
-          </p-selectButton>
-
-          <!-- Search Button -->
-          <p-button
-            id="user-list-search-button-mobile"
-            icon="pi pi-search"
-            [rounded]="true"
-            [text]="true"
-            (onClick)="toggleSearch()"
-            [pTooltip]="'userList.search.openSearch' | transloco"
-            tooltipPosition="bottom"
-            [attr.aria-label]="'userList.search.openSearch' | transloco"
-            [attr.aria-expanded]="isSearchOpen()"
-          />
-        </ng-template>
-
-        <ng-template #end>
-          <!-- Refresh Button -->
-          <p-button
-            id="user-list-refresh-button-mobile"
-            icon="pi pi-refresh"
-            [rounded]="true"
-            [text]="true"
-            [loading]="isLoading()"
-            (onClick)="onRefresh()"
-            [pTooltip]="'userList.refreshButton.tooltip' | transloco"
-            tooltipPosition="bottom"
-            [attr.aria-label]="'userList.refreshButton.label' | transloco"
-          />
-
-          <!-- Add New Button -->
-          <p-button
-            id="user-list-add-button-mobile"
-            icon="pi pi-plus"
-            [rounded]="true"
-            [text]="true"
-            severity="primary"
-            (onClick)="onAddUser()"
-            [pTooltip]="'userList.addButton.tooltip' | transloco"
-            tooltipPosition="bottom"
-            [attr.aria-label]="'userList.addButton.label' | transloco"
-          />
-
-          <!-- Actions Menu -->
-          <p-button
-            id="user-list-actions-button-mobile"
-            icon="pi pi-ellipsis-v"
-            [rounded]="true"
-            [text]="true"
-            (onClick)="mobileMenu.toggle($event)"
-            [attr.aria-label]="'userList.actionsButton.label' | transloco"
-            aria-haspopup="true"
-            aria-controls="user-list-actions-menu-mobile"
-          />
-          <p-menu
-            #mobileMenu
-            id="user-list-actions-menu-mobile"
-            [model]="actionMenuItems"
-            [popup]="true"
-            appendTo="body"
-          />
-        </ng-template>
-      </mp-toolbar>
-
-      <!-- Expandable Search Input (Mobile) -->
-      @if (isSearchOpen()) {
-        <div
-          id="user-list-search-panel-mobile"
-          class="p-2 bg-surface-50 dark:bg-surface-800 border-t border-surface-200 dark:border-surface-700"
+    <mp-toolbar id="user-list-toolbar-mobile">
+      <ng-template #start>
+        <!-- Scope Toggle (Icons Only) -->
+        <p-selectButton
+          id="user-list-scope-toggle-mobile"
+          [options]="scopeOptions"
+          [(ngModel)]="scope"
+          (onChange)="onScopeChange($event.value)"
+          [allowEmpty]="false"
+          optionLabel="label"
+          optionValue="value"
+          class="mr-2"
+          [attr.aria-label]="'userList.scopeToggle.label' | transloco"
         >
-          <p-inputgroup>
-            <input
-              #mobileSearchInput
-              id="user-list-search-mobile"
-              type="text"
-              pInputText
-              [placeholder]="'userList.search.placeholder' | transloco"
-              (input)="onSearchChange($event)"
-              [value]="searchQuery()"
-              class="w-full"
-              [attr.aria-label]="'userList.search.label' | transloco"
-            />
-            <p-button
-              id="user-list-search-close-mobile"
-              icon="pi pi-times"
-              (onClick)="closeSearch()"
-              [attr.aria-label]="'userList.search.closeSearch' | transloco"
-            />
-          </p-inputgroup>
-        </div>
-      }
+          <ng-template let-item #item>
+            <i [class]="item.icon"></i>
+          </ng-template>
+        </p-selectButton>
+
+        <!-- Search Button -->
+        <p-button
+          id="user-list-search-button-mobile"
+          icon="pi pi-search"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="toggleSearch()"
+          [pTooltip]="'userList.search.openSearch' | transloco"
+          tooltipPosition="bottom"
+          [attr.aria-label]="'userList.search.openSearch' | transloco"
+          [attr.aria-expanded]="isSearchOpen()"
+        />
+      </ng-template>
+
+      <ng-template #end>
+        <!-- Refresh Button -->
+        <p-button
+          id="user-list-refresh-button-mobile"
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [text]="true"
+          [loading]="isLoading()"
+          (onClick)="onRefresh()"
+          [pTooltip]="'userList.refreshButton.tooltip' | transloco"
+          tooltipPosition="bottom"
+          [attr.aria-label]="'userList.refreshButton.label' | transloco"
+        />
+
+        <!-- Add New Button -->
+        <p-button
+          id="user-list-add-button-mobile"
+          icon="pi pi-plus"
+          [rounded]="true"
+          [text]="true"
+          severity="primary"
+          (onClick)="onAddUser()"
+          [pTooltip]="'userList.addButton.tooltip' | transloco"
+          tooltipPosition="bottom"
+          [attr.aria-label]="'userList.addButton.label' | transloco"
+        />
+
+        <!-- Actions Menu -->
+        <p-button
+          id="user-list-actions-button-mobile"
+          icon="pi pi-ellipsis-v"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="mobileMenu.toggle($event)"
+          [attr.aria-label]="'userList.actionsButton.label' | transloco"
+          aria-haspopup="true"
+          aria-controls="user-list-actions-menu-mobile"
+        />
+        <p-menu
+          #mobileMenu
+          id="user-list-actions-menu-mobile"
+          [model]="actionMenuItems"
+          [popup]="true"
+          appendTo="body"
+        />
+      </ng-template>
+    </mp-toolbar>
+
+    <!-- Expandable Search Input (Mobile) -->
+    @if (isSearchOpen()) {
+      <div
+        id="user-list-search-panel-mobile"
+        class="p-2 bg-surface-50 dark:bg-surface-800 border-t border-surface-200 dark:border-surface-700"
+      >
+        <p-inputgroup>
+          <input
+            #mobileSearchInput
+            id="user-list-search-mobile"
+            type="text"
+            pInputText
+            [placeholder]="'userList.search.placeholder' | transloco"
+            (input)="onSearchChange($event)"
+            [value]="searchQuery()"
+            class="w-full"
+            [attr.aria-label]="'userList.search.label' | transloco"
+          />
+          <p-button
+            id="user-list-search-close-mobile"
+            icon="pi pi-times"
+            (onClick)="closeSearch()"
+            [attr.aria-label]="'userList.search.closeSearch' | transloco"
+          />
+        </p-inputgroup>
+      </div>
+    }
   }
   <div class="flex flex-auto h-full overflow-hidden">
     <div class="flex w-full h-full flex-col">

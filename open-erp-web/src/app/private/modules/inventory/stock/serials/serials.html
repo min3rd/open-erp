@@ -83,20 +83,22 @@
     </mp-toolbar>
 
     @if (isSearchOpen()) {
-    <div class="p-2 bg-surface-50 dark:bg-surface-800 border-t border-surface-200 dark:border-surface-700">
-      <p-inputgroup>
-        <input
-          #mobileSearchInput
-          type="text"
-          pInputText
-          [placeholder]="'stock.searchPlaceholder' | transloco"
-          (input)="onSearchChange($event)"
-          [value]="searchQuery()"
-          class="w-full"
-        />
-        <p-button icon="pi pi-times" (onClick)="closeSearch()" />
-      </p-inputgroup>
-    </div>
+      <div
+        class="p-2 bg-surface-50 dark:bg-surface-800 border-t border-surface-200 dark:border-surface-700"
+      >
+        <p-inputgroup>
+          <input
+            #mobileSearchInput
+            type="text"
+            pInputText
+            [placeholder]="'stock.searchPlaceholder' | transloco"
+            (input)="onSearchChange($event)"
+            [value]="searchQuery()"
+            class="w-full"
+          />
+          <p-button icon="pi pi-times" (onClick)="closeSearch()" />
+        </p-inputgroup>
+      </div>
     }
   }
 
@@ -157,7 +159,12 @@
           <tr>
             @for (col of selectedColumns; track col.field) {
               @if (col.sortable) {
-                <th pResizableColumn pReorderableColumn [pSortableColumn]="col.field" [style.width]="col.width">
+                <th
+                  pResizableColumn
+                  pReorderableColumn
+                  [pSortableColumn]="col.field"
+                  [style.width]="col.width"
+                >
                   {{ col.header | transloco }}
                   <p-sortIcon [field]="col.field" />
                 </th>
@@ -191,7 +198,9 @@
                     <span class="text-xs">{{ serial.lotId || '-' }}</span>
                   }
                   @case ('assignedAt') {
-                    <span class="text-xs">{{ serial.assignedAt ? (serial.assignedAt | date:'mediumDate') : '-' }}</span>
+                    <span class="text-xs">{{
+                      serial.assignedAt ? (serial.assignedAt | date: 'mediumDate') : '-'
+                    }}</span>
                   }
                 }
               </td>
@@ -203,11 +212,11 @@
           <tr>
             <td [attr.colspan]="selectedColumns.length" class="text-center py-8 text-surface-500">
               @if (loading()) {
-              <i class="pi pi-spin pi-spinner text-2xl"></i>
-              <p class="mt-2">{{ 'stock.loading' | transloco }}</p>
+                <i class="pi pi-spin pi-spinner text-2xl"></i>
+                <p class="mt-2">{{ 'stock.loading' | transloco }}</p>
               } @else {
-              <i class="pi pi-barcode text-2xl"></i>
-              <p class="mt-2">{{ 'stock.noData' | transloco }}</p>
+                <i class="pi pi-barcode text-2xl"></i>
+                <p class="mt-2">{{ 'stock.noData' | transloco }}</p>
               }
             </td>
           </tr>

@@ -75,7 +75,7 @@ export class Register {
         validators: [Validators.requiredTrue],
       }),
     },
-    { validators: this.passwordMatchValidator }
+    { validators: this.passwordMatchValidator },
   );
 
   private passwordStrengthValidator(control: FormControl): ValidationErrors | null {

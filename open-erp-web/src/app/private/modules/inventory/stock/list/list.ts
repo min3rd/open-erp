@@ -254,11 +254,7 @@ export class StockList implements OnInit, OnDestroy {
   }
 
   getOnHand(stock: InventoryStock): number {
-    return (
-      stock.availableQuantity +
-      stock.reservedQuantity +
-      stock.damagedQuantity
-    );
+    return stock.availableQuantity + stock.reservedQuantity + stock.damagedQuantity;
   }
 
   private navigateWithState(page?: number, pageSize?: number): void {

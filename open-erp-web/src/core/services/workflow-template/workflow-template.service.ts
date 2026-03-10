@@ -168,9 +168,7 @@ export class WorkflowTemplateService {
   ): Observable<WorkflowValidationResult> {
     return this.http
       .post<ApiResponse<WorkflowValidationResult>>(`${this.baseUrl}/validate`, { nodes, edges })
-      .pipe(
-        map((response) => response.data || { valid: false, errors: ['Unknown error'] }),
-      );
+      .pipe(map((response) => response.data || { valid: false, errors: ['Unknown error'] }));
   }
 
   /**

@@ -113,7 +113,9 @@ describe('authInterceptor', () => {
   });
 
   it('should call refreshAccessToken and retry request on 401', () => {
-    const refreshSpy = jasmine.createSpy('refreshAccessToken').and.returnValue(of(NEW_ACCESS_TOKEN));
+    const refreshSpy = jasmine
+      .createSpy('refreshAccessToken')
+      .and.returnValue(of(NEW_ACCESS_TOKEN));
     setup(buildAuthServiceMock({ refreshAccessToken: refreshSpy }));
 
     let responseData: any;

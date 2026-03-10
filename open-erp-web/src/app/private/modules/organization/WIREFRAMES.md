@@ -25,6 +25,7 @@
 ```
 
 **Features:**
+
 - Full navigation labels visible
 - Toggle button ([<]) collapses to narrow mode
 - Active route highlighted with primary color background
@@ -59,6 +60,7 @@
 ```
 
 **Features:**
+
 - Icon-only navigation (space-efficient)
 - Toggle button ([>]) expands to sidebar mode
 - Tooltips appear on hover: "Register Organization", "View Information"
@@ -102,6 +104,7 @@
 ```
 
 **Features:**
+
 - Tab bar at top for navigation between Register and Information views
 - Active tab indicated with underline in primary color
 - Full-width tabs for easy touch interaction (44px min height)
@@ -113,22 +116,18 @@
 
 ## Color Scheme (PrimeNG Default)
 
-- **Background**: 
+- **Background**:
   - Light mode: surface-0 (#ffffff)
   - Dark mode: surface-900 (#1a1a1a)
-  
-- **Border**: 
+- **Border**:
   - Light mode: surface-200 (#e5e7eb)
   - Dark mode: surface-700 (#404040)
-  
-- **Text**: 
+- **Text**:
   - Light mode: surface-900 (#1a1a1a)
   - Dark mode: surface-0 (#ffffff)
-  
-- **Primary (Active)**: 
+- **Primary (Active)**:
   - Light mode: primary-700 with primary-100 background
   - Dark mode: primary-300 with primary-900/20 background
-  
 - **Hover**: surface-100 (light) / surface-800 (dark)
 
 ---
@@ -193,12 +192,14 @@ Organization (Layout Root)
 ### Breakpoint: 1024px
 
 **Desktop (≥ 1024px)**:
+
 - Show OrganizationNav sidebar
 - Hide OrganizationHeaderTabs
 - Sidebar can toggle between narrow (56px) and sidebar (256px)
 - Content area flexes to fill remaining space
 
 **Mobile (< 1024px)**:
+
 - Hide OrganizationNav sidebar
 - Show OrganizationHeaderTabs
 - Full-width content area
@@ -207,6 +208,7 @@ Organization (Layout Root)
 ### Window Resize Handling
 
 The layout automatically adapts when resizing the browser window:
+
 - Resize listener attached to window
 - `isMobile` signal updated based on `window.innerWidth < 1024`
 - Components reactively update based on `isMobile` state

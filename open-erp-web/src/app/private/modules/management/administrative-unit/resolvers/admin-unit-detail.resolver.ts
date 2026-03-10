@@ -5,7 +5,7 @@ import { AdministrativeUnitService } from '../services/administrative-unit.servi
 import { AdministrativeUnit, AdminUnitType } from '../administrative-unit.types';
 
 export const adminUnitDetailResolver: ResolveFn<AdministrativeUnit> = (
-  route: ActivatedRouteSnapshot
+  route: ActivatedRouteSnapshot,
 ): Observable<AdministrativeUnit> => {
   const service = inject(AdministrativeUnitService);
 

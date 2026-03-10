@@ -20,7 +20,12 @@ describe('UserSettingsService', () => {
     it('loads persisted config from localStorage', () => {
       localStorage.setItem(
         'app.dateTimeConfig',
-        JSON.stringify({ dateFormat: 'YYYY-MM-DD', timeFormat: 'hh:mm A', timezone: 'UTC', locale: 'en' }),
+        JSON.stringify({
+          dateFormat: 'YYYY-MM-DD',
+          timeFormat: 'hh:mm A',
+          timezone: 'UTC',
+          locale: 'en',
+        }),
       );
       const svc = new UserSettingsService();
       const cfg = svc.config();

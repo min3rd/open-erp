@@ -53,11 +53,9 @@ export class ChatService implements OnDestroy {
 
   constructor() {
     // Track current user reactively so `isSelf` checks are always accurate
-    this.authService.user$
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((user) => {
-        if (user?.id) this._currentUserId = user.id;
-      });
+    this.authService.user$.pipe(takeUntil(this._destroy$)).subscribe((user) => {
+      if (user?.id) this._currentUserId = user.id;
+    });
   }
 
   /** Explicit setter — called from app resolver for deterministic ordering */
@@ -111,25 +109,18 @@ export class ChatService implements OnDestroy {
       );
   }
 
-  loadMessages(
-    conversationId: string,
-    page = 1,
-    limit = 50,
-  ): Observable<MessageDto[]> {
+  loadMessages(conversationId: string, page = 1, limit = 50): Observable<MessageDto[]> {
     return this.httpClient
       .get<any>(`${API_URI_CHAT}/v1/conversations/${conversationId}/messages`, {
         params: { page, limit },
       })
       .pipe(
         map((res) => {
-          const items: MessageDto[] = this._normalizeMessages(
-            res?.data?.items ?? res ?? [],
-          );
+          const items: MessageDto[] = this._normalizeMessages(res?.data?.items ?? res ?? []);
           this._messagesTotalCount = res?.data?.total ?? items.length;
           // Sort so newest is at bottom
           const sorted = [...items].sort(
-            (a, b) =>
-              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
           );
           this._messages.next(sorted);
           return sorted;
@@ -148,16 +139,12 @@ export class ChatService implements OnDestroy {
       })
       .pipe(
         map((res) => {
-          const rawItems: MessageDto[] = this._normalizeMessages(
-            res?.data?.items ?? res ?? [],
-          );
+          const rawItems: MessageDto[] = this._normalizeMessages(res?.data?.items ?? res ?? []);
           const total: number = res?.data?.total ?? rawItems.length;
-          const totalPages: number =
-            res?.data?.totalPages ?? Math.ceil(total / limit);
+          const totalPages: number = res?.data?.totalPages ?? Math.ceil(total / limit);
           // Sort chronologically (oldest first) so prepended messages are in order
           const sorted = [...rawItems].sort(
-            (a, b) =>
-              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
           );
           // Prepend to current messages, avoiding duplicates
           const current = this._messages.getValue();
@@ -173,15 +160,12 @@ export class ChatService implements OnDestroy {
 
   sendMessageHttp(payload: SendMessagePayload): Observable<MessageDto> {
     return this.httpClient
-      .post<any>(
-        `${API_URI_CHAT}/v1/conversations/${payload.conversationId}/messages`,
-        {
-          conversationId: payload.conversationId,
-          type: payload.type,
-          content: payload.content,
-          attachments: payload.attachments,
-        },
-      )
+      .post<any>(`${API_URI_CHAT}/v1/conversations/${payload.conversationId}/messages`, {
+        conversationId: payload.conversationId,
+        type: payload.type,
+        content: payload.content,
+        attachments: payload.attachments,
+      })
       .pipe(
         map((res) => {
           const msg = this._normalizeMessage(res?.data?.item ?? res);
@@ -199,45 +183,34 @@ export class ChatService implements OnDestroy {
   }
 
   markAsRead(conversationId: string): Observable<any> {
-    return this.httpClient.post<any>(
-      `${API_URI_CHAT}/v1/conversations/${conversationId}/read`,
-      {},
+    return this.httpClient.post<any>(`${API_URI_CHAT}/v1/conversations/${conversationId}/read`, {});
+  }
+
+  createDirectConversation(payload: CreateDirectConversationPayload): Observable<ConversationDto> {
+    return this.httpClient.post<any>(`${API_URI_CHAT}/v1/conversations/direct`, payload).pipe(
+      map((res) => {
+        const conv = this._normalizeConversation(res?.data?.item ?? res);
+        // Add to conversations list if not already present
+        const current = this._conversations.getValue();
+        if (!current.find((c) => c.id === conv.id)) {
+          this._conversations.next([conv, ...current]);
+        }
+        return conv;
+      }),
     );
   }
 
-  createDirectConversation(
-    payload: CreateDirectConversationPayload,
-  ): Observable<ConversationDto> {
-    return this.httpClient
-      .post<any>(`${API_URI_CHAT}/v1/conversations/direct`, payload)
-      .pipe(
-        map((res) => {
-          const conv = this._normalizeConversation(res?.data?.item ?? res);
-          // Add to conversations list if not already present
-          const current = this._conversations.getValue();
-          if (!current.find((c) => c.id === conv.id)) {
-            this._conversations.next([conv, ...current]);
-          }
-          return conv;
-        }),
-      );
-  }
-
-  createGroupConversation(
-    payload: CreateGroupConversationPayload,
-  ): Observable<ConversationDto> {
-    return this.httpClient
-      .post<any>(`${API_URI_CHAT}/v1/conversations/group`, payload)
-      .pipe(
-        map((res) => {
-          const conv = this._normalizeConversation(res?.data?.item ?? res);
-          const current = this._conversations.getValue();
-          if (!current.find((c) => c.id === conv.id)) {
-            this._conversations.next([conv, ...current]);
-          }
-          return conv;
-        }),
-      );
+  createGroupConversation(payload: CreateGroupConversationPayload): Observable<ConversationDto> {
+    return this.httpClient.post<any>(`${API_URI_CHAT}/v1/conversations/group`, payload).pipe(
+      map((res) => {
+        const conv = this._normalizeConversation(res?.data?.item ?? res);
+        const current = this._conversations.getValue();
+        if (!current.find((c) => c.id === conv.id)) {
+          this._conversations.next([conv, ...current]);
+        }
+        return conv;
+      }),
+    );
   }
 
   searchUsers(query: string, limit = 20): Observable<ChatUserSearchResult[]> {
@@ -265,33 +238,33 @@ export class ChatService implements OnDestroy {
    * 2. PUT the file directly to MinIO via the presigned URL (bypasses Docker-internal routing)
    * 3. Return the public URL (presigned URL minus query-string), filename, mimeType, size
    */
-  uploadFile(file: File): Observable<{ url: string; filename: string; mimeType: string; size: number }> {
+  uploadFile(
+    file: File,
+  ): Observable<{ url: string; filename: string; mimeType: string; size: number }> {
     const key = `chat/${Date.now()}-${file.name}`;
-    return this.httpClient
-      .get<any>(`${API_URI_FILE}/v1/presign/upload`, { params: { key } })
-      .pipe(
-        map((res) => res?.data?.item ?? res?.data ?? res),
-        switchMap((presign) => {
-          const uploadUrl: string = presign?.uploadUrl ?? '';
-          return from(
-            fetch(uploadUrl, {
-              method: 'PUT',
-              body: file,
-              headers: { 'Content-Type': file.type },
-            }).then((response) => {
-              if (!response.ok) {
-                throw new Error(`Upload failed with status ${response.status}`);
-              }
-              return {
-                url: uploadUrl.split('?')[0],
-                filename: file.name,
-                mimeType: file.type,
-                size: file.size,
-              };
-            }),
-          );
-        }),
-      );
+    return this.httpClient.get<any>(`${API_URI_FILE}/v1/presign/upload`, { params: { key } }).pipe(
+      map((res) => res?.data?.item ?? res?.data ?? res),
+      switchMap((presign) => {
+        const uploadUrl: string = presign?.uploadUrl ?? '';
+        return from(
+          fetch(uploadUrl, {
+            method: 'PUT',
+            body: file,
+            headers: { 'Content-Type': file.type },
+          }).then((response) => {
+            if (!response.ok) {
+              throw new Error(`Upload failed with status ${response.status}`);
+            }
+            return {
+              url: uploadUrl.split('?')[0],
+              filename: file.name,
+              mimeType: file.type,
+              size: file.size,
+            };
+          }),
+        );
+      }),
+    );
   }
 
   // ── WebSocket ──────────────────────────────────────────────────────────
@@ -338,9 +311,7 @@ export class ChatService implements OnDestroy {
         if (!id) return;
         const current = this._messages.getValue();
         this._messages.next(
-          current.map((m) =>
-            m.id === id ? { ...m, deleted: true, content: '' } : m,
-          ),
+          current.map((m) => (m.id === id ? { ...m, deleted: true, content: '' } : m)),
         );
       });
 
@@ -380,9 +351,7 @@ export class ChatService implements OnDestroy {
   /** Reset unread count for a conversation in the service BehaviorSubject */
   resetUnreadCount(conversationId: string): void {
     const current = this._conversations.getValue();
-    const updated = current.map((c) =>
-      c.id === conversationId ? { ...c, unreadCount: 0 } : c,
-    );
+    const updated = current.map((c) => (c.id === conversationId ? { ...c, unreadCount: 0 } : c));
     this._conversations.next(updated);
   }
 
@@ -399,9 +368,7 @@ export class ChatService implements OnDestroy {
   // ── Private helpers ──────────────────────────────────────────────────────
 
   private _normalizeConversations(items: any[]): ConversationDto[] {
-    return (Array.isArray(items) ? items : []).map((c) =>
-      this._normalizeConversation(c),
-    );
+    return (Array.isArray(items) ? items : []).map((c) => this._normalizeConversation(c));
   }
 
   private _normalizeConversation(c: any): ConversationDto {
@@ -414,12 +381,8 @@ export class ChatService implements OnDestroy {
       name: c.name ?? null,
       title: c.name ?? c.title ?? null,
       avatarUrl: c.avatarUrl ?? null,
-      participants: (c.participants ?? []).map((p: any) =>
-        this._normalizeParticipant(p),
-      ),
-      lastMessage: c.lastMessage
-        ? this._normalizeMessage(c.lastMessage)
-        : null,
+      participants: (c.participants ?? []).map((p: any) => this._normalizeParticipant(p)),
+      lastMessage: c.lastMessage ? this._normalizeMessage(c.lastMessage) : null,
       lastMessageAt: c.lastMessageAt ?? null,
       lastMessagePreview: c.lastMessagePreview ?? null,
       unreadCount: c.unreadCount ?? 0,
@@ -443,9 +406,7 @@ export class ChatService implements OnDestroy {
   }
 
   private _normalizeMessages(items: any[]): MessageDto[] {
-    return (Array.isArray(items) ? items : []).map((m) =>
-      this._normalizeMessage(m),
-    );
+    return (Array.isArray(items) ? items : []).map((m) => this._normalizeMessage(m));
   }
 
   private _normalizeMessage(m: any): MessageDto {

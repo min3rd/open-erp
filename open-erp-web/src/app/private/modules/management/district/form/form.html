@@ -20,134 +20,134 @@
 
   <div id="district-form-content" class="flex flex-col h-full">
     @if (isLoading()) {
-    <!-- Loading State -->
-    <div class="flex items-center justify-center py-16">
-      <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
-    </div>
+      <!-- Loading State -->
+      <div class="flex items-center justify-center py-16">
+        <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+      </div>
     } @else {
-    <form [formGroup]="districtForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
-      <!-- Code Field -->
-      <div class="flex flex-col gap-2">
-        <label for="district-form-code" class="font-medium text-sm">
-          {{ 'districtForm.fields.code.label' | transloco }}
-          <span class="text-red-500">*</span>
-        </label>
-        <input
-          id="district-form-code"
-          type="text"
-          pInputText
-          formControlName="code"
-          [placeholder]="'districtForm.fields.code.placeholder' | transloco"
-          [attr.aria-label]="'districtForm.fields.code.label' | transloco"
-          [class.border-red-500]="
-            districtForm.get('code')?.touched && districtForm.get('code')?.invalid
-          "
-        />
-        @if (getErrorMessage('code')) {
-        <small id="district-form-code-error" class="text-red-500">
-          {{ getErrorMessage('code') }}
-        </small>
-        }
-      </div>
-
-      <!-- Province Field -->
-      <div class="flex flex-col gap-2">
-        <label for="district-form-province" class="font-medium text-sm">
-          {{ 'districtForm.fields.provinceCode.label' | transloco }}
-          <span class="text-red-500">*</span>
-        </label>
-        <p-select
-          id="district-form-province"
-          formControlName="provinceCode"
-          [options]="provinceOptions()"
-          [placeholder]="'districtForm.fields.provinceCode.placeholder' | transloco"
-          optionLabel="label"
-          optionValue="value"
-          [style]="{ width: '100%' }"
-          [attr.aria-label]="'districtForm.fields.provinceCode.label' | transloco"
-          [class.border-red-500]="
-            districtForm.get('provinceCode')?.touched && districtForm.get('provinceCode')?.invalid
-          "
-        />
-        @if (getErrorMessage('provinceCode')) {
-        <small id="district-form-province-error" class="text-red-500">
-          {{ getErrorMessage('provinceCode') }}
-        </small>
-        }
-      </div>
-
-      <!-- Name (Vietnamese) Field -->
-      <div class="flex flex-col gap-2">
-        <label for="district-form-name" class="font-medium text-sm">
-          {{ 'districtForm.fields.name.label' | transloco }}
-          <span class="text-red-500">*</span>
-        </label>
-        <input
-          id="district-form-name"
-          type="text"
-          pInputText
-          formControlName="name"
-          [placeholder]="'districtForm.fields.name.placeholder' | transloco"
-          [attr.aria-label]="'districtForm.fields.name.label' | transloco"
-          [class.border-red-500]="
-            districtForm.get('name')?.touched && districtForm.get('name')?.invalid
-          "
-        />
-        @if (getErrorMessage('name')) {
-        <small id="district-form-name-error" class="text-red-500">
-          {{ getErrorMessage('name') }}
-        </small>
-        }
-      </div>
-
-      <!-- Name (English) Field -->
-      <div class="flex flex-col gap-2">
-        <label for="district-form-name-en" class="font-medium text-sm">
-          {{ 'districtForm.fields.nameEn.label' | transloco }}
-        </label>
-        <input
-          id="district-form-name-en"
-          type="text"
-          pInputText
-          formControlName="nameEn"
-          [placeholder]="'districtForm.fields.nameEn.placeholder' | transloco"
-          [attr.aria-label]="'districtForm.fields.nameEn.label' | transloco"
-        />
-      </div>
-
-      <!-- Is Legacy Toggle -->
-      <div class="flex flex-col gap-2">
-        <label for="district-form-is-legacy" class="font-medium text-sm">
-          {{ 'districtForm.fields.isLegacy.label' | transloco }}
-        </label>
-        <p-togglebutton
-          id="district-form-is-legacy"
-          formControlName="isLegacy"
-          [onLabel]="'districtForm.fields.isLegacy.onLabel' | transloco"
-          [offLabel]="'districtForm.fields.isLegacy.offLabel' | transloco"
-          [attr.aria-label]="'districtForm.fields.isLegacy.label' | transloco"
-        />
-      </div>
-
-      <!-- Geometry Editor -->
-      @if (!isViewMode()) {
-      <div class="flex flex-col gap-2">
-        <h3 class="font-medium text-sm">{{ 'districtForm.geometry.title' | transloco }}</h3>
-        <core-geo-editor
-          [geometry]="currentGeometry()"
-          (geometryChange)="onGeometryChange($event)"
-        />
-      </div>
-      }
-
-      <!-- Map Preview -->
-      <div class="flex flex-col gap-2">
-        <h3 class="font-medium text-sm">{{ 'districtForm.map.title' | transloco }}</h3>
-        <div class="h-64 border border-surface-200 dark:border-surface-700 rounded">
-          <core-map [geometry]="currentGeometry()" />
+      <form [formGroup]="districtForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+        <!-- Code Field -->
+        <div class="flex flex-col gap-2">
+          <label for="district-form-code" class="font-medium text-sm">
+            {{ 'districtForm.fields.code.label' | transloco }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="district-form-code"
+            type="text"
+            pInputText
+            formControlName="code"
+            [placeholder]="'districtForm.fields.code.placeholder' | transloco"
+            [attr.aria-label]="'districtForm.fields.code.label' | transloco"
+            [class.border-red-500]="
+              districtForm.get('code')?.touched && districtForm.get('code')?.invalid
+            "
+          />
+          @if (getErrorMessage('code')) {
+            <small id="district-form-code-error" class="text-red-500">
+              {{ getErrorMessage('code') }}
+            </small>
+          }
         </div>
-      </div>
-    </form>
+
+        <!-- Province Field -->
+        <div class="flex flex-col gap-2">
+          <label for="district-form-province" class="font-medium text-sm">
+            {{ 'districtForm.fields.provinceCode.label' | transloco }}
+            <span class="text-red-500">*</span>
+          </label>
+          <p-select
+            id="district-form-province"
+            formControlName="provinceCode"
+            [options]="provinceOptions()"
+            [placeholder]="'districtForm.fields.provinceCode.placeholder' | transloco"
+            optionLabel="label"
+            optionValue="value"
+            [style]="{ width: '100%' }"
+            [attr.aria-label]="'districtForm.fields.provinceCode.label' | transloco"
+            [class.border-red-500]="
+              districtForm.get('provinceCode')?.touched && districtForm.get('provinceCode')?.invalid
+            "
+          />
+          @if (getErrorMessage('provinceCode')) {
+            <small id="district-form-province-error" class="text-red-500">
+              {{ getErrorMessage('provinceCode') }}
+            </small>
+          }
+        </div>
+
+        <!-- Name (Vietnamese) Field -->
+        <div class="flex flex-col gap-2">
+          <label for="district-form-name" class="font-medium text-sm">
+            {{ 'districtForm.fields.name.label' | transloco }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="district-form-name"
+            type="text"
+            pInputText
+            formControlName="name"
+            [placeholder]="'districtForm.fields.name.placeholder' | transloco"
+            [attr.aria-label]="'districtForm.fields.name.label' | transloco"
+            [class.border-red-500]="
+              districtForm.get('name')?.touched && districtForm.get('name')?.invalid
+            "
+          />
+          @if (getErrorMessage('name')) {
+            <small id="district-form-name-error" class="text-red-500">
+              {{ getErrorMessage('name') }}
+            </small>
+          }
+        </div>
+
+        <!-- Name (English) Field -->
+        <div class="flex flex-col gap-2">
+          <label for="district-form-name-en" class="font-medium text-sm">
+            {{ 'districtForm.fields.nameEn.label' | transloco }}
+          </label>
+          <input
+            id="district-form-name-en"
+            type="text"
+            pInputText
+            formControlName="nameEn"
+            [placeholder]="'districtForm.fields.nameEn.placeholder' | transloco"
+            [attr.aria-label]="'districtForm.fields.nameEn.label' | transloco"
+          />
+        </div>
+
+        <!-- Is Legacy Toggle -->
+        <div class="flex flex-col gap-2">
+          <label for="district-form-is-legacy" class="font-medium text-sm">
+            {{ 'districtForm.fields.isLegacy.label' | transloco }}
+          </label>
+          <p-togglebutton
+            id="district-form-is-legacy"
+            formControlName="isLegacy"
+            [onLabel]="'districtForm.fields.isLegacy.onLabel' | transloco"
+            [offLabel]="'districtForm.fields.isLegacy.offLabel' | transloco"
+            [attr.aria-label]="'districtForm.fields.isLegacy.label' | transloco"
+          />
+        </div>
+
+        <!-- Geometry Editor -->
+        @if (!isViewMode()) {
+          <div class="flex flex-col gap-2">
+            <h3 class="font-medium text-sm">{{ 'districtForm.geometry.title' | transloco }}</h3>
+            <core-geo-editor
+              [geometry]="currentGeometry()"
+              (geometryChange)="onGeometryChange($event)"
+            />
+          </div>
+        }
+
+        <!-- Map Preview -->
+        <div class="flex flex-col gap-2">
+          <h3 class="font-medium text-sm">{{ 'districtForm.map.title' | transloco }}</h3>
+          <div class="h-64 border border-surface-200 dark:border-surface-700 rounded">
+            <core-map [geometry]="currentGeometry()" />
+          </div>
+        </div>
+      </form>
     }
   </div>
 
@@ -163,23 +163,23 @@
         [attr.aria-label]="'districtForm.buttons.cancel' | transloco"
       />
       @if (!isViewMode()) {
-      <p-button
-        id="district-form-submit-button"
-        [label]="
-          isEditMode()
-            ? ('districtForm.buttons.update' | transloco)
-            : ('districtForm.buttons.create' | transloco)
-        "
-        severity="primary"
-        (onClick)="onSubmit()"
-        [loading]="isSaving()"
-        [disabled]="isSaving()"
-        [attr.aria-label]="
-          isEditMode()
-            ? ('districtForm.buttons.update' | transloco)
-            : ('districtForm.buttons.create' | transloco)
-        "
-      />
+        <p-button
+          id="district-form-submit-button"
+          [label]="
+            isEditMode()
+              ? ('districtForm.buttons.update' | transloco)
+              : ('districtForm.buttons.create' | transloco)
+          "
+          severity="primary"
+          (onClick)="onSubmit()"
+          [loading]="isSaving()"
+          [disabled]="isSaving()"
+          [attr.aria-label]="
+            isEditMode()
+              ? ('districtForm.buttons.update' | transloco)
+              : ('districtForm.buttons.create' | transloco)
+          "
+        />
       }
     </div>
   </ng-template>

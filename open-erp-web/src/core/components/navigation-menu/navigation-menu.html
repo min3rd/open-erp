@@ -1,37 +1,37 @@
 @if (items() && items().length > 0) {
   <ul class="space-y-1 px-2" role="list">
     @for (item of items(); track item.id || $index) {
-    <li [attr.id]="idPrefix() + '-item-' + (item.id || $index)">
-      <a
-        [routerLink]="item.routerLink"
-        routerLinkActive="bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300"
-        [routerLinkActiveOptions]="{ exact: false }"
-        class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors text-surface-700 dark:text-surface-300"
-        [class.select-none]="enableRipple()"
-        [class.justify-center]="isNarrowMode()"
-        [class.flex-col]="isNarrowMode()"
-        [class.gap-0]="isNarrowMode()"
-        [pTooltip]="isNarrowMode() ? (item.label || '') : ''"
-        tooltipPosition="right"
-        [showDelay]="500"
-        [attr.aria-label]="item.label || ''"
-        [attr.aria-current]="item.styleClass?.includes('active') ? 'page' : null"
-        pRipple
-      >
-        <i [class]="(item.icon || 'pi pi-circle') + ' text-xl'" aria-hidden="true"></i>
-        @if (shouldShowLabel()) {
-        <span class="text-sm font-medium">{{ item.label || '' }}</span>
-        }
-        @if (item.badge) {
-        <span 
-          class="ml-auto bg-primary-500 text-white text-xs px-2 py-0.5 rounded-full"
-          [class]="item.badgeStyleClass || ''"
+      <li [attr.id]="idPrefix() + '-item-' + (item.id || $index)">
+        <a
+          [routerLink]="item.routerLink"
+          routerLinkActive="bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300"
+          [routerLinkActiveOptions]="{ exact: false }"
+          class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors text-surface-700 dark:text-surface-300"
+          [class.select-none]="enableRipple()"
+          [class.justify-center]="isNarrowMode()"
+          [class.flex-col]="isNarrowMode()"
+          [class.gap-0]="isNarrowMode()"
+          [pTooltip]="isNarrowMode() ? item.label || '' : ''"
+          tooltipPosition="right"
+          [showDelay]="500"
+          [attr.aria-label]="item.label || ''"
+          [attr.aria-current]="item.styleClass?.includes('active') ? 'page' : null"
+          pRipple
         >
-          {{ item.badge }}
-        </span>
-        }
-      </a>
-    </li>
+          <i [class]="(item.icon || 'pi pi-circle') + ' text-xl'" aria-hidden="true"></i>
+          @if (shouldShowLabel()) {
+            <span class="text-sm font-medium">{{ item.label || '' }}</span>
+          }
+          @if (item.badge) {
+            <span
+              class="ml-auto bg-primary-500 text-white text-xs px-2 py-0.5 rounded-full"
+              [class]="item.badgeStyleClass || ''"
+            >
+              {{ item.badge }}
+            </span>
+          }
+        </a>
+      </li>
     }
   </ul>
 } @else {

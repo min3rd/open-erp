@@ -139,6 +139,11 @@ export class ReceiptForm implements OnInit, OnDestroy {
 
   form!: FormGroup;
 
+  constructor() {
+    // Open drawer after the first render to allow the host view to be attached
+    afterNextRender(() => this.drawerVisible.set(true));
+  }
+
   ngOnInit() {
     this.initForm();
 
@@ -163,9 +168,6 @@ export class ReceiptForm implements OnInit, OnDestroy {
     if (this.isView()) {
       this.form.disable();
     }
-
-    // Open drawer after the first render to allow the host view to be attached
-    afterNextRender(() => this.drawerVisible.set(true));
   }
 
   ngOnDestroy(): void {

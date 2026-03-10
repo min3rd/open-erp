@@ -14,7 +14,7 @@
         {{ 'provinceList.geoEditor.drawTab' | transloco }}
       </p-tab>
     </p-tablist>
-    
+
     <p-tabpanels>
       <!-- Text Editor Tab -->
       <p-tabpanel [value]="0">
@@ -32,9 +32,9 @@
           ></textarea>
 
           @if (parseError()) {
-          <small id="geo-editor-error" class="text-red-500">
-            {{ parseError() }}
-          </small>
+            <small id="geo-editor-error" class="text-red-500">
+              {{ parseError() }}
+            </small>
           }
 
           <div class="flex gap-2">

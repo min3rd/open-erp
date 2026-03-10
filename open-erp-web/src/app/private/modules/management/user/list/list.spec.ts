@@ -95,7 +95,7 @@ describe('List', () => {
     initialReq.flush({ data: [], total: 0, page: 1, limit: 10 });
 
     const searchInput = fixture.nativeElement.querySelector(
-      '#user-list-search'
+      '#user-list-search',
     ) as HTMLInputElement;
     searchInput.value = 'User One';
     searchInput.dispatchEvent(new Event('input'));

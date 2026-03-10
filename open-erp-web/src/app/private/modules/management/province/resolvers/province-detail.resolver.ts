@@ -10,7 +10,7 @@ import { Province } from '../province.types';
  * Fetches province data before the route is activated
  */
 export const provinceDetailResolver: ResolveFn<Province | null> = (
-  route: ActivatedRouteSnapshot
+  route: ActivatedRouteSnapshot,
 ): Observable<Province | null> => {
   const provinceService = inject(ProvinceService);
   const provinceId = route.paramMap.get('id');
@@ -23,6 +23,6 @@ export const provinceDetailResolver: ResolveFn<Province | null> = (
     catchError((error) => {
       console.error('Failed to resolve province detail:', error);
       return of(null);
-    })
+    }),
   );
 };

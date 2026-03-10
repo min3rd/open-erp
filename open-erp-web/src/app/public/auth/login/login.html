@@ -25,12 +25,17 @@
       <h1 class="text-4xl font-bold text-white mb-4" id="login-title-desktop">
         {{ 'login.title' | transloco }}
       </h1>
-      <p class="text-xl text-white/90" id="login-subtitle-desktop">{{ 'login.subtitle' | transloco }}</p>
+      <p class="text-xl text-white/90" id="login-subtitle-desktop">
+        {{ 'login.subtitle' | transloco }}
+      </p>
     </div>
   </div>
 
   <!-- Right Panel - Login Form -->
-  <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50" id="login-right-panel">
+  <div
+    class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50"
+    id="login-right-panel"
+  >
     <div class="w-full max-w-md" id="login-form-container">
       <!-- Mobile Logo -->
       <div class="lg:hidden text-center mb-8" id="login-mobile-header">
@@ -45,11 +50,19 @@
         <h1 class="text-3xl font-bold text-gray-900 mb-2" id="login-title-mobile">
           {{ 'login.title' | transloco }}
         </h1>
-        <p class="text-lg text-gray-600" id="login-subtitle-mobile">{{ 'login.subtitle' | transloco }}</p>
+        <p class="text-lg text-gray-600" id="login-subtitle-mobile">
+          {{ 'login.subtitle' | transloco }}
+        </p>
       </div>
 
       <!-- Login Form -->
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate id="login-form">
+      <form
+        [formGroup]="loginForm"
+        (ngSubmit)="onSubmit()"
+        class="space-y-6"
+        novalidate
+        id="login-form"
+      >
         <!-- Username/Email Field -->
         <div class="space-y-2">
           <label
@@ -77,9 +90,9 @@
             [attr.aria-describedby]="getFieldError('email') ? 'login-username-error' : null"
           />
           @if (getFieldError('email'); as errorKey) {
-          <small id="login-username-error" class="text-red-600 text-sm" role="alert">
-            {{ errorKey | transloco }}
-          </small>
+            <small id="login-username-error" class="text-red-600 text-sm" role="alert">
+              {{ errorKey | transloco }}
+            </small>
           }
         </div>
 
@@ -107,9 +120,9 @@
             [attr.aria-describedby]="getFieldError('password') ? 'login-password-error' : null"
           />
           @if (getFieldError('password'); as errorKey) {
-          <small id="login-password-error" class="text-red-600 text-sm" role="alert">
-            {{ errorKey | transloco }}
-          </small>
+            <small id="login-password-error" class="text-red-600 text-sm" role="alert">
+              {{ errorKey | transloco }}
+            </small>
           }
         </div>
 

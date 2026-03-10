@@ -228,7 +228,12 @@ describe('http-wrapper utilities', () => {
 
   describe('ApiResponseError', () => {
     it('should create error with all properties', () => {
-      const error = new ApiResponseError('TEST_CODE', 'Test message', { key: 'value' }, '2024-01-01');
+      const error = new ApiResponseError(
+        'TEST_CODE',
+        'Test message',
+        { key: 'value' },
+        '2024-01-01',
+      );
 
       expect(error.name).toBe('ApiResponseError');
       expect(error.code).toBe('TEST_CODE');

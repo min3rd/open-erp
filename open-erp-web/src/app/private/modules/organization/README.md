@@ -18,6 +18,7 @@ Service responsible for managing the layout state:
 - **Persistence**: Stores navigation mode preference in localStorage (`organization.nav.mode`)
 
 **Key Methods:**
+
 - `toggleNavMode()` - Toggle between narrow and sidebar modes
 - `setNavMode(mode)` - Set navigation mode explicitly
 - `setIsMobile(isMobile)` - Update mobile state
@@ -31,16 +32,17 @@ Desktop sidebar navigation component:
   - Icon-only navigation items
   - Tooltips on hover/focus
   - Toggle button to expand to sidebar mode
-  
 - **Sidebar Mode** (256px width):
   - Full labels with icons
   - Toggle button to collapse to narrow mode
 
 **Navigation Items:**
+
 - Register Organization (`/modules/organization/new`)
 - View Information (`/modules/organization/detail`)
 
 **Accessibility Features:**
+
 - Proper ARIA labels and expanded states
 - Keyboard accessible navigation
 - Focus ring visible on all interactive elements
@@ -55,6 +57,7 @@ Mobile header tabs component:
 - Touch-friendly 44x44px minimum touch targets
 
 **Tabs:**
+
 - Register (links to `/modules/organization/new`)
 - Information (links to `/modules/organization/detail`)
 

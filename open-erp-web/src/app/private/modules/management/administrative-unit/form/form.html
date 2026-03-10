@@ -27,13 +27,14 @@
           [readOnly]="mode() === 'edit' || isViewMode()"
         />
         @if (form.get('code')?.invalid && form.get('code')?.touched) {
-        <small id="administrative-unit-form-code-error" class="text-red-500">
-          @if (form.get('code')?.errors?.['required']) {
-          {{ 'administrativeUnit.form.fields.code.errors.required' | transloco }}
-          } @if (form.get('code')?.errors?.['minlength']) {
-          {{ 'administrativeUnit.form.fields.code.errors.minlength' | transloco }}
-          }
-        </small>
+          <small id="administrative-unit-form-code-error" class="text-red-500">
+            @if (form.get('code')?.errors?.['required']) {
+              {{ 'administrativeUnit.form.fields.code.errors.required' | transloco }}
+            }
+            @if (form.get('code')?.errors?.['minlength']) {
+              {{ 'administrativeUnit.form.fields.code.errors.minlength' | transloco }}
+            }
+          </small>
         }
       </div>
 
@@ -51,13 +52,14 @@
           class="w-full"
         />
         @if (form.get('name')?.invalid && form.get('name')?.touched) {
-        <small id="administrative-unit-form-name-error" class="text-red-500">
-          @if (form.get('name')?.errors?.['required']) {
-          {{ 'administrativeUnit.form.fields.name.errors.required' | transloco }}
-          } @if (form.get('name')?.errors?.['minlength']) {
-          {{ 'administrativeUnit.form.fields.name.errors.minlength' | transloco }}
-          }
-        </small>
+          <small id="administrative-unit-form-name-error" class="text-red-500">
+            @if (form.get('name')?.errors?.['required']) {
+              {{ 'administrativeUnit.form.fields.name.errors.required' | transloco }}
+            }
+            @if (form.get('name')?.errors?.['minlength']) {
+              {{ 'administrativeUnit.form.fields.name.errors.minlength' | transloco }}
+            }
+          </small>
         }
       </div>
 
@@ -90,60 +92,62 @@
       </div>
 
       <!-- Province (for districts and wards) -->
-      @if (form.get('type')?.value === AdminUnitType.DISTRICT || form.get('type')?.value ===
-      AdminUnitType.WARD) {
-      <div class="mb-4">
-        <label for="administrative-unit-form-province" class="block font-semibold mb-2">
-          {{ 'administrativeUnit.form.fields.province.label' | transloco }}
-          <span class="text-red-500">*</span>
-        </label>
-        <p-select
-          id="administrative-unit-form-province"
-          formControlName="provinceCode"
-          [options]="provinces()"
-          optionLabel="name"
-          optionValue="code"
-          [placeholder]="'administrativeUnit.form.fields.province.placeholder' | transloco"
-          class="w-full"
-          (onChange)="onProvinceChange($event.value)"
-        ></p-select>
-      </div>
+      @if (
+        form.get('type')?.value === AdminUnitType.DISTRICT ||
+        form.get('type')?.value === AdminUnitType.WARD
+      ) {
+        <div class="mb-4">
+          <label for="administrative-unit-form-province" class="block font-semibold mb-2">
+            {{ 'administrativeUnit.form.fields.province.label' | transloco }}
+            <span class="text-red-500">*</span>
+          </label>
+          <p-select
+            id="administrative-unit-form-province"
+            formControlName="provinceCode"
+            [options]="provinces()"
+            optionLabel="name"
+            optionValue="code"
+            [placeholder]="'administrativeUnit.form.fields.province.placeholder' | transloco"
+            class="w-full"
+            (onChange)="onProvinceChange($event.value)"
+          ></p-select>
+        </div>
       }
 
       <!-- District (for wards) -->
       @if (form.get('type')?.value === AdminUnitType.WARD) {
-      <div class="mb-4">
-        <label for="administrative-unit-form-district" class="block font-semibold mb-2">
-          {{ 'administrativeUnit.form.fields.district.label' | transloco }}
-          <span class="text-red-500">*</span>
-        </label>
-        <p-select
-          id="administrative-unit-form-district"
-          formControlName="districtCode"
-          [options]="districts()"
-          optionLabel="name"
-          optionValue="code"
-          [placeholder]="'administrativeUnit.form.fields.district.placeholder' | transloco"
-          class="w-full"
-          [disabled]="!form.get('provinceCode')?.value"
-        ></p-select>
-      </div>
+        <div class="mb-4">
+          <label for="administrative-unit-form-district" class="block font-semibold mb-2">
+            {{ 'administrativeUnit.form.fields.district.label' | transloco }}
+            <span class="text-red-500">*</span>
+          </label>
+          <p-select
+            id="administrative-unit-form-district"
+            formControlName="districtCode"
+            [options]="districts()"
+            optionLabel="name"
+            optionValue="code"
+            [placeholder]="'administrativeUnit.form.fields.district.placeholder' | transloco"
+            class="w-full"
+            [disabled]="!form.get('provinceCode')?.value"
+          ></p-select>
+        </div>
       }
 
       <!-- Region (for provinces) -->
       @if (form.get('type')?.value === AdminUnitType.PROVINCE) {
-      <div class="mb-4">
-        <label for="administrative-unit-form-region" class="block font-semibold mb-2">
-          {{ 'administrativeUnit.form.fields.region.label' | transloco }}
-        </label>
-        <input
-          pInputText
-          id="administrative-unit-form-region"
-          formControlName="region"
-          [placeholder]="'administrativeUnit.form.fields.region.placeholder' | transloco"
-          class="w-full"
-        />
-      </div>
+        <div class="mb-4">
+          <label for="administrative-unit-form-region" class="block font-semibold mb-2">
+            {{ 'administrativeUnit.form.fields.region.label' | transloco }}
+          </label>
+          <input
+            pInputText
+            id="administrative-unit-form-region"
+            formControlName="region"
+            [placeholder]="'administrativeUnit.form.fields.region.placeholder' | transloco"
+            class="w-full"
+          />
+        </div>
       }
 
       <!-- Population -->
@@ -178,54 +182,55 @@
 
       <!-- Map Preview (if geometry exists) -->
       @if (geometry()) {
-      <div class="mb-4">
-        <label class="block font-semibold mb-2">
-          {{ 'administrativeUnit.form.mapPreview.label' | transloco }}
-        </label>
-        <core-map
-          id="administrative-unit-form-map"
-          [geometry]="geometry()"
-          [zoom]="10"
-          class="block h-64 w-full"
-        ></core-map>
-      </div>
+        <div class="mb-4">
+          <label class="block font-semibold mb-2">
+            {{ 'administrativeUnit.form.mapPreview.label' | transloco }}
+          </label>
+          <core-map
+            id="administrative-unit-form-map"
+            [geometry]="geometry()"
+            [zoom]="10"
+            class="block h-64 w-full"
+          ></core-map>
+        </div>
       }
 
       <!-- Form Actions -->
       @if (!isViewMode()) {
-      <div class="flex gap-2">
-        <p-button
-          type="button"
-          [label]="'administrativeUnit.form.buttons.cancel' | transloco"
-          icon="pi pi-times"
-          id="administrative-unit-form-cancel-button"
-          (click)="onClose()"
-          [disabled]="loading()"
-          variant="text"
-          severity="secondary"
-        ></p-button>
-        <p-button
-          type="submit"
-          [label]="
-            'administrativeUnit.form.buttons.' + (mode() === 'create' ? 'create' : 'update')
-              | transloco
-          "
-          icon="pi pi-check"
-          id="administrative-unit-form-submit-button"
-          [loading]="loading()"
-          class="ml-auto"
-        ></p-button>
-      </div>
-      } @if (isViewMode()) {
-      <div class="flex gap-2 mt-6">
-        <p-button
-          type="button"
-          [label]="'administrativeUnit.form.buttons.close' | transloco"
-          icon="pi pi-times"
-          id="administrative-unit-form-close-button"
-          (click)="onClose()"
-        ></p-button>
-      </div>
+        <div class="flex gap-2">
+          <p-button
+            type="button"
+            [label]="'administrativeUnit.form.buttons.cancel' | transloco"
+            icon="pi pi-times"
+            id="administrative-unit-form-cancel-button"
+            (click)="onClose()"
+            [disabled]="loading()"
+            variant="text"
+            severity="secondary"
+          ></p-button>
+          <p-button
+            type="submit"
+            [label]="
+              'administrativeUnit.form.buttons.' + (mode() === 'create' ? 'create' : 'update')
+                | transloco
+            "
+            icon="pi pi-check"
+            id="administrative-unit-form-submit-button"
+            [loading]="loading()"
+            class="ml-auto"
+          ></p-button>
+        </div>
+      }
+      @if (isViewMode()) {
+        <div class="flex gap-2 mt-6">
+          <p-button
+            type="button"
+            [label]="'administrativeUnit.form.buttons.close' | transloco"
+            icon="pi pi-times"
+            id="administrative-unit-form-close-button"
+            (click)="onClose()"
+          ></p-button>
+        </div>
       }
     </form>
   </div>

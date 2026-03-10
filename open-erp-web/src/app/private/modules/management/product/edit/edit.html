@@ -32,7 +32,9 @@
 
   <div id="product-edit-content" class="flex flex-col h-full">
     <!-- Header Section (Fixed) -->
-    <div class="p-4 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800">
+    <div
+      class="p-4 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800"
+    >
       <form [formGroup]="form" class="space-y-3">
         <!-- Read-only fields -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -40,7 +42,9 @@
           <div>
             <label for="product-edit-sku" class="block text-sm font-medium mb-1">
               {{ 'productEdit.fields.sku.label' | transloco }}
-              <span class="text-xs text-surface-500 ml-1">{{ 'productEdit.fields.readonly' | transloco }}</span>
+              <span class="text-xs text-surface-500 ml-1">{{
+                'productEdit.fields.readonly' | transloco
+              }}</span>
             </label>
             <input
               id="product-edit-sku"
@@ -82,7 +86,9 @@
           <div>
             <label for="product-edit-scope" class="block text-sm font-medium mb-1">
               {{ 'productEdit.fields.scope.label' | transloco }}
-              <span class="text-xs text-surface-500 ml-1">{{ 'productEdit.fields.readonly' | transloco }}</span>
+              <span class="text-xs text-surface-500 ml-1">{{
+                'productEdit.fields.readonly' | transloco
+              }}</span>
             </label>
             <input
               id="product-edit-scope"
@@ -98,7 +104,9 @@
           <div>
             <label for="product-edit-barcode" class="block text-sm font-medium mb-1">
               {{ 'productEdit.fields.barcode.label' | transloco }}
-              <span class="text-xs text-surface-500 ml-1">{{ 'productEdit.fields.readonly' | transloco }}</span>
+              <span class="text-xs text-surface-500 ml-1">{{
+                'productEdit.fields.readonly' | transloco
+              }}</span>
             </label>
             <input
               id="product-edit-barcode"
@@ -127,7 +135,9 @@
               class="w-full"
             />
             @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
-            <small class="text-red-500">{{ 'productEdit.fields.name.errors.required' | transloco }}</small>
+              <small class="text-red-500">{{
+                'productEdit.fields.name.errors.required' | transloco
+              }}</small>
             }
           </div>
 
@@ -135,7 +145,9 @@
           <div>
             <label for="product-edit-slug" class="block text-sm font-medium mb-1">
               {{ 'productEdit.fields.slug.label' | transloco }}
-              <span class="text-xs text-surface-500 ml-1">{{ 'productEdit.fields.readonly' | transloco }}</span>
+              <span class="text-xs text-surface-500 ml-1">{{
+                'productEdit.fields.readonly' | transloco
+              }}</span>
             </label>
             <input
               id="product-edit-slug"
@@ -155,20 +167,20 @@
           </label>
           <div class="flex gap-2 items-center">
             @if (thumbnailPreview()) {
-            <div class="relative">
-              <img
-                [src]="thumbnailPreview()"
-                alt="Thumbnail preview"
-                class="w-16 h-16 object-cover rounded border border-surface-200 dark:border-surface-700"
-              />
-              <button
-                type="button"
-                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                (click)="onClearThumbnail()"
-              >
-                ×
-              </button>
-            </div>
+              <div class="relative">
+                <img
+                  [src]="thumbnailPreview()"
+                  alt="Thumbnail preview"
+                  class="w-16 h-16 object-cover rounded border border-surface-200 dark:border-surface-700"
+                />
+                <button
+                  type="button"
+                  class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                  (click)="onClearThumbnail()"
+                >
+                  ×
+                </button>
+              </div>
             }
             <p-button
               [label]="'productEdit.fields.thumbnail.select' | transloco"
@@ -247,7 +259,9 @@
                       styleClass="w-full"
                     />
                     @if (form.get('type')?.touched && form.get('type')?.hasError('required')) {
-                    <small class="text-red-500">{{ 'productEdit.fields.type.errors.required' | transloco }}</small>
+                      <small class="text-red-500">{{
+                        'productEdit.fields.type.errors.required' | transloco
+                      }}</small>
                     }
                   </div>
 
@@ -286,7 +300,9 @@
                       [filter]="true"
                     />
                     @if (form.get('unit')?.touched && form.get('unit')?.hasError('required')) {
-                    <small class="text-red-500">{{ 'productEdit.fields.unit.errors.required' | transloco }}</small>
+                      <small class="text-red-500">{{
+                        'productEdit.fields.unit.errors.required' | transloco
+                      }}</small>
                     }
                   </div>
                 </div>
@@ -310,100 +326,104 @@
                 </div>
 
                 @if (mediaFiles().length > 0) {
-                <div class="space-y-2">
-                  @for (file of mediaFiles(); track $index) {
-                  <div
-                    class="flex items-center gap-3 p-2 rounded border"
-                    [class.bg-surface-50]="!file.isMarkedForDeletion"
-                    [class.dark:bg-surface-800]="!file.isMarkedForDeletion"
-                    [class.border-surface-200]="!file.isMarkedForDeletion"
-                    [class.dark:border-surface-700]="!file.isMarkedForDeletion"
-                    [class.bg-red-50]="file.isMarkedForDeletion"
-                    [class.dark:bg-red-900/20]="file.isMarkedForDeletion"
-                    [class.border-red-200]="file.isMarkedForDeletion"
-                    [class.dark:border-red-700]="file.isMarkedForDeletion"
-                    [class.opacity-50]="file.isMarkedForDeletion"
-                  >
-                    @if (file.type === 'image') {
-                    <img
-                      [src]="file.url"
-                      alt="Media preview"
-                      class="w-12 h-12 object-cover rounded"
-                    />
-                    } @else {
-                    <i [class]="'pi ' + getFileIcon(file) + ' text-2xl text-primary'"></i>
-                    }
-                    <div class="flex-1 min-w-0">
-                      <p class="text-sm font-medium truncate">
-                        {{ file.filename }}
-                        @if (file.isExisting) {
-                        <span class="text-xs text-surface-500 ml-1">({{ 'productEdit.tabs.existing' | transloco }})</span>
+                  <div class="space-y-2">
+                    @for (file of mediaFiles(); track $index) {
+                      <div
+                        class="flex items-center gap-3 p-2 rounded border"
+                        [class.bg-surface-50]="!file.isMarkedForDeletion"
+                        [class.dark:bg-surface-800]="!file.isMarkedForDeletion"
+                        [class.border-surface-200]="!file.isMarkedForDeletion"
+                        [class.dark:border-surface-700]="!file.isMarkedForDeletion"
+                        [class.bg-red-50]="file.isMarkedForDeletion"
+                        [class.dark:bg-red-900/20]="file.isMarkedForDeletion"
+                        [class.border-red-200]="file.isMarkedForDeletion"
+                        [class.dark:border-red-700]="file.isMarkedForDeletion"
+                        [class.opacity-50]="file.isMarkedForDeletion"
+                      >
+                        @if (file.type === 'image') {
+                          <img
+                            [src]="file.url"
+                            alt="Media preview"
+                            class="w-12 h-12 object-cover rounded"
+                          />
+                        } @else {
+                          <i [class]="'pi ' + getFileIcon(file) + ' text-2xl text-primary'"></i>
                         }
-                      </p>
-                      @if (file.size) {
-                      <p class="text-xs text-surface-500">
-                        {{ (file.size / 1024 / 1024).toFixed(2) }} MB
-                      </p>
-                      }
-                      @if (file.uploadedAt) {
-                      <p class="text-xs text-surface-500">
-                        {{ file.uploadedAt | userDate }}
-                      </p>
-                      }
-                    </div>
-                    @if (file.isMarkedForDeletion) {
-                    <p-button
-                      icon="pi pi-undo"
-                      [rounded]="true"
-                      [text]="true"
-                      size="small"
-                      severity="info"
-                      (onClick)="onRestoreMedia($index)"
-                      [pTooltip]="'productEdit.actions.restore' | transloco"
-                    />
-                    } @else {
-                    @if (file.isExisting && isOfficeFile(file)) {
-                    <p-button
-                      icon="pi pi-eye"
-                      [rounded]="true"
-                      [text]="true"
-                      size="small"
-                      severity="info"
-                      (onClick)="onOpenOnlyOffice(file, 'view')"
-                      [pTooltip]="'productEdit.actions.viewOnlyOffice' | transloco"
-                    />
-                    @if (canEdit()) {
-                    <p-button
-                      icon="pi pi-pencil"
-                      [rounded]="true"
-                      [text]="true"
-                      size="small"
-                      severity="warn"
-                      (onClick)="onOpenOnlyOffice(file, 'edit')"
-                      [pTooltip]="'productEdit.actions.editOnlyOffice' | transloco"
-                    />
-                    }
-                    }
-                    <p-button
-                      icon="pi pi-times"
-                      [rounded]="true"
-                      [text]="true"
-                      size="small"
-                      severity="danger"
-                      (onClick)="onRemoveMedia($index)"
-                      [pTooltip]="'productEdit.actions.remove' | transloco"
-                    />
+                        <div class="flex-1 min-w-0">
+                          <p class="text-sm font-medium truncate">
+                            {{ file.filename }}
+                            @if (file.isExisting) {
+                              <span class="text-xs text-surface-500 ml-1"
+                                >({{ 'productEdit.tabs.existing' | transloco }})</span
+                              >
+                            }
+                          </p>
+                          @if (file.size) {
+                            <p class="text-xs text-surface-500">
+                              {{ (file.size / 1024 / 1024).toFixed(2) }} MB
+                            </p>
+                          }
+                          @if (file.uploadedAt) {
+                            <p class="text-xs text-surface-500">
+                              {{ file.uploadedAt | userDate }}
+                            </p>
+                          }
+                        </div>
+                        @if (file.isMarkedForDeletion) {
+                          <p-button
+                            icon="pi pi-undo"
+                            [rounded]="true"
+                            [text]="true"
+                            size="small"
+                            severity="info"
+                            (onClick)="onRestoreMedia($index)"
+                            [pTooltip]="'productEdit.actions.restore' | transloco"
+                          />
+                        } @else {
+                          @if (file.isExisting && isOfficeFile(file)) {
+                            <p-button
+                              icon="pi pi-eye"
+                              [rounded]="true"
+                              [text]="true"
+                              size="small"
+                              severity="info"
+                              (onClick)="onOpenOnlyOffice(file, 'view')"
+                              [pTooltip]="'productEdit.actions.viewOnlyOffice' | transloco"
+                            />
+                            @if (canEdit()) {
+                              <p-button
+                                icon="pi pi-pencil"
+                                [rounded]="true"
+                                [text]="true"
+                                size="small"
+                                severity="warn"
+                                (onClick)="onOpenOnlyOffice(file, 'edit')"
+                                [pTooltip]="'productEdit.actions.editOnlyOffice' | transloco"
+                              />
+                            }
+                          }
+                          <p-button
+                            icon="pi pi-times"
+                            [rounded]="true"
+                            [text]="true"
+                            size="small"
+                            severity="danger"
+                            (onClick)="onRemoveMedia($index)"
+                            [pTooltip]="'productEdit.actions.remove' | transloco"
+                          />
+                        }
+                      </div>
                     }
                   </div>
-                  }
-                </div>
                 } @else {
-                <div class="text-center py-8 border-2 border-dashed border-surface-200 dark:border-surface-700 rounded">
-                  <i class="pi pi-cloud-upload text-4xl text-surface-400 mb-2"></i>
-                  <p class="text-surface-500 dark:text-surface-400">
-                    {{ 'productEdit.tabs.mediaEmpty' | transloco }}
-                  </p>
-                </div>
+                  <div
+                    class="text-center py-8 border-2 border-dashed border-surface-200 dark:border-surface-700 rounded"
+                  >
+                    <i class="pi pi-cloud-upload text-4xl text-surface-400 mb-2"></i>
+                    <p class="text-surface-500 dark:text-surface-400">
+                      {{ 'productEdit.tabs.mediaEmpty' | transloco }}
+                    </p>
+                  </div>
                 }
               </div>
             </p-tabpanel>
@@ -528,7 +548,9 @@
     </div>
 
     <!-- Footer Section (Fixed) -->
-    <div class="p-4 border-t border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800">
+    <div
+      class="p-4 border-t border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800"
+    >
       <div class="flex flex-wrap gap-2 justify-end">
         <p-button
           [label]="'productEdit.actions.cancel' | transloco"
@@ -568,64 +590,116 @@
 
 <!-- OnlyOffice Editor — Drawer (default: 2/3 desktop, full mobile) -->
 @if (showOnlyOfficeEditor() && onlyOfficeConfig() && onlyOfficeViewMode() === 'drawer') {
-<p-drawer
-  [(visible)]="showOnlyOfficeEditor"
-  position="right"
-  styleClass="!w-full lg:!w-[66vw]"
-  (onHide)="onCloseOnlyOffice()"
->
-  <ng-template #header>
-    <div class="flex items-center gap-2 w-full">
-      <span class="font-semibold truncate">{{ onlyOfficeConfig()?.config?.['document']?.['title'] || ('productEdit.onlyOffice.title' | transloco) }}</span>
-      <div class="ml-auto flex gap-1">
-        <p-button icon="pi pi-sidebar" [rounded]="true" [text]="true" size="small" severity="secondary"
-          [pTooltip]="'productEdit.onlyOffice.drawer' | transloco" [disabled]="true" />
-        <p-button icon="pi pi-window-maximize" [rounded]="true" [text]="true" size="small" severity="secondary"
-          (onClick)="onSwitchOnlyOfficeMode('fullscreen')"
-          [pTooltip]="'productEdit.onlyOffice.fullscreen' | transloco" />
-        <p-button icon="pi pi-external-link" [rounded]="true" [text]="true" size="small" severity="secondary"
-          (onClick)="onSwitchOnlyOfficeMode('detached')"
-          [pTooltip]="'productEdit.onlyOffice.detached' | transloco" />
+  <p-drawer
+    [(visible)]="showOnlyOfficeEditor"
+    position="right"
+    styleClass="!w-full lg:!w-[66vw]"
+    (onHide)="onCloseOnlyOffice()"
+  >
+    <ng-template #header>
+      <div class="flex items-center gap-2 w-full">
+        <span class="font-semibold truncate">{{
+          onlyOfficeConfig()?.config?.['document']?.['title'] ||
+            ('productEdit.onlyOffice.title' | transloco)
+        }}</span>
+        <div class="ml-auto flex gap-1">
+          <p-button
+            icon="pi pi-sidebar"
+            [rounded]="true"
+            [text]="true"
+            size="small"
+            severity="secondary"
+            [pTooltip]="'productEdit.onlyOffice.drawer' | transloco"
+            [disabled]="true"
+          />
+          <p-button
+            icon="pi pi-window-maximize"
+            [rounded]="true"
+            [text]="true"
+            size="small"
+            severity="secondary"
+            (onClick)="onSwitchOnlyOfficeMode('fullscreen')"
+            [pTooltip]="'productEdit.onlyOffice.fullscreen' | transloco"
+          />
+          <p-button
+            icon="pi pi-external-link"
+            [rounded]="true"
+            [text]="true"
+            size="small"
+            severity="secondary"
+            (onClick)="onSwitchOnlyOfficeMode('detached')"
+            [pTooltip]="'productEdit.onlyOffice.detached' | transloco"
+          />
+        </div>
+      </div>
+    </ng-template>
+    <div class="flex flex-col h-full">
+      <div class="flex-1">
+        <div id="onlyoffice-editor-container" class="w-full h-full min-h-96"></div>
+      </div>
+      <div class="p-4 border-t border-surface-200 dark:border-surface-700">
+        <p-button
+          [label]="'productEdit.onlyOffice.close' | transloco"
+          icon="pi pi-times"
+          severity="secondary"
+          (onClick)="onCloseOnlyOffice()"
+        />
       </div>
     </div>
-  </ng-template>
-  <div class="flex flex-col h-full">
-    <div class="flex-1">
-      <div id="onlyoffice-editor-container" class="w-full h-full min-h-96"></div>
-    </div>
-    <div class="p-4 border-t border-surface-200 dark:border-surface-700">
-      <p-button
-        [label]="'productEdit.onlyOffice.close' | transloco"
-        icon="pi pi-times"
-        severity="secondary"
-        (onClick)="onCloseOnlyOffice()"
-      />
-    </div>
-  </div>
-</p-drawer>
+  </p-drawer>
 }
 
 <!-- OnlyOffice Editor — Fullscreen (covers entire viewport) -->
 @if (showOnlyOfficeEditor() && onlyOfficeConfig() && onlyOfficeViewMode() === 'fullscreen') {
-<div class="fixed inset-0 z-[1100] flex flex-col bg-surface-0 dark:bg-surface-900">
-  <div class="flex items-center gap-2 px-4 py-2 border-b border-surface-200 dark:border-surface-700">
-    <span class="font-semibold truncate">{{ onlyOfficeConfig()?.config?.['document']?.['title'] || ('productEdit.onlyOffice.title' | transloco) }}</span>
-    <div class="ml-auto flex gap-1">
-      <p-button icon="pi pi-sidebar" [rounded]="true" [text]="true" size="small" severity="secondary"
-        (onClick)="onSwitchOnlyOfficeMode('drawer')"
-        [pTooltip]="'productEdit.onlyOffice.drawer' | transloco" />
-      <p-button icon="pi pi-window-maximize" [rounded]="true" [text]="true" size="small" severity="secondary"
-        [pTooltip]="'productEdit.onlyOffice.fullscreen' | transloco" [disabled]="true" />
-      <p-button icon="pi pi-external-link" [rounded]="true" [text]="true" size="small" severity="secondary"
-        (onClick)="onSwitchOnlyOfficeMode('detached')"
-        [pTooltip]="'productEdit.onlyOffice.detached' | transloco" />
-      <p-button icon="pi pi-times" [rounded]="true" [text]="true" size="small" severity="secondary"
-        (onClick)="onCloseOnlyOffice()"
-        [pTooltip]="'productEdit.onlyOffice.close' | transloco" />
+  <div class="fixed inset-0 z-[1100] flex flex-col bg-surface-0 dark:bg-surface-900">
+    <div
+      class="flex items-center gap-2 px-4 py-2 border-b border-surface-200 dark:border-surface-700"
+    >
+      <span class="font-semibold truncate">{{
+        onlyOfficeConfig()?.config?.['document']?.['title'] ||
+          ('productEdit.onlyOffice.title' | transloco)
+      }}</span>
+      <div class="ml-auto flex gap-1">
+        <p-button
+          icon="pi pi-sidebar"
+          [rounded]="true"
+          [text]="true"
+          size="small"
+          severity="secondary"
+          (onClick)="onSwitchOnlyOfficeMode('drawer')"
+          [pTooltip]="'productEdit.onlyOffice.drawer' | transloco"
+        />
+        <p-button
+          icon="pi pi-window-maximize"
+          [rounded]="true"
+          [text]="true"
+          size="small"
+          severity="secondary"
+          [pTooltip]="'productEdit.onlyOffice.fullscreen' | transloco"
+          [disabled]="true"
+        />
+        <p-button
+          icon="pi pi-external-link"
+          [rounded]="true"
+          [text]="true"
+          size="small"
+          severity="secondary"
+          (onClick)="onSwitchOnlyOfficeMode('detached')"
+          [pTooltip]="'productEdit.onlyOffice.detached' | transloco"
+        />
+        <p-button
+          icon="pi pi-times"
+          [rounded]="true"
+          [text]="true"
+          size="small"
+          severity="secondary"
+          (onClick)="onCloseOnlyOffice()"
+          [pTooltip]="'productEdit.onlyOffice.close' | transloco"
+        />
+      </div>
+    </div>
+    <div class="flex-1 overflow-hidden">
+      <div id="onlyoffice-editor-container" class="w-full h-full"></div>
     </div>
   </div>
-  <div class="flex-1 overflow-hidden">
-    <div id="onlyoffice-editor-container" class="w-full h-full"></div>
-  </div>
-</div>
 }

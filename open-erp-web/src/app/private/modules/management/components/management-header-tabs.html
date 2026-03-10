@@ -28,7 +28,7 @@
             }
             <span class="whitespace-nowrap">{{ item.label }}</span>
             @if (item.badge) {
-              <span 
+              <span
                 class="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-primary-500 text-white"
                 [class]="item.badgeStyleClass"
               >
@@ -38,10 +38,12 @@
           </a>
         }
       }
-      
+
       <!-- Show message if no items are available -->
       @if (items.length === 0) {
-        <div class="flex-1 flex items-center justify-center px-4 py-3 text-sm text-surface-500 dark:text-surface-400">
+        <div
+          class="flex-1 flex items-center justify-center px-4 py-3 text-sm text-surface-500 dark:text-surface-400"
+        >
           {{ 'management.navigation.noItems' | transloco }}
         </div>
       }

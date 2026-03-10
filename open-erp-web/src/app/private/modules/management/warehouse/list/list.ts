@@ -116,13 +116,13 @@ export class WarehouseList implements OnInit, OnDestroy {
     if (!warehouse?.location) return null;
     return {
       type: 'Point',
-      coordinates: warehouse.location.coordinates
+      coordinates: warehouse.location.coordinates,
     } as GeoJSON.Point;
   });
 
   // Map context menu state
   protected readonly mapClickLocation = signal<{ lat: number; lng: number } | null>(null);
-  
+
   // Map context menu items - computed based on click location
   protected readonly mapContextMenuItems = computed<MenuItem[]>(() => {
     const location = this.mapClickLocation();
@@ -619,7 +619,7 @@ export class WarehouseList implements OnInit, OnDestroy {
    */
   protected onMapRightClick(event: MouseEvent): void {
     event.preventDefault();
-    
+
     // Get the map container and calculate relative position
     const mapContainer = (event.target as HTMLElement).closest('#warehouse-list-map');
     if (!mapContainer) return;
@@ -635,7 +635,7 @@ export class WarehouseList implements OnInit, OnDestroy {
     const lng = 108.2515 + (x / rect.width - 0.5) * 20;
 
     this.mapClickLocation.set({ lat, lng });
-    
+
     if (this.mapContextMenu) {
       this.mapContextMenu.show(event);
     }

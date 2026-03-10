@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, computed, OnInit, OnDestroy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  computed,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslocoModule } from '@jsverse/transloco';
 import { Subject } from 'rxjs';
@@ -21,13 +28,14 @@ export class ProductTabWarehouse implements OnInit, OnDestroy {
 
   protected readonly hasWarehouseData = computed(() => {
     const p = this.product();
-    return p != null && (
-      p.trackingType != null ||
-      p.hazardLevel != null ||
-      p.minStockLevel != null ||
-      p.maxStockLevel != null ||
-      p.reorderPoint != null ||
-      p.reorderQuantity != null
+    return (
+      p != null &&
+      (p.trackingType != null ||
+        p.hazardLevel != null ||
+        p.minStockLevel != null ||
+        p.maxStockLevel != null ||
+        p.reorderPoint != null ||
+        p.reorderQuantity != null)
     );
   });
 

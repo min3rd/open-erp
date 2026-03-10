@@ -5,6 +5,7 @@ A comprehensive UI-only component for designing forms using JSON Schema. Built w
 ## Overview
 
 The Form Editor is a WYSIWYG drag-and-drop form builder that allows users to:
+
 - Design forms visually using a component palette
 - Configure component properties in real-time
 - Export forms as valid JSON Schema
@@ -14,15 +15,18 @@ The Form Editor is a WYSIWYG drag-and-drop form builder that allows users to:
 ## Features
 
 ### Component Palette
+
 - **Layout Components**: 1-column, 2-column, 3-column layouts, dividers, buttons
 - **Form Components**: Input, TextArea, Select, Checkbox, Radio Button, Date Picker, Autocomplete, Cascade Select, Color Picker, Rating, Slider, Select Button, Toggle Button, Toggle Switch
 
 ### Drag & Drop
+
 - Drag components from the palette to the canvas
 - Drop into layout containers for nested structures
 - Visual feedback during drag operations
 
 ### Configuration Inspector
+
 - Edit labels and placeholders (with i18n support)
 - Configure validation rules
 - Set CSS classes
@@ -30,17 +34,20 @@ The Form Editor is a WYSIWYG drag-and-drop form builder that allows users to:
 - Add default values and options
 
 ### Undo/Redo
+
 - Full history tracking (configurable max depth: 50 actions)
 - Support for add, remove, move, and edit operations
 - Visual indication of undo/redo availability
 
 ### Export
+
 - Generates valid JSON Schema (Draft 07)
 - Includes vendor extensions for UI metadata
 - Validates schema before export using AJV
 - Downloads as `.json` file
 
 ### Persistence
+
 - Auto-saves to localStorage
 - Continues editing after page refresh
 - Clear function to reset editor
@@ -59,12 +66,13 @@ import { FormEditor } from '@core/components/form-editor/form-editor';
     <div class="h-screen">
       <core-form-editor />
     </div>
-  `
+  `,
 })
 export class MyComponent {}
 ```
 
 ### Demo
+
 Navigate to `/demo/form-editor` to see the Form Editor in action.
 
 ## Architecture
@@ -83,6 +91,7 @@ Navigate to `/demo/form-editor` to see the Form Editor in action.
 ### State Management
 
 The editor uses Angular signals for reactive state management:
+
 - `schema`: Current form schema
 - `selectedComponentId`: ID of selected component
 - `selectedComponent`: Full selected component object
@@ -135,6 +144,7 @@ The editor uses the following vendor extensions in the JSON Schema:
 ## Accessibility
 
 The Form Editor follows WCAG AA guidelines:
+
 - All interactive elements have unique IDs
 - ARIA labels for screen readers
 - Keyboard navigation support
@@ -144,6 +154,7 @@ The Form Editor follows WCAG AA guidelines:
 ## i18n Support
 
 All user-facing text is translatable via Transloco:
+
 - Component labels and placeholders support i18n keys
 - UI text in English and Spanish (extensible to more languages)
 - Translation keys follow the pattern: `formEditor.*`
@@ -151,12 +162,14 @@ All user-facing text is translatable via Transloco:
 ## Local Storage
 
 The editor automatically saves state to localStorage with the key `form-editor-state`. This includes:
+
 - Current form schema
 - Selected component
 - Action history
 - History index
 
 To clear stored state:
+
 ```typescript
 // In your component
 formEditorService.clear();
@@ -215,11 +228,13 @@ downloadSchema(schema: JSONSchemaOutput, filename?: string): void
 ## Testing
 
 Run unit tests:
+
 ```bash
 npm test
 ```
 
 The test suite covers:
+
 - State management (add, remove, move, update)
 - Undo/Redo functionality
 - JSON Schema conversion

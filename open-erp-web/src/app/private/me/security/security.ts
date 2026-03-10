@@ -37,9 +37,7 @@ import { UserDatePipe } from '../../../../core/pipes/user-date.pipe';
 function passwordMatchValidator(group: AbstractControl) {
   const newPass = group.get('newPassword')?.value;
   const confirm = group.get('confirmPassword')?.value;
-  return newPass && confirm && newPass !== confirm
-    ? { passwordMismatch: true }
-    : null;
+  return newPass && confirm && newPass !== confirm ? { passwordMismatch: true } : null;
 }
 
 @Component({

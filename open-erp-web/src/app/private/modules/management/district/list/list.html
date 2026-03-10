@@ -15,7 +15,7 @@
           [style]="{ width: '200px', marginRight: '8px' }"
           [attr.aria-label]="'districtList.filter.selectProvince' | transloco"
         />
-        
+
         <!-- Search Input -->
         <p-inputgroup>
           <p-inputgroup-addon>
@@ -151,43 +151,43 @@
 
     <!-- Expandable Search Input (Mobile) -->
     @if (isSearchOpen()) {
-    <div
-      id="district-list-search-panel-mobile"
-      class="p-2 bg-surface-50 dark:bg-surface-800 border-t border-surface-200 dark:border-surface-700"
-    >
-      <!-- Province Filter Mobile -->
-      <p-select
-        id="district-list-province-filter-mobile"
-        [options]="provinceOptions()"
-        [(ngModel)]="selectedProvinceCode"
-        (onChange)="onProvinceFilterChange($event)"
-        [placeholder]="'districtList.filter.selectProvince' | transloco"
-        optionLabel="label"
-        optionValue="value"
-        [style]="{ width: '100%', marginBottom: '8px' }"
-        [attr.aria-label]="'districtList.filter.selectProvince' | transloco"
-      />
-      
-      <p-inputgroup>
-        <input
-          #mobileSearchInput
-          id="district-list-search-mobile"
-          type="text"
-          pInputText
-          [placeholder]="'districtList.search.placeholder' | transloco"
-          (input)="onSearchChange($event)"
-          [value]="searchQuery()"
-          class="w-full"
-          [attr.aria-label]="'districtList.search.label' | transloco"
+      <div
+        id="district-list-search-panel-mobile"
+        class="p-2 bg-surface-50 dark:bg-surface-800 border-t border-surface-200 dark:border-surface-700"
+      >
+        <!-- Province Filter Mobile -->
+        <p-select
+          id="district-list-province-filter-mobile"
+          [options]="provinceOptions()"
+          [(ngModel)]="selectedProvinceCode"
+          (onChange)="onProvinceFilterChange($event)"
+          [placeholder]="'districtList.filter.selectProvince' | transloco"
+          optionLabel="label"
+          optionValue="value"
+          [style]="{ width: '100%', marginBottom: '8px' }"
+          [attr.aria-label]="'districtList.filter.selectProvince' | transloco"
         />
-        <p-button
-          id="district-list-search-close-mobile"
-          icon="pi pi-times"
-          (onClick)="closeSearch()"
-          [attr.aria-label]="'districtList.search.closeSearch' | transloco"
-        />
-      </p-inputgroup>
-    </div>
+
+        <p-inputgroup>
+          <input
+            #mobileSearchInput
+            id="district-list-search-mobile"
+            type="text"
+            pInputText
+            [placeholder]="'districtList.search.placeholder' | transloco"
+            (input)="onSearchChange($event)"
+            [value]="searchQuery()"
+            class="w-full"
+            [attr.aria-label]="'districtList.search.label' | transloco"
+          />
+          <p-button
+            id="district-list-search-close-mobile"
+            icon="pi pi-times"
+            (onClick)="closeSearch()"
+            [attr.aria-label]="'districtList.search.closeSearch' | transloco"
+          />
+        </p-inputgroup>
+      </div>
     }
   }
 
@@ -195,97 +195,208 @@
   <div class="flex flex-auto h-full overflow-hidden">
     <!-- Desktop: Two-Column Layout with Resizable Splitter -->
     @if (!isMobile()) {
-    <p-splitter 
-      [style]="{ height: '100%' }" 
-      [panelSizes]="[50, 50]"
-      [minSizes]="[30, 30]"
-      id="district-list-splitter"
-      class="w-full"
-    >
-      <ng-template #panel>
-        <!-- Left Pane: District List -->
-        <div id="district-list-left-pane" class="flex flex-col h-full">
-          <div class="flex-1 overflow-auto">
-          <p-table
-            id="district-list-table"
-            [value]="districts()"
-            [loading]="isLoading()"
-            [rowHover]="true"
-            dataKey="id"
-            styleClass="p-datatable-sm"
-            responsiveLayout="scroll"
-          >
-            <ng-template #header>
-              <tr>
-                <th>{{ 'districtList.table.code' | transloco }}</th>
-                <th>{{ 'districtList.table.nameVi' | transloco }}</th>
-                <th>{{ 'districtList.table.nameEn' | transloco }}</th>
-                <th>{{ 'districtList.table.province' | transloco }}</th>
-                <th>{{ 'districtList.table.population' | transloco }}</th>
-                <th class="w-16"></th>
-              </tr>
-            </ng-template>
-
-            <ng-template #body let-district>
-              <tr
-                [id]="'district-list-row-' + district.id"
-                (click)="onRowClick(district)"
-                (contextmenu)="onRowRightClick($event, district)"
-                class="cursor-pointer"
-                [class.bg-primary-50]="selectedDistrict()?.id === district.id"
-                [class.dark:bg-primary-900]="selectedDistrict()?.id === district.id"
+      <p-splitter
+        [style]="{ height: '100%' }"
+        [panelSizes]="[50, 50]"
+        [minSizes]="[30, 30]"
+        id="district-list-splitter"
+        class="w-full"
+      >
+        <ng-template #panel>
+          <!-- Left Pane: District List -->
+          <div id="district-list-left-pane" class="flex flex-col h-full">
+            <div class="flex-1 overflow-auto">
+              <p-table
+                id="district-list-table"
+                [value]="districts()"
+                [loading]="isLoading()"
+                [rowHover]="true"
+                dataKey="id"
+                styleClass="p-datatable-sm"
+                responsiveLayout="scroll"
               >
-                <td>{{ district.code }}</td>
-                <td>
-                  <div class="font-medium">{{ district.name }}</div>
-                </td>
-                <td>{{ district.nameEn || district.name }}</td>
-                <td>{{ district.provinceCode || '-' }}</td>
-                <td (click)="$event.stopPropagation()">
-                  <p-button
-                    [id]="'district-list-row-menu-' + district.id"
-                    icon="pi pi-ellipsis-v"
-                    [rounded]="true"
-                    [text]="true"
-                    size="small"
-                    (onClick)="rowMenu.toggle($event)"
-                    [attr.aria-label]="'districtList.table.rowActions' | transloco"
-                  />
-                  <p-menu
-                    #rowMenu
-                    [model]="getRowMenuItems(district)"
-                    [popup]="true"
-                    appendTo="body"
-                  />
-                </td>
-              </tr>
-            </ng-template>
+                <ng-template #header>
+                  <tr>
+                    <th>{{ 'districtList.table.code' | transloco }}</th>
+                    <th>{{ 'districtList.table.nameVi' | transloco }}</th>
+                    <th>{{ 'districtList.table.nameEn' | transloco }}</th>
+                    <th>{{ 'districtList.table.province' | transloco }}</th>
+                    <th>{{ 'districtList.table.population' | transloco }}</th>
+                    <th class="w-16"></th>
+                  </tr>
+                </ng-template>
 
-            <ng-template #empty>
-              <tr>
-                <td colspan="6" class="text-center py-8 text-surface-500">
-                  @if (isLoading()) {
-                  <i class="pi pi-spin pi-spinner text-2xl"></i>
-                  <p class="mt-2">{{ 'districtList.messages.loading' | transloco }}</p>
-                  } @else if (searchQuery()) {
-                  <i class="pi pi-search text-2xl"></i>
-                  <p class="mt-2">
-                    {{ 'districtList.messages.noResults' | transloco : { query: searchQuery() } }}
+                <ng-template #body let-district>
+                  <tr
+                    [id]="'district-list-row-' + district.id"
+                    (click)="onRowClick(district)"
+                    (contextmenu)="onRowRightClick($event, district)"
+                    class="cursor-pointer"
+                    [class.bg-primary-50]="selectedDistrict()?.id === district.id"
+                    [class.dark:bg-primary-900]="selectedDistrict()?.id === district.id"
+                  >
+                    <td>{{ district.code }}</td>
+                    <td>
+                      <div class="font-medium">{{ district.name }}</div>
+                    </td>
+                    <td>{{ district.nameEn || district.name }}</td>
+                    <td>{{ district.provinceCode || '-' }}</td>
+                    <td (click)="$event.stopPropagation()">
+                      <p-button
+                        [id]="'district-list-row-menu-' + district.id"
+                        icon="pi pi-ellipsis-v"
+                        [rounded]="true"
+                        [text]="true"
+                        size="small"
+                        (onClick)="rowMenu.toggle($event)"
+                        [attr.aria-label]="'districtList.table.rowActions' | transloco"
+                      />
+                      <p-menu
+                        #rowMenu
+                        [model]="getRowMenuItems(district)"
+                        [popup]="true"
+                        appendTo="body"
+                      />
+                    </td>
+                  </tr>
+                </ng-template>
+
+                <ng-template #empty>
+                  <tr>
+                    <td colspan="6" class="text-center py-8 text-surface-500">
+                      @if (isLoading()) {
+                        <i class="pi pi-spin pi-spinner text-2xl"></i>
+                        <p class="mt-2">{{ 'districtList.messages.loading' | transloco }}</p>
+                      } @else if (searchQuery()) {
+                        <i class="pi pi-search text-2xl"></i>
+                        <p class="mt-2">
+                          {{
+                            'districtList.messages.noResults' | transloco: { query: searchQuery() }
+                          }}
+                        </p>
+                      } @else {
+                        <i class="pi pi-map text-2xl"></i>
+                        <p class="mt-2">{{ 'districtList.messages.noDistricts' | transloco }}</p>
+                      }
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="border-t border-surface-200 dark:border-surface-700 p-4">
+              <core-pagination
+                [idPrefix]="'district-list'"
+                [totalRecords]="totalRecords()"
+                [currentPage]="currentPage()"
+                [pageSize]="pageSize()"
+                (pageChange)="onPageChange($event)"
+              />
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template #panel>
+          <!-- Right Pane: Map -->
+          <div id="district-list-right-pane" class="flex flex-col h-full">
+            <div class="flex-1 h-full">
+              <core-map id="district-list-map" [geometry]="selectedGeometry()" />
+            </div>
+          </div>
+        </ng-template>
+      </p-splitter>
+    }
+
+    <!-- Mobile: Single Column with List -->
+    @if (isMobile()) {
+      <div class="flex flex-col w-full h-full">
+        <div id="district-list-content-mobile" class="flex-1 overflow-auto">
+          <div id="district-list-mobile" class="p-2">
+            @if (isLoading()) {
+              <!-- Skeleton loading state -->
+              <div class="space-y-2">
+                @for (i of [1, 2, 3, 4, 5]; track i) {
+                  <div
+                    class="p-3 bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-lg animate-pulse"
+                  >
+                    <div class="h-4 bg-surface-300 dark:bg-surface-600 rounded w-3/4 mb-2"></div>
+                    <div class="h-3 bg-surface-300 dark:bg-surface-600 rounded w-1/2"></div>
+                  </div>
+                }
+              </div>
+            } @else if (districts().length === 0) {
+              <!-- Empty state -->
+              <div class="text-center py-16 text-surface-500">
+                @if (searchQuery()) {
+                  <i class="pi pi-search text-4xl mb-4"></i>
+                  <p class="text-lg">
+                    {{ 'districtList.messages.noResults' | transloco: { query: searchQuery() } }}
                   </p>
-                  } @else {
-                  <i class="pi pi-map text-2xl"></i>
-                  <p class="mt-2">{{ 'districtList.messages.noDistricts' | transloco }}</p>
-                  }
-                </td>
-              </tr>
-            </ng-template>
-          </p-table>
+                } @else {
+                  <i class="pi pi-map text-4xl mb-4"></i>
+                  <p class="text-lg">{{ 'districtList.messages.noDistricts' | transloco }}</p>
+                }
+              </div>
+            } @else {
+              <!-- District list items -->
+              <div class="space-y-2">
+                @for (district of districts(); track district.id) {
+                  <div
+                    [id]="'district-list-item-' + district.id"
+                    class="p-3 bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors cursor-pointer"
+                    (click)="onRowClick(district)"
+                    [class.bg-primary-50]="selectedDistrict()?.id === district.id"
+                    [class.dark:bg-primary-900]="selectedDistrict()?.id === district.id"
+                  >
+                    <div class="flex items-start gap-3">
+                      <!-- District Info -->
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between gap-2 mb-1">
+                          <div class="font-semibold text-base">{{ district.name }}</div>
+                          <span class="text-sm text-surface-600 dark:text-surface-400">{{
+                            district.code
+                          }}</span>
+                        </div>
+                        <div class="text-sm text-surface-500 dark:text-surface-500 mb-1">
+                          {{ district.nameEn || district.name }}
+                        </div>
+                        <div class="text-xs text-surface-400 dark:text-surface-600">
+                          {{ district.provinceCode || '-' }}
+                        </div>
+                      </div>
+
+                      <!-- Actions Menu Button -->
+                      <p-button
+                        [id]="'district-list-item-menu-' + district.id"
+                        icon="pi pi-ellipsis-v"
+                        [rounded]="true"
+                        [text]="true"
+                        (onClick)="rowMenu.toggle($event); $event.stopPropagation()"
+                        [attr.aria-label]="'districtList.mobileList.itemActions' | transloco"
+                        aria-haspopup="true"
+                        class="flex-shrink-0 min-w-[44px] min-h-[44px]"
+                      />
+                      <p-menu
+                        #rowMenu
+                        [model]="getRowMenuItems(district)"
+                        [popup]="true"
+                        appendTo="body"
+                      />
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
         </div>
 
-        <!-- Pagination -->
-        <div class="border-t border-surface-200 dark:border-surface-700 p-4">
+        <!-- Mobile Pagination -->
+        <div
+          class="border-t border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 p-4"
+        >
           <core-pagination
-            [idPrefix]="'district-list'"
+            [idPrefix]="'district-list-mobile'"
             [totalRecords]="totalRecords()"
             [currentPage]="currentPage()"
             [pageSize]="pageSize()"
@@ -293,114 +404,6 @@
           />
         </div>
       </div>
-      </ng-template>
-
-      <ng-template #panel>
-        <!-- Right Pane: Map -->
-        <div id="district-list-right-pane" class="flex flex-col h-full">
-          <div class="flex-1 h-full">
-            <core-map
-              id="district-list-map"
-              [geometry]="selectedGeometry()"
-            />
-          </div>
-        </div>
-      </ng-template>
-    </p-splitter>
-    }
-
-    <!-- Mobile: Single Column with List -->
-    @if (isMobile()) {
-    <div class="flex flex-col w-full h-full">
-      <div id="district-list-content-mobile" class="flex-1 overflow-auto">
-        <div id="district-list-mobile" class="p-2">
-          @if (isLoading()) {
-          <!-- Skeleton loading state -->
-          <div class="space-y-2">
-            @for (i of [1,2,3,4,5]; track i) {
-            <div
-              class="p-3 bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-lg animate-pulse"
-            >
-              <div class="h-4 bg-surface-300 dark:bg-surface-600 rounded w-3/4 mb-2"></div>
-              <div class="h-3 bg-surface-300 dark:bg-surface-600 rounded w-1/2"></div>
-            </div>
-            }
-          </div>
-          } @else if (districts().length === 0) {
-          <!-- Empty state -->
-          <div class="text-center py-16 text-surface-500">
-            @if (searchQuery()) {
-            <i class="pi pi-search text-4xl mb-4"></i>
-            <p class="text-lg">
-              {{ 'districtList.messages.noResults' | transloco : { query: searchQuery() } }}
-            </p>
-            } @else {
-            <i class="pi pi-map text-4xl mb-4"></i>
-            <p class="text-lg">{{ 'districtList.messages.noDistricts' | transloco }}</p>
-            }
-          </div>
-          } @else {
-          <!-- District list items -->
-          <div class="space-y-2">
-            @for (district of districts(); track district.id) {
-            <div
-              [id]="'district-list-item-' + district.id"
-              class="p-3 bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors cursor-pointer"
-              (click)="onRowClick(district)"
-              [class.bg-primary-50]="selectedDistrict()?.id === district.id"
-              [class.dark:bg-primary-900]="selectedDistrict()?.id === district.id"
-            >
-              <div class="flex items-start gap-3">
-                <!-- District Info -->
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-start justify-between gap-2 mb-1">
-                    <div class="font-semibold text-base">{{ district.name }}</div>
-                    <span class="text-sm text-surface-600 dark:text-surface-400">{{
-                      district.code
-                    }}</span>
-                  </div>
-                  <div class="text-sm text-surface-500 dark:text-surface-500 mb-1">
-                    {{ district.nameEn || district.name }}
-                  </div>
-                  <div class="text-xs text-surface-400 dark:text-surface-600">
-                    {{ district.provinceCode || '-' }}
-
-                  </div>
-                </div>
-
-                <!-- Actions Menu Button -->
-                <p-button
-                  [id]="'district-list-item-menu-' + district.id"
-                  icon="pi pi-ellipsis-v"
-                  [rounded]="true"
-                  [text]="true"
-                  (onClick)="rowMenu.toggle($event); $event.stopPropagation()"
-                  [attr.aria-label]="'districtList.mobileList.itemActions' | transloco"
-                  aria-haspopup="true"
-                  class="flex-shrink-0 min-w-[44px] min-h-[44px]"
-                />
-                <p-menu #rowMenu [model]="getRowMenuItems(district)" [popup]="true" appendTo="body" />
-              </div>
-            </div>
-            }
-          </div>
-          }
-        </div>
-      </div>
-
-      <!-- Mobile Pagination -->
-      <div
-        class="border-t border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 p-4"
-      >
-        <core-pagination
-          [idPrefix]="'district-list-mobile'"
-          [totalRecords]="totalRecords()"
-          [currentPage]="currentPage()"
-          [pageSize]="pageSize()"
-          (pageChange)="onPageChange($event)"
-        />
-      </div>
-    </div>
     }
   </div>
 

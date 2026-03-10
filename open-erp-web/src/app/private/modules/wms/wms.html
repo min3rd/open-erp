@@ -5,25 +5,18 @@
 >
   <!-- Mobile Header Tabs (visible only on mobile) -->
   @if (isMobile()) {
-  <wms-header-tabs></wms-header-tabs>
+    <wms-header-tabs></wms-header-tabs>
   }
 
   <!-- Main Content Area -->
-  <div
-    id="wms-main"
-    class="flex flex-1 h-full overflow-hidden"
-  >
+  <div id="wms-main" class="flex flex-1 h-full overflow-hidden">
     <!-- Desktop Navigation Sidebar (hidden on mobile) -->
     @if (!isMobile()) {
-    <wms-nav></wms-nav>
+      <wms-nav></wms-nav>
     }
 
     <!-- Content Area -->
-    <main
-      id="wms-content"
-      class="flex-1 overflow-auto"
-      role="main"
-    >
+    <main id="wms-content" class="flex-1 overflow-auto" role="main">
       <router-outlet></router-outlet>
     </main>
   </div>

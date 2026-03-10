@@ -23,6 +23,6 @@ export const productDetailResolver: ResolveFn<Product | null> = (route) => {
       // Navigate back to list on error
       router.navigate(['/modules/management/product']);
       return of(null);
-    })
+    }),
   );
 };

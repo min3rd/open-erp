@@ -25,12 +25,17 @@
       <h1 class="text-4xl font-bold text-white mb-4" id="verify-account-title-desktop">
         {{ 'verifyAccount.title' | transloco }}
       </h1>
-      <p class="text-xl text-white/90" id="verify-account-subtitle-desktop">{{ 'verifyAccount.subtitle' | transloco }}</p>
+      <p class="text-xl text-white/90" id="verify-account-subtitle-desktop">
+        {{ 'verifyAccount.subtitle' | transloco }}
+      </p>
     </div>
   </div>
 
   <!-- Right Panel - Verification Form -->
-  <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50" id="verify-account-right-panel">
+  <div
+    class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50"
+    id="verify-account-right-panel"
+  >
     <div class="w-full max-w-md" id="verify-account-form-container">
       <!-- Mobile Logo -->
       <div class="lg:hidden text-center mb-8" id="verify-account-mobile-header">
@@ -45,11 +50,19 @@
         <h1 class="text-3xl font-bold text-gray-900 mb-2" id="verify-account-title-mobile">
           {{ 'verifyAccount.title' | transloco }}
         </h1>
-        <p class="text-lg text-gray-600" id="verify-account-subtitle-mobile">{{ 'verifyAccount.subtitle' | transloco }}</p>
+        <p class="text-lg text-gray-600" id="verify-account-subtitle-mobile">
+          {{ 'verifyAccount.subtitle' | transloco }}
+        </p>
       </div>
 
       <!-- Verification Form -->
-      <form [formGroup]="verifyForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate id="verify-account-form">
+      <form
+        [formGroup]="verifyForm"
+        (ngSubmit)="onSubmit()"
+        class="space-y-6"
+        novalidate
+        id="verify-account-form"
+      >
         <!-- Email Field -->
         <div class="space-y-2">
           <label
@@ -66,7 +79,9 @@
             formControlName="email"
             [placeholder]="'verifyAccount.form.email.placeholder' | transloco"
             class="w-full"
-            [class.ng-invalid]="verifyForm.get('email')?.invalid && verifyForm.get('email')?.touched"
+            [class.ng-invalid]="
+              verifyForm.get('email')?.invalid && verifyForm.get('email')?.touched
+            "
             [class.ng-dirty]="verifyForm.get('email')?.touched"
             [attr.aria-invalid]="
               verifyForm.get('email')?.invalid && verifyForm.get('email')?.touched
@@ -74,9 +89,9 @@
             [attr.aria-describedby]="getFieldError('email') ? 'verify-account-email-error' : null"
           />
           @if (getFieldError('email'); as errorKey) {
-          <small id="verify-account-email-error" class="text-red-600 text-sm" role="alert">
-            {{ errorKey | transloco }}
-          </small>
+            <small id="verify-account-email-error" class="text-red-600 text-sm" role="alert">
+              {{ errorKey | transloco }}
+            </small>
           }
         </div>
 
@@ -111,9 +126,13 @@
             maxlength="6"
           />
           @if (getFieldError('verificationCode'); as errorKey) {
-          <small id="verify-account-verificationCode-error" class="text-red-600 text-sm" role="alert">
-            {{ errorKey | transloco }}
-          </small>
+            <small
+              id="verify-account-verificationCode-error"
+              class="text-red-600 text-sm"
+              role="alert"
+            >
+              {{ errorKey | transloco }}
+            </small>
           }
         </div>
 
@@ -140,7 +159,9 @@
             [attr.aria-busy]="isResending()"
           >
             @if (resendCooldown() > 0) {
-              {{ 'verifyAccount.messages.resendCooldown' | transloco: { seconds: resendCooldown() } }}
+              {{
+                'verifyAccount.messages.resendCooldown' | transloco: { seconds: resendCooldown() }
+              }}
             } @else {
               {{ 'verifyAccount.buttons.resendCode' | transloco }}
             }
@@ -172,4 +193,3 @@
     </div>
   </div>
 </div>
-

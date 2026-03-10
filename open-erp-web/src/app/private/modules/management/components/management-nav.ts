@@ -43,7 +43,8 @@ export class ManagementNav implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Load module navigation
-    this.navigationService.getModuleNavigation$('nav-management')
+    this.navigationService
+      .getModuleNavigation$('nav-management')
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((items) => {
         this.items = items || [];
@@ -52,7 +53,8 @@ export class ManagementNav implements OnInit, OnDestroy {
       });
 
     // Load module navigation data
-    this.navigationService.loadModuleNavigation('nav-management')
+    this.navigationService
+      .loadModuleNavigation('nav-management')
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe();
 
@@ -88,9 +90,9 @@ export class ManagementNav implements OnInit, OnDestroy {
    */
   isItemActive(item: MenuItem): boolean {
     if (!item.routerLink) return false;
-    
+
     const routerLink = this.normalizeRouterLink(item.routerLink);
-    
+
     return this.router.isActive(routerLink, {
       paths: 'subset',
       queryParams: 'ignored',
@@ -116,7 +118,7 @@ export class ManagementNav implements OnInit, OnDestroy {
     // Check if this item is active
     if (item.routerLink) {
       const routerLink = this.normalizeRouterLink(item.routerLink);
-      
+
       // Use router.isActive for accurate matching (handles exact and subset paths)
       const isActive = this.router.isActive(routerLink, {
         paths: 'subset',
@@ -124,7 +126,7 @@ export class ManagementNav implements OnInit, OnDestroy {
         fragment: 'ignored',
         matrixParams: 'ignored',
       });
-      
+
       updatedItem.styleClass = isActive
         ? `${item.styleClass || ''} p-menuitem-link-active`.trim()
         : (item.styleClass || '').replace('p-menuitem-link-active', '').trim();

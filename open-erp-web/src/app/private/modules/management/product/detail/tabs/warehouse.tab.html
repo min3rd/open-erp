@@ -1,42 +1,60 @@
 <div class="p-4 sm:p-6">
-  <h2 class="text-lg sm:text-xl font-semibold mb-4">{{ 'productDetail.tabs.warehouse' | transloco }}</h2>
-  <p class="text-color-secondary text-sm">{{ 'productDetail.warehouse.description' | transloco }}</p>
+  <h2 class="text-lg sm:text-xl font-semibold mb-4">
+    {{ 'productDetail.tabs.warehouse' | transloco }}
+  </h2>
+  <p class="text-color-secondary text-sm">
+    {{ 'productDetail.warehouse.description' | transloco }}
+  </p>
 
   @if (hasWarehouseData()) {
     <div class="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.warehouse.trackingType' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.warehouse.trackingType' | transloco
+        }}</label>
         <div>{{ product()?.trackingType || '-' }}</div>
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.warehouse.hazardLevel' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.warehouse.hazardLevel' | transloco
+        }}</label>
         <div>{{ product()?.hazardLevel || '-' }}</div>
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.warehouse.minStockLevel' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.warehouse.minStockLevel' | transloco
+        }}</label>
         <div>{{ product()?.minStockLevel != null ? product()!.minStockLevel : '-' }}</div>
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.warehouse.maxStockLevel' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.warehouse.maxStockLevel' | transloco
+        }}</label>
         <div>{{ product()?.maxStockLevel != null ? product()!.maxStockLevel : '-' }}</div>
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.warehouse.reorderPoint' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.warehouse.reorderPoint' | transloco
+        }}</label>
         <div>{{ product()?.reorderPoint != null ? product()!.reorderPoint : '-' }}</div>
       </div>
 
       <div class="field">
-        <label class="block text-sm font-medium text-color-secondary mb-1">{{ 'productDetail.warehouse.reorderQuantity' | transloco }}</label>
+        <label class="block text-sm font-medium text-color-secondary mb-1">{{
+          'productDetail.warehouse.reorderQuantity' | transloco
+        }}</label>
         <div>{{ product()?.reorderQuantity != null ? product()!.reorderQuantity : '-' }}</div>
       </div>
     </div>
   } @else {
     <div class="mt-4 sm:mt-6">
-      <p class="text-sm text-color-secondary">{{ 'productDetail.warehouse.notAvailable' | transloco }}</p>
+      <p class="text-sm text-color-secondary">
+        {{ 'productDetail.warehouse.notAvailable' | transloco }}
+      </p>
     </div>
   }
 </div>

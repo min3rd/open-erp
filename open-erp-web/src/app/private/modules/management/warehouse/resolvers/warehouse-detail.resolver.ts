@@ -6,7 +6,7 @@ import { WarehouseService } from '../../../../../../core/services/warehouse/ware
 import type { Warehouse } from '../../../../../../core/services/warehouse/warehouse.service';
 
 export const warehouseDetailResolver: ResolveFn<Warehouse | null> = (
-  route: ActivatedRouteSnapshot
+  route: ActivatedRouteSnapshot,
 ): Observable<Warehouse | null> => {
   const service = inject(WarehouseService);
   const id = route.paramMap.get('id');
@@ -19,6 +19,6 @@ export const warehouseDetailResolver: ResolveFn<Warehouse | null> = (
     catchError((error) => {
       console.error('Failed to load warehouse:', error);
       return of(null);
-    })
+    }),
   );
 };

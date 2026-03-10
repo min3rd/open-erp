@@ -331,7 +331,13 @@ export class OrganizationService {
     limit: number = 10,
     params?: MembersQueryParams,
     version: string = 'v1',
-  ): Observable<{ data: OrganizationMember[]; total: number; page: number; limit: number; items?: OrganizationMember[] }> {
+  ): Observable<{
+    data: OrganizationMember[];
+    total: number;
+    page: number;
+    limit: number;
+    items?: OrganizationMember[];
+  }> {
     const httpParams: Record<string, string> = {
       page: (params?.page ?? page).toString(),
       size: (params?.size ?? limit).toString(),
@@ -443,7 +449,13 @@ export class OrganizationService {
   updatePosition(
     orgId: string,
     posId: string,
-    dto: Partial<{ name: string; code: string; description: string; level: number; status: string }>,
+    dto: Partial<{
+      name: string;
+      code: string;
+      description: string;
+      level: number;
+      status: string;
+    }>,
     version: string = 'v1',
   ): Observable<OrgPosition> {
     return this.httpClient

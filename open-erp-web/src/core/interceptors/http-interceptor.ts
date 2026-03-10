@@ -10,6 +10,6 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((e) => {
       throw e;
     }),
-    finalize(() => loadingService.remove(req.url))
+    finalize(() => loadingService.remove(req.url)),
   );
 };

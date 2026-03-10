@@ -12,9 +12,11 @@ const mockTranslocoService = {
   translate: (key: string, params?: any) => {
     const translations: Record<string, string> = {
       'navigationManagement.editor.form.id.errors.required': 'ID is required',
-      'navigationManagement.editor.form.id.errors.pattern': 'ID must contain only lowercase letters, numbers, hyphens, and underscores',
+      'navigationManagement.editor.form.id.errors.pattern':
+        'ID must contain only lowercase letters, numbers, hyphens, and underscores',
       'navigationManagement.editor.form.id.errors.maxlength': 'ID must not exceed 128 characters',
-      'navigationManagement.editor.form.id.errors.duplicate': 'This ID already exists. Please choose a different ID',
+      'navigationManagement.editor.form.id.errors.duplicate':
+        'This ID already exists. Please choose a different ID',
       'navigationManagement.editor.form.label.errors.required': 'Label is required',
     };
     if (params && key.includes('{{')) {
@@ -31,12 +33,7 @@ describe('NavigationEditorComponent - ID Field', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        NavigationEditorComponent,
-        ReactiveFormsModule,
-        FormsModule,
-        TranslocoModule,
-      ],
+      imports: [NavigationEditorComponent, ReactiveFormsModule, FormsModule, TranslocoModule],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -271,7 +268,9 @@ describe('NavigationEditorComponent - ID Field', () => {
       const req = httpMock.expectOne('/api/v1/navigations/existing-id');
       req.flush({ id: 'existing-id' }); // ID exists
 
-      expect(component['idUniquenessError']()).toBe('This ID already exists. Please choose a different ID');
+      expect(component['idUniquenessError']()).toBe(
+        'This ID already exists. Please choose a different ID',
+      );
     });
 
     it('should clear uniqueness error if ID does not exist (status 404)', () => {
@@ -299,12 +298,7 @@ describe('NavigationEditorComponent - ID Field', () => {
       // Simulate editing mode with input signal
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
-        imports: [
-          NavigationEditorComponent,
-          ReactiveFormsModule,
-          FormsModule,
-          TranslocoModule,
-        ],
+        imports: [NavigationEditorComponent, ReactiveFormsModule, FormsModule, TranslocoModule],
         providers: [
           provideHttpClient(),
           provideHttpClientTesting(),
@@ -314,7 +308,7 @@ describe('NavigationEditorComponent - ID Field', () => {
 
       fixture = TestBed.createComponent(NavigationEditorComponent);
       component = fixture.componentInstance;
-      
+
       // Set input values before initialization
       fixture.componentRef.setInput('item', {
         id: 'existing-id',
@@ -323,7 +317,7 @@ describe('NavigationEditorComponent - ID Field', () => {
         order: 0,
       });
       fixture.componentRef.setInput('mode', 'edit');
-      
+
       fixture.detectChanges();
       httpMock = TestBed.inject(HttpTestingController);
 
@@ -360,7 +354,9 @@ describe('NavigationEditorComponent - ID Field', () => {
       idControl?.markAsTouched();
 
       const errorMsg = component['getErrorMessage']('id');
-      expect(errorMsg).toBe('ID must contain only lowercase letters, numbers, hyphens, and underscores');
+      expect(errorMsg).toBe(
+        'ID must contain only lowercase letters, numbers, hyphens, and underscores',
+      );
     });
 
     it('should return correct error message for maxlength error', () => {

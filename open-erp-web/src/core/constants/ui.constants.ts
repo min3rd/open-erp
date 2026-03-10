@@ -24,23 +24,23 @@ export const PRODUCT_UNIT_OPTIONS = [
   { label: 'Gram (g)', value: 'g' },
   { label: 'Ton', value: 'ton' },
   { label: 'Pound (lb)', value: 'lb' },
-  
+
   // Volume units
   { label: 'Liter', value: 'liter' },
   { label: 'Milliliter (ml)', value: 'ml' },
   { label: 'Cubic Meter (m³)', value: 'm3' },
   { label: 'Gallon', value: 'gallon' },
-  
+
   // Length units
   { label: 'Meter (m)', value: 'meter' },
   { label: 'Centimeter (cm)', value: 'cm' },
   { label: 'Millimeter (mm)', value: 'mm' },
   { label: 'Inch', value: 'inch' },
-  
+
   // Area units
   { label: 'Square Meter (m²)', value: 'm2' },
   { label: 'Square Foot (sqf)', value: 'sqf' },
-  
+
   // Quantity units
   { label: 'Piece', value: 'piece' },
   { label: 'Box', value: 'box' },
@@ -58,4 +58,3 @@ export const PRODUCT_UNIT_OPTIONS = [
  * Moved from core/constant.ts to keep API URIs and UI constants separate.
  */
 export const PAGE_SIZE_OPTIONS = [100, 500, 1000, 10000];
-

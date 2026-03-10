@@ -42,7 +42,8 @@ export class StockNav implements OnInit, OnDestroy {
   items: MenuItem[] = [];
 
   ngOnInit(): void {
-    this.navigationService.getModuleNavigation$('nav-stock')
+    this.navigationService
+      .getModuleNavigation$('nav-stock')
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((items) => {
         this.items = items || [];
@@ -50,7 +51,8 @@ export class StockNav implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       });
 
-    this.navigationService.loadModuleNavigation('nav-stock')
+    this.navigationService
+      .loadModuleNavigation('nav-stock')
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe();
 

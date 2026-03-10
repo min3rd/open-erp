@@ -5,7 +5,7 @@
   [style]="{ width: isMobile() ? '100vw' : '420px' }"
   [modal]="isMobile()"
   [id]="'notification-drawer'"
-  [ariaLabel]="('notification.drawerTitle' | transloco)"
+  [ariaLabel]="'notification.drawerTitle' | transloco"
 >
   <!-- Header actions -->
   <ng-template #header>
@@ -103,11 +103,7 @@
         <!-- Avatar / Icon -->
         <div class="flex-shrink-0 mt-0.5">
           @if (notification.sender?.avatarUrl) {
-            <p-avatar
-              [image]="notification.sender!.avatarUrl!"
-              size="normal"
-              shape="circle"
-            />
+            <p-avatar [image]="notification.sender!.avatarUrl!" size="normal" shape="circle" />
           } @else if (notification.sender?.name) {
             <p-avatar
               [label]="notification.sender!.name.charAt(0).toUpperCase()"
@@ -135,7 +131,7 @@
               {{ notification.title | transloco: notification.metadata?.['titleParams'] }}
             </span>
             <span class="text-xs text-surface-400 whitespace-nowrap flex-shrink-0">
-              {{ notification.createdAt | userDate:'relative' }}
+              {{ notification.createdAt | userDate: 'relative' }}
             </span>
           </div>
           @if (notification.message) {

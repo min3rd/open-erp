@@ -5,27 +5,19 @@
 >
   <!-- Mobile Header Tabs (visible only on mobile) -->
   @if (isMobile()) {
-  <management-header-tabs></management-header-tabs>
+    <management-header-tabs></management-header-tabs>
   }
 
   <!-- Main Content Area -->
-  <div
-    id="management-main"
-    class="flex flex-1 h-full overflow-hidden"
-  >
+  <div id="management-main" class="flex flex-1 h-full overflow-hidden">
     <!-- Desktop Navigation Sidebar (hidden on mobile) -->
     @if (!isMobile()) {
-    <management-nav></management-nav>
+      <management-nav></management-nav>
     }
 
     <!-- Content Area -->
-    <main
-      id="management-content"
-      class="flex-1 overflow-auto"
-      role="main"
-    >
+    <main id="management-content" class="flex-1 overflow-auto" role="main">
       <router-outlet></router-outlet>
     </main>
   </div>
 </div>
-

@@ -132,7 +132,7 @@ export class ProductForm implements OnInit {
   protected typeOptions = signal<SelectOption[]>([]);
   protected categoryOptions = signal<SelectOption[]>([]);
   protected organizationOptions = signal<SelectOption[]>([]);
-  
+
   // Upload-related state
   protected thumbnailFile: File | null = null;
   protected mediaFiles = signal<File[]>([]);
@@ -142,10 +142,10 @@ export class ProductForm implements OnInit {
   ngOnInit(): void {
     // Load user organizations
     const userOrgs = this.organizationContext.userOrganizations();
-    const orgOptions = userOrgs.map(org => ({
+    const orgOptions = userOrgs.map((org) => ({
       label: org.name,
       value: org.id,
-      code: org.code
+      code: org.code,
     }));
     this.organizationOptions.set(orgOptions);
 
@@ -162,7 +162,7 @@ export class ProductForm implements OnInit {
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(200)]],
       slug: ['', [Validators.maxLength(128)]],
       status: [ProductStatus.DRAFT, [Validators.required]],
-      
+
       // General info tab
       internationalName: ['', [Validators.maxLength(200)]],
       description: ['', [Validators.maxLength(2000)]],
@@ -171,27 +171,28 @@ export class ProductForm implements OnInit {
       categoryName: [''],
       barcode: ['', [Validators.maxLength(50)]],
       unit: ['piece', [Validators.required]], // Default to 'piece'
-      
+
       // Dimensions tab
       weight: [null],
       length: [null],
       width: [null],
       height: [null],
-      
+
       // Storage conditions tab
       storageConditions: ['', [Validators.maxLength(500)]],
       expiryDays: [null],
-      
+
       // Warehouse settings tab
       warehouseSettings: [{}],
-      
+
       // Custom fields tab
       metadata: [{}],
     });
 
     // Auto-generate slug from name for new products
-    this.form.get('name')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.form
+      .get('name')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         if (value && !this.product()) {
           // Only auto-generate for new products
@@ -201,11 +202,12 @@ export class ProductForm implements OnInit {
       });
 
     // Update categoryName when categoryId changes
-    this.form.get('categoryId')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.form
+      .get('categoryId')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((categoryId) => {
         if (categoryId) {
-          const category = this.categoryOptions().find(c => c.value === categoryId);
+          const category = this.categoryOptions().find((c) => c.value === categoryId);
           this.form.get('categoryName')?.setValue(category?.name || '', { emitEvent: false });
         } else {
           this.form.get('categoryName')?.setValue('', { emitEvent: false });
@@ -213,8 +215,9 @@ export class ProductForm implements OnInit {
       });
 
     // Auto-populate organizationId when scope changes
-    this.form.get('scope')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.form
+      .get('scope')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((scope) => {
         if (scope === ProductScope.ORGANIZATION) {
           // Auto-populate with current organization
@@ -266,12 +269,15 @@ export class ProductForm implements OnInit {
   private loadProductCategories(): void {
     this.productCategoryService.getProductCategories({ limit: 1000, isActive: true }).subscribe({
       next: (result) => {
-        const options: SelectOption[] = result.items.map((cat) => ({
-          label: cat.name,
-          value: cat.id,
-          code: cat.code,
-          name: cat.name,
-        } as any));
+        const options: SelectOption[] = result.items.map(
+          (cat) =>
+            ({
+              label: cat.name,
+              value: cat.id,
+              code: cat.code,
+              name: cat.name,
+            }) as any,
+        );
         this.categoryOptions.set(options);
       },
       error: (error) => {
@@ -380,7 +386,7 @@ export class ProductForm implements OnInit {
     const randomName = `Product ${Math.floor(Math.random() * 1000)}`;
     const units = ['piece', 'kg', 'box', 'liter', 'meter'];
     const randomUnit = units[Math.floor(Math.random() * units.length)];
-    
+
     this.form.patchValue({
       sku: randomSku,
       name: randomName,
@@ -442,7 +448,7 @@ export class ProductForm implements OnInit {
         const thumbnailUrl = await this.uploadFile(
           this.thumbnailFile,
           'thumbnail',
-          formValue.organizationId
+          formValue.organizationId,
         );
         thumbnailDto = {
           url: thumbnailUrl.publicUrl,
@@ -459,13 +465,12 @@ export class ProductForm implements OnInit {
       const mediaFiles = this.mediaFiles();
       for (let i = 0; i < mediaFiles.length; i++) {
         const file = mediaFiles[i];
-        const mediaUrl = await this.uploadFile(
-          file,
-          'media',
-          formValue.organizationId
-        );
-        const fileType = file.type.startsWith('image/') ? 'image' : 
-                        file.type.startsWith('video/') ? 'video' : 'document';
+        const mediaUrl = await this.uploadFile(file, 'media', formValue.organizationId);
+        const fileType = file.type.startsWith('image/')
+          ? 'image'
+          : file.type.startsWith('video/')
+            ? 'video'
+            : 'document';
         mediaDto.push({
           type: fileType,
           url: mediaUrl.publicUrl,
@@ -482,7 +487,9 @@ export class ProductForm implements OnInit {
       // Build category object if categoryId is selected
       let category: any = undefined;
       if (formValue.categoryId && formValue.categoryName) {
-        const selectedCategory = this.categoryOptions().find(c => c.value === formValue.categoryId);
+        const selectedCategory = this.categoryOptions().find(
+          (c) => c.value === formValue.categoryId,
+        );
         category = {
           id: formValue.categoryId,
           name: formValue.categoryName,
@@ -535,7 +542,8 @@ export class ProductForm implements OnInit {
       this.messageService.add({
         severity: 'error',
         summary: this.translocoService.translate('productForm.messages.error'),
-        detail: error?.message || this.translocoService.translate('productForm.messages.uploadFailed'),
+        detail:
+          error?.message || this.translocoService.translate('productForm.messages.uploadFailed'),
       });
       this.isLoading.set(false);
     }
@@ -547,7 +555,7 @@ export class ProductForm implements OnInit {
   private async uploadFile(
     file: File,
     type: 'thumbnail' | 'media',
-    organizationId?: string
+    organizationId?: string,
   ): Promise<{ publicUrl: string; objectKey: string; bucket: string }> {
     // Get presigned URL from backend
     const presignData = await this.productService
@@ -588,10 +596,16 @@ export class ProductForm implements OnInit {
     }
 
     const validTypes = [
-      'image/jpeg', 'image/jpg', 'image/png', 'image/webp',
-      'video/mp4', 'video/webm', 'video/ogg',
-      'application/pdf', 'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'video/mp4',
+      'video/webm',
+      'video/ogg',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     ];
 
     const maxSize = 50 * 1024 * 1024; // 50MB per file
@@ -625,11 +639,13 @@ export class ProductForm implements OnInit {
 
     // Add valid files to the list
     if (newFiles.length > 0) {
-      this.mediaFiles.update(files => [...files, ...newFiles]);
+      this.mediaFiles.update((files) => [...files, ...newFiles]);
       this.messageService.add({
         severity: 'success',
         summary: this.translocoService.translate('productForm.messages.success'),
-        detail: this.translocoService.translate('productForm.messages.mediaAdded', { count: newFiles.length }),
+        detail: this.translocoService.translate('productForm.messages.mediaAdded', {
+          count: newFiles.length,
+        }),
       });
     }
 
@@ -641,7 +657,7 @@ export class ProductForm implements OnInit {
    * Remove media file from list
    */
   protected onRemoveMedia(index: number): void {
-    this.mediaFiles.update(files => files.filter((_, i) => i !== index));
+    this.mediaFiles.update((files) => files.filter((_, i) => i !== index));
   }
 
   /**

@@ -65,7 +65,7 @@ export class AdministrativeUnitService {
           limit: params.limit || 100,
           totalPages: 0,
         });
-      })
+      }),
     );
   }
 
@@ -77,8 +77,8 @@ export class AdministrativeUnitService {
    * @param viewMode The current view mode (2-level or 3-level)
    */
   loadChildren(
-    node: AdministrativeUnitTreeNode, 
-    viewMode: '2-level' | '3-level' = '3-level'
+    node: AdministrativeUnitTreeNode,
+    viewMode: '2-level' | '3-level' = '3-level',
   ): Observable<AdministrativeUnitTreeNode[]> {
     const unit = node.data;
 
@@ -105,9 +105,7 @@ export class AdministrativeUnitService {
    * Get districts for a province
    */
   private getDistrictsByProvince(provinceCode: string): Observable<AdministrativeUnitTreeNode[]> {
-    const params = new HttpParams()
-      .set('provinceCode', provinceCode)
-      .set('limit', '1000'); // Get all districts for this province
+    const params = new HttpParams().set('provinceCode', provinceCode).set('limit', '1000'); // Get all districts for this province
 
     return this.http.get<any>(`${this.apiUrl}/districts`, { params }).pipe(
       map((response) => {
@@ -122,7 +120,7 @@ export class AdministrativeUnitService {
       catchError((error) => {
         console.error('Error fetching districts:', error);
         return of([]);
-      })
+      }),
     );
   }
 
@@ -130,9 +128,7 @@ export class AdministrativeUnitService {
    * Get wards for a district
    */
   private getWardsByDistrict(districtCode: string): Observable<AdministrativeUnitTreeNode[]> {
-    const params = new HttpParams()
-      .set('districtCode', districtCode)
-      .set('limit', '1000'); // Get all wards for this district
+    const params = new HttpParams().set('districtCode', districtCode).set('limit', '1000'); // Get all wards for this district
 
     return this.http.get<any>(`${this.apiUrl}/wards`, { params }).pipe(
       map((response) => {
@@ -147,7 +143,7 @@ export class AdministrativeUnitService {
       catchError((error) => {
         console.error('Error fetching wards:', error);
         return of([]);
-      })
+      }),
     );
   }
 
@@ -155,9 +151,7 @@ export class AdministrativeUnitService {
    * Get wards for a province (for 2-level view)
    */
   private getWardsByProvince(provinceCode: string): Observable<AdministrativeUnitTreeNode[]> {
-    const params = new HttpParams()
-      .set('provinceCode', provinceCode)
-      .set('limit', '10000'); // Get all wards for this province
+    const params = new HttpParams().set('provinceCode', provinceCode).set('limit', '10000'); // Get all wards for this province
 
     return this.http.get<any>(`${this.apiUrl}/wards`, { params }).pipe(
       map((response) => {
@@ -172,7 +166,7 @@ export class AdministrativeUnitService {
       catchError((error) => {
         console.error('Error fetching wards:', error);
         return of([]);
-      })
+      }),
     );
   }
 
@@ -199,7 +193,7 @@ export class AdministrativeUnitService {
       map((response) => {
         const unwrapped = unwrap<any>(response);
         const item = unwrapped.item;
-        
+
         switch (type) {
           case AdminUnitType.PROVINCE:
             return provinceToAdminUnit(item as Province);
@@ -210,7 +204,7 @@ export class AdministrativeUnitService {
           default:
             throw new Error(`Unknown admin unit type: ${type}`);
         }
-      })
+      }),
     );
   }
 
@@ -248,14 +242,18 @@ export class AdministrativeUnitService {
           default:
             throw new Error(`Unknown admin unit type: ${unit.type}`);
         }
-      })
+      }),
     );
   }
 
   /**
    * Update an administrative unit
    */
-  updateUnit(code: string, type: AdminUnitType, unit: Partial<AdministrativeUnit>): Observable<AdministrativeUnit> {
+  updateUnit(
+    code: string,
+    type: AdminUnitType,
+    unit: Partial<AdministrativeUnit>,
+  ): Observable<AdministrativeUnit> {
     let endpoint = '';
     switch (type) {
       case AdminUnitType.PROVINCE:
@@ -286,7 +284,7 @@ export class AdministrativeUnitService {
           default:
             throw new Error(`Unknown admin unit type: ${type}`);
         }
-      })
+      }),
     );
   }
 
@@ -321,7 +319,7 @@ export class AdministrativeUnitService {
       map((response) => {
         const unwrapped = unwrap<any>(response);
         return unwrapped.items as Province[];
-      })
+      }),
     );
   }
 
@@ -329,15 +327,13 @@ export class AdministrativeUnitService {
    * Get all districts for a province (for dropdown)
    */
   getDistrictsByProvinceCode(provinceCode: string): Observable<District[]> {
-    const params = new HttpParams()
-      .set('provinceCode', provinceCode)
-      .set('limit', '1000');
+    const params = new HttpParams().set('provinceCode', provinceCode).set('limit', '1000');
 
     return this.http.get<any>(`${this.apiUrl}/districts`, { params }).pipe(
       map((response) => {
         const unwrapped = unwrap<any>(response);
         return unwrapped.items as District[];
-      })
+      }),
     );
   }
 }

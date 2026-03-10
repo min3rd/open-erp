@@ -47,8 +47,7 @@ export const routes: Routes = [
           },
           {
             path: 'activity',
-            loadComponent: () =>
-              import('./detail/tabs/activity/activity').then((m) => m.Activity),
+            loadComponent: () => import('./detail/tabs/activity/activity').then((m) => m.Activity),
           },
         ],
       },

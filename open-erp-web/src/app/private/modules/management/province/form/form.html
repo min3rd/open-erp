@@ -18,101 +18,101 @@
 
   <div id="province-form-content" class="flex flex-col h-full">
     @if (isLoading()) {
-    <!-- Loading State -->
-    <div class="flex items-center justify-center py-16">
-      <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
-    </div>
+      <!-- Loading State -->
+      <div class="flex items-center justify-center py-16">
+        <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+      </div>
     } @else {
-    <form [formGroup]="provinceForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
-      <!-- Code Field -->
-      <div class="flex flex-col gap-2">
-        <label for="province-form-code" class="font-medium text-sm">
-          {{ 'provinceForm.fields.code.label' | transloco }}
-          <span class="text-red-500">*</span>
-        </label>
-        <input
-          id="province-form-code"
-          type="text"
-          pInputText
-          formControlName="code"
-          [placeholder]="'provinceForm.fields.code.placeholder' | transloco"
-          [attr.aria-label]="'provinceForm.fields.code.label' | transloco"
-          [class.border-red-500]="
-            provinceForm.get('code')?.touched && provinceForm.get('code')?.invalid
-          "
-        />
-        @if (getErrorMessage('code')) {
-        <small id="province-form-code-error" class="text-red-500">
-          {{ getErrorMessage('code') }}
-        </small>
-        }
-      </div>
-
-      <!-- Name Field -->
-      <div class="flex flex-col gap-2">
-        <label for="province-form-name" class="font-medium text-sm">
-          {{ 'provinceForm.fields.name.label' | transloco }}
-          <span class="text-red-500">*</span>
-        </label>
-        <input
-          id="province-form-name"
-          type="text"
-          pInputText
-          formControlName="name"
-          [placeholder]="'provinceForm.fields.name.placeholder' | transloco"
-          [attr.aria-label]="'provinceForm.fields.name.label' | transloco"
-          [class.border-red-500]="
-            provinceForm.get('name')?.touched && provinceForm.get('name')?.invalid
-          "
-        />
-        @if (getErrorMessage('name')) {
-        <small id="province-form-name-error" class="text-red-500">
-          {{ getErrorMessage('name') }}
-        </small>
-        }
-      </div>
-
-      <!-- Region Field -->
-      <div class="flex flex-col gap-2">
-        <label for="province-form-region" class="font-medium text-sm">
-          {{ 'provinceForm.fields.region.label' | transloco }}
-          <span class="text-red-500">*</span>
-        </label>
-        <input
-          id="province-form-region"
-          type="text"
-          pInputText
-          formControlName="region"
-          [placeholder]="'provinceForm.fields.region.placeholder' | transloco"
-          [attr.aria-label]="'provinceForm.fields.region.label' | transloco"
-          [class.border-red-500]="
-            provinceForm.get('region')?.touched && provinceForm.get('region')?.invalid
-          "
-        />
-        @if (getErrorMessage('region')) {
-        <small id="province-form-region-error" class="text-red-500">
-          {{ getErrorMessage('region') }}
-        </small>
-        }
-      </div>
-
-      <!-- Geometry Editor -->
-      <div class="flex flex-col gap-2">
-        <h3 class="font-medium text-sm">{{ 'provinceForm.geometry.title' | transloco }}</h3>
-        <core-geo-editor
-          [geometry]="currentGeometry()"
-          (geometryChange)="onGeometryChange($event)"
-        />
-      </div>
-
-      <!-- Map Preview -->
-      <div class="flex flex-col gap-2">
-        <h3 class="font-medium text-sm">{{ 'provinceForm.map.title' | transloco }}</h3>
-        <div class="h-64 border border-surface-200 dark:border-surface-700 rounded">
-          <core-map [geometry]="currentGeometry()" />
+      <form [formGroup]="provinceForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+        <!-- Code Field -->
+        <div class="flex flex-col gap-2">
+          <label for="province-form-code" class="font-medium text-sm">
+            {{ 'provinceForm.fields.code.label' | transloco }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="province-form-code"
+            type="text"
+            pInputText
+            formControlName="code"
+            [placeholder]="'provinceForm.fields.code.placeholder' | transloco"
+            [attr.aria-label]="'provinceForm.fields.code.label' | transloco"
+            [class.border-red-500]="
+              provinceForm.get('code')?.touched && provinceForm.get('code')?.invalid
+            "
+          />
+          @if (getErrorMessage('code')) {
+            <small id="province-form-code-error" class="text-red-500">
+              {{ getErrorMessage('code') }}
+            </small>
+          }
         </div>
-      </div>
-    </form>
+
+        <!-- Name Field -->
+        <div class="flex flex-col gap-2">
+          <label for="province-form-name" class="font-medium text-sm">
+            {{ 'provinceForm.fields.name.label' | transloco }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="province-form-name"
+            type="text"
+            pInputText
+            formControlName="name"
+            [placeholder]="'provinceForm.fields.name.placeholder' | transloco"
+            [attr.aria-label]="'provinceForm.fields.name.label' | transloco"
+            [class.border-red-500]="
+              provinceForm.get('name')?.touched && provinceForm.get('name')?.invalid
+            "
+          />
+          @if (getErrorMessage('name')) {
+            <small id="province-form-name-error" class="text-red-500">
+              {{ getErrorMessage('name') }}
+            </small>
+          }
+        </div>
+
+        <!-- Region Field -->
+        <div class="flex flex-col gap-2">
+          <label for="province-form-region" class="font-medium text-sm">
+            {{ 'provinceForm.fields.region.label' | transloco }}
+            <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="province-form-region"
+            type="text"
+            pInputText
+            formControlName="region"
+            [placeholder]="'provinceForm.fields.region.placeholder' | transloco"
+            [attr.aria-label]="'provinceForm.fields.region.label' | transloco"
+            [class.border-red-500]="
+              provinceForm.get('region')?.touched && provinceForm.get('region')?.invalid
+            "
+          />
+          @if (getErrorMessage('region')) {
+            <small id="province-form-region-error" class="text-red-500">
+              {{ getErrorMessage('region') }}
+            </small>
+          }
+        </div>
+
+        <!-- Geometry Editor -->
+        <div class="flex flex-col gap-2">
+          <h3 class="font-medium text-sm">{{ 'provinceForm.geometry.title' | transloco }}</h3>
+          <core-geo-editor
+            [geometry]="currentGeometry()"
+            (geometryChange)="onGeometryChange($event)"
+          />
+        </div>
+
+        <!-- Map Preview -->
+        <div class="flex flex-col gap-2">
+          <h3 class="font-medium text-sm">{{ 'provinceForm.map.title' | transloco }}</h3>
+          <div class="h-64 border border-surface-200 dark:border-surface-700 rounded">
+            <core-map [geometry]="currentGeometry()" />
+          </div>
+        </div>
+      </form>
     }
   </div>
 

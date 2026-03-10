@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, ContentChild, input, TemplateRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ContentChild,
+  input,
+  TemplateRef,
+} from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 
 @Component({

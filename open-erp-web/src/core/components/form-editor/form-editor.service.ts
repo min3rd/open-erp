@@ -124,7 +124,7 @@ export class FormEditorService {
    */
   private findComponentById(
     schema: FormSchema | LayoutComponentConfig,
-    id: string
+    id: string,
   ): FormComponent | null {
     const components = 'components' in schema ? schema.components : schema.children || [];
 
@@ -176,11 +176,7 @@ export class FormEditorService {
   /**
    * Add component to schema
    */
-  addComponent(
-    component: Partial<FormComponent>,
-    parentId?: string,
-    position?: number
-  ): string {
+  addComponent(component: Partial<FormComponent>, parentId?: string, position?: number): string {
     const newSchema = this.cloneSchema(this.schema());
     const id = this.generateComponentId(component.type as ComponentType);
 
@@ -215,7 +211,7 @@ export class FormEditorService {
         componentId: id,
         description: `Added ${component.type} component`,
       },
-      newSchema
+      newSchema,
     );
 
     return id;
@@ -234,7 +230,7 @@ export class FormEditorService {
         componentId,
         description: `Removed component ${componentId}`,
       },
-      newSchema
+      newSchema,
     );
 
     // Clear selection if removed component was selected
@@ -248,7 +244,7 @@ export class FormEditorService {
    */
   private removeComponentFromSchema(
     schema: FormSchema | LayoutComponentConfig,
-    componentId: string
+    componentId: string,
   ): boolean {
     const components = 'components' in schema ? schema.components : schema.children || [];
 
@@ -306,7 +302,7 @@ export class FormEditorService {
           componentId,
           description: `Updated component ${componentId}`,
         },
-        newSchema
+        newSchema,
       );
     }
   }
@@ -314,11 +310,7 @@ export class FormEditorService {
   /**
    * Move component to new position
    */
-  moveComponent(
-    componentId: string,
-    newParentId: string | null,
-    newPosition: number
-  ): void {
+  moveComponent(componentId: string, newParentId: string | null, newPosition: number): void {
     const newSchema = this.cloneSchema(this.schema());
 
     // Find and remove from current position
@@ -345,7 +337,7 @@ export class FormEditorService {
         componentId,
         description: `Moved component ${componentId}`,
       },
-      newSchema
+      newSchema,
     );
   }
 
@@ -419,7 +411,7 @@ export class FormEditorService {
         type: 'init',
         description: 'Loaded schema',
       },
-      schema
+      schema,
     );
   }
 

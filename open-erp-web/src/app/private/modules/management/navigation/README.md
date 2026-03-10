@@ -5,6 +5,7 @@ This module provides a comprehensive interface for managing application navigati
 ## Features
 
 ### Core Functionality
+
 - **Two-Pane Layout**: Split view showing global navigation on the left and module navigation on the right
 - **Tree View**: Hierarchical display of navigation items with expand/collapse functionality
 - **CRUD Operations**: Full Create, Read, Update, Delete support for navigation items
@@ -12,7 +13,9 @@ This module provides a comprehensive interface for managing application navigati
 - **Responsive Design**: Desktop two-pane layout, mobile single-column with tab switcher
 
 ### Navigation Item Properties
+
 Each navigation item supports the following properties:
+
 - **label** (required): Display text for the menu item
 - **icon**: PrimeIcons class name (e.g., `pi pi-home`)
 - **subtitle**: Optional secondary text
@@ -37,6 +40,7 @@ Each navigation item supports the following properties:
 This module integrates with the navigation controller endpoints from the `open-erp-backend` config service:
 
 ### Base URL
+
 ```
 {API_URI_CONFIG}/v1/navigations
 ```
@@ -44,63 +48,81 @@ This module integrates with the navigation controller endpoints from the `open-e
 ### Endpoints
 
 #### Get Global Navigation
+
 ```
 GET /navigations/global?includeHidden=true
 ```
+
 Returns all global navigation items.
 
 #### Get Module Navigation
+
 ```
 GET /navigations/module/:moduleKey?includeHidden=true
 ```
+
 Returns navigation items for a specific module.
 
 #### Get Single Navigation Item
+
 ```
 GET /navigations/:id
 ```
+
 Returns details for a specific navigation item by ID.
 
 #### Create Navigation Item
+
 ```
 POST /navigations
 Body: CreateNavigationItemDto
 ```
+
 Creates a new navigation item.
 
 #### Update Navigation Item
+
 ```
 PATCH /navigations/:id
 Body: UpdateNavigationItemDto
 ```
+
 Updates an existing navigation item.
 
 #### Delete Navigation Item
+
 ```
 DELETE /navigations/:id
 ```
+
 Deletes a navigation item and all its children.
 
 #### Reorder Navigation Items
+
 ```
 POST /navigations/reorder
 Body: { items: ReorderNavigationItemDto[] }
 ```
+
 Reorders multiple navigation items.
 
 #### Move Navigation Item
+
 ```
 POST /navigations/move
 Body: MoveNavigationItemDto
 ```
+
 Moves a navigation item to a new parent or scope.
 
 #### Preview Navigation with Permissions
+
 ```
 POST /navigations/preview/global
 POST /navigations/preview/module/:moduleKey
 Body: { permissions: string[] }
 ```
+
 Previews navigation filtered by specific permissions.
 
 ## Architecture
@@ -108,13 +130,17 @@ Previews navigation filtered by specific permissions.
 ### Components
 
 #### Navigation Component (`navigation.ts`)
+
 Main component that orchestrates the navigation management interface.
+
 - Manages state for global and module navigation
 - Handles tree node selection and editing
 - Provides mobile/desktop responsive layouts
 
 #### Navigation Editor Component (`navigation-editor.component.ts`)
+
 Form component for creating and editing navigation items.
+
 - Reactive form with validation
 - Support for all navigation item properties
 - Permission management (include/exclude lists)
@@ -122,7 +148,9 @@ Form component for creating and editing navigation items.
 ### Services
 
 #### NavigationManagementService (`navigation-management.service.ts`)
+
 Handles all API communication and caching.
+
 - Fetches global and module navigation
 - Performs CRUD operations
 - Manages client-side cache with BehaviorSubjects
@@ -131,6 +159,7 @@ Handles all API communication and caching.
 ### DTOs
 
 All data transfer objects are defined in `dto/navigation-item.dto.ts`:
+
 - `NavigationItemDto`: Full navigation item structure
 - `CreateNavigationItemDto`: Data for creating items
 - `UpdateNavigationItemDto`: Data for updating items
@@ -141,9 +170,11 @@ All data transfer objects are defined in `dto/navigation-item.dto.ts`:
 ## Usage
 
 ### Accessing the Module
+
 Navigate to `/management/navigation` in the application.
 
 ### Creating a Navigation Item
+
 1. Click the **+** button in the toolbar
 2. Fill in the required fields (label, scope)
 3. If scope is "module", select the module key
@@ -151,28 +182,33 @@ Navigate to `/management/navigation` in the application.
 5. Click **Save**
 
 ### Editing a Navigation Item
+
 1. Select an item in the tree view
 2. Click the **Edit** button (pencil icon) in the toolbar
 3. Modify the desired fields
 4. Click **Save**
 
 ### Deleting a Navigation Item
+
 1. Select an item in the tree view
 2. Click the **Delete** button (trash icon) in the toolbar
 3. Confirm the deletion
 4. Note: All child items will also be deleted
 
 ### Organizing Navigation
+
 - **Desktop**: Drag and drop items to reorder or move between parents
 - **Mobile**: Use the editor to change parent or order values
 
 ### Switching Between Global and Module
+
 - **Desktop**: Both panes are visible; select a module item in global navigation to load its module navigation
 - **Mobile**: Use the tab selector to switch between global and module views
 
 ## Internationalization
 
 All user-facing text is managed through Transloco. Translation keys are defined in:
+
 - `public/i18n/en.json` (English)
 - `public/i18n/es.json` (Spanish)
 
@@ -181,6 +217,7 @@ Translation namespace: `navigationManagement.*`
 ## Accessibility
 
 The module follows WCAG AA standards:
+
 - All interactive elements have unique IDs (kebab-case naming)
 - Proper ARIA attributes for tree navigation
 - Keyboard navigation support
@@ -188,6 +225,7 @@ The module follows WCAG AA standards:
 - Focus management for dialogs and forms
 
 ### Key IDs
+
 - `navigation-management-container`: Main container
 - `navigation-management-toolbar`: Toolbar
 - `navigation-management-add-button`: Add button
@@ -202,16 +240,20 @@ The module follows WCAG AA standards:
 ## Testing
 
 ### Unit Tests
+
 - `navigation.spec.ts`: Tests for main navigation component
 - `navigation-management.service.spec.ts`: Tests for service
 
 Run tests:
+
 ```bash
 npm test
 ```
 
 ### Test Coverage
+
 The test suite covers:
+
 - Component initialization
 - API integration (mocked HTTP requests)
 - Navigation item CRUD operations
@@ -224,6 +266,7 @@ The test suite covers:
 ## Styling
 
 The module uses:
+
 - **Tailwind CSS**: Utility classes for layout and styling
 - **PrimeNG**: Component library for tree, form controls, dialogs
 - **PrimeIcons**: Icon library for navigation icons
@@ -233,6 +276,7 @@ No inline styles are used; all styling is done via Tailwind utility classes.
 ## Future Enhancements
 
 Planned features not yet implemented:
+
 - [ ] Drag-and-drop with keyboard support (current implementation is mouse-only)
 - [ ] Navigation preview component showing live render
 - [ ] Permission testing dialog for simulating user roles
@@ -245,7 +289,9 @@ Planned features not yet implemented:
 ## Developer Notes
 
 ### Adding New Navigation Properties
+
 To add a new property to navigation items:
+
 1. Update `NavigationItemDto` in `dto/navigation-item.dto.ts`
 2. Add the field to the editor form in `navigation-editor.component.ts`
 3. Add the form control to the template in `navigation-editor.component.html`
@@ -253,7 +299,9 @@ To add a new property to navigation items:
 5. Update unit tests to cover the new property
 
 ### Extending the Service
+
 The `NavigationManagementService` uses RxJS BehaviorSubjects for caching. When adding new endpoints:
+
 1. Add the method to the service
 2. Handle cache invalidation appropriately
 3. Add error handling following the existing pattern

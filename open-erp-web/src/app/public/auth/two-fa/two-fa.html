@@ -25,12 +25,17 @@
       <h1 class="text-4xl font-bold text-white mb-4" id="two-fa-title-desktop">
         {{ 'twoFa.title' | transloco }}
       </h1>
-      <p class="text-xl text-white/90" id="two-fa-subtitle-desktop">{{ 'twoFa.subtitle' | transloco }}</p>
+      <p class="text-xl text-white/90" id="two-fa-subtitle-desktop">
+        {{ 'twoFa.subtitle' | transloco }}
+      </p>
     </div>
   </div>
 
   <!-- Right Panel - OTP Form -->
-  <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50" id="two-fa-right-panel">
+  <div
+    class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50"
+    id="two-fa-right-panel"
+  >
     <div class="w-full max-w-md" id="two-fa-form-container">
       <!-- Mobile Logo -->
       <div class="lg:hidden text-center mb-8" id="two-fa-mobile-header">
@@ -45,11 +50,19 @@
         <h1 class="text-3xl font-bold text-gray-900 mb-2" id="two-fa-title-mobile">
           {{ 'twoFa.title' | transloco }}
         </h1>
-        <p class="text-lg text-gray-600" id="two-fa-subtitle-mobile">{{ 'twoFa.subtitle' | transloco }}</p>
+        <p class="text-lg text-gray-600" id="two-fa-subtitle-mobile">
+          {{ 'twoFa.subtitle' | transloco }}
+        </p>
       </div>
 
       <!-- OTP Form -->
-      <form [formGroup]="twoFAForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate id="two-fa-form">
+      <form
+        [formGroup]="twoFAForm"
+        (ngSubmit)="onSubmit()"
+        class="space-y-6"
+        novalidate
+        id="two-fa-form"
+      >
         <p class="text-sm text-gray-600" id="two-fa-instruction">
           {{ 'twoFa.instruction' | transloco }}
         </p>
@@ -77,9 +90,9 @@
             [attr.aria-describedby]="getFieldError('otp') ? 'two-fa-otp-error' : null"
           />
           @if (getFieldError('otp'); as errorKey) {
-          <small id="two-fa-otp-error" class="text-red-600 text-sm" role="alert">
-            {{ errorKey | transloco }}
-          </small>
+            <small id="two-fa-otp-error" class="text-red-600 text-sm" role="alert">
+              {{ errorKey | transloco }}
+            </small>
           }
         </div>
 

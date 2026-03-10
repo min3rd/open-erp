@@ -2,7 +2,11 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { inject, Injectable } from '@angular/core';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import { API_URI_USER, API_URI_ORGANIZATION, API_URI_COMMON } from '../../../../../../core/constant';
+import {
+  API_URI_USER,
+  API_URI_ORGANIZATION,
+  API_URI_COMMON,
+} from '../../../../../../core/constant';
 import {
   ApiResponse,
   ApiSingleResponse,
@@ -67,12 +71,14 @@ export interface Role {
 /**
  * Backend API response format for roles (can be string or object)
  */
-export type RoleApiResponse = string | {
-  id?: string;
-  name: string;
-  description?: string;
-  permissions?: string[];
-};
+export type RoleApiResponse =
+  | string
+  | {
+      id?: string;
+      name: string;
+      description?: string;
+      permissions?: string[];
+    };
 
 /**
  * Permission information
@@ -88,13 +94,15 @@ export interface Permission {
 /**
  * Backend API response format for permissions (can be string or object)
  */
-export type PermissionApiResponse = string | {
-  id?: string;
-  name: string;
-  description?: string;
-  resource?: string;
-  action?: string;
-};
+export type PermissionApiResponse =
+  | string
+  | {
+      id?: string;
+      name: string;
+      description?: string;
+      resource?: string;
+      action?: string;
+    };
 
 /**
  * User roles and permissions response
@@ -209,23 +217,21 @@ export class UserDetailService {
    * Get user detail by ID
    */
   getUserDetail(userId: string): Observable<UserDetail> {
-    return this.http
-      .get<ApiSingleResponse<UserDetail>>(`${API_URI_USER}/v1/users/${userId}`)
-      .pipe(
-        map((response) => {
-          if (isApiResponse(response)) {
-            const data = unwrap(response);
-            return data.item as UserDetail;
-          }
-          // Legacy format fallback
-          return response as unknown as UserDetail;
-        }),
-        tap((user) => {
-          // Emit user update to subscribers
-          this.userUpdatedSubject.next(user);
-        }),
-        catchError(this.handleError)
-      );
+    return this.http.get<ApiSingleResponse<UserDetail>>(`${API_URI_USER}/v1/users/${userId}`).pipe(
+      map((response) => {
+        if (isApiResponse(response)) {
+          const data = unwrap(response);
+          return data.item as UserDetail;
+        }
+        // Legacy format fallback
+        return response as unknown as UserDetail;
+      }),
+      tap((user) => {
+        // Emit user update to subscribers
+        this.userUpdatedSubject.next(user);
+      }),
+      catchError(this.handleError),
+    );
   }
 
   /**
@@ -241,7 +247,7 @@ export class UserDetailService {
           }
           return response as unknown as UserMembership[];
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -250,25 +256,23 @@ export class UserDetailService {
    * Returns all organizations the user belongs to
    */
   getUserOrganizations(userId: string): Observable<OrganizationBasic[]> {
-    return this.http
-      .get<ApiResponse<any[]>>(`${API_URI_ORGANIZATION}/v1/orgs/user/${userId}`)
-      .pipe(
-        map((response) => {
-          if (isApiResponse(response)) {
-            const data = unwrap(response);
-            // Transform backend response to OrganizationBasic format
-            return data.map((org: any) => ({
-              id: org.orgId,
-              name: org.orgName,
-              internationalName: org.orgName,
-              code: org.orgCode,
-              taxId: org.orgCode,
-            }));
-          }
-          return response as unknown as OrganizationBasic[];
-        }),
-        catchError(this.handleError)
-      );
+    return this.http.get<ApiResponse<any[]>>(`${API_URI_ORGANIZATION}/v1/orgs/user/${userId}`).pipe(
+      map((response) => {
+        if (isApiResponse(response)) {
+          const data = unwrap(response);
+          // Transform backend response to OrganizationBasic format
+          return data.map((org: any) => ({
+            id: org.orgId,
+            name: org.orgName,
+            internationalName: org.orgName,
+            code: org.orgCode,
+            taxId: org.orgCode,
+          }));
+        }
+        return response as unknown as OrganizationBasic[];
+      }),
+      catchError(this.handleError),
+    );
   }
 
   /**
@@ -283,7 +287,9 @@ export class UserDetailService {
     }
 
     return this.http
-      .get<ApiResponse<any>>(`${API_URI_ORGANIZATION}/v1/users/${userId}/roles-permissions`, { params })
+      .get<
+        ApiResponse<any>
+      >(`${API_URI_ORGANIZATION}/v1/users/${userId}/roles-permissions`, { params })
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -324,7 +330,7 @@ export class UserDetailService {
           }
           return response as unknown as UserRolesPermissions;
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -337,10 +343,9 @@ export class UserDetailService {
    */
   grantRolesToUserInOrg(orgId: string, userId: string, roleIds: string[]): Observable<void> {
     return this.http
-      .post<ApiResponse<void>>(
-        `${API_URI_ORGANIZATION}/v1/orgs/${orgId}/members/${userId}/grant`,
-        { roles: roleIds }
-      )
+      .post<
+        ApiResponse<void>
+      >(`${API_URI_ORGANIZATION}/v1/orgs/${orgId}/members/${userId}/grant`, { roles: roleIds })
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -349,7 +354,7 @@ export class UserDetailService {
           }
           return response as void;
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -362,7 +367,7 @@ export class UserDetailService {
   private getResources<T>(
     resourceType: 'roles' | 'permissions',
     orgId: string | undefined,
-    transform: (item: RoleApiResponse | PermissionApiResponse, orgId?: string) => T
+    transform: (item: RoleApiResponse | PermissionApiResponse, orgId?: string) => T,
   ): Observable<T[]> {
     // Use different endpoints based on scope and resource type
     const url = orgId
@@ -374,16 +379,18 @@ export class UserDetailService {
       params = params.set('orgId', orgId);
     }
 
-    return this.http.get<ApiResponse<(RoleApiResponse | PermissionApiResponse)[]>>(url, { params }).pipe(
-      map((response) => {
-        if (isApiResponse(response)) {
-          const data = unwrap(response);
-          return data.map((item) => transform(item, orgId));
-        }
-        return response as unknown as T[];
-      }),
-      catchError(this.handleError)
-    );
+    return this.http
+      .get<ApiResponse<(RoleApiResponse | PermissionApiResponse)[]>>(url, { params })
+      .pipe(
+        map((response) => {
+          if (isApiResponse(response)) {
+            const data = unwrap(response);
+            return data.map((item) => transform(item, orgId));
+          }
+          return response as unknown as T[];
+        }),
+        catchError(this.handleError),
+      );
   }
 
   /**
@@ -415,22 +422,26 @@ export class UserDetailService {
    * @param orgId - Organization identifier (optional, for global permissions omit this)
    */
   getAvailablePermissions(orgId?: string): Observable<Permission[]> {
-    return this.getResources<Permission>('permissions', orgId, (permission: PermissionApiResponse, orgId?: string) => {
-      if (typeof permission === 'string') {
+    return this.getResources<Permission>(
+      'permissions',
+      orgId,
+      (permission: PermissionApiResponse, orgId?: string) => {
+        if (typeof permission === 'string') {
+          return {
+            id: permission,
+            name: permission,
+          };
+        }
+        // If backend returns objects, use them directly
         return {
-          id: permission,
-          name: permission,
+          id: permission.id || permission.name,
+          name: permission.name,
+          description: permission.description,
+          resource: permission.resource,
+          action: permission.action,
         };
-      }
-      // If backend returns objects, use them directly
-      return {
-        id: permission.id || permission.name,
-        name: permission.name,
-        description: permission.description,
-        resource: permission.resource,
-        action: permission.action,
-      };
-    });
+      },
+    );
   }
 
   /**
@@ -442,12 +453,10 @@ export class UserDetailService {
     limit: number = 20,
     search?: string,
     sortField?: string,
-    sortOrder?: 'asc' | 'desc'
+    sortOrder?: 'asc' | 'desc',
   ): Observable<UserActivityLogsResponse> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('limit', limit.toString());
-    
+    let params = new HttpParams().set('page', page.toString()).set('limit', limit.toString());
+
     if (search) {
       params = params.set('search', search);
     }
@@ -459,10 +468,9 @@ export class UserDetailService {
     }
 
     return this.http
-      .get<ApiResponse<UserActivityLogsResponse>>(
-        `${API_URI_USER}/v1/admin/users/${userId}/audit-logs`,
-        { params }
-      )
+      .get<
+        ApiResponse<UserActivityLogsResponse>
+      >(`${API_URI_USER}/v1/admin/users/${userId}/audit-logs`, { params })
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -470,7 +478,7 @@ export class UserDetailService {
           }
           return response as unknown as UserActivityLogsResponse;
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -479,9 +487,7 @@ export class UserDetailService {
    */
   getAuditLogDetail(logId: string): Observable<UserActivityLog> {
     return this.http
-      .get<ApiSingleResponse<UserActivityLog>>(
-        `${API_URI_USER}/v1/admin/users/audit-logs/${logId}`
-      )
+      .get<ApiSingleResponse<UserActivityLog>>(`${API_URI_USER}/v1/admin/users/audit-logs/${logId}`)
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -490,7 +496,7 @@ export class UserDetailService {
           }
           return response as unknown as UserActivityLog;
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -512,7 +518,7 @@ export class UserDetailService {
           // Emit user update to subscribers
           this.userUpdatedSubject.next(user);
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -520,36 +526,32 @@ export class UserDetailService {
    * Disable/block a user
    */
   disableUser(userId: string): Observable<void> {
-    return this.http
-      .post<ApiResponse<void>>(`${API_URI_USER}/v1/users/${userId}/disable`, {})
-      .pipe(
-        map((response) => {
-          if (isApiResponse(response)) {
-            unwrap(response);
-            return;
-          }
-          return response as void;
-        }),
-        catchError(this.handleError)
-      );
+    return this.http.post<ApiResponse<void>>(`${API_URI_USER}/v1/users/${userId}/disable`, {}).pipe(
+      map((response) => {
+        if (isApiResponse(response)) {
+          unwrap(response);
+          return;
+        }
+        return response as void;
+      }),
+      catchError(this.handleError),
+    );
   }
 
   /**
    * Enable a user
    */
   enableUser(userId: string): Observable<void> {
-    return this.http
-      .post<ApiResponse<void>>(`${API_URI_USER}/v1/users/${userId}/enable`, {})
-      .pipe(
-        map((response) => {
-          if (isApiResponse(response)) {
-            unwrap(response);
-            return;
-          }
-          return response as void;
-        }),
-        catchError(this.handleError)
-      );
+    return this.http.post<ApiResponse<void>>(`${API_URI_USER}/v1/users/${userId}/enable`, {}).pipe(
+      map((response) => {
+        if (isApiResponse(response)) {
+          unwrap(response);
+          return;
+        }
+        return response as void;
+      }),
+      catchError(this.handleError),
+    );
   }
 
   /**
@@ -566,7 +568,7 @@ export class UserDetailService {
           }
           return response as void;
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -584,7 +586,7 @@ export class UserDetailService {
           }
           return response as void;
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -593,10 +595,7 @@ export class UserDetailService {
    */
   impersonateUser(userId: string): Observable<{ token: string }> {
     return this.http
-      .post<ApiResponse<{ token: string }>>(
-        `${API_URI_USER}/v1/users/${userId}/impersonate`,
-        {}
-      )
+      .post<ApiResponse<{ token: string }>>(`${API_URI_USER}/v1/users/${userId}/impersonate`, {})
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -604,7 +603,7 @@ export class UserDetailService {
           }
           return response as unknown as { token: string };
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -619,13 +618,12 @@ export class UserDetailService {
       sendEmail?: boolean;
       revokeSessions?: boolean;
       reason?: string;
-    }
+    },
   ): Observable<AdminResetPasswordResponse> {
     return this.http
-      .post<ApiResponse<AdminResetPasswordResponse>>(
-        `${API_URI_USER}/v1/admin/users/${identifier}/reset-password`,
-        data
-      )
+      .post<
+        ApiResponse<AdminResetPasswordResponse>
+      >(`${API_URI_USER}/v1/admin/users/${identifier}/reset-password`, data)
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -633,7 +631,7 @@ export class UserDetailService {
           }
           return response as unknown as AdminResetPasswordResponse;
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -646,13 +644,12 @@ export class UserDetailService {
       revokeRefreshTokens?: boolean;
       revokeAllDevices?: boolean;
       reason?: string;
-    }
+    },
   ): Observable<AdminRevokeSessionsResponse> {
     return this.http
-      .post<ApiResponse<AdminRevokeSessionsResponse>>(
-        `${API_URI_USER}/v1/admin/users/${identifier}/revoke-sessions`,
-        data
-      )
+      .post<
+        ApiResponse<AdminRevokeSessionsResponse>
+      >(`${API_URI_USER}/v1/admin/users/${identifier}/revoke-sessions`, data)
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -660,7 +657,7 @@ export class UserDetailService {
           }
           return response as unknown as AdminRevokeSessionsResponse;
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -674,13 +671,12 @@ export class UserDetailService {
       softBlock?: boolean;
       revokeSessions?: boolean;
       sendEmail?: boolean;
-    }
+    },
   ): Observable<AdminBlockUserResponse> {
     return this.http
-      .post<ApiResponse<AdminBlockUserResponse>>(
-        `${API_URI_USER}/v1/admin/users/${identifier}/block`,
-        data
-      )
+      .post<
+        ApiResponse<AdminBlockUserResponse>
+      >(`${API_URI_USER}/v1/admin/users/${identifier}/block`, data)
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -698,7 +694,7 @@ export class UserDetailService {
             this.getUserDetail(user.id).subscribe();
           }
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -710,13 +706,12 @@ export class UserDetailService {
     data: {
       reason?: string;
       sendEmail?: boolean;
-    }
+    },
   ): Observable<AdminUnblockUserResponse> {
     return this.http
-      .post<ApiResponse<AdminUnblockUserResponse>>(
-        `${API_URI_USER}/v1/admin/users/${identifier}/unblock`,
-        data
-      )
+      .post<
+        ApiResponse<AdminUnblockUserResponse>
+      >(`${API_URI_USER}/v1/admin/users/${identifier}/unblock`, data)
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
@@ -734,7 +729,7 @@ export class UserDetailService {
             this.getUserDetail(user.id).subscribe();
           }
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 

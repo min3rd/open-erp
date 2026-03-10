@@ -1,8 +1,4 @@
-<form
-  [formGroup]="form()"
-  id="navigation-editor-form"
-  class="space-y-4 p-4"
->
+<form [formGroup]="form()" id="navigation-editor-form" class="space-y-4 p-4">
   <!-- ID Field (Required, Auto-generated) -->
   <div class="flex flex-col gap-2">
     <div class="flex items-center justify-between">
@@ -16,7 +12,7 @@
           [binary]="true"
           [ngModel]="isAutoGeneratingId()"
           (ngModelChange)="toggleAutoGenerateId()"
-          [ngModelOptions]="{standalone: true}"
+          [ngModelOptions]="{ standalone: true }"
           [attr.aria-label]="'navigationManagement.editor.form.id.autoGenerate' | transloco"
         />
         <label for="navigation-editor-auto-generate-id" class="text-sm cursor-pointer">
@@ -34,7 +30,11 @@
         [class.p-invalid]="hasError('id') || idUniquenessError()"
         [attr.aria-label]="'navigationManagement.editor.form.id.label' | transloco"
         [attr.aria-required]="true"
-        [attr.aria-describedby]="hasError('id') || idUniquenessError() ? 'navigation-editor-id-error' : 'navigation-editor-id-help'"
+        [attr.aria-describedby]="
+          hasError('id') || idUniquenessError()
+            ? 'navigation-editor-id-error'
+            : 'navigation-editor-id-help'
+        "
         (input)="onIdInput()"
         (blur)="onIdBlur()"
         class="flex-1"
@@ -51,29 +51,30 @@
       ></button>
     </div>
     @if (idPreview() && !hasError('id')) {
-    <small id="navigation-editor-id-preview" class="text-surface-600">
-      {{ 'navigationManagement.editor.form.id.preview' | transloco: { id: idPreview() } }}
-    </small>
+      <small id="navigation-editor-id-preview" class="text-surface-600">
+        {{ 'navigationManagement.editor.form.id.preview' | transloco: { id: idPreview() } }}
+      </small>
     }
     @if (hasError('id')) {
-    <small id="navigation-editor-id-error" class="text-red-500">
-      {{ getErrorMessage('id') }}
-    </small>
+      <small id="navigation-editor-id-error" class="text-red-500">
+        {{ getErrorMessage('id') }}
+      </small>
     }
     @if (idUniquenessError() && !hasError('id')) {
-    <small id="navigation-editor-id-uniqueness-error" class="text-red-500">
-      {{ idUniquenessError() }}
-    </small>
+      <small id="navigation-editor-id-uniqueness-error" class="text-red-500">
+        {{ idUniquenessError() }}
+      </small>
     }
     @if (isCheckingIdUniqueness()) {
-    <small id="navigation-editor-id-checking" class="text-surface-500">
-      <i class="pi pi-spin pi-spinner"></i> {{ 'navigationManagement.editor.form.id.checking' | transloco }}
-    </small>
+      <small id="navigation-editor-id-checking" class="text-surface-500">
+        <i class="pi pi-spin pi-spinner"></i>
+        {{ 'navigationManagement.editor.form.id.checking' | transloco }}
+      </small>
     }
     @if (!hasError('id') && !idUniquenessError()) {
-    <small id="navigation-editor-id-help" class="text-surface-500">
-      {{ 'navigationManagement.editor.form.id.help' | transloco }}
-    </small>
+      <small id="navigation-editor-id-help" class="text-surface-500">
+        {{ 'navigationManagement.editor.form.id.help' | transloco }}
+      </small>
     }
   </div>
 
@@ -94,9 +95,9 @@
       [attr.aria-required]="true"
     />
     @if (hasError('label')) {
-    <small id="navigation-editor-label-error" class="text-red-500">
-      {{ getErrorMessage('label') }}
-    </small>
+      <small id="navigation-editor-label-error" class="text-red-500">
+        {{ getErrorMessage('label') }}
+      </small>
     }
   </div>
 
@@ -172,28 +173,28 @@
 
   <!-- Module Key (Required when scope is module) -->
   @if (form().value.scope === 'module') {
-  <div class="flex flex-col gap-2">
-    <label for="navigation-editor-module-id" class="font-semibold">
-      {{ 'navigationManagement.editor.form.moduleKey.label' | transloco }}
-      <span class="text-red-500">*</span>
-    </label>
-    <p-select
-      id="navigation-editor-module-id"
-      formControlName="moduleId"
-      [options]="availableModules()"
-      optionLabel="label"
-      optionValue="value"
-      [placeholder]="'navigationManagement.editor.form.moduleKey.placeholder' | transloco"
-      [class.p-invalid]="hasError('module')"
-      [attr.aria-label]="'navigationManagement.editor.form.moduleKey.label' | transloco"
-      [attr.aria-required]="true"
-    />
-    @if (hasError('module')) {
-    <small id="navigation-editor-module-id-error" class="text-red-500">
-      {{ getErrorMessage('module') }}
-    </small>
-    }
-  </div>
+    <div class="flex flex-col gap-2">
+      <label for="navigation-editor-module-id" class="font-semibold">
+        {{ 'navigationManagement.editor.form.moduleKey.label' | transloco }}
+        <span class="text-red-500">*</span>
+      </label>
+      <p-select
+        id="navigation-editor-module-id"
+        formControlName="moduleId"
+        [options]="availableModules()"
+        optionLabel="label"
+        optionValue="value"
+        [placeholder]="'navigationManagement.editor.form.moduleKey.placeholder' | transloco"
+        [class.p-invalid]="hasError('module')"
+        [attr.aria-label]="'navigationManagement.editor.form.moduleKey.label' | transloco"
+        [attr.aria-required]="true"
+      />
+      @if (hasError('module')) {
+        <small id="navigation-editor-module-id-error" class="text-red-500">
+          {{ getErrorMessage('module') }}
+        </small>
+      }
+    </div>
   }
 
   <!-- Parent (Optional) -->
@@ -216,15 +217,17 @@
     >
       <ng-template let-item #item>
         <div class="flex items-center gap-2">
-            <i [class]="item.icon" *ngIf="item.icon"></i>
-            <span>{{ item.label }}</span>
-            <small class="text-surface-500" *ngIf="item.scope === 'module'">({{ item.moduleId }})</small>
+          <i [class]="item.icon" *ngIf="item.icon"></i>
+          <span>{{ item.label }}</span>
+          <small class="text-surface-500" *ngIf="item.scope === 'module'"
+            >({{ item.moduleId }})</small
+          >
         </div>
       </ng-template>
       <ng-template let-item #selectedItem>
         <div class="flex items-center gap-2" *ngIf="item">
-            <i [class]="item.icon" *ngIf="item.icon"></i>
-            <span>{{ item.label }}</span>
+          <i [class]="item.icon" *ngIf="item.icon"></i>
+          <span>{{ item.label }}</span>
         </div>
       </ng-template>
     </p-select>

@@ -13,15 +13,16 @@ export interface InvitesResolvedData {
   total: number;
 }
 
-export const InvitesResolver: ResolveFn<InvitesResolvedData | null> =
-  (): Observable<InvitesResolvedData | null> => {
-    const contextService = inject(OrganizationContextService);
-    const orgService = inject(OrganizationService);
+export const InvitesResolver: ResolveFn<
+  InvitesResolvedData | null
+> = (): Observable<InvitesResolvedData | null> => {
+  const contextService = inject(OrganizationContextService);
+  const orgService = inject(OrganizationService);
 
-    const orgId = contextService.currentOrganization()?.id;
-    if (!orgId) return of(null);
+  const orgId = contextService.currentOrganization()?.id;
+  if (!orgId) return of(null);
 
-    return orgService
-      .getOrganizationInvitations(orgId, { page: 1, limit: 20 })
-      .pipe(catchError(() => of(null)));
-  };
+  return orgService
+    .getOrganizationInvitations(orgId, { page: 1, limit: 20 })
+    .pipe(catchError(() => of(null)));
+};

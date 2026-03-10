@@ -1,12 +1,6 @@
 <div class="flex h-full flex-col">
   <!-- Hidden file input for import -->
-  <input
-    #fileInput
-    type="file"
-    accept=".csv"
-    class="hidden"
-    (change)="onFileSelected($event)"
-  />
+  <input #fileInput type="file" accept=".csv" class="hidden" (change)="onFileSelected($event)" />
 
   <!-- Confirmation Dialog -->
   <p-confirmDialog />
@@ -334,30 +328,30 @@
 
     <!-- Expandable Search Input (Mobile) -->
     @if (isSearchOpen()) {
-    <div
-      id="product-list-search-panel-mobile"
-      class="p-2 bg-surface-50 dark:bg-surface-800 border-t border-surface-200 dark:border-surface-700"
-    >
-      <p-inputgroup>
-        <input
-          #mobileSearchInput
-          id="product-list-search-mobile"
-          type="text"
-          pInputText
-          [placeholder]="'productList.search.placeholder' | transloco"
-          (input)="onSearch($any($event.target).value)"
-          [value]="searchQuery()"
-          class="w-full"
-          [attr.aria-label]="'productList.search.label' | transloco"
-        />
-        <p-button
-          icon="pi pi-times"
-          severity="secondary"
-          (onClick)="toggleMobileSearch()"
-          [attr.aria-label]="'productList.search.closeSearch' | transloco"
-        />
-      </p-inputgroup>
-    </div>
+      <div
+        id="product-list-search-panel-mobile"
+        class="p-2 bg-surface-50 dark:bg-surface-800 border-t border-surface-200 dark:border-surface-700"
+      >
+        <p-inputgroup>
+          <input
+            #mobileSearchInput
+            id="product-list-search-mobile"
+            type="text"
+            pInputText
+            [placeholder]="'productList.search.placeholder' | transloco"
+            (input)="onSearch($any($event.target).value)"
+            [value]="searchQuery()"
+            class="w-full"
+            [attr.aria-label]="'productList.search.label' | transloco"
+          />
+          <p-button
+            icon="pi pi-times"
+            severity="secondary"
+            (onClick)="toggleMobileSearch()"
+            [attr.aria-label]="'productList.search.closeSearch' | transloco"
+          />
+        </p-inputgroup>
+      </div>
     }
   }
 
@@ -365,272 +359,289 @@
   <div class="flex-1 overflow-auto">
     <!-- Desktop Table View -->
     @if (!isMobile()) {
-    <p-table
-      #dt
-      id="product-list-table"
-      [value]="products()"
-      [loading]="isLoading()"
-      [(selection)]="selectedProducts"
-      [resizableColumns]="true"
-      [reorderableColumns]="true"
-      [scrollable]="true"
-      scrollHeight="flex"
-      styleClass="p-datatable-sm"
-      [contextMenu]="cm"
-      [contextMenuSelection]="contextMenuSelectedProduct"
-      (contextMenuSelectionChange)="onContextMenuSelectionChange($event)"
-      (onSort)="onTableSort($event)"
-      [attr.aria-label]="'productList.table.label' | transloco"
-    >
-      <!-- Context Menu -->
-      <p-contextMenu #cm [model]="currentContextMenuItems" appendTo="body" />
+      <p-table
+        #dt
+        id="product-list-table"
+        [value]="products()"
+        [loading]="isLoading()"
+        [(selection)]="selectedProducts"
+        [resizableColumns]="true"
+        [reorderableColumns]="true"
+        [scrollable]="true"
+        scrollHeight="flex"
+        styleClass="p-datatable-sm"
+        [contextMenu]="cm"
+        [contextMenuSelection]="contextMenuSelectedProduct"
+        (contextMenuSelectionChange)="onContextMenuSelectionChange($event)"
+        (onSort)="onTableSort($event)"
+        [attr.aria-label]="'productList.table.label' | transloco"
+      >
+        <!-- Context Menu -->
+        <p-contextMenu #cm [model]="currentContextMenuItems" appendTo="body" />
 
-      <!-- Table Header -->
-      <ng-template #header>
-        <tr>
-          <!-- Selection Checkbox Column -->
-          <th style="width: 48px">
-            <p-tableHeaderCheckbox [attr.aria-label]="'productList.table.selectAll' | transloco" />
-          </th>
-
-          <!-- Dynamic Columns -->
-          @for (col of selectedColumns; track col.field) {
-          <th
-            pReorderableColumn
-            pResizableColumn
-            [pSortableColumn]="col.sortable ? col.field : undefined"
-            [style.width]="col.width || 'auto'"
-            [attr.aria-label]="col.header | transloco"
-          >
-            {{ col.header | transloco }}
-            @if (col.sortable) {
-            <p-sortIcon [field]="col.field" />
-            }
-          </th>
-          }
-
-          <!-- Actions Column -->
-          <th style="width: 100px" [attr.aria-label]="'productList.table.actions' | transloco">
-            {{ 'productList.table.actions' | transloco }}
-          </th>
-        </tr>
-      </ng-template>
-
-      <!-- Table Body -->
-      <ng-template #body let-product>
-        <tr [pContextMenuRow]="product" [pSelectableRow]="product">
-          <!-- Selection Checkbox -->
-          <td>
-            <p-tableCheckbox [value]="product" [attr.aria-label]="'productList.table.selectRow' | transloco" />
-          </td>
-
-          <!-- Dynamic Columns -->
-          @for (col of selectedColumns; track col.field) {
-          <td>
-            @if (col.field === 'sku') {
-            <span class="font-mono text-sm">{{ product.sku }}</span>
-            }
-            @if (col.field === 'name') {
-            <span class="font-medium">{{ product.name }}</span>
-            @if (product.internationalName) {
-            <br />
-            <span class="text-xs text-surface-500 dark:text-surface-400">{{ product.internationalName }}</span>
-            }
-            }
-            @if (col.field === 'type') {
-            <span class="text-sm">{{ 'productType.' + product.type | transloco }}</span>
-            }
-            @if (col.field === 'category') {
-            @if (product.category) {
-            <span class="text-sm">{{ product.category.name }}</span>
-            }
-            @if (!product.category) {
-            <span class="text-sm text-surface-400">-</span>
-            }
-            }
-            @if (col.field === 'unit') {
-            <span class="text-sm">{{ product.unit }}</span>
-            }
-            @if (col.field === 'status') {
-            <p-tag
-              [value]="'productStatus.' + product.status | transloco"
-              [severity]="getStatusSeverity(product.status)"
-            />
-            }
-            @if (col.field === 'barcode') {
-            @if (product.barcode) {
-            <span class="font-mono text-sm">{{ product.barcode }}</span>
-            }
-            @if (!product.barcode) {
-            <span class="text-sm text-surface-400">-</span>
-            }
-            }
-          </td>
-          }
-
-          <!-- Actions -->
-          <td>
-            <div class="flex gap-1">
-              <p-button
-                icon="pi pi-eye"
-                [rounded]="true"
-                [text]="true"
-                size="small"
-                severity="secondary"
-                (onClick)="onViewProduct(product)"
-                [pTooltip]="'productList.actions.view' | transloco"
-                tooltipPosition="top"
-                [attr.aria-label]="'productList.actions.view' | transloco"
+        <!-- Table Header -->
+        <ng-template #header>
+          <tr>
+            <!-- Selection Checkbox Column -->
+            <th style="width: 48px">
+              <p-tableHeaderCheckbox
+                [attr.aria-label]="'productList.table.selectAll' | transloco"
               />
-              <p-button
-                icon="pi pi-pencil"
-                [rounded]="true"
-                [text]="true"
-                size="small"
-                severity="primary"
-                (onClick)="onEditProduct(product)"
-                [pTooltip]="'productList.actions.edit' | transloco"
-                tooltipPosition="top"
-                [attr.aria-label]="'productList.actions.edit' | transloco"
-              />
-              <p-button
-                icon="pi pi-trash"
-                [rounded]="true"
-                [text]="true"
-                size="small"
-                severity="danger"
-                (onClick)="onDeleteProduct(product)"
-                [pTooltip]="'productList.actions.delete' | transloco"
-                tooltipPosition="top"
-                [attr.aria-label]="'productList.actions.delete' | transloco"
-              />
-            </div>
-          </td>
-        </tr>
-      </ng-template>
+            </th>
 
-      <!-- Empty State -->
-      <ng-template #emptymessage>
-        <tr>
-          <td [attr.colspan]="selectedColumns.length + 2" class="text-center py-8">
-            <div class="flex flex-col items-center gap-3">
-              <i class="pi pi-inbox text-4xl text-surface-400"></i>
-              <p class="text-surface-600 dark:text-surface-400">
-                {{ 'productList.empty.message' | transloco }}
-              </p>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+            <!-- Dynamic Columns -->
+            @for (col of selectedColumns; track col.field) {
+              <th
+                pReorderableColumn
+                pResizableColumn
+                [pSortableColumn]="col.sortable ? col.field : undefined"
+                [style.width]="col.width || 'auto'"
+                [attr.aria-label]="col.header | transloco"
+              >
+                {{ col.header | transloco }}
+                @if (col.sortable) {
+                  <p-sortIcon [field]="col.field" />
+                }
+              </th>
+            }
+
+            <!-- Actions Column -->
+            <th style="width: 100px" [attr.aria-label]="'productList.table.actions' | transloco">
+              {{ 'productList.table.actions' | transloco }}
+            </th>
+          </tr>
+        </ng-template>
+
+        <!-- Table Body -->
+        <ng-template #body let-product>
+          <tr [pContextMenuRow]="product" [pSelectableRow]="product">
+            <!-- Selection Checkbox -->
+            <td>
+              <p-tableCheckbox
+                [value]="product"
+                [attr.aria-label]="'productList.table.selectRow' | transloco"
+              />
+            </td>
+
+            <!-- Dynamic Columns -->
+            @for (col of selectedColumns; track col.field) {
+              <td>
+                @if (col.field === 'sku') {
+                  <span class="font-mono text-sm">{{ product.sku }}</span>
+                }
+                @if (col.field === 'name') {
+                  <span class="font-medium">{{ product.name }}</span>
+                  @if (product.internationalName) {
+                    <br />
+                    <span class="text-xs text-surface-500 dark:text-surface-400">{{
+                      product.internationalName
+                    }}</span>
+                  }
+                }
+                @if (col.field === 'type') {
+                  <span class="text-sm">{{ 'productType.' + product.type | transloco }}</span>
+                }
+                @if (col.field === 'category') {
+                  @if (product.category) {
+                    <span class="text-sm">{{ product.category.name }}</span>
+                  }
+                  @if (!product.category) {
+                    <span class="text-sm text-surface-400">-</span>
+                  }
+                }
+                @if (col.field === 'unit') {
+                  <span class="text-sm">{{ product.unit }}</span>
+                }
+                @if (col.field === 'status') {
+                  <p-tag
+                    [value]="'productStatus.' + product.status | transloco"
+                    [severity]="getStatusSeverity(product.status)"
+                  />
+                }
+                @if (col.field === 'barcode') {
+                  @if (product.barcode) {
+                    <span class="font-mono text-sm">{{ product.barcode }}</span>
+                  }
+                  @if (!product.barcode) {
+                    <span class="text-sm text-surface-400">-</span>
+                  }
+                }
+              </td>
+            }
+
+            <!-- Actions -->
+            <td>
+              <div class="flex gap-1">
+                <p-button
+                  icon="pi pi-eye"
+                  [rounded]="true"
+                  [text]="true"
+                  size="small"
+                  severity="secondary"
+                  (onClick)="onViewProduct(product)"
+                  [pTooltip]="'productList.actions.view' | transloco"
+                  tooltipPosition="top"
+                  [attr.aria-label]="'productList.actions.view' | transloco"
+                />
+                <p-button
+                  icon="pi pi-pencil"
+                  [rounded]="true"
+                  [text]="true"
+                  size="small"
+                  severity="primary"
+                  (onClick)="onEditProduct(product)"
+                  [pTooltip]="'productList.actions.edit' | transloco"
+                  tooltipPosition="top"
+                  [attr.aria-label]="'productList.actions.edit' | transloco"
+                />
+                <p-button
+                  icon="pi pi-trash"
+                  [rounded]="true"
+                  [text]="true"
+                  size="small"
+                  severity="danger"
+                  (onClick)="onDeleteProduct(product)"
+                  [pTooltip]="'productList.actions.delete' | transloco"
+                  tooltipPosition="top"
+                  [attr.aria-label]="'productList.actions.delete' | transloco"
+                />
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <!-- Empty State -->
+        <ng-template #emptymessage>
+          <tr>
+            <td [attr.colspan]="selectedColumns.length + 2" class="text-center py-8">
+              <div class="flex flex-col items-center gap-3">
+                <i class="pi pi-inbox text-4xl text-surface-400"></i>
+                <p class="text-surface-600 dark:text-surface-400">
+                  {{ 'productList.empty.message' | transloco }}
+                </p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
     }
 
     <!-- Mobile List View -->
     @if (isMobile()) {
-    <div id="product-list-mobile" class="p-2">
-      @if (isLoading()) {
-      <div class="flex justify-center items-center py-8">
-        <i class="pi pi-spin pi-spinner text-3xl text-primary"></i>
-      </div>
-      }
-      
-      @if (!isLoading() && products().length === 0) {
-      <div class="flex flex-col items-center gap-3 py-8">
-        <i class="pi pi-inbox text-4xl text-surface-400"></i>
-        <p class="text-surface-600 dark:text-surface-400">
-          {{ 'productList.empty.message' | transloco }}
-        </p>
-      </div>
-      }
-      
-      @if (!isLoading() && products().length > 0) {
-      <div class="space-y-2">
-        @for (product of products(); track product.id) {
-        <div
-          class="p-3 bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-lg"
-        >
-          <!-- Product Header -->
-          <div class="flex justify-between items-start mb-2">
-            <div class="flex-1">
-              <h3 class="font-medium text-base mb-1">{{ product.name }}</h3>
-              @if (product.internationalName) {
-              <p class="text-xs text-surface-500 dark:text-surface-400 mb-1">
-                {{ product.internationalName }}
-              </p>
-              }
-              <p class="text-xs font-mono text-surface-600 dark:text-surface-400">
-                SKU: {{ product.sku }}
-              </p>
-            </div>
-            <p-tag
-              [value]="'productStatus.' + product.status | transloco"
-              [severity]="getStatusSeverity(product.status)"
-              styleClass="text-xs"
-            />
+      <div id="product-list-mobile" class="p-2">
+        @if (isLoading()) {
+          <div class="flex justify-center items-center py-8">
+            <i class="pi pi-spin pi-spinner text-3xl text-primary"></i>
           </div>
+        }
 
-          <!-- Product Details -->
-          <div class="grid grid-cols-2 gap-2 text-sm mb-3">
-            <div>
-              <span class="text-surface-500 dark:text-surface-400">{{ 'productList.table.type' | transloco }}:</span>
-              <span class="ml-1">{{ 'productType.' + product.type | transloco }}</span>
-            </div>
-            <div>
-              <span class="text-surface-500 dark:text-surface-400">{{ 'productList.table.unit' | transloco }}:</span>
-              <span class="ml-1">{{ product.unit }}</span>
-            </div>
-            @if (product.category) {
-            <div class="col-span-2">
-              <span class="text-surface-500 dark:text-surface-400">{{ 'productList.table.category' | transloco }}:</span>
-              <span class="ml-1">{{ product.category.name }}</span>
-            </div>
-            }
-            @if (product.barcode) {
-            <div class="col-span-2">
-              <span class="text-surface-500 dark:text-surface-400">{{ 'productList.table.barcode' | transloco }}:</span>
-              <span class="ml-1 font-mono">{{ product.barcode }}</span>
-            </div>
-            }
+        @if (!isLoading() && products().length === 0) {
+          <div class="flex flex-col items-center gap-3 py-8">
+            <i class="pi pi-inbox text-4xl text-surface-400"></i>
+            <p class="text-surface-600 dark:text-surface-400">
+              {{ 'productList.empty.message' | transloco }}
+            </p>
           </div>
+        }
 
-          <!-- Actions -->
-          <div class="flex gap-2 pt-2 border-t border-surface-200 dark:border-surface-700">
-            <p-button
-              [label]="'productList.actions.view' | transloco"
-              icon="pi pi-eye"
-              size="small"
-              severity="secondary"
-              [text]="true"
-              (onClick)="onViewProduct(product)"
-              styleClass="flex-1"
-            />
-            <p-button
-              [label]="'productList.actions.edit' | transloco"
-              icon="pi pi-pencil"
-              size="small"
-              severity="primary"
-              [text]="true"
-              (onClick)="onEditProduct(product)"
-              styleClass="flex-1"
-            />
-            <p-button
-              icon="pi pi-trash"
-              size="small"
-              severity="danger"
-              [text]="true"
-              (onClick)="onDeleteProduct(product)"
-            />
+        @if (!isLoading() && products().length > 0) {
+          <div class="space-y-2">
+            @for (product of products(); track product.id) {
+              <div
+                class="p-3 bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-lg"
+              >
+                <!-- Product Header -->
+                <div class="flex justify-between items-start mb-2">
+                  <div class="flex-1">
+                    <h3 class="font-medium text-base mb-1">{{ product.name }}</h3>
+                    @if (product.internationalName) {
+                      <p class="text-xs text-surface-500 dark:text-surface-400 mb-1">
+                        {{ product.internationalName }}
+                      </p>
+                    }
+                    <p class="text-xs font-mono text-surface-600 dark:text-surface-400">
+                      SKU: {{ product.sku }}
+                    </p>
+                  </div>
+                  <p-tag
+                    [value]="'productStatus.' + product.status | transloco"
+                    [severity]="getStatusSeverity(product.status)"
+                    styleClass="text-xs"
+                  />
+                </div>
+
+                <!-- Product Details -->
+                <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+                  <div>
+                    <span class="text-surface-500 dark:text-surface-400"
+                      >{{ 'productList.table.type' | transloco }}:</span
+                    >
+                    <span class="ml-1">{{ 'productType.' + product.type | transloco }}</span>
+                  </div>
+                  <div>
+                    <span class="text-surface-500 dark:text-surface-400"
+                      >{{ 'productList.table.unit' | transloco }}:</span
+                    >
+                    <span class="ml-1">{{ product.unit }}</span>
+                  </div>
+                  @if (product.category) {
+                    <div class="col-span-2">
+                      <span class="text-surface-500 dark:text-surface-400"
+                        >{{ 'productList.table.category' | transloco }}:</span
+                      >
+                      <span class="ml-1">{{ product.category.name }}</span>
+                    </div>
+                  }
+                  @if (product.barcode) {
+                    <div class="col-span-2">
+                      <span class="text-surface-500 dark:text-surface-400"
+                        >{{ 'productList.table.barcode' | transloco }}:</span
+                      >
+                      <span class="ml-1 font-mono">{{ product.barcode }}</span>
+                    </div>
+                  }
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-2 pt-2 border-t border-surface-200 dark:border-surface-700">
+                  <p-button
+                    [label]="'productList.actions.view' | transloco"
+                    icon="pi pi-eye"
+                    size="small"
+                    severity="secondary"
+                    [text]="true"
+                    (onClick)="onViewProduct(product)"
+                    styleClass="flex-1"
+                  />
+                  <p-button
+                    [label]="'productList.actions.edit' | transloco"
+                    icon="pi pi-pencil"
+                    size="small"
+                    severity="primary"
+                    [text]="true"
+                    (onClick)="onEditProduct(product)"
+                    styleClass="flex-1"
+                  />
+                  <p-button
+                    icon="pi pi-trash"
+                    size="small"
+                    severity="danger"
+                    [text]="true"
+                    (onClick)="onDeleteProduct(product)"
+                  />
+                </div>
+              </div>
+            }
           </div>
-        </div>
         }
       </div>
-      }
-    </div>
     }
   </div>
 
   <!-- Fixed Footer with Pagination -->
-  <div class="p-2 border-t border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900">
+  <div
+    class="p-2 border-t border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900"
+  >
     <core-pagination
       id="product-list-pagination"
       [currentPage]="currentPage()"

@@ -1,14 +1,20 @@
 <div class="p-4 sm:p-6">
-  <h2 class="text-lg sm:text-xl font-semibold mb-4">{{ 'productDetail.tabs.custom' | transloco }}</h2>
+  <h2 class="text-lg sm:text-xl font-semibold mb-4">
+    {{ 'productDetail.tabs.custom' | transloco }}
+  </h2>
   <p class="text-color-secondary text-sm">{{ 'productDetail.custom.description' | transloco }}</p>
 
   @if (product()?.customAttributes?.length) {
     <div class="mt-4 sm:mt-6">
-      <h3 class="text-base sm:text-lg font-medium mb-3">{{ 'productDetail.custom.customAttributes' | transloco }}</h3>
+      <h3 class="text-base sm:text-lg font-medium mb-3">
+        {{ 'productDetail.custom.customAttributes' | transloco }}
+      </h3>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         @for (attr of product()!.customAttributes!; track attr.name) {
           <div class="field">
-            <label class="block text-sm font-medium text-color-secondary mb-1">{{ attr.name }}</label>
+            <label class="block text-sm font-medium text-color-secondary mb-1">{{
+              attr.name
+            }}</label>
             <div>
               {{ attr.value }}
               @if (attr.unit) {
@@ -23,26 +29,34 @@
 
   @if (product()?.metadata) {
     <div class="mt-4 sm:mt-6">
-      <h3 class="text-base sm:text-lg font-medium mb-3">{{ 'productDetail.custom.metadata' | transloco }}</h3>
+      <h3 class="text-base sm:text-lg font-medium mb-3">
+        {{ 'productDetail.custom.metadata' | transloco }}
+      </h3>
 
       @if (hasMetadata()) {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           @for (entry of metadataEntries(); track entry.key) {
             <div class="field">
-              <label class="block text-sm font-medium text-color-secondary mb-1">{{ entry.key }}</label>
+              <label class="block text-sm font-medium text-color-secondary mb-1">{{
+                entry.key
+              }}</label>
               <div>{{ entry.value }}</div>
             </div>
           }
         </div>
       } @else {
-        <p class="text-sm text-color-secondary">{{ 'productDetail.custom.noMetadata' | transloco }}</p>
+        <p class="text-sm text-color-secondary">
+          {{ 'productDetail.custom.noMetadata' | transloco }}
+        </p>
       }
     </div>
   }
 
   @if (!product()?.customAttributes?.length && !product()?.metadata) {
     <div class="mt-4 sm:mt-6">
-      <p class="text-sm text-color-secondary">{{ 'productDetail.custom.notAvailable' | transloco }}</p>
+      <p class="text-sm text-color-secondary">
+        {{ 'productDetail.custom.notAvailable' | transloco }}
+      </p>
     </div>
   }
 </div>

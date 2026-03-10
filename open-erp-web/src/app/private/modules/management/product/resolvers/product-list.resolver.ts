@@ -1,12 +1,16 @@
 import { inject } from '@angular/core';
 import { ResolveFn, ActivatedRouteSnapshot } from '@angular/router';
-import { ProductService, Product, ProductStatus } from '../../../../../../core/services/product/product.service';
+import {
+  ProductService,
+  Product,
+  ProductStatus,
+} from '../../../../../../core/services/product/product.service';
 import { catchError, of } from 'rxjs';
 
 /**
  * Resolver for product list data
  * Pre-loads product list based on route params before navigation
- * 
+ *
  * Route pattern: /:search/:status/:type/:category/:sort/:page/:limit
  */
 export const productListResolver: ResolveFn<
@@ -83,6 +87,6 @@ export const productListResolver: ResolveFn<
     catchError((error) => {
       console.error('Error loading products:', error);
       return of(null);
-    })
+    }),
   );
 };

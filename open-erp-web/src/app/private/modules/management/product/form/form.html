@@ -32,7 +32,9 @@
 
   <div id="product-form-content" class="flex flex-col h-full">
     <!-- Header Section (Fixed) -->
-    <div class="p-4 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800">
+    <div
+      class="p-4 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800"
+    >
       <form [formGroup]="form" class="space-y-3">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <!-- Scope -->
@@ -61,20 +63,20 @@
 
           <!-- Organization ID (conditional) -->
           @if (form.get('scope')?.value === ProductScope.ORGANIZATION) {
-          <div>
-            <label for="product-form-org" class="block text-sm font-medium mb-1">
-              {{ 'productForm.fields.organizationId.label' | transloco }}
-            </label>
-            <p-select
-              id="product-form-org"
-              formControlName="organizationId"
-              [options]="organizationOptions()"
-              optionLabel="label"
-              optionValue="value"
-              [placeholder]="'productForm.fields.organizationId.placeholder' | transloco"
-              styleClass="w-full"
-            />
-          </div>
+            <div>
+              <label for="product-form-org" class="block text-sm font-medium mb-1">
+                {{ 'productForm.fields.organizationId.label' | transloco }}
+              </label>
+              <p-select
+                id="product-form-org"
+                formControlName="organizationId"
+                [options]="organizationOptions()"
+                optionLabel="label"
+                optionValue="value"
+                [placeholder]="'productForm.fields.organizationId.placeholder' | transloco"
+                styleClass="w-full"
+              />
+            </div>
           }
         </div>
 
@@ -94,7 +96,9 @@
               class="w-full"
             />
             @if (form.get('sku')?.touched && form.get('sku')?.hasError('required')) {
-            <small class="text-red-500">{{ 'productForm.fields.sku.errors.required' | transloco }}</small>
+              <small class="text-red-500">{{
+                'productForm.fields.sku.errors.required' | transloco
+              }}</small>
             }
           </div>
 
@@ -139,7 +143,9 @@
               class="w-full"
             />
             @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
-            <small class="text-red-500">{{ 'productForm.fields.name.errors.required' | transloco }}</small>
+              <small class="text-red-500">{{
+                'productForm.fields.name.errors.required' | transloco
+              }}</small>
             }
           </div>
 
@@ -167,20 +173,20 @@
           </label>
           <div class="flex gap-2 items-center">
             @if (thumbnailPreview()) {
-            <div class="relative">
-              <img
-                [src]="thumbnailPreview()"
-                alt="Thumbnail preview"
-                class="w-16 h-16 object-cover rounded border border-surface-200 dark:border-surface-700"
-              />
-              <button
-                type="button"
-                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                (click)="onClearThumbnail()"
-              >
-                ×
-              </button>
-            </div>
+              <div class="relative">
+                <img
+                  [src]="thumbnailPreview()"
+                  alt="Thumbnail preview"
+                  class="w-16 h-16 object-cover rounded border border-surface-200 dark:border-surface-700"
+                />
+                <button
+                  type="button"
+                  class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                  (click)="onClearThumbnail()"
+                >
+                  ×
+                </button>
+              </div>
             }
             <p-button
               [label]="'productForm.fields.thumbnail.select' | transloco"
@@ -207,289 +213,299 @@
             <p-tab [value]="4">{{ 'productForm.tabs.warehouse' | transloco }}</p-tab>
             <p-tab [value]="5">{{ 'productForm.tabs.custom' | transloco }}</p-tab>
           </p-tablist>
-          
+
           <p-tabpanels>
             <!-- General Info Tab Panel -->
             <p-tabpanel [value]="0">
-            <div class="space-y-3 py-2">
-              <!-- International Name -->
-              <div>
-                <label for="product-form-intl-name" class="block text-sm font-medium mb-1">
-                  {{ 'productForm.fields.internationalName.label' | transloco }}
-                </label>
-                <input
-                  id="product-form-intl-name"
-                  type="text"
-                  pInputText
-                  formControlName="internationalName"
-                  [placeholder]="'productForm.fields.internationalName.placeholder' | transloco"
-                  class="w-full"
-                />
-              </div>
-
-              <!-- Description -->
-              <div>
-                <label for="product-form-description" class="block text-sm font-medium mb-1">
-                  {{ 'productForm.fields.description.label' | transloco }}
-                </label>
-                <textarea
-                  id="product-form-description"
-                  pTextarea
-                  formControlName="description"
-                  [placeholder]="'productForm.fields.description.placeholder' | transloco"
-                  rows="4"
-                  class="w-full"
-                ></textarea>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <!-- Type -->
+              <div class="space-y-3 py-2">
+                <!-- International Name -->
                 <div>
-                  <label for="product-form-type" class="block text-sm font-medium mb-1">
-                    {{ 'productForm.fields.type.label' | transloco }}
-                    <span class="text-red-500">*</span>
-                  </label>
-                  <p-select
-                    id="product-form-type"
-                    formControlName="type"
-                    [options]="typeOptions()"
-                    optionLabel="label"
-                    optionValue="value"
-                    [placeholder]="'productForm.fields.type.placeholder' | transloco"
-                    styleClass="w-full"
-                  />
-                  @if (form.get('type')?.touched && form.get('type')?.hasError('required')) {
-                  <small class="text-red-500">{{ 'productForm.fields.type.errors.required' | transloco }}</small>
-                  }
-                </div>
-
-                <!-- Category -->
-                <div>
-                  <label for="product-form-category" class="block text-sm font-medium mb-1">
-                    {{ 'productForm.fields.category.label' | transloco }}
-                  </label>
-                  <p-select
-                    id="product-form-category"
-                    formControlName="categoryId"
-                    [options]="categoryOptions()"
-                    optionLabel="label"
-                    optionValue="value"
-                    [placeholder]="'productForm.fields.category.placeholder' | transloco"
-                    styleClass="w-full"
-                  />
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <!-- Unit -->
-                <div>
-                  <label for="product-form-unit" class="block text-sm font-medium mb-1">
-                    {{ 'productForm.fields.unit.label' | transloco }}
-                    <span class="text-red-500">*</span>
-                  </label>
-                  <p-select
-                    id="product-form-unit"
-                    formControlName="unit"
-                    [options]="unitOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                    [placeholder]="'productForm.fields.unit.placeholder' | transloco"
-                    styleClass="w-full"
-                    [filter]="true"
-                  />
-                  @if (form.get('unit')?.touched && form.get('unit')?.hasError('required')) {
-                  <small class="text-red-500">{{ 'productForm.fields.unit.errors.required' | transloco }}</small>
-                  }
-                </div>
-
-                <!-- Barcode -->
-                <div>
-                  <label for="product-form-barcode" class="block text-sm font-medium mb-1">
-                    {{ 'productForm.fields.barcode.label' | transloco }}
+                  <label for="product-form-intl-name" class="block text-sm font-medium mb-1">
+                    {{ 'productForm.fields.internationalName.label' | transloco }}
                   </label>
                   <input
-                    id="product-form-barcode"
+                    id="product-form-intl-name"
                     type="text"
                     pInputText
-                    formControlName="barcode"
-                    [placeholder]="'productForm.fields.barcode.placeholder' | transloco"
+                    formControlName="internationalName"
+                    [placeholder]="'productForm.fields.internationalName.placeholder' | transloco"
                     class="w-full"
                   />
                 </div>
-              </div>
-            </div>
-          </p-tabpanel>
 
-          <!-- Media Tab Panel -->
-          <p-tabpanel [value]="1">
-            <div class="py-2 space-y-3">
-              <div class="flex justify-between items-center">
-                <p class="text-sm font-medium">
-                  {{ 'productForm.tabs.mediaDescription' | transloco }}
-                </p>
-                <p-button
-                  [label]="'productForm.fields.media.select' | transloco"
-                  icon="pi pi-upload"
-                  size="small"
-                  severity="secondary"
-                  (onClick)="onSelectMedia()"
-                />
-              </div>
+                <!-- Description -->
+                <div>
+                  <label for="product-form-description" class="block text-sm font-medium mb-1">
+                    {{ 'productForm.fields.description.label' | transloco }}
+                  </label>
+                  <textarea
+                    id="product-form-description"
+                    pTextarea
+                    formControlName="description"
+                    [placeholder]="'productForm.fields.description.placeholder' | transloco"
+                    rows="4"
+                    class="w-full"
+                  ></textarea>
+                </div>
 
-              @if (mediaFiles().length > 0) {
-              <div class="space-y-2">
-                @for (file of mediaFiles(); track $index) {
-                <div class="flex items-center gap-3 p-2 bg-surface-50 dark:bg-surface-800 rounded border border-surface-200 dark:border-surface-700">
-                  <i [class]="'pi ' + getFileIcon(file) + ' text-2xl text-primary'"></i>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium truncate">{{ file.name }}</p>
-                    <p class="text-xs text-surface-500">
-                      {{ (file.size / 1024 / 1024).toFixed(2) }} MB
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <!-- Type -->
+                  <div>
+                    <label for="product-form-type" class="block text-sm font-medium mb-1">
+                      {{ 'productForm.fields.type.label' | transloco }}
+                      <span class="text-red-500">*</span>
+                    </label>
+                    <p-select
+                      id="product-form-type"
+                      formControlName="type"
+                      [options]="typeOptions()"
+                      optionLabel="label"
+                      optionValue="value"
+                      [placeholder]="'productForm.fields.type.placeholder' | transloco"
+                      styleClass="w-full"
+                    />
+                    @if (form.get('type')?.touched && form.get('type')?.hasError('required')) {
+                      <small class="text-red-500">{{
+                        'productForm.fields.type.errors.required' | transloco
+                      }}</small>
+                    }
+                  </div>
+
+                  <!-- Category -->
+                  <div>
+                    <label for="product-form-category" class="block text-sm font-medium mb-1">
+                      {{ 'productForm.fields.category.label' | transloco }}
+                    </label>
+                    <p-select
+                      id="product-form-category"
+                      formControlName="categoryId"
+                      [options]="categoryOptions()"
+                      optionLabel="label"
+                      optionValue="value"
+                      [placeholder]="'productForm.fields.category.placeholder' | transloco"
+                      styleClass="w-full"
+                    />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <!-- Unit -->
+                  <div>
+                    <label for="product-form-unit" class="block text-sm font-medium mb-1">
+                      {{ 'productForm.fields.unit.label' | transloco }}
+                      <span class="text-red-500">*</span>
+                    </label>
+                    <p-select
+                      id="product-form-unit"
+                      formControlName="unit"
+                      [options]="unitOptions"
+                      optionLabel="label"
+                      optionValue="value"
+                      [placeholder]="'productForm.fields.unit.placeholder' | transloco"
+                      styleClass="w-full"
+                      [filter]="true"
+                    />
+                    @if (form.get('unit')?.touched && form.get('unit')?.hasError('required')) {
+                      <small class="text-red-500">{{
+                        'productForm.fields.unit.errors.required' | transloco
+                      }}</small>
+                    }
+                  </div>
+
+                  <!-- Barcode -->
+                  <div>
+                    <label for="product-form-barcode" class="block text-sm font-medium mb-1">
+                      {{ 'productForm.fields.barcode.label' | transloco }}
+                    </label>
+                    <input
+                      id="product-form-barcode"
+                      type="text"
+                      pInputText
+                      formControlName="barcode"
+                      [placeholder]="'productForm.fields.barcode.placeholder' | transloco"
+                      class="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </p-tabpanel>
+
+            <!-- Media Tab Panel -->
+            <p-tabpanel [value]="1">
+              <div class="py-2 space-y-3">
+                <div class="flex justify-between items-center">
+                  <p class="text-sm font-medium">
+                    {{ 'productForm.tabs.mediaDescription' | transloco }}
+                  </p>
+                  <p-button
+                    [label]="'productForm.fields.media.select' | transloco"
+                    icon="pi pi-upload"
+                    size="small"
+                    severity="secondary"
+                    (onClick)="onSelectMedia()"
+                  />
+                </div>
+
+                @if (mediaFiles().length > 0) {
+                  <div class="space-y-2">
+                    @for (file of mediaFiles(); track $index) {
+                      <div
+                        class="flex items-center gap-3 p-2 bg-surface-50 dark:bg-surface-800 rounded border border-surface-200 dark:border-surface-700"
+                      >
+                        <i [class]="'pi ' + getFileIcon(file) + ' text-2xl text-primary'"></i>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-sm font-medium truncate">{{ file.name }}</p>
+                          <p class="text-xs text-surface-500">
+                            {{ (file.size / 1024 / 1024).toFixed(2) }} MB
+                          </p>
+                        </div>
+                        <p-button
+                          icon="pi pi-times"
+                          [rounded]="true"
+                          [text]="true"
+                          size="small"
+                          severity="danger"
+                          (onClick)="onRemoveMedia($index)"
+                        />
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div
+                    class="text-center py-8 border-2 border-dashed border-surface-200 dark:border-surface-700 rounded"
+                  >
+                    <i class="pi pi-cloud-upload text-4xl text-surface-400 mb-2"></i>
+                    <p class="text-surface-500 dark:text-surface-400">
+                      {{ 'productForm.tabs.mediaEmpty' | transloco }}
                     </p>
                   </div>
-                  <p-button
-                    icon="pi pi-times"
-                    [rounded]="true"
-                    [text]="true"
-                    size="small"
-                    severity="danger"
-                    (onClick)="onRemoveMedia($index)"
-                  />
-                </div>
                 }
               </div>
-              } @else {
-              <div class="text-center py-8 border-2 border-dashed border-surface-200 dark:border-surface-700 rounded">
-                <i class="pi pi-cloud-upload text-4xl text-surface-400 mb-2"></i>
-                <p class="text-surface-500 dark:text-surface-400">
-                  {{ 'productForm.tabs.mediaEmpty' | transloco }}
+            </p-tabpanel>
+
+            <!-- Dimensions Tab Panel -->
+            <p-tabpanel [value]="2">
+              <div class="space-y-3 py-2">
+                <div class="grid grid-cols-2 gap-3">
+                  <!-- Weight -->
+                  <div>
+                    <label for="product-form-weight" class="block text-sm font-medium mb-1">
+                      {{ 'productForm.fields.weight.label' | transloco }}
+                    </label>
+                    <p-inputNumber
+                      id="product-form-weight"
+                      formControlName="weight"
+                      mode="decimal"
+                      [minFractionDigits]="2"
+                      [maxFractionDigits]="2"
+                      [placeholder]="'productForm.fields.weight.placeholder' | transloco"
+                      styleClass="w-full"
+                    />
+                  </div>
+
+                  <!-- Expiry Days -->
+                  <div>
+                    <label for="product-form-expiry" class="block text-sm font-medium mb-1">
+                      {{ 'productForm.fields.expiryDays.label' | transloco }}
+                    </label>
+                    <p-inputNumber
+                      id="product-form-expiry"
+                      formControlName="expiryDays"
+                      [placeholder]="'productForm.fields.expiryDays.placeholder' | transloco"
+                      styleClass="w-full"
+                    />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                  <!-- Length -->
+                  <div>
+                    <label for="product-form-length" class="block text-sm font-medium mb-1">
+                      {{ 'productForm.fields.length.label' | transloco }}
+                    </label>
+                    <p-inputNumber
+                      id="product-form-length"
+                      formControlName="length"
+                      [placeholder]="'productForm.fields.length.placeholder' | transloco"
+                      styleClass="w-full"
+                    />
+                  </div>
+
+                  <!-- Width -->
+                  <div>
+                    <label for="product-form-width" class="block text-sm font-medium mb-1">
+                      {{ 'productForm.fields.width.label' | transloco }}
+                    </label>
+                    <p-inputNumber
+                      id="product-form-width"
+                      formControlName="width"
+                      [placeholder]="'productForm.fields.width.placeholder' | transloco"
+                      styleClass="w-full"
+                    />
+                  </div>
+
+                  <!-- Height -->
+                  <div>
+                    <label for="product-form-height" class="block text-sm font-medium mb-1">
+                      {{ 'productForm.fields.height.label' | transloco }}
+                    </label>
+                    <p-inputNumber
+                      id="product-form-height"
+                      formControlName="height"
+                      [placeholder]="'productForm.fields.height.placeholder' | transloco"
+                      styleClass="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </p-tabpanel>
+
+            <!-- Storage Conditions Tab Panel -->
+            <p-tabpanel [value]="3">
+              <div class="space-y-3 py-2">
+                <!-- Storage Conditions -->
+                <div>
+                  <label for="product-form-storage" class="block text-sm font-medium mb-1">
+                    {{ 'productForm.fields.storageConditions.label' | transloco }}
+                  </label>
+                  <textarea
+                    id="product-form-storage"
+                    pTextarea
+                    formControlName="storageConditions"
+                    [placeholder]="'productForm.fields.storageConditions.placeholder' | transloco"
+                    rows="4"
+                    class="w-full"
+                  ></textarea>
+                </div>
+              </div>
+            </p-tabpanel>
+
+            <!-- Warehouse Settings Tab Panel -->
+            <p-tabpanel [value]="4">
+              <div class="py-2">
+                <p class="text-sm text-surface-500 dark:text-surface-400">
+                  {{ 'productForm.tabs.warehousePlaceholder' | transloco }}
                 </p>
               </div>
-              }
-            </div>
-          </p-tabpanel>
+            </p-tabpanel>
 
-          <!-- Dimensions Tab Panel -->
-          <p-tabpanel [value]="2">
-            <div class="space-y-3 py-2">
-              <div class="grid grid-cols-2 gap-3">
-                <!-- Weight -->
-                <div>
-                  <label for="product-form-weight" class="block text-sm font-medium mb-1">
-                    {{ 'productForm.fields.weight.label' | transloco }}
-                  </label>
-                  <p-inputNumber
-                    id="product-form-weight"
-                    formControlName="weight"
-                    mode="decimal"
-                    [minFractionDigits]="2"
-                    [maxFractionDigits]="2"
-                    [placeholder]="'productForm.fields.weight.placeholder' | transloco"
-                    styleClass="w-full"
-                  />
-                </div>
-
-                <!-- Expiry Days -->
-                <div>
-                  <label for="product-form-expiry" class="block text-sm font-medium mb-1">
-                    {{ 'productForm.fields.expiryDays.label' | transloco }}
-                  </label>
-                  <p-inputNumber
-                    id="product-form-expiry"
-                    formControlName="expiryDays"
-                    [placeholder]="'productForm.fields.expiryDays.placeholder' | transloco"
-                    styleClass="w-full"
-                  />
-                </div>
+            <!-- Custom Fields Tab Panel -->
+            <p-tabpanel [value]="5">
+              <div class="py-2">
+                <p class="text-sm text-surface-500 dark:text-surface-400">
+                  {{ 'productForm.tabs.customPlaceholder' | transloco }}
+                </p>
               </div>
-
-              <div class="grid grid-cols-3 gap-3">
-                <!-- Length -->
-                <div>
-                  <label for="product-form-length" class="block text-sm font-medium mb-1">
-                    {{ 'productForm.fields.length.label' | transloco }}
-                  </label>
-                  <p-inputNumber
-                    id="product-form-length"
-                    formControlName="length"
-                    [placeholder]="'productForm.fields.length.placeholder' | transloco"
-                    styleClass="w-full"
-                  />
-                </div>
-
-                <!-- Width -->
-                <div>
-                  <label for="product-form-width" class="block text-sm font-medium mb-1">
-                    {{ 'productForm.fields.width.label' | transloco }}
-                  </label>
-                  <p-inputNumber
-                    id="product-form-width"
-                    formControlName="width"
-                    [placeholder]="'productForm.fields.width.placeholder' | transloco"
-                    styleClass="w-full"
-                  />
-                </div>
-
-                <!-- Height -->
-                <div>
-                  <label for="product-form-height" class="block text-sm font-medium mb-1">
-                    {{ 'productForm.fields.height.label' | transloco }}
-                  </label>
-                  <p-inputNumber
-                    id="product-form-height"
-                    formControlName="height"
-                    [placeholder]="'productForm.fields.height.placeholder' | transloco"
-                    styleClass="w-full"
-                  />
-                </div>
-              </div>
-            </div>
-          </p-tabpanel>
-
-          <!-- Storage Conditions Tab Panel -->
-          <p-tabpanel [value]="3">
-            <div class="space-y-3 py-2">
-              <!-- Storage Conditions -->
-              <div>
-                <label for="product-form-storage" class="block text-sm font-medium mb-1">
-                  {{ 'productForm.fields.storageConditions.label' | transloco }}
-                </label>
-                <textarea
-                  id="product-form-storage"
-                  pTextarea
-                  formControlName="storageConditions"
-                  [placeholder]="'productForm.fields.storageConditions.placeholder' | transloco"
-                  rows="4"
-                  class="w-full"
-                ></textarea>
-              </div>
-            </div>
-          </p-tabpanel>
-
-          <!-- Warehouse Settings Tab Panel -->
-          <p-tabpanel [value]="4">
-            <div class="py-2">
-              <p class="text-sm text-surface-500 dark:text-surface-400">
-                {{ 'productForm.tabs.warehousePlaceholder' | transloco }}
-              </p>
-            </div>
-          </p-tabpanel>
-
-          <!-- Custom Fields Tab Panel -->
-          <p-tabpanel [value]="5">
-            <div class="py-2">
-              <p class="text-sm text-surface-500 dark:text-surface-400">
-                {{ 'productForm.tabs.customPlaceholder' | transloco }}
-              </p>
-            </div>
-          </p-tabpanel>
+            </p-tabpanel>
           </p-tabpanels>
         </p-tabs>
       </form>
     </div>
 
     <!-- Footer Section (Fixed) -->
-    <div class="p-4 border-t border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800">
+    <div
+      class="p-4 border-t border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800"
+    >
       <div class="flex flex-wrap gap-2 justify-end">
         <p-button
           [label]="'productForm.actions.cancel' | transloco"

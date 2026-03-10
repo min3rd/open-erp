@@ -11,7 +11,13 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -150,7 +156,10 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
   protected readonly nodeOptions = computed(() => {
     return this.vflowNodes().map((n) => {
       const dataSignal = (n as unknown as Record<string, unknown>)['data'];
-      const data = typeof dataSignal === 'function' ? (dataSignal as () => VflowNodeData)() : (dataSignal as VflowNodeData | undefined);
+      const data =
+        typeof dataSignal === 'function'
+          ? (dataSignal as () => VflowNodeData)()
+          : (dataSignal as VflowNodeData | undefined);
       return {
         label: `${data?.label || 'Node'} (${n.id})`,
         value: n.id,
@@ -438,14 +447,10 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
     switch (nodeType) {
       case WorkflowNodeType.START:
         // Start: 1 source (right), no target
-        return [
-          { id: 'source-1', type: 'source', position: 'right', offsetY: 0 },
-        ];
+        return [{ id: 'source-1', type: 'source', position: 'right', offsetY: 0 }];
       case WorkflowNodeType.END:
         // End: 1 target (left), no source
-        return [
-          { id: 'target-1', type: 'target', position: 'left', offsetY: 0 },
-        ];
+        return [{ id: 'target-1', type: 'target', position: 'left', offsetY: 0 }];
       case WorkflowNodeType.APPROVAL:
         // Approval: 1 target (left), 2 sources (right, offset)
         return [
@@ -613,9 +618,13 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
     const existingData = typeof node.data === 'function' ? node.data() : node.data;
 
     // Parse approverIds from comma-separated string to array
-    const approverIds = typeof formVal.approverIds === 'string'
-      ? formVal.approverIds.split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0)
-      : formVal.approverIds || [];
+    const approverIds =
+      typeof formVal.approverIds === 'string'
+        ? formVal.approverIds
+            .split(',')
+            .map((s: string) => s.trim())
+            .filter((s: string) => s.length > 0)
+        : formVal.approverIds || [];
 
     // Update the data signal
     if (typeof node.data === 'function' && typeof node.data.set === 'function') {
@@ -683,7 +692,8 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
       const pointSignal = n.point;
       const point = typeof pointSignal === 'function' ? pointSignal() : pointSignal;
       const dataSignal = (n as VflowNode<VflowNodeData> & { data?: any }).data;
-      const data: VflowNodeData | undefined = typeof dataSignal === 'function' ? dataSignal() : dataSignal;
+      const data: VflowNodeData | undefined =
+        typeof dataSignal === 'function' ? dataSignal() : dataSignal;
       return {
         id: n.id,
         point: { x: point.x, y: point.y },
@@ -808,7 +818,9 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
     const t = this.template();
     if (!t) return;
     this.confirmationService.confirm({
-      message: this.translocoService.translate('workflowTemplate.confirmDelete.message', { name: t.name }),
+      message: this.translocoService.translate('workflowTemplate.confirmDelete.message', {
+        name: t.name,
+      }),
       header: this.translocoService.translate('workflowTemplate.confirmDelete.header'),
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
@@ -818,7 +830,9 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'success',
               summary: this.translocoService.translate('workflowTemplate.messages.success'),
-              detail: this.translocoService.translate('workflowTemplate.messages.deleteSuccess', { name: t.name }),
+              detail: this.translocoService.translate('workflowTemplate.messages.deleteSuccess', {
+                name: t.name,
+              }),
             });
             this.onClose();
           },
@@ -914,7 +928,9 @@ export class WorkflowTemplateForm implements OnInit, OnDestroy {
     const t = this.template();
     if (!t) return;
     this.isLoading.set(true);
-    const cloneName = this.translocoService.translate('workflowTemplate.messages.cloneSuffix', { name: t.name });
+    const cloneName = this.translocoService.translate('workflowTemplate.messages.cloneSuffix', {
+      name: t.name,
+    });
     this.templateService.cloneTemplate(t._id, { name: cloneName }).subscribe({
       next: (cloned) => {
         this.messageService.add({

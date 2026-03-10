@@ -97,7 +97,9 @@ export class RolesAssignment implements OnInit, OnDestroy {
       value: 'global',
     },
     {
-      label: this.translocoService.translate('userDetail.rolesAssignment.scopeSelector.organization'),
+      label: this.translocoService.translate(
+        'userDetail.rolesAssignment.scopeSelector.organization',
+      ),
       value: 'organization',
     },
   ]);
@@ -107,12 +109,12 @@ export class RolesAssignment implements OnInit, OnDestroy {
   protected readonly hasGlobalPermissions = computed(() => {
     const user = this.currentUser();
     if (!user) return false;
-    
+
     // Super admin role bypasses all permission checks
     if (user.roles && user.roles.includes('SUPER_ADMIN')) {
       return true;
     }
-    
+
     // Otherwise check for specific permissions
     if (!user.permissions) return false;
     const permissions = user.permissions;
@@ -120,21 +122,15 @@ export class RolesAssignment implements OnInit, OnDestroy {
   });
 
   // Computed values for display
-  protected readonly globalRoles = computed(() => 
-    this.rolesPermissions()?.globalRoles || []
+  protected readonly globalRoles = computed(() => this.rolesPermissions()?.globalRoles || []);
+
+  protected readonly globalPermissions = computed(
+    () => this.rolesPermissions()?.globalPermissions || [],
   );
 
-  protected readonly globalPermissions = computed(() => 
-    this.rolesPermissions()?.globalPermissions || []
-  );
+  protected readonly orgRoles = computed(() => this.rolesPermissions()?.orgRoles || []);
 
-  protected readonly orgRoles = computed(() => 
-    this.rolesPermissions()?.orgRoles || []
-  );
-
-  protected readonly orgPermissions = computed(() => 
-    this.rolesPermissions()?.orgPermissions || []
-  );
+  protected readonly orgPermissions = computed(() => this.rolesPermissions()?.orgPermissions || []);
 
   ngOnInit(): void {
     // Get current authenticated user
@@ -160,23 +156,19 @@ export class RolesAssignment implements OnInit, OnDestroy {
     });
 
     // Subscribe to user updates from service
-    this.userDetailService.userUpdated$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((updatedUser) => {
-        if (updatedUser && updatedUser.id === this.user()?.id) {
-          this.user.set(updatedUser);
-          this.reloadRolesPermissions();
-        }
-      });
+    this.userDetailService.userUpdated$.pipe(takeUntil(this.destroy$)).subscribe((updatedUser) => {
+      if (updatedUser && updatedUser.id === this.user()?.id) {
+        this.user.set(updatedUser);
+        this.reloadRolesPermissions();
+      }
+    });
 
     // Subscribe to organization changes
-    this.orgContextService.organizationChanged$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        if (this.selectedScope() === 'organization') {
-          this.reloadRolesPermissions();
-        }
-      });
+    this.orgContextService.organizationChanged$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      if (this.selectedScope() === 'organization') {
+        this.reloadRolesPermissions();
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -192,10 +184,9 @@ export class RolesAssignment implements OnInit, OnDestroy {
     if (!userData) return;
 
     this.isLoading.set(true);
-    
-    const orgId = this.selectedScope() === 'organization' 
-      ? this.currentOrganization()?.id 
-      : undefined;
+
+    const orgId =
+      this.selectedScope() === 'organization' ? this.currentOrganization()?.id : undefined;
 
     this.userDetailService
       .getUserRolesPermissions(userData.id, orgId)
@@ -232,7 +223,7 @@ export class RolesAssignment implements OnInit, OnDestroy {
    */
   protected openGrantRolesPanel(scope: 'global' | 'organization'): void {
     const orgId = scope === 'organization' ? this.currentOrganization()?.id : undefined;
-    
+
     this.grantRolesScope.set(scope);
     this.isLoading.set(true);
     this.userDetailService
@@ -269,7 +260,9 @@ export class RolesAssignment implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'error',
         summary: this.translocoService.translate('userDetail.messages.error'),
-        detail: this.translocoService.translate('userDetail.rolesAssignment.dialogs.grantRoles.error'),
+        detail: this.translocoService.translate(
+          'userDetail.rolesAssignment.dialogs.grantRoles.error',
+        ),
       });
       return;
     }
@@ -294,7 +287,9 @@ export class RolesAssignment implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'success',
             summary: this.translocoService.translate('userDetail.messages.success'),
-            detail: this.translocoService.translate('userDetail.rolesAssignment.dialogs.grantRoles.success'),
+            detail: this.translocoService.translate(
+              'userDetail.rolesAssignment.dialogs.grantRoles.success',
+            ),
           });
           this.showGrantRolesPanel.set(false);
           this.isGrantingRoles.set(false);
@@ -305,7 +300,9 @@ export class RolesAssignment implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: this.translocoService.translate('userDetail.messages.error'),
-            detail: this.translocoService.translate('userDetail.rolesAssignment.dialogs.grantRoles.error'),
+            detail: this.translocoService.translate(
+              'userDetail.rolesAssignment.dialogs.grantRoles.error',
+            ),
           });
           this.isGrantingRoles.set(false);
         },
@@ -318,14 +315,14 @@ export class RolesAssignment implements OnInit, OnDestroy {
   protected openManageOrgRolesDialog(org: OrganizationBasic): void {
     this.selectedOrgForManage.set(org);
     this.isLoading.set(true);
-    
+
     this.userDetailService
       .getAvailableRoles(org.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (roles) => {
           this.availableRoles.set(roles);
-          
+
           // Load current roles for this organization from the memberships
           const userData = this.user();
           if (userData) {
@@ -334,7 +331,7 @@ export class RolesAssignment implements OnInit, OnDestroy {
               .pipe(takeUntil(this.destroy$))
               .subscribe({
                 next: (rolesPerms) => {
-                  const currentRoleIds = (rolesPerms.orgRoles || []).map(r => r.id);
+                  const currentRoleIds = (rolesPerms.orgRoles || []).map((r) => r.id);
                   this.selectedRoleIds.set(currentRoleIds);
                   this.showManageOrgRolesDialog.set(true);
                   this.isLoading.set(false);
@@ -344,7 +341,7 @@ export class RolesAssignment implements OnInit, OnDestroy {
                   this.selectedRoleIds.set([]);
                   this.showManageOrgRolesDialog.set(true);
                   this.isLoading.set(false);
-                }
+                },
               });
           }
         },
@@ -382,11 +379,13 @@ export class RolesAssignment implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'success',
             summary: this.translocoService.translate('userDetail.messages.success'),
-            detail: this.translocoService.translate('userDetail.rolesAssignment.dialogs.manageOrgRoles.success'),
+            detail: this.translocoService.translate(
+              'userDetail.rolesAssignment.dialogs.manageOrgRoles.success',
+            ),
           });
           this.showManageOrgRolesDialog.set(false);
           this.isGrantingRoles.set(false);
-          
+
           // Reload organizations to get updated roles
           this.userDetailService
             .getUserOrganizations(userData.id)
@@ -400,7 +399,9 @@ export class RolesAssignment implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: this.translocoService.translate('userDetail.messages.error'),
-            detail: this.translocoService.translate('userDetail.rolesAssignment.dialogs.manageOrgRoles.error'),
+            detail: this.translocoService.translate(
+              'userDetail.rolesAssignment.dialogs.manageOrgRoles.error',
+            ),
           });
           this.isGrantingRoles.set(false);
         },
@@ -440,4 +441,3 @@ export class RolesAssignment implements OnInit, OnDestroy {
     return new Date(dateString).toLocaleDateString();
   }
 }
-

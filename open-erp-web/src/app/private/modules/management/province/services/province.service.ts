@@ -3,12 +3,12 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { API_URI_COMMON } from '../../../../../../core/constant';
-import { 
-  ApiPaginatedResponse, 
-  ApiResponse, 
+import {
+  ApiPaginatedResponse,
+  ApiResponse,
   ApiSingleResponse,
-  unwrap, 
-  isApiResponse 
+  unwrap,
+  isApiResponse,
 } from '../../../../../../core/api';
 import {
   Province,
@@ -24,7 +24,7 @@ import {
 })
 export class ProvinceService {
   private http = inject(HttpClient);
-  
+
   // BehaviorSubject to manage province list state
   private provincesSubject = new BehaviorSubject<Province[]>([]);
   public provinces$ = this.provincesSubject.asObservable();
@@ -50,7 +50,7 @@ export class ProvinceService {
         `${API_URI_COMMON}/v1/provinces`,
         {
           params: httpParams,
-        }
+        },
       )
       .pipe(
         map((response) => {
@@ -72,7 +72,7 @@ export class ProvinceService {
           };
           this.provincesSubject.next(data.items);
           return data;
-        })
+        }),
       );
   }
 
@@ -90,7 +90,7 @@ export class ProvinceService {
             return data.item!;
           }
           return response as Province;
-        })
+        }),
       );
   }
 
@@ -113,7 +113,7 @@ export class ProvinceService {
           // Add the new province to the list
           const currentList = this.provincesSubject.value;
           this.provincesSubject.next([province, ...currentList]);
-        })
+        }),
       );
   }
 
@@ -135,9 +135,9 @@ export class ProvinceService {
         tap((province) => {
           // Update the province in the list
           const currentList = this.provincesSubject.value;
-          const updatedList = currentList.map(p => p.id === province.id ? province : p);
+          const updatedList = currentList.map((p) => (p.id === province.id ? province : p));
           this.provincesSubject.next(updatedList);
-        })
+        }),
       );
   }
 
@@ -149,9 +149,9 @@ export class ProvinceService {
       tap(() => {
         // Remove the province from the list
         const currentList = this.provincesSubject.value;
-        const updatedList = currentList.filter(p => p.id !== id);
+        const updatedList = currentList.filter((p) => p.id !== id);
         this.provincesSubject.next(updatedList);
-      })
+      }),
     );
   }
 
@@ -175,7 +175,7 @@ export class ProvinceService {
       {
         params: httpParams,
         responseType: 'blob',
-      }
+      },
     );
   }
 
@@ -199,7 +199,7 @@ export class ProvinceService {
       {
         params: httpParams,
         responseType: 'blob',
-      }
+      },
     );
   }
 
@@ -211,17 +211,16 @@ export class ProvinceService {
     formData.append('file', file);
 
     return this.http
-      .post<ApiResponse<ImportResult> | ImportResult>(
-        `${API_URI_COMMON}/v1/provinces/import`,
-        formData
-      )
+      .post<
+        ApiResponse<ImportResult> | ImportResult
+      >(`${API_URI_COMMON}/v1/provinces/import`, formData)
       .pipe(
         map((response) => {
           if (isApiResponse(response)) {
             return unwrap(response as ApiResponse<ImportResult>);
           }
           return response as ImportResult;
-        })
+        }),
       );
   }
 }

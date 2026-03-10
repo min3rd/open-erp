@@ -77,7 +77,7 @@ export class NavigationService {
         `${API_URI_CONFIG}/${version}/navigations/global`,
         {
           params: new HttpParams().set('format', 'tree'),
-        }
+        },
       )
       .pipe(
         map((response) => {
@@ -93,24 +93,21 @@ export class NavigationService {
           // Return empty array on error
           this._modules.next([]);
           return of([]);
-        })
+        }),
       );
   }
 
   /**
    * Load module-specific navigation
    */
-  loadModuleNavigation(
-    moduleKey: string,
-    version: string = 'v1'
-  ): Observable<MenuItem[]> {
+  loadModuleNavigation(moduleKey: string, version: string = 'v1'): Observable<MenuItem[]> {
     // Call backend navigation API for module scope
     return this.httpClient
       .get<ApiSingleResponse<NavigationListResponse>>(
         `${API_URI_CONFIG}/${version}/navigations/module/${moduleKey}`,
         {
           params: new HttpParams().set('format', 'tree'),
-        }
+        },
       )
       .pipe(
         map((response) => {
@@ -118,17 +115,20 @@ export class NavigationService {
           // The API wraps data in ApiSingleData format with item property containing NavigationListResponse
           const items = navigationData?.item?.items || [];
           const menuItems = this.mapNavigationItemsToMenuItems(items);
-          
+
           if (!this._moduleNavigation.has(moduleKey)) {
             this._moduleNavigation.set(moduleKey, new BehaviorSubject<MenuItem[]>(menuItems));
           } else {
             this._moduleNavigation.get(moduleKey)!.next(menuItems);
           }
-          
+
           return menuItems;
         }),
         catchError((error) => {
-          console.error(`NavigationService: Error loading navigation for module ${moduleKey}`, error);
+          console.error(
+            `NavigationService: Error loading navigation for module ${moduleKey}`,
+            error,
+          );
           // Return empty array on error
           const emptyItems: MenuItem[] = [];
           if (!this._moduleNavigation.has(moduleKey)) {
@@ -137,7 +137,7 @@ export class NavigationService {
             this._moduleNavigation.get(moduleKey)!.next(emptyItems);
           }
           return of(emptyItems);
-        })
+        }),
       );
   }
 
@@ -190,7 +190,7 @@ export class NavigationService {
       menuItem.url = item.url;
     }
 
-    // Handle command - note: command execution would need to be implemented 
+    // Handle command - note: command execution would need to be implemented
     // based on specific application requirements. Currently logs warning only.
     // TODO: Implement command execution strategy if needed
     if (item.command) {

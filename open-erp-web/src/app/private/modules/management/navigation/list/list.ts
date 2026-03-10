@@ -83,10 +83,10 @@ export class NavigationList implements OnInit, OnDestroy {
 
   // Computed values
   protected readonly globalTreeNodes = computed(() =>
-    this.convertToTreeNodes(this.globalNavigationItems())
+    this.convertToTreeNodes(this.globalNavigationItems()),
   );
   protected readonly moduleTreeNodes = computed(() =>
-    this.convertToTreeNodes(this.moduleNavigationItems())
+    this.convertToTreeNodes(this.moduleNavigationItems()),
   );
   protected readonly selectedTreeNode = signal<TreeNode | null>(null);
 
@@ -368,7 +368,7 @@ export class NavigationList implements OnInit, OnDestroy {
       confirm(
         this.translocoService.translate('navigationManagement.deleteDialog.message', {
           label: item.label,
-        })
+        }),
       )
     ) {
       this.navigationService
@@ -380,7 +380,7 @@ export class NavigationList implements OnInit, OnDestroy {
               severity: 'success',
               summary: this.translocoService.translate('navigationManagement.messages.success'),
               detail: this.translocoService.translate(
-                'navigationManagement.messages.deleteSuccess'
+                'navigationManagement.messages.deleteSuccess',
               ),
             });
             this.selectedItem.set(null);

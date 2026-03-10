@@ -17,13 +17,7 @@ import type { MeProfile } from './me.types';
 
 @Component({
   selector: 'app-me',
-  imports: [
-    CommonModule,
-    TranslocoModule,
-    AvatarModule,
-    SkeletonModule,
-    RouterOutlet
-],
+  imports: [CommonModule, TranslocoModule, AvatarModule, SkeletonModule, RouterOutlet],
   templateUrl: './me.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -40,8 +34,16 @@ export class Me implements OnInit, OnDestroy {
   get tabs() {
     return [
       { label: this.translocoService.translate('me.tabs.profile'), route: '/me', index: 0 },
-      { label: this.translocoService.translate('me.tabs.security'), route: '/me/security', index: 1 },
-      { label: this.translocoService.translate('me.tabs.settings'), route: '/me/settings', index: 2 },
+      {
+        label: this.translocoService.translate('me.tabs.security'),
+        route: '/me/security',
+        index: 1,
+      },
+      {
+        label: this.translocoService.translate('me.tabs.settings'),
+        route: '/me/settings',
+        index: 2,
+      },
     ];
   }
 

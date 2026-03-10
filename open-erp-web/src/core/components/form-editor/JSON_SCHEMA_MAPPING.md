@@ -9,55 +9,59 @@ The Form Editor uses an internal representation optimized for editing, then conv
 ## Component to JSON Schema Type Mapping
 
 ### String Types
-| Component Type | JSON Schema Type | UI Widget |
-|---------------|------------------|-----------|
-| input | string | text |
-| textarea | string | textarea |
-| select | string | select |
-| autocomplete | string | autocomplete |
-| cascade-select | string | cascadeSelect |
-| color-picker | string | color |
-| date-picker | string | date |
-| radio-button | string | radio |
+
+| Component Type | JSON Schema Type | UI Widget     |
+| -------------- | ---------------- | ------------- |
+| input          | string           | text          |
+| textarea       | string           | textarea      |
+| select         | string           | select        |
+| autocomplete   | string           | autocomplete  |
+| cascade-select | string           | cascadeSelect |
+| color-picker   | string           | color         |
+| date-picker    | string           | date          |
+| radio-button   | string           | radio         |
 
 ### Boolean Types
-| Component Type | JSON Schema Type | UI Widget |
-|---------------|------------------|-----------|
-| checkbox | boolean | checkbox |
-| toggle-button | boolean | toggleButton |
-| toggle-switch | boolean | toggleSwitch |
+
+| Component Type | JSON Schema Type | UI Widget    |
+| -------------- | ---------------- | ------------ |
+| checkbox       | boolean          | checkbox     |
+| toggle-button  | boolean          | toggleButton |
+| toggle-switch  | boolean          | toggleSwitch |
 
 ### Number Types
+
 | Component Type | JSON Schema Type | UI Widget |
-|---------------|------------------|-----------|
-| slider | number | slider |
-| rating | number | rating |
+| -------------- | ---------------- | --------- |
+| slider         | number           | slider    |
+| rating         | number           | rating    |
 
 ### Layout Types
+
 Layout components don't create properties but define the `ui:layout` structure.
 
-| Component Type | UI Layout Type | Description |
-|---------------|----------------|-------------|
-| layout-1-column | row | Single column layout |
-| layout-2-column | row (columns: 2) | Two column layout |
-| layout-3-column | row (columns: 3) | Three column layout |
-| divider | divider | Horizontal divider |
-| button | column (widget: button) | Button element |
+| Component Type  | UI Layout Type          | Description          |
+| --------------- | ----------------------- | -------------------- |
+| layout-1-column | row                     | Single column layout |
+| layout-2-column | row (columns: 2)        | Two column layout    |
+| layout-3-column | row (columns: 3)        | Three column layout  |
+| divider         | divider                 | Horizontal divider   |
+| button          | column (widget: button) | Button element       |
 
 ## Validation Mapping
 
 Form Editor validation rules map to JSON Schema validation keywords:
 
-| Editor Validation | JSON Schema Keyword | Applies To |
-|------------------|---------------------|------------|
-| minLength | minLength | string types |
-| maxLength | maxLength | string types |
-| min | minimum | number types |
-| max | maximum | number types |
-| pattern | pattern | string types |
-| email | format: "email" | string types |
-| url | format: "uri" | string types |
-| required | required array | all types |
+| Editor Validation | JSON Schema Keyword | Applies To   |
+| ----------------- | ------------------- | ------------ |
+| minLength         | minLength           | string types |
+| maxLength         | maxLength           | string types |
+| min               | minimum             | number types |
+| max               | maximum             | number types |
+| pattern           | pattern             | string types |
+| email             | format: "email"     | string types |
+| url               | format: "uri"       | string types |
+| required          | required array      | all types    |
 
 ## UI Extensions
 
@@ -67,12 +71,13 @@ The editor adds vendor-specific extensions under the `ui:` prefix:
 
 ```json
 {
-  "ui:widget": "text",           // Widget type (text, select, checkbox, etc.)
+  "ui:widget": "text", // Widget type (text, select, checkbox, etc.)
   "ui:placeholder": "Enter text", // Placeholder text
-  "ui:disabled": true,            // Disabled state
-  "ui:readonly": false,           // Readonly state
-  "ui:classNames": "custom-css",  // CSS classes
-  "ui:options": {                 // Additional options
+  "ui:disabled": true, // Disabled state
+  "ui:readonly": false, // Readonly state
+  "ui:classNames": "custom-css", // CSS classes
+  "ui:options": {
+    // Additional options
     "enumLabels": ["Label 1", "Label 2"]
   }
 }
@@ -82,13 +87,14 @@ The editor adds vendor-specific extensions under the `ui:` prefix:
 
 ```json
 {
-  "ui:order": ["field1", "field2"],  // Field display order
-  "ui:layout": [                      // Layout structure
+  "ui:order": ["field1", "field2"], // Field display order
+  "ui:layout": [
+    // Layout structure
     {
-      "type": "row",                  // Layout type (row, column, divider)
-      "columns": 2,                   // Number of columns
+      "type": "row", // Layout type (row, column, divider)
+      "columns": 2, // Number of columns
       "children": ["field1", "field2"], // Child field IDs or layouts
-      "cssClasses": "custom-class"    // CSS classes for layout
+      "cssClasses": "custom-class" // CSS classes for layout
     }
   ]
 }
@@ -99,6 +105,7 @@ The editor adds vendor-specific extensions under the `ui:` prefix:
 ### Simple Input Field
 
 **Editor Schema:**
+
 ```json
 {
   "id": "username",
@@ -114,6 +121,7 @@ The editor adds vendor-specific extensions under the `ui:` prefix:
 ```
 
 **JSON Schema Output:**
+
 ```json
 {
   "properties": {
@@ -133,6 +141,7 @@ The editor adds vendor-specific extensions under the `ui:` prefix:
 ### Select with Options
 
 **Editor Schema:**
+
 ```json
 {
   "id": "country",
@@ -146,6 +155,7 @@ The editor adds vendor-specific extensions under the `ui:` prefix:
 ```
 
 **JSON Schema Output:**
+
 ```json
 {
   "properties": {
@@ -165,6 +175,7 @@ The editor adds vendor-specific extensions under the `ui:` prefix:
 ### Layout with Fields
 
 **Editor Schema:**
+
 ```json
 {
   "id": "layout1",
@@ -185,6 +196,7 @@ The editor adds vendor-specific extensions under the `ui:` prefix:
 ```
 
 **JSON Schema Output:**
+
 ```json
 {
   "properties": {
@@ -212,6 +224,7 @@ The editor adds vendor-specific extensions under the `ui:` prefix:
 ### Checkbox with Validation
 
 **Editor Schema:**
+
 ```json
 {
   "id": "terms",
@@ -222,6 +235,7 @@ The editor adds vendor-specific extensions under the `ui:` prefix:
 ```
 
 **JSON Schema Output:**
+
 ```json
 {
   "properties": {
@@ -240,6 +254,7 @@ The editor adds vendor-specific extensions under the `ui:` prefix:
 Labels and placeholders can use i18n keys instead of literal strings:
 
 **Editor Schema:**
+
 ```json
 {
   "id": "email",
@@ -250,6 +265,7 @@ Labels and placeholders can use i18n keys instead of literal strings:
 ```
 
 **JSON Schema Output:**
+
 ```json
 {
   "properties": {

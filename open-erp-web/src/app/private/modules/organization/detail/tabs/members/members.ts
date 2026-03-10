@@ -83,7 +83,9 @@ export class Members implements OnInit, OnDestroy {
   protected readonly showPersonnelSettings = signal(false);
   protected readonly personnelMember = signal<OrganizationMember | null>(null);
 
-  protected readonly orgId = computed(() => this.organizationContextService.currentOrganization()?.id ?? null);
+  protected readonly orgId = computed(
+    () => this.organizationContextService.currentOrganization()?.id ?? null,
+  );
 
   protected readonly deptFilterSelectOptions = computed(() => [
     {
@@ -94,9 +96,10 @@ export class Members implements OnInit, OnDestroy {
   ]);
 
   ngOnInit(): void {
-    const resolved = this.route.snapshot.data['members'] as
-      | { items: OrganizationMember[]; total: number }
-      | null;
+    const resolved = this.route.snapshot.data['members'] as {
+      items: OrganizationMember[];
+      total: number;
+    } | null;
     if (resolved) {
       this.members.set(resolved.items);
       this.membersTotal.set(resolved.total);

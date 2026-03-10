@@ -157,7 +157,7 @@ export class ImportExportList implements OnInit, OnDestroy {
       .subscribe(([params, queryParams]) => {
         const page = parseInt(params['page'], 10) || 1;
         const limit = parseInt(params['limit'], 10) || 20;
-        const search = params['search'] === '-' ? '' : (params['search'] || '');
+        const search = params['search'] === '-' ? '' : params['search'] || '';
 
         this.currentPage.set(page);
         this.pageSize.set(limit);
@@ -298,27 +298,29 @@ export class ImportExportList implements OnInit, OnDestroy {
     if (!file || !this.importEntity()) return;
 
     this.isImporting.set(true);
-    this.service.createImportJob({ entity: this.importEntity(), importMode: this.importMode() }, file).subscribe({
-      next: (job) => {
-        this.isImporting.set(false);
-        this.closeImportDrawer();
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translocoService.translate('importExport.messages.importStarted'),
-          detail: this.translocoService.translate('importExport.messages.importStartedDetail'),
-        });
-        this.loadJobs(this.currentPage(), this.pageSize());
-        this.pollJobStatus(job._id);
-      },
-      error: () => {
-        this.isImporting.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translocoService.translate('importExport.messages.error'),
-          detail: this.translocoService.translate('importExport.messages.importFailed'),
-        });
-      },
-    });
+    this.service
+      .createImportJob({ entity: this.importEntity(), importMode: this.importMode() }, file)
+      .subscribe({
+        next: (job) => {
+          this.isImporting.set(false);
+          this.closeImportDrawer();
+          this.messageService.add({
+            severity: 'success',
+            summary: this.translocoService.translate('importExport.messages.importStarted'),
+            detail: this.translocoService.translate('importExport.messages.importStartedDetail'),
+          });
+          this.loadJobs(this.currentPage(), this.pageSize());
+          this.pollJobStatus(job._id);
+        },
+        error: () => {
+          this.isImporting.set(false);
+          this.messageService.add({
+            severity: 'error',
+            summary: this.translocoService.translate('importExport.messages.error'),
+            detail: this.translocoService.translate('importExport.messages.importFailed'),
+          });
+        },
+      });
   }
 
   private pollJobStatus(jobId: string): void {
@@ -326,7 +328,10 @@ export class ImportExportList implements OnInit, OnDestroy {
       .pipe(
         takeUntil(this.destroy$),
         switchMap(() => this.service.getJob(jobId)),
-        takeWhile((job) => job.status !== JobStatus.COMPLETED && job.status !== JobStatus.FAILED, true),
+        takeWhile(
+          (job) => job.status !== JobStatus.COMPLETED && job.status !== JobStatus.FAILED,
+          true,
+        ),
         filter((job) => job.status === JobStatus.COMPLETED || job.status === JobStatus.FAILED),
       )
       .subscribe((job) => {
@@ -377,13 +382,20 @@ export class ImportExportList implements OnInit, OnDestroy {
     });
   }
 
-  protected getStatusSeverity(status: JobStatus): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
+  protected getStatusSeverity(
+    status: JobStatus,
+  ): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
     switch (status) {
-      case JobStatus.COMPLETED: return 'success';
-      case JobStatus.FAILED: return 'danger';
-      case JobStatus.PROCESSING: return 'info';
-      case JobStatus.PENDING: return 'warn';
-      default: return 'secondary';
+      case JobStatus.COMPLETED:
+        return 'success';
+      case JobStatus.FAILED:
+        return 'danger';
+      case JobStatus.PROCESSING:
+        return 'info';
+      case JobStatus.PENDING:
+        return 'warn';
+      default:
+        return 'secondary';
     }
   }
 

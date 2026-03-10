@@ -20,7 +20,7 @@ const globalListResolver = () => {
       console.error('Failed to load global navigation:', error);
       // Navigate to error page or return empty array
       return of([]);
-    })
+    }),
   );
 };
 
@@ -46,7 +46,7 @@ const moduleListResolver = (route: ActivatedRouteSnapshot) => {
         console.error(`Failed to load module navigation for ${moduleId}:`, error);
         // Return empty array on error
         return of([]);
-      })
+      }),
     );
 };
 
@@ -60,7 +60,7 @@ const moduleDetailResolver = (route: ActivatedRouteSnapshot) => {
   return navigationManagementService.getNavigationItem(moduleId).pipe(
     map((response: ApiSingleResponse<NavigationItemDto>) => {
       return response.data?.item || null;
-    })
+    }),
   );
 };
 
@@ -81,7 +81,7 @@ const detailResolver = (route: ActivatedRouteSnapshot) => {
   return navigationManagementService.getNavigationItem(id).pipe(
     map((response: ApiSingleResponse<NavigationItemDto>) => {
       return response.data?.item || null;
-    })
+    }),
   );
 };
 

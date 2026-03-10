@@ -20,10 +20,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { BadgeModule } from 'primeng/badge';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../services/notification-service';
-import {
-  NotificationDto,
-  NotificationType,
-} from '../../interfaces/notification.types';
+import { NotificationDto, NotificationType } from '../../interfaces/notification.types';
 import { UserDatePipe } from '../../pipes/user-date.pipe';
 
 @Component({
@@ -178,7 +175,11 @@ export class NotificationDrawer implements OnInit, OnDestroy {
   }
 
   onMarkAllRead(): void {
-    this.notifications = this.notifications.map((n) => ({ ...n, isRead: true, readAt: new Date().toISOString() }));
+    this.notifications = this.notifications.map((n) => ({
+      ...n,
+      isRead: true,
+      readAt: new Date().toISOString(),
+    }));
     this.notificationService.markAllRead().subscribe();
     this.cdr.markForCheck();
   }

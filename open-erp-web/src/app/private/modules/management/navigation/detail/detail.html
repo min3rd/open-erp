@@ -15,21 +15,21 @@
 
   <div class="h-full">
     @if (isLoading()) {
-    <div class="flex items-center justify-center h-32">
-      <i class="pi pi-spin pi-spinner text-2xl"></i>
-      <p class="ml-2">{{ 'navigationManagement.tree.loading' | transloco }}</p>
-    </div>
+      <div class="flex items-center justify-center h-32">
+        <i class="pi pi-spin pi-spinner text-2xl"></i>
+        <p class="ml-2">{{ 'navigationManagement.tree.loading' | transloco }}</p>
+      </div>
     } @else {
-    <app-navigation-editor
-      [item]="item()"
-      [mode]="mode()"
-      [defaultScope]="defaultScope()"
-      [defaultModule]="defaultModule()"
-      [availableModules]="availableModules"
-      [availableParents]="availableParents()"
-      (formValid)="onFormValidChange($event)"
-      (formData)="onFormDataChange($event)"
-    />
+      <app-navigation-editor
+        [item]="item()"
+        [mode]="mode()"
+        [defaultScope]="defaultScope()"
+        [defaultModule]="defaultModule()"
+        [availableModules]="availableModules"
+        [availableParents]="availableParents()"
+        (formValid)="onFormValidChange($event)"
+        (formData)="onFormDataChange($event)"
+      />
     }
   </div>
 
@@ -45,26 +45,26 @@
         [attr.aria-label]="'navigationManagement.editor.buttons.cancel' | transloco"
       />
       @if (mode() === 'view') {
-      <p-button
-        id="navigation-detail-edit-button"
-        type="button"
-        [label]="'navigationManagement.editor.buttons.edit' | transloco"
-        icon="pi pi-pencil"
-        (onClick)="onEdit()"
-        [attr.aria-label]="'navigationManagement.editor.buttons.edit' | transloco"
-      />
+        <p-button
+          id="navigation-detail-edit-button"
+          type="button"
+          [label]="'navigationManagement.editor.buttons.edit' | transloco"
+          icon="pi pi-pencil"
+          (onClick)="onEdit()"
+          [attr.aria-label]="'navigationManagement.editor.buttons.edit' | transloco"
+        />
       }
       @if (mode() !== 'view') {
-      <p-button
-        id="navigation-detail-save-button"
-        type="button"
-        [label]="'navigationManagement.editor.buttons.save' | transloco"
-        severity="primary"
-        [loading]="isSaving()"
-        [disabled]="!isFormValid() || isSaving()"
-        (onClick)="onSubmit()"
-        [attr.aria-label]="'navigationManagement.editor.buttons.save' | transloco"
-      />
+        <p-button
+          id="navigation-detail-save-button"
+          type="button"
+          [label]="'navigationManagement.editor.buttons.save' | transloco"
+          severity="primary"
+          [loading]="isSaving()"
+          [disabled]="!isFormValid() || isSaving()"
+          (onClick)="onSubmit()"
+          [attr.aria-label]="'navigationManagement.editor.buttons.save' | transloco"
+        />
       }
     </div>
   </ng-template>

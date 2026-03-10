@@ -15,7 +15,10 @@ import { Button } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoService } from '@jsverse/transloco';
-import { OrganizationContextService, OrganizationMetadata } from '../../services/organization-context.service';
+import {
+  OrganizationContextService,
+  OrganizationMetadata,
+} from '../../services/organization-context.service';
 import { OrganizationService } from '../../services/organization-service';
 import { AuthService } from '../../services/auth-service';
 import { Popover } from 'primeng/popover';
@@ -86,7 +89,8 @@ export class OrganizationSwitcher implements OnInit {
   // Computed properties
   currentOrganization = computed(() => {
     const orgId = this.currentOrgId();
-    const orgs = this.organizations().length > 0 ? this.organizations() : this._internalOrganizations();
+    const orgs =
+      this.organizations().length > 0 ? this.organizations() : this._internalOrganizations();
     return orgs.find((org) => org.id === orgId) || this._selectedOrganization();
   });
 
@@ -101,9 +105,13 @@ export class OrganizationSwitcher implements OnInit {
     return orgs.filter((org) => {
       const matchesName = org.name.toLowerCase().includes(query);
       const matchesCode =
-        'code' in org && typeof org.code === 'string' ? org.code.toLowerCase().includes(query) : false;
+        'code' in org && typeof org.code === 'string'
+          ? org.code.toLowerCase().includes(query)
+          : false;
       const matchesTaxId =
-        'taxId' in org && typeof org.taxId === 'string' ? org.taxId.toLowerCase().includes(query) : false;
+        'taxId' in org && typeof org.taxId === 'string'
+          ? org.taxId.toLowerCase().includes(query)
+          : false;
       return matchesName || matchesCode || matchesTaxId;
     });
   });

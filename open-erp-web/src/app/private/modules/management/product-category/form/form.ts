@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit, signal, effect } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnInit,
+  signal,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -105,7 +113,9 @@ export class ProductCategoryForm implements OnInit {
           description: productCategory.description || '',
           isActive: productCategory.isActive,
           order: productCategory.order || 0,
-          metadata: productCategory.metadata ? JSON.stringify(productCategory.metadata, null, 2) : '',
+          metadata: productCategory.metadata
+            ? JSON.stringify(productCategory.metadata, null, 2)
+            : '',
         });
 
         if (this.isViewMode()) {
@@ -127,7 +137,7 @@ export class ProductCategoryForm implements OnInit {
           parentCategories.map((cat) => ({
             label: cat.name,
             value: cat.id,
-          }))
+          })),
         );
       }
     });
@@ -161,8 +171,9 @@ export class ProductCategoryForm implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: this.translocoService.translate('productCategoryForm.messages.error'),
-          detail: this.translocoService.translate('productCategoryForm.messages.invalidJson') + 
-                  (error?.message ? `: ${error.message}` : ''),
+          detail:
+            this.translocoService.translate('productCategoryForm.messages.invalidJson') +
+            (error?.message ? `: ${error.message}` : ''),
         });
         this.isLoading.set(false);
         return;
@@ -192,7 +203,7 @@ export class ProductCategoryForm implements OnInit {
           detail: this.translocoService.translate(
             this.productCategory()
               ? 'productCategoryForm.messages.updateSuccess'
-              : 'productCategoryForm.messages.createSuccess'
+              : 'productCategoryForm.messages.createSuccess',
           ),
         });
         this.onClose();
@@ -202,7 +213,9 @@ export class ProductCategoryForm implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: this.translocoService.translate('productCategoryForm.messages.error'),
-          detail: error?.error?.message || this.translocoService.translate('productCategoryForm.messages.saveFailed'),
+          detail:
+            error?.error?.message ||
+            this.translocoService.translate('productCategoryForm.messages.saveFailed'),
         });
         this.isLoading.set(false);
       },

@@ -12,10 +12,16 @@
   [attr.id]="'nav-module-item-' + elementId()"
 >
   @if (icon()) {
-  <span [class]="icon() + ' text-xl text-surface-700 dark:text-surface-300'" [attr.id]="'nav-module-item-icon-' + elementId()"></span>
+    <span
+      [class]="icon() + ' text-xl text-surface-700 dark:text-surface-300'"
+      [attr.id]="'nav-module-item-icon-' + elementId()"
+    ></span>
   }
   @if (label() && showLabel()) {
-    <span class="text-xs text-surface-900 dark:text-surface-0 lg:text-xs lg:truncate lg:max-w-full" [attr.id]="'nav-module-item-label-' + elementId()">
+    <span
+      class="text-xs text-surface-900 dark:text-surface-0 lg:text-xs lg:truncate lg:max-w-full"
+      [attr.id]="'nav-module-item-label-' + elementId()"
+    >
       {{ label() }}
     </span>
   }

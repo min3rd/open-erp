@@ -92,7 +92,8 @@ export class WmsService {
     if (params?.status) httpParams = httpParams.set('status', params.status);
     if (params?.q) httpParams = httpParams.set('q', params.q);
     if (params?.sortField) httpParams = httpParams.set('sortField', params.sortField);
-    if (params?.sortOrder !== undefined) httpParams = httpParams.set('sortOrder', params.sortOrder.toString());
+    if (params?.sortOrder !== undefined)
+      httpParams = httpParams.set('sortOrder', params.sortOrder.toString());
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.limit) httpParams = httpParams.set('limit', params.limit.toString());
 
@@ -180,21 +181,38 @@ export class WmsService {
       .pipe(map((response) => response.data || []));
   }
 
-  getReceiptLabel(id: string): Observable<{ id: string; code: string; url: string; qrData: string }> {
+  getReceiptLabel(
+    id: string,
+  ): Observable<{ id: string; code: string; url: string; qrData: string }> {
     return this.http
-      .get<ApiResponse<{ id: string; code: string; url: string; qrData: string }>>(`${this.baseUrl}/wms/receipts/${id}/label`)
+      .get<
+        ApiResponse<{ id: string; code: string; url: string; qrData: string }>
+      >(`${this.baseUrl}/wms/receipts/${id}/label`)
       .pipe(map((response) => response.data!));
   }
 
   getReceiptUploadUrl(
     id: string,
     dto: { fileName: string; mimeType: string; docType?: string },
-  ): Observable<{ uploadUrl: string; method: string; fileKey: string; fileName: string; mimeType: string; expiresAt: string }> {
+  ): Observable<{
+    uploadUrl: string;
+    method: string;
+    fileKey: string;
+    fileName: string;
+    mimeType: string;
+    expiresAt: string;
+  }> {
     return this.http
-      .post<ApiResponse<{ uploadUrl: string; method: string; fileKey: string; fileName: string; mimeType: string; expiresAt: string }>>(
-        `${this.baseUrl}/wms/receipts/${id}/upload-url`,
-        dto,
-      )
+      .post<
+        ApiResponse<{
+          uploadUrl: string;
+          method: string;
+          fileKey: string;
+          fileName: string;
+          mimeType: string;
+          expiresAt: string;
+        }>
+      >(`${this.baseUrl}/wms/receipts/${id}/upload-url`, dto)
       .pipe(map((response) => response.data!));
   }
 
@@ -216,7 +234,8 @@ export class WmsService {
     if (params?.status) httpParams = httpParams.set('status', params.status);
     if (params?.q) httpParams = httpParams.set('q', params.q);
     if (params?.sortField) httpParams = httpParams.set('sortField', params.sortField);
-    if (params?.sortOrder !== undefined) httpParams = httpParams.set('sortOrder', params.sortOrder.toString());
+    if (params?.sortOrder !== undefined)
+      httpParams = httpParams.set('sortOrder', params.sortOrder.toString());
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.limit) httpParams = httpParams.set('limit', params.limit.toString());
 
@@ -308,7 +327,8 @@ export class WmsService {
     if (params?.status) httpParams = httpParams.set('status', params.status);
     if (params?.q) httpParams = httpParams.set('q', params.q);
     if (params?.sortField) httpParams = httpParams.set('sortField', params.sortField);
-    if (params?.sortOrder !== undefined) httpParams = httpParams.set('sortOrder', params.sortOrder.toString());
+    if (params?.sortOrder !== undefined)
+      httpParams = httpParams.set('sortOrder', params.sortOrder.toString());
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.limit) httpParams = httpParams.set('limit', params.limit.toString());
 

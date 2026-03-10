@@ -518,18 +518,25 @@ export class WarehouseService {
    * Get zones for a warehouse
    * GET /warehouses/:warehouseId/zones
    */
-  getZones(warehouseId: string, params?: { page?: number; limit?: number; search?: string }): Observable<{ items: Zone[]; total: number }> {
+  getZones(
+    warehouseId: string,
+    params?: { page?: number; limit?: number; search?: string },
+  ): Observable<{ items: Zone[]; total: number }> {
     let httpParams = new HttpParams();
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.limit) httpParams = httpParams.set('limit', params.limit.toString());
     if (params?.search) httpParams = httpParams.set('search', params.search);
 
     return this.http
-      .get<ApiPaginatedResponse<Zone>>(`${this.baseUrl}/${warehouseId}/zones`, { params: httpParams })
-      .pipe(map((response) => ({
-        items: response.data?.items || [],
-        total: response.data?.total || 0,
-      })));
+      .get<
+        ApiPaginatedResponse<Zone>
+      >(`${this.baseUrl}/${warehouseId}/zones`, { params: httpParams })
+      .pipe(
+        map((response) => ({
+          items: response.data?.items || [],
+          total: response.data?.total || 0,
+        })),
+      );
   }
 
   /**
@@ -568,18 +575,25 @@ export class WarehouseService {
    * Get aisles for a zone
    * GET /zones/:zoneId/aisles
    */
-  getAisles(zoneId: string, params?: { page?: number; limit?: number; search?: string }): Observable<{ items: Aisle[]; total: number }> {
+  getAisles(
+    zoneId: string,
+    params?: { page?: number; limit?: number; search?: string },
+  ): Observable<{ items: Aisle[]; total: number }> {
     let httpParams = new HttpParams();
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.limit) httpParams = httpParams.set('limit', params.limit.toString());
     if (params?.search) httpParams = httpParams.set('search', params.search);
 
     return this.http
-      .get<ApiPaginatedResponse<Aisle>>(`${this.inventoryUrl}/zones/${zoneId}/aisles`, { params: httpParams })
-      .pipe(map((response) => ({
-        items: response.data?.items || [],
-        total: response.data?.total || 0,
-      })));
+      .get<
+        ApiPaginatedResponse<Aisle>
+      >(`${this.inventoryUrl}/zones/${zoneId}/aisles`, { params: httpParams })
+      .pipe(
+        map((response) => ({
+          items: response.data?.items || [],
+          total: response.data?.total || 0,
+        })),
+      );
   }
 
   /**
@@ -618,18 +632,25 @@ export class WarehouseService {
    * Get bins for an aisle
    * GET /aisles/:aisleId/bins
    */
-  getBins(aisleId: string, params?: { page?: number; limit?: number; search?: string }): Observable<{ items: Bin[]; total: number }> {
+  getBins(
+    aisleId: string,
+    params?: { page?: number; limit?: number; search?: string },
+  ): Observable<{ items: Bin[]; total: number }> {
     let httpParams = new HttpParams();
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.limit) httpParams = httpParams.set('limit', params.limit.toString());
     if (params?.search) httpParams = httpParams.set('search', params.search);
 
     return this.http
-      .get<ApiPaginatedResponse<Bin>>(`${this.inventoryUrl}/aisles/${aisleId}/bins`, { params: httpParams })
-      .pipe(map((response) => ({
-        items: response.data?.items || [],
-        total: response.data?.total || 0,
-      })));
+      .get<
+        ApiPaginatedResponse<Bin>
+      >(`${this.inventoryUrl}/aisles/${aisleId}/bins`, { params: httpParams })
+      .pipe(
+        map((response) => ({
+          items: response.data?.items || [],
+          total: response.data?.total || 0,
+        })),
+      );
   }
 
   /**
@@ -689,11 +710,13 @@ export class WarehouseService {
    * Get warehouse layout + all layout objects
    * GET /warehouses/:warehouseId/layout
    */
-  getLayout(warehouseId: string): Observable<{ layout: WarehouseLayout | null; objects: LayoutObject[] }> {
+  getLayout(
+    warehouseId: string,
+  ): Observable<{ layout: WarehouseLayout | null; objects: LayoutObject[] }> {
     return this.http
-      .get<ApiResponse<{ layout: WarehouseLayout | null; objects: LayoutObject[] }>>(
-        `${this.baseUrl}/${warehouseId}/layout`,
-      )
+      .get<
+        ApiResponse<{ layout: WarehouseLayout | null; objects: LayoutObject[] }>
+      >(`${this.baseUrl}/${warehouseId}/layout`)
       .pipe(map((response) => response.data ?? { layout: null, objects: [] }));
   }
 
@@ -723,10 +746,9 @@ export class WarehouseService {
    */
   createLayoutObject(warehouseId: string, dto: CreateLayoutObjectDto): Observable<LayoutObject> {
     return this.http
-      .post<ApiResponse<{ item: LayoutObject }>>(
-        `${this.baseUrl}/${warehouseId}/layout/objects`,
-        dto,
-      )
+      .post<
+        ApiResponse<{ item: LayoutObject }>
+      >(`${this.baseUrl}/${warehouseId}/layout/objects`, dto)
       .pipe(map((response) => response.data?.item!));
   }
 
@@ -739,10 +761,9 @@ export class WarehouseService {
     objects: Array<Partial<CreateLayoutObjectDto> & { id?: string }>,
   ): Observable<LayoutObject[]> {
     return this.http
-      .post<ApiResponse<LayoutObject[]>>(
-        `${this.baseUrl}/${warehouseId}/layout/objects/batch`,
-        { objects },
-      )
+      .post<
+        ApiResponse<LayoutObject[]>
+      >(`${this.baseUrl}/${warehouseId}/layout/objects/batch`, { objects })
       .pipe(map((response) => response.data ?? []));
   }
 
