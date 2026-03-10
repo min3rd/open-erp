@@ -37,20 +37,15 @@ export class WarehouseService {
     createDto: CreateWarehouseDto,
     userId: string,
   ): Promise<WarehouseDocument> {
-    // Auto-generate code when not supplied
-    if (!createDto.code) {
-      createDto.code = await this.generateUniqueCode(
-        createDto.name,
-        createDto.tenantId,
-      );
-    }
+    // Resolve code (auto-generate when not supplied)
+    const resolvedCode = createDto.code
+      ? createDto.code
+      : await this.generateUniqueCode(createDto.name, createDto.tenantId);
 
-    // Default type when not supplied
-    if (!createDto.type) {
-      createDto.type = WarehouseType.GENERAL;
-    }
+    // Resolve type (default to GENERAL when not supplied)
+    const resolvedType = createDto.type ?? WarehouseType.GENERAL;
 
-    this.logger.log(`Creating warehouse: ${createDto.code}`);
+    this.logger.log(`Creating warehouse: ${resolvedCode}`);
 
     // Validate province and ward only when provided
     if (createDto.province?.code) {
@@ -64,9 +59,10 @@ export class WarehouseService {
       }
     }
 
+    // Resolve ward snapshot (only when both ward and province are provided)
+    let resolvedWard = createDto.ward;
     if (createDto.ward?.code && createDto.province?.code) {
-      // Populate provinceCode/districtCode snapshot
-      createDto.ward = {
+      resolvedWard = {
         ...createDto.ward,
         ...(await this.resolveWardSnapshot(
           createDto.ward.code,
@@ -77,12 +73,12 @@ export class WarehouseService {
 
     // Check if warehouse code already exists
     const existingWarehouse = await this.warehouseRepository.findByCode(
-      createDto.code,
+      resolvedCode,
       createDto.tenantId,
     );
     if (existingWarehouse) {
       throw new ConflictException(
-        `Warehouse with code ${createDto.code} already exists`,
+        `Warehouse with code ${resolvedCode} already exists`,
       );
     }
 
@@ -130,9 +126,16 @@ export class WarehouseService {
       }
     }
 
+    const resolvedDto: CreateWarehouseDto = {
+      ...createDto,
+      code: resolvedCode,
+      type: resolvedType,
+      ...(resolvedWard ? { ward: resolvedWard } : {}),
+    };
+
     try {
       const warehouse = await this.warehouseRepository.create(
-        createDto,
+        resolvedDto,
         userId,
       );
       this.logger.log(
@@ -142,9 +145,9 @@ export class WarehouseService {
     } catch (error: any) {
       // Handle MongoDB duplicate key error
       if (error.code === 11000) {
-        this.logger.warn(`Duplicate warehouse code: ${createDto.code}`);
+        this.logger.warn(`Duplicate warehouse code: ${resolvedCode}`);
         throw new ConflictException(
-          `Warehouse with code ${createDto.code} already exists`,
+          `Warehouse with code ${resolvedCode} already exists`,
         );
       }
       this.logger.error(
@@ -476,17 +479,20 @@ export class WarehouseService {
       .replace(/^-+|-+$/g, '')
       .slice(0, 12);
 
-    let suffix = Date.now().toString().slice(-6);
-    let candidate = `WH-${slug}-${suffix}`;
-    let attempt = 0;
-    while (
-      (await this.warehouseRepository.findByCode(candidate, tenantId)) &&
-      attempt < 10
-    ) {
-      suffix = Date.now().toString().slice(-6);
-      candidate = `WH-${slug}-${suffix}`;
-      attempt++;
+    const MAX_ATTEMPTS = 10;
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const suffix = Date.now().toString().slice(-6);
+      const candidate = `WH-${slug}-${suffix}`;
+      const exists = await this.warehouseRepository.findByCode(
+        candidate,
+        tenantId,
+      );
+      if (!exists) {
+        return candidate;
+      }
     }
-    return candidate;
+    throw new ConflictException(
+      'Could not generate a unique warehouse code after multiple attempts. Please provide one explicitly.',
+    );
   }
 }
