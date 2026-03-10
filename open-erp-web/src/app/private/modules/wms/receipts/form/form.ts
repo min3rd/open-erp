@@ -657,7 +657,7 @@ export class ReceiptForm implements OnInit, OnDestroy {
     if (this.isNew()) {
       this.router.navigate(['..'], { relativeTo: this.route });
     } else {
-      this.router.navigate(['../../..'], { relativeTo: this.route });
+      this.router.navigate(['../..'], { relativeTo: this.route });
     }
   }
 
