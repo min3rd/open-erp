@@ -104,7 +104,7 @@ export class ReceiptForm implements OnInit, OnDestroy {
     const user = this._currentUser();
     if (!user) return false;
     const perms: string[] = user.permissions ?? [];
-    return perms.includes('warehouse.create') || perms.includes('warehouse.manage');
+    return perms.includes('warehouses.create') || perms.includes('warehouses.manage');
   });
 
   // Form state
