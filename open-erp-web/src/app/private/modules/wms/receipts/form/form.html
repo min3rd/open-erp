@@ -46,7 +46,6 @@
         <!-- ── Overview Tab ──────────────────────────────────────────── -->
         <p-tabpanel [value]="0">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3">
-
             <!-- Organization (auto-filled, disabled) -->
             <div class="flex flex-col gap-1">
               <label class="text-xs font-medium text-surface-500">
@@ -217,12 +216,17 @@
           } @else {
             <div formArrayName="lines" class="flex flex-col gap-2">
               @for (line of linesArray.controls; track $index; let i = $index) {
-                <div [formGroupName]="i" class="rounded-lg border border-surface p-3 flex flex-col gap-2">
+                <div
+                  [formGroupName]="i"
+                  class="rounded-lg border border-surface p-3 flex flex-col gap-2"
+                >
                   <!-- Row 1: SKU autocomplete + unit + qty -->
                   <div class="flex gap-2 items-end">
                     <!-- SKU Code (autocomplete from catalog) -->
                     <div class="flex flex-col gap-1 flex-1 min-w-0">
-                      <label class="text-xs text-surface-400">{{ 'wms.receipts.skuCode' | transloco }} *</label>
+                      <label class="text-xs text-surface-400"
+                        >{{ 'wms.receipts.skuCode' | transloco }} *</label
+                      >
                       <p-autocomplete
                         [suggestions]="productSuggestions()"
                         (completeMethod)="searchProduct($event)"
@@ -233,11 +237,11 @@
                         [ngModelOptions]="{ standalone: true }"
                         field="sku"
                         [dropdown]="false"
-                        [loading]="productLoading()"
                         [placeholder]="'wms.receipts.skuCodePlaceholder' | transloco"
                         [disabled]="isView()"
                         styleClass="w-full"
                         size="small"
+                        optionLabel="name"
                       >
                         <ng-template let-p #item>
                           <div class="flex flex-col py-0.5">
@@ -249,7 +253,9 @@
                     </div>
                     <!-- Ordered Qty -->
                     <div class="flex flex-col gap-1 w-24">
-                      <label class="text-xs text-surface-400">{{ 'wms.receipts.orderedQty' | transloco }} *</label>
+                      <label class="text-xs text-surface-400"
+                        >{{ 'wms.receipts.orderedQty' | transloco }} *</label
+                      >
                       <p-inputnumber
                         formControlName="orderedQty"
                         [min]="0"
@@ -259,7 +265,9 @@
                     </div>
                     <!-- Unit -->
                     <div class="flex flex-col gap-1 w-20">
-                      <label class="text-xs text-surface-400">{{ 'wms.receipts.unit' | transloco }}</label>
+                      <label class="text-xs text-surface-400">{{
+                        'wms.receipts.unit' | transloco
+                      }}</label>
                       <input pInputText formControlName="unit" size="small" placeholder="pcs" />
                     </div>
                     @if (!isView()) {
@@ -276,7 +284,9 @@
                   </div>
                   <!-- Row 2: Item Name (auto-filled, editable) -->
                   <div class="flex flex-col gap-1">
-                    <label class="text-xs text-surface-400">{{ 'wms.receipts.skuName' | transloco }}</label>
+                    <label class="text-xs text-surface-400">{{
+                      'wms.receipts.skuName' | transloco
+                    }}</label>
                     <input
                       pInputText
                       formControlName="skuName"
@@ -313,11 +323,16 @@
           } @else {
             <div formArrayName="referenceDocs" class="flex flex-col gap-3">
               @for (doc of referenceDocsArray.controls; track $index; let i = $index) {
-                <div [formGroupName]="i" class="rounded-lg border border-surface p-3 flex flex-col gap-2">
+                <div
+                  [formGroupName]="i"
+                  class="rounded-lg border border-surface p-3 flex flex-col gap-2"
+                >
                   <!-- Row 1: Type + Doc ID + delete -->
                   <div class="flex gap-2 items-end">
                     <div class="flex flex-col gap-1 w-40">
-                      <label class="text-xs text-surface-400">{{ 'wms.receipts.refDocType' | transloco }} *</label>
+                      <label class="text-xs text-surface-400"
+                        >{{ 'wms.receipts.refDocType' | transloco }} *</label
+                      >
                       <p-select
                         formControlName="type"
                         [options]="refDocTypes"
@@ -329,7 +344,9 @@
                       />
                     </div>
                     <div class="flex flex-col gap-1 flex-1 min-w-0">
-                      <label class="text-xs text-surface-400">{{ 'wms.receipts.refDocId' | transloco }}</label>
+                      <label class="text-xs text-surface-400">{{
+                        'wms.receipts.refDocId' | transloco
+                      }}</label>
                       <input
                         pInputText
                         formControlName="refId"
@@ -352,7 +369,9 @@
 
                   <!-- Row 2: External URL -->
                   <div class="flex flex-col gap-1">
-                    <label class="text-xs text-surface-400">{{ 'wms.receipts.refDocUrl' | transloco }}</label>
+                    <label class="text-xs text-surface-400">{{
+                      'wms.receipts.refDocUrl' | transloco
+                    }}</label>
                     <input
                       pInputText
                       formControlName="url"
@@ -364,9 +383,13 @@
 
                   <!-- Row 3: File upload from computer -->
                   <div class="flex flex-col gap-1">
-                    <label class="text-xs text-surface-400">{{ 'wms.receipts.refDocFile' | transloco }}</label>
+                    <label class="text-xs text-surface-400">{{
+                      'wms.receipts.refDocFile' | transloco
+                    }}</label>
                     @if (getDocAttachment(i); as att) {
-                      <div class="flex items-center gap-2 p-2 rounded border border-surface bg-surface-ground">
+                      <div
+                        class="flex items-center gap-2 p-2 rounded border border-surface bg-surface-ground"
+                      >
                         <i class="pi pi-file text-primary text-sm"></i>
                         <span class="text-xs truncate flex-1">{{ att.fileName }}</span>
                         <span class="text-xs text-surface-400">
@@ -412,7 +435,9 @@
                   <!-- Row 4: Link to receipt lines -->
                   @if (linesArray.length > 0) {
                     <div class="flex flex-col gap-1">
-                      <label class="text-xs text-surface-400">{{ 'wms.receipts.refDocLines' | transloco }}</label>
+                      <label class="text-xs text-surface-400">{{
+                        'wms.receipts.refDocLines' | transloco
+                      }}</label>
                       <p-multiselect
                         formControlName="lineIds"
                         [options]="lineOptions"
