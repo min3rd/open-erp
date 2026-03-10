@@ -6,6 +6,7 @@ import {
   afterNextRender,
   inject,
   signal,
+  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -23,7 +24,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { AutoCompleteModule } from 'primeng/autocomplete';
+import { AutoCompleteModule, AutoCompleteSelectEvent } from 'primeng/autocomplete';
 import { TextareaModule } from 'primeng/textarea';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TabsModule } from 'primeng/tabs';
@@ -46,10 +47,7 @@ import {
   WarehouseService,
   Warehouse,
 } from '../../../../../../core/services/warehouse/warehouse.service';
-import {
-  ProductService,
-  Product,
-} from '../../../../../../core/services/product/product.service';
+import { ProductService, Product } from '../../../../../../core/services/product/product.service';
 
 @Component({
   selector: 'receipt-form',
@@ -346,7 +344,8 @@ export class ReceiptForm implements OnInit, OnDestroy {
       });
   }
 
-  protected onProductSelect(product: Product, lineIndex: number) {
+  protected onProductSelect(event: AutoCompleteSelectEvent, lineIndex: number) {
+    const product = event.value as Product;
     const lineGroup = this.linesArray.at(lineIndex);
     lineGroup.patchValue({
       skuId: product.id,
@@ -436,14 +435,31 @@ export class ReceiptForm implements OnInit, OnDestroy {
     this.saving.set(true);
     const rawValue = this.form.getRawValue();
 
-    const mapLines = (lines: { skuId: string; skuCode: string; skuName: string; orderedQty: number; unit: string }[]) =>
-      lines.filter((l) => l.skuCode).map((l) => ({ ...l, skuId: l.skuId || l.skuCode }));
+    const mapLines = (
+      lines: {
+        skuId: string;
+        skuCode: string;
+        skuName: string;
+        orderedQty: number;
+        unit: string;
+      }[],
+    ) => lines.filter((l) => l.skuCode).map((l) => ({ ...l, skuId: l.skuId || l.skuCode }));
 
-    const mapDocs = (docs: { type: string; refId: string; url: string; attachment: MinioObject | null; lineIds: string[] }[]) =>
-      docs.filter((d) => d.type).map(({ attachment, ...rest }) => ({
-        ...rest,
-        ...(attachment ? { attachment } : {}),
-      }));
+    const mapDocs = (
+      docs: {
+        type: string;
+        refId: string;
+        url: string;
+        attachment: MinioObject | null;
+        lineIds: string[];
+      }[],
+    ) =>
+      docs
+        .filter((d) => d.type)
+        .map(({ attachment, ...rest }) => ({
+          ...rest,
+          ...(attachment ? { attachment } : {}),
+        }));
 
     if (this.isNew()) {
       const dto: CreateReceiptDto = {
