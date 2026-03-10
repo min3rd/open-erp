@@ -46,6 +46,39 @@
       }
     </div>
 
+    <!-- Product Type -->
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium text-surface-500">
+        {{ 'wms.quickSku.type' | transloco }} *
+      </label>
+      <p-select
+        formControlName="type"
+        [options]="typeOptions"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="w-full"
+        size="small"
+        [filter]="true"
+      />
+      @if (form.get('type')?.invalid && form.get('type')?.touched) {
+        <small class="text-red-500 text-xs">{{ 'common.required' | transloco }}</small>
+      }
+    </div>
+
+    <!-- Description -->
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium text-surface-500">
+        {{ 'wms.quickSku.description' | transloco }}
+      </label>
+      <textarea
+        pTextarea
+        formControlName="description"
+        rows="2"
+        class="w-full"
+        [placeholder]="'wms.quickSku.descriptionPlaceholder' | transloco"
+      ></textarea>
+    </div>
+
     <!-- Unit -->
     <div class="flex flex-col gap-1">
       <label class="text-xs font-medium text-surface-500">
@@ -58,6 +91,7 @@
         optionValue="value"
         styleClass="w-full"
         size="small"
+        [filter]="true"
       />
       @if (form.get('unit')?.invalid && form.get('unit')?.touched) {
         <small class="text-red-500 text-xs">{{ 'common.required' | transloco }}</small>
