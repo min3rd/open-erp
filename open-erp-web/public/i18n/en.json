@@ -3783,7 +3783,13 @@
       "refDocId": "Doc ID / Ref",
       "refDocIdPlaceholder": "e.g. INV-2024-001",
       "refDocUrl": "URL",
-      "refDocUploadNote": "After saving, you can upload files to attach to this receipt."
+      "refDocUploadNote": "After saving, you can upload files to attach to this receipt.",
+      "refDocFile": "Attached File",
+      "refDocLines": "Related Lines",
+      "refDocLinesPlaceholder": "Select lines this document relates to",
+      "uploadFile": "Upload from computer",
+      "saveFirstToUpload": "Save the receipt first to enable file upload",
+      "quickCreateWarehouse": "Quick-create warehouse"
     },
     "picklists": {
       "title": "Picklists",

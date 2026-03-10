@@ -2751,7 +2751,13 @@
       "refDocId": "ID / Ref doc",
       "refDocIdPlaceholder": "ej. FAC-2024-001",
       "refDocUrl": "URL",
-      "refDocUploadNote": "Después de guardar, puede subir archivos para adjuntar a este recibo."
+      "refDocUploadNote": "Después de guardar, puede subir archivos para adjuntar a este recibo.",
+      "refDocFile": "Archivo adjunto",
+      "refDocLines": "Líneas relacionadas",
+      "refDocLinesPlaceholder": "Seleccionar líneas relacionadas con este documento",
+      "uploadFile": "Subir desde computador",
+      "saveFirstToUpload": "Guarde el recibo primero para habilitar la carga de archivos",
+      "quickCreateWarehouse": "Crear bodega rápidamente"
     },
     "picklists": {
       "title": "Listas de Picking",

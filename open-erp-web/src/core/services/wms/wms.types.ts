@@ -35,15 +35,23 @@ export interface AuditEntry {
   payload?: any;
 }
 
-export interface ReferenceDoc {
-  type: string;
-  refId?: string;
-  url?: string;
-  fileKey?: string;
+export interface MinioObject {
+  fileKey: string;
   fileBucket?: string;
   fileName?: string;
   mimeType?: string;
   fileSize?: number;
+  publicUrl?: string;
+}
+
+export interface ReferenceDoc {
+  type: string;
+  refId?: string;
+  url?: string;
+  /** Attached file (uploaded to MinIO) */
+  attachment?: MinioObject;
+  /** Receipt line IDs this document relates to */
+  lineIds?: string[];
 }
 
 export interface ReceiptLine {

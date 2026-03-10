@@ -43,6 +43,7 @@ export type {
   QcReceiptDto,
   ReceiptLine,
   ReferenceDoc,
+  MinioObject,
   AuditEntry,
   Picklist,
   PicklistLine,

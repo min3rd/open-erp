@@ -53,10 +53,6 @@ import {
   WmsPackageSchema,
   Shipment,
   ShipmentSchema,
-  ApprovalRequest,
-  ApprovalRequestSchema,
-  ApprovalWorkflowTemplate,
-  ApprovalWorkflowTemplateSchema,
 } from '@shared/schemas';
 
 // Import services
@@ -158,8 +154,6 @@ import { MinioModule } from '@shared/services/minio/minio.module';
       { name: Picklist.name, schema: PicklistSchema },
       { name: WmsPackage.name, schema: WmsPackageSchema },
       { name: Shipment.name, schema: ShipmentSchema },
-      { name: ApprovalRequest.name, schema: ApprovalRequestSchema },
-      { name: ApprovalWorkflowTemplate.name, schema: ApprovalWorkflowTemplateSchema },
     ]),
     ThrottlerModule.forRoot([
       {
