@@ -16,7 +16,11 @@ import {
   UpdateLayoutObjectDto,
   QueryLayoutObjectDto,
 } from '../dto/layout.dto';
-import { WarehouseLayoutDocument, LayoutObjectDocument, LayoutPosition } from '@shared/schemas';
+import {
+  WarehouseLayoutDocument,
+  LayoutObjectDocument,
+  LayoutPosition,
+} from '@shared/schemas';
 import { WarehouseRepository } from '../repositories/warehouse.repository';
 import { ZoneDocument, AisleDocument, BinDocument } from '@shared/schemas';
 
@@ -43,14 +47,21 @@ export class LayoutService {
       throw new NotFoundException(`Warehouse with ID ${warehouseId} not found`);
     }
 
-    const layout = await this.layoutRepository.findLayoutByWarehouse(warehouseId);
+    const layout =
+      await this.layoutRepository.findLayoutByWarehouse(warehouseId);
 
     // Fetch all zone/aisle/bin entities
     const zones = await this.zoneRepository.findAllByWarehouse(warehouseId);
     const zoneIds = zones.map((z) => z.id as string);
-    const aisles = zoneIds.length > 0 ? await this.aisleRepository.findAllByZoneIds(zoneIds) : [];
+    const aisles =
+      zoneIds.length > 0
+        ? await this.aisleRepository.findAllByZoneIds(zoneIds)
+        : [];
     const aisleIds = aisles.map((a) => a.id as string);
-    const bins = aisleIds.length > 0 ? await this.binRepository.findAllByAisleIds(aisleIds) : [];
+    const bins =
+      aisleIds.length > 0
+        ? await this.binRepository.findAllByAisleIds(aisleIds)
+        : [];
 
     // Map zone → aisles, aisle → bins for fast lookup
     const zoneAisleMap = new Map<string, AisleDocument[]>();
@@ -79,7 +90,8 @@ export class LayoutService {
     }
 
     // Append label/corridor from layout_objects collection
-    const labelCorridors = await this.layoutRepository.findLabelCorridorObjects(warehouseId);
+    const labelCorridors =
+      await this.layoutRepository.findLabelCorridorObjects(warehouseId);
     for (const lc of labelCorridors) {
       objects.push(lc);
     }
@@ -99,7 +111,8 @@ export class LayoutService {
       throw new NotFoundException(`Warehouse with ID ${warehouseId} not found`);
     }
 
-    const existing = await this.layoutRepository.findLayoutByWarehouse(warehouseId);
+    const existing =
+      await this.layoutRepository.findLayoutByWarehouse(warehouseId);
     if (existing) {
       throw new ConflictException(
         `Layout already exists for warehouse ${warehouseId}. Use PUT to update.`,
@@ -114,9 +127,12 @@ export class LayoutService {
     warehouseId: string,
     dto: UpdateLayoutDto,
   ): Promise<WarehouseLayoutDocument> {
-    const existing = await this.layoutRepository.findLayoutByWarehouse(warehouseId);
+    const existing =
+      await this.layoutRepository.findLayoutByWarehouse(warehouseId);
     if (!existing) {
-      throw new NotFoundException(`No layout found for warehouse ${warehouseId}`);
+      throw new NotFoundException(
+        `No layout found for warehouse ${warehouseId}`,
+      );
     }
     const updated = await this.layoutRepository.updateLayout(warehouseId, dto);
     return updated!;
@@ -129,7 +145,8 @@ export class LayoutService {
     query: QueryLayoutObjectDto,
   ): Promise<{ items: any[]; total: number; page: number; limit: number }> {
     const warehouse = await this.warehouseRepository.findById(warehouseId);
-    if (!warehouse) throw new NotFoundException(`Warehouse with ID ${warehouseId} not found`);
+    if (!warehouse)
+      throw new NotFoundException(`Warehouse with ID ${warehouseId} not found`);
     return this.layoutRepository.findObjects(warehouseId, query);
   }
 
@@ -154,21 +171,30 @@ export class LayoutService {
     dto: CreateLayoutObjectDto,
   ): Promise<LayoutObjectDocument> {
     const warehouse = await this.warehouseRepository.findById(warehouseId);
-    if (!warehouse) throw new NotFoundException(`Warehouse with ID ${warehouseId} not found`);
+    if (!warehouse)
+      throw new NotFoundException(`Warehouse with ID ${warehouseId} not found`);
 
     if (dto.parentId) {
       const parent = await this.layoutRepository.findObjectById(dto.parentId);
-      if (!parent) throw new NotFoundException(`Parent layout object ${dto.parentId} not found`);
+      if (!parent)
+        throw new NotFoundException(
+          `Parent layout object ${dto.parentId} not found`,
+        );
     }
 
-    const existing = await this.layoutRepository.findObjectByCode(warehouseId, dto.code);
+    const existing = await this.layoutRepository.findObjectByCode(
+      warehouseId,
+      dto.code,
+    );
     if (existing) {
       throw new ConflictException(
         `Layout object with code ${dto.code} already exists in this warehouse`,
       );
     }
 
-    this.logger.log(`Creating ${dto.type} layout object '${dto.code}' in warehouse ${warehouseId}`);
+    this.logger.log(
+      `Creating ${dto.type} layout object '${dto.code}' in warehouse ${warehouseId}`,
+    );
     return this.layoutRepository.createObject(warehouseId, dto);
   }
 
@@ -177,12 +203,20 @@ export class LayoutService {
     const zone = await this.zoneRepository.findById(id);
     if (zone) {
       const layout = this.buildLayoutFromDto(dto);
-      return this.zoneRepository.updateLayout(id, dto.name || zone.name, layout);
+      return this.zoneRepository.updateLayout(
+        id,
+        dto.name || zone.name,
+        layout,
+      );
     }
     const aisle = await this.aisleRepository.findById(id);
     if (aisle) {
       const layout = this.buildLayoutFromDto(dto);
-      return this.aisleRepository.updateLayout(id, dto.name || aisle.name, layout);
+      return this.aisleRepository.updateLayout(
+        id,
+        dto.name || aisle.name,
+        layout,
+      );
     }
     const bin = await this.binRepository.findById(id);
     if (bin) {
@@ -251,10 +285,17 @@ export class LayoutService {
     objects: Array<CreateLayoutObjectDto & { id?: string }>,
   ): Promise<any[]> {
     const warehouse = await this.warehouseRepository.findById(warehouseId);
-    if (!warehouse) throw new NotFoundException(`Warehouse with ID ${warehouseId} not found`);
+    if (!warehouse)
+      throw new NotFoundException(`Warehouse with ID ${warehouseId} not found`);
 
     // Sort by type priority: zones → aisles → bins → labels/corridors
-    const TYPE_ORDER: Record<string, number> = { zone: 0, aisle: 1, bin: 2, label: 3, corridor: 4 };
+    const TYPE_ORDER: Record<string, number> = {
+      zone: 0,
+      aisle: 1,
+      bin: 2,
+      label: 3,
+      corridor: 4,
+    };
     const sorted = [...objects].sort(
       (a, b) => (TYPE_ORDER[a.type] ?? 5) - (TYPE_ORDER[b.type] ?? 5),
     );
@@ -278,11 +319,20 @@ export class LayoutService {
         if (obj.id && !obj.id.startsWith('tmp-')) {
           zone = await this.zoneRepository.findById(obj.id);
           if (zone) {
-            zone = await this.zoneRepository.updateLayout(obj.id, obj.name, layout);
+            zone = await this.zoneRepository.updateLayout(
+              obj.id,
+              obj.name,
+              layout,
+            );
           }
         }
         if (!zone) {
-          zone = await this.zoneRepository.upsertByCode(warehouseId, obj.code, obj.name, layout);
+          zone = await this.zoneRepository.upsertByCode(
+            warehouseId,
+            obj.code,
+            obj.name,
+            layout,
+          );
         }
         if (!zone) {
           this.logger.warn(`Failed to upsert zone '${obj.code}', skipping`);
@@ -295,18 +345,29 @@ export class LayoutService {
         const rawParent = obj.parentId;
         const zoneId = rawParent ? (idMap.get(rawParent) ?? rawParent) : null;
         if (!zoneId) {
-          this.logger.warn(`Skipping aisle '${obj.code}': cannot resolve parent zone`);
+          this.logger.warn(
+            `Skipping aisle '${obj.code}': cannot resolve parent zone`,
+          );
           continue;
         }
         let aisle: AisleDocument | null = null;
         if (obj.id && !obj.id.startsWith('tmp-')) {
           aisle = await this.aisleRepository.findById(obj.id);
           if (aisle) {
-            aisle = await this.aisleRepository.updateLayout(obj.id, obj.name, layout);
+            aisle = await this.aisleRepository.updateLayout(
+              obj.id,
+              obj.name,
+              layout,
+            );
           }
         }
         if (!aisle) {
-          aisle = await this.aisleRepository.upsertByZoneAndCode(zoneId, obj.code, obj.name, layout);
+          aisle = await this.aisleRepository.upsertByZoneAndCode(
+            zoneId,
+            obj.code,
+            obj.name,
+            layout,
+          );
         }
         if (!aisle) {
           this.logger.warn(`Failed to upsert aisle '${obj.code}', skipping`);
@@ -318,23 +379,35 @@ export class LayoutService {
         const rawParent = obj.parentId;
         const aisleId = rawParent ? (idMap.get(rawParent) ?? rawParent) : null;
         if (!aisleId) {
-          this.logger.warn(`Skipping bin '${obj.code}': cannot resolve parent aisle`);
+          this.logger.warn(
+            `Skipping bin '${obj.code}': cannot resolve parent aisle`,
+          );
           continue;
         }
         let bin: BinDocument | null = null;
         if (obj.id && !obj.id.startsWith('tmp-')) {
           bin = await this.binRepository.findById(obj.id);
           if (bin) {
-            bin = await this.binRepository.updateLayout(obj.id, obj.name, layout);
+            bin = await this.binRepository.updateLayout(
+              obj.id,
+              obj.name,
+              layout,
+            );
           }
         }
         if (!bin) {
-          bin = await this.binRepository.upsertByAisleAndCode(aisleId, obj.code, obj.name, layout, {
-            barcode: obj.barcode,
-            capacityQty: obj.capacityQty,
-            isBlocked: obj.isBlocked,
-            allowedSkuTags: obj.allowedSkuTags,
-          });
+          bin = await this.binRepository.upsertByAisleAndCode(
+            aisleId,
+            obj.code,
+            obj.name,
+            layout,
+            {
+              barcode: obj.barcode,
+              capacityQty: obj.capacityQty,
+              isBlocked: obj.isBlocked,
+              allowedSkuTags: obj.allowedSkuTags,
+            },
+          );
         }
         if (!bin) {
           this.logger.warn(`Failed to upsert bin '${obj.code}', skipping`);
@@ -344,7 +417,10 @@ export class LayoutService {
         results.push(this.binToObject(bin, warehouseId, aisleId));
       } else {
         // label/corridor — use layout_objects collection
-        const saved = await this.layoutRepository.upsertObject(warehouseId, obj);
+        const saved = await this.layoutRepository.upsertObject(
+          warehouseId,
+          obj,
+        );
         if (obj.id) idMap.set(obj.id, saved.id);
         results.push(saved);
       }
@@ -379,7 +455,11 @@ export class LayoutService {
     };
   }
 
-  private aisleToObject(aisle: AisleDocument, warehouseId: string, zoneId: string): any {
+  private aisleToObject(
+    aisle: AisleDocument,
+    warehouseId: string,
+    zoneId: string,
+  ): any {
     return {
       id: aisle.id,
       warehouseId,
@@ -403,7 +483,11 @@ export class LayoutService {
     };
   }
 
-  private binToObject(bin: BinDocument, warehouseId: string, aisleId: string): any {
+  private binToObject(
+    bin: BinDocument,
+    warehouseId: string,
+    aisleId: string,
+  ): any {
     return {
       id: bin.id,
       warehouseId,
@@ -430,7 +514,9 @@ export class LayoutService {
     };
   }
 
-  private buildLayoutFromDto(dto: UpdateLayoutObjectDto): Partial<LayoutPosition> {
+  private buildLayoutFromDto(
+    dto: UpdateLayoutObjectDto,
+  ): Partial<LayoutPosition> {
     const layout: Partial<LayoutPosition> = {};
     if (dto.x !== undefined) layout.x = dto.x;
     if (dto.y !== undefined) layout.y = dto.y;

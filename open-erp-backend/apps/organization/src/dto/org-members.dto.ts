@@ -22,7 +22,9 @@ export class CreateDepartmentDto {
 
   @ApiProperty({ example: 'engineering' })
   @IsString()
-  @Matches(/^[a-z0-9-]+$/, { message: 'code must be lowercase letters, numbers, and hyphens only' })
+  @Matches(/^[a-z0-9-]+$/, {
+    message: 'code must be lowercase letters, numbers, and hyphens only',
+  })
   code: string;
 
   @ApiPropertyOptional({ example: 'Software engineering department' })
@@ -77,7 +79,9 @@ export class CreatePositionDto {
 
   @ApiProperty({ example: 'senior-engineer' })
   @IsString()
-  @Matches(/^[a-z0-9-]+$/, { message: 'code must be lowercase letters, numbers, and hyphens only' })
+  @Matches(/^[a-z0-9-]+$/, {
+    message: 'code must be lowercase letters, numbers, and hyphens only',
+  })
   code: string;
 
   @ApiPropertyOptional()
@@ -132,7 +136,10 @@ export class DepartmentAssignmentDto {
   @IsString()
   departmentId: string;
 
-  @ApiPropertyOptional({ type: [String], description: 'Position IDs within this department' })
+  @ApiPropertyOptional({
+    type: [String],
+    description: 'Position IDs within this department',
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
@@ -142,7 +149,8 @@ export class DepartmentAssignmentDto {
 export class AssignMemberDto {
   @ApiProperty({
     type: [DepartmentAssignmentDto],
-    description: 'Assignments: each department with its positions for this member',
+    description:
+      'Assignments: each department with its positions for this member',
   })
   @IsArray()
   @ValidateNested({ each: true })

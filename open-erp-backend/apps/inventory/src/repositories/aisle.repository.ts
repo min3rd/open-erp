@@ -3,7 +3,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Aisle, AisleDocument } from '@shared/schemas';
 import { LayoutPosition } from '@shared/schemas';
-import { CreateAisleDto, UpdateAisleDto, QueryAisleDto } from '../dto/aisle.dto';
+import {
+  CreateAisleDto,
+  UpdateAisleDto,
+  QueryAisleDto,
+} from '../dto/aisle.dto';
 
 @Injectable()
 export class AisleRepository {
@@ -20,7 +24,12 @@ export class AisleRepository {
   async findAll(
     zoneId: string,
     query: QueryAisleDto,
-  ): Promise<{ items: AisleDocument[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    items: AisleDocument[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const { page = 1, limit = 50, search } = query;
     const filter: Record<string, any> = { zoneId };
 
@@ -33,7 +42,12 @@ export class AisleRepository {
 
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
-      this.aisleModel.find(filter).skip(skip).limit(limit).sort({ sequence: 1, createdAt: 1 }).exec(),
+      this.aisleModel
+        .find(filter)
+        .skip(skip)
+        .limit(limit)
+        .sort({ sequence: 1, createdAt: 1 })
+        .exec(),
       this.aisleModel.countDocuments(filter).exec(),
     ]);
     return { items, total, page, limit };
@@ -43,7 +57,10 @@ export class AisleRepository {
     return this.aisleModel.findById(id).exec();
   }
 
-  async findByCode(zoneId: string, code: string): Promise<AisleDocument | null> {
+  async findByCode(
+    zoneId: string,
+    code: string,
+  ): Promise<AisleDocument | null> {
     return this.aisleModel.findOne({ zoneId, code } as any).exec();
   }
 
@@ -55,12 +72,19 @@ export class AisleRepository {
 
   async softDelete(id: string): Promise<AisleDocument | null> {
     return this.aisleModel
-      .findByIdAndUpdate(id, { deletedAt: new Date(), isActive: false }, { new: true })
+      .findByIdAndUpdate(
+        id,
+        { deletedAt: new Date(), isActive: false },
+        { new: true },
+      )
       .exec();
   }
 
   async findByZoneId(zoneId: string): Promise<AisleDocument[]> {
-    return this.aisleModel.find({ zoneId } as any).sort({ sequence: 1 }).exec();
+    return this.aisleModel
+      .find({ zoneId } as any)
+      .sort({ sequence: 1 })
+      .exec();
   }
 
   async countByZone(zoneId: string): Promise<number> {
@@ -89,11 +113,19 @@ export class AisleRepository {
       .exec() as Promise<AisleDocument>;
   }
 
-  async updateLayout(id: string, name: string, layout: Partial<LayoutPosition>): Promise<AisleDocument | null> {
-    return this.aisleModel.findByIdAndUpdate(id, { $set: { name, layout } }, { new: true }).exec();
+  async updateLayout(
+    id: string,
+    name: string,
+    layout: Partial<LayoutPosition>,
+  ): Promise<AisleDocument | null> {
+    return this.aisleModel
+      .findByIdAndUpdate(id, { $set: { name, layout } }, { new: true })
+      .exec();
   }
 
   async clearLayout(id: string): Promise<AisleDocument | null> {
-    return this.aisleModel.findByIdAndUpdate(id, { $set: { layout: null } }, { new: true }).exec();
+    return this.aisleModel
+      .findByIdAndUpdate(id, { $set: { layout: null } }, { new: true })
+      .exec();
   }
 }

@@ -6,7 +6,8 @@ import { Receipt, ReceiptDocument, ReceiptStatus } from '@shared/schemas';
 @Injectable()
 export class ReceiptRepository {
   constructor(
-    @InjectModel(Receipt.name) private readonly receiptModel: Model<ReceiptDocument>,
+    @InjectModel(Receipt.name)
+    private readonly receiptModel: Model<ReceiptDocument>,
   ) {}
 
   async create(data: Partial<Receipt>): Promise<ReceiptDocument> {
@@ -18,7 +19,10 @@ export class ReceiptRepository {
     return this.receiptModel.findById(id).exec();
   }
 
-  async update(id: string, data: Partial<Receipt>): Promise<ReceiptDocument | null> {
+  async update(
+    id: string,
+    data: Partial<Receipt>,
+  ): Promise<ReceiptDocument | null> {
     return this.receiptModel
       .findByIdAndUpdate(id, { $set: data }, { new: true })
       .exec();
@@ -39,26 +43,33 @@ export class ReceiptRepository {
       sortOrder?: 1 | -1;
     } = {},
   ) {
-    const { skip = 0, limit = 20, sortField = 'createdAt', sortOrder = -1 } = options;
+    const {
+      skip = 0,
+      limit = 20,
+      sortField = 'createdAt',
+      sortOrder = -1,
+    } = options;
     const query: any = { deletedAt: null };
 
     if (filter.orgId) query.orgId = new Types.ObjectId(filter.orgId);
-    if (filter.warehouseId) query.warehouseId = new Types.ObjectId(filter.warehouseId);
+    if (filter.warehouseId)
+      query.warehouseId = new Types.ObjectId(filter.warehouseId);
     if (filter.poId) query.poId = filter.poId;
     if (filter.status) query.status = filter.status;
     if (filter.q) {
       const regex = { $regex: filter.q, $options: 'i' };
-      query.$or = [
-        { poId: regex },
-        { supplier: regex },
-        { notes: regex },
-      ];
+      query.$or = [{ poId: regex }, { supplier: regex }, { notes: regex }];
     }
 
     const sortObj: any = { [sortField]: sortOrder };
 
     const [items, total] = await Promise.all([
-      this.receiptModel.find(query).skip(skip).limit(limit).sort(sortObj).exec(),
+      this.receiptModel
+        .find(query)
+        .skip(skip)
+        .limit(limit)
+        .sort(sortObj)
+        .exec(),
       this.receiptModel.countDocuments(query).exec(),
     ]);
 

@@ -41,31 +41,46 @@ export class CreateBinDto {
   @MaxLength(50)
   code: string;
 
-  @ApiPropertyOptional({ example: '123456789012', description: 'Barcode (auto-generated if absent)' })
+  @ApiPropertyOptional({
+    example: '123456789012',
+    description: 'Barcode (auto-generated if absent)',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(100)
   barcode?: string;
 
-  @ApiPropertyOptional({ example: 100, description: 'Maximum quantity capacity' })
+  @ApiPropertyOptional({
+    example: 100,
+    description: 'Maximum quantity capacity',
+  })
   @IsOptional()
   @IsNumber()
   @Min(0)
   capacityQty?: number;
 
-  @ApiPropertyOptional({ example: 0.5, description: 'Maximum volume capacity (m³)' })
+  @ApiPropertyOptional({
+    example: 0.5,
+    description: 'Maximum volume capacity (m³)',
+  })
   @IsOptional()
   @IsNumber()
   @Min(0)
   capacityVolume?: number;
 
-  @ApiPropertyOptional({ example: ['electronics', 'fragile'], description: 'Allowed SKU tags' })
+  @ApiPropertyOptional({
+    example: ['electronics', 'fragile'],
+    description: 'Allowed SKU tags',
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   allowedSkuTags?: string[];
 
-  @ApiPropertyOptional({ type: BinDimensionsDto, description: 'Physical dimensions' })
+  @ApiPropertyOptional({
+    type: BinDimensionsDto,
+    description: 'Physical dimensions',
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => BinDimensionsDto)
@@ -80,12 +95,18 @@ export class CreateBinDto {
   @IsEnum(BinType)
   binType?: BinType;
 
-  @ApiPropertyOptional({ example: false, description: 'Whether the bin is blocked for putaway' })
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Whether the bin is blocked for putaway',
+  })
   @IsOptional()
   @IsBoolean()
   isBlocked?: boolean;
 
-  @ApiPropertyOptional({ example: true, description: 'Whether the bin is active' })
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Whether the bin is active',
+  })
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
@@ -118,7 +139,10 @@ export class QueryBinDto {
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ description: 'Filter only available bins (not blocked, currentQty < capacityQty)' })
+  @ApiPropertyOptional({
+    description:
+      'Filter only available bins (not blocked, currentQty < capacityQty)',
+  })
   @IsOptional()
   @IsBoolean()
   @Type(() => Boolean)

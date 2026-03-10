@@ -43,7 +43,8 @@ export class WarehouseLayout extends Document {
   deletedAt?: Date;
 }
 
-export const WarehouseLayoutSchema = SchemaFactory.createForClass(WarehouseLayout);
+export const WarehouseLayoutSchema =
+  SchemaFactory.createForClass(WarehouseLayout);
 
 WarehouseLayoutSchema.pre(/^find/, function (this: any) {
   if (!this.getOptions().includeDeleted) {
@@ -80,7 +81,8 @@ export class LayoutPosition {
   @Prop({ type: Number, default: 0, min: 0, max: 359 }) rotationDeg: number;
   @Prop({ type: Number, default: 0 }) zOrder: number;
 }
-export const LayoutPositionSchema = SchemaFactory.createForClass(LayoutPosition);
+export const LayoutPositionSchema =
+  SchemaFactory.createForClass(LayoutPosition);
 
 // ─── LayoutObject ─────────────────────────────────────────────────────────────
 

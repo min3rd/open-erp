@@ -107,9 +107,9 @@ describe('LotService', () => {
     it('should throw NotFoundException if lot not found', async () => {
       mockRepository.findById.mockResolvedValue(null);
 
-      await expect(
-        service.findById('nonexistent'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.findById('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -142,7 +142,9 @@ describe('LotService', () => {
       };
       mockRepository.findById.mockResolvedValue(futureLot);
 
-      const result = await service.validateNotExpired('507f1f77bcf86cd799439011');
+      const result = await service.validateNotExpired(
+        '507f1f77bcf86cd799439011',
+      );
       expect(result).toEqual(futureLot);
     });
 
@@ -158,7 +160,9 @@ describe('LotService', () => {
       const noExpiryLot = { ...mockLot, expiryAt: null };
       mockRepository.findById.mockResolvedValue(noExpiryLot);
 
-      const result = await service.validateNotExpired('507f1f77bcf86cd799439011');
+      const result = await service.validateNotExpired(
+        '507f1f77bcf86cd799439011',
+      );
       expect(result).toEqual(noExpiryLot);
     });
   });

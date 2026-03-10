@@ -190,7 +190,9 @@ describe('Authorization Decorators', () => {
 
     it('should preserve metadata when multiple decorators are used', () => {
       class TestController {
-        @Permissions(['order.create', 'order.update'], { scope: 'organization' })
+        @Permissions(['order.create', 'order.update'], {
+          scope: 'organization',
+        })
         @Roles('MANAGER')
         manageOrders() {}
       }

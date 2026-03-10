@@ -16,15 +16,22 @@ export class ZoneService {
 
   async create(warehouseId: string, dto: CreateZoneDto): Promise<ZoneDocument> {
     this.logger.log(`Creating zone ${dto.code} in warehouse ${warehouseId}`);
-    const existing = await this.zoneRepository.findByCode(warehouseId, dto.code);
+    const existing = await this.zoneRepository.findByCode(
+      warehouseId,
+      dto.code,
+    );
     if (existing) {
-      throw new ConflictException(`Zone with code ${dto.code} already exists in this warehouse`);
+      throw new ConflictException(
+        `Zone with code ${dto.code} already exists in this warehouse`,
+      );
     }
     try {
       return await this.zoneRepository.create(warehouseId, dto);
     } catch (error: any) {
       if (error.code === 11000) {
-        throw new ConflictException(`Zone with code ${dto.code} already exists in this warehouse`);
+        throw new ConflictException(
+          `Zone with code ${dto.code} already exists in this warehouse`,
+        );
       }
       throw error;
     }
@@ -33,7 +40,12 @@ export class ZoneService {
   async findAll(
     warehouseId: string,
     query: QueryZoneDto,
-  ): Promise<{ items: ZoneDocument[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    items: ZoneDocument[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     return this.zoneRepository.findAll(warehouseId, query);
   }
 
@@ -53,7 +65,9 @@ export class ZoneService {
         dto.code,
       );
       if (codeConflict) {
-        throw new ConflictException(`Zone with code ${dto.code} already exists in this warehouse`);
+        throw new ConflictException(
+          `Zone with code ${dto.code} already exists in this warehouse`,
+        );
       }
     }
 
@@ -63,7 +77,9 @@ export class ZoneService {
       return updated;
     } catch (error: any) {
       if (error.code === 11000) {
-        throw new ConflictException(`Zone with code ${dto.code} already exists in this warehouse`);
+        throw new ConflictException(
+          `Zone with code ${dto.code} already exists in this warehouse`,
+        );
       }
       throw error;
     }

@@ -620,9 +620,8 @@ export class InventoryService {
   }
 
   async getWarehouseStockSummary(warehouseId: string) {
-    const summary = await this.stockRepository.getWarehouseStockSummary(
-      warehouseId,
-    );
+    const summary =
+      await this.stockRepository.getWarehouseStockSummary(warehouseId);
     return summary;
   }
 

@@ -80,7 +80,11 @@ export interface IMinioService {
    * @param versionId - Version ID
    * @returns Readable stream of the specific version
    */
-  getVersion(key: string, versionId: string, bucket?: string): Promise<Readable>;
+  getVersion(
+    key: string,
+    versionId: string,
+    bucket?: string,
+  ): Promise<Readable>;
 
   /**
    * Copy an object to a new location

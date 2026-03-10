@@ -8,7 +8,9 @@ export enum ExportScope {
 }
 
 export class CreateExportJobDto {
-  @ApiProperty({ description: 'Entity type to export (e.g. users, products, warehouses)' })
+  @ApiProperty({
+    description: 'Entity type to export (e.g. users, products, warehouses)',
+  })
   @IsString()
   entity: string;
 
@@ -32,7 +34,11 @@ export class CreateExportJobDto {
   @IsString()
   orgId?: string;
 
-  @ApiPropertyOptional({ enum: ExportScope, default: ExportScope.GLOBAL, description: 'Export scope: global (all data) or org (organization-scoped)' })
+  @ApiPropertyOptional({
+    enum: ExportScope,
+    default: ExportScope.GLOBAL,
+    description: 'Export scope: global (all data) or org (organization-scoped)',
+  })
   @IsOptional()
   @IsEnum(ExportScope)
   scope?: ExportScope;

@@ -16,13 +16,19 @@ export class CreateShipmentDto {
   @IsMongoId()
   warehouseId: string;
 
-  @ApiPropertyOptional({ description: 'Order IDs linked to this shipment', type: [String] })
+  @ApiPropertyOptional({
+    description: 'Order IDs linked to this shipment',
+    type: [String],
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   orderIds?: string[];
 
-  @ApiPropertyOptional({ description: 'Package IDs to include', type: [String] })
+  @ApiPropertyOptional({
+    description: 'Package IDs to include',
+    type: [String],
+  })
   @IsOptional()
   @IsArray()
   @IsMongoId({ each: true })
@@ -60,7 +66,10 @@ export class ShipShipmentDto {
   @IsBoolean()
   partial?: boolean;
 
-  @ApiPropertyOptional({ description: 'Package IDs being shipped in this batch', type: [String] })
+  @ApiPropertyOptional({
+    description: 'Package IDs being shipped in this batch',
+    type: [String],
+  })
   @IsOptional()
   @IsArray()
   @IsMongoId({ each: true })

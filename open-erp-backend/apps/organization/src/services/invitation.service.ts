@@ -28,9 +28,7 @@ import {
   UserDocument,
 } from '@shared/schemas';
 import { BulkCreateInvitationDto } from '../dto/invitation.dto';
-import {
-  RABBITMQ_NOTIFICATION_CLIENT,
-} from '@shared/rabbitmq';
+import { RABBITMQ_NOTIFICATION_CLIENT } from '@shared/rabbitmq';
 import { EVENT_NAMES } from '@shared/constants/message.constants';
 
 @Injectable()
@@ -260,8 +258,7 @@ export class InvitationService {
       expiresAt = new Date(dto.expiresAt);
     } else {
       const expiryDays =
-        dto.expiryDays ||
-        parseInt(process.env.INVITE_EXPIRY_DAYS || '7');
+        dto.expiryDays || parseInt(process.env.INVITE_EXPIRY_DAYS || '7');
       expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + expiryDays);
     }
@@ -285,11 +282,10 @@ export class InvitationService {
         if (recipient.userId) {
           inviteeUserId = new Types.ObjectId(recipient.userId);
           // Check for existing pending invitation for userId
-          const existingByUser =
-            await this.invitationRepository.findByUserId(
-              recipient.userId,
-              InvitationStatus.PENDING,
-            );
+          const existingByUser = await this.invitationRepository.findByUserId(
+            recipient.userId,
+            InvitationStatus.PENDING,
+          );
           const duplicateForOrg = existingByUser.find(
             (inv) => inv.organizationId.toString() === organizationId,
           );
@@ -373,9 +369,7 @@ export class InvitationService {
           invitationId: invitation._id.toString(),
         });
       } catch (error) {
-        this.logger.error(
-          `Error inviting ${recipientLabel}: ${error.message}`,
-        );
+        this.logger.error(`Error inviting ${recipientLabel}: ${error.message}`);
         results.push({
           recipient: recipientLabel,
           status: 'error',
@@ -418,8 +412,7 @@ export class InvitationService {
         (inviter as any)?.email ||
         'Unknown';
 
-      const frontendUrl =
-        process.env.FRONTEND_URL || 'http://localhost:4200';
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
       const acceptLink = `${frontendUrl}/invitations/accept?token=${data.token}`;
 
       this.notificationClient.emit(EVENT_NAMES.ORGANIZATION.MEMBER_INVITED, {

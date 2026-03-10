@@ -21,15 +21,17 @@ describe('OnlyOfficeService', () => {
     };
 
     configService = {
-      get: jest.fn().mockImplementation((key: string, defaultValue?: string) => {
-        const config: Record<string, string> = {
-          ONLYOFFICE_URL: 'http://localhost:8080',
-          ONLYOFFICE_JWT_SECRET: '',
-          ONLYOFFICE_CALLBACK_SECRET: '',
-          FILE_SERVICE_BASE_URL: 'http://localhost:3008',
-        };
-        return config[key] || defaultValue;
-      }),
+      get: jest
+        .fn()
+        .mockImplementation((key: string, defaultValue?: string) => {
+          const config: Record<string, string> = {
+            ONLYOFFICE_URL: 'http://localhost:8080',
+            ONLYOFFICE_JWT_SECRET: '',
+            ONLYOFFICE_CALLBACK_SECRET: '',
+            FILE_SERVICE_BASE_URL: 'http://localhost:3008',
+          };
+          return config[key] || defaultValue;
+        }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -107,9 +109,9 @@ describe('OnlyOfficeService', () => {
         isDeleted: false,
       } as any);
 
-      await expect(
-        service.createSession('file-id-1', 'edit'),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.createSession('file-id-1', 'edit')).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should create a session using minioKey and filename', async () => {
@@ -143,9 +145,9 @@ describe('OnlyOfficeService', () => {
     });
 
     it('should throw BadRequestException when neither fileId nor minioKey provided', async () => {
-      await expect(
-        service.createSession(undefined, 'edit'),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.createSession(undefined, 'edit')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -189,8 +191,13 @@ describe('OnlyOfficeService', () => {
       });
 
       const result = await service.createSession(
-        undefined, 'view', 'user-1', undefined,
-        'test.docx', 'test.docx', 'open-erp',
+        undefined,
+        'view',
+        'user-1',
+        undefined,
+        'test.docx',
+        'test.docx',
+        'open-erp',
       );
 
       // The URL from MinIO should be passed through unchanged

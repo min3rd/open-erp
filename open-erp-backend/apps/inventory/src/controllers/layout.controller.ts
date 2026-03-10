@@ -29,7 +29,14 @@ import {
 } from '../dto/layout.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Permissions } from '@shared/authz/decorators';
-import { created, fetched, updated, deleted, ok, paginated } from '@shared/response';
+import {
+  created,
+  fetched,
+  updated,
+  deleted,
+  ok,
+  paginated,
+} from '@shared/response';
 
 @ApiTags('warehouse-layout')
 @ApiBearerAuth()
@@ -43,8 +50,14 @@ export class LayoutController {
   @Get('warehouses/:warehouseId/layout')
   @ApiOperation({ summary: 'Get warehouse layout and all layout objects' })
   @ApiParam({ name: 'warehouseId', description: 'Warehouse ID' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Layout retrieved successfully' })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Warehouse not found' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Layout retrieved successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Warehouse not found',
+  })
   @Permissions('inventory.warehouse.read')
   async getLayout(@Param('warehouseId') warehouseId: string) {
     const data = await this.layoutService.getLayout(warehouseId);
@@ -54,8 +67,14 @@ export class LayoutController {
   @Post('warehouses/:warehouseId/layout')
   @ApiOperation({ summary: 'Create initial layout for a warehouse' })
   @ApiParam({ name: 'warehouseId', description: 'Warehouse ID' })
-  @ApiResponse({ status: HttpStatus.CREATED, description: 'Layout created successfully' })
-  @ApiResponse({ status: HttpStatus.CONFLICT, description: 'Layout already exists' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Layout created successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: 'Layout already exists',
+  })
   @Permissions('inventory.warehouse.structure.manage')
   async createLayout(
     @Param('warehouseId') warehouseId: string,
@@ -68,8 +87,14 @@ export class LayoutController {
   @Put('warehouses/:warehouseId/layout')
   @ApiOperation({ summary: 'Update warehouse layout metadata (resize)' })
   @ApiParam({ name: 'warehouseId', description: 'Warehouse ID' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Layout updated successfully' })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Layout not found' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Layout updated successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Layout not found',
+  })
   @Permissions('inventory.warehouse.structure.manage')
   async updateLayout(
     @Param('warehouseId') warehouseId: string,
@@ -84,25 +109,45 @@ export class LayoutController {
   @Get('warehouses/:warehouseId/layout/objects')
   @ApiOperation({ summary: 'Get all layout objects for a warehouse' })
   @ApiParam({ name: 'warehouseId', description: 'Warehouse ID' })
-  @ApiQuery({ name: 'type', required: false, description: 'Filter by object type (zone|aisle|bin)' })
-  @ApiQuery({ name: 'parentId', required: false, description: 'Filter by parent ID' })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    description: 'Filter by object type (zone|aisle|bin)',
+  })
+  @ApiQuery({
+    name: 'parentId',
+    required: false,
+    description: 'Filter by parent ID',
+  })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Layout objects retrieved successfully' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Layout objects retrieved successfully',
+  })
   @Permissions('inventory.warehouse.read')
   async getObjects(
     @Param('warehouseId') warehouseId: string,
     @Query() query: QueryLayoutObjectDto,
   ) {
-    const { items, total, page, limit } = await this.layoutService.getObjects(warehouseId, query);
+    const { items, total, page, limit } = await this.layoutService.getObjects(
+      warehouseId,
+      query,
+    );
     return paginated(items, page, limit, total);
   }
 
   @Post('warehouses/:warehouseId/layout/objects')
   @ApiOperation({ summary: 'Create a new layout object (zone/aisle/bin)' })
   @ApiParam({ name: 'warehouseId', description: 'Warehouse ID' })
-  @ApiResponse({ status: HttpStatus.CREATED, description: 'Layout object created successfully' })
-  @ApiResponse({ status: HttpStatus.CONFLICT, description: 'Code already exists' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Layout object created successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: 'Code already exists',
+  })
   @Permissions('inventory.warehouse.structure.manage')
   async createObject(
     @Param('warehouseId') warehouseId: string,
@@ -121,14 +166,20 @@ export class LayoutController {
     @Param('warehouseId') warehouseId: string,
     @Body() body: { objects: Array<CreateLayoutObjectDto & { id?: string }> },
   ) {
-    const results = await this.layoutService.batchSaveObjects(warehouseId, body.objects ?? []);
+    const results = await this.layoutService.batchSaveObjects(
+      warehouseId,
+      body.objects ?? [],
+    );
     return ok(results, 'Batch save completed');
   }
 
   @Get('layout/objects/:id')
   @ApiOperation({ summary: 'Get a single layout object by ID' })
   @ApiParam({ name: 'id', description: 'Layout object ID' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Layout object retrieved' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Layout object retrieved',
+  })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Not found' })
   @Permissions('inventory.warehouse.read')
   async getObject(@Param('id') id: string) {
@@ -137,7 +188,9 @@ export class LayoutController {
   }
 
   @Patch('layout/objects/:id')
-  @ApiOperation({ summary: 'Update layout object (position, size, properties)' })
+  @ApiOperation({
+    summary: 'Update layout object (position, size, properties)',
+  })
   @ApiParam({ name: 'id', description: 'Layout object ID' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Layout object updated' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Not found' })
@@ -153,15 +206,19 @@ export class LayoutController {
   @Delete('layout/objects/:id')
   @ApiOperation({ summary: 'Delete a layout object (soft delete)' })
   @ApiParam({ name: 'id', description: 'Layout object ID' })
-  @ApiQuery({ name: 'force', required: false, description: 'Force delete even if has children' })
+  @ApiQuery({
+    name: 'force',
+    required: false,
+    description: 'Force delete even if has children',
+  })
   @ApiResponse({ status: HttpStatus.OK, description: 'Layout object deleted' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Not found' })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Has children – use force=true' })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Has children – use force=true',
+  })
   @Permissions('inventory.warehouse.structure.manage')
-  async deleteObject(
-    @Param('id') id: string,
-    @Query('force') force?: string,
-  ) {
+  async deleteObject(@Param('id') id: string, @Query('force') force?: string) {
     await this.layoutService.deleteObject(id, force === 'true');
     return deleted('Layout object deleted successfully');
   }

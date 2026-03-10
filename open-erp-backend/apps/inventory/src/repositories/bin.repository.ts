@@ -14,7 +14,8 @@ export class BinRepository {
   ) {}
 
   async create(aisleId: string, dto: CreateBinDto): Promise<BinDocument> {
-    const barcode = dto.barcode || `BIN-${uuidv4().substring(0, 8).toUpperCase()}`;
+    const barcode =
+      dto.barcode || `BIN-${uuidv4().substring(0, 8).toUpperCase()}`;
     const bin = new this.binModel({ ...dto, aisleId, barcode });
     return bin.save();
   }
@@ -22,7 +23,12 @@ export class BinRepository {
   async findAll(
     aisleId: string,
     query: QueryBinDto,
-  ): Promise<{ items: BinDocument[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    items: BinDocument[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const { page = 1, limit = 100, binType, search, availableOnly } = query;
     const filter: Record<string, any> = { aisleId };
 
@@ -40,7 +46,12 @@ export class BinRepository {
 
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
-      this.binModel.find(filter).skip(skip).limit(limit).sort({ code: 1 }).exec(),
+      this.binModel
+        .find(filter)
+        .skip(skip)
+        .limit(limit)
+        .sort({ code: 1 })
+        .exec(),
       this.binModel.countDocuments(filter).exec(),
     ]);
     return { items, total, page, limit };
@@ -66,12 +77,19 @@ export class BinRepository {
 
   async softDelete(id: string): Promise<BinDocument | null> {
     return this.binModel
-      .findByIdAndUpdate(id, { deletedAt: new Date(), isActive: false }, { new: true })
+      .findByIdAndUpdate(
+        id,
+        { deletedAt: new Date(), isActive: false },
+        { new: true },
+      )
       .exec();
   }
 
   async findByAisleId(aisleId: string): Promise<BinDocument[]> {
-    return this.binModel.find({ aisleId } as any).sort({ code: 1 }).exec();
+    return this.binModel
+      .find({ aisleId } as any)
+      .sort({ code: 1 })
+      .exec();
   }
 
   async countByAisle(aisleId: string): Promise<number> {
@@ -98,7 +116,12 @@ export class BinRepository {
     code: string,
     name: string,
     layout: Partial<LayoutPosition>,
-    extra: { barcode?: string; capacityQty?: number; isBlocked?: boolean; allowedSkuTags?: string[] },
+    extra: {
+      barcode?: string;
+      capacityQty?: number;
+      isBlocked?: boolean;
+      allowedSkuTags?: string[];
+    },
   ): Promise<BinDocument> {
     const barcode = extra.barcode || `BIN-${code}`;
     const updateDoc = {
@@ -118,13 +141,21 @@ export class BinRepository {
       .exec() as Promise<BinDocument>;
   }
 
-  async updateLayout(id: string, name: string, layout: Partial<LayoutPosition>): Promise<BinDocument | null> {
+  async updateLayout(
+    id: string,
+    name: string,
+    layout: Partial<LayoutPosition>,
+  ): Promise<BinDocument | null> {
     const update: Record<string, any> = { layout };
     if (name) update['name'] = name;
-    return this.binModel.findByIdAndUpdate(id, { $set: update }, { new: true }).exec();
+    return this.binModel
+      .findByIdAndUpdate(id, { $set: update }, { new: true })
+      .exec();
   }
 
   async clearLayout(id: string): Promise<BinDocument | null> {
-    return this.binModel.findByIdAndUpdate(id, { $set: { layout: null } }, { new: true }).exec();
+    return this.binModel
+      .findByIdAndUpdate(id, { $set: { layout: null } }, { new: true })
+      .exec();
   }
 }

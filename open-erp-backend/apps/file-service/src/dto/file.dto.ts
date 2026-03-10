@@ -82,7 +82,10 @@ export class BulkDeleteDto {
   @IsString({ each: true })
   ids: string[];
 
-  @ApiPropertyOptional({ description: 'Hard delete (permanent)', default: false })
+  @ApiPropertyOptional({
+    description: 'Hard delete (permanent)',
+    default: false,
+  })
   @IsOptional()
   @IsBoolean()
   hard?: boolean;
@@ -127,14 +130,16 @@ export class CreateOnlyOfficeSessionDto {
   fileId?: string;
 
   @ApiPropertyOptional({
-    description: 'MinIO object key (alternative to fileId for direct MinIO files)',
+    description:
+      'MinIO object key (alternative to fileId for direct MinIO files)',
   })
   @IsOptional()
   @IsString()
   minioKey?: string;
 
   @ApiPropertyOptional({
-    description: 'MinIO bucket name (required when using minioKey, defaults to configured bucket)',
+    description:
+      'MinIO bucket name (required when using minioKey, defaults to configured bucket)',
   })
   @IsOptional()
   @IsString()

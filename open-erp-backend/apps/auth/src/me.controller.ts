@@ -207,7 +207,9 @@ export class MeController {
 
   @Post('me/delete-account')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Deactivate (soft-delete) the current user account' })
+  @ApiOperation({
+    summary: 'Deactivate (soft-delete) the current user account',
+  })
   @ApiResponse({ status: 200, description: 'Account deactivated successfully' })
   @ApiResponse({ status: 400, description: 'Invalid password' })
   async deleteAccount(
@@ -226,7 +228,10 @@ export class MeController {
   @Get('me/2fa/status')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get 2FA status for current user' })
-  @ApiResponse({ status: 200, description: '2FA status retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: '2FA status retrieved successfully',
+  })
   async get2FAStatus(@Request() req: AuthenticatedRequest) {
     const result = await this.authService.get2FAStatus(req.user.userId);
     return ok(result, '2FA status retrieved successfully');
@@ -234,8 +239,13 @@ export class MeController {
 
   @Post('me/2fa/prepare')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Prepare 2FA setup — generate temp secret + QR code' })
-  @ApiResponse({ status: 200, description: 'Temp secret and QR code generated' })
+  @ApiOperation({
+    summary: 'Prepare 2FA setup — generate temp secret + QR code',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Temp secret and QR code generated',
+  })
   async prepare2FA(@Request() req: AuthenticatedRequest) {
     const result = await this.authService.prepare2FA(req.user.userId);
     return ok(result, 'Temp secret generated');
@@ -244,7 +254,10 @@ export class MeController {
   @Post('me/2fa/enable')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Enable 2FA after verifying OTP' })
-  @ApiResponse({ status: 200, description: '2FA enabled successfully, returns recovery codes' })
+  @ApiResponse({
+    status: 200,
+    description: '2FA enabled successfully, returns recovery codes',
+  })
   @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
   async enable2FA(
     @Request() req: AuthenticatedRequest,

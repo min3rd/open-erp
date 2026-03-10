@@ -28,7 +28,9 @@ export class LayoutRepository {
 
   // ─── Layout ────────────────────────────────────────────────────────────────
 
-  async findLayoutByWarehouse(warehouseId: string): Promise<WarehouseLayoutDocument | null> {
+  async findLayoutByWarehouse(
+    warehouseId: string,
+  ): Promise<WarehouseLayoutDocument | null> {
     return this.layoutModel.findOne({ warehouseId } as any).exec();
   }
 
@@ -45,7 +47,10 @@ export class LayoutRepository {
     dto: UpdateLayoutDto,
   ): Promise<WarehouseLayoutDocument | null> {
     return this.layoutModel
-      .findOneAndUpdate({ warehouseId } as any, dto, { new: true, runValidators: true })
+      .findOneAndUpdate({ warehouseId } as any, dto, {
+        new: true,
+        runValidators: true,
+      })
       .exec();
   }
 
@@ -54,7 +59,12 @@ export class LayoutRepository {
   async findObjects(
     warehouseId: string,
     query: QueryLayoutObjectDto,
-  ): Promise<{ items: LayoutObjectDocument[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    items: LayoutObjectDocument[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const { page = 1, limit = 200, type, parentId } = query;
     const filter: Record<string, any> = { warehouseId };
     if (type) filter['type'] = type;
@@ -62,7 +72,12 @@ export class LayoutRepository {
 
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
-      this.objectModel.find(filter).skip(skip).limit(limit).sort({ zOrder: 1, type: 1, code: 1 }).exec(),
+      this.objectModel
+        .find(filter)
+        .skip(skip)
+        .limit(limit)
+        .sort({ zOrder: 1, type: 1, code: 1 })
+        .exec(),
       this.objectModel.countDocuments(filter).exec(),
     ]);
     return { items, total, page, limit };
@@ -94,7 +109,11 @@ export class LayoutRepository {
     // If an existing ID is provided, try to update it directly
     if (id) {
       const byId = await this.objectModel
-        .findByIdAndUpdate(id, { $set: data }, { new: true, runValidators: true })
+        .findByIdAndUpdate(
+          id,
+          { $set: data },
+          { new: true, runValidators: true },
+        )
         .exec();
       if (byId) return byId;
       // ID provided but not found: log a warning and fall through to upsert-by-code
@@ -108,7 +127,12 @@ export class LayoutRepository {
       .findOneAndUpdate(
         { warehouseId, code: dto.code } as any,
         { $set: { ...data, warehouseId }, $setOnInsert: { deletedAt: null } },
-        { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true },
+        {
+          new: true,
+          upsert: true,
+          runValidators: true,
+          setDefaultsOnInsert: true,
+        },
       )
       .exec() as Promise<LayoutObjectDocument>;
   }
@@ -151,13 +175,14 @@ export class LayoutRepository {
   }
 
   async deleteAllObjectsByWarehouse(warehouseId: string): Promise<void> {
-    await this.objectModel.updateMany(
-      { warehouseId } as any,
-      { deletedAt: new Date() },
-    ).exec();
+    await this.objectModel
+      .updateMany({ warehouseId } as any, { deletedAt: new Date() })
+      .exec();
   }
 
-  async findLabelCorridorObjects(warehouseId: string): Promise<LayoutObjectDocument[]> {
+  async findLabelCorridorObjects(
+    warehouseId: string,
+  ): Promise<LayoutObjectDocument[]> {
     return this.objectModel
       .find({ warehouseId, type: { $in: ['label', 'corridor'] } } as any)
       .sort({ zOrder: 1, code: 1 })

@@ -74,10 +74,7 @@ export class FileRepository {
       .filter((id) => Types.ObjectId.isValid(id))
       .map((id) => new Types.ObjectId(id));
     const result = await this.fileModel
-      .updateMany(
-        { _id: { $in: objectIds } },
-        { $set: { isDeleted: true } },
-      )
+      .updateMany({ _id: { $in: objectIds } }, { $set: { isDeleted: true } })
       .exec();
     return result.modifiedCount;
   }
@@ -93,7 +90,9 @@ export class FileRepository {
   }
 
   // File version methods
-  async createVersion(data: Partial<FileVersion>): Promise<FileVersionDocument> {
+  async createVersion(
+    data: Partial<FileVersion>,
+  ): Promise<FileVersionDocument> {
     const version = new this.fileVersionModel(data);
     return version.save();
   }

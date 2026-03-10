@@ -3,7 +3,9 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ImportMode } from '@shared/schemas';
 
 export class CreateImportJobDto {
-  @ApiProperty({ description: 'Entity type to import (e.g. users, products, warehouses)' })
+  @ApiProperty({
+    description: 'Entity type to import (e.g. users, products, warehouses)',
+  })
   @IsString()
   entity: string;
 
@@ -12,7 +14,9 @@ export class CreateImportJobDto {
   @IsEnum(ImportMode)
   importMode?: ImportMode;
 
-  @ApiPropertyOptional({ description: 'Column mapping: fileColumn -> entityField' })
+  @ApiPropertyOptional({
+    description: 'Column mapping: fileColumn -> entityField',
+  })
   @IsOptional()
   @IsObject()
   mapping?: Record<string, string>;
@@ -22,7 +26,9 @@ export class CreateImportJobDto {
   @IsString()
   orgId?: string;
 
-  @ApiPropertyOptional({ description: 'Whether this is a dry-run (preview only)' })
+  @ApiPropertyOptional({
+    description: 'Whether this is a dry-run (preview only)',
+  })
   @IsOptional()
   dryRun?: boolean;
 }

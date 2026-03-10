@@ -61,7 +61,10 @@ export class CreatePicklistDto {
   @IsMongoId()
   assignedTo?: string;
 
-  @ApiPropertyOptional({ description: 'Picklist lines', type: [CreatePicklistLineDto] })
+  @ApiPropertyOptional({
+    description: 'Picklist lines',
+    type: [CreatePicklistLineDto],
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
@@ -79,7 +82,10 @@ export class PickLineDto {
   @Min(0)
   pickedQty: number;
 
-  @ApiPropertyOptional({ description: 'Bin locations picked from', type: [String] })
+  @ApiPropertyOptional({
+    description: 'Bin locations picked from',
+    type: [String],
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
@@ -115,7 +121,10 @@ export class CreatePackageDto {
   @IsMongoId()
   shipmentId?: string;
 
-  @ApiPropertyOptional({ description: 'Picklist IDs to include', type: [String] })
+  @ApiPropertyOptional({
+    description: 'Picklist IDs to include',
+    type: [String],
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })

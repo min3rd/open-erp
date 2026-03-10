@@ -80,11 +80,7 @@ export class SerialRepository {
 
   async softDelete(id: string): Promise<SerialDocument | null> {
     return this.serialModel
-      .findByIdAndUpdate(
-        id,
-        { $set: { deletedAt: new Date() } },
-        { new: true },
-      )
+      .findByIdAndUpdate(id, { $set: { deletedAt: new Date() } }, { new: true })
       .exec();
   }
 }

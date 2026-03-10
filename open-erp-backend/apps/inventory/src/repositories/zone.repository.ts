@@ -12,10 +12,7 @@ export class ZoneRepository {
     private readonly zoneModel: Model<ZoneDocument>,
   ) {}
 
-  async create(
-    warehouseId: string,
-    dto: CreateZoneDto,
-  ): Promise<ZoneDocument> {
+  async create(warehouseId: string, dto: CreateZoneDto): Promise<ZoneDocument> {
     const zone = new this.zoneModel({ ...dto, warehouseId });
     return zone.save();
   }
@@ -23,7 +20,12 @@ export class ZoneRepository {
   async findAll(
     warehouseId: string,
     query: QueryZoneDto,
-  ): Promise<{ items: ZoneDocument[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    items: ZoneDocument[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const { page = 1, limit = 50, type, search } = query;
     const filter: Record<string, any> = { warehouseId };
 
@@ -37,7 +39,12 @@ export class ZoneRepository {
 
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
-      this.zoneModel.find(filter).skip(skip).limit(limit).sort({ sequence: 1, createdAt: 1 }).exec(),
+      this.zoneModel
+        .find(filter)
+        .skip(skip)
+        .limit(limit)
+        .sort({ sequence: 1, createdAt: 1 })
+        .exec(),
       this.zoneModel.countDocuments(filter).exec(),
     ]);
     return { items, total, page, limit };
@@ -47,7 +54,10 @@ export class ZoneRepository {
     return this.zoneModel.findById(id).exec();
   }
 
-  async findByCode(warehouseId: string, code: string): Promise<ZoneDocument | null> {
+  async findByCode(
+    warehouseId: string,
+    code: string,
+  ): Promise<ZoneDocument | null> {
     return this.zoneModel.findOne({ warehouseId, code } as any).exec();
   }
 
@@ -59,7 +69,11 @@ export class ZoneRepository {
 
   async softDelete(id: string): Promise<ZoneDocument | null> {
     return this.zoneModel
-      .findByIdAndUpdate(id, { deletedAt: new Date(), isActive: false }, { new: true })
+      .findByIdAndUpdate(
+        id,
+        { deletedAt: new Date(), isActive: false },
+        { new: true },
+      )
       .exec();
   }
 
@@ -68,10 +82,18 @@ export class ZoneRepository {
   }
 
   async findAllByWarehouse(warehouseId: string): Promise<ZoneDocument[]> {
-    return this.zoneModel.find({ warehouseId } as any).sort({ sequence: 1, createdAt: 1 }).exec();
+    return this.zoneModel
+      .find({ warehouseId } as any)
+      .sort({ sequence: 1, createdAt: 1 })
+      .exec();
   }
 
-  async upsertByCode(warehouseId: string, code: string, name: string, layout: Partial<LayoutPosition>): Promise<ZoneDocument> {
+  async upsertByCode(
+    warehouseId: string,
+    code: string,
+    name: string,
+    layout: Partial<LayoutPosition>,
+  ): Promise<ZoneDocument> {
     return this.zoneModel
       .findOneAndUpdate(
         { warehouseId, code } as any,
@@ -81,13 +103,19 @@ export class ZoneRepository {
       .exec() as Promise<ZoneDocument>;
   }
 
-  async updateLayout(id: string, name: string, layout: Partial<LayoutPosition>): Promise<ZoneDocument | null> {
+  async updateLayout(
+    id: string,
+    name: string,
+    layout: Partial<LayoutPosition>,
+  ): Promise<ZoneDocument | null> {
     return this.zoneModel
       .findByIdAndUpdate(id, { $set: { name, layout } }, { new: true })
       .exec();
   }
 
   async clearLayout(id: string): Promise<ZoneDocument | null> {
-    return this.zoneModel.findByIdAndUpdate(id, { $set: { layout: null } }, { new: true }).exec();
+    return this.zoneModel
+      .findByIdAndUpdate(id, { $set: { layout: null } }, { new: true })
+      .exec();
   }
 }

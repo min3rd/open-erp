@@ -20,9 +20,7 @@ import {
 
 @Injectable()
 export class WorkflowTemplateService {
-  constructor(
-    private readonly templateRepo: WorkflowTemplateRepository,
-  ) {}
+  constructor(private readonly templateRepo: WorkflowTemplateRepository) {}
 
   async create(
     dto: CreateWorkflowTemplateDto,
@@ -81,7 +79,13 @@ export class WorkflowTemplateService {
     sortField?: string,
     sortOrder?: 'asc' | 'desc',
   ) {
-    return this.templateRepo.findAll(filters, page, limit, sortField, sortOrder);
+    return this.templateRepo.findAll(
+      filters,
+      page,
+      limit,
+      sortField,
+      sortOrder,
+    );
   }
 
   async update(
@@ -205,9 +209,7 @@ export class WorkflowTemplateService {
       entityType: source.entityType,
       scope,
       orgId: orgId ? new Types.ObjectId(orgId) : undefined,
-      departmentId: departmentId
-        ? new Types.ObjectId(departmentId)
-        : undefined,
+      departmentId: departmentId ? new Types.ObjectId(departmentId) : undefined,
       status: TemplateStatus.DRAFT,
       version: 1,
       nodes: source.nodes,
@@ -276,17 +278,23 @@ export class WorkflowTemplateService {
     // Validate edges reference existing nodes
     for (const edge of edges) {
       if (!nodeIds.has(edge.source)) {
-        errors.push(`Edge "${edge.id}" references non-existent source node "${edge.source}"`);
+        errors.push(
+          `Edge "${edge.id}" references non-existent source node "${edge.source}"`,
+        );
       }
       if (!nodeIds.has(edge.target)) {
-        errors.push(`Edge "${edge.id}" references non-existent target node "${edge.target}"`);
+        errors.push(
+          `Edge "${edge.id}" references non-existent target node "${edge.target}"`,
+        );
       }
     }
 
     // Validate approval nodes have approverIds
     for (const node of approvalNodes) {
       if (!node.data?.approverIds || node.data.approverIds.length === 0) {
-        errors.push(`Approval node "${node.id}" must have at least one approver`);
+        errors.push(
+          `Approval node "${node.id}" must have at least one approver`,
+        );
       }
     }
 

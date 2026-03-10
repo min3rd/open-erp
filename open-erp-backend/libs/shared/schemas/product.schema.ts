@@ -506,9 +506,9 @@ ProductSchema.index(
   {
     unique: true,
     sparse: true,
-    partialFilterExpression: { 
+    partialFilterExpression: {
       scope: ProductScope.ORGANIZATION,
-      slug: { $type: 'string' }
+      slug: { $type: 'string' },
     },
   },
 );
@@ -519,9 +519,9 @@ ProductSchema.index(
   {
     unique: true,
     sparse: true,
-    partialFilterExpression: { 
+    partialFilterExpression: {
       scope: ProductScope.GLOBAL,
-      slug: { $type: 'string' }
+      slug: { $type: 'string' },
     },
   },
 );

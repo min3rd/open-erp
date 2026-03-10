@@ -74,9 +74,25 @@ export class InventoryController {
   @ApiParam({ name: 'warehouseId', description: 'Warehouse ID' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
-  @ApiQuery({ name: 'q', required: false, type: String, description: 'Search by SKU or product name' })
-  @ApiQuery({ name: 'sortField', required: false, type: String, description: 'Sort field (sku, name, available, reserved, inTransit, damaged, onHand)' })
-  @ApiQuery({ name: 'sortOrder', required: false, type: Number, description: 'Sort order: 1 = ascending, -1 = descending' })
+  @ApiQuery({
+    name: 'q',
+    required: false,
+    type: String,
+    description: 'Search by SKU or product name',
+  })
+  @ApiQuery({
+    name: 'sortField',
+    required: false,
+    type: String,
+    description:
+      'Sort field (sku, name, available, reserved, inTransit, damaged, onHand)',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    type: Number,
+    description: 'Sort order: 1 = ascending, -1 = descending',
+  })
   @ApiResponse({
     status: 200,
     description: 'Warehouse stock retrieved successfully',
@@ -93,7 +109,13 @@ export class InventoryController {
       const result = await this.inventoryService.getStocksByWarehouse(
         warehouseId,
         {},
-        { page, limit, q, sortField, sortOrder: sortOrder ? Number(sortOrder) : undefined },
+        {
+          page,
+          limit,
+          q,
+          sortField,
+          sortOrder: sortOrder ? Number(sortOrder) : undefined,
+        },
       );
       return paginated(result.items, result.page, result.limit, result.total);
     } catch (err) {
@@ -386,9 +408,7 @@ export class InventoryController {
     status: 200,
     description: 'Stock summary retrieved successfully',
   })
-  async getWarehouseStockSummary(
-    @Param('warehouseId') warehouseId: string,
-  ) {
+  async getWarehouseStockSummary(@Param('warehouseId') warehouseId: string) {
     try {
       const summary =
         await this.inventoryService.getWarehouseStockSummary(warehouseId);
@@ -463,10 +483,7 @@ export class InventoryController {
     } catch (err) {
       if (err instanceof HttpException) throw err;
       throw new HttpException(
-        error(
-          'STOCK_FETCH_ERROR',
-          err.message || 'Failed to fetch SKU stock',
-        ),
+        error('STOCK_FETCH_ERROR', err.message || 'Failed to fetch SKU stock'),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

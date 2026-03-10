@@ -1,12 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { WmsPackage, WmsPackageDocument, WmsPackageStatus } from '@shared/schemas';
+import {
+  WmsPackage,
+  WmsPackageDocument,
+  WmsPackageStatus,
+} from '@shared/schemas';
 
 @Injectable()
 export class WmsPackageRepository {
   constructor(
-    @InjectModel(WmsPackage.name) private readonly packageModel: Model<WmsPackageDocument>,
+    @InjectModel(WmsPackage.name)
+    private readonly packageModel: Model<WmsPackageDocument>,
   ) {}
 
   async create(data: Partial<WmsPackage>): Promise<WmsPackageDocument> {
@@ -18,7 +23,10 @@ export class WmsPackageRepository {
     return this.packageModel.findById(id).exec();
   }
 
-  async update(id: string, data: Partial<WmsPackage>): Promise<WmsPackageDocument | null> {
+  async update(
+    id: string,
+    data: Partial<WmsPackage>,
+  ): Promise<WmsPackageDocument | null> {
     return this.packageModel
       .findByIdAndUpdate(id, { $set: data }, { new: true })
       .exec();
@@ -38,24 +46,32 @@ export class WmsPackageRepository {
       sortOrder?: 1 | -1;
     } = {},
   ) {
-    const { skip = 0, limit = 20, sortField = 'createdAt', sortOrder = -1 } = options;
+    const {
+      skip = 0,
+      limit = 20,
+      sortField = 'createdAt',
+      sortOrder = -1,
+    } = options;
     const query: any = { deletedAt: null };
 
     if (filter.orgId) query.orgId = new Types.ObjectId(filter.orgId);
-    if (filter.shipmentId) query.shipmentId = new Types.ObjectId(filter.shipmentId);
+    if (filter.shipmentId)
+      query.shipmentId = new Types.ObjectId(filter.shipmentId);
     if (filter.status) query.status = filter.status;
     if (filter.q) {
       const regex = { $regex: filter.q, $options: 'i' };
-      query.$or = [
-        { trackingNumber: regex },
-        { notes: regex },
-      ];
+      query.$or = [{ trackingNumber: regex }, { notes: regex }];
     }
 
     const sortObj: any = { [sortField]: sortOrder };
 
     const [items, total] = await Promise.all([
-      this.packageModel.find(query).skip(skip).limit(limit).sort(sortObj).exec(),
+      this.packageModel
+        .find(query)
+        .skip(skip)
+        .limit(limit)
+        .sort(sortObj)
+        .exec(),
       this.packageModel.countDocuments(query).exec(),
     ]);
 

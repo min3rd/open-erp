@@ -23,7 +23,11 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { ProductService } from '../services/product.service';
-import { CreateProductDto, UpdateProductDto, RegisterMediaDto } from '../dto/product.dto';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  RegisterMediaDto,
+} from '../dto/product.dto';
 import {
   created,
   updated,
@@ -334,14 +338,16 @@ export class ProductController {
 
   @Get(':identifier')
   @Permissions(Permission.PRODUCT_READ)
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get a product by identifier (slug, SKU, or ID)',
-    description: 'Retrieve a product using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+    description:
+      'Retrieve a product using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id',
   })
-  @ApiParam({ 
-    name: 'identifier', 
-    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
-    example: 'laptop-hp-pavilion'
+  @ApiParam({
+    name: 'identifier',
+    description:
+      'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion',
   })
   @ApiQuery({
     name: 'includeDeleted',
@@ -407,14 +413,16 @@ export class ProductController {
   @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
     mode: 'any',
   })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Update a product by identifier (slug, SKU, or ID)',
-    description: 'Update a product using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+    description:
+      'Update a product using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id',
   })
-  @ApiParam({ 
-    name: 'identifier', 
-    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
-    example: 'laptop-hp-pavilion'
+  @ApiParam({
+    name: 'identifier',
+    description:
+      'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion',
   })
   @ApiQuery({
     name: 'organizationId',
@@ -448,14 +456,17 @@ export class ProductController {
   })
   @ApiResponse({ status: 404, description: 'Product not found' })
   async update(
-    @Param('identifier') identifier: string, 
-    @Body() updateDto: UpdateProductDto, 
+    @Param('identifier') identifier: string,
+    @Body() updateDto: UpdateProductDto,
     @CurrentUser() user: UserContext,
     @Query('organizationId') organizationId?: string,
   ) {
     try {
       // Resolve identifier to product ID
-      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      const productId = await this.productService.resolveIdentifier(
+        identifier,
+        organizationId,
+      );
       if (!productId) {
         throw new NotFoundException('Product not found');
       }
@@ -481,14 +492,16 @@ export class ProductController {
   @Permissions([Permission.PRODUCT_DELETE, Permission.PRODUCT_MANAGE], {
     mode: 'any',
   })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Soft delete a product by identifier (slug, SKU, or ID)',
-    description: 'Soft delete a product using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+    description:
+      'Soft delete a product using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id',
   })
-  @ApiParam({ 
-    name: 'identifier', 
-    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
-    example: 'laptop-hp-pavilion'
+  @ApiParam({
+    name: 'identifier',
+    description:
+      'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion',
   })
   @ApiQuery({
     name: 'organizationId',
@@ -522,13 +535,16 @@ export class ProductController {
   })
   @ApiResponse({ status: 404, description: 'Product not found' })
   async softDelete(
-    @Param('identifier') identifier: string, 
+    @Param('identifier') identifier: string,
     @CurrentUser() user: UserContext,
     @Query('organizationId') organizationId?: string,
   ) {
     try {
       // Resolve identifier to product ID
-      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      const productId = await this.productService.resolveIdentifier(
+        identifier,
+        organizationId,
+      );
       if (!productId) {
         throw new NotFoundException('Product not found');
       }
@@ -551,14 +567,16 @@ export class ProductController {
 
   @Post(':identifier/restore')
   @Permissions([Permission.PRODUCT_MANAGE])
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Restore a soft-deleted product by identifier (slug, SKU, or ID)',
-    description: 'Restore a soft-deleted product using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+    description:
+      'Restore a soft-deleted product using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id',
   })
-  @ApiParam({ 
-    name: 'identifier', 
-    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
-    example: 'laptop-hp-pavilion'
+  @ApiParam({
+    name: 'identifier',
+    description:
+      'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion',
   })
   @ApiQuery({
     name: 'organizationId',
@@ -582,7 +600,10 @@ export class ProductController {
   ) {
     try {
       // Resolve identifier to product ID
-      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      const productId = await this.productService.resolveIdentifier(
+        identifier,
+        organizationId,
+      );
       if (!productId) {
         throw new NotFoundException('Product not found');
       }
@@ -607,14 +628,17 @@ export class ProductController {
   @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
     mode: 'any',
   })
-  @ApiOperation({ 
-    summary: 'Publish a product (set status to active) by identifier (slug, SKU, or ID)',
-    description: 'Publish a product using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+  @ApiOperation({
+    summary:
+      'Publish a product (set status to active) by identifier (slug, SKU, or ID)',
+    description:
+      'Publish a product using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id',
   })
-  @ApiParam({ 
-    name: 'identifier', 
-    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
-    example: 'laptop-hp-pavilion'
+  @ApiParam({
+    name: 'identifier',
+    description:
+      'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion',
   })
   @ApiQuery({
     name: 'organizationId',
@@ -639,7 +663,10 @@ export class ProductController {
   ) {
     try {
       // Resolve identifier to product ID
-      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      const productId = await this.productService.resolveIdentifier(
+        identifier,
+        organizationId,
+      );
       if (!productId) {
         throw new NotFoundException('Product not found');
       }
@@ -664,14 +691,16 @@ export class ProductController {
   @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
     mode: 'any',
   })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Mark a product as inactive by identifier (slug, SKU, or ID)',
-    description: 'Mark a product as inactive using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+    description:
+      'Mark a product as inactive using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id',
   })
-  @ApiParam({ 
-    name: 'identifier', 
-    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
-    example: 'laptop-hp-pavilion'
+  @ApiParam({
+    name: 'identifier',
+    description:
+      'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion',
   })
   @ApiQuery({
     name: 'organizationId',
@@ -696,12 +725,18 @@ export class ProductController {
   ) {
     try {
       // Resolve identifier to product ID
-      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      const productId = await this.productService.resolveIdentifier(
+        identifier,
+        organizationId,
+      );
       if (!productId) {
         throw new NotFoundException('Product not found');
       }
 
-      const product = await this.productService.markInactive(productId, user.userId);
+      const product = await this.productService.markInactive(
+        productId,
+        user.userId,
+      );
       return updated(product, 'Product marked as inactive successfully');
     } catch (err) {
       if (err instanceof HttpException) {
@@ -719,14 +754,17 @@ export class ProductController {
 
   @Get(':identifier/versions')
   @Permissions(Permission.PRODUCT_READ)
-  @ApiOperation({ 
-    summary: 'Get version history of a product by identifier (slug, SKU, or ID)',
-    description: 'Get product version history using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+  @ApiOperation({
+    summary:
+      'Get version history of a product by identifier (slug, SKU, or ID)',
+    description:
+      'Get product version history using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id',
   })
-  @ApiParam({ 
-    name: 'identifier', 
-    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
-    example: 'laptop-hp-pavilion'
+  @ApiParam({
+    name: 'identifier',
+    description:
+      'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion',
   })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
@@ -754,7 +792,10 @@ export class ProductController {
   ) {
     try {
       // Resolve identifier to product ID
-      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      const productId = await this.productService.resolveIdentifier(
+        identifier,
+        organizationId,
+      );
       if (!productId) {
         throw new NotFoundException('Product not found');
       }
@@ -780,14 +821,17 @@ export class ProductController {
 
   @Get(':identifier/versions/:version')
   @Permissions(Permission.PRODUCT_READ)
-  @ApiOperation({ 
-    summary: 'Get a specific version of a product by identifier (slug, SKU, or ID)',
-    description: 'Get a specific product version using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+  @ApiOperation({
+    summary:
+      'Get a specific version of a product by identifier (slug, SKU, or ID)',
+    description:
+      'Get a specific product version using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id',
   })
-  @ApiParam({ 
-    name: 'identifier', 
-    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
-    example: 'laptop-hp-pavilion'
+  @ApiParam({
+    name: 'identifier',
+    description:
+      'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion',
   })
   @ApiParam({ name: 'version', description: 'Version number', type: Number })
   @ApiQuery({
@@ -807,18 +851,24 @@ export class ProductController {
   })
   @ApiResponse({ status: 404, description: 'Version not found' })
   async getVersion(
-    @Param('identifier') identifier: string, 
+    @Param('identifier') identifier: string,
     @Param('version') version: number,
     @Query('organizationId') organizationId?: string,
   ) {
     try {
       // Resolve identifier to product ID
-      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      const productId = await this.productService.resolveIdentifier(
+        identifier,
+        organizationId,
+      );
       if (!productId) {
         throw new NotFoundException('Product not found');
       }
 
-      const versionDoc = await this.productService.getVersion(productId, version);
+      const versionDoc = await this.productService.getVersion(
+        productId,
+        version,
+      );
       return fetched(versionDoc);
     } catch (err) {
       if (err instanceof HttpException) {
@@ -835,14 +885,17 @@ export class ProductController {
   @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
     mode: 'any',
   })
-  @ApiOperation({ 
-    summary: 'Revert a product to a specific version by identifier (slug, SKU, or ID)',
-    description: 'Revert product to a specific version using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id'
+  @ApiOperation({
+    summary:
+      'Revert a product to a specific version by identifier (slug, SKU, or ID)',
+    description:
+      'Revert product to a specific version using its slug (preferred), SKU, or MongoDB ObjectId. Resolution order: slug → sku → id',
   })
-  @ApiParam({ 
-    name: 'identifier', 
-    description: 'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
-    example: 'laptop-hp-pavilion'
+  @ApiParam({
+    name: 'identifier',
+    description:
+      'Product identifier: slug (e.g., "laptop-hp-pavilion"), SKU (e.g., "SKU-001"), or MongoDB ObjectId',
+    example: 'laptop-hp-pavilion',
   })
   @ApiQuery({
     name: 'version',
@@ -874,7 +927,10 @@ export class ProductController {
   ) {
     try {
       // Resolve identifier to product ID
-      const productId = await this.productService.resolveIdentifier(identifier, organizationId);
+      const productId = await this.productService.resolveIdentifier(
+        identifier,
+        organizationId,
+      );
       if (!productId) {
         throw new NotFoundException('Product not found');
       }
@@ -902,34 +958,35 @@ export class ProductController {
   @Permissions([Permission.PRODUCT_CREATE, Permission.PRODUCT_MANAGE], {
     mode: 'any',
   })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get presigned URL for uploading media during product creation',
-    description: 'Generates a presigned URL for uploading media before product is created (no product ID required)'
+    description:
+      'Generates a presigned URL for uploading media before product is created (no product ID required)',
   })
-  @ApiQuery({ 
-    name: 'filename', 
-    required: true, 
+  @ApiQuery({
+    name: 'filename',
+    required: true,
     type: String,
-    description: 'Original filename with extension' 
+    description: 'Original filename with extension',
   })
-  @ApiQuery({ 
-    name: 'contentType', 
-    required: true, 
+  @ApiQuery({
+    name: 'contentType',
+    required: true,
     type: String,
-    description: 'MIME type (e.g., image/jpeg, image/png)' 
+    description: 'MIME type (e.g., image/jpeg, image/png)',
   })
-  @ApiQuery({ 
-    name: 'type', 
-    required: false, 
+  @ApiQuery({
+    name: 'type',
+    required: false,
     enum: ['thumbnail', 'media'],
     description: 'Type of media (thumbnail or general media)',
-    example: 'thumbnail'
+    example: 'thumbnail',
   })
-  @ApiQuery({ 
-    name: 'organizationId', 
-    required: false, 
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
     type: String,
-    description: 'Organization ID (optional, for organization-scoped products)' 
+    description: 'Organization ID (optional, for organization-scoped products)',
   })
   @ApiResponse({
     status: 200,
@@ -943,10 +1000,16 @@ export class ProductController {
         data: {
           type: 'object',
           properties: {
-            uploadUrl: { type: 'string', example: 'https://minio.example.com/...' },
+            uploadUrl: {
+              type: 'string',
+              example: 'https://minio.example.com/...',
+            },
             method: { type: 'string', example: 'PUT' },
             expiresAt: { type: 'string', format: 'date-time' },
-            objectKey: { type: 'string', example: 'products/temp/org-123/thumbnail/123456-image.jpg' },
+            objectKey: {
+              type: 'string',
+              example: 'products/temp/org-123/thumbnail/123456-image.jpg',
+            },
             bucket: { type: 'string', example: 'open-erp' },
           },
         },
@@ -968,23 +1031,34 @@ export class ProductController {
       const allowedTypes = {
         thumbnail: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
         media: [
-          'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
-          'video/mp4', 'video/webm', 'video/ogg',
+          'image/jpeg',
+          'image/jpg',
+          'image/png',
+          'image/webp',
+          'image/gif',
+          'video/mp4',
+          'video/webm',
+          'video/ogg',
           'application/pdf',
-          'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'application/vnd.ms-excel',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'application/vnd.ms-powerpoint',
+          'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         ],
       };
 
       if (!allowedTypes[type]?.includes(contentType)) {
-        throw new BadRequestException(`Content type ${contentType} not allowed for ${type}`);
+        throw new BadRequestException(
+          `Content type ${contentType} not allowed for ${type}`,
+        );
       }
 
       // Sanitize filename
       const sanitizedFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
       const timestamp = Date.now();
-      
+
       // Generate object key for temp upload: products/temp/{orgId}/{type}/{timestamp}-{filename}
       // Use organizationId if provided, otherwise use user's organizationId or 'global'
       const orgId = organizationId || user.organizationId || 'global';
@@ -1008,7 +1082,10 @@ export class ProductController {
         throw err;
       }
       throw new HttpException(
-        error('PRESIGN_ERROR', err.message || 'Failed to generate presigned URL'),
+        error(
+          'PRESIGN_ERROR',
+          err.message || 'Failed to generate presigned URL',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -1018,29 +1095,30 @@ export class ProductController {
   @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
     mode: 'any',
   })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get presigned URL for uploading product media',
-    description: 'Generates a presigned URL that allows client to upload media directly to MinIO'
+    description:
+      'Generates a presigned URL that allows client to upload media directly to MinIO',
   })
   @ApiParam({ name: 'id', description: 'Product ID' })
-  @ApiQuery({ 
-    name: 'filename', 
-    required: true, 
+  @ApiQuery({
+    name: 'filename',
+    required: true,
     type: String,
-    description: 'Original filename with extension' 
+    description: 'Original filename with extension',
   })
-  @ApiQuery({ 
-    name: 'contentType', 
-    required: true, 
+  @ApiQuery({
+    name: 'contentType',
+    required: true,
     type: String,
-    description: 'MIME type (e.g., image/jpeg, image/png)' 
+    description: 'MIME type (e.g., image/jpeg, image/png)',
   })
-  @ApiQuery({ 
-    name: 'type', 
-    required: false, 
+  @ApiQuery({
+    name: 'type',
+    required: false,
     enum: ['thumbnail', 'media'],
     description: 'Type of media (thumbnail or general media)',
-    example: 'thumbnail'
+    example: 'thumbnail',
   })
   @ApiResponse({
     status: 200,
@@ -1054,10 +1132,16 @@ export class ProductController {
         data: {
           type: 'object',
           properties: {
-            uploadUrl: { type: 'string', example: 'https://minio.example.com/...' },
+            uploadUrl: {
+              type: 'string',
+              example: 'https://minio.example.com/...',
+            },
             method: { type: 'string', example: 'PUT' },
             expiresAt: { type: 'string', format: 'date-time' },
-            objectKey: { type: 'string', example: 'products/org-123/prod-456/image.jpg' },
+            objectKey: {
+              type: 'string',
+              example: 'products/org-123/prod-456/image.jpg',
+            },
             bucket: { type: 'string', example: 'open-erp' },
           },
         },
@@ -1088,25 +1172,38 @@ export class ProductController {
       const allowedTypes = {
         thumbnail: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
         media: [
-          'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
-          'video/mp4', 'video/webm', 'video/ogg',
+          'image/jpeg',
+          'image/jpg',
+          'image/png',
+          'image/webp',
+          'image/gif',
+          'video/mp4',
+          'video/webm',
+          'video/ogg',
           'application/pdf',
-          'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'application/vnd.ms-excel',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'application/vnd.ms-powerpoint',
+          'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         ],
       };
 
       if (!allowedTypes[type]?.includes(contentType)) {
-        throw new BadRequestException(`Content type ${contentType} not allowed for ${type}`);
+        throw new BadRequestException(
+          `Content type ${contentType} not allowed for ${type}`,
+        );
       }
 
       // Sanitize filename
       const sanitizedFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
       const timestamp = Date.now();
-      
+
       // Generate object key: products/{orgId}/{productId}/{type}/{timestamp}-{filename}
-      const orgPrefix = product.organizationId ? `org-${product.organizationId}` : 'global';
+      const orgPrefix = product.organizationId
+        ? `org-${product.organizationId}`
+        : 'global';
       const objectKey = `products/${orgPrefix}/${id}/${type}/${timestamp}-${sanitizedFilename}`;
 
       // Generate presigned URL
@@ -1126,7 +1223,10 @@ export class ProductController {
         throw err;
       }
       throw new HttpException(
-        error('PRESIGN_ERROR', err.message || 'Failed to generate presigned URL'),
+        error(
+          'PRESIGN_ERROR',
+          err.message || 'Failed to generate presigned URL',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -1136,9 +1236,10 @@ export class ProductController {
   @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
     mode: 'any',
   })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Register uploaded media',
-    description: 'After client uploads media using presigned URL, register the media metadata in the product'
+    description:
+      'After client uploads media using presigned URL, register the media metadata in the product',
   })
   @ApiParam({ name: 'id', description: 'Product ID' })
   @ApiResponse({
@@ -1166,7 +1267,7 @@ export class ProductController {
 
       // Update product with media
       const updateData: any = {};
-      
+
       if (body.type === 'thumbnail') {
         updateData.thumbnail = {
           url: body.url,
@@ -1190,7 +1291,7 @@ export class ProductController {
           minioObjectKey: body.objectKey,
           minioBucket: this.minioService.getDefaultBucket(),
         };
-        
+
         updateData.media = [...(product.media || []), newMedia];
       }
 
@@ -1203,7 +1304,10 @@ export class ProductController {
         throw err;
       }
       throw new HttpException(
-        error('MEDIA_REGISTER_ERROR', err.message || 'Failed to register media'),
+        error(
+          'MEDIA_REGISTER_ERROR',
+          err.message || 'Failed to register media',
+        ),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -1213,22 +1317,22 @@ export class ProductController {
   @Permissions([Permission.PRODUCT_UPDATE, Permission.PRODUCT_MANAGE], {
     mode: 'any',
   })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Delete product media',
-    description: 'Delete media from product and MinIO storage'
+    description: 'Delete media from product and MinIO storage',
   })
   @ApiParam({ name: 'id', description: 'Product ID' })
-  @ApiQuery({ 
-    name: 'objectKey', 
-    required: false, 
+  @ApiQuery({
+    name: 'objectKey',
+    required: false,
     type: String,
-    description: 'MinIO object key to delete (for media items)' 
+    description: 'MinIO object key to delete (for media items)',
   })
-  @ApiQuery({ 
-    name: 'deleteThumbnail', 
-    required: false, 
+  @ApiQuery({
+    name: 'deleteThumbnail',
+    required: false,
     type: Boolean,
-    description: 'Whether to delete thumbnail' 
+    description: 'Whether to delete thumbnail',
   })
   @ApiResponse({
     status: 200,
@@ -1252,14 +1356,18 @@ export class ProductController {
       // Delete thumbnail
       if (deleteThumbnail && product.thumbnail) {
         if (product.thumbnail.minioObjectKey) {
-          await this.minioService.deleteObject(product.thumbnail.minioObjectKey);
+          await this.minioService.deleteObject(
+            product.thumbnail.minioObjectKey,
+          );
         }
         updateData.thumbnail = null;
       }
 
       // Delete specific media item
       if (objectKey && product.media) {
-        const mediaIndex = product.media.findIndex(m => m.minioObjectKey === objectKey);
+        const mediaIndex = product.media.findIndex(
+          (m) => m.minioObjectKey === objectKey,
+        );
         if (mediaIndex === -1) {
           throw new BadRequestException('Media item not found');
         }
@@ -1268,7 +1376,9 @@ export class ProductController {
         await this.minioService.deleteObject(objectKey);
 
         // Remove from array
-        updateData.media = product.media.filter(m => m.minioObjectKey !== objectKey);
+        updateData.media = product.media.filter(
+          (m) => m.minioObjectKey !== objectKey,
+        );
       }
 
       const updatedProduct = await this.productService.update(id, updateData);

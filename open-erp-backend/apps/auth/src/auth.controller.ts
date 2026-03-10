@@ -269,8 +269,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @ApiOperation({ summary: 'Complete login by verifying TOTP OTP' })
-  @ApiResponse({ status: 200, description: 'Login completed — access token issued' })
-  @ApiResponse({ status: 401, description: 'Invalid OTP or expired temp token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Login completed — access token issued',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid OTP or expired temp token',
+  })
   async verify2FA(@Body() dto: TwoFAVerifyDto) {
     const result = await this.authService.verify2FA(dto.tempAuthToken, dto.otp);
     return ok(result, 'Login completed successfully');
@@ -281,9 +287,17 @@ export class AuthController {
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  @ApiOperation({ summary: 'Disable 2FA using a recovery code and issue access token' })
-  @ApiResponse({ status: 200, description: '2FA disabled — access token issued' })
-  @ApiResponse({ status: 401, description: 'Invalid recovery code or expired temp token' })
+  @ApiOperation({
+    summary: 'Disable 2FA using a recovery code and issue access token',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '2FA disabled — access token issued',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid recovery code or expired temp token',
+  })
   async disableWith2FARecovery(@Body() dto: TwoFARecoveryDisableDto) {
     const result = await this.authService.disableWith2FARecovery(
       dto.tempAuthToken,

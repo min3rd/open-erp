@@ -50,16 +50,31 @@ export const PicklistLineSchema = SchemaFactory.createForClass(PicklistLine);
   versionKey: false,
 })
 export class Picklist extends Document {
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Organization', required: true, index: true })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Organization',
+    required: true,
+    index: true,
+  })
   orgId: MongooseSchema.Types.ObjectId;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Warehouse', required: true, index: true })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Warehouse',
+    required: true,
+    index: true,
+  })
   warehouseId: MongooseSchema.Types.ObjectId;
 
   @Prop({ type: [String], default: [], index: true })
   orderIds: string[];
 
-  @Prop({ type: String, enum: PicklistStatus, default: PicklistStatus.DRAFT, index: true })
+  @Prop({
+    type: String,
+    enum: PicklistStatus,
+    default: PicklistStatus.DRAFT,
+    index: true,
+  })
   status: PicklistStatus;
 
   @Prop({ type: [PicklistLineSchema], default: [] })
