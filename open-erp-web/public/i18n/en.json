@@ -3892,8 +3892,11 @@
         "statusSkipped": "Skipped",
         "statusRejected": "Rejected",
         "transitionSuccess": "Workflow transitioned successfully",
-        "lineUpdateSuccess": "Line updated successfully"
-      }
+        "lineUpdateSuccess": "Line updated successfully",
+        "startWorkflow": "Start Workflow"
+      },
+      "warehouse": "Warehouse",
+      "expectedReceiptAt": "Expected Receipt Date"
     },
     "picklists": {
       "title": "Picklists",
