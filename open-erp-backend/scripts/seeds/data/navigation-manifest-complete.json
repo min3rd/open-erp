@@ -194,5 +194,110 @@
         "description": "Manage warehouses and storage locations"
       }
     }
+    ,
+    {
+      "id": "nav-stock",
+      "label": "Stock",
+      "labelKey": "navigation.modules.stock",
+      "route": "/modules/stock",
+      "module": "stock",
+      "scope": "global",
+      "order": 7
+    },
+    {
+      "id": "nav-stock-list",
+      "label": "Stock List",
+      "labelKey": "navigation.modules.stock.list",
+      "route": "/modules/stock/list",
+      "module": "stock",
+      "moduleId": "stock",
+      "scope": "module",
+      "parentId": "nav-stock",
+      "order": 1
+    },
+    {
+      "id": "nav-stock-lots",
+      "label": "Lots",
+      "labelKey": "navigation.modules.stock.lots",
+      "route": "/modules/stock/lots",
+      "module": "stock",
+      "moduleId": "stock",
+      "scope": "module",
+      "parentId": "nav-stock",
+      "order": 2
+    },
+    {
+      "id": "nav-stock-serials",
+      "label": "Serials",
+      "labelKey": "navigation.modules.stock.serials",
+      "route": "/modules/stock/serials",
+      "module": "stock",
+      "moduleId": "stock",
+      "scope": "module",
+      "parentId": "nav-stock",
+      "order": 3
+    },
+    {
+      "id": "nav-wms",
+      "label": "WMS",
+      "labelKey": "navigation.modules.wms",
+      "route": "/modules/wms",
+      "module": "wms",
+      "scope": "global",
+      "order": 8
+    },
+    {
+      "id": "nav-wms-receipts",
+      "label": "Receipts",
+      "labelKey": "navigation.modules.wms.receipts",
+      "route": "/modules/wms/receipts",
+      "module": "wms",
+      "moduleId": "wms",
+      "scope": "module",
+      "parentId": "nav-wms",
+      "order": 1
+    },
+    {
+      "id": "nav-wms-picklists",
+      "label": "Picklists",
+      "labelKey": "navigation.modules.wms.picklists",
+      "route": "/modules/wms/picklists",
+      "module": "wms",
+      "moduleId": "wms",
+      "scope": "module",
+      "parentId": "nav-wms",
+      "order": 2
+    },
+    {
+      "id": "nav-wms-shipments",
+      "label": "Shipments",
+      "labelKey": "navigation.modules.wms.shipments",
+      "route": "/modules/wms/shipments",
+      "module": "wms",
+      "moduleId": "wms",
+      "scope": "module",
+      "parentId": "nav-wms",
+      "order": 3
+    },
+    {
+      "id": "nav-sale",
+      "label": "Sales",
+      "labelKey": "navigation.modules.sale",
+      "route": "/modules/sale",
+      "module": "sale",
+      "scope": "global",
+      "order": 9
+    },
+    {
+      "id": "nav-sale-pos",
+      "label": "POS",
+      "labelKey": "navigation.modules.sale.pos",
+      "route": "/modules/sale/pos",
+      "module": "sale",
+      "moduleId": "sale",
+      "scope": "module",
+      "parentId": "nav-sale",
+      "order": 1
+    }
   ]
 }

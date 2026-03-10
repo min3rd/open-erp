@@ -76,7 +76,7 @@ export class OrganizationNav implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Load module navigation
     this.navigationService
-      .getModuleNavigation$('organization')
+      .getModuleNavigation$('nav-organization')
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((items) => {
         this.items = items || [];
@@ -86,7 +86,7 @@ export class OrganizationNav implements OnInit, OnDestroy {
 
     // Load module navigation data
     this.navigationService
-      .loadModuleNavigation('organization')
+      .loadModuleNavigation('nav-organization')
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe();
 

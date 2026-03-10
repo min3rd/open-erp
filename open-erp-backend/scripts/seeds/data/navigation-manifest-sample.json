@@ -19,39 +19,20 @@
       "labelKey": "navigation.modules.organization",
       "route": "/modules/organization",
       "icon": "pi pi-building",
-      "module": "organization",
-      "scope": "module",
-      "moduleId": "organization",
-      "parentId": "nav-modules",
-      "order": 1,
+      "scope": "global",
+      "order": 0,
       "permissions": {
         "include": ["organizations.read"]
-      }
-    },
-    {
-      "id": "nav-organization-management",
-      "label": "Organization Management",
-      "labelKey": "navigation.modules.organization.management",
-      "icon": "pi pi-sitemap",
-      "module": "organization",
-      "scope": "module",
-      "moduleId": "organization",
-      "parentId": "nav-organization",
-      "order": 2,
-      "permissions": {
-        "include": ["organizations.manage"]
       }
     },
     {
       "id": "nav-organization-new",
       "label": "Thêm mới org",
       "labelKey": "navigation.modules.organization.new",
-      "route": "/organization/new",
+      "route": "/modules/organization/new",
       "icon": "pi pi-plus-circle",
-      "module": "organization",
       "scope": "module",
-      "moduleId": "organization",
-      "parentId": "nav-organization-management",
+      "moduleId": "nav-organization",
       "order": 1,
       "permissions": {
         "include": ["organizations.create"]
@@ -61,12 +42,10 @@
       "id": "nav-organization-detail",
       "label": "Xem chi tiết org",
       "labelKey": "navigation.modules.organization.detail",
-      "route": "/organization/detail",
+      "route": "/modules/organization/detail",
       "icon": "pi pi-eye",
-      "module": "organization",
       "scope": "module",
-      "moduleId": "organization",
-      "parentId": "nav-organization-management",
+      "moduleId": "nav-organization",
       "order": 2,
       "permissions": {
         "include": ["organizations.read"]
@@ -171,6 +150,93 @@
       "permissions": {
         "include": ["warehouses.read"]
       }
+    },
+    {
+      "id": "nav-stock",
+      "label": "Stock",
+      "labelKey": "navigation.modules.stock",
+      "route": "/modules/stock",
+      "scope": "global",
+      "order": 8
+    },
+    {
+      "id": "nav-stock-list",
+      "label": "Stock List",
+      "labelKey": "navigation.modules.stock.list",
+      "route": "/modules/stock/list",
+      "moduleId": "nav-stock",
+      "scope": "module",
+      "order": 1
+    },
+    {
+      "id": "nav-stock-lots",
+      "label": "Lots",
+      "labelKey": "navigation.modules.stock.lots",
+      "route": "/modules/stock/lots",
+      "moduleId": "nav-stock",
+      "scope": "module",
+      "order": 2
+    },
+    {
+      "id": "nav-stock-serials",
+      "label": "Serials",
+      "labelKey": "navigation.modules.stock.serials",
+      "route": "/modules/stock/serials",
+      "moduleId": "nav-stock",
+      "scope": "module",
+      "order": 3
+    },
+    {
+      "id": "nav-wms",
+      "label": "WMS",
+      "labelKey": "navigation.modules.wms",
+      "route": "/modules/wms",
+      "scope": "global",
+      "order": 9
+    },
+    {
+      "id": "nav-wms-receipts",
+      "label": "Receipts",
+      "labelKey": "navigation.modules.wms.receipts",
+      "route": "/modules/wms/receipts",
+      "moduleId": "nav-wms",
+      "scope": "module",
+      "order": 1
+    },
+    {
+      "id": "nav-wms-picklists",
+      "label": "Picklists",
+      "labelKey": "navigation.modules.wms.picklists",
+      "route": "/modules/wms/picklists",
+      "moduleId": "nav-wms",
+      "scope": "module",
+      "order": 2
+    },
+    {
+      "id": "nav-wms-shipments",
+      "label": "Shipments",
+      "labelKey": "navigation.modules.wms.shipments",
+      "route": "/modules/wms/shipments",
+      "moduleId": "nav-wms",
+      "scope": "module",
+      "order": 3
+    },
+    {
+      "id": "nav-sale",
+      "label": "Sales",
+      "labelKey": "navigation.modules.sale",
+      "route": "/modules/sale",
+      "scope": "global",
+      "order": 10
+    },
+    {
+      "id": "nav-sale-pos",
+      "label": "POS",
+      "labelKey": "navigation.modules.sale.pos",
+      "route": "/modules/sale/pos",
+      "moduleId": "nav-sale",
+      "scope": "module",
+      "order": 1
     }
   ]
 }

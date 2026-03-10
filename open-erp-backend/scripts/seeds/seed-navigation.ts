@@ -30,8 +30,7 @@
  */
 
 import 'tsconfig-paths/register';
-import { connect, connection, Model, Schema } from 'mongoose';
-import { getDatabaseConfig } from '@shared/database';
+import { connection, Model, Schema } from 'mongoose';
 import {
   parseArgs,
   validateDestructiveOps,
@@ -44,6 +43,7 @@ import {
 import * as fs from 'fs';
 import * as path from 'path';
 import slugify from 'slugify';
+import { connectToDatabase } from './seed-utils';
 
 require('dotenv').config();
 
@@ -124,7 +124,7 @@ const NavigationSchema = new Schema<Navigation>(
     createdBy: { type: String, required: true },
     updatedBy: { type: String, required: true },
   },
-  { timestamps: true, collection: 'navigations' }
+  { timestamps: true, collection: 'navigations' },
 );
 
 // Create indexes
@@ -132,7 +132,6 @@ NavigationSchema.index({ scope: 1, moduleId: 1, order: 1 });
 NavigationSchema.index({ scope: 1, parentId: 1 });
 NavigationSchema.index({ moduleId: 1, order: 1 });
 NavigationSchema.index({ parentId: 1 });
-
 
 // Extend SeedOptions with navigation-specific options
 interface NavigationSeedOptions extends SeedOptions {
@@ -227,7 +226,10 @@ function generateSlug(label: string): string {
 /**
  * Generate navigation ID if not provided
  */
-function generateNavigationId(item: ManifestNavigationItem, parentId?: string): string {
+function generateNavigationId(
+  item: ManifestNavigationItem,
+  parentId?: string,
+): string {
   if (item.id) {
     return item.id;
   }
@@ -240,7 +242,10 @@ function generateNavigationId(item: ManifestNavigationItem, parentId?: string): 
 /**
  * Generate Transloco key for navigation item
  */
-function generateLabelKey(item: ManifestNavigationItem, generatedId: string): string {
+function generateLabelKey(
+  item: ManifestNavigationItem,
+  generatedId: string,
+): string {
   if (item.labelKey) {
     return item.labelKey;
   }
@@ -253,9 +258,12 @@ function generateLabelKey(item: ManifestNavigationItem, generatedId: string): st
 /**
  * Get route from manifest item
  */
-function getRoute(item: ManifestNavigationItem, prefix?: string): string | undefined {
+function getRoute(
+  item: ManifestNavigationItem,
+  prefix?: string,
+): string | undefined {
   let route = item.route || item.routerLink;
-  
+
   if (!route) {
     return undefined;
   }
@@ -284,7 +292,7 @@ function getRoute(item: ManifestNavigationItem, prefix?: string): string | undef
  */
 function readManifestFromFile(filePath: string): NavigationManifest {
   const resolvedPath = path.resolve(filePath);
-  
+
   if (!fs.existsSync(resolvedPath)) {
     throw new Error(`Manifest file not found: ${resolvedPath}`);
   }
@@ -305,11 +313,15 @@ function readManifestFromFile(filePath: string): NavigationManifest {
 function readManifestFromFrontend(): NavigationManifest {
   // This would parse TypeScript route files from the frontend repo
   // For now, we'll use a default sample manifest
-  const samplePath = path.join(__dirname, 'data', 'navigation-manifest-sample.json');
-  
+  const samplePath = path.join(
+    __dirname,
+    'data',
+    'navigation-manifest-sample.json',
+  );
+
   if (!fs.existsSync(samplePath)) {
     throw new Error(
-      'Frontend parsing not yet implemented. Please use --source=file with --file option'
+      'Frontend parsing not yet implemented. Please use --source=file with --file option',
     );
   }
 
@@ -322,7 +334,7 @@ function readManifestFromFrontend(): NavigationManifest {
  */
 function manifestItemToDocument(
   item: ManifestNavigationItem,
-  options: NavigationSeedOptions
+  options: NavigationSeedOptions,
 ): any {
   const generatedId = generateNavigationId(item, item.parentId);
   const labelKey = generateLabelKey(item, generatedId);
@@ -381,7 +393,9 @@ function validateNavigationItems(items: ManifestNavigationItem[]): {
     // Validate parent reference
     if (item.parentId && !ids.has(item.parentId)) {
       // Parent might come later, so we'll just warn
-      console.warn(`Warning: Parent ${item.parentId} for item ${generatedId} not found yet`);
+      console.warn(
+        `Warning: Parent ${item.parentId} for item ${generatedId} not found yet`,
+      );
     }
   });
 
@@ -394,7 +408,10 @@ function validateNavigationItems(items: ManifestNavigationItem[]): {
 /**
  * Export i18n translation keys
  */
-function exportI18nKeys(items: ManifestNavigationItem[], options: NavigationSeedOptions): void {
+function exportI18nKeys(
+  items: ManifestNavigationItem[],
+  options: NavigationSeedOptions,
+): void {
   const translations: Record<string, string> = {};
 
   items.forEach((item) => {
@@ -419,7 +436,9 @@ function exportI18nKeys(items: ManifestNavigationItem[], options: NavigationSeed
 /**
  * Main seed function
  */
-async function seedNavigation(options: NavigationSeedOptions): Promise<SeedStats> {
+async function seedNavigation(
+  options: NavigationSeedOptions,
+): Promise<SeedStats> {
   const stats: SeedStats = {
     total: 0,
     inserted: 0,
@@ -439,7 +458,9 @@ async function seedNavigation(options: NavigationSeedOptions): Promise<SeedStats
     if (options.source === 'fe') {
       manifest = readManifestFromFrontend();
     } else {
-      const filePath = options.file || path.join(__dirname, 'data', 'navigation-manifest-sample.json');
+      const filePath =
+        options.file ||
+        path.join(__dirname, 'data', 'navigation-manifest-sample.json');
       manifest = readManifestFromFile(filePath);
     }
 
@@ -464,7 +485,9 @@ async function seedNavigation(options: NavigationSeedOptions): Promise<SeedStats
 
     // Dry run - just print planned operations
     if (options.dryRun) {
-      console.log('\n=== DRY RUN MODE - No database changes will be made ===\n');
+      console.log(
+        '\n=== DRY RUN MODE - No database changes will be made ===\n',
+      );
       manifest.navigation.forEach((item, index) => {
         const doc = manifestItemToDocument(item, options);
         console.log(`[${index + 1}] ${doc.id}`);
@@ -480,8 +503,10 @@ async function seedNavigation(options: NavigationSeedOptions): Promise<SeedStats
     // Connect to database
     if (!options.pushApi) {
       console.log('Connecting to database...');
-      const dbConfig = getDatabaseConfig();
-      await connect(dbConfig.uri);
+      // Connect only when not already connected (e.g. called from seed-all)
+      if (connection.readyState !== 1) {
+        await connectToDatabase();
+      }
       console.log('✓ Connected to database');
 
       NavigationModel = connection.model('Navigation', NavigationSchema);
@@ -508,7 +533,7 @@ async function seedNavigation(options: NavigationSeedOptions): Promise<SeedStats
           if (!NavigationModel) {
             throw new Error('NavigationModel not initialized');
           }
-          
+
           // Check if exists
           const existing = await NavigationModel.findOne({ id: doc.id });
 
@@ -519,7 +544,7 @@ async function seedNavigation(options: NavigationSeedOptions): Promise<SeedStats
             } else {
               await NavigationModel.updateOne(
                 { id: doc.id },
-                { $set: { ...doc, updatedAt: new Date() } }
+                { $set: { ...doc, updatedAt: new Date() } },
               );
               console.log(`  ↻ Updated: ${doc.id}`);
               stats.updated++;
@@ -588,7 +613,9 @@ async function main() {
 
     if (options.exportI18n) {
       console.log('');
-      console.log('i18n keys exported. Copy the contents to your frontend i18n files.');
+      console.log(
+        'i18n keys exported. Copy the contents to your frontend i18n files.',
+      );
     }
   } catch (err) {
     error = err instanceof Error ? err.message : String(err);
@@ -625,7 +652,9 @@ async function main() {
   console.log('');
   console.log(`Report saved to: ${reportPath}`);
   console.log('');
-  console.log(success ? '✓ Seed completed successfully' : '✗ Seed completed with errors');
+  console.log(
+    success ? '✓ Seed completed successfully' : '✗ Seed completed with errors',
+  );
 
   process.exit(success ? 0 : 1);
 }
