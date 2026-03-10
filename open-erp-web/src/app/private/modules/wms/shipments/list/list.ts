@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterOutlet } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -19,7 +19,6 @@ import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { DrawerModule } from 'primeng/drawer';
 import { MpToolbar } from '../../../../../../core/components/toolbar';
 import {
   WmsService,
@@ -41,6 +40,7 @@ interface ColumnDef {
   imports: [
     CommonModule,
     FormsModule,
+    RouterOutlet,
     TranslocoModule,
     TableModule,
     ButtonModule,
@@ -51,7 +51,6 @@ interface ColumnDef {
     MultiSelectModule,
     InputGroupModule,
     InputGroupAddonModule,
-    DrawerModule,
     MpToolbar,
   ],
   templateUrl: './list.html',
@@ -93,8 +92,6 @@ export class ShipmentList implements OnInit, OnDestroy {
   selectedStatus = signal<ShipmentStatus | undefined>(undefined);
   sortField = signal<string>('createdAt');
   sortOrder = signal<number>(-1);
-  selectedShipment = signal<Shipment | null>(null);
-  drawerVisible = signal(false);
   isMobile = signal(false);
 
   private resizeHandler: (() => void) | null = null;
@@ -181,13 +178,11 @@ export class ShipmentList implements OnInit, OnDestroy {
   }
 
   protected openDetail(shipment: Shipment) {
-    this.selectedShipment.set(shipment);
-    this.drawerVisible.set(true);
+    this.router.navigate([shipment.id, 'view'], { relativeTo: this.route });
   }
 
-  protected closeDrawer() {
-    this.drawerVisible.set(false);
-    this.selectedShipment.set(null);
+  protected onChildDeactivated() {
+    this.loadShipments();
   }
 
   protected getStatusSeverity(

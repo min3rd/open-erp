@@ -64,6 +64,12 @@ export const routes: Routes = [
           {
             path: ':search/:page/:limit',
             loadComponent: () => import('./shipments/list/list').then((m) => m.ShipmentList),
+            children: [
+              {
+                path: ':id/view',
+                loadComponent: () => import('./shipments/form/form').then((m) => m.ShipmentForm),
+              },
+            ],
           },
         ],
       },

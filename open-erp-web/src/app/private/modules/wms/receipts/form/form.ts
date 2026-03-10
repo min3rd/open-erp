@@ -204,16 +204,34 @@ export class ReceiptForm implements OnInit, OnDestroy {
       if (receiptData) {
         this.receipt.set(receiptData);
         this.populateForm(receiptData);
+        if (this.isView()) {
+          this.form.disable();
+        }
+      } else {
+        const id = this.route.snapshot.paramMap.get('id');
+        if (id) {
+          this.loading.set(true);
+          this.wmsService
+            .getReceiptById(id)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: (data) => {
+                this.receipt.set(data);
+                this.populateForm(data);
+                if (this.isView()) {
+                  this.form.disable();
+                }
+                this.loading.set(false);
+              },
+              error: () => this.loading.set(false),
+            });
+        }
       }
     } else {
       const org = this.currentOrg();
       if (org) {
         this.form.get('orgId')?.setValue(org.id);
       }
-    }
-
-    if (this.isView()) {
-      this.form.disable();
     }
   }
 
