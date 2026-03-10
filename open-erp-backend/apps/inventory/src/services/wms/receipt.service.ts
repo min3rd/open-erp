@@ -18,16 +18,35 @@ import {
   FinalizeReceiptDto,
   UnlockReceiptDto,
   QcReceiptDto,
+  WorkflowTransitionDto,
+  UpdateReceiptLineDto,
 } from '../../dto/wms/receipt.dto';
 import {
   ReceiptStatus,
   ReceiptType,
   QcStatus,
   ReceiptLine,
+  WorkflowStepStatus,
+  WorkflowStep,
 } from '@shared/schemas';
 
 /** Entity type identifier for approval-flow integration */
 const ENTITY_TYPE_RECEIPT = 'receipt';
+
+/** Default workflow steps for a receipt */
+const DEFAULT_WORKFLOW_STEPS: Array<{
+  key: string;
+  label: string;
+}> = [
+  { key: 'created', label: 'Created' },
+  { key: 'pending_approval', label: 'Pending Approval' },
+  { key: 'approved', label: 'Approved' },
+  { key: 'receiving', label: 'Receiving' },
+  { key: 'qc_check', label: 'QC Check' },
+  { key: 'qc_approved', label: 'QC Approved' },
+  { key: 'putaway', label: 'Putaway' },
+  { key: 'completed', label: 'Completed' },
+];
 
 @Injectable()
 export class ReceiptService {
@@ -85,6 +104,7 @@ export class ReceiptService {
       referenceDocs: dto.referenceDocs ?? [],
       reviewers: [],
       auditTrail,
+      workflow: this.buildDefaultWorkflow(),
     };
 
     if (dto.poId) data.poId = dto.poId;
@@ -560,6 +580,250 @@ export class ReceiptService {
 
     return this.receiptRepository.update(id, {
       status: ReceiptStatus.COMPLETED,
+    } as any);
+  }
+
+  /** Build the default workflow steps structure for a new receipt */
+  private buildDefaultWorkflow(): {
+    currentStep: string;
+    steps: Array<{
+      key: string;
+      label: string;
+      status: WorkflowStepStatus;
+      attachments: any[];
+    }>;
+  } {
+    return {
+      currentStep: 'created',
+      steps: DEFAULT_WORKFLOW_STEPS.map((s, idx) => ({
+        key: s.key,
+        label: s.label,
+        status:
+          idx === 0
+            ? WorkflowStepStatus.COMPLETED
+            : WorkflowStepStatus.PENDING,
+        attachments: [],
+      })),
+    };
+  }
+
+  /** Get the workflow state for a receipt, initializing if missing */
+  async getWorkflow(id: string) {
+    const receipt = await this.findById(id);
+    const doc = receipt as any;
+
+    if (doc.workflow?.steps?.length) {
+      return doc.workflow;
+    }
+
+    // Initialize workflow if missing
+    const workflow = this.buildDefaultWorkflow();
+    await this.receiptRepository.update(id, { workflow } as any);
+    return workflow;
+  }
+
+  /** Transition the receipt workflow to the next step */
+  async transitionWorkflow(
+    id: string,
+    dto: WorkflowTransitionDto,
+    userId?: string,
+    authToken?: string,
+  ) {
+    const receipt = await this.findById(id);
+    const doc = receipt as any;
+
+    // Initialize workflow if missing
+    let workflow = doc.workflow;
+    if (!workflow?.steps?.length) {
+      workflow = this.buildDefaultWorkflow();
+    }
+
+    const auditTrail = [...receipt.auditTrail] as any[];
+    const updateData: any = { auditTrail };
+
+    switch (dto.action) {
+      case 'approve': {
+        this.advanceStep(workflow, 'pending_approval', userId, dto.comment);
+        updateData.status = ReceiptStatus.APPROVED;
+        updateData.approvedBy = userId
+          ? new Types.ObjectId(userId)
+          : undefined;
+        updateData.approvedAt = new Date();
+        this.addAuditEntry(auditTrail, 'workflow_approved', userId, {
+          comment: dto.comment,
+        });
+        break;
+      }
+      case 'reject': {
+        const step = workflow.steps.find(
+          (s: WorkflowStep) => s.key === 'pending_approval',
+        );
+        if (step) {
+          step.status = WorkflowStepStatus.REJECTED;
+          step.actorId = userId ? new Types.ObjectId(userId) : undefined;
+          step.completedAt = new Date();
+          step.comment = dto.comment;
+        }
+        updateData.status = ReceiptStatus.REJECTED;
+        updateData.rejectedBy = userId
+          ? new Types.ObjectId(userId)
+          : undefined;
+        updateData.rejectedAt = new Date();
+        updateData.rejectionReason = dto.comment;
+        this.addAuditEntry(auditTrail, 'workflow_rejected', userId, {
+          comment: dto.comment,
+        });
+        break;
+      }
+      case 'receive': {
+        this.advanceStep(workflow, 'receiving', userId, dto.comment);
+        updateData.status = ReceiptStatus.RECEIVED;
+        updateData.receivedBy = userId
+          ? new Types.ObjectId(userId)
+          : undefined;
+        updateData.receivedAt = new Date();
+        updateData.actualReceiptAt = new Date();
+        this.addAuditEntry(auditTrail, 'workflow_received', userId, {
+          comment: dto.comment,
+        });
+        break;
+      }
+      case 'qc_perform': {
+        this.advanceStep(workflow, 'qc_check', userId, dto.comment);
+        // Apply item-level QC updates if provided
+        if (dto.itemUpdates?.length) {
+          const updatedLines = [...receipt.lines] as ReceiptLine[];
+          for (const upd of dto.itemUpdates) {
+            const line = updatedLines.find(
+              (l: any) => l.lineId === upd.lineId,
+            );
+            if (line && upd.qcStatus) {
+              line.qcStatus = upd.qcStatus;
+              if (upd.qcNotes) line.qcNotes = upd.qcNotes;
+            }
+          }
+          updateData.lines = updatedLines;
+          updateData.status = ReceiptStatus.QC_PENDING;
+        }
+        this.addAuditEntry(auditTrail, 'workflow_qc_performed', userId, {
+          comment: dto.comment,
+          itemUpdates: dto.itemUpdates,
+        });
+        break;
+      }
+      case 'qc_approve': {
+        this.advanceStep(workflow, 'qc_approved', userId, dto.comment);
+        updateData.status = ReceiptStatus.QC_PASSED;
+        this.addAuditEntry(auditTrail, 'workflow_qc_approved', userId, {
+          comment: dto.comment,
+        });
+        break;
+      }
+      case 'store': {
+        this.advanceStep(workflow, 'putaway', userId, dto.comment);
+        // Apply putaway locations
+        if (dto.itemUpdates?.length) {
+          const updatedLines = [...receipt.lines] as any[];
+          for (const upd of dto.itemUpdates) {
+            const line = updatedLines.find(
+              (l: any) => l.lineId === upd.lineId,
+            );
+            if (line) {
+              if (upd.storedLocation) line.storedLocation = upd.storedLocation;
+              if (upd.storedQty !== undefined) line.storedQty = upd.storedQty;
+            }
+          }
+          updateData.lines = updatedLines;
+        }
+        this.addAuditEntry(auditTrail, 'workflow_stored', userId, {
+          comment: dto.comment,
+          itemUpdates: dto.itemUpdates,
+        });
+        break;
+      }
+      case 'complete': {
+        this.advanceStep(workflow, 'completed', userId, dto.comment);
+        updateData.status = ReceiptStatus.COMPLETED;
+        this.addAuditEntry(auditTrail, 'workflow_completed', userId, {
+          comment: dto.comment,
+        });
+        break;
+      }
+      default:
+        throw new BadRequestException(`Unknown workflow action: ${dto.action}`);
+    }
+
+    updateData.workflow = workflow;
+    return this.receiptRepository.update(id, updateData);
+  }
+
+  /** Advance a step to completed and set the next step as in_progress */
+  private advanceStep(
+    workflow: any,
+    stepKey: string,
+    userId?: string,
+    comment?: string,
+  ) {
+    const stepIndex = workflow.steps.findIndex(
+      (s: WorkflowStep) => s.key === stepKey,
+    );
+    if (stepIndex === -1) return;
+
+    // Mark all previous pending steps as completed
+    for (let i = 0; i <= stepIndex; i++) {
+      const step = workflow.steps[i];
+      if (
+        step.status === WorkflowStepStatus.PENDING ||
+        step.status === WorkflowStepStatus.IN_PROGRESS
+      ) {
+        step.status = WorkflowStepStatus.COMPLETED;
+        if (i === stepIndex) {
+          step.actorId = userId ? new Types.ObjectId(userId) : undefined;
+          step.completedAt = new Date();
+          step.comment = comment;
+        }
+      }
+    }
+
+    // Set the next step as in_progress
+    if (stepIndex + 1 < workflow.steps.length) {
+      workflow.steps[stepIndex + 1].status = WorkflowStepStatus.IN_PROGRESS;
+      workflow.currentStep = workflow.steps[stepIndex + 1].key;
+    } else {
+      workflow.currentStep = stepKey;
+    }
+  }
+
+  /** Update a single receipt line (QC status, stored location) */
+  async updateLine(
+    id: string,
+    lineId: string,
+    dto: UpdateReceiptLineDto,
+    userId?: string,
+  ) {
+    const receipt = await this.findById(id);
+
+    const updatedLines = [...receipt.lines] as any[];
+    const line = updatedLines.find((l: any) => l.lineId === lineId);
+    if (!line) {
+      throw new NotFoundException(`Line ${lineId} not found in receipt ${id}`);
+    }
+
+    if (dto.qcStatus !== undefined) line.qcStatus = dto.qcStatus;
+    if (dto.qcNotes !== undefined) line.qcNotes = dto.qcNotes;
+    if (dto.storedLocation !== undefined)
+      line.storedLocation = dto.storedLocation;
+    if (dto.storedQty !== undefined) line.storedQty = dto.storedQty;
+
+    const auditTrail = [...receipt.auditTrail] as any[];
+    this.addAuditEntry(auditTrail, 'line_updated', userId, {
+      lineId,
+      updates: dto,
+    });
+
+    return this.receiptRepository.update(id, {
+      lines: updatedLines,
+      auditTrail,
     } as any);
   }
 }

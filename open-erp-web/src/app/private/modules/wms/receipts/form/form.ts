@@ -32,6 +32,7 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { DrawerModule } from 'primeng/drawer';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { TimelineModule } from 'primeng/timeline';
 import { Subject, takeUntil } from 'rxjs';
 import {
   WmsService,
@@ -42,6 +43,9 @@ import {
   UpdateReceiptDto,
   ReferenceDoc,
   MinioObject,
+  ReceiptWorkflow,
+  WorkflowStep,
+  WorkflowStepStatus,
 } from '../../../../../../core/services/wms/wms.service';
 import { OrganizationContextService } from '../../../../../../core/services/organization-context.service';
 import {
@@ -78,6 +82,7 @@ import { SkuQuickCreateDrawer } from '../sku-quick-create-drawer/sku-quick-creat
     TooltipModule,
     DrawerModule,
     SelectButtonModule,
+    TimelineModule,
     QuickWarehouseDrawer,
     SkuQuickCreateDrawer,
   ],
@@ -156,6 +161,12 @@ export class ReceiptForm implements OnInit, OnDestroy {
 
   // File upload per reference doc
   uploadingDoc = signal<Record<number, boolean>>({});
+
+  // Workflow tab state
+  workflow = signal<ReceiptWorkflow | null>(null);
+  workflowLoading = signal(false);
+  workflowComment = signal('');
+  workflowTransitioning = signal(false);
 
   // Line options for multi-select in reference docs (computed from linesArray signal won't
   // reactively update since FormArray isn't a signal, so we keep the getter but call it only
@@ -683,5 +694,152 @@ export class ReceiptForm implements OnInit, OnDestroy {
       [ReceiptStatus.DRAFT]: 'secondary',
     };
     return map[status] ?? 'secondary';
+  }
+
+  // ── Workflow tab ──────────────────────────────────────────────────────
+
+  protected loadWorkflow() {
+    const receiptId = this.receipt()?.id;
+    if (!receiptId) return;
+
+    this.workflowLoading.set(true);
+    this.wmsService
+      .getReceiptWorkflow(receiptId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (wf) => {
+          this.workflow.set(wf);
+          this.workflowLoading.set(false);
+        },
+        error: () => this.workflowLoading.set(false),
+      });
+  }
+
+  protected getStepIcon(status: string): string {
+    switch (status) {
+      case 'completed':
+        return 'pi pi-check-circle';
+      case 'in_progress':
+        return 'pi pi-spin pi-spinner';
+      case 'rejected':
+        return 'pi pi-times-circle';
+      case 'skipped':
+        return 'pi pi-forward';
+      default:
+        return 'pi pi-circle';
+    }
+  }
+
+  protected getStepColor(status: string): string {
+    switch (status) {
+      case 'completed':
+        return 'var(--p-green-500)';
+      case 'in_progress':
+        return 'var(--p-blue-500)';
+      case 'rejected':
+        return 'var(--p-red-500)';
+      default:
+        return 'var(--p-surface-400)';
+    }
+  }
+
+  protected getStepSeverity(
+    status: string,
+  ): 'success' | 'warn' | 'danger' | 'info' | 'secondary' {
+    switch (status) {
+      case 'completed':
+        return 'success';
+      case 'in_progress':
+        return 'info';
+      case 'rejected':
+        return 'danger';
+      default:
+        return 'secondary';
+    }
+  }
+
+  protected getQcSeverity(
+    status: string,
+  ): 'success' | 'warn' | 'danger' | 'info' | 'secondary' {
+    switch (status) {
+      case 'passed':
+        return 'success';
+      case 'failed':
+        return 'danger';
+      case 'partial':
+        return 'warn';
+      default:
+        return 'secondary';
+    }
+  }
+
+  protected transitionWorkflow(action: string) {
+    const receiptId = this.receipt()?.id;
+    if (!receiptId) return;
+
+    this.workflowTransitioning.set(true);
+    this.wmsService
+      .transitionWorkflow(receiptId, {
+        action,
+        comment: this.workflowComment() || undefined,
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updated) => {
+          this.receipt.set(updated);
+          this.workflowComment.set('');
+          this.workflowTransitioning.set(false);
+          this.loadWorkflow();
+        },
+        error: () => this.workflowTransitioning.set(false),
+      });
+  }
+
+  /** Determine which workflow actions are available for the current step */
+  protected getAvailableActions(): { action: string; label: string; severity: string; icon: string }[] {
+    const wf = this.workflow();
+    if (!wf) return [];
+
+    const currentStep = wf.currentStep;
+    const actions: { action: string; label: string; severity: string; icon: string }[] = [];
+
+    switch (currentStep) {
+      case 'created':
+        // no workflow actions on created — use submit button
+        break;
+      case 'pending_approval':
+        actions.push(
+          { action: 'approve', label: this.translocoService.translate('wms.receipts.workflow.actionApprove'), severity: 'success', icon: 'pi pi-check' },
+          { action: 'reject', label: this.translocoService.translate('wms.receipts.workflow.actionReject'), severity: 'danger', icon: 'pi pi-times' },
+        );
+        break;
+      case 'approved':
+        actions.push(
+          { action: 'receive', label: this.translocoService.translate('wms.receipts.workflow.actionReceive'), severity: 'info', icon: 'pi pi-box' },
+        );
+        break;
+      case 'receiving':
+        actions.push(
+          { action: 'qc_perform', label: this.translocoService.translate('wms.receipts.workflow.actionQcPerform'), severity: 'warn', icon: 'pi pi-search' },
+        );
+        break;
+      case 'qc_check':
+        actions.push(
+          { action: 'qc_approve', label: this.translocoService.translate('wms.receipts.workflow.actionQcApprove'), severity: 'success', icon: 'pi pi-verified' },
+        );
+        break;
+      case 'qc_approved':
+        actions.push(
+          { action: 'store', label: this.translocoService.translate('wms.receipts.workflow.actionStore'), severity: 'info', icon: 'pi pi-warehouse' },
+        );
+        break;
+      case 'putaway':
+        actions.push(
+          { action: 'complete', label: this.translocoService.translate('wms.receipts.workflow.actionComplete'), severity: 'success', icon: 'pi pi-check-circle' },
+        );
+        break;
+    }
+
+    return actions;
   }
 }

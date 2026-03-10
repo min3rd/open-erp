@@ -115,9 +115,68 @@ export class ReceiptLine {
 
   @Prop({ type: String })
   quarantineBin?: string;
+
+  @Prop({ type: String })
+  storedLocation?: string;
+
+  @Prop({ type: Number, default: 0, min: 0 })
+  storedQty: number;
 }
 
 export const ReceiptLineSchema = SchemaFactory.createForClass(ReceiptLine);
+
+export enum WorkflowStepStatus {
+  PENDING = 'pending',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  SKIPPED = 'skipped',
+  REJECTED = 'rejected',
+}
+
+@Schema({ _id: false })
+export class WorkflowStep {
+  @Prop({ type: String, required: true })
+  key: string;
+
+  @Prop({ type: String, required: true })
+  label: string;
+
+  @Prop({
+    type: String,
+    enum: WorkflowStepStatus,
+    default: WorkflowStepStatus.PENDING,
+  })
+  status: WorkflowStepStatus;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
+  actorId?: MongooseSchema.Types.ObjectId;
+
+  @Prop({ type: Date })
+  completedAt?: Date;
+
+  @Prop({ type: String })
+  comment?: string;
+
+  @Prop({ type: [MinioObjectSchema], default: [] })
+  attachments: MinioObject[];
+}
+
+export const WorkflowStepSchema = SchemaFactory.createForClass(WorkflowStep);
+
+@Schema({ _id: false })
+export class ReceiptWorkflow {
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'ApprovalRequest' })
+  instanceId?: MongooseSchema.Types.ObjectId;
+
+  @Prop({ type: String, default: 'created' })
+  currentStep: string;
+
+  @Prop({ type: [WorkflowStepSchema], default: [] })
+  steps: WorkflowStep[];
+}
+
+export const ReceiptWorkflowSchema =
+  SchemaFactory.createForClass(ReceiptWorkflow);
 
 @Schema({
   timestamps: true,
@@ -231,6 +290,9 @@ export class Receipt extends Document {
 
   @Prop({ type: Date })
   receivedAt?: Date;
+
+  @Prop({ type: ReceiptWorkflowSchema })
+  workflow?: ReceiptWorkflow;
 
   @Prop({ type: Date })
   deletedAt?: Date;
