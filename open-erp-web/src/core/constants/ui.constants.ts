@@ -16,6 +16,25 @@ export const PRODUCT_STATUS_OPTIONS = [
 ];
 
 /**
+ * Product type dropdown options (common subset for quick-create and management forms)
+ */
+export const PRODUCT_TYPE_OPTIONS = [
+  { label: 'Merchandise', value: 'merchandise' },
+  { label: 'Finished Good', value: 'finished_good' },
+  { label: 'Raw Material', value: 'raw_material' },
+  { label: 'Component', value: 'component' },
+  { label: 'Packaging', value: 'packaging' },
+  { label: 'Consumable', value: 'consumable' },
+  { label: 'Semi-Finished', value: 'semi_finished' },
+  { label: 'Food', value: 'food' },
+  { label: 'Beverage', value: 'beverage' },
+  { label: 'Electronics', value: 'electronics' },
+  { label: 'Spare Part', value: 'spare_part' },
+  { label: 'Tool', value: 'tool' },
+  { label: 'Service', value: 'service' },
+];
+
+/**
  * Product unit of measurement dropdown options
  */
 export const PRODUCT_UNIT_OPTIONS = [

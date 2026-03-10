@@ -198,35 +198,17 @@
         <p-tabpanel [value]="1">
           <!-- Toolbar: scope toggle + add line -->
           <div class="flex flex-wrap justify-between items-center gap-2 py-2">
-            <!-- Catalog scope toggle -->
-            <div
-              role="group"
+            <!-- Catalog scope toggle using PrimeNG SelectButton -->
+            <p-selectButton
+              [options]="catalogScopeOptions()"
+              [ngModel]="catalogScope()"
+              (onChange)="toggleCatalogScope($event.value)"
+              optionLabel="label"
+              optionValue="value"
+              [disabled]="isView()"
+              size="small"
               [attr.aria-label]="'wms.receipts.catalogScope' | transloco"
-              class="flex items-center gap-1 rounded-lg border border-surface p-0.5 bg-surface-ground"
-            >
-              <button
-                type="button"
-                class="px-3 py-1 text-xs font-medium rounded-md transition-colors"
-                [class.bg-primary]="catalogScope() === 'org'"
-                [class.text-white]="catalogScope() === 'org'"
-                [class.text-surface-600]="catalogScope() !== 'org'"
-                (click)="toggleCatalogScope('org')"
-                [disabled]="isView()"
-              >
-                {{ 'wms.receipts.orgCatalog' | transloco }}
-              </button>
-              <button
-                type="button"
-                class="px-3 py-1 text-xs font-medium rounded-md transition-colors"
-                [class.bg-primary]="catalogScope() === 'global'"
-                [class.text-white]="catalogScope() === 'global'"
-                [class.text-surface-600]="catalogScope() !== 'global'"
-                (click)="toggleCatalogScope('global')"
-                [disabled]="isView()"
-              >
-                {{ 'wms.receipts.globalCatalog' | transloco }}
-              </button>
-            </div>
+            />
             @if (!isView()) {
               <p-button
                 [label]="'wms.receipts.addLine' | transloco"
@@ -260,12 +242,13 @@
                         [suggestions]="productSuggestions()"
                         (completeMethod)="searchProduct($event)"
                         (onSelect)="onProductSelect($event, i)"
+                        (onFocus)="onSkuAutocompleteFocus()"
                         (onInput)="line.get('skuCode')?.setValue($any($event).target.value)"
                         (onClear)="line.get('skuCode')?.setValue('')"
                         [ngModel]="line.get('skuCode')?.value"
                         [ngModelOptions]="{ standalone: true }"
                         field="sku"
-                        [dropdown]="false"
+                        [dropdown]="true"
                         [placeholder]="'wms.receipts.skuCodePlaceholder' | transloco"
                         [disabled]="isView()"
                         styleClass="w-full"

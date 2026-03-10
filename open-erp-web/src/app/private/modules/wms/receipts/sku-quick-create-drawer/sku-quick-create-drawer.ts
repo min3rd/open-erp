@@ -15,6 +15,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angu
 import { TranslocoModule } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { DrawerModule } from 'primeng/drawer';
 import { Subject, takeUntil } from 'rxjs';
@@ -28,20 +29,10 @@ import {
 import { OrganizationContextService } from '../../../../../../core/services/organization-context.service';
 import { slugify } from '../../../../../../core/utils/slugify';
 import { isDev } from '../../../../../../core/utils/env.util';
-
-/** Minimal unit options for quick-create */
-const UNIT_OPTIONS = [
-  { label: 'pcs', value: 'piece' },
-  { label: 'kg', value: 'kg' },
-  { label: 'g', value: 'g' },
-  { label: 'liter', value: 'liter' },
-  { label: 'ml', value: 'ml' },
-  { label: 'meter', value: 'meter' },
-  { label: 'cm', value: 'cm' },
-  { label: 'box', value: 'box' },
-  { label: 'set', value: 'set' },
-  { label: 'pair', value: 'pair' },
-];
+import {
+  PRODUCT_UNIT_OPTIONS,
+  PRODUCT_TYPE_OPTIONS,
+} from '../../../../../../core/constants/ui.constants';
 
 @Component({
   selector: 'app-sku-quick-create-drawer',
@@ -51,6 +42,7 @@ const UNIT_OPTIONS = [
     TranslocoModule,
     ButtonModule,
     InputTextModule,
+    TextareaModule,
     SelectModule,
     DrawerModule,
   ],
@@ -77,14 +69,17 @@ export class SkuQuickCreateDrawer implements OnChanges, OnDestroy {
   protected readonly isDevEnv = isDev;
   protected readonly isMobile = signal(typeof window !== 'undefined' && window.innerWidth < 768);
   protected readonly drawerStyle = computed(() => ({
-    width: this.isMobile() ? '100vw' : '440px',
+    width: this.isMobile() ? '100vw' : '480px',
   }));
 
-  protected readonly unitOptions = UNIT_OPTIONS;
+  protected readonly unitOptions = PRODUCT_UNIT_OPTIONS;
+  protected readonly typeOptions = PRODUCT_TYPE_OPTIONS;
 
   protected readonly form = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(200)]],
     code: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+    type: ['merchandise', [Validators.required]],
+    description: ['', [Validators.maxLength(2000)]],
     unit: ['piece', [Validators.required]],
     barcode: ['', [Validators.maxLength(100)]],
   });
@@ -95,7 +90,7 @@ export class SkuQuickCreateDrawer implements OnChanges, OnDestroy {
       this.form.get('code')?.markAsDirty();
     }
     if (changes['visible'] && this.visible && !this.prefillCode) {
-      this.form.reset({ unit: 'piece' });
+      this.form.reset({ unit: 'piece', type: 'merchandise' });
     }
   }
 
@@ -109,7 +104,7 @@ export class SkuQuickCreateDrawer implements OnChanges, OnDestroy {
   }
 
   protected close(): void {
-    this.form.reset({ unit: 'piece' });
+    this.form.reset({ unit: 'piece', type: 'merchandise' });
     this.saving.set(false);
     this.visibleChange.emit(false);
   }
@@ -139,9 +134,10 @@ export class SkuQuickCreateDrawer implements OnChanges, OnDestroy {
       name: (raw.name ?? '').trim(),
       scope: org?.id ? ProductScope.ORGANIZATION : ProductScope.GLOBAL,
       ...(org?.id ? { organizationId: org.id } : {}),
-      type: 'merchandise',
+      type: raw.type ?? 'merchandise',
       status: ProductStatus.ACTIVE,
       unit: raw.unit ?? 'piece',
+      ...(raw.description?.trim() ? { description: raw.description.trim() } : {}),
       ...(raw.barcode?.trim() ? { barcode: raw.barcode.trim() } : {}),
     };
 
@@ -167,6 +163,8 @@ export class SkuQuickCreateDrawer implements OnChanges, OnDestroy {
     this.form.patchValue({
       name,
       code: `SKU-TST-${timeStr}`,
+      type: 'merchandise',
+      description: `Auto-generated test product ${timeStr}`,
       unit: 'piece',
       barcode: '',
     });

@@ -18,7 +18,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -31,6 +31,7 @@ import { TabsModule } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { DrawerModule } from 'primeng/drawer';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { Subject, takeUntil } from 'rxjs';
 import {
   WmsService,
@@ -76,6 +77,7 @@ import { SkuQuickCreateDrawer } from '../sku-quick-create-drawer/sku-quick-creat
     TagModule,
     TooltipModule,
     DrawerModule,
+    SelectButtonModule,
     QuickWarehouseDrawer,
     SkuQuickCreateDrawer,
   ],
@@ -91,6 +93,7 @@ export class ReceiptForm implements OnInit, OnDestroy {
   private readonly warehouseService = inject(WarehouseService);
   private readonly productService = inject(ProductService);
   private readonly authService = inject(AuthService);
+  private readonly translocoService = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   protected readonly ReceiptType = ReceiptType;
@@ -106,6 +109,18 @@ export class ReceiptForm implements OnInit, OnDestroy {
 
   // Catalog scope toggle: 'global' | 'org'
   protected readonly catalogScope = signal<'global' | 'org'>('org');
+
+  /** Options for the PrimeNG SelectButton catalog scope toggle */
+  protected readonly catalogScopeOptions = computed(() => [
+    {
+      label: this.translocoService.translate('wms.receipts.orgCatalog'),
+      value: 'org' as const,
+    },
+    {
+      label: this.translocoService.translate('wms.receipts.globalCatalog'),
+      value: 'global' as const,
+    },
+  ]);
 
   // Quick-create SKU drawer
   protected readonly quickSkuDrawerVisible = signal(false);
@@ -389,6 +404,16 @@ export class ReceiptForm implements OnInit, OnDestroy {
         },
         error: () => this.productLoading.set(false),
       });
+  }
+
+  /**
+   * Loads initial product suggestions when the SKU autocomplete is focused/clicked.
+   * Shows items from the current org by default (no query filter).
+   */
+  protected onSkuAutocompleteFocus(): void {
+    if (this.productSuggestions().length === 0) {
+      this.searchProduct({ query: '' });
+    }
   }
 
   protected onProductSelect(event: AutoCompleteSelectEvent, lineIndex: number) {
