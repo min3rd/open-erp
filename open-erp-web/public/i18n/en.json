@@ -3340,7 +3340,8 @@
         "strength": {
           "weak": "Weak",
           "medium": "Medium",
-          "strong": "Strong"
+          "strong": "Strong",
+          "good": "Good"
         },
         "messages": {
           "success": "Password changed successfully",
@@ -3362,8 +3363,65 @@
         "empty": "No active sessions",
         "messages": {
           "revokeSuccess": "Session revoked successfully",
-          "revokeError": "Failed to revoke session"
-        }
+          "revokeError": "Failed to revoke session",
+          "revokeOthersSuccess": "Signed out from {{ count }} other session(s)",
+          "revokeOthersError": "Failed to revoke other sessions"
+        },
+        "revokeOthersButton": "Sign out from other sessions",
+        "currentSession": "Current",
+        "confirmRevokeOthers": "Are you sure you want to sign out of all other sessions? The current session will not be affected.",
+        "confirmRevokeOthersTitle": "Confirm Sign Out Other Sessions",
+        "confirmRevokeOthersAccept": "Sign out all other sessions",
+        "noCurrentSession": "Cannot determine the current session"
+      },
+      "twoFA": {
+        "title": "Two-Factor Authentication",
+        "enabledTitle": "Two-factor authentication is enabled",
+        "disabledTitle": "Two-factor authentication is not enabled",
+        "enabledDesc": "Your account is protected with 2FA.",
+        "disabledDesc": "Add an extra layer of security to your account.",
+        "enableButton": "Enable 2FA",
+        "disableButton": "Disable 2FA",
+        "recoveryCodes": "Recovery Codes",
+        "hasRecoveryCodes": "You have recovery codes",
+        "noRecoveryCodes": "No recovery codes available",
+        "setupDialog": {
+          "title": "Enable Two-Factor Authentication (2FA)",
+          "step1": "Scan the QR code with your authenticator app or enter the secret manually.",
+          "secretLabel": "Secret",
+          "otpLabel": "OTP Code",
+          "otpPlaceholder": "000000",
+          "submitButton": "Enable 2FA",
+          "cancelButton": "Cancel",
+          "otpHint": "Code consists of 6 digits, refreshes every 30 seconds."
+        },
+        "disableDialog": {
+          "title": "Disable Two-Factor Authentication",
+          "description": "Enter the 6-digit OTP from your authenticator app to disable 2FA.",
+          "otpLabel": "OTP Code",
+          "submitButton": "Disable 2FA",
+          "cancelButton": "Cancel"
+        },
+        "recoveryCodesDialog": {
+          "title": "Recovery Codes",
+          "warning": "Save your recovery codes now!",
+          "warningDetail": "Each code can only be used once. If you lose your authenticator app, use these codes to log in. After closing this dialog, you will not be able to view them again.",
+          "copyButton": "Copy All",
+          "copiedButton": "Copied!",
+          "downloadButton": "Download",
+          "confirmSaved": "I have saved the recovery codes"
+        },
+        "messages": {
+          "prepareFailed": "Failed to initialize 2FA",
+          "enableSuccess": "2FA has been enabled",
+          "invalidOtp": "Invalid or expired OTP code",
+          "disableSuccess": "2FA has been disabled",
+          "invalidOtpShort": "Invalid OTP"
+        },
+        "otpRequired": "OTP must be 6 digits",
+        "otpWarning": "Note",
+        "copySecretTitle": "Copy secret",
+        "description": "Enhance account security with a TOTP authenticator app (Google Authenticator, Authy, etc.)."
       }
     },
     "settings": {
