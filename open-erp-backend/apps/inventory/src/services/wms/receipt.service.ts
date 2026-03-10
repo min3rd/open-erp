@@ -676,7 +676,7 @@ export class ReceiptService {
         break;
       }
       case 'receive': {
-        this.advanceStep(workflow, 'receiving', userId, dto.comment);
+        this.advanceStep(workflow, 'approved', userId, dto.comment);
         updateData.status = ReceiptStatus.RECEIVED;
         updateData.receivedBy = userId
           ? new Types.ObjectId(userId)
@@ -689,7 +689,7 @@ export class ReceiptService {
         break;
       }
       case 'qc_perform': {
-        this.advanceStep(workflow, 'qc_check', userId, dto.comment);
+        this.advanceStep(workflow, 'receiving', userId, dto.comment);
         // Apply item-level QC updates if provided
         if (dto.itemUpdates?.length) {
           const updatedLines = [...receipt.lines] as ReceiptLine[];
@@ -712,7 +712,7 @@ export class ReceiptService {
         break;
       }
       case 'qc_approve': {
-        this.advanceStep(workflow, 'qc_approved', userId, dto.comment);
+        this.advanceStep(workflow, 'qc_check', userId, dto.comment);
         updateData.status = ReceiptStatus.QC_PASSED;
         this.addAuditEntry(auditTrail, 'workflow_qc_approved', userId, {
           comment: dto.comment,
@@ -720,7 +720,7 @@ export class ReceiptService {
         break;
       }
       case 'store': {
-        this.advanceStep(workflow, 'putaway', userId, dto.comment);
+        this.advanceStep(workflow, 'qc_approved', userId, dto.comment);
         // Apply putaway locations
         if (dto.itemUpdates?.length) {
           const updatedLines = [...receipt.lines] as any[];
@@ -742,7 +742,7 @@ export class ReceiptService {
         break;
       }
       case 'complete': {
-        this.advanceStep(workflow, 'completed', userId, dto.comment);
+        this.advanceStep(workflow, 'putaway', userId, dto.comment);
         updateData.status = ReceiptStatus.COMPLETED;
         this.addAuditEntry(auditTrail, 'workflow_completed', userId, {
           comment: dto.comment,
