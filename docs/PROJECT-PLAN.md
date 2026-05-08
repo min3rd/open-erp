@@ -57,3 +57,50 @@
 ### Việc còn lại (out of scope lần này)
 - TASK-SPRINT-01-SEED_DATA-005: Full upsert idempotency trong từng file seed riêng lẻ
 - TASK-SPRINT-01-SEED_DATA-009: Unit tests cho seed-utils và seed-state
+
+---
+
+# Kế hoạch dự án: Chuẩn hóa kiến trúc Backend ERP SaaS Multi-tenant
+
+## Tổng quan
+- **Mục tiêu:** Gom 11 microservice thành 6 domain service lớn theo nghiệp vụ ERP, giảm trùng lặp và tăng khả năng mở rộng SaaS đa tenant.
+- **Đối tượng:** Doanh nghiệp sử dụng hệ thống quản trị tổng thể (kho, sale, HR, công việc nội bộ, tài liệu/phê duyệt, kế toán).
+- **Nền tảng:** Backend microservices (NestJS) cho Web/Mobile clients.
+- **Ngày bắt đầu:** 08/05/2026.
+
+## Các giai đoạn
+
+| Giai đoạn | Agent thực hiện | Trạng thái | Đầu ra |
+|---|---|---|---|
+| 1. Phân tích yêu cầu sản phẩm | Product Owner | 🟢 Hoàn tất phạm vi | Domain scope và ưu tiên phase |
+| 2. Đặc tả hệ thống | Business Analyst | 🟢 Hoàn tất mức định hướng | Yêu cầu SaaS multi-tenant + boundary domain |
+| 3. Thiết kế kiến trúc và task kỹ thuật | Technical Leader | 🟢 Hoàn tất | docs/tasks/ARCHITECTURE.md, docs/tasks/TASK-INDEX.md |
+| 4. Triển khai Phase 1 (Platform Catalog + WMS + tenant isolation) | Senior Backend + Senior DevOps | ⬜ Chưa bắt đầu | SPRINT-02 domain-migration tasks |
+| 5. Triển khai Phase 2 (Work/Document + HR) | Senior Backend + Senior QA | ⬜ Chưa bắt đầu | SPRINT-03 domain-migration tasks |
+| 6. Triển khai Phase 3 (Sales + Accounting + cutover legacy) | Senior Backend + Senior DevOps + Senior QA | ⬜ Chưa bắt đầu | SPRINT-04 domain-migration tasks |
+
+## Cổng kiểm soát chất lượng (Quality Gates)
+
+- **Giai đoạn 3 -> 4:** Co tai lieu architecture va he thong TASK-INDEX da day du sprint/cluster/task file rieng.
+- **Phase 1 DONE:** WMS va Platform Master Catalog hoat dong tenant-safe, khong con ownership chong cheo voi service cu.
+- **Phase 2 DONE:** Work/Document va HR tach rieng, event contract test pass tren CI.
+- **Phase 3 DONE:** Sales + Accounting cutover xong, legacy 11 service duoc decommission co rollback runbook.
+- **Hoan thanh:** QA xac nhan regression multi-tenant khong ro ri du lieu tenant, khong con bug Critical/Major.
+
+## Danh sach domain dich
+
+1. Platform
+2. WMS
+3. Sales
+4. HR
+5. Work/Document
+6. Accounting
+
+## Tai lieu dieu phoi chinh
+
+- docs/tasks/ARCHITECTURE.md
+- docs/tasks/TASK-INDEX.md
+- docs/tasks/sprints/SPRINT-02/TASK-INDEX.md
+- docs/tasks/sprints/SPRINT-03/TASK-INDEX.md
+- docs/tasks/sprints/SPRINT-04/TASK-INDEX.md
+- docs/tasks/clusters/domain-migration/TASK-INDEX.md

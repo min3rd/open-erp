@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map, firstValueFrom } from 'rxjs';
-import { API_URI_INVENTORY } from '../../constant';
+import { API_URI_PLATFORM } from '../../constant';
 import { ApiResponse, ApiPaginatedResponse } from '../../api/interfaces';
 
 /**
@@ -65,14 +65,30 @@ export interface QueryProductTypeParams {
 
 /**
  * Product Type service - handles all product type related API calls
- * Backend controller: apps/inventory/src/controllers/product-type.controller.ts
+ * Backend: platform-service port 3007 — /v1/platform/catalog-items?catalog_type=product_type
  */
 @Injectable({
   providedIn: 'root',
 })
 export class ProductTypeService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${API_URI_INVENTORY}/v1/config/product-types`;
+  private readonly baseUrl = `${API_URI_PLATFORM}/v1/platform/catalog-items`;
+
+  /** Map CatalogItem (platform-service schema) sang ProductType interface. */
+  private mapToProductType(item: any): ProductType {
+    return {
+      id: item.id,
+      code: item.code,
+      name: item.name,
+      description: item.metadata?.['description'] as string | undefined,
+      isActive: item.status === 'active',
+      attributes: (item.metadata?.['attributes'] as AttributeDefinition[]) || [],
+      metadata: item.metadata,
+      createdBy: item.tenant_id,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at,
+    };
+  }
 
   /**
    * Get all product types with filtering and pagination
@@ -82,21 +98,19 @@ export class ProductTypeService {
     params: QueryProductTypeParams,
   ): Observable<{ items: ProductType[]; total: number; page: number; limit: number }> {
     let httpParams = new HttpParams();
+    httpParams = httpParams.set('catalog_type', 'product_type');
 
     if (params.page) httpParams = httpParams.set('page', params.page.toString());
     if (params.limit) httpParams = httpParams.set('limit', params.limit.toString());
     if (params.isActive !== undefined)
-      httpParams = httpParams.set('isActive', params.isActive.toString());
-    if (params.search) httpParams = httpParams.set('search', params.search);
-    if (params.sort) {
-      httpParams = httpParams.set('sort', JSON.stringify(params.sort));
-    }
+      httpParams = httpParams.set('status', params.isActive ? 'active' : 'inactive');
+    if (params.search) httpParams = httpParams.set('q', params.search);
 
     return this.http
-      .get<ApiPaginatedResponse<ProductType>>(this.baseUrl, { params: httpParams })
+      .get<ApiPaginatedResponse<any>>(this.baseUrl, { params: httpParams })
       .pipe(
         map((response) => ({
-          items: response.data?.items || [],
+          items: (response.data?.items || []).map((i: any) => this.mapToProductType(i)),
           total: response.data?.total || 0,
           page: response.data?.page || 1,
           limit: response.data?.limit || 20,
@@ -109,9 +123,17 @@ export class ProductTypeService {
    * GET /config/product-types/active
    */
   getActiveProductTypes(): Observable<ProductType[]> {
+    const params = new HttpParams()
+      .set('catalog_type', 'product_type')
+      .set('status', 'active')
+      .set('limit', '1000');
     return this.http
-      .get<ApiResponse<ProductType[]>>(`${this.baseUrl}/active`)
-      .pipe(map((response) => response.data || []));
+      .get<ApiPaginatedResponse<any>>(this.baseUrl, { params })
+      .pipe(
+        map((response) =>
+          (response.data?.items || []).map((i: any) => this.mapToProductType(i)),
+        ),
+      );
   }
 
   /**
@@ -120,8 +142,8 @@ export class ProductTypeService {
    */
   getProductTypeById(id: string): Observable<ProductType | null> {
     return this.http
-      .get<ApiResponse<{ item: ProductType }>>(`${this.baseUrl}/${id}`)
-      .pipe(map((response) => response.data?.item || null));
+      .get<ApiResponse<{ mode: string; item: any }>>(`${this.baseUrl}/${id}`)
+      .pipe(map((response) => (response.data?.item ? this.mapToProductType(response.data.item) : null)));
   }
 
   /**
@@ -129,12 +151,19 @@ export class ProductTypeService {
    * POST /config/product-types
    */
   createProductType(dto: CreateProductTypeDto): Observable<ProductType> {
-    return this.http.post<ApiResponse<{ item: ProductType }>>(this.baseUrl, dto).pipe(
+    const payload = {
+      catalogType: 'product_type' as const,
+      code: dto.code,
+      name: dto.name,
+      status: dto.isActive === false ? 'inactive' as const : 'active' as const,
+      metadata: { ...dto.metadata, description: dto.description, attributes: dto.attributes },
+    };
+    return this.http.post<ApiResponse<{ item: any }>>(this.baseUrl, payload).pipe(
       map((response) => {
         if (!response.data?.item) {
           throw new Error('No data returned from API');
         }
-        return response.data.item;
+        return this.mapToProductType(response.data.item);
       }),
     );
   }
@@ -144,12 +173,19 @@ export class ProductTypeService {
    * PUT /config/product-types/:id
    */
   updateProductType(id: string, dto: UpdateProductTypeDto): Observable<ProductType> {
-    return this.http.put<ApiResponse<{ item: ProductType }>>(`${this.baseUrl}/${id}`, dto).pipe(
+    const payload: Record<string, unknown> = {};
+    if (dto.code !== undefined) payload['code'] = dto.code;
+    if (dto.name !== undefined) payload['name'] = dto.name;
+    if (dto.isActive !== undefined) payload['status'] = dto.isActive ? 'active' : 'inactive';
+    if (dto.description !== undefined || dto.attributes !== undefined || dto.metadata !== undefined) {
+      payload['metadata'] = { ...dto.metadata, description: dto.description, attributes: dto.attributes };
+    }
+    return this.http.patch<ApiResponse<{ item: any }>>(`${this.baseUrl}/${id}`, payload).pipe(
       map((response) => {
         if (!response.data?.item) {
           throw new Error('No data returned from API');
         }
-        return response.data.item;
+        return this.mapToProductType(response.data.item);
       }),
     );
   }

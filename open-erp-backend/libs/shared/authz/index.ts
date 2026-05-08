@@ -30,6 +30,20 @@ export type { UserContext } from './permissions.guard';
 export { JwtAuthGuard } from './jwt-auth.guard';
 export { RolesGuard } from './roles.guard';
 export { SystemAdminThrottlerGuard } from './system-admin-throttler.guard';
+export { TenantGuard, SKIP_TENANT_CHECK_KEY } from './tenant.guard';
+
+// Tenant Interceptor
+export { TenantInterceptor } from './tenant.interceptor';
+
+// Tenant Policy
+export {
+  TenantPolicyService,
+  UpdateTenantPolicyDto,
+} from './tenant-policy.service';
+export type { TenantPolicy } from './tenant-policy.service';
+
+// Tenant Decorators
+export { SkipTenantCheck } from './skip-tenant-check.decorator';
 
 // Service
 export { AuthorizationService } from './authorization.service';

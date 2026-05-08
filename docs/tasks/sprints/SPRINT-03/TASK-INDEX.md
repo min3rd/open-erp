@@ -1,0 +1,7 @@
+# Bảng theo dõi Task Sprint 03
+
+| Task ID | Tiêu đề | Sprint | Cluster | Loại | Người phụ trách | Trạng thái | Phụ thuộc | File task |
+|---|---|---|---|---|---|---|---|---|
+| TASK-SPRINT-03-DOMAIN_MIGRATION-001 | Tách Work/Document Domain Service | 03 | domain-migration | Backend | Senior Backend Programmer | ⬜ TODO | TASK-SPRINT-02-DOMAIN_MIGRATION-003 | docs/tasks/sprints/SPRINT-03/domain-migration/TASK-SPRINT-03-DOMAIN_MIGRATION-001-extract-work-document-domain-service.md |
+| TASK-SPRINT-03-DOMAIN_MIGRATION-002 | Tách HR Domain Service từ user/organization | 03 | domain-migration | Backend | Senior Backend Programmer | ⬜ TODO | TASK-SPRINT-02-DOMAIN_MIGRATION-003 | docs/tasks/sprints/SPRINT-03/domain-migration/TASK-SPRINT-03-DOMAIN_MIGRATION-002-extract-hr-domain-service.md |
+| TASK-SPRINT-03-DOMAIN_MIGRATION-003 | Thiết lập contract test và observability cho domain events | 03 | domain-migration | Testing | Senior QA | ⬜ TODO | TASK-SPRINT-03-DOMAIN_MIGRATION-001, TASK-SPRINT-03-DOMAIN_MIGRATION-002 | docs/tasks/sprints/SPRINT-03/domain-migration/TASK-SPRINT-03-DOMAIN_MIGRATION-003-contract-test-and-observability-for-domain-events.md |

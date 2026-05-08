@@ -1,0 +1,8 @@
+# Bảng theo dõi Task Sprint 02
+
+| Task ID | Tiêu đề | Sprint | Cluster | Loại | Người phụ trách | Trạng thái | Phụ thuộc | File task |
+|---|---|---|---|---|---|---|---|---|
+| TASK-SPRINT-02-DOMAIN_MIGRATION-001 | Tách Platform Master Catalog Service | 02 | domain-migration | Backend | Senior Backend Programmer | 🟡 REVIEW | — | docs/tasks/sprints/SPRINT-02/domain-migration/TASK-SPRINT-02-DOMAIN_MIGRATION-001-platform-master-catalog-service.md |
+| TASK-SPRINT-02-DOMAIN_MIGRATION-002 | Hợp nhất inventory và data-transfer thành WMS Domain Service | 02 | domain-migration | Backend | Senior Backend Programmer | 🟡 REVIEW | TASK-SPRINT-02-DOMAIN_MIGRATION-001 | docs/tasks/sprints/SPRINT-02/domain-migration/TASK-SPRINT-02-DOMAIN_MIGRATION-002-consolidate-wms-domain-service.md |
+| TASK-SPRINT-02-DOMAIN_MIGRATION-003 | Thiết lập tenant isolation bắt buộc tại Gateway và service base | 02 | domain-migration | DevOps | Senior DevOps | 🟡 REVIEW | TASK-SPRINT-02-DOMAIN_MIGRATION-001 | docs/tasks/sprints/SPRINT-02/domain-migration/TASK-SPRINT-02-DOMAIN_MIGRATION-003-tenant-isolation-foundation-and-gateway-policy.md |
+| TASK-SPRINT-02-DOMAIN_MIGRATION-004 | Tích hợp FE Angular với Domain Services mới | 02 | domain-migration | Frontend | Senior Frontend Programmer | 🟡 REVIEW | TASK-SPRINT-02-DOMAIN_MIGRATION-001, TASK-SPRINT-02-DOMAIN_MIGRATION-002 | docs/tasks/sprints/SPRINT-02/domain-migration/TASK-SPRINT-02-DOMAIN_MIGRATION-004-fe-integration-domain-services.md |

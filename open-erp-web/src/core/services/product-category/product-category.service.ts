@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { API_URI_INVENTORY } from '../../constant';
+import { API_URI_PLATFORM } from '../../constant';
 import { ApiResponse, ApiPaginatedResponse } from '../../api/interfaces';
 
 /**
@@ -73,14 +73,35 @@ export interface ImportResult {
 
 /**
  * Product Category service - handles all product category-related API calls
- * Backend controller: apps/inventory/src/controllers/product-category.controller.ts
+ * Backend: platform-service port 3007 — /v1/platform/catalog-items?catalog_type=category
  */
 @Injectable({
   providedIn: 'root',
 })
 export class ProductCategoryService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${API_URI_INVENTORY}/v1/config/product-categories`;
+  private readonly baseUrl = `${API_URI_PLATFORM}/v1/platform/catalog-items`;
+
+  /** Map CatalogItem (platform-service schema) sang ProductCategory interface. */
+  private mapToProductCategory(item: any): ProductCategory {
+    return {
+      id: item.id,
+      code: item.code,
+      name: item.name,
+      parentId: item.parent_id,
+      path: item.id,
+      level: 0,
+      description: item.metadata?.['description'] as string | undefined,
+      isActive: item.status === 'active',
+      order: (item.metadata?.['order'] as number) ?? 0,
+      createdBy: item.tenant_id ?? '',
+      updatedBy: item.tenant_id,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at,
+      deletedAt: null,
+      metadata: item.metadata,
+    };
+  }
 
   /**
    * Get all product categories with filtering and pagination
@@ -90,20 +111,20 @@ export class ProductCategoryService {
     params: QueryProductCategoryParams,
   ): Observable<{ items: ProductCategory[]; total: number; page: number; limit: number }> {
     let httpParams = new HttpParams();
+    httpParams = httpParams.set('catalog_type', 'category');
 
     if (params.page !== undefined) httpParams = httpParams.set('page', params.page.toString());
     if (params.limit !== undefined) httpParams = httpParams.set('limit', params.limit.toString());
     if (params.isActive !== undefined)
-      httpParams = httpParams.set('isActive', params.isActive.toString());
+      httpParams = httpParams.set('status', params.isActive ? 'active' : 'inactive');
     if (params.parentId) httpParams = httpParams.set('parentId', params.parentId);
-    if (params.search) httpParams = httpParams.set('search', params.search);
-    if (params.sort) httpParams = httpParams.set('sort', params.sort);
+    if (params.search) httpParams = httpParams.set('q', params.search);
 
     return this.http
-      .get<ApiPaginatedResponse<ProductCategory>>(this.baseUrl, { params: httpParams })
+      .get<ApiPaginatedResponse<any>>(this.baseUrl, { params: httpParams })
       .pipe(
         map((response) => ({
-          items: response.data?.items || [],
+          items: (response.data?.items || []).map((i: any) => this.mapToProductCategory(i)),
           total: response.data?.total || 0,
           page: response.data?.page || 1,
           limit: response.data?.limit || 10,
@@ -117,8 +138,8 @@ export class ProductCategoryService {
    */
   getProductCategoryById(id: string): Observable<ProductCategory | null> {
     return this.http
-      .get<ApiResponse<{ mode: string; item: ProductCategory }>>(`${this.baseUrl}/${id}`)
-      .pipe(map((response) => response.data?.item || null));
+      .get<ApiResponse<{ mode: string; item: any }>>(`${this.baseUrl}/${id}`)
+      .pipe(map((response) => (response.data?.item ? this.mapToProductCategory(response.data.item) : null)));
   }
 
   /**
@@ -126,9 +147,17 @@ export class ProductCategoryService {
    * POST /config/product-categories
    */
   createProductCategory(dto: CreateProductCategoryDto): Observable<ProductCategory> {
+    const payload = {
+      catalogType: 'category' as const,
+      code: dto.code,
+      name: dto.name,
+      parentId: dto.parentId,
+      status: dto.isActive === false ? 'inactive' as const : 'active' as const,
+      metadata: { ...dto.metadata, description: dto.description, order: dto.order },
+    };
     return this.http
-      .post<ApiResponse<{ item: ProductCategory }>>(this.baseUrl, dto)
-      .pipe(map((response) => response.data?.item!));
+      .post<ApiResponse<{ item: any }>>(this.baseUrl, payload)
+      .pipe(map((response) => this.mapToProductCategory(response.data?.item)));
   }
 
   /**
@@ -136,9 +165,17 @@ export class ProductCategoryService {
    * PUT /config/product-categories/:id
    */
   updateProductCategory(id: string, dto: UpdateProductCategoryDto): Observable<ProductCategory> {
+    const payload: Record<string, unknown> = {};
+    if (dto.code !== undefined) payload['code'] = dto.code;
+    if (dto.name !== undefined) payload['name'] = dto.name;
+    if (dto.parentId !== undefined) payload['parentId'] = dto.parentId;
+    if (dto.isActive !== undefined) payload['status'] = dto.isActive ? 'active' : 'inactive';
+    if (dto.description !== undefined || dto.order !== undefined || dto.metadata !== undefined) {
+      payload['metadata'] = { ...dto.metadata, description: dto.description, order: dto.order };
+    }
     return this.http
-      .put<ApiResponse<{ item: ProductCategory }>>(`${this.baseUrl}/${id}`, dto)
-      .pipe(map((response) => response.data?.item!));
+      .patch<ApiResponse<{ item: any }>>(`${this.baseUrl}/${id}`, payload)
+      .pipe(map((response) => this.mapToProductCategory(response.data?.item)));
   }
 
   /**
@@ -154,9 +191,14 @@ export class ProductCategoryService {
    * GET /config/product-categories/tree
    */
   getTree(): Observable<ProductCategoryTreeNode[]> {
+    const params = new HttpParams().set('catalog_type', 'category');
     return this.http
-      .get<ApiResponse<ProductCategoryTreeNode[]>>(`${this.baseUrl}/tree`)
-      .pipe(map((response) => response.data || []));
+      .get<ApiResponse<any[]>>(`${this.baseUrl}/tree`, { params })
+      .pipe(
+        map((response) =>
+          (response.data || []).map((i: any) => this.mapToProductCategory(i) as ProductCategoryTreeNode),
+        ),
+      );
   }
 
   /**

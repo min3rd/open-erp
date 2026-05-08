@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { API_URI_INVENTORY } from '../../constant';
+import { API_URI_WMS } from '../../constant';
 import { ApiResponse, ApiPaginatedResponse, ApiSingleResponse } from '../../api/interfaces';
 import {
   Receipt,
@@ -78,7 +78,7 @@ export {
 })
 export class WmsService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${API_URI_INVENTORY}/v1`;
+  private readonly baseUrl = `${API_URI_WMS}/v1`;
 
   // ===== Receipts API =====
 

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { API_URI_INVENTORY } from '../../constant';
+import { API_URI_WMS } from '../../constant';
 import { ApiResponse, ApiPaginatedResponse } from '../../api/interfaces';
 import {
   InventoryStock,
@@ -36,7 +36,9 @@ export type {
 })
 export class StockService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${API_URI_INVENTORY}/v1/inventory`;
+  // TODO: Chỉ có GET /wms/stocks và POST /wms/stocks/adjust trong wms-service hiện tại.
+  // Các path còn lại (lots, serials, transactions) chờ backend mở rộng.
+  private readonly baseUrl = `${API_URI_WMS}/v1/wms/stocks`;
 
   // ===== Stock API =====
 

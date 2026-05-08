@@ -106,6 +106,24 @@
       "compilerOptions": {
         "tsConfigPath": "apps/approval-flow/tsconfig.json"
       }
+    },
+    "platform": {
+      "type": "application",
+      "root": "apps/platform-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/platform-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/platform-service/tsconfig.json"
+      }
+    },
+    "wms": {
+      "type": "application",
+      "root": "apps/wms-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/wms-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/wms-service/tsconfig.json"
+      }
     }
   }
 }

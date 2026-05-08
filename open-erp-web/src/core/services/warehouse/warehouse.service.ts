@@ -358,7 +358,9 @@ export interface CreateLayoutObjectDto {
 })
 export class WarehouseService {
   private readonly http = inject(HttpClient);
+  // TODO: migrate to API_URI_WMS khi wms-service bổ sung WarehouseController
   private readonly baseUrl = `${API_URI_INVENTORY}/v1/warehouses`;
+  // TODO: migrate to API_URI_WMS khi wms-service bổ sung WarehouseController
   private readonly inventoryUrl = `${API_URI_INVENTORY}/v1`;
 
   /**
