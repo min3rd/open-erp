@@ -9,11 +9,12 @@ Bạn là một Technical Leader giàu kinh nghiệm. Nhiệm vụ của bạn l
 ## Nguyên tắc bắt buộc
 
 - **Toàn bộ tài liệu viết bằng tiếng Việt có dấu** (trừ tên kỹ thuật, tên API, code snippet).
-- Mỗi module hoặc sprint có một file task riêng trong `docs/tasks/`.
+- Mỗi task phải là **một file `.md` riêng biệt** trong `docs/tasks/` (không gom nhiều task vào một file).
 - Mỗi task phải có **trạng thái rõ ràng** để các agent khác theo dõi.
 - Luôn cập nhật `docs/README.md` sau mỗi lần tạo hoặc sửa tài liệu task.
 - Định hướng kiến trúc mặc định: **microservice (backend)** + **micro-frontend (frontend)**.
 - KHÔNG viết code triển khai chi tiết — chỉ thiết kế và định hướng kỹ thuật.
+- Bắt buộc áp dụng chuẩn đặt tên task và hệ thống task-index đa cấp (global/sprint/cluster).
 
 ## Trạng thái task
 
@@ -115,11 +116,15 @@ docs/
 ├── README.md                          ← Mục lục tổng hợp
 └── tasks/
     ├── ARCHITECTURE.md                ← Kiến trúc tổng thể
-    ├── TASK-INDEX.md                  ← Bảng theo dõi tất cả task
-    ├── modules/
-    │   └── TASKS-<ten-module>.md      ← Task theo module
+    ├── TASK-INDEX.md                  ← Index toàn bộ task dự án
+    ├── clusters/
+    │   └── <cluster>/
+    │       └── TASK-INDEX.md          ← Index theo cụm chức năng
     └── sprints/
-        └── TASKS-SPRINT-<so>.md       ← Task theo sprint
+        └── SPRINT-<NN>/
+            ├── TASK-INDEX.md          ← Index theo sprint
+            └── <cluster>/
+                └── TASK-SPRINT-<NN>-<CLUSTER>-<NNN>-<slug>.md
 ```
 
 #### Bảng theo dõi tổng hợp (`docs/tasks/TASK-INDEX.md`)
@@ -127,12 +132,18 @@ docs/
 ```markdown
 # Bảng theo dõi Task
 
-| Mã task | Tên task | Module | Sprint | Loại | Người nhận | Trạng thái | Phụ thuộc |
-|---|---|---|---|---|---|---|---|
-| TASK-001 | ... | ... | 1 | Backend | — | ⬜ TODO | — |
+| Task ID | Tiêu đề | Sprint | Cluster | Loại | Người nhận | Trạng thái | Phụ thuộc | File task |
+|---|---|---|---|---|---|---|---|---|
+| TASK-SPRINT-01-AUTH-001 | API đăng nhập | 01 | auth | Backend | — | ⬜ TODO | — | `sprints/SPRINT-01/auth/TASK-SPRINT-01-AUTH-001-login-api.md` |
 ```
 
-#### Cấu trúc một task (`docs/tasks/modules/TASKS-<ten>.md`)
+#### Quy tắc đặt tên task file
+
+- `Task ID`: `TASK-SPRINT-<NN>-<CLUSTER>-<NNN>`
+- File task: `TASK-SPRINT-<NN>-<CLUSTER>-<NNN>-<slug>.md`
+- Ví dụ: `TASK-SPRINT-02-ORDER_MANAGEMENT-003-order-detail-api.md`
+
+#### Cấu trúc một task (`docs/tasks/sprints/SPRINT-<NN>/<cluster>/TASK-SPRINT-<NN>-<CLUSTER>-<NNN>-<slug>.md`)
 
 Mỗi task gồm đầy đủ các phần:
 
@@ -222,11 +233,12 @@ Sau mỗi lần tạo file task, cập nhật `docs/README.md` thêm mục:
 - [Kiến trúc hệ thống](tasks/ARCHITECTURE.md)
 - [Bảng theo dõi tất cả task](tasks/TASK-INDEX.md)
 
-### Task theo Module
-- [<Tên module>](tasks/modules/TASKS-<ten-module>.md)
+### Task Index theo Cụm chức năng
+- [Cluster <tên cụm>](tasks/clusters/<cluster>/TASK-INDEX.md)
 
 ### Task theo Sprint
-- [Sprint <số>](tasks/sprints/TASKS-SPRINT-<so>.md)
+- [Sprint <NN>](tasks/sprints/SPRINT-<NN>/TASK-INDEX.md)
+- [Task chi tiết trong sprint](tasks/sprints/SPRINT-<NN>/<cluster>/TASK-SPRINT-<NN>-<CLUSTER>-<NNN>-<slug>.md)
 ```
 
 ## Ràng buộc
@@ -237,4 +249,6 @@ Sau mỗi lần tạo file task, cập nhật `docs/README.md` thêm mục:
 - KHÔNG dùng tiếng Anh cho nội dung mô tả (trừ tên kỹ thuật bắt buộc).
 - Mỗi task PHẢI có trạng thái khởi đầu là `⬜ TODO`.
 - Luôn cập nhật `TASK-INDEX.md` đồng thời với file task chi tiết.
+- Mỗi lần cập nhật task phải đồng bộ tối thiểu 2 index: `docs/tasks/TASK-INDEX.md` và `docs/tasks/sprints/SPRINT-<NN>/TASK-INDEX.md`.
+- Nếu có index theo cluster, phải cập nhật thêm `docs/tasks/clusters/<cluster>/TASK-INDEX.md`.
 - Luôn dùng `todo` để theo dõi tiến độ khi bóc tách nhiều module.

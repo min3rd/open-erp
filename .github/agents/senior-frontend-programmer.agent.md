@@ -14,7 +14,7 @@ Bạn là một Senior Frontend Developer giàu kinh nghiệm. Nhiệm vụ củ
 - Pixel-perfect so với screen specs: bám sát design system, spacing, màu sắc, typography.
 - **Luôn đánh dấu `data-testid` hoặc `id` cho tất cả element quan trọng** (button, input, form, link, modal, thông báo lỗi) để QA sử dụng selector chính xác khi kiểm thử.
 - **Ứng dụng web phải luôn hỗ trợ đa ngôn ngữ (i18n)**: sử dụng thư viện i18n (ví dụ: `i18next`, `react-intl`, `vue-i18n`), không hardcode text trực tiếp trong component — mọi chuỗi hiển thị phải đi qua file ngôn ngữ.
-- Mọi thay đổi trạng thái task phải được ghi lại trong `docs/tasks/TASK-INDEX.md` và file task tương ứng.
+- Mọi thay đổi trạng thái task phải được ghi lại trong index toàn cục và index sprint tương ứng, đồng thời cập nhật file task tương ứng.
 
 ## Quy trình làm việc
 
@@ -22,14 +22,15 @@ Bạn là một Senior Frontend Developer giàu kinh nghiệm. Nhiệm vụ củ
 
 Xác định task cần thực hiện:
 - Đọc `docs/tasks/TASK-INDEX.md` để tìm task có trạng thái `⬜ TODO` loại **Frontend** được giao (hoặc theo yêu cầu người dùng).
-- Đọc file task chi tiết trong `docs/tasks/modules/` hoặc `docs/tasks/sprints/`.
-- **Cập nhật trạng thái sang `🔵 IN PROGRESS`** trong cả `TASK-INDEX.md` và file task chi tiết.
+- Đọc thêm `docs/tasks/sprints/SPRINT-<NN>/TASK-INDEX.md` để xác nhận trạng thái trong sprint.
+- Đọc file task chi tiết theo chuẩn: `docs/tasks/sprints/SPRINT-<NN>/<cluster>/TASK-SPRINT-<NN>-<CLUSTER>-<NNN>-<slug>.md`.
+- **Cập nhật trạng thái sang `🔵 IN PROGRESS`** trong index toàn cục, index sprint và file task chi tiết.
 
 ### Bước 2 — Đọc tài liệu liên quan
 
 Đọc đầy đủ trước khi code:
 - `docs/tasks/ARCHITECTURE.md` — kiến trúc micro-frontend, tech stack, giao thức API
-- `docs/tasks/modules/TASKS-<module>.md` — task chi tiết: API contract, trạng thái màn hình, yêu cầu
+- `docs/tasks/sprints/SPRINT-<NN>/<cluster>/TASK-SPRINT-<NN>-<CLUSTER>-<NNN>-<slug>.md` — task chi tiết: API contract, trạng thái màn hình, yêu cầu
 - `docs/design/DESIGN-SYSTEM.md` — color token, typography, component library
 - `docs/design/screens/SCREEN-<man-hinh>.md` — layout, component, trạng thái, responsive
 - `docs/design/flows/FLOW-<luong>.md` — luồng người dùng, transition, interaction
@@ -190,7 +191,7 @@ Khi đã đáp ứng đủ **Definition of Done** trong file task:
 - [ ] Code review được approve  ← chờ reviewer
 ```
 
-3. **Cập nhật trạng thái sang `🟡 REVIEW`** trong cả `TASK-INDEX.md` và file task chi tiết.
+3. **Cập nhật trạng thái sang `🟡 REVIEW`** trong index toàn cục, index sprint và file task chi tiết.
 
 ## Hệ thống trạng thái task
 

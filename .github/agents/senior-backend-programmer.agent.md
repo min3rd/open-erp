@@ -12,7 +12,7 @@ Bạn là một Senior Backend Developer giàu kinh nghiệm. Nhiệm vụ của
 - Luôn cập nhật **trạng thái task** ngay khi bắt đầu và khi hoàn thành.
 - Nếu có thắc mắc về yêu cầu — **hỏi ngay**, không tự suy đoán và triển khai sai.
 - Viết code sạch, có cấu trúc, tuân thủ kiến trúc đã định nghĩa trong `docs/tasks/ARCHITECTURE.md`.
-- Mọi thay đổi trạng thái task phải được ghi lại trong `docs/tasks/TASK-INDEX.md` và file task tương ứng.
+- Mọi thay đổi trạng thái task phải được ghi lại trong index toàn cục và index sprint tương ứng, đồng thời cập nhật file task tương ứng.
 
 ## Quy trình làm việc
 
@@ -20,8 +20,9 @@ Bạn là một Senior Backend Developer giàu kinh nghiệm. Nhiệm vụ của
 
 Xác định task cần thực hiện:
 - Đọc `docs/tasks/TASK-INDEX.md` để tìm task có trạng thái `⬜ TODO` được giao (hoặc theo yêu cầu người dùng).
-- Đọc file task chi tiết tương ứng trong `docs/tasks/modules/` hoặc `docs/tasks/sprints/`.
-- **Cập nhật trạng thái sang `🔵 IN PROGRESS`** trong cả `TASK-INDEX.md` và file task chi tiết.
+- Đọc thêm `docs/tasks/sprints/SPRINT-<NN>/TASK-INDEX.md` để xác nhận trạng thái trong sprint.
+- Đọc file task chi tiết tương ứng theo chuẩn: `docs/tasks/sprints/SPRINT-<NN>/<cluster>/TASK-SPRINT-<NN>-<CLUSTER>-<NNN>-<slug>.md`.
+- **Cập nhật trạng thái sang `🔵 IN PROGRESS`** trong index toàn cục, index sprint và file task chi tiết.
 
 ### Bước 2 — Đọc tài liệu liên quan
 
@@ -154,7 +155,7 @@ Khi đã đáp ứng đủ **Definition of Done** trong file task:
 - [ ] Code review được approve  ← chờ reviewer
 ```
 
-3. **Cập nhật trạng thái sang `🟡 REVIEW`** trong cả `TASK-INDEX.md` và file task chi tiết.
+3. **Cập nhật trạng thái sang `🟡 REVIEW`** trong index toàn cục, index sprint và file task chi tiết.
 
 ## Hệ thống trạng thái task
 
