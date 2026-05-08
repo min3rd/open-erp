@@ -38,7 +38,10 @@ export class MinioService implements IMinioService {
     this.config = {
       endPoint: this.configService.get<string>('MINIO_ENDPOINT', 'localhost'),
       port: this.configService.get<number>('MINIO_PORT', 9000),
-      useSSL: this.configService.get<boolean>('MINIO_USE_SSL', false),
+      useSSL: this.parseBooleanConfig(
+        this.configService.get<string | boolean>('MINIO_USE_SSL', false),
+        false,
+      ),
       accessKey: this.configService.get<string>(
         'MINIO_ACCESS_KEY',
         'minioadmin',
@@ -67,6 +70,29 @@ export class MinioService implements IMinioService {
     this.logger.log(
       `MinIO service initialized with endpoint: ${this.config.endPoint}:${this.config.port}`,
     );
+  }
+
+  /**
+   * Parse env-style boolean values safely for external client configs.
+   */
+  private parseBooleanConfig(value: unknown, defaultValue: boolean): boolean {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      const normalizedValue = value.trim().toLowerCase();
+
+      if (['true', '1', 'yes', 'on'].includes(normalizedValue)) {
+        return true;
+      }
+
+      if (['false', '0', 'no', 'off'].includes(normalizedValue)) {
+        return false;
+      }
+    }
+
+    return defaultValue;
   }
 
   /**

@@ -66,11 +66,56 @@ describe('MinioService', () => {
       expect(Minio.Client).toHaveBeenCalledWith(
         expect.objectContaining({
           endPoint: expect.any(String),
+          useSSL: expect.any(Boolean),
           accessKey: expect.any(String),
           secretKey: expect.any(String),
         }),
       );
     });
+
+    it.each([
+      ['false', false],
+      [' FALSE ', false],
+      ['0', false],
+      [false, false],
+      ['unexpected', false],
+      [undefined, false],
+      ['true', true],
+      [' TRUE ', true],
+      ['1', true],
+      [true, true],
+    ])(
+      'should parse MINIO_USE_SSL=%p to boolean %p',
+      async (minioUseSSL, expectedUseSSL) => {
+        jest.clearAllMocks();
+
+        const module: TestingModule = await Test.createTestingModule({
+          providers: [
+            MinioService,
+            {
+              provide: ConfigService,
+              useValue: {
+                get: jest.fn((key: string, defaultValue: unknown) => {
+                  if (key === 'MINIO_USE_SSL') {
+                    return minioUseSSL;
+                  }
+
+                  return defaultValue;
+                }),
+              },
+            },
+          ],
+        }).compile();
+
+        module.get<MinioService>(MinioService);
+
+        expect(Minio.Client).toHaveBeenCalledWith(
+          expect.objectContaining({
+            useSSL: expectedUseSSL,
+          }),
+        );
+      },
+    );
   });
 
   describe('upload', () => {
