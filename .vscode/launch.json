@@ -151,7 +151,8 @@
         "Organization Service (Dev)",
         "Platform Service (Dev)",
         "WMS Service (Dev)",
-        "Notification Service (Dev)"
+        "Notification Service (Dev)",
+        "Open ERP Web (Dev)"
       ],
       "stopAll": true
     }
