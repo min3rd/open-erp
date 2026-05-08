@@ -22,8 +22,8 @@ import {
 } from '@nestjs/swagger';
 import { DataImportService } from '../services/data-import.service';
 import { CreateImportJobDto } from '../dto/data-import.dto';
-import { JwtAuthGuard } from '@shared/authz';
-import { CurrentUser, UserContext } from '@shared/authz';
+import { JwtAuthGuard, CurrentUser } from '@shared/authz';
+import type { UserContext } from '@shared/authz';
 import { created, fetched, paginated } from '@shared/response';
 import { JobStatus } from '@shared/schemas';
 

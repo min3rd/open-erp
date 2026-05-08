@@ -38,12 +38,12 @@ export class DataImportService {
       type: JobType.IMPORT,
       status: JobStatus.PENDING,
       entity: dto.entity,
-      createdBy: userId as unknown as import('mongoose').Types.ObjectId,
+      userId: userId as unknown as import('mongoose').Types.ObjectId,
       originalFileName: file.originalname,
       fileSize: file.size,
       importMode: dto.mode,
       mappingTemplateId: dto.mappingTemplateId as unknown as import('mongoose').Types.ObjectId,
-    });
+    } as any);
 
     // Trong thực tế: publish job lên queue để worker xử lý async
     // this.rabbitClient.emit('wms.import.process', { jobId: job._id, tenantId });

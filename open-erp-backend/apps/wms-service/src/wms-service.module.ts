@@ -17,6 +17,22 @@ import {
   ImportExportJobSchema,
   MappingTemplate,
   MappingTemplateSchema,
+  Warehouse,
+  WarehouseSchema,
+  Zone,
+  ZoneSchema,
+  Aisle,
+  AisleSchema,
+  Bin,
+  BinSchema,
+  Lot,
+  LotSchema,
+  Serial,
+  SerialSchema,
+  Province,
+  ProvinceSchema,
+  Ward,
+  WardSchema,
 } from '@shared/schemas';
 
 // Controllers
@@ -24,17 +40,26 @@ import { HealthController } from './controllers/health.controller';
 import { StockController } from './controllers/stock.controller';
 import { TransferController } from './controllers/transfer.controller';
 import { DataImportController } from './controllers/data-import.controller';
+import { WarehouseController } from './controllers/warehouse.controller';
+import { LotController } from './controllers/lot.controller';
+import { SerialController } from './controllers/serial.controller';
 
 // Services
 import { StockService } from './services/stock.service';
 import { TransferService } from './services/transfer.service';
 import { DataImportService } from './services/data-import.service';
 import { CatalogSyncConsumer } from './services/catalog-sync.consumer';
+import { WmsWarehouseService } from './services/warehouse.service';
+import { WmsLotService } from './services/lot.service';
+import { WmsSerialService } from './services/serial.service';
 
 // Repositories
 import { WmsStockRepository } from './repositories/stock.repository';
 import { WmsTransactionRepository } from './repositories/transaction.repository';
 import { WmsImportJobRepository } from './repositories/import-job.repository';
+import { WmsWarehouseRepository } from './repositories/warehouse.repository';
+import { WmsLotRepository } from './repositories/lot.repository';
+import { WmsSerialRepository } from './repositories/serial.repository';
 
 import { RABBITMQ_WMS_CLIENT } from './constants/rabbitmq.constants';
 
@@ -66,6 +91,14 @@ function buildRabbitMQUrl(): string {
       { name: InventoryTransaction.name, schema: InventoryTransactionSchema },
       { name: ImportExportJob.name, schema: ImportExportJobSchema },
       { name: MappingTemplate.name, schema: MappingTemplateSchema },
+      { name: Warehouse.name, schema: WarehouseSchema },
+      { name: Zone.name, schema: ZoneSchema },
+      { name: Aisle.name, schema: AisleSchema },
+      { name: Bin.name, schema: BinSchema },
+      { name: Lot.name, schema: LotSchema },
+      { name: Serial.name, schema: SerialSchema },
+      { name: Province.name, schema: ProvinceSchema },
+      { name: Ward.name, schema: WardSchema },
     ]),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     LoggerModule,
@@ -87,6 +120,9 @@ function buildRabbitMQUrl(): string {
     TransferController,
     DataImportController,
     CatalogSyncConsumer,
+    WarehouseController,
+    LotController,
+    SerialController,
   ],
   providers: [
     StockService,
@@ -95,6 +131,12 @@ function buildRabbitMQUrl(): string {
     WmsStockRepository,
     WmsTransactionRepository,
     WmsImportJobRepository,
+    WmsWarehouseService,
+    WmsLotService,
+    WmsSerialService,
+    WmsWarehouseRepository,
+    WmsLotRepository,
+    WmsSerialRepository,
   ],
 })
 export class WmsServiceModule {}

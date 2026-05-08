@@ -21,7 +21,7 @@ export class WmsStockRepository {
     options: { skip?: number; limit?: number } = {},
   ): Promise<{ items: InventoryStockDocument[]; total: number }> {
     const { skip = 0, limit = 20 } = options;
-    const query: Record<string, unknown> = { tenantId };
+    const query: Record<string, unknown> = { organizationId: new Types.ObjectId(tenantId) };
 
     if (filter.warehouseId) {
       query.warehouseId = new Types.ObjectId(filter.warehouseId);
@@ -55,10 +55,10 @@ export class WmsStockRepository {
   ): Promise<InventoryStockDocument | null> {
     return this.stockModel
       .findOne({
-        tenantId,
+        organizationId: new Types.ObjectId(tenantId),
         productId: new Types.ObjectId(productId),
         warehouseId: new Types.ObjectId(warehouseId),
-      })
+      } as any)
       .session(session ?? null)
       .exec();
   }
@@ -72,12 +72,12 @@ export class WmsStockRepository {
   ): Promise<InventoryStockDocument> {
     return this.stockModel.findOneAndUpdate(
       {
-        tenantId,
+        organizationId: new Types.ObjectId(tenantId),
         productId: new Types.ObjectId(productId),
         warehouseId: new Types.ObjectId(warehouseId),
-      },
-      { $inc: { quantity: qtyDelta }, $set: { tenantId } },
+      } as any,
+      { $inc: { quantity: qtyDelta }, $set: { organizationId: new Types.ObjectId(tenantId) } },
       { upsert: true, new: true, session: session ?? undefined },
-    );
+    ) as unknown as Promise<InventoryStockDocument>;
   }
 }

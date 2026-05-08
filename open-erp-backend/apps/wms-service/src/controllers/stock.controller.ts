@@ -16,8 +16,8 @@ import {
 } from '@nestjs/swagger';
 import { StockService } from '../services/stock.service';
 import { StockQueryDto, AdjustStockDto } from '../dto/stock.dto';
-import { JwtAuthGuard } from '@shared/authz';
-import { CurrentUser, UserContext } from '@shared/authz';
+import { JwtAuthGuard, CurrentUser } from '@shared/authz';
+import type { UserContext } from '@shared/authz';
 import { ok, paginated, created } from '@shared/response';
 
 @ApiTags('wms-stock')

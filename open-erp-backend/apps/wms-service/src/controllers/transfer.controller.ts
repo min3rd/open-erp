@@ -18,8 +18,8 @@ import {
 } from '@nestjs/swagger';
 import { TransferService } from '../services/transfer.service';
 import { CreateTransferDto, TransferQueryDto } from '../dto/transfer.dto';
-import { JwtAuthGuard } from '@shared/authz';
-import { CurrentUser, UserContext } from '@shared/authz';
+import { JwtAuthGuard, CurrentUser } from '@shared/authz';
+import type { UserContext } from '@shared/authz';
 import { created, ok, paginated } from '@shared/response';
 
 @ApiTags('wms-transfers')
