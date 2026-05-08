@@ -252,6 +252,21 @@ async function seedAll() {
   await connectToDatabase();
   const tracker = new SeedStateTracker();
 
+  const hasRunWithReconnect = async (seedName: string): Promise<boolean> => {
+    await connectToDatabase();
+    return tracker.hasRun(seedName);
+  };
+
+  const markCompleteWithReconnect = async (
+    seedName: string,
+    version: string,
+    stats: any,
+    durationMs: number,
+  ): Promise<void> => {
+    await connectToDatabase();
+    await tracker.markComplete(seedName, version, stats, durationMs);
+  };
+
   // --status: print seed status and exit
   if (opts.status) {
     await tracker.printStatus();
@@ -286,12 +301,15 @@ async function seedAll() {
     success: boolean;
     error?: string;
     stats?: any;
+    nonFatal?: boolean;
+    skipped?: boolean;
+    note?: string;
   }[] = [];
 
   // 1. Seed Provinces
   if (!opts.skipProvinces) {
     const seedName = 'provinces';
-    if (!opts.force && await tracker.hasRun(seedName)) {
+    if (!opts.force && await hasRunWithReconnect(seedName)) {
       console.log(`\nSkipping Provinces (already seeded — use --force to re-run)`);
       results.push({ name: 'Provinces', success: true });
     } else {
@@ -304,7 +322,7 @@ async function seedAll() {
           drop: opts.drop,
           dryRun: opts.dryRun,
         });
-        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats as any, Date.now() - t0);
+        if (!opts.dryRun) await markCompleteWithReconnect(seedName, '1.0.0', stats as any, Date.now() - t0);
         results.push({ name: 'Provinces', success: true, stats });
         console.log('✓ Provinces seeding completed successfully');
       } catch (err: any) {
@@ -323,7 +341,7 @@ async function seedAll() {
   // 2. Seed Wards
   if (!opts.skipWards) {
     const seedName = 'wards';
-    if (!opts.force && await tracker.hasRun(seedName)) {
+    if (!opts.force && await hasRunWithReconnect(seedName)) {
       console.log(`\nSkipping Wards (already seeded — use --force to re-run)`);
       results.push({ name: 'Wards', success: true });
     } else {
@@ -336,7 +354,7 @@ async function seedAll() {
           drop: opts.drop,
           dryRun: opts.dryRun,
         });
-        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats as any, Date.now() - t0);
+        if (!opts.dryRun) await markCompleteWithReconnect(seedName, '1.0.0', stats as any, Date.now() - t0);
         results.push({ name: 'Wards', success: true, stats });
         console.log('✓ Wards seeding completed successfully');
       } catch (err: any) {
@@ -355,7 +373,7 @@ async function seedAll() {
   // 3. Seed Roles
   if (!opts.skipRoles) {
     const seedName = 'roles';
-    if (!opts.force && await tracker.hasRun(seedName)) {
+    if (!opts.force && await hasRunWithReconnect(seedName)) {
       console.log(`\nSkipping Roles (already seeded — use --force to re-run)`);
       results.push({ name: 'Roles', success: true });
     } else {
@@ -368,7 +386,7 @@ async function seedAll() {
           drop: opts.drop,
           dryRun: opts.dryRun,
         });
-        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats, Date.now() - t0);
+        if (!opts.dryRun) await markCompleteWithReconnect(seedName, '1.0.0', stats, Date.now() - t0);
         results.push({ name: 'Roles', success: true, stats });
         console.log('✓ Roles seeding completed successfully');
       } catch (err: any) {
@@ -387,7 +405,7 @@ async function seedAll() {
   // 4. Seed Organizations
   if (!opts.skipOrganizations) {
     const seedName = 'organizations';
-    if (!opts.force && await tracker.hasRun(seedName)) {
+    if (!opts.force && await hasRunWithReconnect(seedName)) {
       console.log(`\nSkipping Organizations (already seeded — use --force to re-run)`);
       results.push({ name: 'Organizations', success: true });
     } else {
@@ -402,7 +420,7 @@ async function seedAll() {
           count: opts.orgCount || 500,
           batchSize: 100,
         });
-        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats, Date.now() - t0);
+        if (!opts.dryRun) await markCompleteWithReconnect(seedName, '1.0.0', stats, Date.now() - t0);
         results.push({ name: 'Organizations', success: true, stats });
         console.log('✓ Organizations seeding completed successfully');
       } catch (err: any) {
@@ -421,7 +439,7 @@ async function seedAll() {
   // 5. Seed Users
   if (!opts.skipUsers) {
     const seedName = 'users';
-    if (!opts.force && await tracker.hasRun(seedName)) {
+    if (!opts.force && await hasRunWithReconnect(seedName)) {
       console.log(`\nSkipping Users (already seeded — use --force to re-run)`);
       results.push({ name: 'Users', success: true });
     } else {
@@ -438,7 +456,7 @@ async function seedAll() {
           seedSuperadminPassword: opts.seedSuperadminPassword,
           domain: 'example.com',
         });
-        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats, Date.now() - t0);
+        if (!opts.dryRun) await markCompleteWithReconnect(seedName, '1.0.0', stats, Date.now() - t0);
         results.push({ name: 'Users', success: true, stats });
         console.log('✓ Users seeding completed successfully');
       } catch (err: any) {
@@ -457,7 +475,7 @@ async function seedAll() {
   // 6. Seed Warehouse Types
   if (!opts.skipWarehouseTypes) {
     const seedName = 'warehouse-types';
-    if (!opts.force && await tracker.hasRun(seedName)) {
+    if (!opts.force && await hasRunWithReconnect(seedName)) {
       console.log(`\nSkipping Warehouse Types (already seeded — use --force to re-run)`);
       results.push({ name: 'Warehouse Types', success: true });
     } else {
@@ -470,7 +488,7 @@ async function seedAll() {
           drop: opts.drop,
           dryRun: opts.dryRun,
         });
-        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats as any, Date.now() - t0);
+        if (!opts.dryRun) await markCompleteWithReconnect(seedName, '1.0.0', stats as any, Date.now() - t0);
         results.push({ name: 'Warehouse Types', success: true, stats });
         console.log('✓ Warehouse types seeding completed successfully');
       } catch (err: any) {
@@ -493,7 +511,7 @@ async function seedAll() {
   // 7. Seed Sample Warehouses
   if (!opts.skipWarehouses) {
     const seedName = 'warehouses';
-    if (!opts.force && await tracker.hasRun(seedName)) {
+    if (!opts.force && await hasRunWithReconnect(seedName)) {
       console.log(`\nSkipping Warehouses (already seeded — use --force to re-run)`);
       results.push({ name: 'Warehouses', success: true });
     } else {
@@ -507,7 +525,7 @@ async function seedAll() {
           dryRun: opts.dryRun,
           count: opts.warehouseCount || 20,
         });
-        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats as any, Date.now() - t0);
+        if (!opts.dryRun) await markCompleteWithReconnect(seedName, '1.0.0', stats as any, Date.now() - t0);
         results.push({ name: 'Warehouses', success: true, stats });
         console.log('✓ Warehouses seeding completed successfully');
       } catch (err: any) {
@@ -526,7 +544,7 @@ async function seedAll() {
   // 8. Seed Relationships (User-Role-Organization)
   if (!opts.skipRelations) {
     const seedName = 'relations';
-    if (!opts.force && await tracker.hasRun(seedName)) {
+    if (!opts.force && await hasRunWithReconnect(seedName)) {
       console.log(`\nSkipping Relations (already seeded — use --force to re-run)`);
       results.push({ name: 'Relations', success: true });
     } else {
@@ -540,7 +558,7 @@ async function seedAll() {
           dryRun: opts.dryRun,
           batchSize: 100,
         });
-        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats, Date.now() - t0);
+        if (!opts.dryRun) await markCompleteWithReconnect(seedName, '1.0.0', stats, Date.now() - t0);
         results.push({ name: 'Relations', success: true, stats });
         console.log('✓ Relations seeding completed successfully');
       } catch (err: any) {
@@ -559,7 +577,7 @@ async function seedAll() {
   // 9. Seed Navigation
   if (!opts.skipNavigation) {
     const seedName = 'navigation';
-    if (!opts.force && await tracker.hasRun(seedName)) {
+    if (!opts.force && await hasRunWithReconnect(seedName)) {
       console.log(`\nSkipping Navigation (already seeded — use --force to re-run)`);
       results.push({ name: 'Navigation', success: true });
     } else {
@@ -573,7 +591,7 @@ async function seedAll() {
           dryRun: opts.dryRun,
           confirm: opts.confirm,
         });
-        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats, Date.now() - t0);
+        if (!opts.dryRun) await markCompleteWithReconnect(seedName, '1.0.0', stats, Date.now() - t0);
         results.push({ name: 'Navigation', success: true, stats });
         console.log('✓ Navigation seeding completed successfully');
       } catch (err: any) {
@@ -592,7 +610,7 @@ async function seedAll() {
   // 10. Seed Product Types
   if (!opts.skipProductTypes) {
     const seedName = 'product-types';
-    if (!opts.force && await tracker.hasRun(seedName)) {
+    if (!opts.force && await hasRunWithReconnect(seedName)) {
       console.log(`\nSkipping Product Types (already seeded — use --force to re-run)`);
       results.push({ name: 'Product Types', success: true });
     } else {
@@ -605,7 +623,7 @@ async function seedAll() {
           drop: opts.drop,
           dryRun: opts.dryRun,
         });
-        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats as any, Date.now() - t0);
+        if (!opts.dryRun) await markCompleteWithReconnect(seedName, '1.0.0', stats as any, Date.now() - t0);
         results.push({ name: 'Product Types', success: true, stats });
         console.log('✓ Product Types seeding completed successfully');
       } catch (err: any) {
@@ -624,7 +642,7 @@ async function seedAll() {
   // 11. Seed Product Categories
   if (!opts.skipProductCategories) {
     const seedName = 'product-categories';
-    if (!opts.force && await tracker.hasRun(seedName)) {
+    if (!opts.force && await hasRunWithReconnect(seedName)) {
       console.log(`\nSkipping Product Categories (already seeded — use --force to re-run)`);
       results.push({ name: 'Product Categories', success: true });
     } else {
@@ -637,7 +655,7 @@ async function seedAll() {
           drop: opts.drop,
           dryRun: opts.dryRun,
         });
-        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats as any, Date.now() - t0);
+        if (!opts.dryRun) await markCompleteWithReconnect(seedName, '1.0.0', stats as any, Date.now() - t0);
         results.push({ name: 'Product Categories', success: true, stats });
         console.log('✓ Product Categories seeding completed successfully');
       } catch (err: any) {
@@ -660,7 +678,7 @@ async function seedAll() {
   // 12. Seed WMS Demo Data
   if (!opts.skipWms) {
     const seedName = 'wms';
-    if (!opts.force && await tracker.hasRun(seedName)) {
+    if (!opts.force && await hasRunWithReconnect(seedName)) {
       console.log(`\nSkipping WMS Demo Data (already seeded — use --force to re-run)`);
       results.push({ name: 'WMS Demo Data', success: true });
     } else {
@@ -675,14 +693,29 @@ async function seedAll() {
           warehouses: Math.min(opts.warehouseCount || 5, 5),
         });
         const wmsStats = { total: 0, inserted: 0, updated: 0, skipped: 0, errors: 0 };
-        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', wmsStats, Date.now() - t0);
+        if (!opts.dryRun) await markCompleteWithReconnect(seedName, '1.0.0', wmsStats, Date.now() - t0);
         results.push({ name: 'WMS Demo Data', success: true });
         console.log('✓ WMS demo data seeding completed successfully');
       } catch (err: any) {
         const errorMsg = err.message || String(err);
-        results.push({ name: 'WMS Demo Data', success: false, error: errorMsg });
-        console.error('✗ WMS demo data seeding failed:', errorMsg);
-        // Non-fatal: WMS data depends on products which may not exist yet
+        const isMissingProductsPrerequisite = /No products found\. Please seed products first\./i.test(errorMsg);
+        if (isMissingProductsPrerequisite) {
+          results.push({
+            name: 'WMS Demo Data',
+            success: false,
+            nonFatal: true,
+            skipped: true,
+            error: errorMsg,
+            note: 'Skipped: missing prerequisite products',
+          });
+          console.warn('⚠ WMS demo data skipped (non-fatal): missing prerequisite products');
+        } else {
+          results.push({ name: 'WMS Demo Data', success: false, error: errorMsg });
+          console.error('✗ WMS demo data seeding failed:', errorMsg);
+          if (!opts.dryRun) {
+            throw err;
+          }
+        }
       }
     }
   } else {
@@ -695,12 +728,16 @@ async function seedAll() {
   console.log('='.repeat(60));
 
   results.forEach((result) => {
-    const status = result.success ? '✓' : '✗';
-    console.log(
-      `${status} ${result.name}: ${result.success ? 'SUCCESS' : 'FAILED'}`,
-    );
+    const label = result.nonFatal
+      ? (result.skipped ? 'WARNING (SKIPPED)' : 'WARNING')
+      : (result.success ? 'SUCCESS' : 'FAILED');
+    const status = result.nonFatal ? '⚠' : (result.success ? '✓' : '✗');
+    console.log(`${status} ${result.name}: ${label}`);
     if (result.stats) {
       console.log(`  Stats:`, JSON.stringify(result.stats, null, 2));
+    }
+    if (result.note) {
+      console.log(`  Note: ${result.note}`);
     }
     if (result.error) {
       console.log(`  Error: ${result.error}`);
@@ -708,11 +745,13 @@ async function seedAll() {
   });
 
   const successCount = results.filter((r) => r.success).length;
-  const failCount = results.filter((r) => !r.success).length;
+  const warningCount = results.filter((r) => r.nonFatal).length;
+  const failCount = results.filter((r) => !r.success && !r.nonFatal).length;
 
   console.log('');
   console.log(`Total: ${results.length} operations`);
   console.log(`Success: ${successCount}`);
+  console.log(`Warnings: ${warningCount}`);
   console.log(`Failed: ${failCount}`);
   console.log('='.repeat(60));
 
@@ -734,3 +773,4 @@ if (require.main === module) {
 }
 
 export { seedAll };
+

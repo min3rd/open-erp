@@ -26,3 +26,20 @@ Xây dựng cơ chế theo dõi trạng thái seed bằng collection `seed_metad
 - [ ] Có thể kiểm tra trạng thái seed theo tên và version.
 - [ ] Có thể ghi nhận metadata khi seed hoàn tất.
 - [ ] Collection và index được tạo tự động khi chưa tồn tại.
+
+## Kết quả test bổ sung (fix runtime MongoNotConnectedError)
+
+### Unit test
+- **Thời gian:** 2026-05-08
+- **Lệnh:** `npm test -- scripts/seeds/__tests__/seed-utils.spec.ts scripts/seeds/__tests__/seed-state.spec.ts`
+- **Kết quả:** ✅ PASS (2 suites, 39 tests passed, 0 failed)
+- **Liên quan task 002:** `seed-state.spec.ts` pass toàn bộ các case `hasRun` và `markComplete`.
+
+### Manual test (tích hợp với orchestrator)
+- **Lệnh:** `npm run db:seed:force -- --skip-wards --skip-roles --skip-organizations --skip-users --skip-warehouse-types --skip-warehouses --skip-relations --skip-navigation --skip-product-types --skip-product-categories --skip-wms`
+- **Kết quả:** ✅ PASS
+- **Evidence chính:** Sau khi seed provinces đóng connection, orchestrator reconnect trước khi gọi `SeedStateTracker.markComplete`; không phát sinh `MongoNotConnectedError`.
+
+## Đề xuất trạng thái
+- **Đề xuất:** 🟡 REVIEW
+- **Lý do:** Chức năng tracker và luồng tích hợp với seed-all đang hoạt động ổn định theo test; chờ review cuối cùng.

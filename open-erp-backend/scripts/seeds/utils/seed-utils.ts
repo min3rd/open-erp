@@ -4,7 +4,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { connect } from 'mongoose';
+import { connect, connection } from 'mongoose';
 import { getDatabaseConfig, getMongooseOptions } from '@shared/database';
 
 export { SeedStateTracker } from './seed-state';
@@ -257,6 +257,24 @@ export class ProgressLogger {
  * Shared implementation for all seed scripts — single source of truth.
  */
 export async function connectToDatabase(): Promise<void> {
+  if (connection.readyState === 1) {
+    return;
+  }
+
+  if (connection.readyState === 2) {
+    await new Promise<void>((resolve, reject) => {
+      connection.once('connected', () => resolve());
+      connection.once('error', (err) => reject(err));
+    });
+    return;
+  }
+
+  if (connection.readyState === 3) {
+    await new Promise<void>((resolve) => {
+      connection.once('disconnected', () => resolve());
+    });
+  }
+
   const dbConfig = getDatabaseConfig();
   const mongooseOpts = getMongooseOptions(dbConfig) as any;
   const connectUri = dbConfig.uri;
