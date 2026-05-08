@@ -6,8 +6,8 @@ import {
   SkipTenantCheck,
   TenantPolicyService,
   UpdateTenantPolicyDto,
-  TenantPolicy,
 } from '@shared/authz';
+import type { TenantPolicy } from '@shared/authz';
 import { CurrentUser } from '@shared/authz';
 import { Permissions } from '@shared/authz';
 

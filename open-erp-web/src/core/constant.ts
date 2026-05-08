@@ -16,3 +16,7 @@ export const API_URI_APPROVAL = 'http://localhost:3011';
 export const API_URI_PLATFORM = 'http://localhost:3007';
 /** WMS Domain Service — Stock, Transfer, Receipt, Shipment, Picklist, Import/Export */
 export const API_URI_WMS = 'http://localhost:3008';
+/** WorkDoc Domain Service — Documents, Workflows */
+export const API_URI_WORKDOC = 'http://localhost:3009';
+/** HR Domain Service — Employees, Leave Requests, Departments */
+export const API_URI_HR = 'http://localhost:3010';

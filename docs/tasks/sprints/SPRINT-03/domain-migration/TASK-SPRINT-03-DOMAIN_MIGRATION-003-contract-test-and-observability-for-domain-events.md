@@ -1,6 +1,6 @@
 ### TASK-SPRINT-03-DOMAIN_MIGRATION-003: Thiết lập contract test và observability cho domain events
 
-**Trạng thái:** ⬜ TODO
+**Trạng thái:** � REVIEW
 **Loại:** Testing
 **Module:** Cross-domain
 **Sprint:** 03
@@ -75,3 +75,29 @@ Errors:   400, 401, 403, 409, 500
 - [ ] Code review được approve
 - [ ] Chạy thành công trên môi trường staging
 - [ ] CI fail khi có breaking change event contract
+
+---
+
+#### Kết quả Manual Test — 08/05/2026
+
+**Ngày thực hiện:** 08/05/2026
+**Người thực hiện:** Senior QA
+**File kết quả:** `docs/testcases/SPRINT-03-MANUAL-TEST-RESULTS.md`
+
+**Tổng kết:**
+| Tổng TC | PASS | FAIL | BLOCKED |
+|---|---|---|---|
+| 9 | 7 | 0 | 2 |
+
+**Bug phát hiện:**
+- **BUG-001** (Major): TS compile error `rejectionReason: string` không chấp nhận `undefined` trong `workflow-request.schema.ts` → **Đã sửa thành `rejectionReason?: string`**
+
+**BLOCKED:**
+- TC-008 platform-service (3007): service không chạy
+- TC-009 wms-service (3008): service không chạy
+
+**Phần chưa triển khai (cần sprint tiếp theo):**
+- Contract test JSON Schema (AJV)
+- CI contract test producer/consumer
+- OpenTelemetry tracing
+- Endpoint `POST /api/v1/platform/event-schemas` (backend chưa triển khai)

@@ -24,7 +24,7 @@ export class WorkflowRequest {
   approvedBy: string;
 
   @Prop()
-  rejectionReason: string;
+  rejectionReason?: string;
 
   @Prop()
   approvedAt: Date;
