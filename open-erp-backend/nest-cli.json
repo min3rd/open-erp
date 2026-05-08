@@ -124,6 +124,24 @@
       "compilerOptions": {
         "tsConfigPath": "apps/wms-service/tsconfig.json"
       }
+    },
+    "workdoc": {
+      "type": "application",
+      "root": "apps/workdoc-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/workdoc-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/workdoc-service/tsconfig.app.json"
+      }
+    },
+    "hr": {
+      "type": "application",
+      "root": "apps/hr-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/hr-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/hr-service/tsconfig.app.json"
+      }
     }
   }
 }

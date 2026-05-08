@@ -114,12 +114,46 @@
     {
       "type": "node",
       "request": "launch",
+      "cwd": "${workspaceFolder}/open-erp-backend",
+      "name": "Platform Service (Dev)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:platform:dev"],
+      "sourceMaps": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/open-erp-backend",
+      "name": "WMS Service (Dev)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:wms:dev"],
+      "sourceMaps": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "cwd": "${workspaceFolder}/open-erp-web",
       "name": "Open ERP Web (Dev)",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "start"],
       "sourceMaps": true,
       "console": "integratedTerminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "🚀 Domain Services Phase 1",
+      "configurations": [
+        "Auth Service (Dev)",
+        "User Service (Dev)",
+        "Organization Service (Dev)",
+        "Platform Service (Dev)",
+        "WMS Service (Dev)",
+        "Notification Service (Dev)"
+      ],
+      "stopAll": true
     }
   ]
 }
