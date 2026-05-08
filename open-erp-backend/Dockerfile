@@ -23,15 +23,25 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files and TypeScript config (needed for ts-node + tsconfig-paths)
 COPY package*.json ./
+COPY tsconfig*.json ./
+COPY nest-cli.json ./
 
-# Install production dependencies only
-RUN npm ci --only=production
+# Install all dependencies (includes devDependencies for ts-node seed script support)
+RUN npm ci
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/libs ./libs
+
+# Copy source files needed for seed scripts
+COPY libs ./libs
+COPY src ./src
+COPY scripts ./scripts
+
+# Copy and configure Docker initialization script
+COPY scripts/docker-init.sh /docker-init.sh
+RUN chmod +x /docker-init.sh
 
 # Set environment variables
 ENV NODE_ENV=production
@@ -40,5 +50,5 @@ ENV PORT=3000
 # Expose port
 EXPOSE 3000
 
-# Start the application
+ENTRYPOINT ["/docker-init.sh"]
 CMD ["node", "dist/main.js"]

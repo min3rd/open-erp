@@ -110,6 +110,9 @@ services:
       MONGODB_PASS: ${MONGODB_PASS:-erp_password}
       MONGODB_DB: ${MONGODB_DB:-open_erp}
       MONGODB_AUTH_SOURCE: admin
+        SEED_ON_INIT: ${SEED_ON_INIT:-false}
+        SEED_FORCE: ${SEED_FORCE:-false}
+        SEED_SUPERADMIN_PASSWORD: ${SEED_SUPERADMIN_PASSWORD:-}
     depends_on:
       rabbitmq:
         condition: service_healthy

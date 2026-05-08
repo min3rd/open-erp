@@ -36,6 +36,7 @@ import {
   validateDestructiveOps,
   printStats,
   saveReport,
+  connectToDatabase,
   SeedOptions,
   SeedStats,
   SeedReport,
@@ -43,7 +44,6 @@ import {
 import * as fs from 'fs';
 import * as path from 'path';
 import slugify from 'slugify';
-import { connectToDatabase } from './seed-utils';
 
 require('dotenv').config();
 

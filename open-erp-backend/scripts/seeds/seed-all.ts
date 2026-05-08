@@ -38,6 +38,7 @@ import { seedNavigation } from './seed-navigation';
 import { seedProductTypes } from './seed-product-types';
 import { seedProductCategories } from './seed-product-categories';
 import { seedWms } from './seed-wms';
+import { connectToDatabase, SeedStateTracker } from './utils/seed-utils';
 
 require('dotenv').config();
 
@@ -45,6 +46,8 @@ interface Options {
   drop?: boolean;
   confirm?: boolean;
   dryRun?: boolean;
+  force?: boolean;
+  status?: boolean;
   skipProvinces?: boolean;
   skipWards?: boolean;
   skipRoles?: boolean;
@@ -102,6 +105,8 @@ function parseArgs(): Options {
     'drop',
     'confirm',
     'dry-run',
+    'force',
+    'status',
     'skip-provinces',
     'skip-wards',
     'skip-roles',
@@ -167,6 +172,12 @@ function parseArgs(): Options {
         break;
       case '--dry-run':
         opts.dryRun = true;
+        break;
+      case '--force':
+        opts.force = true;
+        break;
+      case '--status':
+        opts.status = true;
         break;
       case '--skip-provinces':
         opts.skipProvinces = true;
@@ -237,6 +248,16 @@ function parseArgs(): Options {
 async function seedAll() {
   const opts = parseArgs();
 
+  // Connect to DB first (needed for --status too)
+  await connectToDatabase();
+  const tracker = new SeedStateTracker();
+
+  // --status: print seed status and exit
+  if (opts.status) {
+    await tracker.printStatus();
+    process.exit(0);
+  }
+
   console.log('='.repeat(60));
   console.log(JSON.stringify(opts, null, 2));
   console.log('='.repeat(60));
@@ -249,6 +270,7 @@ async function seedAll() {
 
   console.log('='.repeat(60));
   console.log('DATABASE SEED - ALL OPERATIONS');
+  if (opts.force) console.log('MODE: --force (skip idempotency checks)');
   console.log('='.repeat(60));
   console.log('');
   console.log('Options:');
@@ -268,22 +290,30 @@ async function seedAll() {
 
   // 1. Seed Provinces
   if (!opts.skipProvinces) {
-    console.log('\n' + '='.repeat(60));
-    console.log('STEP 1: Seeding Provinces from GeoJSON');
-    console.log('='.repeat(60));
-    try {
-      const stats = await seedProvincesFromGeoJSON({
-        drop: opts.drop,
-        dryRun: opts.dryRun,
-      });
-      results.push({ name: 'Provinces', success: true, stats });
-      console.log('✓ Provinces seeding completed successfully');
-    } catch (err: any) {
-      const errorMsg = err.message || String(err);
-      results.push({ name: 'Provinces', success: false, error: errorMsg });
-      console.error('✗ Provinces seeding failed:', errorMsg);
-      if (!opts.dryRun) {
-        throw err; // Stop on error unless dry-run
+    const seedName = 'provinces';
+    if (!opts.force && await tracker.hasRun(seedName)) {
+      console.log(`\nSkipping Provinces (already seeded — use --force to re-run)`);
+      results.push({ name: 'Provinces', success: true });
+    } else {
+      console.log('\n' + '='.repeat(60));
+      console.log('STEP 1: Seeding Provinces from GeoJSON');
+      console.log('='.repeat(60));
+      const t0 = Date.now();
+      try {
+        const stats = await seedProvincesFromGeoJSON({
+          drop: opts.drop,
+          dryRun: opts.dryRun,
+        });
+        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats as any, Date.now() - t0);
+        results.push({ name: 'Provinces', success: true, stats });
+        console.log('✓ Provinces seeding completed successfully');
+      } catch (err: any) {
+        const errorMsg = err.message || String(err);
+        results.push({ name: 'Provinces', success: false, error: errorMsg });
+        console.error('✗ Provinces seeding failed:', errorMsg);
+        if (!opts.dryRun) {
+          throw err; // Stop on error unless dry-run
+        }
       }
     }
   } else {
@@ -292,22 +322,30 @@ async function seedAll() {
 
   // 2. Seed Wards
   if (!opts.skipWards) {
-    console.log('\n' + '='.repeat(60));
-    console.log('STEP 2: Seeding Wards from GeoJSON');
-    console.log('='.repeat(60));
-    try {
-      const stats = await seedWardsFromGeoJSON({
-        drop: opts.drop,
-        dryRun: opts.dryRun,
-      });
-      results.push({ name: 'Wards', success: true, stats });
-      console.log('✓ Wards seeding completed successfully');
-    } catch (err: any) {
-      const errorMsg = err.message || String(err);
-      results.push({ name: 'Wards', success: false, error: errorMsg });
-      console.error('✗ Wards seeding failed:', errorMsg);
-      if (!opts.dryRun) {
-        throw err;
+    const seedName = 'wards';
+    if (!opts.force && await tracker.hasRun(seedName)) {
+      console.log(`\nSkipping Wards (already seeded — use --force to re-run)`);
+      results.push({ name: 'Wards', success: true });
+    } else {
+      console.log('\n' + '='.repeat(60));
+      console.log('STEP 2: Seeding Wards from GeoJSON');
+      console.log('='.repeat(60));
+      const t0 = Date.now();
+      try {
+        const stats = await seedWardsFromGeoJSON({
+          drop: opts.drop,
+          dryRun: opts.dryRun,
+        });
+        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats as any, Date.now() - t0);
+        results.push({ name: 'Wards', success: true, stats });
+        console.log('✓ Wards seeding completed successfully');
+      } catch (err: any) {
+        const errorMsg = err.message || String(err);
+        results.push({ name: 'Wards', success: false, error: errorMsg });
+        console.error('✗ Wards seeding failed:', errorMsg);
+        if (!opts.dryRun) {
+          throw err;
+        }
       }
     }
   } else {
@@ -316,22 +354,30 @@ async function seedAll() {
 
   // 3. Seed Roles
   if (!opts.skipRoles) {
-    console.log('\n' + '='.repeat(60));
-    console.log('STEP 3: Seeding System Roles');
-    console.log('='.repeat(60));
-    try {
-      const stats = await seedRoles({
-        drop: opts.drop,
-        dryRun: opts.dryRun,
-      });
-      results.push({ name: 'Roles', success: true, stats });
-      console.log('✓ Roles seeding completed successfully');
-    } catch (err: any) {
-      const errorMsg = err.message || String(err);
-      results.push({ name: 'Roles', success: false, error: errorMsg });
-      console.error('✗ Roles seeding failed:', errorMsg);
-      if (!opts.dryRun) {
-        throw err;
+    const seedName = 'roles';
+    if (!opts.force && await tracker.hasRun(seedName)) {
+      console.log(`\nSkipping Roles (already seeded — use --force to re-run)`);
+      results.push({ name: 'Roles', success: true });
+    } else {
+      console.log('\n' + '='.repeat(60));
+      console.log('STEP 3: Seeding System Roles');
+      console.log('='.repeat(60));
+      const t0 = Date.now();
+      try {
+        const stats = await seedRoles({
+          drop: opts.drop,
+          dryRun: opts.dryRun,
+        });
+        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats, Date.now() - t0);
+        results.push({ name: 'Roles', success: true, stats });
+        console.log('✓ Roles seeding completed successfully');
+      } catch (err: any) {
+        const errorMsg = err.message || String(err);
+        results.push({ name: 'Roles', success: false, error: errorMsg });
+        console.error('✗ Roles seeding failed:', errorMsg);
+        if (!opts.dryRun) {
+          throw err;
+        }
       }
     }
   } else {
@@ -340,24 +386,32 @@ async function seedAll() {
 
   // 4. Seed Organizations
   if (!opts.skipOrganizations) {
-    console.log('\n' + '='.repeat(60));
-    console.log('STEP 4: Seeding Organizations');
-    console.log('='.repeat(60));
-    try {
-      const stats = await seedOrganizations({
-        drop: opts.drop,
-        dryRun: opts.dryRun,
-        count: opts.orgCount || 500,
-        batchSize: 100,
-      });
-      results.push({ name: 'Organizations', success: true, stats });
-      console.log('✓ Organizations seeding completed successfully');
-    } catch (err: any) {
-      const errorMsg = err.message || String(err);
-      results.push({ name: 'Organizations', success: false, error: errorMsg });
-      console.error('✗ Organizations seeding failed:', errorMsg);
-      if (!opts.dryRun) {
-        throw err;
+    const seedName = 'organizations';
+    if (!opts.force && await tracker.hasRun(seedName)) {
+      console.log(`\nSkipping Organizations (already seeded — use --force to re-run)`);
+      results.push({ name: 'Organizations', success: true });
+    } else {
+      console.log('\n' + '='.repeat(60));
+      console.log('STEP 4: Seeding Organizations');
+      console.log('='.repeat(60));
+      const t0 = Date.now();
+      try {
+        const stats = await seedOrganizations({
+          drop: opts.drop,
+          dryRun: opts.dryRun,
+          count: opts.orgCount || 500,
+          batchSize: 100,
+        });
+        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats, Date.now() - t0);
+        results.push({ name: 'Organizations', success: true, stats });
+        console.log('✓ Organizations seeding completed successfully');
+      } catch (err: any) {
+        const errorMsg = err.message || String(err);
+        results.push({ name: 'Organizations', success: false, error: errorMsg });
+        console.error('✗ Organizations seeding failed:', errorMsg);
+        if (!opts.dryRun) {
+          throw err;
+        }
       }
     }
   } else {
@@ -366,26 +420,34 @@ async function seedAll() {
 
   // 5. Seed Users
   if (!opts.skipUsers) {
-    console.log('\n' + '='.repeat(60));
-    console.log('STEP 5: Seeding Users (1 SuperAdmin + Regular Users)');
-    console.log('='.repeat(60));
-    try {
-      const stats = await seedUsers({
-        drop: opts.drop,
-        dryRun: opts.dryRun,
-        count: opts.userCount || 100,
-        batchSize: 500,
-        seedSuperadminPassword: opts.seedSuperadminPassword,
-        domain: 'example.com',
-      });
-      results.push({ name: 'Users', success: true, stats });
-      console.log('✓ Users seeding completed successfully');
-    } catch (err: any) {
-      const errorMsg = err.message || String(err);
-      results.push({ name: 'Users', success: false, error: errorMsg });
-      console.error('✗ Users seeding failed:', errorMsg);
-      if (!opts.dryRun) {
-        throw err;
+    const seedName = 'users';
+    if (!opts.force && await tracker.hasRun(seedName)) {
+      console.log(`\nSkipping Users (already seeded — use --force to re-run)`);
+      results.push({ name: 'Users', success: true });
+    } else {
+      console.log('\n' + '='.repeat(60));
+      console.log('STEP 5: Seeding Users (1 SuperAdmin + Regular Users)');
+      console.log('='.repeat(60));
+      const t0 = Date.now();
+      try {
+        const stats = await seedUsers({
+          drop: opts.drop,
+          dryRun: opts.dryRun,
+          count: opts.userCount || 100,
+          batchSize: 500,
+          seedSuperadminPassword: opts.seedSuperadminPassword,
+          domain: 'example.com',
+        });
+        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats, Date.now() - t0);
+        results.push({ name: 'Users', success: true, stats });
+        console.log('✓ Users seeding completed successfully');
+      } catch (err: any) {
+        const errorMsg = err.message || String(err);
+        results.push({ name: 'Users', success: false, error: errorMsg });
+        console.error('✗ Users seeding failed:', errorMsg);
+        if (!opts.dryRun) {
+          throw err;
+        }
       }
     }
   } else {
@@ -394,26 +456,34 @@ async function seedAll() {
 
   // 6. Seed Warehouse Types
   if (!opts.skipWarehouseTypes) {
-    console.log('\n' + '='.repeat(60));
-    console.log('STEP 6: Seeding Warehouse Types');
-    console.log('='.repeat(60));
-    try {
-      const stats = await seedWarehouseTypes({
-        drop: opts.drop,
-        dryRun: opts.dryRun,
-      });
-      results.push({ name: 'Warehouse Types', success: true, stats });
-      console.log('✓ Warehouse types seeding completed successfully');
-    } catch (err: any) {
-      const errorMsg = err.message || String(err);
-      results.push({
-        name: 'Warehouse Types',
-        success: false,
-        error: errorMsg,
-      });
-      console.error('✗ Warehouse types seeding failed:', errorMsg);
-      if (!opts.dryRun) {
-        throw err;
+    const seedName = 'warehouse-types';
+    if (!opts.force && await tracker.hasRun(seedName)) {
+      console.log(`\nSkipping Warehouse Types (already seeded — use --force to re-run)`);
+      results.push({ name: 'Warehouse Types', success: true });
+    } else {
+      console.log('\n' + '='.repeat(60));
+      console.log('STEP 6: Seeding Warehouse Types');
+      console.log('='.repeat(60));
+      const t0 = Date.now();
+      try {
+        const stats = await seedWarehouseTypes({
+          drop: opts.drop,
+          dryRun: opts.dryRun,
+        });
+        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats as any, Date.now() - t0);
+        results.push({ name: 'Warehouse Types', success: true, stats });
+        console.log('✓ Warehouse types seeding completed successfully');
+      } catch (err: any) {
+        const errorMsg = err.message || String(err);
+        results.push({
+          name: 'Warehouse Types',
+          success: false,
+          error: errorMsg,
+        });
+        console.error('✗ Warehouse types seeding failed:', errorMsg);
+        if (!opts.dryRun) {
+          throw err;
+        }
       }
     }
   } else {
@@ -422,23 +492,31 @@ async function seedAll() {
 
   // 7. Seed Sample Warehouses
   if (!opts.skipWarehouses) {
-    console.log('\n' + '='.repeat(60));
-    console.log('STEP 7: Seeding Sample Warehouses');
-    console.log('='.repeat(60));
-    try {
-      const stats = await seedWarehouses({
-        drop: opts.drop,
-        dryRun: opts.dryRun,
-        count: opts.warehouseCount || 20,
-      });
-      results.push({ name: 'Warehouses', success: true, stats });
-      console.log('✓ Warehouses seeding completed successfully');
-    } catch (err: any) {
-      const errorMsg = err.message || String(err);
-      results.push({ name: 'Warehouses', success: false, error: errorMsg });
-      console.error('✗ Warehouses seeding failed:', errorMsg);
-      if (!opts.dryRun) {
-        throw err;
+    const seedName = 'warehouses';
+    if (!opts.force && await tracker.hasRun(seedName)) {
+      console.log(`\nSkipping Warehouses (already seeded — use --force to re-run)`);
+      results.push({ name: 'Warehouses', success: true });
+    } else {
+      console.log('\n' + '='.repeat(60));
+      console.log('STEP 7: Seeding Sample Warehouses');
+      console.log('='.repeat(60));
+      const t0 = Date.now();
+      try {
+        const stats = await seedWarehouses({
+          drop: opts.drop,
+          dryRun: opts.dryRun,
+          count: opts.warehouseCount || 20,
+        });
+        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats as any, Date.now() - t0);
+        results.push({ name: 'Warehouses', success: true, stats });
+        console.log('✓ Warehouses seeding completed successfully');
+      } catch (err: any) {
+        const errorMsg = err.message || String(err);
+        results.push({ name: 'Warehouses', success: false, error: errorMsg });
+        console.error('✗ Warehouses seeding failed:', errorMsg);
+        if (!opts.dryRun) {
+          throw err;
+        }
       }
     }
   } else {
@@ -447,23 +525,31 @@ async function seedAll() {
 
   // 8. Seed Relationships (User-Role-Organization)
   if (!opts.skipRelations) {
-    console.log('\n' + '='.repeat(60));
-    console.log('STEP 8: Seeding Relationships (User-Role-Organization)');
-    console.log('='.repeat(60));
-    try {
-      const stats = await seedRelations({
-        drop: opts.drop,
-        dryRun: opts.dryRun,
-        batchSize: 100,
-      });
-      results.push({ name: 'Relations', success: true, stats });
-      console.log('✓ Relations seeding completed successfully');
-    } catch (err: any) {
-      const errorMsg = err.message || String(err);
-      results.push({ name: 'Relations', success: false, error: errorMsg });
-      console.error('✗ Relations seeding failed:', errorMsg);
-      if (!opts.dryRun) {
-        throw err;
+    const seedName = 'relations';
+    if (!opts.force && await tracker.hasRun(seedName)) {
+      console.log(`\nSkipping Relations (already seeded — use --force to re-run)`);
+      results.push({ name: 'Relations', success: true });
+    } else {
+      console.log('\n' + '='.repeat(60));
+      console.log('STEP 8: Seeding Relationships (User-Role-Organization)');
+      console.log('='.repeat(60));
+      const t0 = Date.now();
+      try {
+        const stats = await seedRelations({
+          drop: opts.drop,
+          dryRun: opts.dryRun,
+          batchSize: 100,
+        });
+        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats, Date.now() - t0);
+        results.push({ name: 'Relations', success: true, stats });
+        console.log('✓ Relations seeding completed successfully');
+      } catch (err: any) {
+        const errorMsg = err.message || String(err);
+        results.push({ name: 'Relations', success: false, error: errorMsg });
+        console.error('✗ Relations seeding failed:', errorMsg);
+        if (!opts.dryRun) {
+          throw err;
+        }
       }
     }
   } else {
@@ -472,23 +558,31 @@ async function seedAll() {
 
   // 9. Seed Navigation
   if (!opts.skipNavigation) {
-    console.log('\n' + '='.repeat(60));
-    console.log('STEP 9: Seeding Navigation');
-    console.log('='.repeat(60));
-    try {
-      const stats = await seedNavigation({
-        drop: opts.drop,
-        dryRun: opts.dryRun,
-        confirm: opts.confirm,
-      });
-      results.push({ name: 'Navigation', success: true, stats });
-      console.log('✓ Navigation seeding completed successfully');
-    } catch (err: any) {
-      const errorMsg = err.message || String(err);
-      results.push({ name: 'Navigation', success: false, error: errorMsg });
-      console.error('✗ Navigation seeding failed:', errorMsg);
-      if (!opts.dryRun) {
-        throw err;
+    const seedName = 'navigation';
+    if (!opts.force && await tracker.hasRun(seedName)) {
+      console.log(`\nSkipping Navigation (already seeded — use --force to re-run)`);
+      results.push({ name: 'Navigation', success: true });
+    } else {
+      console.log('\n' + '='.repeat(60));
+      console.log('STEP 9: Seeding Navigation');
+      console.log('='.repeat(60));
+      const t0 = Date.now();
+      try {
+        const stats = await seedNavigation({
+          drop: opts.drop,
+          dryRun: opts.dryRun,
+          confirm: opts.confirm,
+        });
+        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats, Date.now() - t0);
+        results.push({ name: 'Navigation', success: true, stats });
+        console.log('✓ Navigation seeding completed successfully');
+      } catch (err: any) {
+        const errorMsg = err.message || String(err);
+        results.push({ name: 'Navigation', success: false, error: errorMsg });
+        console.error('✗ Navigation seeding failed:', errorMsg);
+        if (!opts.dryRun) {
+          throw err;
+        }
       }
     }
   } else {
@@ -497,22 +591,30 @@ async function seedAll() {
 
   // 10. Seed Product Types
   if (!opts.skipProductTypes) {
-    console.log('\n' + '='.repeat(60));
-    console.log('STEP 10: Seeding Product Types');
-    console.log('='.repeat(60));
-    try {
-      const stats = await seedProductTypes({
-        drop: opts.drop,
-        dryRun: opts.dryRun,
-      });
-      results.push({ name: 'Product Types', success: true, stats });
-      console.log('✓ Product Types seeding completed successfully');
-    } catch (err: any) {
-      const errorMsg = err.message || String(err);
-      results.push({ name: 'Product Types', success: false, error: errorMsg });
-      console.error('✗ Product Types seeding failed:', errorMsg);
-      if (!opts.dryRun) {
-        throw err;
+    const seedName = 'product-types';
+    if (!opts.force && await tracker.hasRun(seedName)) {
+      console.log(`\nSkipping Product Types (already seeded — use --force to re-run)`);
+      results.push({ name: 'Product Types', success: true });
+    } else {
+      console.log('\n' + '='.repeat(60));
+      console.log('STEP 10: Seeding Product Types');
+      console.log('='.repeat(60));
+      const t0 = Date.now();
+      try {
+        const stats = await seedProductTypes({
+          drop: opts.drop,
+          dryRun: opts.dryRun,
+        });
+        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats as any, Date.now() - t0);
+        results.push({ name: 'Product Types', success: true, stats });
+        console.log('✓ Product Types seeding completed successfully');
+      } catch (err: any) {
+        const errorMsg = err.message || String(err);
+        results.push({ name: 'Product Types', success: false, error: errorMsg });
+        console.error('✗ Product Types seeding failed:', errorMsg);
+        if (!opts.dryRun) {
+          throw err;
+        }
       }
     }
   } else {
@@ -521,26 +623,34 @@ async function seedAll() {
 
   // 11. Seed Product Categories
   if (!opts.skipProductCategories) {
-    console.log('\n' + '='.repeat(60));
-    console.log('STEP 11: Seeding Product Categories');
-    console.log('='.repeat(60));
-    try {
-      const stats = await seedProductCategories({
-        drop: opts.drop,
-        dryRun: opts.dryRun,
-      });
-      results.push({ name: 'Product Categories', success: true, stats });
-      console.log('✓ Product Categories seeding completed successfully');
-    } catch (err: any) {
-      const errorMsg = err.message || String(err);
-      results.push({
-        name: 'Product Categories',
-        success: false,
-        error: errorMsg,
-      });
-      console.error('✗ Product Categories seeding failed:', errorMsg);
-      if (!opts.dryRun) {
-        throw err;
+    const seedName = 'product-categories';
+    if (!opts.force && await tracker.hasRun(seedName)) {
+      console.log(`\nSkipping Product Categories (already seeded — use --force to re-run)`);
+      results.push({ name: 'Product Categories', success: true });
+    } else {
+      console.log('\n' + '='.repeat(60));
+      console.log('STEP 11: Seeding Product Categories');
+      console.log('='.repeat(60));
+      const t0 = Date.now();
+      try {
+        const stats = await seedProductCategories({
+          drop: opts.drop,
+          dryRun: opts.dryRun,
+        });
+        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', stats as any, Date.now() - t0);
+        results.push({ name: 'Product Categories', success: true, stats });
+        console.log('✓ Product Categories seeding completed successfully');
+      } catch (err: any) {
+        const errorMsg = err.message || String(err);
+        results.push({
+          name: 'Product Categories',
+          success: false,
+          error: errorMsg,
+        });
+        console.error('✗ Product Categories seeding failed:', errorMsg);
+        if (!opts.dryRun) {
+          throw err;
+        }
       }
     }
   } else {
@@ -549,22 +659,31 @@ async function seedAll() {
 
   // 12. Seed WMS Demo Data
   if (!opts.skipWms) {
-    console.log('\n' + '='.repeat(60));
-    console.log('STEP 12: Seeding WMS Demo Data');
-    console.log('='.repeat(60));
-    try {
-      await seedWms({
-        drop: opts.drop,
-        dryRun: opts.dryRun,
-        warehouses: Math.min(opts.warehouseCount || 5, 5),
-      });
+    const seedName = 'wms';
+    if (!opts.force && await tracker.hasRun(seedName)) {
+      console.log(`\nSkipping WMS Demo Data (already seeded — use --force to re-run)`);
       results.push({ name: 'WMS Demo Data', success: true });
-      console.log('✓ WMS demo data seeding completed successfully');
-    } catch (err: any) {
-      const errorMsg = err.message || String(err);
-      results.push({ name: 'WMS Demo Data', success: false, error: errorMsg });
-      console.error('✗ WMS demo data seeding failed:', errorMsg);
-      // Non-fatal: WMS data depends on products which may not exist yet
+    } else {
+      console.log('\n' + '='.repeat(60));
+      console.log('STEP 12: Seeding WMS Demo Data');
+      console.log('='.repeat(60));
+      const t0 = Date.now();
+      try {
+        await seedWms({
+          drop: opts.drop,
+          dryRun: opts.dryRun,
+          warehouses: Math.min(opts.warehouseCount || 5, 5),
+        });
+        const wmsStats = { total: 0, inserted: 0, updated: 0, skipped: 0, errors: 0 };
+        if (!opts.dryRun) await tracker.markComplete(seedName, '1.0.0', wmsStats, Date.now() - t0);
+        results.push({ name: 'WMS Demo Data', success: true });
+        console.log('✓ WMS demo data seeding completed successfully');
+      } catch (err: any) {
+        const errorMsg = err.message || String(err);
+        results.push({ name: 'WMS Demo Data', success: false, error: errorMsg });
+        console.error('✗ WMS demo data seeding failed:', errorMsg);
+        // Non-fatal: WMS data depends on products which may not exist yet
+      }
     }
   } else {
     console.log('\nSkipping WMS demo data seeding');

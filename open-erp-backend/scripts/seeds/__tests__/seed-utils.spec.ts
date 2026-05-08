@@ -8,8 +8,8 @@ import {
   createBatches,
   validateDestructiveOps,
   ProgressLogger,
-  SeedOptions,
 } from '../utils/seed-utils';
+import type { SeedOptions } from '../utils/seed-utils';
 
 describe('Seed Utils', () => {
   describe('parseArgs', () => {
@@ -61,6 +61,31 @@ describe('Seed Utils', () => {
       expect(opts.confirm).toBe(true);
     });
 
+    it('should parse --limit and --skip arguments', () => {
+      const args = ['--limit', '25', '--skip', '10'];
+      const opts = parseArgs(args);
+      expect(opts.limit).toBe(25);
+      expect(opts.skip).toBe(10);
+    });
+
+    it('should ignore unknown flags and malformed numeric values', () => {
+      const args = ['--unknown', 'value', '--count', 'abc', '--confirm'];
+      const opts = parseArgs(args);
+
+      expect(opts.confirm).toBe(true);
+      expect(Number.isNaN(opts.count)).toBe(true);
+      expect((opts as Record<string, unknown>).unknown).toBeUndefined();
+    });
+
+    it('should skip option assignment when value is missing', () => {
+      const args = ['--domain', '--count', '--seed-superadmin-password'];
+      const opts = parseArgs(args);
+
+      expect(opts.domain).toBe('--count');
+      expect(opts.count).toBeUndefined();
+      expect(opts.seedSuperadminPassword).toBeUndefined();
+    });
+
     it('should return empty object for no arguments', () => {
       const args: string[] = [];
       const opts = parseArgs(args);
@@ -77,6 +102,15 @@ describe('Seed Utils', () => {
     it('should generate password of custom length', () => {
       const password = generateStrongPassword(20);
       expect(password.length).toBe(20);
+    });
+
+    it('should keep minimum 4-char composition for too-small requested length', () => {
+      const password = generateStrongPassword(3);
+      expect(password.length).toBe(4);
+      expect(/[A-Z]/.test(password)).toBe(true);
+      expect(/[a-z]/.test(password)).toBe(true);
+      expect(/[0-9]/.test(password)).toBe(true);
+      expect(/[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password)).toBe(true);
     });
 
     it('should contain at least one uppercase letter', () => {
@@ -155,6 +189,23 @@ describe('Seed Utils', () => {
       const batches = createBatches(items, 10);
       expect(batches.length).toBe(1);
       expect(batches[0]).toEqual([1, 2, 3]);
+    });
+
+    it('should create single-item batches with batch size 1', () => {
+      const items = [1, 2, 3];
+      const batches = createBatches(items, 1);
+      expect(batches).toEqual([[1], [2], [3]]);
+    });
+
+    it('should preserve object references without mutation', () => {
+      const item1 = { id: 1 };
+      const item2 = { id: 2 };
+      const items = [item1, item2];
+
+      const batches = createBatches(items, 1);
+
+      expect(batches[0][0]).toBe(item1);
+      expect(batches[1][0]).toBe(item2);
     });
   });
 

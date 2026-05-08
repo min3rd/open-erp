@@ -1,7 +1,7 @@
 services:
   # MongoDB Database
   mongodb:
-    image: mongo
+    image: mongo:4
     container_name: erp-mongodb
     hostname: mongodb
     ports:
@@ -13,7 +13,11 @@ services:
     networks:
       - erp-network
     healthcheck:
-      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
+      test:
+        [
+          'CMD-SHELL',
+          'mongo --quiet --host localhost --port 27017 -u "$${MONGO_INITDB_ROOT_USERNAME}" -p "$${MONGO_INITDB_ROOT_PASSWORD}" --authenticationDatabase admin --eval "db.adminCommand({ ping: 1 }).ok" | grep 1',
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -80,6 +84,30 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+
+  # Database seed service — runs once on startup to initialize seed data
+  db-seed:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: erp-db-seed
+    environment:
+      NODE_ENV: development
+      MONGODB_URI: mongodb://mongodb:27017
+      MONGODB_USER: ${MONGODB_USER:-erp_user}
+      MONGODB_PASS: ${MONGODB_PASS:-erp_password}
+      MONGODB_DB: ${MONGODB_DB:-open_erp}
+      MONGODB_AUTH_SOURCE: admin
+      SEED_ON_INIT: ${SEED_ON_INIT:-true}
+      SEED_FORCE: ${SEED_FORCE:-false}
+      SEED_SUPERADMIN_PASSWORD: ${SEED_SUPERADMIN_PASSWORD:-}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - erp-network
+    restart: "no"
+    command: ["node", "-e", "process.exit(0)"]
 
 networks:
   erp-network:

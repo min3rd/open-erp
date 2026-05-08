@@ -12,10 +12,10 @@
  */
 
 import 'tsconfig-paths/register';
-import { connect, connection, Model } from 'mongoose';
+import { connection, Model } from 'mongoose';
 import { ProductType, ProductTypeSchema } from '@shared/schemas';
-import { getDatabaseConfig, getMongooseOptions } from '@shared/database';
 import { ObjectId } from 'mongodb';
+import { connectToDatabase } from './utils/seed-utils';
 
 require('dotenv').config();
 
@@ -47,30 +47,6 @@ function parseArgs(): SeedOptions {
   }
 
   return opts;
-}
-
-/**
- * Connect to MongoDB
- */
-async function connectToDatabase(): Promise<void> {
-  const dbConfig = getDatabaseConfig();
-  const mongooseOpts = getMongooseOptions(dbConfig) as any;
-  const connectUri = dbConfig.uri;
-
-  console.log(`Connecting to MongoDB...`);
-  console.log(`  Database: ${mongooseOpts.dbName}`);
-
-  try {
-    await connect(connectUri, {
-      dbName: mongooseOpts.dbName,
-      auth: mongooseOpts.auth,
-      authSource: mongooseOpts.authSource,
-    });
-    console.log('✓ Connected to MongoDB');
-  } catch (err: any) {
-    console.error('Connection failed:', err?.message || err);
-    throw err;
-  }
 }
 
 /**

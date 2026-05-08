@@ -4,6 +4,11 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { connect } from 'mongoose';
+import { getDatabaseConfig, getMongooseOptions } from '@shared/database';
+
+export { SeedStateTracker } from './seed-state';
+export type { SeedMetadata } from './seed-state';
 
 export interface SeedOptions {
   count?: number;
@@ -244,5 +249,75 @@ export class ProgressLogger {
     console.log(
       `  Completed: ${this.current}/${this.total} - ${elapsed}s total`,
     );
+  }
+}
+
+/**
+ * Connect to MongoDB with proper authentication handling.
+ * Shared implementation for all seed scripts — single source of truth.
+ */
+export async function connectToDatabase(): Promise<void> {
+  const dbConfig = getDatabaseConfig();
+  const mongooseOpts = getMongooseOptions(dbConfig) as any;
+  const connectUri = dbConfig.uri;
+
+  const maskedAuth = dbConfig.user ? `${dbConfig.user}:***` : '(no-auth)';
+  console.log('Connecting to MongoDB...');
+  console.log(`  URI: ${connectUri}`);
+  console.log(`  Database: ${mongooseOpts.dbName}`);
+  console.log(`  Auth: ${maskedAuth}`);
+
+  async function doConnect(uri: string, opts: any) {
+    return await connect(uri, opts);
+  }
+
+  try {
+    await doConnect(connectUri, {
+      dbName: mongooseOpts.dbName,
+      auth: mongooseOpts.auth,
+      authSource: mongooseOpts.authSource,
+      maxPoolSize: mongooseOpts.maxPoolSize,
+      minPoolSize: mongooseOpts.minPoolSize,
+      serverSelectionTimeoutMS: mongooseOpts.serverSelectionTimeoutMS,
+      connectTimeoutMS: mongooseOpts.connectTimeoutMS,
+      socketTimeoutMS: mongooseOpts.socketTimeoutMS,
+      tls: mongooseOpts.tls,
+      tlsAllowInvalidCertificates: mongooseOpts.tlsAllowInvalidCertificates,
+      replicaSet: mongooseOpts.replicaSet,
+    });
+    console.log('✓ Connected to MongoDB');
+  } catch (err: any) {
+    console.error('Initial connection failed:', err?.message || err);
+    if (dbConfig.user && dbConfig.pass) {
+      const user = encodeURIComponent(dbConfig.user);
+      const pass = encodeURIComponent(dbConfig.pass);
+      const credentialedUri = connectUri.replace(
+        /^(mongodb(\+srv)?:\/\/)/,
+        `$1${user}:${pass}@`,
+      );
+      console.log('Retrying with credentials embedded in URI...');
+      try {
+        await doConnect(credentialedUri, {
+          dbName: mongooseOpts.dbName,
+          maxPoolSize: mongooseOpts.maxPoolSize,
+          minPoolSize: mongooseOpts.minPoolSize,
+          serverSelectionTimeoutMS: mongooseOpts.serverSelectionTimeoutMS,
+          connectTimeoutMS: mongooseOpts.connectTimeoutMS,
+          socketTimeoutMS: mongooseOpts.socketTimeoutMS,
+          tls: mongooseOpts.tls,
+          tlsAllowInvalidCertificates: mongooseOpts.tlsAllowInvalidCertificates,
+          replicaSet: mongooseOpts.replicaSet,
+        });
+        console.log('✓ Connected to MongoDB with embedded credentials');
+      } catch (err2: any) {
+        console.error(
+          'Retry with embedded credentials failed:',
+          err2?.message || err2,
+        );
+        throw err2;
+      }
+    } else {
+      throw err;
+    }
   }
 }

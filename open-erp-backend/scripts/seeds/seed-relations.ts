@@ -27,7 +27,7 @@
  */
 
 import 'tsconfig-paths/register';
-import { connect, connection, Model, Types } from 'mongoose';
+import { connection, Model, Types } from 'mongoose';
 import { UserSchema, User, RoleAssignment } from '@shared/schemas/user.schema';
 import { Role, RoleSchema } from '@shared/schemas/role.schema';
 import {
@@ -40,8 +40,8 @@ import {
   MemberRole,
   MemberStatus,
 } from '@shared/schemas/organization-member.schema';
-import { getDatabaseConfig, getMongooseOptions } from '@shared/database';
 import {
+  connectToDatabase,
   parseArgs,
   validateDestructiveOps,
   printStats,
@@ -70,62 +70,6 @@ interface RelationshipStats extends SeedStats {
 
 interface RoleMap {
   [code: string]: Types.ObjectId;
-}
-
-/**
- * Connect to MongoDB with proper authentication handling
- */
-async function connectToDatabase(): Promise<void> {
-  const dbConfig = getDatabaseConfig();
-  const mongooseOpts = getMongooseOptions(dbConfig) as any;
-  const connectUri = dbConfig.uri;
-
-  const maskedAuth = dbConfig.user ? `${dbConfig.user}:***` : '(no-auth)';
-  console.log(`Connecting to MongoDB...`);
-  console.log(`  URI: ${connectUri}`);
-  console.log(`  Database: ${mongooseOpts.dbName}`);
-  console.log(`  Auth: ${maskedAuth}`);
-
-  try {
-    await connect(connectUri, {
-      dbName: mongooseOpts.dbName,
-      auth: mongooseOpts.auth,
-      authSource: mongooseOpts.authSource,
-      maxPoolSize: mongooseOpts.maxPoolSize,
-      minPoolSize: mongooseOpts.minPoolSize,
-      serverSelectionTimeoutMS: mongooseOpts.serverSelectionTimeoutMS,
-      connectTimeoutMS: mongooseOpts.connectTimeoutMS,
-      socketTimeoutMS: mongooseOpts.socketTimeoutMS,
-      tls: mongooseOpts.tls,
-      tlsAllowInvalidCertificates: mongooseOpts.tlsAllowInvalidCertificates,
-      replicaSet: mongooseOpts.replicaSet,
-    });
-    console.log('✓ Connected to MongoDB');
-  } catch (err: any) {
-    console.warn(
-      'Initial connection failed, retrying with embedded credentials...',
-    );
-    const authPart =
-      dbConfig.user && dbConfig.pass
-        ? `${encodeURIComponent(dbConfig.user)}:${encodeURIComponent(dbConfig.pass)}@`
-        : '';
-    const hostPart = connectUri.replace('mongodb://', '');
-    const retryUri = `mongodb://${authPart}${hostPart}`;
-
-    await connect(retryUri, {
-      dbName: mongooseOpts.dbName,
-      authSource: mongooseOpts.authSource,
-      maxPoolSize: mongooseOpts.maxPoolSize,
-      minPoolSize: mongooseOpts.minPoolSize,
-      serverSelectionTimeoutMS: mongooseOpts.serverSelectionTimeoutMS,
-      connectTimeoutMS: mongooseOpts.connectTimeoutMS,
-      socketTimeoutMS: mongooseOpts.socketTimeoutMS,
-      tls: mongooseOpts.tls,
-      tlsAllowInvalidCertificates: mongooseOpts.tlsAllowInvalidCertificates,
-      replicaSet: mongooseOpts.replicaSet,
-    });
-    console.log('✓ Connected to MongoDB (with embedded credentials)');
-  }
 }
 
 /**
