@@ -36,7 +36,7 @@
 | TASK-SPRINT-01-TENANT-002       | Tenant Service — Subscription và Quota           | tenant     | Backend  | Backend   | 5  | ⬜ TODO    | TASK-SPRINT-01-TENANT-001                                        | `tenant/TASK-SPRINT-01-TENANT-002-subscription-quota.md`                                     |
 | TASK-SPRINT-01-USER-001         | User Service — Quản lý người dùng và phòng ban   | user       | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-TENANT-001               | `user/TASK-SPRINT-01-USER-001-user-service.md`                                               |
 | TASK-SPRINT-01-USER-002         | RBAC Service — Role-Based Access Control         | user       | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-USER-001                                          | `user/TASK-SPRINT-01-USER-002-rbac-service.md`                                               |
-| TASK-SPRINT-01-FRONTEND-001     | Angular Web — Auth UI + Trang Đăng ký DN (Angular 21) (AC: Light/Dark mode + persistence openErp.colorMode) | frontend   | Frontend | Frontend  | 8  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-AUTH-002, TASK-SPRINT-01-AUTH-003 | `frontend/TASK-SPRINT-01-FRONTEND-001-angular-auth-ui.md`                         |
+| TASK-SPRINT-01-FRONTEND-001     | Angular Web — Auth UI + Đăng ký DN với Activation Email Link (Angular 21) (AC: Light/Dark mode + persistence openErp.colorMode) | frontend   | Frontend | Frontend  | 8  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-AUTH-002, TASK-SPRINT-01-AUTH-003 | `frontend/TASK-SPRINT-01-FRONTEND-001-angular-auth-ui.md`                         |
 | TASK-SPRINT-01-FRONTEND-002     | Angular Web — Tenant Admin Dashboard (AC: Light/Dark mode + persistence openErp.colorMode)             | frontend   | Frontend | Frontend  | 8  | ⬜ TODO    | TASK-SPRINT-01-FRONTEND-001, TASK-SPRINT-01-USER-001, TASK-SPRINT-01-TENANT-001 | `frontend/TASK-SPRINT-01-FRONTEND-002-tenant-admin-ui.md`                |
 
 ---
@@ -78,4 +78,6 @@ FRONTEND-001, USER-001, TENANT-001 ──► FRONTEND-002 (Admin Dashboard)
 - Ưu tiên FOUNDATION tasks — tất cả task khác phụ thuộc vào hạ tầng.
 - Backend tasks AUTH-001, TENANT-001 có thể phát triển song song sau khi FOUNDATION xong.
 - Frontend tasks có thể mock API để phát triển song song với backend.
+- Flow đăng ký doanh nghiệp dùng activation email link trước khi onboarding.
+- Screen specs cho Auth/System Admin đã tách theo mã màn hình riêng, task frontend phải bám theo file spec tương ứng.
 - Cuối Sprint: demo đăng nhập hoàn chỉnh (JWT + OAuth + MFA) và quản lý user/tenant.

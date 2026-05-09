@@ -169,10 +169,35 @@ Cho danh sách (có pagination):
   "success": false,
   "error": {
     "code": "VALIDATION_ERROR",
-    "message": "Dữ liệu đầu vào không hợp lệ",
+    "message": {
+      "key": "error.validation.invalid_input",
+      "params": {
+        "field": "email"
+      },
+      "defaultMessage": "Dữ liệu đầu vào không hợp lệ"
+    },
+    "i18n": {
+      "namespace": "common",
+      "severity": "error",
+      "traceKey": "validation.email"
+    },
     "details": [
-      { "field": "email", "message": "Email không đúng định dạng" },
-      { "field": "password", "message": "Mật khẩu tối thiểu 8 ký tự" }
+      {
+        "field": "email",
+        "message": {
+          "key": "error.validation.email_format",
+          "params": {},
+          "defaultMessage": "Email không đúng định dạng"
+        }
+      },
+      {
+        "field": "password",
+        "message": {
+          "key": "error.validation.password_min_length",
+          "params": { "min": 8 },
+          "defaultMessage": "Mật khẩu tối thiểu 8 ký tự"
+        }
+      }
     ]
   },
   "meta": {
@@ -197,6 +222,40 @@ Cho danh sách (có pagination):
 | `BUSINESS_RULE_VIOLATION` | 422 | Vi phạm quy tắc nghiệp vụ |
 | `RATE_LIMIT_EXCEEDED` | 429 | Vượt giới hạn tốc độ |
 | `INTERNAL_ERROR` | 500 | Lỗi nội bộ server |
+
+### 4.4 Quy ước thông điệp đa ngôn ngữ (Backend trả key + metadata)
+
+- Frontend (Angular Web, Ionic Mobile) dùng Transloco để render đa ngôn ngữ.
+- Backend không trả text đã bản địa hóa theo locale của client.
+- Backend trả message object gồm key + params + metadata để frontend tự dịch.
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "BUSINESS_RULE_VIOLATION",
+    "message": {
+      "key": "tenant.activation.token_expired",
+      "params": {
+        "expiredAt": "2026-05-09T10:00:00Z"
+      },
+      "defaultMessage": "Liên kết kích hoạt đã hết hạn"
+    },
+    "i18n": {
+      "namespace": "auth",
+      "severity": "warning",
+      "action": "request_new_activation_link"
+    }
+  }
+}
+```
+
+Quy tắc chuẩn:
+- `message.key`: key duy nhất để frontend map sang Transloco namespace.
+- `message.params`: tham số nội suy, không chứa HTML.
+- `message.defaultMessage`: fallback khi thiếu dictionary ở client.
+- `i18n.namespace`: gợi ý namespace (`auth`, `tenant`, `common`, ...).
+- `i18n.action`: hành động UI gợi ý (nếu có), không bắt buộc.
 
 ---
 
@@ -300,7 +359,14 @@ Errors: 401 TOKEN_EXPIRED, 401 TOKEN_INVALID
 ```
 Auth: Không yêu cầu
 Request: { "email": "string", "tenantId": "string" }
-Response 200: { "message": "Email đặt lại mật khẩu đã được gửi" }
+Response 200:
+  {
+    "message": {
+      "key": "auth.forgot_password.email_sent",
+      "params": { "cooldownSeconds": 60 },
+      "defaultMessage": "Email đặt lại mật khẩu đã được gửi"
+    }
+  }
 Ghi chú: Luôn trả 200 dù email không tồn tại (anti-enumeration)
 ```
 
@@ -308,7 +374,14 @@ Ghi chú: Luôn trả 200 dù email không tồn tại (anti-enumeration)
 ```
 Auth: Không yêu cầu (dùng reset token)
 Request: { "token": "string", "newPassword": "string", "confirmPassword": "string" }
-Response 200: { "message": "Mật khẩu đã được đặt lại thành công" }
+Response 200:
+  {
+    "message": {
+      "key": "auth.reset_password.success",
+      "params": {},
+      "defaultMessage": "Mật khẩu đã được đặt lại thành công"
+    }
+  }
 Errors: 400 TOKEN_EXPIRED_OR_INVALID
 ```
 
@@ -346,7 +419,57 @@ Response 200: { "verified": true }
 
 ---
 
-### 7.2 Tenant API (`/api/v1/tenants`)
+### 7.2 Public Registration API (`/api/v1/register`)
+
+#### POST /api/v1/register
+```
+Mô tả: Khởi tạo đăng ký doanh nghiệp tự phục vụ
+Auth: Không yêu cầu
+Request:
+  {
+    "taxCode": "string",
+    "email": "string",
+    "password": "string"
+  }
+Response 200:
+  {
+    "data": {
+      "registrationId": "reg_123",
+      "status": "PENDING_EMAIL_ACTIVATION"
+    },
+    "message": {
+      "key": "tenant.register.activation_email_sent",
+      "params": { "emailMasked": "a***@company.com" },
+      "defaultMessage": "Email kích hoạt đã được gửi"
+    }
+  }
+```
+
+#### GET /api/v1/register/activate
+```
+Mô tả: Xác thực activation link từ email trước khi vào luồng verify-tax-code và onboarding
+Auth: Không yêu cầu
+Query: ?token=<activation_token>
+Response 200:
+  {
+    "data": {
+      "registrationId": "reg_123",
+      "status": "EMAIL_VERIFIED"
+    },
+    "message": {
+      "key": "tenant.register.activation_success",
+      "params": {},
+      "defaultMessage": "Kích hoạt email thành công"
+    }
+  }
+Errors:
+  400 TOKEN_INVALID
+  410 TOKEN_EXPIRED
+```
+
+---
+
+### 7.3 Tenant API (`/api/v1/tenants`)
 
 > Yêu cầu quyền: `PLATFORM_ADMIN`
 
@@ -416,7 +539,7 @@ Response 200:
 
 ---
 
-### 7.3 User API (`/api/v1/users`)
+### 7.4 User API (`/api/v1/users`)
 
 #### GET /api/v1/users
 ```
@@ -480,7 +603,7 @@ Response 200: { data: UserProfile }
 
 ---
 
-### 7.4 RBAC API (`/api/v1/roles`, `/api/v1/permissions`)
+### 7.5 RBAC API (`/api/v1/roles`, `/api/v1/permissions`)
 
 #### GET /api/v1/roles
 ```
@@ -540,7 +663,7 @@ Response 204
 
 ---
 
-### 7.5 Department API (`/api/v1/departments`)
+### 7.6 Department API (`/api/v1/departments`)
 
 #### GET /api/v1/departments
 ```

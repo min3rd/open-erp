@@ -28,7 +28,7 @@ src/app/features/system-admin/rbac/
 ├── role-builder/
 │   ├── role-builder.component.ts
 │   ├── role-builder.component.html
-│   ├── role-builder.component.scss
+│   ├── role-builder.component.css
 │   └── components/
 │       ├── permission-matrix/
 │       │   ├── permission-matrix.component.ts    ← Checkbox grid
@@ -189,6 +189,7 @@ export class AppCanDirective {
 - [ ] Preference giao diện được lưu bằng key `openErp.colorMode` trong localStorage
 - [ ] Khi khởi động app, mode đã lưu được áp dụng trước lần render đầu tiên để tránh flash/sai màu ban đầu
 - [ ] Toggle theme dùng lại component dùng chung (ví dụ `erp-theme-toggle` hoặc tương đương trong shared UI)
+- [ ] Toàn bộ text UI dùng Transloco key (không hardcode text trực tiếp)
 - [ ] Unit test coverage ≥ 80%
 - [ ] Có test (unit/integration hoặc e2e) xác nhận hiển thị và chuyển đổi đúng ở cả Light Mode và Dark Mode
 - [ ] Responsive trên desktop (1280px+)
@@ -201,3 +202,4 @@ export class AppCanDirective {
 - Debounce 500ms khi save permissions (tránh gửi quá nhiều request khi check/uncheck nhanh).
 - Snapshot permissions trước khi edit, so sánh khi save để chỉ gửi diff.
 - Permission preview dùng iframe với user token giả hoặc query với userId param.
+- Tất cả file style cho Angular Web dùng `.css`, không dùng `.scss`.

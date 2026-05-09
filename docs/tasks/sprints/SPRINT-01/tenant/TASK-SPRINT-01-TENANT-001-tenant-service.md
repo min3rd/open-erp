@@ -53,19 +53,20 @@ PENDING_SETUP        : Xác thực MST + OTP xong, đang chạy Onboarding Wizar
 **Luồng tự đăng ký (Doanh nghiệp tự phục vụ):**
 ```
 1. POST /api/v1/register
-   → Validate MST chưa tồn tại trên nền tảng
-   → Tạo tenant_registrations document (status: PENDING)
-   → Tiếp tục sang bước 2
+  → Validate MST chưa tồn tại trên nền tảng
+  → Tạo tenant_registrations document (status: PENDING_EMAIL_ACTIVATION)
+  → Tạo activation token (TTL 30 phút) và gửi email link kích hoạt
 
-2. POST /api/v1/register/verify-tax-code
+2. GET /api/v1/register/activate?token=...
+  → Kiểm tra token hợp lệ, chưa dùng, chưa hết hạn
+  → Cập nhật registration status = EMAIL_VERIFIED
+  → Cho phép tiếp tục sang bước verify tax code
+
+3. POST /api/v1/register/verify-tax-code
    → Goi MSTVerificationAdapter (masothue.com / API Cục Thuế)
    → Lấy thông tin DN: tên, địa chỉ, trạng thái hoạt động
    → So khớp email người dùng với email đăng ký Cục Thuế
    → Cập nhật taxInfo, taxVerified = pending trong tenant_registrations
-
-3. POST /api/v1/register/verify-otp
-   → Kiểm tra OTP (bcrypt hash), TTL 10 phút
-   → Cập nhật taxVerified = true, status = VERIFIED
 
 4. POST /api/v1/register/complete-onboarding
    → Tạo platform_tenants document
@@ -221,8 +222,8 @@ Cấu trúc xem `TenantSettings` interface ở trên.
 | Method | Path                                        | Mô tả                                      | Auth     |
 |--------|---------------------------------------------|--------------------------------------------|---------|
 | POST   | `/api/v1/register`                          | Doanh nghiệp tự đăng ký (nhập MST + email + mật khẩu) | Không |
+| GET    | `/api/v1/register/activate`                 | Kích hoạt email qua activation link         | Không |
 | POST   | `/api/v1/register/verify-tax-code`          | Xác thực MST qua MSTVerificationAdapter    | Không |
-| POST   | `/api/v1/register/verify-otp`               | Xác thực OTP gửi về email                  | Không |
 | POST   | `/api/v1/register/complete-onboarding`      | Hoàn tất Onboarding Wizard, tạo tenant     | Không |
 
 ### Quản lý tenant (Super Admin & Tenant Admin)
@@ -279,14 +280,14 @@ Response 201:
 ## Acceptance Criteria
 
 ### Luồng tự đăng ký
-- [ ] `POST /api/v1/register` với MST chưa tồn tại → tạo `tenant_registrations` document (status: PENDING)
+- [ ] `POST /api/v1/register` với MST chưa tồn tại → tạo `tenant_registrations` document (status: PENDING_EMAIL_ACTIVATION)
+- [ ] `POST /api/v1/register` gửi activation link qua email, token TTL 30 phút
+- [ ] `GET /api/v1/register/activate` với token hợp lệ → status `EMAIL_VERIFIED`
+- [ ] `GET /api/v1/register/activate` với token hết hạn → 410 Gone
 - [ ] `POST /api/v1/register` với MST đã đăng ký → 409 Conflict
 - [ ] `POST /api/v1/register/verify-tax-code` → gọi MSTAdapter, trả về thông tin DN
 - [ ] MST không hợp lệ hoặc không hoạt động → 400 với message rõ ràng
 - [ ] Email không khớp thông tin Cục Thuế → 422 "Email không khớp thông tin đăng ký Cục Thuế"
-- [ ] `POST /api/v1/register/verify-otp` → OTP đúng trong 10 phút → status VERIFIED
-- [ ] OTP hết hạn → 410 Gone
-- [ ] Gửi lại OTP quá 3 lần/phiên → 429 Too Many Requests
 - [ ] `POST /api/v1/register/complete-onboarding` → tạo tenant, Admin user, MinIO bucket
 - [ ] Event `tenant.registered` được publish sau khi hoàn tất đăng ký
 - [ ] Event `tenant.created` được publish sau Onboarding Wizard hoàn tất

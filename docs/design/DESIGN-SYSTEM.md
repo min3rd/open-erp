@@ -21,6 +21,7 @@
 8. [Responsive & Breakpoints](#8-responsive--breakpoints)
 9. [Motion & Animation](#9-motion--animation)
 10. [Do's and Don'ts](#10-dos-and-donts)
+11. [UI Library Dùng Chung](#11-ui-library-dùng-chung)
 
 ---
 
@@ -1001,6 +1002,46 @@ Tất cả animation phải tuân thủ `prefers-reduced-motion`.
 | **Không placeholder làm label** | Khi input có giá trị, label phải vẫn thấy |
 | **Không icon fill** | Dùng icon stroke 1.5px, không fill (trừ icon trạng thái đặc biệt) |
 | **Không màu bright/vibrant** | Accent pastels chỉ dùng cho badge, không dùng làm màu nền section |
+
+---
+
+## 11. UI Library Dùng Chung
+
+### 11.1 Mục tiêu
+
+- Dùng một hệ component nhất quán cho cả web và mobile.
+- Đồng bộ token, trạng thái, và hành vi xuyên nền tảng.
+
+### 11.2 Nguyên tắc thiết kế thư viện
+
+- Tách lớp token khỏi lớp rendering.
+- Giữ cùng API component cho web/mobile ở mức semantics.
+- Chỉ khác implementation theo adapter nền tảng (Angular web hoặc Ionic mobile).
+
+### 11.3 Bộ component parity bắt buộc
+
+| Component | Variant bắt buộc | Trạng thái bắt buộc |
+|---|---|---|
+| Button | primary, secondary, ghost, danger | default, focused, disabled, loading |
+| Input | default | default, focused, error, disabled |
+| Select | default | default, focused, error, disabled |
+| Modal/Drawer | default | open, close, loading |
+| Toast/Alert | success, info, warning, error | show, dismiss |
+| Badge/Chip | semantic variants | default |
+
+### 11.4 Mapping nền tảng
+
+| Lớp | Web (Angular) | Mobile (Ionic) |
+|---|---|---|
+| Tokens | CSS custom properties | Ionic CSS variables + mapping token |
+| Form controls | Component web custom/themed | ion-input/ion-select wrapper |
+| Overlay | Dialog/Drawer web | ion-modal/ion-sheet wrapper |
+| Navigation shell | Sidebar + header | Tabs + stack navigation |
+
+### 11.5 Ràng buộc triển khai giao diện
+
+- Web ưu tiên CSS thuần theo token, không phụ thuộc SCSS cho logic theme mới.
+- Mọi chuỗi UI phải hỗ trợ i18n key (Transloco) và metadata động từ backend.
 
 ---
 

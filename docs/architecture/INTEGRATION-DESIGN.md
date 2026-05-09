@@ -18,6 +18,7 @@
 6. [Nhà cung cấp Hóa đơn điện tử](#6-nhà-cung-cấp-hóa-đơn-điện-tử)
 7. [Circuit Breaker & Resilience](#7-circuit-breaker--resilience)
 8. [Audit Log Tích hợp](#8-audit-log-tích-hợp)
+9. [Email Activation cho Đăng ký Doanh nghiệp](#9-email-activation-cho-đăng-ký-doanh-nghiệp)
 
 ---
 
@@ -37,6 +38,7 @@
 | Google OAuth2 | SSO | OAuth2 | auth-service | Đăng nhập MXH |
 | Microsoft Azure AD | SSO | OAuth2 OIDC | auth-service | Đăng nhập MXH |
 | SendGrid / SMTP | Email | REST / SMTP | notification-service | Gửi thông báo |
+| Activation Email Provider | Email | REST / SMTP | notification-service + tenant-service | Gửi link kích hoạt đăng ký DN |
 | Firebase FCM | Push notification | REST | notification-service | Mobile push |
 
 ---
@@ -388,3 +390,68 @@ db.integration_logs.createIndex({ createdAt: 1 }, { expireAfterSeconds: 7776000 
 // Tìm log lỗi
 db.integration_logs.createIndex({ tenantId: 1, success: 1, createdAt: -1 })
 ```
+
+---
+
+## 9. Email Activation cho Đăng ký Doanh nghiệp
+
+### 9.1 Mục tiêu
+
+- Bổ sung bước xác thực email bằng activation link trước khi cho phép verify tax code và onboarding.
+- Token kích hoạt là token một lần (single-use), có TTL ngắn, chống replay.
+- Nội dung email chỉ chứa key template + metadata, frontend render thông điệp bằng Transloco.
+
+### 9.2 Luồng tích hợp activation email
+
+```
+Client                    tenant-service               notification-service         Email Provider
+  |                             |                               |                         |
+  | POST /api/v1/register       |                               |                         |
+  |---------------------------->|                               |                         |
+  |                             | Tạo activationToken (TTL 30m) |                         |
+  |                             | Emit event: tenant.activation.requested                |
+  |                             |------------------------------>|                         |
+  |                             |                               | Render template + send  |
+  |                             |                               |------------------------>|
+  |                             |                               | Delivery status         |
+  |                             |<------------------------------|                         |
+  | 200 + message.key           |                               |                         |
+  |<----------------------------|                               |                         |
+  |                             |                               |                         |
+  | User click link /register/activate?token=...                 |
+  |---------------------------->|                               |                         |
+  |                             | Verify token + mark used      |                         |
+  | 200 EMAIL_VERIFIED          |                               |                         |
+  |<----------------------------|                               |                         |
+```
+
+### 9.3 Contract sự kiện
+
+`tenant.activation.requested`
+
+```json
+{
+  "tenantId": null,
+  "registrationId": "reg_123",
+  "email": "owner@company.vn",
+  "activationUrl": "https://app.openErp.vn/register/activate?token=...",
+  "message": {
+    "key": "tenant.register.activation_email_sent",
+    "params": {
+      "expiresInMinutes": 30
+    }
+  },
+  "metadata": {
+    "source": "self-register",
+    "localeHint": "vi-VN"
+  }
+}
+```
+
+### 9.4 Yêu cầu bảo mật và vận hành
+
+- Token ký bằng HMAC hoặc JWT, chứa `registrationId`, `exp`, `jti`.
+- Token chỉ dùng 1 lần: lưu trạng thái `usedAt` trong `tenant_registrations`.
+- TTL mặc định 30 phút; quá hạn trả `410 TOKEN_EXPIRED`.
+- Rate limit resend activation email: tối đa 3 lần trong 30 phút.
+- Ghi `integration_logs` cho các hành vi gửi email, verify token, resend.

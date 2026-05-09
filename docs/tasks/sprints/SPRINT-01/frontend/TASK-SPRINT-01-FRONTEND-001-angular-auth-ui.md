@@ -15,7 +15,7 @@
 
 ## Mô tả
 
-Xây dựng toàn bộ giao diện xác thực cho **Angular 21 Web App**. Bao gồm: màn hình đăng nhập (email/password + OAuth buttons), màn hình đăng ký doanh nghiệp (4 bước MST → OTP → Onboarding), màn hình quên/đặt lại mật khẩu, luồng thiết lập và xác thực MFA. Tích hợp `HttpInterceptor` để tự động gắn JWT và auto-refresh token.
+Xây dựng toàn bộ giao diện xác thực cho **Angular 21 Web App**. Bao gồm: màn hình đăng nhập (email/password + OAuth buttons), màn hình đăng ký doanh nghiệp có activation email link trước onboarding, màn hình quên/đặt lại mật khẩu, luồng thiết lập và xác thực MFA. Tích hợp `HttpInterceptor` để tự động gắn JWT và auto-refresh token.
 
 ## Phạm vi kỹ thuật
 
@@ -39,39 +39,42 @@ src/app/
         ├── login/
         │   ├── login.component.ts
         │   ├── login.component.html
-        │   └── login.component.scss
+        │   └── login.component.css
         ├── register/
         │   ├── register.component.ts           ← Step container + stepper
         │   ├── register.component.html
-        │   ├── register.component.scss
+        │   ├── register.component.css
         │   ├── tax-verify/
         │   │   ├── tax-verify.component.ts     ← Step 1+2: MST + email
         │   │   ├── tax-verify.component.html
-        │   │   └── tax-verify.component.scss
-        │   ├── otp-verify/
-        │   │   ├── otp-verify.component.ts     ← Step 3: Nhập OTP
-        │   │   ├── otp-verify.component.html
-        │   │   └── otp-verify.component.scss
+        │   │   └── tax-verify.component.css
+        │   ├── activation/
+        │   │   ├── activation-email-sent.component.ts
+        │   │   ├── activation-email-sent.component.html
+        │   │   ├── activation-email-sent.component.css
+        │   │   ├── activation-success.component.ts
+        │   │   ├── activation-success.component.html
+        │   │   └── activation-success.component.css
         │   └── onboarding-wizard/
         │       ├── onboarding-wizard.component.ts  ← Step 4: Wizard 5 bước
         │       ├── onboarding-wizard.component.html
-        │       └── onboarding-wizard.component.scss
+        │       └── onboarding-wizard.component.css
         ├── forgot-password/
         │   ├── forgot-password.component.ts
         │   ├── forgot-password.component.html
-        │   └── forgot-password.component.scss
+        │   └── forgot-password.component.css
         ├── reset-password/
         │   ├── reset-password.component.ts
         │   ├── reset-password.component.html
-        │   └── reset-password.component.scss
+        │   └── reset-password.component.css
         ├── mfa-setup/
         │   ├── mfa-setup.component.ts
         │   ├── mfa-setup.component.html
-        │   └── mfa-setup.component.scss
+        │   └── mfa-setup.component.css
         └── mfa-verify/
             ├── mfa-verify.component.ts
             ├── mfa-verify.component.html
-            └── mfa-verify.component.scss
+            └── mfa-verify.component.css
 ```
 
 **Routes Auth:**
@@ -96,25 +99,24 @@ export const AUTH_ROUTES: Routes = [
 ];
 ```
 
-**RegisterComponent — Luồng đăng ký doanh nghiệp 4 bước (trang `/register`):**
+**RegisterComponent — Luồng đăng ký doanh nghiệp có activation email link (trang `/register`):**
 
-*Bước 1 — `TaxVerifyComponent` (nhập thông tin ban đầu):*
+*Bước 1 — Form đăng ký doanh nghiệp (email, mật khẩu, MST):*
 - Form reactive: Mã số thuế (MST) + Email + Mật khẩu + Xác nhận mật khẩu
 - Validators: MST đúng định dạng (10 hoặc 13 chữ số), email, minLength(8) cho mật khẩu
-- Submit → gọi `POST /api/v1/register` + `POST /api/v1/register/verify-tax-code`
-- Loading state khi đang tra cứu MST
-- Xử lý lỗi: MST tồn tại (409), MST không hợp lệ (400), email không khớp (422)
+- Submit → gọi `POST /api/v1/register`
+- Hiển thị màn hình thông báo email kích hoạt đã gửi
+- Xử lý lỗi: MST tồn tại (409), email đã tồn tại (409)
 
-*Bước 2 — Hiển thị thông tin DN từ MST lookup, xác nhận:*
-- Hiển thị card: Tên DN, địa chỉ, trạng thái hoạt động — lấy từ kết quả `verify-tax-code`
-- Xác nhận "Dữ liệu đúng" → tiếp tục (gọi OTP)
-- Nút "Quảy lại" → về Bước 1
+*Bước 2 — Activation email sent (`/register/activation-email-sent`):*
+- Hiển thị thông điệp hướng dẫn người dùng mở email và nhấn link kích hoạt
+- Nút gửi lại link (rate limit)
+- Nút đổi email đăng ký
 
-*Bước 3 — `OtpVerifyComponent` (nhập OTP email):*
-- Hiển thị "Mã OTP đã được gửi đến [email]"
-- Input 6 số OTP (auto-focus, auto-submit khi nhập đủ 6 chữ số)
-- Countdown 60 giây trước khi gửi lại (tối đa 3 lần)
-- Xử lý lỗi: OTP sai, hết hạn, vượt số lần gửi lại
+*Bước 3 — Activation success + verify tax (`/register/activate?token=...`):*
+- Khi user click link từ email: gọi `GET /api/v1/register/activate`
+- Thành công: hiển thị màn hình activation thành công rồi chuyển sang xác thực MST
+- Thất bại/hết hạn: hiển thị hành động gửi lại activation link
 
 *Bước 4 — `OnboardingWizardComponent` (5 bước cấu hình):*
 - **4a.** Xác nhận và bổ sung thông tin DN (tạo sẵn từ MST, cho phép sửa)
@@ -213,9 +215,9 @@ class TokenStorageService {
 
 | API                                         | Gọi khi                               |
 |---------------------------------------------|------------------------------------------|
-| `POST /api/v1/register`                     | Form nhập MST + email (Bước 1)         |
-| `POST /api/v1/register/verify-tax-code`     | Sau khi nhập MST (Bước 1 → 2)           |
-| `POST /api/v1/register/verify-otp`          | Nhập OTP (Bước 3)                      |
+| `POST /api/v1/register`                     | Form đăng ký (Bước 1)                  |
+| `GET /api/v1/register/activate`             | User click activation link từ email    |
+| `POST /api/v1/register/verify-tax-code`     | Sau khi activation thành công          |
 | `POST /api/v1/register/complete-onboarding` | Hoàn tất Onboarding Wizard (Bước 4)    |
 | `POST /api/v1/auth/login`                   | Form đăng nhập                          |
 | `POST /api/v1/auth/refresh-token`           | Interceptor auto refresh                 |
@@ -230,12 +232,11 @@ class TokenStorageService {
 
 ## Acceptance Criteria
 
-- [ ] Trang `/register`: hiển thị stepper 4 bước, trạng thái tiến trình rõ ràng
-- [ ] Bước 1: validate MST (10/13 số), email, mật khẩu — hiển thị lỗi realtime
-- [ ] Bước 2: hiển thị đúng thông tin DN từ kết quả tra cứu MST
-- [ ] MST không hợp lệ/email không khớp → hiển thị thông báo lỗi tiếng Việt
-- [ ] Bước 3: OTP tự submit khi nhập đủ 6 chữ số, countdown gửi lại 60s
-- [ ] Gửi lại OTP quá 3 lần → khóa nút và hiển thị thông báo
+- [ ] Trang `/register`: hiển thị đúng flow activation email link trước onboarding
+- [ ] Bước đăng ký: validate MST (10/13 số), email, mật khẩu — hiển thị lỗi realtime
+- [ ] Sau submit đăng ký: hiển thị màn hình Activation Email Sent
+- [ ] Link kích hoạt hợp lệ: hiển thị Activation Success và cho phép qua bước verify tax
+- [ ] Link kích hoạt hết hạn: hiển thị hướng dẫn gửi lại activation link
 - [ ] Bước 4: OnboardingWizard 5 bước, có thể bỏ qua bước mời nhân viên
 - [ ] Hoàn tất Onboarding → redirect dashboard
 - [ ] Đăng nhập thành công → redirect dashboard
@@ -255,6 +256,8 @@ class TokenStorageService {
 - [ ] Preference giao diện được lưu bằng key `openErp.colorMode` trong localStorage
 - [ ] Khi khởi động app, mode đã lưu được áp dụng trước lần render đầu tiên để tránh flash/sai màu ban đầu
 - [ ] Toggle theme dùng lại component dùng chung (ví dụ `erp-theme-toggle` hoặc tương đương trong shared UI)
+- [ ] Toàn bộ text UI của Auth dùng Transloco key (không hardcode text trực tiếp trong template)
+- [ ] Mapping key theo screen specs tách riêng: SCR-AUTH-001 đến SCR-AUTH-011
 - [ ] Unit test (Jasmine/Jest) coverage ≥ 80%
 - [ ] Có test (unit/integration hoặc e2e) xác nhận luồng hiển thị và chuyển đổi ở cả Light Mode và Dark Mode
 - [ ] Responsive trên mobile (375px) và desktop (1280px+)
@@ -265,6 +268,7 @@ class TokenStorageService {
 - Dùng `@angular/forms` `ReactiveFormsModule` cho tất cả forms.
 - Signal-based state management (`signal`, `computed`, `effect`) thay vì RxJS BehaviorSubject.
 - RegisterComponent dùng Angular CDK Stepper hoặc Angular Material Stepper để quản lý 4 bước.
+- Các thành phần styling của Auth dùng file `.css`, không dùng `.scss`.
 - Tránh lưu sensitive data (token) trong sessionStorage (mất khi đóng tab).
 - Tenant branding: gọi `/api/v1/tenants/me/settings` trước khi render login để lấy logo và màu sắc.
 - Dùng Angular CDK `PortalModule` cho modal hiển thị backup codes.

@@ -1,8 +1,9 @@
 # PRD-OVERVIEW — Tài liệu Yêu cầu Sản phẩm Tổng quan
 # Open ERP — Nền tảng SaaS Quản trị và Vận hành Doanh nghiệp
 
-**Phiên bản:** 1.0  
+**Phiên bản:** 1.1  
 **Ngày tạo:** 09/05/2026  
+**Ngày cập nhật:** 09/05/2026  
 **Tác giả:** Product Owner  
 **Trạng thái:** Đang soạn thảo  
 
@@ -205,11 +206,12 @@ SaaS Platform (Open ERP)
 
 ### 6.4 Tenant Lifecycle
 1. **Đăng ký:** Super Admin tạo hoặc tenant tự đăng ký qua trang landing
-2. **Onboarding:** Wizard thiết lập ban đầu (thông tin DN, phân hệ, người dùng đầu tiên)
-3. **Trial:** 14 ngày dùng thử đầy đủ tính năng gói Business
-4. **Active:** Tenant đang hoạt động, trả phí
-5. **Suspended:** Tạm ngừng (quá hạn thanh toán, vi phạm điều khoản)
-6. **Terminated:** Xóa tenant (sau 30 ngày suspended, hoặc yêu cầu xóa tài khoản)
+2. **Kích hoạt email:** Hệ thống gửi email kích hoạt; doanh nghiệp chủ động kích hoạt tenant qua link bảo mật trong email
+3. **Onboarding:** Wizard thiết lập ban đầu (thông tin DN, phân hệ, người dùng đầu tiên)
+4. **Trial:** 14 ngày dùng thử đầy đủ tính năng gói Business
+5. **Active:** Tenant đang hoạt động, trả phí
+6. **Suspended:** Tạm ngừng (quá hạn thanh toán, vi phạm điều khoản)
+7. **Terminated:** Xóa tenant (sau 30 ngày suspended, hoặc yêu cầu xóa tài khoản)
 
 ---
 
@@ -251,14 +253,21 @@ SaaS Platform (Open ERP)
 - Onboarding wizard cho tenant mới
 - Tài liệu hướng dẫn sử dụng tích hợp
 
-### 7.6 Khả năng tích hợp (Interoperability)
+### 7.6 Chuẩn Frontend và Đa ngôn ngữ
+- **Web Angular dùng CSS:** Ứng dụng web Angular chuẩn hóa sử dụng CSS thay cho SCSS để đồng nhất quy ước styling và đơn giản hóa pipeline build.
+- **Thư viện UI dùng chung Web/Mobile:** Xây dựng thư viện giao diện dùng chung (shared UI library) cho Angular Web và Ionic Angular Mobile nhằm tái sử dụng component, token giao diện, và hành vi UI cốt lõi.
+- **Chuẩn i18n với Transloco:** Frontend sử dụng Transloco để quản lý đa ngôn ngữ; backend trả về `messageKey` và metadata (ví dụ: params, severity, domain) thay vì hardcode thông điệp hiển thị.
+- **Phân tách trách nhiệm hiển thị ngôn ngữ:** Frontend chịu trách nhiệm render nội dung theo locale hiện tại từ key + metadata nhận từ backend.
+- **Định hướng Screen Spec:** Đặc tả màn hình được tách theo từng màn hình với mã định danh riêng để tăng khả năng truy vết từ PRD → UX → phát triển → kiểm thử.
+
+### 7.7 Khả năng tích hợp (Interoperability)
 - REST API + WebSocket API
 - Webhook outbound cho sự kiện quan trọng
 - Import/Export: Excel, CSV, PDF
 - Tích hợp: ONLYOFFICE, Jitsi Meet, MISA, eTax, hóa đơn điện tử
 - API public cho bên thứ ba (v2 roadmap)
 
-### 7.7 Tuân thủ (Compliance)
+### 7.8 Tuân thủ (Compliance)
 - Tuân thủ Luật An toàn thông tin mạng Việt Nam
 - Tuân thủ quy định về hóa đơn điện tử (Nghị định 123/2020/NĐ-CP)
 - Tuân thủ quy định về bảo vệ dữ liệu cá nhân (Nghị định 13/2023/NĐ-CP)

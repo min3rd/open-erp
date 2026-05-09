@@ -1,8 +1,9 @@
 # SRS — Phân hệ System Administration
 # Quản trị Hệ thống SaaS & Quản trị Doanh nghiệp
 
-**Phiên bản:** 1.0  
+**Phiên bản:** 1.1  
 **Ngày tạo:** 09/05/2026  
+**Ngày cập nhật:** 09/05/2026  
 **Tác giả:** Business Analyst  
 **Sprint liên quan:** Sprint 01, Sprint 02  
 **Trạng thái:** Hoàn chỉnh  
@@ -44,7 +45,7 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 | **Employee** | Nhân viên thông thường | Quản lý profile cá nhân, đổi mật khẩu, xem quyền của mình |
 | **AI Agent** | Hệ thống AI | Đọc dữ liệu user/role để gợi ý; ghi audit log qua service |
 | **External System** | Hệ thống bên ngoài | Gọi API với API Key được cấp phép |
-| **Registrant (Đại diện DN đăng ký)** | Người đại diện doanh nghiệp thực hiện đăng ký tài khoản SaaS lần đầu, chưa có tài khoản trên hệ thống | Đăng ký tài khoản, xác thực MST qua API Cục Thuế, xác thực OTP 6 số, hoàn tất Onboarding Wizard |
+| **Registrant (Đại diện DN đăng ký)** | Người đại diện doanh nghiệp thực hiện đăng ký tài khoản SaaS lần đầu, chưa có tài khoản trên hệ thống | Đăng ký tài khoản, xác thực MST qua API Cục Thuế, kích hoạt email qua activation link, hoàn tất Onboarding Wizard |
 
 ### 1.3 Use Case tổng quan
 
@@ -58,7 +59,7 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 | **Xác thực** | Quên mật khẩu / đặt lại mật khẩu | Employee, Manager, Tenant Admin |
 | **Đăng ký DN** | Đăng ký tài khoản doanh nghiệp (tự phục vụ) | Registrant |
 | **Đăng ký DN** | Xác thực Mã số thuế qua Cục Thuế | Hệ thống (tự động sau bước đăng ký) |
-| **Đăng ký DN** | Xác thực OTP email | Registrant |
+| **Đăng ký DN** | Kích hoạt email qua activation link | Registrant |
 | **Đăng ký DN** | Hoàn tất Onboarding Wizard | Registrant, Tenant Admin |
 | **Đăng ký DN** | Phê duyệt / Từ chối đăng ký mới | Super Admin |
 | **Quản lý Tenant** | Tạo tenant thủ công (Enterprise/Sales) | Super Admin |
@@ -171,7 +172,7 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 
 #### 2.2.1 Đăng ký Doanh nghiệp (Self-Service Registration)
 
-> **Kiến trúc mới (v1.1):** Doanh nghiệp tự đăng ký qua `/register` mà không cần Super Admin tạo thủ công. Quy trình gồm 3 bước xác thực tuần tự: **xác thực MST → xác thực OTP email → tạo tenant tự động**. Super Admin chỉ can thiệp nếu platform bật chế độ Manual Review.
+> **Kiến trúc mới (v1.1):** Doanh nghiệp tự đăng ký qua `/register` mà không cần Super Admin tạo thủ công. Quy trình gồm 3 bước xác thực tuần tự: **xác thực MST → gửi email kích hoạt (activation link) → kích hoạt thành công và tạo tenant tự động**. Super Admin chỉ can thiệp nếu platform bật chế độ Manual Review.
 
 #### F-SA-010: Đăng ký Doanh nghiệp Tự phục vụ (Self-Service Registration)
 
@@ -199,17 +200,17 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 | **Business Rules** | MST không tìm thấy trong hệ thống Cục Thuế → từ chối và thông báo rõ ràng, gợi ý kiểm tra lại; DN có trạng thái ngừng hoạt động hoặc đã giải thể → từ chối và giải thích lý do cụ thể; email người dùng PHẢI khớp email đăng ký Cục Thuế (so sánh case-insensitive); áp dụng Adapter Pattern để có thể thay đổi provider linh hoạt mà không ảnh hưởng business logic; tương lai bổ sung xác thực qua số điện thoại Cục Thuế |
 | **Multi-tenancy** | Không yêu cầu tenantId |
 
-#### F-SA-012: Xác thực OTP email
+#### F-SA-012: Kích hoạt Email qua Activation Link
 
 | Thuộc tính | Nội dung |
 |---|---|
 | **ID** | F-SA-012 |
-| **Tên** | Xác thực OTP email |
+| **Tên** | Kích hoạt Email qua Activation Link |
 | **Actor** | Registrant (Đại diện DN đăng ký) |
-| **Mô tả** | Sau khi MST được xác thực thành công, hệ thống gửi mã OTP 6 số về email đã xác minh để Registrant xác nhận quyền sở hữu email |
-| **Input** | Email đã xác minh ở F-SA-011; `otpCode` (6 chữ số do Registrant nhập) |
-| **Output** | Trạng thái `emailVerified = true` trong bản ghi `tenant_registrations` |
-| **Business Rules** | OTP gồm 6 chữ số, không chứa ký tự đặc biệt, hết hạn sau 10 phút; nhập sai 5 lần liên tiếp → khóa 15 phút; Registrant được phép yêu cầu gửi lại tối đa 3 lần/phiên (chờ ít nhất 60 giây/lần); mỗi lần gửi lại → vô hiệu hóa OTP cũ ngay lập tức và tạo OTP mới |
+| **Mô tả** | Sau khi MST được xác thực thành công, hệ thống gửi activation email chứa liên kết một lần để Registrant xác nhận quyền sở hữu email |
+| **Input** | Email đã xác minh ở F-SA-011; `activationToken` trong liên kết; `redirectUrl` hợp lệ theo danh sách allowlist |
+| **Output** | Trạng thái `emailVerified = true`, `status = ACTIVATED` trong bản ghi `tenant_registrations` |
+| **Business Rules** | Activation link là one-time token, hết hạn sau 24 giờ; token chỉ dùng 1 lần; click lại link đã dùng trả về trạng thái `LINK_ALREADY_USED`; link hết hạn trả về `LINK_EXPIRED`; Registrant được yêu cầu gửi lại tối đa 3 lần/24 giờ, mỗi lần gửi lại vô hiệu hóa token cũ ngay lập tức |
 | **Multi-tenancy** | Không yêu cầu tenantId |
 
 #### F-SA-013: Tạo Tenant và Admin user tự động
@@ -219,8 +220,8 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 | **ID** | F-SA-013 |
 | **Tên** | Tạo Tenant và Admin user tự động |
 | **Actor** | Hệ thống (tự động sau khi F-SA-012 xác thực thành công) |
-| **Mô tả** | Sau khi xác thực MST và OTP email thành công, hệ thống tự động tạo tenant, Admin user đầu tiên, MinIO bucket và seed dữ liệu khởi tạo |
-| **Input** | Dữ liệu đã xác thực từ F-SA-010 (taxCode, email, passwordHash), F-SA-011 (taxInfo), F-SA-012 (emailVerified = true) |
+| **Mô tả** | Sau khi xác thực MST và kích hoạt email thành công, hệ thống tự động tạo tenant, Admin user đầu tiên, MinIO bucket và seed dữ liệu khởi tạo |
+| **Input** | Dữ liệu đã xác thực từ F-SA-010 (taxCode, email, passwordHash), F-SA-011 (taxInfo), F-SA-012 (`emailVerified = true`, `status = ACTIVATED`) |
 | **Output** | Tenant mới với trạng thái `TRIAL` hoặc `PENDING_VERIFICATION`; Admin user đầu tiên; MinIO bucket `tenant-{tenantId}/`; roles mặc định (TENANT_ADMIN, MANAGER, EMPLOYEE); danh mục seed |
 | **Business Rules** | Hai chế độ theo cấu hình platform: `REQUIRE_MANUAL_REVIEW = false` → tenant `TRIAL`; `REQUIRE_MANUAL_REVIEW = true` → tenant `PENDING_VERIFICATION`; subdomain tự động sinh từ MST hoặc tên doanh nghiệp (slugify, kiểm tra duy nhất toàn hệ thống); publish events: `tenant.registered`, `user.created`, `rbac.roles_seeded` |
 | **Multi-tenancy** | `tenantId` mới được tạo tại bước này |
@@ -499,15 +500,14 @@ flowchart TD
     E -->|DN ngừng hoạt động| ERR3[Từ chối\nGiải thích lý do cụ thể]
     E -->|Hợp lệ| F{Email người dùng\nkhớp email Cục Thuế?}
     F -->|Không khớp| ERR4[Thông báo không khớp\nChe khuất một phần email đúng]
-    F -->|Khớp| G[Gửi OTP 6 số về email\nHết hạn sau 10 phút]
-    G --> H[Registrant nhập OTP]
-    H --> I{OTP hợp lệ?}
-    I -->|Sai - hiển thị\nsố lần còn lại| ERR5{Đã sai 5 lần?}
-    ERR5 -->|Có| ERR6[Khóa 15 phút]
-    ERR5 -->|Chưa| H
-    I -->|Hết hạn| ERR7[Cho phép gửi lại OTP\nTối đa 3 lần/phiên]
-    ERR7 --> G
-    I -->|Đúng| J[Tạo Tenant + MinIO bucket\n+ Admin user + Seed roles/catalogs]
+    F -->|Khớp| G[Gửi activation email link\nOne-time link, hết hạn 24 giờ]
+    G --> H[Registrant bấm activation link]
+    H --> I{Activation link hợp lệ?}
+    I -->|Đã dùng| ERR5[Thông báo link đã được sử dụng\nYêu cầu gửi lại link mới]
+    I -->|Hết hạn| ERR6[Thông báo link hết hạn\nCho phép resend tối đa 3 lần/24 giờ]
+    ERR6 --> G
+    I -->|Token không hợp lệ| ERR7[Thông báo liên kết không hợp lệ]
+    I -->|Hợp lệ| J[Tạo Tenant + MinIO bucket\n+ Admin user + Seed roles/catalogs]
     J --> K[Publish: tenant.registered]
     K --> L{Chế độ Manual Review?}
     L -->|REQUIRE_MANUAL_REVIEW = true| M[Tenant PENDING_VERIFICATION\nChờ Super Admin phê duyệt]
@@ -526,8 +526,8 @@ flowchart TD
 
 1. Registrant truy cập `/register`, nhập MST + email + password
 2. Hệ thống gọi MSTAdapter tra cứu MST, so khớp email với thông tin Cục Thuế
-3. Gửi OTP 6 số về email, hết hạn 10 phút
-4. Registrant nhập OTP đúng
+3. Gửi activation email link một lần, hết hạn 24 giờ
+4. Registrant bấm activation link hợp lệ
 5. Hệ thống tạo tenant (`TRIAL` hoặc `PENDING_VERIFICATION`) + Admin user + MinIO bucket + seed roles/catalogs; Publish `tenant.registered`
 6. Tenant Admin vào Onboarding Wizard (5 bước, có thể skip bước 3–5) → TRIAL 14 ngày bắt đầu
 
@@ -539,8 +539,9 @@ flowchart TD
 | MST đã được đăng ký trên nền tảng | Báo trùng MST, cung cấp link đăng nhập cho tenant hiện có |
 | DN ngừng hoạt động hoặc đã giải thể | Từ chối, giải thích lý do cụ thể |
 | Email không khớp thông tin Cục Thuế | Thông báo không khớp, che khuất một phần email đúng để gợi ý (ví dụ: `n***@company.vn`) |
-| OTP nhập sai | Hiển thị số lần còn lại được nhập |
-| OTP hết hạn | Cho phép gửi lại OTP (tối đa 3 lần/phiên, chờ 60 giây/lần) |
+| Activation link đã dùng | Thông báo link đã dùng, cho phép gửi lại activation email |
+| Activation link hết hạn | Thông báo link hết hạn, cho phép gửi lại tối đa 3 lần/24 giờ |
+| Activation token không hợp lệ | Từ chối kích hoạt, ghi audit bảo mật và hướng dẫn yêu cầu link mới |
 | Rate limit đăng ký vượt quá | Thông báo thử lại sau 1 giờ |
 
 ---
@@ -651,7 +652,7 @@ flowchart TD
 | `phone` | string | Không | Số điện thoại doanh nghiệp |
 | `email` | string | Có | Email liên hệ chính |
 | `logo` | string | Không | URL logo (MinIO) |
-| `status` | string (enum) | Có | `PENDING_SETUP` \| `TRIAL` \| `ACTIVE` \| `SUSPENDED` \| `TERMINATED` |
+| `status` | string (enum) | Có | `PENDING_SETUP` \| `PENDING_ACTIVATION` \| `TRIAL` \| `ACTIVE` \| `SUSPENDED` \| `TERMINATED` |
 | `plan` | string (enum) | Có | `starter` \| `business` \| `enterprise` |
 | `trialEndsAt` | Date | Không | Ngày hết hạn dùng thử |
 | `settings` | object | Có | `{ timezone, language, currency, dateFormat, modules[] }` |
@@ -846,13 +847,14 @@ flowchart TD
 | `email` | string | Có | Email đăng ký (phải khớp email Cục Thuế) |
 | `passwordHash` | string | Có | bcrypt hash của mật khẩu đăng ký |
 | `taxVerified` | boolean | Có | MST đã xác thực qua Adapter (mặc định: false) |
-| `emailVerified` | boolean | Có | Email đã xác minh qua OTP (mặc định: false) |
+| `emailVerified` | boolean | Có | Email đã xác minh qua activation link (mặc định: false) |
 | `taxInfo` | object | Không | Dữ liệu từ MST lookup: `{ legalName, address, taxStatus, registrationDate }` |
-| `otpHash` | string | Không | SHA-256 hash của mã OTP hiện tại |
-| `otpExpiry` | Date | Không | Thời điểm hết hạn của OTP |
-| `otpAttempts` | number | Có | Số lần nhập OTP sai (mặc định: 0) |
-| `otpResendCount` | number | Có | Số lần gửi lại OTP trong phiên (mặc định: 0, tối đa: 3) |
-| `status` | string (enum) | Có | `PENDING_TAX` \| `PENDING_OTP` \| `PENDING_REVIEW` \| `APPROVED` \| `REJECTED` |
+| `activationTokenHash` | string | Không | SHA-256 hash của activation token hiện tại |
+| `activationTokenExpiresAt` | Date | Không | Thời điểm hết hạn activation link (mặc định 24 giờ) |
+| `activationSentAt` | Date | Không | Thời điểm gửi activation email gần nhất |
+| `activationResendCount` | number | Có | Số lần gửi lại activation email trong 24 giờ (mặc định: 0, tối đa: 3) |
+| `activatedAt` | Date | Không | Thời điểm bấm activation link thành công |
+| `status` | string (enum) | Có | `PENDING_TAX` \| `PENDING_ACTIVATION` \| `ACTIVATED` \| `PENDING_REVIEW` \| `APPROVED` \| `REJECTED` \| `ACTIVATION_EXPIRED` |
 | `rejectionReason` | string | Không | Lý do từ chối (khi status = REJECTED) |
 | `ipAddress` | string | Có | IP address của Registrant |
 | `expiresAt` | Date | Có | TTL 24 giờ — bản ghi tự động xóa sau 24 giờ |
@@ -880,8 +882,9 @@ flowchart TD
 | `phone` | Định dạng số điện thoại Việt Nam: `0[3|5|7|8|9]xxxxxxxx` | "Số điện thoại không hợp lệ" |
 | `fullName` | Độ dài 2–100 ký tự, không chứa ký tự đặc biệt nguy hiểm | "Họ tên không hợp lệ" |
 | `departmentCode` | `[A-Z0-9_-]`, độ dài 2–20 ký tự | "Mã phòng ban không hợp lệ" |
-| `otpCode` | Đúng 6 chữ số (`/^\d{6}$/`), không chứa ký tự đặc biệt | "Mã OTP không hợp lệ — phải là 6 chữ số" |
-| **Rate limit đăng ký** | Tối đa 5 lần đăng ký/IP/giờ; 3 lần gửi OTP/phiên đăng ký; chờ tối thiểu 60 giây giữa các lần gửi lại OTP | "Bạn đã gửi quá nhiều yêu cầu, vui lòng thử lại sau" |
+| `activationToken` | Bắt buộc là token sinh từ hệ thống, độ dài tối thiểu 32 ký tự, chỉ chấp nhận token chưa dùng và chưa hết hạn | "Liên kết kích hoạt không hợp lệ hoặc đã hết hạn" |
+| `redirectUrl` | Phải thuộc danh sách allowlist cấu hình trước | "Đường dẫn chuyển hướng sau kích hoạt không hợp lệ" |
+| **Rate limit đăng ký** | Tối đa 5 lần đăng ký/IP/giờ; 3 lần gửi lại activation email/24 giờ cho mỗi phiên đăng ký | "Bạn đã gửi quá nhiều yêu cầu, vui lòng thử lại sau" |
 
 ### 5.2 Business Rules chi tiết
 
@@ -902,6 +905,10 @@ flowchart TD
 | BR-SA-013 | Immutable audit log | Không có API UPDATE/DELETE cho audit log. Chỉ INSERT |
 | BR-SA-014 | Audit log retention | Lưu tối thiểu 2 năm. Xóa tự động sau 2 năm qua TTL index |
 | BR-SA-015 | Audit log completeness | Mọi thao tác CRUD phải có audit log. Thiếu log → coi là lỗi hệ thống |
+| BR-SA-016 | Activation link one-time | Mỗi activation token chỉ dùng đúng 1 lần; dùng lại trả về trạng thái `LINK_ALREADY_USED` |
+| BR-SA-017 | Activation link expiry | Activation link hết hạn sau 24 giờ kể từ `activationSentAt`; hết hạn chuyển `tenant_registrations.status = ACTIVATION_EXPIRED` |
+| BR-SA-018 | Activation resend control | Tối đa 3 lần gửi lại activation email trong 24 giờ; mỗi lần resend phải vô hiệu token trước đó |
+| BR-SA-019 | Activation gating | Chỉ cho phép tạo tenant sau khi `tenant_registrations.status = ACTIVATED`; mọi request tạo tenant trước đó phải bị từ chối |
 
 ### 5.3 Quy tắc Quota
 
@@ -942,7 +949,7 @@ flowchart TD
 ### 6.3 Tích hợp Dịch vụ Email
 
 - Provider: SendGrid / SMTP tùy chỉnh
-- Các email hệ thống: mời user, đặt lại mật khẩu, OTP, cảnh báo bảo mật, thông báo suspension
+- Các email hệ thống: mời user, đặt lại mật khẩu, activation email link đăng ký doanh nghiệp, cảnh báo bảo mật, thông báo suspension
 - Template được cấu hình theo `language` của tenant (tiếng Việt / tiếng Anh)
 
 ### 6.4 Xử lý lỗi tích hợp
@@ -952,3 +959,24 @@ flowchart TD
 | OAuth2 provider không phản hồi | Timeout 30 giây, trả về lỗi "Đăng nhập thất bại, thử lại sau" |
 | Email service không gửi được | Retry 3 lần cách nhau 5 phút; ghi lỗi vào log |
 | MinIO không tạo được bucket | Retry 3 lần, nếu thất bại → tenant ở trạng thái `PENDING_SETUP`, alert admin |
+
+### 6.5 Chuẩn i18n cho API Response
+
+- Backend không trả chuỗi thông điệp đã dịch cho frontend web/mobile.
+- Backend trả cấu trúc chuẩn: `messageKey` + `metadata`.
+- Frontend sử dụng Transloco để render thông điệp theo locale hiện tại (`vi`, `en`) từ dữ liệu backend trả về.
+
+**Ví dụ payload lỗi chuẩn:**
+
+```json
+{
+    "code": "ACTIVATION_LINK_EXPIRED",
+    "messageKey": "auth.activation.linkExpired",
+    "metadata": {
+        "severity": "warning",
+        "domain": "system-administration",
+        "canResend": true,
+        "remainingResend": 1
+    }
+}
+```

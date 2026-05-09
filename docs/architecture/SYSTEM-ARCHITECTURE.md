@@ -38,6 +38,13 @@ Open ERP được xây dựng theo kiến trúc **Microservices** với mô hìn
 | **Stateless Services** | Services không lưu session, dùng JWT + Redis |
 | **Fail-Safe** | Circuit breaker, retry, fallback cho tất cả inter-service calls |
 
+### 1.2 Định hướng frontend (Micro-frontend + Shared UI)
+
+- Angular Web tổ chức theo hướng micro-frontend trong shell app, ưu tiên tách domain theo route-level features.
+- Styling chuẩn hóa bằng CSS (không dùng SCSS cho web) để thống nhất giữa web và mobile, sử dụng design tokens qua CSS variables.
+- Xây dựng thư viện giao diện dùng chung cho web và mobile (`libs/ui-shared`) gồm component primitives, icon wrapper, theme tokens.
+- Đa ngôn ngữ trên frontend dùng Transloco; backend chỉ trả message key + metadata.
+
 ---
 
 ## 2. Sơ đồ kiến trúc hệ thống
@@ -250,8 +257,10 @@ Ví dụ tenant URL:
 |---|---|---|---|
 | **API Gateway** | NestJS | 11.x | TCP transport tới microservices |
 | **Microservices** | NestJS Microservices | 11.x | TypeScript, TCP/RabbitMQ transport |
-| **Web Frontend** | Angular | 21.x | Standalone components, Signals |
+| **Web Frontend** | Angular | 21.x | Standalone components, Signals, CSS-first styling |
 | **Mobile** | Ionic Angular + Capacitor | Ionic 8 / Capacitor 6 | Android & iOS |
+| **Frontend i18n** | Transloco | 8.x | Web + Mobile dùng chung message key |
+| **Shared UI Library** | Angular Library (workspace libs) | Theo Angular workspace | Component/tokens dùng chung web + mobile |
 | **Database** | MongoDB | 7.0 | Replica Set 3 nodes |
 | **ODM** | Mongoose | 8.x | TypeScript schemas |
 | **Message Broker** | RabbitMQ | 3.13 | AMQP 0-9-1, Management UI |
@@ -318,6 +327,8 @@ Events: notification.new, task.updated, order.status, dashboard.refresh
 | ADR-006 | Angular 21 Standalone + Signals | Modern Angular, không cần NgModule, reactive | React (đổi stack), Vue (không phù hợp Ionic) |
 | ADR-007 | Ionic Angular cho mobile | Code share với Angular web, Capacitor native APIs | React Native (đổi stack), Flutter (Dart) |
 | ADR-008 | Socket.IO qua api-gateway | Tập trung auth, room management; scale qua Redis adapter | Mỗi service có WebSocket riêng (phân tán, khó quản lý) |
+| ADR-009 | CSS-first cho Angular Web | Giảm độ phức tạp build pipeline, đồng nhất token hóa giao diện với mobile | SCSS (nhiều tầng compile, khó đồng bộ token runtime) |
+| ADR-010 | Transloco + message key contract | Tách bạch trách nhiệm dịch ngôn ngữ khỏi backend, hỗ trợ đa kênh frontend nhất quán | Backend trả message text theo locale (khó cache, khó mở rộng) |
 
 ---
 

@@ -28,15 +28,15 @@ src/app/
 │   ├── shell/
 │   │   ├── shell.component.ts           ← Layout wrapper (sidebar + header + content)
 │   │   ├── shell.component.html
-│   │   └── shell.component.scss
+│   │   └── shell.component.css
 │   ├── sidebar/
 │   │   ├── sidebar.component.ts         ← Navigation menu
 │   │   ├── sidebar.component.html
-│   │   └── sidebar.component.scss
+│   │   └── sidebar.component.css
 │   └── header/
 │       ├── header.component.ts          ← User avatar, tenant name, notifications
 │       ├── header.component.html
-│       └── header.component.scss
+│       └── header.component.css
 └── features/
     ├── dashboard/
     │   ├── dashboard.routes.ts
@@ -186,6 +186,7 @@ src/app/shared/
 - [ ] Preference giao diện được lưu bằng key `openErp.colorMode` trong localStorage
 - [ ] Khi khởi động app, mode đã lưu được áp dụng trước lần render đầu tiên để tránh flash/sai màu ban đầu
 - [ ] Toggle theme dùng lại component dùng chung (ví dụ `erp-theme-toggle` hoặc tương đương trong shared UI)
+- [ ] Toàn bộ text UI dùng Transloco key (không hardcode text trực tiếp)
 - [ ] Unit test coverage ≥ 80%
 - [ ] Có test (unit/integration hoặc e2e) xác nhận hiển thị và chuyển đổi đúng ở cả Light Mode và Dark Mode
 - [ ] Responsive trên tablet (768px) và desktop (1280px+)
@@ -201,3 +202,4 @@ src/app/shared/
 - Lazy loading: mỗi feature module lazy loaded để giảm initial bundle size.
 - `HasPermissionDirective` sử dụng `RBAC Service` qua `AuthService.hasPermission(resource, action)`.
 - Avatar upload: drag & drop file hoặc click-to-upload, preview trước khi submit.
+- Tất cả file style cho Angular Web dùng `.css`, không dùng `.scss`.

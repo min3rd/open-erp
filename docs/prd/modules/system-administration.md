@@ -1,8 +1,9 @@
 # PRD — Phân hệ System Administration
 # Quản trị Hệ thống SaaS & Quản trị Doanh nghiệp
 
-**Phiên bản:** 1.0  
+**Phiên bản:** 1.1  
 **Ngày tạo:** 09/05/2026  
+**Ngày cập nhật:** 09/05/2026  
 **Sprint liên quan:** Sprint 01, Sprint 02  
 **Trạng thái:** Đang soạn thảo  
 
@@ -29,6 +30,7 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 | Xác thực JWT + OAuth2 | Đăng nhập, đăng ký, refresh token, đăng xuất an toàn |
 | Quản lý Tenant | CRUD tenant, trạng thái, cấu hình, quota |
 | Quản lý Người dùng | CRUD user, gán vai trò, trạng thái tài khoản |
+| Kích hoạt doanh nghiệp qua email | Gửi mail kích hoạt và xác thực link kích hoạt tenant an toàn |
 | Quản lý Vai trò (RBAC) | Tạo/sửa/xóa role, gán quyền, phân role cho user |
 | Quản lý Phòng ban | Tạo cơ cấu tổ chức (org chart), chi nhánh, bộ phận |
 | Phân quyền chi tiết | Quyền chức năng, quyền dữ liệu, quyền theo phòng ban |
@@ -80,24 +82,21 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
         → Hệ thống tra cứu MST (Adapter: masothue.com / API Cục Thuế)
             → So khớp email với thông tin đăng ký Cục Thuế
                 → Gửi OTP 6 số về email xác minh (hết hạn 10 phút)
-                    → Nhập OTP đúng → Tạo tenant + Admin user + MinIO bucket
-                        → Onboarding Wizard (5 bước):
-                            1. Xác nhận thông tin DN
-                            2. Cấu hình múi giờ / ngôn ngữ / logo
-                            3. Tạo phòng ban sơ bộ (có thể skip)
-                            4. Mời nhân viên đầu tiên (có thể skip)
-                            5. Chọn phân hệ kích hoạt
-                        → TRIAL 14 ngày bắt đầu
+                    → Nhập OTP đúng → Tạo tenant + Admin user + MinIO bucket (trạng thái PENDING_ACTIVATION)
+                        → Gửi email kích hoạt chứa link one-time (hết hạn 24 giờ)
+                            → Đại diện DN mở email và click link kích hoạt
+                                → [REQUIRE_MANUAL_REVIEW = false] Tenant chuyển TRIAL + vào Onboarding Wizard (5 bước)
+                                → [REQUIRE_MANUAL_REVIEW = true] Tenant chuyển PENDING_VERIFICATION chờ Super Admin duyệt
 ```
 
 #### Luồng 2: Xét duyệt thủ công (Manual Review) — Khi REQUIRE_MANUAL_REVIEW = true
 
 ```
-Đại diện DN hoàn thành đăng ký và xác minh OTP
-    → Tenant được tạo với trạng thái PENDING_VERIFICATION
+Đại diện DN hoàn thành đăng ký, xác minh OTP và click link kích hoạt email
+    → Tenant chuyển PENDING_VERIFICATION
         → Super Admin nhận thông báo: có yêu cầu đăng ký mới
             → Super Admin xem xét thông tin DN + kết quả tra cứu MST
-                → [Duyệt] → Tenant chuyển sang TRIAL, gửi email chào mừng
+                → [Duyệt] → Tenant chuyển TRIAL + vào Onboarding Wizard (5 bước), gửi email chào mừng
                 → [Từ chối + lý do] → Gửi email thông báo từ chối với lý do rõ ràng
 ```
 
@@ -112,6 +111,9 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 | **BR-ON-005** | Doanh nghiệp ngừng hoạt động hoặc giải thể không được phép đăng ký |
 | **BR-ON-006** | Rate limit: tối đa 5 lần thử đăng ký từ cùng IP trong 1 giờ |
 | **BR-ON-007** | OTP hết hạn sau 10 phút; cho phép gửi lại tối đa 3 lần/phiên, mỗi lần cách nhau ít nhất 60 giây |
+| **BR-ON-008** | Sau khi OTP hợp lệ, hệ thống bắt buộc gửi email kích hoạt; tenant chỉ được kích hoạt khi người dùng click link trong email |
+| **BR-ON-009** | Link kích hoạt là one-time token, hết hạn sau 24 giờ; cho phép gửi lại tối đa 5 lần/ngày |
+| **BR-ON-010** | Nếu link kích hoạt hết hạn, tenant giữ trạng thái PENDING_ACTIVATION cho đến khi kích hoạt thành công hoặc quá TTL dọn dẹp |
 
 ### 3.2 Flow: Đăng nhập và Xác thực
 

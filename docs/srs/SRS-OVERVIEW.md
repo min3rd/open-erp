@@ -1,8 +1,9 @@
 # SRS-OVERVIEW — Đặc tả Yêu cầu Phần mềm Tổng quan
 # Open ERP — Nền tảng SaaS Quản trị và Vận hành Doanh nghiệp
 
-**Phiên bản:** 1.0  
+**Phiên bản:** 1.1  
 **Ngày tạo:** 09/05/2026  
+**Ngày cập nhật:** 09/05/2026  
 **Tác giả:** Business Analyst  
 **Trạng thái:** Hoàn chỉnh  
 
@@ -88,8 +89,9 @@ Hệ thống cung cấp **7 phân hệ** quản trị doanh nghiệp tích hợp
 | Thành phần | Công nghệ | Ghi chú |
 |---|---|---|
 | Backend | NestJS Microservices | Node.js, TypeScript |
-| Web Frontend | Angular 21+ | TypeScript, Angular Material / TailwindCSS |
+| Web Frontend | Angular 21+ | TypeScript, CSS (không sử dụng SCSS), Angular Material / TailwindCSS |
 | Mobile | Ionic Angular (Capacitor) | Android, iOS |
+| Shared UI Library | Angular library dùng chung Web/Mobile | Chứa design tokens, component dùng chung, guideline nhất quán UI/UX |
 | Database | MongoDB | Multi-tenant, mỗi document có `tenantId` |
 | Message Broker | RabbitMQ | Giao tiếp giữa microservices |
 | API Gateway | NestJS API Gateway | Rate limiting, auth middleware |
@@ -139,14 +141,22 @@ Open ERP sử dụng **Shared Database — Shared Schema** với cách ly logic:
 
 ```
 Trạng thái:
-  PENDING_SETUP → TRIAL → ACTIVE → SUSPENDED → TERMINATED
+  PENDING_SETUP → PENDING_ACTIVATION → TRIAL → ACTIVE → SUSPENDED → TERMINATED
 
 PENDING_SETUP : Tenant vừa được tạo, chưa hoàn thành onboarding
+PENDING_ACTIVATION : Đã gửi email kích hoạt, chờ người đăng ký bấm activation link
 TRIAL         : Đang dùng thử (mặc định 14 ngày)
 ACTIVE        : Đang sử dụng, đã thanh toán gói dịch vụ
 SUSPENDED     : Bị tạm ngưng (quá hạn thanh toán / vi phạm)
 TERMINATED    : Đã hủy hợp đồng, dữ liệu sẽ xóa sau 30 ngày
 ```
+
+**Quy tắc kích hoạt email (đăng ký doanh nghiệp):**
+
+- Sau khi đăng ký hợp lệ, hệ thống gửi activation email chứa liên kết một lần (one-time link).
+- Activation link có thời hạn hiệu lực tối đa 24 giờ; hết hạn thì chuyển trạng thái đăng ký sang `ACTIVATION_EXPIRED`.
+- Registrant có thể yêu cầu gửi lại link tối đa 3 lần trong 24 giờ; mỗi lần gửi lại sẽ vô hiệu hóa link cũ.
+- Chỉ sau khi link được bấm hợp lệ, tenant mới được chuyển sang `TRIAL` hoặc `PENDING_VERIFICATION` (nếu cần Manual Review).
 
 ### 5.3 Quy tắc Multi-Tenant bắt buộc
 
@@ -229,6 +239,16 @@ TERMINATED    : Đã hủy hợp đồng, dữ liệu sẽ xóa sau 30 ngày
 - Thời gian load trang đầu tiên: ≤ 3 giây (LCP)
 - Accessibility: tuân thủ WCAG 2.1 Level AA
 
+### 6.7 Frontend, Shared UI và Đa ngôn ngữ
+
+| Hạng mục | Yêu cầu |
+|---|---|
+| Chuẩn style Web Angular | Web bắt buộc dùng CSS; không dùng SCSS trong mã nguồn ứng dụng web |
+| Shared UI Library | Xây dựng thư viện giao diện dùng chung cho Angular Web và Ionic Angular Mobile, bao gồm token màu, spacing, typography và component tái sử dụng |
+| i18n Frontend | Frontend sử dụng Transloco làm chuẩn quản lý đa ngôn ngữ |
+| Contract thông điệp Backend | Backend chỉ trả `messageKey` + `metadata` (ví dụ: `params`, `severity`, `domain`, `traceId`) thay vì chuỗi thông điệp đã dịch |
+| Render theo locale | Frontend chịu trách nhiệm render thông điệp theo locale hiện tại dựa trên `messageKey` và `metadata` |
+
 ---
 
 ## 7. Ràng buộc kỹ thuật
@@ -245,6 +265,9 @@ TERMINATED    : Đã hủy hợp đồng, dữ liệu sẽ xóa sau 30 ngày
 | **C-008** | File lưu trữ dùng MinIO (S3-compatible), không dùng local filesystem |
 | **C-009** | Mỗi document MongoDB phải có `tenantId`, `createdAt`, `updatedAt` |
 | **C-010** | AI Agent không được tự động thực thi tác vụ tài chính không có xác nhận người dùng |
+| **C-011** | Angular Web chỉ dùng CSS; không dùng SCSS trong phạm vi ứng dụng web |
+| **C-012** | Frontend đa ngôn ngữ phải dùng Transloco; không hardcode thông điệp hiển thị trong component |
+| **C-013** | Backend không trả thông điệp đã dịch; chỉ trả `messageKey` và `metadata` cho frontend xử lý theo locale |
 
 ---
 

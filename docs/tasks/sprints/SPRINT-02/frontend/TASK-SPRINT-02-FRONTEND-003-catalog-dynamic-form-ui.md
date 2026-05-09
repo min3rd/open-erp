@@ -44,7 +44,7 @@ src/app/features/system-admin/
 │   ├── form-builder/
 │   │   ├── form-builder.component.ts         ← Drag & drop builder
 │   │   ├── form-builder.component.html
-│   │   ├── form-builder.component.scss
+│   │   ├── form-builder.component.css
 │   │   └── components/
 │   │       ├── field-palette/                ← Field types panel (left)
 │   │       ├── form-canvas/                  ← Drop zone (center)
@@ -199,6 +199,7 @@ Kinh doanh
 - [ ] Preference giao diện được lưu bằng key `openErp.colorMode` trong localStorage
 - [ ] Khi khởi động app, mode đã lưu được áp dụng trước lần render đầu tiên để tránh flash/sai màu ban đầu
 - [ ] Toggle theme dùng lại component dùng chung (ví dụ `erp-theme-toggle` hoặc tương đương trong shared UI)
+- [ ] Toàn bộ text UI dùng Transloco key (không hardcode text trực tiếp)
 - [ ] Unit test coverage ≥ 80%
 - [ ] Có test (unit/integration hoặc e2e) xác nhận hiển thị và chuyển đổi đúng ở cả Light Mode và Dark Mode
 
@@ -211,3 +212,4 @@ Kinh doanh
 - Color picker: Angular Material không có sẵn → dùng `@angular-material-components/color-picker` hoặc custom.
 - Formly (`@ngx-formly`) là lựa chọn tốt cho dynamic form rendering — cân nhắc dùng.
 - Auto-save draft sau 30 giây khi Form Builder có thay đổi (debounce).
+- Tất cả file style cho Angular Web dùng `.css`, không dùng `.scss`.
