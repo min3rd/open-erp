@@ -1,7 +1,8 @@
 ﻿# SaaS Multi-Tenancy Design — Open ERP
 
-**Phiên bản:** 1.0  
+**Phiên bản:** 1.1  
 **Ngày tạo:** 09/05/2026  
+**Ngày cập nhật:** 09/05/2026  
 **Tác giả:** Technical Leader  
 **Trạng thái:** Hoàn chỉnh  
 
@@ -187,45 +188,87 @@ export class TenantGuard implements CanActivate {
 
 ## 5. Tenant Onboarding Flow
 
-### 5.1 Các bước Onboarding
+### 5.1 Mô tả tổng quát
+
+Kể từ phiên bản 1.1, Tenant **không còn được tạo thủ công bởi Super Admin**. Doanh nghiệp tự đăng ký và được xác thực danh tính qua **Mã số thuế (MST)** và **email đã đăng ký với Cục Thuế**.
+
+> **Ghi chú — MST Verification Adapter:** Việc tra cứu và xác thực MST sử dụng **Adapter Pattern**, cho phép dễ dàng chuyển đổi giữa các nguồn dữ liệu. Adapter mặc định tích hợp với **masothue.com** hoặc **API tra cứu chính thức của Cục Thuế**. Trong tương lai, sẽ bổ sung phương thức xác thực bổ sung qua **số điện thoại đã đăng ký tại Cục Thuế**.
+
+### 5.2 Các bước Onboarding
 
 ```
-Bước 1: Super Admin tạo tenant mới
-  POST /api/v1/tenants
-  → Tạo record trong platform_tenants (status: PENDING_SETUP)
-  → Tạo MinIO bucket: tenant-{tenantId}
-  → Gửi email mời Admin đầu tiên
+Bước 1: Doanh nghiệp truy cập /register
+  → Nhập: Mã số thuế (MST) + Email đăng ký + Mật khẩu
+  → Hệ thống kiểm tra MST chưa được đăng ký trên nền tảng
 
-Bước 2: Tenant Admin nhận email, đặt mật khẩu
-  POST /api/v1/auth/reset-password
-  → Cập nhật password, kích hoạt user
-  → Chuyển trạng thái tenant sang TRIAL
+Bước 2: Hệ thống tra cứu và xác minh MST
+  → Gọi MSTVerificationAdapter (masothue.com hoặc API Cục Thuế)
+  → Lấy thông tin doanh nghiệp: tên, địa chỉ, trạng thái hoạt động
+  → So khớp email người dùng nhập với email đã đăng ký tại Cục Thuế
+  → Nếu không khớp: trả lỗi "Email không khớp với thông tin đăng ký Cục Thuế"
 
-Bước 3: Onboarding wizard (frontend)
-  a. Điền thông tin doanh nghiệp (tên, địa chỉ, ngành)
+Bước 3: Gửi OTP xác minh email
+  → Tạo mã OTP 6 số, thời hạn 10 phút
+  → Gửi OTP về email đã nhập
+  → Người dùng nhập OTP để xác minh danh tính
+  → Cho phép gửi lại OTP sau 60 giây (tối đa 3 lần/phiên)
+
+Bước 4: Tạo tenant và khởi tạo tài nguyên
+  → Tạo record trong platform_tenants:
+     - Nếu config REQUIRE_MANUAL_REVIEW = true  → status: PENDING_VERIFICATION
+     - Nếu config REQUIRE_MANUAL_REVIEW = false → status: TRIAL
+  → Tạo MinIO bucket: tenant-{tenantId}/
+  → Tạo Admin user đầu tiên (email đăng ký = tài khoản Admin)
+  → Publish event: tenant.registered
+     (user-service, catalog-service, rbac-service lắng nghe để khởi tạo tài nguyên)
+
+Bước 5: Onboarding wizard (frontend)
+  a. Xác nhận và bổ sung thông tin doanh nghiệp (đã điền sẵn từ kết quả tra cứu MST)
   b. Cấu hình đơn vị tiền tệ, múi giờ, ngôn ngữ
   c. Tạo cơ cấu phòng ban ban đầu
   d. Mời nhân viên (import Excel hoặc thêm thủ công)
   e. Chọn các phân hệ cần kích hoạt
 
-Bước 4: Hoàn tất onboarding
-  PATCH /api/v1/tenants/:id/complete-onboarding
-  → Tenant chính thức ở trạng thái TRIAL (14 ngày)
-  → Event: tenant.onboarded → các service khởi tạo dữ liệu mẫu
-
-Bước 5: Nâng cấp gói / Thanh toán
-  → TRIAL → ACTIVE khi tenant chọn gói và thanh toán
-  → Cập nhật subscription, quota
+Bước 6: Bắt đầu giai đoạn TRIAL 14 ngày
+  → Tenant chuyển sang trạng thái TRIAL
+  → Quota áp dụng theo Free tier trong toàn bộ giai đoạn TRIAL
+  → Event: tenant.onboarded → notification-service gửi email chào mừng
+  → Sau 14 ngày nếu chưa nâng cấp: tự động chuyển sang SUSPENDED
 ```
 
-### 5.2 Event Sequence Onboarding
+### 5.3 Flow Diagram
+
+```mermaid
+flowchart TD
+    A[DN truy cập /register] --> B[Nhập MST + Email + Mật khẩu]
+    B --> C{MST đã đăng ký<br/>trên nền tảng?}
+    C -->|Có| ERR1[Lỗi: MST đã tồn tại]
+    C -->|Chưa| D[Tra cứu MST qua MSTVerificationAdapter]
+    D --> E{MST hợp lệ và<br/>đang hoạt động?}
+    E -->|Không| ERR2[Lỗi: MST không tồn tại<br/>hoặc không hoạt động]
+    E -->|Hợp lệ| F{Email khớp<br/>thông tin Cục Thuế?}
+    F -->|Không khớp| ERR3[Lỗi: Email không khớp<br/>thông tin đăng ký Cục Thuế]
+    F -->|Khớp| G[Gửi OTP 6 số về email<br/>Hết hạn sau 10 phút]
+    G --> H{OTP hợp lệ?}
+    H -->|Sai hoặc hết hạn| ERR4[Lỗi: OTP không hợp lệ<br/>hoặc đã hết hạn]
+    H -->|Đúng| I[Tạo tenant + MinIO bucket + Admin user]
+    I --> J[Publish: tenant.registered]
+    J --> K[Onboarding Wizard - Bước 5]
+    K --> L[TRIAL 14 ngày bắt đầu]
+    L --> M{Thanh toán trước<br/>khi hết hạn?}
+    M -->|Có| N[ACTIVE]
+    M -->|Hết hạn| O[SUSPENDED]
+```
+
+### 5.4 Event Sequence
 
 ```
-tenant-service  →→ [tenant.created]   →→ user-service (tạo admin user)
-                →→ [tenant.created]   →→ catalog-service (seed danh mục mặc định)
-                →→ [tenant.created]   →→ rbac-service (tạo role mặc định: Admin, User)
-                →→ [tenant.onboarded] →→ notification-service (gửi email chào mừng)
-                →→ [tenant.onboarded] →→ audit-service (ghi log)
+[Bước 4] tenant-service  →→ [tenant.registered] →→ user-service      (tạo Admin user đầu tiên)
+                         →→ [tenant.registered] →→ catalog-service   (seed danh mục mặc định)
+                         →→ [tenant.registered] →→ rbac-service      (tạo role mặc định: Admin, User)
+
+[Bước 6] tenant-service  →→ [tenant.onboarded]  →→ notification-service (gửi email chào mừng)
+                         →→ [tenant.onboarded]  →→ audit-service         (ghi log sự kiện)
 ```
 
 ---
@@ -308,11 +351,16 @@ export class TenantQuotaGuard implements CanActivate {
 ### 8.1 Vòng đời trạng thái
 
 ```
-                    ┌────────────────┐
-                    │ PENDING_SETUP  │ ← Mới được tạo bởi Super Admin
-                    └───────┬────────┘
-                            │ Hoàn tất onboarding wizard
-                            ▼
+     [Luồng mới — Tự đăng ký]            [Luồng cũ — Deprecated]
+     ┌──────────────────────────┐         ┌────────────────┐
+     │   PENDING_VERIFICATION   │         │ PENDING_SETUP  │
+     │ ← DN tự đăng ký, OTP đã  │         │ ← Tạo thủ công │
+     │   xác minh, chờ onboard  │         │   bởi Super    │
+     └────────────┬─────────────┘         │   Admin        │
+                  │                       └───────┬────────┘
+                  └──────────────┬────────────────┘
+                                 │ Hoàn tất onboarding wizard
+                                 ▼
                     ┌───────────────┐
                     │    TRIAL      │ ← Dùng thử 14 ngày
                     └───────┬───────┘
@@ -334,7 +382,8 @@ export class TenantQuotaGuard implements CanActivate {
 
 | Trạng thái | Đọc data | Ghi data | Đăng nhập | API |
 |---|---|---|---|---|
-| PENDING_SETUP | ✗ | ✗ | ✓ (onboarding only) | Chỉ onboarding |
+| PENDING_VERIFICATION | ✗ | ✗ | ✓ (onboarding only) | Chỉ onboarding |
+| PENDING_SETUP *(Deprecated)* | ✗ | ✗ | ✓ (onboarding only) | Chỉ onboarding |
 | TRIAL | ✓ | ✓ | ✓ | ✓ (giới hạn Free tier) |
 | ACTIVE | ✓ | ✓ | ✓ | ✓ (theo gói) |
 | SUSPENDED | ✓ (read-only) | ✗ | ✓ | GET only |

@@ -248,10 +248,10 @@ Ví dụ tenant URL:
 
 | Lớp | Công nghệ | Phiên bản | Ghi chú |
 |---|---|---|---|
-| **API Gateway** | NestJS | 10.x | TCP transport tới microservices |
-| **Microservices** | NestJS Microservices | 10.x | TypeScript, TCP/RabbitMQ transport |
-| **Web Frontend** | Angular | 18.x | Standalone components, Signals |
-| **Mobile** | Ionic Angular + Capacitor | Ionic 7 / Cap 5 | Android & iOS |
+| **API Gateway** | NestJS | 11.x | TCP transport tới microservices |
+| **Microservices** | NestJS Microservices | 11.x | TypeScript, TCP/RabbitMQ transport |
+| **Web Frontend** | Angular | 21.x | Standalone components, Signals |
+| **Mobile** | Ionic Angular + Capacitor | Ionic 8 / Capacitor 6 | Android & iOS |
 | **Database** | MongoDB | 7.0 | Replica Set 3 nodes |
 | **ODM** | Mongoose | 8.x | TypeScript schemas |
 | **Message Broker** | RabbitMQ | 3.13 | AMQP 0-9-1, Management UI |
@@ -315,7 +315,7 @@ Events: notification.new, task.updated, order.status, dashboard.refresh
 | ADR-003 | RabbitMQ cho async messaging | Hỗ trợ ACK/NACK, dead letter queue, durable | Kafka (overkill cho giai đoạn này), Redis Pub/Sub (no ACK) |
 | ADR-004 | JWT RS256 + Refresh Token Rotation | Bất đối xứng, không cần secret chia sẻ giữa services | HS256 (cần chia secret), Opaque token (cần introspection call) |
 | ADR-005 | MinIO thay vì AWS S3 | Self-hosted, S3-compatible API, không vendor lock-in | AWS S3 (cloud cost), Azure Blob (lock-in) |
-| ADR-006 | Angular 18 Standalone + Signals | Modern Angular, không cần NgModule, reactive | React (đổi stack), Vue (không phù hợp Ionic) |
+| ADR-006 | Angular 21 Standalone + Signals | Modern Angular, không cần NgModule, reactive | React (đổi stack), Vue (không phù hợp Ionic) |
 | ADR-007 | Ionic Angular cho mobile | Code share với Angular web, Capacitor native APIs | React Native (đổi stack), Flutter (Dart) |
 | ADR-008 | Socket.IO qua api-gateway | Tập trung auth, room management; scale qua Redis adapter | Mỗi service có WebSocket riêng (phân tán, khó quản lý) |
 

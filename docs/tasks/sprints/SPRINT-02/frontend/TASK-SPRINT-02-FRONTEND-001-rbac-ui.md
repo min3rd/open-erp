@@ -184,7 +184,13 @@ export class AppCanDirective {
 - [ ] Permission preview: simulate user đúng (dùng user khác để test)
 - [ ] `*appCan` directive: ẩn button "Tạo đơn hàng" với user không có quyền
 - [ ] CASL reload khi user permissions thay đổi
+- [ ] Giao diện RBAC hỗ trợ đầy đủ Light Mode và Dark Mode theo Design System tokens
+- [ ] Dark mode tự áp dụng theo `prefers-color-scheme` và cho phép chuyển thủ công bằng toggle theme
+- [ ] Preference giao diện được lưu bằng key `openErp.colorMode` trong localStorage
+- [ ] Khi khởi động app, mode đã lưu được áp dụng trước lần render đầu tiên để tránh flash/sai màu ban đầu
+- [ ] Toggle theme dùng lại component dùng chung (ví dụ `erp-theme-toggle` hoặc tương đương trong shared UI)
 - [ ] Unit test coverage ≥ 80%
+- [ ] Có test (unit/integration hoặc e2e) xác nhận hiển thị và chuyển đổi đúng ở cả Light Mode và Dark Mode
 - [ ] Responsive trên desktop (1280px+)
 
 ## Ghi chú kỹ thuật

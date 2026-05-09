@@ -37,7 +37,17 @@ Triển khai hệ thống quản lý gói đăng ký (subscription) và quota ch
 export class QuotaMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     const { tenantId } = req;
-    
+
+    // Chặn hoàn toàn nếu tenant chưa xác thực (PENDING_VERIFICATION)
+    const status = await this.getTenantStatus(tenantId);
+    if (status === 'PENDING_VERIFICATION') {
+      // Chỉ cho phép truy cập các endpoint onboarding/register
+      if (!req.path.startsWith('/api/v1/onboarding') && !req.path.startsWith('/api/v1/register')) {
+        throw new ForbiddenException('Tài khoản đang chờ phê duyệt. Vui lòng liên hệ quản trị viên.');
+      }
+      return next();
+    }
+
     // Kiểm tra API calls quota
     const apiCalls = await this.redisService.incr(`quota:api:${tenantId}`, 86400); // TTL 24h
     const quota = await this.getQuota(tenantId);

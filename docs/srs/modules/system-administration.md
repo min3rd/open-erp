@@ -44,6 +44,7 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 | **Employee** | Nhân viên thông thường | Quản lý profile cá nhân, đổi mật khẩu, xem quyền của mình |
 | **AI Agent** | Hệ thống AI | Đọc dữ liệu user/role để gợi ý; ghi audit log qua service |
 | **External System** | Hệ thống bên ngoài | Gọi API với API Key được cấp phép |
+| **Registrant (Đại diện DN đăng ký)** | Người đại diện doanh nghiệp thực hiện đăng ký tài khoản SaaS lần đầu, chưa có tài khoản trên hệ thống | Đăng ký tài khoản, xác thực MST qua API Cục Thuế, xác thực OTP 6 số, hoàn tất Onboarding Wizard |
 
 ### 1.3 Use Case tổng quan
 
@@ -55,7 +56,12 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 | **Xác thực** | Làm mới access token (refresh token) | Tất cả user đã đăng nhập |
 | **Xác thực** | Đăng xuất đơn thiết bị / tất cả thiết bị | Tất cả user đã đăng nhập |
 | **Xác thực** | Quên mật khẩu / đặt lại mật khẩu | Employee, Manager, Tenant Admin |
-| **Quản lý Tenant** | Tạo tenant mới | Super Admin |
+| **Đăng ký DN** | Đăng ký tài khoản doanh nghiệp (tự phục vụ) | Registrant |
+| **Đăng ký DN** | Xác thực Mã số thuế qua Cục Thuế | Hệ thống (tự động sau bước đăng ký) |
+| **Đăng ký DN** | Xác thực OTP email | Registrant |
+| **Đăng ký DN** | Hoàn tất Onboarding Wizard | Registrant, Tenant Admin |
+| **Đăng ký DN** | Phê duyệt / Từ chối đăng ký mới | Super Admin |
+| **Quản lý Tenant** | Tạo tenant thủ công (Enterprise/Sales) | Super Admin |
 | **Quản lý Tenant** | Cập nhật thông tin tenant | Super Admin, Tenant Admin |
 | **Quản lý Tenant** | Kích hoạt / tạm ngưng / hủy tenant | Super Admin |
 | **Quản lý Tenant** | Xem thống kê sử dụng quota | Super Admin, Tenant Admin |
@@ -163,23 +169,110 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 
 ### 2.2 Nhóm: Quản lý Tenant
 
-#### F-SA-010: Tạo Tenant mới
+#### 2.2.1 Đăng ký Doanh nghiệp (Self-Service Registration)
+
+> **Kiến trúc mới (v1.1):** Doanh nghiệp tự đăng ký qua `/register` mà không cần Super Admin tạo thủ công. Quy trình gồm 3 bước xác thực tuần tự: **xác thực MST → xác thực OTP email → tạo tenant tự động**. Super Admin chỉ can thiệp nếu platform bật chế độ Manual Review.
+
+#### F-SA-010: Đăng ký Doanh nghiệp Tự phục vụ (Self-Service Registration)
 
 | Thuộc tính | Nội dung |
 |---|---|
 | **ID** | F-SA-010 |
-| **Tên** | Tạo tenant mới |
-| **Mô tả** | Super Admin tạo tài khoản doanh nghiệp mới trên nền tảng |
-| **Input** | `companyName`, `subdomain`, `adminEmail`, `plan` (starter/business/enterprise), `trialDays` |
-| **Output** | Tenant được tạo với trạng thái `PENDING_SETUP`, email mời Tenant Admin được gửi |
-| **Business Rules** | `subdomain` phải duy nhất trong toàn hệ thống; chỉ cho phép chữ thường, số và dấu gạch ngang; 3–30 ký tự |
-| **Multi-tenancy** | Tạo `tenantId` mới (UUID hoặc ObjectId). Tạo cấu hình mặc định. Tạo MinIO bucket `tenant-{tenantId}` |
+| **Tên** | Đăng ký Doanh nghiệp Tự phục vụ (Self-Service Registration) |
+| **Actor** | Registrant (Đại diện DN đăng ký) |
+| **Mô tả** | Đại diện doanh nghiệp tự đăng ký tài khoản SaaS mà không cần Super Admin can thiệp. Nhập MST, email đã đăng ký tại Cục Thuế và mật khẩu để bắt đầu quy trình xác thực |
+| **Input** | `taxCode` (MST 10 hoặc 13 chữ số), `email` (email đã đăng ký tại Cục Thuế), `password`, `phone` (tùy chọn) |
+| **Output** | Bản ghi `tenant_registrations` được tạo với trạng thái `PENDING_TAX`; khởi động quy trình xác thực MST tự động |
+| **Business Rules** | MST phải là 10 hoặc 13 chữ số; MST không được trùng với tenant đang hoạt động trên nền tảng; rate limit 5 lần đăng ký/IP/giờ; password tối thiểu 8 ký tự bao gồm chữ hoa, chữ thường và chữ số |
+| **Multi-tenancy** | Chưa có tenantId ở bước này — tạo bản ghi tạm trong `tenant_registrations` |
 
-#### F-SA-011: Cập nhật thông tin Tenant
+#### F-SA-011: Xác thực Mã số thuế (MST Verification)
 
 | Thuộc tính | Nội dung |
 |---|---|
 | **ID** | F-SA-011 |
+| **Tên** | Xác thực Mã số thuế (MST Verification) |
+| **Actor** | Hệ thống (tự động sau F-SA-010) |
+| **Mô tả** | Tra cứu thông tin doanh nghiệp theo MST qua MSTVerificationAdapter (masothue.com hoặc API Cục Thuế chính thức), sau đó so khớp email người dùng nhập với email đã đăng ký tại Cục Thuế |
+| **Input** | `taxCode` từ bước F-SA-010 |
+| **Output** | Thông tin doanh nghiệp: `legalName` (tên pháp lý), `address` (địa chỉ), `taxStatus` (trạng thái hoạt động), `registrationEmail`, `registrationPhone` |
+| **Business Rules** | MST không tìm thấy trong hệ thống Cục Thuế → từ chối và thông báo rõ ràng, gợi ý kiểm tra lại; DN có trạng thái ngừng hoạt động hoặc đã giải thể → từ chối và giải thích lý do cụ thể; email người dùng PHẢI khớp email đăng ký Cục Thuế (so sánh case-insensitive); áp dụng Adapter Pattern để có thể thay đổi provider linh hoạt mà không ảnh hưởng business logic; tương lai bổ sung xác thực qua số điện thoại Cục Thuế |
+| **Multi-tenancy** | Không yêu cầu tenantId |
+
+#### F-SA-012: Xác thực OTP email
+
+| Thuộc tính | Nội dung |
+|---|---|
+| **ID** | F-SA-012 |
+| **Tên** | Xác thực OTP email |
+| **Actor** | Registrant (Đại diện DN đăng ký) |
+| **Mô tả** | Sau khi MST được xác thực thành công, hệ thống gửi mã OTP 6 số về email đã xác minh để Registrant xác nhận quyền sở hữu email |
+| **Input** | Email đã xác minh ở F-SA-011; `otpCode` (6 chữ số do Registrant nhập) |
+| **Output** | Trạng thái `emailVerified = true` trong bản ghi `tenant_registrations` |
+| **Business Rules** | OTP gồm 6 chữ số, không chứa ký tự đặc biệt, hết hạn sau 10 phút; nhập sai 5 lần liên tiếp → khóa 15 phút; Registrant được phép yêu cầu gửi lại tối đa 3 lần/phiên (chờ ít nhất 60 giây/lần); mỗi lần gửi lại → vô hiệu hóa OTP cũ ngay lập tức và tạo OTP mới |
+| **Multi-tenancy** | Không yêu cầu tenantId |
+
+#### F-SA-013: Tạo Tenant và Admin user tự động
+
+| Thuộc tính | Nội dung |
+|---|---|
+| **ID** | F-SA-013 |
+| **Tên** | Tạo Tenant và Admin user tự động |
+| **Actor** | Hệ thống (tự động sau khi F-SA-012 xác thực thành công) |
+| **Mô tả** | Sau khi xác thực MST và OTP email thành công, hệ thống tự động tạo tenant, Admin user đầu tiên, MinIO bucket và seed dữ liệu khởi tạo |
+| **Input** | Dữ liệu đã xác thực từ F-SA-010 (taxCode, email, passwordHash), F-SA-011 (taxInfo), F-SA-012 (emailVerified = true) |
+| **Output** | Tenant mới với trạng thái `TRIAL` hoặc `PENDING_VERIFICATION`; Admin user đầu tiên; MinIO bucket `tenant-{tenantId}/`; roles mặc định (TENANT_ADMIN, MANAGER, EMPLOYEE); danh mục seed |
+| **Business Rules** | Hai chế độ theo cấu hình platform: `REQUIRE_MANUAL_REVIEW = false` → tenant `TRIAL`; `REQUIRE_MANUAL_REVIEW = true` → tenant `PENDING_VERIFICATION`; subdomain tự động sinh từ MST hoặc tên doanh nghiệp (slugify, kiểm tra duy nhất toàn hệ thống); publish events: `tenant.registered`, `user.created`, `rbac.roles_seeded` |
+| **Multi-tenancy** | `tenantId` mới được tạo tại bước này |
+
+#### F-SA-014: Onboarding Wizard (Tự phục vụ)
+
+| Thuộc tính | Nội dung |
+|---|---|
+| **ID** | F-SA-014 |
+| **Tên** | Onboarding Wizard (Tự phục vụ) |
+| **Actor** | Tenant Admin (Registrant sau khi đăng ký thành công) |
+| **Mô tả** | Hướng dẫn Tenant Admin thiết lập hệ thống lần đầu sau khi đăng ký tự phục vụ, gồm 5 bước tuần tự |
+| **Input** | Bước 1: xác nhận/bổ sung thông tin DN từ MST lookup; Bước 2: múi giờ `Asia/Ho_Chi_Minh`, ngôn ngữ `vi-VN`, tiền tệ `VND`, logo; Bước 3: tạo phòng ban sơ bộ (có thể skip); Bước 4: mời nhân viên đầu tiên qua email (có thể skip); Bước 5: chọn phân hệ kích hoạt theo gói subscription (có thể skip) |
+| **Output** | Cấu hình tenant được lưu; TRIAL 14 ngày bắt đầu; event `tenant.onboarded` được publish |
+| **Business Rules** | Wizard hiển thị 1 lần duy nhất sau khi đăng ký thành công; Tenant Admin có thể bỏ qua bước 3, 4, 5 và quay lại hoàn thành sau; tiến trình wizard được lưu và khôi phục khi quay lại; chỉ hiển thị phân hệ phù hợp với gói subscription đã đăng ký |
+| **Multi-tenancy** | Áp dụng riêng cho từng tenant mới |
+
+#### F-SA-015: Super Admin phê duyệt đăng ký (Manual Review Mode)
+
+| Thuộc tính | Nội dung |
+|---|---|
+| **ID** | F-SA-015 |
+| **Tên** | Super Admin phê duyệt đăng ký (Manual Review Mode) |
+| **Actor** | Super Admin |
+| **Mô tả** | Khi platform cấu hình ở chế độ Manual Review (`REQUIRE_MANUAL_REVIEW = true`), Super Admin xem xét và phê duyệt hoặc từ chối các đăng ký mới trước khi tenant được kích hoạt |
+| **Input** | Danh sách tenant với trạng thái `PENDING_VERIFICATION`; `tenantId`, `decision` (APPROVE/REJECT), `rejectionReason` (bắt buộc khi từ chối) |
+| **Output** | APPROVE → tenant `TRIAL`, publish `tenant.activated`, gửi email chào mừng; REJECT → tenant `REJECTED`, gửi email thông báo kèm lý do cụ thể |
+| **Business Rules** | Bắt buộc nhập lý do khi từ chối; email thông báo từ chối phải kèm lý do để Registrant hiểu và có thể bổ sung thông tin; khi phê duyệt → publish `tenant.activated` để notification-service gửi email chào mừng |
+| **Multi-tenancy** | Chỉ Super Admin được thực hiện; không bị ràng buộc tenantId cụ thể |
+
+---
+
+#### 2.2.2 Quản lý Tenant (Thủ công và Vận hành)
+
+#### F-SA-016: Tạo Tenant thủ công (Super Admin)
+
+| Thuộc tính | Nội dung |
+|---|---|
+| **ID** | F-SA-016 |
+| **Tên** | Tạo tenant thủ công bởi Super Admin |
+| **Actor** | Super Admin |
+| **Mô tả** | Super Admin tạo tài khoản doanh nghiệp mới trực tiếp, dùng cho trường hợp đặc biệt như khách hàng Enterprise, onboarding qua sales team hoặc migration từ hệ thống cũ |
+| **Input** | `companyName`, `subdomain`, `adminEmail`, `plan` (starter/business/enterprise), `trialDays` |
+| **Output** | Tenant được tạo với trạng thái `PENDING_SETUP`, email mời Tenant Admin được gửi |
+| **Business Rules** | `subdomain` phải duy nhất trong toàn hệ thống; chỉ cho phép chữ thường, số và dấu gạch ngang; độ dài 3–30 ký tự |
+| **Multi-tenancy** | Tạo `tenantId` mới (ObjectId). Tạo cấu hình mặc định. Tạo MinIO bucket `tenant-{tenantId}` |
+
+#### F-SA-017: Cập nhật thông tin Tenant
+
+| Thuộc tính | Nội dung |
+|---|---|
+| **ID** | F-SA-017 |
 | **Tên** | Cập nhật thông tin doanh nghiệp |
 | **Mô tả** | Tenant Admin cập nhật thông tin công ty: tên, địa chỉ, MST, logo, múi giờ, ngôn ngữ, các module được kích hoạt |
 | **Input** | Các trường thông tin công ty (xem Data Model) |
@@ -187,11 +280,11 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 | **Business Rules** | MST phải đúng định dạng Việt Nam (10 hoặc 13 chữ số). Thay đổi `subdomain` không được phép sau khi kích hoạt |
 | **Multi-tenancy** | Tenant Admin chỉ cập nhật được tenant của chính mình |
 
-#### F-SA-012: Quản lý trạng thái Tenant
+#### F-SA-018: Quản lý trạng thái Tenant
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **ID** | F-SA-012 |
+| **ID** | F-SA-018 |
 | **Tên** | Kích hoạt / Tạm ngưng / Hủy tenant |
 | **Mô tả** | Super Admin thay đổi trạng thái vận hành của tenant |
 | **Input** | `tenantId`, `newStatus` (ACTIVE/SUSPENDED/TERMINATED), `reason` |
@@ -199,16 +292,17 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 | **Business Rules** | TERMINATED yêu cầu xác nhận 2 bước. Dữ liệu tenant TERMINATED được soft-delete, xóa vĩnh viễn sau 30 ngày |
 | **Multi-tenancy** | Chỉ Super Admin được thực hiện |
 
-#### F-SA-013: Onboarding Wizard
+#### F-SA-019: Onboarding Wizard (Sau khi Tenant tạo thủ công)
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **ID** | F-SA-013 |
-| **Tên** | Cấu hình ban đầu cho tenant mới (Onboarding Wizard) |
-| **Mô tả** | Sau lần đăng nhập đầu tiên, Tenant Admin được hướng dẫn qua 5 bước cấu hình cơ bản |
+| **ID** | F-SA-019 |
+| **Tên** | Onboarding Wizard (Sau khi tạo thủ công) |
+| **Actor** | Tenant Admin |
+| **Mô tả** | Sau khi Super Admin tạo tenant thủ công và Tenant Admin đăng nhập lần đầu, hướng dẫn qua 5 bước cấu hình cơ bản |
 | **Input** | Thông tin từng bước: (1) thông tin doanh nghiệp, (2) múi giờ/ngôn ngữ, (3) phòng ban đầu tiên, (4) mời user, (5) chọn module |
 | **Output** | Tenant chuyển sang trạng thái `ACTIVE` (hoặc `TRIAL`), dữ liệu ban đầu được khởi tạo |
-| **Business Rules** | Có thể bỏ qua (skip) bước 3–5 và hoàn thành sau. Bước 1–2 bắt buộc |
+| **Business Rules** | Có thể bỏ qua (skip) bước 3–5 và hoàn thành sau. Bước 1–2 khuyến nghị hoàn thành ngay |
 | **Multi-tenancy** | Áp dụng riêng cho từng tenant |
 
 ---
@@ -392,28 +486,62 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 
 ## 3. Luồng nghiệp vụ
 
-### 3.1 Luồng: Tenant Onboarding (Happy Path)
+### 3.1 Luồng: Đăng ký Doanh nghiệp Tự phục vụ (Happy Path)
 
 ```mermaid
 flowchart TD
-    A[Super Admin tạo Tenant] --> B[Hệ thống tạo tenantId, bucket MinIO]
-    B --> C[Gửi email mời Tenant Admin]
-    C --> D[Tenant Admin nhận email, click link]
-    D --> E[Đặt mật khẩu lần đầu]
-    E --> F[Đăng nhập lần đầu]
-    F --> G[Onboarding Wizard Bước 1: Thông tin DN]
-    G --> H[Bước 2: Múi giờ, Ngôn ngữ]
-    H --> I[Bước 3: Tạo Phòng ban đầu tiên]
-    I --> J[Bước 4: Mời nhân viên]
-    J --> K[Bước 5: Chọn Module kích hoạt]
-    K --> L[Tenant chuyển sang ACTIVE/TRIAL]
-    L --> M[Dashboard chính]
+    A[Registrant truy cập /register] --> B[Nhập MST + Email + Mật khẩu]
+    B --> C{MST đã đăng ký\ntrên nền tảng?}
+    C -->|Có| ERR1[Báo trùng MST\nCung cấp link đăng nhập]
+    C -->|Chưa| D[Gọi MSTVerificationAdapter\nTra cứu thông tin DN]
+    D --> E{MST tồn tại và\nđang hoạt động?}
+    E -->|MST không tìm thấy| ERR2[Thông báo rõ ràng\nGợi ý kiểm tra lại MST]
+    E -->|DN ngừng hoạt động| ERR3[Từ chối\nGiải thích lý do cụ thể]
+    E -->|Hợp lệ| F{Email người dùng\nkhớp email Cục Thuế?}
+    F -->|Không khớp| ERR4[Thông báo không khớp\nChe khuất một phần email đúng]
+    F -->|Khớp| G[Gửi OTP 6 số về email\nHết hạn sau 10 phút]
+    G --> H[Registrant nhập OTP]
+    H --> I{OTP hợp lệ?}
+    I -->|Sai - hiển thị\nsố lần còn lại| ERR5{Đã sai 5 lần?}
+    ERR5 -->|Có| ERR6[Khóa 15 phút]
+    ERR5 -->|Chưa| H
+    I -->|Hết hạn| ERR7[Cho phép gửi lại OTP\nTối đa 3 lần/phiên]
+    ERR7 --> G
+    I -->|Đúng| J[Tạo Tenant + MinIO bucket\n+ Admin user + Seed roles/catalogs]
+    J --> K[Publish: tenant.registered]
+    K --> L{Chế độ Manual Review?}
+    L -->|REQUIRE_MANUAL_REVIEW = true| M[Tenant PENDING_VERIFICATION\nChờ Super Admin phê duyệt]
+    M --> N{Super Admin phê duyệt?}
+    N -->|REJECT - gửi email\nkèm lý do| ERR8[Tenant REJECTED]
+    N -->|APPROVE| O[Tenant TRIAL]
+    L -->|REQUIRE_MANUAL_REVIEW = false| O
+    O --> P[Tenant Admin vào Onboarding Wizard\n5 bước - có thể skip bước 3-5]
+    P --> Q[TRIAL 14 ngày bắt đầu]
+    Q --> R{Thanh toán trước\nkhi hết hạn?}
+    R -->|Có| S[ACTIVE]
+    R -->|Hết hạn| T[SUSPENDED]
 ```
 
-**Luồng ngoại lệ:**
-- Link mời hết hạn (> 48 giờ) → Tenant Admin báo Super Admin gửi lại
-- Subdomain đã tồn tại → Báo lỗi, yêu cầu chọn subdomain khác
-- Email admin đã tồn tại trong hệ thống → Liên kết tenant với account đã có (nếu cùng email)
+**Luồng happy path — 6 bước tuần tự:**
+
+1. Registrant truy cập `/register`, nhập MST + email + password
+2. Hệ thống gọi MSTAdapter tra cứu MST, so khớp email với thông tin Cục Thuế
+3. Gửi OTP 6 số về email, hết hạn 10 phút
+4. Registrant nhập OTP đúng
+5. Hệ thống tạo tenant (`TRIAL` hoặc `PENDING_VERIFICATION`) + Admin user + MinIO bucket + seed roles/catalogs; Publish `tenant.registered`
+6. Tenant Admin vào Onboarding Wizard (5 bước, có thể skip bước 3–5) → TRIAL 14 ngày bắt đầu
+
+**Luồng ngoại lệ chi tiết:**
+
+| Tình huống | Xử lý |
+|---|---|
+| MST không tìm thấy trong hệ thống Cục Thuế | Thông báo rõ ràng, gợi ý kiểm tra lại MST |
+| MST đã được đăng ký trên nền tảng | Báo trùng MST, cung cấp link đăng nhập cho tenant hiện có |
+| DN ngừng hoạt động hoặc đã giải thể | Từ chối, giải thích lý do cụ thể |
+| Email không khớp thông tin Cục Thuế | Thông báo không khớp, che khuất một phần email đúng để gợi ý (ví dụ: `n***@company.vn`) |
+| OTP nhập sai | Hiển thị số lần còn lại được nhập |
+| OTP hết hạn | Cho phép gửi lại OTP (tối đa 3 lần/phiên, chờ 60 giây/lần) |
+| Rate limit đăng ký vượt quá | Thông báo thử lại sau 1 giờ |
 
 ---
 
@@ -513,7 +641,12 @@ flowchart TD
 | `_id` | ObjectId | Có | Định danh tenant (chính là tenantId) |
 | `name` | string | Có | Tên doanh nghiệp |
 | `subdomain` | string | Có | Subdomain duy nhất (unique index) |
-| `taxCode` | string | Không | Mã số thuế (10 hoặc 13 chữ số) |
+| `taxCode` | string | Có (unique) | Mã số thuế — 10 chữ số (DN) hoặc 13 chữ số (chi nhánh); unique index toàn hệ thống |
+| `taxVerified` | boolean | Có | MST đã được xác thực qua Cục Thuế (mặc định: false) |
+| `taxInfo` | object | Không | Dữ liệu từ MST lookup: `{ legalName, address, taxStatus, registrationDate }` |
+| `registrationEmail` | string | Không | Email đã xác minh khi đăng ký (khớp email đăng ký Cục Thuế) |
+| `verificationMethod` | string (enum) | Có | Phương thức xác thực: `TAX_CODE_EMAIL` (hiện tại) \| `TAX_CODE_PHONE` (tương lai) |
+| `registrationSource` | string (enum) | Có | Nguồn đăng ký: `SELF_REGISTER` \| `ADMIN_CREATED` |
 | `address` | object | Không | `{ street, city, province, country }` |
 | `phone` | string | Không | Số điện thoại doanh nghiệp |
 | `email` | string | Có | Email liên hệ chính |
@@ -530,7 +663,7 @@ flowchart TD
 | `updatedAt` | Date | Có | Thời điểm cập nhật cuối |
 | `deletedAt` | Date | Không | Soft delete (khi TERMINATED) |
 
-**Indexes:** `subdomain` (unique), `status`, `plan`
+**Indexes:** `subdomain` (unique), `taxCode` (unique, sparse), `status`, `plan`, `registrationSource`
 
 ---
 
@@ -702,6 +835,38 @@ flowchart TD
 
 ---
 
+### 4.9 Collection: `tenant_registrations`
+
+> Collection này lưu trữ các phiên đăng ký chưa hoàn tất. Bản ghi tự động xóa sau 24 giờ (TTL index) nếu không được phê duyệt thành tenant.
+
+| Trường | Kiểu | Bắt buộc | Mô tả |
+|---|---|---|---|
+| `_id` | ObjectId | Có | Định danh phiên đăng ký |
+| `taxCode` | string | Có | Mã số thuế 10 hoặc 13 chữ số |
+| `email` | string | Có | Email đăng ký (phải khớp email Cục Thuế) |
+| `passwordHash` | string | Có | bcrypt hash của mật khẩu đăng ký |
+| `taxVerified` | boolean | Có | MST đã xác thực qua Adapter (mặc định: false) |
+| `emailVerified` | boolean | Có | Email đã xác minh qua OTP (mặc định: false) |
+| `taxInfo` | object | Không | Dữ liệu từ MST lookup: `{ legalName, address, taxStatus, registrationDate }` |
+| `otpHash` | string | Không | SHA-256 hash của mã OTP hiện tại |
+| `otpExpiry` | Date | Không | Thời điểm hết hạn của OTP |
+| `otpAttempts` | number | Có | Số lần nhập OTP sai (mặc định: 0) |
+| `otpResendCount` | number | Có | Số lần gửi lại OTP trong phiên (mặc định: 0, tối đa: 3) |
+| `status` | string (enum) | Có | `PENDING_TAX` \| `PENDING_OTP` \| `PENDING_REVIEW` \| `APPROVED` \| `REJECTED` |
+| `rejectionReason` | string | Không | Lý do từ chối (khi status = REJECTED) |
+| `ipAddress` | string | Có | IP address của Registrant |
+| `expiresAt` | Date | Có | TTL 24 giờ — bản ghi tự động xóa sau 24 giờ |
+| `createdAt` | Date | Có | Thời điểm tạo phiên đăng ký |
+| `updatedAt` | Date | Có | Thời điểm cập nhật cuối |
+
+**Indexes:**
+- `{ taxCode: 1 }` — unique (chặn đăng ký trùng MST)
+- `{ email: 1 }` — tìm kiếm theo email
+- `{ ipAddress: 1 }` — hỗ trợ rate limiting theo IP
+- `{ expiresAt: 1 }` — TTL index, tự động xóa sau 24 giờ
+
+---
+
 ## 5. Validation và Business Rules
 
 ### 5.1 Validation Rules
@@ -711,11 +876,12 @@ flowchart TD
 | `email` | RFC 5322, độ dài ≤ 255 ký tự | "Email không hợp lệ" |
 | `password` | Tối thiểu 8 ký tự; có ít nhất 1 chữ hoa, 1 chữ thường, 1 chữ số, 1 ký tự đặc biệt | "Mật khẩu chưa đủ độ mạnh" |
 | `subdomain` | Chỉ `[a-z0-9-]`, độ dài 3–30 ký tự, không bắt đầu/kết thúc bằng `-` | "Subdomain không hợp lệ" |
-| `taxCode` | 10 hoặc 13 chữ số | "Mã số thuế không hợp lệ" |
+| `taxCode` | Regex `/^\d{10}(\d{3})?$/` — 10 chữ số (doanh nghiệp) hoặc 13 chữ số (chi nhánh); chỉ chứa chữ số | "Mã số thuế không hợp lệ — phải là 10 hoặc 13 chữ số" |
 | `phone` | Định dạng số điện thoại Việt Nam: `0[3|5|7|8|9]xxxxxxxx` | "Số điện thoại không hợp lệ" |
 | `fullName` | Độ dài 2–100 ký tự, không chứa ký tự đặc biệt nguy hiểm | "Họ tên không hợp lệ" |
 | `departmentCode` | `[A-Z0-9_-]`, độ dài 2–20 ký tự | "Mã phòng ban không hợp lệ" |
-| `otpCode` | Đúng 6 chữ số | "Mã OTP không hợp lệ" |
+| `otpCode` | Đúng 6 chữ số (`/^\d{6}$/`), không chứa ký tự đặc biệt | "Mã OTP không hợp lệ — phải là 6 chữ số" |
+| **Rate limit đăng ký** | Tối đa 5 lần đăng ký/IP/giờ; 3 lần gửi OTP/phiên đăng ký; chờ tối thiểu 60 giây giữa các lần gửi lại OTP | "Bạn đã gửi quá nhiều yêu cầu, vui lòng thử lại sau" |
 
 ### 5.2 Business Rules chi tiết
 

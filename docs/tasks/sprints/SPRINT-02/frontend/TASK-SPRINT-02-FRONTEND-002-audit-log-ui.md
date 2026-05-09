@@ -152,7 +152,13 @@ export class AuditLogService {
 - [ ] "Xem Raw JSON" toggle hiển thị JSON đầy đủ
 - [ ] Export CSV: download file đúng format
 - [ ] Xoá bộ lọc → reset về trạng thái mặc định
+- [ ] Giao diện Audit Log hỗ trợ đầy đủ Light Mode và Dark Mode theo Design System tokens
+- [ ] Dark mode tự áp dụng theo `prefers-color-scheme` và cho phép người dùng chuyển thủ công bằng toggle theme
+- [ ] Preference giao diện được lưu bằng key `openErp.colorMode` trong localStorage
+- [ ] Khi khởi động app, mode đã lưu được áp dụng trước lần render đầu tiên để tránh flash/sai màu ban đầu
+- [ ] Toggle theme dùng lại component dùng chung (ví dụ `erp-theme-toggle` hoặc tương đương trong shared UI)
 - [ ] Unit test coverage ≥ 80%
+- [ ] Có test (unit/integration hoặc e2e) xác nhận hiển thị và chuyển đổi đúng ở cả Light Mode và Dark Mode
 - [ ] Responsive trên desktop và tablet
 
 ## Ghi chú kỹ thuật

@@ -181,7 +181,13 @@ src/app/shared/
 - [ ] Upload logo tenant → preview + lưu URL
 - [ ] Roles list → expand permissions → checkbox state phản ánh DB
 - [ ] HasPermission directive ẩn/hiện element đúng theo quyền user
+- [ ] Shell và các trang quản trị hỗ trợ đầy đủ Light Mode và Dark Mode theo Design System tokens
+- [ ] Dark mode tự áp dụng theo `prefers-color-scheme` và cho phép người dùng chuyển thủ công bằng toggle theme
+- [ ] Preference giao diện được lưu bằng key `openErp.colorMode` trong localStorage
+- [ ] Khi khởi động app, mode đã lưu được áp dụng trước lần render đầu tiên để tránh flash/sai màu ban đầu
+- [ ] Toggle theme dùng lại component dùng chung (ví dụ `erp-theme-toggle` hoặc tương đương trong shared UI)
 - [ ] Unit test coverage ≥ 80%
+- [ ] Có test (unit/integration hoặc e2e) xác nhận hiển thị và chuyển đổi đúng ở cả Light Mode và Dark Mode
 - [ ] Responsive trên tablet (768px) và desktop (1280px+)
 
 ## Ghi chú kỹ thuật

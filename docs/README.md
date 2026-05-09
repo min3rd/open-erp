@@ -2,7 +2,18 @@
 # Nền tảng SaaS Quản trị và Vận hành Doanh nghiệp
 
 **Ngày cập nhật:** 09/05/2026  
-**Giai đoạn hiện tại:** Thiết kế Kiến trúc Kỹ thuật (Technical Leader)  
+**Giai đoạn hiện tại:** Thiết kế UI/UX (UI/UX Designer)
+
+---
+
+## Tài liệu Thiết kế (Design)
+
+### Design System & Guidelines
+| Tài liệu | Mô tả | Trạng thái |
+|---|---|---|
+| [DESIGN-SYSTEM.md](design/DESIGN-SYSTEM.md) | Design System chính thức: màu sắc, typography, spacing, components đầy đủ | ✅ Hoàn thành |
+| [SCREEN-SPECS.md](design/SCREEN-SPECS.md) | Screen Specs Sprint 01–02: Auth, Onboarding, System Admin (11 màn hình) | ✅ Hoàn thành |
+| [FRONTEND-GUIDELINES.md](design/FRONTEND-GUIDELINES.md) | Hướng dẫn bắt buộc cho Angular 21 Web và Ionic 8 Mobile | ✅ Hoàn thành |
 
 ---
 
@@ -119,6 +130,8 @@
 ### Task Index theo Sprint
 - [Sprint 01 TASK-INDEX](tasks/sprints/SPRINT-01/TASK-INDEX.md) — Foundation & Authentication (14 tasks / 81 SP)
 - [Sprint 02 TASK-INDEX](tasks/sprints/SPRINT-02/TASK-INDEX.md) — System Administration & Platform Core (12 tasks / 74 SP)
+
+Ghi chú cập nhật 09/05/2026: 6 task FE/Mobile (TASK-SPRINT-01-FRONTEND-001, TASK-SPRINT-01-FRONTEND-002, TASK-SPRINT-02-FRONTEND-001, TASK-SPRINT-02-FRONTEND-002, TASK-SPRINT-02-FRONTEND-003, TASK-SPRINT-02-MOBILE-001) đã bổ sung AC hỗ trợ Light/Dark mode và lưu lựa chọn tại openErp.colorMode.
 
 ### Task chi tiết — Sprint 01
 

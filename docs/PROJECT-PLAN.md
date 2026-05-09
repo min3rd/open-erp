@@ -16,8 +16,8 @@
 | Thành phần | Công nghệ |
 |---|---|
 | Backend | NestJS (Microservices — giao tiếp qua message broker) |
-| Web Frontend | Angular 18+ |
-| Mobile | Ionic Angular (Capacitor) |
+| Web Frontend | Angular 21+ |
+| Mobile | Ionic Angular 8 (Capacitor 6) |
 | Database | MongoDB (multi-tenant, schema per-tenant) |
 | Message Broker | RabbitMQ / Redis Pub/Sub |
 | API Gateway | NestJS API Gateway |

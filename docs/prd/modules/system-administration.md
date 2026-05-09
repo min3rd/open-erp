@@ -70,18 +70,48 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 
 ### 3.1 Flow: Tenant Onboarding
 
+> **Cập nhật 09/05/2026:** Luồng onboarding đã chuyển hoàn toàn từ Super Admin tạo thủ công sang **tự đăng ký qua Mã số thuế (MST)**. Super Admin vẫn có thể kích hoạt chế độ xét duyệt thủ công.
+
+#### Luồng 1: Tự đăng ký (Self-Service Registration) — Mặc định
+
 ```
-Super Admin tạo tenant
-    → Gửi email mời Tenant Admin
-        → Tenant Admin đặt mật khẩu & đăng nhập lần đầu
-            → Wizard cấu hình ban đầu:
-                1. Thông tin doanh nghiệp (tên, MST, địa chỉ)
-                2. Chọn múi giờ & ngôn ngữ
-                3. Tạo phòng ban đầu tiên
-                4. Mời người dùng đầu tiên
-                5. Chọn phân hệ cần kích hoạt
-            → Dashboard chính của tenant
+Đại diện DN truy cập openErp.vn/register
+    → Nhập MST + Email + Mật khẩu
+        → Hệ thống tra cứu MST (Adapter: masothue.com / API Cục Thuế)
+            → So khớp email với thông tin đăng ký Cục Thuế
+                → Gửi OTP 6 số về email xác minh (hết hạn 10 phút)
+                    → Nhập OTP đúng → Tạo tenant + Admin user + MinIO bucket
+                        → Onboarding Wizard (5 bước):
+                            1. Xác nhận thông tin DN
+                            2. Cấu hình múi giờ / ngôn ngữ / logo
+                            3. Tạo phòng ban sơ bộ (có thể skip)
+                            4. Mời nhân viên đầu tiên (có thể skip)
+                            5. Chọn phân hệ kích hoạt
+                        → TRIAL 14 ngày bắt đầu
 ```
+
+#### Luồng 2: Xét duyệt thủ công (Manual Review) — Khi REQUIRE_MANUAL_REVIEW = true
+
+```
+Đại diện DN hoàn thành đăng ký và xác minh OTP
+    → Tenant được tạo với trạng thái PENDING_VERIFICATION
+        → Super Admin nhận thông báo: có yêu cầu đăng ký mới
+            → Super Admin xem xét thông tin DN + kết quả tra cứu MST
+                → [Duyệt] → Tenant chuyển sang TRIAL, gửi email chào mừng
+                → [Từ chối + lý do] → Gửi email thông báo từ chối với lý do rõ ràng
+```
+
+#### Business Rules — Tenant Onboarding
+
+| Mã | Quy tắc |
+|---|---|
+| **BR-ON-001** | MST phải là duy nhất trên toàn nền tảng — không cho phép 2 tenant cùng MST |
+| **BR-ON-002** | Email đăng ký phải khớp với email đã đăng ký tại Cục Thuế (so khớp qua MST lookup) |
+| **BR-ON-003** | Tra cứu MST sử dụng **Adapter Pattern** — hiện tại hỗ trợ masothue.com và API Cục Thuế; có thể mở rộng thêm provider mới mà không thay đổi business logic |
+| **BR-ON-004** | Trong tương lai sẽ bổ sung phương thức xác thực bổ sung qua **số điện thoại đã đăng ký tại Cục Thuế** |
+| **BR-ON-005** | Doanh nghiệp ngừng hoạt động hoặc giải thể không được phép đăng ký |
+| **BR-ON-006** | Rate limit: tối đa 5 lần thử đăng ký từ cùng IP trong 1 giờ |
+| **BR-ON-007** | OTP hết hạn sau 10 phút; cho phép gửi lại tối đa 3 lần/phiên, mỗi lần cách nhau ít nhất 60 giây |
 
 ### 3.2 Flow: Đăng nhập và Xác thực
 

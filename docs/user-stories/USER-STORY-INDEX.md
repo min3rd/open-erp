@@ -2,7 +2,7 @@
 # Open ERP — SaaS Enterprise Management Platform
 
 **Cập nhật lần cuối:** 09/05/2026  
-**Tổng số User Stories:** 24  
+**Tổng số User Stories:** 26  
 **Sprint đã có US:** Sprint 01, Sprint 02  
 
 ---
@@ -11,9 +11,9 @@
 
 | Sprint | Số lượng US | Tổng Story Points |
 |---|---|---|
-| Sprint 01 — SaaS Foundation | 12 | 45 |
-| Sprint 02 — System Admin nâng cao | 12 | 63 |
-| **Tổng** | **24** | **108** |
+| Sprint 01 — SaaS Foundation | 11 | 47 |
+| Sprint 02 — System Admin nâng cao | 15 | 84 |
+| **Tổng** | **26** | **131** |
 
 ---
 
@@ -21,7 +21,7 @@
 
 | Task ID | Tiêu đề | Sprint | Cluster | Loại | Ưu tiên | Story Points | Trạng thái | File |
 |---|---|---|---|---|---|---|---|---|
-| US-SA-001 | Đăng ký Tenant mới trên nền tảng SaaS | Sprint 01 | SaaS Foundation | Feature | Cao | 5 | Chưa bắt đầu | [US-SA-001.md](system-administration/US-SA-001.md) |
+| US-SA-001 | Đăng ký Tài khoản Doanh nghiệp (Tự phục vụ) | Sprint 01 | Tenant Onboarding | Feature | Cao | 8 | Chưa bắt đầu | [US-SA-001.md](system-administration/US-SA-001.md) |
 | US-SA-002 | Quản lý trạng thái và cấu hình Tenant | Sprint 01 | SaaS Foundation | Feature | Cao | 3 | Chưa bắt đầu | [US-SA-002.md](system-administration/US-SA-002.md) |
 | US-SA-003 | Đăng nhập với email và mật khẩu | Sprint 01 | Authentication | Feature | Cao | 5 | Chưa bắt đầu | [US-SA-003.md](system-administration/US-SA-003.md) |
 | US-SA-004 | Làm mới token và duy trì phiên đăng nhập | Sprint 01 | Authentication | Feature | Cao | 3 | Chưa bắt đầu | [US-SA-004.md](system-administration/US-SA-004.md) |
@@ -31,6 +31,7 @@
 | US-SA-008 | Tenant Admin quản lý cơ cấu tổ chức | Sprint 01 | Organization Structure | Feature | Cao | 3 | Chưa bắt đầu | [US-SA-008.md](system-administration/US-SA-008.md) |
 | US-SA-017 | Người dùng tự cập nhật hồ sơ cá nhân | Sprint 01 | User Profile | Feature | Cao | 2 | Chưa bắt đầu | [US-SA-017.md](system-administration/US-SA-017.md) |
 | US-SA-019 | Quản lý gói dịch vụ và Quota sử dụng | Sprint 01 | Subscription | Feature | Cao | 5 | Chưa bắt đầu | [US-SA-019.md](system-administration/US-SA-019.md) |
+| US-SA-025 | Xác thực Mã số thuế và Email Cục Thuế | Sprint 01 | Tenant Onboarding | Feature | Cao | 5 | Chưa bắt đầu | [US-SA-025.md](system-administration/US-SA-025.md) |
 | US-SA-009 | Tenant Admin tạo và quản lý Vai trò (Role) | Sprint 02 | RBAC | Feature | Cao | 8 | Chưa bắt đầu | [US-SA-009.md](system-administration/US-SA-009.md) |
 | US-SA-010 | Gán và thu hồi quyền cho Người dùng | Sprint 02 | RBAC | Feature | Cao | 5 | Chưa bắt đầu | [US-SA-010.md](system-administration/US-SA-010.md) |
 | US-SA-011 | Xem và tra cứu Nhật ký thao tác (Audit Log) | Sprint 02 | Audit & Monitoring | Feature | Cao | 5 | Chưa bắt đầu | [US-SA-011.md](system-administration/US-SA-011.md) |
@@ -45,6 +46,7 @@
 | US-SA-022 | Phân quyền dữ liệu theo Phòng ban | Sprint 02 | RBAC | Feature | Cao | 8 | Chưa bắt đầu | [US-SA-022.md](system-administration/US-SA-022.md) |
 | US-SA-023 | Super Admin theo dõi sức khỏe hệ thống | Sprint 02 | Platform Monitoring | Feature | Trung bình | 5 | Chưa bắt đầu | [US-SA-023.md](system-administration/US-SA-023.md) |
 | US-SA-024 | Quản lý Biểu mẫu động (Dynamic Form) | Sprint 02 | Catalog | Feature | Trung bình | 8 | Chưa bắt đầu | [US-SA-024.md](system-administration/US-SA-024.md) |
+| US-SA-026 | Super Admin phê duyệt đăng ký Doanh nghiệp | Sprint 02 | Tenant Management | Feature | Trung bình | 5 | Chưa bắt đầu | [US-SA-026.md](system-administration/US-SA-026.md) |
 
 ---
 
@@ -52,10 +54,10 @@
 
 | Độ ưu tiên | Số lượng | Story Points |
 |---|---|---|
-| Cao (Must Have) | 12 | 57 |
-| Trung bình (Should Have) | 10 | 43 |
-| Thấp (Could Have) | 2 | 16 |
-| **Tổng** | **24** | **116** |
+| Cao (Must Have) | 16 | 76 |
+| Trung bình (Should Have) | 9 | 47 |
+| Thấp (Could Have) | 1 | 8 |
+| **Tổng** | **26** | **131** |
 
 > *Lưu ý: Tổng story points có thể chênh lệch nhỏ do cách phân bổ sprint.*
 
@@ -67,7 +69,7 @@
 
 | US ID | Tiêu đề | Ưu tiên | SP |
 |---|---|---|---|
-| US-SA-001 | Đăng ký Tenant mới | Cao | 5 |
+| US-SA-001 | Đăng ký Tài khoản DN (Tự phục vụ) | Cao | 8 |
 | US-SA-002 | Quản lý trạng thái Tenant | Cao | 3 |
 | US-SA-003 | Đăng nhập email/mật khẩu | Cao | 5 |
 | US-SA-004 | Refresh token và duy trì phiên | Cao | 3 |
@@ -77,7 +79,8 @@
 | US-SA-008 | Cơ cấu tổ chức | Cao | 3 |
 | US-SA-017 | Hồ sơ cá nhân | Cao | 2 |
 | US-SA-019 | Quota và gói dịch vụ | Cao | 5 |
-| **Tổng Sprint 01** | | | **39** |
+| US-SA-025 | Xác thực MST và Email Cục Thuế | Cao | 5 |
+| **Tổng Sprint 01** | | | **47** |
 
 ### Sprint 02 — System Admin nâng cao
 
@@ -97,19 +100,24 @@
 | US-SA-022 | Phân quyền dữ liệu | Cao | 8 |
 | US-SA-023 | Platform monitoring | Trung bình | 5 |
 | US-SA-024 | Dynamic Form | Trung bình | 8 |
-| **Tổng Sprint 02** | | | **79** |
+| US-SA-026 | Phê duyệt đăng ký DN | Trung bình | 5 |
+| **Tổng Sprint 02** | | | **84** |
 
 ---
 
 ## Phụ thuộc giữa User Stories
 
 ```
-US-SA-001 (Tạo tenant)
+US-SA-001 (Đăng ký tài khoản DN — Tự phục vụ)
+    └─► US-SA-025 (Xác thực MST và Email Cục Thuế)
     └─► US-SA-002 (Quản lý tenant)
-    └─► US-SA-006 (Onboarding)
+    └─► US-SA-006 (Onboarding Wizard)
         └─► US-SA-007 (Quản lý user)
             └─► US-SA-008 (Cơ cấu tổ chức)
-        
+
+US-SA-025 (Xác thực MST)
+    └─► US-SA-026 (Phê duyệt đăng ký DN — Sprint 02)
+
 US-SA-003 (Đăng nhập)
     └─► US-SA-004 (Refresh token)
     └─► US-SA-005 (Quên mật khẩu)

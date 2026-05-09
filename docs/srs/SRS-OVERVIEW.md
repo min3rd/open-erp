@@ -88,7 +88,7 @@ Hệ thống cung cấp **7 phân hệ** quản trị doanh nghiệp tích hợp
 | Thành phần | Công nghệ | Ghi chú |
 |---|---|---|
 | Backend | NestJS Microservices | Node.js, TypeScript |
-| Web Frontend | Angular 18+ | TypeScript, Angular Material / TailwindCSS |
+| Web Frontend | Angular 21+ | TypeScript, Angular Material / TailwindCSS |
 | Mobile | Ionic Angular (Capacitor) | Android, iOS |
 | Database | MongoDB | Multi-tenant, mỗi document có `tenantId` |
 | Message Broker | RabbitMQ | Giao tiếp giữa microservices |
@@ -238,7 +238,7 @@ TERMINATED    : Đã hủy hợp đồng, dữ liệu sẽ xóa sau 30 ngày
 | **C-001** | Backend phải dùng NestJS (TypeScript), không dùng framework khác |
 | **C-002** | Database chính là MongoDB, không dùng SQL database cho business data |
 | **C-003** | Giao tiếp nội bộ giữa microservices qua RabbitMQ (không gọi HTTP trực tiếp) |
-| **C-004** | Frontend web dùng Angular 18+, không dùng React hay Vue |
+| **C-004** | Frontend web dùng Angular 21+, không dùng React hay Vue |
 | **C-005** | Mobile dùng Ionic Angular + Capacitor, không dùng React Native |
 | **C-006** | Hóa đơn điện tử phải tuân thủ Nghị định 123/2020/NĐ-CP và Thông tư 78/2021/TT-BTC |
 | **C-007** | Chuẩn tài khoản kế toán theo Thông tư 200/2014/TT-BTC (hoặc 133/2016/TT-BTC) |

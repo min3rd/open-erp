@@ -194,7 +194,13 @@ Kinh doanh
 - [ ] Form Builder: Publish → form chuyển sang PUBLISHED
 - [ ] Form List: filter theo status, search tên
 - [ ] Notification Preferences: toggle channels lưu đúng
+- [ ] Các màn hình Catalog, Dynamic Form Builder và Notification Preferences hỗ trợ đầy đủ Light Mode và Dark Mode theo Design System tokens
+- [ ] Dark mode tự áp dụng theo `prefers-color-scheme` và cho phép người dùng chuyển thủ công bằng toggle theme
+- [ ] Preference giao diện được lưu bằng key `openErp.colorMode` trong localStorage
+- [ ] Khi khởi động app, mode đã lưu được áp dụng trước lần render đầu tiên để tránh flash/sai màu ban đầu
+- [ ] Toggle theme dùng lại component dùng chung (ví dụ `erp-theme-toggle` hoặc tương đương trong shared UI)
 - [ ] Unit test coverage ≥ 80%
+- [ ] Có test (unit/integration hoặc e2e) xác nhận hiển thị và chuyển đổi đúng ở cả Light Mode và Dark Mode
 
 ## Ghi chú kỹ thuật
 
