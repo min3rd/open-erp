@@ -110,3 +110,7 @@ Sprint 02 nội bộ
 - [ ] Không có critical security issues
 - [ ] Frontend responsive trên desktop (≥ 1280px)
 - [ ] Mobile app build thành công trên Android
+
+## Ghi chú tuân thủ Frontend
+
+- Mọi task Frontend thuộc `open-erp-web` trong Sprint 02 bắt buộc đọc và tuân thủ rule Angular 21 tại `open-erp-web/.github/copilot-instructions.md` trước khi implement.

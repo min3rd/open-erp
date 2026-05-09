@@ -17,6 +17,12 @@
 
 Xây dựng 3 nhóm UI: (1) Quản lý Catalog — list/form CRUD cho các danh mục hệ thống; (2) Dynamic Form Builder — giao diện kéo-thả trực quan để tạo biểu mẫu tùy chỉnh, preview và quản lý forms; (3) Notification Preferences — trang cài đặt kênh nhận thông báo cho người dùng.
 
+## Ràng buộc thực thi FE Agent (bắt buộc)
+
+- Trước khi implement task này, FE agent bắt buộc đọc và tuân thủ file rule Angular 21 tại `open-erp-web/.github/copilot-instructions.md`.
+- Mọi quyết định về cấu trúc Angular, conventions, code style, testing, i18n trong task phải ưu tiên theo rule file trên.
+- Nếu phát hiện xung đột giữa task và rule file, phải báo Technical Leader để cập nhật tài liệu trước khi triển khai.
+
 ## Phạm vi kỹ thuật
 
 ### Frontend Web (Angular 18 — `open-erp-web`)

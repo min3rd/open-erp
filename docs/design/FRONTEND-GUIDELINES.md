@@ -15,6 +15,11 @@
 - Chuẩn hóa contract backend để FE render thông điệp đúng ngữ cảnh.
 - Khẳng định định hướng Angular web dùng CSS, không dùng SCSS.
 
+### 1.1 Quy chiếu bắt buộc cho FE agent
+
+- Với mọi hạng mục triển khai trong `open-erp-web`, FE agent bắt buộc đọc và tuân thủ file rule Angular 21 tại `open-erp-web/.github/copilot-instructions.md` trước khi implement.
+- Khi có khác biệt giữa task mô tả và rule file, FE agent phải dừng implement và báo Technical Leader cập nhật tài liệu để đồng bộ.
+
 ---
 
 ## 2. Quy ước bắt buộc cho Angular Web

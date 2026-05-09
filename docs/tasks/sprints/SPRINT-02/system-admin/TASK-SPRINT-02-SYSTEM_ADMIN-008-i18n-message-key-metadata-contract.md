@@ -70,3 +70,4 @@ Không tạo endpoint mới; chuẩn hóa response của endpoint hiện có.
 - Dùng shared package nội bộ hoặc common module để khai báo kiểu `I18nMessage`.
 - Ưu tiên triển khai theo hướng non-breaking change trước khi loại bỏ hoàn toàn text cũ.
 - Cần phối hợp frontend để thống nhất namespace Transloco.
+- Frontend tiêu thụ contract của task này bắt buộc thực thi theo rule Angular 21 tại `open-erp-web/.github/copilot-instructions.md` trước khi implement.

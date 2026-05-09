@@ -1,4 +1,4 @@
-# SCR-SA-006 — Audit Log
+﻿# SCR-SA-006 — Audit Log
 
 ## 1. Thông tin màn hình
 
@@ -9,35 +9,53 @@
 | Luồng liên quan | Kiểm toán hệ thống |
 | Mục tiêu | Theo dõi và truy vết thao tác trên tenant |
 
-## 2. Layout và cấu trúc
+## 2. Layout chi tiết
 
-- Filter bar đa tiêu chí.
-- Bảng log theo thời gian giảm dần.
-- Drawer chi tiết bản ghi log.
+### 2.1 Cấu trúc vùng
+- Vùng A: filter bar đa tiêu chí.
+- Vùng B: bảng audit logs.
+- Vùng C: drawer chi tiết before/after.
+- Vùng D: công cụ export CSV (nếu có quyền).
 
-## 3. Danh sách component
-
-| Component | Vị trí | Variant | Hành vi |
+### 2.2 Breakpoint, vị trí thành phần, khoảng cách chính
+| Breakpoint | Grid | Vị trí thành phần chính | Khoảng cách chính |
 |---|---|---|---|
-| filter-bar | Đầu trang | multi-filter | Lọc server-side |
-| audit-table | Nội dung | dense | Sort theo timestamp |
-| action-badge | Cột hành động | semantic color | Map theo loại thao tác |
-| detail-drawer | Bên phải | 640px | Xem before/after JSON |
+| >=1024px | 12 cột | Table full width, drawer mở từ phải | Row height 44px, filter gap 12px |
+| <1024px | 8/4 cột | Card list + màn chi tiết riêng | Padding 16px, card gap 12px |
 
-## 4. Trạng thái màn hình
+## 3. Đặc tả component
 
-- Không có bản ghi.
-- Log chi tiết quá lớn (rút gọn + expand).
-- Lỗi quyền truy cập dữ liệu nhạy cảm.
+| Component | Vị trí | Variant/State | Dữ liệu đầu vào | Ràng buộc hiển thị |
+|---|---|---|---|---|
+| audit-filter-bar | Vùng A | compact, expanded | dateRange, actor, action, resource | Lọc server-side, validate phạm vi ngày |
+| audit-table | Vùng B | loading, loaded, no-result | logs[] | Cột nhạy cảm áp dụng mask policy |
+| detail-drawer | Vùng C | closed, open | selectedLog | Chỉ mở khi user có quyền xem chi tiết |
+| export-button | Vùng D | enabled, disabled, loading | exportPermission | Ẩn khi không có quyền export |
 
-## 5. Dữ liệu hiển thị
+## 4. Hành động và phản hồi UI
 
-- timestamp, actor, action, resource, ipAddress, userAgent, diff.
-- Dữ liệu nhạy cảm được mask theo policy.
+| Trigger | Xử lý | Phản hồi UI |
+|---|---|---|
+| Áp dụng bộ lọc | Gọi API audit-log | Cập nhật bảng và reset trang |
+| Nhấn xem chi tiết log | Mở drawer + gọi API detail | Hiển thị JSON diff trước/sau |
+| Nhấn Export CSV | Gọi API export job | Hiển thị tiến trình và trạng thái tải xuống |
+| API trả 403 dữ liệu nhạy cảm | Chặn hiển thị trường restricted | Banner cảnh báo không đủ quyền |
 
-## 6. Responsive
+## 5. Hiệu ứng hình ảnh/animation và âm thanh
+- Drawer mở/đóng mượt 180ms.
+- Hàng bảng hover highlight nhẹ để tăng khả năng quét.
+- JSON diff collapse/expand có animation chiều cao ngắn.
+- Không dùng âm thanh.
 
-| Breakpoint | Thay đổi layout |
-|---|---|
-| >=1024px | Table + drawer |
-| <1024px | Card list + màn chi tiết riêng |
+## 6. Case hiển thị theo luồng nghiệp vụ
+- Happy path: lọc và tra cứu log chính xác.
+- Validation error: khoảng ngày lọc không hợp lệ.
+- Expired: phiên hết hạn khi truy vấn.
+- Permission: không đủ quyền xem chi tiết/export.
+- No-data: không có log khớp điều kiện lọc.
+- Offline: truy vấn thất bại do mất mạng, cho retry.
+
+## 7. Dữ liệu hiển thị và quy tắc format
+- Dữ liệu chính: timestamp, actor, action, resource, ipAddress, userAgent, diff.
+- Trường nhạy cảm phải mask theo policy.
+- Mọi thông báo lỗi hiển thị qua messageKey + metadata.

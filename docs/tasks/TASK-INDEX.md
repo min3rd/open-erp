@@ -2,6 +2,8 @@
 
 Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 
+> Quy chiếu bắt buộc cho mọi task Frontend (open-erp-web): FE agent phải đọc và tuân thủ file rule Angular 21 tại `open-erp-web/.github/copilot-instructions.md` trước khi implement.
+
 ## Tổng quan tiến độ theo Sprint
 
 | Sprint    | Tên                                    | Tổng Task | Tổng SP | TODO | IN PROGRESS | REVIEW | DONE | BLOCKED |

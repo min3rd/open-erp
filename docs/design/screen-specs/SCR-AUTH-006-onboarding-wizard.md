@@ -1,4 +1,4 @@
-# SCR-AUTH-006 — Onboarding Wizard
+﻿# SCR-AUTH-006 — Onboarding Wizard
 
 ## 1. Thông tin màn hình
 
@@ -9,36 +9,56 @@
 | Luồng liên quan | FLOW-AUTH-REGISTER-DN-001 |
 | Mục tiêu | Thiết lập tenant lần đầu sau khi activation thành công |
 
-## 2. Layout và cấu trúc
+## 2. Layout chi tiết
 
-- Sub-stepper 5 bước: Gói dịch vụ, Phòng ban, Người dùng đầu tiên, Logo & thương hiệu, Hoàn tất.
-- Khu vực nội dung từng bước ở giữa màn hình.
-- Footer cố định với nút Lưu & Tiếp theo / Bỏ qua (cho bước 3-5).
+### 2.1 Cấu trúc vùng
+- Vùng A: header onboarding hiển thị tên doanh nghiệp và tiến độ.
+- Vùng B: stepper nội bộ 5 bước (gói dịch vụ, phòng ban, người dùng, thiết lập cơ bản, hoàn tất).
+- Vùng C: nội dung từng bước dưới dạng form hoặc bảng.
+- Vùng D: cụm action Lưu nháp, Bỏ qua bước (nếu cho phép), Tiếp tục/Hoàn tất.
 
-## 3. Danh sách component
-
-| Component | Vị trí | Variant | Hành vi |
+### 2.2 Breakpoint, vị trí thành phần, khoảng cách chính
+| Breakpoint | Grid | Vị trí thành phần chính | Khoảng cách chính |
 |---|---|---|---|
-| tab-stepper | Header nội dung | horizontal | Theo dõi tiến độ từng bước |
-| service-plan-card | Bước 1 | selectable | Chọn gói phù hợp |
-| dynamic-list-input | Bước 2-3 | repeater | Thêm/xóa phòng ban hoặc email mời |
-| file-upload | Bước 4 | image | Upload logo PNG/SVG <= 2MB |
+| >=1200px | 12 cột | Stepper ngang toàn chiều rộng, nội dung form 8 cột | Section gap 24px, panel padding 24px |
+| 768px-1199px | 8 cột | Stepper cuộn ngang, nội dung full width | Section gap 20px |
+| <768px | 4 cột | Stepper rút gọn + nội dung 1 cột, action cố định cuối | Padding 16px, action gap 8px |
 
-## 4. Trạng thái màn hình
+## 3. Đặc tả component
 
-- Default: bắt đầu bước 1.
-- Partial saved: hiển thị trạng thái đã lưu tạm.
-- Completed: điều hướng vào dashboard.
+| Component | Vị trí | Variant/State | Dữ liệu đầu vào | Ràng buộc hiển thị |
+|---|---|---|---|---|
+| onboarding-stepper | Vùng B | active, done, skipped | steps, currentStep | Không cho quay về bước đã khóa bởi nghiệp vụ |
+| dynamic-list-input | Vùng C | default, error | items[] | Mỗi item phải thỏa validate riêng (ví dụ email hợp lệ) |
+| plan-selector | Vùng C bước 1 | selected, recommended | planList, currentPlan | Gói bị khóa theo subscription không cho chọn |
+| btn-save-draft | Vùng D | enabled, saving | draftPayload | Luôn hiển thị để giảm rủi ro mất dữ liệu |
+| btn-next-finish | Vùng D | disabled, loading, enabled | stepValidity | Chỉ enable khi dữ liệu bước hiện tại hợp lệ |
 
-## 5. Dữ liệu hiển thị
+## 4. Hành động và phản hồi UI
 
-- Dữ liệu từ tenant vừa tạo: tên DN, mã tenant, gói trial.
-- Bước nào có thể skip phải ghi metadata tiến độ để khôi phục.
+| Trigger | Xử lý | Phản hồi UI |
+|---|---|---|
+| Nhấn Tiếp tục | Validate bước hiện tại + lưu dữ liệu | Chuyển bước kế tiếp, cập nhật tiến độ |
+| Nhấn Lưu nháp | Gọi API lưu progress onboarding | Toast thành công, giữ nguyên màn hình |
+| Nhấn Bỏ qua bước | Kiểm tra bước có cho skip | Đánh dấu skipped và chuyển bước |
+| Mất phiên đăng nhập | Refresh token hoặc yêu cầu đăng nhập lại | Modal phiên hết hạn, bảo toàn dữ liệu chưa gửi |
 
-## 6. Responsive
+## 5. Hiệu ứng hình ảnh/animation và âm thanh
+- Chuyển bước có hiệu ứng slide ngang 200ms để giữ ngữ cảnh.
+- Thêm/xóa item trong dynamic-list có animate chiều cao 140ms.
+- Progress completion dùng ring animation một lần khi hoàn tất.
+- Không dùng âm thanh.
 
-| Breakpoint | Thay đổi layout |
-|---|---|
-| >=1200px | Stepper ngang đầy đủ |
-| <1200px | Stepper cuộn ngang |
-| <768px | Bố cục 1 cột, action full width |
+## 6. Case hiển thị theo luồng nghiệp vụ
+- Happy path: hoàn thành đủ bước -> vào dashboard.
+- Validation error: lỗi theo từng bước (thiếu dữ liệu bắt buộc, email sai, trùng phòng ban).
+- Expired: phiên onboarding hết hạn -> yêu cầu đăng nhập lại và khôi phục nháp.
+- Locked: tenant bị tạm khóa provisioning -> chỉ cho xem read-only.
+- Permission: user không phải admin tenant không được chỉnh onboarding.
+- No-data: chưa có dữ liệu khởi tạo -> hiển thị mẫu mặc định.
+- Offline: cho phép chỉnh cục bộ, cảnh báo chưa đồng bộ và khóa hành động hoàn tất.
+
+## 7. Dữ liệu hiển thị và quy tắc format
+- Dữ liệu dùng xuyên bước: tenantName, tenantCode, onboardingProgress, draftVersion.
+- Quy tắc định dạng email, số điện thoại và mã phòng ban theo chuẩn SRS.
+- Trạng thái lỗi/khuyến nghị nhận từ backend qua messageKey + metadata.

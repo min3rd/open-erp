@@ -1,4 +1,4 @@
-# SCR-AUTH-009 — Quên mật khẩu: Nhập email
+﻿# SCR-AUTH-009 — Quên mật khẩu: Nhập email
 
 ## 1. Thông tin màn hình
 
@@ -9,33 +9,53 @@
 | Luồng liên quan | Đặt lại mật khẩu |
 | Mục tiêu | Nhận email người dùng để gửi reset link |
 
-## 2. Layout và cấu trúc
+## 2. Layout chi tiết
 
-- Card đơn gồm icon, tiêu đề, mô tả, input email và CTA.
-- Link quay lại đăng nhập.
+### 2.1 Cấu trúc vùng
+- Vùng A: tiêu đề và mô tả ngắn về quy trình đặt lại mật khẩu.
+- Vùng B: form nhập email.
+- Vùng C: hành động Gửi liên kết đặt lại mật khẩu.
+- Vùng D: liên kết quay về đăng nhập.
 
-## 3. Danh sách component
-
-| Component | Vị trí | Variant | Hành vi |
+### 2.2 Breakpoint, vị trí thành phần, khoảng cách chính
+| Breakpoint | Grid | Vị trí thành phần chính | Khoảng cách chính |
 |---|---|---|---|
-| text-input email | Form | required | Validate email hợp lệ |
-| btn-primary | Footer form | default | Gửi yêu cầu reset |
-| link-back | Dưới form | text link | Điều hướng /login |
+| >=768px | 12 cột | Card căn giữa, span 4-5 cột | Max-width 420px, gap 16px |
+| <768px | 4 cột | Form full width | Padding ngang 16px, gap 12px |
 
-## 4. Trạng thái màn hình
+## 3. Đặc tả component
 
-- Default.
-- Invalid email.
-- Submit thành công chuyển SCR-AUTH-010.
+| Component | Vị trí | Variant/State | Dữ liệu đầu vào | Ràng buộc hiển thị |
+|---|---|---|---|---|
+| text-input-email | Vùng B | default, error, disabled | email | Bắt buộc email hợp lệ trước submit |
+| btn-send-reset-link | Vùng C | disabled, loading, enabled | formValidity | Chỉ enable khi email hợp lệ |
+| info-note | Vùng A | info | policyText | Không tiết lộ email có tồn tại hay không |
+| link-back-login | Vùng D | text-link | targetRoute | Luôn hiển thị |
 
-## 5. Dữ liệu hiển thị
+## 4. Hành động và phản hồi UI
 
-- `email`.
-- Message phản hồi dùng `messageKey` + `metadata`.
+| Trigger | Xử lý | Phản hồi UI |
+|---|---|---|
+| Nhập email và blur | Validate định dạng | Lỗi inline nếu không hợp lệ |
+| Nhấn Gửi liên kết | Gọi API forgot-password | Loading, thành công chuyển SCR-AUTH-010 |
+| API trả rate limit | Nhận thời gian chờ | Hiển thị cảnh báo và khóa submit tạm thời |
+| Nhấn Quay lại đăng nhập | Điều hướng /login | Chuyển trang tức thì |
 
-## 6. Responsive
+## 5. Hiệu ứng hình ảnh/animation và âm thanh
+- Card xuất hiện bằng fade-in 160ms.
+- Nút submit loading với spinner trung tâm.
+- Lỗi nhập liệu có chuyển màu viền mượt 120ms.
+- Không dùng âm thanh.
 
-| Breakpoint | Thay đổi layout |
-|---|---|
-| >=768px | Card giữa màn hình |
-| <768px | Form full width |
+## 6. Case hiển thị theo luồng nghiệp vụ
+- Happy path: gửi yêu cầu thành công -> SCR-AUTH-010.
+- Validation error: email sai định dạng hoặc để trống.
+- Expired: không áp dụng.
+- Locked: tạm khóa gửi yêu cầu khi vượt ngưỡng rate-limit.
+- Permission: không áp dụng.
+- Offline: mất mạng khi submit -> giữ email và cho gửi lại.
+
+## 7. Dữ liệu hiển thị và quy tắc format
+- Dữ liệu chính: email, rateLimitWindow.
+- Thông điệp phải trung lập bảo mật, không phân biệt email tồn tại/không tồn tại.
+- Nội dung phản hồi dùng messageKey + metadata.

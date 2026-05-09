@@ -1,6 +1,6 @@
 # Screen Specs Index — Open ERP SaaS Platform
 
-**Phiên bản:** 2.0  
+**Phiên bản:** 2.1  
 **Ngày cập nhật:** 09/05/2026  
 **Tác giả:** UI/UX Designer  
 **Phạm vi:** Sprint 01 (Auth, Onboarding) + Sprint 02 (System Admin)  
@@ -57,8 +57,46 @@ Ví dụ: `SCR-AUTH-004`, `SCR-SA-007`.
 
 ---
 
-## 4. Trạng thái tài liệu
+## 4. Template chuẩn cho mọi screen spec
 
-- Từ phiên bản 2.0, `SCREEN-SPECS.md` chỉ đóng vai trò index.
+Tất cả file trong `docs/design/screen-specs/` bắt buộc theo đúng thứ tự section sau:
+
+1. **Thông tin màn hình**
+2. **Layout chi tiết**
+  - Cấu trúc vùng
+  - Breakpoint, vị trí thành phần, khoảng cách chính
+3. **Đặc tả component**
+  - Tên component
+  - Vị trí
+  - Variant/State
+  - Dữ liệu đầu vào
+  - Ràng buộc hiển thị
+4. **Hành động và phản hồi UI**
+  - Trigger
+  - Xử lý
+  - Phản hồi UI
+5. **Hiệu ứng hình ảnh/animation và âm thanh**
+  - Mô tả animation/motion có chủ đích
+  - Nếu không có âm thanh phải ghi rõ: `Không dùng âm thanh`
+6. **Case hiển thị theo luồng nghiệp vụ**
+  - Happy path
+  - Validation error
+  - Expired/Locked/Permission/No-data/Offline (nếu liên quan)
+7. **Dữ liệu hiển thị và quy tắc format**
+
+### Checklist nghiệm thu nhanh cho FE/QA
+
+- Có đầy đủ 7 section theo thứ tự chuẩn.
+- Có bảng breakpoint và khoảng cách chính.
+- Có bảng component gồm đầy đủ dữ liệu đầu vào và ràng buộc hiển thị.
+- Có bảng hành động thể hiện rõ trigger -> xử lý -> phản hồi UI.
+- Có mô tả animation và có dòng xác nhận âm thanh.
+- Có case hiển thị bao phủ tình huống lỗi/vấn đề vận hành phù hợp nghiệp vụ.
+
+---
+
+## 5. Trạng thái tài liệu
+
+- Từ phiên bản 2.1, `SCREEN-SPECS.md` vừa là index vừa là tài liệu chuẩn hóa template chi tiết.
 - Tất cả đặc tả chi tiết phải nằm trong các file riêng thuộc thư mục `docs/design/screen-specs/`.
 *Tài liệu này mô tả screen specs cho Sprint 01–02. Các sprint tiếp theo sẽ được bổ sung dần theo tiến độ dự án.*
