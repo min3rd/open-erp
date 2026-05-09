@@ -18,8 +18,8 @@
 ### 1.1 Quy chiếu bắt buộc cho FE agent
 
 - Áp dụng mặc định cho mọi tác vụ FE agent trong `open-erp-web`; không cần lặp lại ràng buộc ở từng task frontend.
-- FE agent bắt buộc đọc và tuân thủ file rule tại `open-erp-web/.github/copilot-instructions.md` trước khi implement.
-- Khi có khác biệt giữa task mô tả và rule file, FE agent phải dừng implement và báo Technical Leader cập nhật tài liệu để đồng bộ.
+- FE agent tuân thủ Angular 21 Best Practices và các quy tắc được định nghĩa tại cấp agent (Standalone Components, Signals, OnPush, CSS only, native control flow, accessibility).
+- Khi có khác biệt giữa task mô tả và quy tắc agent, FE agent phải dừng implement và báo Technical Leader cập nhật tài liệu để đồng bộ.
 
 ---
 

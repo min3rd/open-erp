@@ -78,7 +78,7 @@ FRONTEND-001, USER-001, TENANT-001 ──► FRONTEND-002 (Admin Dashboard)
 - Ưu tiên FOUNDATION tasks — tất cả task khác phụ thuộc vào hạ tầng.
 - Backend tasks AUTH-001, TENANT-001 có thể phát triển song song sau khi FOUNDATION xong.
 - Frontend tasks có thể mock API để phát triển song song với backend.
-- Quy chiếu FE được áp dụng mặc định ở cấp global cho mọi tác vụ frontend trong `open-erp-web`; không lặp lại ở từng task. FE agent bắt buộc đọc và tuân thủ `open-erp-web/.github/copilot-instructions.md` trước khi implement.
+- Quy chiếu FE được áp dụng mặc định ở cấp global cho mọi tác vụ frontend trong `open-erp-web`; không lặp lại ở từng task.
 - Flow đăng ký doanh nghiệp dùng activation email link trước khi onboarding.
 - Screen specs cho Auth/System Admin đã tách theo mã màn hình riêng, task frontend phải bám theo file spec tương ứng.
 - Cuối Sprint: demo đăng nhập hoàn chỉnh (JWT + OAuth + MFA) và quản lý user/tenant.

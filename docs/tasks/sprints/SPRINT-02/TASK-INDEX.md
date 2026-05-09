@@ -113,4 +113,4 @@ Sprint 02 nội bộ
 
 ## Ghi chú tuân thủ Frontend
 
-- Quy chiếu FE được áp dụng mặc định ở cấp global cho mọi tác vụ frontend trong `open-erp-web`; không lặp lại ở từng task. FE agent bắt buộc đọc và tuân thủ `open-erp-web/.github/copilot-instructions.md` trước khi implement.
+- Quy chiếu FE được áp dụng mặc định ở cấp global cho mọi tác vụ frontend trong `open-erp-web`; không lặp lại ở từng task.

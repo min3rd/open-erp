@@ -13,7 +13,7 @@
 |---|---|---|
 | [DESIGN-SYSTEM.md](design/DESIGN-SYSTEM.md) | Design System chính thức: màu sắc, typography, spacing, components đầy đủ | ✅ Hoàn thành |
 | [SCREEN-SPECS.md](design/SCREEN-SPECS.md) | Screen Specs Sprint 01–02: Auth, Onboarding, System Admin (11 màn hình) | ✅ Hoàn thành |
-| [FRONTEND-GUIDELINES.md](design/FRONTEND-GUIDELINES.md) | Hướng dẫn bắt buộc cho Angular 21 Web và Ionic 8 Mobile, bao gồm quy chiếu rule FE agent tại `open-erp-web/.github/copilot-instructions.md` | ✅ Hoàn thành |
+| [FRONTEND-GUIDELINES.md](design/FRONTEND-GUIDELINES.md) | Hướng dẫn bắt buộc cho Angular 21 Web và Ionic 8 Mobile | ✅ Hoàn thành |
 
 ---
 
@@ -133,7 +133,7 @@
 
 Ghi chú cập nhật 09/05/2026: 6 task FE/Mobile (TASK-SPRINT-01-FRONTEND-001, TASK-SPRINT-01-FRONTEND-002, TASK-SPRINT-02-FRONTEND-001, TASK-SPRINT-02-FRONTEND-002, TASK-SPRINT-02-FRONTEND-003, TASK-SPRINT-02-MOBILE-001) đã bổ sung AC hỗ trợ Light/Dark mode và lưu lựa chọn tại openErp.colorMode.
 
-Ghi chú cập nhật 09/05/2026: các task Frontend Sprint 01-02 và task phối hợp backend i18n contract đã bổ sung ràng buộc bắt buộc FE agent đọc, tuân thủ rule Angular 21 tại `open-erp-web/.github/copilot-instructions.md` trước khi implement.
+Ghi chú cập nhật 09/05/2026: các task Frontend Sprint 01-02 và task phối hợp backend i18n contract tuân thủ rule Angular 21 Best Practices được định nghĩa tại cấp agent.
 
 ### Task chi tiết — Sprint 01
 

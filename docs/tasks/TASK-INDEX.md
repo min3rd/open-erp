@@ -2,7 +2,7 @@
 
 Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 
-> Quy chiếu bắt buộc cho FE agent (open-erp-web): áp dụng mặc định cho mọi tác vụ frontend, không lặp lại ở từng task; FE agent phải đọc và tuân thủ file rule tại `open-erp-web/.github/copilot-instructions.md` trước khi implement.
+> Quy chiếu bắt buộc cho FE agent (open-erp-web): áp dụng mặc định cho mọi tác vụ frontend, không lặp lại ở từng task.
 
 ## Tổng quan tiến độ theo Sprint
 
