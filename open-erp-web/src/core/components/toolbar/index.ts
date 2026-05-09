@@ -1,1 +1,0 @@
-export { MpToolbar } from './toolbar';
