@@ -1,4 +1,6 @@
 
+Áp dụng mặc định cho mọi tác vụ FE agent trong open-erp-web; không cần lặp lại ở từng task.
+
 You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
 
 ## TypeScript Best Practices

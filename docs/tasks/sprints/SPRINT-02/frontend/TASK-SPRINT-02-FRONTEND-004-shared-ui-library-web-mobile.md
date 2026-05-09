@@ -17,12 +17,6 @@
 
 Thiết lập thư viện giao diện dùng chung giữa Angular Web (`open-erp-web`) và Ionic Mobile (`open-erp-mobile`) theo kiến trúc micro-frontend. Chuẩn hóa design tokens bằng CSS variables, tách component primitives tái sử dụng, và đảm bảo khả năng đóng gói theo workspace library.
 
-## Ràng buộc thực thi FE Agent (bắt buộc)
-
-- Trước khi implement task này, FE agent bắt buộc đọc và tuân thủ file rule Angular 21 tại `open-erp-web/.github/copilot-instructions.md`.
-- Mọi quyết định về cấu trúc Angular, conventions, code style, testing, i18n trong task phải ưu tiên theo rule file trên.
-- Nếu phát hiện xung đột giữa task và rule file, phải báo Technical Leader để cập nhật tài liệu trước khi triển khai.
-
 ## Phạm vi kỹ thuật
 
 ### Frontend Shared Library

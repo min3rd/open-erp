@@ -17,12 +17,6 @@
 
 Xây dựng giao diện xem và tìm kiếm Audit Logs cho Angular Web App. Bao gồm: bảng danh sách logs với bộ lọc nâng cao (date range, user, resource, action), xem chi tiết log với diff viewer so sánh dữ liệu trước/sau, và xuất CSV.
 
-## Ràng buộc thực thi FE Agent (bắt buộc)
-
-- Trước khi implement task này, FE agent bắt buộc đọc và tuân thủ file rule Angular 21 tại `open-erp-web/.github/copilot-instructions.md`.
-- Mọi quyết định về cấu trúc Angular, conventions, code style, testing, i18n trong task phải ưu tiên theo rule file trên.
-- Nếu phát hiện xung đột giữa task và rule file, phải báo Technical Leader để cập nhật tài liệu trước khi triển khai.
-
 ## Phạm vi kỹ thuật
 
 ### Frontend Web (Angular 18 — `open-erp-web`)

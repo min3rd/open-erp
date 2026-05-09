@@ -17,12 +17,6 @@
 
 Xây dựng toàn bộ giao diện xác thực cho **Angular 21 Web App**. Bao gồm: màn hình đăng nhập (email/password + OAuth buttons), màn hình đăng ký doanh nghiệp có activation email link trước onboarding, màn hình quên/đặt lại mật khẩu, luồng thiết lập và xác thực MFA. Tích hợp `HttpInterceptor` để tự động gắn JWT và auto-refresh token.
 
-## Ràng buộc thực thi FE Agent (bắt buộc)
-
-- Trước khi implement task này, FE agent bắt buộc đọc và tuân thủ file rule Angular 21 tại `open-erp-web/.github/copilot-instructions.md`.
-- Mọi quyết định về cấu trúc Angular, conventions, code style, testing, i18n trong task phải ưu tiên theo rule file trên.
-- Nếu phát hiện xung đột giữa task và rule file, phải báo Technical Leader để cập nhật tài liệu trước khi triển khai.
-
 ## Phạm vi kỹ thuật
 
 ### Frontend Web (Angular 21 — `open-erp-web`)

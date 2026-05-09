@@ -17,12 +17,6 @@
 
 Xây dựng giao diện quản lý phân quyền nâng cao cho Angular Web App. Bao gồm: Role Builder với permission matrix đầy đủ (data-level, field-level, workflow permissions), giao diện gán role cho users (drag & drop), tính năng xem trước quyền hạn (simulate as user), và tích hợp CASL ở frontend để ẩn/hiện UI elements theo quyền.
 
-## Ràng buộc thực thi FE Agent (bắt buộc)
-
-- Trước khi implement task này, FE agent bắt buộc đọc và tuân thủ file rule Angular 21 tại `open-erp-web/.github/copilot-instructions.md`.
-- Mọi quyết định về cấu trúc Angular, conventions, code style, testing, i18n trong task phải ưu tiên theo rule file trên.
-- Nếu phát hiện xung đột giữa task và rule file, phải báo Technical Leader để cập nhật tài liệu trước khi triển khai.
-
 ## Phạm vi kỹ thuật
 
 ### Frontend Web (Angular 18 — `open-erp-web`)
