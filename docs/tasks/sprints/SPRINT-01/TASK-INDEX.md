@@ -1,0 +1,81 @@
+# TASK-INDEX — Sprint 01: SaaS Foundation
+
+**Sprint:** 01  
+**Mục tiêu:** Xây dựng nền tảng SaaS cốt lõi — hạ tầng, xác thực, quản lý tenant, người dùng và phân quyền cơ bản.  
+**Thời gian:** 2 tuần  
+**Tổng Story Points:** 82 SP  
+**Tổng Task:** 14  
+
+---
+
+## Tổng quan tiến độ Sprint 01
+
+| Cluster      | Tổng | ⬜ TODO | 🔵 IN PROGRESS | 🟡 REVIEW | 🟢 DONE | 🔴 BLOCKED |
+|--------------|------|---------|----------------|-----------|---------|------------|
+| foundation   | 4    | 4       | 0              | 0         | 0       | 0          |
+| auth         | 3    | 3       | 0              | 0         | 0       | 0          |
+| tenant       | 2    | 2       | 0              | 0         | 0       | 0          |
+| user         | 2    | 2       | 0              | 0         | 0       | 0          |
+| frontend     | 2    | 2       | 0              | 0         | 0       | 0          |
+| **Tổng**     | **14** | **14** | **0**        | **0**     | **0**   | **0**      |
+
+---
+
+## Danh sách Task Sprint 01
+
+| Task ID                         | Tiêu đề                                          | Cluster    | Loại     | Phụ trách | SP | Trạng thái | Phụ thuộc                                                       | File                                                                                         |
+|---------------------------------|--------------------------------------------------|------------|----------|-----------|----|------------|------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| TASK-SPRINT-01-FOUNDATION-001   | Thiết lập Docker Compose cho toàn bộ hệ thống   | foundation | DevOps   | DevOps    | 5  | ⬜ TODO    | —                                                                | `foundation/TASK-SPRINT-01-FOUNDATION-001-docker-compose-setup.md`                           |
+| TASK-SPRINT-01-FOUNDATION-002   | Triển khai API Gateway NestJS                    | foundation | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-001                                    | `foundation/TASK-SPRINT-01-FOUNDATION-002-api-gateway-service.md`                            |
+| TASK-SPRINT-01-FOUNDATION-003   | Cấu hình RabbitMQ exchanges và Redis caching     | foundation | Backend  | Backend   | 3  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-001                                    | `foundation/TASK-SPRINT-01-FOUNDATION-003-rabbitmq-redis-config.md`                          |
+| TASK-SPRINT-01-FOUNDATION-004   | Cấu hình MongoDB và Base Schema                  | foundation | Backend  | Backend   | 3  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-001                                    | `foundation/TASK-SPRINT-01-FOUNDATION-004-mongodb-setup.md`                                  |
+| TASK-SPRINT-01-AUTH-001         | Auth Service — JWT Authentication                | auth       | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004     | `auth/TASK-SPRINT-01-AUTH-001-auth-service-jwt.md`                                           |
+| TASK-SPRINT-01-AUTH-002         | Auth Service — OAuth2 Social Login               | auth       | Backend  | Backend   | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-002-oauth2-social.md`                                              |
+| TASK-SPRINT-01-AUTH-003         | Auth Service — Multi-Factor Authentication (TOTP)| auth       | Backend  | Backend   | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-003-mfa.md`                                                        |
+| TASK-SPRINT-01-TENANT-001       | Tenant Service — Quản lý doanh nghiệp            | tenant     | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004     | `tenant/TASK-SPRINT-01-TENANT-001-tenant-service.md`                                         |
+| TASK-SPRINT-01-TENANT-002       | Tenant Service — Subscription và Quota           | tenant     | Backend  | Backend   | 5  | ⬜ TODO    | TASK-SPRINT-01-TENANT-001                                        | `tenant/TASK-SPRINT-01-TENANT-002-subscription-quota.md`                                     |
+| TASK-SPRINT-01-USER-001         | User Service — Quản lý người dùng và phòng ban   | user       | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-TENANT-001               | `user/TASK-SPRINT-01-USER-001-user-service.md`                                               |
+| TASK-SPRINT-01-USER-002         | RBAC Service — Role-Based Access Control         | user       | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-USER-001                                          | `user/TASK-SPRINT-01-USER-002-rbac-service.md`                                               |
+| TASK-SPRINT-01-FRONTEND-001     | Angular Web — Auth UI                            | frontend   | Frontend | Frontend  | 8  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-AUTH-002, TASK-SPRINT-01-AUTH-003 | `frontend/TASK-SPRINT-01-FRONTEND-001-angular-auth-ui.md`                         |
+| TASK-SPRINT-01-FRONTEND-002     | Angular Web — Tenant Admin Dashboard             | frontend   | Frontend | Frontend  | 8  | ⬜ TODO    | TASK-SPRINT-01-FRONTEND-001, TASK-SPRINT-01-USER-001, TASK-SPRINT-01-TENANT-001 | `frontend/TASK-SPRINT-01-FRONTEND-002-tenant-admin-ui.md`                |
+
+---
+
+## Biểu đồ phụ thuộc Sprint 01
+
+```
+FOUNDATION-001 (Docker)
+  ├──► FOUNDATION-002 (API Gateway) ──► AUTH-001 (JWT)
+  │                                       ├──► AUTH-002 (OAuth)
+  │                                       ├──► AUTH-003 (MFA)
+  │                                       └──► USER-001 (Users)──► USER-002 (RBAC)
+  ├──► FOUNDATION-003 (RabbitMQ/Redis)   └──► TENANT-001 (Tenant) ──► TENANT-002 (Quota)
+  └──► FOUNDATION-004 (MongoDB) ──────────────┘
+
+AUTH-001, AUTH-002, AUTH-003 ──► FRONTEND-001 (Auth UI)
+FRONTEND-001, USER-001, TENANT-001 ──► FRONTEND-002 (Admin Dashboard)
+```
+
+---
+
+## Thứ tự triển khai đề xuất
+
+### Tuần 1
+- **Ngày 1-2:** FOUNDATION-001 (Docker), FOUNDATION-003 (RabbitMQ), FOUNDATION-004 (MongoDB) — Song song
+- **Ngày 3-4:** FOUNDATION-002 (API Gateway)
+- **Ngày 4-5:** AUTH-001 (JWT), TENANT-001 (Tenant) — Song song
+
+### Tuần 2
+- **Ngày 6-7:** AUTH-002 (OAuth), AUTH-003 (MFA), TENANT-002 (Quota), USER-001 (Users) — Song song
+- **Ngày 8-9:** USER-002 (RBAC), FRONTEND-001 (Auth UI) — Song song
+- **Ngày 9-10:** FRONTEND-002 (Admin Dashboard)
+- **Ngày 10:** Integration testing, bug fixes
+
+---
+
+## Ghi chú Sprint
+
+- Ưu tiên FOUNDATION tasks — tất cả task khác phụ thuộc vào hạ tầng.
+- Backend tasks AUTH-001, TENANT-001 có thể phát triển song song sau khi FOUNDATION xong.
+- Frontend tasks có thể mock API để phát triển song song với backend.
+- Cuối Sprint: demo đăng nhập hoàn chỉnh (JWT + OAuth + MFA) và quản lý user/tenant.
