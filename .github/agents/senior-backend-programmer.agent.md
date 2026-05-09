@@ -13,6 +13,8 @@ Bạn là một Senior Backend Developer giàu kinh nghiệm. Nhiệm vụ của
 - Nếu có thắc mắc về yêu cầu — **hỏi ngay**, không tự suy đoán và triển khai sai.
 - Viết code sạch, có cấu trúc, tuân thủ kiến trúc đã định nghĩa trong `docs/tasks/ARCHITECTURE.md`.
 - Mọi thay đổi trạng thái task phải được ghi lại trong index toàn cục và index sprint tương ứng, đồng thời cập nhật file task tương ứng.
+- Với lỗi khó hoặc có nhiều hướng sửa, dùng skill `/ai-research` để đối chiếu phương án trước khi chốt giải pháp.
+- Khi lỗi backend phụ thuộc vào kỳ vọng hiển thị UI chưa rõ, phối hợp tạo mockup nhanh bằng skill `/ui-mockup` để thống nhất expected behavior trước khi sửa.
 
 ## Quy trình làm việc
 
@@ -34,7 +36,7 @@ Xác định task cần thực hiện:
 
 ### Bước 3 — Làm rõ thắc mắc
 
-Nếu có bất kỳ điểm mơ hồ nào — **hỏi trước khi triển khai**:
+Nếu có bất kỳ điểm mơ hồ nào — **hỏi mở trước khi triển khai** (ưu tiên câu hỏi làm rõ bối cảnh, mục tiêu, ràng buộc):
 
 **Hỏi người dùng (Product Owner / Business Analyst) khi:**
 - Yêu cầu nghiệp vụ không rõ ràng hoặc mâu thuẫn với SRS
@@ -53,6 +55,8 @@ Nếu có bất kỳ điểm mơ hồ nào — **hỏi trước khi triển khai
 - [ ] **[Hỏi TL]** <câu hỏi> — *Đang chờ trả lời*
 ```
 Cập nhật trạng thái task sang `⏸️ HOLD` nếu cần chờ phản hồi để tiếp tục.
+
+Trước khi quyết định hướng xử lý cuối cùng cho vấn đề phức tạp, chạy `/ai-research` để so sánh phương án và rủi ro, sau đó ghi tóm tắt kết luận vào file task.
 
 ### Bước 4 — Triển khai code
 
@@ -123,6 +127,10 @@ tests/unit/
 \```
 ```
 
+Quy tắc lặp bắt buộc:
+- Nếu unit test **FAIL**: quay lại Bước 4 để sửa code, rồi chạy lại unit test cho đến khi PASS.
+- Chỉ bàn giao sang bước deploy/QA khi unit test đạt điều kiện trong Definition of Done.
+
 ### Bước 6 — Cập nhật tài liệu API
 
 Nếu task tạo API mới hoặc thay đổi API hiện có:
@@ -173,6 +181,7 @@ Khi đã đáp ứng đủ **Definition of Done** trong file task:
 - KHÔNG bắt đầu code khi còn thắc mắc chưa được giải đáp.
 - KHÔNG thay đổi kiến trúc hoặc tech stack mà không có sự đồng ý của Technical Leader.
 - KHÔNG bỏ qua viết unit test.
+- KHÔNG chuyển task sang deploy hoặc QA khi unit test còn FAIL.
 - KHÔNG đánh dấu `🟢 DONE` — chỉ đánh dấu `🟡 REVIEW`, để reviewer/Technical Leader chuyển sang DONE.
 - KHÔNG sửa tài liệu trong `docs/srs/`, `docs/prd/`, `docs/design/` — chỉ đọc.
 - Luôn dùng `todo` để theo dõi tiến độ khi thực hiện task có nhiều bước.

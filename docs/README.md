@@ -128,8 +128,8 @@
 - [TASK-INDEX.md — Tất cả task theo sprint](tasks/TASK-INDEX.md)
 
 ### Task Index theo Sprint
-- [Sprint 01 TASK-INDEX](tasks/sprints/SPRINT-01/TASK-INDEX.md) — Foundation & Authentication (14 tasks / 81 SP)
-- [Sprint 02 TASK-INDEX](tasks/sprints/SPRINT-02/TASK-INDEX.md) — System Administration & Platform Core (12 tasks / 74 SP)
+- [Sprint 01 TASK-INDEX](tasks/sprints/SPRINT-01/TASK-INDEX.md) — Foundation & Authentication (18 tasks / 98 SP)
+- [Sprint 02 TASK-INDEX](tasks/sprints/SPRINT-02/TASK-INDEX.md) — System Administration & Platform Core (14 tasks / 87 SP)
 
 Ghi chú cập nhật 09/05/2026: 6 task FE/Mobile (TASK-SPRINT-01-FRONTEND-001, TASK-SPRINT-01-FRONTEND-002, TASK-SPRINT-02-FRONTEND-001, TASK-SPRINT-02-FRONTEND-002, TASK-SPRINT-02-FRONTEND-003, TASK-SPRINT-02-MOBILE-001) đã bổ sung AC hỗ trợ Light/Dark mode và lưu lựa chọn tại openErp.colorMode.
 
@@ -137,11 +137,15 @@ Ghi chú cập nhật 09/05/2026: các task Frontend Sprint 01-02 và task phố
 
 ### Task chi tiết — Sprint 01
 
-#### Foundation (4 tasks)
+#### Foundation (8 tasks)
 - [TASK-SPRINT-01-FOUNDATION-001](tasks/sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-001-docker-compose-setup.md) — Docker Compose Hạ tầng Local Dev
 - [TASK-SPRINT-01-FOUNDATION-002](tasks/sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-002-api-gateway-service.md) — API Gateway Service
 - [TASK-SPRINT-01-FOUNDATION-003](tasks/sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-003-rabbitmq-redis-config.md) — RabbitMQ & Redis Shared Library
 - [TASK-SPRINT-01-FOUNDATION-004](tasks/sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-004-mongodb-setup.md) — MongoDB Shared Library & Base Schema
+- [TASK-SPRINT-01-FOUNDATION-006](tasks/sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-006-root-workspace-node-scripts.md) — Root Workspace Node Scripts (install/update/format/build)
+- [TASK-SPRINT-01-FOUNDATION-007](tasks/sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-007-vscode-debug-launch-configs.md) — VS Code Debug Launch Configurations
+- [TASK-SPRINT-01-FOUNDATION-008](tasks/sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-008-deploy-assets-docker-kubernetes.md) — Deploy Assets Docker & Kubernetes
+- [TASK-SPRINT-01-FOUNDATION-009](tasks/sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-009-direct-install-linux-windows-server.md) — Cài đặt trực tiếp Linux/Windows Server
 
 #### Auth (3 tasks)
 - [TASK-SPRINT-01-AUTH-001](tasks/sprints/SPRINT-01/auth/TASK-SPRINT-01-AUTH-001-auth-service-jwt.md) — Auth Service JWT & Local Auth

@@ -8,7 +8,7 @@ Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 
 | Sprint    | Tên                                    | Tổng Task | Tổng SP | TODO | IN PROGRESS | REVIEW | DONE | BLOCKED |
 |-----------|----------------------------------------|-----------|---------|------|-------------|--------|------|---------|
-| Sprint 01 | Foundation & Authentication            | 14        | 82 SP   | 14   | 0           | 0      | 0    | 0       |
+| Sprint 01 | Foundation & Authentication            | 18        | 98 SP   | 18   | 0           | 0      | 0    | 0       |
 | Sprint 02 | System Administration & Platform Core  | 14        | 87 SP   | 14   | 0           | 0      | 0    | 0       |
 | Sprint 03 | HR Module Core                         | 12        | 76 SP   | 12   | 0           | 0      | 0    | 0       |
 | Sprint 04 | Sale & Logistics Core                  | TBD       | TBD     | —    | —           | —      | —    | —       |
@@ -16,11 +16,11 @@ Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 | Sprint 06 | Office & Meeting Module                | TBD       | TBD     | —    | —           | —      | —    | —       |
 | Sprint 07 | Dashboard & Reporting                  | TBD       | TBD     | —    | —           | —      | —    | —       |
 | Sprint 08+ | AI Agent nâng cao & Tối ưu hóa       | TBD       | TBD     | —    | —           | —      | —    | —       |
-| **Tổng**  |                                        | **40**    | **245 SP** | **40** | **0**   | **0**  | **0**| **0**   |
+| **Tổng**  |                                        | **44**    | **261 SP** | **44** | **0**   | **0**  | **0**| **0**   |
 
 ---
 
-## Sprint 01 — Foundation & Authentication (14 tasks / 82 SP)
+## Sprint 01 — Foundation & Authentication (18 tasks / 98 SP)
 
 | Task ID                          | Tiêu đề                                          | Cluster    | Loại     | SP | Trạng thái | Phụ thuộc                               | File task |
 |----------------------------------|--------------------------------------------------|------------|----------|----|------------|-----------------------------------------|-----------|
@@ -28,6 +28,10 @@ Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 | TASK-SPRINT-01-FOUNDATION-002    | API Gateway Service                              | foundation | Backend  | 8  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-001           | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-002-api-gateway-service.md) |
 | TASK-SPRINT-01-FOUNDATION-003    | RabbitMQ & Redis — Shared Library                | foundation | Backend  | 3  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-001           | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-003-rabbitmq-redis-config.md) |
 | TASK-SPRINT-01-FOUNDATION-004    | MongoDB — Shared Library & Base Schema           | foundation | Backend  | 3  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-001           | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-004-mongodb-setup.md) |
+| TASK-SPRINT-01-FOUNDATION-006    | Root Workspace Node Scripts (install/update/format/build) | foundation | DevOps   | 3  | ⬜ TODO    | —                                       | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-006-root-workspace-node-scripts.md) |
+| TASK-SPRINT-01-FOUNDATION-007    | VS Code Debug Launch Configurations              | foundation | DevOps   | 3  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-006           | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-007-vscode-debug-launch-configs.md) |
+| TASK-SPRINT-01-FOUNDATION-008    | Deploy Assets — Docker & Kubernetes              | foundation | DevOps   | 5  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-001, TASK-SPRINT-01-FOUNDATION-006 | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-008-deploy-assets-docker-kubernetes.md) |
+| TASK-SPRINT-01-FOUNDATION-009    | Cài đặt trực tiếp Linux/Windows Server           | foundation | DevOps   | 5  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-006, TASK-SPRINT-01-FOUNDATION-008 | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-009-direct-install-linux-windows-server.md) |
 | TASK-SPRINT-01-AUTH-001          | Auth Service — JWT & Local Auth                  | auth       | Backend  | 8  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-002, -003, -004 | [Link](sprints/SPRINT-01/auth/TASK-SPRINT-01-AUTH-001-auth-service-jwt.md) |
 | TASK-SPRINT-01-AUTH-002          | OAuth2 — Google & Microsoft                      | auth       | Backend  | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                 | [Link](sprints/SPRINT-01/auth/TASK-SPRINT-01-AUTH-002-oauth2-social.md) |
 | TASK-SPRINT-01-AUTH-003          | Multi-Factor Authentication (TOTP)               | auth       | Backend  | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                 | [Link](sprints/SPRINT-01/auth/TASK-SPRINT-01-AUTH-003-mfa.md) |
@@ -37,8 +41,6 @@ Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 | TASK-SPRINT-01-USER-002          | RBAC Service — Role & Permission Management      | user       | Backend  | 8  | ⬜ TODO    | TASK-SPRINT-01-USER-001                 | [Link](sprints/SPRINT-01/user/TASK-SPRINT-01-USER-002-rbac-service.md) |
 | TASK-SPRINT-01-FRONTEND-001      | Angular Web — Auth UI + Đăng ký DN với Activation Email Link (Angular 21) (AC: Light/Dark mode + persistence openErp.colorMode) | frontend   | Frontend | 8  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001, -002, -003     | [Link](sprints/SPRINT-01/frontend/TASK-SPRINT-01-FRONTEND-001-angular-auth-ui.md) |
 | TASK-SPRINT-01-FRONTEND-002      | Angular Web — Tenant Admin Shell & User Mgmt UI (AC: Light/Dark mode + persistence openErp.colorMode)  | frontend   | Frontend | 8  | ⬜ TODO    | TASK-SPRINT-01-USER-001, -002           | [Link](sprints/SPRINT-01/frontend/TASK-SPRINT-01-FRONTEND-002-tenant-admin-ui.md) |
-
-> **Lưu ý:** Sprint 01 có 14 tasks trong danh sách index nhưng tổng task file là 13 (TASK-SPRINT-01-FOUNDATION-001 đến FRONTEND-002). File index sprint có đủ 14 entries — xem chi tiết tại [Sprint 01 TASK-INDEX](sprints/SPRINT-01/TASK-INDEX.md).
 
 ---
 
@@ -93,9 +95,9 @@ Ghi chú readiness Sprint 03:
 | Backend  | 24        | 149 SP  |
 | Frontend | 10        | 67 SP   |
 | Mobile   | 2         | 13 SP   |
-| DevOps   | 1         | 5 SP    |
+| DevOps   | 5         | 21 SP   |
 | Testing  | 1         | 5 SP    |
-| **Tổng** | **40**    | **245 SP** |
+| **Tổng** | **44**    | **261 SP** |
 
 ---
 
