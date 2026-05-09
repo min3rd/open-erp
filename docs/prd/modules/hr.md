@@ -129,3 +129,33 @@ Nhân viên check-in (app/web/thiết bị)
 | **Accounting** | Read | Dữ liệu chấm công/tăng ca phục vụ tính lương (khi có payroll) |
 | **AI Agent** | Bidirectional | AI phân tích dữ liệu nhân sự để đề xuất; HR dùng AI để sàng lọc CV |
 | **Dashboard** | Read | Dashboard tổng hợp KPI nhân sự, biến động nhân sự |
+
+---
+
+## 6. Phạm vi Sprint 03 (HR Core)
+
+### 6.1 In-scope Sprint 03
+
+- Tuyển dụng cơ bản: requisition, candidate pipeline, interview, offer và onboarding init ở mức tối thiểu
+- Hồ sơ nhân viên: tạo/cập nhật/tra cứu hồ sơ, dữ liệu nhạy cảm được kiểm soát theo quyền
+- Hợp đồng lao động: lifecycle cơ bản (`DRAFT`, `ACTIVE`, `EXPIRED`, `TERMINATED`), cảnh báo hết hạn 30/7 ngày
+- Cơ cấu/chức danh HR cơ bản: đồng bộ phòng ban, chức danh, quản lý trực tiếp phục vụ HR Core
+- Web UI cho tuyển dụng, hồ sơ nhân viên, hợp đồng và cơ cấu HR
+- Mobile self-service tối thiểu cho nhân viên: profile cơ bản, contract summary, onboarding summary
+- Test plan tích hợp sprint để nghiệm thu luồng end-to-end
+
+### 6.2 Out-of-scope Sprint 03
+
+- Chấm công, ca làm việc, nghỉ phép, tăng ca
+- Đánh giá KPI nhân sự và báo cáo nhân sự nâng cao
+- AI sàng lọc CV, AI dự đoán nghỉ việc, AI tối ưu lịch làm việc
+- Payroll tự động, benefits phức tạp, tích hợp bảo hiểm xã hội
+- Onboarding workflow đầy đủ nhiều bước (Sprint 03 chỉ khởi tạo onboarding init)
+
+### 6.3 Điều kiện hoàn thành Sprint 03 (Definition of Done ở mức PO)
+
+- Có đủ bộ user story HR Sprint 03 và truy vết 1-1 với task breakdown kỹ thuật
+- Luồng tuyển dụng cơ bản chạy thông suốt từ requisition đến offer/onboarding init
+- Luồng hồ sơ nhân viên, hợp đồng và cơ cấu/chức danh HR vận hành được trên web
+- Luồng self-service mobile tối thiểu hoạt động với phân quyền đúng phạm vi nhân viên
+- Có test plan Sprint 03 bao phủ chức năng P0/P1 và ma trận quyền chính

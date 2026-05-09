@@ -1,9 +1,9 @@
 # Screen Specs Index — Open ERP SaaS Platform
 
-**Phiên bản:** 2.1  
+**Phiên bản:** 3.0  
 **Ngày cập nhật:** 09/05/2026  
 **Tác giả:** UI/UX Designer  
-**Phạm vi:** Sprint 01 (Auth, Onboarding) + Sprint 02 (System Admin)  
+**Phạm vi:** Sprint 01 (Auth, Onboarding) + Sprint 02 (System Admin) + Sprint 03 (HR Core)  
 **Tham chiếu:** [Design System](DESIGN-SYSTEM.md) · [Frontend Guidelines](FRONTEND-GUIDELINES.md)
 
 ---
@@ -16,15 +16,21 @@ Quy ước thống nhất:
 - `DOMAIN`:
   - `AUTH`: Nhóm xác thực, đăng ký, onboarding
   - `SA`: Nhóm System Administration sau đăng nhập
+  - `HR`: Nhóm HR Core (recruitment, employee, contract, org/position, mobile self-service)
 - `NNN`: Số tăng dần 3 chữ số trong từng domain
 
-Ví dụ: `SCR-AUTH-004`, `SCR-SA-007`.
+Ví dụ: `SCR-AUTH-004`, `SCR-SA-007`, `SCR-HR-012`.
 
 ---
 
 ## 2. Danh sách flow
 
 - [Flow đăng ký doanh nghiệp tự phục vụ (có activation link)](flows/FLOW-register-doanh-nghiep-self-service.md)
+- [Flow HR Sprint 03: Recruitment -> Candidate -> Interview -> Offer -> Onboarding Init](flows/FLOW-hr-sprint03-recruitment-to-onboarding-init.md)
+- [Flow HR Sprint 03: Employee Profile Lifecycle](flows/FLOW-hr-sprint03-employee-profile.md)
+- [Flow HR Sprint 03: Contract Lifecycle](flows/FLOW-hr-sprint03-contract-lifecycle.md)
+- [Flow HR Sprint 03: Org/Position Mapping](flows/FLOW-hr-sprint03-org-position-mapping.md)
+- [Flow HR Sprint 03: Employee Self-Service Mobile Basic](flows/FLOW-hr-sprint03-mobile-self-service-basic.md)
 
 ---
 
@@ -54,6 +60,27 @@ Ví dụ: `SCR-AUTH-004`, `SCR-SA-007`.
 6. [SCR-SA-006 — Audit Log](screen-specs/SCR-SA-006-audit-log.md)
 7. [SCR-SA-007 — Tenant Settings](screen-specs/SCR-SA-007-tenant-settings.md)
 8. [SCR-SA-008 — Notification Preferences](screen-specs/SCR-SA-008-notification-preferences.md)
+
+### 3.3 Nhóm HR Core (Sprint 03)
+
+1. [SCR-HR-001 — Recruitment Workspace](screen-specs/SCR-HR-001-recruitment-workspace.md)
+2. [SCR-HR-002 — Requisition Form](screen-specs/SCR-HR-002-requisition-form.md)
+3. [SCR-HR-003 — Requisition Approval Detail](screen-specs/SCR-HR-003-requisition-approval-detail.md)
+4. [SCR-HR-004 — Candidate Detail & Stage](screen-specs/SCR-HR-004-candidate-detail-stage.md)
+5. [SCR-HR-005 — Interview Scheduler](screen-specs/SCR-HR-005-interview-scheduler.md)
+6. [SCR-HR-006 — Interview Result](screen-specs/SCR-HR-006-interview-result.md)
+7. [SCR-HR-007 — Offer Composer](screen-specs/SCR-HR-007-offer-composer.md)
+8. [SCR-HR-008 — Offer Tracking & Onboarding Init](screen-specs/SCR-HR-008-offer-tracking-onboarding-init.md)
+9. [SCR-HR-009 — Employee Directory List](screen-specs/SCR-HR-009-employee-directory-list.md)
+10. [SCR-HR-010 — Employee Profile Detail/Edit](screen-specs/SCR-HR-010-employee-profile-detail-edit.md)
+11. [SCR-HR-011 — Employee Documents & Sensitive Data Panel](screen-specs/SCR-HR-011-employee-documents-sensitive-data.md)
+12. [SCR-HR-012 — Contract List & Expiry Alerts](screen-specs/SCR-HR-012-contract-list-expiry-alerts.md)
+13. [SCR-HR-013 — Contract Form / Activate / Terminate](screen-specs/SCR-HR-013-contract-form-activate-terminate.md)
+14. [SCR-HR-014 — Org/Position Mapping](screen-specs/SCR-HR-014-org-position-mapping.md)
+15. [SCR-HR-015 — Mobile My HR Home](screen-specs/SCR-HR-015-mobile-my-hr-home.md)
+16. [SCR-HR-016 — Mobile My Profile Basic](screen-specs/SCR-HR-016-mobile-my-profile-basic.md)
+17. [SCR-HR-017 — Mobile Contract Summary](screen-specs/SCR-HR-017-mobile-contract-summary.md)
+18. [SCR-HR-018 — Mobile Onboarding Summary](screen-specs/SCR-HR-018-mobile-onboarding-summary.md)
 
 ---
 
@@ -99,4 +126,4 @@ Tất cả file trong `docs/design/screen-specs/` bắt buộc theo đúng thứ
 
 - Từ phiên bản 2.1, `SCREEN-SPECS.md` vừa là index vừa là tài liệu chuẩn hóa template chi tiết.
 - Tất cả đặc tả chi tiết phải nằm trong các file riêng thuộc thư mục `docs/design/screen-specs/`.
-*Tài liệu này mô tả screen specs cho Sprint 01–02. Các sprint tiếp theo sẽ được bổ sung dần theo tiến độ dự án.*
+*Tài liệu này mô tả screen specs cho Sprint 01–03. Các sprint tiếp theo sẽ được bổ sung dần theo tiến độ dự án.*

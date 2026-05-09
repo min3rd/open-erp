@@ -1,0 +1,59 @@
+# Bảng theo dõi Task — Sprint 03
+
+## Thông tin Sprint
+
+| Thuộc tính | Giá trị |
+|---|---|
+| Sprint | Sprint 03 |
+| Tên | HR Module Core |
+| Thời gian | 2 tuần (10 ngày làm việc) |
+| Tổng Story Points | 76 SP |
+| Tổng số Task | 12 |
+| Mục tiêu | Hoàn thiện HR Core cho tuyển dụng cơ bản, hồ sơ nhân viên, hợp đồng lao động, cơ cấu/chức danh HR; triển khai web UI, mobile self-service tối thiểu và kế hoạch kiểm thử sprint |
+
+## Tổng quan tiến độ
+
+| Cluster | Tổng Task | Story Points | TODO | IN PROGRESS | REVIEW | DONE | BLOCKED |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| hr-recruitment | 3 | 21 SP | 3 | 0 | 0 | 0 | 0 |
+| hr-employee | 1 | 8 SP | 1 | 0 | 0 | 0 | 0 |
+| hr-contract | 1 | 8 SP | 1 | 0 | 0 | 0 | 0 |
+| hr-org | 1 | 5 SP | 1 | 0 | 0 | 0 | 0 |
+| frontend | 4 | 24 SP | 4 | 0 | 0 | 0 | 0 |
+| mobile | 1 | 5 SP | 1 | 0 | 0 | 0 | 0 |
+| testing | 1 | 5 SP | 1 | 0 | 0 | 0 | 0 |
+| **Tổng** | **12** | **76 SP** | **12** | **0** | **0** | **0** | **0** |
+
+## Danh sách Task
+
+| Task ID | Tiêu đề | Sprint | Cluster | Loại | Người phụ trách | SP | US-HR | F-HR liên quan | SCR-HR liên quan | Trạng thái | Phụ thuộc | File task |
+|---|---|---|---|---|---|---:|---|---|---|---|---|---|
+| TASK-SPRINT-03-HR_RECRUITMENT-001 | Job Requisition Service | Sprint 03 | hr-recruitment | Backend | — | 8 | US-HR-001 | F-HR-001 | SCR-HR-001, SCR-HR-002, SCR-HR-003 | ⬜ TODO | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004, TASK-SPRINT-02-SYSTEM_ADMIN-005 | [Link](hr-recruitment/TASK-SPRINT-03-HR_RECRUITMENT-001-job-requisition-service.md) |
+| TASK-SPRINT-03-HR_RECRUITMENT-002 | Candidate & Interview Pipeline | Sprint 03 | hr-recruitment | Backend | — | 8 | US-HR-002 | F-HR-002, F-HR-003 | SCR-HR-001, SCR-HR-004, SCR-HR-005, SCR-HR-006 | ⬜ TODO | TASK-SPRINT-03-HR_RECRUITMENT-001, TASK-SPRINT-02-SYSTEM_ADMIN-006 | [Link](hr-recruitment/TASK-SPRINT-03-HR_RECRUITMENT-002-candidate-interview-pipeline.md) |
+| TASK-SPRINT-03-HR_RECRUITMENT-003 | Offer & Onboarding Init | Sprint 03 | hr-recruitment | Backend | — | 5 | US-HR-003 | F-HR-004 | SCR-HR-007, SCR-HR-008 | ⬜ TODO | TASK-SPRINT-03-HR_RECRUITMENT-002, TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-01-USER-001 | [Link](hr-recruitment/TASK-SPRINT-03-HR_RECRUITMENT-003-offer-onboarding-init.md) |
+| TASK-SPRINT-03-HR_EMPLOYEE-001 | Employee Profile Service | Sprint 03 | hr-employee | Backend | — | 8 | US-HR-003, US-HR-004 | F-HR-010 | SCR-HR-009, SCR-HR-010, SCR-HR-011 | ⬜ TODO | TASK-SPRINT-01-USER-001, TASK-SPRINT-01-FOUNDATION-004, TASK-SPRINT-02-SYSTEM_ADMIN-005 | [Link](hr-employee/TASK-SPRINT-03-HR_EMPLOYEE-001-employee-profile-service.md) |
+| TASK-SPRINT-03-HR_CONTRACT-001 | Employment Contract Lifecycle | Sprint 03 | hr-contract | Backend | — | 8 | US-HR-005 | F-HR-011 | SCR-HR-012, SCR-HR-013 | ⬜ TODO | TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-02-SYSTEM_ADMIN-006 | [Link](hr-contract/TASK-SPRINT-03-HR_CONTRACT-001-employment-contract-lifecycle.md) |
+| TASK-SPRINT-03-HR_ORG-001 | HR Structure & Position Mapping | Sprint 03 | hr-org | Backend | — | 5 | US-HR-004, US-HR-006 | F-HR-060 | SCR-HR-014 | ⬜ TODO | TASK-SPRINT-02-SYSTEM_ADMIN-003, TASK-SPRINT-02-SYSTEM_ADMIN-005 | [Link](hr-org/TASK-SPRINT-03-HR_ORG-001-hr-structure-position-mapping.md) |
+| TASK-SPRINT-03-FRONTEND-001 | HR Recruitment Web UI | Sprint 03 | frontend | Frontend | — | 8 | US-HR-001, US-HR-002, US-HR-003, US-HR-007 | F-HR-061, F-HR-001, F-HR-002, F-HR-003, F-HR-004 | SCR-HR-001, SCR-HR-002, SCR-HR-003, SCR-HR-004, SCR-HR-005, SCR-HR-006, SCR-HR-007, SCR-HR-008 | ⬜ TODO | TASK-SPRINT-03-HR_RECRUITMENT-001, TASK-SPRINT-03-HR_RECRUITMENT-002, TASK-SPRINT-03-HR_RECRUITMENT-003, TASK-SPRINT-02-FRONTEND-004 | [Link](frontend/TASK-SPRINT-03-FRONTEND-001-hr-recruitment-web-ui.md) |
+| TASK-SPRINT-03-FRONTEND-002 | Employee Profile Web UI | Sprint 03 | frontend | Frontend | — | 8 | US-HR-004, US-HR-006, US-HR-008 | F-HR-062, F-HR-010, F-HR-060 | SCR-HR-009, SCR-HR-010, SCR-HR-011, SCR-HR-014 | ⬜ TODO | TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-03-HR_ORG-001, TASK-SPRINT-02-FRONTEND-004 | [Link](frontend/TASK-SPRINT-03-FRONTEND-002-employee-profile-web-ui.md) |
+| TASK-SPRINT-03-FRONTEND-003 | Employment Contract Web UI | Sprint 03 | frontend | Frontend | — | 5 | US-HR-005, US-HR-009 | F-HR-063, F-HR-011 | SCR-HR-012, SCR-HR-013 | ⬜ TODO | TASK-SPRINT-03-HR_CONTRACT-001, TASK-SPRINT-03-FRONTEND-002 | [Link](frontend/TASK-SPRINT-03-FRONTEND-003-employment-contract-web-ui.md) |
+| TASK-SPRINT-03-FRONTEND-004 | HR Structure Web UI | Sprint 03 | frontend | Frontend | — | 3 | US-HR-006, US-HR-010 | F-HR-064, F-HR-060 | SCR-HR-014 | ⬜ TODO | TASK-SPRINT-03-HR_ORG-001, TASK-SPRINT-03-FRONTEND-002 | [Link](frontend/TASK-SPRINT-03-FRONTEND-004-hr-structure-web-ui.md) |
+| TASK-SPRINT-03-MOBILE-001 | Employee Self-Service HR Basic | Sprint 03 | mobile | Mobile | — | 5 | US-HR-004, US-HR-005, US-HR-011 | F-HR-065, F-HR-010, F-HR-011 | SCR-HR-015, SCR-HR-016, SCR-HR-017, SCR-HR-018 | ⬜ TODO | TASK-SPRINT-02-MOBILE-001, TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-03-HR_CONTRACT-001 | [Link](mobile/TASK-SPRINT-03-MOBILE-001-employee-self-service-hr-basic.md) |
+| TASK-SPRINT-03-TESTING-001 | HR Core Test Plan | Sprint 03 | testing | Testing | — | 5 | US-HR-001, US-HR-002, US-HR-003, US-HR-004, US-HR-005, US-HR-006, US-HR-007, US-HR-008, US-HR-009, US-HR-010, US-HR-011, US-HR-012 | F-HR-066, F-HR-001, F-HR-002, F-HR-003, F-HR-004, F-HR-010, F-HR-011, F-HR-060, F-HR-061, F-HR-062, F-HR-063, F-HR-064, F-HR-065 | SCR-HR-001, SCR-HR-002, SCR-HR-003, SCR-HR-004, SCR-HR-005, SCR-HR-006, SCR-HR-007, SCR-HR-008, SCR-HR-009, SCR-HR-010, SCR-HR-011, SCR-HR-012, SCR-HR-013, SCR-HR-014, SCR-HR-015, SCR-HR-016, SCR-HR-017, SCR-HR-018 | ⬜ TODO | TASK-SPRINT-03-HR_RECRUITMENT-003, TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-03-HR_CONTRACT-001, TASK-SPRINT-03-FRONTEND-004, TASK-SPRINT-03-MOBILE-001 | [Link](testing/TASK-SPRINT-03-TESTING-001-hr-core-test-plan.md) |
+
+## Sơ đồ phụ thuộc chính
+
+```
+HR_RECRUITMENT-001 -> HR_RECRUITMENT-002 -> HR_RECRUITMENT-003
+HR_EMPLOYEE-001 -> HR_CONTRACT-001
+HR_ORG-001 -> FRONTEND-002 -> FRONTEND-003/FRONTEND-004
+HR_RECRUITMENT-001/002/003 -> FRONTEND-001
+HR_EMPLOYEE-001 + HR_CONTRACT-001 + MOBILE baseline -> MOBILE-001
+Toàn bộ backend + FE + mobile chính -> TESTING-001
+```
+
+## Ghi chú
+
+- Tuân thủ ràng buộc FE ở cấp global index `docs/tasks/TASK-INDEX.md`, không lặp lại section ràng buộc FE trong từng task frontend.
+- Tất cả task Sprint 03 khởi tạo ở trạng thái `⬜ TODO` để sẵn sàng phân công.
+- Mapping truy vết Sprint 03 bám theo SRS HR mục 7.1.2 và các flow UI/UX Sprint 03 để đảm bảo PRD/US -> SRS -> SCR-HR -> Task.

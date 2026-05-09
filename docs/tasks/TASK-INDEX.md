@@ -10,13 +10,13 @@ Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 |-----------|----------------------------------------|-----------|---------|------|-------------|--------|------|---------|
 | Sprint 01 | Foundation & Authentication            | 14        | 82 SP   | 14   | 0           | 0      | 0    | 0       |
 | Sprint 02 | System Administration & Platform Core  | 14        | 87 SP   | 14   | 0           | 0      | 0    | 0       |
-| Sprint 03 | HR Module Core                         | TBD       | TBD     | —    | —           | —      | —    | —       |
+| Sprint 03 | HR Module Core                         | 12        | 76 SP   | 12   | 0           | 0      | 0    | 0       |
 | Sprint 04 | Sale & Logistics Core                  | TBD       | TBD     | —    | —           | —      | —    | —       |
 | Sprint 05 | Accounting Module                      | TBD       | TBD     | —    | —           | —      | —    | —       |
 | Sprint 06 | Office & Meeting Module                | TBD       | TBD     | —    | —           | —      | —    | —       |
 | Sprint 07 | Dashboard & Reporting                  | TBD       | TBD     | —    | —           | —      | —    | —       |
 | Sprint 08+ | AI Agent nâng cao & Tối ưu hóa       | TBD       | TBD     | —    | —           | —      | —    | —       |
-| **Tổng**  |                                        | **28**    | **169 SP** | **28** | **0**   | **0**  | **0**| **0**   |
+| **Tổng**  |                                        | **40**    | **245 SP** | **40** | **0**   | **0**  | **0**| **0**   |
 
 ---
 
@@ -63,16 +63,39 @@ Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 
 ---
 
+## Sprint 03 — HR Module Core (12 tasks / 76 SP)
+
+| Task ID                                | Tiêu đề                                | Cluster        | Loại     | SP | Trạng thái | Phụ thuộc                                                                                                  | File task |
+|----------------------------------------|----------------------------------------|----------------|----------|----|------------|------------------------------------------------------------------------------------------------------------|-----------|
+| TASK-SPRINT-03-HR_RECRUITMENT-001      | Job Requisition Service                | hr-recruitment | Backend  | 8  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004, TASK-SPRINT-02-SYSTEM_ADMIN-005           | [Link](sprints/SPRINT-03/hr-recruitment/TASK-SPRINT-03-HR_RECRUITMENT-001-job-requisition-service.md) |
+| TASK-SPRINT-03-HR_RECRUITMENT-002      | Candidate & Interview Pipeline         | hr-recruitment | Backend  | 8  | ⬜ TODO    | TASK-SPRINT-03-HR_RECRUITMENT-001, TASK-SPRINT-02-SYSTEM_ADMIN-006                                        | [Link](sprints/SPRINT-03/hr-recruitment/TASK-SPRINT-03-HR_RECRUITMENT-002-candidate-interview-pipeline.md) |
+| TASK-SPRINT-03-HR_RECRUITMENT-003      | Offer & Onboarding Init                | hr-recruitment | Backend  | 5  | ⬜ TODO    | TASK-SPRINT-03-HR_RECRUITMENT-002, TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-01-USER-001               | [Link](sprints/SPRINT-03/hr-recruitment/TASK-SPRINT-03-HR_RECRUITMENT-003-offer-onboarding-init.md) |
+| TASK-SPRINT-03-HR_EMPLOYEE-001         | Employee Profile Service               | hr-employee    | Backend  | 8  | ⬜ TODO    | TASK-SPRINT-01-USER-001, TASK-SPRINT-01-FOUNDATION-004, TASK-SPRINT-02-SYSTEM_ADMIN-005                  | [Link](sprints/SPRINT-03/hr-employee/TASK-SPRINT-03-HR_EMPLOYEE-001-employee-profile-service.md) |
+| TASK-SPRINT-03-HR_CONTRACT-001         | Employment Contract Lifecycle          | hr-contract    | Backend  | 8  | ⬜ TODO    | TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-02-SYSTEM_ADMIN-006                                           | [Link](sprints/SPRINT-03/hr-contract/TASK-SPRINT-03-HR_CONTRACT-001-employment-contract-lifecycle.md) |
+| TASK-SPRINT-03-HR_ORG-001              | HR Structure & Position Mapping        | hr-org         | Backend  | 5  | ⬜ TODO    | TASK-SPRINT-02-SYSTEM_ADMIN-003, TASK-SPRINT-02-SYSTEM_ADMIN-005                                          | [Link](sprints/SPRINT-03/hr-org/TASK-SPRINT-03-HR_ORG-001-hr-structure-position-mapping.md) |
+| TASK-SPRINT-03-FRONTEND-001            | HR Recruitment Web UI                  | frontend       | Frontend | 8  | ⬜ TODO    | TASK-SPRINT-03-HR_RECRUITMENT-001, TASK-SPRINT-03-HR_RECRUITMENT-002, TASK-SPRINT-03-HR_RECRUITMENT-003, TASK-SPRINT-02-FRONTEND-004 | [Link](sprints/SPRINT-03/frontend/TASK-SPRINT-03-FRONTEND-001-hr-recruitment-web-ui.md) |
+| TASK-SPRINT-03-FRONTEND-002            | Employee Profile Web UI                | frontend       | Frontend | 8  | ⬜ TODO    | TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-03-HR_ORG-001, TASK-SPRINT-02-FRONTEND-004                   | [Link](sprints/SPRINT-03/frontend/TASK-SPRINT-03-FRONTEND-002-employee-profile-web-ui.md) |
+| TASK-SPRINT-03-FRONTEND-003            | Employment Contract Web UI             | frontend       | Frontend | 5  | ⬜ TODO    | TASK-SPRINT-03-HR_CONTRACT-001, TASK-SPRINT-03-FRONTEND-002                                                | [Link](sprints/SPRINT-03/frontend/TASK-SPRINT-03-FRONTEND-003-employment-contract-web-ui.md) |
+| TASK-SPRINT-03-FRONTEND-004            | HR Structure Web UI                    | frontend       | Frontend | 3  | ⬜ TODO    | TASK-SPRINT-03-HR_ORG-001, TASK-SPRINT-03-FRONTEND-002                                                     | [Link](sprints/SPRINT-03/frontend/TASK-SPRINT-03-FRONTEND-004-hr-structure-web-ui.md) |
+| TASK-SPRINT-03-MOBILE-001              | Employee Self-Service HR Basic         | mobile         | Mobile   | 5  | ⬜ TODO    | TASK-SPRINT-02-MOBILE-001, TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-03-HR_CONTRACT-001                | [Link](sprints/SPRINT-03/mobile/TASK-SPRINT-03-MOBILE-001-employee-self-service-hr-basic.md) |
+| TASK-SPRINT-03-TESTING-001             | HR Core Test Plan                      | testing        | Testing  | 5  | ⬜ TODO    | TASK-SPRINT-03-HR_RECRUITMENT-003, TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-03-HR_CONTRACT-001, TASK-SPRINT-03-FRONTEND-004, TASK-SPRINT-03-MOBILE-001 | [Link](sprints/SPRINT-03/testing/TASK-SPRINT-03-TESTING-001-hr-core-test-plan.md) |
+
+Ghi chú readiness Sprint 03:
+- Sprint index đã bổ sung mapping traceability rõ US-HR-001..012 -> F-HR -> SCR-HR -> task tại `docs/tasks/sprints/SPRINT-03/TASK-INDEX.md`.
+- 12/12 task Sprint 03 đã có mục `Traceability/References` ngắn gọn, đồng bộ với SRS HR mục 7.1.2 và flow UI/UX Sprint 03.
+
+---
+
 ## Thống kê theo loại công việc
 
 | Loại     | Tổng Task | Tổng SP |
 |----------|-----------|---------|
-| Backend  | 18        | 115 SP  |
-| Frontend | 6         | 43 SP   |
-| Mobile   | 1         | 8 SP    |
+| Backend  | 24        | 149 SP  |
+| Frontend | 10        | 67 SP   |
+| Mobile   | 2         | 13 SP   |
 | DevOps   | 1         | 5 SP    |
-| Testing  | 0         | 0       |
-| **Tổng** | **28**    | **169 SP** |
+| Testing  | 1         | 5 SP    |
+| **Tổng** | **40**    | **245 SP** |
 
 ---
 
@@ -80,6 +103,7 @@ Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 
 - [Sprint 01 TASK-INDEX](sprints/SPRINT-01/TASK-INDEX.md)
 - [Sprint 02 TASK-INDEX](sprints/SPRINT-02/TASK-INDEX.md)
+- [Sprint 03 TASK-INDEX](sprints/SPRINT-03/TASK-INDEX.md)
 - [Kiến trúc hệ thống](../architecture/SYSTEM-ARCHITECTURE.md)
 - [Microservice Map](../architecture/MICROSERVICE-MAP.md)
 - [API Design](../architecture/API-DESIGN.md)

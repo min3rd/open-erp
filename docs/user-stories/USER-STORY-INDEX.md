@@ -2,8 +2,8 @@
 # Open ERP — SaaS Enterprise Management Platform
 
 **Cập nhật lần cuối:** 09/05/2026  
-**Tổng số User Stories:** 26  
-**Sprint đã có US:** Sprint 01, Sprint 02  
+**Tổng số User Stories:** 38  
+**Sprint đã có US:** Sprint 01, Sprint 02, Sprint 03  
 
 ---
 
@@ -13,7 +13,8 @@
 |---|---|---|
 | Sprint 01 — SaaS Foundation | 11 | 47 |
 | Sprint 02 — System Admin nâng cao | 15 | 84 |
-| **Tổng** | **26** | **131** |
+| Sprint 03 — HR Core | 12 | 76 |
+| **Tổng** | **38** | **207** |
 
 ---
 
@@ -47,6 +48,18 @@
 | US-SA-023 | Super Admin theo dõi sức khỏe hệ thống | Sprint 02 | Platform Monitoring | Feature | Trung bình | 5 | Chưa bắt đầu | [US-SA-023.md](system-administration/US-SA-023.md) |
 | US-SA-024 | Quản lý Biểu mẫu động (Dynamic Form) | Sprint 02 | Catalog | Feature | Trung bình | 8 | Chưa bắt đầu | [US-SA-024.md](system-administration/US-SA-024.md) |
 | US-SA-026 | Super Admin phê duyệt đăng ký Doanh nghiệp | Sprint 02 | Tenant Management | Feature | Trung bình | 5 | Chưa bắt đầu | [US-SA-026.md](system-administration/US-SA-026.md) |
+| US-HR-001 | Tạo và phê duyệt Nhu cầu tuyển dụng | Sprint 03 | hr-recruitment | Feature | Cao | 8 | Chưa bắt đầu | [US-HR-001.md](hr-core/US-HR-001.md) |
+| US-HR-002 | Quản lý Pipeline Ứng viên và Lịch phỏng vấn | Sprint 03 | hr-recruitment | Feature | Cao | 8 | Chưa bắt đầu | [US-HR-002.md](hr-core/US-HR-002.md) |
+| US-HR-003 | Gửi Offer và Khởi tạo Onboarding cơ bản | Sprint 03 | hr-recruitment | Feature | Cao | 5 | Chưa bắt đầu | [US-HR-003.md](hr-core/US-HR-003.md) |
+| US-HR-004 | Quản lý Hồ sơ nhân viên chuẩn HR Core | Sprint 03 | hr-employee | Feature | Cao | 8 | Chưa bắt đầu | [US-HR-004.md](hr-core/US-HR-004.md) |
+| US-HR-005 | Quản lý Vòng đời Hợp đồng lao động | Sprint 03 | hr-contract | Feature | Cao | 8 | Chưa bắt đầu | [US-HR-005.md](hr-core/US-HR-005.md) |
+| US-HR-006 | Đồng bộ Cơ cấu tổ chức và Chức danh cho HR | Sprint 03 | hr-org | Feature | Cao | 5 | Chưa bắt đầu | [US-HR-006.md](hr-core/US-HR-006.md) |
+| US-HR-007 | Giao diện Web Tuyển dụng cơ bản | Sprint 03 | frontend | Feature | Cao | 8 | Chưa bắt đầu | [US-HR-007.md](hr-core/US-HR-007.md) |
+| US-HR-008 | Giao diện Web Hồ sơ nhân viên | Sprint 03 | frontend | Feature | Cao | 8 | Chưa bắt đầu | [US-HR-008.md](hr-core/US-HR-008.md) |
+| US-HR-009 | Giao diện Web Hợp đồng lao động | Sprint 03 | frontend | Feature | Cao | 5 | Chưa bắt đầu | [US-HR-009.md](hr-core/US-HR-009.md) |
+| US-HR-010 | Giao diện Web Cơ cấu/chức danh HR cơ bản | Sprint 03 | frontend | Feature | Trung bình | 3 | Chưa bắt đầu | [US-HR-010.md](hr-core/US-HR-010.md) |
+| US-HR-011 | Mobile Self-Service HR cơ bản cho Nhân viên | Sprint 03 | mobile | Feature | Trung bình | 5 | Chưa bắt đầu | [US-HR-011.md](hr-core/US-HR-011.md) |
+| US-HR-012 | Kế hoạch kiểm thử tích hợp HR Core Sprint 03 | Sprint 03 | testing | Enabler | Cao | 5 | Chưa bắt đầu | [US-HR-012.md](hr-core/US-HR-012.md) |
 
 ---
 
@@ -54,10 +67,10 @@
 
 | Độ ưu tiên | Số lượng | Story Points |
 |---|---|---|
-| Cao (Must Have) | 16 | 76 |
-| Trung bình (Should Have) | 9 | 47 |
+| Cao (Must Have) | 26 | 144 |
+| Trung bình (Should Have) | 11 | 55 |
 | Thấp (Could Have) | 1 | 8 |
-| **Tổng** | **26** | **131** |
+| **Tổng** | **38** | **207** |
 
 > *Lưu ý: Tổng story points có thể chênh lệch nhỏ do cách phân bổ sprint.*
 
@@ -103,6 +116,24 @@
 | US-SA-026 | Phê duyệt đăng ký DN | Trung bình | 5 |
 | **Tổng Sprint 02** | | | **84** |
 
+### Sprint 03 — HR Core
+
+| US ID | Tiêu đề | Ưu tiên | SP |
+|---|---|---|---|
+| US-HR-001 | Tạo và phê duyệt Nhu cầu tuyển dụng | Cao | 8 |
+| US-HR-002 | Quản lý Pipeline Ứng viên và Lịch phỏng vấn | Cao | 8 |
+| US-HR-003 | Gửi Offer và Khởi tạo Onboarding cơ bản | Cao | 5 |
+| US-HR-004 | Quản lý Hồ sơ nhân viên chuẩn HR Core | Cao | 8 |
+| US-HR-005 | Quản lý Vòng đời Hợp đồng lao động | Cao | 8 |
+| US-HR-006 | Đồng bộ Cơ cấu tổ chức và Chức danh cho HR | Cao | 5 |
+| US-HR-007 | Giao diện Web Tuyển dụng cơ bản | Cao | 8 |
+| US-HR-008 | Giao diện Web Hồ sơ nhân viên | Cao | 8 |
+| US-HR-009 | Giao diện Web Hợp đồng lao động | Cao | 5 |
+| US-HR-010 | Giao diện Web Cơ cấu/chức danh HR cơ bản | Trung bình | 3 |
+| US-HR-011 | Mobile Self-Service HR cơ bản cho Nhân viên | Trung bình | 5 |
+| US-HR-012 | Kế hoạch kiểm thử tích hợp HR Core Sprint 03 | Cao | 5 |
+| **Tổng Sprint 03** | | | **76** |
+
 ---
 
 ## Phụ thuộc giữa User Stories
@@ -127,4 +158,22 @@ US-SA-003 (Đăng nhập)
 US-SA-009 (Role)
     └─► US-SA-010 (Gán quyền)
         └─► US-SA-022 (Phân quyền dữ liệu)
+
+US-HR-001 (Nhu cầu tuyển dụng)
+    └─► US-HR-002 (Pipeline ứng viên và phỏng vấn)
+        └─► US-HR-003 (Offer và onboarding init)
+
+US-HR-004 (Hồ sơ nhân viên)
+    └─► US-HR-005 (Vòng đời hợp đồng)
+
+US-HR-006 (Cơ cấu/chức danh HR)
+    └─► US-HR-008 (Web hồ sơ nhân viên)
+        └─► US-HR-009 (Web hợp đồng)
+    └─► US-HR-010 (Web cơ cấu/chức danh)
+
+US-HR-004 + US-HR-005
+    └─► US-HR-011 (Mobile self-service)
+
+US-HR-001 + US-HR-002 + US-HR-003 + US-HR-007 + US-HR-011
+    └─► US-HR-012 (Kế hoạch kiểm thử tích hợp)
 ```
