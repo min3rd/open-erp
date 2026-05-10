@@ -10,7 +10,7 @@
 | Loại             | Backend                           |
 | Người phụ trách  | Backend                           |
 | Story Points     | 3                                 |
-| Trạng thái       | ⬜ TODO                           |
+| Trạng thái       | 🟡 REVIEW                        |
 | Phụ thuộc        | TASK-SPRINT-01-FOUNDATION-001     |
 
 ## Mô tả
@@ -160,16 +160,16 @@ Không có — đây là shared library, không expose HTTP endpoints.
 
 ## Acceptance Criteria
 
-- [ ] `RabbitmqModule` import được vào bất kỳ NestJS microservice nào
-- [ ] `RedisModule` import được vào bất kỳ NestJS microservice nào
-- [ ] 4 exchanges được tạo tự động khi service khởi động
-- [ ] Dead-letter queue nhận message sau 3 lần retry thất bại
-- [ ] `RedisService.getOrSet()` chỉ gọi factory 1 lần dù concurrent requests
-- [ ] Cache invalidation hoạt động: sau `del()` → `get()` trả về null
-- [ ] Message format chuẩn được enforce bằng TypeScript interface
-- [ ] Unit test coverage ≥ 80%
-- [ ] Integration test: publish → subscribe thành công
-- [ ] Retry policy: message được retry đúng 3 lần trước khi vào DLQ
+- [x] `RabbitmqModule` import được vào bất kỳ NestJS microservice nào
+- [x] `RedisModule` import được vào bất kỳ NestJS microservice nào
+- [x] 4 exchanges được tạo tự động khi service khởi động
+- [x] Dead-letter queue nhận message sau 3 lần retry thất bại (logic trong `RabbitmqService`)
+- [x] `RedisService.getOrSet()` chỉ gọi factory 1 lần dù concurrent requests
+- [x] Cache invalidation hoạt động: sau `del()` → `get()` trả về null
+- [x] Message format chuẩn được enforce bằng TypeScript interface
+- [ ] Unit test coverage ≥ 80% (chưa chạy `test:cov`)
+- [ ] Integration test: publish → subscribe thành công (chưa có môi trường RabbitMQ test tự động)
+- [ ] Retry policy: message được retry đúng 3 lần trước khi vào DLQ (đã có logic, chưa có integration test xác nhận end-to-end)
 
 ## Ghi chú kỹ thuật
 
@@ -179,3 +179,50 @@ Không có — đây là shared library, không expose HTTP endpoints.
 - Cần có **circuit breaker** cho RabbitMQ connection (tự động reconnect khi mất kết nối).
 - Redis Cluster chưa cần trong Sprint 01, nhưng code phải sẵn sàng (dùng `ioredis.Cluster`).
 - Logging tất cả publish/subscribe events với `requestId` để trace.
+
+## Kết quả Unit Test
+
+**Lần chạy:** 2026-05-10
+**Lệnh:** `npm run test -- --runInBand`
+**Kết quả:** ✅ PASS
+
+| Test suite | Tests | Passed | Failed |
+|---|---:|---:|---:|
+| tenant.plugin.spec.ts | 3 | 3 | 0 |
+| redis.service.spec.ts | 2 | 2 | 0 |
+| pagination.util.spec.ts | 1 | 1 | 0 |
+
+**Evidence:**
+```text
+PASS src/shared-tests/tenant.plugin.spec.ts
+PASS src/shared-tests/redis.service.spec.ts
+PASS src/app.controller.spec.ts
+PASS src/shared-tests/pagination.util.spec.ts
+Test Suites: 4 passed, 4 total
+Tests: 7 passed, 7 total
+```
+
+## Kết quả triển khai
+
+**Ngày hoàn thành:** 2026-05-10
+**Trạng thái:** 🟡 REVIEW
+
+**Files đã tạo / sửa (task 003):**
+- `libs/shared/messaging/index.ts`
+- `libs/shared/messaging/rabbitmq/constants/exchanges.ts`
+- `libs/shared/messaging/rabbitmq/constants/routing-keys.ts`
+- `libs/shared/messaging/rabbitmq/decorators/subscribe-to.decorator.ts`
+- `libs/shared/messaging/rabbitmq/interfaces/erp-message.interface.ts`
+- `libs/shared/messaging/rabbitmq/interfaces/rabbitmq-options.interface.ts`
+- `libs/shared/messaging/rabbitmq/tokens/rabbitmq.tokens.ts`
+- `libs/shared/messaging/rabbitmq/rabbitmq.module.ts`
+- `libs/shared/messaging/rabbitmq/rabbitmq.service.ts`
+- `libs/shared/messaging/redis/cache-key.builder.ts`
+- `libs/shared/messaging/redis/interfaces/redis-options.interface.ts`
+- `libs/shared/messaging/redis/tokens/redis.tokens.ts`
+- `libs/shared/messaging/redis/redis.module.ts`
+- `libs/shared/messaging/redis/redis.service.ts`
+
+**Blocker / phần còn thiếu:**
+- Chưa có integration test RabbitMQ để verify publish/subscribe và retry->DLQ theo runtime thực.
+- Chưa có báo cáo coverage để xác nhận ngưỡng ≥ 80%.

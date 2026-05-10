@@ -8,7 +8,7 @@ Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 
 | Sprint    | Tên                                    | Tổng Task | Tổng SP | TODO | IN PROGRESS | REVIEW | DONE | BLOCKED |
 |-----------|----------------------------------------|-----------|---------|------|-------------|--------|------|---------|
-| Sprint 01 | Foundation & Authentication            | 18        | 98 SP   | 18   | 0           | 0      | 0    | 0       |
+| Sprint 01 | Foundation & Authentication            | 18        | 98 SP   | 14   | 0           | 4      | 0    | 0       |
 | Sprint 02 | System Administration & Platform Core  | 14        | 87 SP   | 14   | 0           | 0      | 0    | 0       |
 | Sprint 03 | HR Module Core                         | 12        | 76 SP   | 12   | 0           | 0      | 0    | 0       |
 | Sprint 04 | Sale & Logistics Core                  | TBD       | TBD     | —    | —           | —      | —    | —       |
@@ -16,7 +16,7 @@ Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 | Sprint 06 | Office & Meeting Module                | TBD       | TBD     | —    | —           | —      | —    | —       |
 | Sprint 07 | Dashboard & Reporting                  | TBD       | TBD     | —    | —           | —      | —    | —       |
 | Sprint 08+ | AI Agent nâng cao & Tối ưu hóa       | TBD       | TBD     | —    | —           | —      | —    | —       |
-| **Tổng**  |                                        | **44**    | **261 SP** | **44** | **0**   | **0**  | **0**| **0**   |
+| **Tổng**  |                                        | **44**    | **261 SP** | **40** | **0**   | **4**  | **0**| **0**   |
 
 ---
 
@@ -24,11 +24,11 @@ Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 
 | Task ID                          | Tiêu đề                                          | Cluster    | Loại     | SP | Trạng thái | Phụ thuộc                               | File task |
 |----------------------------------|--------------------------------------------------|------------|----------|----|------------|-----------------------------------------|-----------|
-| TASK-SPRINT-01-FOUNDATION-001    | Docker Compose — Hạ tầng local dev               | foundation | DevOps   | 5  | ⬜ TODO    | —                                       | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-001-docker-compose-setup.md) |
+| TASK-SPRINT-01-FOUNDATION-001    | Docker Compose — Hạ tầng local dev               | foundation | DevOps   | 5  | 🟡 REVIEW | —                                         | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-001-docker-compose-setup.md) |
 | TASK-SPRINT-01-FOUNDATION-002    | API Gateway Service                              | foundation | Backend  | 8  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-001           | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-002-api-gateway-service.md) |
-| TASK-SPRINT-01-FOUNDATION-003    | RabbitMQ & Redis — Shared Library                | foundation | Backend  | 3  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-001           | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-003-rabbitmq-redis-config.md) |
-| TASK-SPRINT-01-FOUNDATION-004    | MongoDB — Shared Library & Base Schema           | foundation | Backend  | 3  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-001           | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-004-mongodb-setup.md) |
-| TASK-SPRINT-01-FOUNDATION-006    | Root Workspace Node Scripts (install/update/format/build) | foundation | DevOps   | 3  | ⬜ TODO    | —                                       | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-006-root-workspace-node-scripts.md) |
+| TASK-SPRINT-01-FOUNDATION-003    | RabbitMQ & Redis — Shared Library                | foundation | Backend  | 3  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001           | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-003-rabbitmq-redis-config.md) |
+| TASK-SPRINT-01-FOUNDATION-004    | MongoDB — Shared Library & Base Schema           | foundation | Backend  | 3  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001           | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-004-mongodb-setup.md) |
+| TASK-SPRINT-01-FOUNDATION-006    | Root Workspace Node Scripts (install/update/format/build) | foundation | DevOps   | 3  | 🟡 REVIEW | —                                         | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-006-root-workspace-node-scripts.md) |
 | TASK-SPRINT-01-FOUNDATION-007    | VS Code Debug Launch Configurations              | foundation | DevOps   | 3  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-006           | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-007-vscode-debug-launch-configs.md) |
 | TASK-SPRINT-01-FOUNDATION-008    | Deploy Assets — Docker & Kubernetes              | foundation | DevOps   | 5  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-001, TASK-SPRINT-01-FOUNDATION-006 | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-008-deploy-assets-docker-kubernetes.md) |
 | TASK-SPRINT-01-FOUNDATION-009    | Cài đặt trực tiếp Linux/Windows Server           | foundation | DevOps   | 5  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-006, TASK-SPRINT-01-FOUNDATION-008 | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-009-direct-install-linux-windows-server.md) |

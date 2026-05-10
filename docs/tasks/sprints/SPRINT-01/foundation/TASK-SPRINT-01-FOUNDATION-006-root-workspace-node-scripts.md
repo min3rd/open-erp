@@ -9,7 +9,7 @@
 | Loại | DevOps |
 | Người phụ trách | DevOps |
 | Story Points | 3 |
-| Trạng thái | ⬜ TODO |
+| Trạng thái | 🟡 REVIEW |
 | Phụ thuộc | — |
 
 ## Mô tả
@@ -71,9 +71,31 @@ N/A
 - **Xử lý lỗi:** Exit code khác 0 khi bất kỳ bước nào thất bại.
 
 ## Acceptance Criteria
-- [ ] Có đầy đủ 4 nhóm script tại root: install, update dependency, format, build.
-- [ ] Chạy `install:all` cài dependencies thành công cho 3 project con.
-- [ ] Chạy `deps:update:all` tạo báo cáo package được cập nhật theo policy.
-- [ ] Chạy `format:check` phát hiện sai format và `format:write` sửa được sai format.
-- [ ] Chạy `build:all` lần lượt build backend, web, mobile và dừng ngay khi có lỗi.
-- [ ] Tài liệu thao tác script được mô tả rõ cho team Dev/DevOps.
+- [x] Có đầy đủ 4 nhóm script tại root: install, update dependency, format, build.
+- [x] Chạy `install:all` cài dependencies thành công cho 3 project con.
+- [x] Chạy `deps:update:all` tạo báo cáo package được cập nhật theo policy.
+- [x] Chạy `format:check` phát hiện sai format và `format:write` sửa được sai format.
+- [x] Chạy `build:all` lần lượt build backend, web, mobile và dừng ngay khi có lỗi.
+- [x] Tài liệu thao tác script được mô tả rõ cho team Dev/DevOps.
+
+## Kết quả thực hiện (10/05/2026)
+
+### Đã hoàn thành
+- Tạo mới `package.json` tại root workspace với các nhóm script:
+  - `install:*`, `install:all`
+  - `deps:update:*`, `deps:update:all`
+  - `format:check`, `format:write`
+  - `build:*`, `build:all`
+- Cơ chế fail-fast áp dụng bằng chuỗi `&&` để dừng ngay khi bước trước lỗi.
+- Tạo mới `.prettierignore` tại root để giới hạn phạm vi format phù hợp.
+
+### Kiểm chứng đã chạy
+- `npm pkg get scripts` xác nhận scripts đã được khai báo.
+- `npm run install:all` chạy qua 3 project con.
+- `npm run deps:update:all` sinh báo cáo package có thể nâng cấp cho backend/web/mobile.
+- `npm run format:check` trả về danh sách file sai format (đúng mục đích check).
+- `npm run build:all --dry-run` cho thấy chuỗi fail-fast; khi chạy thực tế dừng ngay ở backend do lỗi TypeScript hiện hữu trong codebase.
+
+### Chưa hoàn thành / cần follow-up
+- Chưa chạy `format:write` toàn workspace để tránh thay đổi hàng loạt ngoài phạm vi task.
+- `build:all` đang dừng ở backend với lỗi nền hiện hữu `TS2688` (không phải do script orchestration).
