@@ -1,0 +1,25 @@
+{
+  "name": "open-erp-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "install:backend": "npm --prefix open-erp-backend install",
+    "install:web": "npm --prefix open-erp-web install",
+    "install:mobile": "npm --prefix open-erp-mobile install",
+    "install:all": "npm run install:backend && npm run install:web && npm run install:mobile",
+    "deps:update:backend": "npm exec npm-check-updates -- --target minor --packageFile open-erp-backend/package.json",
+    "deps:update:web": "npm exec npm-check-updates -- --target minor --packageFile open-erp-web/package.json",
+    "deps:update:mobile": "npm exec npm-check-updates -- --target minor --packageFile open-erp-mobile/package.json",
+    "deps:update:all": "npm run deps:update:backend && npm run deps:update:web && npm run deps:update:mobile",
+    "format:check": "npm exec prettier -- --check .",
+    "format:write": "npm exec prettier -- --write .",
+    "build:backend": "npm --prefix open-erp-backend run build",
+    "build:web": "npm --prefix open-erp-web run build",
+    "build:mobile": "npm --prefix open-erp-mobile run build",
+    "build:all": "npm run build:backend && npm run build:web && npm run build:mobile"
+  },
+  "devDependencies": {
+    "npm-check-updates": "^17.1.12",
+    "prettier": "^3.6.2"
+  }
+}

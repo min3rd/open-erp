@@ -10,7 +10,7 @@
 | Loại             | Backend                           |
 | Người phụ trách  | Backend                           |
 | Story Points     | 3                                 |
-| Trạng thái       | ⬜ TODO                           |
+| Trạng thái       | 🟡 REVIEW                        |
 | Phụ thuộc        | TASK-SPRINT-01-FOUNDATION-001     |
 
 ## Mô tả
@@ -194,15 +194,15 @@ Không có — đây là shared library.
 
 ## Acceptance Criteria
 
-- [ ] `DatabaseModule.forRoot(uri)` kết nối MongoDB Replica Set thành công
-- [ ] `BaseSchema` được extend đúng trong tất cả domain schemas
-- [ ] `TenantPlugin` tự động thêm `tenantId` và `isDeleted: false` vào mọi `find*` query
-- [ ] Soft delete: gọi `isDeleted = true` → document không xuất hiện trong query thông thường
-- [ ] `paginate()` utility trả về đúng `meta.total`, `meta.totalPages`
-- [ ] Indexes được tạo tự động khi service khởi động (dev environment)
-- [ ] Unit test coverage ≥ 80% cho plugins và utilities
+- [ ] `DatabaseModule.forRoot(uri)` kết nối MongoDB Replica Set thành công (đã triển khai module, chưa chạy integration với MongoDB thật)
+- [ ] `BaseSchema` được extend đúng trong tất cả domain schemas (mới cung cấp base class, chưa có domain schema để verify)
+- [x] `TenantPlugin` tự động thêm `tenantId` và `isDeleted: false` vào mọi `find*` query
+- [x] Soft delete: gọi `isDeleted = true` → document không xuất hiện trong query thông thường (enforce qua plugin filter)
+- [x] `paginate()` utility trả về đúng `meta.total`, `meta.totalPages`
+- [ ] Indexes được tạo tự động khi service khởi động (dev environment) (chưa đủ domain schemas/indexes)
+- [ ] Unit test coverage ≥ 80% cho plugins và utilities (chưa chạy `test:cov`)
 - [ ] Integration test với MongoDB thực (dùng `@testcontainers/mongodb`)
-- [ ] Multi-tenancy: mọi DB query đều có tenantId filter
+- [ ] Multi-tenancy: mọi DB query đều có tenantId filter (đã có plugin, chưa verify toàn bộ domain query)
 - [ ] Không có query nào thiếu tenantId filter (kiểm tra qua code review checklist)
 
 ## Ghi chú kỹ thuật
@@ -214,3 +214,41 @@ Không có — đây là shared library.
 - Trong production: MongoDB Atlas với M10+ cluster, bật audit logging.
 - Cân nhắc `mongoose-paginate-v2` thay vì tự viết pagination để tiết kiệm thời gian.
 - Shared library được build với `@nestjs/cli` workspaces (`nest generate library database`).
+
+## Kết quả Unit Test
+
+**Lần chạy:** 2026-05-10
+**Lệnh:** `npm run test -- --runInBand`
+**Kết quả:** ✅ PASS
+
+| Test suite | Tests | Passed | Failed |
+|---|---:|---:|---:|
+| tenant.plugin.spec.ts | 3 | 3 | 0 |
+| pagination.util.spec.ts | 1 | 1 | 0 |
+
+**Evidence:**
+```text
+PASS src/shared-tests/tenant.plugin.spec.ts
+PASS src/shared-tests/redis.service.spec.ts
+PASS src/app.controller.spec.ts
+PASS src/shared-tests/pagination.util.spec.ts
+Test Suites: 4 passed, 4 total
+Tests: 7 passed, 7 total
+```
+
+## Kết quả triển khai
+
+**Ngày hoàn thành:** 2026-05-10
+**Trạng thái:** 🟡 REVIEW
+
+**Files đã tạo / sửa (task 004):**
+- `libs/shared/database/index.ts`
+- `libs/shared/database/database.module.ts`
+- `libs/shared/database/base.schema.ts`
+- `libs/shared/database/plugins/tenant.plugin.ts`
+- `libs/shared/database/utils/pagination.util.ts`
+- `libs/shared/database/utils/query-builder.util.ts`
+
+**Blocker / phần còn thiếu:**
+- Chưa thực hiện integration test MongoDB thật (bao gồm testcontainers) nên chưa xác nhận đầy đủ replica set và index runtime.
+- Chưa có domain schemas thực tế để xác nhận AC “BaseSchema được extend đúng trong tất cả domain schemas”.

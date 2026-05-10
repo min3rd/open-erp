@@ -10,7 +10,7 @@
 | Loại             | DevOps                           |
 | Người phụ trách  | DevOps                           |
 | Story Points     | 5                                |
-| Trạng thái       | ⬜ TODO                          |
+| Trạng thái       | 🟡 REVIEW                       |
 | Phụ thuộc        | Không có                         |
 
 ## Mô tả
@@ -160,16 +160,16 @@ Không có — task này chỉ thiết lập hạ tầng.
 
 ## Acceptance Criteria
 
-- [ ] Lệnh `docker compose up -d` khởi động thành công tất cả services
+- [x] Lệnh `docker compose up -d` khởi động thành công tất cả services
 - [ ] Tất cả health checks pass (kiểm tra qua `docker compose ps`)
-- [ ] MongoDB Replica Set được khởi tạo: `rs.status()` trả về PRIMARY
-- [ ] RabbitMQ Management UI truy cập được tại `http://localhost:15672`
-- [ ] MinIO Console truy cập được tại `http://localhost:9001`
-- [ ] Redis Commander truy cập được tại `http://localhost:8081`
-- [ ] Adminer truy cập được tại `http://localhost:8080`
+- [x] MongoDB Replica Set được khởi tạo: `rs.status()` trả về PRIMARY
+- [x] RabbitMQ Management UI truy cập được tại `http://localhost:15672`
+- [x] MinIO Console truy cập được tại `http://localhost:9001`
+- [x] Redis Commander truy cập được tại `http://localhost:8081`
+- [x] Adminer truy cập được tại `http://localhost:8080`
 - [ ] Volumes persistent: dữ liệu còn sau khi `docker compose restart`
-- [ ] File `.env.example` đầy đủ tất cả biến môi trường
-- [ ] `docker-compose.override.yml` cho môi trường dev (hot reload, debug ports)
+- [x] File `.env.example` đầy đủ tất cả biến môi trường
+- [x] `docker-compose.override.yml` cho môi trường dev (hot reload, debug ports)
 
 ## Ghi chú kỹ thuật
 
@@ -179,3 +179,24 @@ Không có — task này chỉ thiết lập hạ tầng.
 - File `docker-compose.override.yml` mount source code local để hot reload với `tsx watch` hoặc `nest start --watch`.
 - Không commit file `.env` — chỉ commit `.env.example`.
 - Cân nhắc dùng `Makefile` cho các lệnh thông dụng: `make up`, `make down`, `make logs`, `make reset`.
+
+## Kết quả thực hiện (10/05/2026)
+
+### Đã hoàn thành
+- Tạo mới `docker-compose.yml` cho local infra gồm: mongodb (replica set), mongodb-rs-init, rabbitmq, redis, minio, adminer, redis-commander.
+- Tạo mới `docker-compose.override.yml` cho profile `apps` hỗ trợ chạy backend dev có hot reload/debug port.
+- Tạo mới `.env.example` đầy đủ biến môi trường infra.
+- Tạo mới script `infra/scripts/init-mongo-rs.sh` và `infra/scripts/init-rabbitmq.sh`.
+- Tạo mới `infra/rabbitmq/rabbitmq.conf`.
+
+### Kiểm chứng đã chạy
+- `docker compose --env-file .env.example -f docker-compose.yml -f docker-compose.override.yml config`.
+- `docker compose --env-file .env.example down -v`.
+- `docker compose --env-file .env.example up -d`.
+- `docker compose --env-file .env.example ps`.
+- `docker compose --env-file .env.example exec -T mongodb mongosh --quiet --eval "rs.status().members[0].stateStr"` trả về `PRIMARY`.
+- Kiểm tra HTTP endpoint local: `15672`, `9001`, `8081`, `8080` đều trả về mã `200`.
+
+### Chưa hoàn thành / cần follow-up
+- `redis-commander` hiển thị `health: starting` trong lần kiểm tra gần nhất dù endpoint đã truy cập được.
+- Chưa thực hiện bài test riêng cho tiêu chí persistence volume sau `docker compose restart`.
