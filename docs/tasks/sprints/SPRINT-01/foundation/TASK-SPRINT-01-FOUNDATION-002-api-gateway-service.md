@@ -150,7 +150,7 @@ Không có business endpoints — tất cả đều là proxy.
 
 - [x] API Gateway khởi động thành công, bind port 3000
 - [ ] Health check endpoint `GET /health` trả về trạng thái tất cả dependencies (Hiện trả trạng thái cấu hình dependency; chưa probe kết nối thật Redis/upstream)
-- [ ] Rate limiting hoạt động: request thứ 101 trong 1 phút trả về 429 (Đã implement middleware 100 req/phút global, 10 req/phút auth; chưa có automated test bắn 101 requests)
+- [ ] Rate limiting hoạt động: request thứ 101 trong 1 phút trả về 429 (Đã có unit test cho nhánh auth vượt ngưỡng 10 req/phút trả 429 theo message key/data; chưa có automated test bắn 101 requests global)
 - [ ] JWT validation đúng: token hết hạn → 401, token hợp lệ → pass (Đã có baseline JWT middleware + optional Redis blacklist, chưa có test tích hợp token expired/valid)
 - [x] TenantMiddleware trích xuất tenantId thành công từ JWT và subdomain
 - [x] Request log format JSON chuẩn, có requestId
@@ -174,44 +174,37 @@ Không có business endpoints — tất cả đều là proxy.
 
 ### Files đã tạo / sửa
 
-- `open-erp-backend/src/app.module.ts`
-- `open-erp-backend/src/main.ts`
-- `open-erp-backend/src/app.controller.spec.ts`
-- `open-erp-backend/test/app.e2e-spec.ts`
-- `open-erp-backend/src/common/types/express.d.ts`
 - `open-erp-backend/src/common/filters/global-exception.filter.ts`
-- `open-erp-backend/src/common/interceptors/logging.interceptor.ts`
-- `open-erp-backend/src/common/interceptors/transform.interceptor.ts`
-- `open-erp-backend/src/common/interceptors/transform.interceptor.spec.ts`
-- `open-erp-backend/src/common/middleware/request-id.middleware.ts`
+- `open-erp-backend/src/common/filters/global-exception.filter.spec.ts`
 - `open-erp-backend/src/common/middleware/rate-limit.middleware.ts`
-- `open-erp-backend/src/common/middleware/jwt-auth.middleware.ts`
-- `open-erp-backend/src/common/middleware/tenant.middleware.ts`
-- `open-erp-backend/src/common/middleware/tenant.middleware.spec.ts`
-- `open-erp-backend/src/health/health.controller.ts`
-- `open-erp-backend/src/health/health.module.ts`
-- `open-erp-backend/src/proxy/proxy.constants.ts`
+- `open-erp-backend/src/common/middleware/rate-limit.middleware.spec.ts`
 - `open-erp-backend/src/proxy/proxy.controller.ts`
-- `open-erp-backend/src/proxy/proxy.module.ts`
-- `open-erp-backend/src/proxy/proxy.service.ts`
+- `open-erp-backend/src/proxy/proxy.controller.spec.ts`
 - `open-erp-backend/src/proxy/proxy.service.spec.ts`
-- `open-erp-backend/package.json`
 
 ### Kết quả chạy lệnh
 
 **Lần chạy:** 2026-05-10
 
-- `npm.cmd --prefix c:\Users\Minh\Documents\open-erp\open-erp-backend run build` → ✅ PASS
-- `npm.cmd --prefix c:\Users\Minh\Documents\open-erp\open-erp-backend run test -- --runInBand --ci` → ✅ PASS (7 suites, 14 tests)
-- `npm.cmd --prefix c:\Users\Minh\Documents\open-erp\open-erp-backend run test:e2e -- --runInBand --ci` → ✅ PASS (1 suite, 1 test)
-- `npm.cmd --prefix c:\Users\Minh\Documents\open-erp\open-erp-backend run test:cov -- --runInBand --ci` → ⚠️ PASS test nhưng coverage toàn cục 24.65%
+- `Set-Location -Path 'c:\Users\Minh\Documents\open-erp\open-erp-backend'; npm.cmd run build` → ✅ PASS
+- `Set-Location -Path 'c:\Users\Minh\Documents\open-erp\open-erp-backend'; npm.cmd run test -- --runInBand --ci` → ✅ PASS (10 suites, 23 tests)
+- `Set-Location -Path 'c:\Users\Minh\Documents\open-erp\open-erp-backend'; npm.cmd run test:e2e -- --runInBand --ci` → ✅ PASS (1 suite, 1 test)
+- `Set-Location -Path 'c:\Users\Minh\Documents\open-erp\open-erp-backend'; npm.cmd run test:cov -- --runInBand --ci` → ✅ PASS (coverage toàn cục 50.47%; `global-exception.filter.ts` 77.08%, `rate-limit.middleware.ts` 87.09%, `proxy.controller.ts` 93.75%, `proxy.service.ts` 97.05%)
+
+## Kết quả cập nhật nóng (2026-05-10)
+
+- Chuẩn hóa `GlobalExceptionFilter` theo contract backend: `error.message` trả dạng `key + data`, không hard-code message text để quyết định UI.
+- Sửa lỗi compile middleware rate-limit do `TooManyRequestsException` không có trong phiên bản Nest hiện tại bằng `HttpException(..., 429)` theo contract mới.
+- Sửa lỗi TS1272 ở proxy controller bằng `import type { Request } from 'express'` cho decorated signature.
+- Sửa lỗi TS2345 ở proxy controller bằng chuẩn hóa payload trước khi `throw new HttpException(...)`.
+- Bổ sung unit tests cho global exception filter, rate-limit middleware và proxy controller; bổ sung nhánh lỗi upstream ở proxy service.
 
 ## Kế hoạch bù (Ngày 04)
 
 - Bổ sung integration test cho JWT valid/expired và blacklist Redis.
 - Bổ sung stress/functional test xác thực rule 101 request/phút trả 429.
 - Nâng health check từ mức `configured` sang `real connectivity probe` (Redis + upstream service ping).
-- Nâng coverage cho các thành phần mới (middleware/interceptor/filter/proxy controller) để tiệm cận mục tiêu ≥ 80% theo phạm vi task.
+- Nâng coverage cho các thành phần còn thấp ngoài phạm vi nóng để tiệm cận mục tiêu ≥ 80% toàn service.
 
 ## Rủi ro kỹ thuật
 

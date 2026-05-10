@@ -6,9 +6,20 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { MongoServerError } from 'mongodb';
+
+type MessageContract = {
+  key: string;
+  data: Record<string, unknown>;
+};
+
+type ErrorPayload = {
+  code: string;
+  message: MessageContract;
+  details?: unknown;
+};
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -40,7 +51,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
   private normalizeException(exception: unknown): {
     status: number;
-    payload: { code: string; message: string; details?: unknown };
+    payload: ErrorPayload;
   } {
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
@@ -51,12 +62,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           status,
           payload: {
             code: this.defaultCode(status),
-            message: response,
+            message: {
+              key: this.defaultMessageKey(status),
+              data: { text: response },
+            },
           },
         };
       }
 
-      const responseObj = response as Record<string, unknown>;
+      const responseObj = this.toRecord(response);
+      const normalizedMessage = this.normalizeMessage(responseObj.message, status);
+
       return {
         status,
         payload: {
@@ -64,11 +80,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             typeof responseObj.code === 'string'
               ? responseObj.code
               : this.defaultCode(status),
-          message:
-            typeof responseObj.message === 'string'
-              ? responseObj.message
-              : exception.message,
-          details: responseObj,
+          message: normalizedMessage,
+          details: responseObj.details,
         },
       };
     }
@@ -81,7 +94,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         status: HttpStatus.BAD_REQUEST,
         payload: {
           code: 'VALIDATION_ERROR',
-          message: exception.message,
+          message: {
+            key: 'error.validation.invalid_input',
+            data: { reason: exception.message },
+          },
         },
       };
     }
@@ -91,7 +107,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         status: HttpStatus.CONFLICT,
         payload: {
           code: 'CONFLICT',
-          message: 'Duplicate key error',
+          message: {
+            key: 'error.conflict.duplicate',
+            data: {
+              keyPattern: exception.keyPattern,
+              keyValue: exception.keyValue,
+            },
+          },
         },
       };
     }
@@ -100,9 +122,42 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       status: HttpStatus.INTERNAL_SERVER_ERROR,
       payload: {
         code: 'INTERNAL_ERROR',
-        message: 'Internal server error',
+        message: {
+          key: this.defaultMessageKey(HttpStatus.INTERNAL_SERVER_ERROR),
+          data: {},
+        },
       },
     };
+  }
+
+  private normalizeMessage(rawMessage: unknown, status: number): MessageContract {
+    if (typeof rawMessage === 'string') {
+      return {
+        key: this.defaultMessageKey(status),
+        data: { text: rawMessage },
+      };
+    }
+
+    const asRecord = this.toRecord(rawMessage);
+    if (typeof asRecord.key === 'string') {
+      return {
+        key: asRecord.key,
+        data: this.toRecord(asRecord.data),
+      };
+    }
+
+    return {
+      key: this.defaultMessageKey(status),
+      data: {},
+    };
+  }
+
+  private toRecord(value: unknown): Record<string, unknown> {
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      return value as Record<string, unknown>;
+    }
+
+    return {};
   }
 
   private defaultCode(status: number): string {
@@ -114,5 +169,16 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (status === HttpStatus.TOO_MANY_REQUESTS) return 'RATE_LIMIT_EXCEEDED';
 
     return 'INTERNAL_ERROR';
+  }
+
+  private defaultMessageKey(status: number): string {
+    if (status === HttpStatus.BAD_REQUEST) return 'error.validation.invalid_input';
+    if (status === HttpStatus.UNAUTHORIZED) return 'error.auth.unauthorized';
+    if (status === HttpStatus.FORBIDDEN) return 'error.auth.forbidden';
+    if (status === HttpStatus.NOT_FOUND) return 'error.resource.not_found';
+    if (status === HttpStatus.CONFLICT) return 'error.conflict.duplicate';
+    if (status === HttpStatus.TOO_MANY_REQUESTS) return 'error.rate_limit.exceeded';
+
+    return 'error.internal.unexpected';
   }
 }

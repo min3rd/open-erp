@@ -7,7 +7,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { ProxyService } from './proxy.service';
 
 @ApiTags('proxy')
@@ -26,9 +26,29 @@ export class ProxyController {
     const result = await this.proxyService.forwardRequest(req, wildcardPath || '');
 
     if (result.status >= HttpStatus.BAD_REQUEST) {
-      throw new HttpException(result.data, result.status);
+      throw new HttpException(this.toHttpExceptionBody(result.data), result.status);
     }
 
     return result.data;
+  }
+
+  private toHttpExceptionBody(data: unknown): string | Record<string, any> {
+    if (typeof data === 'string') {
+      return data;
+    }
+
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      return data as Record<string, any>;
+    }
+
+    return {
+      code: 'UPSTREAM_ERROR',
+      message: {
+        key: 'error.upstream.invalid_payload',
+        data: {
+          payloadType: Array.isArray(data) ? 'array' : typeof data,
+        },
+      },
+    };
   }
 }

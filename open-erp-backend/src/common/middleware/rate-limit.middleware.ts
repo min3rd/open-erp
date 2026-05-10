@@ -1,5 +1,10 @@
-import { Injectable, NestMiddleware, TooManyRequestsException } from '@nestjs/common';
-import { NextFunction, Request, Response } from 'express';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NestMiddleware,
+} from '@nestjs/common';
+import type { NextFunction, Request, Response } from 'express';
 
 type Bucket = {
   count: number;
@@ -35,10 +40,20 @@ export class RateLimitMiddleware implements NestMiddleware {
 
     if (bucket.count > limit) {
       res.setHeader('retry-after', String(resetInSeconds));
-      throw new TooManyRequestsException({
-        code: 'RATE_LIMIT_EXCEEDED',
-        message: 'Too many requests',
-      });
+      throw new HttpException(
+        {
+          code: 'RATE_LIMIT_EXCEEDED',
+          message: {
+            key: 'error.rate_limit.exceeded',
+            data: {
+              retryAfterSeconds: resetInSeconds,
+              limit,
+              windowMs: this.windowMs,
+            },
+          },
+        },
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
 
     if (this.buckets.size > 10_000) {

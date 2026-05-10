@@ -1,4 +1,5 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadGatewayException, NotFoundException } from '@nestjs/common';
+import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { ProxyService } from './proxy.service';
 
 describe('ProxyService', () => {
@@ -54,5 +55,22 @@ describe('ProxyService', () => {
     expect(fetchMock).toHaveBeenCalled();
     expect(result.status).toBe(200);
     expect(result.data).toEqual({ ok: true });
+  });
+
+  it('throws BadGatewayException when upstream request fails', async () => {
+    const req: any = {
+      originalUrl: '/api/v1/auth/login',
+      method: 'GET',
+      body: undefined,
+      header: () => undefined,
+      tenantId: 'tenant-1',
+      requestId: 'req-1',
+    };
+
+    jest.spyOn(global, 'fetch' as any).mockRejectedValue(new Error('network down'));
+
+    await expect(service.forwardRequest(req, 'auth/login')).rejects.toBeInstanceOf(
+      BadGatewayException,
+    );
   });
 });
