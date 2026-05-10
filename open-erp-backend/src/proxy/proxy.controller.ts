@@ -1,0 +1,34 @@
+import {
+  All,
+  Controller,
+  HttpException,
+  HttpStatus,
+  Param,
+  Req,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
+import { ProxyService } from './proxy.service';
+
+@ApiTags('proxy')
+@ApiBearerAuth()
+@Controller('api/v1')
+export class ProxyController {
+  constructor(private readonly proxyService: ProxyService) {}
+
+  @All('*path')
+  @ApiExcludeEndpoint()
+  async proxy(@Req() req: Request, @Param('path') pathParam: string | string[]) {
+    const wildcardPath = Array.isArray(pathParam)
+      ? pathParam.join('/')
+      : pathParam;
+
+    const result = await this.proxyService.forwardRequest(req, wildcardPath || '');
+
+    if (result.status >= HttpStatus.BAD_REQUEST) {
+      throw new HttpException(result.data, result.status);
+    }
+
+    return result.data;
+  }
+}

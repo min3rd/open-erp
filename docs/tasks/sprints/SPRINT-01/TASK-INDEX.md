@@ -12,12 +12,12 @@
 
 | Cluster      | Tổng | ⬜ TODO | 🔵 IN PROGRESS | 🟡 REVIEW | 🟢 DONE | 🔴 BLOCKED |
 |--------------|------|---------|----------------|-----------|---------|------------|
-| foundation   | 8    | 4       | 0              | 4         | 0       | 0          |
+| foundation   | 8    | 1       | 0              | 7         | 0       | 0          |
 | auth         | 3    | 3       | 0              | 0         | 0       | 0          |
 | tenant       | 2    | 2       | 0              | 0         | 0       | 0          |
 | user         | 2    | 2       | 0              | 0         | 0       | 0          |
 | frontend     | 2    | 2       | 0              | 0         | 0       | 0          |
-| **Tổng**     | **18** | **14** | **0**        | **4**     | **0**   | **0**      |
+| **Tổng**     | **18** | **11** | **0**        | **7**     | **0**   | **0**      |
 
 ---
 
@@ -26,12 +26,12 @@
 | Task ID                         | Tiêu đề                                          | Cluster    | Loại     | Phụ trách | SP | Trạng thái | Phụ thuộc                                                       | File                                                                                         |
 |---------------------------------|--------------------------------------------------|------------|----------|-----------|----|------------|------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
 | TASK-SPRINT-01-FOUNDATION-001   | Thiết lập Docker Compose cho toàn bộ hệ thống   | foundation | DevOps   | DevOps    | 5  | 🟡 REVIEW | —                                                                  | `foundation/TASK-SPRINT-01-FOUNDATION-001-docker-compose-setup.md`                           |
-| TASK-SPRINT-01-FOUNDATION-002   | Triển khai API Gateway NestJS                    | foundation | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-001                                    | `foundation/TASK-SPRINT-01-FOUNDATION-002-api-gateway-service.md`                            |
+| TASK-SPRINT-01-FOUNDATION-002   | Triển khai API Gateway NestJS                    | foundation | Backend  | Backend   | 8  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001                                    | `foundation/TASK-SPRINT-01-FOUNDATION-002-api-gateway-service.md`                            |
 | TASK-SPRINT-01-FOUNDATION-003   | Cấu hình RabbitMQ exchanges và Redis caching     | foundation | Backend  | Backend   | 3  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001                                    | `foundation/TASK-SPRINT-01-FOUNDATION-003-rabbitmq-redis-config.md`                          |
 | TASK-SPRINT-01-FOUNDATION-004   | Cấu hình MongoDB và Base Schema                  | foundation | Backend  | Backend   | 3  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001                                    | `foundation/TASK-SPRINT-01-FOUNDATION-004-mongodb-setup.md`                                  |
 | TASK-SPRINT-01-FOUNDATION-006   | Root workspace node scripts (install/update/format/build) | foundation | DevOps   | DevOps    | 3  | 🟡 REVIEW | —                                                                  | `foundation/TASK-SPRINT-01-FOUNDATION-006-root-workspace-node-scripts.md`                    |
-| TASK-SPRINT-01-FOUNDATION-007   | VS Code debug launch configurations cho hệ thống | foundation | DevOps   | DevOps    | 3  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-006                                    | `foundation/TASK-SPRINT-01-FOUNDATION-007-vscode-debug-launch-configs.md`                    |
-| TASK-SPRINT-01-FOUNDATION-008   | Deploy assets cho Docker và Kubernetes           | foundation | DevOps   | DevOps    | 5  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-001, TASK-SPRINT-01-FOUNDATION-006     | `foundation/TASK-SPRINT-01-FOUNDATION-008-deploy-assets-docker-kubernetes.md`                |
+| TASK-SPRINT-01-FOUNDATION-007   | VS Code debug launch configurations cho hệ thống | foundation | DevOps   | DevOps    | 3  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-006                                    | `foundation/TASK-SPRINT-01-FOUNDATION-007-vscode-debug-launch-configs.md`                    |
+| TASK-SPRINT-01-FOUNDATION-008   | Deploy assets cho Docker và Kubernetes           | foundation | DevOps   | DevOps    | 5  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001, TASK-SPRINT-01-FOUNDATION-006     | `foundation/TASK-SPRINT-01-FOUNDATION-008-deploy-assets-docker-kubernetes.md`                |
 | TASK-SPRINT-01-FOUNDATION-009   | Hướng dẫn và cấu hình cài đặt trực tiếp Linux/Windows Server | foundation | DevOps   | DevOps    | 5  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-006, TASK-SPRINT-01-FOUNDATION-008     | `foundation/TASK-SPRINT-01-FOUNDATION-009-direct-install-linux-windows-server.md`            |
 | TASK-SPRINT-01-AUTH-001         | Auth Service — JWT Authentication                | auth       | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004     | `auth/TASK-SPRINT-01-AUTH-001-auth-service-jwt.md`                                           |
 | TASK-SPRINT-01-AUTH-002         | Auth Service — OAuth2 Social Login               | auth       | Backend  | Backend   | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-002-oauth2-social.md`                                              |
@@ -83,6 +83,10 @@ FRONTEND-001, USER-001, TENANT-001 ──► FRONTEND-002 (Admin Dashboard)
 ---
 
 ## Ghi chú Sprint
+
+### Deliverables Day 03 (DevOps)
+- TASK-SPRINT-01-FOUNDATION-007: `.vscode/launch.json`, `.vscode/tasks.json`
+- TASK-SPRINT-01-FOUNDATION-008: `deploy/docker/*`, `deploy/k8s/base/*`, `deploy/runbook/ROLLBACK.md`
 
 - Ưu tiên FOUNDATION tasks — tất cả task khác phụ thuộc vào hạ tầng.
 - Backend tasks AUTH-001, TENANT-001 có thể phát triển song song sau khi FOUNDATION xong.

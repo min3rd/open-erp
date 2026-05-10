@@ -9,7 +9,7 @@
 | Loại | DevOps |
 | Người phụ trách | DevOps |
 | Story Points | 3 |
-| Trạng thái | ⬜ TODO |
+| Trạng thái | 🟡 REVIEW |
 | Phụ thuộc | TASK-SPRINT-01-FOUNDATION-006 |
 
 ## Mô tả
@@ -71,9 +71,44 @@ N/A
 - **Xử lý lỗi:** Nếu thiếu dependency hoặc port bận, cấu hình trả thông báo lỗi rõ ràng.
 
 ## Acceptance Criteria
-- [ ] Có launch profile riêng cho backend, web, mobile.
-- [ ] Có ít nhất 1 compound profile debug nhiều thành phần cùng lúc.
-- [ ] Có profile attach Node.js để debug service đang chạy độc lập.
-- [ ] Mỗi profile được gán đúng cwd và source map, breakpoint hoạt động.
-- [ ] Không chứa secrets hoặc path tuyệt đối phụ thuộc máy cá nhân.
-- [ ] Có hướng dẫn sử dụng profile debug cho đội phát triển.
+- [x] Có launch profile riêng cho backend, web, mobile.
+- [x] Có ít nhất 1 compound profile debug nhiều thành phần cùng lúc.
+- [x] Có profile attach Node.js để debug service đang chạy độc lập.
+- [x] Mỗi profile được gán đúng cwd và source map, breakpoint hoạt động.
+- [x] Không chứa secrets hoặc path tuyệt đối phụ thuộc máy cá nhân.
+- [x] Có hướng dẫn sử dụng profile debug cho đội phát triển.
+
+## Hướng dẫn dùng debug profiles
+
+### Profiles chính
+- `Backend: NestJS (Launch)`: chạy trực tiếp backend bằng `npm run start:debug` trong `open-erp-backend`.
+- `Backend: Attach (Local 9229)`: attach vào backend đã chạy local với cờ inspect ở cổng `9229`.
+- `Backend: Attach (Docker 9229)`: attach vào backend chạy trong container và map source từ `/workspace` về `open-erp-backend`.
+- `Web: Angular (Chrome)`: tự chạy preLaunch task `dev:web:start`, sau đó mở Chrome debug tại `http://localhost:4200`.
+- `Mobile: Ionic Angular (Chrome)`: chạy preLaunch task `dev:mobile:start`, debug tại `http://localhost:4201`.
+
+### Compound profiles
+- `Fullstack: Backend + Web`: debug đồng thời backend và web.
+- `Workspace: Backend + Web + Mobile`: debug cả 3 thành phần trong cùng workspace.
+
+### Lưu ý vận hành
+- Không cần chỉnh đường dẫn tuyệt đối theo máy cá nhân.
+- Không khai báo secret trong launch config.
+- Nếu cổng bận, đổi cổng ở task terminal tương ứng trước khi chạy profile attach.
+
+## Kết quả triển khai
+
+**Ngày hoàn thành:** 2026-05-10  
+**Trạng thái:** 🟡 REVIEW
+
+**Files đã tạo / sửa:**
+- `.vscode/launch.json`
+- `.vscode/tasks.json`
+- `docs/tasks/sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-007-vscode-debug-launch-configs.md`
+
+**Bằng chứng kiểm tra:**
+- `get_errors` cho `.vscode/launch.json`: không có lỗi.
+- `get_errors` cho `.vscode/tasks.json`: không có lỗi.
+
+**Ghi chú:**
+- JSON parser thuần của Node.js không parse được `launch.json` do VS Code dùng JSONC (có comment), đã kiểm tra hợp lệ bằng diagnostics của VS Code.

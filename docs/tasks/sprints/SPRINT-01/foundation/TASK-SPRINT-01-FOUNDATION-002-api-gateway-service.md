@@ -10,7 +10,7 @@
 | Loại             | Backend                           |
 | Người phụ trách  | Backend                           |
 | Story Points     | 8                                 |
-| Trạng thái       | ⬜ TODO                           |
+| Trạng thái       | 🟡 REVIEW                         |
 | Phụ thuộc        | TASK-SPRINT-01-FOUNDATION-001     |
 
 ## Mô tả
@@ -148,18 +148,76 @@ Không có business endpoints — tất cả đều là proxy.
 
 ## Acceptance Criteria
 
-- [ ] API Gateway khởi động thành công, bind port 3000
-- [ ] Health check endpoint `GET /health` trả về trạng thái tất cả dependencies
-- [ ] Rate limiting hoạt động: request thứ 101 trong 1 phút trả về 429
-- [ ] JWT validation đúng: token hết hạn → 401, token hợp lệ → pass
-- [ ] TenantMiddleware trích xuất tenantId thành công từ JWT và subdomain
-- [ ] Request log format JSON chuẩn, có requestId
-- [ ] Global exception filter: tất cả lỗi đều trả về format chuẩn
-- [ ] CORS cho phép origin từ `ALLOWED_ORIGINS`
-- [ ] Swagger UI hiển thị đầy đủ tại `/api/docs`
-- [ ] Proxy routing forward đúng đến từng microservice
-- [ ] Unit test coverage ≥ 80%
-- [ ] Multi-tenancy: mọi DB query đều có tenantId filter
+- [x] API Gateway khởi động thành công, bind port 3000
+- [ ] Health check endpoint `GET /health` trả về trạng thái tất cả dependencies (Hiện trả trạng thái cấu hình dependency; chưa probe kết nối thật Redis/upstream)
+- [ ] Rate limiting hoạt động: request thứ 101 trong 1 phút trả về 429 (Đã implement middleware 100 req/phút global, 10 req/phút auth; chưa có automated test bắn 101 requests)
+- [ ] JWT validation đúng: token hết hạn → 401, token hợp lệ → pass (Đã có baseline JWT middleware + optional Redis blacklist, chưa có test tích hợp token expired/valid)
+- [x] TenantMiddleware trích xuất tenantId thành công từ JWT và subdomain
+- [x] Request log format JSON chuẩn, có requestId
+- [x] Global exception filter: tất cả lỗi đều trả về format chuẩn
+- [x] CORS cho phép origin từ `ALLOWED_ORIGINS`
+- [x] Swagger UI hiển thị đầy đủ tại `/api/docs`
+- [x] Proxy routing forward đúng đến từng microservice
+- [ ] Unit test coverage ≥ 80% (Hiện tại 24.65% theo `npm run test:cov`)
+- [ ] Multi-tenancy: mọi DB query đều có tenantId filter (Không áp dụng trực tiếp cho gateway vì không truy vấn DB; sẽ được kiểm soát ở service/repository tasks phía sau)
+
+## Kết quả triển khai (Ngày 03)
+
+### Phạm vi hoàn tất
+
+- Dựng nền API Gateway NestJS với cấu trúc `health`, `proxy`, `common`.
+- Bổ sung middleware `requestId`, `rate limit` baseline, `jwt validation` baseline, `tenant extraction`.
+- Bổ sung `logging interceptor`, `transform interceptor`, `global exception filter`.
+- Cấu hình `helmet`, `CORS`, `ValidationPipe`, Swagger `/api/docs`.
+- Dựng proxy routing nền theo route-prefix: `auth`, `tenants`, `users`, `roles`, `catalogs`, `audit-logs`, `notifications`.
+- Bổ sung unit/e2e tests baseline cho health, tenant extraction, transform interceptor, proxy service.
+
+### Files đã tạo / sửa
+
+- `open-erp-backend/src/app.module.ts`
+- `open-erp-backend/src/main.ts`
+- `open-erp-backend/src/app.controller.spec.ts`
+- `open-erp-backend/test/app.e2e-spec.ts`
+- `open-erp-backend/src/common/types/express.d.ts`
+- `open-erp-backend/src/common/filters/global-exception.filter.ts`
+- `open-erp-backend/src/common/interceptors/logging.interceptor.ts`
+- `open-erp-backend/src/common/interceptors/transform.interceptor.ts`
+- `open-erp-backend/src/common/interceptors/transform.interceptor.spec.ts`
+- `open-erp-backend/src/common/middleware/request-id.middleware.ts`
+- `open-erp-backend/src/common/middleware/rate-limit.middleware.ts`
+- `open-erp-backend/src/common/middleware/jwt-auth.middleware.ts`
+- `open-erp-backend/src/common/middleware/tenant.middleware.ts`
+- `open-erp-backend/src/common/middleware/tenant.middleware.spec.ts`
+- `open-erp-backend/src/health/health.controller.ts`
+- `open-erp-backend/src/health/health.module.ts`
+- `open-erp-backend/src/proxy/proxy.constants.ts`
+- `open-erp-backend/src/proxy/proxy.controller.ts`
+- `open-erp-backend/src/proxy/proxy.module.ts`
+- `open-erp-backend/src/proxy/proxy.service.ts`
+- `open-erp-backend/src/proxy/proxy.service.spec.ts`
+- `open-erp-backend/package.json`
+
+### Kết quả chạy lệnh
+
+**Lần chạy:** 2026-05-10
+
+- `npm.cmd --prefix c:\Users\Minh\Documents\open-erp\open-erp-backend run build` → ✅ PASS
+- `npm.cmd --prefix c:\Users\Minh\Documents\open-erp\open-erp-backend run test -- --runInBand --ci` → ✅ PASS (7 suites, 14 tests)
+- `npm.cmd --prefix c:\Users\Minh\Documents\open-erp\open-erp-backend run test:e2e -- --runInBand --ci` → ✅ PASS (1 suite, 1 test)
+- `npm.cmd --prefix c:\Users\Minh\Documents\open-erp\open-erp-backend run test:cov -- --runInBand --ci` → ⚠️ PASS test nhưng coverage toàn cục 24.65%
+
+## Kế hoạch bù (Ngày 04)
+
+- Bổ sung integration test cho JWT valid/expired và blacklist Redis.
+- Bổ sung stress/functional test xác thực rule 101 request/phút trả 429.
+- Nâng health check từ mức `configured` sang `real connectivity probe` (Redis + upstream service ping).
+- Nâng coverage cho các thành phần mới (middleware/interceptor/filter/proxy controller) để tiệm cận mục tiêu ≥ 80% theo phạm vi task.
+
+## Rủi ro kỹ thuật
+
+- Rate limit hiện là in-memory middleware, chưa dùng shared store Redis nên chưa phù hợp scale ngang nhiều instance.
+- JWT blacklist hiện `optional` theo `REDIS_URL`; nếu Redis lỗi sẽ fallback không chặn token blacklist.
+- Proxy hiện chuẩn hóa response ở gateway layer; cần thống nhất thêm với contract khi các upstream service chính thức trả envelope riêng để tránh double-wrap ngoài ý muốn.
 
 ## Ghi chú kỹ thuật
 

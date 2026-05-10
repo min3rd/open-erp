@@ -2,5 +2,67 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+    {
+      "name": "Backend: NestJS (Launch)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:debug"],
+      "cwd": "${workspaceFolder}/open-erp-backend",
+      "console": "integratedTerminal",
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true
+    },
+    {
+      "name": "Backend: Attach (Local 9229)",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "address": "127.0.0.1",
+      "restart": true,
+      "cwd": "${workspaceFolder}/open-erp-backend",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Backend: Attach (Docker 9229)",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "address": "127.0.0.1",
+      "restart": true,
+      "localRoot": "${workspaceFolder}/open-erp-backend",
+      "remoteRoot": "/workspace",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Web: Angular (Chrome)",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:4200",
+      "webRoot": "${workspaceFolder}/open-erp-web",
+      "preLaunchTask": "dev:web:start"
+    },
+    {
+      "name": "Mobile: Ionic Angular (Chrome)",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:4201",
+      "webRoot": "${workspaceFolder}/open-erp-mobile",
+      "preLaunchTask": "dev:mobile:start"
+    }
+  ]
+  ,
+  "compounds": [
+    {
+      "name": "Fullstack: Backend + Web",
+      "configurations": ["Backend: NestJS (Launch)", "Web: Angular (Chrome)"]
+    },
+    {
+      "name": "Workspace: Backend + Web + Mobile",
+      "configurations": ["Backend: NestJS (Launch)", "Web: Angular (Chrome)", "Mobile: Ionic Angular (Chrome)"]
+    }
   ]
 }

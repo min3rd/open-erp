@@ -9,7 +9,7 @@
 | Loại | DevOps |
 | Người phụ trách | DevOps |
 | Story Points | 5 |
-| Trạng thái | ⬜ TODO |
+| Trạng thái | 🟡 REVIEW |
 | Phụ thuộc | TASK-SPRINT-01-FOUNDATION-001, TASK-SPRINT-01-FOUNDATION-006 |
 
 ## Mô tả
@@ -72,9 +72,47 @@ N/A
 - **Xử lý lỗi:** Có hướng dẫn rollback khi rollout thất bại.
 
 ## Acceptance Criteria
-- [ ] Có đầy đủ thư mục `deploy/docker` và `deploy/k8s` với cấu trúc nhất quán.
+- [x] Có đầy đủ thư mục `deploy/docker` và `deploy/k8s` với cấu trúc nhất quán.
 - [ ] Docker compose chạy được tối thiểu stack Sprint 01 trên local/staging.
-- [ ] Kubernetes manifests validate thành công bằng công cụ kiểm tra cú pháp.
-- [ ] Có tài liệu mapping biến môi trường và cách cấu hình secret.
-- [ ] Có runbook deploy, verify healthcheck và rollback cho cả Docker/Kubernetes.
-- [ ] Deliverables được liên kết trong task index Sprint 01.
+- [x] Kubernetes manifests validate thành công bằng công cụ kiểm tra cú pháp.
+- [x] Có tài liệu mapping biến môi trường và cách cấu hình secret.
+- [x] Có runbook deploy, verify healthcheck và rollback cho cả Docker/Kubernetes.
+- [x] Deliverables được liên kết trong task index Sprint 01.
+
+## Kết quả triển khai
+
+**Ngày hoàn thành:** 2026-05-10  
+**Trạng thái:** 🟡 REVIEW
+
+**Deliverables đã tạo:**
+- `deploy/README.md`
+- `deploy/docker/compose.local.yml`
+- `deploy/docker/compose.staging.yml`
+- `deploy/docker/.env.local.template`
+- `deploy/docker/.env.staging.template`
+- `deploy/docker/README.md`
+- `deploy/docker/ENV-MAPPING.md`
+- `deploy/k8s/base/namespace.yaml`
+- `deploy/k8s/base/configmap-app.yaml`
+- `deploy/k8s/base/secret-app.template.yaml`
+- `deploy/k8s/base/deployment-api-gateway.yaml`
+- `deploy/k8s/base/service-api-gateway.yaml`
+- `deploy/k8s/base/ingress-api-gateway.yaml`
+- `deploy/k8s/base/network-policy.yaml`
+- `deploy/k8s/base/kustomization.yaml`
+- `deploy/k8s/README.md`
+- `deploy/runbook/ROLLBACK.md`
+
+**Bằng chứng lệnh chạy và kết quả chính:**
+- `docker compose --env-file c:/Users/Minh/Documents/open-erp/deploy/docker/.env.local.template -f c:/Users/Minh/Documents/open-erp/deploy/docker/compose.local.yml config`
+	- Kết quả: render compose thành công cho stack local (mongodb, rabbitmq, redis, api-gateway).
+- `docker compose --env-file c:/Users/Minh/Documents/open-erp/deploy/docker/.env.staging.template -f c:/Users/Minh/Documents/open-erp/deploy/docker/compose.staging.yml config`
+	- Kết quả: render compose staging thành công.
+- `kubectl kustomize c:/Users/Minh/Documents/open-erp/deploy/k8s/base`
+	- Kết quả: render toàn bộ manifests thành công.
+
+**Phần còn thiếu / chưa đạt:**
+- Chưa có bằng chứng `docker compose up` thành công cho staging do chưa có image tag thực tế trong registry (`IMAGE_TAG` ở mức template).
+
+**Bất thường ghi nhận:**
+- `kubectl apply --dry-run=client -k ...` bị lỗi validate OpenAPI từ cụm hiện tại; đã dùng `kubectl kustomize` để kiểm tra cú pháp manifest độc lập với cluster.
