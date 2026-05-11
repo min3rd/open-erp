@@ -22,6 +22,11 @@ import { TenantService } from './tenant.service';
 export class TenantController {
   constructor(private readonly tenantService: TenantService) {}
 
+  @Get('subscription-plans')
+  async listSubscriptionPlans() {
+    return this.tenantService.listSubscriptionPlans();
+  }
+
   @Get()
   async listTenants(@Query() query: ListTenantsQueryDto, @Req() req: Request) {
     return this.tenantService.listTenants(query, req.user);
@@ -40,6 +45,16 @@ export class TenantController {
   @Get('me/settings')
   async getMySettings(@Req() req: Request) {
     return this.tenantService.getMySettings(req.tenantId, req.user);
+  }
+
+  @Get('me/usage')
+  async getMyUsage(@Req() req: Request) {
+    return this.tenantService.getTenantUsage(req.tenantId, req.user);
+  }
+
+  @Get('me/usage/history')
+  async getMyUsageHistory(@Req() req: Request) {
+    return this.tenantService.getTenantUsageHistory(req.tenantId, req.user);
   }
 
   @Get(':id')
@@ -69,6 +84,25 @@ export class TenantController {
     @Body() dto: UpdateTenantPlanDto,
   ) {
     return this.tenantService.updateTenantPlan(id, req.user, dto.plan);
+  }
+
+  @Get(':id/usage')
+  async getTenantUsage(@Param('id') id: string, @Req() req: Request) {
+    return this.tenantService.getTenantUsage(id, req.user);
+  }
+
+  @Get(':id/usage/history')
+  async getTenantUsageHistory(@Param('id') id: string, @Req() req: Request) {
+    return this.tenantService.getTenantUsageHistory(id, req.user);
+  }
+
+  @Post(':id/subscription')
+  async updateTenantSubscription(
+    @Param('id') id: string,
+    @Req() req: Request,
+    @Body() dto: UpdateTenantPlanDto,
+  ) {
+    return this.tenantService.updateTenantSubscription(id, req.user, dto.plan);
   }
 
   @Patch(':id/approve')

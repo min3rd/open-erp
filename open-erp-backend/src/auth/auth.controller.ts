@@ -18,6 +18,9 @@ import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RequestUser } from './interfaces/request-user.interface';
+import { ChallengeMfaDto } from './mfa/dto/challenge-mfa.dto';
+import { DisableMfaDto } from './mfa/dto/disable-mfa.dto';
+import { VerifyMfaDto } from './mfa/dto/verify-mfa.dto';
 
 @Controller({ path: 'auth', version: '1' })
 export class AuthController {
@@ -32,10 +35,14 @@ export class AuthController {
     @Res({ passthrough: true }) res?: Response,
   ) {
     const result = await this.authService.login(dto, { ip, userAgent });
+    const loginData = result.data as {
+      refreshToken?: string;
+      refreshTokenExpiresAt?: Date | string;
+    };
     this.attachRefreshTokenCookie(
       res,
-      result.data.refreshToken,
-      result.data.refreshTokenExpiresAt,
+      loginData.refreshToken,
+      loginData.refreshTokenExpiresAt,
     );
     return result;
   }
@@ -113,6 +120,52 @@ export class AuthController {
     }
 
     return this.authService.me(user);
+  }
+
+  @Post('mfa/setup')
+  async setupMfa(@Req() req: Request) {
+    const user = req.user as RequestUser | undefined;
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    return this.authService.setupMfa(user);
+  }
+
+  @Post('mfa/verify')
+  async verifyMfa(@Req() req: Request, @Body() dto: VerifyMfaDto) {
+    const user = req.user as RequestUser | undefined;
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    return this.authService.verifyMfa(user, dto.code);
+  }
+
+  @Post('mfa/disable')
+  async disableMfa(@Req() req: Request, @Body() dto: DisableMfaDto) {
+    const user = req.user as RequestUser | undefined;
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    return this.authService.disableMfa(user, dto.code);
+  }
+
+  @Get('mfa/backup-codes')
+  async backupCodes(@Req() req: Request) {
+    const user = req.user as RequestUser | undefined;
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    return this.authService.regenerateBackupCodes(user);
+  }
+
+  @Public()
+  @Post('mfa/challenge')
+  async challengeMfa(@Body() dto: ChallengeMfaDto) {
+    return this.authService.challengeMfa(dto.mfaToken, dto.code, dto.backupCode);
   }
 
   private resolveRefreshToken(req: Request, dto: RefreshTokenDto): string {

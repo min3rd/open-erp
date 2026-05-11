@@ -10,7 +10,7 @@
 | Loại             | Backend                     |
 | Người phụ trách  | Backend                     |
 | Story Points     | 5                           |
-| Trạng thái       | ⬜ TODO                     |
+| Trạng thái       | 🔵 IN PROGRESS              |
 | Phụ thuộc        | TASK-SPRINT-01-AUTH-001     |
 
 ## Mô tả

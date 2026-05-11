@@ -10,7 +10,7 @@
 | Loại             | Backend                                                        |
 | Người phụ trách  | Backend                                                        |
 | Story Points     | 8                                                              |
-| Trạng thái       | ⬜ TODO                                                        |
+| Trạng thái       | � REVIEW                                                        |
 | Phụ thuộc        | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-TENANT-001             |
 
 ## Mô tả
@@ -212,3 +212,79 @@ Công ty ACME
 - `path` field trong department (ví dụ: `/root/child/grandchild`) cho phép query nhanh toàn bộ subtree.
 - User search: dùng MongoDB text index trên `fullName` và `email`.
 - Sync data với hr-service qua event khi user được tạo/cập nhật/xoá.
+
+## Tiến độ thực thi
+
+- [x] Đọc SRS, kiến trúc API, database và hệ thống liên quan.
+- [x] Rà soát code hiện có trong user/auth/tenant backend để xác định điểm tích hợp.
+- [x] Bổ sung CRUD users, `/users/me`, soft delete, tenantId isolation.
+- [x] Bổ sung department tree + members + avatar metadata.
+- [x] Subscribe `tenant.created` để bootstrap Tenant Admin và publish `user.created`.
+
+## Kết quả triển khai
+
+- Thêm users/departments module trong backend hiện có.
+- CRUD user theo tenantId, `/users/me`, soft delete, avatar metadata, department tree và members.
+- Subscribe `tenant.created` qua RabbitMQ để bootstrap Tenant Admin, sau đó publish `user.created`.
+
+## QA / Evidence
+
+### Retest QA — 2026-05-11
+
+**Build:** ✅ PASS (`npm run build`)  
+**Tests:** ✅ PASS — 222/222 tests, 35/35 suites  
+**Coverage tổng backend:** Lines **63.2%** (dưới ngưỡng AC ≥ 80%)
+
+#### Per-file coverage (liên quan task USER-001)
+
+| File | Stmts Coverage | AC | Kết quả |
+|---|---|---|---|
+| `users/users.service.ts` | **45%** (49/108) | ≥ 80% | ❌ FAIL — CRITICAL |
+| `users/departments.service.ts` | **57%** (47/82) | ≥ 80% | ❌ FAIL |
+| `users/users.controller.ts` | **0%** (0/29) | ≥ 80% | ❌ FAIL — CRITICAL |
+| `users/departments.controller.ts` | **0%** (0/22) | ≥ 80% | ❌ FAIL — CRITICAL |
+| `users/avatar/avatar.service.ts` | **0%** (0/43) | ≥ 80% | ❌ FAIL — CRITICAL |
+| `users/events/tenant.handler.ts` | **0%** (0/12) | ≥ 80% | ❌ FAIL |
+| `users/dto/*.ts` (các DTOs) | **0%** | — | ❌ FAIL |
+| `users/schemas/user.schema.ts` | 100% | — | ✅ |
+| `users/schemas/department.schema.ts` | 100% | — | ✅ |
+
+#### Chức năng đã implement (có trong production code)
+- ✅ CRUD user (`createUser`, `getUserById`, `updateUser`, soft delete) với tenantId isolation
+- ✅ `/users/me` — hồ sơ cá nhân
+- ✅ `user.created` event publish sau khi tạo user
+- ✅ `bootstrapTenantAdmin` — tạo admin mặc định khi nhận `tenant.created`
+- ✅ Department: CRUD, tree structure, members
+- ✅ `avatar.service.ts` — upload avatar lên MinIO
+- ✅ `tenant.handler.ts` — subscribe `tenant.created` via RabbitMQ
+
+#### Test cases hiện có (`users.service.spec.ts`, `departments.service.spec.ts`)
+- ✅ `createUser publishes user.created`
+- ✅ `createUser rejects duplicate email`
+- ✅ `createDepartment stores nested department information`
+- ✅ `getTree nests children under their parent`
+
+#### Blocker — AC chưa đạt
+
+1. **[BLOCKER CRITICAL]** `users.service.ts` coverage **45%** — thiếu test: `getMe`, `updateUser`, `softDeleteUser`, `lockUser`, `bootstrapTenantAdmin`, quota check khi `maxUsers` đạt giới hạn
+2. **[BLOCKER CRITICAL]** `users.controller.ts` **0%** — không có test controller nào
+3. **[BLOCKER CRITICAL]** `avatar.service.ts` **0%** — upload avatar, MIME validate, MinIO path — hoàn toàn chưa test
+4. **[BLOCKER]** `departments.service.ts` **57%** — thiếu: `updateDepartment`, `deleteDepartment`, `getDepartmentMembers`, `getDepartmentTree` khi có nhiều tầng
+5. **[BLOCKER]** `departments.controller.ts` **0%** — không có test
+6. **[THIẾU TEST]** `tenant.handler.ts` **0%** — subscribe `tenant.created` → gọi `bootstrapTenantAdmin` — chưa test
+7. **[THIẾU TEST]** Soft delete: user bị xoá không xuất hiện trong danh sách
+8. **[THIẾU TEST]** Phân trang: `?page=1&limit=20&search=nguyen&departmentId=xxx`
+9. **[THIẾU TEST]** Xoá phòng ban có thành viên → từ chối (bảo vệ toàn vẹn dữ liệu)
+10. **[THIẾU TEST]** User chỉ xem được users trong cùng tenant — tenantId isolation
+
+**Kết luận QA:** ❌ Giữ nguyên **🟡 REVIEW** — Cấu trúc module đầy đủ, nhưng phần lớn logic chưa được test. `users.service.ts` 45%, controller và avatar.service 0% là các gap nghiêm trọng.
+
+**Điều kiện đóng task:**
+- [ ] `users.service.ts` ≥ 80% — thêm test `getMe`, `updateUser`, `softDeleteUser`, `lockUser`, `bootstrapTenantAdmin`, quota-on-create
+- [ ] `departments.service.ts` ≥ 80% — thêm test update/delete/members
+- [ ] `users.controller.ts` ≥ 80%
+- [ ] `departments.controller.ts` ≥ 80%
+- [ ] `avatar.service.ts` ≥ 80% hoặc test integration khi MinIO sẵn sàng
+- [ ] `tenant.handler.ts` có unit test subscribe `tenant.created` → `bootstrapTenantAdmin`
+- [ ] Test: soft delete user không xuất hiện trong list
+- [ ] Test: tenantId isolation (user A không thấy user của tenant B)

@@ -10,7 +10,7 @@
 | Loại             | Backend                     |
 | Người phụ trách  | Backend                     |
 | Story Points     | 5                           |
-| Trạng thái       | ⬜ TODO                     |
+| Trạng thái       | � REVIEW                    |
 | Phụ thuộc        | TASK-SPRINT-01-AUTH-001     |
 
 ## Mô tả
@@ -193,3 +193,62 @@ Response 200:
 - MFA enforcement check trong `jwt.strategy.ts`: nếu tenant yêu cầu MFA nhưng user chưa bật → throw exception với code `MFA_REQUIRED`.
 - Backup codes được tạo bằng `crypto.randomBytes` để đảm bảo entropy.
 - Cân nhắc WebAuthn/FIDO2 làm phương án MFA nâng cao cho Sprint sau.
+
+## Tiến độ thực thi
+
+- [x] Đọc SRS, kiến trúc API, database và hệ thống liên quan.
+- [x] Rà soát nhánh MFA hiện có trong auth-service.
+- [x] Bổ sung setup / verify / challenge / disable / backup-codes.
+- [x] Enforce MFA policy và TTL challenge token.
+- [x] Viết unit test cho MFA flow.
+
+## Kết quả triển khai
+
+- Thêm setup / verify / challenge / disable / backup-codes cho MFA TOTP.
+- Lưu secret bằng AES-256-GCM, backup codes hash dạng bcrypt và mfa challenge TTL 5 phút.
+- Login trả MFA challenge token khi user đã bật MFA; tenant policy MFA dùng cờ `mfaRequired` trong tenant settings.
+
+## QA / Evidence
+
+### Retest QA — 2026-05-11
+
+**Build:** ✅ PASS (`npm run build`)  
+**Tests:** ✅ PASS — 222/222 tests, 35/35 suites  
+**Coverage tổng backend:** Lines **63.2%** (dưới ngưỡng AC ≥ 80%)
+
+#### Per-file coverage (liên quan task AUTH-003)
+
+| File | Stmts Coverage | AC | Kết quả |
+|---|---|---|---|
+| `auth/auth.service.ts` | **75%** (225/299) | ≥ 80% | ❌ FAIL |
+| `auth/auth.controller.ts` | **74%** (63/85) | ≥ 80% | ❌ FAIL |
+| `auth/mfa/schemas/mfa-challenge.schema.ts` | 100% | — | ✅ |
+| `auth/mfa/dto/*.ts` (challenge, verify, disable) | 100% | — | ✅ |
+| `auth/guards/jwt-auth.guard.ts` | **78%** (32/41) | ≥ 80% | ❌ FAIL |
+| `common/guards/jwt-auth.guard.ts` | **79%** (41/52) | ≥ 80% | ❌ FAIL |
+
+#### Test cases hiện có (`auth.mfa.spec.ts`)
+- ✅ `setupMfa returns QR code payload`
+- ✅ `verifyMfa enables MFA and returns backup codes`
+- ✅ `challengeMfa returns JWT session after valid code`
+- ✅ `disableMfa clears MFA fields`
+
+#### Blocker — AC chưa đạt
+
+1. **[BLOCKER]** `auth.service.ts` coverage **75%** < 80% — thiếu test cho: `challengeMfa` với **backup code path**, `regenerateBackupCodes`, các nhánh lỗi (code hết hạn, challenge expired, mfaEnabled=false)
+2. **[BLOCKER]** `auth.controller.ts` coverage **74%** < 80% — cần thêm test cho MFA controller endpoints (setup/verify/disable/backup-codes/challenge)
+3. **[BLOCKER]** `auth/guards/jwt-auth.guard.ts` **78%** và `common/guards/jwt-auth.guard.ts` **79%** — sát ngưỡng, cần test nhánh `mfaRequired` enforcement
+4. **[THIẾU TEST]** Rate limiting: 5 lần verify sai → lock account 15 phút — chưa có test
+5. **[THIẾU TEST]** Tenant policy MFA bắt buộc → user chưa bật MFA → code `MFA_REQUIRED` — chưa có test
+6. **[THIẾU TEST]** Backup code đã dùng → không dùng lần 2 — chưa có test
+7. **[THIẾU TEST]** `regenerateBackupCodes` endpoint — chưa có test
+
+**Kết luận QA:** ❌ Giữ nguyên **🟡 REVIEW** — Implementation đầy đủ, nhưng coverage chưa đạt ngưỡng AC ≥ 80%. Cần bổ sung unit test cho backup code flow, rate limit, tenant policy, controller endpoints.
+
+**Điều kiện đóng task:**
+- [ ] `auth.service.ts` ≥ 80% — thêm test backup code path, regenerate, error branches
+- [ ] `auth.controller.ts` ≥ 80% — thêm test MFA controller endpoints
+- [ ] `jwt-auth.guard.ts` cả 2 file ≥ 80%
+- [ ] Test case: 5 lần fail → lock 15 phút
+- [ ] Test case: backup code dùng 1 lần → reject lần 2
+- [ ] Test case: tenant `mfaRequired=true` + user `mfaEnabled=false` → `MFA_REQUIRED`

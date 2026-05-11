@@ -12,6 +12,10 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import argon2 from 'argon2';
+import bcryptjs from 'bcryptjs';
+import { createCipheriv, createDecipheriv, createHash, randomBytes, randomUUID } from 'crypto';
+import { authenticator } from 'otplib';
+import * as QRCode from 'qrcode';
 import Redis from 'ioredis';
 import { Model, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -19,6 +23,7 @@ import { RabbitMQService } from '../common/services/rabbitmq.service';
 import { Tenant, TenantDocument, TenantStatus } from '../tenant/schemas/tenant.schema';
 import { TokenService } from '../token/token.service';
 import { User, UserDocument, UserStatus } from '../users/schemas/user.schema';
+import { MfaChallenge, MfaChallengeDocument } from './mfa/schemas/mfa-challenge.schema';
 import { resolveJwtRuntimeConfig } from './auth-runtime.config';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
@@ -31,11 +36,24 @@ interface RequestContext {
   userAgent: string;
 }
 
+type MfaLoginState = {
+  mfaRequired: true;
+  mfaToken: string;
+  mfaSetupRequired?: boolean;
+  user: {
+    id: string;
+    email: string;
+    roles: string[];
+  };
+};
+
 @Injectable()
 export class AuthService implements OnModuleDestroy {
   private readonly logger = new Logger(AuthService.name);
   private redisClient: Redis | null = null;
   private jwtFallbackWarningLogged = false;
+  private readonly mfaTokenTtlSeconds = 5 * 60;
+  private readonly pendingMfaSecrets = new Map<string, string>();
 
   constructor(
     private readonly configService: ConfigService,
@@ -46,6 +64,8 @@ export class AuthService implements OnModuleDestroy {
     private readonly userModel: Model<UserDocument>,
     @InjectModel(Tenant.name)
     private readonly tenantModel: Model<TenantDocument>,
+    @InjectModel(MfaChallenge.name)
+    private readonly mfaChallengeModel: Model<MfaChallengeDocument>,
   ) {}
 
   async onModuleDestroy(): Promise<void> {
@@ -113,13 +133,11 @@ export class AuthService implements OnModuleDestroy {
       });
     }
 
+    const tenantMfaRequired = Boolean((tenant as { settings?: Record<string, unknown> })?.settings?.mfaRequired);
     if (user.mfaEnabled) {
       return {
         success: true,
-        data: {
-          mfaRequired: true,
-          sessionToken: uuidv4(),
-        },
+        data: await this.createMfaChallengeState(user),
       };
     }
 
@@ -156,6 +174,7 @@ export class AuthService implements OnModuleDestroy {
         refreshTokenExpiresAt: refresh.expiresAt,
         expiresIn: access.expiresIn,
         mfaRequired: false,
+        mfaSetupRequired: tenantMfaRequired,
         user: {
           id: user._id.toString(),
           email: user.email,
@@ -335,6 +354,218 @@ export class AuthService implements OnModuleDestroy {
     };
   }
 
+  async setupMfa(user: RequestUser) {
+    const currentUser = await this.userModel
+      .findOne({
+        _id: new Types.ObjectId(user.sub),
+        tenantId: new Types.ObjectId(user.tenantId),
+        isDeleted: false,
+      })
+      .exec();
+
+    if (!currentUser) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHORIZED',
+        message: 'User not found',
+      });
+    }
+
+    const secret = authenticator.generateSecret();
+    await this.storePendingMfaSecret(currentUser.tenantId.toString(), currentUser._id.toString(), secret);
+    const qrCodeUrl = this.buildMfaOtpAuthUrl(currentUser.email, secret);
+    const qrCodeImage = await QRCode.toDataURL(qrCodeUrl);
+
+    return {
+      success: true,
+      data: {
+        secret,
+        qrCodeUrl,
+        qrCodeImage,
+      },
+    };
+  }
+
+  async verifyMfa(user: RequestUser, code: string) {
+    const currentUser = await this.userModel
+      .findOne({
+        _id: new Types.ObjectId(user.sub),
+        tenantId: new Types.ObjectId(user.tenantId),
+        isDeleted: false,
+      })
+      .exec();
+
+    if (!currentUser) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHORIZED',
+        message: 'User not found',
+      });
+    }
+
+    const secret = await this.consumePendingMfaSecret(currentUser.tenantId.toString(), currentUser._id.toString());
+    this.assertTotpNotReplayed(currentUser.mfaLastUsedAt);
+    if (!secret || !this.verifyTotpCode(secret, code, user.tenantId)) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHORIZED',
+        message: 'Invalid MFA code',
+      });
+    }
+
+    const backupCodes = this.generateBackupCodes();
+    currentUser.mfaEnabled = true;
+    currentUser.mfaSecret = this.encryptMfaSecret(secret);
+    currentUser.mfaBackupCodes = await this.hashBackupCodes(backupCodes);
+    currentUser.mfaEnabledAt = new Date();
+    currentUser.mfaLastUsedAt = new Date();
+    await currentUser.save();
+
+    return {
+      success: true,
+      data: {
+        backupCodes,
+      },
+    };
+  }
+
+  async disableMfa(user: RequestUser, code: string) {
+    const currentUser = await this.userModel
+      .findOne({
+        _id: new Types.ObjectId(user.sub),
+        tenantId: new Types.ObjectId(user.tenantId),
+        isDeleted: false,
+      })
+      .exec();
+
+    if (!currentUser || !currentUser.mfaEnabled || !currentUser.mfaSecret) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHORIZED',
+        message: 'MFA is not enabled',
+      });
+    }
+
+    const secret = this.decryptMfaSecret(currentUser.mfaSecret);
+    if (!this.verifyTotpCode(secret, code, user.tenantId)) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHORIZED',
+        message: 'Invalid MFA code',
+      });
+    }
+
+    currentUser.mfaEnabled = false;
+    currentUser.mfaSecret = undefined;
+    currentUser.mfaBackupCodes = [];
+    currentUser.mfaEnabledAt = undefined;
+    currentUser.mfaLastUsedAt = new Date();
+    await currentUser.save();
+
+    return {
+      success: true,
+      data: {
+        disabled: true,
+      },
+    };
+  }
+
+  async regenerateBackupCodes(user: RequestUser) {
+    const currentUser = await this.userModel
+      .findOne({
+        _id: new Types.ObjectId(user.sub),
+        tenantId: new Types.ObjectId(user.tenantId),
+        isDeleted: false,
+      })
+      .exec();
+
+    if (!currentUser || !currentUser.mfaEnabled) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHORIZED',
+        message: 'MFA is not enabled',
+      });
+    }
+
+    const backupCodes = this.generateBackupCodes();
+    currentUser.mfaBackupCodes = await this.hashBackupCodes(backupCodes);
+    await currentUser.save();
+
+    return {
+      success: true,
+      data: {
+        backupCodes,
+      },
+    };
+  }
+
+  async challengeMfa(mfaToken: string, code?: string, backupCode?: string) {
+    const payload = this.verifyMfaToken(mfaToken);
+    const challengeToken = this.sha256(mfaToken);
+
+    const challenge = await this.mfaChallengeModel.findOne({ token: challengeToken }).exec();
+    if (!challenge || challenge.used || challenge.expiresAt <= new Date()) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHORIZED',
+        message: 'Invalid MFA challenge',
+      });
+    }
+
+    const currentUser = await this.userModel
+      .findOne({
+        _id: new Types.ObjectId(payload.sub),
+        tenantId: new Types.ObjectId(payload.tenantId),
+        isDeleted: false,
+      })
+      .exec();
+
+    if (!currentUser || !currentUser.mfaEnabled || !currentUser.mfaSecret) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHORIZED',
+        message: 'MFA is not enabled',
+      });
+    }
+
+    const secret = this.decryptMfaSecret(currentUser.mfaSecret);
+    this.assertTotpNotReplayed(currentUser.mfaLastUsedAt);
+    const verifiedByTotp = code ? this.verifyTotpCode(secret, code, payload.tenantId) : false;
+    const verifiedByBackup = backupCode ? await this.consumeBackupCode(currentUser, backupCode) : false;
+
+    if (!verifiedByTotp && !verifiedByBackup) {
+      challenge.failedAttempts += 1;
+      await challenge.save();
+      throw new UnauthorizedException({
+        code: 'UNAUTHORIZED',
+        message: 'Invalid MFA code',
+      });
+    }
+
+    challenge.used = true;
+    await challenge.save();
+
+    currentUser.mfaLastUsedAt = new Date();
+    await currentUser.save();
+
+    const access = this.signAccessToken(currentUser);
+    const refresh = await this.tokenService.createRefreshToken({
+      tenantId: currentUser.tenantId.toString(),
+      userId: currentUser._id.toString(),
+      deviceInfo: {
+        ip: 'unknown',
+        userAgent: 'mfa',
+      },
+    });
+
+    return {
+      success: true,
+      data: {
+        accessToken: access.token,
+        refreshToken: refresh.refreshToken,
+        refreshTokenExpiresAt: refresh.expiresAt,
+        expiresIn: access.expiresIn,
+        user: {
+          id: currentUser._id.toString(),
+          email: currentUser.email,
+          roles: currentUser.roles,
+        },
+      },
+    };
+  }
+
   private assertUserNotLocked(user: UserDocument): void {
     if (user.lockedUntil && user.lockedUntil > new Date()) {
       throw new HttpException({
@@ -456,5 +687,198 @@ export class AuthService implements OnModuleDestroy {
       const message = error instanceof Error ? error.message : 'unknown';
       this.logger.warn(`Failed to publish ${routingKey}: ${message}`);
     });
+  }
+
+  private sha256(input: string): string {
+    return createHash('sha256').update(input).digest('hex');
+  }
+
+  private async createMfaChallengeState(user: UserDocument): Promise<MfaLoginState> {
+    const mfaToken = await this.issueMfaToken({
+      tenantId: user.tenantId.toString(),
+      userId: user._id.toString(),
+      email: user.email,
+    });
+
+    await this.mfaChallengeModel.create({
+      tenantId: user.tenantId,
+      userId: user._id,
+      token: this.sha256(mfaToken),
+      expiresAt: new Date(Date.now() + this.mfaTokenTtlSeconds * 1000),
+      used: false,
+      failedAttempts: 0,
+    });
+
+    return {
+      mfaRequired: true,
+      mfaToken,
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        roles: user.roles,
+      },
+    };
+  }
+
+  private async issueMfaToken(payload: { tenantId: string; userId: string; email: string }): Promise<string> {
+    const jwtConfig = resolveJwtRuntimeConfig(this.configService);
+    const data = {
+      sub: payload.userId,
+      tenantId: payload.tenantId,
+      email: payload.email,
+      purpose: 'mfa',
+      jti: randomUUID(),
+    };
+
+    if (jwtConfig.algorithm === 'RS256') {
+      return this.jwtService.sign(data, {
+        privateKey: jwtConfig.signKey,
+        algorithm: jwtConfig.algorithm,
+        expiresIn: '5m' as never,
+      });
+    }
+
+    return this.jwtService.sign(data, {
+      secret: jwtConfig.signKey,
+      algorithm: jwtConfig.algorithm,
+      expiresIn: '5m' as never,
+    });
+  }
+
+  private verifyMfaToken(token: string): { sub: string; tenantId: string; email: string; purpose?: string } {
+    const jwtConfig = resolveJwtRuntimeConfig(this.configService);
+    const payload = this.jwtService.verify(token, {
+      ...(jwtConfig.algorithm === 'RS256'
+        ? { publicKey: jwtConfig.verifyKey }
+        : { secret: jwtConfig.signKey }),
+      algorithms: [jwtConfig.algorithm],
+    }) as { sub: string; tenantId: string; email: string; purpose?: string };
+
+    if (payload.purpose !== 'mfa') {
+      throw new UnauthorizedException({
+        code: 'UNAUTHORIZED',
+        message: 'Invalid MFA token',
+      });
+    }
+
+    return payload;
+  }
+
+  private buildMfaOtpAuthUrl(email: string, secret: string): string {
+    const issuer = this.configService.get<string>('MFA_ISSUER') ?? 'OpenERP';
+    return `otpauth://totp/${encodeURIComponent(`${issuer}:${email}`)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}`;
+  }
+
+  private verifyTotpCode(secret: string, code: string, tenantId?: string): boolean {
+    const windowSize = Number(this.configService.get<string>('MFA_TOTP_WINDOW') ?? '1');
+    authenticator.options = { window: windowSize };
+
+    return authenticator.verify({ token: code, secret });
+  }
+
+  private encryptMfaSecret(secret: string): string {
+    const key = this.resolveMfaKey();
+    const iv = randomBytes(12);
+    const cipher = createCipheriv('aes-256-gcm', key, iv);
+    const encrypted = Buffer.concat([cipher.update(secret, 'utf8'), cipher.final()]);
+    const authTag = cipher.getAuthTag();
+    return `${iv.toString('base64')}:${encrypted.toString('base64')}:${authTag.toString('base64')}`;
+  }
+
+  private decryptMfaSecret(encrypted: string): string {
+    const [ivBase64, payloadBase64, tagBase64] = encrypted.split(':');
+    if (!ivBase64 || !payloadBase64 || !tagBase64) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHORIZED',
+        message: 'Invalid MFA secret',
+      });
+    }
+
+    const key = this.resolveMfaKey();
+    const decipher = createDecipheriv('aes-256-gcm', key, Buffer.from(ivBase64, 'base64'));
+    decipher.setAuthTag(Buffer.from(tagBase64, 'base64'));
+    return Buffer.concat([
+      decipher.update(Buffer.from(payloadBase64, 'base64')),
+      decipher.final(),
+    ]).toString('utf8');
+  }
+
+  private resolveMfaKey(): Buffer {
+    const rawKey = this.configService.get<string>('MFA_ENCRYPTION_KEY') ?? this.configService.get<string>('JWT_SECRET') ?? 'open-erp-mfa-default-key';
+    if (/^[0-9a-fA-F]{64}$/.test(rawKey)) {
+      return Buffer.from(rawKey, 'hex');
+    }
+
+    return createHash('sha256').update(rawKey).digest();
+  }
+
+  private generateBackupCodes(): string[] {
+    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    return Array.from({ length: 10 }, () =>
+      Array.from({ length: 8 }, () => alphabet[randomBytes(1)[0] % alphabet.length]).join(''),
+    );
+  }
+
+  private async hashBackupCodes(codes: string[]): Promise<string[]> {
+    const rounds = Number(this.configService.get<string>('MFA_BACKUP_BCRYPT_ROUNDS') ?? '10');
+    return Promise.all(codes.map((code) => bcryptjs.hash(code, rounds)));
+  }
+
+  private async consumeBackupCode(user: UserDocument, backupCode: string): Promise<boolean> {
+    for (const hashed of user.mfaBackupCodes ?? []) {
+      const matched = await bcryptjs.compare(backupCode, hashed);
+      if (matched) {
+        user.mfaBackupCodes = (user.mfaBackupCodes ?? []).filter((value) => value !== hashed);
+        await user.save();
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private async storePendingMfaSecret(tenantId: string, userId: string, secret: string): Promise<void> {
+    const redisUrl = this.configService.get<string>('REDIS_URL');
+    if (!redisUrl) {
+      this.pendingMfaSecrets.set(`${tenantId}:${userId}`, secret);
+      return;
+    }
+
+    const client = await this.getRedisClient(redisUrl);
+    await client.set(`mfa:setup:${tenantId}:${userId}`, secret, 'EX', this.mfaTokenTtlSeconds);
+  }
+
+  private async consumePendingMfaSecret(tenantId: string, userId: string): Promise<string | null> {
+    const redisUrl = this.configService.get<string>('REDIS_URL');
+    if (!redisUrl) {
+      const key = `${tenantId}:${userId}`;
+      const secret = this.pendingMfaSecrets.get(key) ?? null;
+      this.pendingMfaSecrets.delete(key);
+      return secret;
+    }
+
+    const client = await this.getRedisClient(redisUrl);
+    const key = `mfa:setup:${tenantId}:${userId}`;
+    const secret = await client.get(key);
+    if (secret) {
+      await client.del(key);
+    }
+
+    return secret;
+  }
+
+  private assertTotpNotReplayed(lastUsedAt?: Date): void {
+    if (!lastUsedAt) {
+      return;
+    }
+
+    const windowSeconds = Number(this.configService.get<string>('MFA_TOTP_WINDOW') ?? '1');
+    const windowMs = Math.max(1, windowSeconds) * 30 * 1000;
+    if (Date.now() - lastUsedAt.getTime() < windowMs) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHORIZED',
+        message: 'MFA code already used',
+      });
+    }
   }
 }

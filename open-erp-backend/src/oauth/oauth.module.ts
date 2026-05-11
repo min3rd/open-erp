@@ -6,11 +6,9 @@ import { RabbitMQService } from '../common/services/rabbitmq.service';
 import { Tenant, TenantSchema } from '../tenant/schemas/tenant.schema';
 import { TokenModule } from '../token/token.module';
 import { User, UserSchema } from '../users/schemas/user.schema';
-import { resolveJwtRuntimeConfig } from './auth-runtime.config';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { MfaChallenge, MfaChallengeSchema } from './mfa/schemas/mfa-challenge.schema';
+import { resolveJwtRuntimeConfig } from '../auth/auth-runtime.config';
+import { OAuthController } from './oauth.controller';
+import { OAuthService } from './oauth.service';
 
 @Module({
   imports: [
@@ -42,21 +40,11 @@ import { MfaChallenge, MfaChallengeSchema } from './mfa/schemas/mfa-challenge.sc
       },
     }),
     MongooseModule.forFeature([
-      {
-        name: User.name,
-        schema: UserSchema,
-      },
-      {
-        name: Tenant.name,
-        schema: TenantSchema,
-      },
-      {
-        name: MfaChallenge.name,
-        schema: MfaChallengeSchema,
-      },
+      { name: User.name, schema: UserSchema },
+      { name: Tenant.name, schema: TenantSchema },
     ]),
   ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtAuthGuard, RabbitMQService],
+  controllers: [OAuthController],
+  providers: [OAuthService, RabbitMQService],
 })
-export class AuthModule {}
+export class OAuthModule {}

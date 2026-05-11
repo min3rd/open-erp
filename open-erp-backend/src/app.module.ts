@@ -13,9 +13,12 @@ import { HealthModule } from './health/health.module';
 import { ProxyModule } from './proxy/proxy.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { RateLimitMiddleware } from './common/middleware/rate-limit.middleware';
+import { TenantQuotaMiddleware } from './common/middleware/tenant-quota.middleware';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { TenantModule } from './tenant/tenant.module';
+import { UsersModule } from './users/users.module';
+import { OAuthModule } from './oauth/oauth.module';
 
 @Module({
   imports: [
@@ -32,7 +35,9 @@ import { TenantModule } from './tenant/tenant.module';
     HealthModule,
     ProxyModule,
     AuthModule,
+    OAuthModule,
     TenantModule,
+    UsersModule,
   ],
   providers: [
     {
@@ -44,7 +49,7 @@ import { TenantModule } from './tenant/tenant.module';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer
-      .apply(RequestIdMiddleware, RateLimitMiddleware, TenantMiddleware)
+      .apply(RequestIdMiddleware, RateLimitMiddleware, TenantMiddleware, TenantQuotaMiddleware)
       .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }

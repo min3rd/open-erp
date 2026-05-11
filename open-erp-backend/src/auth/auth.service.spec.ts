@@ -46,6 +46,10 @@ describe('AuthService', () => {
   const tenantModel = {
     findById: jest.fn(),
   };
+  const mfaChallengeModel = {
+    create: jest.fn(),
+    findOne: jest.fn(),
+  };
 
   const configService = {
     get: jest.fn((key: string) => {
@@ -100,6 +104,10 @@ describe('AuthService', () => {
         {
           provide: getModelToken(Tenant.name),
           useValue: tenantModel,
+        },
+        {
+          provide: getModelToken('MfaChallenge'),
+          useValue: mfaChallengeModel,
         },
         {
           provide: TokenService,
@@ -339,10 +347,16 @@ describe('AuthService', () => {
     tenantModel.findById.mockReturnValue({
       select: jest.fn().mockReturnValue({
         lean: jest.fn().mockReturnValue({
-          exec: jest.fn().mockResolvedValue({ status: 'TRIAL', isDeleted: false }),
+          exec: jest.fn().mockResolvedValue({
+            status: 'TRIAL',
+            isDeleted: false,
+            settings: {},
+          }),
         }),
       }),
     });
+    mfaChallengeModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+    mfaChallengeModel.create.mockResolvedValue({});
     (argon2.verify as jest.Mock).mockResolvedValue(true);
 
     const result = await service.login(
@@ -356,7 +370,7 @@ describe('AuthService', () => {
 
     expect(result.success).toBe(true);
     expect(result.data.mfaRequired).toBe(true);
-    expect(result.data.sessionToken).toBeDefined();
+    expect(result.data.mfaToken).toBeDefined();
   });
 
   it('logout() adds JTI into redis blacklist', async () => {

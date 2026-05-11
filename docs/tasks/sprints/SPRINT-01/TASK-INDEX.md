@@ -13,6 +13,13 @@
 > Kết quả: FOUNDATION-002, FOUNDATION-003, FOUNDATION-004, TENANT-001 giữ nguyên **🟡 REVIEW**.  
 > Điều kiện chung để close REVIEW: nâng coverage ≥ 80% và bổ sung integration tests khi môi trường (Docker/MongoDB/RabbitMQ) sẵn sàng.
 
+> **QA Retest Tuần 2 Sprint 01 — 2026-05-11**  
+> Build: ✅ PASS | Tests: **222/222 PASS**, **35/35 suites** | Coverage tổng: Lines **63.2%** (AC ≥ 80% chưa đạt)  
+> Scope retest: **TENANT-002**, **USER-001**, **AUTH-003**  
+> **AUTH-003:** `auth.service.ts` 75%, `auth.controller.ts` 74% — giữ **🟡 REVIEW**. Blocker: coverage < 80%, thiếu test backup code path, rate limit, tenant MFA policy.  
+> **TENANT-002:** `tenant.service.ts` 38% (critical), `tenant-quota.middleware.ts` 0% — giữ **🟡 REVIEW**. Blocker: quota/usage functions hoàn toàn chưa được test.  
+> **USER-001:** `users.service.ts` 45%, controller/avatar/handler đều 0% — giữ **🟡 REVIEW**. Blocker: phần lớn logic chưa có test coverage.
+
 ---
 
 ## Tổng quan tiến độ Sprint 01
@@ -20,11 +27,11 @@
 | Cluster      | Tổng | ⬜ TODO | 🔵 IN PROGRESS | 🟡 REVIEW | 🟢 DONE | 🔴 BLOCKED | ⏸️ HOLD |
 |--------------|------|---------|----------------|-----------|---------|------------|--------|
 | foundation   | 8    | 0       | 0              | 3         | 4       | 0          | 1      |
-| auth         | 4    | 3       | 0              | 0         | 1       | 0          | 0      |
-| tenant       | 3    | 2       | 0              | 1         | 0       | 0          | 0      |
-| user         | 2    | 2       | 0              | 0         | 0       | 0          | 0      |
+| auth         | 4    | 2       | 0              | 1         | 1       | 0          | 0      |
+| tenant       | 3    | 1       | 0              | 2         | 0       | 0          | 0      |
+| user         | 2    | 1       | 0              | 2         | 0       | 0          | 0      |
 | frontend     | 2    | 2       | 0              | 0         | 0       | 0          | 0      |
-| **Tổng**     | **19** | **9** | **0**         | **4**     | **5**   | **0**      | **1**  |
+| **Tổng**     | **19** | **5** | **0**         | **8**     | **5**   | **0**      | **1**  |
 
 ---
 
@@ -41,13 +48,13 @@
 | TASK-SPRINT-01-FOUNDATION-008   | Deploy assets cho Docker và Kubernetes           | foundation | DevOps   | DevOps    | 5  | 🟢 DONE  | TASK-SPRINT-01-FOUNDATION-001, TASK-SPRINT-01-FOUNDATION-006     | `foundation/TASK-SPRINT-01-FOUNDATION-008-deploy-assets-docker-kubernetes.md`                |
 | TASK-SPRINT-01-FOUNDATION-009   | Hướng dẫn và cấu hình cài đặt trực tiếp Linux/Windows Server | foundation | DevOps   | DevOps    | 5  | ⏸️ HOLD    | TASK-SPRINT-01-FOUNDATION-006, TASK-SPRINT-01-FOUNDATION-008     | `foundation/TASK-SPRINT-01-FOUNDATION-009-direct-install-linux-windows-server.md`            |
 | TASK-SPRINT-01-AUTH-001         | Auth Service — JWT Authentication                | auth       | Backend  | Backend   | 8  | 🟢 DONE   | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004     | `auth/TASK-SPRINT-01-AUTH-001-auth-service-jwt.md`                                           |
-| TASK-SPRINT-01-AUTH-002         | Auth Service — OAuth2 Social Login               | auth       | Backend  | Backend   | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-002-oauth2-social.md`                                              |
-| TASK-SPRINT-01-AUTH-003         | Auth Service — Multi-Factor Authentication (TOTP)| auth       | Backend  | Backend   | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-003-mfa.md`                                                        |
+| TASK-SPRINT-01-AUTH-002         | Auth Service — OAuth2 Social Login               | auth       | Backend  | Backend   | 5  | 🔵 IN PROGRESS | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-002-oauth2-social.md`                                              |
+| TASK-SPRINT-01-AUTH-003         | Auth Service — Multi-Factor Authentication (TOTP)| auth       | Backend  | Backend   | 5  | 🟡 REVIEW | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-003-mfa.md`                                                        |
 | TASK-SPRINT-01-AUTH-004         | Hardening Token Security & Coverage Evidence     | auth       | Backend  | Backend   | 3  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-004-token-security-hardening.md`                                   |
 | TASK-SPRINT-01-TENANT-001       | Tenant Service — Quản lý doanh nghiệp & Tự đăng ký MST | tenant     | Backend  | Backend   | 8  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004     | `tenant/TASK-SPRINT-01-TENANT-001-tenant-service.md`                                         |
-| TASK-SPRINT-01-TENANT-002       | Tenant Service — Subscription và Quota           | tenant     | Backend  | Backend   | 5  | ⬜ TODO    | TASK-SPRINT-01-TENANT-001                                        | `tenant/TASK-SPRINT-01-TENANT-002-subscription-quota.md`                                     |
+| TASK-SPRINT-01-TENANT-002       | Tenant Service — Subscription và Quota           | tenant     | Backend  | Backend   | 5  | 🟡 REVIEW | TASK-SPRINT-01-TENANT-001                                        | `tenant/TASK-SPRINT-01-TENANT-002-subscription-quota.md`                                     |
 | TASK-SPRINT-01-TENANT-003       | Onboarding Integration Completion                 | tenant     | Backend  | Backend   | 3  | ⬜ TODO    | TASK-SPRINT-01-TENANT-001                                        | `tenant/TASK-SPRINT-01-TENANT-003-onboarding-integration-completion.md`                      |
-| TASK-SPRINT-01-USER-001         | User Service — Quản lý người dùng và phòng ban   | user       | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-TENANT-001               | `user/TASK-SPRINT-01-USER-001-user-service.md`                                               |
+| TASK-SPRINT-01-USER-001         | User Service — Quản lý người dùng và phòng ban   | user       | Backend  | Backend   | 8  | 🟡 REVIEW | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-TENANT-001               | `user/TASK-SPRINT-01-USER-001-user-service.md`                                               |
 | TASK-SPRINT-01-USER-002         | RBAC Service — Role-Based Access Control         | user       | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-USER-001                                          | `user/TASK-SPRINT-01-USER-002-rbac-service.md`                                               |
 | TASK-SPRINT-01-FRONTEND-001     | Angular Web — Auth UI + Đăng ký DN với Activation Email Link (Angular 21) (AC: Light/Dark mode + persistence openErp.colorMode) | frontend   | Frontend | Frontend  | 8  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-AUTH-002, TASK-SPRINT-01-AUTH-003 | `frontend/TASK-SPRINT-01-FRONTEND-001-angular-auth-ui.md`                         |
 | TASK-SPRINT-01-FRONTEND-002     | Angular Web — Tenant Admin Dashboard (AC: Light/Dark mode + persistence openErp.colorMode)             | frontend   | Frontend | Frontend  | 8  | ⬜ TODO    | TASK-SPRINT-01-FRONTEND-001, TASK-SPRINT-01-USER-001, TASK-SPRINT-01-TENANT-001 | `frontend/TASK-SPRINT-01-FRONTEND-002-tenant-admin-ui.md`                |

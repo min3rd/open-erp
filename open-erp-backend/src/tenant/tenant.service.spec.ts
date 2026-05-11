@@ -34,6 +34,7 @@ describe('TenantService', () => {
     countDocuments: jest.fn(),
     create: jest.fn(),
     findOneAndUpdate: jest.fn(),
+    updateOne: jest.fn(),
   };
 
   const registrationModel = {
@@ -42,6 +43,20 @@ describe('TenantService', () => {
     findOne: jest.fn(),
     findById: jest.fn(),
     findOneAndUpdate: jest.fn(),
+  };
+  const subscriptionPlanModel = {
+    updateOne: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(undefined) }),
+    find: jest.fn(),
+    findOne: jest.fn(),
+  };
+
+  const tenantUsageHistoryModel = {
+    updateOne: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(undefined) }),
+    find: jest.fn(),
+  };
+
+  const userModel = {
+    countDocuments: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(0) }),
   };
 
   const rabbitMQService = {
@@ -93,6 +108,18 @@ describe('TenantService', () => {
           useValue: registrationModel,
         },
         {
+          provide: getModelToken('SubscriptionPlan'),
+          useValue: subscriptionPlanModel,
+        },
+        {
+          provide: getModelToken('TenantUsageHistory'),
+          useValue: tenantUsageHistoryModel,
+        },
+        {
+          provide: getModelToken('User'),
+          useValue: userModel,
+        },
+        {
           provide: MST_VERIFICATION_ADAPTER,
           useValue: mstAdapter,
         },
@@ -101,6 +128,37 @@ describe('TenantService', () => {
 
     service = module.get<TenantService>(TenantService);
     configService = module.get(ConfigService);
+
+    (tenantModel.find as jest.Mock).mockReturnValue({
+      sort: jest.fn().mockReturnValue({
+        skip: jest.fn().mockReturnValue({
+          limit: jest.fn().mockReturnValue({
+            lean: jest.fn().mockReturnValue({
+              exec: jest.fn().mockResolvedValue([]),
+            }),
+          }),
+        }),
+      }),
+    });
+    (tenantModel.findOne as jest.Mock).mockReturnValue({
+      lean: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      }),
+    });
+    (subscriptionPlanModel.find as jest.Mock).mockReturnValue({
+      sort: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue([]),
+        }),
+      }),
+    });
+    (tenantUsageHistoryModel.find as jest.Mock).mockReturnValue({
+      sort: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue([]),
+        }),
+      }),
+    });
 
     jest.clearAllMocks();
   });

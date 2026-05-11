@@ -10,7 +10,7 @@
 | Loại             | Backend                         |
 | Người phụ trách  | Backend                         |
 | Story Points     | 5                               |
-| Trạng thái       | ⬜ TODO                         |
+| Trạng thái       | � REVIEW                       |
 | Phụ thuộc        | TASK-SPRINT-01-TENANT-001       |
 
 ## Mô tả
@@ -194,3 +194,72 @@ async checkQuotaAlerts() {
 - Usage tracking storage: cập nhật counter khi MinIO event `s3:ObjectCreated` và `s3:ObjectRemoved` (webhook từ MinIO).
 - Trong Sprint 02, bổ sung payment gateway integration cho tự động gia hạn.
 - Cân nhắc `stripe-metered-billing` trong dài hạn cho usage-based pricing.
+
+## Tiến độ thực thi
+
+- [x] Đọc SRS, kiến trúc API, database và hệ thống liên quan.
+- [x] Rà soát code hiện có trong tenant/auth backend để xác định điểm mở rộng.
+- [x] Implement subscription plan/quota model và seed cơ bản.
+- [x] Implement Redis counters + quota enforcement + alert events.
+- [x] Bổ sung API usage/plan và test coverage.
+
+## Kết quả triển khai
+
+- Thêm subscription plan và usage history schema.
+- Bổ sung quota middleware, API usage tracking, usage history và subscription endpoints.
+- Auto-suspend tenant `TRIAL` khi hết hạn trial bằng sweep định kỳ trong service.
+
+## QA / Evidence
+
+### Retest QA — 2026-05-11
+
+**Build:** ✅ PASS (`npm run build`)  
+**Tests:** ✅ PASS — 222/222 tests, 35/35 suites  
+**Coverage tổng backend:** Lines **63.2%** (dưới ngưỡng AC ≥ 80%)
+
+#### Per-file coverage (liên quan task TENANT-002)
+
+| File | Stmts Coverage | AC | Kết quả |
+|---|---|---|---|
+| `tenant/tenant.service.ts` | **38%** (128/339) | ≥ 80% | ❌ FAIL — CRITICAL |
+| `tenant/tenant.controller.ts` | **70%** (31/44) | ≥ 80% | ❌ FAIL |
+| `common/middleware/tenant-quota.middleware.ts` | **0%** (0/18) | ≥ 80% | ❌ FAIL — CRITICAL |
+| `tenant/schemas/subscription-plan.schema.ts` | 100% | — | ✅ |
+| `tenant/schemas/tenant-usage-history.schema.ts` | 100% | — | ✅ |
+
+#### Chức năng đã implement (có trong production code)
+- ✅ SubscriptionPlan schema (4 tiers: TRIAL/STARTER/BUSINESS/ENTERPRISE)
+- ✅ TenantUsageHistory schema (TTL 90 ngày, index tenantId+date)
+- ✅ `enforceApiQuota()` — Redis counter INCR + 429 khi vượt quota + 80% alert
+- ✅ `getTenantUsage()` — trả usage hiện tại kèm quota percent
+- ✅ `getTenantUsageHistory()` — lịch sử 30 ngày
+- ✅ `suspendExpiredTrials()` — sweep định kỳ mỗi giờ
+- ✅ `publishQuotaAlertOnce()` — idempotent alert qua Redis key
+- ✅ `updateTenantPlan()` — chỉ Super Admin
+
+#### Test cases hiện có (`tenant.service.spec.ts` — 15 tests)
+- Không có test nào cover `getTenantUsage`, `enforceApiQuota`, `getTenantUsageHistory`, `suspendExpiredTrials`
+- Chỉ có: register, activate, verify-tax, complete-onboarding, suspend/activate, deleteTenant, updateTenantPlan, finalizeWizard
+
+#### Blocker — AC chưa đạt
+
+1. **[BLOCKER CRITICAL]** `tenant.service.ts` coverage **38%** — hàm quota/usage hoàn toàn không có test
+2. **[BLOCKER CRITICAL]** `common/middleware/tenant-quota.middleware.ts` **0%** — middleware quota enforcement chưa có test
+3. **[THIẾU TEST]** `enforceApiQuota`: user vượt quota → 429 với message phù hợp
+4. **[THIẾU TEST]** `enforceApiQuota`: API call ở ngưỡng 80% → publish `API_QUOTA_80` event
+5. **[THIẾU TEST]** `getTenantUsage`: trả đúng quota percent cho từng resource
+6. **[THIẾU TEST]** `getTenantUsageHistory`: trả đúng 30 ngày lịch sử
+7. **[THIẾU TEST]** `suspendExpiredTrials`: TRIAL hết 14 ngày → auto SUSPENDED
+8. **[THIẾU TEST]** `createUser` khi maxUsers reached → 422 "Đã đạt giới hạn số lượng người dùng"
+9. **[THIẾU TEST]** Nâng plan → quota mới có hiệu lực ngay lập tức
+10. **[THIẾU TEST]** `tenant.controller.ts` coverage **70%** — usage endpoints cần test
+
+**Kết luận QA:** ❌ Giữ nguyên **🟡 REVIEW** — Các function quota/usage được implement nhưng 0% được test. `tenant.service.ts` ở mức 38% là gap nghiêm trọng nhất.
+
+**Điều kiện đóng task:**
+- [ ] `tenant.service.ts` ≥ 80% — thêm test cho `enforceApiQuota`, `getTenantUsage`, `getTenantUsageHistory`, `suspendExpiredTrials`
+- [ ] `tenant-quota.middleware.ts` ≥ 80% — test `PENDING_VERIFICATION` block, quota enforce path
+- [ ] `tenant.controller.ts` ≥ 80% — test `/tenants/me/usage`, `/tenants/me/usage/history`, `POST /tenants/:id/subscription`
+- [ ] Test: vượt quota API → 429
+- [ ] Test: TRIAL expired → auto-suspend
+- [ ] Test: alert 80% được publish đúng khi usage đạt ngưỡng

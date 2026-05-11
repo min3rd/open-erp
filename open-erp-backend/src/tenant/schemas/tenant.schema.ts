@@ -64,6 +64,36 @@ export class Tenant {
   @Prop({ type: String, enum: Object.values(TenantPlan), default: TenantPlan.TRIAL })
   plan!: TenantPlan;
 
+  @Prop({
+    type: Object,
+    default: {
+      maxUsers: 5,
+      maxStorageBytes: 512 * 1024 * 1024,
+      maxApiCallsPerDay: 1000,
+    },
+  })
+  quotas!: {
+    maxUsers?: number | null;
+    maxStorageBytes?: number | null;
+    maxApiCallsPerDay?: number | null;
+  };
+
+  @Prop({
+    type: Object,
+    default: {
+      currentUsers: 0,
+      usedStorageBytes: 0,
+      apiCallsToday: 0,
+      lastCalculatedAt: null,
+    },
+  })
+  usageStats!: {
+    currentUsers?: number;
+    usedStorageBytes?: number;
+    apiCallsToday?: number;
+    lastCalculatedAt?: Date | null;
+  };
+
   @Prop({ type: Date })
   trialEndsAt?: Date;
 

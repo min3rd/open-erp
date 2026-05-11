@@ -8,11 +8,19 @@ Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 > Build ✅ | 22/22 suites 89/89 tests ✅ | Coverage Lines **61.02%** (< 80% AC)  
 > Quyết định: FOUNDATION-002/003/004 và TENANT-001 giữ **🟡 REVIEW**. Số liệu tổng Sprint 01 không thay đổi.
 
+> **QA Retest Tuần 2 Sprint 01 — 2026-05-11**  
+> Build ✅ | 35/35 suites 222/222 tests ✅ | Coverage Lines **63.2%** (< 80% AC)  
+> Scope: AUTH-003, TENANT-002, USER-001 — cả 3 giữ **🟡 REVIEW**.  
+> AUTH-003: coverage 74–75% (< 80%), thiếu test backup code, rate limit, MFA policy.  
+> TENANT-002: `tenant.service.ts` 38% CRITICAL, `tenant-quota.middleware.ts` 0%.  
+> USER-001: `users.service.ts` 45%, controller/avatar/handler đều 0% CRITICAL.  
+> Đồng bộ: USER-001 cập nhật trạng thái ⬜ TODO → 🟡 REVIEW.
+
 ## Tổng quan tiến độ theo Sprint
 
 | Sprint    | Tên                                    | Tổng Task | Tổng SP | TODO | IN PROGRESS | REVIEW | DONE | BLOCKED |
 |-----------|----------------------------------------|-----------|---------|------|-------------|--------|------|---------|
-| Sprint 01 | Foundation & Authentication            | 19        | 104 SP  | 9    | 0           | 4      | 5    | 0       |
+| Sprint 01 | Foundation & Authentication            | 19        | 104 SP  | 5    | 1           | 8      | 5    | 0       |
 | Sprint 02 | System Administration & Platform Core  | 14        | 87 SP   | 14   | 0           | 0      | 0    | 0       |
 | Sprint 03 | HR Module Core                         | 12        | 76 SP   | 12   | 0           | 0      | 0    | 0       |
 | Sprint 04 | Sale & Logistics Core                  | TBD       | TBD     | —    | —           | —      | —    | —       |
@@ -20,7 +28,7 @@ Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 | Sprint 06 | Office & Meeting Module                | TBD       | TBD     | —    | —           | —      | —    | —       |
 | Sprint 07 | Dashboard & Reporting                  | TBD       | TBD     | —    | —           | —      | —    | —       |
 | Sprint 08+ | AI Agent nâng cao & Tối ưu hóa       | TBD       | TBD     | —    | —           | —      | —    | —       |
-| **Tổng**  |                                        | **45**    | **267 SP** | **35** | **0**   | **4**  | **5**| **0**   |
+| **Tổng**  |                                        | **45**    | **267 SP** | **29** | **0**   | **10**  | **5**| **0**   |
 
 ---
 
@@ -38,12 +46,12 @@ Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 | TASK-SPRINT-01-FOUNDATION-009    | Cài đặt trực tiếp Linux/Windows Server           | foundation | DevOps   | 5  | ⏸️ HOLD   | TASK-SPRINT-01-FOUNDATION-006, TASK-SPRINT-01-FOUNDATION-008 | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-009-direct-install-linux-windows-server.md) |
 | TASK-SPRINT-01-AUTH-001          | Auth Service — JWT & Local Auth                  | auth       | Backend  | 8  | 🟢 DONE   | TASK-SPRINT-01-FOUNDATION-002, -003, -004 | [Link](sprints/SPRINT-01/auth/TASK-SPRINT-01-AUTH-001-auth-service-jwt.md) |
 | TASK-SPRINT-01-AUTH-002          | OAuth2 — Google & Microsoft                      | auth       | Backend  | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                 | [Link](sprints/SPRINT-01/auth/TASK-SPRINT-01-AUTH-002-oauth2-social.md) |
-| TASK-SPRINT-01-AUTH-003          | Multi-Factor Authentication (TOTP)               | auth       | Backend  | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                 | [Link](sprints/SPRINT-01/auth/TASK-SPRINT-01-AUTH-003-mfa.md) |
+| TASK-SPRINT-01-AUTH-003          | Multi-Factor Authentication (TOTP)               | auth       | Backend  | 5  | 🟡 REVIEW | TASK-SPRINT-01-AUTH-001                 | [Link](sprints/SPRINT-01/auth/TASK-SPRINT-01-AUTH-003-mfa.md) |
 | TASK-SPRINT-01-AUTH-004          | Hardening Token Security & Coverage Evidence     | auth       | Backend  | 3  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                 | [Link](sprints/SPRINT-01/auth/TASK-SPRINT-01-AUTH-004-token-security-hardening.md) |
 | TASK-SPRINT-01-TENANT-001        | Tenant Service — Quản lý tenant & Tự đăng ký MST   | tenant     | Backend  | 8  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-002, -003, -004 | [Link](sprints/SPRINT-01/tenant/TASK-SPRINT-01-TENANT-001-tenant-service.md) |
-| TASK-SPRINT-01-TENANT-002        | Subscription & Quota Management                  | tenant     | Backend  | 5  | ⬜ TODO    | TASK-SPRINT-01-TENANT-001               | [Link](sprints/SPRINT-01/tenant/TASK-SPRINT-01-TENANT-002-subscription-quota.md) |
+| TASK-SPRINT-01-TENANT-002        | Subscription & Quota Management                  | tenant     | Backend  | 5  | 🟡 REVIEW | TASK-SPRINT-01-TENANT-001               | [Link](sprints/SPRINT-01/tenant/TASK-SPRINT-01-TENANT-002-subscription-quota.md) |
 | TASK-SPRINT-01-TENANT-003        | Onboarding Integration Completion                 | tenant     | Backend  | 3  | ⬜ TODO    | TASK-SPRINT-01-TENANT-001               | [Link](sprints/SPRINT-01/tenant/TASK-SPRINT-01-TENANT-003-onboarding-integration-completion.md) |
-| TASK-SPRINT-01-USER-001          | User Service — CRUD & Department Management      | user       | Backend  | 8  | ⬜ TODO    | TASK-SPRINT-01-TENANT-001               | [Link](sprints/SPRINT-01/user/TASK-SPRINT-01-USER-001-user-service.md) |
+| TASK-SPRINT-01-USER-001          | User Service — CRUD & Department Management      | user       | Backend  | 8  | 🟡 REVIEW | TASK-SPRINT-01-TENANT-001               | [Link](sprints/SPRINT-01/user/TASK-SPRINT-01-USER-001-user-service.md) |
 | TASK-SPRINT-01-USER-002          | RBAC Service — Role & Permission Management      | user       | Backend  | 8  | ⬜ TODO    | TASK-SPRINT-01-USER-001                 | [Link](sprints/SPRINT-01/user/TASK-SPRINT-01-USER-002-rbac-service.md) |
 | TASK-SPRINT-01-FRONTEND-001      | Angular Web — Auth UI + Đăng ký DN với Activation Email Link (Angular 21) (AC: Light/Dark mode + persistence openErp.colorMode) | frontend   | Frontend | 8  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001, -002, -003     | [Link](sprints/SPRINT-01/frontend/TASK-SPRINT-01-FRONTEND-001-angular-auth-ui.md) |
 | TASK-SPRINT-01-FRONTEND-002      | Angular Web — Tenant Admin Shell & User Mgmt UI (AC: Light/Dark mode + persistence openErp.colorMode)  | frontend   | Frontend | 8  | ⬜ TODO    | TASK-SPRINT-01-USER-001, -002           | [Link](sprints/SPRINT-01/frontend/TASK-SPRINT-01-FRONTEND-002-tenant-admin-ui.md) |

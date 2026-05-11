@@ -9,11 +9,13 @@ import { MST_VERIFICATION_ADAPTER } from './adapters/mst-verification.adapter';
 import { NullStorageAdapter } from './adapters/null-storage.adapter';
 import { STORAGE_PROVISIONING_PORT } from './adapters/storage-provisioning.port';
 import { OnboardingService } from './onboarding/onboarding.service';
+import { SubscriptionPlan, SubscriptionPlanSchema } from './schemas/subscription-plan.schema';
 import {
   TenantRegistration,
   TenantRegistrationSchema,
 } from './schemas/tenant-registration.schema';
 import { Tenant, TenantSchema } from './schemas/tenant.schema';
+import { TenantUsageHistory, TenantUsageHistorySchema } from './schemas/tenant-usage-history.schema';
 import { TenantRegistrationController } from './tenant-registration.controller';
 import { TenantController } from './tenant.controller';
 import { TenantService } from './tenant.service';
@@ -24,6 +26,8 @@ import { TenantService } from './tenant.service';
     MongooseModule.forFeature([
       { name: Tenant.name, schema: TenantSchema },
       { name: TenantRegistration.name, schema: TenantRegistrationSchema },
+      { name: SubscriptionPlan.name, schema: SubscriptionPlanSchema },
+      { name: TenantUsageHistory.name, schema: TenantUsageHistorySchema },
       { name: User.name, schema: UserSchema },
     ]),
   ],
