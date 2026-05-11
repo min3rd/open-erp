@@ -29,5 +29,4 @@ export class MfaChallenge {
 
 export const MfaChallengeSchema = SchemaFactory.createForClass(MfaChallenge);
 
-MfaChallengeSchema.index({ token: 1 }, { unique: true });
 MfaChallengeSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
