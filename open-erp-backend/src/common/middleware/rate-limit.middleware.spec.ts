@@ -1,12 +1,24 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { NextFunction, Request, Response } from 'express';
 import { RateLimitMiddleware } from './rate-limit.middleware';
+
+const mockConfigService = {
+  get: jest.fn((key: string, defaultValue?: number) => {
+    const map: Record<string, number> = {
+      RATE_LIMIT_WINDOW_MS: 60_000,
+      RATE_LIMIT_AUTH_LIMIT: 10,
+      RATE_LIMIT_GLOBAL_LIMIT: 100,
+    };
+    return map[key] ?? defaultValue;
+  }),
+} as unknown as ConfigService;
 
 describe('RateLimitMiddleware', () => {
   let middleware: RateLimitMiddleware;
 
   beforeEach(() => {
-    middleware = new RateLimitMiddleware();
+    middleware = new RateLimitMiddleware(mockConfigService);
   });
 
   const createResponse = (): Response => {

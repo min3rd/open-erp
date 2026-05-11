@@ -10,14 +10,14 @@
 
 ## Tổng quan tiến độ Sprint 01
 
-| Cluster      | Tổng | ⬜ TODO | 🔵 IN PROGRESS | 🟡 REVIEW | 🟢 DONE | 🔴 BLOCKED |
-|--------------|------|---------|----------------|-----------|---------|------------|
-| foundation   | 8    | 1       | 0              | 7         | 0       | 0          |
-| auth         | 3    | 3       | 0              | 0         | 0       | 0          |
-| tenant       | 2    | 2       | 0              | 0         | 0       | 0          |
-| user         | 2    | 2       | 0              | 0         | 0       | 0          |
-| frontend     | 2    | 2       | 0              | 0         | 0       | 0          |
-| **Tổng**     | **18** | **11** | **0**        | **7**     | **0**   | **0**      |
+| Cluster      | Tổng | ⬜ TODO | 🔵 IN PROGRESS | 🟡 REVIEW | 🟢 DONE | 🔴 BLOCKED | ⏸️ HOLD |
+|--------------|------|---------|----------------|-----------|---------|------------|--------|
+| foundation   | 8    | 0       | 0              | 7         | 0       | 0          | 1      |
+| auth         | 3    | 3       | 0              | 0         | 0       | 0          | 0      |
+| tenant       | 2    | 2       | 0              | 0         | 0       | 0          | 0      |
+| user         | 2    | 2       | 0              | 0         | 0       | 0          | 0      |
+| frontend     | 2    | 2       | 0              | 0         | 0       | 0          | 0      |
+| **Tổng**     | **18** | **10** | **0**        | **7**     | **0**   | **0**      | **1**  |
 
 ---
 
@@ -32,7 +32,7 @@
 | TASK-SPRINT-01-FOUNDATION-006   | Root workspace node scripts (install/update/format/build) | foundation | DevOps   | DevOps    | 3  | 🟡 REVIEW | —                                                                  | `foundation/TASK-SPRINT-01-FOUNDATION-006-root-workspace-node-scripts.md`                    |
 | TASK-SPRINT-01-FOUNDATION-007   | VS Code debug launch configurations cho hệ thống | foundation | DevOps   | DevOps    | 3  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-006                                    | `foundation/TASK-SPRINT-01-FOUNDATION-007-vscode-debug-launch-configs.md`                    |
 | TASK-SPRINT-01-FOUNDATION-008   | Deploy assets cho Docker và Kubernetes           | foundation | DevOps   | DevOps    | 5  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001, TASK-SPRINT-01-FOUNDATION-006     | `foundation/TASK-SPRINT-01-FOUNDATION-008-deploy-assets-docker-kubernetes.md`                |
-| TASK-SPRINT-01-FOUNDATION-009   | Hướng dẫn và cấu hình cài đặt trực tiếp Linux/Windows Server | foundation | DevOps   | DevOps    | 5  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-006, TASK-SPRINT-01-FOUNDATION-008     | `foundation/TASK-SPRINT-01-FOUNDATION-009-direct-install-linux-windows-server.md`            |
+| TASK-SPRINT-01-FOUNDATION-009   | Hướng dẫn và cấu hình cài đặt trực tiếp Linux/Windows Server | foundation | DevOps   | DevOps    | 5  | ⏸️ HOLD    | TASK-SPRINT-01-FOUNDATION-006, TASK-SPRINT-01-FOUNDATION-008     | `foundation/TASK-SPRINT-01-FOUNDATION-009-direct-install-linux-windows-server.md`            |
 | TASK-SPRINT-01-AUTH-001         | Auth Service — JWT Authentication                | auth       | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004     | `auth/TASK-SPRINT-01-AUTH-001-auth-service-jwt.md`                                           |
 | TASK-SPRINT-01-AUTH-002         | Auth Service — OAuth2 Social Login               | auth       | Backend  | Backend   | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-002-oauth2-social.md`                                              |
 | TASK-SPRINT-01-AUTH-003         | Auth Service — Multi-Factor Authentication (TOTP)| auth       | Backend  | Backend   | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-003-mfa.md`                                                        |

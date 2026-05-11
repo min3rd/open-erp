@@ -9,11 +9,13 @@
 | Loại | DevOps |
 | Người phụ trách | DevOps |
 | Story Points | 5 |
-| Trạng thái | ⬜ TODO |
+| Trạng thái | ⏸️ HOLD |
 | Phụ thuộc | TASK-SPRINT-01-FOUNDATION-006, TASK-SPRINT-01-FOUNDATION-008 |
 
 ## Mô tả
 Xây dựng bộ tài liệu và cấu hình chuẩn cho phương án cài đặt trực tiếp hệ thống lên Linux Server và Windows Server (không dùng container orchestration), phù hợp bối cảnh khách hàng on-premise.
+
+> ⏸️ **HOLD** — Tạm dừng đến khi có bản release hoàn chỉnh đủ tất cả các phân hệ. Khi đó mới đóng gói thành các file cài đặt cho Windows Server và Linux Server.
 
 ## Phạm vi kỹ thuật
 

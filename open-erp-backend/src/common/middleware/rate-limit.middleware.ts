@@ -4,6 +4,7 @@ import {
   Injectable,
   NestMiddleware,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { NextFunction, Request, Response } from 'express';
 
 type Bucket = {
@@ -13,10 +14,16 @@ type Bucket = {
 
 @Injectable()
 export class RateLimitMiddleware implements NestMiddleware {
-  private readonly windowMs = 60_000;
-  private readonly authLimit = 10;
-  private readonly globalLimit = 100;
+  private readonly windowMs: number;
+  private readonly authLimit: number;
+  private readonly globalLimit: number;
   private readonly buckets = new Map<string, Bucket>();
+
+  constructor(private readonly configService: ConfigService) {
+    this.windowMs = this.configService.get<number>('RATE_LIMIT_WINDOW_MS', 60_000);
+    this.authLimit = this.configService.get<number>('RATE_LIMIT_AUTH_LIMIT', 10);
+    this.globalLimit = this.configService.get<number>('RATE_LIMIT_GLOBAL_LIMIT', 100);
+  }
 
   use(req: Request, res: Response, next: NextFunction): void {
     const key = this.buildKey(req);
