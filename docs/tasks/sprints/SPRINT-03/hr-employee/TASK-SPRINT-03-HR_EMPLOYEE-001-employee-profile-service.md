@@ -2,23 +2,24 @@
 
 ## Thông tin
 
-| Thuộc tính | Giá trị |
-|---|---|
-| Task ID | TASK-SPRINT-03-HR_EMPLOYEE-001 |
-| Tiêu đề | Employee Profile Service |
-| Sprint | Sprint 03 |
-| Cluster | hr-employee |
-| Loại | Backend |
-| Người phụ trách | Backend |
-| Story Points | 8 |
-| Trạng thái | ⬜ TODO |
-| Phụ thuộc | TASK-SPRINT-01-USER-001, TASK-SPRINT-01-FOUNDATION-004, TASK-SPRINT-02-SYSTEM_ADMIN-005 |
+| Thuộc tính      | Giá trị                                                                                 |
+| --------------- | --------------------------------------------------------------------------------------- |
+| Task ID         | TASK-SPRINT-03-HR_EMPLOYEE-001                                                          |
+| Tiêu đề         | Employee Profile Service                                                                |
+| Sprint          | Sprint 03                                                                               |
+| Cluster         | hr-employee                                                                             |
+| Loại            | Backend                                                                                 |
+| Người phụ trách | Backend                                                                                 |
+| Story Points    | 8                                                                                       |
+| Trạng thái      | ⬜ TODO                                                                                 |
+| Phụ thuộc       | TASK-SPRINT-01-USER-001, TASK-SPRINT-01-FOUNDATION-004, TASK-SPRINT-02-SYSTEM_ADMIN-005 |
 
 ## Mô tả phạm vi
 
 Đặc tả kỹ thuật dịch vụ hồ sơ nhân viên (F-HR-010), làm nguồn dữ liệu chuẩn cho HR Core và các phân hệ đọc nội bộ.
 
 Phạm vi gồm:
+
 - Thiết kế collection `employees` theo SRS, áp dụng unique key theo tenant (`employeeCode`, `nationalId`).
 - API tạo/cập nhật/xem hồ sơ nhân viên, phân quyền xem theo vai trò và phạm vi dữ liệu.
 - Quy tắc bảo mật dữ liệu nhạy cảm (mã hóa trường CCCD, tài khoản ngân hàng nếu có).

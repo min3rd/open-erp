@@ -22,6 +22,12 @@ import { UsersService } from './users.service';
     ]),
   ],
   controllers: [UsersController, DepartmentsController],
-  providers: [RabbitMQService, UsersService, DepartmentsService, AvatarService, TenantCreatedHandler],
+  providers: [
+    RabbitMQService,
+    UsersService,
+    DepartmentsService,
+    AvatarService,
+    TenantCreatedHandler,
+  ],
 })
 export class UsersModule {}

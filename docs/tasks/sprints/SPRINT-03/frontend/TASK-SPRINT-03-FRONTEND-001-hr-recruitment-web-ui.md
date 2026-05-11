@@ -2,23 +2,24 @@
 
 ## Thông tin
 
-| Thuộc tính | Giá trị |
-|---|---|
-| Task ID | TASK-SPRINT-03-FRONTEND-001 |
-| Tiêu đề | HR Recruitment Web UI |
-| Sprint | Sprint 03 |
-| Cluster | frontend |
-| Loại | Frontend |
-| Người phụ trách | Frontend |
-| Story Points | 8 |
-| Trạng thái | ⬜ TODO |
-| Phụ thuộc | TASK-SPRINT-03-HR_RECRUITMENT-001, TASK-SPRINT-03-HR_RECRUITMENT-002, TASK-SPRINT-03-HR_RECRUITMENT-003, TASK-SPRINT-02-FRONTEND-004 |
+| Thuộc tính      | Giá trị                                                                                                                              |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Task ID         | TASK-SPRINT-03-FRONTEND-001                                                                                                          |
+| Tiêu đề         | HR Recruitment Web UI                                                                                                                |
+| Sprint          | Sprint 03                                                                                                                            |
+| Cluster         | frontend                                                                                                                             |
+| Loại            | Frontend                                                                                                                             |
+| Người phụ trách | Frontend                                                                                                                             |
+| Story Points    | 8                                                                                                                                    |
+| Trạng thái      | ⬜ TODO                                                                                                                              |
+| Phụ thuộc       | TASK-SPRINT-03-HR_RECRUITMENT-001, TASK-SPRINT-03-HR_RECRUITMENT-002, TASK-SPRINT-03-HR_RECRUITMENT-003, TASK-SPRINT-02-FRONTEND-004 |
 
 ## Mô tả phạm vi
 
 Thiết kế và đặc tả kỹ thuật giao diện web cho quy trình tuyển dụng cơ bản: requisition, candidate pipeline, interview schedule và offer summary.
 
 Phạm vi gồm:
+
 - Danh sách + form requisition với trạng thái duyệt.
 - Candidate pipeline board theo stage và bộ lọc theo vị trí/phòng ban.
 - Màn hình lập lịch phỏng vấn, nhập kết quả phỏng vấn, theo dõi offer.

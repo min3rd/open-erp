@@ -44,7 +44,8 @@ export class SubscriptionPlan {
   updatedAt!: Date;
 }
 
-export const SubscriptionPlanSchema = SchemaFactory.createForClass(SubscriptionPlan);
+export const SubscriptionPlanSchema =
+  SchemaFactory.createForClass(SubscriptionPlan);
 
 SubscriptionPlanSchema.index({ code: 1 }, { unique: true });
 SubscriptionPlanSchema.index({ isActive: 1, displayOrder: 1 });

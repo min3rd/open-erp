@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                     |
-|------------------|-----------------------------|
-| Task ID          | TASK-SPRINT-01-AUTH-002     |
-| Sprint           | Sprint 01                   |
-| Cluster          | auth                        |
-| Loại             | Backend                     |
-| Người phụ trách  | Backend                     |
-| Story Points     | 5                           |
-| Trạng thái       | 🔵 IN PROGRESS              |
-| Phụ thuộc        | TASK-SPRINT-01-AUTH-001     |
+| Thuộc tính      | Giá trị                 |
+| --------------- | ----------------------- |
+| Task ID         | TASK-SPRINT-01-AUTH-002 |
+| Sprint          | Sprint 01               |
+| Cluster         | auth                    |
+| Loại            | Backend                 |
+| Người phụ trách | Backend                 |
+| Story Points    | 5                       |
+| Trạng thái      | 🔵 IN PROGRESS          |
+| Phụ thuộc       | TASK-SPRINT-01-AUTH-001 |
 
 ## Mô tả
 
@@ -22,6 +22,7 @@ Tích hợp đăng nhập xã hội qua Google OAuth2 và Microsoft OAuth2 (Azur
 ### Backend (NestJS — `auth-service`, bổ sung vào Sprint 01 task 001)
 
 **Cấu trúc bổ sung:**
+
 ```
 src/
 ├── auth/
@@ -34,6 +35,7 @@ src/
 ```
 
 **Luồng OAuth2:**
+
 ```
 1. Client → GET /api/v1/auth/oauth/google
    → Redirect sang Google consent screen
@@ -50,32 +52,34 @@ src/
 ```
 
 **Google Strategy:**
+
 ```typescript
 @Injectable()
-export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
+export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
   constructor() {
     super({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
-      scope: ['email', 'profile'],
-      passReqToCallback: true,   // để trích xuất tenantId từ state param
+      scope: ["email", "profile"],
+      passReqToCallback: true, // để trích xuất tenantId từ state param
     });
   }
 }
 ```
 
 **Microsoft (Azure AD) Strategy:**
+
 ```typescript
 @Injectable()
-export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
+export class MicrosoftStrategy extends PassportStrategy(Strategy, "microsoft") {
   constructor() {
     super({
       clientID: process.env.MICROSOFT_CLIENT_ID,
       clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
       callbackURL: process.env.MICROSOFT_CALLBACK_URL,
-      scope: ['user.read'],
-      tenant: 'common',          // Multi-tenant Azure AD
+      scope: ["user.read"],
+      tenant: "common", // Multi-tenant Azure AD
       passReqToCallback: true,
     });
   }
@@ -83,6 +87,7 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
 ```
 
 **Truyền tenantId qua OAuth flow:**
+
 - Client khởi tạo OAuth với `state` param chứa `tenantId` (encoded base64)
 - Callback nhận lại `state`, decode để biết user đang đăng nhập vào tenant nào
 - Validate `state` để chống CSRF (dùng nonce)
@@ -91,16 +96,17 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
 
 **Cập nhật collection `users`** — thêm trường OAuth:
 
-| Trường                         | Kiểu     | Mô tả                                         |
-|-------------------------------|----------|------------------------------------------------|
-| `authProvider`                | enum     | `LOCAL`, `GOOGLE`, `MICROSOFT`, `MIXED`        |
-| `oauthAccounts`               | array    | Danh sách tài khoản OAuth đã liên kết          |
-| `oauthAccounts[].provider`    | string   | `google` hoặc `microsoft`                      |
-| `oauthAccounts[].providerId`  | string   | ID từ provider (Google sub, Microsoft oid)     |
-| `oauthAccounts[].email`       | string   | Email từ provider                              |
-| `oauthAccounts[].linkedAt`    | Date     | Thời điểm liên kết                             |
+| Trường                       | Kiểu   | Mô tả                                      |
+| ---------------------------- | ------ | ------------------------------------------ |
+| `authProvider`               | enum   | `LOCAL`, `GOOGLE`, `MICROSOFT`, `MIXED`    |
+| `oauthAccounts`              | array  | Danh sách tài khoản OAuth đã liên kết      |
+| `oauthAccounts[].provider`   | string | `google` hoặc `microsoft`                  |
+| `oauthAccounts[].providerId` | string | ID từ provider (Google sub, Microsoft oid) |
+| `oauthAccounts[].email`      | string | Email từ provider                          |
+| `oauthAccounts[].linkedAt`   | Date   | Thời điểm liên kết                         |
 
 **Index bổ sung:**
+
 ```
 { tenantId: 1, 'oauthAccounts.providerId': 1 }    — Tìm user theo OAuth ID
 { tenantId: 1, 'oauthAccounts.provider': 1 }
@@ -126,14 +132,14 @@ OAUTH_FAILURE_REDIRECT=https://app.openErp.vn/auth/login?error=oauth_failed
 
 ## API Endpoints
 
-| Method | Path                                       | Mô tả                              | Auth   |
-|--------|--------------------------------------------|------------------------------------|--------|
-| GET    | `/api/v1/auth/oauth/google`                | Khởi tạo Google OAuth2 flow        | Không  |
-| GET    | `/api/v1/auth/oauth/google/callback`       | Google callback sau consent        | Không  |
-| GET    | `/api/v1/auth/oauth/microsoft`             | Khởi tạo Microsoft OAuth2 flow     | Không  |
-| GET    | `/api/v1/auth/oauth/microsoft/callback`    | Microsoft callback sau consent     | Không  |
-| POST   | `/api/v1/auth/oauth/link`                  | Liên kết OAuth account với user hiện tại | Bearer JWT |
-| DELETE | `/api/v1/auth/oauth/:provider/unlink`      | Huỷ liên kết OAuth account         | Bearer JWT |
+| Method | Path                                    | Mô tả                                    | Auth       |
+| ------ | --------------------------------------- | ---------------------------------------- | ---------- |
+| GET    | `/api/v1/auth/oauth/google`             | Khởi tạo Google OAuth2 flow              | Không      |
+| GET    | `/api/v1/auth/oauth/google/callback`    | Google callback sau consent              | Không      |
+| GET    | `/api/v1/auth/oauth/microsoft`          | Khởi tạo Microsoft OAuth2 flow           | Không      |
+| GET    | `/api/v1/auth/oauth/microsoft/callback` | Microsoft callback sau consent           | Không      |
+| POST   | `/api/v1/auth/oauth/link`               | Liên kết OAuth account với user hiện tại | Bearer JWT |
+| DELETE | `/api/v1/auth/oauth/:provider/unlink`   | Huỷ liên kết OAuth account               | Bearer JWT |
 
 ## Yêu cầu bảo mật
 

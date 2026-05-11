@@ -1,10 +1,11 @@
 # PRD — Phân hệ Dashboard
+
 # Dashboard Điều hành Tổng thể
 
 **Phiên bản:** 1.0  
 **Ngày tạo:** 09/05/2026  
 **Sprint liên quan:** Sprint 14  
-**Trạng thái:** Đang soạn thảo  
+**Trạng thái:** Đang soạn thảo
 
 ---
 
@@ -23,33 +24,33 @@ Phân hệ **Dashboard** cung cấp góc nhìn tổng thể và real-time về t
 
 ### Must Have
 
-| Tính năng | Mô tả |
-|---|---|
-| Dashboard Executive | Tổng quan KPI: doanh thu, nhân sự, công việc, tài chính |
-| Dashboard theo phân hệ | Dashboard riêng cho từng phân hệ (Sale, HR, Office, Accounting) |
-| Biểu đồ real-time | Dữ liệu cập nhật không cần refresh trang |
-| Cảnh báo KPI | Cảnh báo khi KPI vượt/dưới ngưỡng cấu hình |
-| Lọc theo khoảng thời gian | So sánh theo ngày/tuần/tháng/quý/năm |
+| Tính năng                 | Mô tả                                                           |
+| ------------------------- | --------------------------------------------------------------- |
+| Dashboard Executive       | Tổng quan KPI: doanh thu, nhân sự, công việc, tài chính         |
+| Dashboard theo phân hệ    | Dashboard riêng cho từng phân hệ (Sale, HR, Office, Accounting) |
+| Biểu đồ real-time         | Dữ liệu cập nhật không cần refresh trang                        |
+| Cảnh báo KPI              | Cảnh báo khi KPI vượt/dưới ngưỡng cấu hình                      |
+| Lọc theo khoảng thời gian | So sánh theo ngày/tuần/tháng/quý/năm                            |
 
 ### Should Have
 
-| Tính năng | Mô tả |
-|---|---|
-| Dashboard tùy chỉnh | Kéo thả widget, chọn chỉ số muốn hiển thị |
-| Drill-down | Click vào KPI để xem dữ liệu chi tiết |
-| Xuất báo cáo | Export dashboard thành PDF, Excel |
-| AI Insights | AI tự động phân tích và sinh nhận xét về xu hướng |
-| Dashboard Mobile | Tương thích mobile, hiển thị tốt trên màn hình nhỏ |
-| So sánh kỳ | So sánh KPI kỳ này với kỳ trước |
+| Tính năng           | Mô tả                                              |
+| ------------------- | -------------------------------------------------- |
+| Dashboard tùy chỉnh | Kéo thả widget, chọn chỉ số muốn hiển thị          |
+| Drill-down          | Click vào KPI để xem dữ liệu chi tiết              |
+| Xuất báo cáo        | Export dashboard thành PDF, Excel                  |
+| AI Insights         | AI tự động phân tích và sinh nhận xét về xu hướng  |
+| Dashboard Mobile    | Tương thích mobile, hiển thị tốt trên màn hình nhỏ |
+| So sánh kỳ          | So sánh KPI kỳ này với kỳ trước                    |
 
 ### Could Have
 
-| Tính năng | Mô tả |
-|---|---|
-| Dashboard nhúng (Embed) | Nhúng dashboard vào báo cáo ngoài hệ thống |
-| Scheduled reports | Tự động gửi báo cáo qua email theo lịch |
-| Phân tích cohort | Phân tích khách hàng, nhân viên theo nhóm thời gian |
-| AI dự báo | AI dự báo KPI cho kỳ tiếp theo |
+| Tính năng               | Mô tả                                               |
+| ----------------------- | --------------------------------------------------- |
+| Dashboard nhúng (Embed) | Nhúng dashboard vào báo cáo ngoài hệ thống          |
+| Scheduled reports       | Tự động gửi báo cáo qua email theo lịch             |
+| Phân tích cohort        | Phân tích khách hàng, nhân viên theo nhóm thời gian |
+| AI dự báo               | AI dự báo KPI cho kỳ tiếp theo                      |
 
 ### Won't Have (v1.0)
 
@@ -61,6 +62,7 @@ Phân hệ **Dashboard** cung cấp góc nhìn tổng thể và real-time về t
 ## 3. Dashboard theo vai trò
 
 ### CEO / Executive
+
 - Doanh thu tháng hiện tại vs tháng trước
 - Số nhân viên, biến động nhân sự
 - Top sản phẩm bán chạy
@@ -69,6 +71,7 @@ Phân hệ **Dashboard** cung cấp góc nhìn tổng thể và real-time về t
 - AI insights nổi bật
 
 ### Trưởng phòng Sale
+
 - Doanh số đội nhóm theo ngày/tuần/tháng
 - Số đơn hàng theo trạng thái
 - KPI cá nhân từng nhân viên sale
@@ -76,6 +79,7 @@ Phân hệ **Dashboard** cung cấp góc nhìn tổng thể và real-time về t
 - Tồn kho sản phẩm chủ lực
 
 ### Trưởng phòng HR
+
 - Số nhân viên, mới vào, nghỉ việc trong tháng
 - Tỷ lệ chấm công đúng giờ
 - Đơn nghỉ phép chờ duyệt
@@ -83,6 +87,7 @@ Phân hệ **Dashboard** cung cấp góc nhìn tổng thể và real-time về t
 - Vị trí đang tuyển dụng
 
 ### Kế toán trưởng
+
 - Dòng tiền vào/ra tuần hiện tại
 - Công nợ phải thu quá hạn
 - Số hóa đơn phát hành, chờ xử lý
@@ -102,8 +107,8 @@ Phân hệ **Dashboard** cung cấp góc nhìn tổng thể và real-time về t
 
 ## 5. Tích hợp với phân hệ khác
 
-| Phân hệ | Loại tích hợp | Mô tả |
-|---|---|---|
-| **Tất cả phân hệ** | Read only | Dashboard chỉ đọc dữ liệu, không ghi |
-| **AI Agent** | Bidirectional | AI cung cấp insights và nhận xét tự động cho dashboard |
-| **WebSocket** | Real-time | Nhận cập nhật real-time từ các phân hệ |
+| Phân hệ            | Loại tích hợp | Mô tả                                                  |
+| ------------------ | ------------- | ------------------------------------------------------ |
+| **Tất cả phân hệ** | Read only     | Dashboard chỉ đọc dữ liệu, không ghi                   |
+| **AI Agent**       | Bidirectional | AI cung cấp insights và nhận xét tự động cho dashboard |
+| **WebSocket**      | Real-time     | Nhận cập nhật real-time từ các phân hệ                 |

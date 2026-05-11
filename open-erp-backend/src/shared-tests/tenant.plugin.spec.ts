@@ -17,7 +17,10 @@ describe('tenantPlugin', () => {
 
     findHooks[0].fn.call(query);
 
-    expect(where).toHaveBeenCalledWith({ tenantId: 'tenant-1', isDeleted: false });
+    expect(where).toHaveBeenCalledWith({
+      tenantId: 'tenant-1',
+      isDeleted: false,
+    });
   });
 
   it('does not inject filter when tenantId is missing in query options', () => {
@@ -37,7 +40,11 @@ describe('tenantPlugin', () => {
   });
 
   it('throws on save when tenantId is missing', () => {
-    const schema = new Schema({ tenantId: String, isDeleted: Boolean, deletedAt: Date });
+    const schema = new Schema({
+      tenantId: String,
+      isDeleted: Boolean,
+      deletedAt: Date,
+    });
     tenantPlugin(schema);
 
     const saveHooks = (schema as any).s.hooks._pres.get('save');
@@ -47,11 +54,19 @@ describe('tenantPlugin', () => {
   });
 
   it('sets deletedAt when soft delete flag is true and tenant exists', () => {
-    const schema = new Schema({ tenantId: String, isDeleted: Boolean, deletedAt: Date });
+    const schema = new Schema({
+      tenantId: String,
+      isDeleted: Boolean,
+      deletedAt: Date,
+    });
     tenantPlugin(schema);
 
     const saveHooks = (schema as any).s.hooks._pres.get('save');
-    const doc: { tenantId: string; isDeleted: boolean; deletedAt: Date | null } = {
+    const doc: {
+      tenantId: string;
+      isDeleted: boolean;
+      deletedAt: Date | null;
+    } = {
       tenantId: 'tenant-1',
       isDeleted: true,
       deletedAt: null,

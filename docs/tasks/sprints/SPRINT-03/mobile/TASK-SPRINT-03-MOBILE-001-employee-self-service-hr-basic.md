@@ -2,23 +2,24 @@
 
 ## Thông tin
 
-| Thuộc tính | Giá trị |
-|---|---|
-| Task ID | TASK-SPRINT-03-MOBILE-001 |
-| Tiêu đề | Employee Self-Service HR Basic |
-| Sprint | Sprint 03 |
-| Cluster | mobile |
-| Loại | Mobile |
-| Người phụ trách | Mobile |
-| Story Points | 5 |
-| Trạng thái | ⬜ TODO |
-| Phụ thuộc | TASK-SPRINT-02-MOBILE-001, TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-03-HR_CONTRACT-001 |
+| Thuộc tính      | Giá trị                                                                                   |
+| --------------- | ----------------------------------------------------------------------------------------- |
+| Task ID         | TASK-SPRINT-03-MOBILE-001                                                                 |
+| Tiêu đề         | Employee Self-Service HR Basic                                                            |
+| Sprint          | Sprint 03                                                                                 |
+| Cluster         | mobile                                                                                    |
+| Loại            | Mobile                                                                                    |
+| Người phụ trách | Mobile                                                                                    |
+| Story Points    | 5                                                                                         |
+| Trạng thái      | ⬜ TODO                                                                                   |
+| Phụ thuộc       | TASK-SPRINT-02-MOBILE-001, TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-03-HR_CONTRACT-001 |
 
 ## Mô tả phạm vi
 
 Đặc tả kỹ thuật và UI flow tối thiểu cho mobile employee self-service trong HR Core.
 
 Phạm vi gồm:
+
 - Màn hình xem hồ sơ cá nhân cơ bản và cập nhật thông tin liên hệ cho chính mình.
 - Màn hình xem danh sách hợp đồng của bản thân và trạng thái hiệu lực.
 - Màn hình xem tóm tắt thông tin onboarding/việc cần hoàn tất sau khi nhận việc.

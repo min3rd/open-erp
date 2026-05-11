@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                         |
-|------------------|---------------------------------|
-| Task ID          | TASK-SPRINT-01-TENANT-002       |
-| Sprint           | Sprint 01                       |
-| Cluster          | tenant                          |
-| Loại             | Backend                         |
-| Người phụ trách  | Backend                         |
-| Story Points     | 5                               |
-| Trạng thái       | � REVIEW                       |
-| Phụ thuộc        | TASK-SPRINT-01-TENANT-001       |
+| Thuộc tính      | Giá trị                   |
+| --------------- | ------------------------- |
+| Task ID         | TASK-SPRINT-01-TENANT-002 |
+| Sprint          | Sprint 01                 |
+| Cluster         | tenant                    |
+| Loại            | Backend                   |
+| Người phụ trách | Backend                   |
+| Story Points    | 5                         |
+| Trạng thái      | � REVIEW                  |
+| Phụ thuộc       | TASK-SPRINT-01-TENANT-001 |
 
 ## Mô tả
 
@@ -23,14 +23,15 @@ Triển khai hệ thống quản lý gói đăng ký (subscription) và quota ch
 
 **Subscription Tiers:**
 
-| Tier         | Max Users | Max Storage | Max API/ngày | Giá (VNĐ/tháng) | Modules             |
-|--------------|-----------|-------------|--------------|-----------------|---------------------|
-| TRIAL        | 5         | 512 MB      | 1.000        | 0               | Tất cả (14 ngày)   |
-| STARTER      | 20        | 10 GB       | 10.000       | 500.000         | HR, Sale, Office    |
-| BUSINESS     | 100       | 50 GB       | 100.000      | 2.000.000       | Tất cả modules      |
-| ENTERPRISE   | Không giới hạn | Không giới hạn | Không giới hạn | Thỏa thuận | Tất cả + custom |
+| Tier       | Max Users      | Max Storage    | Max API/ngày   | Giá (VNĐ/tháng) | Modules          |
+| ---------- | -------------- | -------------- | -------------- | --------------- | ---------------- |
+| TRIAL      | 5              | 512 MB         | 1.000          | 0               | Tất cả (14 ngày) |
+| STARTER    | 20             | 10 GB          | 10.000         | 500.000         | HR, Sale, Office |
+| BUSINESS   | 100            | 50 GB          | 100.000        | 2.000.000       | Tất cả modules   |
+| ENTERPRISE | Không giới hạn | Không giới hạn | Không giới hạn | Thỏa thuận      | Tất cả + custom  |
 
 **Quota Enforcement Middleware:**
+
 ```typescript
 // Chạy trên api-gateway, kiểm tra trước khi forward request
 @Injectable()
@@ -40,28 +41,39 @@ export class QuotaMiddleware implements NestMiddleware {
 
     // Chặn hoàn toàn nếu tenant chưa xác thực (PENDING_VERIFICATION)
     const status = await this.getTenantStatus(tenantId);
-    if (status === 'PENDING_VERIFICATION') {
+    if (status === "PENDING_VERIFICATION") {
       // Chỉ cho phép truy cập các endpoint onboarding/register
-      if (!req.path.startsWith('/api/v1/onboarding') && !req.path.startsWith('/api/v1/register')) {
-        throw new ForbiddenException('Tài khoản đang chờ phê duyệt. Vui lòng liên hệ quản trị viên.');
+      if (
+        !req.path.startsWith("/api/v1/onboarding") &&
+        !req.path.startsWith("/api/v1/register")
+      ) {
+        throw new ForbiddenException(
+          "Tài khoản đang chờ phê duyệt. Vui lòng liên hệ quản trị viên.",
+        );
       }
       return next();
     }
 
     // Kiểm tra API calls quota
-    const apiCalls = await this.redisService.incr(`quota:api:${tenantId}`, 86400); // TTL 24h
+    const apiCalls = await this.redisService.incr(
+      `quota:api:${tenantId}`,
+      86400,
+    ); // TTL 24h
     const quota = await this.getQuota(tenantId);
-    
+
     if (apiCalls > quota.maxApiCallsPerDay) {
-      throw new TooManyRequestsException('Đã vượt giới hạn API calls hàng ngày');
+      throw new TooManyRequestsException(
+        "Đã vượt giới hạn API calls hàng ngày",
+      );
     }
-    
+
     next();
   }
 }
 ```
 
 **Usage Tracking (Redis Counters):**
+
 ```
 quota:api:{tenantId}          → Số API calls hôm nay (expire: 86400s)
 quota:users:{tenantId}        → Số users hiện tại (không expire, update khi create/delete user)
@@ -69,12 +81,13 @@ quota:storage:{tenantId}      → Dung lượng đang dùng bytes (update khi up
 ```
 
 **Quota Alert Service:**
+
 ```typescript
 // Cron job mỗi giờ kiểm tra usage
 @Cron('0 * * * *')
 async checkQuotaAlerts() {
   const tenants = await this.tenantModel.find({ status: { $in: ['ACTIVE', 'TRIAL'] } });
-  
+
   for (const tenant of tenants) {
     const usage = await this.getUsage(tenant._id.toString());
     const quotaPercent = {
@@ -82,7 +95,7 @@ async checkQuotaAlerts() {
       storage: (usage.storage / tenant.quotas.maxStorageBytes) * 100,
       api: (usage.api / tenant.quotas.maxApiCallsPerDay) * 100,
     };
-    
+
     // Alert 80%: cảnh báo sắp đạt giới hạn
     // Alert 100%: đã đạt giới hạn, chặn thêm tài nguyên
     if (quotaPercent.users >= 80) {
@@ -99,33 +112,34 @@ async checkQuotaAlerts() {
 
 **Collection: `subscription_plans`** (System-level, không có tenantId)
 
-| Trường           | Kiểu     | Mô tả                           |
-|------------------|----------|---------------------------------|
-| `_id`            | ObjectId | —                               |
-| `code`           | string   | TRIAL, STARTER, BUSINESS, ENTERPRISE |
-| `name`           | string   | Tên hiển thị                    |
-| `price`          | number   | VNĐ/tháng                       |
-| `billingPeriod`  | enum     | MONTHLY, YEARLY                 |
+| Trường           | Kiểu     | Mô tả                                        |
+| ---------------- | -------- | -------------------------------------------- |
+| `_id`            | ObjectId | —                                            |
+| `code`           | string   | TRIAL, STARTER, BUSINESS, ENTERPRISE         |
+| `name`           | string   | Tên hiển thị                                 |
+| `price`          | number   | VNĐ/tháng                                    |
+| `billingPeriod`  | enum     | MONTHLY, YEARLY                              |
 | `quotas`         | object   | maxUsers, maxStorageBytes, maxApiCallsPerDay |
-| `features`       | array    | Danh sách tính năng được phép   |
-| `enabledModules` | array    | Modules được bật                |
-| `isActive`       | boolean  | Plan còn được bán không         |
-| `displayOrder`   | number   | Thứ tự hiển thị                 |
-| `createdAt`      | Date     | —                               |
+| `features`       | array    | Danh sách tính năng được phép                |
+| `enabledModules` | array    | Modules được bật                             |
+| `isActive`       | boolean  | Plan còn được bán không                      |
+| `displayOrder`   | number   | Thứ tự hiển thị                              |
+| `createdAt`      | Date     | —                                            |
 
 **Collection: `tenant_usage_history`** (Lịch sử usage theo ngày)
 
-| Trường           | Kiểu     | Mô tả                           |
-|------------------|----------|---------------------------------|
-| `_id`            | ObjectId | —                               |
-| `tenantId`       | ObjectId | Tenant                          |
-| `date`           | Date     | Ngày (không có giờ phút)        |
-| `apiCalls`       | number   | Tổng API calls trong ngày       |
-| `activeUsers`    | number   | Số users active                 |
-| `storageBytes`   | number   | Dung lượng dùng                 |
-| `createdAt`      | Date     | —                               |
+| Trường         | Kiểu     | Mô tả                     |
+| -------------- | -------- | ------------------------- |
+| `_id`          | ObjectId | —                         |
+| `tenantId`     | ObjectId | Tenant                    |
+| `date`         | Date     | Ngày (không có giờ phút)  |
+| `apiCalls`     | number   | Tổng API calls trong ngày |
+| `activeUsers`  | number   | Số users active           |
+| `storageBytes` | number   | Dung lượng dùng           |
+| `createdAt`    | Date     | —                         |
 
 **Indexes:**
+
 ```
 { tenantId: 1, date: -1 }    — Lấy usage theo ngày
 { date: 1 }                  — TTL index (giữ 90 ngày)
@@ -133,13 +147,13 @@ async checkQuotaAlerts() {
 
 ## API Endpoints
 
-| Method | Path                                        | Mô tả                                    | Auth            |
-|--------|---------------------------------------------|------------------------------------------|-----------------|
-| GET    | `/api/v1/subscription-plans`                | Danh sách các gói đăng ký               | Không (public)  |
-| GET    | `/api/v1/tenants/me/usage`                  | Usage hiện tại của tenant               | Tenant Admin    |
-| GET    | `/api/v1/tenants/me/usage/history`          | Lịch sử usage 30 ngày                   | Tenant Admin    |
-| GET    | `/api/v1/tenants/:id/usage`                 | Usage của tenant bất kỳ                 | Super Admin     |
-| POST   | `/api/v1/tenants/:id/subscription`          | Cập nhật gói đăng ký                    | Super Admin     |
+| Method | Path                               | Mô tả                     | Auth           |
+| ------ | ---------------------------------- | ------------------------- | -------------- |
+| GET    | `/api/v1/subscription-plans`       | Danh sách các gói đăng ký | Không (public) |
+| GET    | `/api/v1/tenants/me/usage`         | Usage hiện tại của tenant | Tenant Admin   |
+| GET    | `/api/v1/tenants/me/usage/history` | Lịch sử usage 30 ngày     | Tenant Admin   |
+| GET    | `/api/v1/tenants/:id/usage`        | Usage của tenant bất kỳ   | Super Admin    |
+| POST   | `/api/v1/tenants/:id/subscription` | Cập nhật gói đăng ký      | Super Admin    |
 
 **Response mẫu — Usage:**
 
@@ -219,15 +233,16 @@ async checkQuotaAlerts() {
 
 #### Per-file coverage (liên quan task TENANT-002)
 
-| File | Stmts Coverage | AC | Kết quả |
-|---|---|---|---|
-| `tenant/tenant.service.ts` | **38%** (128/339) | ≥ 80% | ❌ FAIL — CRITICAL |
-| `tenant/tenant.controller.ts` | **70%** (31/44) | ≥ 80% | ❌ FAIL |
-| `common/middleware/tenant-quota.middleware.ts` | **0%** (0/18) | ≥ 80% | ❌ FAIL — CRITICAL |
-| `tenant/schemas/subscription-plan.schema.ts` | 100% | — | ✅ |
-| `tenant/schemas/tenant-usage-history.schema.ts` | 100% | — | ✅ |
+| File                                            | Stmts Coverage    | AC    | Kết quả            |
+| ----------------------------------------------- | ----------------- | ----- | ------------------ |
+| `tenant/tenant.service.ts`                      | **38%** (128/339) | ≥ 80% | ❌ FAIL — CRITICAL |
+| `tenant/tenant.controller.ts`                   | **70%** (31/44)   | ≥ 80% | ❌ FAIL            |
+| `common/middleware/tenant-quota.middleware.ts`  | **0%** (0/18)     | ≥ 80% | ❌ FAIL — CRITICAL |
+| `tenant/schemas/subscription-plan.schema.ts`    | 100%              | —     | ✅                 |
+| `tenant/schemas/tenant-usage-history.schema.ts` | 100%              | —     | ✅                 |
 
 #### Chức năng đã implement (có trong production code)
+
 - ✅ SubscriptionPlan schema (4 tiers: TRIAL/STARTER/BUSINESS/ENTERPRISE)
 - ✅ TenantUsageHistory schema (TTL 90 ngày, index tenantId+date)
 - ✅ `enforceApiQuota()` — Redis counter INCR + 429 khi vượt quota + 80% alert
@@ -238,6 +253,7 @@ async checkQuotaAlerts() {
 - ✅ `updateTenantPlan()` — chỉ Super Admin
 
 #### Test cases hiện có (`tenant.service.spec.ts` — 15 tests)
+
 - Không có test nào cover `getTenantUsage`, `enforceApiQuota`, `getTenantUsageHistory`, `suspendExpiredTrials`
 - Chỉ có: register, activate, verify-tax, complete-onboarding, suspend/activate, deleteTenant, updateTenantPlan, finalizeWizard
 
@@ -257,6 +273,7 @@ async checkQuotaAlerts() {
 **Kết luận QA:** ❌ Giữ nguyên **🟡 REVIEW** — Các function quota/usage được implement nhưng 0% được test. `tenant.service.ts` ở mức 38% là gap nghiêm trọng nhất.
 
 **Điều kiện đóng task:**
+
 - [ ] `tenant.service.ts` ≥ 80% — thêm test cho `enforceApiQuota`, `getTenantUsage`, `getTenantUsageHistory`, `suspendExpiredTrials`
 - [ ] `tenant-quota.middleware.ts` ≥ 80% — test `PENDING_VERIFICATION` block, quota enforce path
 - [ ] `tenant.controller.ts` ≥ 80% — test `/tenants/me/usage`, `/tenants/me/usage/history`, `POST /tenants/:id/subscription`

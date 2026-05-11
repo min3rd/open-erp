@@ -24,9 +24,15 @@ export class AvatarService {
     const client = this.getClient();
     if (client) {
       await this.ensureBucket(client, bucketName);
-      await client.putObject(bucketName, objectName, params.file.buffer, params.file.size, {
-        'Content-Type': params.file.mimetype,
-      });
+      await client.putObject(
+        bucketName,
+        objectName,
+        params.file.buffer,
+        params.file.size,
+        {
+          'Content-Type': params.file.mimetype,
+        },
+      );
     }
 
     return {
@@ -46,14 +52,20 @@ export class AvatarService {
     if (!allowed.has(file.mimetype)) {
       throw new BadRequestException({
         code: 'VALIDATION_ERROR',
-        message: { key: 'user.avatar.invalid_type', data: { mimeType: file.mimetype } },
+        message: {
+          key: 'user.avatar.invalid_type',
+          data: { mimeType: file.mimetype },
+        },
       });
     }
 
     if (file.size > 5 * 1024 * 1024) {
       throw new BadRequestException({
         code: 'VALIDATION_ERROR',
-        message: { key: 'user.avatar.too_large', data: { maxSizeBytes: 5 * 1024 * 1024 } },
+        message: {
+          key: 'user.avatar.too_large',
+          data: { maxSizeBytes: 5 * 1024 * 1024 },
+        },
       });
     }
   }
@@ -87,7 +99,10 @@ export class AvatarService {
     return this.client;
   }
 
-  private async ensureBucket(client: Minio.Client, bucketName: string): Promise<void> {
+  private async ensureBucket(
+    client: Minio.Client,
+    bucketName: string,
+  ): Promise<void> {
     const exists = await client.bucketExists(bucketName).catch(() => false);
     if (!exists) {
       await client.makeBucket(bucketName).catch(() => undefined);

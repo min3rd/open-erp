@@ -9,7 +9,9 @@ describe('MockMstVerificationAdapter', () => {
       providers: [MockMstVerificationAdapter],
     }).compile();
 
-    adapter = module.get<MockMstVerificationAdapter>(MockMstVerificationAdapter);
+    adapter = module.get<MockMstVerificationAdapter>(
+      MockMstVerificationAdapter,
+    );
   });
 
   describe('lookupByTaxCode', () => {
@@ -22,7 +24,9 @@ describe('MockMstVerificationAdapter', () => {
       expect(result?.address).toBe('1 Nguyen Hue, Quan 1, TP.HCM');
       expect(result?.status).toBe('ACTIVE');
       expect(result?.registeredEmail).toBe(`tax-9012@example.vn`);
-      expect(result?.registrationDate).toEqual(new Date('2020-01-01T00:00:00.000Z'));
+      expect(result?.registrationDate).toEqual(
+        new Date('2020-01-01T00:00:00.000Z'),
+      );
     });
 
     it('should return null for invalid tax code format', async () => {
@@ -102,7 +106,10 @@ describe('MockMstVerificationAdapter', () => {
     });
 
     it('should return false for invalid tax code', async () => {
-      const result = await adapter.verifyEmailMatch('invalid-code', 'any-email@example.vn');
+      const result = await adapter.verifyEmailMatch(
+        'invalid-code',
+        'any-email@example.vn',
+      );
 
       expect(result).toBe(false);
     });

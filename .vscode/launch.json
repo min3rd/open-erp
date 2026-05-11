@@ -53,8 +53,7 @@
       "webRoot": "${workspaceFolder}/open-erp-mobile",
       "preLaunchTask": "dev:mobile:start"
     }
-  ]
-  ,
+  ],
   "compounds": [
     {
       "name": "Fullstack: Backend + Web",
@@ -62,7 +61,11 @@
     },
     {
       "name": "Workspace: Backend + Web + Mobile",
-      "configurations": ["Backend: NestJS (Launch)", "Web: Angular (Chrome)", "Mobile: Ionic Angular (Chrome)"]
+      "configurations": [
+        "Backend: NestJS (Launch)",
+        "Web: Angular (Chrome)",
+        "Mobile: Ionic Angular (Chrome)"
+      ]
     }
   ]
 }

@@ -75,7 +75,11 @@ export class JwtAuthGuard implements CanActivate {
 
   private verifyToken(token: string): JwtPayload {
     const jwtConfig = resolveJwtRuntimeConfig(this.configService);
-    if (jwtConfig.usedFallback && jwtConfig.warning && !this.jwtFallbackWarningLogged) {
+    if (
+      jwtConfig.usedFallback &&
+      jwtConfig.warning &&
+      !this.jwtFallbackWarningLogged
+    ) {
       this.jwtFallbackWarningLogged = true;
       this.logger.warn(jwtConfig.warning);
     }

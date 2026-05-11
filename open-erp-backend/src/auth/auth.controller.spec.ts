@@ -49,7 +49,11 @@ describe('AuthController', () => {
     } as unknown as Response;
 
     await controller.login(
-      { tenantId: 'tenant-1', email: 'admin@acme.vn', password: 'Password@123' },
+      {
+        tenantId: 'tenant-1',
+        email: 'admin@acme.vn',
+        password: 'Password@123',
+      },
       '127.0.0.1',
       'jest',
       res,
@@ -76,7 +80,9 @@ describe('AuthController', () => {
 
     const req = {
       header: jest.fn((name: string) =>
-        name === 'cookie' ? 'refreshToken=cookie-token; other=value' : undefined,
+        name === 'cookie'
+          ? 'refreshToken=cookie-token; other=value'
+          : undefined,
       ),
     } as unknown as Request;
     const res = {
@@ -138,18 +144,17 @@ describe('AuthController', () => {
     } as unknown as Request;
 
     await expect(
-      controller.refreshToken(
-        req,
-        {},
-        '127.0.0.1',
-        'jest',
-        { cookie: jest.fn() } as unknown as Response,
-      ),
+      controller.refreshToken(req, {}, '127.0.0.1', 'jest', {
+        cookie: jest.fn(),
+      } as unknown as Response),
     ).rejects.toThrow(UnauthorizedException);
   });
 
   it('logout clears refresh token cookie', async () => {
-    authService.logout.mockResolvedValue({ success: true, data: { loggedOut: true } });
+    authService.logout.mockResolvedValue({
+      success: true,
+      data: { loggedOut: true },
+    });
 
     const req = {
       user: {

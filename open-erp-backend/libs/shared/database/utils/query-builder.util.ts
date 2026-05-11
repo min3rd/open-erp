@@ -7,9 +7,14 @@ export interface QueryOperator<T extends Primitive = Primitive> {
   lte?: T;
 }
 
-export type QueryFilters = Record<string, Primitive | QueryOperator | undefined>;
+export type QueryFilters = Record<
+  string,
+  Primitive | QueryOperator | undefined
+>;
 
-export function buildMongoFilter(filters: QueryFilters): Record<string, unknown> {
+export function buildMongoFilter(
+  filters: QueryFilters,
+): Record<string, unknown> {
   const output: Record<string, unknown> = {};
 
   for (const [field, value] of Object.entries(filters)) {
@@ -17,7 +22,11 @@ export function buildMongoFilter(filters: QueryFilters): Record<string, unknown>
       continue;
     }
 
-    if (typeof value !== 'object' || value instanceof Date || Array.isArray(value)) {
+    if (
+      typeof value !== 'object' ||
+      value instanceof Date ||
+      Array.isArray(value)
+    ) {
       output[field] = value;
       continue;
     }

@@ -36,21 +36,33 @@ describe('JwtAuthMiddleware', () => {
   describe('public paths', () => {
     it('should allow /health without token', async () => {
       mockRequest.path = '/health';
-      await middleware.use(mockRequest as Request, mockResponse as Response, mockNext);
+      await middleware.use(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext,
+      );
       expect(mockNext).toHaveBeenCalled();
     });
 
     it('should allow /api/docs without token', async () => {
       mockRequest.path = '/api/docs/swagger';
       (mockRequest.header as jest.Mock).mockReturnValue(undefined);
-      await middleware.use(mockRequest as Request, mockResponse as Response, mockNext);
+      await middleware.use(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext,
+      );
       expect(mockNext).toHaveBeenCalled();
     });
 
     it('should allow /api/v1/auth without token', async () => {
       mockRequest.path = '/api/v1/auth/login';
       (mockRequest.header as jest.Mock).mockReturnValue(undefined);
-      await middleware.use(mockRequest as Request, mockResponse as Response, mockNext);
+      await middleware.use(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext,
+      );
       expect(mockNext).toHaveBeenCalled();
     });
   });
@@ -59,14 +71,24 @@ describe('JwtAuthMiddleware', () => {
     it('should throw when token missing', async () => {
       mockRequest.path = '/api/v1/users';
       (mockRequest.header as jest.Mock).mockReturnValue(undefined);
-      await expect(middleware.use(mockRequest as Request, mockResponse as Response, mockNext)).rejects.toThrow();
+      await expect(
+        middleware.use(
+          mockRequest as Request,
+          mockResponse as Response,
+          mockNext,
+        ),
+      ).rejects.toThrow();
     });
 
     it('should verify HS256 token', async () => {
       process.env.JWT_SECRET = 'secret';
       (mockRequest.header as jest.Mock).mockReturnValue('Bearer token123');
       (jwt.verify as jest.Mock).mockReturnValue({ sub: 'user-1' });
-      await middleware.use(mockRequest as Request, mockResponse as Response, mockNext);
+      await middleware.use(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext,
+      );
       expect(jwt.verify).toHaveBeenCalled();
       expect(mockNext).toHaveBeenCalled();
     });

@@ -1,4 +1,8 @@
-import { ConflictException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import {
+  ConflictException,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Types } from 'mongoose';
@@ -50,7 +54,9 @@ describe('UsersService', () => {
         }),
       }),
     });
-    userModel.countDocuments.mockReturnValue({ exec: jest.fn().mockResolvedValue(0) });
+    userModel.countDocuments.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(0),
+    });
     userModel.findOne.mockReturnValue({
       lean: jest.fn().mockReturnValue({
         exec: jest.fn().mockResolvedValue(null),
@@ -93,7 +99,9 @@ describe('UsersService', () => {
         }),
       }),
     });
-    userModel.countDocuments.mockReturnValue({ exec: jest.fn().mockResolvedValue(0) });
+    userModel.countDocuments.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(0),
+    });
     userModel.findOne.mockReturnValue({
       lean: jest.fn().mockReturnValue({
         exec: jest.fn().mockResolvedValue({ _id: 'duplicate' }),
@@ -101,10 +109,10 @@ describe('UsersService', () => {
     });
 
     await expect(
-      service.createUser(
-        { email: 'user@acme.com', fullName: 'User A' },
-        { tenantId: '64b000000000000000000001', roles: ['TENANT_ADMIN'] } as Express.User,
-      ),
+      service.createUser({ email: 'user@acme.com', fullName: 'User A' }, {
+        tenantId: '64b000000000000000000001',
+        roles: ['TENANT_ADMIN'],
+      } as Express.User),
     ).rejects.toThrow(ConflictException);
   });
 

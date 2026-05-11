@@ -1,7 +1,7 @@
 ---
 name: ai-research
-description: 'Tra cứu và đối chiếu phương án kỹ thuật qua nhiều nền tảng AI trên browser để tăng độ tin cậy trước khi quyết định.'
-argument-hint: 'Mô tả vấn đề cần tra cứu AI và kết quả mong muốn'
+description: "Tra cứu và đối chiếu phương án kỹ thuật qua nhiều nền tảng AI trên browser để tăng độ tin cậy trước khi quyết định."
+argument-hint: "Mô tả vấn đề cần tra cứu AI và kết quả mong muốn"
 user-invocable: true
 disable-model-invocation: false
 ---
@@ -33,35 +33,43 @@ Skill này giúp agent dùng browser của người dùng để tra cứu trên 
 ## Quy trình chuẩn
 
 1. Chuẩn hóa bài toán
+
 - Viết lại vấn đề thành 1 prompt gốc rõ mục tiêu, ràng buộc, môi trường, lỗi hiện tại.
 - Ẩn danh mọi dữ liệu nhạy cảm trước khi gửi.
 
 2. Tạo bộ prompt dùng chung
+
 - Tạo 1 prompt chuẩn cho các nền tảng để kết quả dễ so sánh.
 - Nếu cần, thêm 1 prompt phụ cho từng nền tảng để khai thác điểm mạnh riêng.
 
 3. Tra cứu lần 1 trên các nền tảng
+
 - Mở lần lượt các nền tảng AI trên browser (ví dụ: ChatGPT, Gemini, Grok).
 - Gửi cùng prompt chuẩn và thu thập kết quả thô.
 
 4. Đối chiếu và phân loại
+
 - Nhóm câu trả lời thành: trùng khớp, bổ sung, mâu thuẫn.
 - Trích ra giả định quan trọng, bước thực thi, rủi ro được nêu.
 
 5. Nhánh quyết định khi có mâu thuẫn
+
 - Nếu 3 nguồn đồng thuận cao: chuyển sang bước 6.
 - Nếu có mâu thuẫn lớn: tạo prompt phản biện và hỏi vòng 2, tập trung vào điểm mâu thuẫn.
 - Nếu vẫn mâu thuẫn: ưu tiên phương án có khả năng kiểm chứng nhanh trong repo bằng test/build nhỏ nhất.
 
 6. Hợp nhất phương án thực thi
+
 - Tạo kế hoạch hành động theo thứ tự: an toàn -> tác động thấp -> tác động cao.
 - Mỗi bước phải có tiêu chí pass/fail rõ ràng.
 
 7. Thực thi và kiểm chứng trong repo
+
 - Áp dụng thay đổi từng bước nhỏ.
 - Sau mỗi bước: chạy test/lint/build phù hợp để xác nhận.
 
 8. Chốt kết quả
+
 - Ghi rõ: đã làm gì, vì sao chọn phương án đó, bằng chứng kiểm chứng.
 - Liệt kê các điểm còn mở và đề xuất vòng tra cứu tiếp theo nếu cần.
 

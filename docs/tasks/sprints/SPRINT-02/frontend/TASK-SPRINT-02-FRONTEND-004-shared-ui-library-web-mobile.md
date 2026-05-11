@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                                                                 |
-|------------------|-------------------------------------------------------------------------|
-| Task ID          | TASK-SPRINT-02-FRONTEND-004                                             |
-| Sprint           | Sprint 02                                                               |
-| Cluster          | frontend                                                                |
-| Loại             | Frontend                                                                |
-| Người phụ trách  | Frontend                                                                |
-| Story Points     | 8                                                                       |
-| Trạng thái       | ⬜ TODO                                                                 |
-| Phụ thuộc        | TASK-SPRINT-01-FRONTEND-001, TASK-SPRINT-02-MOBILE-001                 |
+| Thuộc tính      | Giá trị                                                |
+| --------------- | ------------------------------------------------------ |
+| Task ID         | TASK-SPRINT-02-FRONTEND-004                            |
+| Sprint          | Sprint 02                                              |
+| Cluster         | frontend                                               |
+| Loại            | Frontend                                               |
+| Người phụ trách | Frontend                                               |
+| Story Points    | 8                                                      |
+| Trạng thái      | ⬜ TODO                                                |
+| Phụ thuộc       | TASK-SPRINT-01-FRONTEND-001, TASK-SPRINT-02-MOBILE-001 |
 
 ## Mô tả
 
@@ -22,6 +22,7 @@ Thiết lập thư viện giao diện dùng chung giữa Angular Web (`open-erp-
 ### Frontend Shared Library
 
 **Cấu trúc đề xuất:**
+
 ```
 libs/
 └── ui-shared/

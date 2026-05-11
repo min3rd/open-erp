@@ -43,7 +43,7 @@ flowchart LR
 
 ## 4. Thiết kế tương tác
 
-- Từ SCR-AUTH-004, UI hiển thị rõ email đích đã được ẩn bớt (ví dụ m***@company.com).
+- Từ SCR-AUTH-004, UI hiển thị rõ email đích đã được ẩn bớt (ví dụ m\*\*\*@company.com).
 - Nút Gửi lại email kích hoạt có cooldown 60s; tối đa 3 lần/24h.
 - Khi click activation link:
   - Nếu token hợp lệ: chuyển đến SCR-AUTH-005 và tự động chuyển sang onboarding.

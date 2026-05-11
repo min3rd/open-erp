@@ -23,7 +23,8 @@ export class DatabaseModule {
         MongooseModule.forRootAsync({
           useFactory: () => ({
             uri: config.uri,
-            replicaSet: config.replicaSet ?? process.env.MONGO_REPLICA_SET ?? 'rs0',
+            replicaSet:
+              config.replicaSet ?? process.env.MONGO_REPLICA_SET ?? 'rs0',
             maxPoolSize: config.maxPoolSize ?? 10,
             minPoolSize: config.minPoolSize ?? 2,
             serverSelectionTimeoutMS: config.serverSelectionTimeoutMS ?? 5000,

@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { Channel, ChannelModel, ConsumeMessage, connect } from 'amqplib';
@@ -78,20 +83,27 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
     });
     await this.channel.bindQueue(queueName, 'openErp.events', routingKey);
 
-    await this.channel.consume(queueName, async (message: ConsumeMessage | null) => {
-      if (!message) {
-        return;
-      }
+    await this.channel.consume(
+      queueName,
+      async (message: ConsumeMessage | null) => {
+        if (!message) {
+          return;
+        }
 
-      try {
-        const payload = JSON.parse(message.content.toString()) as Record<string, unknown>;
-        await handler(payload);
-        this.channel?.ack(message);
-      } catch (error) {
-        this.channel?.nack(message, false, false);
-        const messageText = error instanceof Error ? error.message : 'unknown';
-        this.logger.warn(`Failed to handle ${routingKey}: ${messageText}`);
-      }
-    });
+        try {
+          const payload = JSON.parse(message.content.toString()) as Record<
+            string,
+            unknown
+          >;
+          await handler(payload);
+          this.channel?.ack(message);
+        } catch (error) {
+          this.channel?.nack(message, false, false);
+          const messageText =
+            error instanceof Error ? error.message : 'unknown';
+          this.logger.warn(`Failed to handle ${routingKey}: ${messageText}`);
+        }
+      },
+    );
   }
 }

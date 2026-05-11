@@ -2,23 +2,24 @@
 
 ## Thông tin
 
-| Thuộc tính | Giá trị |
-|---|---|
-| Task ID | TASK-SPRINT-03-TESTING-001 |
-| Tiêu đề | HR Core Test Plan |
-| Sprint | Sprint 03 |
-| Cluster | testing |
-| Loại | Testing |
-| Người phụ trách | QA |
-| Story Points | 5 |
-| Trạng thái | ⬜ TODO |
-| Phụ thuộc | TASK-SPRINT-03-HR_RECRUITMENT-003, TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-03-HR_CONTRACT-001, TASK-SPRINT-03-FRONTEND-004, TASK-SPRINT-03-MOBILE-001 |
+| Thuộc tính      | Giá trị                                                                                                                                                   |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Task ID         | TASK-SPRINT-03-TESTING-001                                                                                                                                |
+| Tiêu đề         | HR Core Test Plan                                                                                                                                         |
+| Sprint          | Sprint 03                                                                                                                                                 |
+| Cluster         | testing                                                                                                                                                   |
+| Loại            | Testing                                                                                                                                                   |
+| Người phụ trách | QA                                                                                                                                                        |
+| Story Points    | 5                                                                                                                                                         |
+| Trạng thái      | ⬜ TODO                                                                                                                                                   |
+| Phụ thuộc       | TASK-SPRINT-03-HR_RECRUITMENT-003, TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-03-HR_CONTRACT-001, TASK-SPRINT-03-FRONTEND-004, TASK-SPRINT-03-MOBILE-001 |
 
 ## Mô tả phạm vi
 
 Lập kế hoạch kiểm thử tổng thể cho Sprint 03 HR Core, bao gồm test backend API, web UI và mobile self-service tối thiểu.
 
 Phạm vi gồm:
+
 - Test scenario cho luồng tuyển dụng cơ bản: requisition → candidate → interview → offer/onboarding init.
 - Test scenario cho hồ sơ nhân viên, hợp đồng lao động và cảnh báo sắp hết hạn.
 - Test ma trận quyền truy cập cho HR Manager, HR Staff, Employee.

@@ -14,9 +14,18 @@ import { Model, Types } from 'mongoose';
 import { randomBytes } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { RabbitMQService } from '../common/services/rabbitmq.service';
-import { Tenant, TenantDocument, TenantStatus } from '../tenant/schemas/tenant.schema';
+import {
+  Tenant,
+  TenantDocument,
+  TenantStatus,
+} from '../tenant/schemas/tenant.schema';
 import { TokenService } from '../token/token.service';
-import { AuthProvider, User, UserDocument, UserStatus } from '../users/schemas/user.schema';
+import {
+  AuthProvider,
+  User,
+  UserDocument,
+  UserStatus,
+} from '../users/schemas/user.schema';
 import { resolveJwtRuntimeConfig } from '../auth/auth-runtime.config';
 import type { JwtPayload } from '../auth/types/jwt-payload.type';
 import { GoogleStrategy } from '../auth/strategies/google.strategy';
@@ -51,7 +60,10 @@ interface RequestContext {
 }
 
 const ALLOWED_PROVIDERS: OAuthProvider[] = ['google', 'microsoft'];
-const ALLOWED_TENANT_STATUSES: string[] = [TenantStatus.ACTIVE, TenantStatus.TRIAL];
+const ALLOWED_TENANT_STATUSES: string[] = [
+  TenantStatus.ACTIVE,
+  TenantStatus.TRIAL,
+];
 const NONCE_TTL_SECONDS = 600; // 10 minutes
 
 @Injectable()
@@ -69,7 +81,8 @@ export class OAuthService {
     private readonly rabbitMQService: RabbitMQService,
     private readonly tokenService: TokenService,
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-    @InjectModel(Tenant.name) private readonly tenantModel: Model<TenantDocument>,
+    @InjectModel(Tenant.name)
+    private readonly tenantModel: Model<TenantDocument>,
   ) {}
 
   // ─── Public Methods ────────────────────────────────────────────────────────
@@ -87,7 +100,11 @@ export class OAuthService {
       .lean()
       .exec();
 
-    if (!tenant || tenant.isDeleted || !ALLOWED_TENANT_STATUSES.includes(tenant.status)) {
+    if (
+      !tenant ||
+      tenant.isDeleted ||
+      !ALLOWED_TENANT_STATUSES.includes(tenant.status)
+    ) {
       throw new ForbiddenException({
         code: 'TENANT_INACTIVE',
         message: 'Tenant not found or inactive',
@@ -134,7 +151,10 @@ export class OAuthService {
     }
 
     // 2. Exchange code for profile
-    const profile = await this.fetchProviderProfile(provider as OAuthProvider, code);
+    const profile = await this.fetchProviderProfile(
+      provider as OAuthProvider,
+      code,
+    );
 
     // 3. Validate email
     if (!profile.emailVerified) {
@@ -151,7 +171,11 @@ export class OAuthService {
       .lean()
       .exec();
 
-    if (!tenant || tenant.isDeleted || !ALLOWED_TENANT_STATUSES.includes(tenant.status)) {
+    if (
+      !tenant ||
+      tenant.isDeleted ||
+      !ALLOWED_TENANT_STATUSES.includes(tenant.status)
+    ) {
       throw new ForbiddenException({
         code: 'TENANT_INACTIVE',
         message: 'Tenant is suspended or inactive',
@@ -159,7 +183,11 @@ export class OAuthService {
     }
 
     // 5. Find or create user
-    const user = await this.findOrCreateUser(profile, tenantId, provider as OAuthProvider);
+    const user = await this.findOrCreateUser(
+      profile,
+      tenantId,
+      provider as OAuthProvider,
+    );
 
     // 6. Issue JWT + refresh token
     const access = this.signAccessToken(user);
@@ -208,14 +236,21 @@ export class OAuthService {
     const { nonce } = this.decodeState(stateParam);
     const nonceData = await this.consumeNonce(nonce);
 
-    if (!nonceData || nonceData.mode !== 'link' || nonceData.userId !== userId) {
+    if (
+      !nonceData ||
+      nonceData.mode !== 'link' ||
+      nonceData.userId !== userId
+    ) {
       throw new UnauthorizedException({
         code: 'INVALID_OAUTH_STATE',
         message: 'Invalid or expired link state',
       });
     }
 
-    const profile = await this.fetchProviderProfile(provider as OAuthProvider, code);
+    const profile = await this.fetchProviderProfile(
+      provider as OAuthProvider,
+      code,
+    );
 
     if (!profile.emailVerified) {
       throw new ForbiddenException({
@@ -233,7 +268,10 @@ export class OAuthService {
       .exec();
 
     if (!user) {
-      throw new NotFoundException({ code: 'USER_NOT_FOUND', message: 'User not found' });
+      throw new NotFoundException({
+        code: 'USER_NOT_FOUND',
+        message: 'User not found',
+      });
     }
 
     const existingAccounts = user.oauthAccounts as OAuthAccountEntry[];
@@ -259,7 +297,11 @@ export class OAuthService {
   /**
    * Generates an initiation URL for the link flow (requires authenticated user).
    */
-  async initiateLinkFlow(userId: string, tenantId: string, provider: string): Promise<string> {
+  async initiateLinkFlow(
+    userId: string,
+    tenantId: string,
+    provider: string,
+  ): Promise<string> {
     this.assertProviderSupported(provider);
 
     const nonce = randomBytes(32).toString('hex');
@@ -287,7 +329,10 @@ export class OAuthService {
       .exec();
 
     if (!user) {
-      throw new NotFoundException({ code: 'USER_NOT_FOUND', message: 'User not found' });
+      throw new NotFoundException({
+        code: 'USER_NOT_FOUND',
+        message: 'User not found',
+      });
     }
 
     const accounts = user.oauthAccounts as OAuthAccountEntry[];
@@ -301,7 +346,8 @@ export class OAuthService {
     }
 
     const hasPassword =
-      user.authProvider === AuthProvider.LOCAL || user.authProvider === AuthProvider.MIXED;
+      user.authProvider === AuthProvider.LOCAL ||
+      user.authProvider === AuthProvider.MIXED;
     const remainingOauth = accounts.filter((a) => a.provider !== provider);
 
     if (!hasPassword && remainingOauth.length === 0) {
@@ -314,7 +360,10 @@ export class OAuthService {
     user.oauthAccounts = remainingOauth;
 
     // Update authProvider
-    if (user.authProvider === AuthProvider.MIXED && remainingOauth.length === 0) {
+    if (
+      user.authProvider === AuthProvider.MIXED &&
+      remainingOauth.length === 0
+    ) {
       user.authProvider = AuthProvider.LOCAL;
     } else if (
       (user.authProvider === AuthProvider.GOOGLE && provider === 'google') ||
@@ -331,7 +380,9 @@ export class OAuthService {
 
   // ─── Private Helpers ───────────────────────────────────────────────────────
 
-  private assertProviderSupported(provider: string): asserts provider is OAuthProvider {
+  private assertProviderSupported(
+    provider: string,
+  ): asserts provider is OAuthProvider {
     if (!ALLOWED_PROVIDERS.includes(provider as OAuthProvider)) {
       throw new BadRequestException({
         code: 'UNSUPPORTED_PROVIDER',
@@ -343,12 +394,15 @@ export class OAuthService {
   private buildAuthUrl(provider: OAuthProvider, state: string): string {
     if (provider === 'google') {
       const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID') ?? '';
-      const redirectUri = this.configService.get<string>('GOOGLE_CALLBACK_URL') ?? '';
+      const redirectUri =
+        this.configService.get<string>('GOOGLE_CALLBACK_URL') ?? '';
       return this.googleStrategy.buildAuthUrl(clientId, redirectUri, state);
     }
 
-    const clientId = this.configService.get<string>('MICROSOFT_CLIENT_ID') ?? '';
-    const redirectUri = this.configService.get<string>('MICROSOFT_CALLBACK_URL') ?? '';
+    const clientId =
+      this.configService.get<string>('MICROSOFT_CLIENT_ID') ?? '';
+    const redirectUri =
+      this.configService.get<string>('MICROSOFT_CALLBACK_URL') ?? '';
     return this.microsoftStrategy.buildAuthUrl(clientId, redirectUri, state);
   }
 
@@ -358,8 +412,10 @@ export class OAuthService {
   ): Promise<OAuthProfile> {
     if (provider === 'google') {
       const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID') ?? '';
-      const clientSecret = this.configService.get<string>('GOOGLE_CLIENT_SECRET') ?? '';
-      const redirectUri = this.configService.get<string>('GOOGLE_CALLBACK_URL') ?? '';
+      const clientSecret =
+        this.configService.get<string>('GOOGLE_CLIENT_SECRET') ?? '';
+      const redirectUri =
+        this.configService.get<string>('GOOGLE_CALLBACK_URL') ?? '';
       const accessToken = await this.googleStrategy.exchangeCode(
         code,
         clientId,
@@ -369,9 +425,12 @@ export class OAuthService {
       return this.googleStrategy.getProfile(accessToken);
     }
 
-    const clientId = this.configService.get<string>('MICROSOFT_CLIENT_ID') ?? '';
-    const clientSecret = this.configService.get<string>('MICROSOFT_CLIENT_SECRET') ?? '';
-    const redirectUri = this.configService.get<string>('MICROSOFT_CALLBACK_URL') ?? '';
+    const clientId =
+      this.configService.get<string>('MICROSOFT_CLIENT_ID') ?? '';
+    const clientSecret =
+      this.configService.get<string>('MICROSOFT_CLIENT_SECRET') ?? '';
+    const redirectUri =
+      this.configService.get<string>('MICROSOFT_CALLBACK_URL') ?? '';
     const accessToken = await this.microsoftStrategy.exchangeCode(
       code,
       clientId,
@@ -494,12 +553,19 @@ export class OAuthService {
     user.oauthAccounts = accounts;
   }
 
-  private signAccessToken(user: UserDocument): { token: string; expiresIn: number } {
+  private signAccessToken(user: UserDocument): {
+    token: string;
+    expiresIn: number;
+  } {
     const expiresIn = this.configService.get<string>('JWT_EXPIRES_IN') ?? '15m';
     const jwtConfig = resolveJwtRuntimeConfig(this.configService);
     const jti = uuidv4();
 
-    if (!this.jwtFallbackWarningLogged && jwtConfig.warning && jwtConfig.usedFallback) {
+    if (
+      !this.jwtFallbackWarningLogged &&
+      jwtConfig.warning &&
+      jwtConfig.usedFallback
+    ) {
       this.jwtFallbackWarningLogged = true;
       this.logger.warn(jwtConfig.warning);
     }
@@ -543,7 +609,12 @@ export class OAuthService {
   private async storeNonce(nonce: string, data: OAuthNonceData): Promise<void> {
     const redis = await this.getRedisClient();
     if (!redis) return;
-    await redis.set(`oauth:nonce:${nonce}`, JSON.stringify(data), 'EX', NONCE_TTL_SECONDS);
+    await redis.set(
+      `oauth:nonce:${nonce}`,
+      JSON.stringify(data),
+      'EX',
+      NONCE_TTL_SECONDS,
+    );
   }
 
   private async consumeNonce(nonce: string): Promise<OAuthNonceData | null> {
@@ -573,7 +644,10 @@ export class OAuthService {
 
     if (this.redisClient) return this.redisClient;
 
-    this.redisClient = new Redis(redisUrl, { lazyConnect: true, maxRetriesPerRequest: 1 });
+    this.redisClient = new Redis(redisUrl, {
+      lazyConnect: true,
+      maxRetriesPerRequest: 1,
+    });
 
     await this.redisClient.connect().catch(() => {
       this.redisClient = null;
@@ -583,7 +657,10 @@ export class OAuthService {
     return this.redisClient;
   }
 
-  private publishEvent(routingKey: string, payload: Record<string, unknown>): void {
+  private publishEvent(
+    routingKey: string,
+    payload: Record<string, unknown>,
+  ): void {
     this.rabbitMQService.publish(routingKey, payload).catch((err: unknown) => {
       const msg = err instanceof Error ? err.message : 'unknown';
       this.logger.warn(`Failed to publish ${routingKey}: ${msg}`);

@@ -3,10 +3,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import argon2 from 'argon2';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { User, UserDocument, UserStatus } from '../../users/schemas/user.schema';
 import {
-  STORAGE_PROVISIONING_PORT,
-} from '../adapters/storage-provisioning.port';
+  User,
+  UserDocument,
+  UserStatus,
+} from '../../users/schemas/user.schema';
+import { STORAGE_PROVISIONING_PORT } from '../adapters/storage-provisioning.port';
 import type { StorageProvisioningPort } from '../adapters/storage-provisioning.port';
 import { TenantRegistrationDocument } from '../schemas/tenant-registration.schema';
 import { TenantDocument } from '../schemas/tenant.schema';
@@ -60,7 +62,9 @@ export class OnboardingService {
         isDeleted: false,
       });
 
-      this.logger.log(`Tenant Admin user created: ${adminUser._id} for tenant ${tenantId}`);
+      this.logger.log(
+        `Tenant Admin user created: ${adminUser._id} for tenant ${tenantId}`,
+      );
     } else {
       this.logger.debug(`Tenant Admin user already exists: ${adminUser._id}`);
     }

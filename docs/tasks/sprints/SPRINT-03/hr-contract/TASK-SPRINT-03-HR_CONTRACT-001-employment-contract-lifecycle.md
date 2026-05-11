@@ -2,23 +2,24 @@
 
 ## Thông tin
 
-| Thuộc tính | Giá trị |
-|---|---|
-| Task ID | TASK-SPRINT-03-HR_CONTRACT-001 |
-| Tiêu đề | Employment Contract Lifecycle |
-| Sprint | Sprint 03 |
-| Cluster | hr-contract |
-| Loại | Backend |
-| Người phụ trách | Backend |
-| Story Points | 8 |
-| Trạng thái | ⬜ TODO |
-| Phụ thuộc | TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-02-SYSTEM_ADMIN-006 |
+| Thuộc tính      | Giá trị                                                         |
+| --------------- | --------------------------------------------------------------- |
+| Task ID         | TASK-SPRINT-03-HR_CONTRACT-001                                  |
+| Tiêu đề         | Employment Contract Lifecycle                                   |
+| Sprint          | Sprint 03                                                       |
+| Cluster         | hr-contract                                                     |
+| Loại            | Backend                                                         |
+| Người phụ trách | Backend                                                         |
+| Story Points    | 8                                                               |
+| Trạng thái      | ⬜ TODO                                                         |
+| Phụ thuộc       | TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-02-SYSTEM_ADMIN-006 |
 
 ## Mô tả phạm vi
 
 Đặc tả kỹ thuật quản lý hợp đồng lao động theo F-HR-011, bao gồm vòng đời hợp đồng, trạng thái ký và cảnh báo sắp hết hạn.
 
 Phạm vi gồm:
+
 - Thiết kế collection `employment_contracts` và lifecycle `DRAFT`, `ACTIVE`, `EXPIRED`, `TERMINATED`.
 - API tạo hợp đồng, ký hợp đồng, gia hạn, thanh lý và tra cứu lịch sử hợp đồng theo nhân viên.
 - Rule bất biến với hợp đồng đã ký (BR-HR-007) và cảnh báo trước 30 ngày (BR-HR-002).

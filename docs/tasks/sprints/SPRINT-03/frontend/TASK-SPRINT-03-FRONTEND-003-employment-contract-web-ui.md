@@ -2,23 +2,24 @@
 
 ## Thông tin
 
-| Thuộc tính | Giá trị |
-|---|---|
-| Task ID | TASK-SPRINT-03-FRONTEND-003 |
-| Tiêu đề | Employment Contract Web UI |
-| Sprint | Sprint 03 |
-| Cluster | frontend |
-| Loại | Frontend |
-| Người phụ trách | Frontend |
-| Story Points | 5 |
-| Trạng thái | ⬜ TODO |
-| Phụ thuộc | TASK-SPRINT-03-HR_CONTRACT-001, TASK-SPRINT-03-FRONTEND-002 |
+| Thuộc tính      | Giá trị                                                     |
+| --------------- | ----------------------------------------------------------- |
+| Task ID         | TASK-SPRINT-03-FRONTEND-003                                 |
+| Tiêu đề         | Employment Contract Web UI                                  |
+| Sprint          | Sprint 03                                                   |
+| Cluster         | frontend                                                    |
+| Loại            | Frontend                                                    |
+| Người phụ trách | Frontend                                                    |
+| Story Points    | 5                                                           |
+| Trạng thái      | ⬜ TODO                                                     |
+| Phụ thuộc       | TASK-SPRINT-03-HR_CONTRACT-001, TASK-SPRINT-03-FRONTEND-002 |
 
 ## Mô tả phạm vi
 
 Thiết kế và đặc tả giao diện web quản lý hợp đồng lao động cho HR Core: tạo mới, theo dõi vòng đời, nhắc hạn và lịch sử theo nhân viên.
 
 Phạm vi gồm:
+
 - Danh sách hợp đồng theo trạng thái và kỳ hạn.
 - Form tạo hợp đồng và màn hình thao tác gia hạn/thanh lý.
 - Hiển thị timeline lịch sử hợp đồng theo từng nhân viên.

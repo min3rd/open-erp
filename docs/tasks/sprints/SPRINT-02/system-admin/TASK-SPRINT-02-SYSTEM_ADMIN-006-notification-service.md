@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                                                          |
-|------------------|------------------------------------------------------------------|
-| Task ID          | TASK-SPRINT-02-SYSTEM_ADMIN-006                                  |
-| Sprint           | Sprint 02                                                        |
-| Cluster          | system-admin                                                     |
-| Loại             | Backend                                                          |
-| Người phụ trách  | Backend                                                          |
-| Story Points     | 8                                                                |
-| Trạng thái       | ⬜ TODO                                                          |
-| Phụ thuộc        | TASK-SPRINT-01-FOUNDATION-003, TASK-SPRINT-01-USER-001           |
+| Thuộc tính      | Giá trị                                                |
+| --------------- | ------------------------------------------------------ |
+| Task ID         | TASK-SPRINT-02-SYSTEM_ADMIN-006                        |
+| Sprint          | Sprint 02                                              |
+| Cluster         | system-admin                                           |
+| Loại            | Backend                                                |
+| Người phụ trách | Backend                                                |
+| Story Points    | 8                                                      |
+| Trạng thái      | ⬜ TODO                                                |
+| Phụ thuộc       | TASK-SPRINT-01-FOUNDATION-003, TASK-SPRINT-01-USER-001 |
 
 ## Mô tả
 
@@ -22,6 +22,7 @@ Xây dựng `notification-service` — microservice gửi thông báo đa kênh 
 ### Backend (NestJS — `notification-service`, port 3007)
 
 **Cấu trúc module:**
+
 ```
 src/
 ├── notification.module.ts
@@ -51,6 +52,7 @@ src/
 ```
 
 **Notification Pipeline:**
+
 ```
 1. RabbitMQ Event: task.assigned { assigneeId, taskTitle, ... }
 2. Event Consumer → map event type → Template Engine
@@ -63,19 +65,20 @@ src/
 
 **Events Subscribe (ví dụ):**
 
-| Event Type          | Template Key             | Recipients                    |
-|---------------------|--------------------------|-------------------------------|
-| `task.assigned`     | `task-assigned`          | Assignee                      |
-| `task.completed`    | `task-completed`         | Creator, Manager              |
-| `order.created`     | `order-new`              | Sales Manager                 |
-| `leave.submitted`   | `leave-request-new`      | Manager                       |
-| `leave.approved`    | `leave-request-approved` | Requester                     |
-| `invoice.issued`    | `invoice-new`            | Accountant                    |
-| `user.login`        | `login-alert` (nếu IP lạ) | User                         |
-| `quota.alert`       | `quota-warning`          | Tenant Admin                  |
-| `tenant.suspended`  | `tenant-suspended`       | Tenant Admin                  |
+| Event Type         | Template Key              | Recipients       |
+| ------------------ | ------------------------- | ---------------- |
+| `task.assigned`    | `task-assigned`           | Assignee         |
+| `task.completed`   | `task-completed`          | Creator, Manager |
+| `order.created`    | `order-new`               | Sales Manager    |
+| `leave.submitted`  | `leave-request-new`       | Manager          |
+| `leave.approved`   | `leave-request-approved`  | Requester        |
+| `invoice.issued`   | `invoice-new`             | Accountant       |
+| `user.login`       | `login-alert` (nếu IP lạ) | User             |
+| `quota.alert`      | `quota-warning`           | Tenant Admin     |
+| `tenant.suspended` | `tenant-suspended`        | Tenant Admin     |
 
 **Notification Template Engine:**
+
 ```typescript
 interface NotificationTemplate {
   key: string;           // 'task-assigned'
@@ -94,22 +97,23 @@ renderTemplate(template: string, variables: Record<string, unknown>): string
 ```
 
 **In-App Notifications (WebSocket):**
+
 ```typescript
 @WebSocketGateway({
-  namespace: '/notifications',
-  cors: { origin: '*' },
+  namespace: "/notifications",
+  cors: { origin: "*" },
 })
 export class NotificationGateway {
   @WebSocketServer()
   server: Server;
-  
+
   // Emit notification đến user specific
   sendToUser(userId: string, notification: NotificationDto): void {
-    this.server.to(`user:${userId}`).emit('notification', notification);
+    this.server.to(`user:${userId}`).emit("notification", notification);
   }
-  
+
   // Client join room khi kết nối
-  @SubscribeMessage('join')
+  @SubscribeMessage("join")
   handleJoin(@ConnectedSocket() client: Socket, @MessageBody() userId: string) {
     client.join(`user:${userId}`);
   }
@@ -117,11 +121,12 @@ export class NotificationGateway {
 ```
 
 **Email Channel (Nodemailer + SendGrid):**
+
 ```typescript
 // Hỗ trợ cả SMTP (Nodemailer) và SendGrid API
 // Cấu hình per-tenant (hoặc system default)
 interface EmailConfig {
-  provider: 'smtp' | 'sendgrid';
+  provider: "smtp" | "sendgrid";
   from: string;
   fromName: string;
   // SMTP:
@@ -135,6 +140,7 @@ interface EmailConfig {
 ```
 
 **Push Notification (Firebase FCM):**
+
 ```typescript
 // Lưu FCM device token khi user đăng nhập mobile app
 // Gửi push notification qua Firebase Admin SDK
@@ -145,19 +151,20 @@ async sendPush(userId: string, notification: PushPayload): Promise<void> {
 ```
 
 **Notification Preferences:**
+
 ```typescript
 // User tự chọn kênh nhận thông báo cho từng event type
 interface NotificationPreference {
   tenantId: ObjectId;
   userId: ObjectId;
-  eventType: string;           // '*' = tất cả, hoặc 'task.assigned'
+  eventType: string; // '*' = tất cả, hoặc 'task.assigned'
   channels: {
-    inApp: boolean;            // default: true
-    email: boolean;            // default: true
-    push: boolean;             // default: true
+    inApp: boolean; // default: true
+    email: boolean; // default: true
+    push: boolean; // default: true
   };
-  muted: boolean;              // Tắt hoàn toàn loại thông báo này
-  mutedUntil?: Date;           // Tạm tắt đến thời điểm này
+  muted: boolean; // Tắt hoàn toàn loại thông báo này
+  mutedUntil?: Date; // Tạm tắt đến thời điểm này
 }
 ```
 
@@ -165,23 +172,24 @@ interface NotificationPreference {
 
 **Collection: `notifications`** (tenantId-scoped)
 
-| Trường       | Kiểu     | Ràng buộc     | Mô tả                           |
-|--------------|----------|---------------|---------------------------------|
-| `_id`        | ObjectId | —             | Primary key                     |
-| `tenantId`   | ObjectId | required      | Tenant                          |
-| `userId`     | ObjectId | required      | Người nhận                      |
-| `type`       | string   | required      | Event type gốc                  |
-| `title`      | string   | required      | Tiêu đề thông báo               |
-| `body`       | string   | required      | Nội dung                        |
-| `link`       | string   | optional      | Deep link (URL trong app)       |
-| `icon`       | string   | optional      | Icon name hoặc URL              |
-| `isRead`     | boolean  | default: false| Đã đọc chưa                    |
-| `readAt`     | Date     | optional      | Thời điểm đọc                   |
-| `channels`   | array    | —             | Kênh đã gửi: ['in-app', 'email']|
-| `metadata`   | object   | optional      | Extra data (taskId, orderId...) |
-| `createdAt`  | Date     | auto          | —                               |
+| Trường      | Kiểu     | Ràng buộc      | Mô tả                            |
+| ----------- | -------- | -------------- | -------------------------------- |
+| `_id`       | ObjectId | —              | Primary key                      |
+| `tenantId`  | ObjectId | required       | Tenant                           |
+| `userId`    | ObjectId | required       | Người nhận                       |
+| `type`      | string   | required       | Event type gốc                   |
+| `title`     | string   | required       | Tiêu đề thông báo                |
+| `body`      | string   | required       | Nội dung                         |
+| `link`      | string   | optional       | Deep link (URL trong app)        |
+| `icon`      | string   | optional       | Icon name hoặc URL               |
+| `isRead`    | boolean  | default: false | Đã đọc chưa                      |
+| `readAt`    | Date     | optional       | Thời điểm đọc                    |
+| `channels`  | array    | —              | Kênh đã gửi: ['in-app', 'email'] |
+| `metadata`  | object   | optional       | Extra data (taskId, orderId...)  |
+| `createdAt` | Date     | auto           | —                                |
 
 **Indexes:**
+
 ```
 { tenantId: 1, userId: 1, isRead: 1, createdAt: -1 }
 { tenantId: 1, userId: 1, createdAt: -1 }
@@ -196,19 +204,19 @@ interface NotificationPreference {
 
 ## API Endpoints
 
-| Method | Path                                        | Mô tả                                    | Auth        |
-|--------|---------------------------------------------|------------------------------------------|-------------|
-| GET    | `/api/v1/notifications`                     | Danh sách thông báo của user             | Any user    |
-| GET    | `/api/v1/notifications/unread-count`        | Số thông báo chưa đọc                    | Any user    |
-| PATCH  | `/api/v1/notifications/:id/read`            | Đánh dấu đã đọc                          | Owner       |
-| POST   | `/api/v1/notifications/bulk-read`           | Đánh dấu tất cả đã đọc                  | Any user    |
-| DELETE | `/api/v1/notifications/:id`                 | Xoá thông báo                            | Owner       |
-| GET    | `/api/v1/notifications/preferences`         | Lấy preferences của user                 | Any user    |
-| PATCH  | `/api/v1/notifications/preferences`         | Cập nhật preferences                     | Any user    |
-| POST   | `/api/v1/notifications/device-tokens`       | Đăng ký FCM device token                 | Any user    |
-| DELETE | `/api/v1/notifications/device-tokens/:token`| Xoá device token (logout)               | Any user    |
-| GET    | `/api/v1/notification-templates`            | Danh sách templates                      | Tenant Admin|
-| PATCH  | `/api/v1/notification-templates/:key`       | Tùy chỉnh template cho tenant            | Tenant Admin|
+| Method | Path                                         | Mô tả                         | Auth         |
+| ------ | -------------------------------------------- | ----------------------------- | ------------ |
+| GET    | `/api/v1/notifications`                      | Danh sách thông báo của user  | Any user     |
+| GET    | `/api/v1/notifications/unread-count`         | Số thông báo chưa đọc         | Any user     |
+| PATCH  | `/api/v1/notifications/:id/read`             | Đánh dấu đã đọc               | Owner        |
+| POST   | `/api/v1/notifications/bulk-read`            | Đánh dấu tất cả đã đọc        | Any user     |
+| DELETE | `/api/v1/notifications/:id`                  | Xoá thông báo                 | Owner        |
+| GET    | `/api/v1/notifications/preferences`          | Lấy preferences của user      | Any user     |
+| PATCH  | `/api/v1/notifications/preferences`          | Cập nhật preferences          | Any user     |
+| POST   | `/api/v1/notifications/device-tokens`        | Đăng ký FCM device token      | Any user     |
+| DELETE | `/api/v1/notifications/device-tokens/:token` | Xoá device token (logout)     | Any user     |
+| GET    | `/api/v1/notification-templates`             | Danh sách templates           | Tenant Admin |
+| PATCH  | `/api/v1/notification-templates/:key`        | Tùy chỉnh template cho tenant | Tenant Admin |
 
 ## Yêu cầu bảo mật
 

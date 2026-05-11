@@ -61,7 +61,11 @@ export class Tenant {
   })
   status!: TenantStatus;
 
-  @Prop({ type: String, enum: Object.values(TenantPlan), default: TenantPlan.TRIAL })
+  @Prop({
+    type: String,
+    enum: Object.values(TenantPlan),
+    default: TenantPlan.TRIAL,
+  })
   plan!: TenantPlan;
 
   @Prop({

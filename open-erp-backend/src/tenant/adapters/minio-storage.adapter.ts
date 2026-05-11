@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as Minio from 'minio';
-import type { StorageBucketResult, StorageProvisioningPort } from './storage-provisioning.port';
+import type {
+  StorageBucketResult,
+  StorageProvisioningPort,
+} from './storage-provisioning.port';
 
 /**
  * MinioStorageAdapter — Creates a MinIO bucket for a tenant.
@@ -28,14 +31,18 @@ export class MinioStorageAdapter implements StorageProvisioningPort {
         secretKey,
       });
     } else {
-      this.logger.warn('MinIO config incomplete — storage will use NullStorageAdapter fallback');
+      this.logger.warn(
+        'MinIO config incomplete — storage will use NullStorageAdapter fallback',
+      );
       this.client = null;
     }
   }
 
   async createBucket(bucketName: string): Promise<StorageBucketResult> {
     if (!this.client) {
-      this.logger.warn(`MinioStorageAdapter: no client, skipping bucket "${bucketName}"`);
+      this.logger.warn(
+        `MinioStorageAdapter: no client, skipping bucket "${bucketName}"`,
+      );
       return { bucketName, created: false, provider: 'null' };
     }
 
@@ -49,7 +56,9 @@ export class MinioStorageAdapter implements StorageProvisioningPort {
       }
       return { bucketName, created: !exists, provider: 'minio' };
     } catch (err) {
-      this.logger.error(`Failed to create bucket "${bucketName}": ${(err as Error).message}`);
+      this.logger.error(
+        `Failed to create bucket "${bucketName}": ${(err as Error).message}`,
+      );
       // Non-fatal: return fallback so onboarding continues
       return { bucketName, created: false, provider: 'null' };
     }

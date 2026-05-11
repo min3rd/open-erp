@@ -32,11 +32,7 @@ export class GoogleStrategy {
   private static readonly USERINFO_ENDPOINT =
     'https://www.googleapis.com/oauth2/v2/userinfo';
 
-  buildAuthUrl(
-    clientId: string,
-    redirectUri: string,
-    state: string,
-  ): string {
+  buildAuthUrl(clientId: string, redirectUri: string, state: string): string {
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,

@@ -10,7 +10,11 @@ services:
     volumes:
       - mongodb_data:/data/db
     healthcheck:
-      test: ["CMD-SHELL", "mongo --host localhost --port 27017 --quiet --eval \"db.adminCommand('ping').ok\" | grep 1"]
+      test:
+        [
+          "CMD-SHELL",
+          'mongo --host localhost --port 27017 --quiet --eval "db.adminCommand(''ping'').ok" | grep 1',
+        ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -36,7 +40,14 @@ services:
 
   redis:
     image: redis:7.2-alpine
-    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--requirepass",
+        "${REDIS_PASSWORD}",
+      ]
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:

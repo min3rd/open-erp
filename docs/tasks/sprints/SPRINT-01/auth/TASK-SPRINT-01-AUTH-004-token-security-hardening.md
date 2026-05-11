@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                               |
-|------------------|----------------------------------------|
-| Task ID          | TASK-SPRINT-01-AUTH-004               |
-| Sprint           | Sprint 01                             |
-| Cluster          | auth                                  |
-| Loại             | Backend                               |
-| Người phụ trách  | Backend                               |
-| Story Points     | 3                                     |
-| Trạng thái       | ⬜ TODO                               |
-| Phụ thuộc        | TASK-SPRINT-01-AUTH-001               |
+| Thuộc tính      | Giá trị                 |
+| --------------- | ----------------------- |
+| Task ID         | TASK-SPRINT-01-AUTH-004 |
+| Sprint          | Sprint 01               |
+| Cluster         | auth                    |
+| Loại            | Backend                 |
+| Người phụ trách | Backend                 |
+| Story Points    | 3                       |
+| Trạng thái      | ⬜ TODO                 |
+| Phụ thuộc       | TASK-SPRINT-01-AUTH-001 |
 
 ## Mô tả
 

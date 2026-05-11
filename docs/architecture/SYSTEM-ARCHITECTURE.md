@@ -1,10 +1,11 @@
 ﻿# Kiến trúc Hệ thống — Open ERP
+
 # SaaS Multi-Tenant Enterprise Management Platform
 
 **Phiên bản:** 1.0  
 **Ngày tạo:** 09/05/2026  
 **Tác giả:** Technical Leader  
-**Trạng thái:** Hoàn chỉnh  
+**Trạng thái:** Hoàn chỉnh
 
 ---
 
@@ -28,15 +29,15 @@ Open ERP được xây dựng theo kiến trúc **Microservices** với mô hìn
 
 ### 1.1 Nguyên tắc kiến trúc cốt lõi
 
-| Nguyên tắc | Áp dụng |
-|---|---|
-| **Single Responsibility** | Mỗi microservice chỉ phụ trách một miền nghiệp vụ duy nhất |
-| **API First** | Tất cả giao tiếp thông qua API được định nghĩa rõ ràng |
-| **Database per Service** | Mỗi service sở hữu collection MongoDB riêng, không chia sẻ trực tiếp |
-| **Event-Driven** | Giao tiếp bất đồng bộ giữa services thông qua RabbitMQ |
-| **Tenant-Aware** | Mọi data đều có `tenantId`, mọi logic đều kiểm tra tenant |
-| **Stateless Services** | Services không lưu session, dùng JWT + Redis |
-| **Fail-Safe** | Circuit breaker, retry, fallback cho tất cả inter-service calls |
+| Nguyên tắc                | Áp dụng                                                              |
+| ------------------------- | -------------------------------------------------------------------- |
+| **Single Responsibility** | Mỗi microservice chỉ phụ trách một miền nghiệp vụ duy nhất           |
+| **API First**             | Tất cả giao tiếp thông qua API được định nghĩa rõ ràng               |
+| **Database per Service**  | Mỗi service sở hữu collection MongoDB riêng, không chia sẻ trực tiếp |
+| **Event-Driven**          | Giao tiếp bất đồng bộ giữa services thông qua RabbitMQ               |
+| **Tenant-Aware**          | Mọi data đều có `tenantId`, mọi logic đều kiểm tra tenant            |
+| **Stateless Services**    | Services không lưu session, dùng JWT + Redis                         |
+| **Fail-Safe**             | Circuit breaker, retry, fallback cho tất cả inter-service calls      |
 
 ### 1.2 Định hướng frontend (Micro-frontend + Shared UI)
 
@@ -184,28 +185,28 @@ graph TB
 
 ## 3. Danh sách 20 Microservices
 
-| # | Service | Port | Mô tả vai trò |
-|---|---|---|---|
-| 1 | `api-gateway` | **3000** | Entry point, JWT validation, rate limiting, tenant resolution, Socket.IO |
-| 2 | `auth-service` | **3001** | Phát hành JWT, OAuth2 Google/Microsoft, refresh token, MFA (TOTP/OTP), password reset |
-| 3 | `tenant-service` | **3002** | Lifecycle tenant, subscription, quota, onboarding, billing hook |
-| 4 | `user-service` | **3003** | Quản lý user, profile, department, org chart |
-| 5 | `rbac-service` | **3004** | Role, permission, policy enforcement, permission cache Redis |
-| 6 | `catalog-service` | **3005** | Master data, danh mục động, biểu mẫu động, lookup tables |
-| 7 | `audit-service` | **3006** | Ghi audit log bất biến, truy vấn lịch sử thao tác |
-| 8 | `notification-service` | **3007** | Email (SMTP), push notification (FCM/APNS), in-app notification |
-| 9 | `hr-service` | **3008** | Hồ sơ nhân viên, hợp đồng, chấm công, nghỉ phép, đánh giá KPI |
-| 10 | `sale-service` | **3009** | Khách hàng, sản phẩm, báo giá, đơn bán hàng, bảng giá |
-| 11 | `inventory-service` | **3010** | Kho hàng, tồn kho, xuất nhập tồn, serial/lot tracking |
-| 12 | `logistics-service` | **3011** | Giao hàng, tracking, COD, tích hợp đơn vị vận chuyển |
-| 13 | `purchase-service` | **3012** | Mua hàng, nhà cung cấp, đơn mua hàng, nhận hàng |
-| 14 | `office-service` | **3013** | Công việc, dự án, văn bản, ONLYOFFICE integration |
-| 15 | `meeting-service` | **3014** | Lịch họp, Jitsi Meet JWT, ghi chú cuộc họp, action items |
-| 16 | `chat-service` | **3015** | Chat nội bộ theo kênh, tin nhắn trực tiếp, file attachments |
-| 17 | `accounting-service` | **3016** | Hạch toán kép, sổ cái, công nợ, dòng tiền, báo cáo tài chính |
-| 18 | `invoice-service` | **3017** | Hóa đơn điện tử, kết nối MISA/VNPT/Viettel/BKAV/FPT |
-| 19 | `ai-agent-service` | **3018** | AI Agent trung tâm, chatbot, automation, suggestion engine |
-| 20 | `dashboard-service` | **3019** | Dashboard KPI realtime, aggregate từ các service khác |
+| #   | Service                | Port     | Mô tả vai trò                                                                         |
+| --- | ---------------------- | -------- | ------------------------------------------------------------------------------------- |
+| 1   | `api-gateway`          | **3000** | Entry point, JWT validation, rate limiting, tenant resolution, Socket.IO              |
+| 2   | `auth-service`         | **3001** | Phát hành JWT, OAuth2 Google/Microsoft, refresh token, MFA (TOTP/OTP), password reset |
+| 3   | `tenant-service`       | **3002** | Lifecycle tenant, subscription, quota, onboarding, billing hook                       |
+| 4   | `user-service`         | **3003** | Quản lý user, profile, department, org chart                                          |
+| 5   | `rbac-service`         | **3004** | Role, permission, policy enforcement, permission cache Redis                          |
+| 6   | `catalog-service`      | **3005** | Master data, danh mục động, biểu mẫu động, lookup tables                              |
+| 7   | `audit-service`        | **3006** | Ghi audit log bất biến, truy vấn lịch sử thao tác                                     |
+| 8   | `notification-service` | **3007** | Email (SMTP), push notification (FCM/APNS), in-app notification                       |
+| 9   | `hr-service`           | **3008** | Hồ sơ nhân viên, hợp đồng, chấm công, nghỉ phép, đánh giá KPI                         |
+| 10  | `sale-service`         | **3009** | Khách hàng, sản phẩm, báo giá, đơn bán hàng, bảng giá                                 |
+| 11  | `inventory-service`    | **3010** | Kho hàng, tồn kho, xuất nhập tồn, serial/lot tracking                                 |
+| 12  | `logistics-service`    | **3011** | Giao hàng, tracking, COD, tích hợp đơn vị vận chuyển                                  |
+| 13  | `purchase-service`     | **3012** | Mua hàng, nhà cung cấp, đơn mua hàng, nhận hàng                                       |
+| 14  | `office-service`       | **3013** | Công việc, dự án, văn bản, ONLYOFFICE integration                                     |
+| 15  | `meeting-service`      | **3014** | Lịch họp, Jitsi Meet JWT, ghi chú cuộc họp, action items                              |
+| 16  | `chat-service`         | **3015** | Chat nội bộ theo kênh, tin nhắn trực tiếp, file attachments                           |
+| 17  | `accounting-service`   | **3016** | Hạch toán kép, sổ cái, công nợ, dòng tiền, báo cáo tài chính                          |
+| 18  | `invoice-service`      | **3017** | Hóa đơn điện tử, kết nối MISA/VNPT/Viettel/BKAV/FPT                                   |
+| 19  | `ai-agent-service`     | **3018** | AI Agent trung tâm, chatbot, automation, suggestion engine                            |
+| 20  | `dashboard-service`    | **3019** | Dashboard KPI realtime, aggregate từ các service khác                                 |
 
 ---
 
@@ -216,25 +217,25 @@ graph TB
 ```yaml
 # docker-compose network layout
 networks:
-  openErp-gateway-net:    # API Gateway ↔ Microservices (TCP)
+  openErp-gateway-net: # API Gateway ↔ Microservices (TCP)
     driver: bridge
-  openErp-internal-net:   # Microservices ↔ MongoDB/RabbitMQ/Redis (nội bộ)
+  openErp-internal-net: # Microservices ↔ MongoDB/RabbitMQ/Redis (nội bộ)
     driver: bridge
-  openErp-storage-net:    # Microservices ↔ MinIO (file transfer)
+  openErp-storage-net: # Microservices ↔ MinIO (file transfer)
     driver: bridge
 ```
 
 ### 4.2 Quy tắc phân vùng mạng
 
-| Thành phần | Gateway Net | Internal Net | Storage Net | Expose ra ngoài |
-|---|---|---|---|---|
-| Nginx Reverse Proxy | ✓ | ✗ | ✗ | **443 (HTTPS)** |
-| api-gateway (3000) | ✓ | ✓ | ✗ | Qua Nginx |
-| Microservices (3001–3019) | ✓ | ✓ | ✓ | Không |
-| MongoDB (27017) | ✗ | ✓ | ✗ | Không |
-| RabbitMQ (5672) | ✗ | ✓ | ✗ | 15672 (UI, nội bộ) |
-| Redis (6379) | ✗ | ✓ | ✗ | Không |
-| MinIO (9000) | ✗ | ✓ | ✓ | 9001 (UI, nội bộ) |
+| Thành phần                | Gateway Net | Internal Net | Storage Net | Expose ra ngoài    |
+| ------------------------- | ----------- | ------------ | ----------- | ------------------ |
+| Nginx Reverse Proxy       | ✓           | ✗            | ✗           | **443 (HTTPS)**    |
+| api-gateway (3000)        | ✓           | ✓            | ✗           | Qua Nginx          |
+| Microservices (3001–3019) | ✓           | ✓            | ✓           | Không              |
+| MongoDB (27017)           | ✗           | ✓            | ✗           | Không              |
+| RabbitMQ (5672)           | ✗           | ✓            | ✗           | 15672 (UI, nội bộ) |
+| Redis (6379)              | ✗           | ✓            | ✗           | Không              |
+| MinIO (9000)              | ✗           | ✓            | ✓           | 9001 (UI, nội bộ)  |
 
 ### 4.3 Subdomain & Routing
 
@@ -253,32 +254,32 @@ Ví dụ tenant URL:
 
 ## 5. Technology Stack
 
-| Lớp | Công nghệ | Phiên bản | Ghi chú |
-|---|---|---|---|
-| **API Gateway** | NestJS | 11.x | TCP transport tới microservices |
-| **Microservices** | NestJS Microservices | 11.x | TypeScript, TCP/RabbitMQ transport |
-| **Web Frontend** | Angular | 21.x | Standalone components, Signals, CSS-first styling |
-| **Mobile** | Ionic Angular + Capacitor | Ionic 8 / Capacitor 6 | Android & iOS |
-| **Frontend i18n** | Transloco | 8.x | Web + Mobile dùng chung message key |
-| **Shared UI Library** | Angular Library (workspace libs) | Theo Angular workspace | Component/tokens dùng chung web + mobile |
-| **Database** | MongoDB | 7.0 | Replica Set 3 nodes |
-| **ODM** | Mongoose | 8.x | TypeScript schemas |
-| **Message Broker** | RabbitMQ | 3.13 | AMQP 0-9-1, Management UI |
-| **Cache** | Redis | 7.2 | Cluster mode (prod), Standalone (dev) |
-| **File Storage** | MinIO | RELEASE.2024 | S3-compatible, bucket per tenant |
-| **Realtime** | Socket.IO | 4.x | Qua api-gateway |
-| **Auth** | JWT (RS256) + Passport | — | Access 15m / Refresh 7d |
-| **OAuth2** | Google, Microsoft | — | Passport strategy |
-| **AI** | OpenAI API + LangChain | GPT-4o | Fallback: local LLM |
-| **Document Edit** | ONLYOFFICE Docs Server | 7.5 | Self-hosted, JWT integration |
-| **Video Meet** | Jitsi Meet | Self-hosted | JWT room auth |
-| **Container** | Docker + Docker Compose | 24.x / 2.x | Dev environment |
-| **Orchestration** | Kubernetes (prod) | 1.29+ | HPA cho mỗi service |
-| **Reverse Proxy** | Nginx | 1.25 | SSL termination, load balancing |
-| **Monitoring** | Prometheus + Grafana | — | Metrics per service |
-| **Logging** | ELK Stack | Elasticsearch 8 | Centralized logs |
-| **Tracing** | Jaeger | 1.x | Distributed tracing |
-| **CI/CD** | GitHub Actions | — | Build, test, deploy pipeline |
+| Lớp                   | Công nghệ                        | Phiên bản              | Ghi chú                                           |
+| --------------------- | -------------------------------- | ---------------------- | ------------------------------------------------- |
+| **API Gateway**       | NestJS                           | 11.x                   | TCP transport tới microservices                   |
+| **Microservices**     | NestJS Microservices             | 11.x                   | TypeScript, TCP/RabbitMQ transport                |
+| **Web Frontend**      | Angular                          | 21.x                   | Standalone components, Signals, CSS-first styling |
+| **Mobile**            | Ionic Angular + Capacitor        | Ionic 8 / Capacitor 6  | Android & iOS                                     |
+| **Frontend i18n**     | Transloco                        | 8.x                    | Web + Mobile dùng chung message key               |
+| **Shared UI Library** | Angular Library (workspace libs) | Theo Angular workspace | Component/tokens dùng chung web + mobile          |
+| **Database**          | MongoDB                          | 7.0                    | Replica Set 3 nodes                               |
+| **ODM**               | Mongoose                         | 8.x                    | TypeScript schemas                                |
+| **Message Broker**    | RabbitMQ                         | 3.13                   | AMQP 0-9-1, Management UI                         |
+| **Cache**             | Redis                            | 7.2                    | Cluster mode (prod), Standalone (dev)             |
+| **File Storage**      | MinIO                            | RELEASE.2024           | S3-compatible, bucket per tenant                  |
+| **Realtime**          | Socket.IO                        | 4.x                    | Qua api-gateway                                   |
+| **Auth**              | JWT (RS256) + Passport           | —                      | Access 15m / Refresh 7d                           |
+| **OAuth2**            | Google, Microsoft                | —                      | Passport strategy                                 |
+| **AI**                | OpenAI API + LangChain           | GPT-4o                 | Fallback: local LLM                               |
+| **Document Edit**     | ONLYOFFICE Docs Server           | 7.5                    | Self-hosted, JWT integration                      |
+| **Video Meet**        | Jitsi Meet                       | Self-hosted            | JWT room auth                                     |
+| **Container**         | Docker + Docker Compose          | 24.x / 2.x             | Dev environment                                   |
+| **Orchestration**     | Kubernetes (prod)                | 1.29+                  | HPA cho mỗi service                               |
+| **Reverse Proxy**     | Nginx                            | 1.25                   | SSL termination, load balancing                   |
+| **Monitoring**        | Prometheus + Grafana             | —                      | Metrics per service                               |
+| **Logging**           | ELK Stack                        | Elasticsearch 8        | Centralized logs                                  |
+| **Tracing**           | Jaeger                           | 1.x                    | Distributed tracing                               |
+| **CI/CD**             | GitHub Actions                   | —                      | Build, test, deploy pipeline                      |
 
 ---
 
@@ -317,18 +318,18 @@ Events: notification.new, task.updated, order.status, dashboard.refresh
 
 ## 7. Quyết định kiến trúc (ADR)
 
-| # | Quyết định | Lý do chọn | Phương án đã xem xét |
-|---|---|---|---|
-| ADR-001 | NestJS Microservices với TCP transport | TypeScript uniform, ít overhead, dễ debug | gRPC (phức tạp hơn), REST inter-service (latency cao) |
-| ADR-002 | MongoDB Shared Database + tenantId | Đơn giản vận hành, phù hợp SMB SaaS | Database per tenant (chi phí cao), Schema per tenant (MongoDB không native support) |
-| ADR-003 | RabbitMQ cho async messaging | Hỗ trợ ACK/NACK, dead letter queue, durable | Kafka (overkill cho giai đoạn này), Redis Pub/Sub (no ACK) |
-| ADR-004 | JWT RS256 + Refresh Token Rotation | Bất đối xứng, không cần secret chia sẻ giữa services | HS256 (cần chia secret), Opaque token (cần introspection call) |
-| ADR-005 | MinIO thay vì AWS S3 | Self-hosted, S3-compatible API, không vendor lock-in | AWS S3 (cloud cost), Azure Blob (lock-in) |
-| ADR-006 | Angular 21 Standalone + Signals | Modern Angular, không cần NgModule, reactive | React (đổi stack), Vue (không phù hợp Ionic) |
-| ADR-007 | Ionic Angular cho mobile | Code share với Angular web, Capacitor native APIs | React Native (đổi stack), Flutter (Dart) |
-| ADR-008 | Socket.IO qua api-gateway | Tập trung auth, room management; scale qua Redis adapter | Mỗi service có WebSocket riêng (phân tán, khó quản lý) |
-| ADR-009 | CSS-first cho Angular Web | Giảm độ phức tạp build pipeline, đồng nhất token hóa giao diện với mobile | SCSS (nhiều tầng compile, khó đồng bộ token runtime) |
-| ADR-010 | Transloco + message key contract | Tách bạch trách nhiệm dịch ngôn ngữ khỏi backend, hỗ trợ đa kênh frontend nhất quán | Backend trả message text theo locale (khó cache, khó mở rộng) |
+| #       | Quyết định                             | Lý do chọn                                                                          | Phương án đã xem xét                                                                |
+| ------- | -------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| ADR-001 | NestJS Microservices với TCP transport | TypeScript uniform, ít overhead, dễ debug                                           | gRPC (phức tạp hơn), REST inter-service (latency cao)                               |
+| ADR-002 | MongoDB Shared Database + tenantId     | Đơn giản vận hành, phù hợp SMB SaaS                                                 | Database per tenant (chi phí cao), Schema per tenant (MongoDB không native support) |
+| ADR-003 | RabbitMQ cho async messaging           | Hỗ trợ ACK/NACK, dead letter queue, durable                                         | Kafka (overkill cho giai đoạn này), Redis Pub/Sub (no ACK)                          |
+| ADR-004 | JWT RS256 + Refresh Token Rotation     | Bất đối xứng, không cần secret chia sẻ giữa services                                | HS256 (cần chia secret), Opaque token (cần introspection call)                      |
+| ADR-005 | MinIO thay vì AWS S3                   | Self-hosted, S3-compatible API, không vendor lock-in                                | AWS S3 (cloud cost), Azure Blob (lock-in)                                           |
+| ADR-006 | Angular 21 Standalone + Signals        | Modern Angular, không cần NgModule, reactive                                        | React (đổi stack), Vue (không phù hợp Ionic)                                        |
+| ADR-007 | Ionic Angular cho mobile               | Code share với Angular web, Capacitor native APIs                                   | React Native (đổi stack), Flutter (Dart)                                            |
+| ADR-008 | Socket.IO qua api-gateway              | Tập trung auth, room management; scale qua Redis adapter                            | Mỗi service có WebSocket riêng (phân tán, khó quản lý)                              |
+| ADR-009 | CSS-first cho Angular Web              | Giảm độ phức tạp build pipeline, đồng nhất token hóa giao diện với mobile           | SCSS (nhiều tầng compile, khó đồng bộ token runtime)                                |
+| ADR-010 | Transloco + message key contract       | Tách bạch trách nhiệm dịch ngôn ngữ khỏi backend, hỗ trợ đa kênh frontend nhất quán | Backend trả message text theo locale (khó cache, khó mở rộng)                       |
 
 ---
 
@@ -362,14 +363,14 @@ Referrer-Policy: strict-origin-when-cross-origin
 
 ### 9.1 Metrics (Prometheus)
 
-| Metric | Service | Mô tả |
-|---|---|---|
-| `http_request_duration_seconds` | Tất cả | Latency API theo endpoint |
-| `http_requests_total` | Tất cả | Tổng request theo status code |
-| `rabbitmq_messages_consumed` | Tất cả | Event processing rate |
-| `mongodb_query_duration_ms` | Tất cả | Thời gian query DB |
-| `redis_hit_ratio` | api-gateway | Tỷ lệ cache hit |
-| `tenant_active_count` | tenant-service | Số tenant đang hoạt động |
+| Metric                          | Service        | Mô tả                         |
+| ------------------------------- | -------------- | ----------------------------- |
+| `http_request_duration_seconds` | Tất cả         | Latency API theo endpoint     |
+| `http_requests_total`           | Tất cả         | Tổng request theo status code |
+| `rabbitmq_messages_consumed`    | Tất cả         | Event processing rate         |
+| `mongodb_query_duration_ms`     | Tất cả         | Thời gian query DB            |
+| `redis_hit_ratio`               | api-gateway    | Tỷ lệ cache hit               |
+| `tenant_active_count`           | tenant-service | Số tenant đang hoạt động      |
 
 ### 9.2 Logging (ELK)
 

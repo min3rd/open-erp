@@ -28,7 +28,9 @@ describe('RabbitmqService', () => {
     return { service, channel };
   }
 
-  function createRawMessage(headers: Record<string, unknown> = {}): ConsumeMessage {
+  function createRawMessage(
+    headers: Record<string, unknown> = {},
+  ): ConsumeMessage {
     return {
       content: Buffer.from(
         JSON.stringify({
@@ -79,7 +81,9 @@ describe('RabbitmqService', () => {
     const { service } = createService();
     const publishSpy = jest.spyOn(service, 'publish').mockResolvedValue();
 
-    await service.publishEvent('user.created', 'tenant-1', 'user-1', { email: 'a@b.c' });
+    await service.publishEvent('user.created', 'tenant-1', 'user-1', {
+      email: 'a@b.c',
+    });
 
     expect(publishSpy).toHaveBeenCalledTimes(1);
     const [exchange, routingKey, payload] = publishSpy.mock.calls[0];

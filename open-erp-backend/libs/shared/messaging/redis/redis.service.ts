@@ -66,8 +66,18 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     return exists === 1;
   }
 
-  async setNX(key: string, value: string, ttlSeconds: number): Promise<boolean> {
-    const result = await this.getClient().set(key, value, 'EX', ttlSeconds, 'NX');
+  async setNX(
+    key: string,
+    value: string,
+    ttlSeconds: number,
+  ): Promise<boolean> {
+    const result = await this.getClient().set(
+      key,
+      value,
+      'EX',
+      ttlSeconds,
+      'NX',
+    );
     return result === 'OK';
   }
 
@@ -117,7 +127,13 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     let cursor = '0';
 
     do {
-      const [nextCursor, keys] = await client.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+      const [nextCursor, keys] = await client.scan(
+        cursor,
+        'MATCH',
+        pattern,
+        'COUNT',
+        100,
+      );
       cursor = nextCursor;
       if (keys.length > 0) {
         await client.del(...keys);
@@ -127,7 +143,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
   private getClient(): Redis {
     if (!this.client) {
-      throw new Error('Redis client is not initialized. Did you import RedisModule.forRoot()?');
+      throw new Error(
+        'Redis client is not initialized. Did you import RedisModule.forRoot()?',
+      );
     }
 
     return this.client;

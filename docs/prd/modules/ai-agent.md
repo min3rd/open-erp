@@ -1,10 +1,11 @@
 # PRD — Phân hệ AI Agent
+
 # Trung tâm AI Điều phối Nghiệp vụ
 
 **Phiên bản:** 1.0  
 **Ngày tạo:** 09/05/2026  
 **Sprint liên quan:** Sprint 13 (tích hợp toàn hệ thống), các sprint trước (tích hợp từng phân hệ)  
-**Trạng thái:** Đang soạn thảo  
+**Trạng thái:** Đang soạn thảo
 
 ---
 
@@ -12,7 +13,7 @@
 
 **AI Agent** trong Open ERP không phải là một phân hệ độc lập hoàn toàn — đây là **thành phần xuyên suốt** hoạt động trong tất cả các phân hệ, đóng vai trò:
 
-> *"Trợ lý điều hành doanh nghiệp số — tự động hóa nghiệp vụ, hỗ trợ quyết định, và nâng cao hiệu suất vận hành."*
+> _"Trợ lý điều hành doanh nghiệp số — tự động hóa nghiệp vụ, hỗ trợ quyết định, và nâng cao hiệu suất vận hành."_
 
 **AI Agent tập trung vào 5 nhiệm vụ chính:**
 
@@ -47,34 +48,34 @@ AI Agent Hub
 
 ### Must Have
 
-| Tính năng | Mô tả |
-|---|---|
+| Tính năng            | Mô tả                                                    |
+| -------------------- | -------------------------------------------------------- |
 | AI Chatbot nghiệp vụ | Hỏi đáp bằng ngôn ngữ tự nhiên về dữ liệu trong hệ thống |
-| Nhắc việc thông minh | Nhắc deadline, phê duyệt tồn đọng, hạn hợp đồng |
-| Cảnh báo bất thường | Phát hiện đăng nhập bất thường, giao dịch nghi ngờ |
-| AI tóm tắt | Tóm tắt văn bản, biên bản họp, báo cáo dài |
+| Nhắc việc thông minh | Nhắc deadline, phê duyệt tồn đọng, hạn hợp đồng          |
+| Cảnh báo bất thường  | Phát hiện đăng nhập bất thường, giao dịch nghi ngờ       |
+| AI tóm tắt           | Tóm tắt văn bản, biên bản họp, báo cáo dài               |
 
 ### Should Have
 
-| Tính năng | Mô tả |
-|---|---|
-| Tự động phân công công việc | AI gợi ý người xử lý phù hợp cho task |
-| AI dự báo | Dự báo doanh số, tồn kho, dòng tiền |
-| AI phân loại tự động | Phân loại tài liệu, email, ticket |
-| Sinh báo cáo tự động | Báo cáo điều hành hàng tuần/tháng |
-| AI gợi ý định khoản kế toán | Đề xuất bút toán dựa trên nội dung chứng từ |
-| Workflow automation | Tự động chạy quy trình khi thỏa điều kiện trigger |
-| AI sàng lọc CV | Đánh giá và xếp hạng CV ứng viên |
+| Tính năng                   | Mô tả                                             |
+| --------------------------- | ------------------------------------------------- |
+| Tự động phân công công việc | AI gợi ý người xử lý phù hợp cho task             |
+| AI dự báo                   | Dự báo doanh số, tồn kho, dòng tiền               |
+| AI phân loại tự động        | Phân loại tài liệu, email, ticket                 |
+| Sinh báo cáo tự động        | Báo cáo điều hành hàng tuần/tháng                 |
+| AI gợi ý định khoản kế toán | Đề xuất bút toán dựa trên nội dung chứng từ       |
+| Workflow automation         | Tự động chạy quy trình khi thỏa điều kiện trigger |
+| AI sàng lọc CV              | Đánh giá và xếp hạng CV ứng viên                  |
 
 ### Could Have
 
-| Tính năng | Mô tả |
-|---|---|
-| AI đa phương thức | Xử lý ảnh, scan tài liệu, OCR thông minh |
-| AI ghi biên bản họp | Tự động ghi và tóm tắt từ cuộc họp Jitsi |
-| RAG nội bộ | Tra cứu thông tin từ tài liệu nội bộ của doanh nghiệp |
-| AI sinh tài liệu | Soạn thảo hợp đồng, công văn mẫu theo yêu cầu |
-| Tích hợp LLM nội bộ | Dùng Local LLM để bảo mật dữ liệu nhạy cảm |
+| Tính năng           | Mô tả                                                 |
+| ------------------- | ----------------------------------------------------- |
+| AI đa phương thức   | Xử lý ảnh, scan tài liệu, OCR thông minh              |
+| AI ghi biên bản họp | Tự động ghi và tóm tắt từ cuộc họp Jitsi              |
+| RAG nội bộ          | Tra cứu thông tin từ tài liệu nội bộ của doanh nghiệp |
+| AI sinh tài liệu    | Soạn thảo hợp đồng, công văn mẫu theo yêu cầu         |
+| Tích hợp LLM nội bộ | Dùng Local LLM để bảo mật dữ liệu nhạy cảm            |
 
 ### Won't Have (v1.0)
 
@@ -87,12 +88,14 @@ AI Agent Hub
 ## 4. AI Agent theo từng phân hệ
 
 ### System Administration
+
 - Phát hiện hành vi đăng nhập bất thường (IP lạ, giờ bất thường, quốc gia khác)
 - Gợi ý phân quyền phù hợp theo chức danh và phòng ban
 - Cảnh báo xung đột phân quyền (Segregation of Duties)
 - Phân tích mức độ sử dụng hệ thống theo tenant
 
 ### Sale & Logistics
+
 - Dự báo doanh số theo tháng/quý dựa trên dữ liệu lịch sử
 - Cảnh báo thiếu hàng / tồn kho dư thừa theo ngưỡng cấu hình
 - Gợi ý sản phẩm bán kèm (cross-sell / up-sell)
@@ -100,6 +103,7 @@ AI Agent Hub
 - Tối ưu tuyến giao hàng để giảm chi phí
 
 ### HR
+
 - Sàng lọc CV tự động, chấm điểm phù hợp theo JD
 - Cảnh báo nhân viên có nguy cơ nghỉ việc cao
 - Phát hiện bất thường chấm công
@@ -107,12 +111,14 @@ AI Agent Hub
 - Cân đối lịch làm việc tự động
 
 ### Office
+
 - Tóm tắt nội dung cuộc họp và trích xuất action items
 - Nhắc deadline thông minh theo độ ưu tiên và tải công việc
 - Sinh văn bản mẫu (công văn, hợp đồng, biên bản)
 - Gợi ý người xử lý công việc phù hợp
 
 ### Accounting
+
 - Gợi ý định khoản kế toán từ nội dung chứng từ
 - Phát hiện bút toán bất thường, sai lệch số liệu
 - Nhắc lịch kê khai thuế, hạn nộp thuế
@@ -134,10 +140,10 @@ AI Agent Hub
 
 ## 6. Tích hợp với phân hệ khác
 
-| Phân hệ | Loại tích hợp | Mô tả |
-|---|---|---|
+| Phân hệ            | Loại tích hợp | Mô tả                                                                         |
+| ------------------ | ------------- | ----------------------------------------------------------------------------- |
 | **Tất cả phân hệ** | Bidirectional | AI đọc dữ liệu từ tất cả phân hệ và có thể ghi lại hành động (qua API nội bộ) |
-| **LangChain** | Framework | Orchestration framework cho AI Agent |
-| **OpenAI API** | External | LLM cho reasoning và generation |
-| **Local LLM** | Optional | Cho dữ liệu nhạy cảm cần bảo mật cao |
-| **Office / Jitsi** | Read | Lấy transcript cuộc họp để tóm tắt và tạo biên bản |
+| **LangChain**      | Framework     | Orchestration framework cho AI Agent                                          |
+| **OpenAI API**     | External      | LLM cho reasoning và generation                                               |
+| **Local LLM**      | Optional      | Cho dữ liệu nhạy cảm cần bảo mật cao                                          |
+| **Office / Jitsi** | Read          | Lấy transcript cuộc họp để tóm tắt và tạo biên bản                            |

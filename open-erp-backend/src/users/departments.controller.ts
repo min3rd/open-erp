@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+} from '@nestjs/common';
 import type { Request } from 'express';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
@@ -19,7 +28,10 @@ export class DepartmentsController {
   }
 
   @Post()
-  async createDepartment(@Body() dto: CreateDepartmentDto, @Req() req: Request) {
+  async createDepartment(
+    @Body() dto: CreateDepartmentDto,
+    @Req() req: Request,
+  ) {
     return this.departmentsService.createDepartment(dto, req.user);
   }
 
@@ -29,7 +41,11 @@ export class DepartmentsController {
   }
 
   @Patch(':id')
-  async updateDepartment(@Param('id') id: string, @Body() dto: UpdateDepartmentDto, @Req() req: Request) {
+  async updateDepartment(
+    @Param('id') id: string,
+    @Body() dto: UpdateDepartmentDto,
+    @Req() req: Request,
+  ) {
     return this.departmentsService.updateDepartment(id, dto, req.user);
   }
 

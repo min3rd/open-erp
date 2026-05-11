@@ -27,11 +27,7 @@ export class MicrosoftStrategy {
   private static readonly USERINFO_ENDPOINT =
     'https://graph.microsoft.com/v1.0/me';
 
-  buildAuthUrl(
-    clientId: string,
-    redirectUri: string,
-    state: string,
-  ): string {
+  buildAuthUrl(clientId: string, redirectUri: string, state: string): string {
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,

@@ -165,7 +165,11 @@ export class AuthController {
   @Public()
   @Post('mfa/challenge')
   async challengeMfa(@Body() dto: ChallengeMfaDto) {
-    return this.authService.challengeMfa(dto.mfaToken, dto.code, dto.backupCode);
+    return this.authService.challengeMfa(
+      dto.mfaToken,
+      dto.code,
+      dto.backupCode,
+    );
   }
 
   private resolveRefreshToken(req: Request, dto: RefreshTokenDto): string {

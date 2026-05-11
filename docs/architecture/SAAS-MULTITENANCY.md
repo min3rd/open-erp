@@ -4,7 +4,7 @@
 **Ngày tạo:** 09/05/2026  
 **Ngày cập nhật:** 09/05/2026  
 **Tác giả:** Technical Leader  
-**Trạng thái:** Hoàn chỉnh  
+**Trạng thái:** Hoàn chỉnh
 
 ---
 
@@ -28,23 +28,23 @@
 
 Open ERP áp dụng mô hình **Shared Database, Shared Schema** với **Logical Isolation** qua `tenantId`.
 
-| Tiêu chí | Shared DB (đã chọn) | Separate DB per Tenant |
-|---|---|---|
-| Chi phí vận hành | Thấp — 1 cluster MongoDB | Cao — N clusters |
-| Độ phức tạp deploy | Thấp | Cao |
-| Isolation mức độ | Logic (tenantId filter) | Vật lý |
-| Khả năng migrate schema | Dễ — cùng schema | Phức tạp |
-| Phù hợp giai đoạn | Early-stage SaaS (< 10.000 tenants) | Enterprise SaaS lớn |
+| Tiêu chí                | Shared DB (đã chọn)                 | Separate DB per Tenant |
+| ----------------------- | ----------------------------------- | ---------------------- |
+| Chi phí vận hành        | Thấp — 1 cluster MongoDB            | Cao — N clusters       |
+| Độ phức tạp deploy      | Thấp                                | Cao                    |
+| Isolation mức độ        | Logic (tenantId filter)             | Vật lý                 |
+| Khả năng migrate schema | Dễ — cùng schema                    | Phức tạp               |
+| Phù hợp giai đoạn       | Early-stage SaaS (< 10.000 tenants) | Enterprise SaaS lớn    |
 
 **Kế hoạch nâng cấp:** Khi vượt 10.000 tenants hoặc có yêu cầu data residency, chuyển sang hybrid model (dedicated DB cho enterprise tenants).
 
 ### 1.2 Định danh Tenant
 
-| Định danh | Kiểu | Ví dụ | Mục đích |
-|---|---|---|---|
-| `tenantId` | `ObjectId` (MongoDB) | `6645a2b3c4d5e6f7a8b9c0d1` | Primary key trong mọi collection nghiệp vụ |
-| `subdomain` | `string` | `acme-corp` | URL access: `acme-corp.openErp.vn` |
-| `apiKey` | `string` (SHA-256 hash) | `oek_...` | External system integration |
+| Định danh   | Kiểu                    | Ví dụ                      | Mục đích                                   |
+| ----------- | ----------------------- | -------------------------- | ------------------------------------------ |
+| `tenantId`  | `ObjectId` (MongoDB)    | `6645a2b3c4d5e6f7a8b9c0d1` | Primary key trong mọi collection nghiệp vụ |
+| `subdomain` | `string`                | `acme-corp`                | URL access: `acme-corp.openErp.vn`         |
+| `apiKey`    | `string` (SHA-256 hash) | `oek_...`                  | External system integration                |
 
 ---
 
@@ -113,7 +113,7 @@ export class TenantMiddleware implements NestMiddleware {
 
     // 2. Thử lấy từ header
     if (!tenantId) {
-      tenantId = req.headers['x-tenant-id'] as string;
+      tenantId = req.headers["x-tenant-id"] as string;
     }
 
     // 3. Thử lấy từ subdomain
@@ -127,10 +127,10 @@ export class TenantMiddleware implements NestMiddleware {
 
     // 4. Từ chối nếu không xác định được
     if (!tenantId) {
-      throw new UnauthorizedException('Không xác định được tenant');
+      throw new UnauthorizedException("Không xác định được tenant");
     }
 
-    req['tenantId'] = tenantId;
+    req["tenantId"] = tenantId;
     next();
   }
 }
@@ -156,26 +156,26 @@ export class TenantGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const tenantId = request['tenantId'];
+    const tenantId = request["tenantId"];
 
     // Kiểm tra cache trước (TTL: 60 giây)
     const cached = await this.redisService.get(`tenant:status:${tenantId}`);
-    const status = cached ?? await this.tenantService.getStatus(tenantId);
+    const status = cached ?? (await this.tenantService.getStatus(tenantId));
 
     if (!cached) {
       await this.redisService.set(`tenant:status:${tenantId}`, status, 60);
     }
 
-    if (status === 'SUSPENDED') {
-      throw new ForbiddenException('Tài khoản doanh nghiệp đã bị tạm ngưng');
+    if (status === "SUSPENDED") {
+      throw new ForbiddenException("Tài khoản doanh nghiệp đã bị tạm ngưng");
     }
-    if (status === 'TERMINATED') {
-      throw new ForbiddenException('Tài khoản doanh nghiệp đã bị hủy');
+    if (status === "TERMINATED") {
+      throw new ForbiddenException("Tài khoản doanh nghiệp đã bị hủy");
     }
-    if (status === 'PENDING_SETUP') {
+    if (status === "PENDING_SETUP") {
       // Chỉ cho phép truy cập onboarding endpoints
-      if (!request.path.startsWith('/api/v1/onboarding')) {
-        throw new ForbiddenException('Vui lòng hoàn tất thiết lập tài khoản');
+      if (!request.path.startsWith("/api/v1/onboarding")) {
+        throw new ForbiddenException("Vui lòng hoàn tất thiết lập tài khoản");
       }
     }
 
@@ -275,24 +275,24 @@ flowchart TD
 
 ## 6. Subscription Tiers
 
-| Tính năng | Free | Starter | Professional | Enterprise |
-|---|---|---|---|---|
-| **Giá (VND/tháng)** | 0 | 500.000 | 2.000.000 | Liên hệ |
-| **Người dùng tối đa** | 5 | 30 | 200 | Không giới hạn |
-| **Dung lượng lưu trữ** | 1 GB | 20 GB | 100 GB | 1 TB+ |
-| **Gọi API / tháng** | 10.000 | 100.000 | 1.000.000 | Không giới hạn |
-| **Phân hệ System Admin** | ✓ | ✓ | ✓ | ✓ |
-| **Phân hệ HR** | Cơ bản | ✓ | ✓ | ✓ |
-| **Phân hệ Sale & Logistics** | ✗ | ✓ | ✓ | ✓ |
-| **Phân hệ Office** | ✗ | ✓ | ✓ | ✓ |
-| **Phân hệ Accounting** | ✗ | ✗ | ✓ | ✓ |
-| **Hóa đơn điện tử** | ✗ | ✗ | ✓ | ✓ |
-| **AI Agent** | ✗ | ✗ | Cơ bản | Đầy đủ |
-| **Dashboard KPI** | Cơ bản | ✓ | ✓ | Tùy chỉnh |
-| **API Key (External)** | ✗ | ✗ | ✓ | ✓ |
-| **Custom Domain** | ✗ | ✗ | ✗ | ✓ |
-| **SLA** | Không | 99.5% | 99.9% | 99.99% |
-| **Support** | Community | Email | Priority | Dedicated CSM |
+| Tính năng                    | Free      | Starter | Professional | Enterprise     |
+| ---------------------------- | --------- | ------- | ------------ | -------------- |
+| **Giá (VND/tháng)**          | 0         | 500.000 | 2.000.000    | Liên hệ        |
+| **Người dùng tối đa**        | 5         | 30      | 200          | Không giới hạn |
+| **Dung lượng lưu trữ**       | 1 GB      | 20 GB   | 100 GB       | 1 TB+          |
+| **Gọi API / tháng**          | 10.000    | 100.000 | 1.000.000    | Không giới hạn |
+| **Phân hệ System Admin**     | ✓         | ✓       | ✓            | ✓              |
+| **Phân hệ HR**               | Cơ bản    | ✓       | ✓            | ✓              |
+| **Phân hệ Sale & Logistics** | ✗         | ✓       | ✓            | ✓              |
+| **Phân hệ Office**           | ✗         | ✓       | ✓            | ✓              |
+| **Phân hệ Accounting**       | ✗         | ✗       | ✓            | ✓              |
+| **Hóa đơn điện tử**          | ✗         | ✗       | ✓            | ✓              |
+| **AI Agent**                 | ✗         | ✗       | Cơ bản       | Đầy đủ         |
+| **Dashboard KPI**            | Cơ bản    | ✓       | ✓            | Tùy chỉnh      |
+| **API Key (External)**       | ✗         | ✗       | ✓            | ✓              |
+| **Custom Domain**            | ✗         | ✗       | ✗            | ✓              |
+| **SLA**                      | Không     | 99.5%   | 99.9%        | 99.99%         |
+| **Support**                  | Community | Email   | Priority     | Dedicated CSM  |
 
 ---
 
@@ -300,13 +300,13 @@ flowchart TD
 
 ### 7.1 Quota được kiểm tra ở đâu
 
-| Quota | Service kiểm tra | Thời điểm kiểm tra |
-|---|---|---|
-| Số lượng user | user-service | Trước khi tạo user mới |
-| Dung lượng storage | storage-service | Trước khi upload file |
-| Gọi API | api-gateway (Redis counter) | Mỗi request |
-| Số nhân viên | hr-service | Trước khi tạo employee |
-| Số hóa đơn/tháng | invoice-service | Trước khi phát hành |
+| Quota              | Service kiểm tra            | Thời điểm kiểm tra     |
+| ------------------ | --------------------------- | ---------------------- |
+| Số lượng user      | user-service                | Trước khi tạo user mới |
+| Dung lượng storage | storage-service             | Trước khi upload file  |
+| Gọi API            | api-gateway (Redis counter) | Mỗi request            |
+| Số nhân viên       | hr-service                  | Trước khi tạo employee |
+| Số hóa đơn/tháng   | invoice-service             | Trước khi phát hành    |
 
 ### 7.2 Cơ chế Quota Enforcement
 
@@ -315,7 +315,7 @@ flowchart TD
 @Injectable()
 export class TenantQuotaGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const tenantId = request['tenantId'];
+    const tenantId = request["tenantId"];
     const plan = await this.getSubscriptionPlan(tenantId); // cached Redis
 
     // Kiểm tra API call quota
@@ -325,9 +325,9 @@ export class TenantQuotaGuard implements CanActivate {
 
     if (currentCalls > plan.apiCallsPerMonth) {
       throw new ForbiddenException({
-        code: 'QUOTA_EXCEEDED',
-        message: 'Đã vượt giới hạn gọi API trong tháng',
-        detail: { limit: plan.apiCallsPerMonth, used: currentCalls }
+        code: "QUOTA_EXCEEDED",
+        message: "Đã vượt giới hạn gọi API trong tháng",
+        detail: { limit: plan.apiCallsPerMonth, used: currentCalls },
       });
     }
     return true;
@@ -380,14 +380,14 @@ export class TenantQuotaGuard implements CanActivate {
 
 ### 8.2 Hành động theo trạng thái
 
-| Trạng thái | Đọc data | Ghi data | Đăng nhập | API |
-|---|---|---|---|---|
-| PENDING_VERIFICATION | ✗ | ✗ | ✓ (onboarding only) | Chỉ onboarding |
-| PENDING_SETUP *(Deprecated)* | ✗ | ✗ | ✓ (onboarding only) | Chỉ onboarding |
-| TRIAL | ✓ | ✓ | ✓ | ✓ (giới hạn Free tier) |
-| ACTIVE | ✓ | ✓ | ✓ | ✓ (theo gói) |
-| SUSPENDED | ✓ (read-only) | ✗ | ✓ | GET only |
-| TERMINATED | ✗ | ✗ | ✗ | ✗ |
+| Trạng thái                   | Đọc data      | Ghi data | Đăng nhập           | API                    |
+| ---------------------------- | ------------- | -------- | ------------------- | ---------------------- |
+| PENDING_VERIFICATION         | ✗             | ✗        | ✓ (onboarding only) | Chỉ onboarding         |
+| PENDING_SETUP _(Deprecated)_ | ✗             | ✗        | ✓ (onboarding only) | Chỉ onboarding         |
+| TRIAL                        | ✓             | ✓        | ✓                   | ✓ (giới hạn Free tier) |
+| ACTIVE                       | ✓             | ✓        | ✓                   | ✓ (theo gói)           |
+| SUSPENDED                    | ✓ (read-only) | ✗        | ✓                   | GET only               |
+| TERMINATED                   | ✗             | ✗        | ✗                   | ✗                      |
 
 ---
 
@@ -408,13 +408,13 @@ Tầng 8 — Audit: Ghi log mọi CRUD action
 
 ### 9.2 Quy tắc bắt buộc
 
-| Mã | Quy tắc |
-|---|---|
+| Mã     | Quy tắc                                                                  |
+| ------ | ------------------------------------------------------------------------ |
 | MT-001 | Mọi API endpoint (trừ auth public) đều yêu cầu JWT hợp lệ với `tenantId` |
-| MT-002 | `tenantId` trong JWT phải khớp với data được truy cập |
-| MT-003 | Super Admin chỉ truy cập data tenant qua giao diện quản trị riêng biệt |
-| MT-004 | Tenant bị SUSPENDED trả về 403 cho mọi write request |
-| MT-005 | Audit log phải ghi đủ `tenantId` cho mọi thao tác CRUD |
-| MT-006 | MinIO bucket riêng mỗi tenant: `tenant-{tenantId}/` |
-| MT-007 | Không được JOIN hoặc aggregate cross-tenant |
-| MT-008 | API Key external phải được hash (SHA-256) trước khi lưu DB |
+| MT-002 | `tenantId` trong JWT phải khớp với data được truy cập                    |
+| MT-003 | Super Admin chỉ truy cập data tenant qua giao diện quản trị riêng biệt   |
+| MT-004 | Tenant bị SUSPENDED trả về 403 cho mọi write request                     |
+| MT-005 | Audit log phải ghi đủ `tenantId` cho mọi thao tác CRUD                   |
+| MT-006 | MinIO bucket riêng mỗi tenant: `tenant-{tenantId}/`                      |
+| MT-007 | Không được JOIN hoặc aggregate cross-tenant                              |
+| MT-008 | API Key external phải được hash (SHA-256) trước khi lưu DB               |

@@ -36,7 +36,10 @@ export class OAuthController {
     @Res() res: Response,
   ) {
     if (!tenantId) {
-      throw new BadRequestException({ code: 'MISSING_TENANT', message: 'tenantId is required' });
+      throw new BadRequestException({
+        code: 'MISSING_TENANT',
+        message: 'tenantId is required',
+      });
     }
 
     const authUrl = await this.oauthService.initiateLogin(provider, tenantId);
@@ -61,20 +64,28 @@ export class OAuthController {
     @Res() res: Response,
   ) {
     const failureRedirect =
-      this.getConfig('OAUTH_FAILURE_REDIRECT') ?? '/auth/login?error=oauth_failed';
+      this.getConfig('OAUTH_FAILURE_REDIRECT') ??
+      '/auth/login?error=oauth_failed';
 
     if (errorParam || !code || !state) {
-      this.logger.warn(`OAuth callback error for provider=${provider}: ${errorParam ?? 'missing code/state'}`);
+      this.logger.warn(
+        `OAuth callback error for provider=${provider}: ${errorParam ?? 'missing code/state'}`,
+      );
       return res.redirect(302, failureRedirect);
     }
 
     const userAgent = (req.headers['user-agent'] ?? 'unknown') as string;
 
     try {
-      const tokens = await this.oauthService.handleCallback(provider, code, state, {
-        ip,
-        userAgent,
-      });
+      const tokens = await this.oauthService.handleCallback(
+        provider,
+        code,
+        state,
+        {
+          ip,
+          userAgent,
+        },
+      );
 
       const successRedirect =
         this.getConfig('OAUTH_SUCCESS_REDIRECT') ?? '/auth/oauth-callback';
@@ -107,7 +118,11 @@ export class OAuthController {
     const user = req.user as RequestUser | undefined;
     if (!user) throw new UnauthorizedException();
 
-    const authUrl = await this.oauthService.initiateLinkFlow(user.sub, user.tenantId, provider);
+    const authUrl = await this.oauthService.initiateLinkFlow(
+      user.sub,
+      user.tenantId,
+      provider,
+    );
     return { success: true, data: { authUrl } };
   }
 

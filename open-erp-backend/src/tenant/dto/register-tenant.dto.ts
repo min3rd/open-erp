@@ -1,4 +1,10 @@
-import { IsEmail, IsOptional, IsString, Length, Matches } from 'class-validator';
+import {
+  IsEmail,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+} from 'class-validator';
 import { TAX_CODE_REGEX, TENANT_SUBDOMAIN_REGEX } from '../tenant.constants';
 
 export class RegisterTenantDto {

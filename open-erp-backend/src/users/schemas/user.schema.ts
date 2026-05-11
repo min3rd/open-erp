@@ -126,6 +126,9 @@ UserSchema.index({ tenantId: 1, status: 1 });
 UserSchema.index({ tenantId: 1, isDeleted: 1 });
 UserSchema.index({ tenantId: 1, departmentId: 1 });
 UserSchema.index({ tenantId: 1, managerId: 1 });
-UserSchema.index({ tenantId: 1, employeeCode: 1 }, { unique: true, sparse: true });
+UserSchema.index(
+  { tenantId: 1, employeeCode: 1 },
+  { unique: true, sparse: true },
+);
 UserSchema.index({ tenantId: 1, 'oauthAccounts.providerId': 1 });
 UserSchema.index({ tenantId: 1, 'oauthAccounts.provider': 1 });

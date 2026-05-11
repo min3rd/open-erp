@@ -2,23 +2,24 @@
 
 ## Thông tin
 
-| Thuộc tính | Giá trị |
-|---|---|
-| Task ID | TASK-SPRINT-03-HR_RECRUITMENT-002 |
-| Tiêu đề | Candidate & Interview Pipeline |
-| Sprint | Sprint 03 |
-| Cluster | hr-recruitment |
-| Loại | Backend |
-| Người phụ trách | Backend |
-| Story Points | 8 |
-| Trạng thái | ⬜ TODO |
-| Phụ thuộc | TASK-SPRINT-03-HR_RECRUITMENT-001, TASK-SPRINT-02-SYSTEM_ADMIN-006 |
+| Thuộc tính      | Giá trị                                                            |
+| --------------- | ------------------------------------------------------------------ |
+| Task ID         | TASK-SPRINT-03-HR_RECRUITMENT-002                                  |
+| Tiêu đề         | Candidate & Interview Pipeline                                     |
+| Sprint          | Sprint 03                                                          |
+| Cluster         | hr-recruitment                                                     |
+| Loại            | Backend                                                            |
+| Người phụ trách | Backend                                                            |
+| Story Points    | 8                                                                  |
+| Trạng thái      | ⬜ TODO                                                            |
+| Phụ thuộc       | TASK-SPRINT-03-HR_RECRUITMENT-001, TASK-SPRINT-02-SYSTEM_ADMIN-006 |
 
 ## Mô tả phạm vi
 
 Đặc tả kỹ thuật pipeline ứng viên từ tiếp nhận CV đến phỏng vấn theo các chức năng F-HR-002 và F-HR-003.
 
 Phạm vi gồm:
+
 - Thiết kế dữ liệu `job_candidates` và `interviews` với stage pipeline: `APPLIED`, `SCREENING`, `INTERVIEW`, `OFFER`, `HIRED`, `REJECTED`.
 - API nhập hồ sơ ứng viên, cập nhật stage, lên lịch phỏng vấn, ghi nhận kết quả phỏng vấn.
 - Ràng buộc không trùng lịch interviewer, kiểm tra mốc thông báo trước tối thiểu 24 giờ.

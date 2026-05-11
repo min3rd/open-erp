@@ -74,7 +74,10 @@ describe('RateLimitMiddleware', () => {
         }),
       },
     });
-    expect(res.setHeader).toHaveBeenCalledWith('retry-after', expect.any(String));
+    expect(res.setHeader).toHaveBeenCalledWith(
+      'retry-after',
+      expect.any(String),
+    );
   });
 
   it('throws 429 on 101st request for global limit', () => {
@@ -109,6 +112,9 @@ describe('RateLimitMiddleware', () => {
         }),
       },
     });
-    expect(res.setHeader).toHaveBeenCalledWith('retry-after', expect.any(String));
+    expect(res.setHeader).toHaveBeenCalledWith(
+      'retry-after',
+      expect.any(String),
+    );
   });
 });

@@ -1,10 +1,11 @@
 # API Design — Open ERP
+
 # Thiết kế API RESTful
 
 **Phiên bản:** 1.0  
 **Ngày tạo:** 09/05/2026  
 **Tác giả:** Technical Leader  
-**Trạng thái:** Hoàn chỉnh  
+**Trạng thái:** Hoàn chỉnh
 
 ---
 
@@ -24,29 +25,29 @@
 
 ### 1.1 REST Design Principles
 
-| Nguyên tắc | Mô tả |
-|---|---|
-| Stateless | Mỗi request phải đầy đủ thông tin, không phụ thuộc session server-side |
-| Resource-based URL | URL phản ánh tài nguyên (danh từ), không dùng động từ |
-| HTTP Verbs chuẩn | GET (đọc), POST (tạo), PUT (cập nhật toàn bộ), PATCH (cập nhật một phần), DELETE (xóa) |
-| Consistent Response | Mọi response đều theo cùng một cấu trúc JSON |
-| Versioning | Phiên bản API qua prefix URL (`/api/v1/`) |
+| Nguyên tắc          | Mô tả                                                                                  |
+| ------------------- | -------------------------------------------------------------------------------------- |
+| Stateless           | Mỗi request phải đầy đủ thông tin, không phụ thuộc session server-side                 |
+| Resource-based URL  | URL phản ánh tài nguyên (danh từ), không dùng động từ                                  |
+| HTTP Verbs chuẩn    | GET (đọc), POST (tạo), PUT (cập nhật toàn bộ), PATCH (cập nhật một phần), DELETE (xóa) |
+| Consistent Response | Mọi response đều theo cùng một cấu trúc JSON                                           |
+| Versioning          | Phiên bản API qua prefix URL (`/api/v1/`)                                              |
 
 ### 1.2 HTTP Status Codes
 
-| Code | Tình huống |
-|---|---|
-| 200 OK | GET thành công, PUT/PATCH thành công |
-| 201 Created | POST tạo mới thành công |
-| 204 No Content | DELETE thành công |
-| 400 Bad Request | Dữ liệu đầu vào không hợp lệ |
-| 401 Unauthorized | Không có hoặc token hết hạn |
-| 403 Forbidden | Không có quyền truy cập |
-| 404 Not Found | Tài nguyên không tồn tại |
-| 409 Conflict | Trùng dữ liệu (email đã tồn tại, v.v.) |
-| 422 Unprocessable | Lỗi nghiệp vụ (rule validation) |
-| 429 Too Many Requests | Vượt rate limit |
-| 500 Internal Server Error | Lỗi server không mong đợi |
+| Code                      | Tình huống                             |
+| ------------------------- | -------------------------------------- |
+| 200 OK                    | GET thành công, PUT/PATCH thành công   |
+| 201 Created               | POST tạo mới thành công                |
+| 204 No Content            | DELETE thành công                      |
+| 400 Bad Request           | Dữ liệu đầu vào không hợp lệ           |
+| 401 Unauthorized          | Không có hoặc token hết hạn            |
+| 403 Forbidden             | Không có quyền truy cập                |
+| 404 Not Found             | Tài nguyên không tồn tại               |
+| 409 Conflict              | Trùng dữ liệu (email đã tồn tại, v.v.) |
+| 422 Unprocessable         | Lỗi nghiệp vụ (rule validation)        |
+| 429 Too Many Requests     | Vượt rate limit                        |
+| 500 Internal Server Error | Lỗi server không mong đợi              |
 
 ---
 
@@ -59,6 +60,7 @@ https://{tenant}.openErp.vn/api/v{N}/{resource}/{id}/{sub-resource}
 ```
 
 Ví dụ:
+
 ```
 GET    /api/v1/users
 GET    /api/v1/users/abc123
@@ -145,6 +147,7 @@ Client                          api-gateway          auth-service
 ```
 
 Cho danh sách (có pagination):
+
 ```json
 {
   "success": true,
@@ -209,19 +212,19 @@ Cho danh sách (có pagination):
 
 ### 4.3 Mã lỗi chuẩn (Error Codes)
 
-| Code | HTTP | Mô tả |
-|---|---|---|
-| `VALIDATION_ERROR` | 400 | Dữ liệu đầu vào không hợp lệ |
-| `TOKEN_EXPIRED` | 401 | Access token hết hạn |
-| `TOKEN_INVALID` | 401 | Token không hợp lệ |
-| `UNAUTHORIZED` | 401 | Chưa xác thực |
-| `FORBIDDEN` | 403 | Không có quyền |
-| `NOT_FOUND` | 404 | Không tìm thấy tài nguyên |
-| `CONFLICT` | 409 | Trùng dữ liệu |
-| `QUOTA_EXCEEDED` | 422 | Vượt giới hạn gói cước |
-| `BUSINESS_RULE_VIOLATION` | 422 | Vi phạm quy tắc nghiệp vụ |
-| `RATE_LIMIT_EXCEEDED` | 429 | Vượt giới hạn tốc độ |
-| `INTERNAL_ERROR` | 500 | Lỗi nội bộ server |
+| Code                      | HTTP | Mô tả                        |
+| ------------------------- | ---- | ---------------------------- |
+| `VALIDATION_ERROR`        | 400  | Dữ liệu đầu vào không hợp lệ |
+| `TOKEN_EXPIRED`           | 401  | Access token hết hạn         |
+| `TOKEN_INVALID`           | 401  | Token không hợp lệ           |
+| `UNAUTHORIZED`            | 401  | Chưa xác thực                |
+| `FORBIDDEN`               | 403  | Không có quyền               |
+| `NOT_FOUND`               | 404  | Không tìm thấy tài nguyên    |
+| `CONFLICT`                | 409  | Trùng dữ liệu                |
+| `QUOTA_EXCEEDED`          | 422  | Vượt giới hạn gói cước       |
+| `BUSINESS_RULE_VIOLATION` | 422  | Vi phạm quy tắc nghiệp vụ    |
+| `RATE_LIMIT_EXCEEDED`     | 429  | Vượt giới hạn tốc độ         |
+| `INTERNAL_ERROR`          | 500  | Lỗi nội bộ server            |
 
 ### 4.4 Quy ước thông điệp đa ngôn ngữ (Backend trả key + metadata)
 
@@ -251,6 +254,7 @@ Cho danh sách (có pagination):
 ```
 
 Quy tắc chuẩn:
+
 - `message.key`: key duy nhất để frontend map sang Transloco namespace.
 - `message.params`: tham số nội suy, không chứa HTML.
 - `message.defaultMessage`: fallback khi thiếu dictionary ở client.
@@ -267,12 +271,12 @@ Quy tắc chuẩn:
 GET /api/v1/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc
 ```
 
-| Tham số | Kiểu | Mặc định | Tối đa | Mô tả |
-|---|---|---|---|---|
-| `page` | integer | 1 | — | Số trang (bắt đầu từ 1) |
-| `limit` | integer | 20 | 100 | Số bản ghi mỗi trang |
-| `sortBy` | string | createdAt | — | Trường sắp xếp |
-| `sortOrder` | enum | desc | — | `asc` hoặc `desc` |
+| Tham số     | Kiểu    | Mặc định  | Tối đa | Mô tả                   |
+| ----------- | ------- | --------- | ------ | ----------------------- |
+| `page`      | integer | 1         | —      | Số trang (bắt đầu từ 1) |
+| `limit`     | integer | 20        | 100    | Số bản ghi mỗi trang    |
+| `sortBy`    | string  | createdAt | —      | Trường sắp xếp          |
+| `sortOrder` | enum    | desc      | —      | `asc` hoặc `desc`       |
 
 ### 5.2 Filter Syntax
 
@@ -284,13 +288,13 @@ GET /api/v1/orders?filter[total][gte]=1000000&filter[total][lte]=5000000
 GET /api/v1/users?search=nguyen
 ```
 
-| Operator | Cú pháp | Ví dụ |
-|---|---|---|
-| Bằng | `filter[field]=value` | `filter[status]=active` |
-| Lớn hơn hoặc bằng | `filter[field][gte]=v` | `filter[total][gte]=100000` |
-| Nhỏ hơn hoặc bằng | `filter[field][lte]=v` | `filter[date][lte]=2026-12-31` |
-| Tìm kiếm text | `search=keyword` | `search=nguyen van a` |
-| Thuộc tập | `filter[field][in]=a,b,c` | `filter[status][in]=active,pending` |
+| Operator          | Cú pháp                   | Ví dụ                               |
+| ----------------- | ------------------------- | ----------------------------------- |
+| Bằng              | `filter[field]=value`     | `filter[status]=active`             |
+| Lớn hơn hoặc bằng | `filter[field][gte]=v`    | `filter[total][gte]=100000`         |
+| Nhỏ hơn hoặc bằng | `filter[field][lte]=v`    | `filter[date][lte]=2026-12-31`      |
+| Tìm kiếm text     | `search=keyword`          | `search=nguyen van a`               |
+| Thuộc tập         | `filter[field][in]=a,b,c` | `filter[status][in]=active,pending` |
 
 ---
 
@@ -298,12 +302,12 @@ GET /api/v1/users?search=nguyen
 
 ### 6.1 Rate Limit Tiers
 
-| Gói | Limit chung | Auth endpoints | Upload |
-|---|---|---|---|
-| Free | 100 req/phút | 10 req/phút | 5 MB/request |
-| Starter | 500 req/phút | 30 req/phút | 10 MB/request |
-| Professional | 2000 req/phút | 60 req/phút | 50 MB/request |
-| Enterprise | 10000 req/phút | 120 req/phút | 200 MB/request |
+| Gói          | Limit chung    | Auth endpoints | Upload         |
+| ------------ | -------------- | -------------- | -------------- |
+| Free         | 100 req/phút   | 10 req/phút    | 5 MB/request   |
+| Starter      | 500 req/phút   | 30 req/phút    | 10 MB/request  |
+| Professional | 2000 req/phút  | 60 req/phút    | 50 MB/request  |
+| Enterprise   | 10000 req/phút | 120 req/phút   | 200 MB/request |
 
 ### 6.2 Rate Limit Headers
 
@@ -321,6 +325,7 @@ Retry-After: 30
 ### 7.1 Authentication API (`/api/v1/auth`)
 
 #### POST /api/v1/auth/login
+
 ```
 Mô tả: Đăng nhập bằng email + password
 Auth: Không yêu cầu
@@ -341,6 +346,7 @@ Errors: 400 VALIDATION_ERROR, 401 UNAUTHORIZED (sai credentials), 403 TENANT_SUS
 ```
 
 #### POST /api/v1/auth/logout
+
 ```
 Auth: Bearer token
 Mô tả: Đăng xuất, thu hồi refresh token
@@ -348,6 +354,7 @@ Response 204: No Content
 ```
 
 #### POST /api/v1/auth/refresh
+
 ```
 Auth: Cookie refreshToken
 Mô tả: Làm mới access token
@@ -356,6 +363,7 @@ Errors: 401 TOKEN_EXPIRED, 401 TOKEN_INVALID
 ```
 
 #### POST /api/v1/auth/forgot-password
+
 ```
 Auth: Không yêu cầu
 Request: { "email": "string", "tenantId": "string" }
@@ -371,6 +379,7 @@ Ghi chú: Luôn trả 200 dù email không tồn tại (anti-enumeration)
 ```
 
 #### POST /api/v1/auth/reset-password
+
 ```
 Auth: Không yêu cầu (dùng reset token)
 Request: { "token": "string", "newPassword": "string", "confirmPassword": "string" }
@@ -386,6 +395,7 @@ Errors: 400 TOKEN_EXPIRED_OR_INVALID
 ```
 
 #### GET /api/v1/auth/oauth/google
+
 ```
 Auth: Không yêu cầu
 Mô tả: Redirect tới Google OAuth2
@@ -393,17 +403,20 @@ Response 302: Redirect to Google authorization URL
 ```
 
 #### GET /api/v1/auth/oauth/google/callback
+
 ```
 Mô tả: Callback từ Google sau khi user xác nhận
 Response 302: Redirect về frontend với accessToken
 ```
 
 #### GET /api/v1/auth/oauth/microsoft, GET /api/v1/auth/oauth/microsoft/callback
+
 ```
 Tương tự Google OAuth2 nhưng dùng Microsoft (Azure AD)
 ```
 
 #### POST /api/v1/auth/mfa/setup
+
 ```
 Auth: Bearer token
 Mô tả: Khởi tạo TOTP MFA, trả về QR code
@@ -411,6 +424,7 @@ Response 200: { "secret": "base32_secret", "qrCode": "data:image/png;base64,..."
 ```
 
 #### POST /api/v1/auth/mfa/verify
+
 ```
 Auth: Bearer token
 Request: { "code": "string" }   // 6-digit TOTP
@@ -422,6 +436,7 @@ Response 200: { "verified": true }
 ### 7.2 Public Registration API (`/api/v1/register`)
 
 #### POST /api/v1/register
+
 ```
 Mô tả: Khởi tạo đăng ký doanh nghiệp tự phục vụ
 Auth: Không yêu cầu
@@ -446,6 +461,7 @@ Response 200:
 ```
 
 #### GET /api/v1/register/activate
+
 ```
 Mô tả: Xác thực activation link từ email trước khi vào luồng verify-tax-code và onboarding
 Auth: Không yêu cầu
@@ -474,6 +490,7 @@ Errors:
 > Yêu cầu quyền: `PLATFORM_ADMIN`
 
 #### GET /api/v1/tenants
+
 ```
 Mô tả: Danh sách tất cả tenants (platform admin only)
 Params: ?page=1&limit=20&filter[status]=active&search=
@@ -481,6 +498,7 @@ Response 200: { data: Tenant[], pagination }
 ```
 
 #### POST /api/v1/tenants
+
 ```
 Mô tả: Tạo tenant mới
 Request:
@@ -497,36 +515,42 @@ Errors: 409 CONFLICT (slug đã tồn tại)
 ```
 
 #### GET /api/v1/tenants/:id
+
 ```
 Response 200: { data: Tenant }
 Errors: 404 NOT_FOUND
 ```
 
 #### PATCH /api/v1/tenants/:id
+
 ```
 Request: Partial<Tenant>
 Response 200: { data: Tenant }
 ```
 
 #### DELETE /api/v1/tenants/:id
+
 ```
 Mô tả: Soft delete — đổi status = TERMINATED
 Response 204
 ```
 
 #### POST /api/v1/tenants/:id/activate
+
 ```
 Mô tả: Kích hoạt tenant (PENDING_SETUP → ACTIVE)
 Response 200: { data: Tenant }
 ```
 
 #### POST /api/v1/tenants/:id/suspend
+
 ```
 Request: { "reason": "string" }
 Response 200: { data: Tenant }
 ```
 
 #### GET /api/v1/tenants/:id/stats
+
 ```
 Mô tả: Thống kê sử dụng tài nguyên
 Response 200:
@@ -542,6 +566,7 @@ Response 200:
 ### 7.4 User API (`/api/v1/users`)
 
 #### GET /api/v1/users
+
 ```
 Auth: Bearer token + quyền user:list
 Params: ?page&limit&filter[status]&filter[department]&filter[role]&search
@@ -549,6 +574,7 @@ Response 200: { data: User[], pagination }
 ```
 
 #### POST /api/v1/users
+
 ```
 Auth: quyền user:create
 Request:
@@ -565,18 +591,21 @@ Errors: 409 CONFLICT (email đã tồn tại trong tenant)
 ```
 
 #### GET /api/v1/users/:id
+
 ```
 Response 200: { data: User }
 Errors: 404 NOT_FOUND
 ```
 
 #### PATCH /api/v1/users/:id
+
 ```
 Request: Partial<User>
 Response 200: { data: User }
 ```
 
 #### DELETE /api/v1/users/:id
+
 ```
 Mô tả: Soft delete user
 Response 204
@@ -584,18 +613,21 @@ Errors: 409 CONFLICT (cannot delete the last admin)
 ```
 
 #### PATCH /api/v1/users/:id/status
+
 ```
 Request: { "status": "active|inactive|suspended" }
 Response 200: { data: User }
 ```
 
 #### GET /api/v1/users/me/profile
+
 ```
 Mô tả: Lấy thông tin cá nhân của user đang đăng nhập
 Response 200: { data: UserProfile }
 ```
 
 #### PATCH /api/v1/users/me/profile
+
 ```
 Request: { "fullName", "phone", "avatar", "language", "timezone" }
 Response 200: { data: UserProfile }
@@ -606,36 +638,43 @@ Response 200: { data: UserProfile }
 ### 7.5 RBAC API (`/api/v1/roles`, `/api/v1/permissions`)
 
 #### GET /api/v1/roles
+
 ```
 Params: ?page&limit&filter[type]=system|custom
 Response 200: { data: Role[] }
 ```
 
 #### POST /api/v1/roles
+
 ```
 Request: { "name", "description", "permissionIds": ["string"] }
 Response 201: { data: Role }
 ```
 
 #### GET /api/v1/roles/:id
+
 Response 200: { data: Role (kèm permissions) }
 
 #### PATCH /api/v1/roles/:id
+
 ```
 Request: Partial<Role>
 Response 200: { data: Role }
 ```
 
 #### DELETE /api/v1/roles/:id
+
 ```
 Errors: 409 (vai trò đang được gán cho ít nhất 1 user)
 Response 204
 ```
 
 #### GET /api/v1/roles/:id/permissions
+
 Response 200: { data: Permission[] }
 
 #### PUT /api/v1/roles/:id/permissions
+
 ```
 Mô tả: Gán/thay thế toàn bộ permissions cho role
 Request: { "permissionIds": ["string"] }
@@ -643,12 +682,14 @@ Response 200: { data: Role }
 ```
 
 #### GET /api/v1/permissions
+
 ```
 Params: ?module=auth|user|hr|sale|...
 Response 200: { data: Permission[] }  // toàn bộ danh sách permissions của hệ thống
 ```
 
 #### POST /api/v1/users/:id/roles
+
 ```
 Mô tả: Gán roles cho user
 Request: { "roleIds": ["string"] }
@@ -656,6 +697,7 @@ Response 200: { data: User }
 ```
 
 #### DELETE /api/v1/users/:id/roles/:roleId
+
 ```
 Mô tả: Xóa role khỏi user
 Response 204
@@ -666,18 +708,21 @@ Response 204
 ### 7.6 Department API (`/api/v1/departments`)
 
 #### GET /api/v1/departments
+
 ```
 Params: ?page&limit&filter[parentId]
 Response 200: { data: Department[] }
 ```
 
 #### GET /api/v1/departments/tree
+
 ```
 Mô tả: Lấy cây phòng ban (hierarchical)
 Response 200: { data: DepartmentTree[] }
 ```
 
 #### POST /api/v1/departments
+
 ```
 Request:
   {
@@ -691,18 +736,22 @@ Response 201: { data: Department }
 ```
 
 #### GET /api/v1/departments/:id
+
 Response 200: { data: Department }
 
 #### PATCH /api/v1/departments/:id
+
 Response 200: { data: Department }
 
 #### DELETE /api/v1/departments/:id
+
 ```
 Errors: 409 (phòng ban có phòng ban con hoặc có nhân viên)
 Response 204
 ```
 
 #### GET /api/v1/departments/:id/members
+
 ```
 Params: ?page&limit
 Response 200: { data: User[], pagination }

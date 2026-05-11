@@ -45,18 +45,24 @@ describe('TenantService', () => {
     findOneAndUpdate: jest.fn(),
   };
   const subscriptionPlanModel = {
-    updateOne: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(undefined) }),
+    updateOne: jest
+      .fn()
+      .mockReturnValue({ exec: jest.fn().mockResolvedValue(undefined) }),
     find: jest.fn(),
     findOne: jest.fn(),
   };
 
   const tenantUsageHistoryModel = {
-    updateOne: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(undefined) }),
+    updateOne: jest
+      .fn()
+      .mockReturnValue({ exec: jest.fn().mockResolvedValue(undefined) }),
     find: jest.fn(),
   };
 
   const userModel = {
-    countDocuments: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(0) }),
+    countDocuments: jest
+      .fn()
+      .mockReturnValue({ exec: jest.fn().mockResolvedValue(0) }),
   };
 
   const rabbitMQService = {
@@ -346,7 +352,9 @@ describe('TenantService', () => {
       trialEndsAt: new Date(),
     });
 
-    const result = await service.completeOnboarding({ registrationId: 'reg-1' });
+    const result = await service.completeOnboarding({
+      registrationId: 'reg-1',
+    });
 
     expect(result.data.status).toBe(TenantStatus.PENDING_VERIFICATION);
     expect(rabbitMQService.publish).toHaveBeenCalledWith(
@@ -449,12 +457,9 @@ describe('TenantService', () => {
         exec: jest.fn().mockResolvedValue(suspended),
       });
 
-    const suspendedResult = await service.suspendTenant(
-      'tenant-3',
-      {
-        tenantId: 'tenant-3',
-      } as Express.User,
-    );
+    const suspendedResult = await service.suspendTenant('tenant-3', {
+      tenantId: 'tenant-3',
+    } as Express.User);
 
     expect(suspendedResult.data.status).toBe(TenantStatus.SUSPENDED);
     expect(rabbitMQService.publish).toHaveBeenCalledWith(
@@ -462,12 +467,9 @@ describe('TenantService', () => {
       expect.any(Object),
     );
 
-    const activatedResult = await service.activateTenant(
-      'tenant-3',
-      {
-        tenantId: 'tenant-3',
-      } as Express.User,
-    );
+    const activatedResult = await service.activateTenant('tenant-3', {
+      tenantId: 'tenant-3',
+    } as Express.User);
 
     expect(activatedResult.data.status).toBe(TenantStatus.ACTIVE);
   });

@@ -1,4 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Request } from 'express';
 import { AvatarService } from './avatar/avatar.service';
@@ -16,7 +27,10 @@ export class UsersController {
 
   @Get()
   async listUsers(@Req() req: Request) {
-    return this.usersService.listUsers(req.query as Record<string, unknown>, req.user);
+    return this.usersService.listUsers(
+      req.query as Record<string, unknown>,
+      req.user,
+    );
   }
 
   @Post()
@@ -40,7 +54,11 @@ export class UsersController {
   }
 
   @Patch(':id')
-  async updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto, @Req() req: Request) {
+  async updateUser(
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+    @Req() req: Request,
+  ) {
     return this.usersService.updateUser(id, dto, req.user);
   }
 
@@ -62,6 +80,11 @@ export class UsersController {
       file,
     });
 
-    return this.usersService.uploadAvatar(id, upload.avatarUrl, upload.metadata, req.user);
+    return this.usersService.uploadAvatar(
+      id,
+      upload.avatarUrl,
+      upload.metadata,
+      req.user,
+    );
   }
 }

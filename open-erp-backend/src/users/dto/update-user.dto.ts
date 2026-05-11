@@ -1,4 +1,12 @@
-import { IsArray, IsEmail, IsEnum, IsMongoId, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsArray,
+  IsEmail,
+  IsEnum,
+  IsMongoId,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 import { UserStatus } from '../schemas/user.schema';
 
 export class UpdateUserDto {

@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                          |
-|------------------|----------------------------------|
-| Task ID          | TASK-SPRINT-02-SYSTEM_ADMIN-007  |
-| Sprint           | Sprint 02                        |
-| Cluster          | system-admin                     |
-| Loại             | Backend                          |
-| Người phụ trách  | Backend                          |
-| Story Points     | 5                                |
-| Trạng thái       | ⬜ TODO                          |
-| Phụ thuộc        | TASK-SPRINT-01-TENANT-002        |
+| Thuộc tính      | Giá trị                         |
+| --------------- | ------------------------------- |
+| Task ID         | TASK-SPRINT-02-SYSTEM_ADMIN-007 |
+| Sprint          | Sprint 02                       |
+| Cluster         | system-admin                    |
+| Loại            | Backend                         |
+| Người phụ trách | Backend                         |
+| Story Points    | 5                               |
+| Trạng thái      | ⬜ TODO                         |
+| Phụ thuộc       | TASK-SPRINT-01-TENANT-002       |
 
 ## Mô tả
 
@@ -22,6 +22,7 @@ Nâng cấp hệ thống subscription từ Sprint 01 với các tính năng: nâ
 ### Backend (NestJS — `tenant-service`, nâng cấp Subscription module)
 
 **Cấu trúc bổ sung:**
+
 ```
 src/
 ├── subscription/
@@ -56,6 +57,7 @@ Downgrade (BUSINESS → STARTER):
 ```
 
 **Trial Period (14 ngày):**
+
 ```typescript
 // Khi tạo tenant mới
 const trialEndsAt = addDays(new Date(), 14);
@@ -67,7 +69,7 @@ async processTrialExpiry() {
     status: 'TRIAL',
     trialEndsAt: { $lte: new Date() },
   });
-  
+
   for (const tenant of expiredTrials) {
     // Gửi email cảnh báo: 3 ngày trước, 1 ngày trước
     // Sau khi hết hạn: chuyển sang GRACE_PERIOD
@@ -77,6 +79,7 @@ async processTrialExpiry() {
 ```
 
 **Grace Period (7 ngày sau khi hết hạn):**
+
 ```typescript
 // Grace period: tenant vẫn hoạt động nhưng hiển thị banner cảnh báo
 // Status: GRACE_PERIOD (thêm vào enum)
@@ -86,19 +89,24 @@ async processTrialExpiry() {
 interface TenantGracePeriod {
   tenantId: ObjectId;
   startedAt: Date;
-  endsAt: Date;         // startedAt + 7 days
-  reason: 'trial_expired' | 'subscription_expired';
+  endsAt: Date; // startedAt + 7 days
+  reason: "trial_expired" | "subscription_expired";
 }
 ```
 
 **Billing Event (sẵn sàng cho payment gateway):**
+
 ```typescript
 // Ghi lại tất cả billing events, sẵn sàng kết nối Stripe/VNPay
 interface BillingEvent {
   tenantId: ObjectId;
-  type: 'subscription_upgraded' | 'subscription_renewed' | 'payment_received' | 'payment_failed';
-  amount?: number;            // VNĐ
-  currency: 'VND' | 'USD';
+  type:
+    | "subscription_upgraded"
+    | "subscription_renewed"
+    | "payment_received"
+    | "payment_failed";
+  amount?: number; // VNĐ
+  currency: "VND" | "USD";
   fromPlan?: string;
   toPlan?: string;
   externalPaymentId?: string; // Stripe payment intent ID, VNPay transaction ID
@@ -108,6 +116,7 @@ interface BillingEvent {
 ```
 
 **Usage Report API:**
+
 ```typescript
 interface UsageReport {
   tenantId: string;
@@ -142,55 +151,55 @@ interface UsageReport {
 
 **Notification schedule alerts:**
 
-| Thời điểm                           | Thông báo                                    |
-|-------------------------------------|----------------------------------------------|
-| 7 ngày trước hết trial              | "Thời gian dùng thử sắp kết thúc"           |
-| 3 ngày trước hết trial              | "Còn 3 ngày — nâng cấp để không bị gián đoạn" |
-| 1 ngày trước hết trial              | "Ngày cuối dùng thử"                         |
-| Hết hạn → bắt đầu grace period      | "Tài khoản vào grace period 7 ngày"          |
-| 1 ngày trước kết thúc grace period  | "Tài khoản sẽ bị tạm ngưng vào ngày mai"    |
-| Quota đạt 80%                        | "Cảnh báo quota"                             |
-| Quota đạt 100%                       | "Đã đạt giới hạn"                            |
+| Thời điểm                          | Thông báo                                     |
+| ---------------------------------- | --------------------------------------------- |
+| 7 ngày trước hết trial             | "Thời gian dùng thử sắp kết thúc"             |
+| 3 ngày trước hết trial             | "Còn 3 ngày — nâng cấp để không bị gián đoạn" |
+| 1 ngày trước hết trial             | "Ngày cuối dùng thử"                          |
+| Hết hạn → bắt đầu grace period     | "Tài khoản vào grace period 7 ngày"           |
+| 1 ngày trước kết thúc grace period | "Tài khoản sẽ bị tạm ngưng vào ngày mai"      |
+| Quota đạt 80%                      | "Cảnh báo quota"                              |
+| Quota đạt 100%                     | "Đã đạt giới hạn"                             |
 
 ### Database (MongoDB)
 
 **Cập nhật collection `tenants`** — thêm fields:
 
-| Trường                    | Kiểu   | Mô tả                                    |
-|---------------------------|--------|------------------------------------------|
-| `gracePeriodEndsAt`       | Date   | Kết thúc grace period                    |
-| `scheduledPlanChange`     | object | `{ toPlan, effectiveDate }` cho downgrade|
-| `trialConvertedAt`        | Date   | Khi nào chuyển từ TRIAL sang paid        |
+| Trường                | Kiểu   | Mô tả                                     |
+| --------------------- | ------ | ----------------------------------------- |
+| `gracePeriodEndsAt`   | Date   | Kết thúc grace period                     |
+| `scheduledPlanChange` | object | `{ toPlan, effectiveDate }` cho downgrade |
+| `trialConvertedAt`    | Date   | Khi nào chuyển từ TRIAL sang paid         |
 
 **Cập nhật `status` enum:** thêm `GRACE_PERIOD`
 
 **Collection: `subscription_history`** (Không có tenantId — platform level)
 
-| Trường        | Kiểu     | Mô tả                           |
-|---------------|----------|---------------------------------|
-| `_id`         | ObjectId | —                               |
-| `tenantId`    | ObjectId | Tenant                          |
-| `fromPlan`    | string   | Gói cũ                          |
-| `toPlan`      | string   | Gói mới                         |
-| `changedBy`   | ObjectId | Super Admin hoặc system         |
-| `reason`      | string   | Lý do thay đổi                  |
-| `effectiveAt` | Date     | Thời điểm có hiệu lực           |
-| `createdAt`   | Date     | —                               |
+| Trường        | Kiểu     | Mô tả                   |
+| ------------- | -------- | ----------------------- |
+| `_id`         | ObjectId | —                       |
+| `tenantId`    | ObjectId | Tenant                  |
+| `fromPlan`    | string   | Gói cũ                  |
+| `toPlan`      | string   | Gói mới                 |
+| `changedBy`   | ObjectId | Super Admin hoặc system |
+| `reason`      | string   | Lý do thay đổi          |
+| `effectiveAt` | Date     | Thời điểm có hiệu lực   |
+| `createdAt`   | Date     | —                       |
 
 **Collection: `billing_events`** (Platform level)
 
 ## API Endpoints
 
-| Method | Path                                              | Mô tả                                    | Auth            |
-|--------|---------------------------------------------------|------------------------------------------|-----------------|
-| POST   | `/api/v1/tenants/:id/subscription/upgrade`        | Nâng cấp gói                             | Super Admin     |
-| POST   | `/api/v1/tenants/:id/subscription/downgrade`      | Hạ gói (schedule)                        | Super Admin     |
-| POST   | `/api/v1/tenants/:id/subscription/extend-trial`   | Gia hạn dùng thử                         | Super Admin     |
-| POST   | `/api/v1/tenants/:id/subscription/cancel-downgrade` | Hủy lịch hạ gói                        | Super Admin     |
-| GET    | `/api/v1/tenants/:id/usage`                       | Usage report đầy đủ                      | Super Admin     |
-| GET    | `/api/v1/tenants/me/usage`                        | Usage report của tenant hiện tại         | Tenant Admin    |
-| GET    | `/api/v1/tenants/:id/billing-events`              | Lịch sử billing                          | Super Admin     |
-| GET    | `/api/v1/subscription-plans/compare`              | So sánh các plans                        | Public          |
+| Method | Path                                                | Mô tả                            | Auth         |
+| ------ | --------------------------------------------------- | -------------------------------- | ------------ |
+| POST   | `/api/v1/tenants/:id/subscription/upgrade`          | Nâng cấp gói                     | Super Admin  |
+| POST   | `/api/v1/tenants/:id/subscription/downgrade`        | Hạ gói (schedule)                | Super Admin  |
+| POST   | `/api/v1/tenants/:id/subscription/extend-trial`     | Gia hạn dùng thử                 | Super Admin  |
+| POST   | `/api/v1/tenants/:id/subscription/cancel-downgrade` | Hủy lịch hạ gói                  | Super Admin  |
+| GET    | `/api/v1/tenants/:id/usage`                         | Usage report đầy đủ              | Super Admin  |
+| GET    | `/api/v1/tenants/me/usage`                          | Usage report của tenant hiện tại | Tenant Admin |
+| GET    | `/api/v1/tenants/:id/billing-events`                | Lịch sử billing                  | Super Admin  |
+| GET    | `/api/v1/subscription-plans/compare`                | So sánh các plans                | Public       |
 
 ## Acceptance Criteria
 

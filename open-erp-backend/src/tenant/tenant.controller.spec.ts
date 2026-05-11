@@ -93,11 +93,9 @@ describe('TenantController', () => {
       user: { roles: ['SUPER_ADMIN'] },
     } as never;
 
-    const result = await controller.updateTenantPlan(
-      'tenant-1',
-      req,
-      { plan: 'BUSINESS' } as never,
-    );
+    const result = await controller.updateTenantPlan('tenant-1', req, {
+      plan: 'BUSINESS',
+    } as never);
 
     expect(tenantService.updateTenantPlan).toHaveBeenCalledWith(
       'tenant-1',

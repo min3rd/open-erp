@@ -102,8 +102,7 @@ describe('TokenService', () => {
       const afterCreate = Date.now();
 
       const expectedExpiration = 14 * 24 * 60 * 60 * 1000;
-      const actualExpiration =
-        result.expiresAt.getTime() - beforeCreate;
+      const actualExpiration = result.expiresAt.getTime() - beforeCreate;
 
       expect(actualExpiration).toBeGreaterThanOrEqual(expectedExpiration - 100);
       expect(actualExpiration).toBeLessThanOrEqual(expectedExpiration + 100);

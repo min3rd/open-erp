@@ -44,7 +44,9 @@ describe('ProxyController', () => {
       contentType: 'application/json',
     });
 
-    await expect(controller.proxy(req, 'auth/me')).rejects.toBeInstanceOf(HttpException);
+    await expect(controller.proxy(req, 'auth/me')).rejects.toBeInstanceOf(
+      HttpException,
+    );
   });
 
   it('maps primitive payload to safe HttpException body', async () => {

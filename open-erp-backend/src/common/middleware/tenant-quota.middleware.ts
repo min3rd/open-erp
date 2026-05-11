@@ -18,24 +18,29 @@ export class TenantQuotaMiddleware implements NestMiddleware {
       return;
     }
 
-    if (req.path.startsWith('/api/v1/auth') || req.path.startsWith('/api/v1/health')) {
+    if (
+      req.path.startsWith('/api/v1/auth') ||
+      req.path.startsWith('/api/v1/health')
+    ) {
       next();
       return;
     }
 
-    await this.tenantService.enforceApiQuota(tenantId, req.path).catch((error) => {
-      if (error instanceof HttpException) {
-        throw error;
-      }
+    await this.tenantService
+      .enforceApiQuota(tenantId, req.path)
+      .catch((error) => {
+        if (error instanceof HttpException) {
+          throw error;
+        }
 
-      throw new HttpException(
-        {
-          code: 'INTERNAL_ERROR',
-          message: 'Failed to enforce tenant quota',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    });
+        throw new HttpException(
+          {
+            code: 'INTERNAL_ERROR',
+            message: 'Failed to enforce tenant quota',
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
 
     next();
   }

@@ -1,4 +1,7 @@
-import { NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import {
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Types } from 'mongoose';
@@ -61,7 +64,10 @@ describe('DepartmentsService', () => {
 
     const result = await service.createDepartment(
       { name: 'Team A', parentId: '64b000000000000000000010' },
-      { tenantId: '64b000000000000000000001', roles: ['TENANT_ADMIN'] } as Express.User,
+      {
+        tenantId: '64b000000000000000000001',
+        roles: ['TENANT_ADMIN'],
+      } as Express.User,
     );
 
     expect(result.success).toBe(true);
@@ -74,20 +80,31 @@ describe('DepartmentsService', () => {
         lean: jest.fn().mockReturnValue({
           exec: jest.fn().mockResolvedValue([
             { _id: '1', tenantId: 't', name: 'Root', isDeleted: false },
-            { _id: '2', tenantId: 't', name: 'Child', parentId: '1', isDeleted: false },
+            {
+              _id: '2',
+              tenantId: 't',
+              name: 'Child',
+              parentId: '1',
+              isDeleted: false,
+            },
           ]),
         }),
       }),
     });
 
-    const result = await service.getTree({ tenantId: '64b000000000000000000001', roles: ['TENANT_ADMIN'] } as Express.User);
+    const result = await service.getTree({
+      tenantId: '64b000000000000000000001',
+      roles: ['TENANT_ADMIN'],
+    } as Express.User);
 
     expect(result.data).toHaveLength(1);
     expect(result.data[0].children).toHaveLength(1);
   });
 
   it('deleteDepartment blocks deletion when members exist', async () => {
-    userModel.countDocuments.mockReturnValue({ exec: jest.fn().mockResolvedValue(1) });
+    userModel.countDocuments.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(1),
+    });
 
     await expect(
       service.deleteDepartment('64b000000000000000000020', {

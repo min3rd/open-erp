@@ -1,2 +1,8 @@
 export { DatabaseModule } from '@erp/database';
-export { RedisModule, RedisService, CacheKey, RabbitmqModule, RabbitmqService } from '@erp/messaging';
+export {
+  RedisModule,
+  RedisService,
+  CacheKey,
+  RabbitmqModule,
+  RabbitmqService,
+} from '@erp/messaging';

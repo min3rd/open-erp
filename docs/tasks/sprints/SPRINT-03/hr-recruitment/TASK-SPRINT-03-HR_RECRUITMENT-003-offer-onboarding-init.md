@@ -2,23 +2,24 @@
 
 ## Thông tin
 
-| Thuộc tính | Giá trị |
-|---|---|
-| Task ID | TASK-SPRINT-03-HR_RECRUITMENT-003 |
-| Tiêu đề | Offer & Onboarding Init |
-| Sprint | Sprint 03 |
-| Cluster | hr-recruitment |
-| Loại | Backend |
-| Người phụ trách | Backend |
-| Story Points | 5 |
-| Trạng thái | ⬜ TODO |
-| Phụ thuộc | TASK-SPRINT-03-HR_RECRUITMENT-002, TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-01-USER-001 |
+| Thuộc tính      | Giá trị                                                                                    |
+| --------------- | ------------------------------------------------------------------------------------------ |
+| Task ID         | TASK-SPRINT-03-HR_RECRUITMENT-003                                                          |
+| Tiêu đề         | Offer & Onboarding Init                                                                    |
+| Sprint          | Sprint 03                                                                                  |
+| Cluster         | hr-recruitment                                                                             |
+| Loại            | Backend                                                                                    |
+| Người phụ trách | Backend                                                                                    |
+| Story Points    | 5                                                                                          |
+| Trạng thái      | ⬜ TODO                                                                                    |
+| Phụ thuộc       | TASK-SPRINT-03-HR_RECRUITMENT-002, TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-01-USER-001 |
 
 ## Mô tả phạm vi
 
 Đặc tả kỹ thuật cho bước gửi offer và khởi tạo onboarding cơ bản theo F-HR-004, bao gồm liên kết tuyển dụng sang hồ sơ nhân viên và tài khoản người dùng.
 
 Phạm vi gồm:
+
 - API gửi offer, ghi nhận thời hạn offer 7 ngày, phản hồi accept/reject.
 - Thiết kế luồng khi ứng viên accept: tạo bản ghi employee tối thiểu và kích hoạt tạo user account.
 - Event contract cho luồng khởi tạo onboarding checklist ở mức cơ bản.

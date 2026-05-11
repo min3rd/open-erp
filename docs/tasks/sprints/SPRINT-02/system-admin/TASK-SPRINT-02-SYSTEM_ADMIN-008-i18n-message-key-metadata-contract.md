@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                                                                            |
-|------------------|------------------------------------------------------------------------------------|
-| Task ID          | TASK-SPRINT-02-SYSTEM_ADMIN-008                                                    |
-| Sprint           | Sprint 02                                                                          |
-| Cluster          | system-admin                                                                       |
-| Loại             | Backend                                                                            |
-| Người phụ trách  | Backend                                                                            |
-| Story Points     | 5                                                                                  |
-| Trạng thái       | ⬜ TODO                                                                            |
-| Phụ thuộc        | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-TENANT-001, TASK-SPRINT-02-SYSTEM_ADMIN-006 |
+| Thuộc tính      | Giá trị                                                                             |
+| --------------- | ----------------------------------------------------------------------------------- |
+| Task ID         | TASK-SPRINT-02-SYSTEM_ADMIN-008                                                     |
+| Sprint          | Sprint 02                                                                           |
+| Cluster         | system-admin                                                                        |
+| Loại            | Backend                                                                             |
+| Người phụ trách | Backend                                                                             |
+| Story Points    | 5                                                                                   |
+| Trạng thái      | ⬜ TODO                                                                             |
+| Phụ thuộc       | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-TENANT-001, TASK-SPRINT-02-SYSTEM_ADMIN-006 |
 
 ## Mô tả
 

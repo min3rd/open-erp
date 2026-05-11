@@ -12,7 +12,12 @@ import { Tenant, TenantDocument } from '../tenant/schemas/tenant.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { AuthProvider, User, UserDocument, UserStatus } from './schemas/user.schema';
+import {
+  AuthProvider,
+  User,
+  UserDocument,
+  UserStatus,
+} from './schemas/user.schema';
 
 @Injectable()
 export class UsersService {
@@ -51,7 +56,13 @@ export class UsersService {
     }
 
     const [items, total] = await Promise.all([
-      this.userModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean().exec(),
+      this.userModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean()
+        .exec(),
       this.userModel.countDocuments(filter).exec(),
     ]);
 
@@ -74,7 +85,11 @@ export class UsersService {
 
     const email = dto.email.trim().toLowerCase();
     const existing = await this.userModel
-      .findOne({ tenantId: new Types.ObjectId(tenantId), email, isDeleted: false })
+      .findOne({
+        tenantId: new Types.ObjectId(tenantId),
+        email,
+        isDeleted: false,
+      })
       .lean()
       .exec();
 
@@ -90,7 +105,9 @@ export class UsersService {
       email,
       fullName: dto.fullName.trim(),
       phone: dto.phone?.trim(),
-      departmentId: dto.departmentId ? new Types.ObjectId(dto.departmentId) : undefined,
+      departmentId: dto.departmentId
+        ? new Types.ObjectId(dto.departmentId)
+        : undefined,
       positionTitle: dto.positionTitle?.trim(),
       managerId: dto.managerId ? new Types.ObjectId(dto.managerId) : undefined,
       employeeCode: dto.employeeCode?.trim(),
@@ -310,10 +327,18 @@ export class UsersService {
     return { success: true, data: this.toUserResponse(updated) };
   }
 
-  async bootstrapTenantAdmin(params: { tenantId: string; adminEmail: string; plan?: string }) {
+  async bootstrapTenantAdmin(params: {
+    tenantId: string;
+    adminEmail: string;
+    plan?: string;
+  }) {
     const email = params.adminEmail.trim().toLowerCase();
     const existing = await this.userModel
-      .findOne({ tenantId: new Types.ObjectId(params.tenantId), email, isDeleted: false })
+      .findOne({
+        tenantId: new Types.ObjectId(params.tenantId),
+        email,
+        isDeleted: false,
+      })
       .lean()
       .exec();
 
@@ -350,7 +375,10 @@ export class UsersService {
     }
 
     const currentUsers = await this.userModel
-      .countDocuments({ tenantId: new Types.ObjectId(tenantId), isDeleted: false })
+      .countDocuments({
+        tenantId: new Types.ObjectId(tenantId),
+        isDeleted: false,
+      })
       .exec();
     const maxUsers = tenant.quotas?.maxUsers ?? 0;
     if (maxUsers > 0 && currentUsers >= maxUsers) {

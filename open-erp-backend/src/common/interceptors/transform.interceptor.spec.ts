@@ -16,7 +16,9 @@ describe('TransformInterceptor', () => {
       handle: () => of({ value: 1 }),
     };
 
-    const result: any = await lastValueFrom(interceptor.intercept(context, handler));
+    const result: any = await lastValueFrom(
+      interceptor.intercept(context, handler),
+    );
     expect(result.success).toBe(true);
     expect(result.data.value).toBe(1);
     expect(result.meta.requestId).toBe('req-1');

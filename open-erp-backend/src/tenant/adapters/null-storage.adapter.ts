@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import type { StorageBucketResult, StorageProvisioningPort } from './storage-provisioning.port';
+import type {
+  StorageBucketResult,
+  StorageProvisioningPort,
+} from './storage-provisioning.port';
 
 /**
  * NullStorageAdapter — Fallback when MinIO runtime is unavailable.

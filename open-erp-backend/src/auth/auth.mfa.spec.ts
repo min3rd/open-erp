@@ -41,7 +41,8 @@ describe('AuthService MFA', () => {
       if (key === 'JWT_EXPIRES_IN') return '15m';
       if (key === 'MFA_ISSUER') return 'OpenERP';
       if (key === 'MFA_TOTP_WINDOW') return '1';
-      if (key === 'MFA_ENCRYPTION_KEY') return '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+      if (key === 'MFA_ENCRYPTION_KEY')
+        return '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
       return undefined;
     }),
   };
@@ -90,7 +91,10 @@ describe('AuthService MFA', () => {
         AuthService,
         { provide: getModelToken(User.name), useValue: userModel },
         { provide: getModelToken(Tenant.name), useValue: tenantModel },
-        { provide: getModelToken(MfaChallenge.name), useValue: mfaChallengeModel },
+        {
+          provide: getModelToken(MfaChallenge.name),
+          useValue: mfaChallengeModel,
+        },
         { provide: TokenService, useValue: mockedTokenService },
         { provide: ConfigService, useValue: configService },
         { provide: JwtService, useValue: jwtService },
@@ -105,7 +109,13 @@ describe('AuthService MFA', () => {
     tenantModel.findById.mockReturnValue({
       select: jest.fn().mockReturnValue({
         lean: jest.fn().mockReturnValue({
-          exec: jest.fn().mockResolvedValue({ status: TenantStatus.TRIAL, isDeleted: false, settings: {} }),
+          exec: jest
+            .fn()
+            .mockResolvedValue({
+              status: TenantStatus.TRIAL,
+              isDeleted: false,
+              settings: {},
+            }),
         }),
       }),
     });
@@ -113,9 +123,15 @@ describe('AuthService MFA', () => {
 
   it('setupMfa returns QR code payload', async () => {
     const user = makeUser();
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
-    const secretSpy = jest.spyOn(authenticator, 'generateSecret').mockReturnValue('JBSWY3DPEHPK3PXP');
-    (QRCode.toDataURL as jest.Mock).mockResolvedValue('data:image/png;base64,qr');
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
+    const secretSpy = jest
+      .spyOn(authenticator, 'generateSecret')
+      .mockReturnValue('JBSWY3DPEHPK3PXP');
+    (QRCode.toDataURL as jest.Mock).mockResolvedValue(
+      'data:image/png;base64,qr',
+    );
 
     const result = await service.setupMfa({
       sub: user._id.toString(),
@@ -135,9 +151,15 @@ describe('AuthService MFA', () => {
 
   it('verifyMfa enables MFA and returns backup codes', async () => {
     const user = makeUser();
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
-    (QRCode.toDataURL as jest.Mock).mockResolvedValue('data:image/png;base64,qr');
-    jest.spyOn(authenticator, 'generateSecret').mockReturnValue('JBSWY3DPEHPK3PXP');
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
+    (QRCode.toDataURL as jest.Mock).mockResolvedValue(
+      'data:image/png;base64,qr',
+    );
+    jest
+      .spyOn(authenticator, 'generateSecret')
+      .mockReturnValue('JBSWY3DPEHPK3PXP');
     jest.spyOn(authenticator, 'verify').mockReturnValue(true);
     await service.setupMfa({
       sub: user._id.toString(),
@@ -169,8 +191,18 @@ describe('AuthService MFA', () => {
 
   it('challengeMfa returns JWT session after valid code', async () => {
     const user = makeUser({ mfaEnabled: true, mfaSecret: 'encrypted-secret' });
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
-    mfaChallengeModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue({ used: false, expiresAt: new Date(Date.now() + 300000), save: jest.fn().mockResolvedValue(undefined) }) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
+    mfaChallengeModel.findOne.mockReturnValue({
+      exec: jest
+        .fn()
+        .mockResolvedValue({
+          used: false,
+          expiresAt: new Date(Date.now() + 300000),
+          save: jest.fn().mockResolvedValue(undefined),
+        }),
+    });
     (jwtService.verify as jest.Mock).mockReturnValue({
       sub: user._id.toString(),
       tenantId: user.tenantId.toString(),
@@ -182,7 +214,9 @@ describe('AuthService MFA', () => {
       refreshToken: 'refresh-token',
       expiresAt: new Date(),
     });
-    jest.spyOn(authServicePrivateAccess(), 'decryptMfaSecret').mockReturnValue('secret');
+    jest
+      .spyOn(authServicePrivateAccess(), 'decryptMfaSecret')
+      .mockReturnValue('secret');
 
     const result = await service.challengeMfa('jwt-token', '123456');
 
@@ -192,8 +226,12 @@ describe('AuthService MFA', () => {
 
   it('disableMfa clears MFA fields', async () => {
     const user = makeUser({ mfaEnabled: true, mfaSecret: 'encrypted-secret' });
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
-    jest.spyOn(authServicePrivateAccess(), 'decryptMfaSecret').mockReturnValue('secret');
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
+    jest
+      .spyOn(authServicePrivateAccess(), 'decryptMfaSecret')
+      .mockReturnValue('secret');
     jest.spyOn(authenticator, 'verify').mockReturnValue(true);
 
     const result = await service.disableMfa(

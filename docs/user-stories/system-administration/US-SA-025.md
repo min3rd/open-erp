@@ -24,7 +24,7 @@
 
 - [ ] Sau khi nhập MST hợp lệ, hệ thống hiển thị: tên DN pháp lý, địa chỉ, trạng thái hoạt động
 - [ ] Hệ thống so khớp email người dùng nhập với email đăng ký Cục Thuế
-- [ ] Nếu email không khớp: hiển thị thông báo lỗi và gợi ý email đúng (che khuất một phần: "ph***@company.com")
+- [ ] Nếu email không khớp: hiển thị thông báo lỗi và gợi ý email đúng (che khuất một phần: "ph\*\*\*@company.com")
 - [ ] Nếu DN ngừng hoạt động / giải thể: từ chối đăng ký và giải thích lý do rõ ràng
 - [ ] Loading state hiển thị khi đang tra cứu MST
 - [ ] Timeout sau 10 giây nếu API tra cứu không phản hồi: hiển thị thông báo và nút thử lại

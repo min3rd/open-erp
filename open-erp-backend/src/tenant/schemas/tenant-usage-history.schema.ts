@@ -24,7 +24,11 @@ export class TenantUsageHistory {
   updatedAt!: Date;
 }
 
-export const TenantUsageHistorySchema = SchemaFactory.createForClass(TenantUsageHistory);
+export const TenantUsageHistorySchema =
+  SchemaFactory.createForClass(TenantUsageHistory);
 
 TenantUsageHistorySchema.index({ tenantId: 1, date: -1 });
-TenantUsageHistorySchema.index({ date: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 90 });
+TenantUsageHistorySchema.index(
+  { date: 1 },
+  { expireAfterSeconds: 60 * 60 * 24 * 90 },
+);

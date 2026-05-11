@@ -47,7 +47,9 @@ export class TokenService {
     return { refreshToken, expiresAt };
   }
 
-  async validateRefreshToken(rawRefreshToken: string): Promise<RefreshTokenDocument> {
+  async validateRefreshToken(
+    rawRefreshToken: string,
+  ): Promise<RefreshTokenDocument> {
     const tokenHash = this.sha256(rawRefreshToken);
     const tokenDoc = await this.refreshTokenModel.findOne({ tokenHash }).exec();
 

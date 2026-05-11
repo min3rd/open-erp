@@ -49,7 +49,12 @@ import { OAuthModule } from './oauth/oauth.module';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer
-      .apply(RequestIdMiddleware, RateLimitMiddleware, TenantMiddleware, TenantQuotaMiddleware)
+      .apply(
+        RequestIdMiddleware,
+        RateLimitMiddleware,
+        TenantMiddleware,
+        TenantQuotaMiddleware,
+      )
       .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }

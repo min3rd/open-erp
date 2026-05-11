@@ -10,7 +10,10 @@ import { resolveJwtRuntimeConfig } from './auth-runtime.config';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { MfaChallenge, MfaChallengeSchema } from './mfa/schemas/mfa-challenge.schema';
+import {
+  MfaChallenge,
+  MfaChallengeSchema,
+} from './mfa/schemas/mfa-challenge.schema';
 
 @Module({
   imports: [

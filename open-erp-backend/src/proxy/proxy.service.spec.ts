@@ -19,9 +19,9 @@ describe('ProxyService', () => {
       requestId: 'req-1',
     };
 
-    await expect(service.forwardRequest(req, 'unknown/path')).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
+    await expect(
+      service.forwardRequest(req, 'unknown/path'),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('forwards request to mapped upstream and returns parsed response', async () => {
@@ -42,9 +42,7 @@ describe('ProxyService', () => {
       status: 200,
       headers: {
         get: (header: string) =>
-          header.toLowerCase() === 'content-type'
-            ? 'application/json'
-            : null,
+          header.toLowerCase() === 'content-type' ? 'application/json' : null,
       },
       json: async () => ({ ok: true }),
       text: async () => '',
@@ -67,11 +65,13 @@ describe('ProxyService', () => {
       requestId: 'req-1',
     };
 
-    jest.spyOn(global, 'fetch' as any).mockRejectedValue(new Error('network down'));
+    jest
+      .spyOn(global, 'fetch' as any)
+      .mockRejectedValue(new Error('network down'));
 
-    await expect(service.forwardRequest(req, 'auth/login')).rejects.toBeInstanceOf(
-      BadGatewayException,
-    );
+    await expect(
+      service.forwardRequest(req, 'auth/login'),
+    ).rejects.toBeInstanceOf(BadGatewayException);
   });
 
   it('preserves query parameters in forwarded request', async () => {

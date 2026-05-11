@@ -2,23 +2,24 @@
 
 ## Thông tin
 
-| Thuộc tính | Giá trị |
-|---|---|
-| Task ID | TASK-SPRINT-03-FRONTEND-004 |
-| Tiêu đề | HR Structure Web UI |
-| Sprint | Sprint 03 |
-| Cluster | frontend |
-| Loại | Frontend |
-| Người phụ trách | Frontend |
-| Story Points | 3 |
-| Trạng thái | ⬜ TODO |
-| Phụ thuộc | TASK-SPRINT-03-HR_ORG-001, TASK-SPRINT-03-FRONTEND-002 |
+| Thuộc tính      | Giá trị                                                |
+| --------------- | ------------------------------------------------------ |
+| Task ID         | TASK-SPRINT-03-FRONTEND-004                            |
+| Tiêu đề         | HR Structure Web UI                                    |
+| Sprint          | Sprint 03                                              |
+| Cluster         | frontend                                               |
+| Loại            | Frontend                                               |
+| Người phụ trách | Frontend                                               |
+| Story Points    | 3                                                      |
+| Trạng thái      | ⬜ TODO                                                |
+| Phụ thuộc       | TASK-SPRINT-03-HR_ORG-001, TASK-SPRINT-03-FRONTEND-002 |
 
 ## Mô tả phạm vi
 
 Thiết kế và đặc tả UI cho tra cứu cơ cấu nhân sự phục vụ HR Core: quan hệ phòng ban, chức danh và quản lý trực tiếp.
 
 Phạm vi gồm:
+
 - Màn hình cây tổ chức dành cho nghiệp vụ HR (góc nhìn theo nhân sự).
 - Bộ lọc theo phòng ban/chức danh/trạng thái nhân viên.
 - Liên kết điều hướng nhanh sang hồ sơ nhân viên chi tiết.

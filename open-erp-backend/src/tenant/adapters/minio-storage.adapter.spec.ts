@@ -139,7 +139,10 @@ describe('MinioStorageAdapter', () => {
       const result = await adapter.createBucket('new-bucket');
 
       expect(mockClient.bucketExists).toHaveBeenCalledWith('new-bucket');
-      expect(mockClient.makeBucket).toHaveBeenCalledWith('new-bucket', 'us-east-1');
+      expect(mockClient.makeBucket).toHaveBeenCalledWith(
+        'new-bucket',
+        'us-east-1',
+      );
       expect(result).toEqual({
         bucketName: 'new-bucket',
         created: true,

@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                                                              |
-|------------------|----------------------------------------------------------------------|
-| Task ID          | TASK-SPRINT-01-FRONTEND-001                                          |
-| Sprint           | Sprint 01                                                            |
-| Cluster          | frontend                                                             |
-| Loại             | Frontend                                                             |
-| Người phụ trách  | Frontend                                                             |
-| Story Points     | 8                                                                    |
-| Trạng thái       | ⬜ TODO                                                              |
-| Phụ thuộc        | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-AUTH-002, TASK-SPRINT-01-AUTH-003 |
+| Thuộc tính      | Giá trị                                                                   |
+| --------------- | ------------------------------------------------------------------------- |
+| Task ID         | TASK-SPRINT-01-FRONTEND-001                                               |
+| Sprint          | Sprint 01                                                                 |
+| Cluster         | frontend                                                                  |
+| Loại            | Frontend                                                                  |
+| Người phụ trách | Frontend                                                                  |
+| Story Points    | 8                                                                         |
+| Trạng thái      | ⬜ TODO                                                                   |
+| Phụ thuộc       | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-AUTH-002, TASK-SPRINT-01-AUTH-003 |
 
 ## Mô tả
 
@@ -22,6 +22,7 @@ Xây dựng toàn bộ giao diện xác thực cho **Angular 21 Web App**. Bao g
 ### Frontend Web (Angular 21 — `open-erp-web`)
 
 **Cấu trúc module Auth:**
+
 ```
 src/app/
 ├── core/
@@ -78,47 +79,52 @@ src/app/
 ```
 
 **Routes Auth:**
+
 ```typescript
 // auth.routes.ts
 export const AUTH_ROUTES: Routes = [
   {
-    path: 'login',
+    path: "login",
     component: LoginComponent,
-    canActivate: [NotAuthGuard],   // Redirect nếu đã đăng nhập
+    canActivate: [NotAuthGuard], // Redirect nếu đã đăng nhập
   },
   {
-    path: 'register',
+    path: "register",
     component: RegisterComponent,
-    canActivate: [NotAuthGuard],   // Redirect nếu đã đăng nhập
+    canActivate: [NotAuthGuard], // Redirect nếu đã đăng nhập
   },
-  { path: 'forgot-password', component: ForgotPasswordComponent },
-  { path: 'reset-password', component: ResetPasswordComponent },
-  { path: 'mfa/setup', component: MfaSetupComponent, canActivate: [AuthGuard] },
-  { path: 'mfa/verify', component: MfaVerifyComponent },
-  { path: 'oauth-callback', component: OauthCallbackComponent },
+  { path: "forgot-password", component: ForgotPasswordComponent },
+  { path: "reset-password", component: ResetPasswordComponent },
+  { path: "mfa/setup", component: MfaSetupComponent, canActivate: [AuthGuard] },
+  { path: "mfa/verify", component: MfaVerifyComponent },
+  { path: "oauth-callback", component: OauthCallbackComponent },
 ];
 ```
 
 **RegisterComponent — Luồng đăng ký doanh nghiệp có activation email link (trang `/register`):**
 
-*Bước 1 — Form đăng ký doanh nghiệp (email, mật khẩu, MST):*
+_Bước 1 — Form đăng ký doanh nghiệp (email, mật khẩu, MST):_
+
 - Form reactive: Mã số thuế (MST) + Email + Mật khẩu + Xác nhận mật khẩu
 - Validators: MST đúng định dạng (10 hoặc 13 chữ số), email, minLength(8) cho mật khẩu
 - Submit → gọi `POST /api/v1/register`
 - Hiển thị màn hình thông báo email kích hoạt đã gửi
 - Xử lý lỗi: MST tồn tại (409), email đã tồn tại (409)
 
-*Bước 2 — Activation email sent (`/register/activation-email-sent`):*
+_Bước 2 — Activation email sent (`/register/activation-email-sent`):_
+
 - Hiển thị thông điệp hướng dẫn người dùng mở email và nhấn link kích hoạt
 - Nút gửi lại link (rate limit)
 - Nút đổi email đăng ký
 
-*Bước 3 — Activation success + verify tax (`/register/activate?token=...`):*
+_Bước 3 — Activation success + verify tax (`/register/activate?token=...`):_
+
 - Khi user click link từ email: gọi `GET /api/v1/register/activate`
 - Thành công: hiển thị màn hình activation thành công rồi chuyển sang xác thực MST
 - Thất bại/hết hạn: hiển thị hành động gửi lại activation link
 
-*Bước 4 — `OnboardingWizardComponent` (5 bước cấu hình):*
+_Bước 4 — `OnboardingWizardComponent` (5 bước cấu hình):_
+
 - **4a.** Xác nhận và bổ sung thông tin DN (tạo sẵn từ MST, cho phép sửa)
 - **4b.** Chọn đơn vị tiền tệ, múi giờ, ngôn ngữ
 - **4c.** Tạo cơ cấu phòng ban ban đầu (multi-input danh sách phòng ban)
@@ -128,6 +134,7 @@ export const AUTH_ROUTES: Routes = [
 - Thanh tiến trình (stepper) hiển thị bước hiện tại
 
 **LoginComponent — tính năng:**
+
 - Form reactive: email + password với validators (`required`, `email`, `minLength(8)`)
 - Hiển thị lỗi validation realtime (touched + dirty state)
 - Show/hide password toggle
@@ -140,22 +147,30 @@ export const AUTH_ROUTES: Routes = [
 - Redirect đến dashboard sau khi đăng nhập thành công
 
 **AuthInterceptor — Auto JWT + Refresh:**
+
 ```typescript
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+  intercept(
+    req: HttpRequest<unknown>,
+    next: HttpHandler,
+  ): Observable<HttpEvent<unknown>> {
     // 1. Gắn Authorization header
     const token = this.tokenStorage.getAccessToken();
-    const authReq = token ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
-    
+    const authReq = token
+      ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+      : req;
+
     // 2. Xử lý 401 → auto refresh token
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401 && !req.url.includes('/refresh-token')) {
+        if (error.status === 401 && !req.url.includes("/refresh-token")) {
           return this.authService.refreshToken().pipe(
             switchMap(() => {
               const newToken = this.tokenStorage.getAccessToken();
-              const retryReq = req.clone({ setHeaders: { Authorization: `Bearer ${newToken}` } });
+              const retryReq = req.clone({
+                setHeaders: { Authorization: `Bearer ${newToken}` },
+              });
               return next.handle(retryReq);
             }),
             catchError(() => {
@@ -172,6 +187,7 @@ export class AuthInterceptor implements HttpInterceptor {
 ```
 
 **MfaSetupComponent:**
+
 - Hiển thị QR code image (base64 từ API)
 - Hiển thị secret text (để nhập tay vào authenticator)
 - Input 6 số TOTP code
@@ -180,32 +196,36 @@ export class AuthInterceptor implements HttpInterceptor {
 - Copy all button cho backup codes
 
 **ForgotPasswordComponent:**
+
 - Input email
 - Gửi request → hiển thị "Kiểm tra email của bạn"
 - Countdown 60 giây trước khi cho gửi lại
 
 **ResetPasswordComponent:**
+
 - Đọc token từ URL query param
 - Input mật khẩu mới + confirm
 - Validation: min 8 chars, có chữ hoa, chữ thường, số, ký tự đặc biệt
 - Submit → redirect về login với toast "Đặt lại mật khẩu thành công"
 
 **TokenStorage Service:**
+
 ```typescript
 // Lưu token an toàn trong localStorage (với prefix + tenant)
 // Không lưu trong sessionStorage (mất khi đóng tab)
 // TODO Sprint 02: encrypt với Web Crypto API
 class TokenStorageService {
-  setTokens(accessToken: string, refreshToken: string): void
-  getAccessToken(): string | null
-  getRefreshToken(): string | null
-  clear(): void
+  setTokens(accessToken: string, refreshToken: string): void;
+  getAccessToken(): string | null;
+  getRefreshToken(): string | null;
+  clear(): void;
 }
 ```
 
 **UI Framework:** Angular Material (hoặc PrimeNG — chọn 1 nhất quán với toàn dự án)
 
 **Design Requirements:**
+
 - Responsive: mobile-first
 - Theme: Light mode mặc định (dark mode Sprint sau)
 - Logo và màu sắc tenant (lấy từ tenant settings API)
@@ -213,22 +233,22 @@ class TokenStorageService {
 
 ## API Endpoints sử dụng
 
-| API                                         | Gọi khi                               |
-|---------------------------------------------|------------------------------------------|
-| `POST /api/v1/register`                     | Form đăng ký (Bước 1)                  |
-| `GET /api/v1/register/activate`             | User click activation link từ email    |
-| `POST /api/v1/register/verify-tax-code`     | Sau khi activation thành công          |
-| `POST /api/v1/register/complete-onboarding` | Hoàn tất Onboarding Wizard (Bước 4)    |
-| `POST /api/v1/auth/login`                   | Form đăng nhập                          |
-| `POST /api/v1/auth/refresh-token`           | Interceptor auto refresh                 |
-| `POST /api/v1/auth/logout`                  | Nút đăng xuất                            |
-| `POST /api/v1/auth/forgot-password`         | Form quên mật khẩu                      |
-| `POST /api/v1/auth/reset-password`          | Form đặt lại mật khẩu                   |
-| `POST /api/v1/auth/mfa/setup`               | MFA setup page                           |
-| `POST /api/v1/auth/mfa/verify`              | Confirm MFA setup                        |
-| `POST /api/v1/auth/mfa/challenge`           | MFA login verify                         |
-| `GET /api/v1/auth/oauth/google`             | Google OAuth button                      |
-| `GET /api/v1/auth/oauth/microsoft`          | Microsoft OAuth button                   |
+| API                                         | Gọi khi                             |
+| ------------------------------------------- | ----------------------------------- |
+| `POST /api/v1/register`                     | Form đăng ký (Bước 1)               |
+| `GET /api/v1/register/activate`             | User click activation link từ email |
+| `POST /api/v1/register/verify-tax-code`     | Sau khi activation thành công       |
+| `POST /api/v1/register/complete-onboarding` | Hoàn tất Onboarding Wizard (Bước 4) |
+| `POST /api/v1/auth/login`                   | Form đăng nhập                      |
+| `POST /api/v1/auth/refresh-token`           | Interceptor auto refresh            |
+| `POST /api/v1/auth/logout`                  | Nút đăng xuất                       |
+| `POST /api/v1/auth/forgot-password`         | Form quên mật khẩu                  |
+| `POST /api/v1/auth/reset-password`          | Form đặt lại mật khẩu               |
+| `POST /api/v1/auth/mfa/setup`               | MFA setup page                      |
+| `POST /api/v1/auth/mfa/verify`              | Confirm MFA setup                   |
+| `POST /api/v1/auth/mfa/challenge`           | MFA login verify                    |
+| `GET /api/v1/auth/oauth/google`             | Google OAuth button                 |
+| `GET /api/v1/auth/oauth/microsoft`          | Microsoft OAuth button              |
 
 ## Acceptance Criteria
 

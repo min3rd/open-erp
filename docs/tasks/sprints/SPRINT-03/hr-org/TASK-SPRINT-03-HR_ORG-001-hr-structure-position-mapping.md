@@ -2,23 +2,24 @@
 
 ## Thông tin
 
-| Thuộc tính | Giá trị |
-|---|---|
-| Task ID | TASK-SPRINT-03-HR_ORG-001 |
-| Tiêu đề | HR Structure & Position Mapping |
-| Sprint | Sprint 03 |
-| Cluster | hr-org |
-| Loại | Backend |
-| Người phụ trách | Backend |
-| Story Points | 5 |
-| Trạng thái | ⬜ TODO |
-| Phụ thuộc | TASK-SPRINT-02-SYSTEM_ADMIN-003, TASK-SPRINT-02-SYSTEM_ADMIN-005 |
+| Thuộc tính      | Giá trị                                                          |
+| --------------- | ---------------------------------------------------------------- |
+| Task ID         | TASK-SPRINT-03-HR_ORG-001                                        |
+| Tiêu đề         | HR Structure & Position Mapping                                  |
+| Sprint          | Sprint 03                                                        |
+| Cluster         | hr-org                                                           |
+| Loại            | Backend                                                          |
+| Người phụ trách | Backend                                                          |
+| Story Points    | 5                                                                |
+| Trạng thái      | ⬜ TODO                                                          |
+| Phụ thuộc       | TASK-SPRINT-02-SYSTEM_ADMIN-003, TASK-SPRINT-02-SYSTEM_ADMIN-005 |
 
 ## Mô tả phạm vi
 
 Đặc tả mô hình dữ liệu và API phục vụ cơ cấu/chức danh liên quan HR Core, đảm bảo đồng bộ với danh mục dùng chung của platform.
 
 Phạm vi gồm:
+
 - Mapping department, position, manager relation cho hồ sơ nhân viên HR.
 - API tra cứu danh sách phòng ban/chức danh hiệu lực để dùng trong form HR.
 - Quy tắc nhất quán khi phòng ban/chức danh bị vô hiệu hóa nhưng còn dữ liệu lịch sử.

@@ -2,23 +2,24 @@
 
 ## Thông tin
 
-| Thuộc tính | Giá trị |
-|---|---|
-| Task ID | TASK-SPRINT-03-FRONTEND-002 |
-| Tiêu đề | Employee Profile Web UI |
-| Sprint | Sprint 03 |
-| Cluster | frontend |
-| Loại | Frontend |
-| Người phụ trách | Frontend |
-| Story Points | 8 |
-| Trạng thái | ⬜ TODO |
-| Phụ thuộc | TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-03-HR_ORG-001, TASK-SPRINT-02-FRONTEND-004 |
+| Thuộc tính      | Giá trị                                                                                |
+| --------------- | -------------------------------------------------------------------------------------- |
+| Task ID         | TASK-SPRINT-03-FRONTEND-002                                                            |
+| Tiêu đề         | Employee Profile Web UI                                                                |
+| Sprint          | Sprint 03                                                                              |
+| Cluster         | frontend                                                                               |
+| Loại            | Frontend                                                                               |
+| Người phụ trách | Frontend                                                                               |
+| Story Points    | 8                                                                                      |
+| Trạng thái      | ⬜ TODO                                                                                |
+| Phụ thuộc       | TASK-SPRINT-03-HR_EMPLOYEE-001, TASK-SPRINT-03-HR_ORG-001, TASK-SPRINT-02-FRONTEND-004 |
 
 ## Mô tả phạm vi
 
 Thiết kế và đặc tả giao diện web quản lý hồ sơ nhân viên, bao gồm danh bạ nhân sự, trang chi tiết hồ sơ và cập nhật thông tin nghiệp vụ.
 
 Phạm vi gồm:
+
 - Danh sách nhân viên với filter theo phòng ban, trạng thái, chức danh.
 - Form tạo/cập nhật hồ sơ nhân viên theo dữ liệu SRS.
 - Trang chi tiết nhân viên gồm thông tin cá nhân, liên hệ, tài liệu đính kèm.

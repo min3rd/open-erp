@@ -6,7 +6,7 @@
 **Cluster:** System Admin nâng cao — AI Security  
 **Loại:** Feature  
 **Người phụ trách:** TBD  
-**Trạng thái:** Chưa bắt đầu  
+**Trạng thái:** Chưa bắt đầu
 
 ---
 
@@ -29,5 +29,6 @@
 
 ---
 
-## Độ ưu tiên: **Thấp (Could Have)**  
+## Độ ưu tiên: **Thấp (Could Have)**
+
 ## Ước tính: **8 story points**

@@ -1,4 +1,10 @@
-import { IsBoolean, IsMongoId, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsMongoId,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export class UpdateDepartmentDto {
   @IsOptional()

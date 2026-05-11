@@ -61,7 +61,11 @@ export class DepartmentsService {
 
     const parent = dto.parentId
       ? await this.departmentModel
-          .findOne({ _id: dto.parentId, tenantId: new Types.ObjectId(tenantId), isDeleted: false })
+          .findOne({
+            _id: dto.parentId,
+            tenantId: new Types.ObjectId(tenantId),
+            isDeleted: false,
+          })
           .lean()
           .exec()
       : null;
@@ -85,7 +89,11 @@ export class DepartmentsService {
   async getDepartmentById(id: string, user?: Express.User) {
     const tenantId = this.resolveTenantId(user);
     const current = await this.departmentModel
-      .findOne({ _id: new Types.ObjectId(id), tenantId: new Types.ObjectId(tenantId), isDeleted: false })
+      .findOne({
+        _id: new Types.ObjectId(id),
+        tenantId: new Types.ObjectId(tenantId),
+        isDeleted: false,
+      })
       .lean()
       .exec();
 
@@ -99,11 +107,19 @@ export class DepartmentsService {
     return { success: true, data: current };
   }
 
-  async updateDepartment(id: string, dto: UpdateDepartmentDto, user?: Express.User) {
+  async updateDepartment(
+    id: string,
+    dto: UpdateDepartmentDto,
+    user?: Express.User,
+  ) {
     this.assertTenantAdmin(user);
     const tenantId = this.resolveTenantId(user);
     const current = await this.departmentModel
-      .findOne({ _id: new Types.ObjectId(id), tenantId: new Types.ObjectId(tenantId), isDeleted: false })
+      .findOne({
+        _id: new Types.ObjectId(id),
+        tenantId: new Types.ObjectId(tenantId),
+        isDeleted: false,
+      })
       .exec();
 
     if (!current) {
@@ -115,8 +131,14 @@ export class DepartmentsService {
 
     if (dto.name) current.name = dto.name.trim();
     if (dto.code !== undefined) current.code = dto.code?.trim();
-    if (dto.parentId !== undefined) current.parentId = dto.parentId ? new Types.ObjectId(dto.parentId) : undefined;
-    if (dto.managerId !== undefined) current.managerId = dto.managerId ? new Types.ObjectId(dto.managerId) : undefined;
+    if (dto.parentId !== undefined)
+      current.parentId = dto.parentId
+        ? new Types.ObjectId(dto.parentId)
+        : undefined;
+    if (dto.managerId !== undefined)
+      current.managerId = dto.managerId
+        ? new Types.ObjectId(dto.managerId)
+        : undefined;
     if (dto.order !== undefined) current.order = dto.order;
     if (dto.isActive !== undefined) current.isActive = dto.isActive;
 
@@ -129,27 +151,45 @@ export class DepartmentsService {
     const tenantId = this.resolveTenantId(user);
 
     const memberCount = await this.userModel
-      .countDocuments({ tenantId: new Types.ObjectId(tenantId), departmentId: new Types.ObjectId(id), isDeleted: false })
+      .countDocuments({
+        tenantId: new Types.ObjectId(tenantId),
+        departmentId: new Types.ObjectId(id),
+        isDeleted: false,
+      })
       .exec();
     if (memberCount > 0) {
       throw new UnprocessableEntityException({
         code: 'BUSINESS_RULE_VIOLATION',
-        message: { key: 'department.delete.has_members', data: { memberCount } },
+        message: {
+          key: 'department.delete.has_members',
+          data: { memberCount },
+        },
       });
     }
 
     const childCount = await this.departmentModel
-      .countDocuments({ tenantId: new Types.ObjectId(tenantId), parentId: new Types.ObjectId(id), isDeleted: false })
+      .countDocuments({
+        tenantId: new Types.ObjectId(tenantId),
+        parentId: new Types.ObjectId(id),
+        isDeleted: false,
+      })
       .exec();
     if (childCount > 0) {
       throw new UnprocessableEntityException({
         code: 'BUSINESS_RULE_VIOLATION',
-        message: { key: 'department.delete.has_children', data: { childCount } },
+        message: {
+          key: 'department.delete.has_children',
+          data: { childCount },
+        },
       });
     }
 
     const current = await this.departmentModel
-      .findOne({ _id: new Types.ObjectId(id), tenantId: new Types.ObjectId(tenantId), isDeleted: false })
+      .findOne({
+        _id: new Types.ObjectId(id),
+        tenantId: new Types.ObjectId(tenantId),
+        isDeleted: false,
+      })
       .exec();
 
     if (!current) {
@@ -168,7 +208,11 @@ export class DepartmentsService {
   async getDepartmentMembers(id: string, user?: Express.User) {
     const tenantId = this.resolveTenantId(user);
     const members = await this.userModel
-      .find({ tenantId: new Types.ObjectId(tenantId), departmentId: new Types.ObjectId(id), isDeleted: false })
+      .find({
+        tenantId: new Types.ObjectId(tenantId),
+        departmentId: new Types.ObjectId(id),
+        isDeleted: false,
+      })
       .lean()
       .exec();
 
@@ -214,7 +258,9 @@ export class DepartmentsService {
       name: departmentDoc.name,
       code: departmentDoc.code ?? null,
       parentId: departmentDoc.parentId ? String(departmentDoc.parentId) : null,
-      managerId: departmentDoc.managerId ? String(departmentDoc.managerId) : null,
+      managerId: departmentDoc.managerId
+        ? String(departmentDoc.managerId)
+        : null,
       level: departmentDoc.level ?? 0,
       path: departmentDoc.path ?? '/',
       order: departmentDoc.order ?? 0,

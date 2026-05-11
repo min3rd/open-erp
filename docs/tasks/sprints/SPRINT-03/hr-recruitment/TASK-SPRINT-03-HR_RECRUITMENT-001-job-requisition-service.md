@@ -2,23 +2,24 @@
 
 ## Thông tin
 
-| Thuộc tính | Giá trị |
-|---|---|
-| Task ID | TASK-SPRINT-03-HR_RECRUITMENT-001 |
-| Tiêu đề | Job Requisition Service |
-| Sprint | Sprint 03 |
-| Cluster | hr-recruitment |
-| Loại | Backend |
-| Người phụ trách | Backend |
-| Story Points | 8 |
-| Trạng thái | ⬜ TODO |
-| Phụ thuộc | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004, TASK-SPRINT-02-SYSTEM_ADMIN-005 |
+| Thuộc tính      | Giá trị                                                                                       |
+| --------------- | --------------------------------------------------------------------------------------------- |
+| Task ID         | TASK-SPRINT-03-HR_RECRUITMENT-001                                                             |
+| Tiêu đề         | Job Requisition Service                                                                       |
+| Sprint          | Sprint 03                                                                                     |
+| Cluster         | hr-recruitment                                                                                |
+| Loại            | Backend                                                                                       |
+| Người phụ trách | Backend                                                                                       |
+| Story Points    | 8                                                                                             |
+| Trạng thái      | ⬜ TODO                                                                                       |
+| Phụ thuộc       | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004, TASK-SPRINT-02-SYSTEM_ADMIN-005 |
 
 ## Mô tả phạm vi
 
 Thiết kế và đặc tả kỹ thuật microservice tuyển dụng cho chức năng yêu cầu tuyển dụng (F-HR-001), bảo đảm luồng tạo yêu cầu, phê duyệt HR Manager, và chuyển trạng thái để sẵn sàng đăng tuyển.
 
 Phạm vi gồm:
+
 - Mô hình dữ liệu `job_requisitions` theo tenant, có trạng thái `PENDING_APPROVAL`, `APPROVED`, `REJECTED`, `PUBLISHED`, `CLOSED`.
 - API CRUD và API duyệt/từ chối requisition tại lớp HR service và gateway.
 - Validation nghiệp vụ: `numberOfPositions >= 1`, `deadline` hợp lệ, bắt buộc `tenantId` trong mọi truy vấn.

@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                                                                            |
-|------------------|------------------------------------------------------------------------------------|
-| Task ID          | TASK-SPRINT-01-FRONTEND-002                                                        |
-| Sprint           | Sprint 01                                                                          |
-| Cluster          | frontend                                                                           |
-| Loại             | Frontend                                                                           |
-| Người phụ trách  | Frontend                                                                           |
-| Story Points     | 8                                                                                  |
-| Trạng thái       | ⬜ TODO                                                                            |
-| Phụ thuộc        | TASK-SPRINT-01-FRONTEND-001, TASK-SPRINT-01-USER-001, TASK-SPRINT-01-TENANT-001    |
+| Thuộc tính      | Giá trị                                                                         |
+| --------------- | ------------------------------------------------------------------------------- |
+| Task ID         | TASK-SPRINT-01-FRONTEND-002                                                     |
+| Sprint          | Sprint 01                                                                       |
+| Cluster         | frontend                                                                        |
+| Loại            | Frontend                                                                        |
+| Người phụ trách | Frontend                                                                        |
+| Story Points    | 8                                                                               |
+| Trạng thái      | ⬜ TODO                                                                         |
+| Phụ thuộc       | TASK-SPRINT-01-FRONTEND-001, TASK-SPRINT-01-USER-001, TASK-SPRINT-01-TENANT-001 |
 
 ## Mô tả
 
@@ -22,6 +22,7 @@ Xây dựng Shell Layout chính của ứng dụng (sidebar + header) và các t
 ### Frontend Web (Angular 18 — `open-erp-web`)
 
 **Cấu trúc Shell:**
+
 ```
 src/app/
 ├── layout/
@@ -69,12 +70,14 @@ src/app/
 ```
 
 **ShellComponent:**
+
 - Sidebar cố định bên trái (collapsible trên mobile)
 - Header trên cùng: logo tenant, breadcrumb, bell (notifications), avatar + dropdown menu
 - Content area (router-outlet)
 - Sidebar navigation items được generate từ `enabledModules` của tenant settings
 
 **Sidebar Navigation Structure:**
+
 ```
 📊 Dashboard
 👥 Quản trị hệ thống
@@ -89,6 +92,7 @@ src/app/
 ```
 
 **UserListComponent — tính năng:**
+
 - Bảng danh sách users với columns: Avatar, Tên, Email, Phòng ban, Vai trò, Trạng thái, Ngày tạo, Actions
 - Phân trang (page size: 20, 50, 100)
 - Tìm kiếm realtime (debounce 300ms) theo tên, email
@@ -100,6 +104,7 @@ src/app/
 - Bulk actions: chọn nhiều → xoá, khoá
 
 **UserFormComponent (Modal Dialog):**
+
 - Reactive form với fields: Họ tên, Email, Mật khẩu (chỉ khi tạo mới), Phòng ban (dropdown), Chức danh, Điện thoại, Trạng thái
 - Validation inline
 - Avatar upload preview
@@ -108,6 +113,7 @@ src/app/
 - Không đóng modal khi đang save (prevent accidental close)
 
 **DepartmentTreeComponent:**
+
 - Cây phòng ban visualize bằng Angular CDK Tree hoặc thư viện `@angular/cdk/tree`
 - Expand/collapse nút
 - Drag & drop để di chuyển phòng ban (thay đổi `parentId`)
@@ -116,6 +122,7 @@ src/app/
 - Context menu (right-click): thêm con, sửa, xoá
 
 **TenantSettingsComponent:**
+
 - Tabs: Thông tin công ty | Bảo mật | Giao diện | Modules
 - Tab Thông tin: tên công ty, địa chỉ, mã số thuế, upload logo
 - Tab Bảo mật: bắt buộc MFA, timeout session
@@ -124,12 +131,14 @@ src/app/
 - Save button với loading state và toast thành công/thất bại
 
 **RoleListComponent:**
+
 - Danh sách roles của tenant
 - Expand role → hiển thị danh sách permissions (checkbox grid theo resource/action)
 - Tạo role mới / xoá role custom (không xoá system roles)
 - Assign role → mở modal chọn users
 
 **Shared Components cần tạo:**
+
 ```
 src/app/shared/
 ├── components/
@@ -147,24 +156,24 @@ src/app/shared/
 
 ## API Endpoints sử dụng
 
-| API                                     | Component sử dụng         |
-|-----------------------------------------|---------------------------|
-| `GET /api/v1/tenants/me`                | ShellComponent (tenant info) |
-| `GET /api/v1/tenants/me/settings`       | TenantSettingsComponent   |
-| `PATCH /api/v1/tenants/me/settings`     | TenantSettingsComponent   |
-| `GET /api/v1/users`                     | UserListComponent         |
-| `POST /api/v1/users`                    | UserFormComponent         |
-| `PATCH /api/v1/users/:id`               | UserFormComponent         |
-| `DELETE /api/v1/users/:id`              | UserListComponent         |
-| `PATCH /api/v1/users/:id/status`        | UserListComponent (toggle) |
-| `POST /api/v1/users/:id/avatar`         | UserFormComponent         |
-| `GET /api/v1/departments/tree`          | DepartmentTreeComponent   |
-| `POST /api/v1/departments`              | DepartmentTreeComponent   |
-| `PATCH /api/v1/departments/:id`         | DepartmentTreeComponent   |
-| `DELETE /api/v1/departments/:id`        | DepartmentTreeComponent   |
-| `GET /api/v1/roles`                     | RoleListComponent         |
-| `POST /api/v1/roles`                    | RoleListComponent         |
-| `PATCH /api/v1/roles/:id`               | RoleListComponent         |
+| API                                 | Component sử dụng            |
+| ----------------------------------- | ---------------------------- |
+| `GET /api/v1/tenants/me`            | ShellComponent (tenant info) |
+| `GET /api/v1/tenants/me/settings`   | TenantSettingsComponent      |
+| `PATCH /api/v1/tenants/me/settings` | TenantSettingsComponent      |
+| `GET /api/v1/users`                 | UserListComponent            |
+| `POST /api/v1/users`                | UserFormComponent            |
+| `PATCH /api/v1/users/:id`           | UserFormComponent            |
+| `DELETE /api/v1/users/:id`          | UserListComponent            |
+| `PATCH /api/v1/users/:id/status`    | UserListComponent (toggle)   |
+| `POST /api/v1/users/:id/avatar`     | UserFormComponent            |
+| `GET /api/v1/departments/tree`      | DepartmentTreeComponent      |
+| `POST /api/v1/departments`          | DepartmentTreeComponent      |
+| `PATCH /api/v1/departments/:id`     | DepartmentTreeComponent      |
+| `DELETE /api/v1/departments/:id`    | DepartmentTreeComponent      |
+| `GET /api/v1/roles`                 | RoleListComponent            |
+| `POST /api/v1/roles`                | RoleListComponent            |
+| `PATCH /api/v1/roles/:id`           | RoleListComponent            |
 
 ## Acceptance Criteria
 

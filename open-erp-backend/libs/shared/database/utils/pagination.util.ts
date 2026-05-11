@@ -32,7 +32,12 @@ export async function paginate<T>(
 
   const [total, data] = await Promise.all([
     model.countDocuments(filter),
-    model.find(filter).sort({ [sortBy]: sortOrder }).skip(skip).limit(limit).lean(),
+    model
+      .find(filter)
+      .sort({ [sortBy]: sortOrder })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
   ]);
 
   const totalPages = Math.ceil(total / limit) || 1;

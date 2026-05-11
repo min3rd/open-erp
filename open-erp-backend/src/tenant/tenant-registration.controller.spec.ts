@@ -23,12 +23,17 @@ describe('TenantRegistrationController', () => {
       ],
     }).compile();
 
-    controller = module.get<TenantRegistrationController>(TenantRegistrationController);
+    controller = module.get<TenantRegistrationController>(
+      TenantRegistrationController,
+    );
     jest.clearAllMocks();
   });
 
   it('register delegates to service', async () => {
-    tenantService.register.mockResolvedValue({ success: true, data: { id: '1' } });
+    tenantService.register.mockResolvedValue({
+      success: true,
+      data: { id: '1' },
+    });
 
     const dto = {
       companyName: 'ACME',

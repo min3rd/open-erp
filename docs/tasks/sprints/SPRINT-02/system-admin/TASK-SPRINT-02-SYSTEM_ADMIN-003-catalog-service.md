@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                          |
-|------------------|----------------------------------|
-| Task ID          | TASK-SPRINT-02-SYSTEM_ADMIN-003  |
-| Sprint           | Sprint 02                        |
-| Cluster          | system-admin                     |
-| Loại             | Backend                          |
-| Người phụ trách  | Backend                          |
-| Story Points     | 5                                |
-| Trạng thái       | ⬜ TODO                          |
-| Phụ thuộc        | TASK-SPRINT-01-TENANT-001        |
+| Thuộc tính      | Giá trị                         |
+| --------------- | ------------------------------- |
+| Task ID         | TASK-SPRINT-02-SYSTEM_ADMIN-003 |
+| Sprint          | Sprint 02                       |
+| Cluster         | system-admin                    |
+| Loại            | Backend                         |
+| Người phụ trách | Backend                         |
+| Story Points    | 5                               |
+| Trạng thái      | ⬜ TODO                         |
+| Phụ thuộc       | TASK-SPRINT-01-TENANT-001       |
 
 ## Mô tả
 
@@ -22,6 +22,7 @@ Xây dựng `catalog-service` — microservice quản lý danh mục dữ liệu
 ### Backend (NestJS — `catalog-service`, port 3005)
 
 **Cấu trúc module:**
+
 ```
 src/
 ├── catalog.module.ts
@@ -47,39 +48,40 @@ src/
 
 **Catalog Types (Loại danh mục) mặc định:**
 
-| Type Code             | Tên hiển thị              | Module sử dụng      |
-|-----------------------|---------------------------|---------------------|
-| `customer_group`      | Nhóm khách hàng           | Sale                |
-| `product_category`    | Danh mục sản phẩm         | Sale, Inventory     |
-| `product_unit`        | Đơn vị tính               | Sale, Inventory     |
-| `leave_type`          | Loại nghỉ phép            | HR                  |
-| `document_type`       | Loại tài liệu             | Office              |
-| `task_priority`       | Mức độ ưu tiên task       | Office              |
-| `task_status`         | Trạng thái task           | Office              |
-| `contract_type`       | Loại hợp đồng lao động   | HR                  |
-| `expense_category`    | Danh mục chi phí          | Accounting          |
-| `payment_method`      | Phương thức thanh toán    | Accounting, Sale    |
-| `warehouse_location`  | Vị trí kho                | Inventory           |
-| `supplier_category`   | Loại nhà cung cấp         | Purchase            |
-| `department_type`     | Loại phòng ban            | HR                  |
+| Type Code            | Tên hiển thị           | Module sử dụng   |
+| -------------------- | ---------------------- | ---------------- |
+| `customer_group`     | Nhóm khách hàng        | Sale             |
+| `product_category`   | Danh mục sản phẩm      | Sale, Inventory  |
+| `product_unit`       | Đơn vị tính            | Sale, Inventory  |
+| `leave_type`         | Loại nghỉ phép         | HR               |
+| `document_type`      | Loại tài liệu          | Office           |
+| `task_priority`      | Mức độ ưu tiên task    | Office           |
+| `task_status`        | Trạng thái task        | Office           |
+| `contract_type`      | Loại hợp đồng lao động | HR               |
+| `expense_category`   | Danh mục chi phí       | Accounting       |
+| `payment_method`     | Phương thức thanh toán | Accounting, Sale |
+| `warehouse_location` | Vị trí kho             | Inventory        |
+| `supplier_category`  | Loại nhà cung cấp      | Purchase         |
+| `department_type`    | Loại phòng ban         | HR               |
 
 **Catalog Schema:**
+
 ```typescript
 interface CatalogItem {
   _id: ObjectId;
-  tenantId: ObjectId | null;    // null = system-wide catalog
-  type: string;                  // 'customer_group', 'leave_type', ...
-  code: string;                  // Mã định danh duy nhất trong type+tenant
-  name: string;                  // Tên hiển thị
+  tenantId: ObjectId | null; // null = system-wide catalog
+  type: string; // 'customer_group', 'leave_type', ...
+  code: string; // Mã định danh duy nhất trong type+tenant
+  name: string; // Tên hiển thị
   description?: string;
-  color?: string;                // Hex color (cho UI badge)
-  icon?: string;                 // Icon name
-  metadata?: object;             // Extra fields theo type
-  parentId?: ObjectId;          // Danh mục cha (hierarchical catalogs)
-  order?: number;                // Thứ tự hiển thị
-  isActive: boolean;             // default: true
-  isSystem: boolean;             // System catalog, không xóa được
-  version: number;               // Optimistic concurrency
+  color?: string; // Hex color (cho UI badge)
+  icon?: string; // Icon name
+  metadata?: object; // Extra fields theo type
+  parentId?: ObjectId; // Danh mục cha (hierarchical catalogs)
+  order?: number; // Thứ tự hiển thị
+  isActive: boolean; // default: true
+  isSystem: boolean; // System catalog, không xóa được
+  version: number; // Optimistic concurrency
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -87,6 +89,7 @@ interface CatalogItem {
 ```
 
 **Metadata ví dụ theo type:**
+
 ```typescript
 // leave_type metadata
 {
@@ -111,11 +114,12 @@ interface CatalogItem {
 ```
 
 **Khi nhận event `tenant.created`:**
+
 ```typescript
 // Tạo system catalogs mặc định cho tenant mới
 async handleTenantCreated(data: TenantCreatedEvent) {
   const systemCatalogs = await this.catalogModel.find({ tenantId: null, isSystem: true });
-  
+
   // Clone system catalogs cho tenant (hoặc chỉ link tham chiếu)
   const defaultCatalogs = this.getDefaultCatalogsForPlan(data.plan);
   await this.catalogModel.insertMany(
@@ -125,6 +129,7 @@ async handleTenantCreated(data: TenantCreatedEvent) {
 ```
 
 **Bulk Import (CSV/JSON):**
+
 ```typescript
 // Nhập hàng loạt catalogs từ CSV
 // Format CSV: code,name,description,metadata
@@ -141,27 +146,28 @@ async bulkImport(
 
 **Collection: `catalogs`** (Mixed: system-level khi `tenantId=null`, tenant-level khi có `tenantId`)
 
-| Trường       | Kiểu     | Ràng buộc                         | Mô tả                            |
-|--------------|----------|-----------------------------------|----------------------------------|
-| `_id`        | ObjectId | —                                 | Primary key                      |
-| `tenantId`   | ObjectId | nullable, indexed                 | null = system-wide               |
-| `type`       | string   | required, indexed                 | Loại danh mục                    |
-| `code`       | string   | required                          | Mã code                          |
-| `name`       | string   | required                          | Tên hiển thị                     |
-| `description`| string   | optional                          | Mô tả                            |
-| `color`      | string   | optional                          | Hex color                        |
-| `icon`       | string   | optional                          | Icon name                        |
-| `metadata`   | object   | optional                          | Thêm thông tin theo type         |
-| `parentId`   | ObjectId | optional, null = root             | Danh mục cha                     |
-| `order`      | number   | default: 0                        | Thứ tự                           |
-| `isActive`   | boolean  | default: true                     | Còn sử dụng không                |
-| `isSystem`   | boolean  | default: false                    | Không xóa được                   |
-| `version`    | number   | default: 1                        | Optimistic concurrency           |
-| `isDeleted`  | boolean  | default: false                    | Soft delete                      |
-| `createdAt`  | Date     | auto                              | —                                |
-| `updatedAt`  | Date     | auto                              | —                                |
+| Trường        | Kiểu     | Ràng buộc             | Mô tả                    |
+| ------------- | -------- | --------------------- | ------------------------ |
+| `_id`         | ObjectId | —                     | Primary key              |
+| `tenantId`    | ObjectId | nullable, indexed     | null = system-wide       |
+| `type`        | string   | required, indexed     | Loại danh mục            |
+| `code`        | string   | required              | Mã code                  |
+| `name`        | string   | required              | Tên hiển thị             |
+| `description` | string   | optional              | Mô tả                    |
+| `color`       | string   | optional              | Hex color                |
+| `icon`        | string   | optional              | Icon name                |
+| `metadata`    | object   | optional              | Thêm thông tin theo type |
+| `parentId`    | ObjectId | optional, null = root | Danh mục cha             |
+| `order`       | number   | default: 0            | Thứ tự                   |
+| `isActive`    | boolean  | default: true         | Còn sử dụng không        |
+| `isSystem`    | boolean  | default: false        | Không xóa được           |
+| `version`     | number   | default: 1            | Optimistic concurrency   |
+| `isDeleted`   | boolean  | default: false        | Soft delete              |
+| `createdAt`   | Date     | auto                  | —                        |
+| `updatedAt`   | Date     | auto                  | —                        |
 
 **Indexes:**
+
 ```
 { tenantId: 1, type: 1, code: 1 }    — unique (sparse cho null tenantId)
 { tenantId: 1, type: 1, isActive: 1 }
@@ -171,19 +177,20 @@ async bulkImport(
 
 ## API Endpoints
 
-| Method | Path                                       | Mô tả                                    | Auth            |
-|--------|--------------------------------------------|------------------------------------------|-----------------|
-| GET    | `/api/v1/catalogs`                         | Danh sách catalogs (filter by type)      | Any user        |
-| GET    | `/api/v1/catalogs/types`                   | Danh sách catalog types                  | Any user        |
-| POST   | `/api/v1/catalogs`                         | Tạo catalog item mới                     | Tenant Admin    |
-| GET    | `/api/v1/catalogs/:id`                     | Chi tiết catalog item                    | Any user        |
-| PATCH  | `/api/v1/catalogs/:id`                     | Cập nhật catalog item                    | Tenant Admin    |
-| DELETE | `/api/v1/catalogs/:id`                     | Xoá mềm catalog (nếu không phải system) | Tenant Admin    |
-| POST   | `/api/v1/catalogs/bulk-import`             | Nhập hàng loạt từ CSV                    | Tenant Admin    |
-| GET    | `/api/v1/catalogs/export`                  | Xuất CSV                                 | Tenant Admin    |
-| PATCH  | `/api/v1/catalogs/reorder`                 | Sắp xếp lại thứ tự                       | Tenant Admin    |
+| Method | Path                           | Mô tả                                   | Auth         |
+| ------ | ------------------------------ | --------------------------------------- | ------------ |
+| GET    | `/api/v1/catalogs`             | Danh sách catalogs (filter by type)     | Any user     |
+| GET    | `/api/v1/catalogs/types`       | Danh sách catalog types                 | Any user     |
+| POST   | `/api/v1/catalogs`             | Tạo catalog item mới                    | Tenant Admin |
+| GET    | `/api/v1/catalogs/:id`         | Chi tiết catalog item                   | Any user     |
+| PATCH  | `/api/v1/catalogs/:id`         | Cập nhật catalog item                   | Tenant Admin |
+| DELETE | `/api/v1/catalogs/:id`         | Xoá mềm catalog (nếu không phải system) | Tenant Admin |
+| POST   | `/api/v1/catalogs/bulk-import` | Nhập hàng loạt từ CSV                   | Tenant Admin |
+| GET    | `/api/v1/catalogs/export`      | Xuất CSV                                | Tenant Admin |
+| PATCH  | `/api/v1/catalogs/reorder`     | Sắp xếp lại thứ tự                      | Tenant Admin |
 
 **Query params mẫu:**
+
 ```
 GET /api/v1/catalogs
   ?type=leave_type

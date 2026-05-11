@@ -1,11 +1,12 @@
 # PRD — Phân hệ System Administration
+
 # Quản trị Hệ thống SaaS & Quản trị Doanh nghiệp
 
 **Phiên bản:** 1.1  
 **Ngày tạo:** 09/05/2026  
 **Ngày cập nhật:** 09/05/2026  
 **Sprint liên quan:** Sprint 01, Sprint 02  
-**Trạng thái:** Đang soạn thảo  
+**Trạng thái:** Đang soạn thảo
 
 ---
 
@@ -25,40 +26,40 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 
 ### Must Have
 
-| Tính năng | Mô tả |
-|---|---|
-| Xác thực JWT + OAuth2 | Đăng nhập, đăng ký, refresh token, đăng xuất an toàn |
-| Quản lý Tenant | CRUD tenant, trạng thái, cấu hình, quota |
-| Quản lý Người dùng | CRUD user, gán vai trò, trạng thái tài khoản |
+| Tính năng                        | Mô tả                                                        |
+| -------------------------------- | ------------------------------------------------------------ |
+| Xác thực JWT + OAuth2            | Đăng nhập, đăng ký, refresh token, đăng xuất an toàn         |
+| Quản lý Tenant                   | CRUD tenant, trạng thái, cấu hình, quota                     |
+| Quản lý Người dùng               | CRUD user, gán vai trò, trạng thái tài khoản                 |
 | Kích hoạt doanh nghiệp qua email | Gửi mail kích hoạt và xác thực link kích hoạt tenant an toàn |
-| Quản lý Vai trò (RBAC) | Tạo/sửa/xóa role, gán quyền, phân role cho user |
-| Quản lý Phòng ban | Tạo cơ cấu tổ chức (org chart), chi nhánh, bộ phận |
-| Phân quyền chi tiết | Quyền chức năng, quyền dữ liệu, quyền theo phòng ban |
-| Audit Log | Ghi log toàn bộ thao tác CRUD, truy cập, đăng nhập |
-| Multi-tenant Isolation | Tất cả dữ liệu tách biệt theo tenantId |
+| Quản lý Vai trò (RBAC)           | Tạo/sửa/xóa role, gán quyền, phân role cho user              |
+| Quản lý Phòng ban                | Tạo cơ cấu tổ chức (org chart), chi nhánh, bộ phận           |
+| Phân quyền chi tiết              | Quyền chức năng, quyền dữ liệu, quyền theo phòng ban         |
+| Audit Log                        | Ghi log toàn bộ thao tác CRUD, truy cập, đăng nhập           |
+| Multi-tenant Isolation           | Tất cả dữ liệu tách biệt theo tenantId                       |
 
 ### Should Have
 
-| Tính năng | Mô tả |
-|---|---|
-| MFA (Multi-factor Auth) | TOTP/OTP qua email, SMS, Authenticator app |
-| Quản lý Session | Xem và thu hồi phiên đăng nhập đang hoạt động |
-| Danh mục động | Tạo và quản lý danh mục tùy chỉnh theo tenant |
-| Biểu mẫu động | Tạo form tùy chỉnh cho các nghiệp vụ |
-| Quản lý API Key | Cấp phát API key cho tích hợp bên ngoài |
-| Cấu hình thông báo | Thiết lập kênh thông báo (email, push, in-app) |
-| AI Gợi ý phân quyền | AI đề xuất role phù hợp theo chức danh |
-| Phát hiện bất thường | AI cảnh báo hành vi đăng nhập/thao tác bất thường |
+| Tính năng               | Mô tả                                             |
+| ----------------------- | ------------------------------------------------- |
+| MFA (Multi-factor Auth) | TOTP/OTP qua email, SMS, Authenticator app        |
+| Quản lý Session         | Xem và thu hồi phiên đăng nhập đang hoạt động     |
+| Danh mục động           | Tạo và quản lý danh mục tùy chỉnh theo tenant     |
+| Biểu mẫu động           | Tạo form tùy chỉnh cho các nghiệp vụ              |
+| Quản lý API Key         | Cấp phát API key cho tích hợp bên ngoài           |
+| Cấu hình thông báo      | Thiết lập kênh thông báo (email, push, in-app)    |
+| AI Gợi ý phân quyền     | AI đề xuất role phù hợp theo chức danh            |
+| Phát hiện bất thường    | AI cảnh báo hành vi đăng nhập/thao tác bất thường |
 
 ### Could Have
 
-| Tính năng | Mô tả |
-|---|---|
-| SSO (Single Sign-On) | Tích hợp với hệ thống xác thực doanh nghiệp (LDAP/SAML) |
-| Subscription Management | Quản lý gói dịch vụ, thanh toán, hóa đơn subscription |
-| White-label | Tùy chỉnh giao diện theo branding doanh nghiệp |
-| Phân tích sử dụng | Báo cáo mức độ sử dụng từng tính năng theo tenant |
-| AI phân tích hành vi | Phân tích pattern sử dụng để gợi ý tối ưu |
+| Tính năng               | Mô tả                                                   |
+| ----------------------- | ------------------------------------------------------- |
+| SSO (Single Sign-On)    | Tích hợp với hệ thống xác thực doanh nghiệp (LDAP/SAML) |
+| Subscription Management | Quản lý gói dịch vụ, thanh toán, hóa đơn subscription   |
+| White-label             | Tùy chỉnh giao diện theo branding doanh nghiệp          |
+| Phân tích sử dụng       | Báo cáo mức độ sử dụng từng tính năng theo tenant       |
+| AI phân tích hành vi    | Phân tích pattern sử dụng để gợi ý tối ưu               |
 
 ### Won't Have (v1.0)
 
@@ -102,18 +103,18 @@ Phân hệ **System Administration** là nền tảng lõi của toàn bộ hệ
 
 #### Business Rules — Tenant Onboarding
 
-| Mã | Quy tắc |
-|---|---|
-| **BR-ON-001** | MST phải là duy nhất trên toàn nền tảng — không cho phép 2 tenant cùng MST |
-| **BR-ON-002** | Email đăng ký phải khớp với email đã đăng ký tại Cục Thuế (so khớp qua MST lookup) |
+| Mã            | Quy tắc                                                                                                                                                   |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **BR-ON-001** | MST phải là duy nhất trên toàn nền tảng — không cho phép 2 tenant cùng MST                                                                                |
+| **BR-ON-002** | Email đăng ký phải khớp với email đã đăng ký tại Cục Thuế (so khớp qua MST lookup)                                                                        |
 | **BR-ON-003** | Tra cứu MST sử dụng **Adapter Pattern** — hiện tại hỗ trợ masothue.com và API Cục Thuế; có thể mở rộng thêm provider mới mà không thay đổi business logic |
-| **BR-ON-004** | Trong tương lai sẽ bổ sung phương thức xác thực bổ sung qua **số điện thoại đã đăng ký tại Cục Thuế** |
-| **BR-ON-005** | Doanh nghiệp ngừng hoạt động hoặc giải thể không được phép đăng ký |
-| **BR-ON-006** | Rate limit: tối đa 5 lần thử đăng ký từ cùng IP trong 1 giờ |
-| **BR-ON-007** | OTP hết hạn sau 10 phút; cho phép gửi lại tối đa 3 lần/phiên, mỗi lần cách nhau ít nhất 60 giây |
-| **BR-ON-008** | Sau khi OTP hợp lệ, hệ thống bắt buộc gửi email kích hoạt; tenant chỉ được kích hoạt khi người dùng click link trong email |
-| **BR-ON-009** | Link kích hoạt là one-time token, hết hạn sau 24 giờ; cho phép gửi lại tối đa 5 lần/ngày |
-| **BR-ON-010** | Nếu link kích hoạt hết hạn, tenant giữ trạng thái PENDING_ACTIVATION cho đến khi kích hoạt thành công hoặc quá TTL dọn dẹp |
+| **BR-ON-004** | Trong tương lai sẽ bổ sung phương thức xác thực bổ sung qua **số điện thoại đã đăng ký tại Cục Thuế**                                                     |
+| **BR-ON-005** | Doanh nghiệp ngừng hoạt động hoặc giải thể không được phép đăng ký                                                                                        |
+| **BR-ON-006** | Rate limit: tối đa 5 lần thử đăng ký từ cùng IP trong 1 giờ                                                                                               |
+| **BR-ON-007** | OTP hết hạn sau 10 phút; cho phép gửi lại tối đa 3 lần/phiên, mỗi lần cách nhau ít nhất 60 giây                                                           |
+| **BR-ON-008** | Sau khi OTP hợp lệ, hệ thống bắt buộc gửi email kích hoạt; tenant chỉ được kích hoạt khi người dùng click link trong email                                |
+| **BR-ON-009** | Link kích hoạt là one-time token, hết hạn sau 24 giờ; cho phép gửi lại tối đa 5 lần/ngày                                                                  |
+| **BR-ON-010** | Nếu link kích hoạt hết hạn, tenant giữ trạng thái PENDING_ACTIVATION cho đến khi kích hoạt thành công hoặc quá TTL dọn dẹp                                |
 
 ### 3.2 Flow: Đăng nhập và Xác thực
 
@@ -157,11 +158,13 @@ Admin chọn phân hệ Audit Log
 ## 4. Business Rules quan trọng
 
 ### 4.1 Multi-tenant Isolation
+
 - **BR-SA-001:** Mọi truy vấn dữ liệu bắt buộc phải có `tenantId` được xác thực từ JWT token
 - **BR-SA-002:** Không được phép truy cập dữ liệu của tenant khác dù có quyền Super Admin (chỉ được dùng qua giao diện quản trị riêng)
 - **BR-SA-003:** Khi tenant bị suspended, toàn bộ API call trả về lỗi 403 với thông báo rõ ràng
 
 ### 4.2 Xác thực và Bảo mật
+
 - **BR-SA-004:** Mật khẩu phải đáp ứng: tối thiểu 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt
 - **BR-SA-005:** Sau 5 lần đăng nhập sai, tài khoản bị khóa 15 phút (tự động mở khóa)
 - **BR-SA-006:** Access token hết hạn sau 15 phút; refresh token hết hạn sau 7 ngày
@@ -169,12 +172,14 @@ Admin chọn phân hệ Audit Log
 - **BR-SA-008:** Đăng xuất trên một thiết bị không ảnh hưởng thiết bị khác (trừ "đăng xuất tất cả")
 
 ### 4.3 Phân quyền
+
 - **BR-SA-009:** Super Admin không thể bị xóa khỏi tenant hoặc bị tước quyền bởi Tenant Admin
 - **BR-SA-010:** Quyền được tính theo nguyên tắc least privilege — chỉ cấp quyền tối thiểu cần thiết
 - **BR-SA-011:** Khi role bị xóa, user được gán role đó tự động mất quyền ngay lập tức
 - **BR-SA-012:** Phân quyền theo dữ liệu có thể giới hạn: xem/sửa chỉ dữ liệu của phòng ban mình
 
 ### 4.4 Audit Log
+
 - **BR-SA-013:** Audit log là bất biến — không được phép xóa hoặc sửa sau khi ghi
 - **BR-SA-014:** Lưu trữ audit log tối thiểu 2 năm
 - **BR-SA-015:** Audit log phải ghi đủ: actor, action, resource, timestamp, IP, user-agent, kết quả
@@ -183,20 +188,21 @@ Admin chọn phân hệ Audit Log
 
 ## 5. Tích hợp với phân hệ khác
 
-| Phân hệ | Loại tích hợp | Mô tả |
-|---|---|---|
-| **Tất cả phân hệ** | Core dependency | Mọi phân hệ đều dùng auth token và phân quyền từ System Admin |
-| **AI Agent** | Bidirectional | AI nhận dữ liệu user/role để gợi ý; AI ghi log qua cùng audit service |
-| **Office** | Read | Office đọc org chart (phòng ban/nhân viên) để gán công việc |
-| **HR** | Bidirectional | HR quản lý nhân viên, khi nhân viên được tạo → tự động tạo user account |
-| **Dashboard** | Read | Dashboard đọc dữ liệu audit log và user activity để hiển thị thống kê |
-| **Accounting** | Read | Accounting đọc danh mục và cấu hình tenant cho thiết lập kế toán |
+| Phân hệ            | Loại tích hợp   | Mô tả                                                                   |
+| ------------------ | --------------- | ----------------------------------------------------------------------- |
+| **Tất cả phân hệ** | Core dependency | Mọi phân hệ đều dùng auth token và phân quyền từ System Admin           |
+| **AI Agent**       | Bidirectional   | AI nhận dữ liệu user/role để gợi ý; AI ghi log qua cùng audit service   |
+| **Office**         | Read            | Office đọc org chart (phòng ban/nhân viên) để gán công việc             |
+| **HR**             | Bidirectional   | HR quản lý nhân viên, khi nhân viên được tạo → tự động tạo user account |
+| **Dashboard**      | Read            | Dashboard đọc dữ liệu audit log và user activity để hiển thị thống kê   |
+| **Accounting**     | Read            | Accounting đọc danh mục và cấu hình tenant cho thiết lập kế toán        |
 
 ---
 
 ## 6. Cấu trúc dữ liệu chính (tham khảo)
 
 ### Tenant
+
 ```
 tenantId, name, subdomain, status (active/suspended/terminated),
 plan (starter/business/enterprise), trialEndsAt,
@@ -205,6 +211,7 @@ quota: { maxUsers, storage, apiCallsPerDay }
 ```
 
 ### User
+
 ```
 userId, tenantId, email, passwordHash, status,
 profile: { fullName, avatar, phone, position },
@@ -212,6 +219,7 @@ roles[], lastLoginAt, mfaEnabled, mfaSecret
 ```
 
 ### Role
+
 ```
 roleId, tenantId, name, description,
 permissions: [{ module, action, resource, scope }],
@@ -219,6 +227,7 @@ isSystem (true = không được xóa)
 ```
 
 ### AuditLog
+
 ```
 logId, tenantId, userId, timestamp, ipAddress, userAgent,
 module, action (CREATE/READ/UPDATE/DELETE/LOGIN/LOGOUT),

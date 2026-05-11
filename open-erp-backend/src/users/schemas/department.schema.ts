@@ -45,5 +45,8 @@ export class Department {
 export const DepartmentSchema = SchemaFactory.createForClass(Department);
 
 DepartmentSchema.index({ tenantId: 1, parentId: 1 });
-DepartmentSchema.index({ tenantId: 1, code: 1 }, { unique: true, sparse: true });
+DepartmentSchema.index(
+  { tenantId: 1, code: 1 },
+  { unique: true, sparse: true },
+);
 DepartmentSchema.index({ tenantId: 1, path: 1 });

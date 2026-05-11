@@ -14,7 +14,10 @@ export type ForwardResult = {
 
 @Injectable()
 export class ProxyService {
-  async forwardRequest(req: Request, wildcardPath: string): Promise<ForwardResult> {
+  async forwardRequest(
+    req: Request,
+    wildcardPath: string,
+  ): Promise<ForwardResult> {
     const segments = wildcardPath.split('/').filter(Boolean);
     const serviceKey = segments[0];
     const serviceBaseUrl = SERVICE_ROUTE_PREFIXES[serviceKey];

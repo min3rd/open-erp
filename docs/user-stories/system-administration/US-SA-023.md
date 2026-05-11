@@ -6,7 +6,7 @@
 **Cluster:** System Admin nâng cao — Platform Monitoring  
 **Loại:** Feature  
 **Người phụ trách:** TBD  
-**Trạng thái:** Chưa bắt đầu  
+**Trạng thái:** Chưa bắt đầu
 
 ---
 
@@ -28,5 +28,6 @@
 
 ---
 
-## Độ ưu tiên: **Trung bình (Should Have)**  
+## Độ ưu tiên: **Trung bình (Should Have)**
+
 ## Ước tính: **5 story points**

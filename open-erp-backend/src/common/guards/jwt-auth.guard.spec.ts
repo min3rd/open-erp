@@ -10,10 +10,7 @@ function makeToken(payload: object, secret = JWT_SECRET, expiresIn = '1h') {
   return sign(payload, secret, { expiresIn } as Parameters<typeof sign>[2]);
 }
 
-function makeContext(
-  token: string | null,
-  isPublic = false,
-): ExecutionContext {
+function makeContext(token: string | null, isPublic = false): ExecutionContext {
   const authHeader = token ? `Bearer ${token}` : '';
   return {
     getHandler: () => ({}),
@@ -98,7 +95,10 @@ describe('JwtAuthGuard', () => {
 
     // Patch the private isBlacklisted method to return true
     jest
-      .spyOn(guard as unknown as { isBlacklisted: (t: string) => Promise<boolean> }, 'isBlacklisted')
+      .spyOn(
+        guard as unknown as { isBlacklisted: (t: string) => Promise<boolean> },
+        'isBlacklisted',
+      )
       .mockResolvedValue(true);
 
     const token = makeToken({ sub: 'user-1', jti: 'jti-123' });

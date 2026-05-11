@@ -14,7 +14,11 @@ describe('paginate', () => {
       find,
     } as any;
 
-    const result = await paginate(model, {}, { page: 2, limit: 10, sortBy: 'name', sortOrder: 'asc' });
+    const result = await paginate(
+      model,
+      {},
+      { page: 2, limit: 10, sortBy: 'name', sortOrder: 'asc' },
+    );
 
     expect(countDocuments).toHaveBeenCalledWith({});
     expect(sort).toHaveBeenCalledWith({ name: 1 });

@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                                                                            |
-|------------------|------------------------------------------------------------------------------------|
-| Task ID          | TASK-SPRINT-02-FRONTEND-003                                                        |
-| Sprint           | Sprint 02                                                                          |
-| Cluster          | frontend                                                                           |
-| Loại             | Frontend                                                                           |
-| Người phụ trách  | Frontend                                                                           |
-| Story Points     | 8                                                                                  |
-| Trạng thái       | ⬜ TODO                                                                            |
-| Phụ thuộc        | TASK-SPRINT-01-FRONTEND-002, TASK-SPRINT-02-SYSTEM_ADMIN-003, TASK-SPRINT-02-SYSTEM_ADMIN-004 |
+| Thuộc tính      | Giá trị                                                                                       |
+| --------------- | --------------------------------------------------------------------------------------------- |
+| Task ID         | TASK-SPRINT-02-FRONTEND-003                                                                   |
+| Sprint          | Sprint 02                                                                                     |
+| Cluster         | frontend                                                                                      |
+| Loại            | Frontend                                                                                      |
+| Người phụ trách | Frontend                                                                                      |
+| Story Points    | 8                                                                                             |
+| Trạng thái      | ⬜ TODO                                                                                       |
+| Phụ thuộc       | TASK-SPRINT-01-FRONTEND-002, TASK-SPRINT-02-SYSTEM_ADMIN-003, TASK-SPRINT-02-SYSTEM_ADMIN-004 |
 
 ## Mô tả
 
@@ -22,6 +22,7 @@ Xây dựng 3 nhóm UI: (1) Quản lý Catalog — list/form CRUD cho các danh 
 ### Frontend Web (Angular 18 — `open-erp-web`)
 
 **Cấu trúc module:**
+
 ```
 src/app/features/system-admin/
 ├── catalogs/
@@ -61,11 +62,13 @@ src/app/features/system-admin/
 **1. Catalog Management UI:**
 
 **CatalogTypeListComponent:**
+
 - Grid cards hiển thị các loại danh mục (customer_group, leave_type, ...)
 - Mỗi card: icon, tên, số items, nút "Quản lý"
 - Click "Quản lý" → navigate sang CatalogItemListComponent
 
 **CatalogItemListComponent:**
+
 - Bảng items của type đang chọn
 - Columns: Code | Tên | Mô tả | Màu sắc | Thứ tự | Trạng thái | Actions
 - Nút "Thêm" → CatalogFormComponent (modal)
@@ -75,6 +78,7 @@ src/app/features/system-admin/
 - Toggle active/inactive inline
 
 **CatalogFormComponent (Modal):**
+
 - Fields: Code, Tên, Mô tả, Màu sắc (color picker), Icon, Thứ tự, Trạng thái
 - Validation: code required + pattern `[A-Z0-9_]+`, tên required
 - Metadata fields động theo catalog type (nếu có schema)
@@ -84,6 +88,7 @@ src/app/features/system-admin/
 **2. Dynamic Form Builder UI:**
 
 **FormListComponent:**
+
 - Danh sách forms với status badge (DRAFT/PUBLISHED/ARCHIVED)
 - Columns: Tên | Danh mục | Số submissions | Trạng thái | Ngày tạo | Actions
 - Nút "Tạo form mới" → navigate sang FormBuilderComponent
@@ -113,11 +118,13 @@ src/app/features/system-admin/
 +--------------------------------------------------+                |
 ```
 
-**Field Palette (Left):** 
+**Field Palette (Left):**
+
 - List of draggable field type tiles
 - Grouped by category: Basic | Advanced | Layout
 
 **Form Canvas (Center):**
+
 - Droppable area
 - Drag from palette → add field to canvas
 - Drag within canvas → reorder fields
@@ -126,6 +133,7 @@ src/app/features/system-admin/
 - Width visual indicator (full/half/third)
 
 **Field Settings (Right):**
+
 - Reactive form driven by selected field type
 - Common settings: Label, Placeholder, Help Text, Required, Width
 - Type-specific settings:
@@ -136,6 +144,7 @@ src/app/features/system-admin/
   - User Picker: filter by department, role
 
 **Form Preview Modal:**
+
 - Render form dựa trên JSON schema hiện tại
 - Dùng `@ngx-formly` hoặc tự implement dynamic form renderer
 - Validate form theo schema
@@ -145,6 +154,7 @@ src/app/features/system-admin/
 **3. Notification Preferences UI:**
 
 **NotificationPreferencesComponent:**
+
 - Nhóm theo event category (Nhân sự, Kinh doanh, Hệ thống)
 - Mỗi event type: toggle In-App | Email | Push
 - "Tắt tạm thời đến ngày": date picker
@@ -163,22 +173,22 @@ Kinh doanh
 
 ## API Endpoints sử dụng
 
-| API                                      | Component sử dụng            |
-|------------------------------------------|------------------------------|
-| `GET /api/v1/catalogs/types`             | CatalogTypeListComponent     |
-| `GET /api/v1/catalogs?type=xxx`          | CatalogItemListComponent     |
-| `POST /api/v1/catalogs`                  | CatalogFormComponent         |
-| `PATCH /api/v1/catalogs/:id`             | CatalogFormComponent         |
-| `DELETE /api/v1/catalogs/:id`            | CatalogItemListComponent     |
-| `POST /api/v1/catalogs/bulk-import`      | CatalogItemListComponent     |
-| `GET /api/v1/catalogs/export`            | CatalogItemListComponent     |
-| `PATCH /api/v1/catalogs/reorder`         | CatalogItemListComponent     |
-| `GET /api/v1/forms`                      | FormListComponent            |
-| `POST /api/v1/forms`                     | FormBuilderComponent         |
-| `PATCH /api/v1/forms/:id`                | FormBuilderComponent         |
-| `POST /api/v1/forms/:id/publish`         | FormBuilderComponent         |
-| `GET /api/v1/notifications/preferences`  | NotificationPreferencesComponent |
-| `PATCH /api/v1/notifications/preferences`| NotificationPreferencesComponent |
+| API                                       | Component sử dụng                |
+| ----------------------------------------- | -------------------------------- |
+| `GET /api/v1/catalogs/types`              | CatalogTypeListComponent         |
+| `GET /api/v1/catalogs?type=xxx`           | CatalogItemListComponent         |
+| `POST /api/v1/catalogs`                   | CatalogFormComponent             |
+| `PATCH /api/v1/catalogs/:id`              | CatalogFormComponent             |
+| `DELETE /api/v1/catalogs/:id`             | CatalogItemListComponent         |
+| `POST /api/v1/catalogs/bulk-import`       | CatalogItemListComponent         |
+| `GET /api/v1/catalogs/export`             | CatalogItemListComponent         |
+| `PATCH /api/v1/catalogs/reorder`          | CatalogItemListComponent         |
+| `GET /api/v1/forms`                       | FormListComponent                |
+| `POST /api/v1/forms`                      | FormBuilderComponent             |
+| `PATCH /api/v1/forms/:id`                 | FormBuilderComponent             |
+| `POST /api/v1/forms/:id/publish`          | FormBuilderComponent             |
+| `GET /api/v1/notifications/preferences`   | NotificationPreferencesComponent |
+| `PATCH /api/v1/notifications/preferences` | NotificationPreferencesComponent |
 
 ## Acceptance Criteria
 

@@ -14,8 +14,12 @@ export type JwtRuntimeConfig = {
 export function resolveJwtRuntimeConfig(
   configService: ConfigService,
 ): JwtRuntimeConfig {
-  const privateKey = normalizePemKey(configService.get<string>('JWT_PRIVATE_KEY'));
-  const publicKey = normalizePemKey(configService.get<string>('JWT_PUBLIC_KEY'));
+  const privateKey = normalizePemKey(
+    configService.get<string>('JWT_PRIVATE_KEY'),
+  );
+  const publicKey = normalizePemKey(
+    configService.get<string>('JWT_PUBLIC_KEY'),
+  );
   const secret = configService.get<string>('JWT_SECRET') ?? DEFAULT_JWT_SECRET;
 
   if (privateKey && publicKey) {
@@ -32,9 +36,10 @@ export function resolveJwtRuntimeConfig(
     signKey: secret,
     verifyKey: secret,
     usedFallback: true,
-    warning: privateKey || publicKey
-      ? 'JWT RSA key configuration is incomplete. Falling back to HS256.'
-      : 'JWT RSA keys are not configured. Falling back to HS256 for local/dev compatibility.',
+    warning:
+      privateKey || publicKey
+        ? 'JWT RSA key configuration is incomplete. Falling back to HS256.'
+        : 'JWT RSA keys are not configured. Falling back to HS256 for local/dev compatibility.',
   };
 }
 

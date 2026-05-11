@@ -45,7 +45,9 @@ export class HealthDependencyProbeService {
     }
   }
 
-  private async probeHttpDependency(baseUrl?: string): Promise<DependencyStatus> {
+  private async probeHttpDependency(
+    baseUrl?: string,
+  ): Promise<DependencyStatus> {
     if (!baseUrl) {
       return 'not-configured';
     }

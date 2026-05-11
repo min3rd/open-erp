@@ -35,7 +35,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
       this.logger.error(
         `requestId=${req.requestId} ${req.method} ${req.originalUrl}`,
-        exception instanceof Error ? exception.stack : JSON.stringify(exception),
+        exception instanceof Error
+          ? exception.stack
+          : JSON.stringify(exception),
       );
     }
 
@@ -71,7 +73,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       }
 
       const responseObj = this.toRecord(response);
-      const normalizedMessage = this.normalizeMessage(responseObj.message, status);
+      const normalizedMessage = this.normalizeMessage(
+        responseObj.message,
+        status,
+      );
 
       return {
         status,
@@ -130,7 +135,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     };
   }
 
-  private normalizeMessage(rawMessage: unknown, status: number): MessageContract {
+  private normalizeMessage(
+    rawMessage: unknown,
+    status: number,
+  ): MessageContract {
     if (typeof rawMessage === 'string') {
       return {
         key: this.defaultMessageKey(status),
@@ -172,12 +180,14 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   }
 
   private defaultMessageKey(status: number): string {
-    if (status === HttpStatus.BAD_REQUEST) return 'error.validation.invalid_input';
+    if (status === HttpStatus.BAD_REQUEST)
+      return 'error.validation.invalid_input';
     if (status === HttpStatus.UNAUTHORIZED) return 'error.auth.unauthorized';
     if (status === HttpStatus.FORBIDDEN) return 'error.auth.forbidden';
     if (status === HttpStatus.NOT_FOUND) return 'error.resource.not_found';
     if (status === HttpStatus.CONFLICT) return 'error.conflict.duplicate';
-    if (status === HttpStatus.TOO_MANY_REQUESTS) return 'error.rate_limit.exceeded';
+    if (status === HttpStatus.TOO_MANY_REQUESTS)
+      return 'error.rate_limit.exceeded';
 
     return 'error.internal.unexpected';
   }

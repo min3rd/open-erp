@@ -20,23 +20,33 @@ type TenantAwareQuery = Query<unknown, unknown, unknown, unknown> & {
 
 export function tenantPlugin(schema: Schema): void {
   for (const method of QUERY_METHODS) {
-    schema.pre(method as any, function applyTenantFilter(this: TenantAwareQuery) {
-      const tenantId = this.getOptions()?.tenantId;
-      if (!tenantId) {
-        return;
-      }
+    schema.pre(
+      method as any,
+      function applyTenantFilter(this: TenantAwareQuery) {
+        const tenantId = this.getOptions()?.tenantId;
+        if (!tenantId) {
+          return;
+        }
 
-      this.where({ tenantId, isDeleted: false });
-    });
+        this.where({ tenantId, isDeleted: false });
+      },
+    );
   }
 
-  schema.pre('save', function onSave(this: { tenantId?: unknown; isDeleted?: boolean; deletedAt?: Date | null }) {
-    if (!this.tenantId) {
-      throw new Error('tenantId is required');
-    }
+  schema.pre(
+    'save',
+    function onSave(this: {
+      tenantId?: unknown;
+      isDeleted?: boolean;
+      deletedAt?: Date | null;
+    }) {
+      if (!this.tenantId) {
+        throw new Error('tenantId is required');
+      }
 
-    if (this.isDeleted && !this.deletedAt) {
-      this.deletedAt = new Date();
-    }
-  });
+      if (this.isDeleted && !this.deletedAt) {
+        this.deletedAt = new Date();
+      }
+    },
+  );
 }

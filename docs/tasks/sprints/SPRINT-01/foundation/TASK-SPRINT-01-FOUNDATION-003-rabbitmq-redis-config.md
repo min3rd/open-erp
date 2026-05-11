@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                           |
-|------------------|-----------------------------------|
-| Task ID          | TASK-SPRINT-01-FOUNDATION-003     |
-| Sprint           | Sprint 01                         |
-| Cluster          | foundation                        |
-| Loại             | Backend                           |
-| Người phụ trách  | Backend                           |
-| Story Points     | 3                                 |
-| Trạng thái       | 🟡 REVIEW                         |
-| Phụ thuộc        | TASK-SPRINT-01-FOUNDATION-001     |
+| Thuộc tính      | Giá trị                       |
+| --------------- | ----------------------------- |
+| Task ID         | TASK-SPRINT-01-FOUNDATION-003 |
+| Sprint          | Sprint 01                     |
+| Cluster         | foundation                    |
+| Loại            | Backend                       |
+| Người phụ trách | Backend                       |
+| Story Points    | 3                             |
+| Trạng thái      | 🟡 REVIEW                     |
+| Phụ thuộc       | TASK-SPRINT-01-FOUNDATION-001 |
 
 ## Mô tả
 
@@ -22,6 +22,7 @@ Xây dựng shared library cho RabbitMQ message broker và Redis caching layer. 
 ### Backend (NestJS — Shared Library `@erp/messaging`)
 
 **Cấu trúc thư viện:**
+
 ```
 libs/messaging/src/
 ├── rabbitmq/
@@ -43,28 +44,30 @@ libs/messaging/src/
 
 **Exchanges cần tạo:**
 
-| Exchange                | Type    | Durable | Mục đích                                    |
-|-------------------------|---------|---------|---------------------------------------------|
-| `openErp.direct`        | direct  | true    | Targeted commands (service → service)       |
-| `openErp.topic`         | topic   | true    | Domain events với wildcard routing          |
-| `openErp.fanout`        | fanout  | true    | Broadcast (tenant.suspended, maintenance)   |
-| `openErp.dead_letter`   | direct  | true    | Nhận messages failed sau 3 lần retry        |
+| Exchange              | Type   | Durable | Mục đích                                  |
+| --------------------- | ------ | ------- | ----------------------------------------- |
+| `openErp.direct`      | direct | true    | Targeted commands (service → service)     |
+| `openErp.topic`       | topic  | true    | Domain events với wildcard routing        |
+| `openErp.fanout`      | fanout | true    | Broadcast (tenant.suspended, maintenance) |
+| `openErp.dead_letter` | direct | true    | Nhận messages failed sau 3 lần retry      |
 
 **Dead Letter Queue policy:**
+
 ```typescript
 // Khi message bị reject 3 lần, chuyển sang DLQ
 const queueOptions = {
   durable: true,
   arguments: {
-    'x-dead-letter-exchange': 'openErp.dead_letter',
-    'x-dead-letter-routing-key': 'dlq.{original-routing-key}',
-    'x-message-ttl': 60000,        // TTL 1 phút trước khi vào DLQ
-    'x-max-retries': 3,
+    "x-dead-letter-exchange": "openErp.dead_letter",
+    "x-dead-letter-routing-key": "dlq.{original-routing-key}",
+    "x-message-ttl": 60000, // TTL 1 phút trước khi vào DLQ
+    "x-max-retries": 3,
   },
 };
 ```
 
 **Retry Policy:**
+
 ```typescript
 // Exponential backoff: 1s, 5s, 25s
 const retryDelays = [1000, 5000, 25000];
@@ -72,6 +75,7 @@ const retryDelays = [1000, 5000, 25000];
 ```
 
 **Queue naming convention:**
+
 ```
 {service-name}.{routing-key}
 Ví dụ:
@@ -82,29 +86,39 @@ Ví dụ:
 ```
 
 **Message format chuẩn:**
+
 ```typescript
 interface ErpMessage<T = unknown> {
-  eventId: string;       // UUID v4
-  eventType: string;     // 'order.created', 'user.login', ...
-  tenantId: string;      // ObjectId dạng string
-  userId: string;        // ObjectId dạng string (actor)
-  timestamp: string;     // ISO 8601
-  version: number;       // Schema version, default 1
+  eventId: string; // UUID v4
+  eventType: string; // 'order.created', 'user.login', ...
+  tenantId: string; // ObjectId dạng string
+  userId: string; // ObjectId dạng string (actor)
+  timestamp: string; // ISO 8601
+  version: number; // Schema version, default 1
   payload: T;
   metadata?: {
     correlationId?: string;
     traceId?: string;
-    source?: string;     // Tên service phát ra
+    source?: string; // Tên service phát ra
   };
 }
 ```
 
 **RabbitmqService API:**
+
 ```typescript
 class RabbitmqService {
-  publish<T>(exchange: string, routingKey: string, payload: T): Promise<void>
-  subscribe<T>(queue: string, handler: (msg: ErpMessage<T>) => Promise<void>): void
-  publishEvent(eventType: string, tenantId: string, userId: string, payload: unknown): Promise<void>
+  publish<T>(exchange: string, routingKey: string, payload: T): Promise<void>;
+  subscribe<T>(
+    queue: string,
+    handler: (msg: ErpMessage<T>) => Promise<void>,
+  ): void;
+  publishEvent(
+    eventType: string,
+    tenantId: string,
+    userId: string,
+    payload: unknown,
+  ): Promise<void>;
 }
 ```
 
@@ -112,39 +126,42 @@ class RabbitmqService {
 
 **Chiến lược TTL:**
 
-| Loại data            | TTL     | Lý do                                  |
-|----------------------|---------|----------------------------------------|
-| JWT blacklist        | = token TTL | Tự động expire khi token hết hạn  |
-| User permissions     | 5 phút  | Cân bằng giữa hiệu năng và nhất quán  |
-| Tenant config        | 10 phút | Ít thay đổi                            |
-| API response cache   | 30 giây | Short-lived, giảm DB queries           |
-| Rate limit counters  | 60 giây | Per sliding window                     |
-| OTP codes            | 10 phút | Forgot password, MFA setup             |
+| Loại data           | TTL         | Lý do                                |
+| ------------------- | ----------- | ------------------------------------ |
+| JWT blacklist       | = token TTL | Tự động expire khi token hết hạn     |
+| User permissions    | 5 phút      | Cân bằng giữa hiệu năng và nhất quán |
+| Tenant config       | 10 phút     | Ít thay đổi                          |
+| API response cache  | 30 giây     | Short-lived, giảm DB queries         |
+| Rate limit counters | 60 giây     | Per sliding window                   |
+| OTP codes           | 10 phút     | Forgot password, MFA setup           |
 
 **Cache Key Builder:**
+
 ```typescript
 // Pattern: {service}:{resource}:{tenantId}:{id}
-CacheKey.user('tenantId123', 'userId456')       // → "user:tenantId123:userId456"
-CacheKey.permissions('tenantId123', 'userId456') // → "perms:tenantId123:userId456"
-CacheKey.tenantConfig('tenantId123')             // → "tenant:config:tenantId123"
-CacheKey.jwtBlacklist('jti123')                  // → "jwt:blacklist:jti123"
+CacheKey.user("tenantId123", "userId456"); // → "user:tenantId123:userId456"
+CacheKey.permissions("tenantId123", "userId456"); // → "perms:tenantId123:userId456"
+CacheKey.tenantConfig("tenantId123"); // → "tenant:config:tenantId123"
+CacheKey.jwtBlacklist("jti123"); // → "jwt:blacklist:jti123"
 ```
 
 **RedisService API:**
+
 ```typescript
 class RedisService {
-  get<T>(key: string): Promise<T | null>
-  set<T>(key: string, value: T, ttlSeconds?: number): Promise<void>
-  del(key: string): Promise<void>
-  exists(key: string): Promise<boolean>
-  setNX(key: string, value: string, ttlSeconds: number): Promise<boolean> // atomic
-  incr(key: string, ttlSeconds?: number): Promise<number>               // rate limiting
-  getOrSet<T>(key: string, factory: () => Promise<T>, ttl?: number): Promise<T>
-  invalidatePattern(pattern: string): Promise<void>                     // cache bust
+  get<T>(key: string): Promise<T | null>;
+  set<T>(key: string, value: T, ttlSeconds?: number): Promise<void>;
+  del(key: string): Promise<void>;
+  exists(key: string): Promise<boolean>;
+  setNX(key: string, value: string, ttlSeconds: number): Promise<boolean>; // atomic
+  incr(key: string, ttlSeconds?: number): Promise<number>; // rate limiting
+  getOrSet<T>(key: string, factory: () => Promise<T>, ttl?: number): Promise<T>;
+  invalidatePattern(pattern: string): Promise<void>; // cache bust
 }
 ```
 
 **Cache Invalidation Patterns:**
+
 - **Event-driven invalidation**: khi nhận RabbitMQ event → xóa cache liên quan
   - Ví dụ: `user.updated` → `del(CacheKey.user(tenantId, userId))`
 - **TTL-based expiration**: cache tự expire
@@ -186,13 +203,14 @@ Không có — đây là shared library, không expose HTTP endpoints.
 **Lệnh:** `npm run test -- --runInBand`
 **Kết quả:** ✅ PASS
 
-| Test suite | Tests | Passed | Failed |
-|---|---:|---:|---:|
-| tenant.plugin.spec.ts | 3 | 3 | 0 |
-| redis.service.spec.ts | 2 | 2 | 0 |
-| pagination.util.spec.ts | 1 | 1 | 0 |
+| Test suite              | Tests | Passed | Failed |
+| ----------------------- | ----: | -----: | -----: |
+| tenant.plugin.spec.ts   |     3 |      3 |      0 |
+| redis.service.spec.ts   |     2 |      2 |      0 |
+| pagination.util.spec.ts |     1 |      1 |      0 |
 
 **Evidence:**
+
 ```text
 PASS src/shared-tests/tenant.plugin.spec.ts
 PASS src/shared-tests/redis.service.spec.ts
@@ -208,6 +226,7 @@ Tests: 7 passed, 7 total
 **Trạng thái:** 🟡 REVIEW
 
 **Files đã tạo / sửa (task 003):**
+
 - `libs/shared/messaging/index.ts`
 - `libs/shared/messaging/rabbitmq/constants/exchanges.ts`
 - `libs/shared/messaging/rabbitmq/constants/routing-keys.ts`
@@ -224,12 +243,14 @@ Tests: 7 passed, 7 total
 - `libs/shared/messaging/redis/redis.service.ts`
 
 **Blocker / phần còn thiếu:**
+
 - Chưa có integration test RabbitMQ để verify publish/subscribe và retry->DLQ theo runtime thực.
 - Chưa có báo cáo coverage để xác nhận ngưỡng ≥ 80%.
 
 ## QA Regression tuần 1 (2026-05-11)
 
 **Lệnh xác minh:**
+
 ```text
 npm run build
 npm test -- --passWithNoTests
@@ -237,11 +258,13 @@ npm run test:cov -- --runInBand --passWithNoTests
 ```
 
 **Kết quả:**
+
 - Build/test backend PASS, các test shared hiện có vẫn ổn định.
 - Chưa có integration RabbitMQ runtime để xác minh publish/subscribe/retry->DLQ end-to-end.
 - Chưa có coverage tách riêng cho `libs/shared/messaging` làm evidence đóng AC của task.
 
 **Đánh giá QA:**
+
 - Trạng thái giữ `🟡 REVIEW`.
 
 ## Vòng hoàn thiện REVIEW (2026-05-11)
@@ -345,18 +368,18 @@ Tests:       14 passed, 14 total
 
 ### Đánh giá AC
 
-| AC | Trạng thái | Ghi chú |
-|---|---|---|
-| RabbitmqModule import được vào NestJS microservice | ✅ | Module tồn tại, build PASS |
-| RedisModule import được vào NestJS microservice | ✅ | Module tồn tại, build PASS |
-| 4 exchanges được tạo tự động khi khởi động | ✅ | Test simulation `rabbitmq.service.spec.ts` xác nhận 4 base exchanges |
-| Dead-letter queue sau 3 lần retry | ✅ | Simulation test: move-to-DLQ khi exhausted retries PASS |
-| `RedisService.getOrSet()` chỉ gọi factory 1 lần | ✅ | Concurrent test trong `redis.service.spec.ts` PASS |
-| Cache invalidation: sau `del()` → `get()` trả null | ✅ | Unit test PASS |
-| Message format chuẩn enforce bằng TypeScript | ✅ | Interface `ErpMessage<T>` và `cache-key.builder.spec.ts` PASS |
-| Unit test coverage ≥ 80% | ❌ | `rabbitmq.service.ts` 52.11%, `redis.service.ts` 55.55% — dưới ngưỡng |
-| Integration test: publish → subscribe thành công | ❌ | RabbitMQ broker runtime không khả dụng (Docker daemon lỗi) |
-| Retry policy: retry đúng 3 lần trước khi vào DLQ | ✅ (simulation) | Unit simulation pass; chưa có broker thật |
+| AC                                                 | Trạng thái      | Ghi chú                                                               |
+| -------------------------------------------------- | --------------- | --------------------------------------------------------------------- |
+| RabbitmqModule import được vào NestJS microservice | ✅              | Module tồn tại, build PASS                                            |
+| RedisModule import được vào NestJS microservice    | ✅              | Module tồn tại, build PASS                                            |
+| 4 exchanges được tạo tự động khi khởi động         | ✅              | Test simulation `rabbitmq.service.spec.ts` xác nhận 4 base exchanges  |
+| Dead-letter queue sau 3 lần retry                  | ✅              | Simulation test: move-to-DLQ khi exhausted retries PASS               |
+| `RedisService.getOrSet()` chỉ gọi factory 1 lần    | ✅              | Concurrent test trong `redis.service.spec.ts` PASS                    |
+| Cache invalidation: sau `del()` → `get()` trả null | ✅              | Unit test PASS                                                        |
+| Message format chuẩn enforce bằng TypeScript       | ✅              | Interface `ErpMessage<T>` và `cache-key.builder.spec.ts` PASS         |
+| Unit test coverage ≥ 80%                           | ❌              | `rabbitmq.service.ts` 52.11%, `redis.service.ts` 55.55% — dưới ngưỡng |
+| Integration test: publish → subscribe thành công   | ❌              | RabbitMQ broker runtime không khả dụng (Docker daemon lỗi)            |
+| Retry policy: retry đúng 3 lần trước khi vào DLQ   | ✅ (simulation) | Unit simulation pass; chưa có broker thật                             |
 
 ### Kết luận QA Final
 

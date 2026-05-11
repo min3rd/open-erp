@@ -38,7 +38,10 @@ export class TenantController {
   }
 
   @Patch('me/settings')
-  async updateMySettings(@Req() req: Request, @Body() dto: UpdateTenantSettingsDto) {
+  async updateMySettings(
+    @Req() req: Request,
+    @Body() dto: UpdateTenantSettingsDto,
+  ) {
     return this.tenantService.updateMySettings(req.tenantId, req.user, dto);
   }
 

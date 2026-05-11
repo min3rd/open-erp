@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                                                              |
-|------------------|----------------------------------------------------------------------|
-| Task ID          | TASK-SPRINT-02-FRONTEND-001                                          |
-| Sprint           | Sprint 02                                                            |
-| Cluster          | frontend                                                             |
-| Loại             | Frontend                                                             |
-| Người phụ trách  | Frontend                                                             |
-| Story Points     | 8                                                                    |
-| Trạng thái       | ⬜ TODO                                                              |
-| Phụ thuộc        | TASK-SPRINT-01-FRONTEND-002, TASK-SPRINT-02-SYSTEM_ADMIN-001         |
+| Thuộc tính      | Giá trị                                                      |
+| --------------- | ------------------------------------------------------------ |
+| Task ID         | TASK-SPRINT-02-FRONTEND-001                                  |
+| Sprint          | Sprint 02                                                    |
+| Cluster         | frontend                                                     |
+| Loại            | Frontend                                                     |
+| Người phụ trách | Frontend                                                     |
+| Story Points    | 8                                                            |
+| Trạng thái      | ⬜ TODO                                                      |
+| Phụ thuộc       | TASK-SPRINT-01-FRONTEND-002, TASK-SPRINT-02-SYSTEM_ADMIN-001 |
 
 ## Mô tả
 
@@ -22,6 +22,7 @@ Xây dựng giao diện quản lý phân quyền nâng cao cho Angular Web App. 
 ### Frontend Web (Angular 18 — `open-erp-web`)
 
 **Cấu trúc module:**
+
 ```
 src/app/features/system-admin/rbac/
 ├── rbac.routes.ts
@@ -48,6 +49,7 @@ src/app/features/system-admin/rbac/
 ```
 
 **Permission Matrix Component:**
+
 ```
 Giao diện dạng bảng 2 chiều:
 
@@ -67,6 +69,7 @@ Cell = checkbox + scope dropdown (own/department/all)
 ```
 
 **Role Builder — tính năng:**
+
 - Tên role + mô tả (editable)
 - 3 tabs: Permissions | Data Rules | Workflow Permissions
 - Tab Permissions: permission matrix checkbox grid (grouped by module)
@@ -81,6 +84,7 @@ Cell = checkbox + scope dropdown (own/department/all)
 - Preview trực tiếp khi checkbox thay đổi
 
 **User Role Assignment (Drag & Drop):**
+
 ```
 Giao diện 2 cột:
 Left:  [Search users...      ]
@@ -95,10 +99,11 @@ Click nút X để thu hồi role
 ```
 
 **Permission Preview (Simulate as User):**
+
 ```
 1. Chọn user cần simulate
 2. Hệ thống lấy CASL ability của user đó
-3. Render preview UI: 
+3. Render preview UI:
    - Danh sách resources
    - Với mỗi resource: check từng action
    - Hiển thị: ✅ Được phép | ❌ Không được | ⚠️ Có điều kiện
@@ -106,23 +111,24 @@ Click nút X để thu hồi role
 ```
 
 **CASL Integration Frontend:**
+
 ```typescript
 // Cài đặt @casl/angular @casl/ability
 // npm install @casl/angular @casl/ability
 
 // ability.service.ts
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class AbilityService {
   private ability = new Ability<[Action, Subject]>();
-  ability$ = toSignal(this.authService.user$.pipe(
-    switchMap(user => this.loadAbility(user)),
-  ));
-  
+  ability$ = toSignal(
+    this.authService.user$.pipe(switchMap((user) => this.loadAbility(user))),
+  );
+
   async loadAbility(user: User): Promise<void> {
     const rules = await this.rbacApi.getMyAbility();
     this.ability.update(rules);
   }
-  
+
   can(action: Action, subject: Subject): boolean {
     return this.ability.can(action, subject);
   }
@@ -134,18 +140,19 @@ export class AbilityService {
 ```
 
 **AppCan Directive:**
+
 ```typescript
-@Directive({ selector: '[appCan]', standalone: true })
+@Directive({ selector: "[appCan]", standalone: true })
 export class AppCanDirective {
-  @Input('appCan') action!: string;
-  @Input('appCanSubject') subject!: string;
-  
+  @Input("appCan") action!: string;
+  @Input("appCanSubject") subject!: string;
+
   constructor(
     private viewContainer: ViewContainerRef,
     private templateRef: TemplateRef<unknown>,
     private abilityService: AbilityService,
   ) {}
-  
+
   ngOnInit() {
     if (this.abilityService.can(this.action as Action, this.subject)) {
       this.viewContainer.createEmbeddedView(this.templateRef);
@@ -158,19 +165,19 @@ export class AppCanDirective {
 
 ## API Endpoints sử dụng
 
-| API                                             | Component sử dụng          |
-|-------------------------------------------------|----------------------------|
-| `GET /api/v1/permissions`                       | PermissionMatrixComponent  |
-| `GET /api/v1/roles`                             | RoleBuilderComponent       |
-| `POST /api/v1/roles`                            | RoleBuilderComponent       |
-| `PATCH /api/v1/roles/:id`                       | RoleBuilderComponent       |
-| `PATCH /api/v1/roles/:id/data-permissions`      | DataPermissionRulesComponent |
-| `PATCH /api/v1/roles/:id/workflow-permissions`  | WorkflowPermissionsComponent |
-| `GET /api/v1/users`                             | UserRoleAssignmentComponent |
-| `POST /api/v1/users/:id/roles`                  | UserRoleAssignmentComponent |
-| `DELETE /api/v1/users/:id/roles/:roleId`        | UserRoleAssignmentComponent |
-| `POST /api/v1/permission-check/ability`         | PermissionPreviewComponent  |
-| `GET /api/v1/users/me/ability`                  | AbilityService (CASL)       |
+| API                                            | Component sử dụng            |
+| ---------------------------------------------- | ---------------------------- |
+| `GET /api/v1/permissions`                      | PermissionMatrixComponent    |
+| `GET /api/v1/roles`                            | RoleBuilderComponent         |
+| `POST /api/v1/roles`                           | RoleBuilderComponent         |
+| `PATCH /api/v1/roles/:id`                      | RoleBuilderComponent         |
+| `PATCH /api/v1/roles/:id/data-permissions`     | DataPermissionRulesComponent |
+| `PATCH /api/v1/roles/:id/workflow-permissions` | WorkflowPermissionsComponent |
+| `GET /api/v1/users`                            | UserRoleAssignmentComponent  |
+| `POST /api/v1/users/:id/roles`                 | UserRoleAssignmentComponent  |
+| `DELETE /api/v1/users/:id/roles/:roleId`       | UserRoleAssignmentComponent  |
+| `POST /api/v1/permission-check/ability`        | PermissionPreviewComponent   |
+| `GET /api/v1/users/me/ability`                 | AbilityService (CASL)        |
 
 ## Acceptance Criteria
 

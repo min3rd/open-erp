@@ -16,12 +16,8 @@
     "baseUrl": "./",
     "types": ["node", "jest"],
     "paths": {
-      "@erp/messaging": [
-        "libs/shared/messaging/index.ts"
-      ],
-      "@erp/database": [
-        "libs/shared/database/index.ts"
-      ]
+      "@erp/messaging": ["libs/shared/messaging/index.ts"],
+      "@erp/database": ["libs/shared/database/index.ts"]
     },
     "incremental": true,
     "skipLibCheck": true,

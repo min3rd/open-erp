@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                     |
-|------------------|-----------------------------|
-| Task ID          | TASK-SPRINT-01-AUTH-003     |
-| Sprint           | Sprint 01                   |
-| Cluster          | auth                        |
-| Loại             | Backend                     |
-| Người phụ trách  | Backend                     |
-| Story Points     | 5                           |
-| Trạng thái       | � REVIEW                    |
-| Phụ thuộc        | TASK-SPRINT-01-AUTH-001     |
+| Thuộc tính      | Giá trị                 |
+| --------------- | ----------------------- |
+| Task ID         | TASK-SPRINT-01-AUTH-003 |
+| Sprint          | Sprint 01               |
+| Cluster         | auth                    |
+| Loại            | Backend                 |
+| Người phụ trách | Backend                 |
+| Story Points    | 5                       |
+| Trạng thái      | � REVIEW                |
+| Phụ thuộc       | TASK-SPRINT-01-AUTH-001 |
 
 ## Mô tả
 
@@ -22,6 +22,7 @@ Triển khai xác thực hai yếu tố (2FA/MFA) bằng TOTP (Time-based One-Ti
 ### Backend (NestJS — `auth-service`, bổ sung vào Auth module)
 
 **Cấu trúc bổ sung:**
+
 ```
 src/
 └── mfa/
@@ -33,6 +34,7 @@ src/
 ```
 
 **Luồng thiết lập MFA:**
+
 ```
 1. POST /api/v1/auth/mfa/setup   (user đã đăng nhập)
    → Tạo TOTP secret (otplib.authenticator.generateSecret())
@@ -48,6 +50,7 @@ src/
 ```
 
 **Luồng đăng nhập với MFA:**
+
 ```
 1. POST /api/v1/auth/login → trả về { mfaRequired: true, mfaToken: "tmp_token" }
    (mfaToken là JWT ngắn hạn 5 phút, chỉ có quyền gọi /mfa/challenge)
@@ -59,6 +62,7 @@ src/
 ```
 
 **Mã hoá TOTP secret:**
+
 ```typescript
 // TOTP secret phải được encrypt tại tầng application (không phải chỉ DB at-rest encryption)
 // Dùng AES-256-GCM với key từ environment
@@ -67,6 +71,7 @@ decrypt(encrypted: string): string // dùng khi verify
 ```
 
 **Backup codes:**
+
 ```typescript
 // Tạo 10 backup codes, mỗi code 8 ký tự alphanumeric
 // Lưu dạng bcrypt hash (không plaintext)
@@ -75,12 +80,13 @@ generateBackupCodes(): { plaintext: string[]; hashed: string[] }
 ```
 
 **MFA Policy per Tenant:**
+
 ```typescript
 // Tenant Admin có thể bắt buộc MFA
 interface TenantMfaPolicy {
-  mfaRequired: boolean;           // Bắt buộc MFA cho tất cả users
-  mfaRequiredForRoles: string[];  // ['TENANT_ADMIN', 'MANAGER'] — bắt buộc theo role
-  gracePeriodDays: number;        // Cho phép bỏ qua MFA trong N ngày đầu
+  mfaRequired: boolean; // Bắt buộc MFA cho tất cả users
+  mfaRequiredForRoles: string[]; // ['TENANT_ADMIN', 'MANAGER'] — bắt buộc theo role
+  gracePeriodDays: number; // Cho phép bỏ qua MFA trong N ngày đầu
 }
 ```
 
@@ -88,26 +94,27 @@ interface TenantMfaPolicy {
 
 **Cập nhật collection `users`** — thêm trường MFA:
 
-| Trường              | Kiểu     | Mô tả                                        |
-|---------------------|----------|----------------------------------------------|
-| `mfaEnabled`        | boolean  | MFA có bật không (default: false)            |
-| `mfaSecret`         | string   | AES-256 encrypted TOTP secret                |
-| `mfaBackupCodes`    | array    | Mảng bcrypt hash của 10 backup codes         |
-| `mfaEnabledAt`      | Date     | Thời điểm bật MFA                            |
-| `mfaLastUsedAt`     | Date     | Lần cuối dùng MFA                            |
+| Trường           | Kiểu    | Mô tả                                |
+| ---------------- | ------- | ------------------------------------ |
+| `mfaEnabled`     | boolean | MFA có bật không (default: false)    |
+| `mfaSecret`      | string  | AES-256 encrypted TOTP secret        |
+| `mfaBackupCodes` | array   | Mảng bcrypt hash của 10 backup codes |
+| `mfaEnabledAt`   | Date    | Thời điểm bật MFA                    |
+| `mfaLastUsedAt`  | Date    | Lần cuối dùng MFA                    |
 
 **Collection `mfa_challenges`** (ngắn hạn, TTL 5 phút):
 
-| Trường      | Kiểu     | Mô tả                             |
-|-------------|----------|-----------------------------------|
-| `_id`       | ObjectId | —                                 |
-| `tenantId`  | ObjectId | —                                 |
-| `userId`    | ObjectId | —                                 |
-| `token`     | string   | SHA-256 hash của mfa_token        |
-| `expiresAt` | Date     | TTL 5 phút                        |
-| `used`      | boolean  | Đã dùng chưa                      |
+| Trường      | Kiểu     | Mô tả                      |
+| ----------- | -------- | -------------------------- |
+| `_id`       | ObjectId | —                          |
+| `tenantId`  | ObjectId | —                          |
+| `userId`    | ObjectId | —                          |
+| `token`     | string   | SHA-256 hash của mfa_token |
+| `expiresAt` | Date     | TTL 5 phút                 |
+| `used`      | boolean  | Đã dùng chưa               |
 
 **Indexes:**
+
 ```
 { token: 1 }        — unique
 { expiresAt: 1 }    — TTL index
@@ -123,13 +130,13 @@ MFA_TOTP_WINDOW=1   # Chấp nhận code ±1 khoảng thời gian (30s window)
 
 ## API Endpoints
 
-| Method | Path                           | Mô tả                                    | Auth              |
-|--------|--------------------------------|------------------------------------------|-------------------|
-| POST   | `/api/v1/auth/mfa/setup`       | Khởi tạo MFA: tạo secret + QR code       | Bearer JWT (full) |
-| POST   | `/api/v1/auth/mfa/verify`      | Xác nhận setup MFA, nhận backup codes    | Bearer JWT (full) |
-| POST   | `/api/v1/auth/mfa/disable`     | Tắt MFA (cần verify TOTP trước)          | Bearer JWT (full) |
-| GET    | `/api/v1/auth/mfa/backup-codes`| Xem (regenerate) backup codes            | Bearer JWT (full) |
-| POST   | `/api/v1/auth/mfa/challenge`   | Verify MFA code trong luồng đăng nhập    | MFA Token         |
+| Method | Path                            | Mô tả                                 | Auth              |
+| ------ | ------------------------------- | ------------------------------------- | ----------------- |
+| POST   | `/api/v1/auth/mfa/setup`        | Khởi tạo MFA: tạo secret + QR code    | Bearer JWT (full) |
+| POST   | `/api/v1/auth/mfa/verify`       | Xác nhận setup MFA, nhận backup codes | Bearer JWT (full) |
+| POST   | `/api/v1/auth/mfa/disable`      | Tắt MFA (cần verify TOTP trước)       | Bearer JWT (full) |
+| GET    | `/api/v1/auth/mfa/backup-codes` | Xem (regenerate) backup codes         | Bearer JWT (full) |
+| POST   | `/api/v1/auth/mfa/challenge`    | Verify MFA code trong luồng đăng nhập | MFA Token         |
 
 **Request/Response mẫu:**
 
@@ -218,16 +225,17 @@ Response 200:
 
 #### Per-file coverage (liên quan task AUTH-003)
 
-| File | Stmts Coverage | AC | Kết quả |
-|---|---|---|---|
-| `auth/auth.service.ts` | **75%** (225/299) | ≥ 80% | ❌ FAIL |
-| `auth/auth.controller.ts` | **74%** (63/85) | ≥ 80% | ❌ FAIL |
-| `auth/mfa/schemas/mfa-challenge.schema.ts` | 100% | — | ✅ |
-| `auth/mfa/dto/*.ts` (challenge, verify, disable) | 100% | — | ✅ |
-| `auth/guards/jwt-auth.guard.ts` | **78%** (32/41) | ≥ 80% | ❌ FAIL |
-| `common/guards/jwt-auth.guard.ts` | **79%** (41/52) | ≥ 80% | ❌ FAIL |
+| File                                             | Stmts Coverage    | AC    | Kết quả |
+| ------------------------------------------------ | ----------------- | ----- | ------- |
+| `auth/auth.service.ts`                           | **75%** (225/299) | ≥ 80% | ❌ FAIL |
+| `auth/auth.controller.ts`                        | **74%** (63/85)   | ≥ 80% | ❌ FAIL |
+| `auth/mfa/schemas/mfa-challenge.schema.ts`       | 100%              | —     | ✅      |
+| `auth/mfa/dto/*.ts` (challenge, verify, disable) | 100%              | —     | ✅      |
+| `auth/guards/jwt-auth.guard.ts`                  | **78%** (32/41)   | ≥ 80% | ❌ FAIL |
+| `common/guards/jwt-auth.guard.ts`                | **79%** (41/52)   | ≥ 80% | ❌ FAIL |
 
 #### Test cases hiện có (`auth.mfa.spec.ts`)
+
 - ✅ `setupMfa returns QR code payload`
 - ✅ `verifyMfa enables MFA and returns backup codes`
 - ✅ `challengeMfa returns JWT session after valid code`
@@ -246,6 +254,7 @@ Response 200:
 **Kết luận QA:** ❌ Giữ nguyên **🟡 REVIEW** — Implementation đầy đủ, nhưng coverage chưa đạt ngưỡng AC ≥ 80%. Cần bổ sung unit test cho backup code flow, rate limit, tenant policy, controller endpoints.
 
 **Điều kiện đóng task:**
+
 - [ ] `auth.service.ts` ≥ 80% — thêm test backup code path, regenerate, error branches
 - [ ] `auth.controller.ts` ≥ 80% — thêm test MFA controller endpoints
 - [ ] `jwt-auth.guard.ts` cả 2 file ≥ 80%

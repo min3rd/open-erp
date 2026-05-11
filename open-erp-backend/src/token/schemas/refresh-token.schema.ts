@@ -3,7 +3,10 @@ import { HydratedDocument, Types } from 'mongoose';
 
 export type RefreshTokenDocument = HydratedDocument<RefreshToken>;
 
-@Schema({ timestamps: { createdAt: true, updatedAt: false }, collection: 'refresh_tokens' })
+@Schema({
+  timestamps: { createdAt: true, updatedAt: false },
+  collection: 'refresh_tokens',
+})
 export class RefreshToken {
   @Prop({ type: Types.ObjectId, required: true, index: true })
   tenantId!: Types.ObjectId;

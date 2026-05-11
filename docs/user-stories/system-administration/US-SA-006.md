@@ -6,7 +6,7 @@
 **Cluster:** SaaS Foundation — Tenant Onboarding  
 **Loại:** Feature  
 **Người phụ trách:** TBD  
-**Trạng thái:** Chưa bắt đầu  
+**Trạng thái:** Chưa bắt đầu
 
 ---
 
@@ -30,5 +30,6 @@
 
 ---
 
-## Độ ưu tiên: **Cao (Must Have)**  
+## Độ ưu tiên: **Cao (Must Have)**
+
 ## Ước tính: **5 story points**

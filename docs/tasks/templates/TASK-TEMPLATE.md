@@ -108,30 +108,30 @@ Mô tả ngắn gọn mục tiêu của task, kết quả mong đợi và giá t
 - Service sở hữu data: <ten-service>
 - Bảng/Collection:
 
-| Trường | Kiểu | Ràng buộc | Mô tả |
-|---|---|---|---|
-| id | uuid | PK, not null | Định danh |
+| Trường | Kiểu | Ràng buộc    | Mô tả     |
+| ------ | ---- | ------------ | --------- |
+| id     | uuid | PK, not null | Định danh |
 
 - Index cần tạo: <danh-sach-hoac-khong>
 - Migration cần tạo: Có | Không
 
 ## Thiết kế API (nếu có)
 
-| Method | Endpoint | Auth | Mô tả |
-|---|---|---|---|
-| GET | /api/v1/<resource> | Bearer JWT | Mô tả endpoint |
+| Method | Endpoint           | Auth       | Mô tả          |
+| ------ | ------------------ | ---------- | -------------- |
+| GET    | /api/v1/<resource> | Bearer JWT | Mô tả endpoint |
 
 Chi tiết request/response:
 
 POST /api/v1/<resource>
 Request:
 {
-  "field": "value"
+"field": "value"
 }
 Response:
 {
-  "id": "uuid",
-  "field": "value"
+"id": "uuid",
+"field": "value"
 }
 Errors: 400, 401, 403, 404, 409, 500
 

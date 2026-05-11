@@ -9,13 +9,19 @@ import { MST_VERIFICATION_ADAPTER } from './adapters/mst-verification.adapter';
 import { NullStorageAdapter } from './adapters/null-storage.adapter';
 import { STORAGE_PROVISIONING_PORT } from './adapters/storage-provisioning.port';
 import { OnboardingService } from './onboarding/onboarding.service';
-import { SubscriptionPlan, SubscriptionPlanSchema } from './schemas/subscription-plan.schema';
+import {
+  SubscriptionPlan,
+  SubscriptionPlanSchema,
+} from './schemas/subscription-plan.schema';
 import {
   TenantRegistration,
   TenantRegistrationSchema,
 } from './schemas/tenant-registration.schema';
 import { Tenant, TenantSchema } from './schemas/tenant.schema';
-import { TenantUsageHistory, TenantUsageHistorySchema } from './schemas/tenant-usage-history.schema';
+import {
+  TenantUsageHistory,
+  TenantUsageHistorySchema,
+} from './schemas/tenant-usage-history.schema';
 import { TenantRegistrationController } from './tenant-registration.controller';
 import { TenantController } from './tenant.controller';
 import { TenantService } from './tenant.service';
@@ -41,7 +47,10 @@ import { TenantService } from './tenant.service';
     MockMstVerificationAdapter,
     {
       provide: STORAGE_PROVISIONING_PORT,
-      useFactory: (minioAdapter: MinioStorageAdapter, configService: ConfigService) => {
+      useFactory: (
+        minioAdapter: MinioStorageAdapter,
+        configService: ConfigService,
+      ) => {
         const endpoint = configService.get<string>('MINIO_ENDPOINT');
         // Use MinIO when endpoint is configured, else fall back to NullStorageAdapter
         return endpoint ? minioAdapter : new NullStorageAdapter();

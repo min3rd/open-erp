@@ -1,10 +1,11 @@
 # Database Design — Open ERP
+
 # Thiết kế Cơ sở dữ liệu MongoDB
 
 **Phiên bản:** 1.0  
 **Ngày tạo:** 09/05/2026  
 **Tác giả:** Technical Leader  
-**Trạng thái:** Hoàn chỉnh  
+**Trạng thái:** Hoàn chỉnh
 
 ---
 
@@ -26,15 +27,15 @@
 
 ## 1. Naming Conventions
 
-| Quy tắc | Ví dụ |
-|---|---|
-| Collection names: `snake_case`, số nhiều | `sales_orders`, `journal_entries` |
-| Field names: `camelCase` | `tenantId`, `createdAt`, `fullName` |
-| ObjectId references: suffix `Id` | `tenantId`, `userId`, `departmentId` |
-| Timestamps: `createdAt`, `updatedAt` (Mongoose timestamps: true) | |
-| Soft delete: `isDeleted: boolean`, `deletedAt: Date` | |
-| Status enum: `UPPER_SNAKE_CASE` | `ACTIVE`, `PENDING_SETUP` |
-| **Bắt buộc**: `tenantId` là trường đầu tiên trong mọi collection nghiệp vụ | |
+| Quy tắc                                                                    | Ví dụ                                |
+| -------------------------------------------------------------------------- | ------------------------------------ |
+| Collection names: `snake_case`, số nhiều                                   | `sales_orders`, `journal_entries`    |
+| Field names: `camelCase`                                                   | `tenantId`, `createdAt`, `fullName`  |
+| ObjectId references: suffix `Id`                                           | `tenantId`, `userId`, `departmentId` |
+| Timestamps: `createdAt`, `updatedAt` (Mongoose timestamps: true)           |                                      |
+| Soft delete: `isDeleted: boolean`, `deletedAt: Date`                       |                                      |
+| Status enum: `UPPER_SNAKE_CASE`                                            | `ACTIVE`, `PENDING_SETUP`            |
+| **Bắt buộc**: `tenantId` là trường đầu tiên trong mọi collection nghiệp vụ |                                      |
 
 ---
 
@@ -1095,6 +1096,7 @@ tenants ────────────────────────
 ### 10.2 Event-driven Data Consistency
 
 Khi không dùng foreign key (MongoDB), consistency được đảm bảo qua:
+
 - **Event sourcing**: Khi sale_order hoàn thành → emit event → inventory cập nhật stock
 - **Eventual consistency**: KPI snapshots được tính lại định kỳ (không real-time)
 - **Snapshot pattern**: Lưu snapshot thông tin quan trọng trong document (tránh N+1 query)
@@ -1111,19 +1113,19 @@ Khi không dùng foreign key (MongoDB), consistency được đảm bảo qua:
 
 ### 11.2 Kế hoạch Sharding (khi cần)
 
-| Collection | Shard Key | Lý do |
-|---|---|---|
-| `sales_orders` | `{ tenantId, orderDate }` | Phân tán đều theo tenant và thời gian |
-| `journal_entries` | `{ tenantId, period }` | Truy vấn theo kỳ kế toán |
-| `attendance_records` | `{ tenantId, date }` | Truy vấn theo ngày |
-| `audit_logs` | `{ tenantId, createdAt }` | Volume lớn, ít sửa |
-| `ai_sessions` | `{ tenantId, userId }` | Phân tán theo user |
+| Collection           | Shard Key                 | Lý do                                 |
+| -------------------- | ------------------------- | ------------------------------------- |
+| `sales_orders`       | `{ tenantId, orderDate }` | Phân tán đều theo tenant và thời gian |
+| `journal_entries`    | `{ tenantId, period }`    | Truy vấn theo kỳ kế toán              |
+| `attendance_records` | `{ tenantId, date }`      | Truy vấn theo ngày                    |
+| `audit_logs`         | `{ tenantId, createdAt }` | Volume lớn, ít sửa                    |
+| `ai_sessions`        | `{ tenantId, userId }`    | Phân tán theo user                    |
 
 ### 11.3 TTL Indexes (Auto-cleanup)
 
-| Collection | Field | TTL |
-|---|---|---|
-| `refresh_tokens` | `expiresAt` | 0 (expire at expiresAt) |
-| `password_resets` | `expiresAt` | 0 |
-| `audit_logs` | `createdAt` | 730 ngày (2 năm) |
-| `kpi_snapshots` | `snapshotDate` | 1095 ngày (3 năm) |
+| Collection        | Field          | TTL                     |
+| ----------------- | -------------- | ----------------------- |
+| `refresh_tokens`  | `expiresAt`    | 0 (expire at expiresAt) |
+| `password_resets` | `expiresAt`    | 0                       |
+| `audit_logs`      | `createdAt`    | 730 ngày (2 năm)        |
+| `kpi_snapshots`   | `snapshotDate` | 1095 ngày (3 năm)       |

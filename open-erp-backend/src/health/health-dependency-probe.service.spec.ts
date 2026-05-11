@@ -47,7 +47,8 @@ describe('HealthDependencyProbeService', () => {
 
       (Redis as jest.Mock).mockReturnValue(mockRedisClient);
 
-      global.fetch = jest.fn()
+      global.fetch = jest
+        .fn()
         .mockResolvedValueOnce({ ok: true })
         .mockResolvedValueOnce({ ok: true });
 
@@ -86,7 +87,9 @@ describe('HealthDependencyProbeService', () => {
 
       (Redis as jest.Mock).mockReturnValue(mockClient);
 
-      const result = await (service as any).probeRedis('redis://localhost:6379');
+      const result = await (service as any).probeRedis(
+        'redis://localhost:6379',
+      );
 
       expect(result).toBe('ok');
       expect(mockClient.connect).toHaveBeenCalled();
@@ -109,7 +112,9 @@ describe('HealthDependencyProbeService', () => {
 
       (Redis as jest.Mock).mockReturnValue(mockClient);
 
-      const result = await (service as any).probeRedis('redis://localhost:6379');
+      const result = await (service as any).probeRedis(
+        'redis://localhost:6379',
+      );
 
       expect(result).toBe('unreachable');
       expect(mockClient.quit).toHaveBeenCalled();
@@ -125,7 +130,9 @@ describe('HealthDependencyProbeService', () => {
 
       (Redis as jest.Mock).mockReturnValue(mockClient);
 
-      const result = await (service as any).probeRedis('redis://localhost:6379');
+      const result = await (service as any).probeRedis(
+        'redis://localhost:6379',
+      );
 
       expect(result).toBe('unreachable');
     });
@@ -140,7 +147,9 @@ describe('HealthDependencyProbeService', () => {
 
       (Redis as jest.Mock).mockReturnValue(mockClient);
 
-      const result = await (service as any).probeRedis('redis://localhost:6379');
+      const result = await (service as any).probeRedis(
+        'redis://localhost:6379',
+      );
 
       expect(result).toBe('ok');
       expect(mockClient.disconnect).toHaveBeenCalled();
@@ -160,10 +169,13 @@ describe('HealthDependencyProbeService', () => {
       );
 
       expect(result).toBe('ok');
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost:3001/health', {
-        method: 'GET',
-        signal: expect.any(AbortSignal),
-      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/health',
+        {
+          method: 'GET',
+          signal: expect.any(AbortSignal),
+        },
+      );
     });
 
     it('should return "not-configured" when URL is not provided', async () => {
@@ -184,9 +196,7 @@ describe('HealthDependencyProbeService', () => {
     });
 
     it('should return "unreachable" when HTTP request fails', async () => {
-      (global.fetch as jest.Mock).mockRejectedValue(
-        new Error('Network error'),
-      );
+      (global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
 
       const result = await (service as any).probeHttpDependency(
         'http://localhost:3001',
@@ -214,10 +224,13 @@ describe('HealthDependencyProbeService', () => {
 
       await (service as any).probeHttpDependency('http://localhost:3001///');
 
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost:3001/health', {
-        method: 'GET',
-        signal: expect.any(AbortSignal),
-      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/health',
+        {
+          method: 'GET',
+          signal: expect.any(AbortSignal),
+        },
+      );
     });
 
     it('should clear timeout on success', async () => {

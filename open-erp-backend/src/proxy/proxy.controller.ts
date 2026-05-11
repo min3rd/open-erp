@@ -18,15 +18,24 @@ export class ProxyController {
 
   @All('*path')
   @ApiExcludeEndpoint()
-  async proxy(@Req() req: Request, @Param('path') pathParam: string | string[]) {
+  async proxy(
+    @Req() req: Request,
+    @Param('path') pathParam: string | string[],
+  ) {
     const wildcardPath = Array.isArray(pathParam)
       ? pathParam.join('/')
       : pathParam;
 
-    const result = await this.proxyService.forwardRequest(req, wildcardPath || '');
+    const result = await this.proxyService.forwardRequest(
+      req,
+      wildcardPath || '',
+    );
 
     if (result.status >= HttpStatus.BAD_REQUEST) {
-      throw new HttpException(this.toHttpExceptionBody(result.data), result.status);
+      throw new HttpException(
+        this.toHttpExceptionBody(result.data),
+        result.status,
+      );
     }
 
     return result.data;

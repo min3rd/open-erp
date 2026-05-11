@@ -1,10 +1,11 @@
 # Integration Design — Open ERP
+
 # Thiết kế Tích hợp Hệ thống bên ngoài
 
 **Phiên bản:** 1.0  
 **Ngày tạo:** 09/05/2026  
 **Tác giả:** Technical Leader  
-**Trạng thái:** Hoàn chỉnh  
+**Trạng thái:** Hoàn chỉnh
 
 ---
 
@@ -24,22 +25,22 @@
 
 ## 1. Tổng quan tích hợp
 
-| Hệ thống | Loại | Phương thức | Service xử lý | Ghi chú |
-|---|---|---|---|---|
-| ONLYOFFICE Document Server | Văn phòng | REST + Webhook | office-service | Tự host |
-| Jitsi Meet | Video call | REST + JWT | meeting-service | Tự host |
-| MISA AMIS | Kế toán | OAuth2 REST | accounting-service | SaaS API |
-| Cổng thuế GDT (eTax) | Thuế điện tử | Certificate + SOAP/REST | invoice-service | Gov API |
-| MISA meInvoice | Hóa đơn ĐT | REST API | invoice-service | Provider 1 |
-| VNPT Invoice | Hóa đơn ĐT | REST API | invoice-service | Provider 2 |
-| Viettel Invoice | Hóa đơn ĐT | REST API | invoice-service | Provider 3 |
-| BKAV eHoadon | Hóa đơn ĐT | REST API | invoice-service | Provider 4 |
-| FPT eSign | Hóa đơn ĐT | REST API | invoice-service | Provider 5 |
-| Google OAuth2 | SSO | OAuth2 | auth-service | Đăng nhập MXH |
-| Microsoft Azure AD | SSO | OAuth2 OIDC | auth-service | Đăng nhập MXH |
-| SendGrid / SMTP | Email | REST / SMTP | notification-service | Gửi thông báo |
-| Activation Email Provider | Email | REST / SMTP | notification-service + tenant-service | Gửi link kích hoạt đăng ký DN |
-| Firebase FCM | Push notification | REST | notification-service | Mobile push |
+| Hệ thống                   | Loại              | Phương thức             | Service xử lý                         | Ghi chú                       |
+| -------------------------- | ----------------- | ----------------------- | ------------------------------------- | ----------------------------- |
+| ONLYOFFICE Document Server | Văn phòng         | REST + Webhook          | office-service                        | Tự host                       |
+| Jitsi Meet                 | Video call        | REST + JWT              | meeting-service                       | Tự host                       |
+| MISA AMIS                  | Kế toán           | OAuth2 REST             | accounting-service                    | SaaS API                      |
+| Cổng thuế GDT (eTax)       | Thuế điện tử      | Certificate + SOAP/REST | invoice-service                       | Gov API                       |
+| MISA meInvoice             | Hóa đơn ĐT        | REST API                | invoice-service                       | Provider 1                    |
+| VNPT Invoice               | Hóa đơn ĐT        | REST API                | invoice-service                       | Provider 2                    |
+| Viettel Invoice            | Hóa đơn ĐT        | REST API                | invoice-service                       | Provider 3                    |
+| BKAV eHoadon               | Hóa đơn ĐT        | REST API                | invoice-service                       | Provider 4                    |
+| FPT eSign                  | Hóa đơn ĐT        | REST API                | invoice-service                       | Provider 5                    |
+| Google OAuth2              | SSO               | OAuth2                  | auth-service                          | Đăng nhập MXH                 |
+| Microsoft Azure AD         | SSO               | OAuth2 OIDC             | auth-service                          | Đăng nhập MXH                 |
+| SendGrid / SMTP            | Email             | REST / SMTP             | notification-service                  | Gửi thông báo                 |
+| Activation Email Provider  | Email             | REST / SMTP             | notification-service + tenant-service | Gửi link kích hoạt đăng ký DN |
+| Firebase FCM               | Push notification | REST                    | notification-service                  | Mobile push                   |
 
 ---
 
@@ -66,15 +67,15 @@ Auth: JWT signed bởi ONLYOFFICE
 
 ONLYOFFICE gọi endpoint này khi trạng thái document thay đổi:
 
-| Status | Mô tả | Hành động |
-|---|---|---|
-| 0 | Đang chỉnh sửa | Không làm gì |
-| 1 | Không có người chỉnh sửa | Không làm gì |
-| 2 | Sẵn sàng lưu | Tải về + lưu MinIO |
-| 3 | Lỗi khi lưu | Ghi log lỗi |
-| 4 | Đã đóng, không có thay đổi | Không làm gì |
-| 6 | Đang chỉnh sửa + lưu bản nháp | Không làm gì |
-| 7 | Lỗi khi lưu bản nháp | Ghi log lỗi |
+| Status | Mô tả                         | Hành động          |
+| ------ | ----------------------------- | ------------------ |
+| 0      | Đang chỉnh sửa                | Không làm gì       |
+| 1      | Không có người chỉnh sửa      | Không làm gì       |
+| 2      | Sẵn sàng lưu                  | Tải về + lưu MinIO |
+| 3      | Lỗi khi lưu                   | Ghi log lỗi        |
+| 4      | Đã đóng, không có thay đổi    | Không làm gì       |
+| 6      | Đang chỉnh sửa + lưu bản nháp | Không làm gì       |
+| 7      | Lỗi khi lưu bản nháp          | Ghi log lỗi        |
 
 ### 2.3 Luồng mở tài liệu
 
@@ -100,12 +101,12 @@ Client                  office-service          ONLYOFFICE Server
 
 ### 2.4 Permission Matrix
 
-| Vai trò | Xem | Sửa | Comment | Tải xuống | In |
-|---|---|---|---|---|---|
-| Owner | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Editor | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Commenter | ✅ | ❌ | ✅ | ❌ | ❌ |
-| Viewer | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Vai trò   | Xem | Sửa | Comment | Tải xuống | In  |
+| --------- | --- | --- | ------- | --------- | --- |
+| Owner     | ✅  | ✅  | ✅      | ✅        | ✅  |
+| Editor    | ✅  | ✅  | ✅      | ✅        | ✅  |
+| Commenter | ✅  | ❌  | ✅      | ❌        | ❌  |
+| Viewer    | ✅  | ❌  | ❌      | ❌        | ❌  |
 
 ---
 
@@ -183,25 +184,25 @@ MISA_AMIS_SCOPE=api
 
 ### 4.2 Danh sách endpoint đồng bộ
 
-| Endpoint MISA AMIS | Mục đích | Tần suất |
-|---|---|---|
-| `GET /api/v1/accounts` | Lấy danh mục tài khoản kế toán | Mỗi ngày 01:00 |
-| `GET /api/v1/journals` | Đồng bộ bút toán | Thời gian thực (event-driven) |
-| `POST /api/v1/journals` | Đẩy bút toán sang MISA | Khi journal_entry được duyệt |
-| `GET /api/v1/payables` | Công nợ phải trả | Mỗi ngày 02:00 |
-| `GET /api/v1/receivables` | Công nợ phải thu | Mỗi ngày 02:00 |
-| `GET /api/v1/inventory-value` | Giá trị tồn kho | Mỗi ngày 03:00 |
+| Endpoint MISA AMIS            | Mục đích                       | Tần suất                      |
+| ----------------------------- | ------------------------------ | ----------------------------- |
+| `GET /api/v1/accounts`        | Lấy danh mục tài khoản kế toán | Mỗi ngày 01:00                |
+| `GET /api/v1/journals`        | Đồng bộ bút toán               | Thời gian thực (event-driven) |
+| `POST /api/v1/journals`       | Đẩy bút toán sang MISA         | Khi journal_entry được duyệt  |
+| `GET /api/v1/payables`        | Công nợ phải trả               | Mỗi ngày 02:00                |
+| `GET /api/v1/receivables`     | Công nợ phải thu               | Mỗi ngày 02:00                |
+| `GET /api/v1/inventory-value` | Giá trị tồn kho                | Mỗi ngày 03:00                |
 
 ### 4.3 Data Mapping
 
-| Open ERP | MISA AMIS | Ghi chú |
-|---|---|---|
-| `journal_entries.debitAccount` | `AccountDebit` | Mã tài khoản theo TT133/200 |
-| `journal_entries.creditAccount` | `AccountCredit` | |
-| `journal_entries.amount` | `Amount` | VND |
-| `journal_entries.description` | `Description` | Max 255 chars |
-| `journal_entries.date` | `PostingDate` | yyyy-MM-dd |
-| `orders.id` | `RefNo` | Số chứng từ tham chiếu |
+| Open ERP                        | MISA AMIS       | Ghi chú                     |
+| ------------------------------- | --------------- | --------------------------- |
+| `journal_entries.debitAccount`  | `AccountDebit`  | Mã tài khoản theo TT133/200 |
+| `journal_entries.creditAccount` | `AccountCredit` |                             |
+| `journal_entries.amount`        | `Amount`        | VND                         |
+| `journal_entries.description`   | `Description`   | Max 255 chars               |
+| `journal_entries.date`          | `PostingDate`   | yyyy-MM-dd                  |
+| `orders.id`                     | `RefNo`         | Số chứng từ tham chiếu      |
 
 ### 4.4 Error Handling & Retry
 
@@ -243,13 +244,13 @@ Bước 5: Lưu mã CQT + XML + PDF vào MinIO và invoices collection
 
 ### 5.3 Error Codes GDT
 
-| Mã lỗi | Ý nghĩa | Xử lý |
-|---|---|---|
-| `MTT-001` | Hóa đơn đã tồn tại | Không retry, log lỗi |
-| `MTT-002` | Mã số thuế không hợp lệ | Kiểm tra cấu hình |
-| `MTT-003` | Chứng thư số hết hạn | Alert admin ngay |
-| `MTT-004` | Lỗi kết nối GDT | Retry với backoff |
-| `MTT-005` | XML không đúng schema | Fix XML, không retry |
+| Mã lỗi    | Ý nghĩa                 | Xử lý                |
+| --------- | ----------------------- | -------------------- |
+| `MTT-001` | Hóa đơn đã tồn tại      | Không retry, log lỗi |
+| `MTT-002` | Mã số thuế không hợp lệ | Kiểm tra cấu hình    |
+| `MTT-003` | Chứng thư số hết hạn    | Alert admin ngay     |
+| `MTT-004` | Lỗi kết nối GDT         | Retry với backoff    |
+| `MTT-005` | XML không đúng schema   | Fix XML, không retry |
 
 ---
 
@@ -281,30 +282,30 @@ interface InvoiceData {
 }
 
 interface InvoiceResult {
-  transactionId: string;       // ID giao dịch với nhà cung cấp
-  signedXml: string;           // XML đã ký số
-  pdfUrl: string;              // URL PDF lưu trên MinIO
-  taxAuthorityCode?: string;   // Mã CQT (sau khi thông báo lên GDT)
+  transactionId: string; // ID giao dịch với nhà cung cấp
+  signedXml: string; // XML đã ký số
+  pdfUrl: string; // URL PDF lưu trên MinIO
+  taxAuthorityCode?: string; // Mã CQT (sau khi thông báo lên GDT)
   issuedAt: Date;
 }
 ```
 
 ### 6.2 Các nhà cung cấp được hỗ trợ
 
-| Provider | Class | Base URL |
-|---|---|---|
-| MISA meInvoice | `MisaEInvoiceProvider` | `https://api.meinvoice.vn` |
-| VNPT Invoice | `VnptEInvoiceProvider` | `https://einvoice.vnpt.vn/api` |
-| Viettel Invoice | `ViettelEInvoiceProvider` | `https://sinvoice.viettel.vn` |
-| BKAV eHoadon | `BkavEInvoiceProvider` | `https://ehoadon.bkav.com.vn` |
-| FPT eSign | `FptEInvoiceProvider` | `https://einvoice.fpt.com.vn` |
+| Provider        | Class                     | Base URL                       |
+| --------------- | ------------------------- | ------------------------------ |
+| MISA meInvoice  | `MisaEInvoiceProvider`    | `https://api.meinvoice.vn`     |
+| VNPT Invoice    | `VnptEInvoiceProvider`    | `https://einvoice.vnpt.vn/api` |
+| Viettel Invoice | `ViettelEInvoiceProvider` | `https://sinvoice.viettel.vn`  |
+| BKAV eHoadon    | `BkavEInvoiceProvider`    | `https://ehoadon.bkav.com.vn`  |
+| FPT eSign       | `FptEInvoiceProvider`     | `https://einvoice.fpt.com.vn`  |
 
 ### 6.3 Provider Selection Pattern
 
 ```typescript
 // Cấu hình per-tenant trong platform_tenants.config.invoiceProvider
 const provider: EInvoiceProvider = EInvoiceProviderFactory.create(
-  tenant.config.invoiceProvider  // 'MISA' | 'VNPT' | 'VIETTEL' | 'BKAV' | 'FPT'
+  tenant.config.invoiceProvider, // 'MISA' | 'VNPT' | 'VIETTEL' | 'BKAV' | 'FPT'
 );
 
 await provider.issueInvoice(invoiceData);
@@ -347,12 +348,12 @@ Cấu hình:
 
 ### 7.2 Fallback Strategy
 
-| Hệ thống | Fallback khi lỗi |
-|---|---|
-| ONLYOFFICE | Thông báo "Tính năng chỉnh sửa trực tuyến tạm thời không khả dụng" |
-| Jitsi Meet | Gửi link phòng họp Zoom/Google Meet (nếu cấu hình) hoặc thông báo |
-| MISA AMIS | Lưu bút toán vào queue, đồng bộ khi hệ thống phục hồi |
-| GDT / Invoice | Lưu hóa đơn ở trạng thái PENDING, retry tự động |
+| Hệ thống      | Fallback khi lỗi                                                   |
+| ------------- | ------------------------------------------------------------------ |
+| ONLYOFFICE    | Thông báo "Tính năng chỉnh sửa trực tuyến tạm thời không khả dụng" |
+| Jitsi Meet    | Gửi link phòng họp Zoom/Google Meet (nếu cấu hình) hoặc thông báo  |
+| MISA AMIS     | Lưu bút toán vào queue, đồng bộ khi hệ thống phục hồi              |
+| GDT / Invoice | Lưu hóa đơn ở trạng thái PENDING, retry tự động                    |
 
 ---
 
@@ -382,13 +383,16 @@ Cấu hình:
 
 ```javascript
 // Tìm log theo tenant + service + thời gian
-db.integration_logs.createIndex({ tenantId: 1, service: 1, createdAt: -1 })
+db.integration_logs.createIndex({ tenantId: 1, service: 1, createdAt: -1 });
 
 // TTL: Tự động xóa log sau 90 ngày
-db.integration_logs.createIndex({ createdAt: 1 }, { expireAfterSeconds: 7776000 })
+db.integration_logs.createIndex(
+  { createdAt: 1 },
+  { expireAfterSeconds: 7776000 },
+);
 
 // Tìm log lỗi
-db.integration_logs.createIndex({ tenantId: 1, success: 1, createdAt: -1 })
+db.integration_logs.createIndex({ tenantId: 1, success: 1, createdAt: -1 });
 ```
 
 ---

@@ -62,7 +62,9 @@ describe('OnboardingService', () => {
     const tenant = makeTenant();
     const registration = makeRegistration();
 
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null),
+    });
     const createdUser = {
       _id: new Types.ObjectId('6642a0000000000000000099'),
       email: 'admin@acme.vn',
@@ -91,7 +93,9 @@ describe('OnboardingService', () => {
       _id: new Types.ObjectId('6642a0000000000000000088'),
       email: 'admin@acme.vn',
     };
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(existingUser) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(existingUser),
+    });
 
     const result = await service.initializeTenant(tenant, registration);
 
@@ -103,7 +107,9 @@ describe('OnboardingService', () => {
     const tenant = makeTenant();
     const registration = makeRegistration();
 
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null),
+    });
     userModel.create.mockResolvedValue({
       _id: new Types.ObjectId(),
       email: 'admin@acme.vn',

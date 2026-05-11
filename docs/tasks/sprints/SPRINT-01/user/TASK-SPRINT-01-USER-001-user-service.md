@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                                                        |
-|------------------|----------------------------------------------------------------|
-| Task ID          | TASK-SPRINT-01-USER-001                                        |
-| Sprint           | Sprint 01                                                      |
-| Cluster          | user                                                           |
-| Loại             | Backend                                                        |
-| Người phụ trách  | Backend                                                        |
-| Story Points     | 8                                                              |
-| Trạng thái       | � REVIEW                                                        |
-| Phụ thuộc        | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-TENANT-001             |
+| Thuộc tính      | Giá trị                                            |
+| --------------- | -------------------------------------------------- |
+| Task ID         | TASK-SPRINT-01-USER-001                            |
+| Sprint          | Sprint 01                                          |
+| Cluster         | user                                               |
+| Loại            | Backend                                            |
+| Người phụ trách | Backend                                            |
+| Story Points    | 8                                                  |
+| Trạng thái      | � REVIEW                                           |
+| Phụ thuộc       | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-TENANT-001 |
 
 ## Mô tả
 
@@ -22,6 +22,7 @@ Xây dựng `user-service` — microservice quản lý người dùng (tenantId-
 ### Backend (NestJS — `user-service`, port 3003)
 
 **Cấu trúc module:**
+
 ```
 src/
 ├── user.module.ts
@@ -50,6 +51,7 @@ src/
 ```
 
 **Luồng tạo Tenant Admin mặc định khi nhận `tenant.created`:**
+
 ```typescript
 @EventPattern('tenant.created')
 async handleTenantCreated(data: TenantCreatedEvent) {
@@ -61,7 +63,7 @@ async handleTenantCreated(data: TenantCreatedEvent) {
     status: 'ACTIVE',
     isSystemUser: true,
   });
-  
+
   // Publish user.created event
   await this.rabbitmqService.publishEvent('user.created', data.tenantId, adminUser.id, {
     userId: adminUser.id,
@@ -72,6 +74,7 @@ async handleTenantCreated(data: TenantCreatedEvent) {
 ```
 
 **Cây phòng ban (Department Tree):**
+
 ```
 Công ty ACME
 ├── Ban Giám Đốc
@@ -88,6 +91,7 @@ Công ty ACME
 - API trả về tree structure (recursive build hoặc `$graphLookup` MongoDB).
 
 **Avatar Upload:**
+
 ```typescript
 // Upload avatar lên MinIO
 // Bucket: tenant-{tenantId}/avatars/{userId}-{timestamp}.{ext}
@@ -100,34 +104,35 @@ Công ty ACME
 
 **Collection: `users`** (tenantId-scoped, thuộc user-service)
 
-| Trường           | Kiểu     | Ràng buộc                    | Mô tả                           |
-|------------------|----------|------------------------------|---------------------------------|
-| `_id`            | ObjectId | —                            | Primary key                     |
-| `tenantId`       | ObjectId | required, indexed            | Tenant sở hữu                   |
-| `email`          | string   | required, lowercase          | Email đăng nhập (unique/tenant) |
-| `passwordHash`   | string   | optional                     | null nếu chỉ OAuth              |
-| `fullName`       | string   | required                     | Họ và tên đầy đủ               |
-| `phone`          | string   | optional                     | Số điện thoại                   |
-| `avatarUrl`      | string   | optional                     | MinIO URL                       |
-| `departmentId`   | ObjectId | optional                     | Phòng ban                       |
-| `positionTitle`  | string   | optional                     | Chức danh (text)                |
-| `managerId`      | ObjectId | optional                     | Người quản lý trực tiếp         |
-| `employeeCode`   | string   | optional                     | Mã nhân viên                   |
-| `status`         | enum     | ACTIVE/INACTIVE/LOCKED       | Trạng thái tài khoản           |
-| `mfaEnabled`     | boolean  | default: false               | —                               |
-| `mfaSecret`      | string   | encrypted                    | —                               |
-| `authProvider`   | enum     | LOCAL/GOOGLE/MICROSOFT/MIXED | Phương thức đăng nhập           |
-| `oauthAccounts`  | array    | —                            | OAuth linked accounts           |
-| `lastLoginAt`    | Date     | —                            | —                               |
-| `locale`         | string   | default: 'vi-VN'            | Ngôn ngữ cá nhân               |
-| `timezone`       | string   | default: 'Asia/Ho_Chi_Minh'  | Múi giờ cá nhân                |
-| `isSystemUser`   | boolean  | default: false               | User tự động tạo bởi hệ thống  |
-| `isDeleted`      | boolean  | default: false               | Soft delete                     |
-| `deletedAt`      | Date     | —                            | —                               |
-| `createdAt`      | Date     | auto                         | —                               |
-| `updatedAt`      | Date     | auto                         | —                               |
+| Trường          | Kiểu     | Ràng buộc                    | Mô tả                           |
+| --------------- | -------- | ---------------------------- | ------------------------------- |
+| `_id`           | ObjectId | —                            | Primary key                     |
+| `tenantId`      | ObjectId | required, indexed            | Tenant sở hữu                   |
+| `email`         | string   | required, lowercase          | Email đăng nhập (unique/tenant) |
+| `passwordHash`  | string   | optional                     | null nếu chỉ OAuth              |
+| `fullName`      | string   | required                     | Họ và tên đầy đủ                |
+| `phone`         | string   | optional                     | Số điện thoại                   |
+| `avatarUrl`     | string   | optional                     | MinIO URL                       |
+| `departmentId`  | ObjectId | optional                     | Phòng ban                       |
+| `positionTitle` | string   | optional                     | Chức danh (text)                |
+| `managerId`     | ObjectId | optional                     | Người quản lý trực tiếp         |
+| `employeeCode`  | string   | optional                     | Mã nhân viên                    |
+| `status`        | enum     | ACTIVE/INACTIVE/LOCKED       | Trạng thái tài khoản            |
+| `mfaEnabled`    | boolean  | default: false               | —                               |
+| `mfaSecret`     | string   | encrypted                    | —                               |
+| `authProvider`  | enum     | LOCAL/GOOGLE/MICROSOFT/MIXED | Phương thức đăng nhập           |
+| `oauthAccounts` | array    | —                            | OAuth linked accounts           |
+| `lastLoginAt`   | Date     | —                            | —                               |
+| `locale`        | string   | default: 'vi-VN'             | Ngôn ngữ cá nhân                |
+| `timezone`      | string   | default: 'Asia/Ho_Chi_Minh'  | Múi giờ cá nhân                 |
+| `isSystemUser`  | boolean  | default: false               | User tự động tạo bởi hệ thống   |
+| `isDeleted`     | boolean  | default: false               | Soft delete                     |
+| `deletedAt`     | Date     | —                            | —                               |
+| `createdAt`     | Date     | auto                         | —                               |
+| `updatedAt`     | Date     | auto                         | —                               |
 
 **Indexes:**
+
 ```
 { tenantId: 1, email: 1 }           — unique
 { tenantId: 1, status: 1 }
@@ -139,23 +144,24 @@ Công ty ACME
 
 **Collection: `departments`** (tenantId-scoped)
 
-| Trường       | Kiểu     | Ràng buộc                  | Mô tả                          |
-|--------------|----------|----------------------------|--------------------------------|
-| `_id`        | ObjectId | —                          | Primary key                    |
-| `tenantId`   | ObjectId | required, indexed          | Tenant sở hữu                  |
-| `name`       | string   | required                   | Tên phòng ban                  |
-| `code`       | string   | optional                   | Mã phòng ban (unique/tenant)   |
-| `parentId`   | ObjectId | optional, null = root      | Phòng ban cha                  |
-| `managerId`  | ObjectId | optional                   | Trưởng phòng                   |
-| `level`      | number   | auto                       | Cấp độ (0 = root)              |
-| `path`       | string   | auto                       | `/id1/id2/id3` — ancestor path |
-| `order`      | number   | default: 0                 | Thứ tự hiển thị                |
-| `headcount`  | number   | auto                       | Số nhân viên                   |
-| `isDeleted`  | boolean  | default: false             | Soft delete                    |
-| `createdAt`  | Date     | auto                       | —                              |
-| `updatedAt`  | Date     | auto                       | —                              |
+| Trường      | Kiểu     | Ràng buộc             | Mô tả                          |
+| ----------- | -------- | --------------------- | ------------------------------ |
+| `_id`       | ObjectId | —                     | Primary key                    |
+| `tenantId`  | ObjectId | required, indexed     | Tenant sở hữu                  |
+| `name`      | string   | required              | Tên phòng ban                  |
+| `code`      | string   | optional              | Mã phòng ban (unique/tenant)   |
+| `parentId`  | ObjectId | optional, null = root | Phòng ban cha                  |
+| `managerId` | ObjectId | optional              | Trưởng phòng                   |
+| `level`     | number   | auto                  | Cấp độ (0 = root)              |
+| `path`      | string   | auto                  | `/id1/id2/id3` — ancestor path |
+| `order`     | number   | default: 0            | Thứ tự hiển thị                |
+| `headcount` | number   | auto                  | Số nhân viên                   |
+| `isDeleted` | boolean  | default: false        | Soft delete                    |
+| `createdAt` | Date     | auto                  | —                              |
+| `updatedAt` | Date     | auto                  | —                              |
 
 **Indexes:**
+
 ```
 { tenantId: 1, parentId: 1 }
 { tenantId: 1, code: 1 }        — unique (sparse)
@@ -164,24 +170,24 @@ Công ty ACME
 
 ## API Endpoints
 
-| Method | Path                               | Mô tả                                    | Auth            |
-|--------|------------------------------------|------------------------------------------|-----------------|
-| GET    | `/api/v1/users`                    | Danh sách users (filter, phân trang)     | Tenant Admin    |
-| POST   | `/api/v1/users`                    | Tạo user mới                             | Tenant Admin    |
-| GET    | `/api/v1/users/me`                 | Hồ sơ cá nhân người dùng hiện tại       | Any user        |
-| PATCH  | `/api/v1/users/me`                 | Cập nhật hồ sơ cá nhân                  | Any user        |
-| GET    | `/api/v1/users/:id`                | Chi tiết user                            | Tenant Admin    |
-| PATCH  | `/api/v1/users/:id`                | Cập nhật thông tin user                  | Tenant Admin    |
-| DELETE | `/api/v1/users/:id`                | Xoá mềm user                             | Tenant Admin    |
-| POST   | `/api/v1/users/:id/avatar`         | Upload avatar (multipart)                | Owner/Admin     |
-| PATCH  | `/api/v1/users/:id/status`         | Khoá/mở tài khoản                        | Tenant Admin    |
-| GET    | `/api/v1/departments`              | Danh sách phòng ban (flat list)          | Any user        |
-| GET    | `/api/v1/departments/tree`         | Cây phòng ban (nested)                   | Any user        |
-| POST   | `/api/v1/departments`              | Tạo phòng ban                            | Tenant Admin    |
-| GET    | `/api/v1/departments/:id`          | Chi tiết phòng ban                       | Any user        |
-| PATCH  | `/api/v1/departments/:id`          | Cập nhật phòng ban                       | Tenant Admin    |
-| DELETE | `/api/v1/departments/:id`          | Xoá phòng ban (nếu không có thành viên) | Tenant Admin    |
-| GET    | `/api/v1/departments/:id/members`  | Danh sách thành viên phòng ban           | Any user        |
+| Method | Path                              | Mô tả                                   | Auth         |
+| ------ | --------------------------------- | --------------------------------------- | ------------ |
+| GET    | `/api/v1/users`                   | Danh sách users (filter, phân trang)    | Tenant Admin |
+| POST   | `/api/v1/users`                   | Tạo user mới                            | Tenant Admin |
+| GET    | `/api/v1/users/me`                | Hồ sơ cá nhân người dùng hiện tại       | Any user     |
+| PATCH  | `/api/v1/users/me`                | Cập nhật hồ sơ cá nhân                  | Any user     |
+| GET    | `/api/v1/users/:id`               | Chi tiết user                           | Tenant Admin |
+| PATCH  | `/api/v1/users/:id`               | Cập nhật thông tin user                 | Tenant Admin |
+| DELETE | `/api/v1/users/:id`               | Xoá mềm user                            | Tenant Admin |
+| POST   | `/api/v1/users/:id/avatar`        | Upload avatar (multipart)               | Owner/Admin  |
+| PATCH  | `/api/v1/users/:id/status`        | Khoá/mở tài khoản                       | Tenant Admin |
+| GET    | `/api/v1/departments`             | Danh sách phòng ban (flat list)         | Any user     |
+| GET    | `/api/v1/departments/tree`        | Cây phòng ban (nested)                  | Any user     |
+| POST   | `/api/v1/departments`             | Tạo phòng ban                           | Tenant Admin |
+| GET    | `/api/v1/departments/:id`         | Chi tiết phòng ban                      | Any user     |
+| PATCH  | `/api/v1/departments/:id`         | Cập nhật phòng ban                      | Tenant Admin |
+| DELETE | `/api/v1/departments/:id`         | Xoá phòng ban (nếu không có thành viên) | Tenant Admin |
+| GET    | `/api/v1/departments/:id/members` | Danh sách thành viên phòng ban          | Any user     |
 
 ## Yêu cầu bảo mật
 
@@ -237,19 +243,20 @@ Công ty ACME
 
 #### Per-file coverage (liên quan task USER-001)
 
-| File | Stmts Coverage | AC | Kết quả |
-|---|---|---|---|
-| `users/users.service.ts` | **45%** (49/108) | ≥ 80% | ❌ FAIL — CRITICAL |
-| `users/departments.service.ts` | **57%** (47/82) | ≥ 80% | ❌ FAIL |
-| `users/users.controller.ts` | **0%** (0/29) | ≥ 80% | ❌ FAIL — CRITICAL |
-| `users/departments.controller.ts` | **0%** (0/22) | ≥ 80% | ❌ FAIL — CRITICAL |
-| `users/avatar/avatar.service.ts` | **0%** (0/43) | ≥ 80% | ❌ FAIL — CRITICAL |
-| `users/events/tenant.handler.ts` | **0%** (0/12) | ≥ 80% | ❌ FAIL |
-| `users/dto/*.ts` (các DTOs) | **0%** | — | ❌ FAIL |
-| `users/schemas/user.schema.ts` | 100% | — | ✅ |
-| `users/schemas/department.schema.ts` | 100% | — | ✅ |
+| File                                 | Stmts Coverage   | AC    | Kết quả            |
+| ------------------------------------ | ---------------- | ----- | ------------------ |
+| `users/users.service.ts`             | **45%** (49/108) | ≥ 80% | ❌ FAIL — CRITICAL |
+| `users/departments.service.ts`       | **57%** (47/82)  | ≥ 80% | ❌ FAIL            |
+| `users/users.controller.ts`          | **0%** (0/29)    | ≥ 80% | ❌ FAIL — CRITICAL |
+| `users/departments.controller.ts`    | **0%** (0/22)    | ≥ 80% | ❌ FAIL — CRITICAL |
+| `users/avatar/avatar.service.ts`     | **0%** (0/43)    | ≥ 80% | ❌ FAIL — CRITICAL |
+| `users/events/tenant.handler.ts`     | **0%** (0/12)    | ≥ 80% | ❌ FAIL            |
+| `users/dto/*.ts` (các DTOs)          | **0%**           | —     | ❌ FAIL            |
+| `users/schemas/user.schema.ts`       | 100%             | —     | ✅                 |
+| `users/schemas/department.schema.ts` | 100%             | —     | ✅                 |
 
 #### Chức năng đã implement (có trong production code)
+
 - ✅ CRUD user (`createUser`, `getUserById`, `updateUser`, soft delete) với tenantId isolation
 - ✅ `/users/me` — hồ sơ cá nhân
 - ✅ `user.created` event publish sau khi tạo user
@@ -259,6 +266,7 @@ Công ty ACME
 - ✅ `tenant.handler.ts` — subscribe `tenant.created` via RabbitMQ
 
 #### Test cases hiện có (`users.service.spec.ts`, `departments.service.spec.ts`)
+
 - ✅ `createUser publishes user.created`
 - ✅ `createUser rejects duplicate email`
 - ✅ `createDepartment stores nested department information`
@@ -280,6 +288,7 @@ Công ty ACME
 **Kết luận QA:** ❌ Giữ nguyên **🟡 REVIEW** — Cấu trúc module đầy đủ, nhưng phần lớn logic chưa được test. `users.service.ts` 45%, controller và avatar.service 0% là các gap nghiêm trọng.
 
 **Điều kiện đóng task:**
+
 - [ ] `users.service.ts` ≥ 80% — thêm test `getMe`, `updateUser`, `softDeleteUser`, `lockUser`, `bootstrapTenantAdmin`, quota-on-create
 - [ ] `departments.service.ts` ≥ 80% — thêm test update/delete/members
 - [ ] `users.controller.ts` ≥ 80%

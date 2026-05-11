@@ -20,9 +20,18 @@ export class RateLimitMiddleware implements NestMiddleware {
   private readonly buckets = new Map<string, Bucket>();
 
   constructor(private readonly configService: ConfigService) {
-    this.windowMs = this.configService.get<number>('RATE_LIMIT_WINDOW_MS', 60_000);
-    this.authLimit = this.configService.get<number>('RATE_LIMIT_AUTH_LIMIT', 10);
-    this.globalLimit = this.configService.get<number>('RATE_LIMIT_GLOBAL_LIMIT', 100);
+    this.windowMs = this.configService.get<number>(
+      'RATE_LIMIT_WINDOW_MS',
+      60_000,
+    );
+    this.authLimit = this.configService.get<number>(
+      'RATE_LIMIT_AUTH_LIMIT',
+      10,
+    );
+    this.globalLimit = this.configService.get<number>(
+      'RATE_LIMIT_GLOBAL_LIMIT',
+      100,
+    );
   }
 
   use(req: Request, res: Response, next: NextFunction): void {
@@ -31,19 +40,26 @@ export class RateLimitMiddleware implements NestMiddleware {
     const now = Date.now();
 
     const current = this.buckets.get(key);
-    const bucket = !current || current.resetAt <= now
-      ? { count: 0, resetAt: now + this.windowMs }
-      : current;
+    const bucket =
+      !current || current.resetAt <= now
+        ? { count: 0, resetAt: now + this.windowMs }
+        : current;
 
     bucket.count += 1;
     this.buckets.set(key, bucket);
 
     const remaining = Math.max(0, limit - bucket.count);
-    const resetInSeconds = Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
+    const resetInSeconds = Math.max(
+      1,
+      Math.ceil((bucket.resetAt - now) / 1000),
+    );
 
     res.setHeader('x-ratelimit-limit', String(limit));
     res.setHeader('x-ratelimit-remaining', String(remaining));
-    res.setHeader('x-ratelimit-reset', String(Math.floor(bucket.resetAt / 1000)));
+    res.setHeader(
+      'x-ratelimit-reset',
+      String(Math.floor(bucket.resetAt / 1000)),
+    );
 
     if (bucket.count > limit) {
       res.setHeader('retry-after', String(resetInSeconds));

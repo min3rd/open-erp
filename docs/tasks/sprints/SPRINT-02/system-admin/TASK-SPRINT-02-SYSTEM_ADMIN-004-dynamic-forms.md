@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                          |
-|------------------|----------------------------------|
-| Task ID          | TASK-SPRINT-02-SYSTEM_ADMIN-004  |
-| Sprint           | Sprint 02                        |
-| Cluster          | system-admin                     |
-| Loại             | Backend                          |
-| Người phụ trách  | Backend                          |
-| Story Points     | 8                                |
-| Trạng thái       | ⬜ TODO                          |
-| Phụ thuộc        | TASK-SPRINT-02-SYSTEM_ADMIN-003  |
+| Thuộc tính      | Giá trị                         |
+| --------------- | ------------------------------- |
+| Task ID         | TASK-SPRINT-02-SYSTEM_ADMIN-004 |
+| Sprint          | Sprint 02                       |
+| Cluster         | system-admin                    |
+| Loại            | Backend                         |
+| Người phụ trách | Backend                         |
+| Story Points    | 8                               |
+| Trạng thái      | ⬜ TODO                         |
+| Phụ thuộc       | TASK-SPRINT-02-SYSTEM_ADMIN-003 |
 
 ## Mô tả
 
@@ -22,6 +22,7 @@ Xây dựng Dynamic Forms Engine — cho phép Tenant Admin tạo biểu mẫu t
 ### Backend (NestJS — `catalog-service`, bổ sung module DynamicForms)
 
 **Cấu trúc bổ sung:**
+
 ```
 src/
 ├── dynamic-forms/
@@ -41,6 +42,7 @@ src/
 ```
 
 **Form Schema (JSON):**
+
 ```typescript
 interface DynamicFormSchema {
   id: string;
@@ -51,105 +53,112 @@ interface DynamicFormSchema {
   settings: {
     allowMultipleSubmissions: boolean;
     requiresApproval: boolean;
-    notifyOnSubmit: string[];          // userIds to notify
+    notifyOnSubmit: string[]; // userIds to notify
     successMessage: string;
     redirectUrl?: string;
   };
 }
 
 interface FormField {
-  id: string;                          // Unique trong form
+  id: string; // Unique trong form
   type: FormFieldType;
   label: string;
   placeholder?: string;
   helpText?: string;
   required: boolean;
   order: number;
-  width: 'full' | 'half' | 'third';   // Layout
+  width: "full" | "half" | "third"; // Layout
   validation?: FieldValidation;
-  options?: SelectOption[];            // Cho select, multi-select, radio, checkbox
+  options?: SelectOption[]; // Cho select, multi-select, radio, checkbox
   conditionalDisplay?: ConditionalRule; // Hiện field khi điều kiện khác thỏa mãn
-  dataSource?: string;                  // catalogType để load options động
+  dataSource?: string; // catalogType để load options động
 }
 
 type FormFieldType =
-  | 'text'
-  | 'textarea'
-  | 'number'
-  | 'currency'
-  | 'date'
-  | 'date-range'
-  | 'time'
-  | 'datetime'
-  | 'select'
-  | 'multi-select'
-  | 'radio'
-  | 'checkbox'
-  | 'toggle'
-  | 'file'
-  | 'image'
-  | 'rich-text'
-  | 'user-picker'
-  | 'department-picker'
-  | 'section-header'
-  | 'divider';
+  | "text"
+  | "textarea"
+  | "number"
+  | "currency"
+  | "date"
+  | "date-range"
+  | "time"
+  | "datetime"
+  | "select"
+  | "multi-select"
+  | "radio"
+  | "checkbox"
+  | "toggle"
+  | "file"
+  | "image"
+  | "rich-text"
+  | "user-picker"
+  | "department-picker"
+  | "section-header"
+  | "divider";
 ```
 
 **FieldValidation:**
+
 ```typescript
 interface FieldValidation {
-  min?: number;              // Số tối thiểu / độ dài tối thiểu
-  max?: number;              // Số tối đa / độ dài tối đa
+  min?: number; // Số tối thiểu / độ dài tối thiểu
+  max?: number; // Số tối đa / độ dài tối đa
   minLength?: number;
   maxLength?: number;
-  pattern?: string;          // Regex pattern
-  patternMessage?: string;   // Thông báo lỗi khi không khớp pattern
+  pattern?: string; // Regex pattern
+  patternMessage?: string; // Thông báo lỗi khi không khớp pattern
   allowedFileTypes?: string[]; // ['image/jpeg', 'application/pdf']
   maxFileSizeMb?: number;
-  customMessage?: string;    // Override default error message
+  customMessage?: string; // Override default error message
 }
 ```
 
 **ConditionalDisplay:**
+
 ```typescript
 interface ConditionalRule {
-  fieldId: string;           // Field cần kiểm tra
-  operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'contains' | 'in';
+  fieldId: string; // Field cần kiểm tra
+  operator: "eq" | "neq" | "gt" | "gte" | "lt" | "lte" | "contains" | "in";
   value: unknown;
 }
 // Ví dụ: chỉ hiện field "reason" khi "leaveType" = "sick"
 ```
 
 **Form Versioning:**
+
 - Mỗi lần publish form tạo version mới
 - Form cũ vẫn giữ, submissions link với version cụ thể
 - Draft → Published → Archived
 
 **Form Validation Engine (Server-side):**
+
 ```typescript
 @Injectable()
 export class FormValidatorService {
   async validate(
     formId: string,
     version: number,
-    data: Record<string, unknown>
+    data: Record<string, unknown>,
   ): Promise<ValidationResult> {
     const form = await this.getFormVersion(formId, version);
     const errors: FieldError[] = [];
-    
+
     for (const field of form.fields) {
       const value = data[field.id];
-      
+
       if (field.required && !value) {
-        errors.push({ fieldId: field.id, message: `${field.label} là bắt buộc` });
+        errors.push({
+          fieldId: field.id,
+          message: `${field.label} là bắt buộc`,
+        });
         continue;
       }
-      
+
       if (value && field.validation) {
         errors.push(...this.validateField(field, value));
       }
     }
-    
+
     return { valid: errors.length === 0, errors };
   }
 }
@@ -159,55 +168,56 @@ export class FormValidatorService {
 
 **Collection: `dynamic_forms`** (tenantId-scoped)
 
-| Trường        | Kiểu     | Ràng buộc      | Mô tả                          |
-|---------------|----------|----------------|--------------------------------|
-| `_id`         | ObjectId | —              | Primary key                    |
-| `tenantId`    | ObjectId | required       | Tenant                         |
-| `name`        | string   | required       | Tên form                       |
-| `description` | string   | optional       | Mô tả                          |
-| `category`    | string   | optional       | Nhóm form (HR, Sale, ...)      |
-| `status`      | enum     | DRAFT/PUBLISHED/ARCHIVED | Trạng thái    |
-| `currentVersion` | number| default: 1     | Phiên bản đang active          |
-| `schema`      | object   | required       | JSON form schema               |
-| `settings`    | object   | —              | Form settings                  |
-| `submissionCount` | number| default: 0    | Số submissions                 |
-| `isDeleted`   | boolean  | default: false | Soft delete                    |
-| `createdBy`   | ObjectId | required       | Người tạo                      |
-| `publishedAt` | Date     | optional       | —                              |
-| `createdAt`   | Date     | auto           | —                              |
-| `updatedAt`   | Date     | auto           | —                              |
+| Trường            | Kiểu     | Ràng buộc                | Mô tả                     |
+| ----------------- | -------- | ------------------------ | ------------------------- |
+| `_id`             | ObjectId | —                        | Primary key               |
+| `tenantId`        | ObjectId | required                 | Tenant                    |
+| `name`            | string   | required                 | Tên form                  |
+| `description`     | string   | optional                 | Mô tả                     |
+| `category`        | string   | optional                 | Nhóm form (HR, Sale, ...) |
+| `status`          | enum     | DRAFT/PUBLISHED/ARCHIVED | Trạng thái                |
+| `currentVersion`  | number   | default: 1               | Phiên bản đang active     |
+| `schema`          | object   | required                 | JSON form schema          |
+| `settings`        | object   | —                        | Form settings             |
+| `submissionCount` | number   | default: 0               | Số submissions            |
+| `isDeleted`       | boolean  | default: false           | Soft delete               |
+| `createdBy`       | ObjectId | required                 | Người tạo                 |
+| `publishedAt`     | Date     | optional                 | —                         |
+| `createdAt`       | Date     | auto                     | —                         |
+| `updatedAt`       | Date     | auto                     | —                         |
 
 **Collection: `form_versions`** (tenantId-scoped)
 
-| Trường      | Kiểu     | Mô tả                              |
-|-------------|----------|------------------------------------|
-| `_id`       | ObjectId | —                                  |
-| `tenantId`  | ObjectId | Tenant                             |
-| `formId`    | ObjectId | Reference đến dynamic_forms        |
-| `version`   | number   | Số phiên bản                       |
+| Trường      | Kiểu     | Mô tả                                 |
+| ----------- | -------- | ------------------------------------- |
+| `_id`       | ObjectId | —                                     |
+| `tenantId`  | ObjectId | Tenant                                |
+| `formId`    | ObjectId | Reference đến dynamic_forms           |
+| `version`   | number   | Số phiên bản                          |
 | `schema`    | object   | Snapshot schema tại thời điểm publish |
-| `createdBy` | ObjectId | Ai publish                         |
-| `createdAt` | Date     | Thời điểm publish                  |
+| `createdBy` | ObjectId | Ai publish                            |
+| `createdAt` | Date     | Thời điểm publish                     |
 
 **Collection: `form_submissions`** (tenantId-scoped)
 
-| Trường        | Kiểu     | Ràng buộc | Mô tả                              |
-|---------------|----------|-----------|------------------------------------|
-| `_id`         | ObjectId | —         | Primary key                        |
-| `tenantId`    | ObjectId | required  | Tenant                             |
-| `formId`      | ObjectId | required  | Form                               |
-| `formVersion` | number   | required  | Phiên bản form khi submit          |
-| `submittedBy` | ObjectId | required  | User submit                        |
-| `data`        | object   | required  | Dữ liệu form đã submit             |
-| `status`      | enum     | PENDING/APPROVED/REJECTED | Trạng thái (nếu cần approve) |
-| `approvedBy`  | ObjectId | optional  | Người duyệt                        |
-| `approvedAt`  | Date     | optional  | Thời điểm duyệt                    |
-| `rejectionReason` | string | optional | Lý do từ chối                   |
-| `attachments` | array    | optional  | MinIO URLs                         |
-| `submittedAt` | Date     | required  | Thời điểm submit                   |
-| `createdAt`   | Date     | auto       | —                                  |
+| Trường            | Kiểu     | Ràng buộc                 | Mô tả                        |
+| ----------------- | -------- | ------------------------- | ---------------------------- |
+| `_id`             | ObjectId | —                         | Primary key                  |
+| `tenantId`        | ObjectId | required                  | Tenant                       |
+| `formId`          | ObjectId | required                  | Form                         |
+| `formVersion`     | number   | required                  | Phiên bản form khi submit    |
+| `submittedBy`     | ObjectId | required                  | User submit                  |
+| `data`            | object   | required                  | Dữ liệu form đã submit       |
+| `status`          | enum     | PENDING/APPROVED/REJECTED | Trạng thái (nếu cần approve) |
+| `approvedBy`      | ObjectId | optional                  | Người duyệt                  |
+| `approvedAt`      | Date     | optional                  | Thời điểm duyệt              |
+| `rejectionReason` | string   | optional                  | Lý do từ chối                |
+| `attachments`     | array    | optional                  | MinIO URLs                   |
+| `submittedAt`     | Date     | required                  | Thời điểm submit             |
+| `createdAt`       | Date     | auto                      | —                            |
 
 **Indexes:**
+
 ```
 { tenantId: 1, formId: 1, submittedAt: -1 }
 { tenantId: 1, submittedBy: 1, submittedAt: -1 }
@@ -216,19 +226,19 @@ export class FormValidatorService {
 
 ## API Endpoints
 
-| Method | Path                                        | Mô tả                                    | Auth            |
-|--------|---------------------------------------------|------------------------------------------|-----------------|
-| GET    | `/api/v1/forms`                             | Danh sách forms                          | Tenant Admin    |
-| POST   | `/api/v1/forms`                             | Tạo form mới (DRAFT)                     | Tenant Admin    |
-| GET    | `/api/v1/forms/:id`                         | Chi tiết form + schema                   | Any user        |
-| PATCH  | `/api/v1/forms/:id`                         | Cập nhật form (DRAFT only)               | Tenant Admin    |
-| POST   | `/api/v1/forms/:id/publish`                 | Publish form (tạo version mới)           | Tenant Admin    |
-| DELETE | `/api/v1/forms/:id`                         | Archive/xoá form                         | Tenant Admin    |
-| POST   | `/api/v1/forms/:id/submit`                  | Submit form data                         | Any user        |
-| GET    | `/api/v1/forms/:id/submissions`             | Danh sách submissions                    | Tenant Admin    |
-| GET    | `/api/v1/forms/:id/submissions/:subId`      | Chi tiết submission                      | Tenant Admin/Owner |
-| PATCH  | `/api/v1/forms/:id/submissions/:subId/approve` | Duyệt submission                      | Tenant Admin    |
-| PATCH  | `/api/v1/forms/:id/submissions/:subId/reject`  | Từ chối submission                     | Tenant Admin    |
+| Method | Path                                           | Mô tả                          | Auth               |
+| ------ | ---------------------------------------------- | ------------------------------ | ------------------ |
+| GET    | `/api/v1/forms`                                | Danh sách forms                | Tenant Admin       |
+| POST   | `/api/v1/forms`                                | Tạo form mới (DRAFT)           | Tenant Admin       |
+| GET    | `/api/v1/forms/:id`                            | Chi tiết form + schema         | Any user           |
+| PATCH  | `/api/v1/forms/:id`                            | Cập nhật form (DRAFT only)     | Tenant Admin       |
+| POST   | `/api/v1/forms/:id/publish`                    | Publish form (tạo version mới) | Tenant Admin       |
+| DELETE | `/api/v1/forms/:id`                            | Archive/xoá form               | Tenant Admin       |
+| POST   | `/api/v1/forms/:id/submit`                     | Submit form data               | Any user           |
+| GET    | `/api/v1/forms/:id/submissions`                | Danh sách submissions          | Tenant Admin       |
+| GET    | `/api/v1/forms/:id/submissions/:subId`         | Chi tiết submission            | Tenant Admin/Owner |
+| PATCH  | `/api/v1/forms/:id/submissions/:subId/approve` | Duyệt submission               | Tenant Admin       |
+| PATCH  | `/api/v1/forms/:id/submissions/:subId/reject`  | Từ chối submission             | Tenant Admin       |
 
 ## Yêu cầu bảo mật
 

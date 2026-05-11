@@ -13,17 +13,30 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import argon2 from 'argon2';
 import bcryptjs from 'bcryptjs';
-import { createCipheriv, createDecipheriv, createHash, randomBytes, randomUUID } from 'crypto';
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  randomBytes,
+  randomUUID,
+} from 'crypto';
 import { authenticator } from 'otplib';
 import * as QRCode from 'qrcode';
 import Redis from 'ioredis';
 import { Model, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { RabbitMQService } from '../common/services/rabbitmq.service';
-import { Tenant, TenantDocument, TenantStatus } from '../tenant/schemas/tenant.schema';
+import {
+  Tenant,
+  TenantDocument,
+  TenantStatus,
+} from '../tenant/schemas/tenant.schema';
 import { TokenService } from '../token/token.service';
 import { User, UserDocument, UserStatus } from '../users/schemas/user.schema';
-import { MfaChallenge, MfaChallengeDocument } from './mfa/schemas/mfa-challenge.schema';
+import {
+  MfaChallenge,
+  MfaChallengeDocument,
+} from './mfa/schemas/mfa-challenge.schema';
 import { resolveJwtRuntimeConfig } from './auth-runtime.config';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
@@ -98,10 +111,13 @@ export class AuthService implements OnModuleDestroy {
     if (!isValidPassword) {
       const lockedByThreshold = await this.handleFailedLogin(user);
       if (lockedByThreshold) {
-        throw new HttpException({
-          code: 'ACCOUNT_LOCKED',
-          message: 'Account is temporarily locked',
-        }, HttpStatus.LOCKED);
+        throw new HttpException(
+          {
+            code: 'ACCOUNT_LOCKED',
+            message: 'Account is temporarily locked',
+          },
+          HttpStatus.LOCKED,
+        );
       }
 
       throw new UnauthorizedException({
@@ -125,15 +141,24 @@ export class AuthService implements OnModuleDestroy {
       .lean()
       .exec();
 
-    const allowedTenantStatuses: string[] = [TenantStatus.ACTIVE, TenantStatus.TRIAL];
-    if (!tenant || tenant.isDeleted || !allowedTenantStatuses.includes(tenant.status)) {
+    const allowedTenantStatuses: string[] = [
+      TenantStatus.ACTIVE,
+      TenantStatus.TRIAL,
+    ];
+    if (
+      !tenant ||
+      tenant.isDeleted ||
+      !allowedTenantStatuses.includes(tenant.status)
+    ) {
       throw new ForbiddenException({
         code: 'TENANT_SUSPENDED',
         message: 'Tenant is suspended or inactive',
       });
     }
 
-    const tenantMfaRequired = Boolean((tenant as { settings?: Record<string, unknown> })?.settings?.mfaRequired);
+    const tenantMfaRequired = Boolean(
+      (tenant as { settings?: Record<string, unknown> })?.settings?.mfaRequired,
+    );
     if (user.mfaEnabled) {
       return {
         success: true,
@@ -371,7 +396,11 @@ export class AuthService implements OnModuleDestroy {
     }
 
     const secret = authenticator.generateSecret();
-    await this.storePendingMfaSecret(currentUser.tenantId.toString(), currentUser._id.toString(), secret);
+    await this.storePendingMfaSecret(
+      currentUser.tenantId.toString(),
+      currentUser._id.toString(),
+      secret,
+    );
     const qrCodeUrl = this.buildMfaOtpAuthUrl(currentUser.email, secret);
     const qrCodeImage = await QRCode.toDataURL(qrCodeUrl);
 
@@ -401,7 +430,10 @@ export class AuthService implements OnModuleDestroy {
       });
     }
 
-    const secret = await this.consumePendingMfaSecret(currentUser.tenantId.toString(), currentUser._id.toString());
+    const secret = await this.consumePendingMfaSecret(
+      currentUser.tenantId.toString(),
+      currentUser._id.toString(),
+    );
     this.assertTotpNotReplayed(currentUser.mfaLastUsedAt);
     if (!secret || !this.verifyTotpCode(secret, code, user.tenantId)) {
       throw new UnauthorizedException({
@@ -497,7 +529,9 @@ export class AuthService implements OnModuleDestroy {
     const payload = this.verifyMfaToken(mfaToken);
     const challengeToken = this.sha256(mfaToken);
 
-    const challenge = await this.mfaChallengeModel.findOne({ token: challengeToken }).exec();
+    const challenge = await this.mfaChallengeModel
+      .findOne({ token: challengeToken })
+      .exec();
     if (!challenge || challenge.used || challenge.expiresAt <= new Date()) {
       throw new UnauthorizedException({
         code: 'UNAUTHORIZED',
@@ -522,8 +556,12 @@ export class AuthService implements OnModuleDestroy {
 
     const secret = this.decryptMfaSecret(currentUser.mfaSecret);
     this.assertTotpNotReplayed(currentUser.mfaLastUsedAt);
-    const verifiedByTotp = code ? this.verifyTotpCode(secret, code, payload.tenantId) : false;
-    const verifiedByBackup = backupCode ? await this.consumeBackupCode(currentUser, backupCode) : false;
+    const verifiedByTotp = code
+      ? this.verifyTotpCode(secret, code, payload.tenantId)
+      : false;
+    const verifiedByBackup = backupCode
+      ? await this.consumeBackupCode(currentUser, backupCode)
+      : false;
 
     if (!verifiedByTotp && !verifiedByBackup) {
       challenge.failedAttempts += 1;
@@ -568,10 +606,13 @@ export class AuthService implements OnModuleDestroy {
 
   private assertUserNotLocked(user: UserDocument): void {
     if (user.lockedUntil && user.lockedUntil > new Date()) {
-      throw new HttpException({
-        code: 'ACCOUNT_LOCKED',
-        message: 'Account is temporarily locked',
-      }, HttpStatus.LOCKED);
+      throw new HttpException(
+        {
+          code: 'ACCOUNT_LOCKED',
+          message: 'Account is temporarily locked',
+        },
+        HttpStatus.LOCKED,
+      );
     }
   }
 
@@ -592,7 +633,10 @@ export class AuthService implements OnModuleDestroy {
     return false;
   }
 
-  private signAccessToken(user: UserDocument): { token: string; expiresIn: number } {
+  private signAccessToken(user: UserDocument): {
+    token: string;
+    expiresIn: number;
+  } {
     const expiresIn = this.configService.get<string>('JWT_EXPIRES_IN') ?? '15m';
     const jwtConfig = resolveJwtRuntimeConfig(this.configService);
     const jti = uuidv4();
@@ -626,7 +670,10 @@ export class AuthService implements OnModuleDestroy {
     };
   }
 
-  private logJwtFallbackWarning(warning: string | undefined, usedFallback: boolean): void {
+  private logJwtFallbackWarning(
+    warning: string | undefined,
+    usedFallback: boolean,
+  ): void {
     if (!usedFallback || !warning || this.jwtFallbackWarningLogged) {
       return;
     }
@@ -682,18 +729,25 @@ export class AuthService implements OnModuleDestroy {
     return this.redisClient;
   }
 
-  private publishEvent(routingKey: string, payload: Record<string, unknown>): void {
-    this.rabbitMQService.publish(routingKey, payload).catch((error: unknown) => {
-      const message = error instanceof Error ? error.message : 'unknown';
-      this.logger.warn(`Failed to publish ${routingKey}: ${message}`);
-    });
+  private publishEvent(
+    routingKey: string,
+    payload: Record<string, unknown>,
+  ): void {
+    this.rabbitMQService
+      .publish(routingKey, payload)
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : 'unknown';
+        this.logger.warn(`Failed to publish ${routingKey}: ${message}`);
+      });
   }
 
   private sha256(input: string): string {
     return createHash('sha256').update(input).digest('hex');
   }
 
-  private async createMfaChallengeState(user: UserDocument): Promise<MfaLoginState> {
+  private async createMfaChallengeState(
+    user: UserDocument,
+  ): Promise<MfaLoginState> {
     const mfaToken = await this.issueMfaToken({
       tenantId: user.tenantId.toString(),
       userId: user._id.toString(),
@@ -720,7 +774,11 @@ export class AuthService implements OnModuleDestroy {
     };
   }
 
-  private async issueMfaToken(payload: { tenantId: string; userId: string; email: string }): Promise<string> {
+  private async issueMfaToken(payload: {
+    tenantId: string;
+    userId: string;
+    email: string;
+  }): Promise<string> {
     const jwtConfig = resolveJwtRuntimeConfig(this.configService);
     const data = {
       sub: payload.userId,
@@ -745,7 +803,12 @@ export class AuthService implements OnModuleDestroy {
     });
   }
 
-  private verifyMfaToken(token: string): { sub: string; tenantId: string; email: string; purpose?: string } {
+  private verifyMfaToken(token: string): {
+    sub: string;
+    tenantId: string;
+    email: string;
+    purpose?: string;
+  } {
     const jwtConfig = resolveJwtRuntimeConfig(this.configService);
     const payload = this.jwtService.verify(token, {
       ...(jwtConfig.algorithm === 'RS256'
@@ -769,8 +832,14 @@ export class AuthService implements OnModuleDestroy {
     return `otpauth://totp/${encodeURIComponent(`${issuer}:${email}`)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}`;
   }
 
-  private verifyTotpCode(secret: string, code: string, tenantId?: string): boolean {
-    const windowSize = Number(this.configService.get<string>('MFA_TOTP_WINDOW') ?? '1');
+  private verifyTotpCode(
+    secret: string,
+    code: string,
+    tenantId?: string,
+  ): boolean {
+    const windowSize = Number(
+      this.configService.get<string>('MFA_TOTP_WINDOW') ?? '1',
+    );
     authenticator.options = { window: windowSize };
 
     return authenticator.verify({ token: code, secret });
@@ -780,7 +849,10 @@ export class AuthService implements OnModuleDestroy {
     const key = this.resolveMfaKey();
     const iv = randomBytes(12);
     const cipher = createCipheriv('aes-256-gcm', key, iv);
-    const encrypted = Buffer.concat([cipher.update(secret, 'utf8'), cipher.final()]);
+    const encrypted = Buffer.concat([
+      cipher.update(secret, 'utf8'),
+      cipher.final(),
+    ]);
     const authTag = cipher.getAuthTag();
     return `${iv.toString('base64')}:${encrypted.toString('base64')}:${authTag.toString('base64')}`;
   }
@@ -795,7 +867,11 @@ export class AuthService implements OnModuleDestroy {
     }
 
     const key = this.resolveMfaKey();
-    const decipher = createDecipheriv('aes-256-gcm', key, Buffer.from(ivBase64, 'base64'));
+    const decipher = createDecipheriv(
+      'aes-256-gcm',
+      key,
+      Buffer.from(ivBase64, 'base64'),
+    );
     decipher.setAuthTag(Buffer.from(tagBase64, 'base64'));
     return Buffer.concat([
       decipher.update(Buffer.from(payloadBase64, 'base64')),
@@ -804,7 +880,10 @@ export class AuthService implements OnModuleDestroy {
   }
 
   private resolveMfaKey(): Buffer {
-    const rawKey = this.configService.get<string>('MFA_ENCRYPTION_KEY') ?? this.configService.get<string>('JWT_SECRET') ?? 'open-erp-mfa-default-key';
+    const rawKey =
+      this.configService.get<string>('MFA_ENCRYPTION_KEY') ??
+      this.configService.get<string>('JWT_SECRET') ??
+      'open-erp-mfa-default-key';
     if (/^[0-9a-fA-F]{64}$/.test(rawKey)) {
       return Buffer.from(rawKey, 'hex');
     }
@@ -815,20 +894,30 @@ export class AuthService implements OnModuleDestroy {
   private generateBackupCodes(): string[] {
     const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     return Array.from({ length: 10 }, () =>
-      Array.from({ length: 8 }, () => alphabet[randomBytes(1)[0] % alphabet.length]).join(''),
+      Array.from(
+        { length: 8 },
+        () => alphabet[randomBytes(1)[0] % alphabet.length],
+      ).join(''),
     );
   }
 
   private async hashBackupCodes(codes: string[]): Promise<string[]> {
-    const rounds = Number(this.configService.get<string>('MFA_BACKUP_BCRYPT_ROUNDS') ?? '10');
+    const rounds = Number(
+      this.configService.get<string>('MFA_BACKUP_BCRYPT_ROUNDS') ?? '10',
+    );
     return Promise.all(codes.map((code) => bcryptjs.hash(code, rounds)));
   }
 
-  private async consumeBackupCode(user: UserDocument, backupCode: string): Promise<boolean> {
+  private async consumeBackupCode(
+    user: UserDocument,
+    backupCode: string,
+  ): Promise<boolean> {
     for (const hashed of user.mfaBackupCodes ?? []) {
       const matched = await bcryptjs.compare(backupCode, hashed);
       if (matched) {
-        user.mfaBackupCodes = (user.mfaBackupCodes ?? []).filter((value) => value !== hashed);
+        user.mfaBackupCodes = (user.mfaBackupCodes ?? []).filter(
+          (value) => value !== hashed,
+        );
         await user.save();
         return true;
       }
@@ -837,7 +926,11 @@ export class AuthService implements OnModuleDestroy {
     return false;
   }
 
-  private async storePendingMfaSecret(tenantId: string, userId: string, secret: string): Promise<void> {
+  private async storePendingMfaSecret(
+    tenantId: string,
+    userId: string,
+    secret: string,
+  ): Promise<void> {
     const redisUrl = this.configService.get<string>('REDIS_URL');
     if (!redisUrl) {
       this.pendingMfaSecrets.set(`${tenantId}:${userId}`, secret);
@@ -845,10 +938,18 @@ export class AuthService implements OnModuleDestroy {
     }
 
     const client = await this.getRedisClient(redisUrl);
-    await client.set(`mfa:setup:${tenantId}:${userId}`, secret, 'EX', this.mfaTokenTtlSeconds);
+    await client.set(
+      `mfa:setup:${tenantId}:${userId}`,
+      secret,
+      'EX',
+      this.mfaTokenTtlSeconds,
+    );
   }
 
-  private async consumePendingMfaSecret(tenantId: string, userId: string): Promise<string | null> {
+  private async consumePendingMfaSecret(
+    tenantId: string,
+    userId: string,
+  ): Promise<string | null> {
     const redisUrl = this.configService.get<string>('REDIS_URL');
     if (!redisUrl) {
       const key = `${tenantId}:${userId}`;
@@ -872,7 +973,9 @@ export class AuthService implements OnModuleDestroy {
       return;
     }
 
-    const windowSeconds = Number(this.configService.get<string>('MFA_TOTP_WINDOW') ?? '1');
+    const windowSeconds = Number(
+      this.configService.get<string>('MFA_TOTP_WINDOW') ?? '1',
+    );
     const windowMs = Math.max(1, windowSeconds) * 30 * 1000;
     if (Date.now() - lastUsedAt.getTime() < windowMs) {
       throw new UnauthorizedException({

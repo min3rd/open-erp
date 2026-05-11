@@ -2,16 +2,16 @@
 
 ## Thông tin
 
-| Thuộc tính       | Giá trị                           |
-|------------------|-----------------------------------|
-| Task ID          | TASK-SPRINT-01-FOUNDATION-004     |
-| Sprint           | Sprint 01                         |
-| Cluster          | foundation                        |
-| Loại             | Backend                           |
-| Người phụ trách  | Backend                           |
-| Story Points     | 3                                 |
-| Trạng thái       | 🟡 REVIEW                         |
-| Phụ thuộc        | TASK-SPRINT-01-FOUNDATION-001     |
+| Thuộc tính      | Giá trị                       |
+| --------------- | ----------------------------- |
+| Task ID         | TASK-SPRINT-01-FOUNDATION-004 |
+| Sprint          | Sprint 01                     |
+| Cluster         | foundation                    |
+| Loại            | Backend                       |
+| Người phụ trách | Backend                       |
+| Story Points    | 3                             |
+| Trạng thái      | 🟡 REVIEW                     |
+| Phụ thuộc       | TASK-SPRINT-01-FOUNDATION-001 |
 
 ## Mô tả
 
@@ -22,6 +22,7 @@ Xây dựng shared library cho MongoDB/Mongoose với kết nối chuẩn, Base 
 ### Backend (NestJS — Shared Library `@erp/database`)
 
 **Cấu trúc thư viện:**
+
 ```
 libs/database/src/
 ├── database.module.ts             ← Dynamic module, nhận MONGO_URI
@@ -38,8 +39,8 @@ libs/database/src/
 
 ```typescript
 // libs/database/src/base.schema.ts
-import { Prop, Schema } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { Prop, Schema } from "@nestjs/mongoose";
+import { Types } from "mongoose";
 
 @Schema({ timestamps: true })
 export abstract class BaseSchema {
@@ -68,12 +69,21 @@ Tự động thêm `{ tenantId: currentTenantId }` vào **mọi** query:
 // libs/database/src/plugins/tenant.plugin.ts
 export function tenantPlugin(schema: Schema): void {
   // Intercept tất cả query methods
-  const queryMethods = ['find', 'findOne', 'findOneAndUpdate',
-                        'findOneAndDelete', 'count', 'countDocuments',
-                        'updateMany', 'updateOne', 'deleteMany', 'deleteOne'];
+  const queryMethods = [
+    "find",
+    "findOne",
+    "findOneAndUpdate",
+    "findOneAndDelete",
+    "count",
+    "countDocuments",
+    "updateMany",
+    "updateOne",
+    "deleteMany",
+    "deleteOne",
+  ];
 
   queryMethods.forEach((method) => {
-    schema.pre(method, function() {
+    schema.pre(method, function () {
       const tenantId = this.getOptions()?.tenantId;
       if (tenantId) {
         this.where({ tenantId, isDeleted: false });
@@ -82,9 +92,9 @@ export function tenantPlugin(schema: Schema): void {
   });
 
   // Intercept save (create/update)
-  schema.pre('save', function() {
+  schema.pre("save", function () {
     if (!this.tenantId) {
-      throw new Error('tenantId là bắt buộc');
+      throw new Error("tenantId là bắt buộc");
     }
     if (this.isDeleted) {
       this.deletedAt = new Date();
@@ -94,6 +104,7 @@ export function tenantPlugin(schema: Schema): void {
 ```
 
 **Cách sử dụng trong microservice:**
+
 ```typescript
 @Schema({ timestamps: true, plugins: [tenantPlugin] })
 export class User extends BaseSchema {
@@ -107,10 +118,10 @@ export class User extends BaseSchema {
 
 ```typescript
 interface PaginationOptions {
-  page?: number;     // default: 1
-  limit?: number;    // default: 20, max: 100
-  sortBy?: string;   // field name
-  sortOrder?: 'asc' | 'desc';
+  page?: number; // default: 1
+  limit?: number; // default: 20, max: 100
+  sortBy?: string; // field name
+  sortOrder?: "asc" | "desc";
 }
 
 interface PaginatedResult<T> {
@@ -130,7 +141,7 @@ async function paginate<T>(
   model: Model<T>,
   filter: FilterQuery<T>,
   options: PaginationOptions,
-): Promise<PaginatedResult<T>>
+): Promise<PaginatedResult<T>>;
 ```
 
 ### DatabaseModule — Kết nối MongoDB
@@ -146,7 +157,7 @@ export class DatabaseModule {
           useFactory: () => ({
             uri,
             // Replica set bắt buộc cho transactions
-            replicaSet: 'rs0',
+            replicaSet: "rs0",
             // Connection pool
             maxPoolSize: 10,
             minPoolSize: 2,
@@ -154,7 +165,7 @@ export class DatabaseModule {
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
             // Auto index chỉ bật khi dev
-            autoIndex: process.env.NODE_ENV !== 'production',
+            autoIndex: process.env.NODE_ENV !== "production",
           }),
         }),
       ],
@@ -168,19 +179,20 @@ export class DatabaseModule {
 
 **Collections cơ sở (dùng trong Sprint 01):**
 
-| Collection              | Service sở hữu  | tenantId | Mô tả                            |
-|-------------------------|-----------------|----------|----------------------------------|
-| `tenants`               | tenant-service  | Không    | Platform-level, không có tenantId |
-| `subscription_plans`    | tenant-service  | Không    | System-level plans               |
-| `users`                 | user-service    | Có       | Người dùng trong tenant          |
-| `refresh_tokens`        | auth-service    | Có       | JWT refresh tokens               |
-| `password_reset_tokens` | auth-service    | Có       | OTP reset mật khẩu               |
-| `departments`           | user-service    | Có       | Phòng ban/đơn vị                 |
-| `roles`                 | rbac-service    | Có       | Vai trò                          |
-| `permissions`           | rbac-service    | Có       | Quyền hạn                        |
-| `user_roles`            | rbac-service    | Có       | Gán vai trò cho user             |
+| Collection              | Service sở hữu | tenantId | Mô tả                             |
+| ----------------------- | -------------- | -------- | --------------------------------- |
+| `tenants`               | tenant-service | Không    | Platform-level, không có tenantId |
+| `subscription_plans`    | tenant-service | Không    | System-level plans                |
+| `users`                 | user-service   | Có       | Người dùng trong tenant           |
+| `refresh_tokens`        | auth-service   | Có       | JWT refresh tokens                |
+| `password_reset_tokens` | auth-service   | Có       | OTP reset mật khẩu                |
+| `departments`           | user-service   | Có       | Phòng ban/đơn vị                  |
+| `roles`                 | rbac-service   | Có       | Vai trò                           |
+| `permissions`           | rbac-service   | Có       | Quyền hạn                         |
+| `user_roles`            | rbac-service   | Có       | Gán vai trò cho user              |
 
 **Indexes bắt buộc (áp dụng cho mọi collection có tenantId):**
+
 ```
 { tenantId: 1 }                        — Mandatory
 { tenantId: 1, isDeleted: 1 }          — Soft delete queries
@@ -221,12 +233,13 @@ Không có — đây là shared library.
 **Lệnh:** `npm run test -- --runInBand`
 **Kết quả:** ✅ PASS
 
-| Test suite | Tests | Passed | Failed |
-|---|---:|---:|---:|
-| tenant.plugin.spec.ts | 3 | 3 | 0 |
-| pagination.util.spec.ts | 1 | 1 | 0 |
+| Test suite              | Tests | Passed | Failed |
+| ----------------------- | ----: | -----: | -----: |
+| tenant.plugin.spec.ts   |     3 |      3 |      0 |
+| pagination.util.spec.ts |     1 |      1 |      0 |
 
 **Evidence:**
+
 ```text
 PASS src/shared-tests/tenant.plugin.spec.ts
 PASS src/shared-tests/redis.service.spec.ts
@@ -242,6 +255,7 @@ Tests: 7 passed, 7 total
 **Trạng thái:** 🟡 REVIEW
 
 **Files đã tạo / sửa (task 004):**
+
 - `libs/shared/database/index.ts`
 - `libs/shared/database/database.module.ts`
 - `libs/shared/database/base.schema.ts`
@@ -250,12 +264,14 @@ Tests: 7 passed, 7 total
 - `libs/shared/database/utils/query-builder.util.ts`
 
 **Blocker / phần còn thiếu:**
+
 - Chưa thực hiện integration test MongoDB thật (bao gồm testcontainers) nên chưa xác nhận đầy đủ replica set và index runtime.
 - Chưa có domain schemas thực tế để xác nhận AC “BaseSchema được extend đúng trong tất cả domain schemas”.
 
 ## QA Regression tuần 1 (2026-05-11)
 
 **Lệnh xác minh:**
+
 ```text
 npm run build
 npm test -- --passWithNoTests
@@ -263,10 +279,12 @@ npm run test:cov -- --runInBand --passWithNoTests
 ```
 
 **Kết quả:**
+
 - Build/test backend PASS, plugin tenant và pagination utility vẫn pass.
 - Chưa có evidence integration MongoDB thật cho `DatabaseModule.forRoot`, auto index runtime và tenant filter toàn bộ domain queries.
 
 **Đánh giá QA:**
+
 - Trạng thái giữ `🟡 REVIEW`.
 
 ## Vòng hoàn thiện REVIEW (2026-05-11)
@@ -369,18 +387,18 @@ Tests:       14 passed, 14 total
 
 ### Đánh giá AC
 
-| AC | Trạng thái | Ghi chú |
-|---|---|---|
-| `DatabaseModule.forRoot(uri)` kết nối MongoDB Replica Set | ❌ | Module triển khai đúng, nhưng chưa có integration test với MongoDB thật; Docker daemon không khả dụng |
-| `BaseSchema` extend đúng trong tất cả domain schemas | ❌ | Chưa có domain schemas trong Sprint 01 để verify |
-| `TenantPlugin` tự động thêm `tenantId` và `isDeleted: false` | ✅ | `tenant.plugin.spec.ts` PASS (100% coverage) |
-| Soft delete: `isDeleted = true` → không xuất hiện trong query | ✅ | Plugin filter verify qua unit test PASS |
-| `paginate()` trả về đúng `meta.total`, `meta.totalPages` | ✅ | `pagination.util.spec.ts` PASS (100% coverage) |
-| Indexes tạo tự động khi service khởi động (dev) | ❌ | Chưa có domain schemas/runtime service để xác nhận |
-| Unit test coverage ≥ 80% cho plugins và utilities | ✅ | plugins + utils: 100% statements/lines |
-| Integration test với MongoDB thực (Testcontainers) | ❌ | Docker daemon không khả dụng; không thể chạy Testcontainers |
-| Multi-tenancy: mọi DB query có tenantId filter | ✅ (unit) | Logic plugin xác nhận ở unit level; chưa có domain query runtime |
-| Không có query nào thiếu tenantId filter | ❌ | Cần code review checklist sau khi có domain services |
+| AC                                                            | Trạng thái | Ghi chú                                                                                               |
+| ------------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------- |
+| `DatabaseModule.forRoot(uri)` kết nối MongoDB Replica Set     | ❌         | Module triển khai đúng, nhưng chưa có integration test với MongoDB thật; Docker daemon không khả dụng |
+| `BaseSchema` extend đúng trong tất cả domain schemas          | ❌         | Chưa có domain schemas trong Sprint 01 để verify                                                      |
+| `TenantPlugin` tự động thêm `tenantId` và `isDeleted: false`  | ✅         | `tenant.plugin.spec.ts` PASS (100% coverage)                                                          |
+| Soft delete: `isDeleted = true` → không xuất hiện trong query | ✅         | Plugin filter verify qua unit test PASS                                                               |
+| `paginate()` trả về đúng `meta.total`, `meta.totalPages`      | ✅         | `pagination.util.spec.ts` PASS (100% coverage)                                                        |
+| Indexes tạo tự động khi service khởi động (dev)               | ❌         | Chưa có domain schemas/runtime service để xác nhận                                                    |
+| Unit test coverage ≥ 80% cho plugins và utilities             | ✅         | plugins + utils: 100% statements/lines                                                                |
+| Integration test với MongoDB thực (Testcontainers)            | ❌         | Docker daemon không khả dụng; không thể chạy Testcontainers                                           |
+| Multi-tenancy: mọi DB query có tenantId filter                | ✅ (unit)  | Logic plugin xác nhận ở unit level; chưa có domain query runtime                                      |
+| Không có query nào thiếu tenantId filter                      | ❌         | Cần code review checklist sau khi có domain services                                                  |
 
 ### Kết luận QA Final
 

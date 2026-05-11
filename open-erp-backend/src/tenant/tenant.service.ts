@@ -28,7 +28,10 @@ import { UpdateTenantSettingsDto } from './dto/update-tenant-settings.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { VerifyTaxCodeDto } from './dto/verify-tax-code.dto';
 import { OnboardingService } from './onboarding/onboarding.service';
-import { SubscriptionPlan, SubscriptionPlanDocument } from './schemas/subscription-plan.schema';
+import {
+  SubscriptionPlan,
+  SubscriptionPlanDocument,
+} from './schemas/subscription-plan.schema';
 import {
   RegistrationStatus,
   TenantRegistration,
@@ -80,12 +83,16 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit(): Promise<void> {
     await this.seedSubscriptionPlans();
     await this.suspendExpiredTrials().catch((error) => {
-      this.logger.warn(`Failed to sweep expired trials on startup: ${this.describeError(error)}`);
+      this.logger.warn(
+        `Failed to sweep expired trials on startup: ${this.describeError(error)}`,
+      );
     });
 
     this.expiredTrialSweepTimer = setInterval(() => {
       this.suspendExpiredTrials().catch((error) => {
-        this.logger.warn(`Failed to sweep expired trials: ${this.describeError(error)}`);
+        this.logger.warn(
+          `Failed to sweep expired trials: ${this.describeError(error)}`,
+        );
       });
     }, this.expiredTrialIntervalMs);
   }
@@ -140,7 +147,10 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
     if (!token?.trim()) {
       throw new BadRequestException({
         code: 'VALIDATION_ERROR',
-        message: { key: 'tenant.registration.activation_token_required', data: {} },
+        message: {
+          key: 'tenant.registration.activation_token_required',
+          data: {},
+        },
       });
     }
 
@@ -160,7 +170,10 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
       await registration.save();
       throw new GoneException({
         code: 'TOKEN_EXPIRED',
-        message: { key: 'tenant.registration.activation_token_expired', data: {} },
+        message: {
+          key: 'tenant.registration.activation_token_expired',
+          data: {},
+        },
       });
     }
 
@@ -221,7 +234,10 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
     if (!emailMatch) {
       throw new UnprocessableEntityException({
         code: 'BUSINESS_RULE_VIOLATION',
-        message: { key: 'tenant.registration.email_mismatch_tax_info', data: {} },
+        message: {
+          key: 'tenant.registration.email_mismatch_tax_info',
+          data: {},
+        },
       });
     }
 
@@ -240,7 +256,10 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
       .findById(dto.registrationId)
       .exec();
 
-    if (!registration || registration.status !== RegistrationStatus.EMAIL_VERIFIED) {
+    if (
+      !registration ||
+      registration.status !== RegistrationStatus.EMAIL_VERIFIED
+    ) {
       throw new BadRequestException({
         code: 'VALIDATION_ERROR',
         message: { key: 'tenant.registration.invalid_state', data: {} },
@@ -250,7 +269,10 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
     if (!registration.taxVerified) {
       throw new UnprocessableEntityException({
         code: 'BUSINESS_RULE_VIOLATION',
-        message: { key: 'tenant.registration.tax_verification_required', data: {} },
+        message: {
+          key: 'tenant.registration.tax_verification_required',
+          data: {},
+        },
       });
     }
 
@@ -278,7 +300,8 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
     }
 
     const requireManualReview =
-      (this.configService.get<string>('REQUIRE_MANUAL_REVIEW') ?? 'false') === 'true';
+      (this.configService.get<string>('REQUIRE_MANUAL_REVIEW') ?? 'false') ===
+      'true';
     const status = requireManualReview
       ? TenantStatus.PENDING_VERIFICATION
       : TenantStatus.TRIAL;
@@ -309,7 +332,10 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
     registration.tenantId = tenant._id as Types.ObjectId;
     await registration.save();
 
-    const onboarding = await this.onboardingService.initializeTenant(tenant, registration);
+    const onboarding = await this.onboardingService.initializeTenant(
+      tenant,
+      registration,
+    );
 
     // Publish tenant.registered immediately after tenant record is created.
     // tenant.created is published only after the Onboarding Wizard completes (via finalizeWizard).
@@ -376,7 +402,13 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
     }
 
     const [items, total] = await Promise.all([
-      this.tenantModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean().exec(),
+      this.tenantModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean()
+        .exec(),
       this.tenantModel.countDocuments(filter).exec(),
     ]);
 
@@ -406,11 +438,19 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
     return { success: true, data: tenant };
   }
 
-  async updateTenant(id: string, user: Express.User | undefined, dto: UpdateTenantDto) {
+  async updateTenant(
+    id: string,
+    user: Express.User | undefined,
+    dto: UpdateTenantDto,
+  ) {
     this.assertTenantAccess(id, user);
 
     const tenant = await this.tenantModel
-      .findOneAndUpdate({ _id: id, isDeleted: false }, { $set: dto }, { new: true })
+      .findOneAndUpdate(
+        { _id: id, isDeleted: false },
+        { $set: dto },
+        { new: true },
+      )
       .lean()
       .exec();
 
@@ -448,7 +488,11 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
     this.assertSuperAdmin(user);
 
     const tenant = await this.tenantModel
-      .findOneAndUpdate({ _id: id, isDeleted: false }, { $set: { plan } }, { new: true })
+      .findOneAndUpdate(
+        { _id: id, isDeleted: false },
+        { $set: { plan } },
+        { new: true },
+      )
       .lean()
       .exec();
 
@@ -543,7 +587,10 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
     };
   }
 
-  async getTenantUsageHistory(idOrTenantId: string | undefined, user?: Express.User) {
+  async getTenantUsageHistory(
+    idOrTenantId: string | undefined,
+    user?: Express.User,
+  ) {
     const tenantId = idOrTenantId ?? this.resolveTenantId(undefined, user);
     this.assertTenantAccess(tenantId, user);
 
@@ -552,7 +599,10 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
     fromDate.setHours(0, 0, 0, 0);
 
     const items = await this.tenantUsageHistoryModel
-      .find({ tenantId: new Types.ObjectId(tenantId), date: { $gte: fromDate } })
+      .find({
+        tenantId: new Types.ObjectId(tenantId),
+        date: { $gte: fromDate },
+      })
       .sort({ date: 1 })
       .lean()
       .exec();
@@ -591,11 +641,18 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
     if (tenant.status === TenantStatus.PENDING_VERIFICATION) {
       throw new ForbiddenException({
         code: 'FORBIDDEN',
-        message: { key: 'tenant.pending_verification.blocked', data: { routePath } },
+        message: {
+          key: 'tenant.pending_verification.blocked',
+          data: { routePath },
+        },
       });
     }
 
-    if (tenant.status === TenantStatus.TRIAL && tenant.trialEndsAt && tenant.trialEndsAt.getTime() <= Date.now()) {
+    if (
+      tenant.status === TenantStatus.TRIAL &&
+      tenant.trialEndsAt &&
+      tenant.trialEndsAt.getTime() <= Date.now()
+    ) {
       await this.markTenantSuspended(tenantId, tenant);
       throw new ForbiddenException({
         code: 'FORBIDDEN',
@@ -661,7 +718,10 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
     if (tenant.status !== TenantStatus.PENDING_VERIFICATION) {
       throw new UnprocessableEntityException({
         code: 'BUSINESS_RULE_VIOLATION',
-        message: { key: 'tenant.approve.invalid_status', data: { status: tenant.status } },
+        message: {
+          key: 'tenant.approve.invalid_status',
+          data: { status: tenant.status },
+        },
       });
     }
 
@@ -755,7 +815,10 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
     return { success: true, data: tenant.settings ?? {} };
   }
 
-  async getMySettings(requestTenantId: string | undefined, user?: Express.User) {
+  async getMySettings(
+    requestTenantId: string | undefined,
+    user?: Express.User,
+  ) {
     const tenantId = this.resolveTenantId(requestTenantId, user);
     const tenant = await this.tenantModel
       .findOne({ _id: tenantId, isDeleted: false })
@@ -888,7 +951,11 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
         code: TenantPlan.TRIAL,
         name: 'Trial',
         price: 0,
-        quotas: { maxUsers: 5, maxStorageBytes: 512 * 1024 * 1024, maxApiCallsPerDay: 1000 },
+        quotas: {
+          maxUsers: 5,
+          maxStorageBytes: 512 * 1024 * 1024,
+          maxApiCallsPerDay: 1000,
+        },
         features: ['all-modules'],
         enabledModules: ['all'],
         displayOrder: 1,
@@ -897,7 +964,11 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
         code: TenantPlan.STARTER,
         name: 'Starter',
         price: 500000,
-        quotas: { maxUsers: 20, maxStorageBytes: 10 * 1024 * 1024 * 1024, maxApiCallsPerDay: 10000 },
+        quotas: {
+          maxUsers: 20,
+          maxStorageBytes: 10 * 1024 * 1024 * 1024,
+          maxApiCallsPerDay: 10000,
+        },
         features: ['hr', 'sale', 'office'],
         enabledModules: ['hr', 'sale', 'office'],
         displayOrder: 2,
@@ -906,7 +977,11 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
         code: TenantPlan.BUSINESS,
         name: 'Business',
         price: 2000000,
-        quotas: { maxUsers: 100, maxStorageBytes: 50 * 1024 * 1024 * 1024, maxApiCallsPerDay: 100000 },
+        quotas: {
+          maxUsers: 100,
+          maxStorageBytes: 50 * 1024 * 1024 * 1024,
+          maxApiCallsPerDay: 100000,
+        },
         features: ['all-modules'],
         enabledModules: ['all'],
         displayOrder: 3,
@@ -915,7 +990,11 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
         code: TenantPlan.ENTERPRISE,
         name: 'Enterprise',
         price: 0,
-        quotas: { maxUsers: null, maxStorageBytes: null, maxApiCallsPerDay: null },
+        quotas: {
+          maxUsers: null,
+          maxStorageBytes: null,
+          maxApiCallsPerDay: null,
+        },
         features: ['all-modules', 'custom'],
         enabledModules: ['all'],
         displayOrder: 4,
@@ -923,11 +1002,13 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
     ];
 
     for (const plan of plans) {
-      await this.subscriptionPlanModel.updateOne(
-        { code: plan.code },
-        { $setOnInsert: plan },
-        { upsert: true },
-      ).exec();
+      await this.subscriptionPlanModel
+        .updateOne(
+          { code: plan.code },
+          { $setOnInsert: plan },
+          { upsert: true },
+        )
+        .exec();
     }
   }
 
@@ -960,14 +1041,21 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async countActiveUsers(tenantId: string): Promise<number> {
-    return this.userModel.countDocuments({ tenantId: new Types.ObjectId(tenantId), isDeleted: false }).exec();
+    return this.userModel
+      .countDocuments({
+        tenantId: new Types.ObjectId(tenantId),
+        isDeleted: false,
+      })
+      .exec();
   }
 
   private async incrementApiCounter(tenantId: string): Promise<number> {
     const client = await this.getRedisClient();
     if (!client) {
       const tenant = await this.tenantModel.findById(tenantId).lean().exec();
-      return tenant?.usageStats?.apiCallsToday ? tenant.usageStats.apiCallsToday + 1 : 1;
+      return tenant?.usageStats?.apiCallsToday
+        ? tenant.usageStats.apiCallsToday + 1
+        : 1;
     }
 
     const key = `quota:api:${tenantId}`;
@@ -976,10 +1064,17 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
       await client.expire(key, 60 * 60 * 24);
     }
 
-    await this.tenantModel.updateOne(
-      { _id: tenantId },
-      { $set: { 'usageStats.apiCallsToday': count, 'usageStats.lastCalculatedAt': new Date() } },
-    ).exec();
+    await this.tenantModel
+      .updateOne(
+        { _id: tenantId },
+        {
+          $set: {
+            'usageStats.apiCallsToday': count,
+            'usageStats.lastCalculatedAt': new Date(),
+          },
+        },
+      )
+      .exec();
 
     return count;
   }
@@ -1063,7 +1158,10 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  private calculatePercent(value: number, limit: number | null | undefined): number {
+  private calculatePercent(
+    value: number,
+    limit: number | null | undefined,
+  ): number {
     if (!limit || limit <= 0) {
       return 0;
     }
@@ -1099,28 +1197,55 @@ export class TenantService implements OnModuleInit, OnModuleDestroy {
 
   private async resolvePlanQuota(
     plan: TenantPlan,
-    tenantQuotas?: { maxUsers?: number | null; maxStorageBytes?: number | null; maxApiCallsPerDay?: number | null },
+    tenantQuotas?: {
+      maxUsers?: number | null;
+      maxStorageBytes?: number | null;
+      maxApiCallsPerDay?: number | null;
+    },
   ) {
     const defaultQuotas = {
-      [TenantPlan.TRIAL]: { maxUsers: 5, maxStorageBytes: 512 * 1024 * 1024, maxApiCallsPerDay: 1000 },
-      [TenantPlan.STARTER]: { maxUsers: 20, maxStorageBytes: 10 * 1024 * 1024 * 1024, maxApiCallsPerDay: 10000 },
-      [TenantPlan.BUSINESS]: { maxUsers: 100, maxStorageBytes: 50 * 1024 * 1024 * 1024, maxApiCallsPerDay: 100000 },
-      [TenantPlan.ENTERPRISE]: { maxUsers: null, maxStorageBytes: null, maxApiCallsPerDay: null },
+      [TenantPlan.TRIAL]: {
+        maxUsers: 5,
+        maxStorageBytes: 512 * 1024 * 1024,
+        maxApiCallsPerDay: 1000,
+      },
+      [TenantPlan.STARTER]: {
+        maxUsers: 20,
+        maxStorageBytes: 10 * 1024 * 1024 * 1024,
+        maxApiCallsPerDay: 10000,
+      },
+      [TenantPlan.BUSINESS]: {
+        maxUsers: 100,
+        maxStorageBytes: 50 * 1024 * 1024 * 1024,
+        maxApiCallsPerDay: 100000,
+      },
+      [TenantPlan.ENTERPRISE]: {
+        maxUsers: null,
+        maxStorageBytes: null,
+        maxApiCallsPerDay: null,
+      },
     } as const;
 
     const fallback = defaultQuotas[plan] ?? defaultQuotas[TenantPlan.TRIAL];
     return {
       maxUsers: tenantQuotas?.maxUsers ?? fallback.maxUsers,
-      maxStorageBytes: tenantQuotas?.maxStorageBytes ?? fallback.maxStorageBytes,
-      maxApiCallsPerDay: tenantQuotas?.maxApiCallsPerDay ?? fallback.maxApiCallsPerDay,
+      maxStorageBytes:
+        tenantQuotas?.maxStorageBytes ?? fallback.maxStorageBytes,
+      maxApiCallsPerDay:
+        tenantQuotas?.maxApiCallsPerDay ?? fallback.maxApiCallsPerDay,
     };
   }
 
-  private async markTenantSuspended(tenantId: string, tenant: { _id?: Types.ObjectId; adminEmail?: string }): Promise<void> {
-    await this.tenantModel.updateOne(
-      { _id: tenantId },
-      { $set: { status: TenantStatus.SUSPENDED } },
-    ).exec();
+  private async markTenantSuspended(
+    tenantId: string,
+    tenant: { _id?: Types.ObjectId; adminEmail?: string },
+  ): Promise<void> {
+    await this.tenantModel
+      .updateOne(
+        { _id: tenantId },
+        { $set: { status: TenantStatus.SUSPENDED } },
+      )
+      .exec();
 
     this.publishFireAndForget('tenant.suspended', {
       tenantId: tenantId.toString(),

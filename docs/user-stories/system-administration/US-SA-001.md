@@ -25,7 +25,7 @@
 - [ ] Trang /register hiển thị form nhập MST, email, mật khẩu
 - [ ] Hệ thống tra cứu MST và trả về tên DN chính thức, địa chỉ
 - [ ] Nếu MST không hợp lệ hoặc DN ngừng hoạt động → hiển thị thông báo lỗi rõ ràng
-- [ ] Email người dùng nhập phải khớp với email đăng ký Cục Thuế → nếu không khớp: thông báo và gợi ý (che khuất email đúng một phần, ví dụ: "ph***@company.com")
+- [ ] Email người dùng nhập phải khớp với email đăng ký Cục Thuế → nếu không khớp: thông báo và gợi ý (che khuất email đúng một phần, ví dụ: "ph\*\*\*@company.com")
 - [ ] Hệ thống gửi OTP 6 số về email xác minh, hết hạn 10 phút
 - [ ] Nhập OTP đúng → hệ thống tự động tạo tenant, tài khoản Admin, khởi tạo dữ liệu mặc định
 - [ ] MST đã đăng ký trước đó → hiển thị thông báo trùng, cung cấp link đăng nhập

@@ -117,7 +117,14 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
         return;
       }
 
-      await this.handleMessage(raw, handler, exchange, routingKey, maxRetries, retryDelays);
+      await this.handleMessage(
+        raw,
+        handler,
+        exchange,
+        routingKey,
+        maxRetries,
+        retryDelays,
+      );
     });
   }
 
@@ -132,14 +139,25 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
     const channel = this.getChannel();
 
     try {
-      const message = JSON.parse(rawMessage.content.toString()) as ErpMessage<T>;
+      const message = JSON.parse(
+        rawMessage.content.toString(),
+      ) as ErpMessage<T>;
       await handler(message);
       channel.ack(rawMessage);
     } catch (error) {
       const currentRetry = this.extractRetryCount(rawMessage);
       if (currentRetry < maxRetries) {
-        const delay = retryDelays[currentRetry] ?? retryDelays[retryDelays.length - 1] ?? 1000;
-        await this.requeueWithDelay(rawMessage, exchange, routingKey, currentRetry + 1, delay);
+        const delay =
+          retryDelays[currentRetry] ??
+          retryDelays[retryDelays.length - 1] ??
+          1000;
+        await this.requeueWithDelay(
+          rawMessage,
+          exchange,
+          routingKey,
+          currentRetry + 1,
+          delay,
+        );
       } else {
         channel.publish(
           RABBITMQ_EXCHANGES.DEAD_LETTER,
@@ -152,16 +170,22 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
             },
           },
         );
-        this.logger.error(`Message moved to DLQ after ${currentRetry} retries for ${routingKey}`);
+        this.logger.error(
+          `Message moved to DLQ after ${currentRetry} retries for ${routingKey}`,
+        );
       }
 
       channel.ack(rawMessage);
-      this.logger.warn(`Message processing failed for ${routingKey}: ${(error as Error).message}`);
+      this.logger.warn(
+        `Message processing failed for ${routingKey}: ${(error as Error).message}`,
+      );
     }
   }
 
   private extractRetryCount(rawMessage: Message): number {
-    const headers = rawMessage.properties.headers as Record<string, unknown> | undefined;
+    const headers = rawMessage.properties.headers as
+      | Record<string, unknown>
+      | undefined;
     const value = headers?.['x-retry-count'];
     if (typeof value === 'number') {
       return value;
@@ -197,15 +221,25 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
 
   private async assertBaseExchanges(): Promise<void> {
     const channel = this.getChannel();
-    await channel.assertExchange(RABBITMQ_EXCHANGES.DIRECT, 'direct', { durable: true });
-    await channel.assertExchange(RABBITMQ_EXCHANGES.TOPIC, 'topic', { durable: true });
-    await channel.assertExchange(RABBITMQ_EXCHANGES.FANOUT, 'fanout', { durable: true });
-    await channel.assertExchange(RABBITMQ_EXCHANGES.DEAD_LETTER, 'direct', { durable: true });
+    await channel.assertExchange(RABBITMQ_EXCHANGES.DIRECT, 'direct', {
+      durable: true,
+    });
+    await channel.assertExchange(RABBITMQ_EXCHANGES.TOPIC, 'topic', {
+      durable: true,
+    });
+    await channel.assertExchange(RABBITMQ_EXCHANGES.FANOUT, 'fanout', {
+      durable: true,
+    });
+    await channel.assertExchange(RABBITMQ_EXCHANGES.DEAD_LETTER, 'direct', {
+      durable: true,
+    });
   }
 
   private getChannel(): Channel {
     if (!this.channel) {
-      throw new Error('RabbitMQ channel is not initialized. Did you import RabbitmqModule.forRoot()?');
+      throw new Error(
+        'RabbitMQ channel is not initialized. Did you import RabbitmqModule.forRoot()?',
+      );
     }
 
     return this.channel;

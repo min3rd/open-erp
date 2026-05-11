@@ -136,11 +136,18 @@ describe('AuthService', () => {
 
   it('login() success returns accessToken + refreshToken', async () => {
     const user = makeUser();
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
     tenantModel.findById.mockReturnValue({
       select: jest.fn().mockReturnValue({
         lean: jest.fn().mockReturnValue({
-          exec: jest.fn().mockResolvedValue({ status: TenantStatus.TRIAL, isDeleted: false }),
+          exec: jest
+            .fn()
+            .mockResolvedValue({
+              status: TenantStatus.TRIAL,
+              isDeleted: false,
+            }),
         }),
       }),
     });
@@ -166,7 +173,9 @@ describe('AuthService', () => {
 
   it('login() wrong password increments failedLoginCount and throws UnauthorizedException', async () => {
     const user = makeUser({ failedLoginCount: 1 });
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
     (argon2.verify as jest.Mock).mockResolvedValue(false);
 
     await expect(
@@ -186,7 +195,9 @@ describe('AuthService', () => {
 
   it('login() wrong >= 5 times sets lockedUntil and throws LockedException', async () => {
     const user = makeUser({ failedLoginCount: 4 });
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
     (argon2.verify as jest.Mock).mockResolvedValue(false);
 
     await expect(
@@ -205,8 +216,12 @@ describe('AuthService', () => {
   });
 
   it('login() with locked account throws 423 LockedException', async () => {
-    const user = makeUser({ lockedUntil: new Date(Date.now() + 10 * 60 * 1000) });
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    const user = makeUser({
+      lockedUntil: new Date(Date.now() + 10 * 60 * 1000),
+    });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
 
     await expect(
       service.login(
@@ -228,12 +243,14 @@ describe('AuthService', () => {
       userId: user._id.toString(),
       expiresAt: new Date(),
     });
-    userModel.findById.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    userModel.findById.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
 
-    const result = await service.refreshToken(
-      'old-refresh-token',
-      { ip: '127.0.0.1', userAgent: 'jest' },
-    );
+    const result = await service.refreshToken('old-refresh-token', {
+      ip: '127.0.0.1',
+      userAgent: 'jest',
+    });
 
     expect(result.success).toBe(true);
     expect(result.data.accessToken).toBe('jwt-token');
@@ -247,20 +264,24 @@ describe('AuthService', () => {
     );
 
     await expect(
-      service.refreshToken(
-        'revoked-token',
-        { ip: '127.0.0.1', userAgent: 'jest' },
-      ),
+      service.refreshToken('revoked-token', {
+        ip: '127.0.0.1',
+        userAgent: 'jest',
+      }),
     ).rejects.toThrow(UnauthorizedException);
   });
 
   it('login() signs access token with RS256 when RSA keys are configured', async () => {
     const user = makeUser();
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
     tenantModel.findById.mockReturnValue({
       select: jest.fn().mockReturnValue({
         lean: jest.fn().mockReturnValue({
-          exec: jest.fn().mockResolvedValue({ status: 'TRIAL', isDeleted: false }),
+          exec: jest
+            .fn()
+            .mockResolvedValue({ status: 'TRIAL', isDeleted: false }),
         }),
       }),
     });
@@ -298,11 +319,15 @@ describe('AuthService', () => {
   it('login() logs warning and falls back to HS256 when RSA config is incomplete', async () => {
     const user = makeUser();
     const warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation();
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
     tenantModel.findById.mockReturnValue({
       select: jest.fn().mockReturnValue({
         lean: jest.fn().mockReturnValue({
-          exec: jest.fn().mockResolvedValue({ status: 'TRIAL', isDeleted: false }),
+          exec: jest
+            .fn()
+            .mockResolvedValue({ status: 'TRIAL', isDeleted: false }),
         }),
       }),
     });
@@ -343,7 +368,9 @@ describe('AuthService', () => {
 
   it('login() with MFA enabled returns mfaRequired response', async () => {
     const user = makeUser({ mfaEnabled: true });
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
     tenantModel.findById.mockReturnValue({
       select: jest.fn().mockReturnValue({
         lean: jest.fn().mockReturnValue({
@@ -355,7 +382,9 @@ describe('AuthService', () => {
         }),
       }),
     });
-    mfaChallengeModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+    mfaChallengeModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null),
+    });
     mfaChallengeModel.create.mockResolvedValue({});
     (argon2.verify as jest.Mock).mockResolvedValue(true);
 
@@ -429,7 +458,9 @@ describe('AuthService', () => {
   });
 
   it('forgotPassword() always returns 200-like success when email does not exist', async () => {
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null),
+    });
 
     const result = await service.forgotPassword(
       { email: 'missing@acme.com' },
@@ -442,7 +473,9 @@ describe('AuthService', () => {
 
   it('forgotPassword() existing email creates OTP and publishes event', async () => {
     const user = makeUser();
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
     tokenService.createPasswordResetOtp.mockResolvedValue({
       otp: '123456',
       expiresAt: new Date(Date.now() + 600_000),
@@ -469,7 +502,9 @@ describe('AuthService', () => {
 
   it('resetPassword() valid OTP updates password and revokes refresh tokens', async () => {
     const user = makeUser();
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
     tokenService.consumePasswordResetOtp.mockResolvedValue('valid');
     (argon2.hash as jest.Mock).mockResolvedValue('new-password-hash');
 
@@ -482,12 +517,16 @@ describe('AuthService', () => {
 
     expect(result.success).toBe(true);
     expect(user.passwordHash).toBe('new-password-hash');
-    expect(tokenService.revokeAllByUserId).toHaveBeenCalledWith(user._id.toString());
+    expect(tokenService.revokeAllByUserId).toHaveBeenCalledWith(
+      user._id.toString(),
+    );
   });
 
   it('resetPassword() expired OTP throws BadRequestException', async () => {
     const user = makeUser();
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
     tokenService.consumePasswordResetOtp.mockResolvedValue('expired');
 
     await expect(
@@ -502,7 +541,9 @@ describe('AuthService', () => {
 
   it('resetPassword() invalid OTP throws UnauthorizedException', async () => {
     const user = makeUser();
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
     tokenService.consumePasswordResetOtp.mockResolvedValue('invalid');
 
     await expect(
@@ -549,11 +590,18 @@ describe('AuthService', () => {
 
   it('login() blocked for SUSPENDED tenant — R1-003', async () => {
     const user = makeUser();
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
     tenantModel.findById.mockReturnValue({
       select: jest.fn().mockReturnValue({
         lean: jest.fn().mockReturnValue({
-          exec: jest.fn().mockResolvedValue({ status: TenantStatus.SUSPENDED, isDeleted: false }),
+          exec: jest
+            .fn()
+            .mockResolvedValue({
+              status: TenantStatus.SUSPENDED,
+              isDeleted: false,
+            }),
         }),
       }),
     });
@@ -573,7 +621,9 @@ describe('AuthService', () => {
 
   it('login() blocked when tenant does not exist — R1-003', async () => {
     const user = makeUser();
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
     tenantModel.findById.mockReturnValue({
       select: jest.fn().mockReturnValue({
         lean: jest.fn().mockReturnValue({
