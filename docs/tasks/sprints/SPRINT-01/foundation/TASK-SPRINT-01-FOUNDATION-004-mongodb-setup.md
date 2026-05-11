@@ -10,7 +10,7 @@
 | Loại             | Backend                           |
 | Người phụ trách  | Backend                           |
 | Story Points     | 3                                 |
-| Trạng thái       | 🟡 REVIEW                        |
+| Trạng thái       | 🟡 REVIEW                         |
 | Phụ thuộc        | TASK-SPRINT-01-FOUNDATION-001     |
 
 ## Mô tả
@@ -200,9 +200,9 @@ Không có — đây là shared library.
 - [x] Soft delete: gọi `isDeleted = true` → document không xuất hiện trong query thông thường (enforce qua plugin filter)
 - [x] `paginate()` utility trả về đúng `meta.total`, `meta.totalPages`
 - [ ] Indexes được tạo tự động khi service khởi động (dev environment) (chưa đủ domain schemas/indexes)
-- [ ] Unit test coverage ≥ 80% cho plugins và utilities (chưa chạy `test:cov`)
+- [x] Unit test coverage ≥ 80% cho plugins và utilities (coverage focused cho plugin/utils đạt 100% statements/lines)
 - [ ] Integration test với MongoDB thực (dùng `@testcontainers/mongodb`)
-- [ ] Multi-tenancy: mọi DB query đều có tenantId filter (đã có plugin, chưa verify toàn bộ domain query)
+- [ ] Multi-tenancy: mọi DB query đều có tenantId filter (đã verify logic plugin ở unit-level; chưa verify toàn bộ domain query runtime)
 - [ ] Không có query nào thiếu tenantId filter (kiểm tra qua code review checklist)
 
 ## Ghi chú kỹ thuật
@@ -252,3 +252,141 @@ Tests: 7 passed, 7 total
 **Blocker / phần còn thiếu:**
 - Chưa thực hiện integration test MongoDB thật (bao gồm testcontainers) nên chưa xác nhận đầy đủ replica set và index runtime.
 - Chưa có domain schemas thực tế để xác nhận AC “BaseSchema được extend đúng trong tất cả domain schemas”.
+
+## QA Regression tuần 1 (2026-05-11)
+
+**Lệnh xác minh:**
+```text
+npm run build
+npm test -- --passWithNoTests
+npm run test:cov -- --runInBand --passWithNoTests
+```
+
+**Kết quả:**
+- Build/test backend PASS, plugin tenant và pagination utility vẫn pass.
+- Chưa có evidence integration MongoDB thật cho `DatabaseModule.forRoot`, auto index runtime và tenant filter toàn bộ domain queries.
+
+**Đánh giá QA:**
+- Trạng thái giữ `🟡 REVIEW`.
+
+## Vòng hoàn thiện REVIEW (2026-05-11)
+
+### Evidence code/test bổ sung
+
+- Mở rộng test tenant plugin tại `src/shared-tests/tenant.plugin.spec.ts`:
+  - Verify inject `{ tenantId, isDeleted: false }` khi có tenant option.
+  - Verify không inject filter khi thiếu tenant option.
+  - Verify soft-delete/on-save behavior.
+- Bổ sung test query utility tại `src/shared-tests/query-builder.util.spec.ts`:
+  - Verify map operator (`$in/$gte/$lte`) và skip undefined.
+  - Verify ưu tiên `eq` khi đồng thời có operator khác.
+- Giữ test pagination utility hiện có tại `src/shared-tests/pagination.util.spec.ts`.
+
+### Lệnh đã chạy
+
+```text
+npm run build
+npm test -- --passWithNoTests
+npm run test:cov -- --runInBand --passWithNoTests
+npx jest --rootDir . --testRegex "src/shared-tests/.*\.spec\.ts$" --coverage --collectCoverageFrom "libs/shared/**/*.ts" --runInBand --passWithNoTests
+```
+
+### Output summary
+
+- Bộ lệnh chuẩn backend: ✅ PASS toàn bộ (`22/22` suites, `89/89` tests).
+- Coverage focused shared libs (`libs/shared`): ✅ PASS (`6/6` suites, `14/14` tests).
+- Coverage chi tiết phần database:
+  - `libs/shared/database/plugins/tenant.plugin.ts`: `100%` statements, `100%` lines.
+  - `libs/shared/database/utils/pagination.util.ts`: `100%` statements, `100%` lines.
+  - `libs/shared/database/utils/query-builder.util.ts`: `100%` statements, `100%` lines.
+  - `libs/shared/database/database.module.ts`: chưa được cover runtime (`0%`) do chưa có Mongo integration/container test.
+
+### Limitation hiện tại
+
+- Chưa có MongoDB runtime/Testcontainers trong môi trường hiện tại để xác nhận `DatabaseModule.forRoot` kết nối replica set thật và auto-index runtime.
+- Chưa có đủ domain schema/query runtime để xác minh toàn bộ query đều áp tenant filter ngoài phạm vi plugin/unit tests.
+
+### Đánh giá trạng thái task
+
+- Task giữ `🟡 REVIEW`.
+- Lý do chưa chuyển `🟢 DONE`:
+  - Chưa có integration test MongoDB thật.
+  - AC liên quan auto-index runtime và tenant filter toàn bộ domain query chưa có evidence integration đủ mạnh.
+
+## QA Retest vòng bổ sung evidence (2026-05-11)
+
+### Evidence xác minh độc lập trong vòng retest
+
+- `npx jest --rootDir . --testRegex "src/shared-tests/.*\.spec\.ts$" --coverage --collectCoverageFrom "libs/shared/**/*.ts" --runInBand --passWithNoTests`: ✅ PASS (`6/6` suites, `14/14` tests).
+- Coverage phần database trong shared libs:
+  - `libs/shared/database/plugins/tenant.plugin.ts`: `100%` statements/lines.
+  - `libs/shared/database/utils/pagination.util.ts`: `100%` statements/lines.
+  - `libs/shared/database/utils/query-builder.util.ts`: `100%` statements/lines.
+  - `libs/shared/database/database.module.ts`: `0%` runtime coverage (chưa có integration MongoDB).
+
+### Kết luận QA Regression
+
+- **Quyết định:** `🟡 REVIEW`.
+- **Lý do:** Chưa có evidence integration cho kết nối replica set thật, auto-index runtime và enforcement tenant filter ở domain query thực tế.
+- **Điều kiện cần để close lần kế tiếp:**
+  - Bổ sung integration test MongoDB (ưu tiên Testcontainers) cho `DatabaseModule.forRoot`.
+  - Bổ sung evidence auto-index runtime khi service khởi động.
+  - Xác minh tenant filter trên domain schema/query thực tế (sau khi các service domain Sprint 01 hoàn tất).
+
+## QA Reconciliation (2026-05-11)
+
+- **Trạng thái chốt:** 🟡 REVIEW
+- **Lý do chốt:** Đã có evidence unit test tốt cho plugin/utils nhưng thiếu evidence integration MongoDB runtime theo AC.
+- **Evidence tham chiếu:** `database.module.ts` chưa có runtime coverage/integration cho replica set và auto-index.
+
+## QA Final Retest (2026-05-11)
+
+**Ngày thực hiện:** 2026-05-11  
+**Người thực hiện:** Senior QA  
+**Phạm vi:** Retest cuối Sprint 01
+
+### Evidence build / test / coverage
+
+```text
+> npm run build
+> nest build
+✅ PASS (exit 0)
+
+> npm test -- --passWithNoTests --runInBand
+Test Suites: 22 passed, 22 total
+Tests:       89 passed, 89 total
+Time:        16.439 s
+✅ All PASS
+
+> npx jest --testRegex "src/shared-tests/.*\.spec\.ts$" --coverage --collectCoverageFrom "libs/shared/**/*.ts" --runInBand --passWithNoTests
+  libs/shared/database/plugins/tenant.plugin.ts      : 100% statements/lines
+  libs/shared/database/utils/pagination.util.ts      : 100% statements/lines
+  libs/shared/database/utils/query-builder.util.ts   : 100% statements/lines
+  libs/shared/database/database.module.ts            : 0% runtime (chưa có MongoDB integration)
+Test Suites: 6 passed, 6 total
+Tests:       14 passed, 14 total
+```
+
+### Đánh giá AC
+
+| AC | Trạng thái | Ghi chú |
+|---|---|---|
+| `DatabaseModule.forRoot(uri)` kết nối MongoDB Replica Set | ❌ | Module triển khai đúng, nhưng chưa có integration test với MongoDB thật; Docker daemon không khả dụng |
+| `BaseSchema` extend đúng trong tất cả domain schemas | ❌ | Chưa có domain schemas trong Sprint 01 để verify |
+| `TenantPlugin` tự động thêm `tenantId` và `isDeleted: false` | ✅ | `tenant.plugin.spec.ts` PASS (100% coverage) |
+| Soft delete: `isDeleted = true` → không xuất hiện trong query | ✅ | Plugin filter verify qua unit test PASS |
+| `paginate()` trả về đúng `meta.total`, `meta.totalPages` | ✅ | `pagination.util.spec.ts` PASS (100% coverage) |
+| Indexes tạo tự động khi service khởi động (dev) | ❌ | Chưa có domain schemas/runtime service để xác nhận |
+| Unit test coverage ≥ 80% cho plugins và utilities | ✅ | plugins + utils: 100% statements/lines |
+| Integration test với MongoDB thực (Testcontainers) | ❌ | Docker daemon không khả dụng; không thể chạy Testcontainers |
+| Multi-tenancy: mọi DB query có tenantId filter | ✅ (unit) | Logic plugin xác nhận ở unit level; chưa có domain query runtime |
+| Không có query nào thiếu tenantId filter | ❌ | Cần code review checklist sau khi có domain services |
+
+### Kết luận QA Final
+
+- **Quyết định:** Giữ 🟡 REVIEW
+- **Lý do:** 4 AC chưa đạt liên quan đến integration MongoDB runtime, domain schemas, và auto-index. Tất cả đều phụ thuộc hạ tầng chưa sẵn sàng trong Sprint 01.
+- **Điều kiện đóng:**
+  1. Bổ sung integration test MongoDB với Testcontainers cho `DatabaseModule.forRoot` (kết nối replica set, auto-index).
+  2. Domain schemas từ Sprint 01 services (auth, tenant, user) implement `BaseSchema` — verify bằng code review hoặc integration test.
+  3. Xác nhận không có domain query nào thiếu tenantId filter sau khi các service downstream hoàn tất.

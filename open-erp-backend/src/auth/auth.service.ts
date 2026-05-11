@@ -16,6 +16,7 @@ import Redis from 'ioredis';
 import { Model, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { RabbitMQService } from '../common/services/rabbitmq.service';
+import { Tenant, TenantDocument, TenantStatus } from '../tenant/schemas/tenant.schema';
 import { TokenService } from '../token/token.service';
 import { User, UserDocument, UserStatus } from '../users/schemas/user.schema';
 import { resolveJwtRuntimeConfig } from './auth-runtime.config';
@@ -43,6 +44,8 @@ export class AuthService implements OnModuleDestroy {
     private readonly tokenService: TokenService,
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
+    @InjectModel(Tenant.name)
+    private readonly tenantModel: Model<TenantDocument>,
   ) {}
 
   async onModuleDestroy(): Promise<void> {
@@ -94,10 +97,19 @@ export class AuthService implements OnModuleDestroy {
       });
     }
 
-    if (user.tenantStatus && !['ACTIVE', 'TRIAL'].includes(user.tenantStatus)) {
+    // Check live tenant status from the tenants collection (source of truth).
+    // This blocks login for SUSPENDED/TERMINATED tenants even if user.tenantStatus is stale.
+    const tenant = await this.tenantModel
+      .findById(user.tenantId)
+      .select('status isDeleted')
+      .lean()
+      .exec();
+
+    const allowedTenantStatuses: string[] = [TenantStatus.ACTIVE, TenantStatus.TRIAL];
+    if (!tenant || tenant.isDeleted || !allowedTenantStatuses.includes(tenant.status)) {
       throw new ForbiddenException({
-        code: 'FORBIDDEN',
-        message: 'Tenant is not active',
+        code: 'TENANT_SUSPENDED',
+        message: 'Tenant is suspended or inactive',
       });
     }
 

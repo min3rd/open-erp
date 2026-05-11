@@ -81,3 +81,9 @@ N/A
 - [ ] Có checklist bảo mật tối thiểu cho cả hai hệ điều hành.
 - [ ] Có checklist verify sau triển khai với tiêu chí pass/fail rõ ràng.
 - [ ] Tài liệu được liên kết từ task index Sprint 01 và global task index.
+
+## QA Reconciliation (2026-05-11)
+
+- **Trạng thái chốt:** ⏸️ HOLD
+- **Lý do chốt:** Giữ HOLD theo chỉ đạo user, chưa thực hiện kiểm chứng runtime/install trong Sprint 01.
+- **Evidence tham chiếu:** ghi chú HOLD trực tiếp trong mô tả task và chỉ đạo reconciliation hiện tại.

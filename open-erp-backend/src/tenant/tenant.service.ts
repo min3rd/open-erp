@@ -265,16 +265,12 @@ export class TenantService {
 
     const onboarding = await this.onboardingService.initializeTenant(tenant, registration);
 
+    // Publish tenant.registered immediately after tenant record is created.
+    // tenant.created is published only after the Onboarding Wizard completes (via finalizeWizard).
     this.publishFireAndForget('tenant.registered', {
       tenantId: tenant.id,
       plan: tenant.plan,
       adminEmail: tenant.adminEmail,
-    });
-    this.publishFireAndForget('tenant.created', {
-      tenantId: tenant.id,
-      plan: tenant.plan,
-      adminEmail: tenant.adminEmail,
-      onboarding,
     });
 
     return {
@@ -289,6 +285,33 @@ export class TenantService {
         onboarding,
       },
     };
+  }
+
+  /**
+   * finalizeWizard — Called after the Onboarding Wizard (5-step) completes.
+   * Publishes tenant.created so downstream services (user-service, rbac-service, catalog-service)
+   * can initialize their default data.
+   */
+  async finalizeWizard(tenantId: string) {
+    const tenant = await this.tenantModel
+      .findOne({ _id: tenantId, isDeleted: false })
+      .lean()
+      .exec();
+
+    if (!tenant) {
+      throw new NotFoundException({
+        code: 'NOT_FOUND',
+        message: { key: 'tenant.not_found', data: {} },
+      });
+    }
+
+    this.publishFireAndForget('tenant.created', {
+      tenantId: tenant._id.toString(),
+      plan: tenant.plan,
+      adminEmail: tenant.adminEmail,
+    });
+
+    return { success: true, data: { tenantId: tenant._id.toString() } };
   }
 
   async listTenants(query: ListTenantsQueryDto, user?: Express.User) {

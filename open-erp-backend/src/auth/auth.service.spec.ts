@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   HttpException,
   Logger,
   UnauthorizedException,
@@ -11,6 +12,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import argon2 from 'argon2';
 import { Types } from 'mongoose';
 import { RabbitMQService } from '../common/services/rabbitmq.service';
+import { Tenant, TenantStatus } from '../tenant/schemas/tenant.schema';
 import { TokenService } from '../token/token.service';
 import { User, UserStatus } from '../users/schemas/user.schema';
 import { AuthService } from './auth.service';
@@ -38,6 +40,10 @@ describe('AuthService', () => {
 
   const userModel = {
     findOne: jest.fn(),
+    findById: jest.fn(),
+  };
+
+  const tenantModel = {
     findById: jest.fn(),
   };
 
@@ -92,6 +98,10 @@ describe('AuthService', () => {
           useValue: userModel,
         },
         {
+          provide: getModelToken(Tenant.name),
+          useValue: tenantModel,
+        },
+        {
           provide: TokenService,
           useValue: mockedTokenService,
         },
@@ -119,6 +129,13 @@ describe('AuthService', () => {
   it('login() success returns accessToken + refreshToken', async () => {
     const user = makeUser();
     userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    tenantModel.findById.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue({ status: TenantStatus.TRIAL, isDeleted: false }),
+        }),
+      }),
+    });
     (argon2.verify as jest.Mock).mockResolvedValue(true);
     tokenService.createRefreshToken.mockResolvedValue({
       refreshToken: 'refresh-token',
@@ -232,6 +249,13 @@ describe('AuthService', () => {
   it('login() signs access token with RS256 when RSA keys are configured', async () => {
     const user = makeUser();
     userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    tenantModel.findById.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue({ status: 'TRIAL', isDeleted: false }),
+        }),
+      }),
+    });
     (argon2.verify as jest.Mock).mockResolvedValue(true);
     tokenService.createRefreshToken.mockResolvedValue({
       refreshToken: 'refresh-token',
@@ -267,6 +291,13 @@ describe('AuthService', () => {
     const user = makeUser();
     const warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation();
     userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    tenantModel.findById.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue({ status: 'TRIAL', isDeleted: false }),
+        }),
+      }),
+    });
     (argon2.verify as jest.Mock).mockResolvedValue(true);
     tokenService.createRefreshToken.mockResolvedValue({
       refreshToken: 'refresh-token',
@@ -305,6 +336,13 @@ describe('AuthService', () => {
   it('login() with MFA enabled returns mfaRequired response', async () => {
     const user = makeUser({ mfaEnabled: true });
     userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    tenantModel.findById.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue({ status: 'TRIAL', isDeleted: false }),
+        }),
+      }),
+    });
     (argon2.verify as jest.Mock).mockResolvedValue(true);
 
     const result = await service.login(
@@ -493,5 +531,53 @@ describe('AuthService', () => {
 
     expect(result.success).toBe(true);
     expect(result.data.email).toBe(user.email);
+  });
+
+  it('login() blocked for SUSPENDED tenant — R1-003', async () => {
+    const user = makeUser();
+    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    tenantModel.findById.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue({ status: TenantStatus.SUSPENDED, isDeleted: false }),
+        }),
+      }),
+    });
+    (argon2.verify as jest.Mock).mockResolvedValue(true);
+
+    await expect(
+      service.login(
+        {
+          tenantId: user.tenantId.toString(),
+          email: user.email,
+          password: 'Password@123',
+        },
+        { ip: '127.0.0.1', userAgent: 'jest' },
+      ),
+    ).rejects.toThrow(ForbiddenException);
+  });
+
+  it('login() blocked when tenant does not exist — R1-003', async () => {
+    const user = makeUser();
+    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(user) });
+    tenantModel.findById.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue(null),
+        }),
+      }),
+    });
+    (argon2.verify as jest.Mock).mockResolvedValue(true);
+
+    await expect(
+      service.login(
+        {
+          tenantId: user.tenantId.toString(),
+          email: user.email,
+          password: 'Password@123',
+        },
+        { ip: '127.0.0.1', userAgent: 'jest' },
+      ),
+    ).rejects.toThrow(ForbiddenException);
   });
 });

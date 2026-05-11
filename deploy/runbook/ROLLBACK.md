@@ -47,3 +47,15 @@ kubectl get pods -n open-erp
 - Rollback thất bại 2 lần liên tiếp.
 - Service vẫn không healthy sau rollback.
 - Có dấu hiệu lỗi dữ liệu hoặc mất kết nối liên dịch vụ.
+
+## Preflight Khi Không Có Runtime Môi Trường
+
+Khi chưa có Docker daemon hoặc chưa có Kubernetes cluster/context, thực hiện kiểm tra thay thế để xác minh deploy assets trước khi bàn giao:
+
+```bash
+docker compose --env-file deploy/docker/.env.local.template -f deploy/docker/compose.local.yml config --quiet
+docker compose --env-file deploy/docker/.env.staging.template -f deploy/docker/compose.staging.yml config --quiet
+kubectl kustomize deploy/k8s/base
+```
+
+Lưu ý: các lệnh trên chỉ xác minh cú pháp/render. Không thay thế được bằng chứng runtime (`up`, `ps`, healthcheck, smoke test).

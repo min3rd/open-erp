@@ -181,4 +181,82 @@ describe('AuthController', () => {
       expect.objectContaining({ httpOnly: true, path: '/api/v1/auth' }),
     );
   });
+
+  it('forgotPassword sends password reset OTP', async () => {
+    authService.forgotPassword.mockResolvedValue({
+      success: true,
+      data: { otpSent: true },
+    });
+
+    const result = await controller.forgotPassword(
+      {
+        tenantId: 'tenant-1',
+        email: 'user@acme.vn',
+      },
+      '127.0.0.1',
+      'jest',
+    );
+
+    expect(authService.forgotPassword).toHaveBeenCalledWith(
+      {
+        tenantId: 'tenant-1',
+        email: 'user@acme.vn',
+      },
+      {
+        ip: '127.0.0.1',
+        userAgent: 'jest',
+      },
+    );
+    expect(result.success).toBe(true);
+  });
+
+  it('resetPassword resets password with OTP', async () => {
+    authService.resetPassword.mockResolvedValue({
+      success: true,
+      data: { passwordReset: true },
+    });
+
+    const result = await controller.resetPassword({
+      tenantId: 'tenant-1',
+      email: 'user@acme.vn',
+      otp: '123456',
+      newPassword: 'NewPassword@123',
+    });
+
+    expect(authService.resetPassword).toHaveBeenCalledWith({
+      tenantId: 'tenant-1',
+      email: 'user@acme.vn',
+      otp: '123456',
+      newPassword: 'NewPassword@123',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('me returns current user profile', async () => {
+    authService.me.mockResolvedValue({
+      success: true,
+      data: {
+        id: 'user-1',
+        email: 'admin@acme.vn',
+        roles: ['TENANT_ADMIN'],
+      },
+    });
+
+    const req = {
+      user: {
+        sub: 'user-1',
+        tenantId: 'tenant-1',
+        email: 'admin@acme.vn',
+        roles: ['TENANT_ADMIN'],
+        jti: 'jti-1',
+        iat: 100,
+        exp: 200,
+      },
+    } as unknown as Request;
+
+    const result = await controller.me(req);
+
+    expect(authService.me).toHaveBeenCalledWith(req.user);
+    expect(result.success).toBe(true);
+  });
 });

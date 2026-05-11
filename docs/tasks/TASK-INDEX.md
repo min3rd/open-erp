@@ -4,11 +4,15 @@ Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 
 > Quy chiếu bắt buộc cho FE agent (open-erp-web): áp dụng mặc định cho mọi tác vụ frontend, không lặp lại ở từng task.
 
+> **QA Final Retest Sprint 01 — 2026-05-11**  
+> Build ✅ | 22/22 suites 89/89 tests ✅ | Coverage Lines **61.02%** (< 80% AC)  
+> Quyết định: FOUNDATION-002/003/004 và TENANT-001 giữ **🟡 REVIEW**. Số liệu tổng Sprint 01 không thay đổi.
+
 ## Tổng quan tiến độ theo Sprint
 
 | Sprint    | Tên                                    | Tổng Task | Tổng SP | TODO | IN PROGRESS | REVIEW | DONE | BLOCKED |
 |-----------|----------------------------------------|-----------|---------|------|-------------|--------|------|---------|
-| Sprint 01 | Foundation & Authentication            | 20        | 104 SP  | 7    | 0           | 11     | 0    | 0       |
+| Sprint 01 | Foundation & Authentication            | 19        | 104 SP  | 9    | 0           | 4      | 5    | 0       |
 | Sprint 02 | System Administration & Platform Core  | 14        | 87 SP   | 14   | 0           | 0      | 0    | 0       |
 | Sprint 03 | HR Module Core                         | 12        | 76 SP   | 12   | 0           | 0      | 0    | 0       |
 | Sprint 04 | Sale & Logistics Core                  | TBD       | TBD     | —    | —           | —      | —    | —       |
@@ -16,23 +20,23 @@ Bảng theo dõi tổng hợp tất cả task trên toàn bộ dự án.
 | Sprint 06 | Office & Meeting Module                | TBD       | TBD     | —    | —           | —      | —    | —       |
 | Sprint 07 | Dashboard & Reporting                  | TBD       | TBD     | —    | —           | —      | —    | —       |
 | Sprint 08+ | AI Agent nâng cao & Tối ưu hóa       | TBD       | TBD     | —    | —           | —      | —    | —       |
-| **Tổng**  |                                        | **46**    | **267 SP** | **33** | **0**   | **11** | **0**| **0**   |
+| **Tổng**  |                                        | **45**    | **267 SP** | **35** | **0**   | **4**  | **5**| **0**   |
 
 ---
 
-## Sprint 01 — Foundation & Authentication (18 tasks / 98 SP)
+## Sprint 01 — Foundation & Authentication (19 tasks / 104 SP)
 
 | Task ID                          | Tiêu đề                                          | Cluster    | Loại     | SP | Trạng thái | Phụ thuộc                               | File task |
 |----------------------------------|--------------------------------------------------|------------|----------|----|------------|-----------------------------------------|-----------|
-| TASK-SPRINT-01-FOUNDATION-001    | Docker Compose — Hạ tầng local dev               | foundation | DevOps   | 5  | 🟡 REVIEW | —                                         | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-001-docker-compose-setup.md) |
+| TASK-SPRINT-01-FOUNDATION-001    | Docker Compose — Hạ tầng local dev               | foundation | DevOps   | 5  | 🟢 DONE  | —                                         | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-001-docker-compose-setup.md) |
 | TASK-SPRINT-01-FOUNDATION-002    | API Gateway Service                              | foundation | Backend  | 8  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001           | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-002-api-gateway-service.md) |
 | TASK-SPRINT-01-FOUNDATION-003    | RabbitMQ & Redis — Shared Library                | foundation | Backend  | 3  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001           | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-003-rabbitmq-redis-config.md) |
 | TASK-SPRINT-01-FOUNDATION-004    | MongoDB — Shared Library & Base Schema           | foundation | Backend  | 3  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001           | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-004-mongodb-setup.md) |
-| TASK-SPRINT-01-FOUNDATION-006    | Root Workspace Node Scripts (install/update/format/build) | foundation | DevOps   | 3  | 🟡 REVIEW | —                                         | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-006-root-workspace-node-scripts.md) |
-| TASK-SPRINT-01-FOUNDATION-007    | VS Code Debug Launch Configurations              | foundation | DevOps   | 3  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-006           | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-007-vscode-debug-launch-configs.md) |
-| TASK-SPRINT-01-FOUNDATION-008    | Deploy Assets — Docker & Kubernetes              | foundation | DevOps   | 5  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001, TASK-SPRINT-01-FOUNDATION-006 | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-008-deploy-assets-docker-kubernetes.md) |
+| TASK-SPRINT-01-FOUNDATION-006    | Root Workspace Node Scripts (install/update/format/build) | foundation | DevOps   | 3  | 🟢 DONE   | —                                         | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-006-root-workspace-node-scripts.md) |
+| TASK-SPRINT-01-FOUNDATION-007    | VS Code Debug Launch Configurations              | foundation | DevOps   | 3  | 🟢 DONE   | TASK-SPRINT-01-FOUNDATION-006           | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-007-vscode-debug-launch-configs.md) |
+| TASK-SPRINT-01-FOUNDATION-008    | Deploy Assets — Docker & Kubernetes              | foundation | DevOps   | 5  | 🟢 DONE  | TASK-SPRINT-01-FOUNDATION-001, TASK-SPRINT-01-FOUNDATION-006 | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-008-deploy-assets-docker-kubernetes.md) |
 | TASK-SPRINT-01-FOUNDATION-009    | Cài đặt trực tiếp Linux/Windows Server           | foundation | DevOps   | 5  | ⏸️ HOLD   | TASK-SPRINT-01-FOUNDATION-006, TASK-SPRINT-01-FOUNDATION-008 | [Link](sprints/SPRINT-01/foundation/TASK-SPRINT-01-FOUNDATION-009-direct-install-linux-windows-server.md) |
-| TASK-SPRINT-01-AUTH-001          | Auth Service — JWT & Local Auth                  | auth       | Backend  | 8  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-002, -003, -004 | [Link](sprints/SPRINT-01/auth/TASK-SPRINT-01-AUTH-001-auth-service-jwt.md) |
+| TASK-SPRINT-01-AUTH-001          | Auth Service — JWT & Local Auth                  | auth       | Backend  | 8  | 🟢 DONE   | TASK-SPRINT-01-FOUNDATION-002, -003, -004 | [Link](sprints/SPRINT-01/auth/TASK-SPRINT-01-AUTH-001-auth-service-jwt.md) |
 | TASK-SPRINT-01-AUTH-002          | OAuth2 — Google & Microsoft                      | auth       | Backend  | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                 | [Link](sprints/SPRINT-01/auth/TASK-SPRINT-01-AUTH-002-oauth2-social.md) |
 | TASK-SPRINT-01-AUTH-003          | Multi-Factor Authentication (TOTP)               | auth       | Backend  | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                 | [Link](sprints/SPRINT-01/auth/TASK-SPRINT-01-AUTH-003-mfa.md) |
 | TASK-SPRINT-01-AUTH-004          | Hardening Token Security & Coverage Evidence     | auth       | Backend  | 3  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                 | [Link](sprints/SPRINT-01/auth/TASK-SPRINT-01-AUTH-004-token-security-hardening.md) |

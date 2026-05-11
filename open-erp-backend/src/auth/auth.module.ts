@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RabbitMQService } from '../common/services/rabbitmq.service';
+import { Tenant, TenantSchema } from '../tenant/schemas/tenant.schema';
 import { TokenModule } from '../token/token.module';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import { resolveJwtRuntimeConfig } from './auth-runtime.config';
@@ -43,6 +44,10 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
       {
         name: User.name,
         schema: UserSchema,
+      },
+      {
+        name: Tenant.name,
+        schema: TenantSchema,
       },
     ]),
   ],

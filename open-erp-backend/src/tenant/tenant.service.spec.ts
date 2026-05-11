@@ -295,7 +295,8 @@ describe('TenantService', () => {
       'tenant.registered',
       expect.any(Object),
     );
-    expect(rabbitMQService.publish).toHaveBeenCalledWith(
+    // tenant.created must NOT be published here — it is deferred to finalizeWizard()
+    expect(rabbitMQService.publish).not.toHaveBeenCalledWith(
       'tenant.created',
       expect.any(Object),
     );
@@ -449,5 +450,38 @@ describe('TenantService', () => {
     );
 
     expect(result.data.plan).toBe(TenantPlan.BUSINESS);
+  });
+
+  it('finalizeWizard publishes tenant.created for existing tenant', async () => {
+    tenantModel.findOne = jest.fn().mockReturnValue({
+      lean: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue({
+          _id: new Types.ObjectId('6642a0000000000000000001'),
+          plan: TenantPlan.TRIAL,
+          adminEmail: 'admin@acme.vn',
+          isDeleted: false,
+        }),
+      }),
+    });
+
+    const result = await service.finalizeWizard('6642a0000000000000000001');
+
+    expect(result.success).toBe(true);
+    expect(rabbitMQService.publish).toHaveBeenCalledWith(
+      'tenant.created',
+      expect.objectContaining({ plan: TenantPlan.TRIAL }),
+    );
+  });
+
+  it('finalizeWizard throws NotFoundException for missing tenant', async () => {
+    tenantModel.findOne = jest.fn().mockReturnValue({
+      lean: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      }),
+    });
+
+    await expect(
+      service.finalizeWizard('000000000000000000000000'),
+    ).rejects.toThrow(NotFoundException);
   });
 });

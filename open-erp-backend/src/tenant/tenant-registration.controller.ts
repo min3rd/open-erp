@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { Public } from '../common/decorators/public.decorator';
 import { CompleteOnboardingDto } from './dto/complete-onboarding.dto';
 import { RegisterTenantDto } from './dto/register-tenant.dto';
@@ -31,5 +31,16 @@ export class TenantRegistrationController {
   @Post('complete-onboarding')
   async completeOnboarding(@Body() dto: CompleteOnboardingDto) {
     return this.tenantService.completeOnboarding(dto);
+  }
+
+  /**
+   * POST /api/v1/register/finalize-wizard/:tenantId
+   * Called after the Onboarding Wizard (5-step) finishes on the frontend.
+   * Publishes tenant.created so downstream services initialize default data.
+   */
+  @Public()
+  @Post('finalize-wizard/:tenantId')
+  async finalizeWizard(@Param('tenantId') tenantId: string) {
+    return this.tenantService.finalizeWizard(tenantId);
   }
 }

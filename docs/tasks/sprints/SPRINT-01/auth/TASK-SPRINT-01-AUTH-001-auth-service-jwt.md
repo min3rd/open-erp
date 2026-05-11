@@ -10,7 +10,7 @@
 | Loại             | Backend                                                          |
 | Người phụ trách  | Backend                                                          |
 | Story Points     | 8                                                                |
-| Trạng thái       | 🟡 REVIEW                                                        |
+| Trạng thái       | 🟢 DONE                                                          |
 | Phụ thuộc        | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004     |
 
 ## Mô tả
@@ -397,3 +397,31 @@ Tests: 70 passed, 70 total
 
 **Ghi chú:**
 - Endpoint runtime của auth vẫn giữ backward-compatible: `/api/v1/auth/login`, `/api/v1/auth/refresh-token`, `/api/v1/auth/logout`, `/api/v1/auth/me`.
+
+### QA Regression tuần 1 (2026-05-11)
+
+**Lệnh xác minh mới nhất:**
+```text
+npm run build
+npm test -- --passWithNoTests
+npm test -- src/auth/auth.controller.spec.ts src/auth/auth.service.spec.ts src/tenant/tenant.service.spec.ts src/tenant/tenant.controller.spec.ts src/tenant/tenant-registration.controller.spec.ts --runInBand --passWithNoTests
+npm run test:cov -- --runInBand --passWithNoTests
+```
+
+**Kết quả:**
+- Build PASS.
+- Full test PASS: `16/16 suites`, `70/70 tests`.
+- Scope auth/tenant hẹp PASS: `5/5 suites`, `41/41 tests`.
+- Coverage cập nhật: `src/auth/auth.service.ts` đạt `80.68%` statements, vượt ngưỡng AC `>= 80%`.
+- Refresh token flow đã ưu tiên cookie httpOnly, vẫn chấp nhận body để backward-compatible.
+- Ký JWT runtime hỗ trợ RS256 khi có key cấu hình, fallback HS256 cho local/dev và có log cảnh báo.
+
+**Kết luận QA Regression:**
+- Chuyển trạng thái task sang `🟢 DONE` cho Sprint 01 week 1 regression.
+- Theo dõi tiếp ở task hardening (`AUTH-004`) cho phần cấu hình key RS256 bắt buộc ở môi trường production.
+
+## QA Reconciliation (2026-05-11)
+
+- **Trạng thái chốt:** 🟢 DONE
+- **Lý do chốt:** AC chính đã có evidence kiểm chứng và regression gần nhất xác nhận pass build/test + coverage auth vượt ngưỡng theo task.
+- **Evidence tham chiếu:** `npm run build`, full/scope tests pass; `src/auth/auth.service.ts` đạt coverage 80.68% trong vòng regression.

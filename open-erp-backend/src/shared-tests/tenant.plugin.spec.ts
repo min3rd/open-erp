@@ -20,6 +20,22 @@ describe('tenantPlugin', () => {
     expect(where).toHaveBeenCalledWith({ tenantId: 'tenant-1', isDeleted: false });
   });
 
+  it('does not inject filter when tenantId is missing in query options', () => {
+    const schema = new Schema({ tenantId: String, isDeleted: Boolean });
+    tenantPlugin(schema);
+
+    const findHooks = (schema as any).s.hooks._pres.get('find');
+    const where = jest.fn().mockReturnThis();
+    const query = {
+      getOptions: () => ({}),
+      where,
+    };
+
+    findHooks[0].fn.call(query);
+
+    expect(where).not.toHaveBeenCalled();
+  });
+
   it('throws on save when tenantId is missing', () => {
     const schema = new Schema({ tenantId: String, isDeleted: Boolean, deletedAt: Date });
     tenantPlugin(schema);

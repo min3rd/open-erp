@@ -9,7 +9,7 @@
 | Loại | DevOps |
 | Người phụ trách | DevOps |
 | Story Points | 3 |
-| Trạng thái | 🟡 REVIEW |
+| Trạng thái | 🟢 DONE |
 | Phụ thuộc | — |
 
 ## Mô tả
@@ -99,3 +99,24 @@ N/A
 ### Chưa hoàn thành / cần follow-up
 - Chưa chạy `format:write` toàn workspace để tránh thay đổi hàng loạt ngoài phạm vi task.
 - `build:all` đang dừng ở backend với lỗi nền hiện hữu `TS2688` (không phải do script orchestration).
+
+## QA Regression tuần 1 (2026-05-11)
+
+**Lệnh xác minh bổ sung:**
+```text
+npm pkg get scripts
+```
+
+**Kết quả:**
+- Các nhóm script `install:*`, `deps:update:*`, `format:*`, `build:*` có mặt đầy đủ tại root.
+- Cú pháp orchestration và cơ chế fail-fast (`&&`) đúng như AC.
+
+**Đánh giá QA:**
+- Chuyển trạng thái `🟢 DONE`.
+- Theo dõi độc lập lỗi build phát sinh từ code backend nếu có ở các task khác (không thuộc phạm vi script orchestration).
+
+## QA Reconciliation (2026-05-11)
+
+- **Trạng thái chốt:** 🟢 DONE
+- **Lý do chốt:** Các AC chính của task orchestration scripts đã có evidence xác minh trực tiếp và không còn blocker trong phạm vi task.
+- **Evidence tham chiếu:** kết quả `npm pkg get scripts` và các kiểm chứng nhóm script `install:*`, `deps:update:*`, `format:*`, `build:*`.

@@ -9,7 +9,7 @@
 | Loại | DevOps |
 | Người phụ trách | DevOps |
 | Story Points | 3 |
-| Trạng thái | 🟡 REVIEW |
+| Trạng thái | 🟢 DONE |
 | Phụ thuộc | TASK-SPRINT-01-FOUNDATION-006 |
 
 ## Mô tả
@@ -99,7 +99,7 @@ N/A
 ## Kết quả triển khai
 
 **Ngày hoàn thành:** 2026-05-10  
-**Trạng thái:** 🟡 REVIEW
+**Trạng thái:** 🟢 DONE
 
 **Files đã tạo / sửa:**
 - `.vscode/launch.json`
@@ -112,3 +112,24 @@ N/A
 
 **Ghi chú:**
 - JSON parser thuần của Node.js không parse được `launch.json` do VS Code dùng JSONC (có comment), đã kiểm tra hợp lệ bằng diagnostics của VS Code.
+
+## QA Regression tuần 1 (2026-05-11)
+
+**Lệnh xác minh bổ sung:**
+```text
+get_errors .vscode/launch.json
+get_errors .vscode/tasks.json
+```
+
+**Kết quả:**
+- Không phát hiện lỗi cấu hình ở cả `launch.json` và `tasks.json`.
+- Đủ căn cứ sign-off cho scope cấu hình IDE của task.
+
+**Đánh giá QA:**
+- Chuyển trạng thái `🟢 DONE`.
+
+## QA Reconciliation (2026-05-11)
+
+- **Trạng thái chốt:** 🟢 DONE
+- **Lý do chốt:** Cấu hình debug profiles đã đủ AC, không phát hiện lỗi cấu hình và có evidence kiểm tra diagnostics.
+- **Evidence tham chiếu:** `get_errors` cho `.vscode/launch.json` và `.vscode/tasks.json` đều sạch lỗi.

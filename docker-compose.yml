@@ -1,6 +1,9 @@
 services:
   mongodb:
-    image: mongo:7.0
+    # NOTE: mongo:7.0+ requires AVX CPU support (SERVER-54407).
+    # On non-AVX hosts (local dev), use mongo:4.4 as workaround.
+    # Staging/production must run on AVX-capable hardware for mongo:7.0.
+    image: mongo:4.4
     container_name: open-erp-mongodb
     command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     environment:
@@ -13,7 +16,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "mongosh --host localhost --port 27017 --quiet --eval \"db.adminCommand('ping').ok\" | grep 1",
+          "mongo --host localhost --port 27017 --quiet --eval \"db.adminCommand('ping').ok\" | grep 1",
         ]
       interval: 10s
       timeout: 5s
@@ -25,7 +28,7 @@ services:
         ipv4_address: 172.20.0.10
 
   mongodb-rs-init:
-    image: mongo:7.0
+    image: mongo:4.4
     container_name: open-erp-mongodb-rs-init
     depends_on:
       mongodb:

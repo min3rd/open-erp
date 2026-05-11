@@ -76,4 +76,39 @@ describe('RateLimitMiddleware', () => {
     });
     expect(res.setHeader).toHaveBeenCalledWith('retry-after', expect.any(String));
   });
+
+  it('throws 429 on 101st request for global limit', () => {
+    const req = {
+      path: '/api/v1/tenants',
+      ip: '127.0.0.3',
+      headers: {},
+    } as unknown as Request;
+    const res = createResponse();
+    const next = jest.fn() as unknown as NextFunction;
+
+    for (let i = 0; i < 100; i += 1) {
+      middleware.use(req, res, next);
+    }
+
+    let thrown: HttpException | undefined;
+    try {
+      middleware.use(req, res, next);
+    } catch (error) {
+      thrown = error as HttpException;
+    }
+
+    expect(thrown).toBeInstanceOf(HttpException);
+    expect(thrown?.getStatus()).toBe(HttpStatus.TOO_MANY_REQUESTS);
+    expect(thrown?.getResponse()).toEqual({
+      code: 'RATE_LIMIT_EXCEEDED',
+      message: {
+        key: 'error.rate_limit.exceeded',
+        data: expect.objectContaining({
+          limit: 100,
+          windowMs: 60000,
+        }),
+      },
+    });
+    expect(res.setHeader).toHaveBeenCalledWith('retry-after', expect.any(String));
+  });
 });

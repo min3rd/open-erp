@@ -1,6 +1,7 @@
 services:
   mongodb:
-    image: mongo:7.0
+    # NOTE: mongo:7.0+ requires AVX CPU. Use mongo:4.4 on non-AVX local hosts.
+    image: mongo:4.4
     command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     environment:
       MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
@@ -9,7 +10,7 @@ services:
     volumes:
       - mongodb_data:/data/db
     healthcheck:
-      test: ["CMD-SHELL", "mongosh --host localhost --port 27017 --quiet --eval \"db.adminCommand('ping').ok\" | grep 1"]
+      test: ["CMD-SHELL", "mongo --host localhost --port 27017 --quiet --eval \"db.adminCommand('ping').ok\" | grep 1"]
       interval: 10s
       timeout: 5s
       retries: 10

@@ -3,8 +3,15 @@
 **Sprint:** 01  
 **Mục tiêu:** Xây dựng nền tảng SaaS cốt lõi — hạ tầng, xác thực, quản lý tenant, người dùng và phân quyền cơ bản.  
 **Thời gian:** 2 tuần  
-**Tổng Story Points:** 98 SP  
-**Tổng Task:** 20  
+**Tổng Story Points:** 104 SP  
+**Tổng Task:** 19  
+
+---
+
+> **QA Final Retest — 2026-05-11**  
+> Build: ✅ PASS | Tests: 22/22 suites, 89/89 PASS | Coverage: Lines **61.02%** (ngưỡng AC ≥ 80% chưa đạt)  
+> Kết quả: FOUNDATION-002, FOUNDATION-003, FOUNDATION-004, TENANT-001 giữ nguyên **🟡 REVIEW**.  
+> Điều kiện chung để close REVIEW: nâng coverage ≥ 80% và bổ sung integration tests khi môi trường (Docker/MongoDB/RabbitMQ) sẵn sàng.
 
 ---
 
@@ -12,12 +19,12 @@
 
 | Cluster      | Tổng | ⬜ TODO | 🔵 IN PROGRESS | 🟡 REVIEW | 🟢 DONE | 🔴 BLOCKED | ⏸️ HOLD |
 |--------------|------|---------|----------------|-----------|---------|------------|--------|
-| foundation   | 8    | 0       | 0              | 7         | 0       | 0          | 1      |
-| auth         | 4    | 2       | 0              | 2         | 0       | 0          | 0      |
-| tenant       | 3    | 1       | 0              | 2         | 0       | 0          | 0      |
+| foundation   | 8    | 0       | 0              | 3         | 4       | 0          | 1      |
+| auth         | 4    | 3       | 0              | 0         | 1       | 0          | 0      |
+| tenant       | 3    | 2       | 0              | 1         | 0       | 0          | 0      |
 | user         | 2    | 2       | 0              | 0         | 0       | 0          | 0      |
 | frontend     | 2    | 2       | 0              | 0         | 0       | 0          | 0      |
-| **Tổng**     | **20** | **7** | **0**         | **11**    | **0**   | **0**      | **1**  |
+| **Tổng**     | **19** | **9** | **0**         | **4**     | **5**   | **0**      | **1**  |
 
 ---
 
@@ -25,15 +32,15 @@
 
 | Task ID                         | Tiêu đề                                          | Cluster    | Loại     | Phụ trách | SP | Trạng thái | Phụ thuộc                                                       | File                                                                                         |
 |---------------------------------|--------------------------------------------------|------------|----------|-----------|----|------------|------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
-| TASK-SPRINT-01-FOUNDATION-001   | Thiết lập Docker Compose cho toàn bộ hệ thống   | foundation | DevOps   | DevOps    | 5  | 🟡 REVIEW | —                                                                  | `foundation/TASK-SPRINT-01-FOUNDATION-001-docker-compose-setup.md`                           |
+| TASK-SPRINT-01-FOUNDATION-001   | Thiết lập Docker Compose cho toàn bộ hệ thống   | foundation | DevOps   | DevOps    | 5  | 🟢 DONE  | —                                                                  | `foundation/TASK-SPRINT-01-FOUNDATION-001-docker-compose-setup.md`                           |
 | TASK-SPRINT-01-FOUNDATION-002   | Triển khai API Gateway NestJS                    | foundation | Backend  | Backend   | 8  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001                                    | `foundation/TASK-SPRINT-01-FOUNDATION-002-api-gateway-service.md`                            |
 | TASK-SPRINT-01-FOUNDATION-003   | Cấu hình RabbitMQ exchanges và Redis caching     | foundation | Backend  | Backend   | 3  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001                                    | `foundation/TASK-SPRINT-01-FOUNDATION-003-rabbitmq-redis-config.md`                          |
 | TASK-SPRINT-01-FOUNDATION-004   | Cấu hình MongoDB và Base Schema                  | foundation | Backend  | Backend   | 3  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001                                    | `foundation/TASK-SPRINT-01-FOUNDATION-004-mongodb-setup.md`                                  |
-| TASK-SPRINT-01-FOUNDATION-006   | Root workspace node scripts (install/update/format/build) | foundation | DevOps   | DevOps    | 3  | 🟡 REVIEW | —                                                                  | `foundation/TASK-SPRINT-01-FOUNDATION-006-root-workspace-node-scripts.md`                    |
-| TASK-SPRINT-01-FOUNDATION-007   | VS Code debug launch configurations cho hệ thống | foundation | DevOps   | DevOps    | 3  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-006                                    | `foundation/TASK-SPRINT-01-FOUNDATION-007-vscode-debug-launch-configs.md`                    |
-| TASK-SPRINT-01-FOUNDATION-008   | Deploy assets cho Docker và Kubernetes           | foundation | DevOps   | DevOps    | 5  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001, TASK-SPRINT-01-FOUNDATION-006     | `foundation/TASK-SPRINT-01-FOUNDATION-008-deploy-assets-docker-kubernetes.md`                |
+| TASK-SPRINT-01-FOUNDATION-006   | Root workspace node scripts (install/update/format/build) | foundation | DevOps   | DevOps    | 3  | 🟢 DONE   | —                                                                  | `foundation/TASK-SPRINT-01-FOUNDATION-006-root-workspace-node-scripts.md`                    |
+| TASK-SPRINT-01-FOUNDATION-007   | VS Code debug launch configurations cho hệ thống | foundation | DevOps   | DevOps    | 3  | 🟢 DONE   | TASK-SPRINT-01-FOUNDATION-006                                    | `foundation/TASK-SPRINT-01-FOUNDATION-007-vscode-debug-launch-configs.md`                    |
+| TASK-SPRINT-01-FOUNDATION-008   | Deploy assets cho Docker và Kubernetes           | foundation | DevOps   | DevOps    | 5  | 🟢 DONE  | TASK-SPRINT-01-FOUNDATION-001, TASK-SPRINT-01-FOUNDATION-006     | `foundation/TASK-SPRINT-01-FOUNDATION-008-deploy-assets-docker-kubernetes.md`                |
 | TASK-SPRINT-01-FOUNDATION-009   | Hướng dẫn và cấu hình cài đặt trực tiếp Linux/Windows Server | foundation | DevOps   | DevOps    | 5  | ⏸️ HOLD    | TASK-SPRINT-01-FOUNDATION-006, TASK-SPRINT-01-FOUNDATION-008     | `foundation/TASK-SPRINT-01-FOUNDATION-009-direct-install-linux-windows-server.md`            |
-| TASK-SPRINT-01-AUTH-001         | Auth Service — JWT Authentication                | auth       | Backend  | Backend   | 8  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004     | `auth/TASK-SPRINT-01-AUTH-001-auth-service-jwt.md`                                           |
+| TASK-SPRINT-01-AUTH-001         | Auth Service — JWT Authentication                | auth       | Backend  | Backend   | 8  | 🟢 DONE   | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004     | `auth/TASK-SPRINT-01-AUTH-001-auth-service-jwt.md`                                           |
 | TASK-SPRINT-01-AUTH-002         | Auth Service — OAuth2 Social Login               | auth       | Backend  | Backend   | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-002-oauth2-social.md`                                              |
 | TASK-SPRINT-01-AUTH-003         | Auth Service — Multi-Factor Authentication (TOTP)| auth       | Backend  | Backend   | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-003-mfa.md`                                                        |
 | TASK-SPRINT-01-AUTH-004         | Hardening Token Security & Coverage Evidence     | auth       | Backend  | Backend   | 3  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-004-token-security-hardening.md`                                   |
