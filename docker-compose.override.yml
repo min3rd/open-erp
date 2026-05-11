@@ -35,5 +35,38 @@ services:
     networks:
       - erp-network
 
+  auth-service-dev:
+    image: node:22-alpine
+    container_name: open-erp-auth-service-dev
+    profiles:
+      - apps
+    working_dir: /workspace
+    command: ["sh", "-c", "npm install; npm run start:dev"]
+    volumes:
+      - ./open-erp-auth-service:/workspace
+      - auth_node_modules:/workspace/node_modules
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      MONGODB_URI: mongodb://mongodb:27017/openErp-auth
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      REFRESH_TOKEN_EXPIRES_DAYS: ${REFRESH_TOKEN_EXPIRES_DAYS:-7}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672${RABBITMQ_VHOST}
+    ports:
+      - "3001:3001"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - erp-network
+
 volumes:
   backend_node_modules:
+  auth_node_modules:

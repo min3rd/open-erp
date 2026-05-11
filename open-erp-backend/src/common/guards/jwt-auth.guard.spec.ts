@@ -101,7 +101,7 @@ describe('JwtAuthGuard', () => {
       .spyOn(guard as unknown as { isBlacklisted: (t: string) => Promise<boolean> }, 'isBlacklisted')
       .mockResolvedValue(true);
 
-    const token = makeToken({ sub: 'user-1' });
+    const token = makeToken({ sub: 'user-1', jti: 'jti-123' });
     const ctx = makeContext(token);
 
     await expect(guard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);

@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -9,11 +10,14 @@ import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { JwtPayload, verify } from 'jsonwebtoken';
 import type { Request } from 'express';
+import { resolveJwtRuntimeConfig } from '../../auth/auth-runtime.config';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
+  private readonly logger = new Logger(JwtAuthGuard.name);
   private redisClient: Redis | null = null;
+  private jwtFallbackWarningLogged = false;
 
   constructor(
     private readonly reflector: Reflector,
@@ -41,15 +45,16 @@ export class JwtAuthGuard implements CanActivate {
       });
     }
 
-    if (await this.isBlacklisted(token)) {
-      throw new UnauthorizedException({
-        code: 'TOKEN_INVALID',
-        message: 'Token is blacklisted',
-      });
-    }
-
     try {
       const payload = this.verifyToken(token);
+      const jti = typeof payload?.jti === 'string' ? payload.jti : '';
+      if (jti && (await this.isBlacklisted(jti))) {
+        throw new UnauthorizedException({
+          code: 'TOKEN_INVALID',
+          message: 'Token is blacklisted',
+        });
+      }
+
       req.user = payload as Express.User;
       return true;
     } catch {
@@ -69,20 +74,20 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   private verifyToken(token: string): JwtPayload {
-    const publicKey = this.configService
-      .get<string>('JWT_PUBLIC_KEY')
-      ?.replace(/\\n/g, '\n');
-    const secret =
-      this.configService.get<string>('JWT_SECRET') ?? 'dev-secret-change-me';
+    const jwtConfig = resolveJwtRuntimeConfig(this.configService);
+    if (jwtConfig.usedFallback && jwtConfig.warning && !this.jwtFallbackWarningLogged) {
+      this.jwtFallbackWarningLogged = true;
+      this.logger.warn(jwtConfig.warning);
+    }
 
-    const payload = publicKey
-      ? verify(token, publicKey, { algorithms: ['RS256'] })
-      : verify(token, secret, { algorithms: ['HS256'] });
+    const payload = verify(token, jwtConfig.verifyKey, {
+      algorithms: [jwtConfig.algorithm],
+    });
 
     return payload as JwtPayload;
   }
 
-  private async isBlacklisted(token: string): Promise<boolean> {
+  private async isBlacklisted(jti: string): Promise<boolean> {
     const redisUrl = this.configService.get<string>('REDIS_URL');
     if (!redisUrl) {
       return false;
@@ -102,7 +107,7 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     const cachedToken = await this.redisClient
-      .get(`jwt:blacklist:${token}`)
+      .get(`jwt:blacklist:${jti}`)
       .catch(() => null);
 
     return Boolean(cachedToken);

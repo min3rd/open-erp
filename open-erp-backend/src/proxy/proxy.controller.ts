@@ -12,7 +12,7 @@ import { ProxyService } from './proxy.service';
 
 @ApiTags('proxy')
 @ApiBearerAuth()
-@Controller('api/v1')
+@Controller({ path: '', version: '1' })
 export class ProxyController {
   constructor(private readonly proxyService: ProxyService) {}
 

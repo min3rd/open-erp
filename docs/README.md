@@ -188,6 +188,17 @@ Ghi chú cập nhật 09/05/2026: các task Frontend Sprint 01-02 và task phố
 
 ---
 
+## Tài liệu Kiểm thử (QA)
+
+- [Bảng tổng hợp test case](testcases/TC-INDEX.md)
+
+### Test Case theo Sprint
+
+- [Sprint 01 — AUTH-001](testcases/sprint-01/TC-SPRINT-01-AUTH-001.md)
+- [Sprint 01 — TENANT-001](testcases/sprint-01/TC-SPRINT-01-TENANT-001.md)
+
+---
+
 ## Tài liệu sắp tạo (Giai đoạn tiếp theo)
 
 | Giai đoạn | Tài liệu | Agent | Trạng thái |
@@ -195,4 +206,4 @@ Ghi chú cập nhật 09/05/2026: các task Frontend Sprint 01-02 và task phố
 | Kiến trúc hệ thống | `docs/architecture/` | Technical Leader | ✅ Hoàn thành |
 | Phân rã Task Sprint 01-02 | `docs/tasks/` | Technical Leader | ✅ Hoàn thành |
 | Phân rã Task Sprint 03+ | `docs/tasks/sprints/SPRINT-03+/` | Technical Leader | ⬜ Chưa bắt đầu |
-| Test Cases | `docs/testcases/` | Senior QA | ⬜ Chưa bắt đầu |
+| Test Cases | `docs/testcases/` | Senior QA | 🔵 Sprint 01 đang được QA review |

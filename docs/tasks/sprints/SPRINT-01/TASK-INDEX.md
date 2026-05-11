@@ -4,7 +4,7 @@
 **Mục tiêu:** Xây dựng nền tảng SaaS cốt lõi — hạ tầng, xác thực, quản lý tenant, người dùng và phân quyền cơ bản.  
 **Thời gian:** 2 tuần  
 **Tổng Story Points:** 98 SP  
-**Tổng Task:** 18  
+**Tổng Task:** 20  
 
 ---
 
@@ -13,11 +13,11 @@
 | Cluster      | Tổng | ⬜ TODO | 🔵 IN PROGRESS | 🟡 REVIEW | 🟢 DONE | 🔴 BLOCKED | ⏸️ HOLD |
 |--------------|------|---------|----------------|-----------|---------|------------|--------|
 | foundation   | 8    | 0       | 0              | 7         | 0       | 0          | 1      |
-| auth         | 3    | 3       | 0              | 0         | 0       | 0          | 0      |
-| tenant       | 2    | 2       | 0              | 0         | 0       | 0          | 0      |
+| auth         | 4    | 2       | 0              | 2         | 0       | 0          | 0      |
+| tenant       | 3    | 1       | 0              | 2         | 0       | 0          | 0      |
 | user         | 2    | 2       | 0              | 0         | 0       | 0          | 0      |
 | frontend     | 2    | 2       | 0              | 0         | 0       | 0          | 0      |
-| **Tổng**     | **18** | **10** | **0**        | **7**     | **0**   | **0**      | **1**  |
+| **Tổng**     | **20** | **7** | **0**         | **11**    | **0**   | **0**      | **1**  |
 
 ---
 
@@ -33,11 +33,13 @@
 | TASK-SPRINT-01-FOUNDATION-007   | VS Code debug launch configurations cho hệ thống | foundation | DevOps   | DevOps    | 3  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-006                                    | `foundation/TASK-SPRINT-01-FOUNDATION-007-vscode-debug-launch-configs.md`                    |
 | TASK-SPRINT-01-FOUNDATION-008   | Deploy assets cho Docker và Kubernetes           | foundation | DevOps   | DevOps    | 5  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-001, TASK-SPRINT-01-FOUNDATION-006     | `foundation/TASK-SPRINT-01-FOUNDATION-008-deploy-assets-docker-kubernetes.md`                |
 | TASK-SPRINT-01-FOUNDATION-009   | Hướng dẫn và cấu hình cài đặt trực tiếp Linux/Windows Server | foundation | DevOps   | DevOps    | 5  | ⏸️ HOLD    | TASK-SPRINT-01-FOUNDATION-006, TASK-SPRINT-01-FOUNDATION-008     | `foundation/TASK-SPRINT-01-FOUNDATION-009-direct-install-linux-windows-server.md`            |
-| TASK-SPRINT-01-AUTH-001         | Auth Service — JWT Authentication                | auth       | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004     | `auth/TASK-SPRINT-01-AUTH-001-auth-service-jwt.md`                                           |
+| TASK-SPRINT-01-AUTH-001         | Auth Service — JWT Authentication                | auth       | Backend  | Backend   | 8  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004     | `auth/TASK-SPRINT-01-AUTH-001-auth-service-jwt.md`                                           |
 | TASK-SPRINT-01-AUTH-002         | Auth Service — OAuth2 Social Login               | auth       | Backend  | Backend   | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-002-oauth2-social.md`                                              |
 | TASK-SPRINT-01-AUTH-003         | Auth Service — Multi-Factor Authentication (TOTP)| auth       | Backend  | Backend   | 5  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-003-mfa.md`                                                        |
-| TASK-SPRINT-01-TENANT-001       | Tenant Service — Quản lý doanh nghiệp & Tự đăng ký MST | tenant     | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004     | `tenant/TASK-SPRINT-01-TENANT-001-tenant-service.md`                                         |
+| TASK-SPRINT-01-AUTH-004         | Hardening Token Security & Coverage Evidence     | auth       | Backend  | Backend   | 3  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001                                          | `auth/TASK-SPRINT-01-AUTH-004-token-security-hardening.md`                                   |
+| TASK-SPRINT-01-TENANT-001       | Tenant Service — Quản lý doanh nghiệp & Tự đăng ký MST | tenant     | Backend  | Backend   | 8  | 🟡 REVIEW | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004     | `tenant/TASK-SPRINT-01-TENANT-001-tenant-service.md`                                         |
 | TASK-SPRINT-01-TENANT-002       | Tenant Service — Subscription và Quota           | tenant     | Backend  | Backend   | 5  | ⬜ TODO    | TASK-SPRINT-01-TENANT-001                                        | `tenant/TASK-SPRINT-01-TENANT-002-subscription-quota.md`                                     |
+| TASK-SPRINT-01-TENANT-003       | Onboarding Integration Completion                 | tenant     | Backend  | Backend   | 3  | ⬜ TODO    | TASK-SPRINT-01-TENANT-001                                        | `tenant/TASK-SPRINT-01-TENANT-003-onboarding-integration-completion.md`                      |
 | TASK-SPRINT-01-USER-001         | User Service — Quản lý người dùng và phòng ban   | user       | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-TENANT-001               | `user/TASK-SPRINT-01-USER-001-user-service.md`                                               |
 | TASK-SPRINT-01-USER-002         | RBAC Service — Role-Based Access Control         | user       | Backend  | Backend   | 8  | ⬜ TODO    | TASK-SPRINT-01-USER-001                                          | `user/TASK-SPRINT-01-USER-002-rbac-service.md`                                               |
 | TASK-SPRINT-01-FRONTEND-001     | Angular Web — Auth UI + Đăng ký DN với Activation Email Link (Angular 21) (AC: Light/Dark mode + persistence openErp.colorMode) | frontend   | Frontend | Frontend  | 8  | ⬜ TODO    | TASK-SPRINT-01-AUTH-001, TASK-SPRINT-01-AUTH-002, TASK-SPRINT-01-AUTH-003 | `frontend/TASK-SPRINT-01-FRONTEND-001-angular-auth-ui.md`                         |
