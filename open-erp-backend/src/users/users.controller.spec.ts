@@ -14,8 +14,8 @@ describe('UsersController', () => {
   let avatarService: jest.Mocked<AvatarService>;
 
   const mockUser = {
-    sub: new Types.ObjectId().toString(),
-    tenantId: new Types.ObjectId().toString(),
+    sub: '6a0326f9553c2b43471f0f00',
+    tenantId: '6a0326f9553c2b43471f0f01',
     roles: ['TENANT_ADMIN'],
     email: 'admin@acme.vn',
   };
@@ -466,7 +466,7 @@ describe('UsersController', () => {
 
       expect(result.success).toBe(true);
       expect(avatarService.uploadAvatar).toHaveBeenCalledWith({
-        tenantId: 'tenant-1',
+        tenantId: '6a0326f9553c2b43471f0f01',
         userId: 'user-1',
         file: mockFile,
       });
@@ -499,7 +499,7 @@ describe('UsersController', () => {
       await controller.uploadAvatar('user-1', mockFile, req);
 
       expect(avatarService.uploadAvatar).toHaveBeenCalledWith({
-        tenantId: 'tenant-1',
+        tenantId: '6a0326f9553c2b43471f0f01',
         userId: 'user-1',
         file: mockFile,
       });

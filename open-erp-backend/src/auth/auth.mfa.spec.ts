@@ -1,3 +1,4 @@
+import argon2 from 'argon2';
 import { UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -16,6 +17,8 @@ import { AuthService } from './auth.service';
 jest.mock('qrcode', () => ({
   toDataURL: jest.fn(),
 }));
+
+jest.mock('argon2');
 
 describe('AuthService MFA', () => {
   let service: AuthService;
@@ -293,7 +296,7 @@ describe('AuthService MFA', () => {
       result.data.backupCodes.forEach((code: string) => {
         expect(code).toHaveLength(8);
         // Each code should be alphanumeric (no 0, 1, I, O, L)
-        expect(/^[A-Z2-9]{8}$/).toMatch(code);
+        expect(code).toMatch(/^[A-Z2-9]{8}$/);
       });
     });
 
@@ -366,7 +369,9 @@ describe('AuthService MFA', () => {
         purpose: 'mfa',
       });
       jest.spyOn(authenticator, 'verify').mockReturnValue(false); // Invalid TOTP
-      
+      jest
+        .spyOn(authServicePrivateAccess(), 'decryptMfaSecret')
+        .mockReturnValue('secret');
       // Mock bcrypt compare for backup code validation
       jest.spyOn(authServicePrivateAccess(), 'consumeBackupCode')
         .mockResolvedValue(true);
@@ -444,6 +449,9 @@ describe('AuthService MFA', () => {
         purpose: 'mfa',
       });
       jest.spyOn(authenticator, 'verify').mockReturnValue(false);
+      jest
+        .spyOn(authServicePrivateAccess(), 'decryptMfaSecret')
+        .mockReturnValue('secret');
       jest
         .spyOn(authServicePrivateAccess(), 'consumeBackupCode')
         .mockResolvedValue(false);
@@ -546,6 +554,14 @@ describe('AuthService MFA', () => {
   });
 
   describe('MFA Policy Enforcement (CRITICAL)', () => {
+    beforeEach(() => {
+      (argon2.verify as jest.Mock).mockResolvedValue(true);
+      mockedTokenService.createRefreshToken.mockResolvedValue({
+        refreshToken: 'refresh-token',
+        expiresAt: new Date(),
+      });
+    });
+
     it('allows login without MFA when MFA policy not set', async () => {
       const user = makeUser({ mfaEnabled: false });
       userModel.findOne.mockReturnValue({

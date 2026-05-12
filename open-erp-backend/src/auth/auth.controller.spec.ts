@@ -14,6 +14,11 @@ describe('AuthController', () => {
     forgotPassword: jest.fn(),
     resetPassword: jest.fn(),
     me: jest.fn(),
+    setupMfa: jest.fn(),
+    verifyMfa: jest.fn(),
+    disableMfa: jest.fn(),
+    regenerateBackupCodes: jest.fn(),
+    challengeMfa: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -262,6 +267,174 @@ describe('AuthController', () => {
     const result = await controller.me(req);
 
     expect(authService.me).toHaveBeenCalledWith(req.user);
+    expect(result.success).toBe(true);
+  });
+
+  it('logout throws UnauthorizedException when no user in request', async () => {
+    const req = {
+      user: undefined,
+      header: jest.fn(() => undefined),
+    } as unknown as Request;
+
+    await expect(
+      controller.logout(req, undefined, '127.0.0.1', 'jest', undefined),
+    ).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('me throws UnauthorizedException when no user in request', async () => {
+    const req = { user: undefined } as unknown as Request;
+    await expect(controller.me(req)).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('login does not set cookie when res is undefined', async () => {
+    authService.login.mockResolvedValue({
+      success: true,
+      data: { accessToken: 'at', refreshToken: undefined, expiresIn: 900 },
+    });
+
+    const result = await controller.login(
+      { tenantId: 't-1', email: 'a@b.com', password: 'pw' },
+      '127.0.0.1',
+      'jest',
+      undefined, // no res
+    );
+
+    expect(result.success).toBe(true);
+  });
+
+  it('logout does not clear cookie when res is undefined', async () => {
+    authService.logout.mockResolvedValue({ success: true, data: {} });
+
+    const req = {
+      user: { sub: 'u-1', tenantId: 't-1', email: 'a@b.com', roles: [], jti: '', iat: 0, exp: 0 },
+      header: jest.fn(() => undefined),
+    } as unknown as Request;
+
+    await expect(
+      controller.logout(req, undefined, '127.0.0.1', 'jest', undefined),
+    ).resolves.toBeDefined();
+  });
+
+  it('refreshToken hits extractRefreshTokenFromCookie return undefined when cookie name not matched', async () => {
+    authService.refreshToken.mockResolvedValue({
+      success: true,
+      data: { accessToken: 'at', refreshToken: 'rt', refreshTokenExpiresAt: new Date(), expiresIn: 900 },
+    });
+
+    const req = {
+      // Cookie header present but no 'refreshToken' key → triggers return undefined in loop
+      header: jest.fn((name: string) =>
+        name === 'cookie' ? 'sessionid=abc; othercookie=xyz' : undefined,
+      ),
+    } as unknown as Request;
+
+    await controller.refreshToken(
+      req,
+      { refreshToken: 'body-token' },
+      '127.0.0.1',
+      'jest',
+      { cookie: jest.fn() } as unknown as Response,
+    );
+
+    expect(authService.refreshToken).toHaveBeenCalledWith('body-token', expect.any(Object));
+  });
+
+  it('setupMfa returns result for authenticated user', async () => {
+    authService.setupMfa.mockResolvedValue({ success: true, data: { qrCode: 'qr-data' } });
+
+    const req = {
+      user: { sub: 'u-1', tenantId: 't-1', email: 'a@b.com', roles: [], jti: '', iat: 0, exp: 0 },
+    } as unknown as Request;
+
+    const result = await controller.setupMfa(req);
+
+    expect(authService.setupMfa).toHaveBeenCalledWith(req.user);
+    expect(result.success).toBe(true);
+  });
+
+  it('setupMfa throws UnauthorizedException when no user', async () => {
+    const req = { user: undefined } as unknown as Request;
+    await expect(controller.setupMfa(req)).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('verifyMfa confirms MFA token for authenticated user', async () => {
+    authService.verifyMfa.mockResolvedValue({ success: true, data: { mfaEnabled: true } });
+
+    const req = {
+      user: { sub: 'u-1', tenantId: 't-1', email: 'a@b.com', roles: [], jti: '', iat: 0, exp: 0 },
+    } as unknown as Request;
+
+    const result = await controller.verifyMfa(req, { code: '123456' });
+
+    expect(authService.verifyMfa).toHaveBeenCalledWith(req.user, '123456');
+    expect(result.success).toBe(true);
+  });
+
+  it('verifyMfa throws UnauthorizedException when no user', async () => {
+    const req = { user: undefined } as unknown as Request;
+    await expect(controller.verifyMfa(req, { code: '123456' })).rejects.toThrow(
+      UnauthorizedException,
+    );
+  });
+
+  it('disableMfa disables MFA for authenticated user', async () => {
+    authService.disableMfa.mockResolvedValue({ success: true, data: { mfaDisabled: true } });
+
+    const req = {
+      user: { sub: 'u-1', tenantId: 't-1', email: 'a@b.com', roles: [], jti: '', iat: 0, exp: 0 },
+    } as unknown as Request;
+
+    const result = await controller.disableMfa(req, { code: '654321' });
+
+    expect(authService.disableMfa).toHaveBeenCalledWith(req.user, '654321');
+    expect(result.success).toBe(true);
+  });
+
+  it('disableMfa throws UnauthorizedException when no user', async () => {
+    const req = { user: undefined } as unknown as Request;
+    await expect(controller.disableMfa(req, { code: '111111' })).rejects.toThrow(
+      UnauthorizedException,
+    );
+  });
+
+  it('backupCodes returns regenerated backup codes for authenticated user', async () => {
+    authService.regenerateBackupCodes.mockResolvedValue({
+      success: true,
+      data: { backupCodes: ['code1', 'code2'] },
+    });
+
+    const req = {
+      user: { sub: 'u-1', tenantId: 't-1', email: 'a@b.com', roles: [], jti: '', iat: 0, exp: 0 },
+    } as unknown as Request;
+
+    const result = await controller.backupCodes(req);
+
+    expect(authService.regenerateBackupCodes).toHaveBeenCalledWith(req.user);
+    expect(result.success).toBe(true);
+  });
+
+  it('backupCodes throws UnauthorizedException when no user', async () => {
+    const req = { user: undefined } as unknown as Request;
+    await expect(controller.backupCodes(req)).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('challengeMfa validates MFA token', async () => {
+    authService.challengeMfa.mockResolvedValue({
+      success: true,
+      data: { accessToken: 'at', refreshToken: 'rt' },
+    });
+
+    const result = await controller.challengeMfa({
+      mfaToken: 'mfa-challenge-token',
+      code: '987654',
+      backupCode: undefined,
+    });
+
+    expect(authService.challengeMfa).toHaveBeenCalledWith(
+      'mfa-challenge-token',
+      '987654',
+      undefined,
+    );
     expect(result.success).toBe(true);
   });
 });

@@ -1,7 +1,9 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   GoneException,
+  HttpException,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -543,5 +545,657 @@ describe('TenantService', () => {
     await expect(
       service.finalizeWizard('000000000000000000000000'),
     ).rejects.toThrow(NotFoundException);
+  });
+
+  // ——————————————————————————————————————————————————
+  // Additional tests for > 80% coverage
+  // ——————————————————————————————————————————————————
+
+  it('getTenantById returns tenant for super admin', async () => {
+    const tenantData = {
+      _id: new Types.ObjectId('64b000000000000000000001'),
+      id: '64b000000000000000000001',
+      isDeleted: false,
+      status: TenantStatus.ACTIVE,
+      plan: TenantPlan.TRIAL,
+    };
+    tenantModel.findById.mockReturnValue({
+      lean: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(tenantData),
+      }),
+    });
+
+    const result = await service.getTenantById('64b000000000000000000001', {
+      roles: ['SUPER_ADMIN'],
+    } as Express.User);
+
+    expect(result.success).toBe(true);
+  });
+
+  it('getTenantById throws NotFoundException for missing tenant', async () => {
+    tenantModel.findById.mockReturnValue({
+      lean: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      }),
+    });
+
+    await expect(
+      service.getTenantById('64b000000000000000000001', {
+        roles: ['SUPER_ADMIN'],
+      } as Express.User),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('listTenants returns paginated results for super admin', async () => {
+    const tenantList = [{ id: 'tenant-1', isDeleted: false }];
+    tenantModel.find.mockReturnValue({
+      sort: jest.fn().mockReturnValue({
+        skip: jest.fn().mockReturnValue({
+          limit: jest.fn().mockReturnValue({
+            lean: jest.fn().mockReturnValue({
+              exec: jest.fn().mockResolvedValue(tenantList),
+            }),
+          }),
+        }),
+      }),
+    });
+    tenantModel.countDocuments.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(1),
+    });
+
+    const result = await service.listTenants(
+      { page: 1, limit: 20 } as any,
+      { roles: ['SUPER_ADMIN'] } as Express.User,
+    );
+
+    expect(result.success).toBe(true);
+    expect(result.pagination.total).toBe(1);
+  });
+
+  it('listTenants filters by tenantId for non-super-admin', async () => {
+    tenantModel.find.mockReturnValue({
+      sort: jest.fn().mockReturnValue({
+        skip: jest.fn().mockReturnValue({
+          limit: jest.fn().mockReturnValue({
+            lean: jest.fn().mockReturnValue({
+              exec: jest.fn().mockResolvedValue([]),
+            }),
+          }),
+        }),
+      }),
+    });
+    tenantModel.countDocuments.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(0),
+    });
+
+    const result = await service.listTenants(
+      { page: 1, limit: 20, status: TenantStatus.ACTIVE } as any,
+      { tenantId: '64b000000000000000000001', roles: ['TENANT_ADMIN'] } as Express.User,
+    );
+
+    expect(result.success).toBe(true);
+  });
+
+  it('updateTenant updates and returns tenant', async () => {
+    const updated = {
+      _id: new Types.ObjectId('64b000000000000000000001'),
+      id: '64b000000000000000000001',
+      isDeleted: false,
+    };
+    tenantModel.findOneAndUpdate.mockReturnValue({
+      lean: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(updated),
+      }),
+    });
+
+    const result = await service.updateTenant(
+      '64b000000000000000000001',
+      { roles: ['SUPER_ADMIN'] } as Express.User,
+      { companyName: 'Updated Corp' },
+    );
+
+    expect(result.success).toBe(true);
+  });
+
+  it('updateTenant throws NotFoundException when tenant not found', async () => {
+    tenantModel.findOneAndUpdate.mockReturnValue({
+      lean: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      }),
+    });
+
+    await expect(
+      service.updateTenant(
+        '64b000000000000000000001',
+        { roles: ['SUPER_ADMIN'] } as Express.User,
+        { companyName: 'Updated' },
+      ),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('approveTenant changes status to TRIAL', async () => {
+    const tenant = {
+      id: '64b000000000000000000001',
+      isDeleted: false,
+      status: TenantStatus.PENDING_VERIFICATION,
+      save: jest.fn().mockResolvedValue(undefined),
+    };
+    tenantModel.findById.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(tenant),
+    });
+
+    const result = await service.approveTenant('64b000000000000000000001', {
+      roles: ['SUPER_ADMIN'],
+    } as Express.User);
+
+    expect(result.data.status).toBe(TenantStatus.TRIAL);
+    expect(tenant.save).toHaveBeenCalled();
+  });
+
+  it('approveTenant throws when status is not PENDING_VERIFICATION', async () => {
+    const tenant = {
+      id: '64b000000000000000000001',
+      isDeleted: false,
+      status: TenantStatus.ACTIVE,
+      save: jest.fn(),
+    };
+    tenantModel.findById.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(tenant),
+    });
+
+    await expect(
+      service.approveTenant('64b000000000000000000001', {
+        roles: ['SUPER_ADMIN'],
+      } as Express.User),
+    ).rejects.toThrow(UnprocessableEntityException);
+  });
+
+  it('approveTenant throws NotFoundException when tenant missing', async () => {
+    tenantModel.findById.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null),
+    });
+
+    await expect(
+      service.approveTenant('64b000000000000000000001', {
+        roles: ['SUPER_ADMIN'],
+      } as Express.User),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('enforceApiQuota blocks PENDING_VERIFICATION tenants', async () => {
+    tenantModel.findById.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue({
+            _id: new Types.ObjectId('64b000000000000000000001'),
+            status: TenantStatus.PENDING_VERIFICATION,
+            isDeleted: false,
+          }),
+        }),
+      }),
+    });
+
+    await expect(
+      service.enforceApiQuota('64b000000000000000000001', '/api/test'),
+    ).rejects.toThrow(ForbiddenException);
+  });
+
+  it('enforceApiQuota blocks TRIAL tenants with expired trial', async () => {
+    tenantModel.findById.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue({
+            _id: new Types.ObjectId('64b000000000000000000001'),
+            status: TenantStatus.TRIAL,
+            trialEndsAt: new Date(Date.now() - 1000),
+            plan: TenantPlan.TRIAL,
+            isDeleted: false,
+          }),
+        }),
+      }),
+    });
+    tenantModel.updateOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(undefined),
+    });
+
+    await expect(
+      service.enforceApiQuota('64b000000000000000000001', '/api/test'),
+    ).rejects.toThrow(ForbiddenException);
+  });
+
+  it('enforceApiQuota allows ACTIVE tenant under quota', async () => {
+    const tenantId = '64b000000000000000000001';
+    tenantModel.findById
+      .mockReturnValueOnce({
+        select: jest.fn().mockReturnValue({
+          lean: jest.fn().mockReturnValue({
+            exec: jest.fn().mockResolvedValue({
+              _id: new Types.ObjectId(tenantId),
+              status: TenantStatus.ACTIVE,
+              plan: TenantPlan.TRIAL,
+              quotas: { maxApiCallsPerDay: 1000 },
+              isDeleted: false,
+              usageStats: { usedStorageBytes: 0 },
+            }),
+          }),
+        }),
+      })
+      .mockReturnValueOnce({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue({
+            usageStats: { apiCallsToday: 5 },
+          }),
+        }),
+      });
+    tenantUsageHistoryModel.updateOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(undefined),
+    });
+    userModel.countDocuments.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(3),
+    });
+
+    await expect(
+      service.enforceApiQuota(tenantId, '/api/test'),
+    ).resolves.toBeUndefined();
+  });
+
+  it('enforceApiQuota throws when quota exceeded', async () => {
+    const tenantId = '64b000000000000000000001';
+    tenantModel.findById
+      .mockReturnValueOnce({
+        select: jest.fn().mockReturnValue({
+          lean: jest.fn().mockReturnValue({
+            exec: jest.fn().mockResolvedValue({
+              _id: new Types.ObjectId(tenantId),
+              status: TenantStatus.ACTIVE,
+              plan: TenantPlan.TRIAL,
+              quotas: { maxApiCallsPerDay: 1000 },
+              isDeleted: false,
+              usageStats: {},
+            }),
+          }),
+        }),
+      })
+      .mockReturnValueOnce({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue({
+            usageStats: { apiCallsToday: 1001 },
+          }),
+        }),
+      });
+
+    await expect(
+      service.enforceApiQuota(tenantId, '/api/test'),
+    ).rejects.toThrow(HttpException);
+  });
+
+  it('enforceApiQuota skips deleted tenants', async () => {
+    tenantModel.findById.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue(null),
+        }),
+      }),
+    });
+
+    await expect(
+      service.enforceApiQuota('64b000000000000000000001', '/api/test'),
+    ).resolves.toBeUndefined();
+  });
+
+  it('suspendExpiredTrials processes expired tenants', async () => {
+    const expiredTenants = [
+      { _id: new Types.ObjectId('64b000000000000000000001'), adminEmail: 'a@test.com' },
+      { _id: new Types.ObjectId('64b000000000000000000002'), adminEmail: 'b@test.com' },
+    ];
+    tenantModel.find.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue(expiredTenants),
+        }),
+      }),
+    });
+    tenantModel.updateOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(undefined),
+    });
+    rabbitMQService.publish.mockResolvedValue(undefined);
+
+    await service.suspendExpiredTrials();
+
+    expect(tenantModel.updateOne).toHaveBeenCalledTimes(2);
+  });
+
+  it('updateMySettings updates tenant settings', async () => {
+    tenantModel.findOneAndUpdate.mockReturnValue({
+      lean: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue({
+          settings: { mfaRequired: true },
+        }),
+      }),
+    });
+
+    const result = await service.updateMySettings(
+      '64b000000000000000000001',
+      undefined,
+      { mfaRequired: true } as any,
+    );
+
+    expect(result.success).toBe(true);
+    expect(result.data.mfaRequired).toBe(true);
+  });
+
+  it('updateMySettings throws NotFoundException when tenant not found', async () => {
+    tenantModel.findOneAndUpdate.mockReturnValue({
+      lean: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      }),
+    });
+
+    await expect(
+      service.updateMySettings(
+        '64b000000000000000000001',
+        undefined,
+        {} as any,
+      ),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('getMySettings returns tenant settings', async () => {
+    tenantModel.findOne.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue({
+            settings: { mfaRequired: false },
+          }),
+        }),
+      }),
+    });
+
+    const result = await service.getMySettings('64b000000000000000000001', undefined);
+
+    expect(result.success).toBe(true);
+    expect(result.data.mfaRequired).toBe(false);
+  });
+
+  it('getMySettings throws NotFoundException when tenant not found', async () => {
+    tenantModel.findOne.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue(null),
+        }),
+      }),
+    });
+
+    await expect(
+      service.getMySettings('64b000000000000000000001', undefined),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('listSubscriptionPlans returns active plans', async () => {
+    subscriptionPlanModel.find.mockReturnValue({
+      sort: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue([
+            { code: TenantPlan.TRIAL, name: 'Trial', price: 0 },
+            { code: TenantPlan.STARTER, name: 'Starter', price: 500000 },
+          ]),
+        }),
+      }),
+    });
+
+    const result = await service.listSubscriptionPlans();
+
+    expect(result.success).toBe(true);
+    expect(result.data).toHaveLength(2);
+  });
+
+  it('updateTenantSubscription throws when plan not found', async () => {
+    subscriptionPlanModel.findOne.mockReturnValue({
+      lean: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      }),
+    });
+
+    await expect(
+      service.updateTenantSubscription(
+        '64b000000000000000000001',
+        { roles: ['SUPER_ADMIN'] } as Express.User,
+        'INVALID_PLAN',
+      ),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('updateTenantSubscription updates plan and quotas', async () => {
+    const plan = {
+      code: TenantPlan.BUSINESS,
+      quotas: { maxUsers: 100, maxStorageBytes: null, maxApiCallsPerDay: 100000 },
+      isActive: true,
+    };
+    subscriptionPlanModel.findOne.mockReturnValue({
+      lean: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(plan),
+      }),
+    });
+    tenantModel.findOneAndUpdate.mockReturnValue({
+      lean: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue({
+          _id: new Types.ObjectId('64b000000000000000000001'),
+          plan: TenantPlan.BUSINESS,
+        }),
+      }),
+    });
+
+    const result = await service.updateTenantSubscription(
+      '64b000000000000000000001',
+      { roles: ['SUPER_ADMIN'] } as Express.User,
+      'BUSINESS',
+    );
+
+    expect(result.success).toBe(true);
+  });
+
+  it('getTenantUsage returns usage data', async () => {
+    const tenantId = '64b000000000000000000001';
+    const tenantData = {
+      _id: new Types.ObjectId(tenantId),
+      plan: TenantPlan.TRIAL,
+      quotas: { maxUsers: 5, maxStorageBytes: 512 * 1024 * 1024, maxApiCallsPerDay: 1000 },
+      isDeleted: false,
+      usageStats: { usedStorageBytes: 1024, apiCallsToday: 10 },
+    };
+    tenantModel.findById
+      .mockReturnValueOnce({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue(tenantData),
+        }),
+      })
+      .mockReturnValueOnce({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue({ usageStats: { apiCallsToday: 10 } }),
+        }),
+      });
+    userModel.countDocuments.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(2),
+    });
+    tenantUsageHistoryModel.updateOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(undefined),
+    });
+
+    const result = await service.getTenantUsage(tenantId, {
+      roles: ['SUPER_ADMIN'],
+    } as Express.User);
+
+    expect(result.success).toBe(true);
+    expect(result.data.plan).toBe(TenantPlan.TRIAL);
+  });
+
+  it('getTenantUsageHistory returns 30 day history', async () => {
+    const tenantId = '64b000000000000000000001';
+    tenantUsageHistoryModel.find.mockReturnValue({
+      sort: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue([]),
+        }),
+      }),
+    });
+
+    const result = await service.getTenantUsageHistory(tenantId, {
+      roles: ['SUPER_ADMIN'],
+    } as Express.User);
+
+    expect(result.success).toBe(true);
+    expect(result.data).toHaveLength(30);
+  });
+
+  it('enforceApiQuota triggers quota alert when >= 80% usage', async () => {
+    const tenantId = '64b000000000000000000001';
+    tenantModel.findById
+      .mockReturnValueOnce({
+        select: jest.fn().mockReturnValue({
+          lean: jest.fn().mockReturnValue({
+            exec: jest.fn().mockResolvedValue({
+              _id: new Types.ObjectId(tenantId),
+              status: TenantStatus.ACTIVE,
+              plan: TenantPlan.TRIAL,
+              isDeleted: false,
+              usageStats: { usedStorageBytes: 0 },
+            }),
+          }),
+        }),
+      })
+      .mockReturnValueOnce({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue({
+            usageStats: { apiCallsToday: 799 },
+          }),
+        }),
+      });
+    userModel.countDocuments.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(2),
+    });
+    tenantUsageHistoryModel.updateOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(undefined),
+    });
+
+    // Should resolve without throwing — quota alert published fire-and-forget
+    await expect(
+      service.enforceApiQuota(tenantId, '/api/test'),
+    ).resolves.toBeUndefined();
+  });
+
+  it('onModuleInit seeds subscription plans and runs initial trial sweep', async () => {
+    (tenantModel.find as jest.Mock).mockReturnValueOnce({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue([]),
+        }),
+      }),
+    });
+
+    await service.onModuleInit();
+
+    expect(subscriptionPlanModel.updateOne).toHaveBeenCalledTimes(4);
+
+    await service.onModuleDestroy();
+  });
+
+  it('onModuleInit handles suspendExpiredTrials failure gracefully', async () => {
+    (tenantModel.find as jest.Mock).mockReturnValueOnce({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockRejectedValue(new Error('DB connection failed')),
+        }),
+      }),
+    });
+
+    await expect(service.onModuleInit()).resolves.toBeUndefined();
+
+    await service.onModuleDestroy();
+  });
+
+  it('onModuleDestroy clears sweep timer', async () => {
+    (tenantModel.find as jest.Mock).mockReturnValueOnce({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue([]),
+        }),
+      }),
+    });
+
+    await service.onModuleInit();
+    await service.onModuleDestroy();
+
+    expect((service as any).expiredTrialSweepTimer).toBeNull();
+  });
+
+  it('onModuleInit handles non-Error rejection in sweep (describeError unknown branch)', async () => {
+    // Reject with a plain string (non-Error) to cover describeError's "unknown" return branch
+    (tenantModel.find as jest.Mock).mockReturnValueOnce({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockRejectedValue('plain string error'),
+        }),
+      }),
+    });
+
+    await expect(service.onModuleInit()).resolves.toBeUndefined();
+
+    await service.onModuleDestroy();
+  });
+
+  it('enforceApiQuota skips quota check for ENTERPRISE tenant (null maxApiCallsPerDay)', async () => {
+    const tenantId = '64b000000000000000000001';
+    tenantModel.findById
+      .mockReturnValueOnce({
+        select: jest.fn().mockReturnValue({
+          lean: jest.fn().mockReturnValue({
+            exec: jest.fn().mockResolvedValue({
+              _id: new Types.ObjectId(tenantId),
+              status: TenantStatus.ACTIVE,
+              plan: TenantPlan.ENTERPRISE,
+              isDeleted: false,
+              usageStats: { usedStorageBytes: 0 },
+            }),
+          }),
+        }),
+      })
+      .mockReturnValueOnce({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue({
+            usageStats: { apiCallsToday: 99999 },
+          }),
+        }),
+      });
+    userModel.countDocuments.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(50),
+    });
+    tenantUsageHistoryModel.updateOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(undefined),
+    });
+
+    // ENTERPRISE has null quota → no 429 even with very high count
+    await expect(
+      service.enforceApiQuota(tenantId, '/api/test'),
+    ).resolves.toBeUndefined();
+  });
+
+  it('getMyTenant delegates to getTenantById', async () => {
+    const tenantId = '64b000000000000000000001';
+    tenantModel.findById.mockReturnValue({
+      lean: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue({
+          _id: new Types.ObjectId(tenantId),
+          isDeleted: false,
+          status: TenantStatus.ACTIVE,
+          plan: TenantPlan.TRIAL,
+        }),
+      }),
+    });
+
+    const result = await service.getMyTenant(tenantId, {
+      roles: ['SUPER_ADMIN'],
+    } as Express.User);
+
+    expect(result.success).toBe(true);
   });
 });

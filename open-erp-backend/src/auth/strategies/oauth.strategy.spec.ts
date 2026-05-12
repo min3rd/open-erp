@@ -1,14 +1,36 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GoogleStrategy, OAuthProfile } from './google.strategy';
-import { MicrosoftStrategy } from './microsoft.strategy';
+import { OAuthStrategy, MicrosoftStrategy, GoogleStrategy } from './oauth.strategy';
 
-describe('GoogleStrategy', () => {
-  let strategy: GoogleStrategy;
+describe('OAuthStrategy', () => {
+  let strategy: OAuthStrategy;
 
   beforeEach(async () => {
-    strategy = new GoogleStrategy();
+    strategy = new OAuthStrategy();
   });
 
+  describe('getUserInfo', () => {
+    it('retrieves user profile information', async () => {
+      const mockResponse = {
+        ok: true,
+        json: jest.fn().mockResolvedValue({
+          id: 'user-123',
+          email: 'user@example.com',
+          verified_email: true,
+          name: 'Test User',
+          picture: 'https://example.com/avatar.jpg',
+        }),
+      };
+      jest.spyOn(global, 'fetch').mockResolvedValue(mockResponse as any);
+
+      const profile = await strategy.getUserInfo('mock-access-token');
+
+      expect(profile.providerId).toBe('user-123');
+      expect(profile.email).toBe('user@example.com');
+      expect(profile.emailVerified).toBe(true);
+      expect(profile.fullName).toBe('Test User');
+      expect(profile.avatarUrl).toBe('https://example.com/avatar.jpg');
+    });
+  });
   describe('buildAuthUrl', () => {
     it('builds valid Google OAuth authorization URL', () => {
       const clientId = 'client-id-123';

@@ -644,4 +644,51 @@ describe('AuthService', () => {
       ),
     ).rejects.toThrow(ForbiddenException);
   });
+
+  it('login() user not found throws UnauthorizedException', async () => {
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null),
+    });
+
+    await expect(
+      service.login(
+        {
+          tenantId: new Types.ObjectId().toString(),
+          email: 'nobody@acme.com',
+          password: 'Password@123',
+        },
+        { ip: '127.0.0.1', userAgent: 'jest' },
+      ),
+    ).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('login() argon2.verify rejects is treated as invalid password', async () => {
+    const user = makeUser({ failedLoginCount: 0 });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(user),
+    });
+    // Make argon2.verify reject (error in hashing library)
+    (argon2.verify as jest.Mock).mockRejectedValue(new Error('hash error'));
+
+    await expect(
+      service.login(
+        {
+          tenantId: user.tenantId.toString(),
+          email: user.email,
+          password: 'Password@123',
+        },
+        { ip: '127.0.0.1', userAgent: 'jest' },
+      ),
+    ).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('onModuleDestroy() quits redis client when present', async () => {
+    const fakeQuit = jest.fn().mockResolvedValue(undefined);
+    (service as any).redisClient = { quit: fakeQuit };
+
+    await service.onModuleDestroy();
+
+    expect(fakeQuit).toHaveBeenCalled();
+    expect((service as any).redisClient).toBeNull();
+  });
 });

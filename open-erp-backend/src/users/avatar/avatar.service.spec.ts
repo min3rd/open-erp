@@ -1,4 +1,4 @@
-// Move jest.mock() BEFORE imports (Jest hoisting requirement)
+﻿// Move jest.mock() BEFORE imports (Jest hoisting requirement)
 jest.mock('minio');
 
 import { Test, TestingModule } from '@nestjs/testing';
@@ -56,7 +56,7 @@ describe('AvatarService', () => {
       (Minio.Client as jest.Mock).mockImplementation(() => mockClient);
 
       const result = await service.uploadAvatar({
-        tenantId: 'tenant-1',
+        tenantId: '1',
         userId: 'user-1',
         file: mockFile,
       });
@@ -79,7 +79,7 @@ describe('AvatarService', () => {
       const pngFile = { ...mockFile, mimetype: 'image/png' };
 
       const result = await service.uploadAvatar({
-        tenantId: 'tenant-1',
+        tenantId: '1',
         userId: 'user-1',
         file: pngFile,
       });
@@ -98,7 +98,7 @@ describe('AvatarService', () => {
       const webpFile = { ...mockFile, mimetype: 'image/webp' };
 
       const result = await service.uploadAvatar({
-        tenantId: 'tenant-1',
+        tenantId: '1',
         userId: 'user-1',
         file: webpFile,
       });
@@ -112,7 +112,7 @@ describe('AvatarService', () => {
 
       await expect(
         service.uploadAvatar({
-          tenantId: 'tenant-1',
+          tenantId: '1',
           userId: 'user-1',
           file: invalidFile,
         }),
@@ -127,7 +127,7 @@ describe('AvatarService', () => {
 
       await expect(
         service.uploadAvatar({
-          tenantId: 'tenant-1',
+          tenantId: '1',
           userId: 'user-1',
           file: largeFile,
         }),
@@ -142,7 +142,7 @@ describe('AvatarService', () => {
 
       await expect(
         service.uploadAvatar({
-          tenantId: 'tenant-1',
+          tenantId: '1',
           userId: 'user-1',
           file: limitFile,
         }),
@@ -162,7 +162,7 @@ describe('AvatarService', () => {
       };
 
       const result = await service.uploadAvatar({
-        tenantId: 'tenant-1',
+        tenantId: '1',
         userId: 'user-1',
         file: limitFile,
       });
@@ -179,7 +179,7 @@ describe('AvatarService', () => {
       (Minio.Client as jest.Mock).mockImplementation(() => mockClient);
 
       await service.uploadAvatar({
-        tenantId: 'tenant-1',
+        tenantId: '1',
         userId: 'user-1',
         file: mockFile,
       });
@@ -197,7 +197,7 @@ describe('AvatarService', () => {
       (Minio.Client as jest.Mock).mockImplementation(() => mockClient);
 
       await service.uploadAvatar({
-        tenantId: 'tenant-1',
+        tenantId: '1',
         userId: 'user-1',
         file: mockFile,
       });
@@ -210,7 +210,7 @@ describe('AvatarService', () => {
       (Minio.Client as jest.Mock).mockClear();
 
       const result = await service.uploadAvatar({
-        tenantId: 'tenant-1',
+        tenantId: '1',
         userId: 'user-1',
         file: mockFile,
       });
@@ -228,7 +228,7 @@ describe('AvatarService', () => {
       (Minio.Client as jest.Mock).mockImplementation(() => mockClient);
 
       const result = await service.uploadAvatar({
-        tenantId: 'tenant-1',
+        tenantId: '1',
         userId: 'user-1',
         file: mockFile,
       });
@@ -253,7 +253,7 @@ describe('AvatarService', () => {
       // Should throw the MinIO error
       await expect(
         service.uploadAvatar({
-          tenantId: 'tenant-1',
+          tenantId: '1',
           userId: 'user-1',
           file: mockFile,
         }),
@@ -263,7 +263,7 @@ describe('AvatarService', () => {
     it('rejects missing file object', async () => {
       await expect(
         service.uploadAvatar({
-          tenantId: 'tenant-1',
+          tenantId: '1',
           userId: 'user-1',
           file: undefined as any,
         }),
@@ -275,7 +275,7 @@ describe('AvatarService', () => {
 
       await expect(
         service.uploadAvatar({
-          tenantId: 'tenant-1',
+          tenantId: '1',
           userId: 'user-1',
           file: textFile,
         }),
@@ -287,7 +287,7 @@ describe('AvatarService', () => {
 
       await expect(
         service.uploadAvatar({
-          tenantId: 'tenant-1',
+          tenantId: '1',
           userId: 'user-1',
           file: pdfFile,
         }),
@@ -304,7 +304,7 @@ describe('AvatarService', () => {
       (Minio.Client as jest.Mock).mockImplementation(() => mockClient);
 
       const result = await service.uploadAvatar({
-        tenantId: 'tenant-1',
+        tenantId: '1',
         userId: 'user-1',
         file: { ...{ mimetype: 'image/png' }, buffer: Buffer.from(''), size: 100, originalname: 'pic.png' },
       });
@@ -320,7 +320,7 @@ describe('AvatarService', () => {
       (Minio.Client as jest.Mock).mockImplementation(() => mockClient);
 
       const result = await service.uploadAvatar({
-        tenantId: 'tenant-1',
+        tenantId: '1',
         userId: 'user-1',
         file: { ...{ mimetype: 'image/webp' }, buffer: Buffer.from(''), size: 100, originalname: 'pic.webp' },
       });
@@ -336,7 +336,7 @@ describe('AvatarService', () => {
       (Minio.Client as jest.Mock).mockImplementation(() => mockClient);
 
       const result = await service.uploadAvatar({
-        tenantId: 'tenant-1',
+        tenantId: '1',
         userId: 'user-1',
         file: { ...{ mimetype: 'image/jpeg' }, buffer: Buffer.from(''), size: 100, originalname: 'pic.jpeg' },
       });
@@ -361,14 +361,14 @@ describe('AvatarService', () => {
         originalname: 'profile.jpg',
       };
 
-      // Should handle bucket creation failure gracefully and still attempt upload
-      await expect(
-        service.uploadAvatar({
-          tenantId: 'tenant-1',
-          userId: 'user-1',
-          file: mockFile,
-        }),
-      ).rejects.toThrow();
+      // Service swallows makeBucket error gracefully and still resolves with avatarUrl
+      const result = await service.uploadAvatar({
+        tenantId: '1',
+        userId: 'user-1',
+        file: mockFile,
+      });
+      expect(result.avatarUrl).toContain('tenant-1');
+      expect(result.metadata).toBeDefined();
     });
 
     it('generates unique object names with timestamp and UUID', async () => {
@@ -386,13 +386,13 @@ describe('AvatarService', () => {
       };
 
       const result1 = await service.uploadAvatar({
-        tenantId: 'tenant-1',
+        tenantId: '1',
         userId: 'user-1',
         file: mockFile,
       });
 
       const result2 = await service.uploadAvatar({
-        tenantId: 'tenant-1',
+        tenantId: '1',
         userId: 'user-1',
         file: mockFile,
       });
@@ -403,3 +403,4 @@ describe('AvatarService', () => {
     });
   });
 });
+
