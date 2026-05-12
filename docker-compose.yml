@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   mongodb:
     # NOTE: mongo:7.0+ requires AVX CPU support (SERVER-54407).
@@ -8,6 +10,7 @@ services:
     command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     environment:
       MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGO_PORT: ${MONGO_PORT}
     ports:
       - "${MONGO_PORT}:27017"
     volumes:
@@ -50,6 +53,8 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
       RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST}
+      RABBITMQ_PORT: ${RABBITMQ_PORT}
+      RABBITMQ_MANAGEMENT_PORT: ${RABBITMQ_MANAGEMENT_PORT}
     ports:
       - "${RABBITMQ_PORT}:5672"
       - "${RABBITMQ_MANAGEMENT_PORT}:15672"
@@ -100,6 +105,8 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+      MINIO_API_PORT: ${MINIO_API_PORT}
+      MINIO_CONSOLE_PORT: ${MINIO_CONSOLE_PORT}
     ports:
       - "${MINIO_API_PORT}:9000"
       - "${MINIO_CONSOLE_PORT}:9001"
@@ -137,6 +144,7 @@ services:
         condition: service_healthy
     environment:
       REDIS_HOSTS: local:redis:6379:0:${REDIS_PASSWORD}
+      REDIS_COMMANDER_PORT: ${REDIS_COMMANDER_PORT}
     ports:
       - "${REDIS_COMMANDER_PORT}:8081"
     restart: unless-stopped

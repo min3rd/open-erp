@@ -16,7 +16,18 @@
     "build:backend": "npm --prefix open-erp-backend run build",
     "build:web": "npm --prefix open-erp-web run build",
     "build:mobile": "npm --prefix open-erp-mobile run build",
-    "build:all": "npm run build:backend && npm run build:web && npm run build:mobile"
+    "build:all": "npm run build:backend && npm run build:web && npm run build:mobile",
+    "dev:env": "if not exist .env (copy .env.example .env) & echo NODE_ENV=development>> .env",
+    "dev:start": "docker-compose -f docker-compose.yml -f docker-compose.override.yml up -d",
+    "dev:down": "docker-compose down",
+    "dev:logs": "docker-compose logs -f",
+    "dev": "npm run dev:env && npm run dev:start",
+    "staging:env": "copy .env.staging .env",
+    "staging:start": "docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d",
+    "staging": "npm run staging:env && npm run staging:start",
+    "prod:env": "copy .env.production .env",
+    "prod:start": "docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d",
+    "prod": "npm run prod:env && npm run prod:start"
   },
   "devDependencies": {
     "npm-check-updates": "^17.1.12",

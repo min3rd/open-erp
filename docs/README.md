@@ -80,6 +80,23 @@ _User Stories cho các phân hệ khác (HR, Sale, Office, Accounting, AI Agent,
 
 ---
 
+## Tài liệu Triển khai & DevOps (Deployment & DevOps)
+
+### Environment Configuration & Setup
+
+| Tài liệu                                        | Mô tả                                                               | Trạng thái    |
+| ----------------------------------------------- | ------------------------------------------------------------------- | ------------- |
+| [ENV-SETUP.md](ENV-SETUP.md)                    | Hướng dẫn cấu hình environment (.env) cho dev/staging/production    | ✅ Hoàn thành |
+
+### Deployment & Infrastructure (tài liệu sẽ được cập nhật trong Sprint 02)
+
+- Docker & Docker Compose (tài liệu)
+- Kubernetes manifests (tài liệu)
+- CI/CD Pipeline (GitHub Actions / GitLab CI)
+- Runbook & Troubleshooting
+
+---
+
 ## Tài liệu gốc (Request)
 
 - [01. Tổng quan hệ thống](request/01.%20Tổng%20quan%20hệ%20thống.md) — Yêu cầu nghiệp vụ đầy đủ

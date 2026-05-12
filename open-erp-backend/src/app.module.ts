@@ -22,13 +22,21 @@ import { OAuthModule } from './oauth/oauth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      envFilePath: [
+        '../../.env.local',    // .env.dev.local (override, highest priority)
+        '../../.env',          // .env (main, root workspace)
+      ],
+      isGlobal: true,         // Make config available globally
+      expandVariables: true,  // Support ${VAR} expansion
+      cache: true,            // Cache config for performance
+    }),
     MongooseModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         uri:
-          configService.get<string>('MONGODB_URI') ??
-          'mongodb://localhost:27017/openErp-auth',
+          configService.get<string>('MONGO_URI') ??
+          'mongodb://localhost:27017/openErp',
         autoIndex: true,
       }),
     }),

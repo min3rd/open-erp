@@ -4,6 +4,8 @@ services:
     container_name: open-erp-api-gateway-dev
     profiles:
       - apps
+    env_file:
+      - .env
     working_dir: /workspace
     command: ["sh", "-c", "npm install; npm run start:debug"]
     volumes:
@@ -40,6 +42,8 @@ services:
     container_name: open-erp-auth-service-dev
     profiles:
       - apps
+    env_file:
+      - .env
     working_dir: /workspace
     command: ["sh", "-c", "npm install; npm run start:dev"]
     volumes:

@@ -1,10 +1,10 @@
 # TASK-INDEX — Sprint 01: SaaS Foundation
 
 **Sprint:** 01  
-**Mục tiêu:** Xây dựng nền tảng SaaS cốt lõi — hạ tầng, xác thực, quản lý tenant, người dùng và phân quyền cơ bản.  
+**Mục tiêu:** Xây dựng nền tảng SaaS cốt lõi — hạ tầng, xác thực, quản lý tenant, người dùng và phân quyền cơ bản, tối ưu environment configuration.  
 **Thời gian:** 2 tuần  
-**Tổng Story Points:** 104 SP  
-**Tổng Task:** 19
+**Tổng Story Points:** 109 SP  
+**Tổng Task:** 20
 
 ---
 
@@ -26,12 +26,12 @@
 
 | Cluster    | Tổng   | ⬜ TODO | 🔵 IN PROGRESS | 🟡 REVIEW | 🟢 DONE | 🔴 BLOCKED | ⏸️ HOLD |
 | ---------- | ------ | ------- | -------------- | --------- | ------- | ---------- | ------- |
-| foundation | 8      | 0       | 0              | 3         | 4       | 0          | 1       |
+| foundation | 9      | 1       | 0              | 3         | 5       | 0          | 1       |
 | auth       | 4      | 2       | 0              | 1         | 1       | 0          | 0       |
 | tenant     | 3      | 1       | 0              | 2         | 0       | 0          | 0       |
 | user       | 2      | 1       | 0              | 2         | 0       | 0          | 0       |
 | frontend   | 2      | 2       | 0              | 0         | 0       | 0          | 0       |
-| **Tổng**   | **19** | **5**   | **0**          | **8**     | **5**   | **0**      | **1**   |
+| **Tổng**   | **20** | **7**   | **0**          | **8**     | **5**   | **0**      | **1**   |
 
 ---
 
@@ -42,13 +42,12 @@
 | TASK-SPRINT-01-FOUNDATION-001 | Thiết lập Docker Compose cho toàn bộ hệ thống                                                                                   | foundation | DevOps   | DevOps    | 5   | 🟢 DONE        | —                                                                               | `foundation/TASK-SPRINT-01-FOUNDATION-001-docker-compose-setup.md`                |
 | TASK-SPRINT-01-FOUNDATION-002 | Triển khai API Gateway NestJS                                                                                                   | foundation | Backend  | Backend   | 8   | 🟡 REVIEW      | TASK-SPRINT-01-FOUNDATION-001                                                   | `foundation/TASK-SPRINT-01-FOUNDATION-002-api-gateway-service.md`                 |
 | TASK-SPRINT-01-FOUNDATION-003 | Cấu hình RabbitMQ exchanges và Redis caching                                                                                    | foundation | Backend  | Backend   | 3   | 🟡 REVIEW      | TASK-SPRINT-01-FOUNDATION-001                                                   | `foundation/TASK-SPRINT-01-FOUNDATION-003-rabbitmq-redis-config.md`               |
-| TASK-SPRINT-01-FOUNDATION-004 | Cấu hình MongoDB và Base Schema                                                                                                 | foundation | Backend  | Backend   | 3   | 🟡 REVIEW      | TASK-SPRINT-01-FOUNDATION-001                                                   | `foundation/TASK-SPRINT-01-FOUNDATION-004-mongodb-setup.md`                       |
-| TASK-SPRINT-01-FOUNDATION-006 | Root workspace node scripts (install/update/format/build)                                                                       | foundation | DevOps   | DevOps    | 3   | 🟢 DONE        | —                                                                               | `foundation/TASK-SPRINT-01-FOUNDATION-006-root-workspace-node-scripts.md`         |
+| TASK-SPRINT-01-FOUNDATION-004 | Cấu hình MongoDB và Base Schema                                                                                                 | foundation | Backend  | Backend   | 3   | 🟡 REVIEW      | TASK-SPRINT-01-FOUNDATION-001                                                   | `foundation/TASK-SPRINT-01-FOUNDATION-004-mongodb-setup.md`                       || TASK-SPRINT-01-FOUNDATION-005 | Environment Configuration — Consolidate .env                                                                                    | foundation | DevOps   | 5   | ⬜ TODO        | TASK-SPRINT-01-FOUNDATION-001, TASK-SPRINT-01-FOUNDATION-006                       | `foundation/TASK-SPRINT-01-FOUNDATION-005-env-consolidation.md`                   || TASK-SPRINT-01-FOUNDATION-006 | Root workspace node scripts (install/update/format/build)                                                                       | foundation | DevOps   | DevOps    | 3   | 🟢 DONE        | —                                                                               | `foundation/TASK-SPRINT-01-FOUNDATION-006-root-workspace-node-scripts.md`         |
 | TASK-SPRINT-01-FOUNDATION-007 | VS Code debug launch configurations cho hệ thống                                                                                | foundation | DevOps   | DevOps    | 3   | 🟢 DONE        | TASK-SPRINT-01-FOUNDATION-006                                                   | `foundation/TASK-SPRINT-01-FOUNDATION-007-vscode-debug-launch-configs.md`         |
 | TASK-SPRINT-01-FOUNDATION-008 | Deploy assets cho Docker và Kubernetes                                                                                          | foundation | DevOps   | DevOps    | 5   | 🟢 DONE        | TASK-SPRINT-01-FOUNDATION-001, TASK-SPRINT-01-FOUNDATION-006                    | `foundation/TASK-SPRINT-01-FOUNDATION-008-deploy-assets-docker-kubernetes.md`     |
 | TASK-SPRINT-01-FOUNDATION-009 | Hướng dẫn và cấu hình cài đặt trực tiếp Linux/Windows Server                                                                    | foundation | DevOps   | DevOps    | 5   | ⏸️ HOLD        | TASK-SPRINT-01-FOUNDATION-006, TASK-SPRINT-01-FOUNDATION-008                    | `foundation/TASK-SPRINT-01-FOUNDATION-009-direct-install-linux-windows-server.md` |
 | TASK-SPRINT-01-AUTH-001       | Auth Service — JWT Authentication                                                                                               | auth       | Backend  | Backend   | 8   | 🟢 DONE        | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004                    | `auth/TASK-SPRINT-01-AUTH-001-auth-service-jwt.md`                                |
-| TASK-SPRINT-01-AUTH-002       | Auth Service — OAuth2 Social Login                                                                                              | auth       | Backend  | Backend   | 5   | 🔵 IN PROGRESS | TASK-SPRINT-01-AUTH-001                                                         | `auth/TASK-SPRINT-01-AUTH-002-oauth2-social.md`                                   |
+| TASK-SPRINT-01-AUTH-002       | Auth Service — OAuth2 Social Login                                                                                              | auth       | Backend  | Backend   | 5   | � REVIEW      | TASK-SPRINT-01-AUTH-001                                                         | `auth/TASK-SPRINT-01-AUTH-002-oauth2-social.md`                                   |
 | TASK-SPRINT-01-AUTH-003       | Auth Service — Multi-Factor Authentication (TOTP)                                                                               | auth       | Backend  | Backend   | 5   | 🟡 REVIEW      | TASK-SPRINT-01-AUTH-001                                                         | `auth/TASK-SPRINT-01-AUTH-003-mfa.md`                                             |
 | TASK-SPRINT-01-AUTH-004       | Hardening Token Security & Coverage Evidence                                                                                    | auth       | Backend  | Backend   | 3   | ⬜ TODO        | TASK-SPRINT-01-AUTH-001                                                         | `auth/TASK-SPRINT-01-AUTH-004-token-security-hardening.md`                        |
 | TASK-SPRINT-01-TENANT-001     | Tenant Service — Quản lý doanh nghiệp & Tự đăng ký MST                                                                          | tenant     | Backend  | Backend   | 8   | 🟡 REVIEW      | TASK-SPRINT-01-FOUNDATION-002, TASK-SPRINT-01-FOUNDATION-004                    | `tenant/TASK-SPRINT-01-TENANT-001-tenant-service.md`                              |
@@ -73,6 +72,7 @@ FOUNDATION-001 (Docker)
   └──► FOUNDATION-004 (MongoDB) ──────────────┘
 
 FOUNDATION-006 (Root Scripts)
+  ├──► FOUNDATION-005 (Env Config)
   ├──► FOUNDATION-007 (VS Code Debug Launch)
   └──► FOUNDATION-008 (Deploy Docker/K8s) ──► FOUNDATION-009 (Direct Install Linux/Windows)
 
@@ -93,7 +93,8 @@ FRONTEND-001, USER-001, TENANT-001 ──► FRONTEND-002 (Admin Dashboard)
 
 ### Tuần 2
 
-- **Ngày 6-7:** AUTH-002 (OAuth), AUTH-003 (MFA), TENANT-002 (Quota), USER-001 (Users) — Song song
+- **Ngày 6:** FOUNDATION-005 (Env Config) — Priority cao (cần OAuth2/JWT env vars)
+- **Ngày 6-7:** AUTH-002 (OAuth), AUTH-003 (MFA), TENANT-002 (Quota), USER-001 (Users) — Song song (+ nâng unit test coverage ≥ 80%)
 - **Ngày 8-9:** USER-002 (RBAC), FRONTEND-001 (Auth UI) — Song song
 - **Ngày 9-10:** FRONTEND-002 (Admin Dashboard)
 - **Ngày 10:** Integration testing, bug fixes
