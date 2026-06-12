@@ -271,6 +271,12 @@ Hệ thống quản trị doanh nghiệp bắt buộc hỗ trợ đa ngôn ngữ
   - Ví dụ: `<oerp-icon name="icon-name" [size]="16" color="currentColor"></oerp-icon>`
   - Thuộc tính `name` nhận đúng tên icon của Feather (ví dụ: `chevron-down`, `x`, `check-circle`, `alert-triangle`, `alert-octagon`, `info`, `chevron-left`, `chevron-right`).
 
+#### 2.11 Nguyên tắc dự án thiết yếu (Core Project Principles)
+Mọi hoạt động phát triển, nâng cấp công nghệ và xử lý i18n phải tuân thủ nghiêm ngặt theo các nguyên tắc được định nghĩa trong [project_principles.md](../../project_principles.md):
+* Sử dụng các phiên bản công nghệ mới nhất: NestJS 11, Angular 22, Tailwind CSS 4, Transloco 8.
+* Backend chỉ trả về mã lỗi (`errorCode`) và key thông điệp (`messageKey`). Việc biên dịch ngôn ngữ hiển thị do Frontend đảm nhiệm thông qua Transloco.
+* Luôn tuân thủ quy trình làm việc chuẩn (Workflow): Đọc tài liệu -> Cập nhật tài liệu -> Code -> Test local -> Đồng bộ cập nhật kết quả vào `task.md` & `walkthrough.md`.
+
 ---
 
 ### 3. Thiết lập Môi trường Phát triển & Gỡ lỗi cục bộ (VSCode & Local Dev)
