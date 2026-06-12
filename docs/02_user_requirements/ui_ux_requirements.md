@@ -83,3 +83,23 @@ Hệ thống được thiết kế theo bố cục Web Application tiêu chuẩn
   - Bấm tổ hợp phím `Ctrl + K` (hoặc `Cmd + K` trên macOS) để mở hộp thoại tìm kiếm nhanh.
   - Hỗ trợ tìm kiếm mờ (fuzzy search) trên toàn bộ dữ liệu hệ thống: Khách hàng, Tên công việc, Tên nhân viên, Số chứng từ.
   - Phân loại kết quả tìm kiếm rõ ràng và cho phép sử dụng phím mũi tên để di chuyển nhanh và nhấn `Enter` để truy cập.
+
+---
+
+### 5. Giao diện tối giản và Hiển thị mật độ cao (Minimalist & High-Density UI)
+
+Hệ thống hướng tới giao diện sạch sẽ, tập trung vào hiệu suất làm việc bằng cách hiển thị tối đa thông tin hữu ích trên một màn hình mà không cần phải chuyển trang:
+
+* **Thiết kế mật độ cao (High Information Density):**
+  - **Chế độ hiển thị thu gọn (Compact Mode):** Khoảng cách padding/margin được thu nhỏ, cỡ chữ tối ưu (12-14px) tương tự các phần mềm chuyên nghiệp như Excel, Jira để hiển thị nhiều dòng dữ liệu hơn trên màn hình danh sách.
+  - **Bố cục đa ngăn (Multi-pane Layouts):** Sử dụng cấu trúc chia đôi (Split-screen) hoặc chia ba ngăn trên màn hình lớn. 
+    * *Ví dụ màn hình CRM:* Ngăn trái hiển thị danh sách Khách hàng, Ngăn giữa hiển thị Chi tiết & Lịch sử tương tác, Ngăn phải hiển thị các Cơ hội/Báo giá liên quan. Người dùng có thể thao tác tức thì mà không bị mất ngữ cảnh (context switching).
+  - **Khung thông tin collapsible:** Các khu vực lọc dữ liệu, sidebar điều hướng phụ có thể thu nhỏ/ẩn đi bằng một click để dành tối đa diện tích cho khu vực nội dung chính.
+
+* **Khả năng thích ứng đa màn hình (Responsive Grid Breakpoints):**
+  Hệ thống tự động điều chỉnh bố cục giao diện dựa trên chiều rộng màn hình (sử dụng hệ thống Grid/Flexbox của Tailwind):
+  - **Màn hình cực lớn (Ultra-wide $\ge 1440px$):** Hiển thị đầy đủ sidebar chính, sidebar phụ và bố cục 3 cột (Multi-pane).
+  - **Màn hình Desktop/Laptop ($1024px \le Width < 1440px$):** Tự động thu gọn sidebar phụ thành các tab, hiển thị bố cục 2 cột.
+  - **Màn hình Tablet ($768px \le Width < 1024px$):** Sidebar điều hướng chính tự động thu gọn thành dạng biểu tượng (icon-only bar), chuyển các bảng dữ liệu sang dạng cuộn ngang (horizontal scroll) hoặc hiển thị thẻ thu gọn.
+  - **Màn hình Mobile ($Width < 768px$):** Sidebar ẩn hoàn toàn và kích hoạt qua nút Hamburger menu. Các biểu đồ dashboard chuyển sang dạng xếp chồng một cột (Single-column block layout), bảng dữ liệu dạng lưới chuyển sang dạng danh sách thẻ (Card list) tối ưu cho thao tác vuốt chạm.
+

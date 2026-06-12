@@ -11,6 +11,11 @@
 * **Thời gian tải trang (Page Load Time):**
   - Tải trang đầu tiên (FCP - First Contentful Paint): $< 1.5$ giây.
   - Tương tác đầy đủ (TTI - Time to Interactive): $< 2.0$ giây.
+* **Độ trễ truyền tải thời gian thực (Real-time Latency):**
+  - Độ trễ gửi nhận tin nhắn chat và thông báo đẩy qua WebSocket từ máy chủ đến client: $< 100$ ms.
+* **Độ tương thích thiết bị & Kháng vỡ bố cục (Responsive UX Responsiveness):**
+  - Giao diện được tối ưu hóa hiển thị và co giãn mượt mà trên tất cả các breakpoint từ màn hình Mobile nhỏ nhất ($320px$) đến màn hình Ultra-wide ($3440px$).
+  - Thời gian tính toán lại Grid/Flexbox layout khi xoay thiết bị hoặc resize trình duyệt: $< 50$ ms, đảm bảo không bị chồng chéo ký tự hay vỡ khung hiển thị thông tin mật độ cao.
 * **Tải đồng thời (Concurrency):**
   - Hệ thống lõi đáp ứng tối thiểu $10,000$ người dùng hoạt động đồng thời (Concurrent Active Users) ở giai đoạn đầu mà không bị suy giảm hiệu năng.
   - Khả năng tự động co giãn (Auto-scaling) từ 2 pod lên tối đa 10 pods ở lớp API Gateway và API Server khi CPU vượt quá $70\%$ trong 2 phút liên tiếp.

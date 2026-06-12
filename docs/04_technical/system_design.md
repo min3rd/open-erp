@@ -74,6 +74,32 @@ Hệ thống sử dụng một công cụ thực thi máy trạng thái định 
 * Frontend tự động tải file trực tiếp từ trình duyệt lên S3 bucket của tenant nhằm tăng tốc độ tải và tiết kiệm tài nguyên máy chủ.
 * Đường dẫn lưu trữ: `s3://open-erp-bucket/tenants/{tenant_id}/{module}/{year}/{month}/{file_uuid}.pdf`.
 
-#### 3.3 Dịch vụ thông báo (Notification Engine)
-* Sử dụng Socket.io (Node.js) làm WebSocket Server, kết nối với Redis Adapter để hỗ trợ gửi thông báo đa máy chủ (Multi-instance push).
-* Đối với email, tin nhắn sẽ được đẩy vào hàng đợi Redis Queue (BullMQ) để xử lý bất đồng bộ, tránh nghẽn luồng xử lý API chính.
+#### 3.3 Dịch vụ kết nối thời gian thực & thông báo (Real-time & Notification Engine)
+* **Giao thức kết nối thời gian thực:**
+  - **WebSockets (Socket.io/WS):** Sử dụng cho chức năng Chat trực tuyến (Chat Svc), thông báo tức thời (In-app notification) và cập nhật đồng thời trạng thái công việc (Real-time collaborative editing). WebSocket Servers sử dụng **Redis Pub/Sub Adapter** làm message broker để đồng bộ sự kiện giữa các pod khi hệ thống co giãn ngang (horizontal scaling).
+  - **Server-Sent Events (SSE):** Sử dụng làm kênh truyền tải thông báo một chiều (unidirectional stream) từ máy chủ đến trình duyệt đối với các tác vụ có tải nhẹ, giúp tối ưu hóa kết nối di động mà không cần duy trì kết nối WebSocket hai chiều đầy tải.
+  - **gRPC Streaming:** Sử dụng cho giao tiếp thời gian thực, đồng bộ dữ liệu nội bộ giữa các microservice (Auth, Work, Finance Svc) nhằm tối thiểu hóa độ trễ (latency < 10ms).
+* Đối với email/SMS, tin nhắn sẽ được đẩy vào hàng đợi Redis Queue (BullMQ) để xử lý bất đồng bộ, tránh nghẽn luồng xử lý API chính.
+
+---
+
+### 4. Kiến trúc lưu vết & Bảo toàn dữ liệu theo Snapshot (Entity Snapshot Architecture)
+Nhằm đảm bảo hệ thống có khả năng lưu vết lịch sử xử lý và vận hành ổn định qua nhiều phiên bản nâng cấp phần mềm (khi cấu trúc sản phẩm, đơn giá, thuế suất hoặc quy trình thay đổi), hệ thống áp dụng cơ chế **Transactional Snapshot**:
+
+```
+[ Thực thể gốc (e.g. Product, Employee) ]
+               │
+               ├─► Cập nhật thông tin (Đổi đơn giá/Lương) ──► (Ghi đè bản ghi gốc)
+               │
+               ▼ (Tại thời điểm phát sinh giao dịch)
+[ Tạo giao dịch (e.g. Hóa đơn, Bảng lương, Đề xuất) ]
+               │
+               ▼
+[ Bảng Snapshot Dữ liệu (e.g. Invoice_Item_Snapshot) ] ──► Lưu trữ JSON snapshot của bản ghi gốc
+                                                            (Bảo toàn trạng thái cũ mãi mãi)
+```
+
+#### Quy tắc thiết kế:
+1. **Immutable Transactions (Giao dịch bất biến):** Các thực thể tài chính, công phép, lương thưởng không chỉ tham chiếu bằng khóa ngoại (Foreign Key) đơn thuần đến danh mục gốc. Tại thời điểm phát sinh giao dịch (e.g. chốt hóa đơn, duyệt nghỉ phép), toàn bộ trạng thái dữ liệu liên quan được chụp lại dưới dạng cấu trúc JSONB hoặc copy hoàn toàn sang một bảng snapshot chuyên biệt (ví dụ: `invoice_items` chứa bản sao tên sản phẩm, giá bán, thuế suất tại thời điểm xuất hóa đơn).
+2. **Versioned Tables (Bản ghi phân cấp phiên bản):** Đối với các thực thể thay đổi theo thời gian (như hợp đồng lao động, chính sách lương), hệ thống sử dụng thiết kế **SCD Type 2 (Slowly Changing Dimensions)** hoặc lưu trữ `version_number` kết hợp mốc hiệu lực `effective_start` và `effective_end`. Hệ thống có thể chạy tính toán ngược lại bất kỳ thời điểm nào trong quá khứ một cách chính xác mà không bị ảnh hưởng bởi dữ liệu cập nhật hiện tại.
+

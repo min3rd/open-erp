@@ -257,3 +257,25 @@
 * `purchase_cost` Decimal(18,2)
 * `depreciation_months` Integer
 * `status` Varchar(50) (Active, Assigned, Maintenance, Liquidated)
+
+---
+
+### 3. Thiết kế Cấu trúc lưu vết Snapshot & Lịch sử phiên bản (Snapshot & Versioning Schema)
+
+Nhằm thực thi kiến trúc chụp ảnh trạng thái giao dịch (Transactional Snapshot) và lưu vết phiên bản qua thời gian (Slowly Changing Dimensions), hệ thống định nghĩa các cấu trúc sau:
+
+##### Bảng `entity_snapshots` (Chụp trạng thái thực thể)
+Bảng chuyên dùng để lưu trữ toàn bộ trạng thái dữ liệu của một thực thể (ví dụ: Thông tin nhân sự khi tính lương, Cấu hình duyệt khi gửi đơn) tại một thời điểm nhất định:
+* `id` UUID PK
+* `tenant_id` UUID FK -> tenants.id
+* `entity_type` Varchar(100) (Ví dụ: `employee`, `product`, `approval_workflow`)
+* `entity_id` UUID (ID của thực thể gốc được chụp)
+* `snapshot_data` JSONB (Lưu toàn bộ thuộc tính của thực thể dưới dạng JSON tại thời điểm chụp)
+* `created_at` Timestamp
+* `created_by` UUID FK -> users.id
+
+##### Cơ chế Bản ghi Snapshot tại các bảng giao dịch tài chính/nghiệp vụ:
+* **Chi tiết hóa đơn (`invoice_items`):** Không chỉ tham chiếu `product_id`. Bảng này lưu trực tiếp đơn giá bán thực tế (`price_at_sale` Decimal) và thông số sản phẩm (`product_name_at_sale` Varchar) để đảm bảo dù sản phẩm gốc có đổi giá hoặc đổi tên, hóa đơn cũ vẫn giữ nguyên giá trị pháp lý.
+* **Chi tiết tính lương (`payroll_items`):** Lưu trữ bản chụp thông tin hợp đồng lao động tại thời điểm tính lương (mức lương cơ bản, hệ số phụ cấp) bằng trường `employee_contract_snapshot` JSONB để đối soát lịch sử chi trả lương khi nhân sự thay đổi mức lương ở tương lai.
+* **Bản ghi phê duyệt (`approval_requests`):** Lưu trữ bản chụp trạng thái của quy trình phê duyệt (`workflow_snapshot` JSONB) gồm các bước duyệt, điều kiện duyệt tại thời điểm gửi đơn, tránh trường hợp quy trình mẫu bị sửa đổi làm sai lệch lịch sử duyệt các đơn cũ.
+
