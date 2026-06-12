@@ -1,0 +1,53 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: open-erp-ingress
+  namespace: open-erp
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header X-Tenant-ID $http_x_tenant_id;
+spec:
+  tls:
+  - hosts:
+    - "*.open-erp.9ms.io.vn"
+    - "open-erp.9ms.io.vn"
+    secretName: open-erp-tls-secret
+  rules:
+  - host: "open-erp.9ms.io.vn"
+    http:
+      paths:
+      - path: /api/(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: open-erp-backend-svc
+            port:
+              number: 3000
+      - path: /(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: open-erp-web-svc
+            port:
+              number: 80
+  - host: "*.open-erp.9ms.io.vn"
+    http:
+      paths:
+      - path: /api/(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: open-erp-backend-svc
+            port:
+              number: 3000
+      - path: /(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: open-erp-web-svc
+            port:
+              number: 80

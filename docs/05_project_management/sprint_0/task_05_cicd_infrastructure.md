@@ -78,6 +78,39 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
+#### 3.3 Tệp cấu hình triển khai Kubernetes (Kubernetes Manifests)
+Hệ thống cung cấp sẵn các tệp cấu hình tài nguyên Kubernetes để DevOps triển khai nhanh chóng lên cụm máy chủ Cloud. Các tệp này được lưu trữ tập trung tại thư mục `/k8s/` ở gốc dự án:
+
+```text
+k8s/
+├── backend-deployment.yml   # Cấu hình Deployment & Service cho NestJS Backend
+├── web-deployment.yml       # Cấu hình Deployment & Service cho Angular Web
+├── ingress.yml              # Cấu hình định tuyến Ingress SSL Wildcard cho các Tenant
+├── redis-deployment.yml     # Khởi chạy cụm Redis Cache nội bộ
+├── postgres-deployment.yml  # Khởi chạy cụm PostgreSQL PVC nội bộ (Dùng cho Staging/Dev)
+└── secrets.yml.example      # File mẫu cấu hình Secrets (DB URL, JWT Key)
+```
+
+* **Hướng dẫn triển khai nhanh lên cụm K8s (Staging/Dev Cluster):**
+  1. Tạo namespace cho hệ thống:
+     ```bash
+     kubectl create namespace open-erp
+     ```
+  2. Sao chép và cấu hình các thông số bảo mật (mã hóa base64 các chuỗi kết nối):
+     ```bash
+     cp k8s/secrets.yml.example k8s/secrets.yml
+     # Chỉnh sửa file k8s/secrets.yml với thông tin thực tế, sau đó apply:
+     kubectl apply -f k8s/secrets.yml
+     ```
+  3. Áp dụng toàn bộ cấu hình tài nguyên hệ thống lên K8s:
+     ```bash
+     kubectl apply -f k8s/
+     ```
+  4. Kiểm tra trạng thái hoạt động của các pod:
+     ```bash
+     kubectl get pods -n open-erp
+     ```
+
 ---
 
 ### 4. Quy trình tự động hóa CI/CD (GitHub Actions Workflow)
