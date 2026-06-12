@@ -263,6 +263,14 @@ Hệ thống quản trị doanh nghiệp bắt buộc hỗ trợ đa ngôn ngữ
 * **NestJS ClsModule (AsyncLocalStorage):** Sử dụng `ClsService` của thư viện `nestjs-cls` (hoặc `AsyncLocalStorage` gốc) để lưu trữ context an toàn của mỗi request (Tenant ID, User ID, Transaction context) thay vì gán trực tiếp vào request object, giúp tránh rò rỉ bộ nhớ và dễ dàng truy cập context ở bất kỳ lớp service nào mà không cần truyền tham số qua nhiều tầng.
 * **Strict Dependency Injection:** Sử dụng decorator `@Inject()` kết hợp với token rõ ràng cho các custom providers. Tận dụng cơ chế config module định nghĩa kiểu chặt chẽ (Typed ConfigService).
 
+#### 2.10 Quy chuẩn sử dụng Icons (Feather Icons)
+Để duy trì tính thống nhất về giao diện và tối ưu hóa hiệu năng render, toàn bộ các icon trong dự án bắt buộc phải sử dụng bộ icon **Feather Icons**:
+* **Không sử dụng inline SVG thô:** Cấm tuyệt đối việc sử dụng code SVG nội tuyến (`<svg>...</svg>`) cứng cho các icon chuẩn trong template.
+* **Sử dụng component dùng chung:** Phải sử dụng component `<oerp-icon>` từ thư viện `@open-erp/shared-ui`.
+* **Cú pháp khai báo:**
+  - Ví dụ: `<oerp-icon name="icon-name" [size]="16" color="currentColor"></oerp-icon>`
+  - Thuộc tính `name` nhận đúng tên icon của Feather (ví dụ: `chevron-down`, `x`, `check-circle`, `alert-triangle`, `alert-octagon`, `info`, `chevron-left`, `chevron-right`).
+
 ---
 
 ### 3. Thiết lập Môi trường Phát triển & Gỡ lỗi cục bộ (VSCode & Local Dev)

@@ -1,9 +1,10 @@
 import { Component, input, output } from '@angular/core';
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'oerp-modal',
   standalone: true,
-  imports: [],
+  imports: [IconComponent],
   template: `
     <!-- Modal Backdrop -->
     @if (isOpen()) {
@@ -24,12 +25,10 @@ import { Component, input, output } from '@angular/core';
             <button
               type="button"
               (click)="closeModal()"
-              class="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 focus:outline-none"
+              class="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 focus:outline-none flex items-center justify-center"
             >
               <span class="sr-only">Close</span>
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <oerp-icon name="x" [size]="18"></oerp-icon>
             </button>
           </div>
 

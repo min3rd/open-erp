@@ -1,0 +1,55 @@
+import { Component, input, output } from '@angular/core';
+import { NgClass } from '@angular/common';
+
+@Component({
+  selector: 'oerp-checkbox',
+  standalone: true,
+  imports: [NgClass],
+  template: `
+    <label 
+      [ngClass]="[
+        'inline-flex items-center gap-2.5 select-none text-sm font-medium',
+        disabled() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+      ]"
+    >
+      <input
+        type="checkbox"
+        [checked]="checked()"
+        [disabled]="disabled()"
+        (change)="onToggle($event)"
+        class="sr-only peer"
+      />
+      <div 
+        class="w-5 h-5 flex items-center justify-center rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 transition-all duration-150 peer-checked:bg-rose-gold-500 peer-checked:border-rose-gold-500 peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-rose-gold-400"
+      >
+        <!-- Check icon -->
+        <svg 
+          class="w-3.5 h-3.5 text-white scale-0 transition-transform duration-150 peer-checked:scale-100" 
+          fill="none" 
+          viewBox="0 0 24 24" 
+          stroke="currentColor" 
+          stroke-width="3"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      @if (label()) {
+        <span class="text-slate-700 dark:text-slate-300">{{ label() }}</span>
+      }
+    </label>
+  `
+})
+export class CheckboxComponent {
+  label = input<string>('');
+  checked = input<boolean>(false);
+  disabled = input<boolean>(false);
+
+  checkedChange = output<boolean>();
+
+  onToggle(event: Event): void {
+    if (!this.disabled()) {
+      const isChecked = (event.target as HTMLInputElement).checked;
+      this.checkedChange.emit(isChecked);
+    }
+  }
+}

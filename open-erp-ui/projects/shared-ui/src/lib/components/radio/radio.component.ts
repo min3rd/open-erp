@@ -1,0 +1,40 @@
+import { Component, input } from '@angular/core';
+import { NgClass } from '@angular/common';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'oerp-radio',
+  standalone: true,
+  imports: [NgClass, ReactiveFormsModule],
+  template: `
+    <div class="flex flex-col gap-2">
+      @for (option of options(); track option.value) {
+        <label 
+          class="inline-flex items-center gap-2.5 cursor-pointer select-none text-sm font-medium"
+        >
+          <input
+            type="radio"
+            [name]="name()"
+            [value]="option.value"
+            [formControl]="control()"
+            class="sr-only peer"
+          />
+          <div 
+            class="w-5 h-5 flex items-center justify-center rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 transition-all duration-150 peer-checked:border-rose-gold-500 peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-rose-gold-400"
+          >
+            <!-- Center Dot -->
+            <div 
+              class="w-2.5 h-2.5 rounded-full bg-rose-gold-500 scale-0 transition-transform duration-150 peer-checked:scale-100"
+            ></div>
+          </div>
+          <span class="text-slate-700 dark:text-slate-300">{{ option.label }}</span>
+        </label>
+      }
+    </div>
+  `
+})
+export class RadioComponent {
+  name = input.required<string>();
+  options = input.required<Array<{ label: string, value: any }>>();
+  control = input<FormControl>(new FormControl());
+}
