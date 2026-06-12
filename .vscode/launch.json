@@ -1,0 +1,34 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug NestJS Backend",
+      "args": ["run", "start:dev"],
+      "runtimeExecutable": "npm",
+      "cwd": "${workspaceFolder}/open-erp-services",
+      "protocol": "inspector",
+      "console": "integratedTerminal",
+      "restart": true,
+      "env": {
+        "NODE_ENV": "development",
+        "DATABASE_URL": "postgresql://postgres:localpassword@localhost:5432/open_erp_dev"
+      }
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Debug Web Angular (Chrome)",
+      "url": "http://localhost:4200",
+      "webRoot": "${workspaceFolder}/open-erp-web"
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Debug Mobile Ionic (Chrome)",
+      "url": "http://localhost:8100",
+      "webRoot": "${workspaceFolder}/open-erp-mobile"
+    }
+  ]
+}
