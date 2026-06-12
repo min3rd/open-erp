@@ -122,12 +122,24 @@ open-erp-ui/
 ├── package.json
 └── tsconfig.json
 ```
-* **Cơ chế tích hợp:** Dự án `open-erp-ui` được phát triển độc lập, build thành gói npm cục bộ. Web và Mobile import thư viện thông qua cấu hình `paths` trong `tsconfig.json` trỏ trực tiếp đến thư mục build hoặc link thông qua cơ chế `npm link` cục bộ trong giai đoạn phát triển:
-  ```json
-  "paths": {
-    "@open-erp/shared-ui": ["../open-erp-ui/dist/shared-ui"]
-  }
-  ```
+* **Cơ chế tích hợp & Biên dịch Tailwind CSS:** 
+  Dự án `open-erp-ui` được phát triển độc lập, build thành gói npm cục bộ.
+  1. **Định tuyến TypeScript:** Web và Mobile import thư viện thông qua cấu hình `paths` trong `tsconfig.json` trỏ trực tiếp đến thư mục build hoặc link thông qua cơ chế `npm link` cục bộ trong giai đoạn phát triển:
+     ```json
+     "paths": {
+       "@open-erp/shared-ui": ["../open-erp-ui/dist/shared-ui"]
+     }
+     ```
+  2. **Biên dịch CSS Tailwind dùng chung (Bắt buộc):** Để tránh phình dung lượng bundle do tự đóng gói CSS độc lập trong thư viện, các ứng dụng tiêu thụ (`open-erp-web` và `open-erp-mobile`) bắt buộc phải thêm đường dẫn quét mã nguồn của thư viện vào mảng `content` trong file `tailwind.config.js` của mình:
+     ```javascript
+     content: [
+       "./src/**/*.{html,ts}",
+       "../open-erp-ui/projects/shared-ui/src/lib/components/**/*.{html,ts}"
+     ]
+     ```
+     Cấu hình này giúp compiler Tailwind của Web/Mobile tự động quét qua các standalone components của thư viện dùng chung để trích xuất các lớp utility (ví dụ: `bg-rose-gold-500`) và biên dịch trực tiếp vào file CSS đầu ra của ứng dụng.
+
+---
 
 #### 2.5 Cấu hình Màu sắc Hồng Vàng (Rose Gold) & Light/Dark Mode
 * **Cấu hình trong Tailwind CSS (`tailwind.config.js`):**
@@ -171,7 +183,7 @@ open-erp-ui/
   ```
 
 #### 2.6 Cấu hình Đa ngôn ngữ với Transloco (Internationalization - i18n)
-Hệ thống quản trị doanh nghiệp bắt buộc hỗ trợ đa ngôn ngữ để phục vụ các doanh nghiệp đa quốc gia. Sử dụng thư viện **Transloco** (phiên bản stable mới nhất `@ngneat/transloco`) cho cả Web Frontend (`open-erp-web`) và Mobile Frontend (`open-erp-mobile`).
+Hệ thống quản trị doanh nghiệp bắt buộc hỗ trợ đa ngôn ngữ để phục vụ các doanh nghiệp đa quốc gia. Sử dụng thư viện **Transloco** (phiên bản stable mới nhất `@jsverse/transloco` version 8) cho cả Web Frontend (`open-erp-web`) và Mobile Frontend (`open-erp-mobile`).
 
 * **Ngôn ngữ hỗ trợ mặc định:**
   - Tiếng Việt (`vi` - Mặc định)
@@ -191,7 +203,7 @@ Hệ thống quản trị doanh nghiệp bắt buộc hỗ trợ đa ngôn ngữ
   Đăng ký Transloco HttpLoader để tải file ngôn ngữ động từ assets:
   ```typescript
   import { HttpClient } from '@angular/common/http';
-  import { Translation, TranslocoLoader, TRANSLOCO_LOADER, TRANSLOCO_CONFIG, translocoConfig, TranslocoModule } from '@ngneat/transloco';
+  import { Translation, TranslocoLoader, TRANSLOCO_LOADER, TRANSLOCO_CONFIG, translocoConfig, TranslocoModule } from '@jsverse/transloco';
   import { Injectable, isDevMode } from '@angular/core';
 
   @Injectable({ providedIn: 'root' })
@@ -219,18 +231,37 @@ Hệ thống quản trị doanh nghiệp bắt buộc hỗ trợ đa ngôn ngữ
 * **Sử dụng trong Thư viện UI chung (`open-erp-ui`):** Thư viện UI dùng chung được thiết kế nhận trực tiếp `translation keys` hoặc inject `TranslocoService` thông qua cơ chế Dependency Injection của Angular để thực hiện dịch nhãn (labels) động trên các nút bấm, tiêu đề bảng, thông báo lỗi.
 
 #### 2.7 Nâng cấp & Quản lý tương thích của Dependencies (Dependency Management)
-Để đảm bảo hệ thống vận hành ổn định, bảo mật và tránh xung đột phiên bản giữa 3 dự án lớn, toàn bộ dependencies được nâng cấp và đồng bộ lên các phiên bản **Stable mới nhất** tại thời điểm Sprint 0:
+Để đảm bảo hệ thống vận hành ổn định, bảo mật và tránh xung đột phiên bản giữa 3 dự án lớn, toàn bộ dependencies được nâng cấp và đồng bộ lên các phiên bản **Stable mới nhất** tương thích với môi trường Node.js 22:
 
 * **Ma trận phiên bản tương thích (Compatibility Matrix):**
-  - **Node.js:** Sử dụng phiên bản **Node.js 20 LTS** hoặc **22 LTS** (Active LTS).
-  - **Backend (NestJS):** Sử dụng phiên bản **NestJS 10.x** (hoặc mới hơn stable).
-  - **Frontend Web & Library (Angular / RxJS):** Sử dụng **Angular 18.x / 19.x** (phiên bản stable mới nhất) kết hợp **RxJS 7.8.x**.
-  - **Frontend Mobile (Ionic / Capacitor):** Sử dụng **Ionic 8.x** kết hợp với **Capacitor 6.x** (hoặc mới hơn stable), đảm bảo tương thích tốt nhất với cấu hình Angular ở trên.
-  - **CSS framework:** TailwindCSS v3.4.x (hoặc v4.0.x nếu dùng Angular 19).
+  - **Node.js:** Bắt buộc sử dụng phiên bản **Node.js 22 LTS** (Active LTS).
+  - **Backend (NestJS):** Sử dụng phiên bản **NestJS 11.x** (hoặc mới hơn stable tương thích Node 22).
+  - **Frontend Web & Library (Angular / RxJS):** Sử dụng **Angular 22.x** (phiên bản stable mới nhất tương thích với Node 22) kết hợp **RxJS 8.x / 7.8.x**.
+  - **Frontend Mobile (Ionic / Capacitor):** Sử dụng **Ionic 8.x** kết hợp với **Capacitor 8.x** (hoặc mới hơn stable), đảm bảo tương thích tốt nhất với cấu hình Angular 22 ở trên.
+  - **CSS framework:** TailwindCSS v4.0.x (hoặc mới hơn tương thích với Angular 22).
 * **Quy chuẩn quản lý Package & Lockfile:**
   - Lập trình viên **không được tự ý cài đặt package bằng ký tự đại diện `*` hoặc `latest`** trong file `package.json`. Phải ghi rõ phiên bản cố định hoặc sử dụng ký tự `^` để kiểm soát các bản vá lỗi minor/patch.
   - File `package-lock.json` phải được commit đầy đủ lên Git để đảm bảo môi trường CI/CD và local của mọi lập trình viên sử dụng chính xác 100% cùng một phiên bản thư viện.
   - Định kỳ cuối mỗi Sprint, DevOps/Tech Lead chạy lệnh `npm audit` để phát hiện và vá các lỗ hổng bảo mật của thư viện. Sử dụng công cụ `npm-check-updates` (`ncu`) để rà soát phiên bản mới trước khi nâng cấp hàng loạt.
+
+#### 2.8 Quy chuẩn Cú pháp Angular mới nhất (Angular Modern Syntaxes)
+Để đảm bảo tối ưu hóa hiệu năng, tính tương thích dài hạn và dễ bảo trì, toàn bộ mã nguồn Angular trong dự án Web và Mobile bắt buộc sử dụng các cú pháp mới nhất từ Angular 17/18/19:
+* **Sử dụng Block Control Flow mới:**
+  Tuyệt đối không sử dụng các structural directives cũ như `*ngIf`, `*ngFor`, `*ngSwitch`. Thay vào đó, bắt buộc sử dụng cú pháp dạng block tích hợp:
+  - `@if (condition) { ... } @else { ... }`
+  - `@for (item of items; track item.id) { ... } @empty { ... }` (Bắt buộc phải có mệnh đề `track` để tối ưu DOM update).
+  - `@switch (value) { @case (val1) { ... } @default { ... } }`
+* **Sử dụng Signal APIs cho Inputs, Outputs và State:**
+  - Thay thế `@Input()` bằng hàm **`input()`** hoặc **`input.required()`** để nhận thuộc tính reactive.
+  - Thay thế `@Output()` bằng hàm **`output()`** để bắn sự kiện ra ngoài.
+  - Sử dụng **`model()`** cho các luồng hai chiều (two-way data binding).
+  - Sử dụng **`computed()`** để tự động tính toán các giá trị phái sinh và **`effect()`** để xử lý các side-effects reactive.
+* **Standalone Components:** Mặc định tất cả các components, directives, pipes mới đều phải khai báo dạng standalone (`standalone: true`) và import trực tiếp các module/component phụ thuộc vào mảng `imports`.
+
+#### 2.9 Quy chuẩn Cú pháp NestJS mới nhất (NestJS Modern Syntaxes)
+* **TypeScript Strict Mode:** Bắt buộc bật cấu hình `"strict": true` trong `tsconfig.json`. Cấm tuyệt đối ép kiểu `any` mà không có lý do chính đáng. Sử dụng `unknown` hoặc viết custom interfaces/types.
+* **NestJS ClsModule (AsyncLocalStorage):** Sử dụng `ClsService` của thư viện `nestjs-cls` (hoặc `AsyncLocalStorage` gốc) để lưu trữ context an toàn của mỗi request (Tenant ID, User ID, Transaction context) thay vì gán trực tiếp vào request object, giúp tránh rò rỉ bộ nhớ và dễ dàng truy cập context ở bất kỳ lớp service nào mà không cần truyền tham số qua nhiều tầng.
+* **Strict Dependency Injection:** Sử dụng decorator `@Inject()` kết hợp với token rõ ràng cho các custom providers. Tận dụng cơ chế config module định nghĩa kiểu chặt chẽ (Typed ConfigService).
 
 ---
 

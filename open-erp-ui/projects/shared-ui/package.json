@@ -1,0 +1,13 @@
+{
+  "name": "@open-erp/shared-ui",
+  "version": "1.0.0",
+  "peerDependencies": {
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@jsverse/transloco": "^8.0.0",
+    "feather-icons": "^4.29.2"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  }
+}

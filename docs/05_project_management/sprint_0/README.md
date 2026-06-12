@@ -22,6 +22,7 @@ Dưới đây là danh sách các Task nền tảng cần triển khai trong Spr
 | **TSK-0.3** | Thiết kế Kiến trúc & Cơ sở dữ liệu | Thiết kế sơ đồ kiến trúc vật lý, mô hình dữ liệu (Database Schema) và thiết lập cơ chế Multi-tenant RLS. | [x] Hoàn thành | SA/BE Leads | [task_03_architecture_design.md](./task_03_architecture_design.md) |
 | **TSK-0.4** | Thiết lập 3 Repositories & Convention | Init cấu hình NestJS, Angular, Ionic và đồng bộ quy chuẩn viết code (ESLint, Prettier, Git-flow). | [x] Hoàn thành | BE/FE Leads | [task_04_repository_setup.md](./task_04_repository_setup.md) |
 | **TSK-0.5** | Thiết lập CI/CD & Infrastructure | Tạo hạ tầng Kubernetes Cluster, cấu hình Webhook tự động build và deploy lên môi trường Dev/Staging. | [x] Hoàn thành | DevOps | [task_05_cicd_infrastructure.md](./task_05_cicd_infrastructure.md) |
+| **TSK-0.6** | Khởi tạo các UI Components cơ bản | Xây dựng các component dùng chung cơ bản (Button, Input, Modal) hỗ trợ màu Rose Gold & Light/Dark Mode trong thư viện `open-erp-ui`. | [x] Hoàn thành | FE Leads | [task_06_shared_ui_components.md](./task_06_shared_ui_components.md) |
 
 ### 3. Trật tự thực thi & Luồng phụ thuộc công việc (Execution Flow & Dependencies)
 
@@ -33,6 +34,7 @@ flowchart TD
     --> TSK02["TSK-0.2: Sitemap & Wireframes giao diện (UI-UX)"]
     --> TSK03["TSK-0.3: Thiết kế Kiến trúc & DB Schema (SA/BE Leads)"]
     --> TSK04["TSK-0.4: Thiết lập 3 Repos & Conventions (BE/FE Leads)"]
+    --> TSK06["TSK-0.6: Khởi tạo các UI Components cơ bản (FE Leads)"]
     --> TSK05["TSK-0.5: Thiết lập CI/CD & Infra K8s (DevOps)"]
 ```
 
@@ -41,7 +43,8 @@ flowchart TD
   2. **Bước 2 (Thiết kế trải nghiệm):** Thực hiện **TSK-0.2** dựa trên phạm vi đã chốt từ TSK-0.1 để phác thảo các màn hình khung dây và sitemap.
   3. **Bước 3 (Thiết kế kỹ thuật):** Tiến hành **TSK-0.3** để xây dựng mô hình dữ liệu (Database Schema), API overview và giải pháp RLS/real-time trên cơ sở cấu trúc màn hình và nghiệp vụ đã rõ từ TSK-0.1 và TSK-0.2.
   4. **Bước 4 (Thiết lập mã nguồn):** Thực hiện **TSK-0.4** để khởi tạo các dự án (`open-erp-services`, `open-erp-web`, `open-erp-mobile` và UI library chung `open-erp-ui`) cùng quy chuẩn code dựa trên các quyết định thiết kế kỹ thuật từ TSK-0.3.
-  5. **Bước 5 (Tự động hóa & Cloud):** Kết thúc bằng **TSK-0.5** để viết Dockerfile, thiết lập cụm K8s Cloud và viết GitHub Actions Pipeline tự động build, deploy boilerplate code đã được chuẩn hóa ở TSK-0.4 lên các môi trường thử nghiệm.
+  5. **Bước 5 (UI Components dùng chung):** Thực hiện **TSK-0.6** để khởi tạo các component UI cơ bản (Button, Input, Modal) trong thư viện `@open-erp/shared-ui` dùng chung cho Web và Mobile.
+  6. **Bước 6 (Tự động hóa & Cloud):** Kết thúc bằng **TSK-0.5** để viết Dockerfile, thiết lập cụm K8s Cloud và viết GitHub Actions Pipeline tự động build, deploy boilerplate code đã được chuẩn hóa ở TSK-0.4 & TSK-0.6 lên các môi trường thử nghiệm.
 
 ---
 
