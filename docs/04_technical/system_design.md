@@ -89,7 +89,10 @@ Hệ thống sử dụng một công cụ thực thi máy trạng thái định 
 * Đối với email/SMS, tin nhắn sẽ được đẩy vào hàng đợi Redis Queue (BullMQ) để xử lý bất đồng bộ, tránh nghẽn luồng xử lý API chính.
 
 #### 3.4 Kiến trúc Client UI & Đa ngôn ngữ (i18n & Theme Architecture)
-* **Đa ngôn ngữ với Transloco:** Client Web (`open-erp-web`) và Mobile (`open-erp-mobile`) sử dụng thư viện **Transloco** (`@jsverse/transloco` version 8) làm công cụ chính để tải động và dịch nhãn (labels) trên giao diện. Các tệp dịch JSON được phân cấp và lưu tại assets: tiếng Việt (`vi`), tiếng Anh (`en`), tiếng Trung (`zh`), tiếng Nhật (`ja`).
+* **Đa ngôn ngữ với Transloco & Phân tách Localization:** 
+  - Client Web (`open-erp-web`) và Mobile (`open-erp-mobile`) sử dụng thư viện **Transloco** (`@jsverse/transloco` version 8) làm công cụ chính để dịch nhãn và thông điệp lỗi động.
+  - **Quy tắc phân tách:** Backend (`open-erp-services`) chỉ trả về mã trạng thái, mã lỗi (`errorCode`) và key thông điệp (`messageKey`). Backend tuyệt đối không trả về thông điệp lỗi được dịch sẵn từ server. Việc hiển thị thông điệp theo ngôn ngữ được chọn do Frontend xử lý thông qua Transloco.
+  - Các tệp dịch JSON được phân cấp và lưu tại assets: tiếng Việt (`vi`), tiếng Anh (`en`), tiếng Trung (`zh`), tiếng Nhật (`ja`).
 * **Hỗ trợ Đa chế độ hiển thị (Light & Dark Mode):** Sử dụng Tailwind CSS với cấu hình `class` kết hợp với CSS Variables. Giao diện có thể chuyển đổi tức thì từ Light Mode (nền sáng ngọc trai `#F8FAFC`) sang Dark Mode (nền Slate sẫm `#0F172A`) bằng cách thêm/bớt class `dark` ở thẻ `<html>`.
 * **Theme chủ đạo Rose Gold:** Áp dụng bảng màu Rose Gold (`#B76E79`) cho tất cả các UI components chính trong thư viện dùng chung `open-erp-ui`.
 

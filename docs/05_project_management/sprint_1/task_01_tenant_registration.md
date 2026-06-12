@@ -42,7 +42,7 @@ Tham chiếu đầy đủ trong [api_overview.md](../../03_functional/api_overvi
     ```json
     {
       "success": true,
-      "message": "Đăng ký thành công. Vui lòng kiểm tra email để kích hoạt tài khoản."
+      "messageKey": "auth.register_success"
     }
     ```
 * **`GET /api/v1/auth/check-subdomain`** (Public)

@@ -56,11 +56,11 @@ Content-Type: application/json
   "success": false,
   "error": {
     "code": "VALIDATION_FAILED",
-    "message": "Dữ liệu nhập vào không hợp lệ.",
+    "messageKey": "errors.validation_failed",
     "details": [
       {
         "field": "email",
-        "issue": "Email không đúng định dạng."
+        "messageKey": "errors.invalid_email"
       }
     ]
   },
