@@ -53,5 +53,5 @@ Hành trình đăng ký sử dụng và giao việc ban đầu của Chủ doanh
 ### 4. Tiêu chí hoàn thành (Definition of Done - DoD)
 * **Tài liệu bàn giao:**
   - Tài liệu Đặc tả yêu cầu người dùng (URS) và PRD được PO duyệt.
-  - Sơ đồ hành trình người dùng (User Journey Map) được lưu trữ trong thư mục `/docs/02_user_requirements/`.
-  - Danh sách User Stories cho 3 sprint tiếp theo được cập nhật đầy đủ lên công cụ quản lý dự án.
+  - Sơ đồ hành trình người dùng (User Journey Map) được lưu trữ tại [user_journey_map.md](../../02_user_requirements/user_journey_map.md).
+  - Danh sách User Stories cho 3 sprint tiếp theo được cập nhật đầy đủ trong [product_backlog.md](../product_backlog.md).
