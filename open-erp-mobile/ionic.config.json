@@ -1,7 +1,0 @@
-{
-  "name": "open-erp-mobile",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "angular-standalone"
-}
