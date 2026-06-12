@@ -63,5 +63,6 @@ Thiết kế sơ đồ trang (Sitemap) hiển thị trực quan cấu trúc củ
 
 ### 4. Tiêu chí hoàn thành (Definition of Done - DoD)
 * **Kết quả bàn giao:**
+  - Sơ đồ trang và Phác thảo giao diện chi tiết: [sitemap_and_wireframes.md](../../02_user_requirements/sitemap_and_wireframes.md).
   - Link Figma chứa bản vẽ Wireframes của 5 màn hình cốt lõi đã được phê duyệt.
-  - Bộ Design System định nghĩa đầy đủ Component Tokens (màu sắc, font chữ, button states, input states, border radius).
+  - Bộ Design System định nghĩa đầy đủ Component Tokens (màu sắc, font chữ, button states, input states, border radius) được cấu hình tại [task_04_repository_setup.md](./task_04_repository_setup.md).

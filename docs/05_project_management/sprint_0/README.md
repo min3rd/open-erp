@@ -18,7 +18,7 @@ Dưới đây là danh sách các Task nền tảng cần triển khai trong Spr
 | ID | Tên công việc (Task Name) | Mô tả tóm tắt | Trạng thái (Status) | Nhân sự chính | Tài liệu chi tiết |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **TSK-0.1** | Làm rõ phạm vi MVP & User Journeys | Phân tích bài toán, xác định chân dung người dùng (Personas) và vẽ các chuỗi hành trình nghiệp vụ chính của MVP. | [x] Hoàn thành | PO/BA | [task_01_discovery_scope.md](./task_01_discovery_scope.md) |
-| **TSK-0.2** | Sitemap & Wireframes giao diện | Xây dựng sơ đồ trang (Sitemap) tổng thể và phác thảo các màn hình khung dây (Wireframes) cốt lõi. | [ ] Todo | UI-UX | [task_02_ux_wireframes.md](./task_02_ux_wireframes.md) |
+| **TSK-0.2** | Sitemap & Wireframes giao diện | Xây dựng sơ đồ trang (Sitemap) tổng thể và phác thảo các màn hình khung dây (Wireframes) cốt lõi. | [x] Hoàn thành | UI-UX | [task_02_ux_wireframes.md](./task_02_ux_wireframes.md) |
 | **TSK-0.3** | Thiết kế Kiến trúc & Cơ sở dữ liệu | Thiết kế sơ đồ kiến trúc vật lý, mô hình dữ liệu (Database Schema) và thiết lập cơ chế Multi-tenant RLS. | [x] Hoàn thành | SA/BE Leads | [task_03_architecture_design.md](./task_03_architecture_design.md) |
 | **TSK-0.4** | Thiết lập 3 Repositories & Convention | Init cấu hình NestJS, Angular, Ionic và đồng bộ quy chuẩn viết code (ESLint, Prettier, Git-flow). | [x] Hoàn thành | BE/FE Leads | [task_04_repository_setup.md](./task_04_repository_setup.md) |
 | **TSK-0.5** | Thiết lập CI/CD & Infrastructure | Tạo hạ tầng Kubernetes Cluster, cấu hình Webhook tự động build và deploy lên môi trường Dev/Staging. | [ ] Todo | DevOps | [task_05_cicd_infrastructure.md](./task_05_cicd_infrastructure.md) |
