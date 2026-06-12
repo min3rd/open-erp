@@ -121,7 +121,8 @@ Tài liệu này chi tiết hóa các nhu cầu, quy trình nghiệp vụ, danh 
   - Quản lý số dư các tài khoản ngân hàng và két tiền mặt.
   - Quản lý công nợ khách hàng (phải thu) và công nợ nhà cung cấp (phải trả).
   - Quy trình tạm ứng, hoàn ứng và đề nghị thanh toán nội bộ liên kết phê duyệt.
-- **Báo cáo:** Sổ quỹ tiền mặt, Báo cáo lưu chuyển tiền tệ nội bộ, Báo cáo doanh thu - chi phí - lợi nhuận nội bộ.
+  - **Tương thích Hóa đơn điện tử & Thuế Việt Nam:** Hỗ trợ phát hành hóa đơn GTGT bán ra, quản lý hóa đơn đầu vào, kiểm tra XML/PDF hóa đơn và chốt kỳ kê khai thuế. Chi tiết xem tại tài liệu chuyên biệt: [vietnam_accounting_spec.md](../03_functional/vietnam_accounting_spec.md).
+- **Báo cáo:** Sổ quỹ tiền mặt, Báo cáo lưu chuyển tiền tệ nội bộ, Báo cáo doanh thu - chi phí - lợi nhuận nội bộ, Bảng kê thuế GTGT đầu vào/đầu ra.
 
 ---
 

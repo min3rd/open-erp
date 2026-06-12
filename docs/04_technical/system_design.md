@@ -109,3 +109,31 @@ Nhằm đảm bảo hệ thống có khả năng lưu vết lịch sử xử lý
 1. **Immutable Transactions (Giao dịch bất biến):** Các thực thể tài chính, công phép, lương thưởng không chỉ tham chiếu bằng khóa ngoại (Foreign Key) đơn thuần đến danh mục gốc. Tại thời điểm phát sinh giao dịch (e.g. chốt hóa đơn, duyệt nghỉ phép), toàn bộ trạng thái dữ liệu liên quan được chụp lại dưới dạng cấu trúc JSONB hoặc copy hoàn toàn sang một bảng snapshot chuyên biệt (ví dụ: `invoice_items` chứa bản sao tên sản phẩm, giá bán, thuế suất tại thời điểm xuất hóa đơn).
 2. **Versioned Tables (Bản ghi phân cấp phiên bản):** Đối với các thực thể thay đổi theo thời gian (như hợp đồng lao động, chính sách lương), hệ thống sử dụng thiết kế **SCD Type 2 (Slowly Changing Dimensions)** hoặc lưu trữ `version_number` kết hợp mốc hiệu lực `effective_start` và `effective_end`. Hệ thống có thể chạy tính toán ngược lại bất kỳ thời điểm nào trong quá khứ một cách chính xác mà không bị ảnh hưởng bởi dữ liệu cập nhật hiện tại.
 
+---
+
+### 5. Thiết kế Bộ Tích Hợp Hóa Đơn Điện Tử (E-Invoice Integration Adapter)
+
+Để tránh phụ thuộc trực tiếp vào API của một nhà cung cấp đơn lẻ và hỗ trợ tích hợp linh hoạt nhiều đối tác (MISA, VNPT, Viettel, BKAV...) trên cùng một hạ tầng SaaS, hệ thống triển khai kiến trúc **E-Invoice Integration Adapter**:
+
+```
+                 [ Finance Service (NestJS Core) ]
+                                 │
+                     (Dùng chung Interface)
+                                 │
+                                 ▼
+                     [ EInvoiceAdapterFactory ]
+                                 │
+            ┌────────────────────┼────────────────────┐
+            ▼                    ▼                    ▼
+   [ MisaInvoiceAdapter ] [ VnptInvoiceAdapter ] [ ViettelInvoiceAdapter ]
+            │                    │                    │
+            ▼ (REST/SOAP API)    ▼ (REST/SOAP API)    ▼ (REST/SOAP API)
+   [ MISA meInvoice API ] [ VNPT Invoice API ]   [ Viettel SInvoice API ]
+```
+
+* **EInvoiceAdapterFactory:** Đóng vai trò là Class khởi tạo adapter động. Khi hệ thống xử lý giao dịch cho một Tenant, Factory sẽ đọc bảng `einvoice_configurations` để lấy cấu hình của Tenant đó (API Endpoint, API Key, Token, Client Certificate) và khởi tạo Adapter tương ứng.
+* **Cơ chế Hàng đợi & Retry (Resilience Pattern):** Các yêu cầu gửi phát hành được chuyển đổi thành Job đẩy vào **Redis BullMQ**.
+  - Nếu gặp lỗi kết nối (Timeout, Gateway Error): Queue tự động retry tối đa 3 lần với cơ chế giãn cách số mũ (Exponential Backoff).
+  - Nếu gặp lỗi dữ liệu (ví dụ MST khách hàng không tồn tại): Job lập tức dừng lại, ghi nhận trạng thái lỗi vào `einvoice_integration_logs` và gửi WebSocket notification về cho Kế toán.
+
+

@@ -143,15 +143,37 @@
 
 #### 2.4 Nhóm Tài chính - Kế toán nội bộ
 
-##### Bảng `invoices` (Hóa đơn công nợ)
+##### Bảng `invoices` (Hóa đơn công nợ & Hóa đơn điện tử)
 * `id` UUID PK
 * `tenant_id` UUID FK
 * `contract_id` UUID FK -> contracts.id (Có thể null nếu bán lẻ)
-* `invoice_number` Varchar(100) UNIQUE
-* `total_amount` Decimal(18,2)
+* `invoice_number` Varchar(100) UNIQUE (Số hóa đơn chính thức cấp bởi TVAN/Cơ quan Thuế)
+* `invoice_serial` Varchar(50) (Ký hiệu hóa đơn, ví dụ: `1C26TAA`)
+* `invoice_pattern` Varchar(50) (Mẫu số hóa đơn)
+* `total_amount` Decimal(18,2) (Tổng cộng tiền thanh toán)
+* `tax_amount` Decimal(18,2) (Tổng tiền thuế GTGT)
 * `due_date` Date
 * `type` Varchar(50) (Receivable - Bán hàng, Payable - Mua hàng)
 * `status` Varchar(50) (Unpaid, Partially_Paid, Paid, Overdue)
+* `einvoice_status` Varchar(50) (Draft, Pending_Issue, Issued, Tax_Coded, Tax_Rejected, Adjusted, Replaced, Cancelled)
+* `gdt_code` Varchar(100) (Mã cơ quan thuế cấp về sau khi xác thực)
+* `xml_url` Varchar(500) (Đường dẫn file XML hóa đơn lưu trên S3)
+* `pdf_url` Varchar(500) (Đường dẫn file PDF hóa đơn lưu trên S3)
+* `file_checksum` Varchar(256) (Mã hash SHA-256 đối soát tệp tin XML/PDF)
+* `tax_period` Varchar(10) (Kỳ kê khai thuế, ví dụ: `2026-06` hoặc `2026-Q2`)
+* `vietnam_tax_metadata` JSONB (Trường lưu thông tin đặc thù thuế VN như MST người mua/bán, chiết khấu hóa đơn)
+
+##### Bảng `einvoice_configurations` (Cấu hình tích hợp HDDT của doanh nghiệp)
+* `id` UUID PK
+* `tenant_id` UUID FK -> tenants.id
+* `provider_name` Varchar(100) (MISA, VNPT, Viettel, BKAV, FPT...)
+* `api_url` Varchar(500) (Đường dẫn API đối tác truyền nhận)
+* `api_key` Varchar(255)
+* `api_secret` Varchar(255)
+* `username` Varchar(100)
+* `password_hash` Varchar(255)
+* `serial_number` Varchar(100) (Mã serial chứng thư số HSM/Token USB)
+* `status` Varchar(50) (Active, Inactive)
 
 ##### Bảng `payments` (Phiếu thu / Phiếu chi)
 * `id` UUID PK

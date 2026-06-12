@@ -105,18 +105,19 @@ Kế hoạch này dựa trên giả định đội ngũ phát triển gồm 8 nh
 
 ---
 
-#### Sprint 7 — Phân hệ Kế toán / Tài chính nội bộ cơ bản
-* **Mục tiêu:** Hoàn thiện việc quản lý quỹ tiền mặt/ngân hàng, ghi nhận phiếu thu/chi nội bộ và kiểm soát công nợ khách hàng cơ bản.
+#### Sprint 7 — Phân hệ Kế toán / Tài chính nội bộ & Hóa đơn điện tử Việt Nam
+* **Mục tiêu:** Hoàn thiện việc quản lý quỹ tiền mặt/ngân hàng, ghi nhận phiếu thu/chi nội bộ, tích hợp bộ E-Invoice Adapter phát hành hóa đơn GTGT bán ra và đối soát hóa đơn mua vào.
 * **Phân bổ công việc:**
-  - *UI/UX:* Thiết kế màn hình danh sách Sổ quỹ (Tiền mặt, Ngân hàng), biểu mẫu Lập phiếu thu/Phiếu chi, và bảng đối soát Công nợ.
-  - *Backend:* Xây dựng Database schema cho phân hệ tài chính. Thiết lập API quản lý Sổ quỹ, API Lập phiếu thu/chi. Tích hợp cơ chế tự động tạo Phiếu chi nháp từ Đề nghị thanh toán đã được duyệt.
-  - *Frontend:* Code màn hình Sổ quỹ tiền mặt và ngân hàng. Phát triển form lập phiếu thu/chi với các trường định dạng số tiền tệ tự động. Tích hợp API đối soát công nợ.
-  - *QA:* Kiểm thử tự động luồng tạo phiếu chi tự động từ Đề nghị thanh toán (integration testing), kiểm tra số dư quỹ không bị âm.
-  - *DevOps:* Cấu hình sao lưu định kỳ (incremental backup) cho dữ liệu tài chính (mỗi 2 tiếng).
+  - *UI/UX:* Thiết kế màn hình cấu hình Nhà cung cấp HDDT & Ký số, biểu mẫu Lập hóa đơn nháp, nút phát hành hóa đơn, khu vực kéo thả upload XML/PDF hóa đơn đầu vào, và bảng kê thuế GTGT.
+  - *Backend (NestJS):* Xây dựng Database schema cho phân hệ tài chính và hóa đơn Việt Nam (`invoices`, `einvoice_configurations`). Triển khai module `EInvoiceAdapterFactory` và adapter cho đối tác HDDT đầu tiên (ví dụ MISA meInvoice). Thiết lập XML Parser để đọc hóa đơn đầu vào, kiểm tra trùng hóa đơn dựa trên MST và Số hóa đơn. Xây dựng API xuất bảng kê mua vào/bán ra chuẩn HTKK.
+  - *Frontend Web (Angular):* Phát triển màn hình cấu hình tích hợp HDDT của Tenant. Code form tạo hóa đơn nháp từ Đơn bán hàng, giao diện upload XML/PDF hóa đơn đầu vào, và biểu đồ đối soát doanh thu - thuế đầu ra. Sử dụng Tailwind để hiển thị mật độ thông tin cao.
+  - *Frontend Mobile (Ionic):* Phát triển màn hình danh sách phiếu thu/chi và xem nhanh trạng thái hóa đơn điện tử dành cho CEO/Kế toán di động.
+  - *QA:* Kiểm thử tự động máy trạng thái hóa đơn (`Draft` -> `Pending_Issue` -> `Issued` -> `Tax_Coded`). Kiểm thử cơ chế retry queue của Redis BullMQ khi API HDDT lỗi.
+  - *DevOps:* Cấu hình AWS S3 bucket riêng tư cho Tenant phục vụ lưu trữ file XML/PDF hóa đơn gốc kèm mã hóa ở lớp lưu trữ (SSE-S3).
 * **Kết quả bàn giao:**
-  - Module Kế toán nội bộ hoạt động đầy đủ trên môi trường staging.
-* **Rủi ro:** Trễ hạn do công thức đối soát công nợ phức tạp.
-* **Phụ thuộc:** Hoàn thành module Quy trình phê duyệt (Sprint 2).
+  - Module Kế toán & Tích hợp hóa đơn điện tử MISA meInvoice hoạt động ổn định trên môi trường staging.
+* **Rủi ro:** API của nhà cung cấp HDDT thay đổi hoặc gặp lỗi kết nối sandbox làm gián đoạn kiểm thử tích hợp.
+* **Phụ thuộc:** Hoàn thành module Quy trình phê duyệt (Sprint 2) và hạ tầng 3 repository (Sprint 0).
 
 ---
 

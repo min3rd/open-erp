@@ -54,6 +54,22 @@ stateDiagram-v2
 * **Từ chối (Rejected):** Một trong các cấp duyệt không đồng ý.
 * **Yêu cầu bổ sung (Change Requested):** Người duyệt yêu cầu chỉnh sửa lại thông tin chứng từ.
 
+#### 2.4 Máy trạng thái Hóa đơn điện tử Việt Nam (E-Invoice States)
+```mermaid
+stateDiagram-v2
+    [*] --> Nhap : Lập từ đơn hàng
+    Nhap --> Cho_Phat_Hanh : Gửi duyệt ký số
+    Cho_Phat_Hanh --> Da_Phat_Hanh : Ký số & Gửi sang TVAN
+    Da_Phat_Hanh --> Da_Cap_Ma_TCT : TCT phê duyệt cấp mã
+    Da_Phat_Hanh --> Khong_Duoc_Cap_Ma : TCT báo lỗi dữ liệu
+    Da_Cap_Ma_TCT --> Da_Giu_Khach_Hang : Gửi email thông báo
+    Da_Cap_Ma_TCT --> Da_Dieu_Chinh : Phát sinh điều chỉnh
+    Da_Cap_Ma_TCT --> Da_Thay_The : Phát sinh thay thế
+    Da_Cap_Ma_TCT --> Da_Huy : Lập biên bản hủy
+    Khong_Duoc_Cap_Ma --> Nhap : Sửa thông tin phát hành lại
+    Da_Huy --> [*]
+```
+
 ---
 
 ### 3. Quy tắc kiểm tra dữ liệu (Validation Rules)
@@ -69,6 +85,18 @@ stateDiagram-v2
 * **Số chứng từ tự động (Auto-numbering):**
   - *Ví dụ:* Phiếu thu có mã `PT-{yyyy}{mm}-{seq}` (seq là số tự tăng từ `0001` và reset về `0001` vào ngày đầu tiên của tháng).
   - Trước khi ghi nhận bản ghi vào database, hệ thống sử dụng Redis distributed lock dựa trên key `tenant:seq:{format}` để đảm bảo không bị trùng lặp số chứng từ khi có nhiều giao dịch đồng thời.
+
+#### 3.3 Quy tắc xác thực Hóa đơn & Thuế Việt Nam
+* **Mã số thuế (MST):** Phải chứa chính xác 10 chữ số (đối với doanh nghiệp/trụ sở chính) hoặc 13 chữ số (đối với chi nhánh, đơn vị trực thuộc) phân tách bằng dấu gạch ngang (e.g. `0102030405-001`).
+* **Ký hiệu hóa đơn (Invoice Serial Pattern):** Phải tuân thủ cấu hình chuẩn Thông tư 78/2021/TT-BTC: `1C26TAA`
+  - Ký tự 1: Số `1` (Hóa đơn GTGT) hoặc `2` (Hóa đơn bán hàng).
+  - Ký tự 2: Chữ `C` (Hóa đơn có mã) hoặc `K` (Không có mã).
+  - Ký tự 3-4: Hai chữ số cuối của năm phát hành (Ví dụ `26` tương ứng năm 2026).
+  - Ký tự 5: Một chữ cái viết hoa thể hiện loại hóa đơn (`T`: Tự do, `D`: Đặc thù).
+  - Ký tự 6-7: Hai ký tự chữ cái viết hoa ngẫu nhiên của doanh nghiệp dùng để quản lý (e.g. `AA`).
+* **Thuế suất GTGT (VAT Rates):** Chỉ chấp nhận các giá trị: `0` (0%), `5` (5%), `8` (8% giảm thuế), `10` (10%), `-1` (Không chịu thuế GTGT), `-2` (Không kê khai, tính thuế GTGT).
+* **Kiểm tra tệp tin hóa đơn đầu vào:** Chỉ cho phép tải lên định dạng `.xml` (file dữ liệu gốc ký số) và `.pdf` (bản thể hiện). Dung lượng tối đa là 15MB/file.
+
 
 ---
 
