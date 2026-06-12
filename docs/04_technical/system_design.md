@@ -4,19 +4,20 @@
 ---
 
 ### 1. Kiến trúc vật lý tổng quan (Physical System Architecture)
-Hệ thống được thiết kế theo hướng Microservices-ready chạy trên nền tảng NestJS Microservices (`open-erp-services`), Web Client sử dụng Angular + Tailwind CSS (`open-erp-web`), và Mobile Client sử dụng Ionic App (`open-erp-mobile`). Hệ thống triển khai trên nền tảng Containerization (Kubernetes) nhằm đảm bảo khả năng co giãn và chịu lỗi cao.
+Hệ thống được thiết kế theo hướng Microservices-ready chạy trên nền tảng NestJS Microservices (`open-erp-services`), Web Client sử dụng Angular + Tailwind CSS (`open-erp-web`), và Mobile Client sử dụng Ionic App (`open-erp-mobile`). Cả hai client cùng tích hợp thư viện UI dùng chung **`open-erp-ui`** (Shared UI Library) để đảm bảo đồng bộ hóa trải nghiệm người dùng và tái sử dụng mã nguồn. Hệ thống triển khai trên nền tảng Containerization (Kubernetes) nhằm đảm bảo khả năng co giãn và chịu lỗi cao.
 
 ```
        [ Web: Angular Client ]     [ Mobile: Ionic Client ]
                  │                            │
-                 ▼                            ▼
-             (HTTPS)                       (HTTPS)
-                      │               │
-                      ▼               ▼
-                   [ Cloudflare CDN / WAF ]
-                              │
-                              ▼
-                 [ Nginx Ingress Controller ]
+                 └─────────────┬──────────────┘
+                               ▼
+                   [ Shared UI: open-erp-ui ]
+                               │
+                               ▼
+                    [ Cloudflare CDN / WAF ]
+                               │
+                               ▼
+                  [ Nginx Ingress Controller ]
                               │
                               ▼
                      [ API Gateway (Kong) ]
@@ -86,6 +87,11 @@ Hệ thống sử dụng một công cụ thực thi máy trạng thái định 
   - **Server-Sent Events (SSE):** Sử dụng làm kênh truyền tải thông báo một chiều (unidirectional stream) từ máy chủ đến trình duyệt đối với các tác vụ có tải nhẹ, giúp tối ưu hóa kết nối di động mà không cần duy trì kết nối WebSocket hai chiều đầy tải.
   - **gRPC Streaming:** Sử dụng cho giao tiếp thời gian thực, đồng bộ dữ liệu nội bộ giữa các microservice (Auth, Work, Finance Svc) nhằm tối thiểu hóa độ trễ (latency < 10ms).
 * Đối với email/SMS, tin nhắn sẽ được đẩy vào hàng đợi Redis Queue (BullMQ) để xử lý bất đồng bộ, tránh nghẽn luồng xử lý API chính.
+
+#### 3.4 Kiến trúc Client UI & Đa ngôn ngữ (i18n & Theme Architecture)
+* **Đa ngôn ngữ với Transloco:** Client Web (`open-erp-web`) và Mobile (`open-erp-mobile`) sử dụng thư viện **Transloco** (`@ngneat/transloco`) làm công cụ chính để tải động và dịch nhãn (labels) trên giao diện. Các tệp dịch JSON được phân cấp và lưu tại assets: tiếng Việt (`vi`), tiếng Anh (`en`), tiếng Trung (`zh`), tiếng Nhật (`ja`).
+* **Hỗ trợ Đa chế độ hiển thị (Light & Dark Mode):** Sử dụng Tailwind CSS với cấu hình `class` kết hợp với CSS Variables. Giao diện có thể chuyển đổi tức thì từ Light Mode (nền sáng ngọc trai `#F8FAFC`) sang Dark Mode (nền Slate sẫm `#0F172A`) bằng cách thêm/bớt class `dark` ở thẻ `<html>`.
+* **Theme chủ đạo Rose Gold:** Áp dụng bảng màu Rose Gold (`#B76E79`) cho tất cả các UI components chính trong thư viện dùng chung `open-erp-ui`.
 
 ---
 
