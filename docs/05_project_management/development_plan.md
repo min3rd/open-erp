@@ -8,27 +8,30 @@ Kế hoạch này dựa trên giả định đội ngũ phát triển gồm 8 nh
 * **Product Owner (PO):** 1 nhân sự - Định hướng tính năng, quản lý backlog.
 * **Business Analyst (BA):** 1 nhân sự - Chi tiết hóa đặc tả, viết User Stories và nghiệm thu chức năng.
 * **UI/UX Designer:** 1 nhân sự - Thiết kế wireframe, UI component, prototype.
-* **Backend Developer (BE):** 2 nhân sự - Xây dựng cơ sở dữ liệu, API, Auth, Workflow Engine.
-* **Frontend Developer (FE):** 2 nhân sự - Phát triển giao diện Web (Next.js), tích hợp API.
-* **QA/Tester:** 1 nhân sự - Viết testcase, kiểm thử tự động (API/E2E), kiểm thử thủ công.
-* **DevOps / Cloud Engineer:** 1 nhân sự - Quản lý hạ tầng cloud, CI/CD pipeline, monitoring, bảo mật.
+* **Backend Developer (BE):** 2 nhân sự - Xây dựng cơ sở dữ liệu, API, NestJS Microservices trong repository `open-erp-services`.
+* **Frontend Web Developer (FE Web):** 1 nhân sự - Phát triển ứng dụng Web bằng Angular & Tailwind CSS trong repository `open-erp-web`.
+* **Frontend Mobile Developer (FE Mobile):** 1 nhân sự - Phát triển ứng dụng Mobile bằng Ionic trong repository `open-erp-mobile`.
+* **QA/Tester:** 1 nhân sự - Viết testcase, kiểm thử tự động (API/E2E), kiểm thử thủ công trên cả Web và Mobile.
+* **DevOps / Cloud Engineer:** 1 nhân sự - Quản lý hạ tầng cloud, CI/CD pipeline cho 3 repository độc lập, monitoring, bảo mật.
 
 ---
 
 ### 2. Chi tiết kế hoạch các Sprint
 
 #### Sprint 0 — Khởi động dự án, thiết kế kiến trúc và chuẩn bị hạ tầng
-* **Mục tiêu:** Thống nhất phạm vi MVP, thiết kế sơ đồ dữ liệu cấp cao, chuẩn bị hạ tầng CI/CD và setup source code.
-* **Nghi nghiệp chính:**
+* **Mục tiêu:** Thống nhất phạm vi MVP, thiết kế sơ đồ dữ liệu cấp cao, chuẩn bị hạ tầng CI/CD và setup cấu trúc mã nguồn cho 3 dự án `open-erp-services`, `open-erp-web`, `open-erp-mobile`.
+* **Nghiệp vụ chính:**
   - *PO/BA:* Thống nhất SRS & danh sách tính năng MVP, viết User Stories cho Sprint 1, 2.
-  - *UI/UX:* Thiết kế Design System ban đầu (Bảng màu, Font chữ, Button, Form, Layout cơ bản).
-  - *Backend:* Thiết kế Database Schema tổng thể. Khởi tạo repo NestJS/Go. Setup Auth service boilerplate.
-  - *Frontend:* Khởi tạo repo Next.js với TypeScript & Tailwind CSS. Setup folder structure.
-  - *DevOps:* Cấu hình AWS/Google Cloud VPC, Kubernetes Cluster ban đầu. Cấu hình Jenkins/GitHub Actions cho CI/CD. Setup môi trường Development và Staging.
+  - *UI/UX:* Thiết kế Design System ban đầu (Bảng màu, Font chữ, Button, Form, Layout cơ bản tương thích cả Web và Mobile).
+  - *Backend (NestJS):* Thiết kế Database Schema tổng thể. Cấu hình kiến trúc NestJS Microservices trong repo `open-erp-services` (sử dụng Yarn Workspaces/Lerna hoặc NestJS Monorepo structure). Setup Auth service boilerplate.
+  - *Frontend Web (Angular):* Cấu hình Angular và tích hợp Tailwind CSS trong repo `open-erp-web`. Thiết lập cấu hình Routing và Core Module.
+  - *Frontend Mobile (Ionic):* Cấu hình dự án Ionic (sử dụng Angular làm framework nền tảng) trong repo `open-erp-mobile`.
+  - *DevOps:* Cấu hình AWS/Google Cloud VPC, Kubernetes Cluster ban đầu. Thiết lập 3 pipeline CI/CD độc lập trên GitHub Actions tương ứng với 3 repository để tự động build và deploy.
 * **Kết quả bàn giao (Deliverables):**
   - Tài liệu Kiến trúc hệ thống & Database Schema được duyệt.
-  - Repository trống đã cấu hình CI/CD tự động deploy lên staging khi merge code.
-* **Rủi ro:** Thiết lập môi trường CI/CD chậm tiến độ do lỗi cấu hình hạ tầng.
+  - Cấu trúc 3 repository được khởi tạo thành công và kết nối pipeline CI/CD lên môi trường Development/Staging.
+* **Rủi ro:** Thiết lập môi trường CI/CD chậm tiến độ do quản lý cùng lúc 3 pipeline độc lập.
+* **Phụ thuộc:** Không.
 
 ---
 

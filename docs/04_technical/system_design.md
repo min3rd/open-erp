@@ -4,39 +4,45 @@
 ---
 
 ### 1. Kiến trúc vật lý tổng quan (Physical System Architecture)
-Hệ thống được thiết kế theo hướng Microservices-ready, triển khai trên nền tảng Containerization (Kubernetes) nhằm đảm bảo khả năng co giãn và chịu lỗi cao.
+Hệ thống được thiết kế theo hướng Microservices-ready chạy trên nền tảng NestJS Microservices (`open-erp-services`), Web Client sử dụng Angular + Tailwind CSS (`open-erp-web`), và Mobile Client sử dụng Ionic App (`open-erp-mobile`). Hệ thống triển khai trên nền tảng Containerization (Kubernetes) nhằm đảm bảo khả năng co giãn và chịu lỗi cao.
 
 ```
-       [ Người dùng: Web / Mobile Clients ]
-                      │ (HTTPS)
-                      ▼
-             [ Cloudflare CDN / WAF ]
-                      │
-                      ▼
-         [ Nginx Ingress Controller ]
-                      │
-                      ▼
-             [ API Gateway (Kong) ]
-                      │
-         ┌────────────┼────────────┐ (gRPC/HTTP-REST Internal)
-         ▼            ▼            ▼
-   [ Auth Svc ]  [ Work Svc ]  [ Finance Svc ] ... (Các Microservices)
-         │            │            │
-         └────────────┼────────────┘
-                      ▼
-             [ Redis Cluster Cache ] (Sessions, Rate Limit, Event Queues)
-                      │
-                      ▼
-       [ PostgreSQL Cluster Database ] (Multi-tenant with RLS)
-                      │
-                      ▼
-        [ AWS S3 Object Storage ] (Tệp đính kèm phân tách thư mục)
+       [ Web: Angular Client ]     [ Mobile: Ionic Client ]
+                 │                            │
+                 ▼                            ▼
+             (HTTPS)                       (HTTPS)
+                      │               │
+                      ▼               ▼
+                   [ Cloudflare CDN / WAF ]
+                              │
+                              ▼
+                 [ Nginx Ingress Controller ]
+                              │
+                              ▼
+                     [ API Gateway (Kong) ]
+                              │
+         ┌────────────────────┼────────────────────┐ (gRPC/TCP Transporter)
+         ▼                    ▼                    ▼
+   [ Auth Svc ]         [ Work Svc ]         [ Finance Svc ] ... (NestJS Microservices)
+   (NestJS)             (NestJS)             (NestJS)
+         │                    │                    │
+         └────────────────────┼────────────────────┘
+                              ▼
+             [ Redis Cluster Cache ] (Sessions, Rate Limit, Event Queues, WS Adapter)
+                              │
+                              ▼
+               [ PostgreSQL Cluster Database ] (Multi-tenant with RLS)
+                              │
+                              ▼
+                 [ AWS S3 Object Storage ] (Tệp đính kèm phân tách thư mục)
 ```
 
 #### Các thành phần chính trong kiến trúc:
 * **API Gateway:** Đóng vai trò là điểm truy cập duy nhất, xử lý định tuyến (routing), xác thực JWT, ghi nhận log request ban đầu và giới hạn tần suất (Rate Limiting).
-* **Ứng dụng lõi (Backend Services):** Các module nghiệp vụ được phát triển độc lập. Giai đoạn 1 đóng gói dưới dạng Modular Monolith chạy trong Docker Container, sẵn sàng tách thành các microservice riêng khi lưu lượng truy cập lớn.
+* **Ứng dụng lõi (NestJS Backend Microservices):** Các microservice nghiệp vụ được phát triển bằng NestJS trong repository `open-erp-services`. Các dịch vụ giao tiếp nội bộ qua gRPC hoặc NestJS TCP Transporter để đạt hiệu năng cao và độ trễ thấp.
 * **Cơ sở dữ liệu (Primary Database):** Sử dụng hệ quản trị cơ sở dữ liệu PostgreSQL. Cấu hình Cluster dạng Master-Slave với cơ chế Read-Write Splitting (Ghi dữ liệu vào Master, Đọc dữ liệu từ Slave) để tối ưu hiệu năng.
+* **Web Frontend (Angular + Tailwind CSS):** Ứng dụng Web quản trị tối giản, mật độ cao hiển thị trong repo `open-erp-web`.
+* **Mobile Frontend (Ionic + Angular):** Ứng dụng di động đa nền tảng (iOS/Android) trong repo `open-erp-mobile` dùng chung logic Angular và CSS Tailwind.
 
 ---
 
