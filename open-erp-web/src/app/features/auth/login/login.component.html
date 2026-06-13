@@ -1,0 +1,108 @@
+<div
+  class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-light-bg dark:bg-dark-bg text-slate-900 dark:text-slate-100 transition-colors duration-200"
+>
+  <!-- Top header / Settings bar -->
+  <div class="absolute top-4 right-4 flex items-center space-x-4">
+    <!-- Language select -->
+    <div class="relative">
+      <select
+        [value]="currentLang()"
+        (change)="changeLanguage($event)"
+        class="appearance-none bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-lg px-3 py-1.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-rose-gold-500 backdrop-blur transition-all select-none cursor-pointer"
+      >
+        <option value="vi">Tiếng Việt</option>
+        <option value="en">English</option>
+        <option value="zh">中文</option>
+        <option value="ja">日本語</option>
+      </select>
+      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+        <oerp-icon name="chevron-down" [size]="14"></oerp-icon>
+      </div>
+    </div>
+
+    <!-- Theme toggle -->
+    <button
+      (click)="toggleDarkMode()"
+      class="p-2 rounded-lg bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all cursor-pointer"
+    >
+      @if (isDarkMode()) {
+        <oerp-icon name="sun" [size]="18"></oerp-icon>
+      } @else {
+        <oerp-icon name="moon" [size]="18"></oerp-icon>
+      }
+    </button>
+  </div>
+
+  <!-- Header logo & title -->
+  <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
+    <div
+      class="mx-auto h-12 w-12 rounded-2xl bg-rose-gold-500 flex items-center justify-center text-white shadow-lg shadow-rose-gold-500/20 mb-4"
+    >
+      <oerp-icon name="briefcase" [size]="24"></oerp-icon>
+    </div>
+    <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+      {{ 'auth.login_title' | transloco }}
+    </h2>
+    <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+      {{ 'auth.login_subtitle' | transloco }}
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div
+      class="bg-white/95 dark:bg-slate-900/95 py-8 px-4 border border-slate-100 dark:border-slate-800/80 shadow-2xl rounded-3xl sm:px-10 backdrop-blur transition-all"
+    >
+      <!-- Message alerts -->
+      @if (successMessage()) {
+        <oerp-alert type="success" title="Success" [message]="successMessage()" class="mb-6"></oerp-alert>
+      }
+
+      @if (errorMessage()) {
+        <oerp-alert type="error" title="Error" [message]="errorMessage()" class="mb-6"></oerp-alert>
+      }
+
+      <!-- Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <oerp-input
+          [label]="'auth.email' | transloco"
+          [placeholder]="'auth.email' | transloco"
+          [control]="getControl('email')"
+          [errorMessage]="getErrorMessage('email')"
+          prefixIcon="mail"
+        ></oerp-input>
+
+        <oerp-input
+          [label]="'auth.password' | transloco"
+          [placeholder]="'auth.password' | transloco"
+          type="password"
+          [control]="getControl('password')"
+          [errorMessage]="getErrorMessage('password')"
+          prefixIcon="lock"
+        ></oerp-input>
+
+        <div class="pt-2">
+          <oerp-button
+            type="submit"
+            [label]="isLoading() ? ('auth.processing' | transloco) : ('auth.login_now' | transloco)"
+            [isLoading]="isLoading()"
+            [disabled]="loginForm.invalid"
+            class="w-full"
+          ></oerp-button>
+        </div>
+      </form>
+
+      <div class="mt-6 text-center text-sm">
+        <span class="text-slate-500 dark:text-slate-400">
+          {{ 'auth.dont_have_account' | transloco }}
+        </span>
+        <a
+          (click)="goToRegister()"
+          href="javascript:void(0)"
+          class="font-semibold text-rose-gold-500 hover:text-rose-gold-600 ml-1 transition"
+        >
+          {{ 'auth.register_now' | transloco }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

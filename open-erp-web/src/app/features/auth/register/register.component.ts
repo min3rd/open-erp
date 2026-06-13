@@ -7,6 +7,7 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { Router } from '@angular/router';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
@@ -29,6 +30,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class RegisterComponent implements OnInit {
   private fb = inject(FormBuilder);
+  private router = inject(Router);
   private translocoService = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
   private authService = inject(AuthService);
@@ -222,5 +224,9 @@ export class RegisterComponent implements OnInit {
         this.errorMessage.set(this.translocoService.translate(msgKey));
       }
     });
+  }
+
+  goToLogin() {
+    this.router.navigate(['/login']);
   }
 }

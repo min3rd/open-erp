@@ -103,3 +103,14 @@ Tham chiếu đầy đủ trong [api_overview.md](../../03_functional/api_overvi
   - Giao diện đăng nhập Web & Mobile hoạt động tốt, đồng bộ màu Rose Gold và hỗ trợ Light/Dark mode.
   - Đa ngôn ngữ Transloco hoạt động tốt khi chuyển đổi ngôn ngữ.
   - Toàn bộ source code được review, approve và merge vào nhánh `develop`.
+
+---
+
+### 6. Kết quả thực hiện (Implementation Status)
+- **Trạng thái**: [x] Đã hoàn thành (Completed - Staged, pending user commit)
+- **Kết quả**:
+  - Triển khai [TenantMiddleware](../../../open-erp-services/src/core/tenant/tenant.middleware.ts) trích xuất subdomain và gán vào [tenantContextStorage](../../../open-erp-services/src/core/tenant/tenant.context.ts).
+  - Tích hợp Redis và triển khai [RedisService](../../../open-erp-services/src/core/redis/redis.service.ts) để lưu trữ phiên làm việc của Refresh Token.
+  - Xây dựng thành công các API endpoints trong [AuthController](../../../open-erp-services/src/features/auth/auth.controller.ts) và xử lý logic tương ứng trong [AuthService](../../../open-erp-services/src/features/auth/auth.service.ts).
+  - Triển khai giao diện đăng nhập [LoginComponent](../../../open-erp-web/src/app/features/auth/login/login.component.ts) & [login.component.html](../../../open-erp-web/src/app/features/auth/login/login.component.html) tuân thủ theme Rose Gold và chế độ Light/Dark Mode.
+  - Xây dựng functional [authInterceptor](../../../open-erp-web/src/app/core/interceptors/auth.interceptor.ts) hỗ trợ đính kèm JWT và tự động Silent Refresh ngầm.
