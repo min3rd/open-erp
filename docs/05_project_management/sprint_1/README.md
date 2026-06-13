@@ -21,8 +21,8 @@ Dưới đây là danh sách các Task cần triển khai trong Sprint 1:
 | **TSK-1.3** | Sơ đồ Tổ chức & Phòng ban | Thiết lập sơ đồ chi nhánh và cấu hình phòng ban dạng cây phân cấp trực quan, quản lý trưởng bộ phận và chi tiết phòng ban. | [ ] Todo | BE/FE Leads, UI-UX | [task_03_org_structure.md](./task_03_org_structure.md) |
 | **TSK-1.4** | Mời nhân viên qua Email | Admin mời nhân viên mới tham gia vào phòng ban cụ thể bằng cách nhập email. Hệ thống gửi link kích hoạt tài khoản bất đồng bộ thông qua BullMQ & SES. | [ ] Todo | BE/FE Leads, DevOps | [task_04_user_management.md](./task_04_user_management.md) |
 | **TSK-1.5** | Phân quyền RBAC & Menu động | Định nghĩa các nhóm quyền (Admin, Manager, Employee), phân quyền thao tác trên từng module và render menu điều hướng động theo vai trò. | [ ] Todo | BE/FE Leads, UI-UX | [task_05_basic_permissions.md](./task_05_basic_permissions.md) |
-| **BUG-1.1** | Lỗi kích hoạt cảnh báo validate quá sớm | Dù người dùng chưa thao tác ở ô input nhưng đã hiển thị cảnh báo validate ngay khi click vào một vị trí bất kỳ. | [ ] Todo | FE Leads | [bug_01_validation_trigger.md](./bug_01_validation_trigger.md) |
-| **BUG-1.2** | Thiếu hiển thị mức độ an toàn mật khẩu | Thiếu hiển thị mức độ an toàn (Password Strength Meter) khi người dùng nhập mật khẩu đăng ký. | [ ] Todo | FE Leads, UI-UX | [bug_02_password_strength.md](./bug_02_password_strength.md) |
+| **BUG-1.1** | Lỗi kích hoạt cảnh báo validate quá sớm | Dù người dùng chưa thao tác ở ô input nhưng đã hiển thị cảnh báo validate ngay khi click vào một vị trí bất kỳ. | [x] Completed | FE Leads | [bug_01_validation_trigger.md](./bug_01_validation_trigger.md) |
+| **BUG-1.2** | Thiếu hiển thị mức độ an toàn mật khẩu | Thiếu hiển thị mức độ an toàn (Password Strength Meter) khi người dùng nhập mật khẩu đăng ký. | [x] Completed | FE Leads, UI-UX | [bug_02_password_strength.md](./bug_02_password_strength.md) |
 
 
 ---

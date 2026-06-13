@@ -15,7 +15,11 @@
     "login_now": "ログインはこちら",
     "register_success": "企業登録が成功しました！メールを確認してアカウントを有効化してください。",
     "subdomain_already_exists": "このサブドメインはすでに使用されています。",
-    "email_already_exists": "この管理者メールアドレスはすでに登録されています。"
+    "email_already_exists": "この管理者メールアドレスはすでに登録されています。",
+    "password_strength": "パスワードの強度",
+    "password_weak": "弱い",
+    "password_medium": "普通",
+    "password_strong": "強い"
   },
   "validation": {
     "company_name_required": "会社名は必須項目です。",

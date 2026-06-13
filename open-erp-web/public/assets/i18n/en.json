@@ -15,7 +15,11 @@
     "login_now": "Log in",
     "register_success": "Registration successful! Please check your email to activate your account.",
     "subdomain_already_exists": "This subdomain is already taken.",
-    "email_already_exists": "This admin email is already registered."
+    "email_already_exists": "This admin email is already registered.",
+    "password_strength": "Password strength",
+    "password_weak": "Weak",
+    "password_medium": "Medium",
+    "password_strong": "Strong"
   },
   "validation": {
     "company_name_required": "Company name is required.",

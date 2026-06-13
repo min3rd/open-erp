@@ -15,7 +15,11 @@
     "login_now": "Đăng nhập ngay",
     "register_success": "Đăng ký doanh nghiệp thành công! Vui lòng kiểm tra email để kích hoạt tài khoản.",
     "subdomain_already_exists": "Tên miền phụ (subdomain) này đã tồn tại trên hệ thống.",
-    "email_already_exists": "Email quản trị này đã được đăng ký."
+    "email_already_exists": "Email quản trị này đã được đăng ký.",
+    "password_strength": "Độ mạnh mật khẩu",
+    "password_weak": "Yếu",
+    "password_medium": "Trung bình",
+    "password_strong": "Mạnh"
   },
   "validation": {
     "company_name_required": "Tên công ty không được để trống.",

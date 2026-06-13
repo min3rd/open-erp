@@ -1,6 +1,12 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormControl,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -17,16 +23,18 @@ import { InputComponent, ButtonComponent, IconComponent } from '@open-erp/shared
     TranslocoModule,
     InputComponent,
     ButtonComponent,
-    IconComponent
+    IconComponent,
   ],
   template: `
-    <div *transloco="let t" class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-light-bg dark:bg-dark-bg text-slate-900 dark:text-slate-100 transition-colors duration-200">
-      
+    <div
+      *transloco="let t"
+      class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-light-bg dark:bg-dark-bg text-slate-900 dark:text-slate-100 transition-colors duration-200"
+    >
       <!-- Top header / Settings bar -->
       <div class="absolute top-4 right-4 flex items-center gap-4">
         <!-- Language Selector -->
-        <select 
-          [value]="currentLang()" 
+        <select
+          [value]="currentLang()"
           (change)="changeLanguage($event)"
           class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-semibold focus:ring-rose-gold-500 outline-none"
         >
@@ -51,7 +59,9 @@ import { InputComponent, ButtonComponent, IconComponent } from '@open-erp/shared
       </div>
 
       <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-rose-gold-100 text-rose-gold-500 mb-4 shadow-sm">
+        <div
+          class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-rose-gold-100 text-rose-gold-500 mb-4 shadow-sm"
+        >
           <oerp-icon name="briefcase" [size]="24"></oerp-icon>
         </div>
         <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
@@ -63,27 +73,39 @@ import { InputComponent, ButtonComponent, IconComponent } from '@open-erp/shared
       </div>
 
       <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div class="bg-white dark:bg-slate-900 py-8 px-4 shadow-xl rounded-2xl border border-slate-100 dark:border-slate-800 sm:px-10">
-          
+        <div
+          class="bg-white dark:bg-slate-900 py-8 px-4 shadow-xl rounded-2xl border border-slate-100 dark:border-slate-800 sm:px-10"
+        >
           <!-- Success Status -->
           @if (successMessage()) {
-            <div class="p-4 mb-6 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-sm font-medium animate-fade-in flex items-start gap-3">
-              <oerp-icon name="check-circle" [size]="20" class="text-emerald-500 mt-0.5 shrink-0"></oerp-icon>
+            <div
+              class="p-4 mb-6 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-sm font-medium animate-fade-in flex items-start gap-3"
+            >
+              <oerp-icon
+                name="check-circle"
+                [size]="20"
+                class="text-emerald-500 mt-0.5 shrink-0"
+              ></oerp-icon>
               <div>{{ successMessage() }}</div>
             </div>
           }
 
           <!-- Global Error Status -->
           @if (errorMessage()) {
-            <div class="p-4 mb-6 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-300 text-sm font-medium animate-fade-in flex items-start gap-3">
-              <oerp-icon name="alert-circle" [size]="20" class="text-red-500 mt-0.5 shrink-0"></oerp-icon>
+            <div
+              class="p-4 mb-6 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-300 text-sm font-medium animate-fade-in flex items-start gap-3"
+            >
+              <oerp-icon
+                name="alert-circle"
+                [size]="20"
+                class="text-red-500 mt-0.5 shrink-0"
+              ></oerp-icon>
               <div>{{ errorMessage() }}</div>
             </div>
           }
 
           <!-- Form -->
           <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
-            
             <oerp-input
               [label]="t('auth.company_name')"
               [placeholder]="t('auth.company_name')"
@@ -107,6 +129,71 @@ import { InputComponent, ButtonComponent, IconComponent } from '@open-erp/shared
               [errorMessage]="getErrorMessage('password')"
               prefixIcon="lock"
             ></oerp-input>
+
+            @if (passwordValue()) {
+              <div class="mt-2 space-y-1.5 animate-fade-in">
+                <!-- Strength Bars -->
+                <div class="flex gap-1 h-1">
+                  <div
+                    [ngClass]="[
+                      'flex-1 rounded-full transition-all duration-300',
+                      passwordStrength() === 'weak'
+                        ? 'bg-red-500'
+                        : passwordStrength() === 'medium'
+                          ? 'bg-amber-500'
+                          : passwordStrength() === 'strong'
+                            ? 'bg-emerald-500'
+                            : 'bg-slate-200 dark:bg-slate-700',
+                    ]"
+                  ></div>
+                  <div
+                    [ngClass]="[
+                      'flex-1 rounded-full transition-all duration-300',
+                      passwordStrength() === 'medium'
+                        ? 'bg-amber-500'
+                        : passwordStrength() === 'strong'
+                          ? 'bg-emerald-500'
+                          : 'bg-slate-200 dark:bg-slate-700',
+                    ]"
+                  ></div>
+                  <div
+                    [ngClass]="[
+                      'flex-1 rounded-full transition-all duration-300',
+                      passwordStrength() === 'strong'
+                        ? 'bg-emerald-500'
+                        : 'bg-slate-200 dark:bg-slate-700',
+                    ]"
+                  ></div>
+                </div>
+                <!-- Strength Text Label -->
+                <div class="flex justify-between items-center text-xs font-semibold select-none">
+                  <span class="text-slate-500 dark:text-slate-400"
+                    >{{ t('auth.password_strength') }}:</span
+                  >
+                  <span
+                    [ngClass]="[
+                      passwordStrength() === 'weak'
+                        ? 'text-red-500'
+                        : passwordStrength() === 'medium'
+                          ? 'text-amber-500'
+                          : passwordStrength() === 'strong'
+                            ? 'text-emerald-500'
+                            : '',
+                    ]"
+                  >
+                    {{
+                      passwordStrength() === 'weak'
+                        ? t('auth.password_weak')
+                        : passwordStrength() === 'medium'
+                          ? t('auth.password_medium')
+                          : passwordStrength() === 'strong'
+                            ? t('auth.password_strong')
+                            : ''
+                    }}
+                  </span>
+                </div>
+              </div>
+            }
 
             <div>
               <oerp-input
@@ -152,7 +239,9 @@ import { InputComponent, ButtonComponent, IconComponent } from '@open-erp/shared
                 type="submit"
                 [label]="isLoading() ? t('auth.processing') : t('auth.submit')"
                 [isLoading]="isLoading()"
-                [disabled]="registerForm.invalid || checkingSubdomain() || subdomainAvailable() === false"
+                [disabled]="
+                  registerForm.invalid || checkingSubdomain() || subdomainAvailable() === false
+                "
                 class="w-full flex justify-center"
               ></oerp-button>
             </div>
@@ -162,15 +251,17 @@ import { InputComponent, ButtonComponent, IconComponent } from '@open-erp/shared
             <span class="text-slate-500 dark:text-slate-400">
               {{ t('auth.already_have_account') }}
             </span>
-            <a href="javascript:void(0)" class="font-semibold text-rose-gold-500 hover:text-rose-gold-600 ml-1 transition">
+            <a
+              href="javascript:void(0)"
+              class="font-semibold text-rose-gold-500 hover:text-rose-gold-600 ml-1 transition"
+            >
               {{ t('auth.login_now') }}
             </a>
           </div>
-
         </div>
       </div>
     </div>
-  `
+  `,
 })
 export class RegisterComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -181,6 +272,31 @@ export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
   isDarkMode = signal<boolean>(false);
   currentLang = signal<string>('vi');
+  passwordValue = signal<string>('');
+
+  // Password strength computation signal
+  passwordStrength = computed(() => {
+    const password = this.passwordValue();
+    if (!password) return null;
+
+    let score = 0;
+
+    // Check length
+    if (password.length >= 8) score++;
+
+    // Check numbers and letters
+    const hasLetters = /[a-zA-Z]/.test(password);
+    const hasNumbers = /[0-9]/.test(password);
+    if (hasLetters && hasNumbers) score++;
+
+    // Check special chars
+    const hasSpecial = /[^a-zA-Z0-9]/.test(password);
+    if (hasSpecial) score++;
+
+    if (score <= 1) return 'weak';
+    if (score === 2) return 'medium';
+    return 'strong';
+  });
 
   // Request state signals
   isLoading = signal<boolean>(false);
@@ -195,8 +311,16 @@ export class RegisterComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       subdomain: ['', [Validators.required, Validators.pattern(/^[a-z0-9]+$/)]],
-      phone: ['']
+      phone: [''],
     });
+
+    // Sync password input value with passwordValue signal in a memory-safe manner
+    this.registerForm
+      .get('password')
+      ?.valueChanges.pipe(takeUntilDestroyed())
+      .subscribe((val) => {
+        this.passwordValue.set(val || '');
+      });
 
     // Load theme setting from localStorage
     const savedTheme = localStorage.getItem('theme');
@@ -225,43 +349,48 @@ export class RegisterComponent implements OnInit {
     // Watch subdomain changes with debounce to check availability
     const subdomainControl = this.registerForm.get('subdomain');
     if (subdomainControl) {
-      subdomainControl.valueChanges.pipe(
-        debounceTime(500),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef),
-        switchMap(val => {
-          const value = (val || '').trim().toLowerCase();
-          
-          if (!value || subdomainControl.invalid) {
-            this.subdomainAvailable.set(null);
-            this.checkingSubdomain.set(false);
-            return of(null);
-          }
+      subdomainControl.valueChanges
+        .pipe(
+          debounceTime(500),
+          distinctUntilChanged(),
+          takeUntilDestroyed(this.destroyRef),
+          switchMap((val) => {
+            const value = (val || '').trim().toLowerCase();
 
-          this.checkingSubdomain.set(true);
-          this.subdomainAvailable.set(null);
-          this.errorMessage.set('');
-
-          return this.http.get<{ success: boolean; data: { available: boolean } }>(
-            `http://localhost:3000/api/v1/auth/check-subdomain?subdomain=${value}`
-          ).pipe(
-            catchError(() => {
+            if (!value || subdomainControl.invalid) {
+              this.subdomainAvailable.set(null);
               this.checkingSubdomain.set(false);
-              return of({ success: false, data: { available: false } });
-            })
-          );
-        })
-      ).subscribe(res => {
-        this.checkingSubdomain.set(false);
-        if (res && res.success) {
-          this.subdomainAvailable.set(res.data.available);
-          if (!res.data.available) {
-            subdomainControl.setErrors({ unavailable: true });
+              return of(null);
+            }
+
+            this.checkingSubdomain.set(true);
+            this.subdomainAvailable.set(null);
+            this.errorMessage.set('');
+
+            return this.http
+              .get<{
+                success: boolean;
+                data: { available: boolean };
+              }>(`http://localhost:3000/api/v1/auth/check-subdomain?subdomain=${value}`)
+              .pipe(
+                catchError(() => {
+                  this.checkingSubdomain.set(false);
+                  return of({ success: false, data: { available: false } });
+                }),
+              );
+          }),
+        )
+        .subscribe((res) => {
+          this.checkingSubdomain.set(false);
+          if (res && res.success) {
+            this.subdomainAvailable.set(res.data.available);
+            if (!res.data.available) {
+              subdomainControl.setErrors({ unavailable: true });
+            }
+          } else {
+            this.subdomainAvailable.set(null);
           }
-        } else {
-          this.subdomainAvailable.set(null);
-        }
-      });
+        });
     }
   }
 
@@ -273,14 +402,17 @@ export class RegisterComponent implements OnInit {
     const control = this.registerForm.get(controlName);
     if (!control || !control.errors) return '';
     const errors = control.errors;
-    
-    const snakeKey = controlName.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 
-    if (errors['required']) return this.translocoService.translate(`validation.${snakeKey}_required`);
+    const snakeKey = controlName.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+
+    if (errors['required'])
+      return this.translocoService.translate(`validation.${snakeKey}_required`);
     if (errors['email']) return this.translocoService.translate('validation.email_invalid');
-    if (errors['minlength']) return this.translocoService.translate('validation.password_min_length');
+    if (errors['minlength'])
+      return this.translocoService.translate('validation.password_min_length');
     if (errors['pattern']) return this.translocoService.translate('validation.subdomain_invalid');
-    if (errors['unavailable']) return this.translocoService.translate('validation.subdomain_unavailable');
+    if (errors['unavailable'])
+      return this.translocoService.translate('validation.subdomain_unavailable');
     return '';
   }
 
@@ -305,7 +437,11 @@ export class RegisterComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.registerForm.invalid || this.checkingSubdomain() || this.subdomainAvailable() === false) {
+    if (
+      this.registerForm.invalid ||
+      this.checkingSubdomain() ||
+      this.subdomainAvailable() === false
+    ) {
       return;
     }
 
@@ -314,26 +450,29 @@ export class RegisterComponent implements OnInit {
     this.errorMessage.set('');
 
     const formVal = this.registerForm.value;
-    
-    this.http.post<{ success: boolean; messageKey?: string; error?: { messageKey?: string } }>(
-      'http://localhost:3000/api/v1/auth/register',
-      formVal
-    ).pipe(
-      catchError(err => {
+
+    this.http
+      .post<{ success: boolean; messageKey?: string; error?: { messageKey?: string } }>(
+        'http://localhost:3000/api/v1/auth/register',
+        formVal,
+      )
+      .pipe(
+        catchError((err) => {
+          this.isLoading.set(false);
+          const errPayload = err.error || {};
+          const msgKey = errPayload.error?.messageKey || 'validation.error_occurred';
+          this.errorMessage.set(this.translocoService.translate(msgKey));
+          return of(null);
+        }),
+      )
+      .subscribe((res) => {
         this.isLoading.set(false);
-        const errPayload = err.error || {};
-        const msgKey = errPayload.error?.messageKey || 'validation.error_occurred';
-        this.errorMessage.set(this.translocoService.translate(msgKey));
-        return of(null);
-      })
-    ).subscribe(res => {
-      this.isLoading.set(false);
-      if (res && res.success) {
-        const msgKey = res.messageKey || 'auth.register_success';
-        this.successMessage.set(this.translocoService.translate(msgKey));
-        this.registerForm.reset();
-        this.subdomainAvailable.set(null);
-      }
-    });
+        if (res && res.success) {
+          const msgKey = res.messageKey || 'auth.register_success';
+          this.successMessage.set(this.translocoService.translate(msgKey));
+          this.registerForm.reset();
+          this.subdomainAvailable.set(null);
+        }
+      });
   }
 }

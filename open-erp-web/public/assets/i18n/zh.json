@@ -15,7 +15,11 @@
     "login_now": "立即登录",
     "register_success": "企业注册成功！请检查您的邮箱以激活账户。",
     "subdomain_already_exists": "该子域名已被使用。",
-    "email_already_exists": "该管理员邮箱已被注册。"
+    "email_already_exists": "该管理员邮箱已被注册。",
+    "password_strength": "密码强度",
+    "password_weak": "弱",
+    "password_medium": "中等",
+    "password_strong": "强"
   },
   "validation": {
     "company_name_required": "公司名称不能为空。",

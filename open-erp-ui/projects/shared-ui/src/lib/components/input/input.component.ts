@@ -72,6 +72,6 @@ export class InputComponent {
 
   hasError(): boolean {
     const ctrl = this.control();
-    return ctrl && ctrl.invalid && (ctrl.dirty || ctrl.touched);
+    return ctrl && ctrl.invalid && ctrl.dirty;
   }
 }

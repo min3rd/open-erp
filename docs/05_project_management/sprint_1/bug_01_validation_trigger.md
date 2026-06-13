@@ -36,3 +36,13 @@ Cơ chế kiểm tra trạng thái lỗi của các ô nhập liệu trong Angul
 1. Khi truy cập trang `/register` lần đầu, không có bất kỳ thông báo lỗi nào xuất hiện.
 2. Click vào khoảng trắng hoặc click qua lại giữa các ô nhập liệu mà không gõ gì sẽ không hiển thị lỗi đỏ, ngoại trừ trường hợp ô đó đã bị `focus` và mất `blur` (trạng thái `touched` chuyển thành `true`).
 3. Khi người dùng bắt đầu nhập dữ liệu sai định dạng (ví dụ: gõ `test` vào email) rồi di chuyển ra ngoài hoặc tiếp tục gõ, lỗi đỏ hiển thị chính xác.
+
+---
+
+### 5. Kết quả thực hiện (Resolution & Deliverables)
+- **Trạng thái (Status)**: [x] Đã hoàn thành (Completed)
+- **Chi tiết thay đổi (Implementation Details)**:
+  - Cập nhật hàm `hasError()` trong [input.component.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-ui/projects/shared-ui/src/lib/components/input/input.component.ts#L73-L77) của thư viện UI dùng chung `@open-erp/shared-ui`.
+  - Thay đổi điều kiện kiểm tra lỗi từ chỉ `ctrl.invalid` thành `ctrl.invalid && ctrl.dirty`. Điều này đảm bảo cảnh báo lỗi chỉ xuất hiện sau khi người dùng thực sự thay đổi nội dung nhập liệu (trạng thái `dirty`), khắc phục triệt để việc hiển thị thông báo lỗi quá sớm khi mới click vào trang hoặc di chuyển focus qua các trường trống.
+  - Rebuild thư viện và ứng dụng khách thành công. Kiểm thử trực quan đã xác nhận lỗi được khắc phục hoàn toàn.
+
