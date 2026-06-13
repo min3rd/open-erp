@@ -7,14 +7,12 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { InputComponent, ButtonComponent, IconComponent } from '@open-erp/shared-ui';
-import { ConfigService } from '../../../core/services/config.service';
-import { API_ENDPOINTS } from '../../../core/constants/api-endpoints';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -31,10 +29,9 @@ import { API_ENDPOINTS } from '../../../core/constants/api-endpoints';
 })
 export class RegisterComponent implements OnInit {
   private fb = inject(FormBuilder);
-  private http = inject(HttpClient);
   private translocoService = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
-  private configService = inject(ConfigService);
+  private authService = inject(AuthService);
 
   registerForm: FormGroup;
   isDarkMode = signal<boolean>(false);
@@ -134,29 +131,18 @@ export class RegisterComponent implements OnInit {
             this.subdomainAvailable.set(null);
             this.errorMessage.set('');
 
-            const url = `${this.configService.apiUrl}${API_ENDPOINTS.auth.checkSubdomain(value)}`;
-            return this.http
-              .get<{
-                success: boolean;
-                data: { available: boolean };
-              }>(url)
-              .pipe(
-                catchError(() => {
-                  this.checkingSubdomain.set(false);
-                  return of({ success: false, data: { available: false } });
-                }),
-              );
+            return this.authService.checkSubdomain(value).pipe(
+              catchError(() => {
+                return of(false);
+              }),
+            );
           }),
         )
-        .subscribe((res) => {
+        .subscribe((available) => {
           this.checkingSubdomain.set(false);
-          if (res && res.success) {
-            this.subdomainAvailable.set(res.data.available);
-            if (!res.data.available) {
-              subdomainControl.setErrors({ unavailable: true });
-            }
-          } else {
-            this.subdomainAvailable.set(null);
+          this.subdomainAvailable.set(available);
+          if (available === false) {
+            subdomainControl.setErrors({ unavailable: true });
           }
         });
     }
@@ -219,22 +205,8 @@ export class RegisterComponent implements OnInit {
 
     const formVal = this.registerForm.value;
 
-    const url = `${this.configService.apiUrl}${API_ENDPOINTS.auth.register}`;
-    this.http
-      .post<{ success: boolean; messageKey?: string; error?: { messageKey?: string } }>(
-        url,
-        formVal,
-      )
-      .pipe(
-        catchError((err) => {
-          this.isLoading.set(false);
-          const errPayload = err.error || {};
-          const msgKey = errPayload.error?.messageKey || 'validation.error_occurred';
-          this.errorMessage.set(this.translocoService.translate(msgKey));
-          return of(null);
-        }),
-      )
-      .subscribe((res) => {
+    this.authService.register(formVal).subscribe({
+      next: (res) => {
         this.isLoading.set(false);
         if (res && res.success) {
           const msgKey = res.messageKey || 'auth.register_success';
@@ -242,6 +214,13 @@ export class RegisterComponent implements OnInit {
           this.registerForm.reset();
           this.subdomainAvailable.set(null);
         }
-      });
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        const errPayload = err.error || {};
+        const msgKey = errPayload.error?.messageKey || 'validation.error_occurred';
+        this.errorMessage.set(this.translocoService.translate(msgKey));
+      }
+    });
   }
 }

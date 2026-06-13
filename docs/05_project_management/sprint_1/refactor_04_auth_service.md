@@ -119,3 +119,13 @@ export class RegisterComponent {
 1. **Cô lập HttpClient**: Tệp tin `register.component.ts` tuyệt đối không còn dòng lệnh `import { HttpClient }` hay inject `private http = inject(HttpClient)`.
 2. **Khai báo kiểu đầy đủ**: Toàn bộ dữ liệu gửi và nhận qua API phải được khai báo bằng `Interface` tường minh (không sử dụng kiểu `any` hoặc khai báo ẩn danh).
 3. **Hoạt động chính xác**: Mọi tính năng bao gồm kiểm tra subdomain khả dụng khi gõ và đăng ký doanh nghiệp vẫn chạy chính xác như trước khi tách.
+
+---
+
+### 5. Kết quả thực hiện (Implementation Status)
+- **Trạng thái**: [x] Đã hoàn thành (Completed)
+- **Kết quả**:
+  - Đã định nghĩa các interfaces dữ liệu nghiệp vụ `RegisterPayload` và `RegisterResponse` tại tệp [auth.model.ts](../../../open-erp-web/src/app/core/models/auth.model.ts).
+  - Triển khai thành công dịch vụ [AuthService](../../../open-erp-web/src/app/core/services/auth.service.ts) chịu trách nhiệm đóng gói toàn bộ logic gọi HttpClient.
+  - Tách hoàn toàn `HttpClient` ra khỏi [RegisterComponent](../../../open-erp-web/src/app/features/auth/register/register.component.ts) và chuyển sang inject [AuthService](../../../open-erp-web/src/app/core/services/auth.service.ts).
+  - Kiểm thử giao diện bằng trình duyệt xác nhận luồng đăng ký hoạt động chính xác và an toàn.

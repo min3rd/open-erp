@@ -25,4 +25,32 @@ export class ConfigService {
   get apiUrl(): string {
     return this.config?.apiUrl || 'http://localhost:3000';
   }
+
+  buildUrl(endpoint: string, params?: Record<string, any>): string {
+    let url = `${this.apiUrl}${endpoint}`;
+    if (params) {
+      const remainingParams = { ...params };
+      // Replace path parameters (e.g. :id)
+      Object.entries(remainingParams).forEach(([key, value]) => {
+        const placeholder = `:${key}`;
+        if (url.includes(placeholder)) {
+          url = url.replace(placeholder, encodeURIComponent(String(value)));
+          delete remainingParams[key];
+        }
+      });
+
+      // Build query string
+      const queryParams = new URLSearchParams();
+      Object.entries(remainingParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, String(value));
+        }
+      });
+      const queryString = queryParams.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+    }
+    return url;
+  }
 }
