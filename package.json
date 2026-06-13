@@ -7,6 +7,8 @@
     "open-erp-web"
   ],
   "scripts": {
+    "install:all": "npm install && npm install --workspace=open-erp-services && npm install --workspace=open-erp-ui && npm install --workspace=open-erp-web",
+    "audit:fix:all": "npm audit fix && npm audit fix --workspace=open-erp-services && npm audit fix --workspace=open-erp-ui && npm audit fix --workspace=open-erp-web",
     "services:dev": "npm run start:dev --workspace=open-erp-services",
     "web:dev": "node -e \"setTimeout(() => {}, 6000)\" && npm run start --workspace=open-erp-web",
     "ui:build": "npm run build --workspace=open-erp-ui",
