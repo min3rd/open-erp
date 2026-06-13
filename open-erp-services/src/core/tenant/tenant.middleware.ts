@@ -13,27 +13,30 @@ export class TenantMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    const host = req.headers.host || '';
-    const subdomain = this.getSubdomain(host);
-
     const originalUrl = req.originalUrl;
     if (originalUrl.includes('/auth/check-subdomain') || originalUrl.includes('/auth/register')) {
       return next();
     }
 
-    if (!subdomain) {
-      throw new BadRequestException({
-        success: false,
-        error: {
-          code: 'SUBDOMAIN_REQUIRED',
-          messageKey: 'auth.subdomain_required',
-        },
-      });
-    }
+    const host = req.headers.host || '';
+    const hostSubdomain = this.getSubdomain(host);
+    const headerTenantId = req.headers['x-tenant-id'] as string;
+    const headerSubdomain = req.headers['x-subdomain'] as string;
 
-    const tenant = await this.tenantRepository.findOne({
-      where: { subdomain: subdomain.toLowerCase() },
-    });
+    let tenant: Tenant | null = null;
+
+    if (headerTenantId) {
+      tenant = await this.tenantRepository.findOne({
+        where: { id: headerTenantId },
+      });
+    } else {
+      const subdomainToFind = headerSubdomain || hostSubdomain;
+      if (subdomainToFind) {
+        tenant = await this.tenantRepository.findOne({
+          where: { subdomain: subdomainToFind.toLowerCase() },
+        });
+      }
+    }
 
     if (!tenant) {
       throw new BadRequestException({
@@ -54,23 +57,16 @@ export class TenantMiddleware implements NestMiddleware {
 
   private getSubdomain(host: string): string | null {
     if (!host) return null;
-    const domain = host.split(':')[0];
-    const parts = domain.split('.');
+    const domain = host.split(':')[0].toLowerCase();
     
-    if (parts.length === 1) {
+    const baseDomain = (process.env.APP_DOMAIN || 'localhost').toLowerCase();
+    
+    if (domain === baseDomain) {
       return null;
     }
     
-    if (domain.endsWith('.localhost')) {
-      return parts.length > 1 ? parts[0] : null;
-    }
-    
-    if (domain.endsWith('.open-erp.9ms.io.vn')) {
-      return domain.replace('.open-erp.9ms.io.vn', '');
-    }
-    
-    if (parts.length > 2) {
-      return parts[0];
+    if (domain.endsWith('.' + baseDomain)) {
+      return domain.slice(0, -(baseDomain.length + 1));
     }
     
     return null;

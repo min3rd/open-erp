@@ -4,7 +4,7 @@
 ---
 
 ### 1. Mục tiêu công việc (Objective)
-Xây dựng luồng đăng ký doanh nghiệp mới (SaaS Onboarding) trên Web Client. Hệ thống tự động tạo Workspace độc lập cho doanh nghiệp thông qua việc cấp phát subdomain riêng biệt, gán tài khoản Quản trị viên tối cao (Tenant Owner), khởi tạo cấu trúc cơ sở dữ liệu tenant cô lập logic và gửi email kích hoạt tài khoản.
+Xây dựng luồng đăng ký doanh nghiệp mới (SaaS Onboarding) trên Web Client. Hệ thống tự động tạo Workspace độc lập cho doanh nghiệp thông qua việc cấp phát subdomain (tùy chọn - nếu bỏ trống hệ thống sẽ tự động sinh dựa trên tên doanh nghiệp), gán tài khoản Quản trị viên tối cao (Tenant Owner), khởi tạo cấu trúc cơ sở dữ liệu tenant cô lập logic và gửi email kích hoạt tài khoản.
 
 ---
 
@@ -12,13 +12,14 @@ Xây dựng luồng đăng ký doanh nghiệp mới (SaaS Onboarding) trên Web 
 
 #### 2.1 Luồng dữ liệu đăng ký (Registration Flow)
 ```text
-[Người dùng (Web Form)] ──► Điền thông tin (Email, Password, Subdomain)
+[Người dùng (Web Form)] ──► Điền thông tin (Email, Password, Subdomain - Tùy chọn)
                                       │
                                       ▼
-                        (Kiểm tra trùng lặp Subdomain)
+                        (Kiểm tra trùng lặp Subdomain nếu nhập)
                                       │
                                       ▼
                         [Ghi vào DB: tenants & users]
+                        (Tự động sinh subdomain nếu không nhập)
                                       │
                                       ▼
                       [Gửi email xác thực kèm Activation Token]
@@ -34,7 +35,7 @@ Tham chiếu đầy đủ trong [api_overview.md](../../03_functional/api_overvi
       "companyName": "Công ty Cổ phần GoTech",
       "email": "owner@gotech.com",
       "password": "SecurePassword123!",
-      "subdomain": "gotech",
+      "subdomain": "gotech", // Có thể bỏ trống, hệ thống sẽ tự động sinh và kiểm tra duy nhất
       "phone": "0901234567"
     }
     ```

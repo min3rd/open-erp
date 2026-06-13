@@ -76,7 +76,7 @@ export class RegisterComponent implements OnInit {
       companyName: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      subdomain: ['', [Validators.required, Validators.pattern(/^[a-z0-9]+$/)]],
+      subdomain: ['', [Validators.pattern(/^[a-z0-9]+$/)]],
       phone: [''],
     });
 

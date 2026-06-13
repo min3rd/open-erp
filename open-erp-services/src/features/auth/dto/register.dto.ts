@@ -20,9 +20,9 @@ export class RegisterDto {
   @MinLength(6, { message: 'validation.password_min_length' })
   password: string;
 
-  @IsNotEmpty({ message: 'validation.subdomain_required' })
+  @IsOptional()
   @Matches(/^[a-z0-9]+$/, { message: 'validation.subdomain_invalid' })
-  subdomain: string;
+  subdomain?: string;
 
   @IsOptional()
   @IsString({ message: 'validation.phone_must_be_string' })

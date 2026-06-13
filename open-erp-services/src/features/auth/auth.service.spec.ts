@@ -157,5 +157,23 @@ describe('AuthService', () => {
       expect(queryRunnerMock.commitTransaction).toHaveBeenCalled();
       expect(queryRunnerMock.release).toHaveBeenCalled();
     });
+
+    it('should register successfully and generate subdomain if subdomain is omitted', async () => {
+      tenantRepoMock.findOne.mockResolvedValue(null);
+      userRepoMock.findOne.mockResolvedValue(null);
+
+      const dto = {
+        companyName: 'Test Company',
+        email: 'new-no-sub@test.com',
+        password: 'password123',
+        phone: '1234567890',
+      };
+
+      const result = await service.register(dto);
+      expect(result).toEqual({
+        success: true,
+        messageKey: 'auth.register_success',
+      });
+    });
   });
 });

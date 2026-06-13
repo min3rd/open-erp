@@ -6,6 +6,7 @@
     "email": "Email quản trị",
     "password": "Mật khẩu",
     "subdomain": "Tên miền phụ (Subdomain)",
+    "subdomain_optional": "Tên miền phụ (Subdomain) (Tùy chọn)",
     "phone": "Số điện thoại",
     "phone_optional": "Số điện thoại (Tùy chọn)",
     "submit": "Đăng ký ngay",

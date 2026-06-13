@@ -6,6 +6,7 @@
     "email": "管理员邮箱",
     "password": "密码",
     "subdomain": "子域名 (Subdomain)",
+    "subdomain_optional": "子域名 (Subdomain) (可选)",
     "phone": "电话号码",
     "phone_optional": "电话号码 (可选)",
     "submit": "立即注册",

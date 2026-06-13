@@ -35,34 +35,32 @@ Lỗi xảy ra trong [tenant.middleware.ts](../../../open-erp-services/src/core/
 ---
 
 ### 3. Giải pháp khắc phục (Resolution Design)
-Sử dụng thuộc tính `req.originalUrl` thay thế cho `req.path`. 
-- `req.originalUrl` là thuộc tính chuẩn của Express ghi nhận nguyên vẹn URI gốc được gửi từ client (ví dụ: `/api/v1/auth/check-subdomain?subdomain=test`) và không bị thay đổi hay cắt ngắn bởi cơ chế định tuyến của NestJS/Express sub-router.
+1. **Sửa lỗi loại trừ**: Sử dụng thuộc tính `req.originalUrl` thay thế cho `req.path` để không bị NestJS sub-router định tuyến cắt ngắn.
+2. **Khắc phục hardcode hostname**: Trích xuất subdomain động dựa trên biến môi trường `process.env.APP_DOMAIN` (mặc định là `localhost`). Middleware so khớp xem hostname có kết thúc bằng `.${APP_DOMAIN}` hay không để tự động lấy phần prefix làm subdomain, tăng tính tùy biến khi deploy.
+3. **Subdomain dạng tùy chọn (Optional)**: Hỗ trợ phân giải tenant thông qua các custom HTTP headers: `X-Tenant-ID` (tìm theo ID tenant) hoặc `X-Subdomain` (tìm theo subdomain). Doanh nghiệp có thể chọn cấu hình header thay thế mà không bắt buộc sử dụng cơ chế subdomain trên trình duyệt.
 
 * **Tệp tin đích cần sửa đổi:** [tenant.middleware.ts (open-erp-services)](../../../open-erp-services/src/core/tenant/tenant.middleware.ts)
 * **Nguyên tắc sửa đổi logic**:
   ```typescript
-  // Cũ:
-  const path = req.path;
-  if (path.includes('/auth/check-subdomain') || path.includes('/auth/register')) { ... }
-
-  // Mới:
-  const originalUrl = req.originalUrl;
-  if (originalUrl.includes('/auth/check-subdomain') || originalUrl.includes('/auth/register')) {
-    return next();
+  // Trích xuất subdomain dựa trên APP_DOMAIN
+  const baseDomain = (process.env.APP_DOMAIN || 'localhost').toLowerCase();
+  if (domain.endsWith('.' + baseDomain)) {
+    return domain.slice(0, -(baseDomain.length + 1));
   }
   ```
 
 ---
 
 ### 4. Tiêu chí nghiệm thu (Acceptance Criteria)
-1. Truy cập trực tiếp `http://localhost:3000/api/v1/auth/check-subdomain?subdomain=test` (không cần gửi header Host dạng `subdomain.localhost`) trả về trạng thái `200 OK` và dữ liệu JSON `{"success":true,"data":{"available":true}}`.
-2. Luồng đăng ký tại giao diện `/register` gọi kiểm tra subdomain khả dụng không còn bị chặn bởi lỗi 400 `SUBDOMAIN_REQUIRED` từ TenantMiddleware.
-3. Không làm ảnh hưởng đến cơ chế bảo vệ và chặn các route yêu cầu tenant khác (như `/auth/login`, `/auth/logout`) khi thiếu subdomain trong Host header.
+1. Truy cập trực tiếp `http://localhost:3000/api/v1/auth/check-subdomain?subdomain=test` trả về trạng thái `200 OK` và dữ liệu JSON `{"success":true,"data":{"available":true}}`.
+2. Hỗ trợ xác định Tenant qua request headers `x-tenant-id` hoặc `x-subdomain` khi gọi các API cần context tenant mà không bắt buộc dùng subdomain ở cấp độ URL/Host.
+3. Loại bỏ hoàn toàn việc hardcode các domain cụ thể (như `.open-erp.9ms.io.vn`) trong mã nguồn.
 
 ---
 
 ### 5. Kết quả thực hiện (Resolution & Deliverables)
 - **Trạng thái (Status)**: [x] Đã hoàn thành (Completed)
 - **Chi tiết thay đổi (Implementation Details)**:
-  - Đã cập nhật [tenant.middleware.ts](../../../open-erp-services/src/core/tenant/tenant.middleware.ts) để chuyển đổi từ việc kiểm tra `req.path` sang `req.originalUrl`.
-  - Kiểm thử trực tiếp bằng `curl.exe` xác nhận API check-subdomain hoạt động bình thường, phản hồi `200 OK` cùng kết quả kiểm tra chính xác.
+  - Đã cập nhật [tenant.middleware.ts](../../../open-erp-services/src/core/tenant/tenant.middleware.ts) hỗ trợ cả ba hình thức phân giải tenant: trích xuất subdomain từ Host (dựa trên `APP_DOMAIN`), custom header `X-Tenant-ID`, và custom header `X-Subdomain`.
+  - Cập nhật trang đăng ký tại [RegisterComponent](../../../open-erp-web/src/app/features/auth/register/register.component.ts) để trường subdomain thành tùy chọn (optional). Tự động sinh subdomain duy nhất từ tên doanh nghiệp nếu người dùng bỏ trống trường này.
+  - Các bài kiểm tra đơn vị (Unit Tests) trong backend và quá trình biên dịch toàn bộ dự án đã thành công hoàn hảo.

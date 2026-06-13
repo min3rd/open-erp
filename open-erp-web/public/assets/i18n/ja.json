@@ -6,6 +6,7 @@
     "email": "管理者メールアドレス",
     "password": "パスワード",
     "subdomain": "サブドメイン (Subdomain)",
+    "subdomain_optional": "サブドメイン (Subdomain) (任意)",
     "phone": "電話番号",
     "phone_optional": "電話番号 (任意)",
     "submit": "今すぐ登録",

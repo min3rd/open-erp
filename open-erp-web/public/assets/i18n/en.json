@@ -6,6 +6,7 @@
     "email": "Admin Email",
     "password": "Password",
     "subdomain": "Subdomain",
+    "subdomain_optional": "Subdomain (Optional)",
     "phone": "Phone Number",
     "phone_optional": "Phone Number (Optional)",
     "submit": "Register Now",

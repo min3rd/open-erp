@@ -37,20 +37,40 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto) {
-    const subdomain = dto.subdomain.trim().toLowerCase();
-    const email = dto.email.trim().toLowerCase();
+    let subdomain = dto.subdomain ? dto.subdomain.trim().toLowerCase() : '';
+    if (!subdomain) {
+      subdomain = dto.companyName
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]/g, '');
+      
+      if (!subdomain) {
+        subdomain = 'tenant';
+      }
 
-    // 1. Verify subdomain availability
-    const isSubdomainAvailable = await this.checkSubdomain(subdomain);
-    if (!isSubdomainAvailable) {
-      throw new BadRequestException({
-        success: false,
-        error: {
-          code: 'SUBDOMAIN_ALREADY_EXISTS',
-          messageKey: 'auth.subdomain_already_exists',
-        },
-      });
+      let suffix = 1;
+      let checkDomain = subdomain;
+      while (!(await this.checkSubdomain(checkDomain))) {
+        checkDomain = `${subdomain}${suffix}`;
+        suffix++;
+      }
+      subdomain = checkDomain;
+    } else {
+      // 1. Verify subdomain availability
+      const isSubdomainAvailable = await this.checkSubdomain(subdomain);
+      if (!isSubdomainAvailable) {
+        throw new BadRequestException({
+          success: false,
+          error: {
+            code: 'SUBDOMAIN_ALREADY_EXISTS',
+            messageKey: 'auth.subdomain_already_exists',
+          },
+        });
+      }
     }
+
+    const email = dto.email.trim().toLowerCase();
 
     // 2. Verify email availability
     const existingUser = await this.userRepository.findOne({
