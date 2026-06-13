@@ -83,3 +83,18 @@ from(itemsToLoad).pipe(
 1. **Không nghẽn kết nối**: Trình duyệt tải trang mượt mà, không xảy ra hiện tượng chặn (blocking) hàng đợi HTTP do gọi quá nhiều API cùng lúc.
 2. **Đúng giới hạn**: Số lượng API call đồng thời tại thời điểm khởi động trang bất kỳ không vượt quá 3.
 3. **Hiển thị tiến độ**: Sử dụng các thành phần Loading Skeleton hoặc Spinner độc lập cho từng khối dữ liệu được tải trễ để nâng cao trải nghiệm người dùng.
+
+---
+
+### 5. Kết quả đánh giá & Tối ưu thực tế (Implementation Status & Profiling Report)
+- **Trạng thái**: [x] Đã hoàn thành (Completed)
+- **Báo cáo phân tích hiệu năng**:
+  - Trang đăng ký doanh nghiệp `/register` đã được phân tích bằng công cụ Performance Resource Timing API.
+  - **Thời điểm khởi tạo trang (Initial Page Load)**: Ứng dụng chỉ phát ra **2 yêu cầu HTTP tĩnh** tuần tự:
+    1. `GET /assets/config.json` (tải cấu hình thông qua `APP_INITIALIZER`).
+    2. `GET /assets/i18n/vi.json` (tải gói ngôn ngữ mặc định thông qua TranslocoLoader).
+    - Không có bất kỳ cuộc gọi API nghiệp vụ động nào được thực hiện đồng thời hoặc tự động gửi lên Backend khi khởi tạo trang.
+  - **Thời điểm tương tác người dùng (User Interactions)**:
+    - Khi người dùng gõ tên miền phụ: chỉ kích hoạt duy nhất 1 cuộc gọi `check-subdomain` (được debounce 500ms).
+    - Khi submit form: kích hoạt duy nhất 1 cuộc gọi `POST /api/v1/auth/register`.
+  - **Kết luận**: Trang `/register` hoàn toàn tuân thủ quy chuẩn giới hạn tối đa 3 cuộc gọi API đồng thời (mức độ tải thực tế tối đa chỉ là 2 cuộc gọi tĩnh khi startup và 1 cuộc gọi động khi tương tác).
