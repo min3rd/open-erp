@@ -10,7 +10,7 @@
     "@angular/common": "^22.0.0",
     "@angular/core": "^22.0.0",
     "@angular/forms": "^22.0.0",
-    "@jsverse/transloco": "^8.0.0",
+    "@jsverse/transloco": "^8.3.0",
     "feather-icons": "^4.29.2"
   },
   "devDependencies": {
@@ -20,9 +20,7 @@
     "@angular/compiler-cli": "^22.0.0",
     "@types/feather-icons": "^4.7.3",
     "autoprefixer": "^10.4.20",
-    "ng-packagr": "^22.0.0",
     "postcss": "^8.4.49",
-    "tailwindcss": "^4.0.0",
-    "typescript": "~6.0.2"
+    "tailwindcss": "^4.0.0"
   }
 }
