@@ -108,3 +108,22 @@ Tham chiếu đầy đủ trong [api_overview.md](../../03_functional/api_overvi
   - Giao diện đăng ký Web responsive, hỗ trợ Light/Dark mode, màu nhấn Rose Gold và hiển thị đúng ngôn ngữ khi chuyển đổi qua Transloco.
   - Luồng gửi mail kích hoạt chạy ổn định qua hàng đợi BullMQ.
   - Toàn bộ source code được review, approve và merge vào nhánh `develop`.
+
+---
+
+### 6. Trạng thái thực tế & Kết quả bàn giao (Actual Status & Deliverables)
+
+Task TSK-1.1 đã được hoàn thành đầy đủ các tiêu chí bàn giao và tích hợp thành công trên nhánh `develop`:
+
+* **Backend Services (`open-erp-services`):**
+  - Khởi tạo thành công hai thực thể cơ sở dữ liệu [Tenant Entity](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/tenant/tenant.entity.ts) và [User Entity](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/user/user.entity.ts).
+  - Triển khai APIs trong [AuthController](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/auth/auth.controller.ts) và [AuthService](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/auth/auth.service.ts) thực hiện kiểm tra subdomain khả dụng và xử lý transaction đăng ký, mã hóa mật khẩu qua `bcrypt`.
+  - Giả lập gửi email kích hoạt tài khoản bất đồng bộ thông qua BullMQ.
+  - Xây dựng bộ unit tests toàn diện trong [auth.service.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/auth/auth.service.spec.ts) đạt 100% tỷ lệ pass.
+* **Web Client (`open-erp-web`):**
+  - Tích hợp thành công thư viện `@jsverse/transloco` phiên bản 8 điều phối đa ngôn ngữ và `feather-icons` hiển thị icon chuẩn hóa qua `<oerp-icon>`.
+  - Triển khai [RegisterComponent](file:///c:/Users/Minh/Documents/open-erp/open-erp-web/src/app/features/auth/register/register.component.ts) sử dụng các component dùng chung như `<oerp-input>`, `<oerp-button>`.
+  - Tích hợp kiểm tra subdomain khả dụng với cơ chế debounce 500ms.
+  - Hỗ trợ lưu trữ trạng thái người dùng về giao diện (Light/Dark Mode) và cấu hình ngôn ngữ xuống LocalStorage.
+* **Tài liệu & Xác nhận visual:**
+  - Quy trình đăng ký và chuyển đổi giao diện đã được kiểm chứng tự động qua Playwright, kết quả ghi hình lưu tại [verify_register_flow_1781312625557.webp](C:/Users/Minh/.gemini/antigravity-ide/brain/7c2f6168-a3b9-46c4-a385-c360c30429d6/verify_register_flow_1781312625557.webp).

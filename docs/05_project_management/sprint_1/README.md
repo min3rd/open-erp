@@ -16,7 +16,7 @@ Dưới đây là danh sách các Task cần triển khai trong Sprint 1:
 
 | ID | Tên công việc (Task Name) | Mô tả tóm tắt | Trạng thái (Status) | Nhân sự chính | Tài liệu chi tiết |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **TSK-1.1** | Đăng ký doanh nghiệp & Khởi tạo Tenant | Khách hàng đăng ký tài khoản doanh nghiệp mới, tự động khởi tạo tenant subdomain, cấp phát schema database riêng biệt phục vụ cô lập dữ liệu. | [ ] Todo | BE/FE Leads | [task_01_tenant_registration.md](./task_01_tenant_registration.md) |
+| **TSK-1.1** | Đăng ký doanh nghiệp & Khởi tạo Tenant | Khách hàng đăng ký tài khoản doanh nghiệp mới, tự động khởi tạo tenant subdomain, cấp phát schema database riêng biệt phục vụ cô lập dữ liệu. | [x] Completed | BE/FE Leads | [task_01_tenant_registration.md](./task_01_tenant_registration.md) |
 | **TSK-1.2** | Đăng nhập & Xác thực (Authentication) | Đăng nhập hệ thống bằng email và mật khẩu, trả về JWT Access Token và HTTP-Only Cookie Refresh Token, quản lý phiên kết nối bằng Redis. | [ ] Todo | BE/FE Leads | [task_02_auth_login.md](./task_02_auth_login.md) |
 | **TSK-1.3** | Sơ đồ Tổ chức & Phòng ban | Thiết lập sơ đồ chi nhánh và cấu hình phòng ban dạng cây phân cấp trực quan, quản lý trưởng bộ phận và chi tiết phòng ban. | [ ] Todo | BE/FE Leads, UI-UX | [task_03_org_structure.md](./task_03_org_structure.md) |
 | **TSK-1.4** | Mời nhân viên qua Email | Admin mời nhân viên mới tham gia vào phòng ban cụ thể bằng cách nhập email. Hệ thống gửi link kích hoạt tài khoản bất đồng bộ thông qua BullMQ & SES. | [ ] Todo | BE/FE Leads, DevOps | [task_04_user_management.md](./task_04_user_management.md) |
