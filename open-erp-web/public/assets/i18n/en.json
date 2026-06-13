@@ -1,0 +1,38 @@
+{
+  "auth": {
+    "register_title": "Register New Company",
+    "register_subtitle": "Initialize an independent ERP Workspace for your company",
+    "company_name": "Company Name",
+    "email": "Admin Email",
+    "password": "Password",
+    "subdomain": "Subdomain",
+    "phone": "Phone Number",
+    "phone_optional": "Phone Number (Optional)",
+    "submit": "Register Now",
+    "processing": "Processing...",
+    "subdomain_hint": "Used for access: https://[subdomain].open-erp.9ms.io.vn",
+    "already_have_account": "Already have an account?",
+    "login_now": "Log in",
+    "register_success": "Registration successful! Please check your email to activate your account.",
+    "subdomain_already_exists": "This subdomain is already taken.",
+    "email_already_exists": "This admin email is already registered."
+  },
+  "validation": {
+    "company_name_required": "Company name is required.",
+    "company_name_must_be_string": "Company name must be a string.",
+    "email_required": "Email is required.",
+    "email_invalid": "Invalid email address format.",
+    "password_required": "Password is required.",
+    "password_min_length": "Password must be at least 6 characters.",
+    "subdomain_required": "Subdomain is required.",
+    "subdomain_invalid": "Subdomain can only contain lowercase letters and numbers (a-z, 0-9).",
+    "phone_must_be_string": "Phone number must be a string.",
+    "checking_subdomain": "Checking...",
+    "subdomain_available": "Subdomain is available!",
+    "subdomain_unavailable": "Subdomain is already in use by another company.",
+    "error_occurred": "An error occurred. Please try again."
+  },
+  "errors": {
+    "validation_failed": "Invalid data format. Please review."
+  }
+}

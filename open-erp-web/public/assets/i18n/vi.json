@@ -1,0 +1,38 @@
+{
+  "auth": {
+    "register_title": "Đăng ký doanh nghiệp mới",
+    "register_subtitle": "Khởi tạo Workspace ERP độc lập cho doanh nghiệp của bạn",
+    "company_name": "Tên công ty",
+    "email": "Email quản trị",
+    "password": "Mật khẩu",
+    "subdomain": "Tên miền phụ (Subdomain)",
+    "phone": "Số điện thoại",
+    "phone_optional": "Số điện thoại (Tùy chọn)",
+    "submit": "Đăng ký ngay",
+    "processing": "Đang xử lý...",
+    "subdomain_hint": "Dùng truy cập: https://[subdomain].open-erp.9ms.io.vn",
+    "already_have_account": "Đã có tài khoản?",
+    "login_now": "Đăng nhập ngay",
+    "register_success": "Đăng ký doanh nghiệp thành công! Vui lòng kiểm tra email để kích hoạt tài khoản.",
+    "subdomain_already_exists": "Tên miền phụ (subdomain) này đã tồn tại trên hệ thống.",
+    "email_already_exists": "Email quản trị này đã được đăng ký."
+  },
+  "validation": {
+    "company_name_required": "Tên công ty không được để trống.",
+    "company_name_must_be_string": "Tên công ty phải là chuỗi.",
+    "email_required": "Email không được để trống.",
+    "email_invalid": "Địa chỉ email không đúng định dạng.",
+    "password_required": "Mật khẩu không được để trống.",
+    "password_min_length": "Mật khẩu phải chứa ít nhất 6 ký tự.",
+    "subdomain_required": "Subdomain không được để trống.",
+    "subdomain_invalid": "Subdomain chỉ chứa chữ thường và chữ số (a-z, 0-9).",
+    "phone_must_be_string": "Số điện thoại phải là chuỗi.",
+    "checking_subdomain": "Đang kiểm tra...",
+    "subdomain_available": "Subdomain hợp lệ và có thể sử dụng!",
+    "subdomain_unavailable": "Subdomain đã được sử dụng bởi công ty khác.",
+    "error_occurred": "Đã có lỗi xảy ra. Vui lòng thử lại."
+  },
+  "errors": {
+    "validation_failed": "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại."
+  }
+}

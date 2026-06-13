@@ -1,0 +1,38 @@
+{
+  "auth": {
+    "register_title": "注册新企业",
+    "register_subtitle": "为您的企业初始化独立的 ERP 工作区",
+    "company_name": "公司名称",
+    "email": "管理员邮箱",
+    "password": "密码",
+    "subdomain": "子域名 (Subdomain)",
+    "phone": "电话号码",
+    "phone_optional": "电话号码 (可选)",
+    "submit": "立即注册",
+    "processing": "处理中...",
+    "subdomain_hint": "用于访问：https://[subdomain].open-erp.9ms.io.vn",
+    "already_have_account": "已有账户？",
+    "login_now": "立即登录",
+    "register_success": "企业注册成功！请检查您的邮箱以激活账户。",
+    "subdomain_already_exists": "该子域名已被使用。",
+    "email_already_exists": "该管理员邮箱已被注册。"
+  },
+  "validation": {
+    "company_name_required": "公司名称不能为空。",
+    "company_name_must_be_string": "公司名称必须是字符串。",
+    "email_required": "邮箱不能为空。",
+    "email_invalid": "邮箱格式不正确。",
+    "password_required": "密码不能为空。",
+    "password_min_length": "密码长度不能少于 6 个字符。",
+    "subdomain_required": "子域名不能为空。",
+    "subdomain_invalid": "子域名只能包含小写字母和数字 (a-z, 0-9)。",
+    "phone_must_be_string": "电话号码必须是字符串。",
+    "checking_subdomain": "检查中...",
+    "subdomain_available": "子域名可用！",
+    "subdomain_unavailable": "该子域名已被其他公司使用。",
+    "error_occurred": "发生错误。请重试。"
+  },
+  "errors": {
+    "validation_failed": "提交的数据无效。请检查。"
+  }
+}

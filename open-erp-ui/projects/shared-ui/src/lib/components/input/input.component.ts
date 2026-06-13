@@ -6,6 +6,9 @@ import { IconComponent } from '../icon/icon.component';
 @Component({
   selector: 'oerp-input',
   standalone: true,
+  host: {
+    class: 'block w-full'
+  },
   imports: [NgClass, ReactiveFormsModule, IconComponent],
   template: `
     <div class="flex flex-col w-full gap-1.5">

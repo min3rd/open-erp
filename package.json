@@ -8,10 +8,10 @@
   ],
   "scripts": {
     "services:dev": "npm run start:dev --workspace=open-erp-services",
-    "web:dev": "npm run start --workspace=open-erp-web",
+    "web:dev": "node -e \"setTimeout(() => {}, 6000)\" && npm run start --workspace=open-erp-web",
     "ui:build": "npm run build --workspace=open-erp-ui",
     "ui:watch": "npm run watch --workspace=open-erp-ui",
-    "dev": "concurrently \"npm run services:dev\" \"npm run web:dev\" \"npm run ui:watch\""
+    "dev": "npm run ui:build && concurrently \"npm run services:dev\" \"npm run ui:watch\" \"npm run web:dev\""
   },
   "dependencies": {
     "concurrently": "^8.0.1"

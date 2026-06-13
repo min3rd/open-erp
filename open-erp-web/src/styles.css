@@ -1,3 +1,24 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+@source "../../open-erp-ui/dist/shared-ui/**/*.{html,ts,js,mjs}";
+@source "./node_modules/@open-erp/shared-ui/**/*.{html,ts,js,mjs}";
+
+@theme {
+  --color-rose-gold-50: #FDF8F5;
+  --color-rose-gold-100: #FBECE6;
+  --color-rose-gold-200: #F6D2C4;
+  --color-rose-gold-300: #EEA994;
+  --color-rose-gold-400: #E27E67;
+  --color-rose-gold-500: #B76E79;
+  --color-rose-gold-600: #A45964;
+  --color-rose-gold-700: #894650;
+  --color-rose-gold-800: #723A43;
+  --color-rose-gold-900: #5F323A;
+
+  --color-dark-bg: #0F172A;
+  --color-dark-card: #1E293B;
+  --color-light-bg: #F8FAFC;
+  --color-light-card: #FFFFFF;
+}
