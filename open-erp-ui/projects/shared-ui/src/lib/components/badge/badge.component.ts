@@ -5,16 +5,7 @@ import { NgClass } from '@angular/common';
   selector: 'oerp-badge',
   standalone: true,
   imports: [NgClass],
-  template: `
-    <span 
-      [ngClass]="[
-        'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold select-none leading-4 tracking-wider uppercase',
-        getColorClasses()
-      ]"
-    >
-      {{ label() }}
-    </span>
-  `
+  templateUrl: './badge.component.html'
 })
 export class BadgeComponent {
   label = input.required<string>();

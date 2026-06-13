@@ -5,18 +5,7 @@ import { NgClass, NgStyle } from '@angular/common';
   selector: 'oerp-skeleton',
   standalone: true,
   imports: [NgClass, NgStyle],
-  template: `
-    <div 
-      [ngClass]="[
-        'animate-pulse bg-slate-200 dark:bg-slate-700',
-        getShapeClass()
-      ]"
-      [ngStyle]="{
-        'width': width(),
-        'height': height()
-      }"
-    ></div>
-  `
+  templateUrl: './skeleton.component.html'
 })
 export class SkeletonComponent {
   width = input<string>('100%');

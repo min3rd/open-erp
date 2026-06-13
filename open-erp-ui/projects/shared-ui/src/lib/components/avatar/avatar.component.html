@@ -1,0 +1,12 @@
+<div 
+  [ngClass]="[
+    'flex items-center justify-center rounded-full overflow-hidden font-bold select-none border border-slate-200 dark:border-slate-700 bg-rose-gold-50 text-rose-gold-600 dark:bg-rose-gold-900/30 dark:text-rose-gold-400',
+    getSizeClasses()
+  ]"
+>
+  @if (src()) {
+    <img [src]="src()" [alt]="name()" class="w-full h-full object-cover" />
+  } @else {
+    <span>{{ getInitials() }}</span>
+  }
+</div>

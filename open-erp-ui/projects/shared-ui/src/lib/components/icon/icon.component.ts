@@ -4,14 +4,10 @@ import feather from 'feather-icons';
 @Component({
   selector: 'oerp-icon',
   standalone: true,
-  template: `<span #iconContainer class="inline-flex items-center justify-center"></span>`,
-  styles: [`
-    :host {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-  `]
+  host: {
+    class: 'inline-flex items-center justify-center'
+  },
+  templateUrl: './icon.component.html'
 })
 export class IconComponent {
   name = input.required<string>();

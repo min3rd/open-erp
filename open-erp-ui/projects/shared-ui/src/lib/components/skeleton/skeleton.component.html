@@ -1,0 +1,10 @@
+<div 
+  [ngClass]="[
+    'animate-pulse bg-slate-200 dark:bg-slate-700',
+    getShapeClass()
+  ]"
+  [ngStyle]="{
+    'width': width(),
+    'height': height()
+  }"
+></div>

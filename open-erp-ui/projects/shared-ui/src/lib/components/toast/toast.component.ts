@@ -7,39 +7,7 @@ import { IconComponent } from '../icon/icon.component';
   selector: 'oerp-toast-container',
   standalone: true,
   imports: [NgClass, IconComponent],
-  template: `
-    <div class="fixed top-5 right-5 z-50 flex flex-col gap-3 w-full max-w-sm pointer-events-none">
-      @for (toast of toastService.toasts(); track toast.id) {
-        <div 
-          [ngClass]="[
-            'pointer-events-auto flex items-start gap-3 p-4 rounded-xl border shadow-lg transition-all duration-300 transform translate-x-0 ease-out bg-white dark:bg-slate-900',
-            getClasses(toast.type)
-          ]"
-        >
-          <!-- Icon -->
-          <div class="flex-shrink-0 mt-0.5">
-            <oerp-icon [name]="getIconName(toast.type)" [size]="20" [color]="getIconColor(toast.type)"></oerp-icon>
-          </div>
-
-          <!-- Content -->
-          <div class="flex-grow flex flex-col gap-0.5 text-sm">
-            @if (toast.title) {
-              <h5 [ngClass]="['font-semibold', getTitleColorClass(toast.type)]">{{ toast.title }}</h5>
-            }
-            <p class="text-slate-600 dark:text-slate-355 leading-normal">{{ toast.message }}</p>
-          </div>
-
-          <!-- Close button -->
-          <button 
-            (click)="toastService.remove(toast.id)"
-            class="flex-shrink-0 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors outline-none cursor-pointer flex items-center justify-center"
-          >
-            <oerp-icon name="x" [size]="18"></oerp-icon>
-          </button>
-        </div>
-      }
-    </div>
-  `
+  templateUrl: './toast.component.html'
 })
 export class ToastComponent {
   toastService = inject(ToastService);

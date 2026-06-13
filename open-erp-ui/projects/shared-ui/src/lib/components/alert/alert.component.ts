@@ -6,22 +6,7 @@ import { IconComponent } from '../icon/icon.component';
   selector: 'oerp-alert',
   standalone: true,
   imports: [NgClass, IconComponent],
-  template: `
-    <div [ngClass]="['flex items-start gap-3 p-4 rounded-xl border', getClasses()]">
-      <!-- Icon -->
-      <div class="flex-shrink-0 mt-0.5">
-        <oerp-icon [name]="getIconName()" [size]="20" [color]="getIconColor()"></oerp-icon>
-      </div>
-
-      <!-- Content -->
-      <div class="flex-grow flex flex-col gap-0.5 text-sm">
-        @if (title()) {
-          <h5 [ngClass]="['font-semibold', getTitleColorClass()]">{{ title() }}</h5>
-        }
-        <p class="text-slate-600 dark:text-slate-300 leading-normal">{{ message() }}</p>
-      </div>
-    </div>
-  `,
+  templateUrl: './alert.component.html'
 })
 export class AlertComponent {
   title = input<string>('');

@@ -1,0 +1,235 @@
+<div
+  *transloco="let t"
+  class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-light-bg dark:bg-dark-bg text-slate-900 dark:text-slate-100 transition-colors duration-200"
+>
+  <!-- Top header / Settings bar -->
+  <div class="absolute top-4 right-4 flex items-center gap-4">
+    <!-- Language Selector -->
+    <select
+      [value]="currentLang()"
+      (change)="changeLanguage($event)"
+      class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-semibold focus:ring-rose-gold-500 outline-none"
+    >
+      <option value="vi">Tiếng Việt</option>
+      <option value="en">English</option>
+      <option value="zh">中文</option>
+      <option value="ja">日本語</option>
+    </select>
+
+    <!-- Theme Toggle -->
+    <button
+      (click)="toggleDarkMode()"
+      class="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+      aria-label="Toggle Theme"
+    >
+      @if (isDarkMode()) {
+        <oerp-icon name="sun" [size]="16" class="text-amber-500"></oerp-icon>
+      } @else {
+        <oerp-icon name="moon" [size]="16" class="text-slate-500"></oerp-icon>
+      }
+    </button>
+  </div>
+
+  <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
+    <div
+      class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-rose-gold-100 text-rose-gold-500 mb-4 shadow-sm"
+    >
+      <oerp-icon name="briefcase" [size]="24"></oerp-icon>
+    </div>
+    <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+      {{ t('auth.register_title') }}
+    </h2>
+    <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+      {{ t('auth.register_subtitle') }}
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div
+      class="bg-white dark:bg-slate-900 py-8 px-4 shadow-xl rounded-2xl border border-slate-100 dark:border-slate-800 sm:px-10"
+    >
+      <!-- Success Status -->
+      @if (successMessage()) {
+        <div
+          class="p-4 mb-6 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-sm font-medium animate-fade-in flex items-start gap-3"
+        >
+          <oerp-icon
+            name="check-circle"
+            [size]="20"
+            class="text-emerald-500 mt-0.5 shrink-0"
+          ></oerp-icon>
+          <div>{{ successMessage() }}</div>
+        </div>
+      }
+
+      <!-- Global Error Status -->
+      @if (errorMessage()) {
+        <div
+          class="p-4 mb-6 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-300 text-sm font-medium animate-fade-in flex items-start gap-3"
+        >
+          <oerp-icon
+            name="alert-circle"
+            [size]="20"
+            class="text-red-500 mt-0.5 shrink-0"
+          ></oerp-icon>
+          <div>{{ errorMessage() }}</div>
+        </div>
+      }
+
+      <!-- Form -->
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <oerp-input
+          [label]="t('auth.company_name')"
+          [placeholder]="t('auth.company_name')"
+          [control]="getControl('companyName')"
+          [errorMessage]="getErrorMessage('companyName')"
+        ></oerp-input>
+
+        <oerp-input
+          [label]="t('auth.email')"
+          [placeholder]="t('auth.email')"
+          [control]="getControl('email')"
+          [errorMessage]="getErrorMessage('email')"
+          prefixIcon="mail"
+        ></oerp-input>
+
+        <oerp-input
+          [label]="t('auth.password')"
+          [placeholder]="t('auth.password')"
+          type="password"
+          [control]="getControl('password')"
+          [errorMessage]="getErrorMessage('password')"
+          prefixIcon="lock"
+        ></oerp-input>
+
+        @if (passwordValue()) {
+          <div class="mt-2 space-y-1.5 animate-fade-in">
+            <!-- Strength Bars -->
+            <div class="flex gap-1 h-1">
+              <div
+                [ngClass]="[
+                  'flex-1 rounded-full transition-all duration-300',
+                  passwordStrength() === 'weak'
+                    ? 'bg-red-500'
+                    : passwordStrength() === 'medium'
+                      ? 'bg-amber-500'
+                      : passwordStrength() === 'strong'
+                        ? 'bg-emerald-500'
+                        : 'bg-slate-200 dark:bg-slate-700',
+                ]"
+              ></div>
+              <div
+                [ngClass]="[
+                  'flex-1 rounded-full transition-all duration-300',
+                  passwordStrength() === 'medium'
+                    ? 'bg-amber-500'
+                    : passwordStrength() === 'strong'
+                      ? 'bg-emerald-500'
+                      : 'bg-slate-200 dark:bg-slate-700',
+                ]"
+              ></div>
+              <div
+                [ngClass]="[
+                  'flex-1 rounded-full transition-all duration-300',
+                  passwordStrength() === 'strong'
+                    ? 'bg-emerald-500'
+                    : 'bg-slate-200 dark:bg-slate-700',
+                ]"
+              ></div>
+            </div>
+            <!-- Strength Text Label -->
+            <div class="flex justify-between items-center text-xs font-semibold select-none">
+              <span class="text-slate-500 dark:text-slate-400"
+                >{{ t('auth.password_strength') }}:</span
+              >
+              <span
+                [ngClass]="[
+                  passwordStrength() === 'weak'
+                    ? 'text-red-500'
+                    : passwordStrength() === 'medium'
+                      ? 'text-amber-500'
+                      : passwordStrength() === 'strong'
+                        ? 'text-emerald-500'
+                        : '',
+                ]"
+              >
+                {{
+                  passwordStrength() === 'weak'
+                    ? t('auth.password_weak')
+                    : passwordStrength() === 'medium'
+                      ? t('auth.password_medium')
+                      : passwordStrength() === 'strong'
+                        ? t('auth.password_strong')
+                        : ''
+                }}
+              </span>
+            </div>
+          </div>
+        }
+
+        <div>
+          <oerp-input
+            [label]="t('auth.subdomain')"
+            [placeholder]="t('auth.subdomain')"
+            [control]="getControl('subdomain')"
+            [errorMessage]="getErrorMessage('subdomain')"
+            prefixIcon="globe"
+          ></oerp-input>
+
+          <div class="mt-1.5 flex justify-between items-center text-xs select-none">
+            <!-- Subdomain check indicator -->
+            @if (checkingSubdomain()) {
+              <span class="text-slate-400 dark:text-slate-500 animate-pulse">
+                {{ t('validation.checking_subdomain') }}
+              </span>
+            } @else if (subdomainAvailable() === true) {
+              <span class="text-emerald-500 font-medium">
+                {{ t('validation.subdomain_available') }}
+              </span>
+            } @else if (subdomainAvailable() === false) {
+              <span class="text-red-500 font-medium">
+                {{ t('validation.subdomain_unavailable') }}
+              </span>
+            } @else {
+              <span class="text-slate-400 dark:text-slate-500">
+                {{ t('auth.subdomain_hint') }}
+              </span>
+            }
+          </div>
+        </div>
+
+        <oerp-input
+          [label]="t('auth.phone_optional')"
+          [placeholder]="t('auth.phone')"
+          [control]="getControl('phone')"
+          [errorMessage]="getErrorMessage('phone')"
+          prefixIcon="phone"
+        ></oerp-input>
+
+        <div class="pt-2">
+          <oerp-button
+            type="submit"
+            [label]="isLoading() ? t('auth.processing') : t('auth.submit')"
+            [isLoading]="isLoading()"
+            [disabled]="
+              registerForm.invalid || checkingSubdomain() || subdomainAvailable() === false
+            "
+            class="w-full flex justify-center"
+          ></oerp-button>
+        </div>
+      </form>
+
+      <div class="mt-6 text-center text-sm">
+        <span class="text-slate-500 dark:text-slate-400">
+          {{ t('auth.already_have_account') }}
+        </span>
+        <a
+          href="javascript:void(0)"
+          class="font-semibold text-rose-gold-500 hover:text-rose-gold-600 ml-1 transition"
+        >
+          {{ t('auth.login_now') }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
