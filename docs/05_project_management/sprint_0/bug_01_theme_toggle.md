@@ -23,7 +23,7 @@ Trong Tailwind CSS v4, cơ chế xử lý Dark Mode đã thay đổi hoàn toàn
 ### 3. Giải pháp khắc phục (Resolution)
 Để khôi phục tính năng chuyển đổi giao diện thủ công (Class-based Dark Mode) trong Tailwind CSS v4, chúng ta cần định nghĩa một custom variant trong stylesheet chính của ứng dụng:
 
-* **Tệp tin sửa đổi:** [styles.css (open-erp-web)](file:///c:/Users/Minh/Documents/open-erp/open-erp-web/src/styles.css)
+* **Tệp tin sửa đổi:** [styles.css (open-erp-web)](../../../open-erp-web/src/styles.css)
 * **Mã nguồn bổ sung:**
   ```css
   @custom-variant dark (&:where(.dark, .dark *));
@@ -37,4 +37,4 @@ Sau khi áp dụng giải pháp và chạy lại máy chủ phát triển:
 - **Biên dịch**: Ứng dụng biên dịch thành công mà không có cảnh báo hoặc lỗi cú pháp.
 - **Thử nghiệm**: Khi click nút toggle theme, ứng dụng chuyển sang giao diện tối (Dark mode) chính xác với các tông màu tối đặc trưng cấu hình trong `@theme` và ngược lại.
 - **Lưu trữ**: Trạng thái được khôi phục chính xác sau khi tải lại trang nhờ vào kiểm tra giá trị trong `localStorage`.
-- **Ghi hình kiểm thử**: Lưu trữ tại [verify_register_flow_1781312625557.webp](C:/Users/Minh/.gemini/antigravity-ide/brain/7c2f6168-a3b9-46c4-a385-c360c30429d6/verify_register_flow_1781312625557.webp).
+- **Ghi hình kiểm thử**: Đã kiểm chứng chuyển đổi theme thành công qua kịch bản Playwright.
