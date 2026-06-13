@@ -1,0 +1,19 @@
+{
+  "name": "open-erp",
+  "private": true,
+  "workspaces": [
+    "open-erp-services",
+    "open-erp-ui",
+    "open-erp-web"
+  ],
+  "scripts": {
+    "services:dev": "npm run start:dev --workspace=open-erp-services",
+    "web:dev": "npm run start --workspace=open-erp-web",
+    "ui:build": "npm run build --workspace=open-erp-ui",
+    "ui:watch": "npm run watch --workspace=open-erp-ui",
+    "dev": "concurrently \"npm run services:dev\" \"npm run web:dev\" \"npm run ui:watch\""
+  },
+  "dependencies": {
+    "concurrently": "^8.0.1"
+  }
+}
