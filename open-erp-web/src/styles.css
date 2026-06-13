@@ -2,23 +2,25 @@
 
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @source "../../open-erp-ui/dist/shared-ui/**/*.{html,ts,js,mjs}";
 @source "./node_modules/@open-erp/shared-ui/**/*.{html,ts,js,mjs}";
 
 @theme {
-  --color-rose-gold-50: #FDF8F5;
-  --color-rose-gold-100: #FBECE6;
-  --color-rose-gold-200: #F6D2C4;
-  --color-rose-gold-300: #EEA994;
-  --color-rose-gold-400: #E27E67;
-  --color-rose-gold-500: #B76E79;
-  --color-rose-gold-600: #A45964;
+  --color-rose-gold-50: #fdf8f5;
+  --color-rose-gold-100: #fbece6;
+  --color-rose-gold-200: #f6d2c4;
+  --color-rose-gold-300: #eea994;
+  --color-rose-gold-400: #e27e67;
+  --color-rose-gold-500: #b76e79;
+  --color-rose-gold-600: #a45964;
   --color-rose-gold-700: #894650;
-  --color-rose-gold-800: #723A43;
-  --color-rose-gold-900: #5F323A;
+  --color-rose-gold-800: #723a43;
+  --color-rose-gold-900: #5f323a;
 
-  --color-dark-bg: #0F172A;
-  --color-dark-card: #1E293B;
-  --color-light-bg: #F8FAFC;
-  --color-light-card: #FFFFFF;
+  --color-dark-bg: #0f172a;
+  --color-dark-card: #1e293b;
+  --color-light-bg: #f8fafc;
+  --color-light-card: #ffffff;
 }

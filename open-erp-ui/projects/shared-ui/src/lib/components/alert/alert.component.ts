@@ -7,12 +7,7 @@ import { IconComponent } from '../icon/icon.component';
   standalone: true,
   imports: [NgClass, IconComponent],
   template: `
-    <div 
-      [ngClass]="[
-        'flex items-start gap-3 p-4 rounded-xl border',
-        getClasses()
-      ]"
-    >
+    <div [ngClass]="['flex items-start gap-3 p-4 rounded-xl border', getClasses()]">
       <!-- Icon -->
       <div class="flex-shrink-0 mt-0.5">
         <oerp-icon [name]="getIconName()" [size]="20" [color]="getIconColor()"></oerp-icon>
@@ -26,7 +21,7 @@ import { IconComponent } from '../icon/icon.component';
         <p class="text-slate-600 dark:text-slate-300 leading-normal">{{ message() }}</p>
       </div>
     </div>
-  `
+  `,
 })
 export class AlertComponent {
   title = input<string>('');
@@ -49,31 +44,43 @@ export class AlertComponent {
 
   getTitleColorClass(): string {
     switch (this.type()) {
-      case 'success': return 'text-emerald-900 dark:text-emerald-400';
-      case 'warning': return 'text-amber-900 dark:text-amber-400';
-      case 'error': return 'text-rose-900 dark:text-rose-400';
+      case 'success':
+        return 'text-emerald-900 dark:text-emerald-400';
+      case 'warning':
+        return 'text-amber-900 dark:text-amber-400';
+      case 'error':
+        return 'text-rose-900 dark:text-rose-400';
       case 'info':
-      default: return 'text-sky-900 dark:text-sky-400';
+      default:
+        return 'text-sky-900 dark:text-sky-400';
     }
   }
 
   getIconName(): string {
     switch (this.type()) {
-      case 'success': return 'check-circle';
-      case 'warning': return 'alert-triangle';
-      case 'error': return 'alert-octagon';
+      case 'success':
+        return 'check-circle';
+      case 'warning':
+        return 'alert-triangle';
+      case 'error':
+        return 'alert-octagon';
       case 'info':
-      default: return 'info';
+      default:
+        return 'info';
     }
   }
 
   getIconColor(): string {
     switch (this.type()) {
-      case 'success': return '#10b981'; // emerald-500
-      case 'warning': return '#f59e0b'; // amber-500
-      case 'error': return '#e11d48'; // rose-500
+      case 'success':
+        return '#10b981'; // emerald-500
+      case 'warning':
+        return '#f59e0b'; // amber-500
+      case 'error':
+        return '#e11d48'; // rose-500
       case 'info':
-      default: return '#0ea5e9'; // sky-500
+      default:
+        return '#0ea5e9'; // sky-500
     }
   }
 }

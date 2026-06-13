@@ -24,6 +24,8 @@ Dưới đây là danh sách các Task nền tảng cần triển khai trong Spr
 | **TSK-0.5** | Thiết lập CI/CD & Infrastructure | Tạo hạ tầng Kubernetes Cluster, cấu hình Webhook tự động build và deploy lên môi trường Dev/Staging. | [x] Hoàn thành | DevOps | [task_05_cicd_infrastructure.md](./task_05_cicd_infrastructure.md) |
 | **TSK-0.6** | Khởi tạo các UI Components cơ bản | Xây dựng các component dùng chung cơ bản (Button, Input, Modal) hỗ trợ màu Rose Gold & Light/Dark Mode trong thư viện `open-erp-ui`. | [x] Hoàn thành | FE Leads | [task_06_shared_ui_components.md](./task_06_shared_ui_components.md) |
 | **TSK-0.7** | Mở rộng các UI Components | Bổ sung các component cốt lõi (Phase 1: Core) cho thư viện UI hỗ trợ màu Rose Gold & Light/Dark Mode. | [x] Hoàn thành | FE Leads | [task_07_full_ui_library_components.md](./task_07_full_ui_library_components.md) |
+| **BUG-0.1** | Sửa lỗi chuyển đổi Theme Dark/Light | Khắc phục lỗi không thể chuyển đổi giao diện sáng/tối thủ công do cấu hình mặc định của Tailwind CSS v4. | [x] Hoàn thành | FE Leads | [bug_01_theme_toggle.md](./bug_01_theme_toggle.md) |
+
 
 ### 3. Trật tự thực thi & Luồng phụ thuộc công việc (Execution Flow & Dependencies)
 
