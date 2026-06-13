@@ -2,9 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { BadRequestException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { Tenant } from '../../core/tenant/tenant.entity';
 import { User } from '../../core/user/user.entity';
+import { RedisService } from '../../core/redis/redis.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -19,6 +21,8 @@ describe('AuthService', () => {
     release: jest.Mock;
     manager: { save: jest.Mock };
   };
+  let jwtServiceMock: { sign: jest.Mock; verify: jest.Mock };
+  let redisServiceMock: { get: jest.Mock; set: jest.Mock; del: jest.Mock };
 
   beforeEach(async () => {
     tenantRepoMock = {
@@ -45,6 +49,17 @@ describe('AuthService', () => {
       createQueryRunner: jest.fn(() => queryRunnerMock),
     };
 
+    jwtServiceMock = {
+      sign: jest.fn(() => 'mock-token'),
+      verify: jest.fn(() => ({ userId: 'mock-id' })),
+    };
+
+    redisServiceMock = {
+      get: jest.fn(),
+      set: jest.fn(),
+      del: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -59,6 +74,14 @@ describe('AuthService', () => {
         {
           provide: DataSource,
           useValue: dataSourceMock,
+        },
+        {
+          provide: JwtService,
+          useValue: jwtServiceMock,
+        },
+        {
+          provide: RedisService,
+          useValue: redisServiceMock,
         },
       ],
     }).compile();
