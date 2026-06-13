@@ -185,10 +185,6 @@
               <span class="text-emerald-500 font-medium">
                 {{ 'validation.subdomain_available' | transloco }}
               </span>
-            } @else if (subdomainAvailable() === false) {
-              <span class="text-red-500 font-medium">
-                {{ 'validation.subdomain_unavailable' | transloco }}
-              </span>
             } @else {
               <span class="text-slate-400 dark:text-slate-500">
                 {{ 'auth.subdomain_hint' | transloco }}
