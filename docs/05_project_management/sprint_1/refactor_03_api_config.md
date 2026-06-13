@@ -122,3 +122,14 @@ const url = `${config.apiUrl}${API_ENDPOINTS.auth.register}`;
 1. **Không viết cứng**: Không còn bất kỳ chuỗi ký tự chứa `http://localhost:3000` hoặc địa chỉ cứng nào nằm trong mã nguồn `.ts` của component hay service khác.
 2. **Khởi tạo đúng thứ tự**: Hệ thống mạng của trình duyệt hiển thị yêu cầu `GET /assets/config.json` chạy đầu tiên trước khi gọi các API nghiệp vụ khác.
 3. **Môi trường hóa**: Khi thay đổi giá trị `"apiUrl"` trong `config.json` ở thư mục dist sau khi build, ứng dụng tự động kết nối đến Server API mới mà không cần phải compile lại source code Angular.
+
+---
+
+### 5. Kết quả thực hiện (Implementation Status)
+- **Trạng thái**: [x] Đã hoàn thành (Completed)
+- **Kết quả**:
+  - Đã tạo tệp tin cấu hình động [config.json](../../../open-erp-web/public/assets/config.json) chứa `"apiUrl": "http://localhost:3000"`.
+  - Triển khai dịch vụ [ConfigService](../../../open-erp-web/src/app/core/services/config.service.ts) để tải động cấu hình bằng HTTP GET request.
+  - Quản lý tập trung danh mục endpoint trong [api-endpoints.ts](../../../open-erp-web/src/app/core/constants/api-endpoints.ts).
+  - Đăng ký `APP_INITIALIZER` trong [app.config.ts](../../../open-erp-web/src/app/app.config.ts) để tải cấu hình trước khi ứng dụng Angular khởi chạy.
+  - Cập nhật [RegisterComponent](../../../open-erp-web/src/app/features/auth/register/register.component.ts) để loại bỏ hoàn toàn các API URL viết cứng và sử dụng `ConfigService` kết hợp với `API_ENDPOINTS`.

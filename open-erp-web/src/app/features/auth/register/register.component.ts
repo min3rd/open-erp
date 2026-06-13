@@ -13,6 +13,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { InputComponent, ButtonComponent, IconComponent } from '@open-erp/shared-ui';
+import { ConfigService } from '../../../core/services/config.service';
+import { API_ENDPOINTS } from '../../../core/constants/api-endpoints';
 
 @Component({
   selector: 'app-register',
@@ -32,6 +34,7 @@ export class RegisterComponent implements OnInit {
   private http = inject(HttpClient);
   private translocoService = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
+  private configService = inject(ConfigService);
 
   registerForm: FormGroup;
   isDarkMode = signal<boolean>(false);
@@ -131,11 +134,12 @@ export class RegisterComponent implements OnInit {
             this.subdomainAvailable.set(null);
             this.errorMessage.set('');
 
+            const url = `${this.configService.apiUrl}${API_ENDPOINTS.auth.checkSubdomain(value)}`;
             return this.http
               .get<{
                 success: boolean;
                 data: { available: boolean };
-              }>(`http://localhost:3000/api/v1/auth/check-subdomain?subdomain=${value}`)
+              }>(url)
               .pipe(
                 catchError(() => {
                   this.checkingSubdomain.set(false);
@@ -215,9 +219,10 @@ export class RegisterComponent implements OnInit {
 
     const formVal = this.registerForm.value;
 
+    const url = `${this.configService.apiUrl}${API_ENDPOINTS.auth.register}`;
     this.http
       .post<{ success: boolean; messageKey?: string; error?: { messageKey?: string } }>(
-        'http://localhost:3000/api/v1/auth/register',
+        url,
         formVal,
       )
       .pipe(

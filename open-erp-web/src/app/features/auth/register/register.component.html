@@ -1,5 +1,4 @@
 <div
-  *transloco="let t"
   class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-light-bg dark:bg-dark-bg text-slate-900 dark:text-slate-100 transition-colors duration-200"
 >
   <!-- Top header / Settings bar -->
@@ -37,10 +36,10 @@
       <oerp-icon name="briefcase" [size]="24"></oerp-icon>
     </div>
     <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-      {{ t('auth.register_title') }}
+      {{ 'auth.register_title' | transloco }}
     </h2>
     <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
-      {{ t('auth.register_subtitle') }}
+      {{ 'auth.register_subtitle' | transloco }}
     </p>
   </div>
 
@@ -79,23 +78,23 @@
       <!-- Form -->
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
         <oerp-input
-          [label]="t('auth.company_name')"
-          [placeholder]="t('auth.company_name')"
+          [label]="'auth.company_name' | transloco"
+          [placeholder]="'auth.company_name' | transloco"
           [control]="getControl('companyName')"
           [errorMessage]="getErrorMessage('companyName')"
         ></oerp-input>
 
         <oerp-input
-          [label]="t('auth.email')"
-          [placeholder]="t('auth.email')"
+          [label]="'auth.email' | transloco"
+          [placeholder]="'auth.email' | transloco"
           [control]="getControl('email')"
           [errorMessage]="getErrorMessage('email')"
           prefixIcon="mail"
         ></oerp-input>
 
         <oerp-input
-          [label]="t('auth.password')"
-          [placeholder]="t('auth.password')"
+          [label]="'auth.password' | transloco"
+          [placeholder]="'auth.password' | transloco"
           type="password"
           [control]="getControl('password')"
           [errorMessage]="getErrorMessage('password')"
@@ -140,7 +139,7 @@
             <!-- Strength Text Label -->
             <div class="flex justify-between items-center text-xs font-semibold select-none">
               <span class="text-slate-500 dark:text-slate-400"
-                >{{ t('auth.password_strength') }}:</span
+                >{{ 'auth.password_strength' | transloco }}:</span
               >
               <span
                 [ngClass]="[
@@ -155,11 +154,11 @@
               >
                 {{
                   passwordStrength() === 'weak'
-                    ? t('auth.password_weak')
+                    ? ('auth.password_weak' | transloco)
                     : passwordStrength() === 'medium'
-                      ? t('auth.password_medium')
+                      ? ('auth.password_medium' | transloco)
                       : passwordStrength() === 'strong'
-                        ? t('auth.password_strong')
+                        ? ('auth.password_strong' | transloco)
                         : ''
                 }}
               </span>
@@ -169,8 +168,8 @@
 
         <div>
           <oerp-input
-            [label]="t('auth.subdomain')"
-            [placeholder]="t('auth.subdomain')"
+            [label]="'auth.subdomain' | transloco"
+            [placeholder]="'auth.subdomain' | transloco"
             [control]="getControl('subdomain')"
             [errorMessage]="getErrorMessage('subdomain')"
             prefixIcon="globe"
@@ -180,27 +179,27 @@
             <!-- Subdomain check indicator -->
             @if (checkingSubdomain()) {
               <span class="text-slate-400 dark:text-slate-500 animate-pulse">
-                {{ t('validation.checking_subdomain') }}
+                {{ 'validation.checking_subdomain' | transloco }}
               </span>
             } @else if (subdomainAvailable() === true) {
               <span class="text-emerald-500 font-medium">
-                {{ t('validation.subdomain_available') }}
+                {{ 'validation.subdomain_available' | transloco }}
               </span>
             } @else if (subdomainAvailable() === false) {
               <span class="text-red-500 font-medium">
-                {{ t('validation.subdomain_unavailable') }}
+                {{ 'validation.subdomain_unavailable' | transloco }}
               </span>
             } @else {
               <span class="text-slate-400 dark:text-slate-500">
-                {{ t('auth.subdomain_hint') }}
+                {{ 'auth.subdomain_hint' | transloco }}
               </span>
             }
           </div>
         </div>
 
         <oerp-input
-          [label]="t('auth.phone_optional')"
-          [placeholder]="t('auth.phone')"
+          [label]="'auth.phone_optional' | transloco"
+          [placeholder]="'auth.phone' | transloco"
           [control]="getControl('phone')"
           [errorMessage]="getErrorMessage('phone')"
           prefixIcon="phone"
@@ -209,7 +208,7 @@
         <div class="pt-2">
           <oerp-button
             type="submit"
-            [label]="isLoading() ? t('auth.processing') : t('auth.submit')"
+            [label]="isLoading() ? ('auth.processing' | transloco) : ('auth.submit' | transloco)"
             [isLoading]="isLoading()"
             [disabled]="
               registerForm.invalid || checkingSubdomain() || subdomainAvailable() === false
@@ -221,13 +220,13 @@
 
       <div class="mt-6 text-center text-sm">
         <span class="text-slate-500 dark:text-slate-400">
-          {{ t('auth.already_have_account') }}
+          {{ 'auth.already_have_account' | transloco }}
         </span>
         <a
           href="javascript:void(0)"
           class="font-semibold text-rose-gold-500 hover:text-rose-gold-600 ml-1 transition"
         >
-          {{ t('auth.login_now') }}
+          {{ 'auth.login_now' | transloco }}
         </a>
       </div>
     </div>
