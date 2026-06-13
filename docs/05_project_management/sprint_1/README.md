@@ -23,6 +23,7 @@ Dưới đây là danh sách các Task cần triển khai trong Sprint 1:
 | **TSK-1.5** | Phân quyền RBAC & Menu động | Định nghĩa các nhóm quyền (Admin, Manager, Employee), phân quyền thao tác trên từng module và render menu điều hướng động theo vai trò. | [ ] Todo | BE/FE Leads, UI-UX | [task_05_basic_permissions.md](./task_05_basic_permissions.md) |
 | **BUG-1.1** | Lỗi kích hoạt cảnh báo validate quá sớm | Dù người dùng chưa thao tác ở ô input nhưng đã hiển thị cảnh báo validate ngay khi click vào một vị trí bất kỳ. | [x] Completed | FE Leads | [bug_01_validation_trigger.md](./bug_01_validation_trigger.md) |
 | **BUG-1.2** | Thiếu hiển thị mức độ an toàn mật khẩu | Thiếu hiển thị mức độ an toàn (Password Strength Meter) khi người dùng nhập mật khẩu đăng ký. | [x] Completed | FE Leads, UI-UX | [bug_02_password_strength.md](./bug_02_password_strength.md) |
+| **REF-1.1** | Tái cấu trúc Component & Styles | Tách biệt template .html và logic .ts, loại bỏ style cục bộ của component và sử dụng styles dùng chung. | [ ] Todo | FE Leads | [refactor_01_component_structure.md](./refactor_01_component_structure.md) |
 
 
 ---
