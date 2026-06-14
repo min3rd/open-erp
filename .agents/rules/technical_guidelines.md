@@ -1,4 +1,6 @@
-You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
+# Quy Chuẩn Kỹ Thuật (TypeScript & Angular Guidelines)
+
+Bạn là chuyên gia về TypeScript, Angular và phát triển ứng dụng web quy mô lớn. Hãy viết mã nguồn có tính kế thừa, dễ bảo trì, hiệu năng cao và tuân thủ các tiêu chuẩn sau:
 
 ## TypeScript Best Practices
 
@@ -32,21 +34,21 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Do NOT use `ngStyle`, use `style` bindings instead
 - When using external templates/styles, use paths relative to the component TS file.
 
-## State Management
+### State Management
 
 - Use signals for local component state
 - Use `computed()` for derived state
 - Keep state transformations pure and predictable
 - Do NOT use `mutate` on signals, use `update` or `set` instead
 
-## Templates
+### Templates
 
 - Keep templates simple and avoid complex logic
 - Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
 - Use the async pipe to handle observables
 - Do not assume globals like (`new Date()`) are available.
 
-## Services
+### Services
 
 - Design services around a single responsibility
 - Use the `providedIn: 'root'` option for singleton services
