@@ -1,0 +1,28 @@
+# Tasks - Sprint 1 Deliverables
+
+- [x] **BUG-1.5**: NestJS 11 global prefix legacy route path warning (`Unsupported route path: "/api/v1/*"`)
+  - [x] Update `configure` in `open-erp-services/src/app.module.ts` to use named parameter `{*splat}`.
+  - [x] Create bug design and resolution document `docs/05_project_management/sprint_1/bug_05_api_prefix.md`.
+- [x] **REF-1.5**: ConfigModule integration for database and redis config
+  - [x] Install `@nestjs/config` dependency.
+  - [x] Register `ConfigModule` in `open-erp-services/src/app.module.ts`.
+  - [x] Update TypeOrm connection to load dynamically via `ConfigService`.
+  - [x] Inject `ConfigService` and load redis settings dynamically in `open-erp-services/src/core/redis/redis.service.ts`.
+  - [x] Create refactor design document `docs/05_project_management/sprint_1/refactor_05_config_module.md`.
+- [x] **BUG-1.6**: Local dev activation link and `TENANT_NOT_FOUND` login error
+  - [x] Update `AuthService` to generate local-friendly activation links and store tokens in Redis.
+  - [x] Create backend `POST /auth/activate` endpoint in `open-erp-services/src/features/auth/auth.controller.ts`.
+  - [x] Bypass tenant middleware in `open-erp-services/src/core/tenant/tenant.middleware.ts` for activation path.
+  - [x] Inject `x-subdomain` dynamically on frontend via `open-erp-web/src/app/core/interceptors/auth.interceptor.ts`.
+  - [x] Implement lazy-loaded `ActivateComponent` on frontend matching Angular v22 standards.
+  - [x] Register `/activate` path in `open-erp-web/src/app/app.routes.ts`.
+  - [x] Update `docs/05_project_management/sprint_1/bug_06_activation_link.md` design document.
+- [x] **BUG-1.7**: Empty subdomain registration validation error
+  - [x] Import and add `@ValidateIf` decorator to `RegisterDto` to allow empty string subdomain.
+  - [x] Create design document `docs/05_project_management/sprint_1/bug_07_empty_subdomain_validation.md`.
+- [/] **BUG-1.8**: Tenant not found on login after successful activation
+  - [x] Update backend `AuthService.activate` to query and return tenant subdomain.
+  - [x] Update `AuthController.activate` to output subdomain in API response data.
+  - [x] Update frontend `AuthService.activate` return type signature.
+  - [x] Refactor frontend `ActivateComponent` redirect logic and `goToLogin()` method to construct absolute subdomain redirect paths.
+  - [x] Create bug design and resolution document `docs/05_project_management/sprint_1/bug_08_tenant_not_found_on_login.md`.

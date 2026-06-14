@@ -144,11 +144,11 @@ export class AuthService {
     }
   }
 
-  async login(dto: LoginDto, tenantId: string) {
+  async login(dto: LoginDto, tenantId?: string) {
     const email = dto.email.trim().toLowerCase();
 
     const user = await this.userRepository.findOne({
-      where: { email, tenantId },
+      where: tenantId ? { email, tenantId } : { email },
     });
 
     if (!user) {
@@ -202,12 +202,21 @@ export class AuthService {
     const redisKey = `session:${user.id}:${tokenHash}`;
     await this.redisService.set(redisKey, 'active', 7 * 24 * 60 * 60);
 
+    const tenant = await this.tenantRepository.findOne({
+      where: { id: user.tenantId },
+    });
+
     return {
       success: true,
       data: {
         accessToken,
         refreshToken,
         expiresIn: 900,
+        tenant: {
+          id: user.tenantId,
+          name: tenant?.name,
+          subdomain: tenant?.subdomain,
+        },
       },
     };
   }
@@ -299,7 +308,7 @@ export class AuthService {
     }
   }
 
-  async activate(token: string): Promise<string> {
+  async activate(token: string): Promise<{ userId: string; subdomain: string }> {
     if (!token) {
       throw new BadRequestException({
         success: false,
@@ -340,6 +349,13 @@ export class AuthService {
     await this.userRepository.save(user);
     await this.redisService.del(redisKey);
 
-    return user.id;
+    const tenant = await this.tenantRepository.findOne({
+      where: { id: user.tenantId },
+    });
+
+    return {
+      userId: user.id,
+      subdomain: tenant?.subdomain || '',
+    };
   }
 }

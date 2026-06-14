@@ -57,6 +57,7 @@ export class AuthController {
         accessToken: result.data.accessToken,
         refreshToken: result.data.refreshToken,
         expiresIn: result.data.expiresIn,
+        tenant: result.data.tenant,
       },
     };
   }
@@ -127,10 +128,13 @@ export class AuthController {
   @Post('activate')
   @HttpCode(HttpStatus.OK)
   async activate(@Body('token') token: string) {
-    await this.authService.activate(token);
+    const result = await this.authService.activate(token);
     return {
       success: true,
       messageKey: 'auth.activation_success',
+      data: {
+        subdomain: result.subdomain,
+      },
     };
   }
 }

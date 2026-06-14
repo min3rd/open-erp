@@ -17,12 +17,22 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     subdomain = domain.replace('.open-erp.9ms.io.vn', '');
   }
 
+  // Fallback to localStorage if no subdomain in hostname
+  if (!subdomain) {
+    subdomain = localStorage.getItem('subdomain');
+  }
+
+  const tenantId = localStorage.getItem('tenantId');
+
   let headers = req.headers;
   if (token) {
     headers = headers.set('Authorization', `Bearer ${token}`);
   }
   if (subdomain) {
     headers = headers.set('x-subdomain', subdomain);
+  }
+  if (tenantId) {
+    headers = headers.set('x-tenant-id', tenantId);
   }
 
   const authReq = req.clone({ headers });

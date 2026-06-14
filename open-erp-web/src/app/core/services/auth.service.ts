@@ -39,6 +39,14 @@ export class AuthService {
       tap((res) => {
         if (res.success && res.data?.accessToken) {
           this.accessToken.set(res.data.accessToken);
+          if (res.data.tenant) {
+            localStorage.setItem('tenantId', res.data.tenant.id);
+            if (res.data.tenant.subdomain) {
+              localStorage.setItem('subdomain', res.data.tenant.subdomain);
+            } else {
+              localStorage.removeItem('subdomain');
+            }
+          }
         }
       })
     );
@@ -71,8 +79,8 @@ export class AuthService {
     );
   }
 
-  activate(token: string): Observable<{ success: boolean; messageKey?: string }> {
+  activate(token: string): Observable<{ success: boolean; messageKey?: string; data?: { subdomain: string } }> {
     const url = this.config.buildUrl(API_ENDPOINTS.auth.activate);
-    return this.http.post<{ success: boolean; messageKey?: string }>(url, { token });
+    return this.http.post<{ success: boolean; messageKey?: string; data?: { subdomain: string } }>(url, { token });
   }
 }

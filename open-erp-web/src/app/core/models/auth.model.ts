@@ -25,6 +25,11 @@ export interface LoginResponse {
     accessToken: string;
     refreshToken?: string;
     expiresIn: number;
+    tenant?: {
+      id: string;
+      name?: string;
+      subdomain?: string;
+    };
   };
   messageKey?: string;
   error?: {
