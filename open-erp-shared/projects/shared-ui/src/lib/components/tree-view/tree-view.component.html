@@ -1,0 +1,71 @@
+<div
+  class="oerp-tree-container"
+  [ngClass]="{ 'drag-over-root': isDragOverRoot() }"
+  (dragover)="onDragOverRoot($event)"
+  (dragleave)="onDragLeaveRoot($event)"
+  (drop)="onDropRoot($event)"
+>
+  @for (node of nodes(); track node.id) {
+    <div class="oerp-tree-node-wrapper">
+      <div
+        class="oerp-tree-node"
+        [class.active]="activeNodeId() === node.id"
+        [class.drag-over]="dragOverNodeId() === node.id"
+        [style.padding-left.px]="level() * 20 + 8"
+        [attr.draggable]="enableDragAndDrop() ? 'true' : null"
+        (dragstart)="onDragStart($event, node)"
+        (dragover)="onDragOver($event, node)"
+        (dragleave)="onDragLeave($event, node)"
+        (drop)="onDrop($event, node)"
+        (click)="onSelectNode(node, $event)"
+      >
+        <!-- Expand/Collapse toggle icon -->
+        @if (node.children && node.children.length > 0) {
+          <button
+            class="oerp-tree-toggle-btn"
+            (click)="toggleExpand(node.id, $event)"
+          >
+            <oerp-icon
+              [name]="isExpanded(node.id) ? 'chevron-down' : 'chevron-right'"
+              [size]="16"
+            ></oerp-icon>
+          </button>
+        }
+        @if (!node.children || node.children.length === 0) {
+          <div class="w-4 h-4 flex-shrink-0"></div>
+        }
+
+        <!-- Department icon -->
+        <oerp-icon
+          class="oerp-tree-node-icon"
+          name="briefcase"
+          [size]="18"
+        ></oerp-icon>
+
+        <!-- Department Name -->
+        <span class="oerp-tree-node-name">{{ node.name }}</span>
+      </div>
+
+      <!-- Recursive children list -->
+      @if (node.children && node.children.length > 0 && isExpanded(node.id)) {
+        <div class="oerp-tree-children">
+          <oerp-tree-view
+            [nodes]="node.children"
+            [activeNodeId]="activeNodeId()"
+            [enableDragAndDrop]="enableDragAndDrop()"
+            [level]="level() + 1"
+            (nodeSelected)="onChildNodeSelected($event)"
+            (nodeDropped)="onChildNodeDropped($event)"
+          ></oerp-tree-view>
+        </div>
+      }
+    </div>
+  }
+
+  @if (level() === 0 && nodes().length === 0) {
+    <div class="oerp-tree-empty-drop">
+      <oerp-icon name="plus-circle" [size]="24" class="text-rose-gold-400 mb-2"></oerp-icon>
+      <span class="text-sm text-slate-400">{{ 'org.drag_drop_top_hint' | transloco }}</span>
+    </div>
+  }
+</div>

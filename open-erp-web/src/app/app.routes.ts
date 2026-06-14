@@ -12,5 +12,13 @@ export const routes: Routes = [
         (m) => m.ActivateComponent
       ),
   },
+  {
+    path: 'org-structure',
+    loadComponent: () =>
+      import('./features/org-structure/org-structure.component').then(
+        (m) => m.OrgStructureComponent
+      ),
+  },
   { path: '', redirectTo: 'login', pathMatch: 'full' }
+
 ];

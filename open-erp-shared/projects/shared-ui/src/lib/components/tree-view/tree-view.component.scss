@@ -1,0 +1,146 @@
+.oerp-tree-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+
+  &.drag-over-root {
+    background-color: rgba(183, 110, 121, 0.05); // Rose gold tint
+    border: 2px dashed #b76e79;
+    padding: 8px;
+  }
+}
+
+.oerp-tree-node-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.oerp-tree-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+  color: #334155; // Slate-700
+  font-weight: 500;
+
+  &:hover {
+    background-color: #f8fafc; // Slate-50
+    color: #0f172a; // Slate-900
+  }
+
+  &.active {
+    background-color: rgba(183, 110, 121, 0.08); // Rose gold tint
+    border-left-color: #b76e79; // Rose Gold
+    color: #b76e79;
+  }
+
+  &.drag-over {
+    border: 2px dashed #b76e79;
+    background-color: rgba(183, 110, 121, 0.05);
+  }
+}
+
+.oerp-tree-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: #64748b; // Slate-500
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #e2e8f0; // Slate-200
+    color: #0f172a;
+  }
+}
+
+.oerp-tree-node-icon {
+  color: #b76e79; // Rose gold default
+  flex-shrink: 0;
+}
+
+.oerp-tree-node-name {
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.oerp-tree-children {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 17px;
+    top: 0;
+    bottom: 12px;
+    width: 1px;
+    background-color: #e2e8f0; // Connector line
+  }
+}
+
+// Dark Mode Support
+:host-context(.dark) {
+  .oerp-tree-node {
+    color: #cbd5e1; // Slate-300
+    
+    &:hover {
+      background-color: rgba(30, 41, 59, 0.5); // Dark Slate hover
+      color: #f1f5f9;
+    }
+
+    &.active {
+      background-color: rgba(183, 110, 121, 0.15);
+      color: #fda4af; // Rose-300
+    }
+  }
+
+  .oerp-tree-toggle-btn {
+    color: #94a3b8;
+    
+    &:hover {
+      background-color: #334155;
+      color: #f1f5f9;
+    }
+  }
+
+  .oerp-tree-children::before {
+    background-color: #334155;
+  }
+}
+
+.oerp-tree-empty-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  text-align: center;
+  background-color: #f8fafc;
+
+  :host-context(.dark) & {
+    border-color: #334155;
+    background-color: #1e293b;
+  }
+}

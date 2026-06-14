@@ -1,0 +1,348 @@
+<div class="org-container min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6">
+  <!-- Header -->
+  <header class="flex justify-between items-center mb-8 border-b pb-4 border-slate-200 dark:border-slate-800">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+        {{ 'org.title' | transloco }}
+      </h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+        {{ 'org.subtitle' | transloco }}
+      </p>
+    </div>
+    <div class="flex gap-3">
+      <oerp-button
+        variant="secondary"
+        [icon]="'plus'"
+        [label]="'org.add_branch' | transloco"
+        (onClick)="openAddBranch()"
+      ></oerp-button>
+      <oerp-button
+        variant="primary"
+        [icon]="'plus-circle'"
+        [label]="'org.add_department' | transloco"
+        (onClick)="openAddDepartment()"
+      ></oerp-button>
+    </div>
+  </header>
+
+  <!-- Main Grid Layout (Split Pane) -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- Left Pane: Org Directory & Trees -->
+    <div class="lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 flex flex-col gap-6">
+      
+      <!-- Branches Section -->
+      <div>
+        <h2 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+          {{ 'org.branches' | transloco }}
+        </h2>
+        <div class="flex flex-col gap-2">
+          @for (branch of branches(); track branch.id) {
+            <div
+              class="flex items-center justify-between p-3 rounded-lg border border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition"
+              [ngClass]="{ 'border-rose-gold-500 bg-rose-gold-50/10 dark:bg-rose-gold-950/10': selectedNode()?.type === 'branch' && selectedNode()?.data?.id === branch.id }"
+              (click)="selectBranch(branch)"
+            >
+              <div class="flex items-center gap-3">
+                <oerp-icon name="map-pin" class="text-rose-gold-500" [size]="18"></oerp-icon>
+                <span class="font-medium text-sm">{{ branch.name }}</span>
+              </div>
+              <oerp-icon name="chevron-right" class="text-slate-400" [size]="16"></oerp-icon>
+            </div>
+          }
+          @if (branches().length === 0) {
+            <p class="text-sm text-slate-400 italic">
+              {{ 'org.empty_branches' | transloco }}
+            </p>
+          }
+        </div>
+      </div>
+
+      <hr class="border-slate-200 dark:border-slate-700" />
+
+      <!-- Departments Tree Section -->
+      <div class="flex-1">
+        <h2 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+          {{ 'org.departments' | transloco }}
+        </h2>
+        
+        <div class="tree-wrapper overflow-y-auto max-h-[500px]">
+          @if (departmentsTree().length > 0) {
+            <oerp-tree-view
+              [nodes]="departmentsTree()"
+              [activeNodeId]="activeNodeId()"
+              [enableDragAndDrop]="true"
+              (nodeSelected)="selectNode($event)"
+              (nodeDropped)="onNodeDropped($event)"
+            ></oerp-tree-view>
+          }
+          
+          @if (departmentsTree().length === 0) {
+            <div class="flex flex-col gap-4 p-4 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50/50 dark:bg-slate-800/50 mt-2">
+              <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                {{ 'org.seeding_hint' | transloco }}
+              </p>
+              <oerp-select
+                [label]="'org.select_industry' | transloco"
+                [options]="industryOptions()"
+                [control]="industryControl"
+              ></oerp-select>
+              <oerp-button
+                variant="primary"
+                [label]="'org.seed_data' | transloco"
+                [disabled]="!industryControl.value"
+                (onClick)="seedData()"
+                [icon]="'plus-circle'"
+              ></oerp-button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Pane: Node Details -->
+    <div class="lg:col-span-8">
+      @if (selectedNode(); as node) {
+        <div class="flex flex-col gap-6">
+          <!-- Details Card -->
+          <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 relative overflow-hidden">
+            <!-- Rose Gold Accent top band -->
+            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-rose-gold-400 to-rose-gold-600"></div>
+
+            <!-- Title Area -->
+            <div class="flex justify-between items-start mt-2">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full"
+                        [ngClass]="node.type === 'branch' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400' : 'bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400'">
+                    {{ (node.type === 'branch' ? 'org.branches' : 'org.departments') | transloco }}
+                  </span>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white mt-2">
+                  {{ node.data.name }}
+                </h2>
+              </div>
+              
+              <div class="flex gap-2">
+                <oerp-button
+                  variant="secondary"
+                  [icon]="'edit'"
+                  [label]="'org.actions' | transloco"
+                  (onClick)="node.type === 'branch' ? openEditBranch(node.data) : openEditDepartment(node.data)"
+                ></oerp-button>
+                <oerp-button
+                  variant="danger"
+                  [icon]="'trash'"
+                  [label]="'org.delete_branch' | transloco"
+                  (onClick)="node.type === 'branch' ? deleteBranch(node.data.id) : deleteDepartment(node.data.id)"
+                ></oerp-button>
+              </div>
+            </div>
+
+            <!-- Metadata Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 border-t pt-6 border-slate-100 dark:border-slate-700">
+              <!-- Branch details -->
+              @if (node.type === 'branch') {
+                <div class="flex items-start gap-3">
+                  <oerp-icon name="map-pin" class="text-rose-gold-500 mt-0.5" [size]="18"></oerp-icon>
+                  <div>
+                    <span class="text-xs text-slate-400 block">{{ 'org.address' | transloco }}</span>
+                    <span class="text-sm font-medium">{{ node.data.address || '---' }}</span>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <oerp-icon name="phone" class="text-rose-gold-500 mt-0.5" [size]="18"></oerp-icon>
+                  <div>
+                    <span class="text-xs text-slate-400 block">{{ 'org.phone' | transloco }}</span>
+                    <span class="text-sm font-medium">{{ node.data.phone || '---' }}</span>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3 md:col-span-2">
+                  <oerp-icon name="mail" class="text-rose-gold-500 mt-0.5" [size]="18"></oerp-icon>
+                  <div>
+                    <span class="text-xs text-slate-400 block">{{ 'org.email' | transloco }}</span>
+                    <span class="text-sm font-medium">{{ node.data.email || '---' }}</span>
+                  </div>
+                </div>
+              }
+
+              <!-- Department details -->
+              @if (node.type === 'department') {
+                <div class="flex items-start gap-3">
+                  <oerp-icon name="map-pin" class="text-rose-gold-500 mt-0.5" [size]="18"></oerp-icon>
+                  <div>
+                    <span class="text-xs text-slate-400 block">{{ 'org.branches' | transloco }}</span>
+                    <span class="text-sm font-medium">{{ node.data.branch?.name || '---' }}</span>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <oerp-icon name="user" class="text-rose-gold-500 mt-0.5" [size]="18"></oerp-icon>
+                  <div>
+                    <span class="text-xs text-slate-400 block">{{ 'org.manager' | transloco }}</span>
+                    <span class="text-sm font-medium">{{ node.data.manager?.email || '---' }}</span>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3 md:col-span-2">
+                  <oerp-icon name="corner-down-right" class="text-rose-gold-500 mt-0.5" [size]="18"></oerp-icon>
+                  <div>
+                    <span class="text-xs text-slate-400 block">{{ 'org.parent_department' | transloco }}</span>
+                    <span class="text-sm font-medium">{{ node.data.parent?.name || ('org.no_parent' | transloco) }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Employees List (Only for departments) -->
+          @if (node.type === 'department') {
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+              <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <oerp-icon name="users" class="text-rose-gold-500" [size]="20"></oerp-icon>
+                  {{ 'org.employees' | transloco }} ({{ selectedNodeEmployees().length }})
+                </h3>
+              </div>
+
+              <!-- Employees Table -->
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                  <thead class="bg-slate-50 dark:bg-slate-900 text-slate-400 uppercase text-[11px] tracking-wider border-b border-slate-100 dark:border-slate-800">
+                    <tr>
+                      <th class="p-3">{{ 'auth.company_name' | transloco }}</th>
+                      <th class="p-3">Email</th>
+                      <th class="p-3">{{ 'org.status' | transloco }}</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @for (emp of selectedNodeEmployees(); track emp.id) {
+                      <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition">
+                        <td class="p-3 font-semibold">{{ emp.firstName }} {{ emp.lastName }}</td>
+                        <td class="p-3 text-slate-500 dark:text-slate-400">{{ emp.email || '---' }}</td>
+                        <td class="p-3">
+                          <span class="px-2 py-0.5 text-xs font-semibold rounded-full"
+                                [ngClass]="emp.status === 'Working' ? 'bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400' : 'bg-amber-50 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400'">
+                            {{ 'org.status_' + emp.status | transloco }}
+                          </span>
+                        </td>
+                      </tr>
+                    }
+                    @if (selectedNodeEmployees().length === 0) {
+                      <tr>
+                        <td colspan="3" class="p-6 text-center text-slate-400 italic">
+                          {{ 'org.no_employees' | transloco }}
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
+          <div class="w-16 h-16 rounded-full bg-rose-gold-500/10 flex items-center justify-center text-rose-gold-500 mb-4">
+            <oerp-icon name="briefcase" [size]="32"></oerp-icon>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white">
+            {{ 'org.no_selection_title' | transloco }}
+          </h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 max-w-sm mt-2">
+            {{ 'org.select_node_hint' | transloco }}
+          </p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Branch Modal -->
+  <oerp-modal
+    [title]="(editingBranch() ? 'org.edit_branch' : 'org.add_branch') | transloco"
+    [isOpen]="isBranchModalOpen()"
+    (onClose)="isBranchModalOpen.set(false)"
+  >
+    <form [formGroup]="branchForm" (ngSubmit)="saveBranch()" class="flex flex-col gap-4 py-2">
+      <oerp-input
+        formControlName="name"
+        [label]="'org.branch_name' | transloco"
+        [placeholder]="'org.branch_placeholder' | transloco"
+      ></oerp-input>
+
+      <oerp-input
+        formControlName="address"
+        [label]="'org.address' | transloco"
+        [placeholder]="'org.branch_address_placeholder' | transloco"
+      ></oerp-input>
+
+      <oerp-input
+        formControlName="phone"
+        [label]="'org.phone' | transloco"
+        [placeholder]="'org.branch_phone_placeholder' | transloco"
+      ></oerp-input>
+
+      <oerp-input
+        formControlName="email"
+        [label]="'org.email' | transloco"
+        [placeholder]="'org.branch_email_placeholder' | transloco"
+      ></oerp-input>
+
+      <div class="flex justify-end gap-3 mt-4 border-t pt-4 border-slate-100 dark:border-slate-700">
+        <oerp-button
+          variant="secondary"
+          [label]="'org.cancel' | transloco"
+          (onClick)="isBranchModalOpen.set(false)"
+        ></oerp-button>
+        <oerp-button
+          type="submit"
+          [label]="'org.save' | transloco"
+          [disabled]="branchForm.invalid"
+        ></oerp-button>
+      </div>
+    </form>
+  </oerp-modal>
+
+  <!-- Department Modal -->
+  <oerp-modal
+    [title]="(editingDepartment() ? 'org.edit_department' : 'org.add_department') | transloco"
+    [isOpen]="isDepartmentModalOpen()"
+    (onClose)="isDepartmentModalOpen.set(false)"
+  >
+    <form [formGroup]="departmentForm" (ngSubmit)="saveDepartment()" class="flex flex-col gap-4 py-2">
+      <oerp-input
+        formControlName="name"
+        [label]="'org.department_name' | transloco"
+        [placeholder]="'org.dept_placeholder' | transloco"
+      ></oerp-input>
+
+      <oerp-select
+        formControlName="parentId"
+        [label]="'org.parent_department' | transloco"
+        [options]="parentDeptOptions()"
+      ></oerp-select>
+
+      <oerp-select
+        formControlName="branchId"
+        [label]="'org.branches' | transloco"
+        [options]="branchOptions()"
+      ></oerp-select>
+
+      <oerp-select
+        formControlName="managerId"
+        [label]="'org.manager' | transloco"
+        [options]="managerOptions()"
+      ></oerp-select>
+
+      <div class="flex justify-end gap-3 mt-4 border-t pt-4 border-slate-100 dark:border-slate-700">
+        <oerp-button
+          variant="secondary"
+          [label]="'org.cancel' | transloco"
+          (onClick)="isDepartmentModalOpen.set(false)"
+        ></oerp-button>
+        <oerp-button
+          type="submit"
+          [label]="'org.save' | transloco"
+          [disabled]="departmentForm.invalid"
+        ></oerp-button>
+      </div>
+    </form>
+  </oerp-modal>
+</div>

@@ -1,0 +1,53 @@
+/* Custom utilities for Rose Gold color theme in Mobile */
+.text-rose-gold-500 {
+  color: #b76e79 !important;
+}
+.text-rose-gold-400 {
+  color: #c58f96 !important;
+}
+.bg-rose-gold-500 {
+  background-color: #b76e79 !important;
+}
+.bg-rose-gold-600 {
+  background-color: #a35c67 !important;
+}
+.bg-rose-gold-500\/5 {
+  background-color: rgba(183, 110, 121, 0.05) !important;
+}
+.bg-rose-gold-950\/5 {
+  background-color: rgba(183, 110, 121, 0.05) !important;
+}
+.from-rose-gold-400 {
+  --tw-gradient-from: #c58f96 var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgba(197, 143, 150, 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+.to-rose-gold-600 {
+  --tw-gradient-to: #a35c67 var(--tw-gradient-to-position) !important;
+}
+.border-rose-gold-500 {
+  border-color: #b76e79 !important;
+}
+
+// Ensure clean display of items in mobile list
+.oerp-mobile-item {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --inner-padding-end: 0px;
+  --background: transparent;
+
+  &::part(native) {
+    background-color: transparent;
+  }
+  
+  &:hover {
+    --background: #f8fafc;
+  }
+}
+
+// Dark Mode overrides
+:host-context(.dark) {
+  .oerp-mobile-item:hover {
+    --background: rgba(30, 41, 59, 0.5);
+  }
+}
