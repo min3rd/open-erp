@@ -44,7 +44,7 @@ export class AuthService {
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9]/g, '');
-      
+
       if (!subdomain) {
         subdomain = 'tenant';
       }
@@ -246,7 +246,9 @@ export class AuthService {
         role: 'admin',
         tenantId: user.tenantId,
       };
-      const accessToken = this.jwtService.sign(newPayload, { expiresIn: '15m' });
+      const accessToken = this.jwtService.sign(newPayload, {
+        expiresIn: '15m',
+      });
 
       return {
         success: true,

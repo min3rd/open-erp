@@ -29,8 +29,6 @@ import { TenantMiddleware } from './core/tenant/tenant.middleware';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(TenantMiddleware)
-      .forRoutes('*');
+    consumer.apply(TenantMiddleware).forRoutes('{*splat}');
   }
 }
