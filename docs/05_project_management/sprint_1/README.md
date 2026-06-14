@@ -30,6 +30,7 @@ Dưới đây là danh sách các Task cần triển khai trong Sprint 1:
 | **REF-1.2** | Chuẩn hóa Transloco Pipe | Chuyển đổi cấu trúc đa ngôn ngữ sang Transloco Pipe nhằm tối ưu hóa render và strict template checking. | [x] Completed | FE Leads | [refactor_02_transloco_pipe.md](./refactor_02_transloco_pipe.md) |
 | **REF-1.3** | Quản lý Endpoint & Config | Tải động Base URL từ config.json trước khi app khởi chạy và quản lý danh mục endpoint tập trung. | [x] Completed | FE Leads | [refactor_03_api_config.md](./refactor_03_api_config.md) |
 | **REF-1.4** | Phân lớp Dịch vụ nghiệp vụ | Tách biệt logic API/Data access từ components sang các Angular Service chuyên biệt để tái sử dụng. | [x] Completed | FE Leads | [refactor_04_auth_service.md](./refactor_04_auth_service.md) |
+| **REF-1.5** | Config động với ConfigModule | Chuyển đổi các cấu hình cơ sở dữ liệu Postgres và cache Redis từ cứng sang động sử dụng NestJS ConfigModule. | [x] Completed | BE Leads | [refactor_05_config_module.md](./refactor_05_config_module.md) |
 | **OPT-1.1** | Giới hạn cuộc gọi API đồng thời | Tối ưu hóa tải trang, giới hạn tối đa 3 cuộc gọi API chạy đồng thời trên mỗi màn hình giao diện. | [x] Completed | FE Leads | [optimize_01_api_calls.md](./optimize_01_api_calls.md) |
 
 

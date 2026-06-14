@@ -1,5 +1,6 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Tenant } from './core/tenant/tenant.entity';
@@ -10,15 +11,21 @@ import { TenantMiddleware } from './core/tenant/tenant.middleware';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'localpassword',
-      database: 'open_erp_dev',
-      entities: [Tenant, User],
-      synchronize: true,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DB_HOST', 'localhost'),
+        port: configService.get<number>('DB_PORT', 5432),
+        username: configService.get<string>('DB_USERNAME', 'postgres'),
+        password: configService.get<string>('DB_PASSWORD', 'localpassword'),
+        database: configService.get<string>('DB_DATABASE', 'open_erp_dev'),
+        entities: [Tenant, User],
+        synchronize: configService.get<boolean>('DB_SYNCHRONIZE', true),
+      }),
     }),
     TypeOrmModule.forFeature([Tenant]),
     RedisModule,
