@@ -35,3 +35,28 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@source "../../open-erp-shared/dist/shared/**/*.{html,ts,js,mjs}";
+@source "./node_modules/@open-erp/shared/**/*.{html,ts,js,mjs}";
+
+@theme {
+  --color-rose-gold-50: #fdf8f5;
+  --color-rose-gold-100: #fbece6;
+  --color-rose-gold-200: #f6d2c4;
+  --color-rose-gold-300: #eea994;
+  --color-rose-gold-400: #e27e67;
+  --color-rose-gold-500: #b76e79;
+  --color-rose-gold-600: #a45964;
+  --color-rose-gold-700: #894650;
+  --color-rose-gold-800: #723a43;
+  --color-rose-gold-900: #5f323a;
+
+  --color-dark-bg: #0f172a;
+  --color-dark-card: #1e293b;
+  --color-light-bg: #f8fafc;
+  --color-light-card: #ffffff;
+}

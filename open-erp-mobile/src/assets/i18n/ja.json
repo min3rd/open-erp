@@ -1,0 +1,51 @@
+{
+  "auth": {
+    "register_title": "新規企業登録",
+    "register_subtitle": "企業向けの独立した ERP ワークスペースを初期化します",
+    "company_name": "会社名",
+    "email": "管理者メールアドレス",
+    "password": "パスワード",
+    "subdomain": "サブドメイン (Subdomain)",
+    "subdomain_optional": "サブドメイン (Subdomain) (任意)",
+    "phone": "電話番号",
+    "phone_optional": "電話番号 (任意)",
+    "submit": "今すぐ登録",
+    "processing": "処理中...",
+    "subdomain_hint": "アクセス用：https://[subdomain].open-erp.9ms.io.vn",
+    "already_have_account": "すでにアカウントをお持ちですか？",
+    "login_now": "ログインはこちら",
+    "login_title": "システムにログイン",
+    "login_subtitle": "ERP ワークスペースにアクセスします",
+    "dont_have_account": "アカウントをお持ちでないですか？",
+    "register_now": "今すぐ企業登録する",
+    "login_success": "ログインに成功しました！",
+    "invalid_credentials": "メールアドレスまたはパスワードが正しくありません。",
+    "tenant_not_found": "この企業ワークスペースが見つかりませんでした。",
+    "account_not_activated": "アカウントがまだ有効化されていません。",
+    "register_success": "企業登録が成功しました！メールを確認してアカウントを有効化してください。",
+    "subdomain_already_exists": "このサブドメインはすでに使用されています。",
+    "email_already_exists": "この管理者メールアドレスはすでに登録されています。",
+    "password_strength": "パスワードの強度",
+    "password_weak": "弱い",
+    "password_medium": "普通",
+    "password_strong": "強い"
+  },
+  "validation": {
+    "company_name_required": "会社名は必須項目です。",
+    "company_name_must_be_string": "会社名は文字列でなければなりません。",
+    "email_required": "メールアドレスは必須項目です。",
+    "email_invalid": "無効なメールアドレス形式です。",
+    "password_required": "パスワードは必須項目です。",
+    "password_min_length": "パスワードは6文字以上にする必要があります。",
+    "subdomain_required": "サブドメインは必須項目です。",
+    "subdomain_invalid": "サブドメインは英小文字と数字 (a-z, 0-9) のみ使用可能です。",
+    "phone_must_be_string": "電話番号は文字列でなければなりません。",
+    "checking_subdomain": "確認中...",
+    "subdomain_available": "サブドメインは使用可能です！",
+    "subdomain_unavailable": "このサブドメインは他の企業によってすでに使用されています。",
+    "error_occurred": "エラーが発生しました。もう一度お試しください。"
+  },
+  "errors": {
+    "validation_failed": "入力データが無効です。ご確認ください。"
+  }
+}

@@ -1,8 +1,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { ButtonComponent, IconComponent, AlertComponent } from '@open-erp/shared-ui';
-import { AuthService } from '../../../core/services/auth.service';
+import { ButtonComponent, IconComponent, AlertComponent, AuthService } from '@open-erp/shared';
 
 @Component({
   selector: 'app-activate',

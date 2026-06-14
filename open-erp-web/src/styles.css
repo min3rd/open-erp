@@ -4,8 +4,8 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@source "../../open-erp-ui/dist/shared-ui/**/*.{html,ts,js,mjs}";
-@source "./node_modules/@open-erp/shared-ui/**/*.{html,ts,js,mjs}";
+@source "../../open-erp-shared/dist/shared/**/*.{html,ts,js,mjs}";
+@source "./node_modules/@open-erp/shared/**/*.{html,ts,js,mjs}";
 
 @theme {
   --color-rose-gold-50: #fdf8f5;

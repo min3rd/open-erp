@@ -9,8 +9,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { InputComponent, ButtonComponent, IconComponent, AlertComponent } from '@open-erp/shared-ui';
-import { AuthService } from '../../../core/services/auth.service';
+import { InputComponent, ButtonComponent, IconComponent, AlertComponent, AuthService } from '@open-erp/shared';
 
 @Component({
   selector: 'app-login',

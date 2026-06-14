@@ -2,9 +2,13 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "baseUrl": "./",
     "paths": {
-      "@open-erp/shared-ui": ["../open-erp-ui/dist/shared-ui"]
+      "@open-erp/shared": ["../open-erp-shared/dist/shared"],
+      "@angular/core": ["node_modules/@angular/core"],
+      "@angular/common": ["node_modules/@angular/common"],
+      "@angular/forms": ["node_modules/@angular/forms"]
     },
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
@@ -17,7 +21,7 @@
     "sourceMap": true,
     "declaration": false,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "es2022",
     "module": "es2020",

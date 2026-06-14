@@ -1,5 +1,5 @@
 {
-  "name": "@open-erp/shared-ui-workspace",
+  "name": "@open-erp/shared-workspace",
   "version": "1.0.0",
   "private": true,
   "scripts": {

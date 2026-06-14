@@ -12,22 +12,35 @@ import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import {
+  IonContent,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+} from '@ionic/angular/standalone';
 import { InputComponent, ButtonComponent, IconComponent, AuthService } from '@open-erp/shared';
 
 @Component({
   selector: 'app-register',
+  templateUrl: './register.page.html',
+  styleUrls: ['./register.page.scss'],
   standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
     TranslocoModule,
+    IonContent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
     InputComponent,
     ButtonComponent,
     IconComponent,
   ],
-  templateUrl: './register.component.html'
 })
-export class RegisterComponent implements OnInit {
+export class RegisterPage implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private translocoService = inject(TranslocoService);
@@ -89,8 +102,7 @@ export class RegisterComponent implements OnInit {
 
     // Load theme setting from localStorage
     const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
+    const isDark = savedTheme === 'dark';
     this.isDarkMode.set(isDark);
     if (isDark) {
       document.documentElement.classList.add('dark');

@@ -5,7 +5,7 @@ import { provideTransloco } from '@jsverse/transloco';
 
 import { routes } from './app.routes';
 import { TranslocoHttpLoader } from './transloco-loader';
-import { ConfigService } from './core/services/config.service';
+import { ConfigService } from '@open-erp/shared';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 export function initializeApp(configService: ConfigService) {

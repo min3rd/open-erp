@@ -39,3 +39,11 @@
 - [x] **TSK-1.8**: Tích hợp đăng nhập OAuth (Google & Microsoft)
   - [x] Create technical specification document for TSK-1.8.
   - [x] Add TSK-1.8 task details to Sprint 1 index.
+- [/] **TSK-1.1 Mobile**: Đăng ký doanh nghiệp & Khởi tạo Tenant trên Mobile
+  - [ ] Nâng cấp dependencies trong `open-erp-mobile/package.json` lên Angular v22 và cài đặt Tailwind v4, Transloco, Shared UI.
+  - [ ] Tạo file cấu hình `.postcssrc.json` và cập nhật `global.scss` để hỗ trợ Tailwind v4 trên mobile.
+  - [ ] Cài đặt Transloco loader, ConfigService, và AuthService trên Mobile.
+  - [ ] Sao chép các tệp tài liệu dịch đa ngôn ngữ sang Mobile assets.
+  - [ ] Xây dựng màn hình đăng ký `RegisterPage` sử dụng các component dùng chung từ `@open-erp/shared-ui`.
+  - [ ] Đăng ký route cho trang đăng ký trong `app.routes.ts`.
+  - [ ] Kiểm thử biên dịch và chạy thực tế.

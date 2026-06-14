@@ -16,7 +16,10 @@
     "baseUrl": "./",
     "ignoreDeprecations": "6.0",
     "paths": {
-      "@open-erp/shared-ui": ["../open-erp-ui/dist/shared-ui"]
+      "@open-erp/shared": ["../open-erp-shared/dist/shared"],
+      "@angular/core": ["node_modules/@angular/core"],
+      "@angular/common": ["node_modules/@angular/common"],
+      "@angular/forms": ["node_modules/@angular/forms"]
     }
   },
   "angularCompilerOptions": {

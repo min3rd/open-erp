@@ -1,5 +1,5 @@
 {
-  "name": "@open-erp/shared-ui",
+  "name": "@open-erp/shared",
   "version": "1.0.0",
   "peerDependencies": {
     "@angular/common": "^22.0.0",
