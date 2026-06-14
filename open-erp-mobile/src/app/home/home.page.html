@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Blank
+      {{ 'home.title' | transloco }}
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -9,12 +9,18 @@
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
+      <ion-title size="large">
+        {{ 'home.title' | transloco }}
+      </ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <div id="container" class="text-center px-4 py-12">
+    <h1 class="text-xl font-bold mb-2">
+      {{ 'home.welcome' | transloco }}
+    </h1>
+    <p class="text-sm text-slate-500">
+      {{ 'home.description' | transloco }}
+    </p>
   </div>
 </ion-content>

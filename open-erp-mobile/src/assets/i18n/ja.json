@@ -1,5 +1,7 @@
 {
   "auth": {
+    "app_portal": "OpenERP ポータル",
+    "app_onboarding": "OpenERP オンボーディング",
     "register_title": "新規企業登録",
     "register_subtitle": "企業向けの独立した ERP ワークスペースを初期化します",
     "company_name": "会社名",
@@ -44,6 +46,11 @@
     "subdomain_available": "サブドメインは使用可能です！",
     "subdomain_unavailable": "このサブドメインは他の企業によってすでに使用されています。",
     "error_occurred": "エラーが発生しました。もう一度お試しください。"
+  },
+  "home": {
+    "title": "ホーム",
+    "welcome": "OpenERP へようこそ",
+    "description": "あなたのための包括的な企業管理システム。"
   },
   "errors": {
     "validation_failed": "入力データが無効です。ご確認ください。"

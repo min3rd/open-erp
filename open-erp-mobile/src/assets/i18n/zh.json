@@ -1,5 +1,7 @@
 {
   "auth": {
+    "app_portal": "OpenERP 门户",
+    "app_onboarding": "OpenERP 初始化",
     "register_title": "注册新企业",
     "register_subtitle": "为您的企业初始化独立的 ERP 工作区",
     "company_name": "公司名称",
@@ -44,6 +46,11 @@
     "subdomain_available": "子域名可用！",
     "subdomain_unavailable": "该子域名已被其他公司使用。",
     "error_occurred": "发生错误。请重试。"
+  },
+  "home": {
+    "title": "首页",
+    "welcome": "欢迎使用 OpenERP",
+    "description": "为您量身定制的全面企业管理系统。"
   },
   "errors": {
     "validation_failed": "提交的数据无效。请检查。"

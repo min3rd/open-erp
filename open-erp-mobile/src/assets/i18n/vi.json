@@ -1,5 +1,7 @@
 {
   "auth": {
+    "app_portal": "Cổng thông tin OpenERP",
+    "app_onboarding": "Khởi tạo OpenERP",
     "register_title": "Đăng ký doanh nghiệp mới",
     "register_subtitle": "Khởi tạo Workspace ERP độc lập cho doanh nghiệp của bạn",
     "company_name": "Tên công ty",
@@ -48,6 +50,11 @@
     "subdomain_available": "Subdomain hợp lệ và có thể sử dụng!",
     "subdomain_unavailable": "Subdomain đã được sử dụng bởi công ty khác.",
     "error_occurred": "Đã có lỗi xảy ra. Vui lòng thử lại."
+  },
+  "home": {
+    "title": "Trang chủ",
+    "welcome": "Chào mừng bạn đến với OpenERP",
+    "description": "Hệ thống quản trị doanh nghiệp toàn diện dành cho bạn."
   },
   "errors": {
     "validation_failed": "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại."
