@@ -154,9 +154,9 @@ export class LoginPage implements OnInit {
           const msgKey = res.messageKey || 'auth.login_success';
           this.successMessage.set(this.translocoService.translate(msgKey));
           
-          // Redirect to home page after login success
+          // Redirect to org-structure page after login success
           setTimeout(() => {
-            this.router.navigate(['/home']);
+            this.router.navigate(['/org-structure']);
           }, 1500);
         }
       },

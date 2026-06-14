@@ -15,12 +15,27 @@
     </ion-toolbar>
   </ion-header>
 
-  <div id="container" class="text-center px-4 py-12">
+  <div id="container" class="text-center px-4 py-12 flex flex-col items-center">
     <h1 class="text-xl font-bold mb-2">
       {{ 'home.welcome' | transloco }}
     </h1>
-    <p class="text-sm text-slate-500">
+    <p class="text-sm text-slate-500 mb-8">
       {{ 'home.description' | transloco }}
     </p>
+
+    <!-- Quick access link to Org Structure -->
+    <div class="w-full max-w-sm px-4">
+      <ion-card button routerLink="/org-structure" class="m-0 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden" style="border-radius: 12px;">
+        <ion-card-header class="bg-rose-gold-500/5 dark:bg-rose-gold-950/5 flex flex-col gap-1 text-left">
+          <ion-card-title class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+            <ion-icon name="briefcase" class="text-rose-gold-500" style="font-size: 20px;"></ion-icon>
+            {{ 'org.title' | transloco }}
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content class="text-left text-xs text-slate-500 py-3">
+          {{ 'org.mobile_subtitle' | transloco }}
+        </ion-card-content>
+      </ion-card>
+    </div>
   </div>
 </ion-content>

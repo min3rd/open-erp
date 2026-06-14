@@ -121,6 +121,10 @@ export class LoginComponent implements OnInit {
         if (res && res.success) {
           const msgKey = res.messageKey || 'auth.login_success';
           this.successMessage.set(this.translocoService.translate(msgKey));
+          
+          setTimeout(() => {
+            this.router.navigate(['/org-structure']);
+          }, 1500);
         }
       },
       error: (err) => {
