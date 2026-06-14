@@ -5,6 +5,7 @@ import {
   IsString,
   Matches,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 
 export class RegisterDto {
@@ -21,6 +22,7 @@ export class RegisterDto {
   password: string;
 
   @IsOptional()
+  @ValidateIf((o) => o.subdomain !== '')
   @Matches(/^[a-z0-9]+$/, { message: 'validation.subdomain_invalid' })
   subdomain?: string;
 
