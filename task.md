@@ -36,3 +36,6 @@
 - [x] **TSK-1.7**: Đăng nhập tài khoản thường
   - [x] Create technical specification document for TSK-1.7.
   - [x] Add TSK-1.7 task details to Sprint 1 index.
+- [x] **TSK-1.8**: Tích hợp đăng nhập OAuth (Google & Microsoft)
+  - [x] Create technical specification document for TSK-1.8.
+  - [x] Add TSK-1.8 task details to Sprint 1 index.
