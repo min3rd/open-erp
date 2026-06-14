@@ -4,6 +4,7 @@ import { Repository, DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../../core/redis/redis.service';
 import { Tenant } from '../../core/tenant/tenant.entity';
 import { User } from '../../core/user/user.entity';
@@ -20,6 +21,7 @@ export class AuthService {
     private readonly dataSource: DataSource,
     private readonly jwtService: JwtService,
     private readonly redisService: RedisService,
+    private readonly configService: ConfigService,
   ) {}
 
   async checkSubdomain(subdomain: string): Promise<boolean> {
@@ -120,7 +122,9 @@ export class AuthService {
       const activationToken =
         Math.random().toString(36).substring(2, 15) +
         Math.random().toString(36).substring(2, 15);
-      const activationLink = `https://${subdomain}.open-erp.9ms.io.vn/activate?token=${activationToken}`;
+      const appProtocol = this.configService.get<string>('APP_PROTOCOL', 'http');
+      const appDomain = this.configService.get<string>('APP_DOMAIN', 'localhost:4200');
+      const activationLink = `${appProtocol}://${appDomain}/activate?token=${activationToken}`;
       console.log(`[BullMQ Simulation] Queued email job to ${email}`);
       console.log(`[BullMQ Simulation] Activation Link: ${activationLink}`);
 

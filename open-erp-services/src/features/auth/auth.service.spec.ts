@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { BadRequestException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { Tenant } from '../../core/tenant/tenant.entity';
 import { User } from '../../core/user/user.entity';
@@ -23,6 +24,7 @@ describe('AuthService', () => {
   };
   let jwtServiceMock: { sign: jest.Mock; verify: jest.Mock };
   let redisServiceMock: { get: jest.Mock; set: jest.Mock; del: jest.Mock };
+  let configServiceMock: { get: jest.Mock };
 
   beforeEach(async () => {
     tenantRepoMock = {
@@ -60,6 +62,10 @@ describe('AuthService', () => {
       del: jest.fn(),
     };
 
+    configServiceMock = {
+      get: jest.fn((key: string, defaultValue?: unknown) => defaultValue),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -82,6 +88,10 @@ describe('AuthService', () => {
         {
           provide: RedisService,
           useValue: redisServiceMock,
+        },
+        {
+          provide: ConfigService,
+          useValue: configServiceMock,
         },
       ],
     }).compile();
