@@ -20,9 +20,19 @@
 - [x] **BUG-1.7**: Empty subdomain registration validation error
   - [x] Import and add `@ValidateIf` decorator to `RegisterDto` to allow empty string subdomain.
   - [x] Create design document `docs/05_project_management/sprint_1/bug_07_empty_subdomain_validation.md`.
-- [/] **BUG-1.8**: Tenant not found on login after successful activation
+- [x] **BUG-1.8**: Tenant not found on login after successful activation
   - [x] Update backend `AuthService.activate` to query and return tenant subdomain.
   - [x] Update `AuthController.activate` to output subdomain in API response data.
   - [x] Update frontend `AuthService.activate` return type signature.
   - [x] Refactor frontend `ActivateComponent` redirect logic and `goToLogin()` method to construct absolute subdomain redirect paths.
-  - [x] Create bug design and resolution document `docs/05_project_management/sprint_1/bug_08_tenant_not_found_on_login.md`.
+  - [x] Create bug design and resolution document `docs/05_project_management/sprint_1/bugs/bug_08_tenant_not_found_on_login.md`.
+- [x] **DOCS**: Reorganize sprint documentation directories
+  - [x] Move task, bug, refactor, and optimization files into dedicated subdirectories (`tasks/`, `bugs/`, `refactors/`, `optimizations/`).
+  - [x] Update Sprint 0 and Sprint 1 index `README.md` dashboards.
+  - [x] Update relative paths inside all moved files to support the +1 depth level.
+- [x] **TSK-1.6**: Đăng ký tài khoản thường (Không phải chủ doanh nghiệp)
+  - [x] Create technical specification document for TSK-1.6.
+  - [x] Add TSK-1.6 task details to Sprint 1 index.
+- [x] **TSK-1.7**: Đăng nhập tài khoản thường
+  - [x] Create technical specification document for TSK-1.7.
+  - [x] Add TSK-1.7 task details to Sprint 1 index.

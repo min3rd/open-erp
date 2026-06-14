@@ -21,6 +21,8 @@ Dưới đây là danh sách các Task cần triển khai trong Sprint 1:
 | **TSK-1.3** | Sơ đồ Tổ chức & Phòng ban | Thiết lập sơ đồ chi nhánh và cấu hình phòng ban dạng cây phân cấp trực quan, quản lý trưởng bộ phận và chi tiết phòng ban. | [ ] Todo | BE/FE Leads, UI-UX | [task_03_org_structure.md](./tasks/task_03_org_structure.md) |
 | **TSK-1.4** | Mời nhân viên qua Email | Admin mời nhân viên mới tham gia vào phòng ban cụ thể bằng cách nhập email. Hệ thống gửi link kích hoạt tài khoản bất đồng bộ thông qua BullMQ & SES. | [ ] Todo | BE/FE Leads, DevOps | [task_04_user_management.md](./tasks/task_04_user_management.md) |
 | **TSK-1.5** | Phân quyền RBAC & Menu động | Định nghĩa các nhóm quyền (Admin, Manager, Employee), phân quyền thao tác trên từng module và render menu điều hướng động theo vai trò. | [ ] Todo | BE/FE Leads, UI-UX | [task_05_basic_permissions.md](./tasks/task_05_basic_permissions.md) |
+| **TSK-1.6** | Đăng ký tài khoản thường | Kích hoạt tài khoản và thiết lập mật khẩu cho nhân viên từ email mời mà không cần tạo tenant mới. | [x] Completed | BE/FE Leads | [task_06_regular_user_registration.md](./tasks/task_06_regular_user_registration.md) |
+| **TSK-1.7** | Đăng nhập tài khoản thường | Quy trình đăng nhập của tài khoản thường tại portal subdomain của tenant, đính kèm thông tin vai trò. | [x] Completed | BE/FE Leads | [task_07_regular_user_login.md](./tasks/task_07_regular_user_login.md) |
 | **BUG-1.1** | Lỗi kích hoạt cảnh báo validate quá sớm | Dù người dùng chưa thao tác ở ô input nhưng đã hiển thị cảnh báo validate ngay khi click vào một vị trí bất kỳ. | [x] Completed | FE Leads | [bug_01_validation_trigger.md](./bugs/bug_01_validation_trigger.md) |
 | **BUG-1.2** | Thiếu hiển thị mức độ an toàn mật khẩu | Thiếu hiển thị mức độ an toàn (Password Strength Meter) khi người dùng nhập mật khẩu đăng ký. | [x] Completed | FE Leads, UI-UX | [bug_02_password_strength.md](./bugs/bug_02_password_strength.md) |
 | **BUG-1.3** | Lỗi hiển thị trùng lặp và sai đường dẫn API kiểm tra Subdomain | Lỗi hiển thị 2 dòng thông báo lỗi Subdomain trùng lặp và gọi API check subdomain sai đường dẫn (relative path). | [x] Completed | FE Leads | [bug_03_subdomain_validation.md](./bugs/bug_03_subdomain_validation.md) |
@@ -49,6 +51,8 @@ flowchart TD
     --> TSK12["TSK-1.2: Đăng nhập & Xác thực (Authentication)"]
     --> TSK13["TSK-1.3: Sơ đồ tổ chức phòng ban (Org Chart)"]
     --> TSK14["TSK-1.4: Mời nhân sự qua email (User Invite)"]
+    --> TSK16["TSK-1.6: Đăng ký tài khoản thường (User Registration)"]
+    --> TSK17["TSK-1.7: Đăng nhập tài khoản thường (User Login)"]
     --> TSK15["TSK-1.5: Phân quyền RBAC & Menu động (Permissions)"]
 ```
 
@@ -57,7 +61,9 @@ flowchart TD
   2. **Bước 2 (Xác thực):** Thực hiện **TSK-1.2** để xây dựng cơ chế đăng nhập và trích xuất `tenant_id` từ token JWT. Đây là chốt chặn bảo mật bắt buộc phải có để truy cập vào tất cả các API nghiệp vụ phía sau.
   3. **Bước 3 (Dựng cơ cấu tổ chức):** Thực hiện **TSK-1.3** để vẽ sơ đồ phòng ban và chi nhánh. Cơ cấu tổ chức này phải được hoàn thiện trước khi gán nhân viên vào vị trí cụ thể.
   4. **Bước 4 (Mời nhân sự):** Thực hiện **TSK-1.4** để admin gửi lời mời cho nhân viên mới và gán họ vào phòng ban đã dựng ở TSK-1.3.
-  5. **Bước 5 (Phân quyền):** Thực hiện **TSK-1.5** để hoàn thiện hệ thống phân quyền (RBAC) cho các nhân viên đã kích hoạt tài khoản ở TSK-1.4 và render động sidebar menu theo quyền hạn thực tế.
+  5. **Bước 5 (Đăng ký tài khoản thường):** Thực hiện **TSK-1.6** khi nhân viên nhận được mail từ TSK-1.4, truy cập link kích hoạt và thiết lập mật khẩu để active tài khoản thường.
+  6. **Bước 6 (Đăng nhập tài khoản thường):** Thực hiện **TSK-1.7** cho phép nhân viên đăng nhập bằng mật khẩu vừa thiết lập tại subdomain tương ứng của tenant.
+  7. **Bước 7 (Phân quyền):** Thực hiện **TSK-1.5** để hoàn thiện hệ thống phân quyền (RBAC) cho các nhân viên đã đăng nhập thành công ở TSK-1.7 và render động sidebar menu theo quyền hạn thực tế.
 
 ---
 

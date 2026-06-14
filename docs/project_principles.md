@@ -40,7 +40,15 @@ Mọi lập trình viên (bao gồm cả AI Coding Assistant) phải tuân thủ
 
 ---
 
-## 4. Cam Kết Tuân Thủ
+## 4. Nguyên Tắc Phát Triển Đa Nền Tảng (Cross-Platform Development Principles)
+
+Mọi chức năng nghiệp vụ, luồng xác thực (Authentication) và phân quyền (Authorization) khi được thiết kế và triển khai:
+* **Phân bổ đồng thời:** Bắt buộc phải được phân bổ và thực hiện đồng thời cho cả hai nền tảng Web Client (`open-erp-web`) và Mobile Client (`open-erp-mobile`).
+* **Tính đồng bộ:** Giao diện, quy chuẩn thiết kế (theme Rose Gold, chế độ Light/Dark Mode) và logic xác thực (đăng nhập, đăng ký) trên Mobile phải được thiết kế và lập trình song hành cùng Web. Tuyệt đối không được bỏ qua hoặc trì hoãn phần Mobile trừ khi có văn bản phê duyệt đặc biệt từ Product Owner (PO).
+
+---
+
+## 5. Cam Kết Tuân Thủ
 
 > [!IMPORTANT]
 > Toàn bộ các thành viên tham gia phát triển dự án phải luôn luôn đọc, hiểu và cam kết tuân thủ 100% các nguyên tắc trên. Bất kỳ sự sai lệch nào về phiên bản công nghệ hoặc quy trình làm việc đều không được chấp nhận.
