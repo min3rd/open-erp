@@ -1,10 +1,11 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
-import { AuthService } from '@open-erp/shared';
+import { AuthService, ConfigService } from '@open-erp/shared';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
+  const configService = inject(ConfigService);
   const token = authService.accessToken();
 
   // Extract subdomain from window.location.host
@@ -35,7 +36,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     headers = headers.set('x-tenant-id', tenantId);
   }
 
-  const authReq = req.clone({ headers });
+  let url = req.url;
+  if (url.startsWith('/api/')) {
+    url = `${configService.apiUrl}${url}`;
+  }
+
+  const authReq = req.clone({ url, headers });
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -49,6 +55,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           switchMap((res) => {
             if (res.success && res.data?.accessToken) {
               const retryReq = req.clone({
+                url: req.url.startsWith('/api/') ? `${configService.apiUrl}${req.url}` : req.url,
                 headers: req.headers.set('Authorization', `Bearer ${res.data.accessToken}`),
               });
               return next(retryReq);

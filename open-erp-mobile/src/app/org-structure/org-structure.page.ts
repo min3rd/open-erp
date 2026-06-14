@@ -212,6 +212,14 @@ export class OrgStructurePage implements OnInit {
     }
   }
 
+  getBranchControl(name: string): FormControl {
+    return this.branchForm.get(name) as FormControl;
+  }
+
+  getDeptControl(name: string): FormControl {
+    return this.departmentForm.get(name) as FormControl;
+  }
+
   private initForms(): void {
     this.branchForm = this.fb.group({
       name: ['', [Validators.required]],

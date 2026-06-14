@@ -269,29 +269,29 @@
   >
     <form [formGroup]="branchForm" (ngSubmit)="saveBranch()" class="flex flex-col gap-4 py-2">
       <oerp-input
-        formControlName="name"
+        [control]="getBranchControl('name')"
         [label]="'org.branch_name' | transloco"
         [placeholder]="'org.branch_placeholder' | transloco"
       ></oerp-input>
-
+ 
       <oerp-input
-        formControlName="address"
+        [control]="getBranchControl('address')"
         [label]="'org.address' | transloco"
         [placeholder]="'org.branch_address_placeholder' | transloco"
       ></oerp-input>
-
+ 
       <oerp-input
-        formControlName="phone"
+        [control]="getBranchControl('phone')"
         [label]="'org.phone' | transloco"
         [placeholder]="'org.branch_phone_placeholder' | transloco"
       ></oerp-input>
-
+ 
       <oerp-input
-        formControlName="email"
+        [control]="getBranchControl('email')"
         [label]="'org.email' | transloco"
         [placeholder]="'org.branch_email_placeholder' | transloco"
       ></oerp-input>
-
+ 
       <div class="flex justify-end gap-3 mt-4 border-t pt-4 border-slate-100 dark:border-slate-700">
         <oerp-button
           variant="secondary"
@@ -306,7 +306,7 @@
       </div>
     </form>
   </oerp-modal>
-
+ 
   <!-- Department Modal -->
   <oerp-modal
     [title]="(editingDepartment() ? 'org.edit_department' : 'org.add_department') | transloco"
@@ -315,29 +315,29 @@
   >
     <form [formGroup]="departmentForm" (ngSubmit)="saveDepartment()" class="flex flex-col gap-4 py-2">
       <oerp-input
-        formControlName="name"
+        [control]="getDeptControl('name')"
         [label]="'org.department_name' | transloco"
         [placeholder]="'org.dept_placeholder' | transloco"
       ></oerp-input>
-
+ 
       <oerp-select
-        formControlName="parentId"
+        [control]="getDeptControl('parentId')"
         [label]="'org.parent_department' | transloco"
         [options]="parentDeptOptions()"
       ></oerp-select>
-
+ 
       <oerp-select
-        formControlName="branchId"
+        [control]="getDeptControl('branchId')"
         [label]="'org.branches' | transloco"
         [options]="branchOptions()"
       ></oerp-select>
-
+ 
       <oerp-select
-        formControlName="managerId"
+        [control]="getDeptControl('managerId')"
         [label]="'org.manager' | transloco"
         [options]="managerOptions()"
       ></oerp-select>
-
+ 
       <div class="flex justify-end gap-3 mt-4 border-t pt-4 border-slate-100 dark:border-slate-700">
         <oerp-button
           variant="secondary"
