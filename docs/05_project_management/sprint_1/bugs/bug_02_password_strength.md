@@ -27,7 +27,7 @@ Mức độ an toàn mật khẩu sẽ được chia làm 3 cấp độ chính d
 
 ### 3. Giải pháp thiết kế UI/UX & Tích hợp (UI/UX Design & Integration)
 
-* **Vị trí hiển thị**: Bên dưới trường nhập liệu Password của [RegisterComponent](../../../open-erp-web/src/app/features/auth/register/register.component.ts) và phía trên thông báo validation thông thường.
+* **Vị trí hiển thị**: Bên dưới trường nhập liệu Password của [RegisterComponent](../../../../open-erp-web/src/app/features/auth/register/register.component.ts) và phía trên thông báo validation thông thường.
 * **Thành phần giao diện**:
   - Gồm 1 thanh trạng thái chia thành 3 đoạn màu (hoặc 1 thanh màu biến đổi độ rộng: 33%, 66%, 100%).
   - Một dòng text đi kèm để mô tả cấp độ bằng ngôn ngữ tương ứng (`auth.password_weak`, `auth.password_medium`, `auth.password_strong`) lấy từ Transloco.
@@ -49,7 +49,7 @@ Mức độ an toàn mật khẩu sẽ được chia làm 3 cấp độ chính d
 ### 5. Kết quả thực hiện (Resolution & Deliverables)
 - **Trạng thái (Status)**: [x] Đã hoàn thành (Completed)
 - **Chi tiết thay đổi (Implementation Details)**:
-  - Tích hợp Signal `passwordValue` và computed Signal `passwordStrength` vào [register.component.ts](../../../open-erp-web/src/app/features/auth/register/register.component.ts#L220-L245) để đánh giá độ mạnh của mật khẩu theo thời gian thực (được kích hoạt bởi `valueChanges` của password control thông qua `takeUntilDestroyed`).
+  - Tích hợp Signal `passwordValue` và computed Signal `passwordStrength` vào [register.component.ts](../../../../open-erp-web/src/app/features/auth/register/register.component.ts#L220-L245) để đánh giá độ mạnh của mật khẩu theo thời gian thực (được kích hoạt bởi `valueChanges` của password control thông qua `takeUntilDestroyed`).
   - Thiết kế thanh đo (gauge) trực quan bằng Tailwind CSS gồm 3 đoạn màu hiển thị mức độ yếu (đỏ), trung bình (amber/cam), và mạnh (emerald/xanh lá).
   - Sử dụng Transloco dynamic translation để hiển thị nhãn của thanh đo tương ứng với 4 ngôn ngữ được hệ thống hỗ trợ: Tiếng Việt, Tiếng Anh, Tiếng Trung, Tiếng Nhật (cấu hình trong các tệp tin `vi.json`, `en.json`, `zh.json`, `ja.json`).
   - Kiểm thử trực quan đã xác nhận hoạt động mượt mà, phản hồi lập tức khi gõ mật khẩu và đồng bộ giao diện Dark/Light mode chuẩn chỉ.

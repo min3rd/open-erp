@@ -17,14 +17,14 @@ Dưới đây là danh sách các Task nền tảng cần triển khai trong Spr
 
 | ID | Tên công việc (Task Name) | Mô tả tóm tắt | Trạng thái (Status) | Nhân sự chính | Tài liệu chi tiết |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **TSK-0.1** | Làm rõ phạm vi MVP & User Journeys | Phân tích bài toán, xác định chân dung người dùng (Personas) và vẽ các chuỗi hành trình nghiệp vụ chính của MVP. | [x] Hoàn thành | PO/BA | [task_01_discovery_scope.md](./task_01_discovery_scope.md) |
-| **TSK-0.2** | Sitemap & Wireframes giao diện | Xây dựng sơ đồ trang (Sitemap) tổng thể và phác thảo các màn hình khung dây (Wireframes) cốt lõi. | [x] Hoàn thành | UI-UX | [task_02_ux_wireframes.md](./task_02_ux_wireframes.md) |
-| **TSK-0.3** | Thiết kế Kiến trúc & Cơ sở dữ liệu | Thiết kế sơ đồ kiến trúc vật lý, mô hình dữ liệu (Database Schema) và thiết lập cơ chế Multi-tenant RLS. | [x] Hoàn thành | SA/BE Leads | [task_03_architecture_design.md](./task_03_architecture_design.md) |
-| **TSK-0.4** | Thiết lập 3 Repositories & Convention | Init cấu hình NestJS, Angular, Ionic và đồng bộ quy chuẩn viết code (ESLint, Prettier, Git-flow). | [x] Hoàn thành | BE/FE Leads | [task_04_repository_setup.md](./task_04_repository_setup.md) |
-| **TSK-0.5** | Thiết lập CI/CD & Infrastructure | Tạo hạ tầng Kubernetes Cluster, cấu hình Webhook tự động build và deploy lên môi trường Dev/Staging. | [x] Hoàn thành | DevOps | [task_05_cicd_infrastructure.md](./task_05_cicd_infrastructure.md) |
-| **TSK-0.6** | Khởi tạo các UI Components cơ bản | Xây dựng các component dùng chung cơ bản (Button, Input, Modal) hỗ trợ màu Rose Gold & Light/Dark Mode trong thư viện `open-erp-ui`. | [x] Hoàn thành | FE Leads | [task_06_shared_ui_components.md](./task_06_shared_ui_components.md) |
-| **TSK-0.7** | Mở rộng các UI Components | Bổ sung các component cốt lõi (Phase 1: Core) cho thư viện UI hỗ trợ màu Rose Gold & Light/Dark Mode. | [x] Hoàn thành | FE Leads | [task_07_full_ui_library_components.md](./task_07_full_ui_library_components.md) |
-| **BUG-0.1** | Sửa lỗi chuyển đổi Theme Dark/Light | Khắc phục lỗi không thể chuyển đổi giao diện sáng/tối thủ công do cấu hình mặc định của Tailwind CSS v4. | [x] Hoàn thành | FE Leads | [bug_01_theme_toggle.md](./bug_01_theme_toggle.md) |
+| **TSK-0.1** | Làm rõ phạm vi MVP & User Journeys | Phân tích bài toán, xác định chân dung người dùng (Personas) và vẽ các chuỗi hành trình nghiệp vụ chính của MVP. | [x] Hoàn thành | PO/BA | [task_01_discovery_scope.md](./tasks/task_01_discovery_scope.md) |
+| **TSK-0.2** | Sitemap & Wireframes giao diện | Xây dựng sơ đồ trang (Sitemap) tổng thể và phác thảo các màn hình khung dây (Wireframes) cốt lõi. | [x] Hoàn thành | UI-UX | [task_02_ux_wireframes.md](./tasks/task_02_ux_wireframes.md) |
+| **TSK-0.3** | Thiết kế Kiến trúc & Cơ sở dữ liệu | Thiết kế sơ đồ kiến trúc vật lý, mô hình dữ liệu (Database Schema) và thiết lập cơ chế Multi-tenant RLS. | [x] Hoàn thành | SA/BE Leads | [task_03_architecture_design.md](./tasks/task_03_architecture_design.md) |
+| **TSK-0.4** | Thiết lập 3 Repositories & Convention | Init cấu hình NestJS, Angular, Ionic và đồng bộ quy chuẩn viết code (ESLint, Prettier, Git-flow). | [x] Hoàn thành | BE/FE Leads | [task_04_repository_setup.md](./tasks/task_04_repository_setup.md) |
+| **TSK-0.5** | Thiết lập CI/CD & Infrastructure | Tạo hạ tầng Kubernetes Cluster, cấu hình Webhook tự động build và deploy lên môi trường Dev/Staging. | [x] Hoàn thành | DevOps | [task_05_cicd_infrastructure.md](./tasks/task_05_cicd_infrastructure.md) |
+| **TSK-0.6** | Khởi tạo các UI Components cơ bản | Xây dựng các component dùng chung cơ bản (Button, Input, Modal) hỗ trợ màu Rose Gold & Light/Dark Mode trong thư viện `open-erp-ui`. | [x] Hoàn thành | FE Leads | [task_06_shared_ui_components.md](./tasks/task_06_shared_ui_components.md) |
+| **TSK-0.7** | Mở rộng các UI Components | Bổ sung các component cốt lõi (Phase 1: Core) cho thư viện UI hỗ trợ màu Rose Gold & Light/Dark Mode. | [x] Hoàn thành | FE Leads | [task_07_full_ui_library_components.md](./tasks/task_07_full_ui_library_components.md) |
+| **BUG-0.1** | Sửa lỗi chuyển đổi Theme Dark/Light | Khắc phục lỗi không thể chuyển đổi giao diện sáng/tối thủ công do cấu hình mặc định của Tailwind CSS v4. | [x] Hoàn thành | FE Leads | [bug_01_theme_toggle.md](./bugs/bug_01_theme_toggle.md) |
 
 
 ### 3. Trật tự thực thi & Luồng phụ thuộc công việc (Execution Flow & Dependencies)
@@ -55,4 +55,4 @@ flowchart TD
 
 ### 4. Quy chuẩn Sprint 0
 * **Hoàn thành hạ tầng trước code:** Mọi thiết lập CI/CD và môi trường chạy thử phải sẵn sàng trước khi kết thúc Sprint 0 để đảm bảo Sprint 1 có thể phát triển tính năng và kiểm thử tự động ngay lập tức.
-* **Tài liệu hóa & Quy chuẩn GitHub Path Rules:** Các tài liệu thiết kế kiến trúc và sơ đồ database được lưu trữ trực tiếp trong thư mục `docs/` của dự án. Mọi tài liệu liên kết với nhau bắt buộc phải sử dụng **Đường dẫn tương đối (Relative Paths)** và **viết hoa/thường chính xác** theo quy chuẩn GitHub Path Rules đã nêu chi tiết trong [task_04_repository_setup.md](./task_04_repository_setup.md).
+* **Tài liệu hóa & Quy chuẩn GitHub Path Rules:** Các tài liệu thiết kế kiến trúc và sơ đồ database được lưu trữ trực tiếp trong thư mục `docs/` của dự án. Mọi tài liệu liên kết với nhau bắt buộc phải sử dụng **Đường dẫn tương đối (Relative Paths)** và **viết hoa/thường chính xác** theo quy chuẩn GitHub Path Rules đã nêu chi tiết trong [task_04_repository_setup.md](./tasks/task_04_repository_setup.md).

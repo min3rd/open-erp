@@ -26,7 +26,7 @@ Xây dựng luồng đăng ký doanh nghiệp mới (SaaS Onboarding) trên Web 
 ```
 
 #### 2.2 Đặc tả API endpoint liên quan
-Tham chiếu đầy đủ trong [api_overview.md](../../03_functional/api_overview.md).
+Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_overview.md).
 
 * **`POST /api/v1/auth/register`** (Public)
   - **Payload yêu cầu:**
@@ -63,7 +63,7 @@ Tham chiếu đầy đủ trong [api_overview.md](../../03_functional/api_overvi
 #### 3.1 Backend Engineer (BE)
 * **Nhiệm vụ 1: Khởi tạo dữ liệu và Tenant Isolation**
   - Viết logic tạo bản ghi mới trong bảng `tenants` và `users` (trạng thái user ban đầu là `Pending`). Mật khẩu được mã hóa bằng thư viện `bcrypt`.
-  - Áp dụng cơ chế Row-Level Security (RLS) để cô lập dữ liệu của Tenant vừa tạo theo đặc tả trong [system_design.md](../../04_technical/system_design.md).
+  - Áp dụng cơ chế Row-Level Security (RLS) để cô lập dữ liệu của Tenant vừa tạo theo đặc tả trong [system_design.md](../../../04_technical/system_design.md).
 * **Nhiệm vụ 2: Viết APIs Đăng ký & Kiểm tra Subdomain**
   - Thực hiện validate regex đầu vào: subdomain chỉ chứa chữ thường và số, không chứa ký tự đặc biệt, email đúng định dạng.
   - Sử dụng hàng đợi BullMQ gửi email bất đồng bộ chứa link kích hoạt: `https://gotech.open-erp.9ms.io.vn/activate?token=xxx` (Token hết hạn sau 24 giờ).
@@ -79,7 +79,7 @@ Tham chiếu đầy đủ trong [api_overview.md](../../03_functional/api_overvi
 * *Lưu ý nghiệp vụ:* Đối với phiên bản MVP, Mobile App không hỗ trợ chức năng đăng ký doanh nghiệp mới trực tiếp trên app. Người dùng được hướng dẫn thực hiện đăng ký trên trình duyệt web. Do đó, FE Mobile chỉ thiết lập màn hình chờ điều hướng hoặc mở trình duyệt ngoài trỏ đến trang đăng ký.
 
 #### 3.4 UI/UX Designer
-* Cung cấp thiết kế chi tiết trang Đăng ký (SaaS Register Layout) trên Figma đảm bảo responsive cho Desktop, Tablet, Mobile theo đặc tả trong [sitemap_and_wireframes.md](../../02_user_requirements/sitemap_and_wireframes.md).
+* Cung cấp thiết kế chi tiết trang Đăng ký (SaaS Register Layout) trên Figma đảm bảo responsive cho Desktop, Tablet, Mobile theo đặc tả trong [sitemap_and_wireframes.md](../../../02_user_requirements/sitemap_and_wireframes.md).
 
 #### 3.5 DevOps
 * Cấu hình Nginx Ingress Controller hỗ trợ Wildcard Routing (`*.open-erp.9ms.io.vn`) để đảm bảo các subdomain mới khởi tạo lập tức truy cập được mà không cần cấu hình mạng lại.
@@ -96,7 +96,7 @@ Tham chiếu đầy đủ trong [api_overview.md](../../03_functional/api_overvi
 
 * **Bước 1 (Hạ tầng):** Đảm bảo cụm hạ tầng PostgreSQL & Redis local đang chạy:
   ```bash
-  docker compose -f ../../docker-compose.local.yml up -d
+  docker compose -f ../../../../docker-compose.local.yml up -d
   ```
 * **Bước 2 (Gỡ lỗi Backend):** Mở dự án trong VSCode, đặt breakpoint tại controller đăng ký, mở tab Run and Debug của VSCode và chọn **"Debug NestJS Backend"** để khởi động runtime debug.
 * **Bước 3 (Chạy Web Client):** Truy cập thư mục `open-erp-web` chạy lệnh `npm run start` và kiểm thử giao diện tại `http://localhost:4200`.
@@ -117,13 +117,13 @@ Tham chiếu đầy đủ trong [api_overview.md](../../03_functional/api_overvi
 Task TSK-1.1 đã được hoàn thành đầy đủ các tiêu chí bàn giao và tích hợp thành công trên nhánh `develop`:
 
 * **Backend Services (`open-erp-services`):**
-  - Khởi tạo thành công hai thực thể cơ sở dữ liệu [Tenant Entity](../../../open-erp-services/src/core/tenant/tenant.entity.ts) và [User Entity](../../../open-erp-services/src/core/user/user.entity.ts).
-  - Triển khai APIs trong [AuthController](../../../open-erp-services/src/features/auth/auth.controller.ts) và [AuthService](../../../open-erp-services/src/features/auth/auth.service.ts) thực hiện kiểm tra subdomain khả dụng và xử lý transaction đăng ký, mã hóa mật khẩu qua `bcrypt`.
+  - Khởi tạo thành công hai thực thể cơ sở dữ liệu [Tenant Entity](../../../../open-erp-services/src/core/tenant/tenant.entity.ts) và [User Entity](../../../../open-erp-services/src/core/user/user.entity.ts).
+  - Triển khai APIs trong [AuthController](../../../../open-erp-services/src/features/auth/auth.controller.ts) và [AuthService](../../../../open-erp-services/src/features/auth/auth.service.ts) thực hiện kiểm tra subdomain khả dụng và xử lý transaction đăng ký, mã hóa mật khẩu qua `bcrypt`.
   - Giả lập gửi email kích hoạt tài khoản bất đồng bộ thông qua BullMQ.
-  - Xây dựng bộ unit tests toàn diện trong [auth.service.spec.ts](../../../open-erp-services/src/features/auth/auth.service.spec.ts) đạt 100% tỷ lệ pass.
+  - Xây dựng bộ unit tests toàn diện trong [auth.service.spec.ts](../../../../open-erp-services/src/features/auth/auth.service.spec.ts) đạt 100% tỷ lệ pass.
 * **Web Client (`open-erp-web`):**
   - Tích hợp thành công thư viện `@jsverse/transloco` phiên bản 8 điều phối đa ngôn ngữ và `feather-icons` hiển thị icon chuẩn hóa qua `<oerp-icon>`.
-  - Triển khai [RegisterComponent](../../../open-erp-web/src/app/features/auth/register/register.component.ts) sử dụng các component dùng chung như `<oerp-input>`, `<oerp-button>`.
+  - Triển khai [RegisterComponent](../../../../open-erp-web/src/app/features/auth/register/register.component.ts) sử dụng các component dùng chung như `<oerp-input>`, `<oerp-button>`.
   - Tích hợp kiểm tra subdomain khả dụng với cơ chế debounce 500ms.
   - Hỗ trợ lưu trữ trạng thái người dùng về giao diện (Light/Dark Mode) và cấu hình ngôn ngữ xuống LocalStorage.
 * **Tài liệu & Xác nhận visual:**

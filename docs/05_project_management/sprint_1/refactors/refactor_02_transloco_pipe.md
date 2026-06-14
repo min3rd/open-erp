@@ -70,7 +70,7 @@ Nhằm đơn giản hóa cú pháp, nâng cao hiệu năng Change Detection củ
 ### 5. Kết quả thực hiện (Implementation Status)
 - **Trạng thái**: [x] Đã hoàn thành (Completed)
 - **Kết quả**:
-  - Đã loại bỏ hoàn toàn directive `*transloco="let t"` tại tệp tin [register.component.html](../../../open-erp-web/src/app/features/auth/register/register.component.html).
+  - Đã loại bỏ hoàn toàn directive `*transloco="let t"` tại tệp tin [register.component.html](../../../../open-erp-web/src/app/features/auth/register/register.component.html).
   - Cập nhật toàn bộ các nhãn trong template sang dùng toán tử pipe `| transloco` (ví dụ: `{{ 'auth.register_title' | transloco }}`).
   - Kiểm thử build thành công ứng dụng Web Client mà không phát sinh lỗi biên dịch, các nhãn hiển thị đa ngôn ngữ hoạt động chính xác.
 

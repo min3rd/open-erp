@@ -44,4 +44,4 @@ Xây dựng tài liệu thiết kế kiến trúc hệ thống tổng thể, thi
 
 ### 4. Tiêu chí hoàn thành (Definition of Done - DoD)
 * **Kết quả bàn giao:**
-  - Tài liệu Kiến trúc hệ thống ([system_design.md](../../04_technical/system_design.md)), Mô hình dữ liệu ([data_model.md](../../04_technical/data_model.md)) và Thiết kế API ([api_overview.md](../../03_functional/api_overview.md)) được phê duyệt và lưu trữ đầy đủ trong repo.
+  - Tài liệu Kiến trúc hệ thống ([system_design.md](../../../04_technical/system_design.md)), Mô hình dữ liệu ([data_model.md](../../../04_technical/data_model.md)) và Thiết kế API ([api_overview.md](../../../03_functional/api_overview.md)) được phê duyệt và lưu trữ đầy đủ trong repo.

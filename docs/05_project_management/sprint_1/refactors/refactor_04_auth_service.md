@@ -77,7 +77,7 @@ export class AuthService {
 }
 ```
 
-#### 3.3 Cách sử dụng trong [RegisterComponent](../../../open-erp-web/src/app/features/auth/register/register.component.ts):
+#### 3.3 Cách sử dụng trong [RegisterComponent](../../../../open-erp-web/src/app/features/auth/register/register.component.ts):
 Component sẽ inject `AuthService` thay vì `HttpClient`:
 ```typescript
 import { Component, inject } from '@angular/core';
@@ -125,7 +125,7 @@ export class RegisterComponent {
 ### 5. Kết quả thực hiện (Implementation Status)
 - **Trạng thái**: [x] Đã hoàn thành (Completed)
 - **Kết quả**:
-  - Đã định nghĩa các interfaces dữ liệu nghiệp vụ `RegisterPayload` và `RegisterResponse` tại tệp [auth.model.ts](../../../open-erp-web/src/app/core/models/auth.model.ts).
-  - Triển khai thành công dịch vụ [AuthService](../../../open-erp-web/src/app/core/services/auth.service.ts) chịu trách nhiệm đóng gói toàn bộ logic gọi HttpClient.
-  - Tách hoàn toàn `HttpClient` ra khỏi [RegisterComponent](../../../open-erp-web/src/app/features/auth/register/register.component.ts) và chuyển sang inject [AuthService](../../../open-erp-web/src/app/core/services/auth.service.ts).
+  - Đã định nghĩa các interfaces dữ liệu nghiệp vụ `RegisterPayload` và `RegisterResponse` tại tệp [auth.model.ts](../../../../open-erp-web/src/app/core/models/auth.model.ts).
+  - Triển khai thành công dịch vụ [AuthService](../../../../open-erp-web/src/app/core/services/auth.service.ts) chịu trách nhiệm đóng gói toàn bộ logic gọi HttpClient.
+  - Tách hoàn toàn `HttpClient` ra khỏi [RegisterComponent](../../../../open-erp-web/src/app/features/auth/register/register.component.ts) và chuyển sang inject [AuthService](../../../../open-erp-web/src/app/core/services/auth.service.ts).
   - Kiểm thử giao diện bằng trình duyệt xác nhận luồng đăng ký hoạt động chính xác và an toàn.

@@ -117,5 +117,5 @@ Mở rộng thư viện UI dùng chung **`open-erp-ui`** với các components c
 
 ### 3. Tiêu chí hoàn thành (Definition of Done - DoD)
 * Toàn bộ các component được lập trình hoàn chỉnh bằng Angular Standalone.
-* Đăng ký xuất bản đầy đủ ở [public-api.ts](./../../projects/shared-ui/src/public-api.ts).
+* Đăng ký xuất bản đầy đủ ở [public-api.ts](../../../../open-erp-ui/projects/shared-ui/src/public-api.ts).
 * Thư viện `open-erp-ui` biên dịch thành công không phát sinh lỗi qua lệnh `npm run build`.

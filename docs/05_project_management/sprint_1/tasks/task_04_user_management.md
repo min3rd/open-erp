@@ -34,7 +34,7 @@ Xây dựng luồng mời nhân sự tham gia hệ thống tự động và bả
 * Token được lưu trong bảng `user_activation_tokens` để đối soát. Khi người dùng nhấp vào link và thiết lập mật khẩu thành công, Token lập tức bị hủy (Single-use Token).
 
 #### 2.3 Đặc tả API endpoint liên quan
-Tham chiếu chi tiết trong [api_overview.md](../../03_functional/api_overview.md).
+Tham chiếu chi tiết trong [api_overview.md](../../../03_functional/api_overview.md).
 
 * **`POST /api/v1/org/users/invite`** (Yêu cầu quyền Admin)
   - **Payload yêu cầu:**
@@ -96,7 +96,7 @@ Tham chiếu chi tiết trong [api_overview.md](../../03_functional/api_overview
 
 * **Bước 1 (Hạ tầng):** Đảm bảo cụm hạ tầng PostgreSQL & Redis local đang chạy:
   ```bash
-  docker compose -f ../../docker-compose.local.yml up -d
+  docker compose -f ../../../../docker-compose.local.yml up -d
   ```
 * **Bước 2 (Gỡ lỗi Queue):** Mở dự án `open-erp-services` trong VSCode, bật tab Run and Debug và chạy **"Debug NestJS Backend"**. Đặt breakpoint trong file `email.consumer.ts` để kiểm tra tiến trình nhận job gửi mail từ Redis.
 * **Bước 3 (Giả lập Mail):** Nếu chạy ở local không cấu hình Amazon SES thực tế, cấu hình biến môi trường SMTP sử dụng dịch vụ giả lập mail như **Ethereal Email** hoặc **Maildev** chạy bằng Docker để bắt email debug.

@@ -5,7 +5,7 @@
 
 ### 1. Mục tiêu (Goal)
 Nhằm loại bỏ việc viết cứng (hardcode) địa chỉ API ở cấp độ component, hỗ trợ khả năng thay đổi cấu hình môi trường linh hoạt (Development, Staging, Production) mà không cần build lại mã nguồn:
-1. **Định cấu hình động**: Đọc địa chỉ Base API URL từ tệp tin cấu hình [config.json](../../../open-erp-web/public/assets/config.json).
+1. **Định cấu hình động**: Đọc địa chỉ Base API URL từ tệp tin cấu hình [config.json](../../../../open-erp-web/public/assets/config.json).
 2. **Khởi tạo trước ứng dụng**: Đảm bảo tệp tin cấu hình được tải thành công thông qua giao thức HTTP trước khi Angular bắt đầu khởi chạy hoàn toàn các dịch vụ khác (`APP_INITIALIZER`).
 3. **Quản lý Endpoint tập trung**: Tạo danh mục hằng số hoặc đối tượng quản lý tập trung toàn bộ các đường dẫn API con (Endpoints).
 
@@ -34,7 +34,7 @@ sequenceDiagram
 
 ### 3. Chi tiết triển khai (Implementation Details)
 
-#### 3.1 Tệp tin cấu hình môi trường [config.json](../../../open-erp-web/public/assets/config.json):
+#### 3.1 Tệp tin cấu hình môi trường [config.json](../../../../open-erp-web/public/assets/config.json):
 Tệp tin được đặt tại thư mục public assets:
 ```json
 {
@@ -73,7 +73,7 @@ export class ConfigService {
 }
 ```
 
-#### 3.3 Cấu hình `APP_INITIALIZER` trong [app.config.ts](../../../open-erp-web/src/app/app.config.ts):
+#### 3.3 Cấu hình `APP_INITIALIZER` trong [app.config.ts](../../../../open-erp-web/src/app/app.config.ts):
 ```typescript
 import { APP_INITIALIZER } from '@angular/core';
 import { ConfigService } from './core/services/config.service';
@@ -128,8 +128,8 @@ const url = `${config.apiUrl}${API_ENDPOINTS.auth.register}`;
 ### 5. Kết quả thực hiện (Implementation Status)
 - **Trạng thái**: [x] Đã hoàn thành (Completed)
 - **Kết quả**:
-  - Đã tạo tệp tin cấu hình động [config.json](../../../open-erp-web/public/assets/config.json) chứa `"apiUrl": "http://localhost:3000"`.
-  - Triển khai dịch vụ [ConfigService](../../../open-erp-web/src/app/core/services/config.service.ts) để tải động cấu hình bằng HTTP GET request.
-  - Quản lý tập trung danh mục endpoint trong [api-endpoints.ts](../../../open-erp-web/src/app/core/constants/api-endpoints.ts).
-  - Đăng ký `APP_INITIALIZER` trong [app.config.ts](../../../open-erp-web/src/app/app.config.ts) để tải cấu hình trước khi ứng dụng Angular khởi chạy.
-  - Cập nhật [RegisterComponent](../../../open-erp-web/src/app/features/auth/register/register.component.ts) để loại bỏ hoàn toàn các API URL viết cứng và sử dụng `ConfigService` kết hợp với `API_ENDPOINTS`.
+  - Đã tạo tệp tin cấu hình động [config.json](../../../../open-erp-web/public/assets/config.json) chứa `"apiUrl": "http://localhost:3000"`.
+  - Triển khai dịch vụ [ConfigService](../../../../open-erp-web/src/app/core/services/config.service.ts) để tải động cấu hình bằng HTTP GET request.
+  - Quản lý tập trung danh mục endpoint trong [api-endpoints.ts](../../../../open-erp-web/src/app/core/constants/api-endpoints.ts).
+  - Đăng ký `APP_INITIALIZER` trong [app.config.ts](../../../../open-erp-web/src/app/app.config.ts) để tải cấu hình trước khi ứng dụng Angular khởi chạy.
+  - Cập nhật [RegisterComponent](../../../../open-erp-web/src/app/features/auth/register/register.component.ts) để loại bỏ hoàn toàn các API URL viết cứng và sử dụng `ConfigService` kết hợp với `API_ENDPOINTS`.

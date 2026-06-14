@@ -11,7 +11,7 @@ Xây dựng phân hệ Quản lý phân quyền dựa trên vai trò (Role-Based
 ### 2. Thiết kế chi tiết Nghiệp vụ & Kỹ thuật
 
 #### 2.1 Cơ cấu Phân quyền (RBAC Matrix)
-Quyền truy cập được quản lý thông qua liên kết giữa Tài khoản (`users`), Vai trò (`roles`), và Quyền hạn (`permissions`). Xem chi tiết cấu trúc bảng dữ liệu trong [data_model.md](../../04_technical/data_model.md).
+Quyền truy cập được quản lý thông qua liên kết giữa Tài khoản (`users`), Vai trò (`roles`), và Quyền hạn (`permissions`). Xem chi tiết cấu trúc bảng dữ liệu trong [data_model.md](../../../04_technical/data_model.md).
 
 ```text
   [ Tài khoản User ] ──► [ Vai trò: Quản lý Sales (Role) ]
@@ -76,7 +76,7 @@ Quyền truy cập được quản lý thông qua liên kết giữa Tài khoả
 
 * **Bước 1 (Hạ tầng):** Đảm bảo cụm hạ tầng PostgreSQL & Redis local đang chạy:
   ```bash
-  docker compose -f ../../docker-compose.local.yml up -d
+  docker compose -f ../../../../docker-compose.local.yml up -d
   ```
 * **Bước 2 (Gỡ lỗi Backend):** Mở dự án `open-erp-services` trong VSCode, đặt breakpoint trong `permissions.guard.ts`. Chạy debug cấu hình **"Debug NestJS Backend"**.
 * **Bước 3 (Chạy client):** Khởi chạy client Web (`npm run start`) để kiểm tra ẩn hiện nút thao tác realtime khi thay đổi quyền.

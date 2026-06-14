@@ -24,7 +24,7 @@ npm install @nestjs/config
 ```
 
 #### 3.2 Đăng ký ConfigModule toàn cục trong `AppModule`:
-Đăng ký `ConfigModule.forRoot` với thuộc tính `isGlobal: true` trong [app.module.ts](../../../open-erp-services/src/app.module.ts).
+Đăng ký `ConfigModule.forRoot` với thuộc tính `isGlobal: true` trong [app.module.ts](../../../../open-erp-services/src/app.module.ts).
 
 #### 3.3 Chuyển đổi cấu hình TypeORM:
 Sử dụng `TypeOrmModule.forRootAsync` thay vì `TypeOrmModule.forRoot` để có thể inject `ConfigService` động:
@@ -88,7 +88,7 @@ Inject `ConfigService` vào `RedisService` và tải cấu hình động:
 ### 5. Kết quả thực hiện (Implementation Status)
 - **Trạng thái**: [x] Đã hoàn thành (Completed)
 - **Kết quả**:
-  - Đăng ký `ConfigModule.forRoot({ isGlobal: true })` trong [app.module.ts](../../../open-erp-services/src/app.module.ts).
-  - Tái cấu trúc TypeORM sang dùng `TypeOrmModule.forRootAsync` và `ConfigService` trong [app.module.ts](../../../open-erp-services/src/app.module.ts).
-  - Tái cấu trúc `RedisService` sang inject `ConfigService` và lấy cấu hình động trong [redis.service.ts](../../../open-erp-services/src/core/redis/redis.service.ts).
+  - Đăng ký `ConfigModule.forRoot({ isGlobal: true })` trong [app.module.ts](../../../../open-erp-services/src/app.module.ts).
+  - Tái cấu trúc TypeORM sang dùng `TypeOrmModule.forRootAsync` và `ConfigService` trong [app.module.ts](../../../../open-erp-services/src/app.module.ts).
+  - Tái cấu trúc `RedisService` sang inject `ConfigService` và lấy cấu hình động trong [redis.service.ts](../../../../open-erp-services/src/core/redis/redis.service.ts).
   - Biên dịch dự án thành công và toàn bộ 9 test cases chạy pass 100%.
