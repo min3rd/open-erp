@@ -114,7 +114,7 @@ export class AuthService {
       user.password = hashedPassword;
       user.status = 'Pending';
 
-      await queryRunner.manager.save(user);
+      const savedUser = await queryRunner.manager.save(user);
 
       await queryRunner.commitTransaction();
 
@@ -122,6 +122,10 @@ export class AuthService {
       const activationToken =
         Math.random().toString(36).substring(2, 15) +
         Math.random().toString(36).substring(2, 15);
+      
+      // Save activation token in Redis for 24h
+      await this.redisService.set(`activation:${activationToken}`, savedUser.id, 24 * 60 * 60);
+
       const appProtocol = this.configService.get<string>('APP_PROTOCOL', 'http');
       const appDomain = this.configService.get<string>('APP_DOMAIN', 'localhost:4200');
       const activationLink = `${appProtocol}://${appDomain}/activate?token=${activationToken}`;
@@ -293,5 +297,49 @@ export class AuthService {
         success: true,
       };
     }
+  }
+
+  async activate(token: string): Promise<string> {
+    if (!token) {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'INVALID_ACTIVATION_TOKEN',
+          messageKey: 'auth.invalid_activation_token',
+        },
+      });
+    }
+
+    const redisKey = `activation:${token}`;
+    const userId = await this.redisService.get(redisKey);
+    if (!userId) {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'INVALID_ACTIVATION_TOKEN',
+          messageKey: 'auth.invalid_activation_token',
+        },
+      });
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'USER_NOT_FOUND',
+          messageKey: 'auth.user_not_found',
+        },
+      });
+    }
+
+    user.status = 'Active';
+    await this.userRepository.save(user);
+    await this.redisService.del(redisKey);
+
+    return user.id;
   }
 }

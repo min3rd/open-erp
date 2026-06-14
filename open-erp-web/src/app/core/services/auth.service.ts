@@ -70,4 +70,9 @@ export class AuthService {
       })
     );
   }
+
+  activate(token: string): Observable<{ success: boolean; messageKey?: string }> {
+    const url = this.config.buildUrl(API_ENDPOINTS.auth.activate);
+    return this.http.post<{ success: boolean; messageKey?: string }>(url, { token });
+  }
 }

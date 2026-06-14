@@ -1,0 +1,55 @@
+<div
+  class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-light-bg dark:bg-dark-bg text-slate-900 dark:text-slate-100 transition-colors duration-200"
+>
+  <!-- Header logo & title -->
+  <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
+    <div
+      class="mx-auto h-12 w-12 rounded-2xl bg-rose-gold-500 flex items-center justify-center text-white shadow-lg shadow-rose-gold-500/20 mb-4"
+    >
+      <oerp-icon name="user-check" [size]="24"></oerp-icon>
+    </div>
+    <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+      {{ 'auth.activating' | transloco }}
+    </h2>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div
+      class="bg-white/95 dark:bg-slate-900/95 py-8 px-4 border border-slate-100 dark:border-slate-800/80 shadow-2xl rounded-3xl sm:px-10 backdrop-blur transition-all text-center"
+    >
+      <!-- Loading indicator -->
+      @if (isLoading()) {
+        <div class="flex flex-col items-center justify-center space-y-4 py-6">
+          <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-rose-gold-500"></div>
+          <p class="text-sm text-slate-600 dark:text-slate-400">
+            {{ 'auth.activating' | transloco }}
+          </p>
+        </div>
+      }
+
+      <!-- Success message -->
+      @if (successMessage()) {
+        <div class="space-y-6">
+          <oerp-alert type="success" title="Success" [message]="successMessage()"></oerp-alert>
+          <oerp-button
+            (click)="goToLogin()"
+            [label]="'auth.login_now' | transloco"
+            class="w-full mt-4"
+          ></oerp-button>
+        </div>
+      }
+
+      <!-- Error message -->
+      @if (errorMessage()) {
+        <div class="space-y-6">
+          <oerp-alert type="error" title="Error" [message]="errorMessage()"></oerp-alert>
+          <oerp-button
+            (click)="goToLogin()"
+            [label]="'auth.login_now' | transloco"
+            class="w-full mt-4"
+          ></oerp-button>
+        </div>
+      }
+    </div>
+  </div>
+</div>

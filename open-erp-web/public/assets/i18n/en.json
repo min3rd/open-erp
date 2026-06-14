@@ -28,7 +28,11 @@
     "password_strength": "Password strength",
     "password_weak": "Weak",
     "password_medium": "Medium",
-    "password_strong": "Strong"
+    "password_strong": "Strong",
+    "activation_success": "Account activated successfully! Redirecting...",
+    "invalid_activation_token": "Invalid or expired activation token.",
+    "user_not_found": "User not found.",
+    "activating": "Activating your account..."
   },
   "validation": {
     "company_name_required": "Company name is required.",

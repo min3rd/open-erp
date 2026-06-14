@@ -5,5 +5,6 @@ export const API_ENDPOINTS = {
     login: '/api/v1/auth/login',
     refresh: '/api/v1/auth/refresh',
     logout: '/api/v1/auth/logout',
+    activate: '/api/v1/auth/activate',
   },
 };

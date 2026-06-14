@@ -7,12 +7,25 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.accessToken();
 
-  let authReq = req;
-  if (token) {
-    authReq = req.clone({
-      headers: req.headers.set('Authorization', `Bearer ${token}`),
-    });
+  // Extract subdomain from window.location.host
+  const host = window.location.host;
+  const domain = host.split(':')[0].toLowerCase();
+  let subdomain: string | null = null;
+  if (domain.endsWith('.localhost')) {
+    subdomain = domain.replace('.localhost', '');
+  } else if (domain.endsWith('.open-erp.9ms.io.vn')) {
+    subdomain = domain.replace('.open-erp.9ms.io.vn', '');
   }
+
+  let headers = req.headers;
+  if (token) {
+    headers = headers.set('Authorization', `Bearer ${token}`);
+  }
+  if (subdomain) {
+    headers = headers.set('x-subdomain', subdomain);
+  }
+
+  const authReq = req.clone({ headers });
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {

@@ -123,4 +123,14 @@ export class AuthController {
       success: true,
     };
   }
+
+  @Post('activate')
+  @HttpCode(HttpStatus.OK)
+  async activate(@Body('token') token: string) {
+    await this.authService.activate(token);
+    return {
+      success: true,
+      messageKey: 'auth.activation_success',
+    };
+  }
 }

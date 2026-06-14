@@ -28,7 +28,11 @@
     "password_strength": "Độ mạnh mật khẩu",
     "password_weak": "Yếu",
     "password_medium": "Trung bình",
-    "password_strong": "Mạnh"
+    "password_strong": "Mạnh",
+    "activation_success": "Kích hoạt tài khoản thành công! Đang chuyển hướng...",
+    "invalid_activation_token": "Mã kích hoạt không hợp lệ hoặc đã hết hạn.",
+    "user_not_found": "Không tìm thấy thông tin người dùng.",
+    "activating": "Đang kích hoạt tài khoản..."
   },
   "validation": {
     "company_name_required": "Tên công ty không được để trống.",
