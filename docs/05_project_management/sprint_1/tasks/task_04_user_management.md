@@ -78,7 +78,12 @@ Tham chiếu chi tiết trong [api_overview.md](../../../03_functional/api_overv
   - Tích hợp Transloco hiển thị đầy đủ đa ngôn ngữ.
 
 #### 3.3 Mobile Frontend Engineer (FE Mobile)
-* *Lưu ý nghiệp vụ:* Đối với phiên bản MVP, tính năng mời nhân sự chỉ hỗ trợ trên phiên bản Web của Admin. Phiên bản Mobile chỉ thiết lập màn hình danh bạ nhân sự hiển thị danh sách nhân viên đã được kích hoạt hoạt động trong công ty.
+* **Nhiệm vụ 1: Màn hình Danh bạ nhân sự**
+  - Thiết kế màn hình xem danh bạ nhân viên hiển thị danh sách nhân sự hoạt động trong công ty và thông tin liên hệ.
+* **Nhiệm vụ 2: Tính năng Mời nhân viên trên Mobile**
+  - Xây dựng form mời nhân sự mới (nhập email, gán chi nhánh/phòng ban, và vai trò) trực tiếp trên Mobile App dành cho Quản trị viên (Admin).
+  - Tích hợp tính năng hiển thị trạng thái lời mời (Pending/Active), cho phép Admin nhấn nút "Gửi lại lời mời" (Resend Invite) hoặc hủy lời mời trực tiếp từ điện thoại.
+  - Đồng bộ theme Rose Gold, hỗ trợ chế độ Light/Dark Mode và đa ngôn ngữ Transloco.
 
 #### 3.4 DevOps
 * Thiết lập cấu hình Redis Cluster trong cụm Kubernetes phục vụ BullMQ.

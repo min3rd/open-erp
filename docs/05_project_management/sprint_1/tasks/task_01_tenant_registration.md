@@ -76,7 +76,11 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
   - Cấu hình tất cả các nhãn (labels), placeholder, và thông báo lỗi (validation messages) trong các file ngôn ngữ `vi.json`, `en.json`, `zh.json`, `ja.json`. Sử dụng directive `*transloco="let t"` để render động.
 
 #### 3.3 Mobile Frontend Engineer (FE Mobile)
-* *Lưu ý nghiệp vụ:* Đối với phiên bản MVP, Mobile App không hỗ trợ chức năng đăng ký doanh nghiệp mới trực tiếp trên app. Người dùng được hướng dẫn thực hiện đăng ký trên trình duyệt web. Do đó, FE Mobile chỉ thiết lập màn hình chờ điều hướng hoặc mở trình duyệt ngoài trỏ đến trang đăng ký.
+* **Nhiệm vụ 1: Giao diện Đăng ký doanh nghiệp trên Mobile**
+  - Xây dựng màn hình đăng ký doanh nghiệp mới (Onboarding/Register Page) trên ứng dụng di động (Ionic).
+  - Cho phép người dùng nhập đầy đủ thông tin: Tên công ty, Email, Mật khẩu, Số điện thoại và Subdomain (tùy chọn).
+  - Tích hợp kiểm tra trùng lặp subdomain thời gian thực (real-time check với debounce 500ms) qua gọi API.
+  - Đồng bộ theme Rose Gold, hỗ trợ chế độ Light/Dark Mode và đa ngôn ngữ Transloco.
 
 #### 3.4 UI/UX Designer
 * Cung cấp thiết kế chi tiết trang Đăng ký (SaaS Register Layout) trên Figma đảm bảo responsive cho Desktop, Tablet, Mobile theo đặc tả trong [sitemap_and_wireframes.md](../../../02_user_requirements/sitemap_and_wireframes.md).

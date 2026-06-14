@@ -68,8 +68,12 @@ Tham chiếu chi tiết trong [api_overview.md](../../../03_functional/api_overv
   - Tải động toàn bộ nhãn tiêu đề và các thông báo lỗi nghiệp vụ (ví dụ: "Không thể xóa phòng ban có nhân sự") từ file dịch đa ngôn ngữ.
 
 #### 3.3 Mobile Frontend Engineer (FE Mobile)
-* **Nhiệm vụ 1: Màn hình danh sách phòng ban tối giản**
+* **Nhiệm vụ 1: Màn hình danh sách phòng ban Accordion**
   - Thiết kế màn hình xem sơ đồ tổ chức dưới dạng danh sách Accordion phân cấp thu gọn trên Mobile, giúp người dùng dễ dàng tra cứu danh bạ nhân sự theo phòng ban.
+* **Nhiệm vụ 2: Các tính năng Quản lý (CRUD) Chi nhánh & Phòng ban trên Mobile**
+  - Xây dựng các form modal/màn hình để thêm mới, sửa tên chi nhánh/phòng ban, và chuyển đổi phòng ban cha (`parent_id`) thông qua giao diện chọn trực quan trên di động (Mobile Selector).
+  - Tích hợp tính năng xóa phòng ban với kiểm tra ràng buộc (như có phòng con hoặc có nhân viên) và đưa ra cảnh báo xác nhận.
+  - Đồng bộ theme Rose Gold, hỗ trợ chế độ Light/Dark Mode và đa ngôn ngữ Transloco.
 
 #### 3.4 UI/UX Designer
 * Cung cấp thiết kế Figma màn hình Sơ đồ phòng ban dạng split-pane và responsive view tương ứng trên tablet/mobile.
