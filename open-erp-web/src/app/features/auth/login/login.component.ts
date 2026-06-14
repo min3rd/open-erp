@@ -8,8 +8,9 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { InputComponent, ButtonComponent, IconComponent, AlertComponent, AuthService } from '@open-erp/shared';
+import { InputComponent, ButtonComponent, IconComponent, AlertComponent, AuthService, GuideTourComponent, TourStep } from '@open-erp/shared';
 
 @Component({
   selector: 'app-login',
@@ -22,12 +23,14 @@ import { InputComponent, ButtonComponent, IconComponent, AlertComponent, AuthSer
     ButtonComponent,
     IconComponent,
     AlertComponent,
+    GuideTourComponent,
   ],
   templateUrl: './login.component.html',
 })
 export class LoginComponent implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private http = inject(HttpClient);
   private translocoService = inject(TranslocoService);
   private authService = inject(AuthService);
 
@@ -37,6 +40,24 @@ export class LoginComponent implements OnInit {
   isLoading = signal<boolean>(false);
   successMessage = signal<string>('');
   errorMessage = signal<string>('');
+  showGuide = signal<boolean>(false);
+
+  steps: TourStep[] = [
+    {
+      title: 'guide.login_title',
+      description: 'guide.login_desc',
+      selector: '#login-card'
+    },
+    {
+      title: 'guide.login_settings_title',
+      description: 'guide.login_settings_desc',
+      selector: '#settings-bar'
+    }
+  ];
+
+  triggerGuide() {
+    this.showGuide.set(true);
+  }
 
   ngOnInit() {
     // 1. Load language preference
@@ -63,6 +84,13 @@ export class LoginComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
+
+    const seen = localStorage.getItem('guide_seen_login');
+    if (seen !== 'true') {
+      setTimeout(() => {
+        this.showGuide.set(true);
+      }, 500);
+    }
   }
 
   getControl(name: string): FormControl {
@@ -122,9 +150,24 @@ export class LoginComponent implements OnInit {
           const msgKey = res.messageKey || 'auth.login_success';
           this.successMessage.set(this.translocoService.translate(msgKey));
           
-          setTimeout(() => {
-            this.router.navigate(['/org-structure']);
-          }, 1500);
+          this.http.get<any>('/api/v1/org/departments').subscribe({
+            next: (deptRes) => {
+              const hasDepts = deptRes.success && deptRes.data && deptRes.data.length > 0;
+              const isAdmin = this.authService.getRole() === 'admin';
+              setTimeout(() => {
+                if (!hasDepts && isAdmin) {
+                  this.router.navigate(['/org-structure']);
+                } else {
+                  this.router.navigate(['/home']);
+                }
+              }, 1500);
+            },
+            error: () => {
+              setTimeout(() => {
+                this.router.navigate(['/home']);
+              }, 1500);
+            }
+          });
         }
       },
       error: (err) => {

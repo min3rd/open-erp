@@ -3,6 +3,16 @@
     <ion-title>
       {{ 'home.title' | transloco }}
     </ion-title>
+    <ion-buttons slot="end" class="mr-2">
+      <button 
+        class="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer"
+        (click)="triggerGuide()"
+        aria-label="Help"
+        type="button"
+      >
+        <oerp-icon name="help-circle" [size]="14" class="text-rose-gold-500"></oerp-icon>
+      </button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -16,15 +26,17 @@
   </ion-header>
 
   <div id="container" class="text-center px-4 py-12 flex flex-col items-center">
-    <h1 class="text-xl font-bold mb-2">
-      {{ 'home.welcome' | transloco }}
-    </h1>
-    <p class="text-sm text-slate-500 mb-8">
-      {{ 'home.description' | transloco }}
-    </p>
+    <div id="welcome-heading-mobile">
+      <h1 class="text-xl font-bold mb-2">
+        {{ 'home.welcome' | transloco }}
+      </h1>
+      <p class="text-sm text-slate-500 mb-8">
+        {{ 'home.description' | transloco }}
+      </p>
+    </div>
 
     <!-- Quick access link to Org Structure -->
-    <div class="w-full max-w-sm px-4">
+    <div id="org-card-mobile" class="w-full max-w-sm px-4">
       <ion-card button routerLink="/org-structure" class="m-0 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden" style="border-radius: 12px;">
         <ion-card-header class="bg-rose-gold-500/5 dark:bg-rose-gold-950/5 flex flex-col gap-1 text-left">
           <ion-card-title class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
@@ -38,4 +50,13 @@
       </ion-card>
     </div>
   </div>
+
+  <!-- Onboarding Guide Tour -->
+  @if (showGuide()) {
+    <oerp-guide-tour
+      [pageKey]="'home-mobile'"
+      [steps]="steps"
+      (onClose)="showGuide.set(false)"
+    ></oerp-guide-tour>
+  }
 </ion-content>

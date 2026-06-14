@@ -45,7 +45,9 @@ import {
   IconComponent,
   ToastService,
   TreeViewComponent,
-  TreeNode
+  TreeNode,
+  GuideTourComponent,
+  TourStep
 } from '@open-erp/shared';
 
 @Component({
@@ -75,7 +77,9 @@ import {
     ButtonComponent,
     InputComponent,
     SelectComponent,
-    TreeViewComponent
+    TreeViewComponent,
+    GuideTourComponent,
+    IconComponent
   ],
   templateUrl: './org-structure.page.html',
   styleUrls: ['./org-structure.page.scss']
@@ -102,8 +106,38 @@ export class OrgStructurePage implements OnInit {
   editingBranch = signal<any | null>(null);
   editingDepartment = signal<any | null>(null);
 
+  showGuide = signal<boolean>(false);
+
+  steps: TourStep[] = [
+    {
+      title: 'guide.org_mobile_branches_title',
+      description: 'guide.org_mobile_branches_desc',
+      selector: '#branches-section-mobile'
+    },
+    {
+      title: 'guide.org_mobile_depts_title',
+      description: 'guide.org_mobile_depts_desc',
+      selector: '#depts-section-mobile'
+    },
+    {
+      title: 'guide.org_mobile_seed_title',
+      description: 'guide.org_mobile_seed_desc',
+      selector: '#seed-section-mobile'
+    },
+    {
+      title: 'guide.org_mobile_details_title',
+      description: 'guide.org_mobile_details_desc',
+      selector: '#details-section-mobile'
+    }
+  ];
+
+  triggerGuide() {
+    this.showGuide.set(true);
+  }
+
   // Seeding Controls
   industryControl = new FormControl('');
+  selectedIndustry = signal<string>('');
   industryOptions = computed(() => [
     { value: '', label: this.translocoService.translate('org.select_industry') },
     { value: 'technology', label: this.translocoService.translate('org.industry_technology') },
@@ -166,6 +200,16 @@ export class OrgStructurePage implements OnInit {
   ngOnInit(): void {
     this.initForms();
     this.loadData();
+    this.industryControl.valueChanges.subscribe((val) => {
+      this.selectedIndustry.set(val || '');
+    });
+
+    const seen = localStorage.getItem('guide_seen_org-structure-mobile');
+    if (seen !== 'true') {
+      setTimeout(() => {
+        this.showGuide.set(true);
+      }, 500);
+    }
   }
 
   private initForms(): void {

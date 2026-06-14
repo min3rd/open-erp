@@ -19,7 +19,7 @@ import {
   IonTitle,
   IonButtons,
 } from '@ionic/angular/standalone';
-import { InputComponent, ButtonComponent, IconComponent, AuthService } from '@open-erp/shared';
+import { InputComponent, ButtonComponent, IconComponent, AuthService, GuideTourComponent, TourStep } from '@open-erp/shared';
 
 @Component({
   selector: 'app-register',
@@ -38,6 +38,7 @@ import { InputComponent, ButtonComponent, IconComponent, AuthService } from '@op
     InputComponent,
     ButtonComponent,
     IconComponent,
+    GuideTourComponent,
   ],
 })
 export class RegisterPage implements OnInit {
@@ -51,6 +52,24 @@ export class RegisterPage implements OnInit {
   isDarkMode = signal<boolean>(false);
   currentLang = signal<string>('vi');
   passwordValue = signal<string>('');
+  showGuide = signal<boolean>(false);
+
+  steps: TourStep[] = [
+    {
+      title: 'guide.register_mobile_title',
+      description: 'guide.register_mobile_desc',
+      selector: '#register-card-mobile'
+    },
+    {
+      title: 'guide.register_mobile_settings_title',
+      description: 'guide.register_mobile_settings_desc',
+      selector: '#settings-bar-mobile'
+    }
+  ];
+
+  triggerGuide() {
+    this.showGuide.set(true);
+  }
 
   // Password strength computation signal
   passwordStrength = computed(() => {
@@ -123,6 +142,13 @@ export class RegisterPage implements OnInit {
   }
 
   ngOnInit() {
+    const seen = localStorage.getItem('guide_seen_register-mobile');
+    if (seen !== 'true') {
+      setTimeout(() => {
+        this.showGuide.set(true);
+      }, 500);
+    }
+
     // Watch subdomain changes with debounce to check availability
     const subdomainControl = this.registerForm.get('subdomain');
     if (subdomainControl) {

@@ -8,6 +8,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import {
   IonContent,
@@ -16,7 +17,7 @@ import {
   IonTitle,
   IonButtons,
 } from '@ionic/angular/standalone';
-import { InputComponent, ButtonComponent, IconComponent, AuthService } from '@open-erp/shared';
+import { InputComponent, ButtonComponent, IconComponent, AuthService, GuideTourComponent, TourStep } from '@open-erp/shared';
 
 @Component({
   selector: 'app-login',
@@ -35,11 +36,13 @@ import { InputComponent, ButtonComponent, IconComponent, AuthService } from '@op
     InputComponent,
     ButtonComponent,
     IconComponent,
+    GuideTourComponent,
   ],
 })
 export class LoginPage implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private http = inject(HttpClient);
   private translocoService = inject(TranslocoService);
   private authService = inject(AuthService);
 
@@ -49,6 +52,24 @@ export class LoginPage implements OnInit {
   isLoading = signal<boolean>(false);
   successMessage = signal<string>('');
   errorMessage = signal<string>('');
+  showGuide = signal<boolean>(false);
+
+  steps: TourStep[] = [
+    {
+      title: 'guide.login_mobile_title',
+      description: 'guide.login_mobile_desc',
+      selector: '#login-card-mobile'
+    },
+    {
+      title: 'guide.login_mobile_settings_title',
+      description: 'guide.login_mobile_settings_desc',
+      selector: '#settings-bar-mobile'
+    }
+  ];
+
+  triggerGuide() {
+    this.showGuide.set(true);
+  }
 
   ngOnInit() {
     // 1. Load language preference
@@ -81,6 +102,13 @@ export class LoginPage implements OnInit {
     const savedSubdomain = localStorage.getItem('subdomain');
     if (savedSubdomain) {
       this.loginForm.get('subdomain')?.setValue(savedSubdomain);
+    }
+
+    const seen = localStorage.getItem('guide_seen_login-mobile');
+    if (seen !== 'true') {
+      setTimeout(() => {
+        this.showGuide.set(true);
+      }, 500);
     }
   }
 
@@ -154,10 +182,24 @@ export class LoginPage implements OnInit {
           const msgKey = res.messageKey || 'auth.login_success';
           this.successMessage.set(this.translocoService.translate(msgKey));
           
-          // Redirect to org-structure page after login success
-          setTimeout(() => {
-            this.router.navigate(['/org-structure']);
-          }, 1500);
+          this.http.get<any>('/api/v1/org/departments').subscribe({
+            next: (deptRes) => {
+              const hasDepts = deptRes.success && deptRes.data && deptRes.data.length > 0;
+              const isAdmin = this.authService.getRole() === 'admin';
+              setTimeout(() => {
+                if (!hasDepts && isAdmin) {
+                  this.router.navigate(['/org-structure']);
+                } else {
+                  this.router.navigate(['/home']);
+                }
+              }, 1500);
+            },
+            error: () => {
+              setTimeout(() => {
+                this.router.navigate(['/home']);
+              }, 1500);
+            }
+          });
         }
       },
       error: (err) => {

@@ -11,9 +11,9 @@
     "audit:fix:all": "npm audit fix && npm audit fix --workspace=open-erp-services && npm audit fix --workspace=open-erp-shared && npm audit fix --workspace=open-erp-web",
     "services:dev": "npm run start:dev --workspace=open-erp-services",
     "web:dev": "node -e \"setTimeout(() => {}, 6000)\" && npm run start --workspace=open-erp-web",
-    "ui:build": "npm run build --workspace=open-erp-shared",
-    "ui:watch": "npm run watch --workspace=open-erp-shared",
-    "dev": "npm run ui:build && concurrently \"npm run services:dev\" \"npm run ui:watch\" \"npm run web:dev\""
+    "shared:build": "npm run build --workspace=open-erp-shared",
+    "shared:watch": "npm run watch --workspace=open-erp-shared",
+    "dev": "npm run shared:build && concurrently \"npm run services:dev\" \"npm run shared:watch\" \"npm run web:dev\""
   },
   "dependencies": {},
   "devDependencies": {

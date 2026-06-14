@@ -1,0 +1,57 @@
+<div class="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 flex flex-col items-center">
+  <!-- Header with Help button -->
+  <header class="w-full max-w-4xl flex justify-between items-center mb-12 border-b pb-4 border-slate-200 dark:border-slate-800">
+    <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+      <oerp-icon name="briefcase" class="text-rose-gold-500" [size]="24"></oerp-icon>
+      OpenERP
+    </h1>
+    <button 
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+      (click)="triggerGuide()"
+    >
+      <oerp-icon name="help-circle" [size]="16" class="text-rose-gold-500"></oerp-icon>
+      {{ 'guide.trigger' | transloco }}
+    </button>
+  </header>
+
+  <!-- Welcome Container -->
+  <div class="w-full max-w-4xl text-center py-12 flex flex-col items-center gap-8">
+    <div id="welcome-heading" class="flex flex-col items-center">
+      <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+        {{ 'home.welcome' | transloco }}
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-md">
+        {{ 'home.description' | transloco }}
+      </p>
+    </div>
+
+    <!-- Quick Navigation Modules -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mt-6">
+      <div 
+        id="org-card"
+        [routerLink]="['/org-structure']"
+        class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-rose-gold-400 dark:hover:border-rose-gold-500 shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 text-left relative overflow-hidden group"
+      >
+        <div class="absolute top-0 left-0 right-0 h-1 bg-rose-gold-400 group-hover:bg-rose-gold-500 transition-colors"></div>
+        <div class="w-10 h-10 rounded-lg bg-rose-gold-500/10 flex items-center justify-center text-rose-gold-500 mb-4">
+          <oerp-icon name="briefcase" [size]="20"></oerp-icon>
+        </div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-white mb-2">
+          {{ 'org.title' | transloco }}
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          {{ 'org.subtitle' | transloco }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onboarding Guide Tour -->
+  @if (showGuide()) {
+    <oerp-guide-tour
+      [pageKey]="'home'"
+      [steps]="steps"
+      (onClose)="showGuide.set(false)"
+    ></oerp-guide-tour>
+  }
+</div>

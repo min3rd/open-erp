@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
   IonHeader,
   IonToolbar,
@@ -8,12 +9,14 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
-  IonIcon
+  IonIcon,
+  IonButtons
 } from '@ionic/angular/standalone';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { addIcons } from 'ionicons';
 import { briefcase } from 'ionicons/icons';
+import { GuideTourComponent, TourStep, IconComponent } from '@open-erp/shared';
 
 @Component({
   selector: 'app-home',
@@ -21,6 +24,7 @@ import { briefcase } from 'ionicons/icons';
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [
+    CommonModule,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -30,12 +34,43 @@ import { briefcase } from 'ionicons/icons';
     IonCardTitle,
     IonCardContent,
     IonIcon,
+    IonButtons,
     RouterLink,
-    TranslocoModule
+    TranslocoModule,
+    GuideTourComponent,
+    IconComponent
   ],
 })
-export class HomePage {
+export class HomePage implements OnInit {
+  showGuide = signal<boolean>(false);
+
+  steps: TourStep[] = [
+    {
+      title: 'guide.home_mobile_title',
+      description: 'guide.home_mobile_desc',
+      selector: '#welcome-heading-mobile'
+    },
+    {
+      title: 'guide.home_mobile_org_title',
+      description: 'guide.home_mobile_org_desc',
+      selector: '#org-card-mobile'
+    }
+  ];
+
   constructor() {
     addIcons({ briefcase });
+  }
+
+  ngOnInit() {
+    const seen = localStorage.getItem('guide_seen_home-mobile');
+    if (seen !== 'true') {
+      setTimeout(() => {
+        this.showGuide.set(true);
+      }, 500);
+    }
+  }
+
+  triggerGuide() {
+    this.showGuide.set(true);
   }
 }

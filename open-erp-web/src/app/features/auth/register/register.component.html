@@ -2,7 +2,15 @@
   class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-light-bg dark:bg-dark-bg text-slate-900 dark:text-slate-100 transition-colors duration-200"
 >
   <!-- Top header / Settings bar -->
-  <div class="absolute top-4 right-4 flex items-center gap-4">
+  <div id="settings-bar" class="absolute top-4 right-4 flex items-center gap-4">
+    <!-- Help Button -->
+    <button 
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+      (click)="triggerGuide()"
+    >
+      <oerp-icon name="help-circle" [size]="16" class="text-rose-gold-500"></oerp-icon>
+      {{ 'guide.trigger' | transloco }}
+    </button>
     <!-- Language Selector -->
     <select
       [value]="currentLang()"
@@ -43,7 +51,7 @@
     </p>
   </div>
 
-  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+  <div id="register-card" class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
     <div
       class="bg-white dark:bg-slate-900 py-8 px-4 shadow-xl rounded-2xl border border-slate-100 dark:border-slate-800 sm:px-10"
     >
@@ -228,4 +236,13 @@
       </div>
     </div>
   </div>
+
+  <!-- Onboarding Guide Tour -->
+  @if (showGuide()) {
+    <oerp-guide-tour
+      [pageKey]="'register'"
+      [steps]="steps"
+      (onClose)="showGuide.set(false)"
+    ></oerp-guide-tour>
+  }
 </div>

@@ -1,0 +1,50 @@
+<div class="oerp-tour-overlay">
+  <!-- Spotlight Highlight Mask -->
+  @if (hasHighlight()) {
+    <div
+      class="oerp-tour-spotlight"
+      [style.left.px]="highlightLeft()"
+      [style.top.px]="highlightTop()"
+      [style.width.px]="highlightWidth()"
+      [style.height.px]="highlightHeight()"
+    ></div>
+  } @else {
+    <!-- Full-screen dim overlay when no element spotlight is active -->
+    <div class="oerp-tour-backdrop"></div>
+  }
+
+  <!-- Tooltip Card -->
+  <div
+    [ngClass]="{
+      'oerp-tour-tooltip': true,
+      'oerp-tour-tooltip-centered': isCentered(),
+      'oerp-tour-tooltip-positioned': !isCentered()
+    }"
+    [style.left.px]="isCentered() ? null : tooltipLeft()"
+    [style.top.px]="isCentered() ? null : tooltipTop()"
+  >
+    <div class="oerp-tour-tooltip-header">
+      <h4 class="oerp-tour-tooltip-title">{{ currentStep().title | transloco }}</h4>
+      <span class="oerp-tour-tooltip-counter">
+        {{ currentStepIndex() + 1 }} / {{ steps().length }}
+      </span>
+    </div>
+    
+    <div class="oerp-tour-tooltip-body">
+      <p class="oerp-tour-tooltip-desc">{{ currentStep().description | transloco }}</p>
+    </div>
+
+    <div class="oerp-tour-tooltip-footer">
+      <button class="oerp-tour-btn-skip" (click)="skipTour()">{{ 'guide.skip' | transloco }}</button>
+      
+      <div class="oerp-tour-btn-group">
+        @if (currentStepIndex() > 0) {
+          <button class="oerp-tour-btn-back" (click)="prevStep()">{{ 'guide.back' | transloco }}</button>
+        }
+        <button class="oerp-tour-btn-next" (click)="nextStep()">
+          {{ currentStepIndex() === steps().length - 1 ? ('guide.finish' | transloco) : ('guide.next' | transloco) }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

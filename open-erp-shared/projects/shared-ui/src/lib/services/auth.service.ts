@@ -18,8 +18,20 @@ export class AuthService {
   private http = inject(HttpClient);
   private config = inject(ConfigService);
 
-  // Store access token in memory
   accessToken = signal<string | null>(null);
+
+  getRole(): string | null {
+    const token = this.accessToken();
+    if (!token) return null;
+    try {
+      const payloadBase64 = token.split('.')[1];
+      const payloadJson = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'));
+      const payload = JSON.parse(payloadJson);
+      return payload.role || null;
+    } catch (e) {
+      return null;
+    }
+  }
 
   checkSubdomain(subdomain: string): Observable<boolean> {
     const url = this.config.buildUrl(API_ENDPOINTS.auth.checkSubdomain, { subdomain });

@@ -4,7 +4,17 @@
       {{ 'auth.app_onboarding' | transloco }}
     </ion-title>
 
-    <ion-buttons slot="end" class="flex gap-2 mr-2">
+    <ion-buttons id="settings-bar-mobile" slot="end" class="flex gap-2 mr-2">
+      <!-- Help Button -->
+      <button 
+        class="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer"
+        (click)="triggerGuide()"
+        aria-label="Help"
+        type="button"
+      >
+        <oerp-icon name="help-circle" [size]="14" class="text-rose-gold-500"></oerp-icon>
+      </button>
+
       <!-- Language Selector -->
       <select
         [value]="currentLang()"
@@ -50,7 +60,7 @@
     </div>
 
     <!-- Register Form Card -->
-    <div class="bg-white dark:bg-slate-900 py-6 px-4 shadow-md rounded-2xl border border-slate-100 dark:border-slate-800">
+    <div id="register-card-mobile" class="bg-white dark:bg-slate-900 py-6 px-4 shadow-md rounded-2xl border border-slate-100 dark:border-slate-800">
       
       <!-- Success Status -->
       @if (successMessage()) {
@@ -221,4 +231,13 @@
       </div>
     </div>
   </div>
+
+  <!-- Onboarding Guide Tour -->
+  @if (showGuide()) {
+    <oerp-guide-tour
+      [pageKey]="'register-mobile'"
+      [steps]="steps"
+      (onClose)="showGuide.set(false)"
+    ></oerp-guide-tour>
+  }
 </ion-content>

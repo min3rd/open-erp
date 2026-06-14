@@ -12,7 +12,7 @@ import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { InputComponent, ButtonComponent, IconComponent, AuthService } from '@open-erp/shared';
+import { InputComponent, ButtonComponent, IconComponent, AuthService, GuideTourComponent, TourStep } from '@open-erp/shared';
 
 @Component({
   selector: 'app-register',
@@ -24,6 +24,7 @@ import { InputComponent, ButtonComponent, IconComponent, AuthService } from '@op
     InputComponent,
     ButtonComponent,
     IconComponent,
+    GuideTourComponent,
   ],
   templateUrl: './register.component.html'
 })
@@ -38,6 +39,24 @@ export class RegisterComponent implements OnInit {
   isDarkMode = signal<boolean>(false);
   currentLang = signal<string>('vi');
   passwordValue = signal<string>('');
+  showGuide = signal<boolean>(false);
+
+  steps: TourStep[] = [
+    {
+      title: 'guide.register_title',
+      description: 'guide.register_desc',
+      selector: '#register-card'
+    },
+    {
+      title: 'guide.register_settings_title',
+      description: 'guide.register_settings_desc',
+      selector: '#settings-bar'
+    }
+  ];
+
+  triggerGuide() {
+    this.showGuide.set(true);
+  }
 
   // Password strength computation signal
   passwordStrength = computed(() => {
@@ -111,6 +130,13 @@ export class RegisterComponent implements OnInit {
   }
 
   ngOnInit() {
+    const seen = localStorage.getItem('guide_seen_register');
+    if (seen !== 'true') {
+      setTimeout(() => {
+        this.showGuide.set(true);
+      }, 500);
+    }
+
     // Watch subdomain changes with debounce to check availability
     const subdomainControl = this.registerForm.get('subdomain');
     if (subdomainControl) {

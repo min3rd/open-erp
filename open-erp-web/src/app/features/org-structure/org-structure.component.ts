@@ -11,7 +11,9 @@ import {
   SelectComponent,
   IconComponent,
   ToastService,
-  TreeNode
+  TreeNode,
+  GuideTourComponent,
+  TourStep
 } from '@open-erp/shared';
 
 @Component({
@@ -27,7 +29,8 @@ import {
     ButtonComponent,
     InputComponent,
     SelectComponent,
-    IconComponent
+    IconComponent,
+    GuideTourComponent
   ],
   templateUrl: './org-structure.component.html',
   styleUrls: ['./org-structure.component.css']
@@ -52,8 +55,38 @@ export class OrgStructureComponent implements OnInit {
   editingBranch = signal<any | null>(null);
   editingDepartment = signal<any | null>(null);
 
+  showGuide = signal<boolean>(false);
+
+  steps: TourStep[] = [
+    {
+      title: 'guide.org_branches_title',
+      description: 'guide.org_branches_desc',
+      selector: '#branches-section'
+    },
+    {
+      title: 'guide.org_depts_title',
+      description: 'guide.org_depts_desc',
+      selector: '#depts-section'
+    },
+    {
+      title: 'guide.org_seed_title',
+      description: 'guide.org_seed_desc',
+      selector: '#seed-section'
+    },
+    {
+      title: 'guide.org_details_title',
+      description: 'guide.org_details_desc',
+      selector: '#details-section'
+    }
+  ];
+
+  triggerGuide() {
+    this.showGuide.set(true);
+  }
+
   // Seeding Signals & Controls
   industryControl = new FormControl('');
+  selectedIndustry = signal<string>('');
   industryOptions = computed(() => [
     { value: '', label: this.translocoService.translate('org.select_industry') },
     { value: 'technology', label: this.translocoService.translate('org.industry_technology') },
@@ -95,6 +128,16 @@ export class OrgStructureComponent implements OnInit {
   ngOnInit(): void {
     this.initForms();
     this.loadData();
+    this.industryControl.valueChanges.subscribe((val) => {
+      this.selectedIndustry.set(val || '');
+    });
+
+    const seen = localStorage.getItem('guide_seen_org-structure');
+    if (seen !== 'true') {
+      setTimeout(() => {
+        this.showGuide.set(true);
+      }, 500);
+    }
   }
 
   private initForms(): void {
