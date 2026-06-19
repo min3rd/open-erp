@@ -5,8 +5,22 @@ import { ValidationPipe, BadRequestException } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS
-  app.enableCors();
+  // Enable CORS — allow credentials (cookies) from Web & Mobile clients
+  app.enableCors({
+    origin: [
+      'http://localhost:4200', // open-erp-web
+      'http://localhost:8100', // open-erp-mobile (Ionic dev)
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'x-tenant-id',
+      'x-subdomain',
+      'x-refresh-token',
+    ],
+  });
 
   // Set Global Prefix
   app.setGlobalPrefix('api/v1');

@@ -182,13 +182,17 @@ refreshToken(): Observable<LoginResponse> {
 
 ### 5. Kết quả thực hiện (Resolution & Deliverables)
 
-- **Trạng thái (Status)**: [ ] Cần sửa (Todo)
-- **Ưu tiên**: 🔴 **Cao** — Ảnh hưởng đến toàn bộ cơ chế gia hạn phiên (session refresh). Khi Access Token hết hạn mà không refresh được, người dùng bị đăng xuất đột ngột.
-- **File cần sửa:**
-  - [`open-erp-services/src/main.ts`](../../../../open-erp-services/src/main.ts) — Bật `credentials: true` trong CORS
-  - [`open-erp-services/src/features/auth/auth.controller.ts`](../../../../open-erp-services/src/features/auth/auth.controller.ts) — Đổi `sameSite: 'lax'`
-  - [`open-erp-web/src/app/core/interceptors/auth.interceptor.ts`](../../../../open-erp-web/src/app/core/interceptors/auth.interceptor.ts) — Thêm `withCredentials: true`
-  - [`open-erp-shared/projects/shared-ui/src/lib/services/auth.service.ts`](../../../../open-erp-shared/projects/shared-ui/src/lib/services/auth.service.ts) — Thêm `withCredentials` cho `refreshToken()`
+- **Trạng thái (Status)**: [x] Đã hoàn thành (Completed) — 2026-06-19
+- **Ưu tiên**: 🔴 **Cao** — Ảnh hưởng đến toàn bộ cơ chế gia hạn phiên (session refresh).
+- **Thay đổi thực hiện:**
+
+| File | Thay đổi |
+|------|----------|
+| [`open-erp-services/src/main.ts`](../../../../open-erp-services/src/main.ts) | Thay `app.enableCors()` thành cấu hình đầy đủ với `credentials: true`, `origin` danh sách trắng, và `allowedHeaders` bao gồm `x-tenant-id`, `x-subdomain`. |
+| [`open-erp-services/.../auth.controller.ts`](../../../../open-erp-services/src/features/auth/auth.controller.ts) | Đổi `sameSite: 'strict'` → `'lax'` để cookie được gửi trong môi trường dev cross-port (`localhost:4200` → `localhost:3000`). |
+| [`open-erp-web/.../auth.interceptor.ts`](../../../../open-erp-web/src/app/core/interceptors/auth.interceptor.ts) | Thêm `withCredentials: true` vào cả request gốc lẫn request retry sau khi refresh. |
+| [`open-erp-mobile/.../auth.interceptor.ts`](../../../../open-erp-mobile/src/app/core/interceptors/auth.interceptor.ts) | Tương tự, thêm `withCredentials: true`. |
+| [`open-erp-shared/.../auth.service.ts`](../../../../open-erp-shared/projects/shared-ui/src/lib/services/auth.service.ts) | Thêm `{ withCredentials: true }` vào các lời gọi `login()`, `refreshToken()`, `logout()`. |
 
 > [!NOTE]
-> BUG-1.9 (UNAUTHORIZED menu) và BUG-1.10 (REFRESH_TOKEN_REQUIRED) có liên quan mật thiết. Sau khi sửa BUG-1.10 (refresh hoạt động), cơ chế tự động refresh trong interceptor sẽ phục hồi được session sau reload — giảm thiểu ảnh hưởng của BUG-1.9.
+> BUG-1.9 (UNAUTHORIZED menu) và BUG-1.10 (REFRESH_TOKEN_REQUIRED) được sửa cùng lúc trong một lần commit. Sau khi sửa BUG-1.10, cơ chế auto-refresh trong interceptor hoạt động, kết hợp với fix BUG-1.9 (lưu token vào localStorage), hệ thống sẽ khôi phục phiên đăng nhập hoàn toàn sau khi reload trang.

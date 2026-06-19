@@ -137,9 +137,12 @@ export function restoreSession(authService: AuthService) {
 
 ### 5. Kết quả thực hiện (Resolution & Deliverables)
 
-- **Trạng thái (Status)**: [ ] Cần sửa (Todo)
+- **Trạng thái (Status)**: [x] Đã hoàn thành (Completed) — 2026-06-19
 - **Ưu tiên**: 🔴 **Cao** — Ảnh hưởng trực tiếp đến trải nghiệm người dùng sau mỗi lần tải lại trang.
-- **File cần sửa:**
-  - [`open-erp-shared/src/lib/services/auth.service.ts`](../../../../open-erp-shared/projects/shared-ui/src/lib/services/auth.service.ts) — Lưu/khôi phục token
-  - [`open-erp-web/src/app/app.config.ts`](../../../../open-erp-web/src/app/app.config.ts) — APP_INITIALIZER restore session
-  - Tương tự cho `open-erp-mobile` nếu cần
+- **Thay đổi thực hiện:**
+
+| File | Thay đổi |
+|------|----------|
+| [`open-erp-shared/.../auth.service.ts`](../../../../open-erp-shared/projects/shared-ui/src/lib/services/auth.service.ts) | Khởi tạo `accessToken` Signal từ `localStorage.getItem('accessToken')`. Lưu token sau login/refresh. Xóa token khi logout. |
+| [`open-erp-web/src/app/app.config.ts`](../../../../open-erp-web/src/app/app.config.ts) | Thêm `restoreSession` APP_INITIALIZER — gọi `fetchProfileAndPermissions()` khi app khởi động nếu tìm thấy token trong localStorage. Tự động thử refresh nếu token hết hạn. |
+| [`open-erp-mobile/src/main.ts`](../../../../open-erp-mobile/src/main.ts) | Tương tự, thêm `restoreSession` APP_INITIALIZER. |

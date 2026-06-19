@@ -18,7 +18,9 @@ export class AuthService {
   private http = inject(HttpClient);
   private config = inject(ConfigService);
 
-  accessToken = signal<string | null>(null);
+  // Restore accessToken from localStorage on service init (survives page reloads)
+  accessToken = signal<string | null>(localStorage.getItem('accessToken'));
+
   permissions = signal<string[]>([]);
 
   getRole(): string | null {
@@ -63,10 +65,11 @@ export class AuthService {
 
   login(payload: LoginPayload): Observable<LoginResponse> {
     const url = this.config.buildUrl(API_ENDPOINTS.auth.login);
-    return this.http.post<LoginResponse>(url, payload).pipe(
+    return this.http.post<LoginResponse>(url, payload, { withCredentials: true }).pipe(
       tap((res) => {
         if (res.success && res.data?.accessToken) {
           this.accessToken.set(res.data.accessToken);
+          localStorage.setItem('accessToken', res.data.accessToken); // persist for page reloads
           if (res.data.tenant) {
             localStorage.setItem('tenantId', res.data.tenant.id);
             if (res.data.tenant.subdomain) {
@@ -88,18 +91,21 @@ export class AuthService {
 
   refreshToken(): Observable<LoginResponse> {
     const url = this.config.buildUrl(API_ENDPOINTS.auth.refresh);
-    return this.http.post<LoginResponse>(url, {}).pipe(
+    return this.http.post<LoginResponse>(url, {}, { withCredentials: true }).pipe(
       tap({
         next: (res) => {
           if (res.success && res.data?.accessToken) {
             this.accessToken.set(res.data.accessToken);
+            localStorage.setItem('accessToken', res.data.accessToken); // keep token fresh
           } else {
             this.accessToken.set(null);
+            localStorage.removeItem('accessToken');
             this.permissions.set([]);
           }
         },
         error: () => {
           this.accessToken.set(null);
+          localStorage.removeItem('accessToken');
           this.permissions.set([]);
         },
       }),
@@ -114,10 +120,13 @@ export class AuthService {
 
   logout(): Observable<any> {
     const url = this.config.buildUrl(API_ENDPOINTS.auth.logout);
-    return this.http.post<any>(url, {}).pipe(
+    return this.http.post<any>(url, {}, { withCredentials: true }).pipe(
       tap(() => {
         this.accessToken.set(null);
         this.permissions.set([]);
+        localStorage.removeItem('accessToken'); // clear persisted token
+        localStorage.removeItem('tenantId');
+        localStorage.removeItem('subdomain');
       })
     );
   }

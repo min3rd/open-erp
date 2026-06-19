@@ -48,7 +48,7 @@ export class AuthController {
     res.cookie('refreshToken', result.data.refreshToken, {
       httpOnly: true,
       secure: false,
-      sameSite: 'strict',
+      sameSite: 'lax',   // 'lax' allows cross-port requests on localhost in dev
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
     });

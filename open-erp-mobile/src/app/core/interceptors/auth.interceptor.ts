@@ -28,7 +28,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     url = `${configService.apiUrl}${url}`;
   }
 
-  const authReq = req.clone({ url, headers });
+  const authReq = req.clone({ url, headers, withCredentials: true });
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -44,6 +44,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
               const retryReq = req.clone({
                 url: req.url.startsWith('/api/') ? `${configService.apiUrl}${req.url}` : req.url,
                 headers: req.headers.set('Authorization', `Bearer ${res.data.accessToken}`),
+                withCredentials: true,
               });
               return next(retryReq);
             }
