@@ -24,6 +24,8 @@ Dưới đây là danh sách các Task cần triển khai trong Sprint 1:
 | **TSK-1.6** | Đăng ký tài khoản thường | Kích hoạt tài khoản và thiết lập mật khẩu cho nhân viên từ email mời mà không cần tạo tenant mới. | [ ] Todo | BE/FE Leads | [task_06_regular_user_registration.md](./tasks/task_06_regular_user_registration.md) |
 | **TSK-1.7** | Đăng nhập tài khoản thường | Quy trình đăng nhập của tài khoản thường tại portal subdomain của tenant, đính kèm thông tin vai trò. | [ ] Todo | BE/FE Leads | [task_07_regular_user_login.md](./tasks/task_07_regular_user_login.md) |
 | **TSK-1.8** | Tích hợp đăng nhập OAuth | Đăng nhập và đăng ký nhanh bằng tài khoản Google, Microsoft trên flat domain cho cả Web và Mobile. | [ ] Todo | BE/FE Leads | [task_08_oauth_integration.md](./tasks/task_08_oauth_integration.md) |
+| **TSK-1.9** | Bố cục Dashboard sau đăng nhập | Xây dựng bố cục tổng thể hỗ trợ nhiều dạng di chuyển (ngang/dọc, thu gọn/đầy đủ) và phân nhóm menu động dựa trên quyền hạn/phân hệ. | [ ] Todo | FE Leads | [task_09_dashboard_layout.md](./tasks/task_09_dashboard_layout.md) |
+| **TSK-1.10** | Màu sắc Rose Gold & Hiệu ứng Sao đêm | Cải tiến các nút bấm chính sang màu hồng ánh vàng Rose Gold và thêm hiệu ứng "Sao đêm" lấp lánh ánh kim vàng chân thực. | [ ] Todo | FE/UI Leads | [task_10_rose_gold_effects.md](./tasks/task_10_rose_gold_effects.md) |
 | **BUG-1.1** | Lỗi kích hoạt cảnh báo validate quá sớm | Dù người dùng chưa thao tác ở ô input nhưng đã hiển thị cảnh báo validate ngay khi click vào một vị trí bất kỳ. | [x] Completed | FE Leads | [bug_01_validation_trigger.md](./bugs/bug_01_validation_trigger.md) |
 | **BUG-1.2** | Thiếu hiển thị mức độ an toàn mật khẩu | Thiếu hiển thị mức độ an toàn (Password Strength Meter) khi người dùng nhập mật khẩu đăng ký. | [x] Completed | FE Leads, UI-UX | [bug_02_password_strength.md](./bugs/bug_02_password_strength.md) |
 | **BUG-1.3** | Lỗi hiển thị trùng lặp và sai đường dẫn API kiểm tra Subdomain | Lỗi hiển thị 2 dòng thông báo lỗi Subdomain trùng lặp và gọi API check subdomain sai đường dẫn (relative path). | [x] Completed | FE Leads | [bug_03_subdomain_validation.md](./bugs/bug_03_subdomain_validation.md) |
@@ -57,7 +59,10 @@ flowchart TD
     
     TSK12 --> TSK18["TSK-1.8: Tích hợp đăng nhập OAuth (OAuth Integration)"]
     TSK18 --> TSK17
-    TSK17 --> TSK15["TSK-1.5: Phân quyền RBAC & Menu động (Permissions)"]
+    TSK17 --> TSK19["TSK-1.9: Bố cục Dashboard sau đăng nhập (Dashboard Layout)"]
+    TSK19 --> TSK15["TSK-1.5: Phân quyền RBAC & Menu động (Permissions)"]
+    
+    TSK11 --> TSK110["TSK-1.10: Màu sắc Rose Gold & Hiệu ứng Sao đêm (Rose Gold & Starry Effect)"]
 ```
 
 * **Chi tiết luồng thực hiện:**
@@ -68,7 +73,9 @@ flowchart TD
   5. **Bước 5 (Đăng ký tài khoản thường):** Thực hiện **TSK-1.6** khi nhân viên nhận được mail từ TSK-1.4, truy cập link kích hoạt và thiết lập mật khẩu để active tài khoản thường.
   6. **Bước 6 (Đăng nhập tài khoản thường):** Thực hiện **TSK-1.7** cho phép nhân viên đăng nhập bằng mật khẩu hoặc phương thức OAuth tại flat domain.
   7. **Bước 7 (Tích hợp đăng nhập OAuth):** Thực hiện **TSK-1.8** sau khi hệ thống auth cơ bản (TSK-1.2) hoạt động để hỗ trợ đăng nhập nhanh qua Google & Microsoft, kết nối trực tiếp vào tài khoản thường và luồng chọn tenant.
-  8. **Bước 8 (Phân quyền):** Thực hiện **TSK-1.5** để hoàn thiện hệ thống phân quyền (RBAC) cho các nhân viên đã đăng nhập thành công ở TSK-1.7 và render động sidebar menu theo quyền hạn thực tế.
+  8. **Bước 8 (Thiết lập bố cục Dashboard):** Thực hiện **TSK-1.9** để xây dựng bộ khung điều hướng chính (Sidebar/Header) sau đăng nhập.
+  9. **Bước 9 (Phân quyền & Menu động):** Thực hiện **TSK-1.5** để lọc và render các mục menu động trên bố cục Dashboard dựa vào phân hệ chức năng và ma trận quyền hạn (RBAC) của người dùng hiện tại.
+  10. **Tác vụ song song (Cải tiến thẩm mỹ UI)**: Triển khai **TSK-1.10** để đồng bộ màu Rose Gold ánh kim vàng và hiệu ứng "Sao đêm" lấp lánh trên toàn bộ giao diện tương tác.
 
 ---
 
