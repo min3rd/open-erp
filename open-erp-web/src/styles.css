@@ -24,3 +24,62 @@
   --color-light-bg: #f8fafc;
   --color-light-card: #ffffff;
 }
+
+/* Premium Dark Metallic Rose Gold Gradient */
+.rose-gold-gradient {
+  background: linear-gradient(135deg, #4a1521 0%, #703d47 30%, #9f753c 50%, #703d47 70%, #4a1521 100%);
+  background-size: 200% auto;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(74, 21, 33, 0.4);
+  transition: background-position 0.6s ease, box-shadow 0.3s ease, transform 0.15s ease-in-out;
+}
+
+.rose-gold-gradient:hover:not(:disabled) {
+  background-position: right center;
+  box-shadow: 0 6px 20px rgba(159, 117, 60, 0.45), 0 0 15px rgba(112, 61, 71, 0.35);
+  transform: translateY(-1px);
+}
+
+.rose-gold-gradient:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* Starry Night Gold Sparkle Effect (Idle: Medium Fall, Hover: Frozen/Slow Fall) */
+.starry-night {
+  position: relative;
+  overflow: hidden;
+}
+
+.starry-night::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 30%, #ffd700 1.2px, transparent 1.8px),
+    radial-gradient(circle at 75% 40%, #ffffff 0.8px, transparent 1.2px),
+    radial-gradient(circle at 40% 70%, #ffd700 1px, transparent 1.5px),
+    radial-gradient(circle at 85% 80%, #ffffff 1.5px, transparent 2px),
+    radial-gradient(circle at 10% 85%, #ffd700 1px, transparent 1.5px);
+  background-size: 120px 100px;
+  opacity: 0.45;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: starry-fall 6s linear infinite;
+  transition: opacity 0.5s ease, filter 0.5s ease;
+}
+
+.starry-night:hover:not(:disabled)::after {
+  opacity: 0.9;
+  animation-duration: 45s; /* Slowed down to simulate frozen time */
+  filter: brightness(1.3) drop-shadow(0 0 1.5px #ffd700);
+}
+
+@keyframes starry-fall {
+  0% {
+    background-position: 0px 0px, 0px 0px, 0px 0px, 0px 0px, 0px 0px;
+  }
+  100% {
+    background-position: 0px 100px, 0px 100px, 0px 100px, 0px 100px, 0px 100px;
+  }
+}

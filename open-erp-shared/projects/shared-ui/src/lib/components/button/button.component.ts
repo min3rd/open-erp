@@ -21,8 +21,7 @@ export class ButtonComponent {
   getVariantClasses(): string {
     switch (this.variant()) {
       case 'primary':
-        // Màu Hồng Vàng (Rose Gold) chủ đạo: #B76E79
-        return 'bg-rose-gold-500 hover:bg-rose-gold-600 dark:bg-rose-gold-500 dark:hover:bg-rose-gold-600 text-white focus:ring-rose-gold-400';
+        return 'rose-gold-gradient starry-night text-white focus:ring-rose-gold-400';
       case 'secondary':
         return 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-slate-400';
       case 'danger':
