@@ -27,6 +27,4 @@ export * from './lib/components/guide-tour/guide-tour.component';
 export * from './lib/services/auth.service';
 export * from './lib/services/config.service';
 export * from './lib/models/auth.model';
-export * from './lib/constants/api-endpoints';
-
-
+export * from './lib/constants/api-endpoints';export * from './lib/directives/has-permission.directive';

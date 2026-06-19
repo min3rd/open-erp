@@ -169,6 +169,40 @@
     "org_mobile_seed_desc": "If no departments exist, select an industry to automatically generate structure templates.",
     "org_mobile_details_title": "Details & Staff",
     "org_mobile_details_desc": "View metadata details and employee list of the selected node."
+  },
+  "menu": {
+    "home": "Dashboard",
+    "org_structure": "Org Structure",
+    "roles": "Roles & Permissions"
+  },
+  "module": {
+    "organization": "HRM & Organization",
+    "system": "System & Settings",
+    "crm": "CRM & Sales"
+  },
+  "roles": {
+    "title": "Role & Permissions Manager",
+    "subtitle": "Define user access roles and adjust granular module permission matrices",
+    "roles_list": "Access Roles",
+    "create_title": "Create Access Role",
+    "role_name": "Role Name",
+    "role_desc": "Role Description",
+    "btn_create": "Create Role",
+    "permissions_for": "Permissions Matrix for",
+    "no_desc": "No description available",
+    "permissions_active": "active scopes assigned",
+    "no_selection_title": "No Role Selected",
+    "select_role_hint": "Please select an access role from the left panel to edit its permissions matrix.",
+    "update_permissions_success": "Role permissions matrix updated successfully!",
+    "update_permissions_error": "Failed to update role permissions matrix.",
+    "create_success": "Access role created successfully!",
+    "create_error": "Failed to create access role.",
+    "delete_confirm": "Are you sure you want to delete this role? All associated users will lose their role assignments.",
+    "delete_success": "Role deleted successfully!",
+    "delete_error": "Failed to delete role.",
+    "empty": "No access roles created yet.",
+    "name_placeholder": "Enter role name (e.g. Sales Associate)...",
+    "desc_placeholder": "Brief summary of role responsibilities..."
   }
 }
 

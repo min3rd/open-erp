@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, tap, switchMap } from 'rxjs/operators';
 import { ConfigService } from './config.service';
 import { API_ENDPOINTS } from '../constants/api-endpoints';
 import {
@@ -19,6 +19,7 @@ export class AuthService {
   private config = inject(ConfigService);
 
   accessToken = signal<string | null>(null);
+  permissions = signal<string[]>([]);
 
   getRole(): string | null {
     const token = this.accessToken();
@@ -31,6 +32,21 @@ export class AuthService {
     } catch (e) {
       return null;
     }
+  }
+
+  hasPermission(permissionCode: string): boolean {
+    return this.permissions().includes(permissionCode);
+  }
+
+  fetchProfileAndPermissions(): Observable<any> {
+    const url = this.config.buildUrl(API_ENDPOINTS.auth.me);
+    return this.http.get<{ success: boolean; data: { permissions: string[] } }>(url).pipe(
+      tap((res) => {
+        if (res.success && res.data?.permissions) {
+          this.permissions.set(res.data.permissions);
+        }
+      })
+    );
   }
 
   checkSubdomain(subdomain: string): Observable<boolean> {
@@ -60,6 +76,12 @@ export class AuthService {
             }
           }
         }
+      }),
+      switchMap((res) => {
+        if (res.success && res.data?.accessToken) {
+          return this.fetchProfileAndPermissions().pipe(map(() => res));
+        }
+        return of(res);
       })
     );
   }
@@ -73,11 +95,19 @@ export class AuthService {
             this.accessToken.set(res.data.accessToken);
           } else {
             this.accessToken.set(null);
+            this.permissions.set([]);
           }
         },
         error: () => {
           this.accessToken.set(null);
+          this.permissions.set([]);
         },
+      }),
+      switchMap((res) => {
+        if (res.success && res.data?.accessToken) {
+          return this.fetchProfileAndPermissions().pipe(map(() => res));
+        }
+        return of(res);
       })
     );
   }
@@ -87,6 +117,7 @@ export class AuthService {
     return this.http.post<any>(url, {}).pipe(
       tap(() => {
         this.accessToken.set(null);
+        this.permissions.set([]);
       })
     );
   }

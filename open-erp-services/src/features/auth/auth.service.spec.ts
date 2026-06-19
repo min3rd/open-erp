@@ -7,12 +7,16 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { Tenant } from '../../core/tenant/tenant.entity';
 import { User } from '../../core/user/user.entity';
+import { Role } from './entities/role.entity';
+import { Permission } from './entities/permission.entity';
 import { RedisService } from '../../core/redis/redis.service';
 
 describe('AuthService', () => {
   let service: AuthService;
   let tenantRepoMock: { findOne: jest.Mock };
   let userRepoMock: { findOne: jest.Mock };
+  let roleRepoMock: { findOne: jest.Mock };
+  let permissionRepoMock: { findOne: jest.Mock };
   let dataSourceMock: { createQueryRunner: jest.Mock };
   let queryRunnerMock: {
     connect: jest.Mock;
@@ -20,7 +24,7 @@ describe('AuthService', () => {
     commitTransaction: jest.Mock;
     rollbackTransaction: jest.Mock;
     release: jest.Mock;
-    manager: { save: jest.Mock };
+    manager: { save: jest.Mock; findOne: jest.Mock };
   };
   let jwtServiceMock: { sign: jest.Mock; verify: jest.Mock };
   let redisServiceMock: { get: jest.Mock; set: jest.Mock; del: jest.Mock };
@@ -33,6 +37,12 @@ describe('AuthService', () => {
     userRepoMock = {
       findOne: jest.fn(),
     };
+    roleRepoMock = {
+      findOne: jest.fn(),
+    };
+    permissionRepoMock = {
+      findOne: jest.fn(),
+    };
 
     queryRunnerMock = {
       connect: jest.fn(),
@@ -43,6 +53,9 @@ describe('AuthService', () => {
       manager: {
         save: jest.fn((entity: Record<string, unknown>) =>
           Promise.resolve({ id: 'mock-id', ...entity }),
+        ),
+        findOne: jest.fn((entityClass, options) =>
+          Promise.resolve({ id: 'mock-id', code: options?.where?.code || 'mock-code' }),
         ),
       },
     };
@@ -76,6 +89,14 @@ describe('AuthService', () => {
         {
           provide: getRepositoryToken(User),
           useValue: userRepoMock,
+        },
+        {
+          provide: getRepositoryToken(Role),
+          useValue: roleRepoMock,
+        },
+        {
+          provide: getRepositoryToken(Permission),
+          useValue: permissionRepoMock,
         },
         {
           provide: DataSource,

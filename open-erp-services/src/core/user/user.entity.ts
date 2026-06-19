@@ -6,8 +6,11 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { Tenant } from '../tenant/tenant.entity';
+import { Role } from '../../features/auth/entities/role.entity';
 
 @Entity('users')
 export class User {
@@ -29,6 +32,14 @@ export class User {
 
   @Column({ name: 'status', type: 'varchar', length: 50, default: 'Pending' })
   status: string; // 'Pending' | 'Active' | 'Suspended'
+
+  @ManyToMany(() => Role)
+  @JoinTable({
+    name: 'user_roles',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'role_id', referencedColumnName: 'id' },
+  })
+  roles: Role[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

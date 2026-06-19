@@ -9,10 +9,12 @@ import {
   Req,
   Res,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { JwtAuthGuard } from '../../core/auth/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -136,5 +138,17 @@ export class AuthController {
         subdomain: result.subdomain,
       },
     };
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async me(@Req() req: any) {
+    return this.authService.me(req.user.userId);
+  }
+
+  @Get('menu')
+  @UseGuards(JwtAuthGuard)
+  async menu(@Req() req: any) {
+    return this.authService.menu(req.user.userId);
   }
 }

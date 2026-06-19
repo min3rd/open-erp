@@ -1,0 +1,46 @@
+<ion-split-pane contentId="main-content">
+  <!-- Side Drawer Menu -->
+  <ion-menu contentId="main-content" type="overlay">
+    <ion-header>
+      <ion-toolbar class="bg-gradient-to-r from-rose-gold-500 to-rose-gold-600">
+        <ion-title class="text-white font-bold">OpenERP Mobile</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding-vertical">
+      <ion-list>
+        @for (item of menuItems(); track item.id) {
+          <ion-menu-toggle auto-hide="false">
+            <ion-item 
+              [routerLink]="item.path" 
+              routerLinkActive="bg-rose-gold-500/10 text-rose-gold-500 font-semibold"
+              lines="none" 
+              class="cursor-pointer"
+            >
+              <ion-icon slot="start" [name]="getIonicIcon(item.icon)"></ion-icon>
+              <ion-label>{{ item.title | transloco }}</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+        }
+        <ion-item (click)="logout()" lines="none" class="cursor-pointer text-rose-500 mt-8">
+          <ion-icon slot="start" name="log-out"></ion-icon>
+          <ion-label>{{ 'auth.logout' | transloco }}</ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ion-menu>
+
+  <!-- Bottom Navigation Tabs (Main Content) -->
+  <ion-tabs id="main-content">
+    <ion-tab-bar slot="bottom">
+      <ion-tab-button tab="home" href="/home">
+        <ion-icon name="home"></ion-icon>
+        <ion-label>{{ 'menu.home' | transloco }}</ion-label>
+      </ion-tab-button>
+
+      <ion-tab-button *appHasPermission="'ORG_READ'" tab="org-structure" href="/org-structure">
+        <ion-icon name="git-merge"></ion-icon>
+        <ion-label>{{ 'menu.org_structure' | transloco }}</ion-label>
+      </ion-tab-button>
+    </ion-tab-bar>
+  </ion-tabs>
+</ion-split-pane>

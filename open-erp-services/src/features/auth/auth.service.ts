@@ -11,6 +11,9 @@ import { User } from '../../core/user/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
+import { Role } from './entities/role.entity';
+import { Permission } from './entities/permission.entity';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -18,6 +21,10 @@ export class AuthService {
     private readonly tenantRepository: Repository<Tenant>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
+    @InjectRepository(Permission)
+    private readonly permissionRepository: Repository<Permission>,
     private readonly dataSource: DataSource,
     private readonly jwtService: JwtService,
     private readonly redisService: RedisService,
@@ -36,6 +43,37 @@ export class AuthService {
       where: { subdomain: sanitized },
     });
     return !tenant;
+  }
+
+  private async ensurePermissionsSeeded(manager: any): Promise<Permission[]> {
+    const permissionsList = [
+      { code: 'ORG_READ', name: 'Xem phòng ban & chi nhánh', module: 'organization' },
+      { code: 'ORG_CREATE', name: 'Thêm phòng ban & chi nhánh', module: 'organization' },
+      { code: 'ORG_UPDATE', name: 'Sửa phòng ban & chi nhánh', module: 'organization' },
+      { code: 'ORG_DELETE', name: 'Xóa phòng ban & chi nhánh', module: 'organization' },
+      { code: 'ROLE_READ', name: 'Xem vai trò & phân quyền', module: 'system' },
+      { code: 'ROLE_CREATE', name: 'Tạo vai trò mới', module: 'system' },
+      { code: 'ROLE_UPDATE', name: 'Sửa vai trò & phân quyền', module: 'system' },
+      { code: 'ROLE_DELETE', name: 'Xóa vai trò', module: 'system' },
+      { code: 'CRM_READ', name: 'Xem thông tin CRM', module: 'crm' },
+      { code: 'CRM_CREATE', name: 'Thêm cơ hội bán hàng', module: 'crm' },
+      { code: 'CRM_UPDATE', name: 'Cập nhật cơ hội bán hàng', module: 'crm' },
+      { code: 'CRM_DELETE', name: 'Xóa cơ hội bán hàng', module: 'crm' }
+    ];
+
+    const dbPermissions: Permission[] = [];
+    for (const item of permissionsList) {
+      let perm = await manager.findOne(Permission, { where: { code: item.code } });
+      if (!perm) {
+        perm = new Permission();
+        perm.code = item.code;
+        perm.name = item.name;
+        perm.module = item.module;
+        perm = await manager.save(perm);
+      }
+      dbPermissions.push(perm);
+    }
+    return dbPermissions;
   }
 
   async register(dto: RegisterDto) {
@@ -107,12 +145,25 @@ export class AuthService {
 
       const savedTenant = await queryRunner.manager.save(tenant);
 
+      // Seed global permissions
+      const seededPermissions = await this.ensurePermissionsSeeded(queryRunner.manager);
+
+      // Create default Administrator role for tenant with full permissions
+      const adminRole = new Role();
+      adminRole.tenantId = savedTenant.id;
+      adminRole.name = 'Administrator';
+      adminRole.description = 'Quản trị viên hệ thống toàn quyền';
+      adminRole.permissions = seededPermissions;
+
+      const savedRole = await queryRunner.manager.save(adminRole);
+
       // Create Tenant Admin User
       const user = new User();
       user.tenantId = savedTenant.id;
       user.email = email;
       user.password = hashedPassword;
       user.status = 'Pending';
+      user.roles = [savedRole];
 
       const savedUser = await queryRunner.manager.save(user);
 
@@ -149,6 +200,7 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: tenantId ? { email, tenantId } : { email },
+      relations: ['roles'],
     });
 
     if (!user) {
@@ -182,10 +234,12 @@ export class AuthService {
       });
     }
 
+    const roleName = user.roles && user.roles.length > 0 ? user.roles[0].name.toLowerCase() : 'employee';
+
     const payload = {
       userId: user.id,
       email: user.email,
-      role: 'admin',
+      role: roleName,
       tenantId: user.tenantId,
     };
 
@@ -245,6 +299,7 @@ export class AuthService {
 
       const user = await this.userRepository.findOne({
         where: { id: userId },
+        relations: ['roles'],
       });
 
       if (!user || user.status !== 'Active') {
@@ -257,10 +312,12 @@ export class AuthService {
         });
       }
 
+      const roleName = user.roles && user.roles.length > 0 ? user.roles[0].name.toLowerCase() : 'employee';
+
       const newPayload = {
         userId: user.id,
         email: user.email,
-        role: 'admin',
+        role: roleName,
         tenantId: user.tenantId,
       };
       const accessToken = this.jwtService.sign(newPayload, {
@@ -356,6 +413,116 @@ export class AuthService {
     return {
       userId: user.id,
       subdomain: tenant?.subdomain || '',
+    };
+  }
+
+  async getUserPermissions(userId: string): Promise<string[]> {
+    const cacheKey = `user:permissions:${userId}`;
+    try {
+      const cached = await this.redisService.get(cacheKey);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    } catch {}
+
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['roles', 'roles.permissions'],
+    });
+
+    const permissions: string[] = [];
+    if (user && user.roles) {
+      for (const role of user.roles) {
+        if (role.permissions) {
+          for (const perm of role.permissions) {
+            if (!permissions.includes(perm.code)) {
+              permissions.push(perm.code);
+            }
+          }
+        }
+      }
+    }
+
+    try {
+      await this.redisService.set(cacheKey, JSON.stringify(permissions), 3600);
+    } catch {}
+
+    return permissions;
+  }
+
+  async me(userId: string) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['roles'],
+    });
+
+    if (!user) {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'USER_NOT_FOUND',
+          messageKey: 'auth.user_not_found',
+        },
+      });
+    }
+
+    const permissions = await this.getUserPermissions(userId);
+    const roleNames = user.roles ? user.roles.map(r => r.name) : [];
+
+    return {
+      success: true,
+      data: {
+        id: user.id,
+        email: user.email,
+        tenantId: user.tenantId,
+        roles: roleNames,
+        permissions,
+      },
+    };
+  }
+
+  async menu(userId: string) {
+    const userPermissions = await this.getUserPermissions(userId);
+
+    const fullMenu = [
+      {
+        id: 'home',
+        title: 'menu.home',
+        icon: 'home',
+        path: '/home',
+        module: 'system',
+        children: [],
+      },
+      {
+        id: 'org-structure',
+        title: 'menu.org_structure',
+        icon: 'git-merge',
+        path: '/org-structure',
+        module: 'organization',
+        requiredPermissions: ['ORG_READ'],
+        children: [],
+      },
+      {
+        id: 'roles',
+        title: 'menu.roles',
+        icon: 'settings',
+        path: '/settings/roles',
+        module: 'system',
+        requiredPermissions: ['ROLE_READ'],
+        children: [],
+      },
+    ];
+
+    const filteredMenu = fullMenu.filter((item) => {
+      if (!item.requiredPermissions) return true;
+      return item.requiredPermissions.some((perm) =>
+        userPermissions.includes(perm),
+      );
+    });
+
+    return {
+      success: true,
+      data: filteredMenu.map(({ requiredPermissions, ...rest }) => rest),
     };
   }
 }

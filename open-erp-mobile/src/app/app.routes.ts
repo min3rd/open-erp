@@ -1,10 +1,7 @@
 import { Routes } from '@angular/router';
+import { LayoutTabsPage } from './layout-tabs/layout-tabs.page';
 
 export const routes: Routes = [
-  {
-    path: 'home',
-    loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
-  },
   {
     path: 'register',
     loadComponent: () => import('./auth/register/register.page').then((m) => m.RegisterPage),
@@ -14,13 +11,26 @@ export const routes: Routes = [
     loadComponent: () => import('./auth/login/login.page').then((m) => m.LoginPage),
   },
   {
-    path: 'org-structure',
-    loadComponent: () => import('./org-structure/org-structure.page').then((m) => m.OrgStructurePage),
+    path: '',
+    component: LayoutTabsPage,
+    children: [
+      {
+        path: 'home',
+        loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
+      },
+      {
+        path: 'org-structure',
+        loadComponent: () => import('./org-structure/org-structure.page').then((m) => m.OrgStructurePage),
+      },
+      {
+        path: '',
+        redirectTo: 'home',
+        pathMatch: 'full',
+      },
+    ],
   },
   {
-    path: '',
+    path: '**',
     redirectTo: 'login',
-    pathMatch: 'full',
   },
-
 ];

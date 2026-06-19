@@ -1,0 +1,175 @@
+<div class="org-container min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6">
+  
+  <!-- Header -->
+  <header class="flex justify-between items-center mb-8 border-b pb-4 border-slate-200 dark:border-slate-800">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+        {{ 'roles.title' | transloco }}
+      </h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+        {{ 'roles.subtitle' | transloco }}
+      </p>
+    </div>
+  </header>
+
+  <!-- Split Matrix View -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- Left Pane: Roles List & Create Role -->
+    <div class="lg:col-span-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 flex flex-col gap-6">
+      
+      <!-- Existing Roles List -->
+      <div>
+        <h2 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+          {{ 'roles.roles_list' | transloco }}
+        </h2>
+        <div class="flex flex-col gap-2">
+          @for (role of roles(); track role.id) {
+            <div
+              class="flex items-center justify-between p-3 rounded-lg border border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition"
+              [ngClass]="{ 'border-rose-gold-500 bg-rose-gold-50/10 dark:bg-rose-gold-950/10': selectedRoleId() === role.id }"
+              (click)="selectRole(role.id)"
+            >
+              <div class="flex flex-col">
+                <span class="font-medium text-sm text-slate-900 dark:text-white">{{ role.name }}</span>
+                <span class="text-xs text-slate-400 mt-0.5">{{ role.description || '---' }}</span>
+              </div>
+              
+              <!-- Prevent deleting Administrator role -->
+              @if (role.name !== 'Administrator') {
+                <button 
+                  *appHasPermission="'ROLE_DELETE'"
+                  (click)="deleteRole(role.id); $event.stopPropagation()"
+                  class="text-rose-500 hover:text-rose-700 p-1.5 rounded hover:bg-rose-50 dark:hover:bg-rose-950/20 cursor-pointer transition"
+                  title="Xóa vai trò"
+                >
+                  <oerp-icon name="trash" [size]="16"></oerp-icon>
+                </button>
+              }
+            </div>
+          }
+          @if (roles().length === 0) {
+            <p class="text-sm text-slate-400 italic">
+              {{ 'roles.empty' | transloco }}
+            </p>
+          }
+        </div>
+      </div>
+
+      <hr class="border-slate-200 dark:border-slate-700" />
+
+      <!-- Create New Role -->
+      <div *appHasPermission="'ROLE_CREATE'">
+        <h2 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+          {{ 'roles.create_title' | transloco }}
+        </h2>
+        <form [formGroup]="roleForm" (ngSubmit)="createRole()" class="flex flex-col gap-4">
+          <oerp-input
+            [control]="getControl('name')"
+            [label]="'roles.role_name' | transloco"
+            [placeholder]="'roles.name_placeholder' | transloco"
+          ></oerp-input>
+
+          <oerp-input
+            [control]="getControl('description')"
+            [label]="'roles.role_desc' | transloco"
+            [placeholder]="'roles.desc_placeholder' | transloco"
+          ></oerp-input>
+
+          <oerp-button
+            type="submit"
+            variant="primary"
+            [label]="'roles.btn_create' | transloco"
+            [disabled]="roleForm.invalid || isLoading()"
+            class="w-full"
+          ></oerp-button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right Pane: Permissions Matrix -->
+    <div class="lg:col-span-8 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 relative overflow-hidden">
+      <!-- Rose Gold Accent Top Line -->
+      <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-rose-gold-400 to-rose-gold-600"></div>
+
+      @if (selectedRole(); as role) {
+        <div class="flex flex-col h-full mt-2">
+          <!-- Role Summary Header -->
+          <div class="flex justify-between items-start border-b pb-4 border-slate-100 dark:border-slate-700">
+            <div>
+              <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+                {{ 'roles.permissions_for' | transloco }} "{{ role.name }}"
+              </h2>
+              <p class="text-sm text-slate-400 mt-0.5">
+                {{ role.description || ('roles.no_desc' | transloco) }}
+              </p>
+            </div>
+            <div class="flex flex-col items-end">
+              <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400">
+                {{ role.permissions?.length || 0 }} {{ 'roles.permissions_active' | transloco }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Alert boxes -->
+          <div class="mt-4">
+            @if (successMessage()) {
+              <oerp-alert variant="success" [message]="successMessage()"></oerp-alert>
+            }
+            @if (errorMessage()) {
+              <oerp-alert variant="error" [message]="errorMessage()"></oerp-alert>
+            }
+          </div>
+
+          <!-- Permissions Modules Lists -->
+          <div class="flex-1 overflow-y-auto mt-6 space-y-8 pr-1 max-h-[600px]">
+            @for (group of groupedPermissions(); track group.module) {
+              <div class="border border-slate-100 dark:border-slate-700 rounded-lg p-4 bg-slate-50/50 dark:bg-slate-900/30">
+                <h3 class="text-sm font-bold text-rose-gold-500 dark:text-rose-gold-400 capitalize mb-4 flex items-center gap-2">
+                  <oerp-icon name="folder" [size]="16"></oerp-icon>
+                  {{ 'module.' + group.module | transloco }}
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  @for (perm of group.list; track perm.id) {
+                    <label 
+                      class="flex items-start gap-3 p-3 rounded-lg border border-slate-200/50 dark:border-slate-800 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition cursor-pointer select-none"
+                    >
+                      <input 
+                        type="checkbox" 
+                        [checked]="isPermissionChecked(perm.code)"
+                        (change)="togglePermission(perm.code, $event)"
+                        [disabled]="role.name === 'Administrator'"
+                        class="mt-1 rounded border-slate-300 dark:border-slate-700 text-rose-gold-500 focus:ring-rose-gold-500 cursor-pointer disabled:opacity-50"
+                      />
+                      <div class="flex flex-col">
+                        <span class="text-sm font-medium text-slate-800 dark:text-slate-200">
+                          {{ perm.name }}
+                        </span>
+                        <code class="text-[10px] text-slate-400 mt-0.5 tracking-wider font-mono">
+                          {{ perm.code }}
+                        </code>
+                      </div>
+                    </label>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="flex flex-col items-center justify-center min-h-[400px]">
+          <div class="w-16 h-16 rounded-full bg-rose-gold-500/10 flex items-center justify-center text-rose-gold-500 mb-4">
+            <oerp-icon name="settings" [size]="32"></oerp-icon>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+            {{ 'roles.no_selection_title' | transloco }}
+          </h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xs text-center">
+            {{ 'roles.select_role_hint' | transloco }}
+          </p>
+        </div>
+      }
+    </div>
+  </div>
+</div>
