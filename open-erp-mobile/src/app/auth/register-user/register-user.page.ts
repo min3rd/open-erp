@@ -100,9 +100,9 @@ export class RegisterUserPage implements OnInit {
     const isDark = savedTheme === 'dark';
     this.isDarkMode.set(isDark);
     if (isDark) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add('dark', 'ion-palette-dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove('dark', 'ion-palette-dark');
     }
 
     // Load language setting from localStorage
@@ -142,10 +142,10 @@ export class RegisterUserPage implements OnInit {
     const isDark = !this.isDarkMode();
     this.isDarkMode.set(isDark);
     if (isDark) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add('dark', 'ion-palette-dark');
       localStorage.setItem('theme', 'dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove('dark', 'ion-palette-dark');
       localStorage.setItem('theme', 'light');
     }
   }

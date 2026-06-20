@@ -89,9 +89,9 @@ export class LoginPage implements OnInit {
     const savedTheme = localStorage.getItem('theme') || 'light';
     this.isDarkMode.set(savedTheme === 'dark');
     if (savedTheme === 'dark') {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add('dark', 'ion-palette-dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove('dark', 'ion-palette-dark');
     }
 
     // 3. Initialize Form (subdomain/workspace is optional)
@@ -139,10 +139,10 @@ export class LoginPage implements OnInit {
     const isDark = !this.isDarkMode();
     this.isDarkMode.set(isDark);
     if (isDark) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add('dark', 'ion-palette-dark');
       localStorage.setItem('theme', 'dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove('dark', 'ion-palette-dark');
       localStorage.setItem('theme', 'light');
     }
   }

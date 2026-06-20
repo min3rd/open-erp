@@ -11,6 +11,7 @@ import { User } from '../../core/user/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { SelectTenantDto } from './dto/select-tenant.dto';
 
 import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
@@ -375,7 +376,7 @@ export class AuthService {
     };
   }
 
-  async selectTenant(dto: { email: string; password?: string; tenantId: string }) {
+  async selectTenant(dto: SelectTenantDto) {
     return this.login({ email: dto.email, password: dto.password }, dto.tenantId);
   }
 

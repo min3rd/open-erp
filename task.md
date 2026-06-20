@@ -47,3 +47,12 @@
   - [ ] Xây dựng màn hình đăng ký `RegisterPage` sử dụng các component dùng chung từ `@open-erp/shared-ui`.
   - [ ] Đăng ký route cho trang đăng ký trong `app.routes.ts`.
   - [ ] Kiểm thử biên dịch và chạy thực tế.
+- [x] **BUG-1.11**: TypeScript compilation error in AuthService
+  - [x] Import SelectTenantDto and fix selectTenant type signature in open-erp-services/src/features/auth/auth.service.ts.
+  - [x] Create bug report document docs/05_project_management/sprint_1/bugs/bug_11_compile_error.md.
+- [x] **BUG-1.12**: Mobile layout color mix-up between Light and Dark mode
+  - [x] Update global.scss in open-erp-mobile to import dark.class.css instead of dark.system.css.
+  - [x] Add OnInit theme loading globally in mobile app.component.ts.
+  - [x] Update theme toggle and loading in mobile pages (login, register, register-user) to manage both dark and ion-palette-dark classes.
+  - [x] Create bug report document docs/05_project_management/sprint_1/bugs/bug_12_mobile_theme_issue.md.
+
