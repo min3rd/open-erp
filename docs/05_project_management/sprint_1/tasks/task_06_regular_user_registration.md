@@ -97,6 +97,33 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
 ---
 
 ### 5. Tiêu chí hoàn thành (Definition of Done - DoD)
-* API đăng ký tài khoản thường hoạt động ổn định và bảo mật.
-* Giao diện đăng ký trên cả Web và Mobile hoàn thiện, responsive, hỗ trợ đa ngôn ngữ Transloco và Light/Dark mode.
-* Tích hợp thành công và mã nguồn đã được review và merge vào nhánh `develop`.
+* API đăng ký tài khoản thường hoạt động ổn định và bảo mật. [x]
+* Giao diện đăng ký trên cả Web và Mobile hoàn thiện, responsive, hỗ trợ đa ngôn ngữ Transloco và Light/Dark mode. [x]
+* Tích hợp thành công và mã nguồn đã được review và merge vào nhánh `develop`. [x]
+
+---
+
+### 6. Kết quả triển khai thực tế (Actual Implementation)
+
+Tính năng đăng ký tài khoản thường đã được triển khai hoàn chỉnh trên cả Backend, Web Client, Mobile App và thư viện dùng chung. Dưới đây là chi tiết các thay đổi:
+
+#### Danh sách các file thay đổi (Changed Files)
+| Trạng thái | Tên file | Đường dẫn chi tiết |
+| :--- | :--- | :--- |
+| **[MODIFY]** | [user.entity.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/user/user.entity.ts) | Cho phép `tenantId` nullable và thêm các trường `first_name`, `last_name`, `phone` |
+| **[NEW]** | [register-user.dto.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/auth/dto/register-user.dto.ts) | Định nghĩa DTO validate cho đăng ký tài khoản thường |
+| **[MODIFY]** | [auth.service.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/auth/auth.service.ts) | Triển khai phương thức `registerUser` và tối ưu `login` an toàn với tenantId null |
+| **[MODIFY]** | [auth.controller.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/auth/auth.controller.ts) | Bổ sung API `POST /api/v1/auth/register/user` |
+| **[MODIFY]** | [auth.model.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-shared/projects/shared-ui/src/lib/models/auth.model.ts) | Thêm interface payload `RegisterUserPayload` |
+| **[MODIFY]** | [api-endpoints.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-shared/projects/shared-ui/src/lib/constants/api-endpoints.ts) | Bổ sung endpoint đăng ký tài khoản thường |
+| **[MODIFY]** | [auth.service.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-shared/projects/shared-ui/src/lib/services/auth.service.ts) | Triển khai phương thức API client `registerUser` |
+| **[MODIFY]** | [app.routes.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-web/src/app/app.routes.ts) | Đăng ký tuyến đường `/register/user` trên Web |
+| **[NEW]** | [register-user.component.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-web/src/app/features/auth/register-user/register-user.component.ts) | Thành phần logic trang đăng ký tài khoản cá nhân trên Web |
+| **[NEW]** | [register-user.component.html](file:///c:/Users/Minh/Documents/open-erp/open-erp-web/src/app/features/auth/register-user/register-user.component.html) | Giao diện HTML trang đăng ký cá nhân hỗ trợ theme Rose Gold lấp lánh và Dark Mode |
+| **[MODIFY]** | Ngôn ngữ dịch Web | Cập nhật nhãn và validate trong các file `vi.json`, `en.json`, `zh.json`, `ja.json` của Web |
+| **[MODIFY]** | [app.routes.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-mobile/src/app/app.routes.ts) | Đăng ký tuyến đường `/register/user` trên Mobile |
+| **[NEW]** | [register-user.page.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-mobile/src/app/auth/register-user/register-user.page.ts) | Logic Ionic page đăng ký cá nhân trên Mobile |
+| **[NEW]** | [register-user.page.html](file:///c:/Users/Minh/Documents/open-erp/open-erp-mobile/src/app/auth/register-user/register-user.page.html) | Layout Ionic page đăng ký cá nhân hỗ trợ theme Rose Gold |
+| **[NEW]** | [register-user.page.scss](file:///c:/Users/Minh/Documents/open-erp/open-erp-mobile/src/app/auth/register-user/register-user.page.scss) | Style hiệu ứng động và chuyển cảnh cho Mobile |
+| **[MODIFY]** | Ngôn ngữ dịch Mobile | Cập nhật các nhãn ngôn ngữ tương ứng trong file `vi.json`, `en.json`, `zh.json`, `ja.json` của Mobile |
+

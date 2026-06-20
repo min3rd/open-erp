@@ -6,6 +6,14 @@ export interface RegisterPayload {
   phone?: string;
 }
 
+export interface RegisterUserPayload {
+  email: string;
+  password?: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+}
+
 export interface RegisterResponse {
   success: boolean;
   messageKey?: string;

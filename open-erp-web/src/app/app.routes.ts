@@ -6,6 +6,13 @@ import { permissionGuard } from './core/guards/permission.guard';
 
 export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
+  {
+    path: 'register/user',
+    loadComponent: () =>
+      import('./features/auth/register-user/register-user.component').then(
+        (m) => m.RegisterUserComponent
+      ),
+  },
   { path: 'login', component: LoginComponent },
   {
     path: 'activate',

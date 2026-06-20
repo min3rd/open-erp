@@ -34,7 +34,12 @@
     "activation_success": "Account activated successfully! Redirecting...",
     "invalid_activation_token": "Invalid or expired activation token.",
     "user_not_found": "User not found.",
-    "activating": "Activating your account..."
+    "activating": "Activating your account...",
+    "register_user_title": "Register Personal Account",
+    "register_user_subtitle": "Create an independent OpenERP personal account to join companies",
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "user_register_success": "Registration successful!"
   },
   "validation": {
     "company_name_required": "Company name is required.",
@@ -43,6 +48,10 @@
     "email_invalid": "Invalid email address format.",
     "password_required": "Password is required.",
     "password_min_length": "Password must be at least 6 characters.",
+    "first_name_required": "First name is required.",
+    "first_name_must_be_string": "First name must be a string.",
+    "last_name_required": "Last name is required.",
+    "last_name_must_be_string": "Last name must be a string.",
     "subdomain_required": "Subdomain is required.",
     "subdomain_invalid": "Subdomain can only contain lowercase letters and numbers (a-z, 0-9).",
     "phone_must_be_string": "Phone number must be a string.",

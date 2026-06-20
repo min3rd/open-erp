@@ -1,6 +1,7 @@
 export const API_ENDPOINTS = {
   auth: {
     register: '/api/v1/auth/register',
+    registerUser: '/api/v1/auth/register/user',
     checkSubdomain: '/api/v1/auth/check-subdomain',
     login: '/api/v1/auth/login',
     refresh: '/api/v1/auth/refresh',

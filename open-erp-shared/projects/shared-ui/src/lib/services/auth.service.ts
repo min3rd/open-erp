@@ -9,6 +9,7 @@ import {
   RegisterResponse,
   LoginPayload,
   LoginResponse,
+  RegisterUserPayload,
 } from '../models/auth.model';
 
 @Injectable({
@@ -60,6 +61,11 @@ export class AuthService {
 
   register(payload: RegisterPayload): Observable<RegisterResponse> {
     const url = this.config.buildUrl(API_ENDPOINTS.auth.register);
+    return this.http.post<RegisterResponse>(url, payload);
+  }
+
+  registerUser(payload: RegisterUserPayload): Observable<RegisterResponse> {
+    const url = this.config.buildUrl(API_ENDPOINTS.auth.registerUser);
     return this.http.post<RegisterResponse>(url, payload);
   }
 

@@ -30,7 +30,12 @@
     "password_strength": "パスワードの強度",
     "password_weak": "弱い",
     "password_medium": "普通",
-    "password_strong": "強い"
+    "password_strong": "強い",
+    "register_user_title": "個人アカウントの登録",
+    "register_user_subtitle": "企業に参加するための独立したOpenERP個人アカウントを作成します",
+    "first_name": "名",
+    "last_name": "姓",
+    "user_register_success": "アカウントの登録が成功しました！"
   },
   "validation": {
     "company_name_required": "会社名は必須項目です。",
@@ -39,6 +44,10 @@
     "email_invalid": "無効なメールアドレス形式です。",
     "password_required": "パスワードは必須項目です。",
     "password_min_length": "パスワードは6文字以上にする必要があります。",
+    "first_name_required": "名は必須項目です。",
+    "first_name_must_be_string": "名は文字列でなければなりません。",
+    "last_name_required": "姓は必須項目です。",
+    "last_name_must_be_string": "姓は文字列でなければなりません。",
     "subdomain_required": "サブドメインは必須項目です。",
     "subdomain_invalid": "サブドメインは英小文字と数字 (a-z, 0-9) のみ使用可能です。",
     "phone_must_be_string": "電話番号は文字列でなければなりません。",

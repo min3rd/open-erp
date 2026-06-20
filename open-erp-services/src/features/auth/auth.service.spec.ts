@@ -36,6 +36,7 @@ describe('AuthService', () => {
     };
     userRepoMock = {
       findOne: jest.fn(),
+      save: jest.fn((entity) => Promise.resolve({ id: 'user-id', ...entity })),
     };
     roleRepoMock = {
       findOne: jest.fn(),
@@ -205,6 +206,37 @@ describe('AuthService', () => {
         success: true,
         messageKey: 'auth.register_success',
       });
+    });
+  });
+
+  describe('registerUser', () => {
+    it('should throw BadRequestException if email is already taken', async () => {
+      userRepoMock.findOne.mockResolvedValue({ id: 'user-id' });
+      const dto = {
+        email: 'taken@test.com',
+        password: 'password123',
+        firstName: 'Nguyễn Văn',
+        lastName: 'A',
+        phone: '0987654321',
+      };
+      await expect(service.registerUser(dto)).rejects.toThrow(BadRequestException);
+    });
+
+    it('should register user successfully if email is unique', async () => {
+      userRepoMock.findOne.mockResolvedValue(null);
+      const dto = {
+        email: 'new@test.com',
+        password: 'password123',
+        firstName: 'Nguyễn Văn',
+        lastName: 'A',
+        phone: '0987654321',
+      };
+      const result = await service.registerUser(dto);
+      expect(result).toEqual({
+        success: true,
+        messageKey: 'auth.user_register_success',
+      });
+      expect(userRepoMock.save).toHaveBeenCalled();
     });
   });
 });

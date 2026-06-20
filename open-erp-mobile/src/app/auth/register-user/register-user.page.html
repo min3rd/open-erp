@@ -1,0 +1,206 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
+    <ion-title class="text-rose-gold-500 font-bold tracking-wide">
+      {{ 'auth.app_onboarding' | transloco }}
+    </ion-title>
+
+    <ion-buttons id="settings-bar-mobile" slot="end" class="flex gap-2 mr-2">
+      <!-- Language Selector -->
+      <select
+        [value]="currentLang()"
+        (change)="changeLanguage($event)"
+        class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs font-semibold focus:ring-rose-gold-500 outline-none"
+      >
+        <option value="vi">VI</option>
+        <option value="en">EN</option>
+        <option value="zh">ZH</option>
+        <option value="ja">JA</option>
+      </select>
+
+      <!-- Theme Toggle -->
+      <button
+        (click)="toggleDarkMode()"
+        class="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+        aria-label="Toggle Theme"
+      >
+        @if (isDarkMode()) {
+          <oerp-icon name="sun" [size]="14" class="text-amber-500"></oerp-icon>
+        } @else {
+          <oerp-icon name="moon" [size]="14" class="text-slate-500"></oerp-icon>
+        }
+      </button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="bg-light-bg dark:bg-dark-bg text-slate-900 dark:text-slate-100">
+  <div class="px-4 py-8 max-w-md mx-auto">
+    
+    <!-- Welcome Header -->
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-rose-gold-100 text-rose-gold-500 mb-3 shadow-sm">
+        <oerp-icon name="user" [size]="24"></oerp-icon>
+      </div>
+      <h2 class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+        {{ 'auth.register_user_title' | transloco }}
+      </h2>
+      <p class="mt-1.5 text-xs text-slate-600 dark:text-slate-400">
+        {{ 'auth.register_user_subtitle' | transloco }}
+      </p>
+    </div>
+
+    <!-- Register Form Card -->
+    <div id="register-card-mobile" class="bg-white dark:bg-slate-900 py-6 px-4 shadow-md rounded-2xl border border-slate-100 dark:border-slate-800">
+      
+      <!-- Success Status -->
+      @if (successMessage()) {
+        <div class="p-3 mb-5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-xs font-medium animate-fade-in flex items-start gap-2.5">
+          <oerp-icon name="check-circle" [size]="18" class="text-emerald-500 mt-0.5 shrink-0"></oerp-icon>
+          <div>{{ successMessage() }}</div>
+        </div>
+      }
+
+      <!-- Global Error Status -->
+      @if (errorMessage()) {
+        <div class="p-3 mb-5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-300 text-xs font-medium animate-fade-in flex items-start gap-2.5">
+          <oerp-icon name="alert-circle" [size]="18" class="text-red-500 mt-0.5 shrink-0"></oerp-icon>
+          <div>{{ errorMessage() }}</div>
+        </div>
+      }
+
+      <!-- Form -->
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <oerp-input
+            [label]="'auth.first_name' | transloco"
+            [placeholder]="'auth.first_name' | transloco"
+            [control]="getControl('firstName')"
+            [errorMessage]="getErrorMessage('firstName')"
+            prefixIcon="user"
+          ></oerp-input>
+
+          <oerp-input
+            [label]="'auth.last_name' | transloco"
+            [placeholder]="'auth.last_name' | transloco"
+            [control]="getControl('lastName')"
+            [errorMessage]="getErrorMessage('lastName')"
+            prefixIcon="user"
+          ></oerp-input>
+        </div>
+
+        <oerp-input
+          [label]="'auth.email' | transloco"
+          [placeholder]="'auth.email' | transloco"
+          [control]="getControl('email')"
+          [errorMessage]="getErrorMessage('email')"
+          prefixIcon="mail"
+        ></oerp-input>
+
+        <oerp-input
+          [label]="'auth.password' | transloco"
+          [placeholder]="'auth.password' | transloco"
+          type="password"
+          [control]="getControl('password')"
+          [errorMessage]="getErrorMessage('password')"
+          prefixIcon="lock"
+        ></oerp-input>
+
+        @if (passwordValue()) {
+          <div class="mt-1.5 space-y-1 animate-fade-in">
+            <!-- Strength Bars -->
+            <div class="flex gap-1 h-1">
+              <div
+                [ngClass]="[
+                  'flex-1 rounded-full transition-all duration-300',
+                  passwordStrength() === 'weak'
+                    ? 'bg-red-500'
+                    : passwordStrength() === 'medium'
+                      ? 'bg-amber-500'
+                      : passwordStrength() === 'strong'
+                        ? 'bg-emerald-500'
+                        : 'bg-slate-200 dark:bg-slate-700',
+                ]"
+              ></div>
+              <div
+                [ngClass]="[
+                  'flex-1 rounded-full transition-all duration-300',
+                  passwordStrength() === 'medium'
+                    ? 'bg-amber-500'
+                    : passwordStrength() === 'strong'
+                      ? 'bg-emerald-500'
+                      : 'bg-slate-200 dark:bg-slate-700',
+                ]"
+              ></div>
+              <div
+                [ngClass]="[
+                  'flex-1 rounded-full transition-all duration-300',
+                  passwordStrength() === 'strong'
+                    ? 'bg-emerald-500'
+                    : 'bg-slate-200 dark:bg-slate-700',
+                ]"
+              ></div>
+            </div>
+            <!-- Strength Text Label -->
+            <div class="flex justify-between items-center text-[10px] font-semibold select-none">
+              <span class="text-slate-500 dark:text-slate-400">
+                {{ 'auth.password_strength' | transloco }}:
+              </span>
+              <span
+                [ngClass]="[
+                  passwordStrength() === 'weak'
+                    ? 'text-red-500'
+                    : passwordStrength() === 'medium'
+                      ? 'text-amber-500'
+                      : passwordStrength() === 'strong'
+                        ? 'text-emerald-500'
+                        : '',
+                ]"
+              >
+                {{
+                  passwordStrength() === 'weak'
+                    ? ('auth.password_weak' | transloco)
+                    : passwordStrength() === 'medium'
+                      ? ('auth.password_medium' | transloco)
+                      : passwordStrength() === 'strong'
+                        ? ('auth.password_strong' | transloco)
+                        : ''
+                }}
+              </span>
+            </div>
+          </div>
+        }
+
+        <oerp-input
+          [label]="'auth.phone_optional' | transloco"
+          [placeholder]="'auth.phone' | transloco"
+          [control]="getControl('phone')"
+          [errorMessage]="getErrorMessage('phone')"
+          prefixIcon="phone"
+        ></oerp-input>
+
+        <div class="pt-2">
+          <oerp-button
+            type="submit"
+            [label]="isLoading() ? ('auth.processing' | transloco) : ('auth.submit' | transloco)"
+            [isLoading]="isLoading()"
+            [disabled]="registerForm.invalid"
+            class="w-full flex justify-center"
+          ></oerp-button>
+        </div>
+      </form>
+
+      <div class="mt-5 text-center text-xs">
+        <span class="text-slate-500 dark:text-slate-400">
+          {{ 'auth.already_have_account' | transloco }}
+        </span>
+        <a
+          (click)="goToLogin()"
+          href="javascript:void(0)"
+          class="font-semibold text-rose-gold-500 hover:text-rose-gold-600 ml-1 transition"
+        >
+          {{ 'auth.login_now' | transloco }}
+        </a>
+      </div>
+    </div>
+  </div>
+</ion-content>

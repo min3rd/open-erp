@@ -14,6 +14,7 @@ import {
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
 import { JwtAuthGuard } from '../../core/auth/auth.guard';
 
 @Controller('auth')
@@ -24,6 +25,12 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
+  }
+
+  @Post('register/user')
+  @HttpCode(HttpStatus.CREATED)
+  async registerUser(@Body() dto: RegisterUserDto) {
+    return this.authService.registerUser(dto);
   }
 
   @Get('check-subdomain')

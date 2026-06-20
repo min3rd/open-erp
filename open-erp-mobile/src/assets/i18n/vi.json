@@ -34,7 +34,12 @@
     "activation_success": "Kích hoạt tài khoản thành công! Đang chuyển hướng...",
     "invalid_activation_token": "Mã kích hoạt không hợp lệ hoặc đã hết hạn.",
     "user_not_found": "Không tìm thấy thông tin người dùng.",
-    "activating": "Đang kích hoạt tài khoản..."
+    "activating": "Đang kích hoạt tài khoản...",
+    "register_user_title": "Đăng ký tài khoản cá nhân",
+    "register_user_subtitle": "Tạo tài khoản OpenERP cá nhân để tham gia các doanh nghiệp",
+    "first_name": "Họ và đệm",
+    "last_name": "Tên",
+    "user_register_success": "Đăng ký tài khoản thành công!"
   },
   "validation": {
     "company_name_required": "Tên công ty không được để trống.",
@@ -43,6 +48,10 @@
     "email_invalid": "Địa chỉ email không đúng định dạng.",
     "password_required": "Mật khẩu không được để trống.",
     "password_min_length": "Mật khẩu phải chứa ít nhất 6 ký tự.",
+    "first_name_required": "Họ và đệm không được để trống.",
+    "first_name_must_be_string": "Họ và đệm phải là chuỗi.",
+    "last_name_required": "Tên không được để trống.",
+    "last_name_must_be_string": "Tên phải là chuỗi.",
     "subdomain_required": "Subdomain không được để trống.",
     "subdomain_invalid": "Subdomain chỉ chứa chữ thường và chữ số (a-z, 0-9).",
     "phone_must_be_string": "Số điện thoại phải là chuỗi.",

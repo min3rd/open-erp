@@ -4,12 +4,8 @@
   "compilerOptions": {
     "ignoreDeprecations": "6.0",
     "baseUrl": "./",
-    "paths": {
-      "@open-erp/shared": ["../open-erp-shared/dist/shared"],
-      "@angular/core": ["node_modules/@angular/core"],
-      "@angular/common": ["node_modules/@angular/common"],
-      "@angular/forms": ["node_modules/@angular/forms"]
-    },
+    "preserveSymlinks": true,
+    "paths": {},
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,

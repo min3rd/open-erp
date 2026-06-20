@@ -4,7 +4,8 @@
   "workspaces": [
     "open-erp-services",
     "open-erp-shared",
-    "open-erp-web"
+    "open-erp-web",
+    "open-erp-mobile"
   ],
   "scripts": {
     "install:all": "npm install && npm install --workspace=open-erp-services && npm install --workspace=open-erp-shared && npm install --workspace=open-erp-web",
@@ -15,7 +16,15 @@
     "shared:watch": "npm run watch --workspace=open-erp-shared",
     "dev": "npm run shared:build && concurrently \"npm run services:dev\" \"npm run shared:watch\" \"npm run web:dev\""
   },
-  "dependencies": {},
+  "dependencies": {
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/forms": "^22.0.0",
+    "@angular/platform-browser": "^22.0.0",
+    "@angular/router": "^22.0.0",
+    "rxjs": "^7.8.1",
+    "zone.js": "~0.15.0"
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",

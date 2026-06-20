@@ -10,6 +10,7 @@ import { Tenant } from '../../core/tenant/tenant.entity';
 import { User } from '../../core/user/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
 
 import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
@@ -195,6 +196,45 @@ export class AuthService {
     }
   }
 
+  async registerUser(dto: RegisterUserDto) {
+    const email = dto.email.trim().toLowerCase();
+
+    // 1. Verify email availability
+    const existingUser = await this.userRepository.findOne({
+      where: { email },
+    });
+    if (existingUser) {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'EMAIL_ALREADY_EXISTS',
+          messageKey: 'auth.email_already_exists',
+        },
+      });
+    }
+
+    // 2. Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(dto.password, salt);
+
+    // 3. Create global User
+    const user = new User();
+    user.tenantId = null;
+    user.email = email;
+    user.password = hashedPassword;
+    user.firstName = dto.firstName;
+    user.lastName = dto.lastName;
+    user.phone = dto.phone || null;
+    user.status = 'Active';
+
+    await this.userRepository.save(user);
+
+    return {
+      success: true,
+      messageKey: 'auth.user_register_success',
+    };
+  }
+
   async login(dto: LoginDto, tenantId?: string) {
     const email = dto.email.trim().toLowerCase();
 
@@ -256,9 +296,11 @@ export class AuthService {
     const redisKey = `session:${user.id}:${tokenHash}`;
     await this.redisService.set(redisKey, 'active', 7 * 24 * 60 * 60);
 
-    const tenant = await this.tenantRepository.findOne({
-      where: { id: user.tenantId },
-    });
+    const tenant = user.tenantId
+      ? await this.tenantRepository.findOne({
+          where: { id: user.tenantId },
+        })
+      : null;
 
     return {
       success: true,
@@ -266,11 +308,13 @@ export class AuthService {
         accessToken,
         refreshToken,
         expiresIn: 900,
-        tenant: {
-          id: user.tenantId,
-          name: tenant?.name,
-          subdomain: tenant?.subdomain,
-        },
+        tenant: tenant
+          ? {
+              id: user.tenantId,
+              name: tenant.name,
+              subdomain: tenant.subdomain,
+            }
+          : null,
       },
     };
   }
@@ -406,9 +450,11 @@ export class AuthService {
     await this.userRepository.save(user);
     await this.redisService.del(redisKey);
 
-    const tenant = await this.tenantRepository.findOne({
-      where: { id: user.tenantId },
-    });
+    const tenant = user.tenantId
+      ? await this.tenantRepository.findOne({
+          where: { id: user.tenantId },
+        })
+      : null;
 
     return {
       userId: user.id,
