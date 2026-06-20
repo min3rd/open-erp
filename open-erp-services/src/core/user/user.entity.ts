@@ -50,6 +50,14 @@ export class User {
   })
   roles: Role[];
 
+  @ManyToMany(() => Tenant, (tenant) => tenant.memberUsers)
+  @JoinTable({
+    name: 'user_tenants',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'tenant_id', referencedColumnName: 'id' },
+  })
+  tenants: Tenant[];
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

@@ -10,6 +10,13 @@ import { User } from '../../core/user/user.entity';
 import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
 import { RedisService } from '../../core/redis/redis.service';
+import * as bcrypt from 'bcrypt';
+
+jest.mock('bcrypt', () => ({
+  genSalt: jest.fn().mockResolvedValue('mock-salt'),
+  hash: jest.fn().mockResolvedValue('mock-hashed-password'),
+  compare: jest.fn(),
+}));
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -237,6 +244,104 @@ describe('AuthService', () => {
         messageKey: 'auth.user_register_success',
       });
       expect(userRepoMock.save).toHaveBeenCalled();
+    });
+  });
+
+  describe('login', () => {
+    let mockUser: any;
+    let mockTenant1: any;
+    let mockTenant2: any;
+
+    beforeEach(() => {
+      mockTenant1 = { id: 'tenant-1', name: 'GoTech', subdomain: 'gotech' };
+      mockTenant2 = { id: 'tenant-2', name: 'SalesPro', subdomain: 'salespro' };
+      mockUser = {
+        id: 'user-id',
+        email: 'employee@test.com',
+        password: 'hashed-password',
+        status: 'Active',
+        tenantId: 'tenant-1',
+        roles: [{ id: 'role-1', name: 'employee', tenantId: 'tenant-1' }],
+        tenants: [mockTenant1, mockTenant2],
+      };
+      userRepoMock.findOne.mockReset();
+      tenantRepoMock.findOne.mockReset();
+      (bcrypt.compare as jest.Mock).mockReset();
+    });
+
+    it('should throw BadRequestException if user is not found', async () => {
+      userRepoMock.findOne.mockResolvedValue(null);
+      const dto = { email: 'notfound@test.com', password: 'password123' };
+      await expect(service.login(dto)).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException if account is not activated', async () => {
+      mockUser.status = 'Pending';
+      userRepoMock.findOne.mockResolvedValue(mockUser);
+      const dto = { email: mockUser.email, password: 'password123' };
+      await expect(service.login(dto)).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException if password is invalid', async () => {
+      userRepoMock.findOne.mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+      const dto = { email: mockUser.email, password: 'wrongpassword' };
+      await expect(service.login(dto)).rejects.toThrow(BadRequestException);
+    });
+
+    it('should request tenant selection if user belongs to multiple tenants and no tenantId is specified', async () => {
+      userRepoMock.findOne.mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      tenantRepoMock.findOne.mockResolvedValue(mockTenant1);
+
+      const dto = { email: mockUser.email, password: 'password123' };
+      const result = await service.login(dto);
+
+      expect(result).toEqual({
+        success: true,
+        data: {
+          requireTenantSelection: true,
+          tenants: [
+            { id: 'tenant-1', name: 'GoTech', subdomain: 'gotech' },
+            { id: 'tenant-2', name: 'SalesPro', subdomain: 'salespro' },
+          ],
+        },
+      });
+    });
+
+    it('should login successfully with specified tenantId if user has access', async () => {
+      userRepoMock.findOne.mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      tenantRepoMock.findOne.mockResolvedValue(mockTenant1);
+
+      const dto = { email: mockUser.email, password: 'password123' };
+      const result = await service.login(dto, 'tenant-1');
+
+      expect(result.success).toBe(true);
+      expect(result.data?.accessToken).toBeDefined();
+      expect(result.data?.refreshToken).toBeDefined();
+      expect(result.data?.tenant?.id).toBe('tenant-1');
+      expect(redisServiceMock.set).toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException if specified tenantId is not accessible', async () => {
+      userRepoMock.findOne.mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      const dto = { email: mockUser.email, password: 'password123' };
+      await expect(service.login(dto, 'non-existent-tenant')).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('selectTenant', () => {
+    it('should call login with tenantId correctly', async () => {
+      const loginSpy = jest.spyOn(service, 'login').mockResolvedValue({ success: true } as any);
+      const dto = { email: 'employee@test.com', password: 'password123', tenantId: 'tenant-1' };
+      
+      const result = await service.selectTenant(dto);
+
+      expect(loginSpy).toHaveBeenCalledWith({ email: dto.email, password: dto.password }, dto.tenantId);
+      expect(result).toEqual({ success: true });
     });
   });
 });

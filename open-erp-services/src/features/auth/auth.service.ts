@@ -165,6 +165,7 @@ export class AuthService {
       user.password = hashedPassword;
       user.status = 'Pending';
       user.roles = [savedRole];
+      user.tenants = [savedTenant];
 
       const savedUser = await queryRunner.manager.save(user);
 
@@ -239,8 +240,8 @@ export class AuthService {
     const email = dto.email.trim().toLowerCase();
 
     const user = await this.userRepository.findOne({
-      where: tenantId ? { email, tenantId } : { email },
-      relations: ['roles'],
+      where: { email },
+      relations: ['roles', 'tenants'],
     });
 
     if (!user) {
@@ -274,18 +275,77 @@ export class AuthService {
       });
     }
 
-    const roleName = user.roles && user.roles.length > 0 ? user.roles[0].name.toLowerCase() : 'employee';
+    // Resolve all associated tenants
+    const tenants: Tenant[] = [];
+    if (user.tenantId) {
+      const primaryTenant = await this.tenantRepository.findOne({
+        where: { id: user.tenantId },
+      });
+      if (primaryTenant) {
+        tenants.push(primaryTenant);
+      }
+    }
+    if (user.tenants) {
+      for (const t of user.tenants) {
+        if (!tenants.some((ext) => ext.id === t.id)) {
+          tenants.push(t);
+        }
+      }
+    }
+
+    // If multiple tenants exist and no tenantId was specified/selected, request tenant selection
+    if (tenants.length > 1 && !tenantId) {
+      return {
+        success: true,
+        data: {
+          requireTenantSelection: true,
+          tenants: tenants.map((t) => ({
+            id: t.id,
+            name: t.name,
+            subdomain: t.subdomain,
+          })),
+        },
+      };
+    }
+
+    const activeTenantId = tenantId || (tenants.length > 0 ? tenants[0].id : null);
+
+    if (tenantId && activeTenantId) {
+      const hasAccess = tenants.some((t) => t.id === activeTenantId);
+      if (!hasAccess) {
+        throw new BadRequestException({
+          success: false,
+          error: {
+            code: 'TENANT_ACCESS_DENIED',
+            messageKey: 'auth.tenant_access_denied',
+          },
+        });
+      }
+    }
+
+    if (!activeTenantId) {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'NO_TENANT_ASSOCIATED',
+          messageKey: 'auth.no_tenant_associated',
+        },
+      });
+    }
+
+    const tenantRoles = user.roles ? user.roles.filter((r) => r.tenantId === activeTenantId) : [];
+    const roleName = tenantRoles.length > 0 ? tenantRoles[0].name.toLowerCase() : 'employee';
 
     const payload = {
       userId: user.id,
       email: user.email,
       role: roleName,
-      tenantId: user.tenantId,
+      tenantId: activeTenantId,
     };
 
     const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
     const refreshToken = this.jwtService.sign(
-      { userId: user.id },
+      { userId: user.id, tenantId: activeTenantId },
       { expiresIn: '7d' },
     );
 
@@ -296,11 +356,7 @@ export class AuthService {
     const redisKey = `session:${user.id}:${tokenHash}`;
     await this.redisService.set(redisKey, 'active', 7 * 24 * 60 * 60);
 
-    const tenant = user.tenantId
-      ? await this.tenantRepository.findOne({
-          where: { id: user.tenantId },
-        })
-      : null;
+    const activeTenant = tenants.find((t) => t.id === activeTenantId);
 
     return {
       success: true,
@@ -308,21 +364,26 @@ export class AuthService {
         accessToken,
         refreshToken,
         expiresIn: 900,
-        tenant: tenant
+        tenant: activeTenant
           ? {
-              id: user.tenantId,
-              name: tenant.name,
-              subdomain: tenant.subdomain,
+              id: activeTenantId,
+              name: activeTenant.name,
+              subdomain: activeTenant.subdomain,
             }
           : null,
       },
     };
   }
 
+  async selectTenant(dto: { email: string; password?: string; tenantId: string }) {
+    return this.login({ email: dto.email, password: dto.password }, dto.tenantId);
+  }
+
   async refresh(refreshToken: string) {
     try {
       const payload = this.jwtService.verify(refreshToken);
       const userId = payload.userId;
+      const tenantId = payload.tenantId;
 
       const tokenHash = crypto
         .createHash('sha256')
@@ -356,13 +417,15 @@ export class AuthService {
         });
       }
 
-      const roleName = user.roles && user.roles.length > 0 ? user.roles[0].name.toLowerCase() : 'employee';
+      const activeTenantId = tenantId || user.tenantId;
+      const tenantRoles = user.roles ? user.roles.filter(r => r.tenantId === activeTenantId) : [];
+      const roleName = tenantRoles.length > 0 ? tenantRoles[0].name.toLowerCase() : 'employee';
 
       const newPayload = {
         userId: user.id,
         email: user.email,
         role: roleName,
-        tenantId: user.tenantId,
+        tenantId: activeTenantId,
       };
       const accessToken = this.jwtService.sign(newPayload, {
         expiresIn: '15m',
@@ -462,8 +525,8 @@ export class AuthService {
     };
   }
 
-  async getUserPermissions(userId: string): Promise<string[]> {
-    const cacheKey = `user:permissions:${userId}`;
+  async getUserPermissions(userId: string, tenantId?: string): Promise<string[]> {
+    const cacheKey = tenantId ? `user:permissions:${userId}:${tenantId}` : `user:permissions:${userId}`;
     try {
       const cached = await this.redisService.get(cacheKey);
       if (cached) {
@@ -479,7 +542,7 @@ export class AuthService {
     const permissions: string[] = [];
     if (user && user.roles) {
       for (const role of user.roles) {
-        if (role.permissions) {
+        if (role.permissions && (!tenantId || role.tenantId === tenantId)) {
           for (const perm of role.permissions) {
             if (!permissions.includes(perm.code)) {
               permissions.push(perm.code);
@@ -496,7 +559,7 @@ export class AuthService {
     return permissions;
   }
 
-  async me(userId: string) {
+  async me(userId: string, tenantId?: string) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: ['roles'],
@@ -512,23 +575,25 @@ export class AuthService {
       });
     }
 
-    const permissions = await this.getUserPermissions(userId);
-    const roleNames = user.roles ? user.roles.map(r => r.name) : [];
+    const permissions = await this.getUserPermissions(userId, tenantId);
+    const activeTenantId = tenantId || user.tenantId;
+    const tenantRoles = user.roles ? user.roles.filter(r => !activeTenantId || r.tenantId === activeTenantId) : [];
+    const roleNames = tenantRoles.map(r => r.name);
 
     return {
       success: true,
       data: {
         id: user.id,
         email: user.email,
-        tenantId: user.tenantId,
+        tenantId: activeTenantId,
         roles: roleNames,
         permissions,
       },
     };
   }
 
-  async menu(userId: string) {
-    const userPermissions = await this.getUserPermissions(userId);
+  async menu(userId: string, tenantId?: string) {
+    const userPermissions = await this.getUserPermissions(userId, tenantId);
 
     const fullMenu = [
       {
@@ -570,5 +635,29 @@ export class AuthService {
       success: true,
       data: filteredMenu.map(({ requiredPermissions, ...rest }) => rest),
     };
+  }
+
+  async testLinkTenant(email: string, subdomain: string) {
+    const user = await this.userRepository.findOne({
+      where: { email },
+      relations: ['tenants'],
+    });
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    const tenant = await this.tenantRepository.findOne({
+      where: { subdomain: subdomain.trim().toLowerCase() },
+    });
+    if (!tenant) {
+      throw new BadRequestException('Tenant not found');
+    }
+    if (!user.tenants) {
+      user.tenants = [];
+    }
+    if (!user.tenants.some(t => t.id === tenant.id)) {
+      user.tenants.push(tenant);
+      await this.userRepository.save(user);
+    }
+    return { success: true };
   }
 }

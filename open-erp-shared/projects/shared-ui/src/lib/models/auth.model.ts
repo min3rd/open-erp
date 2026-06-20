@@ -27,12 +27,24 @@ export interface LoginPayload {
   password?: string;
 }
 
+export interface SelectTenantPayload {
+  email: string;
+  password?: string;
+  tenantId: string;
+}
+
 export interface LoginResponse {
   success: boolean;
   data?: {
-    accessToken: string;
+    accessToken?: string;
     refreshToken?: string;
-    expiresIn: number;
+    expiresIn?: number;
+    requireTenantSelection?: boolean;
+    tenants?: Array<{
+      id: string;
+      name?: string;
+      subdomain?: string;
+    }>;
     tenant?: {
       id: string;
       name?: string;

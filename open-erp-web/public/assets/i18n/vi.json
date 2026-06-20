@@ -39,7 +39,10 @@
     "register_user_subtitle": "Tạo tài khoản OpenERP cá nhân để tham gia các doanh nghiệp",
     "first_name": "Họ và đệm",
     "last_name": "Tên",
-    "user_register_success": "Đăng ký tài khoản thành công!"
+    "user_register_success": "Đăng ký tài khoản thành công!",
+    "select_workspace": "Chọn không gian làm việc",
+    "select_workspace_desc": "Tài khoản của bạn liên kết với nhiều doanh nghiệp. Vui lòng chọn một doanh nghiệp để bắt đầu.",
+    "back_to_login": "Quay lại đăng nhập"
   },
   "validation": {
     "company_name_required": "Tên công ty không được để trống.",

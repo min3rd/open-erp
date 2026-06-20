@@ -35,7 +35,10 @@
     "register_user_subtitle": "创建独立的 OpenERP 个人账户以加入企业",
     "first_name": "名字",
     "last_name": "姓氏",
-    "user_register_success": "账户注册成功！"
+    "user_register_success": "账户注册成功！",
+    "select_workspace": "选择工作区",
+    "select_workspace_desc": "您的账户关联了多个工作区。请选择一个以继续。",
+    "back_to_login": "返回登录"
   },
   "validation": {
     "company_name_required": "公司名称不能为空。",

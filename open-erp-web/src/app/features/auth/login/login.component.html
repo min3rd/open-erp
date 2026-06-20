@@ -70,48 +70,100 @@
         <oerp-alert type="error" title="Error" [message]="errorMessage()" class="mb-6"></oerp-alert>
       }
 
-      <!-- Form -->
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
-        <oerp-input
-          [label]="'auth.email' | transloco"
-          [placeholder]="'auth.email' | transloco"
-          [control]="getControl('email')"
-          [errorMessage]="getErrorMessage('email')"
-          prefixIcon="mail"
-        ></oerp-input>
+      <!-- Form or Workspace Selection -->
+      @if (!requireTenantSelection()) {
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+          <oerp-input
+            [label]="'auth.email' | transloco"
+            [placeholder]="'auth.email' | transloco"
+            [control]="getControl('email')"
+            [errorMessage]="getErrorMessage('email')"
+            prefixIcon="mail"
+          ></oerp-input>
 
-        <oerp-input
-          [label]="'auth.password' | transloco"
-          [placeholder]="'auth.password' | transloco"
-          type="password"
-          [control]="getControl('password')"
-          [errorMessage]="getErrorMessage('password')"
-          prefixIcon="lock"
-        ></oerp-input>
+          <oerp-input
+            [label]="'auth.password' | transloco"
+            [placeholder]="'auth.password' | transloco"
+            type="password"
+            [control]="getControl('password')"
+            [errorMessage]="getErrorMessage('password')"
+            prefixIcon="lock"
+          ></oerp-input>
 
-        <div class="pt-2">
-          <oerp-button
-            type="submit"
-            [label]="isLoading() ? ('auth.processing' | transloco) : ('auth.login_now' | transloco)"
-            [isLoading]="isLoading()"
-            [disabled]="loginForm.invalid"
-            class="w-full"
-          ></oerp-button>
+          <div class="pt-2">
+            <oerp-button
+              type="submit"
+              [label]="isLoading() ? ('auth.processing' | transloco) : ('auth.login_now' | transloco)"
+              [isLoading]="isLoading()"
+              [disabled]="loginForm.invalid"
+              class="w-full"
+            ></oerp-button>
+          </div>
+        </form>
+
+        <div class="mt-6 text-center text-sm">
+          <span class="text-slate-500 dark:text-slate-400">
+            {{ 'auth.dont_have_account' | transloco }}
+          </span>
+          <a
+            (click)="goToRegister()"
+            href="javascript:void(0)"
+            class="font-semibold text-rose-gold-500 hover:text-rose-gold-600 ml-1 transition"
+          >
+            {{ 'auth.register_now' | transloco }}
+          </a>
         </div>
-      </form>
+      } @else {
+        <!-- Workspace Selector -->
+        <div class="space-y-6 animate-fade-in">
+          <div class="text-center mb-4">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              {{ 'auth.select_workspace' | transloco }}
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              {{ 'auth.select_workspace_desc' | transloco }}
+            </p>
+          </div>
 
-      <div class="mt-6 text-center text-sm">
-        <span class="text-slate-500 dark:text-slate-400">
-          {{ 'auth.dont_have_account' | transloco }}
-        </span>
-        <a
-          (click)="goToRegister()"
-          href="javascript:void(0)"
-          class="font-semibold text-rose-gold-500 hover:text-rose-gold-600 ml-1 transition"
-        >
-          {{ 'auth.register_now' | transloco }}
-        </a>
-      </div>
+          <div class="grid grid-cols-1 gap-4 max-h-[300px] overflow-y-auto pr-1">
+            @for (tenant of availableTenants(); track tenant.id) {
+              <div
+                (click)="selectTenant(tenant)"
+                class="flex items-center space-x-4 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-rose-gold-300 dark:hover:border-rose-gold-700 hover:shadow-lg hover:shadow-rose-gold-500/10 cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5 group"
+              >
+                <!-- Avatar with initials & gradient -->
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-gold-400 to-rose-gold-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-rose-gold-500/20 group-hover:scale-110 transition-transform duration-300">
+                  {{ tenant.name ? tenant.name.substring(0, 1).toUpperCase() : 'W' }}
+                </div>
+                
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold text-slate-900 dark:text-white truncate group-hover:text-rose-gold-600 dark:group-hover:text-rose-gold-400 transition-colors">
+                    {{ tenant.name }}
+                  </p>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
+                    {{ tenant.subdomain }}.open-erp.9ms.io.vn
+                  </p>
+                </div>
+
+                <oerp-icon
+                  name="chevron-right"
+                  [size]="16"
+                  class="text-slate-400 group-hover:text-rose-gold-500 group-hover:translate-x-0.5 transition-all duration-300"
+                ></oerp-icon>
+              </div>
+            }
+          </div>
+
+          <div class="pt-2">
+            <button
+              (click)="backToLoginForm()"
+              class="w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer text-slate-700 dark:text-slate-300"
+            >
+              {{ 'auth.back_to_login' | transloco }}
+            </button>
+          </div>
+        </div>
+      }
     </div>
   </div>
 

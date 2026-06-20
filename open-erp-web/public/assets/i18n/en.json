@@ -39,7 +39,10 @@
     "register_user_subtitle": "Create an independent OpenERP personal account to join companies",
     "first_name": "First Name",
     "last_name": "Last Name",
-    "user_register_success": "Registration successful!"
+    "user_register_success": "Registration successful!",
+    "select_workspace": "Select Workspace",
+    "select_workspace_desc": "Your account is linked to multiple workspaces. Please select one to continue.",
+    "back_to_login": "Back to login"
   },
   "validation": {
     "company_name_required": "Company name is required.",

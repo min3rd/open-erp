@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 import { User } from '../user/user.entity';
 
@@ -33,4 +34,7 @@ export class Tenant {
 
   @OneToMany(() => User, (user) => user.tenant)
   users: User[];
+
+  @ManyToMany(() => User, (user) => user.tenants)
+  memberUsers: User[];
 }

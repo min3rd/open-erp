@@ -15,6 +15,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { SelectTenantDto } from './dto/select-tenant.dto';
 import { JwtAuthGuard } from '../../core/auth/auth.guard';
 
 @Controller('auth')
@@ -52,23 +53,17 @@ export class AuthController {
     const tenantId = req.tenantId;
     const result = await this.authService.login(dto, tenantId);
 
-    res.cookie('refreshToken', result.data.refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',   // 'lax' allows cross-port requests on localhost in dev
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: '/',
-    });
+    if (result.success && result.data && result.data.refreshToken) {
+      res.cookie('refreshToken', result.data.refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: '/',
+      });
+    }
 
-    return {
-      success: true,
-      data: {
-        accessToken: result.data.accessToken,
-        refreshToken: result.data.refreshToken,
-        expiresIn: result.data.expiresIn,
-        tenant: result.data.tenant,
-      },
-    };
+    return result;
   }
 
   @Post('refresh')
@@ -150,12 +145,39 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   async me(@Req() req: any) {
-    return this.authService.me(req.user.userId);
+    return this.authService.me(req.user.userId, req.user.tenantId);
   }
 
   @Get('menu')
   @UseGuards(JwtAuthGuard)
   async menu(@Req() req: any) {
-    return this.authService.menu(req.user.userId);
+    return this.authService.menu(req.user.userId, req.user.tenantId);
+  }
+
+  @Post('select-tenant')
+  @HttpCode(HttpStatus.OK)
+  async selectTenant(
+    @Body() dto: SelectTenantDto,
+    @Res({ passthrough: true }) res: any,
+  ) {
+    const result = await this.authService.selectTenant(dto);
+
+    if (result.success && result.data && result.data.refreshToken) {
+      res.cookie('refreshToken', result.data.refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: '/',
+      });
+    }
+
+    return result;
+  }
+
+  @Post('test-link-tenant')
+  @HttpCode(HttpStatus.OK)
+  async testLinkTenant(@Body() body: { email: string; subdomain: string }) {
+    return this.authService.testLinkTenant(body.email, body.subdomain);
   }
 }

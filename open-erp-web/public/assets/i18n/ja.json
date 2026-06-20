@@ -35,7 +35,10 @@
     "register_user_subtitle": "企業に参加するための独立したOpenERP個人アカウントを作成します",
     "first_name": "名",
     "last_name": "姓",
-    "user_register_success": "アカウントの登録が成功しました！"
+    "user_register_success": "アカウントの登録が成功しました！",
+    "select_workspace": "ワークスペースの選択",
+    "select_workspace_desc": "アカウントは複数のワークスペースに関連付けられています。続行するには1つ選択してください。",
+    "back_to_login": "ログインに戻る"
   },
   "validation": {
     "company_name_required": "会社名は必須項目です。",
