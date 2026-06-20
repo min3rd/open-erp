@@ -55,4 +55,8 @@
   - [x] Add OnInit theme loading globally in mobile app.component.ts.
   - [x] Update theme toggle and loading in mobile pages (login, register, register-user) to manage both dark and ion-palette-dark classes.
   - [x] Create bug report document docs/05_project_management/sprint_1/bugs/bug_12_mobile_theme_issue.md.
+- [x] **BUG-1.13**: UnknownDependenciesException in OrgModule
+  - [x] Import Tenant and Role entities, and register them in TypeOrmModule.forFeature in open-erp-services/src/features/org/org.module.ts.
+  - [x] Create bug report document docs/05_project_management/sprint_1/bugs/bug_13_unknown_dependencies_tenant_repository.md.
+
 

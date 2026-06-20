@@ -5,6 +5,8 @@ import { Branch } from './entities/branch.entity';
 import { Department } from './entities/department.entity';
 import { Employee } from './entities/employee.entity';
 import { User } from '../../core/user/user.entity';
+import { Tenant } from '../../core/tenant/tenant.entity';
+import { Role } from '../auth/entities/role.entity';
 import { BranchController } from './branch.controller';
 import { BranchService } from './branch.service';
 import { DepartmentController } from './department.controller';
@@ -15,7 +17,7 @@ import { MailModule } from '../../core/mail/mail.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Branch, Department, Employee, User]),
+    TypeOrmModule.forFeature([Branch, Department, Employee, User, Tenant, Role]),
     JwtModule.register({
       secret: 'super-secret-jwt-key',
     }),

@@ -46,6 +46,7 @@ Dưới đây là danh sách các Task cần triển khai trong Sprint 1:
 | **BUG-1.10** | Lỗi REFRESH_TOKEN_REQUIRED khi gọi /auth/refresh               | Angular `HttpClient` không tự động gửi HTTP-Only Cookie do thiếu `withCredentials: true` và CORS chưa bật `credentials: true`.                          | [x] Completed       | BE/FE Leads         | [bug_10_refresh_token_required.md](./bugs/bug_10_refresh_token_required.md)          |
 | **BUG-1.11** | Lỗi biên dịch TypeScript trong AuthService                     | Tham số `dto` trong phương thức `selectTenant` định nghĩa tùy chọn password trong khi `LoginDto` yêu cầu bắt buộc.                                   | [x] Completed       | BE Leads            | [bug_11_compile_error.md](./bugs/bug_11_compile_error.md)                            |
 | **BUG-1.12** | Giao diện Mobile hiển thị màu sắc lẫn lộn giữa Light/Dark Mode | Tệp styles toàn cục import `dark.system.css` tự động đổi màu theo OS thay vì theo lớp `.dark` thủ công của ứng dụng.                               | [x] Completed       | FE Mobile Leads     | [bug_12_mobile_theme_issue.md](./bugs/bug_12_mobile_theme_issue.md)                  |
+| **BUG-1.13** | Lỗi Dependency trong OrgModule                                 | Lỗi `UnknownDependenciesException` đối với `TenantRepository` và `RoleRepository` trong `UserService` do chưa đăng ký thực thể trong `OrgModule`.   | [x] Completed       | BE Leads            | [bug_13_unknown_dependencies_tenant_repository.md](./bugs/bug_13_unknown_dependencies_tenant_repository.md) |
 
 ---
 
