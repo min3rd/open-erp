@@ -178,4 +178,8 @@ export class RegisterUserComponent implements OnInit {
   goToLogin() {
     this.router.navigate(['/login']);
   }
+
+  goToRegisterBusiness() {
+    this.router.navigate(['/register']);
+  }
 }

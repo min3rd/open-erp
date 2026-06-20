@@ -37,6 +37,10 @@
     "activating": "Activating your account...",
     "register_user_title": "Register Personal Account",
     "register_user_subtitle": "Create an independent OpenERP personal account to join companies",
+    "register_user_link": "Register personal account",
+    "register_business_link": "Register new company",
+    "are_you_employee": "Are you an employee?",
+    "want_to_register_business": "Register a business instead?",
     "first_name": "First Name",
     "last_name": "Last Name",
     "user_register_success": "Registration successful!",
@@ -215,6 +219,10 @@
     "empty": "No access roles created yet.",
     "name_placeholder": "Enter role name (e.g. Sales Associate)...",
     "desc_placeholder": "Brief summary of role responsibilities..."
+  },
+  "layout": {
+    "platform_title": "OpenERP Platform",
+    "toggle_layout": "Change Layout Configuration"
   }
 }
 

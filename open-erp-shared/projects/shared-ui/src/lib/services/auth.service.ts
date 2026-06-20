@@ -25,6 +25,18 @@ export class AuthService {
 
   permissions = signal<string[]>([]);
 
+  constructor() {
+    if (this.accessToken()) {
+      this.fetchProfileAndPermissions().subscribe({
+        error: () => {
+          this.accessToken.set(null);
+          localStorage.removeItem('accessToken');
+          this.permissions.set([]);
+        }
+      });
+    }
+  }
+
   getRole(): string | null {
     const token = this.accessToken();
     if (!token) return null;

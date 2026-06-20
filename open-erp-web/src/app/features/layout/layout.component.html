@@ -65,7 +65,7 @@
               <oerp-icon name="menu" [size]="20"></oerp-icon>
             </button>
             <h2 class="text-sm font-semibold text-slate-500 dark:text-slate-400 hidden md:block">
-              OpenERP Platform
+              {{ 'layout.platform_title' | transloco }}
             </h2>
           </div>
 
@@ -75,7 +75,7 @@
             <button 
               (click)="toggleLayout()" 
               class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-500 cursor-pointer"
-              title="Đổi cấu hình Layout"
+              [title]="'layout.toggle_layout' | transloco"
             >
               <oerp-icon name="layout" [size]="20"></oerp-icon>
             </button>
@@ -97,6 +97,7 @@
               <option value="vi">VI</option>
               <option value="en">EN</option>
               <option value="zh">ZH</option>
+              <option value="ja">JA</option>
             </select>
 
             <!-- Logout -->
@@ -155,7 +156,7 @@
           <button 
             (click)="toggleLayout()" 
             class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-500 cursor-pointer"
-            title="Đổi cấu hình Layout"
+            [title]="'layout.toggle_layout' | transloco"
           >
             <oerp-icon name="layout" [size]="20"></oerp-icon>
           </button>
@@ -177,6 +178,7 @@
             <option value="vi">VI</option>
             <option value="en">EN</option>
             <option value="zh">ZH</option>
+            <option value="ja">JA</option>
           </select>
 
           <!-- Logout -->

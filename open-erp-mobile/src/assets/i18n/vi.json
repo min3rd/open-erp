@@ -37,6 +37,10 @@
     "activating": "Đang kích hoạt tài khoản...",
     "register_user_title": "Đăng ký tài khoản cá nhân",
     "register_user_subtitle": "Tạo tài khoản OpenERP cá nhân để tham gia các doanh nghiệp",
+    "register_user_link": "Đăng ký tài khoản cá nhân",
+    "register_business_link": "Đăng ký doanh nghiệp mới",
+    "are_you_employee": "Bạn là nhân viên?",
+    "want_to_register_business": "Đăng ký doanh nghiệp mới?",
     "first_name": "Họ và đệm",
     "last_name": "Tên",
     "user_register_success": "Đăng ký tài khoản thành công!",
@@ -181,6 +185,44 @@
     "org_mobile_seed_desc": "Nếu doanh nghiệp chưa có phòng ban nào, chọn ngành kinh doanh để tự động tạo sơ đồ mẫu.",
     "org_mobile_details_title": "Chi tiết & Nhân sự",
     "org_mobile_details_desc": "Xem thông tin chi tiết và danh sách nhân sự của chi nhánh hoặc phòng ban được chọn."
+  },
+  "menu": {
+    "home": "Bàn làm việc",
+    "org_structure": "Sơ đồ tổ chức",
+    "roles": "Cấu hình phân quyền"
+  },
+  "module": {
+    "organization": "Nhân sự & Tổ chức",
+    "system": "Hệ thống & Cấu hình",
+    "crm": "Khách hàng & Bán hàng"
+  },
+  "roles": {
+    "title": "Quản lý vai trò & phân quyền",
+    "subtitle": "Thiết lập các nhóm vai trò và ma trận phân quyền chi tiết cho nhân sự",
+    "roles_list": "Danh sách vai trò",
+    "create_title": "Tạo vai trò mới",
+    "role_name": "Tên vai trò",
+    "role_desc": "Mô tả vai trò",
+    "btn_create": "Tạo vai trò",
+    "permissions_for": "Danh sách quyền của",
+    "no_desc": "Không có mô tả",
+    "permissions_active": "quyền đang được gán",
+    "no_selection_title": "Chưa chọn vai trò",
+    "select_role_hint": "Vui lòng chọn một vai trò từ danh sách bên trái để chỉnh sửa ma trận phân quyền.",
+    "update_permissions_success": "Cập nhật ma trận phân quyền thành công!",
+    "update_permissions_error": "Lỗi khi cập nhật ma trận phân quyền.",
+    "create_success": "Tạo vai trò mới thành công!",
+    "create_error": "Lỗi khi tạo vai trò mới.",
+    "delete_confirm": "Bạn có chắc chắn muốn xóa vai trò này? Tất cả người dùng thuộc vai trò này sẽ bị thu hồi quyền.",
+    "delete_success": "Xóa vai trò thành công!",
+    "delete_error": "Lỗi khi xóa vai trò.",
+    "empty": "Chưa có vai trò nào.",
+    "name_placeholder": "Nhập tên vai trò (ví dụ: Nhân viên Sales)...",
+    "desc_placeholder": "Mô tả ngắn gọn về nhiệm vụ của vai trò..."
+  },
+  "layout": {
+    "platform_title": "Hệ thống OpenERP",
+    "toggle_layout": "Đổi cấu hình Layout"
   }
 }
 

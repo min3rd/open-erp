@@ -217,17 +217,31 @@
         </div>
       </form>
 
-      <div class="mt-5 text-center text-xs">
-        <span class="text-slate-500 dark:text-slate-400">
-          {{ 'auth.already_have_account' | transloco }}
-        </span>
-        <a
-          (click)="goToLogin()"
-          href="javascript:void(0)"
-          class="font-semibold text-rose-gold-500 hover:text-rose-gold-600 ml-1 transition"
-        >
-          {{ 'auth.login_now' | transloco }}
-        </a>
+      <div class="mt-5 text-center text-xs space-y-2.5">
+        <div>
+          <span class="text-slate-500 dark:text-slate-400">
+            {{ 'auth.already_have_account' | transloco }}
+          </span>
+          <a
+            (click)="goToLogin()"
+            href="javascript:void(0)"
+            class="font-semibold text-rose-gold-500 hover:text-rose-gold-600 ml-1 transition"
+          >
+            {{ 'auth.login_now' | transloco }}
+          </a>
+        </div>
+        <div class="border-t border-slate-100 dark:border-slate-800/80 pt-2.5">
+          <span class="text-slate-500 dark:text-slate-400 text-[10px]">
+            {{ 'auth.are_you_employee' | transloco }}
+          </span>
+          <a
+            (click)="goToRegisterUser()"
+            href="javascript:void(0)"
+            class="font-semibold text-rose-gold-500 hover:text-rose-gold-600 ml-1 text-[10px] transition"
+          >
+            {{ 'auth.register_user_link' | transloco }}
+          </a>
+        </div>
       </div>
     </div>
   </div>

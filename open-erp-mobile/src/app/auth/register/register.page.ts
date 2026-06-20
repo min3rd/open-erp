@@ -266,4 +266,8 @@ export class RegisterPage implements OnInit {
   goToLogin() {
     this.router.navigate(['/login']);
   }
+
+  goToRegisterUser() {
+    this.router.navigate(['/register/user']);
+  }
 }

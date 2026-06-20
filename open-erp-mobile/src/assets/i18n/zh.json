@@ -33,6 +33,10 @@
     "password_strong": "强",
     "register_user_title": "注册个人账户",
     "register_user_subtitle": "创建独立的 OpenERP 个人账户以加入企业",
+    "register_user_link": "注册个人账户",
+    "register_business_link": "注册新企业",
+    "are_you_employee": "您是员工吗？",
+    "want_to_register_business": "注册新企业？",
     "first_name": "名字",
     "last_name": "姓氏",
     "user_register_success": "账户注册成功！",
@@ -177,5 +181,43 @@
     "org_mobile_seed_desc": "若企业没有任何部门，选择行业即可自动生成部门架构模版。",
     "org_mobile_details_title": "详情与员工",
     "org_mobile_details_desc": "查看所选分支机构或部门的详细信息和员工列表。"
+  },
+  "menu": {
+    "home": "工作台",
+    "org_structure": "组织架构",
+    "roles": "角色权限"
+  },
+  "module": {
+    "organization": "人事与组织",
+    "system": "系统与配置",
+    "crm": "客户与销售"
+  },
+  "roles": {
+    "title": "角色与权限管理",
+    "subtitle": "设置角色组和详细的人员权限矩阵",
+    "roles_list": "角色列表",
+    "create_title": "创建新角色",
+    "role_name": "角色名称",
+    "role_desc": "角色描述",
+    "btn_create": "创建角色",
+    "permissions_for": "权限列表 -",
+    "no_desc": "暂无描述",
+    "permissions_active": "个已分配权限",
+    "no_selection_title": "未选择角色",
+    "select_role_hint": "请从左侧列表中选择一个角色以编辑其权限矩阵。",
+    "update_permissions_success": "权限矩阵更新成功！",
+    "update_permissions_error": "更新权限矩阵失败。",
+    "create_success": "创建新角色成功！",
+    "create_error": "创建新角色失败。",
+    "delete_confirm": "您确定要删除此角色吗？属于该角色的所有用户将被收回权限。",
+    "delete_success": "删除角色成功！",
+    "delete_error": "删除角色失败。",
+    "empty": "暂无角色。",
+    "name_placeholder": "输入角色名称 (如：销售员)...",
+    "desc_placeholder": "简要描述角色的职责..."
+  },
+  "layout": {
+    "platform_title": "OpenERP 系统",
+    "toggle_layout": "切换布局配置"
   }
 }

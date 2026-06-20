@@ -33,6 +33,10 @@
     "password_strong": "強い",
     "register_user_title": "個人アカウントの登録",
     "register_user_subtitle": "企業に参加するための独立したOpenERP個人アカウントを作成します",
+    "register_user_link": "個人アカウントを登録",
+    "register_business_link": "新規企業を登録",
+    "are_you_employee": "従業員ですか？",
+    "want_to_register_business": "新規企業を登録しますか？",
     "first_name": "名",
     "last_name": "姓",
     "user_register_success": "アカウントの登録が成功しました！",
@@ -177,5 +181,43 @@
     "org_mobile_seed_desc": "企業に部門がない場合、業界を選択して自動的に組織図テンプレートを生成します。",
     "org_mobile_details_title": "詳細と所属職員",
     "org_mobile_details_desc": "選択した支社または部門の詳細情報と所属職員一覧が表示されます。"
+  },
+  "menu": {
+    "home": "ダッシュボード",
+    "org_structure": "組織図",
+    "roles": "ロールと権限設定"
+  },
+  "module": {
+    "organization": "人事・組織",
+    "system": "システム・設定",
+    "crm": "顧客・販売管理"
+  },
+  "roles": {
+    "title": "ロールと権限の管理",
+    "subtitle": "ロールグループの設定および詳細な権限マトリクスの調整",
+    "roles_list": "ロール一覧",
+    "create_title": "新しいロールの作成",
+    "role_name": "ロール名",
+    "role_desc": "ロールの説明",
+    "btn_create": "ロールを作成",
+    "permissions_for": "の権限一覧",
+    "no_desc": "説明なし",
+    "permissions_active": "個の割り当て済み権限",
+    "no_selection_title": "ロールが選択されていません",
+    "select_role_hint": "左側のリストからロールを選択して、権限マトリクスを編集してください。",
+    "update_permissions_success": "権限マトリクスが正常に更新されました！",
+    "update_permissions_error": "権限マトリクスの更新に失敗しました。",
+    "create_success": "新しいロールが正常に作成されました！",
+    "create_error": "新しいロールの作成に失敗しました。",
+    "delete_confirm": "本当にこのロールを削除しますか？このロールに属するすべてのユーザーの権限が回収されます。",
+    "delete_success": "ロールが正常に削除されました！",
+    "delete_error": "ロールの削除に失敗しました。",
+    "empty": "ロールがまだ作成されていません。",
+    "name_placeholder": "ロール名を入力 (例: 営業担当者)...",
+    "desc_placeholder": "ロールの責任に関する簡単な概要..."
+  },
+  "layout": {
+    "platform_title": "OpenERP システム",
+    "toggle_layout": "レイアウト構成の変更"
   }
 }

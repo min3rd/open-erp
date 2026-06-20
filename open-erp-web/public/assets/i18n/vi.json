@@ -37,6 +37,10 @@
     "activating": "Đang kích hoạt tài khoản...",
     "register_user_title": "Đăng ký tài khoản cá nhân",
     "register_user_subtitle": "Tạo tài khoản OpenERP cá nhân để tham gia các doanh nghiệp",
+    "register_user_link": "Đăng ký tài khoản cá nhân",
+    "register_business_link": "Đăng ký doanh nghiệp mới",
+    "are_you_employee": "Bạn là nhân viên?",
+    "want_to_register_business": "Đăng ký doanh nghiệp mới?",
     "first_name": "Họ và đệm",
     "last_name": "Tên",
     "user_register_success": "Đăng ký tài khoản thành công!",
@@ -215,6 +219,10 @@
     "empty": "Chưa có vai trò nào.",
     "name_placeholder": "Nhập tên vai trò (ví dụ: Nhân viên Sales)...",
     "desc_placeholder": "Mô tả ngắn gọn về nhiệm vụ của vai trò..."
+  },
+  "layout": {
+    "platform_title": "Hệ thống OpenERP",
+    "toggle_layout": "Đổi cấu hình Layout"
   }
 }
 
