@@ -150,9 +150,9 @@ export class AuthService {
     );
   }
 
-  activate(token: string): Observable<{ success: boolean; messageKey?: string; data?: { subdomain: string } }> {
+  activate(token: string, password?: string): Observable<{ success: boolean; messageKey?: string; data?: { subdomain: string } }> {
     const url = this.config.buildUrl(API_ENDPOINTS.auth.activate);
-    return this.http.post<{ success: boolean; messageKey?: string; data?: { subdomain: string } }>(url, { token });
+    return this.http.post<{ success: boolean; messageKey?: string; data?: { subdomain: string } }>(url, { token, password });
   }
 
   selectTenant(payload: SelectTenantPayload): Observable<LoginResponse> {

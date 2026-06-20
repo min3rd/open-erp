@@ -51,3 +51,24 @@
     --background: rgba(30, 41, 59, 0.5);
   }
 }
+
+// Premium Rose Gold Segment styling
+.oerp-segment {
+  --background: rgba(183, 110, 121, 0.08) !important;
+  border-radius: 12px !important;
+  padding: 2px !important;
+  
+  ion-segment-button {
+    --indicator-color: #b76e79 !important;
+    --color: #64748b !important;
+    --color-checked: #ffffff !important;
+    --color-focused: #ffffff !important;
+    --border-radius: 10px !important;
+    font-weight: 600 !important;
+    
+    &::part(indicator-background) {
+      background-color: #b76e79 !important;
+    }
+  }
+}
+

@@ -46,7 +46,10 @@
     "user_register_success": "Registration successful!",
     "select_workspace": "Select Workspace",
     "select_workspace_desc": "Your account is linked to multiple workspaces. Please select one to continue.",
-    "back_to_login": "Back to login"
+    "back_to_login": "Back to login",
+    "confirm_password": "Confirm Password",
+    "activate_account": "Activate Account",
+    "passwords_must_match": "Passwords must match"
   },
   "validation": {
     "company_name_required": "Company name is required.",
@@ -137,7 +140,23 @@
     "no_selection_title": "No branch or department selected",
     "mobile_subtitle": "View company directory and organizational chart. Tap any branch or department to manage or view employees.",
     "status_Working": "Working",
-    "status_Probationary": "Probationary"
+    "status_Probationary": "Probationary",
+    "status_Pending": "Pending",
+    "status_Active": "Active",
+    "invite_employee": "Invite Employee",
+    "select_role": "Select Role...",
+    "select_department": "Select Department...",
+    "invite_sent_success": "Invitation email sent successfully!",
+    "role": "Role",
+    "invitations_list": "Invitation List",
+    "resend_invite": "Resend Invite",
+    "cancel_invite": "Cancel Invite",
+    "remove_from_org": "Remove from Org",
+    "invite_title": "Invite New Employee",
+    "all_employees": "Employees & Invites",
+    "structure_tab": "Structure & Branches",
+    "invite_cancelled": "Invitation cancelled successfully!",
+    "employee_removed": "Employee removed successfully!"
   },
   "guide": {
     "skip": "Skip",

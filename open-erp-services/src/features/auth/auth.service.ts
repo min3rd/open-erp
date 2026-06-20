@@ -473,7 +473,7 @@ export class AuthService {
     }
   }
 
-  async activate(token: string): Promise<{ userId: string; subdomain: string }> {
+  async activate(token: string, password?: string): Promise<{ userId: string; subdomain: string }> {
     if (!token) {
       throw new BadRequestException({
         success: false,
@@ -508,6 +508,11 @@ export class AuthService {
           messageKey: 'auth.user_not_found',
         },
       });
+    }
+
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
     }
 
     user.status = 'Active';

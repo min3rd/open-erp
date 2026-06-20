@@ -42,7 +42,10 @@
     "user_register_success": "账户注册成功！",
     "select_workspace": "选择工作区",
     "select_workspace_desc": "您的账户关联了多个工作区。请选择一个以继续。",
-    "back_to_login": "返回登录"
+    "back_to_login": "返回登录",
+    "confirm_password": "确认密码",
+    "activate_account": "激活账户",
+    "passwords_must_match": "密码不匹配"
   },
   "validation": {
     "company_name_required": "公司名称不能为空。",
@@ -133,7 +136,23 @@
     "no_selection_title": "未选择分支机构或部门",
     "mobile_subtitle": "查看公司通讯录与组织架构图。点击任意分支或部门以进行管理或查看员工。",
     "status_Working": "在职",
-    "status_Probationary": "试用"
+    "status_Probationary": "试用",
+    "status_Pending": "待激活",
+    "status_Active": "活跃",
+    "invite_employee": "邀请员工",
+    "select_role": "选择角色...",
+    "select_department": "选择部门...",
+    "invite_sent_success": "邀请邮件发送成功！",
+    "role": "角色",
+    "invitations_list": "邀请列表",
+    "resend_invite": "重新发送邀请",
+    "cancel_invite": "取消邀请",
+    "remove_from_org": "从组织中移除",
+    "invite_title": "邀请新员工",
+    "all_employees": "员工与邀请",
+    "structure_tab": "架构与分支",
+    "invite_cancelled": "取消邀请成功！",
+    "employee_removed": "删除员工成功！"
   },
   "guide": {
     "skip": "跳过",

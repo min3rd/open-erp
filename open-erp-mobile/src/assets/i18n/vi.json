@@ -46,7 +46,10 @@
     "user_register_success": "Đăng ký tài khoản thành công!",
     "select_workspace": "Chọn không gian làm việc",
     "select_workspace_desc": "Tài khoản của bạn liên kết với nhiều doanh nghiệp. Vui lòng chọn một doanh nghiệp để bắt đầu.",
-    "back_to_login": "Quay lại đăng nhập"
+    "back_to_login": "Quay lại đăng nhập",
+    "confirm_password": "Xác nhận mật khẩu",
+    "activate_account": "Kích hoạt tài khoản",
+    "passwords_must_match": "Mật khẩu xác nhận không khớp"
   },
   "validation": {
     "company_name_required": "Tên công ty không được để trống.",
@@ -137,7 +140,23 @@
     "no_selection_title": "Chưa có phòng ban/chi nhánh được chọn",
     "mobile_subtitle": "Xem danh bạ và sơ đồ tổ chức phòng ban. Chạm vào bất kỳ chi nhánh hoặc phòng ban nào để mở rộng tùy chọn quản lý hoặc xem nhân viên.",
     "status_Working": "Đang làm việc",
-    "status_Probationary": "Thử việc"
+    "status_Probationary": "Thử việc",
+    "status_Pending": "Chờ kích hoạt",
+    "status_Active": "Đang hoạt động",
+    "invite_employee": "Mời nhân sự",
+    "select_role": "Chọn vai trò...",
+    "select_department": "Chọn phòng ban...",
+    "invite_sent_success": "Gửi email mời thành công!",
+    "role": "Vai trò",
+    "invitations_list": "Danh sách lời mời",
+    "resend_invite": "Gửi lại lời mời",
+    "cancel_invite": "Hủy lời mời",
+    "remove_from_org": "Xóa khỏi tổ chức",
+    "invite_title": "Mời nhân sự mới",
+    "all_employees": "Nhân viên & Lời mời",
+    "structure_tab": "Sơ đồ & Chi nhánh",
+    "invite_cancelled": "Hủy lời mời thành công!",
+    "employee_removed": "Xóa nhân sự thành công!"
   },
   "guide": {
     "skip": "Bỏ qua",

@@ -131,8 +131,11 @@ export class AuthController {
 
   @Post('activate')
   @HttpCode(HttpStatus.OK)
-  async activate(@Body('token') token: string) {
-    const result = await this.authService.activate(token);
+  async activate(
+    @Body('token') token: string,
+    @Body('password') password?: string,
+  ) {
+    const result = await this.authService.activate(token, password);
     return {
       success: true,
       messageKey: 'auth.activation_success',

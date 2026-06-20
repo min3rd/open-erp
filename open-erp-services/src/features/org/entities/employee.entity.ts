@@ -35,6 +35,9 @@ export class Employee {
   @Column({ name: 'last_name', type: 'varchar', length: 100 })
   lastName: string;
 
+  @Column({ name: 'email', type: 'varchar', length: 255, nullable: true })
+  email: string | null;
+
   @Column({ name: 'status', type: 'varchar', length: 50, default: 'Working' })
   status: string; // 'Working' | 'Probationary' | 'Terminated'
 

@@ -9,6 +9,9 @@ import { BranchController } from './branch.controller';
 import { BranchService } from './branch.service';
 import { DepartmentController } from './department.controller';
 import { DepartmentService } from './department.service';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
+import { MailModule } from '../../core/mail/mail.module';
 
 @Module({
   imports: [
@@ -16,10 +19,11 @@ import { DepartmentService } from './department.service';
     JwtModule.register({
       secret: 'super-secret-jwt-key',
     }),
+    MailModule,
   ],
-  controllers: [BranchController, DepartmentController],
-  providers: [BranchService, DepartmentService],
-  exports: [BranchService, DepartmentService],
+  controllers: [BranchController, DepartmentController, UserController],
+  providers: [BranchService, DepartmentService, UserService],
+  exports: [BranchService, DepartmentService, UserService],
 })
 export class OrgModule {}
 

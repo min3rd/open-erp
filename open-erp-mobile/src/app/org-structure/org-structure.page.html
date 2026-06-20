@@ -6,191 +6,262 @@
       <ion-button (click)="triggerGuide()">
         <oerp-icon slot="icon-only" name="help-circle" class="text-rose-gold-500"></oerp-icon>
       </ion-button>
-      <!-- Short buttons on toolbar -->
-      <ion-button (click)="openAddBranch()">
-        <ion-icon slot="icon-only" name="location"></ion-icon>
-      </ion-button>
-      <ion-button (click)="openAddDepartment()">
-        <ion-icon slot="icon-only" name="add-circle"></ion-icon>
-      </ion-button>
+      
+      <!-- Show add branch / dept when in structure tab -->
+      @if (selectedSegment() === 'structure') {
+        <ion-button (click)="openAddBranch()">
+          <ion-icon slot="icon-only" name="location"></ion-icon>
+        </ion-button>
+        <ion-button (click)="openAddDepartment()">
+          <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+        </ion-button>
+      }
+      
+      <!-- Show invite button when in employees tab -->
+      @if (selectedSegment() === 'employees') {
+        <ion-button (click)="openInviteModal()">
+          <ion-icon slot="icon-only" name="people"></ion-icon>
+        </ion-button>
+      }
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-  <!-- Top instructions/stats -->
-  <div class="mb-4 text-xs text-slate-500 dark:text-slate-400">
-    {{ 'org.mobile_subtitle' | transloco }}
+  <!-- Segment control -->
+  <div class="mb-4">
+    <ion-segment [value]="selectedSegment()" (ionChange)="selectedSegment.set($event.detail.value === 'employees' ? 'employees' : 'structure')" class="oerp-segment">
+      <ion-segment-button value="structure">
+        <ion-label class="text-xs font-bold">{{ 'org.structure_tab' | transloco }}</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="employees">
+        <ion-label class="text-xs font-bold">{{ 'org.all_employees' | transloco }}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
   </div>
 
-  <!-- Branches List -->
-  <div id="branches-section-mobile" class="mb-6">
-    <h3 class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
-      {{ 'org.branches' | transloco }} ({{ branches().length }})
-    </h3>
+  @if (selectedSegment() === 'structure') {
+    <!-- Top instructions/stats -->
+    <div class="mb-4 text-xs text-slate-500 dark:text-slate-400">
+      {{ 'org.mobile_subtitle' | transloco }}
+    </div>
+
+    <!-- Branches List -->
+    <div id="branches-section-mobile" class="mb-6">
+      <h3 class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
+        {{ 'org.branches' | transloco }} ({{ branches().length }})
+      </h3>
+      <ion-list class="rounded-xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm" [inset]="true" style="margin: 0;">
+        @for (branch of branches(); track branch.id) {
+          <ion-item
+            button
+            (click)="selectBranch(branch)"
+            lines="full"
+            class="oerp-mobile-item"
+          >
+            <ion-icon slot="start" name="location" class="text-rose-gold-500"></ion-icon>
+            <ion-label>
+              <h2 class="font-semibold text-sm">{{ branch.name }}</h2>
+              <p class="text-xs text-slate-400 dark:text-slate-500">{{ branch.address || '---' }}</p>
+            </ion-label>
+            <ion-icon slot="end" name="chevron-forward" size="small" class="text-slate-300"></ion-icon>
+          </ion-item>
+        }
+        @if (branches().length === 0) {
+          <ion-item lines="none">
+            <ion-label class="text-sm text-slate-400 italic text-center">
+              {{ 'org.empty_branches' | transloco }}
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    </div>
+
+    <!-- Departments Tree Section -->
+    <div id="depts-section-mobile" class="mb-6">
+      <h3 class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
+        {{ 'org.departments' | transloco }}
+      </h3>
+      
+      <div class="rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800 overflow-hidden shadow-sm p-3">
+        @if (departmentsTree().length > 0) {
+          <oerp-tree-view
+            [nodes]="departmentsTree()"
+            [activeNodeId]="activeNodeId()"
+            [enableDragAndDrop]="false"
+            (nodeSelected)="selectDept($event)"
+          ></oerp-tree-view>
+        }
+        
+        @if (departmentsTree().length === 0) {
+          <div id="seed-section-mobile" class="flex flex-col gap-4 p-4 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50/50 dark:bg-slate-800/50 mt-2">
+            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              {{ 'org.seeding_hint' | transloco }}
+            </p>
+            <oerp-select
+              [label]="'org.select_industry' | transloco"
+              [options]="industryOptions()"
+              [control]="industryControl"
+            ></oerp-select>
+            <oerp-button
+              variant="primary"
+              [label]="'org.seed_data' | transloco"
+              [disabled]="!selectedIndustry()"
+              (onClick)="seedData()"
+              [icon]="'plus-circle'"
+            ></oerp-button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Detail Display sheet if item is selected and action sheet is not shown yet -->
+    @if (selectedNode(); as node) {
+      <div id="details-section-mobile" class="mt-4">
+        <ion-card class="m-0 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden" style="border-radius: 12px;">
+          <ion-card-header class="bg-rose-gold-500/5 dark:bg-rose-gold-950/5 flex flex-col gap-1 border-b border-slate-100 dark:border-slate-800">
+            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full w-max"
+                  [ngClass]="node.type === 'branch' ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/20' : 'bg-rose-50 text-rose-600 dark:bg-rose-950/20'">
+              {{ (node.type === 'branch' ? 'org.branches' : 'org.departments') | transloco }}
+            </span>
+            <ion-card-title class="font-bold text-lg text-slate-900 dark:text-white mt-1">
+              {{ node.data.name }}
+            </ion-card-title>
+          </ion-card-header>
+
+          <ion-card-content class="ion-padding flex flex-col gap-4 text-sm">
+            <!-- Branch Metadata -->
+            @if (node.type === 'branch') {
+              <div class="flex flex-col gap-3">
+                <div class="flex items-start gap-2">
+                  <ion-icon name="location" class="text-rose-gold-500 mt-0.5"></ion-icon>
+                  <div>
+                    <span class="text-xs text-slate-400 block">{{ 'org.address' | transloco }}</span>
+                    <span class="font-medium text-slate-700 dark:text-slate-200">{{ node.data.address || '---' }}</span>
+                  </div>
+                </div>
+                <div class="flex items-start gap-2">
+                  <ion-icon name="call" class="text-rose-gold-500 mt-0.5"></ion-icon>
+                  <div>
+                    <span class="text-xs text-slate-400 block">{{ 'org.phone' | transloco }}</span>
+                    <span class="font-medium text-slate-700 dark:text-slate-200">{{ node.data.phone || '---' }}</span>
+                  </div>
+                </div>
+                <div class="flex items-start gap-2">
+                  <ion-icon name="mail" class="text-rose-gold-500 mt-0.5"></ion-icon>
+                  <div>
+                    <span class="text-xs text-slate-400 block">{{ 'org.email' | transloco }}</span>
+                    <span class="font-medium text-slate-700 dark:text-slate-200">{{ node.data.email || '---' }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Department Metadata -->
+            @if (node.type === 'department') {
+              <div class="flex flex-col gap-3">
+                <div class="flex items-start gap-2">
+                  <ion-icon name="location" class="text-rose-gold-500 mt-0.5"></ion-icon>
+                  <div>
+                    <span class="text-xs text-slate-400 block">{{ 'org.branches' | transloco }}</span>
+                    <span class="font-medium text-slate-700 dark:text-slate-200">{{ node.data.branch?.name || '---' }}</span>
+                  </div>
+                </div>
+                <div class="flex items-start gap-2">
+                  <ion-icon name="person" class="text-rose-gold-500 mt-0.5"></ion-icon>
+                  <div>
+                    <span class="text-xs text-slate-400 block">{{ 'org.manager' | transloco }}</span>
+                    <span class="font-medium text-slate-700 dark:text-slate-200">{{ node.data.manager?.email || '---' }}</span>
+                  </div>
+                </div>
+                <div class="flex items-start gap-2">
+                  <ion-icon name="arrow-forward" class="text-rose-gold-500 mt-0.5"></ion-icon>
+                  <div>
+                    <span class="text-xs text-slate-400 block">{{ 'org.parent_department' | transloco }}</span>
+                    <span class="font-medium text-slate-700 dark:text-slate-200">{{ node.data.parent?.name || ('org.no_parent' | transloco) }}</span>
+                  </div>
+                </div>
+
+                <!-- Employees list -->
+                <div class="border-t border-slate-100 dark:border-slate-800 pt-4 mt-2">
+                  <h4 class="font-bold text-sm text-slate-900 dark:text-white mb-2 flex items-center gap-1.5">
+                    <ion-icon name="people" class="text-rose-gold-500"></ion-icon>
+                    {{ 'org.employees' | transloco }} ({{ selectedNodeEmployees().length }})
+                  </h4>
+                  <div class="flex flex-col gap-2 max-h-[250px] overflow-y-auto">
+                    @for (emp of selectedNodeEmployees(); track emp.id) {
+                      <div
+                        class="flex justify-between items-center p-2 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800"
+                      >
+                        <div>
+                          <div class="font-semibold text-xs text-slate-700 dark:text-slate-200">{{ emp.firstName }} {{ emp.lastName }}</div>
+                          <div class="text-[10px] text-slate-400">{{ emp.email || '---' }}</div>
+                        </div>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400">
+                          {{ 'org.status_' + emp.status | transloco }}
+                        </span>
+                      </div>
+                    }
+                    @if (selectedNodeEmployees().length === 0) {
+                      <div class="text-xs text-slate-400 italic text-center p-4">
+                        {{ 'org.no_employees' | transloco }}
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </ion-card-content>
+        </ion-card>
+      </div>
+    }
+  } @else {
+    <!-- Employees & Invites tab -->
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+        {{ 'org.all_employees' | transloco }} ({{ invitedUsers().length }})
+      </h3>
+      <oerp-button
+        variant="primary"
+        [icon]="'plus-circle'"
+        [label]="'org.invite_employee' | transloco"
+        (onClick)="openInviteModal()"
+      ></oerp-button>
+    </div>
+
     <ion-list class="rounded-xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm" [inset]="true" style="margin: 0;">
-      @for (branch of branches(); track branch.id) {
-        <ion-item
-          button
-          (click)="selectBranch(branch)"
-          lines="full"
-          class="oerp-mobile-item"
-        >
-          <ion-icon slot="start" name="location" class="text-rose-gold-500"></ion-icon>
+      @for (user of invitedUsers(); track user.id) {
+        <ion-item button (click)="openActionSheetForUser(user)" lines="full" class="oerp-mobile-item">
+          <ion-icon slot="start" [name]="user.status === 'Pending' ? 'mail' : 'person'" class="text-rose-gold-500"></ion-icon>
           <ion-label>
-            <h2 class="font-semibold text-sm">{{ branch.name }}</h2>
-            <p class="text-xs text-slate-400 dark:text-slate-500">{{ branch.address || '---' }}</p>
+            <h2 class="font-semibold text-sm">{{ user.firstName }} {{ user.lastName }}</h2>
+            <p class="text-xs text-slate-400 dark:text-slate-500">{{ user.email }}</p>
+            <div class="flex gap-2 mt-1">
+              @if (user.roleName) {
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
+                  {{ user.roleName }}
+                </span>
+              }
+              @if (user.department?.name) {
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
+                  {{ user.department.name }}
+                </span>
+              }
+            </div>
           </ion-label>
-          <ion-icon slot="end" name="chevron-forward" size="small" class="text-slate-300"></ion-icon>
+          <ion-badge slot="end" [color]="user.status === 'Pending' ? 'warning' : 'success'" class="text-[10px] font-bold px-2 py-1 rounded-full">
+            {{ 'org.status_' + user.status | transloco }}
+          </ion-badge>
         </ion-item>
       }
-      @if (branches().length === 0) {
+      @if (invitedUsers().length === 0) {
         <ion-item lines="none">
           <ion-label class="text-sm text-slate-400 italic text-center">
-            {{ 'org.empty_branches' | transloco }}
+            Không có dữ liệu nhân sự.
           </ion-label>
         </ion-item>
       }
     </ion-list>
-  </div>
-
-  <!-- Departments Tree Section -->
-  <div id="depts-section-mobile" class="mb-6">
-    <h3 class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
-      {{ 'org.departments' | transloco }}
-    </h3>
-    
-    <div class="rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800 overflow-hidden shadow-sm p-3">
-      @if (departmentsTree().length > 0) {
-        <oerp-tree-view
-          [nodes]="departmentsTree()"
-          [activeNodeId]="activeNodeId()"
-          [enableDragAndDrop]="false"
-          (nodeSelected)="selectDept($event)"
-        ></oerp-tree-view>
-      }
-      
-      @if (departmentsTree().length === 0) {
-        <div id="seed-section-mobile" class="flex flex-col gap-4 p-4 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50/50 dark:bg-slate-800/50 mt-2">
-          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            {{ 'org.seeding_hint' | transloco }}
-          </p>
-          <oerp-select
-            [label]="'org.select_industry' | transloco"
-            [options]="industryOptions()"
-            [control]="industryControl"
-          ></oerp-select>
-          <oerp-button
-            variant="primary"
-            [label]="'org.seed_data' | transloco"
-            [disabled]="!selectedIndustry()"
-            (onClick)="seedData()"
-            [icon]="'plus-circle'"
-          ></oerp-button>
-        </div>
-      }
-    </div>
-  </div>
-
-  <!-- Detail Display sheet if item is selected and action sheet is not shown yet -->
-  @if (selectedNode(); as node) {
-    <div id="details-section-mobile" class="mt-4">
-      <ion-card class="m-0 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden" style="border-radius: 12px;">
-        <ion-card-header class="bg-rose-gold-500/5 dark:bg-rose-gold-950/5 flex flex-col gap-1 border-b border-slate-100 dark:border-slate-800">
-          <span class="px-2 py-0.5 text-[10px] font-bold rounded-full w-max"
-                [ngClass]="node.type === 'branch' ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/20' : 'bg-rose-50 text-rose-600 dark:bg-rose-950/20'">
-            {{ (node.type === 'branch' ? 'org.branches' : 'org.departments') | transloco }}
-          </span>
-          <ion-card-title class="font-bold text-lg text-slate-900 dark:text-white mt-1">
-            {{ node.data.name }}
-          </ion-card-title>
-        </ion-card-header>
-
-        <ion-card-content class="ion-padding flex flex-col gap-4 text-sm">
-          <!-- Branch Metadata -->
-          @if (node.type === 'branch') {
-            <div class="flex flex-col gap-3">
-              <div class="flex items-start gap-2">
-                <ion-icon name="location" class="text-rose-gold-500 mt-0.5"></ion-icon>
-                <div>
-                  <span class="text-xs text-slate-400 block">{{ 'org.address' | transloco }}</span>
-                  <span class="font-medium text-slate-700 dark:text-slate-200">{{ node.data.address || '---' }}</span>
-                </div>
-              </div>
-              <div class="flex items-start gap-2">
-                <ion-icon name="call" class="text-rose-gold-500 mt-0.5"></ion-icon>
-                <div>
-                  <span class="text-xs text-slate-400 block">{{ 'org.phone' | transloco }}</span>
-                  <span class="font-medium text-slate-700 dark:text-slate-200">{{ node.data.phone || '---' }}</span>
-                </div>
-              </div>
-              <div class="flex items-start gap-2">
-                <ion-icon name="mail" class="text-rose-gold-500 mt-0.5"></ion-icon>
-                <div>
-                  <span class="text-xs text-slate-400 block">{{ 'org.email' | transloco }}</span>
-                  <span class="font-medium text-slate-700 dark:text-slate-200">{{ node.data.email || '---' }}</span>
-                </div>
-              </div>
-            </div>
-          }
-
-          <!-- Department Metadata -->
-          @if (node.type === 'department') {
-            <div class="flex flex-col gap-3">
-              <div class="flex items-start gap-2">
-                <ion-icon name="location" class="text-rose-gold-500 mt-0.5"></ion-icon>
-                <div>
-                  <span class="text-xs text-slate-400 block">{{ 'org.branches' | transloco }}</span>
-                  <span class="font-medium text-slate-700 dark:text-slate-200">{{ node.data.branch?.name || '---' }}</span>
-                </div>
-              </div>
-              <div class="flex items-start gap-2">
-                <ion-icon name="person" class="text-rose-gold-500 mt-0.5"></ion-icon>
-                <div>
-                  <span class="text-xs text-slate-400 block">{{ 'org.manager' | transloco }}</span>
-                  <span class="font-medium text-slate-700 dark:text-slate-200">{{ node.data.manager?.email || '---' }}</span>
-                </div>
-              </div>
-              <div class="flex items-start gap-2">
-                <ion-icon name="arrow-forward" class="text-rose-gold-500 mt-0.5"></ion-icon>
-                <div>
-                  <span class="text-xs text-slate-400 block">{{ 'org.parent_department' | transloco }}</span>
-                  <span class="font-medium text-slate-700 dark:text-slate-200">{{ node.data.parent?.name || ('org.no_parent' | transloco) }}</span>
-                </div>
-              </div>
-
-              <!-- Employees list -->
-              <div class="border-t border-slate-100 dark:border-slate-800 pt-4 mt-2">
-                <h4 class="font-bold text-sm text-slate-900 dark:text-white mb-2 flex items-center gap-1.5">
-                  <ion-icon name="people" class="text-rose-gold-500"></ion-icon>
-                  {{ 'org.employees' | transloco }} ({{ selectedNodeEmployees().length }})
-                </h4>
-                <div class="flex flex-col gap-2 max-h-[250px] overflow-y-auto">
-                  @for (emp of selectedNodeEmployees(); track emp.id) {
-                    <div
-                      class="flex justify-between items-center p-2 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800"
-                    >
-                      <div>
-                        <div class="font-semibold text-xs text-slate-700 dark:text-slate-200">{{ emp.firstName }} {{ emp.lastName }}</div>
-                        <div class="text-[10px] text-slate-400">{{ emp.email || '---' }}</div>
-                      </div>
-                      <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400">
-                        {{ 'org.status_' + emp.status | transloco }}
-                      </span>
-                    </div>
-                  }
-                  @if (selectedNodeEmployees().length === 0) {
-                    <div class="text-xs text-slate-400 italic text-center p-4">
-                      {{ 'org.no_employees' | transloco }}
-                    </div>
-                  }
-                </div>
-              </div>
-            </div>
-          }
-        </ion-card-content>
-      </ion-card>
-    </div>
   }
 
   <!-- Action Sheet (for Branch & Department item actions) -->

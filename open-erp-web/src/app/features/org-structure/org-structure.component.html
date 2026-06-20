@@ -207,6 +207,12 @@
                   <oerp-icon name="users" class="text-rose-gold-500" [size]="20"></oerp-icon>
                   {{ 'org.employees' | transloco }} ({{ selectedNodeEmployees().length }})
                 </h3>
+                <oerp-button
+                  variant="primary"
+                  [icon]="'user-plus'"
+                  [label]="'org.invite_employee' | transloco"
+                  (onClick)="openInviteModal()"
+                ></oerp-button>
               </div>
 
               <!-- Employees Table -->
@@ -361,4 +367,57 @@
       (onClose)="showGuide.set(false)"
     ></oerp-guide-tour>
   }
+
+  <!-- Invite Modal -->
+  <oerp-modal
+    [title]="'org.invite_employee' | transloco"
+    [isOpen]="isInviteModalOpen()"
+    (onClose)="isInviteModalOpen.set(false)"
+  >
+    <form [formGroup]="inviteForm" (ngSubmit)="saveInvite()" class="flex flex-col gap-4 py-2">
+      <oerp-input
+        [control]="getInviteControl('email')"
+        [label]="'Email'"
+        [placeholder]="'Nhập email nhân viên...'"
+      ></oerp-input>
+
+      <div class="grid grid-cols-2 gap-4">
+        <oerp-input
+          [control]="getInviteControl('firstName')"
+          [label]="'Họ và đệm'"
+          [placeholder]="'Ví dụ: Nguyễn Văn'"
+        ></oerp-input>
+        <oerp-input
+          [control]="getInviteControl('lastName')"
+          [label]="'Tên'"
+          [placeholder]="'Ví dụ: A'"
+        ></oerp-input>
+      </div>
+
+      <oerp-select
+        [control]="getInviteControl('departmentId')"
+        [label]="'org.departments' | transloco"
+        [options]="deptOptions()"
+      ></oerp-select>
+
+      <oerp-select
+        [control]="getInviteControl('roleId')"
+        [label]="'org.role' | transloco"
+        [options]="roleOptions()"
+      ></oerp-select>
+
+      <div class="flex justify-end gap-3 mt-4 border-t pt-4 border-slate-100 dark:border-slate-700">
+        <oerp-button
+          variant="secondary"
+          [label]="'org.cancel' | transloco"
+          (onClick)="isInviteModalOpen.set(false)"
+        ></oerp-button>
+        <oerp-button
+          type="submit"
+          [label]="'org.confirm' | transloco"
+          [disabled]="inviteForm.invalid"
+        ></oerp-button>
+      </div>
+    </form>
+  </oerp-modal>
 </div>

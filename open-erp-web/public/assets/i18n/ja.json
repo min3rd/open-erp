@@ -42,7 +42,10 @@
     "user_register_success": "アカウントの登録が成功しました！",
     "select_workspace": "ワークスペースの選択",
     "select_workspace_desc": "アカウントは複数のワークスペースに関連付けられています。続行するには1つ選択してください。",
-    "back_to_login": "ログインに戻る"
+    "back_to_login": "ログインに戻る",
+    "confirm_password": "パスワードの確認",
+    "activate_account": "アカウントを有効化",
+    "passwords_must_match": "パスワードが一致しません"
   },
   "validation": {
     "company_name_required": "会社名は必須項目です。",
@@ -133,7 +136,23 @@
     "no_selection_title": "支社または部門が選択されていません",
     "mobile_subtitle": "企業名簿と組織図を表示します。支社または部門をタップして、管理または所属職員を表示します。",
     "status_Working": "勤務中",
-    "status_Probationary": "試用期間中"
+    "status_Probationary": "試用期間中",
+    "status_Pending": "有効化待ち",
+    "status_Active": "アクティブ",
+    "invite_employee": "従業員を招待",
+    "select_role": "役割を選択...",
+    "select_department": "部門を選択...",
+    "invite_sent_success": "招待メールが正常に送信されました！",
+    "role": "役割",
+    "invitations_list": "招待リスト",
+    "resend_invite": "招待を再送信",
+    "cancel_invite": "招待をキャンセル",
+    "remove_from_org": "組織から削除",
+    "invite_title": "新規従業員を招待",
+    "all_employees": "従業員と招待",
+    "structure_tab": "構成と支社",
+    "invite_cancelled": "招待が正常にキャンセルされました！",
+    "employee_removed": "従業員が正常に削除されました！"
   },
   "guide": {
     "skip": "スキップ",

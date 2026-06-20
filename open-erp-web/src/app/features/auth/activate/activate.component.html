@@ -9,7 +9,7 @@
       <oerp-icon name="user-check" [size]="24"></oerp-icon>
     </div>
     <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-      {{ 'auth.activating' | transloco }}
+      {{ 'auth.app_onboarding' | transloco }}
     </h2>
   </div>
 
@@ -49,6 +49,110 @@
             class="w-full mt-4"
           ></oerp-button>
         </div>
+      }
+
+      <!-- Password Setup Form -->
+      @if (!isLoading() && !successMessage() && !errorMessage() && token()) {
+        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">
+          {{ 'auth.register_user_title' | transloco }}
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">
+          {{ 'auth.register_user_subtitle' | transloco }}
+        </p>
+
+        <form [formGroup]="activateForm" (ngSubmit)="onSubmit()" class="space-y-4 text-left">
+          <oerp-input
+            [label]="'auth.password' | transloco"
+            [placeholder]="'auth.password' | transloco"
+            type="password"
+            [control]="getControl('password')"
+            [errorMessage]="getErrorMessage('password')"
+            prefixIcon="lock"
+          ></oerp-input>
+
+          @if (passwordValue()) {
+            <div class="mt-1.5 space-y-1 animate-fade-in">
+              <!-- Strength Bars -->
+              <div class="flex gap-1 h-1">
+                <div
+                  [ngClass]="[
+                    'flex-1 rounded-full transition-all duration-300',
+                    passwordStrength() === 'weak'
+                      ? 'bg-red-500'
+                      : passwordStrength() === 'medium'
+                        ? 'bg-amber-500'
+                        : passwordStrength() === 'strong'
+                          ? 'bg-emerald-500'
+                          : 'bg-slate-200 dark:bg-slate-700',
+                  ]"
+                ></div>
+                <div
+                  [ngClass]="[
+                    'flex-1 rounded-full transition-all duration-300',
+                    passwordStrength() === 'medium'
+                      ? 'bg-amber-500'
+                      : passwordStrength() === 'strong'
+                        ? 'bg-emerald-500'
+                        : 'bg-slate-200 dark:bg-slate-700',
+                  ]"
+                ></div>
+                <div
+                  [ngClass]="[
+                    'flex-1 rounded-full transition-all duration-300',
+                    passwordStrength() === 'strong'
+                      ? 'bg-emerald-500'
+                      : 'bg-slate-200 dark:bg-slate-700',
+                  ]"
+                ></div>
+              </div>
+              <!-- Strength Text Label -->
+              <div class="flex justify-between items-center text-[10px] font-semibold select-none">
+                <span class="text-slate-500 dark:text-slate-400">
+                  {{ 'auth.password_strength' | transloco }}:
+                </span>
+                <span
+                  [ngClass]="[
+                    passwordStrength() === 'weak'
+                      ? 'text-red-500'
+                      : passwordStrength() === 'medium'
+                        ? 'text-amber-500'
+                        : passwordStrength() === 'strong'
+                          ? 'text-emerald-500'
+                          : '',
+                  ]"
+                >
+                  {{
+                    passwordStrength() === 'weak'
+                      ? ('auth.password_weak' | transloco)
+                      : passwordStrength() === 'medium'
+                        ? ('auth.password_medium' | transloco)
+                        : passwordStrength() === 'strong'
+                          ? ('auth.password_strong' | transloco)
+                          : ''
+                  }}
+                </span>
+              </div>
+            </div>
+          }
+
+          <oerp-input
+            [label]="'auth.confirm_password' | transloco"
+            [placeholder]="'auth.confirm_password' | transloco"
+            type="password"
+            [control]="getControl('confirmPassword')"
+            [errorMessage]="getErrorMessage('confirmPassword')"
+            prefixIcon="lock"
+          ></oerp-input>
+
+          <div class="pt-2">
+            <oerp-button
+              type="submit"
+              [label]="'auth.activate_account' | transloco"
+              [disabled]="activateForm.invalid"
+              class="w-full flex justify-center"
+            ></oerp-button>
+          </div>
+        </form>
       }
     </div>
   </div>

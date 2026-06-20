@@ -18,7 +18,11 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
-  IonActionSheet
+  IonActionSheet,
+  IonSegment,
+  IonSegmentButton,
+  IonBadge,
+  ModalController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -35,7 +39,10 @@ import {
   person,
   arrowForward,
   close,
-  people
+  people,
+  paperPlane,
+  refresh,
+  closeCircle
 } from 'ionicons/icons';
 import {
   ModalComponent,
@@ -49,6 +56,7 @@ import {
   GuideTourComponent,
   TourStep
 } from '@open-erp/shared';
+import { InviteModalComponent } from './invite-modal/invite-modal.component';
 
 @Component({
   selector: 'app-org-structure',
@@ -73,6 +81,9 @@ import {
     IonCardTitle,
     IonCardContent,
     IonActionSheet,
+    IonSegment,
+    IonSegmentButton,
+    IonBadge,
     ModalComponent,
     ButtonComponent,
     InputComponent,
@@ -89,12 +100,17 @@ export class OrgStructurePage implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly translocoService = inject(TranslocoService);
   private readonly toastService = inject(ToastService);
+  private readonly modalController = inject(ModalController);
 
   // Data Signals
   branches = signal<any[]>([]);
   departmentsTree = signal<TreeNode[]>([]);
   departmentsFlat = signal<any[]>([]);
   users = signal<any[]>([]);
+  invitedUsers = signal<any[]>([]);
+  roles = signal<any[]>([]);
+  selectedSegment = signal<'structure' | 'employees'>('structure');
+  selectedUser = signal<any | null>(null);
   
   // Selection
   selectedNode = signal<{ type: 'branch' | 'department'; data: any } | null>(null);
@@ -193,7 +209,10 @@ export class OrgStructurePage implements OnInit {
       person,
       arrowForward,
       close,
-      people
+      people,
+      paperPlane,
+      refresh,
+      closeCircle
     });
   }
 
@@ -269,6 +288,24 @@ export class OrgStructurePage implements OnInit {
       next: (res) => {
         if (res.success) {
           this.users.set(res.data || []);
+        }
+      }
+    });
+
+    // 5. Load Invited Users
+    this.http.get<any>('/api/v1/org/users').subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.invitedUsers.set(res.data || []);
+        }
+      }
+    });
+
+    // 6. Load Roles
+    this.http.get<any>('/api/v1/auth/roles').subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.roles.set(res.data || []);
         }
       }
     });
@@ -483,6 +520,110 @@ export class OrgStructurePage implements OnInit {
         if (res.success) {
           this.toastService.showSuccess(this.translocoService.translate('org.department_created'));
           this.industryControl.reset('');
+          this.loadData();
+        }
+      },
+      error: (err) => {
+        const errorKey = err.error?.error?.messageKey || 'validation.error_occurred';
+        this.toastService.showError(this.translocoService.translate(errorKey));
+      }
+    });
+  }
+
+  async openInviteModal() {
+    const modal = await this.modalController.create({
+      component: InviteModalComponent,
+      componentProps: {
+        selectedDepartmentId: this.selectedNode()?.type === 'department' ? this.selectedNode()?.data.id : null,
+        departments: this.departmentsFlat(),
+        roles: this.roles(),
+      }
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+    if (data && data.success) {
+      this.loadData();
+    }
+  }
+
+  openActionSheetForUser(user: any): void {
+    this.selectedUser.set(user);
+    const isPending = user.status === 'Pending';
+
+    if (isPending) {
+      this.actionSheetButtons = [
+        {
+          text: this.translocoService.translate('org.resend_invite'),
+          icon: 'refresh',
+          handler: () => {
+            this.resendInvite(user.id);
+          }
+        },
+        {
+          text: this.translocoService.translate('org.cancel_invite'),
+          role: 'destructive',
+          icon: 'trash',
+          handler: () => {
+            this.cancelInvite(user.id, user);
+          }
+        },
+        {
+          text: this.translocoService.translate('org.cancel'),
+          role: 'cancel',
+          icon: 'close'
+        }
+      ];
+    } else {
+      this.actionSheetButtons = [
+        {
+          text: this.translocoService.translate('org.remove_from_org'),
+          role: 'destructive',
+          icon: 'trash',
+          handler: () => {
+            this.cancelInvite(user.id, user);
+          }
+        },
+        {
+          text: this.translocoService.translate('org.cancel'),
+          role: 'cancel',
+          icon: 'close'
+        }
+      ];
+    }
+    this.isActionSheetOpen.set(true);
+  }
+
+  resendInvite(id: string): void {
+    this.http.post<any>(`/api/v1/org/users/${id}/resend`, {}).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.toastService.showSuccess(this.translocoService.translate('org.invite_sent_success'));
+          this.loadData();
+        }
+      },
+      error: (err) => {
+        const errorKey = err.error?.error?.messageKey || 'validation.error_occurred';
+        this.toastService.showError(this.translocoService.translate(errorKey));
+      }
+    });
+  }
+
+  cancelInvite(id: string, user: any): void {
+    const confirmMsg = user.status === 'Pending'
+      ? this.translocoService.translate('org.cancel_invite') + '?'
+      : this.translocoService.translate('org.remove_from_org') + '?';
+
+    if (!confirm(confirmMsg)) return;
+
+    this.http.delete<any>(`/api/v1/org/users/${id}`).subscribe({
+      next: (res) => {
+        if (res.success) {
+          const successMsg = user.status === 'Pending'
+            ? this.translocoService.translate('org.invite_cancelled')
+            : this.translocoService.translate('org.employee_removed');
+          this.toastService.showSuccess(successMsg);
           this.loadData();
         }
       },

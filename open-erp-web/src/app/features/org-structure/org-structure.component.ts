@@ -52,6 +52,7 @@ export class OrgStructureComponent implements OnInit {
   // Modal State Signals
   isBranchModalOpen = signal<boolean>(false);
   isDepartmentModalOpen = signal<boolean>(false);
+  isInviteModalOpen = signal<boolean>(false);
   editingBranch = signal<any | null>(null);
   editingDepartment = signal<any | null>(null);
 
@@ -98,6 +99,8 @@ export class OrgStructureComponent implements OnInit {
   // Forms
   branchForm!: FormGroup;
   departmentForm!: FormGroup;
+  inviteForm!: FormGroup;
+  roles = signal<any[]>([]);
 
   // Active Node ID helper
   activeNodeId = computed(() => {
@@ -125,6 +128,16 @@ export class OrgStructureComponent implements OnInit {
     return [{ value: '', label: this.translocoService.translate('org.no_parent') }, ...list];
   });
 
+  deptOptions = computed(() => {
+    const list = this.departmentsFlat().map(d => ({ value: d.id, label: d.name }));
+    return [{ value: '', label: this.translocoService.translate('org.select_department') }, ...list];
+  });
+
+  roleOptions = computed(() => {
+    const list = this.roles().map(r => ({ value: r.id, label: r.name }));
+    return [{ value: '', label: this.translocoService.translate('org.select_role') }, ...list];
+  });
+
   ngOnInit(): void {
     this.initForms();
     this.loadData();
@@ -148,6 +161,10 @@ export class OrgStructureComponent implements OnInit {
     return this.departmentForm.get(name) as FormControl;
   }
 
+  getInviteControl(name: string): FormControl {
+    return this.inviteForm.get(name) as FormControl;
+  }
+
   private initForms(): void {
     this.branchForm = this.fb.group({
       name: ['', [Validators.required]],
@@ -161,6 +178,14 @@ export class OrgStructureComponent implements OnInit {
       parentId: [''],
       branchId: [''],
       managerId: ['']
+    });
+
+    this.inviteForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      firstName: ['', [Validators.required]],
+      lastName: ['', [Validators.required]],
+      departmentId: [''],
+      roleId: ['']
     });
   }
 
@@ -197,6 +222,15 @@ export class OrgStructureComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.users.set(res.data || []);
+        }
+      }
+    });
+
+    // 5. Load Roles
+    this.http.get<any>('/api/v1/auth/roles').subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.roles.set(res.data || []);
         }
       }
     });
@@ -408,6 +442,46 @@ export class OrgStructureComponent implements OnInit {
           this.toastService.showSuccess(this.translocoService.translate('org.department_created'));
           this.industryControl.reset('');
           this.loadData();
+        }
+      },
+      error: (err) => {
+        const errorKey = err.error?.error?.messageKey || 'validation.error_occurred';
+        this.toastService.showError(this.translocoService.translate(errorKey));
+      }
+    });
+  }
+
+  openInviteModal(): void {
+    this.inviteForm.reset({
+      email: '',
+      firstName: '',
+      lastName: '',
+      departmentId: this.selectedNode()?.type === 'department' ? this.selectedNode()?.data.id : '',
+      roleId: '',
+    });
+    this.isInviteModalOpen.set(true);
+  }
+
+  saveInvite(): void {
+    if (this.inviteForm.invalid) return;
+    const body = this.inviteForm.value;
+    const cleanedBody = {
+      email: body.email,
+      firstName: body.firstName,
+      lastName: body.lastName,
+      departmentId: body.departmentId === '' ? null : body.departmentId,
+      roleId: body.roleId === '' ? null : body.roleId,
+    };
+
+    this.http.post<any>('/api/v1/org/users/invite', cleanedBody).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.toastService.showSuccess(this.translocoService.translate('org.invite_sent_success'));
+          this.isInviteModalOpen.set(false);
+          const current = this.selectedNode();
+          if (current && current.type === 'department' && current.data.id === cleanedBody.departmentId) {
+            this.loadEmployees(current.data.id);
+          }
         }
       },
       error: (err) => {

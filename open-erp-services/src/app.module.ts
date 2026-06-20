@@ -1,6 +1,7 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { BullModule } from '@nestjs/bullmq';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Tenant } from './core/tenant/tenant.entity';
@@ -31,6 +32,15 @@ import { TenantMiddleware } from './core/tenant/tenant.middleware';
         database: configService.get<string>('DB_DATABASE', 'open_erp_dev'),
         entities: [Tenant, User, Branch, Department, Employee, Role, Permission],
         synchronize: configService.get<boolean>('DB_SYNCHRONIZE', true),
+      }),
+    }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get<string>('REDIS_HOST', 'localhost'),
+          port: configService.get<number>('REDIS_PORT', 6379),
+        },
       }),
     }),
     TypeOrmModule.forFeature([Tenant]),

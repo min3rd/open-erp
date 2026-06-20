@@ -1,0 +1,67 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="border-b border-slate-100 dark:border-slate-800">
+    <ion-title class="text-base font-bold text-slate-900 dark:text-white">
+      {{ 'org.invite_title' | transloco }}
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close" class="text-slate-500"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding bg-slate-50 dark:bg-slate-900">
+  <form [formGroup]="inviteForm" (ngSubmit)="submitInvite()" class="flex flex-col gap-5 py-2">
+    <!-- Email input -->
+    <oerp-input
+      [control]="getControl('email')"
+      [label]="'Email'"
+      [placeholder]="'Nhập email nhân viên...'"
+      prefixIcon="mail"
+    ></oerp-input>
+
+    <!-- First/Last Name Inputs -->
+    <div class="grid grid-cols-2 gap-4">
+      <oerp-input
+        [control]="getControl('firstName')"
+        [label]="'Họ và đệm'"
+        [placeholder]="'Nguyễn Văn'"
+      ></oerp-input>
+      <oerp-input
+        [control]="getControl('lastName')"
+        [label]="'Tên'"
+        [placeholder]="'A'"
+      ></oerp-input>
+    </div>
+
+    <!-- Department select -->
+    <oerp-select
+      [control]="getControl('departmentId')"
+      [label]="'org.departments' | transloco"
+      [options]="deptOptions"
+    ></oerp-select>
+
+    <!-- Role select -->
+    <oerp-select
+      [control]="getControl('roleId')"
+      [label]="'org.role' | transloco"
+      [options]="roleOptions"
+    ></oerp-select>
+
+    <!-- Confirm / Submit Buttons -->
+    <div class="flex justify-end gap-3 mt-6 border-t pt-5 border-slate-100 dark:border-slate-800">
+      <oerp-button
+        variant="secondary"
+        [label]="'org.cancel' | transloco"
+        (onClick)="dismiss()"
+        [disabled]="isLoading()"
+      ></oerp-button>
+      <oerp-button
+        type="submit"
+        [label]="'org.confirm' | transloco"
+        [disabled]="inviteForm.invalid || isLoading()"
+      ></oerp-button>
+    </div>
+  </form>
+</ion-content>
