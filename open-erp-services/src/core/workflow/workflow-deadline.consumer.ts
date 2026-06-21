@@ -41,7 +41,7 @@ export class WorkflowDeadlineConsumer extends WorkerHost implements OnModuleInit
       {},
       {
         repeat: {
-          cron: '0 * * * *', // every hour
+          every: 3600000, // every hour
         },
         jobId: 'scan-overdue-approvals-job',
       },

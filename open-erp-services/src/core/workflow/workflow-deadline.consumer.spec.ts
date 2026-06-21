@@ -72,7 +72,7 @@ describe('WorkflowDeadlineConsumer', () => {
         'scan-overdue-approvals',
         {},
         expect.objectContaining({
-          repeat: { cron: '0 * * * *' },
+          repeat: { every: 3600000 },
           jobId: 'scan-overdue-approvals-job',
         }),
       );

@@ -285,7 +285,7 @@ export class WorkflowService {
         // Completion time: MAX(actionAt) of approvers - createdAt of instance
         const actionTimes = apps
           .filter(a => a.actionAt && (a.status === 'APPROVED' || a.status === 'REJECTED'))
-          .map(a => new Date(a.actionAt).getTime());
+          .map(a => new Date(a.actionAt!).getTime());
         
         const completionTime = actionTimes.length > 0 ? Math.max(...actionTimes) : new Date(inst.createdAt).getTime();
         const start = new Date(inst.createdAt).getTime();
