@@ -23,4 +23,20 @@ export class MailService {
       tenantName,
     });
   }
+
+  async sendWorkflowNotificationEmail(
+    email: string,
+    firstName: string,
+    lastName: string,
+    wfName: string,
+    link: string,
+  ) {
+    await this.emailQueue.add('send-workflow-notification', {
+      email,
+      firstName,
+      lastName,
+      wfName,
+      link,
+    });
+  }
 }

@@ -1,9 +1,7 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { Tenant } from './core/tenant/tenant.entity';
 import { User } from './core/user/user.entity';
 import { Branch } from './features/org/entities/branch.entity';
@@ -22,14 +20,11 @@ import { DynamicForm } from './core/dynamic-form/entities/dynamic-form.entity';
 import { DocumentTemplate } from './core/document-template/entities/document-template.entity';
 import { WorkflowConsultation } from './core/workflow/entities/workflow-consultation.entity';
 import { Notification } from './core/notification/entities/notification.entity';
-import { AuthModule } from './features/auth/auth.module';
-import { OrgModule } from './features/org/org.module';
-import { StorageModule } from './features/storage/storage.module';
-import { WorkflowModule as WorkflowFeatureModule } from './features/workflow/workflow.module';
-import { DynamicFormModule } from './features/dynamic-form/dynamic-form.module';
-import { DocumentTemplateModule } from './features/document-template/document-template.module';
 import { RedisModule } from './core/redis/redis.module';
-import { TenantMiddleware } from './core/tenant/tenant.middleware';
+import { CoreNotificationModule } from './core/notification/notification.module';
+import { FeatureNotificationModule } from './features/notification/notification.module';
+import { MailModule } from './core/mail/mail.module';
+import { WorkflowModule } from './core/workflow/workflow.module';
 
 @Module({
   imports: [
@@ -65,7 +60,7 @@ import { TenantMiddleware } from './core/tenant/tenant.middleware';
           WorkflowConsultation,
           Notification,
         ],
-        synchronize: configService.get<boolean>('DB_SYNCHRONIZE', true),
+        synchronize: false, // Microservice should not run synchronize in parallel to main app
       }),
     }),
     BullModule.forRootAsync({
@@ -77,22 +72,11 @@ import { TenantMiddleware } from './core/tenant/tenant.middleware';
         },
       }),
     }),
-    TypeOrmModule.forFeature([Tenant]),
     RedisModule,
-    AuthModule,
-    OrgModule,
-    StorageModule,
-    WorkflowFeatureModule,
-    DynamicFormModule,
-    DocumentTemplateModule,
+    CoreNotificationModule,
+    FeatureNotificationModule,
+    MailModule,
+    WorkflowModule, // Imported to get access to entities and the workflow services / consumers if needed
   ],
-  controllers: [AppController],
-  providers: [AppService],
-  exports: [],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(TenantMiddleware).forRoutes('{*splat}');
-  }
-}
-
+export class NotificationAppModule {}

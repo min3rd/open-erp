@@ -1,8 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, forwardRef, Inject } from '@nestjs/common';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, In } from 'typeorm';
+import { ClientProxy } from '@nestjs/microservices';
 import { WorkflowInstance } from './entities/workflow-instance.entity';
 import { WorkflowStep } from './entities/workflow-step.entity';
 import { WorkflowApprover } from './entities/workflow-approver.entity';
@@ -31,8 +30,8 @@ export class WorkflowInstanceService {
     private readonly dataSource: DataSource,
     @Inject(forwardRef(() => DocumentTemplateService))
     private readonly templateService: DocumentTemplateService,
-    @InjectQueue('workflow-deadline-queue')
-    private readonly workflowDeadlineQueue: Queue,
+    @Inject('NOTIFICATION_SERVICE')
+    private readonly notificationClient: ClientProxy,
   ) {}
 
   async startInstance(
@@ -575,13 +574,29 @@ export class WorkflowInstanceService {
         const delay = deadlineAt.getTime() - now;
         if (delay > 0) {
           for (const app of savedApprovers) {
-            await this.workflowDeadlineQueue.add(
-              'check-step-deadline',
-              { approverId: app.id },
-              { delay },
-            );
+            this.notificationClient.emit('schedule_deadline_reminder', {
+              approverId: app.id,
+              delay,
+            });
           }
         }
+      }
+
+      // Fetch workflow name to build rich notifications
+      const workflow = await manager.findOne(Workflow, { where: { id: step.workflowId } });
+      const wfName = workflow ? workflow.name : 'Quy trình';
+
+      // Send in-app and email notifications asynchronously for each assignee
+      for (const user of assignees) {
+        this.notificationClient.emit('send_notification', {
+          tenantId,
+          userId: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          wfName,
+          instanceId,
+        });
       }
     }
   }

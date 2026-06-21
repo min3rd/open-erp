@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BullModule } from '@nestjs/bullmq';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
 import { Workflow } from './entities/workflow.entity';
 import { WorkflowStep } from './entities/workflow-step.entity';
 import { WorkflowStepAssignee } from './entities/workflow-step-assignee.entity';
@@ -11,7 +12,6 @@ import { WorkflowConsultation } from './entities/workflow-consultation.entity';
 import { WorkflowLogService } from './workflow-log.service';
 import { WorkflowService } from './workflow.service';
 import { WorkflowInstanceService } from './workflow-instance.service';
-import { WorkflowDeadlineConsumer } from './workflow-deadline.consumer';
 import { CoreDocumentTemplateModule } from '../document-template/document-template.module';
 
 @Module({
@@ -25,23 +25,33 @@ import { CoreDocumentTemplateModule } from '../document-template/document-templa
       WorkflowLog,
       WorkflowConsultation,
     ]),
-    BullModule.registerQueue({
-      name: 'workflow-deadline-queue',
-    }),
     forwardRef(() => CoreDocumentTemplateModule),
+    ClientsModule.registerAsync([
+      {
+        name: 'NOTIFICATION_SERVICE',
+        inject: [ConfigService],
+        useFactory: (config: ConfigService) => ({
+          transport: Transport.REDIS,
+          options: {
+            host: config.get('REDIS_HOST', 'localhost'),
+            port: config.get('REDIS_PORT', 6379),
+          },
+        }),
+      },
+    ]),
   ],
   providers: [
     WorkflowLogService,
     WorkflowService,
     WorkflowInstanceService,
-    WorkflowDeadlineConsumer,
   ],
   exports: [
     WorkflowLogService,
     WorkflowService,
     WorkflowInstanceService,
-    WorkflowDeadlineConsumer,
     TypeOrmModule,
+    ClientsModule, // Export ClientProxy so Feature modules or other services can use it if needed
   ],
 })
 export class WorkflowModule {}
+

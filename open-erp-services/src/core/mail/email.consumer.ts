@@ -59,6 +59,37 @@ export class EmailConsumer extends WorkerHost {
         console.error(`[BullMQ Worker] Failed to send invitation email to ${email}`, e);
         throw e;
       }
+    } else if (job.name === 'send-workflow-notification') {
+      const { email, firstName, lastName, wfName, link } = job.data;
+      const from = this.configService.get<string>('SMTP_FROM', 'OpenERP <noreply@open-erp.9ms.io.vn>');
+
+      const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <h2 style="color: #b76e79; text-align: center;">Yêu Cầu Phê Duyệt Đơn Từ</h2>
+          <p>Xin chào <strong>${firstName} ${lastName}</strong>,</p>
+          <p>Bạn có một yêu cầu phê duyệt mới cho quy trình: <strong>${wfName}</strong>.</p>
+          <p>Vui lòng click vào nút bên dưới để xem chi tiết và phê duyệt đơn:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${link}" style="background-color: #b76e79; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Xem đơn phê duyệt</a>
+          </div>
+          <p style="font-size: 12px; color: #718096; text-align: center; border-top: 1px solid #edf2f7; padding-top: 20px; margin-top: 30px;">
+            © OpenERP Platform. All rights reserved.
+          </p>
+        </div>
+      `;
+
+      try {
+        await this.transporter.sendMail({
+          from,
+          to: email,
+          subject: `[OpenERP] Yêu cầu phê duyệt mới: ${wfName}`,
+          html,
+        });
+        console.log(`[BullMQ Worker] Workflow notification email sent successfully to ${email}`);
+      } catch (e) {
+        console.error(`[BullMQ Worker] Failed to send workflow notification email to ${email}`, e);
+        throw e;
+      }
     }
   }
 }

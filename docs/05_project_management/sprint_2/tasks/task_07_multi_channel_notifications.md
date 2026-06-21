@@ -117,4 +117,25 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
 ---
 
 ### 6. Trạng thái thực tế & Kết quả bàn giao (Actual Status & Deliverables)
-*(Chưa bắt đầu)*
+* **Trạng thái:** Hoàn thành 100% các yêu cầu nghiệp vụ và kỹ thuật.
+* **Kết quả bàn giao chi tiết:**
+  - **Database & Entities:**
+    - Tạo thực thể [Notification](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/notification/entities/notification.entity.ts) để lưu thông báo in-app phục vụ kiểm tra lịch sử và phân trang.
+    - Đăng ký thực thể `Notification` trong [app.module.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/app.module.ts).
+  - **WebSocket Gateway (Socket.io) Integration:**
+    - Xây dựng [NotificationGateway](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/notification/notification.gateway.ts) bind vào namespace `/ws` sử dụng thư viện `@nestjs/websockets` và `@nestjs/platform-socket.io`.
+    - Triển khai xác thực JWT động trong sự kiện `handleConnection` từ handshake headers/query token, đưa các client đã xác thực vào room chuyên biệt `tenant_${tenantId}_user_${userId}`.
+    - Expose method `sendToUser` giúp đẩy trực tiếp notification realtime qua WebSocket events `notification:received`.
+  - **Core Business Services:**
+    - Xây dựng [NotificationService](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/notification/notification.service.ts) xử lý lưu DB, đẩy realtime qua gateway, lấy danh sách phân trang và đánh dấu đã đọc (`markAsRead`).
+    - Đăng ký Core & Feature Notification Modules ([notification.module.ts (core)](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/notification/notification.module.ts) và [notification.module.ts (feature)](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/notification/notification.module.ts)).
+  - **Asynchronous BullMQ Email Alerts:**
+    - Mở rộng [MailService](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/mail/mail.service.ts) thêm method `sendWorkflowNotificationEmail(...)` đẩy job `'send-workflow-notification'` vào `'email-queue'`.
+    - Mở rộng [EmailConsumer](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/mail/email.consumer.ts) để lắng nghe job `'send-workflow-notification'`, tự động gửi email với template HTML thiết kế đồng bộ theme màu Rose Gold (`#B76E79`).
+  - **Workflow Service Integration:**
+    - Cập nhật hàm `activateStepInTransaction` trong [WorkflowInstanceService](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/workflow-instance.service.ts) để khi kích hoạt bước duyệt, hệ thống tự động gọi tạo thông báo in-app và đẩy email thông báo phê duyệt đơn từ bất đồng bộ cho toàn bộ assignees.
+  - **Kiểm thử tự động (Unit Tests):**
+    - Viết các spec files [notification.service.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/notification/notification.service.spec.ts), [notification.gateway.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/notification/notification.gateway.spec.ts) và [notification.controller.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/notification/notification.controller.spec.ts).
+    - Cập nhật unit tests cho `WorkflowInstanceService`.
+    - Chạy thành công toàn bộ **171/171** test cases của toàn dự án, compile build thành công 100%.
+

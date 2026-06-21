@@ -30,7 +30,7 @@ Dưới đây là danh sách 15 Task cần triển khai trong Sprint 2:
 | **TSK-2.4** | API Mẫu văn bản động & OnlyOffice Adapter | APIs lưu mẫu tài liệu, cấu hình OnlyOffice, ánh xạ dữ liệu động từ form vào file (PDF, DOCX, XLSX, PPTX) và biên tập trực tuyến. | [x] Done | BE Engineers | [task_04_onlyoffice_templates_api.md](./tasks/task_04_onlyoffice_templates_api.md) |
 | **TSK-2.5** | API Duyệt đơn nâng cao theo module | APIs thực hiện hành động tại mỗi bước duyệt (Approve, Reject, Consult - xin ý kiến, Spawn Subprocess, Gen Document, Join Sync). | [x] Done | BE Engineers | [task_05_advanced_actions_api.md](./tasks/task_05_advanced_actions_api.md) |
 | **TSK-2.6** | API Thiết lập Deadline & Đốc thúc tự động | Cơ chế cài đặt deadline cho bước duyệt, tự động gửi cảnh báo và quét BullMQ Scheduler chạy tác vụ nhắc nhở. | [x] Done | BE Engineers | [task_06_deadlines_reminders_api.md](./tasks/task_06_deadlines_reminders_api.md) |
-| **TSK-2.7** | Hệ thống thông báo đa kênh thời gian thực | Xây dựng Gateway WebSocket (Socket.io) gửi tin in-app tức thời kết hợp gửi mail cảnh báo qua Nodemailer/AWS SES. | [ ] Todo | BE Engineers | [task_07_multi_channel_notifications.md](./tasks/task_07_multi_channel_notifications.md) |
+| **TSK-2.7** | Hệ thống thông báo đa kênh thời gian thực | Xây dựng Gateway WebSocket (Socket.io) gửi tin in-app tức thời kết hợp gửi mail cảnh báo qua Nodemailer/AWS SES. | [x] Done | BE Engineers | [task_07_multi_channel_notifications.md](./tasks/task_07_multi_channel_notifications.md) |
 | **TSK-2.8** | API Sinh và quản lý Chứng thư số nội bộ | Cài đặt hạ tầng khóa công khai nội bộ (Internal CA): sinh root cert, phát hành X.509 cert cho người dùng/phòng ban. | [ ] Todo | SecOps / BE Engineers | [task_08_internal_ca_api.md](./tasks/task_08_internal_ca_api.md) |
 | **TSK-2.9** | API Ký số & Chứng thực chữ ký số | APIs thực hiện ký số payload đơn từ bằng khóa riêng tư và giải mã xác thực chữ ký bằng khóa công khai trên hệ thống. | [ ] Todo | SecOps / BE Engineers | [task_09_digital_signature_verification_api.md](./tasks/task_09_digital_signature_verification_api.md) |
 | **TSK-2.10** | Giao diện Form Builder & Workflow Designer | Giao diện Web kéo thả thiết kế form động và vẽ sơ đồ khối luồng phê duyệt rẽ nhánh trực quan. | [ ] Todo | FE Web Engineers | [task_10_form_workflow_builder_ui.md](./tasks/task_10_form_workflow_builder_ui.md) |
@@ -90,3 +90,22 @@ flowchart TD
   - Sử dụng hàng đợi BullMQ với Redis để điều phối các tác vụ gửi email, kiểm tra deadline bất đồng bộ nhằm tối ưu hóa hiệu năng phản hồi của APIs.
 - **Đa ngôn ngữ (Transloco):** 
   - Mọi văn bản hiển thị trên giao diện, nhãn trường động, thông báo lỗi validate, nội dung email template phải được cấu hình qua Transloco với các file ngôn ngữ `vi.json`, `en.json`, `zh.json`, `ja.json`.
+
+---
+
+### 5. Kiến trúc Microservice: Tách biệt Phân hệ Thông báo (Notification Microservice)
+
+Nhằm tối ưu hóa hiệu năng của Main App khi hệ thống trong thời điểm cao tải, phân hệ thông báo (in-app notifications, push notifications thời gian thực qua WebSocket, SMTP Mail service và BullMQ workers) đã được tách thành một microservice độc lập:
+
+1. **Giao tiếp bất đồng bộ qua Redis:** 
+   - Main App (`main.ts`, cổng 3000) không trực tiếp xử lý ghi nhận thông báo, gửi email hay lên lịch nhắc nhở deadline qua BullMQ nữa.
+   - Thay vào đó, Main App sử dụng `ClientProxy` gửi các sự kiện `send_notification` và `schedule_deadline_reminder` sang Redis Transporter. Việc này giúp giảm thời gian phản hồi của APIs xử lý workflow phê duyệt xuống mức tối đa.
+2. **Notification Microservice (cổng 3001):**
+   - Chạy entrypoint riêng `main-notification.ts` với cấu hình Hybrid App (HTTP REST + Socket.io Gateway trên cổng 3001 + Redis event listener).
+   - Tiếp nhận các sự kiện từ Redis để thực hiện:
+     - Ghi nhận thông báo in-app vào DB.
+     - Đẩy tin thời gian thực qua WebSocket (Socket.io) namespace `/ws`.
+     - Đẩy các tác vụ gửi email phê duyệt vào BullMQ queue `email-queue` và xử lý bất đồng bộ.
+     - Chạy worker `WorkflowDeadlineConsumer` để lên lịch gửi cảnh báo đốc thúc quá hạn và tự động quét các tác vụ trễ hạn.
+   - Cung cấp các APIs nghiệp vụ của thông báo như: `GET /notifications` và `PATCH /notifications/:id/read`.
+
