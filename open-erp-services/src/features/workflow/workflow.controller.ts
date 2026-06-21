@@ -8,6 +8,7 @@ import {
   HttpStatus,
   HttpCode,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { WorkflowService } from '../../core/workflow/workflow.service';
 import { JwtAuthGuard } from '../../core/auth/auth.guard';
@@ -37,6 +38,16 @@ export class WorkflowController {
     return {
       success: true,
       data: workflows,
+    };
+  }
+
+  @Get('analytics/performance')
+  async getPerformanceAnalytics(@Query() query: { startDate?: string; endDate?: string }, @Req() req: any) {
+    const tenantId = req.tenantId;
+    const stats = await this.workflowService.getPerformanceAnalytics(tenantId, query);
+    return {
+      success: true,
+      data: stats,
     };
   }
 

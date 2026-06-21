@@ -4,6 +4,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Workflow } from './entities/workflow.entity';
 import { WorkflowStep } from './entities/workflow-step.entity';
 import { WorkflowStepAssignee } from './entities/workflow-step-assignee.entity';
+import { WorkflowInstance } from './entities/workflow-instance.entity';
+import { WorkflowApprover } from './entities/workflow-approver.entity';
 import { DataSource } from 'typeorm';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
@@ -12,6 +14,8 @@ describe('WorkflowService', () => {
   let workflowRepoMock: any;
   let mockManager: any;
   let dataSourceMock: any;
+  let mockInstanceQueryBuilder: any;
+  let mockApproverQueryBuilder: any;
 
   const mockRepository = {
     findOne: jest.fn(),
@@ -41,8 +45,35 @@ describe('WorkflowService', () => {
       }),
     };
 
+    mockInstanceQueryBuilder = {
+      leftJoinAndSelect: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      getMany: jest.fn().mockResolvedValue([]),
+    };
+
+    mockApproverQueryBuilder = {
+      leftJoinAndSelect: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      getMany: jest.fn().mockResolvedValue([]),
+    };
+
     dataSourceMock = {
       transaction: jest.fn((cb) => cb(mockManager)),
+      getRepository: jest.fn((entityClass) => {
+        if (entityClass === WorkflowInstance) {
+          return {
+            createQueryBuilder: jest.fn(() => mockInstanceQueryBuilder),
+          };
+        }
+        if (entityClass === WorkflowApprover) {
+          return {
+            createQueryBuilder: jest.fn(() => mockApproverQueryBuilder),
+          };
+        }
+        return null;
+      }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -216,6 +247,95 @@ describe('WorkflowService', () => {
 
       const result = await service.findAllWorkflows('tenant-1');
       expect(result).toEqual(mockList);
+    });
+  });
+
+  describe('getPerformanceAnalytics', () => {
+    it('should return correct analytics calculations', async () => {
+      const now = new Date();
+      const mockInstances = [
+        {
+          id: 'inst-1',
+          status: 'APPROVED',
+          createdAt: new Date(now.getTime() - 10 * 60 * 60 * 1000), // 10 hours ago
+          workflow: { name: 'Workflow Test' },
+          approvers: [
+            {
+              id: 'app-1',
+              status: 'APPROVED',
+              deadlineAt: new Date(now.getTime() - 8 * 60 * 60 * 1000), // deadline 8 hours ago
+              actionAt: new Date(now.getTime() - 6 * 60 * 60 * 1000), // approved 6 hours ago (delayed 2h)
+            }
+          ]
+        },
+        {
+          id: 'inst-2',
+          status: 'PENDING',
+          createdAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
+          workflow: { name: 'Workflow Test' },
+          approvers: [
+            {
+              id: 'app-2',
+              status: 'PENDING',
+              deadlineAt: new Date(now.getTime() - 1 * 60 * 60 * 1000), // deadline 1 hour ago (overdue now)
+              actionAt: null,
+            }
+          ]
+        }
+      ];
+
+      const mockApproverTasks = [
+        {
+          id: 'app-1',
+          userId: 'usr-1',
+          status: 'APPROVED',
+          assignedAt: new Date(now.getTime() - 10 * 60 * 60 * 1000),
+          actionAt: new Date(now.getTime() - 6 * 60 * 60 * 1000), // processing took 4 hours
+          deadlineAt: new Date(now.getTime() - 8 * 60 * 60 * 1000), // delayed
+          user: { firstName: 'Alice', lastName: 'Smith', email: 'alice@test.com' },
+        },
+        {
+          id: 'app-2',
+          userId: 'usr-2',
+          status: 'PENDING',
+          assignedAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
+          actionAt: null,
+          deadlineAt: new Date(now.getTime() - 1 * 60 * 60 * 1000), // overdue now
+          user: { firstName: 'Bob', lastName: 'Jones', email: 'bob@test.com' },
+        }
+      ];
+
+      mockInstanceQueryBuilder.getMany.mockResolvedValue(mockInstances);
+      mockApproverQueryBuilder.getMany.mockResolvedValue(mockApproverTasks);
+
+      const result = await service.getPerformanceAnalytics('tenant-1', {
+        startDate: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString(),
+        endDate: now.toISOString(),
+      });
+
+      expect(result).toBeDefined();
+      expect(result.overallStats.totalInstances).toBe(2);
+      // Completed is only inst-1. inst-1 took: MAX(actionAt) [now-6h] - createdAt [now-10h] = 4 hours
+      expect(result.overallStats.averageCompletionTimeHours).toBe(4);
+      // Both inst-1 and inst-2 have delayed approvers, so delayedPercentage = 100%
+      expect(result.overallStats.delayedPercentage).toBe(100);
+
+      // User performance
+      expect(result.userPerformance.length).toBe(2);
+      
+      const alice = result.userPerformance.find((u: any) => u.userId === 'usr-1');
+      expect(alice).toBeDefined();
+      expect(alice.userName).toBe('Alice Smith');
+      expect(alice.assignedTasks).toBe(1);
+      expect(alice.averageProcessTimeHours).toBe(4);
+      expect(alice.delayedTasksCount).toBe(1);
+
+      const bob = result.userPerformance.find((u: any) => u.userId === 'usr-2');
+      expect(bob).toBeDefined();
+      expect(bob.userName).toBe('Bob Jones');
+      expect(bob.assignedTasks).toBe(1);
+      expect(bob.averageProcessTimeHours).toBe(0);
+      expect(bob.delayedTasksCount).toBe(1);
     });
   });
 });

@@ -12,6 +12,7 @@ describe('WorkflowController', () => {
     createWorkflow: jest.fn(),
     findAllWorkflows: jest.fn(),
     getWorkflowById: jest.fn(),
+    getPerformanceAnalytics: jest.fn(),
   };
 
   const mockJwtService = {
@@ -71,6 +72,23 @@ describe('WorkflowController', () => {
       expect(response).toEqual({
         success: true,
         data: mockList,
+      });
+    });
+  });
+
+  describe('getPerformanceAnalytics', () => {
+    it('should call getPerformanceAnalytics and return performance metrics', async () => {
+      const req = { tenantId: 'tenant-123' };
+      const query = { startDate: '2026-06-01T00:00:00Z', endDate: '2026-06-20T23:59:59Z' };
+      const mockStats = { overallStats: {}, userPerformance: [] };
+      serviceMock.getPerformanceAnalytics.mockResolvedValue(mockStats);
+
+      const response = await controller.getPerformanceAnalytics(query, req);
+
+      expect(serviceMock.getPerformanceAnalytics).toHaveBeenCalledWith('tenant-123', query);
+      expect(response).toEqual({
+        success: true,
+        data: mockStats,
       });
     });
   });

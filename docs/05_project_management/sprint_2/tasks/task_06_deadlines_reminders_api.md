@@ -109,4 +109,24 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
 ---
 
 ### 6. Trạng thái thực tế & Kết quả bàn giao (Actual Status & Deliverables)
-*(Chưa bắt đầu)*
+* **Trạng thái:** Hoàn thành 100% các yêu cầu nghiệp vụ và kỹ thuật.
+* **Kết quả bàn giao chi tiết:**
+  - **Database & Entities Integration:**
+    - Sử dụng cột `deadlineAt` có sẵn trên thực thể `WorkflowApprover` để thiết lập thời hạn xử lý cho từng bước duyệt.
+    - Cập nhật phương thức `activateStepInTransaction` của [WorkflowInstanceService](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/workflow-instance.service.ts) để tự động tính toán `deadlineAt` từ cấu hình `durationHours` hoặc `durationDays` trong `step.config`.
+  - **BullMQ Delayed & Cron Job Scheduler:**
+    - Đăng ký Queue và Provider mới cho `'workflow-deadline-queue'` trong [WorkflowModule](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/workflow.module.ts).
+    - Tạo worker [WorkflowDeadlineConsumer](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/workflow-deadline.consumer.ts) kế thừa `WorkerHost` để lắng nghe xử lý các Jobs:
+      - `'check-step-deadline'` (Delayed Job): Tự động trigger gửi email đốc thúc và giả lập in-app notification sau khoảng thời gian trì hoãn nếu task vẫn còn ở trạng thái `PENDING` hoặc `CONSULTING`.
+      - `'scan-overdue-approvals'` (Repeatable/Cron Job): Được tự động đăng ký lúc khởi động (chạy định kỳ mỗi 1 giờ) để quét và gửi cảnh báo trễ hạn cho toàn bộ các tasks đã quá hạn.
+  - **KPIs & Performance Analytics API:**
+    - Phát triển logic truy vấn và tính toán KPIs in-memory trong [WorkflowService](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/workflow.service.ts) qua hàm `getPerformanceAnalytics(tenantId, query)`, giúp đảm bảo tính tương thích cơ sở dữ liệu trên cả SQLite (Jest) và PostgreSQL (Production).
+    - Phân tích dữ liệu theo khoảng thời gian `startDate`, `endDate`:
+      - `overallStats`: `totalInstances`, `averageCompletionTimeHours` (hiệu số hoàn thành và khởi tạo), `delayedPercentage`.
+      - `userPerformance`: `assignedTasks`, `averageProcessTimeHours` (hiệu số xử lý thực tế), `delayedTasksCount`.
+    - Expose REST API endpoint `GET /api/v1/workflows/analytics/performance` trong [WorkflowController](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/workflow/workflow.controller.ts) (phân quyền và lấy tenantId từ JWT token).
+  - **Kiểm thử tự động (Unit Tests):**
+    - Viết spec [workflow-deadline.consumer.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/workflow-deadline.consumer.spec.ts) bao phủ 100% các kịch bản của delayed job, cron job scanner và module initialization.
+    - Bổ sung unit tests kiểm tra logic phân tích KPI trong [workflow.service.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/workflow.service.spec.ts) và route trong [workflow.controller.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/workflow/workflow.controller.spec.ts).
+    - Toàn bộ 158 tests của dự án đều chạy PASS 100%.
+

@@ -1,4 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, forwardRef, Inject } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, In } from 'typeorm';
 import { WorkflowInstance } from './entities/workflow-instance.entity';
@@ -29,6 +31,8 @@ export class WorkflowInstanceService {
     private readonly dataSource: DataSource,
     @Inject(forwardRef(() => DocumentTemplateService))
     private readonly templateService: DocumentTemplateService,
+    @InjectQueue('workflow-deadline-queue')
+    private readonly workflowDeadlineQueue: Queue,
   ) {}
 
   async startInstance(
@@ -540,6 +544,17 @@ export class WorkflowInstanceService {
 
     // Create workflow_approver records
     const approvers: WorkflowApprover[] = [];
+    
+    let deadlineAt: Date | null = null;
+    if (step.config) {
+      const now = new Date();
+      if (step.config.durationHours) {
+        deadlineAt = new Date(now.getTime() + step.config.durationHours * 60 * 60 * 1000);
+      } else if (step.config.durationDays) {
+        deadlineAt = new Date(now.getTime() + step.config.durationDays * 24 * 60 * 60 * 1000);
+      }
+    }
+
     for (const user of assignees) {
       const app = new WorkflowApprover();
       app.tenantId = tenantId;
@@ -547,11 +562,27 @@ export class WorkflowInstanceService {
       app.stepId = step.id;
       app.userId = user.id;
       app.status = 'PENDING';
+      app.deadlineAt = deadlineAt;
       approvers.push(app);
     }
 
     if (approvers.length > 0) {
-      await manager.save(WorkflowApprover, approvers);
+      const savedApprovers = await manager.save(WorkflowApprover, approvers);
+      
+      // Register delayed job for each saved approver if deadline is set
+      if (deadlineAt) {
+        const now = Date.now();
+        const delay = deadlineAt.getTime() - now;
+        if (delay > 0) {
+          for (const app of savedApprovers) {
+            await this.workflowDeadlineQueue.add(
+              'check-step-deadline',
+              { approverId: app.id },
+              { delay },
+            );
+          }
+        }
+      }
     }
   }
 

@@ -4,6 +4,9 @@ import { Repository, DataSource } from 'typeorm';
 import { Workflow } from './entities/workflow.entity';
 import { WorkflowStep } from './entities/workflow-step.entity';
 import { WorkflowStepAssignee } from './entities/workflow-step-assignee.entity';
+import { WorkflowInstance } from './entities/workflow-instance.entity';
+import { WorkflowApprover } from './entities/workflow-approver.entity';
+import { User } from '../user/user.entity';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -216,5 +219,178 @@ export class WorkflowService {
     }
 
     return false;
+  }
+
+  async getPerformanceAnalytics(
+    tenantId: string | null,
+    query: { startDate?: string; endDate?: string },
+  ): Promise<any> {
+    const { startDate, endDate } = query;
+
+    const instanceRepo = this.dataSource.getRepository(WorkflowInstance);
+    const approverRepo = this.dataSource.getRepository(WorkflowApprover);
+
+    // Query WorkflowInstance
+    const queryBuilder = instanceRepo.createQueryBuilder('instance')
+      .leftJoinAndSelect('instance.approvers', 'approver')
+      .leftJoinAndSelect('instance.workflow', 'workflow')
+      .where('instance.tenantId = :tenantId', { tenantId });
+
+    if (startDate) {
+      queryBuilder.andWhere('instance.createdAt >= :startDate', { startDate: new Date(startDate) });
+    }
+    if (endDate) {
+      queryBuilder.andWhere('instance.createdAt <= :endDate', { endDate: new Date(endDate) });
+    }
+
+    const instances = await queryBuilder.getMany();
+
+    // Calculate overall stats
+    const totalInstances = instances.length;
+    let completedInstancesCount = 0;
+    let totalCompletionTimeMs = 0;
+    let delayedInstancesCount = 0;
+
+    const now = new Date();
+
+    for (const inst of instances) {
+      const isCompleted = inst.status === 'APPROVED' || inst.status === 'REJECTED';
+      
+      // Determine if instance is delayed
+      let hasDelayedApprover = false;
+      const apps = inst.approvers || [];
+      
+      for (const app of apps) {
+        if (app.deadlineAt) {
+          const deadlineTime = new Date(app.deadlineAt).getTime();
+          if (app.actionAt) {
+            const actionTime = new Date(app.actionAt).getTime();
+            if (actionTime > deadlineTime) {
+              hasDelayedApprover = true;
+            }
+          } else if (app.status === 'PENDING' || app.status === 'CONSULTING') {
+            if (now.getTime() > deadlineTime) {
+              hasDelayedApprover = true;
+            }
+          }
+        }
+      }
+
+      if (hasDelayedApprover) {
+        delayedInstancesCount++;
+      }
+
+      if (isCompleted) {
+        completedInstancesCount++;
+        // Completion time: MAX(actionAt) of approvers - createdAt of instance
+        const actionTimes = apps
+          .filter(a => a.actionAt && (a.status === 'APPROVED' || a.status === 'REJECTED'))
+          .map(a => new Date(a.actionAt).getTime());
+        
+        const completionTime = actionTimes.length > 0 ? Math.max(...actionTimes) : new Date(inst.createdAt).getTime();
+        const start = new Date(inst.createdAt).getTime();
+        totalCompletionTimeMs += Math.max(0, completionTime - start);
+      }
+    }
+
+    const averageCompletionTimeHours = completedInstancesCount > 0
+      ? parseFloat((totalCompletionTimeMs / completedInstancesCount / (1000 * 60 * 60)).toFixed(1))
+      : 0;
+
+    const delayedPercentage = totalInstances > 0
+      ? parseFloat(((delayedInstancesCount / totalInstances) * 100).toFixed(1))
+      : 0;
+
+    // Compute user performance stats
+    const appQueryBuilder = approverRepo.createQueryBuilder('approver')
+      .leftJoinAndSelect('approver.user', 'user')
+      .where('approver.tenantId = :tenantId', { tenantId });
+
+    if (startDate) {
+      appQueryBuilder.andWhere('approver.assignedAt >= :startDate', { startDate: new Date(startDate) });
+    }
+    if (endDate) {
+      appQueryBuilder.andWhere('approver.assignedAt <= :endDate', { endDate: new Date(endDate) });
+    }
+
+    const approvers = await appQueryBuilder.getMany();
+
+    // Group approvers by userId
+    const userStatsMap = new Map<string, {
+      userId: string;
+      userName: string;
+      assignedTasks: number;
+      totalProcessTimeMs: number;
+      completedTasksCount: number;
+      delayedTasksCount: number;
+    }>();
+
+    for (const app of approvers) {
+      const uId = app.userId;
+      if (!uId) continue;
+
+      let stats = userStatsMap.get(uId);
+      if (!stats) {
+        const uName = app.user
+          ? `${app.user.firstName || ''} ${app.user.lastName || ''}`.trim() || app.user.email
+          : 'Unknown User';
+
+        stats = {
+          userId: uId,
+          userName: uName,
+          assignedTasks: 0,
+          totalProcessTimeMs: 0,
+          completedTasksCount: 0,
+          delayedTasksCount: 0,
+        };
+        userStatsMap.set(uId, stats);
+      }
+
+      stats.assignedTasks++;
+
+      // Process time if task completed
+      if (app.actionAt) {
+        stats.completedTasksCount++;
+        const processTime = new Date(app.actionAt).getTime() - new Date(app.assignedAt).getTime();
+        stats.totalProcessTimeMs += Math.max(0, processTime);
+      }
+
+      // Check if task is delayed
+      if (app.deadlineAt) {
+        const deadlineTime = new Date(app.deadlineAt).getTime();
+        if (app.actionAt) {
+          if (new Date(app.actionAt).getTime() > deadlineTime) {
+            stats.delayedTasksCount++;
+          }
+        } else if (app.status === 'PENDING' || app.status === 'CONSULTING') {
+          if (now.getTime() > deadlineTime) {
+            stats.delayedTasksCount++;
+          }
+        }
+      }
+    }
+
+    const userPerformance = Array.from(userStatsMap.values()).map(stats => {
+      const avgProcessTimeHours = stats.completedTasksCount > 0
+        ? parseFloat((stats.totalProcessTimeMs / stats.completedTasksCount / (1000 * 60 * 60)).toFixed(1))
+        : 0;
+
+      return {
+        userId: stats.userId,
+        userName: stats.userName,
+        assignedTasks: stats.assignedTasks,
+        averageProcessTimeHours: avgProcessTimeHours,
+        delayedTasksCount: stats.delayedTasksCount,
+      };
+    });
+
+    return {
+      overallStats: {
+        totalInstances,
+        averageCompletionTimeHours,
+        delayedPercentage,
+      },
+      userPerformance,
+    };
   }
 }

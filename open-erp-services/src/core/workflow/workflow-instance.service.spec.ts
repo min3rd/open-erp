@@ -12,6 +12,7 @@ import { DataSource } from 'typeorm';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { User } from '../user/user.entity';
 import { Employee } from '../../features/org/entities/employee.entity';
+import { getQueueToken } from '@nestjs/bullmq';
 
 describe('WorkflowInstanceService', () => {
   let service: WorkflowInstanceService;
@@ -68,6 +69,12 @@ describe('WorkflowInstanceService', () => {
         { provide: WorkflowLogService, useValue: logServiceMock },
         { provide: DocumentTemplateService, useValue: templateServiceMock },
         { provide: DataSource, useValue: dataSourceMock },
+        {
+          provide: getQueueToken('workflow-deadline-queue'),
+          useValue: {
+            add: jest.fn().mockResolvedValue({}),
+          },
+        },
       ],
     }).compile();
 
