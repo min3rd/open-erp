@@ -195,4 +195,27 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
 ---
 
 ### 6. Trạng thái thực tế & Kết quả bàn giao (Actual Status & Deliverables)
-*(Chưa bắt đầu)*
+**Hoàn thành**
+
+* **TypeORM Entity (Cấu trúc DB Schema):**
+  - [DynamicForm entity](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/dynamic-form/entities/dynamic-form.entity.ts) - Bảng `dynamic_forms` với các cột: `id`, `tenant_id`, `form_key`, `name`, `description`, `version`, `is_latest`, `fields` (JSONB), `created_at`, `updated_at`. Ràng buộc unique `(tenant_id, form_key, version)` được đảm bảo qua logic nghiệp vụ.
+
+* **Core Service Logic:**
+  - [DynamicFormService](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/dynamic-form/dynamic-form.service.ts) cung cấp các hàm:
+    - `createOrUpdateForm`: Tạo form mới hoặc sinh phiên bản mới tự động khi `formKey` đã tồn tại (tăng version, chuyển `is_latest = false` cho bản cũ).
+    - `getVersionsByKey`: Lấy lịch sử tất cả phiên bản của một form theo `formKey`.
+    - `restoreVersion`: Khôi phục phiên bản cũ bằng cách clone cấu trúc `fields` và sinh version mới nhất.
+    - `validateData`: Thực thi kiểm tra dữ liệu người dùng nhập theo JSON schema của form (required, minLength/maxLength, min/max number, date format, SELECT options).
+    - `validateFieldSchemas` (private): Kiểm tra tính hợp lệ của cấu hình trường JSON do admin gửi lên (đúng type, không trùng id, SELECT phải có options).
+
+* **REST APIs** (bảo vệ bởi `JwtAuthGuard`):
+  - `POST /api/v1/dynamic-forms` — Tạo form mới hoặc phiên bản mới.
+  - `GET /api/v1/dynamic-forms/key/:key/versions` — Lịch sử tất cả phiên bản theo formKey.
+  - `POST /api/v1/dynamic-forms/:id/restore` — Khôi phục phiên bản cũ.
+  - `POST /api/v1/dynamic-forms/:id/validate` — Validate dữ liệu nhập theo schema.
+  - Thiết lập tại [DynamicFormController](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/dynamic-form/dynamic-form.controller.ts).
+
+* **Kiểm thử tự động (Unit Tests):**
+  - [dynamic-form.service.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/dynamic-form/dynamic-form.service.spec.ts) — 20 test cases bao phủ toàn bộ luồng versioning, restore, validate schema và validate data.
+  - [dynamic-form.controller.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/dynamic-form/dynamic-form.controller.spec.ts) — 8 test cases bao phủ toàn bộ 4 endpoints.
+  - Tổng cộng **28 test cases**, tất cả PASS, build không có lỗi TypeScript.
