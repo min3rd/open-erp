@@ -129,4 +129,9 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
 ---
 
 ### 6. Trạng thái thực tế & Kết quả bàn giao (Actual Status & Deliverables)
-*(Chưa bắt đầu)*
+- **Trạng thái:** [x] Hoàn thành (Done)
+- **Kết quả bàn giao:**
+  - **Mở rộng Workflow Engine:** Bổ sung các tham số `signature` và `certificatePem` vào phương thức `executeAction` của `WorkflowInstanceService`. Tự động lưu vết chữ ký số, chứng thư PEM và snapshot dữ liệu phê duyệt (`contextData`) vào trường `payload` của thực thể `WorkflowLog`.
+  - **API Ký số (`POST /api/v1/signatures/sign-instance`):** Giải mã an toàn khóa riêng tư của người dùng bằng passphrase gửi lên, tính toán mã băm SHA256 của payload đơn từ, thực hiện ký số bằng RSA, sau đó thực hiện duyệt đơn thông qua Workflow Engine.
+  - **API Xác thực (`POST /api/v1/signatures/verify`):** Tự động tìm kiếm log chữ ký số mới nhất trong quy trình. Tiến hành kiểm tra chuỗi chứng thực (Certificate Chain) ngược lên Root CA (`SystemCa`), kiểm tra thời hạn chứng thư tại thời điểm ký, và kiểm tra tính toàn vẹn của dữ liệu thông qua snapshot `contextData` (Verify Hash & Signature).
+  - **Bộ kiểm thử tự động:** Viết file `signature.spec.ts` kiểm thử toàn bộ các kịch bản ký số thành công, báo lỗi sai passphrase, phát hiện chữ ký giả mạo/chỉnh sửa dữ liệu (`contentIntact: false`), chứng thư hết hạn. Bộ test suites chạy thành công 100%.

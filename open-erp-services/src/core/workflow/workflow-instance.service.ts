@@ -117,6 +117,8 @@ export class WorkflowInstanceService {
       consultantId?: string;
       formData?: any;
       subWorkflowId?: string;
+      signature?: string;
+      certificatePem?: string;
     },
   ): Promise<WorkflowInstance> {
     const instance = await this.instanceRepository.findOne({
@@ -442,7 +444,13 @@ export class WorkflowInstanceService {
           stepId,
           'APPROVE',
           actorId,
-          { comment, formData },
+          {
+            comment,
+            formData,
+            signature: payload.signature,
+            certificatePem: payload.certificatePem,
+            contextData: instance.contextData,
+          },
         );
 
         // Evaluate step consensus

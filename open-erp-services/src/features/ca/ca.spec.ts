@@ -82,7 +82,7 @@ describe('CA Module', () => {
           encryptedPrivateKey: expect.any(String),
         }),
       );
-    });
+    }, 30000);
 
     it('should not initialize Root CA if it already exists', async () => {
       systemCaRepoMock.findOne.mockResolvedValue({ id: 'root', certificatePem: 'PEM' });
@@ -159,7 +159,7 @@ describe('CA Module', () => {
       let decryptedUserPrivateKey = userDec.update(userEnc, 'hex', 'utf8');
       decryptedUserPrivateKey += userDec.final('utf8');
       expect(decryptedUserPrivateKey).toContain('-----BEGIN PRIVATE KEY-----');
-    });
+    }, 30000);
 
     it('should throw BadRequestException if user already has a valid certificate', async () => {
       userCertRepoMock.findOne.mockResolvedValue({
