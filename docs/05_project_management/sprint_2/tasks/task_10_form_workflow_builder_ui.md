@@ -20,8 +20,9 @@ Xây dựng giao diện Web quản trị trực quan cao cấp, hỗ trợ các 
   - Cột phải: Bảng thuộc tính (Properties Panel) cấu hình nhãn (Label), tên biến (Name), bắt buộc nhập (Required), giá trị mặc định, và các điều kiện ràng buộc.
 * **Màn hình Workflow Designer:**
   - Tích hợp thư viện hiển thị sơ đồ (như Rete.js, JointJS hoặc thư viện SVG tùy chỉnh).
-  - Cho phép thêm các Node (Start, Step, Decision/Branch, End) và nối dây (Edges) để tạo mối quan hệ.
+  - Cho phép thêm các Node (Start, Step, Decision/Branch, Fork, Join, End) và nối dây (Edges) để tạo mối quan hệ.
   - Nhấp vào Node Step để cấu hình người duyệt, consensus rules (ALL, ANY, Threshold %) và nhúng Form động (đã tạo từ Form Builder).
+  - **Thiết lập khối song song:** Hỗ trợ kéo thả và liên kết Node `FORK` và Node `JOIN` để biểu diễn luồng công việc song song (ví dụ: chia thành 3 luồng kiểm kho, kiểm giá sale, kiểm cs sau đó hội tụ lại). Hỗ trợ cấu hình `joinRules` cho Node `JOIN`.
 
 ```text
 [Bảng công cụ kéo thả] ──► [Thả vào Canvas thiết kế] ──► [Cấu hình thuộc tính Node/Field] ──► [Lưu dạng JSON gửi lên API]
@@ -44,8 +45,8 @@ Xây dựng giao diện Web quản trị trực quan cao cấp, hỗ trợ các 
   - Tích hợp thư viện `@angular/cdk/drag-drop` để xử lý kéo thả các trường nhập liệu từ thanh công cụ vào bảng vẽ thiết kế.
   - Xây dựng form cấu hình thuộc tính động cập nhật realtime vào schema JSON của form.
 * **Nhiệm vụ 2: Phát triển Module Sơ đồ luồng (Workflow Designer)**
-  - Sử dụng thư viện vẽ sơ đồ (ví dụ: `ngx-graph` hoặc một canvas SVG) để hiển thị cấu trúc bước duyệt rẽ nhánh.
-  - Xây dựng bộ parser chuyển đổi cấu trúc đồ thị (Nodes & Edges) thành định dạng JSON tương thích với API của TSK-2.2.
+  - Sử dụng thư viện vẽ sơ đồ (ví dụ: `ngx-graph` hoặc một canvas SVG) để hiển thị cấu trúc bước duyệt rẽ nhánh và các luồng phê duyệt song song (Fork/Join).
+  - Xây dựng bộ parser chuyển đổi cấu trúc đồ thị (Nodes & Edges) bao gồm cả các kết nối song song và điều kiện gộp luồng thành định dạng JSON tương thích với API của TSK-2.2.
 
 #### 3.3 Mobile Frontend Engineer (FE Mobile)
 * *Không thuộc phạm vi task này (giao diện cấu hình phức tạp chỉ triển khai trên màn hình lớn Web).*

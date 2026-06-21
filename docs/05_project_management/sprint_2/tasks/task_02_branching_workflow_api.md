@@ -10,9 +10,12 @@ Xây dựng tập hợp REST APIs để định nghĩa và cấu hình quy trìn
 
 ### 2. Thiết kế chi tiết Nghiệp vụ & Kỹ thuật
 
-#### 2.1 Cơ chế rẽ nhánh & Điều kiện đồng thuận
+#### 2.1 Cơ chế rẽ nhánh, Xử lý song song & Điều kiện đồng thuận
 * **Điều kiện rẽ nhánh (Branching Condition):** Sử dụng thư viện đánh giá biểu thức (ví dụ: `expr` hoặc `json-rules-engine`) để tính toán điều kiện tại runtime.
   - Ví dụ: `context_data.totalAmount > 50000000` -> Chuyển đến bước Duyệt của Giám đốc tài chính; ngược lại chuyển đến bước Trưởng phòng mua sắm.
+* **Xử lý song song (Parallel Fork & Join):**
+  - **Cơ chế Fork:** Cho phép từ một bước phân tách ra nhiều nhánh xử lý đồng thời. Ví dụ: Khi đơn hàng được duyệt qua bước sơ bộ, hệ thống sẽ kích hoạt song song 3 nhánh: Nhánh 1 (Quản lý kho duyệt tồn kho), Nhánh 2 (Quản lý Sale duyệt chính sách giá), Nhánh 3 (Bộ phận Chăm sóc khách hàng duyệt ưu đãi). Lúc này, cả 3 nhiệm vụ sẽ xuất hiện đồng thời trong bảng `workflow_approvers` của 3 nhóm người xử lý.
+  - **Cơ chế Join:** Khi các nhánh song song hoàn thành, hệ thống sẽ hội tụ về một nút chung (`step_type = JOIN`). Nút `JOIN` này có vai trò đồng bộ hóa (Barrier): Chờ cho đến khi tất cả các nhánh song song hoặc tối thiểu số nhánh quy định hoàn thành (cấu hình qua `join_rules`), rồi mới tiếp tục chuyển luồng xử lý sang bước tiếp theo.
 * **Quy tắc đồng thuận (Consensus Rules):**
   - **`ALL`:** Tất cả những người được gán quyền duyệt ở bước hiện tại bắt buộc phải phê duyệt (`action = APPROVE`) thì đơn mới được chuyển tiếp. Nếu 1 người từ chối (`REJECT`), đơn dừng ngay lập tức.
   - **`ANY`:** Chỉ cần ít nhất 1 người phê duyệt, đơn sẽ lập tức được chuyển sang bước tiếp theo mà không cần chờ những người còn lại.
@@ -22,64 +25,86 @@ Xây dựng tập hợp REST APIs để định nghĩa và cấu hình quy trìn
 Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_overview.md).
 
 * **`POST /api/v1/workflows`** (Authorized: Admin)
-  - **Payload yêu cầu:**
+  - **Payload cấu hình quy trình song song & rẽ nhánh (Ví dụ Đơn Hàng):**
     ```json
     {
-      "name": "Quy trình Đề xuất Mua sắm Thiết bị",
-      "description": "Luồng phê duyệt dành riêng cho việc mua sắm trang thiết bị văn phòng",
+      "name": "Quy trình xử lý Đơn Hàng tổng hợp",
+      "description": "Luồng phê duyệt rẽ nhánh song song kiểm kho, kiểm giá sale và kiểm CS",
       "steps": [
         {
-          "name": "Trưởng phòng ký duyệt",
+          "id": "step_init",
+          "name": "Khởi tạo đơn hàng",
           "stepOrder": 1,
-          "formId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "stepType": "START",
+          "nextStepIds": ["step_fork_1"]
+        },
+        {
+          "id": "step_fork_1",
+          "name": "Nút phân nhánh song song",
+          "stepOrder": 2,
+          "stepType": "FORK",
+          "nextStepIds": ["step_warehouse", "step_sale", "step_cs"]
+        },
+        {
+          "id": "step_warehouse",
+          "name": "Quản lý kho duyệt tồn kho",
+          "stepOrder": 3,
+          "stepType": "APPROVAL",
+          "nextStepIds": ["step_join_1"],
           "config": {
-            "assignees": {
-              "type": "ROLE",
-              "value": "DEPT_MANAGER"
-            },
+            "assignees": { "type": "ROLE", "value": "WAREHOUSE_MANAGER" },
             "consensusRule": "ANY"
           }
         },
         {
-          "name": "Rẽ nhánh dựa trên ngân sách",
-          "stepOrder": 2,
+          "id": "step_sale",
+          "name": "Quản lý Sale duyệt chính sách giá",
+          "stepOrder": 4,
+          "stepType": "APPROVAL",
+          "nextStepIds": ["step_join_1"],
           "config": {
-            "branching": {
-              "rules": [
-                {
-                  "condition": "context.totalAmount >= 50000000",
-                  "targetStepOrder": 4 // Nhảy thẳng tới bước duyệt của Ban Giám Đốc
-                },
-                {
-                  "condition": "context.totalAmount < 50000000",
-                  "targetStepOrder": 3 // Qua bước kế toán kiểm tra
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Kế toán kiểm duyệt ngân sách",
-          "stepOrder": 3,
-          "config": {
-            "assignees": {
-              "type": "USER_IDS",
-              "value": ["usr-acct-1", "usr-acct-2"]
-            },
+            "assignees": { "type": "ROLE", "value": "SALES_MANAGER" },
             "consensusRule": "ALL"
           }
         },
         {
-          "name": "Ban Giám Đốc phê duyệt cuối",
-          "stepOrder": 4,
+          "id": "step_cs",
+          "name": "Bộ phận CS kiểm tra ưu đãi",
+          "stepOrder": 5,
+          "stepType": "APPROVAL",
+          "nextStepIds": ["step_join_1"],
           "config": {
-            "assignees": {
-              "type": "ROLE",
-              "value": "BOARD_MEMBER"
-            },
-            "consensusRule": "PERCENTAGE",
-            "thresholdPercentage": 66.6
+            "assignees": { "type": "ROLE", "value": "CS_EXPERT" },
+            "consensusRule": "ANY"
           }
+        },
+        {
+          "id": "step_join_1",
+          "name": "Nút gộp nhánh song song",
+          "stepOrder": 6,
+          "stepType": "JOIN",
+          "nextStepIds": ["step_director_approve"],
+          "config": {
+            "joinRules": "ALL_BRANCHES" // Chờ cả 3 bước (step_warehouse, step_sale, step_cs) ở trên APPROVED
+          }
+        },
+        {
+          "id": "step_director_approve",
+          "name": "Ban Giám Đốc phê duyệt cuối cùng",
+          "stepOrder": 7,
+          "stepType": "APPROVAL",
+          "nextStepIds": ["step_end"],
+          "config": {
+            "assignees": { "type": "ROLE", "value": "DIRECTOR" },
+            "consensusRule": "ANY"
+          }
+        },
+        {
+          "id": "step_end",
+          "name": "Kết thúc quy trình",
+          "stepOrder": 8,
+          "stepType": "END",
+          "nextStepIds": []
         }
       ]
     }

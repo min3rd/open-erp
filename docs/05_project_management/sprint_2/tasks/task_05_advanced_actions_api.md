@@ -58,10 +58,11 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
 ### 3. Phân chia công việc chi tiết cho các thành viên
 
 #### 3.1 Backend Engineer (BE)
-* **Nhiệm vụ 1: Thiết kế Lõi Hành động và Máy trạng thái (Finite State Machine - FSM)**
+* **Nhiệm vụ 1: Thiết kế Lõi Hành động và Máy trạng thái (Finite State Machine - FSM) & Đánh giá Gộp luồng (Join Sync)**
   - Viết logic chuyển trạng thái luồng xử lý (`workflow_instances.status`) tương ứng với từng loại hành động.
   - Cập nhật trạng thái xử lý thực tế của người duyệt tương ứng trong bảng `workflow_approvers` (cập nhật cột `status`, `action_at`, `comment`, `signature_id`).
   - Xây dựng bảng quan hệ `workflow_consultations` để quản lý các phiên xin ý kiến (người yêu cầu, người phản hồi, trạng thái hoàn tất). Khi xin ý kiến, hệ thống tự động sinh thêm bản ghi nhiệm vụ trong bảng `workflow_approvers` cho chuyên viên tư vấn đó.
+  - **Xử lý hội tụ nhánh song song (Join Sync):** Khi một bước duyệt hoàn thành, kiểm tra xem bước tiếp theo có phải là nút `JOIN` hay không. Nếu có, thực hiện quét bảng `workflow_approvers` đối với tất cả các nhánh song song đồng cấp. Chỉ khi đạt điều kiện cấu hình gộp luồng (`join_rules` - ví dụ: tất cả các nhánh đều `APPROVED`), hệ thống mới kích hoạt bước tuần tự tiếp theo và cập nhật `current_step_ids` của instance.
 * **Nhiệm vụ 2: Tích hợp Module Sinh luồng phụ (Sub-workflow Controller)**
   - Xây dựng trình quản lý liên kết quy trình cha - con (Parent-Child Workflow association). Lắng nghe sự kiện hoàn thành của luồng con để tự động mở khóa (resume) luồng cha.
 

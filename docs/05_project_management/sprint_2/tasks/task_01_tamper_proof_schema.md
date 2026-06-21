@@ -45,7 +45,9 @@ Các bảng dữ liệu được cấu hình khóa ngoại chặt chẽ và bắ
 - `tenant_id` (UUID, FK -> tenants.id)
 - `name` (VARCHAR)
 - `step_order` (INTEGER)
-- `config` (JSONB) - Chứa thông tin về điều kiện rẽ nhánh (branching_rules), quy tắc đồng thuận (consensus_rules: ALL, ANY, Threshold %). Các đối tượng người duyệt được lưu cấu hình chuẩn hóa qua bảng `workflow_step_assignees`.
+- `step_type` (VARCHAR) - Kiểu bước: 'START', 'APPROVAL', 'FORK', 'JOIN', 'END'
+- `next_step_ids` (UUID[]) - Mảng các ID bước tiếp theo. Nếu `step_type` là 'FORK', toàn bộ các bước trong mảng sẽ được kích hoạt song song.
+- `config` (JSONB) - Chứa thông tin về điều kiện rẽ nhánh (branching_rules), quy tắc đồng thuận (consensus_rules), và luật gộp nhánh song song (join_rules: ALL_BRANCHES - gộp khi tất cả nhánh xong, hoặc ANY_BRANCH - gộp khi có 1 nhánh xong).
 - `form_id` (UUID, FK -> dynamic_forms.id, nullable) - Form điền thông tin tại bước này
 - `template_id` (UUID, FK -> document_templates.id, nullable) - Biểu mẫu đính kèm
 
@@ -62,7 +64,7 @@ Các bảng dữ liệu được cấu hình khóa ngoại chặt chẽ và bắ
 - `tenant_id` (UUID, FK -> tenants.id)
 - `creator_id` (UUID, FK -> users.id)
 - `status` (VARCHAR) - 'PENDING', 'APPROVED', 'REJECTED', 'IN_PROGRESS'
-- `current_step_id` (UUID, FK -> workflow_steps.id, nullable)
+- `current_step_ids` (UUID[]) - Mảng các ID bước đang xử lý hiện tại (hỗ trợ nhiều bước chạy song song đồng thời)
 - `context_data` (JSONB) - Lưu trữ dữ liệu thu thập qua các bước (bao gồm cả form dữ liệu)
 - `created_at` (TIMESTAMPTZ)
 
