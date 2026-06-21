@@ -22,12 +22,15 @@ import { DynamicForm } from './core/dynamic-form/entities/dynamic-form.entity';
 import { DocumentTemplate } from './core/document-template/entities/document-template.entity';
 import { WorkflowConsultation } from './core/workflow/entities/workflow-consultation.entity';
 import { Notification } from './core/notification/entities/notification.entity';
+import { SystemCa } from './core/ca/entities/system-ca.entity';
+import { UserCertificate } from './core/ca/entities/user-certificate.entity';
 import { AuthModule } from './features/auth/auth.module';
 import { OrgModule } from './features/org/org.module';
 import { StorageModule } from './features/storage/storage.module';
 import { WorkflowModule as WorkflowFeatureModule } from './features/workflow/workflow.module';
 import { DynamicFormModule } from './features/dynamic-form/dynamic-form.module';
 import { DocumentTemplateModule } from './features/document-template/document-template.module';
+import { CaModule } from './core/ca/ca.module';
 import { RedisModule } from './core/redis/redis.module';
 import { TenantMiddleware } from './core/tenant/tenant.middleware';
 
@@ -64,6 +67,8 @@ import { TenantMiddleware } from './core/tenant/tenant.middleware';
           DocumentTemplate,
           WorkflowConsultation,
           Notification,
+          SystemCa,
+          UserCertificate,
         ],
         synchronize: configService.get<boolean>('DB_SYNCHRONIZE', true),
       }),
@@ -85,6 +90,7 @@ import { TenantMiddleware } from './core/tenant/tenant.middleware';
     WorkflowFeatureModule,
     DynamicFormModule,
     DocumentTemplateModule,
+    CaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

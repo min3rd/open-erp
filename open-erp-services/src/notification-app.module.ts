@@ -20,6 +20,8 @@ import { DynamicForm } from './core/dynamic-form/entities/dynamic-form.entity';
 import { DocumentTemplate } from './core/document-template/entities/document-template.entity';
 import { WorkflowConsultation } from './core/workflow/entities/workflow-consultation.entity';
 import { Notification } from './core/notification/entities/notification.entity';
+import { SystemCa } from './core/ca/entities/system-ca.entity';
+import { UserCertificate } from './core/ca/entities/user-certificate.entity';
 import { RedisModule } from './core/redis/redis.module';
 import { CoreNotificationModule } from './core/notification/notification.module';
 import { FeatureNotificationModule } from './features/notification/notification.module';
@@ -59,6 +61,8 @@ import { WorkflowModule } from './core/workflow/workflow.module';
           DocumentTemplate,
           WorkflowConsultation,
           Notification,
+          SystemCa,
+          UserCertificate,
         ],
         synchronize: false, // Microservice should not run synchronize in parallel to main app
       }),

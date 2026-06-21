@@ -104,4 +104,12 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
 ---
 
 ### 6. Trạng thái thực tế & Kết quả bàn giao (Actual Status & Deliverables)
-*(Chưa bắt đầu)*
+- **Trạng thái:** [x] Hoàn thành (Done)
+- **Kết quả bàn giao:**
+  - Thực thể `SystemCa` và `UserCertificate` lưu trữ thông tin chứng thư gốc CA và chứng thư người dùng.
+  - `CaService` tự động sinh Root CA khi hệ thống khởi tạo lần đầu và mã hóa Root Private Key bằng Master Key qua AES-256-cbc.
+  - Luồng sinh khóa RSA 2048-bit bất đồng bộ qua `crypto.generateKeyPair` giải quyết triệt để vấn đề block Event Loop, sau đó ký chứng thư bằng Root CA và mã hóa Private Key của user bằng khóa phái sinh PBKDF2 từ passphrase của user.
+  - REST APIs:
+    - `POST /api/v1/ca/certificates/issue`: Tạo/Cập nhật chứng thư số cá nhân.
+    - `GET /api/v1/ca/certificates/my`: Lấy chứng thư số công khai PEM của user hiện tại.
+  - Bộ unit test `ca.spec.ts` kiểm thử toàn diện module CA đạt 100% passed.
