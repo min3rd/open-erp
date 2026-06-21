@@ -344,4 +344,76 @@ describe('AuthService', () => {
       expect(result).toEqual({ success: true });
     });
   });
+
+  describe('loginWithGoogle', () => {
+    let mockUser: any;
+    let mockTenant1: any;
+
+    beforeEach(() => {
+      mockTenant1 = { id: 'tenant-1', name: 'GoTech', subdomain: 'gotech' };
+      mockUser = {
+        id: 'user-id',
+        email: 'google-user@test.com',
+        password: 'hashed-password',
+        status: 'Active',
+        tenantId: 'tenant-1',
+        roles: [{ id: 'role-1', name: 'employee', tenantId: 'tenant-1' }],
+        tenants: [mockTenant1],
+      };
+      userRepoMock.findOne.mockReset();
+      tenantRepoMock.findOne.mockReset();
+    });
+
+    it('should auto-register and throw NO_TENANT_ASSOCIATED if user does not exist', async () => {
+      userRepoMock.findOne.mockResolvedValue(null);
+
+      await expect(service.loginWithGoogle('mock_google_newuser@test.com')).rejects.toThrow(BadRequestException);
+      expect(userRepoMock.save).toHaveBeenCalled();
+    });
+
+    it('should login successfully for existing user', async () => {
+      userRepoMock.findOne.mockResolvedValue(mockUser);
+      tenantRepoMock.findOne.mockResolvedValue(mockTenant1);
+
+      const result = await service.loginWithGoogle('mock_google_google-user@test.com', 'tenant-1');
+      expect(result.success).toBe(true);
+      expect(result.data?.tenant?.id).toBe('tenant-1');
+    });
+  });
+
+  describe('loginWithMicrosoft', () => {
+    let mockUser: any;
+    let mockTenant1: any;
+
+    beforeEach(() => {
+      mockTenant1 = { id: 'tenant-1', name: 'GoTech', subdomain: 'gotech' };
+      mockUser = {
+        id: 'user-id',
+        email: 'ms-user@test.com',
+        password: 'hashed-password',
+        status: 'Active',
+        tenantId: 'tenant-1',
+        roles: [{ id: 'role-1', name: 'employee', tenantId: 'tenant-1' }],
+        tenants: [mockTenant1],
+      };
+      userRepoMock.findOne.mockReset();
+      tenantRepoMock.findOne.mockReset();
+    });
+
+    it('should auto-register and throw NO_TENANT_ASSOCIATED if user does not exist', async () => {
+      userRepoMock.findOne.mockResolvedValue(null);
+
+      await expect(service.loginWithMicrosoft('mock-access-token', 'mock_microsoft_newuser@test.com')).rejects.toThrow(BadRequestException);
+      expect(userRepoMock.save).toHaveBeenCalled();
+    });
+
+    it('should login successfully for existing user', async () => {
+      userRepoMock.findOne.mockResolvedValue(mockUser);
+      tenantRepoMock.findOne.mockResolvedValue(mockTenant1);
+
+      const result = await service.loginWithMicrosoft('mock-access-token', 'mock_microsoft_ms-user@test.com', 'tenant-1');
+      expect(result.success).toBe(true);
+      expect(result.data?.tenant?.id).toBe('tenant-1');
+    });
+  });
 });

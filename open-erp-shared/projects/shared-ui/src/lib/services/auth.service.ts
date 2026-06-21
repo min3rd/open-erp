@@ -181,6 +181,58 @@ export class AuthService {
     );
   }
 
+  loginWithGoogle(idToken: string, tenantId?: string): Observable<LoginResponse> {
+    const url = this.config.buildUrl(API_ENDPOINTS.auth.oauthGoogle);
+    return this.http.post<LoginResponse>(url, { idToken, tenantId }, { withCredentials: true }).pipe(
+      tap((res) => {
+        if (res.success && res.data?.accessToken) {
+          this.accessToken.set(res.data.accessToken);
+          localStorage.setItem('accessToken', res.data.accessToken);
+          if (res.data.tenant) {
+            localStorage.setItem('tenantId', res.data.tenant.id);
+            if (res.data.tenant.subdomain) {
+              localStorage.setItem('subdomain', res.data.tenant.subdomain);
+            } else {
+              localStorage.removeItem('subdomain');
+            }
+          }
+        }
+      }),
+      switchMap((res) => {
+        if (res.success && res.data?.accessToken) {
+          return this.fetchProfileAndPermissions().pipe(map(() => res));
+        }
+        return of(res);
+      })
+    );
+  }
+
+  loginWithMicrosoft(accessToken: string, idToken: string, tenantId?: string): Observable<LoginResponse> {
+    const url = this.config.buildUrl(API_ENDPOINTS.auth.oauthMicrosoft);
+    return this.http.post<LoginResponse>(url, { accessToken, idToken, tenantId }, { withCredentials: true }).pipe(
+      tap((res) => {
+        if (res.success && res.data?.accessToken) {
+          this.accessToken.set(res.data.accessToken);
+          localStorage.setItem('accessToken', res.data.accessToken);
+          if (res.data.tenant) {
+            localStorage.setItem('tenantId', res.data.tenant.id);
+            if (res.data.tenant.subdomain) {
+              localStorage.setItem('subdomain', res.data.tenant.subdomain);
+            } else {
+              localStorage.removeItem('subdomain');
+            }
+          }
+        }
+      }),
+      switchMap((res) => {
+        if (res.success && res.data?.accessToken) {
+          return this.fetchProfileAndPermissions().pipe(map(() => res));
+        }
+        return of(res);
+      })
+    );
+  }
+
   testLinkTenant(email: string, subdomain: string): Observable<any> {
     const url = this.config.buildUrl(API_ENDPOINTS.auth.testLinkTenant);
     return this.http.post<any>(url, { email, subdomain });

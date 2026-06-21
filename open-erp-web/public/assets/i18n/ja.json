@@ -45,7 +45,11 @@
     "back_to_login": "ログインに戻る",
     "confirm_password": "パスワードの確認",
     "activate_account": "アカウントを有効化",
-    "passwords_must_match": "パスワードが一致しません"
+    "passwords_must_match": "パスワードが一致しません",
+    "or_sign_in_with": "または次のアカウントでログイン",
+    "login_google": "Google でログイン",
+    "login_microsoft": "Microsoft でログイン",
+    "no_tenant_associated": "このアカウントはどのワークスペースにも関連付けられていません。"
   },
   "validation": {
     "company_name_required": "会社名は必須項目です。",

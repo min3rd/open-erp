@@ -45,6 +45,10 @@ export class LoginComponent implements OnInit {
   requireTenantSelection = signal<boolean>(false);
   availableTenants = signal<any[]>([]);
 
+  currentOAuthProvider = signal<string | null>(null);
+  currentOAuthToken = signal<string | null>(null);
+  currentOAuthMicrosoftAccessToken = signal<string | null>(null);
+
   steps: TourStep[] = [
     {
       title: 'guide.login_title',
@@ -193,6 +197,16 @@ export class LoginComponent implements OnInit {
     this.successMessage.set('');
     this.errorMessage.set('');
 
+    if (this.currentOAuthProvider()) {
+      this.handleOAuthLogin(
+        this.currentOAuthProvider()!,
+        this.currentOAuthToken()!,
+        tenant.id,
+        this.currentOAuthMicrosoftAccessToken() || undefined,
+      );
+      return;
+    }
+
     const formVal = this.loginForm.value;
 
     this.authService.selectTenant({
@@ -240,6 +254,100 @@ export class LoginComponent implements OnInit {
     this.availableTenants.set([]);
     this.errorMessage.set('');
     this.successMessage.set('');
+    this.currentOAuthProvider.set(null);
+    this.currentOAuthToken.set(null);
+    this.currentOAuthMicrosoftAccessToken.set(null);
+  }
+
+  loginWithGoogle() {
+    this.isLoading.set(true);
+    this.successMessage.set('');
+    this.errorMessage.set('');
+
+    const mockEmail = window.prompt(
+      'Đăng nhập với Google (Development Mode)\n\nNhập email Google của bạn:',
+      'user@example.com'
+    );
+
+    if (!mockEmail) {
+      this.isLoading.set(false);
+      return;
+    }
+
+    const idToken = `mock_google_${mockEmail}`;
+    this.handleOAuthLogin('google', idToken);
+  }
+
+  loginWithMicrosoft() {
+    this.isLoading.set(true);
+    this.successMessage.set('');
+    this.errorMessage.set('');
+
+    const mockEmail = window.prompt(
+      'Đăng nhập với Microsoft (Development Mode)\n\nNhập email Microsoft của bạn:',
+      'user@outlook.com'
+    );
+
+    if (!mockEmail) {
+      this.isLoading.set(false);
+      return;
+    }
+
+    const idToken = `mock_microsoft_${mockEmail}`;
+    const accessToken = 'mock_ms_access_token';
+    this.handleOAuthLogin('microsoft', idToken, undefined, accessToken);
+  }
+
+  handleOAuthLogin(provider: string, token: string, tenantId?: string, microsoftAccessToken?: string) {
+    const request = provider === 'google'
+      ? this.authService.loginWithGoogle(token, tenantId)
+      : this.authService.loginWithMicrosoft(microsoftAccessToken || '', token, tenantId);
+
+    request.subscribe({
+      next: (res) => {
+        this.isLoading.set(false);
+        if (res && res.success) {
+          if (res.data?.requireTenantSelection) {
+            this.currentOAuthProvider.set(provider);
+            this.currentOAuthToken.set(token);
+            if (microsoftAccessToken) {
+              this.currentOAuthMicrosoftAccessToken.set(microsoftAccessToken);
+            }
+            this.requireTenantSelection.set(true);
+            this.availableTenants.set(res.data.tenants || []);
+            return;
+          }
+
+          const msgKey = res.messageKey || 'auth.login_success';
+          this.successMessage.set(this.translocoService.translate(msgKey));
+          
+          this.http.get<any>('/api/v1/org/departments').subscribe({
+            next: (deptRes) => {
+              const hasDepts = deptRes.success && deptRes.data && deptRes.data.length > 0;
+              const isAdmin = this.authService.getRole() === 'admin';
+              setTimeout(() => {
+                if (!hasDepts && isAdmin) {
+                  this.router.navigate(['/org-structure']);
+                } else {
+                  this.router.navigate(['/home']);
+                }
+              }, 1500);
+            },
+            error: () => {
+              setTimeout(() => {
+                this.router.navigate(['/home']);
+              }, 1500);
+            }
+          });
+        }
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        const errPayload = err.error || {};
+        const msgKey = errPayload.error?.messageKey || 'auth.invalid_credentials';
+        this.errorMessage.set(this.translocoService.translate(msgKey));
+      }
+    });
   }
 
   goToRegister() {

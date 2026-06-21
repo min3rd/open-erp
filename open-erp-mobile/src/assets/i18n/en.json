@@ -49,7 +49,11 @@
     "back_to_login": "Back to login",
     "confirm_password": "Confirm Password",
     "activate_account": "Activate Account",
-    "passwords_must_match": "Passwords must match"
+    "passwords_must_match": "Passwords must match",
+    "or_sign_in_with": "Or sign in with",
+    "login_google": "Sign in with Google",
+    "login_microsoft": "Sign in with Microsoft",
+    "no_tenant_associated": "Your account is not associated with any workspace/tenant."
   },
   "validation": {
     "company_name_required": "Company name is required.",

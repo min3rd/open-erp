@@ -16,6 +16,8 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { SelectTenantDto } from './dto/select-tenant.dto';
+import { GoogleOauthDto } from './dto/google-oauth.dto';
+import { MicrosoftOauthDto } from './dto/microsoft-oauth.dto';
 import { JwtAuthGuard } from '../../core/auth/auth.guard';
 
 @Controller('auth')
@@ -164,6 +166,52 @@ export class AuthController {
     @Res({ passthrough: true }) res: any,
   ) {
     const result = await this.authService.selectTenant(dto);
+
+    if (result.success && result.data && result.data.refreshToken) {
+      res.cookie('refreshToken', result.data.refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: '/',
+      });
+    }
+
+    return result;
+  }
+
+  @Post('oauth/google')
+  @HttpCode(HttpStatus.OK)
+  async oauthGoogle(
+    @Body() dto: GoogleOauthDto,
+    @Res({ passthrough: true }) res: any,
+  ) {
+    const result = await this.authService.loginWithGoogle(dto.idToken, dto.tenantId);
+
+    if (result.success && result.data && result.data.refreshToken) {
+      res.cookie('refreshToken', result.data.refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: '/',
+      });
+    }
+
+    return result;
+  }
+
+  @Post('oauth/microsoft')
+  @HttpCode(HttpStatus.OK)
+  async oauthMicrosoft(
+    @Body() dto: MicrosoftOauthDto,
+    @Res({ passthrough: true }) res: any,
+  ) {
+    const result = await this.authService.loginWithMicrosoft(
+      dto.accessToken,
+      dto.idToken,
+      dto.tenantId,
+    );
 
     if (result.success && result.data && result.data.refreshToken) {
       res.cookie('refreshToken', result.data.refreshToken, {

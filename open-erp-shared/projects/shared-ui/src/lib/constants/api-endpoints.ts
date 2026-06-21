@@ -11,5 +11,7 @@ export const API_ENDPOINTS = {
     activate: '/api/v1/auth/activate',
     me: '/api/v1/auth/me',
     menu: '/api/v1/auth/menu',
+    oauthGoogle: '/api/v1/auth/oauth/google',
+    oauthMicrosoft: '/api/v1/auth/oauth/microsoft',
   },
 };

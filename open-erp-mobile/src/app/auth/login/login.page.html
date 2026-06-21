@@ -127,6 +127,63 @@
           </div>
         </form>
 
+        <!-- Divider -->
+        <div class="relative my-5">
+          <div class="absolute inset-0 flex items-center" aria-hidden="true">
+            <div class="w-full border-t border-slate-200 dark:border-slate-800"></div>
+          </div>
+          <div class="relative flex justify-center text-xs">
+            <span class="px-2 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-[10px] font-semibold tracking-wide uppercase select-none">
+              {{ 'auth.or_sign_in_with' | transloco }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Social Buttons Grid -->
+        <div class="grid grid-cols-2 gap-3.5">
+          <!-- Google button -->
+          <button
+            type="button"
+            (click)="loginWithGoogle()"
+            class="flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/80 text-slate-700 dark:text-slate-200 text-xs font-bold shadow-sm transition-all duration-200 transform active:scale-95 cursor-pointer select-none"
+          >
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24">
+              <path
+                fill="#EA4335"
+                d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.5 15.02 0 12 0 7.35 0 3.39 2.67 1.48 6.56l3.85 2.99c.9-2.7 3.41-4.51 6.67-4.51z"
+              />
+              <path
+                fill="#4285F4"
+                d="M23.49 12.27c0-.81-.07-1.59-.2-2.34H12v4.44h6.44c-.28 1.47-1.11 2.72-2.36 3.56l3.66 2.84c2.14-1.98 3.39-4.89 3.39-8.5z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.33 14.53c-.23-.69-.36-1.43-.36-2.2s.13-1.51.36-2.2L1.48 7.14C.54 9.07 0 11.23 0 13.5s.54 4.43 1.48 6.36l3.85-2.99c-.23-.69-.36-1.43-.36-2.2-.01-.13-.01-.27 0-.4z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 24c3.24 0 5.97-1.07 7.96-2.91l-3.66-2.84c-1.01.68-2.31 1.09-3.7 1.09-3.26 0-6.02-2.14-7.01-5.02l-3.85 2.99C3.12 21.05 7.18 24 12 24z"
+              />
+            </svg>
+            {{ 'auth.login_google' | transloco }}
+          </button>
+
+          <!-- Microsoft button -->
+          <button
+            type="button"
+            (click)="loginWithMicrosoft()"
+            class="flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/80 text-slate-700 dark:text-slate-200 text-xs font-bold shadow-sm transition-all duration-200 transform active:scale-95 cursor-pointer select-none"
+          >
+            <svg class="w-3.5 h-3.5" viewBox="0 0 23 23">
+              <path fill="#F25022" d="M0 0h11v11H0z" />
+              <path fill="#7FBA00" d="M12 0h11v11H12z" />
+              <path fill="#00A4EF" d="M0 12h11v11H0z" />
+              <path fill="#FFB900" d="M12 12h11v11H12z" />
+            </svg>
+            {{ 'auth.login_microsoft' | transloco }}
+          </button>
+        </div>
+
         <div class="mt-5 text-center text-xs space-y-2.5">
           <div>
             <span class="text-slate-500 dark:text-slate-400">

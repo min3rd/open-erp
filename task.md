@@ -39,6 +39,9 @@
 - [x] **TSK-1.8**: Tích hợp đăng nhập OAuth (Google & Microsoft)
   - [x] Create technical specification document for TSK-1.8.
   - [x] Add TSK-1.8 task details to Sprint 1 index.
+  - [x] Implement backend OAuth validation endpoints and logic (Google & Microsoft).
+  - [x] Implement shared library OAuth endpoints and login methods.
+  - [x] Implement frontend Web and Mobile OAuth buttons and mock login flows.
 - [/] **TSK-1.1 Mobile**: Đăng ký doanh nghiệp & Khởi tạo Tenant trên Mobile
   - [ ] Nâng cấp dependencies trong `open-erp-mobile/package.json` lên Angular v22 và cài đặt Tailwind v4, Transloco, Shared UI.
   - [ ] Tạo file cấu hình `.postcssrc.json` và cập nhật `global.scss` để hỗ trợ Tailwind v4 trên mobile.

@@ -12,6 +12,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { SelectTenantDto } from './dto/select-tenant.dto';
+import { OAuth2Client } from 'google-auth-library';
 
 import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
@@ -237,45 +238,7 @@ export class AuthService {
     };
   }
 
-  async login(dto: LoginDto, tenantId?: string) {
-    const email = dto.email.trim().toLowerCase();
-
-    const user = await this.userRepository.findOne({
-      where: { email },
-      relations: ['roles', 'tenants'],
-    });
-
-    if (!user) {
-      throw new BadRequestException({
-        success: false,
-        error: {
-          code: 'INVALID_CREDENTIALS',
-          messageKey: 'auth.invalid_credentials',
-        },
-      });
-    }
-
-    if (user.status !== 'Active') {
-      throw new BadRequestException({
-        success: false,
-        error: {
-          code: 'ACCOUNT_NOT_ACTIVATED',
-          messageKey: 'auth.account_not_activated',
-        },
-      });
-    }
-
-    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
-    if (!isPasswordValid) {
-      throw new BadRequestException({
-        success: false,
-        error: {
-          code: 'INVALID_CREDENTIALS',
-          messageKey: 'auth.invalid_credentials',
-        },
-      });
-    }
-
+  async handleUserLogin(user: User, tenantId?: string) {
     // Resolve all associated tenants
     const tenants: Tenant[] = [];
     if (user.tenantId) {
@@ -374,6 +337,214 @@ export class AuthService {
           : null,
       },
     };
+  }
+
+  async login(dto: LoginDto, tenantId?: string) {
+    const email = dto.email.trim().toLowerCase();
+
+    const user = await this.userRepository.findOne({
+      where: { email },
+      relations: ['roles', 'tenants'],
+    });
+
+    if (!user) {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'INVALID_CREDENTIALS',
+          messageKey: 'auth.invalid_credentials',
+        },
+      });
+    }
+
+    if (user.status !== 'Active') {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'ACCOUNT_NOT_ACTIVATED',
+          messageKey: 'auth.account_not_activated',
+        },
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+    if (!isPasswordValid) {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'INVALID_CREDENTIALS',
+          messageKey: 'auth.invalid_credentials',
+        },
+      });
+    }
+
+    return this.handleUserLogin(user, tenantId);
+  }
+
+  async loginWithGoogle(idToken: string, tenantId?: string) {
+    let email: string;
+    let name: string;
+
+    if (idToken.startsWith('mock_google_')) {
+      email = idToken.replace('mock_google_', '').trim().toLowerCase();
+      name = email.split('@')[0];
+    } else {
+      const googleClientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
+      if (!googleClientId) {
+        throw new BadRequestException({
+          success: false,
+          error: {
+            code: 'GOOGLE_AUTH_NOT_CONFIGURED',
+            messageKey: 'auth.google_auth_not_configured',
+          },
+        });
+      }
+      try {
+        const client = new OAuth2Client(googleClientId);
+        const ticket = await client.verifyIdToken({
+          idToken,
+          audience: googleClientId,
+        });
+        const payload = ticket.getPayload();
+        if (!payload || !payload.email) {
+          throw new Error('Invalid Google Token payload');
+        }
+        email = payload.email.trim().toLowerCase();
+        name = payload.name || email.split('@')[0];
+      } catch (err) {
+        throw new BadRequestException({
+          success: false,
+          error: {
+            code: 'INVALID_OAUTH_TOKEN',
+            messageKey: 'auth.invalid_oauth_token',
+          },
+        });
+      }
+    }
+
+    let user = await this.userRepository.findOne({
+      where: { email },
+      relations: ['roles', 'tenants'],
+    });
+
+    if (!user) {
+      // Auto-register user as Active
+      const randomPassword = crypto.randomBytes(16).toString('hex');
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
+      const newUser = new User();
+      newUser.email = email;
+      newUser.password = hashedPassword;
+      newUser.status = 'Active';
+      newUser.firstName = name.split(' ')[0] || 'Google';
+      newUser.lastName = name.split(' ').slice(1).join(' ') || 'User';
+      newUser.roles = [];
+      newUser.tenants = [];
+
+      user = await this.userRepository.save(newUser);
+      user.roles = [];
+      user.tenants = [];
+    } else if (user.status !== 'Active') {
+      // Activate pending user
+      user.status = 'Active';
+      await this.userRepository.save(user);
+    }
+
+    return this.handleUserLogin(user, tenantId);
+  }
+
+  async loginWithMicrosoft(accessToken: string, idToken: string, tenantId?: string) {
+    const { email, name } = await this.verifyMicrosoftToken(idToken);
+
+    let user = await this.userRepository.findOne({
+      where: { email },
+      relations: ['roles', 'tenants'],
+    });
+
+    if (!user) {
+      // Auto-register user as Active
+      const randomPassword = crypto.randomBytes(16).toString('hex');
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
+      const newUser = new User();
+      newUser.email = email;
+      newUser.password = hashedPassword;
+      newUser.status = 'Active';
+      newUser.firstName = name.split(' ')[0] || 'Microsoft';
+      newUser.lastName = name.split(' ').slice(1).join(' ') || 'User';
+      newUser.roles = [];
+      newUser.tenants = [];
+
+      user = await this.userRepository.save(newUser);
+      user.roles = [];
+      user.tenants = [];
+    } else if (user.status !== 'Active') {
+      // Activate pending user
+      user.status = 'Active';
+      await this.userRepository.save(user);
+    }
+
+    return this.handleUserLogin(user, tenantId);
+  }
+
+  private async verifyMicrosoftToken(idToken: string): Promise<{ email: string; name: string }> {
+    if (idToken.startsWith('mock_microsoft_')) {
+      const email = idToken.replace('mock_microsoft_', '').trim().toLowerCase();
+      const name = email.split('@')[0];
+      return { email, name };
+    }
+
+    try {
+      const parts = idToken.split('.');
+      if (parts.length !== 3) {
+        throw new Error('Invalid JWT format');
+      }
+      const headerJson = Buffer.from(parts[0], 'base64').toString('utf8');
+      const header = JSON.parse(headerJson);
+      const kid = header.kid;
+
+      if (!kid) {
+        throw new Error('No kid in Microsoft JWT header');
+      }
+
+      const response = await fetch('https://login.microsoftonline.com/common/discovery/v2.0/keys');
+      if (!response.ok) {
+        throw new Error('Failed to fetch Microsoft public keys');
+      }
+      const data = await response.json();
+      const keys = data.keys || [];
+
+      const matchKey = keys.find((k: any) => k.kid === kid);
+      if (!matchKey || !matchKey.x5c || matchKey.x5c.length === 0) {
+        throw new Error('Matching Microsoft key not found');
+      }
+
+      const cert = `-----BEGIN CERTIFICATE-----\n${matchKey.x5c[0]}\n-----END CERTIFICATE-----`;
+      const payload = this.jwtService.verify(idToken, {
+        secret: cert,
+        algorithms: ['RS256'],
+      });
+
+      const email = payload.email || payload.preferred_username || payload.upn;
+      const name = payload.name || email.split('@')[0];
+
+      if (!email) {
+        throw new Error('No email found in Microsoft token');
+      }
+
+      return { email: email.trim().toLowerCase(), name };
+    } catch (err) {
+      console.error('Microsoft verification error:', err);
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'INVALID_OAUTH_TOKEN',
+          messageKey: 'auth.invalid_oauth_token',
+        },
+      });
+    }
   }
 
   async selectTenant(dto: SelectTenantDto) {

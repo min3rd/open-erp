@@ -45,7 +45,11 @@
     "back_to_login": "返回登录",
     "confirm_password": "确认密码",
     "activate_account": "激活账户",
-    "passwords_must_match": "密码不匹配"
+    "passwords_must_match": "密码不匹配",
+    "or_sign_in_with": "或者使用以下方式登录",
+    "login_google": "使用 Google 登录",
+    "login_microsoft": "使用 Microsoft 登录",
+    "no_tenant_associated": "您的账户尚未关联任何企业/空间。"
   },
   "validation": {
     "company_name_required": "公司名称不能为空。",

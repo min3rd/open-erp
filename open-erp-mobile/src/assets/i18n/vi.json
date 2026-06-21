@@ -49,7 +49,11 @@
     "back_to_login": "Quay lại đăng nhập",
     "confirm_password": "Xác nhận mật khẩu",
     "activate_account": "Kích hoạt tài khoản",
-    "passwords_must_match": "Mật khẩu xác nhận không khớp"
+    "passwords_must_match": "Mật khẩu xác nhận không khớp",
+    "or_sign_in_with": "Hoặc đăng nhập bằng",
+    "login_google": "Đăng nhập bằng Google",
+    "login_microsoft": "Đăng nhập bằng Microsoft",
+    "no_tenant_associated": "Tài khoản của bạn chưa liên kết với doanh nghiệp nào."
   },
   "validation": {
     "company_name_required": "Tên công ty không được để trống.",
