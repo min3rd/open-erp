@@ -12,9 +12,16 @@ import { Employee } from './features/org/entities/employee.entity';
 import { Role } from './features/auth/entities/role.entity';
 import { Permission } from './features/auth/entities/permission.entity';
 import { SysFile } from './core/storage/file.entity';
+import { Workflow } from './core/workflow/entities/workflow.entity';
+import { WorkflowStep } from './core/workflow/entities/workflow-step.entity';
+import { WorkflowStepAssignee } from './core/workflow/entities/workflow-step-assignee.entity';
+import { WorkflowInstance } from './core/workflow/entities/workflow-instance.entity';
+import { WorkflowApprover } from './core/workflow/entities/workflow-approver.entity';
+import { WorkflowLog } from './core/workflow/entities/workflow-log.entity';
 import { AuthModule } from './features/auth/auth.module';
 import { OrgModule } from './features/org/org.module';
 import { StorageModule } from './features/storage/storage.module';
+import { WorkflowModule as WorkflowFeatureModule } from './features/workflow/workflow.module';
 import { RedisModule } from './core/redis/redis.module';
 import { TenantMiddleware } from './core/tenant/tenant.middleware';
 
@@ -32,7 +39,22 @@ import { TenantMiddleware } from './core/tenant/tenant.middleware';
         username: configService.get<string>('DB_USERNAME', 'postgres'),
         password: configService.get<string>('DB_PASSWORD', 'localpassword'),
         database: configService.get<string>('DB_DATABASE', 'open_erp_dev'),
-        entities: [Tenant, User, Branch, Department, Employee, Role, Permission, SysFile],
+        entities: [
+          Tenant,
+          User,
+          Branch,
+          Department,
+          Employee,
+          Role,
+          Permission,
+          SysFile,
+          Workflow,
+          WorkflowStep,
+          WorkflowStepAssignee,
+          WorkflowInstance,
+          WorkflowApprover,
+          WorkflowLog,
+        ],
         synchronize: configService.get<boolean>('DB_SYNCHRONIZE', true),
       }),
     }),
@@ -50,6 +72,7 @@ import { TenantMiddleware } from './core/tenant/tenant.middleware';
     AuthModule,
     OrgModule,
     StorageModule,
+    WorkflowFeatureModule,
   ],
   controllers: [AppController],
   providers: [AppService],

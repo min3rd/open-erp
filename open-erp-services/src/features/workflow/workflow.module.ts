@@ -1,0 +1,10 @@
+import { Module } from '@nestjs/common';
+import { WorkflowLogController } from './workflow-log.controller';
+import { WorkflowModule as CoreWorkflowModule } from '../../core/workflow/workflow.module';
+import { AuthModule } from '../auth/auth.module';
+
+@Module({
+  imports: [CoreWorkflowModule, AuthModule],
+  controllers: [WorkflowLogController],
+})
+export class WorkflowModule {}

@@ -204,4 +204,18 @@ Khi kiểm tra tính toàn vẹn (Integrity Check), backend sẽ duyệt tuần 
 ---
 
 ### 6. Trạng thái thực tế & Kết quả bàn giao (Actual Status & Deliverables)
-*(Chưa bắt đầu)*
+**Hoàn thành**
+* **TypeORM Entities (Cấu trúc DB Schema):**
+  - [workflows](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/entities/workflow.entity.ts) - Quản lý mẫu quy trình phê duyệt.
+  - [workflow_steps](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/entities/workflow-step.entity.ts) - Các bước cấu hình trong quy trình, hỗ trợ rẽ nhánh/song song (START, APPROVAL, FORK, JOIN, END).
+  - [workflow_step_assignees](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/entities/workflow-step-assignee.entity.ts) - Phân công mẫu của từng bước.
+  - [workflow_instances](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/entities/workflow-instance.entity.ts) - Các lượt chạy thực tế của quy trình phê duyệt.
+  - [workflow_approvers](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/entities/workflow-approver.entity.ts) - Danh sách các công việc phê duyệt thực tế phân bổ cho người dùng/phòng ban.
+  - [workflow_logs](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/entities/workflow-log.entity.ts) - Nhật ký phê duyệt chống giả mạo bằng cơ chế băm chuỗi.
+* **Logic băm chuỗi (Hash-chaining Logic):**
+  - Tích hợp tại [WorkflowLogService](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/workflow-log.service.ts): Tự động tính toán hash SHA-256 dựa trên dữ liệu nhật ký mới nhất và liên kết với `prev_hash` của log trước đó.
+  - Xác minh chuỗi băm thông qua hàm `verifyChain` duyệt tuyến tính kiểm tra tính toàn vẹn của chuỗi băm của một `instance_id`.
+* **API Xác thực:**
+  - `GET /api/v1/workflows/logs/:instanceId/verify` được triển khai tại [WorkflowLogController](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/workflow/workflow-log.controller.ts) để kiểm tra toàn vẹn chuỗi nhật ký.
+* **Kiểm thử tự động (Unit Tests):**
+  - Đã triển khai unit test cho Service tại [workflow-log.service.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/workflow-log.service.spec.ts) và Controller tại [workflow-log.controller.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/workflow/workflow-log.controller.spec.ts) với tỷ lệ bao phủ code 100%.
