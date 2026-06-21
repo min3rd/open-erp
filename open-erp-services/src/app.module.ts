@@ -19,11 +19,13 @@ import { WorkflowInstance } from './core/workflow/entities/workflow-instance.ent
 import { WorkflowApprover } from './core/workflow/entities/workflow-approver.entity';
 import { WorkflowLog } from './core/workflow/entities/workflow-log.entity';
 import { DynamicForm } from './core/dynamic-form/entities/dynamic-form.entity';
+import { DocumentTemplate } from './core/document-template/entities/document-template.entity';
 import { AuthModule } from './features/auth/auth.module';
 import { OrgModule } from './features/org/org.module';
 import { StorageModule } from './features/storage/storage.module';
 import { WorkflowModule as WorkflowFeatureModule } from './features/workflow/workflow.module';
 import { DynamicFormModule } from './features/dynamic-form/dynamic-form.module';
+import { DocumentTemplateModule } from './features/document-template/document-template.module';
 import { RedisModule } from './core/redis/redis.module';
 import { TenantMiddleware } from './core/tenant/tenant.middleware';
 
@@ -57,6 +59,7 @@ import { TenantMiddleware } from './core/tenant/tenant.middleware';
           WorkflowApprover,
           WorkflowLog,
           DynamicForm,
+          DocumentTemplate,
         ],
         synchronize: configService.get<boolean>('DB_SYNCHRONIZE', true),
       }),
@@ -77,6 +80,7 @@ import { TenantMiddleware } from './core/tenant/tenant.middleware';
     StorageModule,
     WorkflowFeatureModule,
     DynamicFormModule,
+    DocumentTemplateModule,
   ],
   controllers: [AppController],
   providers: [AppService],

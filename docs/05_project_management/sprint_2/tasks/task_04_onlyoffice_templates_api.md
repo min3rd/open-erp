@@ -163,4 +163,29 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
 ---
 
 ### 6. Trạng thái thực tế & Kết quả bàn giao (Actual Status & Deliverables)
-*(Chưa bắt đầu)*
+
+Task TSK-2.4 đã được hoàn thành đầy đủ các tiêu chí bàn giao và tích hợp thành công trên nhánh `develop`:
+
+* **Cài đặt thư viện:**
+  - Thêm thư viện `adm-zip` vào dự án để hỗ trợ thao tác đọc/ghi file ZIP (DOCX, XLSX, PPTX) phục vụ thay thế placeholder trong các file XML cấu trúc.
+* **Core Services (`open-erp-services`):**
+  - Khởi tạo thực thể cơ sở dữ liệu [DocumentTemplate Entity](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/document-template/entities/document-template.entity.ts) để quản lý biểu mẫu.
+  - Xây dựng lớp dịch vụ [DocumentTemplateService](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/document-template/document-template.service.ts) quản lý CRUD biểu mẫu, xử lý logic thay thế token dạng `{{placeholder}}` trong template file với các transformation (`uppercase`, `lowercase`, `currency_text`) từ context dữ liệu đơn của Workflow Instance, đồng thời tích hợp gọi OnlyOffice Conversion API để chuyển đổi các file đã sinh ra định dạng PDF.
+  - Khởi tạo [CoreDocumentTemplateModule](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/document-template/document-template.module.ts).
+  - Cập nhật [StorageService](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/storage/storage.service.ts) để hỗ trợ `updateFile` (ghi đè nội dung file) và `getFileStream` (truy xuất stream dữ liệu nhị phân của file).
+* **APIs & Controllers (`open-erp-services`):**
+  - Xây dựng [DocumentTemplateController](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/document-template/document-template.controller.ts) để expose APIs CRUD `/api/v1/document-templates` và sinh file `/api/v1/document-templates/:id/generate`. Endpoint khởi tạo mẫu tài liệu yêu cầu quyền `TEMPLATE_ADMIN`.
+  - Triển khai [FilesController](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/storage/files.controller.ts) để phục vụ OnlyOffice integration:
+    - `GET /files/:fileId/onlyoffice-config`: Trả về cấu hình DocsAPI để nhúng trình soạn thảo trực tuyến.
+    - `POST /files/onlyoffice-callback/:fileId`: Callback nhận cập nhật từ OnlyOffice, ghi đè phiên bản mới của tệp tin.
+    - `GET /files/:fileId/download-binary`: Serve stream nhị phân của file trực tiếp cho OnlyOffice download mà không bị vướng vấn đề mạng.
+  - Cấu hình bỏ qua xác thực tenant trong [TenantMiddleware](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/tenant/tenant.middleware.ts) cho callback của OnlyOffice.
+  - Seeding quyền `TEMPLATE_ADMIN` trong [AuthService](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/auth/auth.service.ts).
+* **Đăng ký module & entity:**
+  - Tích hợp đăng ký module và entity mới trong [app.module.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/app.module.ts).
+* **Unit Tests:**
+  - Hoàn thành bộ unit tests đầy đủ đạt tỷ lệ pass 100%:
+    - [document-template.service.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/document-template/document-template.service.spec.ts) (10 test cases)
+    - [document-template.controller.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/document-template/document-template.controller.spec.ts) (8 test cases)
+    - [files.controller.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/storage/files.controller.spec.ts) (6 test cases)
+

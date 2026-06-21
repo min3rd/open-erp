@@ -22,7 +22,8 @@ export class TenantMiddleware implements NestMiddleware {
       originalUrl.includes('/auth/check-subdomain') ||
       originalUrl.includes('/auth/register') ||
       originalUrl.includes('/auth/activate') ||
-      originalUrl.includes('/auth/login')
+      originalUrl.includes('/auth/login') ||
+      originalUrl.includes('/files/onlyoffice-callback/')
     ) {
       return next();
     }

@@ -61,7 +61,8 @@ export class AuthService {
       { code: 'CRM_READ', name: 'Xem thông tin CRM', module: 'crm' },
       { code: 'CRM_CREATE', name: 'Thêm cơ hội bán hàng', module: 'crm' },
       { code: 'CRM_UPDATE', name: 'Cập nhật cơ hội bán hàng', module: 'crm' },
-      { code: 'CRM_DELETE', name: 'Xóa cơ hội bán hàng', module: 'crm' }
+      { code: 'CRM_DELETE', name: 'Xóa cơ hội bán hàng', module: 'crm' },
+      { code: 'TEMPLATE_ADMIN', name: 'Quản trị biểu mẫu tài liệu', module: 'document_template' }
     ];
 
     const dbPermissions: Permission[] = [];

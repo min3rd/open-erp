@@ -160,4 +160,81 @@ export class StorageService implements OnModuleInit {
   async getFileById(fileId: string): Promise<SysFile | null> {
     return this.fileRepository.findOne({ where: { id: fileId } });
   }
+
+  async updateFile(
+    fileId: string,
+    tenantId: string | null,
+    buffer: Buffer,
+  ): Promise<SysFile> {
+    const file = await this.fileRepository.findOne({ where: { id: fileId } });
+    if (!file) {
+      throw new NotFoundException({
+        success: false,
+        error: {
+          code: 'FILE_NOT_FOUND',
+          messageKey: 'storage.file_not_found',
+        },
+      });
+    }
+
+    if (file.tenantId && file.tenantId !== tenantId) {
+      throw new ForbiddenException({
+        success: false,
+        error: {
+          code: 'TENANT_MISMATCH',
+          messageKey: 'storage.access_denied',
+        },
+      });
+    }
+
+    await this.s3Client.send(
+      new PutObjectCommand({
+        Bucket: file.bucketName,
+        Key: file.objectKey,
+        Body: buffer,
+        ContentType: file.mimeType,
+      }),
+    );
+
+    file.fileSize = buffer.length;
+    return this.fileRepository.save(file);
+  }
+
+  async getFileStream(
+    fileId: string,
+    tenantId: string | null,
+  ): Promise<{ stream: any; fileName: string; mimeType: string }> {
+    const file = await this.fileRepository.findOne({ where: { id: fileId } });
+    if (!file) {
+      throw new NotFoundException({
+        success: false,
+        error: {
+          code: 'FILE_NOT_FOUND',
+          messageKey: 'storage.file_not_found',
+        },
+      });
+    }
+
+    if (tenantId && file.tenantId && file.tenantId !== tenantId) {
+      throw new ForbiddenException({
+        success: false,
+        error: {
+          code: 'TENANT_MISMATCH',
+          messageKey: 'storage.access_denied',
+        },
+      });
+    }
+
+    const command = new GetObjectCommand({
+      Bucket: file.bucketName,
+      Key: file.objectKey,
+    });
+
+    const response = await this.s3Client.send(command);
+    return {
+      stream: response.Body,
+      fileName: file.fileName,
+      mimeType: file.mimeType,
+    };
+  }
 }
