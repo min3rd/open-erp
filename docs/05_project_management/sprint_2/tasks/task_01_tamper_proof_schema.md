@@ -58,6 +58,19 @@ Các bảng dữ liệu được cấu hình khóa ngoại chặt chẽ và bắ
 - `assignee_type` (VARCHAR) - Kiểu đối tượng: 'USER', 'DEPARTMENT', 'ROLE', 'DYNAMIC' (gán động theo trường dữ liệu trong form)
 - `assignee_id` (VARCHAR) - ID của người dùng, phòng ban, vai trò cụ thể hoặc biến định dạng để gán động.
 
+##### Bảng: `dynamic_forms` (Biểu mẫu động)
+Bảng này chứa thiết kế cấu trúc form động, hỗ trợ cơ chế lưu trữ nhiều phiên bản (versioning) nhằm tránh ảnh hưởng các quy trình cũ đang chạy và hỗ trợ khôi phục phiên bản trước.
+- `id` (UUID, PK) - ID định danh duy nhất cho từng phiên bản form
+- `tenant_id` (UUID, FK -> tenants.id)
+- `form_key` (VARCHAR) - Mã khóa duy nhất định danh form không đổi (ví dụ: 'leave_request_form')
+- `name` (VARCHAR) - Tên biểu mẫu hiển thị
+- `version` (INTEGER, default: 1) - Phiên bản số hiệu (1, 2, 3...)
+- `is_latest` (BOOLEAN, default: true) - Đánh dấu phiên bản mới nhất đang được áp dụng
+- `fields` (JSONB) - Mảng cấu hình các trường (fields schema) của form
+- `created_at` (TIMESTAMPTZ)
+- `updated_at` (TIMESTAMPTZ)
+- Ràng buộc: Unique `(tenant_id, form_key, version)`
+
 ##### Bảng: `workflow_instances` (Các lượt chạy quy trình thực tế)
 - `id` (UUID, PK)
 - `workflow_id` (UUID, FK -> workflows.id)
