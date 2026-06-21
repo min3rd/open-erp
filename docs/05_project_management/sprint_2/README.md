@@ -20,15 +20,15 @@
 
 ### 2. Chỉ mục trạng thái công việc (Task Index Dashboard)
 
-Dưới đây là danh sách 14 Task cần triển khai trong Sprint 2:
+Dưới đây là danh sách 15 Task cần triển khai trong Sprint 2:
 
 | ID | Tên công việc (Task Name) | Mô tả tóm tắt | Trạng thái (Status) | Nhân sự chính | Tài liệu chi tiết |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **TSK-2.1** | Thiết kế sơ đồ dữ liệu Workflow Engine & Chống chỉnh sửa | Thiết kế DB Schema chi tiết và cấu trúc lưu vết chống chỉnh sửa thông qua cơ chế hash-chaining (SHA-256). | [ ] Todo | BE Leads / DB Architect | [task_01_tamper_proof_schema.md](./tasks/task_01_tamper_proof_schema.md) |
-| **TSK-2.2** | API Cấu hình quy trình rẽ nhánh | APIs thiết lập sơ đồ quy trình động, cho phép cấu hình điều kiện rẽ nhánh và các quy tắc đồng thuận (ALL, ANY, Threshold %). | [ ] Todo | BE Engineers | [task_02_branching_workflow_api.md](./tasks/task_02_branching_workflow_api.md) |
-| **TSK-2.3** | API Thiết kế & Quản lý Form động | APIs quản lý vòng đời form động: định nghĩa cấu trúc trường, kiểu dữ liệu, các ràng buộc validate đầu vào. | [ ] Todo | BE Engineers | [task_03_dynamic_form_api.md](./tasks/task_03_dynamic_form_api.md) |
-| **TSK-2.4** | API Mẫu văn bản động & OnlyOffice Adapter | APIs lưu mẫu tài liệu, cấu hình OnlyOffice, ánh xạ dữ liệu động từ form vào file (PDF, DOCX) và chuyển đổi định dạng. | [ ] Todo | BE Engineers | [task_04_onlyoffice_templates_api.md](./tasks/task_04_onlyoffice_templates_api.md) |
-| **TSK-2.5** | API Duyệt đơn nâng cao theo module | APIs thực hiện hành động tại mỗi bước duyệt (Approve, Reject, Consult - xin ý kiến, Spawn Subprocess, Gen Document). | [ ] Todo | BE Engineers | [task_05_advanced_actions_api.md](./tasks/task_05_advanced_actions_api.md) |
+| **TSK-2.2** | API Cấu hình quy trình rẽ nhánh | APIs thiết lập sơ đồ quy trình động, cho phép cấu hình điều kiện rẽ nhánh, luồng song song (Fork/Join) và các quy tắc đồng thuận. | [ ] Todo | BE Engineers | [task_02_branching_workflow_api.md](./tasks/task_02_branching_workflow_api.md) |
+| **TSK-2.3** | API Thiết kế & Quản lý Form động | APIs quản lý vòng đời form động: định nghĩa cấu trúc trường, kiểu dữ liệu, các ràng buộc validate đầu vào và cơ chế versioning. | [ ] Todo | BE Engineers | [task_03_dynamic_form_api.md](./tasks/task_03_dynamic_form_api.md) |
+| **TSK-2.4** | API Mẫu văn bản động & OnlyOffice Adapter | APIs lưu mẫu tài liệu, cấu hình OnlyOffice, ánh xạ dữ liệu động từ form vào file (PDF, DOCX, XLSX, PPTX) và biên tập trực tuyến. | [ ] Todo | BE Engineers | [task_04_onlyoffice_templates_api.md](./tasks/task_04_onlyoffice_templates_api.md) |
+| **TSK-2.5** | API Duyệt đơn nâng cao theo module | APIs thực hiện hành động tại mỗi bước duyệt (Approve, Reject, Consult - xin ý kiến, Spawn Subprocess, Gen Document, Join Sync). | [ ] Todo | BE Engineers | [task_05_advanced_actions_api.md](./tasks/task_05_advanced_actions_api.md) |
 | **TSK-2.6** | API Thiết lập Deadline & Đốc thúc tự động | Cơ chế cài đặt deadline cho bước duyệt, tự động gửi cảnh báo và quét BullMQ Scheduler chạy tác vụ nhắc nhở. | [ ] Todo | BE Engineers | [task_06_deadlines_reminders_api.md](./tasks/task_06_deadlines_reminders_api.md) |
 | **TSK-2.7** | Hệ thống thông báo đa kênh thời gian thực | Xây dựng Gateway WebSocket (Socket.io) gửi tin in-app tức thời kết hợp gửi mail cảnh báo qua Nodemailer/AWS SES. | [ ] Todo | BE Engineers | [task_07_multi_channel_notifications.md](./tasks/task_07_multi_channel_notifications.md) |
 | **TSK-2.8** | API Sinh và quản lý Chứng thư số nội bộ | Cài đặt hạ tầng khóa công khai nội bộ (Internal CA): sinh root cert, phát hành X.509 cert cho người dùng/phòng ban. | [ ] Todo | SecOps / BE Engineers | [task_08_internal_ca_api.md](./tasks/task_08_internal_ca_api.md) |
@@ -38,6 +38,7 @@ Dưới đây là danh sách 14 Task cần triển khai trong Sprint 2:
 | **TSK-2.12** | Giao diện Quản lý Chứng thư & Ký số | Giao diện Web quản lý cặp khóa cá nhân, thực hiện thao tác ký số tài liệu và hiển thị trạng thái chứng thực trực quan. | [ ] Todo | FE Web Engineers | [task_12_cert_manager_ui.md](./tasks/task_12_cert_manager_ui.md) |
 | **TSK-2.13** | Hộp thư phê duyệt thông minh (Web) | Giao diện Web tích hợp hiển thị form động, chứng từ OnlyOffice, timeline lịch sử, nút xin ý kiến, ký duyệt và cảnh báo deadline. | [ ] Todo | FE Web Engineers | [task_13_smart_approval_inbox_ui.md](./tasks/task_13_smart_approval_inbox_ui.md) |
 | **TSK-2.14** | Giao diện Tự phục vụ & Phê duyệt di động | Cổng tự phục vụ gửi đơn, phê duyệt nhanh một chạm và cơ chế xác thực ký số nội bộ trên ứng dụng di động (Ionic). | [ ] Todo | FE Mobile Engineers | [task_14_mobile_self_service_ui.md](./tasks/task_14_mobile_self_service_ui.md) |
+| **TSK-2.15** | Tích hợp MinIO Object Storage | Cấu hình hạ tầng MinIO, S3 SDK phục vụ việc lưu trữ tệp tin độc lập của hệ thống và chia sẻ qua Pre-signed URLs. | [ ] Todo | BE Leads / DevOps | [task_15_minio_object_storage.md](./tasks/task_15_minio_object_storage.md) |
 
 ---
 
@@ -47,12 +48,14 @@ Dưới đây là danh sách 14 Task cần triển khai trong Sprint 2:
 
 ```mermaid
 flowchart TD
+    TSK215["TSK-2.15: MinIO Object Storage"]
     TSK21["TSK-2.1: Sơ đồ dữ liệu & Chống sửa"]
+    
     TSK21 --> TSK22["TSK-2.2: API Quy trình rẽ nhánh"]
     TSK21 --> TSK23["TSK-2.3: API Form động"]
-    TSK21 --> TSK28["TSK-2.8: API Chứng thư số nội bộ"]
-
-    TSK23 --> TSK24["TSK-2.4: API Mẫu văn bản động"]
+    
+    TSK215 & TSK21 --> TSK28["TSK-2.8: API Chứng thư số nội bộ"]
+    TSK215 & TSK23 --> TSK24["TSK-2.4: API Mẫu văn bản động"]
 
     TSK22 & TSK23 & TSK24 --> TSK25["TSK-2.5: API Duyệt đơn nâng cao"]
 

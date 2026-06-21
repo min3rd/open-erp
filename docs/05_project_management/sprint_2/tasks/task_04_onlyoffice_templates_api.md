@@ -4,7 +4,9 @@
 ---
 
 ### 1. Mục tiêu công việc (Objective)
-Xây dựng phân hệ APIs quản lý các mẫu tài liệu (templates) định dạng PDF, DOCX, XLSX. Triển khai OnlyOffice Adapter để biên tập trực quan biểu mẫu trực tuyến, cho phép cấu hình thiết lập các vị trí điền dữ liệu động (placeholders), thiết lập quy tắc tự động biến đổi dữ liệu (data transformation) từ context của luồng duyệt vào tài liệu trước khi xuất bản.
+Xây dựng phân hệ APIs quản lý các mẫu tài liệu (templates) định dạng PDF và Microsoft Office (DOCX, XLSX, PPTX). Triển khai OnlyOffice Adapter để:
+1. Tự động sinh file tài liệu từ biểu mẫu động và dữ liệu luồng duyệt sang tất cả các định dạng: **DOCX, XLSX, PPTX, PDF**.
+2. Tích hợp sâu OnlyOffice Document Server giúp người dùng có thể **xem và chỉnh sửa trực tiếp** mọi tài liệu Office trên phần mềm mà không cần tải về máy cá nhân.
 
 ---
 
@@ -13,24 +15,27 @@ Xây dựng phân hệ APIs quản lý các mẫu tài liệu (templates) địn
 #### 2.1 Cơ chế hoạt động của OnlyOffice Adapter & Biến đổi dữ liệu
 * **OnlyOffice Integration:** Backend OpenERP đóng vai trò là Document Storage Service, cung cấp các Endpoint để OnlyOffice Document Server tải tệp tin và gửi callback lưu lại tệp tin sau khi chỉnh sửa.
 * **Cơ chế Map dữ liệu (Template Mapping):**
-  - Người dùng đặt các token dạng `{{employeeName}}`, `{{totalAmount}}` trong tệp tin DOCX.
-  - Hệ thống lưu trữ cấu hình ánh xạ ánh xạ dữ liệu (JSON) nối trường dữ liệu của Form động với các token trong file.
-  - **Biến đổi dữ liệu (Transformation):** Hỗ trợ chuyển hóa dữ liệu đầu vào thông qua các hàm định sẵn như:
-    - `currency(VND)` -> Chuyển số `1500000` thành `"1,500,000 VND"` hoặc `"Một triệu năm trăm nghìn đồng"`.
-    - `dateFormat(DD/MM/YYYY)` -> Chuyển đổi định dạng ngày tháng.
-    - `uppercase()` -> Chuyển thành chữ in hoa.
+  - Người dùng đặt các token dạng `{{employeeName}}`, `{{totalAmount}}` trong tệp tin mẫu (DOCX, XLSX).
+  - Hệ thống thực hiện ánh xạ dữ liệu động từ Form vào các token trong file.
+  - **Đa định dạng (Multi-format Generation):** Hỗ trợ sinh file kết quả đầu ra theo tùy chọn định dạng (`outputFormat`: PDF, DOCX, XLSX, PPTX) thông qua tích hợp OnlyOffice Document Builder.
+* **Xem & Biên tập Trực tuyến (Online View/Edit without download):**
+  - Khi xem tài liệu trong luồng duyệt, Web Client gọi API lấy cấu hình khởi tạo OnlyOffice Editor (`mode: "view"` để xem hoặc `mode: "edit"` để chỉnh sửa).
+  - Khi người dùng chỉnh sửa và nhấn Lưu, OnlyOffice Server gửi callback chứa link file mới tải về cho Backend. Backend tải file đó về thay thế file cũ trong Storage, tạo phiên bản log mới cho tệp tin.
 
 ```text
-[Form động: Dữ liệu nhập] ──► [Hàm biến đổi (Format/Text)] ──► [OnlyOffice DocBuilder Engine] ──► [File PDF/DOCX hoàn chỉnh]
+[Yêu cầu xem/sửa] ──► [Backend: Sinh Editor Config] ──► [Web: Nhúng DocsAPI.DocEditor]
+                                                                │
+                                                                ▼ (Người dùng sửa & lưu)
+[Backend: Thay thế file] ◄── [Tải file mới từ link] ◄── [OnlyOffice: Callback lưu file]
 ```
 
 #### 2.2 Đặc tả API endpoint liên quan
 Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_overview.md).
 
 * **`POST /api/v1/document-templates`** (Authorized: Admin)
-  - Đăng ký tải lên một file template thô (ví dụ: `.docx`) và thiết lập cấu hình ánh xạ dữ liệu.
+  - Đăng ký tải lên một file template thô (DOCX, XLSX, PPTX) và thiết lập cấu hình ánh xạ dữ liệu.
   - **Payload yêu cầu (Multipart Form Data):**
-    - `file`: (Tệp tin mẫu tin .docx)
+    - `file`: (Tệp tin mẫu)
     - `name`: "Biểu mẫu thanh toán chi phí"
     - `mapping`:
       ```json
@@ -55,7 +60,8 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
   - **Payload yêu cầu:**
     ```json
     {
-      "instanceId": "uuid-workflow-instance-111"
+      "instanceId": "uuid-workflow-instance-111",
+      "outputFormat": "PDF" // Các định dạng hỗ trợ: PDF, DOCX, XLSX, PPTX
     }
     ```
   - **Phản hồi thành công (200 OK):**
@@ -69,39 +75,74 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
     }
     ```
 
-* **`GET /api/v1/document-templates/onlyoffice/config`** (Authorized)
-  - Trả về cấu hình để khởi tạo OnlyOffice Document Server editor trên giao diện Web.
+* **`GET /api/v1/files/:fileId/onlyoffice-config`** (Authorized)
+  - Lấy cấu hình khởi tạo OnlyOffice Editor để xem hoặc chỉnh sửa trực tuyến một file tài liệu bất kỳ trong hệ thống.
+  - **Tham số query:** `?mode=edit` (hoặc `view`)
+  - **Phản hồi thành công (200 OK):**
+    ```json
+    {
+      "success": true,
+      "data": {
+        "document": {
+          "fileType": "docx",
+          "key": "unique-file-version-key-12345",
+          "title": "Báo cáo doanh thu tháng 6.docx",
+          "url": "https://storage.open-erp.9ms.io.vn/files/report-123.docx"
+        },
+        "editorConfig": {
+          "mode": "edit",
+          "lang": "vi",
+          "callbackUrl": "https://api.open-erp.9ms.io.vn/api/v1/files/onlyoffice-callback/report-123",
+          "user": { "id": "usr-111", "name": "Nguyễn Văn A" }
+        },
+        "documentType": "word"
+      }
+    }
+    ```
+
+* **`POST /api/v1/files/onlyoffice-callback/:fileId`** (Public - Giao tiếp giữa OnlyOffice và Backend)
+  - Nhận sự kiện lưu tệp tin từ OnlyOffice Server gửi về.
+  - **Payload yêu cầu:**
+    ```json
+    {
+      "status": 2, // Trạng thái 2: Document is ready for saving
+      "url": "http://onlyoffice-server/download/new-file.docx", // Link file đã sửa
+      "key": "unique-file-version-key-12345",
+      "users": ["usr-111"]
+    }
+    ```
+  - **Phản hồi (200 OK):** `{"error": 0}`
 
 ---
 
 ### 3. Phân chia công việc chi tiết cho các thành viên
 
 #### 3.1 Backend Engineer (BE)
-* **Nhiệm vụ 1: Triển khai OnlyOffice Document Server Callback Handler**
-  - Xây dựng API callback nhận và lưu file từ OnlyOffice Server gửi về sau khi kết thúc phiên chỉnh sửa.
-* **Nhiệm vụ 2: Tích hợp thư viện sinh tài liệu (DocxTemplater / Carbone)**
-  - Tích hợp động cơ sinh file tài liệu (ví dụ: thư viện `docx-templates` hoặc `carbone.io` chạy trên NodeJS) để thay thế tự động các trường placeholder bằng dữ liệu thực tế đã qua xử lý lọc định dạng.
-  - Chuyển đổi định dạng từ `.docx` sang `.pdf` bằng cách giao tiếp với OnlyOffice Document Builder API hoặc LibreOffice headless service.
+* **Nhiệm vụ 1: Triển khai các Endpoints tích hợp OnlyOffice**
+  - Xây dựng API callback nhận trạng thái lưu file từ OnlyOffice Server, tải file về và ghi đè phiên bản mới của tệp tin.
+  - Xây dựng API sinh cấu hình Editor Config cho các tệp tin Office (.docx, .xlsx, .pptx, .pdf) theo phân quyền của người dùng (chỉ người duyệt/người tạo có quyền sửa, người khác chỉ xem).
+* **Nhiệm vụ 2: Tích hợp OnlyOffice DocBuilder & Hỗ trợ Đa định dạng**
+  - Tích hợp OnlyOffice Document Builder Service hoặc APIs để sinh tệp tin đầu ra tương ứng với `outputFormat` (PDF, DOCX, XLSX, PPTX) được yêu cầu.
 
 #### 3.2 Web Frontend Engineer (FE Web)
-* **Nhiệm vụ: Nhúng Editor OnlyOffice**
-  - Tải script OnlyOffice API và nhúng trình biên tập tài liệu trực tiếp vào một tab trong UI quản trị của Admin Web.
-  - Liên kết với API để tải file template và lưu trữ trạng thái chỉnh sửa.
+* **Nhiệm vụ: Nhúng Trình chỉnh sửa trực quan OnlyOffice**
+  - Phát triển component `OnlyOfficeEditor` nhúng DocsAPI để người dùng mở rộng toàn màn hình xem/sửa file Excel, Word trực tiếp trên giao diện trình duyệt mà không cần tải về máy.
+  - Đồng bộ cập nhật trạng thái hiển thị của tài liệu sau khi lưu.
 
 #### 3.3 Mobile Frontend Engineer (FE Mobile)
 * **Nhiệm vụ: Xem file kết xuất**
   - Tích hợp bộ xem PDF (PDF Viewer) trên app di động để người dùng có thể duyệt nhanh tài liệu đã sinh trước khi ấn phê duyệt.
 
 #### 3.4 UI/UX Designer
-* Thiết kế thanh điều khiển (Sidebar) trong trình biên tập biểu mẫu để chọn trường dữ liệu form động và ánh xạ trực quan vào template OnlyOffice.
+* Thiết kế nút "Xem/Sửa trực tuyến" tinh tế trên giao diện danh sách file đính kèm, cùng với layout biên tập mở rộng toàn màn hình cho trình soạn thảo OnlyOffice.
 
 #### 3.5 DevOps
 * Cài đặt container OnlyOffice Document Server (`onlyoffice/documentserver`) chạy độc lập trong cụm Docker/Kubernetes dev, cấu hình CORS đảm bảo kết nối thông suốt giữa backend, frontend và OnlyOffice.
 
 #### 3.6 QA Engineer
 * Viết kịch bản kiểm thử:
-  - Sinh thành công file tài liệu PDF từ template DOCX với các giá trị trường tiếng Việt có dấu, ngày tháng, và tiền tệ hiển thị chính xác.
-  - Kiểm tra hiệu năng sinh file khi tải đồng thời nhiều yêu cầu (Concurrences).
+  - Sinh thành công file tài liệu PDF, DOCX, XLSX từ mẫu tương ứng.
+  - Mở một file Excel từ phần mềm -> Nhập thêm dòng dữ liệu -> Bấm lưu -> F5 tải lại -> Đảm bảo dữ liệu mới đã được cập nhật trực tiếp trên phần mềm.
 
 ---
 
