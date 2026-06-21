@@ -103,11 +103,12 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
 
 #### 3.1 Backend Engineer (BE)
 * **Nhiệm vụ 1: Xây dựng APIs quản lý cấu hình Workflow**
-  - Viết các Controller và Service cho CRUD quy trình, lưu thông tin cấu hình bước (`workflow_steps.config`).
-  - Thực hiện validate cấu trúc quy trình: kiểm tra tính tuần tuần, không được có vòng lặp vô hạn (Cycle Detection) bằng thuật toán DFS.
-* **Nhiệm vụ 2: Xây dựng Router Engine đánh giá điều kiện rẽ nhánh**
+  - Viết các Controller và Service cho CRUD quy trình, lưu thông tin cấu hình bước (`workflow_steps`), đồng thời bóc tách và phân loại danh sách `assignees` từ payload để ghi vào bảng cấu hình gán việc `workflow_step_assignees`.
+  - Thực hiện validate cấu trúc quy trình: kiểm tra tính tuần tự, không được có vòng lặp vô hạn (Cycle Detection) bằng thuật toán DFS.
+* **Nhiệm vụ 2: Xây dựng Router Engine đánh giá điều kiện rẽ nhánh & Phân giải Assignees**
   - Tích hợp công cụ đánh giá biểu thức động để phân giải các quy tắc điều kiện (`condition`) dựa trên dữ liệu instance tại thời điểm chạy đơn.
-  - Viết logic tính toán consensus (ALL, ANY, PERCENTAGE) dựa trên lịch sử duyệt hiện tại của bước để quyết định xem bước đó đã hoàn tất chưa.
+  - Khi luồng đi tới một bước, thực hiện phân giải `workflow_step_assignees` (ví dụ: tìm tất cả user thuộc DEPT_MANAGER hoặc BOARD_MEMBER) để tạo các bản ghi nhiệm vụ tương ứng trong bảng `workflow_approvers`.
+  - Viết logic tính toán consensus (ALL, ANY, PERCENTAGE) dựa trên trạng thái xử lý thực tế của các thành viên trong bảng `workflow_approvers` cho bước hiện tại để quyết định xem bước đó đã hoàn tất hay chưa.
 
 #### 3.2 Web Frontend Engineer (FE Web)
 * **Nhiệm vụ: Tích hợp gọi API cấu hình quy trình**

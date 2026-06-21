@@ -67,11 +67,11 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
 
 #### 3.1 Backend Engineer (BE)
 * **Nhiệm vụ 1: Triển khai Quản lý Deadline trong Luồng công việc**
-  - Thêm thuộc tính `deadline_at` (TIMESTAMPTZ) vào bảng `workflow_instances` (hoặc bảng trung gian lưu lượt duyệt hiện tại).
-  - Tích hợp BullMQ để lên lịch kiểm tra và kích hoạt thông báo bất đồng bộ.
+  - Cấu hình gán giá trị `deadline_at` (TIMESTAMPTZ) trực tiếp vào bảng phân công tác vụ thực tế `workflow_approvers` khi bắt đầu mỗi bước duyệt.
+  - Tích hợp BullMQ để quét các tác vụ `workflow_approvers` có trạng thái `PENDING` và đã quá hạn (`now() > deadline_at`) nhằm kích hoạt thông báo nhắc nhở tự động.
 * **Nhiệm vụ 2: Viết APIs báo cáo & thống kê KPIs**
-  - Viết truy vấn SQL/TypeORM tính toán khoảng chênh lệch thời gian giữa lúc bước bắt đầu và lúc kết thúc (`workflow_logs`).
-  - Tổng hợp dữ liệu theo người dùng để xuất các chỉ số hiệu suất duyệt đơn.
+  - Viết các truy vấn SQL/TypeORM thống kê hiệu năng duyệt đơn dựa trên bảng `workflow_approvers` (sử dụng các cột `assigned_at`, `action_at`, `deadline_at`, `user_id`, `department_id`).
+  - Do dữ liệu đã được chuẩn hóa vào các cột, việc lập chỉ mục (Indexes) trên `user_id`, `department_id`, và `status` sẽ tối ưu hóa tốc độ truy xuất báo cáo thống kê theo cá nhân, phòng ban hoặc doanh nghiệp.
 
 #### 3.2 Web Frontend Engineer (FE Web)
 * **Nhiệm vụ: Giao diện Báo cáo hiệu năng duyệt đơn (Analytics)**

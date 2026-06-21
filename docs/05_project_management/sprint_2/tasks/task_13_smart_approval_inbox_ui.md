@@ -48,7 +48,7 @@ Màn hình được thiết kế phân chia thành 3 khu vực chính:
 ### 3. Phân chia công việc chi tiết cho các thành viên
 
 #### 3.1 Backend Engineer (BE)
-* *Không thuộc phạm vi trực tiếp (hỗ trợ tối ưu hóa truy vấn APIs tổng hợp thông tin chi tiết một lượt duyệt bao gồm cả form, logs, file và cert).*
+* *Không thuộc phạm vi trực tiếp (hỗ trợ tối ưu hóa truy vấn APIs danh sách đơn chờ duyệt từ bảng `workflow_approvers` theo `user_id` và `status = PENDING`, tổng hợp thông tin chi tiết một lượt duyệt bao gồm cả form, logs, file và cert).*
 
 #### 3.2 Web Frontend Engineer (FE Web)
 * **Nhiệm vụ 1: Phát triển Layout Hộp thư 3 cột**

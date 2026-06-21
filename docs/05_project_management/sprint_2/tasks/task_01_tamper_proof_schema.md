@@ -18,11 +18,16 @@ Các bảng dữ liệu được cấu hình khóa ngoại chặt chẽ và bắ
 │   workflows    │ ───►  │    workflow_steps    │ ───►  │   dynamic_forms    │
 └────────────────┘       └──────────────────────┘       └────────────────────┘
         │                            │
-        ▼                            ▼
-┌────────────────┐       ┌──────────────────────┐
-│  w_instances   │ ───►  │    workflow_logs     │
-└────────────────┘       │ (Tamper-proof Chain) │
-                         └──────────────────────┘
+        ▼                            ├────────────────────────┐
+┌────────────────┐                   ▼                        ▼
+│  w_instances   │       ┌──────────────────────┐   ┌────────────────────┐
+└────────────────┘       │w_step_assignees(Conf)│   │ workflow_approvers │
+        │                └──────────────────────┘   │  (Actual Tasks)    │
+        ▼                                           └────────────────────┘
+┌────────────────┐                                            ▲
+│ workflow_logs  │ ───────────────────────────────────────────┘
+│ (Tamper-proof) │
+└────────────────┘
 ```
 
 ##### Bảng: `workflows` (Mẫu quy trình)
@@ -40,9 +45,16 @@ Các bảng dữ liệu được cấu hình khóa ngoại chặt chẽ và bắ
 - `tenant_id` (UUID, FK -> tenants.id)
 - `name` (VARCHAR)
 - `step_order` (INTEGER)
-- `config` (JSONB) - Chứa thông tin về người duyệt (gán động hoặc cố định), điều kiện rẽ nhánh (branching_rules), quy tắc đồng thuận (consensus_rules: ALL, ANY, Threshold %).
+- `config` (JSONB) - Chứa thông tin về điều kiện rẽ nhánh (branching_rules), quy tắc đồng thuận (consensus_rules: ALL, ANY, Threshold %). Các đối tượng người duyệt được lưu cấu hình chuẩn hóa qua bảng `workflow_step_assignees`.
 - `form_id` (UUID, FK -> dynamic_forms.id, nullable) - Form điền thông tin tại bước này
 - `template_id` (UUID, FK -> document_templates.id, nullable) - Biểu mẫu đính kèm
+
+##### Bảng cấu hình gán việc: `workflow_step_assignees` (Mẫu phân công)
+- `id` (UUID, PK)
+- `tenant_id` (UUID, FK -> tenants.id)
+- `step_id` (UUID, FK -> workflow_steps.id)
+- `assignee_type` (VARCHAR) - Kiểu đối tượng: 'USER', 'DEPARTMENT', 'ROLE', 'DYNAMIC' (gán động theo trường dữ liệu trong form)
+- `assignee_id` (VARCHAR) - ID của người dùng, phòng ban, vai trò cụ thể hoặc biến định dạng để gán động.
 
 ##### Bảng: `workflow_instances` (Các lượt chạy quy trình thực tế)
 - `id` (UUID, PK)
@@ -53,6 +65,21 @@ Các bảng dữ liệu được cấu hình khóa ngoại chặt chẽ và bắ
 - `current_step_id` (UUID, FK -> workflow_steps.id, nullable)
 - `context_data` (JSONB) - Lưu trữ dữ liệu thu thập qua các bước (bao gồm cả form dữ liệu)
 - `created_at` (TIMESTAMPTZ)
+
+##### Bảng phân công xử lý thực tế: `workflow_approvers` (Tác vụ phê duyệt thực tế)
+Bảng này lưu các tác vụ phê duyệt thực tế được sinh ra khi chạy quy trình, giúp tối ưu hóa việc tìm kiếm, lọc nhanh công việc chờ xử lý của từng cá nhân/phòng ban và lập báo cáo thống kê hiệu năng.
+- `id` (UUID, PK)
+- `tenant_id` (UUID, FK -> tenants.id)
+- `instance_id` (UUID, FK -> workflow_instances.id)
+- `step_id` (UUID, FK -> workflow_steps.id)
+- `user_id` (UUID, FK -> users.id) - Người duyệt thực tế (được phân giải từ cấu hình USER/DEPARTMENT/ROLE)
+- `department_id` (UUID, FK -> departments.id, nullable) - Phòng ban của người duyệt (phục vụ lọc theo phòng ban)
+- `status` (VARCHAR) - Trạng thái duyệt cá nhân: 'PENDING', 'APPROVED', 'REJECTED', 'CONSULTING'
+- `assigned_at` (TIMESTAMPTZ, default: now())
+- `action_at` (TIMESTAMPTZ, nullable)
+- `deadline_at` (TIMESTAMPTZ, nullable) - Hạn chót người xử lý phải thực hiện (phục vụ nhắc nhở và báo cáo trễ hạn)
+- `comment` (TEXT, nullable)
+- `signature_id` (UUID, nullable) - Chữ ký số liên kết nếu có
 
 ##### Bảng nhật ký chống giả mạo: `workflow_logs` (Hash-chain)
 Mỗi hành động trong luồng duyệt sẽ ghi một dòng nhật ký liên kết chặt chẽ với bản ghi trước đó qua hash SHA-256.
