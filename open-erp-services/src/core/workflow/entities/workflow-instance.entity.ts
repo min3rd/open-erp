@@ -48,6 +48,13 @@ export class WorkflowInstance {
   @Column({ name: 'context_data', type: 'jsonb', nullable: true })
   contextData: any;
 
+  @Column({ name: 'parent_instance_id', type: 'uuid', nullable: true })
+  parentInstanceId: string | null;
+
+  @ManyToOne(() => WorkflowInstance, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'parent_instance_id' })
+  parentInstance: WorkflowInstance | null;
+
   @OneToMany(() => WorkflowApprover, (approver) => approver.instance)
   approvers: WorkflowApprover[];
 

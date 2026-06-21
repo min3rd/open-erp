@@ -20,6 +20,7 @@ import { WorkflowApprover } from './core/workflow/entities/workflow-approver.ent
 import { WorkflowLog } from './core/workflow/entities/workflow-log.entity';
 import { DynamicForm } from './core/dynamic-form/entities/dynamic-form.entity';
 import { DocumentTemplate } from './core/document-template/entities/document-template.entity';
+import { WorkflowConsultation } from './core/workflow/entities/workflow-consultation.entity';
 import { AuthModule } from './features/auth/auth.module';
 import { OrgModule } from './features/org/org.module';
 import { StorageModule } from './features/storage/storage.module';
@@ -60,6 +61,7 @@ import { TenantMiddleware } from './core/tenant/tenant.middleware';
           WorkflowLog,
           DynamicForm,
           DocumentTemplate,
+          WorkflowConsultation,
         ],
         synchronize: configService.get<boolean>('DB_SYNCHRONIZE', true),
       }),
