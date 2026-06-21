@@ -102,7 +102,7 @@ export class StorageService implements OnModuleInit {
         success: false,
         error: {
           code: 'FILE_NOT_FOUND',
-          message: 'Tài liệu không tồn tại',
+          messageKey: 'storage.file_not_found',
         },
       });
     }
@@ -112,7 +112,7 @@ export class StorageService implements OnModuleInit {
         success: false,
         error: {
           code: 'TENANT_MISMATCH',
-          message: 'Quyền truy cập tệp tin bị từ chối',
+          messageKey: 'storage.access_denied',
         },
       });
     }
@@ -132,7 +132,7 @@ export class StorageService implements OnModuleInit {
         success: false,
         error: {
           code: 'FILE_NOT_FOUND',
-          message: 'Tài liệu không tồn tại',
+          messageKey: 'storage.file_not_found',
         },
       });
     }
@@ -142,7 +142,7 @@ export class StorageService implements OnModuleInit {
         success: false,
         error: {
           code: 'TENANT_MISMATCH',
-          message: 'Quyền truy cập tệp tin bị từ chối',
+          messageKey: 'storage.access_denied',
         },
       });
     }

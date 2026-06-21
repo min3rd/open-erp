@@ -111,7 +111,7 @@ describe('DynamicFormController', () => {
 
       const res = await controller.validateData('form-1', { reason: 'ok' }, req);
       expect(res.success).toBe(true);
-      expect((res as any).message).toBe('Dữ liệu hợp lệ');
+      expect((res as any).messageKey).toBe('dynamic_form.validation_passed');
     });
 
     it('should return errors array when data is invalid', async () => {

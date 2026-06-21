@@ -100,7 +100,7 @@ export class DynamicFormController {
 
     return {
       success: true,
-      message: 'Dữ liệu hợp lệ',
+      messageKey: 'dynamic_form.validation_passed',
     };
   }
 }

@@ -57,7 +57,10 @@ export class UserService {
 
     const tenant = await this.tenantRepository.findOne({ where: { id: tenantId } });
     if (!tenant) {
-      throw new NotFoundException('Tenant not found');
+      throw new NotFoundException({
+        success: false,
+        error: { code: 'TENANT_NOT_FOUND', messageKey: 'auth.tenant_not_found' },
+      });
     }
 
     // Resolve Role
@@ -72,7 +75,10 @@ export class UserService {
       role = await this.roleRepository.findOne({ where: { tenantId } });
     }
     if (!role) {
-      throw new BadRequestException('No roles defined for this tenant');
+      throw new BadRequestException({
+        success: false,
+        error: { code: 'NO_ROLES_DEFINED', messageKey: 'org.no_roles_defined' },
+      });
     }
 
     // Resolve Department
@@ -211,21 +217,33 @@ export class UserService {
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException({
+        success: false,
+        error: { code: 'USER_NOT_FOUND', messageKey: 'auth.user_not_found' },
+      });
     }
 
     const isMember = user.tenants.some((t) => t.id === tenantId);
     if (!isMember) {
-      throw new BadRequestException('User is not a member of this tenant');
+      throw new BadRequestException({
+        success: false,
+        error: { code: 'USER_NOT_MEMBER', messageKey: 'org.user_not_member' },
+      });
     }
 
     if (user.status !== 'Pending') {
-      throw new BadRequestException('User is already activated');
+      throw new BadRequestException({
+        success: false,
+        error: { code: 'USER_ALREADY_ACTIVATED', messageKey: 'org.user_already_activated' },
+      });
     }
 
     const tenant = user.tenants.find((t) => t.id === tenantId);
     if (!tenant) {
-      throw new NotFoundException('Tenant not found');
+      throw new NotFoundException({
+        success: false,
+        error: { code: 'TENANT_NOT_FOUND', messageKey: 'auth.tenant_not_found' },
+      });
     }
 
     // Regenerate token and store in Redis
@@ -255,12 +273,18 @@ export class UserService {
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException({
+        success: false,
+        error: { code: 'USER_NOT_FOUND', messageKey: 'auth.user_not_found' },
+      });
     }
 
     const isMember = user.tenants.some((t) => t.id === tenantId);
     if (!isMember) {
-      throw new BadRequestException('User is not a member of this tenant');
+      throw new BadRequestException({
+        success: false,
+        error: { code: 'USER_NOT_MEMBER', messageKey: 'org.user_not_member' },
+      });
     }
 
     // Remove Employee Profile

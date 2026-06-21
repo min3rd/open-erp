@@ -16,8 +16,8 @@ export class WorkflowLogController {
         success: false,
         error: {
           code: 'SECURITY_COMPROMISED',
-          message: `Phát hiện dấu vết dữ liệu bị chỉnh sửa trái phép tại bản ghi nhật ký ID: ${result.corruptedLogId}`,
-          corruptedLogId: result.corruptedLogId,
+          messageKey: 'workflow.log_integrity_compromised',
+          meta: { corruptedLogId: result.corruptedLogId },
         },
       });
     }

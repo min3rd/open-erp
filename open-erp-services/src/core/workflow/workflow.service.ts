@@ -22,21 +22,33 @@ export class WorkflowService {
     const { name, description, steps } = payload;
 
     if (!name) {
-      throw new BadRequestException('Tên quy trình không được để trống (name is required)');
+      throw new BadRequestException({
+        success: false,
+        error: { code: 'NAME_REQUIRED', messageKey: 'workflow.name_required' },
+      });
     }
 
     if (!steps || !Array.isArray(steps) || steps.length === 0) {
-      throw new BadRequestException('Danh sách các bước không hợp lệ (steps must be a non-empty array)');
+      throw new BadRequestException({
+        success: false,
+        error: { code: 'STEPS_REQUIRED', messageKey: 'workflow.steps_required' },
+      });
     }
 
     // 1. Validation: check that there is at least one START and one END step
     const hasStart = steps.some((s) => s.stepType === 'START');
     const hasEnd = steps.some((s) => s.stepType === 'END');
     if (!hasStart) {
-      throw new BadRequestException('Quy trình phải có ít nhất một bước START (START step is required)');
+      throw new BadRequestException({
+        success: false,
+        error: { code: 'MISSING_START_STEP', messageKey: 'workflow.missing_start_step' },
+      });
     }
     if (!hasEnd) {
-      throw new BadRequestException('Quy trình phải có ít nhất một bước END (END step is required)');
+      throw new BadRequestException({
+        success: false,
+        error: { code: 'MISSING_END_STEP', messageKey: 'workflow.missing_end_step' },
+      });
     }
 
     // 2. Validation: ensure all step IDs referenced in nextStepIds exist in the steps array
@@ -45,9 +57,14 @@ export class WorkflowService {
       if (step.nextStepIds && Array.isArray(step.nextStepIds)) {
         for (const nextId of step.nextStepIds) {
           if (!stepIds.has(nextId)) {
-            throw new BadRequestException(
-              `Bước tiếp theo "${nextId}" của bước "${step.id}" không tồn tại (nextStepId not found)`,
-            );
+            throw new BadRequestException({
+              success: false,
+              error: {
+                code: 'INVALID_NEXT_STEP_ID',
+                messageKey: 'workflow.invalid_next_step_id',
+                meta: { stepId: step.id, nextStepId: nextId },
+              },
+            });
           }
         }
       }
@@ -55,7 +72,10 @@ export class WorkflowService {
 
     // 3. Validation: cycle detection using DFS
     if (this.hasCycle(steps)) {
-      throw new BadRequestException('Phát hiện vòng lặp vô hạn trong cấu trúc quy trình (Cycle detected)');
+      throw new BadRequestException({
+        success: false,
+        error: { code: 'CYCLE_DETECTED', messageKey: 'workflow.cycle_detected' },
+      });
     }
 
     // 4. Map user-provided step string IDs to UUIDs
@@ -140,7 +160,10 @@ export class WorkflowService {
     });
 
     if (!workflow) {
-      throw new NotFoundException(`Quy trình với ID ${id} không tồn tại (workflow not found)`);
+      throw new NotFoundException({
+        success: false,
+        error: { code: 'WORKFLOW_NOT_FOUND', messageKey: 'workflow.not_found' },
+      });
     }
 
     return workflow;

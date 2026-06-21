@@ -32,7 +32,7 @@ export class StorageController {
         success: false,
         error: {
           code: 'FILE_REQUIRED',
-          message: 'Tệp tin tải lên là bắt buộc',
+          messageKey: 'storage.file_required',
         },
       });
     }

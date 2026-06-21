@@ -820,13 +820,19 @@ export class AuthService {
       relations: ['tenants'],
     });
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException({
+        success: false,
+        error: { code: 'USER_NOT_FOUND', messageKey: 'auth.user_not_found' },
+      });
     }
     const tenant = await this.tenantRepository.findOne({
       where: { subdomain: subdomain.trim().toLowerCase() },
     });
     if (!tenant) {
-      throw new BadRequestException('Tenant not found');
+      throw new BadRequestException({
+        success: false,
+        error: { code: 'TENANT_NOT_FOUND', messageKey: 'auth.tenant_not_found' },
+      });
     }
     if (!user.tenants) {
       user.tenants = [];
