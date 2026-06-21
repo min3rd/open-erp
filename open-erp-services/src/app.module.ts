@@ -11,8 +11,10 @@ import { Department } from './features/org/entities/department.entity';
 import { Employee } from './features/org/entities/employee.entity';
 import { Role } from './features/auth/entities/role.entity';
 import { Permission } from './features/auth/entities/permission.entity';
+import { SysFile } from './core/storage/file.entity';
 import { AuthModule } from './features/auth/auth.module';
 import { OrgModule } from './features/org/org.module';
+import { StorageModule } from './features/storage/storage.module';
 import { RedisModule } from './core/redis/redis.module';
 import { TenantMiddleware } from './core/tenant/tenant.middleware';
 
@@ -30,7 +32,7 @@ import { TenantMiddleware } from './core/tenant/tenant.middleware';
         username: configService.get<string>('DB_USERNAME', 'postgres'),
         password: configService.get<string>('DB_PASSWORD', 'localpassword'),
         database: configService.get<string>('DB_DATABASE', 'open_erp_dev'),
-        entities: [Tenant, User, Branch, Department, Employee, Role, Permission],
+        entities: [Tenant, User, Branch, Department, Employee, Role, Permission, SysFile],
         synchronize: configService.get<boolean>('DB_SYNCHRONIZE', true),
       }),
     }),
@@ -47,6 +49,7 @@ import { TenantMiddleware } from './core/tenant/tenant.middleware';
     RedisModule,
     AuthModule,
     OrgModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
