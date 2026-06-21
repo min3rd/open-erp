@@ -7,6 +7,7 @@ import { WorkflowInstance } from './entities/workflow-instance.entity';
 import { WorkflowApprover } from './entities/workflow-approver.entity';
 import { WorkflowLog } from './entities/workflow-log.entity';
 import { WorkflowLogService } from './workflow-log.service';
+import { WorkflowService } from './workflow.service';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { WorkflowLogService } from './workflow-log.service';
       WorkflowLog,
     ]),
   ],
-  providers: [WorkflowLogService],
-  exports: [WorkflowLogService, TypeOrmModule],
+  providers: [WorkflowLogService, WorkflowService],
+  exports: [WorkflowLogService, WorkflowService, TypeOrmModule],
 })
 export class WorkflowModule {}

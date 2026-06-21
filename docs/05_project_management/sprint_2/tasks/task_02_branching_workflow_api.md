@@ -173,4 +173,18 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
 ---
 
 ### 6. Trạng thái thực tế & Kết quả bàn giao (Actual Status & Deliverables)
-*(Chưa bắt đầu)*
+**Hoàn thành**
+* **Logic kiểm soát và cấu hình quy trình (Workflow Engine Core):**
+  - Đã triển khai [WorkflowService](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/workflow.service.ts) để quản lý cấu hình các quy trình (`workflows`, `workflow_steps`, `workflow_step_assignees`).
+  - Hỗ trợ phân tích, bóc tách `assignees` động (gồm vai trò `ROLE`, phòng ban `DEPARTMENT`, người dùng `USER`) từ cấu hình JSON payload và lưu trữ chuẩn hóa phục vụ tra cứu, tạo báo cáo.
+  - Tích hợp kiểm thử tính tuần tự và phát hiện vòng lặp vô hạn (Cycle Detection) bằng thuật toán tìm kiếm theo chiều sâu (DFS) trước khi lưu quy trình vào DB.
+  - Hỗ trợ tự động ánh xạ các ID bước tạm thời của luồng rẽ nhánh, song song (Fork/Join) từ giao diện thiết kế sang các UUID tương ứng trong cơ sở dữ liệu.
+* **REST APIs:**
+  - `POST /api/v1/workflows`: Nhận cấu hình quy trình mới, thực hiện kiểm tra vòng lặp vô hạn, ánh xạ ID bước và lưu trữ giao dịch (transactional) an toàn vào DB.
+  - `GET /api/v1/workflows`: Liệt kê tất cả các quy trình phê duyệt thuộc tenant.
+  - `GET /api/v1/workflows/:id`: Xem chi tiết cấu trúc các bước và cấu hình rẽ nhánh, gán việc của một quy trình theo ID.
+  - Các APIs được thiết lập tại [WorkflowController](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/workflow/workflow.controller.ts) và bảo vệ bằng `JwtAuthGuard`.
+* **Kiểm thử tự động (Unit Tests):**
+  - Đã viết unit test đầy đủ cho service tại [workflow.service.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/workflow.service.spec.ts).
+  - Đã viết unit test đầy đủ cho controller tại [workflow.controller.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/workflow/workflow.controller.spec.ts).
+  - 100% test case đã chạy thành công và đạt độ bao phủ code cao.
