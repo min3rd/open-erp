@@ -8,37 +8,57 @@
     "open-erp-mobile"
   ],
   "scripts": {
-    "install:all": "npm install && npm install --workspace=open-erp-services && npm install --workspace=open-erp-shared && npm install --workspace=open-erp-web",
-    "audit:fix:all": "npm audit fix && npm audit fix --workspace=open-erp-services && npm audit fix --workspace=open-erp-shared && npm audit fix --workspace=open-erp-web",
+    "install:all": "npm install -f && npm install -f --workspace=open-erp-services && npm install -f --workspace=open-erp-shared && npm install -f --workspace=open-erp-web && npm install -f --workspace=open-erp-mobile",
+    "audit:fix:all": "npm audit fix && npm audit fix --workspace=open-erp-services && npm audit fix --workspace=open-erp-shared && npm audit fix --workspace=open-erp-web && npm audit fix --workspace=open-erp-mobile",
     "services:dev": "npm run start:dev --workspace=open-erp-services",
+    "services:build": "npm run build --workspace=open-erp-services",
+    "services:test": "npm run test --workspace=open-erp-services",
+    "services:lint": "npm run lint --workspace=open-erp-services",
     "notification:dev": "npm run start:notification:dev --workspace=open-erp-services",
     "web:dev": "node -e \"setTimeout(() => {}, 6000)\" && npm run start --workspace=open-erp-web",
+    "web:build": "npm run build --workspace=open-erp-web",
+    "web:test": "npm run test --workspace=open-erp-web",
+    "mobile:dev": "npm run start --workspace=open-erp-mobile",
+    "mobile:build": "npm run build --workspace=open-erp-mobile",
+    "mobile:test": "npm run test --workspace=open-erp-mobile",
+    "mobile:lint": "npm run lint --workspace=open-erp-mobile",
     "shared:build": "npm run build --workspace=open-erp-shared",
     "shared:watch": "npm run watch --workspace=open-erp-shared",
-    "dev": "npm run shared:build && concurrently \"npm run services:dev\" \"npm run notification:dev\" \"npm run shared:watch\" \"npm run web:dev\""
+    "dev": "npm run shared:build && concurrently \"npm run services:dev\" \"npm run notification:dev\" \"npm run shared:watch\" \"npm run web:dev\"",
+    "dev:all": "npm run shared:build && concurrently \"npm run services:dev\" \"npm run notification:dev\" \"npm run shared:watch\" \"npm run web:dev\" \"npm run mobile:dev\"",
+    "build:all": "npm run shared:build && npm run services:build && npm run web:build && npm run mobile:build",
+    "test:all": "npm run services:test && npm run web:test && npm run mobile:test",
+    "lint:all": "npm run services:lint && npm run mobile:lint"
   },
   "dependencies": {
-    "@angular/common": "^22.0.0",
-    "@angular/core": "^22.0.0",
-    "@angular/forms": "^22.0.0",
-    "@angular/platform-browser": "^22.0.0",
-    "@angular/router": "^22.0.0",
-    "rxjs": "^7.8.1",
-    "zone.js": "~0.15.0"
+    "@angular/common": "^22.0.2",
+    "@angular/core": "^22.0.2",
+    "@angular/forms": "^22.0.2",
+    "@angular/platform-browser": "^22.0.2",
+    "@angular/router": "^22.0.2",
+    "rxjs": "^7.8.2",
+    "zone.js": "^0.16.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.18.0",
+    "@eslint/js": "^10.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
-    "concurrently": "^8.0.1",
-    "eslint": "^9.18.0",
+    "concurrently": "^10.0.3",
+    "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^17.0.0",
     "ng-packagr": "^22.0.0",
     "prettier": "^3.8.1",
-    "typescript": "~6.0.2",
+    "typescript": "~6.0.3",
     "typescript-eslint": "^8.20.0"
+  },
+  "overrides": {
+    "multer": "^2.2.0",
+    "piscina": "^5.2.0",
+    "tar": "^7.5.16",
+    "uuid": "^11.1.1",
+    "js-yaml": "^5.0.0"
   }
 }

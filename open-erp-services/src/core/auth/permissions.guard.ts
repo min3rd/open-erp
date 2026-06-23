@@ -62,7 +62,11 @@ export class PermissionsGuard implements CanActivate {
     if (permissions.length === 0) {
       const user = await this.dataSource.getRepository(User).findOne({
         where: { id: userId },
-        relations: ['roles', 'roles.permissions'],
+        relations: {
+          roles: {
+            permissions: true
+          }
+        },
       });
 
       if (user && user.roles) {

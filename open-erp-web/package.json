@@ -11,26 +11,26 @@
   "private": true,
   "packageManager": "npm@11.12.1",
   "dependencies": {
-    "@angular/common": "^22.0.0",
-    "@angular/compiler": "^22.0.0",
-    "@angular/core": "^22.0.0",
-    "@angular/forms": "^22.0.0",
-    "@angular/platform-browser": "^22.0.0",
-    "@angular/router": "^22.0.0",
-    "@jsverse/transloco": "^8.3.0",
+    "@angular/common": "^22.0.2",
+    "@angular/compiler": "^22.0.2",
+    "@angular/core": "^22.0.2",
+    "@angular/forms": "^22.0.2",
+    "@angular/platform-browser": "^22.0.2",
+    "@angular/router": "^22.0.2",
+    "@jsverse/transloco": "^8.4.0",
     "@open-erp/shared": "file:../open-erp-shared/dist/shared",
     "feather-icons": "^4.29.2",
-    "rxjs": "^7.8.1",
+    "rxjs": "^7.8.2",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@angular/build": "^22.0.1",
-    "@angular/cli": "^22.0.1",
-    "@angular/compiler-cli": "^22.0.0",
+    "@angular/build": "^22.0.3",
+    "@angular/cli": "^22.0.3",
+    "@angular/compiler-cli": "^22.0.2",
     "@tailwindcss/postcss": "^4.1.12",
-    "jsdom": "^28.0.0",
+    "jsdom": "^29.1.1",
     "postcss": "^8.5.3",
     "tailwindcss": "^4.1.12",
-    "vitest": "^4.0.8"
+    "vitest": "^4.1.9"
   }
 }

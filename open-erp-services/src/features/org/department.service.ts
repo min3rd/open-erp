@@ -48,7 +48,10 @@ export class DepartmentService {
   async findAllFlat(tenantId: string): Promise<Department[]> {
     return this.departmentRepository.find({
       where: { tenantId },
-      relations: ['branch', 'manager'],
+      relations: {
+        branch: true,
+        manager: true
+      },
       order: { name: 'ASC' },
     });
   }
@@ -56,7 +59,10 @@ export class DepartmentService {
   async findAllTree(tenantId: string): Promise<any[]> {
     const flat = await this.departmentRepository.find({
       where: { tenantId },
-      relations: ['branch', 'manager'],
+      relations: {
+        branch: true,
+        manager: true
+      },
       order: { name: 'ASC' },
     });
 
@@ -82,7 +88,11 @@ export class DepartmentService {
   async findOne(id: string, tenantId: string): Promise<Department> {
     const department = await this.departmentRepository.findOne({
       where: { id, tenantId },
-      relations: ['branch', 'manager', 'children'],
+      relations: {
+        branch: true,
+        manager: true,
+        children: true
+      },
     });
     if (!department) {
       throw new NotFoundException({
@@ -107,7 +117,10 @@ export class DepartmentService {
   async getTenantUsers(tenantId: string): Promise<User[]> {
     return this.userRepository.find({
       where: { tenantId },
-      select: ['id', 'email'],
+      select: {
+        id: true,
+        email: true
+      },
       order: { email: 'ASC' },
     });
   }

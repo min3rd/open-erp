@@ -42,7 +42,9 @@ export class WorkflowInstanceService {
   ): Promise<WorkflowInstance> {
     const workflow = await this.workflowRepository.findOne({
       where: { id: workflowId, tenantId: tenantId as any },
-      relations: ['steps'],
+      relations: {
+        steps: true
+      },
     });
 
     if (!workflow) {
@@ -101,7 +103,9 @@ export class WorkflowInstanceService {
 
       return manager.findOne(WorkflowInstance, {
         where: { id: savedInstance.id },
-        relations: ['approvers'],
+        relations: {
+          approvers: true
+        },
       }) as Promise<WorkflowInstance>;
     });
   }
@@ -213,7 +217,9 @@ export class WorkflowInstanceService {
 
         return manager.findOne(WorkflowInstance, {
           where: { id: instanceId },
-          relations: ['approvers'],
+          relations: {
+            approvers: true
+          },
         }) as Promise<WorkflowInstance>;
       });
     }
@@ -303,7 +309,9 @@ export class WorkflowInstanceService {
 
         return manager.findOne(WorkflowInstance, {
           where: { id: instanceId },
-          relations: ['approvers'],
+          relations: {
+            approvers: true
+          },
         }) as Promise<WorkflowInstance>;
       });
     }
@@ -329,7 +337,9 @@ export class WorkflowInstanceService {
 
         return manager.findOne(WorkflowInstance, {
           where: { id: instanceId },
-          relations: ['approvers'],
+          relations: {
+            approvers: true
+          },
         }) as Promise<WorkflowInstance>;
       });
     }
@@ -358,7 +368,9 @@ export class WorkflowInstanceService {
         // Fetch sub-workflow steps to find START and activate next steps
         const subWf = await manager.findOne(Workflow, {
           where: { id: subWorkflowId },
-          relations: ['steps'],
+          relations: {
+            steps: true
+          },
         });
 
         if (!subWf) {
@@ -414,7 +426,9 @@ export class WorkflowInstanceService {
 
         return manager.findOne(WorkflowInstance, {
           where: { id: instanceId },
-          relations: ['approvers'],
+          relations: {
+            approvers: true
+          },
         }) as Promise<WorkflowInstance>;
       });
     }
@@ -495,7 +509,9 @@ export class WorkflowInstanceService {
 
         return manager.findOne(WorkflowInstance, {
           where: { id: instanceId },
-          relations: ['approvers'],
+          relations: {
+            approvers: true
+          },
         }) as Promise<WorkflowInstance>;
       });
     }
@@ -512,7 +528,11 @@ export class WorkflowInstanceService {
   async getInstanceById(id: string, tenantId: string | null): Promise<WorkflowInstance> {
     const instance = await this.instanceRepository.findOne({
       where: { id },
-      relations: ['approvers', 'workflow', 'logs'],
+      relations: {
+        approvers: true,
+        workflow: true,
+        logs: true
+      },
     });
 
     if (!instance) {

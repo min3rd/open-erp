@@ -101,7 +101,12 @@ describe('WorkflowDeadlineConsumer', () => {
 
       expect(approverRepoMock.findOne).toHaveBeenCalledWith({
         where: { id: 'app-1' },
-        relations: ['user', 'instance', 'instance.workflow'],
+        relations: {
+          user: true,
+          instance: {
+            workflow: true,
+          },
+        },
       });
       expect(transportMock.sendMail).toHaveBeenCalledWith(
         expect.objectContaining({

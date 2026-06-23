@@ -53,7 +53,13 @@ export class WorkflowDeadlineConsumer extends WorkerHost implements OnModuleInit
       const { approverId } = job.data;
       const approver = await this.approverRepository.findOne({
         where: { id: approverId },
-        relations: ['user', 'instance', 'instance.workflow'],
+        relations: {
+          user: true,
+
+          instance: {
+            workflow: true
+          }
+        },
       });
 
       if (approver && (approver.status === 'PENDING' || approver.status === 'CONSULTING')) {
@@ -65,7 +71,13 @@ export class WorkflowDeadlineConsumer extends WorkerHost implements OnModuleInit
           status: 'PENDING', // or CONSULTING
           deadlineAt: LessThanOrEqual(new Date()),
         },
-        relations: ['user', 'instance', 'instance.workflow'],
+        relations: {
+          user: true,
+
+          instance: {
+            workflow: true
+          }
+        },
       });
 
       // Also include CONSULTING status
@@ -74,7 +86,13 @@ export class WorkflowDeadlineConsumer extends WorkerHost implements OnModuleInit
           status: 'CONSULTING',
           deadlineAt: LessThanOrEqual(new Date()),
         },
-        relations: ['user', 'instance', 'instance.workflow'],
+        relations: {
+          user: true,
+
+          instance: {
+            workflow: true
+          }
+        },
       });
 
       const allOverdue = [...overdueApprovers, ...consultingOverdue];

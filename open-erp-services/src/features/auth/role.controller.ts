@@ -35,7 +35,9 @@ export class RoleController {
     const tenantId = req.user.tenantId;
     const roles = await this.roleRepository.find({
       where: { tenantId },
-      relations: ['permissions'],
+      relations: {
+        permissions: true
+      },
     });
     return {
       success: true,
@@ -69,7 +71,9 @@ export class RoleController {
     const tenantId = req.user.tenantId;
     const role = await this.roleRepository.findOne({
       where: { id, tenantId },
-      relations: ['permissions'],
+      relations: {
+        permissions: true
+      },
     });
 
     if (!role) {

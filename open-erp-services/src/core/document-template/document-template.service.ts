@@ -47,7 +47,9 @@ export class DocumentTemplateService {
   async getTemplateById(id: string, tenantId: string | null): Promise<DocumentTemplate> {
     const template = await this.templateRepository.findOne({
       where: { id },
-      relations: ['file'],
+      relations: {
+        file: true
+      },
     });
 
     if (!template) {
@@ -76,7 +78,9 @@ export class DocumentTemplateService {
   async findAllTemplates(tenantId: string | null): Promise<DocumentTemplate[]> {
     return this.templateRepository.find({
       where: { tenantId: tenantId as any },
-      relations: ['file'],
+      relations: {
+        file: true
+      },
     });
   }
 

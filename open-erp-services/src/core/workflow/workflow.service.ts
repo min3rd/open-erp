@@ -151,7 +151,11 @@ export class WorkflowService {
       // Fetch saved workflow with relations
       return manager.findOne(Workflow, {
         where: { id: savedWorkflow.id },
-        relations: ['steps', 'steps.assignees'],
+        relations: {
+          steps: {
+            assignees: true
+          }
+        },
       }) as Promise<Workflow>;
     });
   }
@@ -159,7 +163,11 @@ export class WorkflowService {
   async getWorkflowById(id: string, tenantId: string | null): Promise<Workflow> {
     const workflow = await this.workflowRepository.findOne({
       where: { id, tenantId: tenantId as any },
-      relations: ['steps', 'steps.assignees'],
+      relations: {
+        steps: {
+          assignees: true
+        }
+      },
     });
 
     if (!workflow) {
@@ -175,7 +183,11 @@ export class WorkflowService {
   async findAllWorkflows(tenantId: string | null): Promise<Workflow[]> {
     return this.workflowRepository.find({
       where: { tenantId: tenantId as any },
-      relations: ['steps', 'steps.assignees'],
+      relations: {
+        steps: {
+          assignees: true
+        }
+      },
     });
   }
 

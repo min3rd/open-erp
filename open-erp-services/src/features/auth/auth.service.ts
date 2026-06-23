@@ -345,7 +345,10 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: { email },
-      relations: ['roles', 'tenants'],
+      relations: {
+        roles: true,
+        tenants: true
+      },
     });
 
     if (!user) {
@@ -425,7 +428,10 @@ export class AuthService {
 
     let user = await this.userRepository.findOne({
       where: { email },
-      relations: ['roles', 'tenants'],
+      relations: {
+        roles: true,
+        tenants: true
+      },
     });
 
     if (!user) {
@@ -460,7 +466,10 @@ export class AuthService {
 
     let user = await this.userRepository.findOne({
       where: { email },
-      relations: ['roles', 'tenants'],
+      relations: {
+        roles: true,
+        tenants: true
+      },
     });
 
     if (!user) {
@@ -577,7 +586,9 @@ export class AuthService {
 
       const user = await this.userRepository.findOne({
         where: { id: userId },
-        relations: ['roles'],
+        relations: {
+          roles: true
+        },
       });
 
       if (!user || user.status !== 'Active') {
@@ -714,7 +725,11 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ['roles', 'roles.permissions'],
+      relations: {
+        roles: {
+          permissions: true
+        }
+      },
     });
 
     const permissions: string[] = [];
@@ -740,7 +755,9 @@ export class AuthService {
   async me(userId: string, tenantId?: string) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ['roles'],
+      relations: {
+        roles: true
+      },
     });
 
     if (!user) {
@@ -818,7 +835,9 @@ export class AuthService {
   async testLinkTenant(email: string, subdomain: string) {
     const user = await this.userRepository.findOne({
       where: { email },
-      relations: ['tenants'],
+      relations: {
+        tenants: true
+      },
     });
     if (!user) {
       throw new BadRequestException({

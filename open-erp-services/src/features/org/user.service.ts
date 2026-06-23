@@ -190,7 +190,9 @@ export class UserService {
 
     const employees = await this.employeeRepository.find({
       where: { tenantId },
-      relations: ['department'],
+      relations: {
+        department: true
+      },
     });
 
     return users.map((u) => {
@@ -213,7 +215,9 @@ export class UserService {
   async resendInvite(id: string, tenantId: string): Promise<any> {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['tenants'],
+      relations: {
+        tenants: true
+      },
     });
 
     if (!user) {
@@ -269,7 +273,9 @@ export class UserService {
   async cancelInvite(id: string, tenantId: string): Promise<void> {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['tenants'],
+      relations: {
+        tenants: true
+      },
     });
 
     if (!user) {
