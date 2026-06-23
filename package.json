@@ -28,7 +28,9 @@
     "dev:all": "npm run shared:build && concurrently \"npm run services:dev\" \"npm run notification:dev\" \"npm run shared:watch\" \"npm run web:dev\" \"npm run mobile:dev\"",
     "build:all": "npm run shared:build && npm run services:build && npm run web:build && npm run mobile:build",
     "test:all": "npm run services:test && npm run web:test && npm run mobile:test",
-    "lint:all": "npm run services:lint && npm run mobile:lint"
+    "lint:all": "npm run services:lint && npm run mobile:lint",
+    "docker:local:up": "docker compose -f docker-compose.local.yml up -d",
+    "docker:local:down": "docker compose -f docker-compose.local.yml down"
   },
   "dependencies": {
     "@angular/common": "^22.0.2",
