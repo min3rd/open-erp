@@ -33,12 +33,13 @@ Dưới đây là danh sách 15 Task cần triển khai trong Sprint 2:
 | **TSK-2.7** | Hệ thống thông báo đa kênh thời gian thực | Xây dựng Gateway WebSocket (Socket.io) gửi tin in-app tức thời kết hợp gửi mail cảnh báo qua Nodemailer/AWS SES. | [x] Done | BE Engineers | [task_07_multi_channel_notifications.md](./tasks/task_07_multi_channel_notifications.md) |
 | **TSK-2.8** | API Sinh và quản lý Chứng thư số nội bộ | Cài đặt hạ tầng khóa công khai nội bộ (Internal CA): sinh root cert, phát hành X.509 cert cho người dùng/phòng ban. | [x] Done | SecOps / BE Engineers | [task_08_internal_ca_api.md](./tasks/task_08_internal_ca_api.md) |
 | **TSK-2.9** | API Ký số & Chứng thực chữ ký số | APIs thực hiện ký số payload đơn từ bằng khóa riêng tư và giải mã xác thực chữ ký bằng khóa công khai trên hệ thống. | [x] Done | SecOps / BE Engineers | [task_09_digital_signature_verification_api.md](./tasks/task_09_digital_signature_verification_api.md) |
-| **TSK-2.10** | Giao diện Form Builder & Workflow Designer | Giao diện Web kéo thả thiết kế form động và vẽ sơ đồ khối luồng phê duyệt rẽ nhánh trực quan. | [ ] Todo | FE Web Engineers | [task_10_form_workflow_builder_ui.md](./tasks/task_10_form_workflow_builder_ui.md) |
+| **TSK-2.10** | Giao diện thiết lập Form động nâng cao | Giao diện Web kéo thả và dùng nút điều hướng thiết kế form động, thiết lập layout đa thiết bị, điều kiện logic và liên kết API. | [ ] Todo | FE Web Engineers | [task_10_dynamic_form_builder_ui.md](./tasks/task_10_dynamic_form_builder_ui.md) |
 | **TSK-2.11** | Giao diện Thiết kế Biểu mẫu & OnlyOffice | Giao diện Web cấu hình vị trí map trường dữ liệu vào file template, tích hợp frame OnlyOffice để hiệu chỉnh văn bản. | [ ] Todo | FE Web Engineers | [task_11_template_designer_ui.md](./tasks/task_11_template_designer_ui.md) |
 | **TSK-2.12** | Giao diện Quản lý Chứng thư & Ký số | Giao diện Web quản lý cặp khóa cá nhân, thực hiện thao tác ký số tài liệu và hiển thị trạng thái chứng thực trực quan. | [ ] Todo | FE Web Engineers | [task_12_cert_manager_ui.md](./tasks/task_12_cert_manager_ui.md) |
 | **TSK-2.13** | Hộp thư phê duyệt thông minh (Web) | Giao diện Web tích hợp hiển thị form động, chứng từ OnlyOffice, timeline lịch sử, nút xin ý kiến, ký duyệt và cảnh báo deadline. | [ ] Todo | FE Web Engineers | [task_13_smart_approval_inbox_ui.md](./tasks/task_13_smart_approval_inbox_ui.md) |
 | **TSK-2.14** | Giao diện Tự phục vụ & Phê duyệt di động | Cổng tự phục vụ gửi đơn, phê duyệt nhanh một chạm và cơ chế xác thực ký số nội bộ trên ứng dụng di động (Ionic). | [ ] Todo | FE Mobile Engineers | [task_14_mobile_self_service_ui.md](./tasks/task_14_mobile_self_service_ui.md) |
 | **TSK-2.15** | Tích hợp MinIO Object Storage | Cấu hình hạ tầng MinIO, S3 SDK phục vụ việc lưu trữ tệp tin độc lập của hệ thống và chia sẻ qua Pre-signed URLs. | [x] Done | BE Leads / DevOps | [task_15_minio_object_storage.md](./tasks/task_15_minio_object_storage.md) |
+| **TSK-2.16** | Giao diện thiết kế Workflow nâng cao | Giao diện Web Canvas thiết kế sơ đồ quy trình rẽ nhánh, cấu hình node, hành động/kết quả và hỗ trợ tự động sắp xếp node. | [ ] Todo | FE Web Engineers | [task_16_workflow_designer_ui.md](./tasks/task_16_workflow_designer_ui.md) |
 
 ---
 
@@ -65,12 +66,13 @@ flowchart TD
     TSK28 --> TSK29["TSK-2.9: API Ký số & Chứng thực"]
     TSK25 --> TSK29
 
-    TSK22 & TSK23 --> TSK210["TSK-2.10: Form & Workflow Designer (Web)"]
+    TSK23 --> TSK210["TSK-2.10: Giao diện thiết lập Form động nâng cao (Web)"]
+    TSK22 & TSK210 --> TSK216["TSK-2.16: Giao diện thiết kế Workflow nâng cao (Web)"]
     TSK24 & TSK210 --> TSK211["TSK-2.11: Thiết kế Biểu mẫu & OnlyOffice (Web)"]
     
     TSK28 & TSK29 --> TSK212["TSK-2.12: Quản lý Chứng thư & Ký số (Web)"]
 
-    TSK25 & TSK26 & TSK27 & TSK29 & TSK210 & TSK211 & TSK212 --> TSK213["TSK-2.13: Hộp thư duyệt thông minh (Web)"]
+    TSK25 & TSK26 & TSK27 & TSK29 & TSK210 & TSK211 & TSK212 & TSK216 --> TSK213["TSK-2.13: Hộp thư duyệt thông minh (Web)"]
     
     TSK213 --> TSK214["TSK-2.14: Tự phục vụ & Duyệt di động (Mobile)"]
 ```
