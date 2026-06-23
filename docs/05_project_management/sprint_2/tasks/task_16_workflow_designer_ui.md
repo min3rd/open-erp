@@ -29,6 +29,10 @@ Xây dựng giao diện Web Workflow Designer trực quan sử dụng Canvas, gi
     - Cấu hình chức năng/hành động trong Node (Node Functions): Định nghĩa các chức năng mà node đó thực hiện (ví dụ: gửi thông báo, tự động cập nhật trạng thái dữ liệu, gọi Webhook, sinh văn bản mẫu DOCX/PDF thông qua OnlyOffice).
     - Cấu hình kết quả hành động (Action Outcomes & Routing): Thiết lập kết quả của mỗi chức năng sẽ thực hiện gì hoặc chuyển tiếp sang node tiếp theo nào (ví dụ: nếu Approved -> Chuyển sang Node Step 2; nếu Rejected -> Quay lại Node Start; nếu Request Info -> Chuyển sang Node bổ sung thông tin).
     - Quy tắc đồng thuận (Consensus Rules): Áp dụng cho Step Node (ALL, ANY, Threshold %).
+    - Cấu hình Phân quyền & Người nhận yêu cầu (Assignee & Fallback Configuration):
+      - Đơn vị/Phòng ban xử lý (Department/Unit): Cho phép chọn một hoặc nhiều phòng ban trong hệ thống sẽ xử lý nhiệm vụ.
+      - Danh sách người nhận yêu cầu (List of Users): Cho phép chọn trực tiếp một danh sách nhiều người dùng xử lý cụ thể.
+      - Người mặc định nhận yêu cầu (Fallback Assignee): Cấu hình người nhận mặc định khi không tìm thấy ai xử lý hoặc phòng ban trống (chọn User cụ thể hoặc Vai trò hệ thống).
     - Liên kết biểu mẫu (Dynamic Form Binding): Chọn form động đã tạo từ Form Builder để nhúng vào bước duyệt này.
 
 #### 2.2 Kết nối giữa các Node (Edges) & Cấu hình điều kiện chuyển node
@@ -58,6 +62,7 @@ Xây dựng giao diện Web Workflow Designer trực quan sử dụng Canvas, gi
   - Cho phép liên kết Form động (gọi danh sách form động từ API của TSK-2.3).
   - Thiết lập cấu hình hành động trong node (Node Functions) và cấu hình điều hướng dựa trên kết quả của hành động (Action Outcomes Routing).
   - Cấu hình quy tắc đồng thuận (ALL, ANY, Threshold %).
+  - Phát triển các control lựa chọn nâng cao: Bộ chọn Phòng ban/Đơn vị (Department Selector), Bộ chọn danh sách Người dùng (User Multi-selector) và Bộ chọn Người nhận mặc định (Fallback Assignee Selector).
 * **Nhiệm vụ 4: Cấu hình điều kiện chuyển node và rẽ nhánh (TSK-2.16.4)**
   - Phát triển giao diện cấu hình điều kiện chuyển node khi nhấp vào Edge hoặc Decision Node.
   - Trích xuất schema của form động đã liên kết ở bước trước để cung cấp gợi ý chọn trường thông tin làm điều kiện rẽ nhánh.
@@ -76,6 +81,7 @@ Xây dựng giao diện Web Workflow Designer trực quan sử dụng Canvas, gi
 * Viết kịch bản kiểm thử:
   - Tạo quy trình mới -> Kéo thả Start, Step, Decision, End nodes -> Vẽ nối dây thành công.
   - Cấu hình chức năng hành động trong Node và gán kết quả chuyển node -> Lưu và load lại -> Đảm bảo đồ thị tải lại toàn vẹn.
+  - Cấu hình gán việc cho phòng ban, danh sách người dùng cùng với người nhận mặc định (Fallback Assignee) -> Đảm bảo lưu đúng cấu hình JSON.
   - Kiểm thử tính năng tự động sắp xếp node -> Đảm bảo các node tự căn chỉnh thẳng hàng, không đè lên nhau, đường nối không bị rối.
   - Thiết lập điều kiện rẽ nhánh dựa trên giá trị form -> Lưu cấu hình -> Đảm bảo payload gửi đi chứa đúng định dạng điều kiện.
 
@@ -94,6 +100,7 @@ Xây dựng giao diện Web Workflow Designer trực quan sử dụng Canvas, gi
 * Vẽ được sơ đồ quy trình hoàn chỉnh trên Canvas một cách mượt mà.
 * Hỗ trợ tính năng tự động sắp xếp (auto-arrange) các node cân đối và dễ nhìn.
 * Cho phép cấu hình đầy đủ loại node, rẽ nhánh, điều kiện chuyển node, chức năng trong node, kết quả hành động và liên kết form động.
+* Hỗ trợ cấu hình gán việc nâng cao theo phòng ban, danh sách người dùng và thiết lập người mặc định nhận yêu cầu (fallback assignee).
 * Parse đồ thị trực quan sang JSON tương thích 100% với API ở Backend và ngược lại.
 * Tích hợp màu nhấn Rose Gold và hỗ trợ Light/Dark mode, đa ngôn ngữ đầy đủ.
 

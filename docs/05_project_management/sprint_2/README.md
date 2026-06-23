@@ -40,6 +40,7 @@ Dưới đây là danh sách 15 Task cần triển khai trong Sprint 2:
 | **TSK-2.14** | Giao diện Tự phục vụ & Phê duyệt di động | Cổng tự phục vụ gửi đơn, phê duyệt nhanh một chạm và cơ chế xác thực ký số nội bộ trên ứng dụng di động (Ionic). | [ ] Todo | FE Mobile Engineers | [task_14_mobile_self_service_ui.md](./tasks/task_14_mobile_self_service_ui.md) |
 | **TSK-2.15** | Tích hợp MinIO Object Storage | Cấu hình hạ tầng MinIO, S3 SDK phục vụ việc lưu trữ tệp tin độc lập của hệ thống và chia sẻ qua Pre-signed URLs. | [x] Done | BE Leads / DevOps | [task_15_minio_object_storage.md](./tasks/task_15_minio_object_storage.md) |
 | **TSK-2.16** | Giao diện thiết kế Workflow nâng cao | Giao diện Web Canvas thiết kế sơ đồ quy trình rẽ nhánh, cấu hình node, hành động/kết quả và hỗ trợ tự động sắp xếp node. | [ ] Todo | FE Web Engineers | [task_16_workflow_designer_ui.md](./tasks/task_16_workflow_designer_ui.md) |
+| **TSK-2.17** | Cập nhật API Form động & Workflow Engine | Cập nhật API để hỗ trợ cấu trúc dữ liệu grid/table, bố cục layout và các cấu hình gán việc nâng cao cho Node trong workflow. | [ ] Todo | BE Engineers | [task_17_api_extensions.md](./tasks/task_17_api_extensions.md) |
 
 ---
 
@@ -66,8 +67,9 @@ flowchart TD
     TSK28 --> TSK29["TSK-2.9: API Ký số & Chứng thực"]
     TSK25 --> TSK29
 
-    TSK23 --> TSK210["TSK-2.10: Giao diện thiết lập Form động nâng cao (Web)"]
-    TSK22 & TSK210 --> TSK216["TSK-2.16: Giao diện thiết kế Workflow nâng cao (Web)"]
+    TSK22 & TSK23 --> TSK217["TSK-2.17: Cập nhật API Form & Workflow nâng cao"]
+    TSK217 --> TSK210["TSK-2.10: Giao diện thiết lập Form động nâng cao (Web)"]
+    TSK217 & TSK210 --> TSK216["TSK-2.16: Giao diện thiết kế Workflow nâng cao (Web)"]
     TSK24 & TSK210 --> TSK211["TSK-2.11: Thiết kế Biểu mẫu & OnlyOffice (Web)"]
     
     TSK28 & TSK29 --> TSK212["TSK-2.12: Quản lý Chứng thư & Ký số (Web)"]

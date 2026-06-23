@@ -18,6 +18,7 @@ Xây dựng giao diện Web Dynamic Form Builder cao cấp giúp quản trị vi
     - Nhóm 1: Bố cục & Layout (Container, Row, Grid Column, Panel/Tab, Accordion, Card).
     - Nhóm 2: Các trường nhập liệu cơ bản (Text, Area, Number, Date, Checkbox, Select, File).
     - Nhóm 3: Trường liên kết hệ thống & API (System Catalog Dropdown, API Select).
+    - Nhóm 4: Linh kiện đặc biệt nâng cao (Grid/Table - bảng lưới cho phép cấu hình các cột con và soạn thảo dữ liệu kiểu Excel trực tuyến).
   - **Vùng trung tâm - Canvas thiết kế (Layout Workspace):**
     - Hiển thị trực quan cấu trúc grid layout của form.
     - Hỗ trợ đổi cấu trúc cột động (ví dụ: chia dòng thành 1, 2, 3 hoặc 4 cột; tỷ lệ 25%, 50%, 75%, 100%).
@@ -49,6 +50,17 @@ Xây dựng giao diện Web Dynamic Form Builder cao cấp giúp quản trị vi
   - Hỗ trợ cấu hình Query Parameters và Request Headers. Đặc biệt, Query Parameters có thể truyền động giá trị của trường khác làm tham số (ví dụ: `/api/v1/cities?countryCode={{country}}`).
   - Cấu hình mapping kết quả: Định nghĩa key nào trong JSON trả về sẽ làm hiển thị (Label) và key nào làm giá trị (Value) (ví dụ: `labelKey: 'cityName'`, `valueKey: 'cityCode'`).
 
+#### 2.4 Linh kiện Grid/Table soạn thảo dạng Excel (Excel-like Grid Component)
+- Cho phép quản trị viên thêm linh kiện **Grid/Table** vào canvas để thu thập dữ liệu dạng danh sách.
+- **Cấu hình thuộc tính Grid (Grid Properties Panel):**
+  - Định nghĩa danh sách các cột con (Columns Configuration): Với mỗi cột, thiết lập Tên cột (name), Nhãn hiển thị (label), Kiểu dữ liệu (Text, Number, Date, Select), trường bắt buộc nhập, các rule validation riêng cho từng cột.
+  - Cho phép chọn nguồn dữ liệu API cho cột kiểu Select (tương tự API Select).
+- **Trải nghiệm Soạn thảo trực tuyến (Inline Editing / Excel-like):**
+  - Người dùng có thể nhấn double-click hoặc click vào cell để sửa trực tiếp (inline edit).
+  - Tự động kiểm soát tính hợp lệ (validation) trên từng ô dữ liệu.
+  - Hỗ trợ phím tắt di chuyển (Tab, Enter) và các chức năng: Thêm dòng mới, Xóa dòng, Sao chép dòng.
+  - Hỗ trợ cấu hình tính tổng tự động (Sum) hoặc tính trung bình cộng (Average) cho các cột kiểu dữ liệu số hiển thị ở chân trang (footer).
+
 ---
 
 ### 3. Phân chia công việc chi tiết cho các thành viên
@@ -74,12 +86,17 @@ Xây dựng giao diện Web Dynamic Form Builder cao cấp giúp quản trị vi
 * **Nhiệm vụ 5: Bộ sinh/phân tích Schema JSON và Preview mode (TSK-2.10.5)**
   - Chuyển đổi toàn bộ cấu trúc thiết kế (layout, fields, rules, API configuration) thành định dạng JSON Schema tương thích với backend.
   - Xây dựng component Renderer để render động form từ schema JSON, phục vụ cho việc Preview và tái sử dụng form ở các phân hệ khác (như Smart Approval Inbox TSK-2.13).
+* **Nhiệm vụ 6: Phát triển component Grid/Table nhập liệu kiểu Excel (TSK-2.10.6)**
+  - Xây dựng component bảng lưới hỗ trợ hiển thị danh sách và cho phép chỉnh sửa trực tiếp trên từng ô dữ liệu (inline editing).
+  - Cấu hình động các cột con (Columns dynamic parsing) và hỗ trợ validate dữ liệu con trong từng ô.
+  - Tích hợp phím tắt di chuyển (Tab, Enter) và tính tổng tự động (Sum / Average) ở footer cột số.
 
 #### 3.3 Mobile Frontend Engineer (FE Mobile)
 * *Không thuộc phạm vi task này (chỉ triển khai Web admin phục vụ màn hình lớn thiết kế).*
 
 #### 3.4 UI/UX Designer
 * Thiết kế chi tiết giao diện màn hình Form Builder bao gồm: bảng linh kiện, canvas lưới responsive, bảng cấu hình thuộc tính, giao diện trực quan của bộ thiết lập rule điều kiện.
+* Thiết kế giao diện lưới nhập liệu dạng Excel và cấu hình các cột con trực quan.
 * Đảm bảo trải nghiệm phối màu Rose Gold mượt mà cho các vùng active, hover.
 
 #### 3.5 QA Engineer
@@ -88,6 +105,7 @@ Xây dựng giao diện Web Dynamic Form Builder cao cấp giúp quản trị vi
   - Kiểm thử cấu hình layout 2 cột trên Desktop tự động chuyển thành 1 cột trên Mobile.
   - Kiểm thử rule ẩn/hiện: chọn Loại hợp đồng là "Thời vụ" -> Ẩn trường "Số tháng thử việc", Hiện trường "Người bảo lãnh".
   - Kiểm thử cascading API: chọn Tỉnh/Thành -> API Quận/Huyện tự động load danh sách tương ứng.
+  - Kiểm thử Grid/Table Excel: Nhập sai kiểu dữ liệu của cột -> Báo lỗi validate đỏ; Nhập số lượng và đơn giá -> Kiểm tra footer tự động tính tổng (Sum) chính xác.
 
 ---
 
@@ -105,6 +123,7 @@ Xây dựng giao diện Web Dynamic Form Builder cao cấp giúp quản trị vi
 * Cho phép định nghĩa layout dòng, cột và responsive linh hoạt theo grid system.
 * Xử lý chính xác logic điều kiện động (ẩn/hiện, cascade update, calculations) trực tiếp trên Client.
 * Hỗ trợ cấu hình liên kết API động và danh mục hệ thống thành công.
+* Hỗ trợ đầy đủ linh kiện Grid/Table nhập liệu kiểu Excel với cấu hình cột con linh hoạt và tự tính tổng ở chân trang.
 * Xuất/nhập schema JSON tương thích 100% với APIs của backend.
 * Tích hợp màu nhấn Rose Gold và hỗ trợ Light/Dark mode, đa ngôn ngữ đầy đủ.
 
