@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { WorkflowInstanceService } from '../../core/workflow/workflow-instance.service';
 import { JwtAuthGuard } from '../../core/auth/auth.guard';
+import { WorkflowAction } from '../../core/workflow/entities/workflow-log.entity';
 
 @Controller('workflow-instances')
 @UseGuards(JwtAuthGuard)
@@ -60,7 +61,7 @@ export class WorkflowInstanceController {
   async executeAction(
     @Param('instanceId') instanceId: string,
     @Body('stepId') stepId: string,
-    @Body('action') action: string,
+    @Body('action') action: WorkflowAction,
     @Body('comment') comment: string,
     @Body('consultantId') consultantId: string,
     @Body('formData') formData: any,

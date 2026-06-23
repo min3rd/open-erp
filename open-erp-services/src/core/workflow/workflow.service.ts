@@ -2,10 +2,10 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Workflow } from './entities/workflow.entity';
-import { WorkflowStep } from './entities/workflow-step.entity';
-import { WorkflowStepAssignee } from './entities/workflow-step-assignee.entity';
-import { WorkflowInstance } from './entities/workflow-instance.entity';
-import { WorkflowApprover } from './entities/workflow-approver.entity';
+import { WorkflowStep, StepType } from './entities/workflow-step.entity';
+import { WorkflowStepAssignee, AssigneeType } from './entities/workflow-step-assignee.entity';
+import { WorkflowInstance, WorkflowInstanceStatus } from './entities/workflow-instance.entity';
+import { WorkflowApprover, WorkflowApproverStatus } from './entities/workflow-approver.entity';
 import { User } from '../user/user.entity';
 import * as crypto from 'crypto';
 
@@ -110,7 +110,7 @@ export class WorkflowService {
         stepEntity.tenantId = tenantId;
         stepEntity.name = step.name;
         stepEntity.stepOrder = step.stepOrder;
-        stepEntity.stepType = step.stepType || 'APPROVAL';
+        stepEntity.stepType = (step.stepType || StepType.APPROVAL) as StepType;
         stepEntity.nextStepIds = step.nextStepIds
           ? step.nextStepIds.map((nid: string) => idMap.get(nid)!)
           : [];
@@ -135,7 +135,7 @@ export class WorkflowService {
             const assigneeEntity = new WorkflowStepAssignee();
             assigneeEntity.stepId = stepEntity.id;
             assigneeEntity.tenantId = tenantId;
-            assigneeEntity.assigneeType = val.type;
+            assigneeEntity.assigneeType = val.type as AssigneeType;
             assigneeEntity.assigneeId = val.value;
             assigneeEntities.push(assigneeEntity);
           }
@@ -266,7 +266,7 @@ export class WorkflowService {
     const now = new Date();
 
     for (const inst of instances) {
-      const isCompleted = inst.status === 'APPROVED' || inst.status === 'REJECTED';
+      const isCompleted = inst.status === WorkflowInstanceStatus.APPROVED || inst.status === WorkflowInstanceStatus.REJECTED;
       
       // Determine if instance is delayed
       let hasDelayedApprover = false;
@@ -280,7 +280,7 @@ export class WorkflowService {
             if (actionTime > deadlineTime) {
               hasDelayedApprover = true;
             }
-          } else if (app.status === 'PENDING' || app.status === 'CONSULTING') {
+          } else if (app.status === WorkflowApproverStatus.PENDING || app.status === WorkflowApproverStatus.CONSULTING) {
             if (now.getTime() > deadlineTime) {
               hasDelayedApprover = true;
             }
@@ -296,7 +296,7 @@ export class WorkflowService {
         completedInstancesCount++;
         // Completion time: MAX(actionAt) of approvers - createdAt of instance
         const actionTimes = apps
-          .filter(a => a.actionAt && (a.status === 'APPROVED' || a.status === 'REJECTED'))
+          .filter(a => a.actionAt && (a.status === WorkflowApproverStatus.APPROVED || a.status === WorkflowApproverStatus.REJECTED))
           .map(a => new Date(a.actionAt!).getTime());
         
         const completionTime = actionTimes.length > 0 ? Math.max(...actionTimes) : new Date(inst.createdAt).getTime();
@@ -374,7 +374,7 @@ export class WorkflowService {
           if (new Date(app.actionAt).getTime() > deadlineTime) {
             stats.delayedTasksCount++;
           }
-        } else if (app.status === 'PENDING' || app.status === 'CONSULTING') {
+        } else if (app.status === WorkflowApproverStatus.PENDING || app.status === WorkflowApproverStatus.CONSULTING) {
           if (now.getTime() > deadlineTime) {
             stats.delayedTasksCount++;
           }

@@ -2,14 +2,17 @@ import { Controller } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { ConfigService } from '@nestjs/config';
 import { NotificationService } from './notification.service';
 import { MailService } from '../mail/mail.service';
+import { NotificationType } from './entities/notification.entity';
 
 @Controller()
 export class NotificationEventController {
   constructor(
     private readonly notificationService: NotificationService,
     private readonly mailService: MailService,
+    private readonly configService: ConfigService,
     @InjectQueue('workflow-deadline-queue')
     private readonly workflowDeadlineQueue: Queue,
   ) {}
@@ -27,21 +30,24 @@ export class NotificationEventController {
       instanceId: string;
     },
   ) {
-    const title = 'Yêu cầu phê duyệt mới';
-    const body = `Đơn ${data.wfName} đang chờ bạn duyệt.`;
+    const titleKey = 'notification.workflow.new_approval_request.title';
+    const bodyKey = 'notification.workflow.new_approval_request.body';
     const link = `/approvals/inbox?id=${data.instanceId}`;
 
     try {
       // 1. Save in-app notification & push WS realtime event
       await this.notificationService.createNotification(data.tenantId, data.userId, {
-        title,
-        body,
-        type: 'WORKFLOW_PENDING',
+        title: titleKey,
+        body: bodyKey,
+        type: NotificationType.WORKFLOW_PENDING,
         link,
+        parameters: { wfName: data.wfName },
       });
 
+
       // 2. Queue email alert asynchronously
-      const webUrl = `http://localhost:4200${link}`;
+      const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:4200');
+      const webUrl = `${frontendUrl}${link}`;
       await this.mailService.sendWorkflowNotificationEmail(
         data.email,
         data.firstName || '',

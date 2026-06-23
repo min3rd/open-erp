@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { NotificationEventController } from './notification-event.controller';
 import { NotificationService } from './notification.service';
 import { MailService } from '../mail/mail.service';
@@ -9,6 +10,7 @@ describe('NotificationEventController', () => {
   let notificationServiceMock: any;
   let mailServiceMock: any;
   let queueMock: any;
+  let configServiceMock: any;
 
   beforeEach(async () => {
     notificationServiceMock = {
@@ -23,11 +25,16 @@ describe('NotificationEventController', () => {
       add: jest.fn().mockResolvedValue({}),
     };
 
+    configServiceMock = {
+      get: jest.fn().mockReturnValue('http://localhost:4200'),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [NotificationEventController],
       providers: [
         { provide: NotificationService, useValue: notificationServiceMock },
         { provide: MailService, useValue: mailServiceMock },
+        { provide: ConfigService, useValue: configServiceMock },
         { provide: getQueueToken('workflow-deadline-queue'), useValue: queueMock },
       ],
     }).compile();
@@ -57,10 +64,11 @@ describe('NotificationEventController', () => {
         'tenant-123',
         'user-456',
         expect.objectContaining({
-          title: 'Yêu cầu phê duyệt mới',
-          body: 'Đơn Nghỉ phép đang chờ bạn duyệt.',
+          title: 'notification.workflow.new_approval_request.title',
+          body: 'notification.workflow.new_approval_request.body',
           type: 'WORKFLOW_PENDING',
           link: '/approvals/inbox?id=inst-789',
+          parameters: { wfName: 'Nghỉ phép' },
         }),
       );
 

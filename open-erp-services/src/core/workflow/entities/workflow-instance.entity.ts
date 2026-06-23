@@ -40,7 +40,8 @@ export class WorkflowInstance {
   creator: User;
 
   @Column({ name: 'status', type: 'varchar', length: 50, default: 'PENDING' })
-  status: string; // 'PENDING' | 'APPROVED' | 'REJECTED' | 'IN_PROGRESS'
+  status: WorkflowInstanceStatus; // PENDING | IN_PROGRESS | APPROVED | REJECTED | AWAITING_CONSULTATION
+
 
   @Column({ name: 'current_step_ids', type: 'uuid', array: true, nullable: true })
   currentStepIds: string[] | null;
@@ -64,3 +65,13 @@ export class WorkflowInstance {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 }
+
+export enum WorkflowInstanceStatus {
+  PENDING = 'PENDING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  AWAITING_CONSULTATION = 'AWAITING_CONSULTATION',
+  WAITING_SUBPROCESS = 'WAITING_SUBPROCESS',
+}
+

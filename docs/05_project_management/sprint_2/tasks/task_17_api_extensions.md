@@ -111,4 +111,19 @@ Cập nhật và mở rộng hệ thống APIs hiện tại của Dynamic Form (
 ---
 
 ### 6. Trạng thái thực tế & Kết quả bàn giao (Actual Status & Deliverables)
-*(Chưa bắt đầu)*
+**Hoàn thành**
+
+* **Cập nhật Dynamic Form Service & Controller:**
+  - Cấu hình và hỗ trợ kiểu linh kiện đặc biệt `GRID` (bảng/lưới Excel) tại [DynamicFormService](../../../../open-erp-services/src/core/dynamic-form/dynamic-form.service.ts).
+  - Tích hợp kiểm tra schema GRID cột con (columns validation) và options của SELECT columns trong hàm `validateFieldSchemas`.
+  - Triển khai thành công logic `runValidation` hỗ trợ duyệt qua mảng đối tượng của trường `GRID` để validate dữ liệu từng ô (nested data validation) và lưu trữ lỗi theo đường dẫn chỉ mục (ví dụ: `proposalItems[0].itemName`).
+
+* **Cập nhật Workflow Instance Service:**
+  - Nâng cấp phương thức gán người xử lý và gán người mặc định tại `resolveStepAssignees` của [WorkflowInstanceService](../../../../open-erp-services/src/core/workflow/workflow-instance.service.ts).
+  - Khi danh sách người duyệt chính thức rỗng (do chưa gán hoặc không thể phân giải được vai trò/phòng ban), hệ thống tự động đọc cấu hình `fallbackAssignee` trong `step.config` và phân giải người gán mặc định (hỗ trợ các kiểu `USER`, `ROLE`, hoặc `DEPARTMENT`).
+
+* **Kiểm thử tự động (Unit Tests):**
+  - Viết 5 test cases chi tiết kiểm thử tính năng GRID schema/data validation tại [dynamic-form.service.spec.ts](../../../../open-erp-services/src/core/dynamic-form/dynamic-form.service.spec.ts).
+  - Viết test case chi tiết kiểm thử logic phân giải fallback assignee tại [workflow-instance.service.spec.ts](../../../../open-erp-services/src/core/workflow/workflow-instance.service.spec.ts).
+  - 100% test cases đã PASS thành công khi chạy `npm test`.
+

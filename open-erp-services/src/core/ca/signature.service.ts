@@ -8,8 +8,8 @@ import { SystemCa } from './entities/system-ca.entity';
 import { UserCertificate } from './entities/user-certificate.entity';
 import { User } from '../user/user.entity';
 import { WorkflowInstance } from '../workflow/entities/workflow-instance.entity';
-import { WorkflowApprover } from '../workflow/entities/workflow-approver.entity';
-import { WorkflowLog } from '../workflow/entities/workflow-log.entity';
+import { WorkflowApprover, WorkflowApproverStatus } from '../workflow/entities/workflow-approver.entity';
+import { WorkflowLog, WorkflowAction } from '../workflow/entities/workflow-log.entity';
 import { WorkflowInstanceService } from '../workflow/workflow-instance.service';
 import { SignInstanceDto } from './dto/sign-instance.dto';
 
@@ -50,7 +50,7 @@ export class SignatureService {
         instanceId,
         stepId,
         userId,
-        status: 'PENDING',
+        status: WorkflowApproverStatus.PENDING,
       },
     });
 
@@ -123,7 +123,7 @@ export class SignatureService {
     // f. Gọi luồng executeAction của WorkflowEngine để lưu vết chữ ký số và phê duyệt
     await this.workflowInstanceService.executeAction(tenantId, instanceId, userId, {
       stepId,
-      action: 'APPROVE',
+      action: WorkflowAction.APPROVE,
       comment: 'Đã phê duyệt và ký số nội bộ thành công',
       signature,
       certificatePem: cert.certificatePem,
@@ -135,7 +135,7 @@ export class SignatureService {
         instanceId,
         stepId,
         actorId: userId,
-        action: 'APPROVE',
+        action: WorkflowAction.APPROVE,
       },
       order: { timestamp: 'DESC' },
     });

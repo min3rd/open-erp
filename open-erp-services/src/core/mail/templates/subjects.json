@@ -1,0 +1,14 @@
+{
+  "vi": {
+    "invite": "[OpenERP] Lời mời tham gia {{tenantName}}",
+    "workflow-notification": "[OpenERP] Yêu cầu phê duyệt mới: {{wfName}}",
+    "deadline-overdue": "Trễ hạn: [{{wfName}}] đã quá hạn phê duyệt từ ngày {{deadlineStr}}",
+    "deadline-urgent": "Khẩn: [{{wfName}}] cần phê duyệt gấp trước ngày {{deadlineStr}}"
+  },
+  "en": {
+    "invite": "[OpenERP] Invitation to join {{tenantName}}",
+    "workflow-notification": "[OpenERP] New approval request: {{wfName}}",
+    "deadline-overdue": "Overdue: [{{wfName}}] approval has been overdue since {{deadlineStr}}",
+    "deadline-urgent": "Urgent: [{{wfName}}] needs approval before {{deadlineStr}}"
+  }
+}

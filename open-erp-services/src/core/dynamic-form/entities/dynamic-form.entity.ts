@@ -53,7 +53,14 @@ export class DynamicForm {
    * Mỗi phần tử mô tả: id, name, label, type, required, validation rules, options
    */
   @Column({ name: 'fields', type: 'jsonb', default: [] })
-  fields: any[];
+  fields: FormField[];
+
+  /**
+   * Bố cục/Layout thiết kế của form động (JSON schema)
+   * Lưu cấu hình chia dòng, cột, nhóm panel hiển thị trên nhiều thiết bị
+   */
+  @Column({ name: 'layout', type: 'jsonb', nullable: true })
+  layout: FormLayout | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
@@ -61,3 +68,67 @@ export class DynamicForm {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }
+
+export enum FieldType {
+  TEXT = 'TEXT',
+  TEXTAREA = 'TEXTAREA',
+  NUMBER = 'NUMBER',
+  DATE = 'DATE',
+  SELECT = 'SELECT',
+  CHECKBOX = 'CHECKBOX',
+  FILE = 'FILE',
+  GRID = 'GRID',
+}
+
+export interface LayoutColumn {
+  fieldId?: string;
+  colSpanDesktop?: number; // 1-12 span
+  colSpanTablet?: number;
+  colSpanMobile?: number;
+  margin?: string;
+  padding?: string;
+  border?: string;
+}
+
+export interface LayoutRow {
+  columns: LayoutColumn[];
+  panelId?: string;
+}
+
+export interface FormLayout {
+  rows: LayoutRow[];
+}
+
+export interface FormField {
+  id: string;
+  name: string;
+  label: string;
+  type: FieldType;
+  required: boolean;
+  defaultValue?: any;
+  placeholder?: string;
+  validation?: {
+    minLength?: number;
+    maxLength?: number;
+    min?: number;
+    max?: number;
+    regEx?: string;
+  };
+  options?: Array<{ label: string; value: any }>;
+  columns?: Array<{
+    name: string;
+    label: string;
+    type: FieldType;
+    required: boolean;
+    options?: Array<{ label: string; value: any }>;
+    validation?: any;
+  }>;
+  layout?: {
+    colSpanDesktop?: number;
+    colSpanTablet?: number;
+    colSpanMobile?: number;
+    panelId?: string;
+  };
+}
+
+

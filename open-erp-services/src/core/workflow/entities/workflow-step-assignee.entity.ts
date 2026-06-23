@@ -28,8 +28,15 @@ export class WorkflowStepAssignee {
   tenant: Tenant | null;
 
   @Column({ name: 'assignee_type', type: 'varchar', length: 50 })
-  assigneeType: string; // 'USER' | 'DEPARTMENT' | 'ROLE' | 'DYNAMIC'
-
+  assigneeType: AssigneeType; // 'USER' | 'DEPARTMENT' | 'ROLE' | 'DYNAMIC'
+  
   @Column({ name: 'assignee_id', type: 'varchar', length: 255 })
   assigneeId: string;
+}
+
+export enum AssigneeType {
+  USER = 'USER',
+  DEPARTMENT = 'DEPARTMENT',
+  ROLE = 'ROLE',
+  DYNAMIC = 'DYNAMIC',
 }

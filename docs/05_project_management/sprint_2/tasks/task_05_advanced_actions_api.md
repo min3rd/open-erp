@@ -102,24 +102,24 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
 * **Trạng thái:** Hoàn thành 100% các yêu cầu nghiệp vụ và kỹ thuật.
 * **Kết quả bàn giao chi tiết:**
   - **Database & Entities:**
-    - Tạo thực thể [WorkflowConsultation](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/entities/workflow-consultation.entity.ts) quản lý các phiên xin ý kiến.
-    - Cập nhật [WorkflowInstance](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/entities/workflow-instance.entity.ts) thêm cột `parentInstanceId` để liên kết quy trình cha - con.
-    - Đăng ký thực thể `WorkflowConsultation` trong [app.module.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/app.module.ts).
+    - Tạo thực thể [WorkflowConsultation](../../../../open-erp-services/src/core/workflow/entities/workflow-consultation.entity.ts) quản lý các phiên xin ý kiến.
+    - Cập nhật [WorkflowInstance](../../../../open-erp-services/src/core/workflow/entities/workflow-instance.entity.ts) thêm cột `parentInstanceId` để liên kết quy trình cha - con.
+    - Đăng ký thực thể `WorkflowConsultation` trong [app.module.ts](../../../../open-erp-services/src/app.module.ts).
   - **Core Business Logic:**
-    - Xây dựng [WorkflowInstanceService](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/workflow-instance.service.ts) xử lý FSM máy trạng thái hỗ trợ các hành động: `APPROVE`, `REJECT`, `CONSULT`, `PROVIDE_FEEDBACK`, `SPAWN_SUBPROCESS`.
+    - Xây dựng [WorkflowInstanceService](../../../../open-erp-services/src/core/workflow/workflow-instance.service.ts) xử lý FSM máy trạng thái hỗ trợ các hành động: `APPROVE`, `REJECT`, `CONSULT`, `PROVIDE_FEEDBACK`, `SPAWN_SUBPROCESS`.
     - Triển khai logic đóng băng bước khi xin ý kiến chuyên môn (`AWAITING_CONSULTATION`) và rã băng khi nhận phản hồi (`PROVIDE_FEEDBACK`).
     - Triển khai cơ chế đánh giá đồng thuận tại mỗi bước dựa trên cấu hình (ALL, ANY, PERCENTAGE) thông qua hàm `checkConsensusInTransaction`.
     - Triển khai Join Sync tự động đồng bộ và gộp các nhánh rẽ song song tại bước `JOIN` khi các điều kiện nhánh vào đều đạt.
     - Triển khai tự động kích hoạt quy trình con `SPAWN_SUBPROCESS` đóng băng quy trình cha dưới dạng `WAITING_SUBPROCESS`, tự động tiếp tục (resume) quy trình cha khi quy trình con hoàn tất duyệt (`APPROVED`).
     - Tích hợp `DocumentTemplateService` để tự động sinh tài liệu biểu mẫu dạng PDF khi hoàn tất bước duyệt có cấu hình `templateId`.
   - **REST APIs:**
-    - Triển khai [WorkflowInstanceController](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/workflow/workflow-instance.controller.ts) với các endpoints:
+    - Triển khai [WorkflowInstanceController](../../../../open-erp-services/src/features/workflow/workflow-instance.controller.ts) với các endpoints:
       - `POST /workflow-instances`: Khởi tạo và bắt đầu quy trình instance mới.
       - `POST /workflow-instances/:instanceId/actions`: Thực hiện hành động xử lý đơn từ theo FSM.
       - `GET /workflow-instances/:id`: Xem chi tiết thông tin và lịch sử phê duyệt của quy trình.
-    - Đăng ký controller trong feature [WorkflowModule](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/workflow/workflow.module.ts).
+    - Đăng ký controller trong feature [WorkflowModule](../../../../open-erp-services/src/features/workflow/workflow.module.ts).
   - **Kiểm thử (Verification & Unit Tests):**
-    - Viết bộ unit tests cho service [workflow-instance.service.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/workflow/workflow-instance.service.spec.ts).
-    - Viết bộ unit tests cho controller [workflow-instance.controller.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/workflow/workflow-instance.controller.spec.ts).
+    - Viết bộ unit tests cho service [workflow-instance.service.spec.ts](../../../../open-erp-services/src/core/workflow/workflow-instance.service.spec.ts).
+    - Viết bộ unit tests cho controller [workflow-instance.controller.spec.ts](../../../../open-erp-services/src/features/workflow/workflow-instance.controller.spec.ts).
     - Đảm bảo toàn bộ 151/151 unit tests của toàn bộ hệ thống đều pass và project build không có lỗi TypeScript.
 

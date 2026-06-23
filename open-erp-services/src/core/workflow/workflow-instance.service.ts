@@ -2,13 +2,15 @@ import { Injectable, NotFoundException, BadRequestException, forwardRef, Inject 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, In } from 'typeorm';
 import { ClientProxy } from '@nestjs/microservices';
-import { WorkflowInstance } from './entities/workflow-instance.entity';
-import { WorkflowStep } from './entities/workflow-step.entity';
-import { WorkflowApprover } from './entities/workflow-approver.entity';
+import { WorkflowInstance, WorkflowInstanceStatus } from './entities/workflow-instance.entity';
+import { WorkflowStep, StepType } from './entities/workflow-step.entity';
+import { WorkflowApprover, WorkflowApproverStatus } from './entities/workflow-approver.entity';
 import { Workflow } from './entities/workflow.entity';
-import { WorkflowStepAssignee } from './entities/workflow-step-assignee.entity';
-import { WorkflowConsultation } from './entities/workflow-consultation.entity';
+import { WorkflowStepAssignee, AssigneeType } from './entities/workflow-step-assignee.entity';
+import { WorkflowConsultation, WorkflowConsultationStatus } from './entities/workflow-consultation.entity';
 import { WorkflowLogService } from './workflow-log.service';
+import { WorkflowAction } from './entities/workflow-log.entity';
+
 import { User } from '../user/user.entity';
 import { Employee } from '../../features/org/entities/employee.entity';
 import { DocumentTemplateService } from '../document-template/document-template.service';
@@ -74,7 +76,7 @@ export class WorkflowInstanceService {
       instance.workflowId = workflowId;
       instance.tenantId = tenantId;
       instance.creatorId = creatorId;
-      instance.status = 'IN_PROGRESS';
+      instance.status = WorkflowInstanceStatus.IN_PROGRESS;
       instance.contextData = contextData;
 
       // Find direct steps after START
@@ -88,7 +90,7 @@ export class WorkflowInstanceService {
         tenantId,
         savedInstance.id,
         startStep.id,
-        'SUBMIT',
+        WorkflowAction.SUBMIT,
         creatorId,
         contextData,
       );
@@ -116,7 +118,7 @@ export class WorkflowInstanceService {
     actorId: string,
     payload: {
       stepId: string;
-      action: string; // 'APPROVE' | 'REJECT' | 'CONSULT' | 'PROVIDE_FEEDBACK' | 'SPAWN_SUBPROCESS'
+      action: WorkflowAction; // 'APPROVE' | 'REJECT' | 'CONSULT' | 'PROVIDE_FEEDBACK' | 'SPAWN_SUBPROCESS'
       comment?: string;
       consultantId?: string;
       formData?: any;
@@ -152,13 +154,13 @@ export class WorkflowInstanceService {
     const { stepId, action, comment, consultantId, formData, subWorkflowId } = payload;
 
     // Handle PROVIDE_FEEDBACK (Consultant responds)
-    if (action === 'PROVIDE_FEEDBACK') {
+    if (action === WorkflowAction.PROVIDE_FEEDBACK) {
       const consultation = await this.consultationRepository.findOne({
         where: {
           instanceId,
           stepId,
           consultantId: actorId,
-          status: 'PENDING',
+          status: WorkflowConsultationStatus.PENDING,
         },
       });
 
@@ -174,7 +176,7 @@ export class WorkflowInstanceService {
 
       return this.dataSource.transaction(async (manager) => {
         // Update Consultation
-        consultation.status = 'RESPONDED';
+        consultation.status = WorkflowConsultationStatus.RESPONDED;
         consultation.feedback = comment || null;
         await manager.save(WorkflowConsultation, consultation);
 
@@ -184,11 +186,11 @@ export class WorkflowInstanceService {
             instanceId,
             stepId,
             userId: actorId,
-            status: 'CONSULTING',
+            status: WorkflowApproverStatus.CONSULTING,
           },
         });
         if (consultantApprover) {
-          consultantApprover.status = 'APPROVED';
+          consultantApprover.status = WorkflowApproverStatus.APPROVED;
           consultantApprover.comment = comment || null;
           consultantApprover.actionAt = new Date();
           await manager.save(WorkflowApprover, consultantApprover);
@@ -199,19 +201,19 @@ export class WorkflowInstanceService {
           tenantId,
           instanceId,
           stepId,
-          'PROVIDE_FEEDBACK',
+          WorkflowAction.PROVIDE_FEEDBACK,
           actorId,
           { feedback: comment },
         );
 
         // Check if there are any other pending consultations for this step
         const otherPending = await manager.findOne(WorkflowConsultation, {
-          where: { instanceId, stepId, status: 'PENDING' },
+          where: { instanceId, stepId, status: WorkflowConsultationStatus.PENDING },
         });
 
         if (!otherPending) {
           // Unfreeze step & resume instance to IN_PROGRESS
-          instance.status = 'IN_PROGRESS';
+          instance.status = WorkflowInstanceStatus.IN_PROGRESS;
           await manager.save(WorkflowInstance, instance);
         }
 
@@ -224,10 +226,9 @@ export class WorkflowInstanceService {
       });
     }
 
-    // Freeze Check: If instance is frozen for consultation, block regular actions
-    if (instance.status === 'AWAITING_CONSULTATION') {
+    if (instance.status === WorkflowInstanceStatus.AWAITING_CONSULTATION) {
       const pendingConsult = await this.consultationRepository.findOne({
-        where: { instanceId, stepId, status: 'PENDING' },
+        where: { instanceId, stepId, status: WorkflowConsultationStatus.PENDING },
       });
       if (pendingConsult) {
         throw new BadRequestException({
@@ -246,7 +247,7 @@ export class WorkflowInstanceService {
         instanceId,
         stepId,
         userId: actorId,
-        status: 'PENDING',
+        status: WorkflowApproverStatus.PENDING,
       },
     });
 
@@ -261,7 +262,7 @@ export class WorkflowInstanceService {
     }
 
     // Action execution
-    if (action === 'CONSULT') {
+    if (action === WorkflowAction.CONSULT) {
       if (!consultantId) {
         throw new BadRequestException({
           success: false,
@@ -280,7 +281,7 @@ export class WorkflowInstanceService {
         consult.stepId = stepId;
         consult.requesterId = actorId;
         consult.consultantId = consultantId;
-        consult.status = 'PENDING';
+        consult.status = WorkflowConsultationStatus.PENDING;
         consult.comment = comment || null;
         await manager.save(WorkflowConsultation, consult);
 
@@ -290,11 +291,11 @@ export class WorkflowInstanceService {
         consultantApprover.instanceId = instanceId;
         consultantApprover.stepId = stepId;
         consultantApprover.userId = consultantId;
-        consultantApprover.status = 'CONSULTING';
+        consultantApprover.status = WorkflowApproverStatus.CONSULTING;
         await manager.save(WorkflowApprover, consultantApprover);
 
         // Freeze instance
-        instance.status = 'AWAITING_CONSULTATION';
+        instance.status = WorkflowInstanceStatus.AWAITING_CONSULTATION;
         await manager.save(WorkflowInstance, instance);
 
         // Log consultation
@@ -302,7 +303,7 @@ export class WorkflowInstanceService {
           tenantId,
           instanceId,
           stepId,
-          'CONSULT',
+          WorkflowAction.CONSULT,
           actorId,
           { consultantId, comment },
         );
@@ -316,21 +317,21 @@ export class WorkflowInstanceService {
       });
     }
 
-    if (action === 'REJECT') {
+    if (action === WorkflowAction.REJECT) {
       return this.dataSource.transaction(async (manager) => {
-        approverTask.status = 'REJECTED';
+        approverTask.status = WorkflowApproverStatus.REJECTED;
         approverTask.comment = comment || null;
         approverTask.actionAt = new Date();
         await manager.save(WorkflowApprover, approverTask);
 
-        instance.status = 'REJECTED';
+        instance.status = WorkflowInstanceStatus.REJECTED;
         await manager.save(WorkflowInstance, instance);
 
         await this.logService.writeLog(
           tenantId,
           instanceId,
           stepId,
-          'REJECT',
+          WorkflowAction.REJECT,
           actorId,
           { comment },
         );
@@ -344,7 +345,7 @@ export class WorkflowInstanceService {
       });
     }
 
-    if (action === 'SPAWN_SUBPROCESS') {
+    if (action === WorkflowAction.SPAWN_SUBPROCESS) {
       if (!subWorkflowId) {
         throw new BadRequestException({
           success: false,
@@ -361,7 +362,7 @@ export class WorkflowInstanceService {
         childInstance.workflowId = subWorkflowId;
         childInstance.tenantId = tenantId;
         childInstance.creatorId = actorId;
-        childInstance.status = 'IN_PROGRESS';
+        childInstance.status = WorkflowInstanceStatus.IN_PROGRESS;
         childInstance.parentInstanceId = instanceId;
         childInstance.contextData = instance.contextData;
 
@@ -395,7 +396,7 @@ export class WorkflowInstanceService {
           tenantId,
           savedChild.id,
           subStart?.id || null,
-          'SUBMIT',
+          WorkflowAction.SUBMIT,
           actorId,
           instance.contextData,
         );
@@ -411,7 +412,7 @@ export class WorkflowInstanceService {
         }
 
         // Freeze parent
-        instance.status = 'WAITING_SUBPROCESS';
+        instance.status = WorkflowInstanceStatus.WAITING_SUBPROCESS;
         await manager.save(WorkflowInstance, instance);
 
         // Log parent action
@@ -419,7 +420,7 @@ export class WorkflowInstanceService {
           tenantId,
           instanceId,
           stepId,
-          'SPAWN_SUBPROCESS',
+          WorkflowAction.SPAWN_SUBPROCESS,
           actorId,
           { childInstanceId: savedChild.id, subWorkflowId },
         );
@@ -433,10 +434,10 @@ export class WorkflowInstanceService {
       });
     }
 
-    if (action === 'APPROVE') {
+    if (action === WorkflowAction.APPROVE) {
       return this.dataSource.transaction(async (manager) => {
         // Update user task to APPROVED
-        approverTask.status = 'APPROVED';
+        approverTask.status = WorkflowApproverStatus.APPROVED;
         approverTask.comment = comment || null;
         approverTask.actionAt = new Date();
 
@@ -456,7 +457,7 @@ export class WorkflowInstanceService {
           tenantId,
           instanceId,
           stepId,
-          'APPROVE',
+          WorkflowAction.APPROVE,
           actorId,
           {
             comment,
@@ -484,7 +485,7 @@ export class WorkflowInstanceService {
             tenantId,
             instanceId,
             stepId,
-            'STEP_COMPLETED',
+            WorkflowAction.STEP_COMPLETED,
             actorId,
             null,
           );
@@ -588,7 +589,7 @@ export class WorkflowInstanceService {
       app.instanceId = instanceId;
       app.stepId = step.id;
       app.userId = user.id;
-      app.status = 'PENDING';
+      app.status = WorkflowApproverStatus.PENDING;
       app.deadlineAt = deadlineAt;
       approvers.push(app);
     }
@@ -664,11 +665,50 @@ export class WorkflowInstanceService {
     }
 
     // Deduplicate users
-    const userMap = new Map<string, User>();
+    let userMap = new Map<string, User>();
     for (const u of resolvedUsers) {
       userMap.set(u.id, u);
     }
-    return Array.from(userMap.values());
+    resolvedUsers = Array.from(userMap.values());
+
+    // Fallback to fallbackAssignee if no users resolved
+    if (resolvedUsers.length === 0 && step.config?.fallbackAssignee) {
+      const fallback = step.config.fallbackAssignee;
+      if (fallback.type === 'USER' && fallback.value) {
+        const user = await manager.findOne(User, {
+          where: { id: fallback.value, tenantId: tenantId as any },
+        });
+        if (user) resolvedUsers.push(user);
+      } else if (fallback.type === 'ROLE' && fallback.value) {
+        const users = await manager.getRepository(User)
+          .createQueryBuilder('user')
+          .leftJoinAndSelect('user.roles', 'role')
+          .where('user.tenantId = :tenantId', { tenantId })
+          .andWhere('(LOWER(role.name) = :val OR LOWER(role.code) = :val)', { val: fallback.value.toLowerCase() })
+          .getMany();
+        resolvedUsers.push(...users);
+      } else if (fallback.type === 'DEPARTMENT' && fallback.value) {
+        const employees = await manager.find(Employee, {
+          where: { tenantId: tenantId as any, departmentId: fallback.value },
+        });
+        const emails = employees.map((emp: any) => emp.email).filter(Boolean);
+        if (emails.length > 0) {
+          const users = await manager.find(User, {
+            where: { tenantId: tenantId as any, email: In(emails) },
+          });
+          resolvedUsers.push(...users);
+        }
+      }
+
+      // Deduplicate again if any fallback returned multiple users
+      userMap = new Map<string, User>();
+      for (const u of resolvedUsers) {
+        userMap.set(u.id, u);
+      }
+      resolvedUsers = Array.from(userMap.values());
+    }
+
+    return resolvedUsers;
   }
 
   private async checkConsensusInTransaction(
@@ -722,7 +762,7 @@ export class WorkflowInstanceService {
     if (nextIds.length === 0) {
       // No next steps, check if this branch was the last active path
       if (instance.currentStepIds.length === 0) {
-        instance.status = 'APPROVED';
+        instance.status = WorkflowInstanceStatus.APPROVED;
         await manager.save(WorkflowInstance, instance);
 
         // Resume Parent Sub-process if exists
@@ -758,7 +798,7 @@ export class WorkflowInstanceService {
 
         // If there are still active / pending approver tasks, JOIN blocks
         const hasPending = approvers.some(
-          (app: any) => app.status === 'PENDING' || app.status === 'CONSULTING',
+          (app: any) => app.status === WorkflowApproverStatus.PENDING || app.status === WorkflowApproverStatus.CONSULTING,
         );
 
         if (!hasPending) {
@@ -770,7 +810,7 @@ export class WorkflowInstanceService {
         await this.transitionNextInTransaction(manager, instance, nextStep.id, tenantId);
       } else if (nextStep.stepType === 'END') {
         // Reached end step
-        instance.status = 'APPROVED';
+        instance.status = WorkflowInstanceStatus.APPROVED;
         await manager.save(WorkflowInstance, instance);
 
         // Resume Parent Sub-process if exists
@@ -804,9 +844,9 @@ export class WorkflowInstanceService {
         where: { id: child.parentInstanceId },
       });
 
-      if (parent && parent.status === 'WAITING_SUBPROCESS') {
+      if (parent && parent.status === WorkflowInstanceStatus.WAITING_SUBPROCESS) {
         // Resume parent instance
-        parent.status = 'IN_PROGRESS';
+        parent.status = WorkflowInstanceStatus.IN_PROGRESS;
         await manager.save(WorkflowInstance, parent);
 
         // Complete the parent step that spawned the child subprocess

@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { WorkflowLog } from './entities/workflow-log.entity';
+import { WorkflowLog, WorkflowAction } from './entities/workflow-log.entity';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class WorkflowLogService {
     tenantId: string | null,
     instanceId: string,
     stepId: string | null,
-    action: string,
+    action: WorkflowAction,
     actorId: string,
     payload: any,
   ): Promise<WorkflowLog> {

@@ -38,7 +38,7 @@ export class WorkflowLog {
   step: WorkflowStep | null;
 
   @Column({ name: 'action', type: 'varchar', length: 50 })
-  action: string; // 'SUBMIT' | 'APPROVE' | 'REJECT' | 'CONSULT' | 'SIGN' | 'FORWARD'
+  action: WorkflowAction; // SUBMIT | APPROVE | REJECT | CONSULT | SIGN | FORWARD | PROVIDE_FEEDBACK | SPAWN_SUBPROCESS
 
   @Column({ name: 'actor_id', type: 'uuid' })
   actorId: string;
@@ -59,3 +59,16 @@ export class WorkflowLog {
   @CreateDateColumn({ name: 'timestamp', type: 'timestamptz' })
   timestamp: Date;
 }
+
+export enum WorkflowAction {
+  SUBMIT = 'SUBMIT',
+  APPROVE = 'APPROVE',
+  REJECT = 'REJECT',
+  CONSULT = 'CONSULT',
+  SIGN = 'SIGN',
+  FORWARD = 'FORWARD',
+  PROVIDE_FEEDBACK = 'PROVIDE_FEEDBACK',
+  SPAWN_SUBPROCESS = 'SPAWN_SUBPROCESS',
+  STEP_COMPLETED = 'STEP_COMPLETED',
+}
+

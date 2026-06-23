@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Notification } from './entities/notification.entity';
+import { Notification, NotificationType } from './entities/notification.entity';
 import { NotificationGateway } from './notification.gateway';
 
 @Injectable()
@@ -18,10 +18,12 @@ export class NotificationService {
     data: {
       title: string;
       body: string;
-      type: string;
+      type: NotificationType;
       link?: string;
+      parameters?: Record<string, any>;
     },
   ): Promise<Notification> {
+
     const notif = new Notification();
     notif.tenantId = tenantId;
     notif.userId = userId;
@@ -29,6 +31,7 @@ export class NotificationService {
     notif.body = data.body;
     notif.type = data.type;
     notif.link = data.link || null;
+    notif.parameters = data.parameters || null;
     notif.isRead = false;
 
     const saved = await this.notificationRepository.save(notif);
@@ -40,6 +43,7 @@ export class NotificationService {
       body: saved.body,
       type: saved.type,
       link: saved.link,
+      parameters: saved.parameters,
       createdAt: saved.createdAt,
     });
 

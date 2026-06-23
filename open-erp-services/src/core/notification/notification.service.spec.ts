@@ -48,8 +48,9 @@ describe('NotificationService', () => {
       const data = {
         title: 'New Task',
         body: 'You have a new task.',
-        type: 'WORKFLOW_PENDING',
+        type: 'WORKFLOW_PENDING' as any,
         link: '/inbox',
+        parameters: { taskName: 'Test' },
       };
 
       const result = await service.createNotification('tenant-1', 'user-1', data);
@@ -63,6 +64,7 @@ describe('NotificationService', () => {
           id: 'notif-uuid',
           title: 'New Task',
           type: 'WORKFLOW_PENDING',
+          parameters: { taskName: 'Test' },
         }),
       );
       expect(result.id).toBe('notif-uuid');

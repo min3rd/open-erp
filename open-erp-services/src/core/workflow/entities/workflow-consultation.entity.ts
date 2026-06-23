@@ -53,7 +53,7 @@ export class WorkflowConsultation {
   consultant: User;
 
   @Column({ name: 'status', type: 'varchar', length: 50, default: 'PENDING' })
-  status: string; // 'PENDING' | 'RESPONDED'
+  status: WorkflowConsultationStatus; // PENDING | RESPONDED
 
   @Column({ name: 'comment', type: 'text', nullable: true })
   comment: string | null;
@@ -67,3 +67,9 @@ export class WorkflowConsultation {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }
+
+export enum WorkflowConsultationStatus {
+  PENDING = 'PENDING',
+  RESPONDED = 'RESPONDED',
+}
+

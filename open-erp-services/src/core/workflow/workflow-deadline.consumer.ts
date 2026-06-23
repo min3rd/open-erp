@@ -5,7 +5,8 @@ import { Repository, LessThanOrEqual } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { WorkflowApprover } from './entities/workflow-approver.entity';
+import { WorkflowApprover, WorkflowApproverStatus } from './entities/workflow-approver.entity';
+import { renderEmailTemplate } from '../mail/mail-template.helper';
 
 @Processor('workflow-deadline-queue')
 @Injectable()
@@ -62,13 +63,13 @@ export class WorkflowDeadlineConsumer extends WorkerHost implements OnModuleInit
         },
       });
 
-      if (approver && (approver.status === 'PENDING' || approver.status === 'CONSULTING')) {
+      if (approver && (approver.status === WorkflowApproverStatus.PENDING || approver.status === WorkflowApproverStatus.CONSULTING)) {
         await this.sendReminderEmail(approver, false);
       }
     } else if (job.name === 'scan-overdue-approvals') {
       const overdueApprovers = await this.approverRepository.find({
         where: {
-          status: 'PENDING', // or CONSULTING
+          status: WorkflowApproverStatus.PENDING,
           deadlineAt: LessThanOrEqual(new Date()),
         },
         relations: {
@@ -83,7 +84,7 @@ export class WorkflowDeadlineConsumer extends WorkerHost implements OnModuleInit
       // Also include CONSULTING status
       const consultingOverdue = await this.approverRepository.find({
         where: {
-          status: 'CONSULTING',
+          status: WorkflowApproverStatus.CONSULTING,
           deadlineAt: LessThanOrEqual(new Date()),
         },
         relations: {
@@ -109,32 +110,19 @@ export class WorkflowDeadlineConsumer extends WorkerHost implements OnModuleInit
       return;
     }
 
+    const locale = (approver.user as any).locale === 'en' ? 'en' : 'vi';
     const email = approver.user.email;
     const wfName = approver.instance.workflow.name;
-    const deadlineStr = approver.deadlineAt ? approver.deadlineAt.toLocaleString('vi-VN') : 'N/A';
+    const deadlineStr = approver.deadlineAt ? approver.deadlineAt.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN') : 'N/A';
     const from = this.configService.get<string>('SMTP_FROM', 'OpenERP <noreply@open-erp.9ms.io.vn>');
 
-    const subject = isOverdue
-      ? `Trễ hạn: [${wfName}] đã quá hạn phê duyệt từ ngày ${deadlineStr}`
-      : `Khẩn: [${wfName}] cần phê duyệt gấp trước ngày ${deadlineStr}`;
-
-    const textHeader = isOverdue
-      ? `Đơn của bạn đã trễ hạn xử lý.`
-      : `Đơn của bạn đang sắp hết hạn xử lý.`;
-
-    const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-        <h2 style="color: #b76e79; text-align: center;">${isOverdue ? 'Cảnh Báo Quá Hạn Phê Duyệt' : 'Đốc Thúc Phê Duyệt Đơn'}</h2>
-        <p>Xin chào <strong>${approver.user.firstName || ''} ${approver.user.lastName || ''}</strong>,</p>
-        <p>${textHeader}</p>
-        <p><strong>Tên quy trình:</strong> ${wfName}</p>
-        <p><strong>Thời hạn chót:</strong> ${deadlineStr}</p>
-        <p>Vui lòng đăng nhập hệ thống để thực hiện phê duyệt kịp thời.</p>
-        <p style="font-size: 12px; color: #718096; text-align: center; border-top: 1px solid #edf2f7; padding-top: 20px; margin-top: 30px;">
-          © OpenERP Platform. All rights reserved.
-        </p>
-      </div>
-    `;
+    const templateName = isOverdue ? 'deadline-overdue' : 'deadline-urgent';
+    const { subject, html } = renderEmailTemplate(templateName, locale, {
+      firstName: approver.user.firstName || '',
+      lastName: approver.user.lastName || '',
+      wfName,
+      deadlineStr,
+    });
 
     try {
       await this.transporter.sendMail({

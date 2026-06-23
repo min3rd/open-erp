@@ -28,10 +28,13 @@ export class Notification {
   body: string;
 
   @Column({ name: 'type', type: 'varchar', length: 100 })
-  type: string; // 'WORKFLOW_PENDING' | 'WORKFLOW_APPROVED' | 'WORKFLOW_REJECTED' | 'WORKFLOW_REMINDER'
+  type: NotificationType; // WORKFLOW_PENDING | WORKFLOW_APPROVED | WORKFLOW_REJECTED | WORKFLOW_REMINDER
 
   @Column({ name: 'link', type: 'varchar', length: 255, nullable: true })
   link: string | null;
+
+  @Column({ name: 'parameters', type: 'jsonb', nullable: true })
+  parameters: Record<string, any> | null;
 
   @Column({ name: 'is_read', type: 'boolean', default: false })
   isRead: boolean;
@@ -39,3 +42,11 @@ export class Notification {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 }
+
+export enum NotificationType {
+  WORKFLOW_PENDING = 'WORKFLOW_PENDING',
+  WORKFLOW_APPROVED = 'WORKFLOW_APPROVED',
+  WORKFLOW_REJECTED = 'WORKFLOW_REJECTED',
+  WORKFLOW_REMINDER = 'WORKFLOW_REMINDER',
+}
+

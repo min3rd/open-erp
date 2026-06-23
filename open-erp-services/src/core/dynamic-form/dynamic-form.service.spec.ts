@@ -132,6 +132,72 @@ describe('DynamicFormService', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
+    it('should throw BadRequestException when layout is not an object', async () => {
+      await expect(
+        service.createOrUpdateForm('t1', {
+          formKey: 'my_form',
+          name: 'Test',
+          fields: [{ id: 'f1', name: 'f1', type: 'TEXT' }],
+          layout: 'not-an-object',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException when layout rows is not an array', async () => {
+      await expect(
+        service.createOrUpdateForm('t1', {
+          formKey: 'my_form',
+          name: 'Test',
+          fields: [{ id: 'f1', name: 'f1', type: 'TEXT' }],
+          layout: { rows: 'not-an-array' },
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException when layout columns is not an array', async () => {
+      await expect(
+        service.createOrUpdateForm('t1', {
+          formKey: 'my_form',
+          name: 'Test',
+          fields: [{ id: 'f1', name: 'f1', type: 'TEXT' }],
+          layout: {
+            rows: [{ columns: 'not-an-array' }],
+          },
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException when layout referenced field does not exist', async () => {
+      await expect(
+        service.createOrUpdateForm('t1', {
+          formKey: 'my_form',
+          name: 'Test',
+          fields: [{ id: 'f1', name: 'f1', type: 'TEXT' }],
+          layout: {
+            rows: [{ columns: [{ fieldId: 'nonexistent-field' }] }],
+          },
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should save layout successfully when valid', async () => {
+      mockManager.findOne.mockResolvedValue(null);
+
+      const validLayout = {
+        rows: [{ columns: [{ fieldId: 'field_reason' }] }],
+      };
+
+      const result = await service.createOrUpdateForm('t1', {
+        formKey: 'my_form',
+        name: 'Test Form',
+        fields: sampleFields,
+        layout: validLayout,
+      });
+
+      expect(result.version).toBe(1);
+      expect(result.layout).toEqual(validLayout);
+    });
+
     it('should create first version (version=1) when no existing form', async () => {
       mockManager.findOne.mockResolvedValue(null);
 
@@ -314,6 +380,108 @@ describe('DynamicFormService', () => {
       ];
       const errors = service.runValidation(optionalField, {});
       expect(errors).toHaveLength(0);
+    });
+
+    it('should throw BadRequestException for GRID field without columns', async () => {
+      await expect(
+        service.createOrUpdateForm('t1', {
+          formKey: 'grid_form',
+          name: 'Grid Form',
+          fields: [{ id: 'f_grid', name: 'myGrid', type: 'GRID', columns: [] }],
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException for GRID column with duplicate names', async () => {
+      await expect(
+        service.createOrUpdateForm('t1', {
+          formKey: 'grid_form',
+          name: 'Grid Form',
+          fields: [
+            {
+              id: 'f_grid',
+              name: 'myGrid',
+              type: 'GRID',
+              columns: [
+                { name: 'col1', type: 'TEXT', label: 'Col 1' },
+                { name: 'col1', type: 'NUMBER', label: 'Col 1 Dup' },
+              ],
+            },
+          ],
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException for GRID column with unsupported type', async () => {
+      await expect(
+        service.createOrUpdateForm('t1', {
+          formKey: 'grid_form',
+          name: 'Grid Form',
+          fields: [
+            {
+              id: 'f_grid',
+              name: 'myGrid',
+              type: 'GRID',
+              columns: [{ name: 'col1', type: 'GRID', label: 'Nested Grid is Bad' }],
+            },
+          ],
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should validate GRID field and return errors for invalid cell values', () => {
+      const gridField = [
+        {
+          id: 'f_grid',
+          name: 'proposalItems',
+          label: 'Đề xuất',
+          type: 'GRID',
+          required: true,
+          columns: [
+            { name: 'itemName', type: 'TEXT', label: 'Tên', required: true, validation: { minLength: 5 } },
+            { name: 'price', type: 'NUMBER', label: 'Giá', required: true, validation: { min: 10 } },
+            { name: 'type', type: 'SELECT', label: 'Loại', required: true, options: [{ label: 'A', value: 'a' }] },
+          ],
+        },
+      ];
+
+      const errors1 = service.runValidation(gridField, {
+        proposalItems: [
+          { itemName: 'Pen', price: 5, type: 'b' }, // itemName < 5, price < 10, type not in options
+        ],
+      });
+
+      expect(errors1).toHaveLength(3);
+      expect(errors1.find((e) => e.field === 'proposalItems[0].itemName').messageKey).toBe('form.validation.min_length');
+      expect(errors1.find((e) => e.field === 'proposalItems[0].price').messageKey).toBe('form.validation.min_value');
+      expect(errors1.find((e) => e.field === 'proposalItems[0].type').messageKey).toBe('form.validation.invalid_option');
+
+      // Test required checks
+      const errors2 = service.runValidation(gridField, {
+        proposalItems: [
+          { itemName: '', price: null }, // empty required cells
+        ],
+      });
+      expect(errors2).toHaveLength(3); // itemName (required), price (required), type (required)
+      expect(errors2.find((e) => e.field === 'proposalItems[0].itemName').messageKey).toBe('form.validation.required');
+      expect(errors2.find((e) => e.field === 'proposalItems[0].price').messageKey).toBe('form.validation.required');
+      expect(errors2.find((e) => e.field === 'proposalItems[0].type').messageKey).toBe('form.validation.required');
+    });
+
+    it('should validate GRID field and return invalid grid data error when value is not an array', () => {
+      const gridField = [
+        {
+          id: 'f_grid',
+          name: 'proposalItems',
+          label: 'Đề xuất',
+          type: 'GRID',
+          required: true,
+          columns: [{ name: 'itemName', type: 'TEXT', label: 'Tên', required: true }],
+        },
+      ];
+      const errors = service.runValidation(gridField, { proposalItems: 'not-an-array' });
+      expect(errors).toHaveLength(1);
+      expect(errors[0].messageKey).toBe('form.validation.invalid_grid_data');
     });
   });
 });

@@ -53,7 +53,7 @@ export class WorkflowApprover {
   department: Department | null;
 
   @Column({ name: 'status', type: 'varchar', length: 50, default: 'PENDING' })
-  status: string; // 'PENDING' | 'APPROVED' | 'REJECTED' | 'CONSULTING'
+  status: WorkflowApproverStatus; // PENDING | APPROVED | REJECTED | CONSULTING
 
   @Column({ name: 'comment', type: 'text', nullable: true })
   comment: string | null;
@@ -70,3 +70,11 @@ export class WorkflowApprover {
   @Column({ name: 'deadline_at', type: 'timestamptz', nullable: true })
   deadlineAt: Date | null;
 }
+
+export enum WorkflowApproverStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  CONSULTING = 'CONSULTING',
+}
+

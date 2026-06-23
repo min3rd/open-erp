@@ -36,7 +36,7 @@ export class WorkflowStep {
   stepOrder: number;
 
   @Column({ name: 'step_type', type: 'varchar', length: 50, default: 'APPROVAL' })
-  stepType: string; // 'START' | 'APPROVAL' | 'FORK' | 'JOIN' | 'END'
+  stepType: StepType; // 'START' | 'APPROVAL' | 'FORK' | 'JOIN' | 'END'
 
   @Column({ name: 'next_step_ids', type: 'uuid', array: true, nullable: true })
   nextStepIds: string[] | null;
@@ -52,4 +52,12 @@ export class WorkflowStep {
 
   @OneToMany(() => WorkflowStepAssignee, (assignee) => assignee.step)
   assignees: WorkflowStepAssignee[];
+}
+
+export enum StepType {
+  START = 'START',
+  APPROVAL = 'APPROVAL',
+  FORK = 'FORK',
+  JOIN = 'JOIN',
+  END = 'END',
 }

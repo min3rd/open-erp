@@ -132,10 +132,10 @@ Tham chiếu đầy đủ trong [api_overview.md](../../../03_functional/api_ove
 Task TSK-2.15 đã được hoàn thành đầy đủ các tiêu chí bàn giao và tích hợp thành công trên nhánh `develop`:
 
 * **Cấu hình Hạ tầng Docker local:**
-  - Thêm dịch vụ [minio-local](file:///c:/Users/Minh/Documents/open-erp/docker-compose.local.yml) vào file docker-compose.local.yml, hỗ trợ tự động health check và lưu trữ dữ liệu local qua volume.
+  - Thêm dịch vụ [minio-local](../../../../docker-compose.local.yml) vào file docker-compose.local.yml, hỗ trợ tự động health check và lưu trữ dữ liệu local qua volume.
 * **Backend Services (`open-erp-services`):**
-  - Khởi tạo thực thể cơ sở dữ liệu [SysFile Entity](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/storage/file.entity.ts) để quản lý siêu dữ liệu tệp tin.
-  - Xây dựng lớp dịch vụ [StorageService](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/storage/storage.service.ts) kết nối MinIO thông qua S3 SDK, hỗ trợ các chức năng uploadFile, deleteFile, getPresignedDownloadUrl (hiệu lực 15 phút), tự động kiểm tra và tạo bucket trên MinIO khi khởi động backend.
-  - Triển khai [StorageController](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/storage/storage.controller.ts) xử lý APIs upload file và download qua pre-signed URL, bảo mật bằng `JwtAuthGuard`.
-  - Tích hợp đăng ký module và entity trong [app.module.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/app.module.ts).
-  - Hoàn thành viết unit tests với 12 test cases đạt tỷ lệ pass 100% trong [storage.service.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/core/storage/storage.service.spec.ts) và [storage.controller.spec.ts](file:///c:/Users/Minh/Documents/open-erp/open-erp-services/src/features/storage/storage.controller.spec.ts).
+  - Khởi tạo thực thể cơ sở dữ liệu [SysFile Entity](../../../../open-erp-services/src/core/storage/file.entity.ts) để quản lý siêu dữ liệu tệp tin.
+  - Xây dựng lớp dịch vụ [StorageService](../../../../open-erp-services/src/core/storage/storage.service.ts) kết nối MinIO thông qua S3 SDK, hỗ trợ các chức năng uploadFile, deleteFile, getPresignedDownloadUrl (hiệu lực 15 phút), tự động kiểm tra và tạo bucket trên MinIO khi khởi động backend.
+  - Triển khai [StorageController](../../../../open-erp-services/src/features/storage/storage.controller.ts) xử lý APIs upload file và download qua pre-signed URL, bảo mật bằng `JwtAuthGuard`.
+  - Tích hợp đăng ký module và entity trong [app.module.ts](../../../../open-erp-services/src/app.module.ts).
+  - Hoàn thành viết unit tests với 12 test cases đạt tỷ lệ pass 100% trong [storage.service.spec.ts](../../../../open-erp-services/src/core/storage/storage.service.spec.ts) và [storage.controller.spec.ts](../../../../open-erp-services/src/features/storage/storage.controller.spec.ts).

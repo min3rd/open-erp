@@ -117,6 +117,52 @@ describe('WorkflowInstanceService', () => {
       workflowRepoMock.findOne.mockResolvedValue(null);
       await expect(service.startInstance('tenant-1', 'wf-invalid', 'user-1')).rejects.toThrow(NotFoundException);
     });
+
+    it('should resolve fallback assignee when main assignee list is empty', async () => {
+      const mockWorkflow = {
+        id: 'wf-1',
+        name: 'WF1',
+        steps: [
+          { id: 'step-start', stepType: 'START', nextStepIds: ['step-app'] },
+          {
+            id: 'step-app',
+            stepType: 'APPROVAL',
+            config: {
+              fallbackAssignee: { type: 'USER', value: 'fallback-user-uuid' },
+            },
+            nextStepIds: ['step-end'],
+          },
+          { id: 'step-end', stepType: 'END', nextStepIds: [] },
+        ],
+      };
+
+      workflowRepoMock.findOne.mockResolvedValue(mockWorkflow);
+      mockManager.findOne.mockImplementation((entityClass, options) => {
+        // When checking for fallback user
+        if (entityClass === User) {
+          return Promise.resolve({ id: 'fallback-user-uuid', email: 'fallback@example.com' });
+        }
+        // When finding saved instance
+        return Promise.resolve({ id: 'instance-123', status: 'IN_PROGRESS' });
+      });
+
+      // No assignees in the workflow_step_assignees table
+      mockManager.find.mockResolvedValue([]);
+
+      const result = await service.startInstance('tenant-1', 'wf-1', 'user-1', {});
+      expect(result).toBeDefined();
+
+      // Check if fallback user was saved as approver
+      const saveCalls = mockManager.save.mock.calls;
+      const savedApproverList = saveCalls.find((call) => {
+        const arg = call[1] || call[0];
+        if (Array.isArray(arg)) {
+          return arg.some((a) => a.userId === 'fallback-user-uuid');
+        }
+        return arg && arg.userId === 'fallback-user-uuid';
+      });
+      expect(savedApproverList).toBeDefined();
+    });
   });
 
   describe('executeAction', () => {

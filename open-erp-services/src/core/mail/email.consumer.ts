@@ -3,6 +3,7 @@ import { Job } from 'bullmq';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { Injectable } from '@nestjs/common';
+import { renderEmailTemplate } from './mail-template.helper';
 
 @Processor('email-queue')
 @Injectable()
@@ -26,32 +27,23 @@ export class EmailConsumer extends WorkerHost {
   }
 
   async process(job: Job<any, any, string>): Promise<any> {
+    const locale = job.data.locale === 'en' ? 'en' : 'vi';
+    const from = this.configService.get<string>('SMTP_FROM', 'OpenERP <noreply@open-erp.9ms.io.vn>');
+
     if (job.name === 'send-invite') {
       const { email, firstName, lastName, activationLink, tenantName } = job.data;
-      const from = this.configService.get<string>('SMTP_FROM', 'OpenERP <noreply@open-erp.9ms.io.vn>');
-
-      const html = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-          <h2 style="color: #b78a62; text-align: center;">Chào mừng đến với ${tenantName}</h2>
-          <p>Xin chào <strong>${firstName} ${lastName}</strong>,</p>
-          <p>Bạn đã được mời tham gia vào hệ thống quản lý <strong>OpenERP</strong> của công ty <strong>${tenantName}</strong>.</p>
-          <p>Vui lòng click vào nút bên dưới để thiết lập mật khẩu và kích hoạt tài khoản của bạn:</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${activationLink}" style="background-color: #b78a62; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Kích hoạt tài khoản</a>
-          </div>
-          <p style="font-size: 12px; color: #718096; text-align: center; border-top: 1px solid #edf2f7; padding-top: 20px; margin-top: 30px;">
-            Liên kết này sẽ hết hạn sau 24 giờ.<br>
-            Nếu bạn không yêu cầu lời mời này, vui lòng bỏ qua email.<br>
-            © OpenERP Platform. All rights reserved.
-          </p>
-        </div>
-      `;
+      const { subject, html } = renderEmailTemplate('invite', locale, {
+        firstName: firstName || '',
+        lastName: lastName || '',
+        tenantName: tenantName || '',
+        activationLink: activationLink || '',
+      });
 
       try {
         await this.transporter.sendMail({
           from,
           to: email,
-          subject: `[OpenERP] Lời mời tham gia ${tenantName}`,
+          subject,
           html,
         });
         console.log(`[BullMQ Worker] Invitation email sent successfully to ${email}`);
@@ -61,28 +53,18 @@ export class EmailConsumer extends WorkerHost {
       }
     } else if (job.name === 'send-workflow-notification') {
       const { email, firstName, lastName, wfName, link } = job.data;
-      const from = this.configService.get<string>('SMTP_FROM', 'OpenERP <noreply@open-erp.9ms.io.vn>');
-
-      const html = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-          <h2 style="color: #b76e79; text-align: center;">Yêu Cầu Phê Duyệt Đơn Từ</h2>
-          <p>Xin chào <strong>${firstName} ${lastName}</strong>,</p>
-          <p>Bạn có một yêu cầu phê duyệt mới cho quy trình: <strong>${wfName}</strong>.</p>
-          <p>Vui lòng click vào nút bên dưới để xem chi tiết và phê duyệt đơn:</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${link}" style="background-color: #b76e79; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Xem đơn phê duyệt</a>
-          </div>
-          <p style="font-size: 12px; color: #718096; text-align: center; border-top: 1px solid #edf2f7; padding-top: 20px; margin-top: 30px;">
-            © OpenERP Platform. All rights reserved.
-          </p>
-        </div>
-      `;
+      const { subject, html } = renderEmailTemplate('workflow-notification', locale, {
+        firstName: firstName || '',
+        lastName: lastName || '',
+        wfName: wfName || '',
+        link: link || '',
+      });
 
       try {
         await this.transporter.sendMail({
           from,
           to: email,
-          subject: `[OpenERP] Yêu cầu phê duyệt mới: ${wfName}`,
+          subject,
           html,
         });
         console.log(`[BullMQ Worker] Workflow notification email sent successfully to ${email}`);
