@@ -1,0 +1,293 @@
+# Tài liệu kỹ thuật chi tiết: TSK-2.20 - Thư viện Canvas dùng chung (Shared Canvas Library)
+## Phân hệ: Thư viện UI dùng chung (`open-erp-shared-ui`)
+
+---
+
+### 1. Mục tiêu công việc (Objective)
+
+Xây dựng thư viện **Canvas dùng chung** (`@open-erp/shared-ui/canvas`) cung cấp engine vẽ và tương tác trên HTML5 Canvas / SVG cho các phân hệ đồ họa của Open-ERP. Thư viện này đóng vai trò foundation cho **Workflow Designer** (TSK-2.16) và các công cụ trực quan hóa quy trình trong tương lai, với khả năng:
+
+- **Vẽ Nodes:** Các khối hình học đại diện cho bước quy trình/form/hành động, với icon, label, badge trạng thái.
+- **Vẽ Edges (Đường nối):** Đường kết nối có hướng (directed edges) giữa các node, hỗ trợ nhiều kiểu đường (thẳng, gấp khúc, cong Bezier), nhãn điều kiện.
+- **Hiển thị dữ liệu (Data Visualization):** Thể hiện dữ liệu metadata (trạng thái, số lượng, người phụ trách, deadline) trực tiếp lên node/edge.
+- **Tương tác:** Pan, zoom, select, multi-select, move, connect nodes bằng kéo thả.
+- **Auto-layout:** Sắp xếp node tự động theo thuật toán (Dagre, ELK, Hierarchical).
+
+---
+
+### 2. Kiến trúc công nghệ (Technology Architecture)
+
+#### 2.1 Lựa chọn rendering engine
+
+| Phương án | Ưu điểm | Nhược điểm | Quyết định |
+| :--- | :--- | :--- | :--- |
+| **HTML5 Canvas 2D API** | Performance cao, pixel-perfect | Khó tương tác (hit-test thủ công), không accessible | Dùng cho grid/background |
+| **SVG** | DOM-based, dễ tương tác, accessible, CSS styleable | Performance kém với >2000 nodes | Dùng cho nodes & edges |
+| **WebGL (PixiJS)** | Ultra-high performance | Phức tạp, không cần thiết ở quy mô này | Không dùng |
+| **Hybrid (Canvas background + SVG overlay)** | Tốt nhất cả hai thế giới | Phức tạp hơn SVG thuần | **Lựa chọn ưu tiên** |
+
+**Quyết định kiến trúc:** Sử dụng **SVG** cho toàn bộ node và edge rendering (phù hợp quy mô <500 nodes điển hình trong workflow doanh nghiệp). Canvas HTML5 dùng riêng để vẽ grid nền (dot-grid hoặc line-grid). Sử dụng thư viện **D3.js** cho pan/zoom transform và **Dagre-D3** / **ELK.js** cho auto-layout.
+
+---
+
+### 3. Danh sách Components & Services cần xây dựng
+
+#### 3.1 Core Canvas Component
+
+| Component | Mô tả |
+| :--- | :--- |
+| `<oerp-canvas>` | **Component chủ đạo.** Container SVG toàn màn hình với Canvas background. Quản lý viewport transform (pan/zoom). Cung cấp `CanvasContext` cho các component con. |
+
+**Inputs / Outputs của `<oerp-canvas>`:**
+```typescript
+@Input() nodes: CanvasNode[];
+@Input() edges: CanvasEdge[];
+@Input() options: CanvasOptions;
+@Output() nodeClicked: EventEmitter<CanvasNode>;
+@Output() edgeClicked: EventEmitter<CanvasEdge>;
+@Output() nodesMoved: EventEmitter<CanvasNode[]>;
+@Output() edgeConnected: EventEmitter<CanvasEdge>;
+@Output() selectionChanged: EventEmitter<CanvasSelection>;
+@Output() canvasChanged: EventEmitter<CanvasState>; // nodes + edges sau mỗi thay đổi
+```
+
+#### 3.2 Node Components
+
+| Component | Mô tả |
+| :--- | :--- |
+| `<oerp-canvas-node>` | Node cơ sở (SVG foreignObject hoặc SVG group). Hiển thị icon, title, badge. Hỗ trợ selected/hover state. |
+| `<oerp-canvas-node-start>` | Node bắt đầu quy trình (hình tròn xanh). |
+| `<oerp-canvas-node-end>` | Node kết thúc quy trình (hình tròn đỏ đúp viền). |
+| `<oerp-canvas-node-step>` | Node bước xử lý/phê duyệt (hình chữ nhật bo góc). |
+| `<oerp-canvas-node-gateway>` | Node điều kiện rẽ nhánh (hình thoi - diamond). |
+| `<oerp-canvas-node-fork>` | Node Fork/Join song song (thanh ngang đen). |
+| `<oerp-canvas-node-subprocess>` | Node subprocess (chứa icon expand, click để drill-down). |
+| `<oerp-canvas-node-custom>` | Node tùy chỉnh nhận `ng-template` từ ngoài. |
+
+**NodeDataBadge** - Các thành phần hiển thị dữ liệu lên node:
+- **Status badge:** Chip màu hiển thị trạng thái (Pending / In-progress / Done / Rejected).
+- **Assignee avatar:** Avatar người phụ trách hiện tại.
+- **Deadline chip:** Ngày deadline, đổi màu đỏ khi quá hạn.
+- **Count badge:** Số lượng (ví dụ: 3/5 người đã duyệt).
+- **Progress bar:** Thanh tiến độ phần trăm hoàn thành.
+
+#### 3.3 Edge Components
+
+| Component | Mô tả |
+| :--- | :--- |
+| `<oerp-canvas-edge>` | Edge cơ sở có hướng (arrowhead). Hỗ trợ: `straight`, `orthogonal` (gấp khúc vuông góc), `bezier` (đường cong). |
+| `<oerp-canvas-edge-label>` | Label điều kiện trên edge (ví dụ: "Phê duyệt", "Từ chối", "amount > 10M"). |
+| `<oerp-canvas-edge-animated>` | Edge có animation chạy (dash-flow) để thể hiện luồng đang active. |
+| `<oerp-canvas-connect-handle>` | Handle xuất hiện khi hover node, kéo từ handle để tạo edge mới. |
+
+#### 3.4 Canvas UI Overlay Components
+
+| Component | Mô tả |
+| :--- | :--- |
+| `<oerp-canvas-minimap>` | Minimap thu nhỏ toàn bộ canvas ở góc (navigation). |
+| `<oerp-canvas-toolbar>` | Thanh công cụ: Zoom In/Out, Fit View, Auto-layout, Undo/Redo, Grid toggle. |
+| `<oerp-canvas-context-menu>` | Context menu xuất hiện khi right-click node/edge/canvas. |
+| `<oerp-canvas-selection-box>` | Hộp chọn đa node (rubber-band selection) bằng cách kéo trên vùng trống. |
+| `<oerp-canvas-tooltip>` | Tooltip hiển thị thông tin chi tiết node/edge khi hover. |
+
+#### 3.5 Core Services
+
+| Service | Mô tả |
+| :--- | :--- |
+| `CanvasEngineService` | Service trung tâm: quản lý state (nodes, edges, selection), cung cấp methods CRUD (addNode, removeNode, addEdge, updateNode...). Dùng Angular Signals. |
+| `CanvasLayoutService` | Service tính toán auto-layout: tích hợp Dagre (hierarchical) và ELK.js (layered, force). |
+| `CanvasViewportService` | Quản lý pan/zoom transform, fitView, centerNode, scroll-to. |
+| `CanvasHistoryService` | Undo/Redo stack: Command Pattern, lưu snapshot state trước mỗi thao tác. |
+| `CanvasSerializerService` | Serialize/Deserialize graph state → JSON (lưu DB) hoặc → SVG/PNG (export). |
+| `CanvasSelectionService` | Quản lý selected nodes/edges, multi-select (Ctrl+click), rubber-band select. |
+| `CanvasInteractionService` | Xử lý events: click, dblclick, hover, keyboard shortcuts (Del, Ctrl+A, Ctrl+Z...). |
+
+---
+
+### 4. Hợp đồng dữ liệu (Data Contract)
+
+```typescript
+export interface CanvasNode {
+  id: string;
+  type: NodeType;            // 'start' | 'end' | 'step' | 'gateway' | 'fork' | 'subprocess' | 'custom'
+  position: { x: number; y: number };
+  size?: { width: number; height: number };
+  data: {
+    label: string;
+    description?: string;
+    icon?: string;            // Material icon name hoặc SVG path
+    status?: NodeStatus;      // 'idle' | 'active' | 'done' | 'rejected' | 'error'
+    assignees?: Assignee[];
+    deadline?: string;        // ISO date string
+    progress?: number;        // 0-100
+    count?: { current: number; total: number };
+    meta?: Record<string, unknown>;
+  };
+  style?: NodeStyle;          // Override styles
+  selected?: boolean;
+  locked?: boolean;           // Không cho phép move khi locked
+}
+
+export interface CanvasEdge {
+  id: string;
+  sourceNodeId: string;
+  targetNodeId: string;
+  sourceHandle?: string;      // ID của output handle trên source node
+  targetHandle?: string;      // ID của input handle trên target node
+  type?: EdgeType;            // 'straight' | 'orthogonal' | 'bezier'
+  animated?: boolean;
+  data: {
+    label?: string;
+    condition?: string;       // Biểu thức điều kiện rẽ nhánh
+    color?: string;
+  };
+  style?: EdgeStyle;
+  selected?: boolean;
+}
+
+export interface CanvasOptions {
+  readOnly?: boolean;          // Chỉ xem, không chỉnh sửa
+  gridType?: 'dots' | 'lines' | 'none';
+  snapToGrid?: boolean;
+  snapGridSize?: number;       // px
+  defaultEdgeType?: EdgeType;
+  minZoom?: number;
+  maxZoom?: number;
+  fitOnInit?: boolean;
+  showMinimap?: boolean;
+  showToolbar?: boolean;
+  autoLayout?: 'dagre' | 'elk' | 'none';
+}
+
+export type CanvasState = {
+  nodes: CanvasNode[];
+  edges: CanvasEdge[];
+  viewport: { x: number; y: number; zoom: number };
+};
+```
+
+---
+
+### 5. Phân chia công việc chi tiết
+
+#### 5.1 Frontend Engineer (FE Web)
+
+* **Nhiệm vụ 1: Khung thư viện & Core Setup (TSK-2.20.1)**
+  - Khởi tạo Angular Library `@open-erp/shared-ui/canvas` trong `open-erp-shared`.
+  - Cài đặt dependencies: D3.js (pan/zoom), Dagre, ELK.js.
+  - Định nghĩa đầy đủ TypeScript interfaces.
+  - Khởi tạo `CanvasEngineService` với Angular Signals.
+
+* **Nhiệm vụ 2: Core Canvas Component (TSK-2.20.2)**
+  - Xây dựng `<oerp-canvas>` với SVG viewport và Canvas grid background.
+  - Tích hợp D3-zoom cho pan (drag) và zoom (scroll/pinch).
+  - Thiết lập `CanvasContext` service inject cho components con.
+
+* **Nhiệm vụ 3: Node Components (TSK-2.20.3)**
+  - Phát triển `<oerp-canvas-node>` base và 6 loại node chuyên biệt.
+  - Triển khai NodeDataBadge: status, assignee avatar, deadline chip, count badge, progress bar.
+  - Xử lý hover state, selected state với CSS/SVG styling.
+
+* **Nhiệm vụ 4: Edge Components (TSK-2.20.4)**
+  - Phát triển `<oerp-canvas-edge>` với 3 kiểu đường: straight, orthogonal, bezier.
+  - Triển khai arrowhead marker dưới dạng SVG `<defs>/<marker>`.
+  - Xây dựng `<oerp-canvas-edge-label>` tự động đặt giữa edge.
+  - Triển khai `<oerp-canvas-edge-animated>` với CSS dash-animation.
+  - Xây dựng `<oerp-canvas-connect-handle>`: kéo từ handle tạo edge mới.
+
+* **Nhiệm vụ 5: Canvas UI Overlays (TSK-2.20.5)**
+  - Phát triển `<oerp-canvas-minimap>` với viewport indicator.
+  - Phát triển `<oerp-canvas-toolbar>` với Zoom In/Out, Fit View, Toggle Grid, Auto-layout, Undo/Redo.
+  - Phát triển `<oerp-canvas-context-menu>` và `<oerp-canvas-selection-box>`.
+
+* **Nhiệm vụ 6: Services nâng cao (TSK-2.20.6)**
+  - Triển khai `CanvasHistoryService` (Undo/Redo, Command Pattern).
+  - Triển khai `CanvasLayoutService` với Dagre auto-layout.
+  - Triển khai `CanvasSerializerService` (JSON export/import, SVG/PNG export).
+
+* **Nhiệm vụ 7: Interaction & Keyboard (TSK-2.20.7)**
+  - Keyboard shortcuts: `Del` xóa selected, `Ctrl+A` chọn tất cả, `Ctrl+Z/Y` undo/redo, `Ctrl+C/V` copy-paste node.
+  - Rubber-band selection (click-drag trên canvas trống).
+  - Multi-select: `Ctrl+click`, `Shift+click`.
+
+* **Nhiệm vụ 8: Storybook & Unit Tests (TSK-2.20.8)**
+  - Storybook stories: Simple flow, branching flow, parallel flow, data-rich nodes, read-only mode.
+  - Unit tests cho services: CanvasEngineService, CanvasHistoryService, CanvasLayoutService.
+  - E2E test (Cypress/Playwright): kéo node, kết nối edge, auto-layout.
+
+#### 5.2 UI/UX Designer
+* Thiết kế visual style cho từng loại node: màu, icon, shadow, border.
+* Thiết kế edge styles: màu theo loại (approve/reject/condition), arrowhead.
+* Thiết kế minimap, toolbar icon set.
+* Đảm bảo hệ màu đồng bộ Rose Gold cho selected/active states.
+
+#### 5.3 QA Engineer
+* Kiểm thử render 100+ nodes / 200+ edges không giật lag.
+* Kiểm thử pan, zoom: giới hạn minZoom/maxZoom, fitView chính xác.
+* Kiểm thử tạo edge: kéo từ handle → node đích → edge tạo thành công.
+* Kiểm thử auto-layout: sắp xếp lại graph phức tạp (cyclic, parallel).
+* Kiểm thử Undo/Redo: 20 bước undo liên tiếp không mất data.
+* Kiểm thử export JSON: import lại → graph giống 100%.
+* Kiểm thử read-only mode: không cho phép drag, connect, delete.
+
+---
+
+### 6. Hướng dẫn Phát triển (Development Guide)
+
+```bash
+# Cài đặt dependencies
+cd open-erp-shared
+npm install d3 @types/d3 dagre @types/dagre elkjs
+
+# Build thư viện
+ng build @open-erp/shared-ui
+
+# Chạy Storybook
+npm run storybook
+
+# Chạy unit tests
+ng test @open-erp/shared-ui
+```
+
+**Import trong web app:**
+```typescript
+import { OerpCanvasModule } from '@open-erp/shared-ui/canvas';
+
+@NgModule({
+  imports: [OerpCanvasModule]
+})
+```
+
+**Ví dụ sử dụng:**
+```html
+<oerp-canvas
+  [nodes]="workflowNodes"
+  [edges]="workflowEdges"
+  [options]="{ showMinimap: true, showToolbar: true, autoLayout: 'dagre' }"
+  (nodeClicked)="onNodeClick($event)"
+  (edgeConnected)="onEdgeConnect($event)"
+  (canvasChanged)="saveWorkflow($event)">
+</oerp-canvas>
+```
+
+---
+
+### 7. Tiêu chí hoàn thành (Definition of Done - DoD)
+
+- [ ] `<oerp-canvas>` render đúng SVG nodes và edges với pan/zoom mượt (D3).
+- [ ] 7 loại node chuyên biệt render đúng với đầy đủ data badges.
+- [ ] 3 kiểu edge (straight, orthogonal, bezier) với arrowhead và label.
+- [ ] Kéo connect handle để tạo edge mới hoạt động đúng.
+- [ ] `CanvasLayoutService` auto-layout Dagre hoạt động cho graph ≥30 nodes.
+- [ ] `CanvasHistoryService` Undo/Redo ≥20 bước.
+- [ ] `CanvasSerializerService` export/import JSON chính xác 100%.
+- [ ] Minimap, Toolbar, Context menu, Selection box đầy đủ chức năng.
+- [ ] Keyboard shortcuts hoạt động: Del, Ctrl+A, Ctrl+Z, Ctrl+Y.
+- [ ] Performance: Render 200 nodes/400 edges không dưới 30fps.
+- [ ] Storybook stories đầy đủ cho mọi scenario.
+- [ ] Unit test coverage ≥ 70% cho services.
+
+---
+
+### 8. Trạng thái thực tế & Kết quả bàn giao (Actual Status & Deliverables)
+*(Chưa bắt đầu)*
