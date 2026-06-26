@@ -242,5 +242,25 @@
   "layout": {
     "platform_title": "OpenERP 系统",
     "toggle_layout": "切换布局配置"
+  },
+  "form": {
+    "required_indicator": "必填",
+    "error_invalid": "数据无效。",
+    "error_required": "此字段为必填项。",
+    "error_min_length": "至少 {{min}} 个字符。",
+    "error_max_length": "最多 {{max}} 个字符。",
+    "error_min": "最小值为 {{min}}。",
+    "error_max": "最大值为 {{max}}。",
+    "error_pattern": "格式无效。",
+    "error_email": "无效的电子邮件地址。",
+    "error_number": "无效的数字。",
+    "error_date": "无效的日期。",
+    "error_file_too_large": "文件 \"{{name}}\" 超过 {{max}}MB 限制。",
+    "file_drop_hint": "将文件拖入此处或",
+    "file_drop_choose": "选择文件",
+    "file_drop_accept": "所有文件类型",
+    "file_drop_max_size": "最大 {{max}}MB",
+    "file_remove": "删除文件",
+    "select_placeholder": "请选择..."
   }
 }

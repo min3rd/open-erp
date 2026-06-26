@@ -242,5 +242,25 @@
   "layout": {
     "platform_title": "OpenERP システム",
     "toggle_layout": "レイアウト構成の変更"
+  },
+  "form": {
+    "required_indicator": "必須",
+    "error_invalid": "入力値が無効です。",
+    "error_required": "このフィールドは必須です。",
+    "error_min_length": "{{min}}文字以上入力してください。",
+    "error_max_length": "{{max}}文字以内で入力してください。",
+    "error_min": "最小値は {{min}} です。",
+    "error_max": "最大値は {{max}} です。",
+    "error_pattern": "形式が無効です。",
+    "error_email": "メールアドレスが無効です。",
+    "error_number": "数値が無効です。",
+    "error_date": "日付が無効です。",
+    "error_file_too_large": "ファイル \"{{name}}\" は {{max}}MB の制限を超えています。",
+    "file_drop_hint": "ファイルをここにドロップするか、または",
+    "file_drop_choose": "ファイルを選択",
+    "file_drop_accept": "すべてのファイル形式",
+    "file_drop_max_size": "最大 {{max}}MB",
+    "file_remove": "ファイルを削除",
+    "select_placeholder": "選択してください..."
   }
 }

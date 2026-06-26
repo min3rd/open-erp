@@ -1,0 +1,56 @@
+<div class="flex flex-col w-full gap-1.5">
+
+  <!-- Label -->
+  @if (label()) {
+    <label class="text-xs font-semibold text-slate-700 dark:text-slate-300 select-none">
+      {{ label() }}
+    </label>
+  }
+
+  <!-- Input row -->
+  <div class="relative rounded-lg shadow-sm flex items-center">
+
+    <!-- Prefix icon -->
+    @if (prefixIcon()) {
+      <div class="absolute left-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+        <oerp-icon [name]="prefixIcon()!" [size]="18" />
+      </div>
+    }
+
+    <input
+      type="number"
+      [placeholder]="placeholder()"
+      [formControl]="control()"
+      [attr.min]="min() ?? null"
+      [attr.max]="max() ?? null"
+      [attr.step]="allowDecimal() ? 'any' : step()"
+      [ngClass]="[
+        'block w-full py-2.5 rounded-lg border text-sm font-medium transition-all duration-150 outline-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100',
+        '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+        prefixIcon() ? 'pl-10' : 'px-3.5',
+        unit() ? 'pr-16' : 'pr-3.5',
+        hasError()
+          ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+          : 'border-slate-200 dark:border-slate-700 focus:border-rose-gold-500 focus:ring-1 focus:ring-rose-gold-500',
+      ]"
+    />
+
+    <!-- Unit suffix -->
+    @if (unit()) {
+      <div class="absolute right-0 inset-y-0 flex items-center pr-3 pointer-events-none">
+        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 rounded-r-lg px-2 h-full flex items-center border-l border-slate-200 dark:border-slate-600">
+          {{ unit() }}
+        </span>
+      </div>
+    }
+
+  </div>
+
+  <!-- Error message -->
+  @if (hasError()) {
+    <span class="text-xs font-medium text-red-500 animate-fade-in">
+      {{ errorMessage() || ('form.error_number' | transloco) }}
+    </span>
+  }
+
+</div>

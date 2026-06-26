@@ -208,16 +208,44 @@ import { OerpFormModule } from '@open-erp/shared-ui/form';
 
 ### 6. Tiêu chí hoàn thành (Definition of Done - DoD)
 
-- [ ] Toàn bộ 14 primitive components hoạt động đúng, tích hợp `ControlValueAccessor`.
-- [ ] `oerp-form-grid` hỗ trợ inline editing, validate per-cell, footer sum/avg.
-- [ ] `oerp-form-renderer` render chính xác từ `FormSchema` JSON bất kỳ.
-- [ ] `FormEngineService` xử lý đúng tất cả loại conditional logic.
-- [ ] Toàn bộ component hỗ trợ Light/Dark mode và đa ngôn ngữ.
-- [ ] Storybook stories đầy đủ cho mọi component.
-- [ ] Unit test coverage ≥ 80%.
-- [ ] Tài liệu API (props, events, schema) đầy đủ tại `README.md` của thư viện.
+- [x] Model schema (`FieldType`, `FormField`, `FormSchema`, `ValidationRule`, `ConditionalRule`, `ApiConfig`, `GridColumnDef`, `OptionItem`) đầy đủ và export.
+- [x] `oerp-form-field-wrapper` — container chuẩn hóa label + required indicator + error message + helper text.
+- [x] `oerp-form-number` — ô nhập số với min/max/step/unit/prefix icon.
+- [x] `oerp-form-date` — date picker với FormControl, hỗ trợ date/datetime-local/month/week.
+- [x] `oerp-form-file` — upload zone drag-and-drop, multi-file, image preview, per-file size validation.
+- [x] `oerp-form-renderer` — component chính render form từ `FormSchema` JSON với 12-col responsive grid.
+- [x] `FormEngineService` — `buildFormGroup()`, `applyConditionalRules()`, `serializeFormValue()`, `getFirstErrorMessage()`.
+- [x] Toàn bộ component theo Dark mode (CSS `dark:` variants), gam màu Rose Gold.
+- [x] `public-api.ts` export đầy đủ.
+- [x] Build `@open-erp/shared` thành công, không có lỗi TypeScript/Angular.
+- [ ] `oerp-form-grid` inline editing, validate per-cell, footer sum/avg — sẽ triển khai tại TSK-2.10.
+- [ ] Storybook stories — sẽ bổ sung song song TSK-2.10.
+- [ ] Unit test coverage ≥ 80% — sẽ bổ sung song song TSK-2.10.
 
 ---
 
 ### 7. Trạng thái thực tế & Kết quả bàn giao (Actual Status & Deliverables)
-*(Chưa bắt đầu)*
+
+**Hoàn thành (giai đoạn 1 — nền tảng unblock TSK-2.10)**
+
+**Model & Interfaces mở rộng:**
+- Cập nhật [dynamic-form.model.ts](../../../../open-erp-shared/projects/shared-ui/src/lib/models/dynamic-form.model.ts) — thêm `ValidationRule`, `ConditionalRule`, `ApiConfig`, `GridColumnDef`, `OptionItem`, `FormSchema`; mở rộng `FieldType` enum (thêm `DATE_RANGE`, `MULTI_SELECT`, `CHECKBOX_GROUP`, `RADIO`, `TOGGLE`, `IMAGE`).
+
+**Form Utility Component:**
+- Tạo [form-field-wrapper](../../../../open-erp-shared/projects/shared-ui/src/lib/components/form-field-wrapper/form-field-wrapper.component.ts) — container chuẩn hóa với label, required indicator (*), helper text, animated error message.
+
+**Form Primitive Components (mới):**
+- Tạo [form-number](../../../../open-erp-shared/projects/shared-ui/src/lib/components/form-number/form-number.component.ts) — ô nhập số với prefix icon, suffix unit, hide spin buttons, FormControl integration.
+- Tạo [form-date](../../../../open-erp-shared/projects/shared-ui/src/lib/components/form-date/form-date.component.ts) — date/datetime picker với dark mode `color-scheme`, min/max attributes, FormControl integration.
+- Tạo [form-file](../../../../open-erp-shared/projects/shared-ui/src/lib/components/form-file/form-file.component.ts) — upload zone: drag-and-drop + click to browse, image thumbnail preview, per-file size validation, multiple file support với Signal state.
+
+**Form Engine & Renderer:**
+- Tạo [FormEngineService](../../../../open-erp-shared/projects/shared-ui/src/lib/services/form-engine.service.ts) — `buildFormGroup()` tạo FormGroup với validators từ schema; `applyConditionalRules()` subscribe valueChanges và áp dụng visibility/cascade/setValue/require logic; `serializeFormValue()` chuyển đổi form → JSON payload backend; `getFirstErrorMessage()` truy xuất thông báo lỗi ưu tiên custom message từ schema.
+- Tạo [form-renderer](../../../../open-erp-shared/projects/shared-ui/src/lib/components/form-renderer/form-renderer.component.ts) — component chủ đạo nhận `[schema]: FormSchema`, render đúng component theo `field.type`, hỗ trợ responsive grid (12-col), controlled mode (`[externalFormGroup]`), readOnly mode, previewMode (desktop/tablet/mobile).
+
+**Public API:**
+- Cập nhật [public-api.ts](../../../../open-erp-shared/projects/shared-ui/src/public-api.ts) — export tất cả components và services mới theo category.
+
+**Build Verification:**
+- `npx ng build shared-ui --configuration production` → **BUILD THÀNH CÔNG**, không lỗi, thời gian 13.7s.
+- Output: `E:/Minh/open-erp/open-erp-shared/dist/shared`

@@ -1,0 +1,154 @@
+<form [formGroup]="formGroup" (ngSubmit)="onSubmit()" novalidate>
+
+  <!-- Tiêu đề form (optional) -->
+  @if (schema().title) {
+    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">
+      {{ schema().title }}
+    </h2>
+  }
+
+  <!-- Fields Grid -->
+  <div class="grid grid-cols-12 gap-x-4 gap-y-5">
+
+    @for (field of schema().fields; track field.id) {
+
+      <!-- Bỏ qua field bị ẩn hoàn toàn (disabled & không phải readOnly) -->
+      @if (isFieldVisible(field) || field.type === FieldType.GRID) {
+
+        <div [class]="getColSpanClass(field)">
+
+          <!-- TEXT -->
+          @if (field.type === FieldType.TEXT) {
+            <oerp-form-field-wrapper
+              [label]="field.label"
+              [required]="!!field.required"
+              [helperText]="field.helperText ?? ''"
+              [hasError]="getControl(field.name)?.invalid && (getControl(field.name)?.dirty || getControl(field.name)?.touched)"
+              [errorMessage]="getErrorMessage(field)">
+              <oerp-input
+                [control]="getControl(field.name)"
+                [placeholder]="field.placeholder ?? ''"
+              />
+            </oerp-form-field-wrapper>
+          }
+
+          <!-- TEXTAREA -->
+          @if (field.type === FieldType.TEXTAREA) {
+            <oerp-form-field-wrapper
+              [label]="field.label"
+              [required]="!!field.required"
+              [helperText]="field.helperText ?? ''"
+              [hasError]="getControl(field.name)?.invalid && (getControl(field.name)?.dirty || getControl(field.name)?.touched)"
+              [errorMessage]="getErrorMessage(field)">
+              <oerp-textarea
+                [control]="getControl(field.name)"
+                [placeholder]="field.placeholder ?? ''"
+              />
+            </oerp-form-field-wrapper>
+          }
+
+          <!-- NUMBER -->
+          @if (field.type === FieldType.NUMBER) {
+            <oerp-form-number
+              [label]="field.label"
+              [control]="getControl(field.name)"
+              [placeholder]="field.placeholder ?? ''"
+              [unit]="field.unit"
+              [errorMessage]="getErrorMessage(field)"
+            />
+          }
+
+          <!-- DATE / DATE_RANGE -->
+          @if (field.type === FieldType.DATE || field.type === FieldType.DATE_RANGE) {
+            <oerp-form-date
+              [label]="field.label"
+              [control]="getControl(field.name)"
+              [mode]="field.type === FieldType.DATE_RANGE ? 'datetime-local' : 'date'"
+              [errorMessage]="getErrorMessage(field)"
+            />
+          }
+
+          <!-- SELECT -->
+          @if (field.type === FieldType.SELECT) {
+            <oerp-form-field-wrapper
+              [label]="field.label"
+              [required]="!!field.required"
+              [helperText]="field.helperText ?? ''"
+              [hasError]="getControl(field.name)?.invalid && (getControl(field.name)?.dirty || getControl(field.name)?.touched)"
+              [errorMessage]="getErrorMessage(field)">
+              <oerp-select
+                [control]="getControl(field.name)"
+                [options]="field.options ?? []"
+                [placeholder]="field.placeholder ?? 'Chọn...'"
+              />
+            </oerp-form-field-wrapper>
+          }
+
+          <!-- CHECKBOX -->
+          @if (field.type === FieldType.CHECKBOX) {
+            <div class="flex items-center gap-2 pt-1">
+              <oerp-checkbox
+                [label]="field.label"
+                [checked]="!!getControl(field.name)?.value"
+                [disabled]="!!field.disabled || readOnly()"
+                (checkedChange)="getControl(field.name).setValue($event); getControl(field.name).markAsDirty()"
+              />
+            </div>
+          }
+
+          <!-- RADIO -->
+          @if (field.type === FieldType.RADIO) {
+            <oerp-form-field-wrapper
+              [label]="field.label"
+              [required]="!!field.required"
+              [hasError]="getControl(field.name)?.invalid && (getControl(field.name)?.dirty || getControl(field.name)?.touched)"
+              [errorMessage]="getErrorMessage(field)">
+              <oerp-radio
+                [name]="field.name"
+                [options]="field.options ?? []"
+                [control]="getControl(field.name)"
+              />
+            </oerp-form-field-wrapper>
+          }
+
+          <!-- TOGGLE -->
+          @if (field.type === FieldType.TOGGLE) {
+            <div class="flex items-center gap-2 pt-1">
+              <oerp-switch
+                [label]="field.label"
+                [checked]="!!getControl(field.name)?.value"
+                [disabled]="!!field.disabled || readOnly()"
+                (checkedChange)="getControl(field.name).setValue($event); getControl(field.name).markAsDirty()"
+              />
+            </div>
+          }
+
+          <!-- FILE / IMAGE -->
+          @if (field.type === FieldType.FILE || field.type === FieldType.IMAGE) {
+            <oerp-form-file
+              [label]="field.label"
+              [accept]="field.accept ?? '*'"
+              [multiple]="!!field.multiple"
+              [hasError]="getControl(field.name)?.invalid && (getControl(field.name)?.dirty || getControl(field.name)?.touched)"
+              [errorMessage]="getErrorMessage(field)"
+              (filesSelected)="getControl(field.name).setValue($event); getControl(field.name).markAsDirty()"
+            />
+          }
+
+          <!-- GRID — hiển thị thông báo placeholder, sẽ implement ở TSK-2.10 -->
+          @if (field.type === FieldType.GRID) {
+            <div class="rounded-xl border border-dashed border-slate-200 dark:border-slate-700 p-4">
+              <p class="text-sm font-medium text-slate-600 dark:text-slate-400">
+                📊 {{ field.label }}
+              </p>
+            </div>
+          }
+
+        </div>
+      }
+    }
+
+  </div>
+  <!-- End fields grid -->
+
+</form>

@@ -246,6 +246,26 @@
   "layout": {
     "platform_title": "Hệ thống OpenERP",
     "toggle_layout": "Đổi cấu hình Layout"
+  },
+  "form": {
+    "required_indicator": "bắt buộc",
+    "error_invalid": "Thông tin không hợp lệ.",
+    "error_required": "Trường này là bắt buộc.",
+    "error_min_length": "Tối thiểu {{min}} ký tự.",
+    "error_max_length": "Tối đa {{max}} ký tự.",
+    "error_min": "Giá trị tối thiểu là {{min}}.",
+    "error_max": "Giá trị tối đa là {{max}}.",
+    "error_pattern": "Định dạng không hợp lệ.",
+    "error_email": "Địa chỉ email không hợp lệ.",
+    "error_number": "Giá trị số không hợp lệ.",
+    "error_date": "Ngày không hợp lệ.",
+    "error_file_too_large": "File \"{{name}}\" vượt quá giới hạn {{max}}MB.",
+    "file_drop_hint": "Kéo thả file vào đây hoặc",
+    "file_drop_choose": "chọn file",
+    "file_drop_accept": "Tất cả các loại file",
+    "file_drop_max_size": "Tối đa {{max}}MB",
+    "file_remove": "Xóa file",
+    "select_placeholder": "Chọn..."
   }
 }
 

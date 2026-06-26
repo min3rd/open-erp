@@ -246,6 +246,26 @@
   "layout": {
     "platform_title": "OpenERP Platform",
     "toggle_layout": "Change Layout Configuration"
+  },
+  "form": {
+    "required_indicator": "required",
+    "error_invalid": "Invalid value.",
+    "error_required": "This field is required.",
+    "error_min_length": "Minimum {{min}} characters.",
+    "error_max_length": "Maximum {{max}} characters.",
+    "error_min": "Minimum value is {{min}}.",
+    "error_max": "Maximum value is {{max}}.",
+    "error_pattern": "Invalid format.",
+    "error_email": "Invalid email address.",
+    "error_number": "Invalid number.",
+    "error_date": "Invalid date.",
+    "error_file_too_large": "File \"{{name}}\" exceeds the {{max}}MB limit.",
+    "file_drop_hint": "Drag and drop a file here or",
+    "file_drop_choose": "choose file",
+    "file_drop_accept": "All file types",
+    "file_drop_max_size": "Max {{max}}MB",
+    "file_remove": "Remove file",
+    "select_placeholder": "Select..."
   }
 }
 
