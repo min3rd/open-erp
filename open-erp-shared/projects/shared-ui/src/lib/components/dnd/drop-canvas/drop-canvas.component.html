@@ -1,0 +1,38 @@
+<div
+  open-erp-drop-zone
+  [openDropZoneId]="id()"
+  [openDropZoneOrientation]="'vertical'"
+  (itemDropped)="onDropped($event)"
+  [class]="canvasClass()"
+  [id]="id()"
+  style="position: relative; min-height: 400px;"
+>
+  @for (item of items(); track item.id; let idx = $index) {
+    <div
+      open-erp-draggable
+      [openDraggableData]="item"
+      [class]="itemClass()"
+      [style.position]="'absolute'"
+      [style.left.px]="item.x"
+      [style.top.px]="item.y"
+      (dragEnded)="onDragEnded(item, $event)"
+    >
+      @if (itemTemplate) {
+        <ng-container
+          *ngTemplateOutlet="itemTemplate; context: { $implicit: item, index: idx }"
+        ></ng-container>
+      } @else {
+        <div
+          class="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm flex items-center gap-2 select-none hover:border-rose-gold-400 dark:hover:border-rose-gold-500 transition-colors cursor-move"
+        >
+          @if (item.icon) {
+            <span class="text-slate-400 dark:text-slate-500">{{ item.icon }}</span>
+          }
+          <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            {{ item.label || item.id }}
+          </span>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,30 @@
+<div
+  open-erp-sortable
+  [openSortableId]="id()"
+  [openSortableItems]="items()"
+  [openSortableOrientation]="orientation()"
+  [openSortableConnectedTo]="connectedTo()"
+  (sortChanged)="onSortChanged($event)"
+  [class]="listClass()"
+>
+  @for (item of items(); track item.id; let idx = $index) {
+    <div open-erp-draggable [openDraggableData]="item" [class]="itemClass()">
+      @if (itemTemplate) {
+        <ng-container
+          *ngTemplateOutlet="itemTemplate; context: { $implicit: item, index: idx }"
+        ></ng-container>
+      } @else {
+        <div
+          class="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm flex items-center gap-2 select-none hover:border-rose-gold-400 dark:hover:border-rose-gold-500 transition-colors"
+        >
+          @if (item.icon) {
+            <span class="text-slate-400 dark:text-slate-500">{{ item.icon }}</span>
+          }
+          <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            {{ item.label || item.id }}
+          </span>
+        </div>
+      }
+    </div>
+  }
+</div>

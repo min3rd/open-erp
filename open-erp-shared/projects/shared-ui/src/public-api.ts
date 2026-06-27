@@ -43,6 +43,33 @@ export * from './lib/components/form-file/form-file.component';
 export * from './lib/components/form-renderer/form-renderer.component';
 
 // =============================================
+// TSK-2.19: Drag-and-Drop Library
+// =============================================
+
+// Models
+export * from './lib/models/dnd.model';
+
+// Services
+export * from './lib/services/dnd/dnd-state.service';
+export * from './lib/services/dnd/dnd-registry.service';
+export * from './lib/services/dnd/dnd-auto-scroll.service';
+export * from './lib/services/dnd/dnd-keyboard.service';
+
+// Directives
+export * from './lib/directives/dnd/open-erp-draggable.directive';
+export * from './lib/directives/dnd/open-erp-drop-zone.directive';
+export * from './lib/directives/dnd/open-erp-sortable.directive';
+export * from './lib/directives/dnd/open-erp-drag-handle.directive';
+export * from './lib/directives/dnd/open-erp-drag-preview.directive';
+
+// Components
+export * from './lib/components/dnd/sortable-list/sortable-list.component';
+export * from './lib/components/dnd/drag-palette/drag-palette.component';
+export * from './lib/components/dnd/drop-canvas/drop-canvas.component';
+export * from './lib/components/dnd/drop-placeholder/drop-placeholder.component';
+export * from './lib/components/dnd/sortable-tree/sortable-tree.component';
+
+// =============================================
 // Services
 // =============================================
 export * from './lib/services/auth.service';

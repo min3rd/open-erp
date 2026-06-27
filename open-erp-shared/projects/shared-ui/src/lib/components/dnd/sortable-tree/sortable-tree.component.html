@@ -1,0 +1,46 @@
+<div class="flex flex-col gap-2 w-full">
+  @for (node of nodes(); track node.id; let idx = $index) {
+    <div class="flex flex-col gap-1 pl-4 border-l-2 border-slate-200 dark:border-slate-800">
+      
+      <!-- Node Card -->
+      <div
+        open-erp-draggable
+        [openDraggableData]="node"
+        class="flex items-center gap-2 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm hover:border-rose-gold-400 dark:hover:border-rose-gold-500 transition-colors select-none cursor-grab active:cursor-grabbing"
+      >
+        @if (customTemplate()) {
+          <ng-container
+            *ngTemplateOutlet="customTemplate(); context: { $implicit: node, index: idx }"
+          ></ng-container>
+        } @else {
+          @if (node.icon) {
+            <span class="text-slate-400 dark:text-slate-500">{{ node.icon }}</span>
+          }
+          <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            {{ node.label || node.id }}
+          </span>
+        }
+      </div>
+
+      <!-- Nested child drop zone -->
+      <div
+        open-erp-drop-zone
+        [openDropZoneId]="node.id"
+        [openDropZoneConnectedTo]="allDropListIds()"
+        [openDropZoneAccepts]="node.type"
+        (itemDropped)="onItemDropped($event)"
+        class="min-h-[12px] py-1"
+      >
+        @if (node.children && node.children.length > 0) {
+          <oerp-sortable-tree
+            [nodes]="node.children"
+            [allDropListIds]="allDropListIds()"
+            [customTemplate]="customTemplate() || nodeTemplate"
+            (nodeDropped)="nodeDropped.emit($event)"
+          >
+          </oerp-sortable-tree>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -2,6 +2,7 @@
   "name": "@open-erp/shared",
   "version": "1.0.0",
   "peerDependencies": {
+    "@angular/cdk": "^22.0.0",
     "@angular/common": "^22.0.0",
     "@angular/core": "^22.0.0",
     "@jsverse/transloco": "^8.0.0",
