@@ -11,16 +11,6 @@ import { moveItemInArray } from '@angular/cdk/drag-drop';
 @Directive({
   selector: '[open-erp-sortable]',
   standalone: true,
-  hostDirectives: [
-    {
-      directive: OpenErpDropZoneDirective,
-      inputs: [
-        'openDropZoneId: openSortableId',
-        'openDropZoneOrientation: openSortableOrientation',
-        'openDropZoneConnectedTo: openSortableConnectedTo',
-      ],
-    },
-  ],
 })
 export class OpenErpSortableDirective implements OnInit, OnDestroy {
   private readonly dropZone = inject(OpenErpDropZoneDirective);

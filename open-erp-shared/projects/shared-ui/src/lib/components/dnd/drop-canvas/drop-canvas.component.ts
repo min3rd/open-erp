@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DndItem, DropEvent } from '../../../models/dnd.model';
 import { OpenErpDropZoneDirective } from '../../../directives/dnd/open-erp-drop-zone.directive';
 import { OpenErpDraggableDirective } from '../../../directives/dnd/open-erp-draggable.directive';
+import { CdkDropList, CdkDrag } from '@angular/cdk/drag-drop';
 
 export interface CanvasItem<T = unknown> extends DndItem<T> {
   x: number;
@@ -17,7 +18,13 @@ export interface CanvasItem<T = unknown> extends DndItem<T> {
 @Component({
   selector: 'oerp-drop-canvas',
   standalone: true,
-  imports: [CommonModule, OpenErpDropZoneDirective, OpenErpDraggableDirective],
+  imports: [
+    CommonModule,
+    OpenErpDropZoneDirective,
+    OpenErpDraggableDirective,
+    CdkDropList,
+    CdkDrag
+  ],
   templateUrl: './drop-canvas.component.html',
 })
 export class DropCanvasComponent {

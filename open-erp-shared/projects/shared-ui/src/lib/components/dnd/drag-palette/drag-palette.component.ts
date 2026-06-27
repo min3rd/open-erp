@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DndItem } from '../../../models/dnd.model';
 import { OpenErpDropZoneDirective } from '../../../directives/dnd/open-erp-drop-zone.directive';
 import { OpenErpDraggableDirective } from '../../../directives/dnd/open-erp-draggable.directive';
+import { CdkDropList, CdkDrag } from '@angular/cdk/drag-drop';
 
 /**
  * oerp-drag-palette
@@ -12,7 +13,13 @@ import { OpenErpDraggableDirective } from '../../../directives/dnd/open-erp-drag
 @Component({
   selector: 'oerp-drag-palette',
   standalone: true,
-  imports: [CommonModule, OpenErpDropZoneDirective, OpenErpDraggableDirective],
+  imports: [
+    CommonModule,
+    OpenErpDropZoneDirective,
+    OpenErpDraggableDirective,
+    CdkDropList,
+    CdkDrag
+  ],
   templateUrl: './drag-palette.component.html',
 })
 export class DragPaletteComponent {

@@ -24,7 +24,7 @@ export class CanvasEdgeComponent {
 
   // Chiều rộng nhãn chữ nhật tương ứng với chiều dài text
   rectWidth = computed(() => {
-    const text = this.edge().data.label || this.edge().data.condition || '';
+    const text = this.edge().data?.label || this.edge().data?.condition || '';
     return Math.max(text.length * 6 + 12, 40);
   });
 

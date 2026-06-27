@@ -11,14 +11,6 @@ import { DndStateService } from '../../services/dnd/dnd-state.service';
 @Directive({
   selector: '[open-erp-drop-zone]',
   standalone: true,
-  hostDirectives: [
-    {
-      directive: CdkDropList,
-      inputs: [
-        'cdkDropListOrientation: openDropZoneOrientation',
-      ],
-    },
-  ],
 })
 export class OpenErpDropZoneDirective implements OnInit, OnDestroy {
   private readonly cdkDrop = inject(CdkDropList);

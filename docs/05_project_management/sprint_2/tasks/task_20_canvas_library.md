@@ -314,3 +314,34 @@ import { OerpCanvasModule } from '@open-erp/shared-ui/canvas';
 **Build Verification:**
 - `npm run shared:build` -> **BUILD THÀNH CÔNG** không có lỗi cảnh báo.
 
+---
+
+### 9. Kết quả Kiểm thử & Sửa đổi bổ sung (Testing & Verification Fixes)
+
+Trong quá trình thực hiện manual test trên giao diện tích hợp tại Web Portal, một số vấn đề tương tác kéo thả và an toàn dữ liệu đã được phát hiện và sửa đổi hoàn thiện trực tiếp:
+
+#### 9.1 Cơ thế Va chạm (Hit Testing) thay thế cho Drag Lock khi kết nối
+- **Vấn đề**: Trình duyệt áp dụng cơ chế Drag Lock cho con trỏ chuột khi kéo từ connector handle. Sự kiện `mouseup` không thể bắt được trên node đích thông thường.
+- **Giải pháp**:
+  - Gỡ bỏ sự kiện `(mouseup)="onNodeMouseUp(node.id)"` trên `<g oerp-canvas-node>`.
+  - Thay thế bằng thuật toán **Hit Testing** tính toán va chạm hình học tọa độ trong sự kiện `onCanvasMouseUp` trên toàn vùng SVG canvas.
+  - Tọa độ chuột khi nhả kéo được giải phóng về không gian cục bộ:
+    ```typescript
+    const localX = (event.clientX - rect.left - viewport.x) / viewport.zoom;
+    const localY = (event.clientY - rect.top - viewport.y) / viewport.zoom;
+    ```
+  - Quét qua danh sách các node để phát hiện va chạm với bounding-box hình chữ nhật và tạo kết nối chính xác.
+
+#### 9.2 Khắc phục lỗi tương thích Drag-and-Drop (CDK vs Host Directives)
+- **Vấn đề**: Việc sử dụng `hostDirectives` để đóng gói `CdkDropList` và `CdkDrag` khiến cơ chế Content Children Query của Angular CDK không định vị được phần tử con trong cấu trúc DOM, dẫn đến lỗi sắp xếp lại vị trí danh sách (snaps back).
+- **Giải pháp**:
+  - Tách rời các thuộc tính directive CDK `cdkDropList` và `cdkDrag` ra khỏi metadata `hostDirectives` của các lớp directive dùng chung.
+  - Áp dụng song song thuộc tính CDK và custom directive trên các tệp template HTML của các dnd component (`sortable-list`, `drag-palette`, `drop-canvas`, `sortable-tree`).
+  - Đảm bảo cơ chế ép kiểu và truyền dữ liệu hoạt động mượt mà mà vẫn bảo toàn lớp bọc Directive của dự án.
+
+#### 9.3 Sửa lỗi Type Safety trên CanvasEdge Component
+- **Vấn đề**: Khi liên kết dữ liệu luồng từ JSON không khởi tạo thuộc tính `data` hoặc `data.label`, template ném ngoại lệ `Cannot read properties of undefined (reading 'label')`.
+- **Giải pháp**:
+  - Áp dụng Safe Navigation Operator (`?.`) trên tệp template và tệp typescript của `CanvasEdgeComponent` khi truy cập `edge().data?.label` và `edge().data?.condition`.
+
+

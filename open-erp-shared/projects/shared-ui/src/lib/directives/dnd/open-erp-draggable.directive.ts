@@ -10,12 +10,6 @@ import { DndStateService } from '../../services/dnd/dnd-state.service';
 @Directive({
   selector: '[open-erp-draggable]',
   standalone: true,
-  hostDirectives: [
-    {
-      directive: CdkDrag,
-      inputs: ['cdkDragData: openDraggableData', 'cdkDragDisabled: openDraggableDisabled'],
-    },
-  ],
 })
 export class OpenErpDraggableDirective implements OnInit, OnDestroy {
   private readonly cdkDrag = inject(CdkDrag);

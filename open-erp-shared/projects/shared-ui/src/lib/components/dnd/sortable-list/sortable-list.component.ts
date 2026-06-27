@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { DndItem, SortEvent } from '../../../models/dnd.model';
 import { OpenErpSortableDirective } from '../../../directives/dnd/open-erp-sortable.directive';
 import { OpenErpDraggableDirective } from '../../../directives/dnd/open-erp-draggable.directive';
+import { OpenErpDropZoneDirective } from '../../../directives/dnd/open-erp-drop-zone.directive';
+import { CdkDropList, CdkDrag } from '@angular/cdk/drag-drop';
 
 /**
  * oerp-sortable-list
@@ -12,7 +14,14 @@ import { OpenErpDraggableDirective } from '../../../directives/dnd/open-erp-drag
 @Component({
   selector: 'oerp-sortable-list',
   standalone: true,
-  imports: [CommonModule, OpenErpSortableDirective, OpenErpDraggableDirective],
+  imports: [
+    CommonModule,
+    OpenErpSortableDirective,
+    OpenErpDraggableDirective,
+    OpenErpDropZoneDirective,
+    CdkDropList,
+    CdkDrag
+  ],
   templateUrl: './sortable-list.component.html',
 })
 export class SortableListComponent {

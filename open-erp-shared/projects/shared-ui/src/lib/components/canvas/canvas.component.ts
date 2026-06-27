@@ -212,8 +212,44 @@ export class CanvasComponent implements AfterViewInit, OnChanges {
       this.emitCanvasChange();
     }
 
-    if (this.connectingSourceNodeId()) {
-      // Nhả chuột ở ngoài -> Hủy đường nối tạm thời
+    const sourceId = this.connectingSourceNodeId();
+    if (sourceId) {
+      // Dịch chuyển tọa độ client của sự kiện mouseup về hệ tọa độ local SVG
+      const rect = this.svgRef.nativeElement.getBoundingClientRect();
+      const viewport = this.engine.viewport();
+      const localX = (event.clientX - rect.left - viewport.x) / viewport.zoom;
+      const localY = (event.clientY - rect.top - viewport.y) / viewport.zoom;
+
+      // Thực hiện kiểm tra va chạm (Hit Testing) để tìm node nhận thả dây
+      const targetNode = this.engine.nodes().find((node) => {
+        if (node.id === sourceId) return false;
+        const w = this.getNodeWidth(node);
+        const h = 80;
+        return (
+          localX >= node.position.x &&
+          localX <= node.position.x + w &&
+          localY >= node.position.y &&
+          localY <= node.position.y + h
+        );
+      });
+
+      if (targetNode) {
+        // Lưu trạng thái trước khi kết nối dây
+        this.history.pushState(this.engine.getState());
+
+        const newEdge: CanvasEdge = {
+          id: `edge_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+          sourceNodeId: sourceId,
+          targetNodeId: targetNode.id,
+          type: this.options().defaultEdgeType ?? 'bezier',
+          data: { label: '' },
+        };
+
+        this.engine.addEdge(newEdge);
+        this.edgeConnected.emit(newEdge);
+        this.emitCanvasChange();
+      }
+
       this.connectingSourceNodeId.set(null);
     }
   }
@@ -230,27 +266,6 @@ export class CanvasComponent implements AfterViewInit, OnChanges {
     const localY = (data.event.clientY - rect.top - viewport.y) / viewport.zoom;
 
     this.tempConnectionTarget.set({ x: localX, y: localY });
-  }
-
-  onNodeMouseUp(targetNodeId: string): void {
-    const sourceId = this.connectingSourceNodeId();
-    if (sourceId && sourceId !== targetNodeId) {
-      // Lưu snapshot trước khi tạo dây nối mới
-      this.history.pushState(this.engine.getState());
-
-      const newEdge: CanvasEdge = {
-        id: `edge_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-        sourceNodeId: sourceId,
-        targetNodeId: targetNodeId,
-        type: this.options().defaultEdgeType ?? 'bezier',
-        data: { label: '' },
-      };
-
-      this.engine.addEdge(newEdge);
-      this.edgeConnected.emit(newEdge);
-      this.emitCanvasChange();
-    }
-    this.connectingSourceNodeId.set(null);
   }
 
   // Lệnh SVG vẽ dây nối tạm thời

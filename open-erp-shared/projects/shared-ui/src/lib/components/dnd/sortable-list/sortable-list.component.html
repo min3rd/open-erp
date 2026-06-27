@@ -1,14 +1,22 @@
 <div
   open-erp-sortable
-  [openSortableId]="id()"
+  open-erp-drop-zone
+  cdkDropList
   [openSortableItems]="items()"
-  [openSortableOrientation]="orientation()"
-  [openSortableConnectedTo]="connectedTo()"
+  [openDropZoneId]="id()"
+  [openDropZoneOrientation]="orientation()"
+  [openDropZoneConnectedTo]="connectedTo()"
   (sortChanged)="onSortChanged($event)"
   [class]="listClass()"
 >
   @for (item of items(); track item.id; let idx = $index) {
-    <div open-erp-draggable [openDraggableData]="item" [class]="itemClass()">
+    <div
+      open-erp-draggable
+      cdkDrag
+      [openDraggableData]="item"
+      [cdkDragData]="item"
+      [class]="itemClass()"
+    >
       @if (itemTemplate) {
         <ng-container
           *ngTemplateOutlet="itemTemplate; context: { $implicit: item, index: idx }"

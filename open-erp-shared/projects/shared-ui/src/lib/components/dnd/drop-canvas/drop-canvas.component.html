@@ -1,5 +1,6 @@
 <div
   open-erp-drop-zone
+  cdkDropList
   [openDropZoneId]="id()"
   [openDropZoneOrientation]="'vertical'"
   (itemDropped)="onDropped($event)"
@@ -10,7 +11,9 @@
   @for (item of items(); track item.id; let idx = $index) {
     <div
       open-erp-draggable
+      cdkDrag
       [openDraggableData]="item"
+      [cdkDragData]="item"
       [class]="itemClass()"
       [style.position]="'absolute'"
       [style.left.px]="item.x"
