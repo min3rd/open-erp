@@ -1,0 +1,113 @@
+<div class="relative w-full h-full overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl select-none">
+  
+  <!-- 1. SVG Viewport -->
+  <svg
+    #svgElement
+    class="w-full h-full cursor-grab active:cursor-grabbing outline-none"
+    (mousemove)="onCanvasMouseMove($event)"
+    (mouseup)="onCanvasMouseUp($event)"
+    (click)="onCanvasClick($event)"
+  >
+    <defs>
+      <!-- Grid line pattern -->
+      <pattern id="grid-lines" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e2e8f0" stroke-width="0.8" class="dark:stroke-slate-800" />
+      </pattern>
+      <!-- Grid dots pattern -->
+      <pattern id="grid-dots" width="24" height="24" patternUnits="userSpaceOnUse">
+        <circle cx="2" cy="2" r="1.2" fill="#cbd5e1" class="dark:fill-slate-700" />
+      </pattern>
+      
+      <!-- Arrowheads for normal and selected edges -->
+      <marker
+        id="arrow-default"
+        viewBox="0 0 10 10"
+        refX="6"
+        refY="5"
+        markerWidth="6"
+        markerHeight="6"
+        orient="auto-start-reverse"
+      >
+        <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#94a3b8" />
+      </marker>
+      <marker
+        id="arrow-selected"
+        viewBox="0 0 10 10"
+        refX="6"
+        refY="5"
+        markerWidth="6"
+        markerHeight="6"
+        orient="auto-start-reverse"
+      >
+        <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#b76e79" />
+      </marker>
+    </defs>
+
+    <!-- Zoom/Pan Container -->
+    <g #gContainer>
+      <!-- Grid Background -->
+      @if (options().gridType !== 'none') {
+        <rect
+          x="-10000"
+          y="-10000"
+          width="20000"
+          height="20000"
+          [attr.fill]="options().gridType === 'lines' ? 'url(#grid-lines)' : 'url(#grid-dots)'"
+          class="pointer-events-none"
+        />
+      }
+
+      <!-- Rendering Edges -->
+      @for (edge of edges(); track edge.id) {
+        <g
+          oerp-canvas-edge
+          [edge]="edge"
+          [sourceNode]="getNodeById(edge.sourceNodeId)!"
+          [targetNode]="getNodeById(edge.targetNodeId)!"
+          [isSelected]="selectedEdgeIds().includes(edge.id)"
+          [readOnly]="options().readOnly || false"
+          (edgeClicked)="onEdgeSelect($event)"
+        ></g>
+      }
+
+      <!-- Rendering Temporary Connecting Edge -->
+      @if (connectingSourceNodeId()) {
+        <path
+          [attr.d]="tempConnectionPathD()"
+          class="fill-none stroke-rose-gold-400 dark:stroke-rose-gold-500 stroke-2 stroke-dash-flow pointer-events-none"
+        />
+      }
+
+      <!-- Rendering Nodes -->
+      @for (node of nodes(); track node.id) {
+        <g
+          oerp-canvas-node
+          [node]="node"
+          [readOnly]="options().readOnly || false"
+          [isSelected]="selectedNodeIds().includes(node.id)"
+          (nodeClicked)="onNodeSelect($event)"
+          (nodeDragStart)="onNodeDragStart($event)"
+          (connectStart)="onConnectStart($event)"
+          (mouseup)="onNodeMouseUp(node.id)"
+        ></g>
+      }
+    </g>
+  </svg>
+
+  <!-- 2. Floating Toolbar Overlay -->
+  @if (options().showToolbar) {
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
+      <oerp-canvas-toolbar
+        [canUndo]="history.canUndo()"
+        [canRedo]="history.canRedo()"
+        (zoomIn)="onZoomIn()"
+        (zoomOut)="onZoomOut()"
+        (zoomFit)="onZoomFit()"
+        (toggleGrid)="onToggleGrid()"
+        (layout)="onAutoLayout()"
+        (undo)="onUndo()"
+        (redo)="onRedo()"
+      ></oerp-canvas-toolbar>
+    </div>
+  }
+</div>

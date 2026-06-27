@@ -70,6 +70,18 @@ export * from './lib/components/dnd/drop-placeholder/drop-placeholder.component'
 export * from './lib/components/dnd/sortable-tree/sortable-tree.component';
 
 // =============================================
+// TSK-2.20: Canvas Graphics Library
+// =============================================
+export * from './lib/models/canvas.model';
+export * from './lib/services/canvas/canvas-engine.service';
+export * from './lib/services/canvas/canvas-layout.service';
+export * from './lib/services/canvas/canvas-history.service';
+export * from './lib/components/canvas/canvas.component';
+export * from './lib/components/canvas/canvas-node/canvas-node.component';
+export * from './lib/components/canvas/canvas-edge/canvas-edge.component';
+export * from './lib/components/canvas/canvas-toolbar/canvas-toolbar.component';
+
+// =============================================
 // Services
 // =============================================
 export * from './lib/services/auth.service';

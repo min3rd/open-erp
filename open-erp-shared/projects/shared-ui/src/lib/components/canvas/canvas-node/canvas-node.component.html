@@ -1,0 +1,173 @@
+<svg:g
+  [attr.transform]="'translate(' + node().position.x + ',' + node().position.y + ')'"
+  (mousedown)="onMouseDown($event)"
+  class="select-none group/node"
+>
+  <!-- 1. START NODE -->
+  @if (node().type === 'start') {
+    <svg:circle
+      cx="40"
+      cy="40"
+      r="32"
+      [ngClass]="[
+        'transition-all duration-150 cursor-move fill-emerald-50 dark:fill-emerald-950/20 stroke-2',
+        isSelected()
+          ? 'stroke-rose-gold-500 filter drop-shadow'
+          : 'stroke-emerald-500 hover:stroke-rose-gold-400'
+      ]"
+    />
+    <svg:text
+      x="40"
+      y="45"
+      text-anchor="middle"
+      class="text-[10px] font-extrabold fill-emerald-700 dark:fill-emerald-400 tracking-wider pointer-events-none"
+    >
+      START
+    </svg:text>
+  }
+
+  <!-- 2. END NODE -->
+  @else if (node().type === 'end') {
+    <svg:circle
+      cx="40"
+      cy="40"
+      r="32"
+      [ngClass]="[
+        'transition-all duration-150 cursor-move fill-rose-50 dark:fill-rose-950/20 stroke-2',
+        isSelected()
+          ? 'stroke-rose-gold-500 filter drop-shadow'
+          : 'stroke-rose-500 hover:stroke-rose-gold-400'
+      ]"
+    />
+    <svg:circle
+      cx="40"
+      cy="40"
+      r="27"
+      class="fill-none stroke-rose-400/40 dark:stroke-rose-600/30 stroke-1 pointer-events-none"
+    />
+    <svg:text
+      x="40"
+      y="45"
+      text-anchor="middle"
+      class="text-[10px] font-extrabold fill-rose-700 dark:fill-rose-400 tracking-wider pointer-events-none"
+    >
+      END
+    </svg:text>
+  }
+
+  <!-- 3. GATEWAY NODE (Diamond) -->
+  @else if (node().type === 'gateway') {
+    <svg:polygon
+      points="40,4 76,40 40,76 4,40"
+      [ngClass]="[
+        'transition-all duration-150 cursor-move fill-amber-50 dark:fill-amber-950/20 stroke-2',
+        isSelected()
+          ? 'stroke-rose-gold-500 filter drop-shadow'
+          : 'stroke-amber-500 hover:stroke-rose-gold-400'
+      ]"
+    />
+    <svg:text
+      x="40"
+      y="44"
+      text-anchor="middle"
+      class="text-[10px] font-extrabold fill-amber-700 dark:fill-amber-400 pointer-events-none"
+    >
+      OR / AND
+    </svg:text>
+  }
+
+  <!-- 4. FORK NODE (Horizontal bar) -->
+  @else if (node().type === 'fork') {
+    <svg:rect
+      x="0"
+      y="30"
+      width="120"
+      height="16"
+      rx="4"
+      [ngClass]="[
+        'transition-all duration-150 cursor-move fill-slate-800 dark:fill-slate-700 stroke-2',
+        isSelected() ? 'stroke-rose-gold-500' : 'stroke-transparent'
+      ]"
+    />
+  }
+
+  <!-- 5. STEP & SUBPROCESS NODES (HTML ForeignObject for Rich View) -->
+  @else {
+    <svg:foreignObject
+      x="0"
+      y="0"
+      [attr.width]="width()"
+      [attr.height]="height()"
+      class="cursor-move"
+    >
+      <div
+        xmlns="http://www.w3.org/1999/xhtml"
+        [ngClass]="[
+          'h-full w-full rounded-xl border-2 p-3 flex flex-col justify-between shadow-sm transition-all duration-150 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 select-none',
+          isSelected()
+            ? 'border-rose-gold-500 ring-2 ring-rose-gold-200 dark:ring-rose-gold-950/50'
+            : 'border-slate-200 dark:border-slate-700 hover:border-rose-gold-400 dark:hover:border-rose-gold-500'
+        ]"
+      >
+        <div class="flex items-center gap-2 overflow-hidden">
+          @if (node().data.icon) {
+            <span class="text-slate-400 dark:text-slate-500 flex-shrink-0 text-sm">
+              {{ node().data.icon }}
+            </span>
+          }
+          <div class="truncate flex-1">
+            <h3 class="text-xs font-bold truncate leading-snug">{{ node().data.label }}</h3>
+            @if (node().data.description) {
+              <p class="text-[9px] text-slate-400 dark:text-slate-500 truncate leading-none mt-0.5">
+                {{ node().data.description }}
+              </p>
+            }
+          </div>
+        </div>
+
+        <!-- Badges & Avatars -->
+        <div class="flex items-center justify-between mt-1">
+          @if (node().data.status) {
+            <span
+              [ngClass]="[
+                'text-[8px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider',
+                node().data.status === 'done'
+                  ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400'
+                  : node().data.status === 'active'
+                    ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400'
+                    : node().data.status === 'rejected'
+                      ? 'bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400'
+                      : 'bg-slate-50 text-slate-600 dark:bg-slate-900/50 dark:text-slate-400'
+              ]"
+            >
+              {{ node().data.status }}
+            </span>
+          }
+
+          @if (node().data.assignees && node().data.assignees!.length > 0) {
+            <div class="flex -space-x-1.5 overflow-hidden ml-auto">
+              @for (user of node().data.assignees; track user.id) {
+                <img
+                  class="inline-block h-5.5 w-5.5 rounded-full ring-2 ring-white dark:ring-slate-800 object-cover"
+                  [src]="user.avatarUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + user.name"
+                  [alt]="user.name"
+                />
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </svg:foreignObject>
+  }
+
+  <!-- Connection Handles (Only show when not read-only & hovered) -->
+  @if (!readOnly() && node().type !== 'end') {
+    <svg:circle
+      [attr.cx]="width()"
+      [attr.cy]="height() / 2"
+      r="6"
+      class="fill-rose-gold-500 stroke-white dark:stroke-slate-800 stroke-2 cursor-crosshair opacity-0 group-hover/node:opacity-100 hover:scale-125 transition-all duration-150"
+      (mousedown)="onConnectStart($event)"
+    />
+  }
+</svg:g>

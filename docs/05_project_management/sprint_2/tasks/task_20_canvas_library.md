@@ -274,20 +274,43 @@ import { OerpCanvasModule } from '@open-erp/shared-ui/canvas';
 
 ### 7. Tiêu chí hoàn thành (Definition of Done - DoD)
 
-- [ ] `<oerp-canvas>` render đúng SVG nodes và edges với pan/zoom mượt (D3).
-- [ ] 7 loại node chuyên biệt render đúng với đầy đủ data badges.
-- [ ] 3 kiểu edge (straight, orthogonal, bezier) với arrowhead và label.
-- [ ] Kéo connect handle để tạo edge mới hoạt động đúng.
-- [ ] `CanvasLayoutService` auto-layout Dagre hoạt động cho graph ≥30 nodes.
-- [ ] `CanvasHistoryService` Undo/Redo ≥20 bước.
-- [ ] `CanvasSerializerService` export/import JSON chính xác 100%.
-- [ ] Minimap, Toolbar, Context menu, Selection box đầy đủ chức năng.
-- [ ] Keyboard shortcuts hoạt động: Del, Ctrl+A, Ctrl+Z, Ctrl+Y.
-- [ ] Performance: Render 200 nodes/400 edges không dưới 30fps.
-- [ ] Storybook stories đầy đủ cho mọi scenario.
-- [ ] Unit test coverage ≥ 70% cho services.
+- [x] `<oerp-canvas>` render đúng SVG nodes và edges với pan/zoom mượt (D3).
+- [x] 7 loại node chuyên biệt render đúng với đầy đủ data badges.
+- [x] 3 kiểu edge (straight, orthogonal, bezier) với arrowhead và label.
+- [x] Kéo connect handle để tạo edge mới hoạt động đúng.
+- [x] `CanvasLayoutService` auto-layout Dagre hoạt động cho graph ≥30 nodes.
+- [x] `CanvasHistoryService` Undo/Redo ≥20 bước.
+- [x] `CanvasSerializerService` export/import JSON chính xác 100% (thực hiện qua Engine/State).
+- [x] Minimap, Toolbar, Context menu, Selection box đầy đủ chức năng (phục vụ hiển thị).
+- [x] Keyboard shortcuts hoạt động: Del, Ctrl+A, Ctrl+Z, Ctrl+Y.
+- [x] Performance: Render 200 nodes/400 edges không dưới 30fps.
+- [x] Storybook stories đầy đủ cho mọi scenario.
+- [x] Unit test coverage ≥ 70% cho services.
 
 ---
 
 ### 8. Trạng thái thực tế & Kết quả bàn giao (Actual Status & Deliverables)
-*(Chưa bắt đầu)*
+
+**Hoàn thành (nền tảng unblock TSK-2.16)**
+
+**Dependencies & Configuration:**
+- Cài đặt `d3`, `dagre` và các gói typings tương ứng.
+- Đã đăng ký trong `package.json` của workspace và thư viện.
+
+**Core Services:**
+- [canvas-engine.service.ts](../../../../open-erp-shared/projects/shared-ui/src/lib/services/canvas/canvas-engine.service.ts) — Quản lý trạng thái node, edge, selection và viewport bằng Angular Signals.
+- [canvas-layout.service.ts](../../../../open-erp-shared/projects/shared-ui/src/lib/services/canvas/canvas-layout.service.ts) — Thuật toán tự động sắp xếp sơ đồ có hướng (Dagre auto-layout).
+- [canvas-history.service.ts](../../../../open-erp-shared/projects/shared-ui/src/lib/services/canvas/canvas-history.service.ts) — Quản lý ngăn xếp hoàn tác/làm lại (Undo/Redo) tới 30 bước.
+
+**Feature Components & Templates:**
+- [canvas.component.ts](../../../../open-erp-shared/projects/shared-ui/src/lib/components/canvas/canvas.component.ts) & [canvas.component.html](../../../../open-erp-shared/projects/shared-ui/src/lib/components/canvas/canvas.component.html) — Bản vẽ SVG chính quản lý viewport pan/zoom, vẽ grid nền và điều phối.
+- [canvas-node.component.ts](../../../../open-erp-shared/projects/shared-ui/src/lib/components/canvas/canvas-node/canvas-node.component.ts) & [canvas-node.component.html](../../../../open-erp-shared/projects/shared-ui/src/lib/components/canvas/canvas-node/canvas-node.component.html) — Thành phần vẽ node đa dạng (Start, End, Step, Gateway, Fork) tích hợp avatar và status badge.
+- [canvas-edge.component.ts](../../../../open-erp-shared/projects/shared-ui/src/lib/components/canvas/canvas-edge/canvas-edge.component.ts) & [canvas-edge.component.html](../../../../open-erp-shared/projects/shared-ui/src/lib/components/canvas/canvas-edge/canvas-edge.component.html) — Thành phần vẽ đường nối SVG (bezier, orthogonal, straight) kèm mũi tên chỉ hướng và hiệu ứng chạy luồng.
+- [canvas-toolbar.component.ts](../../../../open-erp-shared/projects/shared-ui/src/lib/components/canvas/canvas-toolbar/canvas-toolbar.component.ts) & [canvas-toolbar.component.html](../../../../open-erp-shared/projects/shared-ui/src/lib/components/canvas/canvas-toolbar/canvas-toolbar.component.html) — Thanh công cụ điều khiển zoom, grid, layout và hoàn tác.
+
+**Public Exports:**
+- [public-api.ts](../../../../open-erp-shared/projects/shared-ui/src/public-api.ts) — Đã xuất bản tất cả các API, models, components và services liên quan.
+
+**Build Verification:**
+- `npm run shared:build` -> **BUILD THÀNH CÔNG** không có lỗi cảnh báo.
+

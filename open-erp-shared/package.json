@@ -12,6 +12,8 @@
     "@angular/core": "^22.0.2",
     "@angular/forms": "^22.0.2",
     "@jsverse/transloco": "^8.4.0",
+    "d3": "^7.8.5",
+    "dagre": "^0.8.5",
     "feather-icons": "^4.29.2"
   },
   "devDependencies": {
@@ -19,6 +21,8 @@
     "@angular/build": "^22.0.3",
     "@angular/cli": "^22.0.3",
     "@angular/compiler-cli": "^22.0.2",
+    "@types/d3": "^7.4.3",
+    "@types/dagre": "^0.7.52",
     "@types/feather-icons": "^4.7.3",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",

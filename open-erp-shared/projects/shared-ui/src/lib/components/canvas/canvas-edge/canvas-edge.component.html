@@ -1,0 +1,55 @@
+<svg:g class="group/edge" (mousedown)="onMouseDown($event)">
+  <!-- Đường nhạy cảm click rộng hơn để dễ chọn hơn (trong suốt) -->
+  <svg:path
+    [attr.d]="pathD()"
+    class="fill-none stroke-transparent stroke-[12] cursor-pointer"
+  />
+
+  <!-- Đường nối thực tế -->
+  <svg:path
+    [attr.d]="pathD()"
+    [ngClass]="[
+      'fill-none stroke-2 transition-all duration-150 cursor-pointer',
+      isSelected()
+        ? 'stroke-rose-gold-500 stroke-[3]'
+        : edge().style?.strokeColor
+          ? ''
+          : 'stroke-slate-400 dark:stroke-slate-600 hover:stroke-rose-gold-400'
+    ]"
+    [style.stroke]="edge().style?.strokeColor"
+    [attr.marker-end]="'url(#arrow-' + (isSelected() ? 'selected' : 'default') + ')'"
+  />
+
+  <!-- Animation chạy luồng khi đang hoạt động -->
+  @if (edge().animated) {
+    <svg:path
+      [attr.d]="pathD()"
+      [ngClass]="[
+        'fill-none stroke-2 stroke-dash-flow pointer-events-none',
+        isSelected() ? 'stroke-rose-gold-300' : 'stroke-rose-gold-400'
+      ]"
+    />
+  }
+
+  <!-- Nhãn điều kiện / Mô tả ở giữa đường nối -->
+  @if (edge().data.label || edge().data.condition) {
+    <svg:g [attr.transform]="'translate(' + midPoint().x + ',' + midPoint().y + ')'">
+      <!-- Background cho text đỡ bị đè lên đường line -->
+      <svg:rect
+        [attr.x]="-rectWidth() / 2"
+        [attr.y]="-10"
+        [attr.width]="rectWidth()"
+        [attr.height]="20"
+        rx="4"
+        class="fill-white dark:fill-slate-900 stroke stroke-slate-200 dark:stroke-slate-800 stroke-[1]"
+      />
+      <svg:text
+        y="4"
+        text-anchor="middle"
+        class="text-[9px] font-semibold fill-slate-600 dark:fill-slate-300 select-none pointer-events-none"
+      >
+        {{ edge().data.label || edge().data.condition }}
+      </svg:text>
+    </svg:g>
+  }
+</svg:g>
