@@ -1,0 +1,1153 @@
+/* ════════════════════════════════════════════════════════════════════
+   Dynamic Form Builder — Library Scoped Styles
+   Panel Layout Engine v1.0.0 (Production/Library Ready)
+   ════════════════════════════════════════════════════════════════════ */
+
+.oerp-fb-root {
+  /* Design system custom properties - Overridable by parent projects */
+  --oerp-fb-primary: var(--oerp-primary, #c4874a);
+  --oerp-fb-primary-hover: var(--oerp-primary-hover, #a36b36);
+  --oerp-fb-primary-light: var(--oerp-primary-light, rgba(196, 135, 74, 0.1));
+  --oerp-fb-primary-glow: var(--oerp-primary-glow, rgba(196, 135, 74, 0.15));
+  --oerp-fb-bg-base: var(--oerp-bg-base, #f8fafc);
+  --oerp-fb-bg-card: var(--oerp-bg-card, #ffffff);
+  --oerp-fb-bg-card-hover: var(--oerp-bg-card-hover, #fff8f0);
+  --oerp-fb-bg-input: var(--oerp-bg-input, #f8fafc);
+  --oerp-fb-text: var(--oerp-text, #1e293b);
+  --oerp-fb-text-muted: var(--oerp-text-muted, #64748b);
+  --oerp-fb-text-light: var(--oerp-text-light, #94a3b8);
+  --oerp-fb-border: var(--oerp-border, #e2e8f0);
+  --oerp-fb-border-hover: var(--oerp-border-hover, #cbd5e1);
+  --oerp-fb-danger: var(--oerp-danger, #ef4444);
+  --oerp-fb-danger-light: var(--oerp-danger-light, #fef2f2);
+  --oerp-fb-radius-lg: var(--oerp-radius-lg, 1rem);
+  --oerp-fb-radius-md: var(--oerp-radius-md, 0.6rem);
+  --oerp-fb-radius-sm: var(--oerp-radius-sm, 0.35rem);
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--oerp-fb-bg-base);
+  color: var(--oerp-fb-text);
+  font-family: var(--oerp-font-family, 'Inter', system-ui, sans-serif);
+  padding: 1.25rem;
+  gap: 1rem;
+}
+
+/* Dark mode configurations */
+.dark .oerp-fb-root {
+  --oerp-fb-bg-base: var(--oerp-bg-base-dark, #0f172a);
+  --oerp-fb-bg-card: var(--oerp-bg-card-dark, #1e293b);
+  --oerp-fb-bg-card-hover: var(--oerp-bg-card-hover-dark, #1a0f00);
+  --oerp-fb-bg-input: var(--oerp-bg-input-dark, #0f172a);
+  --oerp-fb-text: var(--oerp-text-dark, #cbd5e1);
+  --oerp-fb-text-muted: var(--oerp-text-muted-dark, #94a3b8);
+  --oerp-fb-text-light: var(--oerp-text-light-dark, #64748b);
+  --oerp-fb-border: var(--oerp-border-dark, #334155);
+  --oerp-fb-border-hover: var(--oerp-border-hover-dark, #475569);
+  --oerp-fb-primary-light: var(--oerp-primary-light-dark, rgba(196, 135, 74, 0.15));
+}
+
+/* ── Utilities ────────────────────────────────────────────────────── */
+.oerp-fb-text-primary {
+  color: var(--oerp-fb-primary) !important;
+}
+
+/* ── Header ───────────────────────────────────────────────────────── */
+.oerp-fb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--oerp-fb-border);
+}
+
+.oerp-fb-title {
+  font-size: 1.375rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.oerp-fb-subtitle {
+  font-size: 0.8rem;
+  color: var(--oerp-fb-text-muted);
+  margin: 0.2rem 0 0;
+}
+
+.oerp-fb-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.oerp-fb-btn-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-sm);
+  background: var(--oerp-fb-bg-card);
+  color: var(--oerp-fb-text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.oerp-fb-btn-toolbar:hover {
+  background: var(--oerp-fb-bg-input);
+  border-color: var(--oerp-fb-border-hover);
+}
+
+.oerp-fb-view-toggle {
+  display: flex;
+  border: 1px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-md);
+  overflow: hidden;
+  background: var(--oerp-fb-bg-card);
+}
+
+.oerp-fb-view-toggle button {
+  padding: 0.45rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--oerp-fb-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.oerp-fb-view-toggle button.oerp-fb-active {
+  background: var(--oerp-fb-primary);
+  color: #ffffff;
+}
+
+.oerp-fb-btn-save {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1.25rem;
+  background: var(--oerp-fb-primary);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--oerp-fb-radius-md);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.oerp-fb-btn-save:hover {
+  background: var(--oerp-fb-primary-hover);
+}
+
+/* ── Main Layout ──────────────────────────────────────────────────── */
+.oerp-fb-main {
+  display: grid;
+  grid-template-columns: 240px 1fr 280px;
+  gap: 1rem;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Left Panel ───────────────────────────────────────────────────── */
+.oerp-fb-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--oerp-fb-bg-card);
+  border: 1px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-lg);
+  overflow-y: auto;
+  max-height: calc(100vh - 9rem);
+  position: sticky;
+  top: 1rem;
+}
+
+.oerp-fb-palette-section {
+  padding: 0.875rem;
+}
+
+.oerp-fb-palette-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--oerp-fb-text-light);
+  margin: 0 0 0.75rem;
+}
+
+.oerp-fb-palette-divider {
+  height: 1px;
+  background: var(--oerp-fb-border);
+  margin: 0;
+}
+
+/* Panel Template Grid */
+.oerp-fb-template-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+
+.oerp-fb-template-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.6rem 0.5rem;
+  border: 1.5px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: var(--oerp-fb-bg-input);
+  user-select: none;
+}
+
+.oerp-fb-template-card:hover {
+  border-color: var(--oerp-fb-primary);
+  background: var(--oerp-fb-bg-card-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--oerp-fb-primary-glow);
+}
+
+.oerp-fb-template-preview {
+  display: flex;
+  gap: 2px;
+  height: 20px;
+  width: 100%;
+  position: relative;
+}
+
+.oerp-fb-template-col {
+  background: var(--oerp-fb-primary);
+  border-radius: 2px;
+  opacity: 0.6;
+  min-width: 2px;
+}
+
+.oerp-fb-template-tab-indicator {
+  position: absolute;
+  top: -3px;
+  left: 0;
+  font-size: 8px;
+  font-weight: 800;
+  color: var(--oerp-fb-primary);
+  letter-spacing: 0.1em;
+}
+
+.oerp-fb-template-name {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--oerp-fb-text);
+  text-align: center;
+}
+
+/* Field Palette Items */
+.oerp-fb-field-palette-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 0.5rem;
+  border: 1.5px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-md);
+  cursor: grab;
+  background: var(--oerp-fb-bg-input);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.oerp-fb-field-palette-item:hover {
+  border-color: var(--oerp-fb-primary);
+  background: var(--oerp-fb-bg-card-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--oerp-fb-primary-glow);
+}
+
+.oerp-fb-palette-item-icon {
+  color: var(--oerp-fb-primary);
+}
+
+.oerp-fb-palette-item-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--oerp-fb-text);
+  text-align: center;
+}
+
+/* ── Canvas ───────────────────────────────────────────────────────── */
+.oerp-fb-canvas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 600px;
+  overflow-y: auto;
+  max-height: calc(100vh - 9rem);
+}
+
+.oerp-fb-canvas-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--oerp-fb-bg-card);
+  border: 1px solid var(--oerp-fb-border);
+  border-radius: 0.875rem;
+}
+
+.oerp-fb-canvas-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.oerp-fb-canvas-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--oerp-fb-text-muted);
+  background: var(--oerp-fb-bg-input);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+.oerp-fb-canvas-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  background: var(--oerp-fb-bg-card);
+  border: 2px dashed var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-lg);
+  text-align: center;
+}
+
+.oerp-fb-canvas-empty-icon {
+  color: var(--oerp-fb-primary);
+  opacity: 0.5;
+}
+
+.oerp-fb-canvas-empty-text {
+  font-size: 0.85rem;
+  color: var(--oerp-fb-text-light);
+  line-height: 1.6;
+}
+
+/* ── Panel Block ──────────────────────────────────────────────────── */
+.oerp-fb-panel-block {
+  border: 2px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-lg);
+  background: var(--oerp-fb-bg-card);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 0.75rem;
+}
+
+.oerp-fb-panel-block:hover {
+  border-color: var(--oerp-fb-primary-hover);
+}
+
+.oerp-fb-panel-selected {
+  border-color: var(--oerp-fb-primary) !important;
+  box-shadow: 0 0 0 3px var(--oerp-fb-primary-glow);
+}
+
+.oerp-fb-panel-card {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.oerp-fb-panel-nested {
+  border-radius: var(--oerp-fb-radius-md);
+  border-style: dashed;
+  margin: 0.4rem;
+}
+
+/* Panel Header */
+.oerp-fb-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.875rem;
+  background: var(--oerp-fb-bg-input);
+  border-bottom: 1px solid var(--oerp-fb-border);
+  cursor: pointer;
+  user-select: none;
+}
+
+.oerp-fb-panel-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.oerp-fb-panel-type-icon {
+  color: var(--oerp-fb-primary);
+}
+
+.oerp-fb-panel-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--oerp-fb-text);
+}
+
+.oerp-fb-panel-type-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--oerp-fb-primary);
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.oerp-fb-panel-cols-badge {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--oerp-fb-text-light);
+  background: var(--oerp-fb-bg-base);
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+}
+
+.oerp-fb-panel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.oerp-fb-panel-block:hover .oerp-fb-panel-header-actions,
+.oerp-fb-panel-selected .oerp-fb-panel-header-actions {
+  opacity: 1;
+}
+
+.oerp-fb-panel-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-sm);
+  background: var(--oerp-fb-bg-card);
+  color: var(--oerp-fb-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.oerp-fb-panel-action-btn:hover {
+  border-color: var(--oerp-fb-primary);
+  color: var(--oerp-fb-primary);
+}
+
+.oerp-fb-panel-action-delete:hover {
+  border-color: var(--oerp-fb-danger);
+  color: var(--oerp-fb-danger);
+  background: var(--oerp-fb-danger-light);
+}
+
+/* Tab Header Bar */
+.oerp-fb-tab-header-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem 0;
+  border-bottom: 2px solid var(--oerp-fb-border);
+  background: var(--oerp-fb-bg-input);
+  overflow-x: auto;
+}
+
+.oerp-fb-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--oerp-fb-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  margin-bottom: -2px;
+}
+
+.oerp-fb-tab-btn:hover {
+  color: var(--oerp-fb-primary);
+}
+
+.oerp-fb-tab-btn-active {
+  color: var(--oerp-fb-primary);
+  border-bottom-color: var(--oerp-fb-primary);
+}
+
+.oerp-fb-tab-add-btn {
+  color: var(--oerp-fb-text-light);
+  font-size: 0.7rem;
+}
+
+.oerp-fb-tab-add-btn:hover {
+  color: var(--oerp-fb-primary);
+}
+
+/* Panel Columns Area */
+.oerp-fb-panel-columns-area {
+  display: grid;
+  gap: 0;
+  padding: 0.75rem;
+  background: var(--oerp-fb-bg-card);
+}
+
+/* Panel Column (Drop Zone) */
+.oerp-fb-panel-column {
+  min-height: 140px;
+  border: 1.5px dashed var(--oerp-fb-text-light);
+  border-radius: var(--oerp-fb-radius-lg);
+  padding: 0.75rem;
+  margin: 0.25rem;
+  background: rgba(248, 250, 252, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.oerp-fb-panel-column:hover {
+  border-color: var(--oerp-fb-primary);
+  background: rgba(196, 135, 74, 0.02);
+}
+
+.oerp-fb-panel-column.cdk-drop-list-dragging {
+  border-color: var(--oerp-fb-primary);
+  background: rgba(196, 135, 74, 0.05);
+  box-shadow: inset 0 0 0 2px rgba(196, 135, 74, 0.3);
+}
+
+.oerp-fb-panel-column.cdk-drop-list-receiving {
+  border-color: var(--oerp-fb-primary);
+  border-style: solid;
+  background: rgba(196, 135, 74, 0.08);
+}
+
+.oerp-fb-column-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--oerp-fb-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.1rem 0.3rem;
+}
+
+.oerp-fb-column-span-badge {
+  font-size: 0.58rem;
+  color: var(--oerp-fb-primary);
+  font-weight: 700;
+}
+
+.oerp-fb-column-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1.25rem 0.75rem;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--oerp-fb-text-light);
+  border-radius: var(--oerp-fb-radius-md);
+  flex: 1;
+}
+
+.oerp-fb-column-empty-icon {
+  color: var(--oerp-fb-primary);
+  opacity: 0.4;
+}
+
+/* ── Field Card ───────────────────────────────────────────────────── */
+.oerp-fb-field-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--oerp-fb-bg-card);
+  border: 1.5px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.oerp-fb-field-card:hover {
+  border-color: var(--oerp-fb-primary);
+  box-shadow: 0 2px 8px var(--oerp-fb-primary-glow);
+}
+
+.oerp-fb-field-card-selected {
+  border-color: var(--oerp-fb-primary) !important;
+  background: var(--oerp-fb-bg-card-hover) !important;
+  box-shadow: 0 0 0 3px var(--oerp-fb-primary-glow) !important;
+}
+
+.oerp-fb-field-card-toplevel {
+  border-style: dashed;
+}
+
+.oerp-fb-field-drag-handle {
+  color: var(--oerp-fb-text-light);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  padding: 0 0.15rem;
+}
+
+.oerp-fb-field-drag-handle:hover {
+  color: var(--oerp-fb-text-muted);
+}
+
+.oerp-fb-field-drag-handle:active {
+  cursor: grabbing;
+}
+
+.oerp-fb-field-type-icon {
+  color: var(--oerp-fb-primary);
+  flex-shrink: 0;
+}
+
+.oerp-fb-field-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+  gap: 0.05rem;
+}
+
+.oerp-fb-field-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--oerp-fb-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.oerp-fb-field-name {
+  font-size: 0.62rem;
+  font-family: 'Fira Code', monospace;
+  color: var(--oerp-fb-text-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.oerp-fb-field-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.oerp-fb-field-card:hover .oerp-fb-field-actions,
+.oerp-fb-field-card-selected .oerp-fb-field-actions {
+  opacity: 1;
+}
+
+.oerp-fb-field-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-sm);
+  background: transparent;
+  color: var(--oerp-fb-text-light);
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.oerp-fb-field-action-btn:hover {
+  border-color: var(--oerp-fb-text-muted);
+  color: var(--oerp-fb-text);
+}
+
+.oerp-fb-field-action-delete:hover {
+  border-color: var(--oerp-fb-danger);
+  color: var(--oerp-fb-danger);
+  background: var(--oerp-fb-danger-light);
+}
+
+.oerp-fb-field-drag-placeholder {
+  background: var(--oerp-fb-primary-light);
+  border: 2px dashed var(--oerp-fb-primary);
+  border-radius: var(--oerp-fb-radius-md);
+  height: 48px;
+  min-height: 48px;
+}
+
+.cdk-drag-preview {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-radius: var(--oerp-fb-radius-md);
+  opacity: 0.92;
+}
+
+/* ── Top-level Fields Zone ────────────────────────────────────────── */
+.oerp-fb-toplevel-zone-wrapper {
+  margin-top: 0.5rem;
+}
+
+.oerp-fb-toplevel-zone-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--oerp-fb-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.4rem;
+  padding-left: 0.25rem;
+}
+
+.oerp-fb-toplevel-drop-zone {
+  min-height: 80px;
+  border: 1.5px dashed var(--oerp-fb-text-light);
+  border-radius: 0.875rem;
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: rgba(248, 250, 252, 0.03);
+  transition: all 0.2s ease;
+}
+
+.oerp-fb-toplevel-drop-zone.cdk-drop-list-receiving {
+  border-color: var(--oerp-fb-primary);
+  background: rgba(196, 135, 74, 0.05);
+}
+
+.oerp-fb-workspace-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  color: var(--oerp-fb-text-light);
+  font-size: 0.75rem;
+}
+
+/* ── Right Panel ──────────────────────────────────────────────────── */
+.oerp-fb-right {
+  background: var(--oerp-fb-bg-card);
+  border: 1px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-lg);
+  overflow-y: auto;
+  max-height: calc(100vh - 9rem);
+  position: sticky;
+  top: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.oerp-fb-props-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  flex: 1;
+}
+
+.oerp-fb-props-empty-icon {
+  color: var(--oerp-fb-primary);
+  opacity: 0.3;
+}
+
+.oerp-fb-props-empty p {
+  font-size: 0.8rem;
+  color: var(--oerp-fb-text-muted);
+  line-height: 1.6;
+}
+
+.oerp-fb-props-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--oerp-fb-border);
+  flex-wrap: wrap;
+}
+
+.oerp-fb-props-header-title {
+  font-size: 0.825rem;
+  font-weight: 700;
+  flex: 1;
+}
+
+.oerp-fb-props-header-id {
+  font-size: 0.6rem;
+  font-family: 'Fira Code', monospace;
+  color: var(--oerp-fb-text-light);
+}
+
+.oerp-fb-props-body {
+  padding: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+}
+
+/* Property Tabs */
+.oerp-fb-prop-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--oerp-fb-border);
+  overflow-x: auto;
+}
+
+.oerp-fb-prop-tab {
+  padding: 0.55rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--oerp-fb-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  margin-bottom: -1px;
+}
+
+.oerp-fb-prop-tab:hover {
+  color: var(--oerp-fb-text);
+}
+
+.oerp-fb-prop-tab.oerp-fb-active {
+  color: var(--oerp-fb-primary);
+  border-bottom-color: var(--oerp-fb-primary);
+}
+
+/* Form Elements inside properties panel */
+.oerp-fb-prop-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.oerp-fb-prop-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--oerp-fb-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.oerp-fb-prop-input {
+  width: 100%;
+  padding: 0.45rem 0.625rem;
+  font-size: 0.78rem;
+  border: 1.5px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-md);
+  background: var(--oerp-fb-bg-input);
+  color: var(--oerp-fb-text);
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.oerp-fb-prop-input:focus {
+  outline: none;
+  border-color: var(--oerp-fb-primary);
+}
+
+.oerp-fb-prop-input-sm {
+  font-size: 0.72rem;
+  padding: 0.3rem 0.5rem;
+}
+
+.oerp-fb-prop-mono {
+  font-family: 'Fira Code', monospace;
+}
+
+.oerp-fb-prop-select {
+  width: 100%;
+  padding: 0.45rem 0.625rem;
+  font-size: 0.78rem;
+  border: 1.5px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-md);
+  background: var(--oerp-fb-bg-input);
+  color: var(--oerp-fb-text);
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.oerp-fb-prop-select:focus {
+  outline: none;
+  border-color: var(--oerp-fb-primary);
+}
+
+.oerp-fb-prop-select-sm {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.45rem;
+  width: auto;
+}
+
+/* Toggle Switches */
+.oerp-fb-prop-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.oerp-fb-prop-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--oerp-fb-text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.oerp-fb-prop-toggle input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--oerp-fb-primary);
+  cursor: pointer;
+}
+
+/* Responsive layout items inside Properties panel */
+.oerp-fb-device-layout-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.oerp-fb-device-layout-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.6rem;
+  background: var(--oerp-fb-bg-input);
+  border: 1px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-md);
+}
+
+.oerp-fb-device-layout-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--oerp-fb-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.oerp-fb-device-layout-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.oerp-fb-device-layout-hint {
+  font-size: 0.7rem;
+  color: var(--oerp-fb-text-light);
+}
+
+/* Tab/Column configuration rows */
+.oerp-fb-tab-manage-row,
+.oerp-fb-col-config-row,
+.oerp-fb-option-row,
+.oerp-fb-grid-col-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.oerp-fb-col-config-label {
+  font-size: 0.7rem;
+  color: var(--oerp-fb-text-muted);
+  min-width: 40px;
+}
+
+.oerp-fb-col-range {
+  flex: 1;
+  accent-color: var(--oerp-fb-primary);
+  cursor: pointer;
+}
+
+.oerp-fb-col-span-value {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--oerp-fb-primary);
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Rule Card */
+.oerp-fb-rule-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.6rem;
+  background: var(--oerp-fb-bg-input);
+  border: 1px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-md);
+}
+
+.oerp-fb-rule-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.oerp-fb-rule-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--oerp-fb-text-light);
+  min-width: 24px;
+}
+
+/* Custom Buttons inside properties */
+.oerp-fb-btn-add-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--oerp-fb-primary);
+  border: 1.5px dashed var(--oerp-fb-primary);
+  border-radius: var(--oerp-fb-radius-md);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  align-self: flex-start;
+}
+
+.oerp-fb-btn-add-tab:hover {
+  background: var(--oerp-fb-bg-card-hover);
+  border-style: solid;
+}
+
+.oerp-fb-btn-add-col {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--oerp-fb-text-muted);
+  border: 1.5px dashed var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-md);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.oerp-fb-btn-add-col:hover {
+  border-color: var(--oerp-fb-primary);
+  color: var(--oerp-fb-primary);
+}
+
+.oerp-fb-btn-icon-sm {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-sm);
+  background: transparent;
+  color: var(--oerp-fb-text-light);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.1s ease;
+}
+
+.oerp-fb-btn-danger:hover {
+  border-color: var(--oerp-fb-danger);
+  color: var(--oerp-fb-danger);
+  background: var(--oerp-fb-danger-light);
+}
+
+/* ── Preview Mode ─────────────────────────────────────────────────── */
+.oerp-fb-device-switcher {
+  display: flex;
+  border: 1px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-md);
+  overflow: hidden;
+  margin-bottom: 1rem;
+  background: var(--oerp-fb-bg-card);
+  align-self: flex-start;
+}
+
+.oerp-fb-device-switcher button {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--oerp-fb-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.oerp-fb-device-switcher button.oerp-fb-active {
+  background: var(--oerp-fb-primary);
+  color: #ffffff;
+}
+
+.oerp-fb-preview-container {
+  background: var(--oerp-fb-bg-card);
+  border: 1px solid var(--oerp-fb-border);
+  border-radius: var(--oerp-fb-radius-lg);
+  padding: 1.5rem;
+  margin: 0 auto;
+  transition: max-width 0.3s ease;
+}
+
+.oerp-fb-preview-desktop {
+  max-width: 100%;
+}
+
+.oerp-fb-preview-tablet {
+  max-width: 768px;
+}
+
+.oerp-fb-preview-mobile {
+  max-width: 375px;
+}

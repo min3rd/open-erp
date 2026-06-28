@@ -1,0 +1,694 @@
+<div class="oerp-fb-root" (click)="clearSelection($event)">
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- HEADER TOOLBAR                                            -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="oerp-fb-header" data-no-deselect>
+    <div>
+      <h1 class="oerp-fb-title">
+        <oerp-icon name="tool" [size]="22" class="oerp-fb-text-primary"></oerp-icon>
+        {{ i18n.title }}
+      </h1>
+      <p class="oerp-fb-subtitle">{{ i18n.subtitle }}</p>
+    </div>
+    <div class="oerp-fb-header-actions">
+      <button (click)="undo()" class="oerp-fb-btn-toolbar" [title]="i18n.btnUndo">
+        <oerp-icon name="rotate-ccw" [size]="14"></oerp-icon> {{ i18n.btnUndo }}
+      </button>
+      <button (click)="redo()" class="oerp-fb-btn-toolbar" [title]="i18n.btnRedo">
+        <oerp-icon name="rotate-cw" [size]="14"></oerp-icon> {{ i18n.btnRedo }}
+      </button>
+      <div class="oerp-fb-view-toggle">
+        <button (click)="viewMode.set('edit')" [class.oerp-fb-active]="viewMode() === 'edit'">{{ i18n.btnDesignMode }}</button>
+        <button (click)="viewMode.set('preview')" [class.oerp-fb-active]="viewMode() === 'preview'">{{ i18n.btnPreviewMode }}</button>
+      </div>
+      <button (click)="saveFormDesign()" class="oerp-fb-btn-save">
+        <oerp-icon name="save" [size]="14"></oerp-icon> {{ i18n.btnSaveDesign }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- MAIN LAYOUT: 3 columns                                    -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="oerp-fb-main">
+
+    <!-- ┌─────────────────────────────────┐ -->
+    <!-- │ LEFT PANEL — Palette            │ -->
+    <!-- └─────────────────────────────────┘ -->
+    <aside class="oerp-fb-left" data-no-deselect>
+
+      <!-- Panel Template Section -->
+      <div class="oerp-fb-palette-section">
+        <h3 class="oerp-fb-palette-section-title">
+          <oerp-icon name="layout" [size]="12"></oerp-icon> {{ i18n.paletteLayoutTitle }}
+        </h3>
+        <oerp-drag-palette
+          [items]="panelTemplatePalette"
+          id="panel-palette"
+          [connectedTo]="allDropListIds()"
+          paletteClass="grid grid-cols-2 gap-2"
+        >
+          <ng-template let-item>
+            @if (getTemplateById(item.data); as tpl) {
+              <div
+                (click)="addPanel(tpl)"
+                class="oerp-fb-template-card"
+                [title]="tpl.description"
+              >
+                <div class="oerp-fb-template-preview">
+                  @for (span of tpl.colSpans; track $index) {
+                    <div class="oerp-fb-template-col" [style.flex]="span"></div>
+                  }
+                  @if (tpl.type === 'tab') {
+                    <div class="oerp-fb-template-tab-indicator">TAB</div>
+                  }
+                </div>
+                <span class="oerp-fb-template-name">{{ tpl.name }}</span>
+              </div>
+            }
+          </ng-template>
+        </oerp-drag-palette>
+      </div>
+
+      <div class="oerp-fb-palette-divider"></div>
+
+      <!-- Field Components Section -->
+      <div class="oerp-fb-palette-section">
+        <h3 class="oerp-fb-palette-section-title">
+          <oerp-icon name="package" [size]="12"></oerp-icon> {{ i18n.paletteFieldsTitle }}
+        </h3>
+        <oerp-drag-palette
+          [items]="fieldPaletteItems"
+          id="drag-palette"
+          [connectedTo]="allDropListIds()"
+          paletteClass="grid grid-cols-2 gap-2"
+        >
+          <ng-template let-item>
+            <div
+              (click)="addFieldFromPalette(item.data)"
+              class="oerp-fb-field-palette-item"
+            >
+              <oerp-icon [name]="item.icon" [size]="18" class="oerp-fb-palette-item-icon"></oerp-icon>
+              <span class="oerp-fb-palette-item-label">{{ item.label }}</span>
+            </div>
+          </ng-template>
+        </oerp-drag-palette>
+      </div>
+    </aside>
+
+    <!-- ┌─────────────────────────────────┐ -->
+    <!-- │ CENTER — Canvas Workspace        │ -->
+    <!-- └─────────────────────────────────┘ -->
+    <main class="oerp-fb-canvas">
+
+      <!-- ── EDIT MODE ──────────────────────────────────────────── -->
+      @if (viewMode() === 'edit') {
+        <div class="oerp-fb-canvas-header">
+          <h2 class="oerp-fb-canvas-title">
+            <oerp-icon name="edit-3" [size]="16" class="oerp-fb-text-primary"></oerp-icon>
+            {{ i18n.canvasTitle }}
+          </h2>
+          <span class="oerp-fb-canvas-badge">
+            {{ fields().length }} {{ i18n.canvasBadgeText.split(' · ')[0] }} · {{ panels().length }} {{ i18n.canvasBadgeText.split(' · ')[1] }}
+          </span>
+        </div>
+
+        <!-- ── UNIFIED ROOT DRAG-DROP CANVAS ── -->
+        <div
+          id="workspace-main"
+          class="oerp-fb-toplevel-drop-zone flex-1 flex flex-col gap-4 min-h-[500px]"
+          cdkDropList
+          [cdkDropListData]="rootItems()"
+          [cdkDropListConnectedTo]="allDropListIds()"
+          (cdkDropListDropped)="onItemDropped($event)"
+        >
+          <!-- Empty state -->
+          @if (rootItems().length === 0) {
+            <div class="oerp-fb-canvas-empty flex-1 justify-center">
+              <oerp-icon name="mouse-pointer" [size]="40" class="oerp-fb-canvas-empty-icon"></oerp-icon>
+              <p class="oerp-fb-canvas-empty-text" [innerHTML]="i18n.canvasEmptyText"></p>
+            </div>
+          }
+
+          <!-- Render all items -->
+          @for (item of rootItems(); track item.id; let itemIdx = $index) {
+            
+            <!-- Render Fields directly in root -->
+            @if (item.kind === 'field') {
+              @if (getFieldById(item.id); as field) {
+                <div
+                  cdkDrag
+                  [cdkDragData]="item"
+                  class="oerp-fb-field-card oerp-fb-field-card-toplevel"
+                  [class.oerp-fb-field-card-selected]="selectedField()?.id === field.id"
+                  (click)="selectField(field); $event.stopPropagation()"
+                  data-no-deselect
+                >
+                  <div cdkDragHandle class="oerp-fb-field-drag-handle">
+                    <oerp-icon name="grip-vertical" [size]="12"></oerp-icon>
+                  </div>
+                  <oerp-icon [name]="getFieldIcon(field.type)" [size]="14" class="oerp-fb-field-type-icon"></oerp-icon>
+                  <div class="oerp-fb-field-info">
+                    <span class="oerp-fb-field-label">{{ field.label }}</span>
+                    <span class="oerp-fb-field-name">{{ field.name }}</span>
+                  </div>
+                  <div class="oerp-fb-field-actions">
+                    <button (click)="moveItemUp(field.id)" class="oerp-fb-field-action-btn" [title]="i18n.tooltips.up">
+                      <oerp-icon name="chevron-up" [size]="10"></oerp-icon>
+                    </button>
+                    <button (click)="moveItemDown(field.id)" class="oerp-fb-field-action-btn" [title]="i18n.tooltips.down">
+                      <oerp-icon name="chevron-down" [size]="10"></oerp-icon>
+                    </button>
+                    <button (click)="deleteField(field.id, $event)" class="oerp-fb-field-action-btn oerp-fb-field-action-delete" [title]="i18n.tooltips.deleteField">
+                      <oerp-icon name="trash-2" [size]="10"></oerp-icon>
+                    </button>
+                  </div>
+                  <div *cdkDragPlaceholder class="oerp-fb-field-drag-placeholder"></div>
+                </div>
+              }
+            }
+
+            <!-- Render Panels in root -->
+            @if (item.kind === 'panel') {
+              @if (getPanelById(item.id); as panel) {
+                <ng-container *ngTemplateOutlet="panelBlock; context: { panel: panel, depth: 0, panelIdx: itemIdx }">
+                </ng-container>
+              }
+            }
+          }
+        </div>
+
+        <!-- ── ng-template: Recursive Panel Block ─────────────────── -->
+        <ng-template #panelBlock let-panel="panel" let-depth="depth" let-panelIdx="panelIdx">
+          <div
+            cdkDrag
+            [cdkDragData]="{ kind: 'panel', id: panel.id }"
+            class="oerp-fb-panel-block"
+            [class.oerp-fb-panel-selected]="selectedPanel()?.id === panel.id"
+            [class.oerp-fb-panel-card]="panel.type === 'card'"
+            [class.oerp-fb-panel-nested]="depth > 0"
+            (click)="selectPanel(panel); $event.stopPropagation()"
+            data-no-deselect
+          >
+            <!-- Panel Header -->
+            <div class="oerp-fb-panel-header" cdkDragHandle>
+              <div class="oerp-fb-panel-header-left">
+                <div class="oerp-fb-field-drag-handle mr-1">
+                  <oerp-icon name="grip-vertical" [size]="12"></oerp-icon>
+                </div>
+                <oerp-icon
+                  [name]="panel.type === 'tab' ? 'book-open' : panel.type === 'card' ? 'credit-card' : 'layout'"
+                  [size]="14" class="oerp-fb-panel-type-icon">
+                </oerp-icon>
+                <span class="oerp-fb-panel-name">{{ panel.name }}</span>
+                <span class="oerp-fb-panel-type-badge">{{ panel.type }}</span>
+                <span class="oerp-fb-panel-cols-badge">
+                  D:{{ panel.layout.desktop.cols }}c · T:{{ panel.layout.tablet.cols }}c · M:{{ panel.layout.mobile.cols }}c
+                </span>
+              </div>
+              <div class="oerp-fb-panel-header-actions">
+                @if (depth === 0) {
+                  <button (click)="moveItemUp(panel.id); $event.stopPropagation()" class="oerp-fb-panel-action-btn" [title]="i18n.tooltips.up">
+                    <oerp-icon name="chevron-up" [size]="12"></oerp-icon>
+                  </button>
+                  <button (click)="moveItemDown(panel.id); $event.stopPropagation()" class="oerp-fb-panel-action-btn" [title]="i18n.tooltips.down">
+                    <oerp-icon name="chevron-down" [size]="12"></oerp-icon>
+                  </button>
+                }
+                <button (click)="addColumnToPanel(panel.id); $event.stopPropagation()" class="oerp-fb-panel-action-btn" [title]="i18n.tooltips.addCol">
+                  <oerp-icon name="plus" [size]="12"></oerp-icon>
+                </button>
+                <button (click)="deletePanel(panel.id, $event)" class="oerp-fb-panel-action-btn oerp-fb-panel-action-delete" [title]="i18n.tooltips.deletePanel">
+                  <oerp-icon name="trash-2" [size]="12"></oerp-icon>
+                </button>
+              </div>
+            </div>
+
+            <!-- Tab Panel: Tab Headers -->
+            @if (panel.type === 'tab' && panel.tabs) {
+              <div class="oerp-fb-tab-header-bar" (click)="$event.stopPropagation()">
+                @for (tab of panel.tabs; track tab.id) {
+                  <button
+                    class="oerp-fb-tab-btn"
+                    [class.oerp-fb-tab-btn-active]="tab.id === panel.activeTabId"
+                    (click)="setActiveTab(panel.id, tab.id, $event)"
+                  >
+                    <oerp-icon [name]="tab.icon" [size]="12"></oerp-icon>
+                    {{ tab.label }}
+                  </button>
+                }
+                <button class="oerp-fb-tab-btn oerp-fb-tab-add-btn" (click)="addTabToPanel(panel.id); $event.stopPropagation()" [title]="i18n.labels.addTab">
+                  <oerp-icon name="plus" [size]="12"></oerp-icon> {{ i18n.labels.addTab }}
+                </button>
+              </div>
+            }
+
+            <!-- Panel Column Grid (drop zones) -->
+            <div class="oerp-fb-panel-columns-area" [ngStyle]="getPanelGridStyle(panel)">
+              @for (col of getActiveColumns(panel); track col.id; let colIdx = $index) {
+                <div
+                  class="oerp-fb-panel-column"
+                  [id]="col.id"
+                  cdkDropList
+                  [cdkDropListData]="col.items"
+                  [cdkDropListConnectedTo]="allDropListIds()"
+                  (cdkDropListDropped)="onItemDropped($event)"
+                >
+                  <!-- Column label -->
+                  <div class="oerp-fb-column-label">
+                    <span>{{ i18n.columnLabelDefault }}{{ colIdx + 1 }}</span>
+                    <span class="oerp-fb-column-span-badge">{{ col.colSpan }}/12</span>
+                  </div>
+
+                  <!-- Empty slot placeholder -->
+                  @if (col.items.length === 0) {
+                    <div class="oerp-fb-column-empty">
+                      <oerp-icon name="plus-circle" [size]="18" class="oerp-fb-column-empty-icon"></oerp-icon>
+                      <span>{{ i18n.dragEmptyCol }}</span>
+                    </div>
+                  }
+
+                  <!-- Items in column -->
+                  @for (item of col.items; track item.id; let itemIdx = $index) {
+                    <!-- Field item -->
+                    @if (item.kind === 'field') {
+                      @if (getFieldById(item.id); as field) {
+                        <div
+                          cdkDrag
+                          [cdkDragData]="item"
+                          class="oerp-fb-field-card"
+                          [class.oerp-fb-field-card-selected]="selectedField()?.id === field.id"
+                          (click)="selectField(field); $event.stopPropagation()"
+                          data-no-deselect
+                        >
+                          <div cdkDragHandle class="oerp-fb-field-drag-handle">
+                            <oerp-icon name="grip-vertical" [size]="12"></oerp-icon>
+                          </div>
+                          <oerp-icon [name]="getFieldIcon(field.type)" [size]="14" class="oerp-fb-field-type-icon"></oerp-icon>
+                          <div class="oerp-fb-field-info">
+                            <span class="oerp-fb-field-label">{{ field.label }}</span>
+                            <span class="oerp-fb-field-name">{{ field.name }}</span>
+                          </div>
+                          <div class="oerp-fb-field-actions">
+                            <button (click)="moveFieldUp(field.id, col.id, $event)" class="oerp-fb-field-action-btn" [title]="i18n.tooltips.up">
+                              <oerp-icon name="chevron-up" [size]="10"></oerp-icon>
+                            </button>
+                            <button (click)="moveFieldDown(field.id, col.id, $event)" class="oerp-fb-field-action-btn" [title]="i18n.tooltips.down">
+                              <oerp-icon name="chevron-down" [size]="10"></oerp-icon>
+                            </button>
+                            <button (click)="deleteField(field.id, $event)" class="oerp-fb-field-action-btn oerp-fb-field-action-delete" [title]="i18n.tooltips.deleteField">
+                              <oerp-icon name="trash-2" [size]="10"></oerp-icon>
+                            </button>
+                          </div>
+                          <div *cdkDragPlaceholder class="oerp-fb-field-drag-placeholder"></div>
+                        </div>
+                      }
+                    }
+
+                    <!-- Nested Panel -->
+                    @if (item.kind === 'panel' && depth < 2) {
+                      @if (getPanelById(item.id); as nestedPanel) {
+                        <ng-container *ngTemplateOutlet="panelBlock; context: { panel: nestedPanel, depth: depth + 1, panelIdx: itemIdx }">
+                        </ng-container>
+                      }
+                    }
+                  }
+                </div>
+              }
+            </div>
+            <!-- Custom Drag Placeholder for Panel Block -->
+            <div *cdkDragPlaceholder class="oerp-fb-field-drag-placeholder min-h-[100px]"></div>
+          </div>
+        </ng-template>
+      }
+
+      <!-- ── PREVIEW MODE ───────────────────────────────────────────── -->
+      @if (viewMode() === 'preview') {
+        <div>
+          <!-- Device switcher -->
+          <div class="oerp-fb-device-switcher">
+            <button (click)="previewDevice.set('desktop')" [class.oerp-fb-active]="previewDevice() === 'desktop'">
+              <oerp-icon name="monitor" [size]="14"></oerp-icon> {{ i18n.previewDesktop }}
+            </button>
+            <button (click)="previewDevice.set('tablet')" [class.oerp-fb-active]="previewDevice() === 'tablet'">
+              <oerp-icon name="tablet" [size]="14"></oerp-icon> {{ i18n.previewTablet }}
+            </button>
+            <button (click)="previewDevice.set('mobile')" [class.oerp-fb-active]="previewDevice() === 'mobile'">
+              <oerp-icon name="smartphone" [size]="14"></oerp-icon> {{ i18n.previewMobile }}
+            </button>
+          </div>
+
+          <!-- Preview container -->
+          <div class="oerp-fb-preview-container"
+            [class.oerp-fb-preview-desktop]="previewDevice() === 'desktop'"
+            [class.oerp-fb-preview-tablet]="previewDevice() === 'tablet'"
+            [class.oerp-fb-preview-mobile]="previewDevice() === 'mobile'"
+          >
+            <oerp-form-renderer [schema]="compiledSchema()" [previewMode]="previewDevice()"></oerp-form-renderer>
+          </div>
+        </div>
+      }
+    </main>
+
+    <!-- ┌─────────────────────────────────┐ -->
+    <!-- │ RIGHT PANEL — Properties        │ -->
+    <!-- └─────────────────────────────────┘ -->
+    <aside class="oerp-fb-right" data-no-deselect>
+
+      <!-- Empty state -->
+      @if (!selectedPanel() && !selectedField()) {
+        <div class="oerp-fb-props-empty">
+          <oerp-icon name="sidebar" [size]="32" class="oerp-fb-props-empty-icon"></oerp-icon>
+          <p>{{ i18n.propsEmptyText }}</p>
+        </div>
+      }
+
+      <!-- ── PANEL PROPERTIES ────────────────────────────────────── -->
+      @if (selectedPanel(); as panel) {
+        <div class="oerp-fb-props-header">
+          <oerp-icon [name]="panel.type === 'tab' ? 'book-open' : 'layout'" [size]="14" class="oerp-fb-text-primary"></oerp-icon>
+          <span class="oerp-fb-props-header-title">{{ i18n.propsPanelHeader }}</span>
+          <span class="oerp-fb-props-header-id">{{ panel.id }}</span>
+        </div>
+
+        <div class="oerp-fb-props-body">
+          <!-- Name -->
+          <div class="oerp-fb-prop-group">
+            <label class="oerp-fb-prop-label">{{ i18n.propsPanelName }}</label>
+            <input type="text"
+              [value]="panel.name"
+              (input)="updatePanelProp('name', $any($event.target).value)"
+              class="oerp-fb-prop-input"
+            />
+          </div>
+
+          <!-- Type -->
+          <div class="oerp-fb-prop-group">
+            <label class="oerp-fb-prop-label">{{ i18n.propsPanelType }}</label>
+            <select [ngModel]="panel.type" (ngModelChange)="updatePanelProp('type', $event)" class="oerp-fb-prop-select">
+              <option ngValue="default">Default</option>
+              <option ngValue="card">Card</option>
+              <option ngValue="tab">Tab</option>
+            </select>
+          </div>
+
+          <!-- Responsive Layout Config -->
+          <div class="oerp-fb-prop-group">
+            <label class="oerp-fb-prop-label">{{ i18n.propsPanelResponsive }}</label>
+            <div class="oerp-fb-device-layout-grid">
+
+              <!-- Desktop -->
+              <div class="oerp-fb-device-layout-item">
+                <div class="oerp-fb-device-layout-label">
+                  <oerp-icon name="monitor" [size]="10"></oerp-icon> {{ i18n.previewDesktop }}
+                </div>
+                <div class="oerp-fb-device-layout-row">
+                  <span class="oerp-fb-device-layout-hint">{{ i18n.labels.cols }}</span>
+                  <select [ngModel]="panel.layout.desktop.cols" (ngModelChange)="updatePanelLayout('desktop', 'cols', +$event)" class="oerp-fb-prop-select-sm">
+                    <option [ngValue]="1">1</option>
+                    <option [ngValue]="2">2</option>
+                    <option [ngValue]="3">3</option>
+                    <option [ngValue]="4">4</option>
+                  </select>
+                </div>
+                <div class="oerp-fb-device-layout-row">
+                  <span class="oerp-fb-device-layout-hint">{{ i18n.labels.width }}</span>
+                  <select [ngModel]="panel.layout.desktop.colSpan" (ngModelChange)="updatePanelLayout('desktop', 'colSpan', +$event)" class="oerp-fb-prop-select-sm">
+                    <option [ngValue]="6">6/12 (50%)</option>
+                    <option [ngValue]="8">8/12 (67%)</option>
+                    <option [ngValue]="12">12/12 (100%)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Tablet -->
+              <div class="oerp-fb-device-layout-item">
+                <div class="oerp-fb-device-layout-label">
+                  <oerp-icon name="tablet" [size]="10"></oerp-icon> {{ i18n.previewTablet }}
+                </div>
+                <div class="oerp-fb-device-layout-row">
+                  <span class="oerp-fb-device-layout-hint">{{ i18n.labels.cols }}</span>
+                  <select [ngModel]="panel.layout.tablet.cols" (ngModelChange)="updatePanelLayout('tablet', 'cols', +$event)" class="oerp-fb-prop-select-sm">
+                    <option [ngValue]="1">1</option>
+                    <option [ngValue]="2">2</option>
+                    <option [ngValue]="3">3</option>
+                  </select>
+                </div>
+                <div class="oerp-fb-device-layout-row">
+                  <span class="oerp-fb-device-layout-hint">{{ i18n.labels.width }}</span>
+                  <select [ngModel]="panel.layout.tablet.colSpan" (ngModelChange)="updatePanelLayout('tablet', 'colSpan', +$event)" class="oerp-fb-prop-select-sm">
+                    <option [ngValue]="6">6/12</option>
+                    <option [ngValue]="12">12/12</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Mobile -->
+              <div class="oerp-fb-device-layout-item">
+                <div class="oerp-fb-device-layout-label">
+                  <oerp-icon name="smartphone" [size]="10"></oerp-icon> {{ i18n.previewMobile }}
+                </div>
+                <div class="oerp-fb-device-layout-row">
+                  <span class="oerp-fb-device-layout-hint">{{ i18n.labels.cols }}</span>
+                  <select [ngModel]="panel.layout.mobile.cols" (ngModelChange)="updatePanelLayout('mobile', 'cols', +$event)" class="oerp-fb-prop-select-sm">
+                    <option [ngValue]="1">{{ i18n.labels.flat }}</option>
+                    <option [ngValue]="2">2</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Management (when type = tab) -->
+          @if (panel.type === 'tab' && panel.tabs) {
+            <div class="oerp-fb-prop-group">
+              <label class="oerp-fb-prop-label">{{ i18n.propsPanelTabManage }}</label>
+              @for (tab of panel.tabs; track tab.id) {
+                <div class="oerp-fb-tab-manage-row">
+                  <oerp-icon name="file-text" [size]="12" class="text-slate-400"></oerp-icon>
+                  <input type="text"
+                    [value]="tab.label"
+                    (input)="updateTabLabel(panel.id, tab.id, $any($event.target).value)"
+                    class="oerp-fb-prop-input oerp-fb-prop-input-sm"
+                    [placeholder]="i18n.placeholders.tabName"
+                  />
+                  @if (panel.tabs && panel.tabs.length > 1) {
+                    <button (click)="removeTabFromPanel(panel.id, tab.id)" class="oerp-fb-btn-icon-sm oerp-fb-btn-danger" [title]="i18n.tooltips.deleteTab">
+                      <oerp-icon name="x" [size]="10"></oerp-icon>
+                    </button>
+                  }
+                </div>
+              }
+              <button (click)="addTabToPanel(panel.id)" class="oerp-fb-btn-add-tab">
+                <oerp-icon name="plus" [size]="12"></oerp-icon> {{ i18n.labels.addTab }}
+              </button>
+            </div>
+          }
+
+          <!-- Column Span Config -->
+          @if (panel.type !== 'tab') {
+            <div class="oerp-fb-prop-group">
+              <label class="oerp-fb-prop-label">{{ i18n.propsPanelColConfig }}</label>
+              @for (col of panel.columns; track col.id; let ci = $index) {
+                <div class="oerp-fb-col-config-row">
+                  <span class="oerp-fb-col-config-label">{{ i18n.columnLabelDefault }}{{ ci + 1 }}</span>
+                  <input type="range" min="1" max="12"
+                    [ngModel]="col.colSpan"
+                    (ngModelChange)="mutateColumnSpan(panel.id, col.id, +$event)"
+                    class="oerp-fb-col-range"
+                  />
+                  <span class="oerp-fb-col-span-value">{{ col.colSpan }}/12</span>
+                </div>
+              }
+              <button (click)="addColumnToPanel(panel.id)" class="oerp-fb-btn-add-col">
+                <oerp-icon name="plus" [size]="12"></oerp-icon> {{ i18n.labels.addColumn }}
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ── FIELD PROPERTIES ────────────────────────────────────── -->
+      @if (selectedField(); as field) {
+        <div class="oerp-fb-props-header">
+          <oerp-icon [name]="getFieldIcon(field.type)" [size]="14" class="oerp-fb-text-primary"></oerp-icon>
+          <span class="oerp-fb-props-header-title">{{ field.label }}</span>
+        </div>
+
+        <!-- Property Tabs -->
+        <div class="oerp-fb-prop-tabs">
+          <button class="oerp-fb-prop-tab" [class.oerp-fb-active]="activePropTab() === 'general'" (click)="activePropTab.set('general')">{{ i18n.propsFieldTabGeneral }}</button>
+          <button class="oerp-fb-prop-tab" [class.oerp-fb-active]="activePropTab() === 'layout'" (click)="activePropTab.set('layout')">{{ i18n.propsFieldTabLayout }}</button>
+          @if (field.type === 'SELECT') {
+            <button class="oerp-fb-prop-tab" [class.oerp-fb-active]="activePropTab() === 'data'" (click)="activePropTab.set('data')">{{ i18n.propsFieldTabData }}</button>
+          }
+          @if (field.type === 'GRID') {
+            <button class="oerp-fb-prop-tab" [class.oerp-fb-active]="activePropTab() === 'grid'" (click)="activePropTab.set('grid')">{{ i18n.propsFieldTabGrid }}</button>
+          }
+          <button class="oerp-fb-prop-tab" [class.oerp-fb-active]="activePropTab() === 'rules'" (click)="activePropTab.set('rules')">{{ i18n.propsFieldTabRules }}</button>
+        </div>
+
+        <div class="oerp-fb-props-body">
+          <!-- ─ GENERAL TAB ─ -->
+          @if (activePropTab() === 'general') {
+            <div class="oerp-fb-prop-group">
+              <label class="oerp-fb-prop-label">{{ i18n.propsFieldLabel }}</label>
+              <input type="text" [value]="field.label" (input)="updateFieldProperty('label', $any($event.target).value)" class="oerp-fb-prop-input" />
+            </div>
+            <div class="oerp-fb-prop-group">
+              <label class="oerp-fb-prop-label">{{ i18n.propsFieldVarName }}</label>
+              <input type="text" [value]="field.name" (input)="updateFieldProperty('name', $any($event.target).value)" class="oerp-fb-prop-input oerp-fb-prop-mono" />
+            </div>
+            <div class="oerp-fb-prop-group">
+              <label class="oerp-fb-prop-label">{{ i18n.propsFieldPlaceholder }}</label>
+              <input type="text" [value]="field.placeholder || ''" (input)="updateFieldProperty('placeholder', $any($event.target).value)" class="oerp-fb-prop-input" />
+            </div>
+            <div class="oerp-fb-prop-group">
+              <label class="oerp-fb-prop-label">{{ i18n.propsFieldDefaultValue }}</label>
+              <input type="text" [value]="field.defaultValue?.toString() || ''" (input)="updateFieldProperty('defaultValue', $any($event.target).value)" class="oerp-fb-prop-input" />
+            </div>
+            <div class="oerp-fb-prop-toggles">
+              <label class="oerp-fb-prop-toggle">
+                <input type="checkbox" [checked]="field.required" (change)="updateFieldProperty('required', $any($event.target).checked)" />
+                <span>{{ i18n.propsFieldToggles.required }}</span>
+              </label>
+              <label class="oerp-fb-prop-toggle">
+                <input type="checkbox" [checked]="field.readOnly" (change)="updateFieldProperty('readOnly', $any($event.target).checked)" />
+                <span>{{ i18n.propsFieldToggles.readOnly }}</span>
+              </label>
+              <label class="oerp-fb-prop-toggle">
+                <input type="checkbox" [checked]="field.hidden" (change)="updateFieldProperty('hidden', $any($event.target).checked)" />
+                <span>{{ i18n.propsFieldToggles.hidden }}</span>
+              </label>
+            </div>
+            <!-- Validation -->
+            <div class="oerp-fb-prop-group">
+              <label class="oerp-fb-prop-label">{{ i18n.propsFieldValidationTitle }}</label>
+              <label class="oerp-fb-prop-toggle">
+                <input type="checkbox"
+                  [checked]="hasValidation('minLength')"
+                  (change)="updateFieldValidation('minLength', $any($event.target).checked, 1)"
+                />
+                <span>{{ i18n.propsFieldValidationMinLength }}</span>
+              </label>
+              @if (hasValidation('minLength')) {
+                <input type="number" [value]="getValidationValue('minLength') ?? 1"
+                  (input)="updateFieldValidation('minLength', true, +$any($event.target).value)"
+                  class="oerp-fb-prop-input oerp-fb-prop-input-sm" min="1" />
+              }
+              <label class="oerp-fb-prop-toggle">
+                <input type="checkbox"
+                  [checked]="hasValidation('maxLength')"
+                  (change)="updateFieldValidation('maxLength', $any($event.target).checked, 255)"
+                />
+                <span>{{ i18n.propsFieldValidationMaxLength }}</span>
+              </label>
+              @if (hasValidation('maxLength')) {
+                <input type="number" [value]="getValidationValue('maxLength') ?? 255"
+                  (input)="updateFieldValidation('maxLength', true, +$any($event.target).value)"
+                  class="oerp-fb-prop-input oerp-fb-prop-input-sm" min="1" />
+              }
+            </div>
+          }
+
+          <!-- ─ LAYOUT TAB ─ -->
+          @if (activePropTab() === 'layout') {
+            <div class="oerp-fb-prop-group">
+              <label class="oerp-fb-prop-label">{{ i18n.propsFieldTabLayout }}</label>
+              <div class="oerp-fb-device-layout-grid">
+                <div class="oerp-fb-device-layout-item">
+                  <div class="oerp-fb-device-layout-label"><oerp-icon name="monitor" [size]="10"></oerp-icon> {{ i18n.previewDesktop }}</div>
+                  <select [ngModel]="field.layout?.colSpanDesktop ?? 12" (ngModelChange)="updateFieldProperty('layout', { ...field.layout, colSpanDesktop: +$event })" class="oerp-fb-prop-select-sm">
+                    <option [ngValue]="3">25%</option><option [ngValue]="4">33%</option>
+                    <option [ngValue]="6">50%</option><option [ngValue]="8">67%</option>
+                    <option [ngValue]="12">100%</option>
+                  </select>
+                </div>
+                <div class="oerp-fb-device-layout-item">
+                  <div class="oerp-fb-device-layout-label"><oerp-icon name="tablet" [size]="10"></oerp-icon> {{ i18n.previewTablet }}</div>
+                  <select [ngModel]="field.layout?.colSpanTablet ?? 12" (ngModelChange)="updateFieldProperty('layout', { ...field.layout, colSpanTablet: +$event })" class="oerp-fb-prop-select-sm">
+                    <option [ngValue]="6">50%</option><option [ngValue]="12">100%</option>
+                  </select>
+                </div>
+                <div class="oerp-fb-device-layout-item">
+                  <div class="oerp-fb-device-layout-label"><oerp-icon name="smartphone" [size]="10"></oerp-icon> {{ i18n.previewMobile }}</div>
+                  <select [ngModel]="field.layout?.colSpanMobile ?? 12" (ngModelChange)="updateFieldProperty('layout', { ...field.layout, colSpanMobile: +$event })" class="oerp-fb-prop-select-sm">
+                    <option [ngValue]="12">100%</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- ─ DATA TAB (SELECT) ─ -->
+          @if (activePropTab() === 'data' && field.type === 'SELECT') {
+            <div class="oerp-fb-prop-group">
+              <label class="oerp-fb-prop-label">{{ i18n.propsFieldOptionsTitle }}</label>
+              @for (opt of field.options; track $index; let oi = $index) {
+                <div class="oerp-fb-option-row">
+                  <input type="text" [value]="opt.label" (input)="updateOption(oi, 'label', $any($event.target).value)" class="oerp-fb-prop-input oerp-fb-prop-input-sm" [placeholder]="i18n.placeholders.optionLabel" />
+                  <input type="text" [value]="opt.value?.toString()" (input)="updateOption(oi, 'value', $any($event.target).value)" class="oerp-fb-prop-input oerp-fb-prop-input-sm oerp-fb-prop-mono" [placeholder]="i18n.placeholders.optionValue" />
+                  <button (click)="removeOption(oi)" class="oerp-fb-btn-icon-sm oerp-fb-btn-danger"><oerp-icon name="x" [size]="10"></oerp-icon></button>
+                </div>
+              }
+              <button (click)="addOption()" class="oerp-fb-btn-add-tab"><oerp-icon name="plus" [size]="12"></oerp-icon> {{ i18n.labels.addOption }}</button>
+            </div>
+          }
+
+          <!-- ─ GRID TAB ─ -->
+          @if (activePropTab() === 'grid' && field.type === 'GRID') {
+            <div class="oerp-fb-prop-group">
+              <label class="oerp-fb-prop-label">{{ i18n.propsFieldGridColsTitle }}</label>
+              @for (col of field.columns; track $index; let gi = $index) {
+                <div class="oerp-fb-grid-col-row">
+                  <input type="text" [value]="col.label" (input)="updateGridColumn(gi, 'label', $any($event.target).value)" class="oerp-fb-prop-input oerp-fb-prop-input-sm" [placeholder]="i18n.placeholders.gridColHeader" />
+                  <select [ngModel]="col.type" (ngModelChange)="updateGridColumn(gi, 'type', $event)" class="oerp-fb-prop-select-sm">
+                    <option value="TEXT">Text</option>
+                    <option value="NUMBER">Number</option>
+                    <option value="DATE">Date</option>
+                    <option value="SELECT">Select</option>
+                  </select>
+                  <button (click)="removeGridColumn(gi)" class="oerp-fb-btn-icon-sm oerp-fb-btn-danger"><oerp-icon name="x" [size]="10"></oerp-icon></button>
+                </div>
+              }
+              <button (click)="addGridColumn()" class="oerp-fb-btn-add-tab"><oerp-icon name="plus" [size]="12"></oerp-icon> {{ i18n.labels.addColumn }}</button>
+            </div>
+          }
+
+          <!-- ─ RULES TAB ─ -->
+          @if (activePropTab() === 'rules') {
+            <div class="oerp-fb-prop-group">
+              <label class="oerp-fb-prop-label">{{ i18n.propsFieldRulesTitle }}</label>
+              @for (rule of field.conditionalRules; track $index; let ri = $index) {
+                <div class="oerp-fb-rule-card">
+                  <div class="oerp-fb-rule-row">
+                    <span class="oerp-fb-rule-label">{{ i18n.labels.if }}</span>
+                    <input type="text" [value]="rule.when.field" (input)="updateConditionalWhen(ri, 'field', $any($event.target).value)" class="oerp-fb-prop-input oerp-fb-prop-input-sm oerp-fb-prop-mono" [placeholder]="i18n.placeholders.conditionalField" />
+                    <select [ngModel]="rule.when.operator" (ngModelChange)="updateConditionalWhen(ri, 'operator', $event)" class="oerp-fb-prop-select-sm">
+                      @for (op of operators; track op.value) {
+                        <option [value]="op.value">{{ op.label }}</option>
+                      }
+                    </select>
+                    <input type="text" [value]="rule.when.value" (input)="updateConditionalWhen(ri, 'value', $any($event.target).value)" class="oerp-fb-prop-input oerp-fb-prop-input-sm" [placeholder]="i18n.labels.value" />
+                  </div>
+                  <div class="oerp-fb-rule-row">
+                    <span class="oerp-fb-rule-label">{{ i18n.labels.then }}</span>
+                    <select [ngModel]="rule.then.action" (ngModelChange)="updateConditionalThen(ri, 'action', $event)" class="oerp-fb-prop-select-sm">
+                      @for (a of actions; track a.value) {
+                        <option [value]="a.value">{{ a.label }}</option>
+                      }
+                    </select>
+                    <input type="text" [value]="rule.then.target" (input)="updateConditionalThen(ri, 'target', $any($event.target).value)" class="oerp-fb-prop-input oerp-fb-prop-input-sm oerp-fb-prop-mono" [placeholder]="i18n.placeholders.conditionalTarget" />
+                    <button (click)="removeConditionalRule(ri)" class="oerp-fb-btn-icon-sm oerp-fb-btn-danger" [title]="i18n.tooltips.deleteField"><oerp-icon name="trash-2" [size]="10"></oerp-icon></button>
+                  </div>
+                </div>
+              }
+              <button (click)="addConditionalRule()" class="oerp-fb-btn-add-tab"><oerp-icon name="plus" [size]="12"></oerp-icon> {{ i18n.labels.addRule }}</button>
+            </div>
+          }
+        </div>
+      }
+    </aside>
+  </div>
+</div>

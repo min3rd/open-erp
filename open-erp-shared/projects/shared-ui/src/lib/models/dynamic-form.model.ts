@@ -184,4 +184,5 @@ export interface FormSchema {
   fields: FormField[];
   layout?: FormLayout;
   submitEndpoint?: string;
+  meta?: any;
 }

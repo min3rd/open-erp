@@ -25,6 +25,7 @@ import { FormNumberComponent } from '../form-number/form-number.component';
 import { FormDateComponent } from '../form-date/form-date.component';
 import { FormFileComponent } from '../form-file/form-file.component';
 import { FormFieldWrapperComponent } from '../form-field-wrapper/form-field-wrapper.component';
+import { IconComponent } from '../icon/icon.component';
 
 /**
  * oerp-form-renderer
@@ -62,6 +63,7 @@ import { FormFieldWrapperComponent } from '../form-field-wrapper/form-field-wrap
     FormNumberComponent,
     FormDateComponent,
     FormFileComponent,
+    IconComponent,
   ],
   templateUrl: './form-renderer.component.html',
 })
@@ -81,13 +83,104 @@ export class FormRendererComponent implements OnInit, OnDestroy {
   /** Emit khi user submit (nếu dùng built-in submit button) */
   formSubmit = output<Record<string, unknown>>();
 
-  formGroup!: FormGroup;
+  formGroup: FormGroup = new FormGroup({});
   readonly FieldType = FieldType;
+
+  activeTabs: Record<string, string> = {};
+
+  get meta() {
+    return this.schema().meta || {};
+  }
+
+  get panels(): any[] {
+    return this.meta.panels || [];
+  }
+
+  get rootItems(): any[] {
+    if (this.meta.rootItems) {
+      return this.meta.rootItems;
+    }
+    const items: any[] = [];
+    const rootPanels = this.meta.rootPanelOrder || [];
+    const topFields = this.meta.topLevelFieldOrder || [];
+    rootPanels.forEach((id: string) => items.push({ kind: 'panel', id }));
+    topFields.forEach((id: string) => items.push({ kind: 'field', id }));
+    return items;
+  }
+
+  hasPanelLayout(): boolean {
+    return this.panels.length > 0 && this.rootItems.length > 0;
+  }
+
+  getPanelById(id: string): any {
+    return this.panels.find(p => p.id === id);
+  }
+
+  getFieldById(id: string): FormField | undefined {
+    const f = this.schema().fields.find(x => x.id === id);
+    if (f && f.type) {
+      f.type = f.type.toUpperCase() as FieldType;
+    }
+    return f;
+  }
+
+  getPanelCols(panel: any): number {
+    const mode = this.previewMode() || 'desktop';
+    if (mode === 'mobile') return 1;
+    return 12; // Always use 12-column layout grid on desktop and tablet
+  }
+
+  getPanelColSpan(panel: any): number {
+    const mode = this.previewMode() || 'desktop';
+    const layout = panel.layout;
+    if (!layout) return 12;
+    if (mode === 'mobile') return 12;
+    if (mode === 'tablet') return layout.tablet?.colSpan ?? 12;
+    return layout.desktop?.colSpan ?? 12;
+  }
+
+  getColumnSpan(col: any, panel: any): number {
+    const mode = this.previewMode() || 'desktop';
+    if (mode === 'mobile') return 1;
+    return col.colSpan || 12;
+  }
+
+  getActiveColumns(panel: any): any[] {
+    if (panel.type === 'tab' && panel.tabs) {
+      const activeTabId = this.getActiveTabId(panel);
+      const active = panel.tabs.find((t: any) => t.id === activeTabId) ?? panel.tabs[0];
+      return active?.columns ?? [];
+    }
+    return panel.columns || [];
+  }
+
+  getPanelGridStyle(panel: any): Record<string, string> {
+    const cols = this.getActiveColumns(panel);
+    if (!cols.length) return {};
+    return { 'grid-template-columns': cols.map(c => `${c.colSpan}fr`).join(' ') };
+  }
+
+  setActiveTab(panelId: string, tabId: string): void {
+    this.activeTabs[panelId] = tabId;
+  }
+
+  getActiveTabId(panel: any): string {
+    if (!panel.tabs || panel.tabs.length === 0) return '';
+    if (!this.activeTabs[panel.id]) {
+      this.activeTabs[panel.id] = panel.activeTabId || panel.tabs[0].id;
+    }
+    return this.activeTabs[panel.id];
+  }
 
   private conditionSub?: Subscription;
   private changeSub?: Subscription;
 
   ngOnInit(): void {
+    // Normalize field types to uppercase
+    (this.schema().fields || []).forEach(f => {
+      if (f.type) f.type = f.type.toUpperCase() as FieldType;
+    });
+
     const external = this.externalFormGroup();
     if (external) {
       this.formGroup = external;
@@ -117,7 +210,7 @@ export class FormRendererComponent implements OnInit, OnDestroy {
 
   /** Lấy FormControl theo tên field */
   getControl(fieldName: string): FormControl {
-    return this.formGroup.get(fieldName) as FormControl;
+    return (this.formGroup?.get(fieldName) as FormControl) || new FormControl();
   }
 
   /** Kiểm tra field có bị ẩn (disabled bởi conditional rule) không */

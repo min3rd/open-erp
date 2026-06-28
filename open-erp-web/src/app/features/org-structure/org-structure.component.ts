@@ -439,14 +439,14 @@ export class OrgStructureComponent implements OnInit {
     this.http.post<any>('/api/v1/org/departments/seed', { industry }).subscribe({
       next: (res) => {
         if (res.success) {
-          this.toastService.showSuccess(this.translocoService.translate('org.department_created'));
+          this.toastService.showSuccess(this.translocoService.translate('org.department_created') as string);
           this.industryControl.reset('');
           this.loadData();
         }
       },
       error: (err) => {
         const errorKey = err.error?.error?.messageKey || 'validation.error_occurred';
-        this.toastService.showError(this.translocoService.translate(errorKey));
+        this.toastService.showError(this.translocoService.translate(errorKey) as string);
       }
     });
   }
@@ -476,7 +476,7 @@ export class OrgStructureComponent implements OnInit {
     this.http.post<any>('/api/v1/org/users/invite', cleanedBody).subscribe({
       next: (res) => {
         if (res.success) {
-          this.toastService.showSuccess(this.translocoService.translate('org.invite_sent_success'));
+          this.toastService.showSuccess(this.translocoService.translate('org.invite_sent_success') as string);
           this.isInviteModalOpen.set(false);
           const current = this.selectedNode();
           if (current && current.type === 'department' && current.data.id === cleanedBody.departmentId) {
@@ -486,7 +486,7 @@ export class OrgStructureComponent implements OnInit {
       },
       error: (err) => {
         const errorKey = err.error?.error?.messageKey || 'validation.error_occurred';
-        this.toastService.showError(this.translocoService.translate(errorKey));
+        this.toastService.showError(this.translocoService.translate(errorKey) as string);
       }
     });
   }

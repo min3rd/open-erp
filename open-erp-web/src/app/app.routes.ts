@@ -7,6 +7,13 @@ import { permissionGuard } from './core/guards/permission.guard';
 export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   {
+    path: 'admin/form-builder',
+    loadComponent: () =>
+      import('./features/dynamic-form-builder/dynamic-form-builder.component').then(
+        (m) => m.DynamicFormBuilderComponent
+      ),
+  },
+  {
     path: 'register/user',
     loadComponent: () =>
       import('./features/auth/register-user/register-user.component').then(

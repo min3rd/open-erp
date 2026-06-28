@@ -7,148 +7,247 @@
     </h2>
   }
 
-  <!-- Fields Grid -->
-  <div class="grid grid-cols-12 gap-x-4 gap-y-5">
-
-    @for (field of schema().fields; track field.id) {
-
-      <!-- Bỏ qua field bị ẩn hoàn toàn (disabled & không phải readOnly) -->
-      @if (isFieldVisible(field) || field.type === FieldType.GRID) {
-
-        <div [class]="getColSpanClass(field)">
-
-          <!-- TEXT -->
-          @if (field.type === FieldType.TEXT) {
-            <oerp-form-field-wrapper
-              [label]="field.label"
-              [required]="!!field.required"
-              [helperText]="field.helperText ?? ''"
-              [hasError]="getControl(field.name)?.invalid && (getControl(field.name)?.dirty || getControl(field.name)?.touched)"
-              [errorMessage]="getErrorMessage(field)">
-              <oerp-input
-                [control]="getControl(field.name)"
-                [placeholder]="field.placeholder ?? ''"
-              />
-            </oerp-form-field-wrapper>
-          }
-
-          <!-- TEXTAREA -->
-          @if (field.type === FieldType.TEXTAREA) {
-            <oerp-form-field-wrapper
-              [label]="field.label"
-              [required]="!!field.required"
-              [helperText]="field.helperText ?? ''"
-              [hasError]="getControl(field.name)?.invalid && (getControl(field.name)?.dirty || getControl(field.name)?.touched)"
-              [errorMessage]="getErrorMessage(field)">
-              <oerp-textarea
-                [control]="getControl(field.name)"
-                [placeholder]="field.placeholder ?? ''"
-              />
-            </oerp-form-field-wrapper>
-          }
-
-          <!-- NUMBER -->
-          @if (field.type === FieldType.NUMBER) {
-            <oerp-form-number
-              [label]="field.label"
-              [control]="getControl(field.name)"
-              [placeholder]="field.placeholder ?? ''"
-              [unit]="field.unit"
-              [errorMessage]="getErrorMessage(field)"
-            />
-          }
-
-          <!-- DATE / DATE_RANGE -->
-          @if (field.type === FieldType.DATE || field.type === FieldType.DATE_RANGE) {
-            <oerp-form-date
-              [label]="field.label"
-              [control]="getControl(field.name)"
-              [mode]="field.type === FieldType.DATE_RANGE ? 'datetime-local' : 'date'"
-              [errorMessage]="getErrorMessage(field)"
-            />
-          }
-
-          <!-- SELECT -->
-          @if (field.type === FieldType.SELECT) {
-            <oerp-form-field-wrapper
-              [label]="field.label"
-              [required]="!!field.required"
-              [helperText]="field.helperText ?? ''"
-              [hasError]="getControl(field.name)?.invalid && (getControl(field.name)?.dirty || getControl(field.name)?.touched)"
-              [errorMessage]="getErrorMessage(field)">
-              <oerp-select
-                [control]="getControl(field.name)"
-                [options]="field.options ?? []"
-                [placeholder]="field.placeholder ?? 'Chọn...'"
-              />
-            </oerp-form-field-wrapper>
-          }
-
-          <!-- CHECKBOX -->
-          @if (field.type === FieldType.CHECKBOX) {
-            <div class="flex items-center gap-2 pt-1">
-              <oerp-checkbox
-                [label]="field.label"
-                [checked]="!!getControl(field.name)?.value"
-                [disabled]="!!field.disabled || readOnly()"
-                (checkedChange)="getControl(field.name).setValue($event); getControl(field.name).markAsDirty()"
-              />
+  <!-- ── 1. RENDER THEO PANEL LAYOUT ENGINE (Nếu có panel config) ── -->
+  @if (hasPanelLayout()) {
+    <div class="grid grid-cols-12 gap-x-4 gap-y-5">
+      @for (item of rootItems; track item.id) {
+        @if (item.kind === 'field') {
+          @if (getFieldById(item.id); as field) {
+            <div [class]="getColSpanClass(field)">
+              <ng-container *ngTemplateOutlet="renderField; context: { field: field }"></ng-container>
             </div>
           }
-
-          <!-- RADIO -->
-          @if (field.type === FieldType.RADIO) {
-            <oerp-form-field-wrapper
-              [label]="field.label"
-              [required]="!!field.required"
-              [hasError]="getControl(field.name)?.invalid && (getControl(field.name)?.dirty || getControl(field.name)?.touched)"
-              [errorMessage]="getErrorMessage(field)">
-              <oerp-radio
-                [name]="field.name"
-                [options]="field.options ?? []"
-                [control]="getControl(field.name)"
-              />
-            </oerp-form-field-wrapper>
-          }
-
-          <!-- TOGGLE -->
-          @if (field.type === FieldType.TOGGLE) {
-            <div class="flex items-center gap-2 pt-1">
-              <oerp-switch
-                [label]="field.label"
-                [checked]="!!getControl(field.name)?.value"
-                [disabled]="!!field.disabled || readOnly()"
-                (checkedChange)="getControl(field.name).setValue($event); getControl(field.name).markAsDirty()"
-              />
+        }
+        @if (item.kind === 'panel') {
+          @if (getPanelById(item.id); as panel) {
+            <div [style.grid-column]="'span ' + getPanelColSpan(panel)">
+              <ng-container *ngTemplateOutlet="renderPanel; context: { panel: panel, depth: 0 }"></ng-container>
             </div>
           }
+        }
+      }
+    </div>
+  }
 
-          <!-- FILE / IMAGE -->
-          @if (field.type === FieldType.FILE || field.type === FieldType.IMAGE) {
-            <oerp-form-file
-              [label]="field.label"
-              [accept]="field.accept ?? '*'"
-              [multiple]="!!field.multiple"
-              [hasError]="getControl(field.name)?.invalid && (getControl(field.name)?.dirty || getControl(field.name)?.touched)"
-              [errorMessage]="getErrorMessage(field)"
-              (filesSelected)="getControl(field.name).setValue($event); getControl(field.name).markAsDirty()"
-            />
-          }
+  <!-- ── 2. FALLBACK RENDER PHẲNG (Dành cho schemas cũ) ── -->
+  @else {
+    <div class="grid grid-cols-12 gap-x-4 gap-y-5">
+      @for (field of schema().fields; track field.id) {
+        @if (isFieldVisible(field) || field.type === FieldType.GRID) {
+          <div [class]="getColSpanClass(field)">
+            <ng-container *ngTemplateOutlet="renderField; context: { field: field }"></ng-container>
+          </div>
+        }
+      }
+    </div>
+  }
 
-          <!-- GRID — hiển thị thông báo placeholder, sẽ implement ở TSK-2.10 -->
-          @if (field.type === FieldType.GRID) {
-            <div class="rounded-xl border border-dashed border-slate-200 dark:border-slate-700 p-4">
-              <p class="text-sm font-medium text-slate-600 dark:text-slate-400">
-                📊 {{ field.label }}
-              </p>
-            </div>
-          }
-
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- TEMPLATE: Render Panel (Đệ quy)                            -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <ng-template #renderPanel let-panel="panel" let-depth="depth">
+    <div
+      class="renderer-panel-block"
+      [class.renderer-panel-card]="panel.type === 'card'"
+      [class.renderer-panel-nested]="depth > 0"
+      [class.p-5]="panel.type === 'card'"
+      [class.border]="panel.type === 'card'"
+      [class.rounded-xl]="panel.type === 'card'"
+      [class.bg-white]="panel.type === 'card'"
+      [class.dark:bg-slate-800]="panel.type === 'card'"
+      [class.border-slate-200]="panel.type === 'card'"
+      [class.dark:border-slate-700]="panel.type === 'card'"
+      [class.shadow-sm]="panel.type === 'card'"
+      [class.mb-4]="true"
+    >
+      <!-- Panel Header (Chỉ hiện tên phân khu khi type = card hoặc default có tên) -->
+      @if (panel.name && (panel.type === 'card' || (panel.type === 'default' && depth === 0))) {
+        <div class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3 flex items-center gap-2">
+          <oerp-icon [name]="panel.type === 'tab' ? 'book-open' : 'layout'" [size]="14" class="text-slate-400"></oerp-icon>
+          <span>{{ panel.name }}</span>
         </div>
       }
+
+      <!-- Tab Panel: Tab Headers -->
+      @if (panel.type === 'tab' && panel.tabs) {
+        <div class="flex items-center gap-1 border-b border-slate-200 dark:border-slate-700 mb-4 overflow-x-auto">
+          @for (tab of panel.tabs; track tab.id) {
+            <button
+              type="button"
+              class="flex items-center gap-2 px-4 py-2 text-sm font-semibold border-b-2 transition-all"
+              [class.border-rose-gold-500]="tab.id === getActiveTabId(panel)"
+              [class.text-rose-gold-600]="tab.id === getActiveTabId(panel)"
+              [class.border-transparent]="tab.id !== getActiveTabId(panel)"
+              [class.text-slate-500]="tab.id !== getActiveTabId(panel)"
+              [class.hover:text-slate-700]="tab.id !== getActiveTabId(panel)"
+              (click)="setActiveTab(panel.id, tab.id)"
+            >
+              <oerp-icon [name]="tab.icon || 'file-text'" [size]="12"></oerp-icon>
+              {{ tab.label }}
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Panel Columns Grid -->
+      <div class="grid gap-4" [ngStyle]="{'grid-template-columns': 'repeat(' + getPanelCols(panel) + ', minmax(0, 1fr))'}">
+        @for (col of getActiveColumns(panel); track col.id) {
+          <div [ngStyle]="{'grid-column': 'span ' + getColumnSpan(col, panel)}">
+            <div class="flex flex-col gap-4">
+              @for (item of col.items; track item.id) {
+                <!-- Field Item -->
+                @if (item.kind === 'field') {
+                  @if (getFieldById(item.id); as field) {
+                    @if (isFieldVisible(field) || field.type === FieldType.GRID) {
+                      <ng-container *ngTemplateOutlet="renderField; context: { field: field }"></ng-container>
+                    }
+                  }
+                }
+
+                <!-- Nested Panel -->
+                @if (item.kind === 'panel' && depth < 2) {
+                  @if (getPanelById(item.id); as nestedPanel) {
+                    <ng-container *ngTemplateOutlet="renderPanel; context: { panel: nestedPanel, depth: depth + 1 }"></ng-container>
+                  }
+                }
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- TEMPLATE: Render Single Field                             -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <ng-template #renderField let-field="field">
+    <!-- TEXT -->
+    @if (field.type === FieldType.TEXT) {
+      <oerp-form-field-wrapper
+        [label]="field.label"
+        [required]="!!field.required"
+        [helperText]="field.helperText ?? ''"
+        [hasError]="getControl(field.name)?.invalid && (getControl(field.name)?.dirty || getControl(field.name)?.touched)"
+        [errorMessage]="getErrorMessage(field)">
+        <oerp-input
+          [control]="getControl(field.name)"
+          [placeholder]="field.placeholder ?? ''"
+        />
+      </oerp-form-field-wrapper>
     }
 
-  </div>
-  <!-- End fields grid -->
+    <!-- TEXTAREA -->
+    @if (field.type === FieldType.TEXTAREA) {
+      <oerp-form-field-wrapper
+        [label]="field.label"
+        [required]="!!field.required"
+        [helperText]="field.helperText ?? ''"
+        [hasError]="getControl(field.name)?.invalid && (getControl(field.name)?.dirty || getControl(field.name)?.touched)"
+        [errorMessage]="getErrorMessage(field)">
+        <oerp-textarea
+          [control]="getControl(field.name)"
+          [placeholder]="field.placeholder ?? ''"
+        />
+      </oerp-form-field-wrapper>
+    }
+
+    <!-- NUMBER -->
+    @if (field.type === FieldType.NUMBER) {
+      <oerp-form-number
+        [label]="field.label"
+        [control]="getControl(field.name)"
+        [placeholder]="field.placeholder ?? ''"
+        [unit]="field.unit"
+        [errorMessage]="getErrorMessage(field)"
+      />
+    }
+
+    <!-- DATE / DATE_RANGE -->
+    @if (field.type === FieldType.DATE || field.type === FieldType.DATE_RANGE) {
+      <oerp-form-date
+        [label]="field.label"
+        [control]="getControl(field.name)"
+        [mode]="field.type === FieldType.DATE_RANGE ? 'datetime-local' : 'date'"
+        [errorMessage]="getErrorMessage(field)"
+      />
+    }
+
+    <!-- SELECT -->
+    @if (field.type === FieldType.SELECT) {
+      <oerp-form-field-wrapper
+        [label]="field.label"
+        [required]="!!field.required"
+        [helperText]="field.helperText ?? ''"
+        [hasError]="getControl(field.name)?.invalid && (getControl(field.name)?.dirty || getControl(field.name)?.touched)"
+        [errorMessage]="getErrorMessage(field)">
+        <oerp-select
+          [control]="getControl(field.name)"
+          [options]="field.options ?? []"
+          [placeholder]="field.placeholder ?? 'Chọn...'"
+        />
+      </oerp-form-field-wrapper>
+    }
+
+    <!-- CHECKBOX -->
+    @if (field.type === FieldType.CHECKBOX) {
+      <div class="flex items-center gap-2 pt-1">
+        <oerp-checkbox
+          [label]="field.label"
+          [checked]="!!getControl(field.name)?.value"
+          [disabled]="!!field.disabled || readOnly()"
+          (checkedChange)="getControl(field.name).setValue($event); getControl(field.name).markAsDirty()"
+        />
+      </div>
+    }
+
+    <!-- RADIO -->
+    @if (field.type === FieldType.RADIO) {
+      <oerp-form-field-wrapper
+        [label]="field.label"
+        [required]="!!field.required"
+        [hasError]="getControl(field.name)?.invalid && (getControl(field.name)?.dirty || getControl(field.name)?.touched)"
+        [errorMessage]="getErrorMessage(field)">
+        <oerp-radio
+          [name]="field.name"
+          [options]="field.options ?? []"
+          [control]="getControl(field.name)"
+        />
+      </oerp-form-field-wrapper>
+    }
+
+    <!-- TOGGLE -->
+    @if (field.type === FieldType.TOGGLE) {
+      <div class="flex items-center gap-2 pt-1">
+        <oerp-switch
+          [label]="field.label"
+          [checked]="!!getControl(field.name)?.value"
+          [disabled]="!!field.disabled || readOnly()"
+          (checkedChange)="getControl(field.name).setValue($event); getControl(field.name).markAsDirty()"
+        />
+      </div>
+    }
+
+    <!-- FILE / IMAGE -->
+    @if (field.type === FieldType.FILE || field.type === FieldType.IMAGE) {
+      <oerp-form-file
+        [label]="field.label"
+        [accept]="field.accept ?? '*'"
+        [multiple]="!!field.multiple"
+        [hasError]="getControl(field.name)?.invalid && (getControl(field.name)?.dirty || getControl(field.name)?.touched)"
+        [errorMessage]="getErrorMessage(field)"
+        (filesSelected)="getControl(field.name).setValue($event); getControl(field.name).markAsDirty()"
+      />
+    }
+
+    <!-- GRID -->
+    @if (field.type === FieldType.GRID) {
+      <div class="rounded-xl border border-dashed border-slate-200 dark:border-slate-700 p-4">
+        <p class="text-sm font-medium text-slate-600 dark:text-slate-400">
+          📊 {{ field.label }}
+        </p>
+      </div>
+    }
+  </ng-template>
 
 </form>

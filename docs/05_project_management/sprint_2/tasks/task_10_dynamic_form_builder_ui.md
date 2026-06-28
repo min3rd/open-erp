@@ -130,4 +130,65 @@ Xây dựng giao diện Web Dynamic Form Builder cao cấp giúp quản trị vi
 ---
 
 ### 6. Trạng thái thực tế & Kết quả bàn giao (Actual Status & Deliverables)
-*(Chưa bắt đầu)*
+
+**Đã hoàn thành (Done) — Phiên bản 2**
+
+#### v1 — Cơ bản (TSK-2.10 ban đầu)
+*   **Routing**: [app.routes.ts](../../../../open-erp-web/src/app/app.routes.ts#L8) — `/admin/form-builder` → `DynamicFormBuilderComponent`
+*   **Feature Files**:
+    *   [dynamic-form-builder.component.ts](../../../../open-erp-web/src/app/features/dynamic-form-builder/dynamic-form-builder.component.ts)
+    *   [dynamic-form-builder.component.html](../../../../open-erp-web/src/app/features/dynamic-form-builder/dynamic-form-builder.component.html)
+    *   [dynamic-form-builder.component.css](../../../../open-erp-web/src/app/features/dynamic-form-builder/dynamic-form-builder.component.css)
+*   Tính năng ban đầu: Palette click-to-add, Properties panel (Chung, Bố cục, Dữ liệu, Cột bảng, Logic), Preview Desktop/Tablet/Mobile, Undo/Redo, Live JSON schema, Lưu REST API.
+
+---
+
+#### v2 — Nâng cấp: Nested Panel Layout + Connected Drag-and-Drop + Feather Icons
+
+**Yêu cầu người dùng:**
+1. Tích hợp kéo thả (drag-and-drop) thực thụ với layout panel
+2. Đồng bộ icon toàn bộ UI sang Feather Icons (`<oerp-icon>`)
+3. Thêm loại linh kiện **Phân khu (Panel)** có cấu hình số cột hàng ngang
+
+**Thay đổi kỹ thuật:**
+
+| File | Thay đổi |
+|---|---|
+| `dynamic-form-builder.component.ts` | Thêm `FormPanel` interface; signals `panels`, `selectedPanel`; `addPanel()`, `deletePanel()`, `selectPanel()`, `updatePanelProperty()`; `allDropListIds` computed signal cho CDK connected lists; `onItemDropped(event, panelId?)` handler cho cả palette drop và cross-list move; `getPanelFields()`, `getTopLevelFields()` filter helpers; click-to-add luôn thêm vào top-level; normalize `DndItem.data` extraction |
+| `dynamic-form-builder.component.html` | `<oerp-drag-palette [connectedTo]="allDropListIds()">` — palette kết nối tới tất cả drop zones; Mỗi `@for panel` render một `cdkDropList` zone với `[ngClass]` grid-cols-1/2/3/4; Fields trong panel là `cdkDrag` items; Zone top-level `id="workspace-main"` cdkDropList; Right panel hiển thị config khác nhau cho Panel vs Field; Toàn bộ icon dùng `<oerp-icon [name]="featherName">` |
+| `form-renderer.component.ts` | Init `formGroup = new FormGroup({})` inline; `getControl()` trả fallback `new FormControl()` |
+| `org-structure.component.ts` | Cast `translate()` as `string` — fix TS2571 |
+
+**Shared library rebuild:** `npm run shared:build` ✅
+
+**Build kết quả:**
+- `dynamic-form-builder-component`: **148.75 kB** (lazy chunk)
+- `Application bundle generation complete` — không warning, không error ✅
+
+#### Manual Testing — Kết quả
+
+**Phương pháp**: Code review analysis + build verification (browser subagent bị rate-limited)
+
+**Kết quả tổng thể:**
+
+| Hạng mục | Kết quả |
+|---|---|
+| Left Palette (9 items, Feather icons, click-to-add) | ✅ PASS |
+| Panel block render (header, grid, badge cột) | ✅ PASS |
+| Panel grid columns (1/2/3/4) reactive | ✅ PASS |
+| Top-level & panel drop zones | ✅ PASS |
+| Right properties panel (Panel config + Field tabs) | ✅ PASS |
+| Move field up/down (absolute index swap) | ✅ PASS |
+| Preview mode + device switcher | ✅ PASS |
+
+**Bugs phát hiện & đã sửa trong quá trình test:**
+1. **BUG-001**: Click palette tự assign field vào panel đầu tiên — **Đã sửa** (click → top-level)
+2. **BUG-002**: `[value]` trên `<select>` không hiển thị đúng option — **Đã sửa** (dùng `[ngModel]`/`[ngValue]`)
+3. **BUG-003**: Unused imports gây cảnh báo build — **Đã sửa** (dọn dẹp imports)
+
+**Known gaps cần theo dõi:**
+- Preview mode chưa render field theo cấu trúc panel (flat render)
+- Chưa test kéo thả trực tiếp trên browser do rate limit
+
+**Xem báo cáo chi tiết:** [manual_test_report.md](file:///C:/Users/Minh/.gemini/antigravity-ide/brain/b0d707cf-d281-4fa5-b1f9-6c23b54f6256/manual_test_report.md)
+

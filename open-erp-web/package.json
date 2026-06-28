@@ -30,6 +30,7 @@
     "@tailwindcss/postcss": "^4.1.12",
     "jsdom": "^29.1.1",
     "postcss": "^8.5.3",
+    "puppeteer": "^25.2.1",
     "tailwindcss": "^4.1.12",
     "vitest": "^4.1.9"
   }
