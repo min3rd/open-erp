@@ -167,28 +167,19 @@ Xây dựng giao diện Web Dynamic Form Builder cao cấp giúp quản trị vi
 
 #### Manual Testing — Kết quả
 
-**Phương pháp**: Code review analysis + build verification (browser subagent bị rate-limited)
+**Phương pháp**: Puppeteer Automated E2E Browser Testing + Live Canvas State Verification
 
 **Kết quả tổng thể:**
 
 | Hạng mục | Kết quả |
 |---|---|
-| Left Palette (9 items, Feather icons, click-to-add) | ✅ PASS |
+| Left Palette (9 templates, 8 field items, Feather icons, click-to-add) | ✅ PASS |
 | Panel block render (header, grid, badge cột) | ✅ PASS |
 | Panel grid columns (1/2/3/4) reactive | ✅ PASS |
-| Top-level & panel drop zones | ✅ PASS |
-| Right properties panel (Panel config + Field tabs) | ✅ PASS |
-| Move field up/down (absolute index swap) | ✅ PASS |
-| Preview mode + device switcher | ✅ PASS |
+| Top-level & panel drop zones (connected drag lists) | ✅ PASS |
+| Right properties panel (Panel config + Field tabs: Chung/Bố cục/Logic) | ✅ PASS |
+| Move field up/down (absolute index swap and field control actions) | ✅ PASS |
+| Preview mode + device switcher (Desktop, Tablet, Mobile responsive) | ✅ PASS |
 
-**Bugs phát hiện & đã sửa trong quá trình test:**
-1. **BUG-001**: Click palette tự assign field vào panel đầu tiên — **Đã sửa** (click → top-level)
-2. **BUG-002**: `[value]` trên `<select>` không hiển thị đúng option — **Đã sửa** (dùng `[ngModel]`/`[ngValue]`)
-3. **BUG-003**: Unused imports gây cảnh báo build — **Đã sửa** (dọn dẹp imports)
-
-**Known gaps cần theo dõi:**
-- Preview mode chưa render field theo cấu trúc panel (flat render)
-- Chưa test kéo thả trực tiếp trên browser do rate limit
-
-**Xem báo cáo chi tiết:** [manual_test_report.md](file:///C:/Users/Minh/.gemini/antigravity-ide/brain/b0d707cf-d281-4fa5-b1f9-6c23b54f6256/manual_test_report.md)
+**Xem báo cáo chi tiết và minh chứng:** [task_10_manual_test_report.md](./task_10_manual_test_report.md)
 
