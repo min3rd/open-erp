@@ -35,7 +35,14 @@ graph TD
     CRM --> CRMPipeline[Kanban cơ hội bán hàng & Báo giá]
     
     AppShell --> Approvals[Phân hệ Phê duyệt yêu cầu]
-    Approvals --> AppList[Hộp thư phê duyệt: Nghỉ phép, Thanh toán]
+    Approvals --> AppList[Hộp thư phê duyệt / TSK-2.13]
+    Approvals --> SelfService[Cổng tự phục vụ / TSK-2.14]
+    
+    AppShell --> AdminTools[Phân hệ Quản trị nâng cao - Sprint 2]
+    AdminTools --> FormBuilder[Trình thiết kế Form động / TSK-2.10]
+    AdminTools --> WorkflowDesigner[Trình thiết kế Workflow / TSK-2.16]
+    AdminTools --> TemplateDesigner[Thiết kế mẫu văn bản OnlyOffice / TSK-2.11]
+    AdminTools --> CertManager[Quản lý chứng thư số / TSK-2.12]
 ```
 
 ---
@@ -162,6 +169,80 @@ Tương tự như Kanban công việc nhưng hiển thị thông tin về tiền
 +----------------------+----------------------+----------------------+--------------------+
 ```
 
+#### 2.6 Trình thiết kế Workflow (Workflow Designer — TSK-2.16)
+Route: `/admin/workflow-designer`. Canvas vô hạn (pan/zoom), palette node trái, properties phải.
+
+```text
++----------+-----------------------------------------------------------+----------+
+| NODE     | CANVAS WORKFLOW (Infinite, Grid Snap)                     | CONFIG   |
+| PALETTE  |                                                           | PANEL    |
+|----------|  [Start] --> [Fork] --> [Step: Kho] ----+                 | Tên node |
+| Start    |              |--> [Step: Sale] ---+    |                 | Consensus|
+| Step     |              |--> [Step: CS] ----+     v                 | Assignee |
+| Decision |              +---------> [Join] --> [End]               | Form bind|
+| Fork     | [Auto-layout] [Zoom +/-] [Undo/Redo]                      | Deadline |
+| Join     |                                                           | Actions  |
+| End      |                                                           |          |
++----------+-----------------------------------------------------------+----------+
+```
+**Trạng thái:** Empty canvas hướng dẫn kéo node; Loading skeleton; Error toast khi lưu fail.
+
+#### 2.7 Thiết kế mẫu văn bản OnlyOffice (Template Designer — TSK-2.11)
+Route: `/admin/template-designer`. Split: OnlyOffice iframe trái (70%), mapping panel phải (30%).
+
+```text
++-------------------------------------------+---------------------------+
+| ONLYOFFICE DOCUMENT EDITOR (iframe)       | MAPPING PANEL             |
+| [Toolbar OnlyOffice]                      | Placeholder: {{field}}    |
+|                                           | Transform: date/currency  |
+|   (DOCX template preview/edit)            | [+ Thêm mapping]          |
+|                                           | [ Lưu template ]          |
++-------------------------------------------+---------------------------+
+```
+
+#### 2.8 Quản lý chứng thư số (Cert Manager — TSK-2.12)
+Route: `/settings/certificates`. Card layout danh sách cert + modal cấp mới.
+
+```text
++-------------------------------------------------------------------------+
+| CHỨNG THƯ SỐ CỦA TÔI                              [ Yêu cầu cấp mới ]   |
++-------------------------------------------------------------------------+
+| [Card] CN=Nguyễn Văn A | Hết hạn: 2027-06-01 | [Ký thử] [Chi tiết]   |
+| [Card] (Empty) Chưa có chứng thư — bấm Yêu cầu cấp mới                  |
++-------------------------------------------------------------------------+
+```
+
+#### 2.9 Hộp thư phê duyệt thông minh (Smart Approval Inbox — TSK-2.13)
+Route: `/approvals/inbox`. Master-detail: danh sách trái, chi tiết phải.
+
+```text
++---------------+---------------------------------------------------------+
+| INBOX (240px) | CHI TIẾT ĐƠN                                            |
+| [Chờ duyệt]   | Form động render | OnlyOffice doc | Timeline hash-chain |
+| [Đã gửi]      | [Consult] [Reject] [Approve + Ký số]  Deadline: 2 ngày  |
+| - Đơn #1024   |                                                         |
+| - Đơn #1023   |                                                         |
++---------------+---------------------------------------------------------+
+```
+
+#### 2.10 Cổng tự phục vụ Mobile (Self-service — TSK-2.14)
+Route Ionic tabs: `/self-service`, `/approvals`. Accordion loại đơn + form full-screen.
+
+```text
++---------------------------+
+| [<-] Gửi đơn nghỉ phép    |
++---------------------------+
+| (Form Renderer - mobile)  |
+| Ngày bắt đầu: [____]      |
+| Ngày kết thúc: [____]     |
+| Lý do: [____________]     |
+|                           |
+| [      Gửi đơn       ]    |  <- Rose Gold primary
++---------------------------+
+| INBOX: Swipe Approve/Reject cards (Ionic)                               |
++---------------------------------------------------------------------------+
+```
+
 ---
 
 ### 3. Quy chuẩn Hiển thị Đa chế độ (Light/Dark Mode Rules)
@@ -183,3 +264,5 @@ Tương tự như Kanban công việc nhưng hiển thị thông tin về tiền
 * Đặc tả công việc giao diện (TSK-0.2): [task_02_ux_wireframes.md](./task_02_ux_wireframes.md)
 * Quy chuẩn thiết kế màu sắc và font chữ: [task_04_repository_setup.md](./task_04_repository_setup.md)
 * Đặc tả yêu cầu người dùng (URS): [urs.md](./urs.md)
+* Đặc tả testcase Sprint 2: [tc_02_branching_workflow_api.md](../05_project_management/sprint_2/testcases/tc_02_branching_workflow_api.md), [tc_10_dynamic_form_builder_ui.md](../05_project_management/sprint_2/testcases/tc_10_dynamic_form_builder_ui.md)
+* Audit code Sprint 2: [SPRINT_2_CODE_AUDIT.md](../05_project_management/sprint_2/SPRINT_2_CODE_AUDIT.md)

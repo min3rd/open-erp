@@ -1,6 +1,14 @@
 # Tài liệu kỹ thuật chi tiết: TSK-2.13 - Hộp thư phê duyệt thông minh (Web)
 ## Phân hệ: Giao diện Người dùng (User Web UI - Sprint 2)
 
+| Trace | ID / Link |
+|-------|-----------|
+| PRD | [prd.md](../../../01_business/prd.md) §4 Core User Journey — Phê duyệt |
+| URS/SRS | [urs.md](../../../02_user_requirements/urs.md) **US-WF-003** |
+| Mockup | [sitemap_and_wireframes.md](../../../02_user_requirements/sitemap_and_wireframes.md) §2.9 |
+| Backlog | **US-003** trong [product_backlog.md](../../../05_project_management/product_backlog.md) |
+| Phụ thuộc | TSK-2.5, TSK-2.7, TSK-2.10, TSK-2.4, TSK-2.9 |
+
 ---
 
 ### 1. Mục tiêu công việc (Objective)

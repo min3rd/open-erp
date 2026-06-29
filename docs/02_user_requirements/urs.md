@@ -176,13 +176,69 @@ Tài liệu này chi tiết hóa các nhu cầu, quy trình nghiệp vụ, danh 
 
 ---
 
-#### 2.11 Phân hệ Quy trình phê duyệt
+#### 2.11 Phân hệ Quy trình phê duyệt (Workflow Engine — Sprint 2)
 
-- **Chức năng chính:**
-  - Thiết lập quy trình phê duyệt động nhiều cấp (duyệt tuần tự hoặc song song).
-  - Cấu hình người duyệt theo vai trò hoặc bộ phận.
-  - Ủy quyền duyệt tạm thời, yêu cầu bổ sung thông tin.
+- **Mục tiêu:** Cung cấp Workflow Engine linh hoạt hỗ trợ cấu hình động, rẽ nhánh, luồng song song (Fork/Join), đồng thuận đa dạng, nhật ký chống giả mạo (hash-chain) và tích hợp Form động / OnlyOffice / Ký số nội bộ.
+- **Luồng nghiệp vụ cốt lõi:**
+  1. Admin thiết kế quy trình trên Workflow Designer (Canvas) → Lưu cấu hình qua API.
+  2. Nhân viên gửi đơn qua Self-service Portal (Form động) → Khởi tạo `workflow_instance`.
+  3. Người duyệt xử lý trên Smart Approval Inbox → Approve/Reject/Consult/Ký số.
+  4. Hệ thống ghi `workflow_logs` hash-chain, gửi thông báo đa kênh, nhắc deadline.
+- **Danh sách màn hình cần có:**
+  - _Workflow Designer (Web Admin):_ Canvas vẽ node Start/Step/Decision/Fork/Join/End, cấu hình consensus, assignee, form binding.
+  - _Smart Approval Inbox (Web):_ Danh sách đơn cần duyệt, chi tiết form động, OnlyOffice preview, timeline log, nút ký số.
+  - _Self-service Portal (Web/Mobile):_ Chọn loại đơn, điền form động, theo dõi trạng thái.
+- **Quy tắc nghiệp vụ (Business Rules):**
+  - Consensus `ALL`: mọi approver phải APPROVE; một REJECT dừng luồng.
+  - Consensus `ANY`: một APPROVE đủ chuyển bước.
+  - Consensus `PERCENTAGE`: đạt ngưỡng % approver APPROVE mới chuyển bước.
+  - Fork/Join: Join chờ đủ nhánh theo `joinRules` trước khi tiếp tục.
+  - `workflow_logs` dùng SHA-256 hash-chain; sửa log phải bị phát hiện qua API verify.
+  - Deadline bước duyệt: quá hạn gửi email + in-app reminder qua BullMQ.
+- **User Stories & Acceptance Criteria:**
+  - **[US-WF-001] Cấu hình quy trình rẽ nhánh:**
+    - _Định dạng:_ Là Tenant Admin, tôi muốn tạo quy trình có Fork/Join và điều kiện rẽ nhánh để xử lý đơn phức tạp.
+    - _AC:_ POST workflow với FORK/JOIN thành công; consensus ALL/ANY/PERCENTAGE hoạt động đúng runtime.
+  - **[US-WF-002] Thiết kế quy trình trên Canvas (Workflow Designer):**
+    - _AC:_ Kéo thả node, nối edge, auto-layout; lưu/load workflow qua API; Rose Gold + Dark/Light + i18n.
+  - **[US-WF-003] Hộp thư phê duyệt thông minh:**
+    - _AC:_ Hiển thị form động, timeline log verify PASS, OnlyOffice embed, deadline badge, Approve/Reject/Consult.
+  - **[US-WF-004] Khởi chạy và xử lý instance:**
+    - _AC:_ POST instance khởi tạo approvers đúng; executeAction APPROVE/REJECT/CONSULT chuyển bước đúng logic.
 - **Đối tượng phê duyệt:** Nghỉ phép, Tạm ứng, Thanh toán, Mua hàng, Báo giá, Hợp đồng, Văn bản, Tuyển dụng, Làm thêm giờ, Công tác.
+
+#### 2.11.1 Phân hệ Biểu mẫu động (Dynamic Form Builder — Sprint 2)
+
+- **Mục tiêu:** Cho phép Admin tự thiết kế form không cần code, versioning schema, validate runtime, hỗ trợ GRID/table và layout responsive.
+- **Danh sách màn hình:**
+  - _Form Builder (Web Admin `/admin/form-builder`):_ Palette trái, canvas giữa, properties phải; Preview Desktop/Tablet/Mobile.
+- **Quy tắc nghiệp vụ:**
+  - Mỗi `formKey` có versioning; chỉ một bản `isLatest=true`.
+  - Restore version cũ tạo version mới, không ghi đè lịch sử.
+  - Validate POST theo schema: required, regex, min/max, GRID row rules.
+- **User Stories & AC:**
+  - **[US-FORM-001] Thiết kế Form động:**
+    - _AC:_ Thêm panel/field, cấu hình thuộc tính 3 tab; Preview render đúng; lưu POST `/dynamic-forms` thành công.
+  - **[US-FORM-002] Quản lý phiên bản form:**
+    - _AC:_ GET versions theo key; restore tạo version mới; validate data trả lỗi field-level khi sai.
+
+#### 2.11.2 Phân hệ Mẫu văn bản & OnlyOffice (Document Template — Sprint 2)
+
+- **Mục tiêu:** Upload template DOCX/PDF, map placeholder từ form data, biên tập online qua OnlyOffice, sinh file khi duyệt.
+- **Danh sách màn hình:**
+  - _Template Designer (Web Admin):_ Iframe OnlyOffice + panel mapping placeholder/transformations.
+- **User Stories & AC:**
+  - **[US-DOC-001] Thiết kế mẫu văn bản:**
+    - _AC:_ Upload template; cấu hình mapping; OnlyOffice config/callback hoạt động; generate PDF/DOCX từ form data.
+
+#### 2.11.3 Phân hệ Chứng thư số nội bộ (Internal CA — Sprint 2)
+
+- **Mục tiêu:** CA nội bộ cấp X.509 cho user/phòng ban; ký và verify payload đơn từ.
+- **Danh sách màn hình:**
+  - _Cert Manager (Web):_ Danh sách cert, yêu cầu cấp mới, ký thử, trạng thái verify.
+- **User Stories & AC:**
+  - **[US-CA-001] Quản lý chứng thư & ký số:**
+    - _AC:_ POST issue cert; GET my certs; sign-instance + verify PASS; UI hiển thị hạn cert và trạng thái chữ ký.
 
 ---
 
@@ -213,12 +269,18 @@ Tài liệu này chi tiết hóa các nhu cầu, quy trình nghiệp vụ, danh 
 
 ---
 
-#### 2.15 Phân hệ Tiện ích nội bộ (Employee Self-Service)
+#### 2.15 Phân hệ Tiện ích nội bộ (Employee Self-Service — Sprint 2 mở rộng)
 
 - **Chức năng chính:**
-  - Cổng portal tự phục vụ của nhân viên: gửi các đơn từ hành chính trực tiếp.
+  - Cổng portal tự phục vụ: gửi đơn qua Form động gắn Workflow (nghỉ phép, tạm ứng, thanh toán).
+  - Phê duyệt nhanh một chạm trên Mobile (Approve/Reject) kèm xác thực sinh trắc học/PIN ký số.
   - Đặt phòng họp (chặn đặt trùng giờ), đăng ký xe công tác.
   - Tra cứu quy định nội bộ, biểu mẫu công ty, xem phiếu lương cá nhân.
+- **Danh sách màn hình (Sprint 2):**
+  - _Self-service Mobile (Ionic):_ Danh sách loại đơn, form renderer, inbox duyệt nhanh, chi tiết đơn + timeline.
+- **User Stories & AC:**
+  - **[US-ESS-001] Gửi đơn & duyệt nhanh trên Mobile:**
+    - _AC:_ Chọn loại đơn → render form động → submit tạo instance; approver swipe Approve/Reject; đồng bộ theme Rose Gold + Dark/Light + Transloco.
 
 ---
 

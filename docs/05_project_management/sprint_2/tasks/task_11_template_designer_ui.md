@@ -1,6 +1,14 @@
 # Tài liệu kỹ thuật chi tiết: TSK-2.11 - Giao diện thiết kế Biểu mẫu động & Liên kết OnlyOffice (Web)
 ## Phân hệ: Giao diện Quản trị (Admin Web UI - Sprint 2)
 
+| Trace | ID / Link |
+|-------|-----------|
+| PRD | [prd.md](../../../01_business/prd.md) §2 Goals — Tính đồng bộ All-in-one |
+| URS/SRS | [urs.md](../../../02_user_requirements/urs.md) **US-DOC-001** |
+| Mockup | [sitemap_and_wireframes.md](../../../02_user_requirements/sitemap_and_wireframes.md) §2.7 |
+| Backlog | **US-003** (Workflow + tài liệu đính kèm) |
+| Phụ thuộc | TSK-2.4 (OnlyOffice API), TSK-2.18 (Form lib) |
+
 ---
 
 ### 1. Mục tiêu công việc (Objective)

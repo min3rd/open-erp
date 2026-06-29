@@ -1,6 +1,14 @@
 # Tài liệu kỹ thuật chi tiết: TSK-2.14 - Giao diện Tự phục vụ & Phê duyệt nhanh nâng cao trên di động
 ## Phân hệ: Giao diện Người dùng Di động (Mobile Client UI - Sprint 2)
 
+| Trace | ID / Link |
+|-------|-----------|
+| PRD | [prd.md](../../../01_business/prd.md) §3 Personas — Chị Vy (Nhân viên văn phòng) |
+| URS/SRS | [urs.md](../../../02_user_requirements/urs.md) **US-ESS-001** |
+| Mockup | [sitemap_and_wireframes.md](../../../02_user_requirements/sitemap_and_wireframes.md) §2.10 |
+| Backlog | **US-003** + [project_principles.md](../../../project_principles.md) §4 Cross-Platform |
+| Phụ thuộc | TSK-2.3, TSK-2.5, TSK-2.10 (Form lib), TSK-2.9 |
+
 ---
 
 ### 1. Mục tiêu công việc (Objective)

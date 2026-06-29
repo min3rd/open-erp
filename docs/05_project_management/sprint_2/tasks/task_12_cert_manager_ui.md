@@ -1,6 +1,14 @@
 # Tài liệu kỹ thuật chi tiết: TSK-2.12 - Giao diện quản lý Chứng thư số & Ký số (Web)
 ## Phân hệ: Giao diện Người dùng (User Web UI - Sprint 2)
 
+| Trace | ID / Link |
+|-------|-----------|
+| PRD | [prd.md](../../../01_business/prd.md) §2 Goals — Bảo mật & tuân thủ |
+| URS/SRS | [urs.md](../../../02_user_requirements/urs.md) **US-CA-001** |
+| Mockup | [sitemap_and_wireframes.md](../../../02_user_requirements/sitemap_and_wireframes.md) §2.8 |
+| Backlog | Epic Quy trình duyệt Sprint 2 |
+| Phụ thuộc | TSK-2.8 (CA API), TSK-2.9 (Signature API) |
+
 ---
 
 ### 1. Mục tiêu công việc (Objective)

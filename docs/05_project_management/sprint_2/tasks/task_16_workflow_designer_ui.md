@@ -1,6 +1,14 @@
 # Tài liệu kỹ thuật chi tiết: TSK-2.16 - Giao diện thiết kế Workflow nâng cao (Web)
 ## Phân hệ: Giao diện Quản trị (Admin Web UI - Sprint 2)
 
+| Trace | ID / Link |
+|-------|-----------|
+| PRD | [prd.md](../../../01_business/prd.md) §4 Core User Journey |
+| URS/SRS | [urs.md](../../../02_user_requirements/urs.md) **US-WF-002** |
+| Mockup | [sitemap_and_wireframes.md](../../../02_user_requirements/sitemap_and_wireframes.md) §2.6 |
+| Backlog | **US-003** trong [product_backlog.md](../../../05_project_management/product_backlog.md) |
+| Phụ thuộc | TSK-2.2 (API), TSK-2.19 (DnD), TSK-2.20 (Canvas) |
+
 ---
 
 ### 1. Mục tiêu công việc (Objective)
