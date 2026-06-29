@@ -14,6 +14,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'admin/workflow-designer',
+    loadComponent: () =>
+      import('./features/workflow-builder/workflow-builder.component').then(
+        (m) => m.WorkflowBuilderComponent
+      ),
+  },
+  {
     path: 'register/user',
     loadComponent: () =>
       import('./features/auth/register-user/register-user.component').then(

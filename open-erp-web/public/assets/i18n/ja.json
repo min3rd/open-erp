@@ -208,7 +208,8 @@
   "menu": {
     "home": "ダッシュボード",
     "org_structure": "組織図",
-    "roles": "ロールと権限設定"
+    "roles": "ロールと権限設定",
+    "workflow_designer": "ワークフロー設計"
   },
   "module": {
     "organization": "人事・組織",
@@ -262,5 +263,46 @@
     "file_drop_max_size": "最大 {{max}}MB",
     "file_remove": "ファイルを削除",
     "select_placeholder": "選択してください..."
+  },
+  "workflow": {
+    "title": "ワークフローデザイナー",
+    "subtitle": "動的な承認プロセス、条件分岐、承認担当者、およびフォームを設定します",
+    "btn_save": "プロセスを保存",
+    "btn_layout": "自動レイアウト",
+    "btn_undo": "元に戻す",
+    "btn_redo": "やり直し",
+    "msg_save_success": "ワークフロー設計を保存しました！",
+    "msg_save_fail": "ワークフローの保存に失敗しました：",
+    "msg_load_success": "ワークフローをロードしました！",
+    "msg_load_fail": "ワークフローのロードに失敗しました。",
+    "msg_connection_error": "サーバー接続エラー。",
+    "palette_nodes_title": "ノード一覧",
+    "properties_title": "プロパティ設定",
+    "node_name": "ノード名",
+    "node_desc": "説明",
+    "assignee_type": "担当者タイプ",
+    "assignees": "承認担当者",
+    "fallback_assignee": "代替担当者",
+    "consensus_rule": "合意ルール",
+    "consensus_threshold": "合意しきい値 (%)",
+    "form_binding": "動的フォームのバインド",
+    "routing_condition": "条件分岐 (Edge)",
+    "routing_condition_hint": "論理式を入力してください（例：context.totalAmount > 50000000）",
+    "node_start": "開始ノード",
+    "node_end": "終了ノード",
+    "node_step": "承認ステップ",
+    "node_gateway": "条件分岐",
+    "node_fork": "並行分岐",
+    "node_join": "合流",
+    "select_node_hint": "キャンバス上のノードまたはエッジをクリックしてプロパティ設定を開始します。",
+    "placeholder_node_name": "ステップ名を入力...",
+    "placeholder_node_desc": "ステップ説明を入力...",
+    "actions": "アクションと結果",
+    "add_action": "アクションを追加",
+    "action_name": "ボタン名 (例：承認)",
+    "action_outcome": "結果 (例：Approved)",
+    "select_form": "バインドするフォームを選択...",
+    "select_dept": "部門を選択...",
+    "select_user": "ユーザーを選択..."
   }
 }

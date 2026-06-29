@@ -24,6 +24,14 @@ export class DynamicFormService {
     private readonly dataSource: DataSource,
   ) {}
 
+  // ── Get all latest active forms of a tenant ───────────────────────────────
+  async getLatestForms(tenantId: string | null): Promise<DynamicForm[]> {
+    return this.formRepository.find({
+      where: { tenantId: tenantId as any, isLatest: true },
+      order: { name: 'ASC' },
+    });
+  }
+
   // ── Create or update (new version) ────────────────────────────────────────
   async createOrUpdateForm(
     tenantId: string | null,

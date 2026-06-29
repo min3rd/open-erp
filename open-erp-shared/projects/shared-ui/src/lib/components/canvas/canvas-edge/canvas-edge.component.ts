@@ -35,8 +35,8 @@ export class CanvasEdgeComponent {
 
     const sWidth = this.getNodeWidth(sNode);
     const tWidth = this.getNodeWidth(tNode);
-    const sHeight = 80;
-    const tHeight = 80;
+    const sHeight = this.getNodeHeight(sNode);
+    const tHeight = this.getNodeHeight(tNode);
 
     const sX = sNode.position.x;
     const sY = sNode.position.y;
@@ -124,8 +124,17 @@ export class CanvasEdgeComponent {
 
   private getNodeWidth(node: CanvasNode): number {
     const type = node.type;
-    if (type === 'start' || type === 'end' || type === 'gateway') return 80;
-    if (type === 'fork') return 120;
+    if (type === 'start' || type === 'end') return 64;
+    if (type === 'gateway') return 80;
+    if (type === 'fork' || type === 'join') return 120;
     return 180;
+  }
+
+  private getNodeHeight(node: CanvasNode): number {
+    const type = node.type;
+    if (type === 'start' || type === 'end') return 64;
+    if (type === 'gateway') return 80;
+    if (type === 'fork' || type === 'join') return 16;
+    return 80;
   }
 }

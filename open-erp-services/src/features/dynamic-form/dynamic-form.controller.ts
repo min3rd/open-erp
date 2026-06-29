@@ -18,6 +18,29 @@ export class DynamicFormController {
   constructor(private readonly dynamicFormService: DynamicFormService) {}
 
   /**
+   * GET /api/v1/dynamic-forms
+   * Lấy danh sách các form động mới nhất (isLatest = true) của Tenant
+   */
+  @Get()
+  async getLatestForms(@Req() req: any) {
+    const tenantId = req.tenantId;
+    const forms = await this.dynamicFormService.getLatestForms(tenantId);
+    return {
+      success: true,
+      data: forms.map((f) => ({
+        id: f.id,
+        formKey: f.formKey,
+        name: f.name,
+        description: f.description,
+        version: f.version,
+        fields: f.fields,
+        layout: f.layout,
+        createdAt: f.createdAt,
+      })),
+    };
+  }
+
+  /**
    * POST /api/v1/dynamic-forms
    * Tạo form mới hoặc tạo phiên bản mới nếu formKey đã tồn tại
    */

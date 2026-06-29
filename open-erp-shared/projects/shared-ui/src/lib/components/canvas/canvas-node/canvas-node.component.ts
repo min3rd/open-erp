@@ -25,13 +25,18 @@ export class CanvasNodeComponent {
   // Chiều rộng và chiều cao được tính dựa trên loại node
   width = computed(() => {
     const type = this.node().type;
-    if (type === 'start' || type === 'end' || type === 'gateway') return 80;
-    if (type === 'fork') return 120;
+    if (type === 'start' || type === 'end') return 64;
+    if (type === 'gateway') return 80;
+    if (type === 'fork' || type === 'join') return 120;
     return 180; // step, subprocess, custom
   });
 
   height = computed(() => {
-    return 80; // Chiều cao chuẩn
+    const type = this.node().type;
+    if (type === 'start' || type === 'end') return 64;
+    if (type === 'gateway') return 80;
+    if (type === 'fork' || type === 'join') return 16;
+    return 80; // step, subprocess, custom
   });
 
   onMouseDown(event: MouseEvent): void {

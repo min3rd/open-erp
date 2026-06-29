@@ -224,7 +224,7 @@ export class CanvasComponent implements AfterViewInit, OnChanges {
       const targetNode = this.engine.nodes().find((node) => {
         if (node.id === sourceId) return false;
         const w = this.getNodeWidth(node);
-        const h = 80;
+        const h = this.getNodeHeight(node);
         return (
           localX >= node.position.x &&
           localX <= node.position.x + w &&
@@ -422,9 +422,18 @@ export class CanvasComponent implements AfterViewInit, OnChanges {
 
   private getNodeWidth(node: CanvasNode): number {
     const type = node.type;
-    if (type === 'start' || type === 'end' || type === 'gateway') return 80;
-    if (type === 'fork') return 120;
+    if (type === 'start' || type === 'end') return 64;
+    if (type === 'gateway') return 80;
+    if (type === 'fork' || type === 'join') return 120;
     return 180;
+  }
+
+  private getNodeHeight(node: CanvasNode): number {
+    const type = node.type;
+    if (type === 'start' || type === 'end') return 64;
+    if (type === 'gateway') return 80;
+    if (type === 'fork' || type === 'join') return 16;
+    return 80;
   }
 
   private emitCanvasChange(): void {

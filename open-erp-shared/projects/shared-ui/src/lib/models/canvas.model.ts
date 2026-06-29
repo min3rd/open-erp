@@ -1,4 +1,4 @@
-export type NodeType = 'start' | 'end' | 'step' | 'gateway' | 'fork' | 'subprocess' | 'custom';
+export type NodeType = 'start' | 'end' | 'step' | 'gateway' | 'fork' | 'join' | 'subprocess' | 'custom';
 export type NodeStatus = 'idle' | 'active' | 'done' | 'rejected' | 'error';
 export type EdgeType = 'straight' | 'orthogonal' | 'bezier';
 

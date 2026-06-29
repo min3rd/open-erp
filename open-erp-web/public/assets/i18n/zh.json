@@ -208,7 +208,8 @@
   "menu": {
     "home": "工作台",
     "org_structure": "组织架构",
-    "roles": "角色权限"
+    "roles": "角色权限",
+    "workflow_designer": "流程设计"
   },
   "module": {
     "organization": "人事与组织",
@@ -262,5 +263,46 @@
     "file_drop_max_size": "最大 {{max}}MB",
     "file_remove": "删除文件",
     "select_placeholder": "请选择..."
+  },
+  "workflow": {
+    "title": "流程设计师",
+    "subtitle": "设计动态审批流程、分支条件、处理人和表单",
+    "btn_save": "保存流程",
+    "btn_layout": "自动布局",
+    "btn_undo": "撤销",
+    "btn_redo": "重做",
+    "msg_save_success": "流程设计保存成功！",
+    "msg_save_fail": "保存流程失败：",
+    "msg_load_success": "加载流程成功！",
+    "msg_load_fail": "加载流程失败。",
+    "msg_connection_error": "服务器连接错误。",
+    "palette_nodes_title": "节点面板",
+    "properties_title": "属性配置",
+    "node_name": "节点名称",
+    "node_desc": "描述",
+    "assignee_type": "处理人类型",
+    "assignees": "审批人",
+    "fallback_assignee": "备用处理人",
+    "consensus_rule": "共识规则",
+    "consensus_threshold": "共识阈值 (%)",
+    "form_binding": "绑定动态表单",
+    "routing_condition": "分支条件 (Edge)",
+    "routing_condition_hint": "输入逻辑表达式，例如：context.totalAmount > 50000000",
+    "node_start": "开始节点",
+    "node_end": "结束节点",
+    "node_step": "审批步骤",
+    "node_gateway": "决策网关",
+    "node_fork": "并行分支",
+    "node_join": "合并分支",
+    "select_node_hint": "点击画布上的节点或连线开始配置属性。",
+    "placeholder_node_name": "请输入步骤名称...",
+    "placeholder_node_desc": "请输入步骤描述...",
+    "actions": "动作与结果",
+    "add_action": "添加动作",
+    "action_name": "动作名称 (例：同意)",
+    "action_outcome": "结果 (例：Approved)",
+    "select_form": "选择绑定表单...",
+    "select_dept": "选择部门...",
+    "select_user": "选择用户..."
   }
 }

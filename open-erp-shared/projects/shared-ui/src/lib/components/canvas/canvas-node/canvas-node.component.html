@@ -6,9 +6,9 @@
   <!-- 1. START NODE -->
   @if (node().type === 'start') {
     <svg:circle
-      cx="40"
-      cy="40"
-      r="32"
+      cx="32"
+      cy="32"
+      r="30"
       [ngClass]="[
         'transition-all duration-150 cursor-move fill-emerald-50 dark:fill-emerald-950/20 stroke-2',
         isSelected()
@@ -17,8 +17,8 @@
       ]"
     />
     <svg:text
-      x="40"
-      y="45"
+      x="32"
+      y="36"
       text-anchor="middle"
       class="text-[10px] font-extrabold fill-emerald-700 dark:fill-emerald-400 tracking-wider pointer-events-none"
     >
@@ -29,9 +29,9 @@
   <!-- 2. END NODE -->
   @else if (node().type === 'end') {
     <svg:circle
-      cx="40"
-      cy="40"
-      r="32"
+      cx="32"
+      cy="32"
+      r="30"
       [ngClass]="[
         'transition-all duration-150 cursor-move fill-rose-50 dark:fill-rose-950/20 stroke-2',
         isSelected()
@@ -40,14 +40,14 @@
       ]"
     />
     <svg:circle
-      cx="40"
-      cy="40"
-      r="27"
+      cx="32"
+      cy="32"
+      r="25"
       class="fill-none stroke-rose-400/40 dark:stroke-rose-600/30 stroke-1 pointer-events-none"
     />
     <svg:text
-      x="40"
-      y="45"
+      x="32"
+      y="36"
       text-anchor="middle"
       class="text-[10px] font-extrabold fill-rose-700 dark:fill-rose-400 tracking-wider pointer-events-none"
     >
@@ -58,7 +58,7 @@
   <!-- 3. GATEWAY NODE (Diamond) -->
   @else if (node().type === 'gateway') {
     <svg:polygon
-      points="40,4 76,40 40,76 4,40"
+      points="40,2 78,40 40,78 2,40"
       [ngClass]="[
         'transition-all duration-150 cursor-move fill-amber-50 dark:fill-amber-950/20 stroke-2',
         isSelected()
@@ -80,7 +80,7 @@
   @else if (node().type === 'fork') {
     <svg:rect
       x="0"
-      y="30"
+      y="0"
       width="120"
       height="16"
       rx="4"
@@ -89,6 +89,29 @@
         isSelected() ? 'stroke-rose-gold-500' : 'stroke-transparent'
       ]"
     />
+  }
+
+  <!-- 4.1. JOIN NODE (Horizontal bar with label or distinct style) -->
+  @else if (node().type === 'join') {
+    <svg:rect
+      x="0"
+      y="0"
+      width="120"
+      height="16"
+      rx="4"
+      [ngClass]="[
+        'transition-all duration-150 cursor-move fill-indigo-800 dark:fill-indigo-950/40 stroke-2',
+        isSelected() ? 'stroke-rose-gold-500' : 'stroke-indigo-500 hover:stroke-rose-gold-400'
+      ]"
+    />
+    <svg:text
+      x="60"
+      y="11"
+      text-anchor="middle"
+      class="text-[9px] font-extrabold fill-indigo-100 pointer-events-none"
+    >
+      JOIN
+    </svg:text>
   }
 
   <!-- 5. STEP & SUBPROCESS NODES (HTML ForeignObject for Rich View) -->
@@ -103,7 +126,7 @@
       <div
         xmlns="http://www.w3.org/1999/xhtml"
         [ngClass]="[
-          'h-full w-full rounded-xl border-2 p-3 flex flex-col justify-between shadow-sm transition-all duration-150 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 select-none',
+          'h-full w-full rounded-xl border-2 p-3 flex flex-col justify-between shadow-sm transition-all duration-150 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 select-none pointer-events-none',
           isSelected()
             ? 'border-rose-gold-500 ring-2 ring-rose-gold-200 dark:ring-rose-gold-950/50'
             : 'border-slate-200 dark:border-slate-700 hover:border-rose-gold-400 dark:hover:border-rose-gold-500'

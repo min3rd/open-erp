@@ -817,6 +817,14 @@ export class AuthService {
         requiredPermissions: ['ROLE_READ'],
         children: [],
       },
+      {
+        id: 'workflow-designer',
+        title: 'menu.workflow_designer',
+        icon: 'git-branch',
+        path: '/admin/workflow-designer',
+        module: 'system',
+        children: [],
+      },
     ];
 
     const filteredMenu = fullMenu.filter((item) => {

@@ -212,7 +212,8 @@
   "menu": {
     "home": "Dashboard",
     "org_structure": "Org Structure",
-    "roles": "Roles & Permissions"
+    "roles": "Roles & Permissions",
+    "workflow_designer": "Workflow Designer"
   },
   "module": {
     "organization": "HRM & Organization",
@@ -266,6 +267,47 @@
     "file_drop_max_size": "Max {{max}}MB",
     "file_remove": "Remove file",
     "select_placeholder": "Select..."
+  },
+  "workflow": {
+    "title": "Workflow Designer",
+    "subtitle": "Design dynamic approval processes, branch conditions, assignees, and forms",
+    "btn_save": "Save Workflow",
+    "btn_layout": "Auto Layout",
+    "btn_undo": "Undo",
+    "btn_redo": "Redo",
+    "msg_save_success": "Workflow design saved successfully!",
+    "msg_save_fail": "Failed to save workflow: ",
+    "msg_load_success": "Workflow loaded successfully!",
+    "msg_load_fail": "Failed to load workflow.",
+    "msg_connection_error": "Server connection error.",
+    "palette_nodes_title": "Node Palette",
+    "properties_title": "Properties Panel",
+    "node_name": "Node Name",
+    "node_desc": "Description",
+    "assignee_type": "Assignee Type",
+    "assignees": "Assignees",
+    "fallback_assignee": "Fallback Assignee",
+    "consensus_rule": "Consensus Rule",
+    "consensus_threshold": "Consensus Threshold (%)",
+    "form_binding": "Dynamic Form Binding",
+    "routing_condition": "Routing Condition (Edge)",
+    "routing_condition_hint": "Enter logic expression, e.g., context.totalAmount > 50000000",
+    "node_start": "Start Node",
+    "node_end": "End Node",
+    "node_step": "Approval Step",
+    "node_gateway": "Decision Gateway",
+    "node_fork": "Fork Node",
+    "node_join": "Join Node",
+    "select_node_hint": "Select a node or edge on the canvas to configure properties.",
+    "placeholder_node_name": "Enter step name...",
+    "placeholder_node_desc": "Enter step description...",
+    "actions": "Actions & Outcomes",
+    "add_action": "Add Action",
+    "action_name": "Action Name (e.g., Approve)",
+    "action_outcome": "Outcome (e.g., Approved)",
+    "select_form": "Select binding form...",
+    "select_dept": "Select department...",
+    "select_user": "Select user..."
   }
 }
 
