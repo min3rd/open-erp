@@ -25,7 +25,10 @@ export class DynamicFormController {
   @HttpCode(HttpStatus.CREATED)
   async createOrUpdate(@Body() body: any, @Req() req: any) {
     const tenantId = req.tenantId;
-    const form = await this.dynamicFormService.createOrUpdateForm(tenantId, body);
+    const form = await this.dynamicFormService.createOrUpdateForm(tenantId, {
+      ...body,
+      layout: body.layout || body.meta || null,
+    });
     return {
       success: true,
       data: {
@@ -35,6 +38,30 @@ export class DynamicFormController {
         version: form.version,
         isLatest: form.isLatest,
         createdAt: form.createdAt,
+      },
+    };
+  }
+
+  /**
+   * GET /api/v1/dynamic-forms/key/:key
+   * Lấy phiên bản mới nhất của form theo formKey
+   */
+  @Get('key/:key')
+  async getLatestByKey(@Param('key') key: string, @Req() req: any) {
+    const tenantId = req.tenantId;
+    const form = await this.dynamicFormService.getLatestByKey(key, tenantId);
+    return {
+      success: true,
+      data: {
+        id: form.id,
+        formKey: form.formKey,
+        name: form.name,
+        description: form.description,
+        version: form.version,
+        isLatest: form.isLatest,
+        createdAt: form.createdAt,
+        fields: form.fields,
+        meta: form.layout || {},
       },
     };
   }

@@ -265,6 +265,25 @@ describe('WorkflowInstanceService', () => {
       expect(logServiceMock.writeLog).toHaveBeenCalledWith('tenant-1', 'inst-123', 'step-1', 'CONSULT', 'user-approver', { consultantId: 'user-expert', comment: 'Need review' });
     });
 
+    it('should forward the task to another user', async () => {
+      const mockInstance = { id: 'inst-123', tenantId: 'tenant-1', status: 'IN_PROGRESS', currentStepIds: ['step-1'] };
+      const mockApproverTask = { id: 'task-1', status: 'PENDING' };
+
+      instanceRepoMock.findOne.mockResolvedValue(mockInstance);
+      approverRepoMock.findOne.mockResolvedValue(mockApproverTask);
+
+      mockManager.findOne.mockResolvedValue({ id: 'inst-123', status: 'IN_PROGRESS' });
+      mockManager.find.mockResolvedValue([]);
+
+      const payload = { stepId: 'step-1', action: 'FORWARD', consultantId: 'user-2', comment: 'Please handle this' };
+      const result = await service.executeAction('tenant-1', 'inst-123', 'user-1', payload);
+
+      expect(result).toBeDefined();
+      expect(mockManager.save).toHaveBeenCalledWith(WorkflowApprover, expect.objectContaining({ status: 'FORWARDED' }));
+      expect(mockManager.save).toHaveBeenCalledWith(WorkflowApprover, expect.objectContaining({ userId: 'user-2', status: 'PENDING' }));
+      expect(logServiceMock.writeLog).toHaveBeenCalledWith('tenant-1', 'inst-123', 'step-1', 'FORWARD', 'user-1', { forwardedTo: 'user-2', comment: 'Please handle this' });
+    });
+
     it('should respond to consultation on PROVIDE_FEEDBACK and resume instance', async () => {
       const mockInstance = { id: 'inst-123', tenantId: 'tenant-1', status: 'AWAITING_CONSULTATION' };
       const mockConsultation = { id: 'consult-1', instanceId: 'inst-123', stepId: 'step-1', consultantId: 'user-expert', status: 'PENDING' };

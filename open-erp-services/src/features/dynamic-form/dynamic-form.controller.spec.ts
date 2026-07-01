@@ -55,10 +55,43 @@ describe('DynamicFormController', () => {
       serviceMock.createOrUpdateForm.mockResolvedValue(mockForm);
 
       const res = await controller.createOrUpdate(body, req);
-      expect(serviceMock.createOrUpdateForm).toHaveBeenCalledWith('t1', body);
+      expect(serviceMock.createOrUpdateForm).toHaveBeenCalledWith('t1', {
+        ...body,
+        layout: null,
+      });
       expect(res.success).toBe(true);
       expect(res.data.formKey).toBe('my_form');
       expect(res.data.version).toBe(1);
+    });
+  });
+
+  describe('getLatestByKey', () => {
+    it('should return latest form when it exists', async () => {
+      const req = { tenantId: 't1' };
+      const mockForm = {
+        id: 'f2',
+        formKey: 'my_form',
+        name: 'Test',
+        description: 'Desc',
+        version: 2,
+        isLatest: true,
+        createdAt: new Date(),
+        fields: [],
+        layout: { rows: [] },
+      };
+      serviceMock.getLatestByKey = jest.fn().mockResolvedValue(mockForm);
+
+      const res = await controller.getLatestByKey('my_form', req);
+      expect(serviceMock.getLatestByKey).toHaveBeenCalledWith('my_form', 't1');
+      expect(res.success).toBe(true);
+      expect(res.data.formKey).toBe('my_form');
+      expect(res.data.meta).toEqual(mockForm.layout);
+    });
+
+    it('should propagate NotFoundException from service', async () => {
+      serviceMock.getLatestByKey = jest.fn().mockRejectedValue(new NotFoundException('not found'));
+      const req = { tenantId: 't1' };
+      await expect(controller.getLatestByKey('unknown', req)).rejects.toThrow(NotFoundException);
     });
   });
 

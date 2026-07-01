@@ -317,6 +317,49 @@ export class WorkflowInstanceService {
       });
     }
 
+    if (action === WorkflowAction.FORWARD) {
+      if (!consultantId) {
+        throw new BadRequestException({
+          success: false,
+          error: {
+            code: 'FORWARD_TARGET_REQUIRED',
+            messageKey: 'workflow.forward_target_required',
+          },
+        });
+      }
+
+      return this.dataSource.transaction(async (manager) => {
+        approverTask.status = WorkflowApproverStatus.FORWARDED;
+        approverTask.comment = comment || null;
+        approverTask.actionAt = new Date();
+        await manager.save(WorkflowApprover, approverTask);
+
+        const forwardedApprover = new WorkflowApprover();
+        forwardedApprover.tenantId = tenantId;
+        forwardedApprover.instanceId = instanceId;
+        forwardedApprover.stepId = stepId;
+        forwardedApprover.userId = consultantId;
+        forwardedApprover.status = WorkflowApproverStatus.PENDING;
+        await manager.save(WorkflowApprover, forwardedApprover);
+
+        await this.logService.writeLog(
+          tenantId,
+          instanceId,
+          stepId,
+          WorkflowAction.FORWARD,
+          actorId,
+          { forwardedTo: consultantId, comment },
+        );
+
+        return manager.findOne(WorkflowInstance, {
+          where: { id: instanceId },
+          relations: {
+            approvers: true
+          },
+        }) as Promise<WorkflowInstance>;
+      });
+    }
+
     if (action === WorkflowAction.REJECT) {
       return this.dataSource.transaction(async (manager) => {
         approverTask.status = WorkflowApproverStatus.REJECTED;

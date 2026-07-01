@@ -76,5 +76,6 @@ export enum WorkflowApproverStatus {
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
   CONSULTING = 'CONSULTING',
+  FORWARDED = 'FORWARDED',
 }
 

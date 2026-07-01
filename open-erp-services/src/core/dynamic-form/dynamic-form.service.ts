@@ -108,6 +108,22 @@ export class DynamicFormService {
     return forms;
   }
 
+  async getLatestByKey(formKey: string, tenantId: string | null): Promise<DynamicForm> {
+    const form = await this.formRepository.findOne({
+      where: { formKey, tenantId: tenantId as any, isLatest: true },
+      order: { version: 'DESC' },
+    });
+
+    if (!form) {
+      throw new NotFoundException({
+        success: false,
+        error: { code: 'FORM_NOT_FOUND', messageKey: 'dynamic_form.not_found' },
+      });
+    }
+
+    return form;
+  }
+
   // ── Restore a specific version (clone it as new latest) ───────────────────
   async restoreVersion(id: string, tenantId: string | null): Promise<DynamicForm> {
     const targetForm = await this.formRepository.findOne({
