@@ -50,6 +50,12 @@
   - [ ] Xây dựng màn hình đăng ký `RegisterPage` sử dụng các component dùng chung từ `@open-erp/shared-ui`.
   - [ ] Đăng ký route cho trang đăng ký trong `app.routes.ts`.
   - [ ] Kiểm thử biên dịch và chạy thực tế.
+- [x] **BUG-1.14**: Lỗi FORWARD trong WorkflowApproverStatus
+  - [x] Cập nhật `WorkflowApproverStatus` enum để hỗ trợ trạng thái `FORWARDED` trong `workflow-approver.entity.ts`.
+  - [x] Cập nhật `WorkflowInstanceService` xử lý hành động FORWARDED với log chi tiết.
+  - [x] Tạo endpoint mới `POST /workflow-instances/:instanceId/forward` trong `workflow-instance.controller.ts`.
+  - [x] Viết unit test cho tính năng forward task.
+  - [x] Tạo bug report document `docs/05_project_management/sprint_1/bugs/bug_14_workflow_forward.md`.
 - [x] **BUG-1.11**: TypeScript compilation error in AuthService
   - [x] Import SelectTenantDto and fix selectTenant type signature in open-erp-services/src/features/auth/auth.service.ts.
   - [x] Create bug report document docs/05_project_management/sprint_1/bugs/bug_11_compile_error.md.
@@ -61,5 +67,10 @@
 - [x] **BUG-1.13**: UnknownDependenciesException in OrgModule
   - [x] Import Tenant and Role entities, and register them in TypeOrmModule.forFeature in open-erp-services/src/features/org/org.module.ts.
   - [x] Create bug report document docs/05_project_management/sprint_1/bugs/bug_13_unknown_dependencies_tenant_repository.md.
+- [x] **TSK-2.21**: getLatestByKey method cho DynamicFormService
+  - [x] Thêm phương thức `getLatestByKey(key: string)` trong `DynamicFormService` để lấy form mới nhất theo key.
+  - [x] Tạo endpoint tương ứng `GET /dynamic-forms/key/:key` trong controller.
+  - [x] Viết unit test cho phương thức mới.
+  - [x] Cập nhật tài liệu API và update Sprint 2 task status.
 
 
