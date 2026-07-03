@@ -3,5 +3,6 @@
     "allow": [
       "Bypass"
     ]
-  }
+  },
+  "$version": 4
 }

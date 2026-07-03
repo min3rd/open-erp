@@ -115,4 +115,33 @@ Xây dựng giao diện Web Workflow Designer trực quan sử dụng Canvas, gi
 ---
 
 ### 6. Trạng thái thực tế & Kết quả bàn giao (Actual Status & Deliverables)
-*(Chưa bắt đầu)*
+
+**Ngày kiểm tra:** 2026-07-03  
+**Trạng thái:** [ ] Todo - Có thể bắt đầu ngay (tất cả dependencies đã hoàn thành)
+
+**Tiến độ thực hiện:**
+- TSK-2.18 (@open-erp/shared-ui/form): ✅ Completed
+- TSK-2.19 (@open-erp/shared-ui/dnd): ✅ Completed
+- TSK-2.20 (@open-erp/shared-ui/canvas): ✅ Completed
+- TSK-2.2 (Workflow API): ✅ Completed
+
+**Cơ sở hạ tầng có sẵn:**
+- `CanvasComponent` với zoom/pan/drag/connect/auto-layout/undo/redo
+- `CanvasLayoutService` dùng Dagre cho auto-layout
+- `CanvasEngineService` quản lý state
+- `CanvasHistoryService` cho undo/redo
+- DnD services (drag-drop, keyboard, auto-scroll, registry, state)
+
+**Cần triển khai:**
+
+| Nhiệm vụ | Mô tả | Ưu tiên |
+|----------|-------|---------|
+| **TSK-2.16.1** | Workflow Node Palette + các loại node (Start/Step/Decision/Fork/Join/End) | High |
+| **TSK-2.16.2** | Node Configuration Panel (bên phải) | High |
+| **TSK-2.16.3** | Form Dynamic Binding + Assignee selectors | High |
+| **TSK-2.16.4** | Edge Conditions & Decision Logic Builder | High |
+| **TSK-2.16.5** | Workflow JSON Parser (import/export) | Medium |
+
+**Khung thời gian ước tính:** 5-7 ngày cho 1 FE Web Engineer
+
+**Đề xuất:** Có thể bắt đầu triển khai ngay vì tất cả dependencies đã hoàn thành.
