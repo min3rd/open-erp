@@ -17,19 +17,19 @@
         (change)="loadWorkflow($any($event.target).value)"
         class="oerp-wd-select h-9"
       >
-        <option value="">-- Chọn quy trình sửa đổi --</option>
+        <option value="">{{ 'workflow.select_workflow_placeholder' | transloco }}</option>
         @for (wf of workflowsList(); track wf.id) {
           <option [value]="wf.id">{{ wf.name }}</option>
         }
       </select>
 
       <button (click)="newWorkflow()" class="oerp-wd-btn-toolbar">
-        <oerp-icon name="plus" [size]="14"></oerp-icon> Tạo quy trình mới
+        <oerp-icon name="plus" [size]="14"></oerp-icon> {{ 'workflow.btn_new' | transloco }}
       </button>
 
       <button (click)="saveWorkflow()" [disabled]="isSaving()" class="oerp-wd-btn-save">
         <oerp-icon name="save" [size]="14"></oerp-icon>
-        {{ isSaving() ? 'Đang lưu...' : ('workflow.btn_save' | transloco) }}
+        {{ isSaving() ? ('workflow.btn_saving' | transloco) : ('workflow.btn_save' | transloco) }}
       </button>
     </div>
   </div>
@@ -41,15 +41,15 @@
     <aside class="oerp-wd-left">
       <div>
         <h3 class="oerp-wd-section-title">
-          <oerp-icon name="settings" [size]="12"></oerp-icon> Thông tin quy trình
+          <oerp-icon name="settings" [size]="12"></oerp-icon> {{ 'workflow.meta_panel_title' | transloco }}
         </h3>
         <div class="oerp-wd-meta-box mt-2">
           <div class="oerp-wd-meta-field">
-            <label>Tên quy trình</label>
+            <label>{{ 'workflow.meta_name' | transloco }}</label>
             <input type="text" [value]="workflowName()" (input)="workflowName.set($any($event.target).value)" />
           </div>
           <div class="oerp-wd-meta-field">
-            <label>Mô tả ngắn</label>
+            <label>{{ 'workflow.meta_desc' | transloco }}</label>
             <input type="text" [value]="workflowDescription()" (input)="workflowDescription.set($any($event.target).value)" />
           </div>
         </div>
@@ -63,32 +63,32 @@
         <div class="oerp-wd-palette-grid mt-2">
           <div (click)="addNodeFromPalette('start')" class="oerp-wd-palette-item">
             <oerp-icon name="play-circle" [size]="20" class="text-emerald-500"></oerp-icon>
-            <span class="oerp-wd-palette-label text-emerald-600 dark:text-emerald-400">Start</span>
+            <span class="oerp-wd-palette-label text-emerald-600 dark:text-emerald-400">{{ 'workflow.node_start' | transloco }}</span>
           </div>
 
           <div (click)="addNodeFromPalette('step')" class="oerp-wd-palette-item">
             <oerp-icon name="check-square" [size]="20" class="text-rose-gold-500"></oerp-icon>
-            <span class="oerp-wd-palette-label text-rose-gold-500">Step</span>
+            <span class="oerp-wd-palette-label text-rose-gold-500">{{ 'workflow.node_step_short' | transloco }}</span>
           </div>
 
           <div (click)="addNodeFromPalette('gateway')" class="oerp-wd-palette-item">
             <oerp-icon name="help-circle" [size]="20" class="text-amber-500"></oerp-icon>
-            <span class="oerp-wd-palette-label text-amber-500">Decision</span>
+            <span class="oerp-wd-palette-label text-amber-500">{{ 'workflow.node_gateway_short' | transloco }}</span>
           </div>
 
           <div (click)="addNodeFromPalette('fork')" class="oerp-wd-palette-item">
             <oerp-icon name="git-branch" [size]="20" class="text-indigo-500"></oerp-icon>
-            <span class="oerp-wd-palette-label text-indigo-500">Fork</span>
+            <span class="oerp-wd-palette-label text-indigo-500">{{ 'workflow.node_fork_short' | transloco }}</span>
           </div>
 
           <div (click)="addNodeFromPalette('join')" class="oerp-wd-palette-item">
             <oerp-icon name="git-commit" [size]="20" class="text-violet-500"></oerp-icon>
-            <span class="oerp-wd-palette-label text-violet-500">Join</span>
+            <span class="oerp-wd-palette-label text-violet-500">{{ 'workflow.node_join_short' | transloco }}</span>
           </div>
 
           <div (click)="addNodeFromPalette('end')" class="oerp-wd-palette-item">
             <oerp-icon name="stop-circle" [size]="20" class="text-red-500"></oerp-icon>
-            <span class="oerp-wd-palette-label text-red-600 dark:text-red-400">End</span>
+            <span class="oerp-wd-palette-label text-red-600 dark:text-red-400">{{ 'workflow.node_end_short' | transloco }}</span>
           </div>
         </div>
       </div>
@@ -127,7 +127,7 @@
               [class.text-rose-gold-500]="activePropTab() === 'general'"
               class="pb-2 px-2 hover:text-rose-gold-500 cursor-pointer"
             >
-              Chung
+              {{ 'workflow.tab_general' | transloco }}
             </button>
             <button 
               (click)="activePropTab.set('assignees')" 
@@ -136,7 +136,7 @@
               [class.text-rose-gold-500]="activePropTab() === 'assignees'"
               class="pb-2 px-2 hover:text-rose-gold-500 cursor-pointer"
             >
-              Người duyệt
+              {{ 'workflow.tab_assignees' | transloco }}
             </button>
             <button 
               (click)="activePropTab.set('form')" 
@@ -145,7 +145,7 @@
               [class.text-rose-gold-500]="activePropTab() === 'form'"
               class="pb-2 px-2 hover:text-rose-gold-500 cursor-pointer"
             >
-              Biểu mẫu
+              {{ 'workflow.tab_form' | transloco }}
             </button>
             <button 
               (click)="activePropTab.set('actions')" 
@@ -154,7 +154,7 @@
               [class.text-rose-gold-500]="activePropTab() === 'actions'"
               class="pb-2 px-2 hover:text-rose-gold-500 cursor-pointer"
             >
-              Nút duyệt
+              {{ 'workflow.tab_actions' | transloco }}
             </button>
           </div>
         }
@@ -169,7 +169,7 @@
                 [value]="node.data.label" 
                 (input)="updateNodeData('label', $any($event.target).value)" 
                 class="oerp-wd-input"
-                placeholder="Nhập tên node..."
+                [placeholder]="'workflow.placeholder_node_name' | transloco"
               />
             </div>
 
@@ -179,7 +179,7 @@
                 [value]="node.data.description || ''" 
                 (input)="updateNodeData('description', $any($event.target).value)" 
                 class="oerp-wd-input h-20 resize-none"
-                placeholder="Mô tả công việc trong bước này..."
+                [placeholder]="'workflow.placeholder_node_desc' | transloco"
               ></textarea>
             </div>
           </div>
@@ -191,7 +191,7 @@
             
             <!-- Departments selectors -->
             <div class="oerp-wd-form-group">
-              <label>Phòng ban xử lý</label>
+              <label>{{ 'workflow.assignee_dept' | transloco }}</label>
               <select 
                 multiple 
                 (change)="onAssigneeChange($event, 'DEPARTMENT')"
@@ -203,12 +203,12 @@
                   </option>
                 }
               </select>
-              <span class="text-[9px] text-slate-400 dark:text-slate-500">Giữ Ctrl để chọn nhiều phòng ban</span>
+              <span class="text-[9px] text-slate-400 dark:text-slate-500">{{ 'workflow.multi_select_hint' | transloco }}</span>
             </div>
 
             <!-- Users selectors -->
             <div class="oerp-wd-form-group">
-              <label>Người xử lý cụ thể</label>
+              <label>{{ 'workflow.assignee_user' | transloco }}</label>
               <select 
                 multiple 
                 (change)="onAssigneeChange($event, 'USER')"
@@ -224,16 +224,16 @@
 
             <!-- Fallback Assignee -->
             <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-100 dark:border-slate-800 space-y-2">
-              <label class="text-[10px] font-extrabold uppercase text-rose-gold-500 tracking-wider">Người mặc định nhận việc (Fallback)</label>
+              <label class="text-[10px] font-extrabold uppercase text-rose-gold-500 tracking-wider">{{ 'workflow.fallback_assignee' | transloco }}</label>
               <div class="flex gap-2">
                 <select (change)="onFallbackTypeChange($event)" class="oerp-wd-select text-xs w-1/3">
-                  <option value="ROLE" [selected]="getFallbackAssigneeType() === 'ROLE'">Vai trò</option>
-                  <option value="USER" [selected]="getFallbackAssigneeType() === 'USER'">Cá nhân</option>
+                  <option value="ROLE" [selected]="getFallbackAssigneeType() === 'ROLE'">{{ 'workflow.fallback_type_role' | transloco }}</option>
+                  <option value="USER" [selected]="getFallbackAssigneeType() === 'USER'">{{ 'workflow.fallback_type_user' | transloco }}</option>
                 </select>
                 
                 @if (getFallbackAssigneeType() === 'USER') {
                   <select (change)="onFallbackValueChange($event)" class="oerp-wd-select text-xs flex-1">
-                    <option value="">Chọn người mặc định...</option>
+                    <option value="">{{ 'workflow.fallback_select_user' | transloco }}</option>
                     @for (u of usersList(); track u.id) {
                       <option [value]="u.id" [selected]="getFallbackAssigneeValue() === u.id">
                         {{ u.firstName }} {{ u.lastName }}
@@ -242,7 +242,7 @@
                   </select>
                 } @else {
                   <select (change)="onFallbackValueChange($event)" class="oerp-wd-select text-xs flex-1">
-                    <option value="">Chọn vai trò mặc định...</option>
+                    <option value="">{{ 'workflow.fallback_select_role' | transloco }}</option>
                     @for (r of rolesList(); track r.id) {
                       <option [value]="r.name" [selected]="getFallbackAssigneeValue() === r.name">
                         {{ r.name }}
@@ -261,9 +261,9 @@
                 (change)="updateNodeMeta('consensusRule', $any($event.target).value)" 
                 class="oerp-wd-select"
               >
-                <option value="ANY">Đồng thuận bất kỳ (ANY - Ai duyệt trước cũng được)</option>
-                <option value="ALL">Đồng thuận tất cả (ALL - Tất cả đều phải đồng ý)</option>
-                <option value="THRESHOLD">Đồng thuận theo tỷ lệ (%)</option>
+                <option value="ANY">{{ 'workflow.consensus_any' | transloco }}</option>
+                <option value="ALL">{{ 'workflow.consensus_all' | transloco }}</option>
+                <option value="THRESHOLD">{{ 'workflow.consensus_threshold_opt' | transloco }}</option>
               </select>
             </div>
 
@@ -294,7 +294,7 @@
                 (change)="updateNodeMeta('formId', $any($event.target).value)" 
                 class="oerp-wd-select"
               >
-                <option value="">-- Không liên kết biểu mẫu --</option>
+                <option value="">{{ 'workflow.form_no_binding' | transloco }}</option>
                 @for (form of dynamicForms(); track form.id) {
                   <option [value]="form.id">{{ form.name }} ({{ form.formKey }})</option>
                 }
@@ -303,7 +303,7 @@
 
             @if (selectedFormFields().length > 0) {
               <div class="mt-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 p-3 rounded-lg">
-                <h4 class="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider mb-2">Các trường trong biểu mẫu</h4>
+                <h4 class="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider mb-2">{{ 'workflow.form_fields_title' | transloco }}</h4>
                 <div class="space-y-1 max-h-48 overflow-y-auto pr-1">
                   @for (field of selectedFormFields(); track field.id) {
                     <div class="flex justify-between items-center text-[10px] py-1 border-b border-slate-100 dark:border-slate-800 last:border-0">
@@ -321,9 +321,9 @@
         @if ((node.type === 'step' || node.type === 'gateway') && activePropTab() === 'actions') {
           <div class="oerp-wd-actions-panel">
             <div class="flex justify-between items-center mb-1">
-              <span class="text-[11px] font-bold text-slate-500">Các nút chức năng</span>
+              <span class="text-[11px] font-bold text-slate-500">{{ 'workflow.actions_panel_title' | transloco }}</span>
               <button (click)="addActionItem()" class="oerp-wd-btn-add py-1 px-2.5">
-                <oerp-icon name="plus" [size]="10"></oerp-icon> Thêm nút
+                <oerp-icon name="plus" [size]="10"></oerp-icon> {{ 'workflow.add_action' | transloco }}
               </button>
             </div>
 
@@ -335,14 +335,14 @@
                     [value]="act.name" 
                     (input)="updateActionItem($index, 'name', $event)" 
                     class="oerp-wd-input text-xs flex-1" 
-                    placeholder="Tên nút (ví dụ: Đồng ý)" 
+                    [placeholder]="'workflow.action_name' | transloco" 
                   />
                   <input 
                     type="text" 
                     [value]="act.outcome" 
                     (input)="updateActionItem($index, 'outcome', $event)" 
                     class="oerp-wd-input text-xs w-24" 
-                    placeholder="Outcome" 
+                    [placeholder]="'workflow.action_outcome' | transloco" 
                   />
                   <button (click)="removeActionItem($index)" class="oerp-wd-btn-remove">
                     <oerp-icon name="trash" [size]="14"></oerp-icon>
@@ -359,7 +359,7 @@
       @else if (selectedEdge(); as edge) {
         <h3 class="oerp-wd-config-title">
           <oerp-icon name="git-commit" [size]="16" class="oerp-wd-text-primary"></oerp-icon>
-          Cấu hình rẽ nhánh
+          {{ 'workflow.edge_config_title' | transloco }}
         </h3>
 
         <div class="oerp-wd-form-group">
@@ -392,3 +392,6 @@
   </div>
 
 </div>
+
+
+
