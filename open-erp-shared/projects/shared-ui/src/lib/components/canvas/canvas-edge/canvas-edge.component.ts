@@ -15,8 +15,8 @@ import { CanvasEdge, CanvasNode } from '../../../models/canvas.model';
 })
 export class CanvasEdgeComponent {
   edge = input.required<CanvasEdge>();
-  sourceNode = input.required<CanvasNode>();
-  targetNode = input.required<CanvasNode>();
+  sourceNode = input<CanvasNode | undefined>();
+  targetNode = input<CanvasNode | undefined>();
   isSelected = input<boolean>(false);
   readOnly = input<boolean>(false);
 
@@ -32,6 +32,10 @@ export class CanvasEdgeComponent {
   ports = computed(() => {
     const sNode = this.sourceNode();
     const tNode = this.targetNode();
+    
+    if (!sNode || !tNode) {
+      return { sx: 0, sy: 0, tx: 0, ty: 0, isVertical: false };
+    }
 
     const sWidth = this.getNodeWidth(sNode);
     const tWidth = this.getNodeWidth(tNode);

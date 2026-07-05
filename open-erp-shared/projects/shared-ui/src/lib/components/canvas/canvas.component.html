@@ -58,7 +58,7 @@
       }
 
       <!-- Rendering Edges -->
-      @for (edge of edges(); track edge.id) {
+      @for (edge of edgesState(); track edge.id) {
         <g
           oerp-canvas-edge
           [edge]="edge"
@@ -79,7 +79,7 @@
       }
 
       <!-- Rendering Nodes -->
-      @for (node of nodes(); track node.id) {
+      @for (node of nodesState(); track node.id) {
         <g
           oerp-canvas-node
           [node]="node"
