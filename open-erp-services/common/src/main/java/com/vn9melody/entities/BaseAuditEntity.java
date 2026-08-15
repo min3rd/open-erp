@@ -3,6 +3,7 @@ package com.vn9melody.entities;
 import java.time.Instant;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
@@ -15,6 +16,7 @@ import com.vn9melody.configurations.AuditEntityListener;
 
 @MappedSuperclass
 @EntityListeners(AuditEntityListener.class)
+@SQLRestriction("is_deleted = false")
 public class BaseAuditEntity extends PanacheEntity {
     // --- Versioning (Optimistic Locking) ---
     @Version
