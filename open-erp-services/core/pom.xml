@@ -7,9 +7,13 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>common</artifactId>
+    <artifactId>core</artifactId>
 
     <dependencies>
+        <dependency>
+            <groupId>com.vn9melody</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
