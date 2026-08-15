@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=open-erp
+      - POSTGRES_USER=open-erp
+      - POSTGRES_PASSWORD=open-erp
