@@ -1,0 +1,14 @@
+"%dev":
+  quarkus:
+    http:
+      port: 10001
+    datasource:
+      db-kind: postgresql
+      username: open-erp
+      password: open-erp
+      jdbc:
+        url: jdbc:postgresql://localhost:5432/open-erp
+    hibernate-orm:
+      schema-management:
+        create-schemas: true
+        strategy: update
