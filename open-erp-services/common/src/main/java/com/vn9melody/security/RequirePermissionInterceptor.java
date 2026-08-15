@@ -2,6 +2,7 @@ package com.vn9melody.security;
 
 import com.vn9melody.enums.DataScope;
 import com.vn9melody.enums.PermissionCode;
+import com.vn9melody.security.dto.UserSecurityProfile;
 import io.quarkus.security.ForbiddenException;
 import io.quarkus.security.UnauthorizedException;
 import io.quarkus.security.identity.SecurityIdentity;
@@ -46,7 +47,7 @@ public class RequirePermissionInterceptor {
         }
 
         String username = securityIdentity.getPrincipal().getName();
-        PermissionService.UserSecurityDto profile = permissionService.getUserSecurityProfile(username);
+        UserSecurityProfile profile = permissionService.getUserSecurityProfile(username);
         if (profile == null) {
             throw new ForbiddenException("Không tìm thấy thông tin người dùng.");
         }
