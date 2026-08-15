@@ -12,3 +12,5 @@
       schema-management:
         create-schemas: true
         strategy: update
+    swagger-ui:
+      always-include: true
