@@ -9,7 +9,7 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>auth</artifactId>
+    <artifactId>sample</artifactId>
 
     <dependencies>
         <dependency>
