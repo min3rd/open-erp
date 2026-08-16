@@ -19,6 +19,7 @@
     "@angular/router": "^22.0.0",
     "@jsverse/transloco": "^8.4.0",
     "@open-erp/shared": "file:../open-erp-shared",
+    "angular-feather": "^6.5.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

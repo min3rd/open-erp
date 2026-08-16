@@ -4,11 +4,12 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { provideTransloco } from '@jsverse/transloco';
 
 import { routes } from './app.routes';
-import { AppConfigService, sharedAuthInterceptor, SharedTranslocoHttpLoader } from '@open-erp/shared';
+import { AppConfigService, sharedAuthInterceptor, SharedTranslocoHttpLoader, provideSharedIcons } from '@open-erp/shared';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideSharedIcons(),
     provideAppInitializer(() => {
       const configService = inject(AppConfigService);
       return configService.loadConfig();

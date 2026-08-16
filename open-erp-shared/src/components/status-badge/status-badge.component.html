@@ -1,0 +1,10 @@
+@if (loading) {
+  <erp-skeleton width="5.5rem" height="1.375rem" shape="pill"></erp-skeleton>
+} @else {
+  <span [class]="getBadgeClasses()" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold tracking-wide transition-all select-none">
+    @if (showDot) {
+      <span [class]="getDotClasses()" class="w-1.5 h-1.5 rounded-full"></span>
+    }
+    <span>{{ label || status }}</span>
+  </span>
+}

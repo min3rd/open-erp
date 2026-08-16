@@ -1,0 +1,67 @@
+@if (loading) {
+  <div class="flex items-center gap-4 py-2">
+    <erp-skeleton width="30%" height="2.5rem" shape="rounded"></erp-skeleton>
+    <erp-skeleton width="30%" height="2.5rem" shape="rounded"></erp-skeleton>
+    <erp-skeleton width="30%" height="2.5rem" shape="rounded"></erp-skeleton>
+  </div>
+} @else {
+  <div [class.flex-row]="orientation === 'horizontal'"
+       [class.flex-col]="orientation === 'vertical'"
+       class="flex items-center justify-between w-full font-sans gap-3 select-none">
+    
+    @for (step of normalizedSteps; track $index) {
+      <div (click)="onStepClick($index, step)"
+           [class.cursor-pointer]="clickable && !step.disabled"
+           [class.cursor-not-allowed]="step.disabled"
+           [class.opacity-50]="step.disabled"
+           class="flex items-center gap-3 flex-1 group">
+        
+        <!-- Step Number / Icon Circle -->
+        <div [class.bg-indigo-600]="getStepStatus($index) === 'completed' || getStepStatus($index) === 'current'"
+             [class.text-white]="getStepStatus($index) === 'completed' || getStepStatus($index) === 'current'"
+             [class.ring-4]="getStepStatus($index) === 'current'"
+             [class.ring-indigo-500/20]="getStepStatus($index) === 'current'"
+             [class.bg-slate-100]="getStepStatus($index) === 'pending'"
+             [class.dark:bg-slate-800]="getStepStatus($index) === 'pending'"
+             [class.text-slate-500]="getStepStatus($index) === 'pending'"
+             [class.dark:text-slate-400]="getStepStatus($index) === 'pending'"
+             class="w-9 h-9 rounded-2xl flex items-center justify-center font-bold text-xs shrink-0 transition-all shadow-xs">
+          
+          @if (getStepStatus($index) === 'completed') {
+            <erp-icon name="check" [size]="16"></erp-icon>
+          } @else if (step.icon) {
+            <erp-icon [name]="step.icon" [size]="16"></erp-icon>
+          } @else {
+            <span>{{ $index + 1 }}</span>
+          }
+        </div>
+
+        <!-- Step Title & Description -->
+        <div class="flex flex-col min-w-0">
+          <span [class.text-indigo-600]="getStepStatus($index) === 'current'"
+                [class.dark:text-indigo-400]="getStepStatus($index) === 'current'"
+                [class.text-slate-900]="getStepStatus($index) === 'completed'"
+                [class.dark:text-white]="getStepStatus($index) === 'completed'"
+                [class.text-slate-500]="getStepStatus($index) === 'pending'"
+                [class.dark:text-slate-400]="getStepStatus($index) === 'pending'"
+                class="text-xs font-bold truncate">
+            {{ step.title }}
+          </span>
+
+          @if (step.description) {
+            <span class="text-[10px] text-slate-400 truncate">{{ step.description }}</span>
+          }
+        </div>
+
+        <!-- Connecting Line Divider -->
+        @if ($index < normalizedSteps.length - 1 && orientation === 'horizontal') {
+          <div [class.bg-indigo-600]="getStepStatus($index) === 'completed'"
+               [class.bg-slate-200]="getStepStatus($index) !== 'completed'"
+               [class.dark:bg-slate-800]="getStepStatus($index) !== 'completed'"
+               class="flex-1 h-0.5 min-w-[20px] transition-colors rounded-full mx-2 hidden sm:block">
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

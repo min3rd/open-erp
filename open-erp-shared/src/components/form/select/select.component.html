@@ -1,0 +1,107 @@
+<div class="w-full font-sans relative block">
+  @if (label) {
+    <erp-label [text]="label" [required]="required" [loading]="loading"></erp-label>
+  }
+
+  @if (loading) {
+    <erp-skeleton width="100%" [height]="size === 'lg' ? '2.875rem' : (size === 'sm' ? '2rem' : '2.5rem')" shape="rounded"></erp-skeleton>
+  } @else {
+    <div class="relative w-full">
+      <button type="button"
+              (click)="toggleDropdown()"
+              [disabled]="disabled"
+              [class]="getSizeClasses()"
+              [class.opacity-50]="disabled"
+              [class.cursor-not-allowed]="disabled"
+              [class.border-rose-500]="errorMessage || status === 'invalid'"
+              [class.border-slate-200]="!errorMessage && status !== 'invalid'"
+              [class.dark:border-slate-700]="!errorMessage && status !== 'invalid'"
+              class="w-full bg-white dark:bg-slate-900 border flex items-center justify-between text-left outline-none transition-all focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-xs">
+        
+        <div class="flex items-center gap-2 truncate pr-2 min-w-0 flex-1">
+          @if (selectedOption(); as opt) {
+            @if (opt.icon) {
+              <erp-icon [name]="opt.icon" [size]="14" className="text-indigo-600 dark:text-indigo-400 shrink-0"></erp-icon>
+            }
+            <span class="text-slate-900 dark:text-white font-medium truncate">{{ opt.label }}</span>
+          } @else {
+            <span class="text-slate-400 truncate">{{ placeholder }}</span>
+          }
+        </div>
+
+        <div class="flex items-center gap-1 shrink-0 text-slate-400 pl-1">
+          @if (clearable && selectedValue() !== null && !disabled) {
+            <button type="button" (click)="clearSelection($event)" class="hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded-full">
+              <erp-icon name="x" [size]="12"></erp-icon>
+            </button>
+          }
+          <erp-icon name="chevron-down" [size]="14" [className]="isOpen() ? 'rotate-180 transition-transform' : 'transition-transform'"></erp-icon>
+        </div>
+      </button>
+
+      <!-- Dropdown Popover Menu -->
+      @if (isOpen()) {
+        <div class="absolute z-50 mt-1.5 w-full min-w-[240px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-1.5 max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100">
+          
+          @if (searchable) {
+            <div class="p-2 border-b border-slate-100 dark:border-slate-800">
+              <div class="relative">
+                <input type="text"
+                       [ngModel]="searchTerm()"
+                       (ngModelChange)="searchTerm.set($event)"
+                       placeholder="Tìm kiếm..."
+                       class="w-full pl-7 pr-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-1 focus:ring-indigo-500 text-slate-900 dark:text-white"/>
+                <erp-icon name="search" [size]="12" className="absolute left-2.5 top-2.5 text-slate-400"></erp-icon>
+              </div>
+            </div>
+          }
+
+          <div class="flex-1 overflow-y-auto p-1 space-y-0.5 max-h-48">
+            @for (opt of filteredOptions(); track opt.value) {
+              <button type="button"
+                      (click)="selectOption(opt)"
+                      [disabled]="opt.disabled"
+                      [class.bg-indigo-50]="selectedValue() === opt.value"
+                      [class.dark:bg-indigo-950/60]="selectedValue() === opt.value"
+                      [class.text-indigo-600]="selectedValue() === opt.value"
+                      [class.dark:text-indigo-400]="selectedValue() === opt.value"
+                      [class.font-bold]="selectedValue() === opt.value"
+                      [class.text-slate-700]="selectedValue() !== opt.value"
+                      [class.dark:text-slate-300]="selectedValue() !== opt.value"
+                      [class.opacity-40]="opt.disabled"
+                      [class.cursor-not-allowed]="opt.disabled"
+                      class="w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors cursor-pointer">
+                <div class="flex items-center gap-2 truncate min-w-0 pr-2">
+                  @if (opt.icon) {
+                    <erp-icon [name]="opt.icon" [size]="14" className="shrink-0"></erp-icon>
+                  }
+                  <div class="flex flex-col truncate">
+                    <span class="truncate">{{ opt.label }}</span>
+                    @if (opt.description) {
+                      <span class="text-[10px] text-slate-400 truncate">{{ opt.description }}</span>
+                    }
+                  </div>
+                </div>
+
+                @if (selectedValue() === opt.value) {
+                  <erp-icon name="check" [size]="14" className="text-indigo-600 dark:text-indigo-400 shrink-0"></erp-icon>
+                }
+              </button>
+            } @empty {
+              <div class="py-4 text-center text-xs text-slate-400">
+                Không tìm thấy kết quả
+              </div>
+            }
+          </div>
+
+        </div>
+      }
+    </div>
+
+    @if (errorMessage) {
+      <erp-helper-text [text]="errorMessage" status="invalid"></erp-helper-text>
+    } @else if (helperText) {
+      <erp-helper-text [text]="helperText" [status]="status"></erp-helper-text>
+    }
+  }
+</div>

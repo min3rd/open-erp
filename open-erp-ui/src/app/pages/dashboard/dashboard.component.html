@@ -1,149 +1,100 @@
-<div class="space-y-8" *transloco="let t">
-
-  <!-- Welcome Banner -->
-  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 p-8 text-white shadow-xl">
-    <div class="relative z-10 max-w-2xl">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-semibold mb-4">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        Quarkus Quinoa + Angular Connected
-      </div>
-      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">
-        {{ t('dashboard.welcome', { name: authService.currentUser()?.username || 'Admin' }) }}
-      </h1>
-      <p class="mt-2 text-xs md:text-sm text-indigo-200">
-        {{ t('dashboard.summaryDesc') }}
+<div class="space-y-6 max-w-7xl mx-auto" *transloco="let t">
+  
+  <!-- Header Title -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">{{ t('dashboard.title') }}</h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+        {{ t('dashboard.welcome', { user: authService.currentUser()?.username || 'Admin' }) }}
       </p>
     </div>
-    <!-- Decorative Shape -->
-    <div class="absolute right-0 top-0 -mt-8 -mr-8 w-64 h-64 rounded-full bg-indigo-500/10 blur-2xl"></div>
-  </div>
-
-  <!-- KPI Metric Cards Grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
     
-    <!-- Total Revenue -->
-    <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-shadow">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ t('dashboard.totalRevenue') }}</span>
-        <div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-        </div>
-      </div>
-      <div class="mt-4 flex items-baseline gap-2">
-        <span class="text-2xl font-black text-slate-900 dark:text-white">{{ (stats().revenue | number) }} đ</span>
-      </div>
-      <div class="mt-2 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
-        <span>↑ +18.4%</span>
-        <span class="text-slate-400">{{ t('common.comparedToLastMonth') }}</span>
-      </div>
+    <div class="flex items-center gap-2">
+      <button class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        <span>{{ t('common.create') }}</span>
+      </button>
     </div>
-
-    <!-- Total Orders -->
-    <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-shadow">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ t('dashboard.totalOrders') }}</span>
-        <div class="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-          </svg>
-        </div>
-      </div>
-      <div class="mt-4 flex items-baseline gap-2">
-        <span class="text-2xl font-black text-slate-900 dark:text-white">{{ stats().ordersCount }}</span>
-      </div>
-      <div class="mt-2 text-[11px] text-indigo-600 dark:text-indigo-400 font-medium flex items-center gap-1">
-        <span>{{ t('common.newOrdersToday', { count: 12 }) }}</span>
-      </div>
-    </div>
-
-    <!-- Active Users -->
-    <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-shadow">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ t('dashboard.activeUsers') }}</span>
-        <div class="p-2.5 rounded-xl bg-cyan-50 dark:bg-cyan-950/50 text-cyan-600 dark:text-cyan-400">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-          </svg>
-        </div>
-      </div>
-      <div class="mt-4 flex items-baseline gap-2">
-        <span class="text-2xl font-black text-slate-900 dark:text-white">{{ stats().activeUsersCount }}</span>
-      </div>
-      <div class="mt-2 text-[11px] text-cyan-600 dark:text-cyan-400 font-medium flex items-center gap-1">
-        <span>{{ t('common.onlineNow') }}</span>
-      </div>
-    </div>
-
-    <!-- System Health -->
-    <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-shadow">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ t('dashboard.systemHealth') }}</span>
-        <div class="p-2.5 rounded-xl bg-violet-50 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-          </svg>
-        </div>
-      </div>
-      <div class="mt-4 flex items-baseline gap-2">
-        <span class="text-2xl font-black text-slate-900 dark:text-white">{{ stats().systemUptime }}</span>
-      </div>
-      <div class="mt-2 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-        <span>{{ t('dashboard.healthy') }}</span>
-      </div>
-    </div>
-
   </div>
 
-  <!-- Recent Orders Table Card -->
-  <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
-    <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+  <!-- Shared KPI Cards Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <erp-kpi-card [title]="t('dashboard.monthlyRevenue')" 
+                  [value]="stats().revenue" 
+                  subText="↑ +18.4% so với tháng trước"
+                  iconBg="bg-indigo-50 dark:bg-indigo-950/50">
+      <svg icon class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+    </erp-kpi-card>
+
+    <erp-kpi-card [title]="t('dashboard.ordersCount')" 
+                  [value]="stats().ordersCount" 
+                  subText="↑ +8.2% tuần này"
+                  iconBg="bg-emerald-50 dark:bg-emerald-950/50">
+      <svg icon class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+      </svg>
+    </erp-kpi-card>
+
+    <erp-kpi-card [title]="t('dashboard.activeUsers')" 
+                  [value]="stats().activeUsersCount" 
+                  subText="Đang trực tuyến"
+                  iconBg="bg-cyan-50 dark:bg-cyan-950/50">
+      <svg icon class="w-5 h-5 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+      </svg>
+    </erp-kpi-card>
+
+    <erp-kpi-card [title]="t('dashboard.systemUptime')" 
+                  [value]="stats().systemUptime" 
+                  subText="Hoạt động ổn định"
+                  iconBg="bg-amber-50 dark:bg-amber-950/50">
+      <svg icon class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+      </svg>
+    </erp-kpi-card>
+  </div>
+
+  <!-- Recent Orders Table -->
+  <div class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 shadow-xs">
+    <div class="flex items-center justify-between mb-4">
       <div>
-        <h3 class="text-base font-bold text-slate-900 dark:text-white">{{ t('dashboard.recentOrders') }}</h3>
-        <p class="text-xs text-slate-400">{{ t('dashboard.recentOrdersDesc') }}</p>
+        <h2 class="text-sm font-bold text-slate-900 dark:text-white">{{ t('dashboard.recentOrders') }}</h2>
+        <p class="text-[11px] text-slate-400">Các giao dịch ERP mới nhất trong ngày</p>
       </div>
-      <button class="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors">
-        {{ t('common.export') }}
-      </button>
+      <a routerLink="/orders" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+        {{ t('common.viewAll') }} →
+      </a>
     </div>
 
     <div class="overflow-x-auto">
       <table class="w-full text-left text-xs">
-        <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-100 dark:border-slate-800">
+        <thead class="text-[10px] text-slate-400 uppercase border-b border-slate-100 dark:border-slate-800">
           <tr>
-            <th class="px-6 py-3.5">{{ t('dashboard.orderCode') }}</th>
-            <th class="px-6 py-3.5">{{ t('dashboard.customer') }}</th>
-            <th class="px-6 py-3.5">{{ t('dashboard.content') }}</th>
-            <th class="px-6 py-3.5">{{ t('dashboard.amount') }}</th>
-            <th class="px-6 py-3.5">{{ t('common.status') }}</th>
-            <th class="px-6 py-3.5">{{ t('dashboard.date') }}</th>
+            <th class="py-3 px-4">{{ t('orders.id') }}</th>
+            <th class="py-3 px-4">{{ t('orders.customer') }}</th>
+            <th class="py-3 px-4">{{ t('orders.product') }}</th>
+            <th class="py-3 px-4">{{ t('orders.amount') }}</th>
+            <th class="py-3 px-4">{{ t('orders.status') }}</th>
+            <th class="py-3 px-4">{{ t('orders.date') }}</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80">
           @for (order of recentOrders(); track order.id) {
-            <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
-              <td class="px-6 py-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">{{ order.id }}</td>
-              <td class="px-6 py-4 font-semibold text-slate-900 dark:text-white">{{ order.customer }}</td>
-              <td class="px-6 py-4 text-slate-500 dark:text-slate-400">{{ order.product }}</td>
-              <td class="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">{{ (order.amount | number) }} đ</td>
-              <td class="px-6 py-4">
-                @if (order.status === 'COMPLETED') {
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
-                    {{ t('common.completed') }}
-                  </span>
-                } @else if (order.status === 'PROCESSING') {
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">
-                    {{ t('common.processing') }}
-                  </span>
-                } @else {
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300">
-                    {{ t('common.pending') }}
-                  </span>
-                }
+            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+              <td class="py-3 px-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">{{ order.id }}</td>
+              <td class="py-3 px-4 font-bold text-slate-800 dark:text-slate-100">{{ order.customer }}</td>
+              <td class="py-3 px-4 text-slate-500 dark:text-slate-400">{{ order.product }}</td>
+              <td class="py-3 px-4 font-black text-slate-900 dark:text-white">{{ (order.amount | number) }} ₫</td>
+              <td class="py-3 px-4">
+                <erp-status-badge [status]="order.status"
+                                  [label]="order.status === 'COMPLETED' ? t('common.completed') : (order.status === 'PROCESSING' ? t('common.processing') : t('common.pending'))">
+                </erp-status-badge>
               </td>
-              <td class="px-6 py-4 text-slate-400 font-medium">{{ order.date }}</td>
+              <td class="py-3 px-4 text-slate-400">{{ order.date }}</td>
             </tr>
           }
         </tbody>

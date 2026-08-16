@@ -1,0 +1,30 @@
+<div class="relative inline-block text-left">
+  <button (click)="toggleDropdown()"
+          class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-colors cursor-pointer select-none">
+    <erp-icon name="globe" [size]="14" className="text-indigo-600 dark:text-indigo-400"></erp-icon>
+    <span class="font-mono text-[11px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-1.5 py-0.5 rounded-md">{{ currentCode() }}</span>
+    <span class="hidden sm:inline">{{ currentLabel() }}</span>
+    <erp-icon name="chevron-down" [size]="12" className="text-slate-400"></erp-icon>
+  </button>
+
+  @if (isOpen()) {
+    <div class="absolute right-0 mt-2 w-40 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl py-1.5 z-50 overflow-hidden">
+      @for (lang of langService.supportedLanguages(); track lang.code) {
+        <button (click)="selectLanguage(lang.code)"
+                [class.bg-indigo-50]="lang.code === langService.currentLanguage()"
+                [class.dark:bg-indigo-950/60]="lang.code === langService.currentLanguage()"
+                [class.text-indigo-600]="lang.code === langService.currentLanguage()"
+                [class.dark:text-indigo-400]="lang.code === langService.currentLanguage()"
+                class="w-full px-3.5 py-2 text-left text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-between transition-colors cursor-pointer">
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">{{ lang.code }}</span>
+            <span>{{ lang.name }}</span>
+          </div>
+          @if (lang.code === langService.currentLanguage()) {
+            <erp-icon name="check" [size]="14" className="text-indigo-600 dark:text-indigo-400"></erp-icon>
+          }
+        </button>
+      }
+    </div>
+  }
+</div>

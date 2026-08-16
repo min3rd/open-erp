@@ -8,11 +8,3 @@ export interface UserItem {
     status: 'ACTIVE' | 'INACTIVE';
     lastLogin: string;
 }
-export interface OrderItem {
-    id: string;
-    customer: string;
-    product: string;
-    amount: number;
-    status: 'COMPLETED' | 'PENDING' | 'PROCESSING';
-    date: string;
-}

@@ -1,0 +1,25 @@
+@if (loading) {
+  <erp-skeleton width="4.5rem" height="1.5rem" shape="rounded"></erp-skeleton>
+} @else {
+  <span (click)="onTagClick($event)"
+        [class]="getTagClasses()"
+        [class.opacity-50]="disabled">
+    
+    @if (icon) {
+      <erp-icon [name]="icon" [size]="size === 'sm' ? 10 : (size === 'lg' ? 14 : 12)"></erp-icon>
+    }
+
+    <span>
+      {{ label }}
+      <ng-content></ng-content>
+    </span>
+
+    @if (removable && !disabled) {
+      <button type="button" 
+              (click)="onRemove($event)"
+              class="hover:opacity-75 p-0.5 rounded-full cursor-pointer transition-opacity">
+        <erp-icon name="x" [size]="size === 'sm' ? 10 : 12"></erp-icon>
+      </button>
+    }
+  </span>
+}

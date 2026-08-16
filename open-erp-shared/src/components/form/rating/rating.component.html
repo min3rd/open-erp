@@ -1,0 +1,38 @@
+<div class="w-full font-sans space-y-1">
+  @if (label) {
+    <erp-label [text]="label" [loading]="loading"></erp-label>
+  }
+
+  @if (loading) {
+    <div class="flex items-center gap-1.5 py-1">
+      @for (i of stars(); track i) {
+        <erp-skeleton width="1.375rem" height="1.375rem" shape="circle"></erp-skeleton>
+      }
+    </div>
+  } @else {
+    <div (mouseleave)="onMouseLeave()" class="inline-flex items-center gap-1.5 select-none py-1">
+      @for (star of stars(); track star) {
+        <button type="button"
+                (click)="setRating(star)"
+                (mouseenter)="onStarHover(star)"
+                [disabled]="disabled || readonly"
+                [class.cursor-pointer]="!disabled && !readonly"
+                [class.cursor-default]="readonly"
+                [class.opacity-50]="disabled"
+                class="p-0.5 transition-transform hover:scale-115 focus:outline-none">
+          
+          <erp-icon name="star"
+                    [size]="getStarSize()"
+                    [className]="(hoverValue() || rating()) >= star ? 'text-amber-400 fill-amber-400' : 'text-slate-300 dark:text-slate-700'">
+          </erp-icon>
+        </button>
+      }
+
+      @if (rating() > 0) {
+        <span class="ml-2 text-xs font-black text-amber-500">
+          {{ rating() }} / {{ max }}
+        </span>
+      }
+    </div>
+  }
+</div>

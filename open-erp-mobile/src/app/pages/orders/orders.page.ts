@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonHeader, IonToolbar } from '@ionic/angular/standalone';
 import { TranslocoModule } from '@jsverse/transloco';
-import { OrderItem } from '@open-erp/shared';
+import { OrderItem, StatusBadgeComponent } from '@open-erp/shared';
 
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonHeader, IonToolbar, TranslocoModule],
+  imports: [CommonModule, FormsModule, IonContent, IonHeader, IonToolbar, TranslocoModule, StatusBadgeComponent],
   templateUrl: './orders.page.html'
 })
 export class OrdersPage {

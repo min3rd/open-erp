@@ -1,0 +1,31 @@
+import { EventEmitter } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
+import { InputSize, ValidationStatus } from '../../../enums/component.enum';
+export declare class PasswordInputComponent implements ControlValueAccessor {
+    label?: string;
+    placeholder: string;
+    size: InputSize | 'sm' | 'md' | 'lg';
+    status: ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning';
+    helperText?: string;
+    errorMessage?: string;
+    showStrengthMeter: boolean;
+    disabled: boolean;
+    required: boolean;
+    loading: boolean;
+    valueChange: EventEmitter<string>;
+    value: import("@angular/core").WritableSignal<string>;
+    showPassword: import("@angular/core").WritableSignal<boolean>;
+    onChange: (val: string) => void;
+    onTouched: () => void;
+    readonly passwordStrength: import("@angular/core").Signal<number>;
+    readonly strengthLabel: import("@angular/core").Signal<"Rất yếu" | "Trung bình" | "Khá" | "Rất mạnh">;
+    readonly strengthColor: import("@angular/core").Signal<"bg-amber-500" | "bg-rose-500" | "bg-emerald-500" | "bg-indigo-500">;
+    writeValue(val: any): void;
+    registerOnChange(fn: any): void;
+    registerOnTouched(fn: any): void;
+    setDisabledState(isDisabled: boolean): void;
+    togglePasswordVisibility(): void;
+    onInput(event: Event): void;
+    getSizeClasses(): string;
+    getStatusClasses(): string;
+}

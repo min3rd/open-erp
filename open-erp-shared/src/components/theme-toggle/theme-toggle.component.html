@@ -1,0 +1,9 @@
+<button (click)="themeService.toggleTheme()"
+        class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-500 dark:text-slate-300 transition-colors cursor-pointer inline-flex items-center justify-center"
+        [title]="themeService.isDarkMode() ? 'Light Mode' : 'Dark Mode'">
+  @if (themeService.isDarkMode()) {
+    <erp-icon name="sun" [size]="16" className="text-amber-400"></erp-icon>
+  } @else {
+    <erp-icon name="moon" [size]="16" className="text-slate-600 dark:text-slate-300"></erp-icon>
+  }
+</button>

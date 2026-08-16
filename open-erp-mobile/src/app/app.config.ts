@@ -1,24 +1,21 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideAppInitializer, inject, isDevMode } from '@angular/core';
-import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
+import { ApplicationConfig, provideAppInitializer, inject, isDevMode } from '@angular/core';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { provideTransloco } from '@jsverse/transloco';
 
 import { routes } from './app.routes';
-import { AppConfigService, sharedAuthInterceptor, SharedTranslocoHttpLoader } from '@open-erp/shared';
+import { AppConfigService, sharedAuthInterceptor, SharedTranslocoHttpLoader, provideSharedIcons } from '@open-erp/shared';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideBrowserGlobalErrorListeners(),
-    provideIonicAngular({
-      mode: 'ios',
-      rippleEffect: true
-    }),
+    provideIonicAngular({ mode: 'ios' }),
+    provideSharedIcons(),
     provideAppInitializer(() => {
       const configService = inject(AppConfigService);
       return configService.loadConfig();
     }),
-    provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
+    provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withFetch(), withInterceptors([sharedAuthInterceptor])),
     provideTransloco({
       config: {

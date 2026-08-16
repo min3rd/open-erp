@@ -1,0 +1,39 @@
+<div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-all">
+  @if (loading) {
+    <div class="flex items-center justify-between">
+      <erp-skeleton width="45%" height="0.75rem"></erp-skeleton>
+      <erp-skeleton width="2.25rem" height="2.25rem" shape="rounded"></erp-skeleton>
+    </div>
+    <div class="mt-4">
+      <erp-skeleton width="65%" height="1.75rem"></erp-skeleton>
+    </div>
+    <div class="mt-3">
+      <erp-skeleton width="50%" height="0.75rem"></erp-skeleton>
+    </div>
+  } @else {
+    <div class="flex items-center justify-between">
+      <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ title }}</span>
+      
+      @if (iconName) {
+        <div [class]="iconBg" class="p-2.5 rounded-xl">
+          <erp-icon [name]="iconName" [size]="20"></erp-icon>
+        </div>
+      } @else {
+        <ng-content select="[icon]"></ng-content>
+      }
+    </div>
+
+    <div class="mt-3 sm:mt-4 flex items-baseline gap-2">
+      <span class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">{{ value }}</span>
+    </div>
+
+    @if (subText) {
+      <div class="mt-2 text-[11px] font-semibold flex items-center gap-1.5" [class]="getTrendClasses()">
+        @if (trend !== 'neutral') {
+          <erp-icon [name]="getTrendIcon()" [size]="14"></erp-icon>
+        }
+        <span>{{ subText }}</span>
+      </div>
+    }
+  }
+</div>

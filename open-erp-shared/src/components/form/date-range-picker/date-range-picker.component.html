@@ -1,0 +1,50 @@
+<div class="w-full font-sans space-y-2">
+  @if (label) {
+    <erp-label [text]="label" [required]="required" [loading]="loading"></erp-label>
+  }
+
+  @if (loading) {
+    <erp-skeleton width="100%" height="2.625rem" shape="rounded"></erp-skeleton>
+  } @else {
+    <div class="flex flex-wrap items-center gap-2">
+      
+      <!-- Input Dates Container -->
+      <div class="flex-1 min-w-[280px] bg-white dark:bg-slate-900 border rounded-2xl px-3 py-1.5 flex items-center gap-2"
+           [class.border-rose-500]="errorMessage || status === 'invalid'"
+           [class.border-slate-200]="!errorMessage && status !== 'invalid'"
+           [class.dark:border-slate-700]="!errorMessage && status !== 'invalid'"
+           [class.opacity-50]="disabled">
+        
+        <erp-icon name="calendar" [size]="16" className="text-slate-400 shrink-0"></erp-icon>
+
+        <input type="date"
+               [value]="startDate()"
+               (input)="onStartChange($event)"
+               [disabled]="disabled"
+               class="w-full bg-transparent text-xs font-semibold text-slate-900 dark:text-white outline-none"/>
+
+        <span class="text-slate-400 font-bold text-xs shrink-0">→</span>
+
+        <input type="date"
+               [value]="endDate()"
+               (input)="onEndChange($event)"
+               [disabled]="disabled"
+               class="w-full bg-transparent text-xs font-semibold text-slate-900 dark:text-white outline-none"/>
+      </div>
+
+      <!-- Shortcuts Pills -->
+      <div class="flex items-center gap-1">
+        <button type="button" (click)="setShortcut('today')" [disabled]="disabled" class="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-[10px] font-bold text-slate-600 dark:text-slate-300 transition-colors cursor-pointer disabled:opacity-40">Hôm nay</button>
+        <button type="button" (click)="setShortcut('week')" [disabled]="disabled" class="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-[10px] font-bold text-slate-600 dark:text-slate-300 transition-colors cursor-pointer disabled:opacity-40">Tuần này</button>
+        <button type="button" (click)="setShortcut('month')" [disabled]="disabled" class="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-[10px] font-bold text-slate-600 dark:text-slate-300 transition-colors cursor-pointer disabled:opacity-40">Tháng này</button>
+      </div>
+
+    </div>
+
+    @if (errorMessage) {
+      <erp-helper-text [text]="errorMessage" status="invalid"></erp-helper-text>
+    } @else if (helperText) {
+      <erp-helper-text [text]="helperText" [status]="status"></erp-helper-text>
+    }
+  }
+</div>

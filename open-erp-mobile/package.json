@@ -35,6 +35,7 @@
     "@ionic/angular": "^8.8.18",
     "@jsverse/transloco": "^8.4.0",
     "@open-erp/shared": "file:../open-erp-shared",
+    "angular-feather": "^6.5.1",
     "ionicons": "^8.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

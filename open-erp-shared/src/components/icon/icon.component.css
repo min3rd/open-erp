@@ -1,0 +1,12 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  line-height: 0;
+}
+
+:host ::ng-deep i-feather svg.feather {
+  display: inline-block;
+  vertical-align: middle;
+}

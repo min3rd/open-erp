@@ -1,0 +1,35 @@
+@if (loading) {
+  <erp-skeleton width="5rem" height="1rem" shape="rounded"></erp-skeleton>
+} @else if (routerLink) {
+  <a [routerLink]="disabled ? null : routerLink"
+     [class]="getColorClasses() + ' ' + getUnderlineClasses()"
+     [class.opacity-50]="disabled"
+     [class.pointer-events-none]="disabled"
+     class="inline-flex items-center gap-1 text-xs sm:text-sm transition-colors cursor-pointer select-none">
+    @if (iconLeft) {
+      <erp-icon [name]="iconLeft" [size]="14"></erp-icon>
+    }
+    <ng-content></ng-content>
+    @if (iconRight) {
+      <erp-icon [name]="iconRight" [size]="14"></erp-icon>
+    }
+  </a>
+} @else {
+  <a [href]="disabled ? 'javascript:void(0)' : (href || '#')"
+     [target]="external ? '_blank' : '_self'"
+     [rel]="external ? 'noopener noreferrer' : undefined"
+     [class]="getColorClasses() + ' ' + getUnderlineClasses()"
+     [class.opacity-50]="disabled"
+     [class.pointer-events-none]="disabled"
+     class="inline-flex items-center gap-1 text-xs sm:text-sm transition-colors cursor-pointer select-none">
+    @if (iconLeft) {
+      <erp-icon [name]="iconLeft" [size]="14"></erp-icon>
+    }
+    <ng-content></ng-content>
+    @if (external) {
+      <erp-icon name="external-link" [size]="12" className="opacity-70"></erp-icon>
+    } @else if (iconRight) {
+      <erp-icon [name]="iconRight" [size]="14"></erp-icon>
+    }
+  </a>
+}

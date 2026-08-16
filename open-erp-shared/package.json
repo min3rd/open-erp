@@ -12,14 +12,25 @@
       "default": "./src/index.ts"
     }
   },
-  "keywords": ["erp", "angular", "ionic", "shared"],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "keywords": [
+    "erp",
+    "angular",
+    "ionic",
+    "shared"
+  ],
   "author": "vn9melody",
   "license": "ISC",
   "dependencies": {
     "@angular/common": "^22.0.0",
     "@angular/core": "^22.0.0",
+    "@angular/forms": "^22.0.0",
     "@angular/router": "^22.0.0",
     "@jsverse/transloco": "^8.4.0",
+    "angular-feather": "^6.5.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

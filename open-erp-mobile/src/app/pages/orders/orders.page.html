@@ -62,7 +62,7 @@
       </button>
     </div>
 
-    <!-- Orders Card List -->
+    <!-- Orders Card List with Shared Status Badges -->
     <div class="space-y-3">
       @for (order of filteredOrders(); track order.id) {
         <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
@@ -71,19 +71,9 @@
               <span class="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400">{{ order.id }}</span>
               <h3 class="text-xs font-bold text-slate-900 dark:text-white mt-0.5">{{ order.customer }}</h3>
             </div>
-            <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold"
-                  [class.bg-emerald-100]="order.status === 'COMPLETED'"
-                  [class.text-emerald-700]="order.status === 'COMPLETED'"
-                  [class.dark:bg-emerald-950]="order.status === 'COMPLETED'"
-                  [class.dark:text-emerald-300]="order.status === 'COMPLETED'"
-                  [class.bg-indigo-100]="order.status === 'PROCESSING'"
-                  [class.text-indigo-700]="order.status === 'PROCESSING'"
-                  [class.bg-amber-100]="order.status === 'PENDING'"
-                  [class.text-amber-700]="order.status === 'PENDING'">
-              @if (order.status === 'COMPLETED') { {{ t('common.completed') }} }
-              @else if (order.status === 'PROCESSING') { {{ t('common.processing') }} }
-              @else { {{ t('common.pending') }} }
-            </span>
+            <erp-status-badge [status]="order.status"
+                              [label]="order.status === 'COMPLETED' ? t('common.completed') : (order.status === 'PROCESSING' ? t('common.processing') : t('common.pending'))">
+            </erp-status-badge>
           </div>
 
           <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">{{ order.product }}</p>

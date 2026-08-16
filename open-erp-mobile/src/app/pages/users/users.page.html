@@ -26,30 +26,22 @@
              class="w-full pl-9 pr-4 py-2.5 text-xs bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 outline-none"/>
     </div>
 
-    <!-- Users List Cards -->
+    <!-- Users List Cards with Shared Avatar and Status Badges -->
     <div class="space-y-3">
       @for (user of filteredUsers(); track user.id) {
         <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-500 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-xs">
-            {{ user.username[0].toUpperCase() }}
-          </div>
+          <erp-avatar [name]="user.fullName" [online]="user.status === 'ACTIVE'" size="md"></erp-avatar>
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between">
               <h3 class="text-xs font-bold text-slate-900 dark:text-white truncate">{{ user.fullName }}</h3>
-              <span class="text-[9px] px-2 py-0.5 rounded-full font-bold"
-                    [class.bg-emerald-100]="user.status === 'ACTIVE'"
-                    [class.text-emerald-700]="user.status === 'ACTIVE'"
-                    [class.dark:bg-emerald-950]="user.status === 'ACTIVE'"
-                    [class.dark:text-emerald-300]="user.status === 'ACTIVE'"
-                    [class.bg-rose-100]="user.status === 'INACTIVE'"
-                    [class.text-rose-700]="user.status === 'INACTIVE'">
-                {{ user.status === 'ACTIVE' ? t('common.active') : t('common.inactive') }}
-              </span>
+              <erp-status-badge [status]="user.status" 
+                                [label]="user.status === 'ACTIVE' ? t('common.active') : t('common.inactive')">
+              </erp-status-badge>
             </div>
             <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{{ user.department }}</p>
             <div class="flex items-center gap-2 mt-1">
               <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold">&#64;{{ user.username }}</span>
-              <span class="text-[10px] text-slate-400">• {{ user.email }}</span>
+              <span class="text-[10px] text-slate-400 truncate">• {{ user.email }}</span>
             </div>
           </div>
         </div>

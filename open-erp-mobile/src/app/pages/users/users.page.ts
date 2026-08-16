@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonHeader, IonToolbar } from '@ionic/angular/standalone';
 import { TranslocoModule } from '@jsverse/transloco';
-import { UserItem } from '@open-erp/shared';
+import { UserItem, AvatarComponent, StatusBadgeComponent } from '@open-erp/shared';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonHeader, IonToolbar, TranslocoModule],
+  imports: [CommonModule, FormsModule, IonContent, IonHeader, IonToolbar, TranslocoModule, AvatarComponent, StatusBadgeComponent],
   templateUrl: './users.page.html'
 })
 export class UsersPage {

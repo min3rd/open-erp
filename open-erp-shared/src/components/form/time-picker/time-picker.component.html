@@ -1,0 +1,41 @@
+<div class="w-full font-sans">
+  @if (label) {
+    <erp-label [text]="label" [required]="required" [loading]="loading"></erp-label>
+  }
+
+  @if (loading) {
+    <erp-skeleton width="100%" [height]="size === 'lg' ? '2.875rem' : (size === 'sm' ? '2rem' : '2.5rem')" shape="rounded"></erp-skeleton>
+  } @else {
+    <div class="relative flex items-center">
+      <span class="absolute left-3 text-slate-400 pointer-events-none flex items-center">
+        <erp-icon name="clock" [size]="size === 'sm' ? 14 : 16"></erp-icon>
+      </span>
+
+      <input type="time"
+             [value]="value()"
+             [disabled]="disabled"
+             (input)="onInputChange($event)"
+             (blur)="onTouched()"
+             [class]="getSizeClasses()"
+             [class.border-rose-500]="errorMessage || status === 'invalid'"
+             [class.border-slate-200]="!errorMessage && status !== 'invalid'"
+             [class.dark:border-slate-700]="!errorMessage && status !== 'invalid'"
+             [class.opacity-50]="disabled"
+             [class.cursor-not-allowed]="disabled"
+             class="w-full bg-white dark:bg-slate-900 border pl-9 pr-16 outline-none font-medium placeholder-slate-400 transition-all focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white"/>
+
+      <button type="button"
+              (click)="setNow()"
+              [disabled]="disabled"
+              class="absolute right-2 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950 px-2 py-1 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors cursor-pointer disabled:opacity-40">
+        Bây giờ
+      </button>
+    </div>
+
+    @if (errorMessage) {
+      <erp-helper-text [text]="errorMessage" status="invalid"></erp-helper-text>
+    } @else if (helperText) {
+      <erp-helper-text [text]="helperText" [status]="status"></erp-helper-text>
+    }
+  }
+</div>

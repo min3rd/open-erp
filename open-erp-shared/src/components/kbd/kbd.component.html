@@ -1,0 +1,16 @@
+<span class="inline-flex items-center gap-1 select-none font-mono">
+  @for (k of keyList; track k + $index) {
+    <kbd [class]="getSizeClasses()"
+         class="inline-flex items-center justify-center font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md shadow-[0_2px_0_0_rgba(148,163,184,0.6)] dark:shadow-[0_2px_0_0_rgba(30,41,59,1)] active:translate-y-0.5 active:shadow-none transition-all">
+      {{ k }}
+    </kbd>
+    @if ($index < keyList.length - 1) {
+      <span class="text-[10px] text-slate-400 font-bold">+</span>
+    }
+  } @empty {
+    <kbd [class]="getSizeClasses()"
+         class="inline-flex items-center justify-center font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md shadow-[0_2px_0_0_rgba(148,163,184,0.6)] dark:shadow-[0_2px_0_0_rgba(30,41,59,1)]">
+      <ng-content></ng-content>
+    </kbd>
+  }
+</span>

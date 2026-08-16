@@ -2,22 +2,35 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { AuthService, ThemeService, LanguageService } from '@open-erp/shared';
+import {
+  AuthService,
+  MaintenanceBannerComponent,
+  ThemeToggleComponent,
+  LanguageSelectorComponent,
+  AvatarComponent
+} from '@open-erp/shared';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TranslocoModule],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    TranslocoModule,
+    MaintenanceBannerComponent,
+    ThemeToggleComponent,
+    LanguageSelectorComponent,
+    AvatarComponent
+  ],
   templateUrl: './main-layout.component.html'
 })
 export class MainLayoutComponent {
   authService = inject(AuthService);
-  themeService = inject(ThemeService);
-  langService = inject(LanguageService);
 
   isSidebarCollapsed = signal<boolean>(false);
   isUserMenuOpen = signal<boolean>(false);
-  isLangMenuOpen = signal<boolean>(false);
 
   toggleSidebar(): void {
     this.isSidebarCollapsed.update(v => !v);
@@ -25,17 +38,6 @@ export class MainLayoutComponent {
 
   toggleUserMenu(): void {
     this.isUserMenuOpen.update(v => !v);
-    this.isLangMenuOpen.set(false);
-  }
-
-  toggleLangMenu(): void {
-    this.isLangMenuOpen.update(v => !v);
-    this.isUserMenuOpen.set(false);
-  }
-
-  selectLanguage(lang: string): void {
-    this.langService.setLanguage(lang);
-    this.isLangMenuOpen.set(false);
   }
 
   logout(): void {

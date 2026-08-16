@@ -1,0 +1,39 @@
+<div class="w-full font-sans space-y-2">
+  @if (label) {
+    <erp-label [text]="label" [required]="required" [loading]="loading"></erp-label>
+  }
+
+  @if (loading) {
+    <div class="flex items-center gap-2">
+      @for (i of slots(); track i) {
+        <erp-skeleton width="2.75rem" height="3.25rem" shape="rounded"></erp-skeleton>
+      }
+    </div>
+  } @else {
+    <div class="flex items-center gap-2">
+      @for (idx of slots(); track idx) {
+        <input #otpInput
+               type="text"
+               inputmode="numeric"
+               maxlength="1"
+               [value]="digits()[idx] || ''"
+               [disabled]="disabled"
+               (input)="onDigitInput($event, idx)"
+               (keydown)="onKeyDown($event, idx)"
+               (paste)="onPaste($event)"
+               [class.border-rose-500]="errorMessage || status === 'invalid'"
+               [class.border-slate-200]="!errorMessage && status !== 'invalid'"
+               [class.dark:border-slate-700]="!errorMessage && status !== 'invalid'"
+               [class.opacity-50]="disabled"
+               [class.cursor-not-allowed]="disabled"
+               class="w-11 h-13 text-center text-lg font-black bg-white dark:bg-slate-900 border rounded-2xl outline-none transition-all focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 dark:text-white shadow-xs"/>
+      }
+    </div>
+
+    @if (errorMessage) {
+      <erp-helper-text [text]="errorMessage" status="invalid"></erp-helper-text>
+    } @else if (helperText) {
+      <erp-helper-text [text]="helperText" [status]="status"></erp-helper-text>
+    }
+  }
+</div>

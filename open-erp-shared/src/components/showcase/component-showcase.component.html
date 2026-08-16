@@ -1,0 +1,1031 @@
+<div class="h-screen w-screen overflow-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-200">
+  
+  <!-- Top Navigation Header -->
+  <header class="h-16 bg-white/90 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between px-6 shrink-0 z-30 shadow-xs">
+    <div class="flex items-center gap-3.5">
+      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-black text-base shadow-lg shadow-indigo-600/30 ring-1 ring-white/20">
+        DS
+      </div>
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="font-black text-sm tracking-tight text-slate-900 dark:text-white">OPEN ERP</span>
+          <span class="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30 text-[10px] font-bold tracking-wide">DESIGN SYSTEM</span>
+        </div>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Thư viện UI, Typography & Form Components dùng chung Web & Mobile</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 text-xs text-slate-700 dark:text-slate-300">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="font-semibold">{{ allDocs.length }} Components</span>
+      </div>
+      <erp-theme-toggle></erp-theme-toggle>
+    </div>
+  </header>
+
+  <!-- 2-Column Main Workspace -->
+  <div class="flex-1 flex overflow-hidden">
+    
+    <!-- Left Sidebar: Component Catalog -->
+    <aside class="w-72 bg-white/70 dark:bg-slate-900/80 border-r border-slate-200/80 dark:border-slate-800/90 flex flex-col shrink-0 h-full overflow-hidden backdrop-blur-md">
+      
+      <!-- Search Box -->
+      <div class="p-4 border-b border-slate-200/80 dark:border-slate-800/90">
+        <div class="relative">
+          <input type="text" 
+                 [ngModel]="searchQuery()" 
+                 (ngModelChange)="searchQuery.set($event)"
+                 placeholder="Tìm kiếm component..."
+                 class="w-full pl-9 pr-3 py-2 text-xs bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-700/80 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white placeholder-slate-400 transition-all"/>
+          <erp-icon name="search" [size]="14" className="absolute left-3 top-2.5 text-slate-400"></erp-icon>
+        </div>
+      </div>
+
+      <!-- Navigation List Grouped by Category -->
+      <div class="flex-1 overflow-y-auto p-3 space-y-6">
+        @for (group of groupedCategories(); track group.name) {
+          <div class="space-y-1.5">
+            <div class="px-3 py-1 text-[10px] font-extrabold tracking-wider text-slate-400 dark:text-slate-500 uppercase flex items-center justify-between">
+              <span>{{ group.name }}</span>
+              <span class="text-[9px] px-1.5 py-0.2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-mono">{{ group.items.length }}</span>
+            </div>
+            
+            <div class="space-y-1">
+              @for (doc of group.items; track doc.id) {
+                <button (click)="selectComponent(doc.id)"
+                        [class.bg-indigo-600]="selectedComponentId() === doc.id"
+                        [class.text-white]="selectedComponentId() === doc.id"
+                        [class.shadow-md]="selectedComponentId() === doc.id"
+                        [class.shadow-indigo-600/30]="selectedComponentId() === doc.id"
+                        [class.font-bold]="selectedComponentId() === doc.id"
+                        [class.text-slate-700]="selectedComponentId() !== doc.id"
+                        [class.dark:text-slate-300]="selectedComponentId() !== doc.id"
+                        [class.hover:bg-slate-100]="selectedComponentId() !== doc.id"
+                        [class.dark:hover:bg-slate-800/70]="selectedComponentId() !== doc.id"
+                        class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs flex items-center justify-between transition-all cursor-pointer group">
+                  <div class="flex flex-col min-w-0 pr-2">
+                    <span class="truncate">{{ doc.name }}</span>
+                    <span class="font-mono text-[10px] opacity-70 truncate" [class.text-indigo-100]="selectedComponentId() === doc.id" [class.text-slate-400]="selectedComponentId() !== doc.id">&lt;{{ doc.selector }}&gt;</span>
+                  </div>
+                  <erp-icon name="chevron-right" [size]="14" [className]="selectedComponentId() === doc.id ? 'text-white' : 'text-slate-400 dark:text-slate-600 group-hover:text-slate-600 dark:group-hover:text-slate-400 transition-colors'"></erp-icon>
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Footer Info -->
+      <div class="p-3 bg-slate-50 dark:bg-slate-950/60 border-t border-slate-200/80 dark:border-slate-800 text-center text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+        Standard Angular 22 & Feather Icons
+      </div>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 bg-slate-50 dark:bg-slate-950">
+      
+      @if (activeComponent(); as doc) {
+        
+        <!-- Component Header Banner -->
+        <div class="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ doc.name }}</h1>
+              <span class="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-mono text-xs font-bold border border-indigo-200/60 dark:border-indigo-500/30">
+                &lt;{{ doc.selector }}&gt;
+              </span>
+              <span class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-700">
+                {{ doc.category }}
+              </span>
+            </div>
+          </div>
+
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-4xl">
+            {{ doc.description }}
+          </p>
+
+          <!-- Import Code Snippet Bar -->
+          <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between font-mono text-xs text-cyan-300 shadow-inner">
+            <code class="truncate pr-4">{{ doc.importStatement }}</code>
+            <button (click)="copyToClipboard(doc.importStatement)" 
+                    class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-sans font-bold text-white transition-all shrink-0 cursor-pointer flex items-center gap-1.5 border border-slate-700">
+              <erp-icon [name]="copiedCode() === doc.importStatement ? 'check' : 'plus'" [size]="14"></erp-icon>
+              <span>{{ copiedCode() === doc.importStatement ? 'Đã sao chép!' : 'Copy Import' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Component Navigation Tabs -->
+        <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-1">
+          <button (click)="setTab('playground')"
+                  [class.text-indigo-600]="activeTab() === 'playground'"
+                  [class.dark:text-indigo-400]="activeTab() === 'playground'"
+                  [class.border-indigo-600]="activeTab() === 'playground'"
+                  [class.dark:border-indigo-500]="activeTab() === 'playground'"
+                  [class.bg-indigo-50]="activeTab() === 'playground'"
+                  [class.dark:bg-indigo-500/10]="activeTab() === 'playground'"
+                  [class.text-slate-500]="activeTab() !== 'playground'"
+                  [class.dark:text-slate-400]="activeTab() !== 'playground'"
+                  [class.border-transparent]="activeTab() !== 'playground'"
+                  class="px-4 py-2 rounded-xl text-xs font-bold border-b-2 transition-all flex items-center gap-2 cursor-pointer">
+            <erp-icon name="activity" [size]="14"></erp-icon>
+            <span>Live Playground</span>
+          </button>
+
+          <button (click)="setTab('api')"
+                  [class.text-indigo-600]="activeTab() === 'api'"
+                  [class.dark:text-indigo-400]="activeTab() === 'api'"
+                  [class.border-indigo-600]="activeTab() === 'api'"
+                  [class.dark:border-indigo-500]="activeTab() === 'api'"
+                  [class.bg-indigo-50]="activeTab() === 'api'"
+                  [class.dark:bg-indigo-500/10]="activeTab() === 'api'"
+                  [class.text-slate-500]="activeTab() !== 'api'"
+                  [class.dark:text-slate-400]="activeTab() !== 'api'"
+                  [class.border-transparent]="activeTab() !== 'api'"
+                  class="px-4 py-2 rounded-xl text-xs font-bold border-b-2 transition-all flex items-center gap-2 cursor-pointer">
+            <erp-icon name="settings" [size]="14"></erp-icon>
+            <span>API Reference ({{ doc.props.length }})</span>
+          </button>
+
+          <button (click)="setTab('examples')"
+                  [class.text-indigo-600]="activeTab() === 'examples'"
+                  [class.dark:text-indigo-400]="activeTab() === 'examples'"
+                  [class.border-indigo-600]="activeTab() === 'examples'"
+                  [class.dark:border-indigo-500]="activeTab() === 'examples'"
+                  [class.bg-indigo-50]="activeTab() === 'examples'"
+                  [class.dark:bg-indigo-500/10]="activeTab() === 'examples'"
+                  [class.text-slate-500]="activeTab() !== 'examples'"
+                  [class.dark:text-slate-400]="activeTab() !== 'examples'"
+                  [class.border-transparent]="activeTab() !== 'examples'"
+                  class="px-4 py-2 rounded-xl text-xs font-bold border-b-2 transition-all flex items-center gap-2 cursor-pointer">
+            <erp-icon name="check" [size]="14"></erp-icon>
+            <span>Code Examples ({{ doc.examples.length }})</span>
+          </button>
+        </div>
+
+        <!-- TAB 1: Live Interactive Playground -->
+        @if (activeTab() === 'playground') {
+          <div class="space-y-6">
+            
+            <div class="rounded-3xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900/90 shadow-md overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+              
+              <!-- Preview Header & Canvas Switcher Bar -->
+              <div class="px-5 py-3.5 bg-slate-50 dark:bg-slate-900 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                <div class="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300">
+                  <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                  <span>Workbench Preview</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] font-semibold text-slate-400">Hoa văn nền:</span>
+                  <div class="inline-flex rounded-lg bg-slate-200 dark:bg-slate-950 p-0.5 border border-slate-300 dark:border-slate-800">
+                    <button (click)="setCanvasBg('dots')" [class.bg-indigo-600]="canvasBg() === 'dots'" [class.text-white]="canvasBg() === 'dots'" [class.text-slate-600]="canvasBg() !== 'dots'" [class.dark:text-slate-400]="canvasBg() !== 'dots'" class="px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer">Dots</button>
+                    <button (click)="setCanvasBg('grid')" [class.bg-indigo-600]="canvasBg() === 'grid'" [class.text-white]="canvasBg() === 'grid'" [class.text-slate-600]="canvasBg() !== 'grid'" [class.dark:text-slate-400]="canvasBg() !== 'grid'" class="px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer">Grid</button>
+                    <button (click)="setCanvasBg('slate')" [class.bg-indigo-600]="canvasBg() === 'slate'" [class.text-white]="canvasBg() === 'slate'" [class.text-slate-600]="canvasBg() !== 'slate'" [class.dark:text-slate-400]="canvasBg() !== 'slate'" class="px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer">Solid</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Preview Viewport Canvas (Centered & Fully Responsive Width) -->
+              <div [class.bg-[radial-gradient(#cbd5e1_1px,transparent_1px)]]="canvasBg() === 'dots'"
+                   [class.dark:bg-[radial-gradient(#334155_1px,transparent_1px)]]="canvasBg() === 'dots'"
+                   [class.[background-size:16px_16px]]="canvasBg() === 'dots'"
+                   [class.bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)]]="canvasBg() === 'grid'"
+                   [class.dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)]]="canvasBg() === 'grid'"
+                   [class.[background-size:24px_24px]]="canvasBg() === 'grid'"
+                   [class.bg-slate-100]="canvasBg() === 'slate'"
+                   [class.dark:bg-slate-900]="canvasBg() === 'slate'"
+                   class="p-8 sm:p-12 min-h-[320px] bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center transition-all">
+                
+                <div class="w-full max-w-xl p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl flex items-center justify-center">
+                  
+                  <div class="w-full">
+                    @switch (doc.id) {
+                      @case ('button') {
+                        <div class="flex justify-center">
+                          <erp-button [variant]="interactiveVariant()" 
+                                      [size]="interactiveButtonSize()" 
+                                      [skeleton]="interactiveLoading()"
+                                      [disabled]="interactiveDisabled()"
+                                      iconLeft="plus">
+                            {{ interactiveButtonText() }}
+                          </erp-button>
+                        </div>
+                      }
+
+                      @case ('icon-button') {
+                        <div class="flex items-center justify-center gap-4">
+                          <erp-icon-button icon="bell" 
+                                           [variant]="interactiveVariant()" 
+                                           [size]="interactiveButtonSize()" 
+                                           [badge]="5" 
+                                           [shape]="interactiveShape() === 'square' ? 'square' : (interactiveShape() === 'circle' ? 'circle' : 'rounded')"
+                                           [skeleton]="interactiveLoading()"
+                                           [disabled]="interactiveDisabled()"
+                                           tooltip="Thông báo hệ thống">
+                          </erp-icon-button>
+
+                          <erp-icon-button icon="plus" 
+                                           variant="primary" 
+                                           [size]="interactiveButtonSize()" 
+                                           shape="circle"
+                                           [skeleton]="interactiveLoading()"
+                                           [disabled]="interactiveDisabled()"
+                                           tooltip="Thêm mới">
+                          </erp-icon-button>
+
+                          <erp-icon-button icon="trash-2" 
+                                           variant="danger" 
+                                           [size]="interactiveButtonSize()" 
+                                           [skeleton]="interactiveLoading()"
+                                           [disabled]="interactiveDisabled()"
+                                           tooltip="Xóa">
+                          </erp-icon-button>
+                        </div>
+                      }
+
+                      @case ('typography') {
+                        <div class="space-y-4 text-center">
+                          <erp-typography [variant]="interactiveTypographyVariant()" [gradient]="interactiveOrientation() === 'horizontal'" [loading]="interactiveLoading()">
+                            Open ERP Design System 2026
+                          </erp-typography>
+                          <erp-typography variant="lead" [loading]="interactiveLoading()">
+                            Thư viện giao diện chuẩn doanh nghiệp đa nền tảng tối ưu hóa hiệu suất và tính nhất quán.
+                          </erp-typography>
+                          <div class="flex items-center justify-center gap-2">
+                            <erp-typography variant="small" [loading]="interactiveLoading()">Phiên bản v2.0</erp-typography>
+                            <erp-typography variant="code" [loading]="interactiveLoading()">npm i @open-erp/shared</erp-typography>
+                          </div>
+                        </div>
+                      }
+
+                      @case ('link') {
+                        <div class="flex flex-wrap items-center justify-center gap-6">
+                          <erp-link href="https://github.com" [external]="true" color="primary" [loading]="interactiveLoading()">
+                            Tài liệu GitHub Repository
+                          </erp-link>
+
+                          <erp-link href="#" color="muted" iconLeft="settings" [loading]="interactiveLoading()">
+                            Cài đặt hệ thống
+                          </erp-link>
+
+                          <erp-link href="#" color="danger" iconLeft="trash-2" [loading]="interactiveLoading()">
+                            Xóa liên kết
+                          </erp-link>
+                        </div>
+                      }
+
+                      @case ('divider') {
+                        <div class="w-full space-y-4">
+                          <erp-typography variant="small" align="center">Phân tách nội dung có nhãn trung tâm</erp-typography>
+                          <erp-divider label="HOẶC ĐĂNG NHẬP VỚI" [loading]="interactiveLoading()"></erp-divider>
+                          <div class="flex items-center justify-center gap-2">
+                            <span>Mục A</span>
+                            <erp-divider orientation="vertical" [loading]="interactiveLoading()"></erp-divider>
+                            <span>Mục B</span>
+                            <erp-divider orientation="vertical" [loading]="interactiveLoading()"></erp-divider>
+                            <span>Mục C</span>
+                          </div>
+                        </div>
+                      }
+
+                      @case ('badge') {
+                        <div class="flex flex-wrap items-center justify-center gap-3">
+                          <erp-badge [variant]="interactiveBadgeVariant()" [color]="interactiveBadgeColor()" [loading]="interactiveLoading()">
+                            Huy hiệu {{ interactiveBadgeColor() }}
+                          </erp-badge>
+
+                          <erp-badge variant="solid" color="danger" [value]="'99+'" [loading]="interactiveLoading()"></erp-badge>
+                          <erp-badge variant="dot" color="success" [loading]="interactiveLoading()">Trực tuyến</erp-badge>
+                          <erp-badge variant="outline" color="warning" [loading]="interactiveLoading()">Chờ duyệt</erp-badge>
+                        </div>
+                      }
+
+                      @case ('tag') {
+                        <div class="flex flex-wrap items-center justify-center gap-2.5">
+                          <erp-tag label="Khách hàng VIP" 
+                                   icon="shield" 
+                                   [color]="interactiveTagColor()" 
+                                   [variant]="interactiveTagVariant()" 
+                                   [removable]="interactiveClearable()" 
+                                   [clickable]="true"
+                                   [loading]="interactiveLoading()">
+                          </erp-tag>
+
+                          <erp-tag label="Hóa đơn điện tử" color="primary" variant="subtle" icon="file-text" [loading]="interactiveLoading()"></erp-tag>
+                          <erp-tag label="Đã thanh toán" color="success" variant="solid" icon="check" [loading]="interactiveLoading()"></erp-tag>
+                          <erp-tag label="Chiết khấu 20%" color="pink" variant="outline" icon="dollar-sign" [removable]="true" [loading]="interactiveLoading()"></erp-tag>
+                        </div>
+                      }
+
+                      @case ('spinner') {
+                        <div class="flex flex-col items-center justify-center gap-4">
+                          <erp-spinner [size]="interactiveSpinnerSize()" 
+                                       [variant]="interactiveSpinnerVariant()" 
+                                       label="Đang đồng bộ dữ liệu hệ thống ERP...">
+                          </erp-spinner>
+
+                          <div class="flex items-center gap-6 pt-2">
+                            <erp-spinner variant="spin" size="sm"></erp-spinner>
+                            <erp-spinner variant="dots" size="md"></erp-spinner>
+                            <erp-spinner variant="pulse" size="lg"></erp-spinner>
+                          </div>
+                        </div>
+                      }
+
+                      @case ('kbd') {
+                        <div class="flex flex-col items-center justify-center gap-4">
+                          <div class="flex items-center gap-3">
+                            <span class="text-xs text-slate-500 font-medium">Tìm kiếm nhanh:</span>
+                            <erp-kbd [keys]="['Ctrl', 'K']" [size]="interactiveButtonSize()"></erp-kbd>
+                          </div>
+                          <div class="flex items-center gap-3">
+                            <span class="text-xs text-slate-500 font-medium">Lưu thay đổi:</span>
+                            <erp-kbd [keys]="['⌘', 'S']" [size]="interactiveButtonSize()"></erp-kbd>
+                          </div>
+                          <div class="flex items-center gap-3">
+                            <span class="text-xs text-slate-500 font-medium">Đóng cửa sổ:</span>
+                            <erp-kbd key="Esc" [size]="interactiveButtonSize()"></erp-kbd>
+                          </div>
+                        </div>
+                      }
+
+                      @case ('submit-button') {
+                        <div class="flex justify-center">
+                          <erp-submit-button [size]="interactiveButtonSize()"
+                                             [disabled]="interactiveDisabled()"
+                                             [skeleton]="interactiveLoading()">
+                            {{ interactiveButtonText() }}
+                          </erp-submit-button>
+                        </div>
+                      }
+
+                      @case ('reset-button') {
+                        <div class="flex justify-center">
+                          <erp-reset-button [size]="interactiveButtonSize()"
+                                            [disabled]="interactiveDisabled()"
+                                            [skeleton]="interactiveLoading()">
+                          </erp-reset-button>
+                        </div>
+                      }
+
+                      @case ('label') {
+                        <erp-label text="Họ và tên nhân viên" 
+                                   [required]="interactiveRequired()" 
+                                   tooltip="Nhập chính xác họ tên theo CMND/CCCD" 
+                                   [loading]="interactiveLoading()">
+                        </erp-label>
+                      }
+
+                      @case ('input') {
+                        <erp-input label="Địa chỉ Email"
+                                   placeholder="admin@open-erp.vn"
+                                   prefixIcon="mail"
+                                   [clearable]="interactiveClearable()"
+                                   [size]="interactiveInputSize()"
+                                   [disabled]="interactiveDisabled()"
+                                   [required]="interactiveRequired()"
+                                   [status]="interactiveValidationStatus()"
+                                   [errorMessage]="interactiveValidationStatus() === 'invalid' ? 'Email không đúng định dạng quy chuẩn' : undefined"
+                                   [helperText]="interactiveValidationStatus() === 'valid' ? 'Email hợp lệ' : (interactiveValidationStatus() === 'warning' ? 'Tài khoản chưa được kích hoạt 2FA' : 'Nhập email công ty để nhận thông báo')"
+                                   [loading]="interactiveLoading()"
+                                   [(ngModel)]="formInputVal">
+                        </erp-input>
+                      }
+
+                      @case ('password-input') {
+                        <erp-password-input label="Mật khẩu tài khoản"
+                                            [showStrengthMeter]="interactiveStrengthMeter()"
+                                            [size]="interactiveInputSize()"
+                                            [disabled]="interactiveDisabled()"
+                                            [required]="interactiveRequired()"
+                                            [status]="interactiveValidationStatus()"
+                                            [errorMessage]="interactiveValidationStatus() === 'invalid' ? 'Mật khẩu quá ngắn hoặc không an toàn' : undefined"
+                                            [loading]="interactiveLoading()"
+                                            [(ngModel)]="formPasswordVal">
+                        </erp-password-input>
+                      }
+
+                      @case ('number-input') {
+                        <erp-number-input label="Số lượng tồn kho"
+                                          [min]="0"
+                                          [max]="1000"
+                                          [step]="5"
+                                          suffix="Kiện"
+                                          [size]="interactiveInputSize()"
+                                          [disabled]="interactiveDisabled()"
+                                          [required]="interactiveRequired()"
+                                          [status]="interactiveValidationStatus()"
+                                          [loading]="interactiveLoading()"
+                                          [(ngModel)]="formNumberVal">
+                        </erp-number-input>
+                      }
+
+                      @case ('textarea') {
+                        <erp-textarea label="Mô tả công việc"
+                                      placeholder="Nhập chi tiết yêu cầu công việc..."
+                                      [rows]="3"
+                                      [maxLength]="250"
+                                      [showCount]="interactiveShowCount()"
+                                      [disabled]="interactiveDisabled()"
+                                      [required]="interactiveRequired()"
+                                      [status]="interactiveValidationStatus()"
+                                      [loading]="interactiveLoading()"
+                                      [(ngModel)]="formTextareaVal">
+                        </erp-textarea>
+                      }
+
+                      @case ('select') {
+                        <erp-select label="Phòng ban trực thuộc"
+                                    [options]="sampleSelectOptions"
+                                    [searchable]="interactiveSearchable()"
+                                    [clearable]="interactiveClearable()"
+                                    [size]="interactiveInputSize()"
+                                    [disabled]="interactiveDisabled()"
+                                    [required]="interactiveRequired()"
+                                    [status]="interactiveValidationStatus()"
+                                    [loading]="interactiveLoading()"
+                                    [(ngModel)]="formSelectVal">
+                        </erp-select>
+                      }
+
+                      @case ('multi-select') {
+                        <erp-multi-select label="Phân công phòng ban (Nhiều mục)"
+                                          [options]="sampleSelectOptions"
+                                          [searchable]="interactiveSearchable()"
+                                          [disabled]="interactiveDisabled()"
+                                          [required]="interactiveRequired()"
+                                          [status]="interactiveValidationStatus()"
+                                          [loading]="interactiveLoading()"
+                                          [(ngModel)]="formMultiSelectVal">
+                        </erp-multi-select>
+                      }
+
+                      @case ('checkbox') {
+                        <erp-checkbox label="Kích hoạt trạng thái hoạt động"
+                                      description="Cho phép tài khoản đăng nhập và truy cập tài nguyên hệ thống ERP"
+                                      [disabled]="interactiveDisabled()"
+                                      [loading]="interactiveLoading()"
+                                      [(ngModel)]="formCheckboxVal">
+                        </erp-checkbox>
+                      }
+
+                      @case ('radio-group') {
+                        <erp-radio-group label="Phương thức thanh toán"
+                                         [options]="sampleRadioOptions"
+                                         [cardMode]="interactiveCardMode()"
+                                         [orientation]="interactiveOrientation()"
+                                         [disabled]="interactiveDisabled()"
+                                         [required]="interactiveRequired()"
+                                         [loading]="interactiveLoading()"
+                                         [(ngModel)]="formRadioVal">
+                        </erp-radio-group>
+                      }
+
+                      @case ('switch') {
+                        <erp-switch label="Thông báo hệ thống qua SMS"
+                                    description="Tự động gửi tin nhắn điện thoại khi có đơn hàng khẩn cấp"
+                                    [size]="interactiveInputSize()"
+                                    [disabled]="interactiveDisabled()"
+                                    [loading]="interactiveLoading()"
+                                    [(ngModel)]="formSwitchVal">
+                        </erp-switch>
+                      }
+
+                      @case ('date-picker') {
+                        <erp-date-picker label="Ngày ký hợp đồng"
+                                         [size]="interactiveInputSize()"
+                                         [disabled]="interactiveDisabled()"
+                                         [required]="interactiveRequired()"
+                                         [status]="interactiveValidationStatus()"
+                                         [loading]="interactiveLoading()"
+                                         [(ngModel)]="formDateVal">
+                        </erp-date-picker>
+                      }
+
+                      @case ('time-picker') {
+                        <erp-time-picker label="Giờ bắt đầu làm việc"
+                                         [size]="interactiveInputSize()"
+                                         [disabled]="interactiveDisabled()"
+                                         [required]="interactiveRequired()"
+                                         [status]="interactiveValidationStatus()"
+                                         [loading]="interactiveLoading()"
+                                         [(ngModel)]="formTimeVal">
+                        </erp-time-picker>
+                      }
+
+                      @case ('date-range-picker') {
+                        <erp-date-range-picker label="Kỳ quyết toán tài chính"
+                                               [disabled]="interactiveDisabled()"
+                                               [required]="interactiveRequired()"
+                                               [status]="interactiveValidationStatus()"
+                                               [loading]="interactiveLoading()"
+                                               [(ngModel)]="formDateRangeVal">
+                        </erp-date-range-picker>
+                      }
+
+                      @case ('slider') {
+                        <erp-slider label="Mức chiết khấu đơn hàng"
+                                    [min]="0"
+                                    [max]="100"
+                                    [step]="5"
+                                    unit="%"
+                                    [disabled]="interactiveDisabled()"
+                                    [loading]="interactiveLoading()"
+                                    [(ngModel)]="formSliderVal">
+                        </erp-slider>
+                      }
+
+                      @case ('color-picker') {
+                        <erp-color-picker label="Màu sắc chủ đề Tenant"
+                                          [disabled]="interactiveDisabled()"
+                                          [loading]="interactiveLoading()"
+                                          [(ngModel)]="formColorVal">
+                        </erp-color-picker>
+                      }
+
+                      @case ('autocomplete') {
+                        <erp-autocomplete label="Vị trí chức danh"
+                                          [items]="sampleAutocompleteItems"
+                                          [disabled]="interactiveDisabled()"
+                                          [required]="interactiveRequired()"
+                                          [status]="interactiveValidationStatus()"
+                                          [loading]="interactiveLoading()"
+                                          [(ngModel)]="formAutocompleteVal">
+                        </erp-autocomplete>
+                      }
+
+                      @case ('tag-input') {
+                        <erp-tag-input label="Kỹ năng chuyên môn (Tags)"
+                                       [disabled]="interactiveDisabled()"
+                                       [required]="interactiveRequired()"
+                                       [status]="interactiveValidationStatus()"
+                                       [loading]="interactiveLoading()"
+                                       [(ngModel)]="formTagsVal">
+                        </erp-tag-input>
+                      }
+
+                      @case ('rating') {
+                        <erp-rating label="Đánh giá hiệu suất nhân viên"
+                                    [max]="5"
+                                    [size]="interactiveInputSize()"
+                                    [disabled]="interactiveDisabled()"
+                                    [loading]="interactiveLoading()"
+                                    [(ngModel)]="formRatingVal">
+                        </erp-rating>
+                      }
+
+                      @case ('otp-input') {
+                        <erp-otp-input label="Nhập mã xác thực OTP (6 chữ số)"
+                                       [length]="6"
+                                       [disabled]="interactiveDisabled()"
+                                       [required]="interactiveRequired()"
+                                       [status]="interactiveValidationStatus()"
+                                       [loading]="interactiveLoading()"
+                                       [(ngModel)]="formOtpVal">
+                        </erp-otp-input>
+                      }
+
+                      @case ('file-upload') {
+                        <erp-file-upload label="Tải lên tài liệu đính kèm"
+                                         [multiple]="true"
+                                         [disabled]="interactiveDisabled()"
+                                         [required]="interactiveRequired()"
+                                         [loading]="interactiveLoading()"
+                                         [(ngModel)]="formFilesVal">
+                        </erp-file-upload>
+                      }
+
+                      @case ('rich-text-editor') {
+                        <erp-rich-text-editor label="Nội dung điều khoản hợp đồng"
+                                              [disabled]="interactiveDisabled()"
+                                              [required]="interactiveRequired()"
+                                              [loading]="interactiveLoading()"
+                                              [(ngModel)]="formRichTextVal">
+                        </erp-rich-text-editor>
+                      }
+
+                      @case ('stepper') {
+                        <erp-stepper [steps]="sampleStepperSteps"
+                                     [currentStep]="stepperIndexVal()"
+                                     [orientation]="interactiveOrientation()"
+                                     [loading]="interactiveLoading()"
+                                     (stepChange)="stepperIndexVal.set($event)">
+                        </erp-stepper>
+                      }
+
+                      @case ('helper-text') {
+                        <div class="space-y-2 w-full">
+                          <erp-helper-text text="Mật khẩu phải chứa ít nhất 8 ký tự" status="none"></erp-helper-text>
+                          <erp-helper-text text="Email hợp lệ và đã được xác minh" status="valid"></erp-helper-text>
+                          <erp-helper-text text="Tên đăng nhập đã tồn tại trong hệ thống" status="invalid"></erp-helper-text>
+                          <erp-helper-text text="Dung lượng bộ nhớ sắp đầy" status="warning"></erp-helper-text>
+                        </div>
+                      }
+
+                      @case ('avatar') {
+                        <div class="flex justify-center">
+                          <erp-avatar [name]="interactiveText()" 
+                                      [size]="interactiveSize()" 
+                                      [shape]="interactiveShape()"
+                                      [online]="interactiveOnline()"
+                                      [loading]="interactiveLoading()">
+                          </erp-avatar>
+                        </div>
+                      }
+
+                      @case ('status-badge') {
+                        <div class="flex justify-center">
+                          <erp-status-badge [status]="interactiveStatus()" 
+                                            [label]="interactiveText()"
+                                            [showDot]="interactiveOnline()"
+                                            [loading]="interactiveLoading()">
+                          </erp-status-badge>
+                        </div>
+                      }
+
+                      @case ('kpi-card') {
+                        <erp-kpi-card [title]="interactiveText()"
+                                      [value]="interactiveValue()"
+                                      subText="↑ +18.4% so với tháng trước"
+                                      [trend]="interactiveTrend()"
+                                      [iconName]="interactiveIcon()"
+                                      [loading]="interactiveLoading()">
+                        </erp-kpi-card>
+                      }
+
+                      @case ('skeleton') {
+                        <div class="space-y-3 w-full max-w-xs mx-auto">
+                          <erp-skeleton width="100%" height="2.5rem" [shape]="interactiveSkeletonShape()"></erp-skeleton>
+                          <erp-skeleton width="70%" height="1.25rem" [shape]="interactiveSkeletonShape()"></erp-skeleton>
+                          <erp-skeleton width="45%" height="1rem" [shape]="interactiveSkeletonShape()"></erp-skeleton>
+                        </div>
+                      }
+
+                      @case ('icon') {
+                        <div class="flex items-center justify-center gap-6 text-indigo-600 dark:text-indigo-400">
+                          <erp-icon name="dollar-sign" [size]="32"></erp-icon>
+                          <erp-icon name="users" [size]="32"></erp-icon>
+                          <erp-icon name="shield" [size]="32"></erp-icon>
+                          <erp-icon name="bell" [size]="32"></erp-icon>
+                          <erp-icon name="globe" [size]="32"></erp-icon>
+                        </div>
+                      }
+
+                      @case ('theme-toggle') {
+                        <div class="flex justify-center">
+                          <erp-theme-toggle></erp-theme-toggle>
+                        </div>
+                      }
+
+                      @case ('language-selector') {
+                        <div class="flex justify-center">
+                          <erp-language-selector></erp-language-selector>
+                        </div>
+                      }
+
+                      @case ('empty-state') {
+                        <erp-empty-state [title]="interactiveText()"
+                                         description="Vui lòng thử lại với từ khóa tìm kiếm hoặc bộ lọc khác."
+                                         type="not-found"
+                                         [loading]="interactiveLoading()">
+                          <erp-button action variant="outline" size="sm" iconLeft="refresh-cw">Làm mới dữ liệu</erp-button>
+                        </erp-empty-state>
+                      }
+
+                      @case ('maintenance-banner') {
+                        <div class="w-full p-6 rounded-2xl bg-slate-800 border border-slate-700 text-white text-center">
+                          <erp-icon name="alert-triangle" [size]="36" className="text-amber-400 mx-auto mb-2 animate-bounce"></erp-icon>
+                          <h4 class="font-bold text-sm">Hệ thống đang bảo trì nâng cấp</h4>
+                          <p class="text-xs text-slate-300 mt-1">Dự kiến hoàn tất lúc 02:00 sáng</p>
+                        </div>
+                      }
+                    }
+                  </div>
+
+                </div>
+
+              </div>
+
+              <!-- Interactive Controls Inspector Panel -->
+              <div class="p-6 bg-slate-50/90 dark:bg-slate-900/95 flex flex-wrap items-center justify-between gap-6 text-xs border-t border-slate-100 dark:border-slate-800">
+                
+                <div class="flex flex-wrap items-center gap-5">
+                  
+                  <!-- Size Selector for Avatar -->
+                  @if (doc.id === 'avatar') {
+                    <div class="space-y-1">
+                      <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Kích thước:</span>
+                      <div class="inline-flex rounded-xl bg-slate-200 dark:bg-slate-950 p-1 border border-slate-300 dark:border-slate-800">
+                        @for (sz of ['xs', 'sm', 'md', 'lg', 'xl']; track sz) {
+                          <button (click)="setAvatarSize(sz)"
+                                  [class.bg-indigo-600]="interactiveSize() === sz"
+                                  [class.text-white]="interactiveSize() === sz"
+                                  [class.text-slate-600]="interactiveSize() !== sz"
+                                  [class.dark:text-slate-400]="interactiveSize() !== sz"
+                                  class="px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors cursor-pointer">
+                            {{ sz }}
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Size for Inputs & Buttons & Switches & Rating & Kbd & Spinner -->
+                  @if (doc.id === 'input' || doc.id === 'password-input' || doc.id === 'number-input' || doc.id === 'select' || doc.id === 'date-picker' || doc.id === 'time-picker' || doc.id === 'switch' || doc.id === 'rating' || doc.id === 'button' || doc.id === 'icon-button' || doc.id === 'submit-button' || doc.id === 'reset-button' || doc.id === 'kbd' || doc.id === 'tag') {
+                    <div class="space-y-1">
+                      <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Kích thước (Size):</span>
+                      <div class="inline-flex rounded-xl bg-slate-200 dark:bg-slate-950 p-1 border border-slate-300 dark:border-slate-800">
+                        @for (sz of ['sm', 'md', 'lg']; track sz) {
+                          <button (click)="setInputSize(sz); setButtonSize(sz)"
+                                  [class.bg-indigo-600]="interactiveInputSize() === sz"
+                                  [class.text-white]="interactiveInputSize() === sz"
+                                  [class.text-slate-600]="interactiveInputSize() !== sz"
+                                  [class.dark:text-slate-400]="interactiveInputSize() !== sz"
+                                  class="px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors cursor-pointer">
+                            {{ sz }}
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Spinner Size & Variant -->
+                  @if (doc.id === 'spinner') {
+                    <div class="flex items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Dạng chuyển động:</span>
+                        <select [ngModel]="interactiveSpinnerVariant()" (ngModelChange)="interactiveSpinnerVariant.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="spin">Spin (Vòng xoay)</option>
+                          <option value="dots">Dots (3 chấm nhảy)</option>
+                          <option value="pulse">Pulse (Nhấp nháy)</option>
+                        </select>
+                      </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Kích cỡ:</span>
+                        <select [ngModel]="interactiveSpinnerSize()" (ngModelChange)="interactiveSpinnerSize.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="xs">XS</option>
+                          <option value="sm">SM</option>
+                          <option value="md">MD</option>
+                          <option value="lg">LG</option>
+                          <option value="xl">XL</option>
+                        </select>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Typography Variant -->
+                  @if (doc.id === 'typography') {
+                    <div class="flex items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Cấp độ Typography:</span>
+                        <select [ngModel]="interactiveTypographyVariant()" (ngModelChange)="interactiveTypographyVariant.set($event)" class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="h1">H1 (Tiêu đề lớn)</option>
+                          <option value="h2">H2 (Tiêu đề chính)</option>
+                          <option value="h3">H3 (Tiêu đề mục)</option>
+                          <option value="h4">H4</option>
+                          <option value="lead">Lead (Đoạn dẫn)</option>
+                          <option value="body">Body (Văn bản thân)</option>
+                          <option value="small">Small (Chữ nhỏ)</option>
+                          <option value="muted">Muted (Chữ mờ)</option>
+                          <option value="code">Code (Mã nguồn)</option>
+                        </select>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Badge Variant & Color -->
+                  @if (doc.id === 'badge') {
+                    <div class="flex items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Kiểu Huy hiệu:</span>
+                        <select [ngModel]="interactiveBadgeVariant()" (ngModelChange)="interactiveBadgeVariant.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="subtle">Subtle (Nhẹ nhàng)</option>
+                          <option value="solid">Solid (Đậm nét)</option>
+                          <option value="outline">Outline (Viền)</option>
+                          <option value="dot">Dot (Chấm tròn)</option>
+                        </select>
+                      </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Màu sắc:</span>
+                        <select [ngModel]="interactiveBadgeColor()" (ngModelChange)="interactiveBadgeColor.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="primary">Primary (Xanh tím)</option>
+                          <option value="success">Success (Xanh lá)</option>
+                          <option value="warning">Warning (Vàng cam)</option>
+                          <option value="danger">Danger (Đỏ)</option>
+                          <option value="info">Info (Xanh dương)</option>
+                          <option value="neutral">Neutral (Xám)</option>
+                        </select>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Tag Variant & Color -->
+                  @if (doc.id === 'tag') {
+                    <div class="flex items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Kiểu Thẻ:</span>
+                        <select [ngModel]="interactiveTagVariant()" (ngModelChange)="interactiveTagVariant.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="subtle">Subtle</option>
+                          <option value="solid">Solid</option>
+                          <option value="outline">Outline</option>
+                        </select>
+                      </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Màu sắc:</span>
+                        <select [ngModel]="interactiveTagColor()" (ngModelChange)="interactiveTagColor.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="purple">Purple (Tím)</option>
+                          <option value="primary">Primary</option>
+                          <option value="success">Success</option>
+                          <option value="warning">Warning</option>
+                          <option value="danger">Danger</option>
+                          <option value="pink">Pink</option>
+                        </select>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Validation Status Selector for Form Inputs -->
+                  @if (doc.category === 'Form & Inputs' && doc.id !== 'switch' && doc.id !== 'checkbox' && doc.id !== 'color-picker' && doc.id !== 'slider') {
+                    <div class="space-y-1">
+                      <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Trạng thái Validation:</span>
+                      <select [ngModel]="interactiveValidationStatus()" (ngModelChange)="interactiveValidationStatus.set($event)"
+                              class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white font-semibold outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="none">None (Mặc định)</option>
+                        <option value="valid">Valid (Hợp lệ xanh)</option>
+                        <option value="invalid">Invalid (Báo lỗi đỏ)</option>
+                        <option value="warning">Warning (Cảnh báo vàng)</option>
+                      </select>
+                    </div>
+                  }
+
+                  <!-- Variant for Button / IconButton -->
+                  @if (doc.id === 'button' || doc.id === 'icon-button') {
+                    <div class="space-y-1">
+                      <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Biến thể (Variant):</span>
+                      <select [ngModel]="interactiveVariant()" (ngModelChange)="interactiveVariant.set($event)"
+                              class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white font-semibold outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="primary">Primary (Chính)</option>
+                        <option value="secondary">Secondary (Phụ)</option>
+                        <option value="outline">Outline (Viền)</option>
+                        <option value="danger">Danger (Cảnh báo đỏ)</option>
+                        <option value="success">Success (Thành công)</option>
+                        <option value="ghost">Ghost (Trong suốt)</option>
+                      </select>
+                    </div>
+                  }
+
+                  <!-- Specific Switches for Form Components -->
+                  @if (doc.id === 'select' || doc.id === 'multi-select') {
+                    <div class="flex items-center gap-4">
+                      <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                        <input type="checkbox" [ngModel]="interactiveSearchable()" (ngModelChange)="interactiveSearchable.set($event)" class="rounded accent-indigo-600"/>
+                        <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Tìm kiếm (Searchable)</span>
+                      </label>
+                      <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                        <input type="checkbox" [ngModel]="interactiveClearable()" (ngModelChange)="interactiveClearable.set($event)" class="rounded accent-indigo-600"/>
+                        <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Nút xóa (Clearable)</span>
+                      </label>
+                    </div>
+                  }
+
+                  @if (doc.id === 'radio-group') {
+                    <div class="flex items-center gap-4">
+                      <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                        <input type="checkbox" [ngModel]="interactiveCardMode()" (ngModelChange)="interactiveCardMode.set($event)" class="rounded accent-indigo-600"/>
+                        <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Card Mode</span>
+                      </label>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[10px]">Hướng:</span>
+                        <select [ngModel]="interactiveOrientation()" (ngModelChange)="interactiveOrientation.set($event)" class="px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="horizontal">Horizontal (Ngang)</option>
+                          <option value="vertical">Vertical (Dọc)</option>
+                        </select>
+                      </div>
+                    </div>
+                  }
+
+                  @if (doc.id === 'stepper') {
+                    <div class="space-y-1">
+                      <span class="text-slate-500 dark:text-slate-400 font-bold block text-[10px]">Chiều hiển thị:</span>
+                      <select [ngModel]="interactiveOrientation()" (ngModelChange)="interactiveOrientation.set($event)" class="px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                        <option value="horizontal">Horizontal (Ngang)</option>
+                        <option value="vertical">Vertical (Dọc)</option>
+                      </select>
+                    </div>
+                  }
+
+                  <!-- Common Disabled & Required Toggles -->
+                  @if (doc.category === 'Form & Inputs' || doc.id === 'button' || doc.id === 'icon-button' || doc.id === 'submit-button' || doc.id === 'reset-button' || doc.id === 'link') {
+                    <div class="flex items-center gap-4">
+                      <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                        <input type="checkbox" [ngModel]="interactiveDisabled()" (ngModelChange)="interactiveDisabled.set($event)" class="rounded accent-indigo-600"/>
+                        <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Vô hiệu hóa (Disabled)</span>
+                      </label>
+                      @if (doc.category === 'Form & Inputs' && doc.id !== 'switch' && doc.id !== 'checkbox' && doc.id !== 'slider') {
+                        <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                          <input type="checkbox" [ngModel]="interactiveRequired()" (ngModelChange)="interactiveRequired.set($event)" class="rounded accent-indigo-600"/>
+                          <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Bắt buộc (*)</span>
+                        </label>
+                      }
+                    </div>
+                  }
+
+                </div>
+
+                <!-- Test Skeleton Switch -->
+                <div class="space-y-1 shrink-0">
+                  <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Chế độ tải:</span>
+                  <button (click)="interactiveLoading.set(!interactiveLoading())"
+                          [class.bg-amber-500]="interactiveLoading()"
+                          [class.text-slate-950]="interactiveLoading()"
+                          [class.shadow-amber-500/20]="interactiveLoading()"
+                          [class.bg-white]="!interactiveLoading()"
+                          [class.dark:bg-slate-950]="!interactiveLoading()"
+                          [class.text-slate-700]="!interactiveLoading()"
+                          [class.dark:text-slate-300]="!interactiveLoading()"
+                          class="px-4 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700/80 text-xs font-black transition-all shadow-md cursor-pointer flex items-center gap-2">
+                    <span>⚡</span>
+                    <span>Skeleton Mode: {{ interactiveLoading() ? 'ĐANG BẬT' : 'TẮT' }}</span>
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        }
+
+        <!-- TAB 2: API Reference Table -->
+        @if (activeTab() === 'api') {
+          <div class="rounded-3xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900/90 shadow-md overflow-hidden">
+            @if (doc.props.length > 0) {
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 dark:bg-slate-950/90 text-slate-500 dark:text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th class="py-4 px-6">Thuộc tính (Prop)</th>
+                    <th class="py-4 px-6">Kiểu dữ liệu (TypeScript)</th>
+                    <th class="py-4 px-6">Giá trị Mặc định</th>
+                    <th class="py-4 px-6">Mô tả chi tiết & Tùy chọn</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80">
+                  @for (prop of doc.props; track prop.name) {
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                      <td class="py-4 px-6 font-mono font-bold text-indigo-600 dark:text-indigo-400">&#64;Input() {{ prop.name }}</td>
+                      <td class="py-4 px-6 font-mono text-[11px] text-cyan-600 dark:text-cyan-400">{{ prop.type }}</td>
+                      <td class="py-4 px-6 font-mono text-[11px] text-slate-500 dark:text-slate-400">{{ prop.default }}</td>
+                      <td class="py-4 px-6 text-slate-700 dark:text-slate-300">
+                        {{ prop.description }}
+                        @if (prop.options) {
+                          <div class="mt-2 flex flex-wrap gap-1.5">
+                            @for (opt of prop.options; track opt) {
+                              <span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-950 text-[10px] font-mono text-indigo-700 dark:text-indigo-300 border border-slate-200 dark:border-slate-800">{{ opt }}</span>
+                            }
+                          </div>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            } @else {
+              <div class="p-12 text-center text-xs text-slate-400">
+                Component này không yêu cầu thuộc tính Input bắt buộc (tự động kết nối với service hệ thống).
+              </div>
+            }
+          </div>
+        }
+
+        <!-- TAB 3: Code Examples -->
+        @if (activeTab() === 'examples') {
+          <div class="space-y-4">
+            @for (ex of doc.examples; track ex.title) {
+              <div class="rounded-3xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900/90 overflow-hidden shadow-md">
+                <div class="p-5 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                  <div>
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ ex.title }}</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ ex.description }}</p>
+                  </div>
+                  <button (click)="copyToClipboard(ex.code)" 
+                          class="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold text-slate-800 dark:text-white transition-all cursor-pointer flex items-center gap-1.5 border border-slate-200 dark:border-slate-700">
+                    <erp-icon [name]="copiedCode() === ex.code ? 'check' : 'plus'" [size]="14"></erp-icon>
+                    <span>{{ copiedCode() === ex.code ? 'Đã copy!' : 'Copy Code' }}</span>
+                  </button>
+                </div>
+                <div class="p-5 bg-slate-900 font-mono text-xs overflow-x-auto text-emerald-400 leading-relaxed">
+                  <pre><code>{{ ex.code }}</code></pre>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+      }
+
+    </main>
+  </div>
+
+</div>

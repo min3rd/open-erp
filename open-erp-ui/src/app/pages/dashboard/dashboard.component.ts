@@ -1,21 +1,21 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslocoModule } from '@jsverse/transloco';
-import { AuthService, OrderItem } from '@open-erp/shared';
+import { AuthService, OrderItem, KpiCardComponent, StatusBadgeComponent } from '@open-erp/shared';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, TranslocoModule],
+  imports: [CommonModule, TranslocoModule, KpiCardComponent, StatusBadgeComponent],
   templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent {
   authService = inject(AuthService);
 
   stats = signal({
-    revenue: 485900000,
-    ordersCount: 142,
-    activeUsersCount: 28,
+    revenue: '485.900.000 ₫',
+    ordersCount: '142',
+    activeUsersCount: '28',
     systemUptime: '99.98%'
   });
 

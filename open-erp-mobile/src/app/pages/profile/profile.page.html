@@ -7,11 +7,9 @@
 <ion-content [fullscreen]="true" class="bg-slate-50 dark:bg-slate-950" *transloco="let t">
   <div class="p-4 space-y-4 font-sans pb-16">
     
-    <!-- User Info Card -->
+    <!-- User Info Card with Shared Avatar -->
     <div class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center gap-4">
-      <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-cyan-400 text-white font-black text-xl flex items-center justify-center shadow-md">
-        {{ (authService.currentUser()?.username || 'A')[0].toUpperCase() }}
-      </div>
+      <erp-avatar [name]="authService.currentUser()?.username || 'Admin'" [online]="true" size="lg"></erp-avatar>
       <div>
         <h2 class="text-sm font-bold text-slate-900 dark:text-white">{{ authService.currentUser()?.username || 'Admin' }}</h2>
         <p class="text-xs text-slate-400">{{ authService.currentUser()?.email || 'admin@vn9melody.com' }}</p>

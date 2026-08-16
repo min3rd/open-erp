@@ -1,0 +1,33 @@
+import { EventEmitter } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
+import { IconName } from '../../icon/icon.component';
+import { InputSize, ValidationStatus } from '../../../enums/component.enum';
+export declare class InputComponent implements ControlValueAccessor {
+    label?: string;
+    placeholder: string;
+    type: string;
+    size: InputSize | 'sm' | 'md' | 'lg';
+    status: ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning';
+    helperText?: string;
+    errorMessage?: string;
+    prefixIcon?: IconName;
+    suffixIcon?: IconName;
+    clearable: boolean;
+    disabled: boolean;
+    readonly: boolean;
+    required: boolean;
+    loading: boolean;
+    valueChange: EventEmitter<string>;
+    clear: EventEmitter<void>;
+    value: string;
+    onChange: (val: string) => void;
+    onTouched: () => void;
+    writeValue(val: any): void;
+    registerOnChange(fn: any): void;
+    registerOnTouched(fn: any): void;
+    setDisabledState(isDisabled: boolean): void;
+    onInput(event: Event): void;
+    onClear(): void;
+    getSizeClasses(): string;
+    getStatusClasses(): string;
+}

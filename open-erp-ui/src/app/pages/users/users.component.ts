@@ -2,12 +2,12 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
-import { UserItem } from '@open-erp/shared';
+import { UserItem, AvatarComponent, StatusBadgeComponent } from '@open-erp/shared';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslocoModule],
+  imports: [CommonModule, FormsModule, TranslocoModule, AvatarComponent, StatusBadgeComponent],
   templateUrl: './users.component.html'
 })
 export class UsersComponent {

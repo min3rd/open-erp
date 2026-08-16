@@ -1,0 +1,31 @@
+@if (loading) {
+  <erp-skeleton width="35%" height="0.875rem" shape="rounded" className="mb-1.5"></erp-skeleton>
+} @else {
+  <label [attr.for]="forId" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 select-none mb-1.5">
+    @if (icon) {
+      <erp-icon [name]="icon" [size]="14" className="text-slate-400 dark:text-slate-500"></erp-icon>
+    }
+
+    <span>
+      {{ text }}
+      <ng-content></ng-content>
+    </span>
+
+    @if (required) {
+      <span class="text-rose-500 font-black text-xs" title="Bắt buộc">*</span>
+    }
+
+    @if (optional) {
+      <span class="text-[10px] font-normal text-slate-400 italic">(Tùy chọn)</span>
+    }
+
+    @if (tooltip) {
+      <span class="group relative cursor-help inline-flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+        <erp-icon name="info" [size]="12"></erp-icon>
+        <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block w-max max-w-xs px-2.5 py-1 text-[11px] font-normal bg-slate-900 text-white rounded-lg shadow-lg z-50 pointer-events-none">
+          {{ tooltip }}
+        </span>
+      </span>
+    }
+  </label>
+}

@@ -1,0 +1,11 @@
+<erp-button type="submit"
+            variant="primary"
+            [size]="size"
+            [loading]="submitting"
+            [disabled]="disabled"
+            [skeleton]="skeleton"
+            [iconLeft]="icon"
+            [fullWidth]="fullWidth"
+            (btnClick)="submitClick.emit($event)">
+  {{ text }}
+</erp-button>
