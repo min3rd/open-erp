@@ -2,7 +2,9 @@
   "app": {
     "title": "Hệ thống Quản trị Doanh nghiệp Mở (Open ERP)",
     "subtitle": "Giải pháp quản trị tổng thể cho doanh nghiệp hiện đại",
-    "version": "Phiên bản 1.0.0"
+    "version": "Phiên bản 1.0.0",
+    "brandSubtitle": "Enterprise Cloud",
+    "tenantLabel": "Tenant"
   },
   "nav": {
     "dashboard": "Tổng quan",
@@ -39,8 +41,9 @@
     "status": "Trạng thái",
     "actions": "Thao tác",
     "active": "Đang hoạt động",
-    "inactive": "Tạm dừng",
+    "inactive": "Tạm khóa",
     "pending": "Đang chờ",
+    "processing": "Đang xử lý",
     "completed": "Hoàn tất",
     "success": "Thành công",
     "error": "Lỗi",
@@ -48,8 +51,13 @@
     "export": "Xuất Excel",
     "import": "Nhập dữ liệu",
     "refresh": "Làm mới",
+    "reloadPage": "Tải lại trang",
+    "all": "Tất cả",
     "darkMode": "Chế độ tối",
-    "lightMode": "Chế độ sáng"
+    "lightMode": "Chế độ sáng",
+    "onlineNow": "Đang online trực tuyến",
+    "comparedToLastMonth": "so với tháng trước",
+    "newOrdersToday": "↑ +{{count}} đơn hôm nay"
   },
   "auth": {
     "loginTitle": "Đăng nhập Open ERP",
@@ -67,7 +75,8 @@
     "loginSuccess": "Đăng nhập thành công!",
     "loginFailed": "Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản hoặc mật khẩu.",
     "welcomeBack": "Chào mừng trở lại",
-    "copyright": "© 2026 Open ERP System. All rights reserved."
+    "copyright": "© 2026 Open ERP System. All rights reserved.",
+    "poweredBy": "Phát triển trên nền tảng Quarkus Quinoa & Angular"
   },
   "dashboard": {
     "welcome": "Chào mừng quay trở lại, {{name}}!",
@@ -78,8 +87,10 @@
     "systemHealth": "Trạng thái Dịch vụ",
     "healthy": "Hoạt động ổn định",
     "recentOrders": "Đơn hàng gần đây",
+    "recentOrdersDesc": "Danh sách giao dịch phát sinh gần nhất trong hệ thống",
     "orderCode": "Mã ĐH",
     "customer": "Khách hàng",
+    "content": "Nội dung",
     "amount": "Giá trị",
     "date": "Ngày tạo",
     "systemLogs": "Nhật ký hệ thống Quarkus",
@@ -87,5 +98,24 @@
     "createNewOrder": "Tạo đơn hàng",
     "addUser": "Thêm nhân sự",
     "viewReports": "Xem báo cáo KPI"
+  },
+  "users": {
+    "title": "Quản lý Người dùng",
+    "subtitle": "Danh sách tài khoản, phân quyền Role & Permission đa chi nhánh",
+    "searchPlaceholder": "Tìm theo tên, username, email...",
+    "userCol": "Người dùng",
+    "departmentCol": "Phòng ban",
+    "rolesCol": "Vai trò (Roles)",
+    "lastLoginCol": "Đăng nhập gần nhất",
+    "allFilter": "Tất cả",
+    "activeFilter": "Hoạt động",
+    "inactiveFilter": "Tạm khóa"
+  },
+  "maintenance": {
+    "estimatedCompletion": "Dự kiến hoàn thành",
+    "supportHotline": "Hotline hỗ trợ",
+    "supportEmail": "Email hỗ trợ",
+    "adminBypass": "Bỏ qua (Dành cho Quản trị viên)",
+    "reloadPage": "Tải lại trang"
   }
 }

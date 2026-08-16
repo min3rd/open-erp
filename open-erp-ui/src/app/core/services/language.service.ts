@@ -1,32 +1,30 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-
-export interface SupportedLanguage {
-  code: string;
-  name: string;
-  flag: string;
-}
+import { AppConfigService } from './app-config.service';
+import { LanguageItem } from '../models/app-config.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LanguageService {
   private transloco = inject(TranslocoService);
+  private configService = inject(AppConfigService);
 
-  readonly supportedLanguages: SupportedLanguage[] = [
-    { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
-    { code: 'en', name: 'English', flag: '🇺🇸' }
-  ];
+  readonly supportedLanguages = computed<LanguageItem[]>(() => {
+    return this.configService.i18n().availableLanguages;
+  });
 
   currentLanguage = signal<string>('vi');
 
   constructor() {
-    const savedLang = localStorage.getItem('erp_lang') || 'vi';
+    const defaultLang = this.configService.i18n().defaultLanguage || 'vi';
+    const savedLang = localStorage.getItem('erp_lang') || defaultLang;
     this.setLanguage(savedLang);
   }
 
   setLanguage(lang: string): void {
-    if (this.supportedLanguages.some(l => l.code === lang)) {
+    const list = this.configService.i18n().availableLanguages;
+    if (list.some(l => l.code === lang)) {
       this.transloco.setActiveLang(lang);
       this.currentLanguage.set(lang);
       localStorage.setItem('erp_lang', lang);
@@ -34,7 +32,10 @@ export class LanguageService {
   }
 
   toggleLanguage(): void {
-    const nextLang = this.currentLanguage() === 'vi' ? 'en' : 'vi';
-    this.setLanguage(nextLang);
+    const langs = this.configService.i18n().availableLanguages;
+    if (langs.length === 0) return;
+    const currentIndex = langs.findIndex(l => l.code === this.currentLanguage());
+    const nextIndex = (currentIndex + 1) % langs.length;
+    this.setLanguage(langs[nextIndex].code);
   }
 }

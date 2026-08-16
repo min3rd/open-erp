@@ -36,7 +36,7 @@
       </div>
       <div class="mt-2 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
         <span>↑ +18.4%</span>
-        <span class="text-slate-400">so với tháng trước</span>
+        <span class="text-slate-400">{{ t('common.comparedToLastMonth') }}</span>
       </div>
     </div>
 
@@ -54,7 +54,7 @@
         <span class="text-2xl font-black text-slate-900 dark:text-white">{{ stats().ordersCount }}</span>
       </div>
       <div class="mt-2 text-[11px] text-indigo-600 dark:text-indigo-400 font-medium flex items-center gap-1">
-        <span>↑ +12 đơn hôm nay</span>
+        <span>{{ t('common.newOrdersToday', { count: 12 }) }}</span>
       </div>
     </div>
 
@@ -72,7 +72,7 @@
         <span class="text-2xl font-black text-slate-900 dark:text-white">{{ stats().activeUsersCount }}</span>
       </div>
       <div class="mt-2 text-[11px] text-cyan-600 dark:text-cyan-400 font-medium flex items-center gap-1">
-        <span>Đang online trực tuyến</span>
+        <span>{{ t('common.onlineNow') }}</span>
       </div>
     </div>
 
@@ -102,7 +102,7 @@
     <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
       <div>
         <h3 class="text-base font-bold text-slate-900 dark:text-white">{{ t('dashboard.recentOrders') }}</h3>
-        <p class="text-xs text-slate-400">Danh sách giao dịch phát sinh gần nhất trong hệ thống</p>
+        <p class="text-xs text-slate-400">{{ t('dashboard.recentOrdersDesc') }}</p>
       </div>
       <button class="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors">
         {{ t('common.export') }}
@@ -115,7 +115,7 @@
           <tr>
             <th class="px-6 py-3.5">{{ t('dashboard.orderCode') }}</th>
             <th class="px-6 py-3.5">{{ t('dashboard.customer') }}</th>
-            <th class="px-6 py-3.5">Nội dung</th>
+            <th class="px-6 py-3.5">{{ t('dashboard.content') }}</th>
             <th class="px-6 py-3.5">{{ t('dashboard.amount') }}</th>
             <th class="px-6 py-3.5">{{ t('common.status') }}</th>
             <th class="px-6 py-3.5">{{ t('dashboard.date') }}</th>
@@ -135,7 +135,7 @@
                   </span>
                 } @else if (order.status === 'PROCESSING') {
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">
-                    Đang xử lý
+                    {{ t('common.processing') }}
                   </span>
                 } @else {
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300">

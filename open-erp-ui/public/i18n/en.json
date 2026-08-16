@@ -2,7 +2,9 @@
   "app": {
     "title": "Open Enterprise Resource Planning (Open ERP)",
     "subtitle": "Comprehensive enterprise management platform",
-    "version": "Version 1.0.0"
+    "version": "Version 1.0.0",
+    "brandSubtitle": "Enterprise Cloud",
+    "tenantLabel": "Tenant"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -41,6 +43,7 @@
     "active": "Active",
     "inactive": "Inactive",
     "pending": "Pending",
+    "processing": "Processing",
     "completed": "Completed",
     "success": "Success",
     "error": "Error",
@@ -48,8 +51,13 @@
     "export": "Export Excel",
     "import": "Import Data",
     "refresh": "Refresh",
+    "reloadPage": "Reload Page",
+    "all": "All",
     "darkMode": "Dark Mode",
-    "lightMode": "Light Mode"
+    "lightMode": "Light Mode",
+    "onlineNow": "Online in real-time",
+    "comparedToLastMonth": "compared to last month",
+    "newOrdersToday": "↑ +{{count}} orders today"
   },
   "auth": {
     "loginTitle": "Sign In to Open ERP",
@@ -67,7 +75,8 @@
     "loginSuccess": "Signed in successfully!",
     "loginFailed": "Authentication failed. Please check your credentials.",
     "welcomeBack": "Welcome Back",
-    "copyright": "© 2026 Open ERP System. All rights reserved."
+    "copyright": "© 2026 Open ERP System. All rights reserved.",
+    "poweredBy": "Powered by Quarkus Quinoa & Angular"
   },
   "dashboard": {
     "welcome": "Welcome back, {{name}}!",
@@ -78,8 +87,10 @@
     "systemHealth": "Service Health",
     "healthy": "Operating Normally",
     "recentOrders": "Recent Orders",
-    "orderCode": "Order Code",
+    "recentOrdersDesc": "Latest transactions and order logs in the system",
+    "orderCode": "Order ID",
     "customer": "Customer",
+    "content": "Item / Service",
     "amount": "Amount",
     "date": "Date",
     "systemLogs": "Quarkus System Logs",
@@ -87,5 +98,24 @@
     "createNewOrder": "Create Order",
     "addUser": "Add Employee",
     "viewReports": "View KPI Reports"
+  },
+  "users": {
+    "title": "User Management",
+    "subtitle": "Account list, Role & Permission matrix across multi-tenants",
+    "searchPlaceholder": "Search by name, username, email...",
+    "userCol": "User",
+    "departmentCol": "Department",
+    "rolesCol": "Roles",
+    "lastLoginCol": "Last Login",
+    "allFilter": "All",
+    "activeFilter": "Active",
+    "inactiveFilter": "Inactive"
+  },
+  "maintenance": {
+    "estimatedCompletion": "Estimated Completion",
+    "supportHotline": "Support Hotline",
+    "supportEmail": "Support Email",
+    "adminBypass": "Bypass (Admin Only)",
+    "reloadPage": "Reload Page"
   }
 }

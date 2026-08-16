@@ -1,8 +1,9 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, of, throwError } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { LoginRequest, LoginResponse, UserProfile } from '../models/auth.model';
+import { AppConfigService } from './app-config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +11,7 @@ import { LoginRequest, LoginResponse, UserProfile } from '../models/auth.model';
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private configService = inject(AppConfigService);
 
   private readonly ACCESS_TOKEN_KEY = 'erp_access_token';
   private readonly REFRESH_TOKEN_KEY = 'erp_refresh_token';
@@ -18,10 +20,6 @@ export class AuthService {
   currentUser = signal<UserProfile | null>(this.getStoredUser());
   accessToken = signal<string | null>(localStorage.getItem(this.ACCESS_TOKEN_KEY));
   isAuthenticated = computed(() => !!this.accessToken());
-
-  constructor() {
-    // If token exists, load /me if needed
-  }
 
   private getStoredUser(): UserProfile | null {
     const raw = localStorage.getItem(this.USER_KEY);
@@ -33,8 +31,13 @@ export class AuthService {
     }
   }
 
+  private get authUrl(): string {
+    const api = this.configService.api();
+    return api.authServiceUrl || api.baseUrl;
+  }
+
   login(request: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>('/auth/login', request).pipe(
+    return this.http.post<LoginResponse>(`${this.authUrl}/auth/login`, request).pipe(
       tap(res => {
         this.saveAuthData(res);
       })
@@ -52,7 +55,7 @@ export class AuthService {
   logout(): void {
     const token = this.accessToken();
     if (token) {
-      this.http.post('/auth/logout', {}).subscribe({
+      this.http.post(`${this.authUrl}/auth/logout`, {}).subscribe({
         next: () => {},
         error: () => {}
       });

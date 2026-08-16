@@ -1,9 +1,12 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { Injectable, signal, effect, inject } from '@angular/core';
+import { AppConfigService } from './app-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ThemeService {
+  private configService = inject(AppConfigService);
+
   isDarkMode = signal<boolean>(false);
 
   constructor() {
@@ -11,8 +14,9 @@ export class ThemeService {
     if (savedTheme) {
       this.isDarkMode.set(savedTheme === 'dark');
     } else {
+      const defaultTheme = this.configService.themes().defaultTheme;
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      this.isDarkMode.set(prefersDark);
+      this.isDarkMode.set(defaultTheme === 'dark' || prefersDark);
     }
 
     effect(() => {
@@ -24,6 +28,7 @@ export class ThemeService {
         document.documentElement.classList.remove('dark');
         localStorage.setItem('erp_theme', 'light');
       }
+      this.configService.applyThemePalette(dark);
     });
   }
 
