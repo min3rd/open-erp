@@ -12,3 +12,20 @@
       schema-management:
         create-schemas: true
         strategy: update
+    redis:
+      hosts: redis://localhost:6379
+    swagger-ui:
+      always-include: true
+
+mp:
+  jwt:
+    verify:
+      publickey:
+        location: publicKey.pem
+      issuer: open-erp-auth
+
+smallrye:
+  jwt:
+    sign:
+      key:
+        location: privateKey.pem

@@ -12,5 +12,27 @@
       schema-management:
         create-schemas: true
         strategy: update
+    redis:
+      hosts: redis://localhost:6379
     swagger-ui:
       always-include: true
+
+mp:
+  jwt:
+    verify:
+      publickey:
+        location: publicKey.pem
+      issuer: open-erp-auth
+  messaging:
+    incoming:
+      sample-events-in:
+        connector: smallrye-kafka
+        topic: sample-events
+        value:
+          deserializer: io.quarkus.kafka.client.serialization.ObjectMapperDeserializer
+    outgoing:
+      sample-events-out:
+        connector: smallrye-kafka
+        topic: sample-events
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer

@@ -152,7 +152,7 @@ public class PermissionService {
             return null;
 
         List<RolePermission> rolePermissions = RolePermission.find(
-                "role.id in (select r.id from saas_users u join u.roles r where u.id = ?1) and isDeleted = false",
+                "role.id in (select r.id from User u join u.roles r where u.id = ?1) and isDeleted = false",
                 user.id).list();
 
         List<PermissionScopeDto> permissions = rolePermissions.stream()
