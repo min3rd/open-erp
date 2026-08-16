@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth.guard';
+import { sharedAuthGuard } from '@open-erp/shared';
 
 export const routes: Routes = [
   {
@@ -9,7 +9,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./layouts/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
-    canActivate: [authGuard],
+    canActivate: [sharedAuthGuard],
     children: [
       {
         path: '',

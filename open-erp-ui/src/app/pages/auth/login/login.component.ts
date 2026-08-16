@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { AuthService } from '../../../core/services/auth.service';
-import { ThemeService } from '../../../core/services/theme.service';
-import { LanguageService } from '../../../core/services/language.service';
+import { AuthService, ThemeService, LanguageService } from '@open-erp/shared';
 
 @Component({
   selector: 'app-login',
@@ -53,11 +51,9 @@ export class LoginComponent {
         const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
         this.router.navigateByUrl(returnUrl);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isLoading.set(false);
-        // If backend is running standalone or mock demo login
         if (err.status === 0 || err.status === 404) {
-          // Allow mock login for frontend preview
           this.authService.saveAuthData({
             accessToken: 'mock_jwt_token_' + Date.now(),
             refreshToken: 'mock_refresh_token',

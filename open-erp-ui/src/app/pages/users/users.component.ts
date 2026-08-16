@@ -1,18 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
-
-export interface UserItem {
-  id: number;
-  username: string;
-  fullName: string;
-  email: string;
-  department: string;
-  roles: string[];
-  status: 'ACTIVE' | 'INACTIVE';
-  lastLogin: string;
-}
+import { UserItem } from '@open-erp/shared';
 
 @Component({
   selector: 'app-users',

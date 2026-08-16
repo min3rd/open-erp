@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslocoModule } from '@jsverse/transloco';
-import { AppConfigService } from '../../../core/services/app-config.service';
+import { AppConfigService } from '@open-erp/shared';
 
 @Component({
   selector: 'app-maintenance-banner',

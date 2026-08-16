@@ -1,0 +1,100 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="px-4">
+    <div class="flex items-center justify-between">
+      <h1 class="text-base font-bold text-slate-900 dark:text-white" *transloco="let t">{{ t('nav.orders') }}</h1>
+      <button class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+      </button>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="bg-slate-50 dark:bg-slate-950" *transloco="let t">
+  <div class="p-4 space-y-4 font-sans pb-16">
+    
+    <!-- Search Bar -->
+    <div class="relative">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+             [placeholder]="t('common.searchPlaceholder')"
+             class="w-full pl-9 pr-4 py-2.5 text-xs bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 outline-none"/>
+    </div>
+
+    <!-- Filter Chips -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1">
+      <button (click)="selectedFilter.set('ALL')"
+              [class.bg-indigo-600]="selectedFilter() === 'ALL'"
+              [class.text-white]="selectedFilter() === 'ALL'"
+              [class.bg-white]="selectedFilter() !== 'ALL'"
+              [class.dark:bg-slate-900]="selectedFilter() !== 'ALL'"
+              class="px-3.5 py-1.5 rounded-full text-xs font-semibold border border-slate-200 dark:border-slate-800 shrink-0">
+        {{ t('common.all') }}
+      </button>
+      <button (click)="selectedFilter.set('COMPLETED')"
+              [class.bg-indigo-600]="selectedFilter() === 'COMPLETED'"
+              [class.text-white]="selectedFilter() === 'COMPLETED'"
+              [class.bg-white]="selectedFilter() !== 'COMPLETED'"
+              [class.dark:bg-slate-900]="selectedFilter() !== 'COMPLETED'"
+              class="px-3.5 py-1.5 rounded-full text-xs font-semibold border border-slate-200 dark:border-slate-800 shrink-0">
+        {{ t('common.completed') }}
+      </button>
+      <button (click)="selectedFilter.set('PROCESSING')"
+              [class.bg-indigo-600]="selectedFilter() === 'PROCESSING'"
+              [class.text-white]="selectedFilter() === 'PROCESSING'"
+              [class.bg-white]="selectedFilter() !== 'PROCESSING'"
+              [class.dark:bg-slate-900]="selectedFilter() !== 'PROCESSING'"
+              class="px-3.5 py-1.5 rounded-full text-xs font-semibold border border-slate-200 dark:border-slate-800 shrink-0">
+        {{ t('common.processing') }}
+      </button>
+      <button (click)="selectedFilter.set('PENDING')"
+              [class.bg-indigo-600]="selectedFilter() === 'PENDING'"
+              [class.text-white]="selectedFilter() === 'PENDING'"
+              [class.bg-white]="selectedFilter() !== 'PENDING'"
+              [class.dark:bg-slate-900]="selectedFilter() !== 'PENDING'"
+              class="px-3.5 py-1.5 rounded-full text-xs font-semibold border border-slate-200 dark:border-slate-800 shrink-0">
+        {{ t('common.pending') }}
+      </button>
+    </div>
+
+    <!-- Orders Card List -->
+    <div class="space-y-3">
+      @for (order of filteredOrders(); track order.id) {
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400">{{ order.id }}</span>
+              <h3 class="text-xs font-bold text-slate-900 dark:text-white mt-0.5">{{ order.customer }}</h3>
+            </div>
+            <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold"
+                  [class.bg-emerald-100]="order.status === 'COMPLETED'"
+                  [class.text-emerald-700]="order.status === 'COMPLETED'"
+                  [class.dark:bg-emerald-950]="order.status === 'COMPLETED'"
+                  [class.dark:text-emerald-300]="order.status === 'COMPLETED'"
+                  [class.bg-indigo-100]="order.status === 'PROCESSING'"
+                  [class.text-indigo-700]="order.status === 'PROCESSING'"
+                  [class.bg-amber-100]="order.status === 'PENDING'"
+                  [class.text-amber-700]="order.status === 'PENDING'">
+              @if (order.status === 'COMPLETED') { {{ t('common.completed') }} }
+              @else if (order.status === 'PROCESSING') { {{ t('common.processing') }} }
+              @else { {{ t('common.pending') }} }
+            </span>
+          </div>
+
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">{{ order.product }}</p>
+
+          <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+            <span class="text-[11px] text-slate-400">{{ order.date }}</span>
+            <span class="text-sm font-black text-slate-900 dark:text-white">{{ (order.amount | number) }} đ</span>
+          </div>
+        </div>
+      }
+    </div>
+
+  </div>
+</ion-content>

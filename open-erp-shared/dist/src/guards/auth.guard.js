@@ -1,0 +1,14 @@
+import { Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { AuthService } from '../services/auth.service';
+export const sharedAuthGuard = (route, state) => {
+    const authService = inject(AuthService);
+    const router = inject(Router);
+    if (authService.isAuthenticated()) {
+        return true;
+    }
+    return router.createUrlTree(['/auth/login'], {
+        queryParams: { returnUrl: state.url }
+    });
+};
+//# sourceMappingURL=auth.guard.js.map

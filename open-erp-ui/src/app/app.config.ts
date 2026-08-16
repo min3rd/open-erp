@@ -4,9 +4,7 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { provideTransloco } from '@jsverse/transloco';
 
 import { routes } from './app.routes';
-import { TranslocoHttpLoader } from './transloco-loader';
-import { authInterceptor } from './core/interceptors/auth.interceptor';
-import { AppConfigService } from './core/services/app-config.service';
+import { AppConfigService, sharedAuthInterceptor, SharedTranslocoHttpLoader } from '@open-erp/shared';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,7 +14,7 @@ export const appConfig: ApplicationConfig = {
       return configService.loadConfig();
     }),
     provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([sharedAuthInterceptor])),
     provideTransloco({
       config: {
         availableLangs: ['vi', 'en'],
@@ -24,7 +22,7 @@ export const appConfig: ApplicationConfig = {
         reRenderOnLangChange: true,
         prodMode: !isDevMode()
       },
-      loader: TranslocoHttpLoader
+      loader: SharedTranslocoHttpLoader
     })
   ]
 };

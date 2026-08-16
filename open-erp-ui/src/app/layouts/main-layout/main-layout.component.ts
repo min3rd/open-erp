@@ -2,9 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { AuthService } from '../../core/services/auth.service';
-import { ThemeService } from '../../core/services/theme.service';
-import { LanguageService } from '../../core/services/language.service';
+import { AuthService, ThemeService, LanguageService } from '@open-erp/shared';
 
 @Component({
   selector: 'app-main-layout',

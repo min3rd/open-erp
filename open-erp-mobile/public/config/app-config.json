@@ -1,0 +1,84 @@
+{
+  "app": {
+    "name": "Open ERP System",
+    "shortName": "OpenERP",
+    "version": "1.0.0",
+    "environment": "development",
+    "copyright": "© 2026 Open ERP System. All rights reserved."
+  },
+  "api": {
+    "baseUrl": "http://localhost:8080",
+    "authServiceUrl": "http://localhost:10001",
+    "coreServiceUrl": "http://localhost:8080",
+    "sampleServiceUrl": "http://localhost:10002",
+    "timeoutMs": 30000,
+    "retryAttempts": 2
+  },
+  "i18n": {
+    "defaultLanguage": "vi",
+    "fallbackLanguage": "en",
+    "availableLanguages": [
+      {
+        "code": "vi",
+        "name": "Tiếng Việt",
+        "flag": "🇻🇳",
+        "isRtl": false
+      },
+      {
+        "code": "en",
+        "name": "English",
+        "flag": "🇺🇸",
+        "isRtl": false
+      }
+    ]
+  },
+  "themes": {
+    "defaultTheme": "light",
+    "enableDarkMode": true,
+    "colors": {
+      "light": {
+        "primary": "#4f46e5",
+        "primaryHover": "#4338ca",
+        "secondary": "#06b6d4",
+        "background": "#f8fafc",
+        "surface": "#ffffff",
+        "surfaceBorder": "#e2e8f0",
+        "textPrimary": "#0f172a",
+        "textSecondary": "#64748b",
+        "success": "#10b981",
+        "warning": "#f59e0b",
+        "danger": "#ef4444"
+      },
+      "dark": {
+        "primary": "#6366f1",
+        "primaryHover": "#4f46e5",
+        "secondary": "#22d3ee",
+        "background": "#020617",
+        "surface": "#0f172a",
+        "surfaceBorder": "#1e293b",
+        "textPrimary": "#f8fafc",
+        "textSecondary": "#94a3b8",
+        "success": "#34d399",
+        "warning": "#fbbf24",
+        "danger": "#f87171"
+      }
+    }
+  },
+  "maintenance": {
+    "enabled": false,
+    "allowAdminBypass": true,
+    "title": "Hệ thống đang được nâng cấp bảo trì định kỳ",
+    "message": "Chúng tôi đang tiến hành cập nhật hệ thống để nâng cao chất lượng dịch vụ. Vui lòng quay lại sau ít phút.",
+    "estimatedEndTime": "2026-08-16T18:00:00+07:00",
+    "supportEmail": "support@vn9melody.com",
+    "supportHotline": "1900-8888"
+  },
+  "systemNotice": {
+    "enabled": true,
+    "id": "notice-2026-08-16-01",
+    "type": "INFO",
+    "title": "Thông báo nâng cấp",
+    "content": "Chào mừng bạn đến với hệ thống Open ERP phiên bản mới tích hợp Quarkus Quinoa.",
+    "dismissible": true
+  }
+}

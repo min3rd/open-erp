@@ -1,17 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { TranslocoModule } from '@jsverse/transloco';
-import { AuthService } from '../../core/services/auth.service';
-
-export interface OrderItem {
-  id: string;
-  customer: string;
-  product: string;
-  amount: number;
-  status: 'COMPLETED' | 'PENDING' | 'PROCESSING';
-  date: string;
-}
+import { AuthService, OrderItem } from '@open-erp/shared';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,7 +11,6 @@ export interface OrderItem {
 })
 export class DashboardComponent {
   authService = inject(AuthService);
-  private http = inject(HttpClient);
 
   stats = signal({
     revenue: 485900000,

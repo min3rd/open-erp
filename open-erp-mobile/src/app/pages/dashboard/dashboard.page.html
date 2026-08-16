@@ -1,0 +1,113 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="px-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-400 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+          OE
+        </div>
+        <div>
+          <h1 class="text-sm font-bold text-slate-900 dark:text-white leading-none">OPEN ERP</h1>
+          <span class="text-[10px] text-slate-400">Mobile Hub</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[10px] font-semibold">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>Online</span>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="bg-slate-50 dark:bg-slate-950" *transloco="let t">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="p-4 space-y-4 font-sans pb-12">
+    
+    <!-- Welcome Mobile Card -->
+    <div class="p-5 rounded-3xl bg-gradient-to-tr from-indigo-900 via-indigo-800 to-slate-900 text-white shadow-xl relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="text-[10px] uppercase font-bold text-indigo-300 tracking-wider">Tenant: {{ authService.currentUser()?.tenantId || 'vn9melody' }}</span>
+        <h2 class="text-lg font-black mt-1">
+          {{ t('dashboard.welcome', { name: authService.currentUser()?.username || 'Admin' }) }}
+        </h2>
+        <p class="text-xs text-indigo-200 mt-1">{{ t('dashboard.summaryDesc') }}</p>
+      </div>
+      <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-indigo-500/20 rounded-full blur-xl"></div>
+    </div>
+
+    <!-- Quick Stats Grid (2x2) -->
+    <div class="grid grid-cols-2 gap-3">
+      
+      <!-- Revenue -->
+      <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{{ t('dashboard.totalRevenue') }}</span>
+        <div class="text-base font-black text-slate-900 dark:text-white mt-1">
+          {{ (stats().revenue | number) }} đ
+        </div>
+        <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">↑ +18.4%</span>
+      </div>
+
+      <!-- Orders -->
+      <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{{ t('dashboard.totalOrders') }}</span>
+        <div class="text-base font-black text-slate-900 dark:text-white mt-1">
+          {{ stats().ordersCount }}
+        </div>
+        <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold">{{ t('common.newOrdersToday', { count: 12 }) }}</span>
+      </div>
+
+      <!-- Active Users -->
+      <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{{ t('dashboard.activeUsers') }}</span>
+        <div class="text-base font-black text-slate-900 dark:text-white mt-1">
+          {{ stats().activeUsersCount }}
+        </div>
+        <span class="text-[10px] text-cyan-600 dark:text-cyan-400 font-semibold">{{ t('common.onlineNow') }}</span>
+      </div>
+
+      <!-- System Health -->
+      <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{{ t('dashboard.systemHealth') }}</span>
+        <div class="text-base font-black text-slate-900 dark:text-white mt-1">
+          {{ stats().systemUptime }}
+        </div>
+        <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">{{ t('dashboard.healthy') }}</span>
+      </div>
+
+    </div>
+
+    <!-- Recent Orders Section -->
+    <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xs font-bold text-slate-900 dark:text-white">{{ t('dashboard.recentOrders') }}</h3>
+        <span class="text-[10px] text-slate-400">{{ t('dashboard.recentOrdersDesc') }}</span>
+      </div>
+
+      <div class="divide-y divide-slate-100 dark:divide-slate-800/80">
+        @for (order of recentOrders(); track order.id) {
+          <div class="py-3 flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-slate-900 dark:text-white">{{ order.customer }}</div>
+              <div class="text-[10px] text-slate-400 font-mono">{{ order.id }} • {{ order.product }}</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs font-bold text-indigo-600 dark:text-indigo-400">{{ (order.amount | number) }} đ</div>
+              <span class="text-[9px] px-2 py-0.5 rounded-full font-bold"
+                    [class.bg-emerald-100]="order.status === 'COMPLETED'"
+                    [class.text-emerald-700]="order.status === 'COMPLETED'"
+                    [class.dark:bg-emerald-950]="order.status === 'COMPLETED'"
+                    [class.dark:text-emerald-300]="order.status === 'COMPLETED'"
+                    [class.bg-indigo-100]="order.status === 'PROCESSING'"
+                    [class.text-indigo-700]="order.status === 'PROCESSING'">
+                {{ order.status === 'COMPLETED' ? t('common.completed') : t('common.processing') }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+</ion-content>
