@@ -1,6 +1,7 @@
 package com.vn9melody.services;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +13,9 @@ import com.vn9melody.dto.LoginResponse;
 import com.vn9melody.dto.UserProfileDto;
 import com.vn9melody.entities.RolePermission;
 import com.vn9melody.entities.User;
+import com.vn9melody.entities.UserIdentity;
+import com.vn9melody.enums.AuthProvider;
+import com.vn9melody.enums.UserStatus;
 import com.vn9melody.security.jwt.JwtClaimsConstant;
 
 import io.quarkus.elytron.security.common.BcryptUtil;
@@ -54,20 +58,92 @@ public class JwtTokenService {
         this.redisValueCommands = redisDataSource.value(String.class);
     }
 
+    /**
+     * Xác thực người dùng qua Mật khẩu cục bộ (Local Credentials)
+     */
     @Transactional
     public LoginResponse authenticate(String username, String password) {
         User user = User.<User>find("username = ?1 and isDeleted = false", username)
                 .firstResultOptional()
                 .orElseThrow(() -> new AuthenticationFailedException("Tên đăng nhập hoặc mật khẩu không chính xác"));
 
-        if (!user.isActive) {
-            throw new UnauthorizedException("Tài khoản người dùng đã bị khóa");
+        if (!user.isActive()) {
+            throw new UnauthorizedException("Tài khoản người dùng đã bị khóa hoặc vô hiệu hóa");
         }
 
         if (user.password == null || !BcryptUtil.matches(password, user.password)) {
+            user.failedLoginAttempts++;
+            if (user.failedLoginAttempts >= 5) {
+                user.lockoutUntil = Instant.now().plus(Duration.ofMinutes(15));
+                LOG.warnf("Tài khoản %s bị tạm khóa 15 phút do nhập sai 5 lần", username);
+            }
             throw new AuthenticationFailedException("Tên đăng nhập hoặc mật khẩu không chính xác");
         }
 
+        // Đăng nhập thành công -> Reset failed attempts & cập nhật login timestamp
+        user.failedLoginAttempts = 0;
+        user.lockoutUntil = null;
+        user.lastLoginAt = Instant.now();
+
+        return generateTokensForUser(user);
+    }
+
+    /**
+     * Xác thực / Đăng ký tự động qua Giao thức liên kết (OAuth2, OpenID, LDAP, SAML...)
+     */
+    @Transactional
+    public LoginResponse authenticateFederated(String tenantId, AuthProvider provider, String providerUserId,
+            String email, String displayName, String rawAttributes) {
+
+        // 1. Tìm kiếm UserIdentity đã liên kết
+        UserIdentity identity = UserIdentity.<UserIdentity>find(
+                "tenantId = ?1 and provider = ?2 and providerUserId = ?3 and isDeleted = false",
+                tenantId, provider, providerUserId)
+                .firstResultOptional()
+                .orElse(null);
+
+        User user;
+        if (identity != null) {
+            user = identity.user;
+            identity.displayName = displayName;
+            identity.rawAttributes = rawAttributes;
+            identity.lastSyncedAt = Instant.now();
+        } else {
+            // Tìm User theo email trong cùng tenant
+            user = User.<User>find("tenantId = ?1 and email = ?2 and isDeleted = false", tenantId, email)
+                    .firstResultOptional()
+                    .orElse(null);
+
+            if (user == null) {
+                // Tạo mới User qua Federation (Just-In-Time Provisioning)
+                user = new User();
+                user.tenantId = tenantId;
+                user.username = email;
+                user.email = email;
+                user.fullName = displayName;
+                user.primaryAuthProvider = provider;
+                user.status = UserStatus.ACTIVE;
+                user.persist();
+            }
+
+            // Tạo bản ghi UserIdentity liên kết
+            UserIdentity newIdentity = new UserIdentity();
+            newIdentity.tenantId = tenantId;
+            newIdentity.user = user;
+            newIdentity.provider = provider;
+            newIdentity.providerUserId = providerUserId;
+            newIdentity.email = email;
+            newIdentity.displayName = displayName;
+            newIdentity.rawAttributes = rawAttributes;
+            newIdentity.lastSyncedAt = Instant.now();
+            newIdentity.persist();
+        }
+
+        if (!user.isActive()) {
+            throw new UnauthorizedException("Tài khoản người dùng đã bị khóa hoặc vô hiệu hóa");
+        }
+
+        user.lastLoginAt = Instant.now();
         return generateTokensForUser(user);
     }
 
@@ -93,7 +169,7 @@ public class JwtTokenService {
                 .firstResultOptional()
                 .orElseThrow(() -> new UnauthorizedException("Không tìm thấy thông tin người dùng"));
 
-        if (!user.isActive) {
+        if (!user.isActive()) {
             throw new UnauthorizedException("Tài khoản người dùng đã bị khóa");
         }
 
