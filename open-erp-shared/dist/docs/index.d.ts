@@ -14,6 +14,9 @@ export * from './basic-components.doc';
 export * from './form-components.doc';
 export * from './navigation-components.doc';
 export * from './data-display-components.doc';
+export * from './feedback-components.doc';
+export * from './overlay-components.doc';
+export * from './utility-components.doc';
 /**
  * Danh sách tổng hợp toàn bộ tài liệu và preview của Component.
  * Bất kỳ component nào được thêm vào mảng này sẽ TỰ ĐỘNG hiển thị trên Trang Tổng quan (Component Showcase).

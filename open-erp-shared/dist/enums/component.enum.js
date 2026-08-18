@@ -263,4 +263,114 @@ export var BadgeCorner;
     BadgeCorner["BOTTOM_RIGHT"] = "bottom-right";
     BadgeCorner["BOTTOM_LEFT"] = "bottom-left";
 })(BadgeCorner || (BadgeCorner = {}));
+export var AlertVariant;
+(function (AlertVariant) {
+    AlertVariant["INFO"] = "info";
+    AlertVariant["SUCCESS"] = "success";
+    AlertVariant["WARNING"] = "warning";
+    AlertVariant["ERROR"] = "error";
+    AlertVariant["NEUTRAL"] = "neutral";
+})(AlertVariant || (AlertVariant = {}));
+export var ToastType;
+(function (ToastType) {
+    ToastType["INFO"] = "info";
+    ToastType["SUCCESS"] = "success";
+    ToastType["WARNING"] = "warning";
+    ToastType["ERROR"] = "error";
+    ToastType["LOADING"] = "loading";
+})(ToastType || (ToastType = {}));
+export var ToastPosition;
+(function (ToastPosition) {
+    ToastPosition["TOP_RIGHT"] = "top-right";
+    ToastPosition["TOP_LEFT"] = "top-left";
+    ToastPosition["BOTTOM_RIGHT"] = "bottom-right";
+    ToastPosition["BOTTOM_LEFT"] = "bottom-left";
+    ToastPosition["TOP_CENTER"] = "top-center";
+    ToastPosition["BOTTOM_CENTER"] = "bottom-center";
+})(ToastPosition || (ToastPosition = {}));
+export var ProgressVariant;
+(function (ProgressVariant) {
+    ProgressVariant["BAR"] = "bar";
+    ProgressVariant["CIRCLE"] = "circle";
+    ProgressVariant["DASHBOARD"] = "dashboard";
+})(ProgressVariant || (ProgressVariant = {}));
+export var ProgressStatus;
+(function (ProgressStatus) {
+    ProgressStatus["NORMAL"] = "normal";
+    ProgressStatus["SUCCESS"] = "success";
+    ProgressStatus["WARNING"] = "warning";
+    ProgressStatus["ERROR"] = "error";
+    ProgressStatus["ACTIVE"] = "active";
+})(ProgressStatus || (ProgressStatus = {}));
+export var ResultStatus;
+(function (ResultStatus) {
+    ResultStatus["STATUS_403"] = "403";
+    ResultStatus["STATUS_404"] = "404";
+    ResultStatus["STATUS_500"] = "500";
+    ResultStatus["SUCCESS"] = "success";
+    ResultStatus["ERROR"] = "error";
+    ResultStatus["WARNING"] = "warning";
+    ResultStatus["INFO"] = "info";
+})(ResultStatus || (ResultStatus = {}));
+export var ModalSize;
+(function (ModalSize) {
+    ModalSize["XS"] = "xs";
+    ModalSize["SM"] = "sm";
+    ModalSize["MD"] = "md";
+    ModalSize["LG"] = "lg";
+    ModalSize["XL"] = "xl";
+    ModalSize["FULL"] = "full";
+})(ModalSize || (ModalSize = {}));
+export var DrawerPlacement;
+(function (DrawerPlacement) {
+    DrawerPlacement["LEFT"] = "left";
+    DrawerPlacement["RIGHT"] = "right";
+    DrawerPlacement["TOP"] = "top";
+    DrawerPlacement["BOTTOM"] = "bottom";
+})(DrawerPlacement || (DrawerPlacement = {}));
+export var DrawerSize;
+(function (DrawerSize) {
+    DrawerSize["SM"] = "sm";
+    DrawerSize["MD"] = "md";
+    DrawerSize["LG"] = "lg";
+    DrawerSize["XL"] = "xl";
+    DrawerSize["FULL"] = "full";
+})(DrawerSize || (DrawerSize = {}));
+export var PopoverPlacement;
+(function (PopoverPlacement) {
+    PopoverPlacement["TOP"] = "top";
+    PopoverPlacement["BOTTOM"] = "bottom";
+    PopoverPlacement["LEFT"] = "left";
+    PopoverPlacement["RIGHT"] = "right";
+    PopoverPlacement["TOP_START"] = "top-start";
+    PopoverPlacement["TOP_END"] = "top-end";
+    PopoverPlacement["BOTTOM_START"] = "bottom-start";
+    PopoverPlacement["BOTTOM_END"] = "bottom-end";
+    PopoverPlacement["LEFT_START"] = "left-start";
+    PopoverPlacement["LEFT_END"] = "left-end";
+    PopoverPlacement["RIGHT_START"] = "right-start";
+    PopoverPlacement["RIGHT_END"] = "right-end";
+})(PopoverPlacement || (PopoverPlacement = {}));
+export var PopoverTrigger;
+(function (PopoverTrigger) {
+    PopoverTrigger["CLICK"] = "click";
+    PopoverTrigger["HOVER"] = "hover";
+    PopoverTrigger["FOCUS"] = "focus";
+    PopoverTrigger["MANUAL"] = "manual";
+})(PopoverTrigger || (PopoverTrigger = {}));
+export var TransitionType;
+(function (TransitionType) {
+    TransitionType["FADE"] = "fade";
+    TransitionType["SCALE"] = "scale";
+    TransitionType["SLIDE_UP"] = "slide-up";
+    TransitionType["SLIDE_DOWN"] = "slide-down";
+    TransitionType["SLIDE_LEFT"] = "slide-left";
+    TransitionType["SLIDE_RIGHT"] = "slide-right";
+    TransitionType["COLLAPSE"] = "collapse";
+})(TransitionType || (TransitionType = {}));
+export var AffixPosition;
+(function (AffixPosition) {
+    AffixPosition["TOP"] = "top";
+    AffixPosition["BOTTOM"] = "bottom";
+})(AffixPosition || (AffixPosition = {}));
 //# sourceMappingURL=component.enum.js.map

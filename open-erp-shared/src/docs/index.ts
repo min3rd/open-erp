@@ -77,6 +77,10 @@ import {
   TOOLTIP_DOC
 } from './data-display-components.doc';
 
+import { FEEDBACK_COMPONENTS_DOCS } from './feedback-components.doc';
+import { OVERLAY_COMPONENTS_DOCS } from './overlay-components.doc';
+import { UTILITY_COMPONENTS_DOCS } from './utility-components.doc';
+
 export * from '../models/component-doc.model';
 export * from './button.doc';
 export * from './avatar.doc';
@@ -92,6 +96,9 @@ export * from './basic-components.doc';
 export * from './form-components.doc';
 export * from './navigation-components.doc';
 export * from './data-display-components.doc';
+export * from './feedback-components.doc';
+export * from './overlay-components.doc';
+export * from './utility-components.doc';
 
 /**
  * Danh sách tổng hợp toàn bộ tài liệu và preview của Component.
@@ -153,13 +160,17 @@ export const ALL_COMPONENT_DOCS: ComponentDoc[] = [
   FILE_UPLOAD_DOC,
   RICH_TEXT_EDITOR_DOC,
 
-  // Feedback & Loading
+  // Feedback & Status (New)
+  ...FEEDBACK_COMPONENTS_DOCS,
   SPINNER_DOC,
   SKELETON_DOC,
   EMPTY_STATE_DOC,
   HELPER_TEXT_DOC,
 
-  // Navigation & Utility
+  // Overlay & Popups (New)
+  ...OVERLAY_COMPONENTS_DOCS,
+
+  // Navigation & Utility (New)
   NAVBAR_DOC,
   SIDEBAR_DOC,
   BREADCRUMB_DOC,
@@ -171,6 +182,7 @@ export const ALL_COMPONENT_DOCS: ComponentDoc[] = [
   BACK_TO_TOP_DOC,
   SPEED_DIAL_DOC,
   SEGMENTED_CONTROL_DOC,
+  ...UTILITY_COMPONENTS_DOCS,
   THEME_TOGGLE_DOC,
   LANGUAGE_SELECTOR_DOC,
   MAINTENANCE_BANNER_DOC

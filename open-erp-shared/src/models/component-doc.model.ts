@@ -16,10 +16,11 @@ export interface ComponentExampleDoc {
 export interface ComponentDoc {
   id: string;
   name: string;
-  selector: string;
-  category: 'General' | 'Data Display' | 'Form & Inputs' | 'Feedback & Loading' | 'Navigation & Utility';
+  selector?: string;
+  category: 'General' | 'Data Display' | 'Form & Inputs' | 'Feedback & Status' | 'Feedback & Loading' | 'Overlay & Popups' | 'Navigation & Utility' | 'Utilities & Misc';
   description: string;
-  importStatement: string;
+  importStatement?: string;
+  badge?: string;
   props: ComponentPropDoc[];
   examples: ComponentExampleDoc[];
 }

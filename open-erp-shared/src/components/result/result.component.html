@@ -1,0 +1,35 @@
+<div class="flex flex-col items-center justify-center text-center p-8 sm:p-12 max-w-lg mx-auto select-none">
+  
+  <!-- Big Status Code / Icon Badge -->
+  @if (isHttpError) {
+    <div class="mb-4 text-6xl sm:text-7xl font-black font-mono tracking-tighter bg-gradient-to-r from-indigo-500 via-purple-500 to-rose-500 bg-clip-text text-transparent drop-shadow-sm">
+      {{ status }}
+    </div>
+  } @else {
+    <div [class]="iconColorClass"
+         class="w-20 h-20 rounded-3xl border flex items-center justify-center shadow-lg mb-6 transform hover:scale-105 transition-transform">
+      <erp-icon [name]="iconName" [size]="36"></erp-icon>
+    </div>
+  }
+
+  <!-- Title -->
+  <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">
+    {{ defaultTitle }}
+  </h2>
+
+  <!-- Description / SubTitle -->
+  <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-6 max-w-md">
+    {{ defaultSubTitle }}
+  </p>
+
+  <!-- Custom Injected Content -->
+  <div class="w-full mb-6">
+    <ng-content></ng-content>
+  </div>
+
+  <!-- Action Buttons Slot -->
+  <div class="flex flex-wrap items-center justify-center gap-3">
+    <ng-content select="[result-actions]"></ng-content>
+  </div>
+
+</div>

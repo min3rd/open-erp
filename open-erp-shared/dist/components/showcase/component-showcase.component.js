@@ -4,7 +4,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 // Import All Components for Live Preview Rendering
@@ -77,11 +77,43 @@ import { ImageComponent } from '../image/image.component';
 import { ImageGalleryComponent } from '../image/image-gallery.component';
 import { CalendarComponent } from '../calendar/calendar.component';
 import { TooltipDirective } from '../tooltip/tooltip.directive';
+// Import Feedback, Overlay & Utility Components
+import { AlertComponent } from '../alert/alert.component';
+import { ToastContainerComponent } from '../toast/toast-container.component';
+import { ToastService } from '../toast/toast.service';
+import { ProgressComponent } from '../progress/progress.component';
+import { ResultComponent } from '../result/result.component';
+import { WatermarkComponent } from '../watermark/watermark.component';
+import { ModalComponent } from '../modal/modal.component';
+import { DrawerComponent } from '../drawer/drawer.component';
+import { PopoverComponent } from '../popover/popover.component';
+import { PopconfirmComponent } from '../popconfirm/popconfirm.component';
+import { ContextMenuComponent } from '../context-menu/context-menu.component';
+import { LightboxComponent } from '../lightbox/lightbox.component';
+import { PortalDirective } from '../portal/portal.directive';
+import { AffixComponent } from '../affix/affix.component';
+import { VirtualScrollComponent } from '../virtual-scroll/virtual-scroll.component';
+import { ClickOutsideDirective } from '../directives/click-outside.directive';
+import { FocusTrapDirective } from '../directives/focus-trap.directive';
+import { TransitionComponent } from '../transition/transition.component';
+import { CopyButtonComponent, CopyToClipboardDirective } from '../copy-to-clipboard/copy-button.component';
+import { ResizableComponent } from '../resizable/resizable.component';
 // Import Docs Registry & Enums
 import { ALL_COMPONENT_DOCS } from '../../docs';
-import { BadgeStatus, BadgeVariant, BadgeColor, TagVariant, TagColor, AvatarSize, AvatarShape, ButtonVariant, ButtonSize, InputSize, ValidationStatus, KpiTrendDirection, EmptyStateType, TypographyVariant, DividerOrientation, SpinnerSize, SpinnerVariant, NavbarPosition, SidebarMode, BreadcrumbSeparator, PaginationVariant, TabsVariant, TabsOrientation, DropdownPlacement, SpeedDialDirection, SpeedDialPosition, BackToTopShape } from '../../enums/component.enum';
+import { BadgeStatus, BadgeVariant, BadgeColor, TagVariant, TagColor, AvatarSize, AvatarShape, ButtonVariant, ButtonSize, InputSize, ValidationStatus, KpiTrendDirection, EmptyStateType, TypographyVariant, DividerOrientation, SpinnerSize, SpinnerVariant, NavbarPosition, SidebarMode, BreadcrumbSeparator, PaginationVariant, TabsVariant, TabsOrientation, DropdownPlacement, SpeedDialDirection, SpeedDialPosition, BackToTopShape, AlertVariant, ToastType, ProgressVariant, ProgressStatus, ResultStatus, ModalSize, DrawerPlacement, DrawerSize, PopoverPlacement, TransitionType } from '../../enums/component.enum';
 let ComponentShowcaseComponent = class ComponentShowcaseComponent {
+    toastService = inject(ToastService);
     // Enum references for template
+    AlertVariant = AlertVariant;
+    ToastType = ToastType;
+    ProgressVariant = ProgressVariant;
+    ProgressStatus = ProgressStatus;
+    ResultStatus = ResultStatus;
+    ModalSize = ModalSize;
+    DrawerPlacement = DrawerPlacement;
+    DrawerSize = DrawerSize;
+    PopoverPlacement = PopoverPlacement;
+    TransitionType = TransitionType;
     BadgeStatus = BadgeStatus;
     BadgeVariant = BadgeVariant;
     BadgeColor = BadgeColor;
@@ -178,6 +210,47 @@ let ComponentShowcaseComponent = class ComponentShowcaseComponent {
     interactiveBackToTopShp = signal('circle');
     interactiveValue = signal('485.900.000 ₫');
     interactiveIcon = signal('bell');
+    // Feedback & Status Signals
+    interactiveAlertVariant = signal('info');
+    interactiveAlertClosable = signal(true);
+    interactiveAlertBanner = signal(false);
+    interactiveProgressPercent = signal(68);
+    interactiveProgressVariant = signal('bar');
+    interactiveProgressStatus = signal('active');
+    interactiveResultStatus = signal('404');
+    interactiveWatermarkText = signal('OPEN ERP 2026');
+    // Overlay & Popup Signals
+    showModal = signal(false);
+    interactiveModalSize = signal('md');
+    showDrawer = signal(false);
+    interactiveDrawerPlacement = signal('right');
+    interactiveDrawerSize = signal('md');
+    showLightbox = signal(false);
+    selectedPhotoIndex = signal(0);
+    interactiveTransitionType = signal('scale');
+    interactiveTransitionShow = signal(true);
+    interactiveAffixTop = signal(20);
+    // Sample Context Menu Items
+    sampleContextMenuItems = [
+        { label: 'Chỉnh sửa bản ghi', icon: 'edit', shortcut: 'Ctrl+E' },
+        { label: 'Sao chép ID', icon: 'copy', shortcut: 'Ctrl+C' },
+        { label: 'Tải xuống tệp', icon: 'download' },
+        { divider: true, label: '' },
+        { label: 'Xóa bản ghi', icon: 'trash-2', danger: true, shortcut: 'Del' }
+    ];
+    // Sample Virtual Scroll Items (1,000 records)
+    sampleVirtualItems = Array.from({ length: 1000 }, (_, i) => ({
+        id: i + 1,
+        name: `Tập đoàn / Khách hàng Doanh nghiệp #${i + 1}`,
+        code: `ERP-KH-${1000 + i}`,
+        phone: `0987 ${String(100 + (i % 900))} ${String(100 + (i % 900))}`
+    }));
+    // Sample Lightbox Gallery Images
+    sampleLightboxImages = [
+        'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1000',
+        'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1000',
+        'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1000'
+    ];
     // Form Sample Data
     sampleSelectOptions = [
         { label: 'Phòng Kỹ thuật & Công nghệ', value: 'tech', icon: 'server', description: 'Phát triển phần mềm và hệ thống' },
@@ -427,13 +500,22 @@ let ComponentShowcaseComponent = class ComponentShowcaseComponent {
     // Auto-loaded Component Registry
     allDocs = ALL_COMPONENT_DOCS;
     groupedCategories = computed(() => {
-        const categories = ['General', 'Data Display', 'Form & Inputs', 'Feedback & Loading', 'Navigation & Utility'];
+        const categories = [
+            'General',
+            'Data Display',
+            'Form & Inputs',
+            'Feedback & Status',
+            'Feedback & Loading',
+            'Overlay & Popups',
+            'Navigation & Utility',
+            'Utilities & Misc'
+        ];
         const q = this.searchQuery().toLowerCase().trim();
         return categories.map(cat => {
             const items = this.allDocs.filter(d => {
                 const matchCat = d.category === cat;
                 const matchSearch = d.name.toLowerCase().includes(q) ||
-                    d.selector.toLowerCase().includes(q) ||
+                    (d.selector?.toLowerCase() || '').includes(q) ||
                     d.description.toLowerCase().includes(q);
                 return matchCat && matchSearch;
             });
@@ -547,7 +629,27 @@ ComponentShowcaseComponent = __decorate([
             ImageComponent,
             ImageGalleryComponent,
             CalendarComponent,
-            TooltipDirective
+            TooltipDirective,
+            AlertComponent,
+            ToastContainerComponent,
+            ProgressComponent,
+            ResultComponent,
+            WatermarkComponent,
+            ModalComponent,
+            DrawerComponent,
+            PopoverComponent,
+            PopconfirmComponent,
+            ContextMenuComponent,
+            LightboxComponent,
+            PortalDirective,
+            AffixComponent,
+            VirtualScrollComponent,
+            ClickOutsideDirective,
+            FocusTrapDirective,
+            TransitionComponent,
+            CopyButtonComponent,
+            CopyToClipboardDirective,
+            ResizableComponent
         ],
         templateUrl: './component-showcase.component.html'
     })

@@ -107,8 +107,8 @@
 
           <!-- Import Code Snippet Bar -->
           <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between font-mono text-xs text-cyan-300 shadow-inner">
-            <code class="truncate pr-4">{{ doc.importStatement }}</code>
-            <button (click)="copyToClipboard(doc.importStatement)" 
+            <code class="truncate pr-4">{{ doc.importStatement || ('import { ' + doc.name.split(' / ')[0] + ' } from \'@open-erp/shared\';') }}</code>
+            <button (click)="copyToClipboard(doc.importStatement || '')" 
                     class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-sans font-bold text-white transition-all shrink-0 cursor-pointer flex items-center gap-1.5 border border-slate-700">
               <erp-icon [name]="copiedCode() === doc.importStatement ? 'check' : 'plus'" [size]="14"></erp-icon>
               <span>{{ copiedCode() === doc.importStatement ? 'Đã sao chép!' : 'Copy Import' }}</span>
@@ -974,6 +974,307 @@
                           </erp-button>
                         </div>
                       }
+
+                      @case ('alert') {
+                        <div class="w-full max-w-xl mx-auto space-y-4">
+                          <erp-alert [variant]="interactiveAlertVariant()"
+                                     title="Thông báo quan trọng từ hệ thống"
+                                     message="Các giao dịch chuyển khoản sau 23:00 sẽ được đối soát tự động vào 06:00 sáng hôm sau."
+                                     [closable]="interactiveAlertClosable()"
+                                     [banner]="interactiveAlertBanner()">
+                            <div alert-action>
+                              <erp-button variant="outline" size="sm">Xem chi tiết</erp-button>
+                            </div>
+                          </erp-alert>
+
+                          <erp-alert variant="success"
+                                     title="Đồng bộ kho hàng thành công"
+                                     message="Đã cập nhật 1.450 mã sản phẩm vào chi nhánh Hà Nội."
+                                     [closable]="true">
+                          </erp-alert>
+                        </div>
+                      }
+
+                      @case ('toast') {
+                        <div class="flex flex-col items-center justify-center gap-4 py-8 text-center">
+                          <erp-toast-container></erp-toast-container>
+                          <p class="text-xs text-slate-500 mb-2">Nhấn các nút bên dưới để bắn thông báo Toast tương tác:</p>
+                          <div class="flex flex-wrap items-center justify-center gap-3">
+                            <erp-button variant="success" iconLeft="check-circle" (click)="toastService.success('Dữ liệu đã lưu thành công!', 'Thành công')">
+                              Toast Success
+                            </erp-button>
+                            <erp-button variant="danger" iconLeft="alert-circle" (click)="toastService.error('Có lỗi kết nối máy chủ máy nhánh', 'Lỗi hệ thống')">
+                              Toast Error
+                            </erp-button>
+                            <erp-button variant="outline" iconLeft="alert-triangle" (click)="toastService.warning('Phiên đăng nhập sắp hết hạn trong 5 phút', 'Cảnh báo')">
+                              Toast Warning
+                            </erp-button>
+                            <erp-button variant="secondary" iconLeft="info" (click)="toastService.info('Có 3 hợp đồng mới cần phê duyệt', 'Thông báo')">
+                              Toast Info
+                            </erp-button>
+                            <erp-button variant="primary" iconLeft="loader" (click)="toastService.loading('Đang sao lưu cơ sở dữ liệu...')">
+                              Toast Loading
+                            </erp-button>
+                          </div>
+                        </div>
+                      }
+
+                      @case ('progress') {
+                        <div class="w-full max-w-md mx-auto space-y-8 p-4">
+                          <div class="space-y-2">
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Tiến trình thanh ngang (Bar):</span>
+                            <erp-progress [percent]="interactiveProgressPercent()"
+                                          [status]="interactiveProgressStatus()"
+                                          [striped]="true"
+                                          [strokeWidth]="10">
+                            </erp-progress>
+                          </div>
+
+                          <div class="flex items-center justify-around pt-4">
+                            <div class="text-center space-y-2">
+                              <span class="text-xs font-bold text-slate-700 dark:text-slate-300 block">Radial Circle:</span>
+                              <erp-progress [percent]="interactiveProgressPercent()"
+                                            variant="circle"
+                                            [status]="interactiveProgressStatus()"
+                                            [circleSize]="110"
+                                            [strokeWidth]="10">
+                              </erp-progress>
+                            </div>
+                            <div class="text-center space-y-2">
+                              <span class="text-xs font-bold text-slate-700 dark:text-slate-300 block">Success 100%:</span>
+                              <erp-progress [percent]="100"
+                                            variant="circle"
+                                            status="success"
+                                            [circleSize]="110"
+                                            [strokeWidth]="10">
+                              </erp-progress>
+                            </div>
+                          </div>
+                        </div>
+                      }
+
+                      @case ('result') {
+                        <div class="w-full">
+                          <erp-result [status]="interactiveResultStatus()">
+                            <div result-actions>
+                              <erp-button variant="secondary" iconLeft="refresh-cw">Thử lại</erp-button>
+                              <erp-button variant="primary" iconLeft="home">Về Bảng điều khiển</erp-button>
+                            </div>
+                          </erp-result>
+                        </div>
+                      }
+
+                      @case ('watermark') {
+                        <div class="w-full max-w-xl mx-auto">
+                          <erp-watermark [content]="[interactiveWatermarkText(), 'BẢO MẬT NỘI BỘ']" [opacity]="0.14">
+                            <div class="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl space-y-4">
+                              <div class="flex items-center justify-between border-b pb-3">
+                                <h3 class="font-bold text-sm text-slate-900 dark:text-white">HỢP ĐỒNG CUNG ỨNG DỊCH VỤ CLOUD</h3>
+                                <erp-status-badge status="ACTIVE"></erp-status-badge>
+                              </div>
+                              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                Căn cứ theo nhu cầu sử dụng hạ tầng phần mềm Open ERP của Bên A và khả năng cung cấp dịch vụ của Bên B...
+                              </p>
+                              <div class="p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl text-xs font-mono">
+                                Giá trị hợp đồng: 1.250.000.000 VNĐ (Một tỷ hai trăm năm mươi triệu đồng).
+                              </div>
+                            </div>
+                          </erp-watermark>
+                        </div>
+                      }
+
+                      @case ('modal') {
+                        <div class="flex flex-col items-center justify-center gap-4 py-8 text-center">
+                          <p class="text-xs text-slate-500">Nhấn nút bên dưới để mở cửa sổ đối thoại Modal nổi:</p>
+                          <erp-button variant="primary" iconLeft="external-link" (click)="showModal.set(true)">
+                            Mở Modal Demo
+                          </erp-button>
+
+                          <erp-modal [(visible)]="showModal"
+                                     title="Tạo Đơn Hàng Mới"
+                                     subtitle="Nhập thông tin giao dịch khách hàng"
+                                     icon="shopping-bag"
+                                     [size]="interactiveModalSize()"
+                                     (ok)="showModal.set(false); toastService.success('Đã lưu đơn hàng thành công!')">
+                            <div class="space-y-4">
+                              <erp-input label="Khách hàng" placeholder="Tập đoàn FPT Telecom"></erp-input>
+                              <erp-input label="Giá trị hợp đồng" placeholder="350.000.000 ₫"></erp-input>
+                              <erp-textarea label="Ghi chú nội bộ" placeholder="Giao hàng đợt 1 trước ngày 25..."></erp-textarea>
+                            </div>
+                          </erp-modal>
+                        </div>
+                      }
+
+                      @case ('drawer') {
+                        <div class="flex flex-col items-center justify-center gap-4 py-8 text-center">
+                          <p class="text-xs text-slate-500">Nhấn nút bên dưới để mở ngăn kéo trượt (Slide-over Drawer):</p>
+                          <erp-button variant="primary" iconLeft="sidebar" (click)="showDrawer.set(true)">
+                            Mở Drawer Demo
+                          </erp-button>
+
+                          <erp-drawer [(visible)]="showDrawer"
+                                      title="Hồ Sơ Nhân Sự Chi Tiết"
+                                      subtitle="Mã nhân viên: ERP-EMP-0889"
+                                      icon="user"
+                                      [placement]="interactiveDrawerPlacement()"
+                                      [size]="interactiveDrawerSize()"
+                                      (ok)="showDrawer.set(false); toastService.success('Đã cập nhật hồ sơ!')">
+                            <div class="space-y-4">
+                              <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-950 rounded-2xl">
+                                <erp-avatar name="Nguyễn Văn Minh" size="lg"></erp-avatar>
+                                <div>
+                                  <h4 class="font-bold text-xs text-slate-900 dark:text-white">Nguyễn Văn Minh</h4>
+                                  <p class="text-[11px] text-slate-500">Trưởng phòng Kỹ thuật Phần mềm</p>
+                                </div>
+                              </div>
+                              <erp-input label="Email doanh nghiệp" value="minh.nguyen@open-erp.vn"></erp-input>
+                              <erp-input label="Số điện thoại" value="0987 654 321"></erp-input>
+                              <erp-textarea label="Mô tả kỹ năng" value="Fullstack Angular, NestJS, Cloud Kubernetes, ERP System Architecture."></erp-textarea>
+                            </div>
+                          </erp-drawer>
+                        </div>
+                      }
+
+                      @case ('popover') {
+                        <div class="flex items-center justify-center py-12">
+                          <erp-popover title="Bộ Lọc Nhanh Khách Hàng" placement="bottom">
+                            <erp-button popover-trigger variant="outline" iconLeft="filter">
+                              Click mở Popover
+                            </erp-button>
+                            <div class="space-y-3 min-w-56">
+                              <erp-checkbox label="Khách hàng VIP" [ngModel]="true"></erp-checkbox>
+                              <erp-checkbox label="Đã phát sinh doanh số" [ngModel]="true"></erp-checkbox>
+                              <erp-checkbox label="Chưa ký hợp đồng" [ngModel]="false"></erp-checkbox>
+                            </div>
+                          </erp-popover>
+                        </div>
+                      }
+
+                      @case ('popconfirm') {
+                        <div class="flex items-center justify-center py-12">
+                          <erp-popconfirm title="Xóa tài khoản này?"
+                                         description="Mọi dữ liệu và quyền truy cập sẽ bị hủy ngay lập tức."
+                                         okText="Xóa luôn"
+                                         okVariant="danger"
+                                         (confirm)="toastService.success('Đã xóa người dùng thành công!')">
+                            <erp-button variant="danger" iconLeft="trash-2">
+                              Xóa Bản Ghi (Popconfirm)
+                            </erp-button>
+                          </erp-popconfirm>
+                        </div>
+                      }
+
+                      @case ('context-menu') {
+                        <div class="w-full max-w-lg mx-auto">
+                          <erp-context-menu [items]="sampleContextMenuItems" (itemClick)="toastService.info('Đã chọn: ' + $event.label)">
+                            <div class="p-12 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl bg-slate-50/50 dark:bg-slate-950/40 text-center select-none cursor-context-menu hover:border-indigo-500 transition-colors">
+                              <erp-icon name="mouse-pointer" [size]="28" class="text-indigo-500 mx-auto mb-2"></erp-icon>
+                              <h4 class="font-bold text-xs text-slate-800 dark:text-slate-200">Khu vực kiểm thử Context Menu</h4>
+                              <p class="text-[11px] text-slate-500 mt-1">Click chuột phải vào bất kỳ vị trí nào trong ô này để mở menu</p>
+                            </div>
+                          </erp-context-menu>
+                        </div>
+                      }
+
+                      @case ('lightbox') {
+                        <div class="flex flex-col items-center justify-center gap-4 py-6 text-center">
+                          <p class="text-xs text-slate-500">Click vào ảnh để phóng to toàn màn hình (Lightbox):</p>
+                          <div class="grid grid-cols-3 gap-3">
+                            @for (img of sampleLightboxImages; track $index) {
+                              <button (click)="selectedPhotoIndex.set($index); showLightbox.set(true)"
+                                      class="w-28 h-20 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:scale-105 transition-transform cursor-pointer shadow-md">
+                                <img [src]="img" class="w-full h-full object-cover" />
+                              </button>
+                            }
+                          </div>
+
+                          <erp-lightbox [images]="sampleLightboxImages"
+                                        [(visible)]="showLightbox"
+                                        [(currentIndex)]="selectedPhotoIndex"
+                                        title="Thư viện hình ảnh Dự án ERP">
+                          </erp-lightbox>
+                        </div>
+                      }
+
+                      @case ('virtual-scroll') {
+                        <div class="w-full max-w-lg mx-auto">
+                          <div class="flex items-center justify-between mb-2 px-1">
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Virtual Scroll: 1.000 phần tử mượt mà</span>
+                            <span class="text-[11px] font-mono text-indigo-600 dark:text-indigo-400 font-bold">itemSize: 52px</span>
+                          </div>
+                          <erp-virtual-scroll [items]="sampleVirtualItems" [itemSize]="52" height="300px">
+                            <ng-template let-item let-index="index">
+                              <div class="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-xs transition-colors">
+                                <div class="flex items-center gap-2.5">
+                                  <span class="w-8 font-mono font-bold text-indigo-600 dark:text-indigo-400">#{{ item.id }}</span>
+                                  <span class="font-medium text-slate-800 dark:text-slate-200">{{ item.name }}</span>
+                                </div>
+                                <span class="font-mono text-[11px] text-slate-400">{{ item.code }}</span>
+                              </div>
+                            </ng-template>
+                          </erp-virtual-scroll>
+                        </div>
+                      }
+
+                      @case ('copy-button') {
+                        <div class="flex flex-col items-center justify-center gap-4 py-8">
+                          <div class="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm">
+                            <span class="font-mono text-xs text-indigo-600 dark:text-indigo-400 font-bold">sk_live_erp_98492847291839218</span>
+                            <erp-copy-button value="sk_live_erp_98492847291839218" (copied)="toastService.success('Đã sao chép mã Token!')"></erp-copy-button>
+                          </div>
+                        </div>
+                      }
+
+                      @case ('resizable') {
+                        <div class="flex items-center justify-center py-6">
+                          <erp-resizable [initialWidth]="360" [initialHeight]="200">
+                            <div class="h-full flex flex-col justify-between select-none">
+                              <div>
+                                <h4 class="font-bold text-xs text-slate-900 dark:text-white">Cửa Sổ Có Thể Co Giãn</h4>
+                                <p class="text-[11px] text-slate-500 mt-1">Kéo cạnh phải, cạnh dưới hoặc góc dưới cùng bên phải để thay đổi kích thước thủ công.</p>
+                              </div>
+                              <div class="p-2 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl text-[10px] text-indigo-600 font-mono">
+                                📐 Kéo thả mượt mà với bounding constraints
+                              </div>
+                            </div>
+                          </erp-resizable>
+                        </div>
+                      }
+
+                      @case ('transition') {
+                        <div class="flex flex-col items-center justify-center gap-4 py-6">
+                          <erp-button variant="primary" (click)="interactiveTransitionShow.set(!interactiveTransitionShow())">
+                            {{ interactiveTransitionShow() ? 'Ẩn Nội Dung' : 'Hiện Nội Dung (Transition)' }}
+                          </erp-button>
+
+                          <erp-transition [show]="interactiveTransitionShow()" [type]="interactiveTransitionType()">
+                            <div class="p-6 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-3xl shadow-xl max-w-sm text-center">
+                              <h4 class="font-bold text-sm mb-1">Hiệu ứng Animation Mượt Mà</h4>
+                              <p class="text-xs opacity-90">Hiệu ứng: {{ interactiveTransitionType() }}</p>
+                            </div>
+                          </erp-transition>
+                        </div>
+                      }
+
+                      @case ('affix') {
+                        <div class="w-full max-w-md mx-auto text-center py-6">
+                          <erp-affix [offsetTop]="20">
+                            <div class="p-3 bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-800/80 rounded-2xl shadow-lg flex items-center justify-between text-xs">
+                              <span class="font-bold text-indigo-600 dark:text-indigo-400">📌 Affix Sticky Header</span>
+                              <erp-button size="sm" variant="primary">Lưu ngay</erp-button>
+                            </div>
+                          </erp-affix>
+                        </div>
+                      }
+
+                      @case ('portal') {
+                        <div class="flex flex-col items-center justify-center py-6 text-center">
+                          <p class="text-xs text-slate-500 mb-4">Direct [erpPortal] kết xuất template trực tiếp vào DOM body:</p>
+                          <div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl text-xs font-mono">
+                            &lt;div *erpPortal&gt; Rendered to document.body &lt;/div&gt;
+                          </div>
+                        </div>
+                      }
                     }
                   </div>
 
@@ -1141,6 +1442,117 @@
                         <option value="bottom">Bottom (Phía dưới)</option>
                         <option value="left">Left (Bên trái)</option>
                         <option value="right">Right (Bên phải)</option>
+                      </select>
+                    </div>
+                  }
+
+                  <!-- Alert Controls -->
+                  @if (doc.id === 'alert') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Loại cảnh báo:</span>
+                        <select [ngModel]="interactiveAlertVariant()" (ngModelChange)="interactiveAlertVariant.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="info">Info</option>
+                          <option value="success">Success</option>
+                          <option value="warning">Warning</option>
+                          <option value="error">Error</option>
+                          <option value="neutral">Neutral</option>
+                        </select>
+                      </div>
+                      <erp-checkbox [ngModel]="interactiveAlertClosable()" (checkedChange)="interactiveAlertClosable.set($event)" label="Nút đóng (Closable)"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveAlertBanner()" (checkedChange)="interactiveAlertBanner.set($event)" label="Banner mode"></erp-checkbox>
+                    </div>
+                  }
+
+                  <!-- Progress Controls -->
+                  @if (doc.id === 'progress') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Trạng thái:</span>
+                        <select [ngModel]="interactiveProgressStatus()" (ngModelChange)="interactiveProgressStatus.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="normal">Normal</option>
+                          <option value="active">Active</option>
+                          <option value="success">Success</option>
+                          <option value="warning">Warning</option>
+                          <option value="error">Error</option>
+                        </select>
+                      </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Tiến độ ({{ interactiveProgressPercent() }}%):</span>
+                        <input type="range" min="0" max="100" [ngModel]="interactiveProgressPercent()" (ngModelChange)="interactiveProgressPercent.set($event)" class="w-28 accent-indigo-600 cursor-pointer"/>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Result Controls -->
+                  @if (doc.id === 'result') {
+                    <div class="space-y-1">
+                      <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Mã trạng thái:</span>
+                      <select [ngModel]="interactiveResultStatus()" (ngModelChange)="interactiveResultStatus.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                        <option value="403">403 (Forbidden)</option>
+                        <option value="404">404 (Not Found)</option>
+                        <option value="500">500 (Server Error)</option>
+                        <option value="success">Success</option>
+                        <option value="warning">Warning</option>
+                        <option value="error">Error</option>
+                        <option value="info">Info</option>
+                      </select>
+                    </div>
+                  }
+
+                  <!-- Modal Controls -->
+                  @if (doc.id === 'modal') {
+                    <div class="flex items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Kích thước Modal:</span>
+                        <select [ngModel]="interactiveModalSize()" (ngModelChange)="interactiveModalSize.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="xs">XS</option>
+                          <option value="sm">SM</option>
+                          <option value="md">MD</option>
+                          <option value="lg">LG</option>
+                          <option value="xl">XL</option>
+                        </select>
+                      </div>
+                      <erp-button size="sm" variant="primary" (click)="showModal.set(true)">Bật Modal</erp-button>
+                    </div>
+                  }
+
+                  <!-- Drawer Controls -->
+                  @if (doc.id === 'drawer') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Cạnh trượt ra:</span>
+                        <select [ngModel]="interactiveDrawerPlacement()" (ngModelChange)="interactiveDrawerPlacement.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="right">Right</option>
+                          <option value="left">Left</option>
+                          <option value="top">Top</option>
+                          <option value="bottom">Bottom</option>
+                        </select>
+                      </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Kích thước:</span>
+                        <select [ngModel]="interactiveDrawerSize()" (ngModelChange)="interactiveDrawerSize.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="sm">SM</option>
+                          <option value="md">MD</option>
+                          <option value="lg">LG</option>
+                          <option value="xl">XL</option>
+                        </select>
+                      </div>
+                      <erp-button size="sm" variant="primary" (click)="showDrawer.set(true)">Bật Drawer</erp-button>
+                    </div>
+                  }
+
+                  <!-- Transition Controls -->
+                  @if (doc.id === 'transition') {
+                    <div class="space-y-1">
+                      <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Dạng hiệu ứng:</span>
+                      <select [ngModel]="interactiveTransitionType()" (ngModelChange)="interactiveTransitionType.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                        <option value="scale">Scale (Thu phóng)</option>
+                        <option value="fade">Fade (Mờ dần)</option>
+                        <option value="slide-up">Slide Up</option>
+                        <option value="slide-down">Slide Down</option>
+                        <option value="slide-left">Slide Left</option>
+                        <option value="slide-right">Slide Right</option>
                       </select>
                     </div>
                   }

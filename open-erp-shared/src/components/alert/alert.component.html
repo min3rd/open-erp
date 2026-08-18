@@ -1,0 +1,39 @@
+@if (visible) {
+  <div [class]="containerClasses" role="alert">
+    <div class="flex items-start gap-3">
+      
+      <!-- Alert Icon -->
+      @if (showIcon) {
+        <div class="shrink-0 mt-0.5" [class]="iconClasses">
+          <erp-icon [name]="defaultIcon" [size]="18"></erp-icon>
+        </div>
+      }
+
+      <!-- Alert Content Body -->
+      <div class="flex-1 min-w-0">
+        @if (title) {
+          <h4 class="text-xs font-bold tracking-tight mb-0.5">{{ title }}</h4>
+        }
+        @if (message) {
+          <p class="text-xs leading-relaxed opacity-90">{{ message }}</p>
+        }
+        <ng-content></ng-content>
+      </div>
+
+      <!-- Action Slot / Close Button -->
+      <div class="flex items-center gap-2 shrink-0 ml-2">
+        <ng-content select="[alert-action]"></ng-content>
+
+        @if (closable) {
+          <button (click)="close()"
+                  type="button"
+                  class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 opacity-70 hover:opacity-100 transition-colors cursor-pointer"
+                  aria-label="Đóng cảnh báo">
+            <erp-icon name="x" [size]="14"></erp-icon>
+          </button>
+        }
+      </div>
+
+    </div>
+  </div>
+}

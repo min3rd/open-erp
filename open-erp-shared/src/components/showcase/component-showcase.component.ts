@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -76,6 +76,29 @@ import { CalendarComponent, CalendarEvent } from '../calendar/calendar.component
 import { TooltipComponent } from '../tooltip/tooltip.component';
 import { TooltipDirective } from '../tooltip/tooltip.directive';
 
+// Import Feedback, Overlay & Utility Components
+import { AlertComponent } from '../alert/alert.component';
+import { ToastComponent } from '../toast/toast.component';
+import { ToastContainerComponent } from '../toast/toast-container.component';
+import { ToastService } from '../toast/toast.service';
+import { ProgressComponent } from '../progress/progress.component';
+import { ResultComponent } from '../result/result.component';
+import { WatermarkComponent } from '../watermark/watermark.component';
+import { ModalComponent } from '../modal/modal.component';
+import { DrawerComponent } from '../drawer/drawer.component';
+import { PopoverComponent } from '../popover/popover.component';
+import { PopconfirmComponent } from '../popconfirm/popconfirm.component';
+import { ContextMenuComponent } from '../context-menu/context-menu.component';
+import { LightboxComponent } from '../lightbox/lightbox.component';
+import { PortalDirective } from '../portal/portal.directive';
+import { AffixComponent } from '../affix/affix.component';
+import { VirtualScrollComponent } from '../virtual-scroll/virtual-scroll.component';
+import { ClickOutsideDirective } from '../directives/click-outside.directive';
+import { FocusTrapDirective } from '../directives/focus-trap.directive';
+import { TransitionComponent } from '../transition/transition.component';
+import { CopyButtonComponent, CopyToClipboardDirective } from '../copy-to-clipboard/copy-button.component';
+import { ResizableComponent } from '../resizable/resizable.component';
+
 // Import Docs Registry & Enums
 import { ALL_COMPONENT_DOCS, ComponentDoc } from '../../docs';
 import {
@@ -105,7 +128,17 @@ import {
   DropdownPlacement,
   SpeedDialDirection,
   SpeedDialPosition,
-  BackToTopShape
+  BackToTopShape,
+  AlertVariant,
+  ToastType,
+  ProgressVariant,
+  ProgressStatus,
+  ResultStatus,
+  ModalSize,
+  DrawerPlacement,
+  DrawerSize,
+  PopoverPlacement,
+  TransitionType
 } from '../../enums/component.enum';
 
 type ShowcaseTab = 'playground' | 'api' | 'examples';
@@ -184,12 +217,44 @@ type CanvasBackground = 'dots' | 'grid' | 'slate';
     ImageComponent,
     ImageGalleryComponent,
     CalendarComponent,
-    TooltipDirective
+    TooltipDirective,
+    AlertComponent,
+    ToastContainerComponent,
+    ProgressComponent,
+    ResultComponent,
+    WatermarkComponent,
+    ModalComponent,
+    DrawerComponent,
+    PopoverComponent,
+    PopconfirmComponent,
+    ContextMenuComponent,
+    LightboxComponent,
+    PortalDirective,
+    AffixComponent,
+    VirtualScrollComponent,
+    ClickOutsideDirective,
+    FocusTrapDirective,
+    TransitionComponent,
+    CopyButtonComponent,
+    CopyToClipboardDirective,
+    ResizableComponent
   ],
   templateUrl: './component-showcase.component.html'
 })
 export class ComponentShowcaseComponent {
+  toastService = inject(ToastService);
+
   // Enum references for template
+  AlertVariant = AlertVariant;
+  ToastType = ToastType;
+  ProgressVariant = ProgressVariant;
+  ProgressStatus = ProgressStatus;
+  ResultStatus = ResultStatus;
+  ModalSize = ModalSize;
+  DrawerPlacement = DrawerPlacement;
+  DrawerSize = DrawerSize;
+  PopoverPlacement = PopoverPlacement;
+  TransitionType = TransitionType;
   BadgeStatus = BadgeStatus;
   BadgeVariant = BadgeVariant;
   BadgeColor = BadgeColor;
@@ -291,6 +356,52 @@ export class ComponentShowcaseComponent {
   interactiveBackToTopShp = signal<'circle' | 'rounded' | 'pill'>('circle');
   interactiveValue = signal<string>('485.900.000 ₫');
   interactiveIcon = signal<IconName>('bell');
+
+  // Feedback & Status Signals
+  interactiveAlertVariant = signal<AlertVariant | 'info' | 'success' | 'warning' | 'error' | 'neutral'>('info');
+  interactiveAlertClosable = signal<boolean>(true);
+  interactiveAlertBanner = signal<boolean>(false);
+  interactiveProgressPercent = signal<number>(68);
+  interactiveProgressVariant = signal<'bar' | 'circle'>('bar');
+  interactiveProgressStatus = signal<'normal' | 'success' | 'warning' | 'error' | 'active'>('active');
+  interactiveResultStatus = signal<'403' | '404' | '500' | 'success' | 'error' | 'warning' | 'info'>('404');
+  interactiveWatermarkText = signal<string>('OPEN ERP 2026');
+
+  // Overlay & Popup Signals
+  showModal = signal<boolean>(false);
+  interactiveModalSize = signal<'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full'>('md');
+  showDrawer = signal<boolean>(false);
+  interactiveDrawerPlacement = signal<'left' | 'right' | 'top' | 'bottom'>('right');
+  interactiveDrawerSize = signal<'sm' | 'md' | 'lg' | 'xl' | 'full'>('md');
+  showLightbox = signal<boolean>(false);
+  selectedPhotoIndex = signal<number>(0);
+  interactiveTransitionType = signal<'fade' | 'scale' | 'slide-up' | 'slide-down' | 'slide-left' | 'slide-right'>('scale');
+  interactiveTransitionShow = signal<boolean>(true);
+  interactiveAffixTop = signal<number>(20);
+
+  // Sample Context Menu Items
+  sampleContextMenuItems = [
+    { label: 'Chỉnh sửa bản ghi', icon: 'edit' as IconName, shortcut: 'Ctrl+E' },
+    { label: 'Sao chép ID', icon: 'copy' as IconName, shortcut: 'Ctrl+C' },
+    { label: 'Tải xuống tệp', icon: 'download' as IconName },
+    { divider: true, label: '' },
+    { label: 'Xóa bản ghi', icon: 'trash-2' as IconName, danger: true, shortcut: 'Del' }
+  ];
+
+  // Sample Virtual Scroll Items (1,000 records)
+  sampleVirtualItems = Array.from({ length: 1000 }, (_, i) => ({
+    id: i + 1,
+    name: `Tập đoàn / Khách hàng Doanh nghiệp #${i + 1}`,
+    code: `ERP-KH-${1000 + i}`,
+    phone: `0987 ${String(100 + (i % 900))} ${String(100 + (i % 900))}`
+  }));
+
+  // Sample Lightbox Gallery Images
+  sampleLightboxImages: string[] = [
+    'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1000',
+    'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1000',
+    'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1000'
+  ];
 
   // Form Sample Data
   sampleSelectOptions: SelectOption[] = [
@@ -568,14 +679,23 @@ export class ComponentShowcaseComponent {
   readonly allDocs: ComponentDoc[] = ALL_COMPONENT_DOCS;
 
   readonly groupedCategories = computed(() => {
-    const categories = ['General', 'Data Display', 'Form & Inputs', 'Feedback & Loading', 'Navigation & Utility'] as const;
+    const categories = [
+      'General',
+      'Data Display',
+      'Form & Inputs',
+      'Feedback & Status',
+      'Feedback & Loading',
+      'Overlay & Popups',
+      'Navigation & Utility',
+      'Utilities & Misc'
+    ] as const;
     const q = this.searchQuery().toLowerCase().trim();
 
     return categories.map(cat => {
       const items = this.allDocs.filter(d => {
         const matchCat = d.category === cat;
         const matchSearch = d.name.toLowerCase().includes(q) ||
-                            d.selector.toLowerCase().includes(q) ||
+                            (d.selector?.toLowerCase() || '').includes(q) ||
                             d.description.toLowerCase().includes(q);
         return matchCat && matchSearch;
       });

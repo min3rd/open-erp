@@ -107,5 +107,33 @@ export * from './components/form/rich-text-editor/rich-text-editor.component';
 export * from './components/form/otp-input/otp-input.component';
 export * from './components/form/file-upload/file-upload.component';
 
+// Feedback & Status Components (New)
+export * from './components/alert/alert.component';
+export * from './components/toast/toast.model';
+export * from './components/toast/toast.service';
+export * from './components/toast/toast.component';
+export * from './components/toast/toast-container.component';
+export * from './components/progress/progress.component';
+export * from './components/result/result.component';
+export * from './components/watermark/watermark.component';
+
+// Overlay & Popups Components (New)
+export * from './components/modal/modal.component';
+export * from './components/drawer/drawer.component';
+export * from './components/popover/popover.component';
+export * from './components/popconfirm/popconfirm.component';
+export * from './components/context-menu/context-menu.component';
+export * from './components/lightbox/lightbox.component';
+
+// Utilities & Interactions (New)
+export * from './components/portal/portal.directive';
+export * from './components/affix/affix.component';
+export * from './components/virtual-scroll/virtual-scroll.component';
+export * from './components/directives/click-outside.directive';
+export * from './components/directives/focus-trap.directive';
+export * from './components/transition/transition.component';
+export * from './components/copy-to-clipboard/copy-button.component';
+export * from './components/resizable/resizable.component';
+
 // Showcase / Catalog Component
 export * from './components/showcase/component-showcase.component';

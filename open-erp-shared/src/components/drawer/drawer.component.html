@@ -1,0 +1,66 @@
+@if (visible) {
+  <div (click)="onMaskClick($event)"
+       class="drawer-mask fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm transition-all duration-300 animate-in fade-in"
+       role="dialog"
+       aria-modal="true">
+    
+    <!-- Drawer Panel Sliding Container -->
+    <div [class]="placementClasses + ' ' + sizeClasses"
+         class="fixed bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col z-10 transition-transform duration-300"
+         [class.border-r]="placement === 'left'"
+         [class.border-l]="placement === 'right'"
+         [class.border-b]="placement === 'top'"
+         [class.border-t]="placement === 'bottom'">
+      
+      <!-- Drawer Header -->
+      @if (title || closable) {
+        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between shrink-0 bg-slate-50/50 dark:bg-slate-950/30">
+          <div class="flex items-center gap-3 min-w-0">
+            @if (icon) {
+              <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                <erp-icon [name]="icon" [size]="18"></erp-icon>
+              </div>
+            }
+            <div class="min-w-0">
+              @if (title) {
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ title }}</h3>
+              }
+              @if (subtitle) {
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">{{ subtitle }}</p>
+              }
+            </div>
+          </div>
+
+          @if (closable) {
+            <button (click)="handleClose()"
+                    type="button"
+                    class="p-1.5 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors cursor-pointer"
+                    aria-label="Đóng ngăn kéo">
+              <erp-icon name="x" [size]="16"></erp-icon>
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Drawer Body -->
+      <div class="p-6 overflow-y-auto flex-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed custom-scrollbar">
+        <ng-content></ng-content>
+      </div>
+
+      <!-- Drawer Footer -->
+      @if (showFooter) {
+        <div class="px-6 py-3.5 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/40 flex items-center justify-end gap-2.5 shrink-0">
+          <ng-content select="[drawer-footer]">
+            <erp-button variant="secondary" size="sm" (click)="handleClose()">
+              {{ cancelText }}
+            </erp-button>
+            <erp-button variant="primary" size="sm" (click)="ok.emit()">
+              {{ okText }}
+            </erp-button>
+          </ng-content>
+        </div>
+      }
+
+    </div>
+  </div>
+}

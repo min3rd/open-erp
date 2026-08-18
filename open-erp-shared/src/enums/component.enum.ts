@@ -263,4 +263,112 @@ export enum BadgeCorner {
   BOTTOM_LEFT = 'bottom-left'
 }
 
+export enum AlertVariant {
+  INFO = 'info',
+  SUCCESS = 'success',
+  WARNING = 'warning',
+  ERROR = 'error',
+  NEUTRAL = 'neutral'
+}
 
+export enum ToastType {
+  INFO = 'info',
+  SUCCESS = 'success',
+  WARNING = 'warning',
+  ERROR = 'error',
+  LOADING = 'loading'
+}
+
+export enum ToastPosition {
+  TOP_RIGHT = 'top-right',
+  TOP_LEFT = 'top-left',
+  BOTTOM_RIGHT = 'bottom-right',
+  BOTTOM_LEFT = 'bottom-left',
+  TOP_CENTER = 'top-center',
+  BOTTOM_CENTER = 'bottom-center'
+}
+
+export enum ProgressVariant {
+  BAR = 'bar',
+  CIRCLE = 'circle',
+  DASHBOARD = 'dashboard'
+}
+
+export enum ProgressStatus {
+  NORMAL = 'normal',
+  SUCCESS = 'success',
+  WARNING = 'warning',
+  ERROR = 'error',
+  ACTIVE = 'active'
+}
+
+export enum ResultStatus {
+  STATUS_403 = '403',
+  STATUS_404 = '404',
+  STATUS_500 = '500',
+  SUCCESS = 'success',
+  ERROR = 'error',
+  WARNING = 'warning',
+  INFO = 'info'
+}
+
+export enum ModalSize {
+  XS = 'xs',
+  SM = 'sm',
+  MD = 'md',
+  LG = 'lg',
+  XL = 'xl',
+  FULL = 'full'
+}
+
+export enum DrawerPlacement {
+  LEFT = 'left',
+  RIGHT = 'right',
+  TOP = 'top',
+  BOTTOM = 'bottom'
+}
+
+export enum DrawerSize {
+  SM = 'sm',
+  MD = 'md',
+  LG = 'lg',
+  XL = 'xl',
+  FULL = 'full'
+}
+
+export enum PopoverPlacement {
+  TOP = 'top',
+  BOTTOM = 'bottom',
+  LEFT = 'left',
+  RIGHT = 'right',
+  TOP_START = 'top-start',
+  TOP_END = 'top-end',
+  BOTTOM_START = 'bottom-start',
+  BOTTOM_END = 'bottom-end',
+  LEFT_START = 'left-start',
+  LEFT_END = 'left-end',
+  RIGHT_START = 'right-start',
+  RIGHT_END = 'right-end'
+}
+
+export enum PopoverTrigger {
+  CLICK = 'click',
+  HOVER = 'hover',
+  FOCUS = 'focus',
+  MANUAL = 'manual'
+}
+
+export enum TransitionType {
+  FADE = 'fade',
+  SCALE = 'scale',
+  SLIDE_UP = 'slide-up',
+  SLIDE_DOWN = 'slide-down',
+  SLIDE_LEFT = 'slide-left',
+  SLIDE_RIGHT = 'slide-right',
+  COLLAPSE = 'collapse'
+}
+
+export enum AffixPosition {
+  TOP = 'top',
+  BOTTOM = 'bottom'
+}

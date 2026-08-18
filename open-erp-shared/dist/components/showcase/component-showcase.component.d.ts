@@ -1,3 +1,4 @@
+import { IconName } from '../icon/icon.component';
 import { SelectOption } from '../form/select/select.component';
 import { RadioOption } from '../form/radio-group/radio-group.component';
 import { DateRange } from '../form/date-range-picker/date-range-picker.component';
@@ -19,11 +20,23 @@ import { TreeNode } from '../tree-view/tree-view.component';
 import { CarouselSlide } from '../carousel/carousel.component';
 import { DescriptionItem } from '../descriptions/descriptions.component';
 import { CalendarEvent } from '../calendar/calendar.component';
+import { ToastService } from '../toast/toast.service';
 import { ComponentDoc } from '../../docs';
-import { BadgeStatus, BadgeVariant, BadgeColor, TagVariant, TagColor, AvatarSize, AvatarShape, ButtonVariant, ButtonSize, InputSize, ValidationStatus, KpiTrendDirection, EmptyStateType, TypographyVariant, DividerOrientation, SpinnerSize, SpinnerVariant, NavbarPosition, SidebarMode, BreadcrumbSeparator, PaginationVariant, TabsVariant, TabsOrientation, DropdownPlacement, SpeedDialDirection, SpeedDialPosition, BackToTopShape } from '../../enums/component.enum';
+import { BadgeStatus, BadgeVariant, BadgeColor, TagVariant, TagColor, AvatarSize, AvatarShape, ButtonVariant, ButtonSize, InputSize, ValidationStatus, KpiTrendDirection, EmptyStateType, TypographyVariant, DividerOrientation, SpinnerSize, SpinnerVariant, NavbarPosition, SidebarMode, BreadcrumbSeparator, PaginationVariant, TabsVariant, TabsOrientation, DropdownPlacement, SpeedDialDirection, SpeedDialPosition, BackToTopShape, AlertVariant, ToastType, ProgressVariant, ProgressStatus, ResultStatus, ModalSize, DrawerPlacement, DrawerSize, PopoverPlacement, TransitionType } from '../../enums/component.enum';
 type ShowcaseTab = 'playground' | 'api' | 'examples';
 type CanvasBackground = 'dots' | 'grid' | 'slate';
 export declare class ComponentShowcaseComponent {
+    toastService: ToastService;
+    AlertVariant: typeof AlertVariant;
+    ToastType: typeof ToastType;
+    ProgressVariant: typeof ProgressVariant;
+    ProgressStatus: typeof ProgressStatus;
+    ResultStatus: typeof ResultStatus;
+    ModalSize: typeof ModalSize;
+    DrawerPlacement: typeof DrawerPlacement;
+    DrawerSize: typeof DrawerSize;
+    PopoverPlacement: typeof PopoverPlacement;
+    TransitionType: typeof TransitionType;
     BadgeStatus: typeof BadgeStatus;
     BadgeVariant: typeof BadgeVariant;
     BadgeColor: typeof BadgeColor;
@@ -115,6 +128,56 @@ export declare class ComponentShowcaseComponent {
     interactiveBackToTopShp: import("@angular/core").WritableSignal<"circle" | "rounded" | "pill">;
     interactiveValue: import("@angular/core").WritableSignal<string>;
     interactiveIcon: import("@angular/core").WritableSignal<string>;
+    interactiveAlertVariant: import("@angular/core").WritableSignal<"success" | "warning" | "info" | "neutral" | "error" | AlertVariant>;
+    interactiveAlertClosable: import("@angular/core").WritableSignal<boolean>;
+    interactiveAlertBanner: import("@angular/core").WritableSignal<boolean>;
+    interactiveProgressPercent: import("@angular/core").WritableSignal<number>;
+    interactiveProgressVariant: import("@angular/core").WritableSignal<"circle" | "bar">;
+    interactiveProgressStatus: import("@angular/core").WritableSignal<"success" | "warning" | "error" | "normal" | "active">;
+    interactiveResultStatus: import("@angular/core").WritableSignal<"success" | "warning" | "info" | "error" | "403" | "404" | "500">;
+    interactiveWatermarkText: import("@angular/core").WritableSignal<string>;
+    showModal: import("@angular/core").WritableSignal<boolean>;
+    interactiveModalSize: import("@angular/core").WritableSignal<"sm" | "md" | "lg" | "xs" | "xl" | "full">;
+    showDrawer: import("@angular/core").WritableSignal<boolean>;
+    interactiveDrawerPlacement: import("@angular/core").WritableSignal<"left" | "right" | "top" | "bottom">;
+    interactiveDrawerSize: import("@angular/core").WritableSignal<"sm" | "md" | "lg" | "xl" | "full">;
+    showLightbox: import("@angular/core").WritableSignal<boolean>;
+    selectedPhotoIndex: import("@angular/core").WritableSignal<number>;
+    interactiveTransitionType: import("@angular/core").WritableSignal<"fade" | "scale" | "slide-up" | "slide-down" | "slide-left" | "slide-right">;
+    interactiveTransitionShow: import("@angular/core").WritableSignal<boolean>;
+    interactiveAffixTop: import("@angular/core").WritableSignal<number>;
+    sampleContextMenuItems: ({
+        label: string;
+        icon: IconName;
+        shortcut: string;
+        divider?: undefined;
+        danger?: undefined;
+    } | {
+        label: string;
+        icon: IconName;
+        shortcut?: undefined;
+        divider?: undefined;
+        danger?: undefined;
+    } | {
+        divider: boolean;
+        label: string;
+        icon?: undefined;
+        shortcut?: undefined;
+        danger?: undefined;
+    } | {
+        label: string;
+        icon: IconName;
+        danger: boolean;
+        shortcut: string;
+        divider?: undefined;
+    })[];
+    sampleVirtualItems: {
+        id: number;
+        name: string;
+        code: string;
+        phone: string;
+    }[];
+    sampleLightboxImages: string[];
     sampleSelectOptions: SelectOption[];
     sampleRadioOptions: RadioOption[];
     sampleStepperSteps: {
@@ -187,7 +250,7 @@ export declare class ComponentShowcaseComponent {
     stepperIndexVal: import("@angular/core").WritableSignal<number>;
     readonly allDocs: ComponentDoc[];
     readonly groupedCategories: import("@angular/core").Signal<{
-        name: "General" | "Data Display" | "Form & Inputs" | "Feedback & Loading" | "Navigation & Utility";
+        name: "General" | "Data Display" | "Form & Inputs" | "Feedback & Status" | "Feedback & Loading" | "Overlay & Popups" | "Navigation & Utility" | "Utilities & Misc";
         items: ComponentDoc[];
     }[]>;
     readonly activeComponent: import("@angular/core").Signal<ComponentDoc>;
