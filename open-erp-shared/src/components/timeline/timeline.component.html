@@ -1,0 +1,58 @@
+@if (loading) {
+  <div class="space-y-6 py-2">
+    @for (i of [1, 2, 3]; track i) {
+      <div class="flex gap-4">
+        <erp-skeleton width="2rem" height="2rem" shape="circle"></erp-skeleton>
+        <div class="space-y-2 flex-1">
+          <erp-skeleton width="30%" height="1.25rem" shape="rounded"></erp-skeleton>
+          <erp-skeleton width="80%" height="0.875rem" shape="rounded"></erp-skeleton>
+        </div>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="relative select-none">
+    
+    <!-- Timeline Central / Left Line -->
+    <div class="absolute top-2 bottom-2 left-4 w-0.5 bg-slate-200 dark:bg-slate-800 -translate-x-1/2"></div>
+
+    <!-- Timeline Items List -->
+    <div class="space-y-6 relative">
+      @for (item of normalizedItems; track item.id || item.title + $index) {
+        <div class="flex items-start gap-4 group">
+          
+          <!-- Marker Dot / Icon Circle -->
+          <div [ngClass]="getDotClasses(item)"
+               class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 shadow-xs z-10 transition-transform group-hover:scale-110">
+            @if (item.icon) {
+              <erp-icon [name]="item.icon" [size]="14"></erp-icon>
+            } @else {
+              <span class="w-2 h-2 rounded-full bg-white"></span>
+            }
+          </div>
+
+          <!-- Content Box -->
+          <div class="flex-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 shadow-xs transition-colors hover:border-slate-300 dark:hover:border-slate-700">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+              <h4 class="text-xs font-bold text-slate-900 dark:text-white">{{ item.title }}</h4>
+              <div class="flex items-center gap-2">
+                @if (item.tag) {
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">
+                    {{ item.tag }}
+                  </span>
+                }
+                <span class="text-[10px] font-medium text-slate-400 dark:text-slate-500">{{ item.timestamp }}</span>
+              </div>
+            </div>
+
+            @if (item.description) {
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{{ item.description }}</p>
+            }
+          </div>
+
+        </div>
+      }
+    </div>
+
+  </div>
+}

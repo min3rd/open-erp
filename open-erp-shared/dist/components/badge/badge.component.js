@@ -13,10 +13,44 @@ import { SkeletonComponent } from '../skeleton/skeleton.component';
 import { BadgeVariant, BadgeColor } from '../../enums/component.enum';
 let BadgeComponent = class BadgeComponent {
     value;
+    count;
+    maxCount = 99;
+    showZero = false;
+    corner;
     variant = BadgeVariant.SUBTLE;
     color = BadgeColor.PRIMARY;
     pill = true;
     loading = false;
+    get displayCount() {
+        if (this.count !== undefined) {
+            if (this.count <= 0 && !this.showZero)
+                return undefined;
+            return this.count > this.maxCount ? `${this.maxCount}+` : this.count;
+        }
+        return this.value;
+    }
+    get isHidden() {
+        if (this.count !== undefined && this.count <= 0 && !this.showZero && String(this.variant) !== 'dot') {
+            return true;
+        }
+        return false;
+    }
+    getCornerClasses() {
+        if (!this.corner)
+            return '';
+        const c = String(this.corner);
+        switch (c) {
+            case 'top-left':
+                return 'absolute -top-1.5 -left-1.5 ring-2 ring-white dark:ring-slate-900 z-10';
+            case 'bottom-right':
+                return 'absolute -bottom-1.5 -right-1.5 ring-2 ring-white dark:ring-slate-900 z-10';
+            case 'bottom-left':
+                return 'absolute -bottom-1.5 -left-1.5 ring-2 ring-white dark:ring-slate-900 z-10';
+            case 'top-right':
+            default:
+                return 'absolute -top-1.5 -right-1.5 ring-2 ring-white dark:ring-slate-900 z-10';
+        }
+    }
     getBadgeClasses() {
         const v = String(this.variant);
         const c = String(this.color);
@@ -119,6 +153,22 @@ __decorate([
 ], BadgeComponent.prototype, "value", void 0);
 __decorate([
     Input(),
+    __metadata("design:type", Number)
+], BadgeComponent.prototype, "count", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Number)
+], BadgeComponent.prototype, "maxCount", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Boolean)
+], BadgeComponent.prototype, "showZero", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", String)
+], BadgeComponent.prototype, "corner", void 0);
+__decorate([
+    Input(),
     __metadata("design:type", String)
 ], BadgeComponent.prototype, "variant", void 0);
 __decorate([
@@ -138,7 +188,12 @@ BadgeComponent = __decorate([
         selector: 'erp-badge',
         standalone: true,
         imports: [CommonModule, SkeletonComponent],
-        templateUrl: './badge.component.html'
+        templateUrl: './badge.component.html',
+        styles: [`
+    :host {
+      display: inline-flex;
+    }
+  `]
     })
 ], BadgeComponent);
 export { BadgeComponent };

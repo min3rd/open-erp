@@ -19,7 +19,7 @@ export declare class PasswordInputComponent implements ControlValueAccessor {
     onTouched: () => void;
     readonly passwordStrength: import("@angular/core").Signal<number>;
     readonly strengthLabel: import("@angular/core").Signal<"Rất yếu" | "Trung bình" | "Khá" | "Rất mạnh">;
-    readonly strengthColor: import("@angular/core").Signal<"bg-amber-500" | "bg-rose-500" | "bg-emerald-500" | "bg-indigo-500">;
+    readonly strengthColor: import("@angular/core").Signal<"bg-emerald-500" | "bg-amber-500" | "bg-rose-500" | "bg-indigo-500">;
     writeValue(val: any): void;
     registerOnChange(fn: any): void;
     registerOnTouched(fn: any): void;

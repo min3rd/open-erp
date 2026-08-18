@@ -1,0 +1,14 @@
+import { ComponentDoc } from '../models/component-doc.model';
+export declare const TABLE_DOC: ComponentDoc;
+export declare const CARD_DOC: ComponentDoc;
+export declare const LIST_DOC: ComponentDoc;
+export declare const AVATAR_GROUP_DOC: ComponentDoc;
+export declare const ACCORDION_DOC: ComponentDoc;
+export declare const TIMELINE_DOC: ComponentDoc;
+export declare const TREE_VIEW_DOC: ComponentDoc;
+export declare const STATISTIC_DOC: ComponentDoc;
+export declare const CAROUSEL_DOC: ComponentDoc;
+export declare const DESCRIPTIONS_DOC: ComponentDoc;
+export declare const IMAGE_DOC: ComponentDoc;
+export declare const CALENDAR_DOC: ComponentDoc;
+export declare const TOOLTIP_DOC: ComponentDoc;

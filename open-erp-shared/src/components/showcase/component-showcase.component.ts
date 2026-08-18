@@ -57,6 +57,25 @@ import { BackToTopComponent } from '../navigation/back-to-top/back-to-top.compon
 import { SpeedDialComponent, SpeedDialAction } from '../navigation/speed-dial/speed-dial.component';
 import { SegmentedControlComponent, SegmentedControlOption } from '../navigation/segmented-control/segmented-control.component';
 
+// Import Data Display Components
+import { TableComponent, TableColumn } from '../table/table.component';
+import { CardComponent } from '../card/card.component';
+import { ListComponent } from '../list/list.component';
+import { ListItemComponent } from '../list/list-item.component';
+import { AvatarGroupComponent, AvatarGroupUser } from '../avatar/avatar-group.component';
+import { AccordionComponent, AccordionItem } from '../accordion/accordion.component';
+import { TimelineComponent, TimelineItem } from '../timeline/timeline.component';
+import { TreeViewComponent, TreeNode } from '../tree-view/tree-view.component';
+import { StatisticComponent } from '../statistic/statistic.component';
+import { CarouselComponent, CarouselSlide } from '../carousel/carousel.component';
+import { DescriptionsComponent, DescriptionItem } from '../descriptions/descriptions.component';
+import { DescriptionItemComponent } from '../descriptions/description-item.component';
+import { ImageComponent } from '../image/image.component';
+import { ImageGalleryComponent } from '../image/image-gallery.component';
+import { CalendarComponent, CalendarEvent } from '../calendar/calendar.component';
+import { TooltipComponent } from '../tooltip/tooltip.component';
+import { TooltipDirective } from '../tooltip/tooltip.directive';
+
 // Import Docs Registry & Enums
 import { ALL_COMPONENT_DOCS, ComponentDoc } from '../../docs';
 import {
@@ -150,7 +169,22 @@ type CanvasBackground = 'dots' | 'grid' | 'slate';
     AnchorComponent,
     BackToTopComponent,
     SpeedDialComponent,
-    SegmentedControlComponent
+    SegmentedControlComponent,
+    TableComponent,
+    CardComponent,
+    ListComponent,
+    ListItemComponent,
+    AvatarGroupComponent,
+    AccordionComponent,
+    TimelineComponent,
+    TreeViewComponent,
+    StatisticComponent,
+    CarouselComponent,
+    DescriptionsComponent,
+    ImageComponent,
+    ImageGalleryComponent,
+    CalendarComponent,
+    TooltipDirective
   ],
   templateUrl: './component-showcase.component.html'
 })
@@ -224,6 +258,37 @@ export class ComponentShowcaseComponent {
   interactiveOnline = signal<boolean>(true);
   interactiveText = signal<string>('Nguyễn Văn Minh');
   interactiveButtonText = signal<string>('Lưu thay đổi');
+
+  // Data Display & Navigation Interactive Signals
+  interactiveBordered = signal<boolean>(true);
+  interactiveStriped = signal<boolean>(false);
+  interactiveHoverable = signal<boolean>(true);
+  interactiveCompact = signal<boolean>(false);
+  interactiveSelectable = signal<boolean>(true);
+  interactivePagination = signal<boolean>(true);
+  interactiveCardVariant = signal<'elevated' | 'outlined' | 'filled' | 'ghost'>('elevated');
+  interactiveCardPadded = signal<boolean>(true);
+  interactiveAvatarGroupMax = signal<number>(4);
+  interactiveBadgeCorner = signal<'none' | 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'>('none');
+  interactiveBadgeCount = signal<number>(5);
+  interactiveBadgePill = signal<boolean>(true);
+  interactiveTagRemovable = signal<boolean>(true);
+  interactiveTagSelectable = signal<boolean>(true);
+  interactiveTagSelected = signal<boolean>(false);
+  interactiveAccordionMultiple = signal<boolean>(false);
+  interactiveAccordionGhost = signal<boolean>(false);
+  interactiveTimelinePosition = signal<'left' | 'right' | 'alternate'>('left');
+  interactiveTimelineReverse = signal<boolean>(false);
+  interactiveTreeCheckable = signal<boolean>(true);
+  interactiveTreeSelectable = signal<boolean>(true);
+  interactiveTreeSearchable = signal<boolean>(true);
+  interactiveDescriptionsColumn = signal<number>(3);
+  interactiveImageRounded = signal<'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full'>('lg');
+  interactiveImagePreview = signal<boolean>(true);
+  interactiveTooltipPlacement = signal<'top' | 'bottom' | 'left' | 'right'>('top');
+  interactiveBreadcrumbSep = signal<'chevron' | 'slash' | 'arrow' | 'dot'>('chevron');
+  interactiveTabsVar = signal<'line' | 'pills' | 'enclosed' | 'segmented'>('pills');
+  interactiveBackToTopShp = signal<'circle' | 'rounded' | 'pill'>('circle');
   interactiveValue = signal<string>('485.900.000 ₫');
   interactiveIcon = signal<IconName>('bell');
 
@@ -337,6 +402,132 @@ export class ComponentShowcaseComponent {
     { label: 'Danh sách bảng', value: 'list', icon: 'list' },
     { label: 'Lưới thẻ Card', value: 'grid', icon: 'grid' },
     { label: 'Biểu đồ KPI', value: 'chart', icon: 'pie-chart', badge: '3' }
+  ];
+
+  // Data Display Sample Datasets
+  sampleTableColumns: TableColumn[] = [
+    { key: 'code', title: 'Mã đơn', sortable: true, width: '110px' },
+    { key: 'customer', title: 'Khách hàng', sortable: true },
+    { key: 'category', title: 'Danh mục', width: '130px' },
+    { key: 'total', title: 'Tổng tiền (VNĐ)', align: 'right', sortable: true },
+    { key: 'status', title: 'Trạng thái', align: 'center', width: '130px' }
+  ];
+
+  sampleTableData = [
+    { code: 'ORD-2026-001', customer: 'Tập đoàn Vingroup', category: 'Bất động sản', total: '1.450.000.000', status: 'Hoàn tất' },
+    { code: 'ORD-2026-002', customer: 'Công ty Viettel Telecom', category: 'Viễn thông', total: '820.000.000', status: 'Đang xử lý' },
+    { code: 'ORD-2026-003', customer: 'Ngân hàng Techcombank', category: 'Tài chính', total: '2.100.000.000', status: 'Hoàn tất' },
+    { code: 'ORD-2026-004', customer: 'FPT Software Global', category: 'Công nghệ', total: '670.000.000', status: 'Chờ duyệt' },
+    { code: 'ORD-2026-005', customer: 'Masan Consumer Corp', category: 'Bán lẻ', total: '950.000.000', status: 'Hoàn tất' }
+  ];
+
+  sampleTableSelectedRows: any[] = [];
+
+  sampleAvatarGroupUsers: AvatarGroupUser[] = [
+    { name: 'Minh Nguyen', online: true },
+    { name: 'Lan Anh', online: true },
+    { name: 'Tuan Kiet', online: false },
+    { name: 'Bao Ngoc', online: true },
+    { name: 'Hoang Nam', online: false },
+    { name: 'Phuong Thao', online: true }
+  ];
+
+  sampleAccordionItems: AccordionItem[] = [
+    { id: 'acc-1', title: 'Quy trình xuất hóa đơn điện tử tự động', subtitle: 'Tích hợp phân hệ kế toán và hóa đơn theo Thông tư 78', content: 'Hệ thống tự động phát hành hóa đơn khi đơn hàng được đánh dấu hoàn tất và chuyển trực tiếp sang cơ quan thuế.', icon: 'file-text', badge: 'Mới', expanded: true },
+    { id: 'acc-2', title: 'Thiết lập cảnh báo hạn mức công nợ khách hàng', subtitle: 'Tự động khóa tạo đơn mới khi vượt hạn mức', content: 'Thiết lập ngưỡng tín dụng theo từng phân hạng khách hàng (VIP: 1 tỷ, Tiêu chuẩn: 300 triệu).', icon: 'shield' },
+    { id: 'acc-3', title: 'Chính sách bảo mật dữ liệu & Sao lưu', subtitle: 'Mã hóa AES-256 và lưu trữ đám mây đa vùng', content: 'Dữ liệu được backup tự động mỗi ngày vào 02:00 sáng và lưu trữ mã hóa 30 ngày gần nhất.', icon: 'lock' }
+  ];
+
+  sampleTimelineItems: TimelineItem[] = [
+    { id: 'tl-1', title: 'Đơn hàng được khởi tạo', description: 'Nhân viên kinh doanh tạo báo giá số #BG-2026-89.', timestamp: '08:30 18/08/2026', color: 'primary', icon: 'file-plus', tag: 'Kinh doanh' },
+    { id: 'tl-2', title: 'Khách hàng ký hợp đồng điện tử', description: 'Xác thực chữ ký số qua VNPT-CA thành công.', timestamp: '10:45 18/08/2026', color: 'success', icon: 'check-circle', tag: 'Pháp lý' },
+    { id: 'tl-3', title: 'Xuất kho và bàn giao đơn vị vận chuyển', description: 'Đơn hàng đã bàn giao cho Viettel Post mã vận đơn #VP89218.', timestamp: '14:20 18/08/2026', color: 'warning', icon: 'truck', tag: 'Vận hành' },
+    { id: 'tl-4', title: 'Giao hàng thành công & Hoàn tất thanh toán', description: 'Khách hàng đã nhận đủ chứng từ và hóa đơn VAT.', timestamp: '16:50 18/08/2026', color: 'success', icon: 'award', tag: 'Hoàn tất' }
+  ];
+
+  sampleTreeNodes: TreeNode[] = [
+    {
+      id: 'root-1',
+      label: 'Tổng Công ty Open-ERP Group',
+      expanded: true,
+      children: [
+        {
+          id: 'dept-tech',
+          label: 'Khối Công nghệ & Sản phẩm',
+          expanded: true,
+          badge: '18',
+          children: [
+            { id: 'team-fe', label: 'Frontend Team (Angular 22 / Tailwind CSS)', icon: 'layout' },
+            { id: 'team-be', label: 'Backend Team (.NET Core / Microservices)', icon: 'server' },
+            { id: 'team-qa', label: 'QA & Automation Testing Team', icon: 'check-square' }
+          ]
+        },
+        {
+          id: 'dept-sales',
+          label: 'Khối Kinh doanh & Marketing',
+          badge: '12',
+          children: [
+            { id: 'team-enterprise', label: 'Đội ngũ Khách hàng Doanh nghiệp (B2B)' },
+            { id: 'team-smb', label: 'Đội ngũ Khách hàng Vừa & Nhỏ (SMB)' }
+          ]
+        },
+        {
+          id: 'dept-finance',
+          label: 'Khối Tài chính Kế toán',
+          badge: '6',
+          children: [
+            { id: 'team-acc', label: 'Phòng Kế toán Tổng hợp' },
+            { id: 'team-tax', label: 'Phòng Kế toán Thuế & Kiểm toán' }
+          ]
+        }
+      ]
+    }
+  ];
+
+  sampleCarouselSlides: CarouselSlide[] = [
+    {
+      title: 'Phân hệ Kế toán & Quản trị Tài chính 2.0',
+      subtitle: 'Tích hợp hóa đơn điện tử tự động, đối soát công nợ thời gian thực và báo cáo lưu chuyển tiền tệ.',
+      tag: 'Phiên bản mới 2026',
+      imageUrl: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1200&auto=format&fit=crop&q=80'
+    },
+    {
+      title: 'Giải pháp Quản lý Kho & Chuỗi cung ứng Thông minh',
+      subtitle: 'Tối ưu hóa vị trí lưu kho, mã vạch QR code tự động và dự báo nhu cầu nhập hàng bằng AI.',
+      tag: 'Tối ưu Vận hành',
+      imageUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1200&auto=format&fit=crop&q=80'
+    },
+    {
+      title: 'Bảng tin Điều hành & Phân tích Dữ liệu BI',
+      subtitle: 'Biểu đồ KPI trực quan hóa dữ liệu kinh doanh đa chiều, hỗ trợ ra quyết định tức thì.',
+      tag: 'Executive Dashboard',
+      imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=80'
+    }
+  ];
+
+  sampleDescriptionItems: DescriptionItem[] = [
+    { label: 'Tên Doanh nghiệp', value: 'Công ty Cổ phần Tập đoàn Open-ERP Việt Nam' },
+    { label: 'Mã số Doanh nghiệp / MST', value: '0109928194' },
+    { label: 'Người đại diện pháp luật', value: 'Nguyễn Văn Minh (CEO)' },
+    { label: 'Gói dịch vụ bản quyền', value: 'Enterprise Ultimate Cloud', badge: 'Active VIP' },
+    { label: 'Ngày kích hoạt hệ thống', value: '18/08/2026' },
+    { label: 'Hạn sử dụng dịch vụ', value: '18/08/2030 (4 năm)' },
+    { label: 'Hạn mức lưu trữ dữ liệu', value: '5 TB SSD NVMe' },
+    { label: 'Số lượng tài khoản khả dụng', value: '500 / 500 User Slots' },
+    { label: 'Khu vực máy chủ Data Center', value: 'VNPT IDC Hòa Lạc (Tier III+)' }
+  ];
+
+  sampleGalleryImages = [
+    { src: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600', title: 'Kế toán & Tài chính' },
+    { src: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600', title: 'Kho bãi Logistics' },
+    { src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600', title: 'Báo cáo Dashboard' },
+    { src: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600', title: 'Chứng từ số' }
+  ];
+
+  sampleCalendarEvents: CalendarEvent[] = [
+    { date: '2026-08-18', title: 'Họp giao ban Quý III', color: 'bg-indigo-600' },
+    { date: '2026-08-20', title: 'Chốt kỳ tính lương nhân viên', color: 'bg-emerald-600' },
+    { date: '2026-08-25', title: 'Quyết toán thuế doanh nghiệp', color: 'bg-amber-600' }
   ];
 
   // Navigation Interactive State Signals

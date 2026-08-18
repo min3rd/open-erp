@@ -9,10 +9,13 @@ export declare class TagComponent {
     size: 'sm' | 'md' | 'lg';
     removable: boolean;
     clickable: boolean;
+    selectable: boolean;
+    selected: boolean;
     disabled: boolean;
     loading: boolean;
     remove: EventEmitter<MouseEvent>;
     tagClick: EventEmitter<MouseEvent>;
+    selectedChange: EventEmitter<boolean>;
     onTagClick(event: MouseEvent): void;
     onRemove(event: MouseEvent): void;
     getTagClasses(): string;

@@ -1,0 +1,80 @@
+<div [class.border]="bordered"
+     [class.border-slate-200/80]="bordered"
+     [class.dark:border-slate-800]="bordered"
+     [class.shadow-md]="bordered"
+     [class.shadow-slate-900/5]="bordered"
+     class="bg-white dark:bg-slate-900 rounded-3xl p-6 transition-all select-none relative overflow-hidden">
+  
+  @if (loading) {
+    <div class="space-y-3">
+      <erp-skeleton width="45%" height="1rem" shape="rounded"></erp-skeleton>
+      <erp-skeleton width="70%" height="2rem" shape="rounded"></erp-skeleton>
+      <erp-skeleton width="55%" height="0.875rem" shape="rounded"></erp-skeleton>
+    </div>
+  } @else {
+    <div class="flex items-start justify-between gap-4">
+      
+      <!-- Statistic Info -->
+      <div class="space-y-1.5 flex-1 min-w-0">
+        <!-- Title -->
+        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block truncate">
+          {{ title }}
+        </span>
+
+        <!-- Large Metric Value with Prefix / Suffix -->
+        <div class="flex items-baseline gap-1 text-slate-900 dark:text-white font-extrabold tracking-tight">
+          @if (prefix) {
+            <span class="text-base text-slate-500 dark:text-slate-400 font-semibold">{{ prefix }}</span>
+          }
+          <span class="text-2xl sm:text-3xl">{{ value }}</span>
+          @if (suffix) {
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-semibold">{{ suffix }}</span>
+          }
+        </div>
+
+        <!-- Trend / Subtext Row -->
+        @if (trendValue || subText) {
+          <div class="flex items-center gap-2 pt-1 text-xs">
+            @if (trendValue) {
+              <div [class.text-emerald-600]="isTrendUp"
+                   [class.dark:text-emerald-400]="isTrendUp"
+                   [class.bg-emerald-50]="isTrendUp"
+                   [class.dark:bg-emerald-950/40]="isTrendUp"
+                   [class.text-rose-600]="isTrendDown"
+                   [class.dark:text-rose-400]="isTrendDown"
+                   [class.bg-rose-50]="isTrendDown"
+                   [class.dark:bg-rose-950/40]="isTrendDown"
+                   [class.text-slate-500]="!isTrendUp && !isTrendDown"
+                   [class.bg-slate-100]="!isTrendUp && !isTrendDown"
+                   [class.dark:bg-slate-800]="!isTrendUp && !isTrendDown"
+                   class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-bold text-[11px]">
+                @if (isTrendUp) {
+                  <erp-icon name="trending-up" [size]="12"></erp-icon>
+                } @else if (isTrendDown) {
+                  <erp-icon name="trending-down" [size]="12"></erp-icon>
+                }
+                <span>{{ trendValue }}</span>
+              </div>
+            }
+
+            @if (trendLabel || subText) {
+              <span class="text-[11px] text-slate-400 dark:text-slate-500 truncate">
+                {{ trendLabel || subText }}
+              </span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Icon Bubble -->
+      @if (icon) {
+        <div [ngClass]="[iconBg || 'bg-indigo-50 dark:bg-indigo-950/60', iconColor || 'text-indigo-600 dark:text-indigo-400']"
+             class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-xs">
+          <erp-icon [name]="icon" [size]="24"></erp-icon>
+        </div>
+      }
+
+    </div>
+  }
+
+</div>

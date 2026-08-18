@@ -220,4 +220,47 @@ export var BackToTopShape;
     BackToTopShape["ROUNDED"] = "rounded";
     BackToTopShape["PILL"] = "pill";
 })(BackToTopShape || (BackToTopShape = {}));
+export var TableSortDirection;
+(function (TableSortDirection) {
+    TableSortDirection["ASC"] = "asc";
+    TableSortDirection["DESC"] = "desc";
+    TableSortDirection["NONE"] = "none";
+})(TableSortDirection || (TableSortDirection = {}));
+export var CardVariant;
+(function (CardVariant) {
+    CardVariant["ELEVATED"] = "elevated";
+    CardVariant["OUTLINED"] = "outlined";
+    CardVariant["FILLED"] = "filled";
+    CardVariant["GHOST"] = "ghost";
+})(CardVariant || (CardVariant = {}));
+export var TimelinePosition;
+(function (TimelinePosition) {
+    TimelinePosition["LEFT"] = "left";
+    TimelinePosition["RIGHT"] = "right";
+    TimelinePosition["ALTERNATE"] = "alternate";
+})(TimelinePosition || (TimelinePosition = {}));
+export var TooltipPlacement;
+(function (TooltipPlacement) {
+    TooltipPlacement["TOP"] = "top";
+    TooltipPlacement["BOTTOM"] = "bottom";
+    TooltipPlacement["LEFT"] = "left";
+    TooltipPlacement["RIGHT"] = "right";
+})(TooltipPlacement || (TooltipPlacement = {}));
+export var DescriptionsLayout;
+(function (DescriptionsLayout) {
+    DescriptionsLayout["HORIZONTAL"] = "horizontal";
+    DescriptionsLayout["VERTICAL"] = "vertical";
+})(DescriptionsLayout || (DescriptionsLayout = {}));
+export var CalendarViewMode;
+(function (CalendarViewMode) {
+    CalendarViewMode["MONTH"] = "month";
+    CalendarViewMode["YEAR"] = "year";
+})(CalendarViewMode || (CalendarViewMode = {}));
+export var BadgeCorner;
+(function (BadgeCorner) {
+    BadgeCorner["TOP_RIGHT"] = "top-right";
+    BadgeCorner["TOP_LEFT"] = "top-left";
+    BadgeCorner["BOTTOM_RIGHT"] = "bottom-right";
+    BadgeCorner["BOTTOM_LEFT"] = "bottom-left";
+})(BadgeCorner || (BadgeCorner = {}));
 //# sourceMappingURL=component.enum.js.map

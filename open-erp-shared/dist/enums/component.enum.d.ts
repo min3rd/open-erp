@@ -190,3 +190,39 @@ export declare enum BackToTopShape {
     ROUNDED = "rounded",
     PILL = "pill"
 }
+export declare enum TableSortDirection {
+    ASC = "asc",
+    DESC = "desc",
+    NONE = "none"
+}
+export declare enum CardVariant {
+    ELEVATED = "elevated",
+    OUTLINED = "outlined",
+    FILLED = "filled",
+    GHOST = "ghost"
+}
+export declare enum TimelinePosition {
+    LEFT = "left",
+    RIGHT = "right",
+    ALTERNATE = "alternate"
+}
+export declare enum TooltipPlacement {
+    TOP = "top",
+    BOTTOM = "bottom",
+    LEFT = "left",
+    RIGHT = "right"
+}
+export declare enum DescriptionsLayout {
+    HORIZONTAL = "horizontal",
+    VERTICAL = "vertical"
+}
+export declare enum CalendarViewMode {
+    MONTH = "month",
+    YEAR = "year"
+}
+export declare enum BadgeCorner {
+    TOP_RIGHT = "top-right",
+    TOP_LEFT = "top-left",
+    BOTTOM_RIGHT = "bottom-right",
+    BOTTOM_LEFT = "bottom-left"
+}

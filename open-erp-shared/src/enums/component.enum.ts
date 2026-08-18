@@ -220,3 +220,47 @@ export enum BackToTopShape {
   PILL = 'pill'
 }
 
+export enum TableSortDirection {
+  ASC = 'asc',
+  DESC = 'desc',
+  NONE = 'none'
+}
+
+export enum CardVariant {
+  ELEVATED = 'elevated',
+  OUTLINED = 'outlined',
+  FILLED = 'filled',
+  GHOST = 'ghost'
+}
+
+export enum TimelinePosition {
+  LEFT = 'left',
+  RIGHT = 'right',
+  ALTERNATE = 'alternate'
+}
+
+export enum TooltipPlacement {
+  TOP = 'top',
+  BOTTOM = 'bottom',
+  LEFT = 'left',
+  RIGHT = 'right'
+}
+
+export enum DescriptionsLayout {
+  HORIZONTAL = 'horizontal',
+  VERTICAL = 'vertical'
+}
+
+export enum CalendarViewMode {
+  MONTH = 'month',
+  YEAR = 'year'
+}
+
+export enum BadgeCorner {
+  TOP_RIGHT = 'top-right',
+  TOP_LEFT = 'top-left',
+  BOTTOM_RIGHT = 'bottom-right',
+  BOTTOM_LEFT = 'bottom-left'
+}
+
+

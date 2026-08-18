@@ -1,0 +1,17 @@
+<div [ngClass]="getGridColsClasses()" class="grid gap-3 select-none">
+  @for (img of normalizedImages; track img.src + $index) {
+    <div class="relative group">
+      <erp-image [src]="img.src"
+                 [alt]="img.alt || 'Gallery Image'"
+                 width="100%"
+                 [height]="height"
+                 [preview]="true">
+      </erp-image>
+      @if (img.title) {
+        <span class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mt-1 truncate">
+          {{ img.title }}
+        </span>
+      }
+    </div>
+  }
+</div>

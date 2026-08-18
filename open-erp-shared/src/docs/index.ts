@@ -61,6 +61,22 @@ import {
   SEGMENTED_CONTROL_DOC
 } from './navigation-components.doc';
 
+import {
+  TABLE_DOC,
+  CARD_DOC,
+  LIST_DOC,
+  AVATAR_GROUP_DOC,
+  ACCORDION_DOC,
+  TIMELINE_DOC,
+  TREE_VIEW_DOC,
+  STATISTIC_DOC,
+  CAROUSEL_DOC,
+  DESCRIPTIONS_DOC,
+  IMAGE_DOC,
+  CALENDAR_DOC,
+  TOOLTIP_DOC
+} from './data-display-components.doc';
+
 export * from '../models/component-doc.model';
 export * from './button.doc';
 export * from './avatar.doc';
@@ -75,6 +91,7 @@ export * from './maintenance-banner.doc';
 export * from './basic-components.doc';
 export * from './form-components.doc';
 export * from './navigation-components.doc';
+export * from './data-display-components.doc';
 
 /**
  * Danh sách tổng hợp toàn bộ tài liệu và preview của Component.
@@ -93,11 +110,24 @@ export const ALL_COMPONENT_DOCS: ComponentDoc[] = [
   RESET_BUTTON_DOC,
   
   // Data Display
+  TABLE_DOC,
+  CARD_DOC,
+  LIST_DOC,
   AVATAR_DOC,
+  AVATAR_GROUP_DOC,
   BADGE_DOC,
   TAG_DOC,
-  STATUS_BADGE_DOC,
+  ACCORDION_DOC,
+  TIMELINE_DOC,
+  TREE_VIEW_DOC,
+  STATISTIC_DOC,
   KPI_CARD_DOC,
+  CAROUSEL_DOC,
+  DESCRIPTIONS_DOC,
+  IMAGE_DOC,
+  CALENDAR_DOC,
+  TOOLTIP_DOC,
+  STATUS_BADGE_DOC,
   RATING_DOC,
   STEPPER_DOC,
 

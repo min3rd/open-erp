@@ -1,0 +1,55 @@
+<div [class]="getRoundedClass()"
+     [style.width]="width"
+     [style.height]="height"
+     class="relative overflow-hidden bg-slate-100 dark:bg-slate-800 inline-block group select-none">
+  
+  <img [src]="hasError ? fallbackSrc : src"
+       [alt]="alt"
+       (load)="onLoad()"
+       (error)="onError()"
+       class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+
+  <!-- Preview Hover Overlay -->
+  @if (preview) {
+    <div (click)="openPreview($event)"
+         class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white cursor-pointer transition-opacity backdrop-blur-xs">
+      <div class="flex items-center gap-1 text-xs font-semibold bg-white/20 px-3 py-1.5 rounded-xl">
+        <erp-icon name="eye" [size]="16"></erp-icon>
+        <span>Xem trước</span>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Modal Lightbox Preview -->
+@if (isPreviewOpen) {
+  <div (click)="closePreview()"
+       class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-center p-4 select-none animate-in fade-in duration-200">
+    
+    <!-- Top Action Toolbar -->
+    <div (click)="$event.stopPropagation()"
+         class="absolute top-4 right-4 flex items-center gap-2 bg-white/10 backdrop-blur-md p-1.5 rounded-2xl text-white">
+      <button (click)="zoomIn()" type="button" title="Phóng to" class="p-2 hover:bg-white/20 rounded-xl transition-colors">
+        <erp-icon name="zoom-in" [size]="18"></erp-icon>
+      </button>
+      <button (click)="zoomOut()" type="button" title="Thu nhỏ" class="p-2 hover:bg-white/20 rounded-xl transition-colors">
+        <erp-icon name="zoom-out" [size]="18"></erp-icon>
+      </button>
+      <button (click)="rotate()" type="button" title="Xoay ảnh" class="p-2 hover:bg-white/20 rounded-xl transition-colors">
+        <erp-icon name="rotate-cw" [size]="18"></erp-icon>
+      </button>
+      <button (click)="closePreview()" type="button" title="Đóng" class="p-2 hover:bg-white/20 rounded-xl transition-colors text-rose-400">
+        <erp-icon name="x" [size]="20"></erp-icon>
+      </button>
+    </div>
+
+    <!-- Scaled & Rotated Preview Image -->
+    <div (click)="$event.stopPropagation()" class="max-w-4xl max-h-[80vh] flex items-center justify-center overflow-hidden">
+      <img [src]="hasError ? fallbackSrc : src"
+           [alt]="alt"
+           [style.transform]="'scale(' + zoomScale + ') rotate(' + rotateDeg + 'deg)'"
+           class="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl transition-transform duration-200">
+    </div>
+
+  </div>
+}

@@ -1,10 +1,18 @@
-@if (loading) {
-  <erp-skeleton width="4rem" height="1.25rem" [shape]="pill ? 'pill' : 'rounded'"></erp-skeleton>
-} @else {
-  <span [class]="getBadgeClasses()">
-    @if (variant === 'dot') {
-      <span class="w-1.5 h-1.5 rounded-full" [class]="getDotColor()"></span>
+<div class="relative inline-flex items-center">
+  <ng-content></ng-content>
+  
+  @if (!isHidden) {
+    @if (loading) {
+      <erp-skeleton width="2rem" height="1rem" [shape]="pill ? 'pill' : 'rounded'" [class]="getCornerClasses()"></erp-skeleton>
+    } @else {
+      <span [class]="[getBadgeClasses(), getCornerClasses()]">
+        @if (variant === 'dot') {
+          <span class="w-1.5 h-1.5 rounded-full" [class]="getDotColor()"></span>
+        }
+        @if (displayCount !== undefined) {
+          <span>{{ displayCount }}</span>
+        }
+      </span>
     }
-    <ng-content>{{ value }}</ng-content>
-  </span>
-}
+  }
+</div>

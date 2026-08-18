@@ -20,12 +20,21 @@ let TagComponent = class TagComponent {
     size = 'md';
     removable = false;
     clickable = false;
+    selectable = false;
+    selected = false;
     disabled = false;
     loading = false;
     remove = new EventEmitter();
     tagClick = new EventEmitter();
+    selectedChange = new EventEmitter();
     onTagClick(event) {
-        if (this.clickable && !this.disabled && !this.loading) {
+        if (this.disabled || this.loading)
+            return;
+        if (this.selectable) {
+            this.selected = !this.selected;
+            this.selectedChange.emit(this.selected);
+        }
+        if (this.clickable || this.selectable) {
             this.tagClick.emit(event);
         }
     }
@@ -177,6 +186,14 @@ __decorate([
 __decorate([
     Input(),
     __metadata("design:type", Boolean)
+], TagComponent.prototype, "selectable", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Boolean)
+], TagComponent.prototype, "selected", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Boolean)
 ], TagComponent.prototype, "disabled", void 0);
 __decorate([
     Input(),
@@ -190,6 +207,10 @@ __decorate([
     Output(),
     __metadata("design:type", Object)
 ], TagComponent.prototype, "tagClick", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], TagComponent.prototype, "selectedChange", void 0);
 TagComponent = __decorate([
     Component({
         selector: 'erp-tag, erp-chip',

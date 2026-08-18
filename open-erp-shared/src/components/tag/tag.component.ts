@@ -18,14 +18,22 @@ export class TagComponent {
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
   @Input() removable: boolean = false;
   @Input() clickable: boolean = false;
+  @Input() selectable: boolean = false;
+  @Input() selected: boolean = false;
   @Input() disabled: boolean = false;
   @Input() loading: boolean = false;
 
   @Output() remove = new EventEmitter<MouseEvent>();
   @Output() tagClick = new EventEmitter<MouseEvent>();
+  @Output() selectedChange = new EventEmitter<boolean>();
 
   onTagClick(event: MouseEvent): void {
-    if (this.clickable && !this.disabled && !this.loading) {
+    if (this.disabled || this.loading) return;
+    if (this.selectable) {
+      this.selected = !this.selected;
+      this.selectedChange.emit(this.selected);
+    }
+    if (this.clickable || this.selectable) {
       this.tagClick.emit(event);
     }
   }

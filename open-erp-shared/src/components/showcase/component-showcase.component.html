@@ -813,6 +813,167 @@
                           <span class="text-xs text-slate-500">Góc nhìn đang chọn: <strong class="text-indigo-600 dark:text-indigo-400 font-bold uppercase font-mono">{{ navSegmentedVal() }}</strong></span>
                         </div>
                       }
+
+                      @case ('table') {
+                        <div class="w-full">
+                          <erp-table [columns]="sampleTableColumns"
+                                     [data]="sampleTableData"
+                                     [bordered]="interactiveBordered()"
+                                     [striped]="interactiveStriped()"
+                                     [hoverable]="interactiveHoverable()"
+                                     [compact]="interactiveCompact()"
+                                     [selectable]="interactiveSelectable()"
+                                     [pagination]="interactivePagination()"
+                                     [totalItems]="50"
+                                     [loading]="interactiveLoading()">
+                          </erp-table>
+                        </div>
+                      }
+
+                      @case ('card') {
+                        <div class="w-full max-w-md mx-auto">
+                          <erp-card title="Hồ sơ Dự án ERP 2026"
+                                    subtitle="Khách hàng Tập đoàn Vingroup"
+                                    icon="briefcase"
+                                    [variant]="interactiveCardVariant()"
+                                    [hoverable]="interactiveHoverable()"
+                                    [padded]="interactiveCardPadded()"
+                                    [loading]="interactiveLoading()">
+                            <p class="leading-relaxed">Hệ thống hoạch định nguồn lực doanh nghiệp toàn diện tích hợp AI và đám mây đa vùng.</p>
+                            <div card-footer class="flex justify-end gap-2">
+                              <erp-button variant="secondary" size="sm">Chi tiết</erp-button>
+                              <erp-button variant="primary" size="sm">Cập nhật</erp-button>
+                            </div>
+                          </erp-card>
+                        </div>
+                      }
+
+                      @case ('list') {
+                        <div class="w-full max-w-md mx-auto">
+                          <erp-list header="Danh sách công việc gần đây"
+                                    [bordered]="interactiveBordered()"
+                                    [striped]="interactiveStriped()"
+                                    [hoverable]="interactiveHoverable()"
+                                    [compact]="interactiveCompact()">
+                            <erp-list-item title="Đối soát công nợ tháng 8" description="Phòng Kế toán tổng hợp" icon="file-text" [clickable]="interactiveHoverable()"></erp-list-item>
+                            <erp-list-item title="Phê duyệt hợp đồng cung ứng" description="Ban Giám đốc ký duyệt" icon="check-circle" [clickable]="interactiveHoverable()"></erp-list-item>
+                            <erp-list-item title="Cảnh báo tồn kho linh kiện" description="Kho hàng Hòa Lạc" icon="alert-triangle" [clickable]="interactiveHoverable()"></erp-list-item>
+                          </erp-list>
+                        </div>
+                      }
+
+                      @case ('avatar-group') {
+                        <div class="flex justify-center p-6">
+                          <erp-avatar-group [users]="sampleAvatarGroupUsers"
+                                            [max]="interactiveAvatarGroupMax()"
+                                            [size]="interactiveSize()"
+                                            [shape]="interactiveShape()">
+                          </erp-avatar-group>
+                        </div>
+                      }
+
+                      @case ('accordion') {
+                        <div class="w-full max-w-lg mx-auto">
+                          <erp-accordion [items]="sampleAccordionItems"
+                                         [bordered]="interactiveBordered()"
+                                         [expandMultiple]="interactiveAccordionMultiple()"
+                                         [ghost]="interactiveAccordionGhost()">
+                          </erp-accordion>
+                        </div>
+                      }
+
+                      @case ('timeline') {
+                        <div class="w-full max-w-lg mx-auto">
+                          <erp-timeline [items]="sampleTimelineItems"
+                                        [position]="interactiveTimelinePosition()"
+                                        [reverse]="interactiveTimelineReverse()"
+                                        [loading]="interactiveLoading()">
+                          </erp-timeline>
+                        </div>
+                      }
+
+                      @case ('tree-view') {
+                        <div class="w-full max-w-md mx-auto p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl">
+                          <erp-tree-view [nodes]="sampleTreeNodes"
+                                         [searchable]="interactiveTreeSearchable()"
+                                         [checkable]="interactiveTreeCheckable()"
+                                         [selectable]="interactiveTreeSelectable()">
+                          </erp-tree-view>
+                        </div>
+                      }
+
+                      @case ('statistic') {
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                          <erp-statistic title="Tổng Doanh thu"
+                                         value="1.450.000.000"
+                                         suffix="₫"
+                                         icon="dollar-sign"
+                                         [trend]="interactiveTrend()"
+                                         trendValue="+24.5%"
+                                         trendLabel="so với tháng trước"
+                                         [bordered]="interactiveBordered()"
+                                         [loading]="interactiveLoading()">
+                          </erp-statistic>
+                          <erp-statistic title="Khách hàng Active"
+                                         value="1.280"
+                                         icon="users"
+                                         [trend]="interactiveTrend()"
+                                         trendValue="+12%"
+                                         iconBg="bg-emerald-50 dark:bg-emerald-950/60"
+                                         iconColor="text-emerald-600 dark:text-emerald-400"
+                                         [bordered]="interactiveBordered()"
+                                         [loading]="interactiveLoading()">
+                          </erp-statistic>
+                        </div>
+                      }
+
+                      @case ('carousel') {
+                        <div class="w-full">
+                          <erp-carousel [slides]="sampleCarouselSlides" height="260px"></erp-carousel>
+                        </div>
+                      }
+
+                      @case ('descriptions') {
+                        <div class="w-full">
+                          <erp-descriptions title="Hồ sơ Doanh nghiệp"
+                                            [items]="sampleDescriptionItems"
+                                            [column]="interactiveDescriptionsColumn()"
+                                            [bordered]="interactiveBordered()"
+                                            [size]="interactiveInputSize()">
+                          </erp-descriptions>
+                        </div>
+                      }
+
+                      @case ('image') {
+                        <div class="flex flex-col items-center gap-6 w-full">
+                          <erp-image src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600"
+                                     width="320px"
+                                     height="180px"
+                                     [rounded]="interactiveImageRounded()"
+                                     [preview]="interactiveImagePreview()">
+                          </erp-image>
+                          <div class="w-full">
+                            <erp-image-gallery [images]="sampleGalleryImages" [columns]="4"></erp-image-gallery>
+                          </div>
+                        </div>
+                      }
+
+                      @case ('calendar') {
+                        <div class="w-full max-w-lg mx-auto">
+                          <erp-calendar [events]="sampleCalendarEvents"></erp-calendar>
+                        </div>
+                      }
+
+                      @case ('tooltip') {
+                        <div class="flex flex-wrap items-center justify-center gap-6 py-8">
+                          <erp-button [erpTooltip]="'Gợi ý vị trí ' + interactiveTooltipPlacement()"
+                                      [tooltipPlacement]="interactiveTooltipPlacement()"
+                                      variant="primary"
+                                      iconLeft="info">
+                            Hover xem Tooltip ({{ interactiveTooltipPlacement() }})
+                          </erp-button>
+                        </div>
+                      }
                     }
                   </div>
 
@@ -825,8 +986,8 @@
                 
                 <div class="flex flex-wrap items-center gap-5">
                   
-                  <!-- Size Selector for Avatar -->
-                  @if (doc.id === 'avatar') {
+                  <!-- Size Selector for Avatar & Avatar Group -->
+                  @if (doc.id === 'avatar' || doc.id === 'avatar-group') {
                     <div class="space-y-1">
                       <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Kích thước:</span>
                       <div class="inline-flex rounded-xl bg-slate-200 dark:bg-slate-950 p-1 border border-slate-300 dark:border-slate-800">
@@ -842,9 +1003,196 @@
                         }
                       </div>
                     </div>
+
+                    <div class="space-y-1">
+                      <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Hình dạng:</span>
+                      <select [ngModel]="interactiveShape()" (ngModelChange)="interactiveShape.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                        <option value="circle">Circle (Tròn)</option>
+                        <option value="rounded">Rounded (Bo góc)</option>
+                        <option value="square">Square (Vuông)</option>
+                      </select>
+                    </div>
+
+                    @if (doc.id === 'avatar-group') {
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Tối đa (Max):</span>
+                        <select [ngModel]="interactiveAvatarGroupMax()" (ngModelChange)="interactiveAvatarGroupMax.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option [value]="2">2 avatars</option>
+                          <option [value]="3">3 avatars</option>
+                          <option [value]="4">4 avatars</option>
+                          <option [value]="5">5 avatars</option>
+                        </select>
+                      </div>
+                    }
                   }
 
-                  <!-- Size for Inputs & Buttons & Switches & Rating & Kbd & Spinner -->
+                  <!-- Table / Data Grid Controls -->
+                  @if (doc.id === 'table') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <erp-checkbox [ngModel]="interactiveBordered()" (checkedChange)="interactiveBordered.set($event)" label="Bordered"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveStriped()" (checkedChange)="interactiveStriped.set($event)" label="Striped"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveHoverable()" (checkedChange)="interactiveHoverable.set($event)" label="Hoverable"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveCompact()" (checkedChange)="interactiveCompact.set($event)" label="Compact"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveSelectable()" (checkedChange)="interactiveSelectable.set($event)" label="Selectable"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactivePagination()" (checkedChange)="interactivePagination.set($event)" label="Pagination"></erp-checkbox>
+                    </div>
+                  }
+
+                  <!-- Card Controls -->
+                  @if (doc.id === 'card') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Biến thể:</span>
+                        <select [ngModel]="interactiveCardVariant()" (ngModelChange)="interactiveCardVariant.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="elevated">Elevated (Đổ bóng)</option>
+                          <option value="outlined">Outlined (Viền)</option>
+                          <option value="filled">Filled (Màu nền)</option>
+                          <option value="ghost">Ghost (Trong suốt)</option>
+                        </select>
+                      </div>
+                      <erp-checkbox [ngModel]="interactiveHoverable()" (checkedChange)="interactiveHoverable.set($event)" label="Hoverable"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveCardPadded()" (checkedChange)="interactiveCardPadded.set($event)" label="Padded"></erp-checkbox>
+                    </div>
+                  }
+
+                  <!-- List Controls -->
+                  @if (doc.id === 'list') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <erp-checkbox [ngModel]="interactiveBordered()" (checkedChange)="interactiveBordered.set($event)" label="Bordered"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveStriped()" (checkedChange)="interactiveStriped.set($event)" label="Striped"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveHoverable()" (checkedChange)="interactiveHoverable.set($event)" label="Clickable / Hover"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveCompact()" (checkedChange)="interactiveCompact.set($event)" label="Compact"></erp-checkbox>
+                    </div>
+                  }
+
+                  <!-- Accordion Controls -->
+                  @if (doc.id === 'accordion') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <erp-checkbox [ngModel]="interactiveBordered()" (checkedChange)="interactiveBordered.set($event)" label="Bordered"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveAccordionMultiple()" (checkedChange)="interactiveAccordionMultiple.set($event)" label="Expand Multiple"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveAccordionGhost()" (checkedChange)="interactiveAccordionGhost.set($event)" label="Ghost Mode"></erp-checkbox>
+                    </div>
+                  }
+
+                  <!-- Timeline Controls -->
+                  @if (doc.id === 'timeline') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Vị trí hiển thị:</span>
+                        <select [ngModel]="interactiveTimelinePosition()" (ngModelChange)="interactiveTimelinePosition.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="left">Left</option>
+                          <option value="right">Right</option>
+                          <option value="alternate">Alternate</option>
+                        </select>
+                      </div>
+                      <erp-checkbox [ngModel]="interactiveTimelineReverse()" (checkedChange)="interactiveTimelineReverse.set($event)" label="Đảo ngược thứ tự"></erp-checkbox>
+                    </div>
+                  }
+
+                  <!-- Tree View Controls -->
+                  @if (doc.id === 'tree-view') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <erp-checkbox [ngModel]="interactiveTreeSearchable()" (checkedChange)="interactiveTreeSearchable.set($event)" label="Ô tìm kiếm"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveTreeCheckable()" (checkedChange)="interactiveTreeCheckable.set($event)" label="Checkbox chọn"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveTreeSelectable()" (checkedChange)="interactiveTreeSelectable.set($event)" label="Selectable"></erp-checkbox>
+                    </div>
+                  }
+
+                  <!-- Descriptions Controls -->
+                  @if (doc.id === 'descriptions') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Số cột chia:</span>
+                        <select [ngModel]="interactiveDescriptionsColumn()" (ngModelChange)="interactiveDescriptionsColumn.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option [value]="1">1 cột</option>
+                          <option [value]="2">2 cột</option>
+                          <option [value]="3">3 cột</option>
+                          <option [value]="4">4 cột</option>
+                        </select>
+                      </div>
+                      <erp-checkbox [ngModel]="interactiveBordered()" (checkedChange)="interactiveBordered.set($event)" label="Bordered"></erp-checkbox>
+                    </div>
+                  }
+
+                  <!-- Image Controls -->
+                  @if (doc.id === 'image') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Bo góc:</span>
+                        <select [ngModel]="interactiveImageRounded()" (ngModelChange)="interactiveImageRounded.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="none">None</option>
+                          <option value="sm">SM</option>
+                          <option value="md">MD</option>
+                          <option value="lg">LG</option>
+                          <option value="xl">XL</option>
+                          <option value="full">Full</option>
+                        </select>
+                      </div>
+                      <erp-checkbox [ngModel]="interactiveImagePreview()" (checkedChange)="interactiveImagePreview.set($event)" label="Cho phép Preview"></erp-checkbox>
+                    </div>
+                  }
+
+                  <!-- Tooltip Controls -->
+                  @if (doc.id === 'tooltip') {
+                    <div class="space-y-1">
+                      <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Hướng Tooltip:</span>
+                      <select [ngModel]="interactiveTooltipPlacement()" (ngModelChange)="interactiveTooltipPlacement.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                        <option value="top">Top (Phía trên)</option>
+                        <option value="bottom">Bottom (Phía dưới)</option>
+                        <option value="left">Left (Bên trái)</option>
+                        <option value="right">Right (Bên phải)</option>
+                      </select>
+                    </div>
+                  }
+
+                  <!-- Breadcrumb Controls -->
+                  @if (doc.id === 'breadcrumb') {
+                    <div class="space-y-1">
+                      <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Ký tự phân cách:</span>
+                      <select [ngModel]="interactiveBreadcrumbSep()" (ngModelChange)="interactiveBreadcrumbSep.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                        <option value="chevron">Chevron (/)</option>
+                        <option value="slash">Slash (/)</option>
+                        <option value="arrow">Arrow (→)</option>
+                        <option value="dot">Dot (•)</option>
+                      </select>
+                    </div>
+                  }
+
+                  <!-- Tabs Controls -->
+                  @if (doc.id === 'tabs') {
+                    <div class="flex items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Kiểu Tabs:</span>
+                        <select [ngModel]="interactiveTabsVar()" (ngModelChange)="interactiveTabsVar.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="pills">Pills (Viên thuốc)</option>
+                          <option value="line">Line (Gạch chân)</option>
+                          <option value="enclosed">Enclosed (Đóng khung)</option>
+                          <option value="segmented">Segmented</option>
+                        </select>
+                      </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Hướng:</span>
+                        <select [ngModel]="interactiveOrientation()" (ngModelChange)="interactiveOrientation.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="horizontal">Ngang</option>
+                          <option value="vertical">Dọc</option>
+                        </select>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Back to Top Controls -->
+                  @if (doc.id === 'back-to-top') {
+                    <div class="space-y-1">
+                      <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Hình dạng:</span>
+                      <select [ngModel]="interactiveBackToTopShp()" (ngModelChange)="interactiveBackToTopShp.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                        <option value="circle">Circle (Tròn)</option>
+                        <option value="rounded">Rounded (Bo góc)</option>
+                        <option value="pill">Pill (Thẻ dài)</option>
+                      </select>
+                    </div>
+                  }
+
+                  <!-- Size for Inputs & Buttons & Switches & Rating & Kbd & Tag -->
                   @if (doc.id === 'input' || doc.id === 'password-input' || doc.id === 'number-input' || doc.id === 'select' || doc.id === 'date-picker' || doc.id === 'time-picker' || doc.id === 'switch' || doc.id === 'rating' || doc.id === 'button' || doc.id === 'icon-button' || doc.id === 'submit-button' || doc.id === 'reset-button' || doc.id === 'kbd' || doc.id === 'tag') {
                     <div class="space-y-1">
                       <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Kích thước (Size):</span>
@@ -907,9 +1255,9 @@
                     </div>
                   }
 
-                  <!-- Badge Variant & Color -->
+                  <!-- Badge Variant, Color, Corner & Count -->
                   @if (doc.id === 'badge') {
-                    <div class="flex items-center gap-4">
+                    <div class="flex flex-wrap items-center gap-4">
                       <div class="space-y-1">
                         <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Kiểu Huy hiệu:</span>
                         <select [ngModel]="interactiveBadgeVariant()" (ngModelChange)="interactiveBadgeVariant.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
@@ -930,12 +1278,23 @@
                           <option value="neutral">Neutral (Xám)</option>
                         </select>
                       </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Vị trí gắn góc:</span>
+                        <select [ngModel]="interactiveBadgeCorner()" (ngModelChange)="interactiveBadgeCorner.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="none">Không gắn góc (Inline)</option>
+                          <option value="top-right">Top Right (Góc trên phải)</option>
+                          <option value="top-left">Top Left (Góc trên trái)</option>
+                          <option value="bottom-right">Bottom Right (Góc dưới phải)</option>
+                          <option value="bottom-left">Bottom Left (Góc dưới trái)</option>
+                        </select>
+                      </div>
+                      <erp-checkbox [ngModel]="interactiveBadgePill()" (checkedChange)="interactiveBadgePill.set($event)" label="Pill Rounded"></erp-checkbox>
                     </div>
                   }
 
-                  <!-- Tag Variant & Color -->
+                  <!-- Tag Variant, Color & Toggles -->
                   @if (doc.id === 'tag') {
-                    <div class="flex items-center gap-4">
+                    <div class="flex flex-wrap items-center gap-4">
                       <div class="space-y-1">
                         <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Kiểu Thẻ:</span>
                         <select [ngModel]="interactiveTagVariant()" (ngModelChange)="interactiveTagVariant.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
@@ -955,6 +1314,8 @@
                           <option value="pink">Pink</option>
                         </select>
                       </div>
+                      <erp-checkbox [ngModel]="interactiveTagRemovable()" (checkedChange)="interactiveTagRemovable.set($event)" label="Removable (Nút xóa)"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveTagSelectable()" (checkedChange)="interactiveTagSelectable.set($event)" label="Selectable Chip"></erp-checkbox>
                     </div>
                   }
 
@@ -991,23 +1352,14 @@
                   <!-- Specific Switches for Form Components -->
                   @if (doc.id === 'select' || doc.id === 'multi-select') {
                     <div class="flex items-center gap-4">
-                      <label class="flex items-center gap-1.5 cursor-pointer select-none">
-                        <input type="checkbox" [ngModel]="interactiveSearchable()" (ngModelChange)="interactiveSearchable.set($event)" class="rounded accent-indigo-600"/>
-                        <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Tìm kiếm (Searchable)</span>
-                      </label>
-                      <label class="flex items-center gap-1.5 cursor-pointer select-none">
-                        <input type="checkbox" [ngModel]="interactiveClearable()" (ngModelChange)="interactiveClearable.set($event)" class="rounded accent-indigo-600"/>
-                        <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Nút xóa (Clearable)</span>
-                      </label>
+                      <erp-checkbox [ngModel]="interactiveSearchable()" (checkedChange)="interactiveSearchable.set($event)" label="Tìm kiếm (Searchable)"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveClearable()" (checkedChange)="interactiveClearable.set($event)" label="Nút xóa (Clearable)"></erp-checkbox>
                     </div>
                   }
 
                   @if (doc.id === 'radio-group') {
                     <div class="flex items-center gap-4">
-                      <label class="flex items-center gap-1.5 cursor-pointer select-none">
-                        <input type="checkbox" [ngModel]="interactiveCardMode()" (ngModelChange)="interactiveCardMode.set($event)" class="rounded accent-indigo-600"/>
-                        <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Card Mode</span>
-                      </label>
+                      <erp-checkbox [ngModel]="interactiveCardMode()" (checkedChange)="interactiveCardMode.set($event)" label="Card Mode"></erp-checkbox>
                       <div class="space-y-1">
                         <span class="text-slate-500 dark:text-slate-400 font-bold block text-[10px]">Hướng:</span>
                         <select [ngModel]="interactiveOrientation()" (ngModelChange)="interactiveOrientation.set($event)" class="px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
@@ -1031,15 +1383,9 @@
                   <!-- Common Disabled & Required Toggles -->
                   @if (doc.category === 'Form & Inputs' || doc.id === 'button' || doc.id === 'icon-button' || doc.id === 'submit-button' || doc.id === 'reset-button' || doc.id === 'link') {
                     <div class="flex items-center gap-4">
-                      <label class="flex items-center gap-1.5 cursor-pointer select-none">
-                        <input type="checkbox" [ngModel]="interactiveDisabled()" (ngModelChange)="interactiveDisabled.set($event)" class="rounded accent-indigo-600"/>
-                        <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Vô hiệu hóa (Disabled)</span>
-                      </label>
+                      <erp-checkbox [ngModel]="interactiveDisabled()" (checkedChange)="interactiveDisabled.set($event)" label="Vô hiệu hóa (Disabled)"></erp-checkbox>
                       @if (doc.category === 'Form & Inputs' && doc.id !== 'switch' && doc.id !== 'checkbox' && doc.id !== 'slider') {
-                        <label class="flex items-center gap-1.5 cursor-pointer select-none">
-                          <input type="checkbox" [ngModel]="interactiveRequired()" (ngModelChange)="interactiveRequired.set($event)" class="rounded accent-indigo-600"/>
-                          <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Bắt buộc (*)</span>
-                        </label>
+                        <erp-checkbox [ngModel]="interactiveRequired()" (checkedChange)="interactiveRequired.set($event)" label="Bắt buộc (*)"></erp-checkbox>
                       }
                     </div>
                   }

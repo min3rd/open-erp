@@ -1,20 +1,60 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SkeletonComponent } from '../skeleton/skeleton.component';
-import { BadgeVariant, BadgeColor } from '../../enums/component.enum';
+import { BadgeVariant, BadgeColor, BadgeCorner } from '../../enums/component.enum';
 
 @Component({
   selector: 'erp-badge',
   standalone: true,
   imports: [CommonModule, SkeletonComponent],
-  templateUrl: './badge.component.html'
+  templateUrl: './badge.component.html',
+  styles: [`
+    :host {
+      display: inline-flex;
+    }
+  `]
 })
 export class BadgeComponent {
   @Input() value?: string | number;
+  @Input() count?: number;
+  @Input() maxCount: number = 99;
+  @Input() showZero: boolean = false;
+  @Input() corner?: BadgeCorner | 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
   @Input() variant: BadgeVariant | 'solid' | 'subtle' | 'outline' | 'dot' = BadgeVariant.SUBTLE;
   @Input() color: BadgeColor | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral' = BadgeColor.PRIMARY;
   @Input() pill: boolean = true;
   @Input() loading: boolean = false;
+
+  get displayCount(): string | number | undefined {
+    if (this.count !== undefined) {
+      if (this.count <= 0 && !this.showZero) return undefined;
+      return this.count > this.maxCount ? `${this.maxCount}+` : this.count;
+    }
+    return this.value;
+  }
+
+  get isHidden(): boolean {
+    if (this.count !== undefined && this.count <= 0 && !this.showZero && String(this.variant) !== 'dot') {
+      return true;
+    }
+    return false;
+  }
+
+  getCornerClasses(): string {
+    if (!this.corner) return '';
+    const c = String(this.corner);
+    switch (c) {
+      case 'top-left':
+        return 'absolute -top-1.5 -left-1.5 ring-2 ring-white dark:ring-slate-900 z-10';
+      case 'bottom-right':
+        return 'absolute -bottom-1.5 -right-1.5 ring-2 ring-white dark:ring-slate-900 z-10';
+      case 'bottom-left':
+        return 'absolute -bottom-1.5 -left-1.5 ring-2 ring-white dark:ring-slate-900 z-10';
+      case 'top-right':
+      default:
+        return 'absolute -top-1.5 -right-1.5 ring-2 ring-white dark:ring-slate-900 z-10';
+    }
+  }
 
   getBadgeClasses(): string {
     const v = String(this.variant);
