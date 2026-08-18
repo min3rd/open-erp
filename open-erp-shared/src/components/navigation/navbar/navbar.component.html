@@ -1,0 +1,123 @@
+<header [ngClass]="[
+  getPositionClasses(),
+  glass ? 'bg-white/85 dark:bg-slate-900/85 backdrop-blur-md' : 'bg-white dark:bg-slate-900',
+  bordered ? 'border-b border-slate-200/80 dark:border-slate-800' : '',
+  'transition-all duration-200'
+]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16 gap-4">
+      
+      <!-- Brand Section / Slot -->
+      <div class="flex items-center gap-3 shrink-0">
+        <!-- Mobile Toggle Button -->
+        @if (showMobileToggle) {
+          <button (click)="onToggleMobile()"
+                  type="button"
+                  class="lg:hidden p-2 -ml-2 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  aria-label="Toggle navigation">
+            <erp-icon [name]="mobileOpen ? 'x' : 'menu'" [size]="20"></erp-icon>
+          </button>
+        }
+
+        <ng-content select="[navbar-brand]">
+          @if (brandLogo || brandTitle) {
+            <a [href]="brandUrl" class="flex items-center gap-2.5 group">
+              @if (brandLogo) {
+                <img [src]="brandLogo" alt="Brand Logo" class="h-8 w-auto object-contain rounded-lg">
+              } @else {
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-bold text-sm shadow-xs shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+                  ERP
+                </div>
+              }
+              <div class="flex flex-col">
+                <span class="font-bold text-base tracking-tight text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  {{ brandTitle }}
+                </span>
+                @if (brandSubtitle) {
+                  <span class="text-[10px] font-medium text-slate-400 -mt-1">{{ brandSubtitle }}</span>
+                }
+              </div>
+            </a>
+          }
+        </ng-content>
+      </div>
+
+      <!-- Center Navigation Links -->
+      <div class="hidden lg:flex items-center gap-1 flex-1 justify-center max-w-2xl px-4">
+        <ng-content select="[navbar-center]">
+          @for (item of items; track item.id || item.label) {
+            <a [href]="item.url || 'javascript:void(0)'"
+               (click)="onItemClick(item, $event)"
+               [class.text-indigo-600]="item.active"
+               [class.dark:text-indigo-400]="item.active"
+               [class.bg-indigo-50]="item.active"
+               [class.dark:bg-indigo-950/40]="item.active"
+               [class.text-slate-600]="!item.active && !item.disabled"
+               [class.dark:text-slate-300]="!item.active && !item.disabled"
+               [class.hover:text-slate-900]="!item.active && !item.disabled"
+               [class.dark:hover:text-white]="!item.active && !item.disabled"
+               [class.hover:bg-slate-100]="!item.active && !item.disabled"
+               [class.dark:hover:bg-slate-800]="!item.active && !item.disabled"
+               [class.opacity-40]="item.disabled"
+               [class.pointer-events-none]="item.disabled"
+               class="px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors">
+              @if (item.icon) {
+                <erp-icon [name]="item.icon" [size]="16"></erp-icon>
+              }
+              <span>{{ item.label }}</span>
+              @if (item.badge) {
+                <span [class]="item.badgeColor || 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300'"
+                      class="px-1.5 py-0.5 rounded-md text-[10px] font-bold">
+                  {{ item.badge }}
+                </span>
+              }
+            </a>
+          }
+        </ng-content>
+      </div>
+
+      <!-- Search Bar Slot -->
+      <div class="hidden md:flex items-center flex-1 max-w-xs">
+        <ng-content select="[navbar-search]"></ng-content>
+      </div>
+
+      <!-- Right Action Items (Theme toggle, notifications, profile, etc.) -->
+      <div class="flex items-center gap-2 shrink-0">
+        <ng-content select="[navbar-actions]"></ng-content>
+        <ng-content></ng-content>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Mobile Collapsible Menu -->
+  @if (mobileOpen) {
+    <div class="lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg px-4 pt-3 pb-5 space-y-2 animate-in fade-in slide-in-from-top-2 duration-150">
+      <ng-content select="[navbar-mobile]">
+        @for (item of items; track item.id || item.label) {
+          <a [href]="item.url || 'javascript:void(0)'"
+             (click)="onItemClick(item, $event)"
+             [class.bg-indigo-50]="item.active"
+             [class.dark:bg-indigo-950/50]="item.active"
+             [class.text-indigo-600]="item.active"
+             [class.dark:text-indigo-400]="item.active"
+             [class.text-slate-700]="!item.active"
+             [class.dark:text-slate-300]="!item.active"
+             class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <div class="flex items-center gap-2.5">
+              @if (item.icon) {
+                <erp-icon [name]="item.icon" [size]="18"></erp-icon>
+              }
+              <span>{{ item.label }}</span>
+            </div>
+            @if (item.badge) {
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300">
+                {{ item.badge }}
+              </span>
+            }
+          </a>
+        }
+      </ng-content>
+    </div>
+  }
+</header>

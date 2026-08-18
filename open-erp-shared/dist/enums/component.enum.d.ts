@@ -134,3 +134,59 @@ export declare enum SpinnerVariant {
     DOTS = "dots",
     PULSE = "pulse"
 }
+export declare enum NavbarPosition {
+    STATIC = "static",
+    STICKY = "sticky",
+    FIXED = "fixed"
+}
+export declare enum SidebarMode {
+    FIXED = "fixed",
+    MINI = "mini",
+    OVERLAY = "overlay"
+}
+export declare enum BreadcrumbSeparator {
+    SLASH = "slash",
+    CHEVRON = "chevron",
+    ARROW = "arrow",
+    DOT = "dot"
+}
+export declare enum PaginationVariant {
+    FULL = "full",
+    SIMPLE = "simple",
+    COMPACT = "compact"
+}
+export declare enum TabsVariant {
+    LINE = "line",
+    PILLS = "pills",
+    ENCLOSED = "enclosed",
+    SEGMENTED = "segmented"
+}
+export declare enum TabsOrientation {
+    HORIZONTAL = "horizontal",
+    VERTICAL = "vertical"
+}
+export declare enum DropdownPlacement {
+    BOTTOM_START = "bottom-start",
+    BOTTOM_END = "bottom-end",
+    TOP_START = "top-start",
+    TOP_END = "top-end",
+    LEFT = "left",
+    RIGHT = "right"
+}
+export declare enum SpeedDialDirection {
+    UP = "up",
+    DOWN = "down",
+    LEFT = "left",
+    RIGHT = "right"
+}
+export declare enum SpeedDialPosition {
+    BOTTOM_RIGHT = "bottom-right",
+    BOTTOM_LEFT = "bottom-left",
+    TOP_RIGHT = "top-right",
+    TOP_LEFT = "top-left"
+}
+export declare enum BackToTopShape {
+    CIRCLE = "circle",
+    ROUNDED = "rounded",
+    PILL = "pill"
+}

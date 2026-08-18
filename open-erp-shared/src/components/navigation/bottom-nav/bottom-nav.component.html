@@ -1,0 +1,61 @@
+<nav [class.fixed]="fixed"
+     [class.bottom-0]="fixed"
+     [class.left-0]="fixed"
+     [class.right-0]="fixed"
+     [class.z-40]="fixed"
+     [class.p-3]="floating"
+     class="select-none transition-all">
+  
+  <div [class.max-w-md]="floating"
+       [class.mx-auto]="floating"
+       [class.rounded-3xl]="floating"
+       [class.shadow-xl]="floating"
+       [class.border]="floating"
+       [class.border-t]="!floating"
+       [class.pb-safe]="safeArea"
+       class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-slate-200/80 dark:border-slate-800 flex items-center justify-around px-2 py-2">
+    
+    @for (item of items; track item.id) {
+      <button (click)="onItemSelect(item)"
+              [disabled]="item.disabled"
+              type="button"
+              [class.text-indigo-600]="item.id === currentActiveId"
+              [class.dark:text-indigo-400]="item.id === currentActiveId"
+              [class.text-slate-500]="item.id !== currentActiveId"
+              [class.dark:text-slate-400]="item.id !== currentActiveId"
+              [class.opacity-40]="item.disabled"
+              [class.cursor-not-allowed]="item.disabled"
+              class="flex flex-col items-center justify-center flex-1 py-1 px-2 rounded-2xl relative transition-all group">
+        
+        <!-- Icon Container with active badge pill animation -->
+        <div class="relative flex items-center justify-center w-10 h-7 rounded-full transition-colors"
+             [class.bg-indigo-50]="item.id === currentActiveId"
+             [class.dark:bg-indigo-950/50]="item.id === currentActiveId">
+          
+          <erp-icon [name]="item.id === currentActiveId && item.activeIcon ? item.activeIcon : item.icon"
+                    [size]="20"
+                    class="transition-transform group-hover:scale-110">
+          </erp-icon>
+
+          <!-- Badge Counter -->
+          @if (item.badge) {
+            <span [class]="item.badgeColor || 'bg-rose-500 text-white'"
+                  class="absolute -top-1 -right-1 px-1.5 py-0.2 min-w-[16px] h-4 rounded-full text-[9px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-900">
+              {{ item.badge }}
+            </span>
+          }
+        </div>
+
+        <!-- Text Label -->
+        @if (showLabels) {
+          <span [class.font-bold]="item.id === currentActiveId"
+                [class.font-medium]="item.id !== currentActiveId"
+                class="text-[10px] tracking-tight truncate max-w-full mt-0.5 transition-colors">
+            {{ item.label }}
+          </span>
+        }
+      </button>
+    }
+
+  </div>
+</nav>

@@ -1,0 +1,59 @@
+<div class="relative text-xs select-none">
+  
+  @if (title) {
+    <div class="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-[11px] mb-3 flex items-center gap-1.5">
+      <erp-icon name="list" [size]="14" class="text-indigo-600 dark:text-indigo-400"></erp-icon>
+      <span>{{ title }}</span>
+    </div>
+  }
+
+  <!-- Rail track line -->
+  <div class="relative pl-3 space-y-2 border-l border-slate-200 dark:border-slate-800">
+    @for (item of items; track item.targetId || item.title) {
+      <div>
+        <a [href]="'#' + item.targetId"
+           (click)="scrollToTarget(item, $event)"
+           [class.text-indigo-600]="item.targetId === activeTargetId"
+           [class.dark:text-indigo-400]="item.targetId === activeTargetId"
+           [class.font-bold]="item.targetId === activeTargetId"
+           [class.text-slate-600]="item.targetId !== activeTargetId"
+           [class.dark:text-slate-400]="item.targetId !== activeTargetId"
+           [class.hover:text-slate-900]="item.targetId !== activeTargetId"
+           [class.dark:hover:text-white]="item.targetId !== activeTargetId"
+           class="flex items-center gap-2 py-1 transition-colors relative group">
+          
+          <!-- Active Indicator Bar/Dot on the left line -->
+          @if (item.targetId === activeTargetId) {
+            <span class="absolute -left-[15px] top-1/2 -translate-y-1/2 w-1.5 h-4 bg-indigo-600 dark:bg-indigo-400 rounded-r-full"></span>
+          }
+
+          @if (item.icon) {
+            <erp-icon [name]="item.icon" [size]="14" class="shrink-0"></erp-icon>
+          }
+          <span class="truncate">{{ item.title }}</span>
+        </a>
+
+        <!-- Sub-items (nested anchor links) -->
+        @if (item.children && item.children.length > 0) {
+          <div class="pl-4 pt-1 space-y-1">
+            @for (sub of item.children; track sub.targetId || sub.title) {
+              <a [href]="'#' + sub.targetId"
+                 (click)="scrollToTarget(sub, $event)"
+                 [class.text-indigo-600]="sub.targetId === activeTargetId"
+                 [class.dark:text-indigo-400]="sub.targetId === activeTargetId"
+                 [class.font-bold]="sub.targetId === activeTargetId"
+                 [class.text-slate-500]="sub.targetId !== activeTargetId"
+                 [class.dark:text-slate-400]="sub.targetId !== activeTargetId"
+                 [class.hover:text-slate-900]="sub.targetId !== activeTargetId"
+                 [class.dark:hover:text-white]="sub.targetId !== activeTargetId"
+                 class="block py-0.5 text-[11px] transition-colors truncate">
+                {{ sub.title }}
+              </a>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+</div>

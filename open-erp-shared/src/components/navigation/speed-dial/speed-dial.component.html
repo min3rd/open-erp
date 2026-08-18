@@ -1,0 +1,60 @@
+<!-- Backdrop Blur Overlay (Optional) -->
+@if (showBackdrop && open) {
+  <div (click)="close()"
+       class="fixed inset-0 bg-slate-950/30 backdrop-blur-xs z-40 transition-opacity animate-in fade-in duration-150">
+  </div>
+}
+
+<div [class.fixed]="fixed"
+     [class.relative]="!fixed"
+     [ngClass]="fixed ? getPositionClasses() : ''"
+     class="z-50 select-none flex items-center justify-center">
+  
+  <!-- Speed Dial Action Buttons Container -->
+  @if (open) {
+    <div [ngClass]="getDirectionContainerClasses()"
+         class="absolute flex items-center gap-2.5 animate-in fade-in zoom-in-90 duration-150">
+      
+      @for (action of items; track action.id || action.label || $index) {
+        <div class="flex items-center gap-2 group">
+          
+          <!-- Optional Tooltip Label (when opening vertically) -->
+          @if (showLabels && action.label && isVerticalDirection) {
+            <span class="px-2.5 py-1 rounded-xl bg-slate-900/90 dark:bg-slate-800 text-white text-[11px] font-semibold shadow-md whitespace-nowrap opacity-90 group-hover:opacity-100 transition-opacity pointer-events-none">
+              {{ action.label }}
+            </span>
+          }
+
+          <!-- Child Action Button -->
+          <button (click)="onActionClick(action, $event)"
+                  [disabled]="action.disabled"
+                  type="button"
+                  [class.opacity-40]="action.disabled"
+                  [class.cursor-not-allowed]="action.disabled"
+                  [class]="action.color || 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'"
+                  class="w-10 h-10 rounded-2xl shadow-md flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
+            <erp-icon [name]="action.icon" [size]="18"></erp-icon>
+          </button>
+
+          <!-- Optional Tooltip Label (when opening horizontally) -->
+          @if (showLabels && action.label && isHorizontalDirection) {
+            <span class="px-2.5 py-1 rounded-xl bg-slate-900/90 dark:bg-slate-800 text-white text-[11px] font-semibold shadow-md whitespace-nowrap opacity-90 group-hover:opacity-100 transition-opacity pointer-events-none">
+              {{ action.label }}
+            </span>
+          }
+
+        </div>
+      }
+
+    </div>
+  }
+
+  <!-- Main Floating Action Button -->
+  <button (click)="toggle()"
+          type="button"
+          [class.rotate-45]="open && icon === 'plus' && activeIcon === 'plus'"
+          class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white shadow-xl shadow-indigo-600/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200">
+    <erp-icon [name]="open && activeIcon ? activeIcon : icon" [size]="22"></erp-icon>
+  </button>
+
+</div>

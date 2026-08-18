@@ -153,3 +153,70 @@ export enum SpinnerVariant {
   DOTS = 'dots',
   PULSE = 'pulse'
 }
+
+export enum NavbarPosition {
+  STATIC = 'static',
+  STICKY = 'sticky',
+  FIXED = 'fixed'
+}
+
+export enum SidebarMode {
+  FIXED = 'fixed',
+  MINI = 'mini',
+  OVERLAY = 'overlay'
+}
+
+export enum BreadcrumbSeparator {
+  SLASH = 'slash',
+  CHEVRON = 'chevron',
+  ARROW = 'arrow',
+  DOT = 'dot'
+}
+
+export enum PaginationVariant {
+  FULL = 'full',
+  SIMPLE = 'simple',
+  COMPACT = 'compact'
+}
+
+export enum TabsVariant {
+  LINE = 'line',
+  PILLS = 'pills',
+  ENCLOSED = 'enclosed',
+  SEGMENTED = 'segmented'
+}
+
+export enum TabsOrientation {
+  HORIZONTAL = 'horizontal',
+  VERTICAL = 'vertical'
+}
+
+export enum DropdownPlacement {
+  BOTTOM_START = 'bottom-start',
+  BOTTOM_END = 'bottom-end',
+  TOP_START = 'top-start',
+  TOP_END = 'top-end',
+  LEFT = 'left',
+  RIGHT = 'right'
+}
+
+export enum SpeedDialDirection {
+  UP = 'up',
+  DOWN = 'down',
+  LEFT = 'left',
+  RIGHT = 'right'
+}
+
+export enum SpeedDialPosition {
+  BOTTOM_RIGHT = 'bottom-right',
+  BOTTOM_LEFT = 'bottom-left',
+  TOP_RIGHT = 'top-right',
+  TOP_LEFT = 'top-left'
+}
+
+export enum BackToTopShape {
+  CIRCLE = 'circle',
+  ROUNDED = 'rounded',
+  PILL = 'pill'
+}
+

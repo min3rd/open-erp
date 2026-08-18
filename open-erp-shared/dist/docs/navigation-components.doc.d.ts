@@ -1,0 +1,12 @@
+import { ComponentDoc } from '../models/component-doc.model';
+export declare const NAVBAR_DOC: ComponentDoc;
+export declare const SIDEBAR_DOC: ComponentDoc;
+export declare const BREADCRUMB_DOC: ComponentDoc;
+export declare const PAGINATION_DOC: ComponentDoc;
+export declare const TABS_DOC: ComponentDoc;
+export declare const DROPDOWN_MENU_DOC: ComponentDoc;
+export declare const BOTTOM_NAV_DOC: ComponentDoc;
+export declare const ANCHOR_DOC: ComponentDoc;
+export declare const BACK_TO_TOP_DOC: ComponentDoc;
+export declare const SPEED_DIAL_DOC: ComponentDoc;
+export declare const SEGMENTED_CONTROL_DOC: ComponentDoc;

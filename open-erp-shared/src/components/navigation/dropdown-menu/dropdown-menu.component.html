@@ -1,0 +1,78 @@
+<div (mouseenter)="onMouseEnter()"
+     (mouseleave)="onMouseLeave()"
+     class="relative inline-block text-left">
+  
+  <!-- Trigger Button / Content Slot -->
+  <div (click)="trigger === 'click' ? toggle() : null" class="inline-block cursor-pointer">
+    <ng-content select="[menu-trigger]"></ng-content>
+    <ng-content></ng-content>
+  </div>
+
+  <!-- Dropdown Popup Content -->
+  @if (isOpen) {
+    <div [ngClass]="getPlacementClasses()"
+         [style.min-width]="minWidth"
+         class="absolute z-50 py-1.5 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200/80 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 select-none animate-in fade-in zoom-in-95 duration-150">
+      
+      <ng-content select="[menu-content]">
+        @for (item of items; track $index) {
+          
+          <!-- Header Item -->
+          @if (item.header) {
+            <div class="px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              {{ item.header }}
+            </div>
+          }
+
+          <!-- Divider Line -->
+          @if (item.divider) {
+            <div class="my-1 border-t border-slate-100 dark:border-slate-800"></div>
+          }
+
+          <!-- Standard Action Item -->
+          @if (item.label && !item.header) {
+            <button (click)="onItemSelect(item, $event)"
+                    type="button"
+                    [disabled]="item.disabled"
+                    [class.text-rose-600]="item.danger"
+                    [class.dark:text-rose-400]="item.danger"
+                    [class.hover:bg-rose-50]="item.danger"
+                    [class.dark:hover:bg-rose-950/40]="item.danger"
+                    [class.hover:bg-slate-100]="!item.danger && !item.disabled"
+                    [class.dark:hover:bg-slate-800]="!item.danger && !item.disabled"
+                    [class.hover:text-slate-900]="!item.danger && !item.disabled"
+                    [class.dark:hover:text-white]="!item.danger && !item.disabled"
+                    [class.opacity-40]="item.disabled"
+                    [class.cursor-not-allowed]="item.disabled"
+                    class="w-full flex items-center justify-between px-3.5 py-2 text-left transition-colors font-medium group">
+              
+              <div class="flex items-center gap-2.5 min-w-0">
+                @if (item.icon) {
+                  <erp-icon [name]="item.icon"
+                            [size]="16"
+                            [class]="item.iconColor || (item.danger ? 'text-rose-500' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300')">
+                  </erp-icon>
+                }
+                <span class="truncate">{{ item.label }}</span>
+              </div>
+
+              <div class="flex items-center gap-2 shrink-0 ml-3">
+                @if (item.badge) {
+                  <span [class]="item.badgeColor || 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300'"
+                        class="px-1.5 py-0.2 text-[10px] font-bold rounded-md">
+                    {{ item.badge }}
+                  </span>
+                }
+                @if (item.shortcut) {
+                  <erp-kbd>{{ item.shortcut }}</erp-kbd>
+                }
+              </div>
+
+            </button>
+          }
+        }
+      </ng-content>
+
+    </div>
+  }
+</div>

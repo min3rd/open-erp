@@ -1,0 +1,90 @@
+@if (loading) {
+  <div class="flex items-center gap-2 py-1">
+    <erp-skeleton width="4rem" height="1.25rem" shape="rounded"></erp-skeleton>
+    <erp-skeleton width="0.75rem" height="1rem" shape="rounded"></erp-skeleton>
+    <erp-skeleton width="6rem" height="1.25rem" shape="rounded"></erp-skeleton>
+    <erp-skeleton width="0.75rem" height="1rem" shape="rounded"></erp-skeleton>
+    <erp-skeleton width="5rem" height="1.25rem" shape="rounded"></erp-skeleton>
+  </div>
+} @else {
+  <nav aria-label="Breadcrumb" class="flex items-center text-xs font-medium text-slate-500 dark:text-slate-400 select-none flex-wrap gap-y-1">
+    <ol class="inline-flex items-center space-x-1.5 md:space-x-2">
+      
+      <!-- Home Icon Item (optional) -->
+      @if (showHomeIcon) {
+        <li class="inline-flex items-center">
+          <a [href]="homeUrl"
+             class="inline-flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+            <erp-icon [name]="homeIcon" [size]="14"></erp-icon>
+          </a>
+        </li>
+        <li class="inline-flex items-center text-slate-300 dark:text-slate-600">
+          @if (separator === 'slash' || separator === '/') {
+            <span>/</span>
+          } @else if (separator === 'arrow' || separator === '>') {
+            <erp-icon name="arrow-right" [size]="12"></erp-icon>
+          } @else if (separator === 'dot') {
+            <span class="w-1 h-1 rounded-full bg-slate-400"></span>
+          } @else {
+            <erp-icon name="chevron-right" [size]="12"></erp-icon>
+          }
+        </li>
+      }
+
+      <!-- Main Breadcrumb Items -->
+      @for (entry of displayItems; track entry.originalIndex + entry.item.label) {
+        <li class="inline-flex items-center gap-1.5 md:gap-2">
+          
+          <!-- Ellipsis Collapse Button -->
+          @if (entry.isEllipsis) {
+            <button (click)="expandEllipsis()"
+                    type="button"
+                    title="Hiển thị thêm"
+                    class="px-1.5 py-0.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+              ...
+            </button>
+          } @else {
+            <!-- Active / Current Page -->
+            @if (entry.item.active) {
+              <span class="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5 truncate max-w-[200px]"
+                    aria-current="page">
+                @if (entry.item.icon) {
+                  <erp-icon [name]="entry.item.icon" [size]="14" class="shrink-0 text-indigo-600 dark:text-indigo-400"></erp-icon>
+                }
+                <span class="truncate">{{ entry.item.label }}</span>
+              </span>
+            } @else {
+              <!-- Clickable Link / Parent Item -->
+              <a [href]="entry.item.url || 'javascript:void(0)'"
+                 (click)="onItemClick(entry.item, $event)"
+                 [class.opacity-40]="entry.item.disabled"
+                 [class.cursor-not-allowed]="entry.item.disabled"
+                 class="inline-flex items-center gap-1.5 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors truncate max-w-[180px]">
+                @if (entry.item.icon) {
+                  <erp-icon [name]="entry.item.icon" [size]="14" class="shrink-0"></erp-icon>
+                }
+                <span class="truncate">{{ entry.item.label }}</span>
+              </a>
+            }
+          }
+
+          <!-- Separator (if not last) -->
+          @if ($index < displayItems.length - 1) {
+            <span class="text-slate-300 dark:text-slate-600 select-none shrink-0" aria-hidden="true">
+              @if (separator === 'slash' || separator === '/') {
+                <span class="text-slate-400">/</span>
+              } @else if (separator === 'arrow' || separator === '>') {
+                <erp-icon name="arrow-right" [size]="12"></erp-icon>
+              } @else if (separator === 'dot') {
+                <span class="inline-block w-1 h-1 rounded-full bg-slate-400"></span>
+              } @else {
+                <erp-icon name="chevron-right" [size]="12"></erp-icon>
+              }
+            </span>
+          }
+        </li>
+      }
+
+    </ol>
+  </nav>
+}

@@ -47,6 +47,20 @@ import {
   HELPER_TEXT_DOC
 } from './form-components.doc';
 
+import {
+  NAVBAR_DOC,
+  SIDEBAR_DOC,
+  BREADCRUMB_DOC,
+  PAGINATION_DOC,
+  TABS_DOC,
+  DROPDOWN_MENU_DOC,
+  BOTTOM_NAV_DOC,
+  ANCHOR_DOC,
+  BACK_TO_TOP_DOC,
+  SPEED_DIAL_DOC,
+  SEGMENTED_CONTROL_DOC
+} from './navigation-components.doc';
+
 export * from '../models/component-doc.model';
 export * from './button.doc';
 export * from './avatar.doc';
@@ -60,6 +74,7 @@ export * from './language-selector.doc';
 export * from './maintenance-banner.doc';
 export * from './basic-components.doc';
 export * from './form-components.doc';
+export * from './navigation-components.doc';
 
 /**
  * Danh sách tổng hợp toàn bộ tài liệu và preview của Component.
@@ -115,7 +130,19 @@ export const ALL_COMPONENT_DOCS: ComponentDoc[] = [
   HELPER_TEXT_DOC,
 
   // Navigation & Utility
+  NAVBAR_DOC,
+  SIDEBAR_DOC,
+  BREADCRUMB_DOC,
+  PAGINATION_DOC,
+  TABS_DOC,
+  DROPDOWN_MENU_DOC,
+  BOTTOM_NAV_DOC,
+  ANCHOR_DOC,
+  BACK_TO_TOP_DOC,
+  SPEED_DIAL_DOC,
+  SEGMENTED_CONTROL_DOC,
   THEME_TOGGLE_DOC,
   LANGUAGE_SELECTOR_DOC,
   MAINTENANCE_BANNER_DOC
 ];
+

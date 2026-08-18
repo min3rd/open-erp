@@ -154,4 +154,70 @@ export var SpinnerVariant;
     SpinnerVariant["DOTS"] = "dots";
     SpinnerVariant["PULSE"] = "pulse";
 })(SpinnerVariant || (SpinnerVariant = {}));
+export var NavbarPosition;
+(function (NavbarPosition) {
+    NavbarPosition["STATIC"] = "static";
+    NavbarPosition["STICKY"] = "sticky";
+    NavbarPosition["FIXED"] = "fixed";
+})(NavbarPosition || (NavbarPosition = {}));
+export var SidebarMode;
+(function (SidebarMode) {
+    SidebarMode["FIXED"] = "fixed";
+    SidebarMode["MINI"] = "mini";
+    SidebarMode["OVERLAY"] = "overlay";
+})(SidebarMode || (SidebarMode = {}));
+export var BreadcrumbSeparator;
+(function (BreadcrumbSeparator) {
+    BreadcrumbSeparator["SLASH"] = "slash";
+    BreadcrumbSeparator["CHEVRON"] = "chevron";
+    BreadcrumbSeparator["ARROW"] = "arrow";
+    BreadcrumbSeparator["DOT"] = "dot";
+})(BreadcrumbSeparator || (BreadcrumbSeparator = {}));
+export var PaginationVariant;
+(function (PaginationVariant) {
+    PaginationVariant["FULL"] = "full";
+    PaginationVariant["SIMPLE"] = "simple";
+    PaginationVariant["COMPACT"] = "compact";
+})(PaginationVariant || (PaginationVariant = {}));
+export var TabsVariant;
+(function (TabsVariant) {
+    TabsVariant["LINE"] = "line";
+    TabsVariant["PILLS"] = "pills";
+    TabsVariant["ENCLOSED"] = "enclosed";
+    TabsVariant["SEGMENTED"] = "segmented";
+})(TabsVariant || (TabsVariant = {}));
+export var TabsOrientation;
+(function (TabsOrientation) {
+    TabsOrientation["HORIZONTAL"] = "horizontal";
+    TabsOrientation["VERTICAL"] = "vertical";
+})(TabsOrientation || (TabsOrientation = {}));
+export var DropdownPlacement;
+(function (DropdownPlacement) {
+    DropdownPlacement["BOTTOM_START"] = "bottom-start";
+    DropdownPlacement["BOTTOM_END"] = "bottom-end";
+    DropdownPlacement["TOP_START"] = "top-start";
+    DropdownPlacement["TOP_END"] = "top-end";
+    DropdownPlacement["LEFT"] = "left";
+    DropdownPlacement["RIGHT"] = "right";
+})(DropdownPlacement || (DropdownPlacement = {}));
+export var SpeedDialDirection;
+(function (SpeedDialDirection) {
+    SpeedDialDirection["UP"] = "up";
+    SpeedDialDirection["DOWN"] = "down";
+    SpeedDialDirection["LEFT"] = "left";
+    SpeedDialDirection["RIGHT"] = "right";
+})(SpeedDialDirection || (SpeedDialDirection = {}));
+export var SpeedDialPosition;
+(function (SpeedDialPosition) {
+    SpeedDialPosition["BOTTOM_RIGHT"] = "bottom-right";
+    SpeedDialPosition["BOTTOM_LEFT"] = "bottom-left";
+    SpeedDialPosition["TOP_RIGHT"] = "top-right";
+    SpeedDialPosition["TOP_LEFT"] = "top-left";
+})(SpeedDialPosition || (SpeedDialPosition = {}));
+export var BackToTopShape;
+(function (BackToTopShape) {
+    BackToTopShape["CIRCLE"] = "circle";
+    BackToTopShape["ROUNDED"] = "rounded";
+    BackToTopShape["PILL"] = "pill";
+})(BackToTopShape || (BackToTopShape = {}));
 //# sourceMappingURL=component.enum.js.map

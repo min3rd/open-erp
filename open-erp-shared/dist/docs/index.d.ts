@@ -12,6 +12,7 @@ export * from './language-selector.doc';
 export * from './maintenance-banner.doc';
 export * from './basic-components.doc';
 export * from './form-components.doc';
+export * from './navigation-components.doc';
 /**
  * Danh sách tổng hợp toàn bộ tài liệu và preview của Component.
  * Bất kỳ component nào được thêm vào mảng này sẽ TỰ ĐỘNG hiển thị trên Trang Tổng quan (Component Showcase).

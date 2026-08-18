@@ -45,6 +45,17 @@ import { TagInputComponent } from '../form/tag-input/tag-input.component';
 import { RichTextEditorComponent } from '../form/rich-text-editor/rich-text-editor.component';
 import { OtpInputComponent } from '../form/otp-input/otp-input.component';
 import { FileUploadComponent, UploadedFile } from '../form/file-upload/file-upload.component';
+import { NavbarComponent, NavbarItem } from '../navigation/navbar/navbar.component';
+import { SidebarComponent, SidebarItem } from '../navigation/sidebar/sidebar.component';
+import { BreadcrumbComponent, BreadcrumbItem } from '../navigation/breadcrumb/breadcrumb.component';
+import { PaginationComponent } from '../navigation/pagination/pagination.component';
+import { TabsComponent, TabItem } from '../navigation/tabs/tabs.component';
+import { DropdownMenuComponent, DropdownMenuItem } from '../navigation/dropdown-menu/dropdown-menu.component';
+import { BottomNavComponent, BottomNavItem } from '../navigation/bottom-nav/bottom-nav.component';
+import { AnchorComponent, AnchorItem } from '../navigation/anchor/anchor.component';
+import { BackToTopComponent } from '../navigation/back-to-top/back-to-top.component';
+import { SpeedDialComponent, SpeedDialAction } from '../navigation/speed-dial/speed-dial.component';
+import { SegmentedControlComponent, SegmentedControlOption } from '../navigation/segmented-control/segmented-control.component';
 
 // Import Docs Registry & Enums
 import { ALL_COMPONENT_DOCS, ComponentDoc } from '../../docs';
@@ -65,7 +76,17 @@ import {
   TypographyVariant,
   DividerOrientation,
   SpinnerSize,
-  SpinnerVariant
+  SpinnerVariant,
+  NavbarPosition,
+  SidebarMode,
+  BreadcrumbSeparator,
+  PaginationVariant,
+  TabsVariant,
+  TabsOrientation,
+  DropdownPlacement,
+  SpeedDialDirection,
+  SpeedDialPosition,
+  BackToTopShape
 } from '../../enums/component.enum';
 
 type ShowcaseTab = 'playground' | 'api' | 'examples';
@@ -118,7 +139,18 @@ type CanvasBackground = 'dots' | 'grid' | 'slate';
     TagInputComponent,
     RichTextEditorComponent,
     OtpInputComponent,
-    FileUploadComponent
+    FileUploadComponent,
+    NavbarComponent,
+    SidebarComponent,
+    BreadcrumbComponent,
+    PaginationComponent,
+    TabsComponent,
+    DropdownMenuComponent,
+    BottomNavComponent,
+    AnchorComponent,
+    BackToTopComponent,
+    SpeedDialComponent,
+    SegmentedControlComponent
   ],
   templateUrl: './component-showcase.component.html'
 })
@@ -141,6 +173,16 @@ export class ComponentShowcaseComponent {
   DividerOrientation = DividerOrientation;
   SpinnerSize = SpinnerSize;
   SpinnerVariant = SpinnerVariant;
+  NavbarPosition = NavbarPosition;
+  SidebarMode = SidebarMode;
+  BreadcrumbSeparator = BreadcrumbSeparator;
+  PaginationVariant = PaginationVariant;
+  TabsVariant = TabsVariant;
+  TabsOrientation = TabsOrientation;
+  DropdownPlacement = DropdownPlacement;
+  SpeedDialDirection = SpeedDialDirection;
+  SpeedDialPosition = SpeedDialPosition;
+  BackToTopShape = BackToTopShape;
 
   // Active Tab & Canvas State
   activeTab = signal<ShowcaseTab>('playground');
@@ -213,6 +255,100 @@ export class ComponentShowcaseComponent {
     { label: 'Chuyên viên Phân tích Nghiệp vụ (BA)', value: 'ba', category: 'Product' },
     { label: 'Kế toán trưởng', value: 'chief_acc', category: 'Finance' }
   ];
+
+  // Navigation Samples
+  sampleNavbarItems: NavbarItem[] = [
+    { id: 'dash', label: 'Bảng điều khiển', icon: 'grid', active: true },
+    { id: 'orders', label: 'Đơn hàng', icon: 'shopping-cart', badge: '12' },
+    { id: 'customers', label: 'Khách hàng', icon: 'users' },
+    { id: 'reports', label: 'Báo cáo', icon: 'bar-chart-2' }
+  ];
+
+  sampleSidebarItems: SidebarItem[] = [
+    { sectionHeader: 'Tổng quan' },
+    { id: 'dash', label: 'Bảng điều khiển', icon: 'activity', active: true },
+    { 
+      id: 'sales', 
+      label: 'Kinh doanh & Bán hàng', 
+      icon: 'shopping-bag', 
+      expanded: true,
+      children: [
+        { id: 'orders', label: 'Đơn bán hàng', badge: '5' },
+        { id: 'invoices', label: 'Hóa đơn VAT' },
+        { id: 'quotes', label: 'Báo giá khách hàng' }
+      ]
+    },
+    { sectionHeader: 'Quản lý kho' },
+    { id: 'inventory', label: 'Tồn kho & Vật tư', icon: 'box' },
+    { id: 'purchase', label: 'Mua hàng & NCC', icon: 'truck' },
+    { sectionHeader: 'Cấu hình' },
+    { id: 'settings', label: 'Thiết lập hệ thống', icon: 'settings' }
+  ];
+
+  sampleBreadcrumbItems: BreadcrumbItem[] = [
+    { id: 'sales', label: 'Bán hàng', icon: 'shopping-bag' },
+    { id: 'orders', label: 'Danh sách đơn đặt hàng' },
+    { id: 'detail', label: 'Đơn hàng #DH-2026-889', active: true }
+  ];
+
+  sampleTabsItems: TabItem[] = [
+    { id: 'overview', label: 'Tổng quan thông tin', icon: 'grid' },
+    { id: 'finance', label: 'Thu chi & Tài chính', icon: 'dollar-sign', badge: '3' },
+    { id: 'activity', label: 'Nhật ký tác vụ', icon: 'clock' },
+    { id: 'settings', label: 'Cấu hình phân quyền', icon: 'shield' }
+  ];
+
+  sampleDropdownItems: DropdownMenuItem[] = [
+    { header: 'Tùy chọn thao tác' },
+    { id: 'edit', label: 'Chỉnh sửa thông tin', icon: 'edit-2', shortcut: 'Ctrl+E' },
+    { id: 'duplicate', label: 'Nhân bản bản ghi', icon: 'copy', shortcut: 'Ctrl+D' },
+    { id: 'share', label: 'Chia sẻ liên kết', icon: 'share-2', badge: 'New' },
+    { divider: true },
+    { id: 'delete', label: 'Xóa vĩnh viễn', icon: 'trash-2', danger: true, shortcut: 'Del' }
+  ];
+
+  sampleBottomNavItems: BottomNavItem[] = [
+    { id: 'home', label: 'Trang chủ', icon: 'home' },
+    { id: 'orders', label: 'Đơn hàng', icon: 'shopping-bag', badge: '4' },
+    { id: 'inventory', label: 'Kho hàng', icon: 'box' },
+    { id: 'profile', label: 'Tài khoản', icon: 'user' }
+  ];
+
+  sampleAnchorItems: AnchorItem[] = [
+    { targetId: 'section-general', title: '1. Thông tin chung' },
+    { 
+      targetId: 'section-finance', 
+      title: '2. Điều khoản thanh toán',
+      children: [
+        { targetId: 'section-payment', title: '2.1 Tiến độ giải ngân' },
+        { targetId: 'section-tax', title: '2.2 Thuế VAT & Khấu trừ' }
+      ]
+    },
+    { targetId: 'section-sign', title: '3. Phê duyệt & Ký số' }
+  ];
+
+  sampleSpeedDialActions: SpeedDialAction[] = [
+    { id: 'order', label: 'Tạo đơn bán hàng', icon: 'shopping-cart', color: 'bg-indigo-600 text-white' },
+    { id: 'customer', label: 'Thêm khách hàng mới', icon: 'user-plus', color: 'bg-emerald-600 text-white' },
+    { id: 'invoice', label: 'Xuất hóa đơn điện tử', icon: 'file-text', color: 'bg-amber-600 text-white' }
+  ];
+
+  sampleSegmentedOptions: SegmentedControlOption[] = [
+    { label: 'Danh sách bảng', value: 'list', icon: 'list' },
+    { label: 'Lưới thẻ Card', value: 'grid', icon: 'grid' },
+    { label: 'Biểu đồ KPI', value: 'chart', icon: 'pie-chart', badge: '3' }
+  ];
+
+  // Navigation Interactive State Signals
+  navActiveTabVal = signal<string>('overview');
+  navSegmentedVal = signal<string>('list');
+  navPaginationPage = signal<number>(2);
+  navBottomActiveId = signal<string>('orders');
+  navAnchorActiveId = signal<string>('section-general');
+  navDropdownOpen = signal<boolean>(false);
+  navSidebarCollapsed = signal<boolean>(false);
+  navSidebarOverlay = signal<boolean>(false);
+  navSpeedDialOpen = signal<boolean>(false);
 
   // Form Value Signals for Testing
   formInputVal = signal<string>('minh.nguyen@open-erp.vn');

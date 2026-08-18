@@ -701,6 +701,118 @@
                           <p class="text-xs text-slate-300 mt-1">Dự kiến hoàn tất lúc 02:00 sáng</p>
                         </div>
                       }
+
+                      @case ('navbar') {
+                        <div class="w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm">
+                          <erp-navbar brandTitle="Open ERP Suite"
+                                      brandSubtitle="Enterprise Cloud Platform"
+                                      [items]="sampleNavbarItems"
+                                      position="static">
+                            <div navbar-actions class="flex items-center gap-2">
+                              <erp-theme-toggle></erp-theme-toggle>
+                              <erp-avatar text="Minh Nguyen" size="sm"></erp-avatar>
+                            </div>
+                          </erp-navbar>
+                        </div>
+                      }
+
+                      @case ('sidebar') {
+                        <div class="w-full max-w-sm h-96 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm mx-auto">
+                          <erp-sidebar [items]="sampleSidebarItems"
+                                       [collapsed]="navSidebarCollapsed()"
+                                       (collapsedChange)="navSidebarCollapsed.set($event)">
+                          </erp-sidebar>
+                        </div>
+                      }
+
+                      @case ('breadcrumb') {
+                        <div class="flex justify-center p-4">
+                          <erp-breadcrumb [items]="sampleBreadcrumbItems"
+                                          [showHomeIcon]="true"
+                                          [loading]="interactiveLoading()">
+                          </erp-breadcrumb>
+                        </div>
+                      }
+
+                      @case ('pagination') {
+                        <div class="w-full max-w-2xl mx-auto p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+                          <erp-pagination [currentPage]="navPaginationPage()"
+                                          [totalItems]="145"
+                                          [pageSize]="10"
+                                          [showJumpToPage]="true"
+                                          [loading]="interactiveLoading()"
+                                          (pageChange)="navPaginationPage.set($event)">
+                          </erp-pagination>
+                        </div>
+                      }
+
+                      @case ('tabs') {
+                        <div class="w-full max-w-xl mx-auto space-y-4">
+                          <erp-tabs [items]="sampleTabsItems"
+                                    [activeTabId]="navActiveTabVal()"
+                                    variant="pills"
+                                    (tabChange)="navActiveTabVal.set($event)">
+                          </erp-tabs>
+                          <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
+                            <p class="text-slate-600 dark:text-slate-400">Nội dung tab đang xem: <strong class="text-indigo-600 dark:text-indigo-400 uppercase font-mono font-bold">{{ navActiveTabVal() }}</strong></p>
+                          </div>
+                        </div>
+                      }
+
+                      @case ('dropdown-menu') {
+                        <div class="flex justify-center p-12">
+                          <erp-dropdown-menu [items]="sampleDropdownItems" [(isOpen)]="navDropdownOpen">
+                            <erp-button variant="primary" iconRight="chevron-down">Tùy chọn thao tác</erp-button>
+                          </erp-dropdown-menu>
+                        </div>
+                      }
+
+                      @case ('bottom-nav') {
+                        <div class="w-full max-w-md mx-auto">
+                          <erp-bottom-nav [items]="sampleBottomNavItems"
+                                          [fixed]="false"
+                                          [floating]="true"
+                                          [(activeId)]="navBottomActiveId">
+                          </erp-bottom-nav>
+                        </div>
+                      }
+
+                      @case ('anchor') {
+                        <div class="w-full max-w-xs mx-auto p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                          <erp-anchor [items]="sampleAnchorItems"
+                                      [(activeTargetId)]="navAnchorActiveId">
+                          </erp-anchor>
+                        </div>
+                      }
+
+                      @case ('back-to-top') {
+                        <div class="flex flex-col items-center justify-center gap-4 py-6 text-center">
+                          <p class="text-xs text-slate-500">Nút chuyển nhanh về đầu trang với vòng tròn tiến độ cuộn trang (Progress Ring):</p>
+                          <div class="relative w-12 h-12">
+                            <erp-back-to-top [threshold]="0" shape="circle" [showProgress]="true"></erp-back-to-top>
+                          </div>
+                        </div>
+                      }
+
+                      @case ('speed-dial') {
+                        <div class="relative h-56 w-full flex items-end justify-center pb-4">
+                          <erp-speed-dial [items]="sampleSpeedDialActions"
+                                          [fixed]="false"
+                                          direction="up">
+                          </erp-speed-dial>
+                        </div>
+                      }
+
+                      @case ('segmented-control') {
+                        <div class="flex flex-col items-center gap-4 py-4">
+                          <erp-segmented-control [options]="sampleSegmentedOptions"
+                                                 [size]="interactiveInputSize()"
+                                                 [loading]="interactiveLoading()"
+                                                 [(value)]="navSegmentedVal">
+                          </erp-segmented-control>
+                          <span class="text-xs text-slate-500">Góc nhìn đang chọn: <strong class="text-indigo-600 dark:text-indigo-400 font-bold uppercase font-mono">{{ navSegmentedVal() }}</strong></span>
+                        </div>
+                      }
                     }
                   </div>
 
