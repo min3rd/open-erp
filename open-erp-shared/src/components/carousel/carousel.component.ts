@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../icon/icon.component';
 
@@ -23,7 +23,7 @@ export interface CarouselSlide {
     }
   `]
 })
-export class CarouselComponent implements OnInit, OnDestroy {
+export class CarouselComponent implements OnInit, OnDestroy, OnChanges {
   @Input() slides: (string | CarouselSlide)[] = [];
   @Input() currentIndex: number = 0;
   @Input() autoplay: boolean = true;
@@ -45,6 +45,15 @@ export class CarouselComponent implements OnInit, OnDestroy {
     this.startAutoplay();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['autoplay'] && !changes['autoplay'].firstChange) {
+      if (this.autoplay) {
+        this.startAutoplay();
+      } else {
+        this.stopAutoplay();
+      }
+    }
+  }
   ngOnDestroy(): void {
     this.stopAutoplay();
   }

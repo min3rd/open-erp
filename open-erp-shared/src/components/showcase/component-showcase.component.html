@@ -577,8 +577,8 @@
                       }
 
                       @case ('otp-input') {
-                        <erp-otp-input label="Nhập mã xác thực OTP (6 chữ số)"
-                                       [length]="6"
+                        <erp-otp-input label="Nhập mã xác thực OTP"
+                                       [length]="interactiveOtpLength()"
                                        [disabled]="interactiveDisabled()"
                                        [required]="interactiveRequired()"
                                        [status]="interactiveValidationStatus()"
@@ -636,18 +636,27 @@
                       }
 
                       @case ('status-badge') {
-                        <div class="flex justify-center">
-                          <erp-status-badge [status]="interactiveStatus()" 
-                                            [label]="interactiveText()"
+                        <div class="flex flex-col items-center gap-4 py-4">
+                          <erp-status-badge [status]="interactiveStatusType()"
                                             [showDot]="interactiveOnline()"
                                             [loading]="interactiveLoading()">
                           </erp-status-badge>
+                          <div class="flex flex-wrap items-center justify-center gap-2">
+                            @for (s of ['ACTIVE','PENDING','COMPLETED','CANCELLED','DRAFT','ON_HOLD','PROCESSING','REJECTED']; track s) {
+                              <button (click)="interactiveStatusType.set(s)"
+                                      [class.ring-2]="interactiveStatusType() === s"
+                                      [class.ring-indigo-500]="interactiveStatusType() === s"
+                                      class="cursor-pointer">
+                                <erp-status-badge [status]="s" [showDot]="false"></erp-status-badge>
+                              </button>
+                            }
+                          </div>
                         </div>
                       }
 
                       @case ('kpi-card') {
-                        <erp-kpi-card [title]="interactiveText()"
-                                      [value]="interactiveValue()"
+                        <erp-kpi-card [title]="interactiveKpiTitle()"
+                                      [value]="interactiveKpiValue()"
                                       subText="↑ +18.4% so với tháng trước"
                                       [trend]="interactiveTrend()"
                                       [iconName]="interactiveIcon()"
@@ -664,12 +673,16 @@
                       }
 
                       @case ('icon') {
-                        <div class="flex items-center justify-center gap-6 text-indigo-600 dark:text-indigo-400">
-                          <erp-icon name="dollar-sign" [size]="32"></erp-icon>
-                          <erp-icon name="users" [size]="32"></erp-icon>
-                          <erp-icon name="shield" [size]="32"></erp-icon>
-                          <erp-icon name="bell" [size]="32"></erp-icon>
-                          <erp-icon name="globe" [size]="32"></erp-icon>
+                        <div class="flex flex-wrap items-center justify-center gap-6 text-indigo-600 dark:text-indigo-400">
+                          <erp-icon [name]="interactiveIcon()" [size]="interactiveIconSize()"></erp-icon>
+                          <erp-icon name="dollar-sign" [size]="interactiveIconSize()"></erp-icon>
+                          <erp-icon name="users" [size]="interactiveIconSize()"></erp-icon>
+                          <erp-icon name="shield" [size]="interactiveIconSize()"></erp-icon>
+                          <erp-icon name="globe" [size]="interactiveIconSize()"></erp-icon>
+                          <erp-icon name="settings" [size]="interactiveIconSize()"></erp-icon>
+                          <erp-icon name="bar-chart-2" [size]="interactiveIconSize()"></erp-icon>
+                          <erp-icon name="box" [size]="interactiveIconSize()"></erp-icon>
+                          <erp-icon name="truck" [size]="interactiveIconSize()"></erp-icon>
                         </div>
                       }
 
@@ -688,7 +701,7 @@
                       @case ('empty-state') {
                         <erp-empty-state [title]="interactiveText()"
                                          description="Vui lòng thử lại với từ khóa tìm kiếm hoặc bộ lọc khác."
-                                         type="not-found"
+                                         [type]="interactiveEmptyType()"
                                          [loading]="interactiveLoading()">
                           <erp-button action variant="outline" size="sm" iconLeft="refresh-cw">Làm mới dữ liệu</erp-button>
                         </erp-empty-state>
@@ -720,6 +733,7 @@
                         <div class="w-full max-w-sm h-96 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm mx-auto">
                           <erp-sidebar [items]="sampleSidebarItems"
                                        [collapsed]="navSidebarCollapsed()"
+                                       [mode]="interactiveSidebarMode()"
                                        (collapsedChange)="navSidebarCollapsed.set($event)">
                           </erp-sidebar>
                         </div>
@@ -737,7 +751,7 @@
                       @case ('pagination') {
                         <div class="w-full max-w-2xl mx-auto p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
                           <erp-pagination [currentPage]="navPaginationPage()"
-                                          [totalItems]="145"
+                                          [totalItems]="interactivePaginationTotal()"
                                           [pageSize]="10"
                                           [showJumpToPage]="true"
                                           [loading]="interactiveLoading()"
@@ -798,7 +812,7 @@
                         <div class="relative h-56 w-full flex items-end justify-center pb-4">
                           <erp-speed-dial [items]="sampleSpeedDialActions"
                                           [fixed]="false"
-                                          direction="up">
+                                          [direction]="interactiveSpeedDialDir()">
                           </erp-speed-dial>
                         </div>
                       }
@@ -911,7 +925,7 @@
                                          [trend]="interactiveTrend()"
                                          trendValue="+24.5%"
                                          trendLabel="so với tháng trước"
-                                         [bordered]="interactiveBordered()"
+                                         [bordered]="interactiveStatBordered()"
                                          [loading]="interactiveLoading()">
                           </erp-statistic>
                           <erp-statistic title="Khách hàng Active"
@@ -921,7 +935,7 @@
                                          trendValue="+12%"
                                          iconBg="bg-emerald-50 dark:bg-emerald-950/60"
                                          iconColor="text-emerald-600 dark:text-emerald-400"
-                                         [bordered]="interactiveBordered()"
+                                         [bordered]="interactiveStatBordered()"
                                          [loading]="interactiveLoading()">
                           </erp-statistic>
                         </div>
@@ -929,7 +943,12 @@
 
                       @case ('carousel') {
                         <div class="w-full">
-                          <erp-carousel [slides]="sampleCarouselSlides" height="260px"></erp-carousel>
+                          <erp-carousel [slides]="sampleCarouselSlides"
+                                        height="260px"
+                                        [autoplay]="interactiveCarouselAutoplay()"
+                                        [showDots]="interactiveCarouselDots()"
+                                        [showArrows]="interactiveHoverable()">
+                          </erp-carousel>
                         </div>
                       }
 
@@ -960,7 +979,8 @@
 
                       @case ('calendar') {
                         <div class="w-full max-w-lg mx-auto">
-                          <erp-calendar [events]="sampleCalendarEvents"></erp-calendar>
+                          <erp-calendar [events]="sampleCalendarEvents">
+                          </erp-calendar>
                         </div>
                       }
 
@@ -1066,7 +1086,7 @@
 
                       @case ('watermark') {
                         <div class="w-full max-w-xl mx-auto">
-                          <erp-watermark [content]="[interactiveWatermarkText(), 'BẢO MẬT NỘI BỘ']" [opacity]="0.14">
+                          <erp-watermark [content]="[interactiveWatermarkText(), 'BẢO MẬT NỘI BỘ']" [opacity]="interactiveWatermarkOpacity()" [rotate]="interactiveWatermarkRotate()">
                             <div class="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl space-y-4">
                               <div class="flex items-center justify-between border-b pb-3">
                                 <h3 class="font-bold text-sm text-slate-900 dark:text-white">HỢP ĐỒNG CUNG ỨNG DỊCH VỤ CLOUD</h3>
@@ -1137,7 +1157,7 @@
 
                       @case ('popover') {
                         <div class="flex items-center justify-center py-12">
-                          <erp-popover title="Bộ Lọc Nhanh Khách Hàng" placement="bottom">
+                          <erp-popover title="Bộ Lọc Nhanh Khách Hàng" [placement]="interactivePopoverPlacement()">
                             <erp-button popover-trigger variant="outline" iconLeft="filter">
                               Click mở Popover
                             </erp-button>
@@ -1789,6 +1809,270 @@
                         <option value="horizontal">Horizontal (Ngang)</option>
                         <option value="vertical">Vertical (Dọc)</option>
                       </select>
+                    </div>
+                  }
+
+                  <!-- KPI Card Controls -->
+                  @if (doc.id === 'kpi-card') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Tiêu đề:</span>
+                        <input type="text" [ngModel]="interactiveKpiTitle()" (ngModelChange)="interactiveKpiTitle.set($event)"
+                               class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-xs w-36"/>
+                      </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Giá trị:</span>
+                        <input type="text" [ngModel]="interactiveKpiValue()" (ngModelChange)="interactiveKpiValue.set($event)"
+                               class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-xs w-36"/>
+                      </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Xu hướng:</span>
+                        <select [ngModel]="interactiveTrend()" (ngModelChange)="interactiveTrend.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="up">↑ Tăng</option>
+                          <option value="down">↓ Giảm</option>
+                          <option value="neutral">→ Ổn định</option>
+                        </select>
+                      </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Icon KPI:</span>
+                        <select [ngModel]="interactiveIcon()" (ngModelChange)="interactiveIcon.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="bell">Bell</option>
+                          <option value="dollar-sign">Dollar</option>
+                          <option value="users">Users</option>
+                          <option value="box">Box</option>
+                          <option value="bar-chart-2">Chart</option>
+                          <option value="shopping-cart">Cart</option>
+                          <option value="trending-up">Trending</option>
+                        </select>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Status Badge Controls -->
+                  @if (doc.id === 'status-badge') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Loại trạng thái:</span>
+                        <select [ngModel]="interactiveStatusType()" (ngModelChange)="interactiveStatusType.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="ACTIVE">ACTIVE</option>
+                          <option value="PENDING">PENDING</option>
+                          <option value="COMPLETED">COMPLETED</option>
+                          <option value="CANCELLED">CANCELLED</option>
+                          <option value="DRAFT">DRAFT</option>
+                          <option value="ON_HOLD">ON_HOLD</option>
+                          <option value="PROCESSING">PROCESSING</option>
+                          <option value="REJECTED">REJECTED</option>
+                          <option value="INACTIVE">INACTIVE</option>
+                        </select>
+                      </div>
+                      <erp-checkbox [ngModel]="interactiveOnline()" (checkedChange)="interactiveOnline.set($event)" label="Hiện Dot chấm"></erp-checkbox>
+                    </div>
+                  }
+
+                  <!-- Statistic Controls -->
+                  @if (doc.id === 'statistic') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Xu hướng:</span>
+                        <select [ngModel]="interactiveTrend()" (ngModelChange)="interactiveTrend.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="up">↑ Tăng</option>
+                          <option value="down">↓ Giảm</option>
+                          <option value="neutral">→ Ổn định</option>
+                        </select>
+                      </div>
+                      <erp-checkbox [ngModel]="interactiveStatBordered()" (checkedChange)="interactiveStatBordered.set($event)" label="Bordered (Viền)"></erp-checkbox>
+                    </div>
+                  }
+
+                  <!-- Carousel Controls -->
+                  @if (doc.id === 'carousel') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <erp-checkbox [ngModel]="interactiveCarouselAutoplay()" (checkedChange)="interactiveCarouselAutoplay.set($event)" label="Tự chuyển (Autoplay)"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveCarouselDots()" (checkedChange)="interactiveCarouselDots.set($event)" label="Hiện Dots"></erp-checkbox>
+                      <erp-checkbox [ngModel]="interactiveHoverable()" (checkedChange)="interactiveHoverable.set($event)" label="Hiện Mũi tên"></erp-checkbox>
+                    </div>
+                  }
+
+                  <!-- Empty State Controls -->
+                  @if (doc.id === 'empty-state') {
+                    <div class="space-y-1">
+                      <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Loại trạng thái:</span>
+                      <select [ngModel]="interactiveEmptyType()" (ngModelChange)="interactiveEmptyType.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                        <option value="not-found">Not Found (Không tìm thấy)</option>
+                        <option value="no-data">No Data (Chưa có dữ liệu)</option>
+                        <option value="error">Error (Lỗi hệ thống)</option>
+                        <option value="maintenance">Maintenance (Bảo trì hệ thống)</option>
+                      </select>
+                    </div>
+                  }
+
+                  <!-- OTP Input Controls -->
+                  @if (doc.id === 'otp-input') {
+                    <div class="space-y-1">
+                      <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Số ký tự OTP:</span>
+                      <div class="inline-flex rounded-xl bg-slate-200 dark:bg-slate-950 p-1 border border-slate-300 dark:border-slate-800">
+                        @for (len of [4, 6, 8]; track len) {
+                          <button (click)="interactiveOtpLength.set(len)"
+                                  [class.bg-indigo-600]="interactiveOtpLength() === len"
+                                  [class.text-white]="interactiveOtpLength() === len"
+                                  [class.text-slate-600]="interactiveOtpLength() !== len"
+                                  [class.dark:text-slate-400]="interactiveOtpLength() !== len"
+                                  class="px-3 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer">
+                            {{ len }} ký tự
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Icon Controls -->
+                  @if (doc.id === 'icon') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Icon chính:</span>
+                        <select [ngModel]="interactiveIcon()" (ngModelChange)="interactiveIcon.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="bell">Bell (Thông báo)</option>
+                          <option value="dollar-sign">Dollar (Tiền tệ)</option>
+                          <option value="users">Users (Người dùng)</option>
+                          <option value="shield">Shield (Bảo mật)</option>
+                          <option value="box">Box (Kho hàng)</option>
+                          <option value="truck">Truck (Vận chuyển)</option>
+                          <option value="activity">Activity (Hoạt động)</option>
+                          <option value="pie-chart">Pie Chart (Biểu đồ)</option>
+                          <option value="file-text">File Text (Tài liệu)</option>
+                          <option value="settings">Settings (Cài đặt)</option>
+                          <option value="zap">Zap (Tốc độ)</option>
+                        </select>
+                      </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Kích cỡ icon ({{ interactiveIconSize() }}px):</span>
+                        <input type="range" min="16" max="64" step="4" [ngModel]="interactiveIconSize()" (ngModelChange)="interactiveIconSize.set($event)" class="w-28 accent-indigo-600 cursor-pointer"/>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Watermark Controls -->
+                  @if (doc.id === 'watermark') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Văn bản:</span>
+                        <input type="text" [ngModel]="interactiveWatermarkText()" (ngModelChange)="interactiveWatermarkText.set($event)"
+                               class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-xs w-36"/>
+                      </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Độ mờ ({{ (interactiveWatermarkOpacity() * 100).toFixed(0) }}%):</span>
+                        <input type="range" min="0.05" max="0.5" step="0.01" [ngModel]="interactiveWatermarkOpacity()" (ngModelChange)="interactiveWatermarkOpacity.set(+$event)" class="w-28 accent-indigo-600 cursor-pointer"/>
+                      </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Góc xoay ({{ interactiveWatermarkRotate() }}°):</span>
+                        <input type="range" min="-45" max="0" step="5" [ngModel]="interactiveWatermarkRotate()" (ngModelChange)="interactiveWatermarkRotate.set(+$event)" class="w-28 accent-indigo-600 cursor-pointer"/>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Speed Dial Controls -->
+                  @if (doc.id === 'speed-dial') {
+                    <div class="space-y-1">
+                      <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Hướng mở:</span>
+                      <div class="inline-flex rounded-xl bg-slate-200 dark:bg-slate-950 p-1 border border-slate-300 dark:border-slate-800">
+                        <button (click)="interactiveSpeedDialDir.set('up')"
+                                [class.bg-indigo-600]="interactiveSpeedDialDir() === 'up'"
+                                [class.text-white]="interactiveSpeedDialDir() === 'up'"
+                                [class.text-slate-600]="interactiveSpeedDialDir() !== 'up'"
+                                [class.dark:text-slate-400]="interactiveSpeedDialDir() !== 'up'"
+                                class="px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors cursor-pointer">Up</button>
+                        <button (click)="interactiveSpeedDialDir.set('down')"
+                                [class.bg-indigo-600]="interactiveSpeedDialDir() === 'down'"
+                                [class.text-white]="interactiveSpeedDialDir() === 'down'"
+                                [class.text-slate-600]="interactiveSpeedDialDir() !== 'down'"
+                                [class.dark:text-slate-400]="interactiveSpeedDialDir() !== 'down'"
+                                class="px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors cursor-pointer">Down</button>
+                        <button (click)="interactiveSpeedDialDir.set('left')"
+                                [class.bg-indigo-600]="interactiveSpeedDialDir() === 'left'"
+                                [class.text-white]="interactiveSpeedDialDir() === 'left'"
+                                [class.text-slate-600]="interactiveSpeedDialDir() !== 'left'"
+                                [class.dark:text-slate-400]="interactiveSpeedDialDir() !== 'left'"
+                                class="px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors cursor-pointer">Left</button>
+                        <button (click)="interactiveSpeedDialDir.set('right')"
+                                [class.bg-indigo-600]="interactiveSpeedDialDir() === 'right'"
+                                [class.text-white]="interactiveSpeedDialDir() === 'right'"
+                                [class.text-slate-600]="interactiveSpeedDialDir() !== 'right'"
+                                [class.dark:text-slate-400]="interactiveSpeedDialDir() !== 'right'"
+                                class="px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors cursor-pointer">Right</button>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Sidebar Controls -->
+                  @if (doc.id === 'sidebar') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Chế độ Sidebar:</span>
+                        <select [ngModel]="interactiveSidebarMode()" (ngModelChange)="interactiveSidebarMode.set($event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          <option value="fixed">Fixed (Luôn hiện)</option>
+                          <option value="mini">Mini (Icon rút gọn)</option>
+                          <option value="overlay">Overlay (Che phủ)</option>
+                        </select>
+                      </div>
+                      <erp-checkbox [ngModel]="navSidebarCollapsed()" (checkedChange)="navSidebarCollapsed.set($event)" label="Thu gọn (Collapsed)"></erp-checkbox>
+                    </div>
+                  }
+
+                  <!-- Popover Controls -->
+                  @if (doc.id === 'popover') {
+                    <div class="space-y-1">
+                      <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Hướng Popover:</span>
+                      <div class="inline-flex rounded-xl bg-slate-200 dark:bg-slate-950 p-1 border border-slate-300 dark:border-slate-800">
+                        <button (click)="interactivePopoverPlacement.set('top')"
+                                [class.bg-indigo-600]="interactivePopoverPlacement() === 'top'"
+                                [class.text-white]="interactivePopoverPlacement() === 'top'"
+                                [class.text-slate-600]="interactivePopoverPlacement() !== 'top'"
+                                [class.dark:text-slate-400]="interactivePopoverPlacement() !== 'top'"
+                                class="px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors cursor-pointer">Top</button>
+                        <button (click)="interactivePopoverPlacement.set('bottom')"
+                                [class.bg-indigo-600]="interactivePopoverPlacement() === 'bottom'"
+                                [class.text-white]="interactivePopoverPlacement() === 'bottom'"
+                                [class.text-slate-600]="interactivePopoverPlacement() !== 'bottom'"
+                                [class.dark:text-slate-400]="interactivePopoverPlacement() !== 'bottom'"
+                                class="px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors cursor-pointer">Bottom</button>
+                        <button (click)="interactivePopoverPlacement.set('left')"
+                                [class.bg-indigo-600]="interactivePopoverPlacement() === 'left'"
+                                [class.text-white]="interactivePopoverPlacement() === 'left'"
+                                [class.text-slate-600]="interactivePopoverPlacement() !== 'left'"
+                                [class.dark:text-slate-400]="interactivePopoverPlacement() !== 'left'"
+                                class="px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors cursor-pointer">Left</button>
+                        <button (click)="interactivePopoverPlacement.set('right')"
+                                [class.bg-indigo-600]="interactivePopoverPlacement() === 'right'"
+                                [class.text-white]="interactivePopoverPlacement() === 'right'"
+                                [class.text-slate-600]="interactivePopoverPlacement() !== 'right'"
+                                [class.dark:text-slate-400]="interactivePopoverPlacement() !== 'right'"
+                                class="px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors cursor-pointer">Right</button>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Pagination Controls -->
+                  @if (doc.id === 'pagination') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Tổng bản ghi ({{ interactivePaginationTotal() }}):</span>
+                        <input type="range" min="10" max="500" step="10" [ngModel]="interactivePaginationTotal()" (ngModelChange)="interactivePaginationTotal.set(+$event)" class="w-28 accent-indigo-600 cursor-pointer"/>
+                      </div>
+                      <div class="space-y-1">
+                        <span class="text-slate-500 dark:text-slate-400 font-bold block text-[11px]">Trang hiện tại:</span>
+                        <select [ngModel]="navPaginationPage()" (ngModelChange)="navPaginationPage.set(+$event)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800">
+                          @for (p of [1,2,3,4,5]; track p) {
+                            <option [value]="p">Trang {{ p }}</option>
+                          }
+                        </select>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Calendar Controls -->
+                  @if (doc.id === 'calendar') {
+                    <div class="flex flex-wrap items-center gap-4">
+                      <erp-checkbox [ngModel]="interactiveCalendarCompact()" (checkedChange)="interactiveCalendarCompact.set($event)" label="Compact mode"></erp-checkbox>
                     </div>
                   }
 

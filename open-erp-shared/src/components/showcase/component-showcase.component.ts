@@ -356,6 +356,45 @@ export class ComponentShowcaseComponent {
   interactiveBackToTopShp = signal<'circle' | 'rounded' | 'pill'>('circle');
   interactiveValue = signal<string>('485.900.000 ₫');
   interactiveIcon = signal<IconName>('bell');
+  interactiveIconSize = signal<number>(32);
+
+  // Status Badge & KPI Controls
+  interactiveStatusType = signal<string>('ACTIVE');
+  interactiveKpiTitle = signal<string>('Tổng Doanh thu');
+  interactiveKpiValue = signal<string>('485.900.000 ₫');
+
+  // Statistic Controls
+  interactiveStatBordered = signal<boolean>(true);
+
+  // Carousel Controls
+  interactiveCarouselAutoplay = signal<boolean>(true);
+  interactiveCarouselDots = signal<boolean>(true);
+
+  // Empty State Controls
+  interactiveEmptyType = signal<EmptyStateType | 'no-data' | 'not-found' | 'error' | 'maintenance'>('not-found');
+
+  // OTP Controls
+  interactiveOtpLength = signal<number>(6);
+
+  // Watermark Controls
+  interactiveWatermarkOpacity = signal<number>(0.14);
+  interactiveWatermarkRotate = signal<number>(-22);
+
+  // Speed Dial Controls
+  interactiveSpeedDialDir = signal<SpeedDialDirection | 'up' | 'down' | 'left' | 'right'>('up');
+
+  // Sidebar Controls
+  interactiveSidebarMode = signal<SidebarMode | 'fixed' | 'mini' | 'overlay'>('fixed');
+
+  // Popover Controls
+  interactivePopoverPlacement = signal<PopoverPlacement | 'top' | 'bottom' | 'left' | 'right'>('bottom');
+
+  // Pagination Controls
+  interactivePaginationVariant = signal<string>('default');
+  interactivePaginationTotal = signal<number>(145);
+
+  // Calendar Controls
+  interactiveCalendarCompact = signal<boolean>(false);
 
   // Feedback & Status Signals
   interactiveAlertVariant = signal<AlertVariant | 'info' | 'success' | 'warning' | 'error' | 'neutral'>('info');
