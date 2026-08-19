@@ -11,7 +11,6 @@ quarkus:
   #     check-timeout: 30000
   liquibase:
     migrate-at-start: true
-    default-schema: app
 "%dev":
   quarkus:
     quinoa:
