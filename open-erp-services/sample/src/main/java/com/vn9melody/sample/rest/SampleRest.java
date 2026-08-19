@@ -2,12 +2,11 @@ package com.vn9melody.sample.rest;
 
 import org.jboss.resteasy.reactive.RestQuery;
 
-import com.vn9melody.common.enums.PermissionCode;
 import com.vn9melody.sample.services.SampleService;
-import com.vn9melody.security.RequirePermission;
 import com.vn9melody.security.UserContext;
 
 import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -31,13 +30,13 @@ public class SampleRest {
     UserContext userContext;
 
     @GET
-    @RequirePermission(PermissionCode.ORDER_VIEW)
+    @PermitAll
     public Response getAll() {
         return Response.ok(sampleService.listAll()).build();
     }
 
     @POST
-    @RequirePermission(PermissionCode.ORDER_CREATE)
+    @PermitAll
     public Response create(@RestQuery String value) {
         return Response.ok(sampleService.create(value)).build();
     }

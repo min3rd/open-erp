@@ -15,5 +15,5 @@ import jakarta.interceptor.InterceptorBinding;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequirePermission {
     @Nonbinding
-    PermissionCode value() default PermissionCode.ORDER_VIEW;
+    PermissionCode value() default PermissionCode.USER_VIEW;
 }
