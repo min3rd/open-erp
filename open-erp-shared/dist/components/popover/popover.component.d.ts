@@ -1,11 +1,11 @@
-import { ElementRef } from '@angular/core';
-import { PopoverPlacement, PopoverTrigger } from '../../enums/component.enum';
+import { ElementRef } from "@angular/core";
+import { PopoverPlacement, PopoverTrigger } from "../../enums/component.enum";
 export declare class PopoverComponent {
     private elementRef;
     title?: string;
     content?: string;
-    placement: PopoverPlacement | 'top' | 'bottom' | 'left' | 'right';
-    trigger: PopoverTrigger | 'click' | 'hover';
+    placement: PopoverPlacement | "top" | "bottom" | "left" | "right";
+    trigger: PopoverTrigger | "click" | "hover";
     width?: string;
     isOpen: boolean;
     private hoverTimeout;
