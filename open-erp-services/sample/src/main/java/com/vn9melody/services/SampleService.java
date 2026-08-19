@@ -1,6 +1,6 @@
 package com.vn9melody.services;
 
-import com.vn9melody.entities.Sample;
+import com.vn9melody.common.entity.Sample;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;

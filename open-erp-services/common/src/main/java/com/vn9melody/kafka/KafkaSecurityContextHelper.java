@@ -13,7 +13,7 @@ import org.hibernate.Filter;
 import org.hibernate.Session;
 import org.jboss.logging.Logger;
 
-import com.vn9melody.enums.DataScope;
+import com.vn9melody.common.enums.DataScope;
 import com.vn9melody.security.UserContext;
 import com.vn9melody.security.jwt.JwtClaimsConstant;
 
@@ -43,7 +43,8 @@ public class KafkaSecurityContextHelper {
     }
 
     /**
-     * Tạo Message với Key và Payload đính kèm Kafka Record Headers mang Security Context hiện tại.
+     * Tạo Message với Key và Payload đính kèm Kafka Record Headers mang Security
+     * Context hiện tại.
      */
     public <K, T> Message<T> createSecureMessage(K key, T payload) {
         Headers headers = new RecordHeaders();
@@ -54,10 +55,12 @@ public class KafkaSecurityContextHelper {
                         (JwtClaimsConstant.BEARER_PREFIX + userContext.rawToken).getBytes(StandardCharsets.UTF_8));
             }
             if (userContext.tenantId != null) {
-                headers.add(JwtClaimsConstant.HEADER_X_TENANT_ID, userContext.tenantId.getBytes(StandardCharsets.UTF_8));
+                headers.add(JwtClaimsConstant.HEADER_X_TENANT_ID,
+                        userContext.tenantId.getBytes(StandardCharsets.UTF_8));
             }
             if (userContext.userId != null) {
-                headers.add(JwtClaimsConstant.HEADER_X_USER_ID, userContext.userId.toString().getBytes(StandardCharsets.UTF_8));
+                headers.add(JwtClaimsConstant.HEADER_X_USER_ID,
+                        userContext.userId.toString().getBytes(StandardCharsets.UTF_8));
             }
             if (userContext.username != null) {
                 headers.add(JwtClaimsConstant.HEADER_X_USERNAME, userContext.username.getBytes(StandardCharsets.UTF_8));
@@ -82,7 +85,8 @@ public class KafkaSecurityContextHelper {
     }
 
     /**
-     * Trích xuất Security Context từ Kafka Record Headers và kích hoạt Hibernate Filter.
+     * Trích xuất Security Context từ Kafka Record Headers và kích hoạt Hibernate
+     * Filter.
      */
     public void applySecurityContext(Message<?> message) {
         Optional<IncomingKafkaRecordMetadata> metadataOpt = message.getMetadata(IncomingKafkaRecordMetadata.class);
@@ -113,7 +117,8 @@ public class KafkaSecurityContextHelper {
         }
 
         if (userContext != null) {
-            userContext.init(tenantId, userId, username, departmentId, scope, Collections.emptySet(), Collections.emptySet(), rawToken);
+            userContext.init(tenantId, userId, username, departmentId, scope, Collections.emptySet(),
+                    Collections.emptySet(), rawToken);
         }
 
         if (entityManager != null && tenantId != null) {
@@ -131,7 +136,8 @@ public class KafkaSecurityContextHelper {
     }
 
     /**
-     * Thực thi một tác vụ bất đồng bộ hoặc đồng bộ trong ngữ cảnh Security của Kafka Message
+     * Thực thi một tác vụ bất đồng bộ hoặc đồng bộ trong ngữ cảnh Security của
+     * Kafka Message
      */
     public <R> R executeInContext(Message<?> message, Callable<R> action) throws Exception {
         applySecurityContext(message);

@@ -1,4 +1,4 @@
-package com.vn9melody.entities;
+package com.vn9melody.common.entity;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -6,9 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.vn9melody.enums.AuthProvider;
-import com.vn9melody.enums.MfaType;
-import com.vn9melody.enums.UserStatus;
+import com.vn9melody.common.enums.AuthProvider;
+import com.vn9melody.common.enums.MfaType;
+import com.vn9melody.common.enums.UserStatus;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -26,17 +26,13 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(
-    name = "users",
-    uniqueConstraints = {
-        @UniqueConstraint(name = "uk_tenant_username", columnNames = {"tenant_id", "username"}),
-        @UniqueConstraint(name = "uk_tenant_email", columnNames = {"tenant_id", "email"})
-    },
-    indexes = {
+@Table(name = "users", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_tenant_username", columnNames = { "tenant_id", "username" }),
+        @UniqueConstraint(name = "uk_tenant_email", columnNames = { "tenant_id", "email" })
+}, indexes = {
         @Index(name = "idx_user_tenant_status", columnList = "tenant_id, status"),
         @Index(name = "idx_user_external_id", columnList = "tenant_id, external_id")
-    }
-)
+})
 public class User extends BaseTenantEntity {
 
     // --- Thông tin định danh cơ bản ---
@@ -98,7 +94,8 @@ public class User extends BaseTenantEntity {
     @Column(name = "must_change_password", nullable = false)
     public boolean mustChangePassword = false;
 
-    // --- Tích hợp đồng bộ thư mục doanh nghiệp (LDAP / Active Directory / SCIM) ---
+    // --- Tích hợp đồng bộ thư mục doanh nghiệp (LDAP / Active Directory / SCIM)
+    // ---
     @Column(name = "external_id", length = 255)
     public String externalId;
 
@@ -108,20 +105,18 @@ public class User extends BaseTenantEntity {
     public Department department;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "user_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     public Set<Role> roles = new HashSet<>();
 
-    // --- Danh sách các Identity Provider liên kết (OAuth2, OpenID, LDAP, SAML...) ---
+    // --- Danh sách các Identity Provider liên kết (OAuth2, OpenID, LDAP, SAML...)
+    // ---
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<UserIdentity> identities = new ArrayList<>();
 
     // --- Helper methods ---
     public boolean isActive() {
-        return this.status == UserStatus.ACTIVE && (this.lockoutUntil == null || this.lockoutUntil.isBefore(Instant.now()));
+        return this.status == UserStatus.ACTIVE
+                && (this.lockoutUntil == null || this.lockoutUntil.isBefore(Instant.now()));
     }
 
     public void addIdentity(UserIdentity identity) {

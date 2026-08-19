@@ -1,8 +1,8 @@
-package com.vn9melody.startup.seeder;
+package com.vn9melody.common.seeder;
 
-import com.vn9melody.entities.Permission;
-import com.vn9melody.enums.ModuleCode;
-import com.vn9melody.enums.PermissionCode;
+import com.vn9melody.common.entity.Permission;
+import com.vn9melody.common.enums.ModuleCode;
+import com.vn9melody.common.enums.PermissionCode;
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;

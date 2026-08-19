@@ -11,8 +11,8 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.hibernate.Filter;
 import org.hibernate.Session;
 
-import com.vn9melody.enums.DataScope;
-import com.vn9melody.enums.PermissionCode;
+import com.vn9melody.common.enums.DataScope;
+import com.vn9melody.common.enums.PermissionCode;
 import com.vn9melody.security.dto.UserSecurityProfile;
 import com.vn9melody.security.jwt.JwtClaimsConstant;
 

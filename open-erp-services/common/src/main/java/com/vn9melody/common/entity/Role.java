@@ -1,6 +1,6 @@
-package com.vn9melody.entities;
+package com.vn9melody.common.entity;
 
-import com.vn9melody.enums.RoleCode;
+import com.vn9melody.common.enums.RoleCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

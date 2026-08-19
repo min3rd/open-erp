@@ -1,14 +1,14 @@
 quarkus:
   http:
     port: 8080
-  quinoa:
-    ui-dir: ../../open-erp-ui
-    build-dir: dist/open-erp-ui/browser
-    package-manager: npm
-    # In dev mode, Quinoa can proxy to Angular dev server or build on demand
-    dev-server:
-      port: 4200
-      check-timeout: 30000
+  # quinoa:
+  #   ui-dir: ../../open-erp-ui
+  #   build-dir: dist/open-erp-ui/browser
+  #   package-manager: npm
+  #   # In dev mode, Quinoa can proxy to Angular dev server or build on demand
+  #   dev-server:
+  #     port: 4200
+  #     check-timeout: 30000
 
 "%dev":
   quarkus:

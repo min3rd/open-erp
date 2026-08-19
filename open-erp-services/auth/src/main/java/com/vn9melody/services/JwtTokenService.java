@@ -11,11 +11,11 @@ import org.jboss.logging.Logger;
 
 import com.vn9melody.dto.LoginResponse;
 import com.vn9melody.dto.UserProfileDto;
-import com.vn9melody.entities.RolePermission;
-import com.vn9melody.entities.User;
-import com.vn9melody.entities.UserIdentity;
-import com.vn9melody.enums.AuthProvider;
-import com.vn9melody.enums.UserStatus;
+import com.vn9melody.common.entity.RolePermission;
+import com.vn9melody.common.entity.User;
+import com.vn9melody.common.entity.UserIdentity;
+import com.vn9melody.common.enums.AuthProvider;
+import com.vn9melody.common.enums.UserStatus;
 import com.vn9melody.security.jwt.JwtClaimsConstant;
 
 import io.quarkus.elytron.security.common.BcryptUtil;
@@ -89,7 +89,8 @@ public class JwtTokenService {
     }
 
     /**
-     * Xác thực / Đăng ký tự động qua Giao thức liên kết (OAuth2, OpenID, LDAP, SAML...)
+     * Xác thực / Đăng ký tự động qua Giao thức liên kết (OAuth2, OpenID, LDAP,
+     * SAML...)
      */
     @Transactional
     public LoginResponse authenticateFederated(String tenantId, AuthProvider provider, String providerUserId,

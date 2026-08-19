@@ -2,7 +2,7 @@ package com.vn9melody.rest;
 
 import org.jboss.resteasy.reactive.RestQuery;
 
-import com.vn9melody.enums.PermissionCode;
+import com.vn9melody.common.enums.PermissionCode;
 import com.vn9melody.security.RequirePermission;
 import com.vn9melody.security.UserContext;
 import com.vn9melody.services.SampleService;

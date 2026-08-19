@@ -1,7 +1,7 @@
-package com.vn9melody.entities;
+package com.vn9melody.common.entity;
 
-import com.vn9melody.enums.ModuleCode;
-import com.vn9melody.enums.PermissionCode;
+import com.vn9melody.common.enums.ModuleCode;
+import com.vn9melody.common.enums.PermissionCode;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Column;

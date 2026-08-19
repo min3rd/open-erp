@@ -1,9 +1,9 @@
 package com.vn9melody.security;
 
-import com.vn9melody.entities.RolePermission;
-import com.vn9melody.entities.User;
-import com.vn9melody.enums.DataScope;
-import com.vn9melody.enums.PermissionCode;
+import com.vn9melody.common.entity.RolePermission;
+import com.vn9melody.common.entity.User;
+import com.vn9melody.common.enums.DataScope;
+import com.vn9melody.common.enums.PermissionCode;
 import com.vn9melody.security.dto.CacheInvalidationEvent;
 import com.vn9melody.security.dto.PermissionScopeDto;
 import com.vn9melody.security.dto.UserSecurityProfile;

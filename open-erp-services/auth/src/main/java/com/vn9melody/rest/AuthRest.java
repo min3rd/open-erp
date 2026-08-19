@@ -9,7 +9,7 @@ import com.vn9melody.dto.LoginRequest;
 import com.vn9melody.dto.LoginResponse;
 import com.vn9melody.dto.RefreshTokenRequest;
 import com.vn9melody.dto.UserProfileDto;
-import com.vn9melody.entities.User;
+import com.vn9melody.common.entity.User;
 import com.vn9melody.services.JwtTokenService;
 
 import io.quarkus.security.Authenticated;

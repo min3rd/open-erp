@@ -1,6 +1,6 @@
-package com.vn9melody.entities;
+package com.vn9melody.common.entity;
 
-import com.vn9melody.enums.DataScope;
+import com.vn9melody.common.enums.DataScope;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

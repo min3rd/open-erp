@@ -1,4 +1,4 @@
-package com.vn9melody.entities;
+package com.vn9melody.common.entity;
 
 import java.time.Instant;
 

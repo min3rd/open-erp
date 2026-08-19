@@ -3,7 +3,7 @@ package com.vn9melody.security;
 import java.util.Collections;
 import java.util.Set;
 
-import com.vn9melody.enums.DataScope;
+import com.vn9melody.common.enums.DataScope;
 
 import jakarta.enterprise.context.RequestScoped;
 

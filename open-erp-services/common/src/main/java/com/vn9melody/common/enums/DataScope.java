@@ -1,4 +1,4 @@
-package com.vn9melody.enums;
+package com.vn9melody.common.enums;
 
 public enum DataScope {
     ALL, // Toàn bộ tenant/công ty

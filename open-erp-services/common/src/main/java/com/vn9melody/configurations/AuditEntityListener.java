@@ -1,6 +1,6 @@
 package com.vn9melody.configurations;
 
-import com.vn9melody.entities.BaseAuditEntity;
+import com.vn9melody.common.entity.BaseAuditEntity;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.persistence.PrePersist;
