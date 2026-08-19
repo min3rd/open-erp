@@ -1,16 +1,16 @@
-package com.vn9melody.rest;
+package com.vn9melody.auth.rest;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
-import com.vn9melody.dto.LoginRequest;
-import com.vn9melody.dto.LoginResponse;
-import com.vn9melody.dto.RefreshTokenRequest;
-import com.vn9melody.dto.UserProfileDto;
+import com.vn9melody.auth.dto.LoginRequest;
+import com.vn9melody.auth.dto.LoginResponse;
+import com.vn9melody.auth.dto.RefreshTokenRequest;
+import com.vn9melody.auth.dto.UserProfileDto;
+import com.vn9melody.auth.services.JwtTokenService;
 import com.vn9melody.common.entity.User;
-import com.vn9melody.services.JwtTokenService;
 
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.UnauthorizedException;

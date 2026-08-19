@@ -1,4 +1,4 @@
-package com.vn9melody.services;
+package com.vn9melody.auth.services;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -9,8 +9,8 @@ import java.util.Set;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import com.vn9melody.dto.LoginResponse;
-import com.vn9melody.dto.UserProfileDto;
+import com.vn9melody.auth.dto.LoginResponse;
+import com.vn9melody.auth.dto.UserProfileDto;
 import com.vn9melody.common.entity.RolePermission;
 import com.vn9melody.common.entity.User;
 import com.vn9melody.common.entity.UserIdentity;

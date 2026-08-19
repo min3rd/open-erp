@@ -1,4 +1,4 @@
-package com.vn9melody.kafka;
+package com.vn9melody.sample.kafka;
 
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
@@ -6,6 +6,7 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.jboss.logging.Logger;
 
+import com.vn9melody.kafka.KafkaSecurityContextHelper;
 import com.vn9melody.security.UserContext;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -29,7 +30,8 @@ public class SampleKafkaService {
     Emitter<SampleKafkaEvent> emitter;
 
     /**
-     * Producer: Gửi event sang Kafka có bảo toàn Security Context (Tenant, User, Department, DataScope, Token).
+     * Producer: Gửi event sang Kafka có bảo toàn Security Context (Tenant, User,
+     * Department, DataScope, Token).
      */
     public void publishSampleCreated(Long sampleId, String value) {
         SampleKafkaEvent event = new SampleKafkaEvent("SAMPLE_CREATED", sampleId, value);
@@ -40,7 +42,8 @@ public class SampleKafkaService {
     }
 
     /**
-     * Consumer: Nhận message từ Kafka, khôi phục Security Context và thực thi logic.
+     * Consumer: Nhận message từ Kafka, khôi phục Security Context và thực thi
+     * logic.
      */
     @Incoming("sample-events-in")
     @Transactional
@@ -51,7 +54,8 @@ public class SampleKafkaService {
 
             SampleKafkaEvent payload = message.getPayload();
             LOG.infof("[KAFKA-CONSUME] Nhận event: %s, sampleId: %s trong context [Tenant: %s, User: %s, Scope: %s]",
-                    payload.eventType(), payload.sampleId(), userContext.tenantId, userContext.username, userContext.currentScope);
+                    payload.eventType(), payload.sampleId(), userContext.tenantId, userContext.username,
+                    userContext.currentScope);
 
             // 2. Thực hiện business logic trong phạm vi tenant đã được filter tự động...
 

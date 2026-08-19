@@ -1,11 +1,11 @@
-package com.vn9melody.rest;
+package com.vn9melody.sample.rest;
 
 import org.jboss.resteasy.reactive.RestQuery;
 
 import com.vn9melody.common.enums.PermissionCode;
+import com.vn9melody.sample.services.SampleService;
 import com.vn9melody.security.RequirePermission;
 import com.vn9melody.security.UserContext;
-import com.vn9melody.services.SampleService;
 
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.ApplicationScoped;

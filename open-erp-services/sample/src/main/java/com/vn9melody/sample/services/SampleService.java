@@ -1,4 +1,4 @@
-package com.vn9melody.services;
+package com.vn9melody.sample.services;
 
 import com.vn9melody.common.entity.Sample;
 

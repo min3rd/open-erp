@@ -1,4 +1,4 @@
-package com.vn9melody.rest;
+package com.vn9melody.core.rest;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
