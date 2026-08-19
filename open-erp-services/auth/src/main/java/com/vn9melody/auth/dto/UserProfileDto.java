@@ -1,13 +1,14 @@
 package com.vn9melody.auth.dto;
 
 import java.util.Set;
+import java.util.UUID;
 
 public record UserProfileDto(
-                Long userId,
+                UUID userId,
                 String tenantId,
                 String username,
                 String email,
-                Long departmentId,
+                UUID departmentId,
                 Set<String> roles,
                 Set<String> permissions) {
 }

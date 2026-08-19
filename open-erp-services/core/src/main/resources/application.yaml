@@ -9,9 +9,27 @@ quarkus:
   #   dev-server:
   #     port: 4200
   #     check-timeout: 30000
-
+  liquibase:
+    migrate-at-start: true
+    default-schema: app
 "%dev":
   quarkus:
     quinoa:
       dev-server:
         port: 4200
+    hibernate-orm:
+      database:
+        generation:
+          type: update
+
+plugin:
+  deploy:
+    # Chọn môi trường: DEV | DOCKER | KUBERNETES
+    target: DOCKER
+  # Thư mục lưu trữ artifact khi upload zip
+  storage:
+    base-dir: /opt/erp/plugins
+  static:
+    webroot: /var/www/plugins
+  k8s:
+    pvc-name: plugins-shared-pvc

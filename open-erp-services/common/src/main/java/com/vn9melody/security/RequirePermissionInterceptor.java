@@ -3,9 +3,9 @@ package com.vn9melody.security;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.hibernate.Filter;
@@ -14,8 +14,6 @@ import org.hibernate.Session;
 import com.vn9melody.common.enums.DataScope;
 import com.vn9melody.common.enums.PermissionCode;
 import com.vn9melody.security.dto.UserSecurityProfile;
-import com.vn9melody.security.jwt.JwtClaimsConstant;
-
 import io.quarkus.security.ForbiddenException;
 import io.quarkus.security.UnauthorizedException;
 import io.quarkus.security.identity.SecurityIdentity;
@@ -107,13 +105,14 @@ public class RequirePermissionInterceptor {
         return context.proceed();
     }
 
-    private void enableDataSecurityFilter(String tenantId, DataScope scope, Long departmentId, String username) {
+    private void enableDataSecurityFilter(String tenantId, DataScope scope, UUID departmentId, String username) {
         Session session = entityManager.unwrap(Session.class);
         Filter filter = session.enableFilter("dataSecurityFilter");
 
         filter.setParameter("tenantId", tenantId != null ? tenantId : "");
         filter.setParameter("scope", scope.name());
-        filter.setParameter("departmentId", departmentId != null ? departmentId : -1L);
+        filter.setParameter("departmentId",
+                departmentId != null ? departmentId : UUID.fromString("00000000-0000-0000-0000-000000000000"));
         filter.setParameter("username", username != null ? username : "");
     }
 

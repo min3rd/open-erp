@@ -2,6 +2,7 @@ package com.vn9melody.security;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.UUID;
 
 import com.vn9melody.common.enums.DataScope;
 
@@ -10,15 +11,15 @@ import jakarta.enterprise.context.RequestScoped;
 @RequestScoped
 public class UserContext {
     public String tenantId;
-    public Long userId;
+    public UUID userId;
     public String username;
-    public Long departmentId;
+    public UUID departmentId;
     public DataScope currentScope;
     public Set<String> roles = Collections.emptySet();
     public Set<String> permissions = Collections.emptySet();
     public String rawToken;
 
-    public void init(String tenantId, Long userId, String username, Long departmentId, DataScope scope) {
+    public void init(String tenantId, UUID userId, String username, UUID departmentId, DataScope scope) {
         this.tenantId = tenantId;
         this.userId = userId;
         this.username = username;
@@ -26,7 +27,7 @@ public class UserContext {
         this.currentScope = scope;
     }
 
-    public void init(String tenantId, Long userId, String username, Long departmentId, DataScope scope,
+    public void init(String tenantId, UUID userId, String username, UUID departmentId, DataScope scope,
             Set<String> roles, Set<String> permissions, String rawToken) {
         this.tenantId = tenantId;
         this.userId = userId;

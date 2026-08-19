@@ -1,11 +1,12 @@
 package com.vn9melody.security.dto;
 
 import java.util.List;
+import java.util.UUID;
 
 public record UserSecurityProfile(
-        Long userId,
-        String tenantId,
-        String username,
-        Long departmentId,
-        List<PermissionScopeDto> permissions) {
+                UUID userId,
+                String tenantId,
+                String username,
+                UUID departmentId,
+                List<PermissionScopeDto> permissions) {
 }

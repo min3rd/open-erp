@@ -3,6 +3,7 @@ package com.vn9melody.kafka;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import org.apache.kafka.common.header.Header;
@@ -107,8 +108,8 @@ public class KafkaSecurityContextHelper {
         String scopeStr = getHeaderValue(headers, JwtClaimsConstant.HEADER_X_DATA_SCOPE);
         String authHeader = getHeaderValue(headers, JwtClaimsConstant.HEADER_AUTHORIZATION);
 
-        Long userId = (userIdStr != null && !userIdStr.isBlank()) ? Long.valueOf(userIdStr) : null;
-        Long departmentId = (deptIdStr != null && !deptIdStr.isBlank()) ? Long.valueOf(deptIdStr) : null;
+        UUID userId = (userIdStr != null && !userIdStr.isBlank()) ? UUID.fromString(userIdStr) : null;
+        UUID departmentId = (deptIdStr != null && !deptIdStr.isBlank()) ? UUID.fromString(deptIdStr) : null;
         DataScope scope = (scopeStr != null && !scopeStr.isBlank()) ? DataScope.valueOf(scopeStr) : DataScope.ALL;
 
         String rawToken = null;

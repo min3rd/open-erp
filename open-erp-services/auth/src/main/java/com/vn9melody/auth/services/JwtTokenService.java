@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -214,7 +215,7 @@ public class JwtTokenService {
             });
         }
 
-        Long departmentId = user.department != null ? user.department.id : null;
+        UUID departmentId = user.department != null ? user.department.id : null;
 
         // 2. Ký Access Token bằng RSA Private Key
         JwtClaimsBuilder claimsBuilder = Jwt.issuer(jwtIssuer)

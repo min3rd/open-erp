@@ -2,13 +2,18 @@ package com.vn9melody.common.entity;
 
 import java.time.Instant;
 
+import java.util.UUID;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
 
@@ -17,7 +22,12 @@ import com.vn9melody.configurations.AuditEntityListener;
 @MappedSuperclass
 @EntityListeners(AuditEntityListener.class)
 @SQLRestriction("is_deleted = false")
-public class BaseAuditEntity extends PanacheEntity {
+public class BaseAuditEntity extends PanacheEntityBase {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    public UUID id;
+
     // --- Versioning (Optimistic Locking) ---
     @Version
     @Column(name = "version")
