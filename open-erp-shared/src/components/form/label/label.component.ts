@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../../icon/icon.component';
 import { SkeletonComponent } from '../../skeleton/skeleton.component';
@@ -7,14 +7,15 @@ import { SkeletonComponent } from '../../skeleton/skeleton.component';
   selector: 'erp-label',
   standalone: true,
   imports: [CommonModule, IconComponent, SkeletonComponent],
-  templateUrl: './label.component.html'
+  templateUrl: './label.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LabelComponent {
-  @Input() text: string = '';
-  @Input() forId?: string;
-  @Input() required: boolean = false;
-  @Input() optional: boolean = false;
-  @Input() tooltip?: string;
-  @Input() icon?: IconName;
-  @Input() loading: boolean = false;
+  readonly text = input<string>('');
+  readonly forId = input<string | undefined>(undefined);
+  readonly required = input<boolean>(false);
+  readonly optional = input<boolean>(false);
+  readonly tooltip = input<string | undefined>(undefined);
+  readonly icon = input<IconName | undefined>(undefined);
+  readonly loading = input<boolean>(false);
 }

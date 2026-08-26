@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonComponent } from '../../button/button.component';
 import { IconName } from '../../icon/icon.component';
@@ -8,15 +8,16 @@ import { ButtonSize } from '../../../enums/component.enum';
   selector: 'erp-reset-button',
   standalone: true,
   imports: [CommonModule, ButtonComponent],
-  templateUrl: './reset-button.component.html'
+  templateUrl: './reset-button.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResetButtonComponent {
-  @Input() text: string = 'Hủy bỏ / Đặt lại';
-  @Input() size: ButtonSize | 'sm' | 'md' | 'lg' = ButtonSize.MD;
-  @Input() disabled: boolean = false;
-  @Input() icon: IconName = 'refresh-cw';
-  @Input() fullWidth: boolean = false;
-  @Input() skeleton: boolean = false;
+  readonly text = input<string>('Hủy bỏ / Đặt lại');
+  readonly size = input<ButtonSize | 'sm' | 'md' | 'lg'>(ButtonSize.MD);
+  readonly disabled = input<boolean>(false);
+  readonly icon = input<IconName>('refresh-cw');
+  readonly fullWidth = input<boolean>(false);
+  readonly skeleton = input<boolean>(false);
 
-  @Output() resetClick = new EventEmitter<MouseEvent>();
+  readonly resetClick = output<MouseEvent>();
 }

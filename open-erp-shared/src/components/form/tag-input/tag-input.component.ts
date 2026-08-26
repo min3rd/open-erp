@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { IconComponent } from '../../icon/icon.component';
@@ -19,6 +19,7 @@ import { ValidationStatus } from '../../../enums/component.enum';
     }
   ],
   templateUrl: './tag-input.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -27,24 +28,27 @@ import { ValidationStatus } from '../../../enums/component.enum';
   `]
 })
 export class TagInputComponent implements ControlValueAccessor {
-  @Input() label?: string;
-  @Input() placeholder: string = 'Nhập thẻ và ấn Enter...';
-  @Input() maxTags?: number;
-  @Input() allowDuplicates: boolean = false;
-  @Input() status: ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning' = ValidationStatus.NONE;
-  @Input() helperText?: string;
-  @Input() errorMessage?: string;
-  @Input() disabled: boolean = false;
-  @Input() required: boolean = false;
-  @Input() loading: boolean = false;
+  readonly label = input<string | undefined>(undefined);
+  readonly placeholder = input<string>('Nhập thẻ và ấn Enter...');
+  readonly maxTags = input<number | undefined>(undefined);
+  readonly allowDuplicates = input<boolean>(false);
+  readonly status = input<ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning'>(ValidationStatus.NONE);
+  readonly helperText = input<string | undefined>(undefined);
+  readonly errorMessage = input<string | undefined>(undefined);
+  readonly disabled = input<boolean>(false);
+  readonly required = input<boolean>(false);
+  readonly loading = input<boolean>(false);
 
-  @Output() tagsChange = new EventEmitter<string[]>();
+  readonly tagsChange = output<string[]>();
 
   tags = signal<string[]>([]);
   inputValue = signal<string>('');
+  isDisabled = signal<boolean>(false);
 
   onChange: (val: string[]) => void = () => {};
   onTouched: () => void = () => {};
+
+  readonly effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
 
   writeValue(val: any): void {
     this.tags.set(Array.isArray(val) ? val : []);
@@ -59,11 +63,11 @@ export class TagInputComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.isDisabled.set(isDisabled);
   }
 
   onKeyDown(event: KeyboardEvent): void {
-    if (this.disabled) return;
+    if (this.effectiveDisabled()) return;
     if (event.key === 'Enter' || event.key === ',') {
       event.preventDefault();
       this.addTag();
@@ -75,8 +79,9 @@ export class TagInputComponent implements ControlValueAccessor {
   addTag(): void {
     const raw = this.inputValue().trim().replace(/,/g, '');
     if (!raw) return;
-    if (this.maxTags && this.tags().length >= this.maxTags) return;
-    if (!this.allowDuplicates && this.tags().includes(raw)) {
+    const maxT = this.maxTags();
+    if (maxT && this.tags().length >= maxT) return;
+    if (!this.allowDuplicates() && this.tags().includes(raw)) {
       this.inputValue.set('');
       return;
     }
@@ -89,7 +94,7 @@ export class TagInputComponent implements ControlValueAccessor {
   }
 
   removeTag(index: number): void {
-    if (this.disabled) return;
+    if (this.effectiveDisabled()) return;
     const next = this.tags().filter((_, i) => i !== index);
     this.tags.set(next);
     this.onChange(next);

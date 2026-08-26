@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../icon/icon.component';
 import { SkeletonComponent } from '../skeleton/skeleton.component';
@@ -8,50 +8,45 @@ import { TagColor, TagVariant } from '../../enums/component.enum';
   selector: 'erp-tag, erp-chip',
   standalone: true,
   imports: [CommonModule, IconComponent, SkeletonComponent],
-  templateUrl: './tag.component.html'
+  templateUrl: './tag.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TagComponent {
-  @Input() label: string = '';
-  @Input() icon?: IconName;
-  @Input() color: TagColor | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'purple' | 'pink' = TagColor.PRIMARY;
-  @Input() variant: TagVariant | 'solid' | 'subtle' | 'outline' = TagVariant.SUBTLE;
-  @Input() size: 'sm' | 'md' | 'lg' = 'md';
-  @Input() removable: boolean = false;
-  @Input() clickable: boolean = false;
-  @Input() selectable: boolean = false;
-  @Input() selected: boolean = false;
-  @Input() disabled: boolean = false;
-  @Input() loading: boolean = false;
+  readonly label = input<string>('');
+  readonly icon = input<IconName | undefined>(undefined);
+  readonly color = input<TagColor | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'purple' | 'pink'>(TagColor.PRIMARY);
+  readonly variant = input<TagVariant | 'solid' | 'subtle' | 'outline'>(TagVariant.SUBTLE);
+  readonly size = input<'sm' | 'md' | 'lg'>('md');
+  readonly removable = input<boolean>(false);
+  readonly clickable = input<boolean>(false);
+  readonly selectable = input<boolean>(false);
+  readonly selected = model<boolean>(false);
+  readonly disabled = input<boolean>(false);
+  readonly loading = input<boolean>(false);
 
-  @Output() remove = new EventEmitter<MouseEvent>();
-  @Output() tagClick = new EventEmitter<MouseEvent>();
-  @Output() selectedChange = new EventEmitter<boolean>();
+  readonly remove = output<MouseEvent | KeyboardEvent>();
+  readonly tagClick = output<MouseEvent | KeyboardEvent>();
 
-  onTagClick(event: MouseEvent): void {
-    if (this.disabled || this.loading) return;
-    if (this.selectable) {
-      this.selected = !this.selected;
-      this.selectedChange.emit(this.selected);
-    }
-    if (this.clickable || this.selectable) {
-      this.tagClick.emit(event);
-    }
-  }
+  readonly isInteractive = computed(() => this.clickable() || this.selectable() || this.removable());
 
-  onRemove(event: MouseEvent): void {
-    event.stopPropagation();
-    if (!this.disabled && !this.loading) {
-      this.remove.emit(event);
-    }
-  }
+  readonly iconSize = computed(() => {
+    const s = this.size();
+    return s === 'sm' ? 10 : (s === 'lg' ? 14 : 12);
+  });
 
-  getTagClasses(): string {
-    const v = String(this.variant);
-    const c = String(this.color);
-    const s = String(this.size);
+  readonly removeIconSize = computed(() => {
+    return this.size() === 'sm' ? 10 : 12;
+  });
+
+  readonly tagClasses = computed(() => {
+    const v = String(this.variant());
+    const c = String(this.color());
+    const s = String(this.size());
+    const interactive = this.isInteractive();
+
     const classes: string[] = [
-      'inline-flex items-center gap-1.5 font-bold tracking-tight rounded-xl select-none transition-all',
-      this.clickable ? 'cursor-pointer hover:scale-105 active:scale-95' : 'cursor-default'
+      'inline-flex items-center gap-1.5 font-bold tracking-tight rounded-xl select-none transition-all outline-none',
+      interactive ? 'cursor-pointer hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500/40' : 'cursor-default'
     ];
 
     // Sizes
@@ -100,6 +95,38 @@ export class TagComponent {
       }
     }
 
+    if (this.disabled()) {
+      classes.push('opacity-50');
+    }
+
     return classes.join(' ');
+  });
+
+  onTagClick(event: MouseEvent | KeyboardEvent): void {
+    if (this.disabled() || this.loading()) return;
+    if (this.selectable()) {
+      this.selected.update(val => !val);
+    }
+    if (this.clickable() || this.selectable()) {
+      this.tagClick.emit(event);
+    }
+  }
+
+  onRemove(event: MouseEvent | KeyboardEvent): void {
+    event.stopPropagation();
+    if (!this.disabled() && !this.loading()) {
+      this.remove.emit(event);
+    }
+  }
+
+  onKeyDown(event: KeyboardEvent): void {
+    if (this.disabled() || this.loading()) return;
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      this.onTagClick(event);
+    } else if ((event.key === 'Backspace' || event.key === 'Delete') && this.removable()) {
+      event.preventDefault();
+      this.onRemove(event);
+    }
   }
 }

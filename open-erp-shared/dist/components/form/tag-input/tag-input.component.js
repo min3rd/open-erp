@@ -4,10 +4,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-import { Component, Input, Output, EventEmitter, forwardRef, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { IconComponent } from '../../icon/icon.component';
@@ -16,21 +13,23 @@ import { LabelComponent } from '../label/label.component';
 import { HelperTextComponent } from '../helper-text/helper-text.component';
 import { ValidationStatus } from '../../../enums/component.enum';
 let TagInputComponent = class TagInputComponent {
-    label;
-    placeholder = 'Nhập thẻ và ấn Enter...';
-    maxTags;
-    allowDuplicates = false;
-    status = ValidationStatus.NONE;
-    helperText;
-    errorMessage;
-    disabled = false;
-    required = false;
-    loading = false;
-    tagsChange = new EventEmitter();
+    label = input(undefined);
+    placeholder = input('Nhập thẻ và ấn Enter...');
+    maxTags = input(undefined);
+    allowDuplicates = input(false);
+    status = input(ValidationStatus.NONE);
+    helperText = input(undefined);
+    errorMessage = input(undefined);
+    disabled = input(false);
+    required = input(false);
+    loading = input(false);
+    tagsChange = output();
     tags = signal([]);
     inputValue = signal('');
+    isDisabled = signal(false);
     onChange = () => { };
     onTouched = () => { };
+    effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
     writeValue(val) {
         this.tags.set(Array.isArray(val) ? val : []);
     }
@@ -41,10 +40,10 @@ let TagInputComponent = class TagInputComponent {
         this.onTouched = fn;
     }
     setDisabledState(isDisabled) {
-        this.disabled = isDisabled;
+        this.isDisabled.set(isDisabled);
     }
     onKeyDown(event) {
-        if (this.disabled)
+        if (this.effectiveDisabled())
             return;
         if (event.key === 'Enter' || event.key === ',') {
             event.preventDefault();
@@ -58,9 +57,10 @@ let TagInputComponent = class TagInputComponent {
         const raw = this.inputValue().trim().replace(/,/g, '');
         if (!raw)
             return;
-        if (this.maxTags && this.tags().length >= this.maxTags)
+        const maxT = this.maxTags();
+        if (maxT && this.tags().length >= maxT)
             return;
-        if (!this.allowDuplicates && this.tags().includes(raw)) {
+        if (!this.allowDuplicates() && this.tags().includes(raw)) {
             this.inputValue.set('');
             return;
         }
@@ -71,7 +71,7 @@ let TagInputComponent = class TagInputComponent {
         this.tagsChange.emit(next);
     }
     removeTag(index) {
-        if (this.disabled)
+        if (this.effectiveDisabled())
             return;
         const next = this.tags().filter((_, i) => i !== index);
         this.tags.set(next);
@@ -79,50 +79,6 @@ let TagInputComponent = class TagInputComponent {
         this.tagsChange.emit(next);
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TagInputComponent.prototype, "label", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TagInputComponent.prototype, "placeholder", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], TagInputComponent.prototype, "maxTags", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TagInputComponent.prototype, "allowDuplicates", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TagInputComponent.prototype, "status", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TagInputComponent.prototype, "helperText", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TagInputComponent.prototype, "errorMessage", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TagInputComponent.prototype, "disabled", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TagInputComponent.prototype, "required", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TagInputComponent.prototype, "loading", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], TagInputComponent.prototype, "tagsChange", void 0);
 TagInputComponent = __decorate([
     Component({
         selector: 'erp-tag-input',
@@ -136,6 +92,7 @@ TagInputComponent = __decorate([
             }
         ],
         templateUrl: './tag-input.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: block;

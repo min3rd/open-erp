@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconComponent, IconName } from '../icon/icon.component';
@@ -22,68 +22,70 @@ export interface TreeNode {
   selector: 'erp-tree-node',
   standalone: true,
   imports: [CommonModule, FormsModule, IconComponent, CheckboxComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="space-y-1">
       <!-- Node Item Row -->
       <div (click)="onSelect()"
-           [class.bg-indigo-50/70]="node.selected"
-           [class.dark:bg-indigo-950/40]="node.selected"
-           [class.text-indigo-600]="node.selected"
-           [class.dark:text-indigo-400]="node.selected"
-           [class.hover:bg-slate-100]="!node.selected && !node.disabled"
-           [class.dark:hover:bg-slate-800]="!node.selected && !node.disabled"
-           [class.opacity-40]="node.disabled"
-           [class.cursor-not-allowed]="node.disabled"
-           [class.cursor-pointer]="!node.disabled"
+           [class.bg-indigo-50/70]="node().selected"
+           [class.dark:bg-indigo-950/40]="node().selected"
+           [class.text-indigo-600]="node().selected"
+           [class.dark:text-indigo-400]="node().selected"
+           [class.hover:bg-slate-100]="!node().selected && !node().disabled"
+           [class.dark:hover:bg-slate-800]="!node().selected && !node().disabled"
+           [class.opacity-40]="node().disabled"
+           [class.cursor-not-allowed]="node().disabled"
+           [class.cursor-pointer]="!node().disabled"
            class="flex items-center justify-between px-2.5 py-1.5 rounded-xl transition-colors group">
         
         <div class="flex items-center gap-2 min-w-0 flex-1">
           <!-- Expand / Collapse Arrow -->
-          @if (node.children && node.children.length > 0) {
+          @if (node().children && node().children!.length > 0) {
             <button (click)="onToggle($event)"
                     type="button"
+                    aria-label="Thu gọn hoặc mở rộng"
                     class="p-0.5 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors">
-              <erp-icon [name]="node.expanded ? 'chevron-down' : 'chevron-right'" [size]="14"></erp-icon>
+              <erp-icon [name]="node().expanded ? 'chevron-down' : 'chevron-right'" [size]="14"></erp-icon>
             </button>
           } @else {
             <span class="w-4"></span>
           }
 
           <!-- Checkbox (if checkable) -->
-          @if (checkable) {
+          @if (checkable()) {
             <div (click)="$event.stopPropagation()" class="flex items-center">
-              <erp-checkbox [ngModel]="node.checked || false"
+              <erp-checkbox [ngModel]="node().checked || false"
                             (checkedChange)="onCheckNode($event)">
               </erp-checkbox>
             </div>
           }
 
           <!-- Node Icon -->
-          <erp-icon [name]="nodeIcon"
+          <erp-icon [name]="nodeIcon()"
                     [size]="16"
                     class="shrink-0 text-slate-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
           </erp-icon>
 
           <!-- Node Label -->
-          <span class="truncate text-xs font-semibold">{{ node.label }}</span>
+          <span class="truncate text-xs font-semibold">{{ node().label }}</span>
         </div>
 
         <!-- Badge -->
-        @if (node.badge) {
-          <span [class]="node.badgeColor || 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'"
+        @if (node().badge) {
+          <span [class]="node().badgeColor || 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'"
                 class="px-1.5 py-0.2 rounded-md text-[10px] font-bold">
-            {{ node.badge }}
+            {{ node().badge }}
           </span>
         }
       </div>
 
       <!-- Nested Children Nodes -->
-      @if (node.children && node.children.length > 0 && node.expanded) {
+      @if (node().children && node().children!.length > 0 && node().expanded) {
         <div class="pl-5 border-l border-slate-200/80 dark:border-slate-800 ml-4 space-y-1 animate-in fade-in slide-in-from-top-1 duration-150">
-          @for (child of node.children; track child.id) {
+          @for (child of node().children!; track child.id) {
             <erp-tree-node [node]="child"
-                           [checkable]="checkable"
-                           [selectable]="selectable"
+                           [checkable]="checkable()"
+                           [selectable]="selectable()"
                            (nodeClick)="nodeClick.emit($event)"
                            (nodeToggle)="nodeToggle.emit($event)"
                            (checkChange)="checkChange.emit($event)">
@@ -95,43 +97,47 @@ export interface TreeNode {
   `
 })
 export class TreeNodeComponent {
-  @Input({ required: true }) node!: TreeNode;
-  @Input() checkable: boolean = false;
-  @Input() selectable: boolean = true;
+  readonly node = input.required<TreeNode>();
+  readonly checkable = input<boolean>(false);
+  readonly selectable = input<boolean>(true);
 
-  @Output() nodeClick = new EventEmitter<TreeNode>();
-  @Output() nodeToggle = new EventEmitter<TreeNode>();
-  @Output() checkChange = new EventEmitter<TreeNode>();
+  readonly nodeClick = output<TreeNode>();
+  readonly nodeToggle = output<TreeNode>();
+  readonly checkChange = output<TreeNode>();
 
-  get nodeIcon(): IconName {
-    if (this.node.expanded && this.node.expandedIcon) return this.node.expandedIcon;
-    if (this.node.icon) return this.node.icon;
-    if (this.node.children && this.node.children.length > 0) {
-      return this.node.expanded ? 'folder-minus' : 'folder';
+  readonly nodeIcon = computed<IconName>(() => {
+    const n = this.node();
+    if (n.expanded && n.expandedIcon) return n.expandedIcon;
+    if (n.icon) return n.icon;
+    if (n.children && n.children.length > 0) {
+      return n.expanded ? 'folder-minus' : 'folder';
     }
     return 'file';
-  }
+  });
 
   onToggle(event: MouseEvent): void {
     event.stopPropagation();
-    if (this.node.disabled) return;
-    this.node.expanded = !this.node.expanded;
-    this.nodeToggle.emit(this.node);
+    const n = this.node();
+    if (n.disabled) return;
+    n.expanded = !n.expanded;
+    this.nodeToggle.emit(n);
   }
 
   onSelect(): void {
-    if (this.node.disabled) return;
-    if (this.selectable) {
-      this.node.selected = !this.node.selected;
+    const n = this.node();
+    if (n.disabled) return;
+    if (this.selectable()) {
+      n.selected = !n.selected;
     }
-    this.nodeClick.emit(this.node);
+    this.nodeClick.emit(n);
   }
 
   onCheckNode(checked: boolean): void {
-    if (this.node.disabled) return;
-    this.node.checked = checked;
-    this.setChildrenChecked(this.node, checked);
-    this.checkChange.emit(this.node);
+    const n = this.node();
+    if (n.disabled) return;
+    n.checked = checked;
+    this.setChildrenChecked(n, checked);
+    this.checkChange.emit(n);
   }
 
   private setChildrenChecked(node: TreeNode, checked: boolean): void {
@@ -149,6 +155,7 @@ export class TreeNodeComponent {
   standalone: true,
   imports: [CommonModule, FormsModule, IconComponent, TreeNodeComponent],
   templateUrl: './tree-view.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -157,15 +164,15 @@ export class TreeNodeComponent {
   `]
 })
 export class TreeViewComponent {
-  @Input() nodes: TreeNode[] = [];
-  @Input() checkable: boolean = false;
-  @Input() selectable: boolean = true;
-  @Input() searchable: boolean = false;
-  @Input() searchPlaceholder: string = 'Tìm kiếm nút cây...';
+  readonly nodes = input<TreeNode[]>([]);
+  readonly checkable = input<boolean>(false);
+  readonly selectable = input<boolean>(true);
+  readonly searchable = input<boolean>(false);
+  readonly searchPlaceholder = input<string>('Tìm kiếm nút cây...');
 
-  @Output() nodeClick = new EventEmitter<TreeNode>();
-  @Output() nodeToggle = new EventEmitter<TreeNode>();
-  @Output() checkChange = new EventEmitter<TreeNode>();
+  readonly nodeClick = output<TreeNode>();
+  readonly nodeToggle = output<TreeNode>();
+  readonly checkChange = output<TreeNode>();
 
   searchQuery: string = '';
 }

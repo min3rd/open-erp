@@ -11,10 +11,10 @@ export interface TimelineItem {
     active?: boolean;
 }
 export declare class TimelineComponent {
-    items: TimelineItem[];
-    position: TimelinePosition | 'left' | 'right' | 'alternate';
-    reverse: boolean;
-    loading: boolean;
-    get normalizedItems(): TimelineItem[];
+    readonly items: import("@angular/core").InputSignal<TimelineItem[]>;
+    readonly position: import("@angular/core").InputSignal<"left" | "right" | "alternate" | TimelinePosition>;
+    readonly reverse: import("@angular/core").InputSignal<boolean>;
+    readonly loading: import("@angular/core").InputSignal<boolean>;
+    readonly normalizedItems: import("@angular/core").Signal<TimelineItem[]>;
     getDotClasses(item: TimelineItem): string;
 }

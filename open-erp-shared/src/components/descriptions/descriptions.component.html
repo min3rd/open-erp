@@ -1,23 +1,23 @@
-<div [class.border]="bordered"
-     [class.border-slate-200]="bordered"
-     [class.dark:border-slate-800]="bordered"
-     [class.rounded-2xl]="bordered"
+<div [class.border]="bordered()"
+     [class.border-slate-200]="bordered()"
+     [class.dark:border-slate-800]="bordered()"
+     [class.rounded-2xl]="bordered()"
      class="w-full bg-white dark:bg-slate-900 overflow-hidden select-none">
   
   <!-- Header Title -->
-  @if (title) {
+  @if (title()) {
     <div class="px-5 py-3.5 bg-slate-50/80 dark:bg-slate-950/60 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-      <h3 class="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">{{ title }}</h3>
+      <h3 class="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">{{ title() }}</h3>
       <ng-content select="[descriptions-extra]"></ng-content>
     </div>
   }
 
   <!-- Grid Items List -->
-  <div [ngClass]="getGridColsClasses()"
+  <div [class]="gridColsClass()"
        class="grid divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800/80">
     
-    @for (item of items; track item.label) {
-      <div [ngClass]="getSizeClasses()"
+    @for (item of items(); track item.label) {
+      <div [class]="sizeClass()"
            class="flex flex-col gap-1 border-b border-slate-100 dark:border-slate-800/60 last:border-b-0">
         
         <!-- Label -->

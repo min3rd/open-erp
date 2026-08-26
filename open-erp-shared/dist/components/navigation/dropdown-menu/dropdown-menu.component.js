@@ -7,55 +7,128 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Component, Input, Output, EventEmitter, ElementRef, HostListener } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, ElementRef, HostListener, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../icon/icon.component';
 import { KbdComponent } from '../../kbd/kbd.component';
 import { DropdownPlacement } from '../../../enums/component.enum';
+const PLACEMENT_CLASSES = {
+    [DropdownPlacement.BOTTOM_END]: 'top-full right-0 mt-1.5',
+    [DropdownPlacement.TOP_START]: 'bottom-full left-0 mb-1.5',
+    [DropdownPlacement.TOP_END]: 'bottom-full right-0 mb-1.5',
+    [DropdownPlacement.LEFT]: 'top-0 right-full mr-1.5',
+    [DropdownPlacement.RIGHT]: 'top-0 left-full ml-1.5',
+    [DropdownPlacement.BOTTOM_START]: 'top-full left-0 mt-1.5'
+};
 let DropdownMenuComponent = class DropdownMenuComponent {
     elementRef;
-    items = [];
-    placement = DropdownPlacement.BOTTOM_START;
-    trigger = 'click';
-    isOpen = false;
-    closeOnClickOutside = true;
-    closeOnItemClick = true;
-    minWidth = '12rem';
-    isOpenChange = new EventEmitter();
-    itemClick = new EventEmitter();
+    items = input([]);
+    placement = input(DropdownPlacement.BOTTOM_START);
+    trigger = input('click');
+    isOpen = model(false);
+    closeOnClickOutside = input(true);
+    closeOnItemClick = input(true);
+    minWidth = input('12rem');
+    itemClick = output();
+    activeIndex = signal(-1);
     constructor(elementRef) {
         this.elementRef = elementRef;
     }
+    placementClasses = computed(() => {
+        const p = String(this.placement());
+        return PLACEMENT_CLASSES[p] || PLACEMENT_CLASSES[DropdownPlacement.BOTTOM_START];
+    });
+    actionableItems = computed(() => {
+        return this.items().filter(item => item.label && !item.header && !item.divider);
+    });
     onDocumentClick(event) {
-        if (!this.closeOnClickOutside || !this.isOpen)
+        if (!this.closeOnClickOutside() || !this.isOpen())
             return;
         if (!this.elementRef.nativeElement.contains(event.target)) {
             this.close();
         }
     }
+    onKeyDown(event) {
+        const open = this.isOpen();
+        const actions = this.actionableItems();
+        switch (event.key) {
+            case 'ArrowDown':
+                event.preventDefault();
+                if (!open) {
+                    this.open();
+                }
+                else if (actions.length > 0) {
+                    let next = this.activeIndex() + 1;
+                    while (next < actions.length && actions[next].disabled) {
+                        next++;
+                    }
+                    if (next < actions.length) {
+                        this.activeIndex.set(next);
+                    }
+                }
+                break;
+            case 'ArrowUp':
+                event.preventDefault();
+                if (open && actions.length > 0) {
+                    let prev = this.activeIndex() - 1;
+                    while (prev >= 0 && actions[prev].disabled) {
+                        prev--;
+                    }
+                    if (prev >= 0) {
+                        this.activeIndex.set(prev);
+                    }
+                }
+                break;
+            case 'Enter':
+            case ' ':
+                if (open && this.activeIndex() >= 0 && this.activeIndex() < actions.length) {
+                    event.preventDefault();
+                    const target = actions[this.activeIndex()];
+                    if (!target.disabled) {
+                        this.onItemSelect(target, event);
+                    }
+                }
+                else if (!open && this.trigger() === 'click') {
+                    event.preventDefault();
+                    this.open();
+                }
+                break;
+            case 'Escape':
+                if (open) {
+                    event.preventDefault();
+                    this.close();
+                }
+                break;
+            case 'Tab':
+                if (open) {
+                    this.close();
+                }
+                break;
+        }
+    }
     toggle() {
-        this.isOpen = !this.isOpen;
-        this.isOpenChange.emit(this.isOpen);
+        if (this.isOpen()) {
+            this.close();
+        }
+        else {
+            this.open();
+        }
     }
     open() {
-        if (!this.isOpen) {
-            this.isOpen = true;
-            this.isOpenChange.emit(true);
-        }
+        this.isOpen.set(true);
+        this.activeIndex.set(0);
     }
     close() {
-        if (this.isOpen) {
-            this.isOpen = false;
-            this.isOpenChange.emit(false);
-        }
+        this.isOpen.set(false);
+        this.activeIndex.set(-1);
     }
     onMouseEnter() {
-        if (this.trigger === 'hover') {
+        if (this.trigger() === 'hover') {
             this.open();
         }
     }
     onMouseLeave() {
-        if (this.trigger === 'hover') {
+        if (this.trigger() === 'hover') {
             this.close();
         }
     }
@@ -65,83 +138,30 @@ let DropdownMenuComponent = class DropdownMenuComponent {
             return;
         }
         this.itemClick.emit(item);
-        if (this.closeOnItemClick) {
+        if (this.closeOnItemClick()) {
             this.close();
         }
     }
-    getPlacementClasses() {
-        const p = String(this.placement);
-        switch (p) {
-            case DropdownPlacement.BOTTOM_END:
-            case 'bottom-end':
-                return 'top-full right-0 mt-1.5';
-            case DropdownPlacement.TOP_START:
-            case 'top-start':
-                return 'bottom-full left-0 mb-1.5';
-            case DropdownPlacement.TOP_END:
-            case 'top-end':
-                return 'bottom-full right-0 mb-1.5';
-            case DropdownPlacement.LEFT:
-            case 'left':
-                return 'top-0 right-full mr-1.5';
-            case DropdownPlacement.RIGHT:
-            case 'right':
-                return 'top-0 left-full ml-1.5';
-            case DropdownPlacement.BOTTOM_START:
-            case 'bottom-start':
-            default:
-                return 'top-full left-0 mt-1.5';
-        }
-    }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", Array)
-], DropdownMenuComponent.prototype, "items", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], DropdownMenuComponent.prototype, "placement", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], DropdownMenuComponent.prototype, "trigger", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], DropdownMenuComponent.prototype, "isOpen", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], DropdownMenuComponent.prototype, "closeOnClickOutside", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], DropdownMenuComponent.prototype, "closeOnItemClick", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], DropdownMenuComponent.prototype, "minWidth", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], DropdownMenuComponent.prototype, "isOpenChange", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], DropdownMenuComponent.prototype, "itemClick", void 0);
 __decorate([
     HostListener('document:click', ['$event']),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [MouseEvent]),
     __metadata("design:returntype", void 0)
 ], DropdownMenuComponent.prototype, "onDocumentClick", null);
+__decorate([
+    HostListener('keydown', ['$event']),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [KeyboardEvent]),
+    __metadata("design:returntype", void 0)
+], DropdownMenuComponent.prototype, "onKeyDown", null);
 DropdownMenuComponent = __decorate([
     Component({
         selector: 'erp-dropdown-menu, erp-menu',
         standalone: true,
         imports: [CommonModule, IconComponent, KbdComponent],
         templateUrl: './dropdown-menu.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: inline-block;

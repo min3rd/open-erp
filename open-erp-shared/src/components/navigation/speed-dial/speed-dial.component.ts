@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ElementRef, HostListener } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, ElementRef, HostListener, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../../icon/icon.component';
 import { SpeedDialDirection, SpeedDialPosition } from '../../../enums/component.enum';
@@ -7,15 +7,30 @@ export interface SpeedDialAction {
   id: string;
   label?: string;
   icon: IconName;
-  color?: string; // custom bg or text class
+  color?: string;
   disabled?: boolean;
 }
+
+const POSITION_CLASSES: Record<string, string> = {
+  [SpeedDialPosition.BOTTOM_LEFT]: 'bottom-6 left-6',
+  [SpeedDialPosition.TOP_RIGHT]: 'top-6 right-6',
+  [SpeedDialPosition.TOP_LEFT]: 'top-6 left-6',
+  [SpeedDialPosition.BOTTOM_RIGHT]: 'bottom-6 right-6'
+};
+
+const DIRECTION_CONTAINER_CLASSES: Record<string, string> = {
+  [SpeedDialDirection.DOWN]: 'flex-col top-full mt-3',
+  [SpeedDialDirection.LEFT]: 'flex-row-reverse right-full mr-3',
+  [SpeedDialDirection.RIGHT]: 'flex-row left-full ml-3',
+  [SpeedDialDirection.UP]: 'flex-col-reverse bottom-full mb-3'
+};
 
 @Component({
   selector: 'erp-speed-dial, erp-fab-menu',
   standalone: true,
   imports: [CommonModule, IconComponent],
   templateUrl: './speed-dial.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -23,37 +38,54 @@ export interface SpeedDialAction {
   `]
 })
 export class SpeedDialComponent {
-  @Input() items: SpeedDialAction[] = [];
-  @Input() icon: IconName = 'plus';
-  @Input() activeIcon: IconName = 'x';
-  @Input() direction: SpeedDialDirection | 'up' | 'down' | 'left' | 'right' = SpeedDialDirection.UP;
-  @Input() position: SpeedDialPosition | 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' = SpeedDialPosition.BOTTOM_RIGHT;
-  @Input() open: boolean = false;
-  @Input() showBackdrop: boolean = false;
-  @Input() showLabels: boolean = true;
-  @Input() fixed: boolean = true;
+  readonly items = input<SpeedDialAction[]>([]);
+  readonly icon = input<IconName>('plus');
+  readonly activeIcon = input<IconName>('x');
+  readonly direction = input<SpeedDialDirection | 'up' | 'down' | 'left' | 'right'>(SpeedDialDirection.UP);
+  readonly position = input<SpeedDialPosition | 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'>(SpeedDialPosition.BOTTOM_RIGHT);
+  readonly open = model<boolean>(false);
+  readonly showBackdrop = input<boolean>(false);
+  readonly showLabels = input<boolean>(true);
+  readonly fixed = input<boolean>(true);
 
-  @Output() actionClick = new EventEmitter<SpeedDialAction>();
-  @Output() openChange = new EventEmitter<boolean>();
+  readonly actionClick = output<SpeedDialAction>();
 
   constructor(private elementRef: ElementRef) {}
 
+  readonly positionClass = computed(() => {
+    const pos = String(this.position());
+    return POSITION_CLASSES[pos] || POSITION_CLASSES[SpeedDialPosition.BOTTOM_RIGHT];
+  });
+
+  readonly isVerticalDirection = computed(() => {
+    const d = String(this.direction());
+    return d === 'up' || d === 'down';
+  });
+
+  readonly isHorizontalDirection = computed(() => {
+    const d = String(this.direction());
+    return d === 'left' || d === 'right';
+  });
+
+  readonly directionContainerClass = computed(() => {
+    const d = String(this.direction());
+    return DIRECTION_CONTAINER_CLASSES[d] || DIRECTION_CONTAINER_CLASSES[SpeedDialDirection.UP];
+  });
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    if (this.open && !this.elementRef.nativeElement.contains(event.target)) {
+    if (this.open() && !this.elementRef.nativeElement.contains(event.target)) {
       this.close();
     }
   }
 
   toggle(): void {
-    this.open = !this.open;
-    this.openChange.emit(this.open);
+    this.open.update(v => !v);
   }
 
   close(): void {
-    if (this.open) {
-      this.open = false;
-      this.openChange.emit(false);
+    if (this.open()) {
+      this.open.set(false);
     }
   }
 
@@ -62,53 +94,5 @@ export class SpeedDialComponent {
     event.stopPropagation();
     this.actionClick.emit(action);
     this.close();
-  }
-
-  getPositionClasses(): string {
-    const pos = String(this.position);
-    switch (pos) {
-      case SpeedDialPosition.BOTTOM_LEFT:
-      case 'bottom-left':
-        return 'bottom-6 left-6';
-      case SpeedDialPosition.TOP_RIGHT:
-      case 'top-right':
-        return 'top-6 right-6';
-      case SpeedDialPosition.TOP_LEFT:
-      case 'top-left':
-        return 'top-6 left-6';
-      case SpeedDialPosition.BOTTOM_RIGHT:
-      case 'bottom-right':
-      default:
-        return 'bottom-6 right-6';
-    }
-  }
-
-  get isVerticalDirection(): boolean {
-    const d = String(this.direction);
-    return d === 'up' || d === 'down';
-  }
-
-  get isHorizontalDirection(): boolean {
-    const d = String(this.direction);
-    return d === 'left' || d === 'right';
-  }
-
-  getDirectionContainerClasses(): string {
-    const d = String(this.direction);
-    switch (d) {
-      case SpeedDialDirection.DOWN:
-      case 'down':
-        return 'flex-col top-full mt-3';
-      case SpeedDialDirection.LEFT:
-      case 'left':
-        return 'flex-row-reverse right-full mr-3';
-      case SpeedDialDirection.RIGHT:
-      case 'right':
-        return 'flex-row left-full ml-3';
-      case SpeedDialDirection.UP:
-      case 'up':
-      default:
-        return 'flex-col-reverse bottom-full mb-3';
-    }
   }
 }

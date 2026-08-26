@@ -1,16 +1,14 @@
-import { EventEmitter } from '@angular/core';
 export declare class LightboxComponent {
-    images: string[];
-    currentIndex: number;
-    visible: boolean;
-    title?: string;
-    visibleChange: EventEmitter<boolean>;
-    currentIndexChange: EventEmitter<number>;
-    indexChange: EventEmitter<number>;
-    zoomLevel: number;
-    rotation: number;
+    readonly images: import("@angular/core").InputSignal<string[]>;
+    readonly currentIndex: import("@angular/core").ModelSignal<number>;
+    readonly visible: import("@angular/core").ModelSignal<boolean>;
+    readonly title: import("@angular/core").InputSignal<string | undefined>;
+    readonly indexChange: import("@angular/core").OutputEmitterRef<number>;
+    zoomLevel: import("@angular/core").WritableSignal<number>;
+    rotation: import("@angular/core").WritableSignal<number>;
     onKeyDown(event: KeyboardEvent): void;
     handleClose(): void;
+    selectIndex(idx: number): void;
     prevImage(): void;
     nextImage(): void;
     zoomIn(): void;

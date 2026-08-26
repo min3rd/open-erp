@@ -1,4 +1,4 @@
-@if (loading) {
+@if (loading()) {
   <div class="flex items-center justify-between py-2 w-full gap-4">
     <erp-skeleton width="12rem" height="2rem" shape="rounded"></erp-skeleton>
     <div class="flex items-center gap-1.5">
@@ -12,21 +12,22 @@
   <div class="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 select-none">
     
     <!-- Left Info & Page Size Selector -->
-    @if (showTotalInfo || showPageSizeSelector) {
+    @if (showTotalInfo() || showPageSizeSelector()) {
       <div class="flex items-center gap-3 flex-wrap">
-        @if (showTotalInfo) {
+        @if (showTotalInfo()) {
           <span>
-            Hiển thị <strong class="font-bold text-slate-900 dark:text-white">{{ startItem }}-{{ endItem }}</strong> trên <strong class="font-bold text-slate-900 dark:text-white">{{ totalItems }}</strong> kết quả
+            Hiển thị <strong class="font-bold text-slate-900 dark:text-white">{{ startItem() }}-{{ endItem() }}</strong> trên <strong class="font-bold text-slate-900 dark:text-white">{{ totalItems() }}</strong> kết quả
           </span>
         }
 
-        @if (showPageSizeSelector && pageSizeOptions.length > 0) {
+        @if (showPageSizeSelector() && pageSizeOptions().length > 0) {
           <div class="flex items-center gap-1.5 text-slate-500">
             <span>/ trang:</span>
-            <select [value]="pageSize"
+            <select [value]="pageSize()"
                     (change)="onPageSizeChange($event)"
+                    aria-label="Số dòng trên một trang"
                     class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
-              @for (opt of pageSizeOptions; track opt) {
+              @for (opt of pageSizeOptions(); track opt) {
                 <option [value]="opt">{{ opt }}</option>
               }
             </select>
@@ -39,42 +40,44 @@
     <div class="flex items-center gap-1">
       
       <!-- First Page Button (Full mode only) -->
-      @if (isFull) {
+      @if (isFull()) {
         <button (click)="setPage(1)"
-                [disabled]="currentPage === 1"
+                [disabled]="currentPage() === 1"
                 type="button"
                 title="Trang đầu"
+                aria-label="Trang đầu"
                 class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed text-slate-600 dark:text-slate-300 transition-colors">
           <erp-icon name="chevrons-left" [size]="14"></erp-icon>
         </button>
       }
 
       <!-- Previous Page Button -->
-      <button (click)="setPage(currentPage - 1)"
-              [disabled]="currentPage === 1"
+      <button (click)="setPage(currentPage() - 1)"
+              [disabled]="currentPage() === 1"
               type="button"
               title="Trang trước"
+              aria-label="Trang trước"
               class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed text-slate-600 dark:text-slate-300 transition-colors">
         <erp-icon name="chevron-left" [size]="14"></erp-icon>
       </button>
 
       <!-- Page Numbers List -->
-      @if (isFull) {
-        @for (p of pageNumbers; track $index) {
+      @if (isFull()) {
+        @for (p of pageNumbers(); track $index) {
           @if (p === '...') {
             <span class="w-8 h-8 flex items-center justify-center text-slate-400 font-bold">...</span>
           } @else {
             <button (click)="setPage(p)"
                     type="button"
-                    [class.bg-indigo-600]="p === currentPage"
-                    [class.text-white]="p === currentPage"
-                    [class.font-bold]="p === currentPage"
-                    [class.shadow-xs]="p === currentPage"
-                    [class.shadow-indigo-600/20]="p === currentPage"
-                    [class.hover:bg-slate-100]="p !== currentPage"
-                    [class.dark:hover:bg-slate-800]="p !== currentPage"
-                    [class.text-slate-700]="p !== currentPage"
-                    [class.dark:text-slate-300]="p !== currentPage"
+                    [class.bg-indigo-600]="p === currentPage()"
+                    [class.text-white]="p === currentPage()"
+                    [class.font-bold]="p === currentPage()"
+                    [class.shadow-xs]="p === currentPage()"
+                    [class.shadow-indigo-600/20]="p === currentPage()"
+                    [class.hover:bg-slate-100]="p !== currentPage()"
+                    [class.dark:hover:bg-slate-800]="p !== currentPage()"
+                    [class.text-slate-700]="p !== currentPage()"
+                    [class.dark:text-slate-300]="p !== currentPage()"
                     class="w-8 h-8 rounded-xl flex items-center justify-center text-xs transition-colors">
               {{ p }}
             </button>
@@ -83,39 +86,42 @@
       } @else {
         <!-- Simple / Compact Current / Total indicator -->
         <span class="px-3 text-xs font-semibold text-slate-700 dark:text-slate-300">
-          Trang {{ currentPage }} / {{ totalPages }}
+          Trang {{ currentPage() }} / {{ totalPages() }}
         </span>
       }
 
       <!-- Next Page Button -->
-      <button (click)="setPage(currentPage + 1)"
-              [disabled]="currentPage === totalPages"
+      <button (click)="setPage(currentPage() + 1)"
+              [disabled]="currentPage() === totalPages()"
               type="button"
               title="Trang sau"
+              aria-label="Trang sau"
               class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed text-slate-600 dark:text-slate-300 transition-colors">
         <erp-icon name="chevron-right" [size]="14"></erp-icon>
       </button>
 
       <!-- Last Page Button (Full mode only) -->
-      @if (isFull) {
-        <button (click)="setPage(totalPages)"
-                [disabled]="currentPage === totalPages"
+      @if (isFull()) {
+        <button (click)="setPage(totalPages())"
+                [disabled]="currentPage() === totalPages()"
                 type="button"
                 title="Trang cuối"
+                aria-label="Trang cuối"
                 class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed text-slate-600 dark:text-slate-300 transition-colors">
           <erp-icon name="chevrons-right" [size]="14"></erp-icon>
         </button>
       }
 
       <!-- Jump to Page Input (optional) -->
-      @if (showJumpToPage && totalPages > 1) {
+      @if (showJumpToPage() && totalPages() > 1) {
         <div class="flex items-center gap-1.5 ml-2 pl-2 border-l border-slate-200 dark:border-slate-700">
           <span class="text-[11px] text-slate-400">Đến:</span>
           <input type="number"
                  [(ngModel)]="jumpPageInput"
                  (keyup.enter)="onJumpPage()"
                  [min]="1"
-                 [max]="totalPages"
+                 [max]="totalPages()"
+                 aria-label="Nhập trang cần đến"
                  class="w-12 px-1.5 py-1 text-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
         </div>
       }

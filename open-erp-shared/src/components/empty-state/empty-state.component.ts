@@ -1,38 +1,34 @@
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../icon/icon.component';
 import { SkeletonComponent } from '../skeleton/skeleton.component';
 import { EmptyStateType } from '../../enums/component.enum';
 
+const ICONS: Record<string, IconName> = {
+  [EmptyStateType.NOT_FOUND]: 'search',
+  [EmptyStateType.ERROR]: 'alert-circle',
+  [EmptyStateType.MAINTENANCE]: 'alert-triangle',
+  [EmptyStateType.NO_DATA]: 'inbox'
+};
+
 @Component({
   selector: 'erp-empty-state',
   standalone: true,
   imports: [CommonModule, IconComponent, SkeletonComponent],
-  templateUrl: './empty-state.component.html'
+  templateUrl: './empty-state.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EmptyStateComponent {
-  @Input() title: string = 'Không tìm thấy dữ liệu';
-  @Input() description: string = '';
-  @Input() type: EmptyStateType | 'no-data' | 'not-found' | 'error' | 'maintenance' = EmptyStateType.NO_DATA;
-  @Input() customIcon?: IconName;
-  @Input() loading: boolean = false;
+  readonly title = input<string>('Không tìm thấy dữ liệu');
+  readonly description = input<string>('');
+  readonly type = input<EmptyStateType | 'no-data' | 'not-found' | 'error' | 'maintenance'>(EmptyStateType.NO_DATA);
+  readonly customIcon = input<IconName | undefined>(undefined);
+  readonly loading = input<boolean>(false);
 
-  getIconName(): IconName {
-    if (this.customIcon) return this.customIcon;
-    switch (this.type) {
-      case EmptyStateType.NOT_FOUND:
-      case 'not-found':
-        return 'search';
-      case EmptyStateType.ERROR:
-      case 'error':
-        return 'alert-circle';
-      case EmptyStateType.MAINTENANCE:
-      case 'maintenance':
-        return 'alert-triangle';
-      case EmptyStateType.NO_DATA:
-      case 'no-data':
-      default:
-        return 'inbox';
-    }
-  }
+  readonly iconName = computed(() => {
+    const custom = this.customIcon();
+    if (custom) return custom;
+    const t = String(this.type());
+    return ICONS[t] || ICONS[EmptyStateType.NO_DATA];
+  });
 }

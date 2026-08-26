@@ -1,4 +1,4 @@
-@if (loading) {
+@if (loading()) {
   <div class="space-y-6 py-2">
     @for (i of [1, 2, 3]; track i) {
       <div class="flex gap-4">
@@ -18,11 +18,11 @@
 
     <!-- Timeline Items List -->
     <div class="space-y-6 relative">
-      @for (item of normalizedItems; track item.id || item.title + $index) {
+      @for (item of normalizedItems(); track item.id || item.title + $index) {
         <div class="flex items-start gap-4 group">
           
           <!-- Marker Dot / Icon Circle -->
-          <div [ngClass]="getDotClasses(item)"
+          <div [class]="getDotClasses(item)"
                class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 shadow-xs z-10 transition-transform group-hover:scale-110">
             @if (item.icon) {
               <erp-icon [name]="item.icon" [size]="14"></erp-icon>

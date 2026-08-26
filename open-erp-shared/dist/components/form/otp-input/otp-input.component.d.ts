@@ -1,21 +1,23 @@
-import { EventEmitter, ElementRef, QueryList } from '@angular/core';
+import { ElementRef, QueryList, OnInit } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { ValidationStatus } from '../../../enums/component.enum';
-export declare class OtpInputComponent implements ControlValueAccessor {
-    label?: string;
-    length: number;
-    status: ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning';
-    helperText?: string;
-    errorMessage?: string;
-    disabled: boolean;
-    required: boolean;
-    loading: boolean;
-    completed: EventEmitter<string>;
-    valueChange: EventEmitter<string>;
+export declare class OtpInputComponent implements ControlValueAccessor, OnInit {
+    readonly label: import("@angular/core").InputSignal<string | undefined>;
+    readonly length: import("@angular/core").InputSignal<number>;
+    readonly status: import("@angular/core").InputSignal<"warning" | "none" | "valid" | "invalid" | ValidationStatus>;
+    readonly helperText: import("@angular/core").InputSignal<string | undefined>;
+    readonly errorMessage: import("@angular/core").InputSignal<string | undefined>;
+    readonly disabled: import("@angular/core").InputSignal<boolean>;
+    readonly required: import("@angular/core").InputSignal<boolean>;
+    readonly loading: import("@angular/core").InputSignal<boolean>;
+    readonly completed: import("@angular/core").OutputEmitterRef<string>;
+    readonly valueChange: import("@angular/core").OutputEmitterRef<string>;
     inputElements: QueryList<ElementRef<HTMLInputElement>>;
     digits: import("@angular/core").WritableSignal<string[]>;
+    isDisabled: import("@angular/core").WritableSignal<boolean>;
     onChange: (val: string) => void;
     onTouched: () => void;
+    readonly effectiveDisabled: import("@angular/core").Signal<boolean>;
     readonly slots: import("@angular/core").Signal<number[]>;
     ngOnInit(): void;
     writeValue(val: any): void;

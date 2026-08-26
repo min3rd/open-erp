@@ -5,12 +5,12 @@ export interface AvatarGroupUser {
     online?: boolean;
 }
 export declare class AvatarGroupComponent {
-    users: AvatarGroupUser[];
-    max: number;
-    size: AvatarSize | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-    shape: AvatarShape | 'circle' | 'rounded' | 'square';
-    get visibleUsers(): AvatarGroupUser[];
-    get remainingCount(): number;
-    getSizeClasses(): string;
-    getShapeClasses(): string;
+    readonly users: import("@angular/core").InputSignal<AvatarGroupUser[]>;
+    readonly max: import("@angular/core").InputSignal<number>;
+    readonly size: import("@angular/core").InputSignal<"sm" | "md" | "lg" | "xs" | "xl" | AvatarSize>;
+    readonly shape: import("@angular/core").InputSignal<"circle" | "rounded" | "square" | AvatarShape>;
+    readonly visibleUsers: import("@angular/core").Signal<AvatarGroupUser[]>;
+    readonly remainingCount: import("@angular/core").Signal<number>;
+    readonly sizeClass: import("@angular/core").Signal<string>;
+    readonly shapeClass: import("@angular/core").Signal<"rounded-full" | "rounded-none" | "rounded-xl">;
 }

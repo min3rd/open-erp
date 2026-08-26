@@ -1,29 +1,27 @@
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
+const SHAPE_CLASSES: Record<string, string> = {
+  circle: 'rounded-full',
+  pill: 'rounded-full',
+  rect: 'rounded-none',
+  rounded: 'rounded-xl'
+};
 
 @Component({
   selector: 'erp-skeleton',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './skeleton.component.html'
+  templateUrl: './skeleton.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SkeletonComponent {
-  @Input() width: string = '100%';
-  @Input() height: string = '1rem';
-  @Input() shape: 'rect' | 'circle' | 'rounded' | 'pill' = 'rounded';
-  @Input() className: string = '';
+  readonly width = input<string>('100%');
+  readonly height = input<string>('1rem');
+  readonly shape = input<'rect' | 'circle' | 'rounded' | 'pill'>('rounded');
+  readonly className = input<string>('');
 
-  getShapeClasses(): string {
-    switch (this.shape) {
-      case 'circle':
-        return 'rounded-full';
-      case 'pill':
-        return 'rounded-full';
-      case 'rect':
-        return 'rounded-none';
-      case 'rounded':
-      default:
-        return 'rounded-xl';
-    }
-  }
+  readonly shapeClass = computed(() => {
+    return SHAPE_CLASSES[this.shape()] || SHAPE_CLASSES['rounded'];
+  });
 }

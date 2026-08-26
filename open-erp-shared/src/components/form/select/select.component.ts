@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef, signal, computed, HostListener, ElementRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { IconComponent, IconName } from '../../icon/icon.component';
@@ -15,6 +15,12 @@ export interface SelectOption {
   disabled?: boolean;
 }
 
+const SIZE_CLASSES: Record<string, string> = {
+  [InputSize.SM]: 'py-1.5 px-3 text-xs rounded-xl',
+  [InputSize.LG]: 'py-3 px-4 text-sm rounded-2xl',
+  [InputSize.MD]: 'py-2.5 px-3.5 text-xs rounded-xl'
+};
+
 @Component({
   selector: 'erp-select',
   standalone: true,
@@ -27,6 +33,7 @@ export interface SelectOption {
     }
   ],
   templateUrl: './select.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -35,41 +42,138 @@ export interface SelectOption {
   `]
 })
 export class SelectComponent implements ControlValueAccessor {
-  @Input() label?: string;
-  @Input() placeholder: string = 'Chọn một mục...';
-  @Input() options: SelectOption[] = [];
-  @Input() searchable: boolean = false;
-  @Input() clearable: boolean = false;
-  @Input() size: InputSize | 'sm' | 'md' | 'lg' = InputSize.MD;
-  @Input() status: ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning' = ValidationStatus.NONE;
-  @Input() helperText?: string;
-  @Input() errorMessage?: string;
-  @Input() disabled: boolean = false;
-  @Input() required: boolean = false;
-  @Input() loading: boolean = false;
+  readonly label = input<string | undefined>(undefined);
+  readonly placeholder = input<string>('Chọn một mục...');
+  readonly options = input<SelectOption[]>([]);
+  readonly searchable = input<boolean>(false);
+  readonly clearable = input<boolean>(false);
+  readonly size = input<InputSize | 'sm' | 'md' | 'lg'>(InputSize.MD);
+  readonly status = input<ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning'>(ValidationStatus.NONE);
+  readonly helperText = input<string | undefined>(undefined);
+  readonly errorMessage = input<string | undefined>(undefined);
+  readonly disabled = input<boolean>(false);
+  readonly required = input<boolean>(false);
+  readonly loading = input<boolean>(false);
 
-  @Output() valueChange = new EventEmitter<any>();
+  readonly valueChange = output<any>();
 
   selectedValue = signal<any>(null);
   isOpen = signal<boolean>(false);
   searchTerm = signal<string>('');
+  activeIndex = signal<number>(-1);
+  isDisabled = signal<boolean>(false);
 
   onChange: (val: any) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor(private elementRef: ElementRef) {}
 
+  readonly effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
+
+  readonly sizeClass = computed(() => {
+    const s = String(this.size());
+    return SIZE_CLASSES[s] || SIZE_CLASSES[InputSize.MD];
+  });
+
+  readonly skeletonHeight = computed(() => {
+    const s = String(this.size());
+    return s === 'lg' ? '2.875rem' : (s === 'sm' ? '2rem' : '2.5rem');
+  });
+
   @HostListener('document:click', ['$event'])
   onClickOutside(event: MouseEvent): void {
+    if (!this.isOpen()) return;
     if (!this.elementRef.nativeElement.contains(event.target)) {
       this.isOpen.set(false);
+      this.activeIndex.set(-1);
+      this.onTouched();
     }
   }
 
+  @HostListener('keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    if (this.effectiveDisabled()) return;
+
+    const opts = this.filteredOptions();
+    const open = this.isOpen();
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        if (!open) {
+          this.openDropdown();
+        } else if (opts.length > 0) {
+          let next = this.activeIndex() + 1;
+          while (next < opts.length && opts[next].disabled) {
+            next++;
+          }
+          if (next < opts.length) {
+            this.activeIndex.set(next);
+            this.scrollActiveIntoView(next);
+          }
+        }
+        break;
+
+      case 'ArrowUp':
+        event.preventDefault();
+        if (open && opts.length > 0) {
+          let prev = this.activeIndex() - 1;
+          while (prev >= 0 && opts[prev].disabled) {
+            prev--;
+          }
+          if (prev >= 0) {
+            this.activeIndex.set(prev);
+            this.scrollActiveIntoView(prev);
+          }
+        }
+        break;
+
+      case 'Enter':
+        if (open && this.activeIndex() >= 0 && this.activeIndex() < opts.length) {
+          event.preventDefault();
+          const targetOpt = opts[this.activeIndex()];
+          if (!targetOpt.disabled) {
+            this.selectOption(targetOpt);
+          }
+        } else if (!open) {
+          event.preventDefault();
+          this.openDropdown();
+        }
+        break;
+
+      case 'Escape':
+        if (open) {
+          event.preventDefault();
+          this.isOpen.set(false);
+          this.activeIndex.set(-1);
+          this.onTouched();
+        }
+        break;
+
+      case 'Tab':
+        if (open) {
+          this.isOpen.set(false);
+          this.activeIndex.set(-1);
+          this.onTouched();
+        }
+        break;
+    }
+  }
+
+  private scrollActiveIntoView(index: number): void {
+    setTimeout(() => {
+      const items = this.elementRef.nativeElement.querySelectorAll('.erp-select-option');
+      if (items && items[index]) {
+        items[index].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    });
+  }
+
   readonly filteredOptions = computed(() => {
+    const list = this.options();
     const q = this.searchTerm().toLowerCase().trim();
-    if (!q) return this.options;
-    return this.options.filter(opt => 
+    if (!q) return list;
+    return list.filter(opt => 
       opt.label.toLowerCase().includes(q) || 
       (opt.description && opt.description.toLowerCase().includes(q))
     );
@@ -77,7 +181,7 @@ export class SelectComponent implements ControlValueAccessor {
 
   readonly selectedOption = computed(() => {
     const v = this.selectedValue();
-    return this.options.find(opt => opt.value === v);
+    return this.options().find(opt => opt.value === v);
   });
 
   writeValue(val: any): void {
@@ -93,16 +197,26 @@ export class SelectComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.isDisabled.set(isDisabled);
+  }
+
+  openDropdown(): void {
+    if (this.effectiveDisabled()) return;
+    this.isOpen.set(true);
+    this.searchTerm.set('');
+    const curVal = this.selectedValue();
+    const idx = this.filteredOptions().findIndex(o => o.value === curVal);
+    this.activeIndex.set(idx >= 0 ? idx : 0);
   }
 
   toggleDropdown(): void {
-    if (this.disabled) return;
-    this.isOpen.update(prev => !prev);
+    if (this.effectiveDisabled()) return;
     if (this.isOpen()) {
-      this.searchTerm.set('');
-    } else {
+      this.isOpen.set(false);
+      this.activeIndex.set(-1);
       this.onTouched();
+    } else {
+      this.openDropdown();
     }
   }
 
@@ -112,6 +226,7 @@ export class SelectComponent implements ControlValueAccessor {
     this.onChange(opt.value);
     this.valueChange.emit(opt.value);
     this.isOpen.set(false);
+    this.activeIndex.set(-1);
   }
 
   clearSelection(event: MouseEvent): void {
@@ -119,21 +234,5 @@ export class SelectComponent implements ControlValueAccessor {
     this.selectedValue.set(null);
     this.onChange(null);
     this.valueChange.emit(null);
-  }
-
-  getSizeClasses(): string {
-    const s = String(this.size);
-    switch (s) {
-      case InputSize.SM:
-      case 'sm':
-        return 'py-1.5 px-3 text-xs rounded-xl';
-      case InputSize.LG:
-      case 'lg':
-        return 'py-3 px-4 text-sm rounded-2xl';
-      case InputSize.MD:
-      case 'md':
-      default:
-        return 'py-2.5 px-3.5 text-xs rounded-xl';
-    }
   }
 }

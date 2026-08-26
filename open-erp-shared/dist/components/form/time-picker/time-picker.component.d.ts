@@ -1,24 +1,27 @@
-import { EventEmitter } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { InputSize, ValidationStatus } from '../../../enums/component.enum';
 export declare class TimePickerComponent implements ControlValueAccessor {
-    label?: string;
-    size: InputSize | 'sm' | 'md' | 'lg';
-    status: ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning';
-    helperText?: string;
-    errorMessage?: string;
-    disabled: boolean;
-    required: boolean;
-    loading: boolean;
-    valueChange: EventEmitter<string>;
+    readonly label: import("@angular/core").InputSignal<string | undefined>;
+    readonly size: import("@angular/core").InputSignal<"sm" | "md" | "lg" | InputSize>;
+    readonly status: import("@angular/core").InputSignal<"warning" | "none" | "valid" | "invalid" | ValidationStatus>;
+    readonly helperText: import("@angular/core").InputSignal<string | undefined>;
+    readonly errorMessage: import("@angular/core").InputSignal<string | undefined>;
+    readonly disabled: import("@angular/core").InputSignal<boolean>;
+    readonly required: import("@angular/core").InputSignal<boolean>;
+    readonly loading: import("@angular/core").InputSignal<boolean>;
+    readonly valueChange: import("@angular/core").OutputEmitterRef<string>;
     value: import("@angular/core").WritableSignal<string>;
+    isDisabled: import("@angular/core").WritableSignal<boolean>;
     onChange: (val: string) => void;
     onTouched: () => void;
+    readonly effectiveDisabled: import("@angular/core").Signal<boolean>;
+    readonly sizeClass: import("@angular/core").Signal<string>;
+    readonly iconSize: import("@angular/core").Signal<14 | 16>;
+    readonly skeletonHeight: import("@angular/core").Signal<"2rem" | "2.5rem" | "2.875rem">;
     writeValue(val: any): void;
     registerOnChange(fn: any): void;
     registerOnTouched(fn: any): void;
     setDisabledState(isDisabled: boolean): void;
     onInputChange(event: Event): void;
     setNow(): void;
-    getSizeClasses(): string;
 }

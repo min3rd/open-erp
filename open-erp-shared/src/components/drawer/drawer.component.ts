@@ -1,114 +1,111 @@
-import { Component, Input, Output, EventEmitter, HostListener, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, HostListener, computed, effect, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../icon/icon.component';
 import { ButtonComponent } from '../button/button.component';
 import { DrawerPlacement, DrawerSize } from '../../enums/component.enum';
+
+const PLACEMENT_CLASSES: Record<string, string> = {
+  left: 'top-0 bottom-0 left-0 h-full animate-in slide-in-from-left',
+  top: 'top-0 left-0 right-0 w-full animate-in slide-in-from-top',
+  bottom: 'bottom-0 left-0 right-0 w-full animate-in slide-in-from-bottom',
+  right: 'top-0 bottom-0 right-0 h-full animate-in slide-in-from-right'
+};
+
+const HORIZONTAL_SIZE_CLASSES: Record<string, string> = {
+  sm: 'w-80 max-w-[85vw]',
+  lg: 'w-[540px] max-w-[90vw]',
+  xl: 'w-[720px] max-w-[95vw]',
+  full: 'w-screen',
+  md: 'w-96 max-w-[90vw]'
+};
+
+const VERTICAL_SIZE_CLASSES: Record<string, string> = {
+  sm: 'h-64 max-h-[85vh]',
+  lg: 'h-[480px] max-h-[90vh]',
+  xl: 'h-[640px] max-h-[95vh]',
+  full: 'h-screen',
+  md: 'h-96 max-h-[90vh]'
+};
 
 @Component({
   selector: 'erp-drawer, erp-sheet, erp-slide-over',
   standalone: true,
   imports: [CommonModule, IconComponent, ButtonComponent],
   templateUrl: './drawer.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: contents;
     }
   `]
 })
-export class DrawerComponent implements OnChanges {
-  @Input() visible: boolean = false;
-  @Input() placement: DrawerPlacement | 'left' | 'right' | 'top' | 'bottom' = DrawerPlacement.RIGHT;
-  @Input() size: DrawerSize | 'sm' | 'md' | 'lg' | 'xl' | 'full' = DrawerSize.MD;
-  @Input() title?: string;
-  @Input() subtitle?: string;
-  @Input() icon?: IconName;
-  @Input() closable: boolean = true;
-  @Input() maskClosable: boolean = true;
-  @Input() showFooter: boolean = true;
-  @Input() okText: string = 'Xác nhận';
-  @Input() cancelText: string = 'Đóng';
+export class DrawerComponent implements OnDestroy {
+  readonly visible = model<boolean>(false);
+  readonly placement = input<DrawerPlacement | 'left' | 'right' | 'top' | 'bottom'>(DrawerPlacement.RIGHT);
+  readonly size = input<DrawerSize | 'sm' | 'md' | 'lg' | 'xl' | 'full'>(DrawerSize.MD);
+  readonly title = input<string | undefined>(undefined);
+  readonly subtitle = input<string | undefined>(undefined);
+  readonly icon = input<IconName | undefined>(undefined);
+  readonly closable = input<boolean>(true);
+  readonly maskClosable = input<boolean>(true);
+  readonly showFooter = input<boolean>(true);
+  readonly okText = input<string>('Xác nhận');
+  readonly cancelText = input<string>('Đóng');
 
-  @Output() visibleChange = new EventEmitter<boolean>();
-  @Output() close = new EventEmitter<void>();
-  @Output() ok = new EventEmitter<void>();
+  readonly close = output<void>();
+  readonly ok = output<void>();
 
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    if (this.visible && this.closable) {
-      this.handleClose();
+  readonly isHorizontal = computed(() => {
+    const p = String(this.placement());
+    return p === 'left' || p === 'right';
+  });
+
+  readonly placementClasses = computed(() => {
+    const p = String(this.placement());
+    return PLACEMENT_CLASSES[p] || PLACEMENT_CLASSES['right'];
+  });
+
+  readonly sizeClasses = computed(() => {
+    const sz = String(this.size());
+    if (this.isHorizontal()) {
+      return HORIZONTAL_SIZE_CLASSES[sz] || HORIZONTAL_SIZE_CLASSES['md'];
     }
-  }
+    return VERTICAL_SIZE_CLASSES[sz] || VERTICAL_SIZE_CLASSES['md'];
+  });
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['visible']) {
+  constructor() {
+    effect(() => {
+      const isVis = this.visible();
       if (typeof document !== 'undefined') {
-        if (this.visible) {
+        if (isVis) {
           document.body.classList.add('overflow-hidden');
         } else {
           document.body.classList.remove('overflow-hidden');
         }
       }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (typeof document !== 'undefined') {
+      document.body.classList.remove('overflow-hidden');
     }
   }
 
-  get isHorizontal(): boolean {
-    return this.placement === 'left' || this.placement === 'right';
-  }
-
-  get placementClasses(): string {
-    switch (this.placement) {
-      case 'left':
-        return 'top-0 bottom-0 left-0 h-full animate-in slide-in-from-left';
-      case 'top':
-        return 'top-0 left-0 right-0 w-full animate-in slide-in-from-top';
-      case 'bottom':
-        return 'bottom-0 left-0 right-0 w-full animate-in slide-in-from-bottom';
-      case 'right':
-      default:
-        return 'top-0 bottom-0 right-0 h-full animate-in slide-in-from-right';
-    }
-  }
-
-  get sizeClasses(): string {
-    if (this.isHorizontal) {
-      switch (this.size) {
-        case 'sm':
-          return 'w-80 max-w-[85vw]';
-        case 'lg':
-          return 'w-[540px] max-w-[90vw]';
-        case 'xl':
-          return 'w-[720px] max-w-[95vw]';
-        case 'full':
-          return 'w-screen';
-        case 'md':
-        default:
-          return 'w-96 max-w-[90vw]';
-      }
-    } else {
-      switch (this.size) {
-        case 'sm':
-          return 'h-64 max-h-[85vh]';
-        case 'lg':
-          return 'h-[480px] max-h-[90vh]';
-        case 'xl':
-          return 'h-[640px] max-h-[95vh]';
-        case 'full':
-          return 'h-screen';
-        case 'md':
-        default:
-          return 'h-96 max-h-[90vh]';
-      }
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.visible() && this.closable()) {
+      this.handleClose();
     }
   }
 
   handleClose(): void {
-    this.visible = false;
-    this.visibleChange.emit(false);
+    this.visible.set(false);
     this.close.emit();
   }
 
   onMaskClick(event: MouseEvent): void {
-    if (this.maskClosable && (event.target as HTMLElement).classList.contains('drawer-mask')) {
+    if (this.maskClosable() && (event.target as HTMLElement).classList.contains('drawer-mask')) {
       this.handleClose();
     }
   }

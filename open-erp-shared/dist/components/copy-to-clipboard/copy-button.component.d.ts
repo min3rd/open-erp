@@ -1,14 +1,13 @@
-import { EventEmitter } from '@angular/core';
 export declare class CopyToClipboardDirective {
-    textToCopy: string;
-    copied: EventEmitter<string>;
+    readonly textToCopy: import("@angular/core").InputSignal<string>;
+    readonly copied: import("@angular/core").OutputEmitterRef<string>;
     onClick(): void;
 }
 export declare class CopyButtonComponent {
-    value: string;
-    text: string;
-    copiedText: string;
-    copied: EventEmitter<string>;
-    isCopied: boolean;
+    readonly value: import("@angular/core").InputSignal<string>;
+    readonly text: import("@angular/core").InputSignal<string>;
+    readonly copiedText: import("@angular/core").InputSignal<string>;
+    readonly copied: import("@angular/core").OutputEmitterRef<string>;
+    isCopied: import("@angular/core").WritableSignal<boolean>;
     copy(): void;
 }

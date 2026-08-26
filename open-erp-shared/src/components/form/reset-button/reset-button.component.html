@@ -1,10 +1,10 @@
 <erp-button type="reset"
             variant="outline"
-            [size]="size"
-            [disabled]="disabled"
-            [skeleton]="skeleton"
-            [iconLeft]="icon"
-            [fullWidth]="fullWidth"
+            [size]="size()"
+            [disabled]="disabled()"
+            [skeleton]="skeleton()"
+            [iconLeft]="icon()"
+            [fullWidth]="fullWidth()"
             (btnClick)="resetClick.emit($event)">
-  {{ text }}
+  {{ text() }}
 </erp-button>

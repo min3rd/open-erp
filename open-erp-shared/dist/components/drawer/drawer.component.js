@@ -7,158 +7,93 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, HostListener, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../icon/icon.component';
 import { ButtonComponent } from '../button/button.component';
 import { DrawerPlacement, DrawerSize } from '../../enums/component.enum';
+const PLACEMENT_CLASSES = {
+    left: 'top-0 bottom-0 left-0 h-full animate-in slide-in-from-left',
+    top: 'top-0 left-0 right-0 w-full animate-in slide-in-from-top',
+    bottom: 'bottom-0 left-0 right-0 w-full animate-in slide-in-from-bottom',
+    right: 'top-0 bottom-0 right-0 h-full animate-in slide-in-from-right'
+};
+const HORIZONTAL_SIZE_CLASSES = {
+    sm: 'w-80 max-w-[85vw]',
+    lg: 'w-[540px] max-w-[90vw]',
+    xl: 'w-[720px] max-w-[95vw]',
+    full: 'w-screen',
+    md: 'w-96 max-w-[90vw]'
+};
+const VERTICAL_SIZE_CLASSES = {
+    sm: 'h-64 max-h-[85vh]',
+    lg: 'h-[480px] max-h-[90vh]',
+    xl: 'h-[640px] max-h-[95vh]',
+    full: 'h-screen',
+    md: 'h-96 max-h-[90vh]'
+};
 let DrawerComponent = class DrawerComponent {
-    visible = false;
-    placement = DrawerPlacement.RIGHT;
-    size = DrawerSize.MD;
-    title;
-    subtitle;
-    icon;
-    closable = true;
-    maskClosable = true;
-    showFooter = true;
-    okText = 'Xác nhận';
-    cancelText = 'Đóng';
-    visibleChange = new EventEmitter();
-    close = new EventEmitter();
-    ok = new EventEmitter();
-    onEscape() {
-        if (this.visible && this.closable) {
-            this.handleClose();
+    visible = model(false);
+    placement = input(DrawerPlacement.RIGHT);
+    size = input(DrawerSize.MD);
+    title = input(undefined);
+    subtitle = input(undefined);
+    icon = input(undefined);
+    closable = input(true);
+    maskClosable = input(true);
+    showFooter = input(true);
+    okText = input('Xác nhận');
+    cancelText = input('Đóng');
+    close = output();
+    ok = output();
+    isHorizontal = computed(() => {
+        const p = String(this.placement());
+        return p === 'left' || p === 'right';
+    });
+    placementClasses = computed(() => {
+        const p = String(this.placement());
+        return PLACEMENT_CLASSES[p] || PLACEMENT_CLASSES['right'];
+    });
+    sizeClasses = computed(() => {
+        const sz = String(this.size());
+        if (this.isHorizontal()) {
+            return HORIZONTAL_SIZE_CLASSES[sz] || HORIZONTAL_SIZE_CLASSES['md'];
         }
-    }
-    ngOnChanges(changes) {
-        if (changes['visible']) {
+        return VERTICAL_SIZE_CLASSES[sz] || VERTICAL_SIZE_CLASSES['md'];
+    });
+    constructor() {
+        effect(() => {
+            const isVis = this.visible();
             if (typeof document !== 'undefined') {
-                if (this.visible) {
+                if (isVis) {
                     document.body.classList.add('overflow-hidden');
                 }
                 else {
                     document.body.classList.remove('overflow-hidden');
                 }
             }
+        });
+    }
+    ngOnDestroy() {
+        if (typeof document !== 'undefined') {
+            document.body.classList.remove('overflow-hidden');
         }
     }
-    get isHorizontal() {
-        return this.placement === 'left' || this.placement === 'right';
-    }
-    get placementClasses() {
-        switch (this.placement) {
-            case 'left':
-                return 'top-0 bottom-0 left-0 h-full animate-in slide-in-from-left';
-            case 'top':
-                return 'top-0 left-0 right-0 w-full animate-in slide-in-from-top';
-            case 'bottom':
-                return 'bottom-0 left-0 right-0 w-full animate-in slide-in-from-bottom';
-            case 'right':
-            default:
-                return 'top-0 bottom-0 right-0 h-full animate-in slide-in-from-right';
-        }
-    }
-    get sizeClasses() {
-        if (this.isHorizontal) {
-            switch (this.size) {
-                case 'sm':
-                    return 'w-80 max-w-[85vw]';
-                case 'lg':
-                    return 'w-[540px] max-w-[90vw]';
-                case 'xl':
-                    return 'w-[720px] max-w-[95vw]';
-                case 'full':
-                    return 'w-screen';
-                case 'md':
-                default:
-                    return 'w-96 max-w-[90vw]';
-            }
-        }
-        else {
-            switch (this.size) {
-                case 'sm':
-                    return 'h-64 max-h-[85vh]';
-                case 'lg':
-                    return 'h-[480px] max-h-[90vh]';
-                case 'xl':
-                    return 'h-[640px] max-h-[95vh]';
-                case 'full':
-                    return 'h-screen';
-                case 'md':
-                default:
-                    return 'h-96 max-h-[90vh]';
-            }
+    onEscape() {
+        if (this.visible() && this.closable()) {
+            this.handleClose();
         }
     }
     handleClose() {
-        this.visible = false;
-        this.visibleChange.emit(false);
+        this.visible.set(false);
         this.close.emit();
     }
     onMaskClick(event) {
-        if (this.maskClosable && event.target.classList.contains('drawer-mask')) {
+        if (this.maskClosable() && event.target.classList.contains('drawer-mask')) {
             this.handleClose();
         }
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], DrawerComponent.prototype, "visible", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], DrawerComponent.prototype, "placement", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], DrawerComponent.prototype, "size", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], DrawerComponent.prototype, "title", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], DrawerComponent.prototype, "subtitle", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], DrawerComponent.prototype, "icon", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], DrawerComponent.prototype, "closable", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], DrawerComponent.prototype, "maskClosable", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], DrawerComponent.prototype, "showFooter", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], DrawerComponent.prototype, "okText", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], DrawerComponent.prototype, "cancelText", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], DrawerComponent.prototype, "visibleChange", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], DrawerComponent.prototype, "close", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], DrawerComponent.prototype, "ok", void 0);
 __decorate([
     HostListener('document:keydown.escape'),
     __metadata("design:type", Function),
@@ -171,12 +106,14 @@ DrawerComponent = __decorate([
         standalone: true,
         imports: [CommonModule, IconComponent, ButtonComponent],
         templateUrl: './drawer.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: contents;
     }
   `]
-    })
+    }),
+    __metadata("design:paramtypes", [])
 ], DrawerComponent);
 export { DrawerComponent };
 //# sourceMappingURL=drawer.component.js.map

@@ -1,13 +1,30 @@
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../icon/icon.component';
 import { ProgressVariant, ProgressStatus } from '../../enums/component.enum';
+
+const BAR_STATUS_CLASSES: Record<string, string> = {
+  [ProgressStatus.SUCCESS]: 'bg-emerald-500',
+  [ProgressStatus.WARNING]: 'bg-amber-500',
+  [ProgressStatus.ERROR]: 'bg-rose-500',
+  [ProgressStatus.ACTIVE]: 'bg-gradient-to-r from-indigo-500 to-cyan-400',
+  [ProgressStatus.NORMAL]: 'bg-indigo-600 dark:bg-indigo-500'
+};
+
+const CIRCLE_STATUS_COLORS: Record<string, string> = {
+  [ProgressStatus.SUCCESS]: '#10b981',
+  [ProgressStatus.WARNING]: '#f59e0b',
+  [ProgressStatus.ERROR]: '#f43f5e',
+  [ProgressStatus.ACTIVE]: '#6366f1',
+  [ProgressStatus.NORMAL]: '#4f46e5'
+};
 
 @Component({
   selector: 'erp-progress, erp-progress-bar, erp-progress-circle',
   standalone: true,
   imports: [CommonModule, IconComponent],
   templateUrl: './progress.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -16,69 +33,49 @@ import { ProgressVariant, ProgressStatus } from '../../enums/component.enum';
   `]
 })
 export class ProgressComponent {
-  @Input() percent: number = 0;
-  @Input() variant: ProgressVariant | 'bar' | 'circle' | 'dashboard' = ProgressVariant.BAR;
-  @Input() status: ProgressStatus | 'normal' | 'success' | 'warning' | 'error' | 'active' = ProgressStatus.NORMAL;
-  @Input() showInfo: boolean = true;
-  @Input() strokeWidth: number = 8;
-  @Input() circleSize: number = 100;
-  @Input() indeterminate: boolean = false;
-  @Input() striped: boolean = false;
-  @Input() color?: string;
-  @Input() trackColor?: string;
+  readonly percent = input<number>(0);
+  readonly variant = input<ProgressVariant | 'bar' | 'circle' | 'dashboard'>(ProgressVariant.BAR);
+  readonly status = input<ProgressStatus | 'normal' | 'success' | 'warning' | 'error' | 'active'>(ProgressStatus.NORMAL);
+  readonly showInfo = input<boolean>(true);
+  readonly strokeWidth = input<number>(8);
+  readonly circleSize = input<number>(100);
+  readonly indeterminate = input<boolean>(false);
+  readonly striped = input<boolean>(false);
+  readonly color = input<string | undefined>(undefined);
+  readonly trackColor = input<string | undefined>(undefined);
 
-  get normalizedPercent(): number {
-    return Math.max(0, Math.min(100, this.percent));
-  }
+  readonly normalizedPercent = computed(() => {
+    return Math.max(0, Math.min(100, this.percent()));
+  });
 
-  get isCircle(): boolean {
-    return this.variant === 'circle' || this.variant === 'dashboard';
-  }
+  readonly isCircle = computed(() => {
+    const v = String(this.variant());
+    return v === 'circle' || v === 'dashboard';
+  });
 
-  get circleRadius(): number {
-    return (this.circleSize - this.strokeWidth) / 2;
-  }
+  readonly circleRadius = computed(() => {
+    return (this.circleSize() - this.strokeWidth()) / 2;
+  });
 
-  get circleCircumference(): number {
-    return 2 * Math.PI * this.circleRadius;
-  }
+  readonly circleCircumference = computed(() => {
+    return 2 * Math.PI * this.circleRadius();
+  });
 
-  get circleDashOffset(): number {
-    const p = this.indeterminate ? 75 : this.normalizedPercent;
-    return this.circleCircumference - (p / 100) * this.circleCircumference;
-  }
+  readonly circleDashOffset = computed(() => {
+    const p = this.indeterminate() ? 75 : this.normalizedPercent();
+    return this.circleCircumference() - (p / 100) * this.circleCircumference();
+  });
 
-  get barColorClass(): string {
-    if (this.color) return '';
-    switch (this.status) {
-      case 'success':
-        return 'bg-emerald-500';
-      case 'warning':
-        return 'bg-amber-500';
-      case 'error':
-        return 'bg-rose-500';
-      case 'active':
-        return 'bg-gradient-to-r from-indigo-500 to-cyan-400';
-      case 'normal':
-      default:
-        return 'bg-indigo-600 dark:bg-indigo-500';
-    }
-  }
+  readonly barColorClass = computed(() => {
+    if (this.color()) return '';
+    const st = String(this.status());
+    return BAR_STATUS_CLASSES[st] || BAR_STATUS_CLASSES[ProgressStatus.NORMAL];
+  });
 
-  get circleStrokeColor(): string {
-    if (this.color) return this.color;
-    switch (this.status) {
-      case 'success':
-        return '#10b981';
-      case 'warning':
-        return '#f59e0b';
-      case 'error':
-        return '#f43f5e';
-      case 'active':
-        return '#6366f1';
-      case 'normal':
-      default:
-        return '#4f46e5';
-    }
-  }
+  readonly circleStrokeColor = computed(() => {
+    const c = this.color();
+    if (c) return c;
+    const st = String(this.status());
+    return CIRCLE_STATUS_COLORS[st] || CIRCLE_STATUS_COLORS[ProgressStatus.NORMAL];
+  });
 }

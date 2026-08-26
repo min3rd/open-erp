@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../icon/icon.component';
 
@@ -7,6 +7,7 @@ import { IconComponent, IconName } from '../icon/icon.component';
   standalone: true,
   imports: [CommonModule, IconComponent],
   templateUrl: './list-item.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -15,17 +16,17 @@ import { IconComponent, IconName } from '../icon/icon.component';
   `]
 })
 export class ListItemComponent {
-  @Input() title?: string;
-  @Input() description?: string;
-  @Input() icon?: IconName;
-  @Input() clickable: boolean = false;
-  @Input() disabled: boolean = false;
-  @Input() active: boolean = false;
+  readonly title = input<string | undefined>(undefined);
+  readonly description = input<string | undefined>(undefined);
+  readonly icon = input<IconName | undefined>(undefined);
+  readonly clickable = input<boolean>(false);
+  readonly disabled = input<boolean>(false);
+  readonly active = input<boolean>(false);
 
-  @Output() itemClick = new EventEmitter<MouseEvent>();
+  readonly itemClick = output<MouseEvent>();
 
   onClick(event: MouseEvent): void {
-    if (!this.disabled && this.clickable) {
+    if (!this.disabled() && this.clickable()) {
       this.itemClick.emit(event);
     }
   }

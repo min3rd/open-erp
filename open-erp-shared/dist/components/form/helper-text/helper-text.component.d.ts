@@ -1,7 +1,7 @@
 import { ValidationStatus } from '../../../enums/component.enum';
 export declare class HelperTextComponent {
-    text: string;
-    status: ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning';
-    getTextClasses(): string;
-    getIconName(): string;
+    readonly text: import("@angular/core").InputSignal<string>;
+    readonly status: import("@angular/core").InputSignal<"warning" | "none" | "valid" | "invalid" | ValidationStatus>;
+    readonly textClass: import("@angular/core").Signal<string>;
+    readonly iconName: import("@angular/core").Signal<string>;
 }

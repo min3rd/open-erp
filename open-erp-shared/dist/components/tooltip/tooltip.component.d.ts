@@ -1,14 +1,14 @@
 import { TooltipPlacement } from '../../enums/component.enum';
 export declare class TooltipContainerComponent {
-    content: string;
-    placement: TooltipPlacement | 'top' | 'bottom' | 'left' | 'right';
-    getPlacementClasses(): string;
-    getArrowClasses(): string;
+    readonly content: import("@angular/core").InputSignal<string>;
+    readonly placement: import("@angular/core").InputSignal<"left" | "right" | "top" | "bottom" | TooltipPlacement>;
+    readonly placementClass: import("@angular/core").Signal<string>;
+    readonly arrowClass: import("@angular/core").Signal<string>;
 }
 export declare class TooltipComponent {
-    content: string;
-    placement: TooltipPlacement | 'top' | 'bottom' | 'left' | 'right';
-    visible: boolean;
+    readonly content: import("@angular/core").InputSignal<string>;
+    readonly placement: import("@angular/core").InputSignal<"left" | "right" | "top" | "bottom" | TooltipPlacement>;
+    visible: import("@angular/core").WritableSignal<boolean>;
     show(): void;
     hide(): void;
 }

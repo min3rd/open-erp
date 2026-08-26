@@ -1,26 +1,25 @@
-import { EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { IconName } from '../icon/icon.component';
+import { OnDestroy } from '@angular/core';
 import { DrawerPlacement, DrawerSize } from '../../enums/component.enum';
-export declare class DrawerComponent implements OnChanges {
-    visible: boolean;
-    placement: DrawerPlacement | 'left' | 'right' | 'top' | 'bottom';
-    size: DrawerSize | 'sm' | 'md' | 'lg' | 'xl' | 'full';
-    title?: string;
-    subtitle?: string;
-    icon?: IconName;
-    closable: boolean;
-    maskClosable: boolean;
-    showFooter: boolean;
-    okText: string;
-    cancelText: string;
-    visibleChange: EventEmitter<boolean>;
-    close: EventEmitter<void>;
-    ok: EventEmitter<void>;
+export declare class DrawerComponent implements OnDestroy {
+    readonly visible: import("@angular/core").ModelSignal<boolean>;
+    readonly placement: import("@angular/core").InputSignal<"left" | "right" | "top" | "bottom" | DrawerPlacement>;
+    readonly size: import("@angular/core").InputSignal<"sm" | "md" | "lg" | "xl" | "full" | DrawerSize>;
+    readonly title: import("@angular/core").InputSignal<string | undefined>;
+    readonly subtitle: import("@angular/core").InputSignal<string | undefined>;
+    readonly icon: import("@angular/core").InputSignal<string | undefined>;
+    readonly closable: import("@angular/core").InputSignal<boolean>;
+    readonly maskClosable: import("@angular/core").InputSignal<boolean>;
+    readonly showFooter: import("@angular/core").InputSignal<boolean>;
+    readonly okText: import("@angular/core").InputSignal<string>;
+    readonly cancelText: import("@angular/core").InputSignal<string>;
+    readonly close: import("@angular/core").OutputEmitterRef<void>;
+    readonly ok: import("@angular/core").OutputEmitterRef<void>;
+    readonly isHorizontal: import("@angular/core").Signal<boolean>;
+    readonly placementClasses: import("@angular/core").Signal<string>;
+    readonly sizeClasses: import("@angular/core").Signal<string>;
+    constructor();
+    ngOnDestroy(): void;
     onEscape(): void;
-    ngOnChanges(changes: SimpleChanges): void;
-    get isHorizontal(): boolean;
-    get placementClasses(): string;
-    get sizeClasses(): string;
     handleClose(): void;
     onMaskClick(event: MouseEvent): void;
 }

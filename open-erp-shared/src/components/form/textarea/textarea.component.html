@@ -1,37 +1,37 @@
 <div class="w-full font-sans">
-  @if (label) {
-    <erp-label [text]="label" [required]="required" [loading]="loading"></erp-label>
+  @if (label()) {
+    <erp-label [text]="label()!" [required]="required()" [loading]="loading()"></erp-label>
   }
 
-  @if (loading) {
+  @if (loading()) {
     <erp-skeleton width="100%" height="5.5rem" shape="rounded"></erp-skeleton>
   } @else {
     <div class="relative">
-      <textarea [rows]="rows"
+      <textarea [rows]="rows()"
                 [value]="value()"
-                [placeholder]="placeholder"
-                [attr.maxlength]="maxLength"
-                [disabled]="disabled"
-                [readonly]="readonly"
+                [placeholder]="placeholder()"
+                [attr.maxlength]="maxLength()"
+                [disabled]="effectiveDisabled()"
+                [readonly]="readonly()"
                 (input)="onInput($event)"
                 (blur)="onTouched()"
-                [class]="getStatusClasses()"
-                [class.opacity-50]="disabled"
-                [class.cursor-not-allowed]="disabled"
+                [class]="statusClass()"
+                [class.opacity-50]="effectiveDisabled()"
+                [class.cursor-not-allowed]="effectiveDisabled()"
                 class="w-full bg-white dark:bg-slate-900 border p-3.5 text-xs rounded-2xl outline-none font-medium placeholder-slate-400 transition-all focus:ring-2 resize-y min-h-[5rem]">
       </textarea>
 
-      @if (showCount && maxLength) {
+      @if (showCount() && maxLength()) {
         <div class="absolute right-3 bottom-2.5 text-[10px] font-semibold text-slate-400 bg-white/80 dark:bg-slate-900/80 px-1 rounded">
-          {{ currentLength() }} / {{ maxLength }}
+          {{ currentLength() }} / {{ maxLength() }}
         </div>
       }
     </div>
 
-    @if (errorMessage) {
-      <erp-helper-text [text]="errorMessage" status="invalid"></erp-helper-text>
-    } @else if (helperText) {
-      <erp-helper-text [text]="helperText" [status]="status"></erp-helper-text>
+    @if (errorMessage()) {
+      <erp-helper-text [text]="errorMessage()!" status="invalid"></erp-helper-text>
+    } @else if (helperText()) {
+      <erp-helper-text [text]="helperText()!" [status]="status()"></erp-helper-text>
     }
   }
 </div>

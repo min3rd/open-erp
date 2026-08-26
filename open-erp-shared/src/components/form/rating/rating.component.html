@@ -1,9 +1,9 @@
 <div class="w-full font-sans space-y-1">
-  @if (label) {
-    <erp-label [text]="label" [loading]="loading"></erp-label>
+  @if (label()) {
+    <erp-label [text]="label()!" [loading]="loading()"></erp-label>
   }
 
-  @if (loading) {
+  @if (loading()) {
     <div class="flex items-center gap-1.5 py-1">
       @for (i of stars(); track i) {
         <erp-skeleton width="1.375rem" height="1.375rem" shape="circle"></erp-skeleton>
@@ -15,14 +15,15 @@
         <button type="button"
                 (click)="setRating(star)"
                 (mouseenter)="onStarHover(star)"
-                [disabled]="disabled || readonly"
-                [class.cursor-pointer]="!disabled && !readonly"
-                [class.cursor-default]="readonly"
-                [class.opacity-50]="disabled"
+                [disabled]="effectiveDisabled() || readonly()"
+                [attr.aria-label]="'Đánh giá ' + star + ' sao'"
+                [class.cursor-pointer]="!effectiveDisabled() && !readonly()"
+                [class.cursor-default]="readonly()"
+                [class.opacity-50]="effectiveDisabled()"
                 class="p-0.5 transition-transform hover:scale-115 focus:outline-none">
           
           <erp-icon name="star"
-                    [size]="getStarSize()"
+                    [size]="starSize()"
                     [className]="(hoverValue() || rating()) >= star ? 'text-amber-400 fill-amber-400' : 'text-slate-300 dark:text-slate-700'">
           </erp-icon>
         </button>
@@ -30,7 +31,7 @@
 
       @if (rating() > 0) {
         <span class="ml-2 text-xs font-black text-amber-500">
-          {{ rating() }} / {{ max }}
+          {{ rating() }} / {{ max() }}
         </span>
       }
     </div>

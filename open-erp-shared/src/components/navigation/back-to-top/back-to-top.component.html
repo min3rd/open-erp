@@ -1,21 +1,22 @@
-@if (visible) {
-  <div [style.right]="right"
-       [style.bottom]="bottom"
+@if (visible()) {
+  <div [style.right]="right()"
+       [style.bottom]="bottom()"
        class="fixed z-40 transition-all duration-300 animate-in fade-in zoom-in-95">
     
     <button (click)="scrollToTop()"
-            [title]="tooltip"
+            [title]="tooltip()"
+            [attr.aria-label]="tooltip()"
             type="button"
-            [class.rounded-full]="isCircle"
-            [class.rounded-2xl]="isRounded"
-            [class.px-4]="isPill"
-            [class.py-2.5]="isPill"
-            [class.w-11]="!isPill"
-            [class.h-11]="!isPill"
+            [class.rounded-full]="isCircle()"
+            [class.rounded-2xl]="isRounded()"
+            [class.px-4]="isPill()"
+            [class.py-2.5]="isPill()"
+            [class.w-11]="!isPill()"
+            [class.h-11]="!isPill()"
             class="relative flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all select-none group">
       
       <!-- Circular Progress Ring (if shape is not pill) -->
-      @if (showProgress && !isPill) {
+      @if (showProgress() && !isPill()) {
         <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 44 44">
           <circle cx="22" cy="22" r="19"
                   fill="none"
@@ -27,15 +28,15 @@
                   stroke-width="2.5"
                   stroke-linecap="round"
                   [attr.stroke-dasharray]="119.38"
-                  [attr.stroke-dashoffset]="119.38 - (119.38 * scrollProgress) / 100"
+                  [attr.stroke-dashoffset]="119.38 - (119.38 * scrollProgress()) / 100"
                   class="transition-all duration-150" />
         </svg>
       }
 
-      <erp-icon [name]="icon" [size]="18" class="group-hover:-translate-y-0.5 transition-transform"></erp-icon>
+      <erp-icon [name]="icon()" [size]="18" class="group-hover:-translate-y-0.5 transition-transform"></erp-icon>
 
-      @if (text && isPill) {
-        <span class="text-xs font-bold">{{ text }}</span>
+      @if (text() && isPill()) {
+        <span class="text-xs font-bold">{{ text() }}</span>
       }
     </button>
 

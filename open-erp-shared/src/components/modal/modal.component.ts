@@ -1,83 +1,85 @@
-import { Component, Input, Output, EventEmitter, HostListener, signal, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, HostListener, computed, effect, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../icon/icon.component';
 import { ButtonComponent } from '../button/button.component';
 import { ModalSize } from '../../enums/component.enum';
+
+const SIZE_CLASSES: Record<string, string> = {
+  [ModalSize.XS]: 'max-w-xs',
+  [ModalSize.SM]: 'max-w-sm',
+  [ModalSize.MD]: 'max-w-lg',
+  [ModalSize.LG]: 'max-w-2xl',
+  [ModalSize.XL]: 'max-w-4xl',
+  [ModalSize.FULL]: 'max-w-[95vw] h-[90vh]'
+};
 
 @Component({
   selector: 'erp-modal, erp-dialog',
   standalone: true,
   imports: [CommonModule, IconComponent, ButtonComponent],
   templateUrl: './modal.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: contents;
     }
   `]
 })
-export class ModalComponent implements OnChanges {
-  @Input() visible: boolean = false;
-  @Input() title?: string;
-  @Input() subtitle?: string;
-  @Input() icon?: IconName;
-  @Input() size: ModalSize | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full' = ModalSize.MD;
-  @Input() closable: boolean = true;
-  @Input() maskClosable: boolean = true;
-  @Input() showFooter: boolean = true;
-  @Input() okText: string = 'Xác nhận';
-  @Input() cancelText: string = 'Hủy bỏ';
-  @Input() okLoading: boolean = false;
-  @Input() centered: boolean = true;
+export class ModalComponent implements OnDestroy {
+  readonly visible = model<boolean>(false);
+  readonly title = input<string | undefined>(undefined);
+  readonly subtitle = input<string | undefined>(undefined);
+  readonly icon = input<IconName | undefined>(undefined);
+  readonly size = input<ModalSize | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full'>(ModalSize.MD);
+  readonly closable = input<boolean>(true);
+  readonly maskClosable = input<boolean>(true);
+  readonly showFooter = input<boolean>(true);
+  readonly okText = input<string>('Xác nhận');
+  readonly cancelText = input<string>('Hủy bỏ');
+  readonly okLoading = input<boolean>(false);
+  readonly centered = input<boolean>(true);
 
-  @Output() visibleChange = new EventEmitter<boolean>();
-  @Output() ok = new EventEmitter<void>();
-  @Output() cancel = new EventEmitter<void>();
+  readonly ok = output<void>();
+  readonly cancel = output<void>();
 
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    if (this.visible && this.closable) {
-      this.close();
-    }
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['visible']) {
+  constructor() {
+    effect(() => {
+      const isVisible = this.visible();
       if (typeof document !== 'undefined') {
-        if (this.visible) {
+        if (isVisible) {
           document.body.classList.add('overflow-hidden');
         } else {
           document.body.classList.remove('overflow-hidden');
         }
       }
+    });
+  }
+
+  readonly sizeClasses = computed(() => {
+    const s = String(this.size());
+    return SIZE_CLASSES[s] || SIZE_CLASSES[ModalSize.MD];
+  });
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.visible() && this.closable()) {
+      this.close();
     }
   }
 
-  get sizeClasses(): string {
-    switch (this.size) {
-      case 'xs':
-        return 'max-w-xs';
-      case 'sm':
-        return 'max-w-sm';
-      case 'lg':
-        return 'max-w-2xl';
-      case 'xl':
-        return 'max-w-4xl';
-      case 'full':
-        return 'max-w-[95vw] h-[90vh]';
-      case 'md':
-      default:
-        return 'max-w-lg';
+  ngOnDestroy(): void {
+    if (typeof document !== 'undefined') {
+      document.body.classList.remove('overflow-hidden');
     }
   }
 
   close(): void {
-    this.visible = false;
-    this.visibleChange.emit(false);
+    this.visible.set(false);
     this.cancel.emit();
   }
 
   onMaskClick(event: MouseEvent): void {
-    if (this.maskClosable && (event.target as HTMLElement).classList.contains('modal-mask')) {
+    if (this.maskClosable() && (event.target as HTMLElement).classList.contains('modal-mask')) {
       this.close();
     }
   }

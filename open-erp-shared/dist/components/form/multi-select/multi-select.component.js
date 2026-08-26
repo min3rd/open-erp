@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Component, Input, Output, EventEmitter, forwardRef, signal, computed, HostListener, ElementRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { IconComponent } from '../../icon/icon.component';
@@ -17,27 +17,29 @@ import { HelperTextComponent } from '../helper-text/helper-text.component';
 import { InputSize, ValidationStatus } from '../../../enums/component.enum';
 let MultiSelectComponent = class MultiSelectComponent {
     elementRef;
-    label;
-    placeholder = 'Chọn nhiều mục...';
-    options = [];
-    maxDisplayTags = 3;
-    searchable = true;
-    size = InputSize.MD;
-    status = ValidationStatus.NONE;
-    helperText;
-    errorMessage;
-    disabled = false;
-    required = false;
-    loading = false;
-    valueChange = new EventEmitter();
+    label = input(undefined);
+    placeholder = input('Chọn nhiều mục...');
+    options = input([]);
+    maxDisplayTags = input(3);
+    searchable = input(true);
+    size = input(InputSize.MD);
+    status = input(ValidationStatus.NONE);
+    helperText = input(undefined);
+    errorMessage = input(undefined);
+    disabled = input(false);
+    required = input(false);
+    loading = input(false);
+    valueChange = output();
     selectedValues = signal([]);
     isOpen = signal(false);
     searchTerm = signal('');
+    isDisabled = signal(false);
     onChange = () => { };
     onTouched = () => { };
     constructor(elementRef) {
         this.elementRef = elementRef;
     }
+    effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
     onClickOutside(event) {
         if (!this.elementRef.nativeElement.contains(event.target)) {
             this.isOpen.set(false);
@@ -45,16 +47,18 @@ let MultiSelectComponent = class MultiSelectComponent {
     }
     filteredOptions = computed(() => {
         const q = this.searchTerm().toLowerCase().trim();
+        const opts = this.options();
         if (!q)
-            return this.options;
-        return this.options.filter(opt => opt.label.toLowerCase().includes(q));
+            return opts;
+        return opts.filter(opt => opt.label.toLowerCase().includes(q));
     });
     selectedOptions = computed(() => {
         const vals = this.selectedValues();
-        return this.options.filter(opt => vals.includes(opt.value));
+        return this.options().filter(opt => vals.includes(opt.value));
     });
     isAllSelected = computed(() => {
-        return this.options.length > 0 && this.selectedValues().length === this.options.length;
+        const opts = this.options();
+        return opts.length > 0 && this.selectedValues().length === opts.length;
     });
     writeValue(val) {
         this.selectedValues.set(Array.isArray(val) ? val : []);
@@ -66,10 +70,10 @@ let MultiSelectComponent = class MultiSelectComponent {
         this.onTouched = fn;
     }
     setDisabledState(isDisabled) {
-        this.disabled = isDisabled;
+        this.isDisabled.set(isDisabled);
     }
     toggleDropdown() {
-        if (this.disabled)
+        if (this.effectiveDisabled())
             return;
         this.isOpen.update(prev => !prev);
         if (!this.isOpen()) {
@@ -97,7 +101,7 @@ let MultiSelectComponent = class MultiSelectComponent {
     }
     removeTag(val, event) {
         event.stopPropagation();
-        if (this.disabled)
+        if (this.effectiveDisabled())
             return;
         const current = this.selectedValues().filter(v => v !== val);
         this.selectedValues.set(current);
@@ -111,65 +115,13 @@ let MultiSelectComponent = class MultiSelectComponent {
             this.valueChange.emit([]);
         }
         else {
-            const allVals = this.options.filter(opt => !opt.disabled).map(opt => opt.value);
+            const allVals = this.options().filter(opt => !opt.disabled).map(opt => opt.value);
             this.selectedValues.set(allVals);
             this.onChange(allVals);
             this.valueChange.emit(allVals);
         }
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], MultiSelectComponent.prototype, "label", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], MultiSelectComponent.prototype, "placeholder", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Array)
-], MultiSelectComponent.prototype, "options", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], MultiSelectComponent.prototype, "maxDisplayTags", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], MultiSelectComponent.prototype, "searchable", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], MultiSelectComponent.prototype, "size", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], MultiSelectComponent.prototype, "status", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], MultiSelectComponent.prototype, "helperText", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], MultiSelectComponent.prototype, "errorMessage", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], MultiSelectComponent.prototype, "disabled", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], MultiSelectComponent.prototype, "required", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], MultiSelectComponent.prototype, "loading", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], MultiSelectComponent.prototype, "valueChange", void 0);
 __decorate([
     HostListener('document:click', ['$event']),
     __metadata("design:type", Function),
@@ -189,6 +141,7 @@ MultiSelectComponent = __decorate([
             }
         ],
         templateUrl: './multi-select.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: block;

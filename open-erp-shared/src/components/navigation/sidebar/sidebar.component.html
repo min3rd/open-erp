@@ -1,39 +1,39 @@
 <!-- Overlay Backdrop for Mobile / Drawer mode -->
-@if (isOverlay && openOverlay) {
+@if (isOverlay() && openOverlay()) {
   <div (click)="closeDrawer()"
        class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-40 transition-opacity animate-in fade-in duration-200">
   </div>
 }
 
-<aside [class.fixed]="isOverlay"
-       [class.top-0]="isOverlay"
-       [class.bottom-0]="isOverlay"
-       [class.left-0]="isOverlay"
-       [class.z-50]="isOverlay"
-       [class.-translate-x-full]="isOverlay && !openOverlay"
-       [class.translate-x-0]="isOverlay && openOverlay"
-       [class.w-20]="isMini"
-       [style.width]="isMini ? '5rem' : width"
+<aside [class.fixed]="isOverlay()"
+       [class.top-0]="isOverlay()"
+       [class.bottom-0]="isOverlay()"
+       [class.left-0]="isOverlay()"
+       [class.z-50]="isOverlay()"
+       [class.-translate-x-full]="isOverlay() && !openOverlay()"
+       [class.translate-x-0]="isOverlay() && openOverlay()"
+       [class.w-20]="isMini()"
+       [style.width]="isMini() ? '5rem' : width()"
        class="flex flex-col h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 select-none shadow-sm">
   
   <!-- Sidebar Header / Brand -->
   <div class="h-16 flex items-center justify-between px-4 border-b border-slate-200/80 dark:border-slate-800/80 shrink-0">
     <ng-content select="[sidebar-header]">
-      <a [href]="brandUrl" class="flex items-center gap-3 overflow-hidden group">
-        @if (brandLogo) {
-          <img [src]="brandLogo" alt="Logo" class="h-8 w-8 object-contain rounded-xl shrink-0">
+      <a [href]="brandUrl()" class="flex items-center gap-3 overflow-hidden group">
+        @if (brandLogo()) {
+          <img [src]="brandLogo()!" alt="Logo" class="h-8 w-8 object-contain rounded-xl shrink-0">
         } @else {
           <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-bold text-xs shadow-xs shadow-indigo-500/20 shrink-0 group-hover:scale-105 transition-transform">
             ERP
           </div>
         }
-        @if (!isMini) {
+        @if (!isMini()) {
           <div class="flex flex-col min-w-0 transition-opacity duration-200">
             <span class="font-bold text-sm tracking-tight text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-              {{ brandTitle }}
+              {{ brandTitle() }}
             </span>
-            @if (brandSubtitle) {
-              <span class="text-[10px] text-slate-400 font-medium truncate -mt-0.5">{{ brandSubtitle }}</span>
+            @if (brandSubtitle()) {
+              <span class="text-[10px] text-slate-400 font-medium truncate -mt-0.5">{{ brandSubtitle() }}</span>
             }
           </div>
         }
@@ -41,7 +41,7 @@
     </ng-content>
 
     <!-- Close Button (Drawer Mode) -->
-    @if (isOverlay) {
+    @if (isOverlay()) {
       <button (click)="closeDrawer()"
               type="button"
               class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
@@ -53,10 +53,10 @@
   <!-- Sidebar Nav Navigation List -->
   <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1.5 custom-scrollbar">
     <ng-content select="[sidebar-items]">
-      @for (item of items; track item.id || item.label || $index) {
+      @for (item of items(); track item.id || item.label || $index) {
         
         <!-- Section Header (if any) -->
-        @if (item.sectionHeader && !isMini) {
+        @if (item.sectionHeader && !isMini()) {
           <div class="pt-4 pb-1 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
             {{ item.sectionHeader }}
           </div>
@@ -67,7 +67,7 @@
           <div class="space-y-1">
             <button (click)="onItemClick(item, $event)"
                     type="button"
-                    [title]="isMini ? item.label : ''"
+                    [title]="isMini() ? item.label : ''"
                     [class.bg-indigo-50]="isItemActive(item)"
                     [class.dark:bg-indigo-950/40]="isItemActive(item)"
                     [class.text-indigo-600]="isItemActive(item)"
@@ -78,20 +78,20 @@
                     [class.dark:hover:bg-slate-800]="!isItemActive(item) && !item.disabled"
                     [class.opacity-40]="item.disabled"
                     [class.cursor-not-allowed]="item.disabled"
-                    [class.justify-center]="isMini"
+                    [class.justify-center]="isMini()"
                     class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group relative">
               
               <div class="flex items-center gap-3 min-w-0">
                 @if (item.icon) {
                   <erp-icon [name]="item.icon" [size]="18" class="shrink-0 group-hover:scale-110 transition-transform"></erp-icon>
                 }
-                @if (!isMini) {
+                @if (!isMini()) {
                   <span class="truncate">{{ item.label }}</span>
                 }
               </div>
 
               <!-- Badges & Submenu Chevron -->
-              @if (!isMini) {
+              @if (!isMini()) {
                 <div class="flex items-center gap-1.5 shrink-0 ml-2">
                   @if (item.badge) {
                     <span [class]="item.badgeColor || 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300'"
@@ -107,7 +107,7 @@
             </button>
 
             <!-- Collapsible Submenu Children -->
-            @if (item.children && item.children.length > 0 && item.expanded && !isMini) {
+            @if (item.children && item.children.length > 0 && item.expanded && !isMini()) {
               <div class="pl-7 pr-1 py-1 space-y-1 animate-in slide-in-from-top-1 fade-in duration-150">
                 @for (sub of item.children; track sub.id || sub.label) {
                   <button (click)="onItemClick(sub, $event)"
@@ -152,13 +152,13 @@
   <div class="p-3 border-t border-slate-200/80 dark:border-slate-800/80 shrink-0 space-y-2">
     <ng-content select="[sidebar-footer]"></ng-content>
     
-    @if (showCollapseToggle && !isOverlay) {
+    @if (showCollapseToggle() && !isOverlay()) {
       <button (click)="toggleCollapse()"
               type="button"
-              [class.justify-center]="collapsed"
+              [class.justify-center]="collapsed()"
               class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-        <erp-icon [name]="collapsed ? 'chevrons-right' : 'chevrons-left'" [size]="16"></erp-icon>
-        @if (!collapsed) {
+        <erp-icon [name]="collapsed() ? 'chevrons-right' : 'chevrons-left'" [size]="16"></erp-icon>
+        @if (!collapsed()) {
           <span>Thu gọn thanh bên</span>
         }
       </button>

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostListener, OnInit, AfterViewInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, HostListener, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../../icon/icon.component';
 
@@ -15,6 +15,7 @@ export interface AnchorItem {
   standalone: true,
   imports: [CommonModule, IconComponent],
   templateUrl: './anchor.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -22,18 +23,19 @@ export interface AnchorItem {
   `]
 })
 export class AnchorComponent implements OnInit, AfterViewInit {
-  @Input() items: AnchorItem[] = [];
-  @Input() activeTargetId: string = '';
-  @Input() offsetTop: number = 100;
-  @Input() showRail: boolean = true;
-  @Input() title?: string = 'Nội dung trang';
+  readonly items = input<AnchorItem[]>([]);
+  readonly activeTargetId = model<string>('');
+  readonly offsetTop = input<number>(100);
+  readonly showRail = input<boolean>(true);
+  readonly title = input<string | undefined>('Nội dung trang');
 
-  @Output() anchorClick = new EventEmitter<AnchorItem>();
-  @Output() activeTargetIdChange = new EventEmitter<string>();
+  readonly anchorClick = output<AnchorItem>();
 
   ngOnInit(): void {
-    if (!this.activeTargetId && this.items.length > 0) {
-      this.activeTargetId = this.items[0].targetId;
+    const act = this.activeTargetId();
+    const its = this.items();
+    if (!act && its.length > 0) {
+      this.activeTargetId.set(its[0].targetId);
     }
   }
 
@@ -48,21 +50,21 @@ export class AnchorComponent implements OnInit, AfterViewInit {
 
   scrollToTarget(item: AnchorItem, event: MouseEvent): void {
     event.preventDefault();
-    this.activeTargetId = item.targetId;
-    this.activeTargetIdChange.emit(this.activeTargetId);
+    this.activeTargetId.set(item.targetId);
     this.anchorClick.emit(item);
 
     if (typeof document !== 'undefined') {
       const el = document.getElementById(item.targetId);
       if (el) {
-        const top = el.getBoundingClientRect().top + window.scrollY - this.offsetTop;
+        const top = el.getBoundingClientRect().top + window.scrollY - this.offsetTop();
         window.scrollTo({ top, behavior: 'smooth' });
       }
     }
   }
 
   private checkActiveSection(): void {
-    if (typeof document === 'undefined' || this.items.length === 0) return;
+    const its = this.items();
+    if (typeof document === 'undefined' || its.length === 0) return;
 
     const allTargets: string[] = [];
     const collectTargets = (list: AnchorItem[]) => {
@@ -71,23 +73,24 @@ export class AnchorComponent implements OnInit, AfterViewInit {
         if (item.children) collectTargets(item.children);
       }
     };
-    collectTargets(this.items);
+    collectTargets(its);
 
-    let current = this.activeTargetId;
+    let current = this.activeTargetId();
+    const offset = this.offsetTop();
+
     for (const id of allTargets) {
       const el = document.getElementById(id);
       if (el) {
         const rect = el.getBoundingClientRect();
-        if (rect.top <= this.offsetTop + 40 && rect.bottom > this.offsetTop) {
+        if (rect.top <= offset + 40 && rect.bottom > offset) {
           current = id;
           break;
         }
       }
     }
 
-    if (current && current !== this.activeTargetId) {
-      this.activeTargetId = current;
-      this.activeTargetIdChange.emit(this.activeTargetId);
+    if (current && current !== this.activeTargetId()) {
+      this.activeTargetId.set(current);
     }
   }
 }

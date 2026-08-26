@@ -1,11 +1,11 @@
-import { Directive, Input, TemplateRef, ViewContainerRef, OnInit, OnDestroy, EmbeddedViewRef } from '@angular/core';
+import { Directive, input, TemplateRef, ViewContainerRef, OnInit, OnDestroy, EmbeddedViewRef } from '@angular/core';
 
 @Directive({
   selector: '[erpPortal]',
   standalone: true
 })
 export class PortalDirective implements OnInit, OnDestroy {
-  @Input('erpPortal') targetSelector?: string;
+  readonly targetSelector = input<string | undefined>(undefined, { alias: 'erpPortal' });
 
   private embeddedView?: EmbeddedViewRef<any>;
 
@@ -17,7 +17,8 @@ export class PortalDirective implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.embeddedView = this.viewContainerRef.createEmbeddedView(this.templateRef);
     if (typeof document !== 'undefined') {
-      const target = this.targetSelector ? document.querySelector(this.targetSelector) : document.body;
+      const sel = this.targetSelector();
+      const target = sel ? document.querySelector(sel) : document.body;
       if (target) {
         for (const rootNode of this.embeddedView.rootNodes) {
           target.appendChild(rootNode);

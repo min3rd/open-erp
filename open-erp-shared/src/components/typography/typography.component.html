@@ -1,30 +1,30 @@
-@if (loading) {
-  <erp-skeleton [width]="skeletonWidth" [height]="getSkeletonHeight()" shape="rounded"></erp-skeleton>
+@if (loading()) {
+  <erp-skeleton [width]="skeletonWidth()" [height]="skeletonHeight()" shape="rounded"></erp-skeleton>
 } @else {
-  @switch (variant) {
+  @switch (variant()) {
     @case ('h1') {
-      <h1 [class]="getTypographyClasses()"><ng-content></ng-content></h1>
+      <h1 [class]="typographyClasses()"><ng-content></ng-content></h1>
     }
     @case ('h2') {
-      <h2 [class]="getTypographyClasses()"><ng-content></ng-content></h2>
+      <h2 [class]="typographyClasses()"><ng-content></ng-content></h2>
     }
     @case ('h3') {
-      <h3 [class]="getTypographyClasses()"><ng-content></ng-content></h3>
+      <h3 [class]="typographyClasses()"><ng-content></ng-content></h3>
     }
     @case ('h4') {
-      <h4 [class]="getTypographyClasses()"><ng-content></ng-content></h4>
+      <h4 [class]="typographyClasses()"><ng-content></ng-content></h4>
     }
     @case ('h5') {
-      <h5 [class]="getTypographyClasses()"><ng-content></ng-content></h5>
+      <h5 [class]="typographyClasses()"><ng-content></ng-content></h5>
     }
     @case ('h6') {
-      <h6 [class]="getTypographyClasses()"><ng-content></ng-content></h6>
+      <h6 [class]="typographyClasses()"><ng-content></ng-content></h6>
     }
     @case ('code') {
-      <code [class]="getTypographyClasses()"><ng-content></ng-content></code>
+      <code [class]="typographyClasses()"><ng-content></ng-content></code>
     }
     @default {
-      <p [class]="getTypographyClasses()"><ng-content></ng-content></p>
+      <p [class]="typographyClasses()"><ng-content></ng-content></p>
     }
   }
 }

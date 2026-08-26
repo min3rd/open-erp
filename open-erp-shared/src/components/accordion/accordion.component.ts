@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../icon/icon.component';
 
@@ -19,6 +19,7 @@ export interface AccordionItem {
   standalone: true,
   imports: [CommonModule, IconComponent],
   templateUrl: './accordion.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -27,25 +28,33 @@ export interface AccordionItem {
   `]
 })
 export class AccordionComponent {
-  @Input() items: AccordionItem[] = [];
-  @Input() expandMultiple: boolean = false;
-  @Input() bordered: boolean = true;
-  @Input() ghost: boolean = false;
+  readonly items = input<AccordionItem[]>([]);
+  readonly expandMultiple = input<boolean>(false);
+  readonly bordered = input<boolean>(true);
+  readonly ghost = input<boolean>(false);
 
-  @Output() itemToggle = new EventEmitter<{ item: AccordionItem; index: number; expanded: boolean }>();
+  readonly itemToggle = output<{ item: AccordionItem; index: number; expanded: boolean }>();
 
   toggleItem(item: AccordionItem, index: number): void {
     if (item.disabled) return;
 
     const nextState = !item.expanded;
 
-    if (!this.expandMultiple && nextState) {
-      this.items.forEach((it, i) => {
+    if (!this.expandMultiple() && nextState) {
+      this.items().forEach((it, i) => {
         if (i !== index) it.expanded = false;
       });
     }
 
     item.expanded = nextState;
     this.itemToggle.emit({ item, index, expanded: nextState });
+  }
+
+  onKeyDown(event: KeyboardEvent, item: AccordionItem, index: number): void {
+    if (item.disabled) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.toggleItem(item, index);
+    }
   }
 }

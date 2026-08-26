@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef, signal, computed, ElementRef, ViewChildren, QueryList } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed, ElementRef, ViewChildren, QueryList, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { SkeletonComponent } from '../../skeleton/skeleton.component';
@@ -18,6 +18,7 @@ import { ValidationStatus } from '../../../enums/component.enum';
     }
   ],
   templateUrl: './otp-input.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -25,36 +26,40 @@ import { ValidationStatus } from '../../../enums/component.enum';
     }
   `]
 })
-export class OtpInputComponent implements ControlValueAccessor {
-  @Input() label?: string = 'Mã xác thực OTP';
-  @Input() length: number = 6;
-  @Input() status: ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning' = ValidationStatus.NONE;
-  @Input() helperText?: string;
-  @Input() errorMessage?: string;
-  @Input() disabled: boolean = false;
-  @Input() required: boolean = false;
-  @Input() loading: boolean = false;
+export class OtpInputComponent implements ControlValueAccessor, OnInit {
+  readonly label = input<string | undefined>('Mã xác thực OTP');
+  readonly length = input<number>(6);
+  readonly status = input<ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning'>(ValidationStatus.NONE);
+  readonly helperText = input<string | undefined>(undefined);
+  readonly errorMessage = input<string | undefined>(undefined);
+  readonly disabled = input<boolean>(false);
+  readonly required = input<boolean>(false);
+  readonly loading = input<boolean>(false);
 
-  @Output() completed = new EventEmitter<string>();
-  @Output() valueChange = new EventEmitter<string>();
+  readonly completed = output<string>();
+  readonly valueChange = output<string>();
 
   @ViewChildren('otpInput') inputElements!: QueryList<ElementRef<HTMLInputElement>>;
 
   digits = signal<string[]>([]);
+  isDisabled = signal<boolean>(false);
 
   onChange: (val: string) => void = () => {};
   onTouched: () => void = () => {};
 
-  readonly slots = computed(() => Array.from({ length: this.length }, (_, i) => i));
+  readonly effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
+
+  readonly slots = computed(() => Array.from({ length: this.length() }, (_, i) => i));
 
   ngOnInit(): void {
-    this.digits.set(new Array(this.length).fill(''));
+    this.digits.set(new Array(this.length()).fill(''));
   }
 
   writeValue(val: any): void {
+    const len = this.length();
     const str = String(val || '');
-    const arr = new Array(this.length).fill('');
-    for (let i = 0; i < this.length && i < str.length; i++) {
+    const arr = new Array(len).fill('');
+    for (let i = 0; i < len && i < str.length; i++) {
       arr[i] = str[i];
     }
     this.digits.set(arr);
@@ -69,12 +74,13 @@ export class OtpInputComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.isDisabled.set(isDisabled);
   }
 
   onDigitInput(event: Event, index: number): void {
     const input = event.target as HTMLInputElement;
     const val = input.value.slice(-1);
+    const len = this.length();
     
     const arr = [...this.digits()];
     arr[index] = val;
@@ -84,12 +90,12 @@ export class OtpInputComponent implements ControlValueAccessor {
     this.onChange(fullCode);
     this.valueChange.emit(fullCode);
 
-    if (val && index < this.length - 1) {
+    if (val && index < len - 1) {
       const el = this.inputElements.get(index + 1);
       el?.nativeElement.focus();
     }
 
-    if (fullCode.length === this.length && !arr.includes('')) {
+    if (fullCode.length === len && !arr.includes('')) {
       this.completed.emit(fullCode);
     }
   }
@@ -103,11 +109,12 @@ export class OtpInputComponent implements ControlValueAccessor {
 
   onPaste(event: ClipboardEvent): void {
     event.preventDefault();
+    const len = this.length();
     const clipboardData = event.clipboardData?.getData('text') || '';
-    const clean = clipboardData.replace(/\D/g, '').slice(0, this.length);
+    const clean = clipboardData.replace(/\D/g, '').slice(0, len);
     if (!clean) return;
 
-    const arr = new Array(this.length).fill('');
+    const arr = new Array(len).fill('');
     for (let i = 0; i < clean.length; i++) {
       arr[i] = clean[i];
     }
@@ -117,7 +124,7 @@ export class OtpInputComponent implements ControlValueAccessor {
     this.onChange(fullCode);
     this.valueChange.emit(fullCode);
 
-    if (clean.length === this.length) {
+    if (clean.length === len) {
       this.completed.emit(fullCode);
     }
   }

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../../icon/icon.component';
 import { SkeletonComponent } from '../../skeleton/skeleton.component';
@@ -16,6 +16,7 @@ export interface StepItem {
   standalone: true,
   imports: [CommonModule, IconComponent, SkeletonComponent],
   templateUrl: './stepper.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -24,27 +25,28 @@ export interface StepItem {
   `]
 })
 export class StepperComponent {
-  @Input() steps: (string | StepItem)[] = [];
-  @Input() currentStep: number = 0;
-  @Input() orientation: StepperOrientation | 'horizontal' | 'vertical' = StepperOrientation.HORIZONTAL;
-  @Input() clickable: boolean = true;
-  @Input() loading: boolean = false;
+  readonly steps = input<(string | StepItem)[]>([]);
+  readonly currentStep = model<number>(0);
+  readonly orientation = input<StepperOrientation | 'horizontal' | 'vertical'>(StepperOrientation.HORIZONTAL);
+  readonly clickable = input<boolean>(true);
+  readonly loading = input<boolean>(false);
 
-  @Output() stepChange = new EventEmitter<number>();
+  readonly stepChange = output<number>();
 
-  get normalizedSteps(): StepItem[] {
-    return this.steps.map(s => typeof s === 'string' ? { title: s } : s);
-  }
+  readonly normalizedSteps = computed<StepItem[]>(() => {
+    return this.steps().map(s => typeof s === 'string' ? { title: s } : s);
+  });
 
   getStepStatus(index: number): StepperStepStatus {
-    if (index < this.currentStep) return StepperStepStatus.COMPLETED;
-    if (index === this.currentStep) return StepperStepStatus.CURRENT;
+    const cur = this.currentStep();
+    if (index < cur) return StepperStepStatus.COMPLETED;
+    if (index === cur) return StepperStepStatus.CURRENT;
     return StepperStepStatus.PENDING;
   }
 
   onStepClick(index: number, step: StepItem): void {
-    if (this.clickable && !step.disabled) {
-      this.currentStep = index;
+    if (this.clickable() && !step.disabled) {
+      this.currentStep.set(index);
       this.stepChange.emit(index);
     }
   }

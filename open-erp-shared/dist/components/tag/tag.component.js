@@ -4,53 +4,41 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../icon/icon.component';
 import { SkeletonComponent } from '../skeleton/skeleton.component';
 import { TagColor, TagVariant } from '../../enums/component.enum';
 let TagComponent = class TagComponent {
-    label = '';
-    icon;
-    color = TagColor.PRIMARY;
-    variant = TagVariant.SUBTLE;
-    size = 'md';
-    removable = false;
-    clickable = false;
-    selectable = false;
-    selected = false;
-    disabled = false;
-    loading = false;
-    remove = new EventEmitter();
-    tagClick = new EventEmitter();
-    selectedChange = new EventEmitter();
-    onTagClick(event) {
-        if (this.disabled || this.loading)
-            return;
-        if (this.selectable) {
-            this.selected = !this.selected;
-            this.selectedChange.emit(this.selected);
-        }
-        if (this.clickable || this.selectable) {
-            this.tagClick.emit(event);
-        }
-    }
-    onRemove(event) {
-        event.stopPropagation();
-        if (!this.disabled && !this.loading) {
-            this.remove.emit(event);
-        }
-    }
-    getTagClasses() {
-        const v = String(this.variant);
-        const c = String(this.color);
-        const s = String(this.size);
+    label = input('');
+    icon = input(undefined);
+    color = input(TagColor.PRIMARY);
+    variant = input(TagVariant.SUBTLE);
+    size = input('md');
+    removable = input(false);
+    clickable = input(false);
+    selectable = input(false);
+    selected = model(false);
+    disabled = input(false);
+    loading = input(false);
+    remove = output();
+    tagClick = output();
+    isInteractive = computed(() => this.clickable() || this.selectable() || this.removable());
+    iconSize = computed(() => {
+        const s = this.size();
+        return s === 'sm' ? 10 : (s === 'lg' ? 14 : 12);
+    });
+    removeIconSize = computed(() => {
+        return this.size() === 'sm' ? 10 : 12;
+    });
+    tagClasses = computed(() => {
+        const v = String(this.variant());
+        const c = String(this.color());
+        const s = String(this.size());
+        const interactive = this.isInteractive();
         const classes = [
-            'inline-flex items-center gap-1.5 font-bold tracking-tight rounded-xl select-none transition-all',
-            this.clickable ? 'cursor-pointer hover:scale-105 active:scale-95' : 'cursor-default'
+            'inline-flex items-center gap-1.5 font-bold tracking-tight rounded-xl select-none transition-all outline-none',
+            interactive ? 'cursor-pointer hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500/40' : 'cursor-default'
         ];
         // Sizes
         switch (s) {
@@ -152,71 +140,47 @@ let TagComponent = class TagComponent {
                     break;
             }
         }
+        if (this.disabled()) {
+            classes.push('opacity-50');
+        }
         return classes.join(' ');
+    });
+    onTagClick(event) {
+        if (this.disabled() || this.loading())
+            return;
+        if (this.selectable()) {
+            this.selected.update(val => !val);
+        }
+        if (this.clickable() || this.selectable()) {
+            this.tagClick.emit(event);
+        }
+    }
+    onRemove(event) {
+        event.stopPropagation();
+        if (!this.disabled() && !this.loading()) {
+            this.remove.emit(event);
+        }
+    }
+    onKeyDown(event) {
+        if (this.disabled() || this.loading())
+            return;
+        if (event.key === ' ' || event.key === 'Enter') {
+            event.preventDefault();
+            this.onTagClick(event);
+        }
+        else if ((event.key === 'Backspace' || event.key === 'Delete') && this.removable()) {
+            event.preventDefault();
+            this.onRemove(event);
+        }
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TagComponent.prototype, "label", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TagComponent.prototype, "icon", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TagComponent.prototype, "color", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TagComponent.prototype, "variant", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TagComponent.prototype, "size", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TagComponent.prototype, "removable", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TagComponent.prototype, "clickable", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TagComponent.prototype, "selectable", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TagComponent.prototype, "selected", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TagComponent.prototype, "disabled", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TagComponent.prototype, "loading", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], TagComponent.prototype, "remove", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], TagComponent.prototype, "tagClick", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], TagComponent.prototype, "selectedChange", void 0);
 TagComponent = __decorate([
     Component({
         selector: 'erp-tag, erp-chip',
         standalone: true,
         imports: [CommonModule, IconComponent, SkeletonComponent],
-        templateUrl: './tag.component.html'
+        templateUrl: './tag.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush
     })
 ], TagComponent);
 export { TagComponent };

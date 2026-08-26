@@ -17,7 +17,8 @@
     "baseUrl": ".",
     "paths": {
       "@open-erp/shared": ["../open-erp-shared/src/index.ts"],
-      "@open-erp/shared/*": ["../open-erp-shared/src/*"]
+      "@open-erp/shared/*": ["../open-erp-shared/src/*"],
+      "@angular/*": ["./node_modules/@angular/*"]
     }
   },
   "angularCompilerOptions": {

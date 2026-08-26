@@ -1,4 +1,4 @@
-import { Directive, ElementRef, HostListener, Input, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, HostListener, input, Renderer2 } from '@angular/core';
 import { TooltipPlacement } from '../../enums/component.enum';
 
 @Directive({
@@ -6,8 +6,8 @@ import { TooltipPlacement } from '../../enums/component.enum';
   standalone: true
 })
 export class TooltipDirective {
-  @Input('erpTooltip') text: string = '';
-  @Input() tooltipPlacement: TooltipPlacement | 'top' | 'bottom' | 'left' | 'right' = TooltipPlacement.TOP;
+  readonly text = input<string>('', { alias: 'erpTooltip' });
+  readonly tooltipPlacement = input<TooltipPlacement | 'top' | 'bottom' | 'left' | 'right'>(TooltipPlacement.TOP);
 
   private tooltipEl?: HTMLElement;
 
@@ -15,8 +15,9 @@ export class TooltipDirective {
 
   @HostListener('mouseenter')
   onMouseEnter(): void {
-    if (!this.text) return;
-    this.createTooltip();
+    const val = this.text();
+    if (!val) return;
+    this.createTooltip(val);
   }
 
   @HostListener('mouseleave')
@@ -24,12 +25,12 @@ export class TooltipDirective {
     this.destroyTooltip();
   }
 
-  private createTooltip(): void {
+  private createTooltip(textContent: string): void {
     this.destroyTooltip();
 
     const hostPos = this.el.nativeElement.getBoundingClientRect();
     const tooltip = this.renderer.createElement('div');
-    this.renderer.setProperty(tooltip, 'textContent', this.text);
+    this.renderer.setProperty(tooltip, 'textContent', textContent);
 
     // Apply styles
     this.renderer.addClass(tooltip, 'fixed');
@@ -54,7 +55,7 @@ export class TooltipDirective {
     let top = 0;
     let left = 0;
 
-    const p = String(this.tooltipPlacement);
+    const p = String(this.tooltipPlacement());
     switch (p) {
       case 'bottom':
         top = hostPos.bottom + 6;

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IconComponent } from '../../icon/icon.component';
@@ -26,6 +26,7 @@ export interface UploadedFile {
     }
   ],
   templateUrl: './file-upload.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -34,24 +35,27 @@ export interface UploadedFile {
   `]
 })
 export class FileUploadComponent implements ControlValueAccessor {
-  @Input() label?: string;
-  @Input() accept: string = '*';
-  @Input() multiple: boolean = false;
-  @Input() maxFileSizeMb: number = 10;
-  @Input() hint: string = 'Kéo và thả tệp tin vào đây, hoặc duyệt tệp';
-  @Input() disabled: boolean = false;
-  @Input() required: boolean = false;
-  @Input() loading: boolean = false;
-  @Input() helperText?: string;
-  @Input() errorMessage?: string;
+  readonly label = input<string | undefined>(undefined);
+  readonly accept = input<string>('*');
+  readonly multiple = input<boolean>(false);
+  readonly maxFileSizeMb = input<number>(10);
+  readonly hint = input<string>('Kéo và thả tệp tin vào đây, hoặc duyệt tệp');
+  readonly disabled = input<boolean>(false);
+  readonly required = input<boolean>(false);
+  readonly loading = input<boolean>(false);
+  readonly helperText = input<string | undefined>(undefined);
+  readonly errorMessage = input<string | undefined>(undefined);
 
-  @Output() filesChange = new EventEmitter<UploadedFile[]>();
+  readonly filesChange = output<UploadedFile[]>();
 
   files = signal<UploadedFile[]>([]);
   isDragging = signal<boolean>(false);
+  isDisabled = signal<boolean>(false);
 
   onChange: (val: UploadedFile[]) => void = () => {};
   onTouched: () => void = () => {};
+
+  readonly effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
 
   writeValue(val: any): void {
     this.files.set(Array.isArray(val) ? val : []);
@@ -66,12 +70,12 @@ export class FileUploadComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.isDisabled.set(isDisabled);
   }
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
-    if (!this.disabled) this.isDragging.set(true);
+    if (!this.effectiveDisabled()) this.isDragging.set(true);
   }
 
   onDragLeave(): void {
@@ -81,7 +85,7 @@ export class FileUploadComponent implements ControlValueAccessor {
   onDrop(event: DragEvent): void {
     event.preventDefault();
     this.isDragging.set(false);
-    if (this.disabled) return;
+    if (this.effectiveDisabled()) return;
     if (event.dataTransfer?.files) {
       this.handleFiles(event.dataTransfer.files);
     }
@@ -96,9 +100,12 @@ export class FileUploadComponent implements ControlValueAccessor {
 
   private handleFiles(fileList: FileList): void {
     const newFiles: UploadedFile[] = [];
+    const maxMb = this.maxFileSizeMb();
+    const isMult = this.multiple();
+
     for (let i = 0; i < fileList.length; i++) {
       const f = fileList[i];
-      if (f.size > this.maxFileSizeMb * 1024 * 1024) continue;
+      if (f.size > maxMb * 1024 * 1024) continue;
       newFiles.push({
         name: f.name,
         size: f.size,
@@ -106,10 +113,10 @@ export class FileUploadComponent implements ControlValueAccessor {
         url: f.type.startsWith('image/') ? URL.createObjectURL(f) : undefined,
         file: f
       });
-      if (!this.multiple) break;
+      if (!isMult) break;
     }
 
-    const next = this.multiple ? [...this.files(), ...newFiles] : newFiles;
+    const next = isMult ? [...this.files(), ...newFiles] : newFiles;
     this.files.set(next);
     this.onChange(next);
     this.filesChange.emit(next);
@@ -117,7 +124,7 @@ export class FileUploadComponent implements ControlValueAccessor {
 
   removeFile(index: number, event: MouseEvent): void {
     event.stopPropagation();
-    if (this.disabled) return;
+    if (this.effectiveDisabled()) return;
     const next = this.files().filter((_, i) => i !== index);
     this.files.set(next);
     this.onChange(next);

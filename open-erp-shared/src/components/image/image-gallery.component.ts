@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImageComponent } from './image.component';
 
@@ -13,6 +13,7 @@ export interface GalleryImage {
   standalone: true,
   imports: [CommonModule, ImageComponent],
   templateUrl: './image-gallery.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -21,21 +22,21 @@ export interface GalleryImage {
   `]
 })
 export class ImageGalleryComponent {
-  @Input() images: (string | GalleryImage)[] = [];
-  @Input() columns: number = 4;
-  @Input() height: string = '120px';
+  readonly images = input<(string | GalleryImage)[]>([]);
+  readonly columns = input<number>(4);
+  readonly height = input<string>('120px');
 
-  get normalizedImages(): GalleryImage[] {
-    return this.images.map(img => typeof img === 'string' ? { src: img } : img);
-  }
+  readonly normalizedImages = computed<GalleryImage[]>(() => {
+    return this.images().map(img => (typeof img === 'string' ? { src: img } : img));
+  });
 
-  getGridColsClasses(): string {
-    switch (this.columns) {
+  readonly gridColsClass = computed(() => {
+    switch (this.columns()) {
       case 2: return 'grid-cols-2';
       case 3: return 'grid-cols-2 sm:grid-cols-3';
       case 6: return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-6';
       case 4:
       default: return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4';
     }
-  }
+  });
 }

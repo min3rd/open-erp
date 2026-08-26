@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '../../icon/icon.component';
@@ -10,6 +10,7 @@ import { PaginationVariant } from '../../../enums/component.enum';
   standalone: true,
   imports: [CommonModule, FormsModule, IconComponent, SkeletonComponent],
   templateUrl: './pagination.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -18,41 +19,40 @@ import { PaginationVariant } from '../../../enums/component.enum';
   `]
 })
 export class PaginationComponent {
-  @Input() currentPage: number = 1;
-  @Input() totalItems: number = 0;
-  @Input() pageSize: number = 10;
-  @Input() pageSizeOptions: number[] = [10, 20, 50, 100];
-  @Input() showPageSizeSelector: boolean = true;
-  @Input() showTotalInfo: boolean = true;
-  @Input() showJumpToPage: boolean = false;
-  @Input() variant: PaginationVariant | 'full' | 'simple' | 'compact' = PaginationVariant.FULL;
-  @Input() loading: boolean = false;
+  readonly currentPage = model<number>(1);
+  readonly totalItems = input<number>(0);
+  readonly pageSize = model<number>(10);
+  readonly pageSizeOptions = input<number[]>([10, 20, 50, 100]);
+  readonly showPageSizeSelector = input<boolean>(true);
+  readonly showTotalInfo = input<boolean>(true);
+  readonly showJumpToPage = input<boolean>(false);
+  readonly variant = input<PaginationVariant | 'full' | 'simple' | 'compact'>(PaginationVariant.FULL);
+  readonly loading = input<boolean>(false);
 
-  @Output() pageChange = new EventEmitter<number>();
-  @Output() pageSizeChange = new EventEmitter<number>();
+  readonly pageChange = output<number>();
 
   jumpPageInput: number = 1;
 
-  get isFull(): boolean {
-    return String(this.variant) === 'full';
-  }
+  readonly isFull = computed(() => String(this.variant()) === 'full');
 
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.totalItems / (this.pageSize || 10)));
-  }
+  readonly totalPages = computed(() => {
+    const size = this.pageSize() || 10;
+    return Math.max(1, Math.ceil(this.totalItems() / size));
+  });
 
-  get startItem(): number {
-    if (this.totalItems === 0) return 0;
-    return (this.currentPage - 1) * this.pageSize + 1;
-  }
+  readonly startItem = computed(() => {
+    const tot = this.totalItems();
+    if (tot === 0) return 0;
+    return (this.currentPage() - 1) * this.pageSize() + 1;
+  });
 
-  get endItem(): number {
-    return Math.min(this.currentPage * this.pageSize, this.totalItems);
-  }
+  readonly endItem = computed(() => {
+    return Math.min(this.currentPage() * this.pageSize(), this.totalItems());
+  });
 
-  get pageNumbers(): (number | string)[] {
-    const total = this.totalPages;
-    const current = this.currentPage;
+  readonly pageNumbers = computed<(number | string)[]>(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
 
     if (total <= 7) {
       return Array.from({ length: total }, (_, i) => i + 1);
@@ -69,26 +69,26 @@ export class PaginationComponent {
     }
 
     return pages;
-  }
+  });
 
   setPage(page: number | string): void {
     if (typeof page === 'string') return;
-    if (page < 1 || page > this.totalPages || page === this.currentPage) return;
-    this.currentPage = page;
-    this.pageChange.emit(this.currentPage);
+    const max = this.totalPages();
+    if (page < 1 || page > max || page === this.currentPage()) return;
+    this.currentPage.set(page);
+    this.pageChange.emit(page);
   }
 
   onPageSizeChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     const newSize = parseInt(select.value, 10);
-    this.pageSize = newSize;
-    this.currentPage = 1;
-    this.pageSizeChange.emit(newSize);
+    this.pageSize.set(newSize);
+    this.currentPage.set(1);
     this.pageChange.emit(1);
   }
 
   onJumpPage(): void {
-    if (this.jumpPageInput >= 1 && this.jumpPageInput <= this.totalPages) {
+    if (this.jumpPageInput >= 1 && this.jumpPageInput <= this.totalPages()) {
       this.setPage(this.jumpPageInput);
     }
   }

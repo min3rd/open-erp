@@ -1,9 +1,9 @@
 <div class="w-full font-sans relative">
-  @if (label) {
-    <erp-label [text]="label" [required]="required" [loading]="loading"></erp-label>
+  @if (label()) {
+    <erp-label [text]="label()!" [required]="required()" [loading]="loading()"></erp-label>
   }
 
-  @if (loading) {
+  @if (loading()) {
     <erp-skeleton width="100%" height="2.5rem" shape="rounded"></erp-skeleton>
   } @else {
     <div class="relative flex items-center">
@@ -13,20 +13,20 @@
 
       <input type="text"
              [value]="query()"
-             [placeholder]="placeholder"
-             [disabled]="disabled"
+             [placeholder]="placeholder()"
+             [disabled]="effectiveDisabled()"
              (input)="onInput($event)"
-             (focus)="query().length >= minLength && isOpen.set(true)"
+             (focus)="query().length >= minLength() && isOpen.set(true)"
              (blur)="onTouched()"
-             [class.border-rose-500]="errorMessage || status === 'invalid'"
-             [class.border-slate-200]="!errorMessage && status !== 'invalid'"
-             [class.dark:border-slate-700]="!errorMessage && status !== 'invalid'"
-             [class.opacity-50]="disabled"
-             [class.cursor-not-allowed]="disabled"
+             [class.border-rose-500]="errorMessage() || status() === 'invalid'"
+             [class.border-slate-200]="!errorMessage() && status() !== 'invalid'"
+             [class.dark:border-slate-700]="!errorMessage() && status() !== 'invalid'"
+             [class.opacity-50]="effectiveDisabled()"
+             [class.cursor-not-allowed]="effectiveDisabled()"
              class="w-full bg-white dark:bg-slate-900 border pl-9 pr-9 py-2.5 text-xs rounded-xl outline-none font-medium placeholder-slate-400 transition-all focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white"/>
 
-      @if (query() && !disabled) {
-        <button type="button" (click)="clear()" class="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded-full">
+      @if (query() && !effectiveDisabled()) {
+        <button type="button" (click)="clear()" aria-label="Xóa tìm kiếm" class="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded-full">
           <erp-icon name="x" [size]="14"></erp-icon>
         </button>
       }
@@ -53,10 +53,10 @@
       </div>
     }
 
-    @if (errorMessage) {
-      <erp-helper-text [text]="errorMessage" status="invalid"></erp-helper-text>
-    } @else if (helperText) {
-      <erp-helper-text [text]="helperText" [status]="status"></erp-helper-text>
+    @if (errorMessage()) {
+      <erp-helper-text [text]="errorMessage()!" status="invalid"></erp-helper-text>
+    } @else if (helperText()) {
+      <erp-helper-text [text]="helperText()!" [status]="status()"></erp-helper-text>
     }
   }
 </div>

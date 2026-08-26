@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Component, Input, Output, EventEmitter, forwardRef, signal, ElementRef, ViewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { IconComponent } from '../../icon/icon.component';
@@ -15,19 +15,21 @@ import { SkeletonComponent } from '../../skeleton/skeleton.component';
 import { LabelComponent } from '../label/label.component';
 import { HelperTextComponent } from '../helper-text/helper-text.component';
 let RichTextEditorComponent = class RichTextEditorComponent {
-    label;
-    placeholder = 'Nhập nội dung định dạng...';
-    minHeight = '140px';
-    helperText;
-    errorMessage;
-    disabled = false;
-    required = false;
-    loading = false;
-    contentChange = new EventEmitter();
+    label = input(undefined);
+    placeholder = input('Nhập nội dung định dạng...');
+    minHeight = input('140px');
+    helperText = input(undefined);
+    errorMessage = input(undefined);
+    disabled = input(false);
+    required = input(false);
+    loading = input(false);
+    contentChange = output();
     editorArea;
     content = signal('');
+    isDisabled = signal(false);
     onChange = () => { };
     onTouched = () => { };
+    effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
     writeValue(val) {
         const html = val || '';
         this.content.set(html);
@@ -42,10 +44,10 @@ let RichTextEditorComponent = class RichTextEditorComponent {
         this.onTouched = fn;
     }
     setDisabledState(isDisabled) {
-        this.disabled = isDisabled;
+        this.isDisabled.set(isDisabled);
     }
     executeCommand(command, value = '') {
-        if (this.disabled || typeof document === 'undefined')
+        if (this.effectiveDisabled() || typeof document === 'undefined')
             return;
         document.execCommand(command, false, value);
         this.onEditorInput();
@@ -59,42 +61,6 @@ let RichTextEditorComponent = class RichTextEditorComponent {
         this.contentChange.emit(html);
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], RichTextEditorComponent.prototype, "label", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], RichTextEditorComponent.prototype, "placeholder", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], RichTextEditorComponent.prototype, "minHeight", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], RichTextEditorComponent.prototype, "helperText", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], RichTextEditorComponent.prototype, "errorMessage", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], RichTextEditorComponent.prototype, "disabled", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], RichTextEditorComponent.prototype, "required", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], RichTextEditorComponent.prototype, "loading", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], RichTextEditorComponent.prototype, "contentChange", void 0);
 __decorate([
     ViewChild('editorArea'),
     __metadata("design:type", ElementRef)
@@ -112,6 +78,7 @@ RichTextEditorComponent = __decorate([
             }
         ],
         templateUrl: './rich-text-editor.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: block;

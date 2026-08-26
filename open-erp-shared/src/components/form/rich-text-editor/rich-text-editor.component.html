@@ -1,24 +1,24 @@
 <div class="w-full font-sans">
-  @if (label) {
-    <erp-label [text]="label" [required]="required" [loading]="loading"></erp-label>
+  @if (label()) {
+    <erp-label [text]="label()!" [required]="required()" [loading]="loading()"></erp-label>
   }
 
-  @if (loading) {
+  @if (loading()) {
     <erp-skeleton width="100%" height="10rem" shape="rounded"></erp-skeleton>
   } @else {
-    <div [class.opacity-50]="disabled"
-         [class.cursor-not-allowed]="disabled"
+    <div [class.opacity-50]="effectiveDisabled()"
+         [class.cursor-not-allowed]="effectiveDisabled()"
          class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs focus-within:ring-2 focus-within:ring-indigo-500/20">
       
       <!-- Formatting Toolbar -->
       <div class="p-2 bg-slate-50 dark:bg-slate-950/80 border-b border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-1">
-        <button type="button" (click)="executeCommand('bold')" title="In đậm" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer font-bold text-xs">B</button>
-        <button type="button" (click)="executeCommand('italic')" title="In nghiêng" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer italic text-xs">I</button>
-        <button type="button" (click)="executeCommand('underline')" title="Gạch chân" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer underline text-xs">U</button>
+        <button type="button" (click)="executeCommand('bold')" title="In đậm" aria-label="In đậm" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer font-bold text-xs">B</button>
+        <button type="button" (click)="executeCommand('italic')" title="In nghiêng" aria-label="In nghiêng" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer italic text-xs">I</button>
+        <button type="button" (click)="executeCommand('underline')" title="Gạch chân" aria-label="Gạch chân" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer underline text-xs">U</button>
         <div class="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-1"></div>
-        <button type="button" (click)="executeCommand('insertUnorderedList')" title="Danh sách" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer flex items-center"><erp-icon name="list" [size]="14"></erp-icon></button>
-        <button type="button" (click)="executeCommand('formatBlock', '<h3>')" title="Tiêu đề H3" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer font-bold text-xs">H3</button>
-        <button type="button" (click)="executeCommand('removeFormat')" title="Xóa định dạng" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-rose-500 cursor-pointer text-xs font-semibold">Clear</button>
+        <button type="button" (click)="executeCommand('insertUnorderedList')" title="Danh sách" aria-label="Danh sách" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer flex items-center"><erp-icon name="list" [size]="14"></erp-icon></button>
+        <button type="button" (click)="executeCommand('formatBlock', '<h3>')" title="Tiêu đề H3" aria-label="Tiêu đề H3" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer font-bold text-xs">H3</button>
+        <button type="button" (click)="executeCommand('removeFormat')" title="Xóa định dạng" aria-label="Xóa định dạng" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-rose-500 cursor-pointer text-xs font-semibold">Clear</button>
       </div>
 
       <!-- Editable Area -->
@@ -26,15 +26,15 @@
            contenteditable="true"
            (input)="onEditorInput()"
            (blur)="onTouched()"
-           [style.min-height]="minHeight"
+           [style.min-height]="minHeight()"
            class="p-3.5 text-xs text-slate-800 dark:text-slate-200 outline-none leading-relaxed prose prose-sm dark:prose-invert max-w-none">
       </div>
     </div>
 
-    @if (errorMessage) {
-      <erp-helper-text [text]="errorMessage" status="invalid"></erp-helper-text>
-    } @else if (helperText) {
-      <erp-helper-text [text]="helperText"></erp-helper-text>
+    @if (errorMessage()) {
+      <erp-helper-text [text]="errorMessage()!" status="invalid"></erp-helper-text>
+    } @else if (helperText()) {
+      <erp-helper-text [text]="helperText()!"></erp-helper-text>
     }
   }
 </div>

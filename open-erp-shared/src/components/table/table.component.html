@@ -1,28 +1,28 @@
-<div [class.border]="bordered"
-     [class.border-slate-200]="bordered"
-     [class.dark:border-slate-800]="bordered"
-     [class.rounded-2xl]="bordered"
+<div [class.border]="bordered()"
+     [class.border-slate-200]="bordered()"
+     [class.dark:border-slate-800]="bordered()"
+     [class.rounded-2xl]="bordered()"
      class="w-full overflow-hidden bg-white dark:bg-slate-900 transition-all select-none">
   
   <!-- Table Scroll Wrapper -->
-  <div [style.max-height]="maxHeight"
-       [class.overflow-y-auto]="maxHeight"
+  <div [style.max-height]="maxHeight()"
+       [class.overflow-y-auto]="maxHeight()"
        class="w-full overflow-x-auto custom-scrollbar">
     
     <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300 border-collapse">
       
       <!-- Table Header -->
       <thead class="bg-slate-50/90 dark:bg-slate-950/80 text-slate-500 dark:text-slate-400 font-bold uppercase text-[11px] tracking-wider border-b border-slate-200 dark:border-slate-800"
-             [class.sticky]="stickyHeader"
-             [class.top-0]="stickyHeader"
-             [class.z-10]="stickyHeader">
+             [class.sticky]="stickyHeader()"
+             [class.top-0]="stickyHeader()"
+             [class.z-10]="stickyHeader()">
         <tr>
           <!-- Checkbox Column -->
-          @if (selectable) {
+          @if (selectable()) {
             <th class="w-10 px-4 py-3 text-center">
               <div class="flex items-center justify-center">
-                <erp-checkbox [ngModel]="isAllSelected"
-                              [indeterminate]="isPartiallySelected"
+                <erp-checkbox [ngModel]="isAllSelected()"
+                              [indeterminate]="isPartiallySelected()"
                               (checkedChange)="toggleSelectAll()">
                 </erp-checkbox>
               </div>
@@ -30,7 +30,7 @@
           }
 
           <!-- Header Columns -->
-          @for (col of columns; track col.key) {
+          @for (col of columns(); track col.key) {
             <th [style.width]="col.width"
                 [class.cursor-pointer]="col.sortable"
                 [class.hover:bg-slate-100]="col.sortable"
@@ -48,9 +48,9 @@
                 <!-- Sort Icon -->
                 @if (col.sortable) {
                   <span class="flex flex-col text-slate-400 dark:text-slate-500">
-                    @if (sortKey === col.key && sortDirection === 'asc') {
+                    @if (sortKey() === col.key && sortDirection() === 'asc') {
                       <erp-icon name="chevron-up" [size]="14" class="text-indigo-600 dark:text-indigo-400"></erp-icon>
-                    } @else if (sortKey === col.key && sortDirection === 'desc') {
+                    } @else if (sortKey() === col.key && sortDirection() === 'desc') {
                       <erp-icon name="chevron-down" [size]="14" class="text-indigo-600 dark:text-indigo-400"></erp-icon>
                     } @else {
                       <erp-icon name="chevrons-up-down" [size]="12" class="opacity-40 hover:opacity-100"></erp-icon>
@@ -67,45 +67,45 @@
       <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80">
         
         <!-- Loading Skeleton Rows -->
-        @if (loading) {
+        @if (loading()) {
           @for (i of [1, 2, 3, 4, 5]; track i) {
             <tr>
-              @if (selectable) {
+              @if (selectable()) {
                 <td class="px-4 py-3.5 text-center">
                   <erp-skeleton width="1rem" height="1rem" shape="rounded"></erp-skeleton>
                 </td>
               }
-              @for (col of columns; track col.key) {
+              @for (col of columns(); track col.key) {
                 <td class="px-4 py-3.5">
                   <erp-skeleton width="75%" height="1rem" shape="rounded"></erp-skeleton>
                 </td>
               }
             </tr>
           }
-        } @else if (data.length === 0) {
+        } @else if (data().length === 0) {
           <!-- Empty State Row -->
           <tr>
-            <td [attr.colspan]="columns.length + (selectable ? 1 : 0)" class="py-12 px-4 text-center">
-              <erp-empty-state [title]="emptyTitle"
-                               [description]="emptyDescription"
+            <td [attr.colspan]="columns().length + (selectable() ? 1 : 0)" class="py-12 px-4 text-center">
+              <erp-empty-state [title]="emptyTitle()"
+                               [description]="emptyDescription()"
                                type="not-found">
               </erp-empty-state>
             </td>
           </tr>
         } @else {
           <!-- Data Rows -->
-          @for (row of data; track $index) {
+          @for (row of data(); track getRowIdentity(row, $index)) {
             <tr (click)="onRowClick(row, $index)"
-                [class.bg-slate-50/50]="striped && $index % 2 === 1 && !isRowSelected(row)"
-                [class.dark:bg-slate-800/30]="striped && $index % 2 === 1 && !isRowSelected(row)"
+                [class.bg-slate-50/50]="striped() && $index % 2 === 1 && !isRowSelected(row)"
+                [class.dark:bg-slate-800/30]="striped() && $index % 2 === 1 && !isRowSelected(row)"
                 [class.bg-indigo-50/40]="isRowSelected(row)"
                 [class.dark:bg-indigo-950/30]="isRowSelected(row)"
-                [class.hover:bg-slate-50]="hoverable && !isRowSelected(row)"
-                [class.dark:hover:bg-slate-800/50]="hoverable && !isRowSelected(row)"
+                [class.hover:bg-slate-50]="hoverable() && !isRowSelected(row)"
+                [class.dark:hover:bg-slate-800/50]="hoverable() && !isRowSelected(row)"
                 class="transition-colors cursor-pointer group">
               
               <!-- Checkbox Cell -->
-              @if (selectable) {
+              @if (selectable()) {
                 <td class="px-4 py-3 text-center" (click)="$event.stopPropagation()">
                   <div class="flex items-center justify-center">
                     <erp-checkbox [ngModel]="isRowSelected(row)"
@@ -116,9 +116,9 @@
               }
 
               <!-- Data Cells -->
-              @for (col of columns; track col.key) {
-                <td [class.py-2]="compact"
-                    [class.py-3.5]="!compact"
+              @for (col of columns(); track col.key) {
+                <td [class.py-2]="compact()"
+                    [class.py-3.5]="!compact()"
                     [class.text-center]="col.align === 'center'"
                     [class.text-right]="col.align === 'right'"
                     class="px-4 font-medium text-slate-800 dark:text-slate-200">
@@ -134,12 +134,12 @@
   </div>
 
   <!-- Optional Footer Pagination -->
-  @if (pagination && totalItems > 0) {
+  @if (pagination() && totalItems() > 0) {
     <div class="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
-      <erp-pagination [currentPage]="currentPage"
-                      [pageSize]="pageSize"
-                      [totalItems]="totalItems"
-                      [pageSizeOptions]="pageSizeOptions"
+      <erp-pagination [currentPage]="currentPage()"
+                      [pageSize]="pageSize()"
+                      [totalItems]="totalItems()"
+                      [pageSizeOptions]="pageSizeOptions()"
                       (pageChange)="pageChange.emit($event)"
                       (pageSizeChange)="pageSizeChange.emit($event)">
       </erp-pagination>

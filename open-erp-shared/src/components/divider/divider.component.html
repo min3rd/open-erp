@@ -1,27 +1,27 @@
-@if (loading) {
+@if (loading()) {
   <erp-skeleton width="100%" height="1px"></erp-skeleton>
-} @else if (orientation === 'vertical') {
-  <div [class.border-dashed]="dashed"
+} @else if (orientation() === 'vertical') {
+  <div [class.border-dashed]="dashed()"
        class="inline-block h-5 w-px border-l border-slate-200 dark:border-slate-800 mx-2 self-center">
   </div>
 } @else {
-  @if (label) {
+  @if (label()) {
     <div class="relative flex items-center w-full my-4">
-      <div [class.border-dashed]="dashed" class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+      <div [class.border-dashed]="dashed()" class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
       
-      <span [class.mr-auto]="align === 'left'"
-            [class.ml-auto]="align === 'right'"
-            [class.mx-4]="align === 'center'"
+      <span [class.mr-auto]="align() === 'left'"
+            [class.ml-auto]="align() === 'right'"
+            [class.mx-4]="align() === 'center'"
             [class.px-3]="true"
             class="shrink-0 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-900 rounded-md select-none">
-        {{ label }}
+        {{ label() }}
         <ng-content></ng-content>
       </span>
       
-      <div [class.border-dashed]="dashed" class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+      <div [class.border-dashed]="dashed()" class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
     </div>
   } @else {
-    <hr [class.border-dashed]="dashed"
+    <hr [class.border-dashed]="dashed()"
         class="w-full my-4 border-0 border-t border-slate-200 dark:border-slate-800"/>
   }
 }

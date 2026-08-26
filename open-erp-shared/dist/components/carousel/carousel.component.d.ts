@@ -1,4 +1,4 @@
-import { EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { OnInit, OnDestroy } from '@angular/core';
 export interface CarouselSlide {
     id?: string;
     title?: string;
@@ -8,20 +8,21 @@ export interface CarouselSlide {
     buttonText?: string;
 }
 export declare class CarouselComponent implements OnInit, OnDestroy {
-    slides: (string | CarouselSlide)[];
-    currentIndex: number;
-    autoplay: boolean;
-    interval: number;
-    showArrows: boolean;
-    showDots: boolean;
-    height: string;
-    indexChange: EventEmitter<number>;
-    slideClick: EventEmitter<{
+    readonly slides: import("@angular/core").InputSignal<(string | CarouselSlide)[]>;
+    readonly currentIndex: import("@angular/core").ModelSignal<number>;
+    readonly autoplay: import("@angular/core").InputSignal<boolean>;
+    readonly interval: import("@angular/core").InputSignal<number>;
+    readonly showArrows: import("@angular/core").InputSignal<boolean>;
+    readonly showDots: import("@angular/core").InputSignal<boolean>;
+    readonly height: import("@angular/core").InputSignal<string>;
+    readonly indexChange: import("@angular/core").OutputEmitterRef<number>;
+    readonly slideClick: import("@angular/core").OutputEmitterRef<{
         slide: CarouselSlide;
         index: number;
     }>;
     private timerRef?;
-    get normalizedSlides(): CarouselSlide[];
+    readonly normalizedSlides: import("@angular/core").Signal<CarouselSlide[]>;
+    constructor();
     ngOnInit(): void;
     ngOnDestroy(): void;
     startAutoplay(): void;

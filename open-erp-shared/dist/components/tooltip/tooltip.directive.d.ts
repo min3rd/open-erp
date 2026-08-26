@@ -3,8 +3,8 @@ import { TooltipPlacement } from '../../enums/component.enum';
 export declare class TooltipDirective {
     private el;
     private renderer;
-    text: string;
-    tooltipPlacement: TooltipPlacement | 'top' | 'bottom' | 'left' | 'right';
+    readonly text: import("@angular/core").InputSignal<string>;
+    readonly tooltipPlacement: import("@angular/core").InputSignal<"left" | "right" | "top" | "bottom" | TooltipPlacement>;
     private tooltipEl?;
     constructor(el: ElementRef, renderer: Renderer2);
     onMouseEnter(): void;

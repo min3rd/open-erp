@@ -1,10 +1,16 @@
-import { Component, Input, Output, EventEmitter, forwardRef, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IconComponent } from '../../icon/icon.component';
 import { SkeletonComponent } from '../../skeleton/skeleton.component';
 import { LabelComponent } from '../label/label.component';
 import { RatingSize } from '../../../enums/component.enum';
+
+const STAR_SIZES: Record<string, number> = {
+  [RatingSize.SM]: 16,
+  [RatingSize.LG]: 28,
+  [RatingSize.MD]: 22
+};
 
 @Component({
   selector: 'erp-rating',
@@ -18,6 +24,7 @@ import { RatingSize } from '../../../enums/component.enum';
     }
   ],
   templateUrl: './rating.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -26,23 +33,31 @@ import { RatingSize } from '../../../enums/component.enum';
   `]
 })
 export class RatingComponent implements ControlValueAccessor {
-  @Input() label?: string;
-  @Input() max: number = 5;
-  @Input() size: RatingSize | 'sm' | 'md' | 'lg' = RatingSize.MD;
-  @Input() allowClear: boolean = true;
-  @Input() readonly: boolean = false;
-  @Input() disabled: boolean = false;
-  @Input() loading: boolean = false;
+  readonly label = input<string | undefined>(undefined);
+  readonly max = input<number>(5);
+  readonly size = input<RatingSize | 'sm' | 'md' | 'lg'>(RatingSize.MD);
+  readonly allowClear = input<boolean>(true);
+  readonly readonly = input<boolean>(false);
+  readonly disabled = input<boolean>(false);
+  readonly loading = input<boolean>(false);
 
-  @Output() ratingChange = new EventEmitter<number>();
+  readonly ratingChange = output<number>();
 
   rating = signal<number>(0);
   hoverValue = signal<number>(0);
+  isDisabled = signal<boolean>(false);
 
   onChange: (val: number) => void = () => {};
   onTouched: () => void = () => {};
 
-  readonly stars = computed(() => Array.from({ length: this.max }, (_, i) => i + 1));
+  readonly effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
+
+  readonly stars = computed(() => Array.from({ length: this.max() }, (_, i) => i + 1));
+
+  readonly starSize = computed(() => {
+    const s = String(this.size());
+    return STAR_SIZES[s] || STAR_SIZES[RatingSize.MD];
+  });
 
   writeValue(val: any): void {
     this.rating.set(typeof val === 'number' ? val : 0);
@@ -57,40 +72,24 @@ export class RatingComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.isDisabled.set(isDisabled);
   }
 
   setRating(val: number): void {
-    if (this.disabled || this.readonly) return;
-    const next = this.allowClear && this.rating() === val ? 0 : val;
+    if (this.effectiveDisabled() || this.readonly()) return;
+    const next = this.allowClear() && this.rating() === val ? 0 : val;
     this.rating.set(next);
     this.onChange(next);
     this.ratingChange.emit(next);
   }
 
   onStarHover(val: number): void {
-    if (!this.disabled && !this.readonly) {
+    if (!this.effectiveDisabled() && !this.readonly()) {
       this.hoverValue.set(val);
     }
   }
 
   onMouseLeave(): void {
     this.hoverValue.set(0);
-  }
-
-  getStarSize(): number {
-    const s = String(this.size);
-    switch (s) {
-      case RatingSize.SM:
-      case 'sm':
-        return 16;
-      case RatingSize.LG:
-      case 'lg':
-        return 28;
-      case RatingSize.MD:
-      case 'md':
-      default:
-        return 22;
-    }
   }
 }

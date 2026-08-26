@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { IconComponent } from '../../icon/icon.component';
@@ -24,6 +24,7 @@ export interface DateRange {
     }
   ],
   templateUrl: './date-range-picker.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -32,21 +33,24 @@ export interface DateRange {
   `]
 })
 export class DateRangePickerComponent implements ControlValueAccessor {
-  @Input() label?: string;
-  @Input() status: ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning' = ValidationStatus.NONE;
-  @Input() helperText?: string;
-  @Input() errorMessage?: string;
-  @Input() disabled: boolean = false;
-  @Input() required: boolean = false;
-  @Input() loading: boolean = false;
+  readonly label = input<string | undefined>(undefined);
+  readonly status = input<ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning'>(ValidationStatus.NONE);
+  readonly helperText = input<string | undefined>(undefined);
+  readonly errorMessage = input<string | undefined>(undefined);
+  readonly disabled = input<boolean>(false);
+  readonly required = input<boolean>(false);
+  readonly loading = input<boolean>(false);
 
-  @Output() rangeChange = new EventEmitter<DateRange>();
+  readonly rangeChange = output<DateRange>();
 
   startDate = signal<string>('');
   endDate = signal<string>('');
+  isDisabled = signal<boolean>(false);
 
   onChange: (val: DateRange) => void = () => {};
   onTouched: () => void = () => {};
+
+  readonly effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
 
   writeValue(val: any): void {
     if (val && typeof val === 'object') {
@@ -67,7 +71,7 @@ export class DateRangePickerComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.isDisabled.set(isDisabled);
   }
 
   onStartChange(event: Event): void {
@@ -89,7 +93,7 @@ export class DateRangePickerComponent implements ControlValueAccessor {
   }
 
   setShortcut(type: 'today' | 'week' | 'month' | 'quarter'): void {
-    if (this.disabled) return;
+    if (this.effectiveDisabled()) return;
     const now = new Date();
     const todayStr = now.toISOString().split('T')[0];
 

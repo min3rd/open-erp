@@ -1,24 +1,29 @@
-@if (loading) {
+@if (loading()) {
   <erp-skeleton width="4.5rem" height="1.5rem" shape="rounded"></erp-skeleton>
 } @else {
   <span (click)="onTagClick($event)"
-        [class]="getTagClasses()"
-        [class.opacity-50]="disabled">
+        (keydown)="onKeyDown($event)"
+        [attr.tabindex]="isInteractive() && !disabled() ? 0 : null"
+        [attr.role]="selectable() ? 'checkbox' : (clickable() ? 'button' : null)"
+        [attr.aria-checked]="selectable() ? selected() : null"
+        [class]="tagClasses()">
     
-    @if (icon) {
-      <erp-icon [name]="icon" [size]="size === 'sm' ? 10 : (size === 'lg' ? 14 : 12)"></erp-icon>
+    @if (icon()) {
+      <erp-icon [name]="icon()!" [size]="iconSize()"></erp-icon>
     }
 
     <span>
-      {{ label }}
+      {{ label() }}
       <ng-content></ng-content>
     </span>
 
-    @if (removable && !disabled) {
+    @if (removable() && !disabled()) {
       <button type="button" 
               (click)="onRemove($event)"
+              aria-label="Xóa thẻ"
+              tabindex="-1"
               class="hover:opacity-75 p-0.5 rounded-full cursor-pointer transition-opacity">
-        <erp-icon name="x" [size]="size === 'sm' ? 10 : 12"></erp-icon>
+        <erp-icon name="x" [size]="removeIconSize()"></erp-icon>
       </button>
     }
   </span>

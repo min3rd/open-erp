@@ -1,4 +1,3 @@
-import { EventEmitter } from '@angular/core';
 import { IconName } from '../../icon/icon.component';
 import { TabsVariant, TabsOrientation } from '../../../enums/component.enum';
 export interface TabItem {
@@ -10,20 +9,20 @@ export interface TabItem {
     disabled?: boolean;
 }
 export declare class TabsComponent {
-    items: (string | TabItem)[];
-    activeTabId?: string;
-    variant: TabsVariant | 'line' | 'pills' | 'enclosed' | 'segmented';
-    orientation: TabsOrientation | 'horizontal' | 'vertical';
-    size: 'sm' | 'md' | 'lg';
-    fullWidth: boolean;
-    tabChange: EventEmitter<string>;
-    activeTabIdChange: EventEmitter<string>;
-    get normalizedItems(): TabItem[];
-    get currentActiveId(): string;
-    get isVertical(): boolean;
-    get isLineVariant(): boolean;
-    get isPillsOrSegmented(): boolean;
+    readonly items: import("@angular/core").InputSignal<(string | TabItem)[]>;
+    readonly activeTabId: import("@angular/core").ModelSignal<string | undefined>;
+    readonly variant: import("@angular/core").InputSignal<"line" | "pills" | "enclosed" | "segmented" | TabsVariant>;
+    readonly orientation: import("@angular/core").InputSignal<"horizontal" | "vertical" | TabsOrientation>;
+    readonly size: import("@angular/core").InputSignal<"sm" | "md" | "lg">;
+    readonly fullWidth: import("@angular/core").InputSignal<boolean>;
+    readonly tabChange: import("@angular/core").OutputEmitterRef<string>;
+    readonly normalizedItems: import("@angular/core").Signal<TabItem[]>;
+    readonly currentActiveId: import("@angular/core").Signal<string>;
+    readonly isVertical: import("@angular/core").Signal<boolean>;
+    readonly isLineVariant: import("@angular/core").Signal<boolean>;
+    readonly isPillsOrSegmented: import("@angular/core").Signal<boolean>;
+    readonly sizeClass: import("@angular/core").Signal<string>;
     selectTab(item: TabItem): void;
-    getSizeClasses(): string;
+    onKeyDown(event: KeyboardEvent, currentIndex: number): void;
     getItemClasses(item: TabItem): string;
 }

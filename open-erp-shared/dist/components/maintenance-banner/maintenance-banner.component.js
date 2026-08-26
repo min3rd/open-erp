@@ -4,7 +4,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { Component, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AppConfigService } from '../../services/app-config.service';
@@ -30,7 +30,8 @@ MaintenanceBannerComponent = __decorate([
         selector: 'erp-maintenance-banner',
         standalone: true,
         imports: [CommonModule, TranslocoModule, IconComponent],
-        templateUrl: './maintenance-banner.component.html'
+        templateUrl: './maintenance-banner.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush
     })
 ], MaintenanceBannerComponent);
 export { MaintenanceBannerComponent };

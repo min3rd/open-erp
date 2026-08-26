@@ -1,9 +1,9 @@
-<div class="flex items-center gap-1 mt-1 text-[11px] font-medium transition-colors" [class]="getTextClasses()">
-  @if (status !== 'none') {
-    <erp-icon [name]="getIconName()" [size]="12"></erp-icon>
+<div class="flex items-center gap-1 mt-1 text-[11px] font-medium transition-colors" [class]="textClass()">
+  @if (status() !== 'none') {
+    <erp-icon [name]="iconName()" [size]="12"></erp-icon>
   }
   <span>
-    {{ text }}
+    {{ text() }}
     <ng-content></ng-content>
   </span>
 </div>

@@ -4,10 +4,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-import { Component, Input, Output, EventEmitter, forwardRef, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { IconComponent } from '../../icon/icon.component';
@@ -16,18 +13,20 @@ import { LabelComponent } from '../label/label.component';
 import { HelperTextComponent } from '../helper-text/helper-text.component';
 import { ValidationStatus } from '../../../enums/component.enum';
 let DateRangePickerComponent = class DateRangePickerComponent {
-    label;
-    status = ValidationStatus.NONE;
-    helperText;
-    errorMessage;
-    disabled = false;
-    required = false;
-    loading = false;
-    rangeChange = new EventEmitter();
+    label = input(undefined);
+    status = input(ValidationStatus.NONE);
+    helperText = input(undefined);
+    errorMessage = input(undefined);
+    disabled = input(false);
+    required = input(false);
+    loading = input(false);
+    rangeChange = output();
     startDate = signal('');
     endDate = signal('');
+    isDisabled = signal(false);
     onChange = () => { };
     onTouched = () => { };
+    effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
     writeValue(val) {
         if (val && typeof val === 'object') {
             this.startDate.set(val.startDate || '');
@@ -45,7 +44,7 @@ let DateRangePickerComponent = class DateRangePickerComponent {
         this.onTouched = fn;
     }
     setDisabledState(isDisabled) {
-        this.disabled = isDisabled;
+        this.isDisabled.set(isDisabled);
     }
     onStartChange(event) {
         const val = event.target.value;
@@ -63,7 +62,7 @@ let DateRangePickerComponent = class DateRangePickerComponent {
         this.rangeChange.emit(range);
     }
     setShortcut(type) {
-        if (this.disabled)
+        if (this.effectiveDisabled())
             return;
         const now = new Date();
         const todayStr = now.toISOString().split('T')[0];
@@ -93,38 +92,6 @@ let DateRangePickerComponent = class DateRangePickerComponent {
         this.emitRange();
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], DateRangePickerComponent.prototype, "label", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], DateRangePickerComponent.prototype, "status", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], DateRangePickerComponent.prototype, "helperText", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], DateRangePickerComponent.prototype, "errorMessage", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], DateRangePickerComponent.prototype, "disabled", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], DateRangePickerComponent.prototype, "required", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], DateRangePickerComponent.prototype, "loading", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], DateRangePickerComponent.prototype, "rangeChange", void 0);
 DateRangePickerComponent = __decorate([
     Component({
         selector: 'erp-date-range-picker',
@@ -138,6 +105,7 @@ DateRangePickerComponent = __decorate([
             }
         ],
         templateUrl: './date-range-picker.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: block;

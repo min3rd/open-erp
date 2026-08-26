@@ -7,31 +7,32 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Directive, ElementRef, HostListener, Input, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, HostListener, input, Renderer2 } from '@angular/core';
 import { TooltipPlacement } from '../../enums/component.enum';
 let TooltipDirective = class TooltipDirective {
     el;
     renderer;
-    text = '';
-    tooltipPlacement = TooltipPlacement.TOP;
+    text = input('', { alias: 'erpTooltip' });
+    tooltipPlacement = input(TooltipPlacement.TOP);
     tooltipEl;
     constructor(el, renderer) {
         this.el = el;
         this.renderer = renderer;
     }
     onMouseEnter() {
-        if (!this.text)
+        const val = this.text();
+        if (!val)
             return;
-        this.createTooltip();
+        this.createTooltip(val);
     }
     onMouseLeave() {
         this.destroyTooltip();
     }
-    createTooltip() {
+    createTooltip(textContent) {
         this.destroyTooltip();
         const hostPos = this.el.nativeElement.getBoundingClientRect();
         const tooltip = this.renderer.createElement('div');
-        this.renderer.setProperty(tooltip, 'textContent', this.text);
+        this.renderer.setProperty(tooltip, 'textContent', textContent);
         // Apply styles
         this.renderer.addClass(tooltip, 'fixed');
         this.renderer.addClass(tooltip, 'z-50');
@@ -52,7 +53,7 @@ let TooltipDirective = class TooltipDirective {
         const tooltipPos = tooltip.getBoundingClientRect();
         let top = 0;
         let left = 0;
-        const p = String(this.tooltipPlacement);
+        const p = String(this.tooltipPlacement());
         switch (p) {
             case 'bottom':
                 top = hostPos.bottom + 6;
@@ -82,14 +83,6 @@ let TooltipDirective = class TooltipDirective {
         }
     }
 };
-__decorate([
-    Input('erpTooltip'),
-    __metadata("design:type", String)
-], TooltipDirective.prototype, "text", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TooltipDirective.prototype, "tooltipPlacement", void 0);
 __decorate([
     HostListener('mouseenter'),
     __metadata("design:type", Function),

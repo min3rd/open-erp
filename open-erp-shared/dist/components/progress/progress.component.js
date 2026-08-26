@@ -4,121 +4,73 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../icon/icon.component';
 import { ProgressVariant, ProgressStatus } from '../../enums/component.enum';
-let ProgressComponent = class ProgressComponent {
-    percent = 0;
-    variant = ProgressVariant.BAR;
-    status = ProgressStatus.NORMAL;
-    showInfo = true;
-    strokeWidth = 8;
-    circleSize = 100;
-    indeterminate = false;
-    striped = false;
-    color;
-    trackColor;
-    get normalizedPercent() {
-        return Math.max(0, Math.min(100, this.percent));
-    }
-    get isCircle() {
-        return this.variant === 'circle' || this.variant === 'dashboard';
-    }
-    get circleRadius() {
-        return (this.circleSize - this.strokeWidth) / 2;
-    }
-    get circleCircumference() {
-        return 2 * Math.PI * this.circleRadius;
-    }
-    get circleDashOffset() {
-        const p = this.indeterminate ? 75 : this.normalizedPercent;
-        return this.circleCircumference - (p / 100) * this.circleCircumference;
-    }
-    get barColorClass() {
-        if (this.color)
-            return '';
-        switch (this.status) {
-            case 'success':
-                return 'bg-emerald-500';
-            case 'warning':
-                return 'bg-amber-500';
-            case 'error':
-                return 'bg-rose-500';
-            case 'active':
-                return 'bg-gradient-to-r from-indigo-500 to-cyan-400';
-            case 'normal':
-            default:
-                return 'bg-indigo-600 dark:bg-indigo-500';
-        }
-    }
-    get circleStrokeColor() {
-        if (this.color)
-            return this.color;
-        switch (this.status) {
-            case 'success':
-                return '#10b981';
-            case 'warning':
-                return '#f59e0b';
-            case 'error':
-                return '#f43f5e';
-            case 'active':
-                return '#6366f1';
-            case 'normal':
-            default:
-                return '#4f46e5';
-        }
-    }
+const BAR_STATUS_CLASSES = {
+    [ProgressStatus.SUCCESS]: 'bg-emerald-500',
+    [ProgressStatus.WARNING]: 'bg-amber-500',
+    [ProgressStatus.ERROR]: 'bg-rose-500',
+    [ProgressStatus.ACTIVE]: 'bg-gradient-to-r from-indigo-500 to-cyan-400',
+    [ProgressStatus.NORMAL]: 'bg-indigo-600 dark:bg-indigo-500'
 };
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], ProgressComponent.prototype, "percent", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ProgressComponent.prototype, "variant", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ProgressComponent.prototype, "status", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ProgressComponent.prototype, "showInfo", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], ProgressComponent.prototype, "strokeWidth", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], ProgressComponent.prototype, "circleSize", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ProgressComponent.prototype, "indeterminate", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ProgressComponent.prototype, "striped", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ProgressComponent.prototype, "color", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ProgressComponent.prototype, "trackColor", void 0);
+const CIRCLE_STATUS_COLORS = {
+    [ProgressStatus.SUCCESS]: '#10b981',
+    [ProgressStatus.WARNING]: '#f59e0b',
+    [ProgressStatus.ERROR]: '#f43f5e',
+    [ProgressStatus.ACTIVE]: '#6366f1',
+    [ProgressStatus.NORMAL]: '#4f46e5'
+};
+let ProgressComponent = class ProgressComponent {
+    percent = input(0);
+    variant = input(ProgressVariant.BAR);
+    status = input(ProgressStatus.NORMAL);
+    showInfo = input(true);
+    strokeWidth = input(8);
+    circleSize = input(100);
+    indeterminate = input(false);
+    striped = input(false);
+    color = input(undefined);
+    trackColor = input(undefined);
+    normalizedPercent = computed(() => {
+        return Math.max(0, Math.min(100, this.percent()));
+    });
+    isCircle = computed(() => {
+        const v = String(this.variant());
+        return v === 'circle' || v === 'dashboard';
+    });
+    circleRadius = computed(() => {
+        return (this.circleSize() - this.strokeWidth()) / 2;
+    });
+    circleCircumference = computed(() => {
+        return 2 * Math.PI * this.circleRadius();
+    });
+    circleDashOffset = computed(() => {
+        const p = this.indeterminate() ? 75 : this.normalizedPercent();
+        return this.circleCircumference() - (p / 100) * this.circleCircumference();
+    });
+    barColorClass = computed(() => {
+        if (this.color())
+            return '';
+        const st = String(this.status());
+        return BAR_STATUS_CLASSES[st] || BAR_STATUS_CLASSES[ProgressStatus.NORMAL];
+    });
+    circleStrokeColor = computed(() => {
+        const c = this.color();
+        if (c)
+            return c;
+        const st = String(this.status());
+        return CIRCLE_STATUS_COLORS[st] || CIRCLE_STATUS_COLORS[ProgressStatus.NORMAL];
+    });
+};
 ProgressComponent = __decorate([
     Component({
         selector: 'erp-progress, erp-progress-bar, erp-progress-circle',
         standalone: true,
         imports: [CommonModule, IconComponent],
         templateUrl: './progress.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: block;

@@ -1,4 +1,3 @@
-import { EventEmitter } from '@angular/core';
 import { IconName } from '../../icon/icon.component';
 import { NavbarPosition } from '../../../enums/component.enum';
 export interface NavbarItem {
@@ -13,19 +12,19 @@ export interface NavbarItem {
     children?: NavbarItem[];
 }
 export declare class NavbarComponent {
-    brandTitle: string;
-    brandSubtitle?: string;
-    brandLogo?: string;
-    brandUrl: string;
-    position: NavbarPosition | 'static' | 'sticky' | 'fixed';
-    bordered: boolean;
-    glass: boolean;
-    items: NavbarItem[];
-    showMobileToggle: boolean;
-    mobileOpen: boolean;
-    mobileToggle: EventEmitter<boolean>;
-    itemClick: EventEmitter<NavbarItem>;
+    readonly brandTitle: import("@angular/core").InputSignal<string>;
+    readonly brandSubtitle: import("@angular/core").InputSignal<string | undefined>;
+    readonly brandLogo: import("@angular/core").InputSignal<string | undefined>;
+    readonly brandUrl: import("@angular/core").InputSignal<string>;
+    readonly position: import("@angular/core").InputSignal<"static" | "sticky" | "fixed" | NavbarPosition>;
+    readonly bordered: import("@angular/core").InputSignal<boolean>;
+    readonly glass: import("@angular/core").InputSignal<boolean>;
+    readonly items: import("@angular/core").InputSignal<NavbarItem[]>;
+    readonly showMobileToggle: import("@angular/core").InputSignal<boolean>;
+    readonly mobileOpen: import("@angular/core").ModelSignal<boolean>;
+    readonly mobileToggle: import("@angular/core").OutputEmitterRef<boolean>;
+    readonly itemClick: import("@angular/core").OutputEmitterRef<NavbarItem>;
+    readonly positionClass: import("@angular/core").Signal<string>;
     onToggleMobile(): void;
     onItemClick(item: NavbarItem, event?: MouseEvent): void;
-    getPositionClasses(): string;
 }

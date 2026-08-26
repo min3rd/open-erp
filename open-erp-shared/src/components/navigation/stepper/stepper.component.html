@@ -1,17 +1,17 @@
-@if (loading) {
+@if (loading()) {
   <div class="flex items-center gap-4 py-2">
     <erp-skeleton width="30%" height="2.5rem" shape="rounded"></erp-skeleton>
     <erp-skeleton width="30%" height="2.5rem" shape="rounded"></erp-skeleton>
     <erp-skeleton width="30%" height="2.5rem" shape="rounded"></erp-skeleton>
   </div>
 } @else {
-  <div [class.flex-row]="orientation === 'horizontal'"
-       [class.flex-col]="orientation === 'vertical'"
+  <div [class.flex-row]="orientation() === 'horizontal'"
+       [class.flex-col]="orientation() === 'vertical'"
        class="flex items-center justify-between w-full font-sans gap-3 select-none">
     
-    @for (step of normalizedSteps; track $index) {
+    @for (step of normalizedSteps(); track $index) {
       <div (click)="onStepClick($index, step)"
-           [class.cursor-pointer]="clickable && !step.disabled"
+           [class.cursor-pointer]="clickable() && !step.disabled"
            [class.cursor-not-allowed]="step.disabled"
            [class.opacity-50]="step.disabled"
            class="flex items-center gap-3 flex-1 group">
@@ -54,7 +54,7 @@
         </div>
 
         <!-- Connecting Line Divider -->
-        @if ($index < normalizedSteps.length - 1 && orientation === 'horizontal') {
+        @if ($index < normalizedSteps().length - 1 && orientation() === 'horizontal') {
           <div [class.bg-indigo-600]="getStepStatus($index) === 'completed'"
                [class.bg-slate-200]="getStepStatus($index) !== 'completed'"
                [class.dark:bg-slate-800]="getStepStatus($index) !== 'completed'"

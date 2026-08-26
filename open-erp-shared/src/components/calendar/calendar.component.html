@@ -1,13 +1,13 @@
-<div [class.border]="bordered"
-     [class.border-slate-200]="bordered"
-     [class.dark:border-slate-800]="bordered"
-     [class.rounded-3xl]="bordered"
+<div [class.border]="bordered()"
+     [class.border-slate-200]="bordered()"
+     [class.dark:border-slate-800]="bordered()"
+     [class.rounded-3xl]="bordered()"
      class="w-full bg-white dark:bg-slate-900 p-5 overflow-hidden select-none shadow-sm">
   
   <!-- Header: Month Title & Navigation -->
   <div class="flex items-center justify-between mb-4">
     <div class="flex items-center gap-2">
-      <h3 class="font-bold text-sm text-slate-900 dark:text-white">{{ monthLabel }}</h3>
+      <h3 class="font-bold text-sm text-slate-900 dark:text-white">{{ monthLabel() }}</h3>
       <button (click)="goToToday()"
               type="button"
               class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
@@ -19,12 +19,14 @@
       <button (click)="prevMonth()"
               type="button"
               title="Tháng trước"
+              aria-label="Tháng trước"
               class="p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors">
         <erp-icon name="chevron-left" [size]="14"></erp-icon>
       </button>
       <button (click)="nextMonth()"
               type="button"
               title="Tháng sau"
+              aria-label="Tháng sau"
               class="p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors">
         <erp-icon name="chevron-right" [size]="14"></erp-icon>
       </button>
@@ -40,9 +42,10 @@
 
   <!-- Calendar Day Grid Cells -->
   <div class="grid grid-cols-7 gap-1">
-    @for (day of daysMatrix; track day.dateStr + $index) {
+    @for (day of daysMatrix(); track day.dateStr + $index) {
       <button (click)="onSelectDay(day)"
               type="button"
+              [attr.aria-label]="day.dateStr"
               [class.opacity-30]="!day.isCurrentMonth"
               [class.bg-indigo-600]="day.isSelected"
               [class.text-white]="day.isSelected"

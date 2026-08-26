@@ -1,4 +1,4 @@
-import { EventEmitter, OnInit } from '@angular/core';
+import { OnInit } from '@angular/core';
 export interface CalendarEvent {
     date: string;
     title: string;
@@ -14,24 +14,23 @@ export interface CalendarDay {
     events: CalendarEvent[];
 }
 export declare class CalendarComponent implements OnInit {
-    selectedDate?: string;
-    events: CalendarEvent[];
-    bordered: boolean;
-    dateSelect: EventEmitter<string>;
-    monthChange: EventEmitter<{
+    readonly selectedDate: import("@angular/core").ModelSignal<string | undefined>;
+    readonly events: import("@angular/core").InputSignal<CalendarEvent[]>;
+    readonly bordered: import("@angular/core").InputSignal<boolean>;
+    readonly dateSelect: import("@angular/core").OutputEmitterRef<string>;
+    readonly monthChange: import("@angular/core").OutputEmitterRef<{
         month: number;
         year: number;
     }>;
-    currentMonth: number;
-    currentYear: number;
+    currentMonth: import("@angular/core").WritableSignal<number>;
+    currentYear: import("@angular/core").WritableSignal<number>;
     weekDays: string[];
-    daysMatrix: CalendarDay[];
+    readonly monthLabel: import("@angular/core").Signal<string>;
+    readonly daysMatrix: import("@angular/core").Signal<CalendarDay[]>;
     ngOnInit(): void;
-    get monthLabel(): string;
     prevMonth(): void;
     nextMonth(): void;
     goToToday(): void;
     onSelectDay(day: CalendarDay): void;
-    private generateDays;
     private formatDate;
 }

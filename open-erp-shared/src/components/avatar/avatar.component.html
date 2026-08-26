@@ -1,20 +1,20 @@
-@if (loading) {
-  <erp-skeleton [className]="getSizeClasses() + ' ' + getShapeClasses()"></erp-skeleton>
+@if (loading()) {
+  <erp-skeleton [className]="sizeClass() + ' ' + shapeClass()"></erp-skeleton>
 } @else {
   <div class="relative inline-flex shrink-0">
-    @if (imageUrl) {
-      <img [src]="imageUrl" 
-           [alt]="name" 
-           [class]="getSizeClasses() + ' ' + getShapeClasses()" 
+    @if (imageUrl()) {
+      <img [src]="imageUrl()!" 
+           [alt]="name()" 
+           [class]="sizeClass() + ' ' + shapeClass()" 
            class="object-cover shadow-xs border border-slate-200 dark:border-slate-700"/>
     } @else {
-      <div [class]="getSizeClasses() + ' ' + getShapeClasses()"
+      <div [class]="sizeClass() + ' ' + shapeClass()"
            class="bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 text-white font-bold flex items-center justify-center shadow-xs select-none">
-        {{ initial }}
+        {{ initial() }}
       </div>
     }
 
-    @if (online) {
+    @if (online()) {
       <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900"></span>
     }
   </div>

@@ -1,4 +1,3 @@
-import { EventEmitter } from '@angular/core';
 import { IconName } from '../../icon/icon.component';
 export interface BottomNavItem {
     id: string;
@@ -10,14 +9,13 @@ export interface BottomNavItem {
     disabled?: boolean;
 }
 export declare class BottomNavComponent {
-    items: BottomNavItem[];
-    activeId?: string;
-    fixed: boolean;
-    safeArea: boolean;
-    floating: boolean;
-    showLabels: boolean;
-    itemClick: EventEmitter<BottomNavItem>;
-    activeIdChange: EventEmitter<string>;
-    get currentActiveId(): string;
+    readonly items: import("@angular/core").InputSignal<BottomNavItem[]>;
+    readonly activeId: import("@angular/core").ModelSignal<string | undefined>;
+    readonly fixed: import("@angular/core").InputSignal<boolean>;
+    readonly safeArea: import("@angular/core").InputSignal<boolean>;
+    readonly floating: import("@angular/core").InputSignal<boolean>;
+    readonly showLabels: import("@angular/core").InputSignal<boolean>;
+    readonly itemClick: import("@angular/core").OutputEmitterRef<BottomNavItem>;
+    readonly currentActiveId: import("@angular/core").Signal<string>;
     onItemSelect(item: BottomNavItem): void;
 }

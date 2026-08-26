@@ -1,7 +1,7 @@
-import { Component, Input, Output, EventEmitter, forwardRef, signal, ElementRef, ViewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
-import { IconComponent, IconName } from '../../icon/icon.component';
+import { IconComponent } from '../../icon/icon.component';
 import { SkeletonComponent } from '../../skeleton/skeleton.component';
 import { LabelComponent } from '../label/label.component';
 import { HelperTextComponent } from '../helper-text/helper-text.component';
@@ -18,6 +18,7 @@ import { HelperTextComponent } from '../helper-text/helper-text.component';
     }
   ],
   templateUrl: './rich-text-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -26,23 +27,26 @@ import { HelperTextComponent } from '../helper-text/helper-text.component';
   `]
 })
 export class RichTextEditorComponent implements ControlValueAccessor {
-  @Input() label?: string;
-  @Input() placeholder: string = 'Nhập nội dung định dạng...';
-  @Input() minHeight: string = '140px';
-  @Input() helperText?: string;
-  @Input() errorMessage?: string;
-  @Input() disabled: boolean = false;
-  @Input() required: boolean = false;
-  @Input() loading: boolean = false;
+  readonly label = input<string | undefined>(undefined);
+  readonly placeholder = input<string>('Nhập nội dung định dạng...');
+  readonly minHeight = input<string>('140px');
+  readonly helperText = input<string | undefined>(undefined);
+  readonly errorMessage = input<string | undefined>(undefined);
+  readonly disabled = input<boolean>(false);
+  readonly required = input<boolean>(false);
+  readonly loading = input<boolean>(false);
 
-  @Output() contentChange = new EventEmitter<string>();
+  readonly contentChange = output<string>();
 
   @ViewChild('editorArea') editorArea?: ElementRef<HTMLDivElement>;
 
   content = signal<string>('');
+  isDisabled = signal<boolean>(false);
 
   onChange: (val: string) => void = () => {};
   onTouched: () => void = () => {};
+
+  readonly effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
 
   writeValue(val: any): void {
     const html = val || '';
@@ -61,11 +65,11 @@ export class RichTextEditorComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.isDisabled.set(isDisabled);
   }
 
   executeCommand(command: string, value: string = ''): void {
-    if (this.disabled || typeof document === 'undefined') return;
+    if (this.effectiveDisabled() || typeof document === 'undefined') return;
     document.execCommand(command, false, value);
     this.onEditorInput();
   }

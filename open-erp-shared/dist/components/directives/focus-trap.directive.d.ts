@@ -1,7 +1,7 @@
 import { ElementRef, AfterViewInit } from '@angular/core';
 export declare class FocusTrapDirective implements AfterViewInit {
     private el;
-    enabled: boolean;
+    readonly enabled: import("@angular/core").InputSignal<boolean>;
     private focusableSelector;
     constructor(el: ElementRef);
     ngAfterViewInit(): void;

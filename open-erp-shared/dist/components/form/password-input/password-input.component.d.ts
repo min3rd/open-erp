@@ -1,22 +1,27 @@
-import { EventEmitter } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { InputSize, ValidationStatus } from '../../../enums/component.enum';
 export declare class PasswordInputComponent implements ControlValueAccessor {
-    label?: string;
-    placeholder: string;
-    size: InputSize | 'sm' | 'md' | 'lg';
-    status: ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning';
-    helperText?: string;
-    errorMessage?: string;
-    showStrengthMeter: boolean;
-    disabled: boolean;
-    required: boolean;
-    loading: boolean;
-    valueChange: EventEmitter<string>;
+    readonly label: import("@angular/core").InputSignal<string | undefined>;
+    readonly placeholder: import("@angular/core").InputSignal<string>;
+    readonly size: import("@angular/core").InputSignal<"sm" | "md" | "lg" | InputSize>;
+    readonly status: import("@angular/core").InputSignal<"warning" | "none" | "valid" | "invalid" | ValidationStatus>;
+    readonly helperText: import("@angular/core").InputSignal<string | undefined>;
+    readonly errorMessage: import("@angular/core").InputSignal<string | undefined>;
+    readonly showStrengthMeter: import("@angular/core").InputSignal<boolean>;
+    readonly disabled: import("@angular/core").InputSignal<boolean>;
+    readonly required: import("@angular/core").InputSignal<boolean>;
+    readonly loading: import("@angular/core").InputSignal<boolean>;
+    readonly valueChange: import("@angular/core").OutputEmitterRef<string>;
     value: import("@angular/core").WritableSignal<string>;
     showPassword: import("@angular/core").WritableSignal<boolean>;
+    isDisabled: import("@angular/core").WritableSignal<boolean>;
     onChange: (val: string) => void;
     onTouched: () => void;
+    readonly effectiveDisabled: import("@angular/core").Signal<boolean>;
+    readonly sizeClass: import("@angular/core").Signal<string>;
+    readonly statusClass: import("@angular/core").Signal<"border-rose-500 focus:ring-rose-500/30 text-rose-900 dark:text-rose-100" | "border-emerald-500 focus:ring-emerald-500/30 text-emerald-900 dark:text-emerald-100" | "border-slate-200 dark:border-slate-700/80 focus:border-indigo-500 focus:ring-indigo-500/20 text-slate-900 dark:text-white">;
+    readonly iconSize: import("@angular/core").Signal<14 | 16>;
+    readonly skeletonHeight: import("@angular/core").Signal<"2rem" | "2.5rem" | "2.875rem">;
     readonly passwordStrength: import("@angular/core").Signal<number>;
     readonly strengthLabel: import("@angular/core").Signal<"Rất yếu" | "Trung bình" | "Khá" | "Rất mạnh">;
     readonly strengthColor: import("@angular/core").Signal<"bg-emerald-500" | "bg-amber-500" | "bg-rose-500" | "bg-indigo-500">;
@@ -26,6 +31,4 @@ export declare class PasswordInputComponent implements ControlValueAccessor {
     setDisabledState(isDisabled: boolean): void;
     togglePasswordVisibility(): void;
     onInput(event: Event): void;
-    getSizeClasses(): string;
-    getStatusClasses(): string;
 }

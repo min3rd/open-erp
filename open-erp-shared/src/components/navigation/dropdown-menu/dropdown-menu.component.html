@@ -3,19 +3,25 @@
      class="relative inline-block text-left">
   
   <!-- Trigger Button / Content Slot -->
-  <div (click)="trigger === 'click' ? toggle() : null" class="inline-block cursor-pointer">
+  <div (click)="trigger() === 'click' ? toggle() : null" 
+       tabindex="0"
+       role="button"
+       aria-haspopup="menu"
+       [attr.aria-expanded]="isOpen()"
+       class="inline-block cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 rounded-xl">
     <ng-content select="[menu-trigger]"></ng-content>
     <ng-content></ng-content>
   </div>
 
   <!-- Dropdown Popup Content -->
-  @if (isOpen) {
-    <div [ngClass]="getPlacementClasses()"
-         [style.min-width]="minWidth"
+  @if (isOpen()) {
+    <div role="menu"
+         [class]="placementClasses()"
+         [style.min-width]="minWidth()"
          class="absolute z-50 py-1.5 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200/80 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 select-none animate-in fade-in zoom-in-95 duration-150">
       
       <ng-content select="[menu-content]">
-        @for (item of items; track $index) {
+        @for (item of items(); track $index) {
           
           <!-- Header Item -->
           @if (item.header) {
@@ -26,13 +32,14 @@
 
           <!-- Divider Line -->
           @if (item.divider) {
-            <div class="my-1 border-t border-slate-100 dark:border-slate-800"></div>
+            <div role="separator" class="my-1 border-t border-slate-100 dark:border-slate-800"></div>
           }
 
           <!-- Standard Action Item -->
           @if (item.label && !item.header) {
             <button (click)="onItemSelect(item, $event)"
                     type="button"
+                    role="menuitem"
                     [disabled]="item.disabled"
                     [class.text-rose-600]="item.danger"
                     [class.dark:text-rose-400]="item.danger"
@@ -42,9 +49,11 @@
                     [class.dark:hover:bg-slate-800]="!item.danger && !item.disabled"
                     [class.hover:text-slate-900]="!item.danger && !item.disabled"
                     [class.dark:hover:text-white]="!item.danger && !item.disabled"
+                    [class.bg-slate-100]="actionableItems()[activeIndex()] === item && !item.danger"
+                    [class.dark:bg-slate-800]="actionableItems()[activeIndex()] === item && !item.danger"
                     [class.opacity-40]="item.disabled"
                     [class.cursor-not-allowed]="item.disabled"
-                    class="w-full flex items-center justify-between px-3.5 py-2 text-left transition-colors font-medium group">
+                    class="w-full flex items-center justify-between px-3.5 py-2 text-left transition-colors font-medium group outline-none">
               
               <div class="flex items-center gap-2.5 min-w-0">
                 @if (item.icon) {

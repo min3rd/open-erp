@@ -4,52 +4,30 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-let SkeletonComponent = class SkeletonComponent {
-    width = '100%';
-    height = '1rem';
-    shape = 'rounded';
-    className = '';
-    getShapeClasses() {
-        switch (this.shape) {
-            case 'circle':
-                return 'rounded-full';
-            case 'pill':
-                return 'rounded-full';
-            case 'rect':
-                return 'rounded-none';
-            case 'rounded':
-            default:
-                return 'rounded-xl';
-        }
-    }
+const SHAPE_CLASSES = {
+    circle: 'rounded-full',
+    pill: 'rounded-full',
+    rect: 'rounded-none',
+    rounded: 'rounded-xl'
 };
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SkeletonComponent.prototype, "width", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SkeletonComponent.prototype, "height", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SkeletonComponent.prototype, "shape", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SkeletonComponent.prototype, "className", void 0);
+let SkeletonComponent = class SkeletonComponent {
+    width = input('100%');
+    height = input('1rem');
+    shape = input('rounded');
+    className = input('');
+    shapeClass = computed(() => {
+        return SHAPE_CLASSES[this.shape()] || SHAPE_CLASSES['rounded'];
+    });
+};
 SkeletonComponent = __decorate([
     Component({
         selector: 'erp-skeleton',
         standalone: true,
         imports: [CommonModule],
-        templateUrl: './skeleton.component.html'
+        templateUrl: './skeleton.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush
     })
 ], SkeletonComponent);
 export { SkeletonComponent };

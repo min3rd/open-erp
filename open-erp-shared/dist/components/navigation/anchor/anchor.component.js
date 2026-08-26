@@ -7,20 +7,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../icon/icon.component';
 let AnchorComponent = class AnchorComponent {
-    items = [];
-    activeTargetId = '';
-    offsetTop = 100;
-    showRail = true;
-    title = 'Nội dung trang';
-    anchorClick = new EventEmitter();
-    activeTargetIdChange = new EventEmitter();
+    items = input([]);
+    activeTargetId = model('');
+    offsetTop = input(100);
+    showRail = input(true);
+    title = input('Nội dung trang');
+    anchorClick = output();
     ngOnInit() {
-        if (!this.activeTargetId && this.items.length > 0) {
-            this.activeTargetId = this.items[0].targetId;
+        const act = this.activeTargetId();
+        const its = this.items();
+        if (!act && its.length > 0) {
+            this.activeTargetId.set(its[0].targetId);
         }
     }
     ngAfterViewInit() {
@@ -31,19 +32,19 @@ let AnchorComponent = class AnchorComponent {
     }
     scrollToTarget(item, event) {
         event.preventDefault();
-        this.activeTargetId = item.targetId;
-        this.activeTargetIdChange.emit(this.activeTargetId);
+        this.activeTargetId.set(item.targetId);
         this.anchorClick.emit(item);
         if (typeof document !== 'undefined') {
             const el = document.getElementById(item.targetId);
             if (el) {
-                const top = el.getBoundingClientRect().top + window.scrollY - this.offsetTop;
+                const top = el.getBoundingClientRect().top + window.scrollY - this.offsetTop();
                 window.scrollTo({ top, behavior: 'smooth' });
             }
         }
     }
     checkActiveSection() {
-        if (typeof document === 'undefined' || this.items.length === 0)
+        const its = this.items();
+        if (typeof document === 'undefined' || its.length === 0)
             return;
         const allTargets = [];
         const collectTargets = (list) => {
@@ -54,52 +55,24 @@ let AnchorComponent = class AnchorComponent {
                     collectTargets(item.children);
             }
         };
-        collectTargets(this.items);
-        let current = this.activeTargetId;
+        collectTargets(its);
+        let current = this.activeTargetId();
+        const offset = this.offsetTop();
         for (const id of allTargets) {
             const el = document.getElementById(id);
             if (el) {
                 const rect = el.getBoundingClientRect();
-                if (rect.top <= this.offsetTop + 40 && rect.bottom > this.offsetTop) {
+                if (rect.top <= offset + 40 && rect.bottom > offset) {
                     current = id;
                     break;
                 }
             }
         }
-        if (current && current !== this.activeTargetId) {
-            this.activeTargetId = current;
-            this.activeTargetIdChange.emit(this.activeTargetId);
+        if (current && current !== this.activeTargetId()) {
+            this.activeTargetId.set(current);
         }
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", Array)
-], AnchorComponent.prototype, "items", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], AnchorComponent.prototype, "activeTargetId", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], AnchorComponent.prototype, "offsetTop", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], AnchorComponent.prototype, "showRail", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], AnchorComponent.prototype, "title", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], AnchorComponent.prototype, "anchorClick", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], AnchorComponent.prototype, "activeTargetIdChange", void 0);
 __decorate([
     HostListener('window:scroll', []),
     __metadata("design:type", Function),
@@ -112,6 +85,7 @@ AnchorComponent = __decorate([
         standalone: true,
         imports: [CommonModule, IconComponent],
         templateUrl: './anchor.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: block;

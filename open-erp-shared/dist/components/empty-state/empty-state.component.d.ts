@@ -1,10 +1,9 @@
-import { IconName } from '../icon/icon.component';
 import { EmptyStateType } from '../../enums/component.enum';
 export declare class EmptyStateComponent {
-    title: string;
-    description: string;
-    type: EmptyStateType | 'no-data' | 'not-found' | 'error' | 'maintenance';
-    customIcon?: IconName;
-    loading: boolean;
-    getIconName(): IconName;
+    readonly title: import("@angular/core").InputSignal<string>;
+    readonly description: import("@angular/core").InputSignal<string>;
+    readonly type: import("@angular/core").InputSignal<"no-data" | "not-found" | "error" | "maintenance" | EmptyStateType>;
+    readonly customIcon: import("@angular/core").InputSignal<string | undefined>;
+    readonly loading: import("@angular/core").InputSignal<boolean>;
+    readonly iconName: import("@angular/core").Signal<string>;
 }

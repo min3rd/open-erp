@@ -1,33 +1,35 @@
-<div [class.space-y-3]="!bordered && !ghost"
-     [class.divide-y]="bordered"
-     [class.divide-slate-100]="bordered"
-     [class.dark:divide-slate-800/80]="bordered"
-     [class.border]="bordered"
-     [class.border-slate-200]="bordered"
-     [class.dark:border-slate-800]="bordered"
-     [class.rounded-3xl]="bordered"
-     [class.overflow-hidden]="bordered"
+<div [class.space-y-3]="!bordered() && !ghost()"
+     [class.divide-y]="bordered()"
+     [class.divide-slate-100]="bordered()"
+     [class.dark:divide-slate-800/80]="bordered()"
+     [class.border]="bordered()"
+     [class.border-slate-200]="bordered()"
+     [class.dark:border-slate-800]="bordered()"
+     [class.rounded-3xl]="bordered()"
+     [class.overflow-hidden]="bordered()"
      class="w-full select-none transition-all">
   
-  @for (item of items; track item.id || item.title || $index) {
-    <div [class.bg-white]="!ghost"
-         [class.dark:bg-slate-900]="!ghost"
-         [class.border]="!bordered && !ghost"
-         [class.border-slate-200/80]="!bordered && !ghost"
-         [class.dark:border-slate-800/80]="!bordered && !ghost"
-         [class.rounded-2xl]="!bordered && !ghost"
-         [class.shadow-xs]="!bordered && !ghost"
+  @for (item of items(); track item.id || item.title || $index) {
+    <div [class.bg-white]="!ghost()"
+         [class.dark:bg-slate-900]="!ghost()"
+         [class.border]="!bordered() && !ghost()"
+         [class.border-slate-200/80]="!bordered() && !ghost()"
+         [class.dark:border-slate-800/80]="!bordered() && !ghost()"
+         [class.rounded-2xl]="!bordered() && !ghost()"
+         [class.shadow-xs]="!bordered() && !ghost()"
          class="overflow-hidden transition-all">
       
       <!-- Accordion Header Button -->
       <button (click)="toggleItem(item, $index)"
+              (keydown)="onKeyDown($event, item, $index)"
               [disabled]="item.disabled"
               type="button"
+              [attr.aria-expanded]="item.expanded"
               [class.cursor-not-allowed]="item.disabled"
               [class.opacity-50]="item.disabled"
-              [class.bg-slate-50/60]="item.expanded && !ghost"
-              [class.dark:bg-slate-850/60]="item.expanded && !ghost"
-              class="w-full flex items-center justify-between px-5 py-4 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 group">
+              [class.bg-slate-50/60]="item.expanded && !ghost()"
+              [class.dark:bg-slate-850/60]="item.expanded && !ghost()"
+              class="w-full flex items-center justify-between px-5 py-4 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 group outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40">
         
         <div class="flex items-center gap-3.5 min-w-0 flex-1">
           @if (item.icon) {

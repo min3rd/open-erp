@@ -1,22 +1,20 @@
-import { EventEmitter } from '@angular/core';
-import { IconName } from '../icon/icon.component';
 import { ButtonVariant, ButtonSize } from '../../enums/component.enum';
 export declare class IconButtonComponent {
-    icon: IconName;
-    variant: ButtonVariant | 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost' | 'success';
-    size: ButtonSize | 'sm' | 'md' | 'lg';
-    shape: 'circle' | 'rounded' | 'square';
-    tooltip?: string;
-    badge?: number | string;
-    badgeColor: string;
-    disabled: boolean;
-    loading: boolean;
-    skeleton: boolean;
-    ariaLabel?: string;
-    btnClick: EventEmitter<MouseEvent>;
+    readonly icon: import("@angular/core").InputSignal<string>;
+    readonly variant: import("@angular/core").InputSignal<"primary" | "secondary" | "outline" | "danger" | "ghost" | "success" | ButtonVariant>;
+    readonly size: import("@angular/core").InputSignal<"sm" | "md" | "lg" | ButtonSize>;
+    readonly shape: import("@angular/core").InputSignal<"circle" | "rounded" | "square">;
+    readonly tooltip: import("@angular/core").InputSignal<string | undefined>;
+    readonly badge: import("@angular/core").InputSignal<string | number | undefined>;
+    readonly badgeColor: import("@angular/core").InputSignal<string>;
+    readonly disabled: import("@angular/core").InputSignal<boolean>;
+    readonly loading: import("@angular/core").InputSignal<boolean>;
+    readonly skeleton: import("@angular/core").InputSignal<boolean>;
+    readonly ariaLabel: import("@angular/core").InputSignal<string | undefined>;
+    readonly btnClick: import("@angular/core").OutputEmitterRef<MouseEvent>;
+    readonly variantClass: import("@angular/core").Signal<string>;
+    readonly sizeClass: import("@angular/core").Signal<string>;
+    readonly iconSize: import("@angular/core").Signal<number>;
+    readonly shapeClass: import("@angular/core").Signal<"rounded-full" | "rounded-none" | "rounded-xl" | "rounded-2xl">;
     onClick(event: MouseEvent): void;
-    getVariantClasses(): string;
-    getSizeClasses(): string;
-    getIconSize(): number;
-    getShapeClasses(): string;
 }

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../../icon/icon.component';
 import { SidebarMode } from '../../../enums/component.enum';
@@ -33,6 +33,7 @@ export interface SidebarItem {
   standalone: true,
   imports: [CommonModule, IconComponent],
   templateUrl: './sidebar.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -41,35 +42,35 @@ export interface SidebarItem {
   `]
 })
 export class SidebarComponent {
-  @Input() mode: SidebarMode | 'fixed' | 'mini' | 'overlay' = SidebarMode.FIXED;
-  @Input() collapsed: boolean = false;
-  @Input() openOverlay: boolean = false;
-  @Input() brandTitle: string = 'Open ERP';
-  @Input() brandSubtitle?: string = 'Enterprise Suite';
-  @Input() brandLogo?: string;
-  @Input() brandUrl: string = '/';
-  @Input() items: SidebarItem[] = [];
-  @Input() showCollapseToggle: boolean = true;
-  @Input() width: string = '16rem'; // w-64
+  readonly mode = input<SidebarMode | 'fixed' | 'mini' | 'overlay'>(SidebarMode.FIXED);
+  readonly collapsed = model<boolean>(false);
+  readonly openOverlay = model<boolean>(false);
+  readonly brandTitle = input<string>('Open ERP');
+  readonly brandSubtitle = input<string | undefined>('Enterprise Suite');
+  readonly brandLogo = input<string | undefined>(undefined);
+  readonly brandUrl = input<string>('/');
+  readonly items = input<SidebarItem[]>([]);
+  readonly showCollapseToggle = input<boolean>(true);
+  readonly width = input<string>('16rem');
 
-  @Output() collapsedChange = new EventEmitter<boolean>();
-  @Output() openOverlayChange = new EventEmitter<boolean>();
-  @Output() itemClick = new EventEmitter<SidebarItem | SidebarSubItem>();
+  readonly itemClick = output<SidebarItem | SidebarSubItem>();
+
+  readonly isOverlay = computed(() => String(this.mode()) === 'overlay');
+
+  readonly isMini = computed(() => this.collapsed() && !this.isOverlay());
 
   toggleCollapse(): void {
-    this.collapsed = !this.collapsed;
-    this.collapsedChange.emit(this.collapsed);
+    const next = !this.collapsed();
+    this.collapsed.set(next);
   }
 
   closeDrawer(): void {
-    this.openOverlay = false;
-    this.openOverlayChange.emit(false);
+    this.openOverlay.set(false);
   }
 
   toggleItemExpand(item: SidebarItem, event: MouseEvent): void {
-    if (this.collapsed) {
-      this.collapsed = false;
-      this.collapsedChange.emit(false);
+    if (this.collapsed()) {
+      this.collapsed.set(false);
     }
     event.stopPropagation();
     item.expanded = !item.expanded;
@@ -84,17 +85,9 @@ export class SidebarComponent {
     }
 
     this.itemClick.emit(item);
-    if (String(this.mode) === 'overlay') {
+    if (String(this.mode()) === 'overlay') {
       this.closeDrawer();
     }
-  }
-
-  get isOverlay(): boolean {
-    return String(this.mode) === 'overlay';
-  }
-
-  get isMini(): boolean {
-    return this.collapsed && !this.isOverlay;
   }
 
   isItemActive(item: SidebarItem): boolean {

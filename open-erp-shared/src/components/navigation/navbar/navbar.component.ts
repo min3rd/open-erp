@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../../icon/icon.component';
 import { NavbarPosition } from '../../../enums/component.enum';
@@ -15,11 +15,18 @@ export interface NavbarItem {
   children?: NavbarItem[];
 }
 
+const POSITION_CLASSES: Record<string, string> = {
+  [NavbarPosition.FIXED]: 'fixed top-0 left-0 right-0 z-40',
+  [NavbarPosition.STICKY]: 'sticky top-0 z-30',
+  [NavbarPosition.STATIC]: 'relative z-20'
+};
+
 @Component({
   selector: 'erp-navbar, erp-header, erp-app-bar',
   standalone: true,
   imports: [CommonModule, IconComponent],
   templateUrl: './navbar.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -28,46 +35,37 @@ export interface NavbarItem {
   `]
 })
 export class NavbarComponent {
-  @Input() brandTitle: string = '';
-  @Input() brandSubtitle?: string;
-  @Input() brandLogo?: string;
-  @Input() brandUrl: string = '/';
-  @Input() position: NavbarPosition | 'static' | 'sticky' | 'fixed' = NavbarPosition.STICKY;
-  @Input() bordered: boolean = true;
-  @Input() glass: boolean = true;
-  @Input() items: NavbarItem[] = [];
-  @Input() showMobileToggle: boolean = true;
-  @Input() mobileOpen: boolean = false;
+  readonly brandTitle = input<string>('');
+  readonly brandSubtitle = input<string | undefined>(undefined);
+  readonly brandLogo = input<string | undefined>(undefined);
+  readonly brandUrl = input<string>('/');
+  readonly position = input<NavbarPosition | 'static' | 'sticky' | 'fixed'>(NavbarPosition.STICKY);
+  readonly bordered = input<boolean>(true);
+  readonly glass = input<boolean>(true);
+  readonly items = input<NavbarItem[]>([]);
+  readonly showMobileToggle = input<boolean>(true);
+  readonly mobileOpen = model<boolean>(false);
 
-  @Output() mobileToggle = new EventEmitter<boolean>();
-  @Output() itemClick = new EventEmitter<NavbarItem>();
+  readonly mobileToggle = output<boolean>();
+  readonly itemClick = output<NavbarItem>();
+
+  readonly positionClass = computed(() => {
+    const p = String(this.position());
+    return POSITION_CLASSES[p] || POSITION_CLASSES[NavbarPosition.STICKY];
+  });
 
   onToggleMobile(): void {
-    this.mobileOpen = !this.mobileOpen;
-    this.mobileToggle.emit(this.mobileOpen);
+    const next = !this.mobileOpen();
+    this.mobileOpen.set(next);
+    this.mobileToggle.emit(next);
   }
 
   onItemClick(item: NavbarItem, event?: MouseEvent): void {
     if (item.disabled) return;
     this.itemClick.emit(item);
-    if (this.mobileOpen) {
-      this.mobileOpen = false;
+    if (this.mobileOpen()) {
+      this.mobileOpen.set(false);
       this.mobileToggle.emit(false);
-    }
-  }
-
-  getPositionClasses(): string {
-    switch (this.position) {
-      case NavbarPosition.FIXED:
-      case 'fixed':
-        return 'fixed top-0 left-0 right-0 z-40';
-      case NavbarPosition.STICKY:
-      case 'sticky':
-        return 'sticky top-0 z-30';
-      case NavbarPosition.STATIC:
-      case 'static':
-      default:
-        return 'relative z-20';
     }
   }
 }

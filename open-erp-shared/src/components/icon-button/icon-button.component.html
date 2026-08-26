@@ -1,31 +1,31 @@
-@if (skeleton) {
-  <erp-skeleton [width]="size === 'lg' ? '3rem' : (size === 'sm' ? '2rem' : '2.5rem')"
-                [height]="size === 'lg' ? '3rem' : (size === 'sm' ? '2rem' : '2.5rem')"
-                [shape]="shape === 'circle' ? 'circle' : 'rounded'">
+@if (skeleton()) {
+  <erp-skeleton [width]="size() === 'lg' ? '3rem' : (size() === 'sm' ? '2rem' : '2.5rem')"
+                [height]="size() === 'lg' ? '3rem' : (size() === 'sm' ? '2rem' : '2.5rem')"
+                [shape]="shape() === 'circle' ? 'circle' : 'rounded'">
   </erp-skeleton>
 } @else {
   <button type="button"
           (click)="onClick($event)"
-          [title]="tooltip || ''"
-          [attr.aria-label]="ariaLabel || tooltip || 'Action Button'"
-          [disabled]="disabled || loading"
-          [class]="getVariantClasses() + ' ' + getSizeClasses() + ' ' + getShapeClasses() + (disabled || loading ? ' opacity-50 cursor-not-allowed' : ' cursor-pointer active:scale-95')"
+          [title]="tooltip() || ''"
+          [attr.aria-label]="ariaLabel() || tooltip() || 'Action Button'"
+          [disabled]="disabled() || loading()"
+          [class]="variantClass() + ' ' + sizeClass() + ' ' + shapeClass() + (disabled() || loading() ? ' opacity-50 cursor-not-allowed' : ' cursor-pointer active:scale-95')"
           class="relative inline-flex items-center justify-center transition-all duration-150 outline-none select-none">
     
-    @if (loading) {
+    @if (loading()) {
       <svg class="animate-spin h-4 w-4 text-current" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
     } @else {
-      <erp-icon [name]="icon" [size]="getIconSize()"></erp-icon>
+      <erp-icon [name]="icon()" [size]="iconSize()"></erp-icon>
     }
 
     <!-- Notification Badge Dot / Count -->
-    @if (badge !== undefined && badge !== null) {
-      <span [class]="badgeColor"
+    @if (badge() !== undefined && badge() !== null) {
+      <span [class]="badgeColor()"
             class="absolute -top-1 -right-1 min-w-[1.125rem] h-4.5 px-1 rounded-full text-[10px] font-black flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-xs leading-none">
-        {{ badge }}
+        {{ badge() }}
       </span>
     }
   </button>

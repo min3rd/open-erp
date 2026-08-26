@@ -1,4 +1,4 @@
-@if (loading) {
+@if (loading()) {
   <div class="flex items-center gap-2 py-1">
     <erp-skeleton width="4rem" height="1.25rem" shape="rounded"></erp-skeleton>
     <erp-skeleton width="0.75rem" height="1rem" shape="rounded"></erp-skeleton>
@@ -11,19 +11,19 @@
     <ol class="inline-flex items-center space-x-1.5 md:space-x-2">
       
       <!-- Home Icon Item (optional) -->
-      @if (showHomeIcon) {
+      @if (showHomeIcon()) {
         <li class="inline-flex items-center">
-          <a [href]="homeUrl"
+          <a [href]="homeUrl()"
              class="inline-flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-            <erp-icon [name]="homeIcon" [size]="14"></erp-icon>
+            <erp-icon [name]="homeIcon()" [size]="14"></erp-icon>
           </a>
         </li>
         <li class="inline-flex items-center text-slate-300 dark:text-slate-600">
-          @if (separator === 'slash' || separator === '/') {
+          @if (separator() === 'slash' || separator() === '/') {
             <span>/</span>
-          } @else if (separator === 'arrow' || separator === '>') {
+          } @else if (separator() === 'arrow' || separator() === '>') {
             <erp-icon name="arrow-right" [size]="12"></erp-icon>
-          } @else if (separator === 'dot') {
+          } @else if (separator() === 'dot') {
             <span class="w-1 h-1 rounded-full bg-slate-400"></span>
           } @else {
             <erp-icon name="chevron-right" [size]="12"></erp-icon>
@@ -32,7 +32,7 @@
       }
 
       <!-- Main Breadcrumb Items -->
-      @for (entry of displayItems; track entry.originalIndex + entry.item.label) {
+      @for (entry of displayItems(); track entry.originalIndex + entry.item.label) {
         <li class="inline-flex items-center gap-1.5 md:gap-2">
           
           <!-- Ellipsis Collapse Button -->
@@ -69,13 +69,13 @@
           }
 
           <!-- Separator (if not last) -->
-          @if ($index < displayItems.length - 1) {
+          @if ($index < displayItems().length - 1) {
             <span class="text-slate-300 dark:text-slate-600 select-none shrink-0" aria-hidden="true">
-              @if (separator === 'slash' || separator === '/') {
+              @if (separator() === 'slash' || separator() === '/') {
                 <span class="text-slate-400">/</span>
-              } @else if (separator === 'arrow' || separator === '>') {
+              } @else if (separator() === 'arrow' || separator() === '>') {
                 <erp-icon name="arrow-right" [size]="12"></erp-icon>
-              } @else if (separator === 'dot') {
+              } @else if (separator() === 'dot') {
                 <span class="inline-block w-1 h-1 rounded-full bg-slate-400"></span>
               } @else {
                 <erp-icon name="chevron-right" [size]="12"></erp-icon>

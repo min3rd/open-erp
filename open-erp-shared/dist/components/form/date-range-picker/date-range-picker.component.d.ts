@@ -1,4 +1,3 @@
-import { EventEmitter } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { ValidationStatus } from '../../../enums/component.enum';
 export interface DateRange {
@@ -6,18 +5,20 @@ export interface DateRange {
     endDate: string;
 }
 export declare class DateRangePickerComponent implements ControlValueAccessor {
-    label?: string;
-    status: ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning';
-    helperText?: string;
-    errorMessage?: string;
-    disabled: boolean;
-    required: boolean;
-    loading: boolean;
-    rangeChange: EventEmitter<DateRange>;
+    readonly label: import("@angular/core").InputSignal<string | undefined>;
+    readonly status: import("@angular/core").InputSignal<"warning" | "none" | "valid" | "invalid" | ValidationStatus>;
+    readonly helperText: import("@angular/core").InputSignal<string | undefined>;
+    readonly errorMessage: import("@angular/core").InputSignal<string | undefined>;
+    readonly disabled: import("@angular/core").InputSignal<boolean>;
+    readonly required: import("@angular/core").InputSignal<boolean>;
+    readonly loading: import("@angular/core").InputSignal<boolean>;
+    readonly rangeChange: import("@angular/core").OutputEmitterRef<DateRange>;
     startDate: import("@angular/core").WritableSignal<string>;
     endDate: import("@angular/core").WritableSignal<string>;
+    isDisabled: import("@angular/core").WritableSignal<boolean>;
     onChange: (val: DateRange) => void;
     onTouched: () => void;
+    readonly effectiveDisabled: import("@angular/core").Signal<boolean>;
     writeValue(val: any): void;
     registerOnChange(fn: any): void;
     registerOnTouched(fn: any): void;

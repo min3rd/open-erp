@@ -1,10 +1,10 @@
-<div [ngClass]="getGridColsClasses()" class="grid gap-3 select-none">
-  @for (img of normalizedImages; track img.src + $index) {
+<div [class]="gridColsClass()" class="grid gap-3 select-none">
+  @for (img of normalizedImages(); track img.src + $index) {
     <div class="relative group">
       <erp-image [src]="img.src"
                  [alt]="img.alt || 'Gallery Image'"
                  width="100%"
-                 [height]="height"
+                 [height]="height()"
                  [preview]="true">
       </erp-image>
       @if (img.title) {

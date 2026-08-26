@@ -1,4 +1,3 @@
-import { EventEmitter } from '@angular/core';
 import { IconName } from '../icon/icon.component';
 export interface TreeNode {
     id: string;
@@ -14,26 +13,26 @@ export interface TreeNode {
     children?: TreeNode[];
 }
 export declare class TreeNodeComponent {
-    node: TreeNode;
-    checkable: boolean;
-    selectable: boolean;
-    nodeClick: EventEmitter<TreeNode>;
-    nodeToggle: EventEmitter<TreeNode>;
-    checkChange: EventEmitter<TreeNode>;
-    get nodeIcon(): IconName;
+    readonly node: import("@angular/core").InputSignal<TreeNode>;
+    readonly checkable: import("@angular/core").InputSignal<boolean>;
+    readonly selectable: import("@angular/core").InputSignal<boolean>;
+    readonly nodeClick: import("@angular/core").OutputEmitterRef<TreeNode>;
+    readonly nodeToggle: import("@angular/core").OutputEmitterRef<TreeNode>;
+    readonly checkChange: import("@angular/core").OutputEmitterRef<TreeNode>;
+    readonly nodeIcon: import("@angular/core").Signal<string>;
     onToggle(event: MouseEvent): void;
     onSelect(): void;
     onCheckNode(checked: boolean): void;
     private setChildrenChecked;
 }
 export declare class TreeViewComponent {
-    nodes: TreeNode[];
-    checkable: boolean;
-    selectable: boolean;
-    searchable: boolean;
-    searchPlaceholder: string;
-    nodeClick: EventEmitter<TreeNode>;
-    nodeToggle: EventEmitter<TreeNode>;
-    checkChange: EventEmitter<TreeNode>;
+    readonly nodes: import("@angular/core").InputSignal<TreeNode[]>;
+    readonly checkable: import("@angular/core").InputSignal<boolean>;
+    readonly selectable: import("@angular/core").InputSignal<boolean>;
+    readonly searchable: import("@angular/core").InputSignal<boolean>;
+    readonly searchPlaceholder: import("@angular/core").InputSignal<string>;
+    readonly nodeClick: import("@angular/core").OutputEmitterRef<TreeNode>;
+    readonly nodeToggle: import("@angular/core").OutputEmitterRef<TreeNode>;
+    readonly checkChange: import("@angular/core").OutputEmitterRef<TreeNode>;
     searchQuery: string;
 }

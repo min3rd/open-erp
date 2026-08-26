@@ -1,20 +1,20 @@
 <div class="flex items-center -space-x-2.5 overflow-hidden select-none">
-  @for (user of visibleUsers; track user.name + $index) {
+  @for (user of visibleUsers(); track user.name + $index) {
     <div class="inline-block ring-2 ring-white dark:ring-slate-900 rounded-full transition-transform hover:scale-110 hover:z-10 relative">
       <erp-avatar [name]="user.name"
                   [imageUrl]="user.imageUrl"
-                  [size]="size"
-                  [shape]="shape"
+                  [size]="size()"
+                  [shape]="shape()"
                   [online]="user.online || false">
       </erp-avatar>
     </div>
   }
 
   <!-- Remaining Count Bubble -->
-  @if (remainingCount > 0) {
-    <div [ngClass]="[getSizeClasses(), getShapeClasses()]"
+  @if (remainingCount() > 0) {
+    <div [class]="sizeClass() + ' ' + shapeClass()"
          class="inline-flex items-center justify-center font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 ring-white dark:ring-slate-900 z-10">
-      +{{ remainingCount }}
+      +{{ remainingCount() }}
     </div>
   }
 </div>

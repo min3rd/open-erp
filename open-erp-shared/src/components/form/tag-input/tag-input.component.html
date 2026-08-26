@@ -1,45 +1,45 @@
 <div class="w-full font-sans">
-  @if (label) {
-    <erp-label [text]="label" [required]="required" [loading]="loading"></erp-label>
+  @if (label()) {
+    <erp-label [text]="label()!" [required]="required()" [loading]="loading()"></erp-label>
   }
 
-  @if (loading) {
+  @if (loading()) {
     <erp-skeleton width="100%" height="2.75rem" shape="rounded"></erp-skeleton>
   } @else {
-    <div [class.opacity-50]="disabled"
-         [class.cursor-not-allowed]="disabled"
-         [class.border-rose-500]="errorMessage || status === 'invalid'"
-         [class.border-slate-200]="!errorMessage && status !== 'invalid'"
-         [class.dark:border-slate-700]="!errorMessage && status !== 'invalid'"
+    <div [class.opacity-50]="effectiveDisabled()"
+         [class.cursor-not-allowed]="effectiveDisabled()"
+         [class.border-rose-500]="errorMessage() || status() === 'invalid'"
+         [class.border-slate-200]="!errorMessage() && status() !== 'invalid'"
+         [class.dark:border-slate-700]="!errorMessage() && status() !== 'invalid'"
          class="w-full bg-white dark:bg-slate-900 border rounded-2xl p-2 flex flex-wrap items-center gap-1.5 min-h-[2.75rem] transition-all focus-within:ring-2 focus-within:ring-indigo-500/20 shadow-xs">
       
       @for (tag of tags(); track $index) {
         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 font-bold text-xs border border-indigo-200/60 dark:border-indigo-800/60 shadow-2xs">
           <span>{{ tag }}</span>
-          @if (!disabled) {
-            <button type="button" (click)="removeTag($index)" class="hover:text-rose-500 p-0.5 rounded-full cursor-pointer">
+          @if (!effectiveDisabled()) {
+            <button type="button" (click)="removeTag($index)" aria-label="Xóa thẻ" class="hover:text-rose-500 p-0.5 rounded-full cursor-pointer">
               <erp-icon name="x" [size]="10"></erp-icon>
             </button>
           }
         </span>
       }
 
-      @if (!maxTags || tags().length < maxTags) {
+      @if (!maxTags() || tags().length < maxTags()!) {
         <input type="text"
-               [placeholder]="tags().length === 0 ? placeholder : ''"
+               [placeholder]="tags().length === 0 ? placeholder() : ''"
                [ngModel]="inputValue()"
                (ngModelChange)="inputValue.set($event)"
                (keydown)="onKeyDown($event)"
                (blur)="addTag(); onTouched()"
-               [disabled]="disabled"
+               [disabled]="effectiveDisabled()"
                class="flex-1 min-w-[120px] bg-transparent text-xs text-slate-900 dark:text-white outline-none px-2 py-1 placeholder-slate-400 font-medium"/>
       }
     </div>
 
-    @if (errorMessage) {
-      <erp-helper-text [text]="errorMessage" status="invalid"></erp-helper-text>
-    } @else if (helperText) {
-      <erp-helper-text [text]="helperText" [status]="status"></erp-helper-text>
+    @if (errorMessage()) {
+      <erp-helper-text [text]="errorMessage()!" status="invalid"></erp-helper-text>
+    } @else if (helperText()) {
+      <erp-helper-text [text]="helperText()!" [status]="status()"></erp-helper-text>
     }
   }
 </div>

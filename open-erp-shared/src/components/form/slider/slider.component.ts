@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { SkeletonComponent } from '../../skeleton/skeleton.component';
@@ -17,6 +17,7 @@ import { HelperTextComponent } from '../helper-text/helper-text.component';
     }
   ],
   templateUrl: './slider.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -25,31 +26,36 @@ import { HelperTextComponent } from '../helper-text/helper-text.component';
   `]
 })
 export class SliderComponent implements ControlValueAccessor {
-  @Input() label?: string;
-  @Input() min: number = 0;
-  @Input() max: number = 100;
-  @Input() step: number = 1;
-  @Input() showValue: boolean = true;
-  @Input() unit?: string;
-  @Input() disabled: boolean = false;
-  @Input() loading: boolean = false;
-  @Input() helperText?: string;
+  readonly label = input<string | undefined>(undefined);
+  readonly min = input<number>(0);
+  readonly max = input<number>(100);
+  readonly step = input<number>(1);
+  readonly showValue = input<boolean>(true);
+  readonly unit = input<string | undefined>(undefined);
+  readonly disabled = input<boolean>(false);
+  readonly loading = input<boolean>(false);
+  readonly helperText = input<string | undefined>(undefined);
 
-  @Output() valueChange = new EventEmitter<number>();
+  readonly valueChange = output<number>();
 
   value = signal<number>(0);
+  isDisabled = signal<boolean>(false);
 
   onChange: (val: number) => void = () => {};
   onTouched: () => void = () => {};
 
+  readonly effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
+
   readonly percentage = computed(() => {
-    const range = this.max - this.min;
+    const mn = this.min();
+    const mx = this.max();
+    const range = mx - mn;
     if (range <= 0) return 0;
-    return ((this.value() - this.min) / range) * 100;
+    return ((this.value() - mn) / range) * 100;
   });
 
   writeValue(val: any): void {
-    this.value.set(typeof val === 'number' ? val : this.min);
+    this.value.set(typeof val === 'number' ? val : this.min());
   }
 
   registerOnChange(fn: any): void {
@@ -61,7 +67,7 @@ export class SliderComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.isDisabled.set(isDisabled);
   }
 
   onSliderInput(event: Event): void {

@@ -4,37 +4,38 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-import { Component, Input, Output, EventEmitter, forwardRef, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { SkeletonComponent } from '../../skeleton/skeleton.component';
 import { LabelComponent } from '../label/label.component';
 import { HelperTextComponent } from '../helper-text/helper-text.component';
 let SliderComponent = class SliderComponent {
-    label;
-    min = 0;
-    max = 100;
-    step = 1;
-    showValue = true;
-    unit;
-    disabled = false;
-    loading = false;
-    helperText;
-    valueChange = new EventEmitter();
+    label = input(undefined);
+    min = input(0);
+    max = input(100);
+    step = input(1);
+    showValue = input(true);
+    unit = input(undefined);
+    disabled = input(false);
+    loading = input(false);
+    helperText = input(undefined);
+    valueChange = output();
     value = signal(0);
+    isDisabled = signal(false);
     onChange = () => { };
     onTouched = () => { };
+    effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
     percentage = computed(() => {
-        const range = this.max - this.min;
+        const mn = this.min();
+        const mx = this.max();
+        const range = mx - mn;
         if (range <= 0)
             return 0;
-        return ((this.value() - this.min) / range) * 100;
+        return ((this.value() - mn) / range) * 100;
     });
     writeValue(val) {
-        this.value.set(typeof val === 'number' ? val : this.min);
+        this.value.set(typeof val === 'number' ? val : this.min());
     }
     registerOnChange(fn) {
         this.onChange = fn;
@@ -43,7 +44,7 @@ let SliderComponent = class SliderComponent {
         this.onTouched = fn;
     }
     setDisabledState(isDisabled) {
-        this.disabled = isDisabled;
+        this.isDisabled.set(isDisabled);
     }
     onSliderInput(event) {
         const val = Number(event.target.value);
@@ -52,46 +53,6 @@ let SliderComponent = class SliderComponent {
         this.valueChange.emit(val);
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SliderComponent.prototype, "label", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], SliderComponent.prototype, "min", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], SliderComponent.prototype, "max", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], SliderComponent.prototype, "step", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], SliderComponent.prototype, "showValue", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SliderComponent.prototype, "unit", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], SliderComponent.prototype, "disabled", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], SliderComponent.prototype, "loading", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SliderComponent.prototype, "helperText", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], SliderComponent.prototype, "valueChange", void 0);
 SliderComponent = __decorate([
     Component({
         selector: 'erp-slider',
@@ -105,6 +66,7 @@ SliderComponent = __decorate([
             }
         ],
         templateUrl: './slider.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: block;

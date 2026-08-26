@@ -7,39 +7,64 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Component, Input, Output, EventEmitter, ElementRef, HostListener } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, ElementRef, HostListener, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../icon/icon.component';
 import { SpeedDialDirection, SpeedDialPosition } from '../../../enums/component.enum';
+const POSITION_CLASSES = {
+    [SpeedDialPosition.BOTTOM_LEFT]: 'bottom-6 left-6',
+    [SpeedDialPosition.TOP_RIGHT]: 'top-6 right-6',
+    [SpeedDialPosition.TOP_LEFT]: 'top-6 left-6',
+    [SpeedDialPosition.BOTTOM_RIGHT]: 'bottom-6 right-6'
+};
+const DIRECTION_CONTAINER_CLASSES = {
+    [SpeedDialDirection.DOWN]: 'flex-col top-full mt-3',
+    [SpeedDialDirection.LEFT]: 'flex-row-reverse right-full mr-3',
+    [SpeedDialDirection.RIGHT]: 'flex-row left-full ml-3',
+    [SpeedDialDirection.UP]: 'flex-col-reverse bottom-full mb-3'
+};
 let SpeedDialComponent = class SpeedDialComponent {
     elementRef;
-    items = [];
-    icon = 'plus';
-    activeIcon = 'x';
-    direction = SpeedDialDirection.UP;
-    position = SpeedDialPosition.BOTTOM_RIGHT;
-    open = false;
-    showBackdrop = false;
-    showLabels = true;
-    fixed = true;
-    actionClick = new EventEmitter();
-    openChange = new EventEmitter();
+    items = input([]);
+    icon = input('plus');
+    activeIcon = input('x');
+    direction = input(SpeedDialDirection.UP);
+    position = input(SpeedDialPosition.BOTTOM_RIGHT);
+    open = model(false);
+    showBackdrop = input(false);
+    showLabels = input(true);
+    fixed = input(true);
+    actionClick = output();
     constructor(elementRef) {
         this.elementRef = elementRef;
     }
+    positionClass = computed(() => {
+        const pos = String(this.position());
+        return POSITION_CLASSES[pos] || POSITION_CLASSES[SpeedDialPosition.BOTTOM_RIGHT];
+    });
+    isVerticalDirection = computed(() => {
+        const d = String(this.direction());
+        return d === 'up' || d === 'down';
+    });
+    isHorizontalDirection = computed(() => {
+        const d = String(this.direction());
+        return d === 'left' || d === 'right';
+    });
+    directionContainerClass = computed(() => {
+        const d = String(this.direction());
+        return DIRECTION_CONTAINER_CLASSES[d] || DIRECTION_CONTAINER_CLASSES[SpeedDialDirection.UP];
+    });
     onDocumentClick(event) {
-        if (this.open && !this.elementRef.nativeElement.contains(event.target)) {
+        if (this.open() && !this.elementRef.nativeElement.contains(event.target)) {
             this.close();
         }
     }
     toggle() {
-        this.open = !this.open;
-        this.openChange.emit(this.open);
+        this.open.update(v => !v);
     }
     close() {
-        if (this.open) {
-            this.open = false;
-            this.openChange.emit(false);
+        if (this.open()) {
+            this.open.set(false);
         }
     }
     onActionClick(action, event) {
@@ -49,95 +74,7 @@ let SpeedDialComponent = class SpeedDialComponent {
         this.actionClick.emit(action);
         this.close();
     }
-    getPositionClasses() {
-        const pos = String(this.position);
-        switch (pos) {
-            case SpeedDialPosition.BOTTOM_LEFT:
-            case 'bottom-left':
-                return 'bottom-6 left-6';
-            case SpeedDialPosition.TOP_RIGHT:
-            case 'top-right':
-                return 'top-6 right-6';
-            case SpeedDialPosition.TOP_LEFT:
-            case 'top-left':
-                return 'top-6 left-6';
-            case SpeedDialPosition.BOTTOM_RIGHT:
-            case 'bottom-right':
-            default:
-                return 'bottom-6 right-6';
-        }
-    }
-    get isVerticalDirection() {
-        const d = String(this.direction);
-        return d === 'up' || d === 'down';
-    }
-    get isHorizontalDirection() {
-        const d = String(this.direction);
-        return d === 'left' || d === 'right';
-    }
-    getDirectionContainerClasses() {
-        const d = String(this.direction);
-        switch (d) {
-            case SpeedDialDirection.DOWN:
-            case 'down':
-                return 'flex-col top-full mt-3';
-            case SpeedDialDirection.LEFT:
-            case 'left':
-                return 'flex-row-reverse right-full mr-3';
-            case SpeedDialDirection.RIGHT:
-            case 'right':
-                return 'flex-row left-full ml-3';
-            case SpeedDialDirection.UP:
-            case 'up':
-            default:
-                return 'flex-col-reverse bottom-full mb-3';
-        }
-    }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", Array)
-], SpeedDialComponent.prototype, "items", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SpeedDialComponent.prototype, "icon", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SpeedDialComponent.prototype, "activeIcon", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SpeedDialComponent.prototype, "direction", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SpeedDialComponent.prototype, "position", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], SpeedDialComponent.prototype, "open", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], SpeedDialComponent.prototype, "showBackdrop", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], SpeedDialComponent.prototype, "showLabels", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], SpeedDialComponent.prototype, "fixed", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], SpeedDialComponent.prototype, "actionClick", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], SpeedDialComponent.prototype, "openChange", void 0);
 __decorate([
     HostListener('document:click', ['$event']),
     __metadata("design:type", Function),
@@ -150,6 +87,7 @@ SpeedDialComponent = __decorate([
         standalone: true,
         imports: [CommonModule, IconComponent],
         templateUrl: './speed-dial.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: block;

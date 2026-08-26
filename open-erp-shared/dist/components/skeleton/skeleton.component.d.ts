@@ -1,7 +1,7 @@
 export declare class SkeletonComponent {
-    width: string;
-    height: string;
-    shape: 'rect' | 'circle' | 'rounded' | 'pill';
-    className: string;
-    getShapeClasses(): string;
+    readonly width: import("@angular/core").InputSignal<string>;
+    readonly height: import("@angular/core").InputSignal<string>;
+    readonly shape: import("@angular/core").InputSignal<"circle" | "rounded" | "pill" | "rect">;
+    readonly className: import("@angular/core").InputSignal<string>;
+    readonly shapeClass: import("@angular/core").Signal<string>;
 }

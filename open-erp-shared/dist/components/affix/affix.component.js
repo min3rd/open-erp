@@ -7,18 +7,22 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Component, Input, Output, EventEmitter, ElementRef, HostListener } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, ElementRef, HostListener, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AffixPosition } from '../../enums/component.enum';
 let AffixComponent = class AffixComponent {
     el;
-    offsetTop = 0;
-    offsetBottom = 0;
-    position = AffixPosition.TOP;
-    affixChange = new EventEmitter();
-    isAffixed = false;
-    placeholderHeight = 0;
-    width = 0;
+    offsetTop = input(0);
+    offsetBottom = input(0);
+    position = input(AffixPosition.TOP);
+    affixChange = output();
+    isAffixed = signal(false);
+    placeholderHeight = signal(0);
+    width = signal(0);
+    isTop = computed(() => {
+        const p = String(this.position()).toLowerCase();
+        return p === 'top';
+    });
     constructor(el) {
         this.el = el;
     }
@@ -29,37 +33,21 @@ let AffixComponent = class AffixComponent {
         if (typeof window === 'undefined')
             return;
         const rect = this.el.nativeElement.getBoundingClientRect();
-        this.placeholderHeight = rect.height;
-        this.width = rect.width;
+        this.placeholderHeight.set(rect.height);
+        this.width.set(rect.width);
         let shouldAffix = false;
-        if (this.position === 'top') {
-            shouldAffix = rect.top <= this.offsetTop;
+        if (this.isTop()) {
+            shouldAffix = rect.top <= this.offsetTop();
         }
         else {
-            shouldAffix = window.innerHeight - rect.bottom <= this.offsetBottom;
+            shouldAffix = window.innerHeight - rect.bottom <= this.offsetBottom();
         }
-        if (shouldAffix !== this.isAffixed) {
-            this.isAffixed = shouldAffix;
-            this.affixChange.emit(this.isAffixed);
+        if (shouldAffix !== this.isAffixed()) {
+            this.isAffixed.set(shouldAffix);
+            this.affixChange.emit(shouldAffix);
         }
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], AffixComponent.prototype, "offsetTop", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], AffixComponent.prototype, "offsetBottom", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], AffixComponent.prototype, "position", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], AffixComponent.prototype, "affixChange", void 0);
 __decorate([
     HostListener('window:scroll'),
     HostListener('window:resize'),
@@ -72,13 +60,14 @@ AffixComponent = __decorate([
         selector: 'erp-affix',
         standalone: true,
         imports: [CommonModule],
+        changeDetection: ChangeDetectionStrategy.OnPush,
         template: `
-    <div [style.height.px]="placeholderHeight" [class.hidden]="!isAffixed"></div>
-    <div [class.fixed]="isAffixed"
-         [class.z-30]="isAffixed"
-         [style.top.px]="isAffixed && position === 'top' ? offsetTop : null"
-         [style.bottom.px]="isAffixed && position === 'bottom' ? offsetBottom : null"
-         [style.width.px]="isAffixed ? width : null"
+    <div [style.height.px]="placeholderHeight()" [class.hidden]="!isAffixed()"></div>
+    <div [class.fixed]="isAffixed()"
+         [class.z-30]="isAffixed()"
+         [style.top.px]="isAffixed() && isTop() ? offsetTop() : null"
+         [style.bottom.px]="isAffixed() && !isTop() ? offsetBottom() : null"
+         [style.width.px]="isAffixed() ? width() : null"
          class="transition-all duration-200">
       <ng-content></ng-content>
     </div>

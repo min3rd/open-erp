@@ -4,56 +4,26 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../icon/icon.component';
 import { SkeletonComponent } from '../../skeleton/skeleton.component';
 let LabelComponent = class LabelComponent {
-    text = '';
-    forId;
-    required = false;
-    optional = false;
-    tooltip;
-    icon;
-    loading = false;
+    text = input('');
+    forId = input(undefined);
+    required = input(false);
+    optional = input(false);
+    tooltip = input(undefined);
+    icon = input(undefined);
+    loading = input(false);
 };
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], LabelComponent.prototype, "text", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], LabelComponent.prototype, "forId", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], LabelComponent.prototype, "required", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], LabelComponent.prototype, "optional", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], LabelComponent.prototype, "tooltip", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], LabelComponent.prototype, "icon", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], LabelComponent.prototype, "loading", void 0);
 LabelComponent = __decorate([
     Component({
         selector: 'erp-label',
         standalone: true,
         imports: [CommonModule, IconComponent, SkeletonComponent],
-        templateUrl: './label.component.html'
+        templateUrl: './label.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush
     })
 ], LabelComponent);
 export { LabelComponent };

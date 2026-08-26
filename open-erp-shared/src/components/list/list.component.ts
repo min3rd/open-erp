@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './list.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -14,10 +15,10 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class ListComponent {
-  @Input() header?: string;
-  @Input() footer?: string;
-  @Input() bordered: boolean = true;
-  @Input() striped: boolean = false;
-  @Input() hoverable: boolean = true;
-  @Input() compact: boolean = false;
+  readonly header = input<string | undefined>(undefined);
+  readonly footer = input<string | undefined>(undefined);
+  readonly bordered = input<boolean>(true);
+  readonly striped = input<boolean>(false);
+  readonly hoverable = input<boolean>(true);
+  readonly compact = input<boolean>(false);
 }

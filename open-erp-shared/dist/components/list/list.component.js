@@ -4,49 +4,23 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 let ListComponent = class ListComponent {
-    header;
-    footer;
-    bordered = true;
-    striped = false;
-    hoverable = true;
-    compact = false;
+    header = input(undefined);
+    footer = input(undefined);
+    bordered = input(true);
+    striped = input(false);
+    hoverable = input(true);
+    compact = input(false);
 };
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ListComponent.prototype, "header", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ListComponent.prototype, "footer", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ListComponent.prototype, "bordered", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ListComponent.prototype, "striped", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ListComponent.prototype, "hoverable", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ListComponent.prototype, "compact", void 0);
 ListComponent = __decorate([
     Component({
         selector: 'erp-list',
         standalone: true,
         imports: [CommonModule],
         templateUrl: './list.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: block;

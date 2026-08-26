@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../../icon/icon.component';
 
@@ -17,6 +17,7 @@ export interface BottomNavItem {
   standalone: true,
   imports: [CommonModule, IconComponent],
   templateUrl: './bottom-nav.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -25,25 +26,25 @@ export interface BottomNavItem {
   `]
 })
 export class BottomNavComponent {
-  @Input() items: BottomNavItem[] = [];
-  @Input() activeId?: string;
-  @Input() fixed: boolean = true;
-  @Input() safeArea: boolean = true;
-  @Input() floating: boolean = false;
-  @Input() showLabels: boolean = true;
+  readonly items = input<BottomNavItem[]>([]);
+  readonly activeId = model<string | undefined>(undefined);
+  readonly fixed = input<boolean>(true);
+  readonly safeArea = input<boolean>(true);
+  readonly floating = input<boolean>(false);
+  readonly showLabels = input<boolean>(true);
 
-  @Output() itemClick = new EventEmitter<BottomNavItem>();
-  @Output() activeIdChange = new EventEmitter<string>();
+  readonly itemClick = output<BottomNavItem>();
 
-  get currentActiveId(): string {
-    if (this.activeId) return this.activeId;
-    return this.items.length > 0 ? this.items[0].id : '';
-  }
+  readonly currentActiveId = computed<string>(() => {
+    const act = this.activeId();
+    if (act) return act;
+    const its = this.items();
+    return its.length > 0 ? its[0].id : '';
+  });
 
   onItemSelect(item: BottomNavItem): void {
     if (item.disabled) return;
-    this.activeId = item.id;
-    this.activeIdChange.emit(item.id);
+    this.activeId.set(item.id);
     this.itemClick.emit(item);
   }
 }

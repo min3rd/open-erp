@@ -1,21 +1,26 @@
-@if (loading) {
+@if (loading()) {
   <div class="flex items-center gap-2.5 py-1">
     <erp-skeleton width="1.125rem" height="1.125rem" shape="rounded"></erp-skeleton>
     <erp-skeleton width="8rem" height="0.875rem" shape="rounded"></erp-skeleton>
   </div>
 } @else {
   <label (click)="toggle()"
-         [class.opacity-50]="disabled"
-         [class.cursor-not-allowed]="disabled"
-         class="inline-flex items-start gap-2.5 cursor-pointer select-none font-sans group">
+         (keydown)="onKeyDown($event)"
+         tabindex="0"
+         role="checkbox"
+         [attr.aria-checked]="indeterminate() ? 'mixed' : checked()"
+         [attr.aria-disabled]="disabled() || isDisabled()"
+         [class.opacity-50]="disabled() || isDisabled()"
+         [class.cursor-not-allowed]="disabled() || isDisabled()"
+         class="inline-flex items-start gap-2.5 cursor-pointer select-none font-sans group outline-none rounded-lg focus-visible:ring-2 focus-visible:ring-indigo-500/40 p-0.5">
     
-    <div [class.bg-indigo-600]="checked() || indeterminate"
-         [class.border-indigo-600]="checked() || indeterminate"
-         [class.border-slate-300]="!checked() && !indeterminate"
-         [class.dark:border-slate-600]="!checked() && !indeterminate"
+    <div [class.bg-indigo-600]="checked() || indeterminate()"
+         [class.border-indigo-600]="checked() || indeterminate()"
+         [class.border-slate-300]="!checked() && !indeterminate()"
+         [class.dark:border-slate-600]="!checked() && !indeterminate()"
          class="w-4 h-4 mt-0.5 rounded-md border flex items-center justify-center transition-all group-hover:border-indigo-500 shrink-0">
       
-      @if (indeterminate) {
+      @if (indeterminate()) {
         <span class="w-2 h-0.5 bg-white rounded-full"></span>
       } @else if (checked()) {
         <erp-icon name="check" [size]="12" className="text-white"></erp-icon>
@@ -23,9 +28,11 @@
     </div>
 
     <div class="flex flex-col">
-      <span class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ label }}</span>
-      @if (description) {
-        <span class="text-[11px] text-slate-400 mt-0.5">{{ description }}</span>
+      @if (label()) {
+        <span class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ label() }}</span>
+      }
+      @if (description()) {
+        <span class="text-[11px] text-slate-400 mt-0.5">{{ description() }}</span>
       }
     </div>
   </label>

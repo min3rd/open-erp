@@ -1,22 +1,22 @@
 <div class="w-full select-none text-xs font-medium text-slate-700 dark:text-slate-200">
   
   <!-- Optional Search Input -->
-  @if (searchable) {
+  @if (searchable()) {
     <div class="mb-3 relative">
       <erp-icon name="search" [size]="14" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></erp-icon>
       <input type="text"
              [(ngModel)]="searchQuery"
-             [placeholder]="searchPlaceholder"
+             [placeholder]="searchPlaceholder()"
              class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
     </div>
   }
 
   <!-- Tree Root List -->
   <div class="space-y-1">
-    @for (rootNode of nodes; track rootNode.id) {
+    @for (rootNode of nodes(); track rootNode.id) {
       <erp-tree-node [node]="rootNode"
-                     [checkable]="checkable"
-                     [selectable]="selectable"
+                     [checkable]="checkable()"
+                     [selectable]="selectable()"
                      (nodeClick)="nodeClick.emit($event)"
                      (nodeToggle)="nodeToggle.emit($event)"
                      (checkChange)="checkChange.emit($event)">

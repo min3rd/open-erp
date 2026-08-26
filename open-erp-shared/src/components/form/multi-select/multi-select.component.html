@@ -1,40 +1,40 @@
 <div class="w-full font-sans relative">
-  @if (label) {
-    <erp-label [text]="label" [required]="required" [loading]="loading"></erp-label>
+  @if (label()) {
+    <erp-label [text]="label()!" [required]="required()" [loading]="loading()"></erp-label>
   }
 
-  @if (loading) {
+  @if (loading()) {
     <erp-skeleton width="100%" height="2.5rem" shape="rounded"></erp-skeleton>
   } @else {
     <div class="relative">
       <div (click)="toggleDropdown()"
-           [class.opacity-50]="disabled"
-           [class.cursor-not-allowed]="disabled"
-           [class.border-rose-500]="errorMessage || status === 'invalid'"
-           [class.border-slate-200]="!errorMessage && status !== 'invalid'"
-           [class.dark:border-slate-700]="!errorMessage && status !== 'invalid'"
+           [class.opacity-50]="effectiveDisabled()"
+           [class.cursor-not-allowed]="effectiveDisabled()"
+           [class.border-rose-500]="errorMessage() || status() === 'invalid'"
+           [class.border-slate-200]="!errorMessage() && status() !== 'invalid'"
+           [class.dark:border-slate-700]="!errorMessage() && status() !== 'invalid'"
            class="w-full bg-white dark:bg-slate-900 border min-h-[2.5rem] py-1 px-3 text-xs rounded-xl flex items-center justify-between outline-none transition-all focus-within:ring-2 focus-within:ring-indigo-500/20 cursor-pointer shadow-xs gap-2">
         
         <div class="flex flex-wrap items-center gap-1.5 flex-1 min-w-0">
           @if (selectedOptions().length > 0) {
-            @for (opt of selectedOptions().slice(0, maxDisplayTags); track opt.value) {
+            @for (opt of selectedOptions().slice(0, maxDisplayTags()); track opt.value) {
               <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 font-semibold text-[11px] border border-indigo-200/60 dark:border-indigo-800/60">
                 <span>{{ opt.label }}</span>
-                @if (!disabled) {
-                  <button type="button" (click)="removeTag(opt.value, $event)" class="hover:text-rose-500 p-0.5 rounded-full">
+                @if (!effectiveDisabled()) {
+                  <button type="button" (click)="removeTag(opt.value, $event)" aria-label="Xóa mục" class="hover:text-rose-500 p-0.5 rounded-full">
                     <erp-icon name="x" [size]="10"></erp-icon>
                   </button>
                 }
               </span>
             }
 
-            @if (selectedOptions().length > maxDisplayTags) {
+            @if (selectedOptions().length > maxDisplayTags()) {
               <span class="px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-[10px]">
-                +{{ selectedOptions().length - maxDisplayTags }} mục
+                +{{ selectedOptions().length - maxDisplayTags() }} mục
               </span>
             }
           } @else {
-            <span class="text-slate-400 select-none py-1">{{ placeholder }}</span>
+            <span class="text-slate-400 select-none py-1">{{ placeholder() }}</span>
           }
         </div>
 
@@ -46,7 +46,7 @@
         <div class="absolute z-50 mt-1.5 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-1.5 max-h-64 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100">
           
           <div class="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
-            @if (searchable) {
+            @if (searchable()) {
               <div class="relative flex-1">
                 <input type="text"
                        [ngModel]="searchTerm()"
@@ -99,10 +99,10 @@
       }
     </div>
 
-    @if (errorMessage) {
-      <erp-helper-text [text]="errorMessage" status="invalid"></erp-helper-text>
-    } @else if (helperText) {
-      <erp-helper-text [text]="helperText" [status]="status"></erp-helper-text>
+    @if (errorMessage()) {
+      <erp-helper-text [text]="errorMessage()!" status="invalid"></erp-helper-text>
+    } @else if (helperText()) {
+      <erp-helper-text [text]="helperText()!" [status]="status()"></erp-helper-text>
     }
   }
 </div>

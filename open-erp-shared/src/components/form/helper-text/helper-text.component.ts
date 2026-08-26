@@ -1,51 +1,39 @@
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../icon/icon.component';
 import { ValidationStatus } from '../../../enums/component.enum';
+
+const TEXT_CLASSES: Record<string, string> = {
+  [ValidationStatus.INVALID]: 'text-rose-500 dark:text-rose-400',
+  [ValidationStatus.VALID]: 'text-emerald-600 dark:text-emerald-400',
+  [ValidationStatus.WARNING]: 'text-amber-600 dark:text-amber-400',
+  [ValidationStatus.NONE]: 'text-slate-400 dark:text-slate-500'
+};
+
+const ICONS: Record<string, string> = {
+  [ValidationStatus.INVALID]: 'alert-circle',
+  [ValidationStatus.VALID]: 'check-circle',
+  [ValidationStatus.WARNING]: 'alert-triangle'
+};
 
 @Component({
   selector: 'erp-helper-text',
   standalone: true,
   imports: [CommonModule, IconComponent],
-  templateUrl: './helper-text.component.html'
+  templateUrl: './helper-text.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HelperTextComponent {
-  @Input() text: string = '';
-  @Input() status: ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning' = ValidationStatus.NONE;
+  readonly text = input<string>('');
+  readonly status = input<ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning'>(ValidationStatus.NONE);
 
-  getTextClasses(): string {
-    const st = String(this.status);
-    switch (st) {
-      case ValidationStatus.INVALID:
-      case 'invalid':
-        return 'text-rose-500 dark:text-rose-400';
-      case ValidationStatus.VALID:
-      case 'valid':
-        return 'text-emerald-600 dark:text-emerald-400';
-      case ValidationStatus.WARNING:
-      case 'warning':
-        return 'text-amber-600 dark:text-amber-400';
-      case ValidationStatus.NONE:
-      case 'none':
-      default:
-        return 'text-slate-400 dark:text-slate-500';
-    }
-  }
+  readonly textClass = computed(() => {
+    const st = String(this.status());
+    return TEXT_CLASSES[st] || TEXT_CLASSES[ValidationStatus.NONE];
+  });
 
-  getIconName(): string {
-    const st = String(this.status);
-    switch (st) {
-      case ValidationStatus.INVALID:
-      case 'invalid':
-        return 'alert-circle';
-      case ValidationStatus.VALID:
-      case 'valid':
-        return 'check-circle';
-      case ValidationStatus.WARNING:
-      case 'warning':
-        return 'alert-triangle';
-      default:
-        return 'info';
-    }
-  }
+  readonly iconName = computed(() => {
+    const st = String(this.status());
+    return ICONS[st] || 'info';
+  });
 }

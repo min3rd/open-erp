@@ -1,4 +1,4 @@
-import { Component, Input, importProvidersFrom } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, importProvidersFrom } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FeatherModule } from 'angular-feather';
 import { allIcons } from 'angular-feather/icons';
@@ -12,11 +12,12 @@ export const provideSharedIcons = () => importProvidersFrom(FeatherModule.pick(a
   standalone: true,
   imports: [CommonModule, FeatherModule],
   templateUrl: './icon.component.html',
-  styleUrls: ['./icon.component.css']
+  styleUrls: ['./icon.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IconComponent {
-  @Input() name: string = 'info';
-  @Input() size: number | string = 18;
-  @Input() strokeWidth: number = 2;
-  @Input() className: string = '';
+  readonly name = input<string>('info');
+  readonly size = input<number | string>(18);
+  readonly strokeWidth = input<number>(2);
+  readonly className = input<string>('');
 }

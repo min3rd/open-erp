@@ -4,34 +4,49 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-import { Component, Input, Output, EventEmitter, forwardRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, forwardRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IconComponent } from '../../icon/icon.component';
 import { SkeletonComponent } from '../../skeleton/skeleton.component';
+const SIZE_CLASSES = {
+    sm: 'px-2.5 py-1 text-xs gap-1 rounded-lg',
+    lg: 'px-5 py-2.5 text-sm gap-2 rounded-xl font-bold',
+    md: 'px-3.5 py-1.5 text-xs gap-1.5 rounded-xl font-semibold'
+};
+const CONTAINER_SIZE_CLASSES = {
+    sm: 'p-0.5 rounded-xl',
+    lg: 'p-1.5 rounded-2xl',
+    md: 'p-1 rounded-2xl'
+};
 let SegmentedControlComponent = class SegmentedControlComponent {
-    options = [];
-    value;
-    size = 'md';
-    fullWidth = false;
-    disabled = false;
-    loading = false;
-    valueChange = new EventEmitter();
+    options = input([]);
+    value = model(null);
+    size = input('md');
+    fullWidth = input(false);
+    disabled = input(false);
+    loading = input(false);
+    isDisabled = signal(false);
     onChange = () => { };
     onTouched = () => { };
-    get normalizedOptions() {
-        return this.options.map(opt => {
+    effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
+    normalizedOptions = computed(() => {
+        return this.options().map(opt => {
             if (typeof opt === 'string') {
                 return { label: opt, value: opt };
             }
             return opt;
         });
-    }
+    });
+    sizeClass = computed(() => {
+        return SIZE_CLASSES[this.size()] || SIZE_CLASSES['md'];
+    });
+    containerSizeClass = computed(() => {
+        return CONTAINER_SIZE_CLASSES[this.size()] || CONTAINER_SIZE_CLASSES['md'];
+    });
+    iconSize = computed(() => (this.size() === 'lg' ? 18 : 14));
     writeValue(val) {
-        this.value = val;
+        this.value.set(val);
     }
     registerOnChange(fn) {
         this.onChange = fn;
@@ -40,67 +55,41 @@ let SegmentedControlComponent = class SegmentedControlComponent {
         this.onTouched = fn;
     }
     setDisabledState(isDisabled) {
-        this.disabled = isDisabled;
+        this.isDisabled.set(isDisabled);
     }
     selectOption(opt) {
-        if (this.disabled || opt.disabled || this.value === opt.value)
+        if (this.effectiveDisabled() || opt.disabled || this.value() === opt.value)
             return;
-        this.value = opt.value;
+        this.value.set(opt.value);
         this.onChange(opt.value);
         this.onTouched();
-        this.valueChange.emit(opt.value);
     }
-    getSizeClasses() {
-        switch (this.size) {
-            case 'sm':
-                return 'px-2.5 py-1 text-xs gap-1 rounded-lg';
-            case 'lg':
-                return 'px-5 py-2.5 text-sm gap-2 rounded-xl font-bold';
-            case 'md':
-            default:
-                return 'px-3.5 py-1.5 text-xs gap-1.5 rounded-xl font-semibold';
+    onKeyDown(event, currentIndex) {
+        if (this.effectiveDisabled())
+            return;
+        const opts = this.normalizedOptions();
+        if (opts.length === 0)
+            return;
+        let nextIndex = currentIndex;
+        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+            event.preventDefault();
+            nextIndex = (currentIndex + 1) % opts.length;
+            while (opts[nextIndex].disabled && nextIndex !== currentIndex) {
+                nextIndex = (nextIndex + 1) % opts.length;
+            }
         }
-    }
-    getContainerSizeClasses() {
-        switch (this.size) {
-            case 'sm':
-                return 'p-0.5 rounded-xl';
-            case 'lg':
-                return 'p-1.5 rounded-2xl';
-            case 'md':
-            default:
-                return 'p-1 rounded-2xl';
+        else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            nextIndex = (currentIndex - 1 + opts.length) % opts.length;
+            while (opts[nextIndex].disabled && nextIndex !== currentIndex) {
+                nextIndex = (nextIndex - 1 + opts.length) % opts.length;
+            }
+        }
+        if (nextIndex !== currentIndex && !opts[nextIndex].disabled) {
+            this.selectOption(opts[nextIndex]);
         }
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", Array)
-], SegmentedControlComponent.prototype, "options", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Object)
-], SegmentedControlComponent.prototype, "value", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SegmentedControlComponent.prototype, "size", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], SegmentedControlComponent.prototype, "fullWidth", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], SegmentedControlComponent.prototype, "disabled", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], SegmentedControlComponent.prototype, "loading", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], SegmentedControlComponent.prototype, "valueChange", void 0);
 SegmentedControlComponent = __decorate([
     Component({
         selector: 'erp-segmented-control',
@@ -114,6 +103,7 @@ SegmentedControlComponent = __decorate([
             }
         ],
         templateUrl: './segmented-control.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: inline-block;

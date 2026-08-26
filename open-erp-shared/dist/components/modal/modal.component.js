@@ -7,68 +7,67 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, HostListener, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../icon/icon.component';
 import { ButtonComponent } from '../button/button.component';
 import { ModalSize } from '../../enums/component.enum';
+const SIZE_CLASSES = {
+    [ModalSize.XS]: 'max-w-xs',
+    [ModalSize.SM]: 'max-w-sm',
+    [ModalSize.MD]: 'max-w-lg',
+    [ModalSize.LG]: 'max-w-2xl',
+    [ModalSize.XL]: 'max-w-4xl',
+    [ModalSize.FULL]: 'max-w-[95vw] h-[90vh]'
+};
 let ModalComponent = class ModalComponent {
-    visible = false;
-    title;
-    subtitle;
-    icon;
-    size = ModalSize.MD;
-    closable = true;
-    maskClosable = true;
-    showFooter = true;
-    okText = 'Xác nhận';
-    cancelText = 'Hủy bỏ';
-    okLoading = false;
-    centered = true;
-    visibleChange = new EventEmitter();
-    ok = new EventEmitter();
-    cancel = new EventEmitter();
-    onEscape() {
-        if (this.visible && this.closable) {
-            this.close();
-        }
-    }
-    ngOnChanges(changes) {
-        if (changes['visible']) {
+    visible = model(false);
+    title = input(undefined);
+    subtitle = input(undefined);
+    icon = input(undefined);
+    size = input(ModalSize.MD);
+    closable = input(true);
+    maskClosable = input(true);
+    showFooter = input(true);
+    okText = input('Xác nhận');
+    cancelText = input('Hủy bỏ');
+    okLoading = input(false);
+    centered = input(true);
+    ok = output();
+    cancel = output();
+    constructor() {
+        effect(() => {
+            const isVisible = this.visible();
             if (typeof document !== 'undefined') {
-                if (this.visible) {
+                if (isVisible) {
                     document.body.classList.add('overflow-hidden');
                 }
                 else {
                     document.body.classList.remove('overflow-hidden');
                 }
             }
+        });
+    }
+    sizeClasses = computed(() => {
+        const s = String(this.size());
+        return SIZE_CLASSES[s] || SIZE_CLASSES[ModalSize.MD];
+    });
+    onEscape() {
+        if (this.visible() && this.closable()) {
+            this.close();
         }
     }
-    get sizeClasses() {
-        switch (this.size) {
-            case 'xs':
-                return 'max-w-xs';
-            case 'sm':
-                return 'max-w-sm';
-            case 'lg':
-                return 'max-w-2xl';
-            case 'xl':
-                return 'max-w-4xl';
-            case 'full':
-                return 'max-w-[95vw] h-[90vh]';
-            case 'md':
-            default:
-                return 'max-w-lg';
+    ngOnDestroy() {
+        if (typeof document !== 'undefined') {
+            document.body.classList.remove('overflow-hidden');
         }
     }
     close() {
-        this.visible = false;
-        this.visibleChange.emit(false);
+        this.visible.set(false);
         this.cancel.emit();
     }
     onMaskClick(event) {
-        if (this.maskClosable && event.target.classList.contains('modal-mask')) {
+        if (this.maskClosable() && event.target.classList.contains('modal-mask')) {
             this.close();
         }
     }
@@ -76,66 +75,6 @@ let ModalComponent = class ModalComponent {
         this.ok.emit();
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ModalComponent.prototype, "visible", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ModalComponent.prototype, "title", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ModalComponent.prototype, "subtitle", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ModalComponent.prototype, "icon", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ModalComponent.prototype, "size", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ModalComponent.prototype, "closable", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ModalComponent.prototype, "maskClosable", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ModalComponent.prototype, "showFooter", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ModalComponent.prototype, "okText", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ModalComponent.prototype, "cancelText", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ModalComponent.prototype, "okLoading", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ModalComponent.prototype, "centered", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], ModalComponent.prototype, "visibleChange", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], ModalComponent.prototype, "ok", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], ModalComponent.prototype, "cancel", void 0);
 __decorate([
     HostListener('document:keydown.escape'),
     __metadata("design:type", Function),
@@ -148,12 +87,14 @@ ModalComponent = __decorate([
         standalone: true,
         imports: [CommonModule, IconComponent, ButtonComponent],
         templateUrl: './modal.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: contents;
     }
   `]
-    })
+    }),
+    __metadata("design:paramtypes", [])
 ], ModalComponent);
 export { ModalComponent };
 //# sourceMappingURL=modal.component.js.map

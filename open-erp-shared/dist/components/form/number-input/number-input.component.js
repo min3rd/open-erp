@@ -4,35 +4,58 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-import { Component, Input, Output, EventEmitter, forwardRef, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { SkeletonComponent } from '../../skeleton/skeleton.component';
 import { LabelComponent } from '../label/label.component';
 import { HelperTextComponent } from '../helper-text/helper-text.component';
 import { InputSize, ValidationStatus } from '../../../enums/component.enum';
+const SIZE_CLASSES = {
+    [InputSize.SM]: 'py-1.5 px-3 text-xs rounded-xl',
+    [InputSize.LG]: 'py-3 px-4 text-sm rounded-2xl',
+    [InputSize.MD]: 'py-2.5 px-3.5 text-xs rounded-xl'
+};
 let NumberInputComponent = class NumberInputComponent {
-    label;
-    placeholder = '0';
-    min = -Infinity;
-    max = Infinity;
-    step = 1;
-    prefix;
-    suffix;
-    size = InputSize.MD;
-    status = ValidationStatus.NONE;
-    helperText;
-    errorMessage;
-    disabled = false;
-    required = false;
-    loading = false;
-    valueChange = new EventEmitter();
+    label = input(undefined);
+    placeholder = input('0');
+    min = input(-Infinity);
+    max = input(Infinity);
+    step = input(1);
+    prefix = input(undefined);
+    suffix = input(undefined);
+    size = input(InputSize.MD);
+    status = input(ValidationStatus.NONE);
+    helperText = input(undefined);
+    errorMessage = input(undefined);
+    disabled = input(false);
+    required = input(false);
+    loading = input(false);
+    valueChange = output();
     value = signal(null);
+    isDisabled = signal(false);
     onChange = () => { };
     onTouched = () => { };
+    effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
+    sizeClass = computed(() => {
+        const s = String(this.size());
+        return SIZE_CLASSES[s] || SIZE_CLASSES[InputSize.MD];
+    });
+    statusClass = computed(() => {
+        const err = this.errorMessage();
+        const st = String(this.status());
+        if (err || st === ValidationStatus.INVALID || st === 'invalid') {
+            return 'border-rose-500 focus:ring-rose-500/30 text-rose-900 dark:text-rose-100';
+        }
+        if (st === ValidationStatus.VALID || st === 'valid') {
+            return 'border-emerald-500 focus:ring-emerald-500/30 text-emerald-900 dark:text-emerald-100';
+        }
+        return 'border-slate-200 dark:border-slate-700/80 focus:border-indigo-500 focus:ring-indigo-500/20 text-slate-900 dark:text-white';
+    });
+    skeletonHeight = computed(() => {
+        const s = String(this.size());
+        return s === 'lg' ? '2.875rem' : (s === 'sm' ? '2rem' : '2.5rem');
+    });
     writeValue(val) {
         const num = typeof val === 'number' ? val : (val !== null && val !== undefined && val !== '' ? Number(val) : null);
         this.value.set(num);
@@ -44,7 +67,7 @@ let NumberInputComponent = class NumberInputComponent {
         this.onTouched = fn;
     }
     setDisabledState(isDisabled) {
-        this.disabled = isDisabled;
+        this.isDisabled.set(isDisabled);
     }
     onInputChange(event) {
         const raw = event.target.value;
@@ -52,17 +75,17 @@ let NumberInputComponent = class NumberInputComponent {
         this.updateValue(val);
     }
     increment() {
-        if (this.disabled)
+        if (this.effectiveDisabled())
             return;
         const cur = this.value() ?? 0;
-        const next = Math.min(this.max, cur + this.step);
+        const next = Math.min(this.max(), cur + this.step());
         this.updateValue(next);
     }
     decrement() {
-        if (this.disabled)
+        if (this.effectiveDisabled())
             return;
         const cur = this.value() ?? 0;
-        const next = Math.max(this.min, cur - this.step);
+        const next = Math.max(this.min(), cur - this.step());
         this.updateValue(next);
     }
     updateValue(val) {
@@ -70,92 +93,7 @@ let NumberInputComponent = class NumberInputComponent {
         this.onChange(val);
         this.valueChange.emit(val);
     }
-    getSizeClasses() {
-        const s = String(this.size);
-        switch (s) {
-            case InputSize.SM:
-            case 'sm':
-                return 'py-1.5 px-3 text-xs rounded-xl';
-            case InputSize.LG:
-            case 'lg':
-                return 'py-3 px-4 text-sm rounded-2xl';
-            case InputSize.MD:
-            case 'md':
-            default:
-                return 'py-2.5 px-3.5 text-xs rounded-xl';
-        }
-    }
-    getStatusClasses() {
-        const st = String(this.status);
-        if (this.errorMessage || st === ValidationStatus.INVALID || st === 'invalid') {
-            return 'border-rose-500 focus:ring-rose-500/30 text-rose-900 dark:text-rose-100';
-        }
-        if (st === ValidationStatus.VALID || st === 'valid') {
-            return 'border-emerald-500 focus:ring-emerald-500/30 text-emerald-900 dark:text-emerald-100';
-        }
-        return 'border-slate-200 dark:border-slate-700/80 focus:border-indigo-500 focus:ring-indigo-500/20 text-slate-900 dark:text-white';
-    }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], NumberInputComponent.prototype, "label", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], NumberInputComponent.prototype, "placeholder", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], NumberInputComponent.prototype, "min", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], NumberInputComponent.prototype, "max", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], NumberInputComponent.prototype, "step", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], NumberInputComponent.prototype, "prefix", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], NumberInputComponent.prototype, "suffix", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], NumberInputComponent.prototype, "size", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], NumberInputComponent.prototype, "status", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], NumberInputComponent.prototype, "helperText", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], NumberInputComponent.prototype, "errorMessage", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], NumberInputComponent.prototype, "disabled", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], NumberInputComponent.prototype, "required", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], NumberInputComponent.prototype, "loading", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], NumberInputComponent.prototype, "valueChange", void 0);
 NumberInputComponent = __decorate([
     Component({
         selector: 'erp-number-input',
@@ -169,6 +107,7 @@ NumberInputComponent = __decorate([
             }
         ],
         templateUrl: './number-input.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: block;

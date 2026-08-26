@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostListener, ElementRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../icon/icon.component';
 
@@ -17,19 +17,20 @@ export interface ContextMenuItem {
   selector: 'erp-context-menu',
   standalone: true,
   imports: [CommonModule, IconComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div (contextmenu)="onContextMenu($event)" class="relative inline-block w-full">
       <!-- Target User Content Area -->
       <ng-content></ng-content>
 
       <!-- Context Menu Popup List -->
-      @if (isOpen) {
+      @if (isOpen()) {
         <div (click)="$event.stopPropagation()"
-             [style.top.px]="posY"
-             [style.left.px]="posX"
+             [style.top.px]="posY()"
+             [style.left.px]="posX()"
              class="fixed z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl py-1.5 min-w-48 text-xs select-none transition-all animate-in fade-in zoom-in-95">
           
-          @for (item of items; track item.label) {
+          @for (item of items(); track item.label) {
             @if (item.divider) {
               <div class="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
             } @else {
@@ -72,45 +73,43 @@ export interface ContextMenuItem {
   `]
 })
 export class ContextMenuComponent {
-  @Input() items: ContextMenuItem[] = [];
-  @Input() disabled: boolean = false;
+  readonly items = input<ContextMenuItem[]>([]);
+  readonly disabled = input<boolean>(false);
 
-  @Output() itemClick = new EventEmitter<ContextMenuItem>();
+  readonly itemClick = output<ContextMenuItem>();
 
-  isOpen: boolean = false;
-  posX: number = 0;
-  posY: number = 0;
-
-  constructor(private elementRef: ElementRef) {}
+  isOpen = signal<boolean>(false);
+  posX = signal<number>(0);
+  posY = signal<number>(0);
 
   @HostListener('document:click')
   onDocumentClick(): void {
-    this.isOpen = false;
+    this.isOpen.set(false);
   }
 
   @HostListener('document:scroll')
   onDocumentScroll(): void {
-    this.isOpen = false;
+    this.isOpen.set(false);
   }
 
   onContextMenu(event: MouseEvent): void {
-    if (this.disabled) return;
+    if (this.disabled()) return;
     event.preventDefault();
     event.stopPropagation();
 
     const screenW = window.innerWidth;
     const screenH = window.innerHeight;
     const menuW = 200;
-    const menuH = this.items.length * 36;
+    const menuH = this.items().length * 36;
 
-    this.posX = event.clientX + menuW > screenW ? event.clientX - menuW : event.clientX;
-    this.posY = event.clientY + menuH > screenH ? event.clientY - menuH : event.clientY;
-    this.isOpen = true;
+    this.posX.set(event.clientX + menuW > screenW ? event.clientX - menuW : event.clientX);
+    this.posY.set(event.clientY + menuH > screenH ? event.clientY - menuH : event.clientY);
+    this.isOpen.set(true);
   }
 
   handleItemClick(item: ContextMenuItem): void {
     if (item.disabled) return;
-    this.isOpen = false;
+    this.isOpen.set(false);
     if (item.action) {
       item.action();
     }

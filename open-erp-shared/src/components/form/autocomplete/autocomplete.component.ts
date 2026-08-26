@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef, signal, computed, HostListener, ElementRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { IconComponent, IconName } from '../../icon/icon.component';
@@ -26,6 +26,7 @@ export interface AutocompleteItem {
     }
   ],
   templateUrl: './autocomplete.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -34,26 +35,29 @@ export interface AutocompleteItem {
   `]
 })
 export class AutocompleteComponent implements ControlValueAccessor {
-  @Input() label?: string;
-  @Input() placeholder: string = 'Tìm kiếm và chọn...';
-  @Input() items: (string | AutocompleteItem)[] = [];
-  @Input() minLength: number = 1;
-  @Input() status: ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning' = ValidationStatus.NONE;
-  @Input() helperText?: string;
-  @Input() errorMessage?: string;
-  @Input() disabled: boolean = false;
-  @Input() required: boolean = false;
-  @Input() loading: boolean = false;
+  readonly label = input<string | undefined>(undefined);
+  readonly placeholder = input<string>('Tìm kiếm và chọn...');
+  readonly items = input<(string | AutocompleteItem)[]>([]);
+  readonly minLength = input<number>(1);
+  readonly status = input<ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning'>(ValidationStatus.NONE);
+  readonly helperText = input<string | undefined>(undefined);
+  readonly errorMessage = input<string | undefined>(undefined);
+  readonly disabled = input<boolean>(false);
+  readonly required = input<boolean>(false);
+  readonly loading = input<boolean>(false);
 
-  @Output() itemSelect = new EventEmitter<any>();
+  readonly itemSelect = output<any>();
 
   query = signal<string>('');
   isOpen = signal<boolean>(false);
+  isDisabled = signal<boolean>(false);
 
   onChange: (val: any) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor(private elementRef: ElementRef) {}
+
+  readonly effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
 
   @HostListener('document:click', ['$event'])
   onClickOutside(event: MouseEvent): void {
@@ -63,12 +67,13 @@ export class AutocompleteComponent implements ControlValueAccessor {
   }
 
   readonly normalizedItems = computed<AutocompleteItem[]>(() => {
-    return this.items.map(item => typeof item === 'string' ? { label: item, value: item } : item);
+    return this.items().map(item => typeof item === 'string' ? { label: item, value: item } : item);
   });
 
   readonly filteredItems = computed<AutocompleteItem[]>(() => {
     const q = this.query().toLowerCase().trim();
-    if (!q || q.length < this.minLength) return [];
+    const minL = this.minLength();
+    if (!q || q.length < minL) return [];
     return this.normalizedItems().filter(it => it.label.toLowerCase().includes(q));
   });
 
@@ -85,13 +90,13 @@ export class AutocompleteComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.isDisabled.set(isDisabled);
   }
 
   onInput(event: Event): void {
     const val = (event.target as HTMLInputElement).value;
     this.query.set(val);
-    this.isOpen.set(val.length >= this.minLength);
+    this.isOpen.set(val.length >= this.minLength());
     this.onChange(val);
   }
 

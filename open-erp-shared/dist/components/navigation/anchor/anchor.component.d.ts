@@ -1,4 +1,4 @@
-import { EventEmitter, OnInit, AfterViewInit } from '@angular/core';
+import { OnInit, AfterViewInit } from '@angular/core';
 import { IconName } from '../../icon/icon.component';
 export interface AnchorItem {
     id?: string;
@@ -8,13 +8,12 @@ export interface AnchorItem {
     children?: AnchorItem[];
 }
 export declare class AnchorComponent implements OnInit, AfterViewInit {
-    items: AnchorItem[];
-    activeTargetId: string;
-    offsetTop: number;
-    showRail: boolean;
-    title?: string;
-    anchorClick: EventEmitter<AnchorItem>;
-    activeTargetIdChange: EventEmitter<string>;
+    readonly items: import("@angular/core").InputSignal<AnchorItem[]>;
+    readonly activeTargetId: import("@angular/core").ModelSignal<string>;
+    readonly offsetTop: import("@angular/core").InputSignal<number>;
+    readonly showRail: import("@angular/core").InputSignal<boolean>;
+    readonly title: import("@angular/core").InputSignal<string | undefined>;
+    readonly anchorClick: import("@angular/core").OutputEmitterRef<AnchorItem>;
     ngOnInit(): void;
     ngAfterViewInit(): void;
     onWindowScroll(): void;

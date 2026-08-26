@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, TemplateRef, ContentChildren, QueryList, AfterContentInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '../icon/icon.component';
@@ -23,6 +23,7 @@ export interface TableColumn<T = any> {
   standalone: true,
   imports: [CommonModule, FormsModule, IconComponent, SkeletonComponent, EmptyStateComponent, PaginationComponent, CheckboxComponent],
   templateUrl: './table.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -31,90 +32,127 @@ export interface TableColumn<T = any> {
   `]
 })
 export class TableComponent<T = any> {
-  @Input() columns: TableColumn<T>[] = [];
-  @Input() data: T[] = [];
-  @Input() loading: boolean = false;
-  @Input() striped: boolean = false;
-  @Input() bordered: boolean = true;
-  @Input() hoverable: boolean = true;
-  @Input() compact: boolean = false;
-  @Input() stickyHeader: boolean = false;
-  @Input() maxHeight?: string;
-  @Input() emptyTitle: string = 'Không tìm thấy dữ liệu';
-  @Input() emptyDescription: string = 'Chưa có bản ghi nào hoặc bộ lọc không khớp kết quả.';
+  readonly columns = input<TableColumn<T>[]>([]);
+  readonly data = input<T[]>([]);
+  readonly rowKey = input<string>('id');
+  readonly loading = input<boolean>(false);
+  readonly striped = input<boolean>(false);
+  readonly bordered = input<boolean>(true);
+  readonly hoverable = input<boolean>(true);
+  readonly compact = input<boolean>(false);
+  readonly stickyHeader = input<boolean>(false);
+  readonly maxHeight = input<string | undefined>(undefined);
+  readonly emptyTitle = input<string>('Không tìm thấy dữ liệu');
+  readonly emptyDescription = input<string>('Chưa có bản ghi nào hoặc bộ lọc không khớp kết quả.');
 
   // Sắp xếp
-  @Input() sortKey?: string;
-  @Input() sortDirection: TableSortDirection | 'asc' | 'desc' | 'none' = TableSortDirection.NONE;
-  @Output() sortChange = new EventEmitter<{ key: string; direction: TableSortDirection | 'asc' | 'desc' | 'none' }>();
+  readonly sortKey = model<string | undefined>(undefined);
+  readonly sortDirection = model<TableSortDirection | 'asc' | 'desc' | 'none'>(TableSortDirection.NONE);
+  readonly sortChange = output<{ key: string; direction: TableSortDirection | 'asc' | 'desc' | 'none' }>();
 
   // Chọn dòng (Selection)
-  @Input() selectable: boolean = false;
-  @Input() selectedRows: T[] = [];
-  @Output() selectedRowsChange = new EventEmitter<T[]>();
-  @Output() rowClick = new EventEmitter<{ row: T; index: number }>();
+  readonly selectable = input<boolean>(false);
+  readonly selectedRows = model<T[]>([]);
+  readonly rowClick = output<{ row: T; index: number }>();
 
   // Phân trang
-  @Input() pagination: boolean = false;
-  @Input() currentPage: number = 1;
-  @Input() pageSize: number = 10;
-  @Input() totalItems: number = 0;
-  @Input() pageSizeOptions: number[] = [10, 20, 50, 100];
-  @Output() pageChange = new EventEmitter<number>();
-  @Output() pageSizeChange = new EventEmitter<number>();
+  readonly pagination = input<boolean>(false);
+  readonly currentPage = input<number>(1);
+  readonly pageSize = input<number>(10);
+  readonly totalItems = input<number>(0);
+  readonly pageSizeOptions = input<number[]>([10, 20, 50, 100]);
+  readonly pageChange = output<number>();
+  readonly pageSizeChange = output<number>();
 
-  get isAllSelected(): boolean {
-    if (!this.data || this.data.length === 0) return false;
-    return this.data.every(row => this.selectedRows.includes(row));
-  }
-
-  get isPartiallySelected(): boolean {
-    if (!this.data || this.data.length === 0) return false;
-    const count = this.data.filter(row => this.selectedRows.includes(row)).length;
-    return count > 0 && count < this.data.length;
-  }
-
-  toggleSelectAll(): void {
-    if (this.isAllSelected) {
-      this.selectedRows = [];
-    } else {
-      this.selectedRows = [...this.data];
+  readonly selectedKeysSet = computed(() => {
+    const key = this.rowKey();
+    const rows = this.selectedRows();
+    const set = new Set<any>();
+    for (const r of rows) {
+      set.add(key && (r as any)[key] !== undefined ? (r as any)[key] : r);
     }
-    this.selectedRowsChange.emit(this.selectedRows);
-  }
+    return set;
+  });
 
-  toggleSelectRow(row: T, isChecked?: boolean): void {
-    const shouldSelect = isChecked !== undefined ? isChecked : !this.isRowSelected(row);
-    if (shouldSelect) {
-      if (!this.selectedRows.includes(row)) {
-        this.selectedRows = [...this.selectedRows, row];
+  readonly isAllSelected = computed(() => {
+    const list = this.data();
+    if (!list || list.length === 0) return false;
+    const set = this.selectedKeysSet();
+    const key = this.rowKey();
+    return list.every(row => set.has(key && (row as any)[key] !== undefined ? (row as any)[key] : row));
+  });
+
+  readonly isPartiallySelected = computed(() => {
+    const list = this.data();
+    if (!list || list.length === 0) return false;
+    const set = this.selectedKeysSet();
+    const key = this.rowKey();
+    let count = 0;
+    for (const row of list) {
+      if (set.has(key && (row as any)[key] !== undefined ? (row as any)[key] : row)) {
+        count++;
       }
-    } else {
-      this.selectedRows = this.selectedRows.filter(r => r !== row);
     }
-    this.selectedRowsChange.emit(this.selectedRows);
+    return count > 0 && count < list.length;
+  });
+
+  getRowIdentity(row: T, index: number): any {
+    const key = this.rowKey();
+    return key && (row as any)[key] !== undefined ? (row as any)[key] : index;
   }
 
   isRowSelected(row: T): boolean {
-    return this.selectedRows.includes(row);
+    const key = this.rowKey();
+    const target = key && (row as any)[key] !== undefined ? (row as any)[key] : row;
+    return this.selectedKeysSet().has(target);
+  }
+
+  toggleSelectAll(): void {
+    if (this.isAllSelected()) {
+      this.selectedRows.set([]);
+    } else {
+      this.selectedRows.set([...this.data()]);
+    }
+  }
+
+  toggleSelectRow(row: T, isChecked?: boolean): void {
+    const currentlySelected = this.isRowSelected(row);
+    const shouldSelect = isChecked !== undefined ? isChecked : !currentlySelected;
+    const current = this.selectedRows();
+    const key = this.rowKey();
+    const target = key && (row as any)[key] !== undefined ? (row as any)[key] : row;
+
+    if (shouldSelect) {
+      if (!currentlySelected) {
+        this.selectedRows.set([...current, row]);
+      }
+    } else {
+      this.selectedRows.set(current.filter(r => (key && (r as any)[key] !== undefined ? (r as any)[key] : r) !== target));
+    }
   }
 
   handleSort(col: TableColumn<T>): void {
     if (!col.sortable) return;
-    if (this.sortKey !== col.key) {
-      this.sortKey = col.key;
-      this.sortDirection = 'asc';
+    let nextDir: TableSortDirection | 'asc' | 'desc' | 'none' = 'asc';
+    let nextKey: string | undefined = col.key;
+
+    if (this.sortKey() !== col.key) {
+      nextDir = 'asc';
+      nextKey = col.key;
     } else {
-      if (this.sortDirection === 'asc') {
-        this.sortDirection = 'desc';
-      } else if (this.sortDirection === 'desc') {
-        this.sortDirection = 'none';
-        this.sortKey = undefined;
+      if (this.sortDirection() === 'asc') {
+        nextDir = 'desc';
+      } else if (this.sortDirection() === 'desc') {
+        nextDir = 'none';
+        nextKey = undefined;
       } else {
-        this.sortDirection = 'asc';
+        nextDir = 'asc';
       }
     }
-    this.sortChange.emit({ key: col.key, direction: this.sortDirection });
+
+    this.sortKey.set(nextKey);
+    this.sortDirection.set(nextDir);
+    this.sortChange.emit({ key: col.key, direction: nextDir });
   }
 
   onRowClick(row: T, index: number): void {

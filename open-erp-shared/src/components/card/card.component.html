@@ -1,9 +1,9 @@
-<div [ngClass]="getVariantClasses()"
-     [class.hover:-translate-y-1]="hoverable"
-     [class.hover:shadow-xl]="hoverable"
+<div [class]="variantClass()"
+     [class.hover:-translate-y-1]="hoverable()"
+     [class.hover:shadow-xl]="hoverable()"
      class="rounded-3xl overflow-hidden transition-all duration-200">
   
-  @if (loading) {
+  @if (loading()) {
     <!-- Card Loading Skeleton -->
     <div class="p-6 space-y-4">
       <div class="flex items-center gap-3">
@@ -19,29 +19,29 @@
     
     <!-- Cover Image / Slot -->
     <ng-content select="[card-cover]">
-      @if (coverImage) {
+      @if (coverImage()) {
         <div class="w-full h-48 overflow-hidden bg-slate-100 dark:bg-slate-800">
-          <img [src]="coverImage" alt="Card Cover" class="w-full h-full object-cover">
+          <img [src]="coverImage()" alt="Card Cover" class="w-full h-full object-cover">
         </div>
       }
     </ng-content>
 
     <!-- Header Section -->
     <ng-content select="[card-header]">
-      @if (title || subtitle || icon) {
+      @if (title() || subtitle() || icon()) {
         <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 gap-3">
           <div class="flex items-center gap-3 min-w-0">
-            @if (icon) {
+            @if (icon()) {
               <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
-                <erp-icon [name]="icon" [size]="18"></erp-icon>
+                <erp-icon [name]="icon()!" [size]="18"></erp-icon>
               </div>
             }
             <div class="min-w-0">
-              @if (title) {
-                <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ title }}</h3>
+              @if (title()) {
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ title() }}</h3>
               }
-              @if (subtitle) {
-                <p class="text-[11px] text-slate-400 dark:text-slate-500 truncate">{{ subtitle }}</p>
+              @if (subtitle()) {
+                <p class="text-[11px] text-slate-400 dark:text-slate-500 truncate">{{ subtitle() }}</p>
               }
             </div>
           </div>
@@ -55,7 +55,7 @@
     </ng-content>
 
     <!-- Card Body Content Slot -->
-    <div [class.p-6]="padded" class="text-xs text-slate-600 dark:text-slate-300">
+    <div [class.p-6]="padded()" class="text-xs text-slate-600 dark:text-slate-300">
       <ng-content></ng-content>
     </div>
 

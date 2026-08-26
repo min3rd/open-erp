@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../icon/icon.component';
 import { SkeletonComponent } from '../skeleton/skeleton.component';
@@ -15,11 +15,20 @@ export interface TimelineItem {
   active?: boolean;
 }
 
+const DOT_CLASSES: Record<string, string> = {
+  success: 'bg-emerald-500 text-white ring-4 ring-emerald-500/20',
+  warning: 'bg-amber-500 text-white ring-4 ring-amber-500/20',
+  danger: 'bg-rose-500 text-white ring-4 ring-rose-500/20',
+  neutral: 'bg-slate-400 text-white ring-4 ring-slate-400/20',
+  primary: 'bg-indigo-600 text-white ring-4 ring-indigo-600/20'
+};
+
 @Component({
   selector: 'erp-timeline',
   standalone: true,
   imports: [CommonModule, IconComponent, SkeletonComponent],
   templateUrl: './timeline.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -28,29 +37,18 @@ export interface TimelineItem {
   `]
 })
 export class TimelineComponent {
-  @Input() items: TimelineItem[] = [];
-  @Input() position: TimelinePosition | 'left' | 'right' | 'alternate' = TimelinePosition.LEFT;
-  @Input() reverse: boolean = false;
-  @Input() loading: boolean = false;
+  readonly items = input<TimelineItem[]>([]);
+  readonly position = input<TimelinePosition | 'left' | 'right' | 'alternate'>(TimelinePosition.LEFT);
+  readonly reverse = input<boolean>(false);
+  readonly loading = input<boolean>(false);
 
-  get normalizedItems(): TimelineItem[] {
-    return this.reverse ? [...this.items].reverse() : this.items;
-  }
+  readonly normalizedItems = computed<TimelineItem[]>(() => {
+    const raw = this.items();
+    return this.reverse() ? [...raw].reverse() : raw;
+  });
 
   getDotClasses(item: TimelineItem): string {
     const c = item.color || 'primary';
-    switch (c) {
-      case 'success':
-        return 'bg-emerald-500 text-white ring-4 ring-emerald-500/20';
-      case 'warning':
-        return 'bg-amber-500 text-white ring-4 ring-amber-500/20';
-      case 'danger':
-        return 'bg-rose-500 text-white ring-4 ring-rose-500/20';
-      case 'neutral':
-        return 'bg-slate-400 text-white ring-4 ring-slate-400/20';
-      case 'primary':
-      default:
-        return 'bg-indigo-600 text-white ring-4 ring-indigo-600/20';
-    }
+    return DOT_CLASSES[c] || DOT_CLASSES['primary'];
   }
 }

@@ -4,10 +4,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-import { Component, Input, Output, EventEmitter, forwardRef, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IconComponent } from '../../icon/icon.component';
@@ -15,19 +12,21 @@ import { SkeletonComponent } from '../../skeleton/skeleton.component';
 import { LabelComponent } from '../label/label.component';
 import { HelperTextComponent } from '../helper-text/helper-text.component';
 let RadioGroupComponent = class RadioGroupComponent {
-    label;
-    options = [];
-    orientation = 'vertical';
-    cardMode = false;
-    disabled = false;
-    required = false;
-    loading = false;
-    helperText;
-    errorMessage;
-    valueChange = new EventEmitter();
+    label = input(undefined);
+    options = input([]);
+    orientation = input('vertical');
+    cardMode = input(false);
+    disabled = input(false);
+    required = input(false);
+    loading = input(false);
+    helperText = input(undefined);
+    errorMessage = input(undefined);
+    valueChange = output();
     selectedValue = signal(null);
+    isDisabled = signal(false);
     onChange = () => { };
     onTouched = () => { };
+    effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
     writeValue(val) {
         this.selectedValue.set(val);
     }
@@ -38,56 +37,53 @@ let RadioGroupComponent = class RadioGroupComponent {
         this.onTouched = fn;
     }
     setDisabledState(isDisabled) {
-        this.disabled = isDisabled;
+        this.isDisabled.set(isDisabled);
     }
     selectOption(opt) {
-        if (this.disabled || opt.disabled)
+        if (this.effectiveDisabled() || opt.disabled)
             return;
         this.selectedValue.set(opt.value);
         this.onChange(opt.value);
         this.valueChange.emit(opt.value);
     }
+    onKeyDown(event, opt) {
+        if (this.effectiveDisabled() || opt.disabled)
+            return;
+        if (event.key === ' ' || event.key === 'Enter') {
+            event.preventDefault();
+            this.selectOption(opt);
+        }
+        else if (['ArrowDown', 'ArrowRight'].includes(event.key)) {
+            event.preventDefault();
+            this.selectNext(1);
+        }
+        else if (['ArrowUp', 'ArrowLeft'].includes(event.key)) {
+            event.preventDefault();
+            this.selectNext(-1);
+        }
+    }
+    selectNext(direction) {
+        const opts = this.options();
+        if (opts.length === 0)
+            return;
+        const currentIdx = opts.findIndex(o => o.value === this.selectedValue());
+        let nextIdx = currentIdx + direction;
+        if (nextIdx < 0)
+            nextIdx = opts.length - 1;
+        if (nextIdx >= opts.length)
+            nextIdx = 0;
+        while (nextIdx !== currentIdx && opts[nextIdx].disabled) {
+            nextIdx += direction;
+            if (nextIdx < 0)
+                nextIdx = opts.length - 1;
+            if (nextIdx >= opts.length)
+                nextIdx = 0;
+        }
+        if (!opts[nextIdx].disabled) {
+            this.selectOption(opts[nextIdx]);
+        }
+    }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], RadioGroupComponent.prototype, "label", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Array)
-], RadioGroupComponent.prototype, "options", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], RadioGroupComponent.prototype, "orientation", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], RadioGroupComponent.prototype, "cardMode", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], RadioGroupComponent.prototype, "disabled", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], RadioGroupComponent.prototype, "required", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], RadioGroupComponent.prototype, "loading", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], RadioGroupComponent.prototype, "helperText", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], RadioGroupComponent.prototype, "errorMessage", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], RadioGroupComponent.prototype, "valueChange", void 0);
 RadioGroupComponent = __decorate([
     Component({
         selector: 'erp-radio-group',
@@ -101,6 +97,7 @@ RadioGroupComponent = __decorate([
             }
         ],
         templateUrl: './radio-group.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: block;

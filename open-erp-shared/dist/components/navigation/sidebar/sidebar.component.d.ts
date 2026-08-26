@@ -1,4 +1,3 @@
-import { EventEmitter } from '@angular/core';
 import { IconName } from '../../icon/icon.component';
 import { SidebarMode } from '../../../enums/component.enum';
 export interface SidebarSubItem {
@@ -25,24 +24,22 @@ export interface SidebarItem {
     sectionHeader?: string;
 }
 export declare class SidebarComponent {
-    mode: SidebarMode | 'fixed' | 'mini' | 'overlay';
-    collapsed: boolean;
-    openOverlay: boolean;
-    brandTitle: string;
-    brandSubtitle?: string;
-    brandLogo?: string;
-    brandUrl: string;
-    items: SidebarItem[];
-    showCollapseToggle: boolean;
-    width: string;
-    collapsedChange: EventEmitter<boolean>;
-    openOverlayChange: EventEmitter<boolean>;
-    itemClick: EventEmitter<SidebarSubItem | SidebarItem>;
+    readonly mode: import("@angular/core").InputSignal<"fixed" | "mini" | "overlay" | SidebarMode>;
+    readonly collapsed: import("@angular/core").ModelSignal<boolean>;
+    readonly openOverlay: import("@angular/core").ModelSignal<boolean>;
+    readonly brandTitle: import("@angular/core").InputSignal<string>;
+    readonly brandSubtitle: import("@angular/core").InputSignal<string | undefined>;
+    readonly brandLogo: import("@angular/core").InputSignal<string | undefined>;
+    readonly brandUrl: import("@angular/core").InputSignal<string>;
+    readonly items: import("@angular/core").InputSignal<SidebarItem[]>;
+    readonly showCollapseToggle: import("@angular/core").InputSignal<boolean>;
+    readonly width: import("@angular/core").InputSignal<string>;
+    readonly itemClick: import("@angular/core").OutputEmitterRef<SidebarSubItem | SidebarItem>;
+    readonly isOverlay: import("@angular/core").Signal<boolean>;
+    readonly isMini: import("@angular/core").Signal<boolean>;
     toggleCollapse(): void;
     closeDrawer(): void;
     toggleItemExpand(item: SidebarItem, event: MouseEvent): void;
     onItemClick(item: SidebarItem | SidebarSubItem, event?: MouseEvent): void;
-    get isOverlay(): boolean;
-    get isMini(): boolean;
     isItemActive(item: SidebarItem): boolean;
 }

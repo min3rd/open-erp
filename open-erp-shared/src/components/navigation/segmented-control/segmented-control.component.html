@@ -1,42 +1,47 @@
-@if (loading) {
+@if (loading()) {
   <erp-skeleton width="14rem" height="2.25rem" shape="rounded"></erp-skeleton>
 } @else {
-  <div [ngClass]="getContainerSizeClasses()"
-       [class.w-full]="fullWidth"
-       [class.flex]="fullWidth"
-       [class.inline-flex]="!fullWidth"
-       [class.opacity-50]="disabled"
+  <div [class]="containerSizeClass()"
+       [class.w-full]="fullWidth()"
+       [class.flex]="fullWidth()"
+       [class.inline-flex]="!fullWidth()"
+       [class.opacity-50]="effectiveDisabled()"
+       role="radiogroup"
        class="bg-slate-100 dark:bg-slate-800/90 items-center select-none border border-slate-200/60 dark:border-slate-700/60">
     
-    @for (opt of normalizedOptions; track opt.value) {
+    @for (opt of normalizedOptions(); track opt.value) {
       <button (click)="selectOption(opt)"
-              [disabled]="disabled || opt.disabled"
+              (keydown)="onKeyDown($event, $index)"
+              [disabled]="effectiveDisabled() || opt.disabled"
+              role="radio"
+              [tabindex]="value() === opt.value ? 0 : -1"
+              [attr.aria-checked]="value() === opt.value"
               type="button"
-              [ngClass]="getSizeClasses()"
-              [class.flex-1]="fullWidth"
-              [class.justify-center]="fullWidth"
-              [class.bg-white]="value === opt.value"
-              [class.dark:bg-slate-900]="value === opt.value"
-              [class.text-slate-900]="value === opt.value"
-              [class.dark:text-white]="value === opt.value"
-              [class.shadow-xs]="value === opt.value"
-              [class.font-bold]="value === opt.value"
-              [class.text-slate-500]="value !== opt.value"
-              [class.dark:text-slate-400]="value !== opt.value"
-              [class.hover:text-slate-900]="value !== opt.value && !disabled && !opt.disabled"
-              [class.dark:hover:text-white]="value !== opt.value && !disabled && !opt.disabled"
-              [class.cursor-not-allowed]="disabled || opt.disabled"
+              [class]="sizeClass()"
+              [class.flex-1]="fullWidth()"
+              [class.justify-center]="fullWidth()"
+              [class.bg-white]="value() === opt.value"
+              [class.dark:bg-slate-900]="value() === opt.value"
+              [class.text-slate-900]="value() === opt.value"
+              [class.dark:text-white]="value() === opt.value"
+              [class.shadow-xs]="value() === opt.value"
+              [class.font-bold]="value() === opt.value"
+              [class.text-slate-500]="value() !== opt.value"
+              [class.dark:text-slate-400]="value() !== opt.value"
+              [class.hover:text-slate-900]="value() !== opt.value && !effectiveDisabled() && !opt.disabled"
+              [class.dark:hover:text-white]="value() !== opt.value && !effectiveDisabled() && !opt.disabled"
+              [class.cursor-not-allowed]="effectiveDisabled() || opt.disabled"
               [class.opacity-40]="opt.disabled"
-              class="inline-flex items-center transition-all duration-150">
+              class="inline-flex items-center transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40">
         
         @if (opt.icon) {
-          <erp-icon [name]="opt.icon" [size]="size === 'lg' ? 18 : 14"></erp-icon>
+          <erp-icon [name]="opt.icon" [size]="iconSize()"></erp-icon>
         }
         
         <span>{{ opt.label }}</span>
 
         @if (opt.badge) {
-          <span [class]="value === opt.value ? 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'"
+          <span [class]="value() === opt.value ? 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'"
                 class="px-1.5 py-0.2 rounded-full text-[10px] font-bold">
             {{ opt.badge }}
           </span>

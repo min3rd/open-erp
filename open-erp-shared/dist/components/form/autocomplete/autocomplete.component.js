@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Component, Input, Output, EventEmitter, forwardRef, signal, computed, HostListener, ElementRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { IconComponent } from '../../icon/icon.component';
@@ -17,35 +17,38 @@ import { HelperTextComponent } from '../helper-text/helper-text.component';
 import { ValidationStatus } from '../../../enums/component.enum';
 let AutocompleteComponent = class AutocompleteComponent {
     elementRef;
-    label;
-    placeholder = 'Tìm kiếm và chọn...';
-    items = [];
-    minLength = 1;
-    status = ValidationStatus.NONE;
-    helperText;
-    errorMessage;
-    disabled = false;
-    required = false;
-    loading = false;
-    itemSelect = new EventEmitter();
+    label = input(undefined);
+    placeholder = input('Tìm kiếm và chọn...');
+    items = input([]);
+    minLength = input(1);
+    status = input(ValidationStatus.NONE);
+    helperText = input(undefined);
+    errorMessage = input(undefined);
+    disabled = input(false);
+    required = input(false);
+    loading = input(false);
+    itemSelect = output();
     query = signal('');
     isOpen = signal(false);
+    isDisabled = signal(false);
     onChange = () => { };
     onTouched = () => { };
     constructor(elementRef) {
         this.elementRef = elementRef;
     }
+    effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
     onClickOutside(event) {
         if (!this.elementRef.nativeElement.contains(event.target)) {
             this.isOpen.set(false);
         }
     }
     normalizedItems = computed(() => {
-        return this.items.map(item => typeof item === 'string' ? { label: item, value: item } : item);
+        return this.items().map(item => typeof item === 'string' ? { label: item, value: item } : item);
     });
     filteredItems = computed(() => {
         const q = this.query().toLowerCase().trim();
-        if (!q || q.length < this.minLength)
+        const minL = this.minLength();
+        if (!q || q.length < minL)
             return [];
         return this.normalizedItems().filter(it => it.label.toLowerCase().includes(q));
     });
@@ -59,12 +62,12 @@ let AutocompleteComponent = class AutocompleteComponent {
         this.onTouched = fn;
     }
     setDisabledState(isDisabled) {
-        this.disabled = isDisabled;
+        this.isDisabled.set(isDisabled);
     }
     onInput(event) {
         const val = event.target.value;
         this.query.set(val);
-        this.isOpen.set(val.length >= this.minLength);
+        this.isOpen.set(val.length >= this.minLength());
         this.onChange(val);
     }
     selectItem(it) {
@@ -80,50 +83,6 @@ let AutocompleteComponent = class AutocompleteComponent {
         this.itemSelect.emit('');
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], AutocompleteComponent.prototype, "label", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], AutocompleteComponent.prototype, "placeholder", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Array)
-], AutocompleteComponent.prototype, "items", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], AutocompleteComponent.prototype, "minLength", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], AutocompleteComponent.prototype, "status", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], AutocompleteComponent.prototype, "helperText", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], AutocompleteComponent.prototype, "errorMessage", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], AutocompleteComponent.prototype, "disabled", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], AutocompleteComponent.prototype, "required", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], AutocompleteComponent.prototype, "loading", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], AutocompleteComponent.prototype, "itemSelect", void 0);
 __decorate([
     HostListener('document:click', ['$event']),
     __metadata("design:type", Function),
@@ -143,6 +102,7 @@ AutocompleteComponent = __decorate([
             }
         ],
         templateUrl: './autocomplete.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: block;

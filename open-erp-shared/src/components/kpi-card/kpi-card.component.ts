@@ -1,44 +1,44 @@
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../icon/icon.component';
 import { SkeletonComponent } from '../skeleton/skeleton.component';
 import { KpiTrendDirection } from '../../enums/component.enum';
 
+const TREND_CLASSES: Record<string, string> = {
+  [KpiTrendDirection.UP]: 'text-emerald-600 dark:text-emerald-400',
+  [KpiTrendDirection.DOWN]: 'text-rose-600 dark:text-rose-400',
+  [KpiTrendDirection.NEUTRAL]: 'text-slate-500 dark:text-slate-400'
+};
+
+const TREND_ICONS: Record<string, IconName> = {
+  [KpiTrendDirection.UP]: 'trending-up',
+  [KpiTrendDirection.DOWN]: 'trending-down',
+  [KpiTrendDirection.NEUTRAL]: 'activity'
+};
+
 @Component({
   selector: 'erp-kpi-card',
   standalone: true,
   imports: [CommonModule, IconComponent, SkeletonComponent],
-  templateUrl: './kpi-card.component.html'
+  templateUrl: './kpi-card.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class KpiCardComponent {
-  @Input() title: string = '';
-  @Input() value: string | number = '';
-  @Input() subText: string = '';
-  @Input() trend: KpiTrendDirection | 'up' | 'down' | 'neutral' = KpiTrendDirection.NEUTRAL;
-  @Input() iconName?: IconName;
-  @Input() iconBg: string = 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400';
-  @Input() loading: boolean = false;
+  readonly title = input<string>('');
+  readonly value = input<string | number>('');
+  readonly subText = input<string>('');
+  readonly trend = input<KpiTrendDirection | 'up' | 'down' | 'neutral'>(KpiTrendDirection.NEUTRAL);
+  readonly iconName = input<IconName | undefined>(undefined);
+  readonly iconBg = input<string>('bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400');
+  readonly loading = input<boolean>(false);
 
-  getTrendClasses(): string {
-    const tr = String(this.trend);
-    switch (tr) {
-      case KpiTrendDirection.UP:
-      case 'up':
-        return 'text-emerald-600 dark:text-emerald-400';
-      case KpiTrendDirection.DOWN:
-      case 'down':
-        return 'text-rose-600 dark:text-rose-400';
-      case KpiTrendDirection.NEUTRAL:
-      case 'neutral':
-      default:
-        return 'text-slate-500 dark:text-slate-400';
-    }
-  }
+  readonly trendClass = computed(() => {
+    const tr = String(this.trend());
+    return TREND_CLASSES[tr] || TREND_CLASSES[KpiTrendDirection.NEUTRAL];
+  });
 
-  getTrendIcon(): IconName {
-    const tr = String(this.trend);
-    if (tr === KpiTrendDirection.UP || tr === 'up') return 'trending-up';
-    if (tr === KpiTrendDirection.DOWN || tr === 'down') return 'trending-down';
-    return 'activity';
-  }
+  readonly trendIcon = computed(() => {
+    const tr = String(this.trend());
+    return TREND_ICONS[tr] || 'activity';
+  });
 }

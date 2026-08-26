@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SkeletonComponent } from '../skeleton/skeleton.component';
 import { DividerOrientation } from '../../enums/component.enum';
@@ -8,6 +8,7 @@ import { DividerOrientation } from '../../enums/component.enum';
   standalone: true,
   imports: [CommonModule, SkeletonComponent],
   templateUrl: './divider.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -16,9 +17,9 @@ import { DividerOrientation } from '../../enums/component.enum';
   `]
 })
 export class DividerComponent {
-  @Input() orientation: DividerOrientation | 'horizontal' | 'vertical' = DividerOrientation.HORIZONTAL;
-  @Input() dashed: boolean = false;
-  @Input() label?: string;
-  @Input() align: 'left' | 'center' | 'right' = 'center';
-  @Input() loading: boolean = false;
+  readonly orientation = input<DividerOrientation | 'horizontal' | 'vertical'>(DividerOrientation.HORIZONTAL);
+  readonly dashed = input<boolean>(false);
+  readonly label = input<string | undefined>(undefined);
+  readonly align = input<'left' | 'center' | 'right'>('center');
+  readonly loading = input<boolean>(false);
 }

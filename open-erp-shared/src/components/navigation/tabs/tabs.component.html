@@ -1,24 +1,30 @@
-<div [class.flex-row]="isVertical"
-     [class.flex-col]="!isVertical"
+<div [class.flex-row]="isVertical()"
+     [class.flex-col]="!isVertical()"
      class="flex gap-4 w-full">
 
   <!-- Tabs Navigation Header Bar -->
-  <div [class.flex-col]="isVertical"
-       [class.border-r]="isVertical && isLineVariant"
-       [class.border-b]="!isVertical && isLineVariant"
-       [class.bg-slate-100]="isPillsOrSegmented"
-       [class.dark:bg-slate-800/80]="isPillsOrSegmented"
-       [class.p-1]="isPillsOrSegmented"
-       [class.rounded-2xl]="isPillsOrSegmented"
-       [class.w-full]="fullWidth"
+  <div role="tablist"
+       [attr.aria-orientation]="orientation()"
+       [class.flex-col]="isVertical()"
+       [class.border-r]="isVertical() && isLineVariant()"
+       [class.border-b]="!isVertical() && isLineVariant()"
+       [class.bg-slate-100]="isPillsOrSegmented()"
+       [class.dark:bg-slate-800/80]="isPillsOrSegmented()"
+       [class.p-1]="isPillsOrSegmented()"
+       [class.rounded-2xl]="isPillsOrSegmented()"
+       [class.w-full]="fullWidth()"
        class="flex border-slate-200 dark:border-slate-800 select-none overflow-x-auto custom-scrollbar shrink-0">
     
-    @for (item of normalizedItems; track item.id) {
+    @for (item of normalizedItems(); track item.id) {
       <button (click)="selectTab(item)"
+              (keydown)="onKeyDown($event, $index)"
               [disabled]="item.disabled"
+              role="tab"
+              [tabindex]="item.id === currentActiveId() ? 0 : -1"
+              [attr.aria-selected]="item.id === currentActiveId()"
               type="button"
-              [ngClass]="getItemClasses(item)"
-              class="inline-flex items-center transition-all duration-150 relative">
+              [class]="getItemClasses(item)"
+              class="inline-flex items-center transition-all duration-150 relative outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40">
         
         @if (item.icon) {
           <erp-icon [name]="item.icon" [size]="16"></erp-icon>
@@ -26,7 +32,7 @@
         <span>{{ item.label }}</span>
         
         @if (item.badge) {
-          <span [class]="item.badgeColor || (item.id === currentActiveId ? 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300')"
+          <span [class]="item.badgeColor || (item.id === currentActiveId() ? 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300')"
                 class="px-1.5 py-0.5 rounded-full text-[10px] font-bold">
             {{ item.badge }}
           </span>
@@ -36,7 +42,7 @@
   </div>
 
   <!-- Tab Content Area Slot -->
-  <div class="flex-1 min-w-0">
+  <div class="flex-1 min-w-0" role="tabpanel">
     <ng-content></ng-content>
   </div>
 </div>

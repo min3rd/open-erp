@@ -1,6 +1,5 @@
-import { IconName } from '../icon/icon.component';
 export declare class DescriptionItemComponent {
-    label: string;
-    value?: any;
-    icon?: IconName;
+    readonly label: import("@angular/core").InputSignal<string>;
+    readonly value: import("@angular/core").InputSignal<any>;
+    readonly icon: import("@angular/core").InputSignal<string | undefined>;
 }

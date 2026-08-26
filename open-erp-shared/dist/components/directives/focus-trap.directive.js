@@ -7,21 +7,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Directive, ElementRef, HostListener, Input } from '@angular/core';
+import { Directive, ElementRef, HostListener, input } from '@angular/core';
 let FocusTrapDirective = class FocusTrapDirective {
     el;
-    enabled = true;
+    enabled = input(true, { alias: 'erpFocusTrap' });
     focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
     constructor(el) {
         this.el = el;
     }
     ngAfterViewInit() {
-        if (this.enabled) {
+        if (this.enabled()) {
             this.focusFirstElement();
         }
     }
     onKeyDown(event) {
-        if (!this.enabled || event.key !== 'Tab')
+        if (!this.enabled() || event.key !== 'Tab')
             return;
         const focusableElements = this.getFocusableElements();
         if (focusableElements.length === 0)
@@ -51,10 +51,6 @@ let FocusTrapDirective = class FocusTrapDirective {
         }
     }
 };
-__decorate([
-    Input('erpFocusTrap'),
-    __metadata("design:type", Boolean)
-], FocusTrapDirective.prototype, "enabled", void 0);
 __decorate([
     HostListener('keydown', ['$event']),
     __metadata("design:type", Function),

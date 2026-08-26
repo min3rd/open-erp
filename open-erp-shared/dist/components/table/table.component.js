@@ -4,10 +4,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '../icon/icon.component';
@@ -17,89 +14,121 @@ import { PaginationComponent } from '../navigation/pagination/pagination.compone
 import { CheckboxComponent } from '../form/checkbox/checkbox.component';
 import { TableSortDirection } from '../../enums/component.enum';
 let TableComponent = class TableComponent {
-    columns = [];
-    data = [];
-    loading = false;
-    striped = false;
-    bordered = true;
-    hoverable = true;
-    compact = false;
-    stickyHeader = false;
-    maxHeight;
-    emptyTitle = 'Không tìm thấy dữ liệu';
-    emptyDescription = 'Chưa có bản ghi nào hoặc bộ lọc không khớp kết quả.';
+    columns = input([]);
+    data = input([]);
+    rowKey = input('id');
+    loading = input(false);
+    striped = input(false);
+    bordered = input(true);
+    hoverable = input(true);
+    compact = input(false);
+    stickyHeader = input(false);
+    maxHeight = input(undefined);
+    emptyTitle = input('Không tìm thấy dữ liệu');
+    emptyDescription = input('Chưa có bản ghi nào hoặc bộ lọc không khớp kết quả.');
     // Sắp xếp
-    sortKey;
-    sortDirection = TableSortDirection.NONE;
-    sortChange = new EventEmitter();
+    sortKey = model(undefined);
+    sortDirection = model(TableSortDirection.NONE);
+    sortChange = output();
     // Chọn dòng (Selection)
-    selectable = false;
-    selectedRows = [];
-    selectedRowsChange = new EventEmitter();
-    rowClick = new EventEmitter();
+    selectable = input(false);
+    selectedRows = model([]);
+    rowClick = output();
     // Phân trang
-    pagination = false;
-    currentPage = 1;
-    pageSize = 10;
-    totalItems = 0;
-    pageSizeOptions = [10, 20, 50, 100];
-    pageChange = new EventEmitter();
-    pageSizeChange = new EventEmitter();
-    get isAllSelected() {
-        if (!this.data || this.data.length === 0)
+    pagination = input(false);
+    currentPage = input(1);
+    pageSize = input(10);
+    totalItems = input(0);
+    pageSizeOptions = input([10, 20, 50, 100]);
+    pageChange = output();
+    pageSizeChange = output();
+    selectedKeysSet = computed(() => {
+        const key = this.rowKey();
+        const rows = this.selectedRows();
+        const set = new Set();
+        for (const r of rows) {
+            set.add(key && r[key] !== undefined ? r[key] : r);
+        }
+        return set;
+    });
+    isAllSelected = computed(() => {
+        const list = this.data();
+        if (!list || list.length === 0)
             return false;
-        return this.data.every(row => this.selectedRows.includes(row));
+        const set = this.selectedKeysSet();
+        const key = this.rowKey();
+        return list.every(row => set.has(key && row[key] !== undefined ? row[key] : row));
+    });
+    isPartiallySelected = computed(() => {
+        const list = this.data();
+        if (!list || list.length === 0)
+            return false;
+        const set = this.selectedKeysSet();
+        const key = this.rowKey();
+        let count = 0;
+        for (const row of list) {
+            if (set.has(key && row[key] !== undefined ? row[key] : row)) {
+                count++;
+            }
+        }
+        return count > 0 && count < list.length;
+    });
+    getRowIdentity(row, index) {
+        const key = this.rowKey();
+        return key && row[key] !== undefined ? row[key] : index;
     }
-    get isPartiallySelected() {
-        if (!this.data || this.data.length === 0)
-            return false;
-        const count = this.data.filter(row => this.selectedRows.includes(row)).length;
-        return count > 0 && count < this.data.length;
+    isRowSelected(row) {
+        const key = this.rowKey();
+        const target = key && row[key] !== undefined ? row[key] : row;
+        return this.selectedKeysSet().has(target);
     }
     toggleSelectAll() {
-        if (this.isAllSelected) {
-            this.selectedRows = [];
+        if (this.isAllSelected()) {
+            this.selectedRows.set([]);
         }
         else {
-            this.selectedRows = [...this.data];
+            this.selectedRows.set([...this.data()]);
         }
-        this.selectedRowsChange.emit(this.selectedRows);
     }
     toggleSelectRow(row, isChecked) {
-        const shouldSelect = isChecked !== undefined ? isChecked : !this.isRowSelected(row);
+        const currentlySelected = this.isRowSelected(row);
+        const shouldSelect = isChecked !== undefined ? isChecked : !currentlySelected;
+        const current = this.selectedRows();
+        const key = this.rowKey();
+        const target = key && row[key] !== undefined ? row[key] : row;
         if (shouldSelect) {
-            if (!this.selectedRows.includes(row)) {
-                this.selectedRows = [...this.selectedRows, row];
+            if (!currentlySelected) {
+                this.selectedRows.set([...current, row]);
             }
         }
         else {
-            this.selectedRows = this.selectedRows.filter(r => r !== row);
+            this.selectedRows.set(current.filter(r => (key && r[key] !== undefined ? r[key] : r) !== target));
         }
-        this.selectedRowsChange.emit(this.selectedRows);
-    }
-    isRowSelected(row) {
-        return this.selectedRows.includes(row);
     }
     handleSort(col) {
         if (!col.sortable)
             return;
-        if (this.sortKey !== col.key) {
-            this.sortKey = col.key;
-            this.sortDirection = 'asc';
+        let nextDir = 'asc';
+        let nextKey = col.key;
+        if (this.sortKey() !== col.key) {
+            nextDir = 'asc';
+            nextKey = col.key;
         }
         else {
-            if (this.sortDirection === 'asc') {
-                this.sortDirection = 'desc';
+            if (this.sortDirection() === 'asc') {
+                nextDir = 'desc';
             }
-            else if (this.sortDirection === 'desc') {
-                this.sortDirection = 'none';
-                this.sortKey = undefined;
+            else if (this.sortDirection() === 'desc') {
+                nextDir = 'none';
+                nextKey = undefined;
             }
             else {
-                this.sortDirection = 'asc';
+                nextDir = 'asc';
             }
         }
-        this.sortChange.emit({ key: col.key, direction: this.sortDirection });
+        this.sortKey.set(nextKey);
+        this.sortDirection.set(nextDir);
+        this.sortChange.emit({ key: col.key, direction: nextDir });
     }
     onRowClick(row, index) {
         this.rowClick.emit({ row, index });
@@ -111,112 +140,13 @@ let TableComponent = class TableComponent {
         return row[col.key] ?? '—';
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", Array)
-], TableComponent.prototype, "columns", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Array)
-], TableComponent.prototype, "data", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TableComponent.prototype, "loading", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TableComponent.prototype, "striped", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TableComponent.prototype, "bordered", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TableComponent.prototype, "hoverable", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TableComponent.prototype, "compact", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TableComponent.prototype, "stickyHeader", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TableComponent.prototype, "maxHeight", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TableComponent.prototype, "emptyTitle", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TableComponent.prototype, "emptyDescription", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TableComponent.prototype, "sortKey", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], TableComponent.prototype, "sortDirection", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], TableComponent.prototype, "sortChange", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TableComponent.prototype, "selectable", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Array)
-], TableComponent.prototype, "selectedRows", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], TableComponent.prototype, "selectedRowsChange", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], TableComponent.prototype, "rowClick", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], TableComponent.prototype, "pagination", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], TableComponent.prototype, "currentPage", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], TableComponent.prototype, "pageSize", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], TableComponent.prototype, "totalItems", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Array)
-], TableComponent.prototype, "pageSizeOptions", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], TableComponent.prototype, "pageChange", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], TableComponent.prototype, "pageSizeChange", void 0);
 TableComponent = __decorate([
     Component({
         selector: 'erp-table, erp-data-grid',
         standalone: true,
         imports: [CommonModule, FormsModule, IconComponent, SkeletonComponent, EmptyStateComponent, PaginationComponent, CheckboxComponent],
         templateUrl: './table.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: block;

@@ -1,16 +1,16 @@
 <div class="relative inline-flex items-center">
   <ng-content></ng-content>
   
-  @if (!isHidden) {
-    @if (loading) {
-      <erp-skeleton width="2rem" height="1rem" [shape]="pill ? 'pill' : 'rounded'" [class]="getCornerClasses()"></erp-skeleton>
+  @if (!isHidden()) {
+    @if (loading()) {
+      <erp-skeleton width="2rem" height="1rem" [shape]="pill() ? 'pill' : 'rounded'" [class]="cornerClass()"></erp-skeleton>
     } @else {
-      <span [class]="[getBadgeClasses(), getCornerClasses()]">
-        @if (variant === 'dot') {
-          <span class="w-1.5 h-1.5 rounded-full" [class]="getDotColor()"></span>
+      <span [class]="badgeClasses()">
+        @if (variant() === 'dot') {
+          <span class="w-1.5 h-1.5 rounded-full" [class]="dotColorClass()"></span>
         }
-        @if (displayCount !== undefined) {
-          <span>{{ displayCount }}</span>
+        @if (displayCount() !== undefined) {
+          <span>{{ displayCount() }}</span>
         }
       </span>
     }

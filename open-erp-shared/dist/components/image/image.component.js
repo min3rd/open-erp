@@ -4,97 +4,67 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../icon/icon.component';
+const ROUNDED_CLASSES = {
+    none: 'rounded-none',
+    sm: 'rounded-md',
+    md: 'rounded-xl',
+    xl: 'rounded-3xl',
+    full: 'rounded-full',
+    lg: 'rounded-2xl'
+};
 let ImageComponent = class ImageComponent {
-    src = '';
-    alt = 'Image';
-    width;
-    height;
-    preview = true;
-    fallbackSrc = 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600&auto=format&fit=crop&q=80';
-    rounded = 'lg';
-    isLoaded = false;
-    hasError = false;
-    isPreviewOpen = false;
-    zoomScale = 1;
-    rotateDeg = 0;
+    src = input('');
+    alt = input('Image');
+    width = input(undefined);
+    height = input(undefined);
+    preview = input(true);
+    fallbackSrc = input('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600&auto=format&fit=crop&q=80');
+    rounded = input('lg');
+    isLoaded = signal(false);
+    hasError = signal(false);
+    isPreviewOpen = signal(false);
+    zoomScale = signal(1);
+    rotateDeg = signal(0);
+    roundedClass = computed(() => {
+        return ROUNDED_CLASSES[this.rounded()] || ROUNDED_CLASSES['lg'];
+    });
     onLoad() {
-        this.isLoaded = true;
+        this.isLoaded.set(true);
     }
     onError() {
-        this.hasError = true;
+        this.hasError.set(true);
     }
     openPreview(event) {
-        if (!this.preview)
+        if (!this.preview())
             return;
         event.stopPropagation();
-        this.isPreviewOpen = true;
-        this.zoomScale = 1;
-        this.rotateDeg = 0;
+        this.isPreviewOpen.set(true);
+        this.zoomScale.set(1);
+        this.rotateDeg.set(0);
     }
     closePreview() {
-        this.isPreviewOpen = false;
+        this.isPreviewOpen.set(false);
     }
     zoomIn() {
-        this.zoomScale = Math.min(3, this.zoomScale + 0.25);
+        this.zoomScale.set(Math.min(3, this.zoomScale() + 0.25));
     }
     zoomOut() {
-        this.zoomScale = Math.max(0.5, this.zoomScale - 0.25);
+        this.zoomScale.set(Math.max(0.5, this.zoomScale() - 0.25));
     }
     rotate() {
-        this.rotateDeg = (this.rotateDeg + 90) % 360;
-    }
-    getRoundedClass() {
-        switch (this.rounded) {
-            case 'none': return 'rounded-none';
-            case 'sm': return 'rounded-md';
-            case 'md': return 'rounded-xl';
-            case 'xl': return 'rounded-3xl';
-            case 'full': return 'rounded-full';
-            case 'lg':
-            default: return 'rounded-2xl';
-        }
+        this.rotateDeg.set((this.rotateDeg() + 90) % 360);
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ImageComponent.prototype, "src", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ImageComponent.prototype, "alt", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ImageComponent.prototype, "width", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ImageComponent.prototype, "height", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ImageComponent.prototype, "preview", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ImageComponent.prototype, "fallbackSrc", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], ImageComponent.prototype, "rounded", void 0);
 ImageComponent = __decorate([
     Component({
         selector: 'erp-image',
         standalone: true,
         imports: [CommonModule, IconComponent],
         templateUrl: './image.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: inline-block;

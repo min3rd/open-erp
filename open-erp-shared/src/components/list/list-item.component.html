@@ -1,11 +1,11 @@
 <div (click)="onClick($event)"
-     [class.cursor-pointer]="clickable && !disabled"
-     [class.hover:bg-slate-50]="clickable && !disabled"
-     [class.dark:hover:bg-slate-850]="clickable && !disabled"
-     [class.bg-indigo-50/50]="active"
-     [class.dark:bg-indigo-950/30]="active"
-     [class.opacity-40]="disabled"
-     [class.cursor-not-allowed]="disabled"
+     [class.cursor-pointer]="clickable() && !disabled()"
+     [class.hover:bg-slate-50]="clickable() && !disabled()"
+     [class.dark:hover:bg-slate-850]="clickable() && !disabled()"
+     [class.bg-indigo-50/50]="active()"
+     [class.dark:bg-indigo-950/30]="active()"
+     [class.opacity-40]="disabled()"
+     [class.cursor-not-allowed]="disabled()"
      class="flex items-center justify-between px-5 py-3.5 transition-colors group">
   
   <!-- Left Side: Prefix & Content -->
@@ -13,26 +13,26 @@
     
     <!-- Prefix Slot / Icon -->
     <ng-content select="[list-prefix]">
-      @if (icon) {
+      @if (icon()) {
         <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:scale-105 transition-transform shrink-0">
-          <erp-icon [name]="icon" [size]="18"></erp-icon>
+          <erp-icon [name]="icon()!" [size]="18"></erp-icon>
         </div>
       }
     </ng-content>
 
     <!-- Title & Description -->
     <div class="min-w-0 flex-1">
-      @if (title) {
-        <h4 [class.text-indigo-600]="active"
-            [class.dark:text-indigo-400]="active"
-            [class.text-slate-900]="!active"
-            [class.dark:text-white]="!active"
+      @if (title()) {
+        <h4 [class.text-indigo-600]="active()"
+            [class.dark:text-indigo-400]="active()"
+            [class.text-slate-900]="!active()"
+            [class.dark:text-white]="!active()"
             class="text-xs font-semibold truncate">
-          {{ title }}
+          {{ title() }}
         </h4>
       }
-      @if (description) {
-        <p class="text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5">{{ description }}</p>
+      @if (description()) {
+        <p class="text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5">{{ description() }}</p>
       }
       <!-- Sub Content Slot -->
       <ng-content></ng-content>
@@ -44,7 +44,7 @@
   <div class="flex items-center gap-2 shrink-0 ml-3">
     <ng-content select="[list-extra]"></ng-content>
     <ng-content select="[list-action]"></ng-content>
-    @if (clickable) {
+    @if (clickable()) {
       <erp-icon name="chevron-right" [size]="16" class="text-slate-400 group-hover:translate-x-0.5 transition-transform"></erp-icon>
     }
   </div>

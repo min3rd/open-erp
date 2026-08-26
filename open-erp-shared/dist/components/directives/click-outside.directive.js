@@ -7,16 +7,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Directive, ElementRef, Output, EventEmitter, HostListener, Input } from '@angular/core';
+import { Directive, ElementRef, output, HostListener, input } from '@angular/core';
 let ClickOutsideDirective = class ClickOutsideDirective {
     elementRef;
-    clickOutsideEnabled = true;
-    clickOutside = new EventEmitter();
+    clickOutsideEnabled = input(true);
+    clickOutside = output({ alias: 'erpClickOutside' });
     constructor(elementRef) {
         this.elementRef = elementRef;
     }
     onDocumentClick(event) {
-        if (!this.clickOutsideEnabled)
+        if (!this.clickOutsideEnabled())
             return;
         const target = event.target;
         if (!this.elementRef.nativeElement.contains(target)) {
@@ -24,14 +24,6 @@ let ClickOutsideDirective = class ClickOutsideDirective {
         }
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ClickOutsideDirective.prototype, "clickOutsideEnabled", void 0);
-__decorate([
-    Output('erpClickOutside'),
-    __metadata("design:type", Object)
-], ClickOutsideDirective.prototype, "clickOutside", void 0);
 __decorate([
     HostListener('document:click', ['$event']),
     __metadata("design:type", Function),

@@ -1,9 +1,9 @@
 <div class="w-full font-sans space-y-2">
-  @if (label) {
-    <erp-label [text]="label" [required]="required" [loading]="loading"></erp-label>
+  @if (label()) {
+    <erp-label [text]="label()!" [required]="required()" [loading]="loading()"></erp-label>
   }
 
-  @if (loading) {
+  @if (loading()) {
     <erp-skeleton width="100%" height="8rem" shape="rounded"></erp-skeleton>
   } @else {
     <label (dragover)="onDragOver($event)"
@@ -14,14 +14,14 @@
            [class.dark:bg-indigo-950/30]="isDragging()"
            [class.border-slate-300]="!isDragging()"
            [class.dark:border-slate-700]="!isDragging()"
-           [class.opacity-50]="disabled"
-           [class.cursor-not-allowed]="disabled"
+           [class.opacity-50]="effectiveDisabled()"
+           [class.cursor-not-allowed]="effectiveDisabled()"
            class="w-full p-6 border-2 border-dashed rounded-3xl bg-white dark:bg-slate-900 flex flex-col items-center justify-center text-center cursor-pointer transition-all hover:border-indigo-500/60 shadow-xs group">
       
       <input type="file"
-             [accept]="accept"
-             [multiple]="multiple"
-             [disabled]="disabled"
+             [accept]="accept()"
+             [multiple]="multiple()"
+             [disabled]="effectiveDisabled()"
              (change)="onFileInput($event)"
              class="hidden"/>
 
@@ -30,11 +30,11 @@
       </div>
 
       <span class="text-xs font-bold text-slate-800 dark:text-slate-200">
-        {{ hint }}
+        {{ hint() }}
       </span>
 
       <span class="text-[11px] text-slate-400 mt-1">
-        Tối đa {{ maxFileSizeMb }}MB/tệp
+        Tối đa {{ maxFileSizeMb() }}MB/tệp
       </span>
     </label>
 
@@ -58,8 +58,8 @@
               </div>
             </div>
 
-            @if (!disabled) {
-              <button type="button" (click)="removeFile($index, $event)" class="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors cursor-pointer shrink-0">
+            @if (!effectiveDisabled()) {
+              <button type="button" (click)="removeFile($index, $event)" aria-label="Xóa tệp" class="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors cursor-pointer shrink-0">
                 <erp-icon name="trash-2" [size]="14"></erp-icon>
               </button>
             }
@@ -68,10 +68,10 @@
       </div>
     }
 
-    @if (errorMessage) {
-      <erp-helper-text [text]="errorMessage" status="invalid"></erp-helper-text>
-    } @else if (helperText) {
-      <erp-helper-text [text]="helperText"></erp-helper-text>
+    @if (errorMessage()) {
+      <erp-helper-text [text]="errorMessage()!" status="invalid"></erp-helper-text>
+    } @else if (helperText()) {
+      <erp-helper-text [text]="helperText()!"></erp-helper-text>
     }
   }
 </div>

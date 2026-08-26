@@ -7,29 +7,29 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 let ResizableComponent = class ResizableComponent {
-    initialWidth = 320;
-    initialHeight = 200;
-    minWidth = 160;
-    minHeight = 100;
-    maxWidth = 800;
-    maxHeight = 600;
-    enableRight = true;
-    enableBottom = true;
-    enableCorner = true;
-    resizeEnd = new EventEmitter();
-    currentWidth = 320;
-    currentHeight = 200;
+    initialWidth = input(320);
+    initialHeight = input(200);
+    minWidth = input(160);
+    minHeight = input(100);
+    maxWidth = input(800);
+    maxHeight = input(600);
+    enableRight = input(true);
+    enableBottom = input(true);
+    enableCorner = input(true);
+    resizeEnd = output();
+    currentWidth = signal(320);
+    currentHeight = signal(200);
     resizingDirection = null;
     startX = 0;
     startY = 0;
     startW = 0;
     startH = 0;
     ngOnInit() {
-        this.currentWidth = this.initialWidth;
-        this.currentHeight = this.initialHeight;
+        this.currentWidth.set(this.initialWidth());
+        this.currentHeight.set(this.initialHeight());
     }
     startResize(event, dir) {
         event.preventDefault();
@@ -37,8 +37,8 @@ let ResizableComponent = class ResizableComponent {
         this.resizingDirection = dir;
         this.startX = event.clientX;
         this.startY = event.clientY;
-        this.startW = this.currentWidth;
-        this.startH = this.currentHeight;
+        this.startW = this.currentWidth();
+        this.startH = this.currentHeight();
     }
     onMouseMove(event) {
         if (!this.resizingDirection)
@@ -47,60 +47,20 @@ let ResizableComponent = class ResizableComponent {
         const deltaY = event.clientY - this.startY;
         if (this.resizingDirection === 'right' || this.resizingDirection === 'corner') {
             const nextW = this.startW + deltaX;
-            this.currentWidth = Math.max(this.minWidth, Math.min(this.maxWidth, nextW));
+            this.currentWidth.set(Math.max(this.minWidth(), Math.min(this.maxWidth(), nextW)));
         }
         if (this.resizingDirection === 'bottom' || this.resizingDirection === 'corner') {
             const nextH = this.startH + deltaY;
-            this.currentHeight = Math.max(this.minHeight, Math.min(this.maxHeight, nextH));
+            this.currentHeight.set(Math.max(this.minHeight(), Math.min(this.maxHeight(), nextH)));
         }
     }
     onMouseUp() {
         if (this.resizingDirection) {
             this.resizingDirection = null;
-            this.resizeEnd.emit({ width: this.currentWidth, height: this.currentHeight });
+            this.resizeEnd.emit({ width: this.currentWidth(), height: this.currentHeight() });
         }
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], ResizableComponent.prototype, "initialWidth", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], ResizableComponent.prototype, "initialHeight", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], ResizableComponent.prototype, "minWidth", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], ResizableComponent.prototype, "minHeight", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], ResizableComponent.prototype, "maxWidth", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], ResizableComponent.prototype, "maxHeight", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ResizableComponent.prototype, "enableRight", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ResizableComponent.prototype, "enableBottom", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], ResizableComponent.prototype, "enableCorner", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], ResizableComponent.prototype, "resizeEnd", void 0);
 __decorate([
     HostListener('document:mousemove', ['$event']),
     __metadata("design:type", Function),
@@ -118,10 +78,11 @@ ResizableComponent = __decorate([
         selector: 'erp-resizable',
         standalone: true,
         imports: [CommonModule],
+        changeDetection: ChangeDetectionStrategy.OnPush,
         template: `
     <div class="relative overflow-hidden border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 shadow-sm"
-         [style.width.px]="currentWidth"
-         [style.height.px]="currentHeight">
+         [style.width.px]="currentWidth()"
+         [style.height.px]="currentHeight()">
       
       <!-- User Inner Content -->
       <div class="w-full h-full p-4 overflow-auto custom-scrollbar">
@@ -129,19 +90,19 @@ ResizableComponent = __decorate([
       </div>
 
       <!-- Right Resize Handle -->
-      @if (enableRight) {
+      @if (enableRight()) {
         <div (mousedown)="startResize($event, 'right')"
              class="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-indigo-500/30 transition-colors"></div>
       }
 
       <!-- Bottom Resize Handle -->
-      @if (enableBottom) {
+      @if (enableBottom()) {
         <div (mousedown)="startResize($event, 'bottom')"
              class="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize hover:bg-indigo-500/30 transition-colors"></div>
       }
 
       <!-- Bottom-Right Corner Handle -->
-      @if (enableCorner) {
+      @if (enableCorner()) {
         <div (mousedown)="startResize($event, 'corner')"
              class="absolute bottom-1 right-1 w-3.5 h-3.5 cursor-nwse-resize flex items-end justify-end p-0.5 opacity-40 hover:opacity-100 transition-opacity">
           <svg width="6" height="6" viewBox="0 0 6 6" fill="currentColor" class="text-slate-500 dark:text-slate-400">

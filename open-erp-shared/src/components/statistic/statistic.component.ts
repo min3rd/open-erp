@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../icon/icon.component';
 import { SkeletonComponent } from '../skeleton/skeleton.component';
@@ -9,6 +9,7 @@ import { KpiTrendDirection } from '../../enums/component.enum';
   standalone: true,
   imports: [CommonModule, IconComponent, SkeletonComponent],
   templateUrl: './statistic.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: block;
@@ -17,25 +18,20 @@ import { KpiTrendDirection } from '../../enums/component.enum';
   `]
 })
 export class StatisticComponent {
-  @Input() title: string = '';
-  @Input() value: string | number = '';
-  @Input() prefix?: string;
-  @Input() suffix?: string;
-  @Input() subText?: string;
-  @Input() icon?: IconName;
-  @Input() iconColor?: string = 'text-indigo-600 dark:text-indigo-400';
-  @Input() iconBg?: string = 'bg-indigo-50 dark:bg-indigo-950/60';
-  @Input() trend?: KpiTrendDirection | 'up' | 'down' | 'neutral';
-  @Input() trendValue?: string;
-  @Input() trendLabel?: string;
-  @Input() loading: boolean = false;
-  @Input() bordered: boolean = true;
+  readonly title = input<string>('');
+  readonly value = input<string | number>('');
+  readonly prefix = input<string | undefined>(undefined);
+  readonly suffix = input<string | undefined>(undefined);
+  readonly subText = input<string | undefined>(undefined);
+  readonly icon = input<IconName | undefined>(undefined);
+  readonly iconColor = input<string>('text-indigo-600 dark:text-indigo-400');
+  readonly iconBg = input<string>('bg-indigo-50 dark:bg-indigo-950/60');
+  readonly trend = input<KpiTrendDirection | 'up' | 'down' | 'neutral' | undefined>(undefined);
+  readonly trendValue = input<string | undefined>(undefined);
+  readonly trendLabel = input<string | undefined>(undefined);
+  readonly loading = input<boolean>(false);
+  readonly bordered = input<boolean>(true);
 
-  get isTrendUp(): boolean {
-    return String(this.trend) === 'up';
-  }
-
-  get isTrendDown(): boolean {
-    return String(this.trend) === 'down';
-  }
+  readonly isTrendUp = computed(() => String(this.trend()) === 'up');
+  readonly isTrendDown = computed(() => String(this.trend()) === 'down');
 }

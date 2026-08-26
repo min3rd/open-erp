@@ -1,16 +1,14 @@
-import { OnInit, OnChanges, SimpleChanges } from '@angular/core';
-export declare class WatermarkComponent implements OnInit, OnChanges {
-    content: string | string[];
-    image?: string;
-    width: number;
-    height: number;
-    rotate: number;
-    opacity: number;
-    fontSize: number;
-    fontColor: string;
-    watermarkPattern: string;
-    patternSize: string;
-    ngOnInit(): void;
-    ngOnChanges(changes: SimpleChanges): void;
+export declare class WatermarkComponent {
+    readonly content: import("@angular/core").InputSignal<string | string[]>;
+    readonly image: import("@angular/core").InputSignal<string | undefined>;
+    readonly width: import("@angular/core").InputSignal<number>;
+    readonly height: import("@angular/core").InputSignal<number>;
+    readonly rotate: import("@angular/core").InputSignal<number>;
+    readonly opacity: import("@angular/core").InputSignal<number>;
+    readonly fontSize: import("@angular/core").InputSignal<number>;
+    readonly fontColor: import("@angular/core").InputSignal<string>;
+    watermarkPattern: import("@angular/core").WritableSignal<string>;
+    patternSize: import("@angular/core").WritableSignal<string>;
+    constructor();
     private generateWatermark;
 }

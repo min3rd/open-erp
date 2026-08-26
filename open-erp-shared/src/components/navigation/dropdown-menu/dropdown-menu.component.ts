@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ElementRef, HostListener } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, model, output, ElementRef, HostListener, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../../icon/icon.component';
 import { KbdComponent } from '../../kbd/kbd.component';
@@ -18,11 +18,21 @@ export interface DropdownMenuItem {
   header?: string;
 }
 
+const PLACEMENT_CLASSES: Record<string, string> = {
+  [DropdownPlacement.BOTTOM_END]: 'top-full right-0 mt-1.5',
+  [DropdownPlacement.TOP_START]: 'bottom-full left-0 mb-1.5',
+  [DropdownPlacement.TOP_END]: 'bottom-full right-0 mb-1.5',
+  [DropdownPlacement.LEFT]: 'top-0 right-full mr-1.5',
+  [DropdownPlacement.RIGHT]: 'top-0 left-full ml-1.5',
+  [DropdownPlacement.BOTTOM_START]: 'top-full left-0 mt-1.5'
+};
+
 @Component({
   selector: 'erp-dropdown-menu, erp-menu',
   standalone: true,
   imports: [CommonModule, IconComponent, KbdComponent],
   templateUrl: './dropdown-menu.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: inline-block;
@@ -31,91 +41,138 @@ export interface DropdownMenuItem {
   `]
 })
 export class DropdownMenuComponent {
-  @Input() items: DropdownMenuItem[] = [];
-  @Input() placement: DropdownPlacement | 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end' | 'left' | 'right' = DropdownPlacement.BOTTOM_START;
-  @Input() trigger: 'click' | 'hover' = 'click';
-  @Input() isOpen: boolean = false;
-  @Input() closeOnClickOutside: boolean = true;
-  @Input() closeOnItemClick: boolean = true;
-  @Input() minWidth: string = '12rem';
+  readonly items = input<DropdownMenuItem[]>([]);
+  readonly placement = input<DropdownPlacement | 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end' | 'left' | 'right'>(DropdownPlacement.BOTTOM_START);
+  readonly trigger = input<'click' | 'hover'>('click');
+  readonly isOpen = model<boolean>(false);
+  readonly closeOnClickOutside = input<boolean>(true);
+  readonly closeOnItemClick = input<boolean>(true);
+  readonly minWidth = input<string>('12rem');
 
-  @Output() isOpenChange = new EventEmitter<boolean>();
-  @Output() itemClick = new EventEmitter<DropdownMenuItem>();
+  readonly itemClick = output<DropdownMenuItem>();
+
+  activeIndex = signal<number>(-1);
 
   constructor(private elementRef: ElementRef) {}
 
+  readonly placementClasses = computed(() => {
+    const p = String(this.placement());
+    return PLACEMENT_CLASSES[p] || PLACEMENT_CLASSES[DropdownPlacement.BOTTOM_START];
+  });
+
+  readonly actionableItems = computed(() => {
+    return this.items().filter(item => item.label && !item.header && !item.divider);
+  });
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    if (!this.closeOnClickOutside || !this.isOpen) return;
+    if (!this.closeOnClickOutside() || !this.isOpen()) return;
     if (!this.elementRef.nativeElement.contains(event.target)) {
       this.close();
     }
   }
 
+  @HostListener('keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    const open = this.isOpen();
+    const actions = this.actionableItems();
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        if (!open) {
+          this.open();
+        } else if (actions.length > 0) {
+          let next = this.activeIndex() + 1;
+          while (next < actions.length && actions[next].disabled) {
+            next++;
+          }
+          if (next < actions.length) {
+            this.activeIndex.set(next);
+          }
+        }
+        break;
+
+      case 'ArrowUp':
+        event.preventDefault();
+        if (open && actions.length > 0) {
+          let prev = this.activeIndex() - 1;
+          while (prev >= 0 && actions[prev].disabled) {
+            prev--;
+          }
+          if (prev >= 0) {
+            this.activeIndex.set(prev);
+          }
+        }
+        break;
+
+      case 'Enter':
+      case ' ':
+        if (open && this.activeIndex() >= 0 && this.activeIndex() < actions.length) {
+          event.preventDefault();
+          const target = actions[this.activeIndex()];
+          if (!target.disabled) {
+            this.onItemSelect(target, event);
+          }
+        } else if (!open && this.trigger() === 'click') {
+          event.preventDefault();
+          this.open();
+        }
+        break;
+
+      case 'Escape':
+        if (open) {
+          event.preventDefault();
+          this.close();
+        }
+        break;
+
+      case 'Tab':
+        if (open) {
+          this.close();
+        }
+        break;
+    }
+  }
+
   toggle(): void {
-    this.isOpen = !this.isOpen;
-    this.isOpenChange.emit(this.isOpen);
+    if (this.isOpen()) {
+      this.close();
+    } else {
+      this.open();
+    }
   }
 
   open(): void {
-    if (!this.isOpen) {
-      this.isOpen = true;
-      this.isOpenChange.emit(true);
-    }
+    this.isOpen.set(true);
+    this.activeIndex.set(0);
   }
 
   close(): void {
-    if (this.isOpen) {
-      this.isOpen = false;
-      this.isOpenChange.emit(false);
-    }
+    this.isOpen.set(false);
+    this.activeIndex.set(-1);
   }
 
   onMouseEnter(): void {
-    if (this.trigger === 'hover') {
+    if (this.trigger() === 'hover') {
       this.open();
     }
   }
 
   onMouseLeave(): void {
-    if (this.trigger === 'hover') {
+    if (this.trigger() === 'hover') {
       this.close();
     }
   }
 
-  onItemSelect(item: DropdownMenuItem, event: MouseEvent): void {
+  onItemSelect(item: DropdownMenuItem, event: MouseEvent | KeyboardEvent): void {
     if (item.disabled || item.divider || item.header) {
       event.stopPropagation();
       return;
     }
     this.itemClick.emit(item);
-    if (this.closeOnItemClick) {
+    if (this.closeOnItemClick()) {
       this.close();
-    }
-  }
-
-  getPlacementClasses(): string {
-    const p = String(this.placement);
-    switch (p) {
-      case DropdownPlacement.BOTTOM_END:
-      case 'bottom-end':
-        return 'top-full right-0 mt-1.5';
-      case DropdownPlacement.TOP_START:
-      case 'top-start':
-        return 'bottom-full left-0 mb-1.5';
-      case DropdownPlacement.TOP_END:
-      case 'top-end':
-        return 'bottom-full right-0 mb-1.5';
-      case DropdownPlacement.LEFT:
-      case 'left':
-        return 'top-0 right-full mr-1.5';
-      case DropdownPlacement.RIGHT:
-      case 'right':
-        return 'top-0 left-full ml-1.5';
-      case DropdownPlacement.BOTTOM_START:
-      case 'bottom-start':
-      default:
-        return 'top-full left-0 mt-1.5';
     }
   }
 }

@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Component, Input, Output, EventEmitter, forwardRef, signal, computed, HostListener, ElementRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { IconComponent } from '../../icon/icon.component';
@@ -15,44 +15,138 @@ import { SkeletonComponent } from '../../skeleton/skeleton.component';
 import { LabelComponent } from '../label/label.component';
 import { HelperTextComponent } from '../helper-text/helper-text.component';
 import { InputSize, ValidationStatus } from '../../../enums/component.enum';
+const SIZE_CLASSES = {
+    [InputSize.SM]: 'py-1.5 px-3 text-xs rounded-xl',
+    [InputSize.LG]: 'py-3 px-4 text-sm rounded-2xl',
+    [InputSize.MD]: 'py-2.5 px-3.5 text-xs rounded-xl'
+};
 let SelectComponent = class SelectComponent {
     elementRef;
-    label;
-    placeholder = 'Chọn một mục...';
-    options = [];
-    searchable = false;
-    clearable = false;
-    size = InputSize.MD;
-    status = ValidationStatus.NONE;
-    helperText;
-    errorMessage;
-    disabled = false;
-    required = false;
-    loading = false;
-    valueChange = new EventEmitter();
+    label = input(undefined);
+    placeholder = input('Chọn một mục...');
+    options = input([]);
+    searchable = input(false);
+    clearable = input(false);
+    size = input(InputSize.MD);
+    status = input(ValidationStatus.NONE);
+    helperText = input(undefined);
+    errorMessage = input(undefined);
+    disabled = input(false);
+    required = input(false);
+    loading = input(false);
+    valueChange = output();
     selectedValue = signal(null);
     isOpen = signal(false);
     searchTerm = signal('');
+    activeIndex = signal(-1);
+    isDisabled = signal(false);
     onChange = () => { };
     onTouched = () => { };
     constructor(elementRef) {
         this.elementRef = elementRef;
     }
+    effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
+    sizeClass = computed(() => {
+        const s = String(this.size());
+        return SIZE_CLASSES[s] || SIZE_CLASSES[InputSize.MD];
+    });
+    skeletonHeight = computed(() => {
+        const s = String(this.size());
+        return s === 'lg' ? '2.875rem' : (s === 'sm' ? '2rem' : '2.5rem');
+    });
     onClickOutside(event) {
+        if (!this.isOpen())
+            return;
         if (!this.elementRef.nativeElement.contains(event.target)) {
             this.isOpen.set(false);
+            this.activeIndex.set(-1);
+            this.onTouched();
         }
     }
+    onKeyDown(event) {
+        if (this.effectiveDisabled())
+            return;
+        const opts = this.filteredOptions();
+        const open = this.isOpen();
+        switch (event.key) {
+            case 'ArrowDown':
+                event.preventDefault();
+                if (!open) {
+                    this.openDropdown();
+                }
+                else if (opts.length > 0) {
+                    let next = this.activeIndex() + 1;
+                    while (next < opts.length && opts[next].disabled) {
+                        next++;
+                    }
+                    if (next < opts.length) {
+                        this.activeIndex.set(next);
+                        this.scrollActiveIntoView(next);
+                    }
+                }
+                break;
+            case 'ArrowUp':
+                event.preventDefault();
+                if (open && opts.length > 0) {
+                    let prev = this.activeIndex() - 1;
+                    while (prev >= 0 && opts[prev].disabled) {
+                        prev--;
+                    }
+                    if (prev >= 0) {
+                        this.activeIndex.set(prev);
+                        this.scrollActiveIntoView(prev);
+                    }
+                }
+                break;
+            case 'Enter':
+                if (open && this.activeIndex() >= 0 && this.activeIndex() < opts.length) {
+                    event.preventDefault();
+                    const targetOpt = opts[this.activeIndex()];
+                    if (!targetOpt.disabled) {
+                        this.selectOption(targetOpt);
+                    }
+                }
+                else if (!open) {
+                    event.preventDefault();
+                    this.openDropdown();
+                }
+                break;
+            case 'Escape':
+                if (open) {
+                    event.preventDefault();
+                    this.isOpen.set(false);
+                    this.activeIndex.set(-1);
+                    this.onTouched();
+                }
+                break;
+            case 'Tab':
+                if (open) {
+                    this.isOpen.set(false);
+                    this.activeIndex.set(-1);
+                    this.onTouched();
+                }
+                break;
+        }
+    }
+    scrollActiveIntoView(index) {
+        setTimeout(() => {
+            const items = this.elementRef.nativeElement.querySelectorAll('.erp-select-option');
+            if (items && items[index]) {
+                items[index].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+        });
+    }
     filteredOptions = computed(() => {
+        const list = this.options();
         const q = this.searchTerm().toLowerCase().trim();
         if (!q)
-            return this.options;
-        return this.options.filter(opt => opt.label.toLowerCase().includes(q) ||
+            return list;
+        return list.filter(opt => opt.label.toLowerCase().includes(q) ||
             (opt.description && opt.description.toLowerCase().includes(q)));
     });
     selectedOption = computed(() => {
         const v = this.selectedValue();
-        return this.options.find(opt => opt.value === v);
+        return this.options().find(opt => opt.value === v);
     });
     writeValue(val) {
         this.selectedValue.set(val);
@@ -64,17 +158,27 @@ let SelectComponent = class SelectComponent {
         this.onTouched = fn;
     }
     setDisabledState(isDisabled) {
-        this.disabled = isDisabled;
+        this.isDisabled.set(isDisabled);
+    }
+    openDropdown() {
+        if (this.effectiveDisabled())
+            return;
+        this.isOpen.set(true);
+        this.searchTerm.set('');
+        const curVal = this.selectedValue();
+        const idx = this.filteredOptions().findIndex(o => o.value === curVal);
+        this.activeIndex.set(idx >= 0 ? idx : 0);
     }
     toggleDropdown() {
-        if (this.disabled)
+        if (this.effectiveDisabled())
             return;
-        this.isOpen.update(prev => !prev);
         if (this.isOpen()) {
-            this.searchTerm.set('');
+            this.isOpen.set(false);
+            this.activeIndex.set(-1);
+            this.onTouched();
         }
         else {
-            this.onTouched();
+            this.openDropdown();
         }
     }
     selectOption(opt) {
@@ -84,6 +188,7 @@ let SelectComponent = class SelectComponent {
         this.onChange(opt.value);
         this.valueChange.emit(opt.value);
         this.isOpen.set(false);
+        this.activeIndex.set(-1);
     }
     clearSelection(event) {
         event.stopPropagation();
@@ -91,80 +196,19 @@ let SelectComponent = class SelectComponent {
         this.onChange(null);
         this.valueChange.emit(null);
     }
-    getSizeClasses() {
-        const s = String(this.size);
-        switch (s) {
-            case InputSize.SM:
-            case 'sm':
-                return 'py-1.5 px-3 text-xs rounded-xl';
-            case InputSize.LG:
-            case 'lg':
-                return 'py-3 px-4 text-sm rounded-2xl';
-            case InputSize.MD:
-            case 'md':
-            default:
-                return 'py-2.5 px-3.5 text-xs rounded-xl';
-        }
-    }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SelectComponent.prototype, "label", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SelectComponent.prototype, "placeholder", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Array)
-], SelectComponent.prototype, "options", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], SelectComponent.prototype, "searchable", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], SelectComponent.prototype, "clearable", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SelectComponent.prototype, "size", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SelectComponent.prototype, "status", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SelectComponent.prototype, "helperText", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], SelectComponent.prototype, "errorMessage", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], SelectComponent.prototype, "disabled", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], SelectComponent.prototype, "required", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], SelectComponent.prototype, "loading", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], SelectComponent.prototype, "valueChange", void 0);
 __decorate([
     HostListener('document:click', ['$event']),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [MouseEvent]),
     __metadata("design:returntype", void 0)
 ], SelectComponent.prototype, "onClickOutside", null);
+__decorate([
+    HostListener('keydown', ['$event']),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [KeyboardEvent]),
+    __metadata("design:returntype", void 0)
+], SelectComponent.prototype, "onKeyDown", null);
 SelectComponent = __decorate([
     Component({
         selector: 'erp-select',
@@ -178,6 +222,7 @@ SelectComponent = __decorate([
             }
         ],
         templateUrl: './select.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: block;

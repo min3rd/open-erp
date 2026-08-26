@@ -7,11 +7,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Directive, input, TemplateRef, ViewContainerRef } from '@angular/core';
 let PortalDirective = class PortalDirective {
     templateRef;
     viewContainerRef;
-    targetSelector;
+    targetSelector = input(undefined, { alias: 'erpPortal' });
     embeddedView;
     constructor(templateRef, viewContainerRef) {
         this.templateRef = templateRef;
@@ -20,7 +20,8 @@ let PortalDirective = class PortalDirective {
     ngOnInit() {
         this.embeddedView = this.viewContainerRef.createEmbeddedView(this.templateRef);
         if (typeof document !== 'undefined') {
-            const target = this.targetSelector ? document.querySelector(this.targetSelector) : document.body;
+            const sel = this.targetSelector();
+            const target = sel ? document.querySelector(sel) : document.body;
             if (target) {
                 for (const rootNode of this.embeddedView.rootNodes) {
                     target.appendChild(rootNode);
@@ -39,10 +40,6 @@ let PortalDirective = class PortalDirective {
         }
     }
 };
-__decorate([
-    Input('erpPortal'),
-    __metadata("design:type", String)
-], PortalDirective.prototype, "targetSelector", void 0);
 PortalDirective = __decorate([
     Directive({
         selector: '[erpPortal]',

@@ -1,4 +1,4 @@
-import { EventEmitter, ElementRef } from '@angular/core';
+import { ElementRef } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { IconName } from '../../icon/icon.component';
 import { ValidationStatus } from '../../../enums/component.enum';
@@ -10,22 +10,24 @@ export interface AutocompleteItem {
 }
 export declare class AutocompleteComponent implements ControlValueAccessor {
     private elementRef;
-    label?: string;
-    placeholder: string;
-    items: (string | AutocompleteItem)[];
-    minLength: number;
-    status: ValidationStatus | 'none' | 'valid' | 'invalid' | 'warning';
-    helperText?: string;
-    errorMessage?: string;
-    disabled: boolean;
-    required: boolean;
-    loading: boolean;
-    itemSelect: EventEmitter<any>;
+    readonly label: import("@angular/core").InputSignal<string | undefined>;
+    readonly placeholder: import("@angular/core").InputSignal<string>;
+    readonly items: import("@angular/core").InputSignal<(string | AutocompleteItem)[]>;
+    readonly minLength: import("@angular/core").InputSignal<number>;
+    readonly status: import("@angular/core").InputSignal<"warning" | "none" | "valid" | "invalid" | ValidationStatus>;
+    readonly helperText: import("@angular/core").InputSignal<string | undefined>;
+    readonly errorMessage: import("@angular/core").InputSignal<string | undefined>;
+    readonly disabled: import("@angular/core").InputSignal<boolean>;
+    readonly required: import("@angular/core").InputSignal<boolean>;
+    readonly loading: import("@angular/core").InputSignal<boolean>;
+    readonly itemSelect: import("@angular/core").OutputEmitterRef<any>;
     query: import("@angular/core").WritableSignal<string>;
     isOpen: import("@angular/core").WritableSignal<boolean>;
+    isDisabled: import("@angular/core").WritableSignal<boolean>;
     onChange: (val: any) => void;
     onTouched: () => void;
     constructor(elementRef: ElementRef);
+    readonly effectiveDisabled: import("@angular/core").Signal<boolean>;
     onClickOutside(event: MouseEvent): void;
     readonly normalizedItems: import("@angular/core").Signal<AutocompleteItem[]>;
     readonly filteredItems: import("@angular/core").Signal<AutocompleteItem[]>;

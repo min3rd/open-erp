@@ -1,13 +1,12 @@
-import { IconName } from '../icon/icon.component';
 import { CardVariant } from '../../enums/component.enum';
 export declare class CardComponent {
-    title?: string;
-    subtitle?: string;
-    icon?: IconName;
-    coverImage?: string;
-    variant: CardVariant | 'elevated' | 'outlined' | 'filled' | 'ghost';
-    hoverable: boolean;
-    loading: boolean;
-    padded: boolean;
-    getVariantClasses(): string;
+    readonly title: import("@angular/core").InputSignal<string | undefined>;
+    readonly subtitle: import("@angular/core").InputSignal<string | undefined>;
+    readonly icon: import("@angular/core").InputSignal<string | undefined>;
+    readonly coverImage: import("@angular/core").InputSignal<string | undefined>;
+    readonly variant: import("@angular/core").InputSignal<"ghost" | "elevated" | "outlined" | "filled" | CardVariant>;
+    readonly hoverable: import("@angular/core").InputSignal<boolean>;
+    readonly loading: import("@angular/core").InputSignal<boolean>;
+    readonly padded: import("@angular/core").InputSignal<boolean>;
+    readonly variantClass: import("@angular/core").Signal<string>;
 }

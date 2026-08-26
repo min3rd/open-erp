@@ -1,14 +1,15 @@
-import { Component, Input, Output, EventEmitter, ElementRef, HostListener } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, HostListener, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'erp-resizable',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="relative overflow-hidden border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 shadow-sm"
-         [style.width.px]="currentWidth"
-         [style.height.px]="currentHeight">
+         [style.width.px]="currentWidth()"
+         [style.height.px]="currentHeight()">
       
       <!-- User Inner Content -->
       <div class="w-full h-full p-4 overflow-auto custom-scrollbar">
@@ -16,19 +17,19 @@ import { CommonModule } from '@angular/common';
       </div>
 
       <!-- Right Resize Handle -->
-      @if (enableRight) {
+      @if (enableRight()) {
         <div (mousedown)="startResize($event, 'right')"
              class="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-indigo-500/30 transition-colors"></div>
       }
 
       <!-- Bottom Resize Handle -->
-      @if (enableBottom) {
+      @if (enableBottom()) {
         <div (mousedown)="startResize($event, 'bottom')"
              class="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize hover:bg-indigo-500/30 transition-colors"></div>
       }
 
       <!-- Bottom-Right Corner Handle -->
-      @if (enableCorner) {
+      @if (enableCorner()) {
         <div (mousedown)="startResize($event, 'corner')"
              class="absolute bottom-1 right-1 w-3.5 h-3.5 cursor-nwse-resize flex items-end justify-end p-0.5 opacity-40 hover:opacity-100 transition-opacity">
           <svg width="6" height="6" viewBox="0 0 6 6" fill="currentColor" class="text-slate-500 dark:text-slate-400">
@@ -45,21 +46,21 @@ import { CommonModule } from '@angular/common';
     }
   `]
 })
-export class ResizableComponent {
-  @Input() initialWidth: number = 320;
-  @Input() initialHeight: number = 200;
-  @Input() minWidth: number = 160;
-  @Input() minHeight: number = 100;
-  @Input() maxWidth: number = 800;
-  @Input() maxHeight: number = 600;
-  @Input() enableRight: boolean = true;
-  @Input() enableBottom: boolean = true;
-  @Input() enableCorner: boolean = true;
+export class ResizableComponent implements OnInit {
+  readonly initialWidth = input<number>(320);
+  readonly initialHeight = input<number>(200);
+  readonly minWidth = input<number>(160);
+  readonly minHeight = input<number>(100);
+  readonly maxWidth = input<number>(800);
+  readonly maxHeight = input<number>(600);
+  readonly enableRight = input<boolean>(true);
+  readonly enableBottom = input<boolean>(true);
+  readonly enableCorner = input<boolean>(true);
 
-  @Output() resizeEnd = new EventEmitter<{ width: number; height: number }>();
+  readonly resizeEnd = output<{ width: number; height: number }>();
 
-  currentWidth: number = 320;
-  currentHeight: number = 200;
+  currentWidth = signal<number>(320);
+  currentHeight = signal<number>(200);
 
   private resizingDirection: 'right' | 'bottom' | 'corner' | null = null;
   private startX = 0;
@@ -68,8 +69,8 @@ export class ResizableComponent {
   private startH = 0;
 
   ngOnInit(): void {
-    this.currentWidth = this.initialWidth;
-    this.currentHeight = this.initialHeight;
+    this.currentWidth.set(this.initialWidth());
+    this.currentHeight.set(this.initialHeight());
   }
 
   startResize(event: MouseEvent, dir: 'right' | 'bottom' | 'corner'): void {
@@ -78,8 +79,8 @@ export class ResizableComponent {
     this.resizingDirection = dir;
     this.startX = event.clientX;
     this.startY = event.clientY;
-    this.startW = this.currentWidth;
-    this.startH = this.currentHeight;
+    this.startW = this.currentWidth();
+    this.startH = this.currentHeight();
   }
 
   @HostListener('document:mousemove', ['$event'])
@@ -91,12 +92,12 @@ export class ResizableComponent {
 
     if (this.resizingDirection === 'right' || this.resizingDirection === 'corner') {
       const nextW = this.startW + deltaX;
-      this.currentWidth = Math.max(this.minWidth, Math.min(this.maxWidth, nextW));
+      this.currentWidth.set(Math.max(this.minWidth(), Math.min(this.maxWidth(), nextW)));
     }
 
     if (this.resizingDirection === 'bottom' || this.resizingDirection === 'corner') {
       const nextH = this.startH + deltaY;
-      this.currentHeight = Math.max(this.minHeight, Math.min(this.maxHeight, nextH));
+      this.currentHeight.set(Math.max(this.minHeight(), Math.min(this.maxHeight(), nextH)));
     }
   }
 
@@ -104,7 +105,7 @@ export class ResizableComponent {
   onMouseUp(): void {
     if (this.resizingDirection) {
       this.resizingDirection = null;
-      this.resizeEnd.emit({ width: this.currentWidth, height: this.currentHeight });
+      this.resizeEnd.emit({ width: this.currentWidth(), height: this.currentHeight() });
     }
   }
 }

@@ -1,25 +1,25 @@
 <!-- Backdrop Blur Overlay (Optional) -->
-@if (showBackdrop && open) {
+@if (showBackdrop() && open()) {
   <div (click)="close()"
        class="fixed inset-0 bg-slate-950/30 backdrop-blur-xs z-40 transition-opacity animate-in fade-in duration-150">
   </div>
 }
 
-<div [class.fixed]="fixed"
-     [class.relative]="!fixed"
-     [ngClass]="fixed ? getPositionClasses() : ''"
+<div [class.fixed]="fixed()"
+     [class.relative]="!fixed()"
+     [class]="fixed() ? positionClass() : ''"
      class="z-50 select-none flex items-center justify-center">
   
   <!-- Speed Dial Action Buttons Container -->
-  @if (open) {
-    <div [ngClass]="getDirectionContainerClasses()"
+  @if (open()) {
+    <div [class]="directionContainerClass()"
          class="absolute flex items-center gap-2.5 animate-in fade-in zoom-in-90 duration-150">
       
-      @for (action of items; track action.id || action.label || $index) {
+      @for (action of items(); track action.id || action.label || $index) {
         <div class="flex items-center gap-2 group">
           
           <!-- Optional Tooltip Label (when opening vertically) -->
-          @if (showLabels && action.label && isVerticalDirection) {
+          @if (showLabels() && action.label && isVerticalDirection()) {
             <span class="px-2.5 py-1 rounded-xl bg-slate-900/90 dark:bg-slate-800 text-white text-[11px] font-semibold shadow-md whitespace-nowrap opacity-90 group-hover:opacity-100 transition-opacity pointer-events-none">
               {{ action.label }}
             </span>
@@ -28,6 +28,7 @@
           <!-- Child Action Button -->
           <button (click)="onActionClick(action, $event)"
                   [disabled]="action.disabled"
+                  [attr.aria-label]="action.label || 'Action'"
                   type="button"
                   [class.opacity-40]="action.disabled"
                   [class.cursor-not-allowed]="action.disabled"
@@ -37,7 +38,7 @@
           </button>
 
           <!-- Optional Tooltip Label (when opening horizontally) -->
-          @if (showLabels && action.label && isHorizontalDirection) {
+          @if (showLabels() && action.label && isHorizontalDirection()) {
             <span class="px-2.5 py-1 rounded-xl bg-slate-900/90 dark:bg-slate-800 text-white text-[11px] font-semibold shadow-md whitespace-nowrap opacity-90 group-hover:opacity-100 transition-opacity pointer-events-none">
               {{ action.label }}
             </span>
@@ -52,9 +53,10 @@
   <!-- Main Floating Action Button -->
   <button (click)="toggle()"
           type="button"
-          [class.rotate-45]="open && icon === 'plus' && activeIcon === 'plus'"
+          aria-label="Speed dial actions"
+          [class.rotate-45]="open() && icon() === 'plus' && activeIcon() === 'plus'"
           class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white shadow-xl shadow-indigo-600/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200">
-    <erp-icon [name]="open && activeIcon ? activeIcon : icon" [size]="22"></erp-icon>
+    <erp-icon [name]="open() && activeIcon() ? activeIcon() : icon()" [size]="22"></erp-icon>
   </button>
 
 </div>

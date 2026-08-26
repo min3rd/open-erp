@@ -1,47 +1,47 @@
 <div class="w-full font-sans">
-  @if (label) {
-    <erp-label [text]="label" [required]="required" [loading]="loading"></erp-label>
+  @if (label()) {
+    <erp-label [text]="label()!" [required]="required()" [loading]="loading()"></erp-label>
   }
 
-  @if (loading) {
-    <erp-skeleton width="100%" [height]="size === 'lg' ? '2.875rem' : (size === 'sm' ? '2rem' : '2.5rem')" shape="rounded"></erp-skeleton>
+  @if (loading()) {
+    <erp-skeleton width="100%" [height]="skeletonHeight()" shape="rounded"></erp-skeleton>
   } @else {
     <div class="relative flex items-center">
-      @if (prefixIcon) {
+      @if (prefixIcon()) {
         <span class="absolute left-3 text-slate-400 pointer-events-none flex items-center">
-          <erp-icon [name]="prefixIcon" [size]="size === 'sm' ? 14 : 16"></erp-icon>
+          <erp-icon [name]="prefixIcon()!" [size]="iconSize()"></erp-icon>
         </span>
       }
 
-      <input [type]="type"
-             [value]="value"
-             [placeholder]="placeholder"
-             [disabled]="disabled"
-             [readonly]="readonly"
+      <input [type]="type()"
+             [value]="val()"
+             [placeholder]="placeholder()"
+             [disabled]="effectiveDisabled()"
+             [readonly]="readonly()"
              (input)="onInput($event)"
              (blur)="onTouched()"
-             [class]="getSizeClasses() + ' ' + getStatusClasses()"
-             [class.pl-9]="prefixIcon"
-             [class.pr-9]="suffixIcon || (clearable && value)"
-             [class.opacity-50]="disabled"
-             [class.cursor-not-allowed]="disabled"
+             [class]="sizeClass() + ' ' + statusClass()"
+             [class.pl-9]="prefixIcon()"
+             [class.pr-9]="suffixIcon() || (clearable() && val())"
+             [class.opacity-50]="effectiveDisabled()"
+             [class.cursor-not-allowed]="effectiveDisabled()"
              class="w-full bg-white dark:bg-slate-900 border outline-none font-medium placeholder-slate-400 transition-all focus:ring-2"/>
 
-      @if (clearable && value && !disabled) {
+      @if (clearable() && val() && !effectiveDisabled()) {
         <button type="button" (click)="onClear()" class="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer p-0.5 rounded-full transition-colors">
           <erp-icon name="x" [size]="14"></erp-icon>
         </button>
-      } @else if (suffixIcon) {
+      } @else if (suffixIcon()) {
         <span class="absolute right-3 text-slate-400 pointer-events-none flex items-center">
-          <erp-icon [name]="suffixIcon" [size]="size === 'sm' ? 14 : 16"></erp-icon>
+          <erp-icon [name]="suffixIcon()!" [size]="iconSize()"></erp-icon>
         </span>
       }
     </div>
 
-    @if (errorMessage) {
-      <erp-helper-text [text]="errorMessage" status="invalid"></erp-helper-text>
-    } @else if (helperText) {
-      <erp-helper-text [text]="helperText" [status]="status"></erp-helper-text>
+    @if (errorMessage()) {
+      <erp-helper-text [text]="errorMessage()!" status="invalid"></erp-helper-text>
+    } @else if (helperText()) {
+      <erp-helper-text [text]="helperText()!" [status]="status()"></erp-helper-text>
     }
   }
 </div>

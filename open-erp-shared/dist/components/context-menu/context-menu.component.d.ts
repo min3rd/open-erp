@@ -1,4 +1,3 @@
-import { EventEmitter, ElementRef } from '@angular/core';
 import { IconName } from '../icon/icon.component';
 export interface ContextMenuItem {
     id?: string;
@@ -11,14 +10,12 @@ export interface ContextMenuItem {
     action?: () => void;
 }
 export declare class ContextMenuComponent {
-    private elementRef;
-    items: ContextMenuItem[];
-    disabled: boolean;
-    itemClick: EventEmitter<ContextMenuItem>;
-    isOpen: boolean;
-    posX: number;
-    posY: number;
-    constructor(elementRef: ElementRef);
+    readonly items: import("@angular/core").InputSignal<ContextMenuItem[]>;
+    readonly disabled: import("@angular/core").InputSignal<boolean>;
+    readonly itemClick: import("@angular/core").OutputEmitterRef<ContextMenuItem>;
+    isOpen: import("@angular/core").WritableSignal<boolean>;
+    posX: import("@angular/core").WritableSignal<number>;
+    posY: import("@angular/core").WritableSignal<number>;
     onDocumentClick(): void;
     onDocumentScroll(): void;
     onContextMenu(event: MouseEvent): void;

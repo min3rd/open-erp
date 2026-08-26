@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Component, Input, Output, EventEmitter, forwardRef, signal, computed, ViewChildren, QueryList } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, forwardRef, signal, computed, ViewChildren, QueryList } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { SkeletonComponent } from '../../skeleton/skeleton.component';
@@ -15,28 +15,31 @@ import { LabelComponent } from '../label/label.component';
 import { HelperTextComponent } from '../helper-text/helper-text.component';
 import { ValidationStatus } from '../../../enums/component.enum';
 let OtpInputComponent = class OtpInputComponent {
-    label = 'Mã xác thực OTP';
-    length = 6;
-    status = ValidationStatus.NONE;
-    helperText;
-    errorMessage;
-    disabled = false;
-    required = false;
-    loading = false;
-    completed = new EventEmitter();
-    valueChange = new EventEmitter();
+    label = input('Mã xác thực OTP');
+    length = input(6);
+    status = input(ValidationStatus.NONE);
+    helperText = input(undefined);
+    errorMessage = input(undefined);
+    disabled = input(false);
+    required = input(false);
+    loading = input(false);
+    completed = output();
+    valueChange = output();
     inputElements;
     digits = signal([]);
+    isDisabled = signal(false);
     onChange = () => { };
     onTouched = () => { };
-    slots = computed(() => Array.from({ length: this.length }, (_, i) => i));
+    effectiveDisabled = computed(() => this.disabled() || this.isDisabled());
+    slots = computed(() => Array.from({ length: this.length() }, (_, i) => i));
     ngOnInit() {
-        this.digits.set(new Array(this.length).fill(''));
+        this.digits.set(new Array(this.length()).fill(''));
     }
     writeValue(val) {
+        const len = this.length();
         const str = String(val || '');
-        const arr = new Array(this.length).fill('');
-        for (let i = 0; i < this.length && i < str.length; i++) {
+        const arr = new Array(len).fill('');
+        for (let i = 0; i < len && i < str.length; i++) {
             arr[i] = str[i];
         }
         this.digits.set(arr);
@@ -48,22 +51,23 @@ let OtpInputComponent = class OtpInputComponent {
         this.onTouched = fn;
     }
     setDisabledState(isDisabled) {
-        this.disabled = isDisabled;
+        this.isDisabled.set(isDisabled);
     }
     onDigitInput(event, index) {
         const input = event.target;
         const val = input.value.slice(-1);
+        const len = this.length();
         const arr = [...this.digits()];
         arr[index] = val;
         this.digits.set(arr);
         const fullCode = arr.join('');
         this.onChange(fullCode);
         this.valueChange.emit(fullCode);
-        if (val && index < this.length - 1) {
+        if (val && index < len - 1) {
             const el = this.inputElements.get(index + 1);
             el?.nativeElement.focus();
         }
-        if (fullCode.length === this.length && !arr.includes('')) {
+        if (fullCode.length === len && !arr.includes('')) {
             this.completed.emit(fullCode);
         }
     }
@@ -75,11 +79,12 @@ let OtpInputComponent = class OtpInputComponent {
     }
     onPaste(event) {
         event.preventDefault();
+        const len = this.length();
         const clipboardData = event.clipboardData?.getData('text') || '';
-        const clean = clipboardData.replace(/\D/g, '').slice(0, this.length);
+        const clean = clipboardData.replace(/\D/g, '').slice(0, len);
         if (!clean)
             return;
-        const arr = new Array(this.length).fill('');
+        const arr = new Array(len).fill('');
         for (let i = 0; i < clean.length; i++) {
             arr[i] = clean[i];
         }
@@ -87,51 +92,11 @@ let OtpInputComponent = class OtpInputComponent {
         const fullCode = arr.join('');
         this.onChange(fullCode);
         this.valueChange.emit(fullCode);
-        if (clean.length === this.length) {
+        if (clean.length === len) {
             this.completed.emit(fullCode);
         }
     }
 };
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], OtpInputComponent.prototype, "label", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Number)
-], OtpInputComponent.prototype, "length", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], OtpInputComponent.prototype, "status", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], OtpInputComponent.prototype, "helperText", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", String)
-], OtpInputComponent.prototype, "errorMessage", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], OtpInputComponent.prototype, "disabled", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], OtpInputComponent.prototype, "required", void 0);
-__decorate([
-    Input(),
-    __metadata("design:type", Boolean)
-], OtpInputComponent.prototype, "loading", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], OtpInputComponent.prototype, "completed", void 0);
-__decorate([
-    Output(),
-    __metadata("design:type", Object)
-], OtpInputComponent.prototype, "valueChange", void 0);
 __decorate([
     ViewChildren('otpInput'),
     __metadata("design:type", QueryList)
@@ -149,6 +114,7 @@ OtpInputComponent = __decorate([
             }
         ],
         templateUrl: './otp-input.component.html',
+        changeDetection: ChangeDetectionStrategy.OnPush,
         styles: [`
     :host {
       display: block;

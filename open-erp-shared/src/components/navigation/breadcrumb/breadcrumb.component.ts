@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent, IconName } from '../../icon/icon.component';
 import { SkeletonComponent } from '../../skeleton/skeleton.component';
@@ -18,6 +18,7 @@ export interface BreadcrumbItem {
   standalone: true,
   imports: [CommonModule, IconComponent, SkeletonComponent],
   templateUrl: './breadcrumb.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host {
       display: inline-block;
@@ -26,46 +27,46 @@ export interface BreadcrumbItem {
   `]
 })
 export class BreadcrumbComponent {
-  @Input() items: (string | BreadcrumbItem)[] = [];
-  @Input() separator: BreadcrumbSeparator | 'slash' | 'chevron' | 'arrow' | 'dot' | string = BreadcrumbSeparator.CHEVRON;
-  @Input() maxItems?: number;
-  @Input() showHomeIcon: boolean = false;
-  @Input() homeIcon: IconName = 'home';
-  @Input() homeUrl: string = '/';
-  @Input() loading: boolean = false;
+  readonly items = input<(string | BreadcrumbItem)[]>([]);
+  readonly separator = input<BreadcrumbSeparator | 'slash' | 'chevron' | 'arrow' | 'dot' | string>(BreadcrumbSeparator.CHEVRON);
+  readonly maxItems = input<number | undefined>(undefined);
+  readonly showHomeIcon = input<boolean>(false);
+  readonly homeIcon = input<IconName>('home');
+  readonly homeUrl = input<string>('/');
+  readonly loading = input<boolean>(false);
 
-  @Output() itemClick = new EventEmitter<BreadcrumbItem>();
+  readonly itemClick = output<BreadcrumbItem>();
 
-  isExpandedCollapsed: boolean = false;
+  isExpandedCollapsed = signal<boolean>(false);
 
-  get normalizedItems(): BreadcrumbItem[] {
-    const list: BreadcrumbItem[] = this.items.map((item, idx) => {
+  readonly normalizedItems = computed<BreadcrumbItem[]>(() => {
+    const raw = this.items();
+    return raw.map((item, idx) => {
       if (typeof item === 'string') {
-        return { label: item, active: idx === this.items.length - 1 };
+        return { label: item, active: idx === raw.length - 1 };
       }
       return {
         ...item,
-        active: item.active !== undefined ? item.active : idx === this.items.length - 1
+        active: item.active !== undefined ? item.active : idx === raw.length - 1
       };
     });
+  });
 
-    return list;
-  }
-
-  get displayItems(): { item: BreadcrumbItem; isEllipsis?: boolean; originalIndex: number }[] {
-    const all = this.normalizedItems;
-    if (!this.maxItems || all.length <= this.maxItems || this.isExpandedCollapsed) {
+  readonly displayItems = computed<{ item: BreadcrumbItem; isEllipsis?: boolean; originalIndex: number }[]>(() => {
+    const all = this.normalizedItems();
+    const max = this.maxItems();
+    if (!max || all.length <= max || this.isExpandedCollapsed()) {
       return all.map((item, idx) => ({ item, originalIndex: idx }));
     }
 
     const first = all.slice(0, 1);
-    const last = all.slice(-(this.maxItems - 1));
+    const last = all.slice(-(max - 1));
     return [
       { item: first[0], originalIndex: 0 },
       { item: { label: '...' }, isEllipsis: true, originalIndex: -1 },
       ...last.map((item, i) => ({ item, originalIndex: all.length - last.length + i }))
     ];
-  }
+  });
 
   onItemClick(item: BreadcrumbItem, event: MouseEvent): void {
     if (item.disabled || item.active) {
@@ -76,6 +77,6 @@ export class BreadcrumbComponent {
   }
 
   expandEllipsis(): void {
-    this.isExpandedCollapsed = true;
+    this.isExpandedCollapsed.set(true);
   }
 }
