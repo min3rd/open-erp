@@ -45,10 +45,16 @@
 - Tuân thủ 100% tài liệu thiết kế trong `docs/03_designs/`.
 - Nếu phát hiện vấn đề kỹ thuật phát sinh hoặc cần thay đổi CSDL/API, KHÔNG tự ý thay đổi mã nguồn mà phải chuyển ngược lại cho Solution Architect cập nhật tài liệu thiết kế trước.
 - Viết code có cấu trúc rõ ràng, kèm comment và self-documenting.
+- **Chính sách Unit Test thực dụng**:
+  - **Backend (Quarkus Java)**: Bắt buộc viết Unit Test (JUnit 5 + RestAssured) cho 100% logic nghiệp vụ, tính toán tài chính/số liệu và phân quyền Tenant.
+  - **Frontend (Angular/Ionic)**: **TUYỆT ĐỐI KHÔNG viết Unit Test** (không tạo file `.spec.ts`). Tránh lãng phí thời gian và chi phí bảo trì giòn gãy khi code bằng AI.
 
 ### 3.4. QA/QC Agent (Tester)
 - Xây dựng Test Plan và Test Cases dựa trên Acceptance Criteria từ bước BA và API/UI Spec từ bước Architect.
-- Thực hiện kiểm thử toàn diện: Unit Test, Integration Test, Functional Test, Edge Cases.
+- **Kiểm thử Frontend thực tế bằng Trình duyệt (Browser Manual Testing)**:
+  - QA/QC bắt buộc kiểm thử trực tiếp trên Web Browser đối với Angular và thiết bị/mô phỏng đối với Ionic 8.
+  - Kiểm tra trực quan bố cục UI, độ đậm đặc thông tin (dense/compact), sự mượt mà của Drawer, responsive và không có lỗi Console/Network.
+- **Kiểm thử Backend**: Chạy tự động bộ Unit/Integration Test của Quarkus Java, kiểm thử chống rò rỉ dữ liệu đa Tenant.
 - Nếu phát hiện lỗi (Bug), ghi nhận bug report cụ thể và chuyển lại cho Developer Agent xử lý.
 
 ### 3.5. PM Agent (Project Manager)
@@ -81,4 +87,160 @@
 > 1. **KHÔNG CÒN BẤT KỲ task, bug, feature, refactor nào ở mức độ ưu tiên LỚN HƠN MEDIUM (`Critical`, `High`) chưa hoàn thành**. 100% item ở mức `Critical` và `High` phải ở trạng thái `Done` và được QA kiểm thử đạt chuẩn.
 > 2. Các item ở mức `Medium` hoặc `Low` nếu chưa kịp hoàn thành trong Sprint hiện tại thì phải được ghi nhận rõ ràng lý do và chuyển giao (rollover) sang backlog của Sprint tiếp theo.
 > 3. Phải lập biên bản tổng kết Sprint tại `docs/05_project_management/sprints/sprint_XX/sprint_review.md` xác nhận hoàn thành trước khi bắt đầu Sprint mới.
+
+---
+
+## 5. Quy Chuẩn Kiến Trúc Microservices, Multi-Tenancy & Hệ Thống Plugin
+
+### 5.1. Ranh Giới Tối Giản Của Tầng Core (Core Invariant)
+- Tầng Core của hệ thống được giới hạn nghiêm ngặt, **chỉ phụ trách các nghiệp vụ nền tảng**:
+  1. **Authentication & Onboarding**: Đăng ký, đăng nhập, xác thực đa yếu tố, khởi tạo Tenant.
+  2. **Account & Organization Management**: Quản trị người dùng, cơ cấu tổ chức/phòng ban của Tenant.
+  3. **Functional RBAC**: Phân quyền chức năng theo vai trò (Roles, Permissions, Policies).
+  4. **Data RBAC & Scoping**: Phân quyền dữ liệu (Row-Level Security, Data Ownership theo Tenant/Chi nhánh/Phòng ban).
+  5. **Plugin Manager & Registry**: Quản lý vòng đời plugin, khám phá plugin, điều phối cài đặt, kích hoạt, nâng cấp và gỡ bỏ.
+- **NGHIÊM CẤM**: Đưa mã nguồn xử lý nghiệp vụ bán hàng, kế toán, kho, nhân sự... vào tầng Core.
+
+### 5.2. Nguyên Tắc Phân Lập Dữ Liệu Đa Khách Thuê (Tenant Isolation Invariant)
+- Hệ thống hoạt động theo mô hình SaaS phục vụ đa doanh nghiệp/khách thuê (Multiple Tenants).
+- **Tuyệt đối không để rò rỉ dữ liệu chéo**: Mọi truy vấn CSDL, cache hay event message đều bắt buộc phải gắn ngữ cảnh `tenant_id`.
+- Tầng API Gateway / Interceptor bắt buộc trích xuất và validate `Tenant Context` trước khi chuyển tiếp request vào các dịch vụ bên trong.
+
+### 5.3. Tiêu Chuẩn Plugin Hóa (Pluggable Architecture)
+- Mọi tính năng nghiệp vụ ngoài Core đều phải được đóng gói thành một **Plugin độc lập**.
+- Tenant Admin có quyền cài đặt (install), gỡ bỏ (uninstall), bật (activate) hoặc tắt (deactivate) bất kỳ plugin nào tùy ý mà không ảnh hưởng đến hoạt động của Core và các Plugin khác.
+- Mỗi Plugin phải có file đặc tả `plugin.json` (Manifest) quy định: mã định danh, tên hiển thị, phiên bản, quyền hạn yêu cầu, dependencies, và endpoints/hooks.
+
+### 5.4. Quản Lý Phiên Bản (SemVer) & Migration Dữ Liệu An Toàn
+- **Semantic Versioning**: Mọi Plugin phải được đánh phiên bản theo chuẩn `vMAJOR.MINOR.PATCH`. Phải kiểm tra tương thích phụ thuộc (Dependency Compatibility) trước khi cho phép cài đặt/nâng cấp.
+- **Cơ Chế Migration Theo Từng Tenant**:
+  - Mỗi Plugin phải chứa các kịch bản migration schema độc lập gồm cả chiều `up` (nâng cấp) và `down` (rollback).
+  - **Khi cài đặt Plugin cho Tenant**: Chạy migration khởi tạo bảng/dữ liệu trong không gian dữ liệu của Tenant đó.
+  - **Khi nâng cấp Plugin**: Chạy migration tuần tự từ version cũ lên version mới theo từng bước an toàn.
+  - **Khi gỡ bỏ Plugin**: Bắt buộc tạo snapshot sao lưu dữ liệu của Tenant trước khi thực hiện dọn dẹp hoặc archive, đảm bảo khả năng phục hồi dữ liệu khi cần.
+
+---
+
+## 6. Quy Chuẩn Tech Stack, Thư Viện UI Dùng Chung & Cơ Chế Entity Registry
+
+### 6.1. Tech Stack Chuẩn Mực Bắt Buộc
+- **Backend**: **Quarkus** (Ngôn ngữ lập trình chính thức và bắt buộc: **Java**, phiên bản Java LTS 21+). Sử dụng RESTEasy Reactive, Hibernate ORM with Panache, SmallRye Reactive Messaging Kafka, và Quarkus Redis Client.
+- **Frontend Web / Desktop**: **Angular >= 22** + **Tailwind CSS v4**. Tận dụng Standalone Components, Signals, và control flow mới nhất.
+- **Frontend Mobile**: **Ionic 8 + Angular**. Tối giản chức năng, tối ưu hóa cho màn hình cảm ứng, thao tác nhanh hiện trường.
+- **Cơ sở dữ liệu**:
+  - **PostgreSQL**: CSDL chính, dữ liệu quan hệ có cấu trúc, giao dịch tài chính/bán hàng/kho, phân lập dữ liệu đa khách thuê (RLS).
+  - **MongoDB**: CSDL NoSQL, sử dụng khi có nhu cầu lưu trữ tài liệu phi cấu trúc, nhật ký kiểm toán (audit trail), dynamic form schemas, log hệ thống.
+  - **Redis**: Caching phân tán, quản lý phiên làm việc (session), distributed locks, rate limiting.
+- **Message Broker**: **Apache Kafka**. Đảm nhận toàn bộ luồng sự kiện bất đồng bộ (Domain Events, Integration Events, Migration Events).
+
+### 6.2. Quy Tắc Thư Viện Giao Diện Dùng Chung (Component-First Invariant)
+- **Đồng nhất giao diện**: Để đảm bảo trải nghiệm người dùng nhất quán giữa Web và Mobile, toàn bộ UI components phải được quản lý tập trung trong một **Thư viện giao diện dùng chung (Shared UI Library)**.
+- **Quy tắc Component-First (Bắt buộc)**:
+  - Bất kỳ khi nào phát sinh một component giao diện mới (Button, Modal, Table, Input, FilterBar, StatCard, Badge, Dropdown...), **bắt buộc phải xây dựng và hoàn thiện component đó trong Thư viện dùng chung trước**.
+  - Ứng dụng Web và ứng dụng Mobile sau đó chỉ việc import component từ thư viện dùng chung để sử dụng.
+- **Hạn Chế Tối Đa Thư Viện Bên Thứ 3**:
+  - Tuyệt đối hạn chế cài đặt các thư viện UI bên ngoài (Material, PrimeNG, AntDesign...).
+  - Ưu tiên tự hiện thực các component chuẩn mực, gọn nhẹ, hiệu năng cao dựa trên Angular primitives và Tailwind CSS 4.
+
+### 6.3. Quy Tắc Phân Định Nền Tảng (Platform Capability Invariant)
+- Bản Mobile được định hướng tối giản hơn Web, chỉ phục vụ các tác vụ nhanh gọn (xem báo cáo nhanh, duyệt đơn hàng, kiểm kho mã vạch...).
+- Mọi Plugin bắt buộc phải phân định minh bạch tính năng theo nền tảng:
+  - `platforms.desktop`: Danh sách tính năng, màn hình và quyền thao tác trên Web/Desktop.
+  - `platforms.mobile`: Danh sách tính năng, màn hình và quyền thao tác trên Mobile App.
+
+### 6.4. Cơ Chế Đăng Ký Thực Thể (Entity Registry Invariant)
+- Mọi module và Plugin khi định nghĩa thực thể CSDL (PostgreSQL JPA Entity hoặc MongoDB Panache Entity) **bắt buộc phải đăng ký thông tin thực thể vào Entity Registry chung**.
+- **Thông tin đăng ký bao gồm**: Tên thực thể, Plugin sở hữu, Khóa chính, Danh sách trường công khai (Public Fields), và các điểm neo quan hệ (Extension Points / Foreign Key anchors).
+- Nhờ Entity Registry, các Plugin khác có thể khám phá và liên kết dữ liệu mà không cần phụ thuộc mã nguồn trực tiếp vào nhau.
+
+### 6.5. Kiến Trúc CSDL Quy Mô Lớn: Multi-Database, Master-Slave & Replica-Set
+- **Hỗ Trợ Multi-Database (Database-per-Tenant)**:
+  - Hệ thống hỗ trợ kiến trúc linh hoạt: mô hình Shared Database (RLS) cho các tenant vừa/nhỏ và mô hình **Database-per-Tenant** (mỗi Tenant một database vật lý riêng biệt) cho các khách hàng lớn/enterprise nhằm cô lập dữ liệu tuyệt đối và tối đa hóa hiệu năng.
+- **Cơ Chế Phân Tải Đọc/Ghi (Master - Slave / Read-Replicas)**:
+  - Hỗ trợ kiến trúc Master - Slave cho PostgreSQL: Mọi tác vụ ghi (Insert, Update, Delete) đi vào node Master (Primary); các truy vấn đọc (Select, Report, Analytics) được tự động phân tải sang các node Slave (Read-Replicas).
+- **Cơ Chế Replica-Set Đảm Bảo Tính Sẵn Sàng Cao (High Availability - HA)**:
+  - Áp dụng Replica-Set cho MongoDB và PostgreSQL streaming replication để đảm bảo hệ thống không có điểm lỗi đơn (No Single Point of Failure) và tự động failover khi có sự cố.
+- **Định Tuyến Nguồn Dữ Liệu Động (Dynamic Datasource Routing)**:
+  - Backend Quarkus sử dụng cơ chế Dynamic Datasource Routing để tự động chọn đúng Database Connection Pool dựa trên Tenant ID và tính chất giao dịch (Read-Only vs Read-Write).
+
+---
+
+## 7. Môi Trường Local Dev, Bộ Scripts Điều Phối, Triển Khai K8s & Bộ Tài Liệu Mở Rộng
+
+### 7.1. Môi Trường Local Dev Tối Giản Tài Nguyên (Minimal Service Footprint)
+- Do tài nguyên máy trạm (RAM/CPU) của lập trình viên có hạn, môi trường Local Dev **bắt buộc tuân thủ nguyên tắc tối giản**:
+  - **Mặc định tối thiểu (Minimal Baseline)**: Khi chạy `make infra` hoặc `docker compose up -d`, hệ thống **CHỈ khởi chạy 2 dịch vụ thiết yếu**:
+    1. **PostgreSQL Primary** (Cơ sở dữ liệu quan hệ, multi-tenancy, giới hạn RAM: 512MB).
+    2. **Redis** (Cache phân tán, auth token, session, giới hạn RAM: 256MB).
+    *(Tổng mức tiêu thụ RAM chỉ khoảng ~300MB, khởi động dưới 5 giây)*.
+  - **Kích hoạt theo nhu cầu (On-Demand Profiles)**: Các dịch vụ nặng được cấu hình qua Docker Compose Profiles, chỉ bật khi làm việc với module tương ứng:
+    - Profile `kafka`: Apache Kafka (KRaft) + Kafka UI (chỉ bật khi dev messaging/events).
+    - Profile `mongo`: MongoDB Replica-Set (chỉ bật khi dev audit logs / schema động).
+    - Profile `replica`: PostgreSQL Read-Replica (chỉ bật khi test tách luồng đọc/ghi).
+    - Profile `storage`: MinIO S3 Object Storage.
+    - Profile `mail`: Mailpit SMTP.
+    - Profile `full`: Khởi chạy toàn bộ khi máy có RAM dồi dào (>= 8GB) hoặc kiểm thử tích hợp.
+  - **Giới hạn tài nguyên nghiêm ngặt**: Toàn bộ container trong `docker-compose.yml` bắt buộc phải có thông số `deploy.resources.limits.memory` để ngăn chặn container chiếm dụng cạn kiệt RAM hệ điều hành máy host.
+
+### 7.2. Quản Lý Tập Trung Bộ Scripts Phát Triển (Centralized Scripts)
+- Toàn bộ các script khởi chạy dev cho Backend Quarkus Java, Web Angular 22, Mobile Ionic 8 được đặt trong thư mục `scripts/dev/` và quản lý tập trung qua `Makefile`:
+  - `make infra` (hoặc `make infra-minimal`): Khởi động cụm dịch vụ tối thiểu (Postgres Primary + Redis).
+  - `make infra-kafka`: Khởi động tối thiểu + Kafka & Kafka UI.
+  - `make infra-mongo`: Khởi động tối thiểu + MongoDB.
+  - `make infra-full`: Khởi động toàn bộ dịch vụ (yêu cầu RAM >= 8GB).
+  - `make infra-down`: Dừng và giải phóng toàn bộ containers Docker.
+  - `make backend`: Khởi chạy Quarkus Dev Mode (hỗ trợ live-reload tại cổng 8088).
+  - `make web`: Khởi chạy Angular 22 Dev Server (cổng 4200).
+  - `make mobile`: Khởi chạy Ionic 8 Dev Server (cổng 8100).
+  - `make dev`: Khởi động hạ tầng tối thiểu và hướng dẫn chạy ứng dụng.
+
+### 7.3. Tiêu Chuẩn Đóng Gói & Triển Khai Staging/Production (Docker & Kubernetes)
+- Mọi dịch vụ Backend và Web phải có Multi-stage Dockerfile tối ưu kích thước, tách biệt tầng build và tầng runtime, tuân thủ nguyên tắc bảo mật non-root user.
+- Thư mục `deployments/k8s/` tổ chức theo Kustomize (base, overlays/staging, overlays/production) đầy đủ Deployment, Service, Ingress, HPA, ConfigMap, Secret.
+- Có bộ script tự động hóa triển khai trong `scripts/deploy/` (`build_images.sh`, `deploy_docker.sh`, `deploy_k8s.sh`).
+
+### 7.4. Quy Chuẩn Bộ Ba Tài Liệu Bắt Buộc Trong `docs/`
+Bất kỳ tính năng hoặc release nào khi hoàn thành đều bắt buộc phải cập nhật/bổ sung đủ 3 bộ tài liệu:
+1. **`docs/06_user_guides/` - Tài liệu Hướng Dẫn Sử Dụng (Bắt buộc có hình ảnh trực quan)**:
+   - Mô tả chi tiết từng bước thao tác từ góc nhìn người dùng cuối (Tenant Admin, Nhân viên).
+   - **BẮT BUỘC**: Phải có hình ảnh chụp màn hình (screenshots), biểu đồ luồng thao tác trực quan minh họa từng bước. Nghiêm cấm viết tài liệu sử dụng thuần text.
+2. **`docs/07_deployment_guides/` - Tài liệu Hướng Dẫn Cài Đặt & Triển Khai**:
+   - Hướng dẫn setup môi trường Local Dev.
+   - Hướng dẫn cấu hình biến môi trường, container hóa Docker cho Staging.
+   - Hướng dẫn triển khai cụm Kubernetes cho Production (Scaling, Backup, Monitoring).
+3. **`docs/08_developer_guides/` - Tài liệu Hướng Dẫn Phát Triển Phần Mềm**:
+   - Quy chuẩn lập trình Quarkus Java & Angular 22 / Ionic 8.
+   - Hướng dẫn tạo mới một Plugin theo đúng kiến trúc hệ thống.
+   - Hướng dẫn tạo và đóng góp component mới vào `shared-ui-lib`.
+   - Hướng dẫn viết migration dữ liệu cho Plugin theo từng Tenant.
+
+---
+
+## 8. Quy Chuẩn Thiết Kế UI/UX ERP Nhỏ Gọn, Vuông Vắn & Điều Hướng Anti-Modal
+
+### 8.1. Mật Độ Thông Tin Cao (High-Density & Compact Design)
+- Đặc thù của phần mềm ERP là xử lý khối lượng lớn dữ liệu tài chính, kho vận, bán hàng. Giao diện phải ưu tiên **hiển thị tối đa thông tin hữu ích trong một khung hình**:
+  - **Typography nhỏ gọn**: Font chữ chuẩn cho nội dung bảng và form là `text-xs` (12px) hoặc `text-sm` (13px); tiêu đề nhóm là `text-sm font-semibold`.
+  - **Khoảng cách và lề thu gọn (Tight Spacing)**: Sử dụng padding và margin nhỏ: `p-1` đến `p-2.5`, `gap-1` đến `gap-2`, `space-y-1.5`. Hạn chế tối đa các khoảng trắng dư thừa (empty whitespace).
+  - **Bảng dữ liệu đậm đặc (Dense Data Tables)**: Chiều cao mỗi dòng bảng từ `28px` đến `34px`, căn chỉnh dữ liệu số sang phải, text sang trái, badge trạng thái nhỏ gọn.
+
+### 8.2. Thiết Kế Vuông Vắn & Hiện Đại (Sharp / Squared Aesthetic)
+- Tạo phong cách công nghiệp hiện đại, nghiêm túc và hiệu quả:
+  - **Góc cạnh sắc nét**: Sử dụng `rounded-none` hoặc tối đa `rounded-sm` (1px - 2px). Tuyệt đối tránh phong cách bo tròn bong bóng lớn (`rounded-xl`, `rounded-full`).
+  - **Đường viền mảnh tinh tế**: Sử dụng viền sắc sảo: `border border-neutral-200 dark:border-neutral-800`.
+  - **Phân cách trực quan**: Sử dụng divider mỏng phân tách rõ các khu vực làm việc.
+
+### 8.3. Triết Lý Điều Hướng Không Dùng Modal (Anti-Modal Architecture)
+- Modal (Popup che giữa màn hình) làm đứt gãy mạch suy nghĩ, che khuất dữ liệu đối chiếu và không thể chia sẻ đường dẫn (URL state). **Nghiêm cấm lạm dụng Modal**.
+- **Ba giải pháp thay thế bắt buộc**:
+  1. **Angular Router (Nested Routes / Child Outlets)**:
+     - Biểu thị trạng thái qua URL (ví dụ: `/sales/orders/123/edit`).
+     - Cho phép bookmark, chia sẻ link trực tiếp và điều hướng Back/Forward tự nhiên.
+  2. **Drawer (Side Sheet / Slide-over Panel trượt từ cạnh phải)**:
+     - Dùng cho các thao tác xem nhanh chi tiết, tạo nhanh hoặc chỉnh sửa biểu mẫu.
+     - Giữ nguyên tầm nhìn vào bảng danh sách bên trái.
+     - Hỗ trợ **xếp chồng đa tầng (Stacked Drawers)**: Khi đang ở Drawer A bấm xem chi tiết khách hàng thì Drawer B trượt ra đè một phần lên Drawer A với độ lệch z-index và shadow trực quan.
+  3. **Chia Màn Hình Đa Phần (Split-Screen / Multi-Pane Layout)**:
+     - Chia màn hình thành 2 hoặc 3 cột cố định/resizable (ví dụ: Master-Detail view — danh sách bên trái chiếm 30-40%, chi tiết phiếu và thao tác bên phải chiếm 60-70%).
+     - Người dùng có thể duyệt từng dòng danh sách và xem ngay thông tin cập nhật ở cột bên cạnh mà không cần rời trang.
 

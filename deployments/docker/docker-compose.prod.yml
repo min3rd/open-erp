@@ -1,0 +1,29 @@
+services:
+  backend:
+    image: openerp-registry.local/openerp-backend:latest
+    container_name: openerp-backend-prod
+    restart: always
+    environment:
+      QUARKUS_PROFILE: prod
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres-primary:5432/openerp_prod
+      QUARKUS_REDIS_HOSTS: redis://:openerp_redis_password@redis:6379
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "8080:8080"
+    networks:
+      - openerp-prod-net
+
+  web:
+    image: openerp-registry.local/openerp-web:latest
+    container_name: openerp-web-prod
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - openerp-prod-net
+
+networks:
+  openerp-prod-net:
+    driver: bridge

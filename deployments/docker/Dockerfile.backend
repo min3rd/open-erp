@@ -1,0 +1,34 @@
+# ==============================================================================
+# Stage 1: Build Quarkus Java Application
+# ==============================================================================
+FROM eclipse-temurin:21-jdk-alpine AS builder
+WORKDIR /build
+
+# Copy Maven/Gradle wrapper và dependencies cache
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline -B || true
+
+# Copy source code và compile
+COPY src/ src/
+RUN ./mvnw package -DskipTests -Dquarkus.package.type=fast-jar
+
+# ==============================================================================
+# Stage 2: Minimal Distroless / JRE Runtime
+# ==============================================================================
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+# Tạo non-root user bảo mật
+RUN addgroup -S openerp && adduser -S openerp -G openerp
+
+COPY --from=builder --chown=openerp:openerp /build/target/quarkus-app/lib/ /app/lib/
+COPY --from=builder --chown=openerp:openerp /build/target/quarkus-app/*.jar /app/
+COPY --from=builder --chown=openerp:openerp /build/target/quarkus-app/app/ /app/app/
+COPY --from=builder --chown=openerp:openerp /build/target/quarkus-app/quarkus/ /app/quarkus/
+
+USER openerp
+EXPOSE 8080
+
+ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/quarkus-run.jar"]
