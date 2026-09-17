@@ -56,6 +56,10 @@ Tất cả các Agent khi tham gia vào dự án này bắt buộc phải tuân 
   - **Mật độ thông tin cao (High Density)**: Sử dụng font chữ nhỏ (`text-xs`: 12px, `text-sm`: 13px), khoảng cách đệm và lề tối thiểu (`p-1`, `p-2`, `gap-1`, `space-y-1.5`) nhằm hiển thị nhiều thông tin nhất trên một màn hình, giảm thao tác cuộn trang.
   - **Thiết kế vuông vắn (Sharp/Square Aesthetic)**: Đường viền sắc nét, góc vuông hoặc bo góc siêu nhỏ (`rounded-none` hoặc `rounded-sm`), viền mỏng tinh tế (`border-neutral-200 dark:border-neutral-800`), mang lại phong cách ERP công nghiệp hiện đại, tinh gọn.
   - **Hạn chế tối đa Modal**: Nghiêm cấm lạm dụng Modal popup che khuất màn hình. Thay thế 100% bằng **Angular Router (Nested Routes)**, **Drawer (Side sheet trượt từ cạnh phải, hỗ trợ xếp chồng đa tầng - stacked drawers)** và **Split-Screen (chia màn hình thành nhiều phần/cột hiển thị đồng thời)** để giữ trọn vẹn ngữ cảnh làm việc.
+- **Chuẩn Mực API Contract Đa Ngôn Ngữ (Code-Based i18n API Contract)**:
+  - Mọi phản hồi API (thành công lẫn thất bại) **bắt buộc phải trả về thuộc tính `code` dạng hằng số `UPPER_SNAKE_CASE`** (ví dụ: `AUTH_REGISTER_SUCCESS`, `AUTH_EMAIL_ALREADY_EXISTS`, `AUTH_INVALID_CREDENTIALS`).
+  - **Tuyệt đối không hardcode message văn bản địa phương/tiếng Việt trong API contract** làm nguồn hiển thị duy nhất cho người dùng.
+  - Frontend (Angular/Ionic) tự quản lý từ điển đa ngôn ngữ (`i18n/{lang}.json`) dựa trên `code` và `params` nhận từ API để hiển thị ngôn ngữ người dùng mà hoàn toàn không cần can thiệp backend.
 - **Tiêu Chuẩn Triển Khai Staging & Production (Docker & Kubernetes)**:
   - Tất cả service phải có Multi-stage Dockerfile tối ưu kích thước.
   - Cấu hình Kubernetes theo chuẩn Base/Overlays cho Staging và Production trong thư mục `deployments/k8s/`.
@@ -75,3 +79,4 @@ Tất cả các Agent khi tham gia vào dự án này bắt buộc phải tuân 
 > 8. Tự ý khởi chạy toàn bộ các dịch vụ phụ trợ nặng (Kafka, MongoDB, Read-Replica, MinIO) làm cạn kiệt tài nguyên máy dev khi chỉ thực hiện các tác vụ phát triển cơ bản.
 > 9. Viết unit test cho Frontend (Angular/Ionic) làm lãng phí thời gian hoặc tự ý thêm thư viện kiểm thử frontend.
 > 10. Lạm dụng pop-up Modal để hiển thị chi tiết hoặc biểu mẫu nhập liệu khi có thể sử dụng Drawer trượt, chia màn hình (Split-View) hoặc Router con.
+> 11. Thiết kế hoặc trả về API response chứa message văn bản cứng đại diện cho kết quả nghiệp vụ mà không có mã định danh `code` chuẩn hóa cho Frontend đa ngôn ngữ.

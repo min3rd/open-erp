@@ -68,3 +68,22 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
     - Thiết kế vuông vắn sắc nét (`rounded-none`/`rounded-sm`, viền mảnh tinh tế).
     - Triết lý Anti-Modal: Hạn chế tối đa Modal pop-up, thay thế bằng Angular Router (nested routes), Drawer (side sheet trượt phải hỗ trợ xếp chồng đa tầng) và Split-Screen (chia 2-3 cột Master-Detail).
   - Đồng bộ các quy chuẩn vào `AGENTS.md` (bổ sung điều cấm 9 & 10), `.agents/rules/sdlc_process.md` (Mục 3.3, 3.4, Mục 8), `sdlc-workflow`, `coding_standards.md` và `shared_ui_contribution_guide.md`.
+
+- **Khởi Động Sprint 01: Core Identity, Access & Account Management**:
+  - **PM Agent**: Khởi tạo Sprint 01 (`sprints/sprint_01/sprint_plan.md`), tạo 6 file quản lý tính năng độc lập trong `items/` (FEAT-01 đến FEAT-06), cập nhật `task_board.md`.
+  - **BA Agent**: Hoàn thành trọn vẹn 4 bước yêu cầu:
+    - Tiếp nhận yêu cầu thô: `docs/01_requirements/raw_notes/RAW-01_sprint_01_core_identity.md`.
+    - Phân tích nghiệp vụ chi tiết: `docs/01_requirements/analysis/ANL-01_core_identity_access.md`.
+    - Đối chuẩn kiến trúc IAM (Keycloak, Auth0, Odoo, Supabase): `docs/01_requirements/benchmarks/BENCH-01_auth_identity_saas.md`.
+    - Biên bản xác nhận phạm vi & tiêu chí nghiệm thu: `docs/01_requirements/confirmations/CONF-01_sprint_01_scope.md`.
+  - **Solution Architect Agent**: Hoàn thành giải pháp và thiết kế chi tiết:
+    - Nghiên cứu giải pháp kỹ thuật: `docs/02_solutions/SOL-01_core_identity_architecture.md`.
+    - Thiết kế CSDL PostgreSQL Multi-Tenant: `docs/03_designs/database/CORE_IAM_DATABASE_SCHEMA.md`.
+    - Đặc tả kỹ thuật REST API: `docs/03_designs/api/CORE_IAM_API_SPEC.md`.
+    - Đặc tả UI/UX Anti-Modal (Drawer & Split-View): `docs/03_designs/ui_ux/CORE_IAM_UI_SPEC.md`.
+
+- **Chuẩn Hóa API Contract Đa Ngôn Ngữ (Code-Based i18n API Contract)**:
+  - Bãi bỏ hoàn toàn việc hardcode chuỗi message tiếng Việt trong API responses.
+  - Chuẩn hóa cấu trúc Envelope phản hồi qua `code` (`UPPER_SNAKE_CASE`), `params` nội suy, và `data`.
+  - Frontend tự chủ quản lý từ điển đa ngôn ngữ (`i18n/{lang}.json`) dựa trên mã `code` nhận được mà không cần tinh chỉnh backend.
+  - Cập nhật quy tắc vào `AGENTS.md` (bổ sung điều cấm số 11), `.agents/rules/sdlc_process.md` (Mục 9), `coding_standards.md` (Mục 1.4), và refactor toàn bộ `docs/03_designs/api/CORE_IAM_API_SPEC.md`.

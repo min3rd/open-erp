@@ -244,3 +244,46 @@ Bất kỳ tính năng hoặc release nào khi hoàn thành đều bắt buộc 
      - Chia màn hình thành 2 hoặc 3 cột cố định/resizable (ví dụ: Master-Detail view — danh sách bên trái chiếm 30-40%, chi tiết phiếu và thao tác bên phải chiếm 60-70%).
      - Người dùng có thể duyệt từng dòng danh sách và xem ngay thông tin cập nhật ở cột bên cạnh mà không cần rời trang.
 
+---
+
+## 9. Quy Chuẩn API Contract Code-Driven & Đa Ngôn Ngữ Độc Lập Frontend
+
+### 9.1. Triết Lý Code-Driven i18n
+- Để hệ thống Open-ERP đáp ứng đa ngôn ngữ (Tiếng Việt, Tiếng Anh...) mà không làm phức tạp hóa backend hay phá vỡ tính phân tách (separation of concerns):
+  - **Cấm hardcode văn bản thông điệp trong API response**: Backend không trả về các chuỗi text tiếng Việt/địa phương cứng để hiển thị cho người dùng cuối.
+  - **Mã hóa kết quả bằng thuộc tính `code`**: Mọi phản hồi bắt buộc có thuộc tính `code` dạng hằng số `UPPER_SNAKE_CASE`.
+  - **Frontend làm chủ việc hiển thị (Client-Side Localization)**: Frontend duy trì từ điển `i18n/{lang}.json`. Khi nhận `code`, Frontend tự tra cứu và render đúng ngôn ngữ của người dùng.
+  - **Nội suy tham số linh hoạt (`params`)**: Backend trả về các tham số động qua object `params` (ví dụ: `{ "field": "email", "retry_after": 900 }`) để Frontend nội suy vào chuỗi bản dịch mà không cần ghép chuỗi ở server.
+
+### 9.2. Khung Phản Hồi Chuẩn Mực (Standardized Envelope)
+- **Phản hồi Thành Công (HTTP 2xx)**:
+  ```json
+  {
+    "success": true,
+    "code": "AUTH_REGISTER_SUCCESS",
+    "message": "User registered successfully", // Fallback / Dev debug
+    "data": { ... }
+  }
+  ```
+- **Phản hồi Thất Bại (HTTP 4xx / 5xx)**:
+  ```json
+  {
+    "success": false,
+    "code": "AUTH_EMAIL_ALREADY_EXISTS",
+    "message": "Email is already taken",       // Fallback / Dev debug
+    "params": { "field": "email" },
+    "errors": [
+      {
+        "field": "email",
+        "code": "VALIDATION_EMAIL_DUPLICATE"
+      }
+    ],
+    "timestamp": "2026-09-17T15:30:00Z"
+  }
+  ```
+
+### 9.3. Quy Tắc Đặt Tên Mã `code` (Naming Convention)
+- **Cấu trúc chuẩn**: `<MODULE>_<ENTITY/TOPIC>_<STATUS/RESULT>`
+- **Ví dụ chuẩn mực**:
+  - Thành công: `AUTH_LOGIN_SUCCESS`, `AUTH_EMAIL_VERIFIED`, `AUTH_2FA_ENABLED`, `ACCOUNT_PROFILE_UPDATED`.
+  - Thất bại / Lỗi: `AUTH_INVALID_CREDENTIALS`, `AUTH_ACCOUNT_LOCKED`, `AUTH_OTP_INVALID_OR_EXPIRED`, `AUTH_2FA_CODE_INVALID`, `VALIDATION_FAILED`, `TENANT_NOT_FOUND`.

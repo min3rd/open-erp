@@ -33,3 +33,8 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
 - Tối ưu hóa tài nguyên Local Dev: Chuyển đổi `docker-compose.yml` sang cơ chế phân tầng Profiles. Mặc định chỉ chạy tối thiểu PostgreSQL Primary + Redis (~300MB RAM); các dịch vụ nặng (Kafka, MongoDB, Read-Replica, MinIO, Mailpit) chạy on-demand theo từng module. Bổ sung giới hạn memory cho toàn bộ local containers.
 - Ban hành Chính Sách Kiểm Thử Thực Dụng: Bãi bỏ viết Unit Test cho Frontend (Angular/Ionic), chuyển sang Kiểm thử thủ công trên Trình duyệt (Browser Manual Testing) cho QA/QC; tập trung Unit Test tự động cho 100% logic Backend Quarkus Java.
 - Ban hành Quy Chuẩn UI/UX ERP Hiện Đại: Mật độ thông tin cao (font chữ nhỏ `text-xs`/`text-sm`, đệm hẹp `p-1`/`p-2`), thiết kế vuông vắn sắc nét (`rounded-none`/`rounded-sm`), và triết lý Anti-Modal (thay thế Modal bằng Angular Router, Drawer trượt từ cạnh phải hỗ trợ xếp chồng, và Chia màn hình đa cột).
+- Khởi động Sprint 01: Core Identity, Access & Account Management:
+  - Thiết lập kế hoạch Sprint 01 (`sprint_plan.md`) và 6 Feature tracking files (FEAT-01 đến FEAT-06).
+  - Hoàn tất tài liệu phân tích nghiệp vụ (RAW-01, ANL-01, BENCH-01, CONF-01).
+  - Ban hành bản thiết kế giải pháp và chi tiết kỹ thuật (SOL-01, CORE_IAM_DATABASE_SCHEMA, CORE_IAM_API_SPEC, CORE_IAM_UI_SPEC).
+- Ban hành Quy Chuẩn API Contract Đa Ngôn Ngữ (i18n Code-Driven): Bãi bỏ hardcode message văn bản trong API responses, chuẩn hóa envelope bằng mã định danh `code` và `params` nội suy cho Frontend tự chủ chuyển ngữ.

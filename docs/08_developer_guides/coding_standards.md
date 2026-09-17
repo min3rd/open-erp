@@ -30,6 +30,38 @@ com.openerp.<module_or_plugin>/
 - **Bao phủ**: 100% logic nghiệp vụ tính toán (giá cả, thuế, chiết khấu), quy trình duyệt đơn, và phân quyền cô lập dữ liệu giữa các Tenant.
 - **Kiểm thử Multi-Tenant**: Mọi service phải có test case xác nhận Tenant A không thể truy vấn hoặc cập nhật dữ liệu của Tenant B.
 
+### 1.4. Chuẩn Mực API Response Envelope & Mã Thông Điệp / Mã Lỗi (i18n Ready)
+- **Không hardcode message tiếng Việt trong backend**: Mọi controller/resource REST của Quarkus bắt buộc đóng gói phản hồi qua `ApiResponse<T>` hoặc `ApiErrorResponse`.
+- **Cấu trúc ApiResponse mẫu trong Java Quarkus**:
+  ```java
+  public record ApiResponse<T>(
+      boolean success,
+      String code,            // Hằng số UPPER_SNAKE_CASE ví dụ: AUTH_REGISTER_SUCCESS
+      String message,         // Tiếng Anh mang tính chất debug/fallback
+      Map<String, Object> params, // Biến nội suy i18n
+      T data
+  ) {
+      public static <T> ApiResponse<T> success(String code, T data) {
+          return new ApiResponse<>(true, code, "Success", Collections.emptyMap(), data);
+      }
+      public static <T> ApiResponse<T> success(String code, String fallbackMsg, Map<String, Object> params, T data) {
+          return new ApiResponse<>(true, code, fallbackMsg, params, data);
+      }
+  }
+  ```
+- **Cấu trúc ApiErrorResponse mẫu**:
+  ```java
+  public record ApiErrorResponse(
+      boolean success,
+      String code,            // Ví dụ: AUTH_EMAIL_ALREADY_EXISTS, VALIDATION_FAILED
+      String message,         // Tiếng Anh fallback
+      Map<String, Object> params,
+      List<FieldErrorDto> errors,
+      Instant timestamp
+  ) {}
+  ```
+- **Quy tắc Enum mã lỗi**: Toàn bộ mã phản hồi phải được quản lý bằng Java Enum (ví dụ: `AuthMessageCode.AUTH_LOGIN_SUCCESS`, `AuthErrorCode.AUTH_INVALID_CREDENTIALS`).
+
 ---
 
 ## 2. Quy Chuẩn Frontend: Angular 22 & Ionic 8
