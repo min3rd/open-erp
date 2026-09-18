@@ -5,8 +5,8 @@
 - **Mức Độ Ưu Tiên**: [x] High
 - **Người Đề Xuất**: Khách hàng / BA Agent
 - **Thuộc Sprint**: Sprint 01
-- **Trạng Thái**: [x] In Review
-- **Tiến độ (2026-09-18)**: Đã triển khai xong Web + Mobile, backend 22/22 automated test PASS; chờ QA Browser Manual Testing để chuyển `Done`.
+- **Trạng Thái**: [x] Done
+- **Tiến độ (2026-09-18)**: Đã triển khai xong Web + Mobile; backend 30/30 automated test PASS; QA browser/mobile automation PASS; khách hàng nghiệm thu và chuyển `Done`.
 
 ---
 
@@ -31,3 +31,4 @@
 - [x] TASK-120: Viết Unit Test Backend kiểm tra token expiry, token single-use, revoke sessions trong Redis.
 - [x] TASK-121: Xây dựng màn hình Quên Mật Khẩu và Đặt Lại Mật Khẩu trên Angular 22 & Ionic 8 (thiết kế vuông vắn, ít margin).
 - [x] TASK-122: QA/QC thực hiện Browser Manual Testing kiểm tra nhận mail tại Mailpit và đặt lại mật khẩu thành công.
+- **Nghiệm thu (2026-09-18)**: Khách hàng đã nghiệm thu và đồng ý đóng Sprint 01.

@@ -5,8 +5,8 @@
 - **Mức Độ Ưu Tiên**: [x] Critical
 - **Người Đề Xuất**: Khách hàng / BA Agent
 - **Thuộc Sprint**: Sprint 01
-- **Trạng Thái**: [x] In Review
-- **Tiến độ (2026-09-18)**: Đã triển khai xong Web + Mobile, backend 22/22 automated test PASS; chờ QA Browser Manual Testing để chuyển `Done`.
+- **Trạng Thái**: [x] Done
+- **Tiến độ (2026-09-18)**: Đã triển khai xong Web + Mobile; backend 30/30 automated test PASS; QA browser/mobile automation PASS; khách hàng nghiệm thu và chuyển `Done`.
 
 ---
 
@@ -32,3 +32,4 @@
 - [x] TASK-114: Viết Unit Test Backend kiểm tra logic xác thực mật khẩu, JWT signing/verification, và brute-force lockout.
 - [x] TASK-115: Xây dựng màn hình đăng nhập nhỏ gọn Angular 22 & Ionic 8 (thiết kế vuông vắn, form mật độ cao).
 - [x] TASK-116: QA/QC thực hiện Browser Manual Testing các kịch bản login đúng, login sai, chọn tenant.
+- **Nghiệm thu (2026-09-18)**: Khách hàng đã nghiệm thu và đồng ý đóng Sprint 01.

@@ -5,8 +5,8 @@
 - **Mức Độ Ưu Tiên**: [x] High
 - **Người Đề Xuất**: Khách hàng / BA Agent
 - **Thuộc Sprint**: Sprint 01
-- **Trạng Thái**: [x] In Review
-- **Tiến độ (2026-09-18)**: Đã triển khai xong Web + Mobile, backend 22/22 automated test PASS; chờ QA Browser Manual Testing để chuyển `Done`.
+- **Trạng Thái**: [x] Done
+- **Tiến độ (2026-09-18)**: Đã triển khai xong Web + Mobile; backend 30/30 automated test PASS; QA browser/mobile automation PASS; khách hàng nghiệm thu và chuyển `Done`.
 
 ---
 
@@ -32,3 +32,4 @@
 - [x] TASK-126: Viết Unit Test Backend kiểm tra sinh/kiểm tra mã TOTP, drift time $\pm 1$ interval, tiêu hủy backup code và khóa xác thực 2FA sau 3 lần nhập sai.
 - [x] TASK-127: Xây dựng giao diện hiển thị QR Code và form nhập OTP 6 số nhỏ gọn, vuông vắn trên Angular 22 & Ionic 8.
 - [x] TASK-128: QA/QC thực hiện Browser Manual Testing cài đặt 2FA trên ứng dụng di động thật và kiểm thử đăng nhập.
+- **Nghiệm thu (2026-09-18)**: Khách hàng đã nghiệm thu và đồng ý đóng Sprint 01.

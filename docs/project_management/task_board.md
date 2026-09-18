@@ -8,6 +8,7 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 - **Bản đồ đọc tuần tự**: [00_READING_GUIDE.md](../sprints/sprint_01_core_iam/00_READING_GUIDE.md)
 - Kế hoạch Sprint: [sprint_plan.md](../sprints/sprint_01_core_iam/sprint_plan.md)
 - Thời gian: 2026-09-18 đến 2026-10-02
+- **Trạng thái**: [x] ĐÃ ĐÓNG ngày 2026-09-18 (Khách hàng nghiệm thu)
 
 ---
 
@@ -63,7 +64,7 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 - [x] **BUG-35 → BUG-37 (từ manual test khách hàng)**: thiếu `@source` Tailwind cho thư viện shared (BUG-35), dark mode chưa đồng nhất (BUG-36), trạng thái UI chưa route hóa (BUG-37) - đã sửa + browser verify (Web 7/7, Mobile 18/18). Chi tiết: [manual_test_guide.md](../sprints/sprint_01_core_iam/08_testing/manual_test_guide.md).
 - [x] **BUG-38 → BUG-40 (sự cố môi trường dev)**: test tách DB `openerp_test` (không còn xóa dữ liệu dev), script `.bat` không tạo file rác, login với token cũ hiển thị đúng lỗi i18n; thêm `dev.bat`/`stop-dev.bat`. Chi tiết: [work_log.md](work_log.md).
 - [x] **Xử lý toàn bộ tồn đọng Medium/Low (BUG-24→31, 34, 42→45)**: chuẩn hóa TenantType, ResponseKey, Entity Registry, schema JSONB V1.0.3, 401 envelope, CORS prod, i18n mã lỗi, test 30/30, form 2 bước + live slug check; browser verify 6/6.
-- [ ] **QA Browser Manual Testing (Web + Mobile)**: bám theo [manual_test_guide.md](../sprints/sprint_01_core_iam/08_testing/manual_test_guide.md), kiểm tra Drawer/QR/i18n/Anti-Modal/Routing/Dark mode, không lỗi console → chuyển 13 item `In Review` sang `Done`.
+- [x] **QA Browser Manual Testing (Web + Mobile)**: bám theo [manual_test_guide.md](../sprints/sprint_01_core_iam/08_testing/manual_test_guide.md), kiểm tra Drawer/QR/i18n/Anti-Modal/Routing/Dark mode, không lỗi console; chuyển 13 item `In Review` sang `Done`; khách hàng nghiệm thu (2026-09-18).
 - [x] **Tài liệu `docs/06_user_guides/`**: đã ban hành UG-01 Core IAM kèm 20 ảnh minh họa (Web light/dark + Mobile).
 - [x] **FEAT-07 (yêu cầu bổ sung khi QA)**: tối ưu Web cho điện thoại (390px không tràn ngang), hamburger + Mobile Nav Drawer (tài khoản/menu/language/theme/logout), theme System/Light/Dark persist; puppeteer 40/40 + 11/11 PASS ([FEAT-07](../sprints/sprint_01_core_iam/07_items/FEAT-07_responsive_phone_and_mobile_nav.md)).
 - [x] **FEAT-08 (yêu cầu bổ sung)**: Ionic Mobile side menu (tài khoản/menu/language/theme/logout), theme class-based Sáng/Tối/Hệ thống persist, toolbar gọn, auth pages có switcher; puppeteer 42/42 + 22/22 PASS ([FEAT-08](../sprints/sprint_01_core_iam/07_items/FEAT-08_ionic_mobile_menu_theme.md)).
@@ -75,3 +76,12 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 - [x] **INIT-001**: Khởi tạo quy trình phát triển phần mềm chuẩn mực 9 bước và hệ thống tài liệu Docs-driven Multi-Agent SDLC.
 - [x] **INIT-002**: Thiết lập môi trường Local Dev tối giản tài nguyên (Minimal Footprint Postgres Primary + Redis), bộ scripts điều phối tập trung và các tài liệu hướng dẫn bắt buộc.
 - [x] **INIT-003**: Ban hành Chính Sách Kiểm Thử Thực Dụng (Zero-Unit-Test Frontend, Browser Manual QA) và Bộ Quy Chuẩn UI/UX ERP Hiện Đại (Nhỏ gọn, vuông vắn, ít margin, Anti-Modal).
+
+---
+
+## Sprint 01 - Kết Quả Đóng Sprint (2026-09-18)
+- 46/46 BUG Done; FEAT-01 → FEAT-09 Done.
+- `mvn test` 30/30 PASS (PostgreSQL + Redis thật); Web + Mobile build PASS.
+- QA browser/mobile automation PASS; khách hàng nghiệm thu.
+- Tài liệu: UG-01 (25 ảnh), TR-01 Test Report, Entity Registry Core IAM.
+- **Sprint 02**: sẽ khởi tạo Sprint-Pack mới theo cùng quy trình.

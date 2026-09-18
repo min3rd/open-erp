@@ -5,8 +5,8 @@
 - **Mức Độ Ưu Tiên**: [x] High
 - **Người Đề Xuất**: Khách hàng / BA Agent
 - **Thuộc Sprint**: Sprint 01
-- **Trạng Thái**: [x] In Review
-- **Tiến độ (2026-09-18)**: Đã triển khai xong Web + Mobile, backend 22/22 automated test PASS; chờ QA Browser Manual Testing để chuyển `Done`.
+- **Trạng Thái**: [x] Done
+- **Tiến độ (2026-09-18)**: Đã triển khai xong Web + Mobile; backend 30/30 automated test PASS; QA browser/mobile automation PASS; khách hàng nghiệm thu và chuyển `Done`.
 
 ---
 
@@ -30,3 +30,4 @@
 - [x] TASK-103: Viết Unit Test Backend (JUnit 5 + RestAssured) kiểm tra validation, mã hóa Argon2id và gửi mail.
 - [x] TASK-104: Xây dựng màn hình đăng ký cá nhân Angular 22 & Ionic 8 (thiết kế vuông vắn, font nhỏ gọn `text-xs`, ít margin).
 - [x] TASK-105: QA/QC thực hiện Browser Manual Testing luồng đăng ký và kiểm tra email tại Mailpit.
+- **Nghiệm thu (2026-09-18)**: Khách hàng đã nghiệm thu và đồng ý đóng Sprint 01.

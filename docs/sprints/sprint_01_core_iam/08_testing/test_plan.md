@@ -3,7 +3,7 @@
 - **Mã Tài Liệu**: TEST-01
 - **Thuộc Sprint**: Sprint 01 - Core Identity, Access & Account Management
 - **Phụ Trách**: QA/QC Agent
-- **Trạng Thái**: [x] Re-tested tự động (chờ QA Browser Manual Testing)
+- **Trạng Thái**: [x] Hoàn thành - Khách hàng nghiệm thu (2026-09-18)
 
 ---
 

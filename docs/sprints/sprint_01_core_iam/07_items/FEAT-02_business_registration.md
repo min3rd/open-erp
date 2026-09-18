@@ -5,8 +5,8 @@
 - **Mức Độ Ưu Tiên**: [x] Critical
 - **Người Đề Xuất**: Khách hàng / BA Agent
 - **Thuộc Sprint**: Sprint 01
-- **Trạng Thái**: [x] In Review
-- **Tiến độ (2026-09-18)**: Đã triển khai xong Web + Mobile, backend 22/22 automated test PASS; chờ QA Browser Manual Testing để chuyển `Done`.
+- **Trạng Thái**: [x] Done
+- **Tiến độ (2026-09-18)**: Đã triển khai xong Web + Mobile; backend 30/30 automated test PASS; QA browser/mobile automation PASS; khách hàng nghiệm thu và chuyển `Done`.
 
 ---
 
@@ -30,3 +30,4 @@
 - [x] TASK-108: Viết Unit Test Backend kiểm thử tính toàn vẹn Transaction khi đăng ký Tenant và kiểm tra cô lập dữ liệu.
 - [x] TASK-109: Xây dựng màn hình đăng ký doanh nghiệp 2 bước nhỏ gọn trên Angular 22 (Step 1: Admin Info, Step 2: Company Info).
 - [x] TASK-110: QA/QC kiểm thử thủ công qua Browser và xác nhận Tenant data isolation trong PostgreSQL.
+- **Nghiệm thu (2026-09-18)**: Khách hàng đã nghiệm thu và đồng ý đóng Sprint 01.

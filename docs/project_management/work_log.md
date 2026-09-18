@@ -195,3 +195,10 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
   - **Điều hướng chuẩn Ionic**: refactor toàn bộ `router.navigate` → `NavController` (`navigateForward`/`navigateBack`/`navigateRoot` + `replaceUrl` cho `navigateRoot`) trên `auth.service`, login, register, verify, reset, select-tenant, two-factor, account 2FA và dashboard.
   - **Tối ưu UI 8 màn auth cho phone**: input/button ≥40px, font 13px, padding safe-area `env()`, gỡ tiêu đề trùng, nút chính full-width, không tràn ngang 390px.
   - **Kiểm chứng**: Mobile `npm run build` PASS; puppeteer 390x844 **34/34 PASS** (forward/back `/login ↔ /register/personal`, sau login/logout browser-back không về màn trước, back trong luồng quên mật khẩu OK, overflow 0 trên 8 trang auth, console 0 lỗi); cập nhật ảnh `16-mobile-login.png`.
+
+- **ĐÓNG SPRINT 01 (2026-09-18)**:
+  - Khách hàng xác nhận nghiệm thu và đồng ý đóng Sprint 01.
+  - Chốt kết quả: 46/46 BUG Done; FEAT-01 → FEAT-09 Done; `mvn test` 30/30 PASS; Web/Mobile build PASS; QA browser/mobile automation PASS.
+  - Ban hành Hướng dẫn sử dụng UG-01 (25 ảnh), TR-01 Test Report, Entity Registry Core IAM.
+  - Cập nhật `sprint_review.md` trạng thái ĐÃ ĐÓNG; `sprint_plan.md` DoD đạt 100%; `00_READING_GUIDE.md` chốt trạng thái đóng.
+  - Retrospective ghi nhận 3 bài học (Tailwind `@source`, test DB isolation, NavController) và hành động cho Sprint 02.

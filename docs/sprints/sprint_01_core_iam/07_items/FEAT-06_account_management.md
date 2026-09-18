@@ -5,8 +5,8 @@
 - **Mức Độ Ưu Tiên**: [x] Medium
 - **Người Đề Xuất**: Khách hàng / BA Agent
 - **Thuộc Sprint**: Sprint 01
-- **Trạng Thái**: [x] In Review
-- **Tiến độ (2026-09-18)**: Đã triển khai xong Web + Mobile, backend 22/22 automated test PASS; chờ QA Browser Manual Testing để chuyển `Done`.
+- **Trạng Thái**: [x] Done
+- **Tiến độ (2026-09-18)**: Đã triển khai xong Web + Mobile; backend 30/30 automated test PASS; QA browser/mobile automation PASS; khách hàng nghiệm thu và chuyển `Done`.
 
 ---
 
@@ -39,3 +39,4 @@
 - [x] TASK-131: Viết Unit Test Backend kiểm tra logic đổi mật khẩu, xác thực bật/tắt 2FA an toàn (bảo mật kép mật khẩu + OTP), và thu hồi session trong Redis.
 - [x] TASK-132: Xây dựng giao diện `AccountDrawerComponent` trượt từ cạnh phải màn hình kèm các Drawer con xếp chồng (`Setup2FaDrawerComponent`, `Disable2FaDrawerComponent`) với thiết kế vuông vắn, font chữ nhỏ `text-xs`, ít margin trên Angular 22 và Ionic 8.
 - [x] TASK-133: QA/QC thực hiện Browser Manual Testing kiểm tra cập nhật thông tin, đổi mật khẩu, kích hoạt 2FA bằng quét QR, tắt 2FA bằng xác thực kép và đăng xuất phiên từ xa.
+- **Nghiệm thu (2026-09-18)**: Khách hàng đã nghiệm thu và đồng ý đóng Sprint 01.

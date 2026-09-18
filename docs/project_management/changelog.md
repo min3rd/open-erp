@@ -6,9 +6,13 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
 
 ## [Unreleased]
 
+### Sprint 01 - ĐÃ ĐÓNG (2026-09-18)
+- Core IAM hoàn chỉnh: Đăng ký cá nhân/doanh nghiệp, Đăng nhập & chọn Workspace, Quên mật khẩu, 2FA TOTP, Quản lý tài khoản trên Web (Angular 22) + Mobile (Ionic 8).
+- Chất lượng: 46/46 BUG Done; backend 30/30 test PASS; Web/Mobile build PASS; Theme Sáng/Tối/Hệ thống; responsive điện thoại.
+- Tài liệu: UG-01 User Guide (25 ảnh), TR-01 Test Report, Entity Registry.
+
 ### Known Issues
-- **Đã xử lý toàn bộ bug Sprint 01** trong đợt sửa 2026-09-18 (BUG-24 → BUG-31, BUG-34, BUG-42 → BUG-45): backend **30/30 test PASS** (PostgreSQL + Redis thật), Web/Mobile build PASS, browser verify **6/6 PASS** — không còn bug mở.
-- **Còn lại duy nhất**: QA Browser Manual Testing ký xác nhận cuối cùng và commit để đóng Sprint 01.
+- Không còn issue mở cho Sprint 01 (đã đóng 2026-09-18).
 
 ### Fixed
 - Sửa toàn bộ liên kết hỏng và chuẩn hóa đường dẫn theo cấu trúc Sprint-Pack (00-09) trong `docs/`, templates, changelog, work log và file quy tắc `.agents/`.
