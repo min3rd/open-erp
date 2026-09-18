@@ -1,0 +1,32 @@
+<div class="inline-flex items-center gap-1.5 text-[11px] font-mono select-none">
+  <span class="text-neutral-400 dark:text-neutral-500 font-semibold text-[10px] uppercase" [appTranslate]="'COMMON_LANGUAGE'">LANG:</span>
+  <div class="inline-flex border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800">
+    <button
+      type="button"
+      (click)="setLang('vi')"
+      [class.bg-neutral-900]="i18n.currentLang() === 'vi'"
+      [class.text-white]="i18n.currentLang() === 'vi'"
+      [class.dark:bg-white]="i18n.currentLang() === 'vi'"
+      [class.dark:text-neutral-900]="i18n.currentLang() === 'vi'"
+      [class.text-neutral-600]="i18n.currentLang() !== 'vi'"
+      [class.dark:text-neutral-400]="i18n.currentLang() !== 'vi'"
+      class="px-2 py-0.5 text-[11px] font-mono font-medium rounded-none hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
+    >
+      VI
+    </button>
+    <div class="w-[1px] bg-neutral-300 dark:bg-neutral-700"></div>
+    <button
+      type="button"
+      (click)="setLang('en')"
+      [class.bg-neutral-900]="i18n.currentLang() === 'en'"
+      [class.text-white]="i18n.currentLang() === 'en'"
+      [class.dark:bg-white]="i18n.currentLang() === 'en'"
+      [class.dark:text-neutral-900]="i18n.currentLang() === 'en'"
+      [class.text-neutral-600]="i18n.currentLang() !== 'en'"
+      [class.dark:text-neutral-400]="i18n.currentLang() !== 'en'"
+      class="px-2 py-0.5 text-[11px] font-mono font-medium rounded-none hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
+    >
+      EN
+    </button>
+  </div>
+</div>

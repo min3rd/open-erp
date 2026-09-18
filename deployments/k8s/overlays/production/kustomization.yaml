@@ -29,4 +29,4 @@ patches:
     patch: |-
       - op: replace
         path: /spec/rules/0/host
-        value: app.openerp.vn
+        value: openerp.9ms.io.vn

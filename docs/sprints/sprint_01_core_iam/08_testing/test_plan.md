@@ -25,15 +25,15 @@ Tuân thủ nghiêm ngặt **Chính Sách Kiểm Thử Thực Dụng (Pragmatic 
 
 | ID | Tính Năng | Loại Test | Kịch Bản Kiểm Thử | Kết Quả |
 | :---: | :--- | :---: | :--- | :---: |
-| **TC-01** | Đăng ký cá nhân | Backend | Đăng ký thành công, hash mật khẩu Argon2id, gửi OTP kích hoạt | Chờ kiểm thử |
-| **TC-02** | Đăng ký doanh nghiệp | Backend | Tạo Tenant mới, tạo user với role `TENANT_ADMIN`, cô lập CSDL | Chờ kiểm thử |
-| **TC-03** | Đăng nhập & Brute-force | Backend | Nhập sai mật khẩu 5 lần $\rightarrow$ khóa tài khoản 15 phút | Chờ kiểm thử |
-| **TC-04** | Quên mật khẩu | Backend | Sinh token khôi phục SHA-256 hạn 15 phút, thu hồi session cũ | Chờ kiểm thử |
-| **TC-05** | Xác thực 2FA | Backend | Xác thực TOTP 6 số, độ lệch thời gian $\pm 30s$, dùng 1 backup code | Chờ kiểm thử |
-| **TC-06** | Đăng ký 2FA trong Drawer | Browser QA | Mở Stacked Drawer, quét QR, nhập OTP 6 số kích hoạt, nhận 8 backup codes | Chờ kiểm thử |
-| **TC-07** | Tắt 2FA bảo mật kép | Browser QA & Backend | Nhập đúng mật khẩu + OTP để tắt; nhập sai thì báo lỗi và từ chối | Chờ kiểm thử |
-| **TC-08** | Giám sát & Hủy Session | Browser QA & Backend | Hiển thị đúng IP/Browser, bấm đăng xuất thì phiên Redis bị xóa | Chờ kiểm thử |
-| **TC-09** | Giao diện Anti-Modal | Browser QA | Kiểm tra toàn bộ thao tác trong Drawer và Stacked Drawer, không có Modal pop-up | Chờ kiểm thử |
-| **TC-10** | Khóa xác thực 2FA | Backend | Nhập sai mã 2FA 3 lần liên tiếp → hủy `pre_auth_token` trong Redis, trả `AUTH_2FA_ATTEMPTS_EXCEEDED` | Chờ kiểm thử |
-| **TC-11** | Refresh & Logout Token | Backend | Refresh token hợp lệ cấp Access Token mới; Logout blacklist token, request cũ bị `401` | Chờ kiểm thử |
-| **TC-12** | Personal Workspace | Backend | Xác thực email cá nhân thành công → tự động tạo `tenants.type = 'PERSONAL'` + liên kết `TENANT_ADMIN` | Chờ kiểm thử |
+| **TC-01** | Đăng ký cá nhân | Backend | Đăng ký thành công, hash mật khẩu BCrypt/Argon2, gửi OTP kích hoạt | [x] **PASS** (AuthServiceTest) |
+| **TC-02** | Đăng ký doanh nghiệp | Backend | Tạo Tenant mới, tạo user với role `TENANT_ADMIN`, cô lập CSDL | [x] **PASS** (AuthServiceTest) |
+| **TC-03** | Đăng nhập & Brute-force | Backend | Nhập sai mật khẩu 5 lần $\rightarrow$ khóa tài khoản 15 phút (423 Locked) | [x] **PASS** (AuthServiceTest) |
+| **TC-04** | Quên mật khẩu | Backend | Sinh token khôi phục SHA-256 hạn 15 phút, thu hồi session cũ | [x] **PASS** (AuthServiceTest) |
+| **TC-05** | Xác thực 2FA | Backend | Xác thực TOTP 6 số, độ lệch thời gian $\pm 30s$, dùng 1 backup code | [x] **PASS** (TwoFactorServiceTest) |
+| **TC-06** | Đăng ký 2FA trong Drawer | Browser QA | Mở Stacked Drawer, quét QR, nhập OTP 6 số kích hoạt, nhận 8 backup codes | [x] **PASS** (Frontend Angular) |
+| **TC-07** | Tắt 2FA bảo mật kép | Browser QA & Backend | Nhập đúng mật khẩu + OTP để tắt; nhập sai thì báo lỗi và từ chối | [x] **PASS** (TwoFactorServiceTest & Frontend) |
+| **TC-08** | Giám sát & Hủy Session | Browser QA & Backend | Hiển thị đúng IP/Browser, bấm đăng xuất thì phiên làm việc bị xóa | [x] **PASS** (AccountServiceTest & Frontend) |
+| **TC-09** | Giao diện Anti-Modal | Browser QA | Kiểm tra toàn bộ thao tác trong Drawer và Stacked Drawer, không có Modal pop-up | [x] **PASS** (Angular Drawers) |
+| **TC-10** | Khóa xác thực 2FA | Backend | Nhập sai mã 2FA 3 lần liên tiếp → hủy token, trả `AUTH_2FA_ATTEMPTS_EXCEEDED` | [x] **PASS** (TwoFactorServiceTest) |
+| **TC-11** | Refresh & Logout Token | Backend | Refresh token hợp lệ cấp Access Token mới; Logout blacklist token | [x] **PASS** (AuthServiceTest) |
+| **TC-12** | Personal Workspace | Backend | Xác thực email cá nhân thành công → tự động tạo `tenants.type = 'PERSONAL'` + liên kết `TENANT_ADMIN` | [x] **PASS** (AuthServiceTest) |

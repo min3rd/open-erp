@@ -1,0 +1,18 @@
+<div class="flex items-center gap-2 justify-center">
+  @for (digit of digits(); track $index) {
+    <input
+      #pinBox
+      type="text"
+      inputmode="numeric"
+      pattern="[0-9]*"
+      maxlength="1"
+      [disabled]="disabled()"
+      [value]="digit"
+      (input)="handleInput($event, $index)"
+      (keydown)="handleKeyDown($event, $index)"
+      (paste)="handlePaste($event)"
+      class="w-9 h-10 text-center font-mono text-base font-semibold border rounded-none bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 border-neutral-300 dark:border-neutral-700 focus:border-neutral-900 dark:focus:border-neutral-200 focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-200 focus:outline-none transition-colors"
+      [class.border-red-500]="hasError()"
+    />
+  }
+</div>

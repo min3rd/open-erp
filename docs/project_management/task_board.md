@@ -44,18 +44,18 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 
 ### 💻 5. Đang Lập Trình (07_items & src/)
 > Developer Agent lập trình theo đúng bản thiết kế đã duyệt (Backend Quarkus Java + Angular 22 / Ionic 8)
-- [ ] **FEAT-01**: Đăng ký tài khoản cá nhân ([Chi tiết](../sprints/sprint_01_core_iam/07_items/FEAT-01_personal_registration.md)).
-- [ ] **FEAT-02**: Đăng ký tài khoản quản trị doanh nghiệp (Tạo Tenant) ([Chi tiết](../sprints/sprint_01_core_iam/07_items/FEAT-02_business_registration.md)).
-- [ ] **FEAT-03**: Đăng nhập & Xác định ngữ cảnh Tenant ([Chi tiết](../sprints/sprint_01_core_iam/07_items/FEAT-03_authentication_login.md)).
-- [ ] **FEAT-04**: Quên mật khẩu & Khôi phục tài khoản ([Chi tiết](../sprints/sprint_01_core_iam/07_items/FEAT-04_forgot_password.md)).
-- [ ] **FEAT-05**: Xác thực 2 yếu tố (2FA - TOTP RFC 6238) ([Chi tiết](../sprints/sprint_01_core_iam/07_items/FEAT-05_two_factor_auth.md)).
-- [ ] **FEAT-06**: Quản lý tài khoản (Profile, 2FA Management, Sessions qua Drawer Anti-Modal) ([Chi tiết](../sprints/sprint_01_core_iam/07_items/FEAT-06_account_management.md)).
+- [x] **FEAT-01**: Đăng ký tài khoản cá nhân ([Chi tiết](../sprints/sprint_01_core_iam/07_items/FEAT-01_personal_registration.md)).
+- [x] **FEAT-02**: Đăng ký tài khoản quản trị doanh nghiệp (Tạo Tenant) ([Chi tiết](../sprints/sprint_01_core_iam/07_items/FEAT-02_business_registration.md)).
+- [x] **FEAT-03**: Đăng nhập & Xác định ngữ cảnh Tenant ([Chi tiết](../sprints/sprint_01_core_iam/07_items/FEAT-03_authentication_login.md)).
+- [x] **FEAT-04**: Quên mật khẩu & Khôi phục tài khoản ([Chi tiết](../sprints/sprint_01_core_iam/07_items/FEAT-04_forgot_password.md)).
+- [x] **FEAT-05**: Xác thực 2 yếu tố (2FA - TOTP RFC 6238) ([Chi tiết](../sprints/sprint_01_core_iam/07_items/FEAT-05_two_factor_auth.md)).
+- [x] **FEAT-06**: Quản lý tài khoản (Profile, 2FA Management, Sessions qua Drawer Anti-Modal) ([Chi tiết](../sprints/sprint_01_core_iam/07_items/FEAT-06_account_management.md)).
 
 ---
 
 ### 🧪 6. Đang Kiểm Thử (Testing & QA)
 > QA/QC Agent thực hiện kiểm thử tự động Backend và kiểm thử thủ công Browser cho Frontend
-- [ ] Kế hoạch kiểm thử Sprint 01 ([test_plan.md](../sprints/sprint_01_core_iam/08_testing/test_plan.md)).
+- [x] Kế hoạch kiểm thử Sprint 01 ([test_plan.md](../sprints/sprint_01_core_iam/08_testing/test_plan.md)).
 
 ---
 

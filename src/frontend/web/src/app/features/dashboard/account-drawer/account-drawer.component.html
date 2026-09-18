@@ -1,0 +1,303 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="'ACCOUNT_DRAWER_TITLE' | translate"
+  [subtitle]="'ACCOUNT_DRAWER_SUBTITLE' | translate"
+  width="max-w-xl"
+  [zIndex]="50"
+  (close)="onClose()"
+>
+  <!-- Navigation Tabs -->
+  <div class="flex border-b border-neutral-200 dark:border-neutral-800 -mx-4 px-4 bg-neutral-50 dark:bg-neutral-950">
+    <button
+      type="button"
+      (click)="activeTab.set(accountTabProfile)"
+      [class.border-neutral-900]="activeTab() === accountTabProfile"
+      [class.dark:border-neutral-100]="activeTab() === accountTabProfile"
+      [class.text-neutral-900]="activeTab() === accountTabProfile"
+      [class.dark:text-neutral-100]="activeTab() === accountTabProfile"
+      [class.font-bold]="activeTab() === accountTabProfile"
+      class="px-3 py-2 text-xs border-b-2 border-transparent text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors uppercase tracking-wider"
+    >
+      {{ 'ACCOUNT_TAB_PROFILE' | translate }}
+    </button>
+
+    <button
+      type="button"
+      (click)="activeTab.set(accountTabSecurity)"
+      [class.border-neutral-900]="activeTab() === accountTabSecurity"
+      [class.dark:border-neutral-100]="activeTab() === accountTabSecurity"
+      [class.text-neutral-900]="activeTab() === accountTabSecurity"
+      [class.dark:text-neutral-100]="activeTab() === accountTabSecurity"
+      [class.font-bold]="activeTab() === accountTabSecurity"
+      class="px-3 py-2 text-xs border-b-2 border-transparent text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors uppercase tracking-wider"
+    >
+      {{ 'ACCOUNT_TAB_SECURITY' | translate }}
+    </button>
+
+    <button
+      type="button"
+      (click)="activeTab.set(accountTabSessions)"
+      [class.border-neutral-900]="activeTab() === accountTabSessions"
+      [class.dark:border-neutral-100]="activeTab() === accountTabSessions"
+      [class.text-neutral-900]="activeTab() === accountTabSessions"
+      [class.dark:text-neutral-100]="activeTab() === accountTabSessions"
+      [class.font-bold]="activeTab() === accountTabSessions"
+      class="px-3 py-2 text-xs border-b-2 border-transparent text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors uppercase tracking-wider"
+    >
+      {{ 'ACCOUNT_TAB_SESSIONS' | translate }}
+    </button>
+  </div>
+
+  <!-- Tab Content: HỒ SƠ -->
+  @if (activeTab() === accountTabProfile) {
+    <div class="space-y-4 pt-2">
+      @if (profileError()) {
+        <div class="p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+          {{ profileError() }}
+        </div>
+      }
+
+      <div class="space-y-3">
+        <app-sharp-input
+          [label]="'AUTH_EMAIL_LABEL' | translate"
+          [value]="profile()?.email || ''"
+          [disabled]="true"
+        />
+
+        <app-sharp-input
+          [label]="'AUTH_FULL_NAME_LABEL' | translate"
+          [(value)]="profileFullName"
+          [required]="true"
+        />
+
+        <app-sharp-input
+          [label]="'ACCOUNT_PHONE_LABEL' | translate"
+          type="tel"
+          [placeholder]="'ACCOUNT_PHONE_PLACEHOLDER' | translate"
+          [(value)]="profilePhone"
+        />
+
+        <app-sharp-input
+          label="Avatar URL"
+          [(value)]="profileAvatarUrl"
+        />
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label class="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300" [appTranslate]="'ACCOUNT_LANGUAGE_LABEL'">
+            </label>
+            <select
+              [(ngModel)]="profileLanguage"
+              class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-none text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-900"
+            >
+              <option value="vi">Tiếng Việt (vi)</option>
+              <option value="en">English (en)</option>
+            </select>
+          </div>
+
+          <div class="space-y-1">
+            <label class="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300" [appTranslate]="'ACCOUNT_TIMEZONE_LABEL'">
+            </label>
+            <select
+              [(ngModel)]="profileTimezone"
+              class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-none text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-900"
+            >
+              <option value="Asia/Ho_Chi_Minh">Asia/Ho_Chi_Minh (UTC+7)</option>
+              <option value="UTC">UTC (GMT+0)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <app-sharp-button
+            [loading]="loadingProfileUpdate()"
+            (clicked)="handleUpdateProfile()"
+          >
+            {{ 'ACCOUNT_SAVE_CHANGES' | translate }}
+          </app-sharp-button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Tab Content: BẢO MẬT & 2FA -->
+  @if (activeTab() === accountTabSecurity) {
+    <div class="space-y-5 pt-2">
+      <!-- 1. Đổi mật khẩu -->
+      <div class="border border-neutral-200 dark:border-neutral-800 p-3 bg-neutral-50 dark:bg-neutral-950">
+        <h4 class="text-xs font-bold uppercase text-neutral-800 dark:text-neutral-200 mb-2" [appTranslate]="'ACCOUNT_CHANGE_PASSWORD_TITLE'">
+        </h4>
+
+        @if (passwordError()) {
+          <div class="mb-3 p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+            {{ passwordError() }}
+          </div>
+        }
+
+        <form (ngSubmit)="handleChangePassword()" class="space-y-2.5">
+          <app-sharp-input
+            [label]="'ACCOUNT_CURRENT_PASSWORD_LABEL' | translate"
+            type="password"
+            [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+            [(value)]="currentPassword"
+            [required]="true"
+          />
+
+          <app-sharp-input
+            [label]="'ACCOUNT_NEW_PASSWORD_LABEL' | translate"
+            type="password"
+            [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+            [hint]="'AUTH_PASSWORD_HINT' | translate"
+            [(value)]="newPassword"
+            [required]="true"
+          />
+
+          <app-sharp-input
+            [label]="'ACCOUNT_NEW_PASSWORD_CONFIRM_LABEL' | translate"
+            type="password"
+            [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+            [(value)]="confirmNewPassword"
+            [required]="true"
+          />
+
+          <div class="flex items-center pt-1">
+            <input
+              id="logoutOthers"
+              type="checkbox"
+              [(ngModel)]="logoutOtherDevices"
+              name="logoutOtherDevices"
+              class="h-3.5 w-3.5 rounded-none border-neutral-300 text-neutral-900 focus:ring-0"
+            />
+            <label for="logoutOthers" class="ml-2 text-xs text-neutral-600 dark:text-neutral-400" [appTranslate]="'ACCOUNT_REVOKE_OTHERS_BUTTON'">
+            </label>
+          </div>
+
+          <div class="pt-1">
+            <app-sharp-button
+              [type]="buttonTypeSubmit"
+              [loading]="loadingPasswordChange()"
+            >
+              {{ 'ACCOUNT_CHANGE_PASSWORD_BUTTON' | translate }}
+            </app-sharp-button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 2. Quản lý 2FA -->
+      <div class="border border-neutral-200 dark:border-neutral-800 p-3 bg-neutral-50 dark:bg-neutral-950">
+        <div class="flex justify-between items-center mb-2">
+          <h4 class="text-xs font-bold uppercase text-neutral-800 dark:text-neutral-200" [appTranslate]="'ACCOUNT_2FA_SECTION_TITLE'">
+          </h4>
+          @if (twoFactorStatus()?.is_enabled) {
+            <app-badge [variant]="badgeVariantSuccess">{{ 'COMMON_ACTIVE' | translate }}</app-badge>
+          } @else {
+            <app-badge [variant]="badgeVariantWarning">{{ 'COMMON_INACTIVE' | translate }}</app-badge>
+          }
+        </div>
+
+        <p class="text-[11px] text-neutral-500 mb-3">
+          {{ (twoFactorStatus()?.is_enabled ? 'ACCOUNT_2FA_DESC_ENABLED' : 'ACCOUNT_2FA_DESC_DISABLED') | translate }}
+        </p>
+
+        @if (twoFactorStatus()?.is_enabled) {
+          <div class="space-y-2">
+            <div class="text-[11px] text-neutral-600 dark:text-neutral-400 font-mono">
+              • {{ 'ACCOUNT_BACKUP_CODES_REMAINING' | translate:{ count: twoFactorStatus()?.backup_codes_remaining } }}
+            </div>
+
+            <div class="flex gap-2 pt-1">
+              <app-sharp-button
+                [variant]="buttonVariantDanger"
+                [size]="buttonSizeSm"
+                (clicked)="openDisable2FaDrawer.set(true)"
+              >
+                {{ 'ACCOUNT_DISABLE_2FA_BUTTON' | translate }}
+              </app-sharp-button>
+
+              <app-sharp-button
+                [variant]="buttonVariantSecondary"
+                [size]="buttonSizeSm"
+                (clicked)="handleRegenerateBackupCodes()"
+              >
+                {{ 'ACCOUNT_REGENERATE_BACKUP_CODES' | translate }}
+              </app-sharp-button>
+            </div>
+          </div>
+        } @else {
+          <app-sharp-button
+            [size]="buttonSizeSm"
+            (clicked)="openSetup2FaDrawer.set(true)"
+          >
+            {{ 'ACCOUNT_ENABLE_2FA_BUTTON' | translate }}
+          </app-sharp-button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Tab Content: PHIÊN ĐĂNG NHẬP -->
+  @if (activeTab() === accountTabSessions) {
+    <div class="space-y-3 pt-2">
+      <div class="flex justify-between items-center pb-2 border-b border-neutral-200 dark:border-neutral-800">
+        <p class="text-xs text-neutral-500" [appTranslate]="'ACCOUNT_ACTIVE_SESSIONS_TITLE'">
+        </p>
+        <app-sharp-button
+          [variant]="buttonVariantSecondary"
+          [size]="buttonSizeSm"
+          (clicked)="handleRevokeOtherSessions()"
+        >
+          {{ 'ACCOUNT_REVOKE_OTHERS_BUTTON' | translate }}
+        </app-sharp-button>
+      </div>
+
+      <div class="space-y-2">
+        @for (session of sessions(); track session.session_id) {
+          <div class="p-3 border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-neutral-900 dark:text-neutral-100">
+                  {{ session.device }}
+                </span>
+                @if (session.is_current) {
+                  <app-badge [variant]="badgeVariantInfo">{{ 'ACCOUNT_CURRENT_SESSION_BADGE' | translate }}</app-badge>
+                }
+              </div>
+              <div class="text-[10px] font-mono text-neutral-500 mt-1">
+                IP: {{ session.ip_address }} • {{ session.last_active_at }}
+              </div>
+            </div>
+
+            @if (!session.is_current) {
+              <app-sharp-button
+                [variant]="buttonVariantDanger"
+                [size]="buttonSizeSm"
+                (clicked)="handleRevokeSession(session.session_id)"
+              >
+                {{ 'ACCOUNT_REVOKE_BUTTON' | translate }}
+              </app-sharp-button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <div drawer-footer>
+    <app-sharp-button [variant]="buttonVariantSecondary" (clicked)="onClose()">
+      {{ 'COMMON_CLOSE' | translate }}
+    </app-sharp-button>
+  </div>
+</app-drawer>
+
+<!-- Stacked Drawers (z-index 60) -->
+<app-setup-2fa-drawer
+  [isOpen]="openSetup2FaDrawer()"
+  (close)="openSetup2FaDrawer.set(false)"
+  (enabledSuccess)="refresh2FaStatus()"
+/>
+
+<app-disable-2fa-drawer
+  [isOpen]="openDisable2FaDrawer()"
+  (close)="openDisable2FaDrawer.set(false)"
+  (disabledSuccess)="refresh2FaStatus()"
+/>

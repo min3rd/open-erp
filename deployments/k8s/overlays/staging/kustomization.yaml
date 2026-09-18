@@ -15,4 +15,4 @@ patches:
     patch: |-
       - op: replace
         path: /spec/rules/0/host
-        value: staging.openerp.vn
+        value: staging.openerp.9ms.io.vn
