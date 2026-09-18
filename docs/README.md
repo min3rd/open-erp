@@ -7,7 +7,8 @@ Thư mục này là trung tâm giao tiếp và bàn giao công việc giữa cá
 ```
 docs/
 ├── sprints/                         # Quản lý trọn gói toàn bộ tài liệu theo từng Sprint
-│   ├── sprint_01_core_iam/          # Gói Sprint 01 - Core Identity & Access Management
+│   ├── sprint_01_core_iam/          # Gói Sprint 01 - Core Identity & Access Management (ĐÃ ĐÓNG)
+│   ├── sprint_02_superadmin_rbac/   # Gói Sprint 02 - Super Admin, RBAC & Multi-Scope Data Access
 │   │   ├── 00_READING_GUIDE.md      # BẢN ĐỒ ĐỌC BẮT ĐẦU: Lộ trình đọc tuần tự & Checklist Confirm
 │   │   ├── 01_raw_notes/            # Bước 1: Tiếp nhận yêu cầu thô (BA Agent)
 │   │   ├── 02_analysis/             # Bước 2: Phân tích nghiệp vụ & User Stories (BA Agent)
@@ -15,10 +16,7 @@ docs/
 │   │   ├── 04_confirmation/         # Bước 4: BIÊN BẢN XÁC NHẬN VỚI KHÁCH HÀNG (CONFIRMATION GATE)
 │   │   ├── 05_solutions/            # Bước 5: Nghiên cứu giải pháp kỹ thuật (Solution Architect)
 │   │   ├── 06_designs/              # Bước 6: Thiết kế chi tiết DB, API, UI/UX (Solution Architect)
-│   │   │   ├── database/            # ERD, cấu trúc bảng dữ liệu, khóa, chỉ mục
-│   │   │   ├── api/                 # Đặc tả REST API (i18n code-based contract)
-│   │   │   └── ui_ux/               # Thiết kế UI Industrial Sharp & Anti-Modal Drawer
-│   │   ├── 07_items/                # Bước 7: Phân rã nhiệm vụ dạng file (FEAT-, TASK-, BUG-)
+│   │   ├── 07_items/                # Bước 7: Phân rã nhiệm vụ dạng file (FEAT-10 -> FEAT-16)
 │   │   ├── 08_testing/              # Bước 8: Kế hoạch & Báo cáo kiểm thử (QA/QC Agent)
 │   │   └── 09_review/               # Bước 9: Biên bản nghiệm thu đóng Sprint (PM Agent)
 │   └── sprint_XX_.../               # Các Sprint tiếp theo độc lập tương tự

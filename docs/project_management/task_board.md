@@ -4,42 +4,60 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 
 ---
 
-## Sprint Hiện Tại: Sprint 01 - Core Identity, Access & Account Management
-- **Bản đồ đọc tuần tự**: [00_READING_GUIDE.md](../sprints/sprint_01_core_iam/00_READING_GUIDE.md)
-- Kế hoạch Sprint: [sprint_plan.md](../sprints/sprint_01_core_iam/sprint_plan.md)
-- Thời gian: 2026-09-18 đến 2026-10-02
-- **Trạng thái**: [x] ĐÃ ĐÓNG ngày 2026-09-18 (Khách hàng nghiệm thu)
+## Sprint Hiện Tại: Sprint 02 - Super Admin & Phân Quyền Toàn Diện (RBAC & Multi-Scope Data Access)
+- **Bản đồ đọc tuần tự**: [00_READING_GUIDE.md](../sprints/sprint_02_superadmin_rbac/00_READING_GUIDE.md)
+- Kế hoạch Sprint: [sprint_plan.md](../sprints/sprint_02_superadmin_rbac/sprint_plan.md)
+- Thời gian: 2026-10-05 đến 2026-10-19
+- **Trạng thái**: [x] ĐÃ HOÀN THÀNH TÀI LIỆU THIẾT KẾ (Bước 1 - Bước 6) & CHỜ KHÁCH HÀNG PHÊ DUYỆT (CONFIRMATION GATE)
 
 ---
 
-## Trạng Thái Các Nhiệm Vụ Hiện Tại
+## Các Sprint Đã Hoàn Thành
+- **Sprint 01 - Core Identity, Access & Account Management**: [00_READING_GUIDE.md](../sprints/sprint_01_core_iam/00_READING_GUIDE.md) — [x] ĐÃ ĐÓNG (2026-09-18).
+
+---
+
+## Trạng Thái Các Nhiệm Vụ Sprint 02
 
 ### 📥 1. Yêu Cầu Mới / Đang Tiếp Nhận (01_raw_notes)
 > Nhận yêu cầu truyền miệng từ khách hàng (BA Agent)
-- [x] **RAW-01**: Nhận yêu cầu 6 tính năng Core IAM từ khách hàng ([Chi tiết](../sprints/sprint_01_core_iam/01_raw_notes/RAW-01_sprint_01_core_identity.md)).
-- [x] **RAW-02**: Nhận yêu cầu bổ sung Đăng ký & Xóa 2FA trong Quản lý tài khoản ([Chi tiết](../sprints/sprint_01_core_iam/01_raw_notes/RAW-02_account_2fa_management.md)).
+- [x] **RAW-01**: Yêu cầu cơ chế Super Admin quản lý toàn bộ hệ thống ([Chi tiết](../sprints/sprint_02_superadmin_rbac/01_raw_notes/RAW-01_superadmin_platform_management.md)).
+- [x] **RAW-02**: Yêu cầu phân quyền chức năng, cơ cấu tổ chức và phân quyền dữ liệu đa phạm vi ([Chi tiết](../sprints/sprint_02_superadmin_rbac/01_raw_notes/RAW-02_functional_rbac_and_data_scopes.md)).
 
 ---
 
 ### 🔍 2. Đang Phân Tích & Khảo Sát (02_analysis & 03_benchmarks)
 > BA Agent lập phân tích nghiệp vụ & khảo sát các hệ thống ERP tương tự
-- [x] **ANL-01**: Phân tích nghiệp vụ chi tiết 6 tính năng Core IAM ([Chi tiết](../sprints/sprint_01_core_iam/02_analysis/ANL-01_core_identity_access.md)).
-- [x] **BENCH-01**: Khảo sát kiến trúc Multi-Tenant IAM tương tự (Odoo, Keycloak, Auth0, Supabase) ([Chi tiết](../sprints/sprint_01_core_iam/03_benchmarks/BENCH-01_auth_identity_saas.md)).
+- [x] **ANL-01**: Phân tích nghiệp vụ Super Admin, Tenant Quotas, Impersonation có kiểm toán ([Chi tiết](../sprints/sprint_02_superadmin_rbac/02_analysis/ANL-01_superadmin_platform_management.md)).
+- [x] **ANL-02**: Phân tích nghiệp vụ Phân quyền chức năng, 7 phạm vi dữ liệu và 6 thao tác dữ liệu ([Chi tiết](../sprints/sprint_02_superadmin_rbac/02_analysis/ANL-02_functional_rbac_and_data_scope_permissions.md)).
+- [x] **BENCH-01**: Khảo sát đối chuẩn Odoo Record Rules, Salesforce Sharing Model, SAP Authorization Objects ([Chi tiết](../sprints/sprint_02_superadmin_rbac/03_benchmarks/BENCH-01_superadmin_and_multi_scope_rbac.md)).
 
 ---
 
 ### 🤝 3. Chờ Khách Hàng Xác Nhận (04_confirmation)
 > Đang chờ khách hàng xem xét và phê duyệt phạm vi / tiêu chí nghiệm thu
-- [x] **CONF-01**: Biên bản xác nhận phạm vi & tiêu chí nghiệm thu Sprint 01 ([Chi tiết](../sprints/sprint_01_core_iam/04_confirmation/CONF-01_sprint_01_scope.md)) — *Đã được khách hàng phê duyệt*.
+- [x] **CONF-01**: Biên bản xác nhận phạm vi & tiêu chí nghiệm thu Sprint 02 ([Chi tiết](../sprints/sprint_02_superadmin_rbac/04_confirmation/CONF-01_sprint_02_scope.md)) — *Đang mở chờ khách hàng ký duyệt (Confirmation Gate)*.
 
 ---
 
 ### 📐 4. Nghiên Cứu & Thiết Kế Giải Pháp (05_solutions & 06_designs)
 > Solution Architect thiết kế DB, API, Architecture, UI
-- [x] **SOL-01**: Nghiên cứu giải pháp kiến trúc Core IAM & Multi-Tenant ([Chi tiết](../sprints/sprint_01_core_iam/05_solutions/SOL-01_core_identity_architecture.md)).
-- [x] **DES-01**: Thiết kế CSDL PostgreSQL Multi-Tenant cho Core IAM ([Chi tiết](../sprints/sprint_01_core_iam/06_designs/database/CORE_IAM_DATABASE_SCHEMA.md)).
-- [x] **DES-02**: Đặc tả REST API cho Core IAM ([Chi tiết](../sprints/sprint_01_core_iam/06_designs/api/CORE_IAM_API_SPEC.md)).
-- [x] **DES-03**: Thiết kế UI/UX Anti-Modal: Drawer trượt & Split-Screen ([Chi tiết](../sprints/sprint_01_core_iam/06_designs/ui_ux/CORE_IAM_UI_SPEC.md)).
+- [x] **SOL-01**: Nghiên cứu kiến trúc Super Admin, an toàn Impersonation và Audit Trail bất biến ([Chi tiết](../sprints/sprint_02_superadmin_rbac/05_solutions/SOL-01_superadmin_architecture_and_security.md)).
+- [x] **SOL-02**: Nghiên cứu giải pháp Enforcement Engine tự động lọc dữ liệu trong Quarkus Java ([Chi tiết](../sprints/sprint_02_superadmin_rbac/05_solutions/SOL-02_rbac_and_data_scope_enforcement_engine.md)).
+- [x] **DES-02-DB**: Thiết kế CSDL PostgreSQL 10 bảng mới cho Super Admin, Cơ cấu tổ chức & Phân quyền ([Chi tiết](../sprints/sprint_02_superadmin_rbac/06_designs/database/SUPERADMIN_RBAC_DATABASE_SCHEMA.md)).
+- [x] **DES-02-API**: Đặc tả REST API chuẩn hóa 100% Code-based i18n contract ([Chi tiết](../sprints/sprint_02_superadmin_rbac/06_designs/api/SUPERADMIN_RBAC_API_SPEC.md)).
+- [x] **DES-02-UI**: Thiết kế UI/UX Industrial Sharp, Ma trận phân quyền Split-Screen & Anti-Modal Drawer ([Chi tiết](../sprints/sprint_02_superadmin_rbac/06_designs/ui_ux/SUPERADMIN_RBAC_UI_SPEC.md)).
+
+---
+
+### 💻 5. Phân Rã Nhiệm Vụ Triển Khai (07_items)
+- [ ] **FEAT-10**: Quản trị Tenant & Hạn mức nền tảng ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-10_superadmin_tenant_management.md)).
+- [ ] **FEAT-11**: Quản lý User toàn cầu & Đăng nhập đại diện Impersonation ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-11_superadmin_global_user_and_impersonation.md)).
+- [ ] **FEAT-12**: Giám sát hạ tầng & Nhật ký nền tảng ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-12_superadmin_system_health_and_audit.md)).
+- [ ] **FEAT-13**: Cơ cấu tổ chức doanh nghiệp ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-13_organization_hierarchy_structure.md)).
+- [ ] **FEAT-14**: Ma trận Phân quyền chức năng ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-14_functional_rbac_matrix.md)).
+- [ ] **FEAT-15**: Phân quyền dữ liệu đa phạm vi & 6 thao tác ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-15_multi_scope_data_access_control.md)).
+- [ ] **FEAT-16**: Engine thực thi phân quyền dữ liệu tự động Backend ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-16_data_permission_enforcement_engine.md)).
 
 ---
 
