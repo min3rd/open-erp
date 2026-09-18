@@ -6,6 +6,9 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
 
 ## [Unreleased]
 
+### Known Issues
+- Code Review Sprint 01 (REV-02): phát hiện **9 Critical + 14 High + 8 Medium** lỗi (đã lập 31 file `BUG-01` → `BUG-31` trong `docs/sprints/sprint_01_core_iam/07_items/`). Sprint 01 **chưa đủ điều kiện đóng** cho đến khi xử lý xong 100% item Critical/High. Báo cáo: `docs/sprints/sprint_01_core_iam/09_review/CODE_REVIEW_SPRINT_01.md`.
+
 ### Fixed
 - Sửa toàn bộ liên kết hỏng và chuẩn hóa đường dẫn theo cấu trúc Sprint-Pack (00-09) trong `docs/`, templates, changelog, work log và file quy tắc `.agents/`.
 - Đồng bộ thiết kế 2FA (nơi lưu Backup Codes, endpoint, thời điểm trả mã dự phòng, khóa sau 3 lần nhập sai) giữa ANL-01, DES-01, DES-02 và FEAT-05.

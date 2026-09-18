@@ -56,6 +56,10 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 ### 🧪 6. Đang Kiểm Thử (Testing & QA)
 > QA/QC Agent thực hiện kiểm thử tự động Backend và kiểm thử thủ công Browser cho Frontend
 - [x] Kế hoạch kiểm thử Sprint 01 ([test_plan.md](../sprints/sprint_01_core_iam/08_testing/test_plan.md)).
+- [x] **Code Review Sprint 01 (REV-02)**: [Báo cáo review mã nguồn](../sprints/sprint_01_core_iam/09_review/CODE_REVIEW_SPRINT_01.md) — kết quả `mvn test` PASS 10/10 (PostgreSQL thật), `ng build` PASS; phát hiện **9 Critical + 14 High + 8 Medium**.
+- [ ] **BUG-01 → BUG-09 (Critical)**: Mobile Ionic 8, sai endpoint/payload frontend, Setup 2FA Drawer, Argon2id, mã hóa TOTP Secret ([danh sách](../sprints/sprint_01_core_iam/07_items/)).
+- [ ] **BUG-10 → BUG-23 (High)**: Redis session/brute-force, thiếu API auth, bảo mật token/OTP, Backup Codes, guard/interceptor/i18n/Anti-Modal frontend, test coverage ([danh sách](../sprints/sprint_01_core_iam/07_items/)).
+- [ ] **BUG-24 → BUG-31 (Medium)**: đồng bộ enum/schema/ResponseKey, Entity Registry, cấu hình JWT, envelope frontend ([danh sách](../sprints/sprint_01_core_iam/07_items/)).
 
 ---
 

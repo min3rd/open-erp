@@ -121,3 +121,9 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
   - Bổ sung endpoint còn thiếu vào đặc tả API: `POST /api/v1/auth/refresh`, `POST /api/v1/auth/logout`, `POST /api/v1/auth/resend-verification` kèm mã i18n tương ứng.
   - Bổ sung test case TC-10, TC-11, TC-12 vào `08_testing/test_plan.md`.
   - Rà soát lại toàn bộ tài liệu Sprint 01 lần cuối: **ĐẠT YÊU CẦU**. Khách hàng phê duyệt xác nhận bổ sung tại `04_confirmation/CONF-01_sprint_01_scope.md` (Mục 3) và cập nhật checklist tại `00_READING_GUIDE.md`, chính thức chuyển Sprint 01 sang **Bước 7 - Lập trình**.
+
+- **Code Review Sprint 01 (REV-02)**:
+  - Chạy xác thực: `mvn test` backend **PASS 10/10** trên PostgreSQL thật (không dùng H2); `ng build` frontend **PASS**.
+  - Phát hiện **9 lỗi `Critical`, 14 lỗi `High`, 8 lỗi `Medium`**; đã lập 31 file item `BUG-01` → `BUG-31` trong `docs/sprints/sprint_01_core_iam/07_items/` (mỗi lỗi một file theo quy trình quản lý dạng file).
+  - Ban hành báo cáo tổng hợp [CODE_REVIEW_SPRINT_01.md](sprints/sprint_01_core_iam/09_review/CODE_REVIEW_SPRINT_01.md) (REV-02) kèm danh sách lỗi `Low` chưa lập file và đánh giá DoD Gate.
+  - **Kết luận**: Sprint 01 **CHƯA ĐỦ ĐIỀU KIỆN ĐÓNG** (DoD Gate FAIL do toàn bộ item Critical/High đang `To Do`); chuyển danh sách BUG cho Developer Agent xử lý.

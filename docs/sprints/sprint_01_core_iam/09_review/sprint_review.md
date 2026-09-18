@@ -10,6 +10,7 @@
 ## 1. Mục Tiêu Sprint & Kết Quả Đạt Được
 - **Mục tiêu**: Xây dựng hệ thống Core IAM hoàn chỉnh theo chuẩn SaaS Multi-Tenant, hỗ trợ đầy đủ 6 tính năng cốt lõi.
 - **Tiến độ cam kết**: 6/6 Features trong `07_items/`.
+- **Báo cáo Code Review**: [CODE_REVIEW_SPRINT_01.md](CODE_REVIEW_SPRINT_01.md) (REV-02) — phát hiện 9 `Critical` + 14 `High` + 8 `Medium`, đã lập 31 file `BUG` trong `07_items/`. Toàn bộ item > Medium phải `Done` trước khi đóng Sprint.
 
 ---
 

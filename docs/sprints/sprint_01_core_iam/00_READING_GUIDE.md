@@ -49,7 +49,7 @@ flowchart LR
 
 | Thứ Tự Đọc | Thư Mục / File | Mục Đích Nội Dung | Người Phụ Trách | Trạng Thái |
 | :---: | :--- | :--- | :---: | :---: |
-| **8** | [08_testing/](08_testing/)<br>• [test_plan.md](08_testing/test_plan.md) | Kế hoạch kiểm thử: Unit Test Backend Quarkus Java và Kiểm thử thủ công trên Trình duyệt (Browser Manual Testing) cho Angular & Ionic. | QA/QC Agent | [ ] Đang lập test case |
+| **8** | [08_testing/](08_testing/)<br>• [test_plan.md](08_testing/test_plan.md)<br>• [CODE_REVIEW_SPRINT_01.md](09_review/CODE_REVIEW_SPRINT_01.md) | Kế hoạch kiểm thử: Unit Test Backend Quarkus Java và Kiểm thử thủ công trên Trình duyệt (Browser Manual Testing) cho Angular & Ionic.<br>**Code Review (REV-02)**: phát hiện 9 Critical + 14 High + 8 Medium → đã lập 31 file BUG trong `07_items/`. | QA/QC Agent | [ ] Đang xử lý 31 bug |
 | **9** | [09_review/](09_review/)<br>• [sprint_review.md](09_review/sprint_review.md) | **Đóng Sprint**: Kiểm tra điều kiện đóng Sprint (100% item Critical và High đạt Done), đánh giá kết quả và lập biên bản bàn giao. | PM Agent | [ ] Chờ nghiệm thu |
 
 ---
