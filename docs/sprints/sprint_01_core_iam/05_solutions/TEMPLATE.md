@@ -1,7 +1,7 @@
 # [MÃ_TÍNH_NĂNG] Nghiên Cứu Giải Pháp Kỹ Thuật & Đánh Giá Khả Thi
 
 - **Tính năng**: [Tên tính năng]
-- **Tài liệu căn cứ**: [Biên bản xác nhận yêu cầu](../01_requirements/confirmations/)
+- **Tài liệu căn cứ**: [Biên bản xác nhận yêu cầu](../04_confirmation/)
 - **Phụ trách**: Solution Architect Agent
 - **Ngày lập**: YYYY-MM-DD
 

@@ -11,8 +11,8 @@
 
 ## 1. Tóm Tắt Nhu Cầu
 - **User Story**: Là `<vai trò>`, tôi muốn `<hành động>` để `<lợi ích>`.
-- **Tài liệu phân tích**: [Đường dẫn đến docs/01_requirements/analysis/...]
-- **Tài liệu xác nhận khách hàng**: [Đường dẫn đến docs/01_requirements/confirmations/...]
+- **Tài liệu phân tích**: [Đường dẫn đến docs/sprints/sprint_XX_<tên>/02_analysis/...]
+- **Tài liệu xác nhận khách hàng**: [Đường dẫn đến docs/sprints/sprint_XX_<tên>/04_confirmation/...]
 
 ## 2. Tiêu Chí Nghiệm Thu (Acceptance Criteria)
 - [ ] Kịch bản 1: Given ... When ... Then ...

@@ -55,7 +55,7 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 
 ### 🧪 6. Đang Kiểm Thử (Testing & QA)
 > QA/QC Agent thực hiện kiểm thử tự động Backend và kiểm thử thủ công Browser cho Frontend
-- [ ] Kế hoạch kiểm thử Sprint 01 (`docs/04_testing/test_plans/`).
+- [ ] Kế hoạch kiểm thử Sprint 01 ([test_plan.md](../sprints/sprint_01_core_iam/08_testing/test_plan.md)).
 
 ---
 

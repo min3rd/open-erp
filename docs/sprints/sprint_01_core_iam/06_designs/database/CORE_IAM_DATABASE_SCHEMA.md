@@ -30,7 +30,7 @@
 | password_hash      |          | secret_key_enc     |               | full_name (VARCHAR)|
 | failed_login_count |          | is_enabled (BOOL)  |               | phone (VARCHAR)    |
 | locked_until       |          | backup_codes_hash  |               | avatar_url (TEXT)  |
-| updated_at         |          | enabled_at         |               | timezone (VARCHAR) |
+| password_updated_at|          | enabled_at         |               | timezone (VARCHAR) |
 +--------------------+          +--------------------+               +--------------------+
 ```
 
@@ -43,8 +43,9 @@
 CREATE TABLE tenants (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     slug VARCHAR(64) UNIQUE NOT NULL,       -- Subdomain định danh: acme-corp
-    name VARCHAR(255) NOT NULL,              -- Tên doanh nghiệp
-    tax_code VARCHAR(32),                    -- Mã số thuế
+    name VARCHAR(255) NOT NULL,              -- Tên doanh nghiệp / Không gian cá nhân
+    type VARCHAR(16) NOT NULL DEFAULT 'BUSINESS', -- BUSINESS, PERSONAL
+    tax_code VARCHAR(32),                    -- Mã số thuế (chỉ áp dụng BUSINESS)
     company_size VARCHAR(32),                -- Quy mô: 1-10, 11-50...
     currency VARCHAR(8) DEFAULT 'VND',       -- Tiền tệ mặc định
     status VARCHAR(32) DEFAULT 'ACTIVE',     -- ACTIVE, SUSPENDED, DELETED
@@ -54,6 +55,7 @@ CREATE TABLE tenants (
 
 CREATE INDEX idx_tenants_slug ON tenants(slug);
 CREATE INDEX idx_tenants_status ON tenants(status);
+CREATE INDEX idx_tenants_type ON tenants(type);
 ```
 
 ### 2.2. Bảng `users` (Danh tính Toàn cục)
@@ -133,3 +135,26 @@ CREATE TABLE password_reset_tokens (
 
 CREATE INDEX idx_password_reset_hash ON password_reset_tokens(token_hash);
 ```
+
+---
+
+## 3. Không Gian Cá Nhân (Personal Workspace)
+
+- Khi người dùng cá nhân hoàn tất xác thực email (FEAT-01), hệ thống tự động tạo một Tenant cá nhân trong cùng transaction:
+  - `tenants.type = 'PERSONAL'`, `tenants.slug` sinh tự động không trùng (ví dụ: `<email-local-part>-<short-uuid>`).
+  - Gán bản ghi `user_tenants(user_id, tenant_id, role = 'TENANT_ADMIN', is_default = TRUE)`.
+- Tenant cá nhân không được cài Plugin nghiệp vụ; vẫn tuân thủ tuyệt đối Tenant Data Isolation (`tenant_id`) như mọi Tenant khác.
+- Personal Workspace vẫn xuất hiện trong Workspace Picker nếu người dùng đồng thời thuộc nhiều Tenant doanh nghiệp.
+
+---
+
+## 4. Dữ Liệu Tạm Thời Lưu Trong Redis (Không Thuộc PostgreSQL)
+
+Các dữ liệu có vòng đời ngắn bắt buộc lưu trong Redis kèm TTL, không tạo bảng CSDL:
+
+| Key Pattern | Giá trị | TTL | Mục đích |
+| :--- | :--- | :--- | :--- |
+| `otp:verify:{user_id}` | Hash mã OTP 6 số + số lần thử | 15 phút | Xác thực email đăng ký cá nhân (FEAT-01) |
+| `preauth:{token}` | `user_id`, mục đích (`2FA` / `SELECT_TENANT`), số lần nhập sai | 5 phút | Phiên tạm trước khi cấp JWT chính thức |
+| `session:{session_id}` | `user_id`, `tenant_id`, IP, User-Agent, `last_seen_at` | 7 ngày | Quản lý phiên đăng nhập, thu hồi từ xa (FEAT-06) |
+| `blacklist:token:{jti}` | `1` | Bằng thời gian còn lại của Access Token | Vô hiệu hóa token đã thu hồi khi Logout/Đổi mật khẩu |

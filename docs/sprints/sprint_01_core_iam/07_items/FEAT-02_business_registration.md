@@ -11,8 +11,8 @@
 
 ## 1. Tóm Tắt Nhu Cầu
 - **User Story**: Là một chủ doanh nghiệp hoặc nhà quản trị tổ chức, tôi muốn đăng ký tài khoản đại diện công ty cùng thông tin doanh nghiệp (Tên, Mã số thuế, Subdomain/Slug) để tạo ra một Không gian Doanh nghiệp độc lập (Tenant) trong Open-ERP và trở thành Quản trị viên tối cao (Tenant Admin).
-- **Tài liệu phân tích**: [ANL-01_core_identity_access.md](../../../01_requirements/analysis/ANL-01_core_identity_access.md)
-- **Tài liệu xác nhận khách hàng**: [CONF-01_sprint_01_scope.md](../../../01_requirements/confirmations/CONF-01_sprint_01_scope.md)
+- **Tài liệu phân tích**: [ANL-01_core_identity_access.md](../02_analysis/ANL-01_core_identity_access.md)
+- **Tài liệu xác nhận khách hàng**: [CONF-01_sprint_01_scope.md](../04_confirmation/CONF-01_sprint_01_scope.md)
 
 ---
 

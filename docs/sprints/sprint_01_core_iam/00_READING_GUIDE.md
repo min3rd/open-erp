@@ -28,7 +28,7 @@ flowchart LR
 
 | Thứ Tự Đọc | Thư Mục / File | Mục Đích Nội Dung | Người Phụ Trách | Trạng Thái |
 | :---: | :--- | :--- | :---: | :---: |
-| **1** | [01_raw_notes/](01_raw_notes/)<br>• [RAW-01_core_identity.md](01_raw_notes/RAW-01_sprint_01_core_identity.md)<br>• [RAW-02_account_2fa_management.md](01_raw_notes/RAW-02_account_2fa_management.md) | **Kiểm tra xem AI/BA đã ghi nhận đúng mong muốn ban đầu của bạn chưa**: Đăng ký cá nhân, doanh nghiệp, đăng nhập, quên mật khẩu, 2FA và Quản lý tài khoản (Đăng ký/Xóa 2FA). | BA Agent | [x] Đã ghi nhận |
+| **1** | [01_raw_notes/](01_raw_notes/)<br>• [RAW-01_sprint_01_core_identity.md](01_raw_notes/RAW-01_sprint_01_core_identity.md)<br>• [RAW-02_account_2fa_management.md](01_raw_notes/RAW-02_account_2fa_management.md) | **Kiểm tra xem AI/BA đã ghi nhận đúng mong muốn ban đầu của bạn chưa**: Đăng ký cá nhân, doanh nghiệp, đăng nhập, quên mật khẩu, 2FA và Quản lý tài khoản (Đăng ký/Xóa 2FA). | BA Agent | [x] Đã ghi nhận |
 | **2** | [02_analysis/](02_analysis/)<br>• [ANL-01_core_identity_access.md](02_analysis/ANL-01_core_identity_access.md) | **Đọc phân tích nghiệp vụ chuyên sâu**: Xem các quy tắc bảo mật (Argon2id, brute-force, bảo mật kép khi tắt 2FA, ma trận phân định Web Desktop vs Mobile). | BA Agent | [x] Đã hoàn thành |
 | **3** | [03_benchmarks/](03_benchmarks/)<br>• [BENCH-01_auth_identity_saas.md](03_benchmarks/BENCH-01_auth_identity_saas.md) | **Xem khảo sát các phần mềm hàng đầu**: Học hỏi ưu/nhược điểm từ Odoo, Keycloak, Auth0, Supabase để áp dụng chuẩn mực tốt nhất vào Open-ERP. | BA Agent | [x] Đã hoàn thành |
 | **4** | [04_confirmation/](04_confirmation/)<br>• [CONF-01_sprint_01_scope.md](04_confirmation/CONF-01_sprint_01_scope.md)<br>**(CONFIRMATION GATE)** | **★ ĐIỂM CHỐT XÁC NHẬN QUAN TRỌNG NHẤT ★**:<br>Khách hàng kiểm tra bảng phạm vi cam kết (In-scope) và các tiêu chí nghiệm thu. **Chỉ khi khách hàng xác nhận tại file này, bước kỹ thuật mới được phép tiến hành.** | Khách Hàng & BA | **[x] ĐÃ PHÊ DUYỆT** |
@@ -39,7 +39,7 @@ flowchart LR
 
 | Thứ Tự Đọc | Thư Mục / File | Mục Đích Nội Dung | Người Phụ Trách | Trạng Thái |
 | :---: | :--- | :--- | :---: | :---: |
-| **5** | [05_solutions/](05_solutions/)<br>• [SOL-01_core_identity_architecture.md](05_solutions/SOL-01_core_identity_architecture.md) | Nghiên cứu giải pháp kỹ thuật, so sánh công nghệ (Argon2 vs BCrypt, Quarkus vs Spring Boot, Redis vs DB Session). | Solution Architect | [x] Đã duyệt |
+| **5** | [05_solutions/](05_solutions/)<br>• [SOL-01_core_identity_architecture.md](05_solutions/SOL-01_core_identity_architecture.md) | Nghiên cứu giải pháp kỹ thuật, so sánh công nghệ (Argon2id, Quarkus vs Spring Boot, Redis vs DB Session). | Solution Architect | [x] Đã duyệt |
 | **6** | [06_designs/](06_designs/)<br>• [database/CORE_IAM_DATABASE_SCHEMA.md](06_designs/database/CORE_IAM_DATABASE_SCHEMA.md)<br>• [api/CORE_IAM_API_SPEC.md](06_designs/api/CORE_IAM_API_SPEC.md)<br>• [ui_ux/CORE_IAM_UI_SPEC.md](06_designs/ui_ux/CORE_IAM_UI_SPEC.md) | **Bản thiết kế chi tiết 100% để Developer lập trình**:<br>- CSDL PostgreSQL Multi-Tenant (7 bảng).<br>- Đặc tả REST API chuẩn hóa (Code-based i18n Contract).<br>- Đặc tả UI Anti-Modal: Drawer trượt, Stacked Drawer cho 2FA. | Solution Architect | [x] Đã duyệt |
 | **7** | [07_items/](07_items/)<br>• [FEAT-01: Đăng ký cá nhân](07_items/FEAT-01_personal_registration.md)<br>• [FEAT-02: Đăng ký doanh nghiệp](07_items/FEAT-02_business_registration.md)<br>• [FEAT-03: Đăng nhập Multi-Tenant](07_items/FEAT-03_authentication_login.md)<br>• [FEAT-04: Quên mật khẩu](07_items/FEAT-04_forgot_password.md)<br>• [FEAT-05: Xác thực 2FA TOTP](07_items/FEAT-05_two_factor_auth.md)<br>• [FEAT-06: Quản lý tài khoản & 2FA](07_items/FEAT-06_account_management.md) | **Danh sách các hạng mục công việc chi tiết**: Quản lý từng Feature dạng file, quy định Acceptance Criteria và các Sub-task kỹ thuật. | Developer & PM | [x] In Progress |
 
@@ -61,3 +61,4 @@ flowchart LR
 - [x] **Bước 3**: Đã xem tài liệu đối chuẩn `03_benchmarks/BENCH-01`.
 - [x] **Bước 4**: **ĐÃ PHÊ DUYỆT BIÊN BẢN XÁC NHẬN PHẠM VI** `04_confirmation/CONF-01_sprint_01_scope.md`.
 - [x] **Bổ sung ngày 2026-09-18**: Đã xác nhận bổ sung phân hệ Đăng ký & Xóa/Tắt 2FA vào Quản lý tài khoản (FEAT-06).
+- [x] **Bổ sung ngày 2026-09-18 (sau rà soát)**: Đã rà soát tính nhất quán toàn bộ tài liệu Sprint 01 và phê duyệt xác nhận bổ sung tại [Mục 3 của CONF-01](04_confirmation/CONF-01_sprint_01_scope.md). Sẵn sàng chuyển sang Bước 7 (Lập trình).

@@ -22,22 +22,22 @@ sequenceDiagram
     participant PM as PM Agent
 
     Customer->>BA: 1. Truyền đạt yêu cầu bằng lời/chat
-    BA->>BA: 2. Phân tích yêu cầu (docs/01_requirements/analysis/)
-    BA->>BA: 3. Khảo sát phần mềm tương tự (docs/01_requirements/benchmarks/)
+    BA->>BA: 2. Phân tích yêu cầu (sprints/sprint_XX/02_analysis/)
+    BA->>BA: 3. Khảo sát phần mềm tương tự (sprints/sprint_XX/03_benchmarks/)
     BA->>Customer: 4. Gửi tài liệu xác nhận & Chốt Acceptance Criteria
     Customer-->>BA: Khách hàng phê duyệt (Sign-off)
     BA->>SA: Bàn giao tài liệu yêu cầu đã duyệt
-    SA->>SA: 5. Nghiên cứu giải pháp & khả thi (docs/02_solutions/)
-    SA->>SA: 6. Thiết kế chi tiết DB, API, Architecture, UI (docs/03_designs/)
+    SA->>SA: 5. Nghiên cứu giải pháp & khả thi (sprints/sprint_XX/05_solutions/)
+    SA->>SA: 6. Thiết kế chi tiết DB, API, Architecture, UI (sprints/sprint_XX/06_designs/)
     SA->>Dev: Bàn giao tài liệu thiết kế chi tiết
     Dev->>Dev: 7. Lập trình mã nguồn theo đúng thiết kế (src/)
     Dev->>QA: Bàn giao mã nguồn hoàn chỉnh
-    QA->>QA: 8. Kiểm thử Unit/Integration/Acceptance Test (docs/04_testing/)
+    QA->>QA: 8. Kiểm thử Unit/Integration/Acceptance Test (sprints/sprint_XX/08_testing/)
     alt Phát hiện Bug
         QA->>Dev: Trả về Bug Report để sửa lỗi
     else Kiểm thử thành công
         QA->>PM: Xác nhận đạt tiêu chuẩn chất lượng
-        PM->>PM: 9. Cập nhật Task Board, Work Log, Changelog (docs/05_project_management/)
+        PM->>PM: 9. Cập nhật Task Board, Work Log, Changelog (docs/project_management/)
         PM->>Customer: Báo cáo hoàn thành & Bàn giao tính năng
     end
 ```
@@ -95,16 +95,16 @@ sequenceDiagram
 - **Role**: **Solution Architect Agent**
 - **Mục tiêu**: Bản thiết kế chi tiết 100% để Developer đọc là có thể code ngay.
 - **Hành động**:
-  1. **Kiến trúc tổng thể**: Sơ đồ module, Sequence Diagram luồng xử lý (`docs/03_designs/architecture/`).
-  2. **Thiết kế CSDL**: ERD, tên bảng, kiểu dữ liệu, ràng buộc (Foreign Key, Indexes, Enums) (`docs/03_designs/database/`).
-  3. **Đặc tả API**: Phương thức, URL, Headers, Request Body, Response (200, 400, 401, 500) (`docs/03_designs/api/`).
-  4. **Giao diện & Thành phần UI**: Cấu trúc Component, State, Luồng sự kiện giao diện (`docs/03_designs/ui_ux/`).
+  1. **Kiến trúc tổng thể**: Sơ đồ module, Sequence Diagram luồng xử lý (`06_designs/` và `docs/system/architecture/`).
+  2. **Thiết kế CSDL**: ERD, tên bảng, kiểu dữ liệu, ràng buộc (Foreign Key, Indexes, Enums) (`06_designs/database/`).
+  3. **Đặc tả API**: Phương thức, URL, Headers, Request Body, Response (200, 400, 401, 500) (`06_designs/api/`).
+  4. **Giao diện & Thành phần UI**: Cấu trúc Component, State, Luồng sự kiện giao diện (`06_designs/ui_ux/`).
 
 ### Bước 7: Lập Trình (Implementation / Coding)
 - **Role**: **Developer Agent**
 - **Mục tiêu**: Viết mã nguồn chất lượng cao, chuẩn mực, bám sát bản thiết kế.
 - **Hành động**:
-  1. Đọc kỹ tài liệu trong `docs/03_designs/`.
+  1. Đọc kỹ tài liệu trong `docs/sprints/sprint_XX_<tên_sprint>/06_designs/`.
   2. Viết mã nguồn trong thư mục dự án (`src/`...).
   3. Đảm bảo tuân thủ nguyên tắc Clean Code, SOLID, xử lý lỗi đầy đủ, không hard-code.
   4. **Chính sách Unit Test**:
@@ -116,22 +116,22 @@ sequenceDiagram
 - **Role**: **QA/QC Agent**
 - **Mục tiêu**: Đảm bảo không có lỗi phát sinh và tính năng đáp ứng hoàn hảo tiêu chí nghiệm thu.
 - **Hành động**:
-  1. Lập Test Plan & Test Matrix (`docs/04_testing/test_plans/`).
-  2. Viết các kịch bản kiểm thử chi tiết (Happy path, Negative path, Edge cases) (`docs/04_testing/test_cases/`).
+  1. Lập Test Plan & Test Matrix (`08_testing/test_plan.md`).
+  2. Viết các kịch bản kiểm thử chi tiết (Happy path, Negative path, Edge cases) (`08_testing/test_cases/`).
   3. **Kiểm thử Frontend thực tế bằng Trình duyệt (Browser Manual Testing)**:
      - QA/QC bắt buộc kiểm thử trực tiếp trên Web Browser đối với Web và thiết bị/mô phỏng đối với Ionic.
      - Kiểm tra trực quan: Layout nhỏ gọn (dense/compact), viền vuông vắn sắc nét, luồng Drawer trượt mượt mà, tính đáp ứng (responsive) và không có console error.
   4. **Kiểm thử Backend**: Chạy bộ Automated Tests (JUnit 5 / RestAssured) của Quarkus Java.
-  5. Tổng hợp báo cáo kiểm thử và log lỗi nếu có (`docs/04_testing/test_reports/`).
+  5. Tổng hợp báo cáo kiểm thử và log lỗi nếu có (`08_testing/test_reports/`).
   6. Đánh dấu Pass/Fail cho tính năng.
 
 ### Bước 9: Cập Nhật Công Việc & Đóng Gói (Task Tracking & Changelog)
 - **Role**: **PM Agent**
 - **Mục tiêu**: Minh bạch hóa tiến độ và ghi nhận lịch sử phát triển.
 - **Hành động**:
-  1. Cập nhật trạng thái task trong `docs/05_project_management/task_board.md` sang **Done**.
-  2. Ghi nhận nhật ký công việc vào `docs/05_project_management/work_log.md`.
-  3. Cập nhật phiên bản và lịch sử thay đổi vào `docs/05_project_management/changelog.md`.
+  1. Cập nhật trạng thái task trong `docs/project_management/task_board.md` sang **Done**.
+  2. Ghi nhận nhật ký công việc vào `docs/project_management/work_log.md`.
+  3. Cập nhật phiên bản và lịch sử thay đổi vào `docs/project_management/changelog.md`.
   4. Báo cáo hoàn thành cho khách hàng cùng link tài liệu và kết quả nghiệm thu.
 
 ---

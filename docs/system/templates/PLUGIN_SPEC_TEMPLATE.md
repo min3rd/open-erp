@@ -5,7 +5,7 @@
 - **Backend**: Quarkus (Java / Kotlin)
 - **Frontend**: Angular >= 22 (Web) / Ionic + Angular (Mobile)
 - **Phụ trách thiết kế**: Solution Architect Agent
-- **Tài liệu căn cứ**: [Biên bản xác nhận yêu cầu](../../01_requirements/confirmations/)
+- **Tài liệu căn cứ**: [Biên bản xác nhận yêu cầu](../../sprints/sprint_XX_<tên>/04_confirmation/)
 
 ---
 

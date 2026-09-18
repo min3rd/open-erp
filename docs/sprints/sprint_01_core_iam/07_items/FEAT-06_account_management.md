@@ -11,8 +11,8 @@
 
 ## 1. Tóm Tắt Nhu Cầu
 - **User Story**: Là một người dùng đã đăng nhập, tôi muốn quản lý thông tin cá nhân của mình (họ tên, avatar, số điện thoại, múi giờ, ngôn ngữ), đổi mật khẩu, tự kích hoạt hoặc xóa/tắt xác thực 2 yếu tố (2FA) và kiểm tra các thiết bị/phiên đang đăng nhập để duy trì tính an toàn và tiện dụng cao nhất cho tài khoản của mình.
-- **Tài liệu phân tích**: [ANL-01_core_identity_access.md](../../../01_requirements/analysis/ANL-01_core_identity_access.md)
-- **Tài liệu xác nhận khách hàng**: [CONF-01_sprint_01_scope.md](../../../01_requirements/confirmations/CONF-01_sprint_01_scope.md)
+- **Tài liệu phân tích**: [ANL-01_core_identity_access.md](../02_analysis/ANL-01_core_identity_access.md)
+- **Tài liệu xác nhận khách hàng**: [CONF-01_sprint_01_scope.md](../04_confirmation/CONF-01_sprint_01_scope.md)
 
 ---
 

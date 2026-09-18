@@ -11,8 +11,8 @@
 
 ## 1. Tóm Tắt Nhu Cầu
 - **User Story**: Là một người dùng quên mật khẩu đăng nhập, tôi muốn yêu cầu gửi link hoặc mã xác nhận khôi phục mật khẩu về email của mình để có thể thiết lập lại mật khẩu mới một cách an toàn mà không cần nhờ đến quản trị viên hỗ trợ thủ công.
-- **Tài liệu phân tích**: [ANL-01_core_identity_access.md](../../../01_requirements/analysis/ANL-01_core_identity_access.md)
-- **Tài liệu xác nhận khách hàng**: [CONF-01_sprint_01_scope.md](../../../01_requirements/confirmations/CONF-01_sprint_01_scope.md)
+- **Tài liệu phân tích**: [ANL-01_core_identity_access.md](../02_analysis/ANL-01_core_identity_access.md)
+- **Tài liệu xác nhận khách hàng**: [CONF-01_sprint_01_scope.md](../04_confirmation/CONF-01_sprint_01_scope.md)
 
 ---
 

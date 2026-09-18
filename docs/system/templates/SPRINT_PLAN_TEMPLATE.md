@@ -10,9 +10,9 @@
 
 | Mã Định Danh | Tiêu Đề | Phân Loại | Mức Độ Ưu Tiên | Phụ Trách | Trạng Thái | Link File Chi Tiết |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **FEAT-001** | ... | Feature | High | BA / Dev | In Progress | [Chi tiết](items/FEAT-001.md) |
-| **TASK-001** | ... | Task | Medium | Dev | To Do | [Chi tiết](items/TASK-001.md) |
-| **BUG-001** | ... | Bug | Critical | Dev / QA | In Progress | [Chi tiết](items/BUG-001.md) |
+| **FEAT-001** | ... | Feature | High | BA / Dev | In Progress | [Chi tiết](07_items/FEAT-001.md) |
+| **TASK-001** | ... | Task | Medium | Dev | To Do | [Chi tiết](07_items/TASK-001.md) |
+| **BUG-001** | ... | Bug | Critical | Dev / QA | In Progress | [Chi tiết](07_items/BUG-001.md) |
 
 ---
 

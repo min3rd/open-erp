@@ -1,7 +1,7 @@
 # [CONF-01] Biên Bản Xác Nhận Phạm Vi & Tiêu Chí Nghiệm Thu: Sprint 01
 
 - **Mã Biên Bản**: CONF-01
-- **Ngày Xác Nhận**: 2026-09-17
+- **Ngày Xác Nhận**: 2026-09-17 (xác nhận bổ sung sau rà soát: 2026-09-18)
 - **Đại Diện Khách Hàng**: Người dùng (User / Customer)
 - **Đại Diện Dự Án**: BA Agent, Solution Architect, PM Agent
 - **Trạng Thái**: [x] ĐÃ XÁC NHẬN & PHÊ DUYỆT
@@ -28,7 +28,8 @@
    - Đặt lại mật khẩu an toàn, thu hồi (revoke) các phiên đăng nhập cũ trong Redis.
 5. **FEAT-05: Xác Thực 2 Yếu Tố (2FA)**:
    - Chuẩn TOTP RFC 6238 (Google Authenticator, Microsoft Authenticator).
-   - Cấp 8 mã dự phòng (Backup Codes) sử dụng 1 lần.
+   - Cấp 8 mã dự phòng (Backup Codes) sử dụng 1 lần, chỉ hiển thị sau khi xác nhận kích hoạt thành công.
+   - Khóa xác thực 2FA sau 3 lần nhập sai liên tiếp (hủy phiên tạm, yêu cầu đăng nhập lại).
 6. **FEAT-06: Quản Lý Tài Khoản (Anti-Modal UI & 2FA Management)**:
    - Xem và đổi thông tin cá nhân, avatar, đổi mật khẩu an toàn.
    - **Đăng ký / Bật 2FA (TOTP)**: Kích hoạt trực tiếp trong Drawer, quét QR code và xác nhận mã OTP 6 số, nhận 8 Backup Codes.
@@ -47,3 +48,18 @@
    - Font chữ nhỏ (`text-xs`/`text-sm`), viền vuông (`rounded-none`), khoảng cách đệm nhỏ, không khoảng trắng thừa.
 3. **Điều kiện hoàn thành Sprint (DoD)**:
    - Toàn bộ 6 tính năng không còn task/bug nào ở mức `Critical` hoặc `High` chưa giải quyết.
+
+---
+
+## 3. Xác Nhận Bổ Sung Sau Rà Soát Tài Liệu (Ngày 2026-09-18)
+
+- **Nội dung rà soát**: Khách hàng yêu cầu rà soát lại toàn bộ tài liệu Sprint 01 và xác nhận tính nhất quán giữa Yêu cầu (`02_analysis`), Giải pháp (`05_solutions`), Thiết kế (`06_designs`) và các item triển khai (`07_items`).
+- **Kết quả rà soát**: Đạt yêu cầu. Các nội dung chưa nhất quán đã được chuẩn hóa 100%:
+  1. **2FA**: Thống nhất lưu Backup Codes dạng `backup_codes_hash` (JSONB) trong bảng `user_two_factor` (bỏ bảng `user_backup_codes`); endpoint thống nhất `POST /api/v1/auth/2fa/verify-login` và nhóm `POST /api/v1/account/2fa/*`; mã dự phòng chỉ hiển thị sau khi xác nhận kích hoạt; khóa sau 3 lần nhập sai với mã lỗi `AUTH_2FA_ATTEMPTS_EXCEEDED`.
+  2. **Personal Workspace**: Bổ sung `tenants.type = 'PERSONAL' | 'BUSINESS'`; tự động tạo Personal Workspace khi xác thực email cá nhân thành công (FEAT-01).
+  3. **Đăng ký doanh nghiệp với email đã tồn tại**: Không tự động liên kết tài khoản, trả lỗi `AUTH_EMAIL_ALREADY_EXISTS` nhằm chống chiếm đoạt tài khoản.
+  4. **Bảo mật nền tảng**: Chốt thuật toán Argon2id; bổ sung thiết kế lưu trữ tạm thời trong Redis (OTP xác thực email, pre-auth token, session, token blacklist).
+  5. **Bổ sung API còn thiếu**: `POST /api/v1/auth/refresh`, `POST /api/v1/auth/logout`, `POST /api/v1/auth/resend-verification` kèm mã i18n tương ứng.
+  6. **Liên kết tài liệu**: Toàn bộ liên kết trong Sprint-Pack, templates và tài liệu quản lý dự án đã được chuẩn hóa theo cấu trúc Sprint-Pack (00-09).
+- **Kết luận**: Tài liệu Sprint 01 **đạt yêu cầu**, chính thức cho phép chuyển sang **Bước 7 - Lập trình (Implementation)**.
+- **Đại diện khách hàng xác nhận**: Người dùng (User / Customer) — Xác nhận ngày 2026-09-18.

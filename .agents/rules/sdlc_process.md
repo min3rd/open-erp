@@ -42,10 +42,10 @@ Toàn bộ tài liệu của một Sprint được đóng gói trọn gói trong
 - Nghiên cứu công nghệ, thư viện, mô hình dữ liệu tối ưu nhất cho bài toán.
 - Thiết kế chi tiết đến từng trường dữ liệu (DB schema/ERD), từng endpoint (Request/Response API Spec), luồng dữ liệu (Data Flow / Sequence Diagram) và cấu trúc component UI.
 - Không để tồn tại các giả định ngầm (implicit assumptions) chưa được làm rõ trong tài liệu thiết kế.
-- **Điều kiện hoàn thành**: Tài liệu thiết kế trong `docs/03_designs/` hoàn chỉnh để Developer chỉ cần đọc là code được ngay mà không cần đoán.
+- **Điều kiện hoàn thành**: Tài liệu thiết kế trong `docs/sprints/sprint_XX_<tên_sprint>/06_designs/` hoàn chỉnh để Developer chỉ cần đọc là code được ngay mà không cần đoán.
 
 ### 3.3. Developer Agent (Dev)
-- Tuân thủ 100% tài liệu thiết kế trong `docs/03_designs/`.
+- Tuân thủ 100% tài liệu thiết kế trong `docs/sprints/sprint_XX_<tên_sprint>/06_designs/`.
 - Nếu phát hiện vấn đề kỹ thuật phát sinh hoặc cần thay đổi CSDL/API, KHÔNG tự ý thay đổi mã nguồn mà phải chuyển ngược lại cho Solution Architect cập nhật tài liệu thiết kế trước.
 - Viết code có cấu trúc rõ ràng, kèm comment và self-documenting.
 - **Chính sách Unit Test thực dụng**:
@@ -61,7 +61,7 @@ Toàn bộ tài liệu của một Sprint được đóng gói trọn gói trong
 - Nếu phát hiện lỗi (Bug), ghi nhận bug report cụ thể và chuyển lại cho Developer Agent xử lý.
 
 ### 3.5. PM Agent (Project Manager)
-- Sau mỗi công đoạn hoặc mỗi tính năng hoàn thành, cập nhật ngay `docs/05_project_management/task_board.md`, `work_log.md` và `changelog.md`.
+- Sau mỗi công đoạn hoặc mỗi tính năng hoàn thành, cập nhật ngay `docs/project_management/task_board.md`, `work_log.md` và `changelog.md`.
 - Đảm bảo tính minh bạch, ghi rõ ai làm gì, trạng thái ra sao, liên kết đến tài liệu liên quan.
 
 ---

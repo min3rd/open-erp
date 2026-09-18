@@ -10,9 +10,9 @@
 ---
 
 ## 1. Tóm Tắt Nhu Cầu
-- **User Story**: Là một người dùng đã có tài khoản, tôi muốn đăng nhập bằng Email/Username và Mật khẩu để truy cập vào hệ thống; nếu tôi thuộc về nhiều Doanh nghiệp khác nhau, tôi có thể lựa chọn đúng Doanh nghiệp (Tenant) để làm việc và nhận JWT Token mang đúng ngữ cảnh `tenant_id`.
-- **Tài liệu phân tích**: [ANL-01_core_identity_access.md](../../../01_requirements/analysis/ANL-01_core_identity_access.md)
-- **Tài liệu xác nhận khách hàng**: [CONF-01_sprint_01_scope.md](../../../01_requirements/confirmations/CONF-01_sprint_01_scope.md)
+- **User Story**: Là một người dùng đã có tài khoản, tôi muốn đăng nhập bằng Email và Mật khẩu để truy cập vào hệ thống; nếu tôi thuộc về nhiều Doanh nghiệp khác nhau, tôi có thể lựa chọn đúng Doanh nghiệp (Tenant) để làm việc và nhận JWT Token mang đúng ngữ cảnh `tenant_id`.
+- **Tài liệu phân tích**: [ANL-01_core_identity_access.md](../02_analysis/ANL-01_core_identity_access.md)
+- **Tài liệu xác nhận khách hàng**: [CONF-01_sprint_01_scope.md](../04_confirmation/CONF-01_sprint_01_scope.md)
 
 ---
 

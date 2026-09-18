@@ -45,8 +45,8 @@ docs/
 
 ## Quy Định Bàn Giao, Kiến Trúc & Quản Lý Agile
 1. **Trước khi bắt đầu bất kỳ bước nào**, Agent phải kiểm tra tài liệu đầu ra của bước trước đó.
-2. **Không tự ý code** khi chưa có biên bản xác nhận từ khách hàng tại `docs/01_requirements/confirmations/` và tài liệu thiết kế tại `docs/03_designs/`.
-3. **Tuân thủ Kiến trúc Cốt Lõi**: Tham chiếu [SYSTEM_BLUEPRINT.md](03_designs/architecture/SYSTEM_BLUEPRINT.md). Core chỉ gồm Auth, Account, RBAC, Data RBAC, Plugin Manager, Entity Registry. Mọi nghiệp vụ khác phải xây dựng dạng Plugin độc lập.
+2. **Không tự ý code** khi chưa có biên bản xác nhận từ khách hàng tại `docs/sprints/sprint_XX_<tên_sprint>/04_confirmation/` và tài liệu thiết kế tại `docs/sprints/sprint_XX_<tên_sprint>/06_designs/`.
+3. **Tuân thủ Kiến trúc Cốt Lõi**: Tham chiếu [SYSTEM_BLUEPRINT.md](system/architecture/SYSTEM_BLUEPRINT.md). Core chỉ gồm Auth, Account, RBAC, Data RBAC, Plugin Manager, Entity Registry. Mọi nghiệp vụ khác phải xây dựng dạng Plugin độc lập.
 4. **Chuẩn Công Nghệ Bắt Buộc**:
    - Backend: **Quarkus** (ngôn ngữ chuẩn: **Java**, phiên bản Java LTS 21+).
    - Frontend: **Angular >= 22** + **Tailwind CSS v4** (Web) và **Ionic 8 + Angular** (Mobile).
@@ -56,7 +56,7 @@ docs/
 7. **Đăng Ký Thực Thể (Entity Registry)**: Mọi entity CSDL của module/plugin bắt buộc phải đăng ký vào Entity Registry chung để các plugin khác có thể tham chiếu.
 8. **Cô lập dữ liệu Tenant**: Tuyệt đối không để rò rỉ dữ liệu chéo giữa các Tenant. Mọi thao tác CSDL phải có điều kiện `tenant_id`.
 9. **Quản lý Version & Data Migration**: Mỗi Plugin phải có phiên bản SemVer và kịch bản migration riêng biệt (`up`/`down`) cho từng Tenant khi cài đặt, nâng cấp hoặc gỡ bỏ.
-10. **Mỗi yêu cầu/lỗi là một file riêng**: Mọi task, bug, feature, refactor phát sinh phải được lập file độc lập trong thư mục `items/` của Sprint tương ứng để theo dõi trạng thái, tránh bỏ sót.
+10. **Mỗi yêu cầu/lỗi là một file riêng**: Mọi task, bug, feature, refactor phát sinh phải được lập file độc lập trong thư mục `07_items/` của Sprint tương ứng để theo dõi trạng thái, tránh bỏ sót.
 11. **Điều kiện đóng Sprint (Sprint DoD Gate)**: Một Sprint **chỉ được phép đóng** khi không còn bất kỳ task, bug nào có mức độ ưu tiên **lớn hơn Medium (`Critical`, `High`)** chưa hoàn tất. Mọi item mức `Critical` và `High` bắt buộc phải `Done`.
 12. Mọi tài liệu mới cần được đặt tên theo quy ước: `<mã_tính_năng>_<tên_ngắn_gọn>.md` (Ví dụ: `FEAT-01_user_authentication.md`).
 13. **Tài liệu Hướng Dẫn Sử Dụng (User Guides)**: Phải đặt trong `docs/06_user_guides/` và **bắt buộc phải có hình ảnh trực quan** (screenshots, mockups, sơ đồ từ thư mục `assets/`). Nghiêm cấm hướng dẫn thuần văn bản thiếu minh họa.

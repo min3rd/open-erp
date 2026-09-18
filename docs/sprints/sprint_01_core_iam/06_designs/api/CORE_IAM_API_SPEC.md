@@ -91,13 +91,19 @@
   }
   ```
 - **Responses**:
-  - `200 OK`:
+  - `200 OK` (kèm thông tin Personal Workspace vừa được tạo tự động):
     ```json
     {
       "success": true,
       "code": "AUTH_EMAIL_VERIFIED_SUCCESS",
       "message": "Email verified successfully.",
-      "data": { "status": "ACTIVE" }
+      "data": {
+        "status": "ACTIVE",
+        "personal_workspace": {
+          "tenant_id": "5f9c2b7a-1d3e-4a6b-9c8d-2e4f6a8b0c1d",
+          "slug": "nguyenvana-8f3a"
+        }
+      }
     }
     ```
   - `400 Bad Request`:
@@ -145,13 +151,23 @@
       }
     }
     ```
-  - `409 Conflict`:
+  - `409 Conflict` (slug doanh nghiệp đã tồn tại):
     ```json
     {
       "success": false,
       "code": "AUTH_TENANT_SLUG_DUPLICATE",
       "message": "Tenant identifier slug is already taken.",
       "params": { "slug": "acme-vn" },
+      "timestamp": "2026-09-17T15:30:00Z"
+    }
+    ```
+  - `409 Conflict` (email quản trị đã tồn tại — hệ thống **không tự động liên kết** để chống chiếm đoạt tài khoản):
+    ```json
+    {
+      "success": false,
+      "code": "AUTH_EMAIL_ALREADY_EXISTS",
+      "message": "Admin email already registered. Please log in to create an additional business.",
+      "params": { "field": "email" },
       "timestamp": "2026-09-17T15:30:00Z"
     }
     ```
@@ -256,15 +272,26 @@
     "code": "482910"
   }
   ```
+- **Ràng buộc**: Nhập sai 3 lần liên tiếp (tính từ lần sai thứ 3) → hủy `preauth:{token}` trong Redis, buộc đăng nhập lại.
 - **Responses**:
-  - `200 OK`: `code: "AUTH_LOGIN_SUCCESS"` kèm token chính thức.
-  - `400 Bad Request`:
+  - `200 OK` (thuộc 1 Tenant): `code: "AUTH_LOGIN_SUCCESS"` kèm token chính thức.
+  - `200 OK` (thuộc nhiều Tenant): `code: "AUTH_SELECT_TENANT_REQUIRED"` kèm danh sách Tenant để chọn (dùng lại `pre_auth_token`).
+  - `400 Bad Request` (mã sai, vẫn còn lượt thử):
     ```json
     {
       "success": false,
       "code": "AUTH_2FA_CODE_INVALID",
       "message": "Invalid two-factor authentication code.",
       "timestamp": "2026-09-17T15:30:00Z"
+    }
+    ```
+  - `401 Unauthorized` (đã sai quá 3 lần, phiên tạm bị hủy):
+    ```json
+    {
+      "success": false,
+      "code": "AUTH_2FA_ATTEMPTS_EXCEEDED",
+      "message": "Too many invalid 2FA attempts. Please log in again.",
+      "timestamp": "2026-09-17T15:31:00Z"
     }
     ```
 
@@ -289,6 +316,58 @@
   ```
   - `200 OK`: `code: "AUTH_PASSWORD_RESET_SUCCESS"`
   - `400 Bad Request`: `code: "AUTH_RESET_TOKEN_INVALID_OR_EXPIRED"`
+
+---
+
+### 2.8. `POST /api/v1/auth/refresh` - Làm Mới Access Token
+- **Request Body**:
+  ```json
+  {
+    "refresh_token": "def50200..."
+  }
+  ```
+- **Responses**:
+  - `200 OK`:
+    ```json
+    {
+      "success": true,
+      "code": "AUTH_TOKEN_REFRESH_SUCCESS",
+      "message": "Access token refreshed successfully.",
+      "data": {
+        "access_token": "eyJhbGciOiJIUzI1NiIs...",
+        "expires_in": 900
+      }
+    }
+    ```
+  - `401 Unauthorized`: `code: "AUTH_REFRESH_TOKEN_INVALID_OR_REVOKED"`.
+
+---
+
+### 2.9. `POST /api/v1/auth/logout` - Đăng Xuất
+- **Headers**: `Authorization: Bearer <access_token>`.
+- **Mục đích**: Xóa phiên `session:{session_id}` trong Redis và đưa `jti` của Access Token vào `blacklist:token:{jti}`.
+- **Responses**:
+  - `200 OK`:
+    ```json
+    {
+      "success": true,
+      "code": "AUTH_LOGOUT_SUCCESS",
+      "message": "Logged out successfully."
+    }
+    ```
+
+---
+
+### 2.10. `POST /api/v1/auth/resend-verification` - Gửi Lại Mã OTP Kích Hoạt
+- **Request Body**:
+  ```json
+  {
+    "email": "nguyenvana@gmail.com"
+  }
+  ```
+- **Responses**:
+  - `200 OK`: `code: "AUTH_VERIFICATION_EMAIL_RESENT"` (luôn trả về cùng một thông điệp dù email tồn tại hay không, chống Account Enumeration).
+  - `429 Too Many Requests`: `code: "AUTH_OTP_RESEND_TOO_SOON"` (giới hạn tần suất gửi lại, tối thiểu 60 giây/lần).
 
 ---
 
@@ -331,7 +410,7 @@
     ```
 
 #### 3.2.2. `POST /api/v1/account/2fa/setup` - Khởi Tạo Đăng Ký 2FA
-- **Mục đích**: Sinh Base32 Secret Key ngẫu nhiên và chuẩn bị mã QR để người dùng quét vào app Authenticator.
+- **Mục đích**: Sinh Base32 Secret Key ngẫu nhiên và chuẩn bị mã QR để người dùng quét vào app Authenticator. Bộ 8 Backup Codes được sinh sẵn ở server (trạng thái `PENDING_CONFIRMATION`) nhưng **chỉ trả về/hiển thị sau khi xác nhận kích hoạt thành công** tại `3.2.3` để tránh lộ mã khi 2FA chưa chính thức bật.
 - **Request Body**: `{}` (rỗng)
 - **Responses**:
   - `200 OK`:
@@ -342,17 +421,7 @@
       "message": "2FA setup initiated successfully. Please verify with OTP to complete.",
       "data": {
         "secret_key": "JBSWY3DPEHPK3PXP",
-        "qr_code_uri": "otpauth://totp/OpenERP:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=OpenERP",
-        "backup_codes": [
-          "A1B2-C3D4",
-          "E5F6-G7H8",
-          "I9J0-K1L2",
-          "M3N4-O5P6",
-          "Q7R8-S9T0",
-          "U1V2-W3X4",
-          "Y5Z6-A7B8",
-          "C9D0-E1F2"
-        ]
+        "qr_code_uri": "otpauth://totp/OpenERP:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=OpenERP"
       }
     }
     ```
@@ -367,15 +436,25 @@
   }
   ```
 - **Responses**:
-  - `200 OK`:
+  - `200 OK` (kèm 8 mã dự phòng, chỉ hiển thị một lần duy nhất):
     ```json
     {
       "success": true,
       "code": "ACCOUNT_2FA_ENABLED_SUCCESS",
-      "message": "Two-factor authentication enabled successfully.",
+      "message": "Two-factor authentication enabled successfully. Please store your backup codes securely.",
       "data": {
         "is_enabled": true,
-        "enabled_at": "2026-09-18T09:00:00Z"
+        "enabled_at": "2026-09-18T09:00:00Z",
+        "backup_codes": [
+          "A1B2-C3D4",
+          "E5F6-G7H8",
+          "I9J0-K1L2",
+          "M3N4-O5P6",
+          "Q7R8-S9T0",
+          "U1V2-W3X4",
+          "Y5Z6-A7B8",
+          "C9D0-E1F2"
+        ]
       }
     }
     ```
@@ -477,3 +556,9 @@ Frontend (Angular / Ionic) duy trì file từ điển ngôn ngữ `i18n/vi.json`
 | `ACCOUNT_2FA_BACKUP_CODES_REGENERATED`| Đã cấp lại 8 mã dự phòng mới thành công. | Backup codes regenerated successfully. |
 | `ACCOUNT_SESSION_REVOKED_SUCCESS`| Đã đăng xuất thiết bị thành công. | Device session revoked successfully. |
 | `ACCOUNT_OTHER_SESSIONS_REVOKED_SUCCESS`| Đã đăng xuất khỏi tất cả các thiết bị khác. | Revoked all other active sessions successfully. |
+| `AUTH_LOGOUT_SUCCESS` | Đăng xuất thành công. | Logged out successfully. |
+| `AUTH_TOKEN_REFRESH_SUCCESS` | Làm mới phiên đăng nhập thành công. | Access token refreshed successfully. |
+| `AUTH_REFRESH_TOKEN_INVALID_OR_REVOKED` | Phiên làm việc đã hết hạn hoặc bị thu hồi. Vui lòng đăng nhập lại. | Refresh token is invalid or revoked. Please log in again. |
+| `AUTH_VERIFICATION_EMAIL_RESENT` | Nếu email tồn tại, mã xác thực mới đã được gửi. | If the email exists, a new verification code has been sent. |
+| `AUTH_OTP_RESEND_TOO_SOON` | Vui lòng chờ {{retry_after}} giây trước khi yêu cầu gửi lại mã. | Please wait {{retry_after}} seconds before requesting a new code. |
+| `AUTH_2FA_ATTEMPTS_EXCEEDED` | Bạn đã nhập sai mã 2FA 3 lần liên tiếp. Vui lòng đăng nhập lại. | Too many invalid 2FA attempts. Please log in again. |

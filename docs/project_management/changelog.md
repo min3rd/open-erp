@@ -6,6 +6,11 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
 
 ## [Unreleased]
 
+### Fixed
+- Sửa toàn bộ liên kết hỏng và chuẩn hóa đường dẫn theo cấu trúc Sprint-Pack (00-09) trong `docs/`, templates, changelog, work log và file quy tắc `.agents/`.
+- Đồng bộ thiết kế 2FA (nơi lưu Backup Codes, endpoint, thời điểm trả mã dự phòng, khóa sau 3 lần nhập sai) giữa ANL-01, DES-01, DES-02 và FEAT-05.
+- Bổ sung thiết kế Personal Workspace, dữ liệu tạm thời trong Redis và các endpoint auth còn thiếu (`refresh`, `logout`, `resend-verification`).
+
 ### Added
 - Khởi tạo quy trình phát triển phần mềm chuẩn mực 9 bước Docs-driven Multi-Agent SDLC.
 - Cấu hình quy tắc dự án trong `.agents/rules/sdlc_process.md` và `AGENTS.md`.
@@ -13,11 +18,11 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
 - Bộ khung tài liệu giao tiếp và biểu mẫu trong thư mục `docs/`.
 - Tích hợp mô hình Agile Sprints: Quản lý task, bug, feature, refactor dưới dạng từng file độc lập.
 - Thiết lập quy tắc đóng Sprint nghiêm ngặt (Không còn item > Medium).
-- Bộ biểu mẫu Agile trong `docs/05_project_management/templates/`.
+- Bộ biểu mẫu Agile trong `docs/system/templates/`.
 - Ban hành quy chuẩn Kiến trúc Microservices và Multi-Tenant SaaS.
 - Thiết lập ranh giới Core tối giản (Auth, Account, RBAC, Data RBAC, Plugin Manager) và hệ sinh thái Plugin nghiệp vụ độc lập.
 - Thiết lập cơ chế Semantic Versioning và Data Migration hai chiều (`up`/`down`) an toàn theo từng Tenant.
-- Ban hành bản thiết kế kiến trúc [SYSTEM_BLUEPRINT.md](../03_designs/architecture/SYSTEM_BLUEPRINT.md) và mẫu [PLUGIN_SPEC_TEMPLATE.md](../03_designs/templates/PLUGIN_SPEC_TEMPLATE.md).
+- Ban hành bản thiết kế kiến trúc [SYSTEM_BLUEPRINT.md](../system/architecture/SYSTEM_BLUEPRINT.md) và mẫu [PLUGIN_SPEC_TEMPLATE.md](../system/templates/PLUGIN_SPEC_TEMPLATE.md).
 - Ban hành Tech Stack chuẩn mực: Backend **Quarkus (Java)**, Web **Angular >= 22 + Tailwind CSS v4**, Mobile **Ionic 8 + Angular**.
 - Ban hành quy tắc Component-First cho Thư viện giao diện dùng chung (Shared UI Library) và hạn chế tối đa thư viện bên thứ 3.
 - Ban hành cơ chế Entity Registry cho các thực thể CSDL của module/plugin.
@@ -38,3 +43,4 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
   - Hoàn tất tài liệu phân tích nghiệp vụ (RAW-01, ANL-01, BENCH-01, CONF-01).
   - Ban hành bản thiết kế giải pháp và chi tiết kỹ thuật (SOL-01, CORE_IAM_DATABASE_SCHEMA, CORE_IAM_API_SPEC, CORE_IAM_UI_SPEC).
 - Ban hành Quy Chuẩn API Contract Đa Ngôn Ngữ (i18n Code-Driven): Bãi bỏ hardcode message văn bản trong API responses, chuẩn hóa envelope bằng mã định danh `code` và `params` nội suy cho Frontend tự chủ chuyển ngữ.
+- Khách hàng phê duyệt xác nhận bổ sung tài liệu Sprint 01 sau rà soát nhất quán (CONF-01 Mục 3), chính thức chuyển sang Bước 7 - Lập trình.

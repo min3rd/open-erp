@@ -22,14 +22,14 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
   - Bổ sung nguyên tắc phát triển theo mô hình Agile / Sprint.
   - Thiết lập cơ chế quản lý mọi task, bug, feature, refactor thành từng file độc lập để tránh bỏ sót.
   - Thiết lập ràng buộc nghiêm ngặt đóng Sprint (Sprint Closure DoD Gate): Không còn item nào > Medium (`Critical`, `High`) chưa giải quyết.
-  - Tạo bộ biểu mẫu Agile trong `docs/05_project_management/templates/` (Task, Bug, Feature, Refactor, Sprint Plan, Sprint Review).
+  - Tạo bộ biểu mẫu Agile trong `docs/system/templates/` (Task, Bug, Feature, Refactor, Sprint Plan, Sprint Review).
 
 - **Thiết lập Kiến Trúc Cốt Lõi: Microservices, Multi-Tenant SaaS & Plugin hóa**:
   - Xác lập ranh giới Core tối giản: Chỉ gồm Auth, Account/Organization, Functional RBAC, Data RBAC, Plugin Registry & Engine.
   - Quy định toàn bộ tính năng nghiệp vụ khác bắt buộc xây dựng dưới dạng Plugin có thể cài/gỡ tự do cho từng Tenant.
   - Ban hành quy chuẩn Tenant Data Isolation chống rò rỉ dữ liệu chéo.
   - Thiết lập quy trình quản lý phiên bản (SemVer) và script migration dữ liệu (`up`/`down`) an toàn theo từng Tenant.
-  - Khởi tạo tài liệu thiết kế nền tảng [SYSTEM_BLUEPRINT.md](../03_designs/architecture/SYSTEM_BLUEPRINT.md) và mẫu đặc tả [PLUGIN_SPEC_TEMPLATE.md](../03_designs/templates/PLUGIN_SPEC_TEMPLATE.md).
+  - Khởi tạo tài liệu thiết kế nền tảng [SYSTEM_BLUEPRINT.md](../system/architecture/SYSTEM_BLUEPRINT.md) và mẫu đặc tả [PLUGIN_SPEC_TEMPLATE.md](../system/templates/PLUGIN_SPEC_TEMPLATE.md).
 
 - **Ban hành Chuẩn Công Nghệ (Tech Stack) & Quy Tắc Giao Diện Dùng Chung**:
   - Xác định chuẩn Backend: **Quarkus** (ngôn ngữ chuẩn: **Java**, phiên bản Java LTS 21+).
@@ -70,23 +70,23 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
   - Đồng bộ các quy chuẩn vào `AGENTS.md` (bổ sung điều cấm 9 & 10), `.agents/rules/sdlc_process.md` (Mục 3.3, 3.4, Mục 8), `sdlc-workflow`, `coding_standards.md` và `shared_ui_contribution_guide.md`.
 
 - **Khởi Động Sprint 01: Core Identity, Access & Account Management**:
-  - **PM Agent**: Khởi tạo Sprint 01 (`sprints/sprint_01/sprint_plan.md`), tạo 6 file quản lý tính năng độc lập trong `items/` (FEAT-01 đến FEAT-06), cập nhật `task_board.md`.
+  - **PM Agent**: Khởi tạo Sprint 01 (`sprints/sprint_01_core_iam/sprint_plan.md`), tạo 6 file quản lý tính năng độc lập trong `07_items/` (FEAT-01 đến FEAT-06), cập nhật `task_board.md`.
   - **BA Agent**: Hoàn thành trọn vẹn 4 bước yêu cầu:
-    - Tiếp nhận yêu cầu thô: `docs/01_requirements/raw_notes/RAW-01_sprint_01_core_identity.md`.
-    - Phân tích nghiệp vụ chi tiết: `docs/01_requirements/analysis/ANL-01_core_identity_access.md`.
-    - Đối chuẩn kiến trúc IAM (Keycloak, Auth0, Odoo, Supabase): `docs/01_requirements/benchmarks/BENCH-01_auth_identity_saas.md`.
-    - Biên bản xác nhận phạm vi & tiêu chí nghiệm thu: `docs/01_requirements/confirmations/CONF-01_sprint_01_scope.md`.
+    - Tiếp nhận yêu cầu thô: `docs/sprints/sprint_01_core_iam/01_raw_notes/RAW-01_sprint_01_core_identity.md`.
+    - Phân tích nghiệp vụ chi tiết: `docs/sprints/sprint_01_core_iam/02_analysis/ANL-01_core_identity_access.md`.
+    - Đối chuẩn kiến trúc IAM (Keycloak, Auth0, Odoo, Supabase): `docs/sprints/sprint_01_core_iam/03_benchmarks/BENCH-01_auth_identity_saas.md`.
+    - Biên bản xác nhận phạm vi & tiêu chí nghiệm thu: `docs/sprints/sprint_01_core_iam/04_confirmation/CONF-01_sprint_01_scope.md`.
   - **Solution Architect Agent**: Hoàn thành giải pháp và thiết kế chi tiết:
-    - Nghiên cứu giải pháp kỹ thuật: `docs/02_solutions/SOL-01_core_identity_architecture.md`.
-    - Thiết kế CSDL PostgreSQL Multi-Tenant: `docs/03_designs/database/CORE_IAM_DATABASE_SCHEMA.md`.
-    - Đặc tả kỹ thuật REST API: `docs/03_designs/api/CORE_IAM_API_SPEC.md`.
-    - Đặc tả UI/UX Anti-Modal (Drawer & Split-View): `docs/03_designs/ui_ux/CORE_IAM_UI_SPEC.md`.
+    - Nghiên cứu giải pháp kỹ thuật: `docs/sprints/sprint_01_core_iam/05_solutions/SOL-01_core_identity_architecture.md`.
+    - Thiết kế CSDL PostgreSQL Multi-Tenant: `docs/sprints/sprint_01_core_iam/06_designs/database/CORE_IAM_DATABASE_SCHEMA.md`.
+    - Đặc tả kỹ thuật REST API: `docs/sprints/sprint_01_core_iam/06_designs/api/CORE_IAM_API_SPEC.md`.
+    - Đặc tả UI/UX Anti-Modal (Drawer & Split-View): `docs/sprints/sprint_01_core_iam/06_designs/ui_ux/CORE_IAM_UI_SPEC.md`.
 
 - **Chuẩn Hóa API Contract Đa Ngôn Ngữ (Code-Based i18n API Contract)**:
   - Bãi bỏ hoàn toàn việc hardcode chuỗi message tiếng Việt trong API responses.
   - Chuẩn hóa cấu trúc Envelope phản hồi qua `code` (`UPPER_SNAKE_CASE`), `params` nội suy, và `data`.
   - Frontend tự chủ quản lý từ điển đa ngôn ngữ (`i18n/{lang}.json`) dựa trên mã `code` nhận được mà không cần tinh chỉnh backend.
-  - Cập nhật quy tắc vào `AGENTS.md` (bổ sung điều cấm số 11), `.agents/rules/sdlc_process.md` (Mục 9), `coding_standards.md` (Mục 1.4), và refactor toàn bộ `docs/03_designs/api/CORE_IAM_API_SPEC.md`.
+  - Cập nhật quy tắc vào `AGENTS.md` (bổ sung điều cấm số 11), `.agents/rules/sdlc_process.md` (Mục 9), `coding_standards.md` (Mục 1.4), và refactor toàn bộ `docs/sprints/sprint_01_core_iam/06_designs/api/CORE_IAM_API_SPEC.md`.
 
 ---
 
@@ -96,14 +96,14 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 - **Nội dung công việc**:
   - **Tiếp nhận yêu cầu từ Khách hàng**: Bổ sung phân hệ Đăng ký (Kích hoạt) và Xóa/Tắt (Hủy) xác thực 2 yếu tố (2FA) trực tiếp trong Quản lý tài khoản (FEAT-06).
   - **BA Agent**:
-    - Tạo ghi chú thô: `docs/01_requirements/raw_notes/RAW-02_account_2fa_management.md`.
-    - Cập nhật tài liệu phân tích nghiệp vụ `docs/01_requirements/analysis/ANL-01_core_identity_access.md`: Bổ sung chi tiết quy trình Bật 2FA (quét QR, nhập mã kích hoạt, lưu 8 backup codes), quy trình Xóa 2FA (bảo mật kép bắt buộc nhập mật khẩu hiện tại + mã OTP/Backup code, gửi email cảnh báo bảo mật khẩn cấp) và tái tạo mã dự phòng.
-    - Cập nhật biên bản xác nhận phạm vi Sprint 01 `docs/01_requirements/confirmations/CONF-01_sprint_01_scope.md`.
+    - Tạo ghi chú thô: `docs/sprints/sprint_01_core_iam/01_raw_notes/RAW-02_account_2fa_management.md`.
+    - Cập nhật tài liệu phân tích nghiệp vụ `docs/sprints/sprint_01_core_iam/02_analysis/ANL-01_core_identity_access.md`: Bổ sung chi tiết quy trình Bật 2FA (quét QR, nhập mã kích hoạt, lưu 8 backup codes), quy trình Xóa 2FA (bảo mật kép bắt buộc nhập mật khẩu hiện tại + mã OTP/Backup code, gửi email cảnh báo bảo mật khẩn cấp) và tái tạo mã dự phòng.
+    - Cập nhật biên bản xác nhận phạm vi Sprint 01 `docs/sprints/sprint_01_core_iam/04_confirmation/CONF-01_sprint_01_scope.md`.
   - **Solution Architect Agent**:
-    - Cập nhật đặc tả REST API `docs/03_designs/api/CORE_IAM_API_SPEC.md`: Chi tiết hóa các endpoint `/api/v1/account/2fa/status`, `/api/v1/account/2fa/setup`, `/api/v1/account/2fa/enable`, `/api/v1/account/2fa/disable`, `/api/v1/account/2fa/regenerate-backup-codes` với payload và mã lỗi i18n chuẩn hóa.
-    - Cập nhật đặc tả UI/UX `docs/03_designs/ui_ux/CORE_IAM_UI_SPEC.md`: Thiết kế chi tiết Tab Bảo Mật, hai Drawer con xếp chồng (`Setup2FaDrawerComponent`, `Disable2FaDrawerComponent`) đảm bảo triết lý Anti-Modal và tính đậm đặc thông tin (`text-xs`, `rounded-none`).
+    - Cập nhật đặc tả REST API `docs/sprints/sprint_01_core_iam/06_designs/api/CORE_IAM_API_SPEC.md`: Chi tiết hóa các endpoint `/api/v1/account/2fa/status`, `/api/v1/account/2fa/setup`, `/api/v1/account/2fa/enable`, `/api/v1/account/2fa/disable`, `/api/v1/account/2fa/regenerate-backup-codes` với payload và mã lỗi i18n chuẩn hóa.
+    - Cập nhật đặc tả UI/UX `docs/sprints/sprint_01_core_iam/06_designs/ui_ux/CORE_IAM_UI_SPEC.md`: Thiết kế chi tiết Tab Bảo Mật, hai Drawer con xếp chồng (`Setup2FaDrawerComponent`, `Disable2FaDrawerComponent`) đảm bảo triết lý Anti-Modal và tính đậm đặc thông tin (`text-xs`, `rounded-none`).
   - **PM Agent**:
-    - Cập nhật `items/FEAT-06_account_management.md` với các kịch bản Acceptance Criteria và Sub-tasks kỹ thuật bổ sung.
+    - Cập nhật `07_items/FEAT-06_account_management.md` với các kịch bản Acceptance Criteria và Sub-tasks kỹ thuật bổ sung.
     - Cập nhật kế hoạch Sprint `sprint_plan.md` và Task Board `task_board.md`.
 
 - **Chuẩn Hóa Cấu Trúc Tài Liệu Theo Lệnh `/learn` (Sprint-Pack Sequential Documentation)**:
@@ -112,3 +112,12 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
   - Thiết lập file điều hướng bắt buộc `00_READING_GUIDE.md` đóng vai trò bản đồ đọc tuần tự (Bước 1 đến Bước 4 cho Khách Hàng confirm, Bước 5 đến 7 cho Kỹ thuật, Bước 8 đến 9 cho QA/PM).
   - Cập nhật quy tắc vào `AGENTS.md` (bổ sung điều cấm số 12), `.agents/rules/sdlc_process.md` (Mục 2 & Mục 4), `SKILL.md` (Mục 2 & Mục 3), và `docs/README.md`.
   - Di chuyển và chuẩn hóa toàn bộ tài liệu Sprint 01 vào `docs/sprints/sprint_01_core_iam/`, dọn dẹp các thư mục rải rác cũ.
+
+- **Rà Soát & Chuẩn Hóa Tài Liệu Sprint 01 (Documentation Review & Fix)**:
+  - Sửa toàn bộ liên kết hỏng do tàn dư cấu trúc tài liệu cũ (`01_requirements/`, `03_designs/`, `items/`) trong Sprint-Pack, `docs/README.md`, bộ templates, `changelog.md`, `work_log.md`, `task_board.md`, `.agents/rules/sdlc_process.md` và `SKILL.md`.
+  - Đồng bộ thiết kế 2FA giữa ANL-01, DES-01, DES-02 và FEAT-05: thống nhất lưu Backup Codes dạng `backup_codes_hash` JSONB trong bảng `user_two_factor` (bỏ bảng `user_backup_codes`), thống nhất endpoint `POST /api/v1/auth/2fa/verify-login` và nhóm `POST /api/v1/account/2fa/*`, chỉ trả 8 mã dự phòng tại bước `enable`, bổ sung quy tắc khóa sau 3 lần nhập sai kèm mã lỗi `AUTH_2FA_ATTEMPTS_EXCEEDED`.
+  - Bổ sung thiết kế Personal Workspace (`tenants.type = 'PERSONAL'`) và bảng dữ liệu tạm thời lưu trong Redis (OTP xác thực email, pre-auth token, session, token blacklist).
+  - Chốt quy tắc email trùng khi đăng ký doanh nghiệp (trả `AUTH_EMAIL_ALREADY_EXISTS`, không tự động liên kết), chốt thuật toán Argon2id, đồng bộ ERD/SQL bảng `user_credentials`.
+  - Bổ sung endpoint còn thiếu vào đặc tả API: `POST /api/v1/auth/refresh`, `POST /api/v1/auth/logout`, `POST /api/v1/auth/resend-verification` kèm mã i18n tương ứng.
+  - Bổ sung test case TC-10, TC-11, TC-12 vào `08_testing/test_plan.md`.
+  - Rà soát lại toàn bộ tài liệu Sprint 01 lần cuối: **ĐẠT YÊU CẦU**. Khách hàng phê duyệt xác nhận bổ sung tại `04_confirmation/CONF-01_sprint_01_scope.md` (Mục 3) và cập nhật checklist tại `00_READING_GUIDE.md`, chính thức chuyển Sprint 01 sang **Bước 7 - Lập trình**.

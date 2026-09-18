@@ -13,7 +13,7 @@
 > Mô tả chi tiết nội dung kỹ thuật cần thực hiện.
 
 - Bối cảnh và mục tiêu: ...
-- Tài liệu thiết kế liên quan: [Đường dẫn đến docs/03_designs/...]
+- Tài liệu thiết kế liên quan: [Đường dẫn đến docs/sprints/sprint_XX_<tên>/06_designs/...]
 
 ## 2. Các Bước Kỹ Thuật Cần Triển Khai
 - [ ] Bước 1: ...

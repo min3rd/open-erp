@@ -8,16 +8,16 @@
 
 ## 1. Danh Sách Hạng Mục Cam Kết Trong Sprint (Sprint Backlog)
 
-Mọi tính năng được quản lý bằng từng file riêng biệt trong thư mục `items/` để theo dõi tiến độ và kiểm soát chất lượng:
+Mọi tính năng được quản lý bằng từng file riêng biệt trong thư mục `07_items/` để theo dõi tiến độ và kiểm soát chất lượng:
 
 | Mã Tính Năng | Tiêu Đề Tính Năng | Phân Loại | Mức Độ Ưu Tiên | Phụ Trách | Trạng Thái | File Chi Tiết |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **FEAT-01** | Đăng ký tài khoản cá nhân | Feature | High | BA / Dev | In Progress | [FEAT-01.md](items/FEAT-01_personal_registration.md) |
-| **FEAT-02** | Đăng ký tài khoản quản trị doanh nghiệp (Tạo Tenant) | Feature | Critical | BA / Dev | In Progress | [FEAT-02.md](items/FEAT-02_business_registration.md) |
-| **FEAT-03** | Đăng nhập & Xác định ngữ cảnh Tenant (Multi-tenant Login) | Feature | Critical | BA / Dev | In Progress | [FEAT-03.md](items/FEAT-03_authentication_login.md) |
-| **FEAT-04** | Quên mật khẩu & Khôi phục tài khoản qua Email | Feature | High | BA / Dev | In Progress | [FEAT-04.md](items/FEAT-04_forgot_password.md) |
-| **FEAT-05** | Xác thực 2 yếu tố (2FA - TOTP RFC 6238) | Feature | High | BA / Dev | In Progress | [FEAT-05.md](items/FEAT-05_two_factor_auth.md) |
-| **FEAT-06** | Quản lý tài khoản (Profile, 2FA Management, Sessions qua Drawer Anti-Modal) | Feature | Medium | BA / Dev | In Progress | [FEAT-06.md](items/FEAT-06_account_management.md) |
+| **FEAT-01** | Đăng ký tài khoản cá nhân | Feature | High | BA / Dev | In Progress | [FEAT-01.md](07_items/FEAT-01_personal_registration.md) |
+| **FEAT-02** | Đăng ký tài khoản quản trị doanh nghiệp (Tạo Tenant) | Feature | Critical | BA / Dev | In Progress | [FEAT-02.md](07_items/FEAT-02_business_registration.md) |
+| **FEAT-03** | Đăng nhập & Xác định ngữ cảnh Tenant (Multi-tenant Login) | Feature | Critical | BA / Dev | In Progress | [FEAT-03.md](07_items/FEAT-03_authentication_login.md) |
+| **FEAT-04** | Quên mật khẩu & Khôi phục tài khoản qua Email | Feature | High | BA / Dev | In Progress | [FEAT-04.md](07_items/FEAT-04_forgot_password.md) |
+| **FEAT-05** | Xác thực 2 yếu tố (2FA - TOTP RFC 6238) | Feature | High | BA / Dev | In Progress | [FEAT-05.md](07_items/FEAT-05_two_factor_auth.md) |
+| **FEAT-06** | Quản lý tài khoản (Profile, 2FA Management, Sessions qua Drawer Anti-Modal) | Feature | Medium | BA / Dev | In Progress | [FEAT-06.md](07_items/FEAT-06_account_management.md) |
 
 ---
 

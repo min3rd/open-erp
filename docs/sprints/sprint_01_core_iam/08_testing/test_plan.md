@@ -34,3 +34,6 @@ Tuân thủ nghiêm ngặt **Chính Sách Kiểm Thử Thực Dụng (Pragmatic 
 | **TC-07** | Tắt 2FA bảo mật kép | Browser QA & Backend | Nhập đúng mật khẩu + OTP để tắt; nhập sai thì báo lỗi và từ chối | Chờ kiểm thử |
 | **TC-08** | Giám sát & Hủy Session | Browser QA & Backend | Hiển thị đúng IP/Browser, bấm đăng xuất thì phiên Redis bị xóa | Chờ kiểm thử |
 | **TC-09** | Giao diện Anti-Modal | Browser QA | Kiểm tra toàn bộ thao tác trong Drawer và Stacked Drawer, không có Modal pop-up | Chờ kiểm thử |
+| **TC-10** | Khóa xác thực 2FA | Backend | Nhập sai mã 2FA 3 lần liên tiếp → hủy `pre_auth_token` trong Redis, trả `AUTH_2FA_ATTEMPTS_EXCEEDED` | Chờ kiểm thử |
+| **TC-11** | Refresh & Logout Token | Backend | Refresh token hợp lệ cấp Access Token mới; Logout blacklist token, request cũ bị `401` | Chờ kiểm thử |
+| **TC-12** | Personal Workspace | Backend | Xác thực email cá nhân thành công → tự động tạo `tenants.type = 'PERSONAL'` + liên kết `TENANT_ADMIN` | Chờ kiểm thử |

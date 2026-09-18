@@ -58,10 +58,10 @@ Trong hệ thống Open-ERP, kiến trúc định danh được bóc tách thàn
 - **Luồng xử lý**:
   1. Người dùng gửi form đăng ký.
   2. Hệ thống kiểm tra trùng lặp email.
-  3. Mã hóa mật khẩu bằng thuật toán an toàn **Argon2id** (hoặc BCrypt 12 rounds).
+  3. Mã hóa mật khẩu bằng thuật toán an toàn **Argon2id** (lựa chọn duy nhất, không dùng BCrypt).
   4. Tạo bản ghi User ở trạng thái `PENDING_VERIFICATION`.
   5. Sinh mã OTP kích hoạt 6 chữ số (hạn dùng 15 phút), gửi email thông báo qua Quarkus Mailer (bắt tại Mailpit port 8025).
-  6. Người dùng nhập mã OTP để kích hoạt tài khoản sang `ACTIVE`.
+  6. Người dùng nhập mã OTP để kích hoạt tài khoản sang `ACTIVE` và hệ thống tự động cấp một Personal Workspace (`tenants.type = 'PERSONAL'`, vai trò `TENANT_ADMIN`).
 
 ### 3.2. Đăng Ký Tài Khoản Quản Trị Doanh Nghiệp (Business Registration / Tenant Creation)
 - **Mục tiêu**: Cho phép một doanh nghiệp mới gia nhập nền tảng Open-ERP, tạo ra một Tenant độc lập.
@@ -76,8 +76,8 @@ Trong hệ thống Open-ERP, kiến trúc định danh được bóc tách thàn
 - **Luồng xử lý**:
   1. Kiểm tra tính khả dụng của `tenant_slug` (chỉ chấp nhận chữ thường, số và dấu gạch ngang; không trùng với các slug hệ thống như `api`, `admin`, `core`).
   2. Trong một Database Transaction:
-     - Tạo bản ghi `tenants`.
-     - Tạo tài khoản User nếu chưa có (hoặc liên kết nếu đã có).
+     - Tạo bản ghi `tenants` với `type = 'BUSINESS'`.
+     - Tạo tài khoản User mới. Nếu email đã tồn tại trong hệ thống, hệ thống **không tự động liên kết** mà trả về lỗi `AUTH_EMAIL_ALREADY_EXISTS` (người dùng phải đăng nhập và dùng chức năng tạo thêm doanh nghiệp ở giai đoạn sau) nhằm chống chiếm đoạt tài khoản.
      - Thiết lập quan hệ trong `user_tenants` với vai trò `TENANT_ADMIN`.
      - Khởi tạo Tenant Data Isolation (Row-Level Security Tenant ID hoặc Database riêng).
   3. Gửi email xác nhận kèm link truy cập workspace.
@@ -116,6 +116,7 @@ Trong hệ thống Open-ERP, kiến trúc định danh được bóc tách thàn
   2. **Xác thực khi đăng nhập**:
      - Người dùng nhập mã 6 số từ app Authenticator.
      - Hệ thống kiểm tra với độ lệch thời gian cho phép $\pm 1$ bước (drift tolerance 30s).
+     - Nhập sai 3 lần liên tiếp (tính từ lần sai thứ 3): hủy phiên xác thực tạm (`pre_auth_token` trong Redis) và buộc người dùng đăng nhập lại từ đầu.
   3. **Khôi phục khẩn cấp bằng Backup Code**:
      - Nhập mã dự phòng khi không có điện thoại. Mã dự phòng sử dụng 1 lần sẽ bị xóa vĩnh viễn.
 

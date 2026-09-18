@@ -3,7 +3,7 @@
 - **Mã Giải Pháp**: SOL-01
 - **Phụ Trách**: Solution Architect Agent
 - **Ngày Thực Hiện**: 2026-09-17
-- **Tài Liệu Yêu Cầu**: [CONF-01_sprint_01_scope.md](../01_requirements/confirmations/CONF-01_sprint_01_scope.md)
+- **Tài Liệu Yêu Cầu**: [CONF-01_sprint_01_scope.md](../04_confirmation/CONF-01_sprint_01_scope.md)
 
 ---
 
@@ -37,7 +37,7 @@ Browser / Mobile App              Quarkus Backend                   Redis Cache 
 ## 2. Các Quyết Định Kỹ Thuật Trọng Yếu (Key Technical Decisions)
 
 ### 2.1. Mã Hóa Mật Khẩu (Password Hashing)
-- **Lựa chọn**: **Argon2id** (hoặc BCrypt `cost = 12`).
+- **Lựa chọn**: **Argon2id** (lựa chọn duy nhất, không dùng BCrypt).
 - **Lý do**: Argon2id là chuẩn vô địch Password Hashing Competition (PHC), chống tấn công GPU/ASIC và tấn công thời gian (side-channel attacks).
 
 ### 2.2. Cơ Chế Xác Thực Hai Yếu Tố (2FA - TOTP)
