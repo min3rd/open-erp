@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class BusinessRegisterRequest {
@@ -28,6 +29,10 @@ public class BusinessRegisterRequest {
 
         @NotBlank
         @Size(min = 8, max = 64)
+        @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).*$",
+            message = "VALIDATION_PASSWORD_TOO_WEAK"
+        )
         public String password;
     }
 

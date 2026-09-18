@@ -15,6 +15,8 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
 - Không còn issue mở cho Sprint 01 (đã đóng 2026-09-18).
 
 ### Fixed
+- BUG-48: Enforce độ phức tạp mật khẩu (hoa+thường+số+đặc biệt) cho đăng ký cá nhân/doanh nghiệp và đặt lại mật khẩu; trả VALIDATION_PASSWORD_TOO_WEAK.
+- BUG-47: Chuẩn hóa API contract 4 khuôn mẫu - validation errors[{field,code,params}], sessions data.items, envelope luôn có data (null), malformed JSON code.
 - Sửa toàn bộ liên kết hỏng và chuẩn hóa đường dẫn theo cấu trúc Sprint-Pack (00-09) trong `docs/`, templates, changelog, work log và file quy tắc `.agents/`.
 - Đồng bộ thiết kế 2FA (nơi lưu Backup Codes, endpoint, thời điểm trả mã dự phòng, khóa sau 3 lần nhập sai) giữa ANL-01, DES-01, DES-02 và FEAT-05.
 - Bổ sung thiết kế Personal Workspace, dữ liệu tạm thời trong Redis và các endpoint auth còn thiếu (`refresh`, `logout`, `resend-verification`).

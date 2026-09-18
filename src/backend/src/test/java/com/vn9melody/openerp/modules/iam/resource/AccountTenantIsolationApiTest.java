@@ -3,6 +3,7 @@ package com.vn9melody.openerp.modules.iam.resource;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -141,9 +142,11 @@ public class AccountTenantIsolationApiTest {
         .then()
             .statusCode(200)
             .body("code", equalTo(ErrorCode.ACCOUNT_SESSIONS_FETCH_SUCCESS))
-            .body("data.size()", equalTo(1))
-            .body("data.session_id[0]", equalTo(userA.sessionId))
-            .body("data.session_id", not(hasItem(userB.sessionId)));
+            .body("data", instanceOf(Map.class))
+            .body("data.items", instanceOf(java.util.List.class))
+            .body("data.items.size()", equalTo(1))
+            .body("data.items[0].session_id", equalTo(userA.sessionId))
+            .body("data.items.session_id", not(hasItem(userB.sessionId)));
 
         given()
             .header("Authorization", "Bearer " + userA.accessToken)

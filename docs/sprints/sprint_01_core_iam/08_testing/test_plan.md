@@ -47,6 +47,8 @@ Tuân thủ nghiêm ngặt **Chính Sách Kiểm Thử Thực Dụng (Pragmatic 
 | **TC-24** | Brute-force hết hạn khóa | Backend | Sau 15 phút khóa, tài khoản tự mở khóa và đăng nhập lại được | [x] **PASS** (AuthServiceTest) |
 | **TC-25** | Check-slug API | Backend & Browser QA | `GET /auth/check-slug` trả `AVAILABLE`/`DUPLICATE` đúng contract; 400 khi slug invalid/reserved | [x] **PASS** (AuthResourceApiTest + browser) |
 | **TC-26** | 401 envelope | Backend | Request không token/token rác → 401 envelope `code=UNAUTHORIZED` | [x] **PASS** (AuthResourceApiTest + curl) |
+| **TC-27** | Tuân thủ 4 khuôn mẫu API | Backend & Browser QA | Validation envelope (errors field snake_case), malformed JSON, sessions items, data:null, duplicate email errors | [x] **PASS** (curl + mvn test 34/34) |
+| **TC-28** | Chính sách mật khẩu mạnh | Backend | Đăng ký/đặt lại với mật khẩu yếu → 400 VALIDATION_PASSWORD_TOO_WEAK; mật khẩu đủ mạnh thành công | [x] **PASS** (curl + mvn test 36/36) |
 
 ---
 
@@ -58,12 +60,12 @@ Báo cáo đầy đủ: [QA_RETEST_SPRINT_01.md](../09_review/QA_RETEST_SPRINT_0
 | :--- | :--- | :---: | :---: |
 | Service Test | `AuthServiceTest` (8), `AccountServiceTest` (3), `TwoFactorServiceTest` (3) | 14 | **PASS** |
 | Registry Test | `EntityRegistryServiceTest` (7 entity `core-iam` đăng ký) | 1 | **PASS** |
-| API Test (RestAssured) | `AuthResourceApiTest` (register/verify/login/select-tenant/profile/refresh/logout/2FA lockout/resend/415/check-slug/401 envelope) | 12 | **PASS** |
+| API Test (RestAssured) | `AuthResourceApiTest` (register/verify/login/select-tenant/profile/refresh/logout/2FA lockout/resend/415/check-slug/401 envelope/password complexity BUG-48) | 18 | **PASS** |
 | API Test (RestAssured) | `AccountTenantIsolationApiTest` (tenant isolation + session ownership) | 3 | **PASS** |
 | Frontend Web | `npm run build` (production) | - | **PASS** |
 | Mobile Ionic 8 | `npm run build` + `ionic serve` | - | **PASS** |
 | Browser E2E | puppeteer (Chrome headless) — login không checkbox, form doanh nghiệp 2 bước, live slug check, 401, 2FA redirect | 6 | **PASS 6/6** |
-| **Tổng Backend** | `mvn test` (PostgreSQL + Redis thật, không H2) | **30** | **PASS 30/30** |
+| **Tổng Backend** | `mvn test` (PostgreSQL + Redis thật, không H2) | **36** | **PASS 36/36** |
 
 Ghi chú:
 - TC-13 (resend rate limit), TC-14/TC-14b/TC-15 (tenant isolation), TC-16 (4xx envelope), TC-20 → TC-26 là các kịch bản API bổ sung, đã pass.

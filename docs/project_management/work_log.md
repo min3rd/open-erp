@@ -202,3 +202,14 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
   - Ban hành Hướng dẫn sử dụng UG-01 (25 ảnh), TR-01 Test Report, Entity Registry Core IAM.
   - Cập nhật `sprint_review.md` trạng thái ĐÃ ĐÓNG; `sprint_plan.md` DoD đạt 100%; `00_READING_GUIDE.md` chốt trạng thái đóng.
   - Retrospective ghi nhận 3 bài học (Tailwind `@source`, test DB isolation, NavController) và hành động cho Sprint 02.
+
+- **Hậu Kiểm & Chuẩn Hóa API Contract (BUG-47) - 2026-09-18**:
+  - Audit theo `.agents/rules/api_standards.md`: phát hiện lỗi validation trả format mặc định Quarkus, sessions trả mảng trần, thiếu `data:null`, `errors[]` rỗng/không có params.
+  - Sửa: ValidationExceptionMapper (errors field/code/params, field snake_case), WebApplicationExceptionMapper cho malformed JSON, ApiFieldError typed, ApiResponse luôn có data, SessionsResponse bọc `items`, check-slug/duplicate email-slug có errors chi tiết.
+  - Kết quả: backend `mvn test` 34/34 PASS; curl verify đủ 4 khuôn mẫu; Web/Mobile build PASS.
+
+- **Enforce Chính Sách Mật Khẩu Mạnh (BUG-48) - 2026-09-18**:
+  - Thêm ràng buộc `@Pattern` (tối thiểu 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt) cho `PersonalRegisterRequest.password`, `BusinessRegisterRequest.AdminInfo.password` và `ResetPasswordRequest.newPassword`.
+  - `ValidationExceptionMapper` ưu tiên message dạng code `^VALIDATION_[A-Z_]+$` để trả `VALIDATION_PASSWORD_TOO_WEAK` trong `errors[]` đúng khuôn mẫu 4 (kèm field snake_case và `params`).
+  - Bổ sung i18n key `VALIDATION_PASSWORD_TOO_WEAK` cho Web (vi/en) và Mobile (vi/en).
+  - Kiểm chứng: backend `mvn test` **36/36 PASS** (thêm 2 test đăng ký/đặt lại mật khẩu yếu); curl runtime `password123` → 400 `VALIDATION_PASSWORD_TOO_WEAK`, mật khẩu đủ mạnh vẫn đăng ký thành công (201).

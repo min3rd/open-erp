@@ -8,10 +8,12 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import com.vn9melody.openerp.core.api.ApiException;
+import com.vn9melody.openerp.core.api.ApiFieldError;
 import com.vn9melody.openerp.core.api.ApiResponse;
 import com.vn9melody.openerp.core.api.ErrorCode;
 import com.vn9melody.openerp.core.enums.ResponseKey;
@@ -89,7 +91,10 @@ public class AuthResource {
         if (!authService.isTenantSlugValid(normalizedSlug)) {
             Map<String, Object> params = new HashMap<>();
             params.put(ResponseKey.FIELD.getKey(), "slug");
-            throw new ApiException(400, ErrorCode.VALIDATION_FAILED, "Tenant slug is invalid", params);
+            List<ApiFieldError> errors = List.of(
+                new ApiFieldError("slug", ErrorCode.VALIDATION_SLUG_INVALID, new HashMap<>())
+            );
+            throw new ApiException(400, ErrorCode.VALIDATION_FAILED, "Tenant slug is invalid", params, errors);
         }
 
         boolean available = authService.isTenantSlugAvailable(normalizedSlug);

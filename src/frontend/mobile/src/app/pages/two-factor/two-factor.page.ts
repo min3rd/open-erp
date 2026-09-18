@@ -21,7 +21,8 @@ import {
   PinInputComponent,
   LanguageSwitcherComponent,
   ThemeSwitcherComponent,
-  ButtonVariant
+  ButtonVariant,
+  apiMessage
 } from '@shared';
 
 @Component({
@@ -100,7 +101,7 @@ export class TwoFactorPage implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMessage.set(this.i18n.t(err.code, err.params));
+        this.errorMessage.set(apiMessage(this.i18n, err));
         if (err.code === 'AUTH_2FA_ATTEMPTS_EXCEEDED') {
           this.auth.clearPreAuth();
           this.navCtrl.navigateRoot('/login', { animationDirection: 'back', replaceUrl: true });

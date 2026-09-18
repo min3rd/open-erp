@@ -9,7 +9,8 @@ import {
   SharpButtonComponent,
   PinInputComponent,
   LanguageSwitcherComponent,
-  ButtonVariant
+  ButtonVariant,
+  apiMessage
 } from '@shared';
 
 @Component({
@@ -70,7 +71,7 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMessage.set(this.i18n.t(err.code, err.params));
+        this.errorMessage.set(apiMessage(this.i18n, err));
       }
     });
   }
@@ -94,7 +95,7 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
           const retryAfter = Number(err.params?.retry_after);
           this.startCountdown(retryAfter > 0 ? retryAfter : 60);
         }
-        this.errorMessage.set(this.i18n.t(err.code, err.params));
+        this.errorMessage.set(apiMessage(this.i18n, err));
       }
     });
   }

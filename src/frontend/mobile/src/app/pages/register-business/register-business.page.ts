@@ -22,7 +22,8 @@ import {
   LanguageSwitcherComponent,
   ThemeSwitcherComponent,
   ButtonType,
-  CompanySize
+  CompanySize,
+  apiMessage
 } from '@shared';
 
 type SlugCheckState = 'idle' | 'checking' | 'available' | 'taken' | 'error';
@@ -162,7 +163,7 @@ export class RegisterBusinessPage implements OnDestroy {
         if (err?.code === 'AUTH_TENANT_SLUG_DUPLICATE') {
           this.slugStatus.set('taken');
         }
-        this.errorMessage.set(this.i18n.t(err.code, err.params));
+        this.errorMessage.set(apiMessage(this.i18n, err));
       }
     });
   }

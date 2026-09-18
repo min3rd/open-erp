@@ -133,7 +133,7 @@ public class AccountResource {
         AccessTokenVerifier.VerifiedAccessToken token = authenticate();
         List<UserSessionResponse> sessions = accountService.getSessions(token.userId(), resolveCurrentSessionId(token));
         return Response.ok(
-            ApiResponse.success(ErrorCode.ACCOUNT_SESSIONS_FETCH_SUCCESS, "Active sessions retrieved successfully.", sessions)
+            ApiResponse.success(ErrorCode.ACCOUNT_SESSIONS_FETCH_SUCCESS, "Active sessions retrieved successfully.", SessionsResponse.of(sessions))
         ).build();
     }
 

@@ -10,6 +10,7 @@ import {
   ButtonVariant,
   ButtonSize,
   BadgeVariant,
+  apiMessage,
   UserSessionData
 } from '@shared';
 
@@ -46,10 +47,10 @@ export class AccountSessionsComponent implements OnInit {
   loadSessions() {
     this.accountService.getSessions().subscribe({
       next: (res) => {
-        this.sessions.set(res.data || []);
+        this.sessions.set(res.data?.items || []);
       },
       error: (err) => {
-        this.sessionsError.set(this.i18n.t(err.code, err.params));
+        this.sessionsError.set(apiMessage(this.i18n, err));
       }
     });
   }
@@ -67,7 +68,7 @@ export class AccountSessionsComponent implements OnInit {
       },
       error: (err) => {
         this.busySessionId.set(null);
-        this.sessionsError.set(this.i18n.t(err.code, err.params));
+        this.sessionsError.set(apiMessage(this.i18n, err));
       }
     });
   }
@@ -85,7 +86,7 @@ export class AccountSessionsComponent implements OnInit {
       },
       error: (err) => {
         this.busySessionId.set(null);
-        this.sessionsError.set(this.i18n.t(err.code, err.params));
+        this.sessionsError.set(apiMessage(this.i18n, err));
       }
     });
   }

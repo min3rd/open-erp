@@ -13,7 +13,8 @@ import {
   PinInputComponent,
   ButtonVariant,
   TwoFactorSetupData,
-  TwoFactorEnableData
+  TwoFactorEnableData,
+  apiMessage
 } from '@shared';
 
 @Component({
@@ -62,7 +63,7 @@ export class Setup2FaDrawerComponent implements OnInit {
       },
       error: (err) => {
         this.loadingSetup.set(false);
-        this.errorMessage.set(this.i18n.t(err.code, err.params));
+        this.errorMessage.set(apiMessage(this.i18n, err));
       }
     });
   }
@@ -79,7 +80,7 @@ export class Setup2FaDrawerComponent implements OnInit {
       },
       error: (err) => {
         this.loadingSubmit.set(false);
-        this.errorMessage.set(this.i18n.t(err.code, err.params));
+        this.errorMessage.set(apiMessage(this.i18n, err));
       }
     });
   }

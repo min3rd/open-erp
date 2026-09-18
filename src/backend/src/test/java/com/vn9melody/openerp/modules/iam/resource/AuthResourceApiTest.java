@@ -5,7 +5,12 @@ import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -57,6 +62,8 @@ public class AuthResourceApiTest {
     private static final String SELECT_TENANT_PATH = "/api/v1/auth/select-tenant";
     private static final String CHECK_SLUG_PATH = "/api/v1/auth/check-slug";
     private static final String BUSINESS_REGISTER_PATH = "/api/v1/auth/register/business";
+    private static final String FORGOT_PASSWORD_PATH = "/api/v1/auth/forgot-password";
+    private static final String RESET_PASSWORD_PATH = "/api/v1/auth/reset-password";
     private static final String PROFILE_PATH = "/api/v1/account/profile";
     private static final String CHANGE_PASSWORD_PATH = "/api/v1/account/change-password";
     private static final String SETUP_2FA_PATH = "/api/v1/account/2fa/setup";
@@ -448,7 +455,9 @@ public class AuthResourceApiTest {
         .then()
             .statusCode(200)
             .body("success", equalTo(true))
-            .body("code", equalTo(ErrorCode.ACCOUNT_PASSWORD_CHANGE_SUCCESS));
+            .body("code", equalTo(ErrorCode.ACCOUNT_PASSWORD_CHANGE_SUCCESS))
+            .body("$", hasKey("data"))
+            .body("data", nullValue());
 
         // Session thứ hai đã bị thu hồi
         given()
@@ -528,7 +537,9 @@ public class AuthResourceApiTest {
             .statusCode(400)
             .body("success", equalTo(false))
             .body("code", equalTo(ErrorCode.VALIDATION_FAILED))
-            .body("params.field", equalTo("slug"));
+            .body("params.field", equalTo("slug"))
+            .body("errors[0].field", equalTo("slug"))
+            .body("errors[0].code", equalTo(ErrorCode.VALIDATION_SLUG_INVALID));
 
         // Reserved slug
         given()
@@ -539,7 +550,186 @@ public class AuthResourceApiTest {
             .statusCode(400)
             .body("success", equalTo(false))
             .body("code", equalTo(ErrorCode.VALIDATION_FAILED))
-            .body("params.field", equalTo("slug"));
+            .body("params.field", equalTo("slug"))
+            .body("errors[0].field", equalTo("slug"))
+            .body("errors[0].code", equalTo(ErrorCode.VALIDATION_SLUG_INVALID));
+    }
+
+    @Test
+    @DisplayName("BUG-47 (API): Bean Validation trả envelope VALIDATION_FAILED kèm errors theo trường (Khuôn mẫu 4)")
+    public void testValidationErrorEnvelope() {
+        Map<String, Object> invalidBody = new HashMap<>();
+        invalidBody.put("email", "not-an-email");
+        invalidBody.put("password", "Ab1!");
+
+        postJson(REGISTER_PATH, invalidBody)
+            .then()
+            .statusCode(400)
+            .body("success", equalTo(false))
+            .body("code", equalTo(ErrorCode.VALIDATION_FAILED))
+            .body("message", equalTo("Request validation failed"))
+            .body("params", instanceOf(Map.class))
+            .body("errors", instanceOf(java.util.List.class))
+            .body("errors.field", hasItems("email", "password", "full_name"))
+            .body("errors.find { it.field == 'email' }.code", equalTo(ErrorCode.VALIDATION_EMAIL))
+            .body("errors.find { it.field == 'password' }.code", equalTo(ErrorCode.VALIDATION_SIZE))
+            .body("errors.find { it.field == 'password' }.params.min", equalTo(8))
+            .body("errors.find { it.field == 'password' }.params.max", equalTo(64))
+            .body("errors.find { it.field == 'full_name' }.code", equalTo(ErrorCode.VALIDATION_REQUIRED))
+            .body("errors.find { it.field == 'full_name' }.params", instanceOf(Map.class))
+            .body("timestamp", notNullValue());
+    }
+
+    @Test
+    @DisplayName("BUG-48 (API): register/personal từ chối mật khẩu yếu với errors[].code = VALIDATION_PASSWORD_TOO_WEAK")
+    public void testRegisterPersonalRejectsWeakPassword() {
+        Map<String, Object> body = registerBody("api.weakpass@example.com");
+        body.put("password", "password123");
+
+        postJson(REGISTER_PATH, body)
+            .then()
+            .statusCode(400)
+            .body("success", equalTo(false))
+            .body("code", equalTo(ErrorCode.VALIDATION_FAILED))
+            .body("errors.find { it.field == 'password' }.code", equalTo(ErrorCode.VALIDATION_PASSWORD_TOO_WEAK))
+            .body("errors.find { it.field == 'password' }.params", instanceOf(Map.class));
+    }
+
+    @Test
+    @DisplayName("BUG-48 (API): reset-password từ chối new_password yếu, token vẫn dùng được cho mật khẩu hợp lệ")
+    public void testResetPasswordRejectsWeakPassword() {
+        String email = "api.resetweak@example.com";
+        registerAndVerify(email);
+
+        postJson(FORGOT_PASSWORD_PATH, Map.of("email", email))
+            .then()
+            .statusCode(200)
+            .body("success", equalTo(true))
+            .body("code", equalTo(ErrorCode.AUTH_FORGOT_PASSWORD_REQUESTED));
+
+        ArgumentCaptor<String> tokenCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(emailNotificationService)
+            .sendPasswordResetEmail(ArgumentMatchers.eq(email), tokenCaptor.capture());
+        String resetToken = tokenCaptor.getValue();
+
+        postJson(RESET_PASSWORD_PATH, Map.of("token", resetToken, "new_password", "password123"))
+            .then()
+            .statusCode(400)
+            .body("success", equalTo(false))
+            .body("code", equalTo(ErrorCode.VALIDATION_FAILED))
+            .body("errors.find { it.field == 'new_password' }.code", equalTo(ErrorCode.VALIDATION_PASSWORD_TOO_WEAK))
+            .body("errors.find { it.field == 'new_password' }.params", instanceOf(Map.class));
+
+        postJson(RESET_PASSWORD_PATH, Map.of("token", resetToken, "new_password", "NewP@ssw0rd789"))
+            .then()
+            .statusCode(200)
+            .body("success", equalTo(true))
+            .body("code", equalTo(ErrorCode.AUTH_PASSWORD_RESET_SUCCESS));
+    }
+
+    @Test
+    @DisplayName("BUG-47 (API): Malformed JSON trả errors[0].code = VALIDATION_MALFORMED_JSON")
+    public void testMalformedJsonErrorDetail() {
+        given()
+            .contentType(ContentType.JSON)
+            .body("{\"email\": ")
+        .when()
+            .post(REGISTER_PATH)
+        .then()
+            .statusCode(400)
+            .body("success", equalTo(false))
+            .body("code", equalTo(ErrorCode.VALIDATION_FAILED))
+            .body("errors[0]", hasKey("field"))
+            .body("errors[0].field", nullValue())
+            .body("errors[0].code", equalTo(ErrorCode.VALIDATION_MALFORMED_JSON))
+            .body("errors[0].params", instanceOf(Map.class));
+    }
+
+    @Test
+    @DisplayName("BUG-47 (API): GET /account/sessions bọc danh sách trong data.items (Khuôn mẫu 3)")
+    public void testSessionsListWrappedInItems() {
+        String email = "api.sessions@example.com";
+        registerAndVerify(email);
+
+        Response login = loginSuccess(email);
+        String accessToken = login.path("data.access_token");
+        String sessionId = login.path("data.session_id");
+
+        given()
+            .header("Authorization", "Bearer " + accessToken)
+            .header("X-Session-Id", sessionId)
+        .when()
+            .get("/api/v1/account/sessions")
+        .then()
+            .statusCode(200)
+            .body("success", equalTo(true))
+            .body("code", equalTo(ErrorCode.ACCOUNT_SESSIONS_FETCH_SUCCESS))
+            .body("data", instanceOf(Map.class))
+            .body("data.items", instanceOf(java.util.List.class))
+            .body("data.items.size()", equalTo(1))
+            .body("data.items[0].session_id", equalTo(sessionId))
+            .body("data.items[0].is_current", equalTo(true));
+    }
+
+    @Test
+    @DisplayName("BUG-47 (API): Lỗi trùng email/slug trả errors chi tiết theo trường")
+    public void testDuplicateRegistrationFieldErrors() {
+        String email = "api.dup@example.com";
+        registerAndVerify(email);
+
+        postJson(REGISTER_PATH, registerBody(email))
+            .then()
+            .statusCode(409)
+            .body("success", equalTo(false))
+            .body("code", equalTo(ErrorCode.AUTH_EMAIL_ALREADY_EXISTS))
+            .body("errors[0].field", equalTo("email"))
+            .body("errors[0].code", equalTo(ErrorCode.VALIDATION_EMAIL_DUPLICATE));
+
+        Map<String, Object> business = new HashMap<>();
+        business.put("admin", Map.of(
+            "full_name", "Business Owner",
+            "email", "api.dup.biz@example.com",
+            "password", "OwnerP@ssw0rd123"));
+        business.put("tenant", Map.of(
+            "name", "Duplicate Biz",
+            "slug", "api-dup-slug-01"));
+
+        postJson(BUSINESS_REGISTER_PATH, business)
+            .then()
+            .statusCode(201)
+            .body("code", equalTo(ErrorCode.AUTH_BUSINESS_REGISTER_SUCCESS));
+
+        Map<String, Object> duplicateSlug = new HashMap<>();
+        duplicateSlug.put("admin", Map.of(
+            "full_name", "Business Owner 2",
+            "email", "api.dup.biz2@example.com",
+            "password", "OwnerP@ssw0rd123"));
+        duplicateSlug.put("tenant", Map.of(
+            "name", "Duplicate Biz 2",
+            "slug", "api-dup-slug-01"));
+
+        postJson(BUSINESS_REGISTER_PATH, duplicateSlug)
+            .then()
+            .statusCode(409)
+            .body("code", equalTo(ErrorCode.AUTH_TENANT_SLUG_DUPLICATE))
+            .body("errors[0].field", equalTo("slug"))
+            .body("errors[0].code", equalTo(ErrorCode.VALIDATION_SLUG_DUPLICATE));
+
+        Map<String, Object> duplicateEmail = new HashMap<>();
+        duplicateEmail.put("admin", Map.of(
+            "full_name", "Business Owner 3",
+            "email", "api.dup.biz@example.com",
+            "password", "OwnerP@ssw0rd123"));
+        duplicateEmail.put("tenant", Map.of(
+            "name", "Duplicate Biz 3",
+            "slug", "api-dup-slug-02"));
+
+        postJson(BUSINESS_REGISTER_PATH, duplicateEmail)
+            .then()
+            .statusCode(409)
+            .body("code", equalTo(ErrorCode.AUTH_EMAIL_ALREADY_EXISTS))
+            .body("errors[0].field", equalTo("email"))
+            .body("errors[0].code", equalTo(ErrorCode.VALIDATION_EMAIL_DUPLICATE));
     }
 
     @Test
@@ -586,7 +776,9 @@ public class AuthResourceApiTest {
         .then()
             .statusCode(200)
             .body("success", equalTo(true))
-            .body("code", equalTo(ErrorCode.AUTH_LOGOUT_SUCCESS));
+            .body("code", equalTo(ErrorCode.AUTH_LOGOUT_SUCCESS))
+            .body("$", hasKey("data"))
+            .body("data", nullValue());
 
         given()
             .header("Authorization", "Bearer " + accessToken)

@@ -26,18 +26,20 @@
 ```json
 {
   "success": false,
-  "code": "AUTH_EMAIL_ALREADY_EXISTS",
-  "message": "Email is already taken",
-  "params": { "field": "email" },
+  "code": "VALIDATION_FAILED",
+  "message": "Request validation failed",
+  "params": {},
   "errors": [
-    {
-      "field": "email",
-      "code": "VALIDATION_EMAIL_DUPLICATE"
-    }
+    { "field": "password", "code": "VALIDATION_SIZE", "params": { "min": 8, "max": 64 } },
+    { "field": "full_name", "code": "VALIDATION_REQUIRED", "params": {} },
+    { "field": "email", "code": "VALIDATION_EMAIL", "params": {} }
   ],
-  "timestamp": "2026-09-17T15:30:00Z"
+  "data": null,
+  "timestamp": "2026-09-18T10:00:00Z"
 }
 ```
+
+> **Quy tắc bắt buộc**: Mọi lỗi 4xx/5xx phải tuân thủ đúng **Khuôn mẫu 4 (Error Response)**; `errors[]` gồm các phần tử `{ field, code, params }` với `field` dạng snake_case. Lỗi không có dữ liệu phải trả `"data": null` (không lược bỏ key `data`).
 
 ---
 
@@ -53,6 +55,7 @@
     "phone": "0987654321"
   }
   ```
+- **Quy tắc mật khẩu**: Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt. Vi phạm trả `400 Bad Request` với `errors: [{ "field": "password", "code": "VALIDATION_PASSWORD_TOO_WEAK", "params": {} }]`.
 - **Responses**:
   - `201 Created`:
     ```json
@@ -316,6 +319,7 @@
   ```
   - `200 OK`: `code: "AUTH_PASSWORD_RESET_SUCCESS"`
   - `400 Bad Request`: `code: "AUTH_RESET_TOKEN_INVALID_OR_EXPIRED"`
+  - **Quy tắc mật khẩu mới**: Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt. Vi phạm trả `400 Bad Request` với `errors: [{ "field": "new_password", "code": "VALIDATION_PASSWORD_TOO_WEAK", "params": {} }]`.
 
 ---
 
@@ -352,7 +356,9 @@
     {
       "success": true,
       "code": "AUTH_LOGOUT_SUCCESS",
-      "message": "Logged out successfully."
+      "message": "Logged out successfully.",
+      "params": {},
+      "data": null
     }
     ```
 
@@ -422,6 +428,8 @@
 | `GET` | `/api/v1/account/sessions` | `ACCOUNT_SESSIONS_FETCH_SUCCESS` | `UNAUTHORIZED` |
 | `DELETE` | `/api/v1/account/sessions/{sessionId}` | `ACCOUNT_SESSION_REVOKED_SUCCESS` | `ACCOUNT_SESSION_NOT_FOUND` |
 | `DELETE` | `/api/v1/account/sessions/other` | `ACCOUNT_OTHER_SESSIONS_REVOKED_SUCCESS` | `UNAUTHORIZED` |
+
+> **Lưu ý contract `GET /api/v1/account/sessions`**: trả về **Khuôn mẫu 3 (Non-Paginated List)** với envelope `data: { "items": [ UserSessionResponse ] }` — danh sách phiên luôn được bọc trong key `items`, tuyệt đối không trả mảng trần.
 
 ---
 
@@ -597,3 +605,15 @@ Frontend (Angular / Ionic) duy trì file từ điển ngôn ngữ `i18n/vi.json`
 | `AUTH_VERIFICATION_EMAIL_RESENT` | Nếu email tồn tại, mã xác thực mới đã được gửi. | If the email exists, a new verification code has been sent. |
 | `AUTH_OTP_RESEND_TOO_SOON` | Vui lòng chờ {{retry_after}} giây trước khi yêu cầu gửi lại mã. | Please wait {{retry_after}} seconds before requesting a new code. |
 | `AUTH_2FA_ATTEMPTS_EXCEEDED` | Bạn đã nhập sai mã 2FA 3 lần liên tiếp. Vui lòng đăng nhập lại. | Too many invalid 2FA attempts. Please log in again. |
+| `VALIDATION_REQUIRED` | Trường này là bắt buộc. | This field is required. |
+| `VALIDATION_EMAIL` | Địa chỉ email không hợp lệ. | Invalid email address. |
+| `VALIDATION_SIZE` | Độ dài phải từ {{min}} đến {{max}} ký tự. | Length must be between {{min}} and {{max}} characters. |
+| `VALIDATION_PATTERN` | Giá trị không đúng định dạng yêu cầu. | Value does not match the required format. |
+| `VALIDATION_PASSWORD_TOO_WEAK` | Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt. | Password must be at least 8 characters and include uppercase, lowercase, number and special character. |
+| `VALIDATION_MIN` | Giá trị phải lớn hơn hoặc bằng {{min}}. | Value must be greater than or equal to {{min}}. |
+| `VALIDATION_MAX` | Giá trị phải nhỏ hơn hoặc bằng {{max}}. | Value must be less than or equal to {{max}}. |
+| `VALIDATION_INVALID` | Giá trị không hợp lệ. | Invalid value. |
+| `VALIDATION_MALFORMED_JSON` | Dữ liệu JSON gửi lên không đúng định dạng. | Malformed JSON request body. |
+| `VALIDATION_SLUG_INVALID` | Định danh slug không hợp lệ hoặc thuộc danh sách dành riêng. | Slug is invalid or reserved. |
+| `VALIDATION_EMAIL_DUPLICATE` | Email này đã được sử dụng. | This email is already in use. |
+| `VALIDATION_SLUG_DUPLICATE` | Định danh slug này đã được sử dụng. | This slug is already taken. |

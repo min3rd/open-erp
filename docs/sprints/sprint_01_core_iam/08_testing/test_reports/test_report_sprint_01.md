@@ -12,7 +12,7 @@
 
 | Loại | Lệnh / Công Cụ | Kết Quả | Ghi Chú |
 | :--- | :--- | :--- | :--- |
-| Backend Unit + API Test | `mvn test` (`src/backend`) | **30/30 PASS** | PostgreSQL thật `openerp_test` + Redis `/1`, không H2 |
+| Backend Unit + API Test | `mvn test` (`src/backend`) | **36/36 PASS** | PostgreSQL thật `openerp_test` + Redis `/1`, không H2 |
 | Frontend Web Build | `npm run build` (`src/frontend/web`) | **PASS** | Production |
 | Mobile Build | `npm run build` (`src/frontend/mobile`) | **PASS** | Production |
 | HTTP Smoke | curl 8088/4200/8100/8025 | **200** | Cả 4 dịch vụ |
@@ -56,4 +56,6 @@
 ## 4. Tồn Đọng Sau Kiểm Thử
 
 - **Không còn item Critical/High/Medium/Low mở** — toàn bộ BUG-24 → BUG-31, BUG-34, BUG-42 → BUG-45 đã xử lý trong đợt sửa 2026-09-18 (Done).
+- **BUG-47 đã xử lý (hậu kiểm API contract 4 khuôn mẫu)**: validation errors `[{field, code, params}]` field snake_case, malformed JSON → `VALIDATION_MALFORMED_JSON`, sessions bọc `data.items`, envelope luôn có `data` (null khi không có dữ liệu), duplicate email kèm `errors[].code`. Bằng chứng curl runtime (backend 8088): validation envelope + `errors[{password/VALIDATION_SIZE, full_name/VALIDATION_REQUIRED, email/VALIDATION_EMAIL}]`; malformed JSON `errors[{field:null, code:VALIDATION_MALFORMED_JSON}]`; `GET /account/sessions` → `data:{"items":[...]}`; `POST /auth/logout` → `"data":null`; duplicate email → `code:AUTH_EMAIL_ALREADY_EXISTS` + `errors[{field:"email", code:VALIDATION_EMAIL_DUPLICATE}]`; check-slug invalid → `errors[{field:"slug", code:VALIDATION_SLUG_INVALID}]`; `mvn test` 34/34 PASS.
+- **BUG-48 đã xử lý (enforce độ phức tạp mật khẩu)**: thêm `@Pattern` (hoa+thường+số+ký tự đặc biệt) cho `PersonalRegisterRequest.password`, `BusinessRegisterRequest.AdminInfo.password`, `ResetPasswordRequest.newPassword`; `ValidationExceptionMapper` ưu tiên message dạng code `^VALIDATION_[A-Z_]+$`; i18n `VALIDATION_PASSWORD_TOO_WEAK` đủ Web/Mobile (vi/en). Bằng chứng: `mvn test` **36/36 PASS** (thêm 2 test register/reset weak password); curl `POST /auth/register/personal` password `password123` → 400 `VALIDATION_FAILED` + `errors[{field:"password", code:"VALIDATION_PASSWORD_TOO_WEAK"}]`; `POST /auth/reset-password` `new_password` yếu → 400 cùng code; mật khẩu mạnh vẫn 201.
 - Còn lại duy nhất: **QA Browser Manual Testing ký xác nhận cuối cùng** (Web + Mobile) để chuyển các item `In Review` sang `Done` và tiến hành đóng Sprint 01.

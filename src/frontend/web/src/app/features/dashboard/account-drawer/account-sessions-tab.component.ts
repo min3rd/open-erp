@@ -10,7 +10,8 @@ import {
   ButtonVariant,
   ButtonSize,
   BadgeVariant,
-  UserSessionData
+  UserSessionData,
+  apiMessage
 } from '@shared';
 
 @Component({
@@ -49,10 +50,10 @@ export class AccountSessionsTabComponent implements OnInit {
   loadSessions() {
     this.accountService.getSessions().subscribe({
       next: (res) => {
-        this.sessions.set(res.data || []);
+        this.sessions.set(res.data?.items ?? []);
       },
       error: (err) => {
-        this.sessionsError.set(this.i18n.t(err.code, err.params));
+        this.sessionsError.set(apiMessage(this.i18n, err));
       }
     });
   }
@@ -81,7 +82,7 @@ export class AccountSessionsTabComponent implements OnInit {
       },
       error: (err) => {
         this.loadingRevoke.set(false);
-        this.sessionsError.set(this.i18n.t(err.code, err.params));
+        this.sessionsError.set(apiMessage(this.i18n, err));
       }
     });
   }
@@ -107,7 +108,7 @@ export class AccountSessionsTabComponent implements OnInit {
       },
       error: (err) => {
         this.loadingRevoke.set(false);
-        this.sessionsError.set(this.i18n.t(err.code, err.params));
+        this.sessionsError.set(apiMessage(this.i18n, err));
       }
     });
   }

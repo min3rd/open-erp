@@ -9,7 +9,8 @@ import {
   TranslatePipe,
   SharpButtonComponent,
   SharpInputComponent,
-  UserProfileData
+  UserProfileData,
+  apiMessage
 } from '@shared';
 
 @Component({
@@ -57,7 +58,7 @@ export class AccountDetailTabComponent implements OnInit {
         this.profileTimezone = res.data.timezone || 'Asia/Ho_Chi_Minh';
       },
       error: (err) => {
-        this.profileError.set(this.i18n.t(err.code, err.params));
+        this.profileError.set(apiMessage(this.i18n, err));
       }
     });
   }
@@ -85,7 +86,7 @@ export class AccountDetailTabComponent implements OnInit {
       },
       error: (err) => {
         this.loadingProfileUpdate.set(false);
-        this.profileError.set(this.i18n.t(err.code, err.params));
+        this.profileError.set(apiMessage(this.i18n, err));
       }
     });
   }

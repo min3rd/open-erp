@@ -8,7 +8,7 @@ import {
   TwoFactorSetupData,
   TwoFactorEnableData,
   BackupCodesData,
-  UserSessionData
+  SessionsData
 } from '@shared';
 
 @Injectable({
@@ -64,8 +64,8 @@ export class AccountService {
     });
   }
 
-  getSessions(): Observable<ApiResponse<UserSessionData[]>> {
-    return this.api.get<UserSessionData[]>('/api/v1/account/sessions');
+  getSessions(): Observable<ApiResponse<SessionsData>> {
+    return this.api.get<SessionsData>('/api/v1/account/sessions');
   }
 
   revokeSession(sessionId: string): Observable<ApiResponse<null>> {

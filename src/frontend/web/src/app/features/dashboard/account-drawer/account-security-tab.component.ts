@@ -16,7 +16,8 @@ import {
   ButtonSize,
   ButtonType,
   BadgeVariant,
-  TwoFactorStatus
+  TwoFactorStatus,
+  apiMessage
 } from '@shared';
 
 @Component({
@@ -107,7 +108,7 @@ export class AccountSecurityTabComponent implements OnInit {
         this.twoFactorStatus.set(res.data);
       },
       error: (err) => {
-        this.securityError.set(this.i18n.t(err.code, err.params));
+        this.securityError.set(apiMessage(this.i18n, err));
       }
     });
   }
@@ -136,7 +137,7 @@ export class AccountSecurityTabComponent implements OnInit {
       },
       error: (err) => {
         this.loadingPasswordChange.set(false);
-        this.passwordError.set(this.i18n.t(err.code, err.params));
+        this.passwordError.set(apiMessage(this.i18n, err));
       }
     });
   }
@@ -173,7 +174,7 @@ export class AccountSecurityTabComponent implements OnInit {
       },
       error: (err) => {
         this.loadingRegenerate.set(false);
-        this.regenerateError.set(this.i18n.t(err.code, err.params));
+        this.regenerateError.set(apiMessage(this.i18n, err));
       }
     });
   }

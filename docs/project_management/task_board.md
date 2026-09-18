@@ -87,6 +87,8 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 - [x] **FEAT-07 (yêu cầu bổ sung khi QA)**: tối ưu Web cho điện thoại (390px không tràn ngang), hamburger + Mobile Nav Drawer (tài khoản/menu/language/theme/logout), theme System/Light/Dark persist; puppeteer 40/40 + 11/11 PASS ([FEAT-07](../sprints/sprint_01_core_iam/07_items/FEAT-07_responsive_phone_and_mobile_nav.md)).
 - [x] **FEAT-08 (yêu cầu bổ sung)**: Ionic Mobile side menu (tài khoản/menu/language/theme/logout), theme class-based Sáng/Tối/Hệ thống persist, toolbar gọn, auth pages có switcher; puppeteer 42/42 + 22/22 PASS ([FEAT-08](../sprints/sprint_01_core_iam/07_items/FEAT-08_ionic_mobile_menu_theme.md)).
 - [x] **FEAT-09 (yêu cầu bổ sung)**: tối ưu 8 màn auth Ionic cho phone (touch target ≥40px, safe-area, không tràn ngang) + chuyển toàn bộ điều hướng sang NavController (forward/back/root, replaceUrl) để back/forward mượt; puppeteer 34/34 PASS ([FEAT-09](../sprints/sprint_01_core_iam/07_items/FEAT-09_ionic_auth_ux_and_navigation.md)).
+- [x] **BUG-47 (hậu kiểm API)**: chuẩn hóa 4 khuôn mẫu API (validation errors, sessions items, data:null, errors typed); backend 34/34 test PASS, curl verify PASS ([BUG-47](../sprints/sprint_01_core_iam/07_items/BUG-47_api_contract_violations.md)).
+- [x] **BUG-48 (hậu kiểm bảo mật)**: enforce mật khẩu mạnh (@Pattern) + VALIDATION_PASSWORD_TOO_WEAK; backend 36/36 test PASS ([BUG-48](../sprints/sprint_01_core_iam/07_items/BUG-48_password_complexity_not_enforced.md)).
 
 ---
 

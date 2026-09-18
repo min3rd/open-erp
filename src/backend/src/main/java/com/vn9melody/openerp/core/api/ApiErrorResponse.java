@@ -1,19 +1,17 @@
 package com.vn9melody.openerp.core.api;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiErrorResponse {
     private boolean success = false;
     private String code;
     private String message;
     private Map<String, Object> params = new HashMap<>();
-    private List<Map<String, String>> errors = new ArrayList<>();
+    private List<ApiFieldError> errors = new ArrayList<>();
     private Instant timestamp = Instant.now();
 
     public ApiErrorResponse() {
@@ -29,6 +27,17 @@ public class ApiErrorResponse {
         this.message = message;
         if (params != null) {
             this.params = params;
+        }
+    }
+
+    public ApiErrorResponse(String code, String message, Map<String, Object> params, List<ApiFieldError> errors) {
+        this.code = code;
+        this.message = message;
+        if (params != null) {
+            this.params = params;
+        }
+        if (errors != null) {
+            this.errors = errors;
         }
     }
 
@@ -57,15 +66,15 @@ public class ApiErrorResponse {
     }
 
     public void setParams(Map<String, Object> params) {
-        this.params = params;
+        this.params = params != null ? params : new HashMap<>();
     }
 
-    public List<Map<String, String>> getErrors() {
+    public List<ApiFieldError> getErrors() {
         return errors;
     }
 
-    public void setErrors(List<Map<String, String>> errors) {
-        this.errors = errors;
+    public void setErrors(List<ApiFieldError> errors) {
+        this.errors = errors != null ? errors : new ArrayList<>();
     }
 
     public Instant getTimestamp() {

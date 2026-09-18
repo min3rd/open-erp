@@ -13,7 +13,8 @@ import {
   SharpInputComponent,
   ButtonType,
   ButtonVariant,
-  CompanySize
+  CompanySize,
+  apiMessage
 } from '@shared';
 
 type SlugStatus = 'IDLE' | 'CHECKING' | 'AVAILABLE' | 'TAKEN' | 'INVALID';
@@ -193,7 +194,7 @@ export class RegisterBusinessComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMessage.set(this.i18n.t(err.code, err.params));
+        this.errorMessage.set(apiMessage(this.i18n, err));
       }
     });
   }

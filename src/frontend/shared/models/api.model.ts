@@ -122,3 +122,7 @@ export interface UserSessionData {
   created_at: string;
   is_current: boolean;
 }
+
+export interface SessionsData {
+  items: UserSessionData[];
+}

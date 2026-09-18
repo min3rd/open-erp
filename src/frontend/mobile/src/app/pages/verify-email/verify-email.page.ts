@@ -16,7 +16,8 @@ import {
   TranslatePipe,
   PinInputComponent,
   LanguageSwitcherComponent,
-  ThemeSwitcherComponent
+  ThemeSwitcherComponent,
+  apiMessage
 } from '@shared';
 
 @Component({
@@ -79,7 +80,7 @@ export class VerifyEmailPage implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMessage.set(this.i18n.t(err.code, err.params));
+        this.errorMessage.set(apiMessage(this.i18n, err));
       }
     });
   }
@@ -96,7 +97,7 @@ export class VerifyEmailPage implements OnInit, OnDestroy {
         this.startCooldown();
       },
       error: (err) => {
-        this.errorMessage.set(this.i18n.t(err.code, err.params));
+        this.errorMessage.set(apiMessage(this.i18n, err));
       }
     });
   }

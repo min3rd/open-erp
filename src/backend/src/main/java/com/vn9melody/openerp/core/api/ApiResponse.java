@@ -1,11 +1,9 @@
 package com.vn9melody.openerp.core.api;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
     private boolean success;
     private String code;
@@ -69,7 +67,7 @@ public class ApiResponse<T> {
     }
 
     public void setParams(Map<String, Object> params) {
-        this.params = params;
+        this.params = params != null ? params : new HashMap<>();
     }
 
     public T getData() {

@@ -10,7 +10,8 @@ import {
   SharpButtonComponent,
   SharpInputComponent,
   LanguageSwitcherComponent,
-  ButtonType
+  ButtonType,
+  apiMessage
 } from '@shared';
 
 @Component({
@@ -74,7 +75,7 @@ export class LoginComponent implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMessage.set(this.i18n.t(err.code, err.params));
+        this.errorMessage.set(apiMessage(this.i18n, err));
       }
     });
   }

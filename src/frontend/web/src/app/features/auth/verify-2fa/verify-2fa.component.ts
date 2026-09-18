@@ -11,7 +11,8 @@ import {
   SharpInputComponent,
   PinInputComponent,
   LanguageSwitcherComponent,
-  ButtonVariant
+  ButtonVariant,
+  apiMessage
 } from '@shared';
 
 @Component({
@@ -92,7 +93,7 @@ export class Verify2FaComponent implements OnInit {
           this.router.navigateByUrl('/login');
           return;
         }
-        this.errorMessage.set(this.i18n.t(err.code, err.params));
+        this.errorMessage.set(apiMessage(this.i18n, err));
       }
     });
   }

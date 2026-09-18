@@ -14,7 +14,7 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
         if (exception instanceof ApiException apiEx) {
             LOG.debugf("ApiException handled: code=%s, status=%d, message=%s", 
                 apiEx.getCode(), apiEx.getStatusCode(), apiEx.getMessage());
-            ApiErrorResponse error = new ApiErrorResponse(apiEx.getCode(), apiEx.getMessage(), apiEx.getParams());
+            ApiErrorResponse error = new ApiErrorResponse(apiEx.getCode(), apiEx.getMessage(), apiEx.getParams(), apiEx.getErrors());
             return Response.status(apiEx.getStatusCode()).entity(error).build();
         }
 

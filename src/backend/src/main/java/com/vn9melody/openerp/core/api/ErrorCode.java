@@ -53,6 +53,18 @@ public final class ErrorCode {
 
     // General Validation & System
     public static final String VALIDATION_FAILED = "VALIDATION_FAILED";
+    public static final String VALIDATION_REQUIRED = "VALIDATION_REQUIRED";
+    public static final String VALIDATION_EMAIL = "VALIDATION_EMAIL";
+    public static final String VALIDATION_SIZE = "VALIDATION_SIZE";
+    public static final String VALIDATION_PATTERN = "VALIDATION_PATTERN";
+    public static final String VALIDATION_PASSWORD_TOO_WEAK = "VALIDATION_PASSWORD_TOO_WEAK";
+    public static final String VALIDATION_MIN = "VALIDATION_MIN";
+    public static final String VALIDATION_MAX = "VALIDATION_MAX";
+    public static final String VALIDATION_INVALID = "VALIDATION_INVALID";
+    public static final String VALIDATION_MALFORMED_JSON = "VALIDATION_MALFORMED_JSON";
+    public static final String VALIDATION_SLUG_INVALID = "VALIDATION_SLUG_INVALID";
+    public static final String VALIDATION_EMAIL_DUPLICATE = "VALIDATION_EMAIL_DUPLICATE";
+    public static final String VALIDATION_SLUG_DUPLICATE = "VALIDATION_SLUG_DUPLICATE";
     public static final String BAD_REQUEST = "BAD_REQUEST";
     public static final String UNAUTHORIZED = "UNAUTHORIZED";
     public static final String FORBIDDEN = "FORBIDDEN";

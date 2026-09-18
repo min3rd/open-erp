@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import com.vn9melody.openerp.core.api.ApiException;
+import com.vn9melody.openerp.core.api.ApiFieldError;
 import com.vn9melody.openerp.core.api.ErrorCode;
 import com.vn9melody.openerp.core.enums.AccountStatus;
 import com.vn9melody.openerp.core.enums.ResponseKey;
@@ -62,7 +63,10 @@ public class AuthService {
         if (User.findByEmail(req.email) != null) {
             Map<String, Object> params = new HashMap<>();
             params.put(ResponseKey.FIELD.getKey(), "email");
-            throw new ApiException(409, ErrorCode.AUTH_EMAIL_ALREADY_EXISTS, "Email is already taken", params);
+            List<ApiFieldError> errors = List.of(
+                new ApiFieldError("email", ErrorCode.VALIDATION_EMAIL_DUPLICATE, new HashMap<>())
+            );
+            throw new ApiException(409, ErrorCode.AUTH_EMAIL_ALREADY_EXISTS, "Email is already taken", params, errors);
         }
 
         User user = new User();
@@ -128,14 +132,20 @@ public class AuthService {
         if (Tenant.findBySlug(slug) != null) {
             Map<String, Object> params = new HashMap<>();
             params.put(ResponseKey.SLUG.getKey(), slug);
-            throw new ApiException(409, ErrorCode.AUTH_TENANT_SLUG_DUPLICATE, "Tenant slug is already taken", params);
+            List<ApiFieldError> errors = List.of(
+                new ApiFieldError("slug", ErrorCode.VALIDATION_SLUG_DUPLICATE, new HashMap<>())
+            );
+            throw new ApiException(409, ErrorCode.AUTH_TENANT_SLUG_DUPLICATE, "Tenant slug is already taken", params, errors);
         }
 
         String adminEmail = req.admin.email.toLowerCase().trim();
         if (User.findByEmail(adminEmail) != null) {
             Map<String, Object> params = new HashMap<>();
             params.put(ResponseKey.FIELD.getKey(), "email");
-            throw new ApiException(409, ErrorCode.AUTH_EMAIL_ALREADY_EXISTS, "Email is already taken", params);
+            List<ApiFieldError> errors = List.of(
+                new ApiFieldError("email", ErrorCode.VALIDATION_EMAIL_DUPLICATE, new HashMap<>())
+            );
+            throw new ApiException(409, ErrorCode.AUTH_EMAIL_ALREADY_EXISTS, "Email is already taken", params, errors);
         }
 
         Tenant tenant = new Tenant();
