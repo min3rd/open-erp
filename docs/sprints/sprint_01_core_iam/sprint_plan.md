@@ -17,7 +17,7 @@ Mọi tính năng được quản lý bằng từng file riêng biệt trong th�
 | **FEAT-03** | Đăng nhập & Xác định ngữ cảnh Tenant (Multi-tenant Login) | Feature | Critical | BA / Dev | In Progress | [FEAT-03.md](items/FEAT-03_authentication_login.md) |
 | **FEAT-04** | Quên mật khẩu & Khôi phục tài khoản qua Email | Feature | High | BA / Dev | In Progress | [FEAT-04.md](items/FEAT-04_forgot_password.md) |
 | **FEAT-05** | Xác thực 2 yếu tố (2FA - TOTP RFC 6238) | Feature | High | BA / Dev | In Progress | [FEAT-05.md](items/FEAT-05_two_factor_auth.md) |
-| **FEAT-06** | Quản lý tài khoản (Profile, Sessions qua Drawer/Split-View) | Feature | Medium | BA / Dev | In Progress | [FEAT-06.md](items/FEAT-06_account_management.md) |
+| **FEAT-06** | Quản lý tài khoản (Profile, 2FA Management, Sessions qua Drawer Anti-Modal) | Feature | Medium | BA / Dev | In Progress | [FEAT-06.md](items/FEAT-06_account_management.md) |
 
 ---
 

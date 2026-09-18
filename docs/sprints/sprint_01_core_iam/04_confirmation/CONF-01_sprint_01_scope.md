@@ -29,10 +29,13 @@
 5. **FEAT-05: Xác Thực 2 Yếu Tố (2FA)**:
    - Chuẩn TOTP RFC 6238 (Google Authenticator, Microsoft Authenticator).
    - Cấp 8 mã dự phòng (Backup Codes) sử dụng 1 lần.
-6. **FEAT-06: Quản Lý Tài Khoản (Anti-Modal UI)**:
-   - Xem và đổi thông tin cá nhân, avatar, đổi mật khẩu.
+6. **FEAT-06: Quản Lý Tài Khoản (Anti-Modal UI & 2FA Management)**:
+   - Xem và đổi thông tin cá nhân, avatar, đổi mật khẩu an toàn.
+   - **Đăng ký / Bật 2FA (TOTP)**: Kích hoạt trực tiếp trong Drawer, quét QR code và xác nhận mã OTP 6 số, nhận 8 Backup Codes.
+   - **Xóa / Tắt 2FA**: Bắt buộc xác thực mật khẩu hiện tại + mã OTP/Backup Code để vô hiệu hóa 2FA; gửi email cảnh báo bảo mật tức thì.
+   - **Quản lý Backup Codes**: Xem số mã còn lại, cấp quyền tạo lại bộ 8 mã dự phòng mới.
    - Giám sát danh sách thiết bị/phiên đang đăng nhập và nút đăng xuất từ xa.
-   - Hiển thị qua **Drawer trượt từ cạnh phải (Side Sheet)** hoặc **Split-Screen**, tuyệt đối không dùng modal.
+   - Toàn bộ hiển thị qua **Drawer trượt từ cạnh phải (Side Sheet)** và **Stacked Drawer (Drawer phụ trượt xếp chồng)**, tuyệt đối không dùng modal.
 
 ---
 

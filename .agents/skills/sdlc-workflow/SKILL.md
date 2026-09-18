@@ -50,8 +50,10 @@ sequenceDiagram
 - **Role**: **BA Agent**
 - **Mục tiêu**: Thu thập trung thực mọi thông tin, mong muốn từ khách hàng, không bỏ sót chi tiết dù là nhỏ nhất.
 - **Hành động**:
-  1. Ghi lại nội dung trao đổi vào `docs/01_requirements/raw_notes/YYYYMMDD_<feature_name>_raw.md`.
-  2. Ghi chú nguồn gốc, người yêu cầu, thời gian, và các từ khóa nghiệp vụ quan trọng.
+  1. Khởi tạo thư mục Sprint Pack: `docs/sprints/sprint_XX_<tên_nghiệp_vụ>/`.
+  2. Khởi tạo file điều hướng `00_READING_GUIDE.md` liệt kê lộ trình đọc tuần tự.
+  3. Ghi lại nội dung trao đổi vào `01_raw_notes/RAW-XX_<tên_yêu_cầu>.md`.
+  4. Ghi chú nguồn gốc, người yêu cầu, thời gian, và các từ khóa nghiệp vụ quan trọng.
 
 ### Bước 2: Phân Tích Yêu Cầu (Requirement Analysis)
 - **Role**: **BA Agent**
@@ -60,7 +62,7 @@ sequenceDiagram
   1. Phân rã thành các User Stories theo chuẩn: `As a <role>, I want <action> so that <benefit>`.
   2. Xác định phạm vi: **In-Scope** (làm) và **Out-of-Scope** (chưa làm trong giai đoạn này).
   3. Lập danh sách quy tắc nghiệp vụ (Business Rules).
-  4. Lưu tài liệu vào: `docs/01_requirements/analysis/<feature_name>_analysis.md`.
+  4. Lưu tài liệu vào: `02_analysis/ANL-XX_<tên_nghiệp_vụ>.md`.
 
 ### Bước 3: Tham Khảo Các Phần Mềm Tương Tự (Benchmarking & Market Research)
 - **Role**: **BA Agent**
@@ -69,15 +71,16 @@ sequenceDiagram
   1. Nghiên cứu cách các hệ thống khác xử lý tính năng tương tự (luồng thao tác, màn hình, cấu trúc dữ liệu).
   2. Liệt kê ưu điểm và nhược điểm của từng hệ thống.
   3. Rút ra bài học áp dụng vào dự án `open-erp`.
-  4. Lưu tài liệu vào: `docs/01_requirements/benchmarks/<feature_name>_benchmark.md`.
+  4. Lưu tài liệu vào: `03_benchmarks/BENCH-XX_<tên_nghiệp_vụ>.md`.
 
 ### Bước 4: Xác Nhận Lại Với Khách Hàng (Customer Alignment & Confirmation)
 - **Role**: **BA Agent**
 - **Mục tiêu**: Đảm bảo hai bên 100% hiểu giống nhau trước khi tốn nguồn lực kỹ thuật.
 - **Hành động**:
   1. Tổng hợp thành bản tóm tắt dễ hiểu cho người làm nghiệp vụ: Luồng người dùng, các màn hình sơ bộ, tiêu chí nghiệm thu (Acceptance Criteria dạng Given-When-Then).
-  2. Lưu tài liệu vào: `docs/01_requirements/confirmations/<feature_name>_confirmation.md`.
-  3. Trình bày và xin xác nhận trực tiếp từ khách hàng. Chỉ đi tiếp khi khách hàng đồng ý.
+  2. Lưu tài liệu vào: `04_confirmation/CONF-XX_<tên_sprint>_scope.md`.
+  3. Cập nhật bảng kiểm tra xác nhận trong `00_READING_GUIDE.md`.
+  4. Gửi link `00_READING_GUIDE.md` cho khách hàng và xin phê duyệt trực tiếp. **CHỈ ĐI TIẾP KHI KHÁCH HÀNG ĐÃ CONFIRM**.
 
 ### Bước 5: Nghiên Cứu Giải Pháp (Solution Research & Feasibility Study)
 - **Role**: **Solution Architect Agent**
@@ -86,7 +89,7 @@ sequenceDiagram
   1. Phân tích các phương án kiến trúc (Phương án A vs Phương án B).
   2. Đánh giá Trade-offs: Độ phức tạp, hiệu năng, bảo mật, khả năng mở rộng (Scalability), chi phí bảo trì.
   3. Đưa ra đề xuất phương án tối ưu và lý do lựa chọn.
-  4. Lưu tài liệu vào: `docs/02_solutions/<feature_name>_solution.md`.
+  4. Lưu tài liệu vào: `05_solutions/SOL-XX_<tên_giải_pháp>.md`.
 
 ### Bước 6: Thiết Kế Giải Pháp Chi Tiết (Detailed Technical Design)
 - **Role**: **Solution Architect Agent**
@@ -135,17 +138,33 @@ sequenceDiagram
 
 ## 3. Quy Trình Agile Sprint & Quản Lý Issue/Task Dạng File
 
-### 3.1. Cấu Trúc Thư Mục Một Sprint
-Mỗi Sprint được tổ chức trong một thư mục riêng:
+### 3.1. Cấu Trúc Gói Tài Liệu Sprint Tuần Tự (Sprint-Pack)
+Mỗi Sprint được tổ chức trọn gói trong thư mục riêng với thứ tự tuần tự 00 đến 09:
 ```
-docs/05_project_management/sprints/sprint_XX/
-├── sprint_plan.md      # Mục tiêu Sprint, danh sách cam kết, thời gian
-├── sprint_review.md    # Đánh giá cuối Sprint, kiểm tra điều kiện đóng
-└── items/              # Nơi lưu trữ từng file task, bug, feature, refactor
-    ├── FEAT-001_xxx.md
-    ├── TASK-001_xxx.md
-    ├── BUG-001_xxx.md
-    └── REFACTOR-001_xxx.md
+docs/sprints/sprint_XX_<tên_nghiệp_vụ>/
+├── 00_READING_GUIDE.md      # BẢN ĐỒ ĐIỀU HƯỚNG BẮT ĐẦU: Lộ trình đọc tuần tự & Checklist Confirm
+├── 01_raw_notes/            # Bước 1: Tiếp nhận yêu cầu thô
+│   └── RAW-XX_...md
+├── 02_analysis/             # Bước 2: Phân tích nghiệp vụ & User Stories
+│   └── ANL-XX_...md
+├── 03_benchmarks/           # Bước 3: Khảo sát đối chuẩn phần mềm tương tự
+│   └── BENCH-XX_...md
+├── 04_confirmation/         # Bước 4: BIÊN BẢN CHỐT XÁC NHẬN VỚI KHÁCH HÀNG (GATE PHÊ DUYỆT)
+│   └── CONF-XX_...md
+├── 05_solutions/            # Bước 5: Nghiên cứu giải pháp kỹ thuật
+│   └── SOL-XX_...md
+├── 06_designs/              # Bước 6: Thiết kế chi tiết (database, api, ui_ux)
+│   ├── database/
+│   ├── api/
+│   └── ui_ux/
+├── 07_items/                # Bước 7: Phân rã nhiệm vụ dạng file
+│   ├── FEAT-01_xxx.md
+│   ├── TASK-01_xxx.md
+│   └── BUG-01_xxx.md
+├── 08_testing/              # Bước 8: Test Plan & Báo cáo QA
+│   └── test_plan.md
+└── 09_review/               # Bước 9: Nghiệm thu & đóng Sprint
+    └── sprint_review.md
 ```
 
 ### 3.2. Tiêu Chuẩn Phân Loại Mức Độ Ưu Tiên (Priority / Severity)

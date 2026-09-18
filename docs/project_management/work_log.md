@@ -87,3 +87,28 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
   - Chuẩn hóa cấu trúc Envelope phản hồi qua `code` (`UPPER_SNAKE_CASE`), `params` nội suy, và `data`.
   - Frontend tự chủ quản lý từ điển đa ngôn ngữ (`i18n/{lang}.json`) dựa trên mã `code` nhận được mà không cần tinh chỉnh backend.
   - Cập nhật quy tắc vào `AGENTS.md` (bổ sung điều cấm số 11), `.agents/rules/sdlc_process.md` (Mục 9), `coding_standards.md` (Mục 1.4), và refactor toàn bộ `docs/03_designs/api/CORE_IAM_API_SPEC.md`.
+
+---
+
+## 2026-09-18
+- **Người thực hiện**: Antigravity Multi-Agent Team (BA, Solution Architect, PM)
+- **Giai đoạn**: Hoàn thiện Yêu cầu & Thiết kế chi tiết cho Sprint 01
+- **Nội dung công việc**:
+  - **Tiếp nhận yêu cầu từ Khách hàng**: Bổ sung phân hệ Đăng ký (Kích hoạt) và Xóa/Tắt (Hủy) xác thực 2 yếu tố (2FA) trực tiếp trong Quản lý tài khoản (FEAT-06).
+  - **BA Agent**:
+    - Tạo ghi chú thô: `docs/01_requirements/raw_notes/RAW-02_account_2fa_management.md`.
+    - Cập nhật tài liệu phân tích nghiệp vụ `docs/01_requirements/analysis/ANL-01_core_identity_access.md`: Bổ sung chi tiết quy trình Bật 2FA (quét QR, nhập mã kích hoạt, lưu 8 backup codes), quy trình Xóa 2FA (bảo mật kép bắt buộc nhập mật khẩu hiện tại + mã OTP/Backup code, gửi email cảnh báo bảo mật khẩn cấp) và tái tạo mã dự phòng.
+    - Cập nhật biên bản xác nhận phạm vi Sprint 01 `docs/01_requirements/confirmations/CONF-01_sprint_01_scope.md`.
+  - **Solution Architect Agent**:
+    - Cập nhật đặc tả REST API `docs/03_designs/api/CORE_IAM_API_SPEC.md`: Chi tiết hóa các endpoint `/api/v1/account/2fa/status`, `/api/v1/account/2fa/setup`, `/api/v1/account/2fa/enable`, `/api/v1/account/2fa/disable`, `/api/v1/account/2fa/regenerate-backup-codes` với payload và mã lỗi i18n chuẩn hóa.
+    - Cập nhật đặc tả UI/UX `docs/03_designs/ui_ux/CORE_IAM_UI_SPEC.md`: Thiết kế chi tiết Tab Bảo Mật, hai Drawer con xếp chồng (`Setup2FaDrawerComponent`, `Disable2FaDrawerComponent`) đảm bảo triết lý Anti-Modal và tính đậm đặc thông tin (`text-xs`, `rounded-none`).
+  - **PM Agent**:
+    - Cập nhật `items/FEAT-06_account_management.md` với các kịch bản Acceptance Criteria và Sub-tasks kỹ thuật bổ sung.
+    - Cập nhật kế hoạch Sprint `sprint_plan.md` và Task Board `task_board.md`.
+
+- **Chuẩn Hóa Cấu Trúc Tài Liệu Theo Lệnh `/learn` (Sprint-Pack Sequential Documentation)**:
+  - Khắc phục tình trạng tài liệu Sprint bị xé lẻ, rải rác và khó theo dõi thứ tự đọc phê duyệt.
+  - Ban hành mô hình **Sprint-Pack Tuần Tự**: Gom toàn bộ tài liệu Sprint vào `docs/sprints/sprint_XX_<tên_sprint>/` đánh số thứ tự từ `00` đến `09`.
+  - Thiết lập file điều hướng bắt buộc `00_READING_GUIDE.md` đóng vai trò bản đồ đọc tuần tự (Bước 1 đến Bước 4 cho Khách Hàng confirm, Bước 5 đến 7 cho Kỹ thuật, Bước 8 đến 9 cho QA/PM).
+  - Cập nhật quy tắc vào `AGENTS.md` (bổ sung điều cấm số 12), `.agents/rules/sdlc_process.md` (Mục 2 & Mục 4), `SKILL.md` (Mục 2 & Mục 3), và `docs/README.md`.
+  - Di chuyển và chuẩn hóa toàn bộ tài liệu Sprint 01 vào `docs/sprints/sprint_01_core_iam/`, dọn dẹp các thư mục rải rác cũ.

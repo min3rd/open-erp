@@ -295,17 +295,153 @@
 ## 3. Nhóm API Quản Lý Tài Khoản (`/api/v1/account`)
 *(Yêu cầu Header `Authorization: Bearer <access_token>`)*
 
+### 3.1. Bảng Tổng Hợp Endpoint
 | Method | Endpoint | Mã Code Phản Hồi Thành Công | Mã Code Khi Lỗi |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/api/v1/account/profile` | `ACCOUNT_PROFILE_FETCH_SUCCESS` | `UNAUTHORIZED` |
 | `PUT` | `/api/v1/account/profile` | `ACCOUNT_PROFILE_UPDATE_SUCCESS` | `VALIDATION_FAILED` |
 | `POST` | `/api/v1/account/change-password` | `ACCOUNT_PASSWORD_CHANGE_SUCCESS` | `ACCOUNT_OLD_PASSWORD_INCORRECT` |
+| `GET` | `/api/v1/account/2fa/status` | `ACCOUNT_2FA_STATUS_FETCH_SUCCESS` | `UNAUTHORIZED` |
 | `POST` | `/api/v1/account/2fa/setup` | `ACCOUNT_2FA_SETUP_SUCCESS` | `ACCOUNT_2FA_ALREADY_ENABLED` |
 | `POST` | `/api/v1/account/2fa/enable` | `ACCOUNT_2FA_ENABLED_SUCCESS` | `AUTH_2FA_CODE_INVALID` |
-| `POST` | `/api/v1/account/2fa/disable` | `ACCOUNT_2FA_DISABLED_SUCCESS` | `ACCOUNT_PASSWORD_REQUIRED` |
+| `POST` | `/api/v1/account/2fa/disable` | `ACCOUNT_2FA_DISABLED_SUCCESS` | `ACCOUNT_2FA_INVALID_PASSWORD_OR_CODE` |
+| `POST` | `/api/v1/account/2fa/regenerate-backup-codes` | `ACCOUNT_2FA_BACKUP_CODES_REGENERATED` | `ACCOUNT_PASSWORD_REQUIRED` |
 | `GET` | `/api/v1/account/sessions` | `ACCOUNT_SESSIONS_FETCH_SUCCESS` | `UNAUTHORIZED` |
 | `DELETE` | `/api/v1/account/sessions/{sessionId}` | `ACCOUNT_SESSION_REVOKED_SUCCESS` | `ACCOUNT_SESSION_NOT_FOUND` |
 | `DELETE` | `/api/v1/account/sessions/other` | `ACCOUNT_OTHER_SESSIONS_REVOKED_SUCCESS` | `UNAUTHORIZED` |
+
+---
+
+### 3.2. Chi Tiết API Đăng Ký & Xóa/Tắt 2FA
+
+#### 3.2.1. `GET /api/v1/account/2fa/status` - Xem Trạng Thái 2FA Hiện Tại
+- **Responses**:
+  - `200 OK`:
+    ```json
+    {
+      "success": true,
+      "code": "ACCOUNT_2FA_STATUS_FETCH_SUCCESS",
+      "message": "Two-factor authentication status retrieved.",
+      "data": {
+        "is_enabled": true,
+        "enabled_at": "2026-09-17T10:00:00Z",
+        "backup_codes_remaining": 6
+      }
+    }
+    ```
+
+#### 3.2.2. `POST /api/v1/account/2fa/setup` - Khởi Tạo Đăng Ký 2FA
+- **Mục đích**: Sinh Base32 Secret Key ngẫu nhiên và chuẩn bị mã QR để người dùng quét vào app Authenticator.
+- **Request Body**: `{}` (rỗng)
+- **Responses**:
+  - `200 OK`:
+    ```json
+    {
+      "success": true,
+      "code": "ACCOUNT_2FA_SETUP_SUCCESS",
+      "message": "2FA setup initiated successfully. Please verify with OTP to complete.",
+      "data": {
+        "secret_key": "JBSWY3DPEHPK3PXP",
+        "qr_code_uri": "otpauth://totp/OpenERP:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=OpenERP",
+        "backup_codes": [
+          "A1B2-C3D4",
+          "E5F6-G7H8",
+          "I9J0-K1L2",
+          "M3N4-O5P6",
+          "Q7R8-S9T0",
+          "U1V2-W3X4",
+          "Y5Z6-A7B8",
+          "C9D0-E1F2"
+        ]
+      }
+    }
+    ```
+  - `400 Bad Request`: `code: "ACCOUNT_2FA_ALREADY_ENABLED"` nếu tài khoản đã bật 2FA trước đó.
+
+#### 3.2.3. `POST /api/v1/account/2fa/enable` - Xác Nhận Kích Hoạt 2FA
+- **Mục đích**: Kiểm tra mã OTP 6 số người dùng nhập thử, nếu đúng sẽ chính thức bật 2FA trên tài khoản.
+- **Request Body**:
+  ```json
+  {
+    "code": "482910"
+  }
+  ```
+- **Responses**:
+  - `200 OK`:
+    ```json
+    {
+      "success": true,
+      "code": "ACCOUNT_2FA_ENABLED_SUCCESS",
+      "message": "Two-factor authentication enabled successfully.",
+      "data": {
+        "is_enabled": true,
+        "enabled_at": "2026-09-18T09:00:00Z"
+      }
+    }
+    ```
+  - `400 Bad Request`: `code: "AUTH_2FA_CODE_INVALID"` khi mã OTP sai hoặc lệch thời gian quá 30 giây.
+
+#### 3.2.4. `POST /api/v1/account/2fa/disable` - Xóa / Tắt 2FA (Bảo Mật Kép)
+- **Mục đích**: Vô hiệu hóa 2FA và xóa toàn bộ Secret Key cùng Backup Codes của người dùng.
+- **Ràng buộc an toàn**: Yêu cầu xác thực đồng thời **mật khẩu hiện tại** và **mã OTP 6 số hiện tại** (hoặc 1 Backup Code).
+- **Request Body**:
+  ```json
+  {
+    "current_password": "MySecretPassword123!@",
+    "code": "592813"
+  }
+  ```
+- **Responses**:
+  - `200 OK`:
+    ```json
+    {
+      "success": true,
+      "code": "ACCOUNT_2FA_DISABLED_SUCCESS",
+      "message": "Two-factor authentication disabled successfully.",
+      "data": {
+        "is_enabled": false
+      }
+    }
+    ```
+  - `400 Bad Request`: `code: "ACCOUNT_2FA_NOT_ENABLED"` nếu tài khoản hiện chưa bật 2FA.
+  - `401 Unauthorized`:
+    ```json
+    {
+      "success": false,
+      "code": "ACCOUNT_2FA_INVALID_PASSWORD_OR_CODE",
+      "message": "Current password or 2FA code is invalid.",
+      "timestamp": "2026-09-18T09:00:00Z"
+    }
+    ```
+
+#### 3.2.5. `POST /api/v1/account/2fa/regenerate-backup-codes` - Tái Tạo Bộ Mã Dự Phòng
+- **Request Body**:
+  ```json
+  {
+    "current_password": "MySecretPassword123!@"
+  }
+  ```
+- **Responses**:
+  - `200 OK`:
+    ```json
+    {
+      "success": true,
+      "code": "ACCOUNT_2FA_BACKUP_CODES_REGENERATED",
+      "message": "Backup codes regenerated successfully. Previous codes are now invalid.",
+      "data": {
+        "backup_codes": [
+          "K8L9-M0N1",
+          "O2P3-Q4R5",
+          "S6T7-U8V9",
+          "W0X1-Y2Z3",
+          "A4B5-C6D7",
+          "E8F9-G0H1",
+          "I2J3-K4L5",
+          "M6N7-O8P9"
+        ]
+      }
+    }
+    ```
 
 ---
 
@@ -331,4 +467,13 @@ Frontend (Angular / Ionic) duy trì file từ điển ngôn ngữ `i18n/vi.json`
 | `ACCOUNT_PROFILE_UPDATE_SUCCESS`| Cập nhật thông tin hồ sơ thành công. | Profile updated successfully. |
 | `ACCOUNT_PASSWORD_CHANGE_SUCCESS`| Đổi mật khẩu thành công. | Password changed successfully. |
 | `ACCOUNT_OLD_PASSWORD_INCORRECT`| Mật khẩu hiện tại không chính xác. | Current password is incorrect. |
+| `ACCOUNT_2FA_STATUS_FETCH_SUCCESS`| Tải trạng thái 2FA thành công. | 2FA status retrieved successfully. |
+| `ACCOUNT_2FA_SETUP_SUCCESS` | Khởi tạo cấu hình 2FA thành công. Vui lòng quét mã QR. | 2FA setup initialized. Please scan the QR code. |
+| `ACCOUNT_2FA_ENABLED_SUCCESS` | Kích hoạt xác thực 2 yếu tố (2FA) thành công! | Two-factor authentication enabled successfully! |
+| `ACCOUNT_2FA_DISABLED_SUCCESS` | Đã tắt xác thực 2 yếu tố (2FA) trên tài khoản. | Two-factor authentication disabled successfully. |
+| `ACCOUNT_2FA_ALREADY_ENABLED` | Xác thực 2FA đã được kích hoạt từ trước. | 2FA is already enabled on this account. |
+| `ACCOUNT_2FA_NOT_ENABLED` | Tài khoản chưa bật xác thực 2FA. | 2FA is not enabled on this account. |
+| `ACCOUNT_2FA_INVALID_PASSWORD_OR_CODE`| Mật khẩu hiện tại hoặc mã 2FA không chính xác. | Current password or 2FA verification code is incorrect. |
+| `ACCOUNT_2FA_BACKUP_CODES_REGENERATED`| Đã cấp lại 8 mã dự phòng mới thành công. | Backup codes regenerated successfully. |
 | `ACCOUNT_SESSION_REVOKED_SUCCESS`| Đã đăng xuất thiết bị thành công. | Device session revoked successfully. |
+| `ACCOUNT_OTHER_SESSIONS_REVOKED_SUCCESS`| Đã đăng xuất khỏi tất cả các thiết bị khác. | Revoked all other active sessions successfully. |

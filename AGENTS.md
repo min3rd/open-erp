@@ -7,20 +7,23 @@ Tất cả các Agent khi tham gia vào dự án này bắt buộc phải tuân 
 - Playbook kỹ năng: [.agents/skills/sdlc-workflow/SKILL.md](.agents/skills/sdlc-workflow/SKILL.md)
 - Cấu trúc tài liệu dự án: [docs/README.md](docs/README.md)
 
-## Tóm Tắt Quy Trình Bắt Buộc:
-1. **Nhận yêu cầu truyền miệng** (`docs/01_requirements/raw_notes/`) - Phụ trách: BA Agent
-2. **Phân tích yêu cầu** (`docs/01_requirements/analysis/`) - Phụ trách: BA Agent
-3. **Tham khảo phần mềm tương tự** (`docs/01_requirements/benchmarks/`) - Phụ trách: BA Agent
-4. **Xác nhận với khách hàng** (`docs/01_requirements/confirmations/`) - Phụ trách: BA Agent
-5. **Nghiên cứu giải pháp** (`docs/02_solutions/`) - Phụ trách: Solution Architect
-6. **Thiết kế giải pháp chi tiết** (`docs/03_designs/`) - Phụ trách: Solution Architect
-7. **Lập trình** (`src/`) - Phụ trách: Developer Agent
-8. **Kiểm thử** (`docs/04_testing/`) - Phụ trách: QA/QC Agent
-9. **Cập nhật công việc** (`docs/05_project_management/`) - Phụ trách: PM Agent
+## Tóm Tắt Quy Trình Bắt Buộc & Cấu Trúc Tài Liệu Sprint-Pack:
+Mỗi Sprint được đóng gói trọn gói trong `docs/sprints/sprint_XX_<tên_sprint>/` với thứ tự đọc tuần tự từ 00 đến 09:
+- **00. Bản đồ đọc & Xác nhận** (`00_READING_GUIDE.md`) - Cổng giao tiếp bắt đầu duy nhất cho Khách hàng & Reviewer
+- **01. Nhận yêu cầu truyền miệng** (`01_raw_notes/`) - Phụ trách: BA Agent
+- **02. Phân tích yêu cầu** (`02_analysis/`) - Phụ trách: BA Agent
+- **03. Tham khảo phần mềm tương tự** (`03_benchmarks/`) - Phụ trách: BA Agent
+- **04. Xác nhận với khách hàng** (`04_confirmation/`) - Phụ trách: BA Agent & Khách hàng ký duyệt (Confirmation Gate)
+- **05. Nghiên cứu giải pháp** (`05_solutions/`) - Phụ trách: Solution Architect
+- **06. Thiết kế giải pháp chi tiết** (`06_designs/`) - Phụ trách: Solution Architect (DB, API, UI)
+- **07. Phân rã nhiệm vụ & Lập trình** (`07_items/` & `src/`) - Phụ trách: Developer Agent
+- **08. Kiểm thử** (`08_testing/`) - Phụ trách: QA/QC Agent
+- **09. Nghiệm thu & Đóng Sprint** (`09_review/`) - Phụ trách: PM Agent
 
 ## Ràng Buộc Agile & Quản Lý Sprint (Agile Sprint Guardrails):
+- **Mô Hình Sprint-Pack Tuần Tự (Sprint-Pack Sequential Documentation)**: Toàn bộ tài liệu từ bước 1 đến bước 9 của một Sprint được đóng gói trọn gói trong thư mục `docs/sprints/sprint_XX_<tên_sprint>/`. Tuyệt đối không xé lẻ tài liệu Sprint ra các thư mục toàn cục. Mỗi Sprint bắt buộc có file `00_READING_GUIDE.md` dẫn dắt thứ tự đọc và chứa bảng xác nhận (Confirmation Checklist).
 - **Phân kỳ theo Sprint**: Dự án được bóc tách và triển khai theo từng Sprint nhỏ với mục tiêu và phạm vi rõ ràng.
-- **Quản lý Item dưới dạng file (File-based Tracking)**: Trong suốt quá trình phát triển, các agent luôn phải chủ động phát hiện và bổ sung các `task`, `bug`, `feature`, `refactor`... Mọi yêu cầu hay lỗi đều **phải được tạo thành file riêng** có trạng thái quản lý để tránh bỏ sót.
+- **Quản lý Item dưới dạng file (File-based Tracking)**: Trong suốt quá trình phát triển, các agent luôn phải chủ động phát hiện và bổ sung các `task`, `bug`, `feature`, `refactor`... Mọi yêu cầu hay lỗi đều **phải được tạo thành file riêng trong `07_items/`** có trạng thái quản lý để tránh bỏ sót.
 - **Điều kiện đóng Sprint (Sprint DoD Gate)**: **1 Sprint CHỈ CÓ THỂ ĐÓNG khi KHÔNG CÒN các task, bug, issue ở mức độ nghiêm trọng LỚN HƠN MEDIUM** (nghĩa là 100% item mức `Critical` và `High` phải được xử lý xong).
 
 ## Ràng Buộc Kiến Trúc Nền Tảng (Architectural Guardrails):
@@ -80,3 +83,4 @@ Tất cả các Agent khi tham gia vào dự án này bắt buộc phải tuân 
 > 9. Viết unit test cho Frontend (Angular/Ionic) làm lãng phí thời gian hoặc tự ý thêm thư viện kiểm thử frontend.
 > 10. Lạm dụng pop-up Modal để hiển thị chi tiết hoặc biểu mẫu nhập liệu khi có thể sử dụng Drawer trượt, chia màn hình (Split-View) hoặc Router con.
 > 11. Thiết kế hoặc trả về API response chứa message văn bản cứng đại diện cho kết quả nghiệp vụ mà không có mã định danh `code` chuẩn hóa cho Frontend đa ngôn ngữ.
+> 12. Lưu trữ tài liệu Sprint rải rác ngoài thư mục Sprint-Pack (`docs/sprints/sprint_XX/`) hoặc thiếu file điều hướng `00_READING_GUIDE.md` dẫn đến việc người đọc không biết thứ tự tuần tự và bỏ sót bước xác nhận của khách hàng.

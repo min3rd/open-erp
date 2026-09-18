@@ -120,18 +120,35 @@ Trong hệ thống Open-ERP, kiến trúc định danh được bóc tách thàn
      - Nhập mã dự phòng khi không có điện thoại. Mã dự phòng sử dụng 1 lần sẽ bị xóa vĩnh viễn.
 
 ### 3.6. Quản Lý Tài Khoản (Account Management)
-- **Mục tiêu**: Người dùng tự quản lý thông tin, bảo mật và thiết bị đăng nhập.
-- **Các phân hệ chức năng**:
-  - *Hồ sơ cá nhân*: Đổi họ tên, ảnh đại diện, số điện thoại, ngôn ngữ hiển thị (vi/en), múi giờ (UTC+7).
-  - *Đổi mật khẩu*: Nhập mật khẩu hiện tại + mật khẩu mới.
-  - *Quản lý 2FA*: Xem trạng thái Bật/Tắt, nút cấu hình lại, tạo lại bộ mã Backup Codes.
-  - *Quản lý phiên đăng nhập (Active Sessions)*:
-    - Xem danh sách thiết bị đang hoạt động (Tên trình duyệt, Hệ điều hành, Địa chỉ IP, Thời điểm đăng nhập gần nhất).
-    - Nút "Đăng xuất thiết bị này".
-    - Nút "Đăng xuất khỏi tất cả các thiết bị khác".
+- **Mục tiêu**: Người dùng tự quản lý thông tin hồ sơ cá nhân, các thiết lập bảo mật (mật khẩu, xác thực 2 yếu tố 2FA) và giám sát các thiết bị/phiên đăng nhập.
+- **Các phân hệ chức năng chi tiết**:
+  1. **Hồ sơ cá nhân (User Profile)**:
+     - Xem và chỉnh sửa: Họ tên (`full_name`), ảnh đại diện (`avatar_url`), số điện thoại (`phone`), ngôn ngữ giao diện (`vi` / `en`), múi giờ làm việc (`timezone`).
+  2. **Đổi mật khẩu an toàn (Password Change)**:
+     - Nhập mật khẩu hiện tại + mật khẩu mới (xác nhận lại 2 lần).
+     - Tùy chọn "Đăng xuất khỏi tất cả các thiết bị khác" khi đổi mật khẩu thành công.
+  3. **Đăng Ký & Xóa/Tắt Xác Thực 2 Yếu Tố (2FA Management)**:
+     - **Xem trạng thái 2FA**:
+       - Trạng thái hiện tại: `ĐÃ BẬT` (Kèm thời điểm bật, số lượng Backup Codes còn lại) hoặc `CHƯA BẬT`.
+     - **Quy trình Đăng ký / Bật 2FA (Setup & Enable)**:
+       - Bước 1: Người dùng nhấn nút "Bật 2FA" tại Tab Bảo Mật của Drawer Quản lý tài khoản.
+       - Bước 2: Hệ thống trượt mở Stacked Drawer con (`Setup2FaDrawer`), sinh Base32 Secret Key ngẫu nhiên và mã QR URI (`otpauth://totp/...`), đồng thời sinh trước 8 mã dự phòng (Backup Codes).
+       - Bước 3: Người dùng dùng app Authenticator quét mã QR (hoặc sao chép chuỗi Secret Key thủ công trên mobile), sau đó nhập mã OTP 6 số hiện tại hiển thị trên app.
+       - Bước 4: Hệ thống xác thực mã 6 số. Nếu hợp lệ $\rightarrow$ lưu Secret Key đã mã hóa AES-256 vào bảng `user_two_factor`, hash và lưu 8 Backup Codes, cập nhật `is_enabled = TRUE`, hiển thị danh sách 8 mã dự phòng kèm nút sao chép / tải file txt.
+     - **Quy trình Xóa / Tắt 2FA (Disable / Delete 2FA)**:
+       - *Mục đích*: Người dùng muốn đổi điện thoại mới, hủy xác thực 2 bước hoặc tạm ngưng sử dụng.
+       - *Ràng buộc bảo mật bắt buộc (Security Guardrail)*: Thao tác tắt 2FA là hành động nhạy cảm làm giảm mức bảo mật tài khoản. **Bắt buộc người dùng phải xác thực chính chủ bằng mật khẩu đăng nhập hiện tại (`current_password`) VÀ mã OTP 6 số hiện tại (`code`)** (hoặc 1 mã Backup Code hợp lệ) trước khi thực hiện.
+       - *Xử lý hệ thống*: Sau khi xác thực hợp lệ, hệ thống cập nhật `is_enabled = FALSE`, xóa Secret Key mã hóa, hủy toàn bộ mã dự phòng cũ, đồng thời gửi email thông báo bảo mật khẩn cấp qua Quarkus Mailer (bắt tại Mailpit local) cảnh báo người dùng rằng 2FA vừa bị tắt.
+     - **Tái tạo mã dự phòng (Regenerate Backup Codes)**:
+       - Khi người dùng đã dùng gần hết 8 mã dự phòng hoặc nghi ngờ bị lộ, có thể chọn "Tạo lại bộ mã dự phòng".
+       - Yêu cầu nhập mật khẩu hiện tại để xác thực, sau đó hệ thống sinh 8 mã mới và vô hiệu hóa vĩnh viễn toàn bộ các mã cũ.
+  4. **Quản lý phiên đăng nhập (Active Sessions Monitor)**:
+     - Xem danh sách thiết bị đang hoạt động (Tên trình duyệt, Hệ điều hành, Địa chỉ IP, Thời điểm đăng nhập gần nhất).
+     - Nút "Đăng xuất thiết bị này" (xóa session tương ứng trong Redis).
+     - Nút "Đăng xuất khỏi tất cả các thiết bị khác" (thu hồi toàn bộ phiên trừ phiên hiện tại).
 - **Quy chuẩn UI/UX**:
   - Toàn bộ giao diện quản lý tài khoản hiển thị dưới dạng **Drawer trượt từ cạnh phải (Side Sheet)** hoặc **Split-Screen** trên Desktop. **Tuyệt đối không dùng Modal popup**.
-  - Font chữ nhỏ gọn (`text-xs`), viền vuông vắn (`rounded-none`).
+  - Font chữ nhỏ gọn (`text-xs`), viền vuông vắn (`rounded-none`), sử dụng Drawer phụ xếp chồng (`Stacked Drawer`) cho các luồng cài đặt và tắt 2FA.
 
 ---
 

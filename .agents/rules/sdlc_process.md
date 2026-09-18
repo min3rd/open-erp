@@ -11,19 +11,22 @@
 
 ---
 
-## 2. Quy Trình 9 Bước Chuẩn Hóa & Vai Trò Phụ Trách
+## 2. Quy Trình 9 Bước Chuẩn Hóa & Cấu Trúc Gói Tài Liệu Sprint-Pack
 
-| Bước | Tên Bước | Vai Trò Phụ Trách | Đầu Vào (Input) | Thư Mục Tài Liệu Đầu Ra (Output) |
+Toàn bộ tài liệu của một Sprint được đóng gói trọn gói trong thư mục `docs/sprints/sprint_XX_<tên_sprint>/` theo thứ tự tuần tự từ 00 đến 09:
+
+| Bước | Tên Bước | Vai Trò Phụ Trách | Đầu Vào (Input) | Thư Mục / File Đầu Ra (Trong `sprint_XX/`) |
 | :--- | :--- | :--- | :--- | :--- |
-| **1** | **Nhận yêu cầu truyền miệng** | **BA Agent** | Lời nói, chat, ghi chú sơ bộ của khách hàng | `docs/01_requirements/raw_notes/` |
-| **2** | **Phân tích yêu cầu** | **BA Agent** | Ghi chú thô bước 1 | `docs/01_requirements/analysis/` |
-| **3** | **Tham khảo phần mềm tương tự** | **BA Agent** | Nghiệp vụ cần giải quyết | `docs/01_requirements/benchmarks/` |
-| **4** | **Xác nhận với khách hàng** | **BA Agent** | Tài liệu phân tích & so sánh | `docs/01_requirements/confirmations/` |
-| **5** | **Nghiên cứu giải pháp** | **Solution Architect** | Yêu cầu đã khách hàng duyệt | `docs/02_solutions/` |
-| **6** | **Thiết kế giải pháp chi tiết** | **Solution Architect** | Nghiên cứu giải pháp bước 5 | `docs/03_designs/` (Arch, DB, API, UI) |
-| **7** | **Lập trình** | **Developer Agent** | Thiết kế chi tiết bước 6 | `src/` (Mã nguồn dự án) |
-| **8** | **Kiểm thử** | **QA/QC Agent** | Tiêu chí nghiệm thu & Thiết kế | `docs/04_testing/`, `tests/` |
-| **9** | **Cập nhật công việc** | **PM Agent** | Kết quả thực thi các bước | `docs/05_project_management/` |
+| **00**| **Bản đồ đọc & Xác nhận** | **BA / PM Agent** | Kế hoạch & mục tiêu Sprint | `00_READING_GUIDE.md` *(Cổng bắt đầu duy nhất)* |
+| **01**| **Nhận yêu cầu truyền miệng** | **BA Agent** | Lời nói, chat, ghi chú sơ bộ | `01_raw_notes/RAW-XX_...md` |
+| **02**| **Phân tích yêu cầu** | **BA Agent** | Ghi chú thô bước 1 | `02_analysis/ANL-XX_...md` |
+| **03**| **Tham khảo phần mềm tương tự** | **BA Agent** | Nghiệp vụ cần giải quyết | `03_benchmarks/BENCH-XX_...md` |
+| **04**| **Xác nhận với khách hàng** | **BA Agent** | Phân tích & Benchmarks | `04_confirmation/CONF-XX_...md` *(Confirmation Gate)* |
+| **05**| **Nghiên cứu giải pháp** | **Solution Architect** | Yêu cầu đã khách hàng duyệt | `05_solutions/SOL-XX_...md` |
+| **06**| **Thiết kế giải pháp chi tiết** | **Solution Architect** | Nghiên cứu giải pháp bước 5 | `06_designs/` (`database/`, `api/`, `ui_ux/`) |
+| **07**| **Phân rã nhiệm vụ & Code** | **Developer Agent** | Thiết kế chi tiết bước 6 | `07_items/` (`FEAT-`, `TASK-`, `BUG-`) & `src/` |
+| **08**| **Kiểm thử chất lượng** | **QA/QC Agent** | Tiêu chí nghiệm thu & Code | `08_testing/` (`test_plan.md`, `test_reports/`) |
+| **09**| **Nghiệm thu & Đóng Sprint** | **PM Agent** | Báo cáo QA & Kiểm tra DoD | `09_review/` (`sprint_review.md`) |
 
 ---
 
@@ -63,14 +66,23 @@
 
 ---
 
-## 4. Quy Tắc Agile Sprints, Quản Lý Dạng File & Điều Kiện Đóng Sprint
+## 4. Quy Tắc Agile Sprints: Mô Hình Sprint-Pack Tuần Tự & Quản Lý Dạng File
 
-### 4.1. Chu Kỳ Phát Triển Theo Sprint
-- Dự án được phân rã thành các chu kỳ Sprint nhỏ (từ 1 đến 2 tuần hoặc theo từng cụm tính năng hoàn chỉnh).
-- Mỗi Sprint phải có file kế hoạch `sprint_plan.md` xác định rõ mục tiêu Sprint (Sprint Goal), danh sách items cam kết thực hiện và thời hạn.
+### 4.1. Mô Hình Gói Tài Liệu Sprint Tuần Tự (Sprint-Pack Sequential Documentation)
+- **Tập trung hóa theo Sprint**: Toàn bộ tài liệu liên quan đến một Sprint **bắt buộc phải nằm trọn vẹn trong một thư mục duy nhất**:
+  `docs/sprints/sprint_XX_<tên_nghiệp_vụ>/`
+- **Quy tắc đánh số thứ tự tuần tự (00 - 09)**: Từng thư mục con và file bên trong phải có tiền tố số thứ tự để người đọc (Khách hàng, Architect, Dev, QA, PM) luôn biết chính xác **phải đọc tài liệu nào trước, tài liệu nào sau**.
+- **Tiêu chuẩn file điều hướng bắt buộc `00_READING_GUIDE.md`**:
+  - Mỗi Sprint **bắt buộc phải có file `00_READING_GUIDE.md`** ngay tại gốc thư mục của Sprint đó.
+  - File này là **cổng giao tiếp duy nhất** giữa Agent và Khách hàng khi bắt đầu hoặc cập nhật Sprint.
+  - Phải chia rõ 3 chặng đọc:
+    1. *Chặng 1 - Nghiệp vụ (Dành cho Khách hàng/PO)*: Đọc lần lượt `01_raw_notes` $\rightarrow$ `02_analysis` $\rightarrow$ `03_benchmarks` $\rightarrow$ Ký xác nhận tại `04_confirmation`.
+    2. *Chặng 2 - Kỹ thuật (Dành cho Solution Architect & Dev)*: Đọc `05_solutions` $\rightarrow$ `06_designs` $\rightarrow$ `07_items` để triển khai.
+    3. *Chặng 3 - Nghiệm thu (Dành cho QA & PM)*: Đọc `08_testing` $\rightarrow$ Tổng kết tại `09_review`.
+- **Nghiêm cấm**: Tuyệt đối không lưu trữ tài liệu sprint rải rác ngoài thư mục Sprint-Pack.
 
 ### 4.2. Quản Lý Mọi Yêu Cầu, Lỗi & Công Việc Dưới Dạng File (File-based Item Tracking)
-- Trong quá trình phát triển ở bất kỳ bước nào (BA, Design, Coding, QA), các Agent **bắt buộc phải chủ động tạo file riêng** cho mọi công việc phát sinh, lưu tại `docs/05_project_management/sprints/sprint_XX/items/`:
+- Trong suốt quá trình phát triển, các Agent **bắt buộc tạo file riêng** cho mọi công việc phát sinh, lưu tại `docs/sprints/sprint_XX_<tên_nghiệp_vụ>/07_items/`:
   - **Task kỹ thuật**: `TASK-xxx_<tên>.md`
   - **Bug / Lỗi**: `BUG-xxx_<tên>.md`
   - **Feature bổ sung**: `FEAT-xxx_<tên>.md`
@@ -86,7 +98,7 @@
 > Một Sprint **CHỈ ĐƯỢC PHÉP ĐÓNG** khi:
 > 1. **KHÔNG CÒN BẤT KỲ task, bug, feature, refactor nào ở mức độ ưu tiên LỚN HƠN MEDIUM (`Critical`, `High`) chưa hoàn thành**. 100% item ở mức `Critical` và `High` phải ở trạng thái `Done` và được QA kiểm thử đạt chuẩn.
 > 2. Các item ở mức `Medium` hoặc `Low` nếu chưa kịp hoàn thành trong Sprint hiện tại thì phải được ghi nhận rõ ràng lý do và chuyển giao (rollover) sang backlog của Sprint tiếp theo.
-> 3. Phải lập biên bản tổng kết Sprint tại `docs/05_project_management/sprints/sprint_XX/sprint_review.md` xác nhận hoàn thành trước khi bắt đầu Sprint mới.
+> 3. Phải lập biên bản tổng kết Sprint tại `docs/sprints/sprint_XX_<tên_nghiệp_vụ>/09_review/sprint_review.md` xác nhận hoàn thành trước khi bắt đầu Sprint mới.
 
 ---
 
