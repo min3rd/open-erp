@@ -105,3 +105,14 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 - QA browser/mobile automation PASS; khách hàng nghiệm thu.
 - Tài liệu: UG-01 (25 ảnh), TR-01 Test Report, Entity Registry Core IAM.
 - **Sprint 02**: sẽ khởi tạo Sprint-Pack mới theo cùng quy trình.
+
+---
+
+## Sprint 02 - Super Admin & Phân Quyền Toàn Diện (2026-10-05 → 2026-10-19) - SẴN SÀNG LẬP TRÌNH
+- **Bản đồ đọc tuần tự**: [00_READING_GUIDE.md](../sprints/sprint_02_superadmin_rbac/00_READING_GUIDE.md)
+- **Kế hoạch Sprint**: [sprint_plan.md](../sprints/sprint_02_superadmin_rbac/sprint_plan.md)
+- **Confirmation Gate**: [x] **ĐÃ ĐƯỢC KHÁCH HÀNG PHÊ DUYỆT ngày 2026-09-18** (gồm 9 mục Phụ lục rà soát) — [CONF-01](../sprints/sprint_02_superadmin_rbac/04_confirmation/CONF-01_sprint_02_scope.md)
+- **Backlog**: **64 item** trong [07_items/](../sprints/sprint_02_superadmin_rbac/07_items/) — FEAT-10 → FEAT-18; BUG-49 → BUG-73; TASK-267 → TASK-296.
+- **Ưu tiên triển khai**: Critical trước (FEAT-11 Impersonation, FEAT-15 Data Scopes, FEAT-16 Enforcement Engine + Reference Entity FEAT-17, RBAC runtime TASK-267) → High → Medium.
+- **Trạng thái**: [x] Gate đã duyệt → **chuyển sang Bước 7 (Lập trình)**; 0 bug mở mức Critical/High trước khi bắt đầu (backlog hiện là các item cần thực thi, không phải bug tồn đọng).
+- **DoD Gate Sprint 02**: 0 bug Critical/High; backend tests 100% PASS trên PostgreSQL + Redis thật; Dual-mode Browser QA 0 console error; UG-02 kèm ảnh; khách hàng ký `sprint_review.md`.

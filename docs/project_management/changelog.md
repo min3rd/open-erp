@@ -11,13 +11,14 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
 - Chất lượng: 46/46 BUG Done; backend 30/30 test PASS; Web/Mobile build PASS; Theme Sáng/Tối/Hệ thống; responsive điện thoại.
 - Tài liệu: UG-01 User Guide (25 ảnh), TR-01 Test Report, Entity Registry.
 
-### Sprint 02 - Tài liệu đã rà soát, chờ phê duyệt (2026-09-18)
-- Rà soát toàn bộ 22 tài liệu Sprint 02; tạo **43 item** (`BUG-49→70`, `TASK-267→286`, `FEAT-17` Reference Entity) và sửa đồng bộ tài liệu BA/PM + Kiến trúc: chốt 7 Data Scopes, enforce RBAC runtime (`@RequirePermission`), quota enforcement, Break-Glass APIs, role-source migration, Tenant state machine + EXPIRED, bổ sung endpoint/i18n mapping/test cases, Flyway V2 + integrity constraints, guard FE/Mobile.
-- **Trạng thái**: chờ khách hàng ký Confirmation Gate (`CONF-01` + Phụ lục rà soát) trước khi lập trình.
+### Sprint 02 - CONFIRMATION GATE ĐÃ ĐƯỢC PHÊ DUYỆT (2026-09-18) - SẴN SÀNG LẬP TRÌNH
+- Khách hàng đã ký duyệt `CONF-01` + toàn bộ **9 mục Phụ lục rà soát**; Confirmation Gate chính thức ĐÓNG, Sprint 02 chuyển sang Bước 7 (Lập trình).
+- Tài liệu đã rà soát & đồng bộ: 22+ tài liệu BA/PM + Kiến trúc (7 Data Scopes, RBAC runtime `@RequirePermission`, quota enforcement, Break-Glass APIs, role-source migration, Tenant state machine + EXPIRED, Multi-Branch Manager, Audit Log Storage hash chain/partition, Super Admin Lifecycle + CLI, endpoint/i18n mapping/test cases, Flyway V2 + integrity constraints, guard FE/Mobile).
+- Backlog: **64 item** trong `07_items/` (`BUG-49→73`, `TASK-267→296`, `FEAT-10→18`).
 
 ### Known Issues
 - Không còn issue mở cho Sprint 01 (đã đóng 2026-09-18).
-- Sprint 02: 43 item đang `To Do`, phụ thuộc phê duyệt Confirmation Gate.
+- Sprint 02: 64 item đang `To Do` — bắt đầu triển khai theo thứ tự ưu tiên (Critical trước).
 
 ### Fixed
 - BUG-48: Enforce độ phức tạp mật khẩu (hoa+thường+số+đặc biệt) cho đăng ký cá nhân/doanh nghiệp và đặt lại mật khẩu; trả VALIDATION_PASSWORD_TOO_WEAK.

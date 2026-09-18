@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Solution Architect Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [ ] To Do / [ ] In Progress / [x] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -29,7 +29,7 @@
 
 ## 4. Xác Nhận Khắc Phục (QA Verification)
 - [x] Đã đồng bộ trạng thái Confirmation Gate trên CONF-01 và 00_READING_GUIDE.
-- [ ] Khách hàng đã ký duyệt (đang chờ - xác nhận khi khách hàng ký CONF-01).
+- [x] Khách hàng đã ký duyệt CONF-01 ngày 2026-09-18 (gồm 9 mục Phụ lục rà soát).
 - [x] QA/PM xác nhận không còn mâu thuẫn trạng thái tài liệu.
 
-- **Ghi chú QA (2026-09-18)**: Đã đồng bộ trạng thái tài liệu (00_READING_GUIDE phản ánh đúng chờ gate; `09_review/sprint_review.md` đã tồn tại) và đưa BUG-49 về In Review vì còn chờ khách hàng ký CONF-01 (checkbox "Khách hàng đã ký duyệt" để trống).
+- **Ghi chú QA (2026-09-18)**: Đã đồng bộ trạng thái tài liệu; khách hàng đã ký duyệt CONF-01 + 9 mục Phụ lục rà soát, Confirmation Gate ĐÓNG → chuyển Done. `09_review/sprint_review.md` (REV-02) tồn tại đầy đủ Deferred/Retrospective.

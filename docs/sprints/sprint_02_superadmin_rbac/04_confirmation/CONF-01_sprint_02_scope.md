@@ -4,7 +4,7 @@
 - **Ngày Xác Nhận**: 2026-09-18
 - **Đại Diện Khách Hàng**: Người dùng (User / Customer)
 - **Đại Diện Đội Ngũ Dự Án**: BA Agent, Solution Architect, PM Agent
-- **Trạng Thái**: [ ] CHỜ KHÁCH HÀNG PHÊ DUYỆT (kèm Phụ lục rà soát 2026-09-18)
+- **Trạng Thái**: [x] ĐÃ XÁC NHẬN & PHÊ DUYỆT (2026-09-18) - Confirmation Gate ĐÓNG
 
 ---
 
@@ -100,19 +100,21 @@
 > [!IMPORTANT]
 > Khách hàng vui lòng kiểm tra kỹ nội dung biên bản phạm vi trên. Bằng việc phê duyệt biên bản này, các bên thống nhất xác nhận phạm vi và Phụ lục rà soát; tài liệu thiết kế chi tiết (SOL/DES) đã hoàn thành và đính kèm để rà soát.
 
-- **Đại diện Khách Hàng**: Người dùng (Customer / Product Owner) — Ngày ký: ....................
+- **Đại diện Khách Hàng**: Người dùng (Customer / Product Owner) — Ngày ký: **2026-09-18** ✅ ĐÃ KÝ
 - **Đại diện Kỹ Thuật (Solution Architect)**: Đã ký
 - **Đại diện Quản Lý (PM Agent)**: Đã ký
 
 ---
 
-## 6. Phụ Lục Rà Soát Tài Liệu (2026-09-18) - Cần Khách Hàng Xác Nhận
+## 6. Phụ Lục Rà Soát Tài Liệu (2026-09-18) - ĐÃ ĐƯỢC KHÁCH HÀNG XÁC NHẬN
 1. **FEAT-17 (bổ sung)**: Thực thể tham chiếu Core `core_sample_records` + API `/api/v1/core/sample-records` để kiểm chứng Data Permission Engine trước khi có Plugin nghiệp vụ (xem `07_items/FEAT-17_core_reference_entity.md`).
 2. **Break-Glass APIs**: bổ sung endpoint force-password-reset và disable-2FA cho Super Admin (không thay đổi phạm vi, chỉ đặc tả chi tiết để thực thi mục 2 In-Scope).
 3. **Quota Enforcement**: làm rõ cơ chế chặn vượt `max_users`, `max_storage_mb`, `allowed_plugins` (hiện chỉ mới cấu hình).
 4. **Role source migration**: `user_roles` trở thành nguồn vai trò chính; `user_tenants.role` (Sprint 01) được migrate và deprecate.
 5. **Tenant states**: bổ sung `EXPIRED` vào state machine + job tự động hết hạn dùng thử.
 6. **Scope set chốt 7 giá trị**: `ALL, BRANCH, DEPARTMENT_AND_CHILDREN, DEPARTMENT, OWN_AND_SUBORDINATES, OWN_ONLY, NONE` (không có `CUSTOM`; ABAC nâng cao thuộc Out-of-Scope).
-7. **Quản lý đa chi nhánh (bổ sung)**: BRANCH scope = hợp của Chi nhánh thành viên và Chi nhánh được quản lý (bảng `user_branch_assignments`, primary branch per user); đáp ứng Giám đốc vùng phụ trách nhiều chi nhánh mà không cần membership giả.
-8. **Audit Log Storage (chi tiết hóa FEAT-12)**: bảng audit dùng chung scope PLATFORM/TENANT, hash chain SHA-256 chống sửa, partition tháng, retention 24 tháng + cold archive MongoDB/S3 ở sprint sau; màn hình audit cho Tenant Admin deferred sprint sau.
-9. **Vòng đời Super Admin & CLI (bổ sung)**: không cho tự đăng ký; bootstrap/API/CLI cấp quyền; disable/revoke có guard (không tự khóa, giữ tối thiểu 1 admin active); CLI offline khẩn cấp + remote CLI, mọi thao tác audit.
+7. **Quản lý đa chi nhánh (bổ sung)**: BRANCH scope = hợp của Chi nhánh thành viên và Chi nhánh được quản lý (bảng `user_branch_assignments`, 1 primary branch/user).
+8. **Audit Log Storage (chi tiết hóa FEAT-12)**: bảng audit dùng chung scope PLATFORM/TENANT, hash chain SHA-256, partition tháng, retention 24 tháng + cold archive ở sprint sau.
+9. **Vòng đời Super Admin & CLI (bổ sung)**: không tự đăng ký; cấp qua bootstrap/API/CLI; guard không tự khóa và giữ tối thiểu 1 admin active; CLI offline + remote có audit.
+
+- **Xác nhận của khách hàng (2026-09-18)**: Toàn bộ phạm vi In-Scope và **9 mục Phụ lục rà soát** đã được khách hàng chấp thuận. **Confirmation Gate chính thức ĐÓNG** - Sprint 02 đủ điều kiện chuyển sang Bước 7 (Lập trình).
