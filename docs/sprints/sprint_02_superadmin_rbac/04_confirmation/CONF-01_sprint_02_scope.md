@@ -114,3 +114,5 @@
 5. **Tenant states**: bổ sung `EXPIRED` vào state machine + job tự động hết hạn dùng thử.
 6. **Scope set chốt 7 giá trị**: `ALL, BRANCH, DEPARTMENT_AND_CHILDREN, DEPARTMENT, OWN_AND_SUBORDINATES, OWN_ONLY, NONE` (không có `CUSTOM`; ABAC nâng cao thuộc Out-of-Scope).
 7. **Quản lý đa chi nhánh (bổ sung)**: BRANCH scope = hợp của Chi nhánh thành viên và Chi nhánh được quản lý (bảng `user_branch_assignments`, primary branch per user); đáp ứng Giám đốc vùng phụ trách nhiều chi nhánh mà không cần membership giả.
+8. **Audit Log Storage (chi tiết hóa FEAT-12)**: bảng audit dùng chung scope PLATFORM/TENANT, hash chain SHA-256 chống sửa, partition tháng, retention 24 tháng + cold archive MongoDB/S3 ở sprint sau; màn hình audit cho Tenant Admin deferred sprint sau.
+9. **Vòng đời Super Admin & CLI (bổ sung)**: không cho tự đăng ký; bootstrap/API/CLI cấp quyền; disable/revoke có guard (không tự khóa, giữ tối thiểu 1 admin active); CLI offline khẩn cấp + remote CLI, mọi thao tác audit.

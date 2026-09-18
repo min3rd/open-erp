@@ -336,7 +336,7 @@ Hai hành động được tách rõ ràng thành 2 endpoint và 2 mã phản h�
 
 ### 3.7. Nhật Ký Kiểm Toán Nền Tảng (Khuôn Mẫu 2: Paginated List)
 - **Endpoint**: `GET /api/v1/platform/audit-logs`
-- **Query Params**: `page`, `size`, `action`, `tenant_id`, `from_date`, `to_date`.
+- **Query Params**: `page`, `size`, `action`, `tenant_id`, `from_date`, `to_date`, `scope` (PLATFORM/TENANT), `result` (SUCCESS/DENIED/FAILED), `actor_user_id`, `resource_type`, `keyword` (tìm trong `details` JSONB).
 - **Phản Hồi Thành Công (200 OK)**:
 ```json
 {
@@ -348,15 +348,25 @@ Hai hành động được tách rõ ràng thành 2 endpoint và 2 mã phản h�
     "items": [
       {
         "log_id": "log-0001",
+        "event_id": "evt-0001",
+        "scope": "TENANT",
+        "tenant_id": "tenant-uuid",
         "actor_user_id": "admin-uuid",
-        "actor_email": "ops-admin@openerp.9ms.io.vn",
-        "action": "TENANT_LOCK",
+        "actor_type": "USER",
+        "actor_email": "admin@acme-corp.vn",
+        "action": "IAM_ROLE_DATA_POLICY_UPDATE",
+        "resource_type": "ROLE",
+        "resource_id": "role-uuid",
         "target_tenant_id": "tenant-uuid",
         "target_tenant_name": "Tập Đoàn Acme",
+        "result": "SUCCESS",
+        "correlation_id": "corr-uuid",
+        "entry_hash": "9f2c8d1a0b77e4f3c5a6d8e0f1b2c3d4e5f60718293a4b5c6d7e8f9a0b1c2d3e",
         "details": {
-          "reason": "Chưa thanh toán cước phí",
-          "previous_status": "ACTIVE",
-          "new_status": "SUSPENDED"
+          "before": { "read_scope": "OWN_ONLY" },
+          "after": { "read_scope": "BRANCH" },
+          "reason": "Chuẩn hóa quyền xem đơn hàng theo chi nhánh",
+          "extra": {}
         },
         "ip_address": "118.70.12.34",
         "created_at": "2026-09-18T10:15:00Z"
@@ -369,6 +379,48 @@ Hai hành động được tách rõ ràng thành 2 endpoint và 2 mã phản h�
   }
 }
 ```
+- **Tra cứu Tenant-scope (BUG-72)**: truyền `scope = TENANT` (+ tùy chọn `tenant_id`) để xem audit quản trị tenant. Màn hình cho Tenant Admin **deferred Sprint sau**; Sprint 02 chỉ xem qua Platform API.
+
+### 3.7.1. Chi Tiết Bản Ghi Kiểm Toán (Khuôn Mẫu 1: Single Resource — BUG-72)
+- **Endpoint**: `GET /api/v1/platform/audit-logs/{id}` — `id` là khóa kỹ thuật `id` hoặc `event_id` của bản ghi.
+- Trả về **đầy đủ** `details` (`before`/`after`/`reason`/`extra`) + `prev_hash`/`entry_hash` để đối soát toàn vẹn chuỗi (khối "Chuỗi toàn vẹn" trên Drawer).
+- **Phản Hồi Thành Công (200 OK)**:
+```json
+{
+  "success": true,
+  "code": "PLATFORM_AUDIT_LOG_DETAIL_SUCCESS",
+  "message": "Audit log detail retrieved successfully.",
+  "params": {},
+  "data": {
+    "log_id": "log-0001",
+    "event_id": "evt-0001",
+    "scope": "TENANT",
+    "tenant_id": "tenant-uuid",
+    "actor_user_id": "admin-uuid",
+    "actor_type": "USER",
+    "actor_email": "admin@acme-corp.vn",
+    "action": "IAM_ROLE_DATA_POLICY_UPDATE",
+    "resource_type": "ROLE",
+    "resource_id": "role-uuid",
+    "target_tenant_id": "tenant-uuid",
+    "target_user_id": null,
+    "result": "SUCCESS",
+    "correlation_id": "corr-uuid",
+    "details": {
+      "before": { "read_scope": "OWN_ONLY" },
+      "after": { "read_scope": "BRANCH" },
+      "reason": "Chuẩn hóa quyền xem đơn hàng theo chi nhánh",
+      "extra": {}
+    },
+    "ip_address": "118.70.12.34",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+    "prev_hash": "3b7d1c9e5f0a2b4d6c8e0f1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e",
+    "entry_hash": "9f2c8d1a0b77e4f3c5a6d8e0f1b2c3d4e5f60718293a4b5c6d7e8f9a0b1c2d3e",
+    "created_at": "2026-09-18T10:15:00Z"
+  }
+}
+```
+- Không tìm thấy `id`/`event_id` → `404 Not Found` (Khuôn Mẫu 4), mã `PLATFORM_AUDIT_LOG_NOT_FOUND`.
 
 ### 3.8. Chi Tiết Tenant (Khuôn Mẫu 1: Single Resource)
 - **Endpoint**: `GET /api/v1/platform/tenants/{tenant_id}`
@@ -440,6 +492,100 @@ Hai hành động được tách rõ ràng thành 2 endpoint và 2 mã phản h�
   }
 }
 ```
+
+### 3.12. Quản Trị Tài Khoản Super Admin (FEAT-18, TASK-294)
+
+*Nhóm API này chỉ dành cho `SUPER_ADMIN` (SUPPORT_ENGINEER bị từ chối `403 PLATFORM_ACCESS_DENIED`). **Không tồn tại endpoint công khai/tự đăng ký** cấp quyền Super Admin — quyền chỉ được cấp qua bootstrap first-run (TASK-274), Platform API (mục này) hoặc CLI (TASK-295).*
+
+- `GET /api/v1/platform/admins` — **Khuôn Mẫu 3 (Non-Paginated List)**:
+  - **Phản Hồi Thành Công (200 OK)**:
+```json
+{
+  "success": true,
+  "code": "PLATFORM_ADMIN_LIST_SUCCESS",
+  "message": "Platform admin list retrieved successfully.",
+  "params": {},
+  "data": {
+    "items": [
+      {
+        "admin_id": "pa-0001",
+        "user_id": "b2c9a101-0000-4000-a000-000000000001",
+        "email": "ops-admin@openerp.9ms.io.vn",
+        "full_name": "Platform Operations Admin",
+        "role": "SUPER_ADMIN",
+        "status": "ACTIVE",
+        "must_change_password": false,
+        "two_factor_required": true,
+        "is_2fa_enabled": true,
+        "last_login_at": "2026-09-18T09:00:00Z",
+        "disabled_at": null,
+        "created_at": "2026-09-01T08:00:00Z"
+      }
+    ]
+  }
+}
+```
+
+- `POST /api/v1/platform/admins` — **201 Created**, **Khuôn Mẫu 1 (Single Resource)**:
+  - **Request Body**:
+```json
+{
+  "email": "cto@openerp.9ms.io.vn",
+  "role": "SUPER_ADMIN",
+  "full_name": "Chief Technology Officer"
+}
+```
+  - **Quy tắc**:
+    - `role` ∈ `SUPER_ADMIN`, `SUPPORT_ENGINEER`.
+    - User **chưa tồn tại** → tạo user nền tảng (`tenant_id = NULL`, `status = ACTIVE`, `email_verified = TRUE`), trạng thái admin `INVITED`, gửi email invitation → mã `PLATFORM_ADMIN_INVITATION_SENT`.
+    - User **đã tồn tại** → nâng cấp/gán quyền trên tài khoản hiện hữu (không tạo trùng user), trạng thái `ACTIVE` → mã `PLATFORM_ADMIN_GRANTED`.
+    - Bản ghi đã tồn tại (kể cả `REVOKED`) được cập nhật (upsert theo `uq_platform_admin_user`), không tạo bản ghi thứ hai.
+  - **Phản Hồi Thành Công (201 Created)**:
+```json
+{
+  "success": true,
+  "code": "PLATFORM_ADMIN_GRANTED",
+  "message": "Platform admin granted successfully.",
+  "params": {},
+  "data": {
+    "admin_id": "pa-0002",
+    "user_id": "user-cto-uuid",
+    "email": "cto@openerp.9ms.io.vn",
+    "role": "SUPER_ADMIN",
+    "status": "ACTIVE",
+    "must_change_password": true,
+    "two_factor_required": true
+  }
+}
+```
+
+- `POST /api/v1/platform/admins/{id}/disable` — **Khuôn Mẫu 1 (Single Resource)**:
+  - **Request Body**: `{ "reason": "Nhân sự nghỉ việc từ 30/09/2026", "confirm_password": "superadmin-secret-password" }`
+  - **Nội dung xử lý**: chuyển `status = 'DISABLED'`, `is_active = FALSE`, cập nhật `disabled_at`/`disabled_by`, thu hồi toàn bộ session Redis + blacklist token, gửi email cảnh báo, audit `PLATFORM_ADMIN_DISABLED`.
+  - **Phản Hồi Thành Công (200 OK)**:
+```json
+{
+  "success": true,
+  "code": "PLATFORM_ADMIN_DISABLED",
+  "message": "Platform admin disabled successfully.",
+  "params": {},
+  "data": {
+    "admin_id": "pa-0002",
+    "status": "DISABLED",
+    "disabled_at": "2026-09-18T11:00:00Z"
+  }
+}
+```
+  - **Lỗi**:
+    - Tự disable chính mình → `403` (Khuôn Mẫu 4), mã `PLATFORM_SELF_DISABLE_FORBIDDEN`.
+    - Disable SUPER_ADMIN `ACTIVE` cuối cùng → `409` (Khuôn Mẫu 4), mã `PLATFORM_LAST_ADMIN_PROTECTED`.
+
+- `POST /api/v1/platform/admins/{id}/enable` — **Khuôn Mẫu 1**, mã `PLATFORM_ADMIN_ENABLED`, response `{ "admin_id": "...", "status": "ACTIVE" }`.
+- `DELETE /api/v1/platform/admins/{id}` — **Khuôn Mẫu 1**, mã `PLATFORM_ADMIN_REVOKED`, response `{ "admin_id": "...", "status": "REVOKED" }`; guard `PLATFORM_SELF_DISABLE_FORBIDDEN` (tự thu hồi) và `PLATFORM_LAST_ADMIN_PROTECTED` (admin cuối) áp dụng tương tự disable.
+- `POST /api/v1/platform/admins/{id}/reset-password` — **Khuôn Mẫu 1**, mã `PLATFORM_ADMIN_PASSWORD_RESET_SENT`, response `{ "admin_id": "...", "reset_token_sent": true }`; đặt `must_change_password = TRUE`.
+- `POST /api/v1/platform/admins/{id}/disable-2fa` — **Khuôn Mẫu 1** (break-glass), mã `PLATFORM_ADMIN_2FA_DISABLED`; bắt buộc kèm `support_ticket` + `reason` + `confirm_password`, ghi `platform_audit_logs` mức Critical và gửi email thông báo.
+
+- **Ghi chú chung**: chỉ SUPER_ADMIN; disable/revoke **không áp dụng cho chính mình**; mọi thao tác (kể cả bị từ chối) đều ghi `platform_audit_logs` `scope = 'PLATFORM'` với `action` tương ứng và `actor_type` là `SUPER_ADMIN` hoặc `CLI` (TASK-295).
 
 ---
 
@@ -845,9 +991,21 @@ Toàn bộ `code` xuất hiện trong tài liệu này, kèm bản dịch chuẩ
 | `PLATFORM_IMPERSONATION_LOG_LIST_SUCCESS` | Lấy nhật ký phiên đại diện thành công | Impersonation log list retrieved successfully |
 | `PLATFORM_HEALTH_CHECK_SUCCESS` | Lấy trạng thái sức khỏe hạ tầng thành công | Infrastructure health check retrieved successfully |
 | `PLATFORM_AUDIT_LOG_LIST_SUCCESS` | Lấy nhật ký kiểm toán nền tảng thành công | Platform audit log list retrieved successfully |
+| `PLATFORM_AUDIT_LOG_DETAIL_SUCCESS` | Lấy chi tiết bản ghi kiểm toán thành công | Audit log detail retrieved successfully |
+| `PLATFORM_AUDIT_LOG_NOT_FOUND` | Không tìm thấy bản ghi kiểm toán | Audit log record not found |
 | `PLATFORM_ACCESS_DENIED` | Bạn không có quyền truy cập cổng quản trị nền tảng | You do not have access to the platform administration portal |
 | `SUPERADMIN_IMPERSONATION_DESTRUCTIVE_ACTION_FORBIDDEN` | Không được thực hiện thao tác phá hoại trong chế độ đại diện | Destructive action is forbidden in impersonation mode |
 | `SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN` | Không được đọc/xuất bí mật trong chế độ đại diện | Secret export is forbidden in impersonation mode |
+| `PLATFORM_ADMIN_LIST_SUCCESS` | Lấy danh sách quản trị viên nền tảng thành công | Platform admin list retrieved successfully |
+| `PLATFORM_ADMIN_GRANTED` | Cấp quyền quản trị viên nền tảng thành công | Platform admin granted successfully |
+| `PLATFORM_ADMIN_INVITATION_SENT` | Đã gửi lời mời quản trị viên nền tảng | Platform admin invitation sent successfully |
+| `PLATFORM_ADMIN_DISABLED` | Vô hiệu hóa quản trị viên nền tảng thành công | Platform admin disabled successfully |
+| `PLATFORM_ADMIN_ENABLED` | Kích hoạt lại quản trị viên nền tảng thành công | Platform admin enabled successfully |
+| `PLATFORM_ADMIN_REVOKED` | Thu hồi quyền quản trị viên nền tảng thành công | Platform admin revoked successfully |
+| `PLATFORM_ADMIN_PASSWORD_RESET_SENT` | Đã gửi email đặt lại mật khẩu quản trị viên nền tảng | Platform admin password reset email sent |
+| `PLATFORM_ADMIN_2FA_DISABLED` | Đã tắt 2FA của quản trị viên nền tảng theo quy trình break-glass | Platform admin 2FA disabled via break-glass |
+| `PLATFORM_SELF_DISABLE_FORBIDDEN` | Không thể tự vô hiệu hóa hoặc thu hồi quyền của chính mình | You cannot disable or revoke your own platform admin account |
+| `PLATFORM_LAST_ADMIN_PROTECTED` | Không thể vô hiệu hóa quản trị viên nền tảng đang hoạt động cuối cùng | The last active platform admin is protected |
 
 ### 6.2. Organization (`/api/v1/organization/*`)
 | `code` | Tiếng Việt (`vi.json`) | Tiếng Anh (`en.json`) |

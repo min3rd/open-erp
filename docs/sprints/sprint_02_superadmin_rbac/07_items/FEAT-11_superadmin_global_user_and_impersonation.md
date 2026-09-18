@@ -34,7 +34,7 @@
 - [ ] **TASK-214**: Hiện thực các API `POST /api/v1/platform/tenants/{id}/impersonate` và `POST /api/v1/platform/impersonate/exit`.
 - [ ] **TASK-215**: Viết Unit/Integration Test cho toàn bộ vòng đời phiên Impersonation và kiểm tra chặn refresh token.
 - [ ] **TASK-216**: Xây dựng UI `PersistentImpersonationBanner` và `ImpersonateConfirmDrawer` trên Angular Web.
-- [ ] (xem thêm item: BUG-56, BUG-57, TASK-273, TASK-274, BUG-68, TASK-277).
+- [ ] (xem thêm item: BUG-56, BUG-57, TASK-273, TASK-274, BUG-68, TASK-277, FEAT-18, TASK-294, TASK-295).
 
 ---
 

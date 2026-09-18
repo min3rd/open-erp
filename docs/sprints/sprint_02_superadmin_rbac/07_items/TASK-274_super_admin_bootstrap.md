@@ -30,3 +30,5 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA xác minh tài khoản bootstrap truy cập được `/platform/*`.
 - [ ] Không phát sinh regression.
+
+> **Cập nhật thiết kế (FEAT-18, 2026-09-18)**: bootstrap được nâng cấp theo [SOL-01 §1.2.3](../05_solutions/SOL-01_superadmin_architecture_and_security.md) — chỉ chạy khi **không còn SUPER_ADMIN `ACTIVE`** nào; yêu cầu `OPENERP_ADMIN_BOOTSTRAP_SECRET`; email đã tồn tại → **nâng cấp tài khoản hiện hữu** (không tạo trùng, không ghi đè mật khẩu/trạng thái); bản ghi tạo với `status = 'ACTIVE'`, `is_active = TRUE`, `must_change_password = TRUE`, `two_factor_required = TRUE`; audit `PLATFORM_ADMIN_BOOTSTRAPPED` (`actor_type = SYSTEM`).

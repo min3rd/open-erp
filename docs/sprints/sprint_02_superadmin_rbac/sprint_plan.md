@@ -55,6 +55,7 @@ Thiết lập tầng quản trị vận hành tối cao của nền tảng SaaS 
    - Backend: Bắt buộc viết Unit/Integration Test (JUnit 5 + RestAssured) kết nối PostgreSQL & Redis thật.
    - Frontend: Không viết unit test; kiểm thử Dual-mode trên trình duyệt thực tế (Web Desktop $\ge$ 1280px và Mobile Emulation 390x844px).
 6. **Quản lý đa chi nhánh**: BRANCH scope = union(`member_branch_ids`, `managed_branch_ids`) qua bảng `user_branch_assignments`; mỗi user có 1 primary branch dùng cho CREATE.
+7. **Vòng đời Super Admin**: không tự đăng ký; cấp qua bootstrap config/API/CLI; bắt buộc đổi mật khẩu + 2FA; bảo vệ admin cuối cùng (PLATFORM_LAST_ADMIN_PROTECTED); CLI offline + remote có audit.
 
 ---
 

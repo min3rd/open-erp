@@ -69,15 +69,27 @@ CREATE TABLE platform_super_admins (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     role VARCHAR(32) NOT NULL DEFAULT 'SUPER_ADMIN', -- SUPER_ADMIN, SUPPORT_ENGINEER
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,         -- Tương thích: is_active = (status = 'ACTIVE')
+    status VARCHAR(16) NOT NULL DEFAULT 'ACTIVE',    -- INVITED, ACTIVE, DISABLED, REVOKED
+    must_change_password BOOLEAN NOT NULL DEFAULT TRUE,
+    two_factor_required BOOLEAN NOT NULL DEFAULT TRUE,
+    last_login_at TIMESTAMP WITH TIME ZONE,
+    disabled_at TIMESTAMP WITH TIME ZONE,
+    disabled_by UUID REFERENCES users(id),
     granted_by UUID REFERENCES users(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    CONSTRAINT uq_platform_admin_user UNIQUE(user_id)
+    CONSTRAINT uq_platform_admin_user UNIQUE(user_id),
+    CONSTRAINT chk_platform_admin_role CHECK (role IN ('SUPER_ADMIN', 'SUPPORT_ENGINEER'))
 );
 
 CREATE INDEX idx_platform_super_admins_active ON platform_super_admins(is_active);
+CREATE INDEX idx_platform_super_admins_status ON platform_super_admins(status);
 ```
+
+> **Vòng đời tài khoản (FEAT-18, SOL-01 §1.2.2)**: `status` ∈ `INVITED`, `ACTIVE`, `DISABLED`, `REVOKED` (đồng bộ enum Java `PlatformAdminStatus` và TypeScript `@shared/enums`). Bất biến tương thích: `is_active = (status = 'ACTIVE')`. `must_change_password`/`two_factor_required` bắt buộc `TRUE` cho mọi bản ghi; admin chưa hoàn tất thiết lập bị chặn trước khi dùng portal.
+> **Bootstrap (TASK-274)**: tạo bản ghi `status = 'ACTIVE'`, `is_active = TRUE`, `granted_by = NULL` (SYSTEM), audit `PLATFORM_ADMIN_BOOTSTRAPPED`.
+> **Ràng buộc duy nhất (partial unique)**: `uq_platform_admin_user` (đã có) đảm bảo **tối đa 1 bản ghi cho mỗi user** trên mọi trạng thái — do đó không thể tồn tại 2 bản ghi `ACTIVE` cho cùng một user; grant lại một user đã `REVOKED` phải cập nhật (upsert) bản ghi hiện hữu thay vì tạo mới.
 
 ### 2.3. Bảng `platform_impersonation_logs` (Nhật Ký Đăng Nhập Đại Diện)
 ```sql
@@ -104,25 +116,58 @@ CREATE INDEX idx_imp_logs_admin_started ON platform_impersonation_logs(super_adm
 
 > **Ngoại lệ bất biến có kiểm soát**: Bảng `platform_impersonation_logs` **KHÔNG** áp trigger immutable như `platform_audit_logs`, vì luồng nghiệp vụ bắt buộc `UPDATE` cột `status` (`STARTED → ENDED/TIMEOUT`) và `ended_at` khi phiên đại diện kết thúc. Bảng vẫn bị `REVOKE DELETE` với role ứng dụng; mọi thao tác `UPDATE` chỉ thực hiện qua service nội bộ (không cấp cho client).
 
-### 2.4. Bảng `platform_audit_logs` (Nhật Ký Kiểm Toán Bất Biến Nền Tảng)
+### 2.4. Bảng `platform_audit_logs` (Nhật Ký Kiểm Toán Bất Biến Dùng Chung — PLATFORM/TENANT)
+Bảng dùng chung cho audit nền tảng (`scope = 'PLATFORM'`) và audit quản trị trong tenant (`scope = 'TENANT'`), append-only, có **hash chain SHA-256** chống sửa đổi và **partition theo tháng** trên `created_at`:
 ```sql
 CREATE TABLE platform_audit_logs (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID NOT NULL DEFAULT gen_random_uuid(),
+    event_id UUID NOT NULL DEFAULT gen_random_uuid(),
+    scope VARCHAR(16) NOT NULL DEFAULT 'PLATFORM',   -- PLATFORM, TENANT
+    tenant_id UUID REFERENCES tenants(id),           -- bắt buộc khi scope = TENANT
     actor_user_id UUID NOT NULL REFERENCES users(id),
-    action VARCHAR(64) NOT NULL,                  -- TENANT_LOCK, TENANT_UNLOCK, TENANT_QUOTA_UPDATE, USER_GLOBAL_LOCK, USER_GLOBAL_UNLOCK, USER_FORCE_PASSWORD_RESET, USER_BREAK_GLASS_DISABLE_2FA, IMPERSONATION_START, IMPERSONATION_END
+    actor_type VARCHAR(16) NOT NULL DEFAULT 'USER',  -- USER, SUPER_ADMIN, SUPPORT_ENGINEER, SYSTEM, CLI
+    actor_email_snapshot VARCHAR(255) NOT NULL,
+    action VARCHAR(64) NOT NULL,
+    resource_type VARCHAR(64),
+    resource_id UUID,
     target_tenant_id UUID REFERENCES tenants(id),
     target_user_id UUID REFERENCES users(id),
-    details JSONB NOT NULL DEFAULT '{}'::jsonb,   -- { "old_value": {...}, "new_value": {...} }
+    result VARCHAR(16) NOT NULL DEFAULT 'SUCCESS',   -- SUCCESS, DENIED, FAILED
+    correlation_id UUID,
+    details JSONB NOT NULL DEFAULT '{}'::jsonb,      -- { before, after, reason, extra }
     ip_address VARCHAR(45) NOT NULL,
     user_agent TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
-);
+    prev_hash VARCHAR(64),
+    entry_hash VARCHAR(64) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (id, created_at),
+    CONSTRAINT chk_audit_scope CHECK (scope IN ('PLATFORM', 'TENANT')),
+    CONSTRAINT chk_audit_scope_tenant CHECK (scope <> 'TENANT' OR tenant_id IS NOT NULL),
+    CONSTRAINT chk_audit_result CHECK (result IN ('SUCCESS', 'DENIED', 'FAILED'))
+) PARTITION BY RANGE (created_at);
 
-CREATE INDEX idx_platform_audit_actor ON platform_audit_logs(actor_user_id);
-CREATE INDEX idx_platform_audit_action ON platform_audit_logs(action);
-CREATE INDEX idx_platform_audit_tenant ON platform_audit_logs(target_tenant_id);
-CREATE INDEX idx_platform_audit_created ON platform_audit_logs(created_at DESC);
+-- Partition theo tháng + default partition hứng dữ liệu ngoài phạm vi
+CREATE TABLE platform_audit_logs_2026_09 PARTITION OF platform_audit_logs
+    FOR VALUES FROM ('2026-09-01 00:00:00+00') TO ('2026-10-01 00:00:00+00');
+CREATE TABLE platform_audit_logs_2026_10 PARTITION OF platform_audit_logs
+    FOR VALUES FROM ('2026-10-01 00:00:00+00') TO ('2026-11-01 00:00:00+00');
+CREATE TABLE platform_audit_logs_default PARTITION OF platform_audit_logs DEFAULT;
+```
 
+> **Ghi chú partition**: PostgreSQL yêu cầu khóa chính của bảng partitioned phải chứa cột partition key → dùng `PRIMARY KEY (id, created_at)` thay cho `id` đơn lẻ. Job `AuditPartitionMaintainer` (TASK-292) tự tạo partition trước 3 tháng; `platform_audit_logs_default` là lưới an toàn, không bao giờ chặn ghi.
+
+**Index** (BRIN + B-tree + GIN theo SOL-01 §3.4):
+```sql
+CREATE INDEX idx_audit_created_brin ON platform_audit_logs USING BRIN (created_at);
+CREATE INDEX idx_audit_scope_tenant ON platform_audit_logs(scope, tenant_id, created_at DESC);
+CREATE INDEX idx_audit_actor ON platform_audit_logs(actor_user_id, created_at DESC);
+CREATE INDEX idx_audit_action ON platform_audit_logs(action, created_at DESC);
+CREATE INDEX idx_audit_target_tenant ON platform_audit_logs(target_tenant_id, created_at DESC);
+CREATE INDEX idx_audit_details_gin ON platform_audit_logs USING GIN (details jsonb_path_ops);
+```
+
+**Trigger immutable** (giữ nguyên hành vi):
+```sql
 -- Trigger PostgreSQL đảm bảo tính BẤT BIẾN (Chống UPDATE và DELETE)
 CREATE OR REPLACE FUNCTION trg_fn_prevent_audit_tamper()
 RETURNS TRIGGER AS $$
@@ -135,6 +180,13 @@ CREATE TRIGGER trg_audit_logs_immutable
 BEFORE UPDATE OR DELETE ON platform_audit_logs
 FOR EACH ROW EXECUTE FUNCTION trg_fn_prevent_audit_tamper();
 ```
+> Trong PostgreSQL 13+, trigger trên bảng partitioned tự động áp dụng cho mọi partition hiện có lẫn partition tạo mới.
+
+**Hash chain (TASK-291)**: `entry_hash = SHA-256(canonical(event_id, actor_user_id, action, resource_type, resource_id, target_tenant_id, target_user_id, result, details, created_at, prev_hash))`; `prev_hash` = `entry_hash` của bản ghi liền trước theo thứ tự `(created_at, id)`, bản ghi đầu tiên `prev_hash = NULL`. Hàm băm hiện thực trong `AuditLogService` (Java) — không dùng trigger sinh hash để tránh chi phí và dễ kiểm thử; ghi tuần tự bảo vệ bằng `pg_advisory_xact_lock` (SOL-01 §3.3). Job `AuditChainVerifier` quét định kỳ phát hiện đứt chuỗi.
+
+> **Retention 24 tháng (TASK-292/TASK-293)**: bản ghi > 24 tháng thuộc diện cold archive sang MongoDB/S3 WORM ở sprint sau; không xóa cứng trong thời gian lưu trữ; legal hold được tôn trọng khi archive.
+
+> **Phạm vi dùng chung (BUG-72)**: audit nền tảng dùng `scope = 'PLATFORM'`; audit quản trị tenant (RBAC/Cơ cấu tổ chức) dùng `scope = 'TENANT'` + `tenant_id` bắt buộc, tra cứu qua Platform API ở Sprint 02; màn hình cho Tenant Admin **deferred sprint sau** (SOL-01 §3.8). Bảng vẫn thuộc nhóm **12 bảng cấu trúc** (không đổi tổng số).
 
 > **Ghi chú**: Bảng `platform_impersonation_logs` (§2.3) **KHÔNG** áp trigger immutable vì cần `UPDATE` trạng thái `STARTED → ENDED/TIMEOUT`; đây là ngoại lệ có kiểm soát và vẫn bị `REVOKE DELETE`.
 

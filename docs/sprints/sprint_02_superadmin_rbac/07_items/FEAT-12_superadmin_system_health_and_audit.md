@@ -23,6 +23,7 @@
 - [ ] **Kịch bản 2: Giám sát Redis & Kafka**: Given hệ thống đang vận hành, When Super Admin kiểm tra, Then hiển thị trạng thái kết nối Redis, dung lượng RAM sử dụng, số lượng client kết nối và trạng thái Broker Kafka.
 - [ ] **Kịch bản 3: Truy vết nhật ký bất biến**: Given các thao tác nhạy cảm (khóa tenant, đổi quota, impersonation) diễn ra, When Super Admin mở màn hình `/platform/audit-logs`, Then hiển thị danh sách nhật ký có thời gian, IP, tài khoản thực hiện, và chi tiết JSON trước/sau khi đổi.
 - [ ] **Kịch bản 4: Chống sửa đổi nhật ký (Anti-Tamper)**: Given bảng `platform_audit_logs`, When cố gắng thực hiện lệnh `UPDATE` hoặc `DELETE` trực tiếp trong SQL, Then Trigger CSDL chặn đứng và báo lỗi `CANNOT MODIFY OR DELETE AUDIT TRAIL LOG RECORD`.
+- [ ] **Kịch bản 5: Cấu trúc lưu trữ audit & toàn vẹn chuỗi**: Given các hành động nhạy cảm diễn ra, When kiểm tra, Then mỗi bản ghi có event_id/scope/result/correlation_id/prev_hash/entry_hash; chuỗi hash liên tục và job verify xác nhận VERIFIED; bảng partition theo tháng.
 
 ---
 
@@ -32,7 +33,7 @@
 - [ ] **TASK-223**: Hiện thực API `GET /api/v1/platform/health` và `GET /api/v1/platform/audit-logs`.
 - [ ] **TASK-224**: Xây dựng UI Dashboard sức khỏe hạ tầng với biểu đồ mini và thẻ trạng thái xanh/vàng/đỏ trên Angular Web.
 - [ ] **TASK-225**: Xây dựng màn hình xem nhật ký kiểm toán có drawer hiển thị diff JSON chi tiết.
-- [ ] (xem thêm item: BUG-64, BUG-63, TASK-277).
+- [ ] (xem thêm item: BUG-64, BUG-63, BUG-72, TASK-277, TASK-291, TASK-292, TASK-293).
 
 ---
 

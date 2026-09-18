@@ -30,6 +30,7 @@
 - Menu chức năng:
   - `Quản Lý Tenant` (`/platform/tenants`)
   - `Người Dùng Toàn Cầu` (`/platform/users`)
+  - `Quản Trị Super Admin` (`/platform/admins`) — chỉ hiển thị với SUPER_ADMIN (FEAT-18)
   - `Sức Khỏe Hạ Tầng` (`/platform/health`)
   - `Nhật Ký Kiểm Toán` (`/platform/audit-logs`)
 - Góc phải: Bộ chuyển đổi Sáng/Tối/Hệ thống (`ThemeSwitcher`) và Thông tin Super Admin.
@@ -117,6 +118,47 @@ sequenceDiagram
 
 Trong danh sách nhân sự của màn Cơ cấu tổ chức (`/settings/memberships`), mỗi nhân sự có phân công quản lý hiển thị badge `ORGANIZATION_BRANCH_ASSIGNMENT_MANAGE_BADGE` ("Quản lý {count} chi nhánh"); bấm badge mở `BranchAssignmentDrawer` tương ứng.
 
+### 4.6. Màn Hình Nhật Ký Kiểm Toán Nền Tảng (`/platform/audit-logs`) & Drawer Chi Tiết
+
+Bảng nhật ký mật độ cao (Industrial Sharp) bổ sung các cột và bộ lọc phục vụ đối soát bất biến (BUG-72):
+
+| Cột | Nội dung | Ghi chú |
+| :--- | :--- | :--- |
+| Thời gian | `created_at` (giờ địa phương + UTC) | Sắp xếp giảm dần mặc định |
+| Actor | `actor_email` + badge `actor_type` | SUPER_ADMIN tím, SYSTEM xám |
+| Hành động | `action` (enum `AuditAction`) | Nhãn i18n theo action |
+| **Scope** | Badge `PLATFORM` / `TENANT` | Tím nhạt / xanh lam nhạt |
+| **Result** | Badge màu: `SUCCESS` (xanh lục), `DENIED` (vàng), `FAILED` (đỏ) | Nhãn `PLATFORM_AUDIT_RESULT` |
+| **Correlation** | `correlation_id` rút gọn 8 ký tự đầu, hover/copy xem đủ | Truy vết xuyên service |
+| Target | `target_tenant_name` / `resource_type:resource_id` | — |
+| IP | `ip_address` | — |
+
+- **Bộ lọc mật độ cao**: khoảng thời gian (`from_date`/`to_date`), `scope`, `result`, `action`, `actor_user_id`, `resource_type`, `tenant_id`, `keyword` (tìm trong `details`).
+- **Drawer chi tiết `AuditLogDetailDrawer`** (trượt phải, rộng 560px, Anti-Modal):
+  1. **Diff JSON `before` / `after`**: hai cột đối chiếu (trước: nền đỏ nhạt, sau: nền xanh lục nhạt), highlight khác biệt từng khóa.
+  2. **`reason`**: lý do hành động, bắt buộc hiển thị nếu có.
+  3. **Khối "Chuỗi toàn vẹn" (Integrity Chain)**: hiển thị `prev_hash`, `entry_hash` dạng monospace (copy được) kèm badge trạng thái `VERIFIED` màu xanh lục (`PLATFORM_AUDIT_CHAIN_VERIFIED`); dữ liệu lấy từ `GET /api/v1/platform/audit-logs/{id}`.
+  4. Metadata: `event_id`, `correlation_id`, `ip_address`, `user_agent`, `created_at`.
+- **Ghi chú deferred**: màn hình xem audit cho **Tenant Admin** (scope `TENANT`) **deferred Sprint sau** — cần bổ sung permission `core:audit:read` + RLS cô lập tenant; Sprint 02 chỉ ghi log tenant-scope và xem qua Platform API.
+
+### 4.7. Màn Hình Quản Trị Super Admin (`/platform/admins`) — FEAT-18
+
+Màn hình danh sách tài khoản quản trị nền tảng (mật độ cao, Industrial Sharp), chỉ hiển thị với SUPER_ADMIN:
+
+| Cột | Nội dung | Ghi chú |
+| :--- | :--- | :--- |
+| Email | `email` + `full_name` | Cột nhận diện chính |
+| Vai trò | Badge `[SUPER_ADMIN]` (tím đậm) / `[SUPPORT]` (xanh lam) | `role` |
+| Trạng thái | Badge `INVITED`/`ACTIVE`/`DISABLED`/`REVOKED` (nhãn `PLATFORM_ADMIN_STATUS`) | Xám / xanh lục / vàng / đỏ |
+| 2FA | `two_factor_required` + `is_2fa_enabled` | Cảnh báo vàng nếu bắt buộc mà chưa bật |
+| Đăng nhập cuối | `last_login_at` | — |
+| Hành động | Enable/Disable, Revoke, Reset mật khẩu, Disable 2FA | Inline confirm + nhập mật khẩu xác nhận |
+
+- **Nút "Cấp quyền"** (`PLATFORM_ADMIN_GRANT_BTN`) mở `PlatformAdminGrantDrawer` (Drawer trượt phải, Anti-Modal): nhập email, họ tên, chọn role `SUPER_ADMIN`/`SUPPORT_ENGINEER`; nếu email chưa tồn tại hiển thị ghi chú "hệ thống sẽ gửi lời mời thiết lập mật khẩu".
+- **Disable/Revoke**: bắt buộc nhập lý do + mật khẩu xác nhận; nút disable/revoke chính mình bị vô hiệu hóa (disabled state) kèm tooltip `PLATFORM_SELF_DISABLE_FORBIDDEN`; khi chỉ còn 1 admin active, nút disable admin đó hiển thị cảnh báo `PLATFORM_LAST_ADMIN_PROTECTED`.
+- **Thiết lập bắt buộc**: admin có `must_change_password`/`two_factor_required` chưa hoàn tất bị điều hướng tới màn Đổi mật khẩu/Thiết lập 2FA bắt buộc, không truy cập các màn `/platform/*` khác.
+- Không dùng Modal; mọi xác nhận dùng inline confirm hoặc Drawer.
+
 ---
 
 ## 5. Trải Nghiệm Trên Điện Thoại Di Động (Mobile Ionic 8 - Viewport 390x844px)
@@ -143,6 +185,13 @@ Trên ứng dụng di động Ionic 8, giao diện được tối ưu hóa cho m
 | `PLATFORM_TENANT_MANAGEMENT` | Quản Lý Khách Thuê (Tenants) | Tenant Management |
 | `PLATFORM_SYSTEM_HEALTH` | Sức Khỏe Hạ Tầng | System Infrastructure Health |
 | `PLATFORM_AUDIT_TRAIL` | Nhật Ký Kiểm Toán Nền Tảng | Platform Audit Trail |
+| `PLATFORM_AUDIT_SCOPE` | Phạm Vi Áp Dụng | Audit Scope |
+| `PLATFORM_AUDIT_RESULT` | Kết Quả Hành Động | Action Result |
+| `PLATFORM_AUDIT_CHAIN_VERIFIED` | Chuỗi Toàn Vẹn: Đã Xác Minh | Integrity Chain: Verified |
+| `PLATFORM_ADMINS_TITLE` | Quản Trị Super Admin | Super Admin Management |
+| `PLATFORM_ADMIN_GRANT_BTN` | Cấp quyền | Grant Access |
+| `PLATFORM_ADMIN_DISABLE_BTN` | Vô hiệu hóa | Disable |
+| `PLATFORM_ADMIN_STATUS` | Trạng thái quản trị viên | Admin Status |
 | `IMPERSONATION_ACTIVE_BANNER` | BẠN ĐANG TRUY CẬP ĐẠI DIỆN HỖ TRỢ BỞI {admin_email} • TICKET {ticket} • CÒN LẠI {mm:ss} | SUPPORT IMPERSONATION ACTIVE BY {admin_email} • TICKET {ticket} • REMAINING {mm:ss} |
 | `IMPERSONATION_EXIT_BTN` | Kết Thúc Phiên | Exit Impersonation |
 | `IAM_ROLE_MANAGEMENT` | Quản Lý Vai Trò & Phân Quyền | Role & Permission Management |
@@ -193,6 +242,7 @@ Trên ứng dụng di động Ionic 8, giao diện được tối ưu hóa cho m
 | `/platform/tenants` | Quản lý Tenant (Super Admin) | `platformRoleGuard` | token có `platform_role = SUPER_ADMIN` **và** `groups` chứa `SUPER_ADMIN` |
 | `/platform/tenants/:id` | Chi tiết Tenant (split-screen + drawer quota) | `platformRoleGuard` | như trên |
 | `/platform/users` | Người dùng toàn cầu (khóa/mở khóa/break-glass) | `platformRoleGuard` | như trên |
+| `/platform/admins` | Quản trị tài khoản Super Admin (grant/disable/revoke) | `platformRoleGuard` | như trên, chỉ `SUPER_ADMIN` (không dành cho SUPPORT_ENGINEER) |
 | `/platform/health` | Sức khỏe hạ tầng | `platformRoleGuard` | như trên |
 | `/platform/audit-logs` | Nhật ký kiểm toán nền tảng | `platformRoleGuard` | như trên |
 | `/platform/impersonation-logs` | Nhật ký phiên đại diện | `platformRoleGuard` | như trên |

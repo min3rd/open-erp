@@ -39,6 +39,8 @@
 2. **Tenant 2 (Công ty Beta - Đối thủ cạnh tranh)**:
    - User 7: Tenant Admin công ty Beta.
 
+> **Ghi chú audit (BUG-72)**: Mọi thay đổi RBAC/Cơ cấu tổ chức trong fixtures (tạo/sửa/xóa vai trò, cập nhật quyền chức năng, cập nhật ma trận data policy, gán/gỡ vai trò người dùng, thao tác chi nhánh/phòng ban/membership/branch-assignment) bắt buộc sinh bản ghi `platform_audit_logs` với `scope = 'TENANT'` + `tenant_id` tương ứng; các hành động Platform của Super Admin sinh `scope = 'PLATFORM'`.
+
 ---
 
 ### 2.2. Danh Sách Ca Kiểm Thử Tự Động Bắt Buộc (Automated Test Cases)
@@ -68,6 +70,15 @@
 | **TC-BE-21** | Multi-Branch Manager | User 8 (BRANCH, quản lý HN+HCM) lấy danh sách core_sample_records. | Thấy dữ liệu BR-HN và BR-HCM; KHÔNG thấy BR-DN. |
 | **TC-BE-22** | Multi-Branch CREATE | User 8 tạo bản ghi không truyền branch_id. | Bản ghi gán primary_branch = BR-HN; gửi branch BR-DN → 403 IAM_PERMISSION_DENIED_DATA_SCOPE. |
 | **TC-BE-23** | Branch Assignment Cache | Xóa phân công quản lý BR-HCM của User 8. | Request kế tiếp chỉ còn thấy BR-HN (cache invalidated ngay). |
+| **TC-BE-24** | Audit Hash Chain | Ghi 3 log liên tiếp rồi sửa trực tiếp 1 dòng bằng SQL superuser (bypass trigger). | Job AuditChainVerifier phát hiện đứt chuỗi tại bản ghi bị sửa (FAILED). |
+| **TC-BE-25** | Audit Immutable | UPDATE/DELETE platform_audit_logs bằng role ứng dụng. | Trigger/REVOKE chặn, lỗi CANNOT MODIFY OR DELETE AUDIT TRAIL LOG RECORD. |
+| **TC-BE-26** | Audit Partition & Retention | Kiểm tra routing bản ghi vào partition tháng hiện tại + job tạo partition trước 3 tháng. | Bản ghi nằm đúng partition; partition tương lai tồn tại; log > 24 tháng thuộc diện archive. |
+| **TC-BE-27** | Tenant-scope Audit | Tenant Admin đổi quyền vai trò. | Sinh bản ghi audit scope=TENANT, tenant_id đúng, result=SUCCESS; Platform API lọc theo scope trả đúng. |
+| **TC-BE-28** | Bootstrap Super Admin | Chạy backend lần đầu khi platform_super_admins rỗng với bootstrap-emails. | Tạo/nâng cấp user, gán SUPER_ADMIN, must_change_password=true, two_factor_required=true, audit PLATFORM_ADMIN_BOOTSTRAPPED. |
+| **TC-BE-29** | Self-disable Guard | SUPER_ADMIN gọi disable chính mình. | 403 PLATFORM_SELF_DISABLE_FORBIDDEN; trạng thái không đổi. |
+| **TC-BE-30** | Last-admin Guard | Disable SUPER_ADMIN active cuối cùng. | 409 PLATFORM_LAST_ADMIN_PROTECTED; vẫn còn 1 admin active. |
+| **TC-BE-31** | Disable Revocation | Disable một admin khác. | Session Redis bị xóa, token vào blacklist, email cảnh báo, audit PLATFORM_ADMIN_DISABLED. |
+| **TC-BE-32** | Admin CLI | Chạy offline CLI bootstrap/list/disable + remote CLI. | Lệnh thực thi đúng; audit actor_type=CLI; không nhận mật khẩu qua arg. |
 
 ---
 
