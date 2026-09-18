@@ -1,0 +1,63 @@
+<div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 space-y-3">
+  @if (profileError()) {
+    <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+      {{ profileError() }}
+    </div>
+  }
+  @if (profileSuccess()) {
+    <div class="p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+      {{ profileSuccess() }}
+    </div>
+  }
+
+  <div class="flex justify-between items-center text-[11px] text-neutral-500 dark:text-neutral-400">
+    <span [appTranslate]="'AUTH_EMAIL_LABEL'"></span>
+    <span class="font-mono">{{ profile()?.email }}</span>
+  </div>
+
+  <app-sharp-input
+    [label]="'AUTH_FULL_NAME_LABEL' | translate"
+    [placeholder]="'AUTH_FULL_NAME_PLACEHOLDER' | translate"
+    [(value)]="profileFullName"
+    [required]="true"
+  />
+
+  <app-sharp-input
+    [label]="'ACCOUNT_PHONE_LABEL' | translate"
+    type="tel"
+    [placeholder]="'ACCOUNT_PHONE_PLACEHOLDER' | translate"
+    [(value)]="profilePhone"
+  />
+
+  <app-sharp-input
+    [label]="'ACCOUNT_AVATAR_URL_LABEL' | translate"
+    placeholder="https://..."
+    [(value)]="profileAvatarUrl"
+  />
+
+  <div class="space-y-1">
+    <label class="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300" [appTranslate]="'ACCOUNT_LANGUAGE_LABEL'"></label>
+    <select
+      [(ngModel)]="profileLanguage"
+      name="profileLanguage"
+      class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-none text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-200"
+    >
+      <option value="vi">{{ 'COMMON_LANG_VI' | translate }}</option>
+      <option value="en">{{ 'COMMON_LANG_EN' | translate }}</option>
+    </select>
+  </div>
+
+  <app-sharp-input
+    [label]="'ACCOUNT_TIMEZONE_LABEL' | translate"
+    placeholder="Asia/Ho_Chi_Minh"
+    [(value)]="profileTimezone"
+  />
+
+  <app-sharp-button
+    [fullWidth]="true"
+    [loading]="loadingProfileUpdate()"
+    (clicked)="handleUpdateProfile()"
+  >
+    {{ 'ACCOUNT_SAVE_CHANGES' | translate }}
+  </app-sharp-button>
+</div>

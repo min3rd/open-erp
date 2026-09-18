@@ -1,0 +1,206 @@
+<div class="space-y-5 pt-2">
+  <!-- 1. Đổi mật khẩu -->
+  <div class="border border-neutral-200 dark:border-neutral-800 p-3 bg-neutral-50 dark:bg-neutral-950">
+    <h4 class="text-xs font-bold uppercase text-neutral-800 dark:text-neutral-200 mb-2" [appTranslate]="'ACCOUNT_CHANGE_PASSWORD_TITLE'">
+    </h4>
+
+    @if (passwordSuccess()) {
+      <div class="mb-3 p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+        {{ passwordSuccess() }}
+      </div>
+    }
+
+    @if (passwordError()) {
+      <div class="mb-3 p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        {{ passwordError() }}
+      </div>
+    }
+
+    <form (ngSubmit)="handleChangePassword()" class="space-y-2.5">
+      <app-sharp-input
+        [label]="'ACCOUNT_CURRENT_PASSWORD_LABEL' | translate"
+        type="password"
+        [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+        [(value)]="currentPassword"
+        [required]="true"
+      />
+
+      <app-sharp-input
+        [label]="'ACCOUNT_NEW_PASSWORD_LABEL' | translate"
+        type="password"
+        [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+        [hint]="'AUTH_PASSWORD_HINT' | translate"
+        [(value)]="newPassword"
+        [required]="true"
+      />
+
+      <app-sharp-input
+        [label]="'ACCOUNT_NEW_PASSWORD_CONFIRM_LABEL' | translate"
+        type="password"
+        [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+        [(value)]="confirmNewPassword"
+        [required]="true"
+      />
+
+      <div class="flex items-center pt-1">
+        <input
+          id="logoutOthers"
+          type="checkbox"
+          [(ngModel)]="logoutOtherDevices"
+          name="logoutOtherDevices"
+          class="h-3.5 w-3.5 rounded-none border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-0"
+        />
+        <label for="logoutOthers" class="ml-2 text-xs text-neutral-600 dark:text-neutral-400" [appTranslate]="'ACCOUNT_REVOKE_OTHERS_BUTTON'">
+        </label>
+      </div>
+
+      <div class="pt-1">
+        <app-sharp-button
+          [type]="buttonTypeSubmit"
+          [loading]="loadingPasswordChange()"
+        >
+          {{ 'ACCOUNT_CHANGE_PASSWORD_BUTTON' | translate }}
+        </app-sharp-button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 2. Quản lý 2FA -->
+  <div class="border border-neutral-200 dark:border-neutral-800 p-3 bg-neutral-50 dark:bg-neutral-950">
+    <div class="flex justify-between items-center mb-2">
+      <h4 class="text-xs font-bold uppercase text-neutral-800 dark:text-neutral-200" [appTranslate]="'ACCOUNT_2FA_SECTION_TITLE'">
+      </h4>
+      @if (twoFactorStatus()?.is_enabled) {
+        <app-badge [variant]="badgeVariantSuccess">{{ 'COMMON_ACTIVE' | translate }}</app-badge>
+      } @else {
+        <app-badge [variant]="badgeVariantWarning">{{ 'COMMON_INACTIVE' | translate }}</app-badge>
+      }
+    </div>
+
+    @if (securitySuccess()) {
+      <div class="mb-3 p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+        {{ securitySuccess() }}
+      </div>
+    }
+
+    @if (securityError()) {
+      <div class="mb-3 p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        {{ securityError() }}
+      </div>
+    }
+
+    <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mb-3">
+      {{ (twoFactorStatus()?.is_enabled ? 'ACCOUNT_2FA_DESC_ENABLED' : 'ACCOUNT_2FA_DESC_DISABLED') | translate }}
+    </p>
+
+    @if (twoFactorStatus()?.is_enabled) {
+      <div class="space-y-2">
+        <div class="text-[11px] text-neutral-600 dark:text-neutral-400 font-mono">
+          • {{ 'ACCOUNT_BACKUP_CODES_REMAINING' | translate:{ count: twoFactorStatus()?.backup_codes_remaining } }}
+        </div>
+
+        <div class="flex gap-2 pt-1">
+          <app-sharp-button
+            [variant]="buttonVariantDanger"
+            [size]="buttonSizeSm"
+            (clicked)="openDisable2Fa()"
+          >
+            {{ 'ACCOUNT_DISABLE_2FA_BUTTON' | translate }}
+          </app-sharp-button>
+
+          @if (!showRegenerateForm()) {
+            <app-sharp-button
+              [variant]="buttonVariantSecondary"
+              [size]="buttonSizeSm"
+              (clicked)="openRegenerateForm()"
+            >
+              {{ 'ACCOUNT_REGENERATE_BACKUP_CODES' | translate }}
+            </app-sharp-button>
+          }
+        </div>
+
+        <!-- Inline: Tái tạo mã dự phòng (không dùng prompt/modal) -->
+        @if (showRegenerateForm()) {
+          <div class="mt-2 border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-2.5 space-y-2">
+            <p class="text-[11px] text-neutral-600 dark:text-neutral-400" [appTranslate]="'ACCOUNT_REGENERATE_BACKUP_CODES_DESC'">
+            </p>
+
+            <app-sharp-input
+              [label]="'ACCOUNT_CURRENT_PASSWORD_LABEL' | translate"
+              type="password"
+              [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+              [(value)]="regeneratePassword"
+              [required]="true"
+            />
+
+            @if (regenerateError()) {
+              <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-[11px]">
+                {{ regenerateError() }}
+              </div>
+            }
+
+            <div class="flex gap-2">
+              <app-sharp-button
+                [size]="buttonSizeSm"
+                [loading]="loadingRegenerate()"
+                (clicked)="submitRegenerateBackupCodes()"
+              >
+                {{ 'COMMON_CONFIRM' | translate }}
+              </app-sharp-button>
+              <app-sharp-button
+                [variant]="buttonVariantSecondary"
+                [size]="buttonSizeSm"
+                (clicked)="cancelRegenerateForm()"
+              >
+                {{ 'COMMON_CANCEL' | translate }}
+              </app-sharp-button>
+            </div>
+          </div>
+        }
+
+        <!-- Inline: Danh sách mã dự phòng mới -->
+        @if (regeneratedCodes().length > 0) {
+          <div class="mt-2 border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-2.5 space-y-2">
+            <div class="flex justify-between items-center">
+              <h5 class="text-[11px] font-bold uppercase text-amber-800 dark:text-amber-200" [appTranslate]="'ACCOUNT_NEW_BACKUP_CODES_TITLE'">
+              </h5>
+              <button
+                type="button"
+                (click)="copyRegeneratedCodes()"
+                class="text-[11px] text-amber-800 dark:text-amber-200 hover:underline font-mono"
+              >
+                {{ (copiedRegeneratedCodes() ? 'COMMON_COPIED' : 'COMMON_COPY_ALL') | translate }}
+              </button>
+            </div>
+            <p class="text-[11px] text-amber-800 dark:text-amber-200" [appTranslate]="'ACCOUNT_2FA_BACKUP_WARNING'">
+            </p>
+            <div class="grid grid-cols-2 gap-1.5 font-mono text-xs">
+              @for (code of regeneratedCodes(); track $index) {
+                <div class="px-2 py-1 bg-white dark:bg-neutral-900 border border-amber-300 dark:border-amber-800 text-center select-all">
+                  {{ code }}
+                </div>
+              }
+            </div>
+            <app-sharp-button
+              [variant]="buttonVariantSecondary"
+              [size]="buttonSizeSm"
+              (clicked)="dismissRegeneratedCodes()"
+            >
+              {{ 'COMMON_CLOSE' | translate }}
+            </app-sharp-button>
+          </div>
+        }
+      </div>
+    } @else {
+      <app-sharp-button
+        [size]="buttonSizeSm"
+        (clicked)="openSetup2Fa()"
+      >
+        {{ 'ACCOUNT_ENABLE_2FA_BUTTON' | translate }}
+      </app-sharp-button>
+    }
+  </div>
+
+  <!-- Stacked 2FA drawers (nested routes) -->
+  <router-outlet />
+</div>

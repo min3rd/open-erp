@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 01
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -39,6 +39,7 @@
 - Không có
 
 ## 6. Xác Nhận Khắc Phục (QA Verification)
-- [ ] Developer đã sửa xong.
-- [ ] QA đã re-test và xác nhận không còn lỗi.
-- [ ] Không gây lỗi phát sinh (Regression test pass).
+- [x] Developer đã sửa xong.
+- [x] QA đã re-test và xác nhận không còn lỗi.
+- [x] Không gây lỗi phát sinh (Regression test pass).
+- **Ghi chú QA (2026-09-18)**: Xác nhận bằng automated test (`mvn test` BUILD SUCCESS, 22/22 test PASS trên PostgreSQL + Redis thật); mã test liên quan nằm trong `src/backend/src/test`; BUG-32 xác nhận bởi TC-14b, BUG-33 bởi TC-16.

@@ -1,5 +1,6 @@
 package com.vn9melody.openerp.modules.iam.model;
 
+import com.vn9melody.openerp.core.registry.RegisterEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -7,6 +8,12 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "user_profiles")
+@RegisterEntity(
+    entityName = "UserProfile",
+    table = "user_profiles",
+    publicFields = {"user_id", "full_name", "phone", "avatar_url", "language", "timezone"},
+    relations = {"users"}
+)
 public class UserProfile extends PanacheEntityBase {
     @Id
     @Column(name = "user_id", nullable = false)

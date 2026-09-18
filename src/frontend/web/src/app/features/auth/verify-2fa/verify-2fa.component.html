@@ -1,0 +1,86 @@
+<div class="min-h-screen bg-neutral-100 dark:bg-neutral-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="absolute top-4 right-4">
+    <app-language-switcher />
+  </div>
+
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="flex justify-center">
+      <div class="w-10 h-10 bg-neutral-900 dark:bg-white flex items-center justify-center font-mono font-bold text-white dark:text-neutral-900 text-sm">
+        2FA
+      </div>
+    </div>
+    <h2 class="mt-4 text-center text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100" [appTranslate]="'AUTH_2FA_TITLE'">
+    </h2>
+    <p class="mt-1 text-center text-xs text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_2FA_INSTRUCTION'">
+    </p>
+  </div>
+
+  <div class="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white dark:bg-neutral-900 py-6 px-4 shadow-sm border border-neutral-200 dark:border-neutral-800 sm:px-8">
+      @if (errorMessage()) {
+        <div class="mb-4 p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      @if (!useBackupCode()) {
+        <div class="space-y-4">
+          <div class="py-2">
+            <app-pin-input
+              [length]="6"
+              [ariaLabel]="'COMMON_OTP' | translate"
+              (completed)="handle2FaComplete($event)"
+              [disabled]="loading()"
+              [hasError]="!!errorMessage()"
+            />
+          </div>
+
+          @if (loading()) {
+            <p class="text-center text-xs text-neutral-500 dark:text-neutral-400" [appTranslate]="'COMMON_LOADING'">
+            </p>
+          }
+
+          <div class="text-center">
+            <button
+              type="button"
+              (click)="useBackupCode.set(true)"
+              class="text-xs text-neutral-600 dark:text-neutral-400 hover:underline"
+              [appTranslate]="'ACCOUNT_BACKUP_CODES_TITLE'"
+            >
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="space-y-4">
+          <app-sharp-input
+            [label]="'ACCOUNT_BACKUP_CODES_TITLE' | translate"
+            [placeholder]="'AUTH_BACKUP_CODE_PLACEHOLDER' | translate"
+            [(value)]="backupCodeInput"
+          />
+
+          <div class="flex gap-2">
+            <app-sharp-button
+              [fullWidth]="true"
+              [loading]="loading()"
+              (clicked)="handleBackupCodeSubmit()"
+            >
+              {{ 'COMMON_CONFIRM' | translate }}
+            </app-sharp-button>
+            <app-sharp-button
+              [variant]="buttonVariantSecondary"
+              (clicked)="useBackupCode.set(false)"
+            >
+              {{ 'COMMON_BACK' | translate }}
+            </app-sharp-button>
+          </div>
+        </div>
+      }
+
+      <div class="mt-4 border-t border-neutral-200 dark:border-neutral-800 pt-3 text-center">
+        <a routerLink="/login" class="text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:underline">
+          ← {{ 'AUTH_BACK_TO_LOGIN' | translate }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

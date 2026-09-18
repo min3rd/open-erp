@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { 
   I18nService, 
@@ -30,7 +30,6 @@ export class ResetPasswordComponent implements OnInit {
   auth = inject(AuthService);
   i18n = inject(I18nService);
   route = inject(ActivatedRoute);
-  router = inject(Router);
 
   readonly buttonTypeSubmit = ButtonType.SUBMIT;
 
@@ -40,6 +39,7 @@ export class ResetPasswordComponent implements OnInit {
 
   loading = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
+  successMessage = signal<string | null>(null);
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
@@ -56,6 +56,7 @@ export class ResetPasswordComponent implements OnInit {
     }
 
     this.errorMessage.set(null);
+    this.successMessage.set(null);
     this.loading.set(true);
 
     this.auth.resetPassword({
@@ -64,8 +65,7 @@ export class ResetPasswordComponent implements OnInit {
     }).subscribe({
       next: () => {
         this.loading.set(false);
-        alert(this.i18n.t('AUTH_PASSWORD_RESET_SUCCESS'));
-        this.router.navigate(['/login']);
+        this.successMessage.set(this.i18n.t('AUTH_PASSWORD_RESET_SUCCESS'));
       },
       error: (err) => {
         this.loading.set(false);

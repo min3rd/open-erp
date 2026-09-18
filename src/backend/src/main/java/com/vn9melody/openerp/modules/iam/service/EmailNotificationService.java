@@ -18,7 +18,7 @@ public class EmailNotificationService {
     String frontendUrl;
 
     public void sendVerificationOtp(String toEmail, String otpCode) {
-        LOG.infof("Sending verification OTP [%s] to email: %s", otpCode, toEmail);
+        LOG.infof("Sending account verification OTP email to: %s", toEmail);
         try {
             mailer.send(Mail.withText(
                 toEmail,
@@ -31,14 +31,27 @@ public class EmailNotificationService {
     }
 
     public void sendPasswordResetEmail(String toEmail, String resetToken) {
-        LOG.infof("Sending password reset email to: %s with token: %s", toEmail, resetToken);
-        String baseUrl = (frontendUrl != null && !frontendUrl.isBlank()) ? frontendUrl.replaceAll("/+$", "") : "https://openerp.9ms.io.vn";
-        String resetLink = baseUrl + "/reset-password?token=" + resetToken;
+        LOG.infof("Sending password reset email to: %s", toEmail);
+        String resetLink = resolveFrontendBaseUrl() + "/reset-password?token=" + resetToken;
         try {
             mailer.send(Mail.withText(
                 toEmail,
                 "[Open-ERP] Yêu cầu đặt lại mật khẩu",
                 String.format("Xin chào,\n\nBạn vừa yêu cầu đặt lại mật khẩu cho tài khoản Open-ERP.\nVui lòng bấm vào liên kết sau để đổi mật khẩu (hạn dùng 15 phút):\n%s\n\nNếu bạn không yêu cầu, vui lòng bỏ qua email này.\n\nTrân trọng,\nĐội ngũ Open-ERP", resetLink)
+            ));
+        } catch (Exception e) {
+            LOG.warnf("Could not send email via SMTP: %s", e.getMessage());
+        }
+    }
+
+    public void sendBusinessWelcomeEmail(String toEmail, String tenantName, String tenantSlug) {
+        LOG.infof("Sending business workspace welcome email to: %s", toEmail);
+        String workspaceLink = resolveFrontendBaseUrl() + "/login?tenant=" + tenantSlug;
+        try {
+            mailer.send(Mail.withText(
+                toEmail,
+                "[Open-ERP] Khởi tạo doanh nghiệp thành công",
+                String.format("Xin chào,\n\nKhông gian làm việc doanh nghiệp \"%s\" (%s) đã được khởi tạo thành công trên Open-ERP.\nBạn là quản trị viên (TENANT_ADMIN) của không gian làm việc này.\nĐăng nhập để bắt đầu quản lý doanh nghiệp của bạn tại:\n%s\n\nTrân trọng,\nĐội ngũ Open-ERP", tenantName, tenantSlug, workspaceLink)
             ));
         } catch (Exception e) {
             LOG.warnf("Could not send email via SMTP: %s", e.getMessage());
@@ -56,5 +69,11 @@ public class EmailNotificationService {
         } catch (Exception e) {
             LOG.warnf("Could not send email alert: %s", e.getMessage());
         }
+    }
+
+    private String resolveFrontendBaseUrl() {
+        return (frontendUrl != null && !frontendUrl.isBlank())
+            ? frontendUrl.replaceAll("/+$", "")
+            : "https://openerp.9ms.io.vn";
     }
 }

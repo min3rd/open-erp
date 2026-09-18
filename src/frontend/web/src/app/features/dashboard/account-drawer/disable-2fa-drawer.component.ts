@@ -1,6 +1,7 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AccountService } from '../../../core/services/account.service';
 import { 
   I18nService, 
@@ -30,14 +31,11 @@ import {
 export class Disable2FaDrawerComponent {
   accountService = inject(AccountService);
   i18n = inject(I18nService);
+  private router = inject(Router);
 
   readonly buttonTypeSubmit = ButtonType.SUBMIT;
   readonly buttonVariantDanger = ButtonVariant.DANGER;
   readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
-
-  isOpen = input<boolean>(false);
-  close = output<void>();
-  disabledSuccess = output<void>();
 
   currentPassword = '';
   code = '';
@@ -52,9 +50,7 @@ export class Disable2FaDrawerComponent {
     this.accountService.disable2Fa(this.currentPassword, this.code).subscribe({
       next: () => {
         this.loading.set(false);
-        alert(this.i18n.t('ACCOUNT_2FA_DISABLED_SUCCESS'));
-        this.disabledSuccess.emit();
-        this.close.emit();
+        this.onClose();
       },
       error: (err: any) => {
         this.loading.set(false);
@@ -64,9 +60,6 @@ export class Disable2FaDrawerComponent {
   }
 
   onClose() {
-    this.currentPassword = '';
-    this.code = '';
-    this.errorMessage.set(null);
-    this.close.emit();
+    this.router.navigate(['/account/security']);
   }
 }

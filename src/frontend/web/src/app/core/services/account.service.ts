@@ -1,7 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { ApiResponse, UserProfileData, TwoFactorStatus, TwoFactorSetupData, UserSessionData } from '../models/api.model';
+import {
+  ApiResponse,
+  UserProfileData,
+  TwoFactorStatus,
+  TwoFactorSetupData,
+  TwoFactorEnableData,
+  BackupCodesData,
+  UserSessionData
+} from '@shared';
 
 @Injectable({
   providedIn: 'root'
@@ -29,8 +37,8 @@ export class AccountService {
     return this.api.post<TwoFactorSetupData>('/api/v1/account/2fa/setup', {});
   }
 
-  enable2Fa(code: string): Observable<ApiResponse<any>> {
-    return this.api.post('/api/v1/account/2fa/enable', { code });
+  enable2Fa(code: string): Observable<ApiResponse<TwoFactorEnableData>> {
+    return this.api.post<TwoFactorEnableData>('/api/v1/account/2fa/enable', { code });
   }
 
   disable2Fa(currentPassword: string, code: string): Observable<ApiResponse<any>> {
@@ -40,8 +48,8 @@ export class AccountService {
     });
   }
 
-  regenerateBackupCodes(currentPassword: string): Observable<ApiResponse<string[]>> {
-    return this.api.post<string[]>('/api/v1/account/2fa/backup-codes/regenerate', {
+  regenerateBackupCodes(currentPassword: string): Observable<ApiResponse<BackupCodesData>> {
+    return this.api.post<BackupCodesData>('/api/v1/account/2fa/regenerate-backup-codes', {
       current_password: currentPassword
     });
   }
@@ -55,6 +63,6 @@ export class AccountService {
   }
 
   revokeOtherSessions(): Observable<ApiResponse<any>> {
-    return this.api.post('/api/v1/account/sessions/revoke-others', {});
+    return this.api.delete('/api/v1/account/sessions/other');
   }
 }

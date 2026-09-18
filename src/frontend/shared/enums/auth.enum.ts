@@ -8,7 +8,7 @@ export enum AuthMode {
 
 export enum TenantType {
   PERSONAL = 'PERSONAL',
-  ORGANIZATION = 'ORGANIZATION'
+  BUSINESS = 'BUSINESS'
 }
 
 export enum UserRole {

@@ -127,3 +127,71 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
   - Phát hiện **9 lỗi `Critical`, 14 lỗi `High`, 8 lỗi `Medium`**; đã lập 31 file item `BUG-01` → `BUG-31` trong `docs/sprints/sprint_01_core_iam/07_items/` (mỗi lỗi một file theo quy trình quản lý dạng file).
   - Ban hành báo cáo tổng hợp [CODE_REVIEW_SPRINT_01.md](sprints/sprint_01_core_iam/09_review/CODE_REVIEW_SPRINT_01.md) (REV-02) kèm danh sách lỗi `Low` chưa lập file và đánh giá DoD Gate.
   - **Kết luận**: Sprint 01 **CHƯA ĐỦ ĐIỀU KIỆN ĐÓNG** (DoD Gate FAIL do toàn bộ item Critical/High đang `To Do`); chuyển danh sách BUG cho Developer Agent xử lý.
+
+- **Xử Lý BUG Critical/High & QA Re-test (2026-09-18)**:
+  - **Backend**: chuyển mật khẩu sang Argon2id; mã hóa TOTP secret AES-256-GCM; chuyển session/brute-force/OTP/pre-auth/token blacklist sang Redis (TTL, cửa sổ brute-force 10 phút); hash SHA-256 reset token; khóa 2FA sau 3 lần sai; thêm API `refresh`/`logout`/`resend-verification`; `@Authenticated` + kiểm tra jti/session; IP thật; email chào mừng doanh nghiệp. Bổ sung 9 test API-level (RestAssured) + tenant isolation.
+  - **Frontend Web**: sửa endpoint/payload/model theo API contract; QR thật cho Setup 2FA; backup codes chỉ hiển thị sau enable; environment config; Auth Guard + Interceptor refresh 401; i18n hóa toàn bộ + Anti-Modal (bỏ 15 chỗ `alert/prompt/confirm`).
+  - **Mobile**: khởi tạo ứng dụng Ionic 8 + Angular đầy đủ màn hình Core IAM, tái sử dụng thư viện shared.
+  - **QA phát sinh**: phát hiện và xử lý BUG-32 (hủy session chéo người dùng - High), BUG-33 (lỗi 4xx thành 500 - High); BUG-34 (401 body rỗng - Medium) chuyển Sprint 02.
+  - **Kết quả re-test**: `mvn test` **PASS 22/22** (PostgreSQL + Redis thật); Web `npm run build` PASS; Mobile `npm run build` + `ionic serve` PASS. Báo cáo [QA_RETEST_SPRINT_01.md](sprints/sprint_01_core_iam/09_review/QA_RETEST_SPRINT_01.md) (REV-03).
+  - **Còn lại trước khi đóng Sprint**: QA Browser Manual Testing (Web + Mobile) và bổ sung `docs/06_user_guides/` kèm hình ảnh; các item Medium chuyển Sprint 02.
+
+- **Triển Khai Môi Trường Local Phục Vụ QA Manual Test (2026-09-18)**:
+  - Hạ tầng Docker: PostgreSQL Primary + Redis (đang chạy) + bật thêm Mailpit (profile `mail`) tại http://localhost:8025 để đọc email OTP/khôi phục mật khẩu.
+  - Backend Quarkus dev mode: http://localhost:8088 (lưu ý Java 25 cần `JAVA_TOOL_OPTIONS=-Dnet.bytebuddy.experimental=true`; log tại `%TEMP%\opencode\backend-dev2.log`).
+  - Web Angular dev server: http://localhost:4200. Mobile Ionic 8 dev server: http://localhost:8100.
+  - Bật CORS backend cho `localhost:4200/8100` (phục vụ QA gọi API trực tiếp trên local).
+  - **Smoke test E2E PASS**: đăng ký cá nhân → nhận OTP qua Mailpit → xác thực email (Personal Workspace) → đăng nhập → lấy profile → liệt kê phiên → refresh token → logout và token cũ bị từ chối 401.
+  - Ban hành hướng dẫn QA thao tác từng bước: [manual_test_guide.md](sprints/sprint_01_core_iam/08_testing/manual_test_guide.md) kèm checklist regression BUG-02 → BUG-19.
+
+- **Sửa Lỗi Phát Hiện Từ Manual Test Khách Hàng (2026-09-18)**:
+  - **BUG-35 (Critical)**: Tailwind v4 không quét `src/frontend/shared` (thiếu `@source`) làm mất các class chỉ dùng trong shared (`.fixed`, `.shadow-2xl`, nhiều `dark:*`) khiến Drawer không overlay. Đã thêm `@source '../../shared';` vào `web/src/styles.css` (CSS 23.801 → 34.713 bytes).
+  - **BUG-36 (High)**: Rà soát dark mode toàn bộ Web + Mobile (login/register/forgot/reset/dashboard/account/2FA), bổ sung cặp `dark:` còn thiếu; Mobile bổ sung Ionic `dark.system.css`. Browser audit xác nhận màu sắc đồng nhất.
+  - **BUG-37 (High)**: Route hóa trạng thái UI: `/account/detail|security|sessions`, nested `/account/security/2fa/setup|disable`, các route xác thực `/verify-email`, `/auth/2fa`, `/select-tenant` (sessionStorage cho pre-auth); Drawer/Tab điều khiển bằng Angular Router, F5/deep-link hoạt động; guard chặn `/account/**`.
+  - **Xác thực**: Puppeteer browser test Web **7/7 PASS** (deep-link, reload, Escape đóng stacked drawer, guard) + Mobile smoke **18/18 PASS**; Web/Mobile build PASS; console 0 lỗi.
+
+- **Sự Cố Môi Trường Dev & Khởi Chạy Từ Root (2026-09-18)**:
+  - **BUG-39**: Script `.bat` dùng `echo ==>` bị CMD hiểu là redirect, tạo file rác `Khoi ...`. Đã đổi sang tiền tố `[Open-ERP]`/`[Infra]`; verify chạy `start_infra.bat` không còn file rác.
+  - **Khởi chạy từ root**: Thêm `dev.bat` (Docker infra Postgres+Redis+Mailpit → mở 3 cửa sổ Backend/Web/Mobile) và `stop-dev.bat`; các script `run_backend/web/mobile.bat` tự xác định thư mục gốc. `mvn quarkus:dev` chạy được không cần set biến môi trường nhờ `jvm.args=-Dnet.bytebuddy.experimental=true` trong `pom.xml` (Java 25 + ByteBuddy).
+  - **BUG-38 (Critical)**: Phát hiện nguyên nhân login trả 401 — bộ test backend dùng chung `openerp_dev` và xóa sạch dữ liệu dev mỗi lần chạy. Đã tách sang database riêng `openerp_test`; `start_infra` tự tạo DB test; `docker/postgres/init/01-create-test-database.sql` cho volume mới. Verify: `mvn test` 22/22 PASS, tài khoản dev vẫn đăng nhập được.
+  - **BUG-40 (High)**: Login khi trình duyệt còn token cũ bị tầng security chặn → 401 body rỗng → FE hiển thị "Internal Server Error". Đã bật `quarkus.http.auth.proactive=false`, FE không gửi token tới các endpoint public, map lỗi theo HTTP status + bổ sung i18n. Verify puppeteer 3/3 PASS.
+  - Lưu ý: dữ liệu dev trước đó đã bị test xóa (không khôi phục được) — cần đăng ký lại tài khoản local khi test.
+
+- **Re-review Sprint 01 & Ban Hành Hướng Dẫn Sử Dụng (2026-09-18)**:
+  - Kiểm chứng nền tảng: `mvn test` **22/22 PASS** (DB `openerp_test`), Web/Mobile build PASS, HTTP 8088/4200/8100/8025 đều 200, git không track secret/build.
+  - Review tồn đọng: BUG-24 → BUG-31 chuyển `Deferred` Sprint 02 kèm ghi chú Partial/Open; BUG-34 giữ Deferred.
+  - Phát hiện & xử lý mới:
+    - **BUG-41 (High)**: fresh clone không chạy được do thiếu khóa JWT → thêm `scripts/dev/generate_jwt_keys.js` (RSA 2048, PKCS#8/SPKI) + tự động sinh trong `run_backend.bat|sh`, tài liệu mục 3.5.
+    - **BUG-46 (Medium)**: drawer Tắt 2FA hiển thị sai cảnh báo "đang TẮT" → thêm key `ACCOUNT_2FA_DISABLE_WARNING` + chụp lại ảnh minh họa.
+    - Ghi nhận BUG-42 (CORS prod), BUG-43 (thiếu i18n mã lỗi hệ thống), BUG-44 (khoảng trống test), BUG-45 (lệch mã lỗi DES-02) — chuyển Sprint 02.
+  - **Ban hành Hướng dẫn sử dụng UG-01** `docs/06_user_guides/sprint_01_core_iam_user_guide.md` (đặt tên theo thứ tự Sprint) kèm **20 ảnh chụp thật** (Web light/dark + Mobile) tại `assets/sprint_01_core_iam/`; cập nhật index `docs/06_user_guides/README.md` kèm quy ước tên `sprint_XX_<tên>_user_guide.md`.
+  - Ban hành báo cáo kiểm thử `08_testing/test_reports/test_report_sprint_01.md` (TR-01) tổng hợp 19 test case.
+
+- **Xử Lý Toàn Bộ Tồn Đọng Sprint 01 (BUG-24 → BUG-31, BUG-34, BUG-42 → BUG-45) - Đợt Sửa 2026-09-18**:
+  - **Chuẩn hóa dữ liệu & schema**: TenantType = `PERSONAL | BUSINESS` + alias `ORGANIZATION` (migration V1.0.1 đổi dữ liệu/default); triển khai Entity Registry `@RegisterEntity` + `EntityRegistryService` + migration V1.0.2 (7 entity `core-iam` đăng ký, tài liệu `docs/system/entity_registry/`); migration V1.0.3 (`backup_codes_hash` → JSONB, thêm `idx_tenants_type`, xóa 2 cột OTP khỏi `users`).
+  - **Chuẩn hóa API & bảo mật**: dùng enum `ResponseKey` thay toàn bộ string literal (`FIELD`/`SLUG`/`LOCKED_SECONDS`/`RETRY_AFTER`/`AVAILABLE`); JWT issuer + cặp khóa config-driven kèm `%prod`/`%staging` (`OPENERP_JWT_PUBLIC_KEY`/`OPENERP_JWT_PRIVATE_KEY`); CORS production/staging với env override `OPENERP_CORS_ORIGINS`; mọi 401 trả envelope `code=UNAUTHORIZED` qua `AccessTokenVerifier`; bổ sung `GET /api/v1/auth/check-slug`.
+  - **Frontend**: chuẩn hóa envelope `ApiResponse` `{success,code,message?,params?,data,errors?}` (bỏ `meta`) và kiểm tra `success`; đồng bộ TopBar sau lưu profile; gỡ checkbox điều khoản chết ở login; form doanh nghiệp 2 bước + live slug check (debounce 400ms, preview URL) + nút gửi lại OTP 60s; bổ sung i18n `BAD_REQUEST`/`METHOD_NOT_ALLOWED`/`UNSUPPORTED_MEDIA_TYPE` (vi/en parity web 189/189, mobile 202/202).
+  - **Tài liệu**: cập nhật DES-02 mục 3.1 sang `ACCOUNT_OLD_PASSWORD_INCORRECT`, bổ sung mục 2.11 check-slug + bảng i18n; ban hành `docs/system/entity_registry/{README,CORE_IAM_REGISTRY}.md`.
+  - **Kết quả kiểm chứng**: `mvn test` **30/30 PASS** (PostgreSQL + Redis thật; thêm `EntityRegistryServiceTest` + 8 test tồn đọng BUG-44); Web build PASS; Mobile build PASS; browser puppeteer verify **6/6 PASS**, console 0 lỗi.
+  - Đóng toàn bộ 13 item Medium/Low (BUG-24 → BUG-31, BUG-34, BUG-42 → BUG-45) sang `Done`; còn lại duy nhất **QA Browser Manual Testing ký xác nhận cuối và commit** để đóng Sprint 01.
+  - **Sửa bổ sung sau verify browser**: `slugPreviewUrl` ở form doanh nghiệp dùng `computed` nhưng đọc biến không phải signal → preview URL không cập nhật khi sửa slug; đã chuyển sang method (Web build PASS). Chụp lại 2 ảnh hướng dẫn theo UI mới: `01-login.png` (đã bỏ checkbox điều khoản) và `19-register-business.png` (form 2 bước + live slug check).
+
+- **FEAT-07: Web Responsive Điện Thoại & Mobile Nav Drawer (2026-09-18)**:
+  - **Theme hệ thống**: chuyển dark variant của Tailwind v4 sang class strategy (`@custom-variant dark`) + `ThemeService` (SYSTEM/LIGHT/DARK, persist `localStorage`, lắng nghe `matchMedia`) và component shared `ThemeSwitcherComponent`.
+  - **MobileNavDrawer**: hamburger trên TopBar (<lg) mở Drawer chứa thông tin tài khoản (avatar/tên, email, workspace, badge vai trò), 4 menu điều hướng (Dashboard, Hồ sơ, Bảo mật & 2FA, Phiên đăng nhập), `LanguageSwitcherComponent`, `ThemeSwitcherComponent` và nút Đăng xuất.
+  - **TopBar responsive**: ẩn cụm điều khiển bên phải dưới `lg`, chỉ còn logo + hamburger, truncate brand/tenant; desktop 1600px giữ nguyên bố cục + theme switcher.
+  - **Auth screens & Dashboard**: login/register/forgot/reset chuyển 1 cột full-width trên điện thoại; dashboard gọn padding, welcome banner xếp dọc, grid tính năng 1 cột (điện thoại) → 2 cột (tablet) → 3 cột (desktop).
+  - **Kết quả kiểm chứng**: Web `npm run build` PASS, Mobile build PASS; puppeteer viewport 390x844 đạt **40/40 + 11/11 assert PASS** (overflow 0 trên 7 trang, hamburger + drawer đầy đủ, theme Dark/Light đổi class `.dark` + `colorScheme` và persist qua reload, desktop không hồi quy), console 0 lỗi. Ảnh minh chứng: `docs/06_user_guides/assets/sprint_01_core_iam/` (21-phone-dashboard.png, 22-phone-nav-drawer.png, 23-phone-dark-theme.png).
+
+- **FEAT-08: Ionic Mobile Side Menu & Theme (2026-09-18)**:
+  - **Theme class-based trên Mobile**: chuyển `dark.system.css` → `dark.class.css` + `@custom-variant dark` (Tailwind class strategy); shared `ThemeService` toggle thêm class `ion-palette-dark`, persist localStorage, mặc định theo hệ thống.
+  - **MobileMenuComponent**: `ion-menu` (contentId) chứa thông tin tài khoản (avatar/tên/email/workspace/badge vai trò), 4 menu điều hướng (Dashboard, Hồ sơ, Bảo mật & 2FA, Phiên đăng nhập - bấm tự đóng menu), language switcher, theme switcher và Đăng xuất.
+  - **Toolbar gọn**: dashboard/account dùng `ion-menu-button`, bỏ các nút rải rác trên toolbar/card; 8 trang auth thêm language/theme switcher gọn góc trên, không tràn ngang 390px.
+  - **i18n**: bổ sung key theme/menu, vi/en parity **208/208**; Mobile + Web `npm run build` PASS.
+  - **Kiểm chứng**: puppeteer viewport 390x844 đạt **42/42 PASS** (menu đầy đủ, điều hướng tự đóng, theme Tối → `html.dark` + `ion-palette-dark`, `--background` ion-content `#0a0a0a`/toolbar `#171717`, persist qua reload, EN đổi nhãn, không tràn ngang, console 0 lỗi) + sweep **22/22 PASS** (8 trang auth không tràn ngang + có switcher, setup/disable 2FA có menu button).
+  - Cập nhật ảnh 16/17/18 và thêm `24-mobile-menu.png`, `25-mobile-dark.png` tại `docs/06_user_guides/assets/sprint_01_core_iam/`.
+
+- **FEAT-09: Ionic Auth UX & Điều Hướng (2026-09-18)**:
+  - **Điều hướng chuẩn Ionic**: refactor toàn bộ `router.navigate` → `NavController` (`navigateForward`/`navigateBack`/`navigateRoot` + `replaceUrl` cho `navigateRoot`) trên `auth.service`, login, register, verify, reset, select-tenant, two-factor, account 2FA và dashboard.
+  - **Tối ưu UI 8 màn auth cho phone**: input/button ≥40px, font 13px, padding safe-area `env()`, gỡ tiêu đề trùng, nút chính full-width, không tràn ngang 390px.
+  - **Kiểm chứng**: Mobile `npm run build` PASS; puppeteer 390x844 **34/34 PASS** (forward/back `/login ↔ /register/personal`, sau login/logout browser-back không về màn trước, back trong luồng quên mật khẩu OK, overflow 0 trên 8 trang auth, console 0 lỗi); cập nhật ảnh `16-mobile-login.png`.

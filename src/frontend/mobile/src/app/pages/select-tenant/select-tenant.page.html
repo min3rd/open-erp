@@ -1,0 +1,60 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'AUTH_SELECT_TENANT_TITLE' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="max-w-md mx-auto p-3 space-y-3">
+    <div class="flex flex-wrap items-center justify-end gap-2">
+      <app-theme-switcher />
+      <app-language-switcher />
+    </div>
+
+    @if (errorMessage()) {
+      <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 space-y-3">
+      <div class="border-b border-neutral-200 dark:border-neutral-800 pb-2">
+        <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_SELECT_TENANT_INSTRUCTION'"></p>
+      </div>
+
+      <div class="space-y-2 max-h-72 overflow-y-auto">
+        @for (tenant of tenants(); track tenant.tenant_id) {
+          <button
+            type="button"
+            [disabled]="loading()"
+            (click)="handleSelectTenant(tenant.tenant_id)"
+            class="w-full text-left p-2.5 border border-neutral-200 dark:border-neutral-800 active:bg-neutral-100 dark:active:bg-neutral-800 flex items-center justify-between gap-2 disabled:opacity-60"
+          >
+            <div class="min-w-0">
+              <div class="font-medium text-xs text-neutral-900 dark:text-neutral-100 truncate">
+                {{ tenant.tenant_name }}
+              </div>
+              <div class="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 mt-0.5 truncate">
+                {{ 'AUTH_TENANT_SLUG_ROLE' | translate:{ slug: tenant.tenant_slug, role: tenant.role } }}
+              </div>
+            </div>
+            @if (tenant.is_default) {
+              <app-badge [variant]="badgeVariantInfo">{{ 'COMMON_DEFAULT' | translate }}</app-badge>
+            }
+          </button>
+        }
+      </div>
+
+      <app-sharp-button
+        [variant]="buttonVariantSecondary"
+        [fullWidth]="true"
+        (clicked)="goBackToLogin()"
+      >
+        {{ 'COMMON_BACK' | translate }}
+      </app-sharp-button>
+    </div>
+  </div>
+</ion-content>

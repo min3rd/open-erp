@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 01
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -38,6 +38,7 @@
 Không có.
 
 ## 6. Xác Nhận Khắc Phục (QA Verification)
-- [ ] Developer đã sửa xong.
-- [ ] QA đã re-test và xác nhận không còn lỗi.
-- [ ] Không gây lỗi phát sinh (Regression test pass).
+- [x] Developer đã sửa xong.
+- [x] QA đã re-test và xác nhận không còn lỗi.
+- [x] Không gây lỗi phát sinh (Regression test pass).
+- **Ghi chú QA (2026-09-18)**: Xác nhận bằng automated browser test (puppeteer: routing/deep-link 7/7, login + token cũ 3/3, form 2 bước + live slug check + 2FA redirect 6/6, console 0 lỗi), Mobile smoke 18/18 PASS, Web/Mobile build PASS; ảnh minh chứng tại docs/06_user_guides/assets/sprint_01_core_iam/. Nghiệm thu cuối của khách hàng thực hiện khi đóng Sprint.

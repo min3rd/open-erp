@@ -9,8 +9,6 @@ import {
   TranslatePipe,
   SharpButtonComponent,
   SharpInputComponent,
-  PinInputComponent,
-  ButtonVariant,
   ButtonType
 } from '@shared';
 
@@ -24,8 +22,7 @@ import {
     TranslateDirective,
     TranslatePipe,
     SharpButtonComponent,
-    SharpInputComponent,
-    PinInputComponent
+    SharpInputComponent
   ],
   templateUrl: './register-personal.component.html'
 })
@@ -35,14 +32,12 @@ export class RegisterPersonalComponent {
   router = inject(Router);
 
   readonly buttonTypeSubmit = ButtonType.SUBMIT;
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
 
   fullName = '';
   email = '';
   phone = '';
   password = '';
 
-  step = signal<'FORM' | 'VERIFY_OTP'>('FORM');
   loading = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
 
@@ -51,31 +46,14 @@ export class RegisterPersonalComponent {
     this.loading.set(true);
 
     this.auth.registerPersonal({
-      fullName: this.fullName,
+      full_name: this.fullName,
       email: this.email,
       phone: this.phone,
       password: this.password
     }).subscribe({
       next: () => {
         this.loading.set(false);
-        this.step.set('VERIFY_OTP');
-      },
-      error: (err) => {
-        this.loading.set(false);
-        this.errorMessage.set(this.i18n.t(err.code, err.params));
-      }
-    });
-  }
-
-  handleVerifyOtp(otpCode: string) {
-    this.errorMessage.set(null);
-    this.loading.set(true);
-
-    this.auth.verifyEmail({ email: this.email, otpCode }).subscribe({
-      next: () => {
-        this.loading.set(false);
-        alert(this.i18n.t('AUTH_EMAIL_VERIFIED_SUCCESS'));
-        this.router.navigate(['/login']);
+        this.router.navigate(['/verify-email'], { queryParams: { email: this.email } });
       },
       error: (err) => {
         this.loading.set(false);

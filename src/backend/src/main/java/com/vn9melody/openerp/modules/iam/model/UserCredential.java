@@ -1,5 +1,6 @@
 package com.vn9melody.openerp.modules.iam.model;
 
+import com.vn9melody.openerp.core.registry.RegisterEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -7,6 +8,12 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "user_credentials")
+@RegisterEntity(
+    entityName = "UserCredential",
+    table = "user_credentials",
+    publicFields = {"user_id", "failed_login_count", "locked_until", "password_updated_at"},
+    relations = {"users"}
+)
 public class UserCredential extends PanacheEntityBase {
     @Id
     @Column(name = "user_id", nullable = false)

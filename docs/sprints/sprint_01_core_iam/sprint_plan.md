@@ -12,12 +12,15 @@ Mọi tính năng được quản lý bằng từng file riêng biệt trong th�
 
 | Mã Tính Năng | Tiêu Đề Tính Năng | Phân Loại | Mức Độ Ưu Tiên | Phụ Trách | Trạng Thái | File Chi Tiết |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **FEAT-01** | Đăng ký tài khoản cá nhân | Feature | High | BA / Dev | In Progress | [FEAT-01.md](07_items/FEAT-01_personal_registration.md) |
-| **FEAT-02** | Đăng ký tài khoản quản trị doanh nghiệp (Tạo Tenant) | Feature | Critical | BA / Dev | In Progress | [FEAT-02.md](07_items/FEAT-02_business_registration.md) |
-| **FEAT-03** | Đăng nhập & Xác định ngữ cảnh Tenant (Multi-tenant Login) | Feature | Critical | BA / Dev | In Progress | [FEAT-03.md](07_items/FEAT-03_authentication_login.md) |
-| **FEAT-04** | Quên mật khẩu & Khôi phục tài khoản qua Email | Feature | High | BA / Dev | In Progress | [FEAT-04.md](07_items/FEAT-04_forgot_password.md) |
-| **FEAT-05** | Xác thực 2 yếu tố (2FA - TOTP RFC 6238) | Feature | High | BA / Dev | In Progress | [FEAT-05.md](07_items/FEAT-05_two_factor_auth.md) |
-| **FEAT-06** | Quản lý tài khoản (Profile, 2FA Management, Sessions qua Drawer Anti-Modal) | Feature | Medium | BA / Dev | In Progress | [FEAT-06.md](07_items/FEAT-06_account_management.md) |
+| **FEAT-01** | Đăng ký tài khoản cá nhân | Feature | High | BA / Dev | In Review | [FEAT-01.md](07_items/FEAT-01_personal_registration.md) |
+| **FEAT-02** | Đăng ký tài khoản quản trị doanh nghiệp (Tạo Tenant) | Feature | Critical | BA / Dev | In Review | [FEAT-02.md](07_items/FEAT-02_business_registration.md) |
+| **FEAT-03** | Đăng nhập & Xác định ngữ cảnh Tenant (Multi-tenant Login) | Feature | Critical | BA / Dev | In Review | [FEAT-03.md](07_items/FEAT-03_authentication_login.md) |
+| **FEAT-04** | Quên mật khẩu & Khôi phục tài khoản qua Email | Feature | High | BA / Dev | In Review | [FEAT-04.md](07_items/FEAT-04_forgot_password.md) |
+| **FEAT-05** | Xác thực 2 yếu tố (2FA - TOTP RFC 6238) | Feature | High | BA / Dev | In Review | [FEAT-05.md](07_items/FEAT-05_two_factor_auth.md) |
+| **FEAT-06** | Quản lý tài khoản (Profile, 2FA Management, Sessions qua Drawer Anti-Modal) | Feature | Medium | BA / Dev | In Review | [FEAT-06.md](07_items/FEAT-06_account_management.md) |
+| **FEAT-07** | Tối ưu Web cho điện thoại & Drawer điều hướng mobile (menu/language/theme) | Feature | High | BA / Dev | Done | [FEAT-07.md](07_items/FEAT-07_responsive_phone_and_mobile_nav.md) |
+| **FEAT-08** | Ionic Mobile: Side Menu điều hướng & Theme Switcher | Feature | High | BA / Dev | Done | [FEAT-08.md](07_items/FEAT-08_ionic_mobile_menu_theme.md) |
+| **FEAT-09** | Ionic Mobile: Tối ưu màn hình Auth & Điều hướng Back/Forward | Feature | High | BA / Dev | Done | [FEAT-09.md](07_items/FEAT-09_ionic_auth_ux_and_navigation.md) |
 
 ---
 

@@ -1,0 +1,55 @@
+<div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 space-y-3">
+  <div class="flex items-center justify-between gap-2">
+    <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100" [appTranslate]="'ACCOUNT_ACTIVE_SESSIONS_TITLE'"></h3>
+    <app-sharp-button
+      [size]="buttonSizeSm"
+      [variant]="buttonVariantSecondary"
+      [loading]="busySessionId() === '__others__'"
+      (clicked)="handleRevokeOtherSessions()"
+    >
+      {{ 'ACCOUNT_REVOKE_OTHERS_BUTTON' | translate }}
+    </app-sharp-button>
+  </div>
+
+  @if (sessionsError()) {
+    <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+      {{ sessionsError() }}
+    </div>
+  }
+  @if (sessionsSuccess()) {
+    <div class="p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+      {{ sessionsSuccess() }}
+    </div>
+  }
+
+  @if (!sessions().length) {
+    <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'ACCOUNT_SESSIONS_EMPTY'"></p>
+  }
+
+  <div class="space-y-2">
+    @for (session of sessions(); track session.session_id) {
+      <div class="border border-neutral-200 dark:border-neutral-800 p-2.5 space-y-1.5">
+        <div class="flex items-start justify-between gap-2">
+          <span class="text-xs font-medium text-neutral-900 dark:text-neutral-100 break-all">{{ session.device }}</span>
+          @if (session.is_current) {
+            <app-badge [variant]="badgeVariantSuccess">{{ 'ACCOUNT_CURRENT_SESSION_BADGE' | translate }}</app-badge>
+          }
+        </div>
+        <div class="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 space-y-0.5">
+          <div>{{ 'ACCOUNT_SESSION_IP' | translate:{ ip: session.ip_address } }}</div>
+          <div>{{ 'ACCOUNT_SESSION_LAST_ACTIVE' | translate }}: {{ session.last_active_at | date:'dd/MM/yyyy HH:mm' }}</div>
+        </div>
+        @if (!session.is_current) {
+          <app-sharp-button
+            [size]="buttonSizeSm"
+            [variant]="buttonVariantDanger"
+            [loading]="busySessionId() === session.session_id"
+            (clicked)="handleRevokeSession(session.session_id)"
+          >
+            {{ 'ACCOUNT_REVOKE_BUTTON' | translate }}
+          </app-sharp-button>
+        }
+      </div>
+    }
+  </div>
+</div>

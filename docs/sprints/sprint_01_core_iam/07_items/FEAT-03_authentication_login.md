@@ -5,7 +5,8 @@
 - **Mức Độ Ưu Tiên**: [x] Critical
 - **Người Đề Xuất**: Khách hàng / BA Agent
 - **Thuộc Sprint**: Sprint 01
-- **Trạng Thái**: [x] Resolved
+- **Trạng Thái**: [x] In Review
+- **Tiến độ (2026-09-18)**: Đã triển khai xong Web + Mobile, backend 22/22 automated test PASS; chờ QA Browser Manual Testing để chuyển `Done`.
 
 ---
 

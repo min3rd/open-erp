@@ -2,16 +2,19 @@ package com.vn9melody.openerp.modules.iam.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.redis.datasource.RedisDataSource;
+import io.quarkus.redis.datasource.value.ValueCommands;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.*;
-import org.jboss.logging.Logger;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.api.ErrorCode;
 import com.vn9melody.openerp.core.enums.AccountStatus;
+import com.vn9melody.openerp.core.security.CryptoService;
 import com.vn9melody.openerp.core.security.PasswordHashService;
+import com.vn9melody.openerp.core.security.PreAuthSessionService;
 import com.vn9melody.openerp.core.security.TotpService;
 import com.vn9melody.openerp.modules.iam.dto.response.AuthResponse;
 import com.vn9melody.openerp.modules.iam.dto.response.BackupCodesResponse;
@@ -22,14 +25,38 @@ import com.vn9melody.openerp.modules.iam.model.*;
 
 @ApplicationScoped
 public class TwoFactorService {
-    private static final Logger LOG = Logger.getLogger(TwoFactorService.class);
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final int MAX_LOGIN_ATTEMPTS = 3;
+    private static final long SETUP_TTL_SECONDS = 600; // 10 minutes
+
+    public static class SetupData {
+        public String secret;
+        public List<String> codes;
+
+        public SetupData() {}
+
+        public SetupData(String secret, List<String> codes) {
+            this.secret = secret;
+            this.codes = codes;
+        }
+    }
 
     @Inject
     TotpService totpService;
 
     @Inject
     PasswordHashService passwordHashService;
+
+    @Inject
+    CryptoService cryptoService;
+
+    @Inject
+    PreAuthSessionService preAuthSessionService;
+
+    @Inject
+    RedisDataSource redis;
+
+    @Inject
+    ObjectMapper objectMapper;
 
     @Inject
     AuthService authService;
@@ -64,48 +91,64 @@ public class TwoFactorService {
             throw new ApiException(400, ErrorCode.ACCOUNT_2FA_ALREADY_ENABLED, "2FA is already enabled on this account");
         }
 
+        String secretKey = totpService.generateBase32Secret();
+        List<String> backupCodes = totpService.generateBackupCodes(8);
+        String qrCodeUri = totpService.generateQrCodeUri(user.email, secretKey);
+
+        try {
+            valueCommands().setex(setupKey(userId), SETUP_TTL_SECONDS, objectMapper.writeValueAsString(new SetupData(secretKey, backupCodes)));
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to store 2FA setup data", e);
+        }
+
+        return new TwoFactorSetupResponse(secretKey, qrCodeUri);
+    }
+
+    @Transactional
+    public TwoFactorEnableResponse enable2Fa(UUID userId, String code) {
+        User user = User.findById(userId);
+        if (user == null) {
+            throw new ApiException(401, ErrorCode.UNAUTHORIZED, "User not found");
+        }
+
+        String setupJson = valueCommands().get(setupKey(userId));
+        if (setupJson == null) {
+            throw new ApiException(400, ErrorCode.ACCOUNT_2FA_NOT_ENABLED, "2FA setup was not initiated");
+        }
+
+        SetupData setupData;
+        try {
+            setupData = objectMapper.readValue(setupJson, SetupData.class);
+        } catch (Exception e) {
+            throw new ApiException(400, ErrorCode.ACCOUNT_2FA_NOT_ENABLED, "2FA setup was not initiated");
+        }
+
+        if (!totpService.verifyTotp(setupData.secret, code)) {
+            throw new ApiException(400, ErrorCode.AUTH_2FA_CODE_INVALID, "Invalid two-factor authentication code");
+        }
+
+        UserTwoFactor twoFactor = UserTwoFactor.findByUserId(userId);
         if (twoFactor == null) {
             twoFactor = new UserTwoFactor();
             twoFactor.user = user;
             twoFactor.userId = user.id;
         }
 
-        String secretKey = totpService.generateBase32Secret();
-        List<String> backupCodes = totpService.generateBackupCodes(8);
-        String qrCodeUri = totpService.generateQrCodeUri(user.email, secretKey);
-
-        // Lưu tạm secret và backup codes hash
-        twoFactor.tempSecretKey = secretKey;
-        try {
-            List<String> hashedCodes = backupCodes.stream().map(totpService::hashBackupCode).toList();
-            twoFactor.backupCodesHash = objectMapper.writeValueAsString(hashedCodes);
-        } catch (Exception e) {
-            throw new RuntimeException("Error serializing backup codes", e);
-        }
-        twoFactor.persist();
-
-        return new TwoFactorSetupResponse(secretKey, qrCodeUri, backupCodes);
-    }
-
-    @Transactional
-    public TwoFactorEnableResponse enable2Fa(UUID userId, String code) {
-        UserTwoFactor twoFactor = UserTwoFactor.findByUserId(userId);
-        if (twoFactor == null || twoFactor.tempSecretKey == null) {
-            throw new ApiException(400, ErrorCode.ACCOUNT_2FA_NOT_ENABLED, "2FA setup was not initiated");
-        }
-
-        boolean isValid = totpService.verifyTotp(twoFactor.tempSecretKey, code);
-        if (!isValid) {
-            throw new ApiException(400, ErrorCode.AUTH_2FA_CODE_INVALID, "Invalid two-factor authentication code");
-        }
-
-        twoFactor.secretKeyEnc = twoFactor.tempSecretKey;
+        twoFactor.secretKeyEnc = cryptoService.encrypt(setupData.secret);
         twoFactor.tempSecretKey = null;
         twoFactor.isEnabled = true;
         twoFactor.enabledAt = Instant.now();
+        try {
+            List<String> hashedCodes = setupData.codes.stream().map(totpService::hashBackupCode).toList();
+            twoFactor.backupCodesHash = objectMapper.writeValueAsString(hashedCodes);
+        } catch (Exception e) {
+            throw new IllegalStateException("Error serializing backup codes", e);
+        }
         twoFactor.persist();
 
-        return new TwoFactorEnableResponse(true, twoFactor.enabledAt.toString());
+        redis.key(String.class).del(setupKey(userId));
+
+        return new TwoFactorEnableResponse(true, twoFactor.enabledAt.toString(), setupData.codes);
     }
 
     @Transactional
@@ -120,19 +163,16 @@ public class TwoFactorService {
             throw new ApiException(400, ErrorCode.ACCOUNT_2FA_NOT_ENABLED, "2FA is not enabled on this account");
         }
 
-        // 1. Xác thực mật khẩu hiện tại
         UserCredential credential = UserCredential.findByUserId(userId);
         if (credential == null || !passwordHashService.checkPassword(currentPassword, credential.passwordHash)) {
             throw new ApiException(401, ErrorCode.ACCOUNT_2FA_INVALID_PASSWORD_OR_CODE, "Current password or 2FA code is invalid");
         }
 
-        // 2. Xác thực mã 2FA hiện tại (hoặc Backup Code)
         boolean codeValid = verifyCodeOrBackup(twoFactor, code);
         if (!codeValid) {
             throw new ApiException(401, ErrorCode.ACCOUNT_2FA_INVALID_PASSWORD_OR_CODE, "Current password or 2FA code is invalid");
         }
 
-        // 3. Vô hiệu hóa và xóa toàn bộ Secret Key cùng Backup Codes
         twoFactor.isEnabled = false;
         twoFactor.secretKeyEnc = null;
         twoFactor.tempSecretKey = null;
@@ -140,7 +180,6 @@ public class TwoFactorService {
         twoFactor.enabledAt = null;
         twoFactor.persist();
 
-        // 4. Gửi email cảnh báo bảo mật tức thời
         emailNotificationService.send2FaDisabledAlert(user.email);
     }
 
@@ -162,13 +201,13 @@ public class TwoFactorService {
             twoFactor.backupCodesHash = objectMapper.writeValueAsString(hashed);
             twoFactor.persist();
         } catch (Exception e) {
-            throw new RuntimeException("Error saving backup codes", e);
+            throw new IllegalStateException("Error saving backup codes", e);
         }
         return new BackupCodesResponse(newCodes);
     }
 
     @Transactional
-    public AuthResponse verifyLogin2Fa(UUID userId, String code, String device, String ipAddress) {
+    public AuthResponse verifyLogin2Fa(UUID userId, String preAuthJti, String code, String device, String ipAddress) {
         User user = User.findById(userId);
         if (user == null || user.status != AccountStatus.ACTIVE) {
             throw new ApiException(401, ErrorCode.AUTH_INVALID_CREDENTIALS, "User not found or inactive");
@@ -181,26 +220,34 @@ public class TwoFactorService {
 
         boolean valid = verifyCodeOrBackup(twoFactor, code);
         if (!valid) {
+            long attempts = preAuthSessionService.incrementAttempts(preAuthJti);
+            if (attempts >= MAX_LOGIN_ATTEMPTS) {
+                preAuthSessionService.delete(preAuthJti);
+                throw new ApiException(401, ErrorCode.AUTH_2FA_ATTEMPTS_EXCEEDED, "Too many invalid 2FA attempts. Please log in again.");
+            }
             throw new ApiException(400, ErrorCode.AUTH_2FA_CODE_INVALID, "Invalid two-factor authentication code");
         }
 
+        preAuthSessionService.delete(preAuthJti);
         twoFactor.persist();
         return authService.resolveTenantAndIssueToken(user, device, ipAddress);
     }
 
     private boolean verifyCodeOrBackup(UserTwoFactor twoFactor, String code) {
-        // Thử TOTP trước
-        if (twoFactor.secretKeyEnc != null && totpService.verifyTotp(twoFactor.secretKeyEnc, code)) {
-            return true;
+        if (twoFactor.secretKeyEnc != null) {
+            try {
+                String secret = cryptoService.decrypt(twoFactor.secretKeyEnc);
+                if (totpService.verifyTotp(secret, code)) {
+                    return true;
+                }
+            } catch (Exception ignored) {}
         }
 
-        // Thử Backup Code
         if (twoFactor.backupCodesHash != null) {
             try {
                 List<String> hashes = new ArrayList<>(objectMapper.readValue(twoFactor.backupCodesHash, new TypeReference<List<String>>() {}));
                 String hashedInput = totpService.hashBackupCode(code);
                 if (hashes.contains(hashedInput)) {
-                    // Tiêu hủy mã dự phòng đã dùng (single-use)
                     hashes.remove(hashedInput);
                     twoFactor.backupCodesHash = objectMapper.writeValueAsString(hashes);
                     return true;
@@ -208,5 +255,13 @@ public class TwoFactorService {
             } catch (Exception ignored) {}
         }
         return false;
+    }
+
+    private String setupKey(UUID userId) {
+        return "2fa:setup:" + userId;
+    }
+
+    private ValueCommands<String, String> valueCommands() {
+        return redis.value(String.class);
     }
 }

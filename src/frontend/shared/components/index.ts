@@ -4,4 +4,6 @@ export * from './pin-input/pin-input.component';
 export * from './badge/badge.component';
 export * from './drawer/drawer.component';
 export * from './language-switcher/language-switcher.component';
+export * from './theme-switcher/theme-switcher.component';
+export * from './mobile-nav-drawer/mobile-nav-drawer.component';
 export * from './topbar/topbar.component';

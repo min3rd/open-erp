@@ -1,0 +1,140 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'AUTH_REGISTER_BUSINESS_TAB' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="max-w-md mx-auto p-3 space-y-3">
+    <div class="flex flex-wrap items-center justify-end gap-2">
+      <app-theme-switcher />
+      <app-language-switcher />
+    </div>
+
+    <p class="text-[11px] text-neutral-500" [appTranslate]="'AUTH_REGISTER_SUBTITLE'"></p>
+
+    @if (errorMessage()) {
+      <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    @if (successMessage()) {
+      <div class="p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+        {{ successMessage() }}
+      </div>
+    }
+
+    <form (ngSubmit)="handleBusinessRegister()" class="space-y-3">
+      <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 space-y-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-neutral-200" [appTranslate]="'AUTH_COMPANY_SECTION_TITLE'"></h3>
+
+        <app-sharp-input
+          [label]="'AUTH_COMPANY_NAME_LABEL' | translate"
+          [placeholder]="'AUTH_COMPANY_NAME_PLACEHOLDER' | translate"
+          [(value)]="tenantName"
+          (valueChange)="onTenantNameChange($event)"
+          [required]="true"
+        />
+
+        <app-sharp-input
+          [label]="'AUTH_SUBDOMAIN_LABEL' | translate"
+          [placeholder]="'AUTH_SUBDOMAIN_PLACEHOLDER' | translate"
+          [value]="tenantSlug"
+          (valueChange)="onSlugChange($event)"
+          [required]="true"
+        />
+
+        @if (tenantSlug) {
+          <p class="text-[10px] font-mono text-neutral-500 break-all">
+            https://{{ tenantSlug }}.openerp.9ms.io.vn
+          </p>
+        }
+
+        @switch (slugStatus()) {
+          @case ('checking') {
+            <p class="text-[10px] text-neutral-500" [appTranslate]="'AUTH_TENANT_SLUG_CHECKING'"></p>
+          }
+          @case ('available') {
+            <p class="text-[10px] text-emerald-600 dark:text-emerald-400" [appTranslate]="'AUTH_TENANT_SLUG_AVAILABLE'"></p>
+          }
+          @case ('taken') {
+            <p class="text-[10px] text-red-600 dark:text-red-400">
+              {{ 'AUTH_TENANT_SLUG_DUPLICATE' | translate:{ slug: tenantSlug } }}
+            </p>
+          }
+          @case ('error') {
+            <p class="text-[10px] text-amber-600 dark:text-amber-400" [appTranslate]="'AUTH_TENANT_SLUG_CHECK_FAILED'"></p>
+          }
+        }
+
+        <div class="grid grid-cols-2 gap-2">
+          <app-sharp-input
+            [label]="'AUTH_TAX_CODE_LABEL' | translate"
+            placeholder="0109999999"
+            [(value)]="taxCode"
+          />
+
+          <div class="space-y-1">
+            <label class="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300" [appTranslate]="'AUTH_COMPANY_SIZE_LABEL'"></label>
+            <select
+              [(ngModel)]="companySize"
+              name="companySize"
+              class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-none text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-900"
+            >
+              <option [value]="companySizeMicro">{{ 'AUTH_COMPANY_SIZE_MICRO' | translate }}</option>
+              <option [value]="companySizeSmall">{{ 'AUTH_COMPANY_SIZE_SMALL' | translate }}</option>
+              <option [value]="companySizeMedium">{{ 'AUTH_COMPANY_SIZE_MEDIUM' | translate }}</option>
+              <option [value]="companySizeEnterprise">{{ 'AUTH_COMPANY_SIZE_ENTERPRISE' | translate }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 space-y-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-neutral-200" [appTranslate]="'AUTH_ADMIN_SECTION_TITLE'"></h3>
+
+        <app-sharp-input
+          [label]="'AUTH_FULL_NAME_LABEL' | translate"
+          [placeholder]="'AUTH_FULL_NAME_PLACEHOLDER' | translate"
+          [(value)]="adminFullName"
+          [required]="true"
+        />
+
+        <app-sharp-input
+          [label]="'AUTH_EMAIL_LABEL' | translate"
+          type="email"
+          [placeholder]="'AUTH_EMAIL_PLACEHOLDER' | translate"
+          [(value)]="adminEmail"
+          [required]="true"
+        />
+
+        <app-sharp-input
+          [label]="'AUTH_PASSWORD_LABEL' | translate"
+          type="password"
+          [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+          [hint]="'AUTH_PASSWORD_HINT' | translate"
+          [(value)]="adminPassword"
+          [required]="true"
+        />
+      </div>
+
+      <app-sharp-button
+        [type]="buttonTypeSubmit"
+        [fullWidth]="true"
+        [loading]="loading()"
+        [disabled]="slugBlocked()"
+      >
+        {{ 'AUTH_REGISTER_BUTTON' | translate }}
+      </app-sharp-button>
+    </form>
+
+    <div class="text-center">
+      <span class="text-xs text-neutral-500" [appTranslate]="'AUTH_HAVE_ACCOUNT'"></span>
+      <a routerLink="/login" class="text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:underline ml-1" [appTranslate]="'AUTH_LOGIN_BUTTON'"></a>
+    </div>
+  </div>
+</ion-content>

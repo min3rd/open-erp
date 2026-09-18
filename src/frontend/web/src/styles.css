@@ -1,3 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+/* Class-based dark mode: `dark:` utilities apply under an ancestor (or <html>) with `.dark`. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Shared UI library lives outside the Vite root: tell Tailwind to scan it too,
+   otherwise shared-only utilities (fixed/inset/shadow/dark:*) are never generated. */
+@source '../../shared';

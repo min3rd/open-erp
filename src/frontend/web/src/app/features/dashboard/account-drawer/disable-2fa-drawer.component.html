@@ -1,13 +1,13 @@
 <app-drawer
-  [isOpen]="isOpen()"
+  [isOpen]="true"
   [title]="'ACCOUNT_2FA_DISABLE_TITLE' | translate"
   [subtitle]="'ACCOUNT_2FA_DISABLE_SUBTITLE' | translate"
-  width="max-w-md"
+  width="w-[380px] max-w-[100vw]"
   [zIndex]="60"
   (close)="onClose()"
 >
   <div class="space-y-4">
-    <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-xs" [appTranslate]="'ACCOUNT_2FA_DESC_DISABLED'">
+    <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-xs" [appTranslate]="'ACCOUNT_2FA_DISABLE_WARNING'">
     </div>
 
     @if (errorMessage()) {
@@ -27,7 +27,7 @@
 
       <app-sharp-input
         [label]="'ACCOUNT_2FA_DISABLE_OTP_LABEL' | translate"
-        placeholder="123456"
+        [placeholder]="'ACCOUNT_2FA_OTP_PLACEHOLDER' | translate"
         [(value)]="code"
         [required]="true"
       />

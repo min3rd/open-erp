@@ -1,0 +1,60 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/account/security" text=""></ion-back-button>
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ 'ACCOUNT_2FA_DISABLE_TITLE' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="max-w-md mx-auto p-3 space-y-3">
+    <p class="text-[11px] text-neutral-500" [appTranslate]="'ACCOUNT_2FA_DISABLE_SUBTITLE'"></p>
+
+    <div class="p-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 text-xs text-amber-800 dark:text-amber-300">
+      {{ 'ACCOUNT_2FA_DISABLE_WARNING' | translate }}
+    </div>
+
+    @if (errorMessage()) {
+      <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 space-y-3">
+      <app-sharp-input
+        [label]="'ACCOUNT_2FA_DISABLE_PASSWORD_LABEL' | translate"
+        type="password"
+        [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+        [(value)]="currentPassword"
+        [required]="true"
+      />
+
+      <app-sharp-input
+        [label]="'ACCOUNT_2FA_DISABLE_OTP_LABEL' | translate"
+        [placeholder]="'AUTH_BACKUP_CODE_PLACEHOLDER' | translate"
+        [(value)]="code"
+        [required]="true"
+      />
+
+      <div class="flex gap-2">
+        <app-sharp-button
+          [fullWidth]="true"
+          [variant]="buttonVariantDanger"
+          [loading]="loading()"
+          (clicked)="handleDisable()"
+        >
+          {{ 'ACCOUNT_2FA_CONFIRM_DISABLE' | translate }}
+        </app-sharp-button>
+        <app-sharp-button
+          [fullWidth]="true"
+          [variant]="buttonVariantSecondary"
+          (clicked)="cancel()"
+        >
+          {{ 'COMMON_CANCEL' | translate }}
+        </app-sharp-button>
+      </div>
+    </div>
+  </div>
+</ion-content>

@@ -1,0 +1,93 @@
+<ion-menu contentId="main-content" side="start" [swipeGesture]="false">
+  <ion-header class="ion-no-border">
+    <ion-toolbar>
+      <ion-title>{{ 'COMMON_MENU' | translate }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content>
+    <div class="p-3 space-y-3">
+      <!-- Account summary -->
+      <div class="flex items-start gap-2.5 pb-3 border-b border-neutral-200 dark:border-neutral-800">
+        <div class="w-10 h-10 shrink-0 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center text-base font-bold select-none">
+          {{ userInitial() }}
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-xs font-semibold truncate text-neutral-900 dark:text-neutral-100">
+            {{ displayName() }}
+          </p>
+          @if (userEmail()) {
+            <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
+              {{ userEmail() }}
+            </p>
+          }
+          @if (tenantName()) {
+            <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
+              {{ tenantName() }}
+            </p>
+          }
+          <div class="mt-1.5">
+            <app-badge [variant]="colorInfo">{{ role() || 'MEMBER' }}</app-badge>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation menu -->
+      <ion-list lines="none" class="!py-0" [attr.aria-label]="'COMMON_MENU' | translate">
+        <ion-item
+          routerLink="/dashboard"
+          routerLinkActive="menu-item-active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="close()"
+          detail="false"
+        >
+          <ion-icon slot="start" name="home-outline"></ion-icon>
+          <ion-label class="text-xs">{{ 'COMMON_DASHBOARD' | translate }}</ion-label>
+        </ion-item>
+
+        <ion-item
+          routerLink="/account/detail"
+          routerLinkActive="menu-item-active"
+          (click)="close()"
+          detail="false"
+        >
+          <ion-icon slot="start" name="person-outline"></ion-icon>
+          <ion-label class="text-xs">{{ 'ACCOUNT_TAB_PROFILE' | translate }}</ion-label>
+        </ion-item>
+
+        <ion-item
+          routerLink="/account/security"
+          routerLinkActive="menu-item-active"
+          (click)="close()"
+          detail="false"
+        >
+          <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
+          <ion-label class="text-xs">{{ 'ACCOUNT_TAB_SECURITY' | translate }}</ion-label>
+        </ion-item>
+
+        <ion-item
+          routerLink="/account/sessions"
+          routerLinkActive="menu-item-active"
+          (click)="close()"
+          detail="false"
+        >
+          <ion-icon slot="start" name="desktop-outline"></ion-icon>
+          <ion-label class="text-xs">{{ 'ACCOUNT_TAB_SESSIONS' | translate }}</ion-label>
+        </ion-item>
+      </ion-list>
+
+      <!-- Preferences -->
+      <div class="pt-3 border-t border-neutral-200 dark:border-neutral-800 space-y-2.5">
+        <app-language-switcher />
+        <app-theme-switcher />
+      </div>
+
+      <!-- Logout -->
+      <div class="pt-3 border-t border-neutral-200 dark:border-neutral-800">
+        <app-sharp-button [variant]="colorDanger" [fullWidth]="true" (clicked)="onLogout()">
+          {{ 'COMMON_LOGOUT' | translate }}
+        </app-sharp-button>
+      </div>
+    </div>
+  </ion-content>
+</ion-menu>

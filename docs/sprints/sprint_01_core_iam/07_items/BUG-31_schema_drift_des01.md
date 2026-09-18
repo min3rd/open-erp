@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 01
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -42,6 +42,7 @@
 Không có.
 
 ## 6. Xác Nhận Khắc Phục (QA Verification)
-- [ ] Developer đã sửa xong.
-- [ ] QA đã re-test và xác nhận không còn lỗi.
-- [ ] Không gây lỗi phát sinh (Regression test pass).
+- **Ghi chú QA (2026-09-18)**: Migration V1.0.3: backup_codes_hash → JSONB, thêm idx_tenants_type, xóa 2 cột OTP khỏi users; DB verify đúng.
+- [x] Developer đã sửa xong.
+- [x] QA đã re-test và xác nhận không còn lỗi.
+- [x] Không gây lỗi phát sinh (Regression test pass).

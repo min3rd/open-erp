@@ -7,7 +7,8 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
 ## [Unreleased]
 
 ### Known Issues
-- Code Review Sprint 01 (REV-02): phát hiện **9 Critical + 14 High + 8 Medium** lỗi (đã lập 31 file `BUG-01` → `BUG-31` trong `docs/sprints/sprint_01_core_iam/07_items/`). Sprint 01 **chưa đủ điều kiện đóng** cho đến khi xử lý xong 100% item Critical/High. Báo cáo: `docs/sprints/sprint_01_core_iam/09_review/CODE_REVIEW_SPRINT_01.md`.
+- **Đã xử lý toàn bộ bug Sprint 01** trong đợt sửa 2026-09-18 (BUG-24 → BUG-31, BUG-34, BUG-42 → BUG-45): backend **30/30 test PASS** (PostgreSQL + Redis thật), Web/Mobile build PASS, browser verify **6/6 PASS** — không còn bug mở.
+- **Còn lại duy nhất**: QA Browser Manual Testing ký xác nhận cuối cùng và commit để đóng Sprint 01.
 
 ### Fixed
 - Sửa toàn bộ liên kết hỏng và chuẩn hóa đường dẫn theo cấu trúc Sprint-Pack (00-09) trong `docs/`, templates, changelog, work log và file quy tắc `.agents/`.
@@ -47,3 +48,6 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
   - Ban hành bản thiết kế giải pháp và chi tiết kỹ thuật (SOL-01, CORE_IAM_DATABASE_SCHEMA, CORE_IAM_API_SPEC, CORE_IAM_UI_SPEC).
 - Ban hành Quy Chuẩn API Contract Đa Ngôn Ngữ (i18n Code-Driven): Bãi bỏ hardcode message văn bản trong API responses, chuẩn hóa envelope bằng mã định danh `code` và `params` nội suy cho Frontend tự chủ chuyển ngữ.
 - Khách hàng phê duyệt xác nhận bổ sung tài liệu Sprint 01 sau rà soát nhất quán (CONF-01 Mục 3), chính thức chuyển sang Bước 7 - Lập trình.
+- FEAT-07: Web responsive cho điện thoại + Mobile Navigation Drawer (menu/language/theme/logout) và Theme Switcher System/Light/Dark (class-based dark mode, persist localStorage).
+- FEAT-08: Ionic Mobile Side Menu (thông tin tài khoản, menu, ngôn ngữ, theme, đăng xuất) + Theme Switcher class-based Sáng/Tối/Hệ thống (Ionic dark.class.css + Tailwind class strategy, persist localStorage).
+- FEAT-09: Ionic Mobile - tối ưu màn hình Auth cho điện thoại (touch target, safe-area) và chuẩn hóa điều hướng NavController (forward/back/root, replaceUrl) cho back/forward mượt mà.

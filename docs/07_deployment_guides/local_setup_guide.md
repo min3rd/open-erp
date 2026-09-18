@@ -67,6 +67,41 @@ make infra-full
 - **MinIO S3 Console (On-demand)**: `http://localhost:9001` (User: `openerp_minio_admin`, Pass: `openerp_minio_password`)
 - **Mailpit SMTP Web (On-demand)**: `http://localhost:8025`
 
+### 3.4. Khởi Động Nhanh Từ Thư Mục Gốc (Windows CMD)
+Từ thư mục gốc dự án chỉ cần chạy 1 lệnh:
+```bat
+dev.bat
+```
+Script sẽ:
+1. Khởi động Docker infra: PostgreSQL Primary + Redis + Mailpit (`docker compose --profile mail up -d`).
+2. Tự tạo database test `openerp_test` nếu chưa có (test **không** dùng chung `openerp_dev`).
+3. Mở 3 cửa sổ dev: Backend Quarkus (8088), Web Angular (4200), Mobile Ionic (8100).
+
+Dừng toàn bộ:
+```bat
+stop-dev.bat
+```
+
+Hoặc chạy từng phần:
+```bat
+scripts\dev\start_infra.bat mail   # Docker infra + Mailpit
+scripts\dev\run_backend.bat        # Quarkus dev mode (port 8088)
+scripts\dev\run_web.bat            # Angular dev server (port 4200)
+scripts\dev\run_mobile.bat         # Ionic dev server (port 8100)
+```
+
+> **Lưu ý Java 25**: Quarkus 3.15 + ByteBuddy cần flag `-Dnet.bytebuddy.experimental=true`. Flag đã được cấu hình sẵn trong `pom.xml` (`jvm.args`) cho `mvn quarkus:dev` và trong `run_backend.bat` (`JAVA_TOOL_OPTIONS`) — không cần set thủ công.
+
+### 3.5. Bootstrap Khóa JWT (Bắt Buộc Cho Fresh Clone)
+Cặp khóa `privateKey.pem` / `publicKey.pem` **bị gitignore** (không bao giờ commit khóa bí mật), nên sau khi clone cần sinh khóa cho local:
+```bat
+node scripts\dev\generate_jwt_keys.js
+```
+- Script sinh RSA 2048 (private PKCS#8 + public SPKI) vào `src/backend/src/main/resources/` và `src/backend/src/test/resources/`.
+- Tự động chạy khi thiếu khóa qua `scripts\dev\run_backend.bat` / `run_backend.sh` hoặc `dev.bat`.
+- Tùy chọn: `--force` để ghi đè, `--out <dir>` để sinh vào thư mục khác.
+- Với Staging/Production, khóa phải được cấp qua Secret Manager và mount vào container (không dùng khóa dev).
+
 ---
 
 ## 4. Chạy Ứng Dụng Trong Chế Độ Phát Triển (Live-Coding)
@@ -92,6 +127,14 @@ make mobile
 # Hoặc: ./scripts/dev/run_mobile.sh (Windows: scripts\dev\run_mobile.bat)
 ```
 - Truy cập trình duyệt: `http://localhost:8100`
+
+### 4.4. Chạy Automated Test Backend (DB riêng `openerp_test`)
+```bat
+cd src\backend
+mvn test
+```
+- Test chạy trên PostgreSQL thật + Redis thật (DB index 1), **không dùng H2**.
+- Database `openerp_test` được tạo tự động bởi `scripts\dev\start_infra.bat` (hoặc script `docker/postgres/init/01-create-test-database.sql` khi khởi tạo volume mới) — dữ liệu trên `openerp_dev` không bị ảnh hưởng.
 
 ---
 

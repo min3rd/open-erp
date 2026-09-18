@@ -6,6 +6,7 @@
       inputmode="numeric"
       pattern="[0-9]*"
       maxlength="1"
+      [attr.aria-label]="ariaLabel() || null"
       [disabled]="disabled()"
       [value]="digit"
       (input)="handleInput($event, $index)"

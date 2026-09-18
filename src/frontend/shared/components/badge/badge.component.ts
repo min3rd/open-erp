@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ColorVariant, BadgeVariant } from '../../enums';
+import { ColorVariant, ShapeVariant, BadgeVariant } from '../../enums';
 
 @Component({
   selector: 'app-badge',
@@ -10,9 +10,12 @@ import { ColorVariant, BadgeVariant } from '../../enums';
 })
 export class BadgeComponent {
   variant = input<ColorVariant | BadgeVariant | 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'default'>(ColorVariant.DEFAULT);
+  shape = input<ShapeVariant | 'sharp' | 'soft'>(ShapeVariant.SHARP);
 
   badgeClasses(): string {
-    const base = 'inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono font-medium rounded-none uppercase tracking-wider border';
+    const shape = this.shape() as string;
+    const shapeCls = shape === ShapeVariant.SOFT || shape === 'soft' ? 'rounded-sm' : 'rounded-none';
+    const base = `inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono font-medium ${shapeCls} uppercase tracking-wider border`;
     const v = this.variant() as string;
     switch (v) {
       case ColorVariant.SUCCESS:

@@ -1,0 +1,25 @@
+<div class="inline-flex items-center gap-1.5 text-[11px] font-mono select-none">
+  <span class="text-neutral-400 dark:text-neutral-500 font-semibold text-[10px] uppercase" [appTranslate]="'COMMON_THEME'"></span>
+  <div class="inline-flex border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800">
+    @for (item of modes; track item.mode; let last = $last) {
+      <button
+        type="button"
+        (click)="setMode(item.mode)"
+        [attr.aria-pressed]="theme.mode() === item.mode"
+        [attr.title]="item.label | translate"
+        [class.bg-neutral-900]="theme.mode() === item.mode"
+        [class.text-white]="theme.mode() === item.mode"
+        [class.dark:bg-white]="theme.mode() === item.mode"
+        [class.dark:text-neutral-900]="theme.mode() === item.mode"
+        [class.text-neutral-600]="theme.mode() !== item.mode"
+        [class.dark:text-neutral-400]="theme.mode() !== item.mode"
+        class="px-2 py-0.5 text-[11px] font-mono font-medium rounded-none hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
+      >
+        {{ item.label | translate }}
+      </button>
+      @if (!last) {
+        <div class="w-[1px] bg-neutral-300 dark:bg-neutral-700"></div>
+      }
+    }
+  </div>
+</div>

@@ -1,0 +1,103 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/account/security" text=""></ion-back-button>
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ 'ACCOUNT_2FA_SETUP_TITLE' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="max-w-md mx-auto p-3 space-y-3">
+    <p class="text-[11px] text-neutral-500" [appTranslate]="'ACCOUNT_2FA_SETUP_SUBTITLE'"></p>
+
+    @if (errorMessage()) {
+      <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    @if (!enabledData()) {
+      <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 space-y-3">
+        @if (loadingSetup()) {
+          <p class="text-xs text-neutral-500" [appTranslate]="'COMMON_LOADING'"></p>
+        } @else if (setupData(); as data) {
+          <p class="text-[11px] text-neutral-600 dark:text-neutral-400" [appTranslate]="'ACCOUNT_2FA_SCAN_INSTRUCTION'"></p>
+
+          <!-- Secret key (mobile-first: copy to Authenticator) -->
+          <div class="space-y-1">
+            <div class="text-[11px] font-medium text-neutral-700 dark:text-neutral-300" [appTranslate]="'ACCOUNT_2FA_STEP_2'"></div>
+            <div class="bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 p-2 font-mono text-xs select-all break-all">
+              {{ data.secret_key }}
+            </div>
+            <app-sharp-button
+              [fullWidth]="true"
+              (clicked)="copySecret()"
+            >
+              {{ (copiedField() === 'secret' ? 'COMMON_COPIED' : 'ACCOUNT_2FA_COPY_SECRET') | translate }}
+            </app-sharp-button>
+          </div>
+
+          <!-- OTP Auth URI -->
+          <div class="space-y-1">
+            <div class="bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 p-2 font-mono text-[10px] select-all break-all">
+              {{ 'ACCOUNT_2FA_URI_LABEL' | translate:{ uri: data.qr_code_uri } }}
+            </div>
+            <app-sharp-button
+              [fullWidth]="true"
+              [variant]="buttonVariantSecondary"
+              (clicked)="copyUri()"
+            >
+              {{ (copiedField() === 'uri' ? 'COMMON_COPIED' : 'COMMON_COPY') | translate }}
+            </app-sharp-button>
+          </div>
+
+          <!-- OTP confirmation -->
+          <div class="border-t border-neutral-200 dark:border-neutral-800 pt-3 space-y-2">
+            <div class="text-[11px] font-medium text-neutral-700 dark:text-neutral-300" [appTranslate]="'ACCOUNT_2FA_STEP_3'"></div>
+            <app-pin-input (changed)="otpCode.set($event)" [hasError]="!!errorMessage()" />
+            <app-sharp-button
+              [fullWidth]="true"
+              [loading]="loadingEnable()"
+              (clicked)="handleEnable(otpCode())"
+            >
+              {{ 'ACCOUNT_2FA_CONFIRM_ENABLE' | translate }}
+            </app-sharp-button>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 space-y-3">
+        <div class="p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+          {{ 'ACCOUNT_2FA_ENABLED_SUCCESS' | translate }}
+        </div>
+
+        @if (enabledData()?.backup_codes?.length) {
+          <div class="space-y-2">
+            <h3 class="text-xs font-bold uppercase tracking-wider" [appTranslate]="'ACCOUNT_NEW_BACKUP_CODES_TITLE'"></h3>
+            <p class="text-[11px] text-amber-800 dark:text-amber-300" [appTranslate]="'ACCOUNT_2FA_BACKUP_WARNING'"></p>
+            <div class="grid grid-cols-2 gap-1 font-mono text-xs">
+              @for (code of enabledData()?.backup_codes; track code) {
+                <span class="border border-neutral-200 dark:border-neutral-800 p-1 text-center select-all">{{ code }}</span>
+              }
+            </div>
+            <app-sharp-button
+              [fullWidth]="true"
+              [variant]="buttonVariantSecondary"
+              (clicked)="copyBackupCodes()"
+            >
+              {{ (copiedField() === 'codes' ? 'COMMON_COPIED' : 'COMMON_COPY_ALL') | translate }}
+            </app-sharp-button>
+          </div>
+        } @else {
+          <p class="text-[11px] text-neutral-500" [appTranslate]="'ACCOUNT_2FA_ENABLED_NO_CODES'"></p>
+        }
+
+        <app-sharp-button [fullWidth]="true" (clicked)="finish()">
+          {{ 'ACCOUNT_2FA_BACKUP_CODES_SAVED' | translate }}
+        </app-sharp-button>
+      </div>
+    }
+  </div>
+</ion-content>

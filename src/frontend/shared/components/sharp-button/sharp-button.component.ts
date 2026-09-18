@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ColorVariant, SizeVariant, ButtonType, ButtonVariant, ButtonSize } from '../../enums';
+import { ColorVariant, SizeVariant, ShapeVariant, ButtonType, ButtonVariant, ButtonSize } from '../../enums';
 
 @Component({
   selector: 'app-sharp-button',
@@ -12,6 +12,7 @@ export class SharpButtonComponent {
   type = input<ButtonType | 'button' | 'submit' | 'reset'>(ButtonType.BUTTON);
   variant = input<ColorVariant | ButtonVariant | 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline'>(ColorVariant.PRIMARY);
   size = input<SizeVariant | ButtonSize | 'sm' | 'md' | 'lg'>(SizeVariant.MD);
+  shape = input<ShapeVariant | 'sharp' | 'soft'>(ShapeVariant.SHARP);
   disabled = input<boolean>(false);
   loading = input<boolean>(false);
   fullWidth = input<boolean>(false);
@@ -25,7 +26,10 @@ export class SharpButtonComponent {
   }
 
   buttonClasses(): string {
-    const base = 'inline-flex items-center justify-center font-medium transition-colors select-none rounded-none focus:outline-none focus:ring-1 focus:ring-neutral-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
+    const base = 'inline-flex items-center justify-center font-medium transition-colors select-none focus:outline-none focus:ring-1 focus:ring-neutral-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
+
+    const shape = this.shape() as string;
+    const shapeCls = shape === ShapeVariant.SOFT || shape === 'soft' ? 'rounded-sm' : 'rounded-none';
 
     let sizeCls = 'px-3 py-1.5 text-xs';
     if (this.size() === SizeVariant.SM || (this.size() as string) === 'sm') {
@@ -61,6 +65,6 @@ export class SharpButtonComponent {
 
     const widthCls = this.fullWidth() ? 'w-full' : '';
 
-    return `${base} ${sizeCls} ${variantCls} ${widthCls}`.trim();
+    return `${base} ${shapeCls} ${sizeCls} ${variantCls} ${widthCls}`.trim();
   }
 }

@@ -1,0 +1,102 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="'COMMON_MENU' | translate"
+  width="w-[300px] max-w-[85vw]"
+  [zIndex]="70"
+  (close)="close.emit()"
+>
+  <div class="space-y-4">
+    <!-- Account summary -->
+    <div class="flex items-start gap-2.5 pb-3 border-b border-neutral-200 dark:border-neutral-800">
+      <div class="w-9 h-9 shrink-0 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center text-sm font-bold select-none">
+        {{ userInitial() }}
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="text-xs font-semibold truncate text-neutral-900 dark:text-neutral-100">
+          {{ displayName() }}
+        </p>
+        @if (userEmail()) {
+          <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
+            {{ userEmail() }}
+          </p>
+        }
+        @if (tenantName()) {
+          <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
+            {{ 'DASHBOARD_ORGANIZATION' | translate:{ name: tenantName() } }}
+          </p>
+        }
+        <div class="mt-1.5">
+          <app-badge [variant]="colorInfo">{{ role() || 'MEMBER' }}</app-badge>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation menu -->
+    <nav class="space-y-0.5" [attr.aria-label]="'COMMON_MENU' | translate">
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="onNavigate()"
+        class="flex items-center gap-2 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+      >
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" />
+        </svg>
+        <span>{{ 'COMMON_DASHBOARD' | translate }}</span>
+      </a>
+
+      <a
+        routerLink="/account/detail"
+        routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+        (click)="onNavigate()"
+        class="flex items-center gap-2 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+      >
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+        </svg>
+        <span>{{ 'ACCOUNT_TAB_PROFILE' | translate }}</span>
+      </a>
+
+      <a
+        routerLink="/account/security"
+        routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+        (click)="onNavigate()"
+        class="flex items-center gap-2 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+      >
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+        <span>{{ 'ACCOUNT_TAB_SECURITY' | translate }}</span>
+      </a>
+
+      <a
+        routerLink="/account/sessions"
+        routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+        (click)="onNavigate()"
+        class="flex items-center gap-2 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+      >
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M2 4h20v12H2zM8 20h8M12 16v4" />
+        </svg>
+        <span>{{ 'ACCOUNT_TAB_SESSIONS' | translate }}</span>
+      </a>
+    </nav>
+
+    <!-- Preferences -->
+    <div class="pt-3 border-t border-neutral-200 dark:border-neutral-800 space-y-2.5">
+      <app-language-switcher />
+      <app-theme-switcher />
+    </div>
+  </div>
+
+  <div drawer-footer class="w-full">
+    <app-sharp-button
+      [variant]="colorDanger"
+      [fullWidth]="true"
+      (clicked)="onLogout()"
+    >
+      {{ 'COMMON_LOGOUT' | translate }}
+    </app-sharp-button>
+  </div>
+</app-drawer>

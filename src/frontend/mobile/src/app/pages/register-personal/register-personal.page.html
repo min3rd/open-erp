@@ -1,0 +1,73 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'AUTH_REGISTER_PERSONAL_TAB' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="max-w-md mx-auto p-3 space-y-3">
+    <div class="flex flex-wrap items-center justify-end gap-2">
+      <app-theme-switcher />
+      <app-language-switcher />
+    </div>
+
+    <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_REGISTER_SUBTITLE'"></p>
+
+    @if (errorMessage()) {
+      <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3">
+      <form (ngSubmit)="handleRegister()" class="space-y-3">
+        <app-sharp-input
+          [label]="'AUTH_FULL_NAME_LABEL' | translate"
+          [placeholder]="'AUTH_FULL_NAME_PLACEHOLDER' | translate"
+          [(value)]="fullName"
+          [required]="true"
+        />
+
+        <app-sharp-input
+          [label]="'AUTH_EMAIL_LABEL' | translate"
+          type="email"
+          [placeholder]="'AUTH_EMAIL_PLACEHOLDER' | translate"
+          [(value)]="email"
+          [required]="true"
+        />
+
+        <app-sharp-input
+          [label]="'ACCOUNT_PHONE_LABEL' | translate"
+          type="tel"
+          [placeholder]="'ACCOUNT_PHONE_PLACEHOLDER' | translate"
+          [(value)]="phone"
+        />
+
+        <app-sharp-input
+          [label]="'AUTH_PASSWORD_LABEL' | translate"
+          type="password"
+          [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+          [hint]="'AUTH_PASSWORD_HINT' | translate"
+          [(value)]="password"
+          [required]="true"
+        />
+
+        <app-sharp-button
+          [type]="buttonTypeSubmit"
+          [fullWidth]="true"
+          [loading]="loading()"
+        >
+          {{ 'AUTH_REGISTER_BUTTON' | translate }}
+        </app-sharp-button>
+      </form>
+    </div>
+
+    <div class="text-center">
+      <span class="text-xs text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_HAVE_ACCOUNT'"></span>
+      <a routerLink="/login" class="text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:underline ml-1" [appTranslate]="'AUTH_LOGIN_BUTTON'"></a>
+    </div>
+  </div>
+</ion-content>

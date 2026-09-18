@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -11,17 +11,24 @@ export class PinInputComponent {
   length = input<number>(6);
   disabled = input<boolean>(false);
   hasError = input<boolean>(false);
+  ariaLabel = input<string>('');
 
   completed = output<string>();
   changed = output<string>();
 
-  digits = signal<string[]>(['', '', '', '', '', '']);
+  private value = signal<string[]>([]);
+
+  digits = computed<string[]>(() => {
+    const len = Math.max(1, this.length());
+    const current = this.value();
+    return Array.from({ length: len }, (_, index) => current[index] ?? '');
+  });
 
   handleInput(event: any, index: number) {
     const val = event.target.value.replace(/[^0-9]/g, '');
     const current = [...this.digits()];
     current[index] = val ? val.slice(-1) : '';
-    this.digits.set(current);
+    this.value.set(current);
 
     const fullCode = current.join('');
     this.changed.emit(fullCode);
@@ -53,7 +60,7 @@ export class PinInputComponent {
     for (let i = 0; i < clean.length; i++) {
       current[i] = clean[i];
     }
-    this.digits.set(current);
+    this.value.set(current);
 
     const fullCode = current.join('');
     this.changed.emit(fullCode);
@@ -64,6 +71,6 @@ export class PinInputComponent {
   }
 
   reset() {
-    this.digits.set(new Array(this.length()).fill(''));
+    this.value.set([]);
   }
 }

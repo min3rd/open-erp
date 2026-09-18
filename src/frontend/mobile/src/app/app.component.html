@@ -1,0 +1,10 @@
+<ion-app>
+  <app-mobile-menu
+    [tenantName]="auth.user()?.tenant_name || ''"
+    [role]="auth.user()?.role || 'MEMBER'"
+    [userName]="auth.user()?.full_name || ''"
+    [userEmail]="auth.user()?.email || ''"
+  />
+
+  <ion-router-outlet id="main-content"></ion-router-outlet>
+</ion-app>

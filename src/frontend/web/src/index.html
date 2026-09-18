@@ -1,11 +1,22 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="utf-8">
-  <title>Web</title>
+  <title>Open-ERP</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('openerp_theme');
+        var isDark = saved === 'DARK' || ((!saved || saved === 'SYSTEM') &&
+          window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', isDark);
+        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+      } catch (e) { /* ignore */ }
+    })();
+  </script>
 </head>
 <body>
   <app-root></app-root>

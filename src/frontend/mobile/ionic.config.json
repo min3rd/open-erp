@@ -1,0 +1,6 @@
+{
+  "name": "mobile",
+  "type": "angular-standalone",
+  "integrations": {},
+  "defaultProject": "mobile"
+}

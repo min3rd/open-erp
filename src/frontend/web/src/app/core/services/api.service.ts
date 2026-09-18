@@ -1,62 +1,57 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, catchError } from 'rxjs';
-import { ApiResponse, ApiErrorResponse } from '../models/api.model';
+import { ApiResponse, ApiErrorResponse } from '@shared';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:8088';
-
-  private getHeaders(): HttpHeaders {
-    let headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-    const token = localStorage.getItem('openerp_token');
-    if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
-    }
-    const sessionId = localStorage.getItem('openerp_session_id');
-    if (sessionId) {
-      headers = headers.set('X-Session-ID', sessionId);
-    }
-    return headers;
-  }
+  private baseUrl = environment.apiBaseUrl;
 
   get<T>(path: string): Observable<ApiResponse<T>> {
-    return this.http.get<ApiResponse<T>>(`${this.baseUrl}${path}`, {
-      headers: this.getHeaders()
-    }).pipe(catchError(this.handleError));
+    return this.http.get<ApiResponse<T>>(`${this.baseUrl}${path}`).pipe(catchError(this.handleError));
   }
 
   post<T>(path: string, body: any): Observable<ApiResponse<T>> {
-    return this.http.post<ApiResponse<T>>(`${this.baseUrl}${path}`, body, {
-      headers: this.getHeaders()
-    }).pipe(catchError(this.handleError));
+    return this.http.post<ApiResponse<T>>(`${this.baseUrl}${path}`, body).pipe(catchError(this.handleError));
   }
 
   put<T>(path: string, body: any): Observable<ApiResponse<T>> {
-    return this.http.put<ApiResponse<T>>(`${this.baseUrl}${path}`, body, {
-      headers: this.getHeaders()
-    }).pipe(catchError(this.handleError));
+    return this.http.put<ApiResponse<T>>(`${this.baseUrl}${path}`, body).pipe(catchError(this.handleError));
   }
 
   delete<T>(path: string): Observable<ApiResponse<T>> {
-    return this.http.delete<ApiResponse<T>>(`${this.baseUrl}${path}`, {
-      headers: this.getHeaders()
-    }).pipe(catchError(this.handleError));
+    return this.http.delete<ApiResponse<T>>(`${this.baseUrl}${path}`).pipe(catchError(this.handleError));
   }
 
-  private handleError(error: HttpErrorResponse) {
-    let errRes: ApiErrorResponse = {
-      code: 'INTERNAL_SERVER_ERROR',
-      message: error.message
-    };
-    if (error.error && error.error.code) {
-      errRes = error.error;
+  private handleError(error: unknown) {
+    if (error instanceof HttpErrorResponse) {
+      // Prefer the standardized backend envelope { success, code, message, params }.
+      if (error.error && typeof error.error === 'object' && (error.error as ApiErrorResponse).code) {
+        return throwError(() => error.error as ApiErrorResponse);
+      }
+
+      // Fallback for empty/non-JSON responses (e.g. security-layer 401): map by HTTP status
+      // so the UI never shows a misleading INTERNAL_SERVER_ERROR for a 4xx.
+      const codeByStatus: Record<number, string> = {
+        0: 'NETWORK_ERROR',
+        400: 'VALIDATION_FAILED',
+        401: 'UNAUTHORIZED',
+        403: 'FORBIDDEN',
+        404: 'NOT_FOUND',
+        409: 'CONFLICT',
+        423: 'AUTH_ACCOUNT_LOCKED',
+        429: 'TOO_MANY_REQUESTS'
+      };
+      const code = codeByStatus[error.status] ?? (error.status >= 500 ? 'INTERNAL_SERVER_ERROR' : 'INTERNAL_SERVER_ERROR');
+      return throwError(() => ({
+        code,
+        message: error.message
+      } as ApiErrorResponse));
     }
-    return throwError(() => errRes);
+    return throwError(() => error);
   }
 }

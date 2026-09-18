@@ -19,8 +19,12 @@ export enum SizeVariant {
 }
 
 export enum ShapeVariant {
-  NONE = 'none',
-  SM = 'sm',
-  MD = 'md',
-  FULL = 'full'
+  SHARP = 'sharp',
+  SOFT = 'soft'
+}
+
+export enum ThemeMode {
+  SYSTEM = 'SYSTEM',
+  LIGHT = 'LIGHT',
+  DARK = 'DARK'
 }

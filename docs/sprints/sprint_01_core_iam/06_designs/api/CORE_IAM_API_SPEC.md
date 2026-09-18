@@ -371,6 +371,40 @@
 
 ---
 
+### 2.11. `GET /api/v1/auth/check-slug` - Kiểm Tra Trực Tiếp Tính Khả Dụng Của Slug
+- **Query Params**: `slug` (chuỗi định danh workspace người dùng đang nhập; tự động chuẩn hóa lowercase/trim).
+- **Responses**:
+  - `200 OK` (slug hợp lệ và còn trống):
+    ```json
+    {
+      "success": true,
+      "code": "AUTH_TENANT_SLUG_AVAILABLE",
+      "message": "Tenant slug is available.",
+      "data": { "slug": "acme-vn", "available": true }
+    }
+    ```
+  - `200 OK` (slug hợp lệ nhưng đã tồn tại):
+    ```json
+    {
+      "success": true,
+      "code": "AUTH_TENANT_SLUG_DUPLICATE",
+      "message": "Tenant slug is already taken.",
+      "data": { "slug": "acme-vn", "available": false }
+    }
+    ```
+  - `400 Bad Request` (slug không hợp lệ hoặc thuộc danh sách reserved):
+    ```json
+    {
+      "success": false,
+      "code": "VALIDATION_FAILED",
+      "message": "Tenant slug is invalid",
+      "params": { "field": "slug" },
+      "timestamp": "2026-09-17T15:30:00Z"
+    }
+    ```
+
+---
+
 ## 3. Nhóm API Quản Lý Tài Khoản (`/api/v1/account`)
 *(Yêu cầu Header `Authorization: Bearer <access_token>`)*
 
@@ -384,7 +418,7 @@
 | `POST` | `/api/v1/account/2fa/setup` | `ACCOUNT_2FA_SETUP_SUCCESS` | `ACCOUNT_2FA_ALREADY_ENABLED` |
 | `POST` | `/api/v1/account/2fa/enable` | `ACCOUNT_2FA_ENABLED_SUCCESS` | `AUTH_2FA_CODE_INVALID` |
 | `POST` | `/api/v1/account/2fa/disable` | `ACCOUNT_2FA_DISABLED_SUCCESS` | `ACCOUNT_2FA_INVALID_PASSWORD_OR_CODE` |
-| `POST` | `/api/v1/account/2fa/regenerate-backup-codes` | `ACCOUNT_2FA_BACKUP_CODES_REGENERATED` | `ACCOUNT_PASSWORD_REQUIRED` |
+| `POST` | `/api/v1/account/2fa/regenerate-backup-codes` | `ACCOUNT_2FA_BACKUP_CODES_REGENERATED` | `ACCOUNT_OLD_PASSWORD_INCORRECT` |
 | `GET` | `/api/v1/account/sessions` | `ACCOUNT_SESSIONS_FETCH_SUCCESS` | `UNAUTHORIZED` |
 | `DELETE` | `/api/v1/account/sessions/{sessionId}` | `ACCOUNT_SESSION_REVOKED_SUCCESS` | `ACCOUNT_SESSION_NOT_FOUND` |
 | `DELETE` | `/api/v1/account/sessions/other` | `ACCOUNT_OTHER_SESSIONS_REVOKED_SUCCESS` | `UNAUTHORIZED` |
@@ -538,6 +572,7 @@ Frontend (Angular / Ionic) duy trì file từ điển ngôn ngữ `i18n/vi.json`
 | `AUTH_2FA_REQUIRED` | Vui lòng nhập mã xác thực 2 yếu tố (2FA). | Please enter your 2FA authentication code. |
 | `AUTH_EMAIL_ALREADY_EXISTS` | Email này đã được sử dụng trong hệ thống. | This email address is already in use. |
 | `AUTH_TENANT_SLUG_DUPLICATE` | Định danh doanh nghiệp '{{slug}}' đã có người sử dụng. | Workspace identifier '{{slug}}' is already taken. |
+| `AUTH_TENANT_SLUG_AVAILABLE` | Đường dẫn còn trống, có thể sử dụng. | Subdomain is available. |
 | `AUTH_INVALID_CREDENTIALS` | Email hoặc mật khẩu không chính xác. | Invalid email or password. |
 | `AUTH_ACCOUNT_LOCKED` | Tài khoản tạm khóa {{locked_seconds}} giây do nhập sai nhiều lần. | Account locked for {{locked_seconds}} seconds due to failed attempts. |
 | `AUTH_OTP_INVALID_OR_EXPIRED` | Mã xác thực không chính xác hoặc đã hết hạn. | Invalid or expired verification code. |

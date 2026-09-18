@@ -1,5 +1,6 @@
 package com.vn9melody.openerp.modules.iam.model;
 
+import com.vn9melody.openerp.core.registry.RegisterEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -7,6 +8,12 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "password_reset_tokens")
+@RegisterEntity(
+    entityName = "PasswordResetToken",
+    table = "password_reset_tokens",
+    publicFields = {"id", "user_id", "expires_at", "used_at", "created_at"},
+    relations = {"users"}
+)
 public class PasswordResetToken extends PanacheEntityBase {
     @Id
     @GeneratedValue

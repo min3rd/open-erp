@@ -57,9 +57,17 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 > QA/QC Agent thực hiện kiểm thử tự động Backend và kiểm thử thủ công Browser cho Frontend
 - [x] Kế hoạch kiểm thử Sprint 01 ([test_plan.md](../sprints/sprint_01_core_iam/08_testing/test_plan.md)).
 - [x] **Code Review Sprint 01 (REV-02)**: [Báo cáo review mã nguồn](../sprints/sprint_01_core_iam/09_review/CODE_REVIEW_SPRINT_01.md) — kết quả `mvn test` PASS 10/10 (PostgreSQL thật), `ng build` PASS; phát hiện **9 Critical + 14 High + 8 Medium**.
-- [ ] **BUG-01 → BUG-09 (Critical)**: Mobile Ionic 8, sai endpoint/payload frontend, Setup 2FA Drawer, Argon2id, mã hóa TOTP Secret ([danh sách](../sprints/sprint_01_core_iam/07_items/)).
-- [ ] **BUG-10 → BUG-23 (High)**: Redis session/brute-force, thiếu API auth, bảo mật token/OTP, Backup Codes, guard/interceptor/i18n/Anti-Modal frontend, test coverage ([danh sách](../sprints/sprint_01_core_iam/07_items/)).
-- [ ] **BUG-24 → BUG-31 (Medium)**: đồng bộ enum/schema/ResponseKey, Entity Registry, cấu hình JWT, envelope frontend ([danh sách](../sprints/sprint_01_core_iam/07_items/)).
+- [x] **Xử lý BUG-01 → BUG-23 (Critical/High)**: đã sửa toàn bộ; backend 22/22 automated test PASS, Web + Mobile build PASS ([QA_RETEST_SPRINT_01.md](../sprints/sprint_01_core_iam/09_review/QA_RETEST_SPRINT_01.md)).
+- [x] **BUG-32, BUG-33 (High phát sinh khi QA)**: sửa hủy session chéo người dùng + lỗi 4xx thành 500; test TC-14b/TC-16 PASS.
+- [x] **Triển khai môi trường Local cho QA**: Backend 8088 + Web 4200 + Mobile 8100 + Mailpit 8025 đang chạy; smoke E2E PASS (đăng ký → OTP Mailpit → xác thực → login → profile → refresh → logout). Hướng dẫn: [manual_test_guide.md](../sprints/sprint_01_core_iam/08_testing/manual_test_guide.md).
+- [x] **BUG-35 → BUG-37 (từ manual test khách hàng)**: thiếu `@source` Tailwind cho thư viện shared (BUG-35), dark mode chưa đồng nhất (BUG-36), trạng thái UI chưa route hóa (BUG-37) - đã sửa + browser verify (Web 7/7, Mobile 18/18). Chi tiết: [manual_test_guide.md](../sprints/sprint_01_core_iam/08_testing/manual_test_guide.md).
+- [x] **BUG-38 → BUG-40 (sự cố môi trường dev)**: test tách DB `openerp_test` (không còn xóa dữ liệu dev), script `.bat` không tạo file rác, login với token cũ hiển thị đúng lỗi i18n; thêm `dev.bat`/`stop-dev.bat`. Chi tiết: [work_log.md](work_log.md).
+- [x] **Xử lý toàn bộ tồn đọng Medium/Low (BUG-24→31, 34, 42→45)**: chuẩn hóa TenantType, ResponseKey, Entity Registry, schema JSONB V1.0.3, 401 envelope, CORS prod, i18n mã lỗi, test 30/30, form 2 bước + live slug check; browser verify 6/6.
+- [ ] **QA Browser Manual Testing (Web + Mobile)**: bám theo [manual_test_guide.md](../sprints/sprint_01_core_iam/08_testing/manual_test_guide.md), kiểm tra Drawer/QR/i18n/Anti-Modal/Routing/Dark mode, không lỗi console → chuyển 13 item `In Review` sang `Done`.
+- [x] **Tài liệu `docs/06_user_guides/`**: đã ban hành UG-01 Core IAM kèm 20 ảnh minh họa (Web light/dark + Mobile).
+- [x] **FEAT-07 (yêu cầu bổ sung khi QA)**: tối ưu Web cho điện thoại (390px không tràn ngang), hamburger + Mobile Nav Drawer (tài khoản/menu/language/theme/logout), theme System/Light/Dark persist; puppeteer 40/40 + 11/11 PASS ([FEAT-07](../sprints/sprint_01_core_iam/07_items/FEAT-07_responsive_phone_and_mobile_nav.md)).
+- [x] **FEAT-08 (yêu cầu bổ sung)**: Ionic Mobile side menu (tài khoản/menu/language/theme/logout), theme class-based Sáng/Tối/Hệ thống persist, toolbar gọn, auth pages có switcher; puppeteer 42/42 + 22/22 PASS ([FEAT-08](../sprints/sprint_01_core_iam/07_items/FEAT-08_ionic_mobile_menu_theme.md)).
+- [x] **FEAT-09 (yêu cầu bổ sung)**: tối ưu 8 màn auth Ionic cho phone (touch target ≥40px, safe-area, không tràn ngang) + chuyển toàn bộ điều hướng sang NavController (forward/back/root, replaceUrl) để back/forward mượt; puppeteer 34/34 PASS ([FEAT-09](../sprints/sprint_01_core_iam/07_items/FEAT-09_ionic_auth_ux_and_navigation.md)).
 
 ---
 

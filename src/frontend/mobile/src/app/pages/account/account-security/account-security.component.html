@@ -1,0 +1,134 @@
+<div class="space-y-3">
+  <!-- Change password -->
+  <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 space-y-3">
+    <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100" [appTranslate]="'ACCOUNT_CHANGE_PASSWORD_TITLE'"></h3>
+
+    @if (passwordError()) {
+      <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        {{ passwordError() }}
+      </div>
+    }
+    @if (passwordSuccess()) {
+      <div class="p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+        {{ passwordSuccess() }}
+      </div>
+    }
+
+    <app-sharp-input
+      [label]="'ACCOUNT_CURRENT_PASSWORD_LABEL' | translate"
+      type="password"
+      [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+      [(value)]="currentPassword"
+      [required]="true"
+    />
+
+    <app-sharp-input
+      [label]="'AUTH_NEW_PASSWORD_LABEL' | translate"
+      type="password"
+      [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+      [hint]="'AUTH_PASSWORD_HINT' | translate"
+      [(value)]="newPassword"
+      [required]="true"
+    />
+
+    <app-sharp-input
+      [label]="'ACCOUNT_NEW_PASSWORD_CONFIRM_LABEL' | translate"
+      type="password"
+      [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+      [(value)]="confirmNewPassword"
+      [required]="true"
+    />
+
+    <label class="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
+      <input type="checkbox" [(ngModel)]="logoutOtherDevices" name="logoutOtherDevices" class="h-3.5 w-3.5 rounded-none border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900">
+      {{ 'ACCOUNT_LOGOUT_OTHER_DEVICES_CHECKBOX' | translate }}
+    </label>
+
+    <app-sharp-button
+      [fullWidth]="true"
+      [loading]="loadingPasswordChange()"
+      (clicked)="handleChangePassword()"
+    >
+      {{ 'ACCOUNT_CHANGE_PASSWORD_BUTTON' | translate }}
+    </app-sharp-button>
+  </div>
+
+  <!-- 2FA -->
+  <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 space-y-3">
+    <div class="flex items-center justify-between">
+      <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100" [appTranslate]="'ACCOUNT_2FA_SECTION_TITLE'"></h3>
+      @if (twoFactorStatus()?.is_enabled) {
+        <app-badge [variant]="badgeVariantSuccess">{{ 'COMMON_ACTIVE' | translate }}</app-badge>
+      } @else {
+        <app-badge [variant]="badgeVariantWarning">{{ 'COMMON_INACTIVE' | translate }}</app-badge>
+      }
+    </div>
+
+    @if (twoFactorStatus()?.is_enabled) {
+      <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'ACCOUNT_2FA_DESC_ENABLED'"></p>
+      <div class="text-[11px] text-neutral-500 dark:text-neutral-400">
+        {{ 'ACCOUNT_2FA_ENABLED_AT' | translate:{ date: (twoFactorStatus()?.enabled_at | date:'dd/MM/yyyy') } }}
+        •
+        {{ 'ACCOUNT_BACKUP_CODES_REMAINING' | translate:{ count: twoFactorStatus()?.backup_codes_remaining } }}
+      </div>
+
+      <div class="flex gap-2">
+        <app-sharp-button
+          [fullWidth]="true"
+          [variant]="buttonVariantSecondary"
+          (clicked)="showRegenerateForm.set(!showRegenerateForm())"
+        >
+          {{ 'ACCOUNT_REGENERATE_BACKUP_CODES' | translate }}
+        </app-sharp-button>
+        <app-sharp-button
+          [fullWidth]="true"
+          [variant]="buttonVariantDanger"
+          (clicked)="openDisable2Fa()"
+        >
+          {{ 'ACCOUNT_DISABLE_2FA_BUTTON' | translate }}
+        </app-sharp-button>
+      </div>
+
+      @if (showRegenerateForm()) {
+        <div class="border border-neutral-200 dark:border-neutral-800 p-2 space-y-2">
+          <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'ACCOUNT_REGENERATE_BACKUP_CODES_DESC'"></p>
+          @if (regenerateError()) {
+            <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+              {{ regenerateError() }}
+            </div>
+          }
+          <app-sharp-input
+            [label]="'ACCOUNT_CURRENT_PASSWORD_LABEL' | translate"
+            type="password"
+            [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+            [(value)]="regeneratePassword"
+          />
+          <app-sharp-button
+            [fullWidth]="true"
+            [loading]="loadingRegenerate()"
+            (clicked)="handleRegenerateBackupCodes()"
+          >
+            {{ 'COMMON_CONFIRM' | translate }}
+          </app-sharp-button>
+        </div>
+      }
+
+      @if (regeneratedCodes().length) {
+        <div class="border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/30 p-2 space-y-1">
+          <h4 class="text-[11px] font-bold uppercase text-amber-900 dark:text-amber-200" [appTranslate]="'ACCOUNT_NEW_BACKUP_CODES_TITLE'"></h4>
+          <p class="text-[11px] text-amber-800 dark:text-amber-300" [appTranslate]="'ACCOUNT_2FA_BACKUP_WARNING'"></p>
+          <div class="grid grid-cols-2 gap-1 font-mono text-xs text-neutral-900 dark:text-neutral-100">
+            @for (code of regeneratedCodes(); track code) {
+              <span class="select-all">{{ code }}</span>
+            }
+          </div>
+        </div>
+      }
+    } @else {
+      <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'ACCOUNT_2FA_DESC_DISABLED'"></p>
+      <app-sharp-button [fullWidth]="true" (clicked)="openSetup2Fa()">
+        {{ 'ACCOUNT_ENABLE_2FA_BUTTON' | translate }}
+      </app-sharp-button>
+    }
+  </div>
+</div>

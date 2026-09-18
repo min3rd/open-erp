@@ -1,13 +1,50 @@
 <app-drawer
-  [isOpen]="isOpen()"
+  [isOpen]="true"
   [title]="'ACCOUNT_2FA_SETUP_TITLE' | translate"
   [subtitle]="'ACCOUNT_2FA_SETUP_SUBTITLE' | translate"
-  width="max-w-lg"
+  width="w-[420px] max-w-[100vw]"
   [zIndex]="60"
   (close)="onClose()"
 >
   @if (loadingSetup()) {
-    <div class="py-12 text-center text-xs text-neutral-500" [appTranslate]="'COMMON_LOADING'">
+    <div class="py-12 text-center text-xs text-neutral-500 dark:text-neutral-400" [appTranslate]="'COMMON_LOADING'">
+    </div>
+  } @else if (stage() === 'CODES' && enableData()) {
+    <!-- Giai đoạn 3: Cấp mã dự phòng sau khi kích hoạt thành công -->
+    <div class="space-y-4">
+      <div class="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+        {{ 'ACCOUNT_2FA_ENABLED_SUCCESS' | translate }}
+      </div>
+
+      <div class="border border-neutral-200 dark:border-neutral-800 p-3 bg-neutral-50 dark:bg-neutral-950">
+        <div class="flex justify-between items-center mb-1">
+          <h4 class="text-xs font-bold uppercase text-neutral-800 dark:text-neutral-200" [appTranslate]="'ACCOUNT_NEW_BACKUP_CODES_TITLE'">
+          </h4>
+          <button 
+            type="button" 
+            (click)="copyBackupCodes()"
+            class="text-[11px] text-neutral-900 dark:text-neutral-100 hover:underline font-mono"
+          >
+            {{ (copiedCodes() ? 'COMMON_COPIED' : 'COMMON_COPY_ALL') | translate }}
+          </button>
+        </div>
+        <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mb-2" [appTranslate]="'ACCOUNT_2FA_BACKUP_WARNING'">
+        </p>
+
+        <div class="grid grid-cols-2 gap-1.5 font-mono text-xs">
+          @for (code of enableData()?.backup_codes; track $index) {
+            <div class="px-2 py-1 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-center select-all">
+              {{ code }}
+            </div>
+          }
+        </div>
+
+        <div class="pt-2">
+          <app-sharp-button [variant]="buttonVariantSecondary" [size]="'sm'" (clicked)="downloadBackupCodes()">
+            {{ 'COMMON_DOWNLOAD_TXT' | translate }}
+          </app-sharp-button>
+        </div>
+      </div>
     </div>
   } @else if (setupData()) {
     <div class="space-y-4">
@@ -17,64 +54,74 @@
         </div>
       }
 
-      <!-- Bước 1: Quét mã QR hoặc nhập Secret -->
+      <!-- Bước 1: Quét mã QR -->
       <div class="border border-neutral-200 dark:border-neutral-800 p-3 bg-neutral-50 dark:bg-neutral-950">
         <h4 class="text-xs font-bold uppercase text-neutral-800 dark:text-neutral-200 mb-1" [appTranslate]="'ACCOUNT_2FA_STEP_1'">
         </h4>
-        <p class="text-[11px] text-neutral-500 mb-2" [appTranslate]="'ACCOUNT_2FA_STEP_2'">
-        </p>
 
-        <div class="p-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 font-mono text-xs select-all text-center break-all">
-          {{ setupData()?.secret_key }}
-        </div>
-        <p class="text-[10px] text-neutral-400 mt-1 text-center font-mono">
-          URI: {{ setupData()?.qr_code_uri }}
-        </p>
-      </div>
+        @if (qrDataUrl()) {
+          <div class="mx-auto w-[140px] h-[140px] p-1 border border-neutral-300 dark:border-neutral-700 bg-white flex items-center justify-center">
+            <img
+              [src]="qrDataUrl()"
+              [attr.alt]="'ACCOUNT_2FA_SETUP_TITLE' | translate"
+              width="140"
+              height="140"
+              class="w-[140px] h-[140px]"
+            />
+          </div>
+        }
 
-      <!-- Bước 2: Lưu mã dự phòng -->
-      <div class="border border-neutral-200 dark:border-neutral-800 p-3 bg-neutral-50 dark:bg-neutral-950">
-        <div class="flex justify-between items-center mb-1">
-          <h4 class="text-xs font-bold uppercase text-neutral-800 dark:text-neutral-200" [appTranslate]="'ACCOUNT_BACKUP_CODES_TITLE'">
-          </h4>
-          <button 
-            type="button" 
-            (click)="copyBackupCodes()"
-            class="text-[11px] text-neutral-900 dark:text-neutral-100 hover:underline font-mono"
+        <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-3 mb-1" [appTranslate]="'ACCOUNT_2FA_STEP_2'">
+        </p>
+        <div class="flex items-stretch gap-2">
+          <div class="flex-1 p-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 font-mono text-xs select-all text-center break-all">
+            {{ setupData()?.secret_key }}
+          </div>
+          <button
+            type="button"
+            (click)="copySecret()"
+            class="px-2.5 text-[11px] font-medium border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
           >
-            {{ copied() ? ('COMMON_CONFIRM' | translate) : 'Copy All' }}
+            {{ (copiedSecret() ? 'COMMON_COPIED' : 'COMMON_COPY') | translate }}
           </button>
         </div>
-        <p class="text-[11px] text-neutral-500 mb-2" [appTranslate]="'ACCOUNT_2FA_BACKUP_WARNING'">
-        </p>
 
-        <div class="grid grid-cols-2 gap-1.5 font-mono text-xs">
-          @for (code of setupData()?.backup_codes; track $index) {
-            <div class="px-2 py-1 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-center select-all">
-              {{ code }}
-            </div>
-          }
-        </div>
+        <p class="text-[10px] text-neutral-400 dark:text-neutral-500 mt-1 text-center font-mono break-all">
+          {{ 'ACCOUNT_2FA_URI_LABEL' | translate:{ uri: setupData()?.qr_code_uri } }}
+        </p>
       </div>
 
-      <!-- Bước 3: Xác thực kích hoạt -->
+      <!-- Bước 2: Xác thực kích hoạt -->
       <div class="border border-neutral-200 dark:border-neutral-800 p-3">
         <h4 class="text-xs font-bold uppercase text-neutral-800 dark:text-neutral-200 mb-1" [appTranslate]="'ACCOUNT_2FA_STEP_3'">
         </h4>
-        <p class="text-[11px] text-neutral-500 mb-3" [appTranslate]="'AUTH_2FA_INSTRUCTION'">
+        <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mb-3" [appTranslate]="'AUTH_2FA_INSTRUCTION'">
         </p>
 
         <app-pin-input
+          [length]="6"
+          [ariaLabel]="'COMMON_OTP' | translate"
           (completed)="handleEnable2Fa($event)"
+          [disabled]="loadingSubmit()"
           [hasError]="!!errorMessage()"
         />
       </div>
     </div>
+  } @else if (errorMessage()) {
+    <div class="p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+      {{ errorMessage() }}
+    </div>
   }
 
   <div drawer-footer>
-    <app-sharp-button [variant]="buttonVariantSecondary" (clicked)="onClose()">
-      {{ 'COMMON_CANCEL' | translate }}
-    </app-sharp-button>
+    @if (stage() === 'CODES') {
+      <app-sharp-button (clicked)="finish()">
+        {{ 'ACCOUNT_2FA_BACKUP_CODES_SAVED' | translate }}
+      </app-sharp-button>
+    } @else {
+      <app-sharp-button [variant]="buttonVariantSecondary" (clicked)="onClose()">
+        {{ 'COMMON_CANCEL' | translate }}
+      </app-sharp-button>
+    }
   </div>
 </app-drawer>

@@ -1,0 +1,64 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>{{ 'AUTH_LOGIN_TITLE' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="max-w-md mx-auto p-3 space-y-3">
+    <div class="flex flex-wrap items-center justify-end gap-2">
+      <app-theme-switcher />
+      <app-language-switcher />
+    </div>
+
+    @if (errorMessage()) {
+      <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3">
+      <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mb-3" [appTranslate]="'AUTH_LOGIN_SUBTITLE'"></p>
+
+      <form (ngSubmit)="handleLogin()" class="space-y-3">
+        <app-sharp-input
+          [label]="'AUTH_EMAIL_LABEL' | translate"
+          type="email"
+          [placeholder]="'AUTH_EMAIL_PLACEHOLDER' | translate"
+          [(value)]="email"
+          [required]="true"
+        />
+
+        <app-sharp-input
+          [label]="'AUTH_PASSWORD_LABEL' | translate"
+          type="password"
+          [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+          [(value)]="password"
+          [required]="true"
+        />
+
+        <div class="flex items-center justify-end">
+          <a routerLink="/forgot-password" class="text-xs text-neutral-700 dark:text-neutral-300 hover:underline" [appTranslate]="'AUTH_FORGOT_PASSWORD_LINK'"></a>
+        </div>
+
+        <app-sharp-button
+          [type]="buttonTypeSubmit"
+          [fullWidth]="true"
+          [loading]="loading()"
+        >
+          {{ 'AUTH_LOGIN_BUTTON' | translate }}
+        </app-sharp-button>
+      </form>
+
+      <div class="mt-3 border-t border-neutral-200 dark:border-neutral-800 pt-3 space-y-2">
+        <p class="text-xs text-center text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_NO_ACCOUNT'"></p>
+        <a routerLink="/register/personal" class="block text-center py-2.5 min-h-10 border border-neutral-300 dark:border-neutral-700 text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+          {{ 'AUTH_REGISTER_PERSONAL_TAB' | translate }}
+        </a>
+        <a routerLink="/register/business" class="block text-center py-2.5 min-h-10 border border-neutral-300 dark:border-neutral-700 text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+          {{ 'AUTH_REGISTER_BUSINESS_TAB' | translate }}
+        </a>
+      </div>
+    </div>
+  </div>
+</ion-content>

@@ -1,6 +1,7 @@
 package com.vn9melody.openerp.modules.iam.model;
 
 import com.vn9melody.openerp.core.enums.UserRole;
+import com.vn9melody.openerp.core.registry.RegisterEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -9,6 +10,12 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "user_tenants")
+@RegisterEntity(
+    entityName = "UserTenant",
+    table = "user_tenants",
+    publicFields = {"user_id", "tenant_id", "role", "is_default", "joined_at"},
+    relations = {"users", "tenants"}
+)
 public class UserTenant extends PanacheEntityBase {
     @EmbeddedId
     public UserTenantId id = new UserTenantId();

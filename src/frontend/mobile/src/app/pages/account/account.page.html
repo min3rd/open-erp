@@ -1,0 +1,51 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard" text=""></ion-back-button>
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ 'ACCOUNT_DRAWER_TITLE' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="max-w-md mx-auto p-3 space-y-3">
+    <div class="grid grid-cols-3 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+      <a
+        routerLink="/account/detail"
+        routerLinkActive
+        #detailTab="routerLinkActive"
+        class="py-1.5 text-center text-[11px] font-medium border-r border-neutral-200 dark:border-neutral-800"
+        [ngClass]="detailTab.isActive
+          ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
+          : 'text-neutral-600 dark:text-neutral-400'"
+      >
+        {{ 'ACCOUNT_TAB_PROFILE' | translate }}
+      </a>
+      <a
+        routerLink="/account/security"
+        routerLinkActive
+        #securityTab="routerLinkActive"
+        class="py-1.5 text-center text-[11px] font-medium border-r border-neutral-200 dark:border-neutral-800"
+        [ngClass]="securityTab.isActive
+          ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
+          : 'text-neutral-600 dark:text-neutral-400'"
+      >
+        {{ 'ACCOUNT_TAB_SECURITY' | translate }}
+      </a>
+      <a
+        routerLink="/account/sessions"
+        routerLinkActive
+        #sessionsTab="routerLinkActive"
+        class="py-1.5 text-center text-[11px] font-medium"
+        [ngClass]="sessionsTab.isActive
+          ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
+          : 'text-neutral-600 dark:text-neutral-400'"
+      >
+        {{ 'ACCOUNT_TAB_SESSIONS' | translate }}
+      </a>
+    </div>
+
+    <router-outlet></router-outlet>
+  </div>
+</ion-content>

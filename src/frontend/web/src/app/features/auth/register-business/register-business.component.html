@@ -1,13 +1,13 @@
-<div class="min-h-screen bg-neutral-100 dark:bg-neutral-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-  <div class="sm:mx-auto sm:w-full sm:max-w-lg">
+<div class="min-h-screen bg-neutral-100 dark:bg-neutral-950 flex flex-col justify-center px-4 py-6 sm:px-6 lg:px-8">
+  <div class="w-full max-w-lg mx-auto">
     <h2 class="text-center text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100" [appTranslate]="'AUTH_REGISTER_BUSINESS_TAB'">
     </h2>
-    <p class="mt-1 text-center text-xs text-neutral-500" [appTranslate]="'AUTH_REGISTER_SUBTITLE'">
+    <p class="mt-1 text-center text-xs text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_REGISTER_SUBTITLE'">
     </p>
   </div>
 
-  <div class="mt-6 sm:mx-auto sm:w-full sm:max-w-lg">
-    <div class="bg-white dark:bg-neutral-900 py-6 px-4 shadow-sm border border-neutral-200 dark:border-neutral-800 sm:px-8">
+  <div class="mt-4 w-full max-w-lg mx-auto">
+    <div class="bg-white dark:bg-neutral-900 p-4 sm:p-6 shadow-sm border border-neutral-200 dark:border-neutral-800 sm:px-8">
       
       @if (errorMessage()) {
         <div class="mb-4 p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
@@ -15,99 +15,164 @@
         </div>
       }
 
-      <form (ngSubmit)="handleBusinessRegister()" class="space-y-4">
-        <!-- Section 1: Thông tin Doanh nghiệp -->
-        <div class="border-b border-neutral-200 dark:border-neutral-800 pb-3">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-neutral-200 mb-3" [appTranslate]="'AUTH_COMPANY_NAME_LABEL'">
-          </h3>
+      @if (successMessage()) {
+        <div class="space-y-4 text-center">
+          <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+            {{ successMessage() }}
+          </div>
+          <a
+            routerLink="/login"
+            class="inline-block w-full py-1.5 bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 text-xs font-medium hover:bg-neutral-800 dark:hover:bg-neutral-200"
+          >
+            {{ 'AUTH_BACK_TO_LOGIN' | translate }}
+          </a>
+        </div>
+      } @else {
+        <div class="mb-3 text-center text-[11px] font-mono text-neutral-500 dark:text-neutral-400">
+          {{ 'AUTH_STEP_INDICATOR' | translate:{ current: step(), total: 2 } }}
+        </div>
 
-          <div class="space-y-3">
-            <app-sharp-input
-              [label]="'AUTH_COMPANY_NAME_LABEL' | translate"
-              [placeholder]="'AUTH_COMPANY_NAME_PLACEHOLDER' | translate"
-              [(value)]="tenantName"
-              (valueChange)="onTenantNameChange($event)"
-              [required]="true"
-            />
+        <form (ngSubmit)="handleBusinessRegister()" class="space-y-4">
+          @if (step() === 1) {
+            <!-- Step 1: Administrator information -->
+            <div>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-neutral-200 mb-3" [appTranslate]="'AUTH_STEP_ADMIN_INFO'">
+              </h3>
 
-            <app-sharp-input
-              [label]="'AUTH_SUBDOMAIN_LABEL' | translate"
-              [placeholder]="'AUTH_SUBDOMAIN_PLACEHOLDER' | translate"
-              hint="slug (openerp.9ms.io.vn)"
-              [(value)]="tenantSlug"
-              [required]="true"
-            />
+              <div class="space-y-3">
+                <app-sharp-input
+                  [label]="'AUTH_FULL_NAME_LABEL' | translate"
+                  [placeholder]="'AUTH_FULL_NAME_PLACEHOLDER' | translate"
+                  [(value)]="adminFullName"
+                  [required]="true"
+                />
 
-            <div class="grid grid-cols-2 gap-3">
-              <app-sharp-input
-                label="Mã số thuế / Tax ID"
-                placeholder="0109999999"
-                [(value)]="taxCode"
-              />
+                <app-sharp-input
+                  [label]="'AUTH_EMAIL_LABEL' | translate"
+                  type="email"
+                  [placeholder]="'AUTH_EMAIL_PLACEHOLDER' | translate"
+                  [(value)]="adminEmail"
+                  [required]="true"
+                />
 
-              <div class="space-y-1">
-                <label class="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300" [appTranslate]="'AUTH_COMPANY_SIZE_LABEL'">
-                </label>
-                <select
-                  [(ngModel)]="companySize"
-                  name="companySize"
-                  class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-none text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-900"
-                >
-                  <option [value]="companySizeMicro">1 - 10</option>
-                  <option [value]="companySizeSmall">11 - 50</option>
-                  <option [value]="companySizeMedium">51 - 200</option>
-                  <option [value]="companySizeEnterprise">201+</option>
-                </select>
+                <app-sharp-input
+                  [label]="'AUTH_PASSWORD_LABEL' | translate"
+                  type="password"
+                  [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
+                  [hint]="'AUTH_PASSWORD_HINT' | translate"
+                  [(value)]="adminPassword"
+                  [required]="true"
+                />
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Section 2: Thông tin Quản trị viên -->
-        <div>
-          <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-neutral-200 mb-3" [appTranslate]="'AUTH_FULL_NAME_LABEL'">
-          </h3>
+            <div class="pt-2">
+              <app-sharp-button
+                [type]="'button'"
+                [fullWidth]="true"
+                (clicked)="goToStep2()"
+              >
+                {{ 'COMMON_NEXT' | translate }}
+              </app-sharp-button>
+            </div>
+          } @else {
+            <!-- Step 2: Business information -->
+            <div>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-neutral-200 mb-3" [appTranslate]="'AUTH_STEP_BUSINESS_INFO'">
+              </h3>
 
-          <div class="space-y-3">
-            <app-sharp-input
-              [label]="'AUTH_FULL_NAME_LABEL' | translate"
-              [placeholder]="'AUTH_FULL_NAME_PLACEHOLDER' | translate"
-              [(value)]="adminFullName"
-              [required]="true"
-            />
+              <div class="space-y-3">
+                <app-sharp-input
+                  [label]="'AUTH_COMPANY_NAME_LABEL' | translate"
+                  [placeholder]="'AUTH_COMPANY_NAME_PLACEHOLDER' | translate"
+                  [(value)]="tenantName"
+                  (valueChange)="onTenantNameChange($event)"
+                  [required]="true"
+                />
 
-            <app-sharp-input
-              [label]="'AUTH_EMAIL_LABEL' | translate"
-              type="email"
-              [placeholder]="'AUTH_EMAIL_PLACEHOLDER' | translate"
-              [(value)]="adminEmail"
-              [required]="true"
-            />
+                <app-sharp-input
+                  [label]="'AUTH_SUBDOMAIN_LABEL' | translate"
+                  [placeholder]="'AUTH_SUBDOMAIN_PLACEHOLDER' | translate"
+                  [hint]="'AUTH_SUBDOMAIN_HINT' | translate"
+                  [(value)]="tenantSlug"
+                  (valueChange)="onSlugChange($event)"
+                  [required]="true"
+                />
 
-            <app-sharp-input
-              [label]="'AUTH_PASSWORD_LABEL' | translate"
-              type="password"
-              [placeholder]="'AUTH_PASSWORD_PLACEHOLDER' | translate"
-              [hint]="'AUTH_PASSWORD_HINT' | translate"
-              [(value)]="adminPassword"
-              [required]="true"
-            />
-          </div>
-        </div>
+                @if (tenantSlug) {
+                  <div class="space-y-1 -mt-2">
+                    @if (slugStatus() === 'CHECKING') {
+                      <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
+                        {{ 'AUTH_SLUG_CHECKING' | translate }}
+                      </p>
+                    } @else if (slugStatus() === 'AVAILABLE') {
+                      <p class="text-[11px] text-emerald-600 dark:text-emerald-400">
+                        {{ 'AUTH_SLUG_AVAILABLE' | translate }}
+                      </p>
+                    } @else if (slugStatus() === 'TAKEN') {
+                      <p class="text-[11px] text-red-600 dark:text-red-400">
+                        {{ 'AUTH_TENANT_SLUG_DUPLICATE' | translate:{ slug: tenantSlug } }}
+                      </p>
+                    } @else if (slugStatus() === 'INVALID') {
+                      <p class="text-[11px] text-red-600 dark:text-red-400">
+                        {{ 'AUTH_SLUG_INVALID' | translate }}
+                      </p>
+                    }
+                    <p class="text-[11px] font-mono text-neutral-400 dark:text-neutral-500 break-all">
+                      {{ 'AUTH_SLUG_PREVIEW' | translate:{ url: slugPreviewUrl() } }}
+                    </p>
+                  </div>
+                }
 
-        <div class="pt-2">
-          <app-sharp-button
-            [type]="buttonTypeSubmit"
-            [fullWidth]="true"
-            [loading]="loading()"
-          >
-            {{ 'AUTH_REGISTER_BUTTON' | translate }}
-          </app-sharp-button>
-        </div>
-      </form>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <app-sharp-input
+                    [label]="'AUTH_TAX_CODE_LABEL' | translate"
+                    [placeholder]="'AUTH_TAX_CODE_PLACEHOLDER' | translate"
+                    [(value)]="taxCode"
+                  />
+
+                  <div class="space-y-1">
+                    <label class="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300" [appTranslate]="'AUTH_COMPANY_SIZE_LABEL'">
+                    </label>
+                    <select
+                      [(ngModel)]="companySize"
+                      name="companySize"
+                      class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-none text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-200"
+                    >
+                      <option [value]="companySizeMicro">{{ 'AUTH_COMPANY_SIZE_MICRO' | translate }}</option>
+                      <option [value]="companySizeSmall">{{ 'AUTH_COMPANY_SIZE_SMALL' | translate }}</option>
+                      <option [value]="companySizeMedium">{{ 'AUTH_COMPANY_SIZE_MEDIUM' | translate }}</option>
+                      <option [value]="companySizeEnterprise">{{ 'AUTH_COMPANY_SIZE_ENTERPRISE' | translate }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-2 flex flex-col sm:flex-row gap-2">
+              <app-sharp-button
+                [variant]="buttonVariantSecondary"
+                [fullWidth]="true"
+                [type]="'button'"
+                (clicked)="goToStep1()"
+              >
+                {{ 'COMMON_BACK' | translate }}
+              </app-sharp-button>
+
+              <app-sharp-button
+                [type]="buttonTypeSubmit"
+                [fullWidth]="true"
+                [loading]="loading()"
+              >
+                {{ 'AUTH_REGISTER_BUTTON' | translate }}
+              </app-sharp-button>
+            </div>
+          }
+        </form>
+      }
 
       <div class="mt-4 border-t border-neutral-200 dark:border-neutral-800 pt-3 text-center">
-        <span class="text-xs text-neutral-500" [appTranslate]="'AUTH_HAVE_ACCOUNT'"></span>
+        <span class="text-xs text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_HAVE_ACCOUNT'"></span>
         <a routerLink="/login" class="text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:underline ml-1" [appTranslate]="'AUTH_LOGIN_BUTTON'">
         </a>
       </div>

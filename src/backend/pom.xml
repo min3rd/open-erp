@@ -19,7 +19,10 @@
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.version>3.15.1</quarkus.platform.version>
         <surefire-plugin.version>3.5.0</surefire-plugin.version>
-        <jbcrypt.version>0.4</jbcrypt.version>
+        <argon2.version>2.11</argon2.version>
+        <!-- Java 25 workaround: ByteBuddy in Quarkus 3.15 needs the experimental flag for
+             Hibernate proxy generation in BOTH quarkus:dev (jvm.args) and tests (surefire). -->
+        <jvm.args>-Dnet.bytebuddy.experimental=true</jvm.args>
     </properties>
 
     <dependencyManagement>
@@ -35,10 +38,10 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- RESTEasy Reactive & JSON Jackson -->
+        <!-- Quarkus REST (RESTEasy Reactive) & JSON Jackson -->
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
+            <artifactId>quarkus-rest-jackson</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -75,17 +78,23 @@
             <artifactId>quarkus-smallrye-openapi</artifactId>
         </dependency>
 
+        <!-- Redis (Session Store, OTP, Brute-Force, Blacklist) -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-redis-client</artifactId>
+        </dependency>
+
         <!-- Mailer (Mailpit SMTP) -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-mailer</artifactId>
         </dependency>
 
-        <!-- Password Hashing -->
+        <!-- Password Hashing (Argon2id) -->
         <dependency>
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>${jbcrypt.version}</version>
+            <groupId>de.mkammerer</groupId>
+            <artifactId>argon2-jvm</artifactId>
+            <version>${argon2.version}</version>
         </dependency>
 
         <!-- Test Dependencies -->

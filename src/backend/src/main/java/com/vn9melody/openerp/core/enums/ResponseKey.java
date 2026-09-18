@@ -45,7 +45,14 @@ public enum ResponseKey {
     OTP_AUTH_URI("otp_auth_uri"),
     QR_CODE_URI("qr_code_uri"),
     BACKUP_CODES("backup_codes"),
-    MESSAGE("message");
+    MESSAGE("message"),
+
+    // Validation, Rate Limit & Availability
+    FIELD("field"),
+    SLUG("slug"),
+    LOCKED_SECONDS("locked_seconds"),
+    RETRY_AFTER("retry_after"),
+    AVAILABLE("available");
 
     private final String key;
 

@@ -5,27 +5,28 @@
     [role]="auth.user()?.role || 'MEMBER'"
     [userName]="auth.user()?.full_name || ''"
     [userEmail]="auth.user()?.email || ''"
-    (openAccount)="isAccountDrawerOpen.set(true)"
+    (openAccount)="openAccount()"
     (logout)="auth.logout()"
   />
 
   <!-- Main Workspace Container -->
-  <main class="flex-1 p-6 max-w-7xl w-full mx-auto space-y-6">
+  <main class="flex-1 p-3 sm:p-4 lg:p-6 max-w-7xl w-full mx-auto space-y-3 sm:space-y-6">
     <!-- Welcome Banner -->
-    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-5">
-      <div class="flex items-start justify-between">
-        <div>
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 sm:p-5">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="min-w-0">
           <h1 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100">
             {{ 'DASHBOARD_WELCOME' | translate:{ name: auth.user()?.full_name || auth.user()?.email } }}
           </h1>
-          <p class="text-xs text-neutral-500 mt-1">
-            {{ 'DASHBOARD_ORGANIZATION' | translate:{ name: auth.user()?.tenant_name } }}
-            (slug: <code class="font-mono text-[11px]">{{ auth.user()?.tenant_slug }}</code>)
+          <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1 break-words">
+            {{ 'DASHBOARD_ORGANIZATION_SLUG' | translate:{ name: auth.user()?.tenant_name, slug: auth.user()?.tenant_slug } }}
           </p>
         </div>
-        <app-sharp-button (clicked)="isAccountDrawerOpen.set(true)">
-          {{ 'COMMON_ACCOUNT_SETTINGS' | translate }}
-        </app-sharp-button>
+        <div class="w-full sm:w-auto shrink-0">
+          <app-sharp-button [fullWidth]="true" (clicked)="openAccount()">
+            {{ 'COMMON_ACCOUNT_SETTINGS' | translate }}
+          </app-sharp-button>
+        </div>
       </div>
     </div>
 
@@ -34,10 +35,10 @@
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300" [appTranslate]="'DASHBOARD_WORKSPACE_READY'">
         </h2>
-        <app-badge [variant]="badgeVariantSuccess">100% DONE</app-badge>
+        <app-badge [variant]="badgeVariantSuccess">{{ 'COMMON_100_DONE' | translate }}</app-badge>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <!-- FEAT-01 -->
         <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3.5 space-y-2">
           <div class="flex justify-between items-center">
@@ -45,7 +46,7 @@
             <app-badge [variant]="badgeVariantSuccess">{{ 'COMMON_ACTIVE' | translate }}</app-badge>
           </div>
           <h3 class="text-xs font-bold" [appTranslate]="'AUTH_REGISTER_PERSONAL_TAB'"></h3>
-          <p class="text-[11px] text-neutral-500" [appTranslate]="'AUTH_REGISTER_SUBTITLE'">
+          <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_REGISTER_SUBTITLE'">
           </p>
         </div>
 
@@ -56,7 +57,7 @@
             <app-badge [variant]="badgeVariantSuccess">{{ 'COMMON_ACTIVE' | translate }}</app-badge>
           </div>
           <h3 class="text-xs font-bold" [appTranslate]="'AUTH_REGISTER_BUSINESS_TAB'"></h3>
-          <p class="text-[11px] text-neutral-500" [appTranslate]="'AUTH_COMPANY_NAME_LABEL'">
+          <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_COMPANY_NAME_LABEL'">
           </p>
         </div>
 
@@ -67,7 +68,7 @@
             <app-badge [variant]="badgeVariantSuccess">{{ 'COMMON_ACTIVE' | translate }}</app-badge>
           </div>
           <h3 class="text-xs font-bold" [appTranslate]="'AUTH_LOGIN_TITLE'"></h3>
-          <p class="text-[11px] text-neutral-500" [appTranslate]="'AUTH_SELECT_TENANT_INSTRUCTION'">
+          <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_SELECT_TENANT_INSTRUCTION'">
           </p>
         </div>
 
@@ -78,7 +79,7 @@
             <app-badge [variant]="badgeVariantSuccess">{{ 'COMMON_ACTIVE' | translate }}</app-badge>
           </div>
           <h3 class="text-xs font-bold" [appTranslate]="'AUTH_FORGOT_PASS_TITLE'"></h3>
-          <p class="text-[11px] text-neutral-500" [appTranslate]="'AUTH_FORGOT_PASS_SUBTITLE'">
+          <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_FORGOT_PASS_SUBTITLE'">
           </p>
         </div>
 
@@ -89,7 +90,7 @@
             <app-badge [variant]="badgeVariantSuccess">{{ 'COMMON_ACTIVE' | translate }}</app-badge>
           </div>
           <h3 class="text-xs font-bold" [appTranslate]="'AUTH_2FA_TITLE'"></h3>
-          <p class="text-[11px] text-neutral-500" [appTranslate]="'ACCOUNT_2FA_SETUP_SUBTITLE'">
+          <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'ACCOUNT_2FA_SETUP_SUBTITLE'">
           </p>
         </div>
 
@@ -100,16 +101,18 @@
             <app-badge [variant]="badgeVariantSuccess">{{ 'COMMON_ACTIVE' | translate }}</app-badge>
           </div>
           <h3 class="text-xs font-bold" [appTranslate]="'ACCOUNT_DRAWER_TITLE'"></h3>
-          <p class="text-[11px] text-neutral-500" [appTranslate]="'ACCOUNT_DRAWER_SUBTITLE'">
+          <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'ACCOUNT_DRAWER_SUBTITLE'">
           </p>
         </div>
       </div>
     </div>
   </main>
 
-  <!-- Anti-Modal Account Drawer Component -->
+  <!-- Anti-Modal Account Drawer Shell (route-driven) -->
   <app-account-drawer
     [isOpen]="isAccountDrawerOpen()"
-    (close)="isAccountDrawerOpen.set(false)"
-  />
+    (close)="closeAccount()"
+  >
+    <router-outlet />
+  </app-account-drawer>
 </div>

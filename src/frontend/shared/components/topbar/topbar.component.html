@@ -1,51 +1,79 @@
-<header class="h-12 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 px-4 flex items-center justify-between select-none">
-  <!-- Left section: Brand & Context -->
-  <div class="flex items-center gap-3">
-    <div class="w-7 h-7 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center font-mono font-bold text-xs">
+<header class="h-11 lg:h-12 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 px-3 sm:px-4 flex items-center justify-between gap-2 select-none">
+  <!-- Left section: Brand & Context (context hidden below lg) -->
+  <div class="flex items-center gap-2 min-w-0">
+    <div class="w-7 h-7 shrink-0 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center font-mono font-bold text-xs">
       ERP
     </div>
-    <div class="flex items-center gap-2">
-      <span class="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100">
-        Open-ERP
-      </span>
+    <span class="hidden sm:inline text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100">
+      Open-ERP
+    </span>
+    <div class="hidden lg:flex items-center gap-2 min-w-0">
       <span class="text-neutral-300 dark:text-neutral-700">/</span>
-      <span class="text-xs font-medium text-neutral-600 dark:text-neutral-300">
+      <span class="text-xs font-medium text-neutral-600 dark:text-neutral-300 truncate max-w-[160px]">
         {{ tenantName() || ('AUTH_SELECT_TENANT_TITLE' | translate) }}
       </span>
       <app-badge [variant]="colorInfo">{{ role() || 'MEMBER' }}</app-badge>
     </div>
   </div>
 
-  <!-- Right section: Language Switcher, Account, Logout -->
-  <div class="flex items-center gap-3">
-    <!-- Reusable Language Switcher -->
-    <app-language-switcher />
+  <!-- Right section: desktop utilities (>= lg) + mobile hamburger -->
+  <div class="flex items-center gap-2 lg:gap-3">
+    <div class="hidden lg:flex items-center gap-3">
+      <app-theme-switcher />
 
-    <!-- Account Button (Drawer trigger) -->
+      <app-language-switcher />
+
+      <!-- Account Button (Drawer trigger) -->
+      <button
+        type="button"
+        (click)="openAccount.emit()"
+        class="flex items-center gap-2 px-2.5 py-1 text-xs border border-neutral-300 dark:border-neutral-700 bg-transparent hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+        [attr.aria-label]="'COMMON_ACCOUNT_SETTINGS' | translate"
+      >
+        <div class="w-4 h-4 rounded-none bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-[10px] font-bold text-neutral-800 dark:text-neutral-200">
+          {{ userInitial() }}
+        </div>
+        <span class="font-medium truncate max-w-[140px] text-neutral-800 dark:text-neutral-200">
+          {{ userName() || userEmail() }}
+        </span>
+        <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      <!-- Logout Button -->
+      <app-sharp-button
+        [variant]="colorGhost"
+        [size]="sizeSm"
+        (clicked)="logout.emit()"
+      >
+        {{ 'COMMON_LOGOUT' | translate }}
+      </app-sharp-button>
+    </div>
+
+    <!-- Mobile hamburger -->
     <button
       type="button"
-      (click)="openAccount.emit()"
-      class="flex items-center gap-2 px-2.5 py-1 text-xs border border-neutral-300 dark:border-neutral-700 bg-transparent hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
-      [attr.aria-label]="'COMMON_ACCOUNT_SETTINGS' | translate"
+      (click)="toggleMobileMenu()"
+      class="lg:hidden p-1.5 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+      [attr.aria-label]="'COMMON_MENU' | translate"
+      [attr.aria-expanded]="mobileMenuOpen()"
+      aria-controls="mobile-nav-drawer"
     >
-      <div class="w-4 h-4 rounded-none bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-[10px] font-bold text-neutral-800 dark:text-neutral-200">
-        {{ userInitial() }}
-      </div>
-      <span class="font-medium truncate max-w-[140px] text-neutral-800 dark:text-neutral-200">
-        {{ userName() || userEmail() }}
-      </span>
-      <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M19 9l-7 7-7-7" />
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
       </svg>
     </button>
-
-    <!-- Logout Button -->
-    <app-sharp-button
-      [variant]="colorGhost"
-      [size]="sizeSm"
-      (clicked)="logout.emit()"
-    >
-      {{ 'COMMON_LOGOUT' | translate }}
-    </app-sharp-button>
   </div>
 </header>
+
+<app-mobile-nav-drawer
+  id="mobile-nav-drawer"
+  [isOpen]="mobileMenuOpen()"
+  [tenantName]="tenantName()"
+  [role]="role()"
+  [userName]="userName()"
+  [userEmail]="userEmail()"
+  (close)="closeMobileMenu()"
+  (logout)="logout.emit()"
+/>

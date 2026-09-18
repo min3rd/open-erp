@@ -1,0 +1,132 @@
+/* Open-ERP Mobile - Global Styles (Tailwind CSS v4 + Ionic 8) */
+
+@layer ionic, theme, base, components, utilities;
+
+@import 'tailwindcss';
+
+/* Tailwind dark mode follows the ThemeService class strategy (`.dark` on <html>) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Ionic core styles (standalone mode) */
+@import '@ionic/angular/css/core.css' layer(ionic);
+@import '@ionic/angular/css/normalize.css' layer(ionic);
+@import '@ionic/angular/css/structure.css' layer(ionic);
+@import '@ionic/angular/css/typography.css' layer(ionic);
+@import '@ionic/angular/css/display.css' layer(ionic);
+/* Class-based Ionic palette (`.ion-palette-dark` toggled by shared ThemeService) */
+@import '@ionic/angular/css/palettes/dark.class.css' layer(ionic);
+
+/* Scan classes used by the shared UI library (src/frontend/shared) */
+@source "../../shared";
+
+:root {
+  --ion-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --erp-shell-border: #e5e5e5;
+  --erp-toolbar-bg: #ffffff;
+  --erp-toolbar-color: #171717;
+  --erp-content-bg: #f5f5f5;
+}
+
+.dark,
+.ion-palette-dark {
+  --erp-shell-border: #262626;
+  --erp-toolbar-bg: #171717;
+  --erp-toolbar-color: #f5f5f5;
+  --erp-content-bg: #0a0a0a;
+}
+
+/* Side menu: keep a clear gap between the leading icon and its label */
+ion-menu ion-item ion-icon[slot='start'] {
+  margin-inline-end: 10px;
+}
+
+/* Industrial sharp / high density tuning for Ionic shell */
+ion-header {
+  border-bottom: 1px solid var(--erp-shell-border);
+}
+
+ion-toolbar {
+  --min-height: 40px;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: calc(4px + env(safe-area-inset-left, 0px));
+  --padding-end: calc(4px + env(safe-area-inset-right, 0px));
+  --background: var(--erp-toolbar-bg);
+  --color: var(--erp-toolbar-color);
+}
+
+ion-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding-inline: 8px;
+}
+
+ion-content {
+  --background: var(--erp-content-bg);
+  /* Keep the last form field above the iOS home indicator */
+  --padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ------------------------------------------------------------------
+ * FEAT-09: mobile auth UX tuning (phone touch targets, 390px layouts)
+ * Scoped to the shared components as used by the mobile app only.
+ * ------------------------------------------------------------------ */
+app-sharp-input input,
+app-register-business select {
+  min-height: 40px;
+  font-size: 13px;
+}
+
+app-sharp-button button {
+  min-height: 40px;
+}
+
+/* Auth pages: never let the theme/language switcher row overflow */
+app-theme-switcher,
+app-language-switcher {
+  max-width: 100%;
+}
+
+@media (max-width: 400px) {
+  /* Hide the tiny caption labels to keep switchers on one compact row */
+  app-theme-switcher > div > span,
+  app-language-switcher > div > span {
+    display: none;
+  }
+}
+
+/* Compact side menu (high density ERP) */
+ion-menu {
+  --width: 280px;
+  --max-width: 85vw;
+}
+
+ion-menu ion-item {
+  --min-height: 34px;
+  --padding-start: 8px;
+  --inner-padding-end: 8px;
+  font-size: 12px;
+  --background: var(--erp-toolbar-bg);
+  --color: var(--erp-toolbar-color);
+}
+
+ion-menu ion-item.menu-item-active {
+  --background: #f0f0f0;
+  font-weight: 600;
+}
+
+.dark ion-menu ion-item.menu-item-active,
+.ion-palette-dark ion-menu ion-item.menu-item-active {
+  --background: #262626;
+}
+
+ion-menu ion-item ion-icon {
+  font-size: 16px;
+  color: #737373;
+}
+
+ion-menu ion-toolbar {
+  --border-width: 0;
+}

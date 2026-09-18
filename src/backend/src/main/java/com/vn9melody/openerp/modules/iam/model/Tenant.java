@@ -3,6 +3,7 @@ package com.vn9melody.openerp.modules.iam.model;
 import com.vn9melody.openerp.core.enums.AccountStatus;
 import com.vn9melody.openerp.core.enums.CompanySize;
 import com.vn9melody.openerp.core.enums.TenantType;
+import com.vn9melody.openerp.core.registry.RegisterEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -10,6 +11,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "tenants")
+@RegisterEntity(
+    entityName = "Tenant",
+    table = "tenants",
+    publicFields = {"id", "slug", "name", "type", "status"}
+)
 public class Tenant extends PanacheEntityBase {
     @Id
     @GeneratedValue
@@ -24,7 +30,7 @@ public class Tenant extends PanacheEntityBase {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 32)
-    public TenantType type = TenantType.ORGANIZATION;
+    public TenantType type = TenantType.BUSINESS;
 
     @Column(name = "tax_code", length = 32)
     public String taxCode;

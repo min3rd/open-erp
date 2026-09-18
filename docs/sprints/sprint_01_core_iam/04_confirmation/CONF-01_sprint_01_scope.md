@@ -61,5 +61,8 @@
   4. **Bảo mật nền tảng**: Chốt thuật toán Argon2id; bổ sung thiết kế lưu trữ tạm thời trong Redis (OTP xác thực email, pre-auth token, session, token blacklist).
   5. **Bổ sung API còn thiếu**: `POST /api/v1/auth/refresh`, `POST /api/v1/auth/logout`, `POST /api/v1/auth/resend-verification` kèm mã i18n tương ứng.
   6. **Liên kết tài liệu**: Toàn bộ liên kết trong Sprint-Pack, templates và tài liệu quản lý dự án đã được chuẩn hóa theo cấu trúc Sprint-Pack (00-09).
+  7. **Bổ sung phạm vi (yêu cầu trực tiếp khi QA, 2026-09-18)**: Tối ưu Web cho kích thước điện thoại (màn hình đăng ký/đăng nhập + dashboard không tràn ngang); gom thông tin tài khoản, menu, chuyển ngôn ngữ và chọn theme vào Drawer điều hướng mở bằng nút hamburger trên màn hình nhỏ. Theo dõi tại `07_items/FEAT-07_responsive_phone_and_mobile_nav.md`.
+  8. **Bổ sung phạm vi đợt 2 (2026-09-18)**: Áp dụng tương tự cho **Ionic Mobile** - Side Menu điều hướng chứa thông tin tài khoản/menu/ngôn ngữ/theme/đăng xuất, theme class-based Sáng/Tối/Hệ thống, toolbar gọn. Theo dõi tại `07_items/FEAT-08_ionic_mobile_menu_theme.md`.
+  9. **Bổ sung phạm vi đợt 3 (2026-09-18)**: **Tối ưu các màn hình Auth của Ionic cho kích thước điện thoại** và **đảm bảo điều hướng back/forward của Ionic mượt mà** (NavController forward/back/root, back không quay lại màn trung gian, vuốt/back Android chuẩn) - không yêu cầu copy 100% style Web. Theo dõi tại `07_items/FEAT-09_ionic_auth_ux_and_navigation.md`.
 - **Kết luận**: Tài liệu Sprint 01 **đạt yêu cầu**, chính thức cho phép chuyển sang **Bước 7 - Lập trình (Implementation)**.
 - **Đại diện khách hàng xác nhận**: Người dùng (User / Customer) — Xác nhận ngày 2026-09-18.

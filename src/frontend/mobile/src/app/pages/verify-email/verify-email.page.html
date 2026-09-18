@@ -1,0 +1,61 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'AUTH_VERIFY_EMAIL_TITLE' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="max-w-md mx-auto p-3 space-y-3">
+    <div class="flex flex-wrap items-center justify-end gap-2">
+      <app-theme-switcher />
+      <app-language-switcher />
+    </div>
+
+    @if (errorMessage()) {
+      <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    @if (statusMessage()) {
+      <div class="p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+        {{ statusMessage() }}
+      </div>
+    }
+
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 space-y-3 text-center">
+      <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
+        {{ 'AUTH_VERIFY_EMAIL_INSTRUCTION' | translate:{ email: email() } }}
+      </p>
+
+      <div class="py-2">
+        <app-pin-input
+          [disabled]="loading()"
+          (completed)="handleVerifyOtp($event)"
+          [hasError]="!!errorMessage()"
+        />
+      </div>
+
+      <div class="text-xs text-neutral-500 dark:text-neutral-400">
+        @if (resendCooldown() > 0) {
+          {{ 'AUTH_RESEND_OTP_COUNTDOWN' | translate:{ seconds: resendCooldown() } }}
+        } @else {
+          <button
+            type="button"
+            (click)="handleResend()"
+            class="text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:underline"
+          >
+            {{ 'AUTH_RESEND_OTP' | translate }}
+          </button>
+        }
+      </div>
+
+      <a routerLink="/login" class="block text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:underline">
+        ← {{ 'AUTH_BACK_TO_LOGIN' | translate }}
+      </a>
+    </div>
+  </div>
+</ion-content>

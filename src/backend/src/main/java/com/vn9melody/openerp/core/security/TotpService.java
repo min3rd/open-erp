@@ -31,28 +31,32 @@ public class TotpService {
     }
 
     public boolean verifyTotp(String secretKeyBase32, String code) {
-        if (secretKeyBase32 == null || code == null || code.length() != CODE_DIGITS) {
+        if (secretKeyBase32 == null || code == null || code.trim().length() != CODE_DIGITS) {
             return false;
         }
 
-        int targetCode;
-        try {
-            targetCode = Integer.parseInt(code.trim());
-        } catch (NumberFormatException e) {
-            return false;
-        }
-
+        String normalizedCode = code.trim();
         byte[] keyBytes = decodeBase32(secretKeyBase32);
         long currentInterval = System.currentTimeMillis() / 1000L / TIME_STEP_SECONDS;
 
         // Tolerance window: -1, 0, +1 interval (+/- 30 seconds drift tolerance)
         for (int i = -1; i <= 1; i++) {
-            int calculatedCode = calculateTotpCode(keyBytes, currentInterval + i);
-            if (calculatedCode == targetCode) {
+            String calculatedCode = String.format("%0" + CODE_DIGITS + "d", calculateTotpCode(keyBytes, currentInterval + i));
+            if (MessageDigest.isEqual(
+                    calculatedCode.getBytes(StandardCharsets.UTF_8),
+                    normalizedCode.getBytes(StandardCharsets.UTF_8))) {
                 return true;
             }
         }
         return false;
+    }
+
+    public String generateCurrentCode(String secretKeyBase32) {
+        if (secretKeyBase32 == null || secretKeyBase32.isBlank()) {
+            return null;
+        }
+        long currentInterval = System.currentTimeMillis() / 1000L / TIME_STEP_SECONDS;
+        return String.format("%0" + CODE_DIGITS + "d", calculateTotpCode(decodeBase32(secretKeyBase32), currentInterval));
     }
 
     public List<String> generateBackupCodes(int count) {
@@ -73,10 +77,17 @@ public class TotpService {
 
     public String hashBackupCode(String rawCode) {
         String normalized = rawCode.replace("-", "").trim().toUpperCase();
+        return sha256Hex(normalized);
+    }
+
+    public String sha256Hex(String input) {
+        if (input == null) {
+            throw new IllegalArgumentException("Input cannot be null");
+        }
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] digest = md.digest(normalized.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hex = new StringBuilder();
+            byte[] digest = md.digest(input.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder(digest.length * 2);
             for (byte b : digest) {
                 hex.append(String.format("%02x", b));
             }

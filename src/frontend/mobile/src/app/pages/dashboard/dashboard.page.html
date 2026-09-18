@@ -1,0 +1,46 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ 'DASHBOARD_ORGANIZATION' | translate:{ name: auth.user()?.tenant_name || 'Open-ERP' } }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="max-w-md mx-auto p-3 space-y-3">
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3">
+      <h1 class="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100">
+        {{ 'DASHBOARD_WELCOME' | translate:{ name: auth.user()?.full_name || auth.user()?.email } }}
+      </h1>
+      <div class="flex items-center gap-2 mt-1.5">
+        <app-badge [variant]="badgeInfo">{{ auth.user()?.role }}</app-badge>
+        <span class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
+          {{ auth.user()?.tenant_name }}
+        </span>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-2" [appTranslate]="'DASHBOARD_WORKSPACE_READY'"></h2>
+
+      <div class="grid grid-cols-2 gap-2">
+        @for (feature of features; track feature.code) {
+          <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-2.5 space-y-1.5">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-semibold font-mono">{{ feature.code }}</span>
+              <app-badge [variant]="badgeSuccess">{{ 'COMMON_ACTIVE' | translate }}</app-badge>
+            </div>
+            <h3 class="text-xs font-bold" [appTranslate]="feature.titleKey"></h3>
+          </div>
+        }
+      </div>
+
+      <div class="mt-3">
+        <app-sharp-button [fullWidth]="true" (clicked)="openAccount()">
+          {{ 'ACCOUNT_DRAWER_TITLE' | translate }}
+        </app-sharp-button>
+      </div>
+    </div>
+  </div>
+</ion-content>
