@@ -1,6 +1,7 @@
 export interface ApiFieldError {
   field?: string;
   code: string;
+  params?: Record<string, any>;
 }
 
 export interface ApiResponse<T = any> {
@@ -10,6 +11,18 @@ export interface ApiResponse<T = any> {
   params?: Record<string, any>;
   data: T;
   errors?: ApiFieldError[];
+}
+
+export interface PagedData<T = any> {
+  items: T[];
+  page: number;
+  size: number;
+  total_items: number;
+  total_pages: number;
+}
+
+export interface ListData<T = any> {
+  items: T[];
 }
 
 export interface ApiErrorResponse {

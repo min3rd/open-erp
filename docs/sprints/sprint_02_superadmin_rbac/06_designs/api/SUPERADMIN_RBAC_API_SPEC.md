@@ -3,24 +3,79 @@
 - **Mã Tài Liệu**: DES-02-API
 - **Phụ Trách**: Solution Architect Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Quy Chuẩn Hợp Đồng**: 100% Code-Based i18n Contract (Zero-Hardcode Message)
+- **Quy Chuẩn Hợp Đồng**: 100% Code-Based i18n Contract (Tuân thủ nghiêm ngặt 4 Khuôn Mẫu Chuẩn trong `api_standards.md`)
 - **Ngày Hoàn Thành**: 2026-09-18
 
 ---
 
-## 1. Quy Chuẩn Đóng Gói API Chung (API Response Envelope)
+## 1. Quy Chuẩn Đóng Gói API Chung (API Response Envelope Invariant)
 
-Mọi API response (thành công hoặc lỗi) bắt buộc tuân thủ cấu trúc đồng nhất:
+Toàn bộ các API trong tài liệu này bắt buộc tuân thủ 1 trong 4 khuôn mẫu chuẩn đã được quy định trong [.agents/rules/api_standards.md](../../../../.agents/rules/api_standards.md):
 
+### 1.1. Khuôn Mẫu 1: Dữ Liệu Đơn Lẻ (Single Resource)
 ```json
 {
+  "success": true,
   "code": "SUPERADMIN_TENANT_LOCKED_SUCCESS",
+  "message": "Tenant locked successfully.",
+  "params": {},
   "data": {
     "tenant_id": "e5b30000-0000-4000-a000-000000000001",
     "status": "SUSPENDED"
+  }
+}
+```
+
+### 1.2. Khuôn Mẫu 2: Danh Sách Phân Trang (Paginated List)
+```json
+{
+  "success": true,
+  "code": "PLATFORM_TENANT_LIST_SUCCESS",
+  "message": "Tenant list retrieved successfully.",
+  "params": {},
+  "data": {
+    "items": [ ... ],
+    "page": 0,
+    "size": 20,
+    "total_items": 142,
+    "total_pages": 8
+  }
+}
+```
+
+### 1.3. Khuôn Mẫu 3: Danh Sách Không Phân Trang (Non-Paginated List)
+```json
+{
+  "success": true,
+  "code": "ORGANIZATION_BRANCH_LIST_SUCCESS",
+  "message": "Branch list retrieved successfully.",
+  "params": {},
+  "data": {
+    "items": [ ... ]
+  }
+}
+```
+
+### 1.4. Khuôn Mẫu 4: Phản Hồi Lỗi Chuẩn Hóa (Error Response)
+```json
+{
+  "success": false,
+  "code": "ORGANIZATION_REPORTING_CYCLE_DETECTED",
+  "message": "A circular reporting loop was detected in the management hierarchy.",
+  "params": {
+    "employee_id": "user-nv-uuid",
+    "proposed_manager_id": "user-manager-uuid"
   },
-  "errors": null,
-  "timestamp": "2026-09-18T10:00:00Z"
+  "errors": [
+    {
+      "field": "direct_manager_user_id",
+      "code": "VALIDATION_MANAGEMENT_CYCLE_FORBIDDEN",
+      "params": {
+        "cycle_with": "user-manager-uuid"
+      }
+    }
+  ],
+  "timestamp": "2026-09-18T10:30:00Z"
 }
 ```
 
@@ -76,13 +131,16 @@ export enum PlatformAction {
 
 *Tất cả các API trong nhóm này yêu cầu Header: `Authorization: Bearer <token>` có claim `platform_role: "SUPER_ADMIN"`*.
 
-### 3.1. Danh Sách & Tìm Kiếm Tenant
+### 3.1. Danh Sách & Tìm Kiếm Tenant (Khuôn Mẫu 2: Paginated List)
 - **Endpoint**: `GET /api/v1/platform/tenants`
 - **Query Params**: `page` (default 0), `size` (default 20), `status` (ACTIVE, SUSPENDED, TRIAL), `keyword` (search slug, name, tax_code).
 - **Phản Hồi Thành Công (200 OK)**:
 ```json
 {
+  "success": true,
   "code": "PLATFORM_TENANT_LIST_SUCCESS",
+  "message": "Tenant list retrieved successfully.",
+  "params": {},
   "data": {
     "items": [
       {
@@ -103,13 +161,13 @@ export enum PlatformAction {
     ],
     "page": 0,
     "size": 20,
-    "total_elements": 1,
+    "total_items": 1,
     "total_pages": 1
   }
 }
 ```
 
-### 3.2. Cập Nhật Hạn Mức Tenant (Quotas & Limits)
+### 3.2. Cập Nhật Hạn Mức Tenant (Khuôn Mẫu 1: Single Resource)
 - **Endpoint**: `PUT /api/v1/platform/tenants/{tenant_id}/quotas`
 - **Request Body**:
 ```json
@@ -123,7 +181,10 @@ export enum PlatformAction {
 - **Phản Hồi Thành Công (200 OK)**:
 ```json
 {
+  "success": true,
   "code": "PLATFORM_TENANT_QUOTA_UPDATED",
+  "message": "Tenant quota updated successfully.",
+  "params": {},
   "data": {
     "tenant_id": "e5b30000-0000-4000-a000-000000000001",
     "plan_tier": "ENTERPRISE",
@@ -133,7 +194,7 @@ export enum PlatformAction {
 }
 ```
 
-### 3.3. Khóa Khẩn Cấp / Mở Khóa Tenant
+### 3.3. Khóa Khẩn Cấp / Mở Khóa Tenant (Khuôn Mẫu 1: Single Resource)
 - **Endpoint**: `POST /api/v1/platform/tenants/{tenant_id}/lock`
 - **Request Body**:
 ```json
@@ -146,7 +207,10 @@ export enum PlatformAction {
 - **Phản Hồi Thành Công (200 OK)**:
 ```json
 {
+  "success": true,
   "code": "PLATFORM_TENANT_LOCK_SUCCESS",
+  "message": "Tenant status updated successfully.",
+  "params": {},
   "data": {
     "tenant_id": "e5b30000-0000-4000-a000-000000000001",
     "status": "SUSPENDED",
@@ -156,7 +220,7 @@ export enum PlatformAction {
 }
 ```
 
-### 3.4. Khởi Tạo Phiên Truy Cập Đại Diện (Support Impersonation)
+### 3.4. Khởi Tạo Phiên Truy Cập Đại Diện (Khuôn Mẫu 1: Single Resource)
 - **Endpoint**: `POST /api/v1/platform/tenants/{tenant_id}/impersonate`
 - **Request Body**:
 ```json
@@ -169,7 +233,10 @@ export enum PlatformAction {
 - **Phản Hồi Thành Công (200 OK)**:
 ```json
 {
+  "success": true,
   "code": "PLATFORM_IMPERSONATION_STARTED",
+  "message": "Impersonation session started successfully.",
+  "params": {},
   "data": {
     "impersonation_token": "eyJhbGciOiJSUzI1NiIs...",
     "expires_in_seconds": 1800,
@@ -180,25 +247,29 @@ export enum PlatformAction {
 }
 ```
 
-### 3.5. Kết Thúc Phiên Đại Diện (Exit Impersonation)
+### 3.5. Kết Thúc Phiên Đại Diện (Khuôn Mẫu 1: Single Resource - Data Null)
 - **Endpoint**: `POST /api/v1/platform/impersonate/exit`
 - **Header**: `Authorization: Bearer <impersonation_token>`
 - **Phản Hồi Thành Công (200 OK)**:
 ```json
 {
+  "success": true,
   "code": "PLATFORM_IMPERSONATION_ENDED",
-  "data": {
-    "status": "SUCCESS"
-  }
+  "message": "Impersonation session ended successfully.",
+  "params": {},
+  "data": null
 }
 ```
 
-### 3.6. Giám Sát Sức Khỏe Hạ Tầng (System Health & Metrics)
+### 3.6. Giám Sát Sức Khỏe Hạ Tầng (Khuôn Mẫu 1: Single Resource)
 - **Endpoint**: `GET /api/v1/platform/health`
 - **Phản Hồi Thành Công (200 OK)**:
 ```json
 {
+  "success": true,
   "code": "PLATFORM_HEALTH_CHECK_SUCCESS",
+  "message": "Infrastructure health check retrieved successfully.",
+  "params": {},
   "data": {
     "system_status": "HEALTHY",
     "database": {
@@ -229,13 +300,16 @@ export enum PlatformAction {
 }
 ```
 
-### 3.7. Nhật Ký Kiểm Toán Nền Tảng (Audit Trail)
+### 3.7. Nhật Ký Kiểm Toán Nền Tảng (Khuôn Mẫu 2: Paginated List)
 - **Endpoint**: `GET /api/v1/platform/audit-logs`
 - **Query Params**: `page`, `size`, `action`, `tenant_id`, `from_date`, `to_date`.
 - **Phản Hồi Thành Công (200 OK)**:
 ```json
 {
+  "success": true,
   "code": "PLATFORM_AUDIT_LOG_LIST_SUCCESS",
+  "message": "Audit logs retrieved successfully.",
+  "params": {},
   "data": {
     "items": [
       {
@@ -256,7 +330,8 @@ export enum PlatformAction {
     ],
     "page": 0,
     "size": 20,
-    "total_elements": 1
+    "total_items": 1,
+    "total_pages": 1
   }
 }
 ```
@@ -267,14 +342,61 @@ export enum PlatformAction {
 
 *Tất cả API nhóm này yêu cầu Context Tenant của người dùng*.
 
-### 4.1. Quản Lý Chi Nhánh (Branches)
+### 4.1. Quản Lý Chi Nhánh (Khuôn Mẫu 3: Non-Paginated List & Khuôn Mẫu 1: Single Resource)
 - `GET /api/v1/organization/branches`: Lấy danh sách chi nhánh.
+  - **Phản hồi (200 OK)**:
+    ```json
+    {
+      "success": true,
+      "code": "ORGANIZATION_BRANCH_LIST_SUCCESS",
+      "message": "Branches retrieved successfully.",
+      "params": {},
+      "data": {
+        "items": [
+          {
+            "id": "br-hn-uuid",
+            "code": "BR-HN",
+            "name": "Chi nhánh Hà Nội",
+            "phone": "0243123456",
+            "status": "ACTIVE"
+          }
+        ]
+      }
+    }
+    ```
 - `POST /api/v1/organization/branches`: Tạo chi nhánh mới.
   - Body: `{ "code": "BR-HN", "name": "Chi nhánh Hà Nội", "phone": "0243123456", "address": "Hà Nội" }`
+  - **Phản hồi (200 OK)**: Khuôn Mẫu 1 (Single Resource) trả về `{ "success": true, "code": "ORGANIZATION_BRANCH_CREATED_SUCCESS", "message": "Branch created successfully.", "params": {}, "data": { ... } }`.
 - `PUT /api/v1/organization/branches/{id}`: Cập nhật chi nhánh.
 
-### 4.2. Quản Lý Cây Phòng Ban (Department Tree)
-- `GET /api/v1/organization/departments/tree`: Lấy toàn bộ cây phòng ban (Nested tree JSON).
+### 4.2. Quản Lý Cây Phòng Ban (Khuôn Mẫu 3: Non-Paginated List)
+- `GET /api/v1/organization/departments/tree`: Lấy toàn bộ cây phòng ban (Nested tree).
+  - **Phản hồi (200 OK)**:
+    ```json
+    {
+      "success": true,
+      "code": "ORGANIZATION_DEPARTMENT_TREE_SUCCESS",
+      "message": "Department hierarchy retrieved successfully.",
+      "params": {},
+      "data": {
+        "items": [
+          {
+            "id": "dept-kd-root-uuid",
+            "code": "KD",
+            "name": "Khối Kinh Doanh",
+            "children": [
+              {
+                "id": "dept-kd-b2b-uuid",
+                "code": "KD-B2B",
+                "name": "Phòng Kinh Doanh Dự Án B2B",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    }
+    ```
 - `POST /api/v1/organization/departments`: Tạo phòng ban mới.
   - Body:
     ```json
@@ -301,17 +423,26 @@ export enum PlatformAction {
       "is_primary": true
     }
     ```
-- **Xử lý lỗi phát hiện vòng lặp (400 Bad Request)**:
+- **Xử lý lỗi phát hiện vòng lặp (Khuôn Mẫu 4: Error Response - 400 Bad Request)**:
 ```json
 {
+  "success": false,
   "code": "ORGANIZATION_REPORTING_CYCLE_DETECTED",
-  "data": null,
+  "message": "A circular reporting loop was detected in the management hierarchy.",
+  "params": {
+    "employee_id": "user-nv-uuid",
+    "proposed_manager_id": "user-manager-uuid"
+  },
   "errors": [
     {
       "field": "direct_manager_user_id",
-      "message": "Không thể gán quản lý trực tiếp vì tạo thành chu trình vòng lặp báo cáo"
+      "code": "VALIDATION_MANAGEMENT_CYCLE_FORBIDDEN",
+      "params": {
+        "cycle_with": "user-manager-uuid"
+      }
     }
-  ]
+  ],
+  "timestamp": "2026-09-18T10:30:00Z"
 }
 ```
 
@@ -319,12 +450,15 @@ export enum PlatformAction {
 
 ## 5. Nhóm API Phân Quyền Chức Năng & Dữ Liệu (`/api/v1/iam/*`)
 
-### 5.1. Danh Mục Quyền Hệ Thống
+### 5.1. Danh Mục Quyền Hệ Thống (Khuôn Mẫu 3: Non-Paginated List)
 - **Endpoint**: `GET /api/v1/iam/permissions`
 - **Phản Hồi (200 OK)**:
 ```json
 {
+  "success": true,
   "code": "IAM_PERMISSION_LIST_SUCCESS",
+  "message": "Permission list retrieved successfully.",
+  "params": {},
   "data": {
     "items": [
       {
@@ -348,14 +482,42 @@ export enum PlatformAction {
 }
 ```
 
-### 5.2. Quản Lý Vai Trò (Roles)
+### 5.2. Quản Lý Vai Trò (Roles - Khuôn Mẫu 3 & 1)
 - `GET /api/v1/iam/roles`: Danh sách vai trò trong Tenant (kèm số user gán và cờ `is_system`).
+  - **Phản hồi (200 OK)**:
+    ```json
+    {
+      "success": true,
+      "code": "IAM_ROLE_LIST_SUCCESS",
+      "message": "Role list retrieved successfully.",
+      "params": {},
+      "data": {
+        "items": [
+          {
+            "id": "role-uuid-1",
+            "code": "TENANT_OWNER",
+            "name": "Chủ Sở Hữu Doanh Nghiệp",
+            "is_system": true,
+            "assigned_users_count": 1
+          },
+          {
+            "id": "role-uuid-2",
+            "code": "SALES_LEAD",
+            "name": "Trưởng Nhóm Kinh Doanh",
+            "is_system": false,
+            "assigned_users_count": 4
+          }
+        ]
+      }
+    }
+    ```
 - `POST /api/v1/iam/roles`: Tạo vai trò tùy biến mới.
   - Body: `{ "code": "SALES_LEAD", "name": "Trưởng Nhóm Kinh Doanh", "description": "Quản lý doanh số tổ" }`
+  - Phản hồi: Khuôn Mẫu 1 (Single Resource).
 - `PUT /api/v1/iam/roles/{id}`: Cập nhật tên/mô tả vai trò.
 - `DELETE /api/v1/iam/roles/{id}`: Xóa vai trò (chặn nếu còn user).
 
-### 5.3. Gán Quyền Chức Năng Cho Vai Trò (Role Permissions)
+### 5.3. Gán Quyền Chức Năng Cho Vai Trò (Khuôn Mẫu 1: Single Resource)
 - **Endpoint**: `PUT /api/v1/iam/roles/{role_id}/permissions`
 - **Request Body**:
 ```json
@@ -366,7 +528,10 @@ export enum PlatformAction {
 - **Phản Hồi Thành Công (200 OK)**:
 ```json
 {
+  "success": true,
   "code": "IAM_ROLE_PERMISSIONS_UPDATED",
+  "message": "Role permissions updated successfully.",
+  "params": {},
   "data": {
     "role_id": "role-uuid",
     "total_permissions_granted": 4
@@ -374,16 +539,19 @@ export enum PlatformAction {
 }
 ```
 
-### 5.4. Cấu Hình Ma Trận Quyền Dữ Liệu (Role Data Policies)
+### 5.4. Cấu Hình Ma Trận Quyền Dữ Liệu (Role Data Policies - Khuôn Mẫu 3: Non-Paginated List)
 - **Endpoint**: `GET /api/v1/iam/roles/{role_id}/data-policies`
 - **Phản Hồi (200 OK)**:
 ```json
 {
+  "success": true,
   "code": "IAM_ROLE_DATA_POLICIES_SUCCESS",
+  "message": "Role data policies retrieved successfully.",
+  "params": {},
   "data": {
-    "role_id": "role-uuid",
-    "policies": [
+    "items": [
       {
+        "role_id": "role-uuid",
         "resource": "SALE_ORDER",
         "create_scope": "BRANCH",
         "read_scope": "OWN_AND_SUBORDINATES",
@@ -393,6 +561,7 @@ export enum PlatformAction {
         "share_scope": "DEPARTMENT"
       },
       {
+        "role_id": "role-uuid",
         "resource": "CUSTOMER",
         "create_scope": "BRANCH",
         "read_scope": "BRANCH",
@@ -423,10 +592,13 @@ export enum PlatformAction {
   ]
 }
 ```
-- **Phản Hồi (200 OK)**:
+- **Phản Hồi (200 OK)**: Khuôn Mẫu 1 (Single Resource)
 ```json
 {
+  "success": true,
   "code": "IAM_ROLE_DATA_POLICIES_UPDATED",
+  "message": "Role data policies updated successfully.",
+  "params": {},
   "data": {
     "role_id": "role-uuid",
     "updated_count": 1
@@ -434,7 +606,7 @@ export enum PlatformAction {
 }
 ```
 
-### 5.5. Gán Vai Trò Cho Người Dùng (Assign User Roles)
+### 5.5. Gán Vai Trò Cho Người Dùng (Khuôn Mẫu 1: Single Resource)
 - **Endpoint**: `POST /api/v1/iam/users/{user_id}/roles`
 - **Request Body**:
 ```json
@@ -445,7 +617,10 @@ export enum PlatformAction {
 - **Phản Hồi (200 OK)**:
 ```json
 {
+  "success": true,
   "code": "IAM_USER_ROLES_ASSIGNED",
+  "message": "User roles assigned successfully.",
+  "params": {},
   "data": {
     "user_id": "user-uuid",
     "assigned_roles_count": 2

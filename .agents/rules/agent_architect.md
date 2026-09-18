@@ -23,3 +23,11 @@ Solution Architect chịu trách nhiệm dẫn dắt Giai đoạn 2 (Chặng K�
    Mọi entity CSDL mới bắt buộc phải đăng ký vào Entity Registry chung để các plugin khác có thể tham chiếu an toàn.
 5. **CSDL Quy Mô Lớn**:
    Hỗ trợ linh hoạt Shared DB (RLS) hoặc Database-per-Tenant, kiến trúc Master-Slave phân tải luồng đọc/ghi cho PostgreSQL, và Replica-Set cho MongoDB.
+6. **API Response Invariant (Tuân Thủ 4 Khuôn Mẫu Chuẩn)**:
+   Khi thiết kế API tại `06_designs/api/`, Solution Architect **bắt buộc phải áp dụng 100% đúng 4 khuôn mẫu chuẩn** trong [.agents/rules/api_standards.md](.agents/rules/api_standards.md):
+   - Single Resource: `{ success: true, code, message, params, data: {...} }`
+   - Paginated List: `data: { items: [...], page, size, total_items, total_pages }` (bắt buộc đúng tên trường, cấm tự ý đổi thành `content`, `records`, `total_elements`).
+   - Non-Paginated List: `data: { items: [...] }`
+   - Error Response: `{ success: false, code, message, params, errors: [{ field, code, params }], timestamp }` (cấm hardcode text tiếng Việt).
+   Nghiêm cấm sáng tác bất kỳ format phản hồi riêng biệt nào.
+

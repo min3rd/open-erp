@@ -2,6 +2,7 @@ package com.vn9melody.openerp.core.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -29,6 +30,14 @@ public class ApiResponse<T> {
 
     public static <T> ApiResponse<T> success(String code, String message, Map<String, Object> params, T data) {
         return new ApiResponse<>(true, code, message, params, data);
+    }
+
+    public static <T> ApiResponse<PagedData<T>> successPaged(String code, String message, List<T> items, int page, int size, long totalItems) {
+        return new ApiResponse<>(true, code, message, new HashMap<>(), PagedData.of(items, page, size, totalItems));
+    }
+
+    public static <T> ApiResponse<ListData<T>> successList(String code, String message, List<T> items) {
+        return new ApiResponse<>(true, code, message, new HashMap<>(), ListData.of(items));
     }
 
     public boolean isSuccess() {

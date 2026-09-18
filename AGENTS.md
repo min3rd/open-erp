@@ -87,9 +87,14 @@ Mỗi Sprint được đóng gói trọn gói trong `docs/sprints/sprint_XX_<tê
   - Mọi liên kết URL gửi email (xác thực email, đặt lại mật khẩu, lời mời tenant...) phải được nạp động từ cấu hình Quarkus `@ConfigProperty(name = "openerp.frontend.url", defaultValue = "https://openerp.9ms.io.vn")`.
 - **Chuẩn Hóa Java Enums Backend Đồng Bộ Với Frontend (Type-Safe Domain Enums)**:
   - Toàn bộ các giá trị phân loại (Roles, Tenant Types, Company Sizes, Account Statuses, Two-Factor Methods) trong DTO, Entity, Service của Backend Java bắt buộc phải khai báo dưới dạng Java `Enum`, đồng bộ 1-1 với TypeScript Enums của Frontend.
-- **Chuẩn Mực API Contract Đa Ngôn Ngữ (Code-Based i18n API Contract)**:
+- **Chuẩn Mực API Contract Đa Ngôn Ngữ & 4 Khuôn Mẫu Phản Hồi Bắt Buộc (Zero-Ad-Hoc Response Invariant)**:
   - Mọi phản hồi API (thành công lẫn thất bại) **bắt buộc phải trả về thuộc tính `code` dạng hằng số `UPPER_SNAKE_CASE`** (ví dụ: `AUTH_REGISTER_SUCCESS`, `AUTH_EMAIL_ALREADY_EXISTS`, `AUTH_INVALID_CREDENTIALS`).
-  - **Tuyệt đối không hardcode message văn bản địa phương/tiếng Việt trong API contract** làm nguồn hiển thị duy nhất cho người dùng.
+  - **Bắt buộc 100% API tuân thủ đúng 4 Khuôn Mẫu Phản Hồi Chuẩn** trong [.agents/rules/api_standards.md](.agents/rules/api_standards.md):
+    1. *Single Resource*: `{ success: true, code, message, params, data: {...} }`
+    2. *Paginated List*: `data: { items: [...], page, size, total_items, total_pages }` (bắt buộc dùng đúng tên `items` và `total_items`, cấm tự ý đổi thành `content`, `records`, `total_elements`).
+    3. *Non-Paginated List*: `data: { items: [...] }` (luôn bọc trong object `items` để đồng bộ Frontend).
+    4. *Error Response*: `{ success: false, code, message, params, errors: [{ field, code, params }], timestamp }`.
+  - **Tuyệt đối không hardcode message văn bản địa phương/tiếng Việt trong API contract** làm nguồn hiển thị duy nhất cho người dùng; cấm nhét message tiếng Việt vào mảng `errors`.
   - Frontend (Angular/Ionic) tự quản lý từ điển đa ngôn ngữ (`i18n/{lang}.json`) dựa trên `code` và `params` nhận từ API để hiển thị ngôn ngữ người dùng mà hoàn toàn không cần can thiệp backend.
 - **Chuẩn Hóa ResponseKey Enum (Zero-Hardcode Payload Keys)**:
   - Mọi key trong `data` map của Backend hoặc DTO payload của Frontend bắt buộc phải dùng enum `ResponseKey` (ví dụ: `ResponseKey.TENANT_ID.getKey()`, `ResponseKey.USER_ID.getKey()`).
@@ -128,3 +133,4 @@ Mỗi Sprint được đóng gói trọn gói trong `docs/sprints/sprint_XX_<tê
 > 19. Viết trực tiếp mã markup lặp lại cho các thành phần giao diện dùng chung (như bộ chọn ngôn ngữ, topbar) thay vì đóng gói component dùng chung.
 > 20. Hardcode chuỗi string literals tự do cho các key trong response data payload thay vì sử dụng Java/TypeScript enum `ResponseKey`.
 > 21. Viết service backend trả về Map<String, Object> tự do cho dữ liệu nghiệp vụ thay vì định nghĩa class DTO cố định.
+> 22. Tự ý định nghĩa hoặc trả về API response có cấu trúc riêng (thiếu success, đổi tên items/page/size/total_items, hoặc nhét message tiếng Việt vào error) sai lệch với 4 khuôn mẫu chuẩn trong [.agents/rules/api_standards.md](.agents/rules/api_standards.md).
