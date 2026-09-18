@@ -8,9 +8,18 @@ QA/QC Agent chịu trách nhiệm kiểm thử và đảm bảo chất lượng 
 2. **Kiểm Thử Backend**:
    - Chạy và kiểm tra toàn bộ Unit Test & Integration Test của Quarkus Java (`mvn test`).
    - Kiểm tra tính cô lập dữ liệu đa Tenant (Tenant Data Isolation), không có rò rỉ dữ liệu chéo.
-3. **Kiểm Thử Frontend Thực Tế Bằng Trình Duyệt (Browser Manual Testing)**:
-   - **BẮT BUỘC**: Kiểm thử trực tiếp trên Web Browser đối với Web và thiết bị/mô phỏng đối với Ionic.
-   - Kiểm tra trực quan: Bố cục UI mật độ cao (High density), độ sắc nét vuông vắn (Sharp), sự mượt mà của Drawer (Anti-modal), responsive layout, và không có lỗi Console/Network.
+3. **Kiểm Thử Frontend Thực Tế Bằng Trình Duyệt Hai Chế Độ (Dual-Mode Browser Testing)**:
+   - **Bản Web (Desktop Viewport)**:
+     - QA/QC Agent tự động manual test trực tiếp trên Web Browser ở độ phân giải Desktop (≥ 1280px).
+     - Kiểm tra bố cục mật độ cao (`text-xs`, viền mỏng sắc nét `rounded-none`), cơ chế Anti-Modal (Drawer trượt xếp tầng, phím Escape), Theme Sáng/Tối/Hệ thống, i18n (`vi`/`en`), form validation và thông báo lỗi API.
+   - **Bản Mobile Ionic (Mobile / Responsive Emulation)**:
+     - Sử dụng trình duyệt Web và **bắt buộc kích hoạt chế độ Mobile / Responsive Device Emulation** (viewport chuẩn điện thoại: **390x844 px** hoặc **375x812 px**, touch events).
+     - **Không tràn ngang (Zero Horizontal Overflow)**: `document.documentElement.scrollWidth <= window.innerWidth` trên 100% các màn hình.
+     - **Vùng chạm ngón tay (Touch Target)**: Mọi nút bấm, ô nhập liệu, biểu tượng thao tác phải đạt kích thước tối thiểu **≥ 40px**.
+     - **Safe-area Insets**: Đảm bảo khoảng đệm trên/dưới bảo vệ nội dung khỏi tai thỏ, dynamic island và thanh điều hướng ảo.
+     - **Side Menu & Điều hướng**: Nút menu mở `ion-menu` mượt mà, tự đóng khi chọn mục; điều hướng `NavController` (forward/back/root) giữ đúng lịch sử và không giật trang.
+   - **Ràng Buộc Zero Console Errors**: 100% các màn hình kiểm thử không được có lỗi JavaScript console (`console.error`).
+   - **Phương Thức Tự Động Hóa**: Sử dụng Browser Subagent, Chrome DevTools hoặc script tự động (Puppeteer/Playwright headless/browser) để duyệt qua toàn bộ kịch bản nghiệm thu và chụp ảnh minh chứng cho báo cáo kiểm thử cùng Hướng dẫn sử dụng (`docs/06_user_guides/`).
 4. **Quản Lý Lỗi (Bug Reporting)**:
    - Khi phát hiện lỗi, tạo ngay file `07_items/BUG-xxx_<tên_lỗi>.md` có ID, mức độ ưu tiên (`Critical`, `High`, `Medium`, `Low`), các bước tái hiện (Steps to Reproduce), kết quả mong muốn vs thực tế, và gán cho Developer Agent sửa lỗi.
 5. **Tổng Kết Báo Cáo Kiểm Thử**:

@@ -23,7 +23,7 @@ Toàn bộ tài liệu của một Sprint được đóng gói trọn gói trong
 | **05**| **Nghiên cứu giải pháp** | **Solution Architect** | Yêu cầu đã khách hàng duyệt | `05_solutions/SOL-XX_...md` |
 | **06**| **Thiết kế giải pháp chi tiết** | **Solution Architect** | Nghiên cứu giải pháp bước 5 | `06_designs/` (`database/`, `api/`, `ui_ux/`) |
 | **07**| **Phân rã nhiệm vụ & Code** | **Developer Agent** | Thiết kế chi tiết bước 6 | `07_items/` (`FEAT-`, `TASK-`, `BUG-`) & `src/` |
-| **08**| **Kiểm thử chất lượng** | **QA/QC Agent** | Tiêu chí nghiệm thu & Code | `08_testing/` (`test_plan.md`, `test_reports/`) |
+| **08**| **Kiểm thử chất lượng** | **QA/QC Agent** | Tiêu chí nghiệm thu & Code | `08_testing/` (`test_plan.md`, `test_reports/`) *(Dual-Mode Browser Test: Web Desktop & Mobile Responsive)* |
 | **09**| **Nghiệm thu & Đóng Sprint** | **PM Agent** | Báo cáo QA & Kiểm tra DoD | `09_review/` (`sprint_review.md`) |
 
 ---
@@ -38,6 +38,6 @@ Toàn bộ tài liệu của một Sprint được đóng gói trọn gói trong
 - **Tiêu chuẩn file điều hướng `00_READING_GUIDE.md`**:
   Mỗi Sprint bắt buộc có file `00_READING_GUIDE.md` tại gốc thư mục Sprint. File này chia 3 chặng đọc rõ ràng và là cổng giao tiếp duy nhất giữa Agent và Khách hàng/Reviewer.
 - **Điều kiện đóng Sprint (Sprint Closure DoD Gate)**:
-  1. **100% item mức `Critical` và `High` phải được xử lý xong (`Done`)** và được QA kiểm thử đạt chuẩn.
+  1. **100% item mức `Critical` và `High` phải được xử lý xong (`Done`)** và được QA kiểm thử đạt chuẩn (bao gồm 100% test backend pass và dual-mode browser manual test pass cho Web Desktop và Mobile Responsive Ionic).
   2. Tuyệt đối KHÔNG ĐƯỢC ĐÓNG SPRINT khi còn tồn đọng bất kỳ lỗi hoặc task nào lớn hơn mức `Medium`.
   3. Phải lập biên bản nghiệm thu tại `09_review/sprint_review.md`.

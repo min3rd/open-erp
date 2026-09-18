@@ -118,10 +118,11 @@ sequenceDiagram
 - **Hành động**:
   1. Lập Test Plan & Test Matrix (`08_testing/test_plan.md`).
   2. Viết các kịch bản kiểm thử chi tiết (Happy path, Negative path, Edge cases) (`08_testing/test_cases/`).
-  3. **Kiểm thử Frontend thực tế bằng Trình duyệt (Browser Manual Testing)**:
-     - QA/QC bắt buộc kiểm thử trực tiếp trên Web Browser đối với Web và thiết bị/mô phỏng đối với Ionic.
-     - Kiểm tra trực quan: Layout nhỏ gọn (dense/compact), viền vuông vắn sắc nét, luồng Drawer trượt mượt mà, tính đáp ứng (responsive) và không có console error.
-  4. **Kiểm thử Backend**: Chạy bộ Automated Tests (JUnit 5 / RestAssured) của Quarkus Java.
+  3. **Kiểm thử Frontend thực tế bằng Trình duyệt Hai Chế Độ (Dual-Mode Browser Testing)**:
+     - **Web Desktop Testing**: Mở Web Browser ở độ phân giải Desktop (≥ 1280px). Kiểm tra mật độ thông tin cao (`text-xs`), drawer trượt xếp tầng (Anti-Modal), chuyển đổi theme Sáng/Tối/Hệ thống, i18n, form validation và 0 console error.
+     - **Mobile Ionic Testing**: Sử dụng Web Browser và **bắt buộc kích hoạt chế độ Mobile / Responsive Device Emulation** (viewport chuẩn điện thoại `390x844 px` hoặc tương đương, touch events). Kiểm tra tuyệt đối **không tràn ngang (`overflow-x = 0`)**, touch targets tối thiểu **≥ 40px**, safe-area padding cho tai thỏ/dynamic island, menu di động `ion-menu`, điều hướng `NavController` (forward/back/root) mượt mà và 0 console error.
+     - **Tự động hóa**: Sử dụng Browser Subagent, Chrome DevTools hoặc script tự động (Puppeteer/Playwright) để duyệt qua các luồng nghiệp vụ và chụp ảnh minh chứng cho Báo cáo kiểm thử và Hướng dẫn sử dụng (`docs/06_user_guides/`).
+  4. **Kiểm thử Backend**: Chạy bộ Automated Tests (JUnit 5 / RestAssured) của Quarkus Java trên CSDL PostgreSQL và Redis thật (CẤM dùng H2).
   5. Tổng hợp báo cáo kiểm thử và log lỗi nếu có (`08_testing/test_reports/`).
   6. Đánh dấu Pass/Fail cho tính năng.
 

@@ -68,7 +68,10 @@ Mỗi Sprint được đóng gói trọn gói trong `docs/sprints/sprint_XX_<tê
   - **Backend**: Bắt buộc viết Unit Test (JUnit 5 + RestAssured) cho các logic nghiệp vụ, tính toán dữ liệu, và phân quyền Tenant trong Quarkus Java.
   - **CẤM SỬ DỤNG H2 / In-Memory Mock DB**: Môi trường dev local luôn có sẵn PostgreSQL và Redis qua `make infra`. Mọi Unit/Integration Test phải kết nối và thực thi trực tiếp trên PostgreSQL và Redis thật nhằm đảm bảo tính đồng nhất 100% với môi trường Staging/Production.
   - **Frontend**: **TUYỆT ĐỐI KHÔNG viết Unit Test / Component Test** cho Angular/Ionic (không viết file `.spec.ts`, tránh lãng phí tài nguyên và chi phí bảo trì vô ích khi phát triển cùng AI).
-  - **QA/QC Frontend**: Bắt buộc thực hiện **Kiểm thử thủ công trên Trình duyệt (Browser Manual Testing)** để kiểm tra tính toàn vẹn giao diện, luồng tương tác, độ mượt của Drawer và responsive.
+  - **QA/QC Frontend Bắt Buộc Kiểm Thử Trình Duyệt Hai Chế Độ (Dual-Mode Browser Testing)**:
+    - **Bản Web**: Tự động manual test trực tiếp trên Web Browser ở độ phân giải Desktop (≥ 1280px), kiểm tra tính toàn vẹn bố cục, tương tác Drawer trượt xếp tầng, form mật độ cao và theme sáng/tối.
+    - **Bản Mobile Ionic**: Sử dụng Trình duyệt Web và **bắt buộc bật chế độ Mobile / Responsive Device Emulation** (viewport chuẩn điện thoại 390x844 px), kiểm tra tuyệt đối không tràn ngang (overflow = 0), touch target ≥ 40px, safe-area padding, menu di động và điều hướng.
+    - Cả hai nền tảng phải đảm bảo **0 lỗi Console (`console.error`)** và ghi lại ảnh chụp minh chứng cho tài liệu nghiệm thu.
 - **Quy Chuẩn UI/UX ERP Nhỏ Gọn, Vuông Vắn & Anti-Modal**:
   - **Mật độ thông tin cao (High Density)**: Sử dụng font chữ nhỏ (`text-xs`: 12px, `text-sm`: 13px), khoảng cách đệm và lề tối thiểu (`p-1`, `p-2`, `gap-1`, `space-y-1.5`) nhằm hiển thị nhiều thông tin nhất trên một màn hình, giảm thao tác cuộn trang.
   - **Thiết kế vuông vắn (Sharp/Square Aesthetic)**: Đường viền sắc nét, góc vuông hoặc bo góc siêu nhỏ (`rounded-none` hoặc `rounded-sm`), viền mỏng tinh tế (`border-neutral-200 dark:border-neutral-800`), mang lại phong cách ERP công nghiệp hiện đại, tinh gọn.
