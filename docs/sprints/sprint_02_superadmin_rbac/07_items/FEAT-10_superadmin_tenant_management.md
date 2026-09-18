@@ -2,10 +2,11 @@
 
 - **Mã Tính Năng**: FEAT-10
 - **Phân Loại**: Feature
-- **Mức Độ Ưu Tiên**: [x] High
+- **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Đề Xuất**: Khách hàng / BA Agent
+- **Người Phụ Trách**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [ ] To Do
+- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +31,11 @@
 - [ ] **TASK-203**: Viết Unit/Integration Test Quarkus cho logic khóa tenant và kiểm tra chặn quyền người dùng khi tenant bị suspended.
 - [ ] **TASK-204**: Xây dựng màn hình danh sách Tenant trên Angular Web (`/platform/tenants`) với thiết kế Industrial Sharp, bảng mật độ cao và `TenantQuotaDrawer` trượt cạnh phải.
 - [ ] **TASK-205**: Tích hợp danh sách thẻ Tenant và thao tác khóa nhanh trên ứng dụng Ionic Mobile.
+- [ ] (xem thêm item: BUG-53, TASK-269, TASK-270, BUG-68, TASK-272, TASK-277).
+
+---
+
+## 4. Xác Nhận Hoàn Tất (QA Verification)
+- [ ] Developer đã hoàn thành mã nguồn theo thiết kế.
+- [ ] QA đã kiểm thử và xác nhận đạt Acceptance Criteria.
+- [ ] Không gây lỗi phát sinh (Regression test pass).

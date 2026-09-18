@@ -28,6 +28,9 @@ Thiết lập tầng quản trị vận hành tối cao của nền tảng SaaS 
 | **FEAT-14** | Ma trận Phân quyền chức năng | Danh mục quyền `domain:resource:action`, quản lý vai trò mặc định/tùy biến, gán vai trò người dùng | High | Dev Backend, Web & Mobile |
 | **FEAT-15** | Phân quyền dữ liệu đa phạm vi & 6 thao tác | Ma trận dữ liệu theo 7 Scopes (All, Branch, Dept, Subordinates, Own...) và 6 thao tác (CRUD, Export, Share) | Critical | Dev Backend & Web |
 | **FEAT-16** | Engine thực thi phân quyền dữ liệu tự động | Hibernate Filter / JPA Specification Interceptor tự động tiêm điều kiện SQL bảo mật chống rò rỉ | Critical | Dev Backend (Quarkus) |
+| **FEAT-17** | Thực thể tham chiếu Core cho Data Permission Engine | Bảng core_sample_records + API demo/kiểm chứng 7 scopes & 6 operations | High | Dev Backend |
+
+> **Quy ước sub-task**: `TASK-201..266` là sub-task inline trong từng file FEAT; `TASK-267..290` là task phát sinh có file riêng. Không nhảy cóc mã giữa các sprint (Sprint 01: 101–149).
 
 ---
 
@@ -45,11 +48,13 @@ Thiết lập tầng quản trị vận hành tối cao của nền tảng SaaS 
    - Bố cục ma trận phân quyền sử dụng thiết kế **Split-Screen** 3 cột: Cột 1 (Vai trò) $\rightarrow$ Cột 2 (Quyền chức năng) $\rightarrow$ Cột 3 (Ma trận phạm vi dữ liệu).
    - Mọi form biên tập (Tạo vai trò, Gán phòng ban, Thiết lập Quotas) mở trong **Drawer trượt cạnh phải**, hỗ trợ xếp tầng (Stacked Drawers).
 4. **Chuẩn Mực API Contract Đa Ngôn Ngữ**:
-   - 100% API responses trả về mã `code` dạng `UPPER_SNAKE_CASE` (ví dụ: `SUPERADMIN_TENANT_LOCKED_SUCCESS`, `IAM_PERMISSION_DENIED_DATA_SCOPE`).
+   - 100% API responses trả về mã `code` dạng `UPPER_SNAKE_CASE` (ví dụ: `PLATFORM_TENANT_LOCK_SUCCESS`, `IAM_PERMISSION_DENIED_DATA_SCOPE`).
    - Dữ liệu trả về tuân thủ enum `ResponseKey`, không hardcode chuỗi tự do.
+   - Token platform bắt buộc chứa claim `groups: ["SUPER_ADMIN"]` để nhận diện quyền vận hành nền tảng.
 5. **Chính Sách Kiểm Thử Thực Dụng**:
    - Backend: Bắt buộc viết Unit/Integration Test (JUnit 5 + RestAssured) kết nối PostgreSQL & Redis thật.
    - Frontend: Không viết unit test; kiểm thử Dual-mode trên trình duyệt thực tế (Web Desktop $\ge$ 1280px và Mobile Emulation 390x844px).
+6. **Quản lý đa chi nhánh**: BRANCH scope = union(`member_branch_ids`, `managed_branch_ids`) qua bảng `user_branch_assignments`; mỗi user có 1 primary branch dùng cho CREATE.
 
 ---
 
@@ -68,6 +73,7 @@ Thiết lập tầng quản trị vận hành tối cao của nền tảng SaaS 
 
 Một Sprint chỉ được coi là hoàn thành và nghiệm thu khi:
 - [ ] 100% các tính năng FEAT-10 đến FEAT-16 hoàn tất mã nguồn theo thiết kế.
+- [ ] FEAT-17 (Reference Entity) hoàn tất để chứng minh Enforcement Engine hoạt động trên dữ liệu thật.
 - [ ] 0 lỗi (Zero bugs) ở mức độ `Critical` và `High`.
 - [ ] Bộ automated tests Backend chạy thành công 100% trên PostgreSQL và Redis thật (CẤM dùng H2).
 - [ ] Kiểm thử thủ công trên trình duyệt Web Desktop và Mobile Responsive đạt 0 lỗi console (`console.error = 0`).

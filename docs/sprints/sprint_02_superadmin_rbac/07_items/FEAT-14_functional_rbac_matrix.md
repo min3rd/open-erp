@@ -2,10 +2,11 @@
 
 - **Mã Tính Năng**: FEAT-14
 - **Phân Loại**: Feature
-- **Mức Độ Ưu Tiên**: [x] High
+- **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Đề Xuất**: Khách hàng / BA Agent
+- **Người Phụ Trách**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [ ] To Do
+- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +31,11 @@
 - [ ] **TASK-243**: Hiện thực API gán vai trò người dùng `POST /api/v1/iam/users/{id}/roles`.
 - [ ] **TASK-244**: Xây dựng UI Cột 1 (Danh sách Vai trò) và Cột 2 (Lưới Switch Toggle quyền chức năng) trong bố cục Split-Screen trên Angular Web.
 - [ ] **TASK-245**: Tích hợp màn hình xem vai trò và đổi vai trò người dùng trên Ionic Mobile.
+- [ ] (xem thêm item: BUG-51, TASK-267, TASK-268, BUG-54, TASK-271, TASK-276).
+
+---
+
+## 4. Xác Nhận Hoàn Tất (QA Verification)
+- [ ] Developer đã hoàn thành mã nguồn theo thiết kế.
+- [ ] QA đã kiểm thử và xác nhận đạt Acceptance Criteria.
+- [ ] Không gây lỗi phát sinh (Regression test pass).

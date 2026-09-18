@@ -60,6 +60,7 @@ stateDiagram-v2
     [*] --> TRIAL: Đăng ký dùng thử
     TRIAL --> ACTIVE: Thanh toán / Kích hoạt chính thức
     TRIAL --> EXPIRED: Hết hạn dùng thử
+    EXPIRED --> ACTIVE: Gia hạn/Thanh toán
     ACTIVE --> SUSPENDED: Quá hạn thanh toán / Vi phạm điều khoản
     SUSPENDED --> ACTIVE: Thanh toán xong / Mở khóa
     SUSPENDED --> PENDING_DELETION: Quá 90 ngày không thanh toán
@@ -72,6 +73,7 @@ stateDiagram-v2
 | :--- | :--- | :--- |
 | `TRIAL` | Đang dùng thử theo thời hạn (`trial_ends_at`). | Sử dụng đầy đủ tính năng trong hạn mức dùng thử. |
 | `ACTIVE` | Đang hoạt động bình thường, gói trả phí. | Toàn quyền hoạt động theo Quota đã thanh toán. |
+| `EXPIRED` | Hết hạn dùng thử/gói chưa gia hạn; chặn thêm mới dữ liệu, cho phép Tenant Admin vào trang thanh toán. | Chỉ Tenant Admin xem thông báo; chặn nhân viên. |
 | `SUSPENDED` | Bị tạm khóa bởi Super Admin hoặc quá hạn cước. | Chỉ cho phép Tenant Admin đăng nhập xem thông báo cước; chặn toàn bộ nhân viên thao tác dữ liệu. |
 | `PENDING_DELETION` | Chờ xóa vĩnh viễn (sau 90 ngày tạm khóa). | Không ai được đăng nhập, dữ liệu đang chờ sao lưu/hủy. |
 | `DELETED` | Đã xóa hoặc lưu trữ lạnh. | Đã bị dọn dẹp hoặc gỡ bỏ CSDL. |
@@ -123,7 +125,7 @@ sequenceDiagram
     API->>Redis: Cấp phiên Impersonation Token (TTL 30 phút, không cấp Refresh Token)
     API-->>FE: Trả về Impersonation Access Token (chứa claim impersonator_id)
     FE->>TA: Chuyển hướng sang giao diện Tenant X
-    TA->>TA: Hiển thị Banner cảnh báo màu vàng cố định trên cùng màn hình:<br>"BẠN ĐANG TRUY CẬP ĐẠI DIỆN HỖ TRỢ BỞI ADMIN {super_admin_email}. CÒN LẠI {mm:ss}"
+    TA->>TA: Hiển thị Banner cảnh báo màu vàng cố định trên cùng màn hình:<br>"BẠN ĐANG TRUY CẬP ĐẠI DIỆN HỖ TRỢ BỞI {super_admin_email} • TICKET {support_ticket} • CÒN LẠI {mm:ss}"
     alt Hết thời gian hoặc Bấm kết thúc
         SA->>TA: Bấm nút "Thoát chế độ đại diện"
         TA->>API: POST /api/v1/platform/impersonate/exit
@@ -139,6 +141,8 @@ sequenceDiagram
 3. **Giới hạn thao tác phá hoại (Destructive Action Block)**: Khi mang Token Impersonation, hệ thống tự động chặn các thao tác: Xóa Tenant, Đổi quyền Owner của Tenant, Đổi mật khẩu của Tenant Admin.
 4. **Cảnh báo thường trực (Persistent Warning Banner)**: Trên toàn bộ giao diện làm việc của Tenant hiển thị thanh dải băng màu vàng rực rỡ với đồng hồ đếm ngược thời gian phiên hỗ trợ.
 5. **Nhật ký bất biến**: Bắt buộc ghi nhận thời điểm bắt đầu, thời điểm kết thúc, IP nguồn và danh sách các thao tác đã thực hiện.
+6. **Cấm xuất dữ liệu bí mật (Secret Export Block)**: Trong phiên impersonation cấm export secret (2FA key, hash mật khẩu, API key) — mã lỗi `SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN`.
+7. **Target mặc định khi Impersonation**: Target mặc định là `TENANT_OWNER`; nếu tenant không có OWNER thì lấy `TENANT_ADMIN` đầu tiên.
 
 ---
 
@@ -153,6 +157,7 @@ Super Admin được cung cấp một trang điều khiển giám sát tài nguy
    - Trạng thái kết nối, dung lượng RAM sử dụng, số lượng Key phiên hoạt động (`session:*`).
 3. **Trạng thái Apache Kafka Message Broker**:
    - Kết nối Broker, độ trễ xử lý các Topic phân tán.
+   - **Ghi chú môi trường tối giản**: Khi chạy Docker Compose minimal profile (không bật Kafka), dịch vụ báo trạng thái `UNKNOWN/DEGRADED`, nhưng API health vẫn trả HTTP 200 kèm `system_status` phù hợp.
 4. **Tổng quan số liệu nền tảng (High-level Counters)**:
    - Tổng số Tenant (Active, Trial, Suspended).
    - Tổng số User toàn cầu.

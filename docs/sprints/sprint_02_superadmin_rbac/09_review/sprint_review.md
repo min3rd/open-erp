@@ -46,7 +46,22 @@ Trước khi đóng Sprint 02, PM Agent bắt buộc rà soát và xác nhận:
 
 ---
 
-## 4. Chữ Ký Phê Duyệt Nghiệm Thu Của Khách Hàng (Customer Acceptance Sign-Off)
+## 4. Danh Sách Hạng Mục Hoãn Sang Sprint Kế Tiếp (Deferred Items)
+> Chỉ áp dụng cho các item ở mức `Medium` hoặc `Low` đã được thống nhất hoãn lại.
+
+| Mã Định Danh | Tiêu Đề | Mức Độ Ưu Tiên | Lý Do Hoãn | Chuyển Sang Sprint |
+| :--- | :--- | :--- | :--- | :--- |
+
+---
+
+## 5. Chữ Ký Phê Duyệt Nghiệm Thu Của Khách Hàng (Customer Acceptance Sign-Off)
 
 - **Đại Diện Khách Hàng (Product Owner)**: ........................................ (Ngày ký: ..../..../2026)
 - **Đại Diện Quản Trị Dự Án (PM Agent)**: ........................................ (Ngày ký: ..../..../2026)
+
+---
+
+## 6. Bài Học Kinh Nghiệm (Retrospective)
+- **Điểm làm tốt (What went well)**: ...
+- **Điểm cần cải thiện (What can be improved)**: ...
+- **Hành động cụ thể cho Sprint sau**: ...

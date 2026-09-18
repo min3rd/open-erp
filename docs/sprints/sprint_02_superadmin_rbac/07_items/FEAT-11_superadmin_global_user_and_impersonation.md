@@ -2,10 +2,11 @@
 
 - **Mã Tính Năng**: FEAT-11
 - **Phân Loại**: Feature
-- **Mức Độ Ưu Tiên**: [x] Critical
+- **Mức Độ Ưu Tiên**: [x] Critical / [ ] High / [ ] Medium / [ ] Low
 - **Người Đề Xuất**: Khách hàng / BA Agent
+- **Người Phụ Trách**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [ ] To Do
+- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
 
 ---
 
@@ -33,3 +34,11 @@
 - [ ] **TASK-214**: Hiện thực các API `POST /api/v1/platform/tenants/{id}/impersonate` và `POST /api/v1/platform/impersonate/exit`.
 - [ ] **TASK-215**: Viết Unit/Integration Test cho toàn bộ vòng đời phiên Impersonation và kiểm tra chặn refresh token.
 - [ ] **TASK-216**: Xây dựng UI `PersistentImpersonationBanner` và `ImpersonateConfirmDrawer` trên Angular Web.
+- [ ] (xem thêm item: BUG-56, BUG-57, TASK-273, TASK-274, BUG-68, TASK-277).
+
+---
+
+## 4. Xác Nhận Hoàn Tất (QA Verification)
+- [ ] Developer đã hoàn thành mã nguồn theo thiết kế.
+- [ ] QA đã kiểm thử và xác nhận đạt Acceptance Criteria.
+- [ ] Không gây lỗi phát sinh (Regression test pass).

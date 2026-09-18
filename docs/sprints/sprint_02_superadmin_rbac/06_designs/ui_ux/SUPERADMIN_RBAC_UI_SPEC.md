@@ -37,10 +37,11 @@
 ### 2.2. Dải Băng Cảnh Báo Khi Impersonate (Persistent Impersonation Banner)
 Khi Super Admin đang đăng nhập đại diện vào một Tenant, thanh này ghim cố định ở vị trí cao nhất trên toàn màn hình (`sticky top-0 z-50`):
 ```
-+---------------------------------------------------------------------------------------------------------------------------------+
-| ⚠️ [CHẾ ĐỘ TRUY CẬP HỖ TRỢ ĐẠI DIỆN] Đang hỗ trợ: Tập Đoàn Acme (acme-corp) | Ticket: TCK-9981 | Còn lại: 27:45 | [KẾT THÚC PHIÊN] |
-+---------------------------------------------------------------------------------------------------------------------------------+
++----------------------------------------------------------------------------------------------------------------------------------------------+
+| ⚠️ BẠN ĐANG TRUY CẬP ĐẠI DIỆN HỖ TRỢ BỞI ops-admin@openerp.9ms.io.vn • TICKET TCK-9981 • CÒN LẠI 27:45 | [KẾT THÚC PHIÊN] |
++----------------------------------------------------------------------------------------------------------------------------------------------+
 ```
+- **Key i18n chuẩn hóa (BUG-69)**: `IMPERSONATION_ACTIVE_BANNER` = `"BẠN ĐANG TRUY CẬP ĐẠI DIỆN HỖ TRỢ BỞI {admin_email} • TICKET {ticket} • CÒN LẠI {mm:ss}"`. Ba tham số `{admin_email}`, `{ticket}`, `{mm:ss}` được bind động từ dữ liệu phiên, tuyệt đối không hardcode chuỗi hiển thị.
 - **Màu sắc**: `bg-amber-500 text-neutral-950 font-medium px-3 py-1 text-xs flex justify-between items-center shadow-md animate-pulse`.
 - **Nút hành động**: Nút `[KẾT THÚC PHIÊN]` màu đen vuông vắn `bg-neutral-900 text-white px-2 py-0.5 hover:bg-neutral-800` gọi API thoát đại diện và đưa Admin về cổng quản trị.
 
@@ -82,6 +83,7 @@ Màn hình phân quyền của Tenant (`/settings/roles`) được thiết kế 
      - `ALL` (Toàn cty): Chữ màu tím dạ quang `text-purple-600 dark:text-purple-400 font-semibold`.
      - `BR` (Chi nhánh): Chữ màu xanh dương `text-blue-600 dark:text-blue-400`.
      - `DEPT` (Phòng ban): Chữ màu lục `text-emerald-600 dark:text-emerald-400`.
+     - `DEPT+` (Phòng ban & phòng ban con - `DEPARTMENT_AND_CHILDREN`): Chữ màu cyan `text-cyan-600 dark:text-cyan-400`.
      - `SUB` (Cấp dưới): Chữ màu cam `text-amber-600 dark:text-amber-400`.
      - `OWN` (Cá nhân): Chữ màu xám đậm `text-neutral-700 dark:text-neutral-300`.
      - `NO` (Cấm): Chữ màu đỏ nhạt `text-rose-500 font-medium`.
@@ -111,6 +113,9 @@ sequenceDiagram
 2. `ImpersonateConfirmDrawer` (Super Admin): Form nhập Ticket ID, lý do hỗ trợ và mật khẩu xác nhận với các điều khoản pháp lý bắt buộc tick đồng ý.
 3. `DepartmentFormDrawer` (Tenant): Tạo/Sửa phòng ban, chọn phòng ban cha từ dropdown dạng cây và chọn Trưởng phòng.
 4. `UserAssignmentDrawer` (Tenant): Gán nhân viên vào Chi nhánh, Phòng ban và chỉ định Quản lý trực tiếp.
+5. `BranchAssignmentDrawer` (Tenant): Phân công quản lý nhiều Chi nhánh — chọn nhân sự + tick nhiều Chi nhánh (cột `Quản lý`) + radio `Chi nhánh chính` (đảm bảo tối đa 1 primary); lưu qua API `/api/v1/organization/branch-assignments` (TASK-289).
+
+Trong danh sách nhân sự của màn Cơ cấu tổ chức (`/settings/memberships`), mỗi nhân sự có phân công quản lý hiển thị badge `ORGANIZATION_BRANCH_ASSIGNMENT_MANAGE_BADGE` ("Quản lý {count} chi nhánh"); bấm badge mở `BranchAssignmentDrawer` tương ứng.
 
 ---
 
@@ -138,7 +143,7 @@ Trên ứng dụng di động Ionic 8, giao diện được tối ưu hóa cho m
 | `PLATFORM_TENANT_MANAGEMENT` | Quản Lý Khách Thuê (Tenants) | Tenant Management |
 | `PLATFORM_SYSTEM_HEALTH` | Sức Khỏe Hạ Tầng | System Infrastructure Health |
 | `PLATFORM_AUDIT_TRAIL` | Nhật Ký Kiểm Toán Nền Tảng | Platform Audit Trail |
-| `IMPERSONATION_ACTIVE_BANNER` | Bạn đang truy cập hỗ trợ đại diện | You are in support impersonation mode |
+| `IMPERSONATION_ACTIVE_BANNER` | BẠN ĐANG TRUY CẬP ĐẠI DIỆN HỖ TRỢ BỞI {admin_email} • TICKET {ticket} • CÒN LẠI {mm:ss} | SUPPORT IMPERSONATION ACTIVE BY {admin_email} • TICKET {ticket} • REMAINING {mm:ss} |
 | `IMPERSONATION_EXIT_BTN` | Kết Thúc Phiên | Exit Impersonation |
 | `IAM_ROLE_MANAGEMENT` | Quản Lý Vai Trò & Phân Quyền | Role & Permission Management |
 | `IAM_DATA_SCOPE_ALL` | Toàn bộ tổ chức | Entire Organization |
@@ -151,3 +156,58 @@ Trên ứng dụng di động Ionic 8, giao diện được tối ưu hóa cho m
 | `ORGANIZATION_STRUCTURE` | Cơ Cấu Tổ Chức | Organizational Structure |
 | `ORGANIZATION_BRANCHES` | Danh Mục Chi Nhánh | Branch List |
 | `ORGANIZATION_DEPARTMENT_TREE` | Cây Sơ Đồ Phòng Ban | Department Hierarchy Tree |
+| `IAM_PERMISSION_DENIED_FUNCTIONAL` | Bạn không có quyền thực hiện chức năng này | You do not have permission for this function |
+| `IAM_PERMISSION_DENIED_DATA_SCOPE` | Bạn không có quyền truy cập dữ liệu ngoài phạm vi được phép | You cannot access data outside your allowed scope |
+| `IAM_PERMISSION_DENIED_EXPORT` | Bạn không được phép xuất dữ liệu tài nguyên này | You are not allowed to export this resource data |
+| `PLATFORM_TENANT_QUOTA_EXCEEDED` | Hạn mức khách thuê đã vượt giới hạn cho phép | Tenant quota exceeds the allowed limit |
+| `PLATFORM_TENANT_LOCK_SUCCESS` | Khóa khách thuê thành công | Tenant locked successfully |
+| `PLATFORM_TENANT_UNLOCK_SUCCESS` | Mở khóa khách thuê thành công | Tenant unlocked successfully |
+| `PLATFORM_USER_LOCKED_SUCCESS` | Khóa người dùng thành công | User locked successfully |
+| `PLATFORM_USER_UNLOCKED_SUCCESS` | Mở khóa người dùng thành công | User unlocked successfully |
+| `PLATFORM_USER_PASSWORD_RESET_FORCED` | Đã buộc đặt lại mật khẩu người dùng | User password reset forced |
+| `PLATFORM_USER_2FA_DISABLED_BY_BREAK_GLASS` | Đã tắt 2FA theo quy trình break-glass | 2FA disabled via break-glass |
+| `ORGANIZATION_DEPARTMENT_CYCLE_DETECTED` | Phát hiện vòng lặp trong cây phòng ban | Circular loop detected in the department tree |
+| `PLATFORM_GLOBAL_USERS` | Người Dùng Toàn Cầu | Global Users |
+| `PLATFORM_IMPERSONATION_LOG_LIST` | Nhật Ký Phiên Đại Diện | Impersonation Sessions |
+| `ORGANIZATION_MEMBERSHIPS` | Thành Viên & Quản Lý Trực Tiếp | Memberships & Reporting Lines |
+| `ORGANIZATION_BRANCH_ASSIGNMENT_TITLE` | Phân Công Quản Lý Chi Nhánh | Branch Assignment |
+| `ORGANIZATION_BRANCH_ASSIGNMENT_BRANCHES` | Chi Nhánh Quản Lý | Managed Branches |
+| `ORGANIZATION_BRANCH_ASSIGNMENT_PRIMARY_BRANCH` | Chi Nhánh Chính | Primary Branch |
+| `ORGANIZATION_BRANCH_ASSIGNMENT_MANAGE_BADGE` | Quản lý {count} chi nhánh | Manages {count} branches |
+| `IAM_TAB_FUNCTIONAL_PERMISSIONS` | Quyền Chức Năng | Functional Permissions |
+| `IAM_TAB_DATA_SCOPES` | Phạm Vi Dữ Liệu | Data Scopes |
+| `COMMON_SAVE` | Lưu | Save |
+| `COMMON_CANCEL` | Hủy | Cancel |
+| `COMMON_DELETE` | Xóa | Delete |
+| `COMMON_CONFIRM` | Xác Nhận | Confirm |
+
+> **Lưu ý**: Bảng trên liệt kê các key chính xuất hiện trong Sprint 02. Từ điển đầy đủ (full dictionary) nằm tại `frontend/{web,mobile}/public/i18n/{vi,en}.json`; mọi chuỗi mới phát sinh phải được bổ sung đồng thời cả `vi` và `en`, không hardcode trong template.
+
+---
+
+## 7. Điều Hướng, Routes & Guard (TASK-280, TASK-281)
+
+### 7.1. Bảng Routes & Guard (Web Angular)
+| Route | Màn hình | Guard | Điều kiện cho phép |
+| :--- | :--- | :--- | :--- |
+| `/platform/tenants` | Quản lý Tenant (Super Admin) | `platformRoleGuard` | token có `platform_role = SUPER_ADMIN` **và** `groups` chứa `SUPER_ADMIN` |
+| `/platform/tenants/:id` | Chi tiết Tenant (split-screen + drawer quota) | `platformRoleGuard` | như trên |
+| `/platform/users` | Người dùng toàn cầu (khóa/mở khóa/break-glass) | `platformRoleGuard` | như trên |
+| `/platform/health` | Sức khỏe hạ tầng | `platformRoleGuard` | như trên |
+| `/platform/audit-logs` | Nhật ký kiểm toán nền tảng | `platformRoleGuard` | như trên |
+| `/platform/impersonation-logs` | Nhật ký phiên đại diện | `platformRoleGuard` | như trên |
+| `/settings/roles` | Vai trò & Phân quyền (Tenant Admin) | `permissionGuard` | `core:role:manage` |
+| `/settings/organization` | Cơ cấu tổ chức (chi nhánh + cây phòng ban) | `permissionGuard` | `core:organization:manage` |
+| `/settings/memberships` | Thành viên & quản lý trực tiếp | `permissionGuard` | `core:organization:manage` |
+
+- Người dùng Tenant thường chạm route `/platform/*` $\rightarrow$ `platformRoleGuard` chuyển hướng về trang chủ tenant.
+- Người dùng thiếu quyền chức năng chạm `/settings/*` $\rightarrow$ `permissionGuard` chặn và hiển thị `IAM_PERMISSION_DENIED_FUNCTIONAL`.
+
+### 7.2. Điều Hướng Mobile Ionic 8 (Viewport 390x844px)
+1. **Tenant Admin (bổ sung mục menu chính)**:
+   - `Vai Trò & Phân Quyền` — màn Vai trò dạng danh sách + tab (theo mục 5).
+   - `Cơ Cấu Tổ Chức` — danh sách chi nhánh + cây phòng ban dạng accordion.
+2. **Super Admin (màn hình khẩn cấp)**: giữ màn tổng quan thu gọn 3 thẻ trạng thái; bổ sung 2 thao tác khẩn cấp dạng Action Sheet trượt từ đáy:
+   - **Khóa Tenant**: danh sách tenant + nhập lý do; gọi `POST /api/v1/platform/tenants/{id}/lock`.
+   - **Khóa User**: tìm user toàn cầu + khóa/mở khóa; gọi `POST /api/v1/platform/users/{id}/lock|unlock`.
+3. **Ẩn hoàn toàn Impersonation trên Mobile**: không hiển thị nút/menu bắt đầu impersonate, không nhận `impersonation_token` và không render banner impersonation trên Mobile — tính năng này chỉ khả dụng trên bản Web nhằm tránh thao tác hỗ trợ ngoài kiểm soát từ thiết bị di động.

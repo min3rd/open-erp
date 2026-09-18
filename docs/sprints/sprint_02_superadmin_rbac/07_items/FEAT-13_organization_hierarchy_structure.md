@@ -2,10 +2,11 @@
 
 - **Mã Tính Năng**: FEAT-13
 - **Phân Loại**: Feature
-- **Mức Độ Ưu Tiên**: [x] High
+- **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Đề Xuất**: Khách hàng / BA Agent
+- **Người Phụ Trách**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [ ] To Do
+- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
 
 ---
 
@@ -22,6 +23,7 @@
 - [ ] **Kịch bản 2: Cây Phòng Ban đa cấp**: Given một phòng ban "Khối Kinh Doanh", When tạo thêm "Phòng Bán Lẻ" với `parent_id` là Khối Kinh Doanh, Then cây phòng ban hiển thị phân cấp chính xác.
 - [ ] **Kịch bản 3: Gán nhân viên vào phòng ban**: Given nhân viên Nguyễn Văn A, When gán vào Phòng Bán Lẻ và chỉ định quản lý trực tiếp là Trần Văn B, Then bản ghi liên kết được tạo với cờ `is_primary = true`.
 - [ ] **Kịch bản 4: Chặn vòng lặp tuyến báo cáo (Cycle Detection)**: Given A quản lý B, B quản lý C, When cố gắng gán C làm quản lý trực tiếp của A, Then hệ thống phát hiện chu trình và báo lỗi `ORGANIZATION_REPORTING_CYCLE_DETECTED`.
+- [ ] **Kịch bản 5: Phân công quản lý nhiều chi nhánh**: Given một Giám đốc vùng, When gán quản lý BR-HN và BR-HCM (không cần membership từng phòng ban), Then hệ thống lưu `user_branch_assignments` và scope BRANCH của người này bao gồm cả 2 chi nhánh.
 
 ---
 
@@ -32,3 +34,11 @@
 - [ ] **TASK-234**: Xây dựng UI Cây sơ đồ phòng ban phân cấp trên Angular Web với Split-Screen (bên trái cây phòng ban, bên phải danh sách nhân sự).
 - [ ] **TASK-235**: Xây dựng `DepartmentFormDrawer` và `UserAssignmentDrawer` trượt cạnh phải Anti-Modal.
 - [ ] **TASK-236**: Xây dựng màn hình danh bạ cơ cấu tổ chức trên ứng dụng Ionic Mobile.
+- [ ] (xem thêm item: TASK-279, BUG-66, TASK-275, TASK-287, TASK-288, TASK-289, TASK-290, BUG-71).
+
+---
+
+## 4. Xác Nhận Hoàn Tất (QA Verification)
+- [ ] Developer đã hoàn thành mã nguồn theo thiết kế.
+- [ ] QA đã kiểm thử và xác nhận đạt Acceptance Criteria.
+- [ ] Không gây lỗi phát sinh (Regression test pass).

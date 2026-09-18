@@ -10,13 +10,13 @@
 
 ## 1. Quy Chuẩn Đóng Gói API Chung (API Response Envelope Invariant)
 
-Toàn bộ các API trong tài liệu này bắt buộc tuân thủ 1 trong 4 khuôn mẫu chuẩn đã được quy định trong [.agents/rules/api_standards.md](../../../../.agents/rules/api_standards.md):
+Toàn bộ các API trong tài liệu này bắt buộc tuân thủ 1 trong 4 khuôn mẫu chuẩn đã được quy định trong [.agents/rules/api_standards.md](../../../../../.agents/rules/api_standards.md):
 
 ### 1.1. Khuôn Mẫu 1: Dữ Liệu Đơn Lẻ (Single Resource)
 ```json
 {
   "success": true,
-  "code": "SUPERADMIN_TENANT_LOCKED_SUCCESS",
+  "code": "PLATFORM_TENANT_LOCK_SUCCESS",
   "message": "Tenant locked successfully.",
   "params": {},
   "data": {
@@ -98,6 +98,8 @@ export enum DataScope {
 }
 ```
 
+> **Ghi chú (BUG-50)**: `DataScope` Sprint 02 giữ đúng **7 giá trị** nêu trên. Các scope `ABAC` / `CUSTOM` (điều kiện động do người dùng tự định nghĩa) **thuộc Out-of-Scope Sprint 02** và sẽ được thiết kế bổ sung ở sprint sau; không thêm giá trị vào enum ở giai đoạn này.
+
 ### 2.2. `DataOperation.java` / `data-operation.enum.ts`
 ```typescript
 export enum DataOperation {
@@ -129,7 +131,7 @@ export enum PlatformAction {
 
 ## 3. Nhóm API Quản Trị Nền Tảng (Super Admin: `/api/v1/platform/*`)
 
-*Tất cả các API trong nhóm này yêu cầu Header: `Authorization: Bearer <token>` có claim `platform_role: "SUPER_ADMIN"`*.
+*Tất cả các API trong nhóm này yêu cầu Header: `Authorization: Bearer <token>` có **đồng thời** claim `platform_role: "SUPER_ADMIN"` và `groups` chứa `"SUPER_ADMIN"` (BUG-65 — Quarkus SmallRye JWT `@RolesAllowed` đọc roles từ claim `groups`; thiếu `groups` sẽ bị từ chối `401/403`).*
 
 ### 3.1. Danh Sách & Tìm Kiếm Tenant (Khuôn Mẫu 2: Paginated List)
 - **Endpoint**: `GET /api/v1/platform/tenants`
@@ -195,21 +197,28 @@ export enum PlatformAction {
 ```
 
 ### 3.3. Khóa Khẩn Cấp / Mở Khóa Tenant (Khuôn Mẫu 1: Single Resource)
-- **Endpoint**: `POST /api/v1/platform/tenants/{tenant_id}/lock`
-- **Request Body**:
+Hai hành động được tách rõ ràng thành 2 endpoint và 2 mã phản hồi riêng biệt (BUG-62):
+- **Endpoint khóa**: `POST /api/v1/platform/tenants/{tenant_id}/lock` — mã `PLATFORM_TENANT_LOCK_SUCCESS`
+- **Endpoint mở khóa**: `POST /api/v1/platform/tenants/{tenant_id}/unlock` — mã `PLATFORM_TENANT_UNLOCK_SUCCESS`
+- **Request Body (lock)**:
 ```json
 {
-  "action": "LOCK",
   "reason": "Chưa thanh toán cước phí dịch vụ quý 3/2026",
   "confirm_password": "superadmin-secret-password"
 }
 ```
-- **Phản Hồi Thành Công (200 OK)**:
+- **Request Body (unlock)**:
+```json
+{
+  "confirm_password": "superadmin-secret-password"
+}
+```
+- **Phản Hồi Thành Công (200 OK) — Lock**:
 ```json
 {
   "success": true,
   "code": "PLATFORM_TENANT_LOCK_SUCCESS",
-  "message": "Tenant status updated successfully.",
+  "message": "Tenant locked successfully.",
   "params": {},
   "data": {
     "tenant_id": "e5b30000-0000-4000-a000-000000000001",
@@ -219,12 +228,30 @@ export enum PlatformAction {
   }
 }
 ```
+- **Phản Hồi Thành Công (200 OK) — Unlock**:
+```json
+{
+  "success": true,
+  "code": "PLATFORM_TENANT_UNLOCK_SUCCESS",
+  "message": "Tenant unlocked successfully.",
+  "params": {},
+  "data": {
+    "tenant_id": "e5b30000-0000-4000-a000-000000000001",
+    "status": "ACTIVE",
+    "is_locked": false,
+    "locked_at": null
+  }
+}
+```
+- **Chặn tự khóa**: Super Admin cố khóa chính mình (hoặc tenant sở hữu tài khoản mình) $\rightarrow$ `403` `PLATFORM_SELF_LOCK_FORBIDDEN`.
 
 ### 3.4. Khởi Tạo Phiên Truy Cập Đại Diện (Khuôn Mẫu 1: Single Resource)
 - **Endpoint**: `POST /api/v1/platform/tenants/{tenant_id}/impersonate`
+- **Quy tắc chọn `target_user_id` (BUG-57)**: Request có thể truyền `target_user_id` (tùy chọn). Nếu bỏ trống, hệ thống tự chọn: (1) `TENANT_OWNER`, (2) fallback `TENANT_ADMIN` đầu tiên theo `assigned_at`; nếu không có $\rightarrow$ `400` `PLATFORM_IMPERSONATION_TARGET_NOT_FOUND`. `target_user_id` phải thuộc đúng tenant và có membership hợp lệ.
 - **Request Body**:
 ```json
 {
+  "target_user_id": "user-owner-uuid",
   "support_ticket": "TCK-9981",
   "reason": "Khách hàng báo lỗi không xem được báo cáo doanh thu tuần",
   "confirm_password": "superadmin-secret-password"
@@ -242,6 +269,8 @@ export enum PlatformAction {
     "expires_in_seconds": 1800,
     "target_tenant_id": "e5b30000-0000-4000-a000-000000000001",
     "target_tenant_name": "Tập Đoàn Acme",
+    "target_user_id": "user-owner-uuid",
+    "target_user_email": "owner@acme-corp.vn",
     "started_at": "2026-09-18T10:20:00Z"
   }
 }
@@ -263,6 +292,10 @@ export enum PlatformAction {
 
 ### 3.6. Giám Sát Sức Khỏe Hạ Tầng (Khuôn Mẫu 1: Single Resource)
 - **Endpoint**: `GET /api/v1/platform/health`
+- **Enum `system_status` (BUG-64)**: `HEALTHY | DEGRADED | DOWN` (đồng bộ enum Java `SystemHealthStatus` và TypeScript `@shared/enums`). Trạng thái từng subsystem có thể là `UP | DOWN | UNKNOWN`.
+  - `HEALTHY`: mọi thành phần bắt buộc đều UP.
+  - `DEGRADED`: thành phần bắt buộc (PostgreSQL Primary, Redis) vẫn UP nhưng có thành phần tùy chọn DOWN/UNKNOWN (ví dụ Kafka không bật ở hồ sơ minimal).
+  - `DOWN`: thành phần bắt buộc DOWN.
 - **Phản Hồi Thành Công (200 OK)**:
 ```json
 {
@@ -299,6 +332,7 @@ export enum PlatformAction {
   }
 }
 ```
+- **Ví dụ khi chạy hồ sơ dev tối giản (không bật Kafka profile, BUG-64)**: `system_status = "DEGRADED"` và `"kafka": { "status": "UNKNOWN", "cluster_id": null, "nodes_count": 0 }`.
 
 ### 3.7. Nhật Ký Kiểm Toán Nền Tảng (Khuôn Mẫu 2: Paginated List)
 - **Endpoint**: `GET /api/v1/platform/audit-logs`
@@ -326,6 +360,77 @@ export enum PlatformAction {
         },
         "ip_address": "118.70.12.34",
         "created_at": "2026-09-18T10:15:00Z"
+      }
+    ],
+    "page": 0,
+    "size": 20,
+    "total_items": 1,
+    "total_pages": 1
+  }
+}
+```
+
+### 3.8. Chi Tiết Tenant (Khuôn Mẫu 1: Single Resource)
+- **Endpoint**: `GET /api/v1/platform/tenants/{tenant_id}`
+- **Phản Hồi Thành Công (200 OK)**:
+```json
+{
+  "success": true,
+  "code": "PLATFORM_TENANT_DETAIL_SUCCESS",
+  "message": "Tenant detail retrieved successfully.",
+  "params": {},
+  "data": {
+    "tenant_id": "e5b30000-0000-4000-a000-000000000001",
+    "slug": "acme-corp",
+    "name": "Tập Đoàn Acme",
+    "type": "BUSINESS",
+    "plan_tier": "STANDARD",
+    "status": "ACTIVE",
+    "max_users": 25,
+    "active_users_count": 14,
+    "max_storage_mb": 10240,
+    "used_storage_mb": 1420,
+    "trial_ends_at": null,
+    "is_locked": false,
+    "lock_reason": null,
+    "locked_at": null,
+    "allowed_plugins": ["core", "sales"],
+    "created_at": "2026-09-10T08:00:00Z"
+  }
+}
+```
+
+### 3.9. Quản Lý Người Dùng Toàn Cầu (Khuôn Mẫu 2 & 1)
+- `GET /api/v1/platform/users` — **Khuôn Mẫu 2 (Paginated List)**:
+  - Query Params: `page`, `size`, `status`, `keyword` (email, full_name), `tenant_id`.
+  - Phản hồi (200 OK): `code = "PLATFORM_USER_LIST_SUCCESS"`, `data.items[]` gồm `user_id`, `email`, `full_name`, `status`, `tenant_id`, `tenant_name`, `last_login_at`, `is_2fa_enabled`; kèm `page`, `size`, `total_items`, `total_pages`.
+- `POST /api/v1/platform/users/{id}/lock` — **Khuôn Mẫu 1**, mã `PLATFORM_USER_LOCKED_SUCCESS`, response `{ "user_id": "...", "status": "LOCKED", "locked_at": "..." }`. Tự khóa chính mình $\rightarrow$ `403` `PLATFORM_SELF_LOCK_FORBIDDEN`.
+- `POST /api/v1/platform/users/{id}/unlock` — **Khuôn Mẫu 1**, mã `PLATFORM_USER_UNLOCKED_SUCCESS`, response `{ "user_id": "...", "status": "ACTIVE" }`.
+- `POST /api/v1/platform/users/{id}/force-password-reset` — **Khuôn Mẫu 1**, mã `PLATFORM_USER_PASSWORD_RESET_FORCED`, response `{ "user_id": "...", "reset_token_sent": true }`.
+- `POST /api/v1/platform/users/{id}/break-glass/disable-2fa` — **Khuôn Mẫu 1**, mã `PLATFORM_USER_2FA_DISABLED_BY_BREAK_GLASS`; bắt buộc kèm `support_ticket` + `confirm_password`, ghi `platform_audit_logs` và gửi email thông báo cho user (TASK-273).
+
+### 3.10. Nhật Ký Phiên Đại Diện (Khuôn Mẫu 2: Paginated List)
+- **Endpoint**: `GET /api/v1/platform/impersonation-logs`
+- **Query Params**: `page`, `size`, `super_admin_user_id`, `tenant_id`, `status` (STARTED, ENDED, TIMEOUT), `from_date`, `to_date`.
+- **Phản Hồi Thành Công (200 OK)**:
+```json
+{
+  "success": true,
+  "code": "PLATFORM_IMPERSONATION_LOG_LIST_SUCCESS",
+  "message": "Impersonation logs retrieved successfully.",
+  "params": {},
+  "data": {
+    "items": [
+      {
+        "log_id": "imp-log-0001",
+        "super_admin_user_id": "super-admin-uuid",
+        "super_admin_email": "ops-admin@openerp.9ms.io.vn",
+        "target_tenant_id": "tenant-uuid",
+        "target_user_id": "user-owner-uuid",
+        "support_ticket": "TCK-9981",
+        "status": "ENDED",
+        "started_at": "2026-09-18T10:20:00Z",
+        "ended_at": "2026-09-18T10:45:00Z"
       }
     ],
     "page": 0,
@@ -366,8 +471,9 @@ export enum PlatformAction {
     ```
 - `POST /api/v1/organization/branches`: Tạo chi nhánh mới.
   - Body: `{ "code": "BR-HN", "name": "Chi nhánh Hà Nội", "phone": "0243123456", "address": "Hà Nội" }`
-  - **Phản hồi (200 OK)**: Khuôn Mẫu 1 (Single Resource) trả về `{ "success": true, "code": "ORGANIZATION_BRANCH_CREATED_SUCCESS", "message": "Branch created successfully.", "params": {}, "data": { ... } }`.
-- `PUT /api/v1/organization/branches/{id}`: Cập nhật chi nhánh.
+  - **Phản hồi (201 Created)**: Khuôn Mẫu 1 (Single Resource) trả về `{ "success": true, "code": "ORGANIZATION_BRANCH_CREATED_SUCCESS", "message": "Branch created successfully.", "params": {}, "data": { ... } }` (BUG-70 — mọi endpoint tạo mới trả `201 Created`).
+- `PUT /api/v1/organization/branches/{id}`: Cập nhật chi nhánh — Khuôn Mẫu 1, mã `ORGANIZATION_BRANCH_UPDATED`.
+- `DELETE /api/v1/organization/branches/{id}`: Xóa chi nhánh — Khuôn Mẫu 1, mã `ORGANIZATION_BRANCH_DELETED`; **chặn xóa nếu đang được sử dụng** (còn membership, phòng ban hoặc dữ liệu nghiệp vụ tham chiếu) $\rightarrow$ `409 Conflict` `ORGANIZATION_BRANCH_IN_USE`.
 
 ### 4.2. Quản Lý Cây Phòng Ban (Khuôn Mẫu 3: Non-Paginated List)
 - `GET /api/v1/organization/departments/tree`: Lấy toàn bộ cây phòng ban (Nested tree).
@@ -397,7 +503,7 @@ export enum PlatformAction {
       }
     }
     ```
-- `POST /api/v1/organization/departments`: Tạo phòng ban mới.
+- `POST /api/v1/organization/departments`: Tạo phòng ban mới — **Phản hồi (201 Created)**, Khuôn Mẫu 1, mã `ORGANIZATION_DEPARTMENT_CREATED_SUCCESS`.
   - Body:
     ```json
     {
@@ -408,10 +514,15 @@ export enum PlatformAction {
       "manager_user_id": "user-manager-uuid"
     }
     ```
-- `PUT /api/v1/organization/departments/{id}`: Sửa thông tin / Đổi phòng ban cha.
+- `PUT /api/v1/organization/departments/{id}`: Sửa thông tin phòng ban — Khuôn Mẫu 1, mã `ORGANIZATION_DEPARTMENT_UPDATED`.
+- `DELETE /api/v1/organization/departments/{id}`: Xóa phòng ban — Khuôn Mẫu 1, mã `ORGANIZATION_DEPARTMENT_DELETED`; chặn nếu còn phòng ban con hoặc membership $\rightarrow$ `409 Conflict` `ORGANIZATION_DEPARTMENT_IN_USE`.
+- `PUT /api/v1/organization/departments/{id}/move`: Di chuyển phòng ban sang cây cha mới (TASK-279).
+  - Body: `{ "new_parent_id": "dept-kd-retail-uuid" }`
+  - Thực hiện **cycle detection** trên cây phòng ban trước khi cập nhật; nếu tạo vòng lặp $\rightarrow$ `400` Khuôn Mẫu 4, mã `ORGANIZATION_DEPARTMENT_CYCLE_DETECTED`.
+  - Thành công: Khuôn Mẫu 1, mã `ORGANIZATION_DEPARTMENT_MOVED`.
 
 ### 4.3. Gán Thành Viên & Thiết Lập Quản Lý Trực Tiếp
-- `POST /api/v1/organization/memberships`: Gán nhân viên vào phòng ban.
+- `POST /api/v1/organization/memberships`: Gán nhân viên vào phòng ban — **Phản hồi (201 Created)**, Khuôn Mẫu 1, mã `ORGANIZATION_MEMBERSHIP_CREATED`.
   - Body:
     ```json
     {
@@ -423,6 +534,9 @@ export enum PlatformAction {
       "is_primary": true
     }
     ```
+- `GET /api/v1/organization/memberships`: Danh sách thành viên — Khuôn Mẫu 3 (Non-Paginated), mã `ORGANIZATION_MEMBERSHIP_LIST_SUCCESS`.
+- `PUT /api/v1/organization/memberships/{id}`: Cập nhật chi nhánh/phòng ban/quản lý trực tiếp — Khuôn Mẫu 1, mã `ORGANIZATION_MEMBERSHIP_UPDATED`.
+- `DELETE /api/v1/organization/memberships/{id}`: Gỡ thành viên khỏi tổ chức — Khuôn Mẫu 1 (data null), mã `ORGANIZATION_MEMBERSHIP_REMOVED`.
 - **Xử lý lỗi phát hiện vòng lặp (Khuôn Mẫu 4: Error Response - 400 Bad Request)**:
 ```json
 {
@@ -445,6 +559,25 @@ export enum PlatformAction {
   "timestamp": "2026-09-18T10:30:00Z"
 }
 ```
+
+### 4.4. Phân Công Quản Lý Chi Nhánh (Branch Assignments) (BUG-71, TASK-287 → TASK-290)
+Bộ API quản lý `user_branch_assignments` — nguồn của `managed_branch_ids`, tách biệt khỏi membership thành viên (BR-RBAC-08, BR-RBAC-09).
+- `GET /api/v1/organization/branch-assignments` — **Khuôn Mẫu 3 (Non-Paginated List)**:
+  - Query Params (tùy chọn): `user_id`, `branch_id`.
+  - **Phản hồi (200 OK)**: `code = "ORGANIZATION_BRANCH_ASSIGNMENT_LIST_SUCCESS"`, `data.items[]` gồm `id`, `user_id`, `user_email`, `branch_id`, `branch_code`, `is_primary`, `can_manage`.
+- `POST /api/v1/organization/branch-assignments` — **201 Created**, **Khuôn Mẫu 1 (Single Resource)**, mã `ORGANIZATION_BRANCH_ASSIGNMENT_CREATED`:
+  ```json
+  {
+    "user_id": "user-hcm-uuid",
+    "branch_id": "br-hcm-uuid",
+    "is_primary": false,
+    "can_manage": true
+  }
+  ```
+- `PUT /api/v1/organization/branch-assignments/{id}`: Cập nhật `can_manage`/`is_primary` — Khuôn Mẫu 1, mã `ORGANIZATION_BRANCH_ASSIGNMENT_UPDATED`.
+- `DELETE /api/v1/organization/branch-assignments/{id}`: Thu hồi phân công — Khuôn Mẫu 1 (data null), mã `ORGANIZATION_BRANCH_ASSIGNMENT_REMOVED`.
+- **Quy tắc `is_primary`**: khi lưu với `is_primary = true`, hệ thống tự động gỡ cờ primary cũ của user để đảm bảo tối đa 1 primary (BR-RBAC-09). Xóa phân công primary bị chặn nếu user chưa có primary khác $\rightarrow$ `409 Conflict` `ORGANIZATION_PRIMARY_BRANCH_REQUIRED`.
+- **Cache**: mọi thay đổi phát `BranchAssignmentChangedEvent` → vô hiệu hóa `sec:ctx:{tenant_id}:{user_id}` tức thì (SOL-02 §6).
 
 ---
 
@@ -513,9 +646,9 @@ export enum PlatformAction {
     ```
 - `POST /api/v1/iam/roles`: Tạo vai trò tùy biến mới.
   - Body: `{ "code": "SALES_LEAD", "name": "Trưởng Nhóm Kinh Doanh", "description": "Quản lý doanh số tổ" }`
-  - Phản hồi: Khuôn Mẫu 1 (Single Resource).
-- `PUT /api/v1/iam/roles/{id}`: Cập nhật tên/mô tả vai trò.
-- `DELETE /api/v1/iam/roles/{id}`: Xóa vai trò (chặn nếu còn user).
+  - **Phản hồi (201 Created)**: Khuôn Mẫu 1 (Single Resource), mã `IAM_ROLE_CREATED`.
+- `PUT /api/v1/iam/roles/{id}`: Cập nhật tên/mô tả vai trò — Khuôn Mẫu 1, mã `IAM_ROLE_UPDATED`.
+- `DELETE /api/v1/iam/roles/{id}`: Xóa vai trò — chặn nếu còn user được gán $\rightarrow$ `409 Conflict` `IAM_ROLE_IN_USE`; thành công trả Khuôn Mẫu 1, mã `IAM_ROLE_DELETED`.
 
 ### 5.3. Gán Quyền Chức Năng Cho Vai Trò (Khuôn Mẫu 1: Single Resource)
 - **Endpoint**: `PUT /api/v1/iam/roles/{role_id}/permissions`
@@ -627,3 +760,152 @@ export enum PlatformAction {
   }
 }
 ```
+
+### 5.6. Truy Vấn & Gỡ Vai Trò Của Người Dùng (Khuôn Mẫu 3 & 1)
+- `GET /api/v1/iam/users/{user_id}/roles` — **Khuôn Mẫu 3 (Non-Paginated List)**:
+```json
+{
+  "success": true,
+  "code": "IAM_USER_ROLE_LIST_SUCCESS",
+  "message": "User roles retrieved successfully.",
+  "params": {},
+  "data": {
+    "items": [
+      {
+        "role_id": "role-uuid-1",
+        "code": "TENANT_OWNER",
+        "name": "Chủ Sở Hữu Doanh Nghiệp",
+        "is_system": true,
+        "assigned_at": "2026-09-10T08:00:00Z"
+      }
+    ]
+  }
+}
+```
+- `DELETE /api/v1/iam/users/{user_id}/roles/{role_id}` — **Khuôn Mẫu 1**, mã `IAM_USER_ROLE_REMOVED`; chặn gỡ vai trò hệ thống bắt buộc cuối cùng (ví dụ `TENANT_OWNER`) $\rightarrow$ `409 Conflict` `IAM_USER_ROLE_REQUIRED`.
+
+### 5.7. Danh Mục Nguồn Dữ Liệu Phân Quyền (Data Resources — TASK-282)
+- **Endpoint**: `GET /api/v1/iam/data-resources` — **Khuôn Mẫu 3 (Non-Paginated List)**
+- **Nguồn dữ liệu**: **Entity Registry** (TASK-276), liệt kê các entity đã đăng ký được áp dụng phân quyền dữ liệu (bao gồm `core_sample_records` của plugin core).
+```json
+{
+  "success": true,
+  "code": "IAM_DATA_RESOURCE_LIST_SUCCESS",
+  "message": "Data resource list retrieved successfully.",
+  "params": {},
+  "data": {
+    "items": [
+      {
+        "resource": "CORE_SAMPLE_RECORD",
+        "entity_class": "CoreSampleRecord",
+        "table_name": "core_sample_records",
+        "plugin": "core",
+        "supports_assignee": true
+      }
+    ]
+  }
+}
+```
+
+### 5.8. Reference Entity — `core_sample_records` (FEAT-17)
+Bộ endpoint thực nghiệm chứng minh Data Permission Enforcement Engine hoạt động đầu-cuối:
+- `POST /api/v1/core/sample-records` — **201 Created**, Khuôn Mẫu 1, mã `CORE_SAMPLE_RECORD_CREATED`. Áp dụng bảng quy tắc `CREATE` theo scope (SOL-02 §4).
+- `GET /api/v1/core/sample-records` — **Khuôn Mẫu 2 (Paginated List)**, mã `CORE_SAMPLE_RECORD_LIST_SUCCESS`; dữ liệu tự động lọc theo `read_scope` qua Hibernate `@Filter` + `Session.enableFilter`.
+- `PUT /api/v1/core/sample-records/{id}` — Khuôn Mẫu 1, mã `CORE_SAMPLE_RECORD_UPDATED`; kiểm tra tường minh `canMutate(record, UPDATE)`.
+- `DELETE /api/v1/core/sample-records/{id}` — Khuôn Mẫu 1, mã `CORE_SAMPLE_RECORD_DELETED`; kiểm tra `canMutate(record, DELETE)`. Vi phạm phạm vi $\rightarrow$ `403` `IAM_PERMISSION_DENIED_DATA_SCOPE`.
+- `POST /api/v1/core/sample-records/export` — Khuôn Mẫu 1 (trả metadata file), mã `CORE_SAMPLE_RECORD_EXPORTED`; nếu `export_scope = NONE` $\rightarrow$ `403` `IAM_PERMISSION_DENIED_EXPORT`.
+
+---
+
+## 6. Bảng Mã Phản Hồi & Từ Điển i18n (BUG-62, BUG-63)
+
+Toàn bộ `code` xuất hiện trong tài liệu này, kèm bản dịch chuẩn để Frontend nạp vào từ điển (`frontend/{web,mobile}/public/i18n/{vi,en}.json`). Frontend chỉ dựa vào `code` + `params`, không dùng `message` từ backend để hiển thị.
+
+### 6.1. Platform (`/api/v1/platform/*`)
+| `code` | Tiếng Việt (`vi.json`) | Tiếng Anh (`en.json`) |
+| :--- | :--- | :--- |
+| `PLATFORM_TENANT_LIST_SUCCESS` | Lấy danh sách khách thuê thành công | Tenant list retrieved successfully |
+| `PLATFORM_TENANT_DETAIL_SUCCESS` | Lấy chi tiết khách thuê thành công | Tenant detail retrieved successfully |
+| `PLATFORM_TENANT_QUOTA_UPDATED` | Cập nhật hạn mức khách thuê thành công | Tenant quota updated successfully |
+| `PLATFORM_TENANT_QUOTA_EXCEEDED` | Hạn mức khách thuê đã vượt giới hạn cho phép | Tenant quota exceeds the allowed limit |
+| `PLATFORM_PLUGIN_NOT_ALLOWED` | Plugin không nằm trong danh sách được phép của khách thuê | Plugin is not allowed for this tenant |
+| `PLATFORM_TENANT_LOCK_SUCCESS` | Khóa khách thuê thành công | Tenant locked successfully |
+| `PLATFORM_TENANT_UNLOCK_SUCCESS` | Mở khóa khách thuê thành công | Tenant unlocked successfully |
+| `PLATFORM_SELF_LOCK_FORBIDDEN` | Không thể tự khóa tài khoản của chính mình | You cannot lock your own account |
+| `TENANT_SUSPENDED` | Khách thuê đang bị tạm ngưng hoạt động | Tenant is suspended |
+| `PLATFORM_USER_LIST_SUCCESS` | Lấy danh sách người dùng toàn cầu thành công | Global user list retrieved successfully |
+| `PLATFORM_USER_LOCKED_SUCCESS` | Khóa người dùng thành công | User locked successfully |
+| `PLATFORM_USER_UNLOCKED_SUCCESS` | Mở khóa người dùng thành công | User unlocked successfully |
+| `PLATFORM_USER_PASSWORD_RESET_FORCED` | Đã buộc đặt lại mật khẩu người dùng | User password reset forced |
+| `PLATFORM_USER_2FA_DISABLED_BY_BREAK_GLASS` | Đã tắt 2FA theo quy trình break-glass | 2FA disabled via break-glass |
+| `PLATFORM_IMPERSONATION_STARTED` | Bắt đầu phiên truy cập đại diện thành công | Impersonation session started successfully |
+| `PLATFORM_IMPERSONATION_ENDED` | Kết thúc phiên truy cập đại diện thành công | Impersonation session ended successfully |
+| `PLATFORM_IMPERSONATION_TARGET_NOT_FOUND` | Không tìm thấy người dùng đích để đại diện | Impersonation target user not found |
+| `PLATFORM_IMPERSONATION_SESSION_EXPIRED` | Phiên đại diện đã hết hạn hoặc không tồn tại | Impersonation session expired or not found |
+| `PLATFORM_IMPERSONATION_LOG_LIST_SUCCESS` | Lấy nhật ký phiên đại diện thành công | Impersonation log list retrieved successfully |
+| `PLATFORM_HEALTH_CHECK_SUCCESS` | Lấy trạng thái sức khỏe hạ tầng thành công | Infrastructure health check retrieved successfully |
+| `PLATFORM_AUDIT_LOG_LIST_SUCCESS` | Lấy nhật ký kiểm toán nền tảng thành công | Platform audit log list retrieved successfully |
+| `PLATFORM_ACCESS_DENIED` | Bạn không có quyền truy cập cổng quản trị nền tảng | You do not have access to the platform administration portal |
+| `SUPERADMIN_IMPERSONATION_DESTRUCTIVE_ACTION_FORBIDDEN` | Không được thực hiện thao tác phá hoại trong chế độ đại diện | Destructive action is forbidden in impersonation mode |
+| `SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN` | Không được đọc/xuất bí mật trong chế độ đại diện | Secret export is forbidden in impersonation mode |
+
+### 6.2. Organization (`/api/v1/organization/*`)
+| `code` | Tiếng Việt (`vi.json`) | Tiếng Anh (`en.json`) |
+| :--- | :--- | :--- |
+| `ORGANIZATION_BRANCH_LIST_SUCCESS` | Lấy danh sách chi nhánh thành công | Branch list retrieved successfully |
+| `ORGANIZATION_BRANCH_CREATED_SUCCESS` | Tạo chi nhánh thành công | Branch created successfully |
+| `ORGANIZATION_BRANCH_UPDATED` | Cập nhật chi nhánh thành công | Branch updated successfully |
+| `ORGANIZATION_BRANCH_DELETED` | Xóa chi nhánh thành công | Branch deleted successfully |
+| `ORGANIZATION_BRANCH_IN_USE` | Không thể xóa chi nhánh đang được sử dụng | Cannot delete a branch that is in use |
+| `ORGANIZATION_DEPARTMENT_TREE_SUCCESS` | Lấy cây phòng ban thành công | Department hierarchy retrieved successfully |
+| `ORGANIZATION_DEPARTMENT_CREATED_SUCCESS` | Tạo phòng ban thành công | Department created successfully |
+| `ORGANIZATION_DEPARTMENT_UPDATED` | Cập nhật phòng ban thành công | Department updated successfully |
+| `ORGANIZATION_DEPARTMENT_DELETED` | Xóa phòng ban thành công | Department deleted successfully |
+| `ORGANIZATION_DEPARTMENT_IN_USE` | Không thể xóa phòng ban còn phòng con hoặc thành viên | Cannot delete a department with sub-departments or members |
+| `ORGANIZATION_DEPARTMENT_MOVED` | Di chuyển phòng ban thành công | Department moved successfully |
+| `ORGANIZATION_DEPARTMENT_CYCLE_DETECTED` | Phát hiện vòng lặp trong cây phòng ban | Circular loop detected in the department tree |
+| `ORGANIZATION_REPORTING_CYCLE_DETECTED` | Phát hiện vòng lặp trong tuyến quản lý báo cáo | Circular reporting loop detected |
+| `ORGANIZATION_MEMBERSHIP_CREATED` | Gán thành viên vào tổ chức thành công | Membership created successfully |
+| `ORGANIZATION_MEMBERSHIP_LIST_SUCCESS` | Lấy danh sách thành viên thành công | Membership list retrieved successfully |
+| `ORGANIZATION_MEMBERSHIP_UPDATED` | Cập nhật thành viên thành công | Membership updated successfully |
+| `ORGANIZATION_MEMBERSHIP_REMOVED` | Gỡ thành viên khỏi tổ chức thành công | Membership removed successfully |
+| `ORGANIZATION_BRANCH_ASSIGNMENT_LIST_SUCCESS` | Lấy danh sách phân công quản lý chi nhánh thành công | Branch assignment list retrieved successfully |
+| `ORGANIZATION_BRANCH_ASSIGNMENT_CREATED` | Phân công quản lý chi nhánh thành công | Branch assignment created successfully |
+| `ORGANIZATION_BRANCH_ASSIGNMENT_UPDATED` | Cập nhật phân công quản lý chi nhánh thành công | Branch assignment updated successfully |
+| `ORGANIZATION_BRANCH_ASSIGNMENT_REMOVED` | Thu hồi phân công quản lý chi nhánh thành công | Branch assignment removed successfully |
+| `ORGANIZATION_PRIMARY_BRANCH_REQUIRED` | Người dùng phải có ít nhất một chi nhánh chính | User must have at least one primary branch |
+
+### 6.3. IAM & Reference Entity (`/api/v1/iam/*`, `/api/v1/core/*`)
+| `code` | Tiếng Việt (`vi.json`) | Tiếng Anh (`en.json`) |
+| :--- | :--- | :--- |
+| `IAM_PERMISSION_LIST_SUCCESS` | Lấy danh mục quyền thành công | Permission list retrieved successfully |
+| `IAM_PERMISSION_DENIED_FUNCTIONAL` | Bạn không có quyền thực hiện chức năng này | You do not have permission for this function |
+| `IAM_PERMISSION_DENIED_DATA_SCOPE` | Bạn không có quyền truy cập dữ liệu ngoài phạm vi được phép | You cannot access data outside your allowed scope |
+| `IAM_PERMISSION_DENIED_EXPORT` | Bạn không được phép xuất dữ liệu tài nguyên này | You are not allowed to export this resource data |
+| `IAM_ROLE_LIST_SUCCESS` | Lấy danh sách vai trò thành công | Role list retrieved successfully |
+| `IAM_ROLE_CREATED` | Tạo vai trò thành công | Role created successfully |
+| `IAM_ROLE_UPDATED` | Cập nhật vai trò thành công | Role updated successfully |
+| `IAM_ROLE_DELETED` | Xóa vai trò thành công | Role deleted successfully |
+| `IAM_ROLE_IN_USE` | Không thể xóa vai trò đang được gán cho người dùng | Cannot delete a role that is assigned to users |
+| `IAM_ROLE_PERMISSIONS_UPDATED` | Cập nhật quyền chức năng của vai trò thành công | Role permissions updated successfully |
+| `IAM_ROLE_DATA_POLICIES_SUCCESS` | Lấy ma trận phạm vi dữ liệu thành công | Role data policies retrieved successfully |
+| `IAM_ROLE_DATA_POLICIES_UPDATED` | Cập nhật ma trận phạm vi dữ liệu thành công | Role data policies updated successfully |
+| `IAM_USER_ROLES_ASSIGNED` | Gán vai trò cho người dùng thành công | User roles assigned successfully |
+| `IAM_USER_ROLE_LIST_SUCCESS` | Lấy danh sách vai trò của người dùng thành công | User role list retrieved successfully |
+| `IAM_USER_ROLE_REMOVED` | Gỡ vai trò khỏi người dùng thành công | User role removed successfully |
+| `IAM_USER_ROLE_REQUIRED` | Không thể gỡ vai trò hệ thống bắt buộc cuối cùng | Cannot remove the last required system role |
+| `IAM_DATA_RESOURCE_LIST_SUCCESS` | Lấy danh mục nguồn dữ liệu phân quyền thành công | Data resource list retrieved successfully |
+| `CORE_SAMPLE_RECORD_CREATED` | Tạo bản ghi mẫu thành công | Sample record created successfully |
+| `CORE_SAMPLE_RECORD_LIST_SUCCESS` | Lấy danh sách bản ghi mẫu thành công | Sample record list retrieved successfully |
+| `CORE_SAMPLE_RECORD_UPDATED` | Cập nhật bản ghi mẫu thành công | Sample record updated successfully |
+| `CORE_SAMPLE_RECORD_DELETED` | Xóa bản ghi mẫu thành công | Sample record deleted successfully |
+| `CORE_SAMPLE_RECORD_EXPORTED` | Xuất dữ liệu bản ghi mẫu thành công | Sample record data exported successfully |
+
+### 6.4. Validation (`errors[].code`)
+| `code` | Tiếng Việt (`vi.json`) | Tiếng Anh (`en.json`) |
+| :--- | :--- | :--- |
+| `VALIDATION_MANAGEMENT_CYCLE_FORBIDDEN` | Người quản lý được gán tạo vòng lặp quản lý | Assigned manager creates a circular reporting line |
+| `VALIDATION_REQUIRED` | Trường này là bắt buộc | This field is required |
+| `VALIDATION_INVALID_FORMAT` | Định dạng dữ liệu không hợp lệ | Invalid data format |
+
+> **Quy ước**: `code` là nguồn duy nhất để Frontend tra từ điển i18n; `message` trong response chỉ mang tính tham chiếu kỹ thuật, không dùng làm nguồn hiển thị. Mọi mã mới phát sinh trong quá trình lập trình phải được bổ sung vào bảng này và vào file từ điển `vi`/`en` tương ứng.

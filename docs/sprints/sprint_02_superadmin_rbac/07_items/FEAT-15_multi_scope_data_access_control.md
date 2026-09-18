@@ -2,10 +2,11 @@
 
 - **Mã Tính Năng**: FEAT-15
 - **Phân Loại**: Feature
-- **Mức Độ Ưu Tiên**: [x] Critical
+- **Mức Độ Ưu Tiên**: [x] Critical / [ ] High / [ ] Medium / [ ] Low
 - **Người Đề Xuất**: Khách hàng / BA Agent
+- **Người Phụ Trách**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [ ] To Do
+- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
 
 ---
 
@@ -19,7 +20,7 @@
 
 ## 2. Tiêu Chí Nghiệm Thu (Acceptance Criteria)
 - [ ] **Kịch bản 1: Cấu hình ma trận phạm vi dữ liệu**: Given Tenant Admin đang chọn vai trò `SALES_LEAD`, When thiết lập tài nguyên `SALE_ORDER` có `read_scope = OWN_AND_SUBORDINATES`, `create_scope = BRANCH`, `update_scope = OWN_ONLY`, `delete_scope = NONE`, `export_scope = NONE`, Then cấu hình được lưu vào bảng `role_data_policies`.
-- [ ] **Kịch bản 2: Bảo vệ quyền Xuất dữ liệu (Export Protection)**: Given nhân viên có vai trò với `export_scope = NONE` trên tài nguyên `CUSTOMER`, When người dùng bấm xuất Excel danh sách khách hàng, Then nút bấm bị vô hiệu hóa hoặc API trả về lỗi `403 Forbidden` (`IAM_PERMISSION_DENIED_EXPORT`).
+- [ ] **Kịch bản 2: Bảo vệ quyền Xuất dữ liệu (Export Protection)**: Given nhân viên có vai trò với `export_scope = NONE` trên tài nguyên `SAMPLE_RECORD`, When người dùng bấm xuất Excel danh sách bản ghi mẫu hoặc gọi API `POST /api/v1/core/sample-records/export`, Then nút bấm bị vô hiệu hóa hoặc API trả về lỗi `403 Forbidden` (`IAM_PERMISSION_DENIED_EXPORT`).
 - [ ] **Kịch bản 3: Nguyên tắc gộp quyền mở rộng nhất (Most Permissive)**: Given người dùng có 2 vai trò: Vai trò 1 cho `read_scope = OWN_ONLY`, Vai trò 2 cho `read_scope = DEPARTMENT`, When người dùng xem danh sách, Then người dùng xem được toàn bộ dữ liệu của `DEPARTMENT`.
 - [ ] **Kịch bản 4: Quyền tuyệt đối của TENANT_OWNER**: Given tài khoản chủ sở hữu Tenant, When truy vấn bất kỳ dữ liệu nào, Then luôn áp dụng phạm vi `ALL` cho mọi thao tác, không bị giới hạn bởi bất kỳ chính sách nào.
 
@@ -31,3 +32,11 @@
 - [ ] **TASK-253**: Hiện thực API `GET /api/v1/iam/roles/{id}/data-policies` và `PUT /api/v1/iam/roles/{id}/data-policies`.
 - [ ] **TASK-254**: Xây dựng thuật toán tính toán quyền hiệu dụng (Effective Policy Calculator) áp dụng nguyên tắc Most Permissive khi gộp nhiều Roles.
 - [ ] **TASK-255**: Xây dựng UI Cột 3 (Ma trận bảng lưới 2 chiều Dropdown phân quyền dữ liệu) trong màn hình Split-Screen trên Angular Web.
+- [ ] (xem thêm item: BUG-50, BUG-52, FEAT-17, BUG-61, TASK-282, TASK-276, TASK-288, BUG-71).
+
+---
+
+## 4. Xác Nhận Hoàn Tất (QA Verification)
+- [ ] Developer đã hoàn thành mã nguồn theo thiết kế.
+- [ ] QA đã kiểm thử và xác nhận đạt Acceptance Criteria.
+- [ ] Không gây lỗi phát sinh (Regression test pass).

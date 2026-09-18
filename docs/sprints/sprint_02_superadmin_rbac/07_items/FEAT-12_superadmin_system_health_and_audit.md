@@ -2,10 +2,11 @@
 
 - **Mã Tính Năng**: FEAT-12
 - **Phân Loại**: Feature
-- **Mức Độ Ưu Tiên**: [x] Medium
+- **Mức Độ Ưu Tiên**: [ ] Critical / [ ] High / [x] Medium / [ ] Low
 - **Người Đề Xuất**: Khách hàng / BA Agent
+- **Người Phụ Trách**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [ ] To Do
+- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
 
 ---
 
@@ -31,3 +32,11 @@
 - [ ] **TASK-223**: Hiện thực API `GET /api/v1/platform/health` và `GET /api/v1/platform/audit-logs`.
 - [ ] **TASK-224**: Xây dựng UI Dashboard sức khỏe hạ tầng với biểu đồ mini và thẻ trạng thái xanh/vàng/đỏ trên Angular Web.
 - [ ] **TASK-225**: Xây dựng màn hình xem nhật ký kiểm toán có drawer hiển thị diff JSON chi tiết.
+- [ ] (xem thêm item: BUG-64, BUG-63, TASK-277).
+
+---
+
+## 4. Xác Nhận Hoàn Tất (QA Verification)
+- [ ] Developer đã hoàn thành mã nguồn theo thiết kế.
+- [ ] QA đã kiểm thử và xác nhận đạt Acceptance Criteria.
+- [ ] Không gây lỗi phát sinh (Regression test pass).

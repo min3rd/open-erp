@@ -4,7 +4,7 @@
 - **Ngày Xác Nhận**: 2026-09-18
 - **Đại Diện Khách Hàng**: Người dùng (User / Customer)
 - **Đại Diện Đội Ngũ Dự Án**: BA Agent, Solution Architect, PM Agent
-- **Trạng Thái**: [x] ĐÃ SẴN SÀNG CHỜ KHÁCH HÀNG PHÊ DUYỆT (CONFIRMATION GATE)
+- **Trạng Thái**: [ ] CHỜ KHÁCH HÀNG PHÊ DUYỆT (kèm Phụ lục rà soát 2026-09-18)
 
 ---
 
@@ -39,13 +39,15 @@
 7. **FEAT-16: Bộ Máy Thực Thi Phân Quyền Tự Động Ở Tầng Backend (Enforcement Engine)**:
    - Tự động bổ sung mệnh đề lọc SQL/JPA Filter dựa trên User Context, không cần viết WHERE thủ công.
    - Cơ chế Cache quyền và cơ cấu tổ chức trên Redis kèm cơ chế vô hiệu hóa tức thì khi có thay đổi.
+8. **FEAT-17: Thực Thể Tham Chiếu Core Cho Data Permission Engine (Reference Entity)**:
+   - Bảng `core_sample_records` + API `/api/v1/core/sample-records` để kiểm chứng Data Permission Engine (7 scopes & 6 thao tác) trên dữ liệu thật trước khi có Plugin nghiệp vụ.
 
 ---
 
 ## 2. Phạm Vi Chưa Thực Hiện Trong Sprint Này (Out-of-Scope)
 
 - Tự động tích hợp cổng thanh toán trực tuyến quốc tế (Stripe, Paypal) để tự động trừ tiền gia hạn gói Tenant (chuyển sang Sprint Billing sau).
-- Tính năng phân quyền dữ liệu theo thuộc tính động nâng cao phức tạp ABAC dạng biểu thức Regex tùy ý (tạm thời hỗ trợ JSON filter cơ bản).
+- Tính năng phân quyền dữ liệu theo thuộc tính động nâng cao phức tạp ABAC dạng biểu thức Regex tùy ý (Sprint 02 không hỗ trợ CUSTOM/ABAC; sẽ thiết kế ở sprint sau).
 - Quản lý chấm công, tính lương và đánh giá KPI nhân sự (thuộc Plugin HRM độc lập).
 
 ---
@@ -70,13 +72,13 @@
 
 ### 3.3. Tiêu Chí Cho FEAT-14 & FEAT-15 (RBAC & Data Scopes)
 - **Kịch bản Kiểm Soát Quyền Xuất File (Export Protection)**:
-  - **Given**: Nhân viên Sales Nam được gán vai trò có quyền `READ` khách hàng với scope `BRANCH`, nhưng quyền `EXPORT` bị đặt là `NONE`.
-  - **When**: Nhân viên Nam bấm nút "Xuất file Excel khách hàng".
-  - **Then**: Nút xuất file bị vô hiệu hóa trên giao diện; nếu gọi API trực tiếp `POST /api/v1/customers/export`, Backend trả về mã lỗi `403 Forbidden` kèm code `IAM_PERMISSION_DENIED_EXPORT`.
+  - **Given**: Nhân viên Sales Nam được gán vai trò có quyền `READ` bản ghi mẫu (`SAMPLE_RECORD`) với scope `BRANCH`, nhưng quyền `EXPORT` bị đặt là `NONE`.
+  - **When**: Nhân viên Nam bấm nút "Xuất file Excel bản ghi mẫu".
+  - **Then**: Nút xuất file bị vô hiệu hóa trên giao diện; nếu gọi API trực tiếp `POST /api/v1/core/sample-records/export`, Backend trả về mã lỗi `403 Forbidden` kèm code `IAM_PERMISSION_DENIED_EXPORT`.
 - **Kịch bản Giới Hạn Phạm Vi Sửa Bản Ghi (Update Scope Enforcement)**:
-  - **Given**: Nhân viên Hùng có quyền `READ` đơn hàng scope `DEPARTMENT` (thấy đơn của đồng nghiệp Tuấn), nhưng quyền `UPDATE` có scope `OWN_ONLY`.
-  - **When**: Nhân viên Hùng cố gắng chỉnh sửa đơn hàng do đồng nghiệp Tuấn tạo ra.
-  - **Then**: Backend chặn request và trả về lỗi `IAM_PERMISSION_DENIED_DATA_SCOPE` (Chỉ được sửa đơn do chính mình tạo).
+  - **Given**: Nhân viên Hùng có quyền `READ` bản ghi mẫu (`SAMPLE_RECORD`, thực thể kiểm chứng `core_sample_records` theo FEAT-17) scope `DEPARTMENT` (thấy bản ghi mẫu của đồng nghiệp Tuấn), nhưng quyền `UPDATE` có scope `OWN_ONLY`.
+  - **When**: Nhân viên Hùng cố gắng chỉnh sửa bản ghi mẫu do đồng nghiệp Tuấn tạo ra.
+  - **Then**: Backend chặn request và trả về lỗi `IAM_PERMISSION_DENIED_DATA_SCOPE` (Chỉ được sửa bản ghi mẫu do chính mình tạo).
 
 ---
 
@@ -96,8 +98,19 @@
 ## 5. Chữ Ký Phê Duyệt Của Khách Hàng (Customer Sign-Off)
 
 > [!IMPORTANT]
-> Khách hàng vui lòng kiểm tra kỹ nội dung biên bản phạm vi trên. Bằng việc phê duyệt biên bản này, các bên thống nhất khóa phạm vi yêu cầu và chuyển giao cho Solution Architect Agent thực hiện thiết kế kỹ thuật chi tiết.
+> Khách hàng vui lòng kiểm tra kỹ nội dung biên bản phạm vi trên. Bằng việc phê duyệt biên bản này, các bên thống nhất xác nhận phạm vi và Phụ lục rà soát; tài liệu thiết kế chi tiết (SOL/DES) đã hoàn thành và đính kèm để rà soát.
 
 - **Đại diện Khách Hàng**: Người dùng (Customer / Product Owner) — Ngày ký: ....................
 - **Đại diện Kỹ Thuật (Solution Architect)**: Đã ký
 - **Đại diện Quản Lý (PM Agent)**: Đã ký
+
+---
+
+## 6. Phụ Lục Rà Soát Tài Liệu (2026-09-18) - Cần Khách Hàng Xác Nhận
+1. **FEAT-17 (bổ sung)**: Thực thể tham chiếu Core `core_sample_records` + API `/api/v1/core/sample-records` để kiểm chứng Data Permission Engine trước khi có Plugin nghiệp vụ (xem `07_items/FEAT-17_core_reference_entity.md`).
+2. **Break-Glass APIs**: bổ sung endpoint force-password-reset và disable-2FA cho Super Admin (không thay đổi phạm vi, chỉ đặc tả chi tiết để thực thi mục 2 In-Scope).
+3. **Quota Enforcement**: làm rõ cơ chế chặn vượt `max_users`, `max_storage_mb`, `allowed_plugins` (hiện chỉ mới cấu hình).
+4. **Role source migration**: `user_roles` trở thành nguồn vai trò chính; `user_tenants.role` (Sprint 01) được migrate và deprecate.
+5. **Tenant states**: bổ sung `EXPIRED` vào state machine + job tự động hết hạn dùng thử.
+6. **Scope set chốt 7 giá trị**: `ALL, BRANCH, DEPARTMENT_AND_CHILDREN, DEPARTMENT, OWN_AND_SUBORDINATES, OWN_ONLY, NONE` (không có `CUSTOM`; ABAC nâng cao thuộc Out-of-Scope).
+7. **Quản lý đa chi nhánh (bổ sung)**: BRANCH scope = hợp của Chi nhánh thành viên và Chi nhánh được quản lý (bảng `user_branch_assignments`, primary branch per user); đáp ứng Giám đốc vùng phụ trách nhiều chi nhánh mà không cần membership giả.

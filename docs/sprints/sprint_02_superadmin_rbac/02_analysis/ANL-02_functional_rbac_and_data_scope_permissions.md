@@ -54,6 +54,7 @@ graph TD
 1. **Chi Nhánh (Branch / Location)**: Đơn vị địa lý độc lập có địa chỉ, mã số thuế chi nhánh, kho hàng riêng biệt.
 2. **Cây Phòng Ban (Hierarchical Department Tree)**: Cấu trúc hình cây đa cấp (Parent-Child) cho phép một phòng ban chứa các phòng ban hoặc tổ/đội trực thuộc.
 3. **Mối Quan Hệ Báo Cáo Quản Lý (Management Reporting Lines)**: Mỗi nhân viên được định nghĩa rõ ai là người quản lý trực tiếp (`direct_manager_user_id`), hình thành chuỗi cấp trên - cấp dưới (Manager - Subordinates chain).
+4. **Chi Nhánh Thành Viên và Chi Nhánh Được Quản Lý (Member vs Managed Branches)**: `member_branch_ids` là các Chi nhánh mà user thuộc biên chế qua membership phòng ban; `managed_branch_ids` là các Chi nhánh user được phân công quản lý qua bảng `user_branch_assignments` (TASK-287). Quản lý cấp cao (ví dụ Giám đốc vùng) có thể phụ trách nhiều Chi nhánh mà **không cần membership giả** tại từng Chi nhánh. Mỗi user có tối đa **một Chi nhánh chính (`primary_branch`)** dùng làm Chi nhánh mặc định khi tạo bản ghi (CREATE).
 
 ---
 
@@ -115,12 +116,13 @@ graph BT
 | Tên Scope | Ký Hiệu Enum | Ý Nghĩa Nghiệp Vụ & Quy Tắc Lọc SQL | Áp Dụng Điển Hình |
 | :--- | :--- | :--- | :--- |
 | **Toàn công ty** | `ALL` | Xem/thao tác trên toàn bộ dữ liệu của Tenant.<br>`tenant_id = :currentTenantId` | Ban giám đốc, Kế toán trưởng, Kiểm toán nội bộ |
-| **Chi nhánh** | `BRANCH` | Chỉ xem/thao tác dữ liệu thuộc cùng Chi nhánh với người dùng.<br>`tenant_id = :currentTenantId AND branch_id = :userBranchId` | Giám đốc chi nhánh, Thủ kho chi nhánh |
+| **Chi nhánh** | `BRANCH` | Xem/thao tác dữ liệu thuộc mọi Chi nhánh mà người dùng là thành viên hoặc được phân công quản lý (union).<br>`tenant_id = :currentTenantId AND branch_id IN (:effectiveBranchIds)`<br>*Trong đó `effectiveBranchIds = member_branch_ids ∪ managed_branch_ids` (BR-RBAC-08)* | Giám đốc chi nhánh, Giám đốc vùng, Thủ kho chi nhánh |
 | **Phòng ban & Phòng con** | `DEPARTMENT_AND_CHILDREN` | Dữ liệu thuộc phòng ban của user hoặc bất kỳ phòng ban con nào trong cây tổ chức.<br>`department_id IN (:userDeptAndSubDeptIds)` | Trưởng khối, Trưởng phòng lớn quản lý nhiều tổ nhỏ |
 | **Chỉ phòng ban** | `DEPARTMENT` | Chỉ dữ liệu thuộc đúng phòng ban trực tiếp của user.<br>`department_id = :userDeptId` | Trưởng nhóm, Nhân sự phụ trách phòng ban |
 | **Cá nhân & Cấp dưới** | `OWN_AND_SUBORDINATES` | Dữ liệu do chính user tạo/phụ trách HOẶC do bất kỳ cấp dưới nào theo tuyến báo cáo tạo ra.<br>`owner_id = :userId OR owner_id IN (:subordinateIds)` | Trưởng nhóm kinh doanh, Đội trưởng đội dự án |
 | **Chỉ bản thân** | `OWN_ONLY` | Chỉ bản ghi do chính user tạo ra (`created_by`) hoặc được giao làm đầu mối phụ trách (`assignee_id`).<br>`created_by = :userId OR assignee_id = :userId` | Nhân viên bán hàng, Chuyên viên kỹ thuật |
-| **Tùy biến bộ lọc** | `CUSTOM` | Lọc dữ liệu theo biểu thức điều kiện động (ví dụ: Chỉ xem đơn hàng trạng thái DRAFT hoặc giá trị $< 50$ triệu). | Kiểm soát nghiệp vụ đặc thù theo giá trị hạn mức |
+
+> **Ghi chú phạm vi**: `CUSTOM`/ABAC nâng cao thuộc Out-of-Scope Sprint 02 (xem CONF-01 mục 2). Mọi entity áp dụng data-scope bắt buộc có cột `assignee_id` để công thức `OWN_ONLY` và `OWN_AND_SUBORDINATES` hoạt động thống nhất.
 
 ---
 
@@ -182,7 +184,7 @@ $$\text{NONE} < \text{OWN\_ONLY} < \text{OWN\_AND\_SUBORDINATES} < \text{DEPARTM
 | Danh sách Vai trò (Roles) | Bảng phân loại có đếm số lượng user | Danh sách thẻ gọn | Đầy đủ thông tin trên cả hai nền tảng. |
 | Ma trận Phân quyền chức năng | Lưới Switch Toggle đa cột mật độ cao | Danh sách nhóm chức năng theo Drawer | Desktop cấu hình hàng loạt; Mobile hỗ trợ bật/tắt nhanh từng mục. |
 | Ma trận Phân quyền dữ liệu 6 thao tác | Lưới Matrix 2 chiều: Dòng là Resource, Cột là 6 thao tác Dropdown | Xem chi tiết dạng thẻ từng Resource | Desktop chỉnh sửa ma trận tổng quan nhanh chóng; Mobile hỗ trợ xem và điều chỉnh đơn lẻ. |
-| Gán Vai trò cho Nhân sự | Drawer trượt đa chọn kèm tìm kiếm | Modal/Sheet trượt chọn nhanh | Tìm kiếm và chọn nhanh vai trò cho nhân viên. |
+| Gán Vai trò cho Nhân sự | Drawer trượt đa chọn kèm tìm kiếm | Drawer/Action Sheet trượt chọn nhanh (Anti-Modal) | Tìm kiếm và chọn nhanh vai trò cho nhân viên. |
 
 ---
 
@@ -193,3 +195,9 @@ $$\text{NONE} < \text{OWN\_ONLY} < \text{OWN\_AND\_SUBORDINATES} < \text{DEPARTM
 - **BR-RBAC-03**: Một người dùng bắt buộc phải thuộc ít nhất một Phòng ban chính (`is_primary = true`) và một Chi nhánh để hệ thống tính toán được phạm vi dữ liệu tự động.
 - **BR-RBAC-04**: Tuyến báo cáo quản lý (`direct_manager_user_id`) không được tạo thành vòng lặp khép kín (ví dụ: A quản lý B, B quản lý C, C quản lý A). Hệ thống phải kiểm tra phát hiện chu trình (Cycle Detection) khi cập nhật người quản lý.
 - **BR-RBAC-05**: Khi người dùng bị đổi Vai trò hoặc đổi Phòng ban, hệ thống tự động xóa Cache phân quyền của người dùng đó trên Redis ngay lập tức (Event-driven Cache Invalidation).
+- **BR-RBAC-06**: Chỉ `TENANT_OWNER`/`TENANT_ADMIN` có quyền `core:role:manage`/`core:organization:manage` mới được cấu hình RBAC/Org; mọi API enforce bằng `@RequirePermission`.
+- **BR-RBAC-07**: Mọi user hiện hữu phải được backfill Chi nhánh mặc định "HQ" + Phòng ban mặc định "GENERAL" khi nâng cấp Sprint 02.
+- **BR-RBAC-08**: Phạm vi `BRANCH` được tính bằng **hợp (union)** của Chi nhánh thành viên (`member_branch_ids`) và Chi nhánh được quản lý (`managed_branch_ids`): `effective_branch_ids = member_branch_ids ∪ managed_branch_ids`. Mọi tính toán scope, hiển thị và compiler SQL bắt buộc dùng `effective_branch_ids`, không dùng danh sách membership đơn lẻ.
+- **BR-RBAC-09**: Mỗi user có tối đa **một** Chi nhánh chính (`primary_branch`, ràng buộc partial unique index `uq_user_primary_branch`). `primary_branch` được dùng làm Chi nhánh mặc định khi tạo bản ghi (CREATE) nếu request không truyền `branch_id`.
+- **BR-RBAC-10**: `membership.branch_id` bắt buộc khớp `departments.branch_id` khi phòng ban có gán Chi nhánh; phòng ban xuyên chi nhánh được phép khai báo `branch_id NULL` và khi đó membership được tự do chọn Chi nhánh thuộc `effective_branch_ids` của user.
+- **BR-RBAC-11**: Gán hoặc thay đổi `departments.manager_user_id` bắt buộc **tự động đồng bộ membership** cho trưởng bộ phận (tạo/cập nhật `user_department_memberships` tương ứng) nhằm đảm bảo chỉ tồn tại **một nguồn scope thống nhất**; tuyệt đối không tạo nguồn tính scope thứ hai song song.
