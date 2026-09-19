@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -34,3 +34,8 @@
 - [ ] QA xác nhận không mất dữ liệu, không phá vỡ tenant hiện có.
 
 - **Ghi chú QA (2026-09-18)**: Kế hoạch Flyway V2.0.1 đã bổ sung (DES-DB §5, TASK-275); chờ migration.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Ban hành `V2.0.1__backfill_existing_tenants.sql` (idempotent): HQ/GENERAL mặc định + membership primary + branch assignment primary cho mọi `user_tenants`; backfill `user_roles` theo mapping TASK-271.
+- Seed 24 permissions + 5 system roles từ `V2.0.0` (§6-8) áp dụng cho cả tenant hiện hữu; `mvn test` **51/51 PASS** trên PostgreSQL thật.
+- **Hoãn sang sóng API (Wave 2)**: bảo đảm 100% tenant có ≥ 1 `TENANT_OWNER` — cần logic nghiệp vụ khi legacy role không map được, không thể ép an toàn bằng SQL backfill.

@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -31,3 +31,9 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA review migration + chạy lại trên `openerp_test`.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `V2.0.0` §3 tạo bảng `user_branch_assignments` (PK `id`); partial unique `uq_user_primary_branch` đảm bảo mỗi user tối đa 1 primary; unique `uq_user_branch(user_id, branch_id)` + index `idx_user_branch_tenant`/`idx_user_branch_branch`.
+- Composite FK `fk_user_branch_assignments_branch_tenant` `(branch_id, tenant_id) → branches(id, tenant_id)` ON DELETE CASCADE chống ghép cặp sai tenant (BUG-66).
+- `V2.0.1` §4 backfill **14 primary branch assignments** cho user hiện hữu với `can_manage = FALSE`; entity `UserBranchAssignment` đã đăng ký registry (TASK-276).
+- `mvn test` **51/51 PASS** trên PostgreSQL thật.

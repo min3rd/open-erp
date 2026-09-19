@@ -1,0 +1,153 @@
+<div class="space-y-2">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <h1 class="text-sm font-bold uppercase tracking-wider">{{ 'ORGANIZATION_STRUCTURE' | translate }}</h1>
+    <div class="flex gap-1">
+      <app-sharp-button size="sm" (clicked)="openCreateDepartment(null)">+ {{ 'ORGANIZATION_DEPARTMENT_ADD' | translate }}</app-sharp-button>
+      <app-sharp-button size="sm" variant="secondary" (clicked)="openCreateBranch()">+ {{ 'ORGANIZATION_BRANCH_ADD' | translate }}</app-sharp-button>
+    </div>
+  </div>
+
+  @if (errorText()) {
+    <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300 flex justify-between items-center">
+      <span>{{ errorText() }}</span>
+      <button type="button" class="underline" (click)="errorText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+  @if (successText()) {
+    <div class="border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1.5 text-[11px] text-emerald-700 dark:text-emerald-300 flex justify-between items-center">
+      <span>{{ successText() }}</span>
+      <button type="button" class="underline" (click)="successText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+
+  @if (confirmDelete(); as pending) {
+    <div class="border border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 px-2 py-1.5 flex flex-wrap items-center justify-between gap-2">
+      <span class="text-[11px] text-rose-700 dark:text-rose-300">
+        {{ (pending.type === 'BRANCH' ? 'ORGANIZATION_BRANCH_DELETE_CONFIRM' : 'ORGANIZATION_DEPARTMENT_DELETE_CONFIRM') | translate:{ name: pending.name } }}
+      </span>
+      <span class="flex gap-1">
+        <app-sharp-button size="sm" variant="danger" [loading]="deleting()" (clicked)="confirmDeleteAction()">
+          {{ 'COMMON_DELETE' | translate }}
+        </app-sharp-button>
+        <app-sharp-button size="sm" variant="secondary" (clicked)="cancelDelete()">
+          {{ 'COMMON_CANCEL' | translate }}
+        </app-sharp-button>
+      </span>
+    </div>
+  }
+
+  <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-2 items-start">
+    <section class="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+      <div class="px-2 py-1.5 border-b border-neutral-200 dark:border-neutral-800">
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+          {{ 'ORGANIZATION_DEPARTMENT_TREE' | translate }}
+        </span>
+      </div>
+      <div class="max-h-[540px] overflow-y-auto">
+        @if (loading()) {
+          <div class="px-2 py-3 text-center text-[11px] text-neutral-500">{{ 'COMMON_LOADING' | translate }}</div>
+        } @else {
+          @for (department of flatDepartments(); track department.id) {
+            <div class="flex items-center justify-between gap-2 px-2 py-1 border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50">
+              <div class="min-w-0" [style.padding-left]="indentation(department.depth)">
+                <div class="text-[11px] font-medium truncate">{{ department.name }}</div>
+                <div class="text-[10px] font-mono text-neutral-400 truncate">
+                  {{ department.code }}
+                  @if (department.branch_name) {
+                    <span> • {{ department.branch_name }}</span>
+                  }
+                  @if (department.manager_name) {
+                    <span> • {{ 'ORGANIZATION_DEPARTMENT_MANAGER' | translate }}: {{ department.manager_name }}</span>
+                  }
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  class="px-1 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                  (click)="openCreateDepartment(department.id)"
+                >
+                  +
+                </button>
+                <button
+                  type="button"
+                  class="px-1 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                  (click)="openEditDepartment(department)"
+                >
+                  {{ 'COMMON_EDIT' | translate }}
+                </button>
+                <button
+                  type="button"
+                  class="px-1 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                  (click)="askDeleteDepartment(department)"
+                >
+                  {{ 'COMMON_DELETE' | translate }}
+                </button>
+              </div>
+            </div>
+          } @empty {
+            <div class="px-2 py-3 text-center text-[11px] text-neutral-500">{{ 'COMMON_NO_DATA' | translate }}</div>
+          }
+        }
+      </div>
+    </section>
+
+    <section>
+      <div class="px-2 py-1.5 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 border-b-0">
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+          {{ 'ORGANIZATION_BRANCHES' | translate }}
+        </span>
+      </div>
+      <app-table [columns]="branchColumns" [rows]="branches()" [loading]="loading()">
+        <ng-template let-b>
+          <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50">
+            <td class="px-2 py-1.5 font-mono text-[10px]">{{ b.code }}</td>
+            <td class="px-2 py-1.5">
+              <div class="font-medium">{{ b.name }}</div>
+              @if (b.is_default) {
+                <span class="text-[10px] text-neutral-400">{{ 'COMMON_DEFAULT' | translate }}</span>
+              }
+            </td>
+            <td class="px-2 py-1.5 font-mono text-[10px]">{{ b.phone || '-' }}</td>
+            <td class="px-2 py-1.5 text-[10px] text-neutral-500 truncate max-w-[160px]">{{ b.address || '-' }}</td>
+            <td class="px-2 py-1.5">
+              <div class="flex items-center justify-end gap-1">
+                <button
+                  type="button"
+                  class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                  (click)="openEditBranch(b)"
+                >
+                  {{ 'COMMON_EDIT' | translate }}
+                </button>
+                <button
+                  type="button"
+                  class="px-1.5 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                  (click)="askDeleteBranch(b)"
+                >
+                  {{ 'COMMON_DELETE' | translate }}
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </app-table>
+    </section>
+  </div>
+
+  <app-department-form-drawer
+    [isOpen]="departmentDrawerOpen()"
+    [department]="editingDepartment()"
+    [presetParentId]="presetParentId()"
+    [branches]="branches()"
+    [departments]="flatDepartments()"
+    (close)="closeDepartmentDrawer()"
+    (saved)="onDepartmentSaved($event)"
+  />
+
+  <app-branch-form-drawer
+    [isOpen]="branchDrawerOpen()"
+    [branch]="editingBranch()"
+    (close)="closeBranchDrawer()"
+    (saved)="onBranchSaved($event)"
+  />
+</div>

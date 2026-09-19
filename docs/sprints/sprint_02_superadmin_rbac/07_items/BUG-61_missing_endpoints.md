@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -36,3 +36,7 @@
 - [ ] QA kiểm thử contract từng endpoint mới.
 
 - **Ghi chú QA (2026-09-18)**: Các endpoint thiếu đã được đặc tả (API §3.8-3.11, §4, §5); triển khai theo TASK-277/TASK-278/TASK-279/TASK-282.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Đã hiện thực đầy đủ nhóm endpoint còn thiếu: tenant detail, user directory + lock/unlock, break-glass, impersonation logs; user roles list/remove + role users + `GET /iam/users`; branch/department delete, department move, membership list/update/remove; data-resource catalog.
+- TASK-277/278/279/282 hoàn tất; 100% endpoint dùng envelope 4 khuôn mẫu + `ResponseKey`/mã i18n; test API-level tương ứng trên PostgreSQL thật.

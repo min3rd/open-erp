@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [ ] High / [x] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA kiểm tra contract + dữ liệu nguồn registry.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `GET /api/v1/iam/data-resources` trả catalog resource từ Entity Registry (chỉ entity được phép phân quyền, bọc `items`, sắp xếp theo domain/resource).
+- Dùng `description_key` i18n, không hardcode chuỗi hiển thị; guard quyền đọc cấu hình IAM; test API-level IAM trên PostgreSQL thật.
+- Tiêu thụ bởi UI ma trận data-policy (TASK-280).

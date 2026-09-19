@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [ ] High / [x] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent & QA/QC Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -31,3 +31,8 @@
 - [ ] Developer đã viết test và tự chạy.
 - [ ] QA review độc lập và chạy lại bộ test.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `PlatformAdminApiTest` + `PlatformAuthApiTest` bao phủ TC-BE-28→32: bootstrap first-run/idempotent, self-disable guard, last-admin guard (kể cả 2 request đồng thời), revocation session/blacklist, CLI.
+- Ca bổ sung: không tự đăng ký qua API công khai; grant email hiện hữu không tạo trùng user.
+- Chạy trên PostgreSQL & Redis thật; full suite `mvn test` **157/157 PASS**.

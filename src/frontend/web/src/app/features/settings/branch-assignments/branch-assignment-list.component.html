@@ -1,0 +1,94 @@
+<div class="space-y-2">
+  <div class="flex flex-wrap items-end justify-between gap-2">
+    <h1 class="text-sm font-bold uppercase tracking-wider">{{ 'ORGANIZATION_BRANCH_ASSIGNMENT_TITLE' | translate }}</h1>
+    <div class="flex flex-wrap items-end gap-2">
+      <div class="w-72">
+        <app-sharp-select [label]="'ORGANIZATION_USER_ASSIGN_USER' | translate" [options]="memberOptions()" [(value)]="selectedUserId" />
+      </div>
+      <app-sharp-button (clicked)="openDrawer()">{{ 'ORGANIZATION_BRANCH_ASSIGNMENT_ASSIGN_BTN' | translate }}</app-sharp-button>
+    </div>
+  </div>
+
+  @if (errorText()) {
+    <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300 flex justify-between items-center">
+      <span>{{ errorText() }}</span>
+      <button type="button" class="underline" (click)="errorText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+  @if (successText()) {
+    <div class="border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1.5 text-[11px] text-emerald-700 dark:text-emerald-300 flex justify-between items-center">
+      <span>{{ successText() }}</span>
+      <button type="button" class="underline" (click)="successText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+
+  @if (confirmRemove(); as pending) {
+    <div class="border border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 px-2 py-1.5 flex flex-wrap items-center justify-between gap-2">
+      <span class="text-[11px] text-rose-700 dark:text-rose-300">
+        {{ 'ORGANIZATION_BRANCH_ASSIGNMENT_REMOVE_CONFIRM' | translate:{ branch: pending.branch_code || pending.branch_id } }}
+      </span>
+      <span class="flex gap-1">
+        <app-sharp-button size="sm" variant="danger" [loading]="removing()" (clicked)="confirmRemoveAssignment()">
+          {{ 'COMMON_DELETE' | translate }}
+        </app-sharp-button>
+        <app-sharp-button size="sm" variant="secondary" (clicked)="cancelRemove()">
+          {{ 'COMMON_CANCEL' | translate }}
+        </app-sharp-button>
+      </span>
+    </div>
+  }
+
+  <app-table [columns]="columns" [rows]="assignments()" [loading]="loading()">
+    <ng-template let-a>
+      <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50">
+        <td class="px-2 py-1.5">
+          <div class="font-mono text-[10px]">{{ a.user_email || a.user_id }}</div>
+        </td>
+        <td class="px-2 py-1.5">
+          <div class="font-mono text-[10px]">{{ a.branch_code || a.branch_id }}</div>
+        </td>
+        <td class="px-2 py-1.5 text-center">
+          @if (a.is_primary) {
+            <app-badge variant="success">{{ 'COMMON_DEFAULT' | translate }}</app-badge>
+          } @else {
+            <app-badge variant="default">-</app-badge>
+          }
+        </td>
+        <td class="px-2 py-1.5 text-center">
+          @if (a.can_manage) {
+            <app-badge variant="info">{{ 'COMMON_ENABLED' | translate }}</app-badge>
+          } @else {
+            <app-badge variant="default">{{ 'COMMON_DISABLED' | translate }}</app-badge>
+          }
+        </td>
+        <td class="px-2 py-1.5">
+          <div class="flex items-center justify-end gap-1">
+            <button
+              type="button"
+              class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              (click)="openDrawer(a.user_id)"
+            >
+              {{ 'COMMON_EDIT' | translate }}
+            </button>
+            <button
+              type="button"
+              class="px-1.5 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+              (click)="askRemove(a)"
+            >
+              {{ 'COMMON_DELETE' | translate }}
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </app-table>
+
+  <app-branch-assignment-drawer
+    [isOpen]="drawerOpen()"
+    [userId]="drawerUser()?.user_id || ''"
+    [userEmail]="drawerUser()?.user_email || ''"
+    [branches]="branches()"
+    (close)="closeDrawer()"
+    (saved)="onSaved($event)"
+  />
+</div>

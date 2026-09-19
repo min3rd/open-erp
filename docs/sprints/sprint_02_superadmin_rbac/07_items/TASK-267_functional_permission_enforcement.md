@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [x] Critical / [ ] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [x] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA re-test bằng token thiếu/đủ quyền trên môi trường thật.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Tiến Độ (2026-09-18)
+- Wave 2 hoàn tất annotation `@RequirePermission` + `PermissionEnforcementFilter` (403 `IAM_PERMISSION_DENIED_FUNCTIONAL`, audit DENIED, platform token bypass có log) + catalog quyền seed `TASK-268`.
+- **Giữ `In Progress`**: chưa retrofit annotation cho API legacy Sprint 01 và API org/iam mới (hiện default-allow); **retrofit enforcement toàn bộ endpoint chuyển Wave 3**.
+- Test hiện có: `PermissionFilterTest` trên PostgreSQL & Redis thật.

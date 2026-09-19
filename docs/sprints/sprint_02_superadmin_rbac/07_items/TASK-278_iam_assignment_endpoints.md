@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA kiểm thử gán/gỡ vai trò và hiệu lực quyền tức thì.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Hoàn thiện vòng đời gán vai trò: `GET /iam/users/{id}/roles`, `DELETE /iam/users/{id}/roles/{roleId}` (chặn gỡ vai trò hệ thống bắt buộc cuối cùng), `GET /iam/roles/{id}/users`; bổ sung `GET /iam/users` (directory trong tenant).
+- Phát `UserRoleAssignedEvent` → `PermissionInvalidationService` xóa cache Redis `sec:ctx:*` để quyền có hiệu lực tức thì.
+- Test `UserRoleApiTest` + `PermissionInvalidationServiceTest` trên PostgreSQL & Redis thật.

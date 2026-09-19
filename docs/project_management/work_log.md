@@ -229,3 +229,33 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
   - Cập nhật `CONF-01` trạng thái **ĐÃ XÁC NHẬN & PHÊ DUYỆT** + ngày ký 2026-09-18; `00_READING_GUIDE` chuyển trạng thái **SẴN SÀNG LẬP TRÌNH (Bước 7)**, tick toàn bộ checklist sign-off; `BUG-49` chuyển `Done`.
   - Cập nhật `task_board.md` (khối Sprint 02 - Sẵn sàng lập trình, backlog 64 item) và `changelog.md` (Sprint 02 Gate đã duyệt).
   - **Sprint 02 chính thức bước vào giai đoạn triển khai**: ưu tiên Critical (FEAT-11, FEAT-15, FEAT-16 + FEAT-17/TASK-267) trước, sau đó High/Medium theo backlog `07_items/`.
+
+---
+
+## 2026-09-18 - SPRINT 02 WAVE 1 HOÀN TẤT
+- **Người thực hiện**: Developer Agent (Backend Quarkus, Web Angular, Mobile Ionic)
+- **Giai đoạn**: Sprint 02 - Wave 1 (Foundation: CSDL, Entity Registry, UI skeleton)
+- **Nội dung công việc**:
+  - **CSDL (Flyway)**: ban hành `V2.0.0__superadmin_rbac_schema.sql` (13 bảng mới + partition `platform_audit_logs` theo tháng; ràng buộc chéo tenant BUG-66) và `V2.0.1__backfill_existing_tenants.sql` (HQ/GENERAL mặc định, membership/branch-assignment primary, mapping role TASK-271); cột `user_tenants.role` được đánh dấu **DEPRECATED**.
+  - **Seed trên `openerp_dev`**: **24 permissions**, **5 system roles** (`tenant_id NULL`), **16 `user_roles`**, **14 primary branch assignments** (`can_manage = FALSE`).
+  - **Backend**: Entity Registry đăng ký **20 entity** (7 Core IAM + 13 Sprint 02); bổ sung `quarkus-smallrye-health`, `/q/health` trả **UP** cho Database + Redis; `mvn test` **51/51 PASS** trên PostgreSQL thật (không H2).
+  - **Web**: dựng xong toàn bộ màn `/platform/*` + `/settings/*` Sprint 02 (UI skeleton), `npm run build` PASS, i18n vi/en parity **578 key**.
+  - **Mobile**: 4 màn Sprint 02 + menu, `npm run build` PASS, i18n vi/en parity **316 key**.
+  - **Điều chỉnh kỹ thuật ghi nhận**: (1) `user_roles`/`role_data_policies` dùng trigger `trg_fn_assert_role_tenant_scope` thay composite FK vì system role `tenant_id NULL`; (2) department mặc định `GENERAL`; (3) backfill `can_manage = FALSE` cho primary branch assignment; (4) chưa đảm bảo mỗi tenant ≥ 1 `TENANT_OWNER` — xử lý ở sóng API; (5) audit retention/partition maintenance để Wave 2.
+  - **Cập nhật item**: TASK-268, 271, 275, 276, 287 + BUG-54, 59, 60, 64, 66 → `Done`; FEAT-10 → FEAT-18 → `In Progress` (Wave 1 foundation/UI skeleton).
+  - **Wave 2 đang chạy**: Enforcement Engine, Platform APIs, Organization/IAM APIs.
+
+---
+
+## 2026-09-18 - SPRINT 02 WAVE 2 HOÀN TẤT
+- **Người thực hiện**: Developer Agent (Backend Quarkus, Web Angular, Mobile Ionic)
+- **Giai đoạn**: Sprint 02 - Wave 2 (Backend APIs + Enforcement Engine)
+- **Nội dung công việc**:
+  - **2A Enforcement Engine**: `UserSecurityContext`/`SecurityContextService` (Redis `sec:ctx:{tenant}:{user}`, TTL 15 phút, invalidation qua event), `@RequirePermission` + `PermissionEnforcementFilter` (403 `IAM_PERMISSION_DENIED_FUNCTIONAL` + audit DENIED); `DataScopeResolver/Predicate/Engine/FilterEnabler` 7 scope (most-permissive union, subordinates qua CTE `direct_manager_user_id` + subtree trưởng phòng); `TenantQuotaService` (`PLATFORM_TENANT_QUOTA_EXCEEDED`); Reference Entity API `/api/v1/core/sample-records` (CRUD/share/export + scope filter); `AuditRecorder` interface + no-op.
+  - **2B Platform**: platform login (JWT claim `platform_role`, bootstrap emails, INVITED→ACTIVE), `PlatformRoleRequiredFilter`; audit hash chain SHA-256 + `AuditChainVerifier` + partition/retention jobs; tenants (list/detail/quota/lock/unlock), users (lock/unlock/force-reset/break-glass), impersonation (≤30 phút, `act_sub`, log/exit/logs, chặn SUPPORT_ENGINEER); health (Kafka UNKNOWN → DEGRADED); admins lifecycle (guard self-disable/last-admin); CLI `PlatformAdminCli`; tenant lifecycle job (TRIAL→EXPIRED, PENDING_DELETION→DELETED).
+  - **2C Organization/IAM**: branches/departments tree (depth 5, cycle detection), memberships + branch assignments (primary invariant), roles CRUD (system immutable), `GET/PUT /iam/roles/{id}/permissions`, user-role assign, `GET /iam/users`, data-resources/data-policies, cross-tenant guards.
+  - **Test infra**: `TestDbCleanup` dùng chung (FK-safe), 5 test class legacy cập nhật, `PlatformTestSupport` delegate; sửa assertion ô nhiễm `SchemaFoundationTest`.
+  - **Kiểm chứng**: full `mvn test` **157/157 PASS** (PostgreSQL + Redis thật, không H2); Web + Mobile `npm run build` PASS.
+  - **Cập nhật item**: 22 TASK + 7 BUG chuyển `Done`; 6 BUG đã Done được bổ sung ghi chú Wave 2; giữ `In Progress`: FEAT-10→18, TASK-267 (retrofit enforcement legacy), TASK-293 (cold archive), BUG-68 (guard export-secret).
+  - **Tồn đọng chuyển Wave 3**: retrofit `@RequirePermission` cho API legacy + org/iam; wire audit cho org/iam writes; hợp nhất `ResponseKey` DTO 2C; `must_change_password` chặn cứng; guard tenant cho GET; i18n FE mã lỗi mới; cold archive audit; remote CLI; guard export secret khi impersonation; QA dual-mode.
+  - **Wave 3 (đang chuẩn bị)**: tích hợp enforcement legacy, QA dual-mode browser (Web + Mobile), UG-02, sprint review.

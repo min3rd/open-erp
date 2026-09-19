@@ -34,3 +34,8 @@
 - [x] QA xác nhận bằng chứng kiểm thử được lưu.
 
 - **Ghi chú QA (2026-09-18)**: test_plan đã bổ sung `openerp_test` + Flyway V2 + TC-BE-13→20; hoàn tất.
+
+## Ghi Chú Wave 2 (2026-09-18)
+- Test plan tiếp tục được dùng cho bộ test Wave 2; full `mvn test` **157/157 PASS** trên PostgreSQL + Redis thật (không H2).
+- Bộ test infra dùng chung `TestDbCleanup` (FK-safe) + `S2EngineFixtures`/`S2IamFixtures`; sửa assertion ô nhiễm `SchemaFoundationTest`.
+- QA cập nhật test report + chạy lại độc lập các ca cross-scope — **chuyển Wave 3**.

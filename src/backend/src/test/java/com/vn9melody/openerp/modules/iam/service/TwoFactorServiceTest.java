@@ -4,6 +4,7 @@ import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +27,7 @@ import com.vn9melody.openerp.modules.iam.dto.response.TwoFactorSetupResponse;
 import com.vn9melody.openerp.modules.iam.dto.response.TwoFactorStatusResponse;
 import com.vn9melody.openerp.modules.iam.model.*;
 import com.vn9melody.openerp.support.RedisTestSupport;
+import com.vn9melody.openerp.support.TestDbCleanup;
 
 @QuarkusTest
 public class TwoFactorServiceTest {
@@ -48,6 +50,9 @@ public class TwoFactorServiceTest {
     @Inject
     RedisDataSource redis;
 
+    @Inject
+    EntityManager entityManager;
+
     @InjectMock
     EmailNotificationService emailNotificationService;
 
@@ -56,13 +61,7 @@ public class TwoFactorServiceTest {
     @BeforeEach
     @Transactional
     public void setup() {
-        PasswordResetToken.deleteAll();
-        UserTwoFactor.deleteAll();
-        UserProfile.deleteAll();
-        UserCredential.deleteAll();
-        UserTenant.deleteAll();
-        User.deleteAll();
-        Tenant.deleteAll();
+        TestDbCleanup.cleanup(entityManager);
         RedisTestSupport.clearAll(redis);
 
         PersonalRegisterRequest reg = new PersonalRegisterRequest();

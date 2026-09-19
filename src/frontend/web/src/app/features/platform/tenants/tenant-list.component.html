@@ -1,0 +1,171 @@
+<div class="space-y-2">
+  <div class="flex flex-wrap items-end justify-between gap-2">
+    <h1 class="text-sm font-bold uppercase tracking-wider">{{ 'PLATFORM_TENANT_MANAGEMENT' | translate }}</h1>
+    <div class="flex flex-wrap items-end gap-2">
+      <div class="w-36">
+        <app-sharp-select
+          [label]="'PLATFORM_TENANT_COL_STATUS' | translate"
+          [options]="statusOptions"
+          [(value)]="statusFilter"
+        />
+      </div>
+      <div class="w-56">
+        <app-sharp-input
+          [label]="'COMMON_SEARCH' | translate"
+          [placeholder]="'PLATFORM_TENANT_SEARCH_PLACEHOLDER' | translate"
+          [(value)]="keyword"
+          (keyup.enter)="applyFilters()"
+        />
+      </div>
+      <app-sharp-button (clicked)="applyFilters()">{{ 'COMMON_APPLY' | translate }}</app-sharp-button>
+      <app-sharp-button variant="secondary" (clicked)="resetFilters()">{{ 'COMMON_RESET' | translate }}</app-sharp-button>
+    </div>
+  </div>
+
+  @if (errorText()) {
+    <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300 flex justify-between items-center">
+      <span>{{ errorText() }}</span>
+      <button type="button" class="underline" (click)="errorText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+  @if (successText()) {
+    <div class="border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1.5 text-[11px] text-emerald-700 dark:text-emerald-300 flex justify-between items-center">
+      <span>{{ successText() }}</span>
+      <button type="button" class="underline" (click)="successText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+
+  <app-table [columns]="columns" [rows]="tenants()" [loading]="loading()">
+    <ng-template let-t>
+      <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 align-top">
+        <td class="px-2 py-1.5">
+          <div class="font-medium">{{ t.name }}</div>
+          <div class="text-[10px] font-mono text-neutral-400">{{ t.slug }}</div>
+        </td>
+        <td class="px-2 py-1.5 font-mono text-[10px]">{{ t.type }}</td>
+        <td class="px-2 py-1.5 font-mono text-[10px]">{{ ('PLATFORM_PLAN_' + t.plan_tier) | translate }}</td>
+        <td class="px-2 py-1.5">
+          <div class="flex items-center gap-1">
+            <app-badge [variant]="statusVariant(t.status)">{{ ('TENANT_STATUS_' + t.status) | translate }}</app-badge>
+            @if (t.is_locked) {
+              <app-badge variant="danger">{{ 'PLATFORM_TENANT_LOCKED_BADGE' | translate }}</app-badge>
+            }
+          </div>
+        </td>
+        <td class="px-2 py-1.5 text-right">
+          <div class="font-mono text-[10px]">{{ t.active_users_count }}/{{ t.max_users }}</div>
+          <div class="mt-0.5 h-1 w-20 ml-auto bg-neutral-200 dark:bg-neutral-800">
+            <div class="h-1 bg-blue-500" [style.width.%]="userQuotaPercent(t)"></div>
+          </div>
+        </td>
+        <td class="px-2 py-1.5 text-right">
+          <div class="font-mono text-[10px]">{{ t.used_storage_mb }}/{{ t.max_storage_mb }} MB</div>
+          <div class="mt-0.5 h-1 w-20 ml-auto bg-neutral-200 dark:bg-neutral-800">
+            <div
+              class="h-1"
+              [class.bg-emerald-500]="storagePercent(t) < 80"
+              [class.bg-amber-500]="storagePercent(t) >= 80 && storagePercent(t) < 95"
+              [class.bg-red-500]="storagePercent(t) >= 95"
+              [style.width.%]="storagePercent(t)"
+            ></div>
+          </div>
+        </td>
+        <td class="px-2 py-1.5 text-[10px] font-mono text-neutral-500">{{ t.created_at }}</td>
+        <td class="px-2 py-1.5">
+          <div class="flex flex-wrap items-center justify-end gap-1">
+            <button
+              type="button"
+              class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              (click)="openQuota(t)"
+            >
+              {{ 'PLATFORM_TENANT_QUOTA_BTN' | translate }}
+            </button>
+            <button
+              type="button"
+              class="px-1.5 py-0.5 text-[10px] border border-indigo-300 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
+              (click)="openImpersonate(t)"
+            >
+              {{ 'PLATFORM_TENANT_IMPERSONATE_BTN' | translate }}
+            </button>
+            @if (t.is_locked) {
+              <button
+                type="button"
+                class="px-1.5 py-0.5 text-[10px] border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                (click)="askUnlock(t)"
+              >
+                {{ 'PLATFORM_TENANT_UNLOCK_BTN' | translate }}
+              </button>
+            } @else {
+              <button
+                type="button"
+                class="px-1.5 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                (click)="askLock(t)"
+              >
+                {{ 'PLATFORM_TENANT_LOCK_BTN' | translate }}
+              </button>
+            }
+          </div>
+        </td>
+      </tr>
+
+      @if (confirmAction(); as action) {
+        @if (action.tenant.tenant_id === t.tenant_id) {
+          <tr class="bg-amber-50/60 dark:bg-amber-950/20">
+            <td [attr.colspan]="columns.length" class="px-2 py-2">
+              <div class="flex flex-wrap items-end gap-2">
+                <span class="text-[11px] font-semibold uppercase text-amber-700 dark:text-amber-300">
+                  {{ (action.type === 'LOCK' ? 'PLATFORM_TENANT_LOCK_CONFIRM' : 'PLATFORM_TENANT_UNLOCK_CONFIRM') | translate }}
+                </span>
+                @if (action.type === 'LOCK') {
+                  <div class="w-72">
+                    <app-sharp-input
+                      [label]="'PLATFORM_TENANT_LOCK_REASON' | translate"
+                      [required]="true"
+                      [(value)]="confirmReason"
+                    />
+                  </div>
+                }
+                <div class="w-56">
+                  <app-sharp-input
+                    type="password"
+                    [label]="'COMMON_CONFIRM_PASSWORD' | translate"
+                    [required]="true"
+                    [(value)]="confirmPassword"
+                  />
+                </div>
+                <app-sharp-button [loading]="confirmSaving()" (clicked)="submitConfirm()">
+                  {{ 'COMMON_CONFIRM' | translate }}
+                </app-sharp-button>
+                <app-sharp-button variant="secondary" (clicked)="cancelConfirm()">
+                  {{ 'COMMON_CANCEL' | translate }}
+                </app-sharp-button>
+              </div>
+            </td>
+          </tr>
+        }
+      }
+    </ng-template>
+  </app-table>
+
+  <app-pagination
+    [page]="page()"
+    [size]="size()"
+    [totalItems]="totalItems()"
+    [totalPages]="totalPages()"
+    (pageChange)="changePage($event)"
+  />
+
+  <app-tenant-quota-drawer
+    [isOpen]="quotaOpen()"
+    [tenant]="quotaTenant()"
+    (close)="closeQuota()"
+    (saved)="onQuotaSaved($event)"
+  />
+
+  <app-impersonate-confirm-drawer
+    [isOpen]="impersonateOpen()"
+    [tenant]="impersonateTenant()"
+    (close)="closeImpersonate()"
+    (started)="onImpersonationStarted($event)"
+  />
+</div>

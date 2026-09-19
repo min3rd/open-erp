@@ -1,0 +1,42 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="'ORGANIZATION_USER_ASSIGN_TITLE' | translate"
+  [subtitle]="membership()?.user_email || ''"
+  width="w-[460px] max-w-[100vw]"
+  (close)="onClose()"
+>
+  <div class="space-y-3">
+    <app-sharp-input
+      [label]="'ORGANIZATION_USER_ASSIGN_USER' | translate"
+      [placeholder]="'ORGANIZATION_USER_ASSIGN_USER_PLACEHOLDER' | translate"
+      [disabled]="isEditing"
+      [required]="true"
+      [(value)]="userId"
+    />
+    <app-sharp-select [label]="'ORGANIZATION_USER_ASSIGN_BRANCH' | translate" [options]="branchOptions()" [required]="true" [(value)]="branchId" />
+    <app-sharp-select
+      [label]="'ORGANIZATION_USER_ASSIGN_DEPARTMENT' | translate"
+      [options]="departmentOptions()"
+      [required]="true"
+      [(value)]="departmentId"
+    />
+    <app-sharp-select [label]="'ORGANIZATION_USER_ASSIGN_MANAGER' | translate" [options]="managerOptions()" [(value)]="managerUserId" />
+    <app-sharp-input [label]="'ORGANIZATION_USER_ASSIGN_TITLE_FIELD' | translate" [(value)]="title" />
+
+    <div class="flex items-center justify-between border border-neutral-200 dark:border-neutral-800 px-2 py-1.5">
+      <span class="text-[11px]">{{ 'ORGANIZATION_USER_ASSIGN_PRIMARY' | translate }}</span>
+      <app-sharp-toggle [checked]="isPrimary()" (checkedChange)="isPrimary.set($event)" />
+    </div>
+
+    @if (errorText()) {
+      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+        {{ errorText() }}
+      </div>
+    }
+  </div>
+
+  <div drawer-footer>
+    <app-sharp-button variant="secondary" (clicked)="onClose()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+    <app-sharp-button [loading]="saving()" (clicked)="submit()">{{ 'COMMON_SAVE' | translate }}</app-sharp-button>
+  </div>
+</app-drawer>

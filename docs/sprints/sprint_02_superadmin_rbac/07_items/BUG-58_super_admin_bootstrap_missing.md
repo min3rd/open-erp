@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -34,3 +34,7 @@
 - [ ] QA xác nhận tài khoản bootstrap đăng nhập được portal platform.
 
 - **Ghi chú QA (2026-09-18)**: Cơ chế bootstrap đã đặc tả (SOL-01 §1.2, TASK-274); chờ thực thi.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `PlatformBootstrapService` seed idempotent từ `openerp.platform.bootstrap-emails` + `OPENERP_ADMIN_BOOTSTRAP_SECRET`; chạy lại không sinh bản ghi trùng, email tồn tại thì nâng cấp tài khoản hiện hữu.
+- Tài khoản bootstrap đăng nhập được portal platform (test `PlatformAuthApiTest`); hướng dẫn cấu hình/secret đã ghi trong tài liệu deployment.

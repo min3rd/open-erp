@@ -1,0 +1,13 @@
+@if (isActive() && session(); as active) {
+  <div class="sticky top-0 z-50 bg-amber-500 text-neutral-950 font-medium px-3 py-1 text-xs flex justify-between items-center gap-3 shadow-md">
+    <span class="truncate">
+      {{
+        'IMPERSONATION_ACTIVE_BANNER'
+          | translate:{ admin_email: active.admin_email, ticket: active.support_ticket, 'mm:ss': countdown() }
+      }}
+    </span>
+    <app-sharp-button [variant]="buttonVariantPrimary" (clicked)="exitSession()">
+      {{ 'IMPERSONATION_EXIT_BTN' | translate }}
+    </app-sharp-button>
+  </div>
+}

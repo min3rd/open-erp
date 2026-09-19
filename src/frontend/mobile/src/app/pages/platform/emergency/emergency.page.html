@@ -1,0 +1,201 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard" text=""></ion-back-button>
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ 'PLATFORM_EMERGENCY_TITLE' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="max-w-md mx-auto p-3 space-y-3 overflow-x-hidden pb-40">
+    <div class="bg-white dark:bg-neutral-900 border border-indigo-300 dark:border-indigo-800 p-2.5 space-y-1">
+      <div class="flex items-center justify-between gap-2">
+        <h1 class="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100" [appTranslate]="'PLATFORM_EMERGENCY_TITLE'"></h1>
+        <app-badge [variant]="systemStatusVariant()">{{ health()?.system_status || 'UNKNOWN' }}</app-badge>
+      </div>
+      <p class="text-[10px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'PLATFORM_EMERGENCY_SUBTITLE'"></p>
+    </div>
+
+    @if (error()) {
+      <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        {{ error() }}
+      </div>
+    }
+    @if (success()) {
+      <div class="p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+        {{ success() }}
+      </div>
+    }
+
+    <div class="grid grid-cols-3 gap-1.5">
+      <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-2 min-w-0">
+        <p class="text-sm font-bold text-neutral-900 dark:text-neutral-100">{{ activeTenantCount() }}</p>
+        <p class="text-[9px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 leading-tight" [appTranslate]="'PLATFORM_EMERGENCY_ACTIVE_TENANTS'"></p>
+      </div>
+      <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-2 min-w-0">
+        <p class="text-sm font-bold" [ngClass]="storageAlertCount() > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-neutral-900 dark:text-neutral-100'">
+          {{ storageAlertCount() }}
+        </p>
+        <p class="text-[9px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 leading-tight" [appTranslate]="'PLATFORM_EMERGENCY_STORAGE_ALERTS'"></p>
+      </div>
+      <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-2 min-w-0 space-y-1">
+        <div class="flex items-center gap-1 min-w-0">
+          <span class="w-2 h-2 shrink-0 rounded-full" [ngClass]="subsystemDotClass(health()?.database?.primary)"></span>
+          <span class="text-[9px] text-neutral-600 dark:text-neutral-300 truncate" [appTranslate]="'PLATFORM_HEALTH_DB'"></span>
+        </div>
+        <div class="flex items-center gap-1 min-w-0">
+          <span class="w-2 h-2 shrink-0 rounded-full" [ngClass]="subsystemDotClass(health()?.redis?.status)"></span>
+          <span class="text-[9px] text-neutral-600 dark:text-neutral-300 truncate" [appTranslate]="'PLATFORM_HEALTH_REDIS'"></span>
+        </div>
+        <div class="flex items-center gap-1 min-w-0">
+          <span class="w-2 h-2 shrink-0 rounded-full" [ngClass]="subsystemDotClass(health()?.kafka?.status)"></span>
+          <span class="text-[9px] text-neutral-600 dark:text-neutral-300 truncate" [appTranslate]="'PLATFORM_HEALTH_KAFKA'"></span>
+        </div>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'COMMON_LOADING'"></p>
+    } @else {
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="text-[10px] font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300" [appTranslate]="'PLATFORM_EMERGENCY_TENANTS'"></h2>
+          <app-sharp-button [size]="'sm'" [variant]="buttonSecondary" [loading]="loading()" (clicked)="load()">
+            {{ 'COMMON_REFRESH' | translate }}
+          </app-sharp-button>
+        </div>
+
+        @for (tenant of tenants(); track tenant.tenant_id) {
+          <div class="min-h-10 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-2.5 space-y-1.5">
+            <div class="flex items-start justify-between gap-2">
+              <span class="min-w-0 flex-1">
+                <span class="block text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate">{{ tenant.name }}</span>
+                <span class="block text-[10px] font-mono text-neutral-500 dark:text-neutral-400 truncate">{{ tenant.slug }}</span>
+              </span>
+              <span class="shrink-0 flex items-center gap-1">
+                @if (tenant.is_locked) {
+                  <app-badge [variant]="badgeDanger">{{ 'PLATFORM_EMERGENCY_LOCKED_BADGE' | translate }}</app-badge>
+                }
+                <app-badge [variant]="tenantStatusVariant(tenant)">{{ tenant.status }}</app-badge>
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2 min-w-0">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-1 text-[9px] text-neutral-500 dark:text-neutral-400">
+                  <span class="truncate">{{ tenant.used_storage_mb || 0 }}/{{ tenant.max_storage_mb || 0 }} MB</span>
+                  <span [ngClass]="storagePercent(tenant) >= 80 ? 'text-amber-600 dark:text-amber-400 font-semibold' : ''">{{ storagePercent(tenant) }}%</span>
+                </div>
+                <div class="mt-0.5 h-1 bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
+                  <div
+                    class="h-full"
+                    [ngClass]="storagePercent(tenant) >= 80 ? 'bg-amber-500' : 'bg-emerald-500'"
+                    [style.width.%]="storagePercent(tenant) > 100 ? 100 : storagePercent(tenant)"
+                  ></div>
+                </div>
+              </div>
+              @if (tenant.is_locked) {
+                <app-sharp-button [size]="'sm'" [variant]="buttonSecondary" [disabled]="submitting()" (clicked)="openTenantPanel(tenant, 'unlock')">
+                  {{ 'PLATFORM_EMERGENCY_UNLOCK' | translate }}
+                </app-sharp-button>
+              } @else {
+                <app-sharp-button [size]="'sm'" [variant]="buttonDanger" [disabled]="submitting()" (clicked)="openTenantPanel(tenant, 'lock')">
+                  {{ 'PLATFORM_EMERGENCY_LOCK' | translate }}
+                </app-sharp-button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="space-y-1.5">
+        <h2 class="text-[10px] font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300" [appTranslate]="'PLATFORM_EMERGENCY_USERS'"></h2>
+        <div class="flex gap-1.5">
+          <input
+            type="search"
+            [(ngModel)]="userKeyword"
+            (keyup.enter)="loadUsers()"
+            [placeholder]="'PLATFORM_EMERGENCY_USER_SEARCH_PLACEHOLDER' | translate"
+            class="flex-1 min-w-0 min-h-10 px-2.5 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-none text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-200"
+          />
+          <app-sharp-button [variant]="buttonSecondary" [loading]="usersLoading()" (clicked)="loadUsers()">
+            {{ 'COMMON_SEARCH' | translate }}
+          </app-sharp-button>
+        </div>
+
+        @if (usersLoading()) {
+          <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'COMMON_LOADING'"></p>
+        } @else if (!users().length) {
+          <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'PLATFORM_EMERGENCY_USER_EMPTY'"></p>
+        } @else {
+          @for (user of users(); track user.user_id) {
+            <div class="min-h-10 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-2.5 flex items-center justify-between gap-2">
+              <span class="min-w-0 flex-1">
+                <span class="block text-[11px] text-neutral-900 dark:text-neutral-100 truncate">{{ user.email }}</span>
+                <span class="block text-[10px] text-neutral-500 dark:text-neutral-400 truncate">
+                  {{ user.full_name || user.tenant_name || user.user_id }}
+                </span>
+              </span>
+              <span class="shrink-0 flex items-center gap-1.5">
+                <app-badge [variant]="userStatusVariant(user)">{{ user.status }}</app-badge>
+                @if (isUserLocked(user)) {
+                  <app-sharp-button [size]="'sm'" [variant]="buttonSecondary" [disabled]="submitting()" (clicked)="confirmUserAction(user, 'unlock')">
+                    {{ 'PLATFORM_EMERGENCY_UNLOCK' | translate }}
+                  </app-sharp-button>
+                } @else {
+                  <app-sharp-button [size]="'sm'" [variant]="buttonDanger" [disabled]="submitting()" (clicked)="confirmUserAction(user, 'lock')">
+                    {{ 'PLATFORM_EMERGENCY_LOCK' | translate }}
+                  </app-sharp-button>
+                }
+              </span>
+            </div>
+          }
+        }
+      </div>
+    }
+  </div>
+</ion-content>
+
+@if (tenantTarget(); as target) {
+  <div class="fixed inset-0 z-40 bg-neutral-950/50" (click)="closeTenantPanel()"></div>
+  <div class="erp-sheet-up fixed bottom-0 inset-x-0 z-50 bg-white dark:bg-neutral-900 border-t-2 border-neutral-900 dark:border-neutral-100 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] space-y-2.5 max-h-[80vh] overflow-y-auto">
+    <div class="flex items-center justify-between gap-2">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100 truncate">
+        {{ (target.action === 'lock' ? 'PLATFORM_EMERGENCY_LOCK_TITLE' : 'PLATFORM_EMERGENCY_UNLOCK_TITLE') | translate }}
+      </h2>
+      <button
+        type="button"
+        class="w-8 h-8 shrink-0 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300"
+        (click)="closeTenantPanel()"
+      >
+        <span class="text-sm leading-none">×</span>
+      </button>
+    </div>
+    <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">{{ target.tenant.name }} • {{ target.tenant.slug }}</p>
+
+    @if (target.action === 'lock') {
+      <app-sharp-input
+        [label]="'PLATFORM_EMERGENCY_LOCK_REASON' | translate"
+        [(value)]="lockReason"
+        [required]="true"
+      />
+    }
+    <app-sharp-input
+      [label]="'PLATFORM_EMERGENCY_CONFIRM_PASSWORD' | translate"
+      type="password"
+      [(value)]="confirmPassword"
+      [required]="true"
+    />
+
+    <app-sharp-button
+      [fullWidth]="true"
+      [variant]="target.action === 'lock' ? buttonDanger : buttonSecondary"
+      [loading]="submitting()"
+      (clicked)="confirmTenantAction()"
+    >
+      {{ (target.action === 'lock' ? 'PLATFORM_EMERGENCY_CONFIRM_LOCK' : 'PLATFORM_EMERGENCY_CONFIRM_UNLOCK') | translate }}
+    </app-sharp-button>
+  </div>
+}

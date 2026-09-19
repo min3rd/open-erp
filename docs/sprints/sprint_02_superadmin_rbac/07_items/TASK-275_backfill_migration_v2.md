@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [x] Critical / [ ] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,9 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA kiểm tra dữ liệu backfill trên bản sao DB dev.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `V2.0.1__backfill_existing_tenants.sql` tạo branch mặc định **HQ** (`is_default = TRUE`) + department **GENERAL** cho mọi tenant hiện hữu; tạo membership primary HQ/GENERAL cho toàn bộ `user_tenants`.
+- Backfill **14 primary branch assignments** (HQ) với `can_manage = FALSE` — chỉ cấp chi nhánh mặc định cho CREATE, không tự mở quyền quản lý BRANCH scope (BR-RBAC-09).
+- Backfill `user_roles` theo mapping TASK-271 (**16 bản ghi** trên `openerp_dev`); migration idempotent, chạy lại không nhân bản dữ liệu.
+- **Hoãn sang sóng API (Wave 2)**: bảo đảm mỗi tenant có ≥ 1 `TENANT_OWNER` (ràng buộc nghiệp vụ cần xử lý ở tầng API/bootstrap).

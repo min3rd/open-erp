@@ -1,0 +1,26 @@
+<div class="min-h-screen bg-neutral-100 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 flex flex-col">
+  <app-topbar
+    [tenantName]="auth.user()?.tenant_name || ''"
+    [role]="auth.user()?.role || 'MEMBER'"
+    [userName]="auth.user()?.full_name || ''"
+    [userEmail]="auth.user()?.email || ''"
+    (openAccount)="openAccount()"
+    (logout)="logout()"
+  />
+
+  <nav class="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 px-2 flex items-center gap-0.5 overflow-x-auto">
+    @for (item of menuItems; track item.path) {
+      <a
+        [routerLink]="item.path"
+        routerLinkActive="border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100 font-bold"
+        class="px-2.5 py-2 text-[11px] font-medium uppercase tracking-wider text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 border-b-2 border-transparent whitespace-nowrap transition-colors"
+      >
+        {{ item.labelKey | translate }}
+      </a>
+    }
+  </nav>
+
+  <main class="flex-1 p-2 sm:p-3 w-full space-y-2">
+    <router-outlet />
+  </main>
+</div>

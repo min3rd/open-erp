@@ -1,0 +1,22 @@
+<div class="flex flex-wrap items-center justify-between gap-2 border border-t-0 border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 px-2 py-1.5 text-[11px] text-neutral-600 dark:text-neutral-400">
+  <span>{{ 'COMMON_TOTAL_ITEMS' | translate:{ total: totalItems() } }}</span>
+  <div class="flex items-center gap-1">
+    <button
+      type="button"
+      class="px-2 py-0.5 border border-neutral-300 dark:border-neutral-700 rounded-none disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-neutral-800"
+      [disabled]="!canPrev()"
+      (click)="prev()"
+    >
+      {{ 'COMMON_PREV' | translate }}
+    </button>
+    <span class="font-mono px-1">{{ 'COMMON_PAGE_OF' | translate:{ page: displayPage(), total_pages: totalPages() || 1 } }}</span>
+    <button
+      type="button"
+      class="px-2 py-0.5 border border-neutral-300 dark:border-neutral-700 rounded-none disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-neutral-800"
+      [disabled]="!canNext()"
+      (click)="next()"
+    >
+      {{ 'COMMON_NEXT_PAGE' | translate }}
+    </button>
+  </div>
+</div>

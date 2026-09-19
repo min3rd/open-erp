@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -34,3 +34,8 @@
 - [ ] QA xác nhận endpoint trả đúng khi bật/tắt Kafka.
 
 - **Ghi chú QA (2026-09-18)**: Đặc tả đã cập nhật (SOL-01 §4 + API §3.6 thêm DEGRADED/UNKNOWN); cần thêm `quarkus-smallrye-health` + logic trạng thái khi triển khai.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Bổ sung dependency `quarkus-smallrye-health`; kiểm chứng runtime `GET /q/health` trả **UP** cho cả **Database** và **Redis** (PostgreSQL + Redis thật).
+- Enum trạng thái `UP / DOWN / DEGRADED / UNKNOWN` và quy ước Kafka on-demand đã chốt trong SOL-01 §4 + API spec §3.6.
+- `mvn test` **51/51 PASS**.

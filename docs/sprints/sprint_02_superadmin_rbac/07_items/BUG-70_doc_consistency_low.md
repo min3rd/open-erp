@@ -36,3 +36,7 @@
 - [x] QA/PM xác nhận tài liệu nhất quán.
 
 - **Ghi chú QA (2026-09-18)**: Đã sửa toàn bộ điểm low (11 bảng tại 00_READING_GUIDE:45, link 5 cấp, 201 Created, Redis Pub/Sub, assignee_id/CREATE rules, BFS, `sprint_review.md` + Deferred/Retrospective); DB role `openerp` (dev) / `openerp_app` (prod khuyến nghị) đã ghi rõ tại SOL-01; hoàn tất.
+
+## Ghi Chú Wave 2 (2026-09-18)
+- Wave 2 cập nhật thêm bảng mã lỗi mới vào DES-API §6 và `SUPERADMIN_RBAC_REGISTRY.md`; không phát sinh sai lệch số liệu/link mới.
+- Entity Registry xác nhận đủ **13 entity** Sprint 02 (tổng 20 entity toàn hệ thống), khớp migration `V2.0.0`.

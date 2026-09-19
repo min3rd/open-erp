@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA xác nhận API + Drawer + badge đạt Acceptance Criteria.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- API `GET/POST/PUT/DELETE /api/v1/organization/branch-assignments` (4 khuôn mẫu, mã `ORGANIZATION_BRANCH_ASSIGNMENT_*`); `is_primary=true` tự gỡ primary cũ, chặn xóa primary cuối (`ORGANIZATION_PRIMARY_REQUIRED`).
+- Web: `BranchAssignmentDrawer` + danh sách phân công trong `features/settings/branch-assignments/` (anti-modal, i18n vi/en); badge quản lý chi nhánh trong danh sách nhân sự; invalidation cache sau khi lưu.
+- Build Web PASS; QA dual-mode Desktop ≥1280px chuyển Wave 3.

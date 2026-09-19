@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA mô phỏng tenant hết hạn và xác nhận hành vi.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `TenantLifecycleJob` quét định kỳ `TRIAL` hết hạn → `EXPIRED` và `PENDING_DELETION` → `DELETED`, idempotent; email chủ tenant lấy URL từ `@ConfigProperty("openerp.frontend.url")`, không hardcode.
+- Ghi audit hệ thống cho mỗi lần chuyển trạng thái; tenant `EXPIRED` bị chặn thao tác thêm mới dữ liệu.
+- Test `TenantLifecycleJobTest` (trước hạn không đổi, quá hạn chuyển đúng, chạy lặp an toàn) trên PostgreSQL thật.

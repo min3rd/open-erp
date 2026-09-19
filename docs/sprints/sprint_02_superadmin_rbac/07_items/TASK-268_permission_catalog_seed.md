@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -31,3 +31,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA kiểm tra catalog và bản dịch i18n.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Migration `V2.0.0__superadmin_rbac_schema.sql` §6 seed idempotent **24 permissions** core (`core:user:*`, `core:role:*`, `core:permission:*`, `core:organization:*`, `core:branch:*`, `core:department:*`, `core:membership:*`, `core:branch-assignment:*`, `core:audit:read`, `core:sample-record:*`) kèm `description_key` i18n; chạy lại không sinh bản ghi trùng (`ON CONFLICT (code) DO NOTHING`).
+- §8 phân bổ `role_permissions` cho **5 system roles** (`tenant_id NULL`): TENANT_OWNER/TENANT_ADMIN toàn bộ, GENERAL_MANAGER read+export, STAFF sample-record read/create/update + organization:read, VIEWER toàn bộ read.
+- `mvn test` **51/51 PASS** trên `openerp_dev` (PostgreSQL thật, không H2); catalog kiểm chứng trên DB dev.

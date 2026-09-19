@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -34,3 +34,8 @@
 - [ ] QA xác nhận không còn nguồn vai trò song song trên PostgreSQL thật.
 
 - **Ghi chú QA (2026-09-18)**: Mapping role đã chốt (`user_roles` là nguồn chính) theo TASK-271; chờ migration.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Migration `V2.0.1` §5 chuyển **16 bản ghi** `user_tenants.role` → `user_roles` theo mapping đã chốt (`OWNER→TENANT_OWNER`, `ADMIN/TENANT_ADMIN→TENANT_ADMIN`, `MEMBER→STAFF`, `VIEWER→VIEWER`); `user_roles` trở thành single source of truth.
+- Cột `user_tenants.role` được `COMMENT` **DEPRECATED** (chỉ giữ để rollback, dự kiến xóa ở sprint sau).
+- Trigger `trg_fn_assert_role_tenant_scope` trên `user_roles`/`role_data_policies` chặn gán vai trò chéo tenant (system role `tenant_id NULL` được chấp nhận); `mvn test` **51/51 PASS** trên PostgreSQL thật.

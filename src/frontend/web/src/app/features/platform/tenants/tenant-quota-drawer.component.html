@@ -1,0 +1,83 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="'PLATFORM_TENANT_QUOTA_TITLE' | translate"
+  [subtitle]="tenant()?.name || ''"
+  width="w-[460px] max-w-[100vw]"
+  (close)="onClose()"
+>
+  @if (tenant(); as current) {
+    <div class="space-y-3">
+      <div class="border border-neutral-200 dark:border-neutral-800 p-2 space-y-1.5">
+        <div class="flex justify-between text-[10px] font-mono">
+          <span>{{ 'PLATFORM_TENANT_QUOTA_USERS_USAGE' | translate }}</span>
+          <span>{{ current.active_users_count }}/{{ maxUsers() }}</span>
+        </div>
+        <div class="h-1.5 bg-neutral-200 dark:bg-neutral-800">
+          <div class="h-1.5 bg-blue-500" [style.width.%]="userPercent()"></div>
+        </div>
+        <div class="flex justify-between text-[10px] font-mono pt-1">
+          <span>{{ 'PLATFORM_TENANT_QUOTA_STORAGE_USAGE' | translate }}</span>
+          <span>{{ current.used_storage_mb }}/{{ maxStorageMb() }} MB</span>
+        </div>
+        <div class="h-1.5 bg-neutral-200 dark:bg-neutral-800">
+          <div
+            class="h-1.5"
+            [class.bg-emerald-500]="storagePercent() < 80"
+            [class.bg-amber-500]="storagePercent() >= 80 && storagePercent() < 95"
+            [class.bg-red-500]="storagePercent() >= 95"
+            [style.width.%]="storagePercent()"
+          ></div>
+        </div>
+      </div>
+
+      <app-sharp-select
+        [label]="'PLATFORM_TENANT_QUOTA_PLAN' | translate"
+        [options]="planOptions"
+        [(value)]="planTier"
+      />
+
+      <div class="grid grid-cols-2 gap-2">
+        <app-sharp-input
+          type="number"
+          [label]="'PLATFORM_TENANT_QUOTA_MAX_USERS' | translate"
+          [(value)]="maxUsers"
+        />
+        <app-sharp-input
+          type="number"
+          [label]="'PLATFORM_TENANT_QUOTA_MAX_STORAGE' | translate"
+          [(value)]="maxStorageMb"
+        />
+      </div>
+
+      <fieldset class="border border-neutral-200 dark:border-neutral-800 p-2">
+        <legend class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 px-1">
+          {{ 'PLATFORM_TENANT_QUOTA_ALLOWED_PLUGINS' | translate }}
+        </legend>
+        <div class="grid grid-cols-2 gap-1.5">
+          @for (plugin of pluginOptions; track plugin) {
+            <label class="flex items-center gap-1.5 text-xs cursor-pointer">
+              <input
+                type="checkbox"
+                class="rounded-none"
+                [checked]="isPluginChecked(plugin)"
+                (change)="togglePlugin(plugin, $any($event.target).checked)"
+              />
+              <span class="font-mono text-[11px]">{{ plugin }}</span>
+            </label>
+          }
+        </div>
+      </fieldset>
+
+      @if (errorText()) {
+        <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+          {{ errorText() }}
+        </div>
+      }
+    </div>
+  }
+
+  <div drawer-footer>
+    <app-sharp-button variant="secondary" (clicked)="onClose()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+    <app-sharp-button [loading]="saving()" (clicked)="save()">{{ 'COMMON_SAVE' | translate }}</app-sharp-button>
+  </div>
+</app-drawer>

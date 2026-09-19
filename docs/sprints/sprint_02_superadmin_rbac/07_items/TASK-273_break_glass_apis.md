@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [x] Critical / [ ] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA chạy luồng break-glass end-to-end trên môi trường thật.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `PlatformUserResource` + `PlatformUserService`: `POST /platform/users/{id}/force-password-reset` và `POST /platform/users/{id}/break-glass/disable-2fa` yêu cầu `support_ticket` + `reason` + `confirm_password`; không lộ token trong log.
+- Audit `USER_FORCE_PASSWORD_RESET` / `USER_BREAK_GLASS_DISABLE_2FA` với actor/target/ticket/reason/IP; email cảnh báo gửi người dùng.
+- Test `PlatformUserApiTest` (thiếu trường → 400; thành công có audit) trên PostgreSQL & Redis thật.

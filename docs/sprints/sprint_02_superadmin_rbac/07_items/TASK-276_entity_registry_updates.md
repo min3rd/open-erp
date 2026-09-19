@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [ ] High / [x] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA đối chiếu doc với bảng `sys_entity_registry`.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Toàn bộ **13 entity Sprint 02** đã gắn `@RegisterEntity`: 3 platform (`core-platform`), 4 organization (`core-organization`), 5 IAM (`core-iam`), 1 reference `CoreSampleRecord` (`core`); tổng registry hiện tại **20 entity** (7 Core IAM + 13 Sprint 02).
+- `EntityRegistryService` UPSERT theo `(plugin_id, entity_name)` khi startup, không sinh bản ghi trùng; test `EntityRegistryServiceTest` đã cập nhật và PASS trong `mvn test` **51/51**.
+- Ban hành `docs/system/entity_registry/SUPERADMIN_RBAC_REGISTRY.md` và cập nhật liên kết tại `docs/system/entity_registry/README.md` §4.

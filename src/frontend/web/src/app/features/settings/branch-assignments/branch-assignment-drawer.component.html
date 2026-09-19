@@ -1,0 +1,60 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="'ORGANIZATION_BRANCH_ASSIGNMENT_TITLE' | translate"
+  [subtitle]="userEmail()"
+  width="w-[460px] max-w-[100vw]"
+  (close)="onClose()"
+>
+  <div class="space-y-3">
+    <div class="grid grid-cols-[24px_minmax(0,1fr)_80px] gap-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-500 px-1">
+      <span>{{ 'ORGANIZATION_BRANCH_ASSIGNMENT_MANAGE_COL' | translate }}</span>
+      <span>{{ 'ORGANIZATION_BRANCHES' | translate }}</span>
+      <span class="text-center">{{ 'ORGANIZATION_BRANCH_ASSIGNMENT_PRIMARY_BRANCH' | translate }}</span>
+    </div>
+
+    <div class="border border-neutral-200 dark:border-neutral-800 divide-y divide-neutral-100 dark:divide-neutral-800 max-h-72 overflow-y-auto">
+      @if (loading()) {
+        <div class="px-2 py-3 text-center text-[11px] text-neutral-500">{{ 'COMMON_LOADING' | translate }}</div>
+      } @else {
+        @for (branch of branches(); track branch.id) {
+          <div class="grid grid-cols-[24px_minmax(0,1fr)_80px] items-center gap-1 px-2 py-1.5">
+            <input
+              type="checkbox"
+              class="rounded-none"
+              [checked]="isSelected(branch.id)"
+              (change)="toggleBranch(branch.id, $any($event.target).checked)"
+            />
+            <div class="min-w-0">
+              <div class="text-[11px] font-medium truncate">{{ branch.name }}</div>
+              <div class="text-[10px] font-mono text-neutral-400">{{ branch.code }}</div>
+            </div>
+            <label class="flex items-center justify-center gap-1 cursor-pointer">
+              <input
+                type="radio"
+                [name]="'primary-branch-' + userId()"
+                class="rounded-none"
+                [checked]="primaryBranchId() === branch.id"
+                (change)="setPrimary(branch.id)"
+              />
+            </label>
+          </div>
+        } @empty {
+          <div class="px-2 py-3 text-center text-[11px] text-neutral-500">{{ 'COMMON_NO_DATA' | translate }}</div>
+        }
+      }
+    </div>
+
+    <p class="text-[10px] text-neutral-500">{{ 'ORGANIZATION_BRANCH_ASSIGNMENT_HINT' | translate }}</p>
+
+    @if (errorText()) {
+      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+        {{ errorText() }}
+      </div>
+    }
+  </div>
+
+  <div drawer-footer>
+    <app-sharp-button variant="secondary" (clicked)="onClose()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+    <app-sharp-button [loading]="saving()" (clicked)="save()">{{ 'COMMON_SAVE' | translate }}</app-sharp-button>
+  </div>
+</app-drawer>

@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Solution Architect Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -34,3 +34,7 @@
 - [ ] QA xác nhận bằng test trên PostgreSQL thật.
 
 - **Ghi chú QA (2026-09-18)**: Đặc tả đã sửa (ANL-01 thêm EXPIRED; DES-DB quy tắc `is_locked ⇔ SUSPENDED`); job tự động theo TASK-272, chờ thực thi.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Enum `TenantStatus` (`TRIAL/ACTIVE/SUSPENDED/EXPIRED/PENDING_DELETION`) đồng bộ DB; quy tắc `is_locked ⇔ SUSPENDED` thực thi trong luồng lifecycle.
+- `TenantLifecycleJob` tự động `TRIAL→EXPIRED` (BR-SA-05) và `PENDING_DELETION→DELETED`; test `TenantLifecycleJobTest` trên PostgreSQL thật.

@@ -1,0 +1,94 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="'PLATFORM_AUDIT_DETAIL_TITLE' | translate"
+  [subtitle]="log()?.event_id || ''"
+  width="w-[560px] max-w-[100vw]"
+  (close)="onClose()"
+>
+  @if (loading()) {
+    <div class="text-center text-xs text-neutral-500 py-4">{{ 'COMMON_LOADING' | translate }}</div>
+  }
+
+  @if (errorText()) {
+    <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+      {{ errorText() }}
+    </div>
+  }
+
+  @if (log(); as detail) {
+    <div class="space-y-3">
+      <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+        <div class="text-neutral-500">{{ 'PLATFORM_AUDIT_COL_ACTION' | translate }}</div>
+        <div class="font-mono">{{ detail.action }}</div>
+        <div class="text-neutral-500">{{ 'PLATFORM_AUDIT_COL_SCOPE' | translate }}</div>
+        <div><app-badge variant="info">{{ ('AUDIT_SCOPE_' + detail.scope) | translate }}</app-badge></div>
+        <div class="text-neutral-500">{{ 'PLATFORM_AUDIT_COL_RESULT' | translate }}</div>
+        <div><app-badge [variant]="resultVariant(detail.result)">{{ ('AUDIT_RESULT_' + detail.result) | translate }}</app-badge></div>
+        <div class="text-neutral-500">{{ 'PLATFORM_AUDIT_COL_ACTOR' | translate }}</div>
+        <div class="font-mono">{{ detail.actor_email || '-' }} ({{ detail.actor_type }})</div>
+        <div class="text-neutral-500">{{ 'PLATFORM_AUDIT_TARGET' | translate }}</div>
+        <div class="font-mono">{{ detail.target_tenant_name || detail.tenant_id || '-' }}</div>
+        <div class="text-neutral-500">{{ 'PLATFORM_AUDIT_RESOURCE' | translate }}</div>
+        <div class="font-mono">{{ detail.resource_type || '-' }}{{ detail.resource_id ? ':' + detail.resource_id : '' }}</div>
+        <div class="text-neutral-500">{{ 'PLATFORM_AUDIT_COL_TIME' | translate }}</div>
+        <div class="font-mono">{{ detail.created_at }}</div>
+      </div>
+
+      @if (detail.details?.reason) {
+        <div class="border border-neutral-200 dark:border-neutral-800 p-2">
+          <div class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 mb-1">
+            {{ 'PLATFORM_AUDIT_REASON' | translate }}
+          </div>
+          <p class="text-[11px]">{{ detail.details?.reason }}</p>
+        </div>
+      }
+
+      @if (diffKeys().length) {
+        <div class="border border-neutral-200 dark:border-neutral-800">
+          <div class="grid grid-cols-3 bg-neutral-50 dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+            <div class="px-2 py-1">{{ 'PLATFORM_AUDIT_DIFF_FIELD' | translate }}</div>
+            <div class="px-2 py-1 bg-rose-50 dark:bg-rose-950/30">{{ 'PLATFORM_AUDIT_DIFF_BEFORE' | translate }}</div>
+            <div class="px-2 py-1 bg-emerald-50 dark:bg-emerald-950/30">{{ 'PLATFORM_AUDIT_DIFF_AFTER' | translate }}</div>
+          </div>
+          @for (key of diffKeys(); track key) {
+            <div class="grid grid-cols-3 border-b border-neutral-100 dark:border-neutral-800 last:border-b-0 text-[10px] font-mono">
+              <div class="px-2 py-1 font-semibold">{{ key }}</div>
+              <div class="px-2 py-1 bg-rose-50/50 dark:bg-rose-950/20 break-all" [class.font-bold]="isChanged(key)">
+                {{ valueText(beforeValue(key)) }}
+              </div>
+              <div class="px-2 py-1 bg-emerald-50/50 dark:bg-emerald-950/20 break-all" [class.font-bold]="isChanged(key)">
+                {{ valueText(afterValue(key)) }}
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="border border-indigo-200 dark:border-indigo-900 bg-indigo-50/50 dark:bg-indigo-950/20 p-2 space-y-1">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+            {{ 'PLATFORM_AUDIT_CHAIN' | translate }}
+          </span>
+          <app-badge variant="success">{{ 'PLATFORM_AUDIT_CHAIN_VERIFIED' | translate }}</app-badge>
+        </div>
+        <div class="text-[10px] font-mono break-all">
+          <span class="text-neutral-500">{{ 'PLATFORM_AUDIT_PREV_HASH' | translate }}: </span>{{ detail.prev_hash || '-' }}
+        </div>
+        <div class="text-[10px] font-mono break-all">
+          <span class="text-neutral-500">{{ 'PLATFORM_AUDIT_ENTRY_HASH' | translate }}: </span>{{ detail.entry_hash || '-' }}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px]">
+        <div class="text-neutral-500">{{ 'PLATFORM_AUDIT_EVENT_ID' | translate }}</div>
+        <div class="font-mono break-all">{{ detail.event_id }}</div>
+        <div class="text-neutral-500">{{ 'PLATFORM_AUDIT_CORRELATION' | translate }}</div>
+        <div class="font-mono break-all">{{ detail.correlation_id }}</div>
+        <div class="text-neutral-500">{{ 'PLATFORM_AUDIT_IP' | translate }}</div>
+        <div class="font-mono">{{ detail.ip_address || '-' }}</div>
+        <div class="text-neutral-500">{{ 'PLATFORM_AUDIT_USER_AGENT' | translate }}</div>
+        <div class="font-mono break-all">{{ detail.user_agent || '-' }}</div>
+      </div>
+    </div>
+  }
+</app-drawer>

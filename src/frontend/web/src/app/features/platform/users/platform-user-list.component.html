@@ -1,0 +1,126 @@
+<div class="space-y-2">
+  <div class="flex flex-wrap items-end justify-between gap-2">
+    <h1 class="text-sm font-bold uppercase tracking-wider">{{ 'PLATFORM_GLOBAL_USERS' | translate }}</h1>
+    <div class="flex flex-wrap items-end gap-2">
+      <div class="w-36">
+        <app-sharp-select
+          [label]="'PLATFORM_USER_COL_STATUS' | translate"
+          [options]="statusOptions"
+          [(value)]="statusFilter"
+        />
+      </div>
+      <div class="w-56">
+        <app-sharp-input
+          [label]="'COMMON_SEARCH' | translate"
+          [placeholder]="'PLATFORM_USER_SEARCH_PLACEHOLDER' | translate"
+          [(value)]="keyword"
+          (keyup.enter)="applyFilters()"
+        />
+      </div>
+      <app-sharp-button (clicked)="applyFilters()">{{ 'COMMON_APPLY' | translate }}</app-sharp-button>
+      <app-sharp-button variant="secondary" (clicked)="resetFilters()">{{ 'COMMON_RESET' | translate }}</app-sharp-button>
+    </div>
+  </div>
+
+  @if (errorText()) {
+    <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300 flex justify-between items-center">
+      <span>{{ errorText() }}</span>
+      <button type="button" class="underline" (click)="errorText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+  @if (successText()) {
+    <div class="border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1.5 text-[11px] text-emerald-700 dark:text-emerald-300 flex justify-between items-center">
+      <span>{{ successText() }}</span>
+      <button type="button" class="underline" (click)="successText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+
+  <app-table [columns]="columns" [rows]="users()" [loading]="loading()">
+    <ng-template let-u>
+      <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 align-top">
+        <td class="px-2 py-1.5">
+          <div class="font-medium">{{ u.full_name }}</div>
+          <div class="text-[10px] font-mono text-neutral-400">{{ u.email }}</div>
+        </td>
+        <td class="px-2 py-1.5">
+          <app-badge [variant]="statusVariant(u.status)">{{ ('PLATFORM_USER_STATUS_' + u.status) | translate }}</app-badge>
+        </td>
+        <td class="px-2 py-1.5">
+          <div>{{ u.tenant_name || '-' }}</div>
+          <div class="text-[10px] font-mono text-neutral-400">{{ u.tenant_id || '-' }}</div>
+        </td>
+        <td class="px-2 py-1.5 text-[10px] font-mono text-neutral-500">{{ u.last_login_at || '-' }}</td>
+        <td class="px-2 py-1.5 text-center">
+          @if (u.is_2fa_enabled) {
+            <app-badge variant="success">{{ 'COMMON_ENABLED' | translate }}</app-badge>
+          } @else {
+            <app-badge variant="warning">{{ 'COMMON_DISABLED' | translate }}</app-badge>
+          }
+        </td>
+        <td class="px-2 py-1.5">
+          <div class="flex flex-wrap items-center justify-end gap-1">
+            @if (u.status === userStatusLocked) {
+              <button
+                type="button"
+                class="px-1.5 py-0.5 text-[10px] border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                (click)="askUnlock(u)"
+              >
+                {{ 'PLATFORM_USER_UNLOCK_BTN' | translate }}
+              </button>
+            } @else {
+              <button
+                type="button"
+                class="px-1.5 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                (click)="askLock(u)"
+              >
+                {{ 'PLATFORM_USER_LOCK_BTN' | translate }}
+              </button>
+            }
+            <button
+              type="button"
+              class="px-1.5 py-0.5 text-[10px] border border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+              (click)="openBreakGlass(u)"
+            >
+              {{ 'PLATFORM_USER_BREAK_GLASS_BTN' | translate }}
+            </button>
+          </div>
+        </td>
+      </tr>
+
+      @if (confirmUser(); as target) {
+        @if (target.user_id === u.user_id) {
+          <tr class="bg-amber-50/60 dark:bg-amber-950/20">
+            <td [attr.colspan]="columns.length" class="px-2 py-2">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-[11px] font-semibold uppercase text-amber-700 dark:text-amber-300">
+                  {{ (confirmAction() === 'LOCK' ? 'PLATFORM_USER_LOCK_CONFIRM' : 'PLATFORM_USER_UNLOCK_CONFIRM') | translate }}
+                </span>
+                <app-sharp-button [loading]="confirmSaving()" (clicked)="submitConfirm()">
+                  {{ 'COMMON_CONFIRM' | translate }}
+                </app-sharp-button>
+                <app-sharp-button variant="secondary" (clicked)="cancelConfirm()">
+                  {{ 'COMMON_CANCEL' | translate }}
+                </app-sharp-button>
+              </div>
+            </td>
+          </tr>
+        }
+      }
+    </ng-template>
+  </app-table>
+
+  <app-pagination
+    [page]="page()"
+    [size]="size()"
+    [totalItems]="totalItems()"
+    [totalPages]="totalPages()"
+    (pageChange)="changePage($event)"
+  />
+
+  <app-break-glass-drawer
+    [isOpen]="breakGlassOpen()"
+    [user]="breakGlassUser()"
+    (close)="closeBreakGlass()"
+    (completed)="onBreakGlassCompleted($event)"
+  />
+</div>

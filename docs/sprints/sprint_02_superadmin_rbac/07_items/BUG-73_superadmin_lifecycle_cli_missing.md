@@ -38,3 +38,7 @@
 - [ ] QA xác nhận sau khi hiện thực mã nguồn đạt các AC của FEAT-18 (chờ lập trình).
 
 - **Ghi chú QA (2026-09-18)**: Đã bổ sung thiết kế đầy đủ; mã hiện thực theo TASK-294 → TASK-296. Đóng BUG ở góc độ thiết kế; QA sẽ kiểm chứng lại khi có mã nguồn.
+
+## Ghi Chú Wave 2 (2026-09-18)
+- TASK-294/295/296 hoàn tất phần chính: lifecycle API, offline `PlatformAdminCli`, guards self-disable/last-admin và bộ test `PlatformAdminApiTest` (PostgreSQL & Redis thật).
+- Remote CLI script và enforce `must_change_password` cứng còn tồn đọng — QA xác nhận cuối **chuyển Wave 3**.

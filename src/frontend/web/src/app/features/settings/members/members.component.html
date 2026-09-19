@@ -1,0 +1,126 @@
+<div class="space-y-2">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <h1 class="text-sm font-bold uppercase tracking-wider">{{ 'ORGANIZATION_MEMBERSHIPS' | translate }}</h1>
+    <button
+      type="button"
+      class="px-2 py-1 text-[11px] bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 border border-transparent hover:bg-neutral-800 dark:hover:bg-neutral-200"
+      (click)="openCreateMembership()"
+    >
+      + {{ 'ORGANIZATION_MEMBER_ADD_BTN' | translate }}
+    </button>
+  </div>
+
+  @if (errorText()) {
+    <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300 flex justify-between items-center">
+      <span>{{ errorText() }}</span>
+      <button type="button" class="underline" (click)="errorText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+  @if (successText()) {
+    <div class="border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1.5 text-[11px] text-emerald-700 dark:text-emerald-300 flex justify-between items-center">
+      <span>{{ successText() }}</span>
+      <button type="button" class="underline" (click)="successText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+
+  @if (confirmRemove(); as pending) {
+    <div class="border border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 px-2 py-1.5 flex flex-wrap items-center justify-between gap-2">
+      <span class="text-[11px] text-rose-700 dark:text-rose-300">
+        {{ 'ORGANIZATION_MEMBER_DELETE_CONFIRM' | translate:{ name: pending.user_full_name || pending.user_email } }}
+      </span>
+      <span class="flex gap-1">
+        <button
+          type="button"
+          class="px-2 py-0.5 text-[11px] bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+          [disabled]="removing()"
+          (click)="confirmRemoveMembership()"
+        >
+          {{ 'COMMON_DELETE' | translate }}
+        </button>
+        <button
+          type="button"
+          class="px-2 py-0.5 text-[11px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          (click)="cancelRemove()"
+        >
+          {{ 'COMMON_CANCEL' | translate }}
+        </button>
+      </span>
+    </div>
+  }
+
+  <app-table [columns]="columns" [rows]="memberships()" [loading]="loading()">
+    <ng-template let-m>
+      <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 align-top">
+        <td class="px-2 py-1.5">
+          <div class="font-medium">{{ m.user_full_name || m.user_email }}</div>
+          <div class="text-[10px] font-mono text-neutral-400">{{ m.user_email }}</div>
+        </td>
+        <td class="px-2 py-1.5 text-[11px]">{{ m.branch_name || '-' }}</td>
+        <td class="px-2 py-1.5 text-[11px]">{{ m.department_name || '-' }}</td>
+        <td class="px-2 py-1.5 text-[11px]">{{ m.direct_manager_name || '-' }}</td>
+        <td class="px-2 py-1.5 text-[11px]">{{ m.title || '-' }}</td>
+        <td class="px-2 py-1.5 text-center">
+          @if (m.is_primary) {
+            <app-badge variant="success">{{ 'COMMON_DEFAULT' | translate }}</app-badge>
+          } @else {
+            <app-badge variant="default">{{ 'COMMON_INACTIVE' | translate }}</app-badge>
+          }
+        </td>
+        <td class="px-2 py-1.5">
+          @if (assignmentCount(m.user_id) > 0) {
+            <button type="button" (click)="openAssignmentDrawer(m)">
+              <app-badge variant="info">
+                {{ 'ORGANIZATION_BRANCH_ASSIGNMENT_MANAGE_BADGE' | translate:{ count: assignmentCount(m.user_id) } }}
+              </app-badge>
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              (click)="openAssignmentDrawer(m)"
+            >
+              {{ 'ORGANIZATION_BRANCH_ASSIGNMENT_ASSIGN_BTN' | translate }}
+            </button>
+          }
+        </td>
+        <td class="px-2 py-1.5">
+          <div class="flex items-center justify-end gap-1">
+            <button
+              type="button"
+              class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              (click)="openEditMembership(m)"
+            >
+              {{ 'COMMON_EDIT' | translate }}
+            </button>
+            <button
+              type="button"
+              class="px-1.5 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+              (click)="askRemove(m)"
+            >
+              {{ 'COMMON_DELETE' | translate }}
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </app-table>
+
+  <app-user-assignment-drawer
+    [isOpen]="userDrawerOpen()"
+    [membership]="editingMembership()"
+    [branches]="branches()"
+    [departments]="departments()"
+    [members]="memberships()"
+    (close)="closeUserDrawer()"
+    (saved)="onMembershipSaved($event)"
+  />
+
+  <app-branch-assignment-drawer
+    [isOpen]="assignmentDrawerOpen()"
+    [userId]="assignmentUser()?.user_id || ''"
+    [userEmail]="assignmentUser()?.user_email || ''"
+    [branches]="branches()"
+    (close)="closeAssignmentDrawer()"
+    (saved)="onAssignmentSaved($event)"
+  />
+</div>

@@ -52,7 +52,34 @@ public enum ResponseKey {
     SLUG("slug"),
     LOCKED_SECONDS("locked_seconds"),
     RETRY_AFTER("retry_after"),
-    AVAILABLE("available");
+    AVAILABLE("available"),
+
+    // Reference Entity & Data Permission Engine (FEAT-17, TASK-284)
+    ID("id"),
+    TITLE("title"),
+    AMOUNT("amount"),
+    BRANCH_ID("branch_id"),
+    BRANCH_NAME("branch_name"),
+    DEPARTMENT_ID("department_id"),
+    DEPARTMENT_NAME("department_name"),
+    ASSIGNEE_ID("assignee_id"),
+    ASSIGNEE_NAME("assignee_name"),
+    CREATED_BY("created_by"),
+    UPDATED_AT("updated_at"),
+    FILE_URL("file_url"),
+    DOWNLOAD_URL("download_url"),
+    TOTAL_RECORDS("total_records"),
+    EXPIRES_AT("expires_at"),
+    FORMAT("format"),
+
+    // IAM Enforcement & Quota params
+    PERMISSION("permission"),
+    REQUIRED_PERMISSION("required_permission"),
+    QUOTA("quota"),
+    CURRENT("current"),
+    RESOURCE("resource"),
+    IS_TENANT_OWNER("is_tenant_owner"),
+    CONTEXT_VERSION("context_version");
 
     private final String key;
 

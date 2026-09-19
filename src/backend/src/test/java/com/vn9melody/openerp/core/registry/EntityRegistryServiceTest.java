@@ -21,48 +21,73 @@ public class EntityRegistryServiceTest {
     EntityRegistryService entityRegistryService;
 
     @SuppressWarnings("unchecked")
-    private List<Object[]> coreIamRows() {
+    private List<Object[]> registryRows() {
         return entityManager.createNativeQuery(
-                "SELECT entity_name, table_or_collection, storage_type, schema_definition::text, exported_relations::text "
-                    + "FROM sys_entity_registry WHERE plugin_id = 'core-iam'")
+                "SELECT plugin_id, entity_name, table_or_collection, storage_type, schema_definition::text, exported_relations::text "
+                    + "FROM sys_entity_registry")
             .getResultList();
     }
 
     @Test
     @Transactional
-    @DisplayName("BUG-26: 7 entity IAM được đăng ký tự động vào sys_entity_registry và upsert idempotent")
-    public void testCoreIamEntitiesRegisteredOnStartup() {
-        List<Object[]> rows = coreIamRows();
-        Assertions.assertEquals(7, rows.size(), "Core IAM phải đăng ký đúng 7 entity");
+    @DisplayName("BUG-26 + TASK-276: 20 entity IAM/Platform/Organization/Core được đăng ký tự động và upsert idempotent")
+    public void testAllEntitiesRegisteredOnStartup() {
+        List<Object[]> rows = registryRows();
+        Assertions.assertEquals(20, rows.size(), "Phải đăng ký đúng 20 entity (7 core-iam gốc + 13 entity Sprint 02)");
 
-        Map<String, Object[]> byName = rows.stream()
-            .collect(Collectors.toMap(row -> (String) row[0], row -> row));
+        Map<String, List<Object[]>> byPlugin = rows.stream()
+            .collect(Collectors.groupingBy(row -> (String) row[0]));
 
-        Assertions.assertTrue(byName.keySet().containsAll(List.of(
-            "User", "Tenant", "UserTenant", "UserCredential", "UserTwoFactor", "UserProfile", "PasswordResetToken"
-        )), "Thiếu entity IAM trong registry: " + byName.keySet());
+        Map<String, Object[]> coreIam = byEntityName(byPlugin, "core-iam");
+        Assertions.assertEquals(12, coreIam.size(),
+            "core-iam phải chứa 7 entity Sprint 01 + 5 entity IAM Sprint 02");
+        Assertions.assertTrue(coreIam.keySet().containsAll(List.of(
+            "User", "Tenant", "UserTenant", "UserCredential", "UserTwoFactor", "UserProfile", "PasswordResetToken",
+            "Permission", "Role", "RolePermission", "UserRole", "RoleDataPolicy"
+        )), "Thiếu entity core-iam trong registry: " + coreIam.keySet());
 
-        assertEntity(byName, "User", "users");
-        assertEntity(byName, "Tenant", "tenants");
-        assertEntity(byName, "UserTenant", "user_tenants");
-        assertEntity(byName, "UserCredential", "user_credentials");
-        assertEntity(byName, "UserTwoFactor", "user_two_factor");
-        assertEntity(byName, "UserProfile", "user_profiles");
-        assertEntity(byName, "PasswordResetToken", "password_reset_tokens");
+        Map<String, Object[]> platform = byEntityName(byPlugin, "core-platform");
+        Assertions.assertEquals(3, platform.size(), "core-platform phải chứa 3 entity");
+        Assertions.assertTrue(platform.keySet().containsAll(List.of(
+            "PlatformSuperAdmin", "PlatformImpersonationLog", "PlatformAuditLog"
+        )), "Thiếu entity core-platform trong registry: " + platform.keySet());
 
-        Assertions.assertTrue(((String) byName.get("User")[3]).contains("\"fields\""),
+        Map<String, Object[]> organization = byEntityName(byPlugin, "core-organization");
+        Assertions.assertEquals(4, organization.size(), "core-organization phải chứa 4 entity");
+        Assertions.assertTrue(organization.keySet().containsAll(List.of(
+            "Branch", "Department", "UserDepartmentMembership", "UserBranchAssignment"
+        )), "Thiếu entity core-organization trong registry: " + organization.keySet());
+
+        Map<String, Object[]> core = byEntityName(byPlugin, "core");
+        Assertions.assertEquals(1, core.size(), "plugin core phải chứa entity reference CoreSampleRecord");
+
+        assertEntity(coreIam, "User", "users");
+        assertEntity(coreIam, "Tenant", "tenants");
+        assertEntity(coreIam, "Role", "roles");
+        assertEntity(coreIam, "UserRole", "user_roles");
+        assertEntity(platform, "PlatformAuditLog", "platform_audit_logs");
+        assertEntity(organization, "UserDepartmentMembership", "user_department_memberships");
+        assertEntity(core, "CoreSampleRecord", "core_sample_records");
+
+        Assertions.assertTrue(((String) coreIam.get("User")[4]).contains("\"fields\""),
             "schema_definition phải chứa mô tả public fields dạng JSON");
-        Assertions.assertTrue(((String) byName.get("UserCredential")[4]).contains("users"),
+        Assertions.assertTrue(((String) coreIam.get("UserCredential")[5]).contains("users"),
             "exported_relations phải chứa quan hệ users");
 
         entityRegistryService.registerAnnotatedEntities();
-        Assertions.assertEquals(7, coreIamRows().size(), "Upsert phải idempotent, không nhân bản bản ghi");
+        Assertions.assertEquals(20, registryRows().size(), "Upsert phải idempotent, không nhân bản bản ghi");
+    }
+
+    private Map<String, Object[]> byEntityName(Map<String, List<Object[]>> byPlugin, String pluginId) {
+        List<Object[]> pluginRows = byPlugin.get(pluginId);
+        Assertions.assertNotNull(pluginRows, "Không tìm thấy plugin " + pluginId + " trong registry");
+        return pluginRows.stream().collect(Collectors.toMap(row -> (String) row[1], row -> row));
     }
 
     private void assertEntity(Map<String, Object[]> byName, String entityName, String table) {
         Object[] row = byName.get(entityName);
         Assertions.assertNotNull(row, "Không tìm thấy entity " + entityName);
-        Assertions.assertEquals(table, row[1], entityName + " phải trỏ đúng bảng");
-        Assertions.assertEquals("postgres", row[2], entityName + " phải dùng storage postgres");
+        Assertions.assertEquals(table, row[2], entityName + " phải trỏ đúng bảng");
+        Assertions.assertEquals("postgres", row[3], entityName + " phải dùng storage postgres");
     }
 }

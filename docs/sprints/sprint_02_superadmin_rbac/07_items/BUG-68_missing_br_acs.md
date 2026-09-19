@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Solution Architect Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [x] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
 
 ---
 
@@ -34,3 +34,8 @@
 - [ ] Có audit log cho các lần chặn.
 
 - **Ghi chú QA (2026-09-18)**: AC đã bổ sung vào FEAT-10/FEAT-11 và guard secret-export tại SOL-01 §2.2; chờ thực thi.
+
+## Ghi Chú Tiến Độ (2026-09-18)
+- **BR-SA-02 đã hoàn tất**: guard self-lock/self-disable (`PLATFORM_SELF_LOCK_FORBIDDEN`, `PLATFORM_SELF_DISABLE_FORBIDDEN`) + last-admin protection, có test.
+- **Giữ `In Progress` — BR-SA-04 chưa xong**: chưa có guard backend chặn export secret/2FA/hash khi đang trong phiên impersonation (chưa tồn tại mã `SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN`/`SUPERADMIN_IMPERSONATION_DESTRUCTIVE_ACTION_FORBIDDEN` trong `src/`).
+- Chuyển **Wave 3**: hiện thực guard + audit các lần chặn + QA test export secret trong impersonation.

@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Solution Architect Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -34,3 +34,7 @@
 - [ ] QA xác nhận token `sub` khớp `target_user_id`.
 
 - **Ghi chú QA (2026-09-18)**: Đặc tả đã cập nhật (API §3.4 nhận `target_user_id`, SOL-01 quy tắc mặc định TENANT_OWNER); chờ thực thi mã.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `ImpersonationService` nhận `target_user_id` (bỏ trống → mặc định Tenant Owner/Admin đang hoạt động), token impersonation mang `sub` = user đích + claim `act_sub`; response trả `target_user_id`.
+- Audit `platform_impersonation_logs` khớp `target_tenant_id` + `target_user_id`; giới hạn ≤30 phút, log start/exit; test `ImpersonationApiTest`.

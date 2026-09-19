@@ -4,6 +4,8 @@ import { Observable, tap, catchError, of, switchMap } from 'rxjs';
 import { ApiService } from './api.service';
 import { ApiResponse, AuthUser, LoginResult, TenantInfo } from '@shared';
 import { SlugAvailability, VerifyEmailResult } from './models';
+import { getJwtPermissions, isPlatformSuperAdmin } from './jwt.util';
+import { STORAGE_KEY_PLATFORM_TOKEN } from './storage-keys';
 
 const TOKEN_KEY = 'openerp_token';
 const REFRESH_TOKEN_KEY = 'openerp_refresh_token';
@@ -22,11 +24,28 @@ export class AuthService {
   private userSignal = signal<AuthUser | null>(this.loadStoredUser());
   private tokenSignal = signal<string | null>(localStorage.getItem(TOKEN_KEY));
   private sessionIdSignal = signal<string | null>(localStorage.getItem(SESSION_ID_KEY));
+  private platformTokenSignal = signal<string | null>(localStorage.getItem(STORAGE_KEY_PLATFORM_TOKEN));
 
   public user = computed(() => this.userSignal());
   public token = computed(() => this.tokenSignal());
   public sessionId = computed(() => this.sessionIdSignal());
+  public platformToken = computed(() => this.platformTokenSignal());
   public isAuthenticated = computed(() => !!this.tokenSignal());
+  public isPlatformAdmin = computed(() =>
+    isPlatformSuperAdmin(this.platformTokenSignal() ?? this.tokenSignal())
+  );
+
+  /**
+   * @returns `true`/`false` when the tenant JWT carries the `permissions` claim,
+   * `null` when the claim is absent (Sprint 02 claim not deployed yet).
+   */
+  hasPermission(permission: string): boolean | null {
+    const permissions = getJwtPermissions(this.tokenSignal());
+    if (permissions === null) {
+      return null;
+    }
+    return permissions.includes(permission);
+  }
 
   private loadStoredUser(): AuthUser | null {
     const raw = localStorage.getItem(USER_KEY);
@@ -141,6 +160,23 @@ export class AuthService {
     this.userSignal.set(user);
   }
 
+  /**
+   * Platform Super Admin token is stored separately from the tenant token so the
+   * same device can hold both sessions. ApiService selects it for `/api/v1/platform/*`.
+   */
+  setPlatformToken(token: string | null) {
+    if (token) {
+      localStorage.setItem(STORAGE_KEY_PLATFORM_TOKEN, token);
+    } else {
+      localStorage.removeItem(STORAGE_KEY_PLATFORM_TOKEN);
+    }
+    this.platformTokenSignal.set(token);
+  }
+
+  clearPlatformToken() {
+    this.setPlatformToken(null);
+  }
+
   logout() {
     this.api.post('/api/v1/auth/logout', {}).pipe(
       catchError(() => of(null))
@@ -152,18 +188,30 @@ export class AuthService {
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(SESSION_ID_KEY);
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(STORAGE_KEY_PLATFORM_TOKEN);
     this.tokenSignal.set(null);
     this.sessionIdSignal.set(null);
     this.userSignal.set(null);
+    this.platformTokenSignal.set(null);
     this.navCtrl.navigateRoot('/login', { animationDirection: 'back', replaceUrl: true });
   }
 
   /**
    * Persists the authenticated session once the backend issues tokens.
    * Shared models already use the snake_case API contract (`user_id`, `tenant_id`...).
+   *
+   * TODO(platform-login): the Platform Portal login flow is not part of Mobile
+   * Wave 1. When the Backend returns a dedicated platform token, it is picked up
+   * here opportunistically (`platform_access_token` / `platform_token`).
    */
   private applySessionIfReady(data: LoginResult) {
     if (!data.access_token || !data.user) return;
+
+    const extras = data as unknown as Record<string, unknown>;
+    const platformToken = extras['platform_access_token'] ?? extras['platform_token'];
+    if (typeof platformToken === 'string' && platformToken) {
+      this.setPlatformToken(platformToken);
+    }
 
     if (data.refresh_token) {
       localStorage.setItem(REFRESH_TOKEN_KEY, data.refresh_token);

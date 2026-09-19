@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -32,3 +32,8 @@
 - [ ] Developer đã hoàn tất và tự chạy test.
 - [ ] QA review và tự chạy lại bộ test.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `AuditLogService` ghi same-transaction (REQUIRED, fail-closed) + hash chain SHA-256 (`prev_hash`/`entry_hash`, `pg_advisory_xact_lock`); `AuditRecorder` interface + no-op cho module chưa wire.
+- `AuditChainVerifier` định kỳ phát hiện đứt chuỗi/hash lệch (cảnh báo CRITICAL, không tự sửa dữ liệu); enums `AuditAction/AuditScope/AuditResult/ActorType` đồng bộ Java ↔ TS shared.
+- `AuditChainTest` (TC-BE-24/25/27) trên PostgreSQL thật.

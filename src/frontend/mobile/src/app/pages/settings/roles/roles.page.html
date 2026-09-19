@@ -1,0 +1,63 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard" text=""></ion-back-button>
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ 'IAM_ROLE_MANAGEMENT' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="max-w-md mx-auto p-3 space-y-3 overflow-x-hidden">
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-2.5 space-y-2">
+      <label class="text-[11px] font-medium text-neutral-700 dark:text-neutral-300" for="role-search" [appTranslate]="'IAM_ROLE_SEARCH_PLACEHOLDER'"></label>
+      <input
+        id="role-search"
+        type="search"
+        [(ngModel)]="keyword"
+        [placeholder]="'IAM_ROLE_SEARCH_PLACEHOLDER' | translate"
+        class="w-full min-h-10 px-2.5 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-none text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-200"
+      />
+    </div>
+
+    @if (error()) {
+      <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        {{ error() }}
+      </div>
+    }
+
+    @if (loading()) {
+      <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'COMMON_LOADING'"></p>
+    } @else if (!filteredRoles().length) {
+      <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'IAM_ROLE_LIST_EMPTY'"></p>
+    } @else {
+      <div class="space-y-1.5">
+        @for (role of filteredRoles(); track role.id) {
+          <button
+            type="button"
+            class="w-full min-h-10 text-left bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 p-2.5 flex items-center justify-between gap-2"
+            (click)="openRole(role)"
+          >
+            <span class="min-w-0 flex-1">
+              <span class="block text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate">{{ role.name }}</span>
+              <span class="block text-[10px] font-mono text-neutral-500 dark:text-neutral-400 truncate">{{ role.code }}</span>
+            </span>
+            <span class="shrink-0 flex items-center gap-1.5">
+              <app-badge [variant]="role.is_system ? badgeSystem : badgeCustom">
+                {{ role.is_system ? ('IAM_ROLE_SYSTEM_BADGE' | translate) : ('IAM_ROLE_CUSTOM_BADGE' | translate) }}
+              </app-badge>
+              <span class="text-[10px] text-neutral-500 dark:text-neutral-400 whitespace-nowrap">
+                {{ 'IAM_ROLE_ASSIGNED_USERS' | translate:{ count: role.assigned_users_count } }}
+              </span>
+            </span>
+          </button>
+        }
+      </div>
+    }
+
+    <app-sharp-button [fullWidth]="true" [variant]="buttonSecondary" [loading]="loading()" (clicked)="load()">
+      {{ 'COMMON_REFRESH' | translate }}
+    </app-sharp-button>
+  </div>
+</ion-content>

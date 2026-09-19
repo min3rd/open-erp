@@ -1,0 +1,61 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="'PLATFORM_IMPERSONATE_TITLE' | translate"
+  [subtitle]="tenant()?.name || ''"
+  width="w-[480px] max-w-[100vw]"
+  (close)="onClose()"
+>
+  @if (tenant(); as current) {
+    <div class="space-y-3">
+      <div class="border border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-1.5 text-[11px] text-indigo-800 dark:text-indigo-200">
+        {{ 'PLATFORM_IMPERSONATE_NOTE' | translate }}
+      </div>
+
+      <div class="text-[10px] font-mono text-neutral-500">
+        {{ current.slug }} • {{ current.tenant_id }}
+      </div>
+
+      <app-sharp-input
+        [label]="'PLATFORM_IMPERSONATE_TARGET' | translate"
+        [placeholder]="'PLATFORM_IMPERSONATE_TARGET_PLACEHOLDER' | translate"
+        [(value)]="targetUserId"
+      />
+
+      <app-sharp-input
+        [label]="'PLATFORM_IMPERSONATE_TICKET' | translate"
+        [required]="true"
+        [(value)]="supportTicket"
+      />
+
+      <app-sharp-textarea
+        [label]="'PLATFORM_IMPERSONATE_REASON' | translate"
+        [required]="true"
+        [rows]="3"
+        [(value)]="reason"
+      />
+
+      <app-sharp-input
+        type="password"
+        [label]="'COMMON_CONFIRM_PASSWORD' | translate"
+        [required]="true"
+        [(value)]="password"
+      />
+
+      <label class="flex items-start gap-1.5 text-[11px] cursor-pointer">
+        <input type="checkbox" class="mt-0.5 rounded-none" [checked]="agreed()" (change)="agreed.set($any($event.target).checked)" />
+        <span>{{ 'PLATFORM_IMPERSONATE_AGREE' | translate }}</span>
+      </label>
+
+      @if (errorText()) {
+        <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+          {{ errorText() }}
+        </div>
+      }
+    </div>
+  }
+
+  <div drawer-footer>
+    <app-sharp-button variant="secondary" (clicked)="onClose()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+    <app-sharp-button [loading]="saving()" (clicked)="start()">{{ 'PLATFORM_IMPERSONATE_START' | translate }}</app-sharp-button>
+  </div>
+</app-drawer>

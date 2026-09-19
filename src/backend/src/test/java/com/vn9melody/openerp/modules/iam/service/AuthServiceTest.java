@@ -5,6 +5,7 @@ import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ import com.vn9melody.openerp.modules.iam.dto.*;
 import com.vn9melody.openerp.modules.iam.dto.response.*;
 import com.vn9melody.openerp.modules.iam.model.*;
 import com.vn9melody.openerp.support.RedisTestSupport;
+import com.vn9melody.openerp.support.TestDbCleanup;
 
 @QuarkusTest
 public class AuthServiceTest {
@@ -43,19 +45,16 @@ public class AuthServiceTest {
     @Inject
     RedisDataSource redis;
 
+    @Inject
+    EntityManager entityManager;
+
     @InjectMock
     EmailNotificationService emailNotificationService;
 
     @BeforeEach
     @Transactional
     public void setup() {
-        PasswordResetToken.deleteAll();
-        UserTwoFactor.deleteAll();
-        UserProfile.deleteAll();
-        UserCredential.deleteAll();
-        UserTenant.deleteAll();
-        User.deleteAll();
-        Tenant.deleteAll();
+        TestDbCleanup.cleanup(entityManager);
         RedisTestSupport.clearAll(redis);
     }
 

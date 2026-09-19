@@ -1,0 +1,26 @@
+<button
+  type="button"
+  role="switch"
+  [attr.aria-checked]="checked()"
+  [attr.aria-label]="ariaLabel() || null"
+  [disabled]="disabled()"
+  (click)="toggle()"
+  class="relative inline-flex h-4 w-7 shrink-0 items-center rounded-none border transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-1 focus:ring-neutral-400"
+  [class.bg-neutral-900]="checked()"
+  [class.dark:bg-neutral-100]="checked()"
+  [class.border-neutral-900]="checked()"
+  [class.dark:border-neutral-100]="checked()"
+  [class.bg-neutral-200]="!checked()"
+  [class.dark:bg-neutral-700]="!checked()"
+  [class.border-neutral-300]="!checked()"
+  [class.dark:border-neutral-600]="!checked()"
+>
+  <span
+    class="inline-block h-3 w-3 transform transition-transform"
+    [class.translate-x-3.5]="checked()"
+    [class.translate-x-0.5]="!checked()"
+    [class.bg-white]="checked()"
+    [class.dark:bg-neutral-900]="checked()"
+    [class.bg-neutral-500]="!checked()"
+  ></span>
+</button>

@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -36,3 +36,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA xác minh guards, revoke session, audit theo TC-BE-29 → TC-BE-31.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `PlatformAdminResource`/`PlatformAdminService`: grant/list/enable/disable/revoke/reset-password/disable-2FA đúng envelope + mã `PLATFORM_ADMIN_*`; user mới → invitation, user hiện hữu → granted (không tạo trùng).
+- Guard `PLATFORM_SELF_DISABLE_FORBIDDEN` + `PLATFORM_LAST_ADMIN_PROTECTED` trong cùng transaction (`SELECT ... FOR UPDATE` chống race); disable/revoke thu hồi session Redis + blacklist token + email cảnh báo.
+- Audit `scope = PLATFORM` with before/after + reason (fail-closed); test `PlatformAdminApiTest` trên PostgreSQL & Redis thật. *(Enforce `must_change_password` cứng + hợp nhất `ResponseKey` DTO 2C chuyển Wave 3.)*

@@ -1,0 +1,29 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="(isEditing ? 'IAM_ROLE_FORM_TITLE_EDIT' : 'IAM_ROLE_FORM_TITLE_CREATE') | translate"
+  width="w-[440px] max-w-[100vw]"
+  (close)="onClose()"
+>
+  <div class="space-y-3">
+    <app-sharp-input
+      [label]="'IAM_ROLE_CODE' | translate"
+      [hint]="'IAM_ROLE_CODE_HINT' | translate"
+      [disabled]="isEditing"
+      [required]="true"
+      [(value)]="code"
+    />
+    <app-sharp-input [label]="'IAM_ROLE_NAME' | translate" [required]="true" [(value)]="name" />
+    <app-sharp-textarea [label]="'IAM_ROLE_DESCRIPTION' | translate" [rows]="3" [(value)]="description" />
+
+    @if (errorText()) {
+      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+        {{ errorText() }}
+      </div>
+    }
+  </div>
+
+  <div drawer-footer>
+    <app-sharp-button variant="secondary" (clicked)="onClose()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+    <app-sharp-button [loading]="saving()" (clicked)="submit()">{{ 'COMMON_SAVE' | translate }}</app-sharp-button>
+  </div>
+</app-drawer>

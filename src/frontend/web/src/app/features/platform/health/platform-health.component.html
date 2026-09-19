@@ -1,0 +1,114 @@
+<div class="space-y-2">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <h1 class="text-sm font-bold uppercase tracking-wider">{{ 'PLATFORM_SYSTEM_HEALTH' | translate }}</h1>
+    <div class="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
+      @if (lastUpdated()) {
+        <span>{{ 'PLATFORM_HEALTH_LAST_UPDATED' | translate }}: {{ lastUpdated() }}</span>
+      }
+      <app-sharp-button variant="secondary" size="sm" [loading]="loading()" (clicked)="load()">
+        {{ 'COMMON_REFRESH' | translate }}
+      </app-sharp-button>
+    </div>
+  </div>
+
+  @if (errorText()) {
+    <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+      {{ errorText() }}
+    </div>
+  }
+
+  @if (health(); as h) {
+    <div class="border border-indigo-200 dark:border-indigo-900 bg-white dark:bg-neutral-900 p-3 flex flex-wrap items-center justify-between gap-2">
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-neutral-500">{{ 'PLATFORM_HEALTH_SYSTEM_STATUS' | translate }}</div>
+        <div class="text-lg font-bold font-mono">{{ ('HEALTH_STATUS_' + h.system_status) | translate }}</div>
+      </div>
+      <app-badge [variant]="systemVariant(h.system_status)">{{ ('HEALTH_STATUS_' + h.system_status) | translate }}</app-badge>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
+      <div class="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-2.5 space-y-1.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">{{ 'PLATFORM_HEALTH_DB' | translate }}</span>
+          <app-badge [variant]="subsystemVariant(h.database.primary)">{{ h.database.primary }}</app-badge>
+        </div>
+        <div class="flex justify-between text-[11px]">
+          <span class="text-neutral-500">{{ 'PLATFORM_HEALTH_PRIMARY' | translate }}</span>
+          <app-badge [variant]="subsystemVariant(h.database.primary)">{{ h.database.primary }}</app-badge>
+        </div>
+        <div class="flex justify-between text-[11px]">
+          <span class="text-neutral-500">{{ 'PLATFORM_HEALTH_REPLICA' | translate }}</span>
+          <app-badge [variant]="subsystemVariant(h.database.replica)">{{ h.database.replica }}</app-badge>
+        </div>
+        <div class="flex justify-between text-[11px] font-mono">
+          <span class="text-neutral-500">{{ 'PLATFORM_HEALTH_LAG' | translate }}</span>
+          <span>{{ h.database.replication_lag_ms ?? '-' }} ms</span>
+        </div>
+        <div class="flex justify-between text-[11px] font-mono">
+          <span class="text-neutral-500">{{ 'PLATFORM_HEALTH_CONNECTIONS' | translate }}</span>
+          <span>{{ h.database.active_connections }}/{{ h.database.max_connections }}</span>
+        </div>
+      </div>
+
+      <div class="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-2.5 space-y-1.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">{{ 'PLATFORM_HEALTH_REDIS' | translate }}</span>
+          <app-badge [variant]="subsystemVariant(h.redis.status)">{{ h.redis.status }}</app-badge>
+        </div>
+        <div class="flex justify-between text-[11px] font-mono">
+          <span class="text-neutral-500">{{ 'PLATFORM_HEALTH_MEMORY' | translate }}</span>
+          <span>{{ h.redis.used_memory_human }}</span>
+        </div>
+        <div class="flex justify-between text-[11px] font-mono">
+          <span class="text-neutral-500">{{ 'PLATFORM_HEALTH_CLIENTS' | translate }}</span>
+          <span>{{ h.redis.connected_clients }}</span>
+        </div>
+      </div>
+
+      <div class="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-2.5 space-y-1.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">{{ 'PLATFORM_HEALTH_KAFKA' | translate }}</span>
+          <app-badge [variant]="subsystemVariant(h.kafka.status)">{{ h.kafka.status }}</app-badge>
+        </div>
+        <div class="flex justify-between text-[11px] font-mono">
+          <span class="text-neutral-500">{{ 'PLATFORM_HEALTH_CLUSTER' | translate }}</span>
+          <span>{{ h.kafka.cluster_id || '-' }}</span>
+        </div>
+        <div class="flex justify-between text-[11px] font-mono">
+          <span class="text-neutral-500">{{ 'PLATFORM_HEALTH_NODES' | translate }}</span>
+          <span>{{ h.kafka.nodes_count }}</span>
+        </div>
+      </div>
+
+      <div class="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-2.5 space-y-1.5">
+        <div class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+          {{ 'PLATFORM_HEALTH_METRICS' | translate }}
+        </div>
+        <div class="flex justify-between text-[11px]">
+          <span class="text-neutral-500">{{ 'PLATFORM_HEALTH_TOTAL_TENANTS' | translate }}</span>
+          <span class="font-mono font-semibold">{{ h.platform_metrics.total_tenants }}</span>
+        </div>
+        <div class="flex justify-between text-[11px]">
+          <span class="text-neutral-500">{{ 'PLATFORM_HEALTH_ACTIVE_TENANTS' | translate }}</span>
+          <span class="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{{ h.platform_metrics.active_tenants }}</span>
+        </div>
+        <div class="flex justify-between text-[11px]">
+          <span class="text-neutral-500">{{ 'PLATFORM_HEALTH_SUSPENDED_TENANTS' | translate }}</span>
+          <span class="font-mono font-semibold text-rose-600 dark:text-rose-400">{{ h.platform_metrics.suspended_tenants }}</span>
+        </div>
+        <div class="flex justify-between text-[11px]">
+          <span class="text-neutral-500">{{ 'PLATFORM_HEALTH_TOTAL_USERS' | translate }}</span>
+          <span class="font-mono font-semibold">{{ h.platform_metrics.total_users }}</span>
+        </div>
+        <div class="flex justify-between text-[11px]">
+          <span class="text-neutral-500">{{ 'PLATFORM_HEALTH_ACTIVE_SESSIONS' | translate }}</span>
+          <span class="font-mono font-semibold">{{ h.platform_metrics.active_sessions_now }}</span>
+        </div>
+      </div>
+    </div>
+  } @else if (loading()) {
+    <div class="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 text-center text-xs text-neutral-500">
+      {{ 'COMMON_LOADING' | translate }}
+    </div>
+  }
+</div>

@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -31,3 +31,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA kiểm thử các ca cycle và xóa an toàn.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Hoàn thiện CRUD tổ chức: xóa branch (chặn khi còn phòng ban/thành viên), xóa department (chặn khi còn phòng con/thành viên), di chuyển phòng ban (cycle detection), `GET/PUT/DELETE /organization/memberships/{id}` (đổi quản lý trực tiếp/`is_primary`, kiểm tra chu trình báo cáo).
+- Mã lỗi chuẩn hóa `ORGANIZATION_BRANCH_HAS_MEMBERS`, `ORGANIZATION_DEPARTMENT_IN_USE`, `ORGANIZATION_DEPARTMENT_CYCLE_DETECTED`, `ORGANIZATION_REPORTING_CYCLE_DETECTED`, `ORGANIZATION_CROSS_TENANT_REFERENCE`; giới hạn độ sâu cây 5 cấp.
+- Test `BranchApiTest`, `DepartmentTreeApiTest`, `MembershipApiTest`, `TenantIsolationOrgTest` trên PostgreSQL thật.

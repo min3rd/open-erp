@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA dual-mode browser test đạt yêu cầu.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Web đã có route `/platform/*` + `/settings/*` kèm `platformRoleGuard`/`permissionGuard` (`src/frontend/web/src/app/core/guards/`), i18n key vi/en đầy đủ.
+- Màn `features/platform/` + `features/settings/` dựng trên shared UI (Drawer/Split-Screen, anti-modal); `npm run build` PASS.
+- QA dual-mode browser (guard chặn đúng theo vai trò, 0 console error) chuyển Wave 3.

@@ -818,6 +818,34 @@ Bộ API quản lý `user_branch_assignments` — nguồn của `managed_branch_
 }
 ```
 
+#### 5.3.1. Truy Vấn Quyền Chức Năng Của Vai Trò (Khuôn Mẫu 3: Non-Paginated List)
+> *(Bổ sung 2026-09-18 theo yêu cầu FE — màn gán quyền cần đọc trạng thái tích chọn hiện tại.)*
+
+- **Endpoint**: `GET /api/v1/iam/roles/{id}/permissions`
+- **Phản Hồi (200 OK)**:
+```json
+{
+  "success": true,
+  "code": "IAM_ROLE_PERMISSIONS_SUCCESS",
+  "message": "Role permissions retrieved successfully.",
+  "params": {},
+  "data": {
+    "items": [
+      {
+        "permission_id": "p-01",
+        "code": "core:user:create",
+        "domain": "core",
+        "resource": "user",
+        "action": "create",
+        "description_key": "PERM_CORE_USER_CREATE",
+        "granted_at": "2026-09-18T09:00:00Z"
+      }
+    ]
+  }
+}
+```
+- **Ghi chú**: chỉ trả các quyền đã gán cho vai trò; FE đối chiếu với `GET /api/v1/iam/permissions` để hiển thị lưới switch.
+
 ### 5.4. Cấu Hình Ma Trận Quyền Dữ Liệu (Role Data Policies - Khuôn Mẫu 3: Non-Paginated List)
 - **Endpoint**: `GET /api/v1/iam/roles/{role_id}/data-policies`
 - **Phản Hồi (200 OK)**:
@@ -961,6 +989,40 @@ Bộ endpoint thực nghiệm chứng minh Data Permission Enforcement Engine ho
 - `DELETE /api/v1/core/sample-records/{id}` — Khuôn Mẫu 1, mã `CORE_SAMPLE_RECORD_DELETED`; kiểm tra `canMutate(record, DELETE)`. Vi phạm phạm vi $\rightarrow$ `403` `IAM_PERMISSION_DENIED_DATA_SCOPE`.
 - `POST /api/v1/core/sample-records/export` — Khuôn Mẫu 1 (trả metadata file), mã `CORE_SAMPLE_RECORD_EXPORTED`; nếu `export_scope = NONE` $\rightarrow$ `403` `IAM_PERMISSION_DENIED_EXPORT`.
 
+### 5.9. Danh Bạ Người Dùng Trong Tenant (Khuôn Mẫu 2: Paginated List)
+> *(Bổ sung 2026-09-18 theo yêu cầu FE — dùng cho màn gán vai trò cho người dùng.)*
+
+- **Endpoint**: `GET /api/v1/iam/users`
+- **Query Params**:
+  - `keyword` (tùy chọn): tìm theo `email` hoặc họ tên.
+  - `status` (tùy chọn): lọc trạng thái tài khoản (`ACTIVE`, `INACTIVE`, `LOCKED`, ...).
+  - `page` (mặc định `1`), `size` (mặc định `20`).
+- **Phản Hồi (200 OK)**:
+```json
+{
+  "success": true,
+  "code": "IAM_USER_LIST_SUCCESS",
+  "message": "Tenant user list retrieved successfully.",
+  "params": {},
+  "data": {
+    "items": [
+      {
+        "id": "user-uuid",
+        "email": "nva@example.com",
+        "full_name": "Nguyễn Văn A",
+        "status": "ACTIVE",
+        "joined_at": "2026-09-01T08:00:00Z"
+      }
+    ],
+    "page": 1,
+    "size": 20,
+    "total_items": 42,
+    "total_pages": 3
+  }
+}
+```
+- **Phạm vi dữ liệu**: chỉ trả user thuộc tenant hiện tại (`tenant_id` từ security context); user thuộc tenant khác không bao giờ xuất hiện.
+
 ---
 
 ## 6. Bảng Mã Phản Hồi & Từ Điển i18n (BUG-62, BUG-63)
@@ -1006,6 +1068,15 @@ Toàn bộ `code` xuất hiện trong tài liệu này, kèm bản dịch chuẩ
 | `PLATFORM_ADMIN_2FA_DISABLED` | Đã tắt 2FA của quản trị viên nền tảng theo quy trình break-glass | Platform admin 2FA disabled via break-glass |
 | `PLATFORM_SELF_DISABLE_FORBIDDEN` | Không thể tự vô hiệu hóa hoặc thu hồi quyền của chính mình | You cannot disable or revoke your own platform admin account |
 | `PLATFORM_LAST_ADMIN_PROTECTED` | Không thể vô hiệu hóa quản trị viên nền tảng đang hoạt động cuối cùng | The last active platform admin is protected |
+| `PLATFORM_TENANT_NOT_FOUND` | Không tìm thấy khách thuê | Tenant not found |
+| `PLATFORM_USER_NOT_FOUND` | Không tìm thấy người dùng | User not found |
+| `PLATFORM_ADMIN_NOT_FOUND` | Không tìm thấy quản trị viên nền tảng | Platform admin not found |
+| `PLATFORM_TENANT_IMPERSONATION_ACTIVE` | Khách thuê đang có phiên truy cập đại diện hoạt động | An impersonation session is currently active for this tenant |
+| `PLATFORM_IMPERSONATION_TENANT_LOCKED` | Khách thuê đang bị khóa, không thể truy cập đại diện | Tenant is locked or unavailable for impersonation |
+| `PLATFORM_IMPERSONATION_FORBIDDEN` | Bạn không được phép khởi tạo phiên truy cập đại diện | You are not allowed to start an impersonation session |
+| `PLATFORM_CONFIRM_PASSWORD_INVALID` | Mật khẩu xác nhận không chính xác | Confirmation password is invalid |
+| `PLATFORM_AUDIT_CHAIN_VERIFIED` | Chuỗi kiểm toán toàn vẹn | Audit chain verified successfully |
+| `PLATFORM_AUDIT_CHAIN_TAMPERED` | Phát hiện chuỗi kiểm toán bị thay đổi | Audit chain tampering detected |
 
 ### 6.2. Organization (`/api/v1/organization/*`)
 | `code` | Tiếng Việt (`vi.json`) | Tiếng Anh (`en.json`) |
@@ -1032,6 +1103,10 @@ Toàn bộ `code` xuất hiện trong tài liệu này, kèm bản dịch chuẩ
 | `ORGANIZATION_BRANCH_ASSIGNMENT_UPDATED` | Cập nhật phân công quản lý chi nhánh thành công | Branch assignment updated successfully |
 | `ORGANIZATION_BRANCH_ASSIGNMENT_REMOVED` | Thu hồi phân công quản lý chi nhánh thành công | Branch assignment removed successfully |
 | `ORGANIZATION_PRIMARY_BRANCH_REQUIRED` | Người dùng phải có ít nhất một chi nhánh chính | User must have at least one primary branch |
+| `ORGANIZATION_BRANCH_HAS_MEMBERS` | Không thể xóa chi nhánh vì còn thành viên đang hoạt động | Cannot delete a branch that still has active members |
+| `ORGANIZATION_CROSS_TENANT_REFERENCE` | Tham chiếu chéo khách thuê không được phép | Cross-tenant reference is not allowed |
+| `ORGANIZATION_PRIMARY_REQUIRED` | Người dùng phải giữ ít nhất một thành viên chính | The user must keep at least one primary membership |
+| `ORGANIZATION_DEPARTMENT_DEPTH_EXCEEDED` | Vượt quá độ sâu tối đa của cây phòng ban | Department hierarchy depth exceeds the allowed limit |
 
 ### 6.3. IAM & Reference Entity (`/api/v1/iam/*`, `/api/v1/core/*`)
 | `code` | Tiếng Việt (`vi.json`) | Tiếng Anh (`en.json`) |
@@ -1046,18 +1121,23 @@ Toàn bộ `code` xuất hiện trong tài liệu này, kèm bản dịch chuẩ
 | `IAM_ROLE_DELETED` | Xóa vai trò thành công | Role deleted successfully |
 | `IAM_ROLE_IN_USE` | Không thể xóa vai trò đang được gán cho người dùng | Cannot delete a role that is assigned to users |
 | `IAM_ROLE_PERMISSIONS_UPDATED` | Cập nhật quyền chức năng của vai trò thành công | Role permissions updated successfully |
+| `IAM_ROLE_PERMISSIONS_SUCCESS` | Lấy danh sách quyền chức năng của vai trò thành công | Role permission list retrieved successfully |
 | `IAM_ROLE_DATA_POLICIES_SUCCESS` | Lấy ma trận phạm vi dữ liệu thành công | Role data policies retrieved successfully |
 | `IAM_ROLE_DATA_POLICIES_UPDATED` | Cập nhật ma trận phạm vi dữ liệu thành công | Role data policies updated successfully |
 | `IAM_USER_ROLES_ASSIGNED` | Gán vai trò cho người dùng thành công | User roles assigned successfully |
 | `IAM_USER_ROLE_LIST_SUCCESS` | Lấy danh sách vai trò của người dùng thành công | User role list retrieved successfully |
 | `IAM_USER_ROLE_REMOVED` | Gỡ vai trò khỏi người dùng thành công | User role removed successfully |
 | `IAM_USER_ROLE_REQUIRED` | Không thể gỡ vai trò hệ thống bắt buộc cuối cùng | Cannot remove the last required system role |
+| `IAM_USER_LIST_SUCCESS` | Lấy danh sách người dùng trong khách thuê thành công | Tenant user list retrieved successfully |
 | `IAM_DATA_RESOURCE_LIST_SUCCESS` | Lấy danh mục nguồn dữ liệu phân quyền thành công | Data resource list retrieved successfully |
 | `CORE_SAMPLE_RECORD_CREATED` | Tạo bản ghi mẫu thành công | Sample record created successfully |
 | `CORE_SAMPLE_RECORD_LIST_SUCCESS` | Lấy danh sách bản ghi mẫu thành công | Sample record list retrieved successfully |
 | `CORE_SAMPLE_RECORD_UPDATED` | Cập nhật bản ghi mẫu thành công | Sample record updated successfully |
 | `CORE_SAMPLE_RECORD_DELETED` | Xóa bản ghi mẫu thành công | Sample record deleted successfully |
 | `CORE_SAMPLE_RECORD_EXPORTED` | Xuất dữ liệu bản ghi mẫu thành công | Sample record data exported successfully |
+| `IAM_ROLE_CODE_EXISTS` | Mã vai trò đã tồn tại trong khách thuê | Role code already exists in this tenant |
+| `IAM_SYSTEM_ROLE_IMMUTABLE` | Không thể chỉnh sửa hoặc xóa vai trò hệ thống | System roles cannot be modified or deleted |
+| `IAM_PERMISSION_UNKNOWN` | Một hoặc nhiều mã quyền không thuộc danh mục | One or more permission codes are not part of the catalog |
 
 ### 6.4. Validation (`errors[].code`)
 | `code` | Tiếng Việt (`vi.json`) | Tiếng Anh (`en.json`) |
@@ -1065,5 +1145,6 @@ Toàn bộ `code` xuất hiện trong tài liệu này, kèm bản dịch chuẩ
 | `VALIDATION_MANAGEMENT_CYCLE_FORBIDDEN` | Người quản lý được gán tạo vòng lặp quản lý | Assigned manager creates a circular reporting line |
 | `VALIDATION_REQUIRED` | Trường này là bắt buộc | This field is required |
 | `VALIDATION_INVALID_FORMAT` | Định dạng dữ liệu không hợp lệ | Invalid data format |
+| `VALIDATION_INVALID_DATA_SCOPE` | Phạm vi dữ liệu không hợp lệ | Invalid data scope value |
 
 > **Quy ước**: `code` là nguồn duy nhất để Frontend tra từ điển i18n; `message` trong response chỉ mang tính tham chiếu kỹ thuật, không dùng làm nguồn hiển thị. Mọi mã mới phát sinh trong quá trình lập trình phải được bổ sung vào bảng này và vào file từ điển `vi`/`en` tương ứng.

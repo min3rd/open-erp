@@ -15,10 +15,12 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
 - Khách hàng đã ký duyệt `CONF-01` + toàn bộ **9 mục Phụ lục rà soát**; Confirmation Gate chính thức ĐÓNG, Sprint 02 chuyển sang Bước 7 (Lập trình).
 - Tài liệu đã rà soát & đồng bộ: 22+ tài liệu BA/PM + Kiến trúc (7 Data Scopes, RBAC runtime `@RequirePermission`, quota enforcement, Break-Glass APIs, role-source migration, Tenant state machine + EXPIRED, Multi-Branch Manager, Audit Log Storage hash chain/partition, Super Admin Lifecycle + CLI, endpoint/i18n mapping/test cases, Flyway V2 + integrity constraints, guard FE/Mobile).
 - Backlog: **64 item** trong `07_items/` (`BUG-49→73`, `TASK-267→296`, `FEAT-10→18`).
+- **Wave 1 (Foundation) hoàn tất 2026-09-18**: Flyway `V2.0.0` + `V2.0.1` (13 bảng mới + partition audit tháng; seed 24 permissions, 5 system roles, 16 user_roles, 14 primary branch assignments); Entity Registry 20 entity; `/q/health` UP (Database + Redis); backend `mvn test` 51/51 PASS; Web + Mobile build PASS (i18n 578/316 key parity).
+- **Wave 2 (Backend APIs + Enforcement Engine) hoàn tất 2026-09-18**: Enforcement Engine (`UserSecurityContext` Redis `sec:ctx` TTL 15 phút, `@RequirePermission` + `PermissionEnforcementFilter`, 7 Data Scope, `TenantQuotaService`, Reference Entity `/api/v1/core/sample-records`); Platform APIs (login `platform_role`, impersonation ≤30 phút, tenants/users/health, audit hash chain SHA-256 + verifier + partition/retention, admins lifecycle + CLI, tenant lifecycle job); Organization/IAM APIs (cây tổ chức, memberships/branch assignments, roles CRUD, role-permissions, user-role, data-resources/data-policies, cross-tenant guards). Full `mvn test` **157/157 PASS** (PostgreSQL + Redis thật); Web + Mobile build PASS; **48/64 item Done** (12 In Progress, 4 To Do).
 
 ### Known Issues
 - Không còn issue mở cho Sprint 01 (đã đóng 2026-09-18).
-- Sprint 02: 64 item đang `To Do` — bắt đầu triển khai theo thứ tự ưu tiên (Critical trước).
+- Sprint 02: **48/64 item Done**; **12 `In Progress`** (FEAT-10 → FEAT-18, TASK-267, TASK-293, BUG-68); **4 `To Do`** (BUG-51, BUG-52, BUG-53, TASK-270) — tồn đọng chuyển Wave 3: tích hợp enforcement legacy, audit org/iam writes, i18n FE, cold archive, remote CLI, QA dual-mode.
 
 ### Fixed
 - BUG-48: Enforce độ phức tạp mật khẩu (hoa+thường+số+đặc biệt) cho đăng ký cá nhân/doanh nghiệp và đặt lại mật khẩu; trả VALIDATION_PASSWORD_TOO_WEAK.

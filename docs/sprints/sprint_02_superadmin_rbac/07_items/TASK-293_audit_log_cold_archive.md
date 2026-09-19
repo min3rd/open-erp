@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [ ] High / [x] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [x] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
 - **Ghi Chú**: Đặc tả sẵn sàng; **có thể chuyển sang sprint sau** nếu Docker Compose profile `mongo`/`storage` chưa được bật.
 
 ---
@@ -31,3 +31,8 @@
 - [ ] Developer đã hoàn tất và tự chạy test.
 - [ ] QA review và tự chạy lại bộ test.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Tiến Độ (2026-09-18)
+- Wave 2 đã hoàn tất phần nền tảng liên quan: hash chain SHA-256 + verify, partition tháng và retention 24 tháng hot (TASK-291/TASK-292).
+- **Giữ `In Progress`**: `AuditArchiveJob` (MongoDB/S3 WORM), legal hold và tra cứu hợp nhất hot+cold **chưa hiện thực** — Docker Compose profile `mongo`/`storage` chưa bật theo chính sách Minimal Footprint.
+- Chuyển sang **Wave 3**: hiện thực + test archive/restore toàn vẹn hash chain trên môi trường có profile `mongo`/`storage`.

@@ -1,0 +1,135 @@
+<div class="space-y-2">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <h1 class="text-sm font-bold uppercase tracking-wider">{{ 'PLATFORM_ADMINS_TITLE' | translate }}</h1>
+    <app-sharp-button (clicked)="openGrant()">{{ 'PLATFORM_ADMIN_GRANT_BTN' | translate }}</app-sharp-button>
+  </div>
+
+  @if (errorText()) {
+    <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300 flex justify-between items-center">
+      <span>{{ errorText() }}</span>
+      <button type="button" class="underline" (click)="errorText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+  @if (successText()) {
+    <div class="border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1.5 text-[11px] text-emerald-700 dark:text-emerald-300 flex justify-between items-center">
+      <span>{{ successText() }}</span>
+      <button type="button" class="underline" (click)="successText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+
+  <app-table [columns]="columns" [rows]="admins()" [loading]="loading()">
+    <ng-template let-a>
+      <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 align-top">
+        <td class="px-2 py-1.5">
+          <div class="font-medium">{{ a.full_name }}</div>
+          <div class="text-[10px] font-mono text-neutral-400">{{ a.email }}</div>
+        </td>
+        <td class="px-2 py-1.5">
+          <app-badge [variant]="roleVariant(a.role)">{{ ('PLATFORM_ADMIN_ROLE_' + a.role) | translate }}</app-badge>
+        </td>
+        <td class="px-2 py-1.5">
+          <app-badge [variant]="statusVariant(a.status)">{{ ('PLATFORM_ADMIN_STATUS_' + a.status) | translate }}</app-badge>
+        </td>
+        <td class="px-2 py-1.5 text-center">
+          @if (a.is_2fa_enabled) {
+            <app-badge variant="success">{{ 'COMMON_ENABLED' | translate }}</app-badge>
+          } @else if (a.two_factor_required) {
+            <app-badge variant="warning">{{ 'PLATFORM_ADMIN_2FA_REQUIRED_NOT_ENABLED' | translate }}</app-badge>
+          } @else {
+            <app-badge variant="default">{{ 'COMMON_DISABLED' | translate }}</app-badge>
+          }
+        </td>
+        <td class="px-2 py-1.5 text-[10px] font-mono text-neutral-500">
+          {{ a.last_login_at || '-' }}
+          @if (a.must_change_password) {
+            <div class="text-[10px] text-amber-600 dark:text-amber-400">{{ 'PLATFORM_ADMIN_MUST_CHANGE_PASSWORD' | translate }}</div>
+          }
+        </td>
+        <td class="px-2 py-1.5">
+          <div class="flex flex-wrap items-center justify-end gap-1">
+            @if (a.status === adminStatusDisabled || a.status === adminStatusInvited) {
+              <button
+                type="button"
+                class="px-1.5 py-0.5 text-[10px] border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                (click)="enableAdmin(a)"
+              >
+                {{ 'PLATFORM_ADMIN_ENABLE_BTN' | translate }}
+              </button>
+            }
+            @if (a.status !== adminStatusRevoked) {
+              <button
+                type="button"
+                class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed"
+                [disabled]="!canDisable(a)"
+                [title]="protectionHint(a)"
+                (click)="askConfirm(a, 'DISABLE')"
+              >
+                {{ 'PLATFORM_ADMIN_DISABLE_BTN' | translate }}
+              </button>
+              <button
+                type="button"
+                class="px-1.5 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 disabled:opacity-40 disabled:cursor-not-allowed"
+                [disabled]="!canRevoke(a)"
+                [title]="protectionHint(a)"
+                (click)="askConfirm(a, 'REVOKE')"
+              >
+                {{ 'PLATFORM_ADMIN_REVOKE_BTN' | translate }}
+              </button>
+              <button
+                type="button"
+                class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                (click)="askConfirm(a, 'RESET_PASSWORD')"
+              >
+                {{ 'PLATFORM_ADMIN_RESET_PASSWORD_BTN' | translate }}
+              </button>
+              @if (a.is_2fa_enabled) {
+                <button
+                  type="button"
+                  class="px-1.5 py-0.5 text-[10px] border border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+                  (click)="askConfirm(a, 'DISABLE_2FA')"
+                >
+                  {{ 'PLATFORM_ADMIN_DISABLE_2FA_BTN' | translate }}
+                </button>
+              }
+            }
+          </div>
+        </td>
+      </tr>
+
+      @if (confirmAdmin(); as target) {
+        @if (target.admin_id === a.admin_id) {
+          <tr class="bg-amber-50/60 dark:bg-amber-950/20">
+            <td [attr.colspan]="columns.length" class="px-2 py-2">
+              <div class="flex flex-wrap items-end gap-2">
+                <span class="text-[11px] font-semibold uppercase text-amber-700 dark:text-amber-300">
+                  {{ ('PLATFORM_ADMIN_CONFIRM_' + confirmAction()) | translate }}
+                </span>
+                @if (confirmAction() === confirmDisable2Fa) {
+                  <div class="w-56">
+                    <app-sharp-input [label]="'PLATFORM_IMPERSONATE_TICKET' | translate" [required]="true" [(value)]="confirmTicket" />
+                  </div>
+                }
+                @if (confirmAction() !== confirmResetPassword) {
+                  <div class="w-72">
+                    <app-sharp-textarea [label]="'COMMON_REASON' | translate" [rows]="1" [required]="true" [(value)]="confirmReason" />
+                  </div>
+                  <div class="w-56">
+                    <app-sharp-input type="password" [label]="'COMMON_CONFIRM_PASSWORD' | translate" [required]="true" [(value)]="confirmPassword" />
+                  </div>
+                }
+                <app-sharp-button variant="danger" [loading]="confirmSaving()" (clicked)="submitConfirm()">
+                  {{ 'COMMON_CONFIRM' | translate }}
+                </app-sharp-button>
+                <app-sharp-button variant="secondary" (clicked)="cancelConfirm()">
+                  {{ 'COMMON_CANCEL' | translate }}
+                </app-sharp-button>
+              </div>
+            </td>
+          </tr>
+        }
+      }
+    </ng-template>
+  </app-table>
+
+  <app-grant-admin-drawer [isOpen]="grantOpen()" [roleOptions]="roleOptions" (close)="closeGrant()" (granted)="onAdminGranted($event)" />
+</div>

@@ -36,3 +36,7 @@
 - [x] Đã bổ sung thiết kế đầy đủ vào SOL-01 §3, DES-DB §2.4, DES-API §3.7, DES-UI §4.6, test_plan TC-BE-24→27, FEAT-12 AC5, CONF-01 Phụ lục mục 8.
 - [x] Phần mã nguồn triển khai theo dõi qua TASK-291 → TASK-293.
 - **Ghi chú QA (2026-09-18)**: Thiết kế đã chốt và cập nhật đồng bộ tài liệu Sprint 02; BUG-72 đóng ở mức tài liệu, mã nguồn thực thi theo TASK-291 → TASK-293.
+
+## Ghi Chú Wave 2 (2026-09-18)
+- TASK-291 + TASK-292 hoàn tất phần mã nguồn hot path: hash chain SHA-256 + `AuditChainVerifier` + partition tháng/retention 24 tháng; test `AuditChainTest` trên PostgreSQL thật.
+- Cold archive MongoDB/S3 (TASK-293) **chưa hiện thực** — chuyển Wave 3 do profile `mongo`/`storage` chưa bật; QA xác minh độc lập hash chain chuyển Wave 3.

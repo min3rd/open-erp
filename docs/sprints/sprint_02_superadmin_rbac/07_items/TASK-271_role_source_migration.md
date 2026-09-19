@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [x] Critical / [ ] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,9 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA kiểm tra dữ liệu mapping trên DB thật.
 - [ ] Không phát sinh regression đăng nhập/phân quyền.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `V2.0.0` tạo `roles` (partial unique `uq_roles_system_code` cho system role `tenant_id NULL`) + `user_roles` (PK `(user_id, tenant_id, role_id)`).
+- `V2.0.1` §5 map `user_tenants.role` → `user_roles`: `OWNER→TENANT_OWNER`, `ADMIN/TENANT_ADMIN→TENANT_ADMIN`, `MEMBER→STAFF`, `VIEWER→VIEWER`; **16 bản ghi `user_roles`** trên `openerp_dev` (idempotent, `ON CONFLICT DO NOTHING`).
+- Cột `user_tenants.role` được `COMMENT` đánh dấu **DEPRECATED** (giữ tạm cho rollback); `user_roles` là nguồn vai trò chính, bảo vệ bằng trigger `trg_fn_assert_role_tenant_scope`.
+- `mvn test` **51/51 PASS** trên PostgreSQL thật.

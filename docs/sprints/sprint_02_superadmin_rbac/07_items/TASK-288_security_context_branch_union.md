@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -31,3 +31,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA review context/cache invalidation theo TC-BE-21 → 23.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `UserSecurityContext` mở rộng `member_branch_ids`, `managed_branch_ids`, `effective_branch_ids`, `primary_branch_id`; cache Redis `sec:ctx:{tenant}:{user}` TTL 15 phút + invalidation qua event.
+- `DataScopeEngine` compile `BRANCH` theo `effective_branch_ids = union(member, managed)`; CREATE mặc định `primary_branch_id`, branch ngoài effective → 403 `IAM_PERMISSION_DENIED_DATA_SCOPE`.
+- Auto-sync membership từ `departments.manager_user_id`; test `SecurityContextServiceTest` + `DataScopeEngineTest` trên PostgreSQL & Redis thật.

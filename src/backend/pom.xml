@@ -78,10 +78,16 @@
             <artifactId>quarkus-smallrye-openapi</artifactId>
         </dependency>
 
-        <!-- Redis (Session Store, OTP, Brute-Force, Blacklist) -->
+        <!-- Redis (Session Store, OTP, Brute-Force, Blacklist, Permission Invalidation Pub/Sub) -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-redis-client</artifactId>
+        </dependency>
+
+        <!-- Health Checks (BUG-64: /q/health, DB/Redis/Pool) -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-health</artifactId>
         </dependency>
 
         <!-- Mailer (Mailpit SMTP) -->

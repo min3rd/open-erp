@@ -62,3 +62,4 @@ Khởi tạo bởi migration `V1.0.2__entity_registry.sql`:
 ## 4. Danh Mục Đăng Ký
 
 - Core IAM (plugin `core-iam`): [CORE_IAM_REGISTRY.md](CORE_IAM_REGISTRY.md) — 7 entity.
+- Super Admin, Cơ cấu tổ chức & Phân quyền (plugin `core-platform` / `core-organization` / `core-iam` / `core`): [SUPERADMIN_RBAC_REGISTRY.md](SUPERADMIN_RBAC_REGISTRY.md) — 13 entity (Sprint 02).

@@ -35,3 +35,7 @@
 - [x] QA/PM xác nhận không còn xung đột mã.
 
 - **Ghi chú QA (2026-09-18)**: Đã chuẩn hóa mã `PLATFORM_TENANT_LOCK_SUCCESS/UNLOCK_SUCCESS` + bảng i18n DES-API §6; xung đột action `TENANT_SUSPEND/TENANT_LOCK` đã sửa tại SOL-01 §3.2 và DES-DB; hoàn tất.
+
+## Ghi Chú Wave 2 (2026-09-18)
+- Toàn bộ mã lỗi mới của Wave 2 (`PLATFORM_*`, `ORGANIZATION_*`, `IAM_*`) tiếp tục tuân thủ quy ước `UPPER_SNAKE_CASE` và đã được bổ sung vào bảng DES-API §6.
+- Hợp nhất `ResponseKey` cho DTO module 2C (Organization/IAM) còn tồn đọng — **chuyển Wave 3**; i18n FE bổ sung mã lỗi mới cũng thực hiện ở Wave 3.

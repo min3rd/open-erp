@@ -1,0 +1,79 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="'PLATFORM_BREAK_GLASS_TITLE' | translate"
+  [subtitle]="user()?.email || ''"
+  width="w-[460px] max-w-[100vw]"
+  (close)="onClose()"
+>
+  <div class="space-y-3">
+    <div class="border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-2 py-1.5 text-[11px] text-amber-800 dark:text-amber-200">
+      {{ 'PLATFORM_BREAK_GLASS_DESC' | translate }}
+    </div>
+
+    <div class="grid grid-cols-2 gap-1.5">
+      <button
+        type="button"
+        class="px-2 py-1.5 text-[11px] border text-left transition-colors"
+        [class.border-neutral-900]="mode() === breakGlassAction.FORCE_PASSWORD_RESET"
+        [class.dark:border-neutral-100]="mode() === breakGlassAction.FORCE_PASSWORD_RESET"
+        [class.bg-neutral-100]="mode() === breakGlassAction.FORCE_PASSWORD_RESET"
+        [class.dark:bg-neutral-800]="mode() === breakGlassAction.FORCE_PASSWORD_RESET"
+        [class.border-neutral-300]="mode() !== breakGlassAction.FORCE_PASSWORD_RESET"
+        [class.dark:border-neutral-700]="mode() !== breakGlassAction.FORCE_PASSWORD_RESET"
+        (click)="selectMode(breakGlassAction.FORCE_PASSWORD_RESET)"
+      >
+        {{ 'PLATFORM_BREAK_GLASS_MODE_RESET' | translate }}
+      </button>
+      <button
+        type="button"
+        class="px-2 py-1.5 text-[11px] border text-left transition-colors"
+        [class.border-neutral-900]="mode() === breakGlassAction.DISABLE_2FA"
+        [class.dark:border-neutral-100]="mode() === breakGlassAction.DISABLE_2FA"
+        [class.bg-neutral-100]="mode() === breakGlassAction.DISABLE_2FA"
+        [class.dark:bg-neutral-800]="mode() === breakGlassAction.DISABLE_2FA"
+        [class.border-neutral-300]="mode() !== breakGlassAction.DISABLE_2FA"
+        [class.dark:border-neutral-700]="mode() !== breakGlassAction.DISABLE_2FA"
+        (click)="selectMode(breakGlassAction.DISABLE_2FA)"
+      >
+        {{ 'PLATFORM_BREAK_GLASS_MODE_2FA' | translate }}
+      </button>
+    </div>
+
+    @if (mode() === breakGlassAction.DISABLE_2FA) {
+      <app-sharp-input
+        [label]="'PLATFORM_IMPERSONATE_TICKET' | translate"
+        [required]="true"
+        [(value)]="supportTicket"
+      />
+      <app-sharp-textarea
+        [label]="'PLATFORM_BREAK_GLASS_REASON' | translate"
+        [required]="true"
+        [rows]="3"
+        [(value)]="reason"
+      />
+      <app-sharp-input
+        type="password"
+        [label]="'COMMON_CONFIRM_PASSWORD' | translate"
+        [required]="true"
+        [(value)]="password"
+      />
+    } @else {
+      <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
+        {{ 'PLATFORM_BREAK_GLASS_RESET_NOTE' | translate }}
+      </p>
+    }
+
+    @if (errorText()) {
+      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+        {{ errorText() }}
+      </div>
+    }
+  </div>
+
+  <div drawer-footer>
+    <app-sharp-button variant="secondary" (clicked)="onClose()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+    <app-sharp-button variant="danger" [loading]="saving()" (clicked)="submit()">
+      {{ 'COMMON_CONFIRM' | translate }}
+    </app-sharp-button>
+  </div>
+</app-drawer>

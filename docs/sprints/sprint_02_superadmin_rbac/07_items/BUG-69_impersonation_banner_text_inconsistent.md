@@ -34,3 +34,7 @@
 - [ ] QA xác nhận banner hiển thị đúng trên cả hai nền tảng.
 
 - **Ghi chú QA (2026-09-18)**: Chỉ cần tài liệu — banner đã chuẩn hóa theo key `IMPERSONATION_ACTIVE_BANNER` tại ANL-01 §2.3, SOL-01, DES-UI §2.2; hoàn tất.
+
+## Ghi Chú Wave 2 (2026-09-18)
+- Key i18n `IMPERSONATION_ACTIVE_BANNER` giữ nguyên qua Wave 2; token impersonation mang `act_sub` + thời hạn ≤30 phút đúng đặc tả.
+- QA dual-mode xác nhận hiển thị banner thực tế trên Web (Mobile ẩn Impersonation) — **chuyển Wave 3**.

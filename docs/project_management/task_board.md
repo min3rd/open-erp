@@ -116,3 +116,22 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 - **Ưu tiên triển khai**: Critical trước (FEAT-11 Impersonation, FEAT-15 Data Scopes, FEAT-16 Enforcement Engine + Reference Entity FEAT-17, RBAC runtime TASK-267) → High → Medium.
 - **Trạng thái**: [x] Gate đã duyệt → **chuyển sang Bước 7 (Lập trình)**; 0 bug mở mức Critical/High trước khi bắt đầu (backlog hiện là các item cần thực thi, không phải bug tồn đọng).
 - **DoD Gate Sprint 02**: 0 bug Critical/High; backend tests 100% PASS trên PostgreSQL + Redis thật; Dual-mode Browser QA 0 console error; UG-02 kèm ảnh; khách hàng ký `sprint_review.md`.
+
+---
+
+## Sprint 02 - Tiến Độ Wave 1 (2026-09-18)
+- **Nền tảng CSDL**: Flyway `V2.0.0__superadmin_rbac_schema.sql` + `V2.0.1__backfill_existing_tenants.sql` — 13 bảng mới + partition audit tháng; seed 24 permissions, 5 system roles, 16 user_roles, 14 primary branch assignments trên `openerp_dev`.
+- **Backend**: `mvn test` 51/51 PASS (PostgreSQL thật, không H2); Entity Registry 20 entity; `quarkus-smallrye-health` + `/q/health` UP (Database + Redis).
+- **Web**: toàn bộ màn `/platform/*` + `/settings/*` Sprint 02 dựng xong (UI skeleton), build PASS, i18n 578 key parity.
+- **Mobile**: 4 màn Sprint 02 + menu, build PASS, i18n 316 key parity.
+- **Wave 2 đang chạy**: Enforcement Engine, Platform APIs, Organization/IAM APIs.
+
+---
+
+## Sprint 02 - Tiến Độ Wave 2 (2026-09-18)
+- **Backend APIs + Enforcement Engine hoàn tất**: `UserSecurityContext`/`SecurityContextService` (Redis `sec:ctx`, TTL 15 phút, invalidation), `@RequirePermission` + `PermissionEnforcementFilter`, `DataScopeResolver/Predicate/Engine/FilterEnabler` (7 scope), `TenantQuotaService`, Reference Entity API `/api/v1/core/sample-records` (CRUD/share/export + scope filter), `AuditRecorder`.
+- **Platform APIs**: platform login JWT `platform_role`, impersonation (≤30 phút, `act_sub`, log/exit/logs), tenants (list/detail/quota/lock/unlock), users (lock/unlock/force-reset/break-glass), health (Kafka UNKNOWN → DEGRADED), audit hash chain SHA-256 + `AuditChainVerifier` + partition/retention, admins lifecycle + `PlatformAdminCli`, tenant lifecycle job (TRIAL→EXPIRED, PENDING_DELETION→DELETED).
+- **Organization/IAM APIs**: cây chi nhánh/phòng ban (depth 5, cycle), memberships + branch assignments, roles CRUD (system immutable), role-permissions, user-role, `GET /iam/users`, data-resources/data-policies, cross-tenant guards.
+- **Kiểm chứng**: full `mvn test` **157/157 PASS** (PostgreSQL + Redis thật, không H2); Web + Mobile `npm run build` PASS.
+- **Item**: 48/64 Done (12 In Progress, 4 To Do); giữ `In Progress`: FEAT-10→18, TASK-267, TASK-293, BUG-68.
+- **Wave 3 (đang chuẩn bị)**: tích hợp enforcement legacy, QA dual-mode, user guide, sprint review.

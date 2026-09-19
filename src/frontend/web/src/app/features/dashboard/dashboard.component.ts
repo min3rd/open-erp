@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
@@ -36,11 +36,17 @@ export class DashboardComponent {
   auth = inject(AuthService);
   i18n = inject(I18nService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   readonly buttonVariantGhost = ButtonVariant.GHOST;
   readonly buttonSizeSm = ButtonSize.SM;
   readonly badgeVariantInfo = BadgeVariant.INFO;
   readonly badgeVariantSuccess = BadgeVariant.SUCCESS;
+
+  readonly deniedNotice = computed(() => {
+    const denied = this.route.snapshot.queryParamMap.get('denied');
+    return denied ? this.i18n.t(denied) : '';
+  });
 
   private currentUrl = toSignal(
     this.router.events.pipe(

@@ -18,7 +18,11 @@ import {
   homeOutline,
   personOutline,
   shieldCheckmarkOutline,
-  desktopOutline
+  desktopOutline,
+  keyOutline,
+  businessOutline,
+  documentTextOutline,
+  warningOutline
 } from 'ionicons/icons';
 import { AuthService } from '../../auth.service';
 import {
@@ -27,6 +31,7 @@ import {
   LanguageSwitcherComponent,
   SharpButtonComponent,
   ThemeSwitcherComponent,
+  TranslateDirective,
   TranslatePipe
 } from '@shared';
 
@@ -49,6 +54,7 @@ import {
     LanguageSwitcherComponent,
     ThemeSwitcherComponent,
     SharpButtonComponent,
+    TranslateDirective,
     TranslatePipe
   ],
   templateUrl: './mobile-menu.component.html'
@@ -68,8 +74,31 @@ export class MobileMenuComponent {
   displayName = computed(() => this.userName() || this.userEmail());
   userInitial = computed(() => (this.userName() || this.userEmail() || 'U').charAt(0).toUpperCase());
 
+  /**
+   * TODO(TASK-281/BUG-67): read from the shared tenant security context once it
+   * lands. Until the Sprint 02 `permissions` JWT claim is deployed,
+   * `hasPermission()` returns `null` → fallback show the menu entry.
+   */
+  canManageRoles = computed(() => this.auth.hasPermission('core:role:manage') !== false);
+  canManageOrganization = computed(() => this.auth.hasPermission('core:organization:manage') !== false);
+  canViewSampleRecords = computed(() => this.auth.hasPermission('core:sample-record:read') !== false);
+  showTenantSettings = computed(() =>
+    this.auth.isAuthenticated() &&
+    (this.canManageRoles() || this.canManageOrganization() || this.canViewSampleRecords())
+  );
+  isPlatformAdmin = computed(() => this.auth.isPlatformAdmin());
+
   constructor() {
-    addIcons({ homeOutline, personOutline, shieldCheckmarkOutline, desktopOutline });
+    addIcons({
+      homeOutline,
+      personOutline,
+      shieldCheckmarkOutline,
+      desktopOutline,
+      keyOutline,
+      businessOutline,
+      documentTextOutline,
+      warningOutline
+    });
   }
 
   close(): void {

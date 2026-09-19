@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -34,3 +34,7 @@
 - [ ] QA re-test luồng break-glass end-to-end.
 
 - **Ghi chú QA (2026-09-18)**: Đặc tả Break-Glass đã bổ sung (TASK-273 + API spec); chờ thực thi mã.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- API break-glass đã hiện thực: `POST /platform/users/{id}/force-password-reset` + `POST /platform/users/{id}/break-glass/disable-2fa` (bắt buộc `support_ticket` + `reason` + `confirm_password`) — TASK-273.
+- Audit `USER_FORCE_PASSWORD_RESET` / `USER_BREAK_GLASS_DISABLE_2FA` đầy đủ actor/target/ticket/reason/IP; test `PlatformUserApiTest` trên PostgreSQL & Redis thật.

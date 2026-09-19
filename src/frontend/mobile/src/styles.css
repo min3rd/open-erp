@@ -97,6 +97,20 @@ app-language-switcher {
   }
 }
 
+/* Anti-modal bottom sheet (Sprint 02 emergency actions) */
+@keyframes erp-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.erp-sheet-up {
+  animation: erp-sheet-up 200ms ease-out;
+}
+
 /* Compact side menu (high density ERP) */
 ion-menu {
   --width: 280px;
@@ -104,7 +118,8 @@ ion-menu {
 }
 
 ion-menu ion-item {
-  --min-height: 34px;
+  /* TASK-281: menu rows are touch targets, keep >= 40px on phone */
+  --min-height: 40px;
   --padding-start: 8px;
   --inner-padding-end: 8px;
   font-size: 12px;

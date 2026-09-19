@@ -1,0 +1,26 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="(isEditing ? 'ORGANIZATION_BRANCH_FORM_EDIT' : 'ORGANIZATION_BRANCH_FORM_CREATE') | translate"
+  width="w-[440px] max-w-[100vw]"
+  (close)="onClose()"
+>
+  <div class="space-y-3">
+    <div class="grid grid-cols-2 gap-2">
+      <app-sharp-input [label]="'ORGANIZATION_BRANCH_CODE' | translate" [required]="true" [(value)]="code" />
+      <app-sharp-input [label]="'ORGANIZATION_BRANCH_NAME' | translate" [required]="true" [(value)]="name" />
+    </div>
+    <app-sharp-input [label]="'ORGANIZATION_BRANCH_PHONE' | translate" [(value)]="phone" />
+    <app-sharp-input [label]="'ORGANIZATION_BRANCH_ADDRESS' | translate" [(value)]="address" />
+
+    @if (errorText()) {
+      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+        {{ errorText() }}
+      </div>
+    }
+  </div>
+
+  <div drawer-footer>
+    <app-sharp-button variant="secondary" (clicked)="onClose()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+    <app-sharp-button [loading]="saving()" (clicked)="submit()">{{ 'COMMON_SAVE' | translate }}</app-sharp-button>
+  </div>
+</app-drawer>

@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [ ] High / [x] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent (phối hợp QA/QC Agent)
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -29,3 +29,8 @@
 - [ ] Developer đã hoàn tất fixtures + tests và tự chạy.
 - [ ] QA review và tự chạy lại bộ test.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Fixture User 8 (REGIONAL_MANAGER, managed `[BR-HN, BR-HCM]`) + User 9 (BR-DN đối chứng) cùng ca TC-BE-21→23 trong `BranchAssignmentApiTest`.
+- Xác nhận union scope BRANCH, CREATE mặc định primary + chặn branch ngoài effective, cache invalidation tức thì; không rò rỉ dữ liệu BR-DN.
+- Chạy trên `openerp_test` + Flyway V2 với PostgreSQL & Redis thật (không H2).

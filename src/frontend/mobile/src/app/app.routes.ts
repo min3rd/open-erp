@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth.guard';
+import { permissionGuard } from './core/guards/permission.guard';
+import { platformRoleGuard } from './core/guards/platform-role.guard';
 
 export const routes: Routes = [
   {
@@ -77,6 +79,42 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/account/account-sessions/account-sessions.component').then(m => m.AccountSessionsComponent)
       }
     ]
+  },
+  {
+    path: 'settings',
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        redirectTo: 'roles',
+        pathMatch: 'full'
+      },
+      {
+        path: 'roles',
+        canActivate: [permissionGuard('core:role:manage')],
+        loadComponent: () => import('./pages/settings/roles/roles.page').then(m => m.RolesPage)
+      },
+      {
+        path: 'roles/:roleId',
+        canActivate: [permissionGuard('core:role:manage')],
+        loadComponent: () => import('./pages/settings/roles/role-detail/role-detail.page').then(m => m.RoleDetailPage)
+      },
+      {
+        path: 'organization',
+        canActivate: [permissionGuard('core:organization:manage')],
+        loadComponent: () => import('./pages/settings/organization/organization.page').then(m => m.OrganizationPage)
+      },
+      {
+        path: 'sample-records',
+        canActivate: [permissionGuard('core:sample-record:read')],
+        loadComponent: () => import('./pages/settings/sample-records/sample-records.page').then(m => m.SampleRecordsPage)
+      }
+    ]
+  },
+  {
+    path: 'platform/emergency',
+    canActivate: [authGuard, platformRoleGuard],
+    loadComponent: () => import('./pages/platform/emergency/emergency.page').then(m => m.EmergencyPage)
   },
   {
     path: '**',

@@ -1,0 +1,83 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard" text=""></ion-back-button>
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ 'SAMPLE_RECORDS_TITLE' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="max-w-md mx-auto p-3 space-y-3 overflow-x-hidden">
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-2.5 space-y-1">
+      <h1 class="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100" [appTranslate]="'SAMPLE_RECORDS_TITLE'"></h1>
+      <p class="text-[10px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'SAMPLE_RECORD_SCOPE_HINT'"></p>
+    </div>
+
+    @if (error()) {
+      <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        {{ error() }}
+      </div>
+    }
+    @if (success()) {
+      <div class="p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+        {{ success() }}
+      </div>
+    }
+
+    <app-sharp-button [fullWidth]="true" [variant]="buttonSecondary" (clicked)="toggleForm()">
+      {{ (showForm() ? 'COMMON_CANCEL' : 'SAMPLE_RECORD_NEW_TITLE') | translate }}
+    </app-sharp-button>
+
+    @if (showForm()) {
+      <form class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-2.5 space-y-2.5" (ngSubmit)="create()">
+        <app-sharp-input
+          [label]="'SAMPLE_RECORD_FIELD_TITLE' | translate"
+          [placeholder]="'SAMPLE_RECORD_FIELD_TITLE' | translate"
+          [(value)]="newTitle"
+          [required]="true"
+        />
+        <app-sharp-input
+          [label]="'SAMPLE_RECORD_FIELD_AMOUNT' | translate"
+          type="number"
+          placeholder="0"
+          [(value)]="newAmount"
+          [required]="true"
+        />
+        <app-sharp-button [type]="'submit'" [fullWidth]="true" [loading]="creating()">
+          {{ 'COMMON_SAVE' | translate }}
+        </app-sharp-button>
+      </form>
+    }
+
+    @if (loading()) {
+      <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'COMMON_LOADING'"></p>
+    } @else if (!records().length) {
+      <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'SAMPLE_RECORD_EMPTY'"></p>
+    } @else {
+      <div class="space-y-1.5">
+        @for (record of records(); track record.id) {
+          <div class="min-h-10 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-2.5 flex items-center justify-between gap-2">
+            <span class="min-w-0 flex-1">
+              <span class="block text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate">{{ record.title }}</span>
+              <span class="block text-[10px] text-neutral-500 dark:text-neutral-400 truncate">
+                {{ record.created_at | date:'dd/MM/yyyy HH:mm' }}
+              </span>
+            </span>
+            <span class="shrink-0 flex items-center gap-1.5">
+              <span class="text-[11px] font-mono text-neutral-700 dark:text-neutral-300">{{ record.amount | number }}</span>
+              <app-badge [variant]="record.status === 'ACTIVE' ? badgeSuccess : badgeDefault">{{ record.status }}</app-badge>
+            </span>
+          </div>
+        }
+      </div>
+
+      @if (page + 1 < totalPages()) {
+        <app-sharp-button [fullWidth]="true" [variant]="buttonSecondary" [loading]="loadingMore()" (clicked)="load(false)">
+          {{ 'COMMON_LOAD_MORE' | translate }}
+        </app-sharp-button>
+      }
+    }
+  </div>
+</ion-content>

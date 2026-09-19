@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -33,3 +33,8 @@
 - [ ] QA xác nhận startup UPSERT không sinh bản ghi trùng.
 
 - **Ghi chú QA (2026-09-18)**: Danh mục entity cần đăng ký đã xác định (TASK-276); chờ thực thi.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- **13/13 entity** Sprint 02 đã có annotation `@RegisterEntity` và xuất hiện trong `sys_entity_registry`; tổng registry **20 entity** (7 Core IAM + 13 Sprint 02).
+- `EntityRegistryService` UPSERT idempotent theo `(plugin_id, entity_name)`, khởi động lại không nhân bản; `EntityRegistryServiceTest` cập nhật và PASS trong `mvn test` **51/51**.
+- Ban hành `docs/system/entity_registry/SUPERADMIN_RBAC_REGISTRY.md`; cập nhật `README.md` §4.

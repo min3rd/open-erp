@@ -1,0 +1,243 @@
+<div class="space-y-2">
+  @if (errorText()) {
+    <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300 flex justify-between items-center">
+      <span>{{ errorText() }}</span>
+      <button type="button" class="underline" (click)="errorText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+  @if (successText()) {
+    <div class="border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1.5 text-[11px] text-emerald-700 dark:text-emerald-300 flex justify-between items-center">
+      <span>{{ successText() }}</span>
+      <button type="button" class="underline" (click)="successText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+
+  <div class="grid grid-cols-1 xl:grid-cols-[260px_360px_minmax(0,1fr)] gap-2 items-start">
+    <section class="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+      <div class="px-2 py-1.5 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between gap-2">
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">{{ 'IAM_ROLE_COL_CODE' | translate }}</span>
+        <app-sharp-button size="sm" (clicked)="openCreateRole()">+ {{ 'IAM_ROLE_ADD_BTN' | translate }}</app-sharp-button>
+      </div>
+      <div class="p-2 border-b border-neutral-200 dark:border-neutral-800">
+        <app-sharp-input [placeholder]="'IAM_ROLE_SEARCH_PLACEHOLDER' | translate" [(value)]="roleSearch" />
+      </div>
+
+      @if (confirmDeleteRole(); as pending) {
+        <div class="m-2 border border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 p-2 space-y-1.5">
+          <p class="text-[11px] text-rose-700 dark:text-rose-300">
+            {{ 'IAM_ROLE_DELETE_CONFIRM' | translate:{ name: pending.name } }}
+          </p>
+          <div class="flex gap-1">
+            <app-sharp-button size="sm" variant="danger" [loading]="deletingRole()" (clicked)="confirmDelete()">
+              {{ 'COMMON_DELETE' | translate }}
+            </app-sharp-button>
+            <app-sharp-button size="sm" variant="secondary" (clicked)="cancelDeleteRole()">
+              {{ 'COMMON_CANCEL' | translate }}
+            </app-sharp-button>
+          </div>
+        </div>
+      }
+
+      <div class="max-h-[520px] overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800">
+        @if (loadingRoles()) {
+          <div class="px-2 py-3 text-center text-[11px] text-neutral-500">{{ 'COMMON_LOADING' | translate }}</div>
+        } @else {
+          @for (role of filteredRoles(); track role.id) {
+            <div
+              class="px-2 py-1.5 cursor-pointer transition-colors"
+              [class.bg-neutral-100]="selectedRole()?.id === role.id"
+              [class.dark:bg-neutral-800]="selectedRole()?.id === role.id"
+              (click)="selectRole(role)"
+            >
+              <div class="flex items-center justify-between gap-1">
+                <div class="min-w-0">
+                  <div class="text-[11px] font-medium truncate">{{ role.name }}</div>
+                  <div class="text-[10px] font-mono text-neutral-400 truncate">{{ role.code }}</div>
+                </div>
+                @if (role.is_system) {
+                  <app-badge [variant]="badgeVariantDefault">[SYS]</app-badge>
+                } @else {
+                  <app-badge [variant]="badgeVariantSuccess">[*]</app-badge>
+                }
+              </div>
+              <div class="flex items-center justify-between mt-0.5">
+                <span class="text-[10px] text-neutral-500">{{ role.assigned_users_count }} {{ 'IAM_ROLE_COL_USERS' | translate }}</span>
+                <span class="flex gap-1" (click)="$event.stopPropagation()">
+                  <button
+                    type="button"
+                    class="text-[10px] underline text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200"
+                    (click)="openEditRole(role)"
+                  >
+                    {{ 'COMMON_EDIT' | translate }}
+                  </button>
+                  @if (!role.is_system) {
+                    <button
+                      type="button"
+                      class="text-[10px] underline text-rose-600 dark:text-rose-400"
+                      (click)="askDeleteRole(role)"
+                    >
+                      {{ 'COMMON_DELETE' | translate }}
+                    </button>
+                  }
+                </span>
+              </div>
+            </div>
+          } @empty {
+            <div class="px-2 py-3 text-center text-[11px] text-neutral-500">{{ 'COMMON_NO_DATA' | translate }}</div>
+          }
+        }
+      </div>
+    </section>
+
+    <section class="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+      @if (selectedRole(); as role) {
+        <div class="px-2 py-1.5 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <div class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+              {{ 'IAM_TAB_FUNCTIONAL_PERMISSIONS' | translate }}
+            </div>
+            <div class="text-[11px] font-mono truncate">{{ role.code }}</div>
+          </div>
+          <div class="flex items-center gap-1">
+            <span class="text-[10px] text-neutral-500 font-mono">{{ grantedCount() }}</span>
+            <app-sharp-button size="sm" (clicked)="openAssignUsers()">{{ 'IAM_ASSIGN_USERS_BTN' | translate }}</app-sharp-button>
+          </div>
+        </div>
+
+        @if (loadingPermissions()) {
+          <div class="px-2 py-3 text-center text-[11px] text-neutral-500">{{ 'COMMON_LOADING' | translate }}</div>
+        } @else {
+          @if (rolePermissionsUnavailable()) {
+            <div class="m-2 border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
+              {{ 'IAM_ROLE_PERMISSIONS_LOAD_UNAVAILABLE' | translate }}
+            </div>
+          }
+          <div class="max-h-[460px] overflow-y-auto">
+            @for (group of permissionGroups(); track group.domain) {
+              <div class="border-b border-neutral-100 dark:border-neutral-800">
+                <button
+                  type="button"
+                  class="w-full px-2 py-1.5 flex items-center justify-between text-left hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                  (click)="toggleDomain(group.domain)"
+                >
+                  <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
+                    {{ group.domain }}
+                  </span>
+                  <span class="text-[10px] font-mono text-neutral-400">{{ group.permissions.length }}</span>
+                </button>
+                @if (isDomainExpanded(group.domain)) {
+                  <div class="px-2 pb-1.5 space-y-1">
+                    @for (permission of group.permissions; track permission.id) {
+                      <div class="flex items-center justify-between gap-2">
+                        <div class="min-w-0">
+                          <div class="text-[11px] font-mono truncate" [title]="permission.code">{{ permission.code }}</div>
+                          @if (permission.description_key) {
+                            <div class="text-[10px] text-neutral-400 truncate">{{ permission.description_key | translate }}</div>
+                          }
+                        </div>
+                        <app-sharp-toggle
+                          [checked]="hasPermission(permission.id)"
+                          [ariaLabel]="permission.code"
+                          (checkedChange)="togglePermission(permission.id, $event)"
+                        />
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            } @empty {
+              <div class="px-2 py-3 text-center text-[11px] text-neutral-500">{{ 'COMMON_NO_DATA' | translate }}</div>
+            }
+          </div>
+          <div class="px-2 py-1.5 border-t border-neutral-200 dark:border-neutral-800 flex justify-end">
+            <app-sharp-button size="sm" [loading]="savingPermissions()" (clicked)="savePermissions()">
+              {{ 'COMMON_SAVE' | translate }}
+            </app-sharp-button>
+          </div>
+        }
+      } @else {
+        <div class="px-2 py-6 text-center text-[11px] text-neutral-500">{{ 'IAM_ROLE_SELECT_PROMPT' | translate }}</div>
+      }
+    </section>
+
+    <section class="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 overflow-hidden">
+      @if (selectedRole(); as role) {
+        <div class="px-2 py-1.5 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between gap-2">
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+            {{ 'IAM_TAB_DATA_SCOPES' | translate }} — {{ role.code }}
+          </span>
+          <app-sharp-button size="sm" [loading]="savingPolicies()" (clicked)="savePolicies()">
+            {{ 'COMMON_SAVE' | translate }}
+          </app-sharp-button>
+        </div>
+
+        @if (loadingPolicies()) {
+          <div class="px-2 py-3 text-center text-[11px] text-neutral-500">{{ 'COMMON_LOADING' | translate }}</div>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs border-collapse">
+              <thead>
+                <tr class="bg-neutral-50 dark:bg-neutral-950">
+                  <th class="px-2 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-neutral-500 border-b border-neutral-200 dark:border-neutral-800">
+                    {{ 'IAM_DATA_MATRIX_RESOURCE' | translate }}
+                  </th>
+                  @for (operation of operations; track operation) {
+                    <th class="px-1 py-1.5 text-center text-[10px] font-semibold uppercase tracking-wider text-neutral-500 border-b border-neutral-200 dark:border-neutral-800">
+                      {{ operationLabelKey(operation) | translate }}
+                    </th>
+                  }
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                @for (resource of resources(); track resource.resource) {
+                  <tr>
+                    <td class="px-2 py-1">
+                      <div class="text-[11px] font-mono">{{ resource.resource }}</div>
+                      <div class="text-[10px] text-neutral-400 font-mono">{{ resource.table_name }} • {{ resource.plugin }}</div>
+                    </td>
+                    @for (operation of operations; track operation) {
+                      <td class="px-1 py-1">
+                        <select
+                          class="w-full px-1 py-0.5 text-[10px] font-mono bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-none focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-200"
+                          [value]="getScope(resource.resource, operation)"
+                          (change)="setScope(resource.resource, operation, $any($event.target).value)"
+                        >
+                          @for (option of scopeOptions; track option.value) {
+                            <option [value]="option.value">{{ (option.labelKey || '') | translate }}</option>
+                          }
+                        </select>
+                      </td>
+                    }
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td [attr.colspan]="operations.length + 1" class="px-2 py-3 text-center text-[11px] text-neutral-500">
+                      {{ 'IAM_DATA_RESOURCE_EMPTY' | translate }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      } @else {
+        <div class="px-2 py-6 text-center text-[11px] text-neutral-500">{{ 'IAM_ROLE_SELECT_PROMPT' | translate }}</div>
+      }
+    </section>
+  </div>
+
+  <app-role-form-drawer
+    [isOpen]="roleFormOpen()"
+    [role]="editingRole()"
+    (close)="closeRoleForm()"
+    (saved)="onRoleSaved($event)"
+  />
+
+  <app-assign-users-drawer
+    [isOpen]="assignUsersOpen()"
+    [role]="selectedRole()"
+    [roles]="roles()"
+    (close)="closeAssignUsers()"
+    (saved)="onUsersAssigned($event)"
+  />
+</div>

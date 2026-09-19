@@ -1,0 +1,28 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="(isEditing ? 'SAMPLE_RECORD_FORM_EDIT' : 'SAMPLE_RECORD_FORM_CREATE') | translate"
+  width="w-[460px] max-w-[100vw]"
+  (close)="onClose()"
+>
+  <div class="space-y-3">
+    <app-sharp-input [label]="'SAMPLE_RECORD_TITLE_FIELD' | translate" [required]="true" [(value)]="title" />
+    <div class="grid grid-cols-2 gap-2">
+      <app-sharp-input type="number" [label]="'SAMPLE_RECORD_AMOUNT' | translate" [(value)]="amount" />
+      <app-sharp-select [label]="'SAMPLE_RECORD_COL_STATUS' | translate" [options]="statusOptions" [(value)]="status" />
+    </div>
+    <app-sharp-select [label]="'SAMPLE_RECORD_COL_BRANCH' | translate" [options]="branchOptions()" [(value)]="branchId" />
+    <app-sharp-select [label]="'SAMPLE_RECORD_COL_DEPARTMENT' | translate" [options]="departmentOptions()" [(value)]="departmentId" />
+    <app-sharp-select [label]="'SAMPLE_RECORD_COL_ASSIGNEE' | translate" [options]="assigneeOptions()" [(value)]="assigneeId" />
+
+    @if (errorText()) {
+      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+        {{ errorText() }}
+      </div>
+    }
+  </div>
+
+  <div drawer-footer>
+    <app-sharp-button variant="secondary" (clicked)="onClose()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+    <app-sharp-button [loading]="saving()" (clicked)="submit()">{{ 'COMMON_SAVE' | translate }}</app-sharp-button>
+  </div>
+</app-drawer>

@@ -72,4 +72,26 @@ public final class ErrorCode {
     public static final String METHOD_NOT_ALLOWED = "METHOD_NOT_ALLOWED";
     public static final String UNSUPPORTED_MEDIA_TYPE = "UNSUPPORTED_MEDIA_TYPE";
     public static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
+
+    // IAM Functional & Data Permission Enforcement (SOL-02, TASK-267/289/290)
+    public static final String IAM_PERMISSION_DENIED_FUNCTIONAL = "IAM_PERMISSION_DENIED_FUNCTIONAL";
+    public static final String IAM_PERMISSION_DENIED_DATA_SCOPE = "IAM_PERMISSION_DENIED_DATA_SCOPE";
+    public static final String IAM_PERMISSION_DENIED_EXPORT = "IAM_PERMISSION_DENIED_EXPORT";
+
+    // Tenant lifecycle guards (SOL-01, TASK-272/288)
+    public static final String TENANT_LOCKED = "TENANT_LOCKED";
+    public static final String TENANT_SUSPENDED = "TENANT_SUSPENDED";
+    public static final String TENANT_NOT_FOUND = "TENANT_NOT_FOUND";
+
+    // Tenant resource quota (TASK-269 / BUG-53)
+    public static final String PLATFORM_TENANT_QUOTA_EXCEEDED = "PLATFORM_TENANT_QUOTA_EXCEEDED";
+
+    // Reference Entity success codes (FEAT-17 / TASK-284, DES-02-API 6.3)
+    public static final String CORE_SAMPLE_RECORD_CREATED = "CORE_SAMPLE_RECORD_CREATED";
+    public static final String CORE_SAMPLE_RECORD_LIST_SUCCESS = "CORE_SAMPLE_RECORD_LIST_SUCCESS";
+    public static final String CORE_SAMPLE_RECORD_DETAIL_SUCCESS = "CORE_SAMPLE_RECORD_DETAIL_SUCCESS";
+    public static final String CORE_SAMPLE_RECORD_UPDATED = "CORE_SAMPLE_RECORD_UPDATED";
+    public static final String CORE_SAMPLE_RECORD_DELETED = "CORE_SAMPLE_RECORD_DELETED";
+    public static final String CORE_SAMPLE_RECORD_SHARED = "CORE_SAMPLE_RECORD_SHARED";
+    public static final String CORE_SAMPLE_RECORD_EXPORTED = "CORE_SAMPLE_RECORD_EXPORTED";
 }

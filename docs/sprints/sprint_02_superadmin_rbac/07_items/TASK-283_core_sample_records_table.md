@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA kiểm tra schema/index và registry.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Migration `V2.0.0` tạo bảng `core_sample_records` đủ cột scope (`tenant_id`, `branch_id`, `department_id`, `created_by`, `assignee_id`, `title`, `amount`, `status`, timestamps) + composite index phục vụ engine.
+- JPA entity/repository (`CoreSampleRecordRepository`, có `findAccessible()`) gắn `@RegisterEntity`; đăng ký trong `SUPERADMIN_RBAC_REGISTRY.md` (13 entity Sprint 02).
+- Mọi truy vấn đều gắn `tenant_id`; migrate sạch trên `openerp_test` qua Flyway V2.

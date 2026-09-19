@@ -21,6 +21,7 @@ import com.vn9melody.openerp.core.security.*;
 import com.vn9melody.openerp.modules.iam.dto.*;
 import com.vn9melody.openerp.modules.iam.dto.response.*;
 import com.vn9melody.openerp.modules.iam.model.*;
+import com.vn9melody.openerp.modules.platform.service.PlatformLoginService;
 
 @ApplicationScoped
 public class AuthService {
@@ -57,6 +58,9 @@ public class AuthService {
 
     @Inject
     EmailNotificationService emailNotificationService;
+
+    @Inject
+    PlatformLoginService platformLoginService;
 
     @Transactional
     public PersonalRegisterResponse registerPersonal(PersonalRegisterRequest req) {
@@ -217,6 +221,13 @@ public class AuthService {
 
         bruteForceService.resetAttempts(email);
         resetCredentialLock(credential);
+
+        // BUG-65 / TASK-274: platform admins authenticate into the platform portal,
+        // never through the tenant resolution flow.
+        AuthResponse platformResponse = platformLoginService.tryLogin(user, device, ipAddress);
+        if (platformResponse != null) {
+            return platformResponse;
+        }
 
         UserTwoFactor twoFactor = UserTwoFactor.findByUserId(user.id);
         if (twoFactor != null && Boolean.TRUE.equals(twoFactor.isEnabled)) {

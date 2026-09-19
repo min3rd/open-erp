@@ -1,0 +1,75 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="'IAM_ASSIGN_USERS_TITLE' | translate"
+  [subtitle]="role()?.name || ''"
+  width="w-[420px] max-w-[100vw]"
+  [zIndex]="60"
+  [shiftLeft]="true"
+  (close)="onClose()"
+>
+  <div class="space-y-3">
+    <app-sharp-input
+      [label]="'COMMON_SEARCH' | translate"
+      [placeholder]="'IAM_ASSIGN_USERS_SEARCH' | translate"
+      [(value)]="userSearch"
+    />
+
+    <div class="border border-neutral-200 dark:border-neutral-800 max-h-48 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800">
+      @if (loadingUsers()) {
+        <div class="px-2 py-3 text-center text-[11px] text-neutral-500">{{ 'COMMON_LOADING' | translate }}</div>
+      } @else {
+        @for (member of filteredMembers(); track member.id) {
+          <button
+            type="button"
+            class="w-full text-left px-2 py-1.5 text-[11px] hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+            [class.bg-neutral-100]="selectedUserId() === member.user_id"
+            [class.dark:bg-neutral-800]="selectedUserId() === member.user_id"
+            (click)="selectUser(member.user_id)"
+          >
+            <div class="font-medium">{{ member.user_full_name || member.user_email }}</div>
+            <div class="text-[10px] font-mono text-neutral-400">{{ member.user_email }}</div>
+          </button>
+        } @empty {
+          <div class="px-2 py-3 text-center text-[11px] text-neutral-500">{{ 'IAM_ASSIGN_USERS_NO_USER' | translate }}</div>
+        }
+      }
+    </div>
+
+    @if (selectedUserId()) {
+      <div class="space-y-1.5">
+        <div class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+          {{ 'IAM_ASSIGN_USERS_CURRENT' | translate }}
+        </div>
+        @if (loadingRoles()) {
+          <div class="text-[11px] text-neutral-500">{{ 'COMMON_LOADING' | translate }}</div>
+        } @else {
+          @for (entry of rolesForSaving(); track entry.item.id) {
+            <div class="flex items-center justify-between border border-neutral-200 dark:border-neutral-800 px-2 py-1">
+              <div class="min-w-0">
+                <div class="text-[11px] font-medium truncate">{{ entry.item.name }}</div>
+                <div class="text-[10px] font-mono text-neutral-400">{{ entry.item.code }}</div>
+              </div>
+              <app-sharp-toggle
+                [checked]="entry.checked"
+                [disabled]="entry.item.is_system && entry.item.code === 'TENANT_OWNER'"
+                [ariaLabel]="entry.item.name"
+                (checkedChange)="toggleRole(entry.item.id, $event)"
+              />
+            </div>
+          }
+        }
+      </div>
+    }
+
+    @if (errorText()) {
+      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+        {{ errorText() }}
+      </div>
+    }
+  </div>
+
+  <div drawer-footer>
+    <app-sharp-button variant="secondary" (clicked)="onClose()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+    <app-sharp-button [loading]="saving()" (clicked)="save()">{{ 'COMMON_SAVE' | translate }}</app-sharp-button>
+  </div>
+</app-drawer>

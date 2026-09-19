@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -37,3 +37,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử cả 2 chế độ.
 - [ ] QA xác minh audit `actor_type = CLI` và không nhận mật khẩu qua arg (TC-BE-32).
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `PlatformCliMain` + `PlatformAdminCli` (Quarkus command mode) chạy `admin-cli <command>`; xác thực `OPENERP_ADMIN_BOOTSTRAP_SECRET` constant-time, không nhận mật khẩu qua arg.
+- Subcommands đã có: `bootstrap`, `list-admins`, `grant-admin`, `revoke-admin`; audit `actor_type = CLI`, `ip_address = local-console`.
+- **Chuyển Wave 3**: Remote CLI script (`scripts/platform/platform-admin-cli.bat|sh`) + các subcommand còn lại (disable/enable/reset-password/disable-2fa/revoke-sessions/verify-audit-chain) và mục tài liệu deployment tương ứng.

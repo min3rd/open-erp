@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [x] Critical / [ ] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA review bộ test và tự chạy lại.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `DataScopeEngineTest` + `SampleRecordApiTest` bao phủ 7 scope × 6 thao tác (READ/CREATE/UPDATE/DELETE/EXPORT/SHARE), kể cả ca từ chối 403 đúng mã và cross-tenant không rò rỉ.
+- Cache invalidation kiểm chứng qua `PermissionInvalidationServiceTest` (Redis thật); subordinates qua CTE `direct_manager_user_id` + subtree trưởng phòng.
+- Full `mvn test` **157/157 PASS** trên PostgreSQL + Redis thật; không có ca bị bỏ qua.

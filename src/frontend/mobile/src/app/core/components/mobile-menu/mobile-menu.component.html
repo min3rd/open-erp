@@ -76,6 +76,73 @@
         </ion-item>
       </ion-list>
 
+      <!-- Tenant Admin settings (TASK-281) -->
+      @if (showTenantSettings()) {
+        <div class="pt-2 space-y-1">
+          <p class="px-2 text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500" [appTranslate]="'SETTINGS_SECTION_TITLE'"></p>
+
+          @if (canManageRoles()) {
+            <ion-list lines="none" class="!py-0">
+              <ion-item
+                routerLink="/settings/roles"
+                routerLinkActive="menu-item-active"
+                (click)="close()"
+                detail="false"
+              >
+                <ion-icon slot="start" name="key-outline"></ion-icon>
+                <ion-label class="text-xs">{{ 'IAM_ROLE_MANAGEMENT' | translate }}</ion-label>
+              </ion-item>
+            </ion-list>
+          }
+
+          @if (canManageOrganization()) {
+            <ion-list lines="none" class="!py-0">
+              <ion-item
+                routerLink="/settings/organization"
+                routerLinkActive="menu-item-active"
+                (click)="close()"
+                detail="false"
+              >
+                <ion-icon slot="start" name="business-outline"></ion-icon>
+                <ion-label class="text-xs">{{ 'ORGANIZATION_STRUCTURE' | translate }}</ion-label>
+              </ion-item>
+            </ion-list>
+          }
+
+          @if (canViewSampleRecords()) {
+            <ion-list lines="none" class="!py-0">
+              <ion-item
+                routerLink="/settings/sample-records"
+                routerLinkActive="menu-item-active"
+                (click)="close()"
+                detail="false"
+              >
+                <ion-icon slot="start" name="document-text-outline"></ion-icon>
+                <ion-label class="text-xs">{{ 'SAMPLE_RECORDS_TITLE' | translate }}</ion-label>
+              </ion-item>
+            </ion-list>
+          }
+        </div>
+      }
+
+      <!-- Platform Super Admin (emergency only on Mobile — Impersonation blocked, ANL-01 §3) -->
+      @if (isPlatformAdmin()) {
+        <div class="pt-2 space-y-1 border-t border-indigo-200 dark:border-indigo-900">
+          <p class="px-2 text-[10px] font-bold uppercase tracking-wider text-indigo-500 dark:text-indigo-400" [appTranslate]="'PLATFORM_SECTION_TITLE'"></p>
+          <ion-list lines="none" class="!py-0">
+            <ion-item
+              routerLink="/platform/emergency"
+              routerLinkActive="menu-item-active"
+              (click)="close()"
+              detail="false"
+            >
+              <ion-icon slot="start" name="warning-outline"></ion-icon>
+              <ion-label class="text-xs">{{ 'PLATFORM_EMERGENCY_TITLE' | translate }}</ion-label>
+            </ion-item>
+          </ion-list>
+        </div>
+      }
+
       <!-- Preferences -->
       <div class="pt-3 border-t border-neutral-200 dark:border-neutral-800 space-y-2.5">
         <app-language-switcher />

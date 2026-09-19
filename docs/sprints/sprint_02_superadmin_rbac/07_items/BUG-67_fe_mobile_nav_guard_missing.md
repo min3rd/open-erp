@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -34,3 +34,8 @@
 - [ ] QA dual-mode test: 0 console error, guard chặn đúng.
 
 - **Ghi chú QA (2026-09-18)**: Routes/guard đã đặc tả (DES-UI §7, TASK-280/TASK-281); chờ thực thi FE/Mobile.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Web: `platformRoleGuard` + `permissionGuard` cho `/platform/*`, `/settings/*`; Mobile: menu Roles/Organization + màn platform/settings, ẩn Impersonation.
+- i18n vi/en đầy đủ; Web + Mobile build PASS.
+- QA dual-mode browser test (guard chặn đúng, 0 console error) chuyển Wave 3.

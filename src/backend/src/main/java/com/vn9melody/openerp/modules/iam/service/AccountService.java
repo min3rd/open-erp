@@ -16,6 +16,7 @@ import com.vn9melody.openerp.modules.iam.dto.response.UserSessionResponse;
 import com.vn9melody.openerp.modules.iam.model.User;
 import com.vn9melody.openerp.modules.iam.model.UserCredential;
 import com.vn9melody.openerp.modules.iam.model.UserProfile;
+import com.vn9melody.openerp.modules.core.service.TenantQuotaService;
 
 @ApplicationScoped
 public class AccountService {
@@ -25,6 +26,21 @@ public class AccountService {
 
     @Inject
     SessionManager sessionManager;
+
+    @Inject
+    TenantQuotaService tenantQuotaService;
+
+    /**
+     * Quota enforcement hook (TASK-269 / BUG-53). Every tenant user-provisioning
+     * flow must call this single entry point before persisting a new membership;
+     * it fails fast with {@code 409 PLATFORM_TENANT_QUOTA_EXCEEDED} when the
+     * tenant reached {@code max_users}. Existing behavior is intentionally
+     * unchanged (registration flows live in AuthService).
+     */
+    public void enforceUserQuota(UUID tenantId) {
+        // TASK-269: one shared quota check call-site for account/member creation.
+        tenantQuotaService.checkUserQuota(tenantId);
+    }
 
     public UserProfileResponse getProfile(UUID userId) {
         User user = User.findById(userId);

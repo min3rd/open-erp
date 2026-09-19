@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -33,3 +33,8 @@
 - [ ] QA xác nhận test ràng buộc pass trên PostgreSQL thật.
 
 - **Ghi chú QA (2026-09-18)**: Ràng buộc đã đặc tả (DES-DB §3.4 + partial unique); cần đưa vào migration V2.0.0.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `V2.0.0` bổ sung partial unique `uq_roles_system_code` (system role `tenant_id NULL`), `uq_user_primary_dept` và `uq_user_primary_branch` (mỗi user tối đa 1 primary).
+- Thêm composite unique `uq_branches_id_tenant`/`uq_departments_id_tenant` + FK chéo tenant cho membership và branch assignment (`fk_membership_branch_tenant`, `fk_membership_department_tenant`, `fk_user_branch_assignments_branch_tenant`).
+- Với `user_roles`/`role_data_policies`: dùng trigger `trg_fn_assert_role_tenant_scope` thay composite FK do system role có `tenant_id NULL`; test chặn dữ liệu sai/chéo tenant PASS trong `mvn test` **51/51**.

@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -31,3 +31,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA kiểm thử contract các endpoint mới.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Đã hiện thực `GET /api/v1/platform/tenants/{id}` (chi tiết), `GET /api/v1/platform/users` (directory toàn nền tảng, tìm kiếm + phân trang), `POST /api/v1/platform/users/{id}/lock|unlock` (thu hồi token + audit) và `GET /api/v1/platform/impersonation-logs`.
+- 100% endpoint dùng envelope 4 khuôn mẫu + `ResponseKey`/mã i18n (`PlatformTenantResource`, `PlatformUserResource`, `PlatformImpersonationResource`).
+- Test API-level `PlatformTenantApiTest`, `PlatformUserApiTest`, `ImpersonationApiTest`; guard platform trả 403 với token thường.

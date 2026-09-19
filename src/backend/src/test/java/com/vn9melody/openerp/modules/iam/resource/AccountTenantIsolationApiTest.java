@@ -9,21 +9,16 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.vn9melody.openerp.core.api.ErrorCode;
 import com.vn9melody.openerp.core.security.JwtTokenService;
-import com.vn9melody.openerp.modules.iam.model.PasswordResetToken;
-import com.vn9melody.openerp.modules.iam.model.Tenant;
-import com.vn9melody.openerp.modules.iam.model.User;
-import com.vn9melody.openerp.modules.iam.model.UserCredential;
-import com.vn9melody.openerp.modules.iam.model.UserProfile;
-import com.vn9melody.openerp.modules.iam.model.UserTenant;
-import com.vn9melody.openerp.modules.iam.model.UserTwoFactor;
 import com.vn9melody.openerp.modules.iam.service.EmailNotificationService;
 import com.vn9melody.openerp.support.RedisTestSupport;
+import com.vn9melody.openerp.support.TestDbCleanup;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,19 +57,16 @@ public class AccountTenantIsolationApiTest {
     @Inject
     RedisDataSource redis;
 
+    @Inject
+    EntityManager entityManager;
+
     @InjectMock
     EmailNotificationService emailNotificationService;
 
     @BeforeEach
     @Transactional
     public void setup() {
-        PasswordResetToken.deleteAll();
-        UserTwoFactor.deleteAll();
-        UserProfile.deleteAll();
-        UserCredential.deleteAll();
-        UserTenant.deleteAll();
-        User.deleteAll();
-        Tenant.deleteAll();
+        TestDbCleanup.cleanup(entityManager);
         RedisTestSupport.clearAll(redis);
     }
 

@@ -11,6 +11,12 @@
 
   <!-- Main Workspace Container -->
   <main class="flex-1 p-3 sm:p-4 lg:p-6 max-w-7xl w-full mx-auto space-y-3 sm:space-y-6">
+    @if (deniedNotice()) {
+      <div class="border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
+        {{ deniedNotice() }}
+      </div>
+    }
+
     <!-- Welcome Banner -->
     <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 sm:p-5">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -34,3 +34,8 @@
 - [ ] QA xác nhận exit impersonation hoạt động đúng.
 
 - **Ghi chú QA (2026-09-18)**: Đặc tả đã chốt claim `groups: ["SUPER_ADMIN"]` + guard exit (SOL-01 §1.1/§2.1, API header §3); cần thực thi trong token service/filter.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `PlatformRoleRequiredFilter` guard toàn bộ `/api/v1/platform/**`: chỉ chấp nhận token platform (`platform_role` + `scope = PLATFORM` + session Redis active); token tenant → 403 `PLATFORM_ACCESS_DENIED`.
+- `/platform/impersonate/exit` có guard riêng theo phiên impersonation (Redis marker); SUPPORT_ENGINEER bị chặn thao tác cấm → 403 `PLATFORM_IMPERSONATION_FORBIDDEN`.
+- Test `PlatformAuthApiTest` + `ImpersonationApiTest` trên PostgreSQL & Redis thật.

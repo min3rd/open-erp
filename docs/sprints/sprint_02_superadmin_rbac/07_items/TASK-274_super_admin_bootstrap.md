@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -32,3 +32,8 @@
 - [ ] Không phát sinh regression.
 
 > **Cập nhật thiết kế (FEAT-18, 2026-09-18)**: bootstrap được nâng cấp theo [SOL-01 §1.2.3](../05_solutions/SOL-01_superadmin_architecture_and_security.md) — chỉ chạy khi **không còn SUPER_ADMIN `ACTIVE`** nào; yêu cầu `OPENERP_ADMIN_BOOTSTRAP_SECRET`; email đã tồn tại → **nâng cấp tài khoản hiện hữu** (không tạo trùng, không ghi đè mật khẩu/trạng thái); bản ghi tạo với `status = 'ACTIVE'`, `is_active = TRUE`, `must_change_password = TRUE`, `two_factor_required = TRUE`; audit `PLATFORM_ADMIN_BOOTSTRAPPED` (`actor_type = SYSTEM`).
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `PlatformBootstrapService` đọc `openerp.platform.bootstrap-emails` + xác thực `OPENERP_ADMIN_BOOTSTRAP_SECRET`; chỉ chạy khi không còn SUPER_ADMIN `ACTIVE`, email tồn tại thì nâng cấp tài khoản hiện hữu (không tạo trùng, không ghi đè mật khẩu/trạng thái).
+- Bản ghi tạo đủ `status = ACTIVE`, `must_change_password = TRUE`, `two_factor_required = TRUE`; audit `PLATFORM_ADMIN_BOOTSTRAPPED` với `actor_type = SYSTEM`.
+- Test idempotent + đăng nhập portal platform: `PlatformAuthApiTest`, `PlatformAdminApiTest` (PostgreSQL & Redis thật).

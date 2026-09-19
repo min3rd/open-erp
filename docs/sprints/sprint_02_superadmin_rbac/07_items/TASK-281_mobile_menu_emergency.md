@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA mobile emulation test + chụp ảnh minh chứng.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Mobile bổ sung màn `/platform/*` + `/settings/*`, cập nhật `MobileMenuComponent` (Quản Lý Vai Trò + Cơ Cấu Tổ Chức); ẩn hoàn toàn Impersonation trên mobile theo ANL-01 §3.
+- Đảm bảo touch target, safe-area, không tràn ngang 390x844 và i18n vi/en; `npm run build` PASS.
+- QA Mobile Emulation (390x844) + ảnh minh chứng chuyển Wave 3.

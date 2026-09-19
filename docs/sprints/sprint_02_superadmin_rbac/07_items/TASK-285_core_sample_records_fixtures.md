@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [ ] High / [x] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA xác nhận dữ liệu fixture đủ cho các ca cross-scope.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Bộ fixture dùng chung `S2EngineFixtures`/`S2IamFixtures` + `TestDbCleanup` (FK-safe) tạo 2 tenant, chi nhánh, cây phòng ban, user/role/data policy đủ 7 scope và sample records.
+- Seed idempotent, chỉ chạy trên `openerp_test`; không dùng H2/mock DB.
+- Là nền tảng dữ liệu cho toàn bộ test cross-scope của Wave 2 (full suite 157/157 PASS).

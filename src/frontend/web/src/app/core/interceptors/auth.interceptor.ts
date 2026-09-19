@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, finalize, map, shareReplay, switchMap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { IMPERSONATION_SESSION_KEY, IMPERSONATION_TOKEN_KEY } from '../services/impersonation.service';
 
 const TOKEN_KEY = 'openerp_token';
 const REFRESH_TOKEN_KEY = 'openerp_refresh_token';
@@ -25,6 +26,15 @@ function clearSessionAndRedirect(router: Router): void {
   window.dispatchEvent(new CustomEvent('openerp:session-expired'));
   if (!router.url.startsWith('/login')) {
     router.navigate(['/login']);
+  }
+}
+
+function clearImpersonationAndRedirect(router: Router): void {
+  localStorage.removeItem(IMPERSONATION_TOKEN_KEY);
+  localStorage.removeItem(IMPERSONATION_SESSION_KEY);
+  window.dispatchEvent(new CustomEvent('openerp:impersonation-ended'));
+  if (!router.url.startsWith('/platform/tenants')) {
+    router.navigate(['/platform/tenants']);
   }
 }
 
@@ -62,8 +72,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const httpBackend = inject(HttpBackend);
   const router = inject(Router);
 
-  const token = localStorage.getItem(TOKEN_KEY);
-  const sessionId = localStorage.getItem(SESSION_ID_KEY);
+  const impersonationToken = localStorage.getItem(IMPERSONATION_TOKEN_KEY);
+  const token = impersonationToken || localStorage.getItem(TOKEN_KEY);
+  const sessionId = impersonationToken ? null : localStorage.getItem(SESSION_ID_KEY);
 
   // Public auth endpoints must never receive a stale access token / session header,
   // otherwise the backend security layer rejects the request before it reaches the endpoint.
@@ -93,6 +104,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       const isUnauthorized = error instanceof HttpErrorResponse && error.status === 401;
       const isAuthEndpoint = req.url.includes('/api/v1/auth/');
       const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+
+      if (impersonationToken) {
+        if (isUnauthorized) {
+          clearImpersonationAndRedirect(router);
+        }
+        return throwError(() => error);
+      }
 
       if (!isUnauthorized || isAuthEndpoint || !refreshToken) {
         if (isUnauthorized && !isAuthEndpoint && !refreshToken) {

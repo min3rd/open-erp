@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [x] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA re-test biên quota trên tenant thật.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `TenantQuotaService` enforce `max_users` (chặn `409 PLATFORM_TENANT_QUOTA_EXCEEDED` kèm `params {limit, current}`) và hook kiểm tra `max_storage_mb` (usage tạm 0 cho tới khi Storage Service báo bytes thật — có ghi chú defer trong code).
+- Audit ghi nhận thao tác bị chặn; unit test `TenantQuotaServiceTest` trên PostgreSQL thật.
+- Full suite `mvn test` **157/157 PASS** (PostgreSQL + Redis thật, không H2).

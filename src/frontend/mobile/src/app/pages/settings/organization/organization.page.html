@@ -1,0 +1,147 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard" text=""></ion-back-button>
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ 'ORGANIZATION_STRUCTURE' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="max-w-md mx-auto p-3 space-y-3 overflow-x-hidden">
+    <div class="grid grid-cols-3 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+      <button
+        type="button"
+        class="min-h-10 py-1.5 text-center text-[11px] font-medium border-r border-neutral-200 dark:border-neutral-800"
+        [ngClass]="activeTab() === 'branches'
+          ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
+          : 'text-neutral-600 dark:text-neutral-400'"
+        (click)="setTab('branches')"
+      >
+        {{ 'ORGANIZATION_BRANCHES' | translate }}
+      </button>
+      <button
+        type="button"
+        class="min-h-10 py-1.5 text-center text-[11px] font-medium border-r border-neutral-200 dark:border-neutral-800"
+        [ngClass]="activeTab() === 'departments'
+          ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
+          : 'text-neutral-600 dark:text-neutral-400'"
+        (click)="setTab('departments')"
+      >
+        {{ 'ORGANIZATION_DEPARTMENTS_TAB' | translate }}
+      </button>
+      <button
+        type="button"
+        class="min-h-10 py-1.5 text-center text-[11px] font-medium"
+        [ngClass]="activeTab() === 'members'
+          ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
+          : 'text-neutral-600 dark:text-neutral-400'"
+        (click)="setTab('members')"
+      >
+        {{ 'ORGANIZATION_MEMBERSHIPS_TAB' | translate }}
+      </button>
+    </div>
+
+    <p class="text-[10px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'ORGANIZATION_READ_ONLY_HINT'"></p>
+
+    @if (error()) {
+      <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        {{ error() }}
+      </div>
+    }
+
+    @if (loading()) {
+      <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'COMMON_LOADING'"></p>
+    } @else if (activeTab() === 'branches') {
+      @if (!branches().length) {
+        <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'ORGANIZATION_BRANCH_EMPTY'"></p>
+      } @else {
+        <div class="space-y-1.5">
+          @for (branch of branches(); track branch.id) {
+            <div class="min-h-10 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-2.5 flex items-center justify-between gap-2">
+              <span class="min-w-0 flex-1">
+                <span class="block text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate">{{ branch.name }}</span>
+                <span class="block text-[10px] font-mono text-neutral-500 dark:text-neutral-400 truncate">{{ branch.code }}{{ branch.phone ? ' • ' + branch.phone : '' }}</span>
+              </span>
+              <span class="shrink-0 flex items-center gap-1.5">
+                @if (branch.is_default) {
+                  <app-badge [variant]="badgeSuccess">{{ 'COMMON_DEFAULT' | translate }}</app-badge>
+                }
+                <app-badge [variant]="badgeDefault">{{ branch.status || 'ACTIVE' }}</app-badge>
+              </span>
+            </div>
+          }
+        </div>
+      }
+    } @else if (activeTab() === 'departments') {
+      @if (!visibleDepartments().length) {
+        <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'ORGANIZATION_DEPT_EMPTY'"></p>
+      } @else {
+        <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 divide-y divide-neutral-100 dark:divide-neutral-800">
+          @for (item of visibleDepartments(); track item.id) {
+            <div class="min-h-10 flex items-center gap-1.5 px-2 py-1.5" [style.padding-left.px]="8 + item.depth * 14">
+              @if (hasChildren(item)) {
+                <button
+                  type="button"
+                  class="w-6 h-6 shrink-0 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300"
+                  [attr.aria-expanded]="isExpanded(item)"
+                  (click)="toggleDepartment(item)"
+                >
+                  <span class="text-[11px] leading-none">{{ isExpanded(item) ? '−' : '+' }}</span>
+                </button>
+              } @else {
+                <span class="w-6 h-6 shrink-0 flex items-center justify-center text-neutral-300 dark:text-neutral-600">•</span>
+              }
+              <span class="min-w-0 flex-1">
+                <span class="block text-xs text-neutral-900 dark:text-neutral-100 truncate">{{ item.name }}</span>
+                <span class="block text-[10px] font-mono text-neutral-500 dark:text-neutral-400 truncate">
+                  {{ item.code }}{{ branchName(item.branch_id) ? ' • ' + branchName(item.branch_id) : '' }}
+                </span>
+              </span>
+            </div>
+          }
+        </div>
+      }
+    } @else {
+      @if (!members().length) {
+        <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'ORGANIZATION_MEMBER_EMPTY'"></p>
+      } @else {
+        <div class="space-y-1.5">
+          @for (member of members(); track member.id) {
+            <div class="min-h-10 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-2.5 space-y-1">
+              <div class="flex items-start justify-between gap-2">
+                <span class="min-w-0 flex-1">
+                  <span class="block text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate">
+                    {{ member.user_full_name || member.user_email || member.user_id }}
+                  </span>
+                  @if (member.user_email && member.user_full_name) {
+                    <span class="block text-[10px] text-neutral-500 dark:text-neutral-400 truncate">{{ member.user_email }}</span>
+                  }
+                </span>
+                @if (member.is_primary) {
+                  <app-badge [variant]="badgeSuccess">{{ 'ORGANIZATION_PRIMARY_BADGE' | translate }}</app-badge>
+                }
+              </div>
+              <div class="text-[10px] text-neutral-500 dark:text-neutral-400 space-y-0.5">
+                @if (member.branch_name || branchName(member.branch_id)) {
+                  <div class="truncate">{{ 'ORGANIZATION_BRANCH_LABEL' | translate }}: {{ member.branch_name || branchName(member.branch_id) }}</div>
+                }
+                @if (member.department_name || departmentName(member.department_id)) {
+                  <div class="truncate">{{ 'ORGANIZATION_DEPARTMENT_LABEL' | translate }}: {{ member.department_name || departmentName(member.department_id) }}</div>
+                }
+                @if (member.title) {
+                  <div class="truncate">{{ 'ORGANIZATION_MEMBER_TITLE' | translate }}: {{ member.title }}</div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <app-sharp-button [fullWidth]="true" [variant]="buttonSecondary" [loading]="loading()" (clicked)="load()">
+      {{ 'COMMON_REFRESH' | translate }}
+    </app-sharp-button>
+  </div>
+</ion-content>

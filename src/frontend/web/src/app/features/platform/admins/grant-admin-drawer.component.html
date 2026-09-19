@@ -1,0 +1,27 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="'PLATFORM_ADMIN_GRANT_TITLE' | translate"
+  width="w-[440px] max-w-[100vw]"
+  (close)="onClose()"
+>
+  <div class="space-y-3">
+    <app-sharp-input [label]="'PLATFORM_ADMIN_EMAIL' | translate" type="email" [required]="true" [(value)]="email" />
+    <app-sharp-input [label]="'PLATFORM_ADMIN_FULL_NAME' | translate" [required]="true" [(value)]="fullName" />
+    <app-sharp-select [label]="'PLATFORM_ADMIN_ROLE' | translate" [options]="roleOptions()" [(value)]="role" />
+
+    <div class="border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 px-2 py-1.5 text-[11px] text-neutral-600 dark:text-neutral-400">
+      {{ 'PLATFORM_ADMIN_INVITE_NOTE' | translate }}
+    </div>
+
+    @if (errorText()) {
+      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+        {{ errorText() }}
+      </div>
+    }
+  </div>
+
+  <div drawer-footer>
+    <app-sharp-button variant="secondary" (clicked)="onClose()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+    <app-sharp-button [loading]="saving()" (clicked)="submit()">{{ 'COMMON_CONFIRM' | translate }}</app-sharp-button>
+  </div>
+</app-drawer>
