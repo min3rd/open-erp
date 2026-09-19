@@ -19,6 +19,7 @@ docs/
 │   │   ├── 07_items/                # Bước 7: Phân rã nhiệm vụ dạng file (FEAT-10 -> FEAT-16)
 │   │   ├── 08_testing/              # Bước 8: Kế hoạch & Báo cáo kiểm thử (QA/QC Agent)
 │   │   └── 09_review/               # Bước 9: Biên bản nghiệm thu đóng Sprint (PM Agent)
+│   ├── sprint_03_plugin_manager/    # Gói Sprint 03 - Plugin Manager, Plugin CLI & Phân phối plugin (ĐANG THỰC HIỆN BƯỚC 1-2 — CHỜ REVIEW)
 │   └── sprint_XX_.../               # Các Sprint tiếp theo độc lập tương tự
 ├── system/                          # Tài liệu kiến trúc toàn cục dùng chung toàn hệ thống
 │   ├── architecture/                # Kiến trúc tổng thể, SYSTEM_BLUEPRINT.md, Sequence Diagrams
