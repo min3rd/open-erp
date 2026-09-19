@@ -25,7 +25,7 @@
   <app-table [columns]="columns" [rows]="logs()" [loading]="loading()">
     <ng-template let-log>
       <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 align-top">
-        <td class="px-2 py-1.5 text-[10px] font-mono text-neutral-500">{{ log.created_at }}</td>
+        <td class="px-2 py-1.5 text-[10px] font-mono text-neutral-500">{{ formatDateTime(log.created_at) }}</td>
         <td class="px-2 py-1.5">
           <div class="font-mono text-[10px]">{{ log.actor_email || '-' }}</div>
           <app-badge variant="default">{{ log.actor_type }}</app-badge>

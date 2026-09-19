@@ -1,5 +1,6 @@
 package com.vn9melody.openerp.modules.organization.resource;
 
+import com.vn9melody.openerp.core.security.RequirePermission;
 import com.vn9melody.openerp.core.api.ApiResponse;
 import com.vn9melody.openerp.modules.organization.OrganizationErrorCodes;
 import com.vn9melody.openerp.modules.organization.dto.MembershipDtos.MembershipRequest;
@@ -30,8 +31,8 @@ import java.util.UUID;
 /**
  * User ↔ department membership lifecycle (DES-02-API section 4.3, TASK-279).
  *
- * <p>TODO(wave-integration): attach {@code @RequirePermission("core:membership:read")} /
- * {@code @RequirePermission("core:membership:manage")} once the shared annotation ships.</p>
+ * <p>Every endpoint declares its functional permission via {@code @RequirePermission}
+ * and is enforced by {@code PermissionEnforcementFilter} (TASK-267).</p>
  */
 @Path("/api/v1/organization/memberships")
 @Produces(MediaType.APPLICATION_JSON)
@@ -51,6 +52,7 @@ public class MembershipResource {
     HttpHeaders httpHeaders;
 
     @GET
+    @RequirePermission("core:membership:read")
     public Response list(@QueryParam("user_id") String userId,
                          @QueryParam("branch_id") String branchId,
                          @QueryParam("department_id") String departmentId) {
@@ -67,6 +69,7 @@ public class MembershipResource {
     }
 
     @POST
+    @RequirePermission("core:membership:manage")
     public Response create(@Valid MembershipRequest request) {
         TenantPrincipal principal = authenticate();
         MembershipResponse data = membershipService.create(principal.tenantId(), request);
@@ -78,6 +81,7 @@ public class MembershipResource {
 
     @GET
     @Path("/{id}")
+    @RequirePermission("core:membership:read")
     public Response get(@PathParam("id") UUID id) {
         TenantPrincipal principal = authenticate();
         var membership = membershipService.getOrThrow(principal.tenantId(), id);
@@ -92,18 +96,21 @@ public class MembershipResource {
 
     @PATCH
     @Path("/{id}")
+    @RequirePermission("core:membership:manage")
     public Response patch(@PathParam("id") UUID id, @Valid MembershipRequest request) {
         return doUpdate(id, request);
     }
 
     @PUT
     @Path("/{id}")
+    @RequirePermission("core:membership:manage")
     public Response put(@PathParam("id") UUID id, @Valid MembershipRequest request) {
         return doUpdate(id, request);
     }
 
     @DELETE
     @Path("/{id}")
+    @RequirePermission("core:membership:manage")
     public Response delete(@PathParam("id") UUID id, @QueryParam("transfer_to") String transferTo) {
         TenantPrincipal principal = authenticate();
         membershipService.delete(principal.tenantId(), id, referenceGuard.parseUuid(transferTo, "transfer_to"));

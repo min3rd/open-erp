@@ -1,6 +1,8 @@
 package com.vn9melody.openerp.modules.platform.service;
 
+import io.quarkus.narayana.jta.QuarkusTransaction;
 import io.quarkus.runtime.StartupEvent;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -12,6 +14,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -51,15 +54,38 @@ public class AuditMaintenanceJob {
         if (!jobsEnabled) {
             return;
         }
-        vertx.setTimer(300_000L, id -> safeRun(() -> inTx(() -> ensureFuturePartitions(3))));
-        vertx.setPeriodic(partitionIntervalSeconds * 1000L, id -> safeRun(() -> inTx(() -> ensureFuturePartitions(3))));
-        vertx.setPeriodic(retentionIntervalSeconds * 1000L, id -> safeRun(() -> inTx(() -> runRetention(retentionMonths))));
+        vertx.setTimer(300_000L, id -> runPartitionMaintenance());
+        vertx.setPeriodic(partitionIntervalSeconds * 1000L, id -> runPartitionMaintenance());
+        vertx.setPeriodic(retentionIntervalSeconds * 1000L, id -> runRetentionMaintenance());
         LOG.info("Audit partition/retention timers registered");
     }
 
-    private void inTx(Runnable action) {
-        io.quarkus.narayana.jta.QuarkusTransaction.requiringNew().run(action);
-    }    @Transactional
+    /**
+     * BUG-82: one partition pass on a Vert.x worker thread. Timer callbacks run on the
+     * event loop, where a JTA transaction cannot start, so the transaction is opened
+     * inside the worker callback; failures are logged and swallowed.
+     */
+    public Future<Integer> runPartitionMaintenance() {
+        return runOnWorker(() -> ensureFuturePartitions(3), "partition");
+    }
+
+    /** BUG-82: one retention pass on a Vert.x worker thread (same contract as above). */
+    public Future<Integer> runRetentionMaintenance() {
+        return runOnWorker(() -> runRetention(retentionMonths), "retention");
+    }
+
+    private Future<Integer> runOnWorker(Callable<Integer> action, String name) {
+        return vertx.executeBlocking(() -> {
+            try {
+                return QuarkusTransaction.requiringNew().call(action);
+            } catch (Exception e) {
+                LOG.errorf("Audit maintenance job failed (%s): %s", name, e.getMessage());
+                return 0;
+            }
+        });
+    }
+
+    @Transactional
     public int ensureFuturePartitions(int monthsAhead) {
         YearMonth start = YearMonth.now(ZoneOffset.UTC);
         int created = 0;
@@ -140,14 +166,6 @@ public class AuditMaintenanceJob {
             return count != null ? ((Number) count).longValue() : 0L;
         } catch (Exception e) {
             return 0L;
-        }
-    }
-
-    private void safeRun(Runnable action) {
-        try {
-            action.run();
-        } catch (Exception e) {
-            LOG.errorf("Audit maintenance job failed: %s", e.getMessage());
         }
     }
 }

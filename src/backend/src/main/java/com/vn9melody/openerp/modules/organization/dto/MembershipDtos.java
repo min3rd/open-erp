@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
+import com.vn9melody.openerp.core.enums.ResponseKey;
 
 public final class MembershipDtos {
 
@@ -12,30 +13,30 @@ public final class MembershipDtos {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record MembershipResponse(
-        @JsonProperty("id") String id,
-        @JsonProperty("user_id") String userId,
-        @JsonProperty("user_email") String userEmail,
-        @JsonProperty("user_full_name") String userFullName,
-        @JsonProperty("branch_id") String branchId,
-        @JsonProperty("branch_name") String branchName,
-        @JsonProperty("department_id") String departmentId,
-        @JsonProperty("department_name") String departmentName,
-        @JsonProperty("direct_manager_user_id") String directManagerUserId,
-        @JsonProperty("direct_manager_name") String directManagerName,
-        @JsonProperty("title") String title,
-        @JsonProperty("is_primary") Boolean isPrimary,
-        @JsonProperty("joined_at") String joinedAt
+        @JsonProperty(ResponseKey.Json.ID) String id,
+        @JsonProperty(ResponseKey.Json.USER_ID) String userId,
+        @JsonProperty(ResponseKey.Json.USER_EMAIL) String userEmail,
+        @JsonProperty(ResponseKey.Json.USER_FULL_NAME) String userFullName,
+        @JsonProperty(ResponseKey.Json.BRANCH_ID) String branchId,
+        @JsonProperty(ResponseKey.Json.BRANCH_NAME) String branchName,
+        @JsonProperty(ResponseKey.Json.DEPARTMENT_ID) String departmentId,
+        @JsonProperty(ResponseKey.Json.DEPARTMENT_NAME) String departmentName,
+        @JsonProperty(ResponseKey.Json.DIRECT_MANAGER_USER_ID) String directManagerUserId,
+        @JsonProperty(ResponseKey.Json.DIRECT_MANAGER_NAME) String directManagerName,
+        @JsonProperty(ResponseKey.Json.TITLE) String title,
+        @JsonProperty(ResponseKey.Json.IS_PRIMARY) Boolean isPrimary,
+        @JsonProperty(ResponseKey.Json.JOINED_AT) String joinedAt
     ) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record MembershipRequest(
-        @NotNull @JsonProperty("user_id") String userId,
-        @NotNull @JsonProperty("branch_id") String branchId,
-        @NotNull @JsonProperty("department_id") String departmentId,
-        @JsonProperty("direct_manager_user_id") String directManagerUserId,
-        @JsonProperty("title") String title,
-        @JsonProperty("is_primary") Boolean isPrimary
+        @NotNull @JsonProperty(ResponseKey.Json.USER_ID) String userId,
+        @NotNull @JsonProperty(ResponseKey.Json.BRANCH_ID) String branchId,
+        @NotNull @JsonProperty(ResponseKey.Json.DEPARTMENT_ID) String departmentId,
+        @JsonProperty(ResponseKey.Json.DIRECT_MANAGER_USER_ID) String directManagerUserId,
+        @JsonProperty(ResponseKey.Json.TITLE) String title,
+        @JsonProperty(ResponseKey.Json.IS_PRIMARY) Boolean isPrimary
     ) {
     }
 }

@@ -6,7 +6,7 @@
         type="button"
         class="px-2 py-1 text-[11px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed"
         [disabled]="exporting() || exportDenied()"
-        [title]="exportDenied() ? ('IAM_PERMISSION_DENIED_EXPORT' | translate) : ''"
+        [title]="exportDenied() ? (exportDeniedKey() | translate) : ''"
         (click)="exportRecords()"
       >
         {{ 'SAMPLE_RECORD_EXPORT_BTN' | translate }}
@@ -75,7 +75,7 @@
         <td class="px-2 py-1.5 text-[11px]">{{ r.branch_name || '-' }}</td>
         <td class="px-2 py-1.5 text-[11px]">{{ r.department_name || '-' }}</td>
         <td class="px-2 py-1.5 text-[11px]">{{ r.assignee_name || '-' }}</td>
-        <td class="px-2 py-1.5 text-[10px] font-mono text-neutral-500">{{ r.created_at || '-' }}</td>
+        <td class="px-2 py-1.5 text-[10px] font-mono text-neutral-500">{{ formatDateTime(r.created_at) }}</td>
         <td class="px-2 py-1.5">
           <div class="flex items-center justify-end gap-1">
             <button

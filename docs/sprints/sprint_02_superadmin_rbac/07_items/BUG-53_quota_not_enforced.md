@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -34,3 +34,9 @@
 - [ ] QA re-test đúng mã lỗi và params theo đặc tả.
 
 - **Ghi chú QA (2026-09-18)**: Thiết kế enforcement đã bổ sung (TASK-269/TASK-270 + mã lỗi quota); chờ thực thi mã.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Wave 3 wire quota call site thật: `AuthService.registerBusiness/verifyEmail/resolveTenantAndIssueToken` → `AccountService.enforceUserQuota`; vượt `max_users` trả `409 PLATFORM_TENANT_QUOTA_EXCEEDED` kèm `params {limit, current}`.
+- **Lưu ý phạm vi**: Sprint 02 chưa có API mời/thêm user nên entry point duy nhất hiện tại là luồng đăng ký; mọi điểm tạo membership tương lai bắt buộc đi qua single entry point `AccountService.enforceUserQuota`.
+- Phần plugin allowlist: `TenantPluginAllowlistService` + hook sample-record, mã canonical `PLATFORM_PLUGIN_NOT_ALLOWED` (TASK-270); hook `max_storage_mb` đã có từ TASK-269 (usage 0 chờ Storage Service).
+- Kiểm chứng: `TenantQuotaServiceTest` + full `mvn test` **178/178 PASS** (PostgreSQL + Redis thật, không H2).

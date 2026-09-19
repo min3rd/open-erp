@@ -16,6 +16,9 @@
         <app-badge [variant]="systemStatusVariant()">{{ health()?.system_status || 'UNKNOWN' }}</app-badge>
       </div>
       <p class="text-[10px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'PLATFORM_EMERGENCY_SUBTITLE'"></p>
+      @if (!isSuperAdmin()) {
+        <p class="text-[10px] text-amber-600 dark:text-amber-400" [appTranslate]="'PLATFORM_EMERGENCY_READ_ONLY_HINT'"></p>
+      }
     </div>
 
     @if (error()) {
@@ -96,16 +99,30 @@
                   ></div>
                 </div>
               </div>
-              @if (tenant.is_locked) {
-                <app-sharp-button [size]="'sm'" [variant]="buttonSecondary" [disabled]="submitting()" (clicked)="openTenantPanel(tenant, 'unlock')">
-                  {{ 'PLATFORM_EMERGENCY_UNLOCK' | translate }}
-                </app-sharp-button>
-              } @else {
-                <app-sharp-button [size]="'sm'" [variant]="buttonDanger" [disabled]="submitting()" (clicked)="openTenantPanel(tenant, 'lock')">
-                  {{ 'PLATFORM_EMERGENCY_LOCK' | translate }}
-                </app-sharp-button>
+              @if (isSuperAdmin()) {
+                @if (tenant.is_locked) {
+                  <app-sharp-button [size]="'sm'" [variant]="buttonSecondary" [disabled]="submitting()" (clicked)="openTenantPanel(tenant, 'unlock')">
+                    {{ 'PLATFORM_EMERGENCY_UNLOCK' | translate }}
+                  </app-sharp-button>
+                } @else {
+                  <app-sharp-button [size]="'sm'" [variant]="buttonDanger" [disabled]="submitting()" (clicked)="openTenantPanel(tenant, 'lock')">
+                    {{ 'PLATFORM_EMERGENCY_LOCK' | translate }}
+                  </app-sharp-button>
+                }
               }
             </div>
+
+            @if (tenant.allowed_plugins?.length) {
+              <div class="border-t border-neutral-100 dark:border-neutral-800 pt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span class="text-[9px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400" [appTranslate]="'PLATFORM_EMERGENCY_PLUGINS'"></span>
+                @for (pluginKey of tenant.allowed_plugins; track pluginKey) {
+                  <span class="flex items-center gap-1">
+                    <app-sharp-toggle size="touch" [checked]="true" [disabled]="true" [ariaLabel]="pluginLabel(pluginKey)" />
+                    <span class="text-[10px] text-neutral-600 dark:text-neutral-300">{{ pluginLabel(pluginKey) }}</span>
+                  </span>
+                }
+              </div>
+            }
           </div>
         }
       </div>
@@ -140,14 +157,16 @@
               </span>
               <span class="shrink-0 flex items-center gap-1.5">
                 <app-badge [variant]="userStatusVariant(user)">{{ user.status }}</app-badge>
-                @if (isUserLocked(user)) {
-                  <app-sharp-button [size]="'sm'" [variant]="buttonSecondary" [disabled]="submitting()" (clicked)="confirmUserAction(user, 'unlock')">
-                    {{ 'PLATFORM_EMERGENCY_UNLOCK' | translate }}
-                  </app-sharp-button>
-                } @else {
-                  <app-sharp-button [size]="'sm'" [variant]="buttonDanger" [disabled]="submitting()" (clicked)="confirmUserAction(user, 'lock')">
-                    {{ 'PLATFORM_EMERGENCY_LOCK' | translate }}
-                  </app-sharp-button>
+                @if (isSuperAdmin()) {
+                  @if (isUserLocked(user)) {
+                    <app-sharp-button [size]="'sm'" [variant]="buttonSecondary" [disabled]="submitting()" (clicked)="confirmUserAction(user, 'unlock')">
+                      {{ 'PLATFORM_EMERGENCY_UNLOCK' | translate }}
+                    </app-sharp-button>
+                  } @else {
+                    <app-sharp-button [size]="'sm'" [variant]="buttonDanger" [disabled]="submitting()" (clicked)="confirmUserAction(user, 'lock')">
+                      {{ 'PLATFORM_EMERGENCY_LOCK' | translate }}
+                    </app-sharp-button>
+                  }
                 }
               </span>
             </div>
@@ -167,7 +186,7 @@
       </h2>
       <button
         type="button"
-        class="w-8 h-8 shrink-0 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300"
+        class="w-10 h-10 shrink-0 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300"
         (click)="closeTenantPanel()"
       >
         <span class="text-sm leading-none">×</span>

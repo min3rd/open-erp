@@ -1,5 +1,8 @@
 package com.vn9melody.openerp.modules.iam.service;
 
+import com.vn9melody.openerp.core.audit.AuditTrail;
+import com.vn9melody.openerp.core.enums.PlatformAction;
+import com.vn9melody.openerp.core.enums.ResponseKey;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.api.ApiFieldError;
 import com.vn9melody.openerp.core.security.PermissionInvalidationService;
@@ -39,6 +42,9 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class IamRoleService {
+    @Inject
+    AuditTrail auditTrail;
+
 
     public static final String ROLE_TENANT_OWNER = "TENANT_OWNER";
 
@@ -128,7 +134,8 @@ public class IamRoleService {
         role.updatedAt = role.createdAt;
         role.persist();
 
-        // TODO(wave-integration): emit tenant-scoped audit log for IAM_ROLE_CREATED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.IAM_ROLE_CREATE, "IAM_ROLE", role.id,
+            Map.of(ResponseKey.ROLE_CODE.getKey(), role.code));
         return toRoleItem(role, 0L);
     }
 
@@ -146,7 +153,8 @@ public class IamRoleService {
         role.description = request.description();
         role.updatedAt = Instant.now();
 
-        // TODO(wave-integration): emit tenant-scoped audit log for IAM_ROLE_UPDATED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.IAM_ROLE_UPDATE, "IAM_ROLE", role.id,
+            Map.of(ResponseKey.ROLE_CODE.getKey(), role.code));
         return toRoleItem(role, roleRepository.countUsersByRole(tenantId, role.id));
     }
 
@@ -158,7 +166,8 @@ public class IamRoleService {
                 "Cannot delete a role that is assigned to users");
         }
         role.delete();
-        // TODO(wave-integration): emit tenant-scoped audit log for IAM_ROLE_DELETED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.IAM_ROLE_DELETE, "IAM_ROLE", role.id,
+            Map.of(ResponseKey.ROLE_CODE.getKey(), role.code));
     }
 
     @Transactional
@@ -198,7 +207,9 @@ public class IamRoleService {
         List<UUID> affected = userRoleRepository.listUserIdsByRole(tenantId, roleId);
         permissionInvalidationService.publish(
             new RolePermissionChangedEvent(tenantId, roleId, affected, "ROLE_PERMISSIONS_UPDATED"));
-        // TODO(wave-integration): emit tenant-scoped audit log for IAM_ROLE_PERMISSIONS_UPDATED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.IAM_ROLE_PERMISSION_UPDATE, "IAM_ROLE", roleId,
+            Map.of(ResponseKey.PERMISSION_IDS.getKey(),
+                resolved.stream().map(permission -> permission.code).toList()));
         return new RolePermissionsUpdateResponse(roleId.toString(), resolved.size());
     }
 
@@ -263,7 +274,8 @@ public class IamRoleService {
                     new UserRoleAssignedEvent(tenantId, userId, roleId, true, "ROLE_USERS_ASSIGNED"));
             }
         }
-        // TODO(wave-integration): emit tenant-scoped audit log for IAM_USER_ROLES_ASSIGNED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.IAM_USER_ROLE_ASSIGN, "IAM_ROLE", roleId,
+            Map.of(ResponseKey.ASSIGNED_USERS_COUNT.getKey(), assigned));
         return new RoleUsersAssignedResponse(roleId.toString(), assigned);
     }
 
@@ -282,7 +294,8 @@ public class IamRoleService {
         userRole.delete();
         permissionInvalidationService.publish(
             new UserRoleAssignedEvent(tenantId, userId, roleId, false, "ROLE_USER_REMOVED"));
-        // TODO(wave-integration): emit tenant-scoped audit log for IAM_USER_ROLE_REMOVED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.IAM_USER_ROLE_REMOVE, "USER_ROLE", userId,
+            Map.of(ResponseKey.ROLE_ID.getKey(), roleId.toString()));
     }
 
     @Transactional
@@ -312,7 +325,8 @@ public class IamRoleService {
                     new UserRoleAssignedEvent(tenantId, userId, roleId, true, "USER_ROLES_ASSIGNED"));
             }
         }
-        // TODO(wave-integration): emit tenant-scoped audit log for IAM_USER_ROLES_ASSIGNED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.IAM_USER_ROLE_ASSIGN, "USER_ROLE", userId,
+            Map.of(ResponseKey.ASSIGNED_ROLES_COUNT.getKey(), assigned));
         return new IamRbacDtos.UserRolesAssignedResponse(userId.toString(), assigned);
     }
 

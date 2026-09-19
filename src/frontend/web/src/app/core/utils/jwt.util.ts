@@ -27,3 +27,17 @@ export function readStringArrayClaim(payload: Record<string, unknown> | null, cl
   }
   return value.filter((item): item is string => typeof item === 'string');
 }
+
+export function readBooleanClaim(payload: Record<string, unknown> | null, claim: string): boolean | null {
+  if (!payload) {
+    return null;
+  }
+  const value = payload[claim];
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  if (value === 'true' || value === 'false') {
+    return value === 'true';
+  }
+  return null;
+}

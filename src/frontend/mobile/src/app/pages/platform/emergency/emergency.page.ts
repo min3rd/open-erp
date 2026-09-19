@@ -14,6 +14,7 @@ import {
 } from '@ionic/angular/standalone';
 import { forkJoin } from 'rxjs';
 import { PlatformService } from '../../../core/platform.service';
+import { AuthService } from '../../../core/auth.service';
 import {
   BadgeComponent,
   BadgeVariant,
@@ -24,6 +25,7 @@ import {
   PlatformUser,
   SharpButtonComponent,
   SharpInputComponent,
+  SharpToggleComponent,
   SubsystemStatus,
   SystemHealthStatus,
   TenantStatus,
@@ -54,6 +56,7 @@ interface TenantActionTarget {
     BadgeComponent,
     SharpButtonComponent,
     SharpInputComponent,
+    SharpToggleComponent,
     TranslateDirective,
     TranslatePipe
   ],
@@ -63,10 +66,14 @@ export class EmergencyPage implements OnInit {
   private platform = inject(PlatformService);
   private actionSheetCtrl = inject(ActionSheetController);
   private i18n = inject(I18nService);
+  private auth = inject(AuthService);
 
   readonly badgeDanger = BadgeVariant.DANGER;
   readonly buttonDanger = ButtonVariant.DANGER;
   readonly buttonSecondary = ButtonVariant.SECONDARY;
+
+  /** SUPPORT_ENGINEER sees a read-only overview (backend rejects non-GET calls). */
+  readonly isSuperAdmin = this.auth.isPlatformSuperAdmin;
 
   health = signal<HealthSnapshot | null>(null);
   tenants = signal<PlatformTenant[]>([]);
@@ -144,6 +151,12 @@ export class EmergencyPage implements OnInit {
     return tenant.status === TenantStatus.ACTIVE ? BadgeVariant.SUCCESS : BadgeVariant.DEFAULT;
   }
 
+  pluginLabel(pluginKey: string): string {
+    const nameKey = `PLUGIN_${pluginKey.toUpperCase()}_NAME`;
+    const translated = this.i18n.t(nameKey);
+    return translated === nameKey ? pluginKey : translated;
+  }
+
   userStatusVariant(user: PlatformUser): BadgeVariant {
     switch (user.status) {
       case UserStatus.ACTIVE:
@@ -182,6 +195,9 @@ export class EmergencyPage implements OnInit {
   }
 
   openTenantPanel(tenant: PlatformTenant, action: 'lock' | 'unlock') {
+    if (!this.isSuperAdmin()) {
+      return;
+    }
     this.error.set(null);
     this.success.set(null);
     this.confirmPassword = '';
@@ -197,7 +213,7 @@ export class EmergencyPage implements OnInit {
 
   async confirmTenantAction() {
     const target = this.tenantTarget();
-    if (!target) {
+    if (!target || !this.isSuperAdmin()) {
       return;
     }
     if (!this.confirmPassword.trim()) {
@@ -234,6 +250,9 @@ export class EmergencyPage implements OnInit {
   }
 
   async confirmUserAction(user: PlatformUser, action: 'lock' | 'unlock') {
+    if (!this.isSuperAdmin()) {
+      return;
+    }
     const isLock = action === 'lock';
     const buttons: ActionSheetButton[] = [
       {

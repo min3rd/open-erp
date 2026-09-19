@@ -8,3 +8,27 @@
 /* Shared UI library lives outside the Vite root: tell Tailwind to scan it too,
    otherwise shared-only utilities (fixed/inset/shadow/dark:*) are never generated. */
 @source '../../shared';
+
+@media (max-width: 639px) {
+  app-theme-switcher button,
+  app-language-switcher button,
+  app-sharp-toggle button,
+  app-sharp-button button,
+  app-pagination button,
+  app-pin-input input,
+  app-department-graph-canvas button {
+    min-height: 40px;
+    min-width: 40px;
+  }
+
+  app-sharp-input input,
+  app-sharp-select select,
+  app-sharp-textarea textarea {
+    min-height: 40px;
+  }
+
+  app-theme-switcher > div > span,
+  app-language-switcher > div > span {
+    display: none;
+  }
+}

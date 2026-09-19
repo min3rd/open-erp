@@ -15,7 +15,8 @@ import {
   SharpTextareaComponent,
   TableColumn,
   TableComponent,
-  TranslatePipe
+  TranslatePipe,
+  formatDateTime
 } from '@shared';
 import { PlatformService } from '../../../core/services/platform.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -48,6 +49,7 @@ export class PlatformAdminListComponent implements OnInit {
   readonly loading = signal<boolean>(false);
   readonly errorText = signal<string>('');
   readonly successText = signal<string>('');
+  readonly formatDateTime = formatDateTime;
 
   readonly confirmAdmin = signal<PlatformAdmin | null>(null);
   readonly confirmAction = signal<AdminConfirmAction | null>(null);

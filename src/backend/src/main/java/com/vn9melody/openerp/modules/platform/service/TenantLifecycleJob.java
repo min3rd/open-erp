@@ -10,7 +10,9 @@ import com.vn9melody.openerp.core.enums.PlatformAdminStatus;
 import com.vn9melody.openerp.core.enums.TenantStatus;
 import com.vn9melody.openerp.modules.iam.model.Tenant;
 import com.vn9melody.openerp.modules.platform.repository.PlatformSuperAdminRepository;
+import io.quarkus.narayana.jta.QuarkusTransaction;
 import io.quarkus.runtime.StartupEvent;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -70,12 +72,22 @@ public class TenantLifecycleJob {
         if (!jobsEnabled) {
             return;
         }
-        vertx.setPeriodic(intervalSeconds * 1000L, id -> {
+        vertx.setPeriodic(intervalSeconds * 1000L, id -> runOnce());
+    }
+
+    /**
+     * BUG-82: runs one lifecycle pass on a Vert.x worker thread. The periodic timer fires
+     * on the event loop, where a JTA transaction cannot start, so the transaction is
+     * opened inside the worker callback. Failures are logged and swallowed so a bad tick
+     * never kills the scheduler.
+     */
+    public Future<LifecycleResult> runOnce() {
+        return vertx.executeBlocking(() -> {
             try {
-                io.quarkus.narayana.jta.QuarkusTransaction.requiringNew()
-                    .run(() -> runLifecycle(Instant.now()));
+                return QuarkusTransaction.requiringNew().call(() -> runLifecycle(Instant.now()));
             } catch (Exception e) {
                 LOG.errorf("Tenant lifecycle job failed: %s", e.getMessage());
+                return null;
             }
         });
     }

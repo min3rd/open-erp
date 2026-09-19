@@ -11,6 +11,7 @@ import {
   ButtonSize,
   BadgeVariant,
   apiMessage,
+  formatDateTime,
   UserSessionData
 } from '@shared';
 
@@ -34,6 +35,7 @@ export class AccountSessionsComponent implements OnInit {
   readonly buttonVariantDanger = ButtonVariant.DANGER;
   readonly buttonSizeSm = ButtonSize.SM;
   readonly badgeVariantSuccess = BadgeVariant.SUCCESS;
+  readonly formatDateTime = formatDateTime;
 
   sessions = signal<UserSessionData[]>([]);
   sessionsError = signal<string | null>(null);

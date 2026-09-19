@@ -22,6 +22,7 @@ import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -126,6 +127,16 @@ public class TenantLifecycleJobTest {
     @DisplayName("TASK-272: runLifecycle tổng hợp chạy cả hai nhánh")
     public void testRunLifecycle() {
         TenantLifecycleJob.LifecycleResult result = lifecycleJob.runLifecycle(Instant.now());
+        assertEquals(1, result.expired);
+        assertEquals(1, result.deleted);
+    }
+
+    @Test
+    @DisplayName("BUG-82: job lifecycle chạy 1 lượt qua worker thread không crash")
+    public void testRunOnceOnWorkerDoesNotCrash() throws Exception {
+        TenantLifecycleJob.LifecycleResult result = lifecycleJob.runOnce()
+            .toCompletionStage().toCompletableFuture().get(15, TimeUnit.SECONDS);
+        assertNotNull(result, "runOnce must return a result, not swallow the pass");
         assertEquals(1, result.expired);
         assertEquals(1, result.deleted);
     }

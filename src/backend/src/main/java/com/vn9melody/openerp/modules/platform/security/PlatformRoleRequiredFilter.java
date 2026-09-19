@@ -6,6 +6,8 @@ import com.vn9melody.openerp.core.enums.PlatformAdminRole;
 import com.vn9melody.openerp.core.security.SessionManager;
 import com.vn9melody.openerp.modules.platform.api.PlatformErrorCode;
 import com.vn9melody.openerp.modules.platform.api.PlatformSupport;
+import com.vn9melody.openerp.modules.platform.model.PlatformSuperAdmin;
+import com.vn9melody.openerp.modules.platform.repository.PlatformSuperAdminRepository;
 import com.vn9melody.openerp.modules.platform.service.PlatformJwtService;
 import io.smallrye.common.annotation.Blocking;
 import io.smallrye.jwt.auth.principal.JWTParser;
@@ -45,12 +47,19 @@ public class PlatformRoleRequiredFilter implements ContainerRequestFilter {
     private static final String PREFIX = "api/v1/platform";
     private static final String IMPERSONATION_EXIT = PREFIX + "/impersonate/exit";
     private static final String IMPERSONATION_EXIT_ALIAS = PREFIX + "/impersonation/exit";
+    // TASK-294: account self-service paths reachable by a confined platform admin.
+    private static final String ACCOUNT_PREFIX = "api/v1/account";
+    private static final String ACCOUNT_CHANGE_PASSWORD = ACCOUNT_PREFIX + "/change-password";
+    private static final String ACCOUNT_PROFILE = ACCOUNT_PREFIX + "/profile";
 
     @Inject
     JWTParser jwtParser;
 
     @Inject
     SessionManager sessionManager;
+
+    @Inject
+    PlatformSuperAdminRepository superAdminRepository;
 
     @Inject
     @ConfigProperty(name = "mp.jwt.verify.issuer")
@@ -67,6 +76,13 @@ public class PlatformRoleRequiredFilter implements ContainerRequestFilter {
             path = path.substring(1);
         }
         if (!path.startsWith(PREFIX)) {
+            // TASK-294: a platform admin confined by must_change_password is also
+            // guarded on the account self-service surface, with an explicit allowlist.
+            if (path.startsWith(ACCOUNT_PREFIX)) {
+                if (!"OPTIONS".equalsIgnoreCase(requestContext.getMethod())) {
+                    guardForcedPlatformPasswordChange(requestContext, path);
+                }
+            }
             return;
         }
         if ("OPTIONS".equalsIgnoreCase(requestContext.getMethod())) {
@@ -119,8 +135,10 @@ public class PlatformRoleRequiredFilter implements ContainerRequestFilter {
             return;
         }
 
-        PlatformAdminRole role = PlatformAdminRole.fromString(platformRole);
-
+        // TASK-294 / SOL-01 1.2.2: an admin that has not completed the forced password
+        // change is confined to the change-password screen (POST
+        // /api/v1/account/change-password) and profile lookup; every
+        // /api/v1/platform/** endpoint stays blocked (fail-closed).
         UUID userId;
         try {
             userId = UUID.fromString(jwt.getSubject());
@@ -129,7 +147,23 @@ public class PlatformRoleRequiredFilter implements ContainerRequestFilter {
             return;
         }
 
-        String sessionId = PlatformSupport.claim(jwt, "session_id");
+        // BUG-76: never trust the token claim alone. Reconcile with the persisted
+        // platform admin state so a stale must_change_password claim cannot keep a
+        // released admin locked out, and a fresh reset flag blocks old tokens.
+        PlatformSuperAdmin admin = superAdminRepository.findByUserId(userId);
+        boolean mustChangePassword = admin != null
+            ? Boolean.TRUE.equals(admin.mustChangePassword)
+            : PlatformSupport.booleanClaim(jwt, PlatformJwtService.CLAIM_MUST_CHANGE_PASSWORD);
+        if (mustChangePassword) {
+            LOG.warnf("Platform admin %s must change password before accessing %s", jwt.getSubject(), path);
+            abort(requestContext, 403, PlatformErrorCode.PLATFORM_PASSWORD_CHANGE_REQUIRED,
+                "You must change your password before using the platform portal");
+            return;
+        }
+
+        PlatformAdminRole role = PlatformAdminRole.fromString(platformRole);
+
+        String sessionId = PlatformSupport.claim(jwt, PlatformJwtService.CLAIM_SESSION_ID);
         if (sessionId == null || !sessionManager.isSessionActive(userId, sessionId)) {
             abort(requestContext, 401, ErrorCode.UNAUTHORIZED, "Platform session is no longer active");
             return;
@@ -144,6 +178,52 @@ public class PlatformRoleRequiredFilter implements ContainerRequestFilter {
         }
 
         requestContext.setProperty(PlatformSupport.JWT_CONTEXT_PROPERTY, jwt);
+    }
+
+    /**
+     * TASK-294: enforce the forced-password-change confinement on the account
+     * self-service surface for platform tokens. While the claim is set, only
+     * {@code POST /api/v1/account/change-password} and
+     * {@code GET /api/v1/account/profile} are allowed through; every other account
+     * endpoint fails closed with {@code PLATFORM_PASSWORD_CHANGE_REQUIRED}. Tenant
+     * and impersonation tokens are not affected.
+     */
+    private void guardForcedPlatformPasswordChange(ContainerRequestContext requestContext, String path) {
+        String authorization = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+        if (authorization == null || !authorization.regionMatches(true, 0, "Bearer ", 0, 7)
+                || authorization.substring(7).trim().isEmpty()) {
+            return;
+        }
+
+        JsonWebToken jwt;
+        try {
+            jwt = jwtParser.parse(authorization.substring(7).trim());
+        } catch (Exception e) {
+            return;
+        }
+
+        String platformRole = PlatformSupport.claim(jwt, PlatformJwtService.CLAIM_PLATFORM_ROLE);
+        String scope = PlatformSupport.claim(jwt, PlatformJwtService.CLAIM_SCOPE);
+        if (platformRole == null || platformRole.isBlank()
+                || !PlatformJwtService.SCOPE_PLATFORM.equals(scope)
+                || PlatformSupport.booleanClaim(jwt, PlatformJwtService.CLAIM_IS_IMPERSONATION)) {
+            return;
+        }
+        if (!PlatformSupport.booleanClaim(jwt, PlatformJwtService.CLAIM_MUST_CHANGE_PASSWORD)) {
+            return;
+        }
+
+        String normalized = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
+        String method = requestContext.getMethod();
+        boolean allowed = ("POST".equalsIgnoreCase(method) && ACCOUNT_CHANGE_PASSWORD.equals(normalized))
+            || ("GET".equalsIgnoreCase(method) && ACCOUNT_PROFILE.equals(normalized));
+        if (allowed) {
+            return;
+        }
+
+        LOG.warnf("Platform admin %s must change password before accessing %s", jwt.getSubject(), path);
+        abort(requestContext, 403, PlatformErrorCode.PLATFORM_PASSWORD_CHANGE_REQUIRED,
+            "You must change your password before using the platform portal");
     }
 
     private boolean isForbiddenForSupportEngineer(ContainerRequestContext ctx, String path) {

@@ -1,5 +1,8 @@
 package com.vn9melody.openerp.modules.organization.service;
 
+import com.vn9melody.openerp.core.audit.AuditTrail;
+import com.vn9melody.openerp.core.enums.PlatformAction;
+import com.vn9melody.openerp.core.enums.ResponseKey;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.security.PermissionInvalidationService;
 import com.vn9melody.openerp.core.security.events.BranchAssignmentChangedEvent;
@@ -28,6 +31,9 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class BranchAssignmentService {
+    @Inject
+    AuditTrail auditTrail;
+
 
     @Inject
     UserBranchAssignmentRepository assignmentRepository;
@@ -135,7 +141,9 @@ public class BranchAssignmentService {
         permissionInvalidationService.publish(
             new BranchAssignmentChangedEvent(tenantId, userId,
                 responseAssignment != null ? responseAssignment.branchId : null, "BRANCH_ASSIGNMENT_CREATED"));
-        // TODO(wave-integration): emit tenant-scoped audit log for ORGANIZATION_BRANCH_ASSIGNMENT_CREATED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.ORG_BRANCH_ASSIGNMENT_CREATE, "BRANCH_ASSIGNMENT",
+            responseAssignment != null ? responseAssignment.id : null,
+            Map.of(ResponseKey.USER_ID.getKey(), userId.toString()));
         return toResponses(List.of(responseAssignment)).get(0);
     }
 
@@ -160,7 +168,8 @@ public class BranchAssignmentService {
         permissionInvalidationService.publish(
             new BranchAssignmentChangedEvent(tenantId, assignment.userId, assignment.branchId,
                 "BRANCH_ASSIGNMENT_UPDATED"));
-        // TODO(wave-integration): emit tenant-scoped audit log for ORGANIZATION_BRANCH_ASSIGNMENT_UPDATED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.ORG_BRANCH_ASSIGNMENT_UPDATE, "BRANCH_ASSIGNMENT",
+            assignment.id, Map.of(ResponseKey.USER_ID.getKey(), assignment.userId.toString()));
         return toResponses(List.of(assignment)).get(0);
     }
 
@@ -181,7 +190,8 @@ public class BranchAssignmentService {
 
         permissionInvalidationService.publish(
             new BranchAssignmentChangedEvent(tenantId, userId, branchId, "BRANCH_ASSIGNMENT_REMOVED"));
-        // TODO(wave-integration): emit tenant-scoped audit log for ORGANIZATION_BRANCH_ASSIGNMENT_REMOVED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.ORG_BRANCH_ASSIGNMENT_DELETE, "BRANCH_ASSIGNMENT",
+            assignmentId, Map.of(ResponseKey.USER_ID.getKey(), userId.toString()));
     }
 
     private long countByUser(UUID userId, UUID tenantId) {

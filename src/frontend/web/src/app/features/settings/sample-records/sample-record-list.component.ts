@@ -16,7 +16,8 @@ import {
   SampleRecordStatus,
   TableColumn,
   TableComponent,
-  TranslatePipe
+  TranslatePipe,
+  formatDateTime
 } from '@shared';
 
 import { OrganizationService } from '../../../core/services/organization.service';
@@ -43,6 +44,7 @@ export class SampleRecordListComponent implements OnInit {
   private i18n = inject(I18nService);
 
   readonly records = signal<SampleRecord[]>([]);
+  readonly formatDateTime = formatDateTime;
   readonly branches = signal<Branch[]>([]);
   readonly departments = signal<FlatDepartmentNode[]>([]);
   readonly members = signal<Membership[]>([]);
@@ -55,6 +57,7 @@ export class SampleRecordListComponent implements OnInit {
   readonly successText = signal<string>('');
   readonly exportUrl = signal<string>('');
   readonly exportDenied = signal<boolean>(false);
+  readonly exportDeniedKey = signal<string>('IAM_PERMISSION_DENIED_EXPORT');
   readonly exporting = signal<boolean>(false);
 
   readonly drawerOpen = signal<boolean>(false);
@@ -173,8 +176,9 @@ export class SampleRecordListComponent implements OnInit {
       error: (err) => {
         this.exporting.set(false);
         const apiError = err as ApiErrorResponse;
-        if (apiError?.code === 'IAM_PERMISSION_DENIED_EXPORT') {
+        if (apiError?.code === 'IAM_PERMISSION_DENIED_EXPORT' || apiError?.code === 'SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN') {
           this.exportDenied.set(true);
+          this.exportDeniedKey.set(apiError.code);
         }
         this.showError(err);
       }

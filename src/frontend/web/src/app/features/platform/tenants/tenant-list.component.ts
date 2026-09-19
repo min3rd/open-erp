@@ -17,10 +17,12 @@ import {
   TableColumn,
   TableComponent,
   TenantStatus,
-  TranslatePipe
+  TranslatePipe,
+  formatDateTime
 } from '@shared';
 
 import { PlatformService } from '../../../core/services/platform.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ImpersonationService } from '../../../core/services/impersonation.service';
 import { TenantQuotaDrawerComponent } from './tenant-quota-drawer.component';
 import { ImpersonateConfirmDrawerComponent } from './impersonate-confirm-drawer.component';
@@ -48,6 +50,10 @@ export class TenantListComponent implements OnInit {
   private i18n = inject(I18nService);
   private router = inject(Router);
   private impersonation = inject(ImpersonationService);
+  private auth = inject(AuthService);
+
+  /** SUPPORT_ENGINEER is read-only (backend rejects all non-GET platform calls). */
+  readonly isSuperAdmin = this.auth.isPlatformSuperAdmin;
 
   readonly tenants = signal<PlatformTenant[]>([]);
   readonly loading = signal<boolean>(false);
@@ -69,6 +75,8 @@ export class TenantListComponent implements OnInit {
   readonly quotaOpen = signal<boolean>(false);
   readonly impersonateTenant = signal<PlatformTenant | null>(null);
   readonly impersonateOpen = signal<boolean>(false);
+
+  readonly formatDateTime = formatDateTime;
 
   readonly columns: TableColumn[] = [
     { key: 'name', labelKey: 'PLATFORM_TENANT_COL_NAME' },
@@ -166,6 +174,9 @@ export class TenantListComponent implements OnInit {
   }
 
   askLock(tenant: PlatformTenant) {
+    if (!this.isSuperAdmin()) {
+      return;
+    }
     this.successText.set('');
     this.confirmReason.set('');
     this.confirmPassword.set('');
@@ -173,6 +184,9 @@ export class TenantListComponent implements OnInit {
   }
 
   askUnlock(tenant: PlatformTenant) {
+    if (!this.isSuperAdmin()) {
+      return;
+    }
     this.successText.set('');
     this.confirmReason.set('');
     this.confirmPassword.set('');
@@ -218,6 +232,9 @@ export class TenantListComponent implements OnInit {
   }
 
   openQuota(tenant: PlatformTenant) {
+    if (!this.isSuperAdmin()) {
+      return;
+    }
     this.successText.set('');
     this.quotaTenant.set(tenant);
     this.quotaOpen.set(true);
@@ -234,6 +251,9 @@ export class TenantListComponent implements OnInit {
   }
 
   openImpersonate(tenant: PlatformTenant) {
+    if (!this.isSuperAdmin()) {
+      return;
+    }
     this.successText.set('');
     this.impersonateTenant.set(tenant);
     this.impersonateOpen.set(true);

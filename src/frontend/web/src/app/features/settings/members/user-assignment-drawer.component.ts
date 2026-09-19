@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   ApiErrorResponse,
+  BadgeComponent,
   Branch,
+  ColorVariant,
   DrawerComponent,
   FlatDepartmentNode,
   I18nService,
@@ -13,10 +15,13 @@ import {
   SharpInputComponent,
   SharpSelectComponent,
   SharpToggleComponent,
-  TranslatePipe
+  TenantUser,
+  TranslatePipe,
+  UserStatus
 } from '@shared';
 
 import { OrganizationService } from '../../../core/services/organization.service';
+import { IamService } from '../../../core/services/iam.service';
 
 @Component({
   selector: 'app-user-assignment-drawer',
@@ -24,6 +29,7 @@ import { OrganizationService } from '../../../core/services/organization.service
   imports: [
     CommonModule,
     FormsModule,
+    BadgeComponent,
     DrawerComponent,
     SharpInputComponent,
     SharpSelectComponent,
@@ -35,6 +41,7 @@ import { OrganizationService } from '../../../core/services/organization.service
 })
 export class UserAssignmentDrawerComponent {
   private organization = inject(OrganizationService);
+  private iam = inject(IamService);
   private i18n = inject(I18nService);
 
   isOpen = input<boolean>(false);
@@ -54,6 +61,21 @@ export class UserAssignmentDrawerComponent {
   readonly isPrimary = signal<boolean>(true);
   readonly saving = signal<boolean>(false);
   readonly errorText = signal<string>('');
+
+  readonly selectedUser = signal<TenantUser | null>(null);
+  readonly userSearch = signal<string>('');
+  readonly users = signal<TenantUser[]>([]);
+  readonly loadingUsers = signal<boolean>(false);
+  readonly loadingMore = signal<boolean>(false);
+  readonly page = signal<number>(1);
+  readonly totalPages = signal<number>(1);
+
+  readonly badgeSuccess = ColorVariant.SUCCESS;
+  readonly badgeWarning = ColorVariant.WARNING;
+  readonly badgeInfo = ColorVariant.INFO;
+  readonly badgeDefault = ColorVariant.DEFAULT;
+
+  private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly branchOptions = computed<SelectOption[]>(() =>
     this.branches().map((branch) => ({ value: branch.id, label: `${branch.code} - ${branch.name}` }))
@@ -85,12 +107,66 @@ export class UserAssignmentDrawerComponent {
         this.title.set(editing?.title || '');
         this.isPrimary.set(editing?.is_primary ?? true);
         this.errorText.set('');
+        this.selectedUser.set(null);
+        this.userSearch.set('');
+        this.users.set([]);
+        this.page.set(1);
+        this.totalPages.set(1);
+        if (!editing) {
+          this.loadUsers(true);
+        }
       }
     });
   }
 
   get isEditing(): boolean {
     return !!this.membership();
+  }
+
+  onSearchChange(value: string) {
+    this.userSearch.set(value);
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+    }
+    this.searchTimer = setTimeout(() => this.loadUsers(true), 300);
+  }
+
+  loadMore() {
+    if (this.page() < this.totalPages() && !this.loadingMore()) {
+      this.loadUsers(false);
+    }
+  }
+
+  hasMore(): boolean {
+    return this.page() < this.totalPages();
+  }
+
+  selectUser(user: TenantUser) {
+    this.selectedUser.set(user);
+    this.userId.set(user.id);
+  }
+
+  clearSelectedUser() {
+    this.selectedUser.set(null);
+    this.userId.set('');
+    this.loadUsers(true);
+  }
+
+  statusVariant(status: string | null | undefined): ColorVariant {
+    switch (status) {
+      case UserStatus.ACTIVE:
+        return ColorVariant.SUCCESS;
+      case UserStatus.LOCKED:
+        return ColorVariant.WARNING;
+      case UserStatus.PENDING:
+        return ColorVariant.INFO;
+      default:
+        return ColorVariant.DEFAULT;
+    }
+  }
+
+  statusLabelKey(status: string | null | undefined): string {
+    return status ? `USER_STATUS_${status}` : 'COMMON_INACTIVE';
   }
 
   onClose() {
@@ -122,6 +198,34 @@ export class UserAssignmentDrawerComponent {
       },
       error: (err) => {
         this.saving.set(false);
+        const apiError = err as ApiErrorResponse;
+        this.errorText.set(this.i18n.t(apiError?.code || 'INTERNAL_SERVER_ERROR', apiError?.params));
+      }
+    });
+  }
+
+  private loadUsers(reset: boolean) {
+    if (reset) {
+      this.loadingUsers.set(true);
+    } else {
+      this.loadingMore.set(true);
+    }
+    const nextPage = reset ? 1 : this.page() + 1;
+    this.iam.getUsers({ keyword: this.userSearch().trim() || undefined, page: nextPage, size: 20 }).subscribe({
+      next: (res) => {
+        const items = res.data?.items || [];
+        this.users.set(reset ? items : [...this.users(), ...items]);
+        this.totalPages.set(res.data?.total_pages || 1);
+        this.page.set(nextPage);
+        this.loadingUsers.set(false);
+        this.loadingMore.set(false);
+      },
+      error: (err) => {
+        if (reset) {
+          this.users.set([]);
+        }
+        this.loadingUsers.set(false);
+        this.loadingMore.set(false);
         const apiError = err as ApiErrorResponse;
         this.errorText.set(this.i18n.t(apiError?.code || 'INTERNAL_SERVER_ERROR', apiError?.params));
       }

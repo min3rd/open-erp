@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [x] Critical / [ ] High / [ ] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [ ] To Do / [x] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -35,3 +35,8 @@
 - Wave 2 hoàn tất annotation `@RequirePermission` + `PermissionEnforcementFilter` (403 `IAM_PERMISSION_DENIED_FUNCTIONAL`, audit DENIED, platform token bypass có log) + catalog quyền seed `TASK-268`.
 - **Giữ `In Progress`**: chưa retrofit annotation cho API legacy Sprint 01 và API org/iam mới (hiện default-allow); **retrofit enforcement toàn bộ endpoint chuyển Wave 3**.
 - Test hiện có: `PermissionFilterTest` trên PostgreSQL & Redis thật.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Wave 3 retrofit hoàn tất: toàn bộ endpoint IAM/Organization (và API legacy Sprint 01) đã gắn `@RequirePermission` tương ứng; giữ default-allow có chủ đích duy nhất cho self-profile (`GET/PUT /account/profile`).
+- `PermissionRetrofitApiTest` kiểm chứng không còn endpoint core nào bỏ sót annotation; `AuditWiringTest` xác nhận audit DENIED/allowed được ghi; `PermissionFilterTest` chạy PostgreSQL + Redis thật.
+- Full `mvn test` **178/178 PASS**; không phát sinh regression.

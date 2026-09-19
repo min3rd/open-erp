@@ -1,5 +1,6 @@
 package com.vn9melody.openerp.modules.iam.resource;
 
+import com.vn9melody.openerp.core.security.RequirePermission;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.api.ApiResponse;
 import com.vn9melody.openerp.modules.iam.service.IamDataPolicyService;
@@ -39,8 +40,8 @@ import java.util.UUID;
  * for global system roles too — each tenant owns its own {@code role_data_policies} rows, so no
  * immutability restriction is applied here (unlike role rename/delete).</p>
  *
- * <p>TODO(wave-integration): attach {@code @RequirePermission("core:role:read" | "core:role:manage")}
- * annotations.</p>
+ * <p>Every endpoint declares its functional permission via {@code @RequirePermission}
+ * and is enforced by {@code PermissionEnforcementFilter} (TASK-267).</p>
  */
 @Path("/api/v1/iam")
 @Produces(MediaType.APPLICATION_JSON)
@@ -58,6 +59,7 @@ public class DataPolicyResource {
 
     @GET
     @Path("/data-resources")
+    @RequirePermission("core:permission:read")
     public Response dataResources() {
         authenticate();
         List<DataResourceItem> items = dataPolicyService.listDataResources();
@@ -69,6 +71,7 @@ public class DataPolicyResource {
 
     @GET
     @Path("/data-policies")
+    @RequirePermission("core:role:read")
     public Response dataPolicies(@QueryParam("role_id") String roleId) {
         IamPrincipal principal = authenticate();
         UUID parsedRoleId = parseRoleId(roleId);
@@ -81,6 +84,7 @@ public class DataPolicyResource {
 
     @PUT
     @Path("/data-policies")
+    @RequirePermission("core:role:manage")
     public Response updateDataPolicies(@Valid DataPolicyMatrixUpdateRequest request) {
         IamPrincipal principal = authenticate();
         if (request == null) {
@@ -126,6 +130,7 @@ public class DataPolicyResource {
 
     @GET
     @Path("/roles/{roleId}/data-policies")
+    @RequirePermission("core:role:read")
     public Response roleDataPolicies(@PathParam("roleId") UUID roleId) {
         IamPrincipal principal = authenticate();
         List<DataPolicyItem> items = dataPolicyService.policies(principal.tenantId(), roleId);
@@ -137,6 +142,7 @@ public class DataPolicyResource {
 
     @PUT
     @Path("/roles/{roleId}/data-policies")
+    @RequirePermission("core:role:manage")
     public Response updateRoleDataPolicies(@PathParam("roleId") UUID roleId,
                                            @Valid DataPolicyUpdateRequest request) {
         IamPrincipal principal = authenticate();
@@ -150,6 +156,8 @@ public class DataPolicyResource {
 
     @GET
     @Path("/me/data-scopes")
+    // Self-service endpoint: a user reads only their own effective scopes, so it stays
+    // unannotated (self-allow) instead of requiring core:role:read (TASK-267 decision).
     public Response myDataScopes() {
         IamPrincipal principal = authenticate();
         List<DataPolicyItem> items = dataPolicyService.effectivePoliciesForUser(

@@ -8,7 +8,7 @@ Thư mục này là trung tâm giao tiếp và bàn giao công việc giữa cá
 docs/
 ├── sprints/                         # Quản lý trọn gói toàn bộ tài liệu theo từng Sprint
 │   ├── sprint_01_core_iam/          # Gói Sprint 01 - Core Identity & Access Management (ĐÃ ĐÓNG)
-│   ├── sprint_02_superadmin_rbac/   # Gói Sprint 02 - Super Admin, RBAC & Multi-Scope Data Access
+│   ├── sprint_02_superadmin_rbac/   # Gói Sprint 02 - Super Admin, RBAC & Multi-Scope Data Access (ĐÃ ĐÓNG 2026-09-19)
 │   │   ├── 00_READING_GUIDE.md      # BẢN ĐỒ ĐỌC BẮT ĐẦU: Lộ trình đọc tuần tự & Checklist Confirm
 │   │   ├── 01_raw_notes/            # Bước 1: Tiếp nhận yêu cầu thô (BA Agent)
 │   │   ├── 02_analysis/             # Bước 2: Phân tích nghiệp vụ & User Stories (BA Agent)
@@ -30,7 +30,9 @@ docs/
 │   └── changelog.md                 # Lịch sử phiên bản và thay đổi
 ├── 06_user_guides/                  # Hướng Dẫn Sử Dụng (Bắt buộc có hình ảnh trực quan)
 │   ├── TEMPLATE.md                  # Mẫu hướng dẫn sử dụng chuẩn
-│   └── assets/                      # Hình ảnh screenshots, diagrams minh họa
+│   ├── sprint_01_core_iam_user_guide.md          # UG-01: Core IAM (ĐÃ BAN HÀNH)
+│   ├── sprint_02_superadmin_rbac_user_guide.md   # UG-02: Super Admin, RBAC & Data Scopes (ĐÃ BAN HÀNH)
+│   └── assets/                      # Hình ảnh screenshots, diagrams minh họa (sprint_01_core_iam/, sprint_02_superadmin_rbac/)
 ├── 07_deployment_guides/            # Hướng Dẫn Cài Đặt & Triển Khai
 │   ├── local_setup_guide.md         # Hướng dẫn chạy môi trường Local với Docker Compose
 │   ├── docker_deployment_guide.md   # Hướng dẫn đóng gói Docker & triển khai Staging

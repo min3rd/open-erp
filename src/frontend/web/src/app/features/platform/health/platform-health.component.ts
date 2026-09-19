@@ -9,7 +9,8 @@ import {
   SharpButtonComponent,
   SubsystemStatus,
   SystemHealthStatus,
-  TranslatePipe
+  TranslatePipe,
+  formatTime
 } from '@shared';
 import { PlatformService } from '../../../core/services/platform.service';
 
@@ -42,7 +43,7 @@ export class PlatformHealthComponent implements OnInit {
         this.health.set(res.data);
         this.loading.set(false);
         this.errorText.set('');
-        this.lastUpdated.set(new Date().toLocaleTimeString());
+        this.lastUpdated.set(formatTime(new Date()));
       },
       error: (err) => {
         this.loading.set(false);

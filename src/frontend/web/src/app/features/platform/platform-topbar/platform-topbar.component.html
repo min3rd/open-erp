@@ -1,27 +1,32 @@
 <header class="bg-neutral-900 text-white border-b border-indigo-700 select-none">
-  <div class="px-3 py-1.5 flex items-center justify-between gap-3">
-    <div class="flex items-center gap-2 min-w-0">
+  <div class="px-2 sm:px-3 py-1.5 flex items-center justify-between gap-2">
+    <div class="flex items-center gap-2 min-w-0 shrink-0">
       <div class="w-6 h-6 shrink-0 bg-indigo-600 text-white flex items-center justify-center font-mono font-bold text-[10px]">
         ERP
       </div>
       <span class="hidden sm:inline text-[11px] font-bold uppercase tracking-wider text-neutral-100 whitespace-nowrap">
         {{ 'PLATFORM_PORTAL_TITLE' | translate }}
       </span>
-      <app-badge [variant]="badgeVariantInfo">[PLATFORM SUPER ADMIN]</app-badge>
+      <app-badge class="shrink-0" [variant]="badgeVariantInfo">{{ roleBadgeKey() | translate }}</app-badge>
+      @if (!isSuperAdmin()) {
+        <span class="hidden lg:inline text-[10px] uppercase tracking-wider text-amber-300 whitespace-nowrap">
+          {{ 'PLATFORM_SUPPORT_READ_ONLY_HINT' | translate }}
+        </span>
+      }
     </div>
 
-    <div class="flex items-center gap-3 min-w-0">
-      <app-theme-switcher />
-      <app-language-switcher />
+    <div class="flex flex-1 flex-wrap items-center justify-end gap-x-1.5 gap-y-1 sm:gap-x-3 min-w-0">
+      <app-theme-switcher class="shrink-0" />
+      <app-language-switcher class="shrink-0" />
       <div class="hidden md:flex items-center gap-1.5 text-[11px] text-neutral-300 min-w-0">
-        <span class="w-4 h-4 bg-indigo-500/30 border border-indigo-500/50 flex items-center justify-center text-[9px] font-bold text-indigo-200">
+        <span class="w-4 h-4 shrink-0 bg-indigo-500/30 border border-indigo-500/50 flex items-center justify-center text-[9px] font-bold text-indigo-200">
           {{ userInitial() }}
         </span>
         <span class="truncate max-w-[180px]">{{ userEmail() }}</span>
       </div>
       <button
         type="button"
-        class="px-2 py-0.5 text-[11px] bg-neutral-800 text-neutral-200 border border-neutral-700 hover:bg-neutral-700 transition-colors cursor-pointer"
+        class="px-2 py-0.5 min-h-10 sm:min-h-0 shrink-0 text-[11px] bg-neutral-800 text-neutral-200 border border-neutral-700 hover:bg-neutral-700 transition-colors cursor-pointer"
         (click)="logout()"
       >
         {{ 'COMMON_LOGOUT' | translate }}
@@ -29,12 +34,12 @@
     </div>
   </div>
 
-  <nav class="px-2 flex items-center gap-0.5 overflow-x-auto border-t border-neutral-800">
-    @for (item of menuItems; track item.path) {
+  <nav class="px-2 flex items-center gap-0.5 overflow-x-auto [scrollbar-width:thin] border-t border-neutral-800">
+    @for (item of menuItems(); track item.path) {
       <a
         [routerLink]="item.path"
         routerLinkActive="bg-indigo-950 text-indigo-200 border-b-2 border-indigo-400"
-        class="px-2.5 py-1.5 text-[11px] font-medium uppercase tracking-wider text-neutral-400 hover:text-neutral-100 hover:bg-neutral-800 border-b-2 border-transparent whitespace-nowrap transition-colors"
+        class="inline-flex items-center px-2.5 py-1.5 min-h-10 sm:min-h-0 text-[11px] font-medium uppercase tracking-wider text-neutral-400 hover:text-neutral-100 hover:bg-neutral-800 border-b-2 border-transparent whitespace-nowrap transition-colors"
       >
         {{ item.labelKey | translate }}
       </a>

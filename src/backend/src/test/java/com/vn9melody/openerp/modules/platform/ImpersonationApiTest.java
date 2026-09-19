@@ -6,6 +6,8 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -15,9 +17,13 @@ import com.vn9melody.openerp.core.enums.PlatformAdminStatus;
 import com.vn9melody.openerp.core.enums.TenantStatus;
 import com.vn9melody.openerp.core.enums.UserRole;
 import com.vn9melody.openerp.core.security.PasswordHashService;
+import com.vn9melody.openerp.core.security.SessionManager;
 import com.vn9melody.openerp.modules.iam.model.Tenant;
 import com.vn9melody.openerp.modules.iam.model.User;
+import com.vn9melody.openerp.modules.iam.service.IamErrorCodes;
+import com.vn9melody.openerp.modules.organization.OrganizationErrorCodes;
 import com.vn9melody.openerp.modules.platform.api.PlatformErrorCode;
+import com.vn9melody.openerp.modules.platform.service.PlatformJwtService;
 import io.quarkus.narayana.jta.QuarkusTransaction;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -50,6 +56,9 @@ public class ImpersonationApiTest {
 
     @Inject
     RedisDataSource redis;
+
+    @Inject
+    SessionManager sessionManager;
 
     private String adminToken;
     private UUID tenantId;
@@ -129,6 +138,11 @@ public class ImpersonationApiTest {
         assertEquals(adminUserId.toString(), jwt.getClaim("act_sub"));
         assertEquals(tenantId.toString(), jwt.getClaim("tenant_id"));
 
+        // BUG-75: the impersonation token carries a real, active session id.
+        String impersonationSessionId = jwt.getClaim(PlatformJwtService.CLAIM_SESSION_ID);
+        assertNotNull(impersonationSessionId, "impersonation token must carry session_id");
+        assertTrue(sessionManager.isSessionActive(ownerId, impersonationSessionId));
+
         given().header("Authorization", "Bearer " + adminToken)
             .when().get("/api/v1/platform/impersonation-logs?tenant_id=" + tenantId)
             .then()
@@ -150,6 +164,8 @@ public class ImpersonationApiTest {
         assertEquals("ENDED", status);
         assertEquals(1L, PlatformTestSupport.countAudit(entityManager, "IMPERSONATION_START"));
         assertEquals(1L, PlatformTestSupport.countAudit(entityManager, "IMPERSONATION_END"));
+        // BUG-75: exit revokes the delegated Redis session.
+        assertFalse(sessionManager.isSessionActive(ownerId, impersonationSessionId));
 
         // Second exit must fail: the Redis marker is gone.
         given().header("Authorization", "Bearer " + impersonationToken)
@@ -157,6 +173,51 @@ public class ImpersonationApiTest {
             .then()
             .statusCode(401)
             .body("code", equalTo(PlatformErrorCode.PLATFORM_IMPERSONATION_SESSION_EXPIRED));
+    }
+
+    @Test
+    @DisplayName("BUG-75: token impersonation gọi được organization/iam (200) và bị vô hiệu hóa sau exit")
+    public void testImpersonationTokenCanUseTenantApis() {
+        // TENANT_ADMIN system role grants core:branch:read + core:role:read so the
+        // permission filter only measures the session fix, not fixture permissions.
+        QuarkusTransaction.requiringNew().run(() -> entityManager.createNativeQuery(
+                "INSERT INTO user_roles (user_id, tenant_id, role_id, assigned_at) "
+                    + "SELECT ?1, ?2, r.id, NOW() FROM roles r "
+                    + "WHERE r.tenant_id IS NULL AND r.code = 'TENANT_ADMIN' "
+                    + "ON CONFLICT (user_id, tenant_id, role_id) DO NOTHING")
+            .setParameter(1, ownerId)
+            .setParameter(2, tenantId)
+            .executeUpdate());
+
+        String token = startImpersonation(adminToken, tenantId, validBody(ownerId.toString()))
+            .then()
+            .statusCode(200)
+            .extract().path("data.impersonation_token");
+
+        given().header("Authorization", "Bearer " + token)
+            .when().get("/api/v1/organization/branches")
+            .then()
+            .statusCode(200)
+            .body("code", equalTo(OrganizationErrorCodes.BRANCH_LIST_SUCCESS));
+
+        given().header("Authorization", "Bearer " + token)
+            .when().get("/api/v1/iam/roles")
+            .then()
+            .statusCode(200)
+            .body("code", equalTo(IamErrorCodes.ROLE_LIST_SUCCESS));
+
+        given().header("Authorization", "Bearer " + token)
+            .when().post("/api/v1/platform/impersonate/exit")
+            .then()
+            .statusCode(200)
+            .body("code", equalTo(PlatformErrorCode.PLATFORM_IMPERSONATION_ENDED));
+
+        // Exit revoked the session: the old impersonation token is dead.
+        given().header("Authorization", "Bearer " + token)
+            .when().get("/api/v1/organization/branches")
+            .then()
+            .statusCode(401)
+            .body("code", equalTo(com.vn9melody.openerp.core.api.ErrorCode.UNAUTHORIZED));
     }
 
     @Test

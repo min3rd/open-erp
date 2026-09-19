@@ -6,6 +6,7 @@ import {
   BadgeComponent,
   ColorVariant,
   LanguageSwitcherComponent,
+  PlatformAdminRole,
   ThemeSwitcherComponent,
   TranslatePipe
 } from '@shared';
@@ -31,13 +32,27 @@ export class PlatformTopbarComponent {
   readonly userEmail = computed(() => this.auth.user()?.email || '');
   readonly userInitial = computed(() => (this.userEmail() || 'S').charAt(0).toUpperCase());
 
-  readonly menuItems: ReadonlyArray<{ path: string; labelKey: string }> = [
+  readonly platformRole = this.auth.platformRole;
+  readonly isSuperAdmin = this.auth.isPlatformSuperAdmin;
+  readonly roleBadgeKey = computed(() =>
+    this.platformRole() === PlatformAdminRole.SUPPORT_ENGINEER
+      ? 'PLATFORM_ROLE_BADGE_SUPPORT_ENGINEER'
+      : 'PLATFORM_ROLE_BADGE_SUPER_ADMIN'
+  );
+
+  private readonly allMenuItems: ReadonlyArray<{ path: string; labelKey: string }> = [
     { path: '/platform/tenants', labelKey: 'PLATFORM_TENANT_MANAGEMENT' },
     { path: '/platform/users', labelKey: 'PLATFORM_GLOBAL_USERS' },
     { path: '/platform/health', labelKey: 'PLATFORM_SYSTEM_HEALTH' },
     { path: '/platform/audit-logs', labelKey: 'PLATFORM_AUDIT_TRAIL' },
     { path: '/platform/admins', labelKey: 'PLATFORM_ADMINS_TITLE' }
   ];
+
+  readonly menuItems = computed(() =>
+    this.isSuperAdmin()
+      ? this.allMenuItems
+      : this.allMenuItems.filter((item) => item.path !== '/platform/admins')
+  );
 
   logout() {
     this.auth.logout();

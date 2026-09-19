@@ -259,3 +259,41 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
   - **Cập nhật item**: 22 TASK + 7 BUG chuyển `Done`; 6 BUG đã Done được bổ sung ghi chú Wave 2; giữ `In Progress`: FEAT-10→18, TASK-267 (retrofit enforcement legacy), TASK-293 (cold archive), BUG-68 (guard export-secret).
   - **Tồn đọng chuyển Wave 3**: retrofit `@RequirePermission` cho API legacy + org/iam; wire audit cho org/iam writes; hợp nhất `ResponseKey` DTO 2C; `must_change_password` chặn cứng; guard tenant cho GET; i18n FE mã lỗi mới; cold archive audit; remote CLI; guard export secret khi impersonation; QA dual-mode.
   - **Wave 3 (đang chuẩn bị)**: tích hợp enforcement legacy, QA dual-mode browser (Web + Mobile), UG-02, sprint review.
+
+---
+
+## 2026-09-18 - SPRINT 02 WAVE 3 HOÀN TẤT
+- **Người thực hiện**: Developer Agent (Backend Quarkus, Web Angular, Mobile Ionic) + Docs/PM Agent
+- **Giai đoạn**: Sprint 02 - Wave 3 (Tích hợp enforcement + sửa vòng lặp mật khẩu + guard SUPPORT_ENGINEER)
+- **Nội dung công việc**:
+  - **BUG-51/TASK-267 - Enforcement retrofit**: `@RequirePermission` phủ toàn bộ API IAM/Organization + API legacy Sprint 01; `PermissionRetrofitApiTest` (không còn endpoint bỏ sót annotation), `AuditWiringTest` (audit DENIED/allowed); giữ default-allow có chủ đích duy nhất cho self-profile `GET/PUT /account/profile`.
+  - **BUG-53 - Quota call site thật**: `AuthService.registerBusiness/verifyEmail/resolveTenantAndIssueToken` → `AccountService.enforceUserQuota` (409 `PLATFORM_TENANT_QUOTA_EXCEEDED`, params `{limit, current}`). **Lưu ý**: Sprint 02 chưa có API mời/thêm user nên entry point duy nhất hiện tại là luồng đăng ký; mọi điểm tạo membership tương lai phải đi qua single entry point này.
+  - **BUG-68/BR-SA-04 - Impersonation guard**: annotation `@BlockDuringImpersonation` + `PermissionEnforcementFilter` chặn export/change-password/2FA khi đang impersonate → 403 `SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN`; audit DENIED.
+  - **TASK-270 - Plugin allowlist**: `TenantPluginAllowlistService` + hook `SampleRecordService`; mã canonical `PLATFORM_PLUGIN_NOT_ALLOWED` (thay `TENANT_PLUGIN_NOT_ALLOWED` trong wave brief); audit `PLUGIN_ACCESS_DENIED`.
+  - **Sửa vòng lặp must-change-password**: `AccountService` clear cờ + kích hoạt `INVITED` → `ACTIVE` sau đổi mật khẩu; allowlist `POST /account/change-password` + `GET /account/profile`; audit `PlatformAction.PLATFORM_ADMIN_PASSWORD_CHANGED`; test `PlatformPasswordChangeFlowTest`.
+  - **TASK-297 - Guard SUPPORT_ENGINEER đồng bộ Web/Mobile**: guard nhận cả `SUPER_ADMIN` và `SUPPORT_ENGINEER`, ẩn action nhạy cảm (read-only), `/platform/admins` chỉ SUPER_ADMIN; i18n parity Web 634 / Mobile 441.
+  - **Frontend**: role matrix dùng GET thật; user picker `GET /iam/users` (page 0-based, item `user_id` — FE normalize); guard đọc claim `permissions`; trang must-change-password Web + Mobile.
+  - **Kiểm chứng**: full `mvn test` **178/178 PASS** (PostgreSQL + Redis thật, không H2); Web + Mobile `npm run build` PASS.
+- **Cập nhật item**: BUG-51, BUG-52, BUG-53, BUG-68, TASK-267, TASK-270 → `Done` (TASK-297 đã Done từ trước); giữ `In Progress`: FEAT-10 → FEAT-18 (tích hợp xong, chờ QA dual-mode + sprint review) và TASK-293 (cold archive MongoDB/S3). Toàn bộ 25 BUG Sprint 02 đã Done — 0 bug mở mức Critical/High.
+- **Tài liệu**: cập nhật DES-02-API (§2.3 PlatformAction, §3.13 luồng must-change-password, §5.9 `GET /iam/users` 0-based/`user_id`, §6.1 mã `PLATFORM_PASSWORD_CHANGE_REQUIRED` + canonical plugin code), Entity Registry xác nhận không đổi entity, `task_board.md`, `changelog.md`.
+- **Tiếp theo**: QA dual-mode browser (Web + Mobile), UG-02, sprint review đóng Sprint 02.
+
+---
+
+## 2026-09-19 - ĐÓNG SPRINT 02 (NGHIỆM THU CUỐI, DoD GATE PASS)
+- **Người thực hiện**: QA/QC Agent, Developer Agent (fix High cuối), FE Agent (nâng cấp FEAT-19/20 + BUG-83), Docs/PM Agent
+- **Giai đoạn**: Sprint 02 - Bước 8 (Kiểm thử) & Bước 9 (Nghiệm thu & Đóng Sprint)
+- **Nội dung công việc**:
+  - **QA nghiệm thu cuối (TR-02 mục 11)**:
+    - Fix & xác nhận PASS 4 bug High: **BUG-78/82** (job sweeper impersonation chạy worker thread, phiên quá hạn tự đóng `TIMEOUT` + audit, 0 lỗi JTA/IO thread), **BUG-80** (catalog plugin tùy chọn + switch sales/unknown-x, Lưu 2 lần không mất dữ liệu), **BUG-81** (Web Platform hết tràn ngang +54px; Drawer full-width 390).
+    - **FEAT-19** (Canvas graph: DPR 2, zoom clamp 25–250%, pan, F5 giữ viewport, cây lớn 405 node ~60 FPS), **FEAT-20** (plugin list dọc + search + đếm X/Y + mobile read-only 44×40px), **TASK-298** (13 màn × 390/768: overflow 0px, console 0) → **Done**.
+    - Phát sinh **BUG-83 (Medium)** touch target shared topbar/nav tại 390 → FE Agent fix `min-h-10/min-w-10` + media query mobile, Web/Mobile build PASS (QA re-measure runtime đề xuất Sprint 03).
+    - Số liệu: **61 ảnh mới** (kho tổng 239), 0 console error, overflow 0 toàn bộ, smoke web/mobile 15 màn PASS.
+  - **Backend**: full `mvn test` **193/193 PASS** (PostgreSQL + Redis thật, không H2); Web/Mobile build PASS.
+  - **PM/Docs đóng gói tài liệu**:
+    - Chuyển **FEAT-10 → FEAT-18** sang `Done` kèm block "Ghi Chú Hoàn Thành (2026-09-19)" và tick toàn bộ Acceptance Criteria/QA Verification; **TASK-293** (Medium) → `Deferred` sang Sprint sau (cần profile `mongo`/`storage`, không chặn DoD).
+    - Ban hành **REV-02** [sprint_review.md](../sprints/sprint_02_superadmin_rbac/09_review/sprint_review.md): DoD Gate PASS, demo checklist, bài học kinh nghiệm (test DB dùng chung, thread job JTA, responsive component dùng chung, catalog config-driven, timezone UTC), danh sách tồn đọng chuyển Sprint 03.
+    - Ban hành **UG-02** [sprint_02_superadmin_rbac_user_guide.md](../06_user_guides/sprint_02_superadmin_rbac_user_guide.md) kèm **27 ảnh minh họa** (`assets/sprint_02_superadmin_rbac/`) theo convention Sprint 01.
+    - Cập nhật deployment guide: `OPENERP_ADMIN_BOOTSTRAP_SECRET`, `openerp.platform.bootstrap-emails`, `openerp.platform.plugin-catalog`, TTL impersonation 1800s, jobs (partition/retention/lifecycle/impersonation-timeout), CLI `admin-cli` (bootstrap/list-admins/grant-admin/revoke-admin), lưu ý timezone UTC — tại [local_setup_guide.md](../07_deployment_guides/local_setup_guide.md) mục 6, [docker_deployment_guide.md](../07_deployment_guides/docker_deployment_guide.md) mục 4, [k8s_production_guide.md](../07_deployment_guides/k8s_production_guide.md) mục 3.1.
+    - Cập nhật điều hướng/quản lý: `00_READING_GUIDE.md` (HOÀN TẤT Bước 8-9 + sign-off), `task_board.md` (block nghiệm thu & backlog Sprint 03), `changelog.md`, `sprint_plan.md` (DoD 100%), `docs/README.md`, `docs/06_user_guides/README.md`.
+  - **Kết quả cuối Sprint 02**: **77/78 item Done**, 1 Deferred (Medium), **0 Critical/High** → **ĐỦ ĐIỀU KIỆN ĐÓNG SPRINT (DoD GATE PASS)**; chờ khách hàng ký nghiệm thu REV-02.

@@ -23,6 +23,7 @@ import com.vn9melody.openerp.modules.organization.model.Department;
 import com.vn9melody.openerp.modules.organization.model.UserDepartmentMembership;
 import com.vn9melody.openerp.modules.organization.repository.BranchRepository;
 import com.vn9melody.openerp.modules.organization.repository.DepartmentRepository;
+import com.vn9melody.openerp.modules.platform.service.TenantPluginAllowlistService;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -73,8 +74,14 @@ public class SampleRecordService {
     @Inject
     Instance<AuditRecorder> auditRecorders;
 
+    @Inject
+    TenantPluginAllowlistService pluginAllowlistService;
+
     @Transactional
     public SampleRecordResponse create(UserSecurityContext context, CreateSampleRecordRequest request) {
+        // TASK-270 hook: the reference entity belongs to plugin "core"; every plugin entry
+        // point must pass the tenant allowlist before touching tenant data.
+        pluginAllowlistService.assertAllowed(context.tenantId(), TenantPluginAllowlistService.PLUGIN_CORE);
         String status = normalizeStatus(request.status);
         String title = requireTitle(request.title);
         BigDecimal amount = normalizeAmount(request.amount);

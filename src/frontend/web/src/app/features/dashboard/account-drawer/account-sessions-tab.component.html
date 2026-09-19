@@ -62,7 +62,7 @@
             }
           </div>
           <div class="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 mt-1">
-            {{ 'ACCOUNT_SESSION_IP' | translate:{ ip: session.ip_address } }} • {{ session.last_active_at }}
+            {{ 'ACCOUNT_SESSION_IP' | translate:{ ip: session.ip_address } }} • {{ formatDateTime(session.last_active_at) }}
           </div>
         </div>
 

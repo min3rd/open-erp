@@ -8,7 +8,8 @@ import {
   ColorVariant,
   DrawerComponent,
   I18nService,
-  TranslatePipe
+  TranslatePipe,
+  formatDateTime
 } from '@shared';
 import { PlatformService } from '../../../core/services/platform.service';
 
@@ -30,6 +31,7 @@ export class AuditLogDetailDrawerComponent {
   readonly log = signal<AuditLog | null>(null);
   readonly loading = signal<boolean>(false);
   readonly errorText = signal<string>('');
+  readonly formatDateTime = formatDateTime;
 
   readonly diffKeys = computed<string[]>(() => {
     const current = this.log();

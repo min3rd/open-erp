@@ -32,6 +32,10 @@ import org.jboss.logging.Logger;
  * {@code 403 IAM_PERMISSION_DENIED_FUNCTIONAL} error envelope is returned and a
  * DENIED audit entry is queued. Endpoints without the annotation stay
  * default-allow so Sprint 01 APIs keep working unchanged.</p>
+ *
+ * <p>Endpoints annotated with {@link BlockDuringImpersonation} are additionally
+ * rejected for impersonation tokens with
+ * {@code 403 SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN} (BR-SA-04 / BUG-68).</p>
  */
 @Provider
 @ApplicationScoped
@@ -54,12 +58,23 @@ public class PermissionEnforcementFilter implements ContainerRequestFilter {
         if ("OPTIONS".equalsIgnoreCase(requestContext.getMethod())) {
             return;
         }
-        RequirePermission required = resolveAnnotation();
+
+        SecurityContextService.TokenClaims claims = securityContextService.currentClaims();
+
+        if (isBlockedDuringImpersonation(claims)) {
+            recordDenied(claims.tenantId(), claims.userId(), "SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN",
+                "IMPERSONATION_GUARD",
+                Map.of(ResponseKey.RESOURCE.getKey(), requestContext.getUriInfo().getPath()));
+            abort(requestContext, 403, ErrorCode.SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN,
+                "Secret export is forbidden in impersonation mode", Map.of());
+            return;
+        }
+
+        RequirePermission required = resolveAnnotation(RequirePermission.class);
         if (required == null || required.value().isBlank()) {
             return;
         }
 
-        SecurityContextService.TokenClaims claims = securityContextService.currentClaims();
         if (claims.platformToken()) {
             // Platform tokens bypass tenant functional/data checks; log it explicitly (TASK-267).
             LOG.infof("Platform token bypassed @RequirePermission(%s) for %s %s",
@@ -90,24 +105,34 @@ public class PermissionEnforcementFilter implements ContainerRequestFilter {
         }
     }
 
-    private RequirePermission resolveAnnotation() {
+    private boolean isBlockedDuringImpersonation(SecurityContextService.TokenClaims claims) {
+        if (!claims.impersonation()) {
+            return false;
+        }
+        return resolveAnnotation(BlockDuringImpersonation.class) != null;
+    }
+
+    private <A extends java.lang.annotation.Annotation> A resolveAnnotation(Class<A> annotationType) {
         Method method = resourceInfo.getResourceMethod();
         if (method != null) {
-            RequirePermission annotation = method.getAnnotation(RequirePermission.class);
+            A annotation = method.getAnnotation(annotationType);
             if (annotation != null) {
                 return annotation;
             }
         }
         Class<?> resourceClass = resourceInfo.getResourceClass();
-        return resourceClass != null ? resourceClass.getAnnotation(RequirePermission.class) : null;
+        return resourceClass != null ? resourceClass.getAnnotation(annotationType) : null;
     }
 
     private void recordDenied(UserSecurityContext context, String permission) {
-        Map<String, Object> details = new HashMap<>();
-        details.put(ResponseKey.PERMISSION.getKey(), permission);
+        recordDenied(context.tenantId(), context.userId(), "IAM_PERMISSION_DENIED", "FUNCTIONAL_PERMISSION",
+            Map.of(ResponseKey.PERMISSION.getKey(), permission));
+    }
+
+    private void recordDenied(java.util.UUID tenantId, java.util.UUID actorUserId, String action,
+                              String resourceType, Map<String, Object> details) {
         AuditRecorder.AuditEvent event = new AuditRecorder.AuditEvent(
-            context.tenantId(), context.userId(), "IAM_PERMISSION_DENIED", "FUNCTIONAL_PERMISSION",
-            null, AuditResult.DENIED, details, null);
+            tenantId, actorUserId, action, resourceType, null, AuditResult.DENIED, details, null);
         for (AuditRecorder recorder : auditRecorders) {
             recorder.record(event);
         }

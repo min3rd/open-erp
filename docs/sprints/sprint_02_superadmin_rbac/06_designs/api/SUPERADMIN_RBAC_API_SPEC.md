@@ -123,9 +123,12 @@ export enum PlatformAction {
   USER_FORCE_PASSWORD_RESET = 'USER_FORCE_PASSWORD_RESET',
   USER_BREAK_GLASS_DISABLE_2FA = 'USER_BREAK_GLASS_DISABLE_2FA',
   IMPERSONATION_START = 'IMPERSONATION_START',
-  IMPERSONATION_END = 'IMPERSONATION_END'
+  IMPERSONATION_END = 'IMPERSONATION_END',
+  PLATFORM_ADMIN_PASSWORD_CHANGED = 'PLATFORM_ADMIN_PASSWORD_CHANGED'
 }
 ```
+
+> **Cập nhật Wave 3 (2026-09-18)**: backend `PlatformAction` còn chứa các action audit bổ sung scope `PLATFORM` (`IMPERSONATION_TIMEOUT`, `PLUGIN_ACCESS_DENIED`, `PLATFORM_ADMIN_BOOTSTRAPPED`, `PLATFORM_ADMIN_GRANTED`, `PLATFORM_ADMIN_DISABLED`, `PLATFORM_ADMIN_ENABLED`, `PLATFORM_ADMIN_REVOKED`, `PLATFORM_ADMIN_PASSWORD_RESET_SENT`, `PLATFORM_ADMIN_2FA_DISABLED`) và scope `TENANT` (`IAM_*`, `ORG_*`) — nguồn chuẩn: `core/enums/PlatformAction.java`.
 
 ---
 
@@ -587,6 +590,20 @@ Hai hành động được tách rõ ràng thành 2 endpoint và 2 mã phản h�
 
 - **Ghi chú chung**: chỉ SUPER_ADMIN; disable/revoke **không áp dụng cho chính mình**; mọi thao tác (kể cả bị từ chối) đều ghi `platform_audit_logs` `scope = 'PLATFORM'` với `action` tương ứng và `actor_type` là `SUPER_ADMIN` hoặc `CLI` (TASK-295).
 
+### 3.13. Luồng Bắt Buộc Đổi Mật Khẩu Platform Admin (`must_change_password`, TASK-294)
+
+*Áp dụng cho platform admin ở trạng thái `INVITED` (được mời/cấp qua bootstrap/API/CLI) cho tới khi hoàn tất đổi mật khẩu lần đầu.*
+
+1. **Đăng nhập**: platform admin đăng nhập qua `POST /api/v1/auth/login` → nhận platform token kèm claim `must_change_password = true` (và `scope = PLATFORM`, `platform_role`).
+2. **Bị chặn (fail-closed)**: mọi endpoint `/api/v1/platform/**` trả `403` (Khuôn Mẫu 4) mã `PLATFORM_PASSWORD_CHANGE_REQUIRED`. Trên bề mặt `/api/v1/account/**`, allowlist chỉ cho đúng 2 endpoint đi qua:
+   - `POST /api/v1/account/change-password`
+   - `GET /api/v1/account/profile`
+
+   Mọi endpoint account khác cũng trả `403 PLATFORM_PASSWORD_CHANGE_REQUIRED` (token tenant/impersonation không bị ảnh hưởng).
+3. **Đổi mật khẩu**: `POST /api/v1/account/change-password` thành công → `AccountService` clear cờ `must_change_password = FALSE`, đồng thời kích hoạt admin `INVITED` → `ACTIVE`, và ghi audit `PlatformAction.PLATFORM_ADMIN_PASSWORD_CHANGED` (scope `PLATFORM`).
+4. **Sau đó**: token cũ vẫn mang claim `must_change_password = true` nên tiếp tục bị chặn; đăng nhập lại để nhận token mới và truy cập `/api/v1/platform/**` bình thường.
+- **Kiểm chứng (Wave 3, 2026-09-18)**: `PlatformPasswordChangeFlowTest` (PostgreSQL + Redis thật) — login → 403 → đổi mật khẩu → cờ false + audit → truy cập lại thành công; full `mvn test` **178/178 PASS**.
+
 ---
 
 ## 4. Nhóm API Cơ Cấu Tổ Chức Doanh Nghiệp (`/api/v1/organization/*`)
@@ -996,7 +1013,7 @@ Bộ endpoint thực nghiệm chứng minh Data Permission Enforcement Engine ho
 - **Query Params**:
   - `keyword` (tùy chọn): tìm theo `email` hoặc họ tên.
   - `status` (tùy chọn): lọc trạng thái tài khoản (`ACTIVE`, `INACTIVE`, `LOCKED`, ...).
-  - `page` (mặc định `1`), `size` (mặc định `20`).
+  - `page` (mặc định **`0`** — **0-based**), `size` (mặc định `20`).
 - **Phản Hồi (200 OK)**:
 ```json
 {
@@ -1007,14 +1024,13 @@ Bộ endpoint thực nghiệm chứng minh Data Permission Enforcement Engine ho
   "data": {
     "items": [
       {
-        "id": "user-uuid",
+        "user_id": "user-uuid",
         "email": "nva@example.com",
         "full_name": "Nguyễn Văn A",
-        "status": "ACTIVE",
-        "joined_at": "2026-09-01T08:00:00Z"
+        "status": "ACTIVE"
       }
     ],
-    "page": 1,
+    "page": 0,
     "size": 20,
     "total_items": 42,
     "total_pages": 3
@@ -1022,6 +1038,7 @@ Bộ endpoint thực nghiệm chứng minh Data Permission Enforcement Engine ho
 }
 ```
 - **Phạm vi dữ liệu**: chỉ trả user thuộc tenant hiện tại (`tenant_id` từ security context); user thuộc tenant khác không bao giờ xuất hiện.
+- **Ghi chú triển khai (Wave 3, 2026-09-18)**: `page` là **0-based** (mặc định `0`); item trả field **`user_id`** (không phải `id`) — Frontend chuẩn hóa `user_id` → `id` khi render user picker. Khuôn mẫu phân trang giữ nguyên (`items`, `page`, `size`, `total_items`, `total_pages`) theo DES-02-API §1.2.
 
 ---
 
@@ -1056,6 +1073,7 @@ Toàn bộ `code` xuất hiện trong tài liệu này, kèm bản dịch chuẩ
 | `PLATFORM_AUDIT_LOG_DETAIL_SUCCESS` | Lấy chi tiết bản ghi kiểm toán thành công | Audit log detail retrieved successfully |
 | `PLATFORM_AUDIT_LOG_NOT_FOUND` | Không tìm thấy bản ghi kiểm toán | Audit log record not found |
 | `PLATFORM_ACCESS_DENIED` | Bạn không có quyền truy cập cổng quản trị nền tảng | You do not have access to the platform administration portal |
+| `PLATFORM_PASSWORD_CHANGE_REQUIRED` | Bạn phải đổi mật khẩu trước khi sử dụng cổng quản trị nền tảng | You must change your password before using the platform portal |
 | `SUPERADMIN_IMPERSONATION_DESTRUCTIVE_ACTION_FORBIDDEN` | Không được thực hiện thao tác phá hoại trong chế độ đại diện | Destructive action is forbidden in impersonation mode |
 | `SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN` | Không được đọc/xuất bí mật trong chế độ đại diện | Secret export is forbidden in impersonation mode |
 | `PLATFORM_ADMIN_LIST_SUCCESS` | Lấy danh sách quản trị viên nền tảng thành công | Platform admin list retrieved successfully |
@@ -1077,6 +1095,8 @@ Toàn bộ `code` xuất hiện trong tài liệu này, kèm bản dịch chuẩ
 | `PLATFORM_CONFIRM_PASSWORD_INVALID` | Mật khẩu xác nhận không chính xác | Confirmation password is invalid |
 | `PLATFORM_AUDIT_CHAIN_VERIFIED` | Chuỗi kiểm toán toàn vẹn | Audit chain verified successfully |
 | `PLATFORM_AUDIT_CHAIN_TAMPERED` | Phát hiện chuỗi kiểm toán bị thay đổi | Audit chain tampering detected |
+
+> **Ghi chú canonical — plugin allowlist (Wave 3, 2026-09-18)**: mã chuẩn hóa duy nhất là `PLATFORM_PLUGIN_NOT_ALLOWED` (403). Mọi tài liệu/implementation cũ dùng tên `TENANT_PLUGIN_NOT_ALLOWED` đều thay bằng mã này; audit tương ứng dùng action `PLUGIN_ACCESS_DENIED`.
 
 ### 6.2. Organization (`/api/v1/organization/*`)
 | `code` | Tiếng Việt (`vi.json`) | Tiếng Anh (`en.json`) |

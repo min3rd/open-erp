@@ -143,3 +143,67 @@ Sau khi hoàn thành phiên làm việc, luôn chạy lệnh sau để giải ph
 ```bash
 make infra-down
 ```
+
+---
+
+## 6. Cấu Hình Platform Super Admin, Jobs Nền & CLI Quản Trị (Sprint 02)
+
+### 6.1. Biến môi trường & cấu hình Quarkus
+
+| Cấu hình | Biến môi trường | Mặc định | Mô tả |
+| :--- | :--- | :--- | :--- |
+| `openerp.platform.bootstrap-secret` | `OPENERP_ADMIN_BOOTSTRAP_SECRET` | (trống) | Secret bắt buộc để bootstrap first-run và chạy Offline CLI. Thiếu/sai → bootstrap **bỏ qua an toàn** + log `WARN` (không sập ứng dụng). **Không hardcode giá trị thật vào repo.** |
+| `openerp.platform.bootstrap-emails` | `OPENERP_PLATFORM_BOOTSTRAP_EMAILS` | (trống) | CSV email được cấp `SUPER_ADMIN` khi hệ thống **không còn SUPER_ADMIN `ACTIVE`**. Bootstrap idempotent: email đã tồn tại → nâng cấp tài khoản hiện hữu, không tạo trùng; tài khoản tạo mới có `must_change_password = true` + `two_factor_required = true`. |
+| `openerp.platform.plugin-catalog` | `OPENERP_PLATFORM_PLUGIN_CATALOG` | (trống → chỉ `core`) | CSV plugin tùy chọn cho `GET /api/v1/platform/plugins`, mỗi entry `key[:name_key[:description_key]]`. Ví dụ: `sales:PLUGIN_SALES_NAME:PLUGIN_SALES_DESCRIPTION,accounting` (entry không có name_key sẽ dùng key dẫn xuất `PLUGIN_<KEY>_NAME`/`..._DESCRIPTION`). Trùng key bị bỏ qua, `core` luôn bắt buộc. |
+| `openerp.frontend.url` | `OPENERP_FRONTEND_URL` | local `http://localhost:4200`; `%prod` `https://openerp.9ms.io.vn` | URL frontend dùng trong email (xác thực, đặt lại mật khẩu, lời mời). Không hardcode URL trong mã nguồn. |
+| `openerp.platform.impersonation-ttl-seconds` | `OPENERP_PLATFORM_IMPERSONATION_TTL_SECONDS` | `1800` | TTL tối đa phiên Impersonation (giây), không có refresh token. |
+| `openerp.platform.deletion-grace-days` | `OPENERP_PLATFORM_DELETION_GRACE_DAYS` | `30` | Số ngày ân hạn trước khi tenant `PENDING_DELETION` → `DELETED`. |
+
+> **Timezone**: toàn bộ timestamp lưu trong PostgreSQL/MongoDB theo **UTC** (kiểu `timestamptz`, backend trả `Z`); giao diện tự hiển thị theo timezone/locale người dùng. Không cấu hình TZ cho container theo giờ địa phương.
+
+### 6.2. Jobs nền (background jobs)
+
+| Cấu hình | Mặc định | Chức năng |
+| :--- | :--- | :--- |
+| `openerp.platform.audit.partition-interval-seconds` | `86400` | Tạo partition tháng cho `platform_audit_logs`. |
+| `openerp.platform.audit.retention-interval-seconds` | `2592000` | Job retention dọn partition audit quá `retention-months` (24 tháng). |
+| `openerp.platform.audit.retention-months` | `24` | Thời gian lưu hot storage. |
+| `openerp.platform.lifecycle.interval-seconds` | `86400` | Job vòng đời tenant (`TRIAL` → `EXPIRED`, `PENDING_DELETION` → `DELETED`). |
+| `openerp.platform.impersonation.interval-seconds` | `300` | Job sweeper đóng phiên Impersonation quá hạn (`STARTED` → `TIMEOUT`) — chạy trên **worker thread** để tránh lỗi JTA IO thread (BUG-82). |
+| `openerp.platform.audit.jobs-enabled` / `lifecycle.jobs-enabled` / `impersonation.jobs-enabled` | `true` (dev/prod) | Bật/tắt từng nhóm job; profile `%test` tắt toàn bộ timer (test gọi job trực tiếp). |
+
+Kiểm tra job chạy đúng: log tick đầu tiên phải xuất hiện trên `vert.x-worker-thread-*` (ví dụ `Impersonation timeout: N overdue session(s) moved to TIMEOUT`), không có dòng `Cannot start a JTA transaction from the IO thread`.
+
+### 6.3. Bootstrap Super Admin lần đầu (local)
+
+```bat
+:: 1) Đặt secret + email bootstrap (chỉ trong phiên shell, không commit)
+set OPENERP_ADMIN_BOOTSTRAP_SECRET=doi-secret-manh-tai-day
+set OPENERP_PLATFORM_BOOTSTRAP_EMAILS=admin@congty.vn
+
+:: 2) Chạy backend (bootstrap tự chạy khi chưa có SUPER_ADMIN ACTIVE)
+scripts\dev\run_backend.bat
+```
+
+- Truy cập `http://localhost:8088/q/health` để xác nhận backend `UP`.
+- Tài khoản bootstrap đăng nhập lần đầu sẽ bị buộc **đổi mật khẩu + bật 2FA**.
+
+### 6.4. Offline CLI quản trị (`admin-cli`)
+
+Dùng khi **mất toàn bộ SUPER_ADMIN** hoặc API không truy cập được. Yêu cầu `OPENERP_ADMIN_BOOTSTRAP_SECRET` + quyền truy cập DB/Redis.
+
+```bash
+# Chạy từ mã nguồn (dev)
+cd src/backend
+mvn quarkus:dev -Dquarkus.args="admin-cli list-admins"
+
+# Chạy từ gói build (server)
+java -jar target/quarkus-app/quarkus-run.jar admin-cli bootstrap
+java -jar target/quarkus-app/quarkus-run.jar admin-cli list-admins
+java -jar target/quarkus-app/quarkus-run.jar admin-cli grant-admin --email admin@congty.vn --role SUPER_ADMIN
+java -jar target/quarkus-app/quarkus-run.jar admin-cli revoke-admin --email admin@congty.vn
+```
+
+- `--role` nhận `SUPER_ADMIN` hoặc `SUPPORT_ENGINEER`.
+- CLI **không nhận mật khẩu qua tham số**; mọi thao tác ghi audit `actor_type = CLI`, `ip_address = local-console`; guards self-disable/last-admin vẫn áp dụng.
+- Cảnh báo bảo mật: secret chỉ đặt qua biến môi trường của phiên vận hành, thu hồi/đổi ngay sau khi dùng xong; không lưu vào script hay shell history.

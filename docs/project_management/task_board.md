@@ -8,7 +8,7 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 - **Bản đồ đọc tuần tự**: [00_READING_GUIDE.md](../sprints/sprint_02_superadmin_rbac/00_READING_GUIDE.md)
 - Kế hoạch Sprint: [sprint_plan.md](../sprints/sprint_02_superadmin_rbac/sprint_plan.md)
 - Thời gian: 2026-10-05 đến 2026-10-19
-- **Trạng thái**: [x] ĐÃ HOÀN THÀNH TÀI LIỆU THIẾT KẾ (Bước 1 - Bước 6) & CHỜ KHÁCH HÀNG PHÊ DUYỆT (CONFIRMATION GATE)
+- **Trạng thái**: [x] **ĐÃ NGHIỆM THU & ĐÓNG SPRINT (2026-09-19) — DoD Gate PASS** (0 Critical/High; 77/78 item Done, TASK-293 Deferred)
 
 ---
 
@@ -51,13 +51,17 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 ---
 
 ### 💻 5. Phân Rã Nhiệm Vụ Triển Khai (07_items)
-- [ ] **FEAT-10**: Quản trị Tenant & Hạn mức nền tảng ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-10_superadmin_tenant_management.md)).
-- [ ] **FEAT-11**: Quản lý User toàn cầu & Đăng nhập đại diện Impersonation ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-11_superadmin_global_user_and_impersonation.md)).
-- [ ] **FEAT-12**: Giám sát hạ tầng & Nhật ký nền tảng ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-12_superadmin_system_health_and_audit.md)).
-- [ ] **FEAT-13**: Cơ cấu tổ chức doanh nghiệp ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-13_organization_hierarchy_structure.md)).
-- [ ] **FEAT-14**: Ma trận Phân quyền chức năng ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-14_functional_rbac_matrix.md)).
-- [ ] **FEAT-15**: Phân quyền dữ liệu đa phạm vi & 6 thao tác ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-15_multi_scope_data_access_control.md)).
-- [ ] **FEAT-16**: Engine thực thi phân quyền dữ liệu tự động Backend ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-16_data_permission_enforcement_engine.md)).
+- [x] **FEAT-10**: Quản trị Tenant & Hạn mức nền tảng ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-10_superadmin_tenant_management.md)).
+- [x] **FEAT-11**: Quản lý User toàn cầu & Đăng nhập đại diện Impersonation ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-11_superadmin_global_user_and_impersonation.md)).
+- [x] **FEAT-12**: Giám sát hạ tầng & Nhật ký nền tảng ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-12_superadmin_system_health_and_audit.md)).
+- [x] **FEAT-13**: Cơ cấu tổ chức doanh nghiệp ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-13_organization_hierarchy_structure.md)).
+- [x] **FEAT-14**: Ma trận Phân quyền chức năng ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-14_functional_rbac_matrix.md)).
+- [x] **FEAT-15**: Phân quyền dữ liệu đa phạm vi & 6 thao tác ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-15_multi_scope_data_access_control.md)).
+- [x] **FEAT-16**: Engine thực thi phân quyền dữ liệu tự động Backend ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-16_data_permission_enforcement_engine.md)).
+- [x] **FEAT-17**: Reference Entity `core_sample_records` ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-17_core_reference_entity.md)).
+- [x] **FEAT-18**: Vòng đời tài khoản Super Admin & CLI quản trị ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-18_superadmin_account_lifecycle_and_cli.md)).
+- [x] **FEAT-19**: Department Tree 2 view (list ⇄ Canvas graph) ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-19_department_tree_dual_view.md)).
+- [x] **FEAT-20**: Plugin switch list dọc + tìm kiếm ([Chi tiết](../sprints/sprint_02_superadmin_rbac/07_items/FEAT-20_plugin_config_list_switches.md)).
 
 ---
 
@@ -135,3 +139,39 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 - **Kiểm chứng**: full `mvn test` **157/157 PASS** (PostgreSQL + Redis thật, không H2); Web + Mobile `npm run build` PASS.
 - **Item**: 48/64 Done (12 In Progress, 4 To Do); giữ `In Progress`: FEAT-10→18, TASK-267, TASK-293, BUG-68.
 - **Wave 3 (đang chuẩn bị)**: tích hợp enforcement legacy, QA dual-mode, user guide, sprint review.
+
+---
+
+## Sprint 02 - Tiến Độ Wave 3 (2026-09-18)
+- **Enforcement retrofit hoàn tất**: `@RequirePermission` phủ toàn bộ IAM/Organization + API legacy Sprint 01 (`PermissionRetrofitApiTest`, `AuditWiringTest`); self-profile `GET/PUT /account/profile` giữ default-allow có chủ đích.
+- **Quota call site thật (BUG-53)**: `AuthService.registerBusiness/verifyEmail/resolveTenantAndIssueToken` → `AccountService.enforceUserQuota` (409 `PLATFORM_TENANT_QUOTA_EXCEEDED`, params `{limit, current}`); chưa có API invite user nên entry point hiện tại là luồng đăng ký.
+- **Impersonation guard (BUG-68/BR-SA-04)**: `@BlockDuringImpersonation` + 403 `SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN` cho export/change-password/2FA.
+- **Plugin allowlist (TASK-270)**: `TenantPluginAllowlistService` + hook `SampleRecordService`; mã canonical `PLATFORM_PLUGIN_NOT_ALLOWED`; audit `PLUGIN_ACCESS_DENIED`.
+- **Sửa vòng lặp must-change-password**: `AccountService` clear cờ sau đổi mật khẩu + allowlist `POST /account/change-password`/`GET /account/profile`; audit `PLATFORM_ADMIN_PASSWORD_CHANGED`; test `PlatformPasswordChangeFlowTest`.
+- **Guard SUPPORT_ENGINEER (TASK-297)**: Web/Mobile guard nhận 2 platform roles, ẩn action nhạy cảm, `/platform/admins` chỉ SUPER_ADMIN; i18n parity Web 634 / Mobile 441.
+- **Kiểm chứng**: full `mvn test` **178/178 PASS** (PostgreSQL + Redis thật, không H2); Web + Mobile `npm run build` PASS.
+- **FE**: role matrix dùng GET thật; user picker `GET /iam/users`; guard đọc claim `permissions`; trang must-change-password Web + Mobile.
+- **Item**: 55/65 Done (10 In Progress, 0 To Do); giữ `In Progress`: FEAT-10→18 (tích hợp xong, chờ QA dual-mode + sprint review) và TASK-293 (cold archive MongoDB/S3).
+- **Tiếp theo**: QA dual-mode browser (Web + Mobile), UG-02, sprint review đóng Sprint 02.
+
+---
+
+## Sprint 02 - NGHIỆM THU & ĐÓNG (2026-09-19)
+- **QA nghiệm thu cuối (TR-02 mục 11)**: **ĐẠT** — 0 Critical, 0 High; 61 ảnh mới (kho tổng 239 ảnh); 0 console error; overflow 0 toàn bộ (Web 390/768: 13/13 màn; Mobile Ionic 390: 5/5 màn); Canvas graph 405 node ~60 FPS; plugin list search/đếm OK; timezone +7h đúng.
+- **Backend**: full `mvn test` **193/193 PASS** (PostgreSQL + Redis thật, không H2); Web/Mobile `npm run build` PASS.
+- **Item cuối Sprint**: **77/78 Done** — BUG-49→83 (35), FEAT-10→20 (11), TASK-267→298 (31); **TASK-293 Deferred** (Medium — cold archive cần profile `mongo`/`storage`); 0 item `To Do`/`In Progress`; 0 bug Critical/High.
+- **Bug High đã xác nhận PASS đợt cuối**: BUG-78/80/81/82; phát sinh mới BUG-83 (Medium) → FE Agent đã fix + build PASS (chờ QA re-measure runtime tại Sprint 03, không chặn DoD).
+- **DoD Gate**: [x] **PASS** — điều kiện "0 item > Medium chưa hoàn tất" thỏa mãn; biên bản [REV-02](../sprints/sprint_02_superadmin_rbac/09_review/sprint_review.md) đã lập.
+- **Tài liệu**: [UG-02](../06_user_guides/sprint_02_superadmin_rbac_user_guide.md) kèm 27 ảnh; deployment guide cập nhật (bootstrap secret/emails, plugin catalog, TTL impersonation, jobs, CLI `admin-cli`, timezone UTC).
+- **Sprint 02 ĐÓNG** (chờ chữ ký nghiệm thu khách hàng tại REV-02 mục 8).
+
+---
+
+## Backlog Chuyển Sang Sprint 03
+| Mã | Hạng Mục | Mức Độ | Lý Do / Ghi Chú |
+| :--- | :--- | :---: | :--- |
+| **TASK-293** | Cold archive audit log > 24 tháng (MongoDB/S3 WORM) + legal hold | Medium | Cần Docker Compose profile `mongo`/`storage`; hot storage + hash chain + retention 24 tháng đã hoạt động |
+| (Follow-up) | API mời/thêm thành viên (invite user) | — | Quota user hiện enforce tại luồng đăng ký; mọi entry point mới phải dùng chung single entry point |
+| (Follow-up) | Storage quota enforcement | — | Cần module upload/Storage (MinIO) để đếm dung lượng thực tế |
+| (Follow-up) | Remote CLI script + subcommand mở rộng | Low/Medium | Sprint 02 mới có Offline CLI 4 lệnh trên server |
+| (QA follow-up) | Re-measure BUG-83 trên app thật (`resp2.mjs`) | Low | FE đã fix + build PASS; QA chốt `sharedTopbarSmall=[]`, `navSmall=[]` |

@@ -107,11 +107,6 @@
         @if (loadingPermissions()) {
           <div class="px-2 py-3 text-center text-[11px] text-neutral-500">{{ 'COMMON_LOADING' | translate }}</div>
         } @else {
-          @if (rolePermissionsUnavailable()) {
-            <div class="m-2 border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
-              {{ 'IAM_ROLE_PERMISSIONS_LOAD_UNAVAILABLE' | translate }}
-            </div>
-          }
           <div class="max-h-[460px] overflow-y-auto">
             @for (group of permissionGroups(); track group.domain) {
               <div class="border-b border-neutral-100 dark:border-neutral-800">

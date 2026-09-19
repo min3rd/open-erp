@@ -109,3 +109,66 @@
 - Bộ automated test Backend: 100% Passed.
 - Báo cáo kiểm thử trình duyệt: Chụp ảnh minh chứng đầy đủ cho Web Desktop và Mobile Phone.
 - Số lượng Bug mức `Critical` và `High` còn tồn đọng: **0 bug**.
+
+---
+
+## 5. Kết Quả Thực Thi Dual-Mode Browser QA (2026-09-19)
+
+> Báo cáo đầy đủ: [test_report.md](test_report.md) (TR-02). Ảnh minh chứng: `screenshots/web/` (75 ảnh) + `screenshots/mobile/` (25 ảnh). Công cụ: Playwright 1.63 (Chrome), Web 1440×900, Mobile 390×844 device emulation.
+
+| Nhóm | Case | Kết Quả |
+| :--- | :--- | :---: |
+| Web Desktop | QA-W-01 → QA-W-10 | 9 PASS / 1 FAIL (QA-W-04 — BUG-75) |
+| Mobile | QA-M-01 → QA-M-05 | 4 PASS / 1 FAIL (QA-M-02 — BUG-77 touch target) |
+
+**Ánh xạ nhanh sang Test Case trong mục 2.2/3:**
+- QA-W-01/W-02/W-06 ↔ TC-BE-02, TC-BE-14 (quota/lock/health); QA-W-03 ↔ TC-BE-16 (break-glass); QA-W-04 ↔ TC-BE-03/04/05/19 (impersonation/export guard).
+- QA-W-05 ↔ TC-BE-24/25/27 (audit hash chain, immutable, tenant-scope); QA-W-08 ↔ TC-BE-15/27 (functional RBAC + data scope); QA-W-09 ↔ TC-BE-06/18/21/22 (cycle, multi-branch); QA-W-10 ↔ TC-BE-07/08/10/11/20 (scope isolation + export).
+- Kết quả **không đạt DoD**: còn 4 bug High (BUG-74, BUG-75, BUG-76, BUG-78) + 1 Medium (BUG-77) — xem mục 4 của TR-02.
+
+---
+
+## 6. Re-test Sau Sửa Bug + Yêu Cầu Mới (2026-09-19)
+
+> Báo cáo đầy đủ: [test_report.md](test_report.md) (TR-02, mục 3→9). Ảnh mới: `screenshots/web/` (+41), `screenshots/mobile/` (+11), `screenshots/web-responsive/` (+26).
+
+### 6.1. Bổ Sung Danh Sách Ca Re-test (Regression & Tính Năng Mới)
+
+| Mã TC | Nhóm | Mô Tả | Kỳ Vọng | Kết Quả |
+| :--- | :--- | :--- | :--- | :---: |
+| QA-R-74 | Regression BUG-74 | Drawer Hạn mức tenant `["core","sales"]`: switch `sales` ON; Lưu không mất plugin | Switch ON đúng; DB giữ sales | **FAIL** (API/DB đạt; thiếu switch → BUG-80) |
+| QA-R-75 | Regression BUG-75 | Impersonation → `/settings/organization` + `/settings/roles`; exit | Không 401; banner đếm ngược; token cũ 401 | **PASS** |
+| QA-R-76 | Regression BUG-76 | Đổi mật khẩu bắt buộc → token cũ bị chặn; re-login | Token cũ 401/đẩy login; re-login vào portal | **PASS** |
+| QA-R-78 | Regression BUG-78 | Phiên quá hạn → lock OK; job sweeper đóng TIMEOUT | Lock 200; log job TIMEOUT | **FAIL một phần** (lock PASS; job crash → BUG-82) |
+| QA-R-77 | Regression BUG-77 | Mobile toggle + expand ≥40px; overflow 0 | ≥40px | **PASS** |
+| QA-F-19 | FEAT-19 | 2 view cây phòng ban, graph ≤5 cấp, zoom, F5 giữ view | Đạt tiêu chí FEAT-19 | **PASS** |
+| QA-F-20 | FEAT-20 | Switch list plugin (core disabled ON + Tùy chọn); SUPPORT read-only; mobile read-only | Bật/tắt + Lưu đúng DB | **FAIL** (thiếu switch tùy chọn → BUG-80) |
+| QA-F-79 | BUG-79 | 2 timezone (+7h) + locale vi/en; null `—` | Chênh đúng 7h; format locale | **PASS** |
+| QA-RS-390 | TASK-298 | 13 màn Web @390×844: overflow, touch, console | Overflow = 0 | **FAIL 6/13** (Platform + Drawer +54px → BUG-81) |
+| QA-RS-768 | TASK-298 | 13 màn Web @768×1024 | Overflow = 0 | **PASS 13/13** |
+| QA-SM-W/M | Smoke | 10 màn web + 5 màn mobile (1 ảnh/màn) | Render OK, console 0 | **PASS 15/15** |
+
+### 6.2. Trạng Thái Sau Re-test
+
+- Đạt: BUG-75, BUG-76, BUG-77, BUG-79, FEAT-19 (Done); TASK-298 coverage hoàn tất (việc sửa responsive còn lại).
+- Chưa đạt (High): **BUG-78** (mở lại một phần), **BUG-80**, **BUG-81**, **BUG-82** → Sprint 02 chưa thể đóng; xem kết luận DoD tại mục 9 TR-02.
+- Console errors chức năng: **0** (1 ca âm 401 chủ đích ở QA-R-76).
+
+---
+
+## 7. Nghiệm Thu Cuối Sprint 02 (2026-09-19)
+
+> Báo cáo đầy đủ: [test_report.md](test_report.md) (TR-02, mục 11). Ảnh mới: `screenshots/web/` (+29), `screenshots/mobile/` (+6), `screenshots/web-responsive/` (+26).
+
+| Mã TC | Nhóm | Mô Tả | Kỳ Vọng | Kết Quả |
+| :--- | :--- | :--- | :--- | :---: |
+| QA-R2-78/82 | Regression BUG-78/82 | Job sweeper dev tick định kỳ tự đóng phiên quá hạn (TIMEOUT + audit SYSTEM); 0 lỗi JTA/IO thread; lock path giữ đúng | Log không lỗi; phiên TIMEOUT; lock 409/200 đúng | **PASS** |
+| QA-R2-80 | Regression BUG-80 | Drawer tenant `["core","sales","unknown-x"]`: đủ switch đúng trạng thái, search/empty/count/scroll, Lưu 2 lần không mất plugin | Nhóm Tùy chọn không trống; DB giữ nguyên | **PASS** |
+| QA-R2-81 | Regression BUG-81 | 13 màn Platform+Settings @390: overflow, drawer full-width, touch topbar; @768 giữ 0 | Overflow = 0; drawer `x=0` | **PASS** (touch shared topbar → BUG-83 Medium) |
+| QA-F2-19 | FEAT-19 (nâng cấp Canvas) | App thật: DPR, zoom 25–250, pan, dblclick center, collapse, đổi view giữ trạng thái, F5 viewport; seed 400 dept đo culling/FPS | Tất cả tương tác đúng; cây lớn mượt | **PASS** |
+| QA-F2-20 | FEAT-20 (nâng cấp list+search) | List dọc + search + đếm X/Y + scroll + empty + key lạ cảnh báo; mobile read-only ≥40px | Đầy đủ hành vi; mobile 44×40 | **PASS** |
+| QA-RS2-390 | TASK-298 | 13 màn Web @390×844 | Overflow = 0 | **PASS 13/13 (0px)** |
+| QA-RS2-768 | TASK-298 | 13 màn Web @768×1024 | Overflow = 0 | **PASS 13/13 (0px)** |
+| QA-SM2-W/M | Smoke | QA-W-01→10 + QA-M-01→05 (1 ảnh/màn) | Render OK, console 0 | **PASS 15/15** |
+
+**Kết luận**: 0 Critical / 0 High còn tồn; FEAT-19, FEAT-20, TASK-298 **Done**; BUG-83 (Medium) theo dõi thêm → **Sprint 02 đạt DoD Gate**.

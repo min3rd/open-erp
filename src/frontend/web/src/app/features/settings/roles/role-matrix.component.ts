@@ -67,7 +67,6 @@ export class RoleMatrixComponent implements OnInit {
   readonly loadingPolicies = signal<boolean>(false);
   readonly savingPermissions = signal<boolean>(false);
   readonly savingPolicies = signal<boolean>(false);
-  readonly rolePermissionsUnavailable = signal<boolean>(false);
   readonly errorText = signal<string>('');
   readonly successText = signal<string>('');
 
@@ -330,16 +329,15 @@ export class RoleMatrixComponent implements OnInit {
 
   private loadRolePermissions(role: Role) {
     this.loadingPermissions.set(true);
-    this.rolePermissionsUnavailable.set(false);
     this.iam.getRolePermissions(role.id).subscribe({
       next: (res) => {
         this.grantedIds.set(new Set(res.data.items.map((permission) => permission.id)));
         this.loadingPermissions.set(false);
       },
-      error: () => {
+      error: (err) => {
         this.grantedIds.set(new Set());
         this.loadingPermissions.set(false);
-        this.rolePermissionsUnavailable.set(true);
+        this.showError(err);
       }
     });
   }

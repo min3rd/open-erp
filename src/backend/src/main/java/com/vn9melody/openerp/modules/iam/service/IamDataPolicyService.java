@@ -1,6 +1,9 @@
 package com.vn9melody.openerp.modules.iam.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vn9melody.openerp.core.audit.AuditTrail;
+import com.vn9melody.openerp.core.enums.PlatformAction;
+import com.vn9melody.openerp.core.enums.ResponseKey;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.api.ApiFieldError;
 import com.vn9melody.openerp.core.enums.DataOperation;
@@ -38,6 +41,9 @@ import org.jboss.logging.Logger;
  */
 @ApplicationScoped
 public class IamDataPolicyService {
+    @Inject
+    AuditTrail auditTrail;
+
 
     private static final Logger LOG = Logger.getLogger(IamDataPolicyService.class);
 
@@ -142,7 +148,8 @@ public class IamDataPolicyService {
             }
         }
         publishPolicyInvalidation(tenantId, roleId);
-        // TODO(wave-integration): emit tenant-scoped audit log for IAM_ROLE_DATA_POLICIES_UPDATED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.IAM_ROLE_DATA_POLICY_UPDATE, "ROLE_DATA_POLICY",
+            roleId, Map.of(ResponseKey.UPDATED_COUNT.getKey(), updated));
         return new RoleDataPoliciesUpdateResponse(roleId.toString(), updated);
     }
 
@@ -166,6 +173,8 @@ public class IamDataPolicyService {
             }
             for (UUID roleId : touchedRoles) {
                 publishPolicyInvalidation(tenantId, roleId);
+                auditTrail.recordSuccess(tenantId, PlatformAction.IAM_ROLE_DATA_POLICY_UPDATE,
+                    "ROLE_DATA_POLICY", roleId, Map.of(ResponseKey.UPDATED_COUNT.getKey(), updated));
             }
         }
         return new RoleDataPoliciesUpdateResponse(null, updated);

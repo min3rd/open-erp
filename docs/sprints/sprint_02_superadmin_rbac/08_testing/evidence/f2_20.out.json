@@ -1,0 +1,262 @@
+{
+  "setup": {
+    "status": 200,
+    "code": "PLATFORM_TENANT_QUOTA_UPDATED",
+    "allowed": [
+      "core",
+      "sales",
+      "unknown-x"
+    ]
+  },
+  "rows": [
+    {
+      "name": "Plugin lõi",
+      "sub": "Chức năng nền tảng bắt buộc (tham chiếu, tổ chức, phân quyền).",
+      "checked": "true",
+      "disabled": true,
+      "warning": false,
+      "toggleDesktopSize": "28x16"
+    },
+    {
+      "name": "Bán hàng",
+      "sub": "Quản lý báo giá, đơn hàng và khách hàng.",
+      "checked": "true",
+      "disabled": false,
+      "warning": false,
+      "toggleDesktopSize": "28x16"
+    },
+    {
+      "name": "Kế toán",
+      "sub": "Sổ sách, hóa đơn và báo cáo tài chính.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false,
+      "toggleDesktopSize": "28x16"
+    },
+    {
+      "name": "Kho hàng",
+      "sub": "Quản lý tồn kho, nhập xuất và nhà cung cấp.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false,
+      "toggleDesktopSize": "28x16"
+    },
+    {
+      "name": "CRM",
+      "sub": "Quản lý cơ hội, chăm sóc khách hàng và pipeline.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false,
+      "toggleDesktopSize": "28x16"
+    },
+    {
+      "name": "unknown-x",
+      "sub": "Không có trong danh mục plugin.",
+      "checked": "true",
+      "disabled": false,
+      "warning": true,
+      "toggleDesktopSize": "28x16"
+    }
+  ],
+  "count": "Đã bật 3/6",
+  "scroll": {
+    "clientHeight": 254,
+    "scrollHeight": 298,
+    "scrollable": true
+  },
+  "searchRows": [
+    "Bán hàng"
+  ],
+  "groupHeaders": [
+    "Bắt buộc",
+    "Tùy chọn"
+  ],
+  "coreRow": {
+    "name": "Plugin lõi",
+    "sub": "Chức năng nền tảng bắt buộc (tham chiếu, tổ chức, phân quyền).",
+    "checked": "true",
+    "disabled": true,
+    "warning": false,
+    "toggleDesktopSize": "28x16"
+  },
+  "unknownRow": {
+    "name": "unknown-x",
+    "sub": "Không có trong danh mục plugin.",
+    "checked": "true",
+    "disabled": false,
+    "warning": true,
+    "toggleDesktopSize": "28x16"
+  },
+  "mobile": {
+    "toggleCount": 19,
+    "toggles": [
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Bán hàng",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "unknown-x",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      },
+      {
+        "aria": "Plugin lõi",
+        "checked": "true",
+        "disabled": true,
+        "w": 44,
+        "h": 40
+      }
+    ],
+    "cardText": "QA Test Corp 02 qa-test-corp-02 ACTIVE 0/2048 MB 0% Khóa PLUGIN ĐƯỢC PHÉP Plugin lõi Bán hàng unknown-x",
+    "overflowPx": 0
+  },
+  "restore": {
+    "status": 200,
+    "code": "PLATFORM_TENANT_QUOTA_UPDATED",
+    "allowed": [
+      "core",
+      "sales"
+    ]
+  },
+  "checks": {
+    "listCount": true,
+    "verticalListNames": "Plugin lõi|Bán hàng|Kế toán|Kho hàng|CRM|unknown-x",
+    "coreDisabledOn": true,
+    "salesOn": true,
+    "unknownWarning": true,
+    "countText": "Đã bật 3/6",
+    "scrollable": true,
+    "searchFiltered": true,
+    "groups": "Bắt buộc|Tùy chọn",
+    "mobileToggles": 19,
+    "mobileTouchOk": true,
+    "mobileReadonly": true,
+    "mobileHasLabels": true,
+    "mobileOverflow": 0
+  },
+  "consoleErrors": [],
+  "results": [
+    {
+      "id": "QA-F2-20",
+      "status": "PASS",
+      "note": "vertical list 6 rows (core disabled ON, sales ON, unknown-x warning), count \"Đã bật 3/6\", scroll 298>254, search \"sales\" 1 row, mobile 19 read-only toggles 44x40, overflow 0"
+    }
+  ]
+}

@@ -2,45 +2,46 @@ package com.vn9melody.openerp.modules.platform.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import com.vn9melody.openerp.modules.platform.api.PlatformResponseKey;
 
 public class PlatformRequests {
 
     public static class QuotaUpdate {
-        @JsonProperty("plan_tier")
+        @JsonProperty(PlatformResponseKey.Json.PLAN_TIER)
         public String planTier;
 
-        @JsonProperty("max_users")
+        @JsonProperty(PlatformResponseKey.Json.MAX_USERS)
         public Integer maxUsers;
 
-        @JsonProperty("max_storage_mb")
+        @JsonProperty(PlatformResponseKey.Json.MAX_STORAGE_MB)
         public Integer maxStorageMb;
 
-        @JsonProperty("allowed_plugins")
+        @JsonProperty(PlatformResponseKey.Json.ALLOWED_PLUGINS)
         public List<String> allowedPlugins;
     }
 
     public static class ReasonConfirm {
         public String reason;
 
-        @JsonProperty("confirm_password")
+        @JsonProperty(PlatformResponseKey.Json.CONFIRM_PASSWORD)
         public String confirmPassword;
     }
 
     public static class Confirm {
-        @JsonProperty("confirm_password")
+        @JsonProperty(PlatformResponseKey.Json.CONFIRM_PASSWORD)
         public String confirmPassword;
     }
 
     public static class Impersonate {
-        @JsonProperty("target_user_id")
+        @JsonProperty(PlatformResponseKey.Json.TARGET_USER_ID)
         public String targetUserId;
 
-        @JsonProperty("support_ticket")
+        @JsonProperty(PlatformResponseKey.Json.SUPPORT_TICKET)
         public String supportTicket;
 
         public String reason;
 
-        @JsonProperty("confirm_password")
+        @JsonProperty(PlatformResponseKey.Json.CONFIRM_PASSWORD)
         public String confirmPassword;
     }
 
@@ -48,19 +49,19 @@ public class PlatformRequests {
         public String email;
         public String role;
 
-        @JsonProperty("full_name")
+        @JsonProperty(PlatformResponseKey.Json.FULL_NAME)
         public String fullName;
     }
 
     public static class BreakGlass {
         public String action;
 
-        @JsonProperty("support_ticket")
+        @JsonProperty(PlatformResponseKey.Json.SUPPORT_TICKET)
         public String supportTicket;
 
         public String reason;
 
-        @JsonProperty("confirm_password")
+        @JsonProperty(PlatformResponseKey.Json.CONFIRM_PASSWORD)
         public String confirmPassword;
     }
 }

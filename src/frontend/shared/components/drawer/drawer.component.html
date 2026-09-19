@@ -10,7 +10,7 @@
     ></div>
 
     <!-- Slide-over panel -->
-    <div class="fixed inset-y-0 right-0 pl-10 max-w-full flex">
+    <div class="fixed inset-y-0 right-0 pl-0 sm:pl-10 w-full sm:w-auto max-w-full flex justify-end">
       <div 
         #panel
         role="dialog"
@@ -34,7 +34,7 @@
           <button 
             type="button" 
             (click)="onClose()"
-            class="p-1 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 rounded-none hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors"
+            class="p-1 min-h-10 min-w-10 sm:min-h-0 sm:min-w-0 inline-flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 rounded-none hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors"
             [title]="'COMMON_CLOSE' | translate"
           >
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -49,7 +49,7 @@
         </div>
 
         <!-- Footer (Optional) -->
-        <div class="px-4 py-2.5 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 flex justify-end gap-2">
+        <div class="px-4 py-2.5 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 flex justify-end gap-2 [&_button]:min-h-10 sm:[&_button]:min-h-0">
           <ng-content select="[drawer-footer]"></ng-content>
         </div>
       </div>

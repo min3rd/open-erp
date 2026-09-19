@@ -5,7 +5,7 @@
 - **Mức Độ Ưu Tiên**: [ ] Critical / [ ] High / [x] Medium / [ ] Low
 - **Người Phụ Trách (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -30,3 +30,8 @@
 - [ ] Developer đã hoàn tất và tự kiểm thử.
 - [ ] QA xác nhận hành vi chặn đúng đặc tả.
 - [ ] Không phát sinh regression.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- `TenantPluginAllowlistService` kiểm tra `allowed_plugins` của tenant và chặn với `403`; **mã canonical chốt là `PLATFORM_PLUGIN_NOT_ALLOWED`** (thay tên `TENANT_PLUGIN_NOT_ALLOWED` trong wave brief).
+- Điểm móc thực tế: `SampleRecordService` gọi `assertAllowed(...)` trước thao tác (plugin `core`); audit DENIED `PLUGIN_ACCESS_DENIED` khi bị chặn.
+- Test allowlist trên PostgreSQL thật; full `mvn test` **178/178 PASS**.

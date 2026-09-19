@@ -161,9 +161,44 @@ public final class S2IamFixtures {
 
     public static String issueToken(JwtTokenService jwtTokenService, SessionManager sessionManager,
                                     Person person, String role) {
+        assignSystemRoleForClaim(person, role);
         String sessionId = sessionManager.createSession(person.userId(), "s2iam-test", "127.0.0.1");
         return jwtTokenService.generateAccessToken(
             person.userId(), person.email(), person.tenantId(), role, sessionId);
+    }
+
+    /**
+     * TASK-267 retrofit: functional permission enforcement reads {@code user_roles}, so every
+     * fixture token must map its role claim to the matching seeded system role, mirroring the
+     * V2.0.1 mapping ({@code OWNER→TENANT_OWNER}, {@code ADMIN/TENANT_ADMIN→TENANT_ADMIN},
+     * {@code MEMBER→STAFF}, {@code VIEWER→VIEWER}). This grants exactly the permissions of the
+     * declared role (e.g. STAFF stays restricted) instead of weakening enforcement.
+     */
+    public static void assignSystemRoleForClaim(Person person, String roleClaim) {
+        String code = switch (roleClaim == null ? "" : roleClaim.trim().toUpperCase()) {
+            case "TENANT_OWNER", "OWNER" -> "TENANT_OWNER";
+            case "TENANT_ADMIN", "ADMIN" -> "TENANT_ADMIN";
+            case "MEMBER", "STAFF" -> "STAFF";
+            case "VIEWER" -> "VIEWER";
+            default -> null;
+        };
+        if (code == null) {
+            return;
+        }
+        Runnable insert = () -> User.getEntityManager().createNativeQuery(
+                "INSERT INTO user_roles (user_id, tenant_id, role_id, assigned_at) "
+                    + "SELECT ?1, ?2, r.id, NOW() FROM roles r "
+                    + "WHERE r.tenant_id IS NULL AND r.code = ?3 "
+                    + "ON CONFLICT (user_id, tenant_id, role_id) DO NOTHING")
+            .setParameter(1, person.userId())
+            .setParameter(2, person.tenantId())
+            .setParameter(3, code)
+            .executeUpdate();
+        if (QuarkusTransaction.isActive()) {
+            insert.run();
+        } else {
+            QuarkusTransaction.requiringNew().run(insert);
+        }
     }
 
     public static String bearer(JwtTokenService jwtTokenService, SessionManager sessionManager,

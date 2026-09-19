@@ -67,7 +67,7 @@
     @if (twoFactorStatus()?.is_enabled) {
       <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'ACCOUNT_2FA_DESC_ENABLED'"></p>
       <div class="text-[11px] text-neutral-500 dark:text-neutral-400">
-        {{ 'ACCOUNT_2FA_ENABLED_AT' | translate:{ date: (twoFactorStatus()?.enabled_at | date:'dd/MM/yyyy') } }}
+        {{ 'ACCOUNT_2FA_ENABLED_AT' | translate:{ date: formatDate(twoFactorStatus()?.enabled_at) } }}
         •
         {{ 'ACCOUNT_BACKUP_CODES_REMAINING' | translate:{ count: twoFactorStatus()?.backup_codes_remaining } }}
       </div>

@@ -1,5 +1,8 @@
 package com.vn9melody.openerp.modules.organization.service;
 
+import com.vn9melody.openerp.core.audit.AuditTrail;
+import com.vn9melody.openerp.core.enums.PlatformAction;
+import com.vn9melody.openerp.core.enums.ResponseKey;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.modules.iam.model.UserProfile;
 import com.vn9melody.openerp.modules.organization.OrganizationErrorCodes;
@@ -28,6 +31,9 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class DepartmentService {
+    @Inject
+    AuditTrail auditTrail;
+
 
     public static final int MAX_DEPTH = 5;
 
@@ -124,7 +130,8 @@ public class DepartmentService {
         department.updatedAt = department.createdAt;
         department.persist();
 
-        // TODO(wave-integration): emit tenant-scoped audit log for ORGANIZATION_DEPARTMENT_CREATED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.ORG_DEPARTMENT_CREATE, "DEPARTMENT", department.id,
+            Map.of(ResponseKey.CODE.getKey(), department.code));
         return tree(tenantId).stream()
             .flatMap(node -> flatten(node).stream())
             .filter(node -> node.id().equals(department.id.toString()))
@@ -178,7 +185,8 @@ public class DepartmentService {
         }
         department.updatedAt = Instant.now();
 
-        // TODO(wave-integration): emit tenant-scoped audit log for ORGANIZATION_DEPARTMENT_UPDATED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.ORG_DEPARTMENT_UPDATE, "DEPARTMENT", department.id,
+            Map.of(ResponseKey.CODE.getKey(), department.code));
         return nodeById(tenantId, department.id);
     }
 
@@ -221,7 +229,8 @@ public class DepartmentService {
         department.branchId = targetBranchId;
         department.updatedAt = Instant.now();
 
-        // TODO(wave-integration): emit tenant-scoped audit log for ORGANIZATION_DEPARTMENT_MOVED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.ORG_DEPARTMENT_MOVE, "DEPARTMENT", department.id,
+            Map.of(ResponseKey.CODE.getKey(), department.code));
         return nodeById(tenantId, department.id);
     }
 
@@ -239,7 +248,8 @@ public class DepartmentService {
 
         department.status = BranchService.STATUS_INACTIVE;
         department.updatedAt = Instant.now();
-        // TODO(wave-integration): emit tenant-scoped audit log for ORGANIZATION_DEPARTMENT_DELETED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.ORG_DEPARTMENT_DELETE, "DEPARTMENT", department.id,
+            Map.of(ResponseKey.CODE.getKey(), department.code));
     }
 
     private List<Department> activeDepartments(UUID tenantId) {        return departmentRepository.find("tenantId = ?1 and status <> ?2 order by code asc",

@@ -40,7 +40,7 @@
           }
         </td>
         <td class="px-2 py-1.5 text-[10px] font-mono text-neutral-500">
-          {{ a.last_login_at || '-' }}
+          {{ formatDateTime(a.last_login_at) }}
           @if (a.must_change_password) {
             <div class="text-[10px] text-amber-600 dark:text-amber-400">{{ 'PLATFORM_ADMIN_MUST_CHANGE_PASSWORD' | translate }}</div>
           }

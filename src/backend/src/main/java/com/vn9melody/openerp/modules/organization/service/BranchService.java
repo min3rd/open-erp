@@ -1,5 +1,8 @@
 package com.vn9melody.openerp.modules.organization.service;
 
+import com.vn9melody.openerp.core.audit.AuditTrail;
+import com.vn9melody.openerp.core.enums.PlatformAction;
+import com.vn9melody.openerp.core.enums.ResponseKey;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.api.ErrorCode;
 import com.vn9melody.openerp.modules.organization.OrganizationErrorCodes;
@@ -15,10 +18,14 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @ApplicationScoped
 public class BranchService {
+    @Inject
+    AuditTrail auditTrail;
+
 
     public static final String STATUS_ACTIVE = "ACTIVE";
     public static final String STATUS_INACTIVE = "INACTIVE";
@@ -75,7 +82,8 @@ public class BranchService {
         branch.updatedAt = branch.createdAt;
         branch.persist();
 
-        // TODO(wave-integration): emit tenant-scoped audit log for ORGANIZATION_BRANCH_CREATED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.ORG_BRANCH_CREATE, "BRANCH", branch.id,
+            Map.of(ResponseKey.CODE.getKey(), branch.code));
         return BranchResponse.from(branch);
     }
 
@@ -97,7 +105,8 @@ public class BranchService {
         }
         branch.updatedAt = Instant.now();
 
-        // TODO(wave-integration): emit tenant-scoped audit log for ORGANIZATION_BRANCH_UPDATED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.ORG_BRANCH_UPDATE, "BRANCH", branch.id,
+            Map.of(ResponseKey.CODE.getKey(), branch.code));
         return BranchResponse.from(branch);
     }
 
@@ -120,7 +129,8 @@ public class BranchService {
 
         branch.status = STATUS_INACTIVE;
         branch.updatedAt = Instant.now();
-        // TODO(wave-integration): emit tenant-scoped audit log for ORGANIZATION_BRANCH_DELETED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.ORG_BRANCH_DELETE, "BRANCH", branch.id,
+            Map.of(ResponseKey.CODE.getKey(), branch.code));
     }
 
     public static String normalizeCode(String value) {

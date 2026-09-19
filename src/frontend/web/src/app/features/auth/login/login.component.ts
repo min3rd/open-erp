@@ -69,6 +69,8 @@ export class LoginComponent implements OnInit {
         } else if (res.data.requires_tenant_selection) {
           this.auth.storePreAuth(res.data.pre_auth_token || '', res.data.tenants || []);
           this.router.navigateByUrl('/select-tenant');
+        } else if (this.auth.mustChangePassword()) {
+          this.router.navigateByUrl('/platform/change-password');
         } else {
           this.router.navigateByUrl(this.returnUrl);
         }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import java.util.List;
+import com.vn9melody.openerp.core.enums.ResponseKey;
 
 /**
  * Fixed response/request DTOs for the RBAC and data-policy APIs.
@@ -17,144 +18,144 @@ public final class IamRbacDtos {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record PermissionItem(
-        @JsonProperty("id") String id,
-        @JsonProperty("code") String code,
-        @JsonProperty("domain") String domain,
-        @JsonProperty("resource") String resource,
-        @JsonProperty("action") String action,
-        @JsonProperty("description_key") String descriptionKey
+        @JsonProperty(ResponseKey.Json.ID) String id,
+        @JsonProperty(ResponseKey.Json.CODE) String code,
+        @JsonProperty(ResponseKey.Json.DOMAIN) String domain,
+        @JsonProperty(ResponseKey.Json.RESOURCE) String resource,
+        @JsonProperty(ResponseKey.Json.ACTION) String action,
+        @JsonProperty(ResponseKey.Json.DESCRIPTION_KEY) String descriptionKey
     ) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record RoleItem(
-        @JsonProperty("id") String id,
-        @JsonProperty("code") String code,
-        @JsonProperty("name") String name,
-        @JsonProperty("description") String description,
-        @JsonProperty("is_system") Boolean isSystem,
-        @JsonProperty("assigned_users_count") Long assignedUsersCount
+        @JsonProperty(ResponseKey.Json.ID) String id,
+        @JsonProperty(ResponseKey.Json.CODE) String code,
+        @JsonProperty(ResponseKey.Json.NAME) String name,
+        @JsonProperty(ResponseKey.Json.DESCRIPTION) String description,
+        @JsonProperty(ResponseKey.Json.IS_SYSTEM) Boolean isSystem,
+        @JsonProperty(ResponseKey.Json.ASSIGNED_USERS_COUNT) Long assignedUsersCount
     ) {
     }
 
     public record RoleRequest(
-        @NotBlank @JsonProperty("code") String code,
-        @NotBlank @JsonProperty("name") String name,
-        @JsonProperty("description") String description
+        @NotBlank @JsonProperty(ResponseKey.Json.CODE) String code,
+        @NotBlank @JsonProperty(ResponseKey.Json.NAME) String name,
+        @JsonProperty(ResponseKey.Json.DESCRIPTION) String description
     ) {
     }
 
     public record RolePermissionUpdateRequest(
-        @JsonProperty("permission_ids") List<String> permissionIds
+        @JsonProperty(ResponseKey.Json.PERMISSION_IDS) List<String> permissionIds
     ) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record RolePermissionsUpdateResponse(
-        @JsonProperty("role_id") String roleId,
-        @JsonProperty("total_permissions_granted") Integer totalPermissionsGranted
+        @JsonProperty(ResponseKey.Json.ROLE_ID) String roleId,
+        @JsonProperty(ResponseKey.Json.TOTAL_PERMISSIONS_GRANTED) Integer totalPermissionsGranted
     ) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record RoleDataPoliciesUpdateResponse(
-        @JsonProperty("role_id") String roleId,
-        @JsonProperty("updated_count") Integer updatedCount
+        @JsonProperty(ResponseKey.Json.ROLE_ID) String roleId,
+        @JsonProperty(ResponseKey.Json.UPDATED_COUNT) Integer updatedCount
     ) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record UserRolesAssignedResponse(
-        @JsonProperty("user_id") String userId,
-        @JsonProperty("assigned_roles_count") Integer assignedRolesCount
+        @JsonProperty(ResponseKey.Json.USER_ID) String userId,
+        @JsonProperty(ResponseKey.Json.ASSIGNED_ROLES_COUNT) Integer assignedRolesCount
     ) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record RoleUsersAssignedResponse(
-        @JsonProperty("role_id") String roleId,
-        @JsonProperty("assigned_users_count") Integer assignedUsersCount
+        @JsonProperty(ResponseKey.Json.ROLE_ID) String roleId,
+        @JsonProperty(ResponseKey.Json.ASSIGNED_USERS_COUNT) Integer assignedUsersCount
     ) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record RoleUserItem(
-        @JsonProperty("user_id") String userId,
-        @JsonProperty("email") String email,
-        @JsonProperty("full_name") String fullName,
-        @JsonProperty("status") String status,
-        @JsonProperty("assigned_at") String assignedAt
+        @JsonProperty(ResponseKey.Json.USER_ID) String userId,
+        @JsonProperty(ResponseKey.Json.EMAIL) String email,
+        @JsonProperty(ResponseKey.Json.FULL_NAME) String fullName,
+        @JsonProperty(ResponseKey.Json.STATUS) String status,
+        @JsonProperty(ResponseKey.Json.ASSIGNED_AT) String assignedAt
     ) {
     }
 
     public record RoleUserAssignRequest(
-        @JsonProperty("user_ids") List<String> userIds
+        @JsonProperty(ResponseKey.Json.USER_IDS) List<String> userIds
     ) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record UserRoleItem(
-        @JsonProperty("role_id") String roleId,
-        @JsonProperty("code") String code,
-        @JsonProperty("name") String name,
-        @JsonProperty("is_system") Boolean isSystem,
-        @JsonProperty("assigned_at") String assignedAt
+        @JsonProperty(ResponseKey.Json.ROLE_ID) String roleId,
+        @JsonProperty(ResponseKey.Json.CODE) String code,
+        @JsonProperty(ResponseKey.Json.NAME) String name,
+        @JsonProperty(ResponseKey.Json.IS_SYSTEM) Boolean isSystem,
+        @JsonProperty(ResponseKey.Json.ASSIGNED_AT) String assignedAt
     ) {
     }
 
     public record UserRoleAssignRequest(
-        @JsonProperty("role_ids") List<String> roleIds
+        @JsonProperty(ResponseKey.Json.ROLE_IDS) List<String> roleIds
     ) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record UserDirectoryItem(
-        @JsonProperty("user_id") String userId,
-        @JsonProperty("email") String email,
-        @JsonProperty("full_name") String fullName,
-        @JsonProperty("status") String status
+        @JsonProperty(ResponseKey.Json.USER_ID) String userId,
+        @JsonProperty(ResponseKey.Json.EMAIL) String email,
+        @JsonProperty(ResponseKey.Json.FULL_NAME) String fullName,
+        @JsonProperty(ResponseKey.Json.STATUS) String status
     ) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record DataResourceItem(
-        @JsonProperty("resource") String resource,
-        @JsonProperty("entity_class") String entityClass,
-        @JsonProperty("table_name") String tableName,
-        @JsonProperty("plugin") String plugin,
-        @JsonProperty("supports_assignee") Boolean supportsAssignee,
-        @JsonProperty("scope_fields") List<String> scopeFields
+        @JsonProperty(ResponseKey.Json.RESOURCE) String resource,
+        @JsonProperty(ResponseKey.Json.ENTITY_CLASS) String entityClass,
+        @JsonProperty(ResponseKey.Json.TABLE_NAME) String tableName,
+        @JsonProperty(ResponseKey.Json.PLUGIN) String plugin,
+        @JsonProperty(ResponseKey.Json.SUPPORTS_ASSIGNEE) Boolean supportsAssignee,
+        @JsonProperty(ResponseKey.Json.SCOPE_FIELDS) List<String> scopeFields
     ) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record DataPolicyItem(
-        @JsonProperty("role_id") String roleId,
-        @JsonProperty("resource") String resource,
-        @JsonProperty("create_scope") String createScope,
-        @JsonProperty("read_scope") String readScope,
-        @JsonProperty("update_scope") String updateScope,
-        @JsonProperty("delete_scope") String deleteScope,
-        @JsonProperty("export_scope") String exportScope,
-        @JsonProperty("share_scope") String shareScope
+        @JsonProperty(ResponseKey.Json.ROLE_ID) String roleId,
+        @JsonProperty(ResponseKey.Json.RESOURCE) String resource,
+        @JsonProperty(ResponseKey.Json.CREATE_SCOPE) String createScope,
+        @JsonProperty(ResponseKey.Json.READ_SCOPE) String readScope,
+        @JsonProperty(ResponseKey.Json.UPDATE_SCOPE) String updateScope,
+        @JsonProperty(ResponseKey.Json.DELETE_SCOPE) String deleteScope,
+        @JsonProperty(ResponseKey.Json.EXPORT_SCOPE) String exportScope,
+        @JsonProperty(ResponseKey.Json.SHARE_SCOPE) String shareScope
     ) {
     }
 
     public record DataPolicyUpdateRequest(
-        @Valid @JsonProperty("policies") List<DataPolicyInput> policies
+        @Valid @JsonProperty(ResponseKey.Json.POLICIES) List<DataPolicyInput> policies
     ) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record DataPolicyInput(
-        @JsonProperty("role_id") String roleId,
-        @NotBlank @JsonProperty("resource") String resource,
-        @JsonProperty("create_scope") String createScope,
-        @JsonProperty("read_scope") String readScope,
-        @JsonProperty("update_scope") String updateScope,
-        @JsonProperty("delete_scope") String deleteScope,
-        @JsonProperty("export_scope") String exportScope,
-        @JsonProperty("share_scope") String shareScope
+        @JsonProperty(ResponseKey.Json.ROLE_ID) String roleId,
+        @NotBlank @JsonProperty(ResponseKey.Json.RESOURCE) String resource,
+        @JsonProperty(ResponseKey.Json.CREATE_SCOPE) String createScope,
+        @JsonProperty(ResponseKey.Json.READ_SCOPE) String readScope,
+        @JsonProperty(ResponseKey.Json.UPDATE_SCOPE) String updateScope,
+        @JsonProperty(ResponseKey.Json.DELETE_SCOPE) String deleteScope,
+        @JsonProperty(ResponseKey.Json.EXPORT_SCOPE) String exportScope,
+        @JsonProperty(ResponseKey.Json.SHARE_SCOPE) String shareScope
     ) {
     }
 
@@ -162,18 +163,18 @@ public final class IamRbacDtos {
      * Upsert contract {@code {role_id, resource, operation, scope}} (flat operation list).
      */
     public record DataPolicyMatrixUpdateRequest(
-        @JsonProperty("role_id") String roleId,
-        @Valid @JsonProperty("policies") List<DataPolicyInput> policies,
-        @Valid @JsonProperty("items") List<DataPolicyOperationInput> items
+        @JsonProperty(ResponseKey.Json.ROLE_ID) String roleId,
+        @Valid @JsonProperty(ResponseKey.Json.POLICIES) List<DataPolicyInput> policies,
+        @Valid @JsonProperty(ResponseKey.Json.ITEMS) List<DataPolicyOperationInput> items
     ) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record DataPolicyOperationInput(
-        @JsonProperty("role_id") String roleId,
-        @NotBlank @JsonProperty("resource") String resource,
-        @NotBlank @JsonProperty("operation") String operation,
-        @NotBlank @JsonProperty("scope") String scope
+        @JsonProperty(ResponseKey.Json.ROLE_ID) String roleId,
+        @NotBlank @JsonProperty(ResponseKey.Json.RESOURCE) String resource,
+        @NotBlank @JsonProperty(ResponseKey.Json.OPERATION) String operation,
+        @NotBlank @JsonProperty(ResponseKey.Json.SCOPE) String scope
     ) {
     }
 }

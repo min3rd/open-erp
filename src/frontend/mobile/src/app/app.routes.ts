@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth.guard';
 import { permissionGuard } from './core/guards/permission.guard';
 import { platformRoleGuard } from './core/guards/platform-role.guard';
+import { mustChangePasswordGuard } from './core/guards/must-change-password.guard';
 
 export const routes: Routes = [
   {
@@ -112,8 +113,14 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'platform/emergency',
+    path: 'platform/change-password',
     canActivate: [authGuard, platformRoleGuard],
+    loadComponent: () =>
+      import('./pages/platform/change-password/change-password.page').then(m => m.PlatformChangePasswordPage)
+  },
+  {
+    path: 'platform/emergency',
+    canActivate: [authGuard, platformRoleGuard, mustChangePasswordGuard],
     loadComponent: () => import('./pages/platform/emergency/emergency.page').then(m => m.EmergencyPage)
   },
   {

@@ -1,0 +1,53 @@
+{
+  "startedAt": "2026-09-19T07:30:27.213Z",
+  "login": 200,
+  "oldSweepBefore": "STARTED|null",
+  "leftoverBackdated": "UPDATE 2",
+  "sweepStart": {
+    "status": 200,
+    "code": "PLATFORM_IMPERSONATION_STARTED",
+    "logId": "8d96a87b-61e4-4b1d-aa4e-a95ccf52eb1f",
+    "logStatus": "STARTED"
+  },
+  "sweepBackdated": "STARTED|true",
+  "backendLineCountBefore": 79,
+  "lastPollStatus": "STARTED|false",
+  "sweepStatus": "TIMEOUT|true",
+  "sweptByJob": true,
+  "sweepAuditCount": "1",
+  "sweepAuditActor": "SYSTEM",
+  "oldSweepAfter": "TIMEOUT|2026-09-19 07:31:53.677414+00",
+  "ioThreadErrors": 0,
+  "jobFailedLines": 0,
+  "sweepSuccessLines": [
+    "2026-09-19 14:31:53,780 INFO  [com.vn9.ope.mod.pla.ser.ImpersonationService] (vert.x-worker-thread-1) Impersonation timeout: 3 overdue session(s) moved to TIMEOUT"
+  ],
+  "lockWithActive": {
+    "status": 409,
+    "code": "PLATFORM_TENANT_IMPERSONATION_ACTIVE"
+  },
+  "exitActive": {
+    "status": 200,
+    "code": "PLATFORM_IMPERSONATION_ENDED"
+  },
+  "activeLogAfterExit": "ENDED",
+  "lockWithExpired": {
+    "status": 200,
+    "code": "PLATFORM_TENANT_LOCK_SUCCESS"
+  },
+  "expiredLogAfterLock": "TIMEOUT|true",
+  "expiredAuditCount": "1",
+  "tenantAfterLock": "SUSPENDED|true",
+  "unlock": {
+    "status": 200,
+    "code": "PLATFORM_TENANT_UNLOCK_SUCCESS"
+  },
+  "tenantAfterUnlock": "ACTIVE|false",
+  "results": [
+    {
+      "id": "QA-R2-78/82",
+      "status": "PASS",
+      "note": "job tick swept fresh+old abandoned sessions to TIMEOUT (audit=SYSTEM/SYSTEM); 0 IO-thread errors; active 409; expired lock=200; unlock=ACTIVE"
+    }
+  ]
+}

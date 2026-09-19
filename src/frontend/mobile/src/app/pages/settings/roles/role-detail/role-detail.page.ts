@@ -15,6 +15,7 @@ import {
 import { forkJoin } from 'rxjs';
 import { IamService } from '../../../../core/iam.service';
 import {
+  ApiErrorResponse,
   BadgeComponent,
   BadgeVariant,
   ButtonVariant,
@@ -25,9 +26,12 @@ import {
   Permission,
   Role,
   SharpButtonComponent,
+  SharpInputComponent,
   SharpToggleComponent,
+  TenantUser,
   TranslateDirective,
   TranslatePipe,
+  UserStatus,
   apiMessage,
   dataScopeAbbreviationKey,
   dataScopeLabelKey
@@ -65,6 +69,7 @@ interface PermissionGroup {
     IonMenuButton,
     BadgeComponent,
     SharpButtonComponent,
+    SharpInputComponent,
     SharpToggleComponent,
     TranslateDirective,
     TranslatePipe
@@ -101,7 +106,7 @@ export class RoleDetailPage implements OnInit {
 
   roleId = '';
   role = signal<Role | null>(null);
-  activeTab = signal<'permissions' | 'scopes'>('permissions');
+  activeTab = signal<'permissions' | 'scopes' | 'users'>('permissions');
 
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
@@ -114,6 +119,19 @@ export class RoleDetailPage implements OnInit {
   resources = signal<DataResource[]>([]);
   policies = signal<Record<string, DataPolicy>>({});
   savingPolicies = signal<boolean>(false);
+
+  users = signal<TenantUser[]>([]);
+  userSearch = signal<string>('');
+  usersPage = signal<number>(1);
+  usersTotalPages = signal<number>(1);
+  loadingUsers = signal<boolean>(false);
+  loadingMoreUsers = signal<boolean>(false);
+  selectedUser = signal<TenantUser | null>(null);
+  userHasRole = signal<boolean>(false);
+  loadingUserRoles = signal<boolean>(false);
+  savingUserRole = signal<boolean>(false);
+
+  private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
   permissionGroups = computed<PermissionGroup[]>(() => {
     const groups = new Map<string, Permission[]>();
@@ -158,8 +176,119 @@ export class RoleDetailPage implements OnInit {
     });
   }
 
-  setTab(tab: 'permissions' | 'scopes') {
+  setTab(tab: 'permissions' | 'scopes' | 'users') {
     this.activeTab.set(tab);
+    if (tab === 'users' && !this.users().length && !this.loadingUsers()) {
+      this.loadUsers(true);
+    }
+  }
+
+  onUserSearchChange(value: string) {
+    this.userSearch.set(value);
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+    }
+    this.searchTimer = setTimeout(() => this.loadUsers(true), 300);
+  }
+
+  loadMoreUsers() {
+    if (this.usersPage() < this.usersTotalPages() && !this.loadingMoreUsers()) {
+      this.loadUsers(false);
+    }
+  }
+
+  hasMoreUsers(): boolean {
+    return this.usersPage() < this.usersTotalPages();
+  }
+
+  userStatusVariant(status: string | null | undefined): BadgeVariant {
+    switch (status) {
+      case UserStatus.ACTIVE:
+        return BadgeVariant.SUCCESS;
+      case UserStatus.LOCKED:
+        return BadgeVariant.WARNING;
+      case UserStatus.PENDING:
+        return BadgeVariant.INFO;
+      default:
+        return BadgeVariant.DEFAULT;
+    }
+  }
+
+  userStatusLabelKey(status: string | null | undefined): string {
+    return status ? `USER_STATUS_${status}` : 'COMMON_INACTIVE';
+  }
+
+  selectUser(user: TenantUser) {
+    this.selectedUser.set(user);
+    this.userHasRole.set(false);
+    this.loadingUserRoles.set(true);
+    this.error.set(null);
+    this.success.set(null);
+    this.iam.getUserRoles(user.id).subscribe({
+      next: (res) => {
+        this.userHasRole.set((res.data?.items || []).some((item) => item.role_id === this.roleId));
+        this.loadingUserRoles.set(false);
+      },
+      error: (err) => {
+        this.loadingUserRoles.set(false);
+        this.error.set(apiMessage(this.i18n, err));
+      }
+    });
+  }
+
+  saveUserRole() {
+    const user = this.selectedUser();
+    if (!user) {
+      this.error.set(this.i18n.t('IAM_ASSIGN_USERS_SELECT_USER'));
+      return;
+    }
+    this.savingUserRole.set(true);
+    this.error.set(null);
+    this.success.set(null);
+    const handlers = {
+      next: () => {
+        this.savingUserRole.set(false);
+        this.success.set(
+          this.i18n.t(this.userHasRole() ? 'IAM_USER_ROLES_ASSIGNED' : 'IAM_USER_ROLE_REMOVED')
+        );
+      },
+      error: (err: unknown) => {
+        this.savingUserRole.set(false);
+        this.error.set(apiMessage(this.i18n, err as ApiErrorResponse));
+      }
+    };
+    if (this.userHasRole()) {
+      this.iam.assignUserRoles(user.id, [this.roleId]).subscribe(handlers);
+    } else {
+      this.iam.removeUserRole(user.id, this.roleId).subscribe(handlers);
+    }
+  }
+
+  private loadUsers(reset: boolean) {
+    if (reset) {
+      this.loadingUsers.set(true);
+    } else {
+      this.loadingMoreUsers.set(true);
+    }
+    const nextPage = reset ? 1 : this.usersPage() + 1;
+    this.iam.getUsers({ keyword: this.userSearch().trim() || undefined, page: nextPage, size: 20 }).subscribe({
+      next: (res) => {
+        const items = res.data?.items || [];
+        this.users.set(reset ? items : [...this.users(), ...items]);
+        this.usersTotalPages.set(res.data?.total_pages || 1);
+        this.usersPage.set(nextPage);
+        this.loadingUsers.set(false);
+        this.loadingMoreUsers.set(false);
+      },
+      error: (err) => {
+        if (reset) {
+          this.users.set([]);
+        }
+        this.loadingUsers.set(false);
+        this.loadingMoreUsers.set(false);
+        this.error.set(apiMessage(this.i18n, err));
+      }
+    });
   }
 
   isGranted(permissionId: string): boolean {
@@ -301,7 +430,10 @@ export class RoleDetailPage implements OnInit {
     if (Array.isArray(data.permission_ids)) {
       return data.permission_ids;
     }
-    return (data.items || []).map(permission => permission.id);
+    // DES-02-API §5.3.1 keys items by `permission_id`; tolerate `id` as well.
+    return (data.items || [])
+      .map(permission => permission.permission_id || permission.id || '')
+      .filter(id => !!id);
   }
 
   private buildPolicyMap(resources: DataResource[], existing: DataPolicy[]): Record<string, DataPolicy> {

@@ -68,6 +68,8 @@ export class LoginPage {
         } else if (res.data.requires_tenant_selection) {
           this.auth.savePreAuth(res.data.pre_auth_token || '', res.data.tenants || []);
           this.navCtrl.navigateForward(['/select-tenant']);
+        } else if (this.auth.mustChangePassword()) {
+          this.navCtrl.navigateRoot('/platform/change-password', { animationDirection: 'forward', replaceUrl: true });
         } else {
           this.navCtrl.navigateRoot('/dashboard', { animationDirection: 'forward', replaceUrl: true });
         }

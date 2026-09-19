@@ -1,0 +1,151 @@
+{
+  "web": {
+    "w01": {
+      "rows": 17,
+      "consoleErrors": 0
+    },
+    "w02": {
+      "open": true
+    },
+    "w03": {
+      "rows": 20,
+      "breakGlass": true
+    },
+    "w04": {
+      "banner": true,
+      "afterExitUrl": "/platform/tenants"
+    },
+    "w05": {
+      "rows": 20,
+      "detail": true
+    },
+    "w06": {
+      "snippet": "ERP CỔNG QUẢN TRỊ NỀN TẢNG [PLATFORM SUPER ADMIN] GIAO DIỆN: Hệ thống Sáng Tối NGÔN NGỮ: VI EN Q qa.sa02@example.com Đăn"
+    },
+    "w07": {
+      "rows": 2
+    },
+    "w08": {
+      "snippet": "ERP OPEN-ERP / QA Test Corp 02 TENANT_ADMIN GIAO DIỆN: Hệ thống Sáng Tối NGÔN NGỮ: VI EN Q QA Owner 02 Đăng xuất QUẢN LÝ"
+    },
+    "w09": {
+      "departments": 5
+    },
+    "w10": {
+      "rows": 3,
+      "export": true
+    },
+    "consoleErrors": []
+  },
+  "mobile": {
+    "m01": {
+      "overflow": {
+        "overflowPx": 0
+      },
+      "snippet": "MENU Q QA Owner 02 qa.owner02@example.com QA Test Corp 02 TENANT_ADMIN Bảng điều khiển Hồ sơ cá nhân"
+    },
+    "m02": {
+      "url": "http://localhost:8100/settings/roles/7cffce35-92fb-4099-9e9d-b9ba6fc8945c",
+      "toggles": 24,
+      "overflow": {
+        "overflowPx": 0
+      }
+    },
+    "m03": {
+      "overflow": {
+        "overflowPx": 0
+      }
+    },
+    "m04": {
+      "overflow": {
+        "overflowPx": 0
+      },
+      "snippet": "BẢN GHI MẪU BẢN GHI MẪU Danh sách tự động lọc theo phạm vi dữ liệu (read scope) được cấp cho vai trò"
+    },
+    "m05": {
+      "overflow": {
+        "overflowPx": 0
+      },
+      "snippet": "KHẨN CẤP NỀN TẢNG KHẨN CẤP NỀN TẢNG DEGRADED Tổng quan thu gọn và thao tác khẩn cấp dành cho quản tr",
+      "hasPlugins": true
+    },
+    "consoleErrors": []
+  },
+  "cases": [
+    {
+      "id": "QA-W-01",
+      "status": "PASS",
+      "note": "17 rows"
+    },
+    {
+      "id": "QA-W-02",
+      "status": "PASS",
+      "note": "quota drawer opens with plugin switch list"
+    },
+    {
+      "id": "QA-W-03",
+      "status": "PASS",
+      "note": "20 rows; break-glass drawer"
+    },
+    {
+      "id": "QA-W-04",
+      "status": "PASS",
+      "note": "banner shown; exit -> /platform/tenants"
+    },
+    {
+      "id": "QA-W-05",
+      "status": "PASS",
+      "note": "20 rows; detail drawer"
+    },
+    {
+      "id": "QA-W-06",
+      "status": "PASS",
+      "note": "health cards rendered"
+    },
+    {
+      "id": "QA-W-07",
+      "status": "PASS",
+      "note": "2 admins"
+    },
+    {
+      "id": "QA-W-08",
+      "status": "PASS",
+      "note": "role matrix rendered"
+    },
+    {
+      "id": "QA-W-09",
+      "status": "PASS",
+      "note": "5 departments"
+    },
+    {
+      "id": "QA-W-10",
+      "status": "PASS",
+      "note": "3 rows; export button"
+    },
+    {
+      "id": "QA-M-01",
+      "status": "PASS",
+      "note": "menu opened"
+    },
+    {
+      "id": "QA-M-02",
+      "status": "PASS",
+      "note": "24 toggles"
+    },
+    {
+      "id": "QA-M-03",
+      "status": "PASS",
+      "note": "organization mobile"
+    },
+    {
+      "id": "QA-M-04",
+      "status": "PASS",
+      "note": "sample records mobile"
+    },
+    {
+      "id": "QA-M-05",
+      "status": "PASS",
+      "note": "emergency + plugin read-only list"
+    }
+  ]
+}

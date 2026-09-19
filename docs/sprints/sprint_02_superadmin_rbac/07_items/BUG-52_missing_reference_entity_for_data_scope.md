@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Solution Architect Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -35,3 +35,8 @@
 - [x] QA chạy được toàn bộ TC cross-scope trên PostgreSQL thật.
 
 - **Ghi chú QA (2026-09-18)**: Đã ban hành FEAT-17 + TASK-283..286 và cập nhật test plan dùng `core_sample_records`; phần mã theo TASK-283..286, chờ thực thi.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Wave 2 đã hiện thực entity tham chiếu `core_sample_records` + API `/api/v1/core/sample-records` (CRUD/share/export + scope filter) — TASK-283 → TASK-286.
+- Wave 3 xác nhận không còn phụ thuộc thực thể "đơn hàng"; test plan giữ `core_sample_records` làm nơi kiểm chứng 7 scope × 6 operations; test cross-scope chạy trên PostgreSQL thật.
+- Full `mvn test` **178/178 PASS** (PostgreSQL + Redis thật, không H2).

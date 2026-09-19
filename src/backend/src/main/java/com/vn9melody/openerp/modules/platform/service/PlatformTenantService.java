@@ -26,7 +26,9 @@ import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -54,6 +56,9 @@ public class PlatformTenantService {
 
     @Inject
     PlatformImpersonationLogRepository impersonationLogRepository;
+
+    @Inject
+    ImpersonationService impersonationService;
 
     public PlatformPage<PlatformResponses.TenantItem> listTenants(String status, String keyword,
                                                                   int page, int size) {
@@ -136,7 +141,7 @@ public class PlatformTenantService {
             tenant.maxStorageMb = request.maxStorageMb;
         }
         if (request.allowedPlugins != null && !request.allowedPlugins.isEmpty()) {
-            tenant.allowedPlugins = new ArrayList<>(request.allowedPlugins);
+            tenant.allowedPlugins = normalizeAllowedPlugins(request.allowedPlugins);
         }
         tenant.updatedAt = Instant.now();
         tenant.persist();
@@ -173,6 +178,9 @@ public class PlatformTenantService {
             throw new ApiException(403, PlatformErrorCode.PLATFORM_SELF_LOCK_FORBIDDEN,
                 "You cannot lock the tenant that owns your account");
         }
+        // BUG-78: close overdue STARTED sessions first so an abandoned impersonation
+        // never blocks the emergency tenant lock forever.
+        impersonationService.closeExpiredSessions(Instant.now(), tenantId);
         if (hasActiveImpersonation(tenantId)) {
             throw new ApiException(409, PlatformErrorCode.PLATFORM_TENANT_IMPERSONATION_ACTIVE,
                 "An impersonation session is currently active for this tenant");
@@ -247,9 +255,15 @@ public class PlatformTenantService {
         return count != null ? ((Number) count).longValue() : 0L;
     }
 
+    /**
+     * BUG-78: a STARTED log is only "active" while the impersonation TTL has not
+     * elapsed; overdue rows are closed as TIMEOUT by
+     * {@code ImpersonationService.closeExpiredSessions} before this check.
+     */
     private boolean hasActiveImpersonation(UUID tenantId) {
-        return impersonationLogRepository.count("targetTenantId = ?1 and status = ?2",
-            tenantId, ImpersonationStatus.STARTED) > 0;
+        Instant threshold = Instant.now().minusSeconds(PlatformJwtService.IMPERSONATION_TTL_SECONDS);
+        return impersonationLogRepository.count("targetTenantId = ?1 and status = ?2 and startedAt > ?3",
+            tenantId, ImpersonationStatus.STARTED, threshold) > 0;
     }
 
     public void notifyTenantOwner(Tenant tenant, boolean locked, String reason) {
@@ -288,6 +302,8 @@ public class PlatformTenantService {
         item.usedStorageMb = 0L;
         item.trialEndsAt = tenant.trialEndsAt;
         item.isLocked = tenant.isLocked;
+        // BUG-74: the list must expose the stored allowlist (the quota drawer reads it).
+        item.allowedPlugins = tenant.allowedPlugins;
         item.createdAt = tenant.createdAt;
         return item;
     }
@@ -317,5 +333,25 @@ public class PlatformTenantService {
         } catch (IllegalArgumentException e) {
             throw new ApiException(400, ErrorCode.VALIDATION_INVALID, "Invalid tenant status filter");
         }
+    }
+
+    /**
+     * FEAT-20: the core plugin is mandatory — auto-added when missing and never
+     * removable through the quota contract. Other keys are trimmed and
+     * deduplicated case-insensitively (first occurrence wins).
+     */
+    private List<String> normalizeAllowedPlugins(List<String> requested) {
+        LinkedHashMap<String, String> byKey = new LinkedHashMap<>();
+        for (String plugin : requested) {
+            if (plugin == null || plugin.isBlank()) {
+                continue;
+            }
+            String trimmed = plugin.trim();
+            byKey.putIfAbsent(trimmed.toLowerCase(Locale.ROOT), trimmed);
+        }
+        if (!byKey.containsKey(TenantPluginAllowlistService.PLUGIN_CORE)) {
+            byKey.put(TenantPluginAllowlistService.PLUGIN_CORE, TenantPluginAllowlistService.PLUGIN_CORE);
+        }
+        return new ArrayList<>(byKey.values());
     }
 }

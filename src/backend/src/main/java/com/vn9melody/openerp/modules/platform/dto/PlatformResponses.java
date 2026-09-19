@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import java.util.List;
+import com.vn9melody.openerp.modules.platform.api.PlatformResponseKey;
 
 /** Typed response payloads for the Platform APIs (no free-form maps). */
 public final class PlatformResponses {
@@ -12,341 +13,359 @@ public final class PlatformResponses {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class TenantItem {
-        @JsonProperty("tenant_id")
+        @JsonProperty(PlatformResponseKey.Json.TENANT_ID)
         public String tenantId;
         public String slug;
         public String name;
         public String type;
 
-        @JsonProperty("plan_tier")
+        @JsonProperty(PlatformResponseKey.Json.PLAN_TIER)
         public String planTier;
         public String status;
 
-        @JsonProperty("max_users")
+        @JsonProperty(PlatformResponseKey.Json.MAX_USERS)
         public Integer maxUsers;
 
-        @JsonProperty("active_users_count")
+        @JsonProperty(PlatformResponseKey.Json.ACTIVE_USERS_COUNT)
         public Long activeUsersCount;
 
-        @JsonProperty("max_storage_mb")
+        @JsonProperty(PlatformResponseKey.Json.MAX_STORAGE_MB)
         public Integer maxStorageMb;
 
-        @JsonProperty("used_storage_mb")
+        @JsonProperty(PlatformResponseKey.Json.USED_STORAGE_MB)
         public Long usedStorageMb;
 
-        @JsonProperty("trial_ends_at")
+        @JsonProperty(PlatformResponseKey.Json.TRIAL_ENDS_AT)
         public Instant trialEndsAt;
 
-        @JsonProperty("is_locked")
+        @JsonProperty(PlatformResponseKey.Json.IS_LOCKED)
         public Boolean isLocked;
 
-        @JsonProperty("created_at")
+        @JsonProperty(PlatformResponseKey.Json.ALLOWED_PLUGINS)
+        public List<String> allowedPlugins;
+
+        @JsonProperty(PlatformResponseKey.Json.CREATED_AT)
         public Instant createdAt;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class TenantDetail {
-        @JsonProperty("tenant_id")
+        @JsonProperty(PlatformResponseKey.Json.TENANT_ID)
         public String tenantId;
         public String slug;
         public String name;
         public String type;
 
-        @JsonProperty("plan_tier")
+        @JsonProperty(PlatformResponseKey.Json.PLAN_TIER)
         public String planTier;
         public String status;
 
-        @JsonProperty("max_users")
+        @JsonProperty(PlatformResponseKey.Json.MAX_USERS)
         public Integer maxUsers;
 
-        @JsonProperty("active_users_count")
+        @JsonProperty(PlatformResponseKey.Json.ACTIVE_USERS_COUNT)
         public Long activeUsersCount;
 
-        @JsonProperty("max_storage_mb")
+        @JsonProperty(PlatformResponseKey.Json.MAX_STORAGE_MB)
         public Integer maxStorageMb;
 
-        @JsonProperty("used_storage_mb")
+        @JsonProperty(PlatformResponseKey.Json.USED_STORAGE_MB)
         public Long usedStorageMb;
 
-        @JsonProperty("trial_ends_at")
+        @JsonProperty(PlatformResponseKey.Json.TRIAL_ENDS_AT)
         public Instant trialEndsAt;
 
-        @JsonProperty("is_locked")
+        @JsonProperty(PlatformResponseKey.Json.IS_LOCKED)
         public Boolean isLocked;
 
-        @JsonProperty("lock_reason")
+        @JsonProperty(PlatformResponseKey.Json.LOCK_REASON)
         public String lockReason;
 
-        @JsonProperty("locked_at")
+        @JsonProperty(PlatformResponseKey.Json.LOCKED_AT)
         public Instant lockedAt;
 
-        @JsonProperty("allowed_plugins")
+        @JsonProperty(PlatformResponseKey.Json.ALLOWED_PLUGINS)
         public List<String> allowedPlugins;
 
-        @JsonProperty("created_at")
+        @JsonProperty(PlatformResponseKey.Json.CREATED_AT)
         public Instant createdAt;
     }
 
     public static class Quota {
-        @JsonProperty("tenant_id")
+        @JsonProperty(PlatformResponseKey.Json.TENANT_ID)
         public String tenantId;
 
-        @JsonProperty("plan_tier")
+        @JsonProperty(PlatformResponseKey.Json.PLAN_TIER)
         public String planTier;
 
-        @JsonProperty("max_users")
+        @JsonProperty(PlatformResponseKey.Json.MAX_USERS)
         public Integer maxUsers;
 
-        @JsonProperty("max_storage_mb")
+        @JsonProperty(PlatformResponseKey.Json.MAX_STORAGE_MB)
         public Integer maxStorageMb;
 
-        @JsonProperty("allowed_plugins")
+        @JsonProperty(PlatformResponseKey.Json.ALLOWED_PLUGINS)
         public List<String> allowedPlugins;
     }
 
     public static class TenantStatus {
-        @JsonProperty("tenant_id")
+        @JsonProperty(PlatformResponseKey.Json.TENANT_ID)
         public String tenantId;
         public String status;
 
-        @JsonProperty("is_locked")
+        @JsonProperty(PlatformResponseKey.Json.IS_LOCKED)
         public Boolean isLocked;
 
-        @JsonProperty("locked_at")
+        @JsonProperty(PlatformResponseKey.Json.LOCKED_AT)
         public Instant lockedAt;
 
-        @JsonProperty("lock_reason")
+        @JsonProperty(PlatformResponseKey.Json.LOCK_REASON)
         public String lockReason;
+    }
+
+    /** Plugin catalog entry (FEAT-20): i18n keys only, no hardcoded labels. */
+    public static class PluginItem {
+        @JsonProperty(PlatformResponseKey.Json.KEY)
+        public String key;
+
+        @JsonProperty(PlatformResponseKey.Json.NAME_KEY)
+        public String nameKey;
+
+        @JsonProperty(PlatformResponseKey.Json.DESCRIPTION_KEY)
+        public String descriptionKey;
+
+        @JsonProperty(PlatformResponseKey.Json.IS_CORE)
+        public Boolean isCore;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class UserItem {
-        @JsonProperty("user_id")
+        @JsonProperty(PlatformResponseKey.Json.USER_ID)
         public String userId;
         public String email;
 
-        @JsonProperty("full_name")
+        @JsonProperty(PlatformResponseKey.Json.FULL_NAME)
         public String fullName;
         public String status;
 
-        @JsonProperty("tenant_id")
+        @JsonProperty(PlatformResponseKey.Json.TENANT_ID)
         public String tenantId;
 
-        @JsonProperty("tenant_name")
+        @JsonProperty(PlatformResponseKey.Json.TENANT_NAME)
         public String tenantName;
 
-        @JsonProperty("last_login_at")
+        @JsonProperty(PlatformResponseKey.Json.LAST_LOGIN_AT)
         public Instant lastLoginAt;
 
-        @JsonProperty("is_2fa_enabled")
+        @JsonProperty(PlatformResponseKey.Json.IS_2FA_ENABLED)
         public Boolean is2FaEnabled;
     }
 
     public static class UserStatus {
-        @JsonProperty("user_id")
+        @JsonProperty(PlatformResponseKey.Json.USER_ID)
         public String userId;
         public String status;
 
-        @JsonProperty("locked_at")
+        @JsonProperty(PlatformResponseKey.Json.LOCKED_AT)
         public Instant lockedAt;
     }
 
     public static class UserReset {
-        @JsonProperty("user_id")
+        @JsonProperty(PlatformResponseKey.Json.USER_ID)
         public String userId;
 
-        @JsonProperty("reset_token_sent")
+        @JsonProperty(PlatformResponseKey.Json.RESET_TOKEN_SENT)
         public Boolean resetTokenSent;
     }
 
     public static class BreakGlassResult {
-        @JsonProperty("user_id")
+        @JsonProperty(PlatformResponseKey.Json.USER_ID)
         public String userId;
         public String action;
 
-        @JsonProperty("reset_token_sent")
+        @JsonProperty(PlatformResponseKey.Json.RESET_TOKEN_SENT)
         public Boolean resetTokenSent;
 
-        @JsonProperty("is_2fa_enabled")
+        @JsonProperty(PlatformResponseKey.Json.IS_2FA_ENABLED)
         public Boolean is2FaEnabled;
     }
 
     public static class ImpersonationStart {
-        @JsonProperty("impersonation_token")
+        @JsonProperty(PlatformResponseKey.Json.IMPERSONATION_TOKEN)
         public String impersonationToken;
 
-        @JsonProperty("expires_in_seconds")
+        @JsonProperty(PlatformResponseKey.Json.EXPIRES_IN_SECONDS)
         public Integer expiresInSeconds;
 
-        @JsonProperty("target_tenant_id")
+        @JsonProperty(PlatformResponseKey.Json.TARGET_TENANT_ID)
         public String targetTenantId;
 
-        @JsonProperty("target_tenant_name")
+        @JsonProperty(PlatformResponseKey.Json.TARGET_TENANT_NAME)
         public String targetTenantName;
 
-        @JsonProperty("target_user_id")
+        @JsonProperty(PlatformResponseKey.Json.TARGET_USER_ID)
         public String targetUserId;
 
-        @JsonProperty("target_user_email")
+        @JsonProperty(PlatformResponseKey.Json.TARGET_USER_EMAIL)
         public String targetUserEmail;
 
-        @JsonProperty("started_at")
+        @JsonProperty(PlatformResponseKey.Json.STARTED_AT)
         public Instant startedAt;
     }
 
     public static class ImpersonationLogItem {
-        @JsonProperty("log_id")
+        @JsonProperty(PlatformResponseKey.Json.LOG_ID)
         public String logId;
 
-        @JsonProperty("super_admin_user_id")
+        @JsonProperty(PlatformResponseKey.Json.SUPER_ADMIN_USER_ID)
         public String superAdminUserId;
 
-        @JsonProperty("super_admin_email")
+        @JsonProperty(PlatformResponseKey.Json.SUPER_ADMIN_EMAIL)
         public String superAdminEmail;
 
-        @JsonProperty("target_tenant_id")
+        @JsonProperty(PlatformResponseKey.Json.TARGET_TENANT_ID)
         public String targetTenantId;
 
-        @JsonProperty("target_user_id")
+        @JsonProperty(PlatformResponseKey.Json.TARGET_USER_ID)
         public String targetUserId;
 
-        @JsonProperty("support_ticket")
+        @JsonProperty(PlatformResponseKey.Json.SUPPORT_TICKET)
         public String supportTicket;
         public String status;
 
-        @JsonProperty("started_at")
+        @JsonProperty(PlatformResponseKey.Json.STARTED_AT)
         public Instant startedAt;
 
-        @JsonProperty("ended_at")
+        @JsonProperty(PlatformResponseKey.Json.ENDED_AT)
         public Instant endedAt;
     }
 
     public static class AdminItem {
-        @JsonProperty("admin_id")
+        @JsonProperty(PlatformResponseKey.Json.ADMIN_ID)
         public String adminId;
 
-        @JsonProperty("user_id")
+        @JsonProperty(PlatformResponseKey.Json.USER_ID)
         public String userId;
         public String email;
 
-        @JsonProperty("full_name")
+        @JsonProperty(PlatformResponseKey.Json.FULL_NAME)
         public String fullName;
         public String role;
         public String status;
 
-        @JsonProperty("must_change_password")
+        @JsonProperty(PlatformResponseKey.Json.MUST_CHANGE_PASSWORD)
         public Boolean mustChangePassword;
 
-        @JsonProperty("two_factor_required")
+        @JsonProperty(PlatformResponseKey.Json.TWO_FACTOR_REQUIRED)
         public Boolean twoFactorRequired;
 
-        @JsonProperty("is_2fa_enabled")
+        @JsonProperty(PlatformResponseKey.Json.IS_2FA_ENABLED)
         public Boolean is2FaEnabled;
 
-        @JsonProperty("last_login_at")
+        @JsonProperty(PlatformResponseKey.Json.LAST_LOGIN_AT)
         public Instant lastLoginAt;
 
-        @JsonProperty("disabled_at")
+        @JsonProperty(PlatformResponseKey.Json.DISABLED_AT)
         public Instant disabledAt;
 
-        @JsonProperty("created_at")
+        @JsonProperty(PlatformResponseKey.Json.CREATED_AT)
         public Instant createdAt;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class AdminMutation {
-        @JsonProperty("admin_id")
+        @JsonProperty(PlatformResponseKey.Json.ADMIN_ID)
         public String adminId;
 
-        @JsonProperty("user_id")
+        @JsonProperty(PlatformResponseKey.Json.USER_ID)
         public String userId;
         public String email;
         public String role;
         public String status;
 
-        @JsonProperty("must_change_password")
+        @JsonProperty(PlatformResponseKey.Json.MUST_CHANGE_PASSWORD)
         public Boolean mustChangePassword;
 
-        @JsonProperty("two_factor_required")
+        @JsonProperty(PlatformResponseKey.Json.TWO_FACTOR_REQUIRED)
         public Boolean twoFactorRequired;
 
-        @JsonProperty("disabled_at")
+        @JsonProperty(PlatformResponseKey.Json.DISABLED_AT)
         public Instant disabledAt;
 
-        @JsonProperty("reset_token_sent")
+        @JsonProperty(PlatformResponseKey.Json.RESET_TOKEN_SENT)
         public Boolean resetTokenSent;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class AuditLogItem {
-        @JsonProperty("log_id")
+        @JsonProperty(PlatformResponseKey.Json.LOG_ID)
         public String logId;
 
-        @JsonProperty("event_id")
+        @JsonProperty(PlatformResponseKey.Json.EVENT_ID)
         public String eventId;
         public String scope;
 
-        @JsonProperty("tenant_id")
+        @JsonProperty(PlatformResponseKey.Json.TENANT_ID)
         public String tenantId;
 
-        @JsonProperty("actor_user_id")
+        @JsonProperty(PlatformResponseKey.Json.ACTOR_USER_ID)
         public String actorUserId;
 
-        @JsonProperty("actor_type")
+        @JsonProperty(PlatformResponseKey.Json.ACTOR_TYPE)
         public String actorType;
 
-        @JsonProperty("actor_email")
+        @JsonProperty(PlatformResponseKey.Json.ACTOR_EMAIL)
         public String actorEmail;
         public String action;
 
-        @JsonProperty("resource_type")
+        @JsonProperty(PlatformResponseKey.Json.RESOURCE_TYPE)
         public String resourceType;
 
-        @JsonProperty("resource_id")
+        @JsonProperty(PlatformResponseKey.Json.RESOURCE_ID)
         public String resourceId;
 
-        @JsonProperty("target_tenant_id")
+        @JsonProperty(PlatformResponseKey.Json.TARGET_TENANT_ID)
         public String targetTenantId;
 
-        @JsonProperty("target_tenant_name")
+        @JsonProperty(PlatformResponseKey.Json.TARGET_TENANT_NAME)
         public String targetTenantName;
 
-        @JsonProperty("target_user_id")
+        @JsonProperty(PlatformResponseKey.Json.TARGET_USER_ID)
         public String targetUserId;
         public String result;
 
-        @JsonProperty("correlation_id")
+        @JsonProperty(PlatformResponseKey.Json.CORRELATION_ID)
         public String correlationId;
 
-        @JsonProperty("entry_hash")
+        @JsonProperty(PlatformResponseKey.Json.ENTRY_HASH)
         public String entryHash;
         public Object details;
 
-        @JsonProperty("ip_address")
+        @JsonProperty(PlatformResponseKey.Json.IP_ADDRESS)
         public String ipAddress;
 
-        @JsonProperty("created_at")
+        @JsonProperty(PlatformResponseKey.Json.CREATED_AT)
         public Instant createdAt;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class AuditLogDetail extends AuditLogItem {
-        @JsonProperty("user_agent")
+        @JsonProperty(PlatformResponseKey.Json.USER_AGENT)
         public String userAgent;
 
-        @JsonProperty("prev_hash")
+        @JsonProperty(PlatformResponseKey.Json.PREV_HASH)
         public String prevHash;
     }
 
     public static class Health {
-        @JsonProperty("system_status")
+        @JsonProperty(PlatformResponseKey.Json.SYSTEM_STATUS)
         public String systemStatus;
 
         public DatabaseHealth database;
         public RedisHealth redis;
         public KafkaHealth kafka;
 
-        @JsonProperty("platform_metrics")
+        @JsonProperty(PlatformResponseKey.Json.PLATFORM_METRICS)
         public PlatformMetrics platformMetrics;
     }
 
@@ -354,50 +373,50 @@ public final class PlatformResponses {
         public String primary;
         public String replica;
 
-        @JsonProperty("replication_lag_ms")
+        @JsonProperty(PlatformResponseKey.Json.REPLICATION_LAG_MS)
         public Long replicationLagMs;
 
-        @JsonProperty("active_connections")
+        @JsonProperty(PlatformResponseKey.Json.ACTIVE_CONNECTIONS)
         public Integer activeConnections;
 
-        @JsonProperty("max_connections")
+        @JsonProperty(PlatformResponseKey.Json.MAX_CONNECTIONS)
         public Integer maxConnections;
     }
 
     public static class RedisHealth {
         public String status;
 
-        @JsonProperty("used_memory_human")
+        @JsonProperty(PlatformResponseKey.Json.USED_MEMORY_HUMAN)
         public String usedMemoryHuman;
 
-        @JsonProperty("connected_clients")
+        @JsonProperty(PlatformResponseKey.Json.CONNECTED_CLIENTS)
         public Integer connectedClients;
     }
 
     public static class KafkaHealth {
         public String status;
 
-        @JsonProperty("cluster_id")
+        @JsonProperty(PlatformResponseKey.Json.CLUSTER_ID)
         public String clusterId;
 
-        @JsonProperty("nodes_count")
+        @JsonProperty(PlatformResponseKey.Json.NODES_COUNT)
         public Integer nodesCount;
     }
 
     public static class PlatformMetrics {
-        @JsonProperty("total_tenants")
+        @JsonProperty(PlatformResponseKey.Json.TOTAL_TENANTS)
         public Long totalTenants;
 
-        @JsonProperty("active_tenants")
+        @JsonProperty(PlatformResponseKey.Json.ACTIVE_TENANTS)
         public Long activeTenants;
 
-        @JsonProperty("suspended_tenants")
+        @JsonProperty(PlatformResponseKey.Json.SUSPENDED_TENANTS)
         public Long suspendedTenants;
 
-        @JsonProperty("total_users")
+        @JsonProperty(PlatformResponseKey.Json.TOTAL_USERS)
         public Long totalUsers;
 
-        @JsonProperty("active_sessions_now")
+        @JsonProperty(PlatformResponseKey.Json.ACTIVE_SESSIONS_NOW)
         public Long activeSessionsNow;
     }
 }

@@ -21,7 +21,8 @@ import {
   SharpInputComponent,
   TranslateDirective,
   TranslatePipe,
-  apiMessage
+  apiMessage,
+  formatDateTime
 } from '@shared';
 
 @Component({
@@ -52,6 +53,7 @@ export class SampleRecordsPage implements OnInit {
   readonly badgeSuccess = BadgeVariant.SUCCESS;
   readonly badgeDefault = BadgeVariant.DEFAULT;
   readonly buttonSecondary = ButtonVariant.SECONDARY;
+  readonly formatDateTime = formatDateTime;
 
   records = signal<SampleRecord[]>([]);
   loading = signal<boolean>(true);

@@ -4,7 +4,7 @@ import { Observable, tap, catchError, of, switchMap } from 'rxjs';
 import { ApiService } from './api.service';
 import { ApiResponse, AuthUser, LoginResult, TenantInfo } from '@shared';
 import { SlugAvailability, VerifyEmailResult } from './models';
-import { getJwtPermissions, isPlatformSuperAdmin } from './jwt.util';
+import { getJwtPermissions, getPlatformRole, isMustChangePassword, isPlatformAdmin, isPlatformSuperAdmin } from './jwt.util';
 import { STORAGE_KEY_PLATFORM_TOKEN } from './storage-keys';
 
 const TOKEN_KEY = 'openerp_token';
@@ -13,6 +13,7 @@ const SESSION_ID_KEY = 'openerp_session_id';
 const USER_KEY = 'openerp_user';
 const PREAUTH_TOKEN_KEY = 'openerp_preauth_token';
 const PREAUTH_TENANTS_KEY = 'openerp_preauth_tenants';
+const PASSWORD_CHANGED_KEY = 'openerp_pwd_changed';
 
 @Injectable({
   providedIn: 'root'
@@ -25,15 +26,41 @@ export class AuthService {
   private tokenSignal = signal<string | null>(localStorage.getItem(TOKEN_KEY));
   private sessionIdSignal = signal<string | null>(localStorage.getItem(SESSION_ID_KEY));
   private platformTokenSignal = signal<string | null>(localStorage.getItem(STORAGE_KEY_PLATFORM_TOKEN));
+  private passwordChangedSignal = signal<boolean>(sessionStorage.getItem(PASSWORD_CHANGED_KEY) === '1');
 
   public user = computed(() => this.userSignal());
   public token = computed(() => this.tokenSignal());
   public sessionId = computed(() => this.sessionIdSignal());
   public platformToken = computed(() => this.platformTokenSignal());
   public isAuthenticated = computed(() => !!this.tokenSignal());
+
+  /** Platform role claim (`SUPER_ADMIN` / `SUPPORT_ENGINEER`), preferring the platform token. */
+  public platformRole = computed(() =>
+    getPlatformRole(this.platformTokenSignal() ?? this.tokenSignal())
+  );
+
+  /** Both platform portal roles may enter (SUPPORT_ENGINEER is read-only). */
   public isPlatformAdmin = computed(() =>
+    isPlatformAdmin(this.platformTokenSignal() ?? this.tokenSignal())
+  );
+
+  /** Sensitive platform actions (lock/unlock, admin lifecycle) are SUPER_ADMIN only. */
+  public isPlatformSuperAdmin = computed(() =>
     isPlatformSuperAdmin(this.platformTokenSignal() ?? this.tokenSignal())
   );
+
+  public mustChangePassword = computed<boolean>(() => {
+    if (this.passwordChangedSignal()) {
+      return false;
+    }
+    return isMustChangePassword(this.platformTokenSignal() ?? this.tokenSignal());
+  });
+
+  /** Platform admins set this after a successful mandatory password change. */
+  markPasswordChanged() {
+    sessionStorage.setItem(PASSWORD_CHANGED_KEY, '1');
+    this.passwordChangedSignal.set(true);
+  }
 
   /**
    * @returns `true`/`false` when the tenant JWT carries the `permissions` claim,
@@ -155,6 +182,8 @@ export class AuthService {
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(SESSION_ID_KEY, sessionId);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
+    sessionStorage.removeItem(PASSWORD_CHANGED_KEY);
+    this.passwordChangedSignal.set(false);
     this.tokenSignal.set(token);
     this.sessionIdSignal.set(sessionId);
     this.userSignal.set(user);
@@ -189,6 +218,8 @@ export class AuthService {
     localStorage.removeItem(SESSION_ID_KEY);
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(STORAGE_KEY_PLATFORM_TOKEN);
+    sessionStorage.removeItem(PASSWORD_CHANGED_KEY);
+    this.passwordChangedSignal.set(false);
     this.tokenSignal.set(null);
     this.sessionIdSignal.set(null);
     this.userSignal.set(null);

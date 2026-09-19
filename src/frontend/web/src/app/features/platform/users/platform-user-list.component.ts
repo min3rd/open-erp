@@ -15,10 +15,12 @@ import {
   TableColumn,
   TableComponent,
   TranslatePipe,
-  UserStatus
+  UserStatus,
+  formatDateTime
 } from '@shared';
 
 import { PlatformService } from '../../../core/services/platform.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { BreakGlassDrawerComponent } from './break-glass-drawer.component';
 
 @Component({
@@ -41,10 +43,15 @@ import { BreakGlassDrawerComponent } from './break-glass-drawer.component';
 export class PlatformUserListComponent implements OnInit {
   private platform = inject(PlatformService);
   private i18n = inject(I18nService);
+  private auth = inject(AuthService);
+
+  /** SUPPORT_ENGINEER is read-only (backend rejects all non-GET platform calls). */
+  readonly isSuperAdmin = this.auth.isPlatformSuperAdmin;
 
   readonly users = signal<PlatformUser[]>([]);
   readonly loading = signal<boolean>(false);
   readonly userStatusLocked = UserStatus.LOCKED;
+  readonly formatDateTime = formatDateTime;
   readonly page = signal<number>(0);
   readonly size = signal<number>(20);
   readonly totalItems = signal<number>(0);
@@ -136,12 +143,18 @@ export class PlatformUserListComponent implements OnInit {
   }
 
   askLock(user: PlatformUser) {
+    if (!this.isSuperAdmin()) {
+      return;
+    }
     this.successText.set('');
     this.confirmUser.set(user);
     this.confirmAction.set('LOCK');
   }
 
   askUnlock(user: PlatformUser) {
+    if (!this.isSuperAdmin()) {
+      return;
+    }
     this.successText.set('');
     this.confirmUser.set(user);
     this.confirmAction.set('UNLOCK');
@@ -176,6 +189,9 @@ export class PlatformUserListComponent implements OnInit {
   }
 
   openBreakGlass(user: PlatformUser) {
+    if (!this.isSuperAdmin()) {
+      return;
+    }
     this.successText.set('');
     this.breakGlassUser.set(user);
     this.breakGlassOpen.set(true);

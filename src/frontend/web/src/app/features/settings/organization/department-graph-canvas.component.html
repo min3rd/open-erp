@@ -1,0 +1,91 @@
+<div class="relative">
+  <div class="flex flex-wrap items-center justify-between gap-1 px-2 py-1 border-b border-neutral-100 dark:border-neutral-800">
+    <span class="text-[10px] text-neutral-400 truncate">{{ 'ORGANIZATION_GRAPH_HINT_PAN_ZOOM' | translate }}</span>
+    <div class="flex items-center gap-1">
+      <button
+        type="button"
+        class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+        [title]="'ORGANIZATION_GRAPH_ZOOM_OUT' | translate"
+        [attr.aria-label]="'ORGANIZATION_GRAPH_ZOOM_OUT' | translate"
+        (click)="zoomOut()"
+      >
+        −
+      </button>
+      <span class="text-[10px] font-mono w-9 text-center" data-zoom-label>{{ zoomPercent() }}</span>
+      <button
+        type="button"
+        class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+        [title]="'ORGANIZATION_GRAPH_ZOOM_IN' | translate"
+        [attr.aria-label]="'ORGANIZATION_GRAPH_ZOOM_IN' | translate"
+        (click)="zoomIn()"
+      >
+        +
+      </button>
+      <button
+        type="button"
+        class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+        [title]="'ORGANIZATION_GRAPH_ZOOM_RESET' | translate"
+        (click)="resetZoom()"
+      >
+        {{ 'ORGANIZATION_GRAPH_ZOOM_RESET' | translate }}
+      </button>
+      <button
+        type="button"
+        class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+        [title]="'ORGANIZATION_GRAPH_FIT_VIEW' | translate"
+        (click)="fitView()"
+      >
+        {{ 'ORGANIZATION_GRAPH_FIT_VIEW' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div
+    #graphViewport
+    class="relative h-[500px] overflow-hidden bg-neutral-50 dark:bg-neutral-950 select-none outline-none"
+    [class.cursor-grab]="cursor() === 'grab'"
+    [class.cursor-grabbing]="cursor() === 'grabbing'"
+    [class.cursor-pointer]="cursor() === 'pointer'"
+    [attr.data-node-count]="nodes().length"
+    [attr.data-zoom]="zoomPercent()"
+    tabindex="0"
+    (keydown)="onKeydown($event)"
+  >
+    <canvas
+      #graphCanvas
+      class="absolute inset-0 h-full w-full touch-none"
+      (pointerdown)="onPointerDown($event)"
+      (pointermove)="onPointerMove($event)"
+      (pointerup)="onPointerUp($event)"
+      (pointercancel)="onPointerUp($event)"
+      (pointerleave)="onPointerLeave()"
+      (dblclick)="onDoubleClick($event)"
+    ></canvas>
+
+    @if (!hasNodes()) {
+      <div class="absolute inset-0 flex items-center justify-center text-[11px] text-neutral-500">
+        {{ 'COMMON_NO_DATA' | translate }}
+      </div>
+    }
+
+    <div
+      class="pointer-events-none absolute bottom-1 left-1 flex flex-wrap items-center gap-2 border border-neutral-200 dark:border-neutral-800 bg-white/85 dark:bg-neutral-900/85 px-1.5 py-0.5 text-[9px] font-mono text-neutral-500"
+    >
+      @if (cursorPosition(); as position) {
+        <span>{{ 'ORGANIZATION_GRAPH_COORDINATES' | translate: { x: position.x, y: position.y } }}</span>
+      }
+      <span class="inline-flex items-center gap-1">
+        <span class="inline-block h-2 w-2 border border-neutral-400 dark:border-neutral-500 bg-white dark:bg-neutral-900"></span>
+        {{ 'ORGANIZATION_GRAPH_LEGEND_NODE' | translate }}
+      </span>
+      <span class="inline-flex items-center gap-1">
+        <span class="inline-block h-2 w-2 border-2 border-neutral-900 dark:border-neutral-100 bg-neutral-100 dark:bg-neutral-800"></span>
+        {{ 'ORGANIZATION_GRAPH_LEGEND_SELECTED' | translate }}
+      </span>
+      <span class="inline-flex items-center gap-1">
+        <span class="inline-block h-2 w-2 border border-neutral-400 dark:border-neutral-500 text-center text-[7px] leading-[6px]">+</span>
+        {{ 'ORGANIZATION_GRAPH_LEGEND_COLLAPSED' | translate }}
+      </span>
+    </div>
+  </div>
+</div>

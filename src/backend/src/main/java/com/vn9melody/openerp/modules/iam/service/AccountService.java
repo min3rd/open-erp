@@ -7,6 +7,10 @@ import java.time.Instant;
 import java.util.*;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.api.ErrorCode;
+import com.vn9melody.openerp.core.audit.AuditTrail;
+import com.vn9melody.openerp.core.enums.PlatformAction;
+import com.vn9melody.openerp.core.enums.PlatformAdminStatus;
+import com.vn9melody.openerp.core.enums.ResponseKey;
 import com.vn9melody.openerp.core.security.PasswordHashService;
 import com.vn9melody.openerp.core.security.SessionManager;
 import com.vn9melody.openerp.modules.iam.dto.ChangePasswordRequest;
@@ -17,6 +21,8 @@ import com.vn9melody.openerp.modules.iam.model.User;
 import com.vn9melody.openerp.modules.iam.model.UserCredential;
 import com.vn9melody.openerp.modules.iam.model.UserProfile;
 import com.vn9melody.openerp.modules.core.service.TenantQuotaService;
+import com.vn9melody.openerp.modules.platform.model.PlatformSuperAdmin;
+import com.vn9melody.openerp.modules.platform.repository.PlatformSuperAdminRepository;
 
 @ApplicationScoped
 public class AccountService {
@@ -29,6 +35,12 @@ public class AccountService {
 
     @Inject
     TenantQuotaService tenantQuotaService;
+
+    @Inject
+    PlatformSuperAdminRepository platformSuperAdminRepository;
+
+    @Inject
+    AuditTrail auditTrail;
 
     /**
      * Quota enforcement hook (TASK-269 / BUG-53). Every tenant user-provisioning
@@ -95,9 +107,48 @@ public class AccountService {
         credential.passwordUpdatedAt = Instant.now();
         credential.persist();
 
-        if (Boolean.TRUE.equals(req.logoutOtherDevices) && currentSessionId != null) {
+        boolean forcedPlatformChangeReleased = releasePlatformAdminPasswordChange(userId);
+
+        if (forcedPlatformChangeReleased) {
+            // BUG-76: the old access token still carries must_change_password=true;
+            // revoke every session so it can never reach the portal again. The admin
+            // logs in again and receives a fresh token bound to the new state.
+            sessionManager.revokeAllSessions(userId);
+        } else if (Boolean.TRUE.equals(req.logoutOtherDevices) && currentSessionId != null) {
             sessionManager.revokeOtherSessions(userId, currentSessionId);
         }
+    }
+
+    /**
+     * TASK-294 / BUG-77: after a successful self-service password change, a platform
+     * admin must be released from the forced password change confinement, otherwise
+     * {@code PlatformRoleRequiredFilter} keeps rejecting every platform endpoint with
+     * {@code PLATFORM_PASSWORD_CHANGE_REQUIRED} forever. INVITED admins are activated
+     * as part of the same confirmation step (SOL-01 1.2.2).
+     */
+    private boolean releasePlatformAdminPasswordChange(UUID userId) {
+        PlatformSuperAdmin admin = platformSuperAdminRepository.findByUserId(userId);
+        if (admin == null
+                || (admin.status != PlatformAdminStatus.INVITED && admin.status != PlatformAdminStatus.ACTIVE)) {
+            return false;
+        }
+        boolean updated = false;
+        if (admin.status == PlatformAdminStatus.INVITED) {
+            admin.status = PlatformAdminStatus.ACTIVE;
+            updated = true;
+        }
+        if (Boolean.TRUE.equals(admin.mustChangePassword)) {
+            admin.mustChangePassword = false;
+            updated = true;
+        }
+        if (!updated) {
+            return false;
+        }
+        admin.updatedAt = Instant.now();
+        admin.persist();
+        auditTrail.recordSuccess(null, PlatformAction.PLATFORM_ADMIN_PASSWORD_CHANGED, "PLATFORM_ADMIN", admin.id,
+            Map.of(ResponseKey.USER_ID.getKey(), admin.userId.toString()));
+        return true;
     }
 
     public List<UserSessionResponse> getSessions(UUID userId, String currentSessionId) {

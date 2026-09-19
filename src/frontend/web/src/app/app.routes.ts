@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
-import { platformRoleGuard } from './core/guards/platform-role.guard';
+import { platformRoleGuard, platformSuperAdminGuard } from './core/guards/platform-role.guard';
 import { permissionGuard } from './core/guards/permission.guard';
+import { mustChangePasswordGuard } from './core/guards/must-change-password.guard';
 
 export const routes: Routes = [
   {
@@ -81,8 +82,14 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'platform',
+    path: 'platform/change-password',
     canActivate: [authGuard, platformRoleGuard],
+    loadComponent: () =>
+      import('./features/platform/change-password/change-password.component').then(m => m.PlatformChangePasswordComponent)
+  },
+  {
+    path: 'platform',
+    canActivate: [authGuard, platformRoleGuard, mustChangePasswordGuard],
     loadComponent: () => import('./features/platform/platform-layout.component').then(m => m.PlatformLayoutComponent),
     children: [
       {
@@ -108,6 +115,7 @@ export const routes: Routes = [
       },
       {
         path: 'admins',
+        canActivate: [platformSuperAdminGuard],
         loadComponent: () => import('./features/platform/admins/platform-admin-list.component').then(m => m.PlatformAdminListComponent)
       }
     ]

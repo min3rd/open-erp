@@ -177,6 +177,16 @@ export interface PlatformUser {
   is_2fa_enabled: boolean;
 }
 
+export interface TenantUser {
+  id: string;
+  /** Raw key returned by the backend user directory (`GET /iam/users`). */
+  user_id?: string;
+  email: string;
+  full_name: string;
+  status: UserStatus;
+  joined_at?: string | null;
+}
+
 export interface AuditLogDetails {
   before?: Record<string, any> | null;
   after?: Record<string, any> | null;
@@ -288,6 +298,13 @@ export interface TenantQuotaPayload {
   allowed_plugins: string[];
 }
 
+export interface PlatformPlugin {
+  key: string;
+  name_key: string;
+  description_key: string;
+  is_core: boolean;
+}
+
 export interface TenantStatusPayload {
   tenant_id: string;
   status: TenantStatus;
@@ -301,11 +318,14 @@ export interface TenantStatusPayload {
 
 export interface Permission {
   id: string;
+  /** Present in `GET /iam/roles/{id}/permissions` items (DES-02-API §5.3.1). */
+  permission_id?: string;
   code: string;
   domain: string;
   resource: string;
   action: string;
   description_key?: string;
+  granted_at?: string | null;
 }
 
 export interface Role {

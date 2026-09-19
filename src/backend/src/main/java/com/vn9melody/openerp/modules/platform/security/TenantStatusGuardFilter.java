@@ -21,9 +21,14 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
 
 /**
- * Blocks tenant data mutations when the caller's tenant is SUSPENDED/EXPIRED/DELETED
- * or locked (BR-SA-05 / TASK-272). Read-only requests stay available so a tenant can
- * still export/inspect its data while suspended.
+ * Blocks every tenant business API when the caller's tenant is SUSPENDED/EXPIRED/
+ * PENDING_DELETION/DELETED or locked (BR-SA-05 / TASK-272, FEAT-10 AC3).
+ *
+ * <p>FEAT-10 scenario 3 requires "mọi API nghiệp vụ" to be rejected with
+ * {@code TENANT_SUSPENDED}, which includes read-only GETs. Auth endpoints stay
+ * reachable (login/logout) and the platform portal is guarded separately;
+ * impersonation sessions are also blocked because the tenant state applies to
+ * every caller.</p>
  */
 @Provider
 @Blocking
@@ -32,8 +37,8 @@ import org.jboss.logging.Logger;
 public class TenantStatusGuardFilter implements ContainerRequestFilter {
 
     private static final Logger LOG = Logger.getLogger(TenantStatusGuardFilter.class);
-    private static final Set<String> MUTATION_METHODS = Set.of("POST", "PUT", "PATCH", "DELETE");
-    private static final Set<String> BLOCKED_STATUSES = Set.of("SUSPENDED", "EXPIRED", "DELETED");
+    private static final Set<String> BLOCKED_STATUSES =
+        Set.of("SUSPENDED", "EXPIRED", "PENDING_DELETION", "DELETED");
 
     @Inject
     JWTParser jwtParser;
@@ -44,7 +49,7 @@ public class TenantStatusGuardFilter implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext requestContext) {
         String method = requestContext.getMethod();
-        if (!MUTATION_METHODS.contains(method.toUpperCase())) {
+        if ("OPTIONS".equalsIgnoreCase(method)) {
             return;
         }
 
@@ -73,9 +78,9 @@ public class TenantStatusGuardFilter implements ContainerRequestFilter {
             return;
         }
 
-        if (PlatformJwtService.SCOPE_PLATFORM.equals(claim(jwt, PlatformJwtService.CLAIM_SCOPE))
-                || com.vn9melody.openerp.modules.platform.api.PlatformSupport.booleanClaim(
-                    jwt, PlatformJwtService.CLAIM_IS_IMPERSONATION)) {
+        // Platform-scoped tokens never carry a tenant; impersonation tokens do and must
+        // be blocked together with every other caller of the suspended tenant.
+        if (PlatformJwtService.SCOPE_PLATFORM.equals(claim(jwt, PlatformJwtService.CLAIM_SCOPE))) {
             return;
         }
 
@@ -115,7 +120,7 @@ public class TenantStatusGuardFilter implements ContainerRequestFilter {
 
         boolean blocked = BLOCKED_STATUSES.contains(status) || Boolean.TRUE.equals(locked);
         if (blocked) {
-            LOG.infof("Rejected mutation %s %s for tenant %s in status %s (locked=%s)",
+            LOG.infof("Rejected %s %s for tenant %s in status %s (locked=%s)",
                 method, path, tenantId, status, locked);
             requestContext.abortWith(Response.status(403)
                 .entity(new ApiErrorResponse(PlatformErrorCode.TENANT_SUSPENDED,

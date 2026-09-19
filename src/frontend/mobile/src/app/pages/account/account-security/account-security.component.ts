@@ -13,7 +13,8 @@ import {
   ButtonVariant,
   BadgeVariant,
   TwoFactorStatus,
-  apiMessage
+  apiMessage,
+  formatDate
 } from '@shared';
 
 @Component({
@@ -39,6 +40,7 @@ export class AccountSecurityComponent implements OnInit {
   readonly buttonVariantDanger = ButtonVariant.DANGER;
   readonly badgeVariantSuccess = BadgeVariant.SUCCESS;
   readonly badgeVariantWarning = BadgeVariant.WARNING;
+  readonly formatDate = formatDate;
 
   twoFactorStatus = signal<TwoFactorStatus | null>(null);
 

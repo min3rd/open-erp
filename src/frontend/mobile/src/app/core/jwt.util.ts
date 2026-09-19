@@ -1,3 +1,5 @@
+import { PlatformAdminRole } from '@shared';
+
 export interface JwtClaims {
   sub?: string;
   email?: string;
@@ -29,18 +31,56 @@ export function decodeJwtPayload(token: string | null | undefined): JwtClaims | 
 
 /**
  * Returns the effective functional permission list, or `null` when the token
- * does not carry the `permissions` claim yet (Sprint 02 backend in progress).
+ * does not carry the `permissions`/`functional_permissions` claim yet
+ * (Sprint 02 backend rollout in progress).
  */
 export function getJwtPermissions(token: string | null | undefined): string[] | null {
   const claims = decodeJwtPayload(token);
   if (!claims) {
     return null;
   }
-  const raw = claims.permissions ?? (claims as Record<string, unknown>)['perms'];
+  const raw =
+    claims.permissions ??
+    (claims as Record<string, unknown>)['functional_permissions'] ??
+    (claims as Record<string, unknown>)['perms'];
   if (!Array.isArray(raw)) {
     return null;
   }
   return raw.filter((value): value is string => typeof value === 'string');
+}
+
+export function isMustChangePassword(token: string | null | undefined): boolean {
+  const claims = decodeJwtPayload(token);
+  if (!claims) {
+    return false;
+  }
+  const raw = claims['must_change_password'];
+  return raw === true || raw === 'true';
+}
+
+export function getPlatformRole(token: string | null | undefined): string | null {
+  const claims = decodeJwtPayload(token);
+  const role = claims?.platform_role;
+  return typeof role === 'string' ? role : null;
+}
+
+/**
+ * Platform portal roles synced with backend `PlatformRoleRequiredFilter`:
+ * both `SUPER_ADMIN` and `SUPPORT_ENGINEER` tokens may enter the portal
+ * (`platform_role` claim AND matching `groups` entry). `SUPPORT_ENGINEER` is
+ * read-only — mutating actions are hidden on Mobile and rejected server-side.
+ */
+export function isPlatformAdmin(token: string | null | undefined): boolean {
+  const claims = decodeJwtPayload(token);
+  if (!claims) {
+    return false;
+  }
+  const role = claims.platform_role;
+  if (role !== PlatformAdminRole.SUPER_ADMIN && role !== PlatformAdminRole.SUPPORT_ENGINEER) {
+    return false;
+  }
+  const groups = Array.isArray(claims.groups) ? claims.groups : [];
+  return groups.includes(role);
 }
 
 export function isPlatformSuperAdmin(token: string | null | undefined): boolean {
@@ -49,5 +89,5 @@ export function isPlatformSuperAdmin(token: string | null | undefined): boolean 
     return false;
   }
   const groups = Array.isArray(claims.groups) ? claims.groups : [];
-  return claims.platform_role === 'SUPER_ADMIN' && groups.includes('SUPER_ADMIN');
+  return claims.platform_role === PlatformAdminRole.SUPER_ADMIN && groups.includes(PlatformAdminRole.SUPER_ADMIN);
 }

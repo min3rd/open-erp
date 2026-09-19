@@ -4,7 +4,7 @@
 - **Storage**: `postgres`
 - **Cơ chế đăng ký**: `@RegisterEntity` + `EntityRegistryService` (quét Jandex index khi khởi động), migration `V2.0.0__superadmin_rbac_schema.sql`.
 - **Tài liệu nền tảng**: [README.md](README.md), `docs/system/architecture/SYSTEM_BLUEPRINT.md` mục 5.1.
-- **Trạng thái**: 13 entity đăng ký ngày 2026-09-18 (Sprint 02 - Wave 1 Foundation); tổng registry toàn hệ thống: **20 entity** (7 Core IAM + 13 Sprint 02).
+- **Trạng thái**: 13 entity đăng ký ngày 2026-09-18 (Sprint 02 - Wave 1 Foundation); tổng registry toàn hệ thống: **20 entity** (7 Core IAM + 13 Sprint 02). **Xác nhận Wave 3 (2026-09-18)**: không có entity mới phát sinh từ retrofit enforcement/quota/impersonation guard/plugin allowlist/must-change-password — 13 entity Sprint 02 giữ nguyên.
 
 ---
 

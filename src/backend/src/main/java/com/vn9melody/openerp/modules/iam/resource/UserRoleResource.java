@@ -1,5 +1,6 @@
 package com.vn9melody.openerp.modules.iam.resource;
 
+import com.vn9melody.openerp.core.security.RequirePermission;
 import com.vn9melody.openerp.core.api.ApiResponse;
 import com.vn9melody.openerp.modules.iam.service.IamErrorCodes;
 import com.vn9melody.openerp.modules.iam.service.IamRbacDtos.UserDirectoryItem;
@@ -33,8 +34,8 @@ import java.util.UUID;
  * User ↔ role assignment lifecycle + tenant user directory (DES-02-API section 5.5-5.6,
  * TASK-278).
  *
- * <p>TODO(wave-integration): attach {@code @RequirePermission("core:user:read")} /
- * {@code @RequirePermission("core:role:manage")} annotations.</p>
+ * <p>Every endpoint declares its functional permission via {@code @RequirePermission}
+ * and is enforced by {@code PermissionEnforcementFilter} (TASK-267).</p>
  */
 @Path("/api/v1/iam")
 @Produces(MediaType.APPLICATION_JSON)
@@ -55,6 +56,7 @@ public class UserRoleResource {
 
     @GET
     @Path("/users")
+    @RequirePermission("core:user:read")
     public Response users(@QueryParam("page") @DefaultValue("0") int page,
                           @QueryParam("size") @DefaultValue("20") int size,
                           @QueryParam("keyword") String keyword,
@@ -70,6 +72,7 @@ public class UserRoleResource {
 
     @GET
     @Path("/users/{userId}/roles")
+    @RequirePermission("core:user:read")
     public Response userRoles(@PathParam("userId") UUID userId) {
         IamPrincipal principal = authenticate();
         List<UserRoleItem> items = roleService.userRoles(principal.tenantId(), userId);
@@ -81,6 +84,7 @@ public class UserRoleResource {
 
     @POST
     @Path("/users/{userId}/roles")
+    @RequirePermission("core:role:manage")
     public Response assignUserRoles(@PathParam("userId") UUID userId, @Valid UserRoleAssignRequest request) {
         IamPrincipal principal = authenticate();
         UserRolesAssignedResponse data = roleService.assignRolesToUser(
@@ -93,6 +97,7 @@ public class UserRoleResource {
 
     @DELETE
     @Path("/users/{userId}/roles/{roleId}")
+    @RequirePermission("core:role:manage")
     public Response removeUserRole(@PathParam("userId") UUID userId, @PathParam("roleId") UUID roleId) {
         IamPrincipal principal = authenticate();
         roleService.removeUserFromRole(principal.tenantId(), roleId, userId);

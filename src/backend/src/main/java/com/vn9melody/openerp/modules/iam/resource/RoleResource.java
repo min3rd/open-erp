@@ -1,5 +1,6 @@
 package com.vn9melody.openerp.modules.iam.resource;
 
+import com.vn9melody.openerp.core.security.RequirePermission;
 import com.vn9melody.openerp.core.api.ApiResponse;
 import com.vn9melody.openerp.modules.iam.service.IamErrorCodes;
 import com.vn9melody.openerp.modules.iam.service.IamRbacDtos.PermissionItem;
@@ -38,8 +39,8 @@ import java.util.UUID;
  * Functional RBAC APIs: permission catalog, tenant roles, role permissions and role members
  * (DES-02-API section 5.1-5.3, FEAT-14, TASK-278).
  *
- * <p>TODO(wave-integration): attach {@code @RequirePermission("core:permission:read")} /
- * {@code @RequirePermission("core:role:read" | "core:role:manage")} annotations.</p>
+ * <p>Every endpoint declares its functional permission via {@code @RequirePermission}
+ * and is enforced by {@code PermissionEnforcementFilter} (TASK-267).</p>
  */
 @Path("/api/v1/iam")
 @Produces(MediaType.APPLICATION_JSON)
@@ -57,6 +58,7 @@ public class RoleResource {
 
     @GET
     @Path("/permissions")
+    @RequirePermission("core:permission:read")
     public Response permissions() {
         authenticate();
         List<PermissionItem> items = roleService.listPermissions();
@@ -68,6 +70,7 @@ public class RoleResource {
 
     @GET
     @Path("/roles")
+    @RequirePermission("core:role:read")
     public Response roles(@QueryParam("page") @DefaultValue("0") int page,
                           @QueryParam("size") @DefaultValue("20") int size,
                           @QueryParam("keyword") String keyword) {
@@ -81,6 +84,7 @@ public class RoleResource {
 
     @POST
     @Path("/roles")
+    @RequirePermission("core:role:manage")
     public Response createRole(@Valid RoleRequest request) {
         IamPrincipal principal = authenticate();
         RoleItem data = roleService.createRole(principal.tenantId(), request);
@@ -92,6 +96,7 @@ public class RoleResource {
 
     @GET
     @Path("/roles/{id}")
+    @RequirePermission("core:role:read")
     public Response roleDetail(@PathParam("id") UUID id) {
         IamPrincipal principal = authenticate();
         return Response.ok(ApiResponse.success(
@@ -102,18 +107,21 @@ public class RoleResource {
 
     @PATCH
     @Path("/roles/{id}")
+    @RequirePermission("core:role:manage")
     public Response patchRole(@PathParam("id") UUID id, @Valid RoleRequest request) {
         return doUpdateRole(id, request);
     }
 
     @PUT
     @Path("/roles/{id}")
+    @RequirePermission("core:role:manage")
     public Response putRole(@PathParam("id") UUID id, @Valid RoleRequest request) {
         return doUpdateRole(id, request);
     }
 
     @DELETE
     @Path("/roles/{id}")
+    @RequirePermission("core:role:manage")
     public Response deleteRole(@PathParam("id") UUID id) {
         IamPrincipal principal = authenticate();
         roleService.deleteRole(principal.tenantId(), id);
@@ -125,6 +133,7 @@ public class RoleResource {
 
     @GET
     @Path("/roles/{id}/permissions")
+    @RequirePermission("core:role:read")
     public Response rolePermissions(@PathParam("id") UUID id) {
         IamPrincipal principal = authenticate();
         return Response.ok(ApiResponse.successList(
@@ -135,6 +144,7 @@ public class RoleResource {
 
     @PUT
     @Path("/roles/{id}/permissions")
+    @RequirePermission("core:role:manage")
     public Response updateRolePermissions(@PathParam("id") UUID id, @Valid RolePermissionUpdateRequest request) {
         IamPrincipal principal = authenticate();
         RolePermissionsUpdateResponse data = roleService.updateRolePermissions(
@@ -147,6 +157,7 @@ public class RoleResource {
 
     @GET
     @Path("/roles/{id}/users")
+    @RequirePermission("core:user:read")
     public Response roleUsers(@PathParam("id") UUID id) {
         IamPrincipal principal = authenticate();
         List<RoleUserItem> items = roleService.roleUsers(principal.tenantId(), id);
@@ -158,6 +169,7 @@ public class RoleResource {
 
     @POST
     @Path("/roles/{id}/users")
+    @RequirePermission("core:role:manage")
     public Response assignUsers(@PathParam("id") UUID id, @Valid RoleUserAssignRequest request) {
         IamPrincipal principal = authenticate();
         RoleUsersAssignedResponse data = roleService.assignUsersToRole(
@@ -170,6 +182,7 @@ public class RoleResource {
 
     @DELETE
     @Path("/roles/{id}/users/{userId}")
+    @RequirePermission("core:role:manage")
     public Response removeUser(@PathParam("id") UUID id, @PathParam("userId") UUID userId) {
         IamPrincipal principal = authenticate();
         roleService.removeUserFromRole(principal.tenantId(), id, userId);

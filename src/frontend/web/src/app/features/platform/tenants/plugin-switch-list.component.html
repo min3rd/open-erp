@@ -1,0 +1,86 @@
+<div class="space-y-2">
+  <div class="flex items-center gap-1">
+    <div class="relative flex-1 min-w-0">
+      <input
+        type="text"
+        class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1 pr-6 text-xs text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-400"
+        [value]="query()"
+        [placeholder]="'PLATFORM_TENANT_QUOTA_PLUGIN_SEARCH_PLACEHOLDER' | translate"
+        [attr.aria-label]="'PLATFORM_TENANT_QUOTA_PLUGIN_SEARCH_PLACEHOLDER' | translate"
+        (input)="onSearch($event)"
+      />
+      @if (searching()) {
+        <button
+          type="button"
+          class="absolute right-1 top-1/2 -translate-y-1/2 flex h-4 w-4 items-center justify-center text-[11px] leading-none text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
+          [attr.aria-label]="'PLATFORM_TENANT_QUOTA_PLUGIN_CLEAR_SEARCH' | translate"
+          [title]="'PLATFORM_TENANT_QUOTA_PLUGIN_CLEAR_SEARCH' | translate"
+          (click)="clearSearch()"
+        >
+          ×
+        </button>
+      }
+    </div>
+    <span class="shrink-0 text-[10px] font-mono text-neutral-500">
+      {{ 'PLATFORM_TENANT_QUOTA_PLUGIN_ENABLED_COUNT' | translate: { enabled: enabledCount(), total: totalCount() } }}
+    </span>
+  </div>
+
+  <div class="max-h-64 overflow-y-auto border border-neutral-200 dark:border-neutral-800 divide-y divide-neutral-100 dark:divide-neutral-800">
+    @if (filteredRequiredItems().length) {
+      <div class="sticky top-0 z-10 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+        {{ 'PLATFORM_TENANT_QUOTA_PLUGIN_GROUP_REQUIRED' | translate }}
+      </div>
+      @for (item of filteredRequiredItems(); track item.key) {
+        <div class="flex items-center justify-between gap-2 px-2 py-1.5">
+          <div class="min-w-0">
+            <div class="text-xs font-medium truncate">{{ displayName(item) }}</div>
+            @if (item.description_key) {
+              <div class="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">{{ item.description_key | translate }}</div>
+            }
+          </div>
+          <app-sharp-toggle
+            class="shrink-0"
+            [checked]="true"
+            [disabled]="true"
+            [ariaLabel]="displayName(item)"
+            [title]="'PLATFORM_TENANT_QUOTA_PLUGIN_CORE_LOCKED' | translate"
+          />
+        </div>
+      }
+    }
+
+    @if (filteredOptionalItems().length) {
+      <div class="sticky top-0 z-10 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+        {{ 'PLATFORM_TENANT_QUOTA_PLUGIN_GROUP_OPTIONAL' | translate }}
+      </div>
+      @for (item of filteredOptionalItems(); track item.key) {
+        <div class="flex items-center justify-between gap-2 px-2 py-1.5">
+          <div class="min-w-0">
+            <div class="text-xs font-medium truncate" [class.font-mono]="!item.inCatalog">{{ displayName(item) }}</div>
+            @if (item.description_key) {
+              <div class="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">{{ item.description_key | translate }}</div>
+            } @else {
+              <div class="text-[10px] text-amber-600 dark:text-amber-400 truncate">
+                {{ 'PLATFORM_TENANT_QUOTA_PLUGIN_NOT_IN_CATALOG' | translate }}
+              </div>
+            }
+          </div>
+          <app-sharp-toggle
+            class="shrink-0"
+            [checked]="isChecked(item.key)"
+            [disabled]="disabled()"
+            [ariaLabel]="displayName(item)"
+            (checkedChange)="onToggle(item, $event)"
+          />
+        </div>
+      }
+    }
+
+    @if (!visibleCount()) {
+      <div class="px-2 py-3 text-center text-[11px] text-neutral-500">
+        {{ (searching() ? 'PLATFORM_TENANT_QUOTA_PLUGIN_SEARCH_EMPTY' : 'PLATFORM_TENANT_QUOTA_PLUGIN_OPTIONAL_EMPTY') | translate }}
+      </div>
+    }
+  </div>
+</div>

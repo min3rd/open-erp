@@ -18,6 +18,7 @@ public final class PlatformErrorCode {
     public static final String PLATFORM_PLUGIN_NOT_ALLOWED = "PLATFORM_PLUGIN_NOT_ALLOWED";
     public static final String PLATFORM_TENANT_IMPERSONATION_ACTIVE = "PLATFORM_TENANT_IMPERSONATION_ACTIVE";
     public static final String PLATFORM_SELF_LOCK_FORBIDDEN = "PLATFORM_SELF_LOCK_FORBIDDEN";
+    public static final String PLATFORM_PLUGIN_LIST_SUCCESS = "PLATFORM_PLUGIN_LIST_SUCCESS";
     public static final String TENANT_SUSPENDED = "TENANT_SUSPENDED";
 
     // Global users
@@ -65,4 +66,7 @@ public final class PlatformErrorCode {
     // Access control / confirmation
     public static final String PLATFORM_ACCESS_DENIED = "PLATFORM_ACCESS_DENIED";
     public static final String PLATFORM_CONFIRM_PASSWORD_INVALID = "PLATFORM_CONFIRM_PASSWORD_INVALID";
+    public static final String PLATFORM_PASSWORD_CHANGE_REQUIRED = "PLATFORM_PASSWORD_CHANGE_REQUIRED";
+    public static final String SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN =
+        "SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN";
 }

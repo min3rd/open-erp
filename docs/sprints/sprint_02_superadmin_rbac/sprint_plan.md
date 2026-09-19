@@ -73,10 +73,12 @@ Thiết lập tầng quản trị vận hành tối cao của nền tảng SaaS 
 ## 5. Tiêu Chuẩn Đóng Sprint (Definition of Done - DoD Gate)
 
 Một Sprint chỉ được coi là hoàn thành và nghiệm thu khi:
-- [ ] 100% các tính năng FEAT-10 đến FEAT-16 hoàn tất mã nguồn theo thiết kế.
-- [ ] FEAT-17 (Reference Entity) hoàn tất để chứng minh Enforcement Engine hoạt động trên dữ liệu thật.
-- [ ] 0 lỗi (Zero bugs) ở mức độ `Critical` và `High`.
-- [ ] Bộ automated tests Backend chạy thành công 100% trên PostgreSQL và Redis thật (CẤM dùng H2).
-- [ ] Kiểm thử thủ công trên trình duyệt Web Desktop và Mobile Responsive đạt 0 lỗi console (`console.error = 0`).
-- [ ] Hoàn thành tài liệu Hướng dẫn sử dụng kèm hình ảnh minh họa thực tế (`docs/06_user_guides/sprint_02_superadmin_rbac_user_guide.md`).
-- [ ] Khách hàng ký duyệt nghiệm thu tại `09_review/sprint_review.md`.
+- [x] 100% các tính năng FEAT-10 đến FEAT-16 hoàn tất mã nguồn theo thiết kế (kèm FEAT-17→20 và TASK bổ sung — xem `09_review/sprint_review.md`).
+- [x] FEAT-17 (Reference Entity) hoàn tất để chứng minh Enforcement Engine hoạt động trên dữ liệu thật.
+- [x] 0 lỗi (Zero bugs) ở mức độ `Critical` và `High` — xác nhận tại TR-02 mục 11.9 (BUG-83 Medium không chặn DoD).
+- [x] Bộ automated tests Backend chạy thành công 100% trên PostgreSQL và Redis thật (CẤM dùng H2) — **193/193 PASS**.
+- [x] Kiểm thử thủ công trên trình duyệt Web Desktop và Mobile Responsive đạt 0 lỗi console (`console.error = 0`) — overflow 0 toàn bộ (390/768/Mobile).
+- [x] Hoàn thành tài liệu Hướng dẫn sử dụng kèm hình ảnh minh họa thực tế (`docs/06_user_guides/sprint_02_superadmin_rbac_user_guide.md` — 27 ảnh).
+- [ ] Khách hàng ký duyệt nghiệm thu tại `09_review/sprint_review.md` (mục 8 — chờ khách hàng kiểm tra thực tế và ký).
+
+> **Chốt DoD (2026-09-19)**: PM Agent xác nhận 6/6 điều kiện kỹ thuật ĐẠT; chỉ còn chữ ký nghiệm thu của khách hàng. Kết quả item: 77/78 `Done`, 1 `Deferred` (TASK-293 Medium) — hợp lệ theo quy định DoD Gate.

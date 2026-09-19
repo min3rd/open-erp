@@ -70,39 +70,45 @@
             ></div>
           </div>
         </td>
-        <td class="px-2 py-1.5 text-[10px] font-mono text-neutral-500">{{ t.created_at }}</td>
+        <td class="px-2 py-1.5 text-[10px] font-mono text-neutral-500">{{ formatDateTime(t.created_at) }}</td>
         <td class="px-2 py-1.5">
           <div class="flex flex-wrap items-center justify-end gap-1">
-            <button
-              type="button"
-              class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
-              (click)="openQuota(t)"
-            >
-              {{ 'PLATFORM_TENANT_QUOTA_BTN' | translate }}
-            </button>
-            <button
-              type="button"
-              class="px-1.5 py-0.5 text-[10px] border border-indigo-300 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
-              (click)="openImpersonate(t)"
-            >
-              {{ 'PLATFORM_TENANT_IMPERSONATE_BTN' | translate }}
-            </button>
-            @if (t.is_locked) {
+            @if (isSuperAdmin()) {
               <button
                 type="button"
-                class="px-1.5 py-0.5 text-[10px] border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
-                (click)="askUnlock(t)"
+                class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                (click)="openQuota(t)"
               >
-                {{ 'PLATFORM_TENANT_UNLOCK_BTN' | translate }}
+                {{ 'PLATFORM_TENANT_QUOTA_BTN' | translate }}
               </button>
+              <button
+                type="button"
+                class="px-1.5 py-0.5 text-[10px] border border-indigo-300 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
+                (click)="openImpersonate(t)"
+              >
+                {{ 'PLATFORM_TENANT_IMPERSONATE_BTN' | translate }}
+              </button>
+              @if (t.is_locked) {
+                <button
+                  type="button"
+                  class="px-1.5 py-0.5 text-[10px] border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                  (click)="askUnlock(t)"
+                >
+                  {{ 'PLATFORM_TENANT_UNLOCK_BTN' | translate }}
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="px-1.5 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                  (click)="askLock(t)"
+                >
+                  {{ 'PLATFORM_TENANT_LOCK_BTN' | translate }}
+                </button>
+              }
             } @else {
-              <button
-                type="button"
-                class="px-1.5 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
-                (click)="askLock(t)"
-              >
-                {{ 'PLATFORM_TENANT_LOCK_BTN' | translate }}
-              </button>
+              <span class="text-[10px] uppercase tracking-wider text-neutral-400">
+                {{ 'PLATFORM_SUPPORT_READ_ONLY_HINT' | translate }}
+              </span>
             }
           </div>
         </td>

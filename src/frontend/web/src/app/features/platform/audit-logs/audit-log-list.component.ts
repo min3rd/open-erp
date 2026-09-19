@@ -16,7 +16,8 @@ import {
   SharpSelectComponent,
   TableColumn,
   TableComponent,
-  TranslatePipe
+  TranslatePipe,
+  formatDateTime
 } from '@shared';
 import { PlatformService } from '../../../core/services/platform.service';
 import { AuditLogDetailDrawerComponent } from './audit-log-detail-drawer.component';
@@ -44,6 +45,7 @@ export class AuditLogListComponent implements OnInit {
 
   readonly logs = signal<AuditLog[]>([]);
   readonly loading = signal<boolean>(false);
+  readonly formatDateTime = formatDateTime;
   readonly page = signal<number>(0);
   readonly size = signal<number>(20);
   readonly totalItems = signal<number>(0);

@@ -1,0 +1,246 @@
+{
+  "setup": {
+    "status": 200,
+    "code": "PLATFORM_TENANT_QUOTA_UPDATED",
+    "allowed": [
+      "core",
+      "sales",
+      "unknown-x"
+    ]
+  },
+  "dbAfterSetup": "[\"core\", \"sales\", \"unknown-x\"]",
+  "drawerSettled": true,
+  "rowsInitial": [
+    {
+      "name": "Plugin lõi",
+      "sub": "Chức năng nền tảng bắt buộc (tham chiếu, tổ chức, phân quyền).",
+      "checked": "true",
+      "disabled": true,
+      "warning": false
+    },
+    {
+      "name": "Bán hàng",
+      "sub": "Quản lý báo giá, đơn hàng và khách hàng.",
+      "checked": "true",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "Kế toán",
+      "sub": "Sổ sách, hóa đơn và báo cáo tài chính.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "Kho hàng",
+      "sub": "Quản lý tồn kho, nhập xuất và nhà cung cấp.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "CRM",
+      "sub": "Quản lý cơ hội, chăm sóc khách hàng và pipeline.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "unknown-x",
+      "sub": "Không có trong danh mục plugin.",
+      "checked": "true",
+      "disabled": false,
+      "warning": true
+    }
+  ],
+  "countInitial": "Đã bật 3/6",
+  "rowsSearchSales": [
+    {
+      "name": "Bán hàng",
+      "sub": "Quản lý báo giá, đơn hàng và khách hàng.",
+      "checked": "true",
+      "disabled": false,
+      "warning": false
+    }
+  ],
+  "countSearchSales": "Đã bật 3/6",
+  "rowsSearchEmpty": [],
+  "emptyStateText": "Không tìm thấy plugin phù hợp.",
+  "rowsAfterClear": 6,
+  "countAfterClear": "Đã bật 3/6",
+  "warningAfterSalesOff": true,
+  "rowsAfterSalesOff": [
+    {
+      "name": "Plugin lõi",
+      "sub": "Chức năng nền tảng bắt buộc (tham chiếu, tổ chức, phân quyền).",
+      "checked": "true",
+      "disabled": true,
+      "warning": false
+    },
+    {
+      "name": "Bán hàng",
+      "sub": "Quản lý báo giá, đơn hàng và khách hàng.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "Kế toán",
+      "sub": "Sổ sách, hóa đơn và báo cáo tài chính.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "Kho hàng",
+      "sub": "Quản lý tồn kho, nhập xuất và nhà cung cấp.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "CRM",
+      "sub": "Quản lý cơ hội, chăm sóc khách hàng và pipeline.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "unknown-x",
+      "sub": "Không có trong danh mục plugin.",
+      "checked": "true",
+      "disabled": false,
+      "warning": true
+    }
+  ],
+  "countAfterSalesOff": "Đã bật 2/6",
+  "warningAfterUnknownOff": true,
+  "countAfterUnknownOff": "Đã bật 1/6",
+  "countBeforeSave": "Đã bật 3/6",
+  "rowsBeforeSave": [
+    {
+      "name": "Plugin lõi",
+      "sub": "Chức năng nền tảng bắt buộc (tham chiếu, tổ chức, phân quyền).",
+      "checked": "true",
+      "disabled": true,
+      "warning": false
+    },
+    {
+      "name": "Bán hàng",
+      "sub": "Quản lý báo giá, đơn hàng và khách hàng.",
+      "checked": "true",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "Kế toán",
+      "sub": "Sổ sách, hóa đơn và báo cáo tài chính.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "Kho hàng",
+      "sub": "Quản lý tồn kho, nhập xuất và nhà cung cấp.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "CRM",
+      "sub": "Quản lý cơ hội, chăm sóc khách hàng và pipeline.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "unknown-x",
+      "sub": "Không có trong danh mục plugin.",
+      "checked": "true",
+      "disabled": false,
+      "warning": true
+    }
+  ],
+  "drawerClosedAfterSave1": true,
+  "dbAfterSave1": "[\"core\", \"sales\", \"unknown-x\"]",
+  "rowsReopen": [
+    {
+      "name": "Plugin lõi",
+      "sub": "Chức năng nền tảng bắt buộc (tham chiếu, tổ chức, phân quyền).",
+      "checked": "true",
+      "disabled": true,
+      "warning": false
+    },
+    {
+      "name": "Bán hàng",
+      "sub": "Quản lý báo giá, đơn hàng và khách hàng.",
+      "checked": "true",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "Kế toán",
+      "sub": "Sổ sách, hóa đơn và báo cáo tài chính.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "Kho hàng",
+      "sub": "Quản lý tồn kho, nhập xuất và nhà cung cấp.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "CRM",
+      "sub": "Quản lý cơ hội, chăm sóc khách hàng và pipeline.",
+      "checked": "false",
+      "disabled": false,
+      "warning": false
+    },
+    {
+      "name": "unknown-x",
+      "sub": "Không có trong danh mục plugin.",
+      "checked": "true",
+      "disabled": false,
+      "warning": true
+    }
+  ],
+  "countReopen": "Đã bật 3/6",
+  "dbAfterSave2": "[\"core\", \"sales\", \"unknown-x\"]",
+  "restore": {
+    "status": 200,
+    "code": "PLATFORM_TENANT_QUOTA_UPDATED",
+    "allowed": [
+      "core",
+      "sales"
+    ]
+  },
+  "dbRestored": "[\"core\", \"sales\"]",
+  "checks": {
+    "drawerSettled": true,
+    "coreOk": true,
+    "salesOk": true,
+    "unknownOk": true,
+    "countInitialOk": true,
+    "searchOk": true,
+    "emptyOk": true,
+    "warningSalesOk": true,
+    "warningUnknownOk": true,
+    "save1Ok": true,
+    "save2Ok": true,
+    "reopenOk": true,
+    "restoreDb": true,
+    "consoleOk": true
+  },
+  "consoleErrors": [],
+  "results": [
+    {
+      "id": "QA-R2-80",
+      "status": "PASS",
+      "note": "optional sales+unknown-x ON (Đã bật 3/6); search/empty; warnings; save x2 DB [core,sales,unknown-x]; reopen 3/6; restored [core,sales]; console 0"
+    }
+  ]
+}

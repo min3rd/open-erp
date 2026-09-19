@@ -22,7 +22,7 @@
       <p class="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 truncate">{{ role()?.code || roleId }}</p>
     </div>
 
-    <div class="grid grid-cols-2 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+    <div class="grid grid-cols-3 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
       <button
         type="button"
         class="min-h-10 py-1.5 text-center text-[11px] font-medium border-r border-neutral-200 dark:border-neutral-800"
@@ -35,13 +35,23 @@
       </button>
       <button
         type="button"
-        class="min-h-10 py-1.5 text-center text-[11px] font-medium"
+        class="min-h-10 py-1.5 text-center text-[11px] font-medium border-r border-neutral-200 dark:border-neutral-800"
         [ngClass]="activeTab() === 'scopes'
           ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
           : 'text-neutral-600 dark:text-neutral-400'"
         (click)="setTab('scopes')"
       >
         {{ 'IAM_TAB_DATA_SCOPES' | translate }}
+      </button>
+      <button
+        type="button"
+        class="min-h-10 py-1.5 text-center text-[11px] font-medium"
+        [ngClass]="activeTab() === 'users'
+          ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
+          : 'text-neutral-600 dark:text-neutral-400'"
+        (click)="setTab('users')"
+      >
+        {{ 'IAM_TAB_USERS' | translate }}
       </button>
     </div>
 
@@ -80,6 +90,7 @@
                   </button>
                   <app-sharp-toggle
                     class="shrink-0"
+                    size="touch"
                     [checked]="isGranted(permission.id)"
                     [ariaLabel]="permission.code"
                     (checkedChange)="togglePermission(permission.id)"
@@ -94,7 +105,7 @@
           {{ 'COMMON_SAVE' | translate }}
         </app-sharp-button>
       </div>
-    } @else {
+    } @else if (activeTab() === 'scopes') {
       <div class="space-y-2">
         @if (!resources().length) {
           <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'IAM_DATA_RESOURCE_EMPTY'"></p>
@@ -127,6 +138,84 @@
         <app-sharp-button [fullWidth]="true" [variant]="buttonPrimary" [loading]="savingPolicies()" (clicked)="savePolicies()">
           {{ 'COMMON_SAVE' | translate }}
         </app-sharp-button>
+      </div>
+    } @else {
+      <div class="space-y-2">
+        <app-sharp-input
+          [placeholder]="'IAM_ASSIGN_USERS_SEARCH' | translate"
+          [value]="userSearch()"
+          (valueChange)="onUserSearchChange($event)"
+        />
+
+        <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 divide-y divide-neutral-100 dark:divide-neutral-800">
+          @if (loadingUsers()) {
+            <p class="px-2.5 py-3 text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'COMMON_LOADING'"></p>
+          } @else {
+            @for (user of users(); track user.id) {
+              <button
+                type="button"
+                class="w-full min-h-10 px-2.5 py-1.5 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800/60"
+                [ngClass]="selectedUser()?.id === user.id ? 'bg-neutral-100 dark:bg-neutral-800' : ''"
+                (click)="selectUser(user)"
+              >
+                <span class="flex items-center justify-between gap-2">
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-[11px] font-medium text-neutral-900 dark:text-neutral-100 truncate">
+                      {{ user.full_name || user.email }}
+                    </span>
+                    <span class="block text-[10px] font-mono text-neutral-500 dark:text-neutral-400 truncate">{{ user.email }}</span>
+                  </span>
+                  <app-badge [variant]="userStatusVariant(user.status)">{{ userStatusLabelKey(user.status) | translate }}</app-badge>
+                </span>
+              </button>
+            } @empty {
+              <p class="px-2.5 py-3 text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'IAM_ASSIGN_USERS_NO_USER'"></p>
+            }
+            @if (hasMoreUsers()) {
+              <button
+                type="button"
+                class="w-full min-h-10 px-2.5 py-1.5 text-[11px] text-center text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800/60"
+                [disabled]="loadingMoreUsers()"
+                (click)="loadMoreUsers()"
+              >
+                {{ (loadingMoreUsers() ? 'COMMON_LOADING' : 'COMMON_LOAD_MORE') | translate }}
+              </button>
+            }
+          }
+        </div>
+
+        @if (selectedUser(); as user) {
+          <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-2.5 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                {{ 'IAM_ASSIGN_USERS_CURRENT' | translate }}
+              </span>
+              <span class="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 truncate">{{ user.email }}</span>
+            </div>
+            @if (loadingUserRoles()) {
+              <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'COMMON_LOADING'"></p>
+            } @else {
+              <div class="min-h-10 flex items-center justify-between gap-2 border border-neutral-200 dark:border-neutral-800 px-2">
+                <span class="min-w-0">
+                  <span class="block text-[11px] font-medium text-neutral-900 dark:text-neutral-100 truncate">{{ role()?.name || roleId }}</span>
+                  <span class="block text-[10px] font-mono text-neutral-500 dark:text-neutral-400 truncate">{{ role()?.code || '' }}</span>
+                </span>
+                <app-sharp-toggle
+                  class="shrink-0"
+                  size="touch"
+                  [checked]="userHasRole()"
+                  [ariaLabel]="role()?.name || roleId"
+                  (checkedChange)="userHasRole.set($event)"
+                />
+              </div>
+              <app-sharp-button [fullWidth]="true" [variant]="buttonPrimary" [loading]="savingUserRole()" (clicked)="saveUserRole()">
+                {{ 'COMMON_SAVE' | translate }}
+              </app-sharp-button>
+            }
+          </div>
+        } @else {
+          <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'IAM_USER_PICKER_PROMPT'"></p>
+        }
       </div>
     }
   </div>

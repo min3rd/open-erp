@@ -86,6 +86,10 @@ public final class ErrorCode {
     // Tenant resource quota (TASK-269 / BUG-53)
     public static final String PLATFORM_TENANT_QUOTA_EXCEEDED = "PLATFORM_TENANT_QUOTA_EXCEEDED";
 
+    // Impersonation safety guard (BUG-68 / BR-SA-04)
+    public static final String SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN =
+        "SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN";
+
     // Reference Entity success codes (FEAT-17 / TASK-284, DES-02-API 6.3)
     public static final String CORE_SAMPLE_RECORD_CREATED = "CORE_SAMPLE_RECORD_CREATED";
     public static final String CORE_SAMPLE_RECORD_LIST_SUCCESS = "CORE_SAMPLE_RECORD_LIST_SUCCESS";

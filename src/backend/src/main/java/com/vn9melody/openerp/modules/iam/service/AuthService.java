@@ -10,9 +10,11 @@ import java.time.Instant;
 import java.util.*;
 import java.util.regex.Pattern;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.jboss.logging.Logger;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.api.ApiFieldError;
 import com.vn9melody.openerp.core.api.ErrorCode;
+import com.vn9melody.openerp.core.context.SecurityContextService;
 import com.vn9melody.openerp.core.enums.AccountStatus;
 import com.vn9melody.openerp.core.enums.ResponseKey;
 import com.vn9melody.openerp.core.enums.TenantType;
@@ -25,6 +27,7 @@ import com.vn9melody.openerp.modules.platform.service.PlatformLoginService;
 
 @ApplicationScoped
 public class AuthService {
+    private static final Logger LOG = Logger.getLogger(AuthService.class);
     private static final long ACCESS_TOKEN_TTL_SECONDS = 900;
     private static final long RESET_TOKEN_TTL_SECONDS = 900;
     private static final int RESET_TOKEN_BYTES = 32;
@@ -61,6 +64,15 @@ public class AuthService {
 
     @Inject
     PlatformLoginService platformLoginService;
+
+    @Inject
+    AccountService accountService;
+
+    @Inject
+    SystemRoleAssigner systemRoleAssigner;
+
+    @Inject
+    SecurityContextService securityContextService;
 
     @Transactional
     public PersonalRegisterResponse registerPersonal(PersonalRegisterRequest req) {
@@ -119,6 +131,9 @@ public class AuthService {
         personalTenant.type = TenantType.PERSONAL;
         personalTenant.persist();
 
+        // TASK-269 / BUG-53: the shared user-provisioning quota entry point.
+        accountService.enforceUserQuota(personalTenant.id);
+
         UserTenant ut = new UserTenant();
         ut.id = new UserTenantId(user.id, personalTenant.id);
         ut.user = user;
@@ -126,6 +141,9 @@ public class AuthService {
         ut.role = UserRole.TENANT_ADMIN;
         ut.isDefault = true;
         ut.persist();
+
+        // TASK-271: user_roles is the single source of truth for the enforcement engine.
+        systemRoleAssigner.assignSystemRole(personalTenant.id, user.id, SystemRoleAssigner.TENANT_ADMIN);
 
         return new VerifyEmailResponse(AccountStatus.ACTIVE, personalTenant.id.toString());
     }
@@ -161,6 +179,9 @@ public class AuthService {
         tenant.currency = req.tenant.currency != null ? req.tenant.currency : "VND";
         tenant.persist();
 
+        // TASK-269 / BUG-53: quota is checked before the first membership is written.
+        accountService.enforceUserQuota(tenant.id);
+
         User user = new User();
         user.email = adminEmail;
         user.status = AccountStatus.ACTIVE;
@@ -186,6 +207,9 @@ public class AuthService {
         ut.role = UserRole.TENANT_ADMIN;
         ut.isDefault = true;
         ut.persist();
+
+        // TASK-271: user_roles is the single source of truth for the enforcement engine.
+        systemRoleAssigner.assignSystemRole(tenant.id, user.id, SystemRoleAssigner.TENANT_ADMIN);
 
         emailNotificationService.sendBusinessWelcomeEmail(user.email, tenant.name, tenant.slug);
 
@@ -250,6 +274,9 @@ public class AuthService {
             personalTenant.type = TenantType.PERSONAL;
             personalTenant.persist();
 
+            // TASK-269 / BUG-53: the shared user-provisioning quota entry point.
+            accountService.enforceUserQuota(personalTenant.id);
+
             UserTenant ut = new UserTenant();
             ut.id = new UserTenantId(user.id, personalTenant.id);
             ut.user = user;
@@ -257,6 +284,7 @@ public class AuthService {
             ut.role = UserRole.TENANT_ADMIN;
             ut.isDefault = true;
             ut.persist();
+            systemRoleAssigner.assignSystemRole(personalTenant.id, user.id, SystemRoleAssigner.TENANT_ADMIN);
             userTenants = List.of(ut);
         }
 
@@ -301,7 +329,9 @@ public class AuthService {
 
     private AuthResponse issueTokensForTenant(User user, Tenant tenant, String role, String device, String ipAddress) {
         String sessionId = sessionManager.createSession(user.id, device, ipAddress);
-        String accessToken = jwtTokenService.generateAccessToken(user.id, user.email, tenant.id, role, sessionId);
+        Set<String> permissions = resolvePermissionsForToken(tenant.id, user.id);
+        String accessToken = jwtTokenService.generateAccessToken(
+            user.id, user.email, tenant.id, role, sessionId, permissions);
         String refreshToken = jwtTokenService.generateRefreshToken(user.id, tenant.id, role, sessionId);
 
         UserProfile profile = UserProfile.findByUserId(user.id);
@@ -317,6 +347,24 @@ public class AuthService {
         );
 
         return AuthResponse.forSuccess(accessToken, refreshToken, sessionId, (int) ACCESS_TOKEN_TTL_SECONDS, userInfo);
+    }
+
+    /**
+     * Resolves the functional permission codes embedded in the tenant access token
+     * (TASK-267 Wave 3). A context resolution failure must never block login: fall
+     * back to an empty set and log, the enforcement layer re-resolves from the DB.
+     */
+    private Set<String> resolvePermissionsForToken(UUID tenantId, UUID userId) {
+        if (tenantId == null || userId == null) {
+            return Set.of();
+        }
+        try {
+            return securityContextService.getContext(tenantId, userId).functionalPermissions();
+        } catch (Exception e) {
+            LOG.warnf("Could not resolve functional permissions for token of %s/%s: %s",
+                tenantId, userId, e.getMessage());
+            return Set.of();
+        }
     }
 
     @Transactional
@@ -353,7 +401,9 @@ public class AuthService {
         UUID tenantId = tenantIdClaim != null ? UUID.fromString(tenantIdClaim) : null;
         String role = jwt.getClaim("role");
 
-        String accessToken = jwtTokenService.generateAccessToken(userId, user.email, tenantId, role, sessionId);
+        Set<String> permissions = resolvePermissionsForToken(tenantId, userId);
+        String accessToken = jwtTokenService.generateAccessToken(
+            userId, user.email, tenantId, role, sessionId, permissions);
         return new RefreshTokenResponse(accessToken, (int) ACCESS_TOKEN_TTL_SECONDS);
     }
 

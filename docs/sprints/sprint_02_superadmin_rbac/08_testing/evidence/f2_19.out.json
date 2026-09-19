@@ -1,0 +1,150 @@
+{
+  "apiTreeSmall": {
+    "ms": 25,
+    "count": 1
+  },
+  "defaultView": null,
+  "small": {
+    "nodeCount": 5,
+    "edgeCount": 4,
+    "zoom": 0.92,
+    "dpr": 2,
+    "canvas": "1686x1000",
+    "css": "843x500",
+    "crisp": true,
+    "view": "graph"
+  },
+  "smallDrawMs": 0.1449999988079071,
+  "smallContent": {
+    "nonBg": 113,
+    "samples": 31811
+  },
+  "selectedAfterClick": "QA-KD",
+  "panelText": "CHI TIẾT PHÒNG BAN × QA Kinh Doanh QA-KD Chi nhánh: QA Chi nhánh Hà Nội Trưởng phòng: — Thành viên: 1 Cấp: 0 + Thêm phòng ban con Sửa Xóa",
+  "afterCollapseB2B": {
+    "nodeCount": 2,
+    "collapsed": true
+  },
+  "afterExpandB2B": {
+    "nodeCount": 5,
+    "collapsed": false
+  },
+  "wheelZoom": {
+    "before": 0.92,
+    "in": 1.15,
+    "out": 0.73
+  },
+  "zoomControls": {
+    "btnIn": 0.88,
+    "max": 2.5,
+    "min": 0.25,
+    "reset": 1,
+    "fit": 0.92
+  },
+  "pan": {
+    "before": {
+      "zoom": 0.92,
+      "cx": 100,
+      "cy": 260
+    },
+    "after": {
+      "zoom": 0.92,
+      "cx": 256.52173913043475,
+      "cy": 364.34782608695656
+    },
+    "moved": true
+  },
+  "dblclickCenter": {
+    "cx": 100,
+    "cy": 364,
+    "expectedCx": 100,
+    "expectedCy": 364,
+    "dx": 0,
+    "dy": 0,
+    "zoom": 1
+  },
+  "listRowsWhenCollapsed": 2,
+  "panelPreservedAcrossView": true,
+  "graphNodesWhenCollapsed": 2,
+  "l4Id": "d0b61ef6-1958-4296-b30a-bf401a019e09",
+  "orgSelectedAfterViewReturn": "d0b61ef6-1958-4296-b30a-bf401a019e09",
+  "beforeReload": {
+    "zoom": 1.2,
+    "stored": {
+      "zoom": 1.2,
+      "cx": 100,
+      "cy": 364
+    },
+    "view": "graph"
+  },
+  "afterReload": {
+    "zoom": 1.2,
+    "stored": {
+      "zoom": 1.2,
+      "cx": 100,
+      "cy": 364
+    },
+    "view": "graph"
+  },
+  "reloadKeepsViewport": true,
+  "seedCount": "400",
+  "apiTreeLarge": {
+    "ms": 116,
+    "roots": 2
+  },
+  "largeLoadMs": 1347,
+  "largeContent": {
+    "nonBg": 202,
+    "samples": 31811
+  },
+  "large": {
+    "nodeCount": 405,
+    "edgeCount": 403,
+    "zoom": 0.25,
+    "dpr": 2,
+    "canvas": "1686x1000",
+    "inView": 25
+  },
+  "largeDrawMs": 0.6299999952316284,
+  "largeZoomed": {
+    "zoom": 0.36,
+    "inView": 18
+  },
+  "panFps": {
+    "frames": 159,
+    "ms": 2629,
+    "fps": 60
+  },
+  "largeAfterPan": {
+    "zoom": 0.36,
+    "inView": 18,
+    "total": 405
+  },
+  "deptCountAfterCleanup": "5",
+  "treeRootsAfterCleanup": 1,
+  "checks": {
+    "canvasCrisp": true,
+    "realTree5": true,
+    "selectedOk": true,
+    "collapseOk": true,
+    "expandOk": true,
+    "wheelOk": true,
+    "clampOk": true,
+    "fitOk": true,
+    "panOk": true,
+    "dblclickOk": true,
+    "sharedStateOk": true,
+    "f5Ok": true,
+    "largeTreeOk": true,
+    "cleanupOk": true,
+    "consoleOk": true
+  },
+  "consoleErrors": [],
+  "results": [
+    {
+      "id": "QA-F2-19",
+      "status": "PASS",
+      "note": "real tree 5 nodes; DPR 2 crisp (1686x1000); select/collapse/expand OK; zoom wheel+btn+clamp 25-250 + fit 0.92; pan moved; dblclick center dx=0.0 dy=0.0; F5 keeps viewport; large tree 405 nodes draw 0.63ms (small 0.14ms) inView 25/405 culling; pan FPS 60; cleanup back to 5"
+    }
+  ]
+}

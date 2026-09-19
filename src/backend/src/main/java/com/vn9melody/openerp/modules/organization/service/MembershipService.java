@@ -1,5 +1,8 @@
 package com.vn9melody.openerp.modules.organization.service;
 
+import com.vn9melody.openerp.core.audit.AuditTrail;
+import com.vn9melody.openerp.core.enums.PlatformAction;
+import com.vn9melody.openerp.core.enums.ResponseKey;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.security.PermissionInvalidationService;
 import com.vn9melody.openerp.core.security.events.UserDepartmentTransferredEvent;
@@ -33,6 +36,9 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class MembershipService {
+    @Inject
+    AuditTrail auditTrail;
+
 
     public static final String STATUS_ACTIVE = "ACTIVE";
 
@@ -125,7 +131,9 @@ public class MembershipService {
 
         permissionInvalidationService.publish(
             new UserDepartmentTransferredEvent(tenantId, userId, null, department.id, "MEMBERSHIP_CREATED"));
-        // TODO(wave-integration): emit tenant-scoped audit log for ORGANIZATION_MEMBERSHIP_CREATED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.ORG_MEMBERSHIP_ASSIGN, "MEMBERSHIP", membership.id,
+            Map.of(ResponseKey.USER_ID.getKey(), userId.toString(),
+                ResponseKey.DEPARTMENT_ID.getKey(), department.id.toString()));
         return toResponses(List.of(membership)).get(0);
     }
 
@@ -179,7 +187,9 @@ public class MembershipService {
         permissionInvalidationService.publish(
             new UserDepartmentTransferredEvent(tenantId, userId, previousDepartmentId, department.id,
                 "MEMBERSHIP_UPDATED"));
-        // TODO(wave-integration): emit tenant-scoped audit log for ORGANIZATION_MEMBERSHIP_UPDATED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.ORG_MEMBERSHIP_UPDATE, "MEMBERSHIP", membership.id,
+            Map.of(ResponseKey.USER_ID.getKey(), userId.toString(),
+                ResponseKey.DEPARTMENT_ID.getKey(), department.id.toString()));
         return toResponses(List.of(membership)).get(0);
     }
 
@@ -209,7 +219,9 @@ public class MembershipService {
 
         permissionInvalidationService.publish(
             new UserDepartmentTransferredEvent(tenantId, userId, departmentId, null, "MEMBERSHIP_REMOVED"));
-        // TODO(wave-integration): emit tenant-scoped audit log for ORGANIZATION_MEMBERSHIP_REMOVED.
+        auditTrail.recordSuccess(tenantId, PlatformAction.ORG_MEMBERSHIP_REMOVE, "MEMBERSHIP", membershipId,
+            Map.of(ResponseKey.USER_ID.getKey(), userId.toString(),
+                ResponseKey.DEPARTMENT_ID.getKey(), departmentId.toString()));
     }
 
     public long countByDepartment(UUID tenantId, UUID departmentId) {

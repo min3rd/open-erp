@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Solution Architect Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [ ] To Do / [x] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -39,3 +39,8 @@
 - **BR-SA-02 đã hoàn tất**: guard self-lock/self-disable (`PLATFORM_SELF_LOCK_FORBIDDEN`, `PLATFORM_SELF_DISABLE_FORBIDDEN`) + last-admin protection, có test.
 - **Giữ `In Progress` — BR-SA-04 chưa xong**: chưa có guard backend chặn export secret/2FA/hash khi đang trong phiên impersonation (chưa tồn tại mã `SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN`/`SUPERADMIN_IMPERSONATION_DESTRUCTIVE_ACTION_FORBIDDEN` trong `src/`).
 - Chuyển **Wave 3**: hiện thực guard + audit các lần chặn + QA test export secret trong impersonation.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- **BR-SA-04 (Wave 3)**: annotation `@BlockDuringImpersonation` + `PermissionEnforcementFilter` chặn export/change-password/2FA khi đang trong phiên impersonate → `403 SUPERADMIN_IMPERSONATION_SECRET_EXPORT_FORBIDDEN`; audit DENIED được ghi nhận.
+- **BR-SA-02 (Wave 2)**: guard self-lock/self-disable (`PLATFORM_SELF_LOCK_FORBIDDEN`, `PLATFORM_SELF_DISABLE_FORBIDDEN`) + last-admin protection đã hoàn tất trước đó.
+- Kiểm chứng: full `mvn test` **178/178 PASS** (PostgreSQL + Redis thật, không H2).

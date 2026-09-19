@@ -244,6 +244,12 @@ public class SecurityContextService {
             } else if (value instanceof String text) {
                 impersonation = Boolean.parseBoolean(text);
             }
+            // Defensive: an impersonation token is identifiable by any of its act_*
+            // claims even when is_impersonation is absent (BUG-68 / SOL-01).
+            if (!Boolean.TRUE.equals(impersonation)
+                    && (claim(jwt, "act_sub") != null || claim(jwt, "impersonation_id") != null)) {
+                impersonation = true;
+            }
         } catch (Exception ignored) {
             // anonymous request
         }

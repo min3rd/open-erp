@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.util.List;
+import com.vn9melody.openerp.core.enums.ResponseKey;
 
 public final class DepartmentDtos {
 
@@ -13,34 +14,34 @@ public final class DepartmentDtos {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record DepartmentNodeResponse(
-        @JsonProperty("id") String id,
-        @JsonProperty("code") String code,
-        @JsonProperty("name") String name,
-        @JsonProperty("branch_id") String branchId,
-        @JsonProperty("branch_name") String branchName,
-        @JsonProperty("parent_id") String parentId,
-        @JsonProperty("manager_user_id") String managerUserId,
-        @JsonProperty("manager_name") String managerName,
-        @JsonProperty("status") String status,
-        @JsonProperty("children") List<DepartmentNodeResponse> children
+        @JsonProperty(ResponseKey.Json.ID) String id,
+        @JsonProperty(ResponseKey.Json.CODE) String code,
+        @JsonProperty(ResponseKey.Json.NAME) String name,
+        @JsonProperty(ResponseKey.Json.BRANCH_ID) String branchId,
+        @JsonProperty(ResponseKey.Json.BRANCH_NAME) String branchName,
+        @JsonProperty(ResponseKey.Json.PARENT_ID) String parentId,
+        @JsonProperty(ResponseKey.Json.MANAGER_USER_ID) String managerUserId,
+        @JsonProperty(ResponseKey.Json.MANAGER_NAME) String managerName,
+        @JsonProperty(ResponseKey.Json.STATUS) String status,
+        @JsonProperty(ResponseKey.Json.CHILDREN) List<DepartmentNodeResponse> children
     ) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record DepartmentRequest(
-        @NotBlank @Size(max = 32) @JsonProperty("code") String code,
-        @NotBlank @Size(max = 255) @JsonProperty("name") String name,
-        @JsonProperty("branch_id") String branchId,
-        @JsonProperty("parent_id") String parentId,
-        @JsonProperty("manager_user_id") String managerUserId,
-        @JsonProperty("status") String status
+        @NotBlank @Size(max = 32) @JsonProperty(ResponseKey.Json.CODE) String code,
+        @NotBlank @Size(max = 255) @JsonProperty(ResponseKey.Json.NAME) String name,
+        @JsonProperty(ResponseKey.Json.BRANCH_ID) String branchId,
+        @JsonProperty(ResponseKey.Json.PARENT_ID) String parentId,
+        @JsonProperty(ResponseKey.Json.MANAGER_USER_ID) String managerUserId,
+        @JsonProperty(ResponseKey.Json.STATUS) String status
     ) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record DepartmentMoveRequest(
-        @JsonProperty("new_parent_id") String newParentId,
-        @JsonProperty("reassign_members_to") String reassignMembersTo
+        @JsonProperty(ResponseKey.Json.NEW_PARENT_ID) String newParentId,
+        @JsonProperty(ResponseKey.Json.REASSIGN_MEMBERS_TO) String reassignMembersTo
     ) {
     }
 }

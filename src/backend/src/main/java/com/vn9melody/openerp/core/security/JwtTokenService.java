@@ -25,6 +25,18 @@ public class JwtTokenService {
     String issuer;
 
     public String generateAccessToken(UUID userId, String email, UUID tenantId, String role, String sessionId) {
+        return generateAccessToken(userId, email, tenantId, role, sessionId, null);
+    }
+
+    /**
+     * Tenant access token carrying the resolved functional permission codes so the
+     * frontend guard can render navigation without an extra round-trip (TASK-267
+     * Wave 3). The backend never trusts this claim for enforcement: the
+     * {@code PermissionEnforcementFilter} always re-resolves the
+     * {@link com.vn9melody.openerp.core.context.UserSecurityContext} from the database.
+     */
+    public String generateAccessToken(UUID userId, String email, UUID tenantId, String role, String sessionId,
+                                      Set<String> permissions) {
         return Jwt.issuer(issuer)
                 .upn(email)
                 .subject(userId.toString())
@@ -33,6 +45,7 @@ public class JwtTokenService {
                 .claim("tenant_id", tenantId != null ? tenantId.toString() : null)
                 .claim("role", role != null ? role : "MEMBER")
                 .claim("session_id", sessionId)
+                .claim("permissions", permissions != null ? permissions : Set.of())
                 .groups(role != null ? Set.of(role) : Set.of("MEMBER"))
                 .expiresIn(Duration.ofMinutes(15))
                 .sign();

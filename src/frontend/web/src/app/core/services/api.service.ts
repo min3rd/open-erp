@@ -23,6 +23,10 @@ export class ApiService {
     return this.http.put<ApiResponse<T>>(`${this.baseUrl}${path}`, body).pipe(catchError(this.handleError));
   }
 
+  patch<T>(path: string, body: any): Observable<ApiResponse<T>> {
+    return this.http.patch<ApiResponse<T>>(`${this.baseUrl}${path}`, body).pipe(catchError(this.handleError));
+  }
+
   delete<T>(path: string, body?: any): Observable<ApiResponse<T>> {
     const options = body !== undefined ? { body } : {};
     return this.http.delete<ApiResponse<T>>(`${this.baseUrl}${path}`, options).pipe(catchError(this.handleError));

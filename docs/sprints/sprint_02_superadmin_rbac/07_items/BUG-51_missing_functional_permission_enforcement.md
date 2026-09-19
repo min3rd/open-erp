@@ -6,7 +6,7 @@
 - **Người Báo Cáo (Reporter)**: QA/QC Agent
 - **Người Xử Lý (Assignee)**: Developer Agent
 - **Thuộc Sprint**: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
-- **Trạng Thái**: [x] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [x] Done / [ ] Deferred
 
 ---
 
@@ -34,3 +34,8 @@
 - [ ] QA re-test: thiếu quyền → 403 `IAM_PERMISSION_DENIED_FUNCTIONAL`; đủ quyền → pass, có test PostgreSQL thật.
 
 - **Ghi chú QA (2026-09-18)**: Đặc tả đã bổ sung (SOL-02 §6b `@RequirePermission` + catalog TASK-268); phần mã theo TASK-267/TASK-268, chờ thực thi.
+
+## Ghi Chú Hoàn Thành (2026-09-18)
+- Wave 3 retrofit `@RequirePermission` hoàn tất cho toàn bộ API IAM/Organization (và API core legacy Sprint 01) — không còn endpoint core nào default-allow, ngoại lệ duy nhất là `GET/PUT /account/profile` (self-profile, default-allow có chủ đích — xem TASK-267).
+- Kiểm chứng: `PermissionRetrofitApiTest` (liệt kê endpoint bắt buộc annotation, không bỏ sót) + `PermissionFilterTest` (403 `IAM_PERMISSION_DENIED_FUNCTIONAL`, audit DENIED) + `AuditWiringTest`; full `mvn test` **178/178 PASS** (PostgreSQL + Redis thật, không H2).
+- TASK-267 và TASK-268 đều `Done`; mã lỗi giữ nguyên theo DES-02-API §6.3.

@@ -31,7 +31,7 @@
         <div class="text-neutral-500">{{ 'PLATFORM_AUDIT_RESOURCE' | translate }}</div>
         <div class="font-mono">{{ detail.resource_type || '-' }}{{ detail.resource_id ? ':' + detail.resource_id : '' }}</div>
         <div class="text-neutral-500">{{ 'PLATFORM_AUDIT_COL_TIME' | translate }}</div>
-        <div class="font-mono">{{ detail.created_at }}</div>
+        <div class="font-mono">{{ formatDateTime(detail.created_at) }}</div>
       </div>
 
       @if (detail.details?.reason) {

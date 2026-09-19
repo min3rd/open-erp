@@ -1,5 +1,6 @@
 package com.vn9melody.openerp.modules.core.resource;
 
+import com.vn9melody.openerp.core.security.BlockDuringImpersonation;
 import com.vn9melody.openerp.core.api.ApiResponse;
 import com.vn9melody.openerp.core.api.ErrorCode;
 import com.vn9melody.openerp.core.api.PagedData;
@@ -127,6 +128,7 @@ public class SampleRecordResource {
     @POST
     @Path("/export")
     @RequirePermission(value = PERM_EXPORT, operation = DataOperation.EXPORT)
+    @BlockDuringImpersonation
     public Response export(@QueryParam("format") String format) {
         UserSecurityContext context = securityContextService.getCurrentContext();
         SampleRecordService.ExportPayload payload = sampleRecordService.export(context, format);
@@ -139,6 +141,7 @@ public class SampleRecordResource {
     @Path("/export")
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON})
     @RequirePermission(value = PERM_EXPORT, operation = DataOperation.EXPORT)
+    @BlockDuringImpersonation
     public Response downloadExport(@QueryParam("format") String format) {
         UserSecurityContext context = securityContextService.getCurrentContext();
         SampleRecordService.ExportPayload payload = sampleRecordService.export(context, format);

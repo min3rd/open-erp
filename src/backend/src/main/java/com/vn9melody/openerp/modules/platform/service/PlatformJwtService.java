@@ -27,6 +27,7 @@ public class PlatformJwtService {
 
     public static final String CLAIM_PLATFORM_ROLE = "platform_role";
     public static final String CLAIM_SCOPE = "scope";
+    public static final String CLAIM_SESSION_ID = "session_id";
     public static final String CLAIM_MUST_CHANGE_PASSWORD = "must_change_password";
     public static final String CLAIM_IS_IMPERSONATION = "is_impersonation";
     public static final String CLAIM_IMPERSONATION_ID = "impersonation_id";
@@ -55,15 +56,20 @@ public class PlatformJwtService {
             .claim(CLAIM_PLATFORM_ROLE, role.name())
             .claim(CLAIM_SCOPE, SCOPE_PLATFORM)
             .claim(CLAIM_MUST_CHANGE_PASSWORD, mustChangePassword)
-            .claim("session_id", sessionId)
+            .claim(CLAIM_SESSION_ID, sessionId)
             .groups(Set.of(role.name()))
             .expiresIn(Duration.ofSeconds(PLATFORM_ACCESS_TTL_SECONDS))
             .sign();
     }
 
+    /**
+     * BUG-75: the impersonation token carries the {@code session_id} of the Redis
+     * session created for the target user, exactly like a tenant access token, so
+     * the organization/IAM session filters accept the delegated session.
+     */
     public String generateImpersonationToken(UUID targetUserId, String targetEmail, UUID targetTenantId,
                                              String targetRole, UUID actorUserId, String actorEmail,
-                                             UUID impersonationId, String supportTicket) {
+                                             UUID impersonationId, String supportTicket, String sessionId) {
         return Jwt.issuer(issuer)
             .upn(targetEmail)
             .subject(targetUserId.toString())
@@ -72,6 +78,7 @@ public class PlatformJwtService {
             .claim("tenant_id", targetTenantId.toString())
             .claim("target_user_id", targetUserId.toString())
             .claim("role", targetRole != null ? targetRole : "MEMBER")
+            .claim(CLAIM_SESSION_ID, sessionId)
             .claim(CLAIM_IS_IMPERSONATION, true)
             .claim(CLAIM_IMPERSONATION_ID, impersonationId.toString())
             .claim(CLAIM_ACT_SUB, actorUserId.toString())

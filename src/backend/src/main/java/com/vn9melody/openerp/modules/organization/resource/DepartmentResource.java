@@ -1,5 +1,6 @@
 package com.vn9melody.openerp.modules.organization.resource;
 
+import com.vn9melody.openerp.core.security.RequirePermission;
 import com.vn9melody.openerp.core.api.ApiResponse;
 import com.vn9melody.openerp.modules.organization.OrganizationErrorCodes;
 import com.vn9melody.openerp.modules.organization.dto.DepartmentDtos.DepartmentMoveRequest;
@@ -31,8 +32,8 @@ import java.util.UUID;
 /**
  * Department hierarchy CRUD + move (DES-02-API section 4.2, TASK-279).
  *
- * <p>TODO(wave-integration): attach {@code @RequirePermission("core:department:read")} /
- * {@code @RequirePermission("core:department:manage")} once the shared annotation ships.</p>
+ * <p>Every endpoint declares its functional permission via {@code @RequirePermission}
+ * and is enforced by {@code PermissionEnforcementFilter} (TASK-267).</p>
  */
 @Path("/api/v1/organization/departments")
 @Produces(MediaType.APPLICATION_JSON)
@@ -49,6 +50,7 @@ public class DepartmentResource {
     HttpHeaders httpHeaders;
 
     @GET
+    @RequirePermission("core:department:read")
     public Response list(@QueryParam("tree") @DefaultValue("true") boolean tree) {
         TenantPrincipal principal = authenticate();
         List<DepartmentNodeResponse> items = departmentService.tree(principal.tenantId());
@@ -60,6 +62,7 @@ public class DepartmentResource {
 
     @GET
     @Path("/tree")
+    @RequirePermission("core:department:read")
     public Response tree() {
         TenantPrincipal principal = authenticate();
         List<DepartmentNodeResponse> items = departmentService.tree(principal.tenantId());
@@ -70,6 +73,7 @@ public class DepartmentResource {
     }
 
     @POST
+    @RequirePermission("core:department:manage")
     public Response create(@Valid DepartmentRequest request) {
         TenantPrincipal principal = authenticate();
         DepartmentNodeResponse data = departmentService.create(principal.tenantId(), request);
@@ -81,6 +85,7 @@ public class DepartmentResource {
 
     @GET
     @Path("/{id}")
+    @RequirePermission("core:department:read")
     public Response get(@PathParam("id") UUID id) {
         TenantPrincipal principal = authenticate();
         departmentService.getOrThrow(principal.tenantId(), id);
@@ -92,30 +97,35 @@ public class DepartmentResource {
 
     @PATCH
     @Path("/{id}")
+    @RequirePermission("core:department:manage")
     public Response patch(@PathParam("id") UUID id, @Valid DepartmentRequest request) {
         return doUpdate(id, request);
     }
 
     @PUT
     @Path("/{id}")
+    @RequirePermission("core:department:manage")
     public Response put(@PathParam("id") UUID id, @Valid DepartmentRequest request) {
         return doUpdate(id, request);
     }
 
     @POST
     @Path("/{id}/move")
+    @RequirePermission("core:department:manage")
     public Response move(@PathParam("id") UUID id, @Valid DepartmentMoveRequest request) {
         return doMove(id, request);
     }
 
     @PUT
     @Path("/{id}/move")
+    @RequirePermission("core:department:manage")
     public Response movePut(@PathParam("id") UUID id, @Valid DepartmentMoveRequest request) {
         return doMove(id, request);
     }
 
     @DELETE
     @Path("/{id}")
+    @RequirePermission("core:department:manage")
     public Response delete(@PathParam("id") UUID id) {
         TenantPrincipal principal = authenticate();
         departmentService.softDelete(principal.tenantId(), id);
@@ -127,6 +137,7 @@ public class DepartmentResource {
 
     @GET
     @Path("/{id}/members")
+    @RequirePermission("core:membership:read")
     public Response members(@PathParam("id") UUID id) {
         TenantPrincipal principal = authenticate();
         return Response.ok(ApiResponse.successList(

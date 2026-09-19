@@ -1,0 +1,5 @@
+# QA-R2-82 backend log evidence (dev, job interval 300s)
+# backend started 14:26:54; first tick 14:31:53
+
+2026-09-19 14:31:53,780 INFO  [com.vn9.ope.mod.pla.ser.ImpersonationService] (vert.x-worker-thread-1) Impersonation timeout: 3 overdue session(s) moved to TIMEOUT
+2026-09-19 14:32:05,480 INFO  [com.vn9.ope.mod.pla.ser.ImpersonationService] (executor-thread-1) Impersonation timeout: 1 overdue session(s) moved to TIMEOUT

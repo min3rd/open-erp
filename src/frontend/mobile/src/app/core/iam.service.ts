@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { ApiService } from './api.service';
 import {
   ApiResponse,
@@ -8,18 +8,27 @@ import {
   ListData,
   PagedData,
   Permission,
+  ResponseKey,
   Role,
-  SampleRecord
+  SampleRecord,
+  TenantUser,
+  UserRoleItem
 } from '@shared';
 
 /**
- * Response shape of `GET /api/v1/iam/roles/{id}/permissions`.
- * TODO(shared-sync): DES-02-API §5.3 documents only the PUT endpoint; keep this
- * tolerant parser until the Backend contract confirms `permission_ids` vs `items`.
+ * Response shape of `GET /api/v1/iam/roles/{id}/permissions` (DES-02-API §5.3.1).
+ * Kept tolerant (`permission_ids` vs `items`) so older backend builds do not break.
  */
 export interface RolePermissionsData {
   permission_ids?: string[];
   items?: Permission[];
+}
+
+export interface TenantUserQuery {
+  page?: number;
+  size?: number;
+  keyword?: string;
+  status?: string;
 }
 
 @Injectable({
@@ -60,6 +69,42 @@ export class IamService {
       `/api/v1/iam/roles/${roleId}/data-policies`,
       { policies }
     );
+  }
+
+  getUsers(query: TenantUserQuery = {}): Observable<ApiResponse<PagedData<TenantUser>>> {
+    const params = new URLSearchParams();
+    if (query.keyword) params.set('keyword', query.keyword);
+    if (query.status) params.set('status', query.status);
+    // Backend user directory (TASK-278) is 0-based; callers use 1-based page numbering.
+    params.set('page', String(Math.max(0, (query.page ?? 1) - 1)));
+    params.set('size', String(query.size ?? 20));
+    return this.api.get<PagedData<TenantUser>>(`/api/v1/iam/users?${params.toString()}`).pipe(
+      map((res) => ({
+        ...res,
+        data: {
+          ...res.data,
+          items: (res.data?.items || []).map((user) => ({
+            ...user,
+            id: user.id || user.user_id || ''
+          }))
+        }
+      }))
+    );
+  }
+
+  getUserRoles(userId: string): Observable<ApiResponse<ListData<UserRoleItem>>> {
+    return this.api.get<ListData<UserRoleItem>>(`/api/v1/iam/users/${userId}/roles`);
+  }
+
+  assignUserRoles(userId: string, roleIds: string[]): Observable<ApiResponse<{ user_id: string; assigned_roles_count: number }>> {
+    return this.api.post<{ user_id: string; assigned_roles_count: number }>(
+      `/api/v1/iam/users/${userId}/roles`,
+      { [ResponseKey.ROLE_IDS]: roleIds }
+    );
+  }
+
+  removeUserRole(userId: string, roleId: string): Observable<ApiResponse<null>> {
+    return this.api.delete<null>(`/api/v1/iam/users/${userId}/roles/${roleId}`);
   }
 }
 

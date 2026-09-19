@@ -4,9 +4,11 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.vn9melody.openerp.core.api.ErrorCode;
@@ -21,6 +23,8 @@ import com.vn9melody.openerp.modules.iam.model.Tenant;
 import com.vn9melody.openerp.modules.iam.model.User;
 import com.vn9melody.openerp.modules.platform.api.PlatformErrorCode;
 import com.vn9melody.openerp.modules.platform.model.PlatformImpersonationLog;
+import com.vn9melody.openerp.modules.platform.service.ImpersonationService;
+import com.vn9melody.openerp.modules.platform.service.PlatformJwtService;
 import io.quarkus.narayana.jta.QuarkusTransaction;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -50,6 +54,9 @@ public class PlatformTenantApiTest {
 
     @Inject
     RedisDataSource redis;
+
+    @Inject
+    ImpersonationService impersonationService;
 
     private String platformToken;
     private UUID tenantId;
@@ -178,6 +185,13 @@ public class PlatformTenantApiTest {
             .statusCode(403)
             .body("code", equalTo(PlatformErrorCode.TENANT_SUSPENDED));
 
+        // FEAT-10 AC3: every business API is blocked, including read-only GET.
+        given().header("Authorization", "Bearer " + tenantToken)
+            .when().get("/api/v1/organization/branches")
+            .then()
+            .statusCode(403)
+            .body("code", equalTo(PlatformErrorCode.TENANT_SUSPENDED));
+
         withPlatform("POST", TENANTS_PATH + "/" + tenantId + "/unlock",
                 Map.of("confirm_password", PlatformTestSupport.PASSWORD))
             .then()
@@ -201,6 +215,84 @@ public class PlatformTenantApiTest {
             .then()
             .statusCode(403)
             .body("code", equalTo(PlatformErrorCode.PLATFORM_SELF_LOCK_FORBIDDEN));
+    }
+
+    @Test
+    @DisplayName("BUG-74: danh sách tenant trả allowed_plugins để drawer hạn mức đọc đúng trạng thái")
+    public void testListIncludesAllowedPlugins() {
+        withPlatform("PATCH", TENANTS_PATH + "/" + tenantId + "/quotas",
+                Map.of("allowed_plugins", java.util.List.of("core", "sales")))
+            .then()
+            .statusCode(200)
+            .body("code", equalTo(PlatformErrorCode.PLATFORM_TENANT_QUOTA_UPDATED));
+
+        withPlatform("GET", TENANTS_PATH + "?keyword=" + tenantSlug, null)
+            .then()
+            .statusCode(200)
+            .body("code", equalTo(PlatformErrorCode.PLATFORM_TENANT_LIST_SUCCESS))
+            .body("data.items[0].tenant_id", equalTo(tenantId.toString()))
+            .body("data.items[0].allowed_plugins", hasItems("core", "sales"));
+    }
+
+    @Test
+    @DisplayName("FEAT-20: PATCH quotas tự thêm core khi thiếu và không cho gỡ core")
+    public void testQuotasAlwaysKeepCorePlugin() {
+        withPlatform("PATCH", TENANTS_PATH + "/" + tenantId + "/quotas",
+                Map.of("allowed_plugins", java.util.List.of("sales")))
+            .then()
+            .statusCode(200)
+            .body("code", equalTo(PlatformErrorCode.PLATFORM_TENANT_QUOTA_UPDATED))
+            .body("data.allowed_plugins", hasItems("core", "sales"));
+
+        QuarkusTransaction.requiringNew().run(() -> {
+            Tenant tenant = Tenant.findById(tenantId);
+            assertEquals(2, tenant.allowedPlugins.size());
+            assertTrue(tenant.allowedPlugins.stream().anyMatch("core"::equalsIgnoreCase));
+            assertTrue(tenant.allowedPlugins.stream().anyMatch("sales"::equalsIgnoreCase));
+        });
+    }
+
+    @Test
+    @DisplayName("BUG-78: phiên impersonation quá TTL không chặn khóa tenant, log chuyển TIMEOUT + audit SYSTEM")
+    public void testExpiredImpersonationDoesNotBlockLock() {
+        UUID logId = QuarkusTransaction.requiringNew().call(() -> {
+            User adminUser = User.findByEmail(PlatformTestSupport.PREFIX + "tenant-admin@example.com");
+            User owner = User.findByEmail(PlatformTestSupport.PREFIX + "owner@example.com");
+            PlatformImpersonationLog log = new PlatformImpersonationLog();
+            log.superAdminUserId = adminUser.id;
+            log.targetTenantId = tenantId;
+            log.targetUserId = owner.id;
+            log.reason = "support abandoned";
+            log.supportTicket = "TCK-S2PLAT-TIMEOUT";
+            log.ipAddress = "127.0.0.1";
+            log.status = ImpersonationStatus.STARTED;
+            log.startedAt = Instant.now().minusSeconds(PlatformJwtService.IMPERSONATION_TTL_SECONDS + 60);
+            log.persist();
+            return log.id;
+        });
+
+        withPlatform("POST", TENANTS_PATH + "/" + tenantId + "/lock",
+                Map.of("reason", "Phiên đại diện bỏ hoang", "confirm_password", PlatformTestSupport.PASSWORD))
+            .then()
+            .statusCode(200)
+            .body("code", equalTo(PlatformErrorCode.PLATFORM_TENANT_LOCK_SUCCESS))
+            .body("data.is_locked", equalTo(true));
+
+        QuarkusTransaction.requiringNew().run(() -> {
+            Object[] row = (Object[]) entityManager.createNativeQuery(
+                    "SELECT status, ended_at FROM platform_impersonation_logs WHERE id = :id")
+                .setParameter("id", logId)
+                .getSingleResult();
+            assertEquals("TIMEOUT", row[0].toString());
+            assertNotNull(row[1], "ended_at must be stamped when a session times out");
+        });
+        assertEquals(1L, PlatformTestSupport.countAudit(entityManager, "IMPERSONATION_TIMEOUT"));
+
+        // Idempotent: a second sweep closes nothing and adds no duplicate audit entry.
+        int closed = QuarkusTransaction.requiringNew()
+            .call(() -> impersonationService.closeExpiredSessions(Instant.now(), tenantId));
+        assertEquals(0, closed);
+        assertEquals(1L, PlatformTestSupport.countAudit(entityManager, "IMPERSONATION_TIMEOUT"));
     }
 
     @Test

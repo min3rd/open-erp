@@ -9,11 +9,11 @@
   />
 
   <nav class="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 px-2 flex items-center gap-0.5 overflow-x-auto">
-    @for (item of menuItems; track item.path) {
+    @for (item of menuItems(); track item.path) {
       <a
         [routerLink]="item.path"
         routerLinkActive="border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100 font-bold"
-        class="px-2.5 py-2 text-[11px] font-medium uppercase tracking-wider text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 border-b-2 border-transparent whitespace-nowrap transition-colors"
+        class="inline-flex items-center min-h-10 sm:min-h-0 px-2.5 py-2 text-[11px] font-medium uppercase tracking-wider text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 border-b-2 border-transparent whitespace-nowrap transition-colors"
       >
         {{ item.labelKey | translate }}
       </a>

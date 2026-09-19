@@ -26,14 +26,16 @@
 
 ### 2.1. Thanh Điều Hướng Nền Tảng (Platform Topbar)
 - Hiển thị dải màu nhận diện riêng biệt: Nền tối `bg-neutral-900 text-white border-b border-indigo-700`.
-- Huy hiệu nổi bật: `[PLATFORM SUPER ADMIN]` màu tím dạ quang `bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[10px] px-1.5 py-0.5`.
+- Huy hiệu vai trò động theo claim `platform_role` màu tím dạ quang `bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[10px] px-1.5 py-0.5`:
+  - `[PLATFORM SUPER ADMIN]` (i18n `PLATFORM_ROLE_BADGE_SUPER_ADMIN`) khi `platform_role = SUPER_ADMIN`.
+  - `[PLATFORM SUPPORT ENGINEER]` (i18n `PLATFORM_ROLE_BADGE_SUPPORT_ENGINEER`) khi `platform_role = SUPPORT_ENGINEER`, kèm nhãn `PLATFORM_SUPPORT_READ_ONLY_HINT` (chế độ hỗ trợ: chỉ xem) trên màn hình rộng.
 - Menu chức năng:
   - `Quản Lý Tenant` (`/platform/tenants`)
   - `Người Dùng Toàn Cầu` (`/platform/users`)
-  - `Quản Trị Super Admin` (`/platform/admins`) — chỉ hiển thị với SUPER_ADMIN (FEAT-18)
+  - `Quản Trị Super Admin` (`/platform/admins`) — **chỉ hiển thị với SUPER_ADMIN** (FEAT-18); SUPPORT_ENGINEER không thấy mục này và route bị chặn bởi `platformSuperAdminGuard`.
   - `Sức Khỏe Hạ Tầng` (`/platform/health`)
   - `Nhật Ký Kiểm Toán` (`/platform/audit-logs`)
-- Góc phải: Bộ chuyển đổi Sáng/Tối/Hệ thống (`ThemeSwitcher`) và Thông tin Super Admin.
+- Góc phải: Bộ chuyển đổi Sáng/Tối/Hệ thống (`ThemeSwitcher`) và Thông tin quản trị viên nền tảng.
 
 ### 2.2. Dải Băng Cảnh Báo Khi Impersonate (Persistent Impersonation Banner)
 Khi Super Admin đang đăng nhập đại diện vào một Tenant, thanh này ghim cố định ở vị trí cao nhất trên toàn màn hình (`sticky top-0 z-50`):
@@ -182,6 +184,10 @@ Trên ứng dụng di động Ionic 8, giao diện được tối ưu hóa cho m
 | Mã i18n | Tiếng Việt (`vi.json`) | Tiếng Anh (`en.json`) |
 | :--- | :--- | :--- |
 | `PLATFORM_PORTAL_TITLE` | Cổng Quản Trị Nền Tảng | Platform Administration Portal |
+| `PLATFORM_ROLE_BADGE_SUPER_ADMIN` | `[PLATFORM SUPER ADMIN]` | `[PLATFORM SUPER ADMIN]` |
+| `PLATFORM_ROLE_BADGE_SUPPORT_ENGINEER` | `[PLATFORM SUPPORT ENGINEER]` | `[PLATFORM SUPPORT ENGINEER]` |
+| `PLATFORM_SUPPORT_READ_ONLY_HINT` | Chế độ hỗ trợ: chỉ xem | Support mode: read-only |
+| `PLATFORM_EMERGENCY_READ_ONLY_HINT` | Chế độ hỗ trợ chỉ xem — thao tác khóa/mở khóa chỉ dành cho Super Admin. | Read-only support mode — lock/unlock actions are Super Admin only. |
 | `PLATFORM_TENANT_MANAGEMENT` | Quản Lý Khách Thuê (Tenants) | Tenant Management |
 | `PLATFORM_SYSTEM_HEALTH` | Sức Khỏe Hạ Tầng | System Infrastructure Health |
 | `PLATFORM_AUDIT_TRAIL` | Nhật Ký Kiểm Toán Nền Tảng | Platform Audit Trail |
@@ -239,10 +245,10 @@ Trên ứng dụng di động Ionic 8, giao diện được tối ưu hóa cho m
 ### 7.1. Bảng Routes & Guard (Web Angular)
 | Route | Màn hình | Guard | Điều kiện cho phép |
 | :--- | :--- | :--- | :--- |
-| `/platform/tenants` | Quản lý Tenant (Super Admin) | `platformRoleGuard` | token có `platform_role = SUPER_ADMIN` **và** `groups` chứa `SUPER_ADMIN` |
+| `/platform/tenants` | Quản lý Tenant | `platformRoleGuard` | token có `platform_role` ∈ {`SUPER_ADMIN`, `SUPPORT_ENGINEER`} **và** `groups` chứa đúng vai trò đó |
 | `/platform/tenants/:id` | Chi tiết Tenant (split-screen + drawer quota) | `platformRoleGuard` | như trên |
 | `/platform/users` | Người dùng toàn cầu (khóa/mở khóa/break-glass) | `platformRoleGuard` | như trên |
-| `/platform/admins` | Quản trị tài khoản Super Admin (grant/disable/revoke) | `platformRoleGuard` | như trên, chỉ `SUPER_ADMIN` (không dành cho SUPPORT_ENGINEER) |
+| `/platform/admins` | Quản trị tài khoản Super Admin (grant/disable/enable/revoke) | `platformRoleGuard` + `platformSuperAdminGuard` | chỉ `SUPER_ADMIN` (SUPPORT_ENGINEER bị chặn và chuyển hướng về `/platform/tenants`) |
 | `/platform/health` | Sức khỏe hạ tầng | `platformRoleGuard` | như trên |
 | `/platform/audit-logs` | Nhật ký kiểm toán nền tảng | `platformRoleGuard` | như trên |
 | `/platform/impersonation-logs` | Nhật ký phiên đại diện | `platformRoleGuard` | như trên |
@@ -253,11 +259,23 @@ Trên ứng dụng di động Ionic 8, giao diện được tối ưu hóa cho m
 - Người dùng Tenant thường chạm route `/platform/*` $\rightarrow$ `platformRoleGuard` chuyển hướng về trang chủ tenant.
 - Người dùng thiếu quyền chức năng chạm `/settings/*` $\rightarrow$ `permissionGuard` chặn và hiển thị `IAM_PERMISSION_DENIED_FUNCTIONAL`.
 
+#### 7.1.1. Quyết Định Đồng Bộ Guard Platform Với Backend (2026-09-19)
+Backend `PlatformRoleRequiredFilter` cho phép **cả `SUPER_ADMIN` lẫn `SUPPORT_ENGINEER`** truy cập `/api/v1/platform/**`; `SUPPORT_ENGINEER` bị giới hạn **read-only** (mọi request non-GET bị `403`; toàn bộ cây `/admins` bị `403`) theo ma trận SOL-01 §1.2.7. Frontend Web/Mobile được đồng bộ như sau:
+
+- **Guard**: `platformRoleGuard` (Web & Mobile) chấp nhận `platform_role` là `SUPER_ADMIN` hoặc `SUPPORT_ENGINEER` kèm `groups` khớp vai trò — SUPPORT_ENGINEER vào được portal thay vì bị đẩy về tenant dashboard.
+- **Read-only UI**: với `SUPPORT_ENGINEER`, các hành động bị backend từ chối được **ẩn/vô hiệu hóa** thay vì để người dùng bấm rồi nhận lỗi 403:
+  - Web Tenant list: nút `Hạn mức`, `Truy cập đại diện`, `Khóa/Mở khóa Tenant` bị ẩn (thay bằng nhãn `PLATFORM_SUPPORT_READ_ONLY_HINT`).
+  - Web Global Users: nút `Khóa/Mở khóa` và `Break-glass` bị ẩn.
+  - Web `/platform/admins`: ẩn khỏi menu + chặn bằng `platformSuperAdminGuard`.
+  - Mobile Emergency: ẩn nút `Khóa/Mở khóa` Tenant/User, hiển thị `PLATFORM_EMERGENCY_READ_ONLY_HINT`; phần Health/Tenant/User search vẫn xem được (GET).
+- **Impersonation**: giữ nguyên quyết định chỉ dành cho `SUPER_ADMIN` trên Web và **không hỗ trợ trên Mobile** (ANL-01 §3); backend cũng chặn với SUPPORT_ENGINEER.
+
 ### 7.2. Điều Hướng Mobile Ionic 8 (Viewport 390x844px)
 1. **Tenant Admin (bổ sung mục menu chính)**:
    - `Vai Trò & Phân Quyền` — màn Vai trò dạng danh sách + tab (theo mục 5).
    - `Cơ Cấu Tổ Chức` — danh sách chi nhánh + cây phòng ban dạng accordion.
-2. **Super Admin (màn hình khẩn cấp)**: giữ màn tổng quan thu gọn 3 thẻ trạng thái; bổ sung 2 thao tác khẩn cấp dạng Action Sheet trượt từ đáy:
+2. **Platform Admin (màn hình khẩn cấp)**: giữ màn tổng quan thu gọn 3 thẻ trạng thái; bổ sung 2 thao tác khẩn cấp dạng Action Sheet trượt từ đáy:
    - **Khóa Tenant**: danh sách tenant + nhập lý do; gọi `POST /api/v1/platform/tenants/{id}/lock`.
    - **Khóa User**: tìm user toàn cầu + khóa/mở khóa; gọi `POST /api/v1/platform/users/{id}/lock|unlock`.
+   - **SUPPORT_ENGINEER (chỉ xem)**: vào được màn này qua `platformRoleGuard` nhưng 2 thao tác khóa/mở khóa bị ẩn; hiển thị `PLATFORM_EMERGENCY_READ_ONLY_HINT` (xem §7.1.1).
 3. **Ẩn hoàn toàn Impersonation trên Mobile**: không hiển thị nút/menu bắt đầu impersonate, không nhận `impersonation_token` và không render banner impersonation trên Mobile — tính năng này chỉ khả dụng trên bản Web nhằm tránh thao tác hỗ trợ ngoài kiểm soát từ thiết bị di động.

@@ -2,12 +2,14 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from './api.service';
-import { ApiResponse, AuthUser, LoginResult, RefreshTokenData, SlugCheckData, TenantInfo } from '@shared';
+import { ApiResponse, AuthUser, LoginResult, PlatformAdminRole, RefreshTokenData, SlugCheckData, TenantInfo } from '@shared';
+import { decodeJwtPayload, readBooleanClaim, readStringArrayClaim } from '../utils/jwt.util';
 
 const TOKEN_KEY = 'openerp_token';
 const REFRESH_TOKEN_KEY = 'openerp_refresh_token';
 const SESSION_ID_KEY = 'openerp_session_id';
 const USER_KEY = 'openerp_user';
+const PASSWORD_CHANGED_KEY = 'openerp_pwd_changed';
 
 export const PRE_AUTH_TOKEN_KEY = 'openerp_preauth_token';
 export const PRE_AUTH_TENANTS_KEY = 'openerp_preauth_tenants';
@@ -23,10 +25,63 @@ export class AuthService {
   private tokenSignal = signal<string | null>(localStorage.getItem(TOKEN_KEY));
   private refreshTokenSignal = signal<string | null>(localStorage.getItem(REFRESH_TOKEN_KEY));
   private sessionIdSignal = signal<string | null>(localStorage.getItem(SESSION_ID_KEY));
+  private passwordChangedSignal = signal<boolean>(sessionStorage.getItem(PASSWORD_CHANGED_KEY) === '1');
 
   public user = computed(() => this.userSignal());
   public token = computed(() => this.tokenSignal());
   public isAuthenticated = computed(() => !!this.tokenSignal());
+
+  /** Platform role claim from the access token (`SUPER_ADMIN` / `SUPPORT_ENGINEER`). */
+  public platformRole = computed<string | null>(() => {
+    const payload = decodeJwtPayload(this.tokenSignal());
+    const role = payload?.['platform_role'];
+    return typeof role === 'string' ? role : null;
+  });
+
+  /** Any platform portal role (SUPER_ADMIN or SUPPORT_ENGINEER). */
+  public isPlatformAdmin = computed<boolean>(() => {
+    const role = this.platformRole();
+    return role === PlatformAdminRole.SUPER_ADMIN || role === PlatformAdminRole.SUPPORT_ENGINEER;
+  });
+
+  /** Sensitive platform actions (impersonation, admin lifecycle, lock/unlock). */
+  public isPlatformSuperAdmin = computed<boolean>(
+    () => this.platformRole() === PlatformAdminRole.SUPER_ADMIN
+  );
+
+  /**
+   * Functional permission codes read from the access token.
+   * Returns `null` while the Sprint 02 backend `permissions`/`functional_permissions`
+   * claim is not deployed yet (callers fall back to "allow" to avoid lock-out).
+   */
+  public functionalPermissions = computed<string[] | null>(() => {
+    const payload = decodeJwtPayload(this.tokenSignal());
+    return (
+      readStringArrayClaim(payload, 'functional_permissions') ??
+      readStringArrayClaim(payload, 'permissions')
+    );
+  });
+
+  public mustChangePassword = computed<boolean>(() => {
+    if (this.passwordChangedSignal()) {
+      return false;
+    }
+    return readBooleanClaim(decodeJwtPayload(this.tokenSignal()), 'must_change_password') === true;
+  });
+
+  hasPermission(permission: string): boolean | null {
+    const permissions = this.functionalPermissions();
+    if (permissions === null) {
+      return null;
+    }
+    return permissions.includes(permission) || permissions.includes('*');
+  }
+
+  /** Platform admins set this after a successful mandatory password change. */
+  markPasswordChanged() {
+    sessionStorage.setItem(PASSWORD_CHANGED_KEY, '1');
+    this.passwordChangedSignal.set(true);
+  }
 
   constructor() {
     window.addEventListener('openerp:session-expired', () => {
@@ -189,6 +244,8 @@ export class AuthService {
     if (refreshToken) {
       localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
     }
+    sessionStorage.removeItem(PASSWORD_CHANGED_KEY);
+    this.passwordChangedSignal.set(false);
     this.tokenSignal.set(token);
     this.sessionIdSignal.set(sessionId);
     this.refreshTokenSignal.set(refreshToken || this.refreshTokenSignal());
@@ -196,6 +253,8 @@ export class AuthService {
   }
 
   private resetSignals() {
+    sessionStorage.removeItem(PASSWORD_CHANGED_KEY);
+    this.passwordChangedSignal.set(false);
     this.tokenSignal.set(null);
     this.refreshTokenSignal.set(null);
     this.sessionIdSignal.set(null);

@@ -9,6 +9,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.UUID;
+import com.vn9melody.openerp.core.security.BlockDuringImpersonation;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.api.ApiResponse;
 import com.vn9melody.openerp.core.api.ErrorCode;
@@ -27,6 +28,9 @@ import com.vn9melody.openerp.modules.iam.service.TwoFactorService;
 @Path("/api/v1/account")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+// Self-service surface: the caller only ever acts on their own account, so no
+// core:user:* functional permission is required (TASK-267 decision). Secret-bearing
+// operations are blocked for impersonation sessions (BUG-68 / BR-SA-04).
 public class AccountResource {
 
     @Inject
@@ -69,6 +73,7 @@ public class AccountResource {
 
     @POST
     @Path("/change-password")
+    @BlockDuringImpersonation
     public Response changePassword(@Valid ChangePasswordRequest req) {
         AccessTokenVerifier.VerifiedAccessToken token = authenticate();
         accountService.changePassword(token.userId(), req, resolveCurrentSessionId(token));
@@ -89,6 +94,7 @@ public class AccountResource {
 
     @POST
     @Path("/2fa/setup")
+    @BlockDuringImpersonation
     public Response setup2Fa() {
         UUID userId = authenticate().userId();
         TwoFactorSetupResponse data = twoFactorService.setup2Fa(userId);
@@ -99,6 +105,7 @@ public class AccountResource {
 
     @POST
     @Path("/2fa/enable")
+    @BlockDuringImpersonation
     public Response enable2Fa(@Valid Enable2FaRequest req) {
         UUID userId = authenticate().userId();
         TwoFactorEnableResponse data = twoFactorService.enable2Fa(userId, req.code);
@@ -109,6 +116,7 @@ public class AccountResource {
 
     @POST
     @Path("/2fa/disable")
+    @BlockDuringImpersonation
     public Response disable2Fa(@Valid Disable2FaRequest req) {
         UUID userId = authenticate().userId();
         twoFactorService.disable2Fa(userId, req.currentPassword, req.code);
@@ -119,6 +127,7 @@ public class AccountResource {
 
     @POST
     @Path("/2fa/regenerate-backup-codes")
+    @BlockDuringImpersonation
     public Response regenerateBackupCodes(@Valid RegenerateBackupCodesRequest req) {
         UUID userId = authenticate().userId();
         BackupCodesResponse data = twoFactorService.regenerateBackupCodes(userId, req.currentPassword);

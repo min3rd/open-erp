@@ -49,24 +49,28 @@
         />
       </div>
 
-      <fieldset class="border border-neutral-200 dark:border-neutral-800 p-2">
-        <legend class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 px-1">
+      <div class="border border-neutral-200 dark:border-neutral-800 p-2 space-y-2">
+        <div class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
           {{ 'PLATFORM_TENANT_QUOTA_ALLOWED_PLUGINS' | translate }}
-        </legend>
-        <div class="grid grid-cols-2 gap-1.5">
-          @for (plugin of pluginOptions; track plugin) {
-            <label class="flex items-center gap-1.5 text-xs cursor-pointer">
-              <input
-                type="checkbox"
-                class="rounded-none"
-                [checked]="isPluginChecked(plugin)"
-                (change)="togglePlugin(plugin, $any($event.target).checked)"
-              />
-              <span class="font-mono text-[11px]">{{ plugin }}</span>
-            </label>
-          }
         </div>
-      </fieldset>
+        <app-plugin-switch-list
+          [items]="catalog()"
+          [plugins]="plugins()"
+          [disabled]="saving()"
+          (toggled)="onPluginToggled($event)"
+        />
+        @if (catalogFallback()) {
+          <div class="text-[10px] text-amber-600 dark:text-amber-400">
+            {{ 'PLATFORM_TENANT_QUOTA_PLUGIN_FALLBACK' | translate }}
+          </div>
+        }
+      </div>
+
+      @if (warningText()) {
+        <div class="border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
+          {{ warningText() }}
+        </div>
+      }
 
       @if (errorText()) {
         <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">

@@ -12,6 +12,7 @@ import {
   PagedData,
   PlatformAdmin,
   PlatformAdminRole,
+  PlatformPlugin,
   PlatformTenant,
   PlatformUser,
   ResponseKey,
@@ -92,12 +93,16 @@ export class PlatformService {
   }
 
   updateTenantQuotas(tenantId: string, payload: TenantQuotaPayload): Observable<ApiResponse<PlatformTenant>> {
-    return this.api.put<PlatformTenant>(`/api/v1/platform/tenants/${tenantId}/quotas`, {
+    return this.api.patch<PlatformTenant>(`/api/v1/platform/tenants/${tenantId}/quotas`, {
       [ResponseKey.PLAN_TIER]: payload.plan_tier,
       [ResponseKey.MAX_USERS]: payload.max_users,
       [ResponseKey.MAX_STORAGE_MB]: payload.max_storage_mb,
       [ResponseKey.ALLOWED_PLUGINS]: payload.allowed_plugins
     });
+  }
+
+  getPlugins(): Observable<ApiResponse<ListData<PlatformPlugin>>> {
+    return this.api.get<ListData<PlatformPlugin>>('/api/v1/platform/plugins');
   }
 
   lockTenant(tenantId: string, reason: string, confirmPassword: string): Observable<ApiResponse<TenantStatusPayload>> {

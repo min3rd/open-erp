@@ -1,0 +1,1754 @@
+{
+  "w390": [
+    {
+      "screen": "tenants@390",
+      "url": "/platform/tenants",
+      "overflowPx": 0,
+      "docScrollWidth": 390,
+      "clientWidth": 390,
+      "platformTopbar": [
+        {
+          "text": "Hệ thống",
+          "w": 64,
+          "h": 40
+        },
+        {
+          "text": "Sáng",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "Tối",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "VI",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "EN",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "Đăng xuất",
+          "w": 68,
+          "h": 40
+        },
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "w": 211,
+          "h": 40
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "w": 159,
+          "h": 40
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "w": 133,
+          "h": 40
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "w": 200,
+          "h": 40
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "w": 158,
+          "h": 40
+        }
+      ],
+      "sharedTopbar": [],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "h": 40
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "h": 40
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "h": 40
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "h": 40
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "h": 40
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "users@390",
+      "url": "/platform/users",
+      "overflowPx": 0,
+      "docScrollWidth": 390,
+      "clientWidth": 390,
+      "platformTopbar": [
+        {
+          "text": "Hệ thống",
+          "w": 64,
+          "h": 40
+        },
+        {
+          "text": "Sáng",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "Tối",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "VI",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "EN",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "Đăng xuất",
+          "w": 68,
+          "h": 40
+        },
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "w": 211,
+          "h": 40
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "w": 159,
+          "h": 40
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "w": 133,
+          "h": 40
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "w": 200,
+          "h": 40
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "w": 158,
+          "h": 40
+        }
+      ],
+      "sharedTopbar": [],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "h": 40
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "h": 40
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "h": 40
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "h": 40
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "h": 40
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "audit-logs@390",
+      "url": "/platform/audit-logs",
+      "overflowPx": 0,
+      "docScrollWidth": 390,
+      "clientWidth": 390,
+      "platformTopbar": [
+        {
+          "text": "Hệ thống",
+          "w": 64,
+          "h": 40
+        },
+        {
+          "text": "Sáng",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "Tối",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "VI",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "EN",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "Đăng xuất",
+          "w": 68,
+          "h": 40
+        },
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "w": 211,
+          "h": 40
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "w": 159,
+          "h": 40
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "w": 133,
+          "h": 40
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "w": 200,
+          "h": 40
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "w": 158,
+          "h": 40
+        }
+      ],
+      "sharedTopbar": [],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "h": 40
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "h": 40
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "h": 40
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "h": 40
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "h": 40
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "health@390",
+      "url": "/platform/health",
+      "overflowPx": 0,
+      "docScrollWidth": 390,
+      "clientWidth": 390,
+      "platformTopbar": [
+        {
+          "text": "Hệ thống",
+          "w": 64,
+          "h": 40
+        },
+        {
+          "text": "Sáng",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "Tối",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "VI",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "EN",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "Đăng xuất",
+          "w": 68,
+          "h": 40
+        },
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "w": 211,
+          "h": 40
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "w": 159,
+          "h": 40
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "w": 133,
+          "h": 40
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "w": 200,
+          "h": 40
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "w": 158,
+          "h": 40
+        }
+      ],
+      "sharedTopbar": [],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "h": 40
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "h": 40
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "h": 40
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "h": 40
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "h": 40
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "admins@390",
+      "url": "/platform/admins",
+      "overflowPx": 0,
+      "docScrollWidth": 390,
+      "clientWidth": 390,
+      "platformTopbar": [
+        {
+          "text": "Hệ thống",
+          "w": 64,
+          "h": 40
+        },
+        {
+          "text": "Sáng",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "Tối",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "VI",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "EN",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "Đăng xuất",
+          "w": 68,
+          "h": 40
+        },
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "w": 211,
+          "h": 40
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "w": 159,
+          "h": 40
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "w": 133,
+          "h": 40
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "w": 200,
+          "h": 40
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "w": 158,
+          "h": 40
+        }
+      ],
+      "sharedTopbar": [],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "h": 40
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "h": 40
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "h": 40
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "h": 40
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "h": 40
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "quota-drawer@390",
+      "overflowPx": 0,
+      "drawerBox": {
+        "x": 0,
+        "w": 390,
+        "right": 390
+      },
+      "platformTopbar": [
+        {
+          "text": "Hệ thống",
+          "w": 64,
+          "h": 40
+        },
+        {
+          "text": "Sáng",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "Tối",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "VI",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "EN",
+          "w": 40,
+          "h": 40
+        },
+        {
+          "text": "Đăng xuất",
+          "w": 68,
+          "h": 40
+        },
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "w": 211,
+          "h": 40
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "w": 159,
+          "h": 40
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "w": 133,
+          "h": 40
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "w": 200,
+          "h": 40
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "w": 158,
+          "h": 40
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "impersonation-banner@390",
+      "overflowPx": 0,
+      "bannerBox": {
+        "w": 297,
+        "h": 16
+      },
+      "sharedTopbar": [
+        {
+          "text": "Menu",
+          "w": 32,
+          "h": 32
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "roles@390",
+      "url": "/settings/roles",
+      "overflowPx": 0,
+      "docScrollWidth": 390,
+      "clientWidth": 390,
+      "platformTopbar": [],
+      "sharedTopbar": [
+        {
+          "text": "Menu",
+          "w": 32,
+          "h": 32
+        }
+      ],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+          "h": 35
+        },
+        {
+          "text": "CƠ CẤU TỔ CHỨC",
+          "h": 35
+        },
+        {
+          "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+          "h": 35
+        },
+        {
+          "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+          "h": 35
+        },
+        {
+          "text": "BẢN GHI MẪU (DATA PERMISSION",
+          "h": 35
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "organization-list@390",
+      "url": "/settings/organization",
+      "overflowPx": 0,
+      "docScrollWidth": 390,
+      "clientWidth": 390,
+      "platformTopbar": [],
+      "sharedTopbar": [
+        {
+          "text": "Menu",
+          "w": 32,
+          "h": 32
+        }
+      ],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+          "h": 35
+        },
+        {
+          "text": "CƠ CẤU TỔ CHỨC",
+          "h": 35
+        },
+        {
+          "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+          "h": 35
+        },
+        {
+          "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+          "h": 35
+        },
+        {
+          "text": "BẢN GHI MẪU (DATA PERMISSION",
+          "h": 35
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "organization-graph@390",
+      "url": "/settings/organization",
+      "overflowPx": 0,
+      "docScrollWidth": 390,
+      "clientWidth": 390,
+      "platformTopbar": [],
+      "sharedTopbar": [
+        {
+          "text": "Menu",
+          "w": 32,
+          "h": 32
+        }
+      ],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+          "h": 35
+        },
+        {
+          "text": "CƠ CẤU TỔ CHỨC",
+          "h": 35
+        },
+        {
+          "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+          "h": 35
+        },
+        {
+          "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+          "h": 35
+        },
+        {
+          "text": "BẢN GHI MẪU (DATA PERMISSION",
+          "h": 35
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "members@390",
+      "url": "/settings/members",
+      "overflowPx": 0,
+      "docScrollWidth": 390,
+      "clientWidth": 390,
+      "platformTopbar": [],
+      "sharedTopbar": [
+        {
+          "text": "Menu",
+          "w": 32,
+          "h": 32
+        }
+      ],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+          "h": 35
+        },
+        {
+          "text": "CƠ CẤU TỔ CHỨC",
+          "h": 35
+        },
+        {
+          "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+          "h": 35
+        },
+        {
+          "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+          "h": 35
+        },
+        {
+          "text": "BẢN GHI MẪU (DATA PERMISSION",
+          "h": 35
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "branch-assignments@390",
+      "url": "/settings/branch-assignments",
+      "overflowPx": 0,
+      "docScrollWidth": 390,
+      "clientWidth": 390,
+      "platformTopbar": [],
+      "sharedTopbar": [
+        {
+          "text": "Menu",
+          "w": 32,
+          "h": 32
+        }
+      ],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+          "h": 35
+        },
+        {
+          "text": "CƠ CẤU TỔ CHỨC",
+          "h": 35
+        },
+        {
+          "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+          "h": 35
+        },
+        {
+          "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+          "h": 35
+        },
+        {
+          "text": "BẢN GHI MẪU (DATA PERMISSION",
+          "h": 35
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "sample-records@390",
+      "url": "/settings/sample-records",
+      "overflowPx": 0,
+      "docScrollWidth": 390,
+      "clientWidth": 390,
+      "platformTopbar": [],
+      "sharedTopbar": [
+        {
+          "text": "Menu",
+          "w": 32,
+          "h": 32
+        }
+      ],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+          "h": 35
+        },
+        {
+          "text": "CƠ CẤU TỔ CHỨC",
+          "h": 35
+        },
+        {
+          "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+          "h": 35
+        },
+        {
+          "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+          "h": 35
+        },
+        {
+          "text": "BẢN GHI MẪU (DATA PERMISSION",
+          "h": 35
+        }
+      ],
+      "consoleErrors": []
+    }
+  ],
+  "w768": [
+    {
+      "screen": "tenants@768",
+      "url": "/platform/tenants",
+      "overflowPx": 0,
+      "docScrollWidth": 768,
+      "clientWidth": 768,
+      "platformTopbar": [
+        {
+          "text": "Hệ thống",
+          "w": 64,
+          "h": 21
+        },
+        {
+          "text": "Sáng",
+          "w": 40,
+          "h": 21
+        },
+        {
+          "text": "Tối",
+          "w": 34,
+          "h": 21
+        },
+        {
+          "text": "VI",
+          "w": 28,
+          "h": 21
+        },
+        {
+          "text": "EN",
+          "w": 28,
+          "h": 21
+        },
+        {
+          "text": "Đăng xuất",
+          "w": 68,
+          "h": 23
+        },
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "w": 211,
+          "h": 31
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "w": 159,
+          "h": 29
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "w": 133,
+          "h": 29
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "w": 200,
+          "h": 29
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "w": 158,
+          "h": 29
+        }
+      ],
+      "sharedTopbar": [],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "h": 31
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "h": 29
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "h": 29
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "h": 29
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "h": 29
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "users@768",
+      "url": "/platform/users",
+      "overflowPx": 0,
+      "docScrollWidth": 768,
+      "clientWidth": 768,
+      "platformTopbar": [
+        {
+          "text": "Hệ thống",
+          "w": 64,
+          "h": 21
+        },
+        {
+          "text": "Sáng",
+          "w": 40,
+          "h": 21
+        },
+        {
+          "text": "Tối",
+          "w": 34,
+          "h": 21
+        },
+        {
+          "text": "VI",
+          "w": 28,
+          "h": 21
+        },
+        {
+          "text": "EN",
+          "w": 28,
+          "h": 21
+        },
+        {
+          "text": "Đăng xuất",
+          "w": 68,
+          "h": 23
+        },
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "w": 211,
+          "h": 29
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "w": 159,
+          "h": 31
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "w": 133,
+          "h": 29
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "w": 200,
+          "h": 29
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "w": 158,
+          "h": 29
+        }
+      ],
+      "sharedTopbar": [],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "h": 29
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "h": 31
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "h": 29
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "h": 29
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "h": 29
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "audit-logs@768",
+      "url": "/platform/audit-logs",
+      "overflowPx": 0,
+      "docScrollWidth": 768,
+      "clientWidth": 768,
+      "platformTopbar": [
+        {
+          "text": "Hệ thống",
+          "w": 64,
+          "h": 21
+        },
+        {
+          "text": "Sáng",
+          "w": 40,
+          "h": 21
+        },
+        {
+          "text": "Tối",
+          "w": 34,
+          "h": 21
+        },
+        {
+          "text": "VI",
+          "w": 28,
+          "h": 21
+        },
+        {
+          "text": "EN",
+          "w": 28,
+          "h": 21
+        },
+        {
+          "text": "Đăng xuất",
+          "w": 68,
+          "h": 23
+        },
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "w": 211,
+          "h": 29
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "w": 159,
+          "h": 29
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "w": 133,
+          "h": 29
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "w": 200,
+          "h": 31
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "w": 158,
+          "h": 29
+        }
+      ],
+      "sharedTopbar": [],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "h": 29
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "h": 29
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "h": 29
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "h": 31
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "h": 29
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "health@768",
+      "url": "/platform/health",
+      "overflowPx": 0,
+      "docScrollWidth": 768,
+      "clientWidth": 768,
+      "platformTopbar": [
+        {
+          "text": "Hệ thống",
+          "w": 64,
+          "h": 21
+        },
+        {
+          "text": "Sáng",
+          "w": 40,
+          "h": 21
+        },
+        {
+          "text": "Tối",
+          "w": 34,
+          "h": 21
+        },
+        {
+          "text": "VI",
+          "w": 28,
+          "h": 21
+        },
+        {
+          "text": "EN",
+          "w": 28,
+          "h": 21
+        },
+        {
+          "text": "Đăng xuất",
+          "w": 68,
+          "h": 23
+        },
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "w": 211,
+          "h": 29
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "w": 159,
+          "h": 29
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "w": 133,
+          "h": 31
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "w": 200,
+          "h": 29
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "w": 158,
+          "h": 29
+        }
+      ],
+      "sharedTopbar": [],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "h": 29
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "h": 29
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "h": 31
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "h": 29
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "h": 29
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "admins@768",
+      "url": "/platform/admins",
+      "overflowPx": 0,
+      "docScrollWidth": 768,
+      "clientWidth": 768,
+      "platformTopbar": [
+        {
+          "text": "Hệ thống",
+          "w": 64,
+          "h": 21
+        },
+        {
+          "text": "Sáng",
+          "w": 40,
+          "h": 21
+        },
+        {
+          "text": "Tối",
+          "w": 34,
+          "h": 21
+        },
+        {
+          "text": "VI",
+          "w": 28,
+          "h": 21
+        },
+        {
+          "text": "EN",
+          "w": 28,
+          "h": 21
+        },
+        {
+          "text": "Đăng xuất",
+          "w": 68,
+          "h": 23
+        },
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "w": 211,
+          "h": 29
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "w": 159,
+          "h": 29
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "w": 133,
+          "h": 29
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "w": 200,
+          "h": 29
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "w": 158,
+          "h": 31
+        }
+      ],
+      "sharedTopbar": [],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "h": 29
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "h": 29
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "h": 29
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "h": 29
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "h": 31
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "quota-drawer@768",
+      "overflowPx": 0,
+      "drawerBox": {
+        "x": 308,
+        "w": 460,
+        "right": 768
+      },
+      "platformTopbar": [
+        {
+          "text": "Hệ thống",
+          "w": 64,
+          "h": 21
+        },
+        {
+          "text": "Sáng",
+          "w": 40,
+          "h": 21
+        },
+        {
+          "text": "Tối",
+          "w": 34,
+          "h": 21
+        },
+        {
+          "text": "VI",
+          "w": 28,
+          "h": 21
+        },
+        {
+          "text": "EN",
+          "w": 28,
+          "h": 21
+        },
+        {
+          "text": "Đăng xuất",
+          "w": 68,
+          "h": 23
+        },
+        {
+          "text": "QUẢN LÝ KHÁCH THUÊ (TENANTS)",
+          "w": 211,
+          "h": 31
+        },
+        {
+          "text": "NGƯỜI DÙNG TOÀN CẦU",
+          "w": 159,
+          "h": 29
+        },
+        {
+          "text": "SỨC KHỎE HẠ TẦNG",
+          "w": 133,
+          "h": 29
+        },
+        {
+          "text": "NHẬT KÝ KIỂM TOÁN NỀN TẢNG",
+          "w": 200,
+          "h": 29
+        },
+        {
+          "text": "QUẢN TRỊ SUPER ADMIN",
+          "w": 158,
+          "h": 29
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "impersonation-banner@768",
+      "overflowPx": 0,
+      "bannerBox": {
+        "w": 611,
+        "h": 16
+      },
+      "sharedTopbar": [
+        {
+          "text": "Menu",
+          "w": 32,
+          "h": 32
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "roles@768",
+      "url": "/settings/roles",
+      "overflowPx": 0,
+      "docScrollWidth": 768,
+      "clientWidth": 768,
+      "platformTopbar": [],
+      "sharedTopbar": [
+        {
+          "text": "Menu",
+          "w": 32,
+          "h": 32
+        }
+      ],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+          "h": 35
+        },
+        {
+          "text": "CƠ CẤU TỔ CHỨC",
+          "h": 35
+        },
+        {
+          "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+          "h": 35
+        },
+        {
+          "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+          "h": 35
+        },
+        {
+          "text": "BẢN GHI MẪU (DATA PERMISSION",
+          "h": 35
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "organization-list@768",
+      "url": "/settings/organization",
+      "overflowPx": 0,
+      "docScrollWidth": 768,
+      "clientWidth": 768,
+      "platformTopbar": [],
+      "sharedTopbar": [
+        {
+          "text": "Menu",
+          "w": 32,
+          "h": 32
+        }
+      ],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+          "h": 35
+        },
+        {
+          "text": "CƠ CẤU TỔ CHỨC",
+          "h": 35
+        },
+        {
+          "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+          "h": 35
+        },
+        {
+          "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+          "h": 35
+        },
+        {
+          "text": "BẢN GHI MẪU (DATA PERMISSION",
+          "h": 35
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "organization-graph@768",
+      "url": "/settings/organization",
+      "overflowPx": 0,
+      "docScrollWidth": 768,
+      "clientWidth": 768,
+      "platformTopbar": [],
+      "sharedTopbar": [
+        {
+          "text": "Menu",
+          "w": 32,
+          "h": 32
+        }
+      ],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+          "h": 35
+        },
+        {
+          "text": "CƠ CẤU TỔ CHỨC",
+          "h": 35
+        },
+        {
+          "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+          "h": 35
+        },
+        {
+          "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+          "h": 35
+        },
+        {
+          "text": "BẢN GHI MẪU (DATA PERMISSION",
+          "h": 35
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "members@768",
+      "url": "/settings/members",
+      "overflowPx": 0,
+      "docScrollWidth": 768,
+      "clientWidth": 768,
+      "platformTopbar": [],
+      "sharedTopbar": [
+        {
+          "text": "Menu",
+          "w": 32,
+          "h": 32
+        }
+      ],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+          "h": 35
+        },
+        {
+          "text": "CƠ CẤU TỔ CHỨC",
+          "h": 35
+        },
+        {
+          "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+          "h": 35
+        },
+        {
+          "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+          "h": 35
+        },
+        {
+          "text": "BẢN GHI MẪU (DATA PERMISSION",
+          "h": 35
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "branch-assignments@768",
+      "url": "/settings/branch-assignments",
+      "overflowPx": 0,
+      "docScrollWidth": 768,
+      "clientWidth": 768,
+      "platformTopbar": [],
+      "sharedTopbar": [
+        {
+          "text": "Menu",
+          "w": 32,
+          "h": 32
+        }
+      ],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+          "h": 35
+        },
+        {
+          "text": "CƠ CẤU TỔ CHỨC",
+          "h": 35
+        },
+        {
+          "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+          "h": 35
+        },
+        {
+          "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+          "h": 35
+        },
+        {
+          "text": "BẢN GHI MẪU (DATA PERMISSION",
+          "h": 35
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "screen": "sample-records@768",
+      "url": "/settings/sample-records",
+      "overflowPx": 0,
+      "docScrollWidth": 768,
+      "clientWidth": 768,
+      "platformTopbar": [],
+      "sharedTopbar": [
+        {
+          "text": "Menu",
+          "w": 32,
+          "h": 32
+        }
+      ],
+      "navLinks": [
+        {
+          "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+          "h": 35
+        },
+        {
+          "text": "CƠ CẤU TỔ CHỨC",
+          "h": 35
+        },
+        {
+          "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+          "h": 35
+        },
+        {
+          "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+          "h": 35
+        },
+        {
+          "text": "BẢN GHI MẪU (DATA PERMISSION",
+          "h": 35
+        }
+      ],
+      "consoleErrors": []
+    }
+  ],
+  "overflowViolations": [],
+  "consoleErrorScreens": [],
+  "drawer": {
+    "d390": {
+      "x": 0,
+      "w": 390,
+      "right": 390
+    },
+    "d768": {
+      "x": 308,
+      "w": 460,
+      "right": 768
+    }
+  },
+  "platformTopbar390": [
+    "Hệ thống=64x40",
+    "Sáng=40x40",
+    "Tối=40x40",
+    "VI=40x40",
+    "EN=40x40",
+    "Đăng xuất=68x40",
+    "QUẢN LÝ KHÁCH THUÊ (TENANTS)=211x40",
+    "NGƯỜI DÙNG TOÀN CẦU=159x40",
+    "SỨC KHỎE HẠ TẦNG=133x40",
+    "NHẬT KÝ KIỂM TOÁN NỀN TẢNG=200x40",
+    "QUẢN TRỊ SUPER ADMIN=158x40"
+  ],
+  "platformTopbarSmall": [],
+  "sharedTopbarSmall": [
+    {
+      "screen": "impersonation-banner@390",
+      "text": "Menu",
+      "w": 32,
+      "h": 32
+    },
+    {
+      "screen": "roles@390",
+      "text": "Menu",
+      "w": 32,
+      "h": 32
+    },
+    {
+      "screen": "organization-list@390",
+      "text": "Menu",
+      "w": 32,
+      "h": 32
+    },
+    {
+      "screen": "organization-graph@390",
+      "text": "Menu",
+      "w": 32,
+      "h": 32
+    },
+    {
+      "screen": "members@390",
+      "text": "Menu",
+      "w": 32,
+      "h": 32
+    },
+    {
+      "screen": "branch-assignments@390",
+      "text": "Menu",
+      "w": 32,
+      "h": 32
+    },
+    {
+      "screen": "sample-records@390",
+      "text": "Menu",
+      "w": 32,
+      "h": 32
+    }
+  ],
+  "navSmall": [
+    {
+      "screen": "roles@390",
+      "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+      "h": 35
+    },
+    {
+      "screen": "roles@390",
+      "text": "CƠ CẤU TỔ CHỨC",
+      "h": 35
+    },
+    {
+      "screen": "roles@390",
+      "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+      "h": 35
+    },
+    {
+      "screen": "roles@390",
+      "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+      "h": 35
+    },
+    {
+      "screen": "roles@390",
+      "text": "BẢN GHI MẪU (DATA PERMISSION",
+      "h": 35
+    },
+    {
+      "screen": "organization-list@390",
+      "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+      "h": 35
+    },
+    {
+      "screen": "organization-list@390",
+      "text": "CƠ CẤU TỔ CHỨC",
+      "h": 35
+    },
+    {
+      "screen": "organization-list@390",
+      "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+      "h": 35
+    },
+    {
+      "screen": "organization-list@390",
+      "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+      "h": 35
+    },
+    {
+      "screen": "organization-list@390",
+      "text": "BẢN GHI MẪU (DATA PERMISSION",
+      "h": 35
+    },
+    {
+      "screen": "organization-graph@390",
+      "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+      "h": 35
+    },
+    {
+      "screen": "organization-graph@390",
+      "text": "CƠ CẤU TỔ CHỨC",
+      "h": 35
+    },
+    {
+      "screen": "organization-graph@390",
+      "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+      "h": 35
+    },
+    {
+      "screen": "organization-graph@390",
+      "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+      "h": 35
+    },
+    {
+      "screen": "organization-graph@390",
+      "text": "BẢN GHI MẪU (DATA PERMISSION",
+      "h": 35
+    },
+    {
+      "screen": "members@390",
+      "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+      "h": 35
+    },
+    {
+      "screen": "members@390",
+      "text": "CƠ CẤU TỔ CHỨC",
+      "h": 35
+    },
+    {
+      "screen": "members@390",
+      "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+      "h": 35
+    },
+    {
+      "screen": "members@390",
+      "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+      "h": 35
+    },
+    {
+      "screen": "members@390",
+      "text": "BẢN GHI MẪU (DATA PERMISSION",
+      "h": 35
+    },
+    {
+      "screen": "branch-assignments@390",
+      "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+      "h": 35
+    },
+    {
+      "screen": "branch-assignments@390",
+      "text": "CƠ CẤU TỔ CHỨC",
+      "h": 35
+    },
+    {
+      "screen": "branch-assignments@390",
+      "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+      "h": 35
+    },
+    {
+      "screen": "branch-assignments@390",
+      "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+      "h": 35
+    },
+    {
+      "screen": "branch-assignments@390",
+      "text": "BẢN GHI MẪU (DATA PERMISSION",
+      "h": 35
+    },
+    {
+      "screen": "sample-records@390",
+      "text": "QUẢN LÝ VAI TRÒ & PHÂN QUYỀN",
+      "h": 35
+    },
+    {
+      "screen": "sample-records@390",
+      "text": "CƠ CẤU TỔ CHỨC",
+      "h": 35
+    },
+    {
+      "screen": "sample-records@390",
+      "text": "THÀNH VIÊN & QUẢN LÝ TRỰC TI",
+      "h": 35
+    },
+    {
+      "screen": "sample-records@390",
+      "text": "PHÂN CÔNG QUẢN LÝ CHI NHÁNH",
+      "h": 35
+    },
+    {
+      "screen": "sample-records@390",
+      "text": "BẢN GHI MẪU (DATA PERMISSION",
+      "h": 35
+    }
+  ],
+  "counts": {
+    "count390": 13,
+    "count768": 13,
+    "expected": 13
+  },
+  "results": [
+    {
+      "id": "QA-R2-81/TASK-298-overflow",
+      "status": "PASS",
+      "note": "0px overflow on 13/13 screens @390 and 13/13 @768; drawer 390 x=0 w=390, 768 x=308 w=460"
+    },
+    {
+      "id": "QA-R2-81/TASK-298-console",
+      "status": "PASS",
+      "note": "0 console errors across all 26 measurements"
+    },
+    {
+      "id": "QA-R2-81-touch",
+      "status": "FAIL",
+      "note": "{\"platformSmall\":[],\"sharedSmall\":[{\"screen\":\"impersonation-banner@390\",\"text\":\"Menu\",\"w\":32,\"h\":32},{\"screen\":\"roles@390\",\"text\":\"Menu\",\"w\":32,\"h\":32},{\"screen\":\"organization-list@390\",\"text\":\"Menu\",\"w\":32,\"h\":32},{\"screen\":\"organization-graph@390\",\"text\":\"Menu\",\"w\":32,\"h\":32},{\"screen\":\"members@390\",\"text\":\"Menu\",\"w\":32,\"h\":32},{\"screen\":\"branch-assignments@390\",\"text\":\"Menu\",\"w\":32,\"h\":32},{\"screen\":\"sample-records@390\",\"text\":\"Menu\",\"w\":32,\"h\":32}],\"navSmall\":[{\"screen\":\"roles@390\",\"text\":\"QUẢN LÝ VAI TRÒ & PHÂN QUYỀN\",\"h\":35},{\"screen\":\"roles@390\",\"text\":\"CƠ CẤU TỔ CHỨC\",\"h\":35},{\"screen\":\"roles@390\",\"text\":\"THÀNH VIÊN & QUẢN LÝ TRỰC TI\",\"h\":35},{\"screen\":\"roles@390\",\"text\":\"PHÂN CÔNG QUẢN LÝ CHI NHÁNH\",\"h\":35},{\"screen\":\"roles@390\",\"text\":\"BẢN GHI MẪU (DATA PERMISSION\",\"h\":35},{\"screen\":\"organization-list@390\",\"text\":\"QUẢN LÝ VAI TRÒ & PHÂN QUYỀN\",\"h\":35},{\"screen\":\"organization-list@390\",\"text\":\"CƠ CẤU TỔ CHỨC\",\"h\":35},{\"screen\":\"organization-list@390\",\"text\":\"THÀNH VIÊN & QUẢN LÝ TRỰC TI\",\"h\":35},{\"screen\":\"organization-list@390\",\"text\":\"PHÂN CÔNG QUẢN LÝ CHI NHÁNH\",\"h\":35},{\"screen\":\"organization-list@390\",\"text\":\"BẢN GHI MẪU (DATA PERMISSION\",\"h\":35},{\"screen\":\"organization-graph@390\",\"text\":\"QUẢN LÝ VAI TRÒ & PHÂN QUYỀN\",\"h\":35},{\"screen\":\"organization-graph@390\",\"text\":\"CƠ CẤU TỔ CHỨC\",\"h\":35},{\"screen\":\"organization-graph@390\",\"text\":\"THÀNH VIÊN & QUẢN LÝ TRỰC TI\",\"h\":35},{\"screen\":\"organization-graph@390\",\"text\":\"PHÂN CÔNG QUẢN LÝ CHI NHÁNH\",\"h\":35},{\"screen\":\"organization-graph@390\",\"text\":\"BẢN GHI MẪU (DATA PERMISSION\",\"h\":35},{\"screen\":\"members@390\",\"text\":\"QUẢN LÝ VAI TRÒ & PHÂN QUYỀN\",\"h\":35},{\"screen\":\"members@390\",\"text\":\"CƠ CẤU TỔ CHỨC\",\"h\":35},{\"screen\":\"members@390\",\"text\":\"THÀNH VIÊN & QUẢN LÝ TRỰC TI\",\"h\":35},{\"screen\":\"members@390\",\"text\":\"PHÂN CÔNG QUẢN LÝ CHI NHÁNH\",\"h\":35},{\"screen\":\"members@390\",\"text\":\"BẢN GHI MẪU (DATA PERMISSION\",\"h\":35},{\"screen\":\"branch-assignments@390\",\"text\":\"QUẢN LÝ VAI TRÒ & PHÂN QUYỀN\",\"h\":35},{\"screen\":\"branch-assignments@390\",\"text\":\"CƠ CẤU TỔ CHỨC\",\"h\":35},{\"screen\":\"branch-assignments@390\",\"text\":\"THÀNH VIÊN & QUẢN LÝ TRỰC TI\",\"h\":35},{\"screen\":\"branch-assignments@390\",\"text\":\"PHÂN CÔNG QUẢN LÝ CHI NHÁNH\",\"h\":35},{\"screen\":\"branch-assignments@390\",\"text\":\"BẢN GHI MẪU (DATA PERMISSION\",\"h\":35},{\"screen\":\"sample-records@390\",\"text\":\"QUẢN LÝ VAI TRÒ & PHÂN QUYỀN\",\"h\":35},{\"screen\":\"sample-records@390\",\"text\":\"CƠ CẤU TỔ CHỨC\",\"h\":35},{\"screen\":\"sample-records@390\",\"text\":\"THÀNH VIÊN & QUẢN LÝ TRỰC TI\",\"h\":35},{\"screen\":\"sample-records@390\",\"text\":\"PHÂN CÔNG QUẢN LÝ CHI NHÁNH\",\"h\":35},{\"screen\":\"sample-records@390\",\"text\":\"BẢN GHI MẪU (DATA PERMISSION\",\"h\":35}]}"
+    }
+  ]
+}

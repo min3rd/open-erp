@@ -1,5 +1,6 @@
 package com.vn9melody.openerp.modules.organization.resource;
 
+import com.vn9melody.openerp.core.security.RequirePermission;
 import com.vn9melody.openerp.core.api.ApiResponse;
 import com.vn9melody.openerp.modules.organization.OrganizationErrorCodes;
 import com.vn9melody.openerp.modules.organization.dto.BranchAssignmentDtos.BranchAssignmentCreateRequest;
@@ -32,8 +33,8 @@ import java.util.UUID;
  * Multi-branch manager assignments ({@code user_branch_assignments}, DES-02-API section 4.4,
  * BR-RBAC-08/09). Every change publishes a cache invalidation event for the affected user.
  *
- * <p>TODO(wave-integration): attach {@code @RequirePermission("core:branch-assignment:read")} /
- * {@code @RequirePermission("core:branch-assignment:manage")} once the shared annotation ships.</p>
+ * <p>Every endpoint declares its functional permission via {@code @RequirePermission}
+ * and is enforced by {@code PermissionEnforcementFilter} (TASK-267).</p>
  */
 @Path("/api/v1/organization/branch-assignments")
 @Produces(MediaType.APPLICATION_JSON)
@@ -53,6 +54,7 @@ public class BranchAssignmentResource {
     HttpHeaders httpHeaders;
 
     @GET
+    @RequirePermission("core:branch-assignment:read")
     public Response list(@QueryParam("user_id") String userId,
                          @QueryParam("branch_id") String branchId) {
         TenantPrincipal principal = authenticate();
@@ -67,6 +69,7 @@ public class BranchAssignmentResource {
     }
 
     @POST
+    @RequirePermission("core:branch-assignment:manage")
     public Response create(@Valid BranchAssignmentCreateRequest request) {
         TenantPrincipal principal = authenticate();
         BranchAssignmentResponse data = branchAssignmentService.create(principal.tenantId(), request);
@@ -78,6 +81,7 @@ public class BranchAssignmentResource {
 
     @GET
     @Path("/{id}")
+    @RequirePermission("core:branch-assignment:read")
     public Response get(@PathParam("id") UUID id) {
         TenantPrincipal principal = authenticate();
         var assignment = branchAssignmentService.getOrThrow(principal.tenantId(), id);
@@ -92,18 +96,21 @@ public class BranchAssignmentResource {
 
     @PATCH
     @Path("/{id}")
+    @RequirePermission("core:branch-assignment:manage")
     public Response patch(@PathParam("id") UUID id, @Valid BranchAssignmentUpdateRequest request) {
         return doUpdate(id, request);
     }
 
     @PUT
     @Path("/{id}")
+    @RequirePermission("core:branch-assignment:manage")
     public Response put(@PathParam("id") UUID id, @Valid BranchAssignmentUpdateRequest request) {
         return doUpdate(id, request);
     }
 
     @DELETE
     @Path("/{id}")
+    @RequirePermission("core:branch-assignment:manage")
     public Response delete(@PathParam("id") UUID id) {
         TenantPrincipal principal = authenticate();
         branchAssignmentService.delete(principal.tenantId(), id);

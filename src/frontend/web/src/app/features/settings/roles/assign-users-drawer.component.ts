@@ -4,19 +4,21 @@ import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import {
   ApiErrorResponse,
+  BadgeComponent,
+  ColorVariant,
   DrawerComponent,
   I18nService,
-  Membership,
   Role,
   SharpButtonComponent,
   SharpInputComponent,
   SharpToggleComponent,
+  TenantUser,
   TranslatePipe,
-  UserRoleItem
+  UserRoleItem,
+  UserStatus
 } from '@shared';
 
 import { IamService } from '../../../core/services/iam.service';
-import { OrganizationService } from '../../../core/services/organization.service';
 
 @Component({
   selector: 'app-assign-users-drawer',
@@ -24,6 +26,7 @@ import { OrganizationService } from '../../../core/services/organization.service
   imports: [
     CommonModule,
     FormsModule,
+    BadgeComponent,
     DrawerComponent,
     SharpInputComponent,
     SharpToggleComponent,
@@ -34,7 +37,6 @@ import { OrganizationService } from '../../../core/services/organization.service
 })
 export class AssignUsersDrawerComponent {
   private iam = inject(IamService);
-  private organization = inject(OrganizationService);
   private i18n = inject(I18nService);
 
   isOpen = input<boolean>(false);
@@ -44,39 +46,71 @@ export class AssignUsersDrawerComponent {
   close = output<void>();
   saved = output<string>();
 
-  readonly members = signal<Membership[]>([]);
+  readonly users = signal<TenantUser[]>([]);
   readonly userSearch = signal<string>('');
-  readonly selectedUserId = signal<string>('');
+  readonly selectedUser = signal<TenantUser | null>(null);
   readonly userRoles = signal<UserRoleItem[]>([]);
   readonly checkedRoleIds = signal<Set<string>>(new Set<string>());
   readonly loadingUsers = signal<boolean>(false);
+  readonly loadingMore = signal<boolean>(false);
   readonly loadingRoles = signal<boolean>(false);
   readonly saving = signal<boolean>(false);
   readonly errorText = signal<string>('');
+  readonly page = signal<number>(1);
+  readonly totalPages = signal<number>(1);
+
+  readonly badgeSuccess = ColorVariant.SUCCESS;
+  readonly badgeWarning = ColorVariant.WARNING;
+  readonly badgeDefault = ColorVariant.DEFAULT;
+
+  private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     effect(() => {
       if (this.isOpen()) {
         this.userSearch.set('');
-        this.selectedUserId.set('');
+        this.selectedUser.set(null);
         this.userRoles.set([]);
         this.checkedRoleIds.set(new Set<string>());
         this.errorText.set('');
-        this.loadMembers();
+        this.loadUsers(true);
       }
     });
   }
 
-  filteredMembers(): Membership[] {
-    const term = this.userSearch().trim().toLowerCase();
-    if (!term) {
-      return this.members();
+  onSearchChange(value: string) {
+    this.userSearch.set(value);
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
     }
-    return this.members().filter((member) => {
-      const email = (member.user_email || '').toLowerCase();
-      const name = (member.user_full_name || '').toLowerCase();
-      return email.includes(term) || name.includes(term);
-    });
+    this.searchTimer = setTimeout(() => this.loadUsers(true), 300);
+  }
+
+  loadMore() {
+    if (this.page() < this.totalPages() && !this.loadingMore()) {
+      this.loadUsers(false);
+    }
+  }
+
+  hasMore(): boolean {
+    return this.page() < this.totalPages();
+  }
+
+  statusVariant(status: string | null | undefined): ColorVariant {
+    switch (status) {
+      case UserStatus.ACTIVE:
+        return ColorVariant.SUCCESS;
+      case UserStatus.LOCKED:
+        return ColorVariant.WARNING;
+      case UserStatus.PENDING:
+        return ColorVariant.INFO;
+      default:
+        return ColorVariant.DEFAULT;
+    }
+  }
+
+  statusLabelKey(status: string | null | undefined): string {
+    return status ? `USER_STATUS_${status}` : 'COMMON_INACTIVE';
   }
 
   rolesForSaving(): { item: Role; checked: boolean }[] {
@@ -84,13 +118,13 @@ export class AssignUsersDrawerComponent {
     return this.roles().map((item) => ({ item, checked: checked.has(item.id) }));
   }
 
-  selectUser(userId: string) {
-    if (!userId) {
+  selectUser(user: TenantUser) {
+    if (!user?.id) {
       return;
     }
-    this.selectedUserId.set(userId);
+    this.selectedUser.set(user);
     this.loadingRoles.set(true);
-    this.iam.getUserRoles(userId).subscribe({
+    this.iam.getUserRoles(user.id).subscribe({
       next: (res) => {
         this.userRoles.set(res.data.items);
         const ids = new Set(res.data.items.map((item) => item.role_id));
@@ -119,8 +153,8 @@ export class AssignUsersDrawerComponent {
   }
 
   async save() {
-    const userId = this.selectedUserId();
-    if (!userId) {
+    const user = this.selectedUser();
+    if (!user) {
       this.errorText.set(this.i18n.t('IAM_ASSIGN_USERS_SELECT_USER'));
       return;
     }
@@ -132,10 +166,10 @@ export class AssignUsersDrawerComponent {
     this.saving.set(true);
     try {
       if (toAssign.length) {
-        await firstValueFrom(this.iam.assignUserRoles(userId, toAssign));
+        await firstValueFrom(this.iam.assignUserRoles(user.id, toAssign));
       }
       for (const roleId of toRemove) {
-        await firstValueFrom(this.iam.removeUserRole(userId, roleId));
+        await firstValueFrom(this.iam.removeUserRole(user.id, roleId));
       }
       this.saving.set(false);
       this.saved.emit('IAM_USER_ROLES_ASSIGNED');
@@ -149,15 +183,28 @@ export class AssignUsersDrawerComponent {
     this.close.emit();
   }
 
-  private loadMembers() {
-    this.loadingUsers.set(true);
-    this.organization.getMemberships().subscribe({
+  private loadUsers(reset: boolean) {
+    if (reset) {
+      this.loadingUsers.set(true);
+    } else {
+      this.loadingMore.set(true);
+    }
+    const nextPage = reset ? 1 : this.page() + 1;
+    this.iam.getUsers({ keyword: this.userSearch().trim() || undefined, page: nextPage, size: 20 }).subscribe({
       next: (res) => {
-        this.members.set(res.data.items);
+        const items = res.data?.items || [];
+        this.users.set(reset ? items : [...this.users(), ...items]);
+        this.totalPages.set(res.data?.total_pages || 1);
+        this.page.set(nextPage);
         this.loadingUsers.set(false);
+        this.loadingMore.set(false);
       },
       error: (err) => {
+        if (reset) {
+          this.users.set([]);
+        }
         this.loadingUsers.set(false);
+        this.loadingMore.set(false);
         this.showError(err);
       }
     });

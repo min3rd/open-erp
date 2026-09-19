@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.api.ErrorCode;
+import com.vn9melody.openerp.core.enums.ActorType;
 import com.vn9melody.openerp.core.enums.AuditResult;
 import com.vn9melody.openerp.core.enums.AuditScope;
 import com.vn9melody.openerp.core.enums.ImpersonationStatus;
@@ -125,16 +126,21 @@ public class ImpersonationService {
         log.status = ImpersonationStatus.STARTED;
         log.persist();
 
+        // BUG-75: register a real Redis session for the target user and bind its id
+        // into the impersonation JWT so organization/IAM session filters accept it.
+        String sessionId = sessionManager.createSession(targetUserId, "Impersonation: " + actor.email, actor.ipAddress);
+
         String role = membership.role != null ? membership.role.name() : "MEMBER";
         String token = platformJwtService.generateImpersonationToken(
-            targetUserId, targetUser.email, tenantId, role, actor.userId, actor.email, log.id, request.supportTicket);
+            targetUserId, targetUser.email, tenantId, role, actor.userId, actor.email, log.id,
+            request.supportTicket, sessionId);
 
-        // Session + Redis impersonation marker; exiting deletes the marker to invalidate the token.
-        sessionManager.createSession(targetUserId, "Impersonation: " + actor.email, actor.ipAddress);
+        // Redis impersonation marker; exiting deletes the marker and revokes the session.
         ObjectNode sessionPayload = objectMapper.createObjectNode();
         sessionPayload.put("super_admin_id", actor.userId.toString());
         sessionPayload.put("tenant_id", tenantId.toString());
         sessionPayload.put("target_user_id", targetUserId.toString());
+        sessionPayload.put("session_id", sessionId);
         sessionPayload.put("started_at", log.startedAt.toString());
         valueCommands().setex(impersonationKey(log.id), PlatformJwtService.IMPERSONATION_TTL_SECONDS,
             sessionPayload.toString());
@@ -184,6 +190,14 @@ public class ImpersonationService {
         }
         redis.key(String.class).del(impersonationKey(impersonationId));
 
+        // BUG-75: exit must also invalidate the delegated Redis session, otherwise the
+        // impersonation token would stay usable until its own expiry.
+        String sessionId = sessionId(impersonationJwt, marker);
+        UUID targetUserId = parseSubject(impersonationJwt);
+        if (sessionId != null && targetUserId != null) {
+            sessionManager.revokeSession(targetUserId, sessionId);
+        }
+
         PlatformImpersonationLog log = impersonationLogRepository.find("id", impersonationId).firstResult();
         if (log != null && log.status == ImpersonationStatus.STARTED) {
             log.status = ImpersonationStatus.ENDED;
@@ -214,6 +228,75 @@ public class ImpersonationService {
                 .details(details)
                 .client("unknown", null));
         }
+    }
+
+    /**
+     * BUG-78 / TC-BE-19: idempotently closes every STARTED impersonation log whose
+     * TTL (1800s) elapsed without a proper {@code exit}, marking it {@code TIMEOUT}
+     * and emitting a SYSTEM audit entry. Returns the number of closed sessions.
+     */
+    @Transactional
+    public int closeExpiredSessions(Instant now) {
+        return closeExpiredSessions(now, null);
+    }
+
+    /**
+     * Tenant-scoped variant used by the emergency tenant lock: closes the target
+     * tenant's overdue sessions before checking for a live one (exact same
+     * idempotent logic).
+     */
+    @Transactional
+    public int closeExpiredSessions(Instant now, UUID tenantId) {
+        Instant threshold = now.minusSeconds(PlatformJwtService.IMPERSONATION_TTL_SECONDS);
+        List<PlatformImpersonationLog> expired = tenantId == null
+            ? impersonationLogRepository.find("status = ?1 and startedAt < ?2 order by startedAt asc",
+                ImpersonationStatus.STARTED, threshold).list()
+            : impersonationLogRepository.find(
+                "status = ?1 and startedAt < ?2 and targetTenantId = ?3 order by startedAt asc",
+                ImpersonationStatus.STARTED, threshold, tenantId).list();
+
+        int closed = 0;
+        for (PlatformImpersonationLog log : expired) {
+            closeExpiredSession(log, now);
+            closed++;
+        }
+        if (closed > 0) {
+            LOG.infof("Impersonation timeout: %d overdue session(s) moved to TIMEOUT", closed);
+        }
+        return closed;
+    }
+
+    private void closeExpiredSession(PlatformImpersonationLog log, Instant now) {
+        log.status = ImpersonationStatus.TIMEOUT;
+        log.endedAt = now;
+        log.persist();
+
+        // Best effort: the Redis marker normally expires together with the token, but
+        // when it is still alive the delegated session is revoked immediately.
+        String marker = valueCommands().get(impersonationKey(log.id));
+        String sessionId = marker != null ? sessionIdFromMarker(marker) : null;
+        if (marker != null) {
+            redis.key(String.class).del(impersonationKey(log.id));
+        }
+        if (sessionId != null) {
+            sessionManager.revokeSession(log.targetUserId, sessionId);
+        }
+
+        ObjectNode details = objectMapper.createObjectNode();
+        details.put("support_ticket", log.supportTicket);
+        details.put("target_user_id", log.targetUserId.toString());
+        details.put("timed_out_at", now.toString());
+
+        auditLogService.record(AuditLogEntry
+            .of(AuditScope.PLATFORM, null, ActorType.SYSTEM, log.superAdminUserId,
+                PlatformAction.IMPERSONATION_TIMEOUT.name(), AuditResult.SUCCESS)
+            .targetTenant(log.targetTenantId)
+            .targetUser(log.targetUserId)
+            .resource("IMPERSONATION", log.id)
+            .details(details)
+            .reason("Impersonation session exceeded the "
+                + PlatformJwtService.IMPERSONATION_TTL_SECONDS + "s TTL without exit")
+            .client("local-console", "impersonation-timeout-job"));
     }
 
     public PlatformPage<PlatformResponses.ImpersonationLogItem> listLogs(UUID superAdminUserId, UUID tenantId,
@@ -326,6 +409,32 @@ public class ImpersonationService {
 
     private String impersonationKey(UUID impersonationId) {
         return "impersonation:session:" + impersonationId;
+    }
+
+    /** Session id from the JWT claim, falling back to the Redis marker payload. */
+    private String sessionId(JsonWebToken jwt, String marker) {
+        String claim = jwt != null ? jwt.getClaim(PlatformJwtService.CLAIM_SESSION_ID) : null;
+        if (claim != null && !claim.isBlank()) {
+            return claim;
+        }
+        return marker != null ? sessionIdFromMarker(marker) : null;
+    }
+
+    private String sessionIdFromMarker(String marker) {
+        try {
+            String value = objectMapper.readTree(marker).path("session_id").asText(null);
+            return value != null && !value.isBlank() ? value : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private UUID parseSubject(JsonWebToken jwt) {
+        try {
+            return UUID.fromString(jwt.getSubject());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private ValueCommands<String, String> valueCommands() {

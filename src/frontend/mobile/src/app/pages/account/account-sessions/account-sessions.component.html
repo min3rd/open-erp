@@ -37,7 +37,7 @@
         </div>
         <div class="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 space-y-0.5">
           <div>{{ 'ACCOUNT_SESSION_IP' | translate:{ ip: session.ip_address } }}</div>
-          <div>{{ 'ACCOUNT_SESSION_LAST_ACTIVE' | translate }}: {{ session.last_active_at | date:'dd/MM/yyyy HH:mm' }}</div>
+          <div>{{ 'ACCOUNT_SESSION_LAST_ACTIVE' | translate }}: {{ formatDateTime(session.last_active_at) }}</div>
         </div>
         @if (!session.is_current) {
           <app-sharp-button

@@ -1,14 +1,17 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { ApiService } from './api.service';
+import { buildQuery } from '../utils/query.util';
 import {
   ApiResponse,
   DataPolicy,
   DataResource,
   ListData,
+  PagedData,
   Permission,
   ResponseKey,
   Role,
+  TenantUser,
   UserRoleItem
 } from '@shared';
 
@@ -16,6 +19,13 @@ export interface RolePayload {
   code: string;
   name: string;
   description?: string;
+}
+
+export interface TenantUserQuery {
+  page?: number;
+  size?: number;
+  keyword?: string;
+  status?: string;
 }
 
 @Injectable({
@@ -53,7 +63,20 @@ export class IamService {
   }
 
   getRolePermissions(roleId: string): Observable<ApiResponse<ListData<Permission>>> {
-    return this.api.get<ListData<Permission>>(`/api/v1/iam/roles/${roleId}/permissions`);
+    return this.api.get<ListData<Permission>>(`/api/v1/iam/roles/${roleId}/permissions`).pipe(
+      // DES-02-API §5.3.1 returns items keyed by `permission_id`; normalize to `id`
+      // so the switch grid can bind against the permission catalog (`GET /iam/permissions`).
+      map((res) => ({
+        ...res,
+        data: {
+          ...res.data,
+          items: (res.data?.items || []).map((permission) => ({
+            ...permission,
+            id: permission.id || permission.permission_id || ''
+          }))
+        }
+      }))
+    );
   }
 
   updateRolePermissions(roleId: string, permissionIds: string[]): Observable<ApiResponse<{ role_id: string; total_permissions_granted: number }>> {
@@ -74,6 +97,24 @@ export class IamService {
 
   getUserRoles(userId: string): Observable<ApiResponse<ListData<UserRoleItem>>> {
     return this.api.get<ListData<UserRoleItem>>(`/api/v1/iam/users/${userId}/roles`);
+  }
+
+  getUsers(query: TenantUserQuery = {}): Observable<ApiResponse<PagedData<TenantUser>>> {
+    // Backend user directory (TASK-278) is 0-based (`@DefaultValue("0")`,
+    // offset = page * size) while callers use 1-based page numbering.
+    const backendQuery = { ...query, page: Math.max(0, (query.page ?? 1) - 1) };
+    return this.api.get<PagedData<TenantUser>>(`/api/v1/iam/users${buildQuery(backendQuery as Record<string, any>)}`).pipe(
+      map((res) => ({
+        ...res,
+        data: {
+          ...res.data,
+          items: (res.data?.items || []).map((user) => ({
+            ...user,
+            id: user.id || user.user_id || ''
+          }))
+        }
+      }))
+    );
   }
 
   assignUserRoles(userId: string, roleIds: string[]): Observable<ApiResponse<{ user_id: string; assigned_roles_count: number }>> {
