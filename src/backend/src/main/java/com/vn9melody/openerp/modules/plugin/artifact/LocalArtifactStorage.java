@@ -26,7 +26,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 public class LocalArtifactStorage implements ArtifactStorage {
 
     @ConfigProperty(name = "openerp.plugin.artifact.local-dir",
-            defaultValue = "${java.io.tmpdir}/openerp-plugin-artifacts")
+            defaultValue = "openerp-plugin-artifacts")
     String baseDir;
 
     @Override
@@ -35,7 +35,7 @@ public class LocalArtifactStorage implements ArtifactStorage {
                 : fileName.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9._-]", "_");
         String id = UUID.randomUUID().toString();
         try {
-            Path directory = Path.of(baseDir, id);
+            Path directory = basePath().resolve(id);
             Files.createDirectories(directory);
             Path target = directory.resolve(safeName);
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -56,10 +56,18 @@ public class LocalArtifactStorage implements ArtifactStorage {
             throw new ApiException(400, PluginErrorCode.PLUGIN_ARTIFACT_SOURCE_INVALID, "Unknown artifact ref");
         }
         try {
-            return Files.newInputStream(Path.of(baseDir, ref.substring("local://".length())));
+            return Files.newInputStream(basePath().resolve(ref.substring("local://".length())));
         } catch (IOException e) {
             throw new ApiException(404, PluginErrorCode.PLUGIN_ARTIFACT_DOWNLOAD_FAILED,
                     "Artifact not found: " + ref);
         }
+    }
+
+    private Path basePath() {
+        Path configured = Path.of(baseDir);
+        if (configured.isAbsolute()) {
+            return configured;
+        }
+        return Path.of(System.getProperty("java.io.tmpdir"), baseDir);
     }
 }
