@@ -1,0 +1,69 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title class="text-sm">{{ 'PLUGIN_MARKETPLACE_TITLE' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <p class="mb-2 text-[11px] text-neutral-500 dark:text-neutral-400">
+    {{ 'PLUGIN_MOBILE_READONLY_NOTE' | translate }}
+  </p>
+
+  @if (blockedCount() > 0 || updateCount() > 0) {
+    <div class="mb-2 border border-amber-300 bg-amber-50 p-2 text-[11px] text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+      @if (blockedCount() > 0) {
+        <p>{{ 'PLUGIN_MARKETPLACE_BLOCKED_NOTICE' | translate }}</p>
+      }
+      @if (updateCount() > 0) {
+        <p>{{ 'PLUGIN_MOBILE_UPDATE_NOTICE' | translate }}</p>
+      }
+    </div>
+  }
+
+  @if (error()) {
+    <p class="mb-2 border border-rose-300 bg-rose-50 p-2 text-[11px] text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <div class="h-20 animate-pulse bg-neutral-100 dark:bg-neutral-800"></div>
+  } @else if (items().length === 0) {
+    <p class="text-[11px] text-neutral-500 dark:text-neutral-400">{{ 'PLUGIN_MARKETPLACE_EMPTY' | translate }}</p>
+  } @else {
+    <ion-list lines="inset" class="!p-0">
+      @for (item of items(); track item.plugin_key) {
+        <ion-item detail="false" class="min-h-[40px]">
+          <ion-label class="!text-xs">
+            <div class="flex flex-wrap items-center gap-1">
+              <span class="text-xs font-medium text-neutral-900 dark:text-neutral-100">{{ item.name_key | translate }}</span>
+              <app-badge [variant]="statusVariant(item.status)">
+                {{ 'PLUGIN_STATUS_' + item.status | translate }}
+              </app-badge>
+              @if (item.update_available) {
+                <app-badge [variant]="colorWarning">{{ 'PLUGIN_STATUS_UPDATE_AVAILABLE' | translate }}</app-badge>
+              }
+              @if (item.catalog_status === 'BLOCKED') {
+                <app-badge [variant]="colorDanger">{{ 'PLUGIN_STATUS_BLOCKED' | translate }}</app-badge>
+              }
+            </div>
+            <p class="mt-0.5 font-mono text-[10px] text-neutral-400">
+              {{ item.plugin_key }}
+              @if (item.installed_version) {
+                · {{ item.installed_version }}
+              }
+              @if (item.latest_version && item.update_available) {
+                → {{ item.latest_version }}
+              }
+            </p>
+          </ion-label>
+        </ion-item>
+      }
+    </ion-list>
+  }
+</ion-content>

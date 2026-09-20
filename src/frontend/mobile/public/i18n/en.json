@@ -527,5 +527,11 @@
   "PLUGIN_CREDENTIAL_SECRET": "Password / token",
   "PLUGIN_CREDENTIAL_TEST": "Test connection",
   "PLUGIN_CREDENTIAL_SCOPE_PLATFORM": "Platform credential",
-  "PLUGIN_CREDENTIAL_SCOPE_TENANT": "Tenant credential"
+  "PLUGIN_CREDENTIAL_SCOPE_TENANT": "Tenant credential",
+  "PLUGIN_MARKETPLACE_TITLE": "Plugin management",
+  "PLUGIN_MARKETPLACE_SUBTITLE": "Installed plugins (mobile read-only)",
+  "PLUGIN_MARKETPLACE_BLOCKED_NOTICE": "Some plugins were blocked by the platform and cannot be used.",
+  "PLUGIN_MOBILE_READONLY_NOTE": "Mobile only shows plugin status. Use the Web app to install or upgrade.",
+  "PLUGIN_MOBILE_UPDATE_NOTICE": "Some plugins have updates available.",
+  "PLUGIN_COLUMN_STATUS": "Status"
 }

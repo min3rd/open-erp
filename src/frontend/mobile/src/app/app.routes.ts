@@ -109,6 +109,11 @@ export const routes: Routes = [
         path: 'sample-records',
         canActivate: [permissionGuard('core:sample-record:read')],
         loadComponent: () => import('./pages/settings/sample-records/sample-records.page').then(m => m.SampleRecordsPage)
+      },
+      {
+        path: 'plugins',
+        canActivate: [permissionGuard('core:plugin:read')],
+        loadComponent: () => import('./pages/settings/plugins/plugins.page').then(m => m.MobilePluginsPage)
       }
     ]
   },

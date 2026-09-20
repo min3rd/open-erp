@@ -527,5 +527,11 @@
   "PLUGIN_CREDENTIAL_SECRET": "Mật khẩu / token",
   "PLUGIN_CREDENTIAL_TEST": "Kiểm tra kết nối",
   "PLUGIN_CREDENTIAL_SCOPE_PLATFORM": "Credential nền tảng",
-  "PLUGIN_CREDENTIAL_SCOPE_TENANT": "Credential tenant"
+  "PLUGIN_CREDENTIAL_SCOPE_TENANT": "Credential tenant",
+  "PLUGIN_MARKETPLACE_TITLE": "Quản lý plugin",
+  "PLUGIN_MARKETPLACE_SUBTITLE": "Danh sách plugin đã cài (chỉ xem trên Mobile)",
+  "PLUGIN_MARKETPLACE_BLOCKED_NOTICE": "Một số plugin đã bị nền tảng khóa và không thể sử dụng.",
+  "PLUGIN_MOBILE_READONLY_NOTE": "Mobile chỉ hiển thị trạng thái plugin. Vui lòng dùng bản Web để cài đặt hoặc nâng cấp.",
+  "PLUGIN_MOBILE_UPDATE_NOTICE": "Có plugin có bản cập nhật mới.",
+  "PLUGIN_COLUMN_STATUS": "Trạng thái"
 }

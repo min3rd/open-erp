@@ -22,6 +22,7 @@ import {
   keyOutline,
   businessOutline,
   documentTextOutline,
+  extensionPuzzleOutline,
   warningOutline
 } from 'ionicons/icons';
 import { AuthService } from '../../auth.service';
@@ -82,9 +83,10 @@ export class MobileMenuComponent {
   canManageRoles = computed(() => this.auth.hasPermission('core:role:manage') !== false);
   canManageOrganization = computed(() => this.auth.hasPermission('core:organization:manage') !== false);
   canViewSampleRecords = computed(() => this.auth.hasPermission('core:sample-record:read') !== false);
+  canViewPlugins = computed(() => this.auth.hasPermission('core:plugin:read') !== false);
   showTenantSettings = computed(() =>
     this.auth.isAuthenticated() &&
-    (this.canManageRoles() || this.canManageOrganization() || this.canViewSampleRecords())
+    (this.canManageRoles() || this.canManageOrganization() || this.canViewSampleRecords() || this.canViewPlugins())
   );
   isPlatformAdmin = computed(() => this.auth.isPlatformAdmin());
 
@@ -97,6 +99,7 @@ export class MobileMenuComponent {
       keyOutline,
       businessOutline,
       documentTextOutline,
+      extensionPuzzleOutline,
       warningOutline
     });
   }

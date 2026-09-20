@@ -122,6 +122,20 @@
               </ion-item>
             </ion-list>
           }
+
+          @if (canViewPlugins()) {
+            <ion-list lines="none" class="!py-0">
+              <ion-item
+                routerLink="/settings/plugins"
+                routerLinkActive="menu-item-active"
+                (click)="close()"
+                detail="false"
+              >
+                <ion-icon slot="start" name="extension-puzzle-outline"></ion-icon>
+                <ion-label class="text-xs">{{ 'PLUGIN_MARKETPLACE_TITLE' | translate }}</ion-label>
+              </ion-item>
+            </ion-list>
+          }
         </div>
       }
 
