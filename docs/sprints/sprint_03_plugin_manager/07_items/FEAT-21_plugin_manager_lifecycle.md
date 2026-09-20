@@ -53,7 +53,7 @@ Quản lý plugin tùy chọn cấp hệ thống và theo tenant: danh mục + p
 | **TASK-315** | Web Portal Super Admin: `/platform/plugins` split-screen + Drawer 3 tầng, Block/Bulk Apply drawers, `/platform/plugin-credentials`, `/platform/tenant-private-plugins`, badge "Đã khóa", unblock P25/P26 | Web | Dev Web | To Do |
 | **TASK-316** | Web Marketplace tenant `/settings/plugins`: nhóm Đã cài/Có thể cài/Plugin riêng, version picker, gỡ có cảnh báo giữ dữ liệu, banner thông báo, notification bell | Web | Dev Web | To Do |
 | **TASK-317** | Web: Drawer "Đăng ký plugin riêng" (3 kênh + quản lý phiên bản T14–T18) + `/settings/plugin-credentials` | Web | Dev Web | To Do |
-| **TASK-318** | Shared components: `plugin-management-list` (nâng cấp `plugin-switch-list`), `plugin-card`, `version-timeline`, `operation-progress`, `credential-form`, `render-mode-badge` (đóng gói vào `src/frontend/shared`) | Shared UI | Dev Web | To Do |
+| **TASK-318** | Shared components: `plugin-management-list` (nâng cấp `plugin-switch-list`), `plugin-card`, `version-timeline`, `operation-progress`, `credential-form`, `render-mode-badge` (đóng gói vào `src/frontend/shared`). **Đã code 6 component + TS models `plugin.model.ts` + i18n vi/en 4 từ điển; tsc strict PASS** | Shared UI | Dev Web | In Review |
 | **TASK-319** | Mobile (Ionic): màn `/settings/plugins` read-only + banner thông báo; touch ≥ 40px; overflow 0 | Mobile | Dev Mobile | To Do |
 | **TASK-320** | i18n vi/en parity cho toàn bộ key plugin-manager + QA dual-mode (Web ≥1280, emulation 390x844, 0 console error) + ảnh minh chứng | Web/Mobile/QA | Dev + QA | To Do |
 

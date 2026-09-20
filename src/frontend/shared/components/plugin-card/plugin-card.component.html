@@ -1,0 +1,46 @@
+<div
+  class="flex w-full flex-col gap-1 border p-2 text-xs transition-colors"
+  [class]="selected()
+    ? 'border-neutral-900 bg-neutral-50 dark:border-neutral-100 dark:bg-neutral-800/60'
+    : 'border-neutral-200 bg-white hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:bg-neutral-800/60'"
+>
+  <div class="flex items-start justify-between gap-2">
+    <button type="button" class="min-w-0 flex-1 text-left" (click)="onPick()">
+      <div class="flex flex-wrap items-center gap-1">
+        <span class="truncate text-sm font-medium text-neutral-900 dark:text-neutral-100">{{ displayName() }}</span>
+        <span class="font-mono text-[10px] text-neutral-400">{{ pluginKey() }}</span>
+        @if (isCustom()) {
+          <app-badge variant="warning">{{ 'PLUGIN_CUSTOM_LABEL_SHORT' | translate }}</app-badge>
+        }
+        @if (locked()) {
+          <app-badge variant="neutral">{{ 'PLUGIN_LOCKED_LABEL' | translate }}</app-badge>
+        }
+        @if (catalogBlocked()) {
+          <app-badge variant="danger">{{ 'PLUGIN_STATUS_BLOCKED' | translate }}</app-badge>
+        }
+        @if (updateAvailable()) {
+          <app-badge variant="info">{{ 'PLUGIN_STATUS_UPDATE_AVAILABLE' | translate }}</app-badge>
+        }
+      </div>
+      @if (descriptionKey()) {
+        <p class="mt-0.5 line-clamp-2 text-[11px] text-neutral-500 dark:text-neutral-400">
+          {{ descriptionKey() | translate }}
+        </p>
+      }
+      <div class="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-neutral-500 dark:text-neutral-400">
+        @if (statusKey(); as status) {
+          <app-badge [variant]="statusVariant()">{{ status | translate }}</app-badge>
+        }
+        @if (installedVersion()) {
+          <span>{{ 'PLUGIN_VERSION_INSTALLED' | translate }}: <span class="font-mono">{{ installedVersion() }}</span></span>
+        }
+        @if (latestVersion()) {
+          <span>{{ 'PLUGIN_VERSION_LATEST' | translate }}: <span class="font-mono">{{ latestVersion() }}</span></span>
+        }
+      </div>
+    </button>
+    <div class="flex shrink-0 items-center gap-1">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

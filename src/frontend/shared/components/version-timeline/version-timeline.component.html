@@ -1,0 +1,40 @@
+@if (!versions().length) {
+  <p class="p-2 text-xs text-neutral-500 dark:text-neutral-400">{{ 'PLUGIN_VERSION_EMPTY' | translate }}</p>
+} @else {
+  <ul class="divide-y divide-neutral-200 border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+    @for (item of versions(); track item.version) {
+      <li class="flex flex-wrap items-center justify-between gap-2 p-2 text-xs">
+        <div class="flex min-w-0 flex-wrap items-center gap-2">
+          <span class="font-mono text-sm text-neutral-900 dark:text-neutral-100">{{ item.version }}</span>
+          <app-badge [variant]="statusVariant(item.release_status)">PLUGIN_RELEASE_{{ item.release_status }}</app-badge>
+          @if (isCurrent(item.version)) {
+            <app-badge variant="info">{{ 'PLUGIN_VERSION_CURRENT' | translate }}</app-badge>
+          }
+          @if (item.migration_policy === 'BREAKING') {
+            <app-badge variant="warning">{{ 'PLUGIN_MIGRATION_BREAKING' | translate }}</app-badge>
+          }
+          <span class="font-mono text-[10px] text-neutral-400">{{ item.core_compatibility }}</span>
+        </div>
+        @if (editable()) {
+          <div class="flex shrink-0 items-center gap-1">
+            @if (item.release_status === 'DRAFT') {
+              <app-sharp-button size="sm" variant="primary" (clicked)="publish.emit(item.version)">
+                {{ 'PLUGIN_VERSION_PUBLISH' | translate }}
+              </app-sharp-button>
+            }
+            @if (item.release_status === 'PUBLISHED') {
+              <app-sharp-button size="sm" variant="secondary" (clicked)="deprecate.emit(item.version)">
+                {{ 'PLUGIN_VERSION_DEPRECATE' | translate }}
+              </app-sharp-button>
+            }
+            @if (!isCurrent(item.version) && item.release_status !== 'BLOCKED') {
+              <app-sharp-button size="sm" variant="danger" (clicked)="remove.emit(item.version)">
+                {{ 'PLUGIN_VERSION_REMOVE' | translate }}
+              </app-sharp-button>
+            }
+          </div>
+        }
+      </li>
+    }
+  </ul>
+}

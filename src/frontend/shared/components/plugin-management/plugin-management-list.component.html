@@ -1,0 +1,139 @@
+<div class="space-y-3">
+  <div class="flex items-center gap-1">
+    <input
+      type="search"
+      [value]="query()"
+      (input)="onSearch($event)"
+      [placeholder]="'PLUGIN_MARKETPLACE_SEARCH_PLACEHOLDER' | translate"
+      class="w-full rounded-none border border-neutral-300 bg-white px-2 py-1 text-xs dark:border-neutral-700 dark:bg-neutral-900"
+    />
+    @if (query()) {
+      <app-sharp-button size="sm" variant="ghost" (clicked)="clearSearch()">
+        {{ 'PLUGIN_MARKETPLACE_CLEAR_SEARCH' | translate }}
+      </app-sharp-button>
+    }
+    @if (showCustomGroup()) {
+      <app-sharp-button size="sm" variant="outline" (clicked)="registerCustom.emit()">
+        {{ 'PLUGIN_ACTION_REGISTER' | translate }}
+      </app-sharp-button>
+    }
+  </div>
+
+  @if (empty()) {
+    <p class="border border-dashed border-neutral-300 p-3 text-center text-xs text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
+      {{ 'PLUGIN_MARKETPLACE_EMPTY' | translate }}
+    </p>
+  }
+
+  @if (installedItems().length) {
+    <section class="space-y-1">
+      <h3 class="font-mono text-[10px] uppercase tracking-wider text-neutral-400">
+        {{ 'PLUGIN_MARKETPLACE_INSTALLED' | translate }} ({{ installedItems().length }})
+      </h3>
+      @for (item of installedItems(); track item.plugin_key) {
+        <app-plugin-card
+          [pluginKey]="item.plugin_key"
+          [nameKey]="item.name_key"
+          [descriptionKey]="item.description_key"
+          [status]="item.status"
+          [installedVersion]="item.installed_version || null"
+          [latestVersion]="item.latest_version || null"
+          [updateAvailable]="!!item.update_available"
+          [locked]="!!item.locked"
+          [selected]="selectedKey() === item.plugin_key"
+          (picked)="detail.emit(item)"
+        >
+          @if (item.status === 'ACTIVE') {
+            <app-sharp-button size="sm" variant="secondary" [disabled]="isBusy(item)" (clicked)="disable.emit(item)">
+              {{ 'PLUGIN_ACTION_DISABLE' | translate }}
+            </app-sharp-button>
+          }
+          @if (item.status === 'INACTIVE') {
+            <app-sharp-button size="sm" variant="primary" [disabled]="isBusy(item)" (clicked)="enable.emit(item)">
+              {{ 'PLUGIN_ACTION_ENABLE' | translate }}
+            </app-sharp-button>
+          }
+          @if (canUpgrade(item)) {
+            <app-sharp-button size="sm" variant="primary" [disabled]="isBusy(item)" (clicked)="upgrade.emit(item)">
+              {{ 'PLUGIN_ACTION_UPGRADE' | translate }}
+            </app-sharp-button>
+          }
+          <app-sharp-button size="sm" variant="ghost" [disabled]="isBusy(item)" (clicked)="uninstall.emit(item)">
+            {{ 'PLUGIN_ACTION_UNINSTALL' | translate }}
+          </app-sharp-button>
+        </app-plugin-card>
+      }
+    </section>
+  }
+
+  @if (availableItems().length) {
+    <section class="space-y-1">
+      <h3 class="font-mono text-[10px] uppercase tracking-wider text-neutral-400">
+        {{ 'PLUGIN_MARKETPLACE_AVAILABLE' | translate }} ({{ availableItems().length }})
+      </h3>
+      @for (item of availableItems(); track item.plugin_key) {
+        <app-plugin-card
+          [pluginKey]="item.plugin_key"
+          [nameKey]="item.name_key"
+          [descriptionKey]="item.description_key"
+          [status]="item.status"
+          [latestVersion]="item.latest_version || null"
+          [selected]="selectedKey() === item.plugin_key"
+          (picked)="detail.emit(item)"
+        >
+          <app-sharp-button size="sm" variant="primary" [disabled]="isBusy(item)" (clicked)="install.emit(item)">
+            {{ 'PLUGIN_ACTION_INSTALL' | translate }}
+          </app-sharp-button>
+        </app-plugin-card>
+      }
+    </section>
+  }
+
+  @if (customItems().length) {
+    <section class="space-y-1">
+      <h3 class="font-mono text-[10px] uppercase tracking-wider text-neutral-400">
+        {{ 'PLUGIN_MARKETPLACE_CUSTOM' | translate }} ({{ customItems().length }})
+      </h3>
+      <p class="text-[10px] text-amber-600 dark:text-amber-400">{{ 'PLUGIN_CUSTOM_LABEL' | translate }}</p>
+      @for (item of customItems(); track item.plugin_key) {
+        <app-plugin-card
+          [pluginKey]="item.plugin_key"
+          [nameKey]="item.name_key"
+          [descriptionKey]="item.description_key"
+          [status]="item.status"
+          [installedVersion]="item.installed_version || null"
+          [latestVersion]="item.latest_version || null"
+          [updateAvailable]="!!item.update_available"
+          [isCustom]="true"
+          [selected]="selectedKey() === item.plugin_key"
+          (picked)="detail.emit(item)"
+        >
+          @if (isInstalled(item)) {
+            @if (item.status === 'ACTIVE') {
+              <app-sharp-button size="sm" variant="secondary" [disabled]="isBusy(item)" (clicked)="disable.emit(item)">
+                {{ 'PLUGIN_ACTION_DISABLE' | translate }}
+              </app-sharp-button>
+            }
+            @if (item.status === 'INACTIVE') {
+              <app-sharp-button size="sm" variant="primary" [disabled]="isBusy(item)" (clicked)="enable.emit(item)">
+                {{ 'PLUGIN_ACTION_ENABLE' | translate }}
+              </app-sharp-button>
+            }
+            @if (canUpgrade(item)) {
+              <app-sharp-button size="sm" variant="primary" [disabled]="isBusy(item)" (clicked)="upgrade.emit(item)">
+                {{ 'PLUGIN_ACTION_UPGRADE' | translate }}
+              </app-sharp-button>
+            }
+            <app-sharp-button size="sm" variant="ghost" [disabled]="isBusy(item)" (clicked)="uninstall.emit(item)">
+              {{ 'PLUGIN_ACTION_UNINSTALL' | translate }}
+            </app-sharp-button>
+          } @else {
+            <app-sharp-button size="sm" variant="primary" [disabled]="isBusy(item)" (clicked)="install.emit(item)">
+              {{ 'PLUGIN_ACTION_INSTALL' | translate }}
+            </app-sharp-button>
+          }
+        </app-plugin-card>
+      }
+    </section>
+  }
+</div>

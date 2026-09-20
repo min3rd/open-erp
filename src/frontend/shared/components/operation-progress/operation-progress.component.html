@@ -1,0 +1,28 @@
+@if (operation(); as op) {
+  <div class="border border-neutral-200 p-2 text-xs dark:border-neutral-800">
+    <div class="flex items-center justify-between gap-2">
+      <span class="font-medium text-neutral-900 dark:text-neutral-100">
+        {{ 'PLUGIN_OPERATION_' + op.operation | translate }}
+      </span>
+      <app-badge [variant]="statusVariant()">{{ 'PLUGIN_STATUS_' + op.status | translate }}</app-badge>
+    </div>
+    <p class="mt-0.5 font-mono text-[10px] text-neutral-400">{{ op.operation_id }}</p>
+    <ol class="mt-1.5 space-y-0.5">
+      @for (step of op.steps; track step.step) {
+        <li class="flex items-center gap-1.5">
+          <app-badge [variant]="stepVariant(step.result)">{{ step.result }}</app-badge>
+          <span class="font-mono text-[11px] text-neutral-600 dark:text-neutral-300">{{ step.step }}</span>
+          @if (step.error_code) {
+            <span class="font-mono text-[10px] text-rose-500">{{ step.error_code | translate }}</span>
+          }
+        </li>
+      }
+      @if (running()) {
+        <li class="flex items-center gap-1.5 text-neutral-500 dark:text-neutral-400">
+          <span class="inline-block h-2 w-2 animate-pulse bg-amber-500"></span>
+          {{ 'PLUGIN_OPERATION_RUNNING' | translate }}
+        </li>
+      }
+    </ol>
+  </div>
+}
