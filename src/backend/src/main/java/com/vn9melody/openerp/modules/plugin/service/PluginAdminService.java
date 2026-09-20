@@ -15,6 +15,7 @@ import com.vn9melody.openerp.core.enums.TenantPluginStatus;
 import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
 import com.vn9melody.openerp.modules.plugin.api.PluginResponseKey;
 import com.vn9melody.openerp.modules.plugin.api.PluginSupport;
+import com.vn9melody.openerp.modules.plugin.artifact.PluginArtifactVerifier;
 import com.vn9melody.openerp.modules.plugin.dto.PluginRequests;
 import com.vn9melody.openerp.modules.plugin.dto.PluginResponses;
 import com.vn9melody.openerp.modules.plugin.model.PluginCatalog;
@@ -61,6 +62,9 @@ public class PluginAdminService {
 
     @Inject
     PluginAuditService auditService;
+
+    @Inject
+    PluginArtifactVerifier artifactVerifier;
 
     @Inject
     ObjectMapper objectMapper;
@@ -233,6 +237,9 @@ public class PluginAdminService {
         }
         JsonNode uiManifest = manifest.path("ui_manifest");
         validateUiContributions(uiManifest);
+
+        artifactVerifier.verifyRegistry(request.source, request.imageRef, request.registryUrl);
+        artifactVerifier.verifyBundleChecksum(request.artifactRef, request.checksum);
 
         PluginVersion entity = new PluginVersion();
         entity.catalogId = catalog.id;

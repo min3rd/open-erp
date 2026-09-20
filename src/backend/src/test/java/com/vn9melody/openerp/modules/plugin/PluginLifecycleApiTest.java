@@ -13,9 +13,11 @@ import com.vn9melody.openerp.core.context.SecurityContextService;
 import com.vn9melody.openerp.core.enums.TenantPluginStatus;
 import com.vn9melody.openerp.core.security.JwtTokenService;
 import com.vn9melody.openerp.modules.plugin.dto.PluginRequests;
+import com.vn9melody.openerp.modules.plugin.dto.PluginResponses;
 import com.vn9melody.openerp.modules.plugin.model.TenantPlugin;
 import com.vn9melody.openerp.modules.plugin.repository.TenantPluginRepository;
 import com.vn9melody.openerp.modules.plugin.service.PluginAdminService;
+import com.vn9melody.openerp.modules.plugin.service.PluginArtifactUploadService;
 import com.vn9melody.openerp.modules.plugin.service.PluginEntitlementService;
 import com.vn9melody.openerp.support.S2EngineFixtures;
 import io.quarkus.narayana.jta.QuarkusTransaction;
@@ -24,6 +26,8 @@ import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -47,6 +51,9 @@ public class PluginLifecycleApiTest {
 
     @Inject
     PluginEntitlementService entitlementService;
+
+    @Inject
+    PluginArtifactUploadService uploadService;
 
     @Inject
     TenantPluginRepository tenantPluginRepository;
@@ -412,12 +419,15 @@ public class PluginLifecycleApiTest {
                 adminService.createCatalog(catalog, userId);
             }
         });
+        PluginResponses.UploadResult bundle = uploadService.upload(key + "-bundle.zip",
+                new ByteArrayInputStream(("bundle-" + key + "-" + version).getBytes(StandardCharsets.UTF_8)),
+                tenantId);
         QuarkusTransaction.requiringNew().run(() -> {
             PluginRequests.RegisterVersion request = new PluginRequests.RegisterVersion();
             request.source = "JAR_BUNDLE";
-            request.artifactRef = "local://test-bundle-" + key + ".zip";
+            request.artifactRef = bundle.artifactRef;
+            request.checksum = bundle.checksum;
             request.version = version;
-            request.checksum = "sha256-" + key + "-" + version;
             request.manifest = buildManifest(key, version, "COMPATIBLE", false);
             adminService.registerVersion(key, request, userId);
             adminService.publishVersion(key, version, "TASK-334 fixture", userId);
