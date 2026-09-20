@@ -209,6 +209,36 @@ public class PluginLifecycleApiTest {
                 .body("data.slots[0].host.type", equalTo("CORE"));
     }
 
+    @Test
+    @DisplayName("TASK-340: gateway chặn khi chưa cài (403) và báo runtime unavailable với noop (503)")
+    public void testRuntimeGatewayGuards() {
+        registerAndPublish(pluginKey, "1.0.0", "COMPATIBLE", false);
+
+        given().header("Authorization", "Bearer " + token)
+                .get("/api/v1/plugins/runtime/" + pluginKey + "/health")
+                .then().statusCode(403)
+                .body("code", equalTo("PLUGIN_DISABLED_FOR_TENANT"));
+
+        given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
+                .body(Map.of("version", "1.0.0"))
+                .post(TENANT_PLUGINS_PATH + "/" + pluginKey + "/install")
+                .then().statusCode(200).body("data.status", equalTo("ACTIVE"));
+
+        given().header("Authorization", "Bearer " + token)
+                .get("/api/v1/plugins/runtime/" + pluginKey + "/health")
+                .then().statusCode(503)
+                .body("code", equalTo("PLUGIN_RUNTIME_UNAVAILABLE"));
+
+        given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
+                .post(TENANT_PLUGINS_PATH + "/" + pluginKey + "/disable")
+                .then().statusCode(200).body("data.status", equalTo("INACTIVE"));
+
+        given().header("Authorization", "Bearer " + token)
+                .post("/api/v1/plugins/runtime/" + pluginKey + "/anything")
+                .then().statusCode(403)
+                .body("code", equalTo("PLUGIN_DISABLED_FOR_TENANT"));
+    }
+
     private void registerAndPublish(String key, String version, String migrationPolicy, boolean withUi) {
         QuarkusTransaction.requiringNew().run(() -> {
             if (!adminService.existsByKey(key)) {

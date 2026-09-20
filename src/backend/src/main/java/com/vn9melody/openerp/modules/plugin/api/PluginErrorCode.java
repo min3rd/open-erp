@@ -93,6 +93,8 @@ public final class PluginErrorCode {
     public static final String PLUGIN_TENANT_DATASOURCE_FAILED = "PLUGIN_TENANT_DATASOURCE_FAILED";
     public static final String PLUGIN_DEPLOY_FAILED = "PLUGIN_DEPLOY_FAILED";
     public static final String PLUGIN_SERVICE_UNHEALTHY = "PLUGIN_SERVICE_UNHEALTHY";
+    public static final String PLUGIN_RUNTIME_UNAVAILABLE = "PLUGIN_RUNTIME_UNAVAILABLE";
+    public static final String PLUGIN_RUNTIME_REQUEST_TOO_LARGE = "PLUGIN_RUNTIME_REQUEST_TOO_LARGE";
     public static final String PLUGIN_RESOURCE_QUOTA_EXCEEDED = "PLUGIN_RESOURCE_QUOTA_EXCEEDED";
     public static final String PLUGIN_IN_USE_BY_TENANTS = "PLUGIN_IN_USE_BY_TENANTS";
     public static final String PLUGIN_SNAPSHOT_FAILED = "PLUGIN_SNAPSHOT_FAILED";
