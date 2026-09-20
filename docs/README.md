@@ -37,10 +37,12 @@ docs/
 ├── 07_deployment_guides/            # Hướng Dẫn Cài Đặt & Triển Khai
 │   ├── local_setup_guide.md         # Hướng dẫn chạy môi trường Local với Docker Compose
 │   ├── docker_deployment_guide.md   # Hướng dẫn đóng gói Docker & triển khai Staging
-│   └── k8s_production_guide.md      # Hướng dẫn triển khai Kubernetes Production
+│   ├── k8s_production_guide.md      # Hướng dẫn triển khai Kubernetes Production
+│   └── plugin_manager_infrastructure_guide.md # Sprint 03: MinIO, Deployer Docker/K8s, registry allowlist, snapshot
 └── 08_developer_guides/             # Hướng Dẫn Phát Triển Phần Mềm
     ├── coding_standards.md          # Quy chuẩn lập trình Quarkus Java & Angular 22
-    ├── create_new_plugin_guide.md   # Hướng dẫn phát triển một Plugin mới
+    ├── create_new_plugin_guide.md   # Hướng dẫn phát triển một Plugin mới (CLI-first)
+    ├── plugin_web_packaging_guide.md # Sprint 03: hợp đồng đóng gói Web plugin (MF/WC/iframe)
     └── shared_ui_contribution_guide.md # Hướng dẫn đóng góp Component vào thư viện dùng chung
 ```
 
