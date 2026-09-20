@@ -180,7 +180,7 @@ public class PluginLifecycleApiTest {
         block.forceUninstall = true;
         block.confirmations = new PluginRequests.Block.Confirmations();
         block.confirmations.confirmText = pluginKey;
-        QuarkusTransaction.requiringNew().run(() -> adminService.blockCatalog(pluginKey, block));
+        QuarkusTransaction.requiringNew().run(() -> adminService.blockCatalog(pluginKey, block, userId));
 
         TenantPlugin ledger = tenantPluginRepository.findByTenantAndKey(tenantId, pluginKey).orElseThrow();
         assertEquals(TenantPluginStatus.UNINSTALLED, ledger.status);
@@ -228,7 +228,7 @@ public class PluginLifecycleApiTest {
             request.checksum = "sha256-" + key + "-" + version;
             request.manifest = buildManifest(key, version, migrationPolicy, withUi);
             adminService.registerVersion(key, request, userId);
-            adminService.publishVersion(key, version, "TASK-314 fixture");
+            adminService.publishVersion(key, version, "TASK-314 fixture", userId);
         });
         QuarkusTransaction.requiringNew().run(() -> entitlementService.grant(tenantId, key));
     }
@@ -263,9 +263,9 @@ public class PluginLifecycleApiTest {
     private void insertPluginPermissions() {
         for (String code : List.of("core:plugin:read", "core:plugin:install", "core:plugin:manage")) {
             em.createNativeQuery("""
-                    INSERT INTO permissions (code, domain, resource, action, description_key)
-                    VALUES (?1, 'core', 'plugin', ?2, ?3)
-                    ON CONFLICT (code) DO NOTHING
+                    INSERT INTO permissions (code, domain, resource, action, description_key, is_system)
+                    VALUES (?1, 'core', 'plugin', ?2, ?3, FALSE)
+                    ON CONFLICT (code) DO UPDATE SET is_system = FALSE
                     """)
                     .setParameter(1, code)
                     .setParameter(2, code.substring(code.lastIndexOf(':') + 1))

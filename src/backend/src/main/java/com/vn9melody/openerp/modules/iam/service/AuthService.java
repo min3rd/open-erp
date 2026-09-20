@@ -24,6 +24,7 @@ import com.vn9melody.openerp.modules.iam.dto.*;
 import com.vn9melody.openerp.modules.iam.dto.response.*;
 import com.vn9melody.openerp.modules.iam.model.*;
 import com.vn9melody.openerp.modules.platform.service.PlatformLoginService;
+import com.vn9melody.openerp.modules.plugin.service.PluginProvisioningService;
 
 @ApplicationScoped
 public class AuthService {
@@ -43,6 +44,9 @@ public class AuthService {
 
     @Inject
     JwtTokenService jwtTokenService;
+
+    @Inject
+    PluginProvisioningService pluginProvisioningService;
 
     @Inject
     SessionManager sessionManager;
@@ -210,6 +214,9 @@ public class AuthService {
 
         // TASK-271: user_roles is the single source of truth for the enforcement engine.
         systemRoleAssigner.assignSystemRole(tenant.id, user.id, SystemRoleAssigner.TENANT_ADMIN);
+
+        // TASK-307 / Gate Q5: apply system-default plugins to the new tenant.
+        pluginProvisioningService.provisionDefaults(tenant.id);
 
         emailNotificationService.sendBusinessWelcomeEmail(user.email, tenant.name, tenant.slug);
 

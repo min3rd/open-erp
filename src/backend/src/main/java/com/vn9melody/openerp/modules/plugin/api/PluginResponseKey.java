@@ -54,6 +54,12 @@ public enum PluginResponseKey {
     BLOCKED_AT("blocked_at"),
     SIZE_BYTES("size_bytes"),
     FILE_NAME("file_name"),
+    TENANT_IDS("tenant_ids"),
+    REQUESTED("requested"),
+    SUCCEEDED("succeeded"),
+    FAILED("failed"),
+    ERRORS("errors"),
+    TOTAL("total"),
     STORAGE_MODEL("storage_model"),
     STORAGE_SCHEMA("storage_schema"),
     OPERATION_ID("operation_id"),
@@ -131,6 +137,12 @@ public enum PluginResponseKey {
         String BLOCKED_AT = "blocked_at";
         String SIZE_BYTES = "size_bytes";
         String FILE_NAME = "file_name";
+        String TENANT_IDS = "tenant_ids";
+        String REQUESTED = "requested";
+        String SUCCEEDED = "succeeded";
+        String FAILED = "failed";
+        String ERRORS = "errors";
+        String TOTAL = "total";
         String STORAGE_MODEL = "storage_model";
         String STORAGE_SCHEMA = "storage_schema";
         String OPERATION_ID = "operation_id";

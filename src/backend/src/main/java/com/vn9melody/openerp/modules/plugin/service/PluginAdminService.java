@@ -8,6 +8,7 @@ import com.vn9melody.openerp.core.enums.PluginCatalogStatus;
 import com.vn9melody.openerp.core.enums.PluginDistributionType;
 import com.vn9melody.openerp.core.enums.PluginMigrationPolicy;
 import com.vn9melody.openerp.core.enums.PluginReleaseStatus;
+import com.vn9melody.openerp.core.enums.PlatformAction;
 import com.vn9melody.openerp.core.enums.PluginRollbackStrategy;
 import com.vn9melody.openerp.core.enums.PluginVisibility;
 import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
@@ -58,6 +59,9 @@ public class PluginAdminService {
     PluginGovernanceService governanceService;
 
     @Inject
+    PluginAuditService auditService;
+
+    @Inject
     ObjectMapper objectMapper;
 
     @Inject
@@ -88,11 +92,13 @@ public class PluginAdminService {
         catalog.createdAt = Instant.now();
         catalog.updatedAt = catalog.createdAt;
         catalogRepository.persist(catalog);
+        auditService.platform(actorId, PlatformAction.PLUGIN_REGISTERED, catalog.pluginKey, null, null, null);
         return toCatalogItem(catalog);
     }
 
     @Transactional
-    public PluginResponses.CatalogItem updateCatalog(String pluginKey, PluginRequests.UpdateCatalog request) {
+    public PluginResponses.CatalogItem updateCatalog(String pluginKey, PluginRequests.UpdateCatalog request,
+                                                     UUID actorId) {
         PluginCatalog catalog = requireCatalog(pluginKey);
         if (request.nameKey != null && !request.nameKey.isBlank()) {
             catalog.nameKey = request.nameKey.trim();
@@ -114,6 +120,7 @@ public class PluginAdminService {
             catalog.locked = request.locked;
         }
         catalog.updatedAt = Instant.now();
+        auditService.platform(actorId, PlatformAction.PLUGIN_METADATA_UPDATED, catalog.pluginKey, null, null, null);
         return toCatalogItem(catalog);
     }
 
@@ -129,7 +136,7 @@ public class PluginAdminService {
     }
 
     @Transactional
-    public void deleteCatalog(String pluginKey) {
+    public void deleteCatalog(String pluginKey, UUID actorId) {
         PluginCatalog catalog = requireCatalog(pluginKey);
         long installs = tenantPluginRepository.count("catalogId", catalog.id);
         if (installs > 0) {
@@ -137,6 +144,7 @@ public class PluginAdminService {
                     "Plugin is still assigned to tenants");
         }
         catalogRepository.delete(catalog);
+        auditService.platform(actorId, PlatformAction.PLUGIN_CATALOG_DELETED, catalog.pluginKey, null, null, null);
     }
 
     @Transactional
@@ -197,11 +205,14 @@ public class PluginAdminService {
         entity.createdAt = Instant.now();
         versionRepository.persist(entity);
         catalog.updatedAt = entity.createdAt;
+        auditService.platform(actorId, PlatformAction.PLUGIN_VERSION_ADDED, catalog.pluginKey, null, null,
+                Map.of(PluginResponseKey.VERSION.getKey(), version));
         return toVersionItem(entity);
     }
 
     @Transactional
-    public PluginResponses.ActionResult publishVersion(String pluginKey, String version, String reason) {
+    public PluginResponses.ActionResult publishVersion(String pluginKey, String version, String reason,
+                                                       UUID actorId) {
         PluginCatalog catalog = requireCatalog(pluginKey);
         if (catalog.catalogStatus == PluginCatalogStatus.BLOCKED) {
             throw new ApiException(403, PluginErrorCode.PLUGIN_BLOCKED_BY_PLATFORM, "Catalog is blocked");
@@ -217,11 +228,14 @@ public class PluginAdminService {
         entity.blockReason = null;
         entity.blockedAt = null;
         uiSlotSyncService.syncFromManifest(catalog.pluginKey, entity.version, entity.uiManifest);
+        auditService.platform(actorId, PlatformAction.PLUGIN_PUBLISHED, catalog.pluginKey, null, reason,
+                Map.of(PluginResponseKey.VERSION.getKey(), version));
         return action(catalog, entity, reason);
     }
 
     @Transactional
-    public PluginResponses.ActionResult deprecateVersion(String pluginKey, String version, String reason) {
+    public PluginResponses.ActionResult deprecateVersion(String pluginKey, String version, String reason,
+                                                         UUID actorId) {
         PluginCatalog catalog = requireCatalog(pluginKey);
         PluginVersion entity = requireVersion(catalog.id, version);
         if (entity.releaseStatus != PluginReleaseStatus.PUBLISHED) {
@@ -229,16 +243,21 @@ public class PluginAdminService {
                     "Only published versions can be deprecated");
         }
         entity.releaseStatus = PluginReleaseStatus.DEPRECATED;
+        auditService.platform(actorId, PlatformAction.PLUGIN_DEPRECATED, catalog.pluginKey, null, reason,
+                Map.of(PluginResponseKey.VERSION.getKey(), version));
         return action(catalog, entity, reason);
     }
 
     @Transactional
-    public PluginResponses.ActionResult blockVersion(String pluginKey, String version, String reason) {
+    public PluginResponses.ActionResult blockVersion(String pluginKey, String version, String reason,
+                                                     UUID actorId) {
         PluginCatalog catalog = requireCatalog(pluginKey);
         PluginVersion entity = requireVersion(catalog.id, version);
         entity.releaseStatus = PluginReleaseStatus.BLOCKED;
         entity.blockReason = reason;
         entity.blockedAt = Instant.now();
+        auditService.platform(actorId, PlatformAction.PLUGIN_BLOCKED, catalog.pluginKey, null, reason,
+                Map.of(PluginResponseKey.VERSION.getKey(), version));
         return action(catalog, entity, reason);
     }
 
@@ -256,11 +275,14 @@ public class PluginAdminService {
                 .setParameter("reason", reason)
                 .getSingleResult();
         PluginVersion entity = requireVersion(catalog.id, version);
+        auditService.platform(actorId, PlatformAction.PLUGIN_UNBLOCKED, catalog.pluginKey, null, reason,
+                Map.of(PluginResponseKey.VERSION.getKey(), version));
         return action(catalog, entity, reason);
     }
 
     @Transactional
-    public PluginResponses.ActionResult blockCatalog(String pluginKey, PluginRequests.Block request) {
+    public PluginResponses.ActionResult blockCatalog(String pluginKey, PluginRequests.Block request,
+                                                     UUID actorId) {
         PluginCatalog catalog = requireCatalog(pluginKey);
         String reason = requireText(request != null ? request.reason : null, "reason");
         boolean forceUninstall = request != null && Boolean.TRUE.equals(request.forceUninstall);
@@ -282,6 +304,9 @@ public class PluginAdminService {
         if (forceUninstall) {
             result.affectedTenants = governanceService.forceUninstallAll(catalog.pluginKey, reason);
         }
+        auditService.platform(actorId, PlatformAction.PLUGIN_BLOCKED, catalog.pluginKey, null, reason,
+                Map.of("force_uninstall", forceUninstall,
+                        "affected_tenants", result.affectedTenants == null ? 0 : result.affectedTenants));
         return result;
     }
 
@@ -303,6 +328,7 @@ public class PluginAdminService {
         catalog.blockedReason = null;
         catalog.blockedAt = null;
         catalog.updatedAt = Instant.now();
+        auditService.platform(actorId, PlatformAction.PLUGIN_UNBLOCKED, catalog.pluginKey, null, text, null);
         PluginResponses.ActionResult result = new PluginResponses.ActionResult();
         result.pluginKey = catalog.pluginKey;
         result.catalogStatus = catalog.catalogStatus.name();

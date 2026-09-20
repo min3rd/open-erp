@@ -33,6 +33,27 @@ public class PluginEntitlementService {
         if (catalog.catalogStatus == PluginCatalogStatus.BLOCKED) {
             throw new ApiException(403, PluginErrorCode.PLUGIN_BLOCKED_BY_PLATFORM, "Catalog is blocked");
         }
+        return ensureLedger(tenantId, catalog);
+    }
+
+    /**
+     * Best-effort grant used by provisioning/quota sync: unknown or blocked keys
+     * are ignored instead of failing the caller flow.
+     */
+    @Transactional
+    public boolean grantIfExists(UUID tenantId, String pluginKey) {
+        if (tenantId == null || pluginKey == null || pluginKey.isBlank()) {
+            return false;
+        }
+        PluginCatalog catalog = catalogRepository.findByPluginKey(pluginKey.trim());
+        if (catalog == null || catalog.catalogStatus == PluginCatalogStatus.BLOCKED) {
+            return false;
+        }
+        ensureLedger(tenantId, catalog);
+        return true;
+    }
+
+    private TenantPlugin ensureLedger(UUID tenantId, PluginCatalog catalog) {
         TenantPlugin existing = tenantPluginRepository.findByTenantAndKey(tenantId, catalog.pluginKey).orElse(null);
         if (existing != null) {
             return existing;

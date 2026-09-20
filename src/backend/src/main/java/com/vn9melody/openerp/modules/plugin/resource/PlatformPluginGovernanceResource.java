@@ -3,6 +3,7 @@ package com.vn9melody.openerp.modules.plugin.resource;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.api.ApiResponse;
 import com.vn9melody.openerp.core.enums.PlatformAdminRole;
+import com.vn9melody.openerp.core.enums.PlatformAction;
 import com.vn9melody.openerp.core.enums.PluginVisibility;
 import com.vn9melody.openerp.modules.platform.api.PlatformErrorCode;
 import com.vn9melody.openerp.modules.platform.resource.BasePlatformResource;
@@ -13,6 +14,8 @@ import com.vn9melody.openerp.modules.plugin.dto.PluginResponses;
 import com.vn9melody.openerp.modules.plugin.model.PluginCatalog;
 import com.vn9melody.openerp.modules.plugin.repository.PluginCatalogRepository;
 import com.vn9melody.openerp.modules.plugin.service.PluginAdminService;
+import com.vn9melody.openerp.modules.plugin.service.PluginAuditService;
+import com.vn9melody.openerp.modules.plugin.service.PluginBulkApplyService;
 import com.vn9melody.openerp.modules.plugin.service.PluginEntitlementService;
 import com.vn9melody.openerp.modules.plugin.service.PluginLifecycleService;
 import io.vertx.core.http.HttpServerRequest;
@@ -54,6 +57,12 @@ public class PlatformPluginGovernanceResource extends BasePlatformResource {
     PluginLifecycleService lifecycleService;
 
     @Inject
+    PluginAuditService auditService;
+
+    @Inject
+    PluginBulkApplyService bulkApplyService;
+
+    @Inject
     PluginCatalogRepository catalogRepository;
 
     @Context
@@ -77,7 +86,7 @@ public class PlatformPluginGovernanceResource extends BasePlatformResource {
     @POST
     @Path("/tenant-private-plugins/{pluginKey}/block")
     public Response blockTenantPrivate(@PathParam("pluginKey") String pluginKey, PluginRequests.Block request) {
-        requireSuperAdmin();
+        PlatformActor actor = requireSuperAdmin();
         PluginCatalog catalog = catalogRepository.findByPluginKey(pluginKey);
         if (catalog == null) {
             throw new ApiException(404, PluginErrorCode.PLUGIN_NOT_FOUND, "Plugin not found");
@@ -86,7 +95,7 @@ public class PlatformPluginGovernanceResource extends BasePlatformResource {
             throw new ApiException(400, PluginErrorCode.PLUGIN_ARTIFACT_SOURCE_INVALID,
                     "This endpoint only manages tenant-private plugins");
         }
-        PluginResponses.ActionResult result = pluginAdminService.blockCatalog(pluginKey, request);
+        PluginResponses.ActionResult result = pluginAdminService.blockCatalog(pluginKey, request, actor.userId);
         return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_BLOCK_SUCCESS,
                 "Tenant-private plugin blocked.", result)).build();
     }
@@ -95,8 +104,9 @@ public class PlatformPluginGovernanceResource extends BasePlatformResource {
     @Path("/tenants/{tenantId}/plugins/{pluginKey}/entitlement")
     public Response grantEntitlement(@PathParam("tenantId") UUID tenantId,
                                      @PathParam("pluginKey") String pluginKey) {
-        requireSuperAdmin();
+        PlatformActor actor = requireSuperAdmin();
         entitlementService.grant(tenantId, pluginKey);
+        auditService.platform(actor.userId, PlatformAction.PLUGIN_ENTITLEMENT_GRANTED, pluginKey, tenantId, null, null);
         return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_ENTITLEMENT_GRANT_SUCCESS,
                 "Entitlement granted.", entitlementResult(pluginKey, "NOT_INSTALLED"))).build();
     }
@@ -105,10 +115,35 @@ public class PlatformPluginGovernanceResource extends BasePlatformResource {
     @Path("/tenants/{tenantId}/plugins/{pluginKey}/entitlement")
     public Response revokeEntitlement(@PathParam("tenantId") UUID tenantId,
                                       @PathParam("pluginKey") String pluginKey) {
-        requireSuperAdmin();
+        PlatformActor actor = requireSuperAdmin();
         entitlementService.revoke(tenantId, pluginKey);
+        auditService.platform(actor.userId, PlatformAction.PLUGIN_ENTITLEMENT_REVOKED, pluginKey, tenantId, null, null);
         return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_ENTITLEMENT_REVOKE_SUCCESS,
                 "Entitlement revoked.", entitlementResult(pluginKey, null))).build();
+    }
+
+    @POST
+    @Path("/plugins/{pluginKey}/bulk-apply/preview")
+    public Response previewBulkApply(@PathParam("pluginKey") String pluginKey) {
+        requireSuperAdmin();
+        PluginResponses.BulkPreview preview = bulkApplyService.preview(pluginKey);
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_BULK_APPLY_PREVIEW_SUCCESS,
+                "Bulk apply preview generated.", preview)).build();
+    }
+
+    @POST
+    @Path("/plugins/{pluginKey}/bulk-apply")
+    public Response applyBulk(@PathParam("pluginKey") String pluginKey, PluginRequests.BulkApply request) {
+        PlatformActor actor = requireSuperAdmin();
+        List<UUID> tenantIds = null;
+        if (request != null && request.tenantIds != null) {
+            tenantIds = request.tenantIds.stream().map(UUID::fromString).toList();
+        }
+        PluginResponses.BulkReport report = bulkApplyService.apply(pluginKey,
+                request != null ? request.targetVersion : null,
+                tenantIds, actor.userId, request != null ? request.reason : null);
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_BULK_APPLY_STARTED,
+                "Bulk apply completed.", report)).build();
     }
 
     @POST

@@ -8,6 +8,7 @@ import com.vn9melody.openerp.core.enums.PluginCatalogStatus;
 import com.vn9melody.openerp.core.enums.PluginDistributionType;
 import com.vn9melody.openerp.core.enums.PluginMigrationPolicy;
 import com.vn9melody.openerp.core.enums.PluginOperationType;
+import com.vn9melody.openerp.core.enums.PlatformAction;
 import com.vn9melody.openerp.core.enums.PluginReleaseStatus;
 import com.vn9melody.openerp.core.enums.TenantPluginStatus;
 import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
@@ -65,6 +66,9 @@ public class PluginLifecycleService {
 
     @Inject
     PluginSnapshotService snapshotService;
+
+    @Inject
+    PluginAuditService auditService;
 
     @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.core.version", defaultValue = "1.0.0")
     String coreVersion;
@@ -141,6 +145,8 @@ public class PluginLifecycleService {
             ledger.operationId = null;
             ledger.updatedAt = ledger.installedAt;
             log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "ACTIVATE", "OK", steps, null);
+            auditService.tenant(tenantId, PlatformAction.TENANT_PLUGIN_INSTALLED, pluginKey,
+                    Map.of("version", version.version));
             return operation(operationId, pluginKey, PluginOperationType.INSTALL,
                     TenantPluginStatus.ACTIVE, version.version, steps);
         } catch (ApiException e) {
@@ -194,6 +200,7 @@ public class PluginLifecycleService {
             ledger.operationId = null;
             ledger.updatedAt = ledger.uninstalledAt;
             log(operationId, tenantId, pluginKey, PluginOperationType.UNINSTALL, "ACTIVATE", "OK", steps, null);
+            auditService.tenant(tenantId, PlatformAction.TENANT_PLUGIN_UNINSTALLED, pluginKey, null);
             return operation(operationId, pluginKey, PluginOperationType.UNINSTALL,
                     TenantPluginStatus.UNINSTALLED, null, steps);
         } catch (ApiException e) {
@@ -282,6 +289,9 @@ public class PluginLifecycleService {
             ledger.operationId = null;
             ledger.updatedAt = Instant.now();
             log(operationId, tenantId, pluginKey, type, deployOnEnable ? "ACTIVATE" : "DEACTIVATE", "OK", steps, null);
+            auditService.tenant(tenantId,
+                    deployOnEnable ? PlatformAction.TENANT_PLUGIN_ENABLED : PlatformAction.TENANT_PLUGIN_DISABLED,
+                    pluginKey, null);
             return operation(operationId, pluginKey, type, ledger.status, ledger.installedVersion, steps);
         } finally {
             lockService.release(tenantId, pluginKey, lock);
@@ -365,6 +375,8 @@ public class PluginLifecycleService {
             ledger.lastErrorCode = null;
             ledger.updatedAt = ledger.activatedAt;
             log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "ACTIVATE", "OK", steps, null);
+            auditService.tenant(tenantId, PlatformAction.TENANT_PLUGIN_UPGRADED, pluginKey,
+                    Map.of("to_version", target.version));
             return operation(operationId, pluginKey, PluginOperationType.UPGRADE,
                     TenantPluginStatus.ACTIVE, target.version, steps);
         } catch (ApiException e) {
@@ -501,6 +513,8 @@ public class PluginLifecycleService {
             ledger.lastErrorCode = null;
             ledger.updatedAt = Instant.now();
             log(operationId, tenantId, pluginKey, PluginOperationType.ROLLBACK, "ACTIVATE", "OK", steps, null);
+            auditService.tenant(tenantId, PlatformAction.TENANT_PLUGIN_ROLLED_BACK, pluginKey,
+                    Map.of("target_version", target.version));
             return operation(operationId, pluginKey, PluginOperationType.ROLLBACK,
                     TenantPluginStatus.ACTIVE, target.version, steps);
         } catch (ApiException e) {

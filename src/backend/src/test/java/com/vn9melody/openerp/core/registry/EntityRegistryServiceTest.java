@@ -30,10 +30,10 @@ public class EntityRegistryServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("BUG-26 + TASK-276: 20 entity IAM/Platform/Organization/Core được đăng ký tự động và upsert idempotent")
+    @DisplayName("BUG-26 + TASK-276 + TASK-302: 25 entity IAM/Platform/Organization/Core/Plugin được đăng ký tự động và upsert idempotent")
     public void testAllEntitiesRegisteredOnStartup() {
         List<Object[]> rows = registryRows();
-        Assertions.assertEquals(20, rows.size(), "Phải đăng ký đúng 20 entity (7 core-iam gốc + 13 entity Sprint 02)");
+        Assertions.assertEquals(25, rows.size(), "Phải đăng ký đúng 25 entity (20 entity Sprint 01/02 + 5 entity Plugin Manager Sprint 03)");
 
         Map<String, List<Object[]>> byPlugin = rows.stream()
             .collect(Collectors.groupingBy(row -> (String) row[0]));
@@ -75,7 +75,7 @@ public class EntityRegistryServiceTest {
             "exported_relations phải chứa quan hệ users");
 
         entityRegistryService.registerAnnotatedEntities();
-        Assertions.assertEquals(20, registryRows().size(), "Upsert phải idempotent, không nhân bản bản ghi");
+        Assertions.assertEquals(25, registryRows().size(), "Upsert phải idempotent, không nhân bản bản ghi");
     }
 
     private Map<String, Object[]> byEntityName(Map<String, List<Object[]>> byPlugin, String pluginId) {

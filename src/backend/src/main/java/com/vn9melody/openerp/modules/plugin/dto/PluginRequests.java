@@ -133,4 +133,14 @@ public class PluginRequests {
 
         public String reason;
     }
+
+    public static class BulkApply {
+        @JsonProperty(PluginResponseKey.Json.TENANT_IDS)
+        public List<String> tenantIds;
+
+        @JsonProperty(PluginResponseKey.Json.TARGET_VERSION)
+        public String targetVersion;
+
+        public String reason;
+    }
 }

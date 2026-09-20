@@ -2,6 +2,7 @@ package com.vn9melody.openerp.modules.plugin.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vn9melody.openerp.modules.plugin.deployer.PluginRuntimeDeployer;
+import com.vn9melody.openerp.core.enums.PlatformAction;
 import com.vn9melody.openerp.core.enums.TenantPluginStatus;
 import com.vn9melody.openerp.modules.plugin.model.TenantPlugin;
 import com.vn9melody.openerp.modules.plugin.repository.TenantPluginRepository;
@@ -31,6 +32,9 @@ public class PluginGovernanceService {
     @Inject
     PluginNotificationService notificationService;
 
+    @Inject
+    PluginAuditService auditService;
+
     @Transactional
     public int forceUninstallAll(String pluginKey, String reason) {
         List<TenantPlugin> ledgers = tenantPluginRepository.listByPlugin(pluginKey);
@@ -58,6 +62,7 @@ public class PluginGovernanceService {
             params.put("reason", reason);
             notificationService.notifyTenant(ledger.tenantId, PluginNotificationService.TYPE_PLUGIN_FORCE_UNINSTALLED,
                     "PLUGIN_NOTIFICATION_FORCE_UNINSTALLED", params, "CRITICAL");
+            auditService.tenant(ledger.tenantId, PlatformAction.TENANT_PLUGIN_FORCE_UNINSTALLED, pluginKey, params);
             affected++;
         }
         return affected;

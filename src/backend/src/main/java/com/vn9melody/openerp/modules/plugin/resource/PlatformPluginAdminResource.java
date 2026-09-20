@@ -71,8 +71,8 @@ public class PlatformPluginAdminResource extends BasePlatformResource {
     @PATCH
     @Path("/{pluginKey}")
     public Response update(@PathParam("pluginKey") String pluginKey, PluginRequests.UpdateCatalog request) {
-        requireSuperAdmin();
-        PluginResponses.CatalogItem item = pluginAdminService.updateCatalog(pluginKey, request);
+        PlatformActor actor = requireSuperAdmin();
+        PluginResponses.CatalogItem item = pluginAdminService.updateCatalog(pluginKey, request, actor.userId);
         return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_METADATA_UPDATE_SUCCESS,
                 "Plugin metadata updated successfully.", item)).build();
     }
@@ -80,8 +80,8 @@ public class PlatformPluginAdminResource extends BasePlatformResource {
     @DELETE
     @Path("/{pluginKey}")
     public Response delete(@PathParam("pluginKey") String pluginKey) {
-        requireSuperAdmin();
-        pluginAdminService.deleteCatalog(pluginKey);
+        PlatformActor actor = requireSuperAdmin();
+        pluginAdminService.deleteCatalog(pluginKey, actor.userId);
         return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_CATALOG_DELETE_SUCCESS,
                 "Plugin catalog entry deleted successfully.", null)).build();
     }
@@ -101,23 +101,23 @@ public class PlatformPluginAdminResource extends BasePlatformResource {
     public Response versionAction(@PathParam("pluginKey") String pluginKey,
                                   @PathParam("version") String version,
                                   PluginRequests.VersionAction request) {
-        requireSuperAdmin();
+        PlatformActor actor = requireSuperAdmin();
         String action = request != null && request.action != null ? request.action.trim().toUpperCase() : "";
         if ("PUBLISH".equals(action)) {
             PluginResponses.ActionResult result = pluginAdminService.publishVersion(pluginKey, version,
-                    request != null ? request.reason : null);
+                    request != null ? request.reason : null, actor.userId);
             return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_PUBLISH_SUCCESS,
                     "Plugin version published.", result)).build();
         }
         if ("DEPRECATE".equals(action)) {
             PluginResponses.ActionResult result = pluginAdminService.deprecateVersion(pluginKey, version,
-                    request != null ? request.reason : null);
+                    request != null ? request.reason : null, actor.userId);
             return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_DEPRECATE_SUCCESS,
                     "Plugin version deprecated.", result)).build();
         }
         if ("BLOCK".equals(action)) {
             PluginResponses.ActionResult result = pluginAdminService.blockVersion(pluginKey, version,
-                    request != null ? request.reason : null);
+                    request != null ? request.reason : null, actor.userId);
             return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_BLOCK_SUCCESS,
                     "Plugin version blocked.", result)).build();
         }
@@ -139,8 +139,8 @@ public class PlatformPluginAdminResource extends BasePlatformResource {
     @POST
     @Path("/{pluginKey}/block")
     public Response block(@PathParam("pluginKey") String pluginKey, PluginRequests.Block request) {
-        requireSuperAdmin();
-        PluginResponses.ActionResult result = pluginAdminService.blockCatalog(pluginKey, request);
+        PlatformActor actor = requireSuperAdmin();
+        PluginResponses.ActionResult result = pluginAdminService.blockCatalog(pluginKey, request, actor.userId);
         return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_BLOCK_SUCCESS,
                 "Plugin blocked successfully.", result)).build();
     }

@@ -18,6 +18,7 @@ import com.vn9melody.openerp.modules.platform.dto.PlatformRequests;
 import com.vn9melody.openerp.modules.platform.dto.PlatformResponses;
 import com.vn9melody.openerp.modules.platform.model.PlatformImpersonationLog;
 import com.vn9melody.openerp.modules.platform.repository.PlatformImpersonationLogRepository;
+import com.vn9melody.openerp.modules.plugin.service.PluginEntitlementService;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -53,6 +54,9 @@ public class PlatformTenantService {
 
     @Inject
     PlatformMailService mailService;
+
+    @Inject
+    PluginEntitlementService pluginEntitlementService;
 
     @Inject
     PlatformImpersonationLogRepository impersonationLogRepository;
@@ -145,6 +149,15 @@ public class PlatformTenantService {
         }
         tenant.updatedAt = Instant.now();
         tenant.persist();
+
+        // TASK-306/307: keep the tenant_plugins ledger in sync when entitlements change.
+        if (tenant.allowedPlugins != null) {
+            for (String pluginKey : tenant.allowedPlugins) {
+                if (pluginKey != null && !"core".equalsIgnoreCase(pluginKey.trim())) {
+                    pluginEntitlementService.grantIfExists(tenant.id, pluginKey);
+                }
+            }
+        }
 
         ObjectNode after = quotaSnapshot(tenant);
         ObjectNode details = objectMapper.createObjectNode();

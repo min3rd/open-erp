@@ -311,6 +311,30 @@ public final class PluginResponses {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class BulkPreview {
+        @JsonProperty(PluginResponseKey.Json.TOTAL)
+        public Integer total;
+
+        @JsonProperty(PluginResponseKey.Json.TENANT_IDS)
+        public List<String> tenantIds;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class BulkReport {
+        @JsonProperty(PluginResponseKey.Json.REQUESTED)
+        public Integer requested;
+
+        @JsonProperty(PluginResponseKey.Json.SUCCEEDED)
+        public Integer succeeded;
+
+        @JsonProperty(PluginResponseKey.Json.FAILED)
+        public Integer failed;
+
+        @JsonProperty(PluginResponseKey.Json.ERRORS)
+        public List<String> errors;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class OperationStatus {
         @JsonProperty(PluginResponseKey.Json.OPERATION_ID)
         public String operationId;
