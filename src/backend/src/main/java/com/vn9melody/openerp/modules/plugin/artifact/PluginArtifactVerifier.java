@@ -26,8 +26,8 @@ public class PluginArtifactVerifier {
     private static final Set<String> PUBLIC_REGISTRY_DEFAULTS = Set.of(
             "registry-1.docker.io", "docker.io", "ghcr.io", "quay.io");
 
-    @ConfigProperty(name = "openerp.plugin.registry-allowed-hosts", defaultValue = "")
-    String allowedHosts;
+    @ConfigProperty(name = "openerp.plugin.registry-allowed-hosts")
+    java.util.Optional<String> allowedHosts;
 
     @Inject
     ArtifactStorage artifactStorage;
@@ -123,10 +123,11 @@ public class PluginArtifactVerifier {
     }
 
     private Set<String> allowlist() {
-        if (allowedHosts == null || allowedHosts.isBlank()) {
+        String hosts = allowedHosts.orElse(null);
+        if (hosts == null || hosts.isBlank()) {
             return Set.of();
         }
-        return Arrays.stream(allowedHosts.split(","))
+        return Arrays.stream(hosts.split(","))
                 .map(host -> host.trim().toLowerCase(Locale.ROOT))
                 .filter(host -> !host.isBlank())
                 .collect(Collectors.toSet());

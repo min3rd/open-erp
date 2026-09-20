@@ -194,6 +194,12 @@ public class PluginLifecycleApiTest {
         assertEquals(TenantPluginStatus.UNINSTALLED, ledger.status);
         long notifications = countNotifications();
         assertTrue(notifications > 0, "affected tenant must receive a notification");
+
+        given().header("Authorization", "Bearer " + token)
+                .get(TENANT_PLUGINS_PATH)
+                .then().statusCode(200)
+                .body("data.items.find { it.plugin_key == '" + pluginKey + "' }.catalog_status",
+                        equalTo("BLOCKED"));
     }
 
     @Test
@@ -359,6 +365,12 @@ public class PluginLifecycleApiTest {
                 .then().statusCode(200)
                 .body("data.items", hasSize(1))
                 .body("data.items[0].release_status", equalTo("DRAFT"));
+
+        given().header("Authorization", "Bearer " + token)
+                .get(TENANT_PLUGINS_PATH)
+                .then().statusCode(200)
+                .body("data.items.find { it.plugin_key == '" + customKey + "' }.is_custom", equalTo(true))
+                .body("data.items.find { it.plugin_key == '" + customKey + "' }.status", equalTo("NOT_INSTALLED"));
 
         given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
                 .body(Map.of("action", "BLOCK", "reason", "tenant must not block"))

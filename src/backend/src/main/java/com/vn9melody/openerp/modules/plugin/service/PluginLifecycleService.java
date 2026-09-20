@@ -267,11 +267,13 @@ public class PluginLifecycleService {
 
     public List<PluginResponses.MarketplaceItem> listMarketplace(UUID tenantId) {
         List<PluginResponses.MarketplaceItem> items = new ArrayList<>();
+        java.util.Set<String> included = new java.util.HashSet<>();
         for (TenantPlugin ledger : tenantPluginRepository.listByTenant(tenantId)) {
             PluginCatalog catalog = catalogRepository.findById(ledger.catalogId);
-            if (catalog == null || catalog.catalogStatus == PluginCatalogStatus.BLOCKED) {
+            if (catalog == null) {
                 continue;
             }
+            included.add(catalog.pluginKey);
             PluginResponses.MarketplaceItem item = new PluginResponses.MarketplaceItem();
             item.pluginKey = catalog.pluginKey;
             item.nameKey = catalog.nameKey;
@@ -284,6 +286,22 @@ public class PluginLifecycleService {
             item.isCustom = catalog.visibility == com.vn9melody.openerp.core.enums.PluginVisibility.TENANT_PRIVATE;
             item.locked = catalog.locked;
             item.catalogStatus = catalog.catalogStatus.name();
+            items.add(item);
+        }
+        for (PluginCatalog custom : catalogRepository.listTenantPrivate(tenantId)) {
+            if (custom.catalogStatus == PluginCatalogStatus.BLOCKED || included.contains(custom.pluginKey)) {
+                continue;
+            }
+            PluginResponses.MarketplaceItem item = new PluginResponses.MarketplaceItem();
+            item.pluginKey = custom.pluginKey;
+            item.nameKey = custom.nameKey;
+            item.descriptionKey = custom.descriptionKey;
+            item.status = TenantPluginStatus.NOT_INSTALLED.name();
+            item.latestVersion = latestVersion(custom);
+            item.updateAvailable = false;
+            item.isCustom = true;
+            item.locked = custom.locked;
+            item.catalogStatus = custom.catalogStatus.name();
             items.add(item);
         }
         return items;

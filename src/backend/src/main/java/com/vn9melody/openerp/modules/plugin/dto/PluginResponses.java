@@ -295,8 +295,10 @@ public final class PluginResponses {
         @JsonProperty(PluginResponseKey.Json.TENANT_ID)
         public String tenantId;
 
+        @JsonProperty(PluginResponseKey.Json.TENANT_SLUG)
         public String tenantSlug;
 
+        @JsonProperty(PluginResponseKey.Json.TENANT_NAME)
         public String tenantName;
 
         @JsonProperty(PluginResponseKey.Json.STATUS)
@@ -311,6 +313,7 @@ public final class PluginResponses {
         @JsonProperty(PluginResponseKey.Json.STORAGE_SCHEMA)
         public String storageSchema;
 
+        @JsonProperty(PluginResponseKey.Json.LAST_ERROR_CODE)
         public String lastErrorCode;
     }
 

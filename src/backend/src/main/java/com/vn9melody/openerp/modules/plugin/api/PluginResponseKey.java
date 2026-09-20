@@ -183,6 +183,9 @@ public enum PluginResponseKey {
         String TOKEN = "token";
         String EXPIRES_IN_SECONDS = "expires_in_seconds";
         String CREDENTIAL_ID = "credential_id";
+        String TENANT_SLUG = "tenant_slug";
+        String TENANT_NAME = "tenant_name";
+        String LAST_ERROR_CODE = "last_error_code";
     }
 
     private final String key;

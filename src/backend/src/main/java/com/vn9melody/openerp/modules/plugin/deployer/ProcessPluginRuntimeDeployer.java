@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
 
 /**
  * Process-based deployer (TASK-338/339): Docker CLI for local dev, kubectl for
@@ -20,6 +21,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
  */
 @ApplicationScoped
 public class ProcessPluginRuntimeDeployer implements PluginRuntimeDeployer {
+
+    private static final Logger LOG = Logger.getLogger(ProcessPluginRuntimeDeployer.class);
 
     @ConfigProperty(name = "openerp.plugin.deployer.runtime", defaultValue = "docker")
     String runtime;
@@ -260,6 +263,8 @@ public class ProcessPluginRuntimeDeployer implements PluginRuntimeDeployer {
             }
             int exit = process.exitValue();
             if (exit != 0 && !allowFailure) {
+                LOG.errorf("Plugin deployer command '%s' failed (exit %d): %s", command.get(0), exit,
+                        truncate(output));
                 throw new ApiException(500, PluginErrorCode.PLUGIN_DEPLOY_FAILED,
                         "Deployer command failed: " + truncate(output));
             }
