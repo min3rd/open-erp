@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
   ApiErrorResponse,
   DrawerComponent,
@@ -42,11 +43,13 @@ const TERMINAL_STATUSES = ['ACTIVE', 'INACTIVE', 'UNINSTALLED', 'INSTALL_FAILED'
 export class PlatformPluginListComponent implements OnInit, OnDestroy {
   private service = inject(PlatformPluginService);
   private i18n = inject(I18nService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   items = signal<PluginCatalogItem[]>([]);
   total = signal(0);
   page = signal(0);
-  size = 20;
+  size = signal(20);
   keyword = signal('');
   catalogStatus = signal('');
   loading = signal(false);
@@ -103,18 +106,102 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
 
   readonly supportActions = ['ENABLE', 'DISABLE', 'INSTALL', 'UNINSTALL', 'UPGRADE', 'ROLLBACK'];
 
+  private loadedListKey = '';
+  private loadedDetailKey: string | null = null;
+
   ngOnInit(): void {
-    this.load();
+    this.route.queryParamMap.subscribe((params) => this.applyQuery(params));
   }
 
   ngOnDestroy(): void {
     this.stopPolling();
   }
 
+  private applyQuery(params: ParamMap): void {
+    const page = Number(params.get('page') ?? '0') || 0;
+    const size = Number(params.get('size') ?? '20') || 20;
+    const keyword = params.get('keyword') ?? '';
+    const status = params.get('status') ?? '';
+    const plugin = params.get('plugin');
+    const drawer = params.get('drawer');
+
+    this.page.set(page);
+    this.size.set(size);
+    this.keyword.set(keyword);
+    this.catalogStatus.set(status);
+
+    const listKey = `${page}|${size}|${keyword}|${status}`;
+    if (listKey !== this.loadedListKey) {
+      this.loadedListKey = listKey;
+      this.load();
+    }
+
+    if (plugin && plugin !== this.loadedDetailKey) {
+      this.loadedDetailKey = plugin;
+      this.selectedKey.set(plugin);
+      this.reloadDetail(plugin);
+    } else if (!plugin) {
+      this.loadedDetailKey = null;
+      this.selectedKey.set(null);
+      this.detail.set(null);
+    }
+
+    this.registerOpen.set(drawer === 'register' || drawer === 'edit');
+    if (drawer === 'edit') {
+      this.editingCatalog.set(true);
+      const current = this.detail();
+      if (current && current.plugin_key === plugin) {
+        this.catalogForm.set({
+          plugin_key: current.plugin_key,
+          name_key: current.name_key,
+          description_key: current.description_key,
+          default_install: !!current.default_install,
+          locked: !!current.locked,
+        });
+      }
+    }
+    this.versionOpen.set(drawer === 'versions');
+    this.blockOpen.set(drawer === 'block');
+    this.bulkOpen.set(drawer === 'bulk');
+    this.supportOpen.set(drawer === 'support');
+
+    if (drawer === 'block') {
+      const scope = params.get('scope') ?? this.blockScope();
+      const version = params.get('version');
+      this.blockScope.set(scope);
+      this.blockVersion.set(version);
+      const key = this.selectedKey();
+      if (key && scope === 'CATALOG' && !this.blockPreview()) {
+        this.service.bulkPreview(key).subscribe({
+          next: (response) => this.blockPreview.set(response.data ?? null),
+          error: () => this.blockPreview.set(null),
+        });
+      }
+    }
+    if (drawer === 'support') {
+      const tenantId = params.get('tenant');
+      const match = this.installations().find((entry) => entry.tenant_id === tenantId) ?? null;
+      this.supportTenant.set(match);
+    }
+  }
+
+  setQuery(partial: Record<string, string | number | null>): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: partial,
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  closeDrawer(): void {
+    this.setQuery({ drawer: null });
+  }
+
   load(): void {
     this.loading.set(true);
     this.errorText.set('');
-    this.service.list({ page: this.page(), size: this.size, keyword: this.keyword(), catalog_status: this.catalogStatus() })
+    this.service.list({ page: this.page(), size: this.size(), keyword: this.keyword(), catalog_status: this.catalogStatus() })
       .subscribe({
         next: (response) => {
           this.items.set(response.data?.items ?? []);
@@ -129,39 +216,43 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
   }
 
   search(): void {
-    this.page.set(0);
-    this.load();
+    this.setQuery({ page: 0 });
   }
 
   prevPage(): void {
     if (this.page() > 0) {
-      this.page.update((value) => value - 1);
-      this.load();
+      this.setQuery({ page: this.page() - 1 });
     }
   }
 
   nextPage(): void {
-    if ((this.page() + 1) * this.size < this.total()) {
-      this.page.update((value) => value + 1);
-      this.load();
+    if ((this.page() + 1) * this.size() < this.total()) {
+      this.setQuery({ page: this.page() + 1 });
     }
   }
 
   select(item: PluginCatalogItem): void {
-    this.selectedKey.set(item.plugin_key);
-    this.reloadDetail();
+    this.setQuery({ plugin: item.plugin_key, drawer: null });
   }
 
-  reloadDetail(): void {
-    const key = this.selectedKey();
-    if (!key) {
-      return;
-    }
+  reloadDetail(key: string): void {
     this.detailLoading.set(true);
     this.service.detail(key).subscribe({
       next: (response) => {
         this.detail.set(response.data ?? null);
         this.detailLoading.set(false);
+        if (this.editingCatalog() && this.registerOpen()) {
+          const current = response.data;
+          if (current) {
+            this.catalogForm.set({
+              plugin_key: current.plugin_key,
+              name_key: current.name_key,
+              description_key: current.description_key,
+              default_install: !!current.default_install,
+              locked: !!current.locked,
+            });
+          }
+        }
       },
       error: (error: ApiErrorResponse) => {
         this.errorText.set(apiMessage(this.i18n, error));
@@ -171,9 +262,18 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     this.loadInstallations(key, this.installationsPage());
   }
 
+  reload(): void {
+    const key = this.selectedKey();
+    if (key) {
+      this.reloadDetail(key);
+    }
+    this.loadedListKey = `${this.page()}|${this.size()}|${this.keyword()}|${this.catalogStatus()}`;
+    this.load();
+  }
+
   loadInstallations(pluginKey: string, page: number): void {
     this.installationsPage.set(page);
-    this.service.installations(pluginKey, page, this.size).subscribe({
+    this.service.installations(pluginKey, page, this.size()).subscribe({
       next: (response) => {
         this.installations.set(response.data?.items ?? []);
         this.installationsTotal.set(response.data?.total_items ?? 0);
@@ -185,7 +285,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
   openRegister(): void {
     this.editingCatalog.set(false);
     this.catalogForm.set({ plugin_key: '', name_key: '', description_key: '', default_install: false, locked: false });
-    this.registerOpen.set(true);
+    this.setQuery({ plugin: null, drawer: 'register' });
   }
 
   openEdit(): void {
@@ -201,7 +301,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
       default_install: !!current.default_install,
       locked: !!current.locked,
     });
-    this.registerOpen.set(true);
+    this.setQuery({ drawer: 'edit' });
   }
 
   submitCatalog(): void {
@@ -227,7 +327,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     request.subscribe({
       next: () => {
         this.submitBusy.set(false);
-        this.registerOpen.set(false);
+        this.setQuery({ drawer: null });
         this.successText.set(this.i18n.t('PLUGIN_METADATA_UPDATE_SUCCESS'));
         this.load();
       },
@@ -246,6 +346,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     this.service.deleteCatalog(key).subscribe({
       next: () => {
         this.successText.set(this.i18n.t('PLUGIN_CATALOG_DELETE_SUCCESS'));
+        this.setQuery({ plugin: null, drawer: null });
         this.selectedKey.set(null);
         this.detail.set(null);
         this.load();
@@ -262,7 +363,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     this.service.versionAction(key, version, action, 'platform portal').subscribe({
       next: () => {
         this.successText.set(this.i18n.t('PLUGIN_VERSION_DELETE_SUCCESS'));
-        this.reloadDetail();
+        this.reload();
       },
       error: (error: ApiErrorResponse) => this.errorText.set(apiMessage(this.i18n, error)),
     });
@@ -274,7 +375,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
       return;
     }
     this.service.unblockVersion(key, version, 'platform portal').subscribe({
-      next: () => this.reloadDetail(),
+      next: () => this.reload(),
       error: (error: ApiErrorResponse) => this.errorText.set(apiMessage(this.i18n, error)),
     });
   }
@@ -288,7 +389,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
       next: (response) => this.credentials.set(response.data?.items ?? []),
       error: () => this.credentials.set([]),
     });
-    this.versionOpen.set(true);
+    this.setQuery({ drawer: 'versions' });
   }
 
   onUploadFile(event: Event): void {
@@ -347,9 +448,9 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: () => {
         this.versionBusy.set(false);
-        this.versionOpen.set(false);
+        this.setQuery({ drawer: null });
         this.successText.set(this.i18n.t('PLUGIN_VERSION_ADD_SUCCESS'));
-        this.reloadDetail();
+        this.reload();
       },
       error: (error: ApiErrorResponse) => {
         this.versionBusy.set(false);
@@ -365,16 +466,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     this.blockForce.set(false);
     this.blockConfirm.set('');
     this.blockPreview.set(null);
-    const key = this.selectedKey();
-    if (key && scope === 'CATALOG') {
-      this.service.bulkPreview(key).subscribe({
-        next: (response) => this.blockPreview.set(response.data ?? null),
-        error: () => this.blockPreview.set(null),
-      });
-    } else {
-      this.blockPreview.set({ total: this.installationsTotal(), tenant_ids: [] });
-    }
-    this.blockOpen.set(true);
+    this.setQuery({ drawer: 'block', scope, version: version ?? null });
   }
 
   canConfirmBlock(): boolean {
@@ -400,10 +492,10 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: (response) => {
         this.blockBusy.set(false);
-        this.blockOpen.set(false);
+        this.setQuery({ drawer: null });
         this.successText.set(this.i18n.t('PLUGIN_BLOCK_SUCCESS'));
         this.handleOperation(response.data ?? null);
-        this.reloadDetail();
+        this.reload();
       },
       error: (error: ApiErrorResponse) => {
         this.blockBusy.set(false);
@@ -420,7 +512,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     this.service.unblockCatalog(key, 'platform portal').subscribe({
       next: () => {
         this.successText.set(this.i18n.t('PLUGIN_UNBLOCK_SUCCESS'));
-        this.reloadDetail();
+        this.reload();
       },
       error: (error: ApiErrorResponse) => this.errorText.set(apiMessage(this.i18n, error)),
     });
@@ -430,7 +522,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     this.bulkVersion.set('');
     this.bulkPreviewData.set(null);
     this.bulkReport.set(null);
-    this.bulkOpen.set(true);
+    this.setQuery({ drawer: 'bulk' });
   }
 
   previewBulk(): void {
@@ -480,7 +572,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     this.supportAction.set('ENABLE');
     this.supportVersion.set('');
     this.supportReason.set('');
-    this.supportOpen.set(true);
+    this.setQuery({ drawer: 'support', tenant: tenant.tenant_id });
   }
 
   submitSupport(): void {
@@ -494,7 +586,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
       this.supportVersion() || null, this.supportReason()).subscribe({
       next: (response) => {
         this.supportBusy.set(false);
-        this.supportOpen.set(false);
+        this.setQuery({ drawer: null });
         this.successText.set(this.i18n.t('PLUGIN_OPERATION_STARTED'));
         this.handleOperation(response.data ?? null);
       },
@@ -555,7 +647,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
           this.operation.set(operation);
           if (operation && TERMINAL_STATUSES.includes(operation.status)) {
             this.stopPolling();
-            this.reloadDetail();
+            this.reload();
           }
         },
         error: () => this.stopPolling(),

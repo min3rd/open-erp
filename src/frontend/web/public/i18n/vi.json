@@ -862,5 +862,10 @@
   "PLUGIN_REGISTER_SUCCESS": "Đăng ký plugin riêng thành công (bản nháp).",
   "PLUGIN_APP_BACK_TO_MARKETPLACE": "Về danh sách plugin",
   "PLUGIN_FIELD_CREDENTIAL": "Credential registry (tùy chọn)",
-  "PLUGIN_CREDENTIAL_NONE": "Không dùng credential"
+  "PLUGIN_CREDENTIAL_NONE": "Không dùng credential",
+  "PERM_CORE_PLUGIN_READ": "Xem plugin & marketplace",
+  "PERM_CORE_PLUGIN_INSTALL": "Cài đặt plugin",
+  "PERM_CORE_PLUGIN_MANAGE": "Quản lý vòng đời plugin (bật/tắt/nâng cấp/gỡ)",
+  "PERM_CORE_PLUGIN_CREDENTIAL_MANAGE": "Quản lý credential registry",
+  "PERM_CORE_PLUGIN_REGISTER_CUSTOM": "Đăng ký plugin riêng của tenant"
 }

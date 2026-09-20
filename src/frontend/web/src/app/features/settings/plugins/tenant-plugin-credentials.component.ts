@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
   ApiErrorResponse,
   CredentialFormComponent,
@@ -23,6 +24,8 @@ import { PluginService } from '../../../core/services/plugin.service';
 export class TenantPluginCredentialsComponent implements OnInit {
   private service = inject(PluginService);
   private i18n = inject(I18nService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   items = signal<PluginCredentialItem[]>([]);
   loading = signal(false);
@@ -37,6 +40,28 @@ export class TenantPluginCredentialsComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
+    this.route.queryParamMap.subscribe((params) => this.applyQuery(params));
+  }
+
+  private applyQuery(params: ParamMap): void {
+    const drawer = params.get('drawer');
+    const id = params.get('id');
+    const match = id ? this.items().find((entry) => entry.id === id) ?? null : null;
+    this.drawerOpen.set(drawer === 'create');
+    this.confirmDelete.set(drawer === 'delete' ? match : null);
+  }
+
+  setQuery(partial: Record<string, string | null>): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: partial,
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  closeDrawer(): void {
+    this.setQuery({ drawer: null, id: null });
   }
 
   load(): void {
@@ -45,6 +70,7 @@ export class TenantPluginCredentialsComponent implements OnInit {
       next: (response) => {
         this.items.set(response.data?.items ?? []);
         this.loading.set(false);
+        this.applyQuery(this.route.snapshot.queryParamMap);
       },
       error: (error: ApiErrorResponse) => {
         this.errorText.set(apiMessage(this.i18n, error));
@@ -55,7 +81,7 @@ export class TenantPluginCredentialsComponent implements OnInit {
 
   openCreate(): void {
     this.saving.set(false);
-    this.drawerOpen.set(true);
+    this.setQuery({ drawer: 'create', id: null });
   }
 
   submit(payload: PluginCredentialPayload): void {
@@ -63,7 +89,7 @@ export class TenantPluginCredentialsComponent implements OnInit {
     this.service.createCredential(payload).subscribe({
       next: () => {
         this.saving.set(false);
-        this.drawerOpen.set(false);
+        this.setQuery({ drawer: null, id: null });
         this.successText.set(this.i18n.t('PLUGIN_CREDENTIAL_CREATED'));
         this.load();
       },
@@ -96,12 +122,12 @@ export class TenantPluginCredentialsComponent implements OnInit {
     }
     this.service.deleteCredential(item.id).subscribe({
       next: () => {
-        this.confirmDelete.set(null);
+        this.setQuery({ drawer: null, id: null });
         this.successText.set(this.i18n.t('PLUGIN_CREDENTIAL_DELETED'));
         this.load();
       },
       error: (error: ApiErrorResponse) => {
-        this.confirmDelete.set(null);
+        this.setQuery({ drawer: null, id: null });
         this.errorText.set(apiMessage(this.i18n, error));
       },
     });

@@ -97,7 +97,7 @@
           <span class="flex items-center gap-1">
             <app-sharp-button size="sm" variant="ghost" [disabled]="page() === 0" (clicked)="prevPage()">‹</app-sharp-button>
             <span class="font-mono">{{ page() + 1 }}</span>
-            <app-sharp-button size="sm" variant="ghost" [disabled]="(page() + 1) * size >= total()" (clicked)="nextPage()">›</app-sharp-button>
+            <app-sharp-button size="sm" variant="ghost" [disabled]="(page() + 1) * size() >= total()" (clicked)="nextPage()">›</app-sharp-button>
           </span>
         </div>
       }
@@ -204,7 +204,7 @@
   </div>
 </div>
 
-<app-drawer [isOpen]="registerOpen()" [title]="(editingCatalog() ? 'PLUGIN_REGISTER_EDIT_TITLE' : 'PLUGIN_REGISTER_TITLE') | translate" (close)="registerOpen.set(false)">
+<app-drawer [isOpen]="registerOpen()" [title]="(editingCatalog() ? 'PLUGIN_REGISTER_EDIT_TITLE' : 'PLUGIN_REGISTER_TITLE') | translate" (close)="closeDrawer()">
   <div class="space-y-2 p-3 text-xs">
     <label class="block">
       <span class="mb-0.5 block text-[11px] text-neutral-600 dark:text-neutral-300">{{ 'PLUGIN_FIELD_KEY' | translate }}</span>
@@ -233,13 +233,13 @@
       <span class="text-[11px] text-neutral-600 dark:text-neutral-300">{{ 'PLUGIN_FIELD_LOCKED' | translate }}</span>
     </label>
     <div class="flex justify-end gap-1">
-      <app-sharp-button size="sm" variant="ghost" (clicked)="registerOpen.set(false)">{{ 'PLUGIN_ACTION_CANCEL' | translate }}</app-sharp-button>
+      <app-sharp-button size="sm" variant="ghost" (clicked)="closeDrawer()">{{ 'PLUGIN_ACTION_CANCEL' | translate }}</app-sharp-button>
       <app-sharp-button size="sm" variant="primary" [loading]="submitBusy()" (clicked)="submitCatalog()">{{ 'PLUGIN_ACTION_SAVE' | translate }}</app-sharp-button>
     </div>
   </div>
 </app-drawer>
 
-<app-drawer [isOpen]="versionOpen()" [title]="'PLUGIN_VERSION_TITLE' | translate" [zIndex]="60" (close)="versionOpen.set(false)">
+<app-drawer [isOpen]="versionOpen()" [title]="'PLUGIN_VERSION_TITLE' | translate" [zIndex]="60" (close)="closeDrawer()">
   <div class="space-y-2 p-3 text-xs">
     <div class="flex items-center gap-1">
       @for (source of ['DOCKER_HUB', 'IMAGE_REGISTRY', 'JAR_BUNDLE']; track source) {
@@ -344,13 +344,13 @@
     </label>
 
     <div class="flex justify-end gap-1">
-      <app-sharp-button size="sm" variant="ghost" (clicked)="versionOpen.set(false)">{{ 'PLUGIN_ACTION_CANCEL' | translate }}</app-sharp-button>
+      <app-sharp-button size="sm" variant="ghost" (clicked)="closeDrawer()">{{ 'PLUGIN_ACTION_CANCEL' | translate }}</app-sharp-button>
       <app-sharp-button size="sm" variant="primary" [loading]="versionBusy()" (clicked)="submitVersion()">{{ 'PLUGIN_ACTION_REGISTER_VERSION' | translate }}</app-sharp-button>
     </div>
   </div>
 </app-drawer>
 
-<app-drawer [isOpen]="blockOpen()" [title]="'PLUGIN_BLOCK_TITLE' | translate" [zIndex]="60" (close)="blockOpen.set(false)">
+<app-drawer [isOpen]="blockOpen()" [title]="'PLUGIN_BLOCK_TITLE' | translate" [zIndex]="60" (close)="closeDrawer()">
   <div class="space-y-2 p-3 text-xs">
     <p class="border border-amber-300 bg-amber-50 p-2 text-[11px] text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
       {{ 'PLUGIN_BLOCK_NOTICE' | translate }}
@@ -376,7 +376,7 @@
       <span class="text-[11px] text-neutral-600 dark:text-neutral-300">{{ 'PLUGIN_FIELD_FORCE_UNINSTALL' | translate }}</span>
     </label>
     <div class="flex justify-end gap-1">
-      <app-sharp-button size="sm" variant="ghost" (clicked)="blockOpen.set(false)">{{ 'PLUGIN_ACTION_CANCEL' | translate }}</app-sharp-button>
+      <app-sharp-button size="sm" variant="ghost" (clicked)="closeDrawer()">{{ 'PLUGIN_ACTION_CANCEL' | translate }}</app-sharp-button>
       <app-sharp-button size="sm" variant="danger" [disabled]="!canConfirmBlock()" [loading]="blockBusy()" (clicked)="submitBlock()">
         {{ 'PLUGIN_ACTION_BLOCK' | translate }}
       </app-sharp-button>
@@ -384,7 +384,7 @@
   </div>
 </app-drawer>
 
-<app-drawer [isOpen]="bulkOpen()" [title]="'PLUGIN_BULK_TITLE' | translate" [zIndex]="60" (close)="bulkOpen.set(false)">
+<app-drawer [isOpen]="bulkOpen()" [title]="'PLUGIN_BULK_TITLE' | translate" [zIndex]="60" (close)="closeDrawer()">
   <div class="space-y-2 p-3 text-xs">
     <div class="flex items-end gap-1">
       <label class="block flex-1">
@@ -419,7 +419,7 @@
       </div>
     }
     <div class="flex justify-end gap-1">
-      <app-sharp-button size="sm" variant="ghost" (clicked)="bulkOpen.set(false)">{{ 'PLUGIN_ACTION_CLOSE' | translate }}</app-sharp-button>
+      <app-sharp-button size="sm" variant="ghost" (clicked)="closeDrawer()">{{ 'PLUGIN_ACTION_CLOSE' | translate }}</app-sharp-button>
       <app-sharp-button size="sm" variant="primary"
         [disabled]="!bulkPreviewData() || !bulkVersion()" [loading]="bulkBusy()" (clicked)="applyBulk()">
         {{ 'PLUGIN_ACTION_APPLY' | translate }}
@@ -428,7 +428,7 @@
   </div>
 </app-drawer>
 
-<app-drawer [isOpen]="supportOpen()" [title]="'PLUGIN_SUPPORT_TITLE' | translate" [zIndex]="70" (close)="supportOpen.set(false)">
+<app-drawer [isOpen]="supportOpen()" [title]="'PLUGIN_SUPPORT_TITLE' | translate" [zIndex]="70" (close)="closeDrawer()">
   <div class="space-y-2 p-3 text-xs">
     @if (supportTenant(); as tenant) {
       <p class="font-mono text-[11px] text-neutral-500 dark:text-neutral-400">
@@ -462,7 +462,7 @@
         class="w-full rounded-none border border-neutral-300 bg-white px-2 py-1 text-xs dark:border-neutral-700 dark:bg-neutral-900" />
     </label>
     <div class="flex justify-end gap-1">
-      <app-sharp-button size="sm" variant="ghost" (clicked)="supportOpen.set(false)">{{ 'PLUGIN_ACTION_CANCEL' | translate }}</app-sharp-button>
+      <app-sharp-button size="sm" variant="ghost" (clicked)="closeDrawer()">{{ 'PLUGIN_ACTION_CANCEL' | translate }}</app-sharp-button>
       <app-sharp-button size="sm" variant="primary" [disabled]="!supportReason().trim()" [loading]="supportBusy()" (clicked)="submitSupport()">
         {{ 'PLUGIN_ACTION_CONFIRM' | translate }}
       </app-sharp-button>

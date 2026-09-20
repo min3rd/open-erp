@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
   ApiErrorResponse,
   CredentialFormComponent,
@@ -23,6 +24,8 @@ import { PlatformPluginService } from '../../../core/services/platform-plugin.se
 export class PlatformPluginCredentialsComponent implements OnInit {
   private service = inject(PlatformPluginService);
   private i18n = inject(I18nService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   items = signal<PluginCredentialItem[]>([]);
   loading = signal(false);
@@ -38,6 +41,29 @@ export class PlatformPluginCredentialsComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
+    this.route.queryParamMap.subscribe((params) => this.applyQuery(params));
+  }
+
+  private applyQuery(params: ParamMap): void {
+    const drawer = params.get('drawer');
+    const id = params.get('id');
+    const match = id ? this.items().find((entry) => entry.id === id) ?? null : null;
+    this.drawerOpen.set(drawer === 'create' || drawer === 'edit');
+    this.editing.set(drawer === 'edit' ? match : null);
+    this.confirmDelete.set(drawer === 'delete' ? match : null);
+  }
+
+  setQuery(partial: Record<string, string | null>): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: partial,
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  closeDrawer(): void {
+    this.setQuery({ drawer: null, id: null });
   }
 
   load(): void {
@@ -46,6 +72,7 @@ export class PlatformPluginCredentialsComponent implements OnInit {
       next: (response) => {
         this.items.set(response.data?.items ?? []);
         this.loading.set(false);
+        this.applyQuery(this.route.snapshot.queryParamMap);
       },
       error: (error: ApiErrorResponse) => {
         this.errorText.set(apiMessage(this.i18n, error));
@@ -57,13 +84,13 @@ export class PlatformPluginCredentialsComponent implements OnInit {
   openCreate(): void {
     this.editing.set(null);
     this.saving.set(false);
-    this.drawerOpen.set(true);
+    this.setQuery({ drawer: 'create', id: null });
   }
 
   openEdit(item: PluginCredentialItem): void {
     this.editing.set(item);
     this.saving.set(false);
-    this.drawerOpen.set(true);
+    this.setQuery({ drawer: 'edit', id: item.id });
   }
 
   submit(payload: PluginCredentialPayload): void {
@@ -75,7 +102,7 @@ export class PlatformPluginCredentialsComponent implements OnInit {
     request.subscribe({
       next: () => {
         this.saving.set(false);
-        this.drawerOpen.set(false);
+        this.setQuery({ drawer: null, id: null });
         this.successText.set(this.i18n.t(current ? 'PLUGIN_CREDENTIAL_UPDATED' : 'PLUGIN_CREDENTIAL_CREATED'));
         this.load();
       },
@@ -113,12 +140,12 @@ export class PlatformPluginCredentialsComponent implements OnInit {
     }
     this.service.deleteCredential(item.id).subscribe({
       next: () => {
-        this.confirmDelete.set(null);
+        this.setQuery({ drawer: null, id: null });
         this.successText.set(this.i18n.t('PLUGIN_CREDENTIAL_DELETED'));
         this.load();
       },
       error: (error: ApiErrorResponse) => {
-        this.confirmDelete.set(null);
+        this.setQuery({ drawer: null, id: null });
         this.errorText.set(apiMessage(this.i18n, error));
       },
     });

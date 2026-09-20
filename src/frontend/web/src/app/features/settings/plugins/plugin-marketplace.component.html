@@ -88,7 +88,7 @@
   [isOpen]="upgradeOpen()"
   [title]="'PLUGIN_UPGRADE_TITLE' | translate"
   [zIndex]="60"
-  (close)="upgradeOpen.set(false)"
+  (close)="closeAllDrawers()"
 >
   <div class="space-y-3 p-3 text-xs">
     <label class="block">
@@ -117,7 +117,7 @@
     }
 
     <div class="flex justify-end gap-1">
-      <app-sharp-button size="sm" variant="ghost" (clicked)="upgradeOpen.set(false)">
+      <app-sharp-button size="sm" variant="ghost" (clicked)="closeAllDrawers()">
         {{ 'PLUGIN_ACTION_CANCEL' | translate }}
       </app-sharp-button>
       <app-sharp-button size="sm" variant="primary" [disabled]="!upgradeVersion()" (clicked)="confirmUpgrade()">
@@ -131,7 +131,7 @@
   [isOpen]="uninstallOpen()"
   [title]="'PLUGIN_UNINSTALL_TITLE' | translate"
   [zIndex]="60"
-  (close)="uninstallOpen.set(false)"
+  (close)="closeAllDrawers()"
 >
   <div class="space-y-3 p-3 text-xs">
     <p class="border border-amber-300 bg-amber-50 p-2 text-[11px] text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
@@ -146,7 +146,7 @@
       </p>
     }
     <div class="flex justify-end gap-1">
-      <app-sharp-button size="sm" variant="ghost" (clicked)="uninstallOpen.set(false)">
+      <app-sharp-button size="sm" variant="ghost" (clicked)="closeAllDrawers()">
         {{ 'PLUGIN_ACTION_CANCEL' | translate }}
       </app-sharp-button>
       <app-sharp-button size="sm" variant="danger" (clicked)="confirmUninstall()">
@@ -156,7 +156,7 @@
   </div>
 </app-drawer>
 
-<app-drawer [isOpen]="notificationsOpen()" [title]="'PLUGIN_NOTIFICATIONS_TITLE' | translate" (close)="notificationsOpen.set(false)">
+<app-drawer [isOpen]="notificationsOpen()" [title]="'PLUGIN_NOTIFICATIONS_TITLE' | translate" (close)="closeAllDrawers()">
   <div class="space-y-2 p-3 text-xs">
     @if (unreadCount() > 0) {
       <div class="flex justify-end">

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
   DrawerComponent,
   I18nService,
@@ -41,6 +42,8 @@ const TERMINAL_STATUSES = ['ACTIVE', 'INACTIVE', 'UNINSTALLED', 'INSTALL_FAILED'
 export class PluginMarketplaceComponent implements OnInit, OnDestroy {
   private pluginService = inject(PluginService);
   private i18n = inject(I18nService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   items = signal<PluginMarketplaceItem[]>([]);
   loading = signal(false);
@@ -70,13 +73,66 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
   registerOpen = signal(false);
   manageKey = signal<string | null>(null);
 
+  private loadedDetailKey: string | null = null;
+
   ngOnInit(): void {
     this.refresh();
     this.loadNotifications();
+    this.route.queryParamMap.subscribe((params) => this.applyQuery(params));
   }
 
   ngOnDestroy(): void {
     this.stopPolling();
+  }
+
+  private applyQuery(params: ParamMap): void {
+    const plugin = params.get('plugin');
+    const drawer = params.get('drawer');
+
+    if (plugin && plugin !== this.loadedDetailKey) {
+      this.loadedDetailKey = plugin;
+      this.selectedKey.set(plugin);
+      this.loadDetail(plugin);
+    } else if (!plugin) {
+      this.loadedDetailKey = null;
+      this.selectedKey.set(null);
+      this.detail.set(null);
+    }
+
+    const item = plugin ? this.items().find((entry) => entry.plugin_key === plugin) ?? null : null;
+
+    this.detailOpen.set(drawer === 'detail');
+    this.upgradeOpen.set(drawer === 'upgrade');
+    if (drawer === 'upgrade' && item) {
+      this.upgradeItem.set(item);
+      this.upgradeVersion.set(item.latest_version ?? '');
+      this.upgradeSnapshot.set(false);
+    }
+    this.uninstallOpen.set(drawer === 'uninstall');
+    if (drawer === 'uninstall') {
+      this.uninstallItem.set(item);
+    }
+    this.notificationsOpen.set(drawer === 'notifications');
+    this.registerOpen.set(drawer === 'register' || drawer === 'manage');
+    this.manageKey.set(drawer === 'manage' ? plugin : null);
+
+    if (drawer === 'detail' && plugin && !this.detail()) {
+      this.loadDetail(plugin);
+    }
+  }
+
+  setQuery(partial: Record<string, string | null>): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: partial,
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  closeAllDrawers(): void {
+    this.stopPolling();
+    this.setQuery({ drawer: null });
   }
 
   refresh(): void {
@@ -85,6 +141,7 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.items.set(response.data?.items ?? []);
         this.loading.set(false);
+        this.applyQuery(this.route.snapshot.queryParamMap);
       },
       error: (error: ApiErrorResponse) => {
         this.errorText.set(apiMessage(this.i18n, error));
@@ -109,9 +166,7 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
   }
 
   openDetail(item: PluginMarketplaceItem): void {
-    this.selectedKey.set(item.plugin_key);
-    this.detailOpen.set(true);
-    this.loadDetail(item.plugin_key);
+    this.setQuery({ plugin: item.plugin_key, drawer: 'detail' });
   }
 
   loadDetail(pluginKey: string): void {
@@ -144,7 +199,7 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
     this.upgradeItem.set(item);
     this.upgradeVersion.set(item.latest_version ?? '');
     this.upgradeSnapshot.set(false);
-    this.upgradeOpen.set(true);
+    this.setQuery({ plugin: item.plugin_key, drawer: 'upgrade' });
     if (this.detailKey() !== item.plugin_key) {
       this.pluginService.detail(item.plugin_key).subscribe({
         next: (response) => this.detail.set(response.data ?? null),
@@ -174,15 +229,14 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
     if (!item || !target) {
       return;
     }
-    this.upgradeOpen.set(false);
+    this.setQuery({ drawer: null });
     this.runLifecycle(item.plugin_key, () =>
       this.pluginService.upgrade(item.plugin_key, target, this.upgradeRequiresSnapshot() ? true : this.upgradeSnapshot())
     );
   }
 
   openUninstall(item: PluginMarketplaceItem): void {
-    this.uninstallItem.set(item);
-    this.uninstallOpen.set(true);
+    this.setQuery({ plugin: item.plugin_key, drawer: 'uninstall' });
   }
 
   confirmUninstall(): void {
@@ -190,13 +244,13 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
     if (!item) {
       return;
     }
-    this.uninstallOpen.set(false);
+    this.setQuery({ drawer: null });
     this.runLifecycle(item.plugin_key, () => this.pluginService.uninstall(item.plugin_key));
   }
 
   openNotifications(): void {
     this.loadNotifications();
-    this.notificationsOpen.set(true);
+    this.setQuery({ drawer: 'notifications' });
   }
 
   markAllRead(): void {
@@ -207,13 +261,13 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
   }
 
   closeDetail(): void {
-    this.detailOpen.set(false);
     this.stopPolling();
+    this.setQuery({ plugin: null, drawer: null });
   }
 
   openRegister(): void {
     this.manageKey.set(null);
-    this.registerOpen.set(true);
+    this.setQuery({ plugin: null, drawer: 'register' });
   }
 
   openManageVersions(): void {
@@ -222,7 +276,7 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
       return;
     }
     this.manageKey.set(key);
-    this.registerOpen.set(true);
+    this.setQuery({ plugin: key, drawer: 'manage' });
   }
 
   isCustomDetail(): boolean {
@@ -246,7 +300,7 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
   }
 
   onRegisterClosed(): void {
-    this.registerOpen.set(false);
+    this.setQuery({ drawer: null });
   }
 
   onRegisterChanged(): void {

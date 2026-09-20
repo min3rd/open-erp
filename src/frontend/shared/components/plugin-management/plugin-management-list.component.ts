@@ -59,7 +59,17 @@ export class PluginManagementListComponent {
   }
 
   isInstalled(item: PluginMarketplaceItem): boolean {
-    return !!item.status && item.status !== TenantPluginStatus.UNINSTALLED;
+    switch (item.status) {
+      case TenantPluginStatus.ACTIVE:
+      case TenantPluginStatus.INACTIVE:
+      case TenantPluginStatus.INSTALLING:
+      case TenantPluginStatus.UPGRADING:
+      case TenantPluginStatus.INSTALL_FAILED:
+      case TenantPluginStatus.ROLLBACK_FAILED:
+        return true;
+      default:
+        return false;
+    }
   }
 
   canUpgrade(item: PluginMarketplaceItem): boolean {

@@ -862,5 +862,10 @@
   "PLUGIN_REGISTER_SUCCESS": "Custom plugin registered as draft.",
   "PLUGIN_APP_BACK_TO_MARKETPLACE": "Back to plugins",
   "PLUGIN_FIELD_CREDENTIAL": "Registry credential (optional)",
-  "PLUGIN_CREDENTIAL_NONE": "No credential"
+  "PLUGIN_CREDENTIAL_NONE": "No credential",
+  "PERM_CORE_PLUGIN_READ": "View plugins & marketplace",
+  "PERM_CORE_PLUGIN_INSTALL": "Install plugins",
+  "PERM_CORE_PLUGIN_MANAGE": "Manage plugin lifecycle (enable/disable/upgrade/uninstall)",
+  "PERM_CORE_PLUGIN_CREDENTIAL_MANAGE": "Manage registry credentials",
+  "PERM_CORE_PLUGIN_REGISTER_CUSTOM": "Register tenant private plugins"
 }
