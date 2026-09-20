@@ -76,7 +76,8 @@ public class PluginLifecycleApiTest {
         userId = S2EngineFixtures.insertUser(em, "plg-" + suffix);
         insertPluginPermissions();
         UUID roleId = S2EngineFixtures.insertCustomRole(em, tenantId, suffix + "-plg");
-        for (String permission : List.of("core:plugin:read", "core:plugin:install", "core:plugin:manage")) {
+        for (String permission : List.of("core:plugin:read", "core:plugin:install", "core:plugin:manage",
+                "core:plugin:register-custom")) {
             S2EngineFixtures.grantPermission(em, roleId, permission);
         }
         S2EngineFixtures.assignRole(em, userId, tenantId, roleId);
@@ -308,6 +309,75 @@ public class PluginLifecycleApiTest {
                 .body("code", equalTo("PLUGIN_NOT_FOUND"));
     }
 
+    @Test
+    @DisplayName("T8/T15-T18: tenant tự đăng ký plugin riêng, publish, cài, gỡ version/catalog")
+    public void testTenantCustomPluginFlow() {
+        QuarkusTransaction.requiringNew().run(() -> em
+                .createNativeQuery("UPDATE tenants SET allow_custom_plugins = TRUE WHERE id = ?1")
+                .setParameter(1, tenantId)
+                .executeUpdate());
+
+        String customKey = "priv-" + tenantId.toString().substring(0, 8);
+        ObjectNode manifest = buildManifest(customKey, "0.1.0", "COMPATIBLE", false);
+        Map<String, Object> register = Map.of(
+                "plugin_key", customKey,
+                "name_key", "PLUGIN_" + customKey.toUpperCase().replace('-', '_') + "_NAME",
+                "description_key", "PLUGIN_" + customKey.toUpperCase().replace('-', '_') + "_DESCRIPTION",
+                "source", "DOCKER_HUB",
+                "version", "0.1.0",
+                "image_ref", "open-erp/" + customKey,
+                "tag", "0.1.0",
+                "checksum", "sha256-" + customKey,
+                "manifest", manifest);
+
+        given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
+                .body(register)
+                .post(TENANT_PLUGINS_PATH + "/register")
+                .then().statusCode(201)
+                .body("code", equalTo("PLUGIN_REGISTER_SUCCESS"))
+                .body("data.release_status", equalTo("DRAFT"));
+
+        given().header("Authorization", "Bearer " + token)
+                .get(TENANT_PLUGINS_PATH + "/" + customKey + "/versions")
+                .then().statusCode(200)
+                .body("data.items", hasSize(1))
+                .body("data.items[0].release_status", equalTo("DRAFT"));
+
+        given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
+                .body(Map.of("action", "BLOCK", "reason", "tenant must not block"))
+                .patch(TENANT_PLUGINS_PATH + "/" + customKey + "/versions/0.1.0")
+                .then().statusCode(400);
+
+        given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
+                .body(Map.of("action", "PUBLISH", "reason", "tenant publish"))
+                .patch(TENANT_PLUGINS_PATH + "/" + customKey + "/versions/0.1.0")
+                .then().statusCode(200)
+                .body("data.release_status", equalTo("PUBLISHED"));
+
+        given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
+                .body(Map.of("version", "0.1.0"))
+                .post(TENANT_PLUGINS_PATH + "/" + customKey + "/install")
+                .then().statusCode(200).body("data.status", equalTo("ACTIVE"));
+
+        given().header("Authorization", "Bearer " + token)
+                .delete(TENANT_PLUGINS_PATH + "/" + customKey + "/versions/0.1.0")
+                .then().statusCode(409)
+                .body("code", equalTo("PLUGIN_VERSION_IN_USE"));
+
+        given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
+                .post(TENANT_PLUGINS_PATH + "/" + customKey + "/uninstall")
+                .then().statusCode(200).body("data.status", equalTo("UNINSTALLED"));
+
+        given().header("Authorization", "Bearer " + token)
+                .delete(TENANT_PLUGINS_PATH + "/" + customKey + "/versions/0.1.0")
+                .then().statusCode(200);
+
+        given().header("Authorization", "Bearer " + token)
+                .delete(TENANT_PLUGINS_PATH + "/" + customKey + "/catalog")
+                .then().statusCode(200)
+                .body("code", equalTo("PLUGIN_CATALOG_DELETE_SUCCESS"));
+    }
+
     private void registerAndPublish(String key, String version, String migrationPolicy, boolean withUi) {
         QuarkusTransaction.requiringNew().run(() -> {
             if (!adminService.existsByKey(key)) {
@@ -383,7 +453,8 @@ public class PluginLifecycleApiTest {
     }
 
     private void insertPluginPermissions() {
-        for (String code : List.of("core:plugin:read", "core:plugin:install", "core:plugin:manage")) {
+        for (String code : List.of("core:plugin:read", "core:plugin:install", "core:plugin:manage",
+                "core:plugin:register-custom")) {
             em.createNativeQuery("""
                     INSERT INTO permissions (code, domain, resource, action, description_key, is_system)
                     VALUES (?1, 'core', 'plugin', ?2, ?3, FALSE)

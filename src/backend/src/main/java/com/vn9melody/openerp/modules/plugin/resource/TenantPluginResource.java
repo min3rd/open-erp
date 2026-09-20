@@ -7,12 +7,15 @@ import com.vn9melody.openerp.core.security.RequirePermission;
 import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
 import com.vn9melody.openerp.modules.plugin.dto.PluginRequests;
 import com.vn9melody.openerp.modules.plugin.dto.PluginResponses;
+import com.vn9melody.openerp.modules.plugin.service.PluginAdminService;
 import com.vn9melody.openerp.modules.plugin.service.PluginArtifactUploadService;
 import com.vn9melody.openerp.modules.plugin.service.PluginLifecycleService;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -41,6 +44,9 @@ public class TenantPluginResource {
 
     @Inject
     PluginArtifactUploadService uploadService;
+
+    @Inject
+    PluginAdminService adminService;
 
     @Inject
     EntityManager entityManager;
@@ -133,6 +139,108 @@ public class TenantPluginResource {
         } catch (java.io.IOException e) {
             throw new com.vn9melody.openerp.core.api.ApiException(500,
                     PluginErrorCode.PLUGIN_ARTIFACT_DOWNLOAD_FAILED, "Cannot read uploaded artifact");
+        }
+    }
+
+    @POST
+    @Path("/register")
+    @RequirePermission("core:plugin:register-custom")
+    public Response registerCustom(PluginRequests.TenantRegister request) {
+        UserSecurityContext context = securityContextService.getCurrentContext();
+        requireCustomPlugins(context.tenantId());
+        if (request == null || request.pluginKey == null || request.pluginKey.isBlank()) {
+            throw new com.vn9melody.openerp.core.api.ApiException(400,
+                    PluginErrorCode.PLUGIN_ARTIFACT_INVALID_MANIFEST, "plugin_key is required");
+        }
+        assertArtifactOwnership(request.artifactRef, context.tenantId());
+        PluginRequests.RegisterCatalog catalogRequest = new PluginRequests.RegisterCatalog();
+        catalogRequest.pluginKey = request.pluginKey;
+        catalogRequest.nameKey = request.nameKey;
+        catalogRequest.descriptionKey = request.descriptionKey;
+        PluginResponses.CatalogItem catalog = adminService.tenantCreateCatalog(context.tenantId(),
+                context.userId(), catalogRequest);
+        PluginResponses.VersionItem version = adminService.tenantRegisterVersion(context.tenantId(),
+                context.userId(), catalog.pluginKey, request);
+        return Response.status(Response.Status.CREATED).entity(ApiResponse.success(
+                PluginErrorCode.PLUGIN_REGISTER_SUCCESS, "Custom plugin registered as DRAFT.", version)).build();
+    }
+
+    @DELETE
+    @Path("/{pluginKey}/catalog")
+    @RequirePermission("core:plugin:register-custom")
+    public Response deleteCustomCatalog(@PathParam("pluginKey") String pluginKey) {
+        UserSecurityContext context = securityContextService.getCurrentContext();
+        requireCustomPlugins(context.tenantId());
+        adminService.tenantDeleteCatalog(context.tenantId(), pluginKey);
+        PluginResponses.ActionResult result = new PluginResponses.ActionResult();
+        result.pluginKey = pluginKey;
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_CATALOG_DELETE_SUCCESS,
+                "Custom plugin catalog deleted.", result)).build();
+    }
+
+    @GET
+    @Path("/{pluginKey}/versions")
+    @RequirePermission("core:plugin:read")
+    public Response listCustomVersions(@PathParam("pluginKey") String pluginKey) {
+        UserSecurityContext context = securityContextService.getCurrentContext();
+        List<PluginResponses.VersionItem> versions = adminService.tenantListVersions(context.tenantId(),
+                pluginKey);
+        return Response.ok(ApiResponse.successList(PluginErrorCode.PLUGIN_VERSION_LIST_SUCCESS,
+                "Plugin versions retrieved successfully.", versions)).build();
+    }
+
+    @POST
+    @Path("/{pluginKey}/versions")
+    @RequirePermission("core:plugin:register-custom")
+    public Response registerCustomVersion(@PathParam("pluginKey") String pluginKey,
+                                          PluginRequests.RegisterVersion request) {
+        UserSecurityContext context = securityContextService.getCurrentContext();
+        requireCustomPlugins(context.tenantId());
+        assertArtifactOwnership(request != null ? request.artifactRef : null, context.tenantId());
+        PluginResponses.VersionItem version = adminService.tenantRegisterVersion(context.tenantId(),
+                context.userId(), pluginKey, request);
+        return Response.status(Response.Status.CREATED).entity(ApiResponse.success(
+                PluginErrorCode.PLUGIN_VERSION_ADD_SUCCESS, "Version registered as DRAFT.", version)).build();
+    }
+
+    @PATCH
+    @Path("/{pluginKey}/versions/{version}")
+    @RequirePermission("core:plugin:register-custom")
+    public Response customVersionAction(@PathParam("pluginKey") String pluginKey,
+                                        @PathParam("version") String version,
+                                        PluginRequests.VersionAction request) {
+        UserSecurityContext context = securityContextService.getCurrentContext();
+        requireCustomPlugins(context.tenantId());
+        PluginResponses.ActionResult result = adminService.tenantVersionAction(context.tenantId(), pluginKey,
+                version, request != null ? request.action : null, request != null ? request.reason : null,
+                context.userId());
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_PUBLISH_SUCCESS,
+                "Version action applied.", result)).build();
+    }
+
+    @DELETE
+    @Path("/{pluginKey}/versions/{version}")
+    @RequirePermission("core:plugin:register-custom")
+    public Response deleteCustomVersion(@PathParam("pluginKey") String pluginKey,
+                                        @PathParam("version") String version) {
+        UserSecurityContext context = securityContextService.getCurrentContext();
+        requireCustomPlugins(context.tenantId());
+        adminService.tenantDeleteVersion(context.tenantId(), pluginKey, version);
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_VERSION_DELETE_SUCCESS,
+                "Version removed.", null)).build();
+    }
+
+    private void requireCustomPlugins(java.util.UUID tenantId) {
+        if (!allowCustomPlugins(tenantId)) {
+            throw new com.vn9melody.openerp.core.api.ApiException(403,
+                    PluginErrorCode.PLUGIN_CUSTOM_NOT_ALLOWED,
+                    "Custom plugins are not enabled for this tenant");
+        }
+    }
+
+    private void assertArtifactOwnership(String artifactRef, java.util.UUID tenantId) {
+        if (artifactRef != null && !artifactRef.isBlank()) {
+            uploadService.assertOwnedBy(artifactRef, tenantId);
         }
     }
 

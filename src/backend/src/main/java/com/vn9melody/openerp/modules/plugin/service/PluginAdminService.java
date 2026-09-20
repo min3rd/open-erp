@@ -11,6 +11,7 @@ import com.vn9melody.openerp.core.enums.PluginReleaseStatus;
 import com.vn9melody.openerp.core.enums.PlatformAction;
 import com.vn9melody.openerp.core.enums.PluginRollbackStrategy;
 import com.vn9melody.openerp.core.enums.PluginVisibility;
+import com.vn9melody.openerp.core.enums.TenantPluginStatus;
 import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
 import com.vn9melody.openerp.modules.plugin.api.PluginResponseKey;
 import com.vn9melody.openerp.modules.plugin.api.PluginSupport;
@@ -385,6 +386,121 @@ public class PluginAdminService {
         result.catalogStatus = catalog.catalogStatus.name();
         result.reason = text;
         return result;
+    }
+
+    @Transactional
+    public PluginResponses.CatalogItem tenantCreateCatalog(UUID tenantId, UUID actorId,
+                                                          PluginRequests.RegisterCatalog request) {
+        if (request == null || request.pluginKey == null || request.pluginKey.isBlank()) {
+            throw new ApiException(400, PluginErrorCode.PLUGIN_ARTIFACT_INVALID_MANIFEST, "plugin_key is required");
+        }
+        String key = request.pluginKey.trim().toLowerCase();
+        if (!PluginSupport.isValidPluginKey(key) || PluginSupport.isReservedKey(key)) {
+            throw new ApiException(400, PluginErrorCode.PLUGIN_KEY_ALREADY_EXISTS, "Invalid or reserved plugin key");
+        }
+        if (catalogRepository.existsByPluginKey(key)) {
+            throw new ApiException(409, PluginErrorCode.PLUGIN_KEY_ALREADY_EXISTS, "Plugin key already exists");
+        }
+        PluginCatalog catalog = new PluginCatalog();
+        catalog.pluginKey = key;
+        catalog.nameKey = requireText(request.nameKey, "name_key");
+        catalog.descriptionKey = requireText(request.descriptionKey, "description_key");
+        catalog.visibility = PluginVisibility.TENANT_PRIVATE;
+        catalog.ownerTenantId = tenantId;
+        catalog.defaultInstall = false;
+        catalog.locked = false;
+        catalog.catalogStatus = PluginCatalogStatus.ACTIVE;
+        catalog.entitlementPlans = toJson(List.of());
+        catalog.createdBy = actorId;
+        catalog.createdAt = Instant.now();
+        catalog.updatedAt = catalog.createdAt;
+        catalogRepository.persist(catalog);
+        auditService.tenant(tenantId, PlatformAction.PLUGIN_TENANT_REGISTERED, catalog.pluginKey, null);
+        return toCatalogItem(catalog);
+    }
+
+    @Transactional
+    public PluginResponses.VersionItem tenantRegisterVersion(UUID tenantId, UUID actorId, String pluginKey,
+                                                             PluginRequests.RegisterVersion request) {
+        requireOwnPrivateCatalog(tenantId, pluginKey);
+        PluginResponses.VersionItem item = registerVersion(pluginKey, request, actorId);
+        auditService.tenant(tenantId, PlatformAction.PLUGIN_TENANT_VERSION_ADDED, pluginKey,
+                Map.of(PluginResponseKey.VERSION.getKey(), request.version));
+        return item;
+    }
+
+    @Transactional
+    public List<PluginResponses.VersionItem> tenantListVersions(UUID tenantId, String pluginKey) {
+        PluginCatalog catalog = requireOwnPrivateCatalog(tenantId, pluginKey);
+        return versionRepository.listByCatalog(catalog.id).stream().map(this::toVersionItem).toList();
+    }
+
+    @Transactional
+    public PluginResponses.ActionResult tenantVersionAction(UUID tenantId, String pluginKey, String version,
+                                                            String action, String reason, UUID actorId) {
+        requireOwnPrivateCatalog(tenantId, pluginKey);
+        String normalized = action == null ? "" : action.trim().toUpperCase();
+        PluginResponses.ActionResult result = switch (normalized) {
+            case "PUBLISH" -> {
+                PluginResponses.ActionResult published = publishVersion(pluginKey, version, reason, actorId);
+                auditService.tenant(tenantId, PlatformAction.PLUGIN_TENANT_VERSION_PUBLISHED, pluginKey,
+                        Map.of(PluginResponseKey.VERSION.getKey(), version));
+                yield published;
+            }
+            case "DEPRECATE" -> {
+                PluginResponses.ActionResult deprecated = deprecateVersion(pluginKey, version, reason, actorId);
+                auditService.tenant(tenantId, PlatformAction.PLUGIN_TENANT_VERSION_DEPRECATED, pluginKey,
+                        Map.of(PluginResponseKey.VERSION.getKey(), version));
+                yield deprecated;
+            }
+            default -> throw new ApiException(400, PluginErrorCode.PLUGIN_ARTIFACT_INVALID_MANIFEST,
+                    "Tenant may only PUBLISH or DEPRECATE versions");
+        };
+        return result;
+    }
+
+    @Transactional
+    public void tenantDeleteVersion(UUID tenantId, String pluginKey, String version) {
+        PluginCatalog catalog = requireOwnPrivateCatalog(tenantId, pluginKey);
+        PluginVersion entity = versionRepository.findByCatalogAndVersion(catalog.id, version)
+                .orElseThrow(() -> new ApiException(404, PluginErrorCode.PLUGIN_VERSION_IN_USE,
+                        "Version not found"));
+        if (versionRepository.isVersionInUse(catalog.id, version)) {
+            throw new ApiException(409, PluginErrorCode.PLUGIN_VERSION_IN_USE,
+                    "Version is installed by at least one tenant");
+        }
+        versionRepository.delete(entity);
+        auditService.tenant(tenantId, PlatformAction.PLUGIN_TENANT_VERSION_REMOVED, pluginKey,
+                Map.of(PluginResponseKey.VERSION.getKey(), version));
+    }
+
+    @Transactional
+    public void tenantDeleteCatalog(UUID tenantId, String pluginKey) {
+        PluginCatalog catalog = requireOwnPrivateCatalog(tenantId, pluginKey);
+        tenantPluginRepository.findByTenantAndKey(tenantId, pluginKey).ifPresent(ledger -> {
+            if (ledger.status != TenantPluginStatus.UNINSTALLED
+                    && ledger.status != TenantPluginStatus.NOT_INSTALLED) {
+                throw new ApiException(409, PluginErrorCode.PLUGIN_VERSION_IN_USE,
+                        "Plugin is still installed; uninstall before deleting the catalog");
+            }
+            tenantPluginRepository.delete(ledger);
+            tenantPluginRepository.flush();
+        });
+        versionRepository.delete("catalogId", catalog.id);
+        catalogRepository.delete(catalog);
+        auditService.tenant(tenantId, PlatformAction.PLUGIN_TENANT_CATALOG_DELETED, pluginKey, null);
+    }
+
+    private PluginCatalog requireOwnPrivateCatalog(UUID tenantId, String pluginKey) {
+        PluginCatalog catalog = catalogRepository.findByPluginKey(pluginKey);
+        if (catalog == null) {
+            throw new ApiException(404, PluginErrorCode.PLUGIN_NOT_FOUND, "Plugin not found");
+        }
+        if (catalog.visibility != PluginVisibility.TENANT_PRIVATE || !tenantId.equals(catalog.ownerTenantId)) {
+            throw new ApiException(403, PluginErrorCode.PLUGIN_NOT_ENTITLED,
+                    "Plugin is not owned by this tenant");
+        }
+        return catalog;
     }
 
     private PluginCatalog requireCatalog(String pluginKey) {

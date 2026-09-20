@@ -74,6 +74,17 @@ public class PluginRequests {
         public String templateVersion;
     }
 
+    public static class TenantRegister extends RegisterVersion {
+        @JsonProperty(PluginResponseKey.Json.PLUGIN_KEY)
+        public String pluginKey;
+
+        @JsonProperty(PluginResponseKey.Json.NAME_KEY)
+        public String nameKey;
+
+        @JsonProperty(PluginResponseKey.Json.DESCRIPTION_KEY)
+        public String descriptionKey;
+    }
+
     public static class VersionAction {
         public String action;
         public String reason;

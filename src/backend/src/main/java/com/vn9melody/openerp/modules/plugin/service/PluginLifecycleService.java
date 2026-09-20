@@ -104,7 +104,24 @@ public class PluginLifecycleService {
         TenantPlugin ledger = null;
         boolean started = false;
         try {
-            ledger = requireLedger(tenantId, pluginKey);
+            ledger = tenantPluginRepository.findByTenantAndKey(tenantId, pluginKey).orElse(null);
+            if (ledger == null) {
+                PluginCatalog ownCatalog = catalogRepository.findByPluginKey(pluginKey);
+                if (ownCatalog != null && ownCatalog.visibility == PluginVisibility.TENANT_PRIVATE
+                        && tenantId.equals(ownCatalog.ownerTenantId)) {
+                    ledger = new TenantPlugin();
+                    ledger.tenantId = tenantId;
+                    ledger.pluginKey = pluginKey;
+                    ledger.catalogId = ownCatalog.id;
+                    ledger.status = TenantPluginStatus.NOT_INSTALLED;
+                    ledger.createdAt = Instant.now();
+                    ledger.updatedAt = ledger.createdAt;
+                    tenantPluginRepository.persist(ledger);
+                } else {
+                    throw new ApiException(403, PluginErrorCode.PLUGIN_NOT_ENTITLED,
+                            "Plugin is not entitled for this tenant");
+                }
+            }
             if (ledger.status == TenantPluginStatus.ACTIVE || ledger.status == TenantPluginStatus.INSTALLING
                     || ledger.status == TenantPluginStatus.UPGRADING) {
                 throw new ApiException(409, PluginErrorCode.PLUGIN_ALREADY_INSTALLED, "Plugin is already installed");

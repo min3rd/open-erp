@@ -33,3 +33,17 @@ Tenant A tự đăng ký và cài từ cả 3 nguồn, thêm bản v2 rồi nân
 - Ràng buộc sở hữu: `artifact_ref` gắn `owner_tenant_id`; từ chối `PLUGIN_ARTIFACT_NOT_OWNED` khi dùng artifact/credential của tenant khác.
 - Luồng trạng thái rõ: upload → xác minh (checksum/manifest/compatibility) → `DRAFT` → `PUBLISHED` (T17, chỉ khi đã xác minh — `PLUGIN_VERSION_NOT_VERIFIED`) → cài/nâng cấp cho chính tenant; tenant không được `BLOCK` (chỉ nền tảng).
 - UI: Drawer plugin riêng có quản lý phiên bản; tài liệu: [DES-03-API mục 4.3](../06_designs/api/PLUGIN_MANAGER_API_SPEC.md), [DES-03-UI mục 4.3](../06_designs/ui_ux/PLUGIN_MANAGER_UI_SPEC.md), ANL-03 mục 3.6.
+
+## Xác nhận triển khai (2026-09-20)
+
+Đã code đủ backend luồng plugin riêng theo DES-03-API mục 4.3, kiểm thử trên PostgreSQL thật:
+
+- `POST /api/v1/tenant/plugins/register` (T8): tạo catalog `TENANT_PRIVATE` + version `DRAFT`, kiểm tra `allow_custom_plugins` + `core:plugin:register-custom`, ràng buộc sở hữu `artifact_ref`.
+- `DELETE /api/v1/tenant/plugins/{key}/catalog` (T9): chỉ khi plugin `UNINSTALLED`/`NOT_INSTALLED`; xóa ledger + versions + catalog.
+- `POST|GET /{key}/versions` (T15/T16), `PATCH /{key}/versions/{version}` (T17 — chỉ PUBLISH/DEPRECATE, BLOCK bị từ chối 400), `DELETE /{key}/versions/{version}` (T18 — `PLUGIN_VERSION_IN_USE` khi đang ghim).
+- `install()` tự tạo ledger cho plugin `TENANT_PRIVATE` thuộc chính tenant (không cần P12), tenant khác vẫn `PLUGIN_NOT_ENTITLED`.
+- Audit mới: `PLUGIN_TENANT_REGISTERED`, `PLUGIN_TENANT_VERSION_ADDED|PUBLISHED|DEPRECATED|REMOVED`, `PLUGIN_TENANT_CATALOG_DELETED`.
+- Test `testTenantCustomPluginFlow` PASS (register → publish → install ACTIVE → chặn xóa version đang dùng → uninstall → xóa version → xóa catalog).
+
+Tiêu chí kiểm tra "tenant B không dùng được artifact của A" đã có test `PluginCredentialAndUploadTest.testUploadOwnership`; UI Drawer plugin riêng thuộc TASK-317.
+
