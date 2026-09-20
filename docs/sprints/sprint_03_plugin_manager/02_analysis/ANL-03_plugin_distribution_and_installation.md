@@ -138,6 +138,7 @@ Ngoài luồng Super Admin đăng ký catalog toàn nền tảng, **Tenant Admin
 5. **Giám sát nền tảng**: Super Admin thấy toàn bộ plugin riêng của mọi tenant, có quyền **khóa/gỡ cưỡng chế**; mọi thao tác ghi audit (`TENANT_PLUGIN_REGISTERED`, `TENANT_CUSTOM_PLUGIN_BLOCKED`...).
 6. **Tài nguyên**: container plugin riêng tính vào **quota/hạn mức của tenant**; giới hạn số plugin riêng theo cấu hình.
 7. **Trách nhiệm**: cảnh báo rõ trên UI — tenant tự chịu trách nhiệm về plugin riêng, nhưng nền tảng vẫn bảo vệ hệ thống bằng cô lập container + quyền khóa.
+8. **Quản lý phiên bản plugin riêng (bổ sung sau rà soát)**: Tenant Admin upload bundle (T14), **đăng ký thêm phiên bản** (T15), `PUBLISH/DEPRECATE` (T17), gỡ phiên bản chưa dùng (T18); nền tảng giữ quyền `BLOCK` (P15).
 
 ---
 

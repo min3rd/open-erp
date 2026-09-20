@@ -53,11 +53,10 @@ CREATE TABLE plugin_catalog (
     )
 );
 
--- Khóa duy nhất: plugin nền tảng unique toàn cục; plugin riêng unique theo tenant
-CREATE UNIQUE INDEX uq_plugin_catalog_platform_key
-    ON plugin_catalog (plugin_key) WHERE visibility = 'PLATFORM';
-CREATE UNIQUE INDEX uq_plugin_catalog_tenant_key
-    ON plugin_catalog (owner_tenant_id, plugin_key) WHERE visibility = 'TENANT_PRIVATE';
+-- Khóa duy nhất TOÀN CỤC cho mọi plugin (kể cả TENANT_PRIVATE) — nhất quán BR-PLG-02.
+-- ⇒ ledger, dependencies, UI slot, API path {plugin_key} không bao giờ mơ hồ.
+-- Gợi ý đặt tên plugin riêng theo tenant-slug: acme-hrm, acme-pos...
+CREATE UNIQUE INDEX uq_plugin_catalog_key ON plugin_catalog (plugin_key);
 
 CREATE INDEX idx_plugin_catalog_default_install ON plugin_catalog (default_install) WHERE visibility = 'PLATFORM';
 CREATE INDEX idx_plugin_catalog_owner ON plugin_catalog (owner_tenant_id) WHERE visibility = 'TENANT_PRIVATE';
@@ -79,6 +78,7 @@ CREATE TABLE plugin_versions (
     ui_manifest JSONB NOT NULL DEFAULT '{}'::jsonb,             -- {"screens":[...],"slots":[...],"contributions":[...]}
     distribution JSONB NOT NULL DEFAULT '{}'::jsonb,            -- {"type":"DOCKER_HUB|IMAGE_REGISTRY|JAR_BUNDLE","image_ref":"...","digest":"sha256:...","checksum":"...","bundle_ref":"minio://...","size_bytes":123}
     manifest JSONB NOT NULL,                                    -- plugin.json gốc (bất biến sau công bố)
+    migration_policy VARCHAR(16) NOT NULL DEFAULT 'COMPATIBLE', -- COMPATIBLE | BREAKING (bắt buộc snapshot trước nâng cấp)
     template_version VARCHAR(32),
     created_by UUID,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -119,7 +119,7 @@ CREATE TABLE tenant_plugins (
     CONSTRAINT uq_tenant_plugin UNIQUE (tenant_id, plugin_key),
     CONSTRAINT chk_tenant_plugin_status CHECK (status IN (
         'NOT_INSTALLED','INSTALLING','ACTIVE','INACTIVE','UPGRADING',
-        'INSTALL_FAILED','UNINSTALLING','UNINSTALLED'
+        'INSTALL_FAILED','ROLLBACK_FAILED','UNINSTALLING','UNINSTALLED'
     )),
     CONSTRAINT chk_tenant_plugin_storage CHECK (storage_model IN ('DEDICATED_SCHEMA','DEDICATED_DATABASE'))
 );
@@ -130,6 +130,26 @@ CREATE INDEX idx_tenant_plugins_operation ON tenant_plugins (operation_id) WHERE
 ```
 
 > **Quan hệ entitlement**: sự tồn tại của dòng = tenant được cấp phép plugin; `status = 'NOT_INSTALLED'` = đã cấp phép nhưng chưa cài. Thu hồi entitlement = xóa dòng (chỉ khi chưa từng cài hoặc đã `UNINSTALLED`).
+
+**Ràng buộc phạm vi (BUG-85 — bắt buộc)**:
+```sql
+-- Tenant chỉ được cài plugin PLATFORM hoặc plugin riêng CỦA CHÍNH tenant
+CREATE OR REPLACE FUNCTION check_tenant_plugin_scope() RETURNS trigger AS $$
+DECLARE v_visibility VARCHAR(20); v_owner UUID;
+BEGIN
+    SELECT visibility, owner_tenant_id INTO v_visibility, v_owner
+    FROM plugin_catalog WHERE id = NEW.catalog_id;
+    IF v_visibility = 'TENANT_PRIVATE' AND v_owner <> NEW.tenant_id THEN
+        RAISE EXCEPTION 'PLUGIN_NOT_ENTITLED: tenant % cannot use private plugin of tenant %', NEW.tenant_id, v_owner;
+    END IF;
+    RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_tenant_plugin_scope
+BEFORE INSERT OR UPDATE ON tenant_plugins
+FOR EACH ROW EXECUTE FUNCTION check_tenant_plugin_scope();
+```
+Ngoài trigger, tầng service bắt buộc kiểm tra `visibility` + `owner_tenant_id` khi cấp entitlement/đăng ký plugin riêng; tenant không bao giờ thấy hoặc cài plugin riêng của tenant khác.
 
 ### 2.4. Bảng `plugin_credentials` (Credentials Đa Phạm Vi — Q7)
 
@@ -161,24 +181,44 @@ CREATE UNIQUE INDEX uq_plugin_credentials_tenant_host
 
 ### 2.5. Bảng `plugin_ui_slots` (Registry UI Slot — DES-03-UI)
 
+> **Phân biệt chủ sở hữu & phiên bản**: slot của Core là duy nhất theo `slot_code`; slot do plugin làm host được **định danh theo `(owner_plugin_key, slot_code, contract_version)`** và gắn với phiên bản plugin khai báo (`declared_in_version`). Registry được **đồng bộ khi công bố phiên bản** từ `plugin_versions.ui_manifest.slots`; runtime resolve slot theo **phiên bản host đang cài của tenant**.
+
 ```sql
 CREATE TABLE plugin_ui_slots (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     slot_code VARCHAR(120) NOT NULL,                            -- core.dashboard.widgets, crm.customer.detail.tabs...
     host_type VARCHAR(16) NOT NULL,                             -- CORE | PLUGIN
     owner_plugin_key VARCHAR(100),                              -- plugin làm host (nếu host_type = PLUGIN)
+    declared_in_version VARCHAR(32),                            -- phiên bản plugin khai báo slot
     title_key VARCHAR(120) NOT NULL,
     contract_version VARCHAR(16) NOT NULL DEFAULT '1.0',
     allowed_render_modes JSONB NOT NULL DEFAULT '["WEB_COMPONENT","MODULE_FEDERATION","IFRAME"]'::jsonb,
     constraints JSONB NOT NULL DEFAULT '{}'::jsonb,             -- kích thước tối thiểu, số contribution tối đa...
+    status VARCHAR(16) NOT NULL DEFAULT 'ACTIVE',               -- ACTIVE | DEPRECATED
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT uq_plugin_ui_slot_code UNIQUE (slot_code),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT chk_ui_slot_host CHECK (
-        (host_type = 'CORE' AND owner_plugin_key IS NULL)
-        OR (host_type = 'PLUGIN' AND owner_plugin_key IS NOT NULL)
-    )
+        (host_type = 'CORE'   AND owner_plugin_key IS NULL     AND declared_in_version IS NULL)
+        OR
+        (host_type = 'PLUGIN' AND owner_plugin_key IS NOT NULL AND declared_in_version IS NOT NULL)
+    ),
+    CONSTRAINT chk_ui_slot_status CHECK (status IN ('ACTIVE','DEPRECATED'))
 );
+
+-- Core slot: duy nhất theo slot_code; Plugin slot: duy nhất theo (chủ sở hữu, slot, contract_version)
+CREATE UNIQUE INDEX uq_plugin_ui_slot_core
+    ON plugin_ui_slots (slot_code) WHERE host_type = 'CORE';
+CREATE UNIQUE INDEX uq_plugin_ui_slot_plugin
+    ON plugin_ui_slots (owner_plugin_key, slot_code, contract_version) WHERE host_type = 'PLUGIN';
+CREATE INDEX idx_plugin_ui_slots_owner
+    ON plugin_ui_slots (owner_plugin_key) WHERE host_type = 'PLUGIN';
 ```
+
+**Quy tắc nguồn sự thật & resolve (BUG-88 — bắt buộc)**:
+1. `plugin_versions.ui_manifest` của **phiên bản host đang cài** là **nguồn sự thật** cho slot/contribution.
+2. `plugin_ui_slots` chỉ là **chỉ mục tra cứu/validate**; đồng bộ khi công bố phiên bản; upsert theo `(owner_plugin_key, slot_code, contract_version)` — **không ghi đè** định nghĩa của phiên bản khác.
+3. Cùng `slot_code` nhưng khác `constraints` → **bắt buộc tăng `contract_version`** (validate khi publish, lỗi `PLUGIN_UI_SLOT_CONTRACT_MISMATCH`).
+4. Runtime resolve theo `installed_version` của host cho tenant hiện tại (kèm `owner_tenant_id`); không khớp contract → không render + cảnh báo (không làm hỏng màn hình host).
 
 ### 2.6. Bảng `plugin_operation_logs` (Vết Saga — Phục Vụ Chẩn Đoán/Recovery)
 
@@ -239,9 +279,10 @@ CREATE INDEX IF NOT EXISTS idx_tenants_allow_custom_plugins ON tenants (allow_cu
 | :--- | :--- |
 | `PluginVisibility` | `PLATFORM`, `TENANT_PRIVATE` |
 | `PluginReleaseStatus` | `DRAFT`, `PUBLISHED`, `DEPRECATED`, `BLOCKED` |
-| `TenantPluginStatus` | `NOT_INSTALLED`, `INSTALLING`, `ACTIVE`, `INACTIVE`, `UPGRADING`, `INSTALL_FAILED`, `UNINSTALLING`, `UNINSTALLED` |
+| `TenantPluginStatus` | `NOT_INSTALLED`, `INSTALLING`, `ACTIVE`, `INACTIVE`, `UPGRADING`, `INSTALL_FAILED`, `ROLLBACK_FAILED`, `UNINSTALLING`, `UNINSTALLED` |
 | `PluginStorageModel` | `DEDICATED_SCHEMA`, `DEDICATED_DATABASE` |
 | `PluginDistributionType` | `DOCKER_HUB`, `IMAGE_REGISTRY`, `JAR_BUNDLE` |
+| `PluginMigrationPolicy` | `COMPATIBLE`, `BREAKING` |
 | `PluginRenderMode` | `WEB_COMPONENT`, `MODULE_FEDERATION`, `IFRAME` |
 | `PluginCredentialScope` | `PLATFORM`, `TENANT` |
 | `PluginOperationType` | `INSTALL`, `UPGRADE`, `UNINSTALL`, `ENABLE`, `DISABLE`, `BLOCK`, `FORCE_UNINSTALL`, `BULK_APPLY`, `REGISTER_VERSION` |
@@ -250,26 +291,66 @@ CREATE INDEX IF NOT EXISTS idx_tenants_allow_custom_plugins ON tenants (allow_cu
 
 ## 4. Kế Hoạch Migration Flyway
 
+> **Thứ tự bắt buộc**: Schema → **Seed/placeholder catalog** → **Backfill entitlement**. Backfill **không được phụ thuộc** vào việc catalog đã có sẵn entry (nếu JOIN thiếu catalog sẽ làm **mất entitlement đã cấp**).
+
 | Phiên Bản | Nội Dung |
 | :--- | :--- |
 | `V3.0.0__plugin_manager_schema.sql` | Tạo 7 bảng mới + `ALTER tenants` + index/constraint + seed UI Slot chuẩn của Core (`core.dashboard.widgets`, `core.settings.sections`) |
-| `V3.0.1__backfill_allowed_plugins.sql` | Backfill `tenants.allowed_plugins` → `tenant_plugins` (`NOT_INSTALLED`); bỏ qua key `core`; `ON CONFLICT DO NOTHING`; kèm script đối soát count |
-| `V3.0.2__seed_official_plugins.sql` (tùy chọn) | Seed catalog cho plugin chính thức (`sales`, `inventory`, `accounting`, `crm`) ở trạng thái `DRAFT` phục vụ QA/dev |
+| `V3.0.1__seed_plugin_catalog.sql` | Seed **placeholder catalog** cho mọi `plugin_key` xuất hiện trong `tenants.allowed_plugins` (chưa tạo `tenant_plugins`) + seed plugin chính thức (`sales`, `inventory`, `accounting`, `crm`) ở `DRAFT` |
+| `V3.0.2__backfill_allowed_plugins.sql` | Backfill entitlement → `tenant_plugins`; **tự tạo placeholder catalog nếu thiếu** (idempotent); bỏ qua key `core`; kèm script đối soát count |
 
-**Backfill SQL**:
+**Backfill SQL (tự đủ — không phụ thuộc seed trước)**:
 ```sql
+-- 1) Bảo đảm mọi key được cấp phép đều có catalog entry (placeholder nếu chưa có)
+INSERT INTO plugin_catalog (plugin_key, name_key, description_key, visibility)
+SELECT DISTINCT
+       k.plugin_key,
+       'PLUGIN_' || upper(replace(replace(k.plugin_key, '-', '_'), '.', '_')) || '_NAME',
+       'PLUGIN_' || upper(replace(replace(k.plugin_key, '-', '_'), '.', '_')) || '_DESCRIPTION',
+       'PLATFORM'
+FROM tenants t
+CROSS JOIN LATERAL jsonb_array_elements_text(t.allowed_plugins) AS k(plugin_key)
+WHERE k.plugin_key <> 'core'
+ON CONFLICT (plugin_key) DO NOTHING;
+
+-- 2) Backfill entitlement (chạy sau bước 1 nên không thể thiếu catalog)
 INSERT INTO tenant_plugins (tenant_id, catalog_id, plugin_key, status)
 SELECT t.id, c.id, c.plugin_key, 'NOT_INSTALLED'
 FROM tenants t
 CROSS JOIN LATERAL jsonb_array_elements_text(t.allowed_plugins) AS k(plugin_key)
-JOIN plugin_catalog c
-  ON c.plugin_key = k.plugin_key
- AND c.visibility = 'PLATFORM'
+JOIN plugin_catalog c ON c.plugin_key = k.plugin_key
 WHERE k.plugin_key <> 'core'
 ON CONFLICT (tenant_id, plugin_key) DO NOTHING;
 ```
 
-**Kiểm chứng migration**: script đếm trước/sau (`jsonb_array_length(allowed_plugins)` vs số dòng `tenant_plugins`) — sai lệch phải bằng 0 (trừ `core`).
+**Kiểm chứng migration** (bắt buộc chạy trong migration test + QA — **đối soát theo từng tenant/key**, không chỉ tổng count):
+
+```sql
+-- 1) Mọi entitlement trong allowed_plugins phải tồn tại ở tenant_plugins (không được trả dòng nào)
+WITH expected AS (
+  SELECT t.id AS tenant_id, k.plugin_key
+  FROM tenants t
+  CROSS JOIN LATERAL jsonb_array_elements_text(t.allowed_plugins) AS k(plugin_key)
+  WHERE k.plugin_key <> 'core'
+)
+SELECT e.tenant_id, e.plugin_key
+FROM expected e
+LEFT JOIN tenant_plugins tp
+  ON tp.tenant_id = e.tenant_id AND tp.plugin_key = e.plugin_key
+WHERE tp.id IS NULL;
+
+-- 2) Không phát sinh entitlement thừa: mọi dòng tenant_plugins phải có trong allowed_plugins
+SELECT tp.tenant_id, tp.plugin_key
+FROM tenant_plugins tp
+WHERE NOT EXISTS (
+  SELECT 1 FROM tenants t
+  WHERE t.id = tp.tenant_id AND t.allowed_plugins @> to_jsonb(tp.plugin_key)
+);
+
+-- Nếu một trong hai truy vấn trả về dòng → migration dừng (Fail fast).
+```
+
+**Xử lý key không nhận diện**: mọi key trong `allowed_plugins` đều được **bảo toàn** (tạo placeholder catalog); migration ghi `RAISE NOTICE` danh sách key lạ để vận hành bổ sung i18n (`PLUGIN_<KEY>_NAME`/`_DESCRIPTION`) và metadata chính thức sau.
 
 ---
 

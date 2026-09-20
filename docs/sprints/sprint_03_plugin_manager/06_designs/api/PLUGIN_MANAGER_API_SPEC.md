@@ -18,6 +18,7 @@
 - **Thao tác dài**: trả `operation_id`; client polling `GET /api/v1/plugins/operations/{id}`.
 - **Xác thực**: Platform = token `platform_role = SUPER_ADMIN`; Tenant = JWT tenant + `@RequirePermission`.
 - **Khóa chống trùng**: header `Idempotency-Key` (tuỳ chọn) cho install/upgrade/uninstall.
+- **Định danh plugin**: `plugin_key` là khóa **duy nhất toàn cục** (kể cả plugin riêng của tenant) — mọi path, ledger, dependencies và UI Slot dùng khóa này, không mơ hồ.
 
 ---
 
@@ -25,7 +26,7 @@
 
 | Enum | Giá Trị Tiêu Biểu |
 | :--- | :--- |
-| `PluginResponseKey` | `plugin_key`, `name_key`, `description_key`, `visibility`, `default_install`, `locked`, `version`, `release_status`, `core_compatibility`, `installed_version`, `latest_version`, `target_version`, `status`, `operation_id`, `storage_model`, `storage_schema`, `render_mode`, `slot_code`, `contributions`, `distribution_type`, `checksum`, `image_ref`, `digest`, `steps`, `affected_tenants` |
+| `PluginResponseKey` | `plugin_key`, `name_key`, `description_key`, `visibility`, `default_install`, `locked`, `version`, `release_status`, `core_compatibility`, `migration_policy`, `installed_version`, `latest_version`, `target_version`, `status`, `operation_id`, `storage_model`, `storage_schema`, `render_mode`, `slot_code`, `contract_version`, `host`, `contributions`, `distribution_type`, `checksum`, `image_ref`, `digest`, `steps`, `affected_tenants` |
 | `PluginRenderMode` (enum) | `WEB_COMPONENT`, `MODULE_FEDERATION`, `IFRAME` |
 | `TenantPluginStatus` (enum) | Xem DES-03-DB mục 3 |
 
@@ -37,7 +38,7 @@
 | :---: | :--- | :--- | :--- |
 | P1 | `GET /platform/plugins` | Danh sách catalog (phân trang) + filter `q, release_status, visibility, platform, source` | Paginated List |
 | P2 | `GET /platform/plugins/{key}` | Chi tiết plugin + phiên bản + thống kê cài đặt | Single |
-| P3 | `POST /platform/plugins` | Tạo catalog entry `{plugin_key, name_key, description_key, entitlement_plans, default_install}` | Single |
+| P3 | `POST /platform/plugins` | Tạo catalog entry `{plugin_key, name_key, description_key, entitlement_plans, default_install, locked}` | Single |
 | P4 | `POST /platform/plugins/artifacts/upload` | Upload bundle (multipart) → MinIO quarantine | Single |
 | P5 | `POST /platform/plugins/{key}/versions` | Đăng ký phiên bản từ 3 nguồn (xem 3.1) | Single |
 | P6 | `PATCH /platform/plugins/{key}/versions/{version}` | `{action: PUBLISH\|DEPRECATE\|BLOCK, reason}` | Single |
@@ -53,6 +54,14 @@
 | P16 | `GET/POST /platform/plugin-credentials` | Danh sách/Tạo credential platform | List/Single |
 | P17 | `PATCH/DELETE /platform/plugin-credentials/{id}` | Sửa/Xóa credential | Single |
 | P18 | `POST /platform/plugin-credentials/{id}/test` | Kiểm tra kết nối registry | Single |
+| P19 | `POST /platform/plugins/{key}/tenants/{tenantId}/install` | **Hỗ trợ cài cho tenant** `{version?, reason}` (reason bắt buộc) → `operation_id` | Single |
+| P20 | `POST /platform/plugins/{key}/tenants/{tenantId}/uninstall` | **Hỗ trợ gỡ** (soft, giữ dữ liệu) `{reason}` | Single |
+| P21 | `POST /platform/plugins/{key}/tenants/{tenantId}/enable` / `/disable` | **Hỗ trợ bật/tắt** `{reason}` | Single |
+| P22 | `POST /platform/plugins/{key}/tenants/{tenantId}/upgrade` | **Hỗ trợ nâng cấp** `{target_version, snapshot?, reason}` | Single |
+| P23 | `POST /platform/plugins/{key}/tenants/{tenantId}/rollback` | **Rollback khẩn cấp** (chỉ SUPER_ADMIN) `{target_version, reason, restore_snapshot?}` | Single |
+| P24 | `PATCH /platform/plugins/{key}` | Cập nhật metadata catalog `{name_key, description_key, entitlement_plans, default_install, locked}` — **không đổi** `plugin_key`/`visibility` (BUG-91) | Single |
+
+> **Ủy quyền & audit cho P19–P23 (BUG-89)**: actor là **platform admin thật** (ghi `platform_audit_logs` với `target_tenant_id`, lý do bắt buộc); **không dùng token impersonation**; `SUPPORT_ENGINEER` chỉ được xem (403 khi ghi); thao tác chỉ ảnh hưởng tenant đích — tenant khác không đổi.
 
 ### 3.1. Đăng Ký Phiên Bản Từ 3 Nguồn (P5)
 
@@ -114,6 +123,11 @@
 | T11 | `DELETE /tenant/plugin-credentials/{id}` | Xóa credential | `core:plugin:credential:manage` |
 | T12 | `GET /tenant/notifications` | Thông báo (phân trang, filter unread) | đăng nhập |
 | T13 | `POST /tenant/notifications/{id}/read`, `POST /tenant/notifications/read-all` | Đánh dấu đã đọc | đăng nhập |
+| T14 | `POST /tenant/plugins/artifacts/upload` | Upload bundle plugin riêng (multipart → MinIO quarantine; kiểm tra quota tenant) | `core:plugin:register-custom` |
+| T15 | `POST /tenant/plugins/{key}/versions` | **Đăng ký thêm phiên bản** cho plugin riêng (3 nguồn, như P5 nhưng phạm vi tenant) | `core:plugin:register-custom` |
+| T16 | `GET /tenant/plugins/{key}/versions` | Danh sách phiên bản của plugin riêng (Non-Paginated) | `core:plugin:read` |
+| T17 | `PATCH /tenant/plugins/{key}/versions/{version}` | `{action: PUBLISH\|DEPRECATE, reason}` — tenant **không được BLOCK** (chỉ nền tảng) | `core:plugin:register-custom` |
+| T18 | `DELETE /tenant/plugins/{key}/versions/{version}` | Gỡ phiên bản chưa dùng (`PLUGIN_VERSION_IN_USE` nếu đang ghim) | `core:plugin:register-custom` |
 
 ### 4.1. Cài Đặt (T3)
 
@@ -147,9 +161,27 @@
 }
 ```
 
-### 4.3. Đăng Ký Plugin Riêng (T8)
+### 4.3. Đăng Ký Plugin Riêng (T8 + T14→T18)
 
-Chỉ khi `tenants.allow_custom_plugins = true`; body giống P5 nhưng `credential_id` thuộc phạm vi TENANT; response trả `visibility = "TENANT_PRIVATE"`; lỗi `PLUGIN_CUSTOM_NOT_ALLOWED` nếu chưa bật.
+Chỉ khi `tenants.allow_custom_plugins = true`; body đăng ký giống P5 nhưng `credential_id` thuộc phạm vi TENANT; response trả `visibility = "TENANT_PRIVATE"`; lỗi `PLUGIN_CUSTOM_NOT_ALLOWED` nếu chưa bật.
+
+**Luồng đầy đủ cho plugin riêng** (bổ sung sau rà soát — BUG-87):
+1. `T14` upload bundle (hoặc nhập link Docker Hub/Registry riêng) → `artifact_ref`. **`artifact_ref` gắn `owner_tenant_id`**; T8/T15 từ chối `PLUGIN_ARTIFACT_NOT_OWNED` nếu ref thuộc tenant khác.
+2. Pipeline xác minh chạy như plugin công khai (manifest schema, checksum, tương thích Core, phụ thuộc, allowlist registry); tenant **chỉ PUBLISH được phiên bản đã xác minh** (`PLUGIN_VERSION_NOT_VERIFIED` nếu chưa xong).
+3. `T8` (hoặc `T15` cho phiên bản tiếp theo) đăng ký phiên bản → `DRAFT`.
+4. `T17` `PUBLISH` → trạng thái cài được; tenant cài/nâng cấp cho chính mình (T3–T7).
+5. `T18` gỡ phiên bản chưa dùng; `T9` xóa catalog plugin riêng khi không còn cài.
+6. Super Admin giám sát qua `P14` và khóa qua `P15` (tenant **không** được BLOCK); mọi thao tác ghi audit.
+
+### 4.4. Nâng Cấp & Rollback An Toàn Dữ Liệu (Bổ Sung Sau Rà Soát)
+
+- **Upgrade (T6/P22)**: `{ target_version, snapshot?: boolean }` — mặc định `snapshot = true` khi phiên bản đích có `migration_policy = BREAKING` (hoặc khi client không truyền).
+- **Rollback (P23)**: `{ target_version, reason, restore_snapshot?: boolean }` — chỉ SUPER_ADMIN.
+- **Server**: trước khi deploy bản mới, nếu `snapshot=true` → export schema tenant (`pg_dump -n tenant_<short>_<plugin_key>`) → MinIO `plugin-snapshots/{tenant}/{plugin}/{from-version}/{ts}.dump`; lưu ref vào `plugin_operation_logs.detail`.
+- **Khi rollback/nâng cấp thất bại**: undeploy container bản mới → nếu bản cũ **không tương thích** schema đã migrate (BREAKING) → **khôi phục snapshot** trước khi deploy lại image cũ; ngược lại (COMPATIBLE) chỉ cần deploy lại image cũ.
+- **Khóa ghi trước snapshot (quiesce)**: tạm dừng container (hoặc maintenance mode) trước khi `pg_dump` để bảo đảm mốc phục hồi nhất quán; chỉ deploy bản mới sau khi snapshot hoàn tất.
+- **Trạng thái khi phục hồi lỗi (BUG-86)**: nếu restore snapshot thất bại → ledger chuyển **`ROLLBACK_FAILED`** (KHÔNG đánh dấu ACTIVE dù image cũ đã deploy), plugin không phục vụ, thông báo khẩn Super Admin + tenant, giữ snapshot để can thiệp thủ công; chỉ chuyển `ACTIVE` sau khi health OK trên phiên bản đích.
+- Trạng thái & mã lỗi bổ sung: `PLUGIN_SNAPSHOT_FAILED`, `PLUGIN_RESTORE_SNAPSHOT_FAILED`, `PLUGIN_ROLLBACK_NOT_ALLOWED`, `PLUGIN_VERSION_NOT_VERIFIED`.
 
 ---
 
@@ -162,6 +194,8 @@ Chỉ khi `tenants.allow_custom_plugins = true`; body giống P5 nhưng `credent
 | S3 | `GET /plugins/runtime/{pluginKey}/health` (nội bộ/gateway) | Trạng thái runtime container của tenant | Single |
 
 ### 5.1. UI Manifest (S1)
+
+> **Slot do plugin làm host** phải kèm thông tin chủ sở hữu + phiên bản host đang cài để host/contribution kiểm tra tương thích contract trước khi render.
 
 ```json
 {
@@ -176,8 +210,16 @@ Chỉ khi `tenants.allow_custom_plugins = true`; body giống P5 nhưng `credent
     "slots": [
       {
         "slot_code": "core.dashboard.widgets",
+        "host": { "type": "CORE", "contract_version": "1.0" },
         "contributions": [
-          { "plugin_key": "sales", "title_key": "PLUGIN_SALES_WIDGET_REVENUE", "render_mode": "WEB_COMPONENT", "entry": "/plugins-runtime/sales/remote/revenue-widget.js", "permission": "sales:report:read", "order": 10 }
+          { "plugin_key": "sales", "title_key": "PLUGIN_SALES_WIDGET_REVENUE", "render_mode": "WEB_COMPONENT", "entry": "/plugins-runtime/sales/remote/revenue-widget.js", "permission": "sales:report:read", "order": 10, "contract_version": "1.0" }
+        ]
+      },
+      {
+        "slot_code": "crm.customer.detail.tabs",
+        "host": { "type": "PLUGIN", "plugin_key": "crm", "installed_version": "2.1.0", "contract_version": "1.2" },
+        "contributions": [
+          { "plugin_key": "sales", "title_key": "PLUGIN_SALES_CUSTOMER_ORDERS_TAB", "render_mode": "MODULE_FEDERATION", "entry": "/plugins-runtime/sales/remote/orders-tab.js", "permission": "sales:order:read", "order": 30, "contract_version": "1.2" }
         ]
       }
     ]
@@ -213,11 +255,11 @@ Chỉ khi `tenants.allow_custom_plugins = true`; body giống P5 nhưng `credent
 
 | Nhóm | Mã Lỗi |
 | :--- | :--- |
-| Artifact | `PLUGIN_ARTIFACT_SOURCE_INVALID`, `PLUGIN_ARTIFACT_DOWNLOAD_FAILED`, `PLUGIN_ARTIFACT_INVALID_MANIFEST`, `PLUGIN_ARTIFACT_CHECKSUM_MISMATCH`, `PLUGIN_ARTIFACT_TOO_LARGE`, `PLUGIN_REGISTRY_NOT_ALLOWED`, `PLUGIN_REGISTRY_AUTH_FAILED`, `PLUGIN_IMAGE_BUILD_FAILED` |
-| Catalog | `PLUGIN_KEY_ALREADY_EXISTS`, `PLUGIN_VERSION_ALREADY_EXISTS`, `PLUGIN_VERSION_IN_USE`, `PLUGIN_CORE_VERSION_INCOMPATIBLE`, `PLUGIN_ENTITY_NOT_REGISTERED`, `PLUGIN_UI_SLOT_NOT_FOUND`, `PLUGIN_NOT_FOUND` |
+| Artifact | `PLUGIN_ARTIFACT_SOURCE_INVALID`, `PLUGIN_ARTIFACT_DOWNLOAD_FAILED`, `PLUGIN_ARTIFACT_INVALID_MANIFEST`, `PLUGIN_ARTIFACT_CHECKSUM_MISMATCH`, `PLUGIN_ARTIFACT_TOO_LARGE`, `PLUGIN_ARTIFACT_NOT_OWNED`, `PLUGIN_REGISTRY_NOT_ALLOWED`, `PLUGIN_REGISTRY_AUTH_FAILED`, `PLUGIN_IMAGE_BUILD_FAILED` |
+| Catalog | `PLUGIN_KEY_ALREADY_EXISTS`, `PLUGIN_VERSION_ALREADY_EXISTS`, `PLUGIN_VERSION_IN_USE`, `PLUGIN_CORE_VERSION_INCOMPATIBLE`, `PLUGIN_ENTITY_NOT_REGISTERED`, `PLUGIN_UI_SLOT_NOT_FOUND`, `PLUGIN_UI_SLOT_CONTRACT_MISMATCH`, `PLUGIN_NOT_FOUND` |
 | Dependency | `PLUGIN_DEPENDENCY_MISSING`, `PLUGIN_HAS_DEPENDENTS` (kèm `params.removal_plan[]`) |
-| Entitlement/Lifecycle | `PLUGIN_NOT_ENTITLED`, `PLUGIN_CUSTOM_NOT_ALLOWED`, `PLUGIN_ALREADY_INSTALLED`, `PLUGIN_NOT_INSTALLED`, `PLUGIN_DISABLED_FOR_TENANT`, `PLUGIN_LOCKED_DEFAULT`, `PLUGIN_OPERATION_IN_PROGRESS`, `PLUGIN_BLOCKED_BY_PLATFORM`, `PLATFORM_PLUGIN_NOT_ALLOWED` (kế thừa) |
-| Runtime/Deploy | `PLUGIN_TENANT_DATASOURCE_FAILED`, `PLUGIN_DEPLOY_FAILED`, `PLUGIN_SERVICE_UNHEALTHY`, `PLUGIN_RESOURCE_QUOTA_EXCEEDED`, `PLUGIN_IN_USE_BY_TENANTS` |
+| Entitlement/Lifecycle | `PLUGIN_NOT_ENTITLED`, `PLUGIN_CUSTOM_NOT_ALLOWED`, `PLUGIN_ALREADY_INSTALLED`, `PLUGIN_NOT_INSTALLED`, `PLUGIN_DISABLED_FOR_TENANT`, `PLUGIN_LOCKED_DEFAULT`, `PLUGIN_OPERATION_IN_PROGRESS`, `PLUGIN_BLOCKED_BY_PLATFORM`, `PLATFORM_PLUGIN_NOT_ALLOWED` (kế thừa), `PLUGIN_VERSION_NOT_VERIFIED` |
+| Runtime/Deploy | `PLUGIN_TENANT_DATASOURCE_FAILED`, `PLUGIN_DEPLOY_FAILED`, `PLUGIN_SERVICE_UNHEALTHY`, `PLUGIN_RESOURCE_QUOTA_EXCEEDED`, `PLUGIN_IN_USE_BY_TENANTS`, `PLUGIN_SNAPSHOT_FAILED`, `PLUGIN_RESTORE_SNAPSHOT_FAILED`, `PLUGIN_ROLLBACK_NOT_ALLOWED` |
 | Credential | `PLUGIN_CREDENTIAL_NOT_FOUND`, `PLUGIN_CREDENTIAL_DUPLICATE_HOST`, `PLUGIN_CREDENTIAL_IN_USE`, `PLUGIN_CREDENTIAL_AUTH_FAILED` |
 
 > Chi tiết `params` và i18n key bổ sung vào `vi.json`/`en.json` khi triển khai (FEAT-21/23).

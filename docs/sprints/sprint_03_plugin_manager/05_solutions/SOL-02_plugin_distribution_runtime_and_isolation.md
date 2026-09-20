@@ -134,7 +134,28 @@ sequenceDiagram
     Note over LC,CT: Gỡ: undeploy (remove/scale 0) — KHÔNG xóa schema/dữ liệu
 ```
 
-### 4.4. Cấu Hình Đề Xuất (application.properties)
+### 4.4. Nâng Cấp An Toàn Dữ Liệu & Rollback (Bổ Sung Sau Rà Soát)
+
+> **Vấn đề rà soát**: rollback chỉ đổi image là chưa đủ — plugin đã tự migrate schema/dữ liệu ở phiên bản mới, image cũ có thể không tương thích.
+
+**Quy tắc theo `migration_policy` của phiên bản đích**:
+
+| Policy | Ý Nghĩa | Bắt Buộc Trước Khi Nâng Cấp |
+| :--- | :--- | :--- |
+| `COMPATIBLE` | Migration tương thích ngược (expand/contract: chỉ thêm cột/bảng, không phá vỡ) | Không cần snapshot; rollback chỉ cần deploy lại image cũ |
+| `BREAKING` | Có thay đổi phá vỡ tương thích | **Bắt buộc snapshot schema** trước khi deploy phiên bản mới |
+
+**Quy trình nâng cấp có snapshot**:
+1. **Quiesce**: tạm dừng ghi (dừng container hoặc maintenance mode) để có mốc dữ liệu nhất quán.
+2. `pg_dump --schema=tenant_<short>_<plugin_key>` → MinIO `plugin-snapshots/{tenant}/{plugin}/{from_version}/{timestamp}.dump`.
+3. Ghi ref snapshot vào `plugin_operation_logs.detail` + `tenant_plugins.target_version`.
+4. Deploy image mới → plugin tự migrate → health check.
+5. Nếu fail: undeploy image mới → **khôi phục snapshot (BREAKING)** → deploy image cũ → ledger `ACTIVE` bản cũ + audit `TENANT_PLUGIN_ROLLED_BACK`. **Nếu khôi phục snapshot thất bại → ledger `ROLLBACK_FAILED`** (không đánh dấu ACTIVE dù image cũ đã deploy), plugin ngưng phục vụ, thông báo khẩn Super Admin + tenant, giữ snapshot để can thiệp thủ công.
+6. Snapshot giữ theo retention (cấu hình `openerp.plugin.snapshot-retention-days`, mặc định 30 ngày).
+
+**Hợp đồng plugin**: manifest khai báo `migration_policy`; plugin phải chứng minh tương thích ngược hoặc chấp nhận quy trình snapshot.
+
+### 4.5. Cấu Hình Đề Xuất (application.properties)
 
 ```
 openerp.plugin.registry-allowed-hosts=                      # CSV allowlist
@@ -145,6 +166,7 @@ openerp.plugin.internal-registry=${DOCKER_REGISTRY:openerp-registry.local}
 openerp.plugin.resources.default-cpu=500m
 openerp.plugin.resources.default-memory-mb=512
 openerp.plugin.runtime-max-versions-per-plugin=3
+openerp.plugin.snapshot-retention-days=30
 openerp.storage.minio.endpoint=... / access-key / secret-key / bucket=plugin-artifacts
 ```
 

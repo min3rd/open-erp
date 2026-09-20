@@ -121,6 +121,7 @@ graph TD
 | 7 | Ledger `ACTIVE` + audit + thông báo | — |
 
 > Nguyên tắc: mọi bước **idempotent**; không bao giờ xóa dữ liệu tenant trong bù trừ (BR-PLG-07/29).
+> **Nâng cấp (upgrade)** dùng cùng mô hình Saga với bước bổ sung **SNAPSHOT** (khi `migration_policy = BREAKING`) và bù trừ **RESTORE_SNAPSHOT** — chi tiết tại [SOL-02 mục 4.5](SOL-02_plugin_distribution_runtime_and_isolation.md).
 
 ---
 

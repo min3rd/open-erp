@@ -68,9 +68,9 @@ graph TD
 
 ### 3.2. Drawer Chi Tiết Plugin (3 tầng xếp chồng)
 
-1. **Tầng 1 — Tổng quan**: metadata, nguồn artifact, checksum/digest, tương thích Core, phụ thuộc, nền tảng, quyền, entity, UI (screens/contributions).
+1. **Tầng 1 — Tổng quan**: metadata, nguồn artifact, checksum/digest, tương thích Core, phụ thuộc, nền tảng, quyền, entity, UI (screens/contributions); **chỉnh metadata catalog qua P24** (`default_install`, `locked`, `entitlement_plans`) với xác nhận + audit (BUG-91).
 2. **Tầng 2 — Phiên bản (Timeline)**: mỗi phiên bản 1 dòng: SemVer • trạng thái • ngày/người đăng ký • nguồn • checksum; hành động Công bố / Ngừng hỗ trợ / Khóa / Gỡ artifact.
-3. **Tầng 3 — Tenant đang cài**: bảng dense (tenant, trạng thái, phiên bản, sức khỏe container, cập nhật khả dụng) + hành động hỗ trợ (Cài/Gỡ/Nâng cấp/Rollback) + nút **"Cấp/Thu entitlement"** mở Drawer tìm tenant.
+3. **Tầng 3 — Tenant đang cài**: bảng dense (tenant, trạng thái, phiên bản, sức khỏe container, cập nhật khả dụng) + **hành động hỗ trợ mapping API P19–P23** (Cài/Gỡ/Bật-Tắt/Nâng cấp/Rollback — bắt buộc nhập `reason`, có audit + operation_id) + nút **"Cấp/Thu entitlement"** mở Drawer tìm tenant (P12/P13).
 
 ### 3.3. Drawer "Đăng Ký Plugin / Phiên Bản" (3 kênh)
 
@@ -117,11 +117,13 @@ graph TD
 - Mô tả, nền tảng hỗ trợ, phiên bản (danh sách chọn), quyền yêu cầu, phụ thuộc, kích thước ước tính, UI contributions.
 - Hành động theo trạng thái; **cảnh báo gỡ**: banner inline "Plugin sẽ được gỡ nhưng dữ liệu vẫn được giữ nguyên" + yêu cầu nhập tên plugin xác nhận.
 
-### 4.3. Drawer "Đăng Ký Plugin Riêng" (T8)
+### 4.3. Drawer "Đăng Ký Plugin Riêng" (T8 + T14→T18)
 
-- 3 tab nguồn (Docker Hub / Registry của tôi / Tải tệp lên) + chọn credential TENANT.
+- 3 tab nguồn (Docker Hub / Registry của tôi / Tải tệp lên — API T14) + chọn credential TENANT.
+- **Quản lý phiên bản ngay trong Drawer**: danh sách phiên bản (T16) + **Đăng ký thêm phiên bản** (T15) + **Công bố / Ngừng hỗ trợ** (T17) + Gỡ phiên bản chưa dùng (T18).
 - Hiển thị nhãn **"Plugin riêng — tenant tự chịu trách nhiệm"** + ghi chú nền tảng giám sát/khóa.
 - Kiểm tra `allow_custom_plugins`; nếu chưa bật → thông báo liên hệ nền tảng.
+- Contribution UI của plugin riêng **được phép `render_mode = WEB_COMPONENT/MODULE_FEDERATION/IFRAME`** như plugin Official (chốt Gate); iframe chỉ là lựa chọn dự phòng.
 
 ### 4.4. Thông Báo
 
@@ -140,9 +142,11 @@ graph TD
 
 ### 5.2. `PluginSlotComponent` + `ContributionOutletComponent`
 
+> **Resolve slot theo host**: với slot do plugin làm host, component phải so khớp `host.installed_version` + `host.contract_version` với `contract_version` của contribution; không khớp → không render + log cảnh báo (không làm hỏng màn hình host). **Nguồn sự thật là `ui_manifest` của phiên bản host đang cài**; `plugin_ui_slots` chỉ là chỉ mục tra cứu/validate (BUG-88).
+
 | Thành Phần | Trách Nhiệm |
 | :--- | :--- |
-| `PluginSlotComponent` | Nhận `slotCode`, gọi UI Manifest (cache), render danh sách contribution theo `order` |
+| `PluginSlotComponent` | Nhận `slotCode`, gọi UI Manifest (cache), kiểm tra host/contract version, render danh sách contribution theo `order` |
 | `ContributionOutletComponent` | Chọn loader theo `render_mode`; bọc Error Boundary; ẩn nếu thiếu quyền; hỗ trợ theme/i18n bridge |
 | `WebComponentLoader` | Nạp script custom element (Shadow DOM), gắn thẻ vào slot |
 | `ModuleFederationLoader` | Nạp remote entry với shared scope version pin; mount component vào slot |
@@ -187,7 +191,7 @@ graph TD
 | :--- | :--- |
 | Marketplace | `PLUGIN_MARKETPLACE_TITLE`, `PLUGIN_MARKETPLACE_INSTALLED`, `PLUGIN_MARKETPLACE_AVAILABLE`, `PLUGIN_MARKETPLACE_CUSTOM`, `PLUGIN_MARKETPLACE_SEARCH_PLACEHOLDER`, `PLUGIN_MARKETPLACE_EMPTY` |
 | Hành động | `PLUGIN_ACTION_INSTALL`, `PLUGIN_ACTION_UNINSTALL`, `PLUGIN_ACTION_ENABLE`, `PLUGIN_ACTION_DISABLE`, `PLUGIN_ACTION_UPGRADE`, `PLUGIN_ACTION_ROLLBACK`, `PLUGIN_ACTION_DETAIL`, `PLUGIN_ACTION_REGISTER` |
-| Trạng thái | `PLUGIN_STATUS_ACTIVE`, `PLUGIN_STATUS_INACTIVE`, `PLUGIN_STATUS_INSTALLING`, `PLUGIN_STATUS_FAILED`, `PLUGIN_STATUS_UNINSTALLED`, `PLUGIN_STATUS_UPDATE_AVAILABLE` |
+| Trạng thái | `PLUGIN_STATUS_ACTIVE`, `PLUGIN_STATUS_INACTIVE`, `PLUGIN_STATUS_INSTALLING`, `PLUGIN_STATUS_FAILED`, `PLUGIN_STATUS_ROLLBACK_FAILED`, `PLUGIN_STATUS_UNINSTALLED`, `PLUGIN_STATUS_UPDATE_AVAILABLE` |
 | Cảnh báo | `PLUGIN_UNINSTALL_KEEP_DATA_WARNING`, `PLUGIN_LOCKED_DEFAULT_TOOLTIP`, `PLUGIN_CUSTOM_RESPONSIBILITY_WARNING`, `PLUGIN_BLOCKED_BANNER` |
 | Đăng ký | `PLUGIN_REGISTER_SOURCE_DOCKERHUB`, `PLUGIN_REGISTER_SOURCE_REGISTRY`, `PLUGIN_REGISTER_SOURCE_UPLOAD`, `PLUGIN_REGISTER_CHECKSUM_LABEL`, `PLUGIN_REGISTER_PREVIEW_TITLE` |
 | Host | `PLUGIN_CONTRIBUTION_LOADING`, `PLUGIN_CONTRIBUTION_ERROR`, `PLUGIN_HOST_SCREEN_NOT_ACTIVE` |

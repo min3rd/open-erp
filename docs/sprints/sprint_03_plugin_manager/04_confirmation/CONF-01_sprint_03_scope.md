@@ -86,10 +86,10 @@
   - **Given**: Plugin `sales` phiên bản 1.4.0 bị phát hiện lỗ hổng bảo mật; 5 tenant đang cài.
   - **When**: Super Admin bấm "Khóa khẩn cấp" + nhập lý do + xác nhận cưỡng chế gỡ.
   - **Then**: Chặn mọi cài mới/nâng cấp; 5 tenant bị cưỡng chế gỡ (container undeploy, **dữ liệu giữ nguyên**); **thông báo tới Tenant Admin bị ảnh hưởng**; audit `PLUGIN_BLOCKED` + `TENANT_PLUGIN_FORCE_UNINSTALLED`.
-- **AC-21.5 — Cài mặc định cấp hệ thống**:
-  - **Given**: Plugin `accounting` được đánh dấu `default_install`.
+- **AC-21.5 — Cài mặc định cấp hệ thống (phân biệt bắt buộc/tùy chọn)**:
+  - **Given**: Plugin `accounting` có `default_install = true, locked = true` (mặc định **bắt buộc**); plugin `crm` có `default_install = true, locked = false` (mặc định **tùy chọn**).
   - **When**: Tenant mới đăng ký.
-  - **Then**: Tenant mới tự động có plugin `accounting` ở trạng thái ACTIVE (container deployed) theo quota, không cần thao tác.
+  - **Then**: `accounting` **tự động ACTIVE** và **không thể tắt/gỡ** (switch khóa); `crm` được tạo ở trạng thái **NOT_INSTALLED** để Tenant Admin chủ động bật; cả hai tuân thủ quota + tài nguyên của tenant.
 - **AC-21.6 — Plugin riêng của Tenant (`TENANT_PRIVATE`)**:
   - **Given**: Tenant A được bật `allow_custom_plugins`; Tenant B không được bật.
   - **When**: Tenant Admin A đăng ký custom plugin từ registry riêng và cài.
@@ -136,10 +136,10 @@
   - **Given**: Tenant A và Tenant B cùng cài một custom plugin có migration.
   - **When**: Cả hai chạy migration đồng thời.
   - **Then**: Mỗi migration chỉ tác động schema/database của tenant tương ứng; dữ liệu Tenant B nguyên vẹn; DB role của Tenant A **không có quyền** ghi schema Tenant B.
-- **AC-23.5 — UI Contribution nhúng (WC/MF) + iframe sandbox**:
-  - **Given**: Plugin Official có widget contribution `core.dashboard.widgets` (`render_mode = MODULE_FEDERATION`/`WEB_COMPONENT`); plugin riêng của tenant chưa kiểm duyệt.
+- **AC-23.5 — UI Contribution nhúng (WC/MF) cho cả plugin Official & plugin riêng**:
+  - **Given**: Plugin Official và plugin riêng của tenant đều có contribution vào `core.dashboard.widgets` với `render_mode = WEB_COMPONENT/MODULE_FEDERATION` (plugin không hỗ trợ WC/MF dùng `render_mode = IFRAME`).
   - **When**: Người dùng mở Dashboard Core.
-  - **Then**: Widget plugin Official hiển thị nhúng trực tiếp đúng vị trí slot theo quyền, 0 console error; plugin riêng chưa kiểm duyệt render trong **iframe sandbox**; contribution bị ẩn nếu người dùng thiếu quyền.
+  - **Then**: Cả hai widget hiển thị nhúng trực tiếp đúng vị trí slot theo quyền — plugin riêng **được phép** WC/MF (chốt Gate 2026-09-19); 0 console error; error boundary cô lập lỗi từng contribution; contribution bị ẩn nếu người dùng thiếu quyền.
 - **AC-23.6 — Deployer tự động + health + dọn dẹp**:
   - **Given**: Deployer cấu hình backend Docker local (dev) hoặc K8s (staging).
   - **When**: Cài/gỡ plugin.
@@ -214,3 +214,22 @@
 2. **Plugin riêng của tenant ĐƯỢC PHÉP nhúng trực tiếp bằng Web Components/Module Federation** (khác đề xuất BA về mặc định iframe sandbox) — cập nhật ANL-01 BR-PLG-31, ANL-03 mục 4.4/6, Sprint Plan guardrail & rủi ro; các biện pháp an toàn kỹ thuật chung (CSP, error boundary, Shadow DOM, shared-lib version pin, RBAC, audit) vẫn bắt buộc.
 3. **Lệnh `dev` được đưa vào Sprint 03** (FEAT-22) — cập nhật ANL-02 mục 3/5.5/9/10, Sprint Plan DoD.
 4. **Bổ sung muộn (2026-09-19)**: package CLI chung đặt tên **`@open-erp/cli`** (thay tên làm việc `@openerp/plugin-cli`) — cập nhật ANL-02, SOL-03, BENCH-02 và CONF-01 Mục 1.2.
+
+---
+
+## 9. Phụ Lục Hiệu Chỉnh Sau Rà Soát Thiết Kế (2026-09-19)
+
+> Khách hàng review bộ thiết kế Bước 5-6 và yêu cầu bổ sung **6 điểm High + 2 điểm Medium** trước khi lập trình. Toàn bộ đã được xử lý trong tài liệu thiết kế (không thay đổi phạm vi đã ký):
+
+| # | Mức | Vấn Đề Rà Soát | Cách Xử Lý | Tài Liệu Cập Nhật |
+| :---: | :---: | :--- | :--- | :--- |
+| 1 | High | Backfill entitlement chạy trước seed catalog → có thể bỏ sót quyền đã cấp | Đổi thứ tự migration: Schema → Seed/placeholder catalog → Backfill; **backfill tự tạo placeholder catalog** cho mọi key thiếu + query đối soát fail-fast | DES-03-DB mục 4 |
+| 2 | High | Catalog cho phép trùng `plugin_key` nhưng ledger/API chưa phân biệt | Khôi phục **khóa duy nhất toàn cục** cho `plugin_key` (kể cả TENANT_PRIVATE) + gợi ý tiền tố tenant-slug; mọi path/ledger/dependency/UI Slot dùng khóa này | DES-03-DB mục 2.1; DES-03-API mục 1; ANL-01 BR-PLG-22 |
+| 3 | High | Rollback chỉ đổi image, chưa xử lý dữ liệu đã migrate | Bổ sung `migration_policy (COMPATIBLE/BREAKING)`; snapshot schema trước nâng cấp BREAKING; khôi phục snapshot khi rollback; API tham số `snapshot`/`restore_snapshot` + mã lỗi snapshot | DES-03-DB mục 2.2; DES-03-API mục 4.4; SOL-02 mục 4.4; SOL-01 mục 4.3 |
+| 4 | High | Luồng plugin riêng thiếu contract upload/publish/thêm phiên bản | Bổ sung endpoint T14–T18 (upload, thêm phiên bản, list, publish/deprecate, xóa phiên bản) + UI quản lý phiên bản trong Drawer | DES-03-API mục 4.3; DES-03-UI mục 4.3; ANL-03 mục 3.6 |
+| 5 | High | UI Slot Registry chưa phân biệt phiên bản và chủ sở hữu plugin | Bổ sung `declared_in_version`, `status`; unique `(owner_plugin_key, slot_code, contract_version)`; UI Manifest trả `host` (owner + installed_version + contract_version); runtime resolve theo host version | DES-03-DB mục 2.5; DES-03-API mục 5.1; DES-03-UI mục 5.2 |
+| 6 | High | Portal có thao tác hỗ trợ tenant nhưng thiếu API tương ứng | Bổ sung P19–P23 (install/uninstall/enable-disable/upgrade/rollback theo tenant, bắt buộc `reason`, audit + operation_id); UI mapping rõ | DES-03-API mục 3; DES-03-UI mục 3.2 |
+| 7 | Medium | AC-23.5 vẫn bắt plugin riêng dùng iframe, trái quyết định cho phép WC/MF | Viết lại AC-23.5: plugin riêng **được phép** WC/MF; iframe chỉ là `render_mode` dự phòng | CONF-01 AC-23.5; DES-03-UI mục 4.3 |
+| 8 | Medium | AC-21.5 chưa phân biệt plugin mặc định bắt buộc và tùy chọn | Viết lại AC-21.5: `locked=true` → ACTIVE không tắt/gỡ; `locked=false` → NOT_INSTALLED chờ bật | CONF-01 AC-21.5 |
+
+- **Kết luận**: 8/8 điểm rà soát đã được xử lý; bộ thiết kế DES-03-DB/API/UI + SOL-01/02/03 đủ điều kiện chuyển sang Bước 7 (Lập trình).

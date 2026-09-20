@@ -97,6 +97,7 @@ Biến cơ chế plugin tĩnh (danh mục cấu hình + allowlist) của Sprint 
 | **Bùng nổ schema/DB & connection pool khi nhiều tenant** | High | Pool lazy/pool nhỏ theo tenant; giám sát số lượng schema/DB; provision tự động; dọn dẹp khi purge (giai đoạn sau). |
 | **JS plugin chạy trong origin Core (WC/MF) gây rủi ro bảo mật** | Critical | WC/MF áp dụng cho mọi plugin gồm plugin riêng (chốt Gate) ⇒ bắt buộc `render_mode` per contribution; CSP + error boundary + Shadow DOM + shared-lib version pin; allowlist registry + checksum + audit + quyền khóa khẩn cấp; iframe sandbox là chế độ dự phòng khi cần cô lập tối đa. |
 | **Xung đột shared library / phiên bản Angular giữa Core và MF remote** | High | Contract versioning; shared-lib chỉ expose đúng version đã cam kết; test ma trận Core ↔ plugin khi nâng cấp; cảnh báo sớm khi validate/đăng ký phiên bản. |
+| **Rollback nâng cấp không khôi phục dữ liệu đã migrate** | High | `migration_policy` (COMPATIBLE/BREAKING) + snapshot schema trước nâng cấp BREAKING + khôi phục snapshot khi rollback; test rollback trên dữ liệu thật (bổ sung sau rà soát 2026-09-19). |
 
 ---
 
