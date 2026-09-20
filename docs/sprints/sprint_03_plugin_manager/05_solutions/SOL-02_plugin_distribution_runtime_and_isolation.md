@@ -24,11 +24,11 @@
 ```mermaid
 graph TD
     SRC["3 kênh: Docker Hub / Registry / Bundle upload"] --> RES["ArtifactSourceResolver"]
-    RES -->|OCI| REG["Registry API v2 (token/pull)"]
-    RES -->|HTTP/Upload| MIN["MinIO (bucket plugin-artifacts)"]
-    MIN -->|bundle| IB["ImageBuilder"]
-    IB -->|Docker daemon (local)| DREG["Registry nội bộ (DOCKER_REGISTRY)"]
-    IB -->|Kaniko Job (K8s)| DREG
+    RES -->|"OCI"| REG["Registry API v2 (token/pull)"]
+    RES -->|"HTTP/Upload"| MIN["MinIO (bucket plugin-artifacts)"]
+    MIN -->|"bundle"| IB["ImageBuilder"]
+    IB -->|"Docker daemon (local)"| DREG["Registry nội bộ (DOCKER_REGISTRY)"]
+    IB -->|"Kaniko Job (K8s)"| DREG
     REG --> VER["ArtifactVerifier: manifest schema + sha256 + tương thích"]
     DREG --> VER
     VER --> CAT["PluginCatalog (DRAFT → PUBLISHED)"]
@@ -123,7 +123,7 @@ sequenceDiagram
     participant DS as TenantDatasourceService
     participant IB as ImageBuilder
     participant DP as PluginRuntimeDeployer
-    participant CT as Plugin Container
+    participant CT as "Plugin Container"
     LC->>DS: ensureSchema(tenant, plugin) + cấp credentials
     LC->>IB: (bundle) build image → push registry nội bộ
     LC->>DP: deploy(image, secrets, limits, labels)

@@ -55,9 +55,9 @@ shared/plugin-host/
 sequenceDiagram
     autonumber
     participant U as Người dùng
-    participant H as Core (PluginSlotComponent)
-    participant API as Core API (UI Manifest)
-    participant P as Plugin Runtime (tenant container)
+    participant H as "Core (PluginSlotComponent)"
+    participant API as "Core API (UI Manifest)"
+    participant P as "Plugin Runtime (tenant container)"
     U->>H: Mở màn hình có slot (vd Dashboard)
     H->>API: GET /plugins/ui-manifest
     API-->>H: slots + contributions (ACTIVE + RBAC)

@@ -318,10 +318,10 @@ stateDiagram-v2
 sequenceDiagram
     autonumber
     actor TA as Tenant Admin
-    participant FE as Web (Marketplace)
-    participant PM as Plugin Manager (Core)
+    participant FE as "Web (Marketplace)"
+    participant PM as "Plugin Manager (Core)"
     participant DEP as Deployer
-    participant CT as Plugin Container (Tenant)
+    participant CT as "Plugin Container (Tenant)"
     participant AU as Audit Trail
 
     TA->>FE: Chọn Sales (phiên bản 1.3.0) → "Cài đặt"
@@ -372,7 +372,7 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor TA as Tenant Admin
-    participant FE as Web (Plugin Detail)
+    participant FE as "Web (Plugin Detail)"
     participant PM as Plugin Manager
     participant DEP as Deployer
     participant CT as Container

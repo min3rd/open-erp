@@ -198,7 +198,7 @@ sequenceDiagram
     participant PM as Plugin Manager
     participant DEP as Deployer
     participant REG as Registry nội bộ
-    participant CT as Plugin Container (Tenant)
+    participant CT as "Plugin Container (Tenant)"
 
     TA->>PM: Cài plugin (chọn phiên bản)
     PM->>PM: Pre-flight (entitlement/version/compat/deps/lock) — ANL-01
