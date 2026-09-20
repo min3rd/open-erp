@@ -52,6 +52,9 @@ public class PluginAdminService {
     TenantPluginRepository tenantPluginRepository;
 
     @Inject
+    PluginUiSlotSyncService uiSlotSyncService;
+
+    @Inject
     ObjectMapper objectMapper;
 
     @Inject
@@ -205,6 +208,7 @@ public class PluginAdminService {
         entity.publishReason = reason;
         entity.blockReason = null;
         entity.blockedAt = null;
+        uiSlotSyncService.syncFromManifest(catalog.pluginKey, entity.version, entity.uiManifest);
         return action(catalog, entity, reason);
     }
 

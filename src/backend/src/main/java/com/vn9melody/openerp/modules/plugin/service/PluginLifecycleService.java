@@ -60,6 +60,9 @@ public class PluginLifecycleService {
     PluginDependencyResolver dependencyResolver;
 
     @Inject
+    PluginPermissionSeeder permissionSeeder;
+
+    @Inject
     TenantDatasourceService datasourceService;
 
     @Inject
@@ -114,6 +117,9 @@ public class PluginLifecycleService {
                 throw new ApiException(503, PluginErrorCode.PLUGIN_SERVICE_UNHEALTHY, health.detail());
             }
             log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "HEALTH", "OK", steps, null);
+
+            permissionSeeder.seed(tenantId, version.permissions);
+            log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "SEED_PERMISSIONS", "OK", steps, null);
 
             ledger.status = TenantPluginStatus.ACTIVE;
             ledger.installedVersion = version.version;

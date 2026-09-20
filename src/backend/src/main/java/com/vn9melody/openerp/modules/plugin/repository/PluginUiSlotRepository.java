@@ -27,4 +27,8 @@ public class PluginUiSlotRepository implements PanacheRepositoryBase<PluginUiSlo
         return find("hostType = 'PLUGIN' and ownerPluginKey = ?1 and slotCode = ?2 and contractVersion = ?3",
                 ownerPluginKey, slotCode, contractVersion).firstResultOptional();
     }
+
+    public List<PluginUiSlot> listBySlotCode(String slotCode) {
+        return list("slotCode = ?1 order by hostType asc", slotCode);
+    }
 }

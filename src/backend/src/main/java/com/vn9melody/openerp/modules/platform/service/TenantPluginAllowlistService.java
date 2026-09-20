@@ -4,34 +4,32 @@ import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.audit.AuditTrail;
 import com.vn9melody.openerp.core.enums.PlatformAction;
 import com.vn9melody.openerp.core.enums.ResponseKey;
-import com.vn9melody.openerp.modules.iam.model.Tenant;
 import com.vn9melody.openerp.modules.platform.api.PlatformErrorCode;
+import com.vn9melody.openerp.modules.plugin.model.TenantPlugin;
+import com.vn9melody.openerp.modules.plugin.repository.TenantPluginRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * Enforces the tenant plugin allowlist {@code tenants.allowed_plugins} (TASK-270 / BUG-53).
+ * Enforces plugin availability for a tenant (TASK-270 upgraded by TASK-306).
  *
- * <p>Plugin Manager does not exist yet in Sprint 02 (no install/enable API to guard), so
- * this service is the prepared enforcement point: every future plugin entry point calls
- * {@link #assertAllowed(UUID, String)} before touching tenant data. The reference entity
- * service ({@code SampleRecordService}, plugin {@code core}) demonstrates the hook.</p>
- *
- * <p>Decision note: the canonical response code is {@code PLATFORM_PLUGIN_NOT_ALLOWED}
- * from DES-02-API section 6.1 (also required by BUG-53/TASK-270), not the provisional
- * {@code TENANT_PLUGIN_NOT_ALLOWED} name mentioned in the wave brief.</p>
+ * <p>Sprint 03 single source of truth: {@code tenant_plugins} rows with status
+ * {@code ACTIVE}. Core modules are always available and never gated here
+ * (BR-PLG-01, Gate Q4); optional plugins require an ACTIVE installation.</p>
  */
 @ApplicationScoped
 public class TenantPluginAllowlistService {
 
-    /** Plugin key of the mandatory core plugin (reference entity lives here). */
+    /** Plugin key of the mandatory core reference entity. */
     public static final String PLUGIN_CORE = "core";
+
+    @Inject
+    TenantPluginRepository tenantPluginRepository;
 
     @Inject
     EntityManager entityManager;
@@ -39,33 +37,31 @@ public class TenantPluginAllowlistService {
     @Inject
     AuditTrail auditTrail;
 
-    /** True when {@code pluginKey} is part of the tenant allowlist (case-insensitive). */
     public boolean isAllowed(UUID tenantId, String pluginKey) {
         if (tenantId == null || pluginKey == null || pluginKey.isBlank()) {
             return false;
         }
-        Tenant tenant = entityManager.find(Tenant.class, tenantId);
-        if (tenant == null || tenant.allowedPlugins == null) {
-            return false;
-        }
         String normalized = pluginKey.trim();
-        for (String allowed : tenant.allowedPlugins) {
-            if (allowed != null && allowed.trim().equalsIgnoreCase(normalized)) {
-                return true;
-            }
+        if (PLUGIN_CORE.equalsIgnoreCase(normalized)) {
+            return true;
         }
-        return false;
+        Number count = (Number) entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM tenant_plugins WHERE tenant_id = ?1 AND plugin_key = ?2 AND status = 'ACTIVE'")
+                .setParameter(1, tenantId)
+                .setParameter(2, normalized)
+                .getSingleResult();
+        return count != null && count.longValue() > 0;
     }
 
     /**
-     * Fails with {@code 403 PLATFORM_PLUGIN_NOT_ALLOWED} and queues a DENIED audit entry
-     * when the plugin is not in the tenant allowlist (khuôn mẫu 4 error).
+     * Fails with {@code 403 PLATFORM_PLUGIN_NOT_ALLOWED} and queues a DENIED
+     * audit entry when the plugin is not active for the tenant.
      */
     public void assertAllowed(UUID tenantId, String pluginKey) {
         if (isAllowed(tenantId, pluginKey)) {
             return;
         }
-        List<String> allowed = allowedPlugins(tenantId);
+        List<String> allowed = activePluginKeys(tenantId);
         Map<String, Object> params = new HashMap<>();
         params.put(ResponseKey.PLUGIN.getKey(), pluginKey);
         params.put(ResponseKey.ALLOWED_PLUGINS.getKey(), allowed);
@@ -75,14 +71,16 @@ public class TenantPluginAllowlistService {
             "Plugin is not allowed for this tenant", params);
     }
 
-    private List<String> allowedPlugins(UUID tenantId) {
+    private List<String> activePluginKeys(UUID tenantId) {
         if (tenantId == null) {
             return List.of();
         }
-        Tenant tenant = entityManager.find(Tenant.class, tenantId);
-        if (tenant == null || tenant.allowedPlugins == null) {
-            return List.of();
-        }
-        return new ArrayList<>(tenant.allowedPlugins);
+        return tenantPluginRepository.listActiveByTenant(tenantId).stream()
+                .map(plugin -> plugin.pluginKey)
+                .toList();
+    }
+
+    public List<TenantPlugin> listEntitlements(UUID tenantId) {
+        return tenantPluginRepository.listByTenant(tenantId);
     }
 }

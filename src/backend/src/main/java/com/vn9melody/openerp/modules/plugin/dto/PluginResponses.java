@@ -208,6 +208,86 @@ public final class PluginResponses {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class UiHost {
+        public String type;
+
+        @JsonProperty(PluginResponseKey.Json.PLUGIN_KEY)
+        public String pluginKey;
+
+        @JsonProperty(PluginResponseKey.Json.INSTALLED_VERSION)
+        public String installedVersion;
+
+        @JsonProperty(PluginResponseKey.Json.CONTRACT_VERSION)
+        public String contractVersion;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class UiContribution {
+        @JsonProperty(PluginResponseKey.Json.PLUGIN_KEY)
+        public String pluginKey;
+
+        @JsonProperty(PluginResponseKey.Json.TITLE_KEY)
+        public String titleKey;
+
+        @JsonProperty(PluginResponseKey.Json.RENDER_MODE)
+        public String renderMode;
+
+        @JsonProperty(PluginResponseKey.Json.ENTRY)
+        public String entry;
+
+        @JsonProperty(PluginResponseKey.Json.PERMISSION)
+        public String permission;
+
+        @JsonProperty(PluginResponseKey.Json.ORDER)
+        public Integer order;
+
+        @JsonProperty(PluginResponseKey.Json.CONTRACT_VERSION)
+        public String contractVersion;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class UiSlot {
+        @JsonProperty(PluginResponseKey.Json.SLOT_CODE)
+        public String slotCode;
+
+        @JsonProperty(PluginResponseKey.Json.HOST)
+        public UiHost host;
+
+        @JsonProperty(PluginResponseKey.Json.CONTRIBUTIONS)
+        public List<UiContribution> contributions;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class UiScreen {
+        @JsonProperty(PluginResponseKey.Json.PLUGIN_KEY)
+        public String pluginKey;
+
+        @JsonProperty(PluginResponseKey.Json.ROUTE)
+        public String route;
+
+        @JsonProperty(PluginResponseKey.Json.TITLE_KEY)
+        public String titleKey;
+
+        @JsonProperty(PluginResponseKey.Json.PERMISSION)
+        public String permission;
+
+        @JsonProperty(PluginResponseKey.Json.ORDER)
+        public Integer order;
+
+        @JsonProperty(PluginResponseKey.Json.RENDER_MODE)
+        public String renderMode;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class UiManifest {
+        @JsonProperty(PluginResponseKey.Json.SCREENS)
+        public List<UiScreen> screens;
+
+        @JsonProperty(PluginResponseKey.Json.SLOTS)
+        public List<UiSlot> slots;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class OperationStatus {
         @JsonProperty(PluginResponseKey.Json.OPERATION_ID)
         public String operationId;

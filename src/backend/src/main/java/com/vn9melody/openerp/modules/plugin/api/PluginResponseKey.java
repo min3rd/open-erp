@@ -74,6 +74,7 @@ public enum PluginResponseKey {
     ORDER("order"),
     PERMISSION("permission"),
     TITLE_KEY("title_key"),
+    ROUTE("route"),
 
     // Credentials / notifications
     SCOPE("scope"),
@@ -148,6 +149,7 @@ public enum PluginResponseKey {
         String ORDER = "order";
         String PERMISSION = "permission";
         String TITLE_KEY = "title_key";
+        String ROUTE = "route";
         String SCOPE = "scope";
         String REGISTRY_HOST = "registry_host";
         String USERNAME = "username";

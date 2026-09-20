@@ -26,9 +26,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * TASK-270 / BUG-53: tenant plugin allowlist enforcement. The service is exercised
- * on real PostgreSQL and the reference entity endpoint demonstrates the hook
- * (plugin {@code core} denied when removed from {@code tenants.allowed_plugins}).
+ * TASK-270 + TASK-306: plugin availability enforcement. Sprint 03 reads the
+ * {@code tenant_plugins} ledger (status ACTIVE); core modules are always
+ * available (Gate Q4). Exercised on real PostgreSQL and Redis.
  */
 @QuarkusTest
 public class TenantPluginAllowlistServiceTest {
@@ -69,8 +69,8 @@ public class TenantPluginAllowlistServiceTest {
     }
 
     @Test
-    @DisplayName("TASK-270: default allowlist ['core'] cho phép core, chặn plugin khác")
-    public void testAllowlistLookup() {
+    @DisplayName("TASK-306: core luôn khả dụng; plugin tùy chọn cần ledger ACTIVE")
+    public void testLedgerBasedAllowlist() {
         assertTrue(allowlistService.isAllowed(tenantId, "core"));
         assertDoesNotThrow(() -> allowlistService.assertAllowed(tenantId, "core"));
 
@@ -80,36 +80,56 @@ public class TenantPluginAllowlistServiceTest {
         Assertions.assertEquals(403, exception.getStatusCode());
         Assertions.assertEquals(PlatformErrorCode.PLATFORM_PLUGIN_NOT_ALLOWED, exception.getErrorCode());
         Assertions.assertEquals("sales", exception.getParams().get("plugin"));
+
+        upsertPluginInstall("sales", "ACTIVE");
+        assertTrue(allowlistService.isAllowed(tenantId, "sales"));
+        assertDoesNotThrow(() -> allowlistService.assertAllowed(tenantId, "sales"));
+
+        upsertPluginInstall("sales", "INACTIVE");
+        assertFalse(allowlistService.isAllowed(tenantId, "sales"));
     }
 
     @Test
-    @DisplayName("TASK-270: hook tại SampleRecordService chặn khi plugin core bị gỡ khỏi allowlist")
-    public void testPluginHookOnReferenceEntity() {
+    @DisplayName("TASK-306: core tách riêng khỏi allowed_plugins (Gate Q4) — hook vẫn cho phép core")
+    public void testCoreAlwaysAvailable() {
+        updateAllowedPlugins("[]");
+
         given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
-            .body(Map.of("title", "s2eng-plugin-ok", "amount", 10))
+            .body(Map.of("title", "s3-plugin-core-ok", "amount", 10))
         .when()
             .post(SAMPLE_RECORDS_PATH)
         .then()
             .statusCode(201)
             .body("code", equalTo("CORE_SAMPLE_RECORD_CREATED"));
 
-        updateAllowedPlugins("[]");
-
-        given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body(Map.of("title", "s2eng-plugin-denied", "amount", 10))
-        .when()
-            .post(SAMPLE_RECORDS_PATH)
-        .then()
-            .statusCode(403)
-            .body("success", equalTo(false))
-            .body("code", equalTo(PlatformErrorCode.PLATFORM_PLUGIN_NOT_ALLOWED))
-            .body("params.plugin", equalTo("core"));
-
         updateAllowedPlugins("[\"core\"]");
+    }
+
+    private void upsertPluginInstall(String pluginKey, String status) {
+        QuarkusTransaction.requiringNew().run(() -> {
+            Object catalogId = em.createNativeQuery("""
+                    INSERT INTO plugin_catalog (plugin_key, name_key, description_key, visibility)
+                    VALUES (?1, ?2, ?3, 'PLATFORM')
+                    ON CONFLICT (plugin_key) DO UPDATE SET updated_at = NOW()
+                    RETURNING id
+                    """)
+                .setParameter(1, pluginKey)
+                .setParameter(2, "PLUGIN_" + pluginKey.toUpperCase() + "_NAME")
+                .setParameter(3, "PLUGIN_" + pluginKey.toUpperCase() + "_DESCRIPTION")
+                .getSingleResult();
+            em.createNativeQuery("""
+                    INSERT INTO tenant_plugins (tenant_id, catalog_id, plugin_key, status)
+                    VALUES (?1, ?2, ?3, ?4)
+                    ON CONFLICT (tenant_id, plugin_key) DO UPDATE SET status = EXCLUDED.status
+                    """)
+                .setParameter(1, tenantId)
+                .setParameter(2, catalogId)
+                .setParameter(3, pluginKey)
+                .setParameter(4, status)
+                .executeUpdate();
+        });
     }
 
     private void updateAllowedPlugins(String json) {
