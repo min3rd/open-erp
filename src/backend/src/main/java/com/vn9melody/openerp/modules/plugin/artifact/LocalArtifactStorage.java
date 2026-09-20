@@ -2,6 +2,7 @@ package com.vn9melody.openerp.modules.plugin.artifact;
 
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
+import io.quarkus.arc.properties.IfBuildProperty;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,6 +22,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
  * implementation when profile {@code storage} is enabled (TASK-335).
  */
 @ApplicationScoped
+@IfBuildProperty(name = "openerp.storage.provider", stringValue = "local", enableIfMissing = true)
 public class LocalArtifactStorage implements ArtifactStorage {
 
     @ConfigProperty(name = "openerp.plugin.artifact.local-dir",

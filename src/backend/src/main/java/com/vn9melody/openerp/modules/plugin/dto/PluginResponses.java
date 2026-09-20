@@ -335,6 +335,30 @@ public final class PluginResponses {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class CredentialItem {
+        @JsonProperty(PluginResponseKey.Json.ID)
+        public String id;
+
+        @JsonProperty(PluginResponseKey.Json.SCOPE)
+        public String scope;
+
+        @JsonProperty(PluginResponseKey.Json.NAME)
+        public String name;
+
+        @JsonProperty(PluginResponseKey.Json.REGISTRY_HOST)
+        public String registryHost;
+
+        @JsonProperty(PluginResponseKey.Json.USERNAME)
+        public String username;
+
+        @JsonProperty(PluginResponseKey.Json.LAST_USED_AT)
+        public Instant lastUsedAt;
+
+        @JsonProperty(PluginResponseKey.Json.CONNECTED)
+        public Boolean connected;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class OperationStatus {
         @JsonProperty(PluginResponseKey.Json.OPERATION_ID)
         public String operationId;

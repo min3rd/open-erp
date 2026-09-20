@@ -84,6 +84,7 @@ public enum PluginResponseKey {
 
     // Credentials / notifications
     SCOPE("scope"),
+    ID("id"),
     REGISTRY_HOST("registry_host"),
     USERNAME("username"),
     NAME("name"),
@@ -163,6 +164,7 @@ public enum PluginResponseKey {
         String TITLE_KEY = "title_key";
         String ROUTE = "route";
         String SCOPE = "scope";
+        String ID = "id";
         String REGISTRY_HOST = "registry_host";
         String USERNAME = "username";
         String NAME = "name";

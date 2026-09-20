@@ -143,4 +143,27 @@ public class PluginRequests {
 
         public String reason;
     }
+
+    public static class Credential {
+        @JsonProperty(PluginResponseKey.Json.NAME)
+        public String name;
+
+        @JsonProperty(PluginResponseKey.Json.REGISTRY_HOST)
+        public String registryHost;
+
+        @JsonProperty(PluginResponseKey.Json.USERNAME)
+        public String username;
+
+        public String secret;
+    }
+
+    public static class CredentialUpdate {
+        @JsonProperty(PluginResponseKey.Json.NAME)
+        public String name;
+
+        @JsonProperty(PluginResponseKey.Json.USERNAME)
+        public String username;
+
+        public String secret;
+    }
 }

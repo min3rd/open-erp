@@ -10,6 +10,7 @@ import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
 import com.vn9melody.openerp.modules.plugin.dto.PluginRequests;
 import com.vn9melody.openerp.modules.plugin.dto.PluginResponses;
 import com.vn9melody.openerp.modules.plugin.service.PluginAdminService;
+import com.vn9melody.openerp.modules.plugin.service.PluginArtifactUploadService;
 import io.vertx.core.http.HttpServerRequest;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -25,6 +26,9 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.io.InputStream;
+import org.jboss.resteasy.reactive.server.multipart.FormValue;
+import org.jboss.resteasy.reactive.server.multipart.MultipartFormDataInput;
 
 /**
  * Platform plugin catalog administration (DES-03-API section 3, TASK-303):
@@ -38,6 +42,9 @@ public class PlatformPluginAdminResource extends BasePlatformResource {
 
     @Inject
     PluginAdminService pluginAdminService;
+
+    @Inject
+    PluginArtifactUploadService uploadService;
 
     @Context
     ContainerRequestContext requestContext;
@@ -153,6 +160,29 @@ public class PlatformPluginAdminResource extends BasePlatformResource {
                 request != null ? request.reason : null, actor.userId);
         return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_UNBLOCK_SUCCESS,
                 "Plugin catalog unblocked.", result)).build();
+    }
+
+    @POST
+    @Path("/artifacts/upload")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response uploadArtifact(MultipartFormDataInput input) {
+        requireSuperAdmin();
+        FormValue part = firstPart(input);        try (InputStream content = part.getFileItem().getInputStream()) {
+            PluginResponses.UploadResult result = uploadService.upload(part.getFileName(), content, null);
+            return Response.status(Response.Status.CREATED).entity(ApiResponse.success(
+                    PluginErrorCode.PLUGIN_ARTIFACT_UPLOAD_SUCCESS, "Artifact uploaded.", result)).build();
+        } catch (java.io.IOException e) {
+            throw new ApiException(500, PluginErrorCode.PLUGIN_ARTIFACT_DOWNLOAD_FAILED,
+                    "Cannot read uploaded artifact");
+        }
+    }
+
+    private FormValue firstPart(MultipartFormDataInput input) {
+        return input.getValues().values().stream()
+                .flatMap(parts -> parts.stream())
+                .findFirst()
+                .orElseThrow(() -> new ApiException(400, PluginErrorCode.PLUGIN_ARTIFACT_SOURCE_INVALID,
+                        "A file part is required"));
     }
 
     private PlatformActor requireSuperAdmin() {
