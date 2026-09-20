@@ -183,3 +183,13 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 - **Confirmation Gate ĐÓNG (2026-09-19)**: khách hàng ký [CONF-01](../sprints/sprint_03_plugin_manager/04_confirmation/CONF-01_sprint_03_scope.md); 10/10 câu hỏi chốt cuối đã trả lời. 2 điểm điều chỉnh so với đề xuất BA: **MinIO là lưu trữ chính toàn hệ thống**; **plugin riêng của tenant được phép nhúng trực tiếp WC/MF**; xác nhận **lệnh `dev` thuộc Sprint 03**.
 - **Phạm vi Sprint 03**: FEAT-21 (Plugin Manager & vòng đời), FEAT-22 (Plugin CLI Node/npm + `dev`), FEAT-23 (Phân phối 3 kênh, Deployer container-per-tenant, Tenant Datasource Router, UI 2 chế độ WC/MF).
 - **Tiếp theo**: Bước 5-6 (SOL/DES) → Bước 7 (FEAT-21→23, dải TASK-301+; BUG tiếp nối từ BUG-84).
+
+## Sprint 03 - Lập Trình Hoàn Tất (2026-09-20)
+- **Backend**: module `modules/plugin` đầy đủ (catalog/version P1–P8 + P24–P26, tenant T1–T18, governance/entitlement P9–P23, UI Manifest S1, Operations S2, gateway S3 + session token iframe, credentials AES-GCM, upload MinIO/local, image builder Docker/Kaniko, deployer Docker/K8s, snapshot + upgrade/rollback an toàn, notification, artifact verifier allowlist + checksum). Flyway `V3.0.0–V3.0.2` đã verify trên PostgreSQL thật.
+- **Kiểm thử**: full backend suite **210/210 PASS** trên PostgreSQL + Redis thật (0 H2); gồm lifecycle E2E, custom plugin T8–T18, gateway guards, credentials/upload, artifact verifier, bundle image builder.
+- **CLI**: `tools/open-erp-cli` (`@open-erp/cli`) 10 lệnh + smoke test 3/3 PASS (commit `d46d7be`).
+- **Web**: Portal Super Admin (catalog 3 tầng, block/bulk, credentials, tenant-private), Marketplace tenant + Drawer đăng ký plugin riêng (3 kênh) + credentials, route động `/apps/:pluginKey/**` với WC/MF/iframe; `ng build` PASS.
+- **Shared UI**: 6 component plugin-manager + thư viện `shared/plugin-host` (slot/outlet/3 loader, service manifest/token); `tsc strict` PASS.
+- **Mobile**: `/settings/plugins` read-only + menu + banner; `ng build` PASS.
+- **Docs**: `plugin_manager_infrastructure_guide.md` (07) + `plugin_web_packaging_guide.md` (08) + cập nhật `docs/README.md`.
+- **Còn lại để đóng Sprint (DoD)**: Bước 8 QA dual-mode (Web ≥1280, Mobile 390×844, 0 console error, ảnh minh chứng) + Reviewer ký **BUG-86/88/89/90/91/92/93/94** (BUG-87 đã xác nhận triển khai).
