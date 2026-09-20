@@ -673,5 +673,11 @@
   "PLATFORM_TENANT_QUOTA_PLUGIN_SEARCH_PLACEHOLDER": "Tìm plugin theo tên hoặc key...",
   "PLATFORM_TENANT_QUOTA_PLUGIN_SEARCH_EMPTY": "Không tìm thấy plugin phù hợp.",
   "PLATFORM_TENANT_QUOTA_PLUGIN_ENABLED_COUNT": "Đã bật {enabled}/{total}",
-  "PLATFORM_TENANT_QUOTA_PLUGIN_CLEAR_SEARCH": "Xóa tìm kiếm"
+  "PLATFORM_TENANT_QUOTA_PLUGIN_CLEAR_SEARCH": "Xóa tìm kiếm",
+  "PLUGIN_HOST_LOADING": "Đang tải plugin...",
+  "PLUGIN_HOST_RENDER_ERROR": "Không thể hiển thị plugin này",
+  "PLUGIN_HOST_UNAVAILABLE": "Plugin không khả dụng",
+  "PLUGIN_HOST_CONTRACT_MISMATCH": "Phiên bản plugin không tương thích",
+  "PLUGIN_HOST_IFRAME_TITLE": "Nội dung plugin",
+  "PLUGIN_HOST_ERROR_CODE": "Mã lỗi: {code}"
 }

@@ -4,3 +4,4 @@ export * from './i18n';
 export * from './utils';
 export * from './theme/theme.service';
 export * from './components';
+export * from './plugin-host';

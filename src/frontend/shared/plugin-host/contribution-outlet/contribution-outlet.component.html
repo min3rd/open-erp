@@ -1,0 +1,40 @@
+@if (visible()) {
+  @if (!contractMatches()) {
+    <div class="border border-amber-300 bg-amber-50 p-2 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+      {{ 'PLUGIN_HOST_CONTRACT_MISMATCH' | translate }}
+    </div>
+  } @else if (failed()) {
+    <div class="border border-rose-300 bg-rose-50 p-2 text-xs text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
+      {{ 'PLUGIN_HOST_RENDER_ERROR' | translate }}
+    </div>
+  } @else {
+    <div class="block w-full" [style.min-height.px]="minHeight()">
+      @switch (contribution().render_mode) {
+        @case (renderMode.WEB_COMPONENT) {
+          <app-plugin-web-component-loader
+            [entry]="entryUrl()"
+            [pluginKey]="contribution().plugin_key"
+            [element]="contribution().element || ''"
+            (failed)="onFailed()"
+          />
+        }
+        @case (renderMode.MODULE_FEDERATION) {
+          <app-plugin-module-federation-loader
+            [entry]="entryUrl()"
+            [pluginKey]="contribution().plugin_key"
+            [exposedModule]="contribution().exposed_module || './mount'"
+            (failed)="onFailed()"
+          />
+        }
+        @case (renderMode.IFRAME) {
+          <app-plugin-iframe-loader
+            [pluginKey]="contribution().plugin_key"
+            [entry]="entryUrl()"
+            [minHeightPx]="minHeight()"
+            (failed)="onFailed()"
+          />
+        }
+      }
+    </div>
+  }
+}

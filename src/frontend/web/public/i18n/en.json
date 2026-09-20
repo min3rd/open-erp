@@ -673,5 +673,11 @@
   "PLATFORM_TENANT_QUOTA_PLUGIN_SEARCH_PLACEHOLDER": "Search plugins by name or key...",
   "PLATFORM_TENANT_QUOTA_PLUGIN_SEARCH_EMPTY": "No matching plugins.",
   "PLATFORM_TENANT_QUOTA_PLUGIN_ENABLED_COUNT": "Enabled {enabled}/{total}",
-  "PLATFORM_TENANT_QUOTA_PLUGIN_CLEAR_SEARCH": "Clear search"
+  "PLATFORM_TENANT_QUOTA_PLUGIN_CLEAR_SEARCH": "Clear search",
+  "PLUGIN_HOST_LOADING": "Loading plugin...",
+  "PLUGIN_HOST_RENDER_ERROR": "This plugin cannot be displayed",
+  "PLUGIN_HOST_UNAVAILABLE": "Plugin unavailable",
+  "PLUGIN_HOST_CONTRACT_MISMATCH": "Plugin contract version mismatch",
+  "PLUGIN_HOST_IFRAME_TITLE": "Plugin content",
+  "PLUGIN_HOST_ERROR_CODE": "Error code: {code}"
 }

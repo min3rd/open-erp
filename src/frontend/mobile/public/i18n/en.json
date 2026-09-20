@@ -450,5 +450,11 @@
   "PLUGIN_INVENTORY_NAME": "Inventory",
   "PLUGIN_INVENTORY_DESCRIPTION": "Stock levels, goods receipts/issues and suppliers.",
   "PLUGIN_CRM_NAME": "CRM",
-  "PLUGIN_CRM_DESCRIPTION": "Leads, customer care and pipeline management."
+  "PLUGIN_CRM_DESCRIPTION": "Leads, customer care and pipeline management.",
+  "PLUGIN_HOST_LOADING": "Loading plugin...",
+  "PLUGIN_HOST_RENDER_ERROR": "This plugin cannot be displayed",
+  "PLUGIN_HOST_UNAVAILABLE": "Plugin unavailable",
+  "PLUGIN_HOST_CONTRACT_MISMATCH": "Plugin contract version mismatch",
+  "PLUGIN_HOST_IFRAME_TITLE": "Plugin content",
+  "PLUGIN_HOST_ERROR_CODE": "Error code: {code}"
 }

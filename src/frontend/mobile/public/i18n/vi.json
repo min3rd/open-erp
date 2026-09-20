@@ -450,5 +450,11 @@
   "PLUGIN_INVENTORY_NAME": "Kho hàng",
   "PLUGIN_INVENTORY_DESCRIPTION": "Quản lý tồn kho, nhập xuất và nhà cung cấp.",
   "PLUGIN_CRM_NAME": "CRM",
-  "PLUGIN_CRM_DESCRIPTION": "Quản lý cơ hội, chăm sóc khách hàng và pipeline."
+  "PLUGIN_CRM_DESCRIPTION": "Quản lý cơ hội, chăm sóc khách hàng và pipeline.",
+  "PLUGIN_HOST_LOADING": "Đang tải plugin...",
+  "PLUGIN_HOST_RENDER_ERROR": "Không thể hiển thị plugin này",
+  "PLUGIN_HOST_UNAVAILABLE": "Plugin không khả dụng",
+  "PLUGIN_HOST_CONTRACT_MISMATCH": "Phiên bản plugin không tương thích",
+  "PLUGIN_HOST_IFRAME_TITLE": "Nội dung plugin",
+  "PLUGIN_HOST_ERROR_CODE": "Mã lỗi: {code}"
 }

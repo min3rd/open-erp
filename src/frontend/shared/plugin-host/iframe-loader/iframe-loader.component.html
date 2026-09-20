@@ -1,0 +1,17 @@
+<div #host class="relative block w-full" [style.min-height.px]="minHeightPx()">
+  @if (loading()) {
+    <div class="absolute inset-0 flex items-center justify-center bg-neutral-50 text-xs text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
+      {{ 'PLUGIN_HOST_LOADING' | translate }}
+    </div>
+  }
+  <iframe
+    #frame
+    class="block w-full border-0"
+    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+    loading="lazy"
+    [src]="src()"
+    [style.height.px]="minHeightPx()"
+    [title]="'PLUGIN_HOST_IFRAME_TITLE' | translate"
+    (load)="onLoad()"
+  ></iframe>
+</div>
