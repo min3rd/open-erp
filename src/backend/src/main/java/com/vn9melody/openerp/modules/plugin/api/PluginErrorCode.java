@@ -87,6 +87,7 @@ public final class PluginErrorCode {
     public static final String PLUGIN_LOCKED_DEFAULT = "PLUGIN_LOCKED_DEFAULT";
     public static final String PLUGIN_OPERATION_IN_PROGRESS = "PLUGIN_OPERATION_IN_PROGRESS";
     public static final String PLUGIN_BLOCKED_BY_PLATFORM = "PLUGIN_BLOCKED_BY_PLATFORM";
+    public static final String PLUGIN_BLOCK_CONFIRMATION_REQUIRED = "PLUGIN_BLOCK_CONFIRMATION_REQUIRED";
 
     // Errors - runtime / deploy / snapshots
     public static final String PLUGIN_TENANT_DATASOURCE_FAILED = "PLUGIN_TENANT_DATASOURCE_FAILED";

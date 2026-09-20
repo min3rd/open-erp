@@ -46,6 +46,14 @@ public enum PluginResponseKey {
     TARGET_VERSION("target_version"),
     UPDATE_AVAILABLE("update_available"),
     IS_CUSTOM("is_custom"),
+    OWNER_TENANT_ID("owner_tenant_id"),
+    FORCE_UNINSTALL("force_uninstall"),
+    CONFIRM_TEXT("confirm_text"),
+    PUBLISHED_AT("published_at"),
+    BLOCK_REASON("block_reason"),
+    BLOCKED_AT("blocked_at"),
+    SIZE_BYTES("size_bytes"),
+    FILE_NAME("file_name"),
     STORAGE_MODEL("storage_model"),
     STORAGE_SCHEMA("storage_schema"),
     OPERATION_ID("operation_id"),
@@ -74,6 +82,7 @@ public enum PluginResponseKey {
     NAME("name"),
     LAST_USED_AT("last_used_at"),
     CONNECTED("connected"),
+    TEMPLATE_VERSION("template_version"),
     NOTIFICATION_TYPE("type"),
     SEVERITY("severity"),
     READ_AT("read_at"),
@@ -113,6 +122,14 @@ public enum PluginResponseKey {
         String TARGET_VERSION = "target_version";
         String UPDATE_AVAILABLE = "update_available";
         String IS_CUSTOM = "is_custom";
+        String OWNER_TENANT_ID = "owner_tenant_id";
+        String FORCE_UNINSTALL = "force_uninstall";
+        String CONFIRM_TEXT = "confirm_text";
+        String PUBLISHED_AT = "published_at";
+        String BLOCK_REASON = "block_reason";
+        String BLOCKED_AT = "blocked_at";
+        String SIZE_BYTES = "size_bytes";
+        String FILE_NAME = "file_name";
         String STORAGE_MODEL = "storage_model";
         String STORAGE_SCHEMA = "storage_schema";
         String OPERATION_ID = "operation_id";
@@ -137,6 +154,7 @@ public enum PluginResponseKey {
         String NAME = "name";
         String LAST_USED_AT = "last_used_at";
         String CONNECTED = "connected";
+        String TEMPLATE_VERSION = "template_version";
         String NOTIFICATION_TYPE = "type";
         String SEVERITY = "severity";
         String READ_AT = "read_at";
