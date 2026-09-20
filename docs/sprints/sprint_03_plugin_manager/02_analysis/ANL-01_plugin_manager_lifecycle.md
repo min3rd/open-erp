@@ -1,7 +1,7 @@
 # [ANL-01] Phân Tích Nghiệp Vụ Chuyên Sâu: Plugin Manager — Quản Lý Danh Mục & Vòng Đời Plugin (Hệ Thống & Tenant)
 
 - **Mã Tài Liệu**: ANL-01
-- **Phiên Bản**: 1.3 — Cập nhật theo phản hồi khách hàng ngày 2026-09-19 (bổ sung: plugin riêng của Tenant; cô lập dữ liệu schema/database riêng theo tenant; nhúng UI bằng Web Components/Module Federation)
+- **Phiên Bản**: 1.4 — Đã chốt Confirmation Gate (2026-09-19): plugin riêng của tenant được nhúng trực tiếp WC/MF; MinIO là lưu trữ chính toàn hệ thống; lệnh `dev` thuộc Sprint 03 (ANL-02)
 - **Phụ Trách**: BA Agent
 - **Thuộc Sprint**: Sprint 03 - Plugin Manager, Plugin CLI & Cơ Chế Phân Phối Plugin
 - **Tài Liệu Nguồn**: [RAW-01](../01_raw_notes/RAW-01_plugin_management_system_tenant.md), [RAW-03](../01_raw_notes/RAW-03_plugin_distribution_channels.md)
@@ -306,7 +306,7 @@ stateDiagram-v2
 - **BR-PLG-28**: Mỗi tenant có cấu hình `storage_model` do Super Admin/gói dịch vụ quyết định; thay đổi mô hình lưu trữ phải qua quy trình migration an toàn (không tự động).
 - **BR-PLG-29**: Gỡ/tắt plugin **không xóa schema/dữ liệu**; purge schema chỉ thực hiện ngoài Sprint 03 với xác nhận đặc biệt.
 - **BR-PLG-30**: Backup/restore theo tenant hoạt động **độc lập** theo phạm vi schema/database; lỗi migration của một tenant **không được ảnh hưởng** tenant khác.
-- **BR-PLG-31 (đề xuất — chốt Bước 5/6)**: UI Contribution nhúng trực tiếp bằng **Web Components/Module Federation** chỉ áp dụng cho plugin tin cậy/đã kiểm duyệt; mỗi contribution khai báo `render_mode`; plugin riêng chưa kiểm duyệt **mặc định iframe sandbox**; bắt buộc CSP, error boundary, giới hạn theo RBAC và audit.
+- **BR-PLG-31 (đã chốt Gate 2026-09-19)**: UI Contribution nhúng trực tiếp bằng **Web Components/Module Federation được phép cho MỌI plugin, bao gồm plugin riêng của tenant**; mỗi contribution khai báo `render_mode`; iframe sandbox là chế độ dự phòng; bắt buộc CSP, error boundary, Shadow DOM, shared-lib version pin, RBAC và audit.
 
 ---
 
@@ -426,7 +426,7 @@ sequenceDiagram
 
 - **Chế độ 1 — Màn hình riêng**: route động `/apps/<plugin-id>` + menu sinh từ manifest khi plugin ACTIVE (nội dung trong layout Core: topbar/menu vẫn của Core).
 - **Chế độ 2 — Nhúng vào màn hình đang có**: plugin đóng góp **UI Contribution** vào **UI Slot** do **Core hoặc plugin khác** khai báo (widget dashboard, tab chi tiết...), chỉ hiển thị khi plugin ACTIVE + người dùng có quyền.
-- Hợp đồng UI Slot/Contribution và kỹ thuật render — **Web Components + Module Federation (quyết định khách hàng 2026-09-19) cho nhúng trực tiếp; iframe sandbox là chế độ dự phòng** — chi tiết tại ANL-03 mục 4.4.
+- Hợp đồng UI Slot/Contribution và kỹ thuật render — **Web Components + Module Federation (quyết định khách hàng 2026-09-19) cho nhúng trực tiếp, áp dụng cho cả plugin Official và plugin riêng của tenant; iframe sandbox là chế độ dự phòng** — chi tiết tại ANL-03 mục 4.4.
 - 100% chuỗi qua i18n; không hardcode tên plugin.
 
 ---
@@ -502,6 +502,7 @@ sequenceDiagram
 | Q8 | **Chặn gỡ + lộ trình thứ tự gỡ** | Mục 3.3; BR-PLG-05. |
 | Bổ sung (2026-09-19) | **Tenant Admin được đăng ký plugin custom cho tenant mình** (không chỉ Super Admin) | Mục 2.3; metadata `visibility`/`owner_tenant_id`; BR-PLG-22→25; UI 7.1/7.2; ANL-03 mục 3.6, 9.3. |
 | Bổ sung 2 (2026-09-19) | **Dữ liệu riêng của mỗi tenant nằm ở schema/database khác nhau** (cô lập migration plugin) | Mục 4.7; BR-PLG-26→30; ANL-03 mục 4.3, 5, 6. |
+| Chốt Gate (2026-09-19) | **Plugin riêng của tenant được phép nhúng trực tiếp WC/MF** (khác đề xuất BA) | BR-PLG-31; ANL-03 mục 4.4/6; CONF-01 Mục 8. |
 
 ### 11.2. Câu Hỏi Phát Sinh Từ Quyết Định (Cần Chốt Trước/Song Song Bước 5)
 

@@ -175,3 +175,11 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 | (Follow-up) | Storage quota enforcement | — | Cần module upload/Storage (MinIO) để đếm dung lượng thực tế |
 | (Follow-up) | Remote CLI script + subcommand mở rộng | Low/Medium | Sprint 02 mới có Offline CLI 4 lệnh trên server |
 | (QA follow-up) | Re-measure BUG-83 trên app thật (`resp2.mjs`) | Low | FE đã fix + build PASS; QA chốt `sharedTopbarSmall=[]`, `navSmall=[]` |
+
+---
+
+## Sprint 03 - Khởi Động & Confirmation Gate (2026-09-19)
+- **Bước 1-3 hoàn tất**: RAW-01→03; ANL-01→03 (v1.4/v1.3/v1.4); BENCH-01/02 (plugin manager, phân phối, container-per-tenant, UI extension, CLI hệ thống & CLI/DX phát triển plugin).
+- **Confirmation Gate ĐÓNG (2026-09-19)**: khách hàng ký [CONF-01](../sprints/sprint_03_plugin_manager/04_confirmation/CONF-01_sprint_03_scope.md); 10/10 câu hỏi chốt cuối đã trả lời. 2 điểm điều chỉnh so với đề xuất BA: **MinIO là lưu trữ chính toàn hệ thống**; **plugin riêng của tenant được phép nhúng trực tiếp WC/MF**; xác nhận **lệnh `dev` thuộc Sprint 03**.
+- **Phạm vi Sprint 03**: FEAT-21 (Plugin Manager & vòng đời), FEAT-22 (Plugin CLI Node/npm + `dev`), FEAT-23 (Phân phối 3 kênh, Deployer container-per-tenant, Tenant Datasource Router, UI 2 chế độ WC/MF).
+- **Tiếp theo**: Bước 5-6 (SOL/DES) → Bước 7 (FEAT-21→23, dải TASK-301+; BUG tiếp nối từ BUG-84).

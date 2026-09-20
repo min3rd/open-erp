@@ -62,9 +62,9 @@
 - [x] **Q2 (Deploy container)**: **Hệ thống tự động deploy**.
 - [x] **Q3 (Cơ chế nạp JAR tải lên)**: Khi tải lên, **tự build thành 1 image rồi deploy** giống hệt cách dùng image từ Docker Hub/Registry (không nạp classloader vào lõi).
 - [x] **Q4 (Web build)**: **Làm rõ lại (2026-09-19)**: web plugin có thể hiển thị **thành 1 màn hình riêng**, hoặc **nằm trong 1 màn hình đang có của Core hoặc của plugin khác** (UI Contribution vào UI Slot). Giao BA/Architect đề xuất kỹ thuật render tối ưu — chi tiết tại ANL-03 mục 4.4 (đề xuất iframe, chốt tại Bước 5/6).
-- [x] **Q5 (Lưu trữ artifact)**: **Triển khai lưu trữ bằng MinIO**.
+- [x] **Q5 (Lưu trữ artifact)**: **Triển khai lưu trữ bằng MinIO** — **xác nhận Gate 2026-09-19: MinIO là công cụ lưu trữ CHÍNH của toàn hệ thống**, không chỉ artifact plugin.
 - [x] **Q6 (Ký số)**: **Ký số để giai đoạn sau**; Sprint 3 dùng **checksum SHA-256**.
 - [x] **Q7 (Credentials registry)**: **Có** — **tầng nền tảng khai báo nhiều credential**, **tầng tenant cũng vậy** (đa credential theo từng phạm vi).
 - [x] **Q8 (Migration DB của plugin)**: **Plugin phải tự chạy migrate**.
 - [x] **Q9 (Đa phiên bản song song)**: **Có hỗ trợ** — tenant A dùng v1, tenant B dùng v2.
-- [x] **Q10 (Bổ sung làm rõ 2026-09-19 — kỹ thuật nhúng UI)**: **Triển khai Web Components và/hoặc Module Federation ngay trong Sprint 03** để nhúng plugin vào các màn hình đã có của Core/plugin khác (không chỉ iframe). Iframe có thể giữ làm chế độ sandbox dự phòng cho plugin chưa hỗ trợ contract.
+- [x] **Q10 (Bổ sung làm rõ 2026-09-19 — kỹ thuật nhúng UI)**: **Triển khai Web Components và/hoặc Module Federation ngay trong Sprint 03** để nhúng plugin vào các màn hình đã có của Core/plugin khác (không chỉ iframe). **Xác nhận Gate 2026-09-19: plugin riêng của tenant cũng ĐƯỢC PHÉP nhúng trực tiếp WC/MF**; iframe giữ làm chế độ sandbox dự phòng.

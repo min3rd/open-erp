@@ -1,7 +1,7 @@
 # [ANL-03] Phân Tích Nghiệp Vụ Chuyên Sâu: Cơ Chế Phân Phối & Cài Đặt Plugin Đa Kênh
 
 - **Mã Tài Liệu**: ANL-03
-- **Phiên Bản**: 1.3 — Cập nhật theo phản hồi khách hàng ngày 2026-09-19 (bổ sung: plugin riêng của Tenant; cô lập dữ liệu schema/database riêng; quyết định Web Components/Module Federation cho nhúng UI)
+- **Phiên Bản**: 1.4 — Đã chốt Confirmation Gate (2026-09-19): MinIO là lưu trữ chính toàn hệ thống; plugin riêng của tenant được phép nhúng trực tiếp WC/MF
 - **Phụ Trách**: BA Agent
 - **Thuộc Sprint**: Sprint 03 - Plugin Manager, Plugin CLI & Cơ Chế Phân Phối Plugin
 - **Tài Liệu Nguồn**: [RAW-03](../01_raw_notes/RAW-03_plugin_distribution_channels.md), [RAW-01](../01_raw_notes/RAW-01_plugin_management_system_tenant.md)
@@ -268,10 +268,10 @@ graph TD
 
 - **Nguyên tắc an toàn bắt buộc (đề xuất BA — chốt chi tiết Bước 5/6)**:
   - Mỗi UI Contribution khai báo `render_mode = WEB_COMPONENT | MODULE_FEDERATION | IFRAME`.
-  - Mặc định **IFRAME sandbox** cho plugin chưa qua kiểm duyệt / plugin riêng của tenant chưa xác thực; WC/MF chỉ bật cho plugin Official hoặc plugin được Super Admin đánh dấu **tin cậy**.
+  - **WC/MF được phép cho cả plugin Official và plugin riêng của tenant** (chốt Gate 2026-09-19); **IFRAME sandbox** vẫn là `render_mode` hợp lệ/dự phòng khi plugin không hỗ trợ WC/MF hoặc cần cô lập tối đa.
   - Vì WC/MF chạy JS trong **origin của Core**, bắt buộc: contract version hóa, **CSP**, **error boundary**, **Shadow DOM** cho Web Component, shared-lib version pin cho Module Federation, giới hạn contribution theo RBAC, audit đầy đủ.
   - Xung đột tài nguyên/UI (trùng tên element, CSS leak, version Angular) phải được phát hiện khi `validate` và hiển thị trong Portal Super Admin.
-- Bổ sung quy tắc: **BR-DIS-20** — UI Contribution chỉ render khi plugin ACTIVE + quyền hợp lệ + slot hợp lệ; **BR-DIS-21** — danh sách UI Slot được quản lý tập trung (Core + plugin) và hiển thị trong Portal Super Admin để kiểm soát xung đột; **BR-DIS-23** — mỗi contribution khai báo `render_mode`; mặc định iframe sandbox cho plugin chưa được duyệt.
+- Bổ sung quy tắc: **BR-DIS-20** — UI Contribution chỉ render khi plugin ACTIVE + quyền hợp lệ + slot hợp lệ; **BR-DIS-21** — danh sách UI Slot được quản lý tập trung (Core + plugin) và hiển thị trong Portal Super Admin để kiểm soát xung đột; **BR-DIS-23** — mỗi contribution khai báo `render_mode`; WC/MF áp dụng cho mọi plugin kể cả plugin riêng của tenant (chốt Gate 2026-09-19); iframe sandbox là chế độ dự phòng.
 
 ---
 
@@ -284,11 +284,11 @@ graph TD
 | Nạp JAR | **Build image từ bundle rồi deploy** (Q3) | Không classloader/nạp động vào Core; không cần restart Core. |
 | Migration | **Plugin tự chạy** (Q8) | Core theo dõi trạng thái qua health/status; không orchestrate schema. |
 | Dữ liệu plugin | **Schema/database riêng theo tenant** (làm rõ 2026-09-19) | `DEDICATED_SCHEMA` mặc định, `DEDICATED_DATABASE` cho Enterprise; Tenant Datasource Router; DB role least privilege; cấm cross-schema; backup/restore theo tenant. |
-| Lưu trữ artifact | **MinIO** (Q5) | Profile `storage`; local dev cần `make infra-storage` khi test phân phối. |
+| Lưu trữ | **MinIO — công cụ lưu trữ CHÍNH của toàn hệ thống** (chốt Gate 2026-09-19) | Artifact plugin + tài liệu/tệp dùng chung; profile `storage`; local dev cần `make infra-storage`. |
 | Ký số | Giai đoạn sau (Q6) | Sprint 03: checksum SHA-256 bắt buộc. |
 | Credentials | **Đa phạm vi platform + tenant** (Q7) | Mã hóa; UI quản lý riêng cho từng tầng. |
 | Phiên bản | **Đa phiên bản song song theo tenant** (Q9) | Mỗi tenant ghim 1 phiên bản; image/tag tương ứng; contract API version hóa. |
-| Web UI | **Hai chế độ**: màn hình riêng + UI Contribution nhúng vào UI Slot của Core/plugin khác (Q4) | Kỹ thuật **Web Components + Module Federation** (chốt 2026-09-19) + iframe sandbox dự phòng; contract version hóa. |
+| Web UI | **Hai chế độ**: màn hình riêng + UI Contribution nhúng vào UI Slot của Core/plugin khác (Q4) | Kỹ thuật **Web Components + Module Federation** (chốt 2026-09-19), **áp dụng cả plugin riêng của tenant**; iframe sandbox là chế độ dự phòng; contract version hóa. |
 
 ---
 
@@ -306,7 +306,7 @@ graph TD
 | Audit | Đăng ký/tải/kiểm tra/công bố/gỡ artifact + deploy/undeploy | `PLUGIN_ARTIFACT_*`, `PLUGIN_SERVICE_*`. |
 | Phạm vi plugin | Plugin `TENANT_PRIVATE` chỉ hiển thị/cài cho tenant sở hữu; Super Admin giám sát + khóa khẩn cấp; artifact vẫn qua xác minh đầy đủ | BR-PLG-22 → 25 (ANL-01); mục 3.6. |
 | Cô lập dữ liệu | Plugin chỉ migrate/ghi trong **schema/database riêng của tenant**; DB role least privilege; cấm cross-schema | BR-PLG-26 → 30 (ANL-01 mục 4.7); BR-DIS-22. |
-| Nhúng UI trực tiếp | WC/MF chạy JS trong **origin Core** ⇒ chỉ plugin tin cậy; khai báo `render_mode`; CSP + error boundary + Shadow DOM + shared-lib version pin; plugin riêng chưa duyệt mặc định iframe sandbox | BR-DIS-23; chốt chi tiết Bước 5/6. |
+| Nhúng UI trực tiếp | WC/MF chạy JS trong **origin Core** (áp dụng cả plugin riêng — chốt Gate); khai báo `render_mode`; bắt buộc CSP + error boundary + Shadow DOM + shared-lib version pin + RBAC + audit; iframe sandbox là chế độ dự phòng | BR-DIS-23; BR-PLG-31 (ANL-01); chốt chi tiết Bước 5/6. |
 
 ---
 
@@ -423,6 +423,7 @@ graph TD
 | Bổ sung (2026-09-19) | **Tenant Admin được đăng ký custom plugin cho tenant mình** (không chỉ Super Admin) | Mục 1.2, 3.6, 9.3; ANL-01 BR-PLG-22→25. |
 | Bổ sung 2 (2026-09-19) | **Dữ liệu riêng của tenant ở schema/database khác nhau** (cô lập migration plugin) | Mục 4.3, 5, 6; ANL-01 mục 4.7 + BR-PLG-26→30; BR-DIS-22. |
 | Bổ sung 3 (2026-09-19) | **Triển khai Web Components/Module Federation để nhúng plugin vào màn hình có sẵn** | Mục 4.4, 5, 6; BR-DIS-23; ANL-02 `generate ui-contribution`. |
+| Chốt Gate (2026-09-19) | **MinIO là lưu trữ chính toàn hệ thống**; **plugin riêng được phép nhúng WC/MF**; **lệnh `dev` thuộc Sprint 03** | Mục 5, 6; ANL-01 BR-PLG-31; ANL-02 v1.3; CONF-01 Mục 8. |
 
 ### 11.2. Câu Hỏi Phát Sinh (Cần Chốt Trước/Song Song Bước 5)
 
@@ -435,4 +436,4 @@ graph TD
 | N5 | Giới hạn số phiên bản runtime đồng thời cho một plugin (tránh bùng nổ container)? | Hạ tầng | Cấu hình giới hạn (ví dụ tối đa N major versions). |
 | N6 | MinIO trở thành dịch vụ bắt buộc cho tính năng phân phối plugin — local dev cần `make infra-storage`; có chấp nhận tăng footprint khi test plugin? | Guardrail môi trường dev | Chấp nhận theo profile on-demand; tài liệu hóa rõ trong deployment guide. |
 | N7 | Plugin riêng của tenant có cần Super Admin phê duyệt trước khi cài? Registry host riêng của tenant có phải qua allowlist nền tảng? | Bảo mật, governance | Xem ANL-01 N7/N8: đề xuất tự động khi bật `allow_custom_plugins` + Super Admin duyệt host registry. |
-| N8 | Plugin riêng của tenant (`TENANT_PRIVATE`) có được nhúng trực tiếp bằng WC/MF vào màn hình Core hay mặc định iframe sandbox? | Bảo mật origin Core | Đề xuất: mặc định **iframe sandbox**; WC/MF chỉ khi plugin được Super Admin đánh dấu **tin cậy** (plugin official) hoặc tenant xác nhận rủi ro. |
+| N8 | **ĐÃ CHỐT (2026-09-19)**: plugin riêng của tenant **ĐƯỢC PHÉP** nhúng trực tiếp WC/MF (khác đề xuất BA); áp dụng biện pháp an toàn kỹ thuật chung (CSP, error boundary, Shadow DOM, version pin, RBAC, audit) | — | Đã cập nhật mục 4.4, 5, 6; BR-DIS-23; BR-PLG-31. |

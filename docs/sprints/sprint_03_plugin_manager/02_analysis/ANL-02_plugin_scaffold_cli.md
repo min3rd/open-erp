@@ -1,7 +1,7 @@
 # [ANL-02] Phân Tích Nghiệp Vụ Chuyên Sâu: Plugin Scaffolding CLI — Tạo Dự Án Plugin Mới
 
 - **Mã Tài Liệu**: ANL-02
-- **Phiên Bản**: 1.2 — Cập nhật theo phản hồi khách hàng ngày 2026-09-19 (bổ sung: `render_mode` cho UI Contribution, đối chuẩn CLI/DX và đề xuất lệnh `dev`)
+- **Phiên Bản**: 1.3 — Đã chốt Confirmation Gate (2026-09-19): lệnh `dev` thuộc phạm vi Sprint 03
 - **Phụ Trách**: BA Agent
 - **Thuộc Sprint**: Sprint 03 - Plugin Manager, Plugin CLI & Cơ Chế Phân Phối Plugin
 - **Tài Liệu Nguồn**: [RAW-02](../01_raw_notes/RAW-02_plugin_scaffold_cli.md)
@@ -33,7 +33,7 @@
 1. **Plugin CLI (Node.js)** (Quyết định Q1/RAW-02): công cụ dòng lệnh viết bằng **Node.js**, đóng gói và phát hành dưới dạng **npm package** chạy qua `npx` hoặc cài global — cùng trải nghiệm với các framework khác (Q2).
 2. **Standalone Plugin Repo + Git Submodule** (Q3): mỗi plugin là **một repository riêng**; khi cần đưa vào môi trường phát triển tổng thể, repo chính liên kết qua **git submodule** tại `plugins/<plugin-id>/`. CLI hỗ trợ khởi tạo git và lệnh liên kết submodule.
 3. **Template Bundle**: bộ mẫu version hóa, gắn với phiên bản Core; mỗi lần Core thay đổi hợp đồng (API contract, manifest schema) sẽ phát hành template mới.
-4. **Chuỗi công cụ khép kín**: `create` → `generate entity/menu/ui-contribution` → **`dev` (đề xuất bổ sung)** → `validate` → `package` (đóng gói JAR/image + checksum + manifest phát hành) → `link` (submodule) → bàn giao artifact cho Super Admin/Tenant Admin đăng ký (ANL-03).
+4. **Chuỗi công cụ khép kín**: `create` → `generate entity/menu/ui-contribution` → **`dev` (đã chốt)** → `validate` → `package` (đóng gói JAR/image + checksum + manifest phát hành) → `link` (submodule) → bàn giao artifact cho Super Admin/Tenant Admin đăng ký (ANL-03).
 5. **Generated Vertical Slice** (Q4): khung sinh ra phải có **mẫu màn hình quản trị hoàn chỉnh** (danh sách + form + quyền + menu + i18n), không chỉ plugin rỗng.
 
 ---
@@ -54,7 +54,7 @@
 | 8 | `inspect` | Đọc manifest/checksum của artifact mà không cần cài đặt. | Developer, Super Admin | **Nên có** |
 | 9 | `publish` | Push image lên Docker Hub/Registry theo cấu hình. | Developer, CI | Có thể (phụ thuộc Bước 5) |
 | 10 | `template list/upgrade` | Xem/nâng cấp dự án theo template mới. | Developer | Sau (Sprint sau) |
-| 11 | `dev` *(đề xuất bổ sung — chờ chốt)* | Khởi chạy plugin local (container) + web dev server + kết nối Core dev, hot reload (mô hình Grafana/Shopify/Forge). | Developer | **Đề xuất (chờ khách chốt phạm vi)** |
+| 11 | `dev` **(đã chốt vào Sprint 03)** | Khởi chạy plugin local (container) + web dev server + kết nối Core dev, hot reload (mô hình Grafana/Shopify/Forge). | Developer | **Bắt buộc (MVP)** |
 
 ---
 
@@ -166,15 +166,15 @@ flowchart TD
 - `validate` phải kiểm tra slot có tồn tại trong danh mục UI Slot đã biết (Core + các plugin đang cài) và cảnh báo nếu hợp đồng slot không tương thích phiên bản.
 - Kết hợp với `generate menu` (chế độ màn hình riêng) để plugin làm chủ cả hai chế độ hiển thị theo yêu cầu khách hàng.
 
-### 5.5. Đề Xuất Bổ Sung: Lệnh `dev` (Trải Nghiệm Phát Triển Plugin)
+### 5.5. Lệnh `dev` — Trải Nghiệm Phát Triển Plugin (Đã Chốt Vào Sprint 03)
 
 - **Bối cảnh đối chuẩn** ([BENCH-02 mục 5.3](../03_benchmarks/BENCH-02_plugin_distribution_cli_ui_and_isolation.md)): các hệ sinh thái plugin hàng đầu đều có vòng lặp phát triển local nhanh — Grafana `npm run dev`, Backstage `yarn dev`, Shopify `shopify app dev` (tunnel), Atlassian `forge tunnel`, VS Code Extension Host, Salesforce scratch org.
-- **Đề xuất lệnh `dev`**:
+- **Lệnh `dev`** (khách hàng đã chốt đưa vào Sprint 03):
   1. Khởi chạy container plugin local (hoặc Quarkus dev + Web dev server) gắn với **tenant dev**.
   2. Kết nối Core dev qua cấu hình (`--core-url`) và giả lập slot/`render_mode` để xem UI Contribution ngay.
   3. Hot reload backend (Quarkus dev) + frontend (Angular dev server), không cần build → package → registry → cài đặt mỗi lần sửa.
 - **Giá trị**: tăng tốc phát triển plugin, đặc biệt quan trọng với mô hình **container-per-tenant** của Sprint 03.
-- **Phạm vi**: nằm trong **đề xuất bổ sung FEAT-22 — chờ khách hàng chốt tại Bước 4** (xem N7). Nếu ưu tiên giữ nguyên phạm vi Sprint 03 thì chuyển sang Sprint 04.
+- **Phạm vi MVP**: `dev` dùng Docker Compose (local) + proxy kết nối Core dev; tài liệu hóa trong README plugin và `create_new_plugin_guide.md`.
 
 ---
 
@@ -229,6 +229,7 @@ flowchart TD
 - [ ] `validate` phát hiện đúng lỗi manifest (thiếu trường, sai SemVer, permission sai định dạng, key dành riêng, trùng entity).
 - [ ] `package` tạo image/bundle + checksum SHA-256; Dockerfile/K8s sinh đúng chuẩn; bundle upload được cho Core (ANL-03).
 - [ ] `link` thêm submodule thành công vào repo chính.
+- [ ] `dev` khởi chạy plugin local (container) + hot reload + kết nối Core dev; tài liệu hóa trong README plugin/dev guide.
 - [ ] Không ghi đè khi thư mục tồn tại; `--dry-run` không tạo file; chạy trên Windows OK.
 - [ ] Hướng dẫn `create_new_plugin_guide.md` được cập nhật dùng CLI.
 - [ ] QA kiểm thử CLI trên Windows + ghi lại log/ảnh minh chứng.
@@ -238,7 +239,7 @@ flowchart TD
 ## 10. Ranh Giới Phạm Vi (Scope)
 
 ### In-Scope Sprint 03:
-- CLI Node.js phát hành npm: `create`, `generate entity`, `generate menu`, `generate ui-contribution`, `validate`, `package`, `link`, `inspect` (và `publish` nếu kịp); **`dev` (đề xuất bổ sung — chờ chốt tại Bước 4)**.
+- CLI Node.js phát hành npm: `create`, `generate entity`, `generate menu`, `generate ui-contribution`, `validate`, `package`, `link`, `inspect` (và `publish` nếu kịp); **`dev` (đã chốt vào Sprint 03)**.
 - Hỗ trợ `--packaging image|bundle`, `--db postgres|mongodb`, sinh Dockerfile/K8s, sinh bundle + checksum.
 - Template sinh vertical slice mẫu (màn hình quản trị + quyền + menu + i18n + test).
 - Repo riêng + git submodule.
@@ -278,4 +279,4 @@ flowchart TD
 | N4 | Quy ước đặt tên repo plugin (`open-erp-plugin-<key>` / `openerp-<key>`)? | Submodule, registry | Đề xuất `open-erp-plugin-<key>`. |
 | N5 | Khi `package --packaging image`, build image cần Docker daemon — dev local có sẵn Docker? CI dùng BuildKit/Kaniko? | Quy trình đóng gói | Dev local dùng Docker daemon; CI/K8s dùng Kaniko — chốt ở Bước 5. |
 | N6 | Có phát hành CLI kèm tài liệu version compatibility matrix (CLI ↔ Core ↔ Template) không? | Vận hành | Có — bảng nhỏ trong README package. |
-| N7 | Có đưa lệnh **`dev`** (chạy plugin local + hot reload + kết nối Core dev) vào Sprint 03 không? | Trải nghiệm phát triển, phạm vi | Đề xuất **CÓ ở mức tối thiểu** (docker compose + proxy Core dev) vì mô hình container-per-tenant; nếu ưu tiên giữ phạm vi thì chuyển Sprint 04. |
+| N7 | **ĐÃ CHỐT (2026-09-19)**: đưa lệnh `dev` vào Sprint 03 (MVP: docker compose + proxy Core dev) | — | Đã cập nhật mục 3, 5.5, 9, 10; CONF-01 Mục 8. |

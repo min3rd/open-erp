@@ -60,3 +60,4 @@
 - [x] **Q7 (Ngôn ngữ CLI)**: **Chỉ tiếng Anh**.
 - [x] **Q8 (Sinh Dockerfile/K8s)**: **Có** sinh cấu hình Dockerfile/K8s cho plugin container.
 - [x] **Q9 (Bổ sung)**: CLI còn phải có command **sinh entity**, **đăng ký menu vào hệ thống** và các command hỗ trợ tương tự.
+- [x] **Q10 (Xác nhận Gate 2026-09-19 — lệnh `dev`)**: Khách hàng **đồng ý** đưa lệnh **`dev`** (chạy plugin local + hot reload + kết nối Core dev) vào Sprint 03.

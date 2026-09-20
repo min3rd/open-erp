@@ -6,7 +6,7 @@
 - **Người Quản Lý**: PM Agent
 - **Đội Ngũ Tham Gia**: BA Agent, Solution Architect Agent, Developer Agent, QA/QC Agent
 - **Phiên Bản**: Draft v1.1 — đã tích hợp toàn bộ quyết định của khách hàng tại phiên review Bước 1-2 ngày 2026-09-19
-- **Trạng Thái**: **Chờ hoàn thành Bước 3 (Benchmarks) và phê duyệt Confirmation Gate (Bước 4) trước khi thực hiện Bước 5-7.**
+- **Trạng Thái**: [x] **ĐÃ PHÊ DUYỆT — Confirmation Gate ĐÓNG (2026-09-19)**; sẵn sàng thực hiện Bước 5-6 (Nghiên cứu giải pháp & Thiết kế chi tiết), sau đó Bước 7 (Lập trình).
 
 ---
 
@@ -25,8 +25,8 @@ Biến cơ chế plugin tĩnh (danh mục cấu hình + allowlist) của Sprint 
 | Mã Hạng Mục | Tên Tính Năng | Mô Tả Tóm Tắt | Trọng Số | Người Phụ Trách |
 | :--- | :--- | :--- | :---: | :--- |
 | **FEAT-21** | Plugin Manager — Danh mục & Vòng đời Plugin | Catalog + phiên bản (SemVer, tương thích, phụ thuộc, nền tảng, quyền, entity, `default_install`, `visibility`); một bảng `tenant_plugins` (entitlement + lifecycle + version ghim + deploy); cài/gỡ/bật/tắt/nâng cấp; soft uninstall giữ dữ liệu; đa phiên bản; **plugin riêng của tenant (`TENANT_PRIVATE` + `allow_custom_plugins`)**; **cô lập dữ liệu plugin theo schema/database riêng từng tenant**; block + force uninstall + notify; Marketplace Web + Mobile read-only; audit | Critical | Dev Backend, Web & Mobile |
-| **FEAT-22** | Plugin Scaffolding CLI (Node/npm) | CLI npm/npx: `create`, `generate entity`, `generate menu`, `generate ui-contribution`, `validate`, `package`, `link`, `inspect`; **đề xuất bổ sung `dev` (chờ chốt — mô hình Grafana/Shopify/Forge)**; template vertical slice; repo riêng + submodule; Dockerfile/K8s; tài liệu dev guide | High | Dev Tooling (Node) & Backend |
-| **FEAT-23** | Phân phối & Cài đặt Plugin đa kênh | 3 kênh artifact → container image (gồm **đăng ký plugin riêng của tenant — `TENANT_PRIVATE`**); **Deployer tự động container-per-tenant** (K8s + Docker); **Tenant Datasource Router (schema/database riêng tenant)**; MinIO; credentials đa phạm vi (mã hóa); **2 chế độ hiển thị Web — Web Components/Module Federation cho nhúng trực tiếp + iframe sandbox dự phòng**; image build từ bundle; UI Drawer đăng ký | Critical | Dev Backend, DevOps & Web |
+| **FEAT-22** | Plugin Scaffolding CLI (Node/npm) | CLI npm/npx: `create`, `generate entity`, `generate menu`, `generate ui-contribution`, `validate`, `package`, `link`, `inspect`; **`dev` (đã chốt — hot reload + kết nối Core dev)**; template vertical slice; repo riêng + submodule; Dockerfile/K8s; tài liệu dev guide | High | Dev Tooling (Node) & Backend |
+| **FEAT-23** | Phân phối & Cài đặt Plugin đa kênh | 3 kênh artifact → container image (gồm **đăng ký plugin riêng của tenant — `TENANT_PRIVATE`**); **Deployer tự động container-per-tenant** (K8s + Docker); **Tenant Datasource Router (schema/database riêng tenant)**; **MinIO (lưu trữ chính toàn hệ thống)**; credentials đa phạm vi (mã hóa); **2 chế độ hiển thị Web — WC/MF cho nhúng trực tiếp (cả plugin riêng) + iframe sandbox dự phòng**; image build từ bundle; UI Drawer đăng ký | Critical | Dev Backend, DevOps & Web |
 
 > **Quy ước sub-task**: `TASK-301..350` là sub-task inline trong từng file FEAT; `TASK-351+` là task phát sinh có file riêng. BUG tiếp nối từ `BUG-84`. Không nhảy cóc mã giữa các sprint (Sprint 01: 101–149; Sprint 02: 201–298).
 
@@ -51,6 +51,9 @@ Biến cơ chế plugin tĩnh (danh mục cấu hình + allowlist) của Sprint 
 15. **Web plugin** hiển thị hai chế độ: màn hình riêng HOẶC nhúng vào màn hình có sẵn của **Core hoặc plugin khác** (UI Slot/UI Contribution) — kỹ thuật **Web Components + Module Federation** cho nhúng trực tiếp (quyết định khách hàng 2026-09-19); **iframe sandbox** là chế độ dự phòng.
 16. **Plugin riêng của Tenant (làm rõ 2026-09-19)**: **Tenant Admin được đăng ký/cài custom plugin cho tenant mình** (`visibility = TENANT_PRIVATE`) khi `allow_custom_plugins` được bật; artifact vẫn qua xác minh đầy đủ; Super Admin giám sát + khóa khẩn cấp; tài nguyên tính quota tenant.
 17. **Cô lập dữ liệu Tenant (làm rõ 2026-09-19)**: plugin data nằm ở **schema/database riêng từng tenant** (`DEDICATED_SCHEMA` mặc định, `DEDICATED_DATABASE` cho Enterprise); DB role least privilege; plugin tự migrate trong phạm vi tenant; cấm cross-schema — migration của tenant này không ảnh hưởng tenant khác. **Dữ liệu Core giữ `SHARED_SCHEMA_RLS` trong Sprint 03** (theo đề xuất BA); tách Core để giai đoạn sau nếu có yêu cầu.
+18. **MinIO là công cụ lưu trữ CHÍNH của toàn hệ thống** (chốt Gate 2026-09-19) — không chỉ artifact plugin.
+19. **Lệnh `dev` thuộc Sprint 03** (chốt Gate) — CLI plugin có vòng lặp phát triển local + hot reload + kết nối Core dev.
+20. **Plugin riêng của tenant được phép nhúng trực tiếp WC/MF** (chốt Gate — khác đề xuất BA); iframe sandbox là chế độ dự phòng; bắt buộc biện pháp an toàn kỹ thuật chung.
 
 ---
 
@@ -66,11 +69,11 @@ Biến cơ chế plugin tĩnh (danh mục cấu hình + allowlist) của Sprint 
 6. **Chuẩn API/i18n**: 100% response có `code` UPPER_SNAKE_CASE; `ResponseKey` enum; không message tiếng Việt cứng trong payload.
 7. **Quy chuẩn UI Industrial Sharp & Anti-Modal**: density cao, Drawer trượt xếp tầng, Split-Screen; 100% i18n; tái sử dụng/nâng cấp component trong `src/frontend/shared`.
 8. **Chính sách kiểm thử thực dụng**: Backend JUnit 5 + RestAssured trên PostgreSQL/Redis thật (CẤM H2); Frontend không unit test, QA Dual-mode browser (Web ≥1280px + Mobile Emulation 390x844px, overflow = 0, touch target ≥ 40px, 0 console error).
-9. **Local dev tối giản tài nguyên**: thao tác cơ bản chỉ cần PostgreSQL + Redis; **FEAT-23 cần thêm MinIO (`make infra-storage`)** và Docker cho Deployer local; tài liệu `docs/07_deployment_guides/` và `docs/08_developer_guides/` phải cập nhật đồng bộ.
+9. **Local dev tối giản tài nguyên**: thao tác cơ bản chỉ cần PostgreSQL + Redis; **MinIO (`make infra-storage`) — công cụ lưu trữ chính toàn hệ thống (chốt Gate)** và Docker cho Deployer local; tài liệu `docs/07_deployment_guides/` và `docs/08_developer_guides/` phải cập nhật đồng bộ.
 10. **Hạ tầng deploy**: Deployer dùng ServiceAccount/RBAC tối thiểu quyền; resource limits mỗi container; nhãn chuẩn để truy vết/dọn dẹp.
 11. **Plugin riêng của Tenant**: `TENANT_PRIVATE` chỉ hiển thị cho tenant sở hữu; Super Admin bật `allow_custom_plugins` + duyệt registry host; giới hạn số lượng + resource limits; audit + quyền khóa khẩn cấp.
 12. **Cô lập dữ liệu theo Tenant**: mọi dữ liệu plugin nằm trong schema/database riêng của tenant; DB role cấp cho container giới hạn quyền (least privilege); Tenant Datasource Router + connection pool theo tenant; backup/restore theo tenant.
-13. **Nhúng UI trực tiếp (WC/MF)**: contribution khai báo `render_mode`; plugin tin cậy dùng Web Components (Shadow DOM) / Module Federation (shared-lib version pin + contract version); plugin chưa kiểm duyệt/plugin riêng mặc định **iframe sandbox**; bắt buộc CSP, error boundary, RBAC, audit.
+13. **Nhúng UI trực tiếp (WC/MF)**: contribution khai báo `render_mode`; **WC/MF áp dụng cho cả plugin Official và plugin riêng của tenant** (chốt Gate); dùng Web Components (Shadow DOM) / Module Federation (shared-lib version pin + contract version); **iframe sandbox** là chế độ dự phòng; bắt buộc CSP, error boundary, RBAC, audit.
 
 ---
 
@@ -91,7 +94,7 @@ Biến cơ chế plugin tĩnh (danh mục cấu hình + allowlist) của Sprint 
 | **Plugin riêng của tenant gây hại/lạm dụng tài nguyên** | High | Cô lập container theo tenant; giới hạn số lượng + resource limits; allowlist registry do Super Admin duyệt; `allow_custom_plugins` bật theo tenant/gói; audit + quyền khóa khẩn cấp. |
 | **Migration của custom plugin ảnh hưởng chéo tenant (dùng chung schema/DB)** | Critical | Schema/database riêng theo tenant + DB role least privilege + cấm cross-schema; test 2 tenant cài custom plugin có migration cùng lúc. |
 | **Bùng nổ schema/DB & connection pool khi nhiều tenant** | High | Pool lazy/pool nhỏ theo tenant; giám sát số lượng schema/DB; provision tự động; dọn dẹp khi purge (giai đoạn sau). |
-| **JS plugin chạy trong origin Core (WC/MF) gây rủi ro bảo mật** | Critical | Chỉ plugin tin cậy/đã kiểm duyệt được dùng WC/MF; `render_mode` per contribution; CSP + error boundary + Shadow DOM + shared-lib version pin; plugin riêng mặc định iframe sandbox; audit. |
+| **JS plugin chạy trong origin Core (WC/MF) gây rủi ro bảo mật** | Critical | WC/MF áp dụng cho mọi plugin gồm plugin riêng (chốt Gate) ⇒ bắt buộc `render_mode` per contribution; CSP + error boundary + Shadow DOM + shared-lib version pin; allowlist registry + checksum + audit + quyền khóa khẩn cấp; iframe sandbox là chế độ dự phòng khi cần cô lập tối đa. |
 | **Xung đột shared library / phiên bản Angular giữa Core và MF remote** | High | Contract versioning; shared-lib chỉ expose đúng version đã cam kết; test ma trận Core ↔ plugin khi nâng cấp; cảnh báo sớm khi validate/đăng ký phiên bản. |
 
 ---
@@ -109,8 +112,8 @@ Sprint 03 **CHỈ ĐƯỢC PHÉP ĐÓNG** khi thỏa mãn 100% các điều ki�
 - [ ] **Khóa plugin**: cưỡng chế gỡ toàn bộ tenant + thông báo đến tenant; dữ liệu giữ nguyên.
 - [ ] **Plugin riêng của Tenant**: Tenant Admin đăng ký + cài custom plugin cho tenant mình; tenant khác không thấy/cài được; Super Admin giám sát + khóa được; artifact sai checksum bị từ chối.
 - [ ] **Cô lập dữ liệu tenant**: 2 tenant cài custom plugin có migration đồng thời; tenant A không thấy/ảnh hưởng dữ liệu tenant B; DB role của plugin không thể ghi ngoài schema/database của tenant mình.
-- [ ] CLI (Node/npm) sinh dự án plugin build PASS ngay; `generate entity`/`generate menu`/`generate ui-contribution` hoạt động; `package` sinh image/bundle + checksum.
-- [ ] **Hai chế độ hiển thị Web**: plugin có màn hình riêng VÀ đóng góp tối thiểu 1 UI Contribution nhúng trực tiếp bằng **Web Components hoặc Module Federation** vào slot của Core (hoặc plugin khác) hoạt động đúng theo quyền; plugin chưa tin cậy render qua iframe sandbox; 0 console error.
+- [ ] CLI (Node/npm) sinh dự án plugin build PASS ngay; `generate entity`/`generate menu`/`generate ui-contribution` hoạt động; `package` sinh image/bundle + checksum; **`dev` chạy plugin local + hot reload + kết nối Core dev**.
+- [ ] **Hai chế độ hiển thị Web**: plugin có màn hình riêng VÀ đóng góp tối thiểu 1 UI Contribution nhúng trực tiếp bằng **Web Components hoặc Module Federation** vào slot của Core (hoặc plugin khác) hoạt động đúng theo quyền — **bao gồm 1 plugin riêng của tenant**; iframe sandbox vẫn hoạt động như chế độ dự phòng; 0 console error.
 - [ ] Frontend kiểm thử thủ công Dual-mode: Web Desktop ≥1280px + Mobile Emulation 390x844px; 0 console error; overflow 0; touch target ≥ 40px.
 - [ ] Tài liệu: UG-03 kèm ảnh minh chứng; cập nhật `docs/08_developer_guides/create_new_plugin_guide.md` (CLI mới), `docs/07_deployment_guides/` (MinIO, Deployer, credentials); cập nhật Entity Registry docs.
 - [ ] Biên bản nghiệm thu `09_review/sprint_review.md` được lập và khách hàng ký duyệt.
@@ -119,6 +122,6 @@ Sprint 03 **CHỈ ĐƯỢC PHÉP ĐÓNG** khi thỏa mãn 100% các điều ki�
 
 ## 7. Điều Kiện Tiên Quyết Trước Khi Bắt Đầu (Prerequisites)
 
-1. Hoàn thành **Bước 3 (Benchmarks)** — khảo sát WordPress/Odoo/GitLab/VS Code về quản lý catalog, versioning, cài/gỡ an toàn.
-2. Khách hàng phê duyệt **Confirmation Gate (Bước 4)** — bao gồm trả lời các **câu hỏi phát sinh mới** (Mục 11.2 ANL-01/02/03): backend deploy K8s/Docker, resource limits, giới hạn phiên bản runtime, kênh thông báo, duyệt registry host, phê duyệt plugin riêng của tenant.
+1. [x] Hoàn thành **Bước 3 (Benchmarks)** ngày 2026-09-19 — [BENCH-01](03_benchmarks/BENCH-01_plugin_manager_catalog_and_tenant_lifecycle.md) (Odoo, Frappe, WordPress, Salesforce, Atlassian), [BENCH-02](03_benchmarks/BENCH-02_plugin_distribution_cli_ui_and_isolation.md) (Helm/OCI, Docker Hub, Grafana, Shopify, Backstage, VS Code, Supabase/Neon, JupyterHub, CLI hệ thống & CLI phát triển plugin).
+2. [x] Khách hàng phê duyệt **Confirmation Gate (Bước 4)** tại [CONF-01](04_confirmation/CONF-01_sprint_03_scope.md) ngày 2026-09-19 — **10/10 câu hỏi chốt cuối đã trả lời** (MinIO = lưu trữ chính toàn hệ thống; plugin riêng được nhúng WC/MF; lệnh `dev` vào Sprint 03).
 3. Chốt phạm vi các hạng mục chuyển tiếp từ Sprint 02 (TASK-293, invite user, storage quota, Remote CLI) — có/không đưa vào Sprint 03.
