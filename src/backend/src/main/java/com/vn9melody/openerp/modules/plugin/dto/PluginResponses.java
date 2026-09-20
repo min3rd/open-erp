@@ -150,6 +150,9 @@ public final class PluginResponses {
 
         @JsonProperty(PluginResponseKey.Json.REASON)
         public String reason;
+
+        @JsonProperty(PluginResponseKey.Json.AFFECTED_TENANTS)
+        public Integer affectedTenants;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -285,6 +288,26 @@ public final class PluginResponses {
 
         @JsonProperty(PluginResponseKey.Json.SLOTS)
         public List<UiSlot> slots;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class NotificationItem {
+        public String id;
+
+        @JsonProperty(PluginResponseKey.Json.NOTIFICATION_TYPE)
+        public String type;
+
+        @JsonProperty(PluginResponseKey.Json.TITLE_KEY)
+        public String titleKey;
+
+        @JsonProperty(PluginResponseKey.Json.SEVERITY)
+        public String severity;
+
+        @JsonProperty(PluginResponseKey.Json.READ_AT)
+        public Instant readAt;
+
+        @JsonProperty(PluginResponseKey.Json.CREATED_AT)
+        public Instant createdAt;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

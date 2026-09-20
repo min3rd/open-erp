@@ -108,4 +108,11 @@ public class PluginRequests {
         @JsonProperty(PluginResponseKey.Json.VERSION)
         public String version;
     }
+
+    public static class PlatformLifecycle {
+        @JsonProperty(PluginResponseKey.Json.VERSION)
+        public String version;
+
+        public String reason;
+    }
 }

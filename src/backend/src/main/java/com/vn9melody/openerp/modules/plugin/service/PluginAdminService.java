@@ -55,6 +55,9 @@ public class PluginAdminService {
     PluginUiSlotSyncService uiSlotSyncService;
 
     @Inject
+    PluginGovernanceService governanceService;
+
+    @Inject
     ObjectMapper objectMapper;
 
     @Inject
@@ -271,7 +274,15 @@ public class PluginAdminService {
         result.pluginKey = catalog.pluginKey;
         result.catalogStatus = catalog.catalogStatus.name();
         result.reason = reason;
+        if (forceUninstall) {
+            result.affectedTenants = governanceService.forceUninstallAll(catalog.pluginKey, reason);
+        }
         return result;
+    }
+
+    @Transactional
+    public List<PluginResponses.CatalogItem> listTenantPrivate() {
+        return catalogRepository.listTenantPrivateAll().stream().map(this::toCatalogItem).toList();
     }
 
     @Transactional
