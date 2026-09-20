@@ -106,6 +106,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/platform/plugins/platform-plugin-list.component').then(m => m.PlatformPluginListComponent)
       },
       {
+        path: 'plugin-credentials',
+        loadComponent: () => import('./features/platform/plugins/platform-plugin-credentials.component').then(m => m.PlatformPluginCredentialsComponent)
+      },
+      {
+        path: 'tenant-private-plugins',
+        loadComponent: () => import('./features/platform/plugins/platform-tenant-private-plugins.component').then(m => m.PlatformTenantPrivatePluginsComponent)
+      },
+      {
         path: 'users',
         loadComponent: () => import('./features/platform/users/platform-user-list.component').then(m => m.PlatformUserListComponent)
       },

@@ -43,16 +43,25 @@ export class PlatformTopbarComponent {
   private readonly allMenuItems: ReadonlyArray<{ path: string; labelKey: string }> = [
     { path: '/platform/tenants', labelKey: 'PLATFORM_TENANT_MANAGEMENT' },
     { path: '/platform/plugins', labelKey: 'PLUGIN_PORTAL_TITLE' },
+    { path: '/platform/plugin-credentials', labelKey: 'PLUGIN_CREDENTIALS_TITLE' },
+    { path: '/platform/tenant-private-plugins', labelKey: 'PLUGIN_TENANT_PRIVATE_TITLE' },
     { path: '/platform/users', labelKey: 'PLATFORM_GLOBAL_USERS' },
     { path: '/platform/health', labelKey: 'PLATFORM_SYSTEM_HEALTH' },
     { path: '/platform/audit-logs', labelKey: 'PLATFORM_AUDIT_TRAIL' },
     { path: '/platform/admins', labelKey: 'PLATFORM_ADMINS_TITLE' }
   ];
 
+  private readonly superAdminOnlyPaths = new Set([
+    '/platform/admins',
+    '/platform/plugins',
+    '/platform/plugin-credentials',
+    '/platform/tenant-private-plugins'
+  ]);
+
   readonly menuItems = computed(() =>
     this.isSuperAdmin()
       ? this.allMenuItems
-      : this.allMenuItems.filter((item) => item.path !== '/platform/admins')
+      : this.allMenuItems.filter((item) => !this.superAdminOnlyPaths.has(item.path))
   );
 
   logout() {
