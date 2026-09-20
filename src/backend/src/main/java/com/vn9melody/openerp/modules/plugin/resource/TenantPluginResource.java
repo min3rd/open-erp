@@ -87,4 +87,18 @@ public class TenantPluginResource {
         return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_UNINSTALL_SUCCESS,
                 "Plugin uninstalled (data retained).", status)).build();
     }
+
+    @POST
+    @Path("/{pluginKey}/upgrade")
+    @RequirePermission("core:plugin:manage")
+    public Response upgrade(@PathParam("pluginKey") String pluginKey, PluginRequests.Upgrade request) {
+        UserSecurityContext context = securityContextService.getCurrentContext();
+        PluginResponses.OperationStatus status = lifecycleService.upgrade(context.tenantId(), pluginKey,
+                request != null ? request.targetVersion : null,
+                request != null ? request.snapshot : null,
+                context.userId());
+        String code = "ACTIVE".equals(status.status)
+                ? PluginErrorCode.PLUGIN_UPGRADE_SUCCESS : PluginErrorCode.PLUGIN_UPGRADE_STARTED;
+        return Response.ok(ApiResponse.success(code, "Plugin upgrade processed.", status)).build();
+    }
 }

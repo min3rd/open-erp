@@ -124,6 +124,11 @@ public class PluginAdminService {
     }
 
     @Transactional
+    public boolean existsByKey(String pluginKey) {
+        return catalogRepository.existsByPluginKey(pluginKey);
+    }
+
+    @Transactional
     public void deleteCatalog(String pluginKey) {
         PluginCatalog catalog = requireCatalog(pluginKey);
         long installs = tenantPluginRepository.count("catalogId", catalog.id);

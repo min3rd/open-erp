@@ -58,7 +58,7 @@ public class TenantPlugin extends PanacheEntityBase {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "deploy_ref", nullable = false, columnDefinition = "jsonb")
-    public JsonNode deployRef;
+    public JsonNode deployRef = com.fasterxml.jackson.databind.node.JsonNodeFactory.instance.objectNode();
 
     @Column(name = "last_error_code", length = 80)
     public String lastErrorCode;

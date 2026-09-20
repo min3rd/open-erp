@@ -115,4 +115,22 @@ public class PluginRequests {
 
         public String reason;
     }
+
+    public static class Upgrade {
+        @JsonProperty(PluginResponseKey.Json.TARGET_VERSION)
+        public String targetVersion;
+
+        public Boolean snapshot;
+        public String reason;
+    }
+
+    public static class Rollback {
+        @JsonProperty(PluginResponseKey.Json.TARGET_VERSION)
+        public String targetVersion;
+
+        @JsonProperty("restore_snapshot")
+        public Boolean restoreSnapshot;
+
+        public String reason;
+    }
 }

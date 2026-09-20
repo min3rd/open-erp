@@ -156,6 +156,35 @@ public class PlatformPluginGovernanceResource extends BasePlatformResource {
                 "Disable processed on behalf of tenant.", status)).build();
     }
 
+    @POST
+    @Path("/plugins/{pluginKey}/tenants/{tenantId}/upgrade")
+    public Response upgradeForTenant(@PathParam("pluginKey") String pluginKey,
+                                     @PathParam("tenantId") UUID tenantId,
+                                     PluginRequests.Upgrade request) {
+        PlatformActor actor = requireSuperAdmin();
+        PluginResponses.OperationStatus status = lifecycleService.upgrade(tenantId, pluginKey,
+                request != null ? request.targetVersion : null,
+                request != null ? request.snapshot : null,
+                actor.userId);
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_UPGRADE_STARTED,
+                "Upgrade processed on behalf of tenant.", status)).build();
+    }
+
+    @POST
+    @Path("/plugins/{pluginKey}/tenants/{tenantId}/rollback")
+    public Response rollbackForTenant(@PathParam("pluginKey") String pluginKey,
+                                      @PathParam("tenantId") UUID tenantId,
+                                      PluginRequests.Rollback request) {
+        PlatformActor actor = requireSuperAdmin();
+        PluginResponses.OperationStatus status = lifecycleService.rollback(tenantId, pluginKey,
+                request != null ? request.targetVersion : null,
+                request != null ? request.restoreSnapshot : null,
+                request != null ? request.reason : null,
+                actor.userId);
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_ROLLBACK_SUCCESS,
+                "Rollback processed on behalf of tenant.", status)).build();
+    }
+
     private PluginResponses.ActionResult entitlementResult(String pluginKey, String status) {
         PluginResponses.ActionResult result = new PluginResponses.ActionResult();
         result.pluginKey = pluginKey;

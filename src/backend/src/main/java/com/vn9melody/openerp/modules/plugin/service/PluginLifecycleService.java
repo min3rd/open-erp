@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.enums.PluginCatalogStatus;
 import com.vn9melody.openerp.core.enums.PluginDistributionType;
+import com.vn9melody.openerp.core.enums.PluginMigrationPolicy;
 import com.vn9melody.openerp.core.enums.PluginOperationType;
 import com.vn9melody.openerp.core.enums.PluginReleaseStatus;
 import com.vn9melody.openerp.core.enums.TenantPluginStatus;
@@ -63,6 +64,12 @@ public class PluginLifecycleService {
     PluginPermissionSeeder permissionSeeder;
 
     @Inject
+    PluginSnapshotService snapshotService;
+
+    @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.core.version", defaultValue = "1.0.0")
+    String coreVersion;
+
+    @Inject
     TenantDatasourceService datasourceService;
 
     @Inject
@@ -83,6 +90,7 @@ public class PluginLifecycleService {
         List<PluginResponses.OperationStep> steps = new ArrayList<>();
         PluginRuntimeDeployer.DeploymentRef deployed = null;
         TenantPlugin ledger = null;
+        boolean started = false;
         try {
             ledger = requireLedger(tenantId, pluginKey);
             if (ledger.status == TenantPluginStatus.ACTIVE || ledger.status == TenantPluginStatus.INSTALLING
@@ -94,6 +102,7 @@ public class PluginLifecycleService {
                 throw new ApiException(403, PluginErrorCode.PLUGIN_BLOCKED_BY_PLATFORM, "Catalog is blocked");
             }
             PluginVersion version = resolveInstallableVersion(catalog, requestedVersion);
+            assertCoreCompatible(version);
             log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "PRE_FLIGHT", "OK", steps, null);
             dependencyResolver.validateDependencies(tenantId, version.dependencies);
             ledger.status = TenantPluginStatus.INSTALLING;
@@ -102,6 +111,7 @@ public class PluginLifecycleService {
             ledger.lastErrorCode = null;
             ledger.updatedAt = Instant.now();
             log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "LEDGER", "OK", steps, null);
+            started = true;
 
             TenantDatasourceService.TenantDatasource datasource =
                     datasourceService.ensureDatasource(tenantId, pluginKey);
@@ -134,6 +144,9 @@ public class PluginLifecycleService {
             return operation(operationId, pluginKey, PluginOperationType.INSTALL,
                     TenantPluginStatus.ACTIVE, version.version, steps);
         } catch (ApiException e) {
+            if (!started) {
+                throw e;
+            }
             compensate(ledger, deployed, operationId, tenantId, pluginKey, steps, e);
             return operation(operationId, pluginKey, PluginOperationType.INSTALL,
                     TenantPluginStatus.INSTALL_FAILED, null, steps);
@@ -273,6 +286,262 @@ public class PluginLifecycleService {
         } finally {
             lockService.release(tenantId, pluginKey, lock);
         }
+    }
+
+    @Transactional
+    public PluginResponses.OperationStatus upgrade(UUID tenantId, String pluginKey, String targetVersion,
+                                                   Boolean snapshotRequested, UUID actorId) {
+        String lock = lockService.tryLock(tenantId, pluginKey);
+        if (lock == null) {
+            throw new ApiException(409, PluginErrorCode.PLUGIN_OPERATION_IN_PROGRESS,
+                    "Another operation is running for this plugin");
+        }
+        UUID operationId = UUID.randomUUID();
+        List<PluginResponses.OperationStep> steps = new ArrayList<>();
+        TenantPlugin ledger = null;
+        PluginVersion previousVersion = null;
+        PluginRuntimeDeployer.DeploymentRef newRef = null;
+        String snapshotRef = null;
+        boolean started = false;
+        try {
+            ledger = requireLedger(tenantId, pluginKey);
+            if (ledger.status != TenantPluginStatus.ACTIVE) {
+                throw new ApiException(409, PluginErrorCode.PLUGIN_NOT_INSTALLED,
+                        "Only active plugins can be upgraded");
+            }
+            PluginCatalog catalog = requireCatalog(ledger.catalogId);
+            if (catalog.catalogStatus == PluginCatalogStatus.BLOCKED) {
+                throw new ApiException(403, PluginErrorCode.PLUGIN_BLOCKED_BY_PLATFORM, "Catalog is blocked");
+            }
+            if (targetVersion == null || targetVersion.isBlank()) {
+                throw new ApiException(400, PluginErrorCode.PLUGIN_NOT_FOUND, "target_version is required");
+            }
+            PluginVersion target = resolveInstallableVersion(catalog, targetVersion);
+            assertCoreCompatible(target);
+            previousVersion = versionRepository.findByCatalogAndVersion(catalog.id, ledger.installedVersion)
+                    .orElse(null);
+            if (target.version.equals(ledger.installedVersion)) {
+                throw new ApiException(409, PluginErrorCode.PLUGIN_ALREADY_INSTALLED,
+                        "Plugin is already on this version");
+            }
+            dependencyResolver.validateDependencies(tenantId, target.dependencies);
+            boolean breaking = target.migrationPolicy == PluginMigrationPolicy.BREAKING;
+            if (breaking && Boolean.FALSE.equals(snapshotRequested)) {
+                throw new ApiException(409, PluginErrorCode.PLUGIN_SNAPSHOT_REQUIRED,
+                        "Breaking upgrades require a schema snapshot");
+            }
+            log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "PRE_FLIGHT", "OK", steps, null);
+            ledger.status = TenantPluginStatus.UPGRADING;
+            ledger.operationId = operationId;
+            ledger.targetVersion = target.version;
+            ledger.updatedAt = Instant.now();
+            log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "LEDGER", "OK", steps, null);
+            started = true;
+
+            TenantDatasourceService.TenantDatasource datasource =
+                    datasourceService.ensureDatasource(tenantId, pluginKey);
+            if (breaking || Boolean.TRUE.equals(snapshotRequested)) {
+                snapshotRef = snapshotService.snapshot(tenantId, pluginKey, ledger.installedVersion,
+                        datasource.schema(), "pre-upgrade").ref();
+                log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "SNAPSHOT", "OK", steps, null);
+            }
+            newRef = deployer.deploy(new PluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, target.version,
+                    resolveImageRef(target), datasource.schema(),
+                    runtimeEnv(tenantId, pluginKey, target.version, datasource)));
+            log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "DEPLOY", "OK", steps, null);
+            PluginRuntimeDeployer.DeploymentHealth health = deployer.health(newRef);
+            if (!health.healthy()) {
+                throw new ApiException(503, PluginErrorCode.PLUGIN_SERVICE_UNHEALTHY, health.detail());
+            }
+            log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "HEALTH", "OK", steps, null);
+
+            ledger.status = TenantPluginStatus.ACTIVE;
+            ledger.installedVersion = target.version;
+            ledger.targetVersion = null;
+            ledger.storageSchema = datasource.schema();
+            ledger.deployRef = toJsonWithSnapshot(newRef, snapshotRef);
+            ledger.activatedAt = Instant.now();
+            ledger.operationId = null;
+            ledger.lastErrorCode = null;
+            ledger.updatedAt = ledger.activatedAt;
+            log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "ACTIVATE", "OK", steps, null);
+            return operation(operationId, pluginKey, PluginOperationType.UPGRADE,
+                    TenantPluginStatus.ACTIVE, target.version, steps);
+        } catch (ApiException e) {
+            if (!started) {
+                throw e;
+            }
+            if (newRef != null) {
+                try {
+                    deployer.undeploy(newRef);
+                } catch (RuntimeException cleanupError) {
+                    LOG.warnf("Upgrade compensation undeploy failed for %s/%s: %s", tenantId, pluginKey,
+                            cleanupError.getMessage());
+                }
+            }
+            boolean restored = snapshotRef == null;
+            if (snapshotRef != null) {
+                try {
+                    snapshotService.restore(snapshotRef);
+                    restored = true;
+                    log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "RESTORE_SNAPSHOT", "OK", steps, null);
+                } catch (ApiException restoreError) {
+                    log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "RESTORE_SNAPSHOT", "FAILED",
+                            steps, restoreError.getCode());
+                }
+            }
+            boolean rolledBack = false;
+            if (ledger != null && previousVersion != null && restored) {
+                try {
+                    TenantDatasourceService.TenantDatasource datasource =
+                            datasourceService.ensureDatasource(tenantId, pluginKey);
+                    PluginRuntimeDeployer.DeploymentRef oldRef = deployer.deploy(
+                            new PluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, previousVersion.version,
+                                    resolveImageRef(previousVersion), datasource.schema(),
+                                    runtimeEnv(tenantId, pluginKey, previousVersion.version, datasource)));
+                    PluginRuntimeDeployer.DeploymentHealth oldHealth = deployer.health(oldRef);
+                    if (!oldHealth.healthy()) {
+                        throw new ApiException(503, PluginErrorCode.PLUGIN_SERVICE_UNHEALTHY, oldHealth.detail());
+                    }
+                    ledger.status = TenantPluginStatus.ACTIVE;
+                    ledger.installedVersion = previousVersion.version;
+                    ledger.targetVersion = null;
+                    ledger.deployRef = toJsonWithSnapshot(oldRef, null);
+                    ledger.operationId = null;
+                    ledger.lastErrorCode = e.getCode();
+                    ledger.lastErrorParams = objectMapper.valueToTree(e.getParams());
+                    ledger.updatedAt = Instant.now();
+                    rolledBack = true;
+                    log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "ROLLBACK", "OK", steps, null);
+                } catch (RuntimeException rollbackError) {
+                    LOG.warnf("Upgrade rollback failed for %s/%s: %s", tenantId, pluginKey, rollbackError.getMessage());
+                }
+            }
+            if (ledger != null && !rolledBack) {
+                ledger.status = TenantPluginStatus.ROLLBACK_FAILED;
+                ledger.operationId = null;
+                ledger.lastErrorCode = e.getCode();
+                ledger.lastErrorParams = objectMapper.valueToTree(e.getParams());
+                ledger.updatedAt = Instant.now();
+                log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "ROLLBACK", "FAILED", steps, e.getCode());
+            }
+            log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "FAILED", "FAILED", steps, e.getCode());
+            return operation(operationId, pluginKey, PluginOperationType.UPGRADE,
+                    ledger != null ? ledger.status : TenantPluginStatus.ROLLBACK_FAILED,
+                    rolledBack && previousVersion != null ? previousVersion.version : null, steps);
+        } finally {
+            lockService.release(tenantId, pluginKey, lock);
+        }
+    }
+
+    @Transactional
+    public PluginResponses.OperationStatus rollback(UUID tenantId, String pluginKey, String targetVersion,
+                                                    Boolean restoreSnapshot, String reason, UUID actorId) {
+        String lock = lockService.tryLock(tenantId, pluginKey);
+        if (lock == null) {
+            throw new ApiException(409, PluginErrorCode.PLUGIN_OPERATION_IN_PROGRESS,
+                    "Another operation is running for this plugin");
+        }
+        UUID operationId = UUID.randomUUID();
+        List<PluginResponses.OperationStep> steps = new ArrayList<>();
+        TenantPlugin ledger = null;
+        try {
+            ledger = requireLedger(tenantId, pluginKey);
+            if (ledger.status != TenantPluginStatus.ACTIVE) {
+                throw new ApiException(409, PluginErrorCode.PLUGIN_NOT_INSTALLED, "Only active plugins can roll back");
+            }
+            PluginCatalog catalog = requireCatalog(ledger.catalogId);
+            PluginVersion target = resolveInstallableVersion(catalog, targetVersion);
+            assertCoreCompatible(target);
+            PluginVersion current = versionRepository.findByCatalogAndVersion(catalog.id, ledger.installedVersion)
+                    .orElse(null);
+            boolean breaking = current != null && current.migrationPolicy == PluginMigrationPolicy.BREAKING;
+            String snapshotRef = readSnapshotRef(ledger);
+            if (breaking && !Boolean.TRUE.equals(restoreSnapshot)) {
+                throw new ApiException(409, PluginErrorCode.PLUGIN_SNAPSHOT_REQUIRED,
+                        "Rolling back a breaking upgrade requires restoring the snapshot");
+            }
+            if (breaking && snapshotRef == null) {
+                throw new ApiException(409, PluginErrorCode.PLUGIN_SNAPSHOT_MISSING, "No snapshot is available");
+            }
+            log(operationId, tenantId, pluginKey, PluginOperationType.ROLLBACK, "PRE_FLIGHT", "OK", steps, null);
+            if (snapshotRef != null) {
+                TenantDatasourceService.TenantDatasource datasource =
+                        datasourceService.ensureDatasource(tenantId, pluginKey);
+                snapshotService.snapshot(tenantId, pluginKey, ledger.installedVersion, datasource.schema(),
+                        "post-upgrade");
+                log(operationId, tenantId, pluginKey, PluginOperationType.ROLLBACK, "PRESERVATION_SNAPSHOT", "OK",
+                        steps, null);
+            }
+            PluginRuntimeDeployer.DeploymentRef currentRef = fromJson(ledger.deployRef);
+            if (currentRef != null) {
+                deployer.undeploy(currentRef);
+                log(operationId, tenantId, pluginKey, PluginOperationType.ROLLBACK, "QUIESCE", "OK", steps, null);
+            }
+            if (snapshotRef != null) {
+                snapshotService.restore(snapshotRef);
+                log(operationId, tenantId, pluginKey, PluginOperationType.ROLLBACK, "RESTORE_SNAPSHOT", "OK", steps, null);
+            }
+            TenantDatasourceService.TenantDatasource datasource =
+                    datasourceService.ensureDatasource(tenantId, pluginKey);
+            PluginRuntimeDeployer.DeploymentRef ref = deployer.deploy(
+                    new PluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, target.version,
+                            resolveImageRef(target), datasource.schema(),
+                            runtimeEnv(tenantId, pluginKey, target.version, datasource)));
+            PluginRuntimeDeployer.DeploymentHealth health = deployer.health(ref);
+            if (!health.healthy()) {
+                deployer.undeploy(ref);
+                throw new ApiException(503, PluginErrorCode.PLUGIN_SERVICE_UNHEALTHY, health.detail());
+            }
+            ledger.status = TenantPluginStatus.ACTIVE;
+            ledger.installedVersion = target.version;
+            ledger.targetVersion = null;
+            ledger.deployRef = toJsonWithSnapshot(ref, null);
+            ledger.operationId = null;
+            ledger.lastErrorCode = null;
+            ledger.updatedAt = Instant.now();
+            log(operationId, tenantId, pluginKey, PluginOperationType.ROLLBACK, "ACTIVATE", "OK", steps, null);
+            return operation(operationId, pluginKey, PluginOperationType.ROLLBACK,
+                    TenantPluginStatus.ACTIVE, target.version, steps);
+        } catch (ApiException e) {
+            if (ledger != null) {
+                ledger.status = TenantPluginStatus.ROLLBACK_FAILED;
+                ledger.operationId = null;
+                ledger.lastErrorCode = e.getCode();
+                ledger.lastErrorParams = objectMapper.valueToTree(e.getParams());
+                ledger.updatedAt = Instant.now();
+            }
+            log(operationId, tenantId, pluginKey, PluginOperationType.ROLLBACK, "FAILED", "FAILED", steps, e.getCode());
+            return operation(operationId, pluginKey, PluginOperationType.ROLLBACK,
+                    TenantPluginStatus.ROLLBACK_FAILED, null, steps);
+        } finally {
+            lockService.release(tenantId, pluginKey, lock);
+        }
+    }
+
+    private void assertCoreCompatible(PluginVersion version) {
+        if (version.coreCompatibility != null && !version.coreCompatibility.isBlank()
+                && !PluginSemver.satisfies(coreVersion, version.coreCompatibility)) {
+            throw new ApiException(409, PluginErrorCode.PLUGIN_CORE_VERSION_INCOMPATIBLE,
+                    "Plugin is not compatible with the current core version");
+        }
+    }
+
+    private String readSnapshotRef(TenantPlugin ledger) {
+        JsonNode node = ledger.deployRef;
+        if (node == null || node.isMissingNode()) {
+            return null;
+        }
+        String ref = node.path("snapshot_ref").asText(null);
+        return ref == null || ref.isBlank() ? null : ref;
+    }
+
+    private JsonNode toJsonWithSnapshot(PluginRuntimeDeployer.DeploymentRef ref, String snapshotRef) {
+        ObjectNode node = (ObjectNode) toJson(ref);
+        if (snapshotRef != null) {
+            node.put("snapshot_ref", snapshotRef);
+        }
+        return node;
     }
 
     private void compensate(TenantPlugin ledger, PluginRuntimeDeployer.DeploymentRef deployed, UUID operationId,
