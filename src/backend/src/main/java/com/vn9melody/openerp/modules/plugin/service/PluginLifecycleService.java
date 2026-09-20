@@ -13,6 +13,7 @@ import com.vn9melody.openerp.core.enums.PluginReleaseStatus;
 import com.vn9melody.openerp.core.enums.TenantPluginStatus;
 import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
 import com.vn9melody.openerp.modules.plugin.api.PluginResponseKey;
+import com.vn9melody.openerp.modules.plugin.artifact.PluginImageBuilder;
 import com.vn9melody.openerp.modules.plugin.datasource.TenantDatasourceService;
 import com.vn9melody.openerp.modules.plugin.deployer.PluginRuntimeDeployer;
 import com.vn9melody.openerp.modules.plugin.dto.PluginResponses;
@@ -70,6 +71,9 @@ public class PluginLifecycleService {
     @Inject
     PluginAuditService auditService;
 
+    @Inject
+    PluginImageBuilder imageBuilder;
+
     @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.core.version", defaultValue = "1.0.0")
     String coreVersion;
 
@@ -121,7 +125,7 @@ public class PluginLifecycleService {
                     datasourceService.ensureDatasource(tenantId, pluginKey);
             log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "PROVISION_DATASOURCE", "OK", steps, null);
 
-            String imageRef = resolveImageRef(version);
+            String imageRef = resolveImageRef(pluginKey, version);
             deployed = deployer.deploy(new PluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, version.version,
                     imageRef, datasource.schema(), runtimeEnv(tenantId, pluginKey, version.version, datasource)));
             log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "DEPLOY", "OK", steps, null);
@@ -270,7 +274,7 @@ public class PluginLifecycleService {
                         datasourceService.ensureDatasource(tenantId, pluginKey);
                 PluginRuntimeDeployer.DeploymentRef ref = deployer.deploy(
                         new PluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, version.version,
-                                resolveImageRef(version), datasource.schema(),
+                                resolveImageRef(pluginKey, version), datasource.schema(),
                                 runtimeEnv(tenantId, pluginKey, version.version, datasource)));
                 PluginRuntimeDeployer.DeploymentHealth health = deployer.health(ref);
                 if (!health.healthy()) {
@@ -356,7 +360,7 @@ public class PluginLifecycleService {
                 log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "SNAPSHOT", "OK", steps, null);
             }
             newRef = deployer.deploy(new PluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, target.version,
-                    resolveImageRef(target), datasource.schema(),
+                    resolveImageRef(pluginKey, target), datasource.schema(),
                     runtimeEnv(tenantId, pluginKey, target.version, datasource)));
             log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "DEPLOY", "OK", steps, null);
             PluginRuntimeDeployer.DeploymentHealth health = deployer.health(newRef);
@@ -409,7 +413,7 @@ public class PluginLifecycleService {
                             datasourceService.ensureDatasource(tenantId, pluginKey);
                     PluginRuntimeDeployer.DeploymentRef oldRef = deployer.deploy(
                             new PluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, previousVersion.version,
-                                    resolveImageRef(previousVersion), datasource.schema(),
+                                    resolveImageRef(pluginKey, previousVersion), datasource.schema(),
                                     runtimeEnv(tenantId, pluginKey, previousVersion.version, datasource)));
                     PluginRuntimeDeployer.DeploymentHealth oldHealth = deployer.health(oldRef);
                     if (!oldHealth.healthy()) {
@@ -498,7 +502,7 @@ public class PluginLifecycleService {
                     datasourceService.ensureDatasource(tenantId, pluginKey);
             PluginRuntimeDeployer.DeploymentRef ref = deployer.deploy(
                     new PluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, target.version,
-                            resolveImageRef(target), datasource.schema(),
+                    resolveImageRef(pluginKey, target), datasource.schema(),
                             runtimeEnv(tenantId, pluginKey, target.version, datasource)));
             PluginRuntimeDeployer.DeploymentHealth health = deployer.health(ref);
             if (!health.healthy()) {
@@ -613,7 +617,7 @@ public class PluginLifecycleService {
         return installable.isEmpty() ? null : installable.get(0).version;
     }
 
-    private String resolveImageRef(PluginVersion version) {
+    private String resolveImageRef(String pluginKey, PluginVersion version) {
         JsonNode distribution = version.distribution;
         if (distribution == null || distribution.isMissingNode()) {
             throw new ApiException(500, PluginErrorCode.PLUGIN_DEPLOY_FAILED, "Version has no distribution metadata");
@@ -629,12 +633,25 @@ public class PluginLifecycleService {
                 case IMAGE_REGISTRY -> distribution.path("registry_url").asText()
                         + "/" + distribution.path("repository").asText()
                         + ":" + distribution.path("tag").asText();
-                case JAR_BUNDLE -> throw new ApiException(501, PluginErrorCode.PLUGIN_IMAGE_BUILD_FAILED,
-                        "Bundle image build is implemented in TASK-334");
+                case JAR_BUNDLE -> resolveBundleImage(pluginKey, version, distribution);
             };
         } catch (IllegalArgumentException e) {
             throw new ApiException(500, PluginErrorCode.PLUGIN_DEPLOY_FAILED, "Unknown distribution type");
         }
+    }
+
+    private String resolveBundleImage(String pluginKey, PluginVersion version, JsonNode distribution) {
+        String cached = distribution.path("image_ref").asText("");
+        if (!cached.isBlank()) {
+            return cached;
+        }
+        String artifactRef = distribution.path("artifact_ref").asText("");
+        String imageRef = imageBuilder.build(pluginKey, version.version, artifactRef);
+        if (distribution instanceof ObjectNode node) {
+            node.put("image_ref", imageRef);
+            node.put("image_builder", "platform");
+        }
+        return imageRef;
     }
 
     private Map<String, String> runtimeEnv(UUID tenantId, String pluginKey, String version,

@@ -239,6 +239,30 @@ public class PluginLifecycleApiTest {
                 .body("code", equalTo("PLUGIN_DISABLED_FOR_TENANT"));
     }
 
+    @Test
+    @DisplayName("TASK-334: JAR_BUNDLE install builds image qua ImageBuilder và cache image_ref")
+    public void testJarBundleInstallBuildsImage() {
+        registerBundleAndPublish(pluginKey, "1.0.0");
+
+        given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
+                .body(Map.of("version", "1.0.0"))
+                .post(TENANT_PLUGINS_PATH + "/" + pluginKey + "/install")
+                .then().statusCode(200).body("data.status", equalTo("ACTIVE"));
+
+        QuarkusTransaction.requiringNew().run(() -> {
+            UUID catalogId = tenantPluginRepository.findByTenantAndKey(tenantId, pluginKey).orElseThrow().catalogId;
+            var version = em.createQuery(
+                            "select v from PluginVersion v where v.catalogId = ?1 and v.version = ?2",
+                            com.vn9melody.openerp.modules.plugin.model.PluginVersion.class)
+                    .setParameter(1, catalogId)
+                    .setParameter(2, "1.0.0")
+                    .getSingleResult();
+            assertEquals("openerp-registry.local/" + pluginKey + ":1.0.0",
+                    version.distribution.path("image_ref").asText());
+            assertEquals("platform", version.distribution.path("image_builder").asText());
+        });
+    }
+
     private void registerAndPublish(String key, String version, String migrationPolicy, boolean withUi) {
         QuarkusTransaction.requiringNew().run(() -> {
             if (!adminService.existsByKey(key)) {
@@ -259,6 +283,29 @@ public class PluginLifecycleApiTest {
             request.manifest = buildManifest(key, version, migrationPolicy, withUi);
             adminService.registerVersion(key, request, userId);
             adminService.publishVersion(key, version, "TASK-314 fixture", userId);
+        });
+        QuarkusTransaction.requiringNew().run(() -> entitlementService.grant(tenantId, key));
+    }
+
+    private void registerBundleAndPublish(String key, String version) {
+        QuarkusTransaction.requiringNew().run(() -> {
+            if (!adminService.existsByKey(key)) {
+                PluginRequests.RegisterCatalog catalog = new PluginRequests.RegisterCatalog();
+                catalog.pluginKey = key;
+                catalog.nameKey = "PLUGIN_" + key.toUpperCase().replace('-', '_') + "_NAME";
+                catalog.descriptionKey = "PLUGIN_" + key.toUpperCase().replace('-', '_') + "_DESCRIPTION";
+                adminService.createCatalog(catalog, userId);
+            }
+        });
+        QuarkusTransaction.requiringNew().run(() -> {
+            PluginRequests.RegisterVersion request = new PluginRequests.RegisterVersion();
+            request.source = "JAR_BUNDLE";
+            request.artifactRef = "local://test-bundle-" + key + ".zip";
+            request.version = version;
+            request.checksum = "sha256-" + key + "-" + version;
+            request.manifest = buildManifest(key, version, "COMPATIBLE", false);
+            adminService.registerVersion(key, request, userId);
+            adminService.publishVersion(key, version, "TASK-334 fixture", userId);
         });
         QuarkusTransaction.requiringNew().run(() -> entitlementService.grant(tenantId, key));
     }
