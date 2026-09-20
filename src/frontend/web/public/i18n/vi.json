@@ -859,5 +859,6 @@
   "PLUGIN_TENANT_CREDENTIALS_TITLE": "Credential Registry của Tenant",
   "PLUGIN_TENANT_CREDENTIALS_SUBTITLE": "Thông tin đăng nhập registry riêng cho plugin của tenant",
   "PLUGIN_CUSTOM_NOT_ALLOWED": "Khách thuê chưa được bật tính năng plugin riêng. Vui lòng liên hệ nền tảng.",
-  "PLUGIN_REGISTER_SUCCESS": "Đăng ký plugin riêng thành công (bản nháp)."
+  "PLUGIN_REGISTER_SUCCESS": "Đăng ký plugin riêng thành công (bản nháp).",
+  "PLUGIN_APP_BACK_TO_MARKETPLACE": "Về danh sách plugin"
 }

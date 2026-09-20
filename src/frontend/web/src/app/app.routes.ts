@@ -82,6 +82,20 @@ export const routes: Routes = [
     ]
   },
   {
+    path: 'apps/:pluginKey',
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./features/apps/plugin-app.component').then(m => m.PluginAppComponent)
+      },
+      {
+        path: '**',
+        loadComponent: () => import('./features/apps/plugin-app.component').then(m => m.PluginAppComponent)
+      }
+    ]
+  },
+  {
     path: 'platform/change-password',
     canActivate: [authGuard, platformRoleGuard],
     loadComponent: () =>

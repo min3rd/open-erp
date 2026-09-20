@@ -1,0 +1,52 @@
+<div class="flex h-full flex-col gap-2 p-3 text-xs">
+  <div class="flex items-center justify-between gap-2">
+    <div class="flex items-center gap-2">
+      <h1 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        {{ screen()?.title_key ? ((screen()?.title_key || '') | translate) : pluginKey() }}
+      </h1>
+      <span class="font-mono text-[10px] text-neutral-400">{{ pluginKey() }}</span>
+    </div>
+    <app-sharp-button size="sm" variant="ghost" routerLink="/settings/plugins">
+      {{ 'PLUGIN_APP_BACK_TO_MARKETPLACE' | translate }}
+    </app-sharp-button>
+  </div>
+
+  @if (loading()) {
+    <div class="h-24 animate-pulse bg-neutral-100 dark:bg-neutral-800"></div>
+  } @else if (forbidden()) {
+    <div class="border border-amber-300 bg-amber-50 p-3 text-[11px] text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+      {{ 'IAM_PERMISSION_DENIED_FUNCTIONAL' | translate }}
+    </div>
+  } @else if (failed() || !screen()) {
+    <div class="border border-rose-300 bg-rose-50 p-3 text-[11px] text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
+      <p>{{ 'PLUGIN_HOST_UNAVAILABLE' | translate }}</p>
+      <app-sharp-button size="sm" variant="secondary" (clicked)="backToMarketplace()">
+        {{ 'PLUGIN_ACTION_DETAIL' | translate }}
+      </app-sharp-button>
+    </div>
+  } @else {
+    @switch (screen()?.render_mode) {
+      @case (renderMode.WEB_COMPONENT) {
+        <app-plugin-web-component-loader
+          [entry]="entryUrl()"
+          [pluginKey]="pluginKey()"
+          (failed)="onFailed()"
+        />
+      }
+      @case (renderMode.MODULE_FEDERATION) {
+        <app-plugin-module-federation-loader
+          [entry]="entryUrl()"
+          [pluginKey]="pluginKey()"
+          (failed)="onFailed()"
+        />
+      }
+      @case (renderMode.IFRAME) {
+        <app-plugin-iframe-loader
+          [pluginKey]="pluginKey()"
+          [entry]="iframeEntry()"
+          (failed)="onFailed()"
+        />
+      }
+    }
+  }
+</div>
