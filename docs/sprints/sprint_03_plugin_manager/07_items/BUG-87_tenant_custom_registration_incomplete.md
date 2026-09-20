@@ -2,10 +2,16 @@
 
 - **Loại**: Documentation / Design defect
 - **Severity**: High
-- **Trạng thái**: In Review
+- **Trạng thái**: Done
 - **Ngày phát hiện**: 2026-09-20
 - **Người xử lý**: Solution Architect Agent
 - **Phạm vi**: Review tài liệu Sprint 03; chưa xác nhận lỗi runtime.
+
+## Xác nhận review lần 2 (2026-09-20)
+
+DES-03-API T14–T18 và mục 4.3 đã bổ sung upload, version, publish, ownership và luồng DRAFT → PUBLISHED. Đóng thiếu luồng đăng ký; ràng buộc khóa khẩn cấp của luồng mới theo dõi riêng BUG-93.
+
+**Done chỉ áp dụng lỗi tài liệu**, qua đối chiếu tĩnh tại HEAD `20b1dd4`; không xác nhận implementation, migration hay runtime đã kiểm thử. Xem [REV-02](../09_review/REV-02_document_rereview_2026-09-20.md).
 
 ## Bằng chứng & cách tái hiện khi đọc thiết kế
 
@@ -27,4 +33,3 @@ Tenant A tự đăng ký và cài từ cả 3 nguồn, thêm bản v2 rồi nân
 - Ràng buộc sở hữu: `artifact_ref` gắn `owner_tenant_id`; từ chối `PLUGIN_ARTIFACT_NOT_OWNED` khi dùng artifact/credential của tenant khác.
 - Luồng trạng thái rõ: upload → xác minh (checksum/manifest/compatibility) → `DRAFT` → `PUBLISHED` (T17, chỉ khi đã xác minh — `PLUGIN_VERSION_NOT_VERIFIED`) → cài/nâng cấp cho chính tenant; tenant không được `BLOCK` (chỉ nền tảng).
 - UI: Drawer plugin riêng có quản lý phiên bản; tài liệu: [DES-03-API mục 4.3](../06_designs/api/PLUGIN_MANAGER_API_SPEC.md), [DES-03-UI mục 4.3](../06_designs/ui_ux/PLUGIN_MANAGER_UI_SPEC.md), ANL-03 mục 3.6.
-

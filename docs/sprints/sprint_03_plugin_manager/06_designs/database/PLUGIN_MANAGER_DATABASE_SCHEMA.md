@@ -42,6 +42,10 @@ CREATE TABLE plugin_catalog (
     default_install BOOLEAN NOT NULL DEFAULT FALSE,               -- Q5: cài mặc định cấp hệ thống
     locked BOOLEAN NOT NULL DEFAULT FALSE,                        -- plugin mặc định bắt buộc: không tắt/gỡ
     is_core BOOLEAN NOT NULL DEFAULT FALSE,                       -- luôn FALSE (Core tách riêng — Q4)
+    catalog_status VARCHAR(16) NOT NULL DEFAULT 'ACTIVE',         -- ACTIVE | BLOCKED (khóa cấp catalog — BUG-93)
+    blocked_reason TEXT,
+    blocked_at TIMESTAMPTZ,
+    blocked_by UUID,
     entitlement_plans JSONB NOT NULL DEFAULT '[]'::jsonb,         -- ["STANDARD","ENTERPRISE"]
     created_by UUID,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -50,7 +54,8 @@ CREATE TABLE plugin_catalog (
         (visibility = 'PLATFORM'      AND owner_tenant_id IS NULL     AND is_core = FALSE)
         OR
         (visibility = 'TENANT_PRIVATE' AND owner_tenant_id IS NOT NULL AND is_core = FALSE AND default_install = FALSE)
-    )
+    ),
+    CONSTRAINT chk_catalog_status CHECK (catalog_status IN ('ACTIVE','BLOCKED'))
 );
 
 -- Khóa duy nhất TOÀN CỤC cho mọi plugin (kể cả TENANT_PRIVATE) — nhất quán BR-PLG-02.
@@ -79,6 +84,7 @@ CREATE TABLE plugin_versions (
     distribution JSONB NOT NULL DEFAULT '{}'::jsonb,            -- {"type":"DOCKER_HUB|IMAGE_REGISTRY|JAR_BUNDLE","image_ref":"...","digest":"sha256:...","checksum":"...","bundle_ref":"minio://...","size_bytes":123}
     manifest JSONB NOT NULL,                                    -- plugin.json gốc (bất biến sau công bố)
     migration_policy VARCHAR(16) NOT NULL DEFAULT 'COMPATIBLE', -- COMPATIBLE | BREAKING (bắt buộc snapshot trước nâng cấp)
+    rollback_strategy VARCHAR(20) NOT NULL DEFAULT 'SNAPSHOT_RESTORE', -- SNAPSHOT_RESTORE | DOWN_MIGRATION (BUG-86)
     template_version VARCHAR(32),
     created_by UUID,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -91,6 +97,26 @@ CREATE TABLE plugin_versions (
 );
 
 CREATE INDEX idx_plugin_versions_catalog_status ON plugin_versions (catalog_id, release_status);
+```
+
+**Chốt chặn publish khi catalog bị khóa (BUG-93 — defense-in-depth)**:
+```sql
+CREATE OR REPLACE FUNCTION check_version_publish_guard() RETURNS trigger AS $$
+DECLARE v_catalog_status VARCHAR(16);
+BEGIN
+    IF NEW.release_status IN ('PUBLISHED','DEPRECATED') THEN
+        SELECT catalog_status INTO v_catalog_status
+        FROM plugin_catalog WHERE id = NEW.catalog_id;
+        IF v_catalog_status = 'BLOCKED' THEN
+            RAISE EXCEPTION 'PLUGIN_BLOCKED_BY_PLATFORM: catalog is blocked';
+        END IF;
+    END IF;
+    RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_plugin_version_publish_guard
+BEFORE INSERT OR UPDATE ON plugin_versions
+FOR EACH ROW EXECUTE FUNCTION check_version_publish_guard();
 ```
 
 ### 2.3. Bảng `tenant_plugins` (MỘT BẢNG DUY NHẤT — Entitlement + Vòng Đời + Phiên Bản + Deploy)
@@ -278,6 +304,8 @@ CREATE INDEX IF NOT EXISTS idx_tenants_allow_custom_plugins ON tenants (allow_cu
 | Enum Java (`core.enums`) / TS (`@shared/enums`) | Giá Trị |
 | :--- | :--- |
 | `PluginVisibility` | `PLATFORM`, `TENANT_PRIVATE` |
+| `PluginCatalogStatus` | `ACTIVE`, `BLOCKED` |
+| `PluginRollbackStrategy` | `SNAPSHOT_RESTORE`, `DOWN_MIGRATION` |
 | `PluginReleaseStatus` | `DRAFT`, `PUBLISHED`, `DEPRECATED`, `BLOCKED` |
 | `TenantPluginStatus` | `NOT_INSTALLED`, `INSTALLING`, `ACTIVE`, `INACTIVE`, `UPGRADING`, `INSTALL_FAILED`, `ROLLBACK_FAILED`, `UNINSTALLING`, `UNINSTALLED` |
 | `PluginStorageModel` | `DEDICATED_SCHEMA`, `DEDICATED_DATABASE` |
@@ -365,6 +393,9 @@ WHERE NOT EXISTS (
 | 5 | Chỉ mục composite phục vụ marketplace (`tenant_id, status`) và governance (`plugin_key, status`). |
 | 6 | `plugin_operation_logs` là bảng append-only; dọn theo retention (mặc định 90 ngày) bằng job. |
 | 7 | Xóa tenant (`ON DELETE CASCADE`) chỉ xóa dữ liệu quản trị plugin; schema nghiệp vụ `tenant_*` do job purge tenant xử lý riêng (ngoài Sprint 03). |
+| 8 | Khi `plugin_catalog.catalog_status = 'BLOCKED'`: **cấm mọi chuyển phiên bản sang `PUBLISHED`/`DEPRECATED`**, cấm cài/nâng cấp/bật mới; **job đang chạy phải kiểm tra lại** trước bước `ACTIVATE` và bù trừ (undeploy) nếu bị khóa giữa chừng; chỉ Platform được `unblock`. |
+| 9 | Phiên bản `release_status = 'BLOCKED'` chỉ do Platform đặt; **chỉ Platform** được chuyển khỏi `BLOCKED` — tenant không thể publish lại phiên bản bị khóa. |
+| 10 | Nâng cấp `migration_policy = 'BREAKING'` **bắt buộc snapshot** (API từ chối `snapshot=false`); rollback khôi phục snapshot phải tạo **preservation snapshot** dữ liệu hiện tại trước khi restore (không mất dữ liệu phát sinh sau nâng cấp). |
 
 ---
 
@@ -375,8 +406,10 @@ INSERT INTO plugin_ui_slots (slot_code, host_type, title_key, contract_version, 
 VALUES
  ('core.dashboard.widgets', 'CORE', 'PLUGIN_SLOT_CORE_DASHBOARD_WIDGETS', '1.0', '{"max_contributions":6,"min_height_px":120}'),
  ('core.settings.sections', 'CORE', 'PLUGIN_SLOT_CORE_SETTINGS_SECTIONS', '1.0', '{"max_contributions":10}')
-ON CONFLICT (slot_code) DO NOTHING;
+ON CONFLICT (slot_code) WHERE host_type = 'CORE' DO NOTHING;   -- khớp partial unique index uq_plugin_ui_slot_core (BUG-92)
 ```
+
+> **Kiểm chứng (BUG-92)**: chạy seed 2 lần trên PostgreSQL thật — lần đầu tạo đủ 2 Core slot, lần sau không lỗi/không trùng; slot của plugin cùng `slot_code` vẫn hợp lệ theo scope (partial index plugin là composite).
 
 ---
 

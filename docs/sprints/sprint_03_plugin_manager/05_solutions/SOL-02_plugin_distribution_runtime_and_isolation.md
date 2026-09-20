@@ -153,6 +153,12 @@ sequenceDiagram
 5. Nếu fail: undeploy image mới → **khôi phục snapshot (BREAKING)** → deploy image cũ → ledger `ACTIVE` bản cũ + audit `TENANT_PLUGIN_ROLLED_BACK`. **Nếu khôi phục snapshot thất bại → ledger `ROLLBACK_FAILED`** (không đánh dấu ACTIVE dù image cũ đã deploy), plugin ngưng phục vụ, thông báo khẩn Super Admin + tenant, giữ snapshot để can thiệp thủ công.
 6. Snapshot giữ theo retention (cấu hình `openerp.plugin.snapshot-retention-days`, mặc định 30 ngày).
 
+**Bảo toàn dữ liệu phát sinh sau nâng cấp (BUG-86 — review lần 2)**:
+- Với `migration_policy = BREAKING`, snapshot pre-upgrade là **bắt buộc** (API từ chối `snapshot=false` → `PLUGIN_SNAPSHOT_REQUIRED`).
+- Trước khi restore snapshot pre-upgrade, bắt buộc tạo **preservation snapshot** dữ liệu hiện tại (post-upgrade) và giữ lại — dữ liệu phát sinh sau nâng cấp **không bị xóa âm thầm**, admin nhận báo cáo cả 2 snapshot.
+- `rollback_strategy` (khai báo theo phiên bản): `SNAPSHOT_RESTORE` (nền tảng restore) hoặc `DOWN_MIGRATION` (plugin tự chạy down-migration, phải chứng minh tương thích dữ liệu).
+- Nếu tạo preservation snapshot thất bại → **hủy rollback** (giữ nguyên trạng thái hiện tại), không restore.
+
 **Hợp đồng plugin**: manifest khai báo `migration_policy`; plugin phải chứng minh tương thích ngược hoặc chấp nhận quy trình snapshot.
 
 ### 4.5. Cấu Hình Đề Xuất (application.properties)

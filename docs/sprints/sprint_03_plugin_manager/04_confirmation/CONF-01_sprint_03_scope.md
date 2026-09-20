@@ -219,7 +219,7 @@
 
 ## 9. Phụ Lục Hiệu Chỉnh Sau Rà Soát Thiết Kế (2026-09-19)
 
-> Khách hàng review bộ thiết kế Bước 5-6 và yêu cầu bổ sung **6 điểm High + 2 điểm Medium** trước khi lập trình. Toàn bộ đã được xử lý trong tài liệu thiết kế (không thay đổi phạm vi đã ký):
+> Khách hàng review bộ thiết kế Bước 5-6 và yêu cầu bổ sung **6 điểm High + 2 điểm Medium (vòng 1)**; vòng 2 ghi nhận thêm **3 điểm High** (BUG-86 bổ sung, BUG-92, BUG-93). **8/8 vòng 1 + 3/3 vòng 2 đã được xử lý** trong tài liệu thiết kế (không thay đổi phạm vi đã ký):
 
 | # | Mức | Vấn Đề Rà Soát | Cách Xử Lý | Tài Liệu Cập Nhật |
 | :---: | :---: | :--- | :--- | :--- |
@@ -231,5 +231,8 @@
 | 6 | High | Portal có thao tác hỗ trợ tenant nhưng thiếu API tương ứng | Bổ sung P19–P23 (install/uninstall/enable-disable/upgrade/rollback theo tenant, bắt buộc `reason`, audit + operation_id); UI mapping rõ | DES-03-API mục 3; DES-03-UI mục 3.2 |
 | 7 | Medium | AC-23.5 vẫn bắt plugin riêng dùng iframe, trái quyết định cho phép WC/MF | Viết lại AC-23.5: plugin riêng **được phép** WC/MF; iframe chỉ là `render_mode` dự phòng | CONF-01 AC-23.5; DES-03-UI mục 4.3 |
 | 8 | Medium | AC-21.5 chưa phân biệt plugin mặc định bắt buộc và tùy chọn | Viết lại AC-21.5: `locked=true` → ACTIVE không tắt/gỡ; `locked=false` → NOT_INSTALLED chờ bật | CONF-01 AC-21.5 |
+| 9 | High | (Vòng 2) Seed Core UI Slot không khớp partial unique index mới → chặn migration | Sửa conflict target: `ON CONFLICT (slot_code) WHERE host_type = 'CORE' DO NOTHING` + kiểm chứng seed 2 lần | DES-03-DB mục 6 (BUG-92) |
+| 10 | High | (Vòng 2) Thiếu khóa cấp catalog & chặn tenant publish/cài phiên bản mới sau khóa | `catalog_status = ACTIVE/BLOCKED` + `P7 scope CATALOG` + `P25 unblock` + trigger publish guard + job re-check trước ACTIVATE | DES-03-DB 2.1/2.2/5; DES-03-API 3; DES-03-UI 3.1/3.2/4.1; ANL-01 BR-PLG-09; SOL-01 4.3 (BUG-93) |
+| — | High | (Vòng 2) BUG-86 chưa đóng: `snapshot=false` cho BREAKING; rollback mất dữ liệu phát sinh | Snapshot **bắt buộc** (`PLUGIN_SNAPSHOT_REQUIRED`) + **preservation snapshot** trước restore + `rollback_strategy` | DES-03-DB 2.2/5; DES-03-API 4.4; SOL-02 4.4 (BUG-86) |
 
 - **Kết luận**: 8/8 điểm rà soát đã được xử lý; bộ thiết kế DES-03-DB/API/UI + SOL-01/02/03 đủ điều kiện chuyển sang Bước 7 (Lập trình).

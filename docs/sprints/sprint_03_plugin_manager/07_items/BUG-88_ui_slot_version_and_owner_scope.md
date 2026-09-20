@@ -2,10 +2,16 @@
 
 - **Loại**: Documentation / Design defect
 - **Severity**: High
-- **Trạng thái**: In Review
+- **Trạng thái**: Done
 - **Ngày phát hiện**: 2026-09-20
 - **Người xử lý**: Solution Architect Agent
 - **Phạm vi**: Review tài liệu Sprint 03; chưa xác nhận lỗi runtime.
+
+## Xác nhận review lần 2 (2026-09-20)
+
+DES-03-DB mục 2.5 dùng manifest của installed_version làm nguồn sự thật; registry chỉ là index theo owner/slot/contract; S1 và UI 5.2 đã đồng bộ. Đóng lỗi resolve scope/version; câu seed SQL không tương thích index mới theo dõi BUG-92.
+
+**Done chỉ áp dụng lỗi tài liệu**, qua đối chiếu tĩnh tại HEAD `20b1dd4`; không xác nhận implementation, migration hay runtime đã kiểm thử. Xem [REV-02](../09_review/REV-02_document_rereview_2026-09-20.md).
 
 ## Bằng chứng & cách tái hiện khi đọc thiết kế
 
@@ -29,4 +35,3 @@ Hai tenant ghim hai phiên bản host với contract khác nhau và hai private 
 - UI Manifest (S1) trả `host { type, plugin_key, installed_version, contract_version }` cho từng slot.
 - (Lưu ý: cùng `slot_code` giữa hai plugin riêng không còn xung đột vì `plugin_key` đã duy nhất toàn cục theo BUG-85.)
 - Tài liệu: [DES-03-DB mục 2.5](../06_designs/database/PLUGIN_MANAGER_DATABASE_SCHEMA.md), [DES-03-API mục 5.1](../06_designs/api/PLUGIN_MANAGER_API_SPEC.md), [DES-03-UI mục 5.2](../06_designs/ui_ux/PLUGIN_MANAGER_UI_SPEC.md).
-

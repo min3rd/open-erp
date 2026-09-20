@@ -2,12 +2,14 @@
 
 > **Quy ước mã tài liệu**: Mã SOL/DES/TEST/REV mang phạm vi cục bộ trong từng Sprint-Pack (ví dụ DES-03-API của Sprint 03 khác DES-02 của Sprint 02).
 
-> **Review tài liệu 2026-09-20**: [REV-01 — Báo cáo review trước lập trình](09_review/REV-01_document_review_2026-09-20.md) ghi nhận **6 High, 2 Medium** (BUG-84–91). **Đã xử lý 8/8 điểm trong thiết kế (2026-09-20)** — các item chuyển `In Review`, chờ Reviewer/QA xác nhận đóng trước khi lập trình; đây không phải biên bản đóng Sprint.
+> **Kết quả hiện hành — review lần 2 (2026-09-20)**: [REV-02](09_review/REV-02_document_rereview_2026-09-20.md): đóng 7/8 lỗi cũ ở mức tài liệu; BUG-86 chưa đạt, thêm BUG-92/93. **Còn 3 High ở To Do**; cần sửa trước khi coi thiết kế sẵn sàng triển khai đầy đủ. Các bảng review lần 1 bên dưới được giữ làm lịch sử.
+
+> **Review tài liệu 2026-09-20**: [REV-01 — Báo cáo review trước lập trình](09_review/REV-01_document_review_2026-09-20.md) ghi nhận **6 High, 2 Medium** (BUG-84–91) — đã xử lý 8/8. [REV-02 — Review lại tài liệu Sprint 03](09_review/REV-02_document_rereview_2026-09-20.md) ghi nhận **3 High** còn lại (BUG-86 chưa đóng, BUG-92, BUG-93) — đã xử lý tại [REV-02-RESPONSE](09_review/REV-02-response_document_rereview_2026-09-20.md); các item `In Review`, chờ Reviewer/QA xác nhận đóng trước khi lập trình. Đây không phải biên bản đóng Sprint.
 
 - **Tên Sprint**: Sprint 03 - Plugin Manager, Plugin Scaffolding CLI & Cơ Chế Phân Phối/Cài Đặt Plugin Đa Kênh
 - **Mục Tiêu**: Biến cơ chế plugin tĩnh của Sprint 02 thành **Plugin Manager thực thụ**: danh mục plugin + phiên bản trong DB; vòng đời cài/gỡ/bật/tắt/nâng cấp theo từng Tenant; **mỗi plugin chạy container riêng cho từng tenant và được tự động deploy**; chợ plugin (Marketplace) cho Tenant; CLI Node/npm sinh khung dự án plugin chuẩn hóa; và cơ chế đưa plugin vào hệ thống qua 3 kênh: Docker Hub, Image Registry (link + credentials đa phạm vi) và tệp JAR backend + bản build Web (Core tự build image).
 - **Thời Gian Dự Kiến**: 2026-10-20 đến 2026-11-02 (2 tuần)
-- **Trạng Thái Hiện Tại**: [x] **BƯỚC 1-6 HOÀN TẤT — SẴN SÀNG BƯỚC 7 (Phân rã nhiệm vụ & Lập trình)**; tài liệu thiết kế chi tiết DB/API/UI đã ban hành.
+- **Trạng Thái Hiện Tại**: **BƯỚC 6 — CẦN HOÀN THIỆN SAU REVIEW LẦN 2**; thiết kế DB/API/UI đã ban hành nhưng còn BUG-86/92/93 mức High chưa xử lý.
 
 ---
 
@@ -92,20 +94,22 @@ flowchart LR
 
 ## 🔍 Nhật Ký Rà Soát Thiết Kế (Design Review 2026-09-19)
 
-Khách hàng review bộ thiết kế Bước 5-6 và yêu cầu bổ sung **6 điểm High + 2 điểm Medium** trước khi lập trình. **8/8 điểm đã được xử lý** (chi tiết + bảng đối chiếu đầy đủ tại [CONF-01 Mục 9](04_confirmation/CONF-01_sprint_03_scope.md)):
+Khách hàng review bộ thiết kế Bước 5-6 và yêu cầu bổ sung **6 điểm High + 2 điểm Medium (vòng 1)** trước khi lập trình; vòng 2 ghi nhận thêm **3 điểm High** (BUG-86 bổ sung, BUG-92, BUG-93). **8/8 điểm vòng 1 + 3/3 điểm vòng 2 đã được xử lý** (bảng đối chiếu đầy đủ tại [CONF-01 Mục 9](04_confirmation/CONF-01_sprint_03_scope.md)):
 
 | # | Mức | Vấn Đề | Xử Lý | Tài Liệu |
 | :---: | :---: | :--- | :--- | :--- |
 | 1 | High | Backfill entitlement trước seed catalog → mất quyền đã cấp | Đổi thứ tự migration + backfill tự tạo placeholder catalog + đối soát fail-fast | DES-03-DB mục 4 |
 | 2 | High | Trùng `plugin_key` nhưng ledger/API chưa phân biệt | Khóa duy nhất **toàn cục** cho `plugin_key` (kể cả TENANT_PRIVATE) | DES-03-DB mục 2.1; DES-03-API mục 1; ANL-01 BR-PLG-22 |
-| 3 | High | Rollback chỉ đổi image, chưa xử lý dữ liệu đã migrate | `migration_policy` + snapshot schema trước nâng cấp BREAKING + khôi phục khi rollback | DES-03-DB; DES-03-API 4.4; SOL-02 4.4; SOL-01 4.3 |
+| 3 | High | Rollback chỉ đổi image, chưa xử lý dữ liệu đã migrate | `migration_policy` + snapshot schema trước nâng cấp BREAKING + khôi phục khi rollback; **vòng 2: snapshot bắt buộc (`PLUGIN_SNAPSHOT_REQUIRED`) + preservation snapshot + `rollback_strategy`** | DES-03-DB; DES-03-API 4.4; SOL-02 4.4; SOL-01 4.3 |
 | 4 | High | Plugin riêng thiếu contract upload/publish/thêm phiên bản | Bổ sung endpoint T14–T18 + UI quản lý phiên bản | DES-03-API 4.3; DES-03-UI 4.3; ANL-03 3.6 |
 | 5 | High | UI Slot Registry chưa phân biệt phiên bản & chủ sở hữu | `declared_in_version` + unique theo `(owner, slot, contract_version)` + UI Manifest trả `host` | DES-03-DB 2.5; DES-03-API 5.1; DES-03-UI 5.2 |
 | 6 | High | Portal có thao tác hỗ trợ tenant nhưng thiếu API | Bổ sung P19–P23 (install/uninstall/enable-disable/upgrade/rollback) | DES-03-API 3; DES-03-UI 3.2 |
 | 7 | Medium | AC-23.5 bắt plugin riêng dùng iframe (trái quyết định Gate) | Viết lại AC-23.5 — plugin riêng được phép WC/MF | CONF-01 AC-23.5 |
 | 8 | Medium | AC-21.5 chưa phân biệt mặc định bắt buộc/tùy chọn | Viết lại AC-21.5 — `locked` vs `locked=false` | CONF-01 AC-21.5 |
+| 9 | High | (Vòng 2) Seed Core slot không khớp partial unique index → chặn migration | Sửa conflict target `ON CONFLICT (slot_code) WHERE host_type = 'CORE'` + kiểm chứng seed 2 lần | DES-03-DB mục 6 (BUG-92) |
+| 10 | High | (Vòng 2) Thiếu khóa cấp catalog & chặn publish/cài sau khóa | `catalog_status BLOCKED` + P7 scope CATALOG + **P25 unblock** + trigger publish guard + job re-check trước ACTIVATE | DES-03-DB 2.1/2.2/5; DES-03-API 3; DES-03-UI 3.1/3.2/4.1; ANL-01 BR-PLG-09; SOL-01 4.3 (BUG-93) |
 
-> **Theo dõi**: 8 điểm trên được quản lý dưới dạng file item tại [`07_items/`](07_items/): **BUG-84 → BUG-91** (trạng thái `In Review`, chờ QA/Reviewer xác nhận đóng trước khi lập trình).
+> **Theo dõi**: các điểm trên được quản lý dưới dạng file item tại [`07_items/`](07_items/): **BUG-84 → BUG-93** (trạng thái `In Review`, chờ QA/Reviewer xác nhận đóng trước khi lập trình).
 
 > **Kết luận**: bộ thiết kế DES-03-DB/API/UI + SOL-01/02/03 đủ điều kiện chuyển sang **Bước 7 (Lập trình)**.
 

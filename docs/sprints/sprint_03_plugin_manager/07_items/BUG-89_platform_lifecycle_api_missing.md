@@ -2,10 +2,16 @@
 
 - **Loại**: Documentation / Design defect
 - **Severity**: High
-- **Trạng thái**: In Review
+- **Trạng thái**: Done
 - **Ngày phát hiện**: 2026-09-20
 - **Người xử lý**: Solution Architect Agent
 - **Phạm vi**: Review tài liệu Sprint 03; chưa xác nhận lỗi runtime.
+
+## Xác nhận review lần 2 (2026-09-20)
+
+P19–P23 đã đủ thao tác lifecycle theo tenant, audit actor platform thật và chặn Support Engineer ghi; UI 3.2 dẫn chiếu tương ứng. Đóng thiếu endpoint; chính sách an toàn rollback vẫn thuộc BUG-86.
+
+**Done chỉ áp dụng lỗi tài liệu**, qua đối chiếu tĩnh tại HEAD `20b1dd4`; không xác nhận implementation, migration hay runtime đã kiểm thử. Xem [REV-02](../09_review/REV-02_document_rereview_2026-09-20.md).
 
 ## Bằng chứng & cách tái hiện khi đọc thiết kế
 
@@ -27,4 +33,3 @@ Super Admin thao tác tenant A từ Drawer và audit đúng actor/tenant; tenant
 - Ủy quyền: actor **platform admin thật** (audit `platform_audit_logs` + `target_tenant_id`), **không dùng impersonation**; `SUPPORT_ENGINEER` chỉ xem (403 khi ghi); tenant isolation giữ nguyên.
 - UI Drawer "Tenant đang cài" map trực tiếp từng nút → P19–P23.
 - Tài liệu: [DES-03-API mục 3](../06_designs/api/PLUGIN_MANAGER_API_SPEC.md), [DES-03-UI mục 3.2](../06_designs/ui_ux/PLUGIN_MANAGER_UI_SPEC.md).
-

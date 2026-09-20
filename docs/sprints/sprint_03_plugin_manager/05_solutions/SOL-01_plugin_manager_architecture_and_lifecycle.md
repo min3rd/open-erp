@@ -118,7 +118,7 @@ graph TD
 | 4 | Deploy container tenant | Undeploy container |
 | 5 | Chờ plugin tự migrate + health/status | Undeploy container; `INSTALL_FAILED` |
 | 6 | Seed permission + đăng ký menu/UI slot | Thu hồi permission đã seed |
-| 7 | Ledger `ACTIVE` + audit + thông báo | — |
+| 7 | **Precondition check lần cuối** (catalog `ACTIVE`, version không `BLOCKED`, không bị khóa giữa chừng) → Ledger `ACTIVE` + audit + thông báo | Nếu bị khóa trong lúc chạy → bù trừ (undeploy), **không** chuyển ACTIVE (BUG-93) |
 
 > Nguyên tắc: mọi bước **idempotent**; không bao giờ xóa dữ liệu tenant trong bù trừ (BR-PLG-07/29).
 > **Nâng cấp (upgrade)** dùng cùng mô hình Saga với bước bổ sung **SNAPSHOT** (khi `migration_policy = BREAKING`) và bù trừ **RESTORE_SNAPSHOT** — chi tiết tại [SOL-02 mục 4.5](SOL-02_plugin_distribution_runtime_and_isolation.md).

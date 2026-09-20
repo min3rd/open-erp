@@ -2,10 +2,16 @@
 
 - **Loại**: Documentation / Design defect
 - **Severity**: Medium
-- **Trạng thái**: In Review
+- **Trạng thái**: Done
 - **Ngày phát hiện**: 2026-09-20
 - **Người xử lý**: BA Agent
 - **Phạm vi**: Review tài liệu Sprint 03; chưa xác nhận lỗi runtime.
+
+## Xác nhận review lần 2 (2026-09-20)
+
+AC-21.5 đã tách locked=true → ACTIVE và locked=false → NOT_INSTALLED; P3/P24 có locked và UI chỉnh metadata. Đóng mâu thuẫn AC đã báo.
+
+**Done chỉ áp dụng lỗi tài liệu**, qua đối chiếu tĩnh tại HEAD `20b1dd4`; không xác nhận implementation, migration hay runtime đã kiểm thử. Xem [REV-02](../09_review/REV-02_document_rereview_2026-09-20.md).
 
 ## Bằng chứng & cách tái hiện khi đọc thiết kế
 
@@ -27,4 +33,3 @@ Plugin mặc định bắt buộc được deploy ACTIVE và chặn tắt/gỡ; 
 - Bổ sung `locked` vào **P3** và thêm **P24** (`PATCH /platform/plugins/{key}` để chỉnh `default_install`/`locked`/metadata); hành vi provisioning/bulk apply bám theo `locked`.
 - UI: Tầng 1 Drawer Catalog có chỉnh metadata P24 kèm xác nhận + audit.
 - Tài liệu: [CONF-01 AC-21.5 + Phụ lục 9 #8](../04_confirmation/CONF-01_sprint_03_scope.md), [DES-03-API mục 3](../06_designs/api/PLUGIN_MANAGER_API_SPEC.md), [DES-03-UI mục 3.2](../06_designs/ui_ux/PLUGIN_MANAGER_UI_SPEC.md).
-

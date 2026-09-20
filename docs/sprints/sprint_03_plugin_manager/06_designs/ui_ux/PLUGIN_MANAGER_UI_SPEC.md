@@ -61,14 +61,14 @@ graph TD
 
 | Vùng | Nội Dung |
 | :--- | :--- |
-| Cột trái (40%) | Ô tìm kiếm + bộ lọc (trạng thái phát hành, visibility, nền tảng, nguồn phân phối, `default_install`); danh sách dòng dày: tên (i18n) • key • phiên bản mới nhất • badge trạng thái • số tenant đang cài • badge "Mặc định" / "Riêng tenant" |
+| Cột trái (40%) | Ô tìm kiếm + bộ lọc (trạng thái phát hành, visibility, nền tảng, nguồn phân phối, `default_install`); danh sách dòng dày: tên (i18n) • key • phiên bản mới nhất • badge trạng thái • số tenant đang cài • badge "Mặc định" / "Riêng tenant" / **"Đã khóa"** (`catalog_status = BLOCKED` — BUG-93) |
 | Khu vực riêng | **"Hệ thống lõi"** — danh sách Core modules read-only (Q4), tách khỏi danh mục plugin |
 | Cột phải (60%) | Chi tiết nhanh plugin được chọn (thông tin + hành động); hoặc empty state hướng dẫn "Đăng ký plugin" |
 | Toolbar | `+ Đăng ký plugin` (mở Drawer), `Tải lại` |
 
 ### 3.2. Drawer Chi Tiết Plugin (3 tầng xếp chồng)
 
-1. **Tầng 1 — Tổng quan**: metadata, nguồn artifact, checksum/digest, tương thích Core, phụ thuộc, nền tảng, quyền, entity, UI (screens/contributions); **chỉnh metadata catalog qua P24** (`default_install`, `locked`, `entitlement_plans`) với xác nhận + audit (BUG-91).
+1. **Tầng 1 — Tổng quan**: metadata, nguồn artifact, checksum/digest, tương thích Core, phụ thuộc, nền tảng, quyền, entity, UI (screens/contributions); **chỉnh metadata catalog qua P24** (`default_install`, `locked`, `entitlement_plans`) với xác nhận + audit (BUG-91); khi bị khóa hiển thị banner lý do + hành động **Mở khóa (P25)** cho SUPER_ADMIN (BUG-93).
 2. **Tầng 2 — Phiên bản (Timeline)**: mỗi phiên bản 1 dòng: SemVer • trạng thái • ngày/người đăng ký • nguồn • checksum; hành động Công bố / Ngừng hỗ trợ / Khóa / Gỡ artifact.
 3. **Tầng 3 — Tenant đang cài**: bảng dense (tenant, trạng thái, phiên bản, sức khỏe container, cập nhật khả dụng) + **hành động hỗ trợ mapping API P19–P23** (Cài/Gỡ/Bật-Tắt/Nâng cấp/Rollback — bắt buộc nhập `reason`, có audit + operation_id) + nút **"Cấp/Thu entitlement"** mở Drawer tìm tenant (P12/P13).
 
@@ -108,7 +108,7 @@ graph TD
 | Nhóm | Nội Dung |
 | :--- | :--- |
 | **Đã cài** | ACTIVE / INACTIVE / UPDATE_AVAILABLE: tên + mô tả i18n • badge nền tảng • phiên bản hiện tại → mới nhất • trạng thái runtime • hành động (Bật/Tắt, Nâng cấp, Gỡ, Chi tiết) |
-| **Có thể cài** | Plugin được cấp phép chưa cài: nút "Cài đặt" + chọn phiên bản trong Drawer chi tiết |
+| **Có thể cài** | Plugin được cấp phép chưa cài: nút "Cài đặt" + chọn phiên bản trong Drawer chi tiết; **plugin/catalog bị khóa (`catalog_status = BLOCKED`) hiển thị badge "Đã khóa" + khóa toàn bộ hành động cài/nâng cấp/bật (BUG-93)** |
 | **Plugin riêng của tôi** | Chỉ hiện khi `allow_custom_plugins = true`: danh sách `TENANT_PRIVATE` + nút "Đăng ký plugin riêng" |
 | Toolbar | Ô tìm kiếm + bộ lọc nền tảng + badge "Cập nhật" |
 
@@ -191,7 +191,7 @@ graph TD
 | :--- | :--- |
 | Marketplace | `PLUGIN_MARKETPLACE_TITLE`, `PLUGIN_MARKETPLACE_INSTALLED`, `PLUGIN_MARKETPLACE_AVAILABLE`, `PLUGIN_MARKETPLACE_CUSTOM`, `PLUGIN_MARKETPLACE_SEARCH_PLACEHOLDER`, `PLUGIN_MARKETPLACE_EMPTY` |
 | Hành động | `PLUGIN_ACTION_INSTALL`, `PLUGIN_ACTION_UNINSTALL`, `PLUGIN_ACTION_ENABLE`, `PLUGIN_ACTION_DISABLE`, `PLUGIN_ACTION_UPGRADE`, `PLUGIN_ACTION_ROLLBACK`, `PLUGIN_ACTION_DETAIL`, `PLUGIN_ACTION_REGISTER` |
-| Trạng thái | `PLUGIN_STATUS_ACTIVE`, `PLUGIN_STATUS_INACTIVE`, `PLUGIN_STATUS_INSTALLING`, `PLUGIN_STATUS_FAILED`, `PLUGIN_STATUS_ROLLBACK_FAILED`, `PLUGIN_STATUS_UNINSTALLED`, `PLUGIN_STATUS_UPDATE_AVAILABLE` |
+| Trạng thái | `PLUGIN_STATUS_ACTIVE`, `PLUGIN_STATUS_INACTIVE`, `PLUGIN_STATUS_INSTALLING`, `PLUGIN_STATUS_FAILED`, `PLUGIN_STATUS_ROLLBACK_FAILED`, `PLUGIN_STATUS_UNINSTALLED`, `PLUGIN_STATUS_UPDATE_AVAILABLE`, `PLUGIN_STATUS_BLOCKED` |
 | Cảnh báo | `PLUGIN_UNINSTALL_KEEP_DATA_WARNING`, `PLUGIN_LOCKED_DEFAULT_TOOLTIP`, `PLUGIN_CUSTOM_RESPONSIBILITY_WARNING`, `PLUGIN_BLOCKED_BANNER` |
 | Đăng ký | `PLUGIN_REGISTER_SOURCE_DOCKERHUB`, `PLUGIN_REGISTER_SOURCE_REGISTRY`, `PLUGIN_REGISTER_SOURCE_UPLOAD`, `PLUGIN_REGISTER_CHECKSUM_LABEL`, `PLUGIN_REGISTER_PREVIEW_TITLE` |
 | Host | `PLUGIN_CONTRIBUTION_LOADING`, `PLUGIN_CONTRIBUTION_ERROR`, `PLUGIN_HOST_SCREEN_NOT_ACTIVE` |

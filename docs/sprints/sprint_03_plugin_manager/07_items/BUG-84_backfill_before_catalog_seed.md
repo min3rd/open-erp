@@ -2,10 +2,16 @@
 
 - **Loại**: Documentation / Design defect
 - **Severity**: High
-- **Trạng thái**: In Review
+- **Trạng thái**: Done
 - **Ngày phát hiện**: 2026-09-20
 - **Người xử lý**: Solution Architect Agent
 - **Phạm vi**: Review tài liệu Sprint 03; chưa xác nhận lỗi runtime.
+
+## Xác nhận review lần 2 (2026-09-20)
+
+DES-03-DB mục 4 đã seed/upsert placeholder trước JOIN, đối soát theo tenant/key và quy định fail-fast. Đóng lỗi mất entitlement do thứ tự seed; lỗi seed UI Slot mới theo dõi riêng BUG-92.
+
+**Done chỉ áp dụng lỗi tài liệu**, qua đối chiếu tĩnh tại HEAD `20b1dd4`; không xác nhận implementation, migration hay runtime đã kiểm thử. Xem [REV-02](../09_review/REV-02_document_rereview_2026-09-20.md).
 
 ## Bằng chứng & cách tái hiện khi đọc thiết kế
 
@@ -27,4 +33,3 @@ Fixture catalog mới rỗng, tenant có core + sales + key cấu hình riêng: 
 - Backfill **tự đủ**: bước 1 upsert placeholder catalog cho mọi key thiếu; bước 2 mới tạo `tenant_plugins` — không thể mất entitlement do JOIN.
 - Đối soát **theo từng tenant/key** 2 chiều (thiếu + thừa), fail-fast; key lạ được bảo toàn và ghi `RAISE NOTICE` để bổ sung i18n/metadata sau.
 - Tài liệu: [DES-03-DB mục 4](../06_designs/database/PLUGIN_MANAGER_DATABASE_SCHEMA.md).
-

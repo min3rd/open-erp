@@ -2,10 +2,16 @@
 
 - **Loại**: Documentation / Design defect
 - **Severity**: High
-- **Trạng thái**: In Review
+- **Trạng thái**: Done
 - **Ngày phát hiện**: 2026-09-20
 - **Người xử lý**: Solution Architect Agent
 - **Phạm vi**: Review tài liệu Sprint 03; chưa xác nhận lỗi runtime.
+
+## Xác nhận review lần 2 (2026-09-20)
+
+DES-03-DB mục 2.1 chốt plugin_key unique toàn cục; mục 2.3 thêm kiểm tra owner; DES-03-API mục 1 đồng bộ khóa. Đóng lỗi định danh mơ hồ.
+
+**Done chỉ áp dụng lỗi tài liệu**, qua đối chiếu tĩnh tại HEAD `20b1dd4`; không xác nhận implementation, migration hay runtime đã kiểm thử. Xem [REV-02](../09_review/REV-02_document_rereview_2026-09-20.md).
 
 ## Bằng chứng & cách tái hiện khi đọc thiết kế
 
@@ -27,4 +33,3 @@ Có platform sales và private sales của tenant A/B: đăng ký/cấp quyền/
 - Bổ sung **trigger `trg_tenant_plugin_scope`** + ràng buộc service: tenant chỉ được cài plugin PLATFORM hoặc plugin riêng **của chính tenant**; lỗi `PLUGIN_ARTIFACT_NOT_OWNED`/`PLUGIN_NOT_ENTITLED`.
 - Cập nhật quy ước API: mọi path/ledger/dependency/UI Slot dùng `plugin_key` toàn cục — không mơ hồ.
 - Tài liệu: [DES-03-DB mục 2.1/2.3](../06_designs/database/PLUGIN_MANAGER_DATABASE_SCHEMA.md), [DES-03-API mục 1](../06_designs/api/PLUGIN_MANAGER_API_SPEC.md), ANL-01 BR-PLG-22.
-
