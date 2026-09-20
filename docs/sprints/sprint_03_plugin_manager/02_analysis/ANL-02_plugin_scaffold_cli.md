@@ -40,7 +40,7 @@
 
 ## 3. Danh Mục Lệnh CLI (Command Catalog)
 
-> Tên package làm việc: `@openerp/plugin-cli` (chốt tại Bước 5/6 — xem câu hỏi phát sinh N1). Gọi qua `npx @openerp/plugin-cli <command>` hoặc cài global `npm i -g @openerp/plugin-cli`.
+> Package: **`@open-erp/cli`** — **CLI chung của hệ sinh thái Open-ERP** (tên chốt tại Gate 2026-09-19); FEAT-22 triển khai nhóm lệnh plugin đầu tiên, các nhóm lệnh khác (admin/devops...) có thể bổ sung sau **mà không đổi tên package**. Gọi qua `npx @open-erp/cli <command>` hoặc cài global `npm i -g @open-erp/cli`.
 
 | # | Lệnh | Mục Đích | Đối Tượng | Ưu Tiên Sprint 03 |
 | :---: | :--- | :--- | :--- | :---: |
@@ -84,7 +84,7 @@
 
 ```mermaid
 flowchart TD
-    A["npx @openerp/plugin-cli create"] --> B["Hỏi: Plugin ID (kebab-case)"]
+    A["npx @open-erp/cli create"] --> B["Hỏi: Plugin ID (kebab-case)"]
     B --> C{"ID hợp lệ & chưa tồn tại?"}
     C -- Không --> B
     C -- Có --> D["Hỏi: Tên hiển thị + Mô tả"]
@@ -203,7 +203,7 @@ flowchart TD
 | Hạng Mục | Yêu Cầu |
 | :--- | :--- |
 | Công nghệ (Q1) | **Node.js** (khuyến nghị Node ≥ 20 LTS; đồng bộ Node 22 đang dùng cho Web/Mobile). |
-| Phân phối (Q2) | **npm package** phát hành công khai/private registry; chạy `npx` hoặc cài global `npm i -g`. |
+| Phân phối (Q2) | **npm package `@open-erp/cli`** (CLI chung hệ sinh thái) phát hành registry private trước; chạy `npx` hoặc cài global `npm i -g`. |
 | Nền tảng | Windows (môi trường dev hiện tại) + macOS/Linux. |
 | Ngôn ngữ hiển thị (Q7) | **Chỉ tiếng Anh**. |
 | Tương tác | Interactive mặc định + `--non-interactive` cho CI; `--dry-run`; màu sắc hỗ trợ. |
@@ -260,7 +260,7 @@ flowchart TD
 | # | Quyết Định | Ảnh Hưởng Đã Phản Ánh |
 | :---: | :--- | :--- |
 | Q1 | **CLI viết bằng Node.js** | Mục 2.1, 7. |
-| Q2 | **Phát hành npm/npx global** | Mục 2.1, 3, 7. |
+| Q2 | **Phát hành npm/npx global — package `@open-erp/cli`** | Mục 2.1, 3, 7; N1. |
 | Q3 | **Repo riêng + git submodule** | Mục 2.2, 5; BR-CLI-11. |
 | Q4 | **Có sinh màn hình quản trị mẫu + seed quyền/menu** | Mục 2.5, 5.1. |
 | Q5 | **Có lệnh `package` + checksum trong Sprint 03** | Mục 3, 5; BR-CLI-12. |
@@ -273,7 +273,7 @@ flowchart TD
 
 | # | Câu Hỏi | Ảnh Hưởng | Đề Xuất Của BA |
 | :---: | :--- | :--- | :--- |
-| N1 | Tên package npm và scope (`@openerp/plugin-cli`, `create-openerp-plugin`, registry private hay public)? | Phân phối CLI | Đề xuất `@openerp/plugin-cli` phát hành trên registry private trước, public sau. |
+| N1 | **ĐÃ CHỐT (Gate 2026-09-19)**: package npm tên **`@open-erp/cli`** (tên chung cho hệ sinh thái); phát hành registry private trước, public sau. | Phân phối CLI | Đã cập nhật mục 2.1, 3, 7; RAW-02. |
 | N2 | Phiên bản Node tối thiểu (20 LTS hay 22 đồng bộ Web/Mobile)? | CI, môi trường dev | **Node 22 LTS** để đồng bộ. |
 | N3 | Nền tảng CI mẫu sinh kèm (GitHub Actions / GitLab CI)? | Repo plugin độc lập | Sinh cả hai hoặc cấu hình qua `--ci=github|gitlab` — cần xác nhận. |
 | N4 | Quy ước đặt tên repo plugin (`open-erp-plugin-<key>` / `openerp-<key>`)? | Submodule, registry | Đề xuất `open-erp-plugin-<key>`. |

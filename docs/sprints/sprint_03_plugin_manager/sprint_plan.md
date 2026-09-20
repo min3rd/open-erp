@@ -54,6 +54,7 @@ Biến cơ chế plugin tĩnh (danh mục cấu hình + allowlist) của Sprint 
 18. **MinIO là công cụ lưu trữ CHÍNH của toàn hệ thống** (chốt Gate 2026-09-19) — không chỉ artifact plugin.
 19. **Lệnh `dev` thuộc Sprint 03** (chốt Gate) — CLI plugin có vòng lặp phát triển local + hot reload + kết nối Core dev.
 20. **Plugin riêng của tenant được phép nhúng trực tiếp WC/MF** (chốt Gate — khác đề xuất BA); iframe sandbox là chế độ dự phòng; bắt buộc biện pháp an toàn kỹ thuật chung.
+21. **Package CLI = `@open-erp/cli`** (chốt bổ sung 2026-09-19) — tên chung cho hệ sinh thái; nhóm lệnh plugin là nhóm đầu tiên.
 
 ---
 

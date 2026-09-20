@@ -31,7 +31,7 @@
 
 ### 1.2. FEAT-22 — Plugin Scaffolding CLI (Node.js / npm)
 
-1. **CLI Node.js phát hành npm/npx** (`@openerp/plugin-cli` — tên làm việc): `create`, `generate entity`, `generate menu`, `generate ui-contribution`, `validate`, `package`, `link`, `inspect` (và `publish` nếu kịp).
+1. **CLI Node.js phát hành npm/npx** package **`@open-erp/cli`** (CLI chung hệ sinh thái — chốt Gate 2026-09-19): `create`, `generate entity`, `generate menu`, `generate ui-contribution`, `validate`, `package`, `link`, `inspect`, `dev` (và `publish` nếu kịp).
 2. **`create`**: sinh repo plugin độc lập (git init) đầy đủ manifest `plugin.json`, backend Quarkus Java 21, migration idempotent, Web Angular 22 (+ Mobile tùy chọn), `deploy/` Dockerfile + K8s, `ci/`, README; hỗ trợ `--packaging image|bundle`, `--db postgres|mongodb`, interactive + non-interactive, `--dry-run`/`--force`.
 3. **`generate`**: sinh entity (+ migration + repository/service/resource/DTO + `@RegisterEntity` + quyền + i18n); đăng ký menu/màn hình riêng; UI Contribution với `--render-mode web-component|module-federation|iframe`.
 4. **`package`**: build JAR + Web, tạo **container image** hoặc **bundle zip**, sinh **checksum SHA-256** + manifest phát hành; ký số để giai đoạn sau.
@@ -102,7 +102,7 @@
 ### 3.2. FEAT-22 — Plugin Scaffolding CLI
 
 - **AC-22.1 — Tạo dự án plugin chạy được ngay**:
-  - **Given**: Developer chạy `npx @openerp/plugin-cli create --id open-erp-hrm --packaging image --db postgres`.
+  - **Given**: Developer chạy `npx @open-erp/cli create --id open-erp-hrm --packaging image --db postgres`.
   - **When**: Lệnh hoàn tất.
   - **Then**: Repo đầy đủ (manifest, backend Quarkus, migration, Web, deploy, CI, README), git init; build PASS; test backend mẫu PASS trên PostgreSQL/Redis thật; không tạo file `.spec.ts`.
 - **AC-22.2 — Sinh entity/menu/UI contribution**:
@@ -213,3 +213,4 @@
 1. **MinIO là công cụ lưu trữ chính của toàn hệ thống** (không chỉ artifact plugin) — cập nhật ANL-03 mục 5, Sprint Plan guardrails, tài liệu deployment.
 2. **Plugin riêng của tenant ĐƯỢC PHÉP nhúng trực tiếp bằng Web Components/Module Federation** (khác đề xuất BA về mặc định iframe sandbox) — cập nhật ANL-01 BR-PLG-31, ANL-03 mục 4.4/6, Sprint Plan guardrail & rủi ro; các biện pháp an toàn kỹ thuật chung (CSP, error boundary, Shadow DOM, shared-lib version pin, RBAC, audit) vẫn bắt buộc.
 3. **Lệnh `dev` được đưa vào Sprint 03** (FEAT-22) — cập nhật ANL-02 mục 3/5.5/9/10, Sprint Plan DoD.
+4. **Bổ sung muộn (2026-09-19)**: package CLI chung đặt tên **`@open-erp/cli`** (thay tên làm việc `@openerp/plugin-cli`) — cập nhật ANL-02, SOL-03, BENCH-02 và CONF-01 Mục 1.2.

@@ -96,13 +96,13 @@ sequenceDiagram
 
 ### 3.1. Kiến Trúc
 
-- **Runtime**: Node ≥ 22 LTS, TypeScript, build ra JS; phát hành npm `@openerp/plugin-cli` (tên làm việc), chạy `npx` hoặc cài global.
+- **Runtime**: Node ≥ 22 LTS, TypeScript, build ra JS; phát hành npm **`@open-erp/cli`** — **CLI chung của hệ sinh thái** (nhóm lệnh plugin là nhóm đầu tiên), chạy `npx` hoặc cài global.
 - **Phụ thuộc tối thiểu (dev tooling — ngoại lệ có kiểm soát)**: `commander` (parse lệnh), `prompts` (interactive), `ajv` (JSON Schema manifest), `execa` (gọi docker/git), `tar`/`adm-zip` (bundle). Không dùng framework nặng.
 - **Cấu trúc module**:
 
 ```
-plugin-cli/
-├── bin/openerp-plugin.js
+open-erp-cli/
+├── bin/open-erp.js
 ├── src/
 │   ├── commands/        # create, generate/*, dev, validate, package, link, inspect, publish
 │   ├── core/            # manifest-schema, semver, checksum(sha256), template-engine, git

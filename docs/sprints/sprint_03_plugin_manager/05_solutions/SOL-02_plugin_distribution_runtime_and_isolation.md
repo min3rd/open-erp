@@ -108,7 +108,7 @@ interface PluginRuntimeDeployer {
 
 ### 4.2. Quy Ước Container
 
-- **Labels**: `app=openerp-plugin`, `tenant_id`, `plugin_key`, `plugin_version`, `managed-by=plugin-manager`.
+- **Labels**: `app=open-erp-plugin`, `tenant_id`, `plugin_key`, `plugin_version`, `managed-by=plugin-manager`.
 - **Tài nguyên**: `resources.limits` CPU/RAM theo plugin (default cấu hình) + override theo plan/tenant (Gate câu 3).
 - **Secrets**: inject qua env (Docker) / Secret ref (K8s); không log giá trị.
 - **Mạng**: container chỉ expose cổng HTTP nội bộ; Core proxy/gateway truy cập; NetworkPolicy (K8s) giới hạn egress mặc định.

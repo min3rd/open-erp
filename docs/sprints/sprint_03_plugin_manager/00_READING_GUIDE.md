@@ -50,6 +50,7 @@ flowchart LR
 | 19 | Cô lập dữ liệu Tenant | **Dữ liệu riêng của mỗi tenant ở schema/DB khác nhau** (`DEDICATED_SCHEMA` mặc định, `DEDICATED_DATABASE` cho Enterprise); plugin chỉ migrate trong phạm vi tenant; DB role least privilege — không ảnh hưởng tenant khác. Dữ liệu **Core** giữ `SHARED_SCHEMA_RLS` trong Sprint 03 (theo đề xuất BA). |
 | 20 | Lưu trữ toàn hệ thống | **MinIO là công cụ lưu trữ CHÍNH của toàn hệ thống** (chốt Gate 2026-09-19) — không chỉ artifact plugin. |
 | 21 | CLI `dev` | **Đưa lệnh `dev` (plugin local + hot reload + kết nối Core dev) vào Sprint 03** (chốt Gate). |
+| 22 | Tên package CLI | **`@open-erp/cli`** — tên chung cho hệ sinh thái (chốt bổ sung 2026-09-19); nhóm lệnh plugin là nhóm đầu tiên. |
 
 ---
 

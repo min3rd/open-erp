@@ -113,7 +113,7 @@ graph LR
 | **WordPress** | `wp scaffold plugin` | ✓ | `wp-env` / Docker | `wp scaffold` | wordpress.org SVN |
 | **Frappe** | `bench new-app` | ✓ | `bench start` (hot reload) | `bench new-app` | Git + Marketplace |
 | **Angular** | Angular CLI | `ng new` | `ng serve` | **`ng generate` (schematics)** | `ng build` |
-| **Open-ERP Sprint 03** | `@openerp/plugin-cli` (Node/npm) | `create` (repo riêng + submodule) | **Đề xuất bổ sung lệnh `dev`** (chạy container plugin local + web dev server kết nối Core dev) — chờ khách chốt | `generate entity/menu/ui-contribution` | `package` + checksum + Dockerfile/K8s |
+| **Open-ERP Sprint 03** | `@open-erp/cli` (Node/npm — CLI chung hệ sinh thái) | `create` (repo riêng + submodule) | **Lệnh `dev` (đã chốt)** (chạy container plugin local + web dev server kết nối Core dev) | `generate entity/menu/ui-contribution` | `package` + checksum + Dockerfile/K8s |
 
 ### 5.3. Trải Nghiệm Phát Triển Plugin (Dev Loop) — Bài Học
 
