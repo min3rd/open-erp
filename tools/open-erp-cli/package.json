@@ -1,0 +1,22 @@
+{
+  "name": "@open-erp/cli",
+  "version": "0.1.0",
+  "description": "Open-ERP ecosystem CLI: plugin scaffolding, generation, validation and packaging",
+  "type": "module",
+  "bin": {
+    "open-erp": "bin/open-erp.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
