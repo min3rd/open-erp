@@ -1,0 +1,64 @@
+# [FEAT-21] Plugin Manager — Danh Mục, Vòng Đời & Marketplace Plugin
+
+- **Mã Tính Năng**: FEAT-21
+- **Phân Loại**: Feature / Core Platform
+- **Mức Độ Ưu Tiên**: [x] Critical / [ ] High / [ ] Medium / [ ] Low
+- **Người Yêu Cầu**: Khách hàng (Gate 2026-09-19)
+- **Người Xử Lý (Assignee)**: Developer Agent (Backend & Web/Mobile)
+- **Thuộc Sprint**: Sprint 03 - Plugin Manager, Plugin CLI & Cơ Chế Phân Phối Plugin
+- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+- **Ngày Tạo**: 2026-09-20
+- **Tài Liệu Thiết Kế**: [DES-03-DB](../06_designs/database/PLUGIN_MANAGER_DATABASE_SCHEMA.md), [DES-03-API](../06_designs/api/PLUGIN_MANAGER_API_SPEC.md), [DES-03-UI](../06_designs/ui_ux/PLUGIN_MANAGER_UI_SPEC.md), [SOL-01](../05_solutions/SOL-01_plugin_manager_architecture_and_lifecycle.md)
+
+---
+
+## 1. Mô Tả Yêu Cầu
+
+Quản lý plugin tùy chọn cấp hệ thống và theo tenant: danh mục + phiên bản (SemVer), một bảng duy nhất `tenant_plugins` (entitlement + vòng đời + phiên bản ghim + deploy), cài/gỡ/bật/tắt/nâng cấp/rollback có bù trừ, cài mặc định hệ thống, plugin riêng của tenant, khóa khẩn cấp 2 cấp (catalog/version) + cưỡng chế gỡ + thông báo, Marketplace Web + Mobile read-only, audit bất biến.
+
+## 2. Phạm Vi & Tham Chiếu
+
+- **In-scope**: toàn bộ AC-21.1 → AC-21.7 tại [CONF-01](../04_confirmation/CONF-01_sprint_03_scope.md); các quyết định Gate #1–#21.
+- **Phụ thuộc**: FEAT-23 (Deployer, Datasource, artifact) và FEAT-22 (CLI tạo plugin phục vụ QA) — có thể phát triển song song theo interface đã chốt.
+- **Ngoài phạm vi**: purge dữ liệu, trial, marketplace bên thứ ba.
+
+## 3. Tiêu Chí Nghiệm Thu (Theo CONF-01)
+
+- [ ] AC-21.1 Cài plugin cho tenant (container riêng + plugin tự migrate + health + menu theo RBAC).
+- [ ] AC-21.2 Gỡ giữ nguyên dữ liệu; cài lại dùng lại dữ liệu (migration idempotent).
+- [ ] AC-21.3 Đa phiên bản song song giữa các tenant.
+- [ ] AC-21.4 Khóa khẩn cấp 2 cấp: chặn publish/cài mới, cưỡng chế gỡ toàn bộ tenant, thông báo, dữ liệu giữ nguyên; P25/P26 unblock chỉ SUPER_ADMIN.
+- [ ] AC-21.5 Cài mặc định: `locked=true` → ACTIVE không tắt/gỡ; `locked=false` → NOT_INSTALLED chờ bật.
+- [ ] AC-21.6 Plugin riêng của tenant (`TENANT_PRIVATE`): đăng ký/cài cho chính mình; tenant khác không thấy; Super Admin giám sát + khóa.
+- [ ] AC-21.7 Chặn gỡ khi có dependents + trả lộ trình thứ tự gỡ.
+
+## 4. Phân Rã Sub-Task (Inline)
+
+| Mã | Nhiệm Vụ | Tầng | Phụ Trách | Trạng Thái |
+| :--- | :--- | :--- | :--- | :---: |
+| **TASK-301** | Flyway `V3.0.0` schema 7 bảng + ALTER tenants + trigger scope/publish + seed Core slots; `V3.0.1` seed/placeholder catalog; `V3.0.2` backfill `allowed_plugins` + đối soát per-tenant/key (fail-fast) | Backend/DB | Dev Backend | To Do |
+| **TASK-302** | Module `modules/plugin`: enums (`TenantPluginStatus`, `PluginCatalogStatus`, `PluginVisibility`, `PluginReleaseStatus`, `PluginStorageModel`, `PluginDistributionType`, `PluginRenderMode`, `PluginRollbackStrategy`, `PluginCredentialScope`, `PluginOperationType`), DTO, `PluginErrorCode`, `PluginResponseKey`, repository | Backend | Dev Backend | To Do |
+| **TASK-303** | Catalog & Version APIs: P1–P8, P24 (metadata), P25/P26 (unblock), P14/P15 (tenant-private governance); validate manifest schema + SemVer + permission/entity/UI slot | Backend | Dev Backend | To Do |
+| **TASK-304** | Ledger `tenant_plugins` + Saga orchestrator: pre-flight → ledger → datasource → deploy → health → seed quyền → **precondition check cuối** → ACTIVE; bù trừ đầy đủ; Redis lock + optimistic lock (`row_version`) | Backend | Dev Backend | To Do |
+| **TASK-305** | Dependency resolver: SemVer comparator + range parser; kiểm tra thiếu phụ thuộc (`PLUGIN_DEPENDENCY_MISSING`), dependents + removal plan (`PLUGIN_HAS_DEPENDENTS`), cycle detection | Backend | Dev Backend | To Do |
+| **TASK-306** | Entitlement APIs P12/P13 + tương thích ngược `PATCH /platform/tenants/{id}/quotas` (suy ra `allowed_plugins` từ ledger) + nâng cấp `TenantPluginAllowlistService` (chỉ ACTIVE) | Backend | Dev Backend | To Do |
+| **TASK-307** | Cài mặc định hệ thống: `default_install`/`locked`, hook provisioning khi tạo tenant, job bulk apply + preview (`operation_id`, báo cáo từng tenant) | Backend | Dev Backend | To Do |
+| **TASK-308** | Khóa khẩn cấp: scope VERSION/CATALOG, force-uninstall fans-out, atomic gate (catalog/version lock + gateway), thông báo tenant, audit | Backend | Dev Backend | To Do |
+| **TASK-309** | Permission seeding (TENANT_OWNER nhận quyền plugin mới) + đồng bộ UI slots từ `ui_manifest` khi publish + **UI Manifest API (S1)** resolve theo ACTIVE + RBAC + installed host version | Backend | Dev Backend | To Do |
+| **TASK-310** | Upgrade/Rollback an toàn dữ liệu: `migration_policy`, quiesce, snapshot + preservation snapshot, preflight 4 điều kiện, `ROLLBACK_FAILED`, `rollback_strategy` (SNAPSHOT_RESTORE/DOWN_MIGRATION + verify), P19–P23 | Backend | Dev Backend | To Do |
+| **TASK-311** | Notification service: `tenant_notifications`, API T12/T13, gửi khi block/force-uninstall/update/fail; bell + banner | Backend | Dev Backend | To Do |
+| **TASK-312** | Operation status API (S2) + `plugin_operation_logs` ghi vết từng bước Saga + job recovery (idempotent) | Backend | Dev Backend | To Do |
+| **TASK-313** | Audit & metrics vòng đời: `PlatformAction`/`TenantAction` mở rộng, hash-chain, thống kê adoption/version lỗi thời | Backend | Dev Backend | To Do |
+| **TASK-314** | Unit/Integration Test (JUnit 5 + RestAssured, PostgreSQL + Redis thật): vòng đời, đa phiên bản, isolation 2 tenant, entitlement/backfill, dependency, block/unblock, upgrade/rollback, notification | Backend | Dev Backend | To Do |
+| **TASK-315** | Web Portal Super Admin: `/platform/plugins` split-screen + Drawer 3 tầng, Block/Bulk Apply drawers, `/platform/plugin-credentials`, `/platform/tenant-private-plugins`, badge "Đã khóa", unblock P25/P26 | Web | Dev Web | To Do |
+| **TASK-316** | Web Marketplace tenant `/settings/plugins`: nhóm Đã cài/Có thể cài/Plugin riêng, version picker, gỡ có cảnh báo giữ dữ liệu, banner thông báo, notification bell | Web | Dev Web | To Do |
+| **TASK-317** | Web: Drawer "Đăng ký plugin riêng" (3 kênh + quản lý phiên bản T14–T18) + `/settings/plugin-credentials` | Web | Dev Web | To Do |
+| **TASK-318** | Shared components: `plugin-management-list` (nâng cấp `plugin-switch-list`), `plugin-card`, `version-timeline`, `operation-progress`, `credential-form`, `render-mode-badge` (đóng gói vào `src/frontend/shared`) | Shared UI | Dev Web | To Do |
+| **TASK-319** | Mobile (Ionic): màn `/settings/plugins` read-only + banner thông báo; touch ≥ 40px; overflow 0 | Mobile | Dev Mobile | To Do |
+| **TASK-320** | i18n vi/en parity cho toàn bộ key plugin-manager + QA dual-mode (Web ≥1280, emulation 390x844, 0 console error) + ảnh minh chứng | Web/Mobile/QA | Dev + QA | To Do |
+
+## 5. Ghi Chú
+
+- Mọi API tuân thủ 4 khuôn mẫu + `PluginErrorCode`/`PluginResponseKey`; không hardcode chuỗi.
+- Saga phải **idempotent** và có recovery sau restart; không bao giờ xóa dữ liệu tenant.
+- Phối hợp FEAT-23 để chốt interface `PluginRuntimeDeployer`/`TenantDatasourceService` trước khi code TASK-304.

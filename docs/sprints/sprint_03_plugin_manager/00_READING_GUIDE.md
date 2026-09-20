@@ -2,14 +2,14 @@
 
 > **Quy ước mã tài liệu**: Mã SOL/DES/TEST/REV mang phạm vi cục bộ trong từng Sprint-Pack (ví dụ DES-03-API của Sprint 03 khác DES-02 của Sprint 02).
 
-> **Kết quả hiện hành — review lần 2 (2026-09-20)**: [REV-02](09_review/REV-02_document_rereview_2026-09-20.md): đóng 7/8 lỗi cũ ở mức tài liệu; BUG-86 chưa đạt, thêm BUG-92/93. **Còn 3 High ở To Do**; cần sửa trước khi coi thiết kế sẵn sàng triển khai đầy đủ. Các bảng review lần 1 bên dưới được giữ làm lịch sử.
+> **Kết quả hiện hành — review lần 3 (2026-09-20)**: [REV-02](09_review/REV-02_document_rereview_2026-09-20.md) đóng 7/8 lỗi vòng 1 ở mức tài liệu; 3 High còn lại (**BUG-86, BUG-92, BUG-93**) **đã được xử lý** tại [REV-02-RESPONSE](09_review/REV-02-response_document_rereview_2026-09-20.md) + [OPENCODE_review3_fixes](09_review/OPENCODE_review3_fixes.md), kèm bằng chứng PostgreSQL cho BUG-92 ([REV-03](09_review/REV-03_postgresql_seed_evidence.md)). Các item đang `In Review`, chờ Reviewer xác nhận đóng. Các bảng review lần 1 bên dưới được giữ làm lịch sử.
 
 > **Review tài liệu 2026-09-20**: [REV-01 — Báo cáo review trước lập trình](09_review/REV-01_document_review_2026-09-20.md) ghi nhận **6 High, 2 Medium** (BUG-84–91) — đã xử lý 8/8. [REV-02 — Review lại tài liệu Sprint 03](09_review/REV-02_document_rereview_2026-09-20.md) ghi nhận **3 High** còn lại (BUG-86 chưa đóng, BUG-92, BUG-93) — đã xử lý tại [REV-02-RESPONSE](09_review/REV-02-response_document_rereview_2026-09-20.md); các item `In Review`, chờ Reviewer/QA xác nhận đóng trước khi lập trình. Đây không phải biên bản đóng Sprint.
 
 - **Tên Sprint**: Sprint 03 - Plugin Manager, Plugin Scaffolding CLI & Cơ Chế Phân Phối/Cài Đặt Plugin Đa Kênh
 - **Mục Tiêu**: Biến cơ chế plugin tĩnh của Sprint 02 thành **Plugin Manager thực thụ**: danh mục plugin + phiên bản trong DB; vòng đời cài/gỡ/bật/tắt/nâng cấp theo từng Tenant; **mỗi plugin chạy container riêng cho từng tenant và được tự động deploy**; chợ plugin (Marketplace) cho Tenant; CLI Node/npm sinh khung dự án plugin chuẩn hóa; và cơ chế đưa plugin vào hệ thống qua 3 kênh: Docker Hub, Image Registry (link + credentials đa phạm vi) và tệp JAR backend + bản build Web (Core tự build image).
 - **Thời Gian Dự Kiến**: 2026-10-20 đến 2026-11-02 (2 tuần)
-- **Trạng Thái Hiện Tại**: **BƯỚC 6 — CẦN HOÀN THIỆN SAU REVIEW LẦN 2**; thiết kế DB/API/UI đã ban hành nhưng còn BUG-86/92/93 mức High chưa xử lý.
+- **Trạng Thái Hiện Tại**: [x] **BƯỚC 1-6 HOÀN TẤT**; 🔄 **BƯỚC 7 ĐANG THỰC HIỆN** — đã phân rã `FEAT-21→23` (dải `TASK-301→345`) và bắt đầu lập trình; 3 item High (BUG-86/92/93) đang `In Review` chờ Reviewer xác nhận đóng (không chặn khởi động code nền DB/module).
 
 ---
 
@@ -24,7 +24,7 @@ flowchart LR
     Step3 --> Step4["04. XÁC NHẬN\n(04_confirmation)\n★ CONFIRM GATE ★"]
     Step4 --> Step5["05. Giải Pháp ✅\n(05_solutions)"]
     Step5 --> Step5b["06. Thiết Kế ✅\n(06_designs)"]
-    Step5b --> Step6["07. Triển Khai\n(07_items)\n⏳ Chưa thực hiện"]
+    Step5b --> Step6["07. Triển Khai\n(07_items)\n🔄 Đang thực hiện"]
 ```
 
 ---
@@ -79,7 +79,7 @@ flowchart LR
 | :---: | :--- | :--- | :---: | :---: |
 | **5** | [05_solutions/](05_solutions/)<br>• [SOL-01: Kiến trúc Plugin Manager & Vòng đời](05_solutions/SOL-01_plugin_manager_architecture_and_lifecycle.md)<br>• [SOL-02: Phân phối, Deployer & Cô lập dữ liệu](05_solutions/SOL-02_plugin_distribution_runtime_and_isolation.md)<br>• [SOL-03: UI Extension Runtime & Plugin CLI](05_solutions/SOL-03_plugin_ui_extension_and_cli_dev_experience.md) | **Nghiên cứu giải pháp kỹ thuật**: module `modules/plugin` + Saga orchestrator + một bảng `tenant_plugins` + async job + UI Manifest API; 3 kênh artifact → image (Docker/Kaniko) + `PluginRuntimeDeployer` (Docker/K8s) + `TenantDatasourceService` (schema riêng theo tenant×plugin, DB role least privilege) + MinIO; WC/MF/iframe runtime + CLI Node/npm đủ 10 lệnh (gồm `dev`). | Solution Architect | [x] **Đã hoàn thành (2026-09-19)** |
 | **6** | [06_designs/](06_designs/)<br>• [DES-03-DB: Thiết kế CSDL](06_designs/database/PLUGIN_MANAGER_DATABASE_SCHEMA.md)<br>• [DES-03-API: Đặc tả REST API](06_designs/api/PLUGIN_MANAGER_API_SPEC.md)<br>• [DES-03-UI: Đặc tả giao diện](06_designs/ui_ux/PLUGIN_MANAGER_UI_SPEC.md) | **Bản thiết kế chi tiết 100% để Developer lập trình**:<br>- CSDL: 7 bảng (`plugin_catalog`, `plugin_versions`, `tenant_plugins` — **1 bảng duy nhất**, `plugin_credentials`, `plugin_ui_slots`, `plugin_operation_logs`, `tenant_notifications`) + `ALTER tenants` + backfill `allowed_plugins` (V3.0.0/V3.0.1).<br>- API: 18 endpoint Platform + 13 tenant + 3 shared (UI Manifest/Operations/Runtime health) theo 4 khuôn mẫu; `PluginErrorCode`/`PluginResponseKey`.<br>- UI Anti-Modal: Catalog + Drawer 3 tầng, Block/Bulk Apply, Marketplace, Đăng ký 3 kênh, Plugin Host Region (WC/MF/iframe), Mobile read-only; checklist QA dual-mode. | Solution Architect | [x] **Đã hoàn thành (2026-09-19)** |
-| **7** | [07_items/](07_items/) | **Danh sách hạng mục công việc chi tiết** (FEAT-21→23 + TASK phát sinh) với Acceptance Criteria và sub-task kỹ thuật. | Developer & PM | [ ] Chưa thực hiện |
+| **7** | [07_items/](07_items/)<br>• [FEAT-21: Plugin Manager — Danh mục & Vòng đời](07_items/FEAT-21_plugin_manager_lifecycle.md) — TASK-301→320<br>• [FEAT-22: Plugin Scaffolding CLI `@open-erp/cli`](07_items/FEAT-22_plugin_scaffolding_cli.md) — TASK-321→330<br>• [FEAT-23: Phân phối, Deployer & Plugin Host Runtime](07_items/FEAT-23_plugin_distribution_runtime_and_host.md) — TASK-331→345<br>• BUG review: BUG-84→93 | **Danh sách hạng mục công việc chi tiết**: sub-task inline theo từng FEAT với Acceptance Criteria, tham chiếu thẳng DES-03-DB/API/UI + SOL-01/02/03; BUG review theo dõi trạng thái đóng. | Developer & PM | 🔄 **Đang thực hiện** |
 
 ---
 
