@@ -36,7 +36,7 @@ Quản lý plugin tùy chọn cấp hệ thống và theo tenant: danh mục + p
 
 | Mã | Nhiệm Vụ | Tầng | Phụ Trách | Trạng Thái |
 | :--- | :--- | :--- | :--- | :---: |
-| **TASK-301** | Flyway `V3.0.0` schema 7 bảng + ALTER tenants + trigger scope/publish + seed Core slots; `V3.0.1` seed/placeholder catalog; `V3.0.2` backfill `allowed_plugins` + đối soát per-tenant/key (fail-fast) | Backend/DB | Dev Backend | To Do |
+| **TASK-301** | Flyway `V3.0.0` schema 7 bảng + ALTER tenants + trigger scope/publish + seed Core slots; `V3.0.1` seed/placeholder catalog; `V3.0.2` backfill `allowed_plugins` + đối soát per-tenant/key (fail-fast) | Backend/DB | Dev Backend | In Review |
 | **TASK-302** | Module `modules/plugin`: enums (`TenantPluginStatus`, `PluginCatalogStatus`, `PluginVisibility`, `PluginReleaseStatus`, `PluginStorageModel`, `PluginDistributionType`, `PluginRenderMode`, `PluginRollbackStrategy`, `PluginCredentialScope`, `PluginOperationType`), DTO, `PluginErrorCode`, `PluginResponseKey`, repository | Backend | Dev Backend | To Do |
 | **TASK-303** | Catalog & Version APIs: P1–P8, P24 (metadata), P25/P26 (unblock), P14/P15 (tenant-private governance); validate manifest schema + SemVer + permission/entity/UI slot | Backend | Dev Backend | To Do |
 | **TASK-304** | Ledger `tenant_plugins` + Saga orchestrator: pre-flight → ledger → datasource → deploy → health → seed quyền → **precondition check cuối** → ACTIVE; bù trừ đầy đủ; Redis lock + optimistic lock (`row_version`) | Backend | Dev Backend | To Do |
@@ -59,6 +59,7 @@ Quản lý plugin tùy chọn cấp hệ thống và theo tenant: danh mục + p
 
 ## 5. Ghi Chú
 
+- **[TASK-301 — In Review]** 3 migration `V3.0.0/V3.0.1/V3.0.2` đã chạy thành công trên PostgreSQL 16 thật (single transaction + rollback, không đổi dữ liệu ứng dụng): tạo 7 bảng + trigger + 2 Core slot; backfill entitlement `sales` cho tenant hiện hữu; verification fail-fast PASS. Bằng chứng: [TASK-301_migration_pg_verify.txt](../08_testing/evidence/TASK-301_migration_pg_verify.txt).
 - Mọi API tuân thủ 4 khuôn mẫu + `PluginErrorCode`/`PluginResponseKey`; không hardcode chuỗi.
 - Saga phải **idempotent** và có recovery sau restart; không bao giờ xóa dữ liệu tenant.
 - Phối hợp FEAT-23 để chốt interface `PluginRuntimeDeployer`/`TenantDatasourceService` trước khi code TASK-304.

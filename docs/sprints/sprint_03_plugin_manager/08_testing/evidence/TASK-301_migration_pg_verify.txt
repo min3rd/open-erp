@@ -1,0 +1,47 @@
+# TASK-301 — Bằng chứng kiểm chứng migration Plugin Manager trên PostgreSQL thật
+
+- **Ngày**: 2026-09-20
+- **Môi trường**: Docker container `openerp-postgres-primary` (image `postgres:16-alpine`, database `openerp_dev`, user `openerp`)
+- **Phạm vi**: 3 file migration `V3.0.0__plugin_manager_schema.sql`, `V3.0.1__seed_plugin_catalog.sql`, `V3.0.2__backfill_allowed_plugins.sql`
+- **Cách chạy**: `docker cp` 3 file + script wrapper vào container; chạy `psql -v ON_ERROR_STOP=1` trong một transaction duy nhất và `ROLLBACK` ở cuối ⇒ **không thay đổi dữ liệu ứng dụng**.
+
+## Lệnh thực thi
+
+```
+docker exec -i openerp-postgres-primary psql -U openerp -d openerp_dev -f /tmp/verify_plugin_migration.sql
+```
+
+Wrapper: `BEGIN; \i V3.0.0; \i V3.0.1; \i V3.0.2; <smoke queries>; ROLLBACK;`
+
+## Kết quả (trích)
+
+```
+ALTER TABLE (tenants: allow_custom_plugins, storage_model)
+CREATE TABLE plugin_catalog / plugin_versions / tenant_plugins / plugin_credentials
+             / plugin_ui_slots / plugin_operation_logs / tenant_notifications
+CREATE FUNCTION check_version_publish_guard / unblock_plugin_version / unblock_plugin_catalog
+CREATE FUNCTION check_tenant_plugin_scope
+CREATE TRIGGER trg_plugin_version_publish_guard / trg_tenant_plugin_scope
+INSERT 0 1  (V3.0.1 placeholder catalog)
+INSERT 0 3  (V3.0.1 official plugins: sales conflict, thêm inventory/accounting/crm)
+INSERT 0 0  (V3.0.2 step 1: không thiếu catalog)
+INSERT 0 1  (V3.0.2 step 2: backfill entitlement 'sales' cho tenant hiện hữu)
+DO (V3.0.2 step 3: fail-fast verification PASS)
+```
+
+Smoke queries:
+
+```
+catalog_rows = 4
+slot_code               | host_type | contract_version
+core.dashboard.widgets  | CORE      | 1.0
+core.settings.sections  | CORE      | 1.0
+entitlement_rows = 1  (sales / NOT_INSTALLED)
+ROLLBACK
+```
+
+## Kết luận
+
+- Migration hợp lệ cú pháp + logic trên PostgreSQL 16 thật; seed Core slot khớp partial unique index (`ON CONFLICT (slot_code) WHERE host_type = 'CORE'`) — xác nhận BUG-92; backfill không mất entitlement — xác nhận BUG-84.
+- **Chưa khẳng định** tích hợp Flyway trong Quarkus runtime (sẽ kiểm chứng ở TASK-302/314 khi backend chạy `mvn test` trên DB thật).
+- Không có thay đổi dữ liệu ứng dụng (đã ROLLBACK).
