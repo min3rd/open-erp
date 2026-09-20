@@ -24,6 +24,7 @@
 | [BUG-98](../07_items/BUG-98_notification_bell_and_global_banner_missing.md) | Medium | Thiếu bell TopBar, banner toàn cục, banner Dashboard Mobile | Deferred → Sprint 04 (có workaround) |
 | [BUG-99](../07_items/BUG-99_platform_action_reason_and_confirmation_gaps.md) | Low | Reason hardcode, chưa đối chiếu `affected_tenants`, S2 `target_version` sai nguồn | Deferred → Sprint 04 |
 | [BUG-100](../07_items/BUG-100_notification_read_invalid_uuid_500.md) | Low | UUID sai định dạng ở T13 → 500 | **Resolved** (400 chuẩn) |
+| [BUG-101](../07_items/BUG-101_marketplace_blocked_actions_not_locked.md) | **High** | Marketplace tenant không khóa hành động khi catalog BLOCKED (acceptance BUG-93) | **Resolved** (badge + disable mọi hành động) |
 | [TASK-346](../07_items/TASK-346_operation_recovery_job_and_dependency_cycle.md) | Medium | Thiếu job phục hồi thao tác (TASK-312 dư) + phát hiện chu trình dependency (TASK-305 dư) | Deferred → Sprint 04 |
 | [TASK-347](../07_items/TASK-347_cli_publish_registry.md) | Medium | CLI `publish` chưa có (TASK-329 dư) | Deferred → Sprint 04 |
 
@@ -56,7 +57,7 @@
 
 ## 4. Kết Luận & Điều Kiện Đóng Sprint
 
-**Verdict: CONDITIONAL PASS** — 0 Critical, **0 High tồn đọng** (BUG-95/96 đã sửa + test chứng minh). Medium/Low còn lại đã hoãn hợp lệ kèm lý do/workaround.
+**Verdict: CONDITIONAL PASS** — 0 Critical, **0 High tồn đọng** (BUG-95/96/101 đã sửa + test/build chứng minh). Medium/Low còn lại đã hoãn hợp lệ kèm lý do/workaround.
 
 Điều kiện còn lại trước DoD (Bước 8→9):
 1. **QA thủ công dual-mode** theo [QA-01 test plan](QA-01_sprint_03_test_plan.md) mục 2 (W1–W9, T1–T9, M1–M4) + lưu ảnh vào `08_testing/evidence/screenshots/` + xác nhận 0 console error/overflow 0.

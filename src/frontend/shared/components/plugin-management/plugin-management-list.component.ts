@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, input, output, signal } from '@angular/core';
-import { TenantPluginStatus } from '../../enums';
+import {
+  PluginCatalogStatus,
+  TenantPluginStatus,
+} from '../../enums';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { PluginMarketplaceItem } from '../../models/plugin.model';
 import { PluginCardComponent } from '../plugin-card/plugin-card.component';
@@ -72,6 +75,14 @@ export class PluginManagementListComponent {
     return this.busyKey() === item.plugin_key
       || item.status === TenantPluginStatus.INSTALLING
       || item.status === TenantPluginStatus.UPGRADING;
+  }
+
+  isBlocked(item: PluginMarketplaceItem): boolean {
+    return item.catalog_status === PluginCatalogStatus.BLOCKED;
+  }
+
+  actionsDisabled(item: PluginMarketplaceItem): boolean {
+    return this.isBusy(item) || this.isBlocked(item);
   }
 
   private filter(items: PluginMarketplaceItem[]): PluginMarketplaceItem[] {

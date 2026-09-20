@@ -109,7 +109,7 @@ Khách hàng review bộ thiết kế Bước 5-6 và yêu cầu bổ sung **6 �
 | 9 | High | (Vòng 2) Seed Core slot không khớp partial unique index → chặn migration | Sửa conflict target `ON CONFLICT (slot_code) WHERE host_type = 'CORE'` + kiểm chứng seed 2 lần | DES-03-DB mục 6 (BUG-92) |
 | 10 | High | (Vòng 2) Thiếu khóa cấp catalog & chặn publish/cài sau khóa | `catalog_status BLOCKED` + P7 scope CATALOG + **P25 unblock** + trigger publish guard + job re-check trước ACTIVATE | DES-03-DB 2.1/2.2/5; DES-03-API 3; DES-03-UI 3.1/3.2/4.1; ANL-01 BR-PLG-09; SOL-01 4.3 (BUG-93) |
 
-> **Theo dõi**: các điểm trên được quản lý dưới dạng file item tại [`07_items/`](07_items/): **BUG-84 → BUG-87** (đã `Done`/xác nhận triển khai), **BUG-88 → BUG-94** (đang `In Review`, chờ QA/Reviewer xác nhận đóng — BUG-94 là xung đột contract P1/FEAT-20). **QA Bước 8 (2026-09-20)**: phát hiện thêm **BUG-95/96 (High — đã Resolved)**, **BUG-97/98/99/100** và tồn dư **TASK-346/347** (Medium/Low — Deferred Sprint 04) — xem [Báo cáo QA](08_testing/QA-01_sprint_03_test_report.md).
+> **Theo dõi**: các điểm trên được quản lý dưới dạng file item tại [`07_items/`](07_items/): **BUG-84 → BUG-87** (đã `Done`/xác nhận triển khai), **BUG-88 → BUG-94** (đang `In Review`, chờ QA/Reviewer xác nhận đóng — BUG-94 là xung đột contract P1/FEAT-20). **QA Bước 8 (2026-09-20)**: phát hiện thêm **BUG-95/96/101 (High — đã Resolved)**, **BUG-97/98/99/100** và tồn dư **TASK-346/347** (Medium/Low — Deferred Sprint 04) — xem [Báo cáo QA](08_testing/QA-01_sprint_03_test_report.md).
 
 > **Kết luận**: bộ thiết kế DES-03-DB/API/UI + SOL-01/02/03 đủ điều kiện chuyển sang **Bước 7 (Lập trình)**.
 

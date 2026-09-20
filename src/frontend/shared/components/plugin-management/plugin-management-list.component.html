@@ -40,25 +40,26 @@
           [latestVersion]="item.latest_version || null"
           [updateAvailable]="!!item.update_available"
           [locked]="!!item.locked"
+          [catalogBlocked]="isBlocked(item)"
           [selected]="selectedKey() === item.plugin_key"
           (picked)="detail.emit(item)"
         >
           @if (item.status === 'ACTIVE') {
-            <app-sharp-button size="sm" variant="secondary" [disabled]="isBusy(item)" (clicked)="disable.emit(item)">
+            <app-sharp-button size="sm" variant="secondary" [disabled]="actionsDisabled(item)" (clicked)="disable.emit(item)">
               {{ 'PLUGIN_ACTION_DISABLE' | translate }}
             </app-sharp-button>
           }
           @if (item.status === 'INACTIVE') {
-            <app-sharp-button size="sm" variant="primary" [disabled]="isBusy(item)" (clicked)="enable.emit(item)">
+            <app-sharp-button size="sm" variant="primary" [disabled]="actionsDisabled(item)" (clicked)="enable.emit(item)">
               {{ 'PLUGIN_ACTION_ENABLE' | translate }}
             </app-sharp-button>
           }
           @if (canUpgrade(item)) {
-            <app-sharp-button size="sm" variant="primary" [disabled]="isBusy(item)" (clicked)="upgrade.emit(item)">
+            <app-sharp-button size="sm" variant="primary" [disabled]="actionsDisabled(item)" (clicked)="upgrade.emit(item)">
               {{ 'PLUGIN_ACTION_UPGRADE' | translate }}
             </app-sharp-button>
           }
-          <app-sharp-button size="sm" variant="ghost" [disabled]="isBusy(item)" (clicked)="uninstall.emit(item)">
+          <app-sharp-button size="sm" variant="ghost" [disabled]="actionsDisabled(item)" (clicked)="uninstall.emit(item)">
             {{ 'PLUGIN_ACTION_UNINSTALL' | translate }}
           </app-sharp-button>
         </app-plugin-card>
@@ -78,10 +79,11 @@
           [descriptionKey]="item.description_key"
           [status]="item.status"
           [latestVersion]="item.latest_version || null"
+          [catalogBlocked]="isBlocked(item)"
           [selected]="selectedKey() === item.plugin_key"
           (picked)="detail.emit(item)"
         >
-          <app-sharp-button size="sm" variant="primary" [disabled]="isBusy(item)" (clicked)="install.emit(item)">
+          <app-sharp-button size="sm" variant="primary" [disabled]="actionsDisabled(item)" (clicked)="install.emit(item)">
             {{ 'PLUGIN_ACTION_INSTALL' | translate }}
           </app-sharp-button>
         </app-plugin-card>
@@ -105,30 +107,31 @@
           [latestVersion]="item.latest_version || null"
           [updateAvailable]="!!item.update_available"
           [isCustom]="true"
+          [catalogBlocked]="isBlocked(item)"
           [selected]="selectedKey() === item.plugin_key"
           (picked)="detail.emit(item)"
         >
           @if (isInstalled(item)) {
             @if (item.status === 'ACTIVE') {
-              <app-sharp-button size="sm" variant="secondary" [disabled]="isBusy(item)" (clicked)="disable.emit(item)">
+              <app-sharp-button size="sm" variant="secondary" [disabled]="actionsDisabled(item)" (clicked)="disable.emit(item)">
                 {{ 'PLUGIN_ACTION_DISABLE' | translate }}
               </app-sharp-button>
             }
             @if (item.status === 'INACTIVE') {
-              <app-sharp-button size="sm" variant="primary" [disabled]="isBusy(item)" (clicked)="enable.emit(item)">
+              <app-sharp-button size="sm" variant="primary" [disabled]="actionsDisabled(item)" (clicked)="enable.emit(item)">
                 {{ 'PLUGIN_ACTION_ENABLE' | translate }}
               </app-sharp-button>
             }
             @if (canUpgrade(item)) {
-              <app-sharp-button size="sm" variant="primary" [disabled]="isBusy(item)" (clicked)="upgrade.emit(item)">
+              <app-sharp-button size="sm" variant="primary" [disabled]="actionsDisabled(item)" (clicked)="upgrade.emit(item)">
                 {{ 'PLUGIN_ACTION_UPGRADE' | translate }}
               </app-sharp-button>
             }
-            <app-sharp-button size="sm" variant="ghost" [disabled]="isBusy(item)" (clicked)="uninstall.emit(item)">
+            <app-sharp-button size="sm" variant="ghost" [disabled]="actionsDisabled(item)" (clicked)="uninstall.emit(item)">
               {{ 'PLUGIN_ACTION_UNINSTALL' | translate }}
             </app-sharp-button>
           } @else {
-            <app-sharp-button size="sm" variant="primary" [disabled]="isBusy(item)" (clicked)="install.emit(item)">
+            <app-sharp-button size="sm" variant="primary" [disabled]="actionsDisabled(item)" (clicked)="install.emit(item)">
               {{ 'PLUGIN_ACTION_INSTALL' | translate }}
             </app-sharp-button>
           }
