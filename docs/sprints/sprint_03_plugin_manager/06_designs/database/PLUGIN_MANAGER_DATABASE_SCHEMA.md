@@ -110,13 +110,43 @@ BEGIN
         IF v_catalog_status = 'BLOCKED' THEN
             RAISE EXCEPTION 'PLUGIN_BLOCKED_BY_PLATFORM: catalog is blocked';
         END IF;
-    END IF;
+    END IF
     RETURN NEW;
 END $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_plugin_version_publish_guard
 BEFORE INSERT OR UPDATE ON plugin_versions
 FOR EACH ROW EXECUTE FUNCTION check_version_publish_guard();
+```
+
+**Chuyển trạng thái phiên bản BLOCKED → PUBLISHED (BUG-93 — chỉ Platform, atomic)**:
+```sql
+CREATE OR REPLACE FUNCTION unblock_plugin_version(p_catalog_id UUID, p_version VARCHAR, p_actor UUID, p_reason TEXT) RETURNS VOID AS $$
+BEGIN
+    -- Atomic check: catalog must be ACTIVE, actor must be SUPER_ADMIN (enforced at API layer)
+    PERFORM 1 FROM plugin_catalog WHERE id = p_catalog_id AND catalog_status = 'ACTIVE' FOR SHARE;
+    UPDATE plugin_versions
+    SET release_status = 'PUBLISHED', block_reason = NULL, blocked_at = NULL
+    WHERE catalog_id = p_catalog_id AND version = p_version AND release_status = 'BLOCKED';
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'PLUGIN_VERSION_NOT_BLOCKED: version not in BLOCKED state';
+    END IF;
+    -- Audit log inserted by API layer
+END $$ LANGUAGE plpgsql;
+```
+
+**Catalog unblock (BUG-93 — P25)**:
+```sql
+CREATE OR REPLACE FUNCTION unblock_plugin_catalog(p_catalog_id UUID, p_actor UUID, p_reason TEXT) RETURNS VOID AS $$
+BEGIN
+    UPDATE plugin_catalog
+    SET catalog_status = 'ACTIVE', blocked_reason = NULL, blocked_at = NULL, blocked_by = NULL
+    WHERE id = p_catalog_id AND catalog_status = 'BLOCKED';
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'PLUGIN_CATALOG_NOT_BLOCKED: catalog not in BLOCKED state';
+    END IF;
+    -- Audit log inserted by API layer
+END $$ LANGUAGE plpgsql;
 ```
 
 ### 2.3. Bảng `tenant_plugins` (MỘT BẢNG DUY NHẤT — Entitlement + Vòng Đời + Phiên Bản + Deploy)
@@ -395,7 +425,13 @@ WHERE NOT EXISTS (
 | 7 | Xóa tenant (`ON DELETE CASCADE`) chỉ xóa dữ liệu quản trị plugin; schema nghiệp vụ `tenant_*` do job purge tenant xử lý riêng (ngoài Sprint 03). |
 | 8 | Khi `plugin_catalog.catalog_status = 'BLOCKED'`: **cấm mọi chuyển phiên bản sang `PUBLISHED`/`DEPRECATED`**, cấm cài/nâng cấp/bật mới; **job đang chạy phải kiểm tra lại** trước bước `ACTIVATE` và bù trừ (undeploy) nếu bị khóa giữa chừng; chỉ Platform được `unblock`. |
 | 9 | Phiên bản `release_status = 'BLOCKED'` chỉ do Platform đặt; **chỉ Platform** được chuyển khỏi `BLOCKED` — tenant không thể publish lại phiên bản bị khóa. |
-| 10 | Nâng cấp `migration_policy = 'BREAKING'` **bắt buộc snapshot** (API từ chối `snapshot=false`); rollback khôi phục snapshot phải tạo **preservation snapshot** dữ liệu hiện tại trước khi restore (không mất dữ liệu phát sinh sau nâng cấp). |
+| 10 | Nâng cấp `migration_policy = 'BREAKING'` **bắt buộc snapshot** (API từ chối `snapshot=false`; tham số chỉ chấp nhận `true`/omitted cho BREAKING — không bypass); rollback khôi phục snapshot phải tạo **preservation snapshot** dữ liệu hiện tại trước khi restore (không mất dữ liệu phát sinh sau nâng cấp). |
+| 11 | **Preflight snapshot (BUG-86 — server-owned identity & safety)**: trước rollback/restore, server kiểm tra snapshot tồn tại + digest SHA-256 khớp + chưa hết hạn (retention 30 ngày) + restoreable (pg_dump header + PG version); thiếu điều kiện → từ chối `PLUGIN_SNAPSHOT_MISSING|EXPIRED|CORRUPT|INCOMPATIBLE`; **không dừng container**, không disrupting service. |
+| 12 | **ROLLBACK_FAILED & phục hồi dịch vụ (BUG-86)**: restore snapshot thất bại → ledger `ROLLBACK_FAILED` (KHÔNG ACTIVE), plugin ngưng phục vụ, giữ cả 2 snapshot (pre-upgrade + preservation), thông báo khẩn; chỉ ACTIVE sau health OK trên phiên bản đích. Rollback sau khi v2 đã phục vụ ghi → từ chối `SNAPSHOT_RESTORE` (`PLUGIN_ROLLBACK_NOT_ALLOWED: post_upgrade_writes_detected`); chỉ `DOWN_MIGRATION` nếu plugin chứng minh an toàn (`down_migration_verified: true`), hoặc quy trình thủ công. |
+| 13 | **DOWN_MIGRATION execution & failure recovery (BUG-86)**: khi `rollback_strategy = DOWN_MIGRATION`, plugin tự chạy down-migration trong schema tenant **trước** deploy image cũ; verify schema tương thích v1; fail → `ROLLBACK_FAILED`, không deploy image cũ, giữ container v2 + snapshot, can thiệp thủ công. Thiếu `down_migration_verified: true` → từ chối `DOWN_MIGRATION` (`PLUGIN_DOWN_MIGRATION_NOT_VERIFIED`), fail closed yêu cầu `SNAPSHOT_RESTORE`. |
+| 14 | **Preservation snapshot bắt buộc (BUG-86)**: trước restore pre-upgrade snapshot, bắt buộc tạo preservation snapshot post-upgrade → MinIO `plugin-snapshots/{tenant}/{plugin}/post-{current_version}/{ts}.dump`; ref ghi `plugin_operation_logs.detail.preservation_snapshot_ref`; tạo thất bại → hủy rollback (`PLUGIN_PRESERVATION_SNAPSHOT_FAILED`). |
+| 15 | **Block enforcement bao gồm gateway existing runtime access (BUG-93)**: khi catalog/version bị khóa, gateway từ chối request mới tới container plugin (`PLUGIN_BLOCKED_BY_PLATFORM`); container hiện tại tiếp tục xử lý request đang chạy nhưng không nhận request mới; `enable`/`publish`/`new version`/`upgrade`/`install` đều bị chặn tại API layer + DB trigger + gateway. |
+| 16 | **Force uninstall required (BUG-93)**: P7 `force_uninstall=false` **không bypass** hành vi cưỡng chế gỡ đã chốt; `force_uninstall` chỉ điều khiển **tốc độ** (true = gỡ ngay song song, false = gỡ lần lượt tenant) nhưng **luôn gỡ tất cả tenant bị ảnh hưởng** khi scope CATALOG hoặc version đang ACTIVE. Không có tùy chọn "không gỡ" khi khóa khẩn cấp. |
 
 ---
 

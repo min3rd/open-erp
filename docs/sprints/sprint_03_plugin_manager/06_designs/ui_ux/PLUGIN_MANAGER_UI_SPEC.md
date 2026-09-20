@@ -68,8 +68,8 @@ graph TD
 
 ### 3.2. Drawer Chi Tiết Plugin (3 tầng xếp chồng)
 
-1. **Tầng 1 — Tổng quan**: metadata, nguồn artifact, checksum/digest, tương thích Core, phụ thuộc, nền tảng, quyền, entity, UI (screens/contributions); **chỉnh metadata catalog qua P24** (`default_install`, `locked`, `entitlement_plans`) với xác nhận + audit (BUG-91); khi bị khóa hiển thị banner lý do + hành động **Mở khóa (P25)** cho SUPER_ADMIN (BUG-93).
-2. **Tầng 2 — Phiên bản (Timeline)**: mỗi phiên bản 1 dòng: SemVer • trạng thái • ngày/người đăng ký • nguồn • checksum; hành động Công bố / Ngừng hỗ trợ / Khóa / Gỡ artifact.
+1. **Tầng 1 — Tổng quan**: metadata, nguồn artifact, checksum/digest, tương thích Core, phụ thuộc, nền tảng, quyền, entity, UI (screens/contributions); **chỉnh metadata catalog qua P24** (`default_install`, `locked`, `entitlement_plans`) với xác nhận + audit (BUG-91); khi bị khóa (`catalog_status = BLOCKED`) hiển thị banner lý do + hành động **Mở khóa catalog (P25)** cho SUPER_ADMIN (BUG-93).
+2. **Tầng 2 — Phiên bản (Timeline)**: mỗi phiên bản 1 dòng: SemVer • trạng thái • ngày/người đăng ký • nguồn • checksum; hành động Công bố / Ngừng hỗ trợ / Khóa / Gỡ artifact; khi phiên bản `release_status = BLOCKED` hiển thị nút **Mở khóa phiên bản (P26)** cho SUPER_ADMIN — **khác biệt rõ với Mở khóa catalog**; nhấn P26 chỉ chuyển version sang PUBLISHED, **không auto reinstall**.
 3. **Tầng 3 — Tenant đang cài**: bảng dense (tenant, trạng thái, phiên bản, sức khỏe container, cập nhật khả dụng) + **hành động hỗ trợ mapping API P19–P23** (Cài/Gỡ/Bật-Tắt/Nâng cấp/Rollback — bắt buộc nhập `reason`, có audit + operation_id) + nút **"Cấp/Thu entitlement"** mở Drawer tìm tenant (P12/P13).
 
 ### 3.3. Drawer "Đăng Ký Plugin / Phiên Bản" (3 kênh)
@@ -108,7 +108,7 @@ graph TD
 | Nhóm | Nội Dung |
 | :--- | :--- |
 | **Đã cài** | ACTIVE / INACTIVE / UPDATE_AVAILABLE: tên + mô tả i18n • badge nền tảng • phiên bản hiện tại → mới nhất • trạng thái runtime • hành động (Bật/Tắt, Nâng cấp, Gỡ, Chi tiết) |
-| **Có thể cài** | Plugin được cấp phép chưa cài: nút "Cài đặt" + chọn phiên bản trong Drawer chi tiết; **plugin/catalog bị khóa (`catalog_status = BLOCKED`) hiển thị badge "Đã khóa" + khóa toàn bộ hành động cài/nâng cấp/bật (BUG-93)** |
+| **Có thể cài** | Plugin được cấp phép chưa cài: nút "Cài đặt" + chọn phiên bản trong Drawer chi tiết; **plugin/catalog bị khóa (`catalog_status = BLOCKED`) hiển thị badge "Đã khóa" + khóa toàn bộ hành động cài/nâng cấp/bật (BUG-93); version bị khóa (`release_status = BLOCKED`) không hiển thị trong danh sách chọn phiên bản** |
 | **Plugin riêng của tôi** | Chỉ hiện khi `allow_custom_plugins = true`: danh sách `TENANT_PRIVATE` + nút "Đăng ký plugin riêng" |
 | Toolbar | Ô tìm kiếm + bộ lọc nền tảng + badge "Cập nhật" |
 

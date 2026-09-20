@@ -84,8 +84,13 @@
   - **Then**: Container của Tenant A đổi image v1.4.0; Tenant B **không bị ảnh hưởng** (vẫn v1.3.0); audit ghi nhận riêng từng tenant.
 - **AC-21.4 — Khóa plugin khẩn cấp (cưỡng chế gỡ + thông báo)**:
   - **Given**: Plugin `sales` phiên bản 1.4.0 bị phát hiện lỗ hổng bảo mật; 5 tenant đang cài.
-  - **When**: Super Admin bấm "Khóa khẩn cấp" + nhập lý do + xác nhận cưỡng chế gỡ.
-  - **Then**: Chặn mọi cài mới/nâng cấp; 5 tenant bị cưỡng chế gỡ (container undeploy, **dữ liệu giữ nguyên**); **thông báo tới Tenant Admin bị ảnh hưởng**; audit `PLUGIN_BLOCKED` + `TENANT_PLUGIN_FORCE_UNINSTALLED`.
+  - **When**: Super Admin bấm "Khóa khẩn cấp" + nhập lý do + xác nhận cưỡng chế gỡ (scope CATALOG hoặc VERSION).
+  - **Then**:
+    - Chặn mọi cài mới/nâng cấp/bật mới/publish version mới (`PLUGIN_BLOCKED_BY_PLATFORM`).
+    - 5 tenant bị cưỡng chế gỡ (container undeploy, **dữ liệu giữ nguyên**); `force_uninstall=false` chỉ điều khiển **tốc độ gỡ** (lần lượt), **không bypass** hành vi gỡ tất cả tenant bị ảnh hưởng.
+    - Gateway từ chối request mới tới container plugin bị khóa (`PLUGIN_BLOCKED_BY_PLATFORM`); container hiện tại tiếp tục xử lý request đang chạy.
+    - **Thông báo tới Tenant Admin bị ảnh hưởng**; audit `PLUGIN_BLOCKED` + `TENANT_PLUGIN_FORCE_UNINSTALLED`.
+    - Job đang chạy: trước bước `ACTIVATE` kiểm tra lại catalog/version status (atomic, shared DB lock); nếu bị khóa giữa chừng → bù trừ (undeploy), không chuyển ACTIVE.
 - **AC-21.5 — Cài mặc định cấp hệ thống (phân biệt bắt buộc/tùy chọn)**:
   - **Given**: Plugin `accounting` có `default_install = true, locked = true` (mặc định **bắt buộc**); plugin `crm` có `default_install = true, locked = false` (mặc định **tùy chọn**).
   - **When**: Tenant mới đăng ký.
@@ -232,7 +237,7 @@
 | 7 | Medium | AC-23.5 vẫn bắt plugin riêng dùng iframe, trái quyết định cho phép WC/MF | Viết lại AC-23.5: plugin riêng **được phép** WC/MF; iframe chỉ là `render_mode` dự phòng | CONF-01 AC-23.5; DES-03-UI mục 4.3 |
 | 8 | Medium | AC-21.5 chưa phân biệt plugin mặc định bắt buộc và tùy chọn | Viết lại AC-21.5: `locked=true` → ACTIVE không tắt/gỡ; `locked=false` → NOT_INSTALLED chờ bật | CONF-01 AC-21.5 |
 | 9 | High | (Vòng 2) Seed Core UI Slot không khớp partial unique index mới → chặn migration | Sửa conflict target: `ON CONFLICT (slot_code) WHERE host_type = 'CORE' DO NOTHING` + kiểm chứng seed 2 lần | DES-03-DB mục 6 (BUG-92) |
-| 10 | High | (Vòng 2) Thiếu khóa cấp catalog & chặn tenant publish/cài phiên bản mới sau khóa | `catalog_status = ACTIVE/BLOCKED` + `P7 scope CATALOG` + `P25 unblock` + trigger publish guard + job re-check trước ACTIVATE | DES-03-DB 2.1/2.2/5; DES-03-API 3; DES-03-UI 3.1/3.2/4.1; ANL-01 BR-PLG-09; SOL-01 4.3 (BUG-93) |
-| — | High | (Vòng 2) BUG-86 chưa đóng: `snapshot=false` cho BREAKING; rollback mất dữ liệu phát sinh | Snapshot **bắt buộc** (`PLUGIN_SNAPSHOT_REQUIRED`) + **preservation snapshot** trước restore + `rollback_strategy` | DES-03-DB 2.2/5; DES-03-API 4.4; SOL-02 4.4 (BUG-86) |
+| 10 | High | (Vòng 2) Thiếu khóa cấp catalog & chặn tenant publish/cài phiên bản mới sau khóa | `catalog_status = ACTIVE/BLOCKED` + `P7 scope CATALOG` + `P25 unblock (catalog)` + `P26 unblock (version)` + trigger publish guard + job re-check trước ACTIVATE (atomic, shared DB lock/fencing) | DES-03-DB 2.1/2.2/5; DES-03-API 3; DES-03-UI 3.1/3.2/4.1; ANL-01 BR-PLG-09; SOL-01 4.3 (BUG-93) |
+| — | High | (Vòng 2) BUG-86 chưa đóng: `snapshot=false` cho BREAKING; rollback mất dữ liệu phát sinh | Snapshot **bắt buộc** (`PLUGIN_SNAPSHOT_REQUIRED`, không bypass false); **preservation snapshot** bắt buộc trước restore; `rollback_strategy` + preflight snapshot (exist/integrity/expiry/restoreable); `ROLLBACK_FAILED` + fail closed post-upgrade writes; `DOWN_MIGRATION` execution/verify/fail recovery | DES-03-DB 2.2/5 quy tắc 10-16; DES-03-API 4.4; SOL-02 4.4 (BUG-86) |
 
 - **Kết luận**: 8/8 điểm rà soát đã được xử lý; bộ thiết kế DES-03-DB/API/UI + SOL-01/02/03 đủ điều kiện chuyển sang Bước 7 (Lập trình).

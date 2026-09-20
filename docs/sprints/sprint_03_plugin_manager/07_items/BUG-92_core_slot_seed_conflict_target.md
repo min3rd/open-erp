@@ -28,3 +28,9 @@ Nguồn kiểm chứng quy tắc SQL: [PostgreSQL 16 INSERT — ON CONFLICT / in
 - Bổ sung mục kiểm chứng seed 2 lần trên PostgreSQL thật; slot của plugin cùng `slot_code` vẫn hợp lệ theo partial index composite.
 - Tài liệu: [DES-03-DB mục 6](../06_designs/database/PLUGIN_MANAGER_DATABASE_SCHEMA.md).
 
+## Xác Nhận Static Validation (2026-09-20 — Review Lần 3)
+
+- **Đã xác nhận tĩnh**: DDL ở mục 6 hiện đã khớp chính xác với partial unique index `uq_plugin_ui_slot_core` (dòng 209–210). Conflict target `ON CONFLICT (slot_code) WHERE host_type = 'CORE' DO NOTHING` suy ra được arbiter index đúng theo PostgreSQL 16 spec.
+- **Trạng thái**: In Review — chờ Reviewer xác nhận đóng. **Không claim runtime PASS**; kiểm chứng static đã hoàn tất qua đối chiếu tài liệu chính thức PostgreSQL.
+- **Lưu ý**: Seed plugin slot cùng `slot_code` nhưng `host_type = 'PLUGIN'` vẫn hợp lệ nhờ composite index `uq_plugin_ui_slot_plugin (owner_plugin_key, slot_code, contract_version) WHERE host_type = 'PLUGIN'` — không xung đột với Core index.
+

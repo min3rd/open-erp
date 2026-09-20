@@ -147,19 +147,39 @@ sequenceDiagram
 
 **Quy trình nâng cấp có snapshot**:
 1. **Quiesce**: tạm dừng ghi (dừng container hoặc maintenance mode) để có mốc dữ liệu nhất quán.
-2. `pg_dump --schema=tenant_<short>_<plugin_key>` → MinIO `plugin-snapshots/{tenant}/{plugin}/{from_version}/{timestamp}.dump`.
-3. Ghi ref snapshot vào `plugin_operation_logs.detail` + `tenant_plugins.target_version`.
+2. `pg_dump --schema=tenant_<short>_<plugin_key>` → MinIO `plugin-snapshots/{tenant}/{plugin}/{operation_id}/{from_version}/{timestamp}.dump`.
+3. Ghi ref snapshot + **digest SHA-256** vào `plugin_operation_logs.detail` + `tenant_plugins.target_version`.
 4. Deploy image mới → plugin tự migrate → health check.
 5. Nếu fail: undeploy image mới → **khôi phục snapshot (BREAKING)** → deploy image cũ → ledger `ACTIVE` bản cũ + audit `TENANT_PLUGIN_ROLLED_BACK`. **Nếu khôi phục snapshot thất bại → ledger `ROLLBACK_FAILED`** (không đánh dấu ACTIVE dù image cũ đã deploy), plugin ngưng phục vụ, thông báo khẩn Super Admin + tenant, giữ snapshot để can thiệp thủ công.
 6. Snapshot giữ theo retention (cấu hình `openerp.plugin.snapshot-retention-days`, mặc định 30 ngày).
 
 **Bảo toàn dữ liệu phát sinh sau nâng cấp (BUG-86 — review lần 2)**:
-- Với `migration_policy = BREAKING`, snapshot pre-upgrade là **bắt buộc** (API từ chối `snapshot=false` → `PLUGIN_SNAPSHOT_REQUIRED`).
+- Với `migration_policy = BREAKING`, snapshot pre-upgrade là **bắt buộc** (API từ chối `snapshot=false` → `PLUGIN_SNAPSHOT_REQUIRED`); tham số `snapshot` chỉ chấp nhận `true` hoặc omitted (mặc định `true` cho BREAKING) — **không có bypass**.
 - Trước khi restore snapshot pre-upgrade, bắt buộc tạo **preservation snapshot** dữ liệu hiện tại (post-upgrade) và giữ lại — dữ liệu phát sinh sau nâng cấp **không bị xóa âm thầm**, admin nhận báo cáo cả 2 snapshot.
-- `rollback_strategy` (khai báo theo phiên bản): `SNAPSHOT_RESTORE` (nền tảng restore) hoặc `DOWN_MIGRATION` (plugin tự chạy down-migration, phải chứng minh tương thích dữ liệu).
+- `rollback_strategy` (khai báo theo phiên bản trong `plugin_versions`): `SNAPSHOT_RESTORE` (nền tảng restore) hoặc `DOWN_MIGRATION` (plugin tự chạy down-migration, phải chứng minh tương thích dữ liệu qua `down_migration_verified: true` trong manifest).
 - Nếu tạo preservation snapshot thất bại → **hủy rollback** (giữ nguyên trạng thái hiện tại), không restore.
 
-**Hợp đồng plugin**: manifest khai báo `migration_policy`; plugin phải chứng minh tương thích ngược hoặc chấp nhận quy trình snapshot.
+**DOWN_MIGRATION execution & failure recovery (BUG-86)**:
+Khi `rollback_strategy = DOWN_MIGRATION`, quy trình rollback thay đổi:
+1. Quiesce ghi (dừng container v2 hoặc maintenance mode).
+2. Plugin chạy **down-migration** (Flyway callback `beforeMigrate` ngược hoặc migration file `Vxxx__down_...sql` trong artifact) trong schema tenant.
+3. **Preflight verify**: kiểm tra schema sau down-migration tương thích với phiên bản cũ (so khớp checksum/columns vs manifest v1).
+4. Nếu verify OK → deploy image cũ → health check → ledger `ACTIVE`.
+5. Nếu down-migration thất bại OR verify thất bại → ledger `ROLLBACK_FAILED`; **không deploy image cũ**, container v2 giữ nguyên (hoặc restart v2), snapshot pre-upgrade & preservation vẫn giữ; can thiệp thủ công.
+6. **Nếu plugin không có `down_migration_verified: true` trong manifest → server từ chối `DOWN_MIGRATION` (`PLUGIN_DOWN_MIGRATION_NOT_VERIFIED`), buộc dùng `SNAPSHOT_RESTORE` (fail closed).**
+
+**Rollback sau khi phiên bản mới đã phục vụ ghi (BUG-86 — safe manual rollback)**:
+- Nếu phát hiện có ghi dữ liệu sau khi v2 ACTIVE (unknown write activity / `tenant_plugins.activated_at` < `now()` và có transaction log), API **từ chối `SNAPSHOT_RESTORE`** (`PLUGIN_ROLLBACK_NOT_ALLOWED: post_upgrade_writes_detected`). Chỉ cho phép `DOWN_MIGRATION` nếu plugin đã chứng minh an toàn, hoặc quy trình thủ công có giám sát.
+- **Conservative approach Sprint 03**: từ chối toàn bộ snapshot restore sau activation; chỉ hỗ trợ rollback tự động **trước khi phục vụ traffic** (health fail ngay sau deploy).
+
+**Hợp đồng plugin**: manifest khai báo `migration_policy` + `rollback_strategy` + `down_migration_verified`; plugin phải chứng minh tương thích ngược hoặc chấp nhận quy trình snapshot.
+
+**Preflight kiểm tra snapshot (BUG-86 — server-owned identity & safety)**: trước khi dừng dịch vụ cho rollback/restore, server **bắt buộc** kiểm tra:
+1. Snapshot **tồn tại** trên MinIO (`plugin-snapshots/{tenant}/{plugin}/{operation_id}/{from_version}/{ts}.dump`).
+2. **Digest SHA-256 khớp** giá trị ghi trong `plugin_operation_logs.detail.snapshot_digest`.
+3. **Chưa hết hạn** (`openerp.plugin.snapshot-retention-days`, mặc định 30 ngày).
+4. **Restoreable** (kiểm tra header pg_dump, version PostgreSQL tương thích).
+Thiếu một trong các điều kiện → từ chối rollback `PLUGIN_SNAPSHOT_MISSING|EXPIRED|CORRUPT|INCOMPATIBLE`; **không dừng container**, không disrupting service.
 
 ### 4.5. Cấu Hình Đề Xuất (application.properties)
 
