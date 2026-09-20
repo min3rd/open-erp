@@ -44,6 +44,7 @@
       (upgrade)="openUpgrade($event)"
       (uninstall)="openUninstall($event)"
       (detail)="openDetail($event)"
+      (registerCustom)="openRegister()"
     />
   }
 </div>
@@ -62,6 +63,16 @@
       </div>
       @if (current.description_key) {
         <p class="text-[11px] text-neutral-500 dark:text-neutral-400">{{ current.description_key | translate }}</p>
+      }
+      @if (isCustomDetail()) {
+        <div class="flex flex-wrap items-center gap-1">
+          <app-sharp-button size="sm" variant="secondary" (clicked)="openManageVersions()">
+            {{ 'PLUGIN_ACTION_MANAGE_VERSIONS' | translate }}
+          </app-sharp-button>
+          <app-sharp-button size="sm" variant="danger" (clicked)="deleteCustomCatalog()">
+            {{ 'PLUGIN_ACTION_DELETE_CUSTOM' | translate }}
+          </app-sharp-button>
+        </div>
       }
       <section>
         <h3 class="mb-1 font-mono text-[10px] uppercase tracking-wider text-neutral-400">{{ 'PLUGIN_DETAIL_VERSIONS' | translate }}</h3>
@@ -168,3 +179,10 @@
     }
   </div>
 </app-drawer>
+
+<app-tenant-plugin-register-drawer
+  [isOpen]="registerOpen()"
+  [manageKey]="manageKey()"
+  (closed)="onRegisterClosed()"
+  (changed)="onRegisterChanged()"
+/>

@@ -22,6 +22,7 @@ export class CredentialFormComponent {
   saving = input<boolean>(false);
   errorText = input<string>('');
   testing = input<boolean>(false);
+  showTest = input<boolean>(true);
 
   submitted = output<PluginCredentialPayload>();
   testRequested = output<PluginCredentialPayload>();

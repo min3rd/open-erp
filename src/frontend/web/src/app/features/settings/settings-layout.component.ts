@@ -26,7 +26,8 @@ export class SettingsLayoutComponent {
     { path: '/settings/members', labelKey: 'ORGANIZATION_MEMBERSHIPS', permission: 'core:organization:manage' },
     { path: '/settings/branch-assignments', labelKey: 'ORGANIZATION_BRANCH_ASSIGNMENT_TITLE', permission: 'core:organization:manage' },
     { path: '/settings/sample-records', labelKey: 'SAMPLE_RECORDS_TITLE', permission: 'core:sample-record:read' },
-    { path: '/settings/plugins', labelKey: 'PLUGIN_MARKETPLACE_TITLE', permission: 'core:plugin:read' }
+    { path: '/settings/plugins', labelKey: 'PLUGIN_MARKETPLACE_TITLE', permission: 'core:plugin:read' },
+    { path: '/settings/plugin-credentials', labelKey: 'PLUGIN_TENANT_CREDENTIALS_TITLE', permission: 'core:plugin:credential:manage' }
   ];
 
   // Fallback: when the Sprint 02 `permissions` claim is absent from the JWT,

@@ -18,6 +18,7 @@ import {
 } from '@shared';
 import { ApiErrorResponse } from '@shared';
 import { PluginService } from '../../../core/services/plugin.service';
+import { TenantPluginRegisterDrawerComponent } from './tenant-plugin-register-drawer.component';
 
 const TERMINAL_STATUSES = ['ACTIVE', 'INACTIVE', 'UNINSTALLED', 'INSTALL_FAILED', 'ROLLBACK_FAILED'];
 
@@ -33,6 +34,7 @@ const TERMINAL_STATUSES = ['ACTIVE', 'INACTIVE', 'UNINSTALLED', 'INSTALL_FAILED'
     OperationProgressComponent,
     SharpButtonComponent,
     SharpToggleComponent,
+    TenantPluginRegisterDrawerComponent,
   ],
   templateUrl: './plugin-marketplace.component.html',
 })
@@ -64,6 +66,9 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
 
   notificationsOpen = signal(false);
   notifications = signal<PluginNotification[]>([]);
+
+  registerOpen = signal(false);
+  manageKey = signal<string | null>(null);
 
   ngOnInit(): void {
     this.refresh();
@@ -204,6 +209,48 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
   closeDetail(): void {
     this.detailOpen.set(false);
     this.stopPolling();
+  }
+
+  openRegister(): void {
+    this.manageKey.set(null);
+    this.registerOpen.set(true);
+  }
+
+  openManageVersions(): void {
+    const key = this.detail()?.plugin_key;
+    if (!key) {
+      return;
+    }
+    this.manageKey.set(key);
+    this.registerOpen.set(true);
+  }
+
+  isCustomDetail(): boolean {
+    return this.detail()?.visibility === 'TENANT_PRIVATE';
+  }
+
+  deleteCustomCatalog(): void {
+    const key = this.detail()?.plugin_key;
+    if (!key) {
+      return;
+    }
+    this.pluginService.deleteCustomCatalog(key).subscribe({
+      next: () => {
+        this.successText.set(this.i18n.t('PLUGIN_CATALOG_DELETE_SUCCESS'));
+        this.closeDetail();
+        this.detail.set(null);
+        this.refresh();
+      },
+      error: (error: ApiErrorResponse) => this.errorText.set(apiMessage(this.i18n, error)),
+    });
+  }
+
+  onRegisterClosed(): void {
+    this.registerOpen.set(false);
+  }
+
+  onRegisterChanged(): void {
+    this.refresh();
   }
 
   selectedInstalledVersion(): string | null {

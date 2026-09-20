@@ -851,5 +851,13 @@
   "PLUGIN_TENANT_PRIVATE_TITLE": "Tenant private plugins",
   "PLUGIN_TENANT_PRIVATE_SUBTITLE": "Monitor tenant-registered plugins and block when needed",
   "PLUGIN_TENANT_PRIVATE_EMPTY": "No tenant private plugins yet.",
-  "PLUGIN_OWNER_TENANT": "Owner tenant"
+  "PLUGIN_OWNER_TENANT": "Owner tenant",
+  "PLUGIN_REGISTER_CUSTOM_TITLE": "Register custom plugin",
+  "PLUGIN_MANAGE_VERSIONS_TITLE": "Manage custom plugin versions",
+  "PLUGIN_ACTION_MANAGE_VERSIONS": "Manage versions",
+  "PLUGIN_ACTION_DELETE_CUSTOM": "Delete custom plugin",
+  "PLUGIN_TENANT_CREDENTIALS_TITLE": "Tenant credential registry",
+  "PLUGIN_TENANT_CREDENTIALS_SUBTITLE": "Private registry credentials for tenant plugins",
+  "PLUGIN_CUSTOM_NOT_ALLOWED": "Custom plugins are not enabled for this tenant. Please contact the platform.",
+  "PLUGIN_REGISTER_SUCCESS": "Custom plugin registered as draft."
 }

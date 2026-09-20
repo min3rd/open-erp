@@ -176,6 +176,11 @@ export const routes: Routes = [
         path: 'plugins',
         canActivate: [permissionGuard('core:plugin:read')],
         loadComponent: () => import('./features/settings/plugins/plugin-marketplace.component').then(m => m.PluginMarketplaceComponent)
+      },
+      {
+        path: 'plugin-credentials',
+        canActivate: [permissionGuard('core:plugin:credential:manage')],
+        loadComponent: () => import('./features/settings/plugins/tenant-plugin-credentials.component').then(m => m.TenantPluginCredentialsComponent)
       }
     ]
   },

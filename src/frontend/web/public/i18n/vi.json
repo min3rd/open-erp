@@ -851,5 +851,13 @@
   "PLUGIN_TENANT_PRIVATE_TITLE": "Plugin riêng của Tenant",
   "PLUGIN_TENANT_PRIVATE_SUBTITLE": "Giám sát plugin do tenant tự đăng ký và khóa khi cần",
   "PLUGIN_TENANT_PRIVATE_EMPTY": "Chưa có plugin riêng nào.",
-  "PLUGIN_OWNER_TENANT": "Tenant sở hữu"
+  "PLUGIN_OWNER_TENANT": "Tenant sở hữu",
+  "PLUGIN_REGISTER_CUSTOM_TITLE": "Đăng ký plugin riêng",
+  "PLUGIN_MANAGE_VERSIONS_TITLE": "Quản lý phiên bản plugin riêng",
+  "PLUGIN_ACTION_MANAGE_VERSIONS": "Quản lý phiên bản",
+  "PLUGIN_ACTION_DELETE_CUSTOM": "Xóa plugin riêng",
+  "PLUGIN_TENANT_CREDENTIALS_TITLE": "Credential Registry của Tenant",
+  "PLUGIN_TENANT_CREDENTIALS_SUBTITLE": "Thông tin đăng nhập registry riêng cho plugin của tenant",
+  "PLUGIN_CUSTOM_NOT_ALLOWED": "Khách thuê chưa được bật tính năng plugin riêng. Vui lòng liên hệ nền tảng.",
+  "PLUGIN_REGISTER_SUCCESS": "Đăng ký plugin riêng thành công (bản nháp)."
 }
