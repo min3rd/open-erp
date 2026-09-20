@@ -1,0 +1,39 @@
+{
+  "mode": "route-state",
+  "checks": [
+    {
+      "name": "deep-link detail drawer opens on first load",
+      "pass": true
+    },
+    {
+      "name": "F5 keeps detail drawer (route state)",
+      "pass": true
+    },
+    {
+      "name": "deep-link upgrade shows BREAKING guard",
+      "pass": true
+    },
+    {
+      "name": "opening drawer updates URL",
+      "pass": true,
+      "detail": "?plugin=sales&drawer=detail"
+    },
+    {
+      "name": "closing drawer clears URL params",
+      "pass": true
+    },
+    {
+      "name": "platform deep-link selects plugin + tenants table visible",
+      "pass": true
+    },
+    {
+      "name": "tenants table shows tenant name/slug (BUG-107)",
+      "pass": true
+    },
+    {
+      "name": "platform deep-link versions drawer (nested state)",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

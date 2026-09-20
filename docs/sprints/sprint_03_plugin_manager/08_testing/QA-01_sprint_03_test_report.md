@@ -25,8 +25,32 @@
 | [BUG-99](../07_items/BUG-99_platform_action_reason_and_confirmation_gaps.md) | Low | Reason hardcode, chưa đối chiếu `affected_tenants`, S2 `target_version` sai nguồn | Deferred → Sprint 04 |
 | [BUG-100](../07_items/BUG-100_notification_read_invalid_uuid_500.md) | Low | UUID sai định dạng ở T13 → 500 | **Resolved** (400 chuẩn) |
 | [BUG-101](../07_items/BUG-101_marketplace_blocked_actions_not_locked.md) | **High** | Marketplace tenant không khóa hành động khi catalog BLOCKED (acceptance BUG-93) | **Resolved** (badge + disable mọi hành động) |
+| [BUG-102](../07_items/BUG-102_missing_core_plugin_permission_seed.md) | **Critical** | Thiếu seed `core:plugin:*` → tenant 403 toàn bộ tính năng ngoài test | **Resolved** (migration `V3.0.3` + grant TENANT_OWNER/TENANT_ADMIN) |
+| [BUG-103](../07_items/BUG-103_empty_registry_allowlist_boot_failure.md) | **Critical** | `registry-allowed-hosts=` rỗng làm backend fail startup | **Resolved** (`Optional<String>` + bỏ dòng rỗng) |
+| [BUG-104](../07_items/BUG-104_marketplace_groups_not_installed_as_installed.md) | **High** | `NOT_INSTALLED` bị xếp nhóm "Đã cài" + nút "Gỡ" | **Resolved** (isInstalled theo trạng thái thực) |
+| [BUG-105](../07_items/BUG-105_marketplace_missing_uninstalled_tenant_private.md) | **High** | T1 bỏ sót plugin riêng chưa có ledger | **Resolved** (bổ sung pass TENANT_PRIVATE) |
+| [BUG-106](../07_items/BUG-106_marketplace_hides_blocked_catalog.md) | **High** | T1 ẩn plugin bị khóa thay vì badge "Đã khóa" | **Resolved** (giữ item BLOCKED) |
+| [BUG-107](../07_items/BUG-107_installations_tenant_uuid_display.md) | **High** | P9 hiển thị tenant bằng UUID (thiếu mapping snake_case) | **Resolved** (`@JsonProperty` + tên tenant) |
+| [BUG-108](../07_items/BUG-108_table_screens_missing_route_state.md) | **High** | Màn bảng chưa lưu state vào Route (filter/page/selection/drawer) | **Resolved** (query-param state + deep-link/F5/Back) |
+| [BUG-109](../07_items/BUG-109_impersonation_timeout_job_enum_error.md) | Medium | Job impersonation lỗi định kỳ (nghi hot-reload) | In Review (đang theo dõi sau restart sạch) |
 | [TASK-346](../07_items/TASK-346_operation_recovery_job_and_dependency_cycle.md) | Medium | Thiếu job phục hồi thao tác (TASK-312 dư) + phát hiện chu trình dependency (TASK-305 dư) | Deferred → Sprint 04 |
 | [TASK-347](../07_items/TASK-347_cli_publish_registry.md) | Medium | CLI `publish` chưa có (TASK-329 dư) | Deferred → Sprint 04 |
+
+## 2b. Kiểm Thử Trình Duyệt Thật (Browser QA — Playwright-style CDP trên Chrome)
+
+Thực thi tự động qua Chrome headless + CDP (zero-dependency), backend dev + Web (4200) + Ionic (8100) chạy thật, tài khoản TENANT_ADMIN/SUPER_ADMIN thật, dữ liệu seed trên PostgreSQL thật.
+
+| Bộ kiểm | Phạm vi | Kết quả | Ảnh |
+| :--- | :--- | :--- | :--- |
+| Tenant Web 1280×900 | Login, marketplace 3 nhóm, badge khóa + disable, install → ACTIVE, upgrade drawer BREAKING, disable→enable, detail versions, soft uninstall, credentials page | **18/18 PASS, 0 console error** | `web_10..web_17_*.png` |
+| Route-state (BUG-108) | Deep-link detail, F5 giữ drawer, deep-link upgrade, mở drawer đổi URL, đóng drawer (Escape) xóa params, platform deep-link, tên tenant ở P9 | **8/8 PASS, 0 console error** | `web_18..web_22_*.png` |
+| Platform Web 1280×900 | Portal list + badge BLOCKED, detail panel (versions + tenants), credentials, tenant-private | **6/6 PASS, 0 console error** | `web_20..web_23_*.png` |
+| Ionic Mobile 390×844 | Login, read-only page, ghi chú, overflow = 0, ion-item min 48px, badge khóa, menu mở | **8/8 PASS, 0 console error** | `mobile_20..mobile_21_*.png` |
+
+Bằng chứng bổ sung: container `openerp-plugin-sales-aeea9eed` được tạo thật và đạt ACTIVE; schema `tenant_aeea9eed_sales` **vẫn tồn tại sau soft uninstall** (dữ liệu giữ nguyên).
+
+Kết quả JSON thô: `qa_tenant_result.json`, `qa_route_result.json`, `qa_platform_result.json`, `qa_mobile_result.json`, `qa_ionic_result.json` (cùng thư mục screenshots).
+
 
 ## 3. Kết Quả Rà Soát Theo Hạng Mục
 
@@ -57,11 +81,11 @@
 
 ## 4. Kết Luận & Điều Kiện Đóng Sprint
 
-**Verdict: CONDITIONAL PASS** — 0 Critical, **0 High tồn đọng** (BUG-95/96/101 đã sửa + test/build chứng minh). Medium/Low còn lại đã hoãn hợp lệ kèm lý do/workaround.
+**Verdict: PASS (browser matrix)** — 0 Critical, 0 High tồn đọng; 40/40 kiểm tự động trên trình duyệt thật PASS với **0 console error** trên cả 3 nền tảng; BUG-102/103 (Critical) và BUG-104→108 (High) đã sửa và được xác minh lại bằng browser. Medium/Low còn lại đã hoãn hợp lệ kèm lý do/workaround (BUG-109 đang theo dõi sau restart sạch).
 
 Điều kiện còn lại trước DoD (Bước 8→9):
-1. **QA thủ công dual-mode** theo [QA-01 test plan](QA-01_sprint_03_test_plan.md) mục 2 (W1–W9, T1–T9, M1–M4) + lưu ảnh vào `08_testing/evidence/screenshots/` + xác nhận 0 console error/overflow 0.
-2. **Reviewer ký** BUG-86/88/89/90/91/92/93/94 (BUG-87 đã xác nhận triển khai).
+1. ~~QA thủ công dual-mode~~ → **ĐÃ CHẠY** (xem mục 2b) — ảnh lưu tại `08_testing/evidence/screenshots/`.
+2. **Reviewer ký** BUG-86/88/89/90/91/92/93/94 (BUG-87 đã xác nhận triển khai; BUG-95→108 đã Resolved kèm bằng chứng).
 3. PM (Bước 9) cập nhật Task Board/Work Log/Changelog + `sprint_review.md`; các item Deferred chuyển Sprint 04 hoặc backlog kèm lý do.
 
 ## 5. Ghi Chú Kỹ Thuật Cho Reviewer

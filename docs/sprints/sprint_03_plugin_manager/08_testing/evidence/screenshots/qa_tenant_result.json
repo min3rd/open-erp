@@ -1,0 +1,80 @@
+{
+  "mode": "tenant",
+  "checks": [
+    {
+      "name": "login qa-plug-195850@example.com",
+      "pass": true,
+      "detail": "/dashboard"
+    },
+    {
+      "name": "group CÓ THỂ CÀI present",
+      "pass": true
+    },
+    {
+      "name": "group PLUGIN RIÊNG presents custom tool",
+      "pass": true
+    },
+    {
+      "name": "blocked badge + reason banner",
+      "pass": true
+    },
+    {
+      "name": "blocked actions disabled",
+      "pass": true
+    },
+    {
+      "name": "no horizontal overflow (1280)",
+      "pass": true,
+      "detail": "1280x1280"
+    },
+    {
+      "name": "click install sales",
+      "pass": true
+    },
+    {
+      "name": "sales ACTIVE after install",
+      "pass": true
+    },
+    {
+      "name": "open upgrade drawer",
+      "pass": true
+    },
+    {
+      "name": "upgrade drawer shows BREAKING snapshot notice",
+      "pass": true
+    },
+    {
+      "name": "disable sales",
+      "pass": true
+    },
+    {
+      "name": "sales INACTIVE after disable",
+      "pass": true
+    },
+    {
+      "name": "enable sales",
+      "pass": true
+    },
+    {
+      "name": "sales ACTIVE after enable",
+      "pass": true
+    },
+    {
+      "name": "detail drawer shows versions",
+      "pass": true
+    },
+    {
+      "name": "open uninstall drawer",
+      "pass": true
+    },
+    {
+      "name": "sales UNINSTALLED after soft uninstall",
+      "pass": true
+    },
+    {
+      "name": "credentials page rendered",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

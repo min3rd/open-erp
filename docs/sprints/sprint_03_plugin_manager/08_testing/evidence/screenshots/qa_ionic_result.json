@@ -1,0 +1,42 @@
+{
+  "mode": "ionic-mobile",
+  "checks": [
+    {
+      "name": "ionic login",
+      "pass": true,
+      "detail": "/dashboard"
+    },
+    {
+      "name": "ionic read-only page rendered",
+      "pass": true
+    },
+    {
+      "name": "read-only note present",
+      "pass": true
+    },
+    {
+      "name": "ionic no horizontal overflow (390)",
+      "pass": true,
+      "detail": "390"
+    },
+    {
+      "name": "ionic plugin items rendered (>=4)",
+      "pass": true,
+      "detail": "items=12"
+    },
+    {
+      "name": "touch targets >= 40px (visible items)",
+      "pass": true,
+      "detail": "visible=4 min=48"
+    },
+    {
+      "name": "blocked badge on mobile",
+      "pass": true
+    },
+    {
+      "name": "ionic menu shows plugin entry",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,31 @@
+{
+  "mode": "platform",
+  "checks": [
+    {
+      "name": "login qa.platform@example.com",
+      "pass": true,
+      "detail": "/dashboard"
+    },
+    {
+      "name": "platform portal rendered",
+      "pass": true
+    },
+    {
+      "name": "blocked crm badge visible",
+      "pass": true
+    },
+    {
+      "name": "detail panel with versions and tenants",
+      "pass": true
+    },
+    {
+      "name": "platform credentials rendered",
+      "pass": true
+    },
+    {
+      "name": "tenant private governance rendered",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

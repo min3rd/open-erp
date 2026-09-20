@@ -9,7 +9,7 @@
 - **Tên Sprint**: Sprint 03 - Plugin Manager, Plugin Scaffolding CLI & Cơ Chế Phân Phối/Cài Đặt Plugin Đa Kênh
 - **Mục Tiêu**: Biến cơ chế plugin tĩnh của Sprint 02 thành **Plugin Manager thực thụ**: danh mục plugin + phiên bản trong DB; vòng đời cài/gỡ/bật/tắt/nâng cấp theo từng Tenant; **mỗi plugin chạy container riêng cho từng tenant và được tự động deploy**; chợ plugin (Marketplace) cho Tenant; CLI Node/npm sinh khung dự án plugin chuẩn hóa; và cơ chế đưa plugin vào hệ thống qua 3 kênh: Docker Hub, Image Registry (link + credentials đa phạm vi) và tệp JAR backend + bản build Web (Core tự build image).
 - **Thời Gian Dự Kiến**: 2026-10-20 đến 2026-11-02 (2 tuần)
-- **Trạng Thái Hiện Tại**: [x] **BƯỚC 1-6 HOÀN TẤT**; 🔄 **BƯỚC 7 GẦN HOÀN TẤT** — FEAT-21 (TASK-301→320), FEAT-22 (CLI) và FEAT-23 (TASK-331→345) đã code xong trên thực tế; **backend 210/210 test PASS** trên PostgreSQL thật, Web/Mobile build PASS; BUG-87 đã xác nhận triển khai, BUG-86/92/93/94 đang `In Review` chờ Reviewer; còn **BƯỚC 8 (QA dual-mode + ảnh minh chứng)** và BƯỚC 9 (PM đóng Sprint).
+- **Trạng Thái Hiện Tại**: [x] **BƯỚC 1-6 HOÀN TẤT**; 🔄 **BƯỚC 7 & 8 HOÀN TẤT PHẦN CODE + QA BROWSER** — FEAT-21/22/23 đã code xong; **backend 211/211 test PASS** trên PostgreSQL thật; **QA Bước 8 đã chạy trình duyệt thật** (tenant 18/18, route-state 8/8, platform 6/6, Ionic 390×844 8/8 — **0 console error**, ảnh tại `08_testing/evidence/screenshots/`); BUG-95→108 đã `Resolved`, BUG-102/103 (Critical) đã sửa; BUG-86/88→94 chờ Reviewer ký; còn **BƯỚC 9 (PM đóng Sprint theo DoD)**.
 
 ---
 
@@ -109,7 +109,7 @@ Khách hàng review bộ thiết kế Bước 5-6 và yêu cầu bổ sung **6 �
 | 9 | High | (Vòng 2) Seed Core slot không khớp partial unique index → chặn migration | Sửa conflict target `ON CONFLICT (slot_code) WHERE host_type = 'CORE'` + kiểm chứng seed 2 lần | DES-03-DB mục 6 (BUG-92) |
 | 10 | High | (Vòng 2) Thiếu khóa cấp catalog & chặn publish/cài sau khóa | `catalog_status BLOCKED` + P7 scope CATALOG + **P25 unblock** + trigger publish guard + job re-check trước ACTIVATE | DES-03-DB 2.1/2.2/5; DES-03-API 3; DES-03-UI 3.1/3.2/4.1; ANL-01 BR-PLG-09; SOL-01 4.3 (BUG-93) |
 
-> **Theo dõi**: các điểm trên được quản lý dưới dạng file item tại [`07_items/`](07_items/): **BUG-84 → BUG-87** (đã `Done`/xác nhận triển khai), **BUG-88 → BUG-94** (đang `In Review`, chờ QA/Reviewer xác nhận đóng — BUG-94 là xung đột contract P1/FEAT-20). **QA Bước 8 (2026-09-20)**: phát hiện thêm **BUG-95/96/101 (High — đã Resolved)**, **BUG-97/98/99/100** và tồn dư **TASK-346/347** (Medium/Low — Deferred Sprint 04) — xem [Báo cáo QA](08_testing/QA-01_sprint_03_test_report.md).
+> **Theo dõi**: các điểm trên được quản lý dưới dạng file item tại [`07_items/`](07_items/): **BUG-84 → BUG-87** (đã `Done`/xác nhận triển khai), **BUG-88 → BUG-94** (đang `In Review`, chờ Reviewer xác nhận đóng — BUG-94 là xung đột contract P1/FEAT-20). **QA Bước 8 (2026-09-20, chạy trình duyệt thật)**: phát hiện **BUG-102/103 (Critical)**, **BUG-95/96/101/104/105/106/107/108 (High)** — tất cả đã `Resolved` kèm bằng chứng browser; **BUG-97/99/100** Resolved; **BUG-98/109 (Medium) + TASK-346/347** đang theo dõi/hoãn Sprint 04 — xem [Báo cáo QA](08_testing/QA-01_sprint_03_test_report.md).
 
 > **Kết luận**: bộ thiết kế DES-03-DB/API/UI + SOL-01/02/03 đủ điều kiện chuyển sang **Bước 7 (Lập trình)**.
 

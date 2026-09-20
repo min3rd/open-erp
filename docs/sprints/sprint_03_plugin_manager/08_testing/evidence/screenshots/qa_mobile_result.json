@@ -1,0 +1,29 @@
+{
+  "mode": "mobile",
+  "checks": [
+    {
+      "name": "login qa-plug-195850@example.com",
+      "pass": true,
+      "detail": "/dashboard"
+    },
+    {
+      "name": "mobile plugins rendered",
+      "pass": true
+    },
+    {
+      "name": "mobile no horizontal overflow (390)",
+      "pass": true,
+      "detail": "390"
+    },
+    {
+      "name": "touch targets >= 40px",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "name": "mobile menu shows plugin entry",
+      "pass": true
+    }
+  ],
+  "errors": []
+}
