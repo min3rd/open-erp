@@ -5,7 +5,7 @@
 - **Tên Sprint**: Sprint 03 - Plugin Manager, Plugin Scaffolding CLI & Cơ Chế Phân Phối/Cài Đặt Plugin Đa Kênh
 - **Mục Tiêu**: Biến cơ chế plugin tĩnh của Sprint 02 thành **Plugin Manager thực thụ**: danh mục plugin + phiên bản trong DB; vòng đời cài/gỡ/bật/tắt/nâng cấp theo từng Tenant; **mỗi plugin chạy container riêng cho từng tenant và được tự động deploy**; chợ plugin (Marketplace) cho Tenant; CLI Node/npm sinh khung dự án plugin chuẩn hóa; và cơ chế đưa plugin vào hệ thống qua 3 kênh: Docker Hub, Image Registry (link + credentials đa phạm vi) và tệp JAR backend + bản build Web (Core tự build image).
 - **Thời Gian Dự Kiến**: 2026-10-20 đến 2026-11-02 (2 tuần)
-- **Trạng Thái Hiện Tại**: [x] **BƯỚC 1-4 HOÀN TẤT — CONFIRMATION GATE ĐÃ ĐÓNG (2026-09-19)**; đội dự án đủ điều kiện chuyển sang **Bước 5-6 (Nghiên cứu giải pháp & Thiết kế chi tiết)**, sau đó Bước 7 (Lập trình).
+- **Trạng Thái Hiện Tại**: [x] **BƯỚC 1-5 HOÀN TẤT — ĐANG THỰC HIỆN BƯỚC 6 (Thiết kế chi tiết DB/API/UI)**; sau khi Bước 6 xong sẽ chuyển sang Bước 7 (Lập trình).
 
 ---
 
@@ -18,8 +18,9 @@ flowchart LR
     Step1["01. Yêu Cầu Gốc\n(01_raw_notes)"] --> Step2["02. Phân Tích\n(02_analysis) v1.1"]
     Step2 --> Step3["03. Đối Chuẩn\n(03_benchmarks)\n✅ Đã hoàn thành"]
     Step3 --> Step4["04. XÁC NHẬN\n(04_confirmation)\n★ CONFIRM GATE ★"]
-    Step4 --> Step5["05. Kỹ Thuật\n(05_solutions & 06_designs)"]
-    Step5 --> Step6["07. Triển Khai\n(07_items)"]
+    Step4 --> Step5["05. Giải Pháp ✅\n(05_solutions)"]
+    Step5 --> Step5b["06. Thiết Kế\n(06_designs)\n⏳ Chưa thực hiện"]
+    Step5b --> Step6["07. Triển Khai\n(07_items)"]
 ```
 
 ---
@@ -71,7 +72,7 @@ flowchart LR
 
 | Thứ Tự Đọc | Thư Mục / File | Mục Đích Nội Dung | Người Phụ Trách | Trạng Thái |
 | :---: | :--- | :--- | :---: | :---: |
-| **5** | [05_solutions/](05_solutions/) | Nghiên cứu giải pháp kỹ thuật: Plugin Manager trong Quarkus; **Deployer tự động (K8s API + Docker API)**; image build từ bundle (Docker/BuildKit/Kaniko); **Tenant Datasource Router — schema/database riêng theo tenant, DB role least privilege, connection pool theo tenant**; **hợp đồng UI Slot/UI Contribution (Web Components + Module Federation cho nhúng trực tiếp, iframe sandbox dự phòng)**; MinIO; template engine CLI Node; credentials encryption. | Solution Architect | [ ] Chưa thực hiện |
+| **5** | [05_solutions/](05_solutions/)<br>• [SOL-01: Kiến trúc Plugin Manager & Vòng đời](05_solutions/SOL-01_plugin_manager_architecture_and_lifecycle.md)<br>• [SOL-02: Phân phối, Deployer & Cô lập dữ liệu](05_solutions/SOL-02_plugin_distribution_runtime_and_isolation.md)<br>• [SOL-03: UI Extension Runtime & Plugin CLI](05_solutions/SOL-03_plugin_ui_extension_and_cli_dev_experience.md) | **Nghiên cứu giải pháp kỹ thuật**: module `modules/plugin` + Saga orchestrator + một bảng `tenant_plugins` + async job + UI Manifest API; 3 kênh artifact → image (Docker/Kaniko) + `PluginRuntimeDeployer` (Docker/K8s) + `TenantDatasourceService` (schema riêng theo tenant×plugin, DB role least privilege) + MinIO; WC/MF/iframe runtime + CLI Node/npm đủ 10 lệnh (gồm `dev`). | Solution Architect | [x] **Đã hoàn thành (2026-09-19)** |
 | **6** | [06_designs/](06_designs/) | **Bản thiết kế chi tiết 100% để Developer lập trình**:<br>- CSDL PostgreSQL: `plugin_catalog`, `plugin_versions`, `tenant_plugins` (**1 bảng duy nhất: entitlement + lifecycle + version + deploy**), `plugin_credentials` (đa phạm vi).<br>- Đặc tả REST API chuẩn hóa (i18n code-based) cho platform & tenant, gồm install/upgrade/uninstall/block/credentials.<br>- Thiết kế UI Anti-Modal: Portal plugin Super Admin, Marketplace Tenant, Drawer đăng ký artifact 3 kênh, **2 chế độ hiển thị Web (màn hình riêng + UI Contribution)**, Mobile read-only.<br>- API contract versioning cho đa phiên bản plugin. | Solution Architect | [ ] Chưa thực hiện |
 | **7** | [07_items/](07_items/) | **Danh sách hạng mục công việc chi tiết** (FEAT-21→23 + TASK phát sinh) với Acceptance Criteria và sub-task kỹ thuật. | Developer & PM | [ ] Chưa thực hiện |
 
