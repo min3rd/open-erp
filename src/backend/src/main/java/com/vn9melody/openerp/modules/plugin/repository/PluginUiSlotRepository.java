@@ -1,13 +1,14 @@
 package com.vn9melody.openerp.modules.plugin.repository;
 
 import com.vn9melody.openerp.modules.plugin.model.PluginUiSlot;
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @ApplicationScoped
-public class PluginUiSlotRepository implements PanacheRepository<PluginUiSlot> {
+public class PluginUiSlotRepository implements PanacheRepositoryBase<PluginUiSlot, UUID> {
 
     public Optional<PluginUiSlot> findCoreSlot(String slotCode) {
         return find("slotCode = ?1 and hostType = 'CORE'", slotCode).firstResultOptional();

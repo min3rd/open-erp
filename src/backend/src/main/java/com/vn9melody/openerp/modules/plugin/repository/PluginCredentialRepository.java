@@ -2,14 +2,14 @@ package com.vn9melody.openerp.modules.plugin.repository;
 
 import com.vn9melody.openerp.core.enums.PluginCredentialScope;
 import com.vn9melody.openerp.modules.plugin.model.PluginCredential;
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-public class PluginCredentialRepository implements PanacheRepository<PluginCredential> {
+public class PluginCredentialRepository implements PanacheRepositoryBase<PluginCredential, UUID> {
 
     public List<PluginCredential> listPlatform() {
         return list("scope = ?1 order by registryHost asc, name asc", PluginCredentialScope.PLATFORM);

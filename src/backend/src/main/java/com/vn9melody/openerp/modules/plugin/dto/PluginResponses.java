@@ -166,4 +166,64 @@ public final class PluginResponses {
         @JsonProperty(PluginResponseKey.Json.FILE_NAME)
         public String fileName;
     }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class MarketplaceItem {
+        @JsonProperty(PluginResponseKey.Json.PLUGIN_KEY)
+        public String pluginKey;
+
+        @JsonProperty(PluginResponseKey.Json.NAME_KEY)
+        public String nameKey;
+
+        @JsonProperty(PluginResponseKey.Json.DESCRIPTION_KEY)
+        public String descriptionKey;
+
+        @JsonProperty(PluginResponseKey.Json.STATUS)
+        public String status;
+
+        @JsonProperty(PluginResponseKey.Json.INSTALLED_VERSION)
+        public String installedVersion;
+
+        @JsonProperty(PluginResponseKey.Json.LATEST_VERSION)
+        public String latestVersion;
+
+        @JsonProperty(PluginResponseKey.Json.UPDATE_AVAILABLE)
+        public Boolean updateAvailable;
+
+        @JsonProperty(PluginResponseKey.Json.IS_CUSTOM)
+        public Boolean isCustom;
+
+        @JsonProperty(PluginResponseKey.Json.LOCKED)
+        public Boolean locked;
+
+        @JsonProperty(PluginResponseKey.Json.CATALOG_STATUS)
+        public String catalogStatus;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class OperationStep {
+        public String step;
+        public String result;
+        public String errorCode;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class OperationStatus {
+        @JsonProperty(PluginResponseKey.Json.OPERATION_ID)
+        public String operationId;
+
+        @JsonProperty(PluginResponseKey.Json.PLUGIN_KEY)
+        public String pluginKey;
+
+        public String operation;
+
+        @JsonProperty(PluginResponseKey.Json.STATUS)
+        public String status;
+
+        @JsonProperty(PluginResponseKey.Json.TARGET_VERSION)
+        public String targetVersion;
+
+        @JsonProperty(PluginResponseKey.Json.STEPS)
+        public List<OperationStep> steps;
+    }
 }

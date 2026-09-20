@@ -103,4 +103,9 @@ public class PluginRequests {
     public static class Reason {
         public String reason;
     }
+
+    public static class Install {
+        @JsonProperty(PluginResponseKey.Json.VERSION)
+        public String version;
+    }
 }

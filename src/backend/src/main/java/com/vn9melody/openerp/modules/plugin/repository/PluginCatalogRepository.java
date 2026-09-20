@@ -2,13 +2,13 @@ package com.vn9melody.openerp.modules.plugin.repository;
 
 import com.vn9melody.openerp.core.enums.PluginVisibility;
 import com.vn9melody.openerp.modules.plugin.model.PluginCatalog;
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
-public class PluginCatalogRepository implements PanacheRepository<PluginCatalog> {
+public class PluginCatalogRepository implements PanacheRepositoryBase<PluginCatalog, UUID> {
 
     public PluginCatalog findByPluginKey(String pluginKey) {
         return find("pluginKey", pluginKey).firstResult();

@@ -2,14 +2,14 @@ package com.vn9melody.openerp.modules.plugin.repository;
 
 import com.vn9melody.openerp.core.enums.TenantPluginStatus;
 import com.vn9melody.openerp.modules.plugin.model.TenantPlugin;
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-public class TenantPluginRepository implements PanacheRepository<TenantPlugin> {
+public class TenantPluginRepository implements PanacheRepositoryBase<TenantPlugin, UUID> {
 
     public Optional<TenantPlugin> findByTenantAndKey(UUID tenantId, String pluginKey) {
         return find("tenantId = ?1 and pluginKey = ?2", tenantId, pluginKey).firstResultOptional();
