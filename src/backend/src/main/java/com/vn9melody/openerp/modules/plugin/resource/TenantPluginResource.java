@@ -54,6 +54,16 @@ public class TenantPluginResource {
                 "Plugin marketplace retrieved successfully.", items)).build();
     }
 
+    @GET
+    @Path("/{pluginKey}")
+    @RequirePermission("core:plugin:read")
+    public Response detail(@PathParam("pluginKey") String pluginKey) {
+        UserSecurityContext context = securityContextService.getCurrentContext();
+        PluginResponses.CatalogDetail detail = lifecycleService.tenantDetail(context.tenantId(), pluginKey);
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_DETAIL_SUCCESS,
+                "Plugin detail retrieved successfully.", detail)).build();
+    }
+
     @POST
     @Path("/{pluginKey}/install")
     @RequirePermission("core:plugin:install")

@@ -10,6 +10,7 @@ import com.vn9melody.openerp.core.enums.PluginMigrationPolicy;
 import com.vn9melody.openerp.core.enums.PluginOperationType;
 import com.vn9melody.openerp.core.enums.PlatformAction;
 import com.vn9melody.openerp.core.enums.PluginReleaseStatus;
+import com.vn9melody.openerp.core.enums.PluginVisibility;
 import com.vn9melody.openerp.core.enums.TenantPluginStatus;
 import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
 import com.vn9melody.openerp.modules.plugin.api.PluginResponseKey;
@@ -73,6 +74,9 @@ public class PluginLifecycleService {
 
     @Inject
     PluginImageBuilder imageBuilder;
+
+    @Inject
+    PluginAdminService adminService;
 
     @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.core.version", defaultValue = "1.0.0")
     String coreVersion;
@@ -163,6 +167,22 @@ public class PluginLifecycleService {
         } finally {
             lockService.release(tenantId, pluginKey, lock);
         }
+    }
+
+    @Transactional
+    public PluginResponses.CatalogDetail tenantDetail(UUID tenantId, String pluginKey) {
+        PluginCatalog catalog = catalogRepository.findByPluginKey(pluginKey);
+        if (catalog == null) {
+            throw new ApiException(404, PluginErrorCode.PLUGIN_NOT_FOUND, "Plugin catalog entry not found");
+        }
+        boolean entitled = tenantPluginRepository.findByTenantAndKey(tenantId, pluginKey).isPresent();
+        boolean ownPrivate = catalog.visibility == PluginVisibility.TENANT_PRIVATE
+                && tenantId.equals(catalog.ownerTenantId);
+        if (!entitled && !ownPrivate) {
+            throw new ApiException(403, PluginErrorCode.PLUGIN_NOT_ENTITLED,
+                    "Plugin is not entitled for this tenant");
+        }
+        return adminService.getDetail(pluginKey);
     }
 
     @Transactional

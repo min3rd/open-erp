@@ -289,6 +289,25 @@ public class PluginLifecycleApiTest {
         });
     }
 
+    @Test
+    @DisplayName("T2: tenant detail trả catalog cho plugin được cấp phép, 404 với key lạ")
+    public void testTenantDetail() {
+        registerAndPublish(pluginKey, "1.0.0", "COMPATIBLE", false);
+
+        given().header("Authorization", "Bearer " + token)
+                .get(TENANT_PLUGINS_PATH + "/" + pluginKey)
+                .then().statusCode(200)
+                .body("code", equalTo("PLUGIN_DETAIL_SUCCESS"))
+                .body("data.plugin_key", equalTo(pluginKey))
+                .body("data.version", hasSize(1))
+                .body("data.version[0].version", equalTo("1.0.0"));
+
+        given().header("Authorization", "Bearer " + token)
+                .get(TENANT_PLUGINS_PATH + "/s3lt-missing-" + UUID.randomUUID().toString().substring(0, 8))
+                .then().statusCode(404)
+                .body("code", equalTo("PLUGIN_NOT_FOUND"));
+    }
+
     private void registerAndPublish(String key, String version, String migrationPolicy, boolean withUi) {
         QuarkusTransaction.requiringNew().run(() -> {
             if (!adminService.existsByKey(key)) {
