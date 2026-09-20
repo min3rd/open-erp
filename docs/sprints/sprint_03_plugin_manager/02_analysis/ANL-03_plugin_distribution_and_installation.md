@@ -5,7 +5,7 @@
 - **Phụ Trách**: BA Agent
 - **Thuộc Sprint**: Sprint 03 - Plugin Manager, Plugin CLI & Cơ Chế Phân Phối Plugin
 - **Tài Liệu Nguồn**: [RAW-03](../01_raw_notes/RAW-03_plugin_distribution_channels.md), [RAW-01](../01_raw_notes/RAW-01_plugin_management_system_tenant.md)
-- **Trạng Thái**: Draft — Chờ khách hàng phê duyệt tại Confirmation Gate
+- **Trạng Thái**: Đã phê duyệt tại Confirmation Gate (2026-09-19); cập nhật theo rà soát thiết kế (BUG-85→90) — chờ Reviewer/QA xác nhận
 
 ---
 

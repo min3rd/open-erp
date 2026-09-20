@@ -2,7 +2,7 @@
 
 > **Quy ước mã tài liệu**: Mã SOL/DES/TEST/REV mang phạm vi cục bộ trong từng Sprint-Pack (ví dụ DES-03-API của Sprint 03 khác DES-02 của Sprint 02).
 
-> **Review tài liệu 2026-09-20**: [REV-01 — Báo cáo review trước lập trình](09_review/REV-01_document_review_2026-09-20.md) ghi nhận **6 High, 2 Medium** (BUG-84–91, `To Do`). Cần xử lý các điểm thiết kế này trước khi coi bộ tài liệu là sẵn sàng triển khai đầy đủ; đây không phải biên bản đóng Sprint.
+> **Review tài liệu 2026-09-20**: [REV-01 — Báo cáo review trước lập trình](09_review/REV-01_document_review_2026-09-20.md) ghi nhận **6 High, 2 Medium** (BUG-84–91). **Đã xử lý 8/8 điểm trong thiết kế (2026-09-20)** — các item chuyển `In Review`, chờ Reviewer/QA xác nhận đóng trước khi lập trình; đây không phải biên bản đóng Sprint.
 
 - **Tên Sprint**: Sprint 03 - Plugin Manager, Plugin Scaffolding CLI & Cơ Chế Phân Phối/Cài Đặt Plugin Đa Kênh
 - **Mục Tiêu**: Biến cơ chế plugin tĩnh của Sprint 02 thành **Plugin Manager thực thụ**: danh mục plugin + phiên bản trong DB; vòng đời cài/gỡ/bật/tắt/nâng cấp theo từng Tenant; **mỗi plugin chạy container riêng cho từng tenant và được tự động deploy**; chợ plugin (Marketplace) cho Tenant; CLI Node/npm sinh khung dự án plugin chuẩn hóa; và cơ chế đưa plugin vào hệ thống qua 3 kênh: Docker Hub, Image Registry (link + credentials đa phạm vi) và tệp JAR backend + bản build Web (Core tự build image).

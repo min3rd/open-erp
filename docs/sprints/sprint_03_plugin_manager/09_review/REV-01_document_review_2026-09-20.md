@@ -29,3 +29,17 @@ Bước 7–9 chưa thực hiện được Reading Guide ghi rõ; thiếu test r
 
 Chỉ thêm báo cáo và 8 file BUG ở trạng thái To Do, kèm liên kết báo cáo trong Reading Guide. Chưa sửa nội dung yêu cầu/thiết kế, chưa lập trình và chưa đóng Sprint.
 
+## Cập Nhật Xử Lý (2026-09-20) — Bởi Đội Dự Án
+
+- **8/8 phát hiện đã được xử lý trong tài liệu thiết kế** (commit `b33da71`); các item [BUG-84](../07_items/BUG-84_backfill_before_catalog_seed.md) → [BUG-91](../07_items/BUG-91_default_install_acceptance_stale.md) chuyển trạng thái `In Review` kèm "Ghi Chú Xử Lý" trong từng file.
+- Tóm tắt xử lý:
+  - **BUG-84**: thứ tự migration Schema → Seed/placeholder catalog → Backfill; backfill tự đủ + đối soát theo từng tenant/key (fail-fast); key lạ được bảo toàn.
+  - **BUG-85**: `plugin_key` **duy nhất toàn cục** cho mọi visibility + trigger `trg_tenant_plugin_scope` + ràng buộc service theo tenant sở hữu.
+  - **BUG-86**: `migration_policy (COMPATIBLE/BREAKING)`, quiesce + snapshot schema trước nâng cấp, khôi phục snapshot khi rollback, trạng thái **`ROLLBACK_FAILED`** (không ACTIVE nếu phục hồi lỗi).
+  - **BUG-87**: bổ sung endpoint tenant T14–T18 (upload/thêm phiên bản/publish/deprecate/xóa) + ràng buộc sở hữu `artifact_ref`.
+  - **BUG-88**: UI Slot Registry theo `(owner_plugin_key, slot_code, contract_version)` + `declared_in_version`; manifest phiên bản host là nguồn sự thật.
+  - **BUG-89**: API P19–P23 thao tác lifecycle theo tenant với audit actor thật (không impersonation).
+  - **BUG-90/BUG-91**: viết lại AC-23.5 và AC-21.5 theo quyết định Gate.
+- Bổ sung **Phụ lục 9 trong CONF-01** và mục **"Nhật Ký Rà Soát Thiết Kế"** trong Reading Guide; dọn các nhãn trạng thái cũ (Draft/chờ Gate) trong ANL/Sprint Plan.
+- **Đề nghị Reviewer/QA xác nhận đóng từng item**; khi 0 item Critical/High còn `To Do`/chưa xử lý → chuyển sang Bước 7 (Lập trình).
+

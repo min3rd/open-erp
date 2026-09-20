@@ -5,7 +5,7 @@
 - **Thời Gian Dự Kiến**: 2026-10-20 đến 2026-11-02 (10 ngày làm việc)
 - **Người Quản Lý**: PM Agent
 - **Đội Ngũ Tham Gia**: BA Agent, Solution Architect Agent, Developer Agent, QA/QC Agent
-- **Phiên Bản**: Draft v1.1 — đã tích hợp toàn bộ quyết định của khách hàng tại phiên review Bước 1-2 ngày 2026-09-19
+- **Phiên Bản**: v1.3 — Đã phê duyệt Confirmation Gate (2026-09-19) và xử lý rà soát thiết kế BUG-84→91 (2026-09-20); chờ Reviewer/QA xác nhận đóng item trước khi lập trình
 - **Trạng Thái**: [x] **ĐÃ PHÊ DUYỆT — Confirmation Gate ĐÓNG (2026-09-19)**; sẵn sàng thực hiện Bước 5-6 (Nghiên cứu giải pháp & Thiết kế chi tiết), sau đó Bước 7 (Lập trình).
 
 ---
