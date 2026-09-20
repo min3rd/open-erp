@@ -16,10 +16,16 @@ export class VersionTimelineComponent {
   versions = input<PluginVersionItem[]>([]);
   currentVersion = input<string | null>(null);
   editable = input<boolean>(false);
+  removeAsBlock = input<boolean>(false);
 
   publish = output<string>();
   deprecate = output<string>();
   remove = output<string>();
+  unblock = output<string>();
+
+  removeLabelKey(): string {
+    return this.removeAsBlock() ? 'PLUGIN_VERSION_BLOCK' : 'PLUGIN_VERSION_REMOVE';
+  }
 
   statusVariant(status: PluginReleaseStatus | string): ColorVariant {
     switch (status as PluginReleaseStatus) {

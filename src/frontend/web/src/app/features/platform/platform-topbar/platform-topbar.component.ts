@@ -42,6 +42,7 @@ export class PlatformTopbarComponent {
 
   private readonly allMenuItems: ReadonlyArray<{ path: string; labelKey: string }> = [
     { path: '/platform/tenants', labelKey: 'PLATFORM_TENANT_MANAGEMENT' },
+    { path: '/platform/plugins', labelKey: 'PLUGIN_PORTAL_TITLE' },
     { path: '/platform/users', labelKey: 'PLATFORM_GLOBAL_USERS' },
     { path: '/platform/health', labelKey: 'PLATFORM_SYSTEM_HEALTH' },
     { path: '/platform/audit-logs', labelKey: 'PLATFORM_AUDIT_TRAIL' },

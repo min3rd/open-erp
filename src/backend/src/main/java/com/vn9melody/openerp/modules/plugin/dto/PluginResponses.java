@@ -291,6 +291,30 @@ public final class PluginResponses {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class InstallationItem {
+        @JsonProperty(PluginResponseKey.Json.TENANT_ID)
+        public String tenantId;
+
+        public String tenantSlug;
+
+        public String tenantName;
+
+        @JsonProperty(PluginResponseKey.Json.STATUS)
+        public String status;
+
+        @JsonProperty(PluginResponseKey.Json.INSTALLED_VERSION)
+        public String installedVersion;
+
+        @JsonProperty(PluginResponseKey.Json.TARGET_VERSION)
+        public String targetVersion;
+
+        @JsonProperty(PluginResponseKey.Json.STORAGE_SCHEMA)
+        public String storageSchema;
+
+        public String lastErrorCode;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class NotificationItem {
         public String id;
 

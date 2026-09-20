@@ -102,6 +102,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/platform/tenants/tenant-list.component').then(m => m.TenantListComponent)
       },
       {
+        path: 'plugins',
+        loadComponent: () => import('./features/platform/plugins/platform-plugin-list.component').then(m => m.PlatformPluginListComponent)
+      },
+      {
         path: 'users',
         loadComponent: () => import('./features/platform/users/platform-user-list.component').then(m => m.PlatformUserListComponent)
       },

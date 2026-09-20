@@ -15,12 +15,14 @@ import io.vertx.core.http.HttpServerRequest;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -73,6 +75,23 @@ public class PlatformPluginAdminResource extends BasePlatformResource {
         PluginResponses.CatalogDetail detail = pluginAdminService.getDetail(pluginKey);
         return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_DETAIL_SUCCESS,
                 "Plugin detail retrieved successfully.", detail)).build();
+    }
+
+    @GET
+    @Path("/{pluginKey}/installations")
+    public Response installations(@PathParam("pluginKey") String pluginKey,
+                                  @QueryParam("page") @DefaultValue("0") int page,
+                                  @QueryParam("size") @DefaultValue("20") int size) {
+        PlatformActor actor = actor(requestContext, serverRequest, headers);
+        if (actor.role != PlatformAdminRole.SUPER_ADMIN && actor.role != PlatformAdminRole.SUPPORT_ENGINEER) {
+            throw new ApiException(403, PlatformErrorCode.PLATFORM_ACCESS_DENIED,
+                    "Platform role cannot read plugin installations");
+        }
+        PluginAdminService.InstallationPage result = pluginAdminService.installations(pluginKey, page, size);
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_INSTALLATIONS_LIST_SUCCESS,
+                "Plugin installations retrieved successfully.",
+                com.vn9melody.openerp.core.api.PagedData.of(result.items(), result.page(), result.size(),
+                        result.totalItems()))).build();
     }
 
     @PATCH

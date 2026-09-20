@@ -120,3 +120,73 @@ export interface PluginNotification {
 export interface PluginNotificationList {
   items: PluginNotification[];
 }
+
+export interface PluginInstallationItem {
+  tenant_id: string;
+  tenant_slug?: string | null;
+  tenant_name?: string | null;
+  status: string;
+  installed_version?: string | null;
+  target_version?: string | null;
+  storage_schema?: string | null;
+  last_error_code?: string | null;
+}
+
+export interface PluginRegisterCatalogPayload {
+  plugin_key: string;
+  name_key: string;
+  description_key: string;
+  entitlement_plans?: string[];
+  default_install?: boolean;
+  locked?: boolean;
+}
+
+export interface PluginUpdateCatalogPayload {
+  name_key?: string;
+  description_key?: string;
+  entitlement_plans?: string[];
+  default_install?: boolean;
+  locked?: boolean;
+}
+
+export interface PluginRegisterVersionPayload {
+  source: string;
+  version: string;
+  manifest?: unknown;
+  image_ref?: string;
+  registry_url?: string;
+  repository?: string;
+  tag?: string;
+  digest?: string;
+  checksum?: string;
+  artifact_ref?: string;
+}
+
+export interface PluginBlockPayload {
+  reason: string;
+  scope: string;
+  version?: string | null;
+  force_uninstall: boolean;
+  confirmations: {
+    affected_tenants: number;
+    confirm_text: string;
+  };
+}
+
+export interface PluginBulkPreview {
+  total: number;
+  tenant_ids: string[];
+}
+
+export interface PluginBulkApplyPayload {
+  preview_token: string;
+  version: string;
+  tenant_ids?: string[];
+}
+
+export interface PluginBulkReport {
+  requested: number;
+  succeeded: number;
+  failed: number;
+  errors: string[];
+}

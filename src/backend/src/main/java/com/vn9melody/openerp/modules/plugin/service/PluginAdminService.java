@@ -146,6 +146,46 @@ public class PluginAdminService {
         return new CatalogPage(items, safePage, safeSize, query.count());
     }
 
+    public record InstallationPage(List<PluginResponses.InstallationItem> items, int page, int size,
+                                   long totalItems) {}
+
+    @Transactional
+    public InstallationPage installations(String pluginKey, int page, int size) {
+        requireCatalog(pluginKey);
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = entityManager.createNativeQuery("""
+                SELECT tp.tenant_id, t.slug, t.name, tp.status, tp.installed_version, tp.target_version,
+                       tp.storage_schema, tp.last_error_code
+                FROM tenant_plugins tp
+                JOIN tenants t ON t.id = tp.tenant_id
+                WHERE tp.plugin_key = ?1
+                ORDER BY t.name ASC
+                LIMIT ?2 OFFSET ?3
+                """)
+                .setParameter(1, pluginKey)
+                .setParameter(2, safeSize)
+                .setParameter(3, (long) safePage * safeSize)
+                .getResultList();
+        Number total = (Number) entityManager.createNativeQuery("""
+                SELECT COUNT(*) FROM tenant_plugins WHERE plugin_key = ?1
+                """).setParameter(1, pluginKey).getSingleResult();
+        List<PluginResponses.InstallationItem> items = rows.stream().map(row -> {
+            PluginResponses.InstallationItem item = new PluginResponses.InstallationItem();
+            item.tenantId = String.valueOf(row[0]);
+            item.tenantSlug = row[1] != null ? String.valueOf(row[1]) : null;
+            item.tenantName = row[2] != null ? String.valueOf(row[2]) : null;
+            item.status = row[3] != null ? String.valueOf(row[3]) : null;
+            item.installedVersion = row[4] != null ? String.valueOf(row[4]) : null;
+            item.targetVersion = row[5] != null ? String.valueOf(row[5]) : null;
+            item.storageSchema = row[6] != null ? String.valueOf(row[6]) : null;
+            item.lastErrorCode = row[7] != null ? String.valueOf(row[7]) : null;
+            return item;
+        }).toList();
+        return new InstallationPage(items, safePage, safeSize, total == null ? 0 : total.longValue());
+    }
+
     @Transactional
     public void deleteCatalog(String pluginKey, UUID actorId) {
         PluginCatalog catalog = requireCatalog(pluginKey);

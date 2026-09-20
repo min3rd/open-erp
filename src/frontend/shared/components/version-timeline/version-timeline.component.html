@@ -27,9 +27,14 @@
                 {{ 'PLUGIN_VERSION_DEPRECATE' | translate }}
               </app-sharp-button>
             }
+            @if (item.release_status === 'BLOCKED') {
+              <app-sharp-button size="sm" variant="primary" (clicked)="unblock.emit(item.version)">
+                {{ 'PLUGIN_VERSION_UNBLOCK' | translate }}
+              </app-sharp-button>
+            }
             @if (!isCurrent(item.version) && item.release_status !== 'BLOCKED') {
               <app-sharp-button size="sm" variant="danger" (clicked)="remove.emit(item.version)">
-                {{ 'PLUGIN_VERSION_REMOVE' | translate }}
+                {{ removeLabelKey() | translate }}
               </app-sharp-button>
             }
           </div>

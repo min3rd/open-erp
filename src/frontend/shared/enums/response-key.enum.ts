@@ -209,5 +209,11 @@ export enum ResponseKey {
   ROUTE = 'route',
   ORDER = 'order',
   PERMISSION = 'permission',
-  CONTRACT_VERSION = 'contract_version'
+  CONTRACT_VERSION = 'contract_version',
+  ENTITLEMENT_PLANS = 'entitlement_plans',
+  DEFAULT_INSTALL = 'default_install',
+  FORCE_UNINSTALL = 'force_uninstall',
+  CONFIRM_TEXT = 'confirm_text',
+  AFFECTED_TENANTS = 'affected_tenants',
+  DIGEST = 'digest'
 }
