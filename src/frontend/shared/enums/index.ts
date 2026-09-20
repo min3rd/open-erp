@@ -6,6 +6,7 @@ export * from './account.enum';
 export * from './data-scope.enum';
 export * from './data-operation.enum';
 export * from './platform.enum';
+export * from './plugin.enum';
 export * from './sample-record.enum';
 export * from './response-key.enum';
 
