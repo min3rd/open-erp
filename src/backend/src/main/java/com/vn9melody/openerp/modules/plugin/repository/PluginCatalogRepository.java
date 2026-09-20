@@ -1,10 +1,14 @@
 package com.vn9melody.openerp.modules.plugin.repository;
 
+import com.vn9melody.openerp.core.enums.PluginCatalogStatus;
 import com.vn9melody.openerp.core.enums.PluginVisibility;
 import com.vn9melody.openerp.modules.plugin.model.PluginCatalog;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -20,6 +24,26 @@ public class PluginCatalogRepository implements PanacheRepositoryBase<PluginCata
 
     public List<PluginCatalog> listPlatform() {
         return list("visibility = ?1 order by pluginKey asc", PluginVisibility.PLATFORM);
+    }
+
+    public PanacheQuery<PluginCatalog> search(String keyword, PluginCatalogStatus status) {
+        StringBuilder query = new StringBuilder();
+        Map<String, Object> params = new HashMap<>();
+        if (keyword != null && !keyword.isBlank()) {
+            query.append("(lower(pluginKey) like :keyword or lower(nameKey) like :keyword)");
+            params.put("keyword", "%" + keyword.trim().toLowerCase() + "%");
+        }
+        if (status != null) {
+            if (!query.isEmpty()) {
+                query.append(" and ");
+            }
+            query.append("catalogStatus = :status");
+            params.put("status", status);
+        }
+        if (query.isEmpty()) {
+            return findAll();
+        }
+        return find(query.toString(), params);
     }
 
     public List<PluginCatalog> listTenantPrivate(UUID tenantId) {

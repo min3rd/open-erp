@@ -110,6 +110,36 @@ public class PlatformPluginApiTest {
             .body("code", equalTo(ErrorCode.UNAUTHORIZED));
     }
 
+    @Test
+    @DisplayName("P1 (BUG-94): có tham số phân trang → khuôn mẫu Paginated List với plugin_key")
+    public void testPaginatedCatalogMode() {
+        given().header("Authorization", "Bearer " + superAdminToken)
+            .queryParam("page", 0)
+            .queryParam("size", 10)
+            .queryParam("keyword", "sales")
+            .when().get(PLUGINS_PATH)
+            .then()
+            .statusCode(200)
+            .body("code", equalTo(PlatformErrorCode.PLATFORM_PLUGIN_LIST_SUCCESS))
+            .body("data.page", equalTo(0))
+            .body("data.size", equalTo(10))
+            .body("data.total_items", org.hamcrest.Matchers.greaterThanOrEqualTo(1))
+            .body("data.items[0].plugin_key", equalTo("sales"))
+            .body("data.items[0].name_key", not(emptyOrNullString()));
+    }
+
+    @Test
+    @DisplayName("P1 (BUG-94): filter catalog_status không hợp lệ → 400 VALIDATION_FAILED")
+    public void testPaginatedCatalogInvalidStatus() {
+        given().header("Authorization", "Bearer " + superAdminToken)
+            .queryParam("page", 0)
+            .queryParam("catalog_status", "UNKNOWN")
+            .when().get(PLUGINS_PATH)
+            .then()
+            .statusCode(400)
+            .body("code", equalTo(ErrorCode.VALIDATION_FAILED));
+    }
+
     private String login(String email) {
         return given().contentType(ContentType.JSON)
             .body(Map.of("email", email, "password", PlatformTestSupport.PASSWORD))

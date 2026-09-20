@@ -135,6 +135,17 @@ public class PluginAdminService {
         return catalogRepository.existsByPluginKey(pluginKey);
     }
 
+    public record CatalogPage(List<PluginResponses.CatalogItem> items, int page, int size, long totalItems) {}
+
+    @Transactional
+    public CatalogPage listCatalog(String keyword, PluginCatalogStatus status, int page, int size) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        var query = catalogRepository.search(keyword, status).page(safePage, safeSize);
+        List<PluginResponses.CatalogItem> items = query.list().stream().map(this::toCatalogItem).toList();
+        return new CatalogPage(items, safePage, safeSize, query.count());
+    }
+
     @Transactional
     public void deleteCatalog(String pluginKey, UUID actorId) {
         PluginCatalog catalog = requireCatalog(pluginKey);
