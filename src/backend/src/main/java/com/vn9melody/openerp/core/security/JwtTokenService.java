@@ -17,6 +17,7 @@ public class JwtTokenService {
 
     public static final String TYPE_PRE_AUTH = "PRE_AUTH";
     public static final String TYPE_REFRESH = "REFRESH";
+    public static final String TYPE_PLUGIN_RUNTIME = "PLUGIN_RUNTIME";
 
     @Inject
     JWTParser jwtParser;
@@ -74,6 +75,21 @@ public class JwtTokenService {
                 .claim("type", TYPE_PRE_AUTH)
                 .claim("purpose", purpose)
                 .expiresIn(Duration.ofMinutes(5))
+                .sign();
+    }
+
+    /**
+     * Short-lived token for iframe plugin runtime sessions (TASK-343): scoped to
+     * one (tenant, plugin) pair and unusable for core APIs because of its type.
+     */
+    public String generatePluginRuntimeToken(UUID userId, UUID tenantId, String pluginKey, long minutes) {
+        return Jwt.issuer(issuer)
+                .subject(userId != null ? userId.toString() : "")
+                .claim("jti", UUID.randomUUID().toString())
+                .claim("type", TYPE_PLUGIN_RUNTIME)
+                .claim("tenant_id", tenantId != null ? tenantId.toString() : null)
+                .claim("plugin_key", pluginKey)
+                .expiresIn(Duration.ofMinutes(minutes))
                 .sign();
     }
 

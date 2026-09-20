@@ -51,6 +51,7 @@ public final class PluginErrorCode {
     public static final String PLUGIN_CREDENTIAL_TEST_SUCCESS = "PLUGIN_CREDENTIAL_TEST_SUCCESS";
     public static final String PLUGIN_NOTIFICATION_LIST_SUCCESS = "PLUGIN_NOTIFICATION_LIST_SUCCESS";
     public static final String PLUGIN_NOTIFICATION_READ_SUCCESS = "PLUGIN_NOTIFICATION_READ_SUCCESS";
+    public static final String PLUGIN_RUNTIME_SESSION_ISSUED = "PLUGIN_RUNTIME_SESSION_ISSUED";
 
     // Errors - artifact
     public static final String PLUGIN_ARTIFACT_SOURCE_INVALID = "PLUGIN_ARTIFACT_SOURCE_INVALID";
@@ -95,6 +96,7 @@ public final class PluginErrorCode {
     public static final String PLUGIN_SERVICE_UNHEALTHY = "PLUGIN_SERVICE_UNHEALTHY";
     public static final String PLUGIN_RUNTIME_UNAVAILABLE = "PLUGIN_RUNTIME_UNAVAILABLE";
     public static final String PLUGIN_RUNTIME_REQUEST_TOO_LARGE = "PLUGIN_RUNTIME_REQUEST_TOO_LARGE";
+    public static final String PLUGIN_RUNTIME_TOKEN_INVALID = "PLUGIN_RUNTIME_TOKEN_INVALID";
     public static final String PLUGIN_RESOURCE_QUOTA_EXCEEDED = "PLUGIN_RESOURCE_QUOTA_EXCEEDED";
     public static final String PLUGIN_IN_USE_BY_TENANTS = "PLUGIN_IN_USE_BY_TENANTS";
     public static final String PLUGIN_SNAPSHOT_FAILED = "PLUGIN_SNAPSHOT_FAILED";

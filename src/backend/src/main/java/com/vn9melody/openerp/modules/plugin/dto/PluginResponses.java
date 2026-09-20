@@ -359,6 +359,21 @@ public final class PluginResponses {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class RuntimeSession {
+        @JsonProperty(PluginResponseKey.Json.PLUGIN_KEY)
+        public String pluginKey;
+
+        @JsonProperty(PluginResponseKey.Json.TOKEN)
+        public String token;
+
+        @JsonProperty(PluginResponseKey.Json.EXPIRES_IN_SECONDS)
+        public long expiresInSeconds;
+
+        @JsonProperty(PluginResponseKey.Json.ENTRY)
+        public String entry;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class OperationStatus {
         @JsonProperty(PluginResponseKey.Json.OPERATION_ID)
         public String operationId;

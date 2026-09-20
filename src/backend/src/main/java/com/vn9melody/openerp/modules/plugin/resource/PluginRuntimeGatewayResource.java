@@ -13,8 +13,11 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
+import java.util.UUID;
 
 /**
  * Tenant runtime gateway (TASK-340): forwards requests to the plugin container
@@ -33,6 +36,9 @@ public class PluginRuntimeGatewayResource {
 
     @Context
     UriInfo uriInfo;
+
+    @Context
+    HttpHeaders httpHeaders;
 
     @GET
     @Path("/{path:.*}")
@@ -68,10 +74,22 @@ public class PluginRuntimeGatewayResource {
     }
 
     private Response forward(String pluginKey, String method, String path, String contentType, byte[] body) {
-        UserSecurityContext context = securityContextService.getCurrentContext();
+        String pluginToken = uriInfo.getQueryParameters().getFirst("plugin_token");
+        if (pluginToken == null || pluginToken.isBlank()) {
+            pluginToken = httpHeaders.getHeaderString("X-Plugin-Token");
+        }
+        UUID tenantId = null;
+        UUID userId = null;
+        if (pluginToken == null || pluginToken.isBlank()) {
+            UserSecurityContext context = securityContextService.getCurrentContext();
+            tenantId = context.tenantId();
+            userId = context.userId();
+        }
         PluginRuntimeGatewayService.GatewayResponse result = gatewayService.forward(
-                context.tenantId(), context.userId(), pluginKey, method, path,
-                uriInfo.getRequestUri().getRawQuery(), contentType, body);
+                tenantId, userId, pluginKey, pluginToken, method, path,
+                UriBuilder.fromUri(uriInfo.getRequestUri()).replaceQueryParam("plugin_token")
+                        .build().getRawQuery(),
+                contentType, body);
         Response.ResponseBuilder builder = Response.status(result.status());
         if (result.contentType() != null && !result.contentType().isBlank()) {
             builder.type(result.contentType());

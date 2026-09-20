@@ -2,10 +2,12 @@ package com.vn9melody.openerp.modules.plugin.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vn9melody.openerp.core.api.ApiException;
-import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
 import com.vn9melody.openerp.core.enums.TenantPluginStatus;
+import com.vn9melody.openerp.core.security.JwtTokenService;
+import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
 import com.vn9melody.openerp.modules.plugin.model.TenantPlugin;
 import com.vn9melody.openerp.modules.plugin.repository.TenantPluginRepository;
+import io.smallrye.jwt.auth.principal.ParseException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -16,6 +18,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.UUID;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
 
 /**
@@ -32,6 +35,9 @@ public class PluginRuntimeGatewayService {
     @Inject
     TenantPluginRepository tenantPluginRepository;
 
+    @Inject
+    JwtTokenService jwtTokenService;
+
     @ConfigProperty(name = "openerp.plugin.deployer.namespace", defaultValue = "default")
     String namespace;
 
@@ -45,8 +51,15 @@ public class PluginRuntimeGatewayService {
 
     public record GatewayResponse(int status, String contentType, byte[] body) {}
 
-    public GatewayResponse forward(UUID tenantId, UUID userId, String pluginKey, String method, String path,
-                                   String query, String contentType, byte[] body) {
+    private record PluginTokenPrincipal(UUID tenantId, UUID userId) {}
+
+    public GatewayResponse forward(UUID tenantId, UUID userId, String pluginKey, String pluginToken,
+                                   String method, String path, String query, String contentType, byte[] body) {
+        if (pluginToken != null && !pluginToken.isBlank()) {
+            PluginTokenPrincipal principal = verifyPluginToken(pluginToken, pluginKey);
+            tenantId = principal.tenantId();
+            userId = principal.userId();
+        }
         TenantPlugin ledger = tenantPluginRepository.findByTenantAndKey(tenantId, pluginKey)
                 .orElseThrow(() -> new ApiException(403, PluginErrorCode.PLUGIN_DISABLED_FOR_TENANT,
                         "Plugin is not enabled for this tenant"));
@@ -84,6 +97,26 @@ public class PluginRuntimeGatewayService {
             Thread.currentThread().interrupt();
             throw new ApiException(503, PluginErrorCode.PLUGIN_RUNTIME_UNAVAILABLE,
                     "Plugin runtime request interrupted");
+        }
+    }
+
+    private PluginTokenPrincipal verifyPluginToken(String token, String pluginKey) {
+        try {
+            JsonWebToken jwt = jwtTokenService.parseToken(token);
+            String type = jwt.getClaim("type");
+            String claimKey = jwt.getClaim("plugin_key");
+            String tenantId = jwt.getClaim("tenant_id");
+            if (!JwtTokenService.TYPE_PLUGIN_RUNTIME.equals(type) || claimKey == null
+                    || !claimKey.equals(pluginKey) || tenantId == null) {
+                throw new ApiException(401, PluginErrorCode.PLUGIN_RUNTIME_TOKEN_INVALID,
+                        "Plugin runtime token does not match this plugin");
+            }
+            String subject = jwt.getSubject();
+            UUID userId = subject == null || subject.isBlank() ? null : UUID.fromString(subject);
+            return new PluginTokenPrincipal(UUID.fromString(tenantId), userId);
+        } catch (ParseException e) {
+            throw new ApiException(401, PluginErrorCode.PLUGIN_RUNTIME_TOKEN_INVALID,
+                    "Plugin runtime token is expired or invalid");
         }
     }
 

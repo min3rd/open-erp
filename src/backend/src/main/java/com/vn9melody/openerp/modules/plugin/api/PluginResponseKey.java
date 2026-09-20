@@ -94,7 +94,11 @@ public enum PluginResponseKey {
     NOTIFICATION_TYPE("type"),
     SEVERITY("severity"),
     READ_AT("read_at"),
-    UNREAD_COUNT("unread_count");
+    UNREAD_COUNT("unread_count"),
+
+    // Runtime session
+    TOKEN("token"),
+    EXPIRES_IN_SECONDS("expires_in_seconds");
 
     public interface Json {
         String PLUGIN_KEY = "plugin_key";
@@ -175,6 +179,8 @@ public enum PluginResponseKey {
         String SEVERITY = "severity";
         String READ_AT = "read_at";
         String UNREAD_COUNT = "unread_count";
+        String TOKEN = "token";
+        String EXPIRES_IN_SECONDS = "expires_in_seconds";
     }
 
     private final String key;

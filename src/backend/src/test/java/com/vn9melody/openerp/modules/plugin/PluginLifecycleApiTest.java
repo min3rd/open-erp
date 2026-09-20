@@ -220,6 +220,12 @@ public class PluginLifecycleApiTest {
                 .body("code", equalTo("PLUGIN_DISABLED_FOR_TENANT"));
 
         given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
+                .body(Map.of("plugin_key", pluginKey))
+                .post("/api/v1/plugins/session-token")
+                .then().statusCode(403)
+                .body("code", equalTo("PLUGIN_DISABLED_FOR_TENANT"));
+
+        given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
                 .body(Map.of("version", "1.0.0"))
                 .post(TENANT_PLUGINS_PATH + "/" + pluginKey + "/install")
                 .then().statusCode(200).body("data.status", equalTo("ACTIVE"));
@@ -228,6 +234,26 @@ public class PluginLifecycleApiTest {
                 .get("/api/v1/plugins/runtime/" + pluginKey + "/health")
                 .then().statusCode(503)
                 .body("code", equalTo("PLUGIN_RUNTIME_UNAVAILABLE"));
+
+        String sessionToken = given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
+                .body(Map.of("plugin_key", pluginKey))
+                .post("/api/v1/plugins/session-token")
+                .then().statusCode(200)
+                .body("code", equalTo("PLUGIN_RUNTIME_SESSION_ISSUED"))
+                .body("data.entry", equalTo("/api/v1/plugins/runtime/" + pluginKey))
+                .body("data.expires_in_seconds", equalTo(300))
+                .extract().path("data.token");
+        assertTrue(sessionToken != null && !sessionToken.isBlank(), "session token must be issued");
+
+        given().queryParam("plugin_token", sessionToken)
+                .get("/api/v1/plugins/runtime/" + pluginKey + "/health")
+                .then().statusCode(503)
+                .body("code", equalTo("PLUGIN_RUNTIME_UNAVAILABLE"));
+
+        given().queryParam("plugin_token", sessionToken + "tampered")
+                .get("/api/v1/plugins/runtime/" + pluginKey + "/health")
+                .then().statusCode(401)
+                .body("code", equalTo("PLUGIN_RUNTIME_TOKEN_INVALID"));
 
         given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
                 .post(TENANT_PLUGINS_PATH + "/" + pluginKey + "/disable")

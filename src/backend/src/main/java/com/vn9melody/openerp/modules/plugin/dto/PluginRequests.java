@@ -144,6 +144,11 @@ public class PluginRequests {
         public String reason;
     }
 
+    public static class RuntimeSession {
+        @JsonProperty(PluginResponseKey.Json.PLUGIN_KEY)
+        public String pluginKey;
+    }
+
     public static class Credential {
         @JsonProperty(PluginResponseKey.Json.NAME)
         public String name;
