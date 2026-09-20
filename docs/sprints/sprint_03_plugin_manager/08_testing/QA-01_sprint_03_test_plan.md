@@ -12,7 +12,7 @@
 | Web build | `npm run build` (`src/frontend/web`) | PASS (chunk `plugin-marketplace`, `platform-plugin-list`, `plugin-app`) |
 | Mobile build | `npm run build` (`src/frontend/mobile`) | PASS (chunk `plugins-page`) |
 | CLI smoke | `node --test test/*.test.mjs` (`tools/open-erp-cli`) | 3/3 PASS |
-| i18n parity | script đối chiếu key vi/en | Web 862/862, Mobile 535/535, **0 lệch** |
+| i18n parity | script đối chiếu key vi/en | Web 864/864, Mobile 535/535, **0 lệch** |
 
 ## 2. Ma Trận Kiểm Thử Thủ Công (Bắt buộc chụp ảnh)
 

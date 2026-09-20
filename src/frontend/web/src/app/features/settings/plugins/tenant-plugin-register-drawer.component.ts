@@ -4,6 +4,7 @@ import {
   ApiErrorResponse,
   DrawerComponent,
   I18nService,
+  PluginCredentialItem,
   PluginVersionItem,
   SharpButtonComponent,
   TranslatePipe,
@@ -36,6 +37,8 @@ export class TenantPluginRegisterDrawerComponent {
 
   versions = signal<PluginVersionItem[]>([]);
   versionsLoading = signal(false);
+  credentials = signal<PluginCredentialItem[]>([]);
+  credentialId = signal<string>('');
 
   form = signal({
     plugin_key: '',
@@ -73,10 +76,18 @@ export class TenantPluginRegisterDrawerComponent {
         this.lastOpen = true;
         this.lastKey = key;
         this.reset();
+        this.loadCredentials();
         if (key) {
           this.loadVersions(key);
         }
       }
+    });
+  }
+
+  loadCredentials(): void {
+    this.service.credentials().subscribe({
+      next: (response) => this.credentials.set(response.data?.items ?? []),
+      error: () => this.credentials.set([]),
     });
   }
 
@@ -163,6 +174,7 @@ export class TenantPluginRegisterDrawerComponent {
       tag: value.tag || undefined,
       checksum: value.checksum || undefined,
       artifact_ref: value.artifact_ref || undefined,
+      credential_id: this.credentialId() || undefined,
       manifest,
     };
     this.busy.set(true);

@@ -298,9 +298,18 @@ public class PluginLifecycleApiTest {
     }
 
     @Test
-    @DisplayName("T2: tenant detail trả catalog cho plugin được cấp phép, 404 với key lạ")
+    @DisplayName("T2: tenant detail trả catalog cho plugin được cấp phép, ẩn DRAFT, 404 với key lạ")
     public void testTenantDetail() {
         registerAndPublish(pluginKey, "1.0.0", "COMPATIBLE", false);
+        QuarkusTransaction.requiringNew().run(() -> {
+            PluginRequests.RegisterVersion draft = new PluginRequests.RegisterVersion();
+            draft.source = "DOCKER_HUB";
+            draft.imageRef = "open-erp/" + pluginKey;
+            draft.tag = "1.1.0";
+            draft.version = "1.1.0";
+            draft.manifest = buildManifest(pluginKey, "1.1.0", "COMPATIBLE", false);
+            adminService.registerVersion(pluginKey, draft, userId);
+        });
 
         given().header("Authorization", "Bearer " + token)
                 .get(TENANT_PLUGINS_PATH + "/" + pluginKey)
@@ -308,7 +317,8 @@ public class PluginLifecycleApiTest {
                 .body("code", equalTo("PLUGIN_DETAIL_SUCCESS"))
                 .body("data.plugin_key", equalTo(pluginKey))
                 .body("data.version", hasSize(1))
-                .body("data.version[0].version", equalTo("1.0.0"));
+                .body("data.version[0].version", equalTo("1.0.0"))
+                .body("data.version[0].release_status", equalTo("PUBLISHED"));
 
         given().header("Authorization", "Bearer " + token)
                 .get(TENANT_PLUGINS_PATH + "/s3lt-missing-" + UUID.randomUUID().toString().substring(0, 8))

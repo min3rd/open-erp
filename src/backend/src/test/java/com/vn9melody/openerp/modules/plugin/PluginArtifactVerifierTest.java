@@ -20,6 +20,7 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -39,6 +40,9 @@ public class PluginArtifactVerifierTest {
     PluginArtifactUploadService uploadService;
 
     @Inject
+    com.vn9melody.openerp.modules.plugin.service.PluginCredentialService credentialService;
+
+    @Inject
     ObjectMapper objectMapper;
 
     @Inject
@@ -47,10 +51,11 @@ public class PluginArtifactVerifierTest {
     private UUID tenantId;
     private UUID userId;
     private String pluginKey;
+    private String suffix;
 
     @BeforeEach
     public void setUp() {
-        String suffix = S2EngineFixtures.suffix();
+        suffix = S2EngineFixtures.suffix();
         QuarkusTransaction.requiringNew().run(() -> {
             tenantId = S2EngineFixtures.insertTenant(em, suffix);
             userId = S2EngineFixtures.insertUser(em, "art-" + suffix);
@@ -104,6 +109,44 @@ public class PluginArtifactVerifierTest {
                     }), userId);
             assertEquals("0.2.0", item.version);
         });
+    }
+
+    @Test
+    @DisplayName("BUG-96: credential_id được chấp nhận khi hợp lệ, 404 khi không tồn tại, 400 khi sai định dạng")
+    public void testCredentialReferenceValidation() {
+        java.util.concurrent.atomic.AtomicReference<String> credentialId = new java.util.concurrent.atomic.AtomicReference<>();
+        QuarkusTransaction.requiringNew().run(() -> {
+            PluginResponses.CredentialItem credential = credentialService.create(
+                    com.vn9melody.openerp.core.enums.PluginCredentialScope.PLATFORM, null,
+                    "art-cred-" + suffix, "registry-1.docker.io", "user", "secret", null);
+            credentialId.set(credential.id);
+        });
+
+        QuarkusTransaction.requiringNew().run(() -> {
+            PluginResponses.VersionItem item = adminService.registerVersion(pluginKey,
+                    versionRequest("DOCKER_HUB", "0.3.0", ref -> {
+                        ref.imageRef = "open-erp/" + pluginKey;
+                        ref.tag = "0.3.0";
+                        ref.credentialId = credentialId.get();
+                    }), userId);
+            assertEquals("0.3.0", item.version);
+        });
+
+        ApiException invalid = assertThrows(ApiException.class, () -> QuarkusTransaction.requiringNew().run(() ->
+                adminService.registerVersion(pluginKey, versionRequest("DOCKER_HUB", "0.3.1", ref -> {
+                    ref.imageRef = "open-erp/" + pluginKey;
+                    ref.tag = "0.3.1";
+                    ref.credentialId = "not-a-uuid";
+                }), userId)));
+        assertEquals(400, invalid.getStatusCode());
+
+        ApiException missing = assertThrows(ApiException.class, () -> QuarkusTransaction.requiringNew().run(() ->
+                adminService.registerVersion(pluginKey, versionRequest("DOCKER_HUB", "0.3.2", ref -> {
+                    ref.imageRef = "open-erp/" + pluginKey;
+                    ref.tag = "0.3.2";
+                    ref.credentialId = UUID.randomUUID().toString();
+                }), userId)));
+        assertEquals(404, missing.getStatusCode());
     }
 
     private PluginRequests.RegisterVersion versionRequest(String source, String version,

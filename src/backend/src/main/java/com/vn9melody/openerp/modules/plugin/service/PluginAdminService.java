@@ -67,6 +67,9 @@ public class PluginAdminService {
     PluginArtifactVerifier artifactVerifier;
 
     @Inject
+    PluginCredentialService credentialService;
+
+    @Inject
     ObjectMapper objectMapper;
 
     @Inject
@@ -240,6 +243,7 @@ public class PluginAdminService {
 
         artifactVerifier.verifyRegistry(request.source, request.imageRef, request.registryUrl);
         artifactVerifier.verifyBundleChecksum(request.artifactRef, request.checksum);
+        validateCredentialReference(request.credentialId, null);
 
         PluginVersion entity = new PluginVersion();
         entity.catalogId = catalog.id;
@@ -430,10 +434,29 @@ public class PluginAdminService {
     public PluginResponses.VersionItem tenantRegisterVersion(UUID tenantId, UUID actorId, String pluginKey,
                                                              PluginRequests.RegisterVersion request) {
         requireOwnPrivateCatalog(tenantId, pluginKey);
+        validateCredentialReference(request != null ? request.credentialId : null, tenantId);
         PluginResponses.VersionItem item = registerVersion(pluginKey, request, actorId);
         auditService.tenant(tenantId, PlatformAction.PLUGIN_TENANT_VERSION_ADDED, pluginKey,
                 Map.of(PluginResponseKey.VERSION.getKey(), request.version));
         return item;
+    }
+
+    private void validateCredentialReference(String credentialId, UUID tenantId) {
+        if (credentialId == null || credentialId.isBlank()) {
+            return;
+        }
+        UUID id;
+        try {
+            id = UUID.fromString(credentialId.trim());
+        } catch (IllegalArgumentException e) {
+            throw new ApiException(400, PluginErrorCode.PLUGIN_CREDENTIAL_NOT_FOUND,
+                    "credential_id is not a valid UUID");
+        }
+        if (tenantId == null) {
+            credentialService.requireExists(id);
+        } else {
+            credentialService.validateForUse(id, tenantId);
+        }
     }
 
     @Transactional
@@ -614,6 +637,7 @@ public class PluginAdminService {
         if (request.checksum != null && !request.checksum.isBlank()) {
             distribution.put("checksum", request.checksum.trim());
         }
+        putIfPresent(distribution, "credential_id", request.credentialId);
         return distribution;
     }
 

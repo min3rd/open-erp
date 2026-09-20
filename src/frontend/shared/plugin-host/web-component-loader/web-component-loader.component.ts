@@ -4,10 +4,12 @@ import {
   Component,
   ElementRef,
   OnDestroy,
+  inject,
   input,
   output,
   viewChild,
 } from '@angular/core';
+import { PluginHostService } from '../plugin-host.service';
 
 @Component({
   selector: 'app-plugin-web-component-loader',
@@ -17,6 +19,7 @@ import {
 })
 export class PluginWebComponentLoaderComponent implements AfterViewInit, OnDestroy {
   private static loadedScripts = new Set<string>();
+  private hostService = inject(PluginHostService);
 
   entry = input.required<string>();
   pluginKey = input.required<string>();
@@ -28,10 +31,11 @@ export class PluginWebComponentLoaderComponent implements AfterViewInit, OnDestr
 
   async ngAfterViewInit(): Promise<void> {
     try {
-      const url = this.entry();
-      if (!PluginWebComponentLoaderComponent.loadedScripts.has(url)) {
+      const entry = this.entry();
+      if (!PluginWebComponentLoaderComponent.loadedScripts.has(entry)) {
+        const url = await this.hostService.runtimeUrlWithToken(entry, this.pluginKey());
         await this.loadScript(url);
-        PluginWebComponentLoaderComponent.loadedScripts.add(url);
+        PluginWebComponentLoaderComponent.loadedScripts.add(entry);
       }
       const tag = this.element() || `plugin-${this.pluginKey()}`;
       if (!customElements.get(tag)) {

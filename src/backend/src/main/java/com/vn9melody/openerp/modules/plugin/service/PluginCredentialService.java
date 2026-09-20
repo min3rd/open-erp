@@ -132,6 +132,27 @@ public class PluginCredentialService {
         return item;
     }
 
+    @Transactional
+    public void validateForUse(UUID credentialId, UUID tenantId) {
+        PluginCredential entity = requireExists(credentialId);
+        if (entity.scope == PluginCredentialScope.PLATFORM) {
+            return;
+        }
+        if (tenantId == null || !tenantId.equals(entity.tenantId)) {
+            throw new ApiException(403, PluginErrorCode.PLUGIN_NOT_ENTITLED,
+                    "Tenant credential does not belong to this tenant");
+        }
+    }
+
+    @Transactional
+    public PluginCredential requireExists(UUID credentialId) {
+        PluginCredential entity = repository.findById(credentialId);
+        if (entity == null) {
+            throw new ApiException(404, PluginErrorCode.PLUGIN_CREDENTIAL_NOT_FOUND, "Credential not found");
+        }
+        return entity;
+    }
+
     public ResolvedCredential resolve(UUID tenantId, String registryHost) {
         if (registryHost == null || registryHost.isBlank()) {
             return null;

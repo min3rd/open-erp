@@ -104,6 +104,22 @@
       </label>
     </div>
 
+    @if (source() !== 'JAR_BUNDLE') {
+      <label class="block">
+        <span class="mb-0.5 block text-[11px] text-neutral-600 dark:text-neutral-300">{{ 'PLUGIN_FIELD_CREDENTIAL' | translate }}</span>
+        <select
+          class="w-full rounded-none border border-neutral-300 bg-white px-2 py-1 text-xs dark:border-neutral-700 dark:bg-neutral-900"
+          [value]="credentialId()"
+          (change)="credentialId.set($any($event.target).value)"
+        >
+          <option value="">{{ 'PLUGIN_CREDENTIAL_NONE' | translate }}</option>
+          @for (credential of credentials(); track credential.id) {
+            <option [value]="credential.id">{{ credential.name }} · {{ credential.registry_host }}</option>
+          }
+        </select>
+      </label>
+    }
+
     @if (source() === 'DOCKER_HUB') {
       <label class="block">
         <span class="mb-0.5 block text-[11px] text-neutral-600 dark:text-neutral-300">{{ 'PLUGIN_FIELD_IMAGE_REF' | translate }}</span>

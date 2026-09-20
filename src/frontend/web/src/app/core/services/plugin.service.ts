@@ -92,7 +92,8 @@ export class PluginService {
       [ResponseKey.REPOSITORY]: payload.repository,
       [ResponseKey.TAG]: payload.tag,
       [ResponseKey.CHECKSUM]: payload.checksum,
-      [ResponseKey.ARTIFACT_REF]: payload.artifact_ref
+      [ResponseKey.ARTIFACT_REF]: payload.artifact_ref,
+      [ResponseKey.CREDENTIAL_ID]: payload.credential_id
     });
   }
 
@@ -114,7 +115,8 @@ export class PluginService {
       [ResponseKey.REPOSITORY]: payload.repository,
       [ResponseKey.TAG]: payload.tag,
       [ResponseKey.CHECKSUM]: payload.checksum,
-      [ResponseKey.ARTIFACT_REF]: payload.artifact_ref
+      [ResponseKey.ARTIFACT_REF]: payload.artifact_ref,
+      [ResponseKey.CREDENTIAL_ID]: payload.credential_id
     });
   }
 

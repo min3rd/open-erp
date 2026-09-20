@@ -215,5 +215,6 @@ export enum ResponseKey {
   FORCE_UNINSTALL = 'force_uninstall',
   CONFIRM_TEXT = 'confirm_text',
   AFFECTED_TENANTS = 'affected_tenants',
-  DIGEST = 'digest'
+  DIGEST = 'digest',
+  CREDENTIAL_ID = 'credential_id'
 }

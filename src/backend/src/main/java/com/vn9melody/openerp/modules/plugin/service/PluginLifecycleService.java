@@ -199,7 +199,13 @@ public class PluginLifecycleService {
             throw new ApiException(403, PluginErrorCode.PLUGIN_NOT_ENTITLED,
                     "Plugin is not entitled for this tenant");
         }
-        return adminService.getDetail(pluginKey);
+        PluginResponses.CatalogDetail detail = adminService.getDetail(pluginKey);
+        detail.versions = detail.versions == null ? List.of() : detail.versions.stream()
+                .filter(version -> PluginReleaseStatus.PUBLISHED.name().equals(version.releaseStatus)
+                        || PluginReleaseStatus.DEPRECATED.name().equals(version.releaseStatus))
+                .toList();
+        detail.entitlementPlans = null;
+        return detail;
     }
 
     @Transactional

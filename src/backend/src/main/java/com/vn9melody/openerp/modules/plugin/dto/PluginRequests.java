@@ -70,6 +70,9 @@ public class PluginRequests {
         @JsonProperty(PluginResponseKey.Json.ARTIFACT_REF)
         public String artifactRef;
 
+        @JsonProperty(PluginResponseKey.Json.CREDENTIAL_ID)
+        public String credentialId;
+
         @JsonProperty(PluginResponseKey.Json.TEMPLATE_VERSION)
         public String templateVersion;
     }

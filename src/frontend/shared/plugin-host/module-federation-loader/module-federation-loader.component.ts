@@ -4,10 +4,12 @@ import {
   Component,
   ElementRef,
   OnDestroy,
+  inject,
   input,
   output,
   viewChild,
 } from '@angular/core';
+import { PluginHostService } from '../plugin-host.service';
 
 interface RemoteContainer {
   init(sharedScope: Record<string, unknown>): Promise<void> | void;
@@ -27,6 +29,7 @@ interface RemoteInstance {
 })
 export class PluginModuleFederationLoaderComponent implements AfterViewInit, OnDestroy {
   private static loadedScripts = new Set<string>();
+  private hostService = inject(PluginHostService);
 
   entry = input.required<string>();
   pluginKey = input.required<string>();
@@ -68,15 +71,16 @@ export class PluginModuleFederationLoaderComponent implements AfterViewInit, OnD
     return this.pluginKey().replace(/[^a-zA-Z0-9_]/g, '_');
   }
 
-  private loadRemoteEntry(url: string): Promise<void> {
-    if (PluginModuleFederationLoaderComponent.loadedScripts.has(url)) {
+  private async loadRemoteEntry(entry: string): Promise<void> {
+    if (PluginModuleFederationLoaderComponent.loadedScripts.has(entry)) {
       return Promise.resolve();
     }
+    const url = await this.hostService.runtimeUrlWithToken(entry, this.pluginKey());
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.src = url;
       script.onload = () => {
-        PluginModuleFederationLoaderComponent.loadedScripts.add(url);
+        PluginModuleFederationLoaderComponent.loadedScripts.add(entry);
         resolve();
       };
       script.onerror = () => reject(new Error(`Failed to load module federation remote: ${url}`));

@@ -160,6 +160,7 @@ export interface PluginRegisterVersionPayload {
   digest?: string;
   checksum?: string;
   artifact_ref?: string;
+  credential_id?: string;
 }
 
 export interface PluginBlockPayload {

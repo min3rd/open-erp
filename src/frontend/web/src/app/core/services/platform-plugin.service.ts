@@ -80,7 +80,8 @@ export class PlatformPluginService {
       [ResponseKey.TAG]: payload.tag,
       [ResponseKey.DIGEST]: payload.digest,
       [ResponseKey.CHECKSUM]: payload.checksum,
-      [ResponseKey.ARTIFACT_REF]: payload.artifact_ref
+      [ResponseKey.ARTIFACT_REF]: payload.artifact_ref,
+      [ResponseKey.CREDENTIAL_ID]: payload.credential_id
     });
   }
 

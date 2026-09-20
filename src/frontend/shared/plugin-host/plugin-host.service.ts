@@ -66,6 +66,19 @@ export class PluginHostService {
     return entry;
   }
 
+  async runtimeUrlWithToken(entry: string, pluginKey: string): Promise<string> {
+    const mapped = this.runtimeEntryUrl(entry);
+    if (!mapped.startsWith(GATEWAY_PATH_PREFIX)) {
+      return mapped;
+    }
+    const session = await this.session(pluginKey);
+    if (!session?.token) {
+      return mapped;
+    }
+    const separator = mapped.includes('?') ? '&' : '?';
+    return `${mapped}${separator}plugin_token=${encodeURIComponent(session.token)}`;
+  }
+
   contractMatches(host: PluginHostSlotHost | undefined, contribution: PluginHostContribution): boolean {
     if (!host || !contribution.contract_version) {
       return true;

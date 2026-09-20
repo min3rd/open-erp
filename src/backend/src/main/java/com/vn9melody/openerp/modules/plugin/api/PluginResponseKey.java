@@ -98,7 +98,8 @@ public enum PluginResponseKey {
 
     // Runtime session
     TOKEN("token"),
-    EXPIRES_IN_SECONDS("expires_in_seconds");
+    EXPIRES_IN_SECONDS("expires_in_seconds"),
+    CREDENTIAL_ID("credential_id");
 
     public interface Json {
         String PLUGIN_KEY = "plugin_key";
@@ -181,6 +182,7 @@ public enum PluginResponseKey {
         String UNREAD_COUNT = "unread_count";
         String TOKEN = "token";
         String EXPIRES_IN_SECONDS = "expires_in_seconds";
+        String CREDENTIAL_ID = "credential_id";
     }
 
     private final String key;

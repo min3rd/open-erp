@@ -43,7 +43,14 @@ public class TenantNotificationResource {
     @Path("/{notificationId}/read")
     public Response markRead(@PathParam("notificationId") String notificationId) {
         UserSecurityContext context = securityContextService.getCurrentContext();
-        notificationService.markRead(context.tenantId(), UUID.fromString(notificationId));
+        UUID id;
+        try {
+            id = UUID.fromString(notificationId);
+        } catch (IllegalArgumentException e) {
+            throw new com.vn9melody.openerp.core.api.ApiException(400,
+                    PluginErrorCode.PLUGIN_NOTIFICATION_NOT_FOUND, "Invalid notification id");
+        }
+        notificationService.markRead(context.tenantId(), id);
         return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_NOTIFICATION_READ_SUCCESS,
                 "Notification marked as read.", null)).build();
     }

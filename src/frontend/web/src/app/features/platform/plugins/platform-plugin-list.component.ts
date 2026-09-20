@@ -10,6 +10,7 @@ import {
   PluginBulkReport,
   PluginCatalogDetail,
   PluginCatalogItem,
+  PluginCredentialItem,
   PluginInstallationItem,
   PluginOperationStatus,
   PluginVersionItem,
@@ -72,6 +73,8 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
   versionSource = signal('DOCKER_HUB');
   versionBusy = signal(false);
   versionForm = signal({ version: '', image_ref: '', registry_url: '', repository: '', tag: '', checksum: '', artifact_ref: '', manifest_text: '' });
+  credentials = signal<PluginCredentialItem[]>([]);
+  credentialId = signal<string>('');
   uploadFile = signal<File | null>(null);
   uploadBusy = signal(false);
   uploadResult = signal<string>('');
@@ -280,6 +283,11 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     this.versionForm.set({ version: '', image_ref: '', registry_url: '', repository: '', tag: '', checksum: '', artifact_ref: '', manifest_text: '' });
     this.uploadResult.set('');
     this.uploadFile.set(null);
+    this.credentialId.set('');
+    this.service.credentials().subscribe({
+      next: (response) => this.credentials.set(response.data?.items ?? []),
+      error: () => this.credentials.set([]),
+    });
     this.versionOpen.set(true);
   }
 
@@ -334,6 +342,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
       tag: form.tag || undefined,
       checksum: form.checksum || undefined,
       artifact_ref: form.artifact_ref || undefined,
+      credential_id: this.credentialId() || undefined,
       manifest,
     }).subscribe({
       next: () => {
