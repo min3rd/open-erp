@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
+import { ColorVariant } from '../../enums';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { PluginOperationStatus } from '../../models/plugin.model';
 import { BadgeComponent } from '../badge/badge.component';
@@ -18,24 +19,24 @@ export class OperationProgressComponent {
     return status === 'INSTALLING' || status === 'UPGRADING' || status === 'UNINSTALLING';
   });
 
-  statusVariant = computed<string>(() => {
+  statusVariant = computed<ColorVariant>(() => {
     const status = this.operation()?.status ?? '';
     if (status.includes('FAILED')) {
-      return 'danger';
+      return ColorVariant.DANGER;
     }
     if (status === 'ACTIVE') {
-      return 'success';
+      return ColorVariant.SUCCESS;
     }
-    return 'warning';
+    return ColorVariant.WARNING;
   });
 
-  stepVariant(result: string): string {
+  stepVariant(result: string): ColorVariant {
     if (result === 'OK') {
-      return 'success';
+      return ColorVariant.SUCCESS;
     }
     if (result === 'FAILED') {
-      return 'danger';
+      return ColorVariant.DANGER;
     }
-    return 'neutral';
+    return ColorVariant.DEFAULT;
   }
 }

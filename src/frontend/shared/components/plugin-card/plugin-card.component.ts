@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
 import {
+  ColorVariant,
   PluginCatalogStatus,
   TenantPluginStatus,
 } from '../../enums';
@@ -43,20 +44,20 @@ export class PluginCardComponent {
     return `PLUGIN_STATUS_${status}`;
   }
 
-  statusVariant(): string {
+  statusVariant(): ColorVariant {
     switch (this.status()) {
       case TenantPluginStatus.ACTIVE:
       case PluginCatalogStatus.ACTIVE:
-        return 'success';
+        return ColorVariant.SUCCESS;
       case TenantPluginStatus.INSTALLING:
       case TenantPluginStatus.UPGRADING:
-        return 'warning';
+        return ColorVariant.WARNING;
       case TenantPluginStatus.INSTALL_FAILED:
       case TenantPluginStatus.ROLLBACK_FAILED:
       case PluginCatalogStatus.BLOCKED:
-        return 'danger';
+        return ColorVariant.DANGER;
       default:
-        return 'neutral';
+        return ColorVariant.DEFAULT;
     }
   }
 

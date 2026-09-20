@@ -159,6 +159,11 @@ export const routes: Routes = [
         path: 'sample-records',
         canActivate: [permissionGuard('core:sample-record:read')],
         loadComponent: () => import('./features/settings/sample-records/sample-record-list.component').then(m => m.SampleRecordListComponent)
+      },
+      {
+        path: 'plugins',
+        canActivate: [permissionGuard('core:plugin:read')],
+        loadComponent: () => import('./features/settings/plugins/plugin-marketplace.component').then(m => m.PluginMarketplaceComponent)
       }
     ]
   },

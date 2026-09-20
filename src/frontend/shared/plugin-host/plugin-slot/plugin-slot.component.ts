@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, effect, inject, input, signal } from '@angular/core';
-import { TranslatePipe } from '../../i18n/translate.pipe';
 import { PluginHostContribution, PluginHostSlotHost } from '../plugin-host.model';
 import { PluginHostService } from '../plugin-host.service';
 import { ContributionOutletComponent } from '../contribution-outlet/contribution-outlet.component';
@@ -8,7 +7,7 @@ import { ContributionOutletComponent } from '../contribution-outlet/contribution
 @Component({
   selector: 'app-plugin-slot',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, ContributionOutletComponent],
+  imports: [CommonModule, ContributionOutletComponent],
   templateUrl: './plugin-slot.component.html',
 })
 export class PluginSlotComponent {

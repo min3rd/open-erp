@@ -44,7 +44,7 @@ export interface PluginCatalogDetail
   entitlement_plans?: string[];
   block_reason?: string | null;
   blocked_at?: string | null;
-  versions: PluginVersionItem[];
+  version: PluginVersionItem[];
 }
 
 export interface PluginMarketplaceItem {
@@ -106,4 +106,17 @@ export interface PluginCredentialPayload {
   registry_host: string;
   username: string;
   secret: string;
+}
+
+export interface PluginNotification {
+  id: string;
+  type: string;
+  title_key: string;
+  severity: string;
+  read_at?: string | null;
+  created_at?: string;
+}
+
+export interface PluginNotificationList {
+  items: PluginNotification[];
 }

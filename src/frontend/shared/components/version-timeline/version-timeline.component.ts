@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, input, output } from '@angular/core';
-import { PluginReleaseStatus } from '../../enums';
+import { ColorVariant, PluginReleaseStatus } from '../../enums';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { PluginVersionItem } from '../../models/plugin.model';
 import { BadgeComponent } from '../badge/badge.component';
@@ -21,16 +21,16 @@ export class VersionTimelineComponent {
   deprecate = output<string>();
   remove = output<string>();
 
-  statusVariant(status: PluginReleaseStatus | string): string {
+  statusVariant(status: PluginReleaseStatus | string): ColorVariant {
     switch (status as PluginReleaseStatus) {
       case PluginReleaseStatus.PUBLISHED:
-        return 'success';
+        return ColorVariant.SUCCESS;
       case PluginReleaseStatus.DEPRECATED:
-        return 'warning';
+        return ColorVariant.WARNING;
       case PluginReleaseStatus.BLOCKED:
-        return 'danger';
+        return ColorVariant.DANGER;
       default:
-        return 'neutral';
+        return ColorVariant.DEFAULT;
     }
   }
 

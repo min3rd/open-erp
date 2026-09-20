@@ -1,0 +1,170 @@
+<div class="space-y-2 p-3 text-xs">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <div>
+      <h1 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{{ 'PLUGIN_MARKETPLACE_TITLE' | translate }}</h1>
+      <p class="text-[11px] text-neutral-500 dark:text-neutral-400">{{ 'PLUGIN_MARKETPLACE_SUBTITLE' | translate }}</p>
+    </div>
+    <div class="flex items-center gap-1">
+      <app-sharp-button size="sm" variant="secondary" (clicked)="openNotifications()">
+        {{ 'PLUGIN_NOTIFICATIONS_TITLE' | translate }} ({{ unreadCount() }})
+      </app-sharp-button>
+      <app-sharp-button size="sm" variant="ghost" (clicked)="refresh()">
+        {{ 'PLUGIN_ACTION_REFRESH' | translate }}
+      </app-sharp-button>
+    </div>
+  </div>
+
+  @if (blockedItems().length) {
+    <div class="border border-rose-300 bg-rose-50 p-2 text-[11px] text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
+      {{ 'PLUGIN_MARKETPLACE_BLOCKED_NOTICE' | translate }}
+    </div>
+  }
+
+  @if (errorText()) {
+    <p class="border border-rose-300 bg-rose-50 p-2 text-[11px] text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300">{{ errorText() }}</p>
+  }
+  @if (successText()) {
+    <p class="border border-emerald-300 bg-emerald-50 p-2 text-[11px] text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">{{ successText() }}</p>
+  }
+
+  @if (operation()) {
+    <app-operation-progress [operation]="operation()" />
+  }
+
+  @if (loading()) {
+    <div class="h-24 w-full animate-pulse bg-neutral-100 dark:bg-neutral-800"></div>
+  } @else {
+    <app-plugin-management-list
+      [items]="items()"
+      [busyKey]="busyKey()"
+      [selectedKey]="selectedKey()"
+      (install)="install($event)"
+      (enable)="enable($event)"
+      (disable)="disable($event)"
+      (upgrade)="openUpgrade($event)"
+      (uninstall)="openUninstall($event)"
+      (detail)="openDetail($event)"
+    />
+  }
+</div>
+
+<app-drawer [isOpen]="detailOpen()" [title]="'PLUGIN_DETAIL_TITLE' | translate" (close)="closeDetail()">
+  @if (detail(); as current) {
+    <div class="space-y-3 p-3 text-xs">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-sm font-medium text-neutral-900 dark:text-neutral-100">{{ current.name_key | translate }}</span>
+        <span class="font-mono text-[10px] text-neutral-400">{{ current.plugin_key }}</span>
+        @if (current.visibility === 'TENANT_PRIVATE') {
+          <span class="border border-amber-300 bg-amber-50 px-1 py-0.5 text-[10px] text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+            {{ 'PLUGIN_CUSTOM_LABEL' | translate }}
+          </span>
+        }
+      </div>
+      @if (current.description_key) {
+        <p class="text-[11px] text-neutral-500 dark:text-neutral-400">{{ current.description_key | translate }}</p>
+      }
+      <section>
+        <h3 class="mb-1 font-mono text-[10px] uppercase tracking-wider text-neutral-400">{{ 'PLUGIN_DETAIL_VERSIONS' | translate }}</h3>
+        <app-version-timeline [versions]="current.version" [currentVersion]="selectedInstalledVersion()" />
+      </section>
+    </div>
+  } @else if (detailLoading()) {
+    <div class="h-24 animate-pulse bg-neutral-100 dark:bg-neutral-800"></div>
+  }
+</app-drawer>
+
+<app-drawer
+  [isOpen]="upgradeOpen()"
+  [title]="'PLUGIN_UPGRADE_TITLE' | translate"
+  [zIndex]="60"
+  (close)="upgradeOpen.set(false)"
+>
+  <div class="space-y-3 p-3 text-xs">
+    <label class="block">
+      <span class="mb-0.5 block text-[11px] text-neutral-600 dark:text-neutral-300">{{ 'PLUGIN_UPGRADE_TARGET_VERSION' | translate }}</span>
+      <select
+        class="w-full rounded-none border border-neutral-300 bg-white px-2 py-1 font-mono text-xs dark:border-neutral-700 dark:bg-neutral-900"
+        [value]="upgradeVersion()"
+        (change)="upgradeVersion.set($any($event.target).value)"
+      >
+        @for (version of upgradeTargets(); track version.version) {
+          <option [value]="version.version">{{ version.version }}</option>
+        }
+      </select>
+    </label>
+
+    @if (upgradeRequiresSnapshot()) {
+      <p class="border border-amber-300 bg-amber-50 p-2 text-[11px] text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+        {{ 'PLUGIN_UPGRADE_BREAKING_NOTICE' | translate }}
+      </p>
+    } @else {
+      <label class="flex items-center gap-2">
+        <app-sharp-toggle [checked]="upgradeSnapshot()" (checkedChange)="upgradeSnapshot.set($event)" />
+        <span class="text-[11px] text-neutral-600 dark:text-neutral-300">{{ 'PLUGIN_UPGRADE_SNAPSHOT_LABEL' | translate }}</span>
+      </label>
+      <p class="text-[10px] text-neutral-400">{{ 'PLUGIN_UPGRADE_SNAPSHOT_HINT' | translate }}</p>
+    }
+
+    <div class="flex justify-end gap-1">
+      <app-sharp-button size="sm" variant="ghost" (clicked)="upgradeOpen.set(false)">
+        {{ 'PLUGIN_ACTION_CANCEL' | translate }}
+      </app-sharp-button>
+      <app-sharp-button size="sm" variant="primary" [disabled]="!upgradeVersion()" (clicked)="confirmUpgrade()">
+        {{ 'PLUGIN_ACTION_CONFIRM' | translate }}
+      </app-sharp-button>
+    </div>
+  </div>
+</app-drawer>
+
+<app-drawer
+  [isOpen]="uninstallOpen()"
+  [title]="'PLUGIN_UNINSTALL_TITLE' | translate"
+  [zIndex]="60"
+  (close)="uninstallOpen.set(false)"
+>
+  <div class="space-y-3 p-3 text-xs">
+    <p class="border border-amber-300 bg-amber-50 p-2 text-[11px] text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+      {{ 'PLUGIN_UNINSTALL_NOTICE' | translate }}
+    </p>
+    @if (uninstallItem(); as item) {
+      <p class="font-mono text-[11px] text-neutral-500 dark:text-neutral-400">
+        {{ item.plugin_key }}
+        @if (item.installed_version) {
+          · {{ item.installed_version }}
+        }
+      </p>
+    }
+    <div class="flex justify-end gap-1">
+      <app-sharp-button size="sm" variant="ghost" (clicked)="uninstallOpen.set(false)">
+        {{ 'PLUGIN_ACTION_CANCEL' | translate }}
+      </app-sharp-button>
+      <app-sharp-button size="sm" variant="danger" (clicked)="confirmUninstall()">
+        {{ 'PLUGIN_ACTION_CONFIRM' | translate }}
+      </app-sharp-button>
+    </div>
+  </div>
+</app-drawer>
+
+<app-drawer [isOpen]="notificationsOpen()" [title]="'PLUGIN_NOTIFICATIONS_TITLE' | translate" (close)="notificationsOpen.set(false)">
+  <div class="space-y-2 p-3 text-xs">
+    @if (unreadCount() > 0) {
+      <div class="flex justify-end">
+        <app-sharp-button size="sm" variant="ghost" (clicked)="markAllRead()">
+          {{ 'PLUGIN_NOTIFICATIONS_MARK_ALL' | translate }}
+        </app-sharp-button>
+      </div>
+    }
+    @if (notifications().length === 0) {
+      <p class="text-[11px] text-neutral-500 dark:text-neutral-400">{{ 'PLUGIN_NOTIFICATIONS_EMPTY' | translate }}</p>
+    }
+    @for (item of notifications(); track item.id) {
+      <div class="border p-2" [class]="item.read_at ? 'border-neutral-200 dark:border-neutral-800' : 'border-sky-300 bg-sky-50 dark:border-sky-800 dark:bg-sky-950/40'">
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-medium text-neutral-800 dark:text-neutral-200">{{ item.title_key | translate }}</span>
+          <span class="font-mono text-[10px] text-neutral-400">{{ item.severity }}</span>
+        </div>
+        <p class="mt-0.5 font-mono text-[10px] text-neutral-400">{{ item.type }} · {{ item.created_at | date: 'short' }}</p>
+      </div>
+    }
+  </div>
+</app-drawer>
