@@ -1,0 +1,59 @@
+{
+  "checks": [
+    {
+      "name": "support login",
+      "pass": true
+    },
+    {
+      "name": "support can open tenant-private page",
+      "pass": true
+    },
+    {
+      "name": "support sees table (no 403 text)",
+      "pass": true
+    },
+    {
+      "name": "support does NOT see block button",
+      "pass": true
+    },
+    {
+      "name": "tenants filters restored from URL",
+      "pass": true,
+      "detail": "{\"input\":\"qa\",\"select\":\"ACTIVE\",\"url\":\"?page=0&size=20&keyword=qa&status=ACTIVE\"}"
+    },
+    {
+      "name": "audit-logs scope from URL retained",
+      "pass": true,
+      "detail": "?scope=PLATFORM"
+    },
+    {
+      "name": "sample-records drawer=create deep-link opens drawer",
+      "pass": true
+    },
+    {
+      "name": "members drawer=create deep-link",
+      "pass": true
+    },
+    {
+      "name": "sharp-button cursor=pointer",
+      "pass": true,
+      "detail": "pointer"
+    },
+    {
+      "name": "toggle cursor=pointer",
+      "pass": true,
+      "detail": "pointer"
+    },
+    {
+      "name": "pagination cursor=pointer",
+      "pass": true,
+      "detail": "none-rendered"
+    },
+    {
+      "name": "plugin-card clickable cursor=pointer",
+      "pass": true,
+      "detail": "pointer"
+    }
+  ],
+  "errors": []
+}

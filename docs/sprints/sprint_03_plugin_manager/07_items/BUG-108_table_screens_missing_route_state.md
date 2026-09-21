@@ -37,7 +37,8 @@ Chuẩn hóa state lên **query params của route** (Angular Router), hai chi�
 
 ## Tiêu chí kiểm tra sau sửa
 
-- [ ] Mở Drawer chi tiết plugin → URL có `?plugin=<key>&drawer=detail`; F5 giữ nguyên Drawer.
-- [ ] Đổi trang/filter → URL đổi; Back quay lại trang trước của danh sách.
-- [ ] Deep-link `?plugin=sales&drawer=versions` (platform) mở đúng tầng phiên bản.
-- [ ] Copy URL sang tab mới → tái hiện đúng trạng thái.
+- [x] Mở Drawer chi tiết plugin → URL có `?plugin=<key>&drawer=detail`; F5 giữ nguyên Drawer (browser `web_18/web_19`).
+- [x] Đổi trang/filter → URL đổi; Back quay lại trang trước của danh sách (query-param merge).
+- [x] Deep-link `?plugin=sales&drawer=versions` (platform) mở đúng tầng phiên bản (`web_22`).
+- [x] Copy URL sang tab mới → tái hiện đúng trạng thái (`qa_route_result.json` 8/8 PASS).
+- [x] **Mở rộng Sprint 01/02 (khách hàng yêu cầu)**: 7 màn bảng đã chuyển đổi qua helper `RouteListStateService` — xem [TASK-348](TASK-348_route_state_rollout_sprint01_02.md); verified browser `web_31→34` + `qa_verify_result.json` 12/12 PASS.

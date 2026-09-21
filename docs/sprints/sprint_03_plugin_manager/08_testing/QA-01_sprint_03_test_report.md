@@ -32,7 +32,9 @@
 | [BUG-106](../07_items/BUG-106_marketplace_hides_blocked_catalog.md) | **High** | T1 ẩn plugin bị khóa thay vì badge "Đã khóa" | **Resolved** (giữ item BLOCKED) |
 | [BUG-107](../07_items/BUG-107_installations_tenant_uuid_display.md) | **High** | P9 hiển thị tenant bằng UUID (thiếu mapping snake_case) | **Resolved** (`@JsonProperty` + tên tenant) |
 | [BUG-108](../07_items/BUG-108_table_screens_missing_route_state.md) | **High** | Màn bảng chưa lưu state vào Route (filter/page/selection/drawer) | **Resolved** (query-param state + deep-link/F5/Back) |
-| [BUG-109](../07_items/BUG-109_impersonation_timeout_job_enum_error.md) | Medium | Job impersonation lỗi định kỳ (nghi hot-reload) | In Review (đang theo dõi sau restart sạch) |
+| [BUG-109](../07_items/BUG-109_impersonation_timeout_job_enum_error.md) | Medium | Job impersonation lỗi định kỳ (nghi hot-reload) | **Resolved** — xác nhận hot-reload artifact, 0 lỗi sau restart sạch |
+| [BUG-110](../07_items/BUG-110_ng01354_ngmodel_child_component_warning.md) | Low | Warning `NG01354` ngModel trong child component | Deferred → Sprint 04 |
+| [TASK-348](../07_items/TASK-348_route_state_rollout_sprint01_02.md) | High/Medium | Route-state cho màn bảng Sprint 01/02 (7/7 màn chính Done, phần phụ → Sprint 04) | In Review (verified browser 4/4) |
 | [TASK-346](../07_items/TASK-346_operation_recovery_job_and_dependency_cycle.md) | Medium | Thiếu job phục hồi thao tác (TASK-312 dư) + phát hiện chu trình dependency (TASK-305 dư) | Deferred → Sprint 04 |
 | [TASK-347](../07_items/TASK-347_cli_publish_registry.md) | Medium | CLI `publish` chưa có (TASK-329 dư) | Deferred → Sprint 04 |
 
@@ -50,6 +52,19 @@ Thực thi tự động qua Chrome headless + CDP (zero-dependency), backend dev
 Bằng chứng bổ sung: container `openerp-plugin-sales-aeea9eed` được tạo thật và đạt ACTIVE; schema `tenant_aeea9eed_sales` **vẫn tồn tại sau soft uninstall** (dữ liệu giữ nguyên).
 
 Kết quả JSON thô: `qa_tenant_result.json`, `qa_route_result.json`, `qa_platform_result.json`, `qa_mobile_result.json`, `qa_ionic_result.json` (cùng thư mục screenshots).
+
+## 2c. Vòng QA Bổ Sung Theo Phản Hồi Khách Hàng (2026-09-20)
+
+| Bộ kiểm | Phạm vi | Kết quả | Bằng chứng |
+| :--- | :--- | :--- | :--- |
+| Truy cập `/platform/tenant-private-plugins` | Tài khoản **SUPPORT_ENGINEER** thật | **4/4 PASS** — vào được màn, thấy bảng, **không** thấy nút khóa, 0 lỗi | `web_30_support_tenant_private.png` |
+| Route-state Sprint 01/02 (TASK-348) | tenants/audit-logs/sample-records/members deep-link | **4/4 PASS** — filter `keyword=qa&status=ACTIVE` khôi phục đúng; `drawer=create` mở Drawer sau F5 | `web_31→34`, `qa_verify_result.json` |
+| Cursor pointer | sharp-button, toggle, plugin-card, pagination | **4/4 PASS** — `cursor: pointer` toàn bộ control bấm được (base layer CSS dùng chung Web+Mobile) | cùng `qa_verify_result.json` |
+
+**Nguyên nhân gốc lỗi "không vào được màn tenant-private"**: backend chỉ cho `SUPER_ADMIN` đọc P14 và menu bị ẩn với `SUPPORT_ENGINEER`. Đã sửa: cho phép SUPPORT_ENGINEER **read-only** (khóa vẫn chỉ SUPER_ADMIN), menu hiển thị cho support, nút "Khóa khẩn cấp" ẩn với support.
+
+**Bổ sung item mới**: [TASK-348](../07_items/TASK-348_route_state_rollout_sprint01_02.md) (rollout route-state — 7/7 màn chính Done, còn danh sách phụ → Sprint 04), [BUG-110](../07_items/BUG-110_ng01354_ngmodel_child_component_warning.md) (Low, warning NG01354, deferred).
+
 
 
 ## 3. Kết Quả Rà Soát Theo Hạng Mục
