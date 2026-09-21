@@ -23,3 +23,13 @@ STEP6_INSTALL= status=
 STEP7_CONTAINER=
 STEP7_SCHEMA=
 STEP7_LEDGER=NOT_INSTALLED | ,
+
+--- QA analysis (2026-09-21) ---
+CLI: create/generate entity/menu/ui-contribution/validate PASS
+BUG-111 (High, fixed): generated project failed to build on JDK 25 -> template now ships .mvn/jvm.config
+BUG-112 (High): package copies thin 9.4KB jar (not runnable); workaround used uber-jar 43.7MB for this run
+BUG-113 (Medium): package --with-web fails (web template has no Angular workspace)
+BUG-114 (High, fixed): HTTP body limit blocked 37.6MB upload -> quarkus.http.limits.max-body-size=600M
+BUG-115 (High): P12 entitlement endpoint returns 404 -> entitlement granted via SQL fallback for this run
+BUG-116 (High): bundle install 500 because image build runs inside the install transaction (RollbackException)
+Docker Hub channel intentionally skipped per customer; Harbor channel pending registry availability (remote harbor.2bsystem.com.vn unreachable from this machine)
