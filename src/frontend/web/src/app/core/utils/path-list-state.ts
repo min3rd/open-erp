@@ -58,11 +58,14 @@ export class PathListStateService {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private basePath = '';
+  private lastKeyword = '';
 
   bind(basePath: string, apply: (state: PathListState, keyword: string) => void): void {
     this.basePath = basePath;
     combineLatest([this.route.params, this.route.queryParamMap]).subscribe(([params, query]) => {
-      apply(parsePathListState(params), query.get('q') ?? '');
+      const keyword = query.get('q') ?? '';
+      this.lastKeyword = keyword;
+      apply(parsePathListState(params), keyword);
     });
   }
 
@@ -81,6 +84,6 @@ export class PathListStateService {
   }
 
   listKey(state: PathListState): string {
-    return `${state.filter}|${state.sort}|${state.pageSize}|${state.page}`;
+    return `${state.filter}|${state.sort}|${state.pageSize}|${state.page}|${this.lastKeyword}`;
   }
 }

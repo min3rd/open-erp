@@ -1,0 +1,30 @@
+{
+  "checks": [
+    {
+      "name": "platform plugins search triggers API call with keyword",
+      "pass": true,
+      "detail": "[\"http://localhost:8088/api/v1/platform/plugins?page=0&size=20\",\"http://localhost:8088/api/v1/platform/plugins?page=0&size=20&keyword=sales\"]"
+    },
+    {
+      "name": "platform plugins search keeps q in URL",
+      "pass": true,
+      "detail": "?q=sales"
+    },
+    {
+      "name": "tenants search triggers API call with keyword",
+      "pass": true,
+      "detail": "[\"http://localhost:8088/api/v1/platform/tenants?page=0&size=20\",\"http://localhost:8088/api/v1/platform/tenants?page=0&size=20&keyword=qa\"]"
+    },
+    {
+      "name": "audit-logs search triggers API call with keyword",
+      "pass": true,
+      "detail": "[\"http://localhost:8088/api/v1/platform/audit-logs?page=0&size=20\",\"http://localhost:8088/api/v1/platform/audit-logs?page=0&size=20&keyword=qa\"]"
+    },
+    {
+      "name": "marketplace client-side search filters cards",
+      "pass": true,
+      "detail": "4 -> 1"
+    }
+  ],
+  "errors": []
+}

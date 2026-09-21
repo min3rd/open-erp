@@ -82,6 +82,25 @@ Thay query-param bằng path segments theo khuôn mẫu khách hàng gợi ý; h
 
 **Tổng: 9/9 PASS, 0 console error** (`qa_path_result.json`).
 
+## 2e. Hotfix: Ô tìm kiếm không hoạt động sau refactor path-segment (2026-09-21)
+
+**Triệu chứng khách hàng báo**: mọi ô tìm kiếm ở màn bảng không lọc dữ liệu.
+
+**Nguyên nhân**: `PathListStateService.listKey()` chỉ gồm `filter|sort|pageSize|page`, **không gồm từ khóa `q`** → khi bấm Enter/Áp dụng, URL đổi (`?q=...`) nhưng `loadedListKey` không đổi nên `load()` không được gọi.
+
+**Sửa**: `listKey()` bổ sung từ khóa cuối cùng từ query (`lastKeyword`), áp dụng cho toàn bộ 12 màn dùng helper.
+
+**Verified browser thật — 5/5 PASS, 0 console error** (`qa_search_result.json`):
+
+| Bộ kiểm | Kết quả | Ảnh |
+| :--- | :--- | :--- |
+| `/platform/plugins` search "sales" → gọi API `keyword=sales`, URL `?q=sales` | PASS | `web_50_plugins_search.png` |
+| `/platform/tenants` search "qa" → gọi API `keyword=qa` | PASS | `web_51_tenants_search.png` |
+| `/platform/audit-logs` search "qa" → gọi API `keyword=qa` | PASS | `web_52_audit_search.png` |
+| Marketplace tenant: lọc client-side 4 → 1 thẻ | PASS | `web_53_marketplace_search.png` |
+
+Ghi chú: `/platform/users` dùng cùng mẫu `app-sharp-input + applyFilters → updateState(..., keyword)` như tenants nên được bao phủ bởi cùng bản sửa.
+
 
 
 ## 3. Kết Quả Rà Soát Theo Hạng Mục
