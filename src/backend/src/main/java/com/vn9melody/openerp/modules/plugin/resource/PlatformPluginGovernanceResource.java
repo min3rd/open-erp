@@ -77,7 +77,11 @@ public class PlatformPluginGovernanceResource extends BasePlatformResource {
     @GET
     @Path("/tenant-private-plugins")
     public Response listTenantPrivate() {
-        requireSuperAdmin();
+        PlatformActor actor = actor(requestContext, serverRequest, headers);
+        if (actor.role != PlatformAdminRole.SUPER_ADMIN && actor.role != PlatformAdminRole.SUPPORT_ENGINEER) {
+            throw new ApiException(403, PlatformErrorCode.PLATFORM_ACCESS_DENIED,
+                    "Platform role is required to read tenant-private plugins");
+        }
         List<PluginResponses.CatalogItem> items = pluginAdminService.listTenantPrivate();
         return Response.ok(ApiResponse.successList(PluginErrorCode.PLUGIN_TENANT_PRIVATE_LIST_SUCCESS,
                 "Tenant-private plugins retrieved successfully.", items)).build();
