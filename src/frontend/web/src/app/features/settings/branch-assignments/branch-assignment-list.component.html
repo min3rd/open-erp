@@ -3,7 +3,12 @@
     <h1 class="text-sm font-bold uppercase tracking-wider">{{ 'ORGANIZATION_BRANCH_ASSIGNMENT_TITLE' | translate }}</h1>
     <div class="flex flex-wrap items-end gap-2">
       <div class="w-72">
-        <app-sharp-select [label]="'ORGANIZATION_USER_ASSIGN_USER' | translate" [options]="memberOptions()" [(value)]="selectedUserId" />
+        <app-sharp-select
+          [label]="'ORGANIZATION_USER_ASSIGN_USER' | translate"
+          [options]="memberOptions()"
+          [value]="selectedUserId()"
+          (valueChange)="onUserSelected($event)"
+        />
       </div>
       <app-sharp-button (clicked)="openDrawer()">{{ 'ORGANIZATION_BRANCH_ASSIGNMENT_ASSIGN_BTN' | translate }}</app-sharp-button>
     </div>

@@ -6,14 +6,16 @@
         <app-sharp-select
           [label]="'PLATFORM_TENANT_COL_STATUS' | translate"
           [options]="statusOptions"
-          [(value)]="statusFilter"
+          [value]="statusFilter()"
+          (valueChange)="onStatusChange($event)"
         />
       </div>
       <div class="w-56">
         <app-sharp-input
           [label]="'COMMON_SEARCH' | translate"
           [placeholder]="'PLATFORM_TENANT_SEARCH_PLACEHOLDER' | translate"
-          [(value)]="keyword"
+          [value]="keyword()"
+          (valueChange)="keyword.set($event)"
           (keyup.enter)="applyFilters()"
         />
       </div>

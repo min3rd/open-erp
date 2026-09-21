@@ -9,6 +9,23 @@
    otherwise shared-only utilities (fixed/inset/shadow/dark:*) are never generated. */
 @source '../../shared';
 
+@layer base {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  summary,
+  select:not(:disabled),
+  input[type='checkbox']:not(:disabled),
+  input[type='radio']:not(:disabled),
+  [data-clickable='true'] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+}
+
 @media (max-width: 639px) {
   app-theme-switcher button,
   app-language-switcher button,

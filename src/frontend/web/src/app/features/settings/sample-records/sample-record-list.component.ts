@@ -22,6 +22,7 @@ import {
 
 import { OrganizationService } from '../../../core/services/organization.service';
 import { SampleRecordService } from '../../../core/services/sample-record.service';
+import { ListRouteState, RouteListStateService } from '../../../core/utils/route-list-state.service';
 import { SampleRecordFormDrawerComponent } from './sample-record-form-drawer.component';
 
 @Component({
@@ -36,12 +37,14 @@ import { SampleRecordFormDrawerComponent } from './sample-record-form-drawer.com
     TranslatePipe,
     SampleRecordFormDrawerComponent
   ],
+  providers: [RouteListStateService],
   templateUrl: './sample-record-list.component.html'
 })
 export class SampleRecordListComponent implements OnInit {
   private sampleRecords = inject(SampleRecordService);
   private organization = inject(OrganizationService);
   private i18n = inject(I18nService);
+  private routeState = inject(RouteListStateService);
 
   readonly records = signal<SampleRecord[]>([]);
   readonly formatDateTime = formatDateTime;
@@ -66,6 +69,9 @@ export class SampleRecordListComponent implements OnInit {
   readonly confirmDelete = signal<SampleRecord | null>(null);
   readonly deleting = signal<boolean>(false);
 
+  private loadedListKey = '';
+  private currentState: ListRouteState | null = null;
+
   readonly columns: TableColumn[] = [
     { key: 'title', labelKey: 'SAMPLE_RECORD_COL_TITLE' },
     { key: 'amount', labelKey: 'SAMPLE_RECORD_COL_AMOUNT', align: 'right' },
@@ -84,7 +90,26 @@ export class SampleRecordListComponent implements OnInit {
 
   ngOnInit() {
     this.loadReferenceData();
-    this.load();
+    this.routeState.bind((state) => this.applyState(state));
+  }
+
+  private applyState(state: ListRouteState): void {
+    this.page.set(state.page);
+    this.size.set(state.size);
+    this.currentState = state;
+    const listKey = this.routeState.listKey(state);
+    if (listKey !== this.loadedListKey) {
+      this.loadedListKey = listKey;
+      this.load();
+    }
+    this.applySelection(state);
+  }
+
+  private applySelection(state: ListRouteState): void {
+    const record = state.id ? this.records().find((item) => item.id === state.id) ?? null : null;
+    this.editingRecord.set(state.drawer === 'edit' ? record : null);
+    this.confirmDelete.set(state.drawer === 'delete' ? record : null);
+    this.drawerOpen.set(state.drawer === 'create' || (state.drawer === 'edit' && !!record));
   }
 
   load() {
@@ -96,6 +121,9 @@ export class SampleRecordListComponent implements OnInit {
         this.totalPages.set(res.data.total_pages);
         this.loading.set(false);
         this.errorText.set('');
+        if (this.currentState) {
+          this.applySelection(this.currentState);
+        }
       },
       error: (err) => {
         this.loading.set(false);
@@ -105,8 +133,7 @@ export class SampleRecordListComponent implements OnInit {
   }
 
   changePage(nextPage: number) {
-    this.page.set(nextPage);
-    this.load();
+    this.routeState.set({ page: nextPage });
   }
 
   statusVariant(status: string): ColorVariant {
@@ -114,32 +141,30 @@ export class SampleRecordListComponent implements OnInit {
   }
 
   openCreate() {
-    this.editingRecord.set(null);
-    this.drawerOpen.set(true);
+    this.routeState.set({ drawer: 'create', id: null });
   }
 
   openEdit(record: SampleRecord) {
-    this.editingRecord.set(record);
-    this.drawerOpen.set(true);
+    this.routeState.set({ drawer: 'edit', id: record.id });
   }
 
   closeDrawer() {
-    this.drawerOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
   }
 
   onSaved(code: string) {
-    this.drawerOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
     this.successText.set(this.i18n.t(code));
     this.errorText.set('');
     this.load();
   }
 
   askDelete(record: SampleRecord) {
-    this.confirmDelete.set(record);
+    this.routeState.set({ drawer: 'delete', id: record.id });
   }
 
   cancelDelete() {
-    this.confirmDelete.set(null);
+    this.routeState.set({ drawer: null, id: null });
   }
 
   confirmDeleteRecord() {
@@ -151,7 +176,7 @@ export class SampleRecordListComponent implements OnInit {
     this.sampleRecords.deleteSampleRecord(target.id).subscribe({
       next: (res) => {
         this.deleting.set(false);
-        this.confirmDelete.set(null);
+        this.routeState.set({ drawer: null, id: null });
         this.successText.set(this.i18n.t(res.code, res.params));
         this.errorText.set('');
         this.load();

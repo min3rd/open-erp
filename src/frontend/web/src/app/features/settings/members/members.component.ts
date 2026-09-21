@@ -17,6 +17,7 @@ import {
 } from '@shared';
 
 import { OrganizationService } from '../../../core/services/organization.service';
+import { ListRouteState, RouteListStateService } from '../../../core/utils/route-list-state.service';
 import { UserAssignmentDrawerComponent } from './user-assignment-drawer.component';
 import { BranchAssignmentDrawerComponent } from '../branch-assignments/branch-assignment-drawer.component';
 
@@ -32,11 +33,13 @@ import { BranchAssignmentDrawerComponent } from '../branch-assignments/branch-as
     UserAssignmentDrawerComponent,
     BranchAssignmentDrawerComponent
   ],
+  providers: [RouteListStateService],
   templateUrl: './members.component.html'
 })
 export class MembersComponent implements OnInit {
   private organization = inject(OrganizationService);
   private i18n = inject(I18nService);
+  private routeState = inject(RouteListStateService);
 
   readonly memberships = signal<Membership[]>([]);
   readonly branches = signal<Branch[]>([]);
@@ -54,6 +57,9 @@ export class MembersComponent implements OnInit {
 
   readonly confirmRemove = signal<Membership | null>(null);
   readonly removing = signal<boolean>(false);
+
+  private loadedListKey = '';
+  private currentState: ListRouteState | null = null;
 
   readonly columns: TableColumn[] = [
     { key: 'user', labelKey: 'ORGANIZATION_MEMBER_USER' },
@@ -75,7 +81,26 @@ export class MembersComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.load();
+    this.routeState.bind((state) => this.applyState(state));
+  }
+
+  private applyState(state: ListRouteState): void {
+    this.currentState = state;
+    const listKey = this.routeState.listKey(state);
+    if (listKey !== this.loadedListKey) {
+      this.loadedListKey = listKey;
+      this.load();
+    }
+    this.applySelection(state);
+  }
+
+  private applySelection(state: ListRouteState): void {
+    const membership = state.id ? this.memberships().find((item) => item.id === state.id) ?? null : null;
+    this.editingMembership.set(state.drawer === 'edit' ? membership : null);
+    this.userDrawerOpen.set(state.drawer === 'create' || (state.drawer === 'edit' && !!membership));
+    this.assignmentUser.set(state.drawer === 'assign' ? membership : null);
+    this.assignmentDrawerOpen.set(state.drawer === 'assign' && !!membership);
+    this.confirmRemove.set(state.drawer === 'delete' ? membership : null);
   }
 
   load() {
@@ -93,6 +118,9 @@ export class MembersComponent implements OnInit {
         this.assignments.set(assignments.data.items);
         this.loading.set(false);
         this.errorText.set('');
+        if (this.currentState) {
+          this.applySelection(this.currentState);
+        }
       },
       error: (err) => {
         this.loading.set(false);
@@ -106,48 +134,45 @@ export class MembersComponent implements OnInit {
   }
 
   openCreateMembership() {
-    this.editingMembership.set(null);
-    this.userDrawerOpen.set(true);
+    this.routeState.set({ drawer: 'create', id: null });
   }
 
   openEditMembership(membership: Membership) {
-    this.editingMembership.set(membership);
-    this.userDrawerOpen.set(true);
+    this.routeState.set({ drawer: 'edit', id: membership.id });
   }
 
   closeUserDrawer() {
-    this.userDrawerOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
   }
 
   onMembershipSaved(code: string) {
-    this.userDrawerOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
     this.successText.set(this.i18n.t(code));
     this.errorText.set('');
     this.load();
   }
 
   openAssignmentDrawer(membership: Membership) {
-    this.assignmentUser.set(membership);
-    this.assignmentDrawerOpen.set(true);
+    this.routeState.set({ drawer: 'assign', id: membership.id });
   }
 
   closeAssignmentDrawer() {
-    this.assignmentDrawerOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
   }
 
   onAssignmentSaved(code: string) {
-    this.assignmentDrawerOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
     this.successText.set(this.i18n.t(code));
     this.errorText.set('');
     this.load();
   }
 
   askRemove(membership: Membership) {
-    this.confirmRemove.set(membership);
+    this.routeState.set({ drawer: 'delete', id: membership.id });
   }
 
   cancelRemove() {
-    this.confirmRemove.set(null);
+    this.routeState.set({ drawer: null, id: null });
   }
 
   confirmRemoveMembership() {
@@ -159,7 +184,7 @@ export class MembersComponent implements OnInit {
     this.organization.deleteMembership(target.id).subscribe({
       next: (res) => {
         this.removing.set(false);
-        this.confirmRemove.set(null);
+        this.routeState.set({ drawer: null, id: null });
         this.successText.set(this.i18n.t(res.code, res.params));
         this.errorText.set('');
         this.load();

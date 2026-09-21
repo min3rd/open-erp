@@ -12,6 +12,7 @@ import {
   apiMessage,
 } from '@shared';
 import { PlatformPluginService } from '../../../core/services/platform-plugin.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-platform-tenant-private-plugins',
@@ -24,6 +25,9 @@ export class PlatformTenantPrivatePluginsComponent implements OnInit {
   private i18n = inject(I18nService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private auth = inject(AuthService);
+
+  readonly isSuperAdmin = this.auth.isPlatformSuperAdmin;
 
   items = signal<PluginCatalogItem[]>([]);
   loading = signal(false);

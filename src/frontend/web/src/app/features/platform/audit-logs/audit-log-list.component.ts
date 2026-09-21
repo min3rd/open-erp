@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ParamMap } from '@angular/router';
 import {
   ApiErrorResponse,
   AuditLog,
@@ -20,6 +21,7 @@ import {
   formatDateTime
 } from '@shared';
 import { PlatformService } from '../../../core/services/platform.service';
+import { ListRouteState, RouteListStateService } from '../../../core/utils/route-list-state.service';
 import { AuditLogDetailDrawerComponent } from './audit-log-detail-drawer.component';
 
 @Component({
@@ -37,11 +39,13 @@ import { AuditLogDetailDrawerComponent } from './audit-log-detail-drawer.compone
     TranslatePipe,
     AuditLogDetailDrawerComponent
   ],
+  providers: [RouteListStateService],
   templateUrl: './audit-log-list.component.html'
 })
 export class AuditLogListComponent implements OnInit {
   private platform = inject(PlatformService);
   private i18n = inject(I18nService);
+  private routeState = inject(RouteListStateService);
 
   readonly logs = signal<AuditLog[]>([]);
   readonly loading = signal<boolean>(false);
@@ -61,6 +65,9 @@ export class AuditLogListComponent implements OnInit {
 
   readonly detailId = signal<string | null>(null);
   readonly detailOpen = signal<boolean>(false);
+
+  private loadedListKey = '';
+  private currentState: ListRouteState | null = null;
 
   readonly columns: TableColumn[] = [
     { key: 'created_at', labelKey: 'PLATFORM_AUDIT_COL_TIME' },
@@ -88,7 +95,37 @@ export class AuditLogListComponent implements OnInit {
   ];
 
   ngOnInit() {
-    this.load();
+    this.routeState.bind((state, params) => this.applyState(state, params));
+  }
+
+  private applyState(state: ListRouteState, params: ParamMap): void {
+    const scope = params.get('scope') ?? '';
+    const result = params.get('result') ?? state.status;
+    const action = params.get('action') ?? '';
+    const from = params.get('from') ?? '';
+    const to = params.get('to') ?? '';
+
+    this.page.set(state.page);
+    this.size.set(state.size);
+    this.keyword.set(state.keyword);
+    this.scopeFilter.set(scope);
+    this.resultFilter.set(result);
+    this.actionFilter.set(action);
+    this.fromDate.set(from);
+    this.toDate.set(to);
+    this.currentState = state;
+
+    const listKey = this.routeState.listKey(state, [scope, result, action, from, to].join('|'));
+    if (listKey !== this.loadedListKey) {
+      this.loadedListKey = listKey;
+      this.load();
+    }
+    this.applySelection(state);
+  }
+
+  private applySelection(state: ListRouteState): void {
+    this.detailId.set(state.drawer === 'detail' ? state.id : null);
+    this.detailOpen.set(state.drawer === 'detail' && !!state.id);
   }
 
   load() {
@@ -111,6 +148,9 @@ export class AuditLogListComponent implements OnInit {
           this.totalPages.set(res.data.total_pages);
           this.loading.set(false);
           this.errorText.set('');
+          if (this.currentState) {
+            this.applySelection(this.currentState);
+          }
         },
         error: (err) => {
           this.loading.set(false);
@@ -119,34 +159,71 @@ export class AuditLogListComponent implements OnInit {
       });
   }
 
+  onScopeChange(value: string) {
+    this.routeState.set({
+      scope: value || null,
+      page: 0,
+      keyword: this.keyword(),
+      action: this.actionFilter() || null,
+      from: this.fromDate() || null,
+      to: this.toDate() || null,
+      id: null,
+      drawer: null
+    });
+  }
+
+  onResultChange(value: string) {
+    this.routeState.set({
+      result: value || null,
+      status: null,
+      page: 0,
+      keyword: this.keyword(),
+      action: this.actionFilter() || null,
+      from: this.fromDate() || null,
+      to: this.toDate() || null,
+      id: null,
+      drawer: null
+    });
+  }
+
   applyFilters() {
-    this.page.set(0);
-    this.load();
+    this.routeState.set({
+      page: 0,
+      keyword: this.keyword(),
+      action: this.actionFilter() || null,
+      from: this.fromDate() || null,
+      to: this.toDate() || null,
+      id: null,
+      drawer: null
+    });
   }
 
   resetFilters() {
-    this.scopeFilter.set('');
-    this.resultFilter.set('');
-    this.actionFilter.set('');
-    this.fromDate.set('');
-    this.toDate.set('');
-    this.keyword.set('');
-    this.page.set(0);
-    this.load();
+    this.routeState.set({
+      page: null,
+      size: null,
+      keyword: null,
+      status: null,
+      scope: null,
+      result: null,
+      action: null,
+      from: null,
+      to: null,
+      id: null,
+      drawer: null
+    });
   }
 
   changePage(nextPage: number) {
-    this.page.set(nextPage);
-    this.load();
+    this.routeState.set({ page: nextPage });
   }
 
   openDetail(log: AuditLog) {
-    this.detailId.set(log.log_id);
-    this.detailOpen.set(true);
+    this.routeState.set({ drawer: 'detail', id: log.log_id });
   }
 
   closeDetail() {
-    this.detailOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
   }
 
   scopeVariant(scope: AuditScope): ColorVariant {

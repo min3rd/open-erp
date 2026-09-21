@@ -54,8 +54,7 @@ export class PlatformTopbarComponent {
   private readonly superAdminOnlyPaths = new Set([
     '/platform/admins',
     '/platform/plugins',
-    '/platform/plugin-credentials',
-    '/platform/tenant-private-plugins'
+    '/platform/plugin-credentials'
   ]);
 
   readonly menuItems = computed(() =>

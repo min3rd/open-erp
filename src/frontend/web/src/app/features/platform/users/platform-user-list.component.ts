@@ -21,6 +21,7 @@ import {
 
 import { PlatformService } from '../../../core/services/platform.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ListRouteState, RouteListStateService } from '../../../core/utils/route-list-state.service';
 import { BreakGlassDrawerComponent } from './break-glass-drawer.component';
 
 @Component({
@@ -38,12 +39,14 @@ import { BreakGlassDrawerComponent } from './break-glass-drawer.component';
     TranslatePipe,
     BreakGlassDrawerComponent
   ],
+  providers: [RouteListStateService],
   templateUrl: './platform-user-list.component.html'
 })
 export class PlatformUserListComponent implements OnInit {
   private platform = inject(PlatformService);
   private i18n = inject(I18nService);
   private auth = inject(AuthService);
+  private routeState = inject(RouteListStateService);
 
   /** SUPPORT_ENGINEER is read-only (backend rejects all non-GET platform calls). */
   readonly isSuperAdmin = this.auth.isPlatformSuperAdmin;
@@ -68,6 +71,9 @@ export class PlatformUserListComponent implements OnInit {
   readonly breakGlassUser = signal<PlatformUser | null>(null);
   readonly breakGlassOpen = signal<boolean>(false);
 
+  private loadedListKey = '';
+  private currentState: ListRouteState | null = null;
+
   readonly columns: TableColumn[] = [
     { key: 'email', labelKey: 'PLATFORM_USER_COL_EMAIL' },
     { key: 'status', labelKey: 'PLATFORM_USER_COL_STATUS' },
@@ -86,7 +92,37 @@ export class PlatformUserListComponent implements OnInit {
   ];
 
   ngOnInit() {
-    this.load();
+    this.routeState.bind((state) => this.applyState(state));
+  }
+
+  private applyState(state: ListRouteState): void {
+    this.page.set(state.page);
+    this.size.set(state.size);
+    this.keyword.set(state.keyword);
+    this.statusFilter.set(state.status);
+    this.currentState = state;
+    const listKey = this.routeState.listKey(state);
+    if (listKey !== this.loadedListKey) {
+      this.loadedListKey = listKey;
+      this.load();
+    }
+    this.applySelection(state);
+  }
+
+  private applySelection(state: ListRouteState): void {
+    const user = state.id ? this.users().find((item) => item.user_id === state.id) ?? null : null;
+    const canManage = this.isSuperAdmin();
+
+    this.breakGlassUser.set(state.drawer === 'breakglass' ? user : null);
+    this.breakGlassOpen.set(state.drawer === 'breakglass' && !!user && canManage);
+
+    if (canManage && user && (state.drawer === 'lock' || state.drawer === 'unlock')) {
+      this.confirmUser.set(user);
+      this.confirmAction.set(state.drawer === 'lock' ? 'LOCK' : 'UNLOCK');
+    } else {
+      this.confirmUser.set(null);
+      this.confirmAction.set(null);
+    }
   }
 
   load() {
@@ -104,6 +140,9 @@ export class PlatformUserListComponent implements OnInit {
           this.totalItems.set(res.data.total_items);
           this.totalPages.set(res.data.total_pages);
           this.loading.set(false);
+          if (this.currentState) {
+            this.applySelection(this.currentState);
+          }
         },
         error: (err) => {
           this.loading.set(false);
@@ -112,21 +151,20 @@ export class PlatformUserListComponent implements OnInit {
       });
   }
 
+  onStatusChange(value: string) {
+    this.routeState.set({ status: value, page: 0, keyword: this.keyword(), id: null, drawer: null });
+  }
+
   applyFilters() {
-    this.page.set(0);
-    this.load();
+    this.routeState.set({ page: 0, keyword: this.keyword(), status: this.statusFilter(), id: null, drawer: null });
   }
 
   resetFilters() {
-    this.statusFilter.set('');
-    this.keyword.set('');
-    this.page.set(0);
-    this.load();
+    this.routeState.set({ page: null, size: null, keyword: null, status: null, id: null, drawer: null });
   }
 
   changePage(nextPage: number) {
-    this.page.set(nextPage);
-    this.load();
+    this.routeState.set({ page: nextPage });
   }
 
   statusVariant(status: UserStatus): ColorVariant {
@@ -147,8 +185,7 @@ export class PlatformUserListComponent implements OnInit {
       return;
     }
     this.successText.set('');
-    this.confirmUser.set(user);
-    this.confirmAction.set('LOCK');
+    this.routeState.set({ drawer: 'lock', id: user.user_id });
   }
 
   askUnlock(user: PlatformUser) {
@@ -156,13 +193,11 @@ export class PlatformUserListComponent implements OnInit {
       return;
     }
     this.successText.set('');
-    this.confirmUser.set(user);
-    this.confirmAction.set('UNLOCK');
+    this.routeState.set({ drawer: 'unlock', id: user.user_id });
   }
 
   cancelConfirm() {
-    this.confirmUser.set(null);
-    this.confirmAction.set(null);
+    this.routeState.set({ drawer: null, id: null });
   }
 
   submitConfirm() {
@@ -193,16 +228,15 @@ export class PlatformUserListComponent implements OnInit {
       return;
     }
     this.successText.set('');
-    this.breakGlassUser.set(user);
-    this.breakGlassOpen.set(true);
+    this.routeState.set({ drawer: 'breakglass', id: user.user_id });
   }
 
   closeBreakGlass() {
-    this.breakGlassOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
   }
 
   onBreakGlassCompleted(code: string) {
-    this.breakGlassOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
     this.successText.set(this.i18n.t(code));
     this.errorText.set('');
     this.load();

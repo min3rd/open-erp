@@ -18,6 +18,7 @@ import {
 } from '@shared';
 
 import { OrganizationService } from '../../../core/services/organization.service';
+import { ListRouteState, RouteListStateService } from '../../../core/utils/route-list-state.service';
 import { BranchAssignmentDrawerComponent } from './branch-assignment-drawer.component';
 
 interface AssignmentUser {
@@ -38,11 +39,13 @@ interface AssignmentUser {
     TranslatePipe,
     BranchAssignmentDrawerComponent
   ],
+  providers: [RouteListStateService],
   templateUrl: './branch-assignment-list.component.html'
 })
 export class BranchAssignmentListComponent implements OnInit {
   private organization = inject(OrganizationService);
   private i18n = inject(I18nService);
+  private routeState = inject(RouteListStateService);
 
   readonly assignments = signal<BranchAssignment[]>([]);
   readonly branches = signal<Branch[]>([]);
@@ -57,6 +60,9 @@ export class BranchAssignmentListComponent implements OnInit {
 
   readonly confirmRemove = signal<BranchAssignment | null>(null);
   readonly removing = signal<boolean>(false);
+
+  private loadedListKey = '';
+  private currentState: ListRouteState | null = null;
 
   readonly columns: TableColumn[] = [
     { key: 'user', labelKey: 'ORGANIZATION_MEMBER_USER' },
@@ -74,7 +80,46 @@ export class BranchAssignmentListComponent implements OnInit {
   );
 
   ngOnInit() {
-    this.load();
+    this.routeState.bind((state) => this.applyState(state));
+  }
+
+  private applyState(state: ListRouteState): void {
+    this.currentState = state;
+    const listKey = this.routeState.listKey(state);
+    if (listKey !== this.loadedListKey) {
+      this.loadedListKey = listKey;
+      this.load();
+    }
+    this.applySelection(state);
+  }
+
+  private applySelection(state: ListRouteState): void {
+    if (state.drawer === 'assign') {
+      const member = state.id ? this.members().find((item) => item.user_id === state.id) ?? null : null;
+      this.drawerUser.set(member ? { user_id: member.user_id, user_email: member.user_email || '' } : null);
+      this.drawerOpen.set(!!member);
+      this.confirmRemove.set(null);
+      if (member) {
+        this.selectedUserId.set(member.user_id);
+      }
+      return;
+    }
+    if (state.drawer === 'delete') {
+      const assignment = state.id ? this.assignments().find((item) => item.id === state.id) ?? null : null;
+      this.confirmRemove.set(assignment);
+      this.drawerOpen.set(false);
+      this.drawerUser.set(null);
+      return;
+    }
+    this.drawerOpen.set(false);
+    this.drawerUser.set(null);
+    this.confirmRemove.set(null);
+    if (state.id) {
+      const member = this.members().find((item) => item.user_id === state.id) ?? null;
+      if (member) {
+        this.selectedUserId.set(member.user_id);
+      }
+    }
   }
 
   load() {
@@ -93,12 +138,19 @@ export class BranchAssignmentListComponent implements OnInit {
         }
         this.loading.set(false);
         this.errorText.set('');
+        if (this.currentState) {
+          this.applySelection(this.currentState);
+        }
       },
       error: (err) => {
         this.loading.set(false);
         this.showError(err);
       }
     });
+  }
+
+  onUserSelected(userId: string) {
+    this.routeState.set({ id: userId || null, drawer: null });
   }
 
   openDrawer(userId?: string) {
@@ -108,27 +160,26 @@ export class BranchAssignmentListComponent implements OnInit {
       this.errorText.set(this.i18n.t('ORGANIZATION_BRANCH_ASSIGNMENT_SELECT_USER'));
       return;
     }
-    this.drawerUser.set({ user_id: member.user_id, user_email: member.user_email || '' });
-    this.drawerOpen.set(true);
+    this.routeState.set({ drawer: 'assign', id: targetId });
   }
 
   closeDrawer() {
-    this.drawerOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
   }
 
   onSaved(code: string) {
-    this.drawerOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
     this.successText.set(this.i18n.t(code));
     this.errorText.set('');
     this.load();
   }
 
   askRemove(assignment: BranchAssignment) {
-    this.confirmRemove.set(assignment);
+    this.routeState.set({ drawer: 'delete', id: assignment.id });
   }
 
   cancelRemove() {
-    this.confirmRemove.set(null);
+    this.routeState.set({ drawer: null, id: null });
   }
 
   confirmRemoveAssignment() {
@@ -140,7 +191,7 @@ export class BranchAssignmentListComponent implements OnInit {
     this.organization.deleteBranchAssignment(target.id).subscribe({
       next: (res) => {
         this.removing.set(false);
-        this.confirmRemove.set(null);
+        this.routeState.set({ drawer: null, id: null });
         this.successText.set(this.i18n.t(res.code, res.params));
         this.errorText.set('');
         this.load();

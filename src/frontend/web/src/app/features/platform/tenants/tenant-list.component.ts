@@ -24,6 +24,7 @@ import {
 import { PlatformService } from '../../../core/services/platform.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ImpersonationService } from '../../../core/services/impersonation.service';
+import { ListRouteState, RouteListStateService } from '../../../core/utils/route-list-state.service';
 import { TenantQuotaDrawerComponent } from './tenant-quota-drawer.component';
 import { ImpersonateConfirmDrawerComponent } from './impersonate-confirm-drawer.component';
 
@@ -43,6 +44,7 @@ import { ImpersonateConfirmDrawerComponent } from './impersonate-confirm-drawer.
     TenantQuotaDrawerComponent,
     ImpersonateConfirmDrawerComponent
   ],
+  providers: [RouteListStateService],
   templateUrl: './tenant-list.component.html'
 })
 export class TenantListComponent implements OnInit {
@@ -51,6 +53,7 @@ export class TenantListComponent implements OnInit {
   private router = inject(Router);
   private impersonation = inject(ImpersonationService);
   private auth = inject(AuthService);
+  private routeState = inject(RouteListStateService);
 
   /** SUPPORT_ENGINEER is read-only (backend rejects all non-GET platform calls). */
   readonly isSuperAdmin = this.auth.isPlatformSuperAdmin;
@@ -78,6 +81,10 @@ export class TenantListComponent implements OnInit {
 
   readonly formatDateTime = formatDateTime;
 
+  private loadedListKey = '';
+  private loadedDrawerKey = '';
+  private currentState: ListRouteState | null = null;
+
   readonly columns: TableColumn[] = [
     { key: 'name', labelKey: 'PLATFORM_TENANT_COL_NAME' },
     { key: 'type', labelKey: 'PLATFORM_TENANT_COL_TYPE' },
@@ -100,7 +107,44 @@ export class TenantListComponent implements OnInit {
   ];
 
   ngOnInit() {
-    this.load();
+    this.routeState.bind((state) => this.applyState(state));
+  }
+
+  private applyState(state: ListRouteState): void {
+    this.page.set(state.page);
+    this.size.set(state.size);
+    this.keyword.set(state.keyword);
+    this.statusFilter.set(state.status);
+    this.currentState = state;
+    const listKey = this.routeState.listKey(state);
+    if (listKey !== this.loadedListKey) {
+      this.loadedListKey = listKey;
+      this.load();
+    }
+    this.applySelection(state);
+  }
+
+  private applySelection(state: ListRouteState): void {
+    const drawerKey = `${state.drawer ?? ''}|${state.id ?? ''}`;
+    if (drawerKey !== this.loadedDrawerKey) {
+      this.loadedDrawerKey = drawerKey;
+      this.confirmReason.set('');
+      this.confirmPassword.set('');
+    }
+    const tenant = state.id ? this.tenants().find((item) => item.tenant_id === state.id) ?? null : null;
+    const canManage = this.isSuperAdmin();
+
+    this.quotaTenant.set(state.drawer === 'quota' ? tenant : null);
+    this.quotaOpen.set(state.drawer === 'quota' && !!tenant && canManage);
+
+    this.impersonateTenant.set(state.drawer === 'impersonate' ? tenant : null);
+    this.impersonateOpen.set(state.drawer === 'impersonate' && !!tenant && canManage);
+
+    if (canManage && tenant && (state.drawer === 'lock' || state.drawer === 'unlock')) {
+      this.confirmAction.set({ type: state.drawer === 'lock' ? 'LOCK' : 'UNLOCK', tenant });
+    } else {
+      this.confirmAction.set(null);
+    }
   }
 
   load() {
@@ -118,6 +162,9 @@ export class TenantListComponent implements OnInit {
           this.totalItems.set(res.data.total_items);
           this.totalPages.set(res.data.total_pages);
           this.loading.set(false);
+          if (this.currentState) {
+            this.applySelection(this.currentState);
+          }
         },
         error: (err) => {
           this.loading.set(false);
@@ -126,21 +173,20 @@ export class TenantListComponent implements OnInit {
       });
   }
 
+  onStatusChange(value: string) {
+    this.routeState.set({ status: value, page: 0, keyword: this.keyword(), id: null, drawer: null });
+  }
+
   applyFilters() {
-    this.page.set(0);
-    this.load();
+    this.routeState.set({ page: 0, keyword: this.keyword(), status: this.statusFilter(), id: null, drawer: null });
   }
 
   resetFilters() {
-    this.statusFilter.set('');
-    this.keyword.set('');
-    this.page.set(0);
-    this.load();
+    this.routeState.set({ page: null, size: null, keyword: null, status: null, id: null, drawer: null });
   }
 
   changePage(nextPage: number) {
-    this.page.set(nextPage);
-    this.load();
+    this.routeState.set({ page: nextPage });
   }
 
   userQuotaPercent(tenant: PlatformTenant): number {
@@ -178,9 +224,7 @@ export class TenantListComponent implements OnInit {
       return;
     }
     this.successText.set('');
-    this.confirmReason.set('');
-    this.confirmPassword.set('');
-    this.confirmAction.set({ type: 'LOCK', tenant });
+    this.routeState.set({ drawer: 'lock', id: tenant.tenant_id });
   }
 
   askUnlock(tenant: PlatformTenant) {
@@ -188,13 +232,11 @@ export class TenantListComponent implements OnInit {
       return;
     }
     this.successText.set('');
-    this.confirmReason.set('');
-    this.confirmPassword.set('');
-    this.confirmAction.set({ type: 'UNLOCK', tenant });
+    this.routeState.set({ drawer: 'unlock', id: tenant.tenant_id });
   }
 
   cancelConfirm() {
-    this.confirmAction.set(null);
+    this.routeState.set({ drawer: null, id: null });
   }
 
   submitConfirm() {
@@ -219,7 +261,7 @@ export class TenantListComponent implements OnInit {
     request.subscribe({
       next: (res) => {
         this.confirmSaving.set(false);
-        this.confirmAction.set(null);
+        this.routeState.set({ drawer: null, id: null });
         this.successText.set(this.i18n.t(res.code, res.params));
         this.errorText.set('');
         this.load();
@@ -236,12 +278,11 @@ export class TenantListComponent implements OnInit {
       return;
     }
     this.successText.set('');
-    this.quotaTenant.set(tenant);
-    this.quotaOpen.set(true);
+    this.routeState.set({ drawer: 'quota', id: tenant.tenant_id });
   }
 
   closeQuota() {
-    this.quotaOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
   }
 
   onQuotaSaved(code: string) {
@@ -255,16 +296,15 @@ export class TenantListComponent implements OnInit {
       return;
     }
     this.successText.set('');
-    this.impersonateTenant.set(tenant);
-    this.impersonateOpen.set(true);
+    this.routeState.set({ drawer: 'impersonate', id: tenant.tenant_id });
   }
 
   closeImpersonate() {
-    this.impersonateOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
   }
 
   onImpersonationStarted(payload: { data: ImpersonationSessionData; ticket: string }) {
-    this.impersonateOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
     this.impersonation.startSession(payload.data, payload.ticket);
     this.router.navigate(['/dashboard']);
   }

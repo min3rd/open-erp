@@ -4,12 +4,41 @@
   </div>
 
   <div class="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-2 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-2 items-end">
-    <app-sharp-select [label]="'PLATFORM_AUDIT_SCOPE' | translate" [options]="scopeOptions" [(value)]="scopeFilter" />
-    <app-sharp-select [label]="'PLATFORM_AUDIT_RESULT' | translate" [options]="resultOptions" [(value)]="resultFilter" />
-    <app-sharp-input [label]="'PLATFORM_AUDIT_COL_ACTION' | translate" [(value)]="actionFilter" />
-    <app-sharp-input type="date" [label]="'PLATFORM_AUDIT_FILTER_FROM' | translate" [(value)]="fromDate" />
-    <app-sharp-input type="date" [label]="'PLATFORM_AUDIT_FILTER_TO' | translate" [(value)]="toDate" />
-    <app-sharp-input [label]="'COMMON_SEARCH' | translate" [(value)]="keyword" (keyup.enter)="applyFilters()" />
+    <app-sharp-select
+      [label]="'PLATFORM_AUDIT_SCOPE' | translate"
+      [options]="scopeOptions"
+      [value]="scopeFilter()"
+      (valueChange)="onScopeChange($event)"
+    />
+    <app-sharp-select
+      [label]="'PLATFORM_AUDIT_RESULT' | translate"
+      [options]="resultOptions"
+      [value]="resultFilter()"
+      (valueChange)="onResultChange($event)"
+    />
+    <app-sharp-input
+      [label]="'PLATFORM_AUDIT_COL_ACTION' | translate"
+      [value]="actionFilter()"
+      (valueChange)="actionFilter.set($event)"
+    />
+    <app-sharp-input
+      type="date"
+      [label]="'PLATFORM_AUDIT_FILTER_FROM' | translate"
+      [value]="fromDate()"
+      (valueChange)="fromDate.set($event)"
+    />
+    <app-sharp-input
+      type="date"
+      [label]="'PLATFORM_AUDIT_FILTER_TO' | translate"
+      [value]="toDate()"
+      (valueChange)="toDate.set($event)"
+    />
+    <app-sharp-input
+      [label]="'COMMON_SEARCH' | translate"
+      [value]="keyword()"
+      (valueChange)="keyword.set($event)"
+      (keyup.enter)="applyFilters()"
+    />
     <div class="flex gap-1">
       <app-sharp-button (clicked)="applyFilters()">{{ 'COMMON_APPLY' | translate }}</app-sharp-button>
       <app-sharp-button variant="secondary" (clicked)="resetFilters()">{{ 'COMMON_RESET' | translate }}</app-sharp-button>

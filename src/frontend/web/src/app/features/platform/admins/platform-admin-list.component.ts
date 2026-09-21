@@ -20,6 +20,7 @@ import {
 } from '@shared';
 import { PlatformService } from '../../../core/services/platform.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ListRouteState, RouteListStateService } from '../../../core/utils/route-list-state.service';
 import { GrantAdminDrawerComponent } from './grant-admin-drawer.component';
 
 type AdminConfirmAction = 'DISABLE' | 'REVOKE' | 'DISABLE_2FA' | 'RESET_PASSWORD';
@@ -38,12 +39,14 @@ type AdminConfirmAction = 'DISABLE' | 'REVOKE' | 'DISABLE_2FA' | 'RESET_PASSWORD
     TranslatePipe,
     GrantAdminDrawerComponent
   ],
+  providers: [RouteListStateService],
   templateUrl: './platform-admin-list.component.html'
 })
 export class PlatformAdminListComponent implements OnInit {
   private platform = inject(PlatformService);
   private i18n = inject(I18nService);
   private auth = inject(AuthService);
+  private routeState = inject(RouteListStateService);
 
   readonly admins = signal<PlatformAdmin[]>([]);
   readonly loading = signal<boolean>(false);
@@ -70,6 +73,10 @@ export class PlatformAdminListComponent implements OnInit {
   readonly activeAdmins = computed(() => this.admins().filter((admin) => admin.status === PlatformAdminStatus.ACTIVE));
   readonly isLastActiveAdmin = computed(() => this.activeAdmins().length <= 1);
 
+  private loadedListKey = '';
+  private loadedDrawerKey = '';
+  private currentState: ListRouteState | null = null;
+
   readonly roleOptions: SelectOption[] = [
     { value: PlatformAdminRole.SUPER_ADMIN, labelKey: 'PLATFORM_ADMIN_ROLE_SUPER_ADMIN' },
     { value: PlatformAdminRole.SUPPORT_ENGINEER, labelKey: 'PLATFORM_ADMIN_ROLE_SUPPORT_ENGINEER' }
@@ -85,7 +92,65 @@ export class PlatformAdminListComponent implements OnInit {
   ];
 
   ngOnInit() {
-    this.load();
+    this.routeState.bind((state) => this.applyState(state));
+  }
+
+  private applyState(state: ListRouteState): void {
+    this.currentState = state;
+    const listKey = this.routeState.listKey(state);
+    if (listKey !== this.loadedListKey) {
+      this.loadedListKey = listKey;
+      this.load();
+    }
+    this.applySelection(state);
+  }
+
+  private applySelection(state: ListRouteState): void {
+    const drawerKey = `${state.drawer ?? ''}|${state.id ?? ''}`;
+    if (drawerKey !== this.loadedDrawerKey) {
+      this.loadedDrawerKey = drawerKey;
+      this.confirmReason.set('');
+      this.confirmTicket.set('');
+      this.confirmPassword.set('');
+    }
+    const admin = state.id ? this.admins().find((item) => item.admin_id === state.id) ?? null : null;
+    const action = this.actionFromDrawer(state.drawer);
+    if (admin && action) {
+      this.confirmAdmin.set(admin);
+      this.confirmAction.set(action);
+    } else {
+      this.confirmAdmin.set(null);
+      this.confirmAction.set(null);
+    }
+    this.grantOpen.set(state.drawer === 'grant');
+  }
+
+  private drawerForAction(action: AdminConfirmAction): string {
+    switch (action) {
+      case 'DISABLE':
+        return 'disable';
+      case 'REVOKE':
+        return 'revoke';
+      case 'DISABLE_2FA':
+        return 'disable2fa';
+      default:
+        return 'resetpassword';
+    }
+  }
+
+  private actionFromDrawer(drawer: string | null): AdminConfirmAction | null {
+    switch (drawer) {
+      case 'disable':
+        return 'DISABLE';
+      case 'revoke':
+        return 'REVOKE';
+      case 'disable2fa':
+        return 'DISABLE_2FA';
+      case 'resetpassword':
+        return 'RESET_PASSWORD';
+      default:
+        return null;
+    }
   }
 
   load() {
@@ -95,6 +160,9 @@ export class PlatformAdminListComponent implements OnInit {
         this.admins.set(res.data.items);
         this.loading.set(false);
         this.errorText.set('');
+        if (this.currentState) {
+          this.applySelection(this.currentState);
+        }
       },
       error: (err) => {
         this.loading.set(false);
@@ -152,16 +220,11 @@ export class PlatformAdminListComponent implements OnInit {
 
   askConfirm(admin: PlatformAdmin, action: AdminConfirmAction) {
     this.successText.set('');
-    this.confirmAdmin.set(admin);
-    this.confirmAction.set(action);
-    this.confirmReason.set('');
-    this.confirmTicket.set('');
-    this.confirmPassword.set('');
+    this.routeState.set({ drawer: this.drawerForAction(action), id: admin.admin_id });
   }
 
   cancelConfirm() {
-    this.confirmAdmin.set(null);
-    this.confirmAction.set(null);
+    this.routeState.set({ drawer: null, id: null });
   }
 
   submitConfirm() {
@@ -206,7 +269,7 @@ export class PlatformAdminListComponent implements OnInit {
     request.subscribe({
       next: (res) => {
         this.confirmSaving.set(false);
-        this.cancelConfirm();
+        this.routeState.set({ drawer: null, id: null });
         this.successText.set(this.i18n.t(res.code, res.params));
         this.errorText.set('');
         this.load();
@@ -231,15 +294,15 @@ export class PlatformAdminListComponent implements OnInit {
 
   openGrant() {
     this.successText.set('');
-    this.grantOpen.set(true);
+    this.routeState.set({ drawer: 'grant', id: null });
   }
 
   closeGrant() {
-    this.grantOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
   }
 
   onAdminGranted(code: string) {
-    this.grantOpen.set(false);
+    this.routeState.set({ drawer: null, id: null });
     this.successText.set(this.i18n.t(code));
     this.errorText.set('');
     this.load();

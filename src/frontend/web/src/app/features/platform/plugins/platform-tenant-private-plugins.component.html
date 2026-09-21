@@ -44,7 +44,7 @@
               {{ 'PLUGIN_STATUS_' + item.catalog_status | translate }}
             </td>
             <td class="border-b border-neutral-100 px-2 py-1 text-right dark:border-neutral-800">
-              @if (item.catalog_status !== 'BLOCKED') {
+              @if (isSuperAdmin() && item.catalog_status !== 'BLOCKED') {
                 <app-sharp-button size="sm" variant="danger" (clicked)="openBlock(item)">{{ 'PLUGIN_ACTION_BLOCK' | translate }}</app-sharp-button>
               }
             </td>
