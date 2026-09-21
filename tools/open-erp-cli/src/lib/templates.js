@@ -60,6 +60,7 @@ export function projectFiles(options) {
   const files = {};
   files['plugin.json'] = `${JSON.stringify(pluginManifest(options), null, 2)}\n`;
   files['.gitignore'] = ['target/', 'dist/', 'node_modules/', '.angular/', '*.log', '.env', '*.pem', ''].join('\n');
+  files['.mvn/jvm.config'] = '-Dnet.bytebuddy.experimental=true\n';
   files['README.md'] = readme(options);
   files['pom.xml'] = pomXml(options, pkg);
   files['src/main/resources/application.properties'] = applicationProperties();
