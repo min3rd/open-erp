@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
   DrawerComponent,
   I18nService,
@@ -19,6 +18,7 @@ import {
 } from '@shared';
 import { ApiErrorResponse } from '@shared';
 import { PluginService } from '../../../core/services/plugin.service';
+import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
 import { TenantPluginRegisterDrawerComponent } from './tenant-plugin-register-drawer.component';
 
 const TERMINAL_STATUSES = ['ACTIVE', 'INACTIVE', 'UNINSTALLED', 'INSTALL_FAILED', 'ROLLBACK_FAILED'];
@@ -37,13 +37,13 @@ const TERMINAL_STATUSES = ['ACTIVE', 'INACTIVE', 'UNINSTALLED', 'INSTALL_FAILED'
     SharpToggleComponent,
     TenantPluginRegisterDrawerComponent,
   ],
+  providers: [PathListStateService],
   templateUrl: './plugin-marketplace.component.html',
 })
 export class PluginMarketplaceComponent implements OnInit, OnDestroy {
   private pluginService = inject(PluginService);
   private i18n = inject(I18nService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private listState = inject(PathListStateService);
 
   items = signal<PluginMarketplaceItem[]>([]);
   loading = signal(false);
@@ -74,20 +74,22 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
   manageKey = signal<string | null>(null);
 
   private loadedDetailKey: string | null = null;
+  private currentState: PathListState | null = null;
 
   ngOnInit(): void {
     this.refresh();
     this.loadNotifications();
-    this.route.queryParamMap.subscribe((params) => this.applyQuery(params));
+    this.listState.bind('/settings/plugins', (state) => this.applyState(state));
   }
 
   ngOnDestroy(): void {
     this.stopPolling();
   }
 
-  private applyQuery(params: ParamMap): void {
-    const plugin = params.get('plugin');
-    const drawer = params.get('drawer');
+  private applyState(state: PathListState): void {
+    this.currentState = state;
+    const plugin = state.id;
+    const drawer = state.mode;
 
     if (plugin && plugin !== this.loadedDetailKey) {
       this.loadedDetailKey = plugin;
@@ -121,18 +123,13 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
     }
   }
 
-  setQuery(partial: Record<string, string | null>): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: partial,
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
-    });
+  private updateState(patch: Partial<PathListState>): void {
+    this.listState.set(patch);
   }
 
   closeAllDrawers(): void {
     this.stopPolling();
-    this.setQuery({ drawer: null });
+    this.updateState({ mode: 'list' });
   }
 
   refresh(): void {
@@ -141,7 +138,9 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.items.set(response.data?.items ?? []);
         this.loading.set(false);
-        this.applyQuery(this.route.snapshot.queryParamMap);
+        if (this.currentState) {
+          this.applyState(this.currentState);
+        }
       },
       error: (error: ApiErrorResponse) => {
         this.errorText.set(apiMessage(this.i18n, error));
@@ -166,7 +165,7 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
   }
 
   openDetail(item: PluginMarketplaceItem): void {
-    this.setQuery({ plugin: item.plugin_key, drawer: 'detail' });
+    this.updateState({ id: item.plugin_key, mode: 'detail' });
   }
 
   loadDetail(pluginKey: string): void {
@@ -199,7 +198,7 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
     this.upgradeItem.set(item);
     this.upgradeVersion.set(item.latest_version ?? '');
     this.upgradeSnapshot.set(false);
-    this.setQuery({ plugin: item.plugin_key, drawer: 'upgrade' });
+    this.updateState({ id: item.plugin_key, mode: 'upgrade' });
     if (this.detailKey() !== item.plugin_key) {
       this.pluginService.detail(item.plugin_key).subscribe({
         next: (response) => this.detail.set(response.data ?? null),
@@ -229,14 +228,14 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
     if (!item || !target) {
       return;
     }
-    this.setQuery({ drawer: null });
+    this.updateState({ mode: 'list' });
     this.runLifecycle(item.plugin_key, () =>
       this.pluginService.upgrade(item.plugin_key, target, this.upgradeRequiresSnapshot() ? true : this.upgradeSnapshot())
     );
   }
 
   openUninstall(item: PluginMarketplaceItem): void {
-    this.setQuery({ plugin: item.plugin_key, drawer: 'uninstall' });
+    this.updateState({ id: item.plugin_key, mode: 'uninstall' });
   }
 
   confirmUninstall(): void {
@@ -244,13 +243,13 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
     if (!item) {
       return;
     }
-    this.setQuery({ drawer: null });
+    this.updateState({ mode: 'list' });
     this.runLifecycle(item.plugin_key, () => this.pluginService.uninstall(item.plugin_key));
   }
 
   openNotifications(): void {
     this.loadNotifications();
-    this.setQuery({ drawer: 'notifications' });
+    this.updateState({ mode: 'notifications' });
   }
 
   markAllRead(): void {
@@ -262,12 +261,12 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
 
   closeDetail(): void {
     this.stopPolling();
-    this.setQuery({ plugin: null, drawer: null });
+    this.updateState({ id: null, mode: 'list' });
   }
 
   openRegister(): void {
     this.manageKey.set(null);
-    this.setQuery({ plugin: null, drawer: 'register' });
+    this.updateState({ id: null, mode: 'register' });
   }
 
   openManageVersions(): void {
@@ -276,7 +275,7 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
       return;
     }
     this.manageKey.set(key);
-    this.setQuery({ plugin: key, drawer: 'manage' });
+    this.updateState({ id: key, mode: 'manage' });
   }
 
   isCustomDetail(): boolean {
@@ -300,7 +299,7 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
   }
 
   onRegisterClosed(): void {
-    this.setQuery({ drawer: null });
+    this.updateState({ mode: 'list' });
   }
 
   onRegisterChanged(): void {

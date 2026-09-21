@@ -96,7 +96,30 @@ com.openerp.<module_or_plugin>/
   3. **Split-Screen (Chia màn hình đa cột)**:
      - Chia layout thành 2 hoặc 3 cột cố định (ví dụ: Master-Detail — danh sách bên trái 35%, chi tiết bên phải 65%).
 
-### 2.4. Chính Sách Không Viết Unit Test Frontend (Zero-Unit-Test Policy)
+### 2.4. Chuẩn Route Cho Màn Hình Dạng Bảng (Path-Segment List State)
+
+Mọi màn danh sách/bảng bắt buộc lưu trạng thái thao tác vào **path segments** theo khuôn mẫu:
+
+```
+/<module>/:filter/:sort/:pageSize/:page/:id/:mode
+```
+
+| Segment | Ý nghĩa | Giá trị mặc định |
+| :--- | :--- | :--- |
+| `:filter` | Bộ lọc chính (trạng thái/scope/result) | `all` |
+| `:sort` | Sắp xếp (`field` hoặc `-field` cho giảm dần) | `-` |
+| `:pageSize` | Số dòng/trang | `20` |
+| `:page` | Trang, **1-based** trên URL | `1` |
+| `:id` | Bản ghi đang chọn | `-` (không chọn) |
+| `:mode` | Ngữ cảnh Drawer/Chi tiết: `list`, `detail`, `create`, `edit`, `delete`, … | `list` |
+
+- URL ngắn (`/platform/plugins`) **redirect** về dạng canonical đầy đủ (`/platform/plugins/all/-/20/1/-/list`).
+- Từ khóa tìm kiếm tự do giữ ở query param `q`; các tham số phụ (ví dụ `scope/version/tenant` của Drawer khóa) cũng dùng query param.
+- Sử dụng helper dùng chung: `PathListStateService` + `parsePathListState`/`buildPathListCommands` tại `src/frontend/web/src/app/core/utils/path-list-state.ts`; component khai báo `providers: [PathListStateService]` và chỉ ghi state qua `set()/updateState()`.
+- F5, deep-link và Back của trình duyệt phải khôi phục đúng filter/trang/dòng chọn/Drawer.
+- Routes khai báo qua helper `listState(loadComponent)` trong `app.routes.ts` (children component-less với redirect tiến dần).
+
+### 2.5. Chính Sách Không Viết Unit Test Frontend (Zero-Unit-Test Policy)
 - **Tuyệt đối KHÔNG viết Unit Test cho Frontend**: Không tạo các file `.spec.ts` cho Angular components hay Ionic pages (tránh lãng phí thời gian và chi phí bảo trì giòn gãy khi code bằng AI).
 - **Quy trình Kiểm thử QA/QC**: Bắt buộc thực hiện **Kiểm thử thủ công trên Trình duyệt (Browser Manual Testing)** để kiểm tra tính toàn vẹn giao diện, sự mượt mà của Drawer, font chữ nhỏ gọn và tính đáp ứng đa màn hình.
 

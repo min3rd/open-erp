@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
   ApiErrorResponse,
   CredentialFormComponent,
@@ -14,18 +13,19 @@ import {
   apiMessage,
 } from '@shared';
 import { PluginService } from '../../../core/services/plugin.service';
+import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
 
 @Component({
   selector: 'app-tenant-plugin-credentials',
   standalone: true,
   imports: [CommonModule, TranslatePipe, DrawerComponent, CredentialFormComponent, SharpButtonComponent],
+  providers: [PathListStateService],
   templateUrl: './tenant-plugin-credentials.component.html',
 })
 export class TenantPluginCredentialsComponent implements OnInit {
   private service = inject(PluginService);
   private i18n = inject(I18nService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private listState = inject(PathListStateService);
 
   items = signal<PluginCredentialItem[]>([]);
   loading = signal(false);
@@ -38,30 +38,31 @@ export class TenantPluginCredentialsComponent implements OnInit {
 
   readonly tenantScope = PluginCredentialScope.TENANT;
 
+  private currentState: PathListState | null = null;
+
   ngOnInit(): void {
     this.load();
-    this.route.queryParamMap.subscribe((params) => this.applyQuery(params));
+    this.listState.bind('/settings/plugin-credentials', (state) => this.applyState(state));
   }
 
-  private applyQuery(params: ParamMap): void {
-    const drawer = params.get('drawer');
-    const id = params.get('id');
+  private applyState(state: PathListState): void {
+    this.currentState = state;
+    this.applySelection(state);
+  }
+
+  private applySelection(state: PathListState): void {
+    const id = state.id;
     const match = id ? this.items().find((entry) => entry.id === id) ?? null : null;
-    this.drawerOpen.set(drawer === 'create');
-    this.confirmDelete.set(drawer === 'delete' ? match : null);
+    this.drawerOpen.set(state.mode === 'create');
+    this.confirmDelete.set(state.mode === 'delete' ? match : null);
   }
 
-  setQuery(partial: Record<string, string | null>): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: partial,
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
-    });
+  updateState(patch: Partial<PathListState>): void {
+    this.listState.set(patch);
   }
 
   closeDrawer(): void {
-    this.setQuery({ drawer: null, id: null });
+    this.updateState({ mode: 'list', id: null });
   }
 
   load(): void {
@@ -70,7 +71,9 @@ export class TenantPluginCredentialsComponent implements OnInit {
       next: (response) => {
         this.items.set(response.data?.items ?? []);
         this.loading.set(false);
-        this.applyQuery(this.route.snapshot.queryParamMap);
+        if (this.currentState) {
+          this.applySelection(this.currentState);
+        }
       },
       error: (error: ApiErrorResponse) => {
         this.errorText.set(apiMessage(this.i18n, error));
@@ -81,7 +84,7 @@ export class TenantPluginCredentialsComponent implements OnInit {
 
   openCreate(): void {
     this.saving.set(false);
-    this.setQuery({ drawer: 'create', id: null });
+    this.updateState({ mode: 'create', id: null });
   }
 
   submit(payload: PluginCredentialPayload): void {
@@ -89,7 +92,7 @@ export class TenantPluginCredentialsComponent implements OnInit {
     this.service.createCredential(payload).subscribe({
       next: () => {
         this.saving.set(false);
-        this.setQuery({ drawer: null, id: null });
+        this.updateState({ mode: 'list', id: null });
         this.successText.set(this.i18n.t('PLUGIN_CREDENTIAL_CREATED'));
         this.load();
       },
@@ -122,12 +125,12 @@ export class TenantPluginCredentialsComponent implements OnInit {
     }
     this.service.deleteCredential(item.id).subscribe({
       next: () => {
-        this.setQuery({ drawer: null, id: null });
+        this.updateState({ mode: 'list', id: null });
         this.successText.set(this.i18n.t('PLUGIN_CREDENTIAL_DELETED'));
         this.load();
       },
       error: (error: ApiErrorResponse) => {
-        this.setQuery({ drawer: null, id: null });
+        this.updateState({ mode: 'list', id: null });
         this.errorText.set(apiMessage(this.i18n, error));
       },
     });

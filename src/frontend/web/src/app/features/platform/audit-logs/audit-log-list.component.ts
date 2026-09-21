@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ParamMap } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import {
   ApiErrorResponse,
   AuditLog,
@@ -21,7 +21,7 @@ import {
   formatDateTime
 } from '@shared';
 import { PlatformService } from '../../../core/services/platform.service';
-import { ListRouteState, RouteListStateService } from '../../../core/utils/route-list-state.service';
+import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
 import { AuditLogDetailDrawerComponent } from './audit-log-detail-drawer.component';
 
 @Component({
@@ -39,13 +39,14 @@ import { AuditLogDetailDrawerComponent } from './audit-log-detail-drawer.compone
     TranslatePipe,
     AuditLogDetailDrawerComponent
   ],
-  providers: [RouteListStateService],
+  providers: [PathListStateService],
   templateUrl: './audit-log-list.component.html'
 })
 export class AuditLogListComponent implements OnInit {
   private platform = inject(PlatformService);
   private i18n = inject(I18nService);
-  private routeState = inject(RouteListStateService);
+  private route = inject(ActivatedRoute);
+  private listState = inject(PathListStateService);
 
   readonly logs = signal<AuditLog[]>([]);
   readonly loading = signal<boolean>(false);
@@ -67,7 +68,7 @@ export class AuditLogListComponent implements OnInit {
   readonly detailOpen = signal<boolean>(false);
 
   private loadedListKey = '';
-  private currentState: ListRouteState | null = null;
+  private currentState: PathListState | null = null;
 
   readonly columns: TableColumn[] = [
     { key: 'created_at', labelKey: 'PLATFORM_AUDIT_COL_TIME' },
@@ -95,27 +96,27 @@ export class AuditLogListComponent implements OnInit {
   ];
 
   ngOnInit() {
-    this.routeState.bind((state, params) => this.applyState(state, params));
+    this.listState.bind('/platform/audit-logs', (state, keyword) => this.applyState(state, keyword));
   }
 
-  private applyState(state: ListRouteState, params: ParamMap): void {
-    const scope = params.get('scope') ?? '';
-    const result = params.get('result') ?? state.status;
-    const action = params.get('action') ?? '';
-    const from = params.get('from') ?? '';
-    const to = params.get('to') ?? '';
+  private applyState(state: PathListState, keyword: string): void {
+    const query = this.route.snapshot.queryParamMap;
+    const result = query.get('result') ?? '';
+    const action = query.get('action') ?? '';
+    const from = query.get('from') ?? '';
+    const to = query.get('to') ?? '';
 
-    this.page.set(state.page);
-    this.size.set(state.size);
-    this.keyword.set(state.keyword);
-    this.scopeFilter.set(scope);
+    this.page.set(state.page - 1);
+    this.size.set(state.pageSize);
+    this.keyword.set(keyword);
+    this.scopeFilter.set(state.filter === 'all' ? '' : state.filter);
     this.resultFilter.set(result);
     this.actionFilter.set(action);
     this.fromDate.set(from);
     this.toDate.set(to);
     this.currentState = state;
 
-    const listKey = this.routeState.listKey(state, [scope, result, action, from, to].join('|'));
+    const listKey = this.listState.listKey(state) + '|' + [result, action, from, to].join('|');
     if (listKey !== this.loadedListKey) {
       this.loadedListKey = listKey;
       this.load();
@@ -123,9 +124,33 @@ export class AuditLogListComponent implements OnInit {
     this.applySelection(state);
   }
 
-  private applySelection(state: ListRouteState): void {
-    this.detailId.set(state.drawer === 'detail' ? state.id : null);
-    this.detailOpen.set(state.drawer === 'detail' && !!state.id);
+  private applySelection(state: PathListState): void {
+    this.detailId.set(state.mode === 'detail' ? state.id : null);
+    this.detailOpen.set(state.mode === 'detail' && !!state.id);
+  }
+
+  private currentQuery(): Record<string, string | null> {
+    const query = this.route.snapshot.queryParamMap;
+    return {
+      result: query.get('result'),
+      action: query.get('action'),
+      from: query.get('from'),
+      to: query.get('to')
+    };
+  }
+
+  private inputQuery(): Record<string, string | null> {
+    return {
+      result: this.resultFilter() || null,
+      action: this.actionFilter() || null,
+      from: this.fromDate() || null,
+      to: this.toDate() || null
+    };
+  }
+
+  private updateState(patch: Partial<PathListState>, keyword?: string | null,
+                      extraQuery?: Record<string, string | null>): void {
+    this.listState.set(patch, keyword, extraQuery);
   }
 
   load() {
@@ -160,70 +185,32 @@ export class AuditLogListComponent implements OnInit {
   }
 
   onScopeChange(value: string) {
-    this.routeState.set({
-      scope: value || null,
-      page: 0,
-      keyword: this.keyword(),
-      action: this.actionFilter() || null,
-      from: this.fromDate() || null,
-      to: this.toDate() || null,
-      id: null,
-      drawer: null
-    });
+    this.updateState({ filter: value || 'all', page: 1, id: null, mode: 'list' }, this.keyword(), this.inputQuery());
   }
 
   onResultChange(value: string) {
-    this.routeState.set({
-      result: value || null,
-      status: null,
-      page: 0,
-      keyword: this.keyword(),
-      action: this.actionFilter() || null,
-      from: this.fromDate() || null,
-      to: this.toDate() || null,
-      id: null,
-      drawer: null
-    });
+    this.updateState({ page: 1, id: null, mode: 'list' }, this.keyword(), { ...this.inputQuery(), result: value || null });
   }
 
   applyFilters() {
-    this.routeState.set({
-      page: 0,
-      keyword: this.keyword(),
-      action: this.actionFilter() || null,
-      from: this.fromDate() || null,
-      to: this.toDate() || null,
-      id: null,
-      drawer: null
-    });
+    this.updateState({ page: 1, id: null, mode: 'list' }, this.keyword(), this.inputQuery());
   }
 
   resetFilters() {
-    this.routeState.set({
-      page: null,
-      size: null,
-      keyword: null,
-      status: null,
-      scope: null,
-      result: null,
-      action: null,
-      from: null,
-      to: null,
-      id: null,
-      drawer: null
-    });
+    this.updateState({ filter: 'all', sort: '-', pageSize: 20, page: 1, id: null, mode: 'list' }, '',
+      { result: null, action: null, from: null, to: null });
   }
 
   changePage(nextPage: number) {
-    this.routeState.set({ page: nextPage });
+    this.updateState({ page: nextPage + 1 }, this.keyword(), this.currentQuery());
   }
 
   openDetail(log: AuditLog) {
-    this.routeState.set({ drawer: 'detail', id: log.log_id });
+    this.updateState({ mode: 'detail', id: log.log_id }, this.keyword(), this.currentQuery());
   }
 
   closeDetail() {
-    this.routeState.set({ drawer: null, id: null });
+    this.updateState({ mode: 'list', id: null }, this.keyword(), this.currentQuery());
   }
 
   scopeVariant(scope: AuditScope): ColorVariant {

@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
   ApiErrorResponse,
   DrawerComponent,
@@ -13,18 +12,19 @@ import {
 } from '@shared';
 import { PlatformPluginService } from '../../../core/services/platform-plugin.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
 
 @Component({
   selector: 'app-platform-tenant-private-plugins',
   standalone: true,
   imports: [CommonModule, TranslatePipe, DrawerComponent, SharpButtonComponent, SharpToggleComponent],
+  providers: [PathListStateService],
   templateUrl: './platform-tenant-private-plugins.component.html',
 })
 export class PlatformTenantPrivatePluginsComponent implements OnInit {
   private service = inject(PlatformPluginService);
   private i18n = inject(I18nService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private listState = inject(PathListStateService);
   private auth = inject(AuthService);
 
   readonly isSuperAdmin = this.auth.isPlatformSuperAdmin;
@@ -41,30 +41,35 @@ export class PlatformTenantPrivatePluginsComponent implements OnInit {
   blockConfirm = signal('');
   blockBusy = signal(false);
 
+  private currentState: PathListState | null = null;
+
   ngOnInit(): void {
     this.load();
-    this.route.queryParamMap.subscribe((params) => this.applyQuery(params));
+    this.listState.bind('/platform/tenant-private-plugins', (state) => this.applyState(state));
   }
 
-  private applyQuery(params: ParamMap): void {
-    const drawer = params.get('drawer');
-    const plugin = params.get('plugin');
+  private applyState(state: PathListState): void {
+    this.currentState = state;
+    this.applySelection(state);
+  }
+
+  private applySelection(state: PathListState): void {
+    const plugin = state.id;
     const match = plugin ? this.items().find((entry) => entry.plugin_key === plugin) ?? null : null;
-    this.blockOpen.set(drawer === 'block' && !!match);
-    this.blockTarget.set(drawer === 'block' ? match : null);
+    const canBlock = this.isSuperAdmin() && state.mode === 'block' && !!match;
+    this.blockOpen.set(canBlock);
+    this.blockTarget.set(canBlock ? match : null);
+    if (state.mode === 'block' && !this.isSuperAdmin()) {
+      this.updateState({ mode: 'list', id: null });
+    }
   }
 
-  setQuery(partial: Record<string, string | null>): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: partial,
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
-    });
+  private updateState(patch: Partial<PathListState>): void {
+    this.listState.set(patch);
   }
 
   closeDrawer(): void {
-    this.setQuery({ drawer: null, plugin: null });
+    this.updateState({ mode: 'list', id: null });
   }
 
   load(): void {
@@ -73,7 +78,9 @@ export class PlatformTenantPrivatePluginsComponent implements OnInit {
       next: (response) => {
         this.items.set(response.data?.items ?? []);
         this.loading.set(false);
-        this.applyQuery(this.route.snapshot.queryParamMap);
+        if (this.currentState) {
+          this.applySelection(this.currentState);
+        }
       },
       error: (error: ApiErrorResponse) => {
         this.errorText.set(apiMessage(this.i18n, error));
@@ -86,7 +93,7 @@ export class PlatformTenantPrivatePluginsComponent implements OnInit {
     this.blockReason.set('');
     this.blockForce.set(false);
     this.blockConfirm.set('');
-    this.setQuery({ drawer: 'block', plugin: item.plugin_key });
+    this.updateState({ mode: 'block', id: item.plugin_key });
   }
 
   canConfirm(): boolean {
@@ -109,7 +116,7 @@ export class PlatformTenantPrivatePluginsComponent implements OnInit {
     }).subscribe({
       next: () => {
         this.blockBusy.set(false);
-        this.setQuery({ drawer: null, plugin: null });
+        this.updateState({ mode: 'list', id: null });
         this.successText.set(this.i18n.t('PLUGIN_BLOCK_SUCCESS'));
         this.load();
       },

@@ -17,7 +17,7 @@ import {
 } from '@shared';
 
 import { OrganizationService } from '../../../core/services/organization.service';
-import { ListRouteState, RouteListStateService } from '../../../core/utils/route-list-state.service';
+import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
 import { UserAssignmentDrawerComponent } from './user-assignment-drawer.component';
 import { BranchAssignmentDrawerComponent } from '../branch-assignments/branch-assignment-drawer.component';
 
@@ -33,13 +33,13 @@ import { BranchAssignmentDrawerComponent } from '../branch-assignments/branch-as
     UserAssignmentDrawerComponent,
     BranchAssignmentDrawerComponent
   ],
-  providers: [RouteListStateService],
+  providers: [PathListStateService],
   templateUrl: './members.component.html'
 })
 export class MembersComponent implements OnInit {
   private organization = inject(OrganizationService);
   private i18n = inject(I18nService);
-  private routeState = inject(RouteListStateService);
+  private listState = inject(PathListStateService);
 
   readonly memberships = signal<Membership[]>([]);
   readonly branches = signal<Branch[]>([]);
@@ -59,7 +59,7 @@ export class MembersComponent implements OnInit {
   readonly removing = signal<boolean>(false);
 
   private loadedListKey = '';
-  private currentState: ListRouteState | null = null;
+  private currentState: PathListState | null = null;
 
   readonly columns: TableColumn[] = [
     { key: 'user', labelKey: 'ORGANIZATION_MEMBER_USER' },
@@ -81,12 +81,12 @@ export class MembersComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.routeState.bind((state) => this.applyState(state));
+    this.listState.bind('/settings/members', (state) => this.applyState(state));
   }
 
-  private applyState(state: ListRouteState): void {
+  private applyState(state: PathListState): void {
     this.currentState = state;
-    const listKey = this.routeState.listKey(state);
+    const listKey = this.listState.listKey(state);
     if (listKey !== this.loadedListKey) {
       this.loadedListKey = listKey;
       this.load();
@@ -94,13 +94,17 @@ export class MembersComponent implements OnInit {
     this.applySelection(state);
   }
 
-  private applySelection(state: ListRouteState): void {
-    const membership = state.id ? this.memberships().find((item) => item.id === state.id) ?? null : null;
-    this.editingMembership.set(state.drawer === 'edit' ? membership : null);
-    this.userDrawerOpen.set(state.drawer === 'create' || (state.drawer === 'edit' && !!membership));
-    this.assignmentUser.set(state.drawer === 'assign' ? membership : null);
-    this.assignmentDrawerOpen.set(state.drawer === 'assign' && !!membership);
-    this.confirmRemove.set(state.drawer === 'delete' ? membership : null);
+  private applySelection(state: PathListState): void {
+    const membership = state.id ? this.memberships().find((item) => item.user_id === state.id) ?? null : null;
+    this.editingMembership.set(state.mode === 'edit' ? membership : null);
+    this.userDrawerOpen.set(state.mode === 'create' || (state.mode === 'edit' && !!membership));
+    this.assignmentUser.set(state.mode === 'assign' ? membership : null);
+    this.assignmentDrawerOpen.set(state.mode === 'assign' && !!membership);
+    this.confirmRemove.set(state.mode === 'delete' ? membership : null);
+  }
+
+  private updateState(patch: Partial<PathListState>): void {
+    this.listState.set(patch);
   }
 
   load() {
@@ -134,45 +138,45 @@ export class MembersComponent implements OnInit {
   }
 
   openCreateMembership() {
-    this.routeState.set({ drawer: 'create', id: null });
+    this.updateState({ mode: 'create', id: null });
   }
 
   openEditMembership(membership: Membership) {
-    this.routeState.set({ drawer: 'edit', id: membership.id });
+    this.updateState({ mode: 'edit', id: membership.user_id });
   }
 
   closeUserDrawer() {
-    this.routeState.set({ drawer: null, id: null });
+    this.updateState({ mode: 'list', id: null });
   }
 
   onMembershipSaved(code: string) {
-    this.routeState.set({ drawer: null, id: null });
+    this.updateState({ mode: 'list', id: null });
     this.successText.set(this.i18n.t(code));
     this.errorText.set('');
     this.load();
   }
 
   openAssignmentDrawer(membership: Membership) {
-    this.routeState.set({ drawer: 'assign', id: membership.id });
+    this.updateState({ mode: 'assign', id: membership.user_id });
   }
 
   closeAssignmentDrawer() {
-    this.routeState.set({ drawer: null, id: null });
+    this.updateState({ mode: 'list', id: null });
   }
 
   onAssignmentSaved(code: string) {
-    this.routeState.set({ drawer: null, id: null });
+    this.updateState({ mode: 'list', id: null });
     this.successText.set(this.i18n.t(code));
     this.errorText.set('');
     this.load();
   }
 
   askRemove(membership: Membership) {
-    this.routeState.set({ drawer: 'delete', id: membership.id });
+    this.updateState({ mode: 'delete', id: membership.user_id });
   }
 
   cancelRemove() {
-    this.routeState.set({ drawer: null, id: null });
+    this.updateState({ mode: 'list', id: null });
   }
 
   confirmRemoveMembership() {
@@ -184,7 +188,7 @@ export class MembersComponent implements OnInit {
     this.organization.deleteMembership(target.id).subscribe({
       next: (res) => {
         this.removing.set(false);
-        this.routeState.set({ drawer: null, id: null });
+        this.updateState({ mode: 'list', id: null });
         this.successText.set(this.i18n.t(res.code, res.params));
         this.errorText.set('');
         this.load();

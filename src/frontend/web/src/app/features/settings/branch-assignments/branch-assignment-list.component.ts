@@ -18,7 +18,7 @@ import {
 } from '@shared';
 
 import { OrganizationService } from '../../../core/services/organization.service';
-import { ListRouteState, RouteListStateService } from '../../../core/utils/route-list-state.service';
+import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
 import { BranchAssignmentDrawerComponent } from './branch-assignment-drawer.component';
 
 interface AssignmentUser {
@@ -39,13 +39,13 @@ interface AssignmentUser {
     TranslatePipe,
     BranchAssignmentDrawerComponent
   ],
-  providers: [RouteListStateService],
+  providers: [PathListStateService],
   templateUrl: './branch-assignment-list.component.html'
 })
 export class BranchAssignmentListComponent implements OnInit {
   private organization = inject(OrganizationService);
   private i18n = inject(I18nService);
-  private routeState = inject(RouteListStateService);
+  private listState = inject(PathListStateService);
 
   readonly assignments = signal<BranchAssignment[]>([]);
   readonly branches = signal<Branch[]>([]);
@@ -62,7 +62,7 @@ export class BranchAssignmentListComponent implements OnInit {
   readonly removing = signal<boolean>(false);
 
   private loadedListKey = '';
-  private currentState: ListRouteState | null = null;
+  private currentState: PathListState | null = null;
 
   readonly columns: TableColumn[] = [
     { key: 'user', labelKey: 'ORGANIZATION_MEMBER_USER' },
@@ -80,12 +80,12 @@ export class BranchAssignmentListComponent implements OnInit {
   );
 
   ngOnInit() {
-    this.routeState.bind((state) => this.applyState(state));
+    this.listState.bind('/settings/branch-assignments', (state) => this.applyState(state));
   }
 
-  private applyState(state: ListRouteState): void {
+  private applyState(state: PathListState): void {
     this.currentState = state;
-    const listKey = this.routeState.listKey(state);
+    const listKey = this.listState.listKey(state);
     if (listKey !== this.loadedListKey) {
       this.loadedListKey = listKey;
       this.load();
@@ -93,8 +93,8 @@ export class BranchAssignmentListComponent implements OnInit {
     this.applySelection(state);
   }
 
-  private applySelection(state: ListRouteState): void {
-    if (state.drawer === 'assign') {
+  private applySelection(state: PathListState): void {
+    if (state.mode === 'assign') {
       const member = state.id ? this.members().find((item) => item.user_id === state.id) ?? null : null;
       this.drawerUser.set(member ? { user_id: member.user_id, user_email: member.user_email || '' } : null);
       this.drawerOpen.set(!!member);
@@ -104,7 +104,7 @@ export class BranchAssignmentListComponent implements OnInit {
       }
       return;
     }
-    if (state.drawer === 'delete') {
+    if (state.mode === 'delete') {
       const assignment = state.id ? this.assignments().find((item) => item.id === state.id) ?? null : null;
       this.confirmRemove.set(assignment);
       this.drawerOpen.set(false);
@@ -120,6 +120,10 @@ export class BranchAssignmentListComponent implements OnInit {
         this.selectedUserId.set(member.user_id);
       }
     }
+  }
+
+  private updateState(patch: Partial<PathListState>): void {
+    this.listState.set(patch);
   }
 
   load() {
@@ -150,7 +154,7 @@ export class BranchAssignmentListComponent implements OnInit {
   }
 
   onUserSelected(userId: string) {
-    this.routeState.set({ id: userId || null, drawer: null });
+    this.updateState({ id: userId || null, mode: 'list' });
   }
 
   openDrawer(userId?: string) {
@@ -160,26 +164,26 @@ export class BranchAssignmentListComponent implements OnInit {
       this.errorText.set(this.i18n.t('ORGANIZATION_BRANCH_ASSIGNMENT_SELECT_USER'));
       return;
     }
-    this.routeState.set({ drawer: 'assign', id: targetId });
+    this.updateState({ mode: 'assign', id: targetId });
   }
 
   closeDrawer() {
-    this.routeState.set({ drawer: null, id: null });
+    this.updateState({ mode: 'list', id: null });
   }
 
   onSaved(code: string) {
-    this.routeState.set({ drawer: null, id: null });
+    this.updateState({ mode: 'list', id: null });
     this.successText.set(this.i18n.t(code));
     this.errorText.set('');
     this.load();
   }
 
   askRemove(assignment: BranchAssignment) {
-    this.routeState.set({ drawer: 'delete', id: assignment.id });
+    this.updateState({ mode: 'delete', id: assignment.id });
   }
 
   cancelRemove() {
-    this.routeState.set({ drawer: null, id: null });
+    this.updateState({ mode: 'list', id: null });
   }
 
   confirmRemoveAssignment() {
@@ -191,7 +195,7 @@ export class BranchAssignmentListComponent implements OnInit {
     this.organization.deleteBranchAssignment(target.id).subscribe({
       next: (res) => {
         this.removing.set(false);
-        this.routeState.set({ drawer: null, id: null });
+        this.updateState({ mode: 'list', id: null });
         this.successText.set(this.i18n.t(res.code, res.params));
         this.errorText.set('');
         this.load();

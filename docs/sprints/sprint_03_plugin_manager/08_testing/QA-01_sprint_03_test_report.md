@@ -65,6 +65,23 @@ Kết quả JSON thô: `qa_tenant_result.json`, `qa_route_result.json`, `qa_plat
 
 **Bổ sung item mới**: [TASK-348](../07_items/TASK-348_route_state_rollout_sprint01_02.md) (rollout route-state — 7/7 màn chính Done, còn danh sách phụ → Sprint 04), [BUG-110](../07_items/BUG-110_ng01354_ngmodel_child_component_warning.md) (Low, warning NG01354, deferred).
 
+## 2d. Chuẩn Path-Segment `/:filter/:sort/:pageSize/:page/:id/:mode` (khách hàng chốt 2026-09-21)
+
+Thay query-param bằng path segments theo khuôn mẫu khách hàng gợi ý; helper `PathListStateService`, routes khai báo qua `listState()`; canonical `all/-/20/1/-/list`; `q` giữ từ khóa, query phụ giữ `scope/version/tenant`. Chuẩn ghi tại [coding_standards.md 2.4](../../../08_developer_guides/coding_standards.md). **12 màn** đã chuyển đổi (5 Plugin Manager + 7 bảng Sprint 01/02), helper cũ đã xoá.
+
+| Bộ kiểm (browser thật) | Kết quả | Ảnh |
+| :--- | :--- | :--- |
+| URL ngắn `/platform/plugins` redirect canonical | PASS (`/all/-/20/1/-/list`) | — |
+| Filter segment `BLOCKED` áp dụng vào select | PASS | `web_40_path_filter.png` |
+| Page segment `/2/` tải trang 2, không lỗi | PASS | `web_41_path_page2.png` |
+| Tenants filter `ACTIVE` từ path | PASS | `web_42_path_tenants.png` |
+| SUPPORT_ENGINEER deep-link mode `block` bị normalize về `list`, ẩn nút khóa | PASS | `web_43_support_block_guard.png` |
+| Marketplace deep-link `qa-custom-tool/detail` mở Drawer | PASS | `web_44_marketplace_detail_path.png` |
+| Marketplace deep-link `manage` mở Drawer phiên bản | PASS | `web_45_marketplace_manage_path.png` |
+| Sample-records deep-link `create` mở Drawer | PASS | `web_46_sample_records_path.png` |
+
+**Tổng: 9/9 PASS, 0 console error** (`qa_path_result.json`).
+
 
 
 ## 3. Kết Quả Rà Soát Theo Hạng Mục

@@ -22,18 +22,19 @@ Phạm vi: `/platform/plugins`, `/settings/plugins`, `/platform/plugin-credentia
 
 ## Hướng sửa (đã thực hiện)
 
-Chuẩn hóa state lên **query params của route** (Angular Router), hai chiều:
+> **Cập nhật 2026-09-21 theo gợi ý khách hàng**: thay query-param bằng **chuẩn path-segment** `/:filter/:sort/:pageSize/:page/:id/:mode` (canonical `all/-/20/1/-/list`), khai báo qua helper `listState()` trong `app.routes.ts`; helper dùng chung `PathListStateService` (`core/utils/path-list-state.ts`). Từ khóa giữ ở `q`; tham số phụ (`scope/version/tenant`) ở query. Chuẩn được ghi tại [coding_standards.md mục 2.4](../../../../08_developer_guides/coding_standards.md).
 
-| Màn | Query params |
-| :--- | :--- |
-| `/platform/plugins` | `page`, `size`, `keyword`, `status`, `plugin`, `drawer=detail\|versions\|edit\|block\|bulk\|support`, `tenant` (hỗ trợ), `scope`, `version` |
-| `/settings/plugins` | `keyword`, `plugin`, `drawer=detail\|upgrade\|uninstall\|manage\|notifications` |
-| `/platform/plugin-credentials`, `/settings/plugin-credentials` | `id`, `drawer=create\|edit\|delete\|test` |
-| `/platform/tenant-private-plugins` | `plugin`, `drawer=block` |
+Phạm vi áp dụng: 5 màn Plugin Manager + 7 màn bảng Sprint 01/02 (xem [TASK-348](TASK-348_route_state_rollout_sprint01_02.md)).
 
-- Mở/đóng Drawer và chọn dòng ⇒ `router.navigate` cập nhật query (merge, `replaceUrl` khi chỉ đổi selection để không phình history).
-- `queryParamMap` subscription khôi phục state ⇒ F5/deep-link/Back đều đúng ngữ cảnh.
-- Dữ liệu bảng (page/keyword/status) cũng đọc từ query ⇒ link chia sẻ tái hiện đúng màn hình.
+| Màn | Path segments | Mode (Drawer) |
+| :--- | :--- | :--- |
+| `/platform/plugins` | `filter=status`, `sort`, `pageSize`, `page`, `id=plugin_key` | `list\|detail\|versions\|edit\|register\|block\|bulk\|support` |
+| `/settings/plugins` | `filter`, `sort`, `pageSize`, `page`, `id=plugin_key` | `list\|detail\|upgrade\|uninstall\|manage\|register\|notifications` |
+| `/platform/plugin-credentials`, `/settings/plugin-credentials` | `pageSize`, `page`, `id` | `list\|create\|edit\|delete` |
+| `/platform/tenant-private-plugins` | `id=plugin_key` | `list\|block` (chỉ SUPER_ADMIN) |
+
+- URL canonical đầy đủ `all/-/20/1/-/list`; URL ngắn tự redirect tiến dần về canonical.
+- `PathListStateService` khôi phục state ⇒ F5/deep-link/Back đúng ngữ cảnh; `q` giữ từ khóa, query phụ giữ `scope/version/tenant`.
 
 ## Tiêu chí kiểm tra sau sửa
 
@@ -42,3 +43,4 @@ Chuẩn hóa state lên **query params của route** (Angular Router), hai chi�
 - [x] Deep-link `?plugin=sales&drawer=versions` (platform) mở đúng tầng phiên bản (`web_22`).
 - [x] Copy URL sang tab mới → tái hiện đúng trạng thái (`qa_route_result.json` 8/8 PASS).
 - [x] **Mở rộng Sprint 01/02 (khách hàng yêu cầu)**: 7 màn bảng đã chuyển đổi qua helper `RouteListStateService` — xem [TASK-348](TASK-348_route_state_rollout_sprint01_02.md); verified browser `web_31→34` + `qa_verify_result.json` 12/12 PASS.
+- [x] **Chuẩn path-segment (khách hàng chốt 2026-09-21)**: 12 màn chuyển sang `/:filter/:sort/:pageSize/:page/:id/:mode`; verified browser **9/9 PASS, 0 console error** (`web_40→46`, `qa_path_result.json`): canonical redirect, filter BLOCKED, page 2, tenants ACTIVE, support bị normalize khỏi mode `block`, deep-link detail/manage/create.

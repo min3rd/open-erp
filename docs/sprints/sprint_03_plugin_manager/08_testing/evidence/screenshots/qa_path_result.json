@@ -1,0 +1,46 @@
+{
+  "checks": [
+    {
+      "name": "progressive URL redirects to canonical path",
+      "pass": true,
+      "detail": "/platform/plugins/all/-/20/1/-/list"
+    },
+    {
+      "name": "filter segment applied (BLOCKED)",
+      "pass": true,
+      "detail": "BLOCKED"
+    },
+    {
+      "name": "page segment 2 loads (no error)",
+      "pass": true,
+      "detail": "false"
+    },
+    {
+      "name": "tenants filter segment ACTIVE",
+      "pass": true,
+      "detail": "ACTIVE"
+    },
+    {
+      "name": "support block mode normalized to list",
+      "pass": true,
+      "detail": "/platform/tenant-private-plugins/all/-/20/1/-/list"
+    },
+    {
+      "name": "support block drawer hidden",
+      "pass": true
+    },
+    {
+      "name": "marketplace detail deep-link opens drawer",
+      "pass": true
+    },
+    {
+      "name": "marketplace manage deep-link opens versions drawer",
+      "pass": true
+    },
+    {
+      "name": "sample-records create deep-link opens drawer",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

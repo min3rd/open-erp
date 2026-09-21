@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import {
   ApiErrorResponse,
   DrawerComponent,
@@ -22,6 +22,7 @@ import {
   apiMessage,
 } from '@shared';
 import { PlatformPluginService } from '../../../core/services/platform-plugin.service';
+import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
 
 const TERMINAL_STATUSES = ['ACTIVE', 'INACTIVE', 'UNINSTALLED', 'INSTALL_FAILED', 'ROLLBACK_FAILED'];
 
@@ -39,12 +40,13 @@ const TERMINAL_STATUSES = ['ACTIVE', 'INACTIVE', 'UNINSTALLED', 'INSTALL_FAILED'
     SharpToggleComponent,
   ],
   templateUrl: './platform-plugin-list.component.html',
+  providers: [PathListStateService],
 })
 export class PlatformPluginListComponent implements OnInit, OnDestroy {
   private service = inject(PlatformPluginService);
   private i18n = inject(I18nService);
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private listState = inject(PathListStateService);
 
   items = signal<PluginCatalogItem[]>([]);
   total = signal(0);
@@ -110,27 +112,26 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
   private loadedDetailKey: string | null = null;
 
   ngOnInit(): void {
-    this.route.queryParamMap.subscribe((params) => this.applyQuery(params));
+    this.listState.bind('/platform/plugins', (state, keyword) => this.applyState(state, keyword));
   }
 
   ngOnDestroy(): void {
     this.stopPolling();
   }
 
-  private applyQuery(params: ParamMap): void {
-    const page = Number(params.get('page') ?? '0') || 0;
-    const size = Number(params.get('size') ?? '20') || 20;
-    const keyword = params.get('keyword') ?? '';
-    const status = params.get('status') ?? '';
-    const plugin = params.get('plugin');
-    const drawer = params.get('drawer');
+  private applyState(state: PathListState, keyword: string): void {
+    const page = state.page - 1;
+    const size = state.pageSize;
+    const status = state.filter === 'all' ? '' : state.filter;
+    const plugin = state.id;
+    const drawer = state.mode;
 
     this.page.set(page);
     this.size.set(size);
     this.keyword.set(keyword);
     this.catalogStatus.set(status);
 
-    const listKey = `${page}|${size}|${keyword}|${status}`;
+    const listKey = this.listState.listKey(state);
     if (listKey !== this.loadedListKey) {
       this.loadedListKey = listKey;
       this.load();
@@ -166,8 +167,8 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     this.supportOpen.set(drawer === 'support');
 
     if (drawer === 'block') {
-      const scope = params.get('scope') ?? this.blockScope();
-      const version = params.get('version');
+      const scope = this.route.snapshot.queryParamMap.get('scope') ?? this.blockScope();
+      const version = this.route.snapshot.queryParamMap.get('version');
       this.blockScope.set(scope);
       this.blockVersion.set(version);
       const key = this.selectedKey();
@@ -179,23 +180,19 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
       }
     }
     if (drawer === 'support') {
-      const tenantId = params.get('tenant');
+      const tenantId = this.route.snapshot.queryParamMap.get('tenant');
       const match = this.installations().find((entry) => entry.tenant_id === tenantId) ?? null;
       this.supportTenant.set(match);
     }
   }
 
-  setQuery(partial: Record<string, string | number | null>): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: partial,
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
-    });
+  private updateState(patch: Partial<PathListState>, keyword?: string | null,
+                      extraQuery?: Record<string, string | null>): void {
+    this.listState.set(patch, keyword, extraQuery);
   }
 
   closeDrawer(): void {
-    this.setQuery({ drawer: null });
+    this.updateState({ mode: 'list' }, undefined, { scope: null, version: null, tenant: null });
   }
 
   load(): void {
@@ -216,23 +213,23 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
   }
 
   search(): void {
-    this.setQuery({ page: 0 });
+    this.updateState({ page: 1 }, this.keyword());
   }
 
   prevPage(): void {
     if (this.page() > 0) {
-      this.setQuery({ page: this.page() - 1 });
+      this.updateState({ page: this.page() });
     }
   }
 
   nextPage(): void {
     if ((this.page() + 1) * this.size() < this.total()) {
-      this.setQuery({ page: this.page() + 1 });
+      this.updateState({ page: this.page() + 2 });
     }
   }
 
   select(item: PluginCatalogItem): void {
-    this.setQuery({ plugin: item.plugin_key, drawer: null });
+    this.updateState({ id: item.plugin_key, mode: 'list' });
   }
 
   reloadDetail(key: string): void {
@@ -285,7 +282,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
   openRegister(): void {
     this.editingCatalog.set(false);
     this.catalogForm.set({ plugin_key: '', name_key: '', description_key: '', default_install: false, locked: false });
-    this.setQuery({ plugin: null, drawer: 'register' });
+    this.updateState({ id: null, mode: 'register' });
   }
 
   openEdit(): void {
@@ -301,7 +298,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
       default_install: !!current.default_install,
       locked: !!current.locked,
     });
-    this.setQuery({ drawer: 'edit' });
+    this.updateState({ mode: 'edit' });
   }
 
   submitCatalog(): void {
@@ -327,7 +324,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     request.subscribe({
       next: () => {
         this.submitBusy.set(false);
-        this.setQuery({ drawer: null });
+        this.updateState({ mode: 'list' });
         this.successText.set(this.i18n.t('PLUGIN_METADATA_UPDATE_SUCCESS'));
         this.load();
       },
@@ -346,7 +343,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     this.service.deleteCatalog(key).subscribe({
       next: () => {
         this.successText.set(this.i18n.t('PLUGIN_CATALOG_DELETE_SUCCESS'));
-        this.setQuery({ plugin: null, drawer: null });
+        this.updateState({ id: null, mode: 'list' });
         this.selectedKey.set(null);
         this.detail.set(null);
         this.load();
@@ -389,7 +386,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
       next: (response) => this.credentials.set(response.data?.items ?? []),
       error: () => this.credentials.set([]),
     });
-    this.setQuery({ drawer: 'versions' });
+    this.updateState({ mode: 'versions' });
   }
 
   onUploadFile(event: Event): void {
@@ -448,7 +445,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: () => {
         this.versionBusy.set(false);
-        this.setQuery({ drawer: null });
+        this.updateState({ mode: 'list' });
         this.successText.set(this.i18n.t('PLUGIN_VERSION_ADD_SUCCESS'));
         this.reload();
       },
@@ -466,7 +463,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     this.blockForce.set(false);
     this.blockConfirm.set('');
     this.blockPreview.set(null);
-    this.setQuery({ drawer: 'block', scope, version: version ?? null });
+    this.updateState({ mode: 'block' }, undefined, { scope, version: version ?? null });
   }
 
   canConfirmBlock(): boolean {
@@ -492,7 +489,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: (response) => {
         this.blockBusy.set(false);
-        this.setQuery({ drawer: null });
+        this.updateState({ mode: 'list' });
         this.successText.set(this.i18n.t('PLUGIN_BLOCK_SUCCESS'));
         this.handleOperation(response.data ?? null);
         this.reload();
@@ -522,7 +519,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     this.bulkVersion.set('');
     this.bulkPreviewData.set(null);
     this.bulkReport.set(null);
-    this.setQuery({ drawer: 'bulk' });
+    this.updateState({ mode: 'bulk' });
   }
 
   previewBulk(): void {
@@ -572,7 +569,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     this.supportAction.set('ENABLE');
     this.supportVersion.set('');
     this.supportReason.set('');
-    this.setQuery({ drawer: 'support', tenant: tenant.tenant_id });
+    this.updateState({ mode: 'support' }, undefined, { tenant: tenant.tenant_id });
   }
 
   submitSupport(): void {
@@ -586,7 +583,7 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
       this.supportVersion() || null, this.supportReason()).subscribe({
       next: (response) => {
         this.supportBusy.set(false);
-        this.setQuery({ drawer: null });
+        this.updateState({ mode: 'list' });
         this.successText.set(this.i18n.t('PLUGIN_OPERATION_STARTED'));
         this.handleOperation(response.data ?? null);
       },

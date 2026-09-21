@@ -1,8 +1,47 @@
-import { Routes } from '@angular/router';
+import { Route, Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { platformRoleGuard, platformSuperAdminGuard } from './core/guards/platform-role.guard';
 import { permissionGuard } from './core/guards/permission.guard';
 import { mustChangePasswordGuard } from './core/guards/must-change-password.guard';
+
+/**
+ * Path-segment list state: /:filter/:sort/:pageSize/:page/:id/:mode
+ * Progressive URLs are supported; short URLs redirect to the canonical form.
+ */
+const listState = (loadComponent: Route['loadComponent']): Route[] => [
+  { path: '', pathMatch: 'full', redirectTo: 'all/-/20/1/-/list' },
+  {
+    path: ':filter',
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: '-/20/1/-/list' },
+      {
+        path: ':sort',
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: '20/1/-/list' },
+          {
+            path: ':pageSize',
+            children: [
+              { path: '', pathMatch: 'full', redirectTo: '1/-/list' },
+              {
+                path: ':page',
+                children: [
+                  { path: '', pathMatch: 'full', redirectTo: '-/list' },
+                  {
+                    path: ':id',
+                    children: [
+                      { path: '', pathMatch: 'full', redirectTo: 'list' },
+                      { path: ':mode', loadComponent },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+];
 
 export const routes: Routes = [
   {
@@ -113,23 +152,23 @@ export const routes: Routes = [
       },
       {
         path: 'tenants',
-        loadComponent: () => import('./features/platform/tenants/tenant-list.component').then(m => m.TenantListComponent)
+        children: listState(() => import('./features/platform/tenants/tenant-list.component').then(m => m.TenantListComponent))
       },
       {
         path: 'plugins',
-        loadComponent: () => import('./features/platform/plugins/platform-plugin-list.component').then(m => m.PlatformPluginListComponent)
+        children: listState(() => import('./features/platform/plugins/platform-plugin-list.component').then(m => m.PlatformPluginListComponent))
       },
       {
         path: 'plugin-credentials',
-        loadComponent: () => import('./features/platform/plugins/platform-plugin-credentials.component').then(m => m.PlatformPluginCredentialsComponent)
+        children: listState(() => import('./features/platform/plugins/platform-plugin-credentials.component').then(m => m.PlatformPluginCredentialsComponent))
       },
       {
         path: 'tenant-private-plugins',
-        loadComponent: () => import('./features/platform/plugins/platform-tenant-private-plugins.component').then(m => m.PlatformTenantPrivatePluginsComponent)
+        children: listState(() => import('./features/platform/plugins/platform-tenant-private-plugins.component').then(m => m.PlatformTenantPrivatePluginsComponent))
       },
       {
         path: 'users',
-        loadComponent: () => import('./features/platform/users/platform-user-list.component').then(m => m.PlatformUserListComponent)
+        children: listState(() => import('./features/platform/users/platform-user-list.component').then(m => m.PlatformUserListComponent))
       },
       {
         path: 'health',
@@ -137,12 +176,12 @@ export const routes: Routes = [
       },
       {
         path: 'audit-logs',
-        loadComponent: () => import('./features/platform/audit-logs/audit-log-list.component').then(m => m.AuditLogListComponent)
+        children: listState(() => import('./features/platform/audit-logs/audit-log-list.component').then(m => m.AuditLogListComponent))
       },
       {
         path: 'admins',
         canActivate: [platformSuperAdminGuard],
-        loadComponent: () => import('./features/platform/admins/platform-admin-list.component').then(m => m.PlatformAdminListComponent)
+        children: listState(() => import('./features/platform/admins/platform-admin-list.component').then(m => m.PlatformAdminListComponent))
       }
     ]
   },
@@ -169,7 +208,7 @@ export const routes: Routes = [
       {
         path: 'members',
         canActivate: [permissionGuard('core:organization:manage')],
-        loadComponent: () => import('./features/settings/members/members.component').then(m => m.MembersComponent)
+        children: listState(() => import('./features/settings/members/members.component').then(m => m.MembersComponent))
       },
       {
         path: 'memberships',
@@ -179,22 +218,22 @@ export const routes: Routes = [
       {
         path: 'branch-assignments',
         canActivate: [permissionGuard('core:organization:manage')],
-        loadComponent: () => import('./features/settings/branch-assignments/branch-assignment-list.component').then(m => m.BranchAssignmentListComponent)
+        children: listState(() => import('./features/settings/branch-assignments/branch-assignment-list.component').then(m => m.BranchAssignmentListComponent))
       },
       {
         path: 'sample-records',
         canActivate: [permissionGuard('core:sample-record:read')],
-        loadComponent: () => import('./features/settings/sample-records/sample-record-list.component').then(m => m.SampleRecordListComponent)
+        children: listState(() => import('./features/settings/sample-records/sample-record-list.component').then(m => m.SampleRecordListComponent))
       },
       {
         path: 'plugins',
         canActivate: [permissionGuard('core:plugin:read')],
-        loadComponent: () => import('./features/settings/plugins/plugin-marketplace.component').then(m => m.PluginMarketplaceComponent)
+        children: listState(() => import('./features/settings/plugins/plugin-marketplace.component').then(m => m.PluginMarketplaceComponent))
       },
       {
         path: 'plugin-credentials',
         canActivate: [permissionGuard('core:plugin:credential:manage')],
-        loadComponent: () => import('./features/settings/plugins/tenant-plugin-credentials.component').then(m => m.TenantPluginCredentialsComponent)
+        children: listState(() => import('./features/settings/plugins/tenant-plugin-credentials.component').then(m => m.TenantPluginCredentialsComponent))
       }
     ]
   },
