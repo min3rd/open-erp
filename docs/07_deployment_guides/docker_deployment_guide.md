@@ -6,13 +6,13 @@ Tài liệu này hướng dẫn cách đóng gói và triển khai hệ thống 
 
 ## 1. Quy Trình Đóng Gói Images (Build Container Images)
 
-Trước khi triển khai, chạy script đóng gói:
+Trước khi triển khai, chạy runner đóng gói:
 ```bash
 # Đặt tên registry và tag phiên bản
 export DOCKER_REGISTRY="your-registry.com/openerp"
 export IMAGE_TAG="1.0.0"
 
-./scripts/deploy/build_images.sh
+npm run build:images
 ```
 
 Quá trình này sẽ build:
@@ -23,7 +23,7 @@ Quá trình này sẽ build:
 
 ## 2. Triển Khai Môi Trường Staging
 ```bash
-./scripts/deploy/deploy_docker.sh staging
+npm run deploy:staging
 ```
 
 Lệnh trên sử dụng cấu hình tại `deployments/docker/docker-compose.prod.yml` để khởi động các container với chính sách khởi động lại tự động (`restart: always`).

@@ -304,7 +304,7 @@ Trước khi đóng bất kỳ Sprint nào, PM Agent bắt buộc phải thực 
 ### 6.1. Quy Trình Khởi Động Môi Trường Local Tối Giản Tài Nguyên (Minimal Baseline)
 Do tài nguyên máy tính cá nhân có hạn, Developer Agent bắt buộc áp dụng quy trình khởi chạy tối giản:
 1. **Khởi động hạ tầng tối thiểu (PostgreSQL Primary + Redis - ngốn chỉ ~300MB RAM)**:
-   - Chạy lệnh: `npm run infra` (đa nền tảng Windows/macOS/Linux; hoặc `make infra` / `scripts/dev/start_infra.sh`).
+   - Chạy lệnh: `npm run infra` (đa nền tảng Windows/macOS/Linux; hoặc `make infra` / `node scripts/run.mjs infra`).
    - Mặc định chỉ khởi chạy 2 container thiết yếu: `postgres-primary` (limit 512MB) và `redis` (limit 256MB).
 2. **Kích hoạt thêm dịch vụ theo nhu cầu thực tế (On-Demand Profiles)**:
    - Khi dev module gửi nhận sự kiện / Kafka: `npm run infra:kafka` (chỉ bật thêm Kafka & Kafka UI).

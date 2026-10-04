@@ -20,13 +20,13 @@ kubectl cluster-info
 kubectl get nodes
 ```
 
-### 2.2. Triển Khai Bằng Script Tự Động
+### 2.2. Triển Khai Bằng Runner Tự Động
 ```bash
 # Triển khai môi trường Staging
-./scripts/deploy/deploy_k8s.sh staging
+node scripts/run.mjs deploy-k8s staging
 
 # Triển khai môi trường Production
-./scripts/deploy/deploy_k8s.sh production
+node scripts/run.mjs deploy-k8s production
 ```
 
 ### 2.3. Kiểm Tra Trạng Thái Pods & Ingress

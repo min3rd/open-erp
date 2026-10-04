@@ -40,8 +40,8 @@ npm run infra
 # Hoặc dùng Makefile (Unix/Git Bash)
 make infra
 
-# Hoặc script shell
-./scripts/dev/start_infra.sh
+# Hoặc dùng runner Node trực tiếp
+node scripts/run.mjs infra
 ```
 
 ### 3.2. Chạy Thêm Dịch Vụ Nặng Theo Nhu Cầu
@@ -125,7 +125,7 @@ npm run keys:jwt
 ### 4.1. Chạy Backend Quarkus (Java 21+)
 ```bash
 npm run backend
-# Hoặc: make backend / ./scripts/dev/run_backend.sh
+# Hoặc: make backend / node scripts/run.mjs backend
 ```
 - Endpoint Backend: `http://localhost:8088`
 - Quarkus Dev UI: `http://localhost:8088/q/dev/`
@@ -133,14 +133,14 @@ npm run backend
 ### 4.2. Chạy Web Desktop (Angular 22)
 ```bash
 npm run web
-# Hoặc: make web / ./scripts/dev/run_web.sh
+# Hoặc: make web / node scripts/run.mjs web
 ```
 - Truy cập trình duyệt: `http://localhost:4200`
 
 ### 4.3. Chạy Mobile App (Ionic 8 + Angular)
 ```bash
 npm run mobile
-# Hoặc: make mobile / ./scripts/dev/run_mobile.sh
+# Hoặc: make mobile / node scripts/run.mjs mobile
 ```
 - Truy cập trình duyệt: `http://localhost:8100`
 
