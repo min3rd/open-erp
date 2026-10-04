@@ -2,17 +2,16 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { 
-  I18nService, 
-  TranslateDirective, 
+import {
+  I18nService,
+  TranslateDirective,
   TranslatePipe,
   SharpButtonComponent,
   BadgeComponent,
   LanguageSwitcherComponent,
-  ButtonVariant,
-  BadgeVariant,
+  ColorVariant,
   TenantInfo,
-  apiMessage
+  apiMessage,
 } from '@shared';
 
 @Component({
@@ -34,8 +33,8 @@ export class SelectTenantComponent implements OnInit {
   i18n = inject(I18nService);
   router = inject(Router);
 
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
-  readonly badgeVariantInfo = BadgeVariant.INFO;
+  readonly buttonVariantSecondary = ColorVariant.SECONDARY;
+  readonly badgeVariantInfo = ColorVariant.INFO;
 
   tenants = signal<TenantInfo[]>([]);
   loading = signal<boolean>(false);

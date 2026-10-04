@@ -10,7 +10,7 @@ import {
   IonButtons,
   IonBackButton,
   IonMenuButton,
-  NavController
+  NavController,
 } from '@ionic/angular/standalone';
 import { AccountService } from '../../core/account.service';
 import {
@@ -19,11 +19,11 @@ import {
   TranslatePipe,
   SharpButtonComponent,
   PinInputComponent,
-  ButtonVariant,
-  ButtonSize,
+  ColorVariant,
+  SizeVariant,
   TwoFactorSetupData,
   TwoFactorEnableData,
-  apiMessage
+  apiMessage,
 } from '@shared';
 
 @Component({
@@ -52,8 +52,8 @@ export class Setup2FaPage implements OnInit {
   i18n = inject(I18nService);
   navCtrl = inject(NavController);
 
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
-  readonly buttonSizeSm = ButtonSize.SM;
+  readonly buttonVariantSecondary = ColorVariant.SECONDARY;
+  readonly buttonSizeSm = SizeVariant.SM;
 
   loadingSetup = signal<boolean>(false);
   loadingEnable = signal<boolean>(false);

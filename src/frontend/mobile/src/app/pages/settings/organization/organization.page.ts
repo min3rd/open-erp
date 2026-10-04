@@ -7,16 +7,15 @@ import {
   IonContent,
   IonButtons,
   IonBackButton,
-  IonMenuButton
+  IonMenuButton,
 } from '@ionic/angular/standalone';
 import { forkJoin } from 'rxjs';
 import { OrganizationService } from '../../../core/organization.service';
 import { IamService } from '../../../core/iam.service';
 import {
   BadgeComponent,
-  BadgeVariant,
+  ColorVariant,
   Branch,
-  ButtonVariant,
   DepartmentNode,
   FlatDepartmentNode,
   I18nService,
@@ -27,7 +26,7 @@ import {
   TranslateDirective,
   TranslatePipe,
   UserStatus,
-  apiMessage
+  apiMessage,
 } from '@shared';
 
 @Component({
@@ -55,9 +54,9 @@ export class OrganizationPage implements OnInit {
   private iam = inject(IamService);
   private i18n = inject(I18nService);
 
-  readonly badgeSuccess = BadgeVariant.SUCCESS;
-  readonly badgeDefault = BadgeVariant.DEFAULT;
-  readonly buttonSecondary = ButtonVariant.SECONDARY;
+  readonly badgeSuccess = ColorVariant.SUCCESS;
+  readonly badgeDefault = ColorVariant.DEFAULT;
+  readonly buttonSecondary = ColorVariant.SECONDARY;
 
   activeTab = signal<'branches' | 'departments' | 'members'>('branches');
   loading = signal<boolean>(true);
@@ -140,16 +139,16 @@ export class OrganizationPage implements OnInit {
     return this.members().find((member) => member.user_id === userId);
   }
 
-  userStatusVariant(status: string | null | undefined): BadgeVariant {
+  userStatusVariant(status: string | null | undefined): ColorVariant {
     switch (status) {
       case UserStatus.ACTIVE:
-        return BadgeVariant.SUCCESS;
+        return ColorVariant.SUCCESS;
       case UserStatus.LOCKED:
-        return BadgeVariant.WARNING;
+        return ColorVariant.WARNING;
       case UserStatus.PENDING:
-        return BadgeVariant.INFO;
+        return ColorVariant.INFO;
       default:
-        return BadgeVariant.DEFAULT;
+        return ColorVariant.DEFAULT;
     }
   }
 

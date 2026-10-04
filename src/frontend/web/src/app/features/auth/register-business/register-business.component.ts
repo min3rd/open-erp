@@ -5,16 +5,16 @@ import { RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, catchError, debounceTime, distinctUntilChanged, map, of, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
-import { 
-  I18nService, 
-  TranslateDirective, 
+import {
+  I18nService,
+  TranslateDirective,
   TranslatePipe,
   SharpButtonComponent,
   SharpInputComponent,
   ButtonType,
-  ButtonVariant,
+  ColorVariant,
   CompanySize,
-  apiMessage
+  apiMessage,
 } from '@shared';
 
 type SlugStatus = 'IDLE' | 'CHECKING' | 'AVAILABLE' | 'TAKEN' | 'INVALID';
@@ -42,7 +42,7 @@ export class RegisterBusinessComponent {
   private destroyRef = inject(DestroyRef);
 
   readonly buttonTypeSubmit = ButtonType.SUBMIT;
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
+  readonly buttonVariantSecondary = ColorVariant.SECONDARY;
   readonly companySizeMicro = CompanySize.MICRO;
   readonly companySizeSmall = CompanySize.SMALL;
   readonly companySizeMedium = CompanySize.MEDIUM;

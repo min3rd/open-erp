@@ -16,7 +16,7 @@ import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
 import com.vn9melody.openerp.modules.plugin.api.PluginResponseKey;
 import com.vn9melody.openerp.modules.plugin.artifact.PluginImageBuilder;
 import com.vn9melody.openerp.modules.plugin.datasource.TenantDatasourceService;
-import com.vn9melody.openerp.modules.plugin.deployer.PluginRuntimeDeployer;
+import com.vn9melody.openerp.modules.plugin.deployer.ProcessPluginRuntimeDeployer;
 import com.vn9melody.openerp.modules.plugin.dto.PluginResponses;
 import com.vn9melody.openerp.modules.plugin.model.PluginCatalog;
 import com.vn9melody.openerp.modules.plugin.model.PluginVersion;
@@ -82,11 +82,14 @@ public class PluginLifecycleService {
     @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.core.version", defaultValue = "1.0.0")
     String coreVersion;
 
+    @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.datasource.runtime-url")
+    java.util.Optional<String> runtimeJdbcUrl;
+
     @Inject
     TenantDatasourceService datasourceService;
 
     @Inject
-    PluginRuntimeDeployer deployer;
+    ProcessPluginRuntimeDeployer deployer;
 
     @Inject
     ObjectMapper objectMapper;
@@ -101,7 +104,7 @@ public class PluginLifecycleService {
         }
         UUID operationId = UUID.randomUUID();
         List<PluginResponses.OperationStep> steps = new ArrayList<>();
-        PluginRuntimeDeployer.DeploymentRef deployed = null;
+        ProcessPluginRuntimeDeployer.DeploymentRef deployed = null;
         TenantPlugin ledger = null;
         boolean started = false;
         try {
@@ -148,11 +151,11 @@ public class PluginLifecycleService {
             log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "PROVISION_DATASOURCE", "OK", steps, null);
 
             String imageRef = resolveImageRef(pluginKey, version);
-            deployed = deployer.deploy(new PluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, version.version,
+            deployed = deployer.deploy(new ProcessPluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, version.version,
                     imageRef, datasource.schema(), runtimeEnv(tenantId, pluginKey, version.version, datasource)));
             log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "DEPLOY", "OK", steps, null);
 
-            PluginRuntimeDeployer.DeploymentHealth health = deployer.health(deployed);
+            ProcessPluginRuntimeDeployer.DeploymentHealth health = deployer.health(deployed);
             if (!health.healthy()) {
                 throw new ApiException(503, PluginErrorCode.PLUGIN_SERVICE_UNHEALTHY, health.detail());
             }
@@ -235,7 +238,7 @@ public class PluginLifecycleService {
             ledger.status = TenantPluginStatus.UNINSTALLING;
             ledger.operationId = operationId;
             ledger.updatedAt = Instant.now();
-            PluginRuntimeDeployer.DeploymentRef ref = fromJson(ledger.deployRef);
+            ProcessPluginRuntimeDeployer.DeploymentRef ref = fromJson(ledger.deployRef);
             if (ref != null) {
                 deployer.undeploy(ref);
             }
@@ -334,18 +337,18 @@ public class PluginLifecycleService {
                 PluginVersion version = resolveInstallableVersion(catalog, ledger.installedVersion);
                 TenantDatasourceService.TenantDatasource datasource =
                         datasourceService.ensureDatasource(tenantId, pluginKey);
-                PluginRuntimeDeployer.DeploymentRef ref = deployer.deploy(
-                        new PluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, version.version,
+                ProcessPluginRuntimeDeployer.DeploymentRef ref = deployer.deploy(
+                        new ProcessPluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, version.version,
                                 resolveImageRef(pluginKey, version), datasource.schema(),
                                 runtimeEnv(tenantId, pluginKey, version.version, datasource)));
-                PluginRuntimeDeployer.DeploymentHealth health = deployer.health(ref);
+                ProcessPluginRuntimeDeployer.DeploymentHealth health = deployer.health(ref);
                 if (!health.healthy()) {
                     deployer.undeploy(ref);
                     throw new ApiException(503, PluginErrorCode.PLUGIN_SERVICE_UNHEALTHY, health.detail());
                 }
                 ledger.deployRef = toJson(ref);
             } else {
-                PluginRuntimeDeployer.DeploymentRef ref = fromJson(ledger.deployRef);
+                ProcessPluginRuntimeDeployer.DeploymentRef ref = fromJson(ledger.deployRef);
                 if (ref != null) {
                     deployer.undeploy(ref);
                 }
@@ -376,7 +379,7 @@ public class PluginLifecycleService {
         List<PluginResponses.OperationStep> steps = new ArrayList<>();
         TenantPlugin ledger = null;
         PluginVersion previousVersion = null;
-        PluginRuntimeDeployer.DeploymentRef newRef = null;
+        ProcessPluginRuntimeDeployer.DeploymentRef newRef = null;
         String snapshotRef = null;
         boolean started = false;
         try {
@@ -421,11 +424,11 @@ public class PluginLifecycleService {
                         datasource.schema(), "pre-upgrade").ref();
                 log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "SNAPSHOT", "OK", steps, null);
             }
-            newRef = deployer.deploy(new PluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, target.version,
+            newRef = deployer.deploy(new ProcessPluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, target.version,
                     resolveImageRef(pluginKey, target), datasource.schema(),
                     runtimeEnv(tenantId, pluginKey, target.version, datasource)));
             log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "DEPLOY", "OK", steps, null);
-            PluginRuntimeDeployer.DeploymentHealth health = deployer.health(newRef);
+            ProcessPluginRuntimeDeployer.DeploymentHealth health = deployer.health(newRef);
             if (!health.healthy()) {
                 throw new ApiException(503, PluginErrorCode.PLUGIN_SERVICE_UNHEALTHY, health.detail());
             }
@@ -473,11 +476,11 @@ public class PluginLifecycleService {
                 try {
                     TenantDatasourceService.TenantDatasource datasource =
                             datasourceService.ensureDatasource(tenantId, pluginKey);
-                    PluginRuntimeDeployer.DeploymentRef oldRef = deployer.deploy(
-                            new PluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, previousVersion.version,
+                    ProcessPluginRuntimeDeployer.DeploymentRef oldRef = deployer.deploy(
+                            new ProcessPluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, previousVersion.version,
                                     resolveImageRef(pluginKey, previousVersion), datasource.schema(),
                                     runtimeEnv(tenantId, pluginKey, previousVersion.version, datasource)));
-                    PluginRuntimeDeployer.DeploymentHealth oldHealth = deployer.health(oldRef);
+                    ProcessPluginRuntimeDeployer.DeploymentHealth oldHealth = deployer.health(oldRef);
                     if (!oldHealth.healthy()) {
                         throw new ApiException(503, PluginErrorCode.PLUGIN_SERVICE_UNHEALTHY, oldHealth.detail());
                     }
@@ -551,7 +554,7 @@ public class PluginLifecycleService {
                 log(operationId, tenantId, pluginKey, PluginOperationType.ROLLBACK, "PRESERVATION_SNAPSHOT", "OK",
                         steps, null);
             }
-            PluginRuntimeDeployer.DeploymentRef currentRef = fromJson(ledger.deployRef);
+            ProcessPluginRuntimeDeployer.DeploymentRef currentRef = fromJson(ledger.deployRef);
             if (currentRef != null) {
                 deployer.undeploy(currentRef);
                 log(operationId, tenantId, pluginKey, PluginOperationType.ROLLBACK, "QUIESCE", "OK", steps, null);
@@ -562,11 +565,11 @@ public class PluginLifecycleService {
             }
             TenantDatasourceService.TenantDatasource datasource =
                     datasourceService.ensureDatasource(tenantId, pluginKey);
-            PluginRuntimeDeployer.DeploymentRef ref = deployer.deploy(
-                    new PluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, target.version,
+            ProcessPluginRuntimeDeployer.DeploymentRef ref = deployer.deploy(
+                    new ProcessPluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, target.version,
                     resolveImageRef(pluginKey, target), datasource.schema(),
                             runtimeEnv(tenantId, pluginKey, target.version, datasource)));
-            PluginRuntimeDeployer.DeploymentHealth health = deployer.health(ref);
+            ProcessPluginRuntimeDeployer.DeploymentHealth health = deployer.health(ref);
             if (!health.healthy()) {
                 deployer.undeploy(ref);
                 throw new ApiException(503, PluginErrorCode.PLUGIN_SERVICE_UNHEALTHY, health.detail());
@@ -616,7 +619,7 @@ public class PluginLifecycleService {
         return ref == null || ref.isBlank() ? null : ref;
     }
 
-    private JsonNode toJsonWithSnapshot(PluginRuntimeDeployer.DeploymentRef ref, String snapshotRef) {
+    private JsonNode toJsonWithSnapshot(ProcessPluginRuntimeDeployer.DeploymentRef ref, String snapshotRef) {
         ObjectNode node = (ObjectNode) toJson(ref);
         if (snapshotRef != null) {
             node.put("snapshot_ref", snapshotRef);
@@ -624,7 +627,7 @@ public class PluginLifecycleService {
         return node;
     }
 
-    private void compensate(TenantPlugin ledger, PluginRuntimeDeployer.DeploymentRef deployed, UUID operationId,
+    private void compensate(TenantPlugin ledger, ProcessPluginRuntimeDeployer.DeploymentRef deployed, UUID operationId,
                             UUID tenantId, String pluginKey, List<PluginResponses.OperationStep> steps,
                             ApiException error) {
         try {
@@ -723,14 +726,14 @@ public class PluginLifecycleService {
         env.put("TENANT_ID", tenantId.toString());
         env.put("PLUGIN_KEY", pluginKey);
         env.put("PLUGIN_VERSION", version);
-        env.put("DB_URL", datasource.jdbcUrl());
+        env.put("DB_URL", runtimeJdbcUrl.filter(value -> !value.isBlank()).orElseGet(datasource::jdbcUrl));
         env.put("DB_SCHEMA", datasource.schema());
         env.put("DB_USER", datasource.role());
         env.put("DB_PASSWORD", datasource.password());
         return env;
     }
 
-    private JsonNode toJson(PluginRuntimeDeployer.DeploymentRef ref) {
+    private JsonNode toJson(ProcessPluginRuntimeDeployer.DeploymentRef ref) {
         ObjectNode node = objectMapper.createObjectNode();
         node.put("runtime", ref.runtime());
         node.put("deployment", ref.deployment());
@@ -739,11 +742,11 @@ public class PluginLifecycleService {
         return node;
     }
 
-    private PluginRuntimeDeployer.DeploymentRef fromJson(JsonNode node) {
+    private ProcessPluginRuntimeDeployer.DeploymentRef fromJson(JsonNode node) {
         if (node == null || node.isMissingNode() || node.path("deployment").asText("").isBlank()) {
             return null;
         }
-        return new PluginRuntimeDeployer.DeploymentRef(
+        return new ProcessPluginRuntimeDeployer.DeploymentRef(
                 node.path("runtime").asText("docker"),
                 node.path("deployment").asText(),
                 node.path("service").asText(),

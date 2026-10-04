@@ -5,16 +5,15 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { AccountDrawerComponent } from './account-drawer/account-drawer.component';
-import { 
-  I18nService, 
-  TranslateDirective, 
+import {
+  I18nService,
+  TranslateDirective,
   TranslatePipe,
   SharpButtonComponent,
   BadgeComponent,
   TopbarComponent,
-  ButtonVariant,
-  ButtonSize,
-  BadgeVariant
+  ColorVariant,
+  SizeVariant,
 } from '@shared';
 
 @Component({
@@ -38,10 +37,10 @@ export class DashboardComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  readonly buttonVariantGhost = ButtonVariant.GHOST;
-  readonly buttonSizeSm = ButtonSize.SM;
-  readonly badgeVariantInfo = BadgeVariant.INFO;
-  readonly badgeVariantSuccess = BadgeVariant.SUCCESS;
+  readonly buttonVariantGhost = ColorVariant.GHOST;
+  readonly buttonSizeSm = SizeVariant.SM;
+  readonly badgeVariantInfo = ColorVariant.INFO;
+  readonly badgeVariantSuccess = ColorVariant.SUCCESS;
 
   readonly deniedNotice = computed(() => {
     const denied = this.route.snapshot.queryParamMap.get('denied');

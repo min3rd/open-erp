@@ -8,7 +8,7 @@ import {
   IonContent,
   IonButtons,
   IonBackButton,
-  NavController
+  NavController,
 } from '@ionic/angular/standalone';
 import { AuthService } from '../../core/auth.service';
 import {
@@ -19,10 +19,9 @@ import {
   BadgeComponent,
   LanguageSwitcherComponent,
   ThemeSwitcherComponent,
-  ButtonVariant,
-  BadgeVariant,
+  ColorVariant,
   TenantInfo,
-  apiMessage
+  apiMessage,
 } from '@shared';
 
 @Component({
@@ -51,8 +50,8 @@ export class SelectTenantPage implements OnInit {
   private i18n = inject(I18nService);
   private navCtrl = inject(NavController);
 
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
-  readonly badgeVariantInfo = BadgeVariant.INFO;
+  readonly buttonVariantSecondary = ColorVariant.SECONDARY;
+  readonly badgeVariantInfo = ColorVariant.INFO;
 
   tenants = signal<TenantInfo[]>([]);
   loading = signal<boolean>(false);

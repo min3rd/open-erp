@@ -92,3 +92,13 @@ FULL SUITE (2026-10-04)
   (211 test cũ + 6 governance/BUG-99 + 3 bundle image).
 - CLI: `node --test test/cli.test.mjs` → pass 5, fail 0.
 - Frontend: `npm run build` Web PASS; `npm run build` Mobile (Ionic 390x844 target) PASS.
+
+LOCAL DEV RUNTIME WIRING (2026-10-04)
+-------------------------------------
+Để plugin container-per-tenant chạy thật trên dev local:
+- `docker-compose.yml`: pin network `name: openerp-net` (khớp `openerp.plugin.runtime-network`); container
+  PostgreSQL có alias `postgres-primary` trên network này.
+- Backend: thêm `openerp.plugin.datasource.runtime-url` (dùng cho env `DB_URL` của container plugin);
+  `%dev` trỏ `jdbc:postgresql://postgres-primary:5432/openerp_dev`.
+- `%dev.openerp.plugin.builder.push=false` (local không có registry, dùng image từ Docker daemon).
+- E2E xác nhận: `TASK-344_cli_bundle_install_e2e_2026-10-04.txt` (RESULT=PASS).

@@ -7,12 +7,11 @@ import {
   TranslatePipe,
   SharpButtonComponent,
   BadgeComponent,
-  ButtonVariant,
-  ButtonSize,
-  BadgeVariant,
+  ColorVariant,
+  SizeVariant,
   apiMessage,
   formatDateTime,
-  UserSessionData
+  UserSessionData,
 } from '@shared';
 
 @Component({
@@ -31,10 +30,10 @@ export class AccountSessionsComponent implements OnInit {
   private accountService = inject(AccountService);
   private i18n = inject(I18nService);
 
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
-  readonly buttonVariantDanger = ButtonVariant.DANGER;
-  readonly buttonSizeSm = ButtonSize.SM;
-  readonly badgeVariantSuccess = BadgeVariant.SUCCESS;
+  readonly buttonVariantSecondary = ColorVariant.SECONDARY;
+  readonly buttonVariantDanger = ColorVariant.DANGER;
+  readonly buttonSizeSm = SizeVariant.SM;
+  readonly badgeVariantSuccess = ColorVariant.SUCCESS;
   readonly formatDateTime = formatDateTime;
 
   sessions = signal<UserSessionData[]>([]);

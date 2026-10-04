@@ -2,11 +2,11 @@ import { Component, computed, inject, input, output } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
-import { 
+import {
   TranslatePipe,
   DrawerComponent,
   SharpButtonComponent,
-  ButtonVariant
+  ColorVariant,
 } from '@shared';
 
 @Component({
@@ -24,7 +24,7 @@ import {
 export class AccountDrawerComponent {
   private router = inject(Router);
 
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
+  readonly buttonVariantSecondary = ColorVariant.SECONDARY;
 
   isOpen = input<boolean>(false);
   close = output<void>();

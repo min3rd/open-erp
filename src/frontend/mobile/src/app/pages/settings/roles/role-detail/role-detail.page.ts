@@ -10,15 +10,14 @@ import {
   IonContent,
   IonButtons,
   IonBackButton,
-  IonMenuButton
+  IonMenuButton,
 } from '@ionic/angular/standalone';
 import { forkJoin } from 'rxjs';
 import { IamService } from '../../../../core/iam.service';
 import {
   ApiErrorResponse,
   BadgeComponent,
-  BadgeVariant,
-  ButtonVariant,
+  ColorVariant,
   DataPolicy,
   DataResource,
   DataScope,
@@ -34,7 +33,7 @@ import {
   UserStatus,
   apiMessage,
   dataScopeAbbreviationKey,
-  dataScopeLabelKey
+  dataScopeLabelKey,
 } from '@shared';
 
 export type ScopeOperation =
@@ -82,8 +81,8 @@ export class RoleDetailPage implements OnInit {
   private actionSheetCtrl = inject(ActionSheetController);
   private i18n = inject(I18nService);
 
-  readonly badgeSystem = BadgeVariant.DEFAULT;
-  readonly buttonPrimary = ButtonVariant.PRIMARY;
+  readonly badgeSystem = ColorVariant.DEFAULT;
+  readonly buttonPrimary = ColorVariant.PRIMARY;
 
   readonly operations: OperationDef[] = [
     { key: 'read_scope', labelKey: 'IAM_OPERATION_READ' },
@@ -201,16 +200,16 @@ export class RoleDetailPage implements OnInit {
     return this.usersPage() < this.usersTotalPages();
   }
 
-  userStatusVariant(status: string | null | undefined): BadgeVariant {
+  userStatusVariant(status: string | null | undefined): ColorVariant {
     switch (status) {
       case UserStatus.ACTIVE:
-        return BadgeVariant.SUCCESS;
+        return ColorVariant.SUCCESS;
       case UserStatus.LOCKED:
-        return BadgeVariant.WARNING;
+        return ColorVariant.WARNING;
       case UserStatus.PENDING:
-        return BadgeVariant.INFO;
+        return ColorVariant.INFO;
       default:
-        return BadgeVariant.DEFAULT;
+        return ColorVariant.DEFAULT;
     }
   }
 

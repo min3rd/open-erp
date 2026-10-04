@@ -48,11 +48,6 @@ export function buildPathListCommands(basePath: string, state: PathListState): u
   ];
 }
 
-export function buildPathListUrl(basePath: string, state: PathListState, keyword?: string | null): string {
-  const url = buildPathListCommands(basePath, state).join('/');
-  return keyword ? `${url}?q=${encodeURIComponent(keyword)}` : url;
-}
-
 @Injectable()
 export class PathListStateService {
   private route = inject(ActivatedRoute);

@@ -2,7 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { PlatformService } from './platform.service';
-import { ImpersonationSessionData } from '@shared';
+import { ImpersonationSessionData, decodeJwtPayload, readNumberClaim } from '@shared';
 
 export const IMPERSONATION_TOKEN_KEY = 'openerp_impersonation_token';
 export const IMPERSONATION_SESSION_KEY = 'openerp_impersonation_session';
@@ -69,30 +69,13 @@ export class ImpersonationService {
   }
 
   private resolveExpiresAt(data: ImpersonationSessionData): number {
-    const jwtExp = this.decodeJwtExpiry(data.impersonation_token);
-    if (jwtExp) {
-      return jwtExp;
+    const exp = readNumberClaim(decodeJwtPayload(data.impersonation_token), 'exp');
+    if (exp !== null) {
+      return exp * 1000;
     }
     const startedAt = Date.parse(data.started_at);
     const base = Number.isNaN(startedAt) ? Date.now() : startedAt;
     return base + data.expires_in_seconds * 1000;
-  }
-
-  private decodeJwtExpiry(token: string): number | null {
-    const parts = token.split('.');
-    if (parts.length !== 3) {
-      return null;
-    }
-    try {
-      const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-      const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
-      const binary = atob(padded);
-      const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
-      const payload = JSON.parse(new TextDecoder().decode(bytes)) as Record<string, unknown>;
-      return typeof payload['exp'] === 'number' ? payload['exp'] * 1000 : null;
-    } catch {
-      return null;
-    }
   }
 
   private loadStoredSession(): ImpersonationUiSession | null {

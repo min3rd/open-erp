@@ -2,15 +2,15 @@ import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { 
-  I18nService, 
-  TranslateDirective, 
+import {
+  I18nService,
+  TranslateDirective,
   TranslatePipe,
   SharpButtonComponent,
   PinInputComponent,
   LanguageSwitcherComponent,
-  ButtonVariant,
-  apiMessage
+  ColorVariant,
+  apiMessage,
 } from '@shared';
 
 @Component({
@@ -33,7 +33,7 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
   router = inject(Router);
   route = inject(ActivatedRoute);
 
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
+  readonly buttonVariantSecondary = ColorVariant.SECONDARY;
 
   email = '';
 

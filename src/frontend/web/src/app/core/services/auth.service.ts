@@ -2,8 +2,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from './api.service';
-import { ApiResponse, AuthUser, LoginResult, PlatformAdminRole, RefreshTokenData, SlugCheckData, TenantInfo } from '@shared';
-import { decodeJwtPayload, readBooleanClaim, readStringArrayClaim } from '../utils/jwt.util';
+import { ApiResponse, AuthUser, LoginResult, PlatformAdminRole, RefreshTokenData, SlugCheckData, TenantInfo, decodeJwtPayload, readBooleanClaim, readNumberClaim, readStringArrayClaim } from '@shared';
 
 const TOKEN_KEY = 'openerp_token';
 const REFRESH_TOKEN_KEY = 'openerp_refresh_token';
@@ -161,27 +160,11 @@ export class AuthService {
   }
 
   isTokenExpired(token: string, clockSkewSeconds = 0): boolean {
-    const payload = this.decodeJwtPayload(token);
-    if (!payload || typeof payload['exp'] !== 'number') {
+    const exp = readNumberClaim(decodeJwtPayload(token), 'exp');
+    if (exp === null) {
       return true;
     }
-    return payload['exp'] * 1000 <= Date.now() + clockSkewSeconds * 1000;
-  }
-
-  private decodeJwtPayload(token: string): Record<string, any> | null {
-    const parts = token.split('.');
-    if (parts.length !== 3) {
-      return null;
-    }
-    try {
-      const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-      const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
-      const binary = atob(padded);
-      const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
-      return JSON.parse(new TextDecoder().decode(bytes));
-    } catch {
-      return null;
-    }
+    return exp * 1000 <= Date.now() + clockSkewSeconds * 1000;
   }
 
   resendVerification(email: string): Observable<ApiResponse<null>> {

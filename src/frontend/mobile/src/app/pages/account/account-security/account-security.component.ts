@@ -10,11 +10,10 @@ import {
   SharpButtonComponent,
   SharpInputComponent,
   BadgeComponent,
-  ButtonVariant,
-  BadgeVariant,
+  ColorVariant,
   TwoFactorStatus,
   apiMessage,
-  formatDate
+  formatDate,
 } from '@shared';
 
 @Component({
@@ -36,10 +35,10 @@ export class AccountSecurityComponent implements OnInit {
   private i18n = inject(I18nService);
   private navCtrl = inject(NavController);
 
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
-  readonly buttonVariantDanger = ButtonVariant.DANGER;
-  readonly badgeVariantSuccess = BadgeVariant.SUCCESS;
-  readonly badgeVariantWarning = BadgeVariant.WARNING;
+  readonly buttonVariantSecondary = ColorVariant.SECONDARY;
+  readonly buttonVariantDanger = ColorVariant.DANGER;
+  readonly badgeVariantSuccess = ColorVariant.SUCCESS;
+  readonly badgeVariantWarning = ColorVariant.WARNING;
   readonly formatDate = formatDate;
 
   twoFactorStatus = signal<TwoFactorStatus | null>(null);

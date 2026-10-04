@@ -3,16 +3,16 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { 
-  I18nService, 
-  TranslateDirective, 
+import {
+  I18nService,
+  TranslateDirective,
   TranslatePipe,
   SharpButtonComponent,
   SharpInputComponent,
   PinInputComponent,
   LanguageSwitcherComponent,
-  ButtonVariant,
-  apiMessage
+  ColorVariant,
+  apiMessage,
 } from '@shared';
 
 @Component({
@@ -37,7 +37,7 @@ export class Verify2FaComponent implements OnInit {
   router = inject(Router);
   route = inject(ActivatedRoute);
 
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
+  readonly buttonVariantSecondary = ColorVariant.SECONDARY;
 
   backupCodeInput = '';
   useBackupCode = signal<boolean>(false);

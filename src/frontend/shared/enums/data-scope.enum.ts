@@ -8,24 +8,6 @@ export enum DataScope {
   NONE = 'NONE'
 }
 
-export const DATA_SCOPE_RANK: Record<DataScope, number> = {
-  [DataScope.NONE]: 0,
-  [DataScope.OWN_ONLY]: 1,
-  [DataScope.OWN_AND_SUBORDINATES]: 2,
-  [DataScope.DEPARTMENT]: 3,
-  [DataScope.DEPARTMENT_AND_CHILDREN]: 4,
-  [DataScope.BRANCH]: 5,
-  [DataScope.ALL]: 6
-};
-
-export function dataScopeRank(scope: DataScope): number {
-  return DATA_SCOPE_RANK[scope] ?? 0;
-}
-
-export function isBroaderThan(candidate: DataScope, reference: DataScope): boolean {
-  return dataScopeRank(candidate) > dataScopeRank(reference);
-}
-
 export function dataScopeAbbreviationKey(scope: DataScope): string {
   switch (scope) {
     case DataScope.ALL:

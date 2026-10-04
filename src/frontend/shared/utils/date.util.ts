@@ -74,29 +74,3 @@ export function formatTime(value: DateValue, locale?: string): string {
   }
   return new Intl.DateTimeFormat(resolveLocale(locale), { timeStyle: 'medium' }).format(date);
 }
-
-/** Relative time (e.g. "3 minutes ago") in the user's locale. */
-export function formatRelative(value: DateValue, locale?: string): string {
-  const date = toDate(value);
-  if (!date) {
-    return EMPTY_PLACEHOLDER;
-  }
-  const formatter = new Intl.RelativeTimeFormat(resolveLocale(locale), { numeric: 'auto' });
-  const diffSeconds = Math.round((date.getTime() - Date.now()) / 1000);
-  const units: Array<[Intl.RelativeTimeFormatUnit, number]> = [
-    ['year', 31536000],
-    ['month', 2592000],
-    ['week', 604800],
-    ['day', 86400],
-    ['hour', 3600],
-    ['minute', 60],
-    ['second', 1]
-  ];
-  for (const [unit, seconds] of units) {
-    const amount = diffSeconds / seconds;
-    if (Math.abs(amount) >= 1 || unit === 'second') {
-      return formatter.format(Math.round(amount), unit);
-    }
-  }
-  return formatter.format(diffSeconds, 'second');
-}

@@ -1,9 +1,8 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { PlatformAdminRole } from '@shared';
+import { PlatformAdminRole, decodeJwtPayload } from '@shared';
 import { AuthService } from '../services/auth.service';
 import { ImpersonationService } from '../services/impersonation.service';
-import { decodeJwtPayload } from '../utils/jwt.util';
 
 /**
  * Platform portal guard (DES-02-UI §7.1, synced with backend

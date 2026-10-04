@@ -11,18 +11,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 /**
- * Process-based deployer (TASK-338/339): Docker CLI for local dev, kubectl for
- * Kubernetes staging/production, and a no-op runtime for %test.
+ * Runtime deployer (SOL-02 section 4.1). One container per (tenant, plugin);
+ * deployments keep data when undeployed.
+ *
+ * <p>Process-based: Docker CLI for local dev, kubectl for Kubernetes
+ * staging/production, and a no-op runtime for %test.</p>
  */
 @ApplicationScoped
-public class ProcessPluginRuntimeDeployer implements PluginRuntimeDeployer {
+public class ProcessPluginRuntimeDeployer {
 
     private static final Logger LOG = Logger.getLogger(ProcessPluginRuntimeDeployer.class);
+
+    public record DeployRequest(
+            UUID tenantId,
+            String pluginKey,
+            String version,
+            String imageRef,
+            String storageSchema,
+            Map<String, String> env) {}
+
+    public record DeploymentRef(String runtime, String deployment, String service, boolean healthy) {}
+
+    public record DeploymentHealth(boolean healthy, String detail) {}
 
     @ConfigProperty(name = "openerp.plugin.deployer.runtime", defaultValue = "docker")
     String runtime;
@@ -48,7 +64,6 @@ public class ProcessPluginRuntimeDeployer implements PluginRuntimeDeployer {
     @ConfigProperty(name = "openerp.plugin.deployer.timeout-seconds", defaultValue = "90")
     int timeoutSeconds;
 
-    @Override
     public DeploymentRef deploy(DeployRequest request) {
         if (isNoop()) {
             return new DeploymentRef("noop", resourceName(request), resourceName(request), true);
@@ -104,7 +119,6 @@ public class ProcessPluginRuntimeDeployer implements PluginRuntimeDeployer {
         }
     }
 
-    @Override
     public void undeploy(DeploymentRef ref) {
         if (ref == null || "noop".equalsIgnoreCase(ref.runtime())) {
             return;
@@ -118,7 +132,6 @@ public class ProcessPluginRuntimeDeployer implements PluginRuntimeDeployer {
         runCommand(List.of(binary, "rm", "-f", ref.deployment()), true);
     }
 
-    @Override
     public DeploymentHealth health(DeploymentRef ref) {
         if (ref == null) {
             return new DeploymentHealth(false, "missing ref");
@@ -138,7 +151,6 @@ public class ProcessPluginRuntimeDeployer implements PluginRuntimeDeployer {
         return new DeploymentHealth(running, running ? "running" : "not running");
     }
 
-    @Override
     public void rollback(DeploymentRef ref, DeployRequest previous) {
         undeploy(ref);
         deploy(previous);

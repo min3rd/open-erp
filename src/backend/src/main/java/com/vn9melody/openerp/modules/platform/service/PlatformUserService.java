@@ -25,6 +25,7 @@ import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -268,16 +269,13 @@ public class PlatformUserService {
         PasswordResetToken.delete("user.id = ?1 and usedAt is null", user.id);
         byte[] bytes = new byte[32];
         secureRandom.nextBytes(bytes);
-        StringBuilder raw = new StringBuilder(bytes.length * 2);
-        for (byte b : bytes) {
-            raw.append(String.format("%02x", b));
-        }
+        String raw = HexFormat.of().formatHex(bytes);
         PasswordResetToken token = new PasswordResetToken();
         token.user = user;
-        token.tokenHash = totpService.sha256Hex(raw.toString());
+        token.tokenHash = totpService.sha256Hex(raw);
         token.expiresAt = Instant.now().plusSeconds(RESET_TOKEN_TTL_SECONDS);
         token.persist();
-        mailService.sendAdminPasswordReset(user.email, raw.toString());
+        mailService.sendAdminPasswordReset(user.email, raw);
     }
 
     public User requireUser(UUID userId) {

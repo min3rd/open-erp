@@ -8,13 +8,12 @@ import {
   IonContent,
   IonButtons,
   IonBackButton,
-  IonMenuButton
+  IonMenuButton,
 } from '@ionic/angular/standalone';
 import { SampleRecordService } from '../../../core/iam.service';
 import {
   BadgeComponent,
-  BadgeVariant,
-  ButtonVariant,
+  ColorVariant,
   I18nService,
   SampleRecord,
   SharpButtonComponent,
@@ -22,7 +21,7 @@ import {
   TranslateDirective,
   TranslatePipe,
   apiMessage,
-  formatDateTime
+  formatDateTime,
 } from '@shared';
 
 @Component({
@@ -50,9 +49,9 @@ export class SampleRecordsPage implements OnInit {
   private sampleRecords = inject(SampleRecordService);
   private i18n = inject(I18nService);
 
-  readonly badgeSuccess = BadgeVariant.SUCCESS;
-  readonly badgeDefault = BadgeVariant.DEFAULT;
-  readonly buttonSecondary = ButtonVariant.SECONDARY;
+  readonly badgeSuccess = ColorVariant.SUCCESS;
+  readonly badgeDefault = ColorVariant.DEFAULT;
+  readonly buttonSecondary = ColorVariant.SECONDARY;
   readonly formatDateTime = formatDateTime;
 
   records = signal<SampleRecord[]>([]);

@@ -9,19 +9,18 @@ import {
   IonButtons,
   IonBackButton,
   IonMenuButton,
-  NavController
+  NavController,
 } from '@ionic/angular/standalone';
 import { IamService } from '../../../core/iam.service';
 import {
   BadgeComponent,
-  BadgeVariant,
-  ButtonVariant,
+  ColorVariant,
   I18nService,
   Role,
   SharpButtonComponent,
   TranslateDirective,
   TranslatePipe,
-  apiMessage
+  apiMessage,
 } from '@shared';
 
 @Component({
@@ -49,9 +48,9 @@ export class RolesPage implements OnInit {
   private navCtrl = inject(NavController);
   private i18n = inject(I18nService);
 
-  readonly badgeSystem = BadgeVariant.DEFAULT;
-  readonly badgeCustom = BadgeVariant.INFO;
-  readonly buttonSecondary = ButtonVariant.SECONDARY;
+  readonly badgeSystem = ColorVariant.DEFAULT;
+  readonly badgeCustom = ColorVariant.INFO;
+  readonly buttonSecondary = ColorVariant.SECONDARY;
 
   roles = signal<Role[]>([]);
   loading = signal<boolean>(true);

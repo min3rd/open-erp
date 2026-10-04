@@ -10,7 +10,7 @@ import {
   IonButtons,
   IonBackButton,
   IonMenuButton,
-  NavController
+  NavController,
 } from '@ionic/angular/standalone';
 import { AccountService } from '../../core/account.service';
 import {
@@ -19,8 +19,8 @@ import {
   TranslatePipe,
   SharpButtonComponent,
   SharpInputComponent,
-  ButtonVariant,
-  apiMessage
+  ColorVariant,
+  apiMessage,
 } from '@shared';
 
 @Component({
@@ -49,8 +49,8 @@ export class Disable2FaPage {
   i18n = inject(I18nService);
   navCtrl = inject(NavController);
 
-  readonly buttonVariantDanger = ButtonVariant.DANGER;
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
+  readonly buttonVariantDanger = ColorVariant.DANGER;
+  readonly buttonVariantSecondary = ColorVariant.SECONDARY;
 
   currentPassword = '';
   code = '';

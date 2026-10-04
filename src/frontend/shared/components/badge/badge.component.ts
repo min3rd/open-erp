@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ColorVariant, ShapeVariant, BadgeVariant } from '../../enums';
+import { ColorVariant, ShapeVariant } from '../../enums';
 
 @Component({
   selector: 'app-badge',
@@ -9,7 +9,7 @@ import { ColorVariant, ShapeVariant, BadgeVariant } from '../../enums';
   templateUrl: './badge.component.html'
 })
 export class BadgeComponent {
-  variant = input<ColorVariant | BadgeVariant | 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'default'>(ColorVariant.DEFAULT);
+  variant = input<ColorVariant | 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'default'>(ColorVariant.DEFAULT);
   shape = input<ShapeVariant | 'sharp' | 'soft'>(ShapeVariant.SHARP);
 
   badgeClasses(): string {

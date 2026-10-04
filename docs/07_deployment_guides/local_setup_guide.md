@@ -92,6 +92,11 @@ Dừng 3 tiến trình dev (giữ hạ tầng Docker):
 npm run dev:stop
 ```
 
+Chạy TOÀN BỘ hạ tầng dev (Kafka, MongoDB, MinIO, PostgreSQL replica, Mailpit — cần RAM ≥ 8GB) kèm 3 ứng dụng:
+```bash
+npm run dev:full
+```
+
 Hoặc chạy từng phần:
 ```bash
 npm run infra          # Docker infra tối thiểu (PostgreSQL + Redis)
@@ -146,6 +151,26 @@ npm run backend:test
 ```
 - Test chạy trên PostgreSQL thật + Redis thật (DB index 1), **không dùng H2**.
 - Database `openerp_test` được tạo tự động bởi `npm run infra` / `npm run dev` (hoặc script `docker/postgres/init/01-create-test-database.sql` khi khởi tạo volume mới) — dữ liệu trên `openerp_dev` không bị ảnh hưởng.
+
+### 4.5. E2E: CLI tạo plugin mẫu & cài lên dev local
+```bash
+npm run e2e:plugin                  # full: CLI create → package (uber-jar + bundle.zip) → đăng ký → cài → verify
+npm run e2e:plugin -- --skip-build  # dùng lại dist/ đã build
+npm run e2e:plugin -- --keep        # giữ container sau khi test
+```
+Script `scripts/e2e/plugin-cli-e2e.mjs` sẽ:
+1. Đảm bảo PostgreSQL/Redis chạy trên network `openerp-net` và backend tại `:8088` (tự khởi chạy `mvn quarkus:dev` nếu chưa có).
+2. Đăng ký tenant + platform admin (seed dev-only) qua API thật.
+3. Dùng `@open-erp/cli` tạo plugin `e2e-sample` (packaging=bundle) và build `dist/plugin-backend.jar` + `dist/bundle.zip`.
+4. Kênh JAR bundle: tạo catalog → upload artifact → đăng ký version → publish → cấp entitlement.
+5. Tenant cài plugin → backend build image **ngoài transaction** → deploy container-per-tenant.
+6. Verify: container `Running` + log `Listening on`, schema `tenant_<short>_e2e_sample` + bảng `plg_sample_items`, ledger `ACTIVE|1.0.0`.
+7. Uninstall (giữ schema/dữ liệu) trừ khi dùng `--keep`.
+
+Bằng chứng mỗi lần chạy: `docs/sprints/sprint_03_plugin_manager/08_testing/evidence/TASK-344_cli_bundle_install_e2e_<date>.txt`;
+log chi tiết: `logs/e2e-run.log`, backend: `logs/e2e/backend.log`.
+
+> **Lưu ý local runtime**: plugin container kết nối PostgreSQL qua `postgres-primary:5432` trên network `openerp-net` (cấu hình `%dev.openerp.plugin.datasource.runtime-url`) và dùng image local không push registry (`%dev.openerp.plugin.builder.push=false`). Gateway HTTP proxy (`/api/v1/plugins/runtime/...`) từ backend host tới container chỉ hoạt động khi backend chạy trong cùng Docker network — local dev verify qua container logs/schema.
 
 ---
 

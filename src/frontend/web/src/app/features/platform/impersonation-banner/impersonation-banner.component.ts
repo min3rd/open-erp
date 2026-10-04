@@ -1,8 +1,6 @@
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@shared';
-import { SharpButtonComponent } from '@shared';
-import { ButtonVariant } from '@shared';
+import { ColorVariant, SharpButtonComponent, TranslatePipe } from '@shared';
 import { ImpersonationService } from '../../../core/services/impersonation.service';
 
 @Component({
@@ -15,7 +13,7 @@ export class ImpersonationBannerComponent {
   private impersonation = inject(ImpersonationService);
   private nowSignal = signal<number>(Date.now());
 
-  readonly buttonVariantPrimary = ButtonVariant.PRIMARY;
+  readonly buttonVariantPrimary = ColorVariant.PRIMARY;
   readonly session = this.impersonation.session;
   readonly isActive = this.impersonation.isActive;
 

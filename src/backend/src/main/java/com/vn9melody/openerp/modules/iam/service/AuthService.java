@@ -539,10 +539,6 @@ public class AuthService {
     private String generateSecureToken() {
         byte[] bytes = new byte[RESET_TOKEN_BYTES];
         secureRandom.nextBytes(bytes);
-        StringBuilder hex = new StringBuilder(bytes.length * 2);
-        for (byte b : bytes) {
-            hex.append(String.format("%02x", b));
-        }
-        return hex.toString();
+        return HexFormat.of().formatHex(bytes);
     }
 }

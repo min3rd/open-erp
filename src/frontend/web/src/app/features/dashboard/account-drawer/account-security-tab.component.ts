@@ -5,19 +5,18 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 import { AccountService } from '../../../core/services/account.service';
-import { 
-  I18nService, 
-  TranslateDirective, 
+import {
+  I18nService,
+  TranslateDirective,
   TranslatePipe,
   SharpButtonComponent,
   SharpInputComponent,
   BadgeComponent,
-  ButtonVariant,
-  ButtonSize,
+  ColorVariant,
+  SizeVariant,
   ButtonType,
-  BadgeVariant,
   TwoFactorStatus,
-  apiMessage
+  apiMessage,
 } from '@shared';
 
 @Component({
@@ -42,12 +41,12 @@ export class AccountSecurityTabComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   readonly buttonTypeSubmit = ButtonType.SUBMIT;
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
-  readonly buttonVariantDanger = ButtonVariant.DANGER;
-  readonly buttonSizeSm = ButtonSize.SM;
+  readonly buttonVariantSecondary = ColorVariant.SECONDARY;
+  readonly buttonVariantDanger = ColorVariant.DANGER;
+  readonly buttonSizeSm = SizeVariant.SM;
 
-  readonly badgeVariantSuccess = BadgeVariant.SUCCESS;
-  readonly badgeVariantWarning = BadgeVariant.WARNING;
+  readonly badgeVariantSuccess = ColorVariant.SUCCESS;
+  readonly badgeVariantWarning = ColorVariant.WARNING;
 
   twoFactorStatus = signal<TwoFactorStatus | null>(null);
 

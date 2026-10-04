@@ -4,17 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { toDataURL } from 'qrcode';
 import { AccountService } from '../../../core/services/account.service';
-import { 
-  I18nService, 
-  TranslateDirective, 
+import {
+  I18nService,
+  TranslateDirective,
   TranslatePipe,
   DrawerComponent,
   SharpButtonComponent,
   PinInputComponent,
-  ButtonVariant,
+  ColorVariant,
   TwoFactorSetupData,
   TwoFactorEnableData,
-  apiMessage
+  apiMessage,
 } from '@shared';
 
 @Component({
@@ -36,7 +36,7 @@ export class Setup2FaDrawerComponent implements OnInit {
   i18n = inject(I18nService);
   private router = inject(Router);
 
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
+  readonly buttonVariantSecondary = ColorVariant.SECONDARY;
 
   stage = signal<'SETUP' | 'CODES'>('SETUP');
   loadingSetup = signal<boolean>(false);

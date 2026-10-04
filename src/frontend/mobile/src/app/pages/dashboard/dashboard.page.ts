@@ -8,7 +8,7 @@ import {
   IonContent,
   IonButtons,
   IonMenuButton,
-  NavController
+  NavController,
 } from '@ionic/angular/standalone';
 import { AuthService } from '../../core/auth.service';
 import {
@@ -17,7 +17,7 @@ import {
   TranslatePipe,
   SharpButtonComponent,
   BadgeComponent,
-  BadgeVariant
+  ColorVariant,
 } from '@shared';
 
 interface DashboardFeature {
@@ -49,8 +49,8 @@ export class DashboardPage {
   i18n = inject(I18nService);
   navCtrl = inject(NavController);
 
-  readonly badgeSuccess = BadgeVariant.SUCCESS;
-  readonly badgeInfo = BadgeVariant.INFO;
+  readonly badgeSuccess = ColorVariant.SUCCESS;
+  readonly badgeInfo = ColorVariant.INFO;
 
   readonly features: DashboardFeature[] = [
     { code: 'FEAT-01', titleKey: 'AUTH_REGISTER_PERSONAL_TAB' },

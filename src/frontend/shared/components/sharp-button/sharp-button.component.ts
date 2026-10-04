@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ColorVariant, SizeVariant, ShapeVariant, ButtonType, ButtonVariant, ButtonSize } from '../../enums';
+import { ColorVariant, SizeVariant, ShapeVariant, ButtonType } from '../../enums';
 
 @Component({
   selector: 'app-sharp-button',
@@ -10,8 +10,8 @@ import { ColorVariant, SizeVariant, ShapeVariant, ButtonType, ButtonVariant, But
 })
 export class SharpButtonComponent {
   type = input<ButtonType | 'button' | 'submit' | 'reset'>(ButtonType.BUTTON);
-  variant = input<ColorVariant | ButtonVariant | 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline'>(ColorVariant.PRIMARY);
-  size = input<SizeVariant | ButtonSize | 'sm' | 'md' | 'lg'>(SizeVariant.MD);
+  variant = input<ColorVariant | 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline'>(ColorVariant.PRIMARY);
+  size = input<SizeVariant | 'sm' | 'md' | 'lg'>(SizeVariant.MD);
   shape = input<ShapeVariant | 'sharp' | 'soft'>(ShapeVariant.SHARP);
   disabled = input<boolean>(false);
   loading = input<boolean>(false);

@@ -10,6 +10,7 @@ import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HexFormat;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -157,11 +158,6 @@ public class PluginArtifactVerifier {
     }
 
     private String toHex(byte[] bytes) {
-        StringBuilder builder = new StringBuilder(bytes.length * 2);
-        for (byte value : bytes) {
-            builder.append(Character.forDigit((value >> 4) & 0xF, 16));
-            builder.append(Character.forDigit(value & 0xF, 16));
-        }
-        return builder.toString();
+        return HexFormat.of().formatHex(bytes);
     }
 }

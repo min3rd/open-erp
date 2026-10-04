@@ -1,7 +1,7 @@
 package com.vn9melody.openerp.modules.plugin.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.vn9melody.openerp.modules.plugin.deployer.PluginRuntimeDeployer;
+import com.vn9melody.openerp.modules.plugin.deployer.ProcessPluginRuntimeDeployer;
 import com.vn9melody.openerp.core.enums.PlatformAction;
 import com.vn9melody.openerp.core.enums.TenantPluginStatus;
 import com.vn9melody.openerp.modules.plugin.model.TenantPlugin;
@@ -27,7 +27,7 @@ public class PluginGovernanceService {
     TenantPluginRepository tenantPluginRepository;
 
     @Inject
-    PluginRuntimeDeployer deployer;
+    ProcessPluginRuntimeDeployer deployer;
 
     @Inject
     PluginNotificationService notificationService;
@@ -43,7 +43,7 @@ public class PluginGovernanceService {
             if (!isRunning(ledger.status)) {
                 continue;
             }
-            PluginRuntimeDeployer.DeploymentRef ref = deploymentRef(ledger);
+            ProcessPluginRuntimeDeployer.DeploymentRef ref = deploymentRef(ledger);
             if (ref != null) {
                 try {
                     deployer.undeploy(ref);
@@ -73,12 +73,12 @@ public class PluginGovernanceService {
                 || status == TenantPluginStatus.INSTALLING || status == TenantPluginStatus.UPGRADING;
     }
 
-    private PluginRuntimeDeployer.DeploymentRef deploymentRef(TenantPlugin ledger) {
+    private ProcessPluginRuntimeDeployer.DeploymentRef deploymentRef(TenantPlugin ledger) {
         JsonNode node = ledger.deployRef;
         if (node == null || node.isMissingNode() || node.path("deployment").asText("").isBlank()) {
             return null;
         }
-        return new PluginRuntimeDeployer.DeploymentRef(
+        return new ProcessPluginRuntimeDeployer.DeploymentRef(
                 node.path("runtime").asText("docker"),
                 node.path("deployment").asText(),
                 node.path("service").asText(),

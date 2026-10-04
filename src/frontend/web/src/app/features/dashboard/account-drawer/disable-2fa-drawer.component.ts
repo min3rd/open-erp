@@ -3,16 +3,16 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AccountService } from '../../../core/services/account.service';
-import { 
-  I18nService, 
-  TranslateDirective, 
+import {
+  I18nService,
+  TranslateDirective,
   TranslatePipe,
   DrawerComponent,
   SharpButtonComponent,
   SharpInputComponent,
-  ButtonVariant,
+  ColorVariant,
   ButtonType,
-  apiMessage
+  apiMessage,
 } from '@shared';
 
 @Component({
@@ -35,8 +35,8 @@ export class Disable2FaDrawerComponent {
   private router = inject(Router);
 
   readonly buttonTypeSubmit = ButtonType.SUBMIT;
-  readonly buttonVariantDanger = ButtonVariant.DANGER;
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
+  readonly buttonVariantDanger = ColorVariant.DANGER;
+  readonly buttonVariantSecondary = ColorVariant.SECONDARY;
 
   currentPassword = '';
   code = '';

@@ -10,15 +10,14 @@ import {
   IonContent,
   IonButtons,
   IonBackButton,
-  IonMenuButton
+  IonMenuButton,
 } from '@ionic/angular/standalone';
 import { forkJoin } from 'rxjs';
 import { PlatformService } from '../../../core/platform.service';
 import { AuthService } from '../../../core/auth.service';
 import {
   BadgeComponent,
-  BadgeVariant,
-  ButtonVariant,
+  ColorVariant,
   HealthSnapshot,
   I18nService,
   PlatformTenant,
@@ -32,7 +31,7 @@ import {
   TranslateDirective,
   TranslatePipe,
   UserStatus,
-  apiMessage
+  apiMessage,
 } from '@shared';
 
 interface TenantActionTarget {
@@ -68,9 +67,9 @@ export class EmergencyPage implements OnInit {
   private i18n = inject(I18nService);
   private auth = inject(AuthService);
 
-  readonly badgeDanger = BadgeVariant.DANGER;
-  readonly buttonDanger = ButtonVariant.DANGER;
-  readonly buttonSecondary = ButtonVariant.SECONDARY;
+  readonly badgeDanger = ColorVariant.DANGER;
+  readonly buttonDanger = ColorVariant.DANGER;
+  readonly buttonSecondary = ColorVariant.SECONDARY;
 
   /** SUPPORT_ENGINEER sees a read-only overview (backend rejects non-GET calls). */
   readonly isSuperAdmin = this.auth.isPlatformSuperAdmin;
@@ -147,8 +146,8 @@ export class EmergencyPage implements OnInit {
     return Math.round((tenant.used_storage_mb / tenant.max_storage_mb) * 100);
   }
 
-  tenantStatusVariant(tenant: PlatformTenant): BadgeVariant {
-    return tenant.status === TenantStatus.ACTIVE ? BadgeVariant.SUCCESS : BadgeVariant.DEFAULT;
+  tenantStatusVariant(tenant: PlatformTenant): ColorVariant {
+    return tenant.status === TenantStatus.ACTIVE ? ColorVariant.SUCCESS : ColorVariant.DEFAULT;
   }
 
   pluginLabel(pluginKey: string): string {
@@ -157,14 +156,14 @@ export class EmergencyPage implements OnInit {
     return translated === nameKey ? pluginKey : translated;
   }
 
-  userStatusVariant(user: PlatformUser): BadgeVariant {
+  userStatusVariant(user: PlatformUser): ColorVariant {
     switch (user.status) {
       case UserStatus.ACTIVE:
-        return BadgeVariant.SUCCESS;
+        return ColorVariant.SUCCESS;
       case UserStatus.LOCKED:
-        return BadgeVariant.DANGER;
+        return ColorVariant.DANGER;
       default:
-        return BadgeVariant.DEFAULT;
+        return ColorVariant.DEFAULT;
     }
   }
 
@@ -183,14 +182,14 @@ export class EmergencyPage implements OnInit {
     }
   }
 
-  systemStatusVariant(): BadgeVariant {
+  systemStatusVariant(): ColorVariant {
     switch (this.health()?.system_status) {
       case SystemHealthStatus.HEALTHY:
-        return BadgeVariant.SUCCESS;
+        return ColorVariant.SUCCESS;
       case SystemHealthStatus.DOWN:
-        return BadgeVariant.DANGER;
+        return ColorVariant.DANGER;
       default:
-        return BadgeVariant.WARNING;
+        return ColorVariant.WARNING;
     }
   }
 

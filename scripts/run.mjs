@@ -237,25 +237,65 @@ function mobile() {
   runNpm(MOBILE_DIR, ['run', 'serve']);
 }
 
-function dev() {
-  console.log('[Open-ERP] Khởi động hạ tầng (minimal + mail) và 3 tiến trình dev...');
-  execute('docker', ['compose', '--profile', 'mail', 'up', '-d']);
+async function isUp(url) {
+  try {
+    await fetch(url, { signal: AbortSignal.timeout(1_500) });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function dev(profile = 'mail') {
+  const flags = PROFILES[profile];
+  if (!flags) {
+    fail(`Profile không hợp lệ: "${profile}". Chọn: ${Object.keys(PROFILES).join(', ')}`);
+  }
+  console.log(`[Open-ERP] Khởi động hạ tầng (${profile}) và 3 tiến trình dev...`);
+  execute('docker', ['compose', ...flags, 'up', '-d']);
   ensureTestDatabase();
   ensureJwtKeys();
-  stopProcesses(false);
 
-  const pids = {
-    backend: spawnDetached('backend', 'mvn', ['-f', 'src/backend/pom.xml', 'quarkus:dev'], {
-      env: { JAVA_TOOL_OPTIONS: '-Dnet.bytebuddy.experimental=true' },
-    }),
-    web: spawnDetached('web', 'npm', ['run', 'start', '--', '--port', '4200'], { cwd: WEB_DIR }),
-    mobile: spawnDetached('mobile', 'npm', ['run', 'serve'], { cwd: MOBILE_DIR }),
-  };
-  writeFileSync(PID_FILE, `${JSON.stringify(pids, null, 2)}\n`);
+  const previous = readPids() ?? {};
+  const pids = {};
+  const services = [
+    {
+      name: 'backend',
+      url: 'http://localhost:8088/q/health/live',
+      start: () => spawnDetached('backend', 'mvn', ['-f', 'src/backend/pom.xml', 'quarkus:dev'], {
+        env: { JAVA_TOOL_OPTIONS: '-Dnet.bytebuddy.experimental=true' },
+      }),
+    },
+    {
+      name: 'web',
+      url: 'http://localhost:4200',
+      start: () => spawnDetached('web', 'npm', ['run', 'start', '--', '--port', '4200'], { cwd: WEB_DIR }),
+    },
+    {
+      name: 'mobile',
+      url: 'http://localhost:8100',
+      start: () => spawnDetached('mobile', 'npm', ['run', 'serve'], { cwd: MOBILE_DIR }),
+    },
+  ];
+  for (const service of services) {
+    if (await isUp(service.url)) {
+      console.log(`[Open-ERP] ${service.name} đã chạy sẵn — bỏ qua.`);
+      if (typeof previous[service.name] === 'number') {
+        pids[service.name] = previous[service.name];
+      }
+      continue;
+    }
+    pids[service.name] = service.start();
+  }
+  if (Object.keys(pids).length > 0) {
+    writeFileSync(PID_FILE, `${JSON.stringify(pids, null, 2)}\n`);
+  } else {
+    rmSync(PID_FILE, { force: true });
+  }
 
   console.log('');
   console.log('==========================================================');
-  console.log('Đã khởi chạy 3 tiến trình nền. Chờ 30-90 giây để build xong:');
+  console.log('Hạ tầng sẵn sàng. Các ứng dụng (chờ 30-90 giây để build xong):');
   console.log('  - Backend Quarkus:  http://localhost:8088');
   console.log('  - Swagger UI:       http://localhost:8088/q/swagger-ui');
   console.log('  - Web Angular:      http://localhost:4200');
@@ -331,7 +371,9 @@ Hạ tầng Docker:
   npm run backend          - Quarkus dev mode (port 8088)
   npm run web              - Angular 22 dev server (port 4200)
   npm run mobile           - Ionic 8 dev server (port 8100)
-  npm run dev              - Hạ tầng + 3 tiến trình nền (logs/)
+  npm run dev              - Hạ tầng (minimal + Mailpit) + 3 tiến trình nền (logs/)
+  npm run dev:full         - TOÀN BỘ hạ tầng (Kafka, Mongo, MinIO, replica...) + 3 tiến trình
+                             (lần đầu pull image ~1.5GB; cần RAM >= 8GB)
   npm run dev:stop         - Dừng 3 tiến trình dev
 
 Build & Test:
@@ -342,6 +384,11 @@ Build & Test:
   npm run cli:test         - Smoke test @open-erp/cli
   npm test                 - Backend + CLI tests
   npm run build            - Build cả 3 ứng dụng
+
+E2E:
+  npm run e2e:plugin       - CLI tạo plugin mẫu + cài lên dev local (Docker container)
+  npm run e2e:plugin -- --skip-build   - Dùng lại dist/ đã build
+  npm run e2e:plugin -- --keep         - Giữ container sau khi test
 
 CLI & tiện ích:
   npm run cli -- <lệnh>    - @open-erp/cli (create/generate/package/...)
@@ -364,7 +411,7 @@ const handlers = {
   backend: () => backend(),
   web: () => web(),
   mobile: () => mobile(),
-  dev: () => dev(),
+  dev: () => dev(process.argv[3]),
   stop: () => stopProcesses(),
   'build-images': () => buildImages(),
   'deploy-docker': () => deployDocker(),
@@ -382,4 +429,6 @@ if (!handlers[command]) {
   help();
   process.exit(1);
 }
-handlers[command]();
+Promise.resolve()
+  .then(() => handlers[command]())
+  .catch((error) => fail(error?.message ?? String(error)));

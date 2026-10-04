@@ -9,7 +9,7 @@ import {
   IonContent,
   IonButtons,
   IonBackButton,
-  NavController
+  NavController,
 } from '@ionic/angular/standalone';
 import { AuthService } from '../../core/auth.service';
 import {
@@ -21,8 +21,8 @@ import {
   PinInputComponent,
   LanguageSwitcherComponent,
   ThemeSwitcherComponent,
-  ButtonVariant,
-  apiMessage
+  ColorVariant,
+  apiMessage,
 } from '@shared';
 
 @Component({
@@ -53,7 +53,7 @@ export class TwoFactorPage implements OnInit {
   private i18n = inject(I18nService);
   private navCtrl = inject(NavController);
 
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
+  readonly buttonVariantSecondary = ColorVariant.SECONDARY;
 
   preAuthToken = signal<string>('');
   backupCodeInput = '';

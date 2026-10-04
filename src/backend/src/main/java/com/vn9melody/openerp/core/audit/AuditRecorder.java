@@ -8,9 +8,9 @@ import java.util.UUID;
  * Audit recording contract of the Data Permission Enforcement Engine
  * (SOL-02, TASK-267/284).
  *
- * <p>The default CDI bean is a no-op ({@link NoOpAuditRecorder}). The platform
- * audit implementation may be plugged in later by registering another bean of
- * this type; callers iterate all available beans so both implementations stay
+ * <p>The single CDI implementation is the platform {@code AuditLogService}
+ * bridge. Callers inject {@code Instance<AuditRecorder>} and iterate every
+ * available bean, so registering an additional implementation stays
  * compatible.</p>
  */
 public interface AuditRecorder {
@@ -44,16 +44,4 @@ public interface AuditRecorder {
     }
 
     void record(AuditEvent event);
-
-    default void recordDenied(UUID tenantId, UUID actorUserId, String action,
-                              String resourceType, UUID resourceId, Map<String, Object> details) {
-        record(new AuditEvent(tenantId, actorUserId, action, resourceType, resourceId,
-            AuditResult.DENIED, details, null));
-    }
-
-    default void recordSuccess(UUID tenantId, UUID actorUserId, String action,
-                               String resourceType, UUID resourceId, Map<String, Object> details) {
-        record(new AuditEvent(tenantId, actorUserId, action, resourceType, resourceId,
-            AuditResult.SUCCESS, details, null));
-    }
 }

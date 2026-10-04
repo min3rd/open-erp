@@ -1,18 +1,17 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AccountService } from '../../../core/services/account.service';
-import { 
-  I18nService, 
-  TranslateDirective, 
+import {
+  I18nService,
+  TranslateDirective,
   TranslatePipe,
   SharpButtonComponent,
   BadgeComponent,
-  ButtonVariant,
-  ButtonSize,
-  BadgeVariant,
+  ColorVariant,
+  SizeVariant,
   UserSessionData,
   apiMessage,
-  formatDateTime
+  formatDateTime,
 } from '@shared';
 
 @Component({
@@ -31,10 +30,10 @@ export class AccountSessionsTabComponent implements OnInit {
   accountService = inject(AccountService);
   i18n = inject(I18nService);
 
-  readonly buttonVariantSecondary = ButtonVariant.SECONDARY;
-  readonly buttonVariantDanger = ButtonVariant.DANGER;
-  readonly buttonSizeSm = ButtonSize.SM;
-  readonly badgeVariantInfo = BadgeVariant.INFO;
+  readonly buttonVariantSecondary = ColorVariant.SECONDARY;
+  readonly buttonVariantDanger = ColorVariant.DANGER;
+  readonly buttonSizeSm = SizeVariant.SM;
+  readonly badgeVariantInfo = ColorVariant.INFO;
   readonly formatDateTime = formatDateTime;
 
   sessions = signal<UserSessionData[]>([]);

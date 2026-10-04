@@ -151,7 +151,8 @@ services:
   # 7. MinIO - S3 Object Storage (ON-DEMAND: profiles: ["full", "storage"])
   # ============================================================================
   minio:
-    image: minio/minio:latest
+    # MinIO da ngung phat hanh image tren Docker Hub (minio/minio 404); dung mirror pgsty/minio.
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
     container_name: openerp-minio
     profiles: ["full", "storage"]
     command: server /data --console-address ":9001"
@@ -189,6 +190,7 @@ services:
 
 networks:
   openerp-net:
+    name: openerp-net
     driver: bridge
 
 volumes:
