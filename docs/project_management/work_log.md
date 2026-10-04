@@ -297,3 +297,19 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
     - Cập nhật deployment guide: `OPENERP_ADMIN_BOOTSTRAP_SECRET`, `openerp.platform.bootstrap-emails`, `openerp.platform.plugin-catalog`, TTL impersonation 1800s, jobs (partition/retention/lifecycle/impersonation-timeout), CLI `admin-cli` (bootstrap/list-admins/grant-admin/revoke-admin), lưu ý timezone UTC — tại [local_setup_guide.md](../07_deployment_guides/local_setup_guide.md) mục 6, [docker_deployment_guide.md](../07_deployment_guides/docker_deployment_guide.md) mục 4, [k8s_production_guide.md](../07_deployment_guides/k8s_production_guide.md) mục 3.1.
     - Cập nhật điều hướng/quản lý: `00_READING_GUIDE.md` (HOÀN TẤT Bước 8-9 + sign-off), `task_board.md` (block nghiệm thu & backlog Sprint 03), `changelog.md`, `sprint_plan.md` (DoD 100%), `docs/README.md`, `docs/06_user_guides/README.md`.
   - **Kết quả cuối Sprint 02**: **77/78 item Done**, 1 Deferred (Medium), **0 Critical/High** → **ĐỦ ĐIỀU KIỆN ĐÓNG SPRINT (DoD GATE PASS)**; chờ khách hàng ký nghiệm thu REV-02.
+
+---
+
+## 2026-10-04 — SPRINT 03: HOÀN TẤT CODE + QA DUAL-MODE, CHƯA ĐÓNG SPRINT (CHỜ KÝ DUYỆT)
+- **Người thực hiện**: PM Agent (tổng hợp), QA/QC Agent, Developer Agent, Docs Agent
+- **Giai đoạn**: Sprint 03 - Bước 8 (Kiểm thử) & Bước 9 (Nghiệm thu — đang lập)
+- **Nội dung công việc**:
+  - **Hoàn tất code Sprint 03**: FEAT-21 (Plugin Manager & vòng đời), FEAT-22 (`@open-erp/cli` — create/generate/validate/package/link/inspect/dev), FEAT-23 (phân phối 3 kênh, Deployer container-per-tenant, Tenant Datasource Router, Plugin Host WC/MF/iframe).
+  - **QA Bước 8 — Dual-mode browser thật**: **40/40 PASS, 0 console error** (tenant 18/18, route-state 8/8, platform 6/6, Ionic 390×844 8/8); các vòng bổ sung: support tenant-private 4/4, route-state Sprint 01/02 4/4, cursor pointer 4/4, path-segment 9/9, hotfix search 5/5. Ảnh minh chứng tại `docs/sprints/sprint_03_plugin_manager/08_testing/evidence/screenshots/`.
+  - **Backend suite**: **211/211 PASS** (sau bổ sung `PlatformPluginGovernanceApiTest` + `PluginBundleImageApiTest` → **220/220 PASS**) trên PostgreSQL + Redis thật, không H2; Web/Mobile `ng build` PASS; CLI smoke `node --test` 3/3; i18n parity Web 864/864 · Mobile 535/535.
+  - **E2E thật 2026-10-04**: `npm run e2e:plugin` (CLI create → package → cài lên dev local → container `Running`, schema `tenant_*_sales`, ledger `ACTIVE|1.0.0`) PASS; fix BUG-109/110/112/113/115/116/99 kèm bằng chứng `BUG-109_116_fix_verification_2026-10-04.txt`.
+  - **Tổng hợp item**: **174 tổng** — **167 Done/Resolved**; **7 chưa hoàn tất**: **4 BUG `In Review`** (BUG-86, BUG-92, BUG-93, BUG-94 — chờ Reviewer ký) + **3 `Deferred → Sprint 04`** (BUG-98, TASK-346, TASK-347). **TASK-348** `In Review` (7/7 màn chính Done, phần phụ → Sprint 04). Trong FEAT-23: **TASK-331, TASK-337** vẫn `In Progress` (cần hạ tầng registry thật).
+  - **PM ban hành**: [REV-03 sprint_review.md](../sprints/sprint_03_plugin_manager/09_review/sprint_review.md) với trạng thái **CHƯA ĐÓNG — CHỜ KÝ DUYỆT**; cập nhật `task_board.md` (khối trạng thái Sprint 03), `changelog.md`.
+  - **User Guide Sprint 03 (UG-03)** kèm ảnh đang được soạn song song tại `docs/06_user_guides/sprint_03_plugin_manager_user_guide.md` — **chưa ban hành**.
+- **Điều kiện còn lại để đóng Sprint**: (1) Reviewer ký 4 BUG + TASK-348; (2) ban hành UG-03 kèm ảnh; (3) PM ban hành `sprint_review.md` (việc này đã làm); (4) Khách hàng sign-off Bước 7/8/9.
+- **Kết luận**: Sprint 03 **CHƯA ĐÓNG** — PM **không tự ký** thay Reviewer/Khách hàng; không tuyên bố DoD PASS.

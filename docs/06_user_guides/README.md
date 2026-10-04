@@ -22,5 +22,6 @@ Thư mục này chứa toàn bộ các tài liệu hướng dẫn sử dụng d�
 | :---: | :--- | :--- | :--- |
 | **1** | **UG-01** | [Sprint 01 - Core IAM: Định danh, Đăng nhập & Quản lý tài khoản](sprint_01_core_iam_user_guide.md) | [`assets/sprint_01_core_iam/`](assets/sprint_01_core_iam/) (25 ảnh) |
 | **2** | **UG-02** | [Sprint 02 - Super Admin, Phân quyền chức năng & Phân quyền dữ liệu](sprint_02_superadmin_rbac_user_guide.md) | [`assets/sprint_02_superadmin_rbac/`](assets/sprint_02_superadmin_rbac/) (27 ảnh) |
+| **3** | **UG-03** | [Sprint 03 - Plugin Manager, Marketplace & Plugin Host](sprint_03_plugin_manager_user_guide.md) | [`assets/sprint_03_plugin_manager/`](assets/sprint_03_plugin_manager/) (21 ảnh) |
 
-> Các Sprint tiếp theo sẽ được bổ sung với tiền tố `sprint_03_`, `sprint_04_`... để giữ đúng thứ tự đọc tuần tự.
+> Các Sprint tiếp theo sẽ được bổ sung với tiền tố `sprint_04_`, `sprint_05_`... để giữ đúng thứ tự đọc tuần tự.

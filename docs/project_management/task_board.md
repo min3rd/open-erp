@@ -192,4 +192,20 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 - **Shared UI**: 6 component plugin-manager + thư viện `shared/plugin-host` (slot/outlet/3 loader, service manifest/token); `tsc strict` PASS.
 - **Mobile**: `/settings/plugins` read-only + menu + banner; `ng build` PASS.
 - **Docs**: `plugin_manager_infrastructure_guide.md` (07) + `plugin_web_packaging_guide.md` (08) + cập nhật `docs/README.md`.
-- **Còn lại để đóng Sprint (DoD)**: Bước 8 QA dual-mode (Web ≥1280, Mobile 390×844, 0 console error, ảnh minh chứng) + Reviewer ký **BUG-86/88/89/90/91/92/93/94** (BUG-87 đã xác nhận triển khai).
+- **Còn lại để đóng Sprint (DoD)**: Bước 8 QA dual-mode (Web ≥1280, Mobile 390×844, 0 console error, ảnh minh chứng) + Reviewer ký **BUG-86/88/89/90/91/92/93/94** (BUG-87 đã xác nhận triển khai). *(Cập nhật trạng thái mới nhất ở khối bên dưới — 2026-10-04.)*
+
+---
+
+## Sprint 03 - Trạng Thái Hiện Tại (2026-10-04) — CHƯA ĐÓNG, CHỜ KÝ DUYỆT
+- **Bản đồ đọc tuần tự**: [00_READING_GUIDE.md](../sprints/sprint_03_plugin_manager/00_READING_GUIDE.md)
+- **Kế hoạch Sprint**: [sprint_plan.md](../sprints/sprint_03_plugin_manager/sprint_plan.md)
+- **Trạng thái**: `[ ]` **CHƯA ĐÓNG — CHỜ KÝ DUYỆT** (DoD Gate CHƯA PASS). Biên bản: [REV-03 sprint_review.md](../sprints/sprint_03_plugin_manager/09_review/sprint_review.md).
+- **Item**: **174 tổng** — **167 `Done`/`Resolved`**; **7 chưa hoàn tất** (4 `In Review` + 3 `Deferred`); **TASK-348** `In Review` (7/7 màn chính Done).
+  - `In Review` (chờ Reviewer ký): **BUG-86, BUG-92, BUG-93, BUG-94**; **TASK-348**.
+  - `Deferred → Sprint 04`: **BUG-98, TASK-346, TASK-347** (Medium).
+  - `In Progress`: **TASK-331, TASK-337** (FEAT-23 — phần cần hạ tầng registry thật).
+- **QA Bước 8**: **ĐÃ CHẠY** — browser thật **40/40 PASS, 0 console error** (tenant 18/18, route-state 8/8, platform 6/6, Ionic 390×844 8/8); bổ sung 4/4 + 9/9 + 5/5; ảnh tại `08_testing/evidence/screenshots/`.
+- **Backend**: full suite **211/211 PASS** (bổ sung 2 test class → **220/220 PASS**) trên PostgreSQL + Redis thật, không H2; Web/Mobile build PASS; CLI smoke 3/3; i18n parity Web 864/864 · Mobile 535/535.
+- **E2E**: `npm run e2e:plugin` (CLI create → package → cài dev local → container/schema/ledger ACTIVE) PASS 2026-10-04; BUG-109/110/112/113/115/116/99 đã fix 2026-10-04 kèm bằng chứng.
+- **Điều kiện còn lại để đóng Sprint**: (1) Reviewer ký 4 BUG + TASK-348; (2) ban hành User Guide UG-03 kèm ảnh (đang soạn); (3) PM ban hành `sprint_review.md` (đang lập); (4) Khách hàng sign-off Bước 7/8/9.
+- **KHÔNG tuyên bố đã đóng Sprint** cho tới khi đủ 4 điều kiện trên.
