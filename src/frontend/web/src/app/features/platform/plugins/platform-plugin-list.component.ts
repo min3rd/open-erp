@@ -93,6 +93,11 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
   blockPreview = signal<PluginBulkPreview | null>(null);
   blockBusy = signal(false);
 
+  versionActionOpen = signal(false);
+  versionActionTarget = signal<{ version: string | null; action: string } | null>(null);
+  versionActionReason = signal('');
+  versionActionBusy = signal(false);
+
   bulkOpen = signal(false);
   bulkVersion = signal('');
   bulkPreviewData = signal<PluginBulkPreview | null>(null);
@@ -165,6 +170,13 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     this.blockOpen.set(drawer === 'block');
     this.bulkOpen.set(drawer === 'bulk');
     this.supportOpen.set(drawer === 'support');
+    this.versionActionOpen.set(drawer === 'version-action');
+
+    if (drawer === 'version-action') {
+      const action = this.route.snapshot.queryParamMap.get('action') ?? 'PUBLISH';
+      const version = this.route.snapshot.queryParamMap.get('version');
+      this.versionActionTarget.set({ version, action });
+    }
 
     if (drawer === 'block') {
       const scope = this.route.snapshot.queryParamMap.get('scope') ?? this.blockScope();
@@ -192,7 +204,8 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
   }
 
   closeDrawer(): void {
-    this.updateState({ mode: 'list' }, undefined, { scope: null, version: null, tenant: null });
+    this.updateState({ mode: 'list' }, undefined,
+      { scope: null, version: null, tenant: null, action: null });
   }
 
   load(): void {
@@ -352,28 +365,46 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
     });
   }
 
-  versionAction(version: string, action: string): void {
-    const key = this.selectedKey();
-    if (!key) {
-      return;
-    }
-    this.service.versionAction(key, version, action, 'platform portal').subscribe({
-      next: () => {
-        this.successText.set(this.i18n.t('PLUGIN_VERSION_DELETE_SUCCESS'));
-        this.reload();
-      },
-      error: (error: ApiErrorResponse) => this.errorText.set(apiMessage(this.i18n, error)),
-    });
+  openVersionAction(version: string, action: string): void {
+    this.versionActionTarget.set({ version, action });
+    this.versionActionReason.set('');
+    this.updateState({ mode: 'version-action' }, undefined, { version, action });
   }
 
-  unblockVersion(version: string): void {
+  openUnblockCatalog(): void {
+    this.versionActionTarget.set({ version: null, action: 'UNBLOCK_CATALOG' });
+    this.versionActionReason.set('');
+    this.updateState({ mode: 'version-action' }, undefined, { version: null, action: 'UNBLOCK_CATALOG' });
+  }
+
+  canConfirmVersionAction(): boolean {
+    return !!this.versionActionTarget() && this.versionActionReason().trim().length > 0;
+  }
+
+  submitVersionAction(): void {
     const key = this.selectedKey();
-    if (!key) {
+    const target = this.versionActionTarget();
+    const reason = this.versionActionReason().trim();
+    if (!key || !target || !reason) {
       return;
     }
-    this.service.unblockVersion(key, version, 'platform portal').subscribe({
-      next: () => this.reload(),
-      error: (error: ApiErrorResponse) => this.errorText.set(apiMessage(this.i18n, error)),
+    this.versionActionBusy.set(true);
+    const request = target.action === 'UNBLOCK'
+      ? this.service.unblockVersion(key, target.version ?? '', reason)
+      : target.action === 'UNBLOCK_CATALOG'
+        ? this.service.unblockCatalog(key, reason)
+        : this.service.versionAction(key, target.version ?? '', target.action, reason);
+    request.subscribe({
+      next: () => {
+        this.versionActionBusy.set(false);
+        this.updateState({ mode: 'list' });
+        this.successText.set(this.i18n.t('PLUGIN_VERSION_ACTION_SUCCESS'));
+        this.reload();
+      },
+      error: (error: ApiErrorResponse) => {
+        this.versionActionBusy.set(false);
+        this.errorText.set(apiMessage(this.i18n, error));
+      },
     });
   }
 
@@ -498,20 +529,6 @@ export class PlatformPluginListComponent implements OnInit, OnDestroy {
         this.blockBusy.set(false);
         this.errorText.set(apiMessage(this.i18n, error));
       },
-    });
-  }
-
-  unblockCatalog(): void {
-    const key = this.selectedKey();
-    if (!key) {
-      return;
-    }
-    this.service.unblockCatalog(key, 'platform portal').subscribe({
-      next: () => {
-        this.successText.set(this.i18n.t('PLUGIN_UNBLOCK_SUCCESS'));
-        this.reload();
-      },
-      error: (error: ApiErrorResponse) => this.errorText.set(apiMessage(this.i18n, error)),
     });
   }
 

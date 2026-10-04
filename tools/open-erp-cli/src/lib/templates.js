@@ -69,7 +69,7 @@ export function projectFiles(options) {
   files[`src/main/java/${pkgPath}/SampleItemService.java`] = service(pkg);
   files[`src/main/java/${pkgPath}/SampleItemResource.java`] = resource(pkg);
   files['src/main/resources/db/plugin-migration/V1.0.0__initial_schema.up.sql'] = migrationUp(options);
-  files['src/main/resources/db/plugin-migration/V1.0.0__initial_schema.down.sql'] = migrationDown();
+  files['src/main/resources/db/plugin-migration-down/V1.0.0__initial_schema.down.sql'] = migrationDown();
   files[`src/test/java/${pkgPath}/SampleItemResourceTest.java`] = resourceTest(pkg);
   files['deploy/Dockerfile'] = dockerfile(options);
   files['deploy/k8s.yaml'] = k8s(options);
@@ -102,7 +102,8 @@ npx @open-erp/cli dev
 
 - \`plugin.json\`: manifest (entities, permissions, UI manifest, distribution).
 - \`src/main/java\`: Quarkus plugin backend (self-migrating against the tenant schema).
-- \`src/main/resources/db/plugin-migration\`: per-tenant migration \`up\`/\`down\`.
+- \`src/main/resources/db/plugin-migration\`: per-tenant Flyway migrations (\`up\`).
+- \`src/main/resources/db/plugin-migration-down\`: rollback scripts (not scanned by Flyway).
 - \`web/\`: Angular 22 UI using shared components on the Core shell.
 - \`deploy/\`: Dockerfile + Kubernetes manifests.
 `;
@@ -194,7 +195,7 @@ quarkus.datasource.db-kind=postgresql
 quarkus.datasource.jdbc.url=\${DB_URL:jdbc:postgresql://localhost:5432/openerp_dev}
 quarkus.datasource.username=\${DB_USER:openerp}
 quarkus.datasource.password=\${DB_PASSWORD:openerp_dev_password}
-quarkus.datasource.jdbc.current-schema=\${DB_SCHEMA:public}
+quarkus.hibernate-orm.database.default-schema=\${DB_SCHEMA:public}
 quarkus.flyway.migrate-at-start=true
 quarkus.flyway.locations=classpath:db/plugin-migration
 quarkus.flyway.schemas=\${DB_SCHEMA:public}
@@ -476,9 +477,11 @@ jobs:
 
 function webFiles(options) {
   const titleKey = `PLUGIN_${options.id.toUpperCase().replaceAll('-', '_')}_MENU`;
+  const emptyKey = `PLUGIN_${options.id.toUpperCase().replaceAll('-', '_')}_EMPTY`;
+  const project = `plugin-${options.id}-web`;
   return {
     'web/package.json': `{
-  "name": "@open-erp/plugin-${options.id}-web",
+  "name": "@open-erp/${project}",
   "private": true,
   "scripts": {
     "start": "ng serve --port 4300",
@@ -491,44 +494,197 @@ function webFiles(options) {
     "@angular/forms": "^22.0.0",
     "@angular/platform-browser": "^22.0.0",
     "rxjs": "^7.8.1",
-    "tslib": "^2.6.0",
-    "zone.js": "^0.14.0"
+    "tslib": "^2.6.0"
   },
   "devDependencies": {
     "@angular/build": "^22.0.1",
     "@angular/cli": "^22.0.1",
     "@angular/compiler-cli": "^22.0.0",
+    "@tailwindcss/postcss": "^4.1.12",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.12",
     "typescript": "~6.0.2"
   }
 }
 `,
+    'web/angular.json': `{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm"
+  },
+  "projects": {
+    "${project}": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/main.ts",
+            "index": "src/index.html",
+            "tsConfig": "tsconfig.app.json",
+            "outputPath": "dist",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": [
+              "src/styles.css"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "1MB",
+                  "maximumError": "4MB"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "${project}:build:production"
+            },
+            "development": {
+              "buildTarget": "${project}:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    }
+  }
+}
+`,
+    'web/tsconfig.json': `{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ]
+}
+`,
+    'web/tsconfig.app.json': `{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/app",
+    "types": []
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts"
+  ]
+}
+`,
+    'web/.postcssrc.json': `{
+  "plugins": {
+    "@tailwindcss/postcss": {}
+  }
+}
+`,
+    'web/src/index.html': `<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>${options.name}</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <app-plugin-screen></app-plugin-screen>
+</body>
+</html>
+`,
+    'web/src/styles.css': `@import "tailwindcss";
+`,
     'web/src/main.ts': `import { bootstrapApplication } from '@angular/platform-browser';
 import { PluginScreenComponent } from './app/plugin-screen.component';
 
-bootstrapApplication(PluginScreenComponent);
+bootstrapApplication(PluginScreenComponent)
+  .catch((err) => console.error(err));
+`,
+    'web/src/app/translate.pipe.ts': `import { Pipe, PipeTransform } from '@angular/core';
+
+const DICTIONARIES: Record<string, Record<string, string>> = {
+  vi: {
+    '${titleKey}': '${options.name}',
+    '${emptyKey}': 'Chưa có dữ liệu.',
+  },
+  en: {
+    '${titleKey}': '${options.name}',
+    '${emptyKey}': 'No data yet.',
+  },
+};
+
+@Pipe({ name: 'translate', standalone: true })
+export class TranslatePipe implements PipeTransform {
+  transform(key: string): string {
+    const lang = typeof document !== 'undefined' && document.documentElement.lang === 'en' ? 'en' : 'vi';
+    return DICTIONARIES[lang]?.[key] ?? DICTIONARIES['vi']?.[key] ?? key;
+  }
+}
 `,
     'web/src/app/plugin-screen.component.ts': `import { Component } from '@angular/core';
+import { TranslatePipe } from './translate.pipe';
 
 @Component({
   selector: 'app-plugin-screen',
   standalone: true,
+  imports: [TranslatePipe],
   templateUrl: './plugin-screen.component.html',
 })
 export class PluginScreenComponent {}
 `,
     'web/src/app/plugin-screen.component.html': `<section class="p-2 text-sm">
   <h1 class="text-xs font-semibold">{{ '${titleKey}' | translate }}</h1>
-  <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ 'PLUGIN_${options.id.toUpperCase().replaceAll('-', '_')}_EMPTY' | translate }}</p>
+  <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ '${emptyKey}' | translate }}</p>
 </section>
 `,
     'web/public/i18n/vi.json': `{
   "${titleKey}": "${options.name}",
-  "PLUGIN_${options.id.toUpperCase().replaceAll('-', '_')}_EMPTY": "Chưa có dữ liệu."
+  "${emptyKey}": "Chưa có dữ liệu."
 }
 `,
     'web/public/i18n/en.json': `{
   "${titleKey}": "${options.name}",
-  "PLUGIN_${options.id.toUpperCase().replaceAll('-', '_')}_EMPTY": "No data yet."
+  "${emptyKey}": "No data yet."
 }
 `,
   };

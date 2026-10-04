@@ -123,9 +123,9 @@ flowchart TD
 │   └── dto/                       # Request/Response DTO định kiểu mạnh + ResponseKey
 ├── src/main/resources/
 │   ├── application.properties
-│   └── db/plugin-migration/       # Migration idempotent (plugin TỰ chạy khi khởi động)
-│       ├── V1.0.0__initial_schema.up.sql
-│       └── V1.0.0__initial_schema.down.sql   # Chỉ phục vụ rollback nâng cấp (không xóa dữ liệu khi gỡ)
+│   └── db/plugin-migration/       # Migration idempotent (plugin TỰ chạy khi khởi động — Flyway chỉ scan thư mục này)
+│       └── V1.0.0__initial_schema.up.sql
+│   └── db/plugin-migration-down/  # Down-migration tách riêng (Flyway KHÔNG scan; chỉ phục vụ rollback nâng cấp)
 ├── src/test/java/...              # Test mẫu (JUnit 5 + RestAssured, PostgreSQL/Redis thật — CẤM H2)
 ├── web/                           # Khung Angular 22 (nếu --with-web)
 │   ├── src/app/features/          # MÀN HÌNH QUẢN TRỊ MẪU: danh sách + form + route stub + UI contribution stub

@@ -6,8 +6,21 @@
 | **Mức độ** | Low |
 | **Phát hiện bởi** | QA/QC Agent (Bước 8) |
 | **Ngày** | 2026-09-20 |
-| **Trạng thái** | Deferred → Sprint 04 (Low được phép hoãn theo DoD) |
+| **Trạng thái** | Resolved (2026-10-04 — chờ QA/Reviewer xác nhận) |
 | **Liên quan** | DES-03-API P6/P26/S2, TASK-315, TASK-312 |
+
+## Fix (2026-10-04)
+
+1. **Reason do người dùng nhập**: `platform-plugin-list` thêm Drawer `version-action` (route mode
+   `version-action?action=&version=`) với ô `reason` bắt buộc cho PUBLISH/DEPRECATE/BLOCK/UNBLOCK version
+   và UNBLOCK_CATALOG; bỏ hardcode `'platform portal'`.
+2. **Đối chiếu `confirmations.affected_tenants`**: `PluginAdminService.blockCatalog` so khớp số ledger
+   ACTIVE thực tế khi `force_uninstall=true`; lệch → `PLUGIN_BLOCK_CONFIRMATION_REQUIRED`.
+3. **S2 `target_version`**: `PluginOperationResource` trả `ledger.targetVersion` khi thao tác đang chạy
+   (INSTALLING/UPGRADING), fallback `installedVersion`.
+
+Coverage: `PlatformPluginGovernanceApiTest` thêm case mismatch (400) + khớp (200) PASS; Web build PASS.
+Bằng chứng: `08_testing/evidence/BUG-109_116_fix_verification_2026-10-04.txt`.
 
 ## Mô tả (3 điểm nhỏ)
 

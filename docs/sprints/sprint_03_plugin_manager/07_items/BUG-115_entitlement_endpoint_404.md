@@ -6,8 +6,27 @@
 | **Mức độ** | **Critical** |
 | **Phát hiện bởi** | QA/QC Agent — E2E CLI bundle channel |
 | **Ngày** | 2026-09-21 |
-| **Trạng thái** | To Do (cần điều tra registration/clean build) |
+| **Trạng thái** | Resolved (2026-10-04 — chờ QA/Reviewer xác nhận) |
 | **Liên quan** | TASK-306/307/308/315, `PlatformPluginGovernanceResource`, UI Cấp/Thu entitlement + Bulk apply + hỗ trợ tenant |
+
+## Root cause (xác định 2026-10-04)
+
+Không phải lỗi build/CDI. JAX-RS chọn root-resource theo class-level path khớp **dài nhất** rồi mới
+match method và **không fallback** về class có path ngắn hơn:
+- `PlatformPluginGovernanceResource` có `@Path("/api/v1/platform")`.
+- Request `/platform/tenants/{id}/plugins/...` khớp `PlatformTenantResource` (`/api/v1/platform/tenants`) trước → không có method → 404.
+- Request `/platform/plugins/{key}/...` khớp `PlatformPluginAdminResource` (`/api/v1/platform/plugins`) trước → 404.
+- `GET /tenant-private-plugins` không có class trùng prefix nên vẫn chạy → dấu hiệu nhận biết route shadowing.
+
+## Fix (2026-10-04)
+
+Giữ nguyên URL theo DES-03-API, phân tách class theo class-level path cụ thể hơn:
+- `PlatformPluginGovernanceResource` → `/api/v1/platform/tenant-private-plugins` (P14/P15).
+- Mới `PlatformTenantPluginEntitlementResource` → `/api/v1/platform/tenants/{tenantId}/plugins` (P12/P13).
+- P10/P11 + P19–P23 chuyển vào `PlatformPluginAdminResource` (`/api/v1/platform/plugins`).
+
+Regression lock: `PlatformPluginGovernanceApiTest` 5/5 PASS (xem
+`08_testing/evidence/BUG-109_116_fix_verification_2026-10-04.txt`).
 
 ## Mô tả
 

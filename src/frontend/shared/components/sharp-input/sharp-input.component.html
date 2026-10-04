@@ -19,6 +19,7 @@
     [disabled]="disabled()"
     [required]="required()"
     [(ngModel)]="value"
+    [ngModelOptions]="{ standalone: true }"
     class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-neutral-900 border rounded-none text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-200 transition-colors"
     [class.border-red-500]="!!error()"
     [class.border-neutral-300]="!error()"

@@ -1,0 +1,94 @@
+BUG FIX VERIFICATION — Sprint 03 — 2026-10-04
+=============================================
+Môi trường: PostgreSQL 16 (openerp_test) + Redis 7 thật qua docker compose; JDK 25; Maven 3.9.12.
+
+BUG-115 (Critical) — Toàn bộ nhóm P10–P15, P19–P23 trả 404
+----------------------------------------------------------
+Root cause: JAX-RS (RESTEasy Reactive) chọn root-resource theo class-level path khớp DÀI NHẤT rồi mới
+match method, và KHÔNG fallback về class có path ngắn hơn. Class `PlatformPluginGovernanceResource`
+đặt `@Path("/api/v1/platform")` nên mọi method con nằm dưới `/tenants/...` và `/plugins/...` bị
+`PlatformTenantResource` (`/api/v1/platform/tenants`) và `PlatformPluginAdminResource`
+(`/api/v1/platform/plugins`) che khuất → 404. Chỉ `GET /tenant-private-plugins` hoạt động vì
+không có class nào trùng prefix.
+
+Fix (giữ nguyên URL theo DES-03-API):
+- `PlatformPluginGovernanceResource` → `@Path("/api/v1/platform/tenant-private-plugins")` (P14/P15).
+- Mới `PlatformTenantPluginEntitlementResource` → `@Path("/api/v1/platform/tenants/{tenantId}/plugins")` (P12/P13).
+- P10/P11 + P19–P23 chuyển vào `PlatformPluginAdminResource` (owner của `/api/v1/platform/plugins`).
+
+Regression lock: `PlatformPluginGovernanceApiTest` (mới) — 5/5 PASS:
+  P12/P13 grant/revoke 200 + ledger NOT_INSTALLED; P10/P11 preview + apply 200; P14 support read 200,
+  no-token 401; support write 403; P19–P21 install→disable→enable→uninstall 200.
+
+BUG-116 (High) — Install bundle 500 do docker build trong transaction saga
+--------------------------------------------------------------------------
+Fix:
+- Mới `PluginBundleImageService.ensureBundleImage`: đọc metadata (tx ngắn) → build image NGOÀI JTA
+  transaction → cache `distribution.image_ref` (tx ngắn). Idempotent, no-op khi không phải JAR_BUNDLE.
+- Pre-flight gọi trước saga tại: `TenantPluginResource.install/upgrade`,
+  `PlatformPluginAdminResource.install/upgrade/rollback/applyBulk`.
+- Fallback trong `PluginLifecycleService.resolveBundleImage` dùng `QuarkusTransaction.suspendingExisting()`
+  để không giữ transaction khi build.
+
+Regression lock: `PluginBundleImageApiTest` (mới) — 3/3 PASS:
+  build chạy với `QuarkusTransaction.isActive() == false`; cache image_ref; install dùng cache
+  (builder không gọi lại); fallback suspend transaction.
+
+BUG-112 (High) — `open-erp package` phát hành thin jar (không chạy được)
+------------------------------------------------------------------------
+Fix: build `-Dquarkus.package.type=uber-jar`; copy `target/*-runner.jar` → `dist/plugin-backend.jar`;
+sinh `dist/bundle.zip` đúng layout ImageBuilder: entry đầu `app.jar` (uber-jar), sau đó `static/**`.
+ZIP writer nội bộ (`src/lib/zip.js`), không thêm thư viện bên thứ 3.
+
+E2E thật (plugin `s3fix-e2e`, packaging=bundle):
+  - dist/plugin-backend.jar = 43,743,546 bytes (trước fix: thin jar ~9.4KB).
+  - `tar -tf dist/bundle.zip`: app.jar, static/i18n/{vi,en}.json, static/index.html, static/main-*.js, static/styles-*.css.
+  - `java -Dquarkus.http.port=8099 -jar dist/plugin-backend.jar` (DB_SCHEMA=s3fix_e2e2):
+      HEALTH_HTTP=200; GET /api/v1/plugins/sample-items → [] (Flyway migrate PASS, REST PASS).
+
+Lỗi phát sinh khi E2E (đã sửa kèm):
+  - Flyway "Found more than one migration with version 1.0.0" do `.down.sql` cùng nằm trong location:
+    chuyển down-migration sang `src/main/resources/db/plugin-migration-down/` (Flyway không scan).
+  - Hibernate query sai schema do `quarkus.datasource.jdbc.current-schema` không phải property hợp lệ:
+    thay bằng `quarkus.hibernate-orm.database.default-schema=${DB_SCHEMA:public}`.
+
+BUG-113 (Medium) — `package --with-web` fail vì thiếu Angular workspace
+------------------------------------------------------------------------
+Fix: template `web/` bổ sung `angular.json`, `tsconfig.json`, `tsconfig.app.json`, `.postcssrc.json`,
+`src/index.html`, `src/styles.css`, `src/app/translate.pipe.ts` (i18n pipe nội bộ) + import pipe trong
+component; `package` tự chạy `npm install` khi thiếu `node_modules`.
+
+E2E: `npm run build` (Angular 22) → "Application bundle generation complete" (main 96.56 kB, styles 4.69 kB);
+Output `web/dist`; `package --with-web` copy `web/dist/browser/**` vào `dist/web/**` và `static/**` của bundle.
+
+BUG-109 (Medium) — ImpersonationTimeoutJob enum binding error
+-------------------------------------------------------------
+Fix: `ImpersonationService.closeExpiredSessions` chuyển từ Panache positional find sang
+`EntityManager.createQuery` typed với named parameters (`:status`, `:threshold`, `:tenantId`) — loại bỏ
+lỗi "did not match parameter type (n/a)" bất kể hot-reload.
+Coverage: `PlatformTenantApiTest` (tenant-scoped closeExpiredSessions) PASS trong full suite.
+
+BUG-110 (Low) — Cảnh báo NG01354 trên console
+---------------------------------------------
+Fix: `SharpInputComponent`, `SharpSelectComponent`, `SharpTextareaComponent` (shared cho Web + Mobile)
+thêm `[ngModelOptions]="{ standalone: true }"` trên control nội bộ → không còn cố đăng ký vào NgForm cha.
+
+BUG-99 (Low) — Platform action reason/confirmation gaps
+--------------------------------------------------------
+Fix:
+1. Web platform portal: Drawer `version-action` (route mode `version-action?action=&version=`) với ô
+   `reason` bắt buộc cho PUBLISH/DEPRECATE/BLOCK/UNBLOCK version và UNBLOCK_CATALOG; bỏ hardcode
+   'platform portal'. i18n keys mới vi/en parity.
+2. `PluginAdminService.blockCatalog`: khi `force_uninstall=true` và client gửi `affected_tenants`,
+   so khớp với số ledger ACTIVE thực tế; lệch → `PLUGIN_BLOCK_CONFIRMATION_REQUIRED`.
+3. `PluginOperationResource` (S2): trả `ledger.targetVersion` khi thao tác đang chạy, fallback
+   `installedVersion`.
+Coverage: `PlatformPluginGovernanceApiTest.testForceUninstallAffectedTenantCountMismatch` (400 mismatch,
+200 khớp) PASS; Web build PASS.
+
+FULL SUITE (2026-10-04)
+-----------------------
+- Backend: `mvn test` → Tests run: 220, Failures: 0, Errors: 0, Skipped: 0 — BUILD SUCCESS
+  (211 test cũ + 6 governance/BUG-99 + 3 bundle image).
+- CLI: `node --test test/cli.test.mjs` → pass 5, fail 0.
+- Frontend: `npm run build` Web PASS; `npm run build` Mobile (Ionic 390x844 target) PASS.

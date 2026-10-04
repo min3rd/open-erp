@@ -64,7 +64,9 @@ public class PluginOperationResource {
                 .findByTenantAndKey(context.tenantId(), first.pluginKey)
                 .orElse(null);
         status.status = ledger != null ? ledger.status.name() : null;
-        status.targetVersion = ledger != null ? ledger.installedVersion : null;
+        status.targetVersion = ledger != null
+                ? (ledger.targetVersion != null ? ledger.targetVersion : ledger.installedVersion)
+                : null;
         List<PluginResponses.OperationStep> steps = new ArrayList<>();
         for (PluginOperationLog entry : logs) {
             PluginResponses.OperationStep step = new PluginResponses.OperationStep();

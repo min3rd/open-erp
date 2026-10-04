@@ -248,12 +248,27 @@ public class ImpersonationService {
     @Transactional
     public int closeExpiredSessions(Instant now, UUID tenantId) {
         Instant threshold = now.minusSeconds(PlatformJwtService.IMPERSONATION_TTL_SECONDS);
-        List<PlatformImpersonationLog> expired = tenantId == null
-            ? impersonationLogRepository.find("status = ?1 and startedAt < ?2 order by startedAt asc",
-                ImpersonationStatus.STARTED, threshold).list()
-            : impersonationLogRepository.find(
-                "status = ?1 and startedAt < ?2 and targetTenantId = ?3 order by startedAt asc",
-                ImpersonationStatus.STARTED, threshold, tenantId).list();
+        List<PlatformImpersonationLog> expired;
+        if (tenantId == null) {
+            expired = entityManager.createQuery("""
+                    select l from PlatformImpersonationLog l
+                    where l.status = :status and l.startedAt < :threshold
+                    order by l.startedAt asc
+                    """, PlatformImpersonationLog.class)
+                .setParameter("status", ImpersonationStatus.STARTED)
+                .setParameter("threshold", threshold)
+                .getResultList();
+        } else {
+            expired = entityManager.createQuery("""
+                    select l from PlatformImpersonationLog l
+                    where l.status = :status and l.startedAt < :threshold and l.targetTenantId = :tenantId
+                    order by l.startedAt asc
+                    """, PlatformImpersonationLog.class)
+                .setParameter("status", ImpersonationStatus.STARTED)
+                .setParameter("threshold", threshold)
+                .setParameter("tenantId", tenantId)
+                .getResultList();
+        }
 
         int closed = 0;
         for (PlatformImpersonationLog log : expired) {

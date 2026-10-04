@@ -4,8 +4,22 @@
 | :--- | :--- |
 | **Mã** | BUG-112 |
 | **Mức độ** | High |
-| **Trạng thái** | To Do (Sprint 04 — hoặc hotfix ngay) |
+| **Trạng thái** | Resolved (2026-10-04 — chờ QA/Reviewer xác nhận) |
 | **Liên quan** | FEAT-22 TASK-327, `tools/open-erp-cli/src/commands/package.js` |
+
+## Fix (2026-10-04)
+
+- `package` build uber-jar (`-Dquarkus.package.type=uber-jar`), copy `target/*-runner.jar` →
+  `dist/plugin-backend.jar` (runnable, self-contained).
+- Sinh `dist/bundle.zip` đúng layout ImageBuilder: entry `.jar` đầu tiên = `app.jar`, sau đó `static/**`
+  (ZIP writer nội bộ `src/lib/zip.js`, không thêm dependency).
+- E2E: jar 43,743,546 bytes; `java -jar` → HEALTH 200, `GET /api/v1/plugins/sample-items` → `[]`;
+  `tar -tf bundle.zip` → `app.jar`, `static/**`.
+- Sửa kèm khi E2E: down-migration tách sang `db/plugin-migration-down/` (Flyway "Found more than one
+  migration with version 1.0.0"); Hibernate dùng `quarkus.hibernate-orm.database.default-schema`.
+
+Bằng chứng: `08_testing/evidence/BUG-109_116_fix_verification_2026-10-04.txt`; smoke test CLI
+`test/cli.test.mjs` (5 PASS) có case `bundle.zip` với `app.jar` đầu tiên.
 
 ## Mô tả
 

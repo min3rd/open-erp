@@ -19,7 +19,7 @@ npx @open-erp/cli help
 | `generate menu` | Đăng ký màn hình riêng (route + menu + i18n) |
 | `generate ui-contribution` | Đăng ký UI Contribution vào slot (`web-component` / `module-federation` / `iframe`) |
 | `validate` | Kiểm tra `plugin.json` theo chuẩn nền tảng |
-| `package` | Build backend/Web + sinh checksum SHA-256 + release manifest |
+| `package` | Build backend (uber-jar) + Web + `dist/bundle.zip` (layout ImageBuilder) + checksum SHA-256 + release manifest |
 | `link` | Thêm repo plugin làm git submodule |
 | `inspect` | In tóm tắt manifest + kết quả validate |
 | `dev` | Sinh `docker-compose.dev.yml` chạy plugin local |

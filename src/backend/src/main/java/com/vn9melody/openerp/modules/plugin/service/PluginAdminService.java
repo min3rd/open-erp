@@ -355,6 +355,15 @@ public class PluginAdminService {
                 throw new ApiException(400, PluginErrorCode.PLUGIN_BLOCK_CONFIRMATION_REQUIRED,
                         "Confirmation text must equal the plugin key");
             }
+            Integer expected = request.confirmations != null ? request.confirmations.affectedTenants : null;
+            if (expected != null) {
+                long actual = tenantPluginRepository.countByPluginAndStatus(catalog.pluginKey,
+                        TenantPluginStatus.ACTIVE);
+                if (actual != expected) {
+                    throw new ApiException(400, PluginErrorCode.PLUGIN_BLOCK_CONFIRMATION_REQUIRED,
+                            "Affected tenant count mismatch: expected " + expected + " but found " + actual);
+                }
+            }
         }
         catalog.catalogStatus = PluginCatalogStatus.BLOCKED;
         catalog.blockedReason = reason;

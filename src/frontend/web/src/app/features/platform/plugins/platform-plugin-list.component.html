@@ -132,7 +132,7 @@
               <app-sharp-button size="sm" variant="secondary" (clicked)="openVersion()">{{ 'PLUGIN_ACTION_REGISTER_VERSION' | translate }}</app-sharp-button>
               <app-sharp-button size="sm" variant="outline" (clicked)="openBulk()">{{ 'PLUGIN_ACTION_BULK_APPLY' | translate }}</app-sharp-button>
               @if (current.catalog_status === 'BLOCKED') {
-                <app-sharp-button size="sm" variant="primary" (clicked)="unblockCatalog()">{{ 'PLUGIN_ACTION_UNBLOCK_CATALOG' | translate }}</app-sharp-button>
+                <app-sharp-button size="sm" variant="primary" (clicked)="openUnblockCatalog()">{{ 'PLUGIN_ACTION_UNBLOCK_CATALOG' | translate }}</app-sharp-button>
               } @else {
                 <app-sharp-button size="sm" variant="danger" (clicked)="openBlock('CATALOG')">{{ 'PLUGIN_ACTION_BLOCK' | translate }}</app-sharp-button>
               }
@@ -146,10 +146,10 @@
               [versions]="current.version"
               [editable]="true"
               [removeAsBlock]="true"
-              (publish)="versionAction($event, 'PUBLISH')"
-              (deprecate)="versionAction($event, 'DEPRECATE')"
-              (remove)="versionAction($event, 'BLOCK')"
-              (unblock)="unblockVersion($event)"
+              (publish)="openVersionAction($event, 'PUBLISH')"
+              (deprecate)="openVersionAction($event, 'DEPRECATE')"
+              (remove)="openVersionAction($event, 'BLOCK')"
+              (unblock)="openVersionAction($event, 'UNBLOCK')"
             />
           </section>
 
@@ -423,6 +423,27 @@
       <app-sharp-button size="sm" variant="primary"
         [disabled]="!bulkPreviewData() || !bulkVersion()" [loading]="bulkBusy()" (clicked)="applyBulk()">
         {{ 'PLUGIN_ACTION_APPLY' | translate }}
+      </app-sharp-button>
+    </div>
+  </div>
+</app-drawer>
+
+<app-drawer [isOpen]="versionActionOpen()" [title]="'PLUGIN_VERSION_ACTION_TITLE' | translate" [zIndex]="70" (close)="closeDrawer()">
+  <div class="space-y-2 p-3 text-xs">
+    <p class="text-[11px] text-neutral-600 dark:text-neutral-300">
+      {{ 'PLUGIN_VERSION_ACTION_TARGET' | translate }}:
+      <span class="font-mono">{{ versionActionTarget()?.version || selectedKey() }}</span>
+      · {{ 'PLUGIN_VERSION_ACTION_' + (versionActionTarget()?.action || 'PUBLISH') | translate }}
+    </p>
+    <label class="block">
+      <span class="mb-0.5 block text-[11px] text-neutral-600 dark:text-neutral-300">{{ 'PLUGIN_FIELD_REASON' | translate }}</span>
+      <input type="text" [value]="versionActionReason()" (input)="versionActionReason.set($any($event.target).value)"
+        class="w-full rounded-none border border-neutral-300 bg-white px-2 py-1 text-xs dark:border-neutral-700 dark:bg-neutral-900" />
+    </label>
+    <div class="flex justify-end gap-1">
+      <app-sharp-button size="sm" variant="ghost" (clicked)="closeDrawer()">{{ 'PLUGIN_ACTION_CANCEL' | translate }}</app-sharp-button>
+      <app-sharp-button size="sm" variant="primary" [disabled]="!canConfirmVersionAction()" [loading]="versionActionBusy()" (clicked)="submitVersionAction()">
+        {{ 'PLUGIN_ACTION_CONFIRM' | translate }}
       </app-sharp-button>
     </div>
   </div>

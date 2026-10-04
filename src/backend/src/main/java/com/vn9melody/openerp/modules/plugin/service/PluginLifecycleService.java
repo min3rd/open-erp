@@ -24,6 +24,7 @@ import com.vn9melody.openerp.modules.plugin.model.TenantPlugin;
 import com.vn9melody.openerp.modules.plugin.repository.PluginCatalogRepository;
 import com.vn9melody.openerp.modules.plugin.repository.PluginVersionRepository;
 import com.vn9melody.openerp.modules.plugin.repository.TenantPluginRepository;
+import io.quarkus.narayana.jta.QuarkusTransaction;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -707,7 +708,8 @@ public class PluginLifecycleService {
             return cached;
         }
         String artifactRef = distribution.path("artifact_ref").asText("");
-        String imageRef = imageBuilder.build(pluginKey, version.version, artifactRef);
+        String imageRef = QuarkusTransaction.suspendingExisting().call(
+                () -> imageBuilder.build(pluginKey, version.version, artifactRef));
         if (distribution instanceof ObjectNode node) {
             node.put("image_ref", imageRef);
             node.put("image_builder", "platform");

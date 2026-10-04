@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -60,4 +60,56 @@ test('inspect and package run without a built backend', () => {
   runCli(['package', '--skip-build'], target);
   assert.ok(existsSync(join(target, 'dist/checksums.txt')));
   assert.ok(existsSync(join(target, 'dist/release-manifest.json')));
+});
+
+test('create --with-web scaffolds a buildable Angular workspace (BUG-113)', () => {
+  const root = mkdtempSync(join(tmpdir(), 'openerp-cli-web-'));
+  const target = join(root, 'plugin');
+  runCli([
+    'create', '--non-interactive', '--id', 's3cli-web', '--name', 'S3 CLI Web',
+    '--target', target, '--with-web', 'true', '--git-init', 'false',
+  ], root);
+  for (const file of [
+    'web/package.json',
+    'web/angular.json',
+    'web/tsconfig.json',
+    'web/tsconfig.app.json',
+    'web/.postcssrc.json',
+    'web/src/index.html',
+    'web/src/main.ts',
+    'web/src/styles.css',
+    'web/src/app/plugin-screen.component.ts',
+    'web/src/app/plugin-screen.component.html',
+    'web/src/app/translate.pipe.ts',
+    'web/public/i18n/vi.json',
+    'web/public/i18n/en.json',
+  ]) {
+    assert.ok(existsSync(join(target, file)), `${file} must exist`);
+  }
+  const angularJson = JSON.parse(readFileSync(join(target, 'web/angular.json'), 'utf8'));
+  const project = Object.values(angularJson.projects)[0];
+  assert.equal(project.architect.build.builder, '@angular/build:application');
+  assert.equal(project.architect.build.options.tsConfig, 'tsconfig.app.json');
+  const component = readFileSync(join(target, 'web/src/app/plugin-screen.component.ts'), 'utf8');
+  assert.match(component, /imports: \[TranslatePipe\]/);
+});
+
+test('package --skip-build emits an ImageBuilder bundle.zip with app.jar first (BUG-112)', () => {
+  const root = mkdtempSync(join(tmpdir(), 'openerp-cli-bundle-'));
+  const target = join(root, 'plugin');
+  runCli([
+    'create', '--non-interactive', '--id', 's3cli-bundle', '--name', 'S3 CLI Bundle',
+    '--target', target, '--packaging', 'bundle', '--git-init', 'false',
+  ], root);
+  const fakeJar = join(target, 'target/plugin-s3cli-bundle-1.0.0-SNAPSHOT-runner.jar');
+  mkdirSync(join(target, 'target'), { recursive: true });
+  writeFileSync(fakeJar, Buffer.alloc(2048, 7));
+  runCli(['package', '--skip-build'], target);
+  assert.ok(existsSync(join(target, 'dist/plugin-backend.jar')));
+  const bundle = readFileSync(join(target, 'dist/bundle.zip'));
+  assert.equal(bundle.readUInt32LE(0), 0x04034b50, 'bundle.zip must start with a local file header');
+  const firstNameLength = bundle.readUInt16LE(26);
+  assert.equal(bundle.subarray(30, 30 + firstNameLength).toString('utf8'), 'app.jar');
+  const manifest = JSON.parse(readFileSync(join(target, 'dist/release-manifest.json'), 'utf8'));
+  assert.ok(manifest.artifacts.some((artifact) => artifact.file === 'bundle.zip'));
 });

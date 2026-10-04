@@ -38,7 +38,7 @@ function generateEntity(flags) {
   writeFile(entityPath, entitySource(pkg, name, table, fields));
   writeFile(join(dir, 'src/main/resources/db/plugin-migration', `V${version}__add_${snake(name)}.up.sql`),
     migrationSource(table, fields));
-  writeFile(join(dir, 'src/main/resources/db/plugin-migration', `V${version}__add_${snake(name)}.down.sql`),
+  writeFile(join(dir, 'src/main/resources/db/plugin-migration-down', `V${version}__add_${snake(name)}.down.sql`),
     `DROP TABLE IF EXISTS ${table};\n`);
   const permissionCode = `${manifest.id}:${snake(name).replaceAll('_', '-')}:read`;
   manifest.entities = manifest.entities || [];

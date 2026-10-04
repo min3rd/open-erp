@@ -4,8 +4,21 @@
 | :--- | :--- |
 | **Mã** | BUG-116 |
 | **Mức độ** | High |
-| **Trạng thái** | To Do |
+| **Trạng thái** | Resolved (2026-10-04 — chờ QA/Reviewer xác nhận) |
 | **Liên quan** | TASK-334, `PluginLifecycleService.install`, `PluginImageBuilder` |
+
+## Fix (2026-10-04)
+
+- Mới `PluginBundleImageService.ensureBundleImage`: đọc metadata trong tx ngắn → build image **ngoài JTA
+  transaction** → cache `distribution.image_ref` trong tx ngắn. Idempotent, no-op nếu không phải JAR_BUNDLE.
+- Pre-flight gọi trước saga tại `TenantPluginResource.install/upgrade` và
+  `PlatformPluginAdminResource.install/upgrade/rollback/applyBulk`.
+- Fallback `PluginLifecycleService.resolveBundleImage` bọc build trong
+  `QuarkusTransaction.suspendingExisting()`.
+
+Regression lock: `PluginBundleImageApiTest` 3/3 PASS (build với `QuarkusTransaction.isActive() == false`,
+cache image_ref, install không rebuild, fallback suspend). Chi tiết:
+`08_testing/evidence/BUG-109_116_fix_verification_2026-10-04.txt`.
 
 ## Mô tả
 

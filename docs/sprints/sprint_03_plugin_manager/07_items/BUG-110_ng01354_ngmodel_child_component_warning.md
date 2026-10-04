@@ -6,8 +6,16 @@
 | **Mức độ** | Low |
 | **Phát hiện bởi** | QA/QC Agent — log vite client trong khi chạy browser QA |
 | **Ngày** | 2026-09-20 |
-| **Trạng thái** | Deferred → Sprint 04 |
+| **Trạng thái** | Resolved (2026-10-04 — chờ QA/Reviewer xác nhận) |
 | **Liên quan** | Angular 22 template forms, các tab account (`account-detail-tab`, `account-security-tab`) |
+
+## Fix (2026-10-04)
+
+Thêm `[ngModelOptions]="{ standalone: true }"` cho control nội bộ của 3 shared component:
+`SharpInputComponent`, `SharpSelectComponent`, `SharpTextareaComponent` — control không còn cố đăng ký
+vào `NgForm` của component cha (nguồn NG01354), áp dụng chung cho Web + Mobile.
+Build xác minh: `npm run build` Web PASS và Mobile PASS
+(`08_testing/evidence/BUG-109_116_fix_verification_2026-10-04.txt`).
 
 ## Mô tả
 

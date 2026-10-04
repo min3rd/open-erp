@@ -6,8 +6,16 @@
 | **Mức độ** | Medium |
 | **Phát hiện bởi** | QA/QC Agent — log backend khi chạy kiểm thử trình duyệt |
 | **Ngày** | 2026-09-20 |
-| **Trạng thái** | In Review (chờ xác nhận sau restart sạch) |
+| **Trạng thái** | Resolved (2026-10-04 — chờ QA/Reviewer xác nhận) |
 | **Liên quan** | Sprint 02 `ImpersonationTimeoutJob`, BUG-78/BUG-82 |
+
+## Fix (2026-10-04)
+
+`ImpersonationService.closeExpiredSessions` chuyển từ Panache positional `find(...)` sang
+`EntityManager.createQuery` typed với named parameters (`:status`, `:threshold`, `:tenantId`) — loại bỏ
+hoàn toàn lỗi binding enum "did not match parameter type (n/a)" kể cả khi hot-reload.
+Coverage: `PlatformTenantApiTest` (closeExpiredSessions tenant-scoped) PASS trong full suite 219 test
+(`08_testing/evidence/BUG-109_116_fix_verification_2026-10-04.txt`).
 
 ## Mô tả
 

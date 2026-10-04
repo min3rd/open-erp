@@ -11,6 +11,9 @@ import com.vn9melody.openerp.modules.plugin.dto.PluginRequests;
 import com.vn9melody.openerp.modules.plugin.dto.PluginResponses;
 import com.vn9melody.openerp.modules.plugin.service.PluginAdminService;
 import com.vn9melody.openerp.modules.plugin.service.PluginArtifactUploadService;
+import com.vn9melody.openerp.modules.plugin.service.PluginBulkApplyService;
+import com.vn9melody.openerp.modules.plugin.service.PluginBundleImageService;
+import com.vn9melody.openerp.modules.plugin.service.PluginLifecycleService;
 import io.vertx.core.http.HttpServerRequest;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -29,6 +32,8 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.InputStream;
+import java.util.List;
+import java.util.UUID;
 import org.jboss.resteasy.reactive.server.multipart.FormValue;
 import org.jboss.resteasy.reactive.server.multipart.MultipartFormDataInput;
 
@@ -47,6 +52,15 @@ public class PlatformPluginAdminResource extends BasePlatformResource {
 
     @Inject
     PluginArtifactUploadService uploadService;
+
+    @Inject
+    PluginBulkApplyService bulkApplyService;
+
+    @Inject
+    PluginBundleImageService bundleImageService;
+
+    @Inject
+    PluginLifecycleService lifecycleService;
 
     @Context
     ContainerRequestContext requestContext;
@@ -194,6 +208,120 @@ public class PlatformPluginAdminResource extends BasePlatformResource {
             throw new ApiException(500, PluginErrorCode.PLUGIN_ARTIFACT_DOWNLOAD_FAILED,
                     "Cannot read uploaded artifact");
         }
+    }
+
+    /**
+     * P10/P11 (DES-03-API): bulk apply preview + rollout. These methods live in
+     * this resource (owner of {@code /api/v1/platform/plugins}) because JAX-RS
+     * root-resource matching picks the longest class-level path and never falls
+     * back to a shorter one (BUG-115).
+     */
+    @POST
+    @Path("/{pluginKey}/bulk-apply/preview")
+    public Response previewBulkApply(@PathParam("pluginKey") String pluginKey) {
+        requireSuperAdmin();
+        PluginResponses.BulkPreview preview = bulkApplyService.preview(pluginKey);
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_BULK_APPLY_PREVIEW_SUCCESS,
+                "Bulk apply preview generated.", preview)).build();
+    }
+
+    @POST
+    @Path("/{pluginKey}/bulk-apply")
+    public Response applyBulk(@PathParam("pluginKey") String pluginKey, PluginRequests.BulkApply request) {
+        PlatformActor actor = requireSuperAdmin();
+        List<UUID> tenantIds = null;
+        if (request != null && request.tenantIds != null) {
+            tenantIds = request.tenantIds.stream().map(UUID::fromString).toList();
+        }
+        bundleImageService.ensureBundleImage(pluginKey, request != null ? request.targetVersion : null);
+        PluginResponses.BulkReport report = bulkApplyService.apply(pluginKey,
+                request != null ? request.targetVersion : null,
+                tenantIds, actor.userId, request != null ? request.reason : null);
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_BULK_APPLY_STARTED,
+                "Bulk apply completed.", report)).build();
+    }
+
+    /**
+     * P19-P23 (DES-03-API): platform admin lifecycle actions on behalf of a
+     * tenant. SUPER_ADMIN only; the audit actor is the real platform admin.
+     */
+    @POST
+    @Path("/{pluginKey}/tenants/{tenantId}/install")
+    public Response installForTenant(@PathParam("pluginKey") String pluginKey,
+                                     @PathParam("tenantId") UUID tenantId,
+                                     PluginRequests.PlatformLifecycle request) {
+        PlatformActor actor = requireSuperAdmin();
+        String version = request != null ? request.version : null;
+        bundleImageService.ensureBundleImage(pluginKey, version);
+        PluginResponses.OperationStatus status = lifecycleService.install(tenantId, pluginKey, version, actor.userId);
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_INSTALL_STARTED,
+                "Installation processed on behalf of tenant.", status)).build();
+    }
+
+    @POST
+    @Path("/{pluginKey}/tenants/{tenantId}/uninstall")
+    public Response uninstallForTenant(@PathParam("pluginKey") String pluginKey,
+                                       @PathParam("tenantId") UUID tenantId,
+                                       PluginRequests.Reason request) {
+        PlatformActor actor = requireSuperAdmin();
+        PluginResponses.OperationStatus status = lifecycleService.uninstall(tenantId, pluginKey, actor.userId);
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_UNINSTALL_SUCCESS,
+                "Uninstall processed on behalf of tenant.", status)).build();
+    }
+
+    @POST
+    @Path("/{pluginKey}/tenants/{tenantId}/enable")
+    public Response enableForTenant(@PathParam("pluginKey") String pluginKey,
+                                    @PathParam("tenantId") UUID tenantId,
+                                    PluginRequests.Reason request) {
+        PlatformActor actor = requireSuperAdmin();
+        PluginResponses.OperationStatus status = lifecycleService.enable(tenantId, pluginKey, actor.userId);
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_ENABLE_SUCCESS,
+                "Enable processed on behalf of tenant.", status)).build();
+    }
+
+    @POST
+    @Path("/{pluginKey}/tenants/{tenantId}/disable")
+    public Response disableForTenant(@PathParam("pluginKey") String pluginKey,
+                                     @PathParam("tenantId") UUID tenantId,
+                                     PluginRequests.Reason request) {
+        PlatformActor actor = requireSuperAdmin();
+        PluginResponses.OperationStatus status = lifecycleService.disable(tenantId, pluginKey, actor.userId);
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_DISABLE_SUCCESS,
+                "Disable processed on behalf of tenant.", status)).build();
+    }
+
+    @POST
+    @Path("/{pluginKey}/tenants/{tenantId}/upgrade")
+    public Response upgradeForTenant(@PathParam("pluginKey") String pluginKey,
+                                     @PathParam("tenantId") UUID tenantId,
+                                     PluginRequests.Upgrade request) {
+        PlatformActor actor = requireSuperAdmin();
+        String targetVersion = request != null ? request.targetVersion : null;
+        bundleImageService.ensureBundleImage(pluginKey, targetVersion);
+        PluginResponses.OperationStatus status = lifecycleService.upgrade(tenantId, pluginKey,
+                targetVersion,
+                request != null ? request.snapshot : null,
+                actor.userId);
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_UPGRADE_STARTED,
+                "Upgrade processed on behalf of tenant.", status)).build();
+    }
+
+    @POST
+    @Path("/{pluginKey}/tenants/{tenantId}/rollback")
+    public Response rollbackForTenant(@PathParam("pluginKey") String pluginKey,
+                                      @PathParam("tenantId") UUID tenantId,
+                                      PluginRequests.Rollback request) {
+        PlatformActor actor = requireSuperAdmin();
+        String targetVersion = request != null ? request.targetVersion : null;
+        bundleImageService.ensureBundleImage(pluginKey, targetVersion);
+        PluginResponses.OperationStatus status = lifecycleService.rollback(tenantId, pluginKey,
+                targetVersion,
+                request != null ? request.restoreSnapshot : null,
+                request != null ? request.reason : null,
+                actor.userId);
+        return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_ROLLBACK_SUCCESS,
+                "Rollback processed on behalf of tenant.", status)).build();
     }
 
     private FormValue firstPart(MultipartFormDataInput input) {

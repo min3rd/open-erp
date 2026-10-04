@@ -4,8 +4,20 @@
 | :--- | :--- |
 | **Mã** | BUG-113 |
 | **Mức độ** | Medium |
-| **Trạng thái** | To Do (Sprint 04) |
+| **Trạng thái** | Resolved (2026-10-04 — chờ QA/Reviewer xác nhận) |
 | **Liên quan** | FEAT-22 TASK-323/326/327 |
+
+## Fix (2026-10-04)
+
+- Template `web/` bổ sung workspace Angular tối thiểu: `angular.json`, `tsconfig.json`,
+  `tsconfig.app.json`, `.postcssrc.json`, `src/index.html`, `src/styles.css`,
+  `src/app/translate.pipe.ts` (i18n pipe nội bộ) và import pipe trong component.
+- `package --with-web` tự chạy `npm install` khi thiếu `node_modules`; copy `web/dist/browser/**` →
+  `dist/web/**` và `static/**` trong bundle.
+- E2E: `ng build` PASS (Application bundle generation complete). Smoke test CLI kiểm tra đủ file
+  workspace + builder `@angular/build:application`.
+
+Bằng chứng: `08_testing/evidence/BUG-109_116_fix_verification_2026-10-04.txt`.
 
 ## Mô tả
 

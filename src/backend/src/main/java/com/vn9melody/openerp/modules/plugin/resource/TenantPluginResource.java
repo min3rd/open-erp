@@ -9,6 +9,7 @@ import com.vn9melody.openerp.modules.plugin.dto.PluginRequests;
 import com.vn9melody.openerp.modules.plugin.dto.PluginResponses;
 import com.vn9melody.openerp.modules.plugin.service.PluginAdminService;
 import com.vn9melody.openerp.modules.plugin.service.PluginArtifactUploadService;
+import com.vn9melody.openerp.modules.plugin.service.PluginBundleImageService;
 import com.vn9melody.openerp.modules.plugin.service.PluginLifecycleService;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -49,6 +50,9 @@ public class TenantPluginResource {
     PluginAdminService adminService;
 
     @Inject
+    PluginBundleImageService bundleImageService;
+
+    @Inject
     EntityManager entityManager;
 
     @GET
@@ -75,8 +79,10 @@ public class TenantPluginResource {
     @RequirePermission("core:plugin:install")
     public Response install(@PathParam("pluginKey") String pluginKey, PluginRequests.Install request) {
         UserSecurityContext context = securityContextService.getCurrentContext();
+        String version = request != null ? request.version : null;
+        bundleImageService.ensureBundleImage(pluginKey, version);
         PluginResponses.OperationStatus status = lifecycleService.install(context.tenantId(), pluginKey,
-                request != null ? request.version : null, context.userId());
+                version, context.userId());
         String code = "ACTIVE".equals(status.status)
                 ? PluginErrorCode.PLUGIN_INSTALL_SUCCESS : PluginErrorCode.PLUGIN_INSTALL_STARTED;
         return Response.ok(ApiResponse.success(code, "Plugin installation processed.", status)).build();
@@ -257,8 +263,10 @@ public class TenantPluginResource {
     @RequirePermission("core:plugin:manage")
     public Response upgrade(@PathParam("pluginKey") String pluginKey, PluginRequests.Upgrade request) {
         UserSecurityContext context = securityContextService.getCurrentContext();
+        String targetVersion = request != null ? request.targetVersion : null;
+        bundleImageService.ensureBundleImage(pluginKey, targetVersion);
         PluginResponses.OperationStatus status = lifecycleService.upgrade(context.tenantId(), pluginKey,
-                request != null ? request.targetVersion : null,
+                targetVersion,
                 request != null ? request.snapshot : null,
                 context.userId());
         String code = "ACTIVE".equals(status.status)
