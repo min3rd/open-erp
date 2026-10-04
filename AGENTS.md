@@ -60,13 +60,13 @@ Mỗi Sprint được đóng gói trọn gói trong `docs/sprints/sprint_XX_<tê
   - **Hệ thống Core (Tối giản)**: Chỉ bao gồm Đăng ký/Đăng nhập, Quản lý tài khoản, Phân quyền chức năng, Phân quyền dữ liệu, và Quản lý Plugin.
   - **Plugin hóa toàn diện**: Mọi chức năng nghiệp vụ khác phải được đóng gói dạng Plugin độc lập. Khách hàng/Tenant có thể cài đặt hoặc gỡ bỏ tùy ý.
 - **Môi Trường Local Dev Tối Giản Tài Nguyên & Scripts Quản Lý Tập Trung**:
-  - Mặc định chỉ khởi chạy **dịch vụ tối thiểu** (Minimal Footprint): **PostgreSQL Primary** và **Redis** (~300MB RAM) thông qua `docker-compose.yml` (`make infra`).
+  - Mặc định chỉ khởi chạy **dịch vụ tối thiểu** (Minimal Footprint): **PostgreSQL Primary** và **Redis** (~300MB RAM) thông qua `docker-compose.yml` (`npm run infra`).
   - Toàn bộ các dịch vụ nặng (Kafka, MongoDB, Read-Replica, MinIO, Mailpit) phải cấu hình dưới dạng **Docker Compose Profiles** (`kafka`, `mongo`, `storage`, `mail`, `full`), chỉ bật on-demand khi thực sự cần.
   - Đặt giới hạn bộ nhớ (`resources.limits.memory`) cho toàn bộ container local để tránh tràn RAM máy dev.
-  - Bộ scripts quản lý tập trung trong thư mục `scripts/dev/` và `Makefile` (`make infra`, `make backend`, `make web`, `make mobile`).
+  - Bộ scripts quản lý tập trung tại root `package.json` (Node runner `scripts/run.mjs`, chạy đa nền tảng Windows/macOS/Linux) và `Makefile` (`npm run infra`, `npm run backend`, `npm run web`, `npm run mobile`, `npm run dev`; tương đương `make ...` trên Unix).
 - **Chính Sách Kiểm Thử Thực Dụng & Cấm H2 (No H2 Policy)**:
   - **Backend**: Bắt buộc viết Unit Test (JUnit 5 + RestAssured) cho các logic nghiệp vụ, tính toán dữ liệu, và phân quyền Tenant trong Quarkus Java.
-  - **CẤM SỬ DỤNG H2 / In-Memory Mock DB**: Môi trường dev local luôn có sẵn PostgreSQL và Redis qua `make infra`. Mọi Unit/Integration Test phải kết nối và thực thi trực tiếp trên PostgreSQL và Redis thật nhằm đảm bảo tính đồng nhất 100% với môi trường Staging/Production.
+  - **CẤM SỬ DỤNG H2 / In-Memory Mock DB**: Môi trường dev local luôn có sẵn PostgreSQL và Redis qua `npm run infra`. Mọi Unit/Integration Test phải kết nối và thực thi trực tiếp trên PostgreSQL và Redis thật nhằm đảm bảo tính đồng nhất 100% với môi trường Staging/Production.
   - **Frontend**: **TUYỆT ĐỐI KHÔNG viết Unit Test / Component Test** cho Angular/Ionic (không viết file `.spec.ts`, tránh lãng phí tài nguyên và chi phí bảo trì vô ích khi phát triển cùng AI).
   - **QA/QC Frontend Bắt Buộc Kiểm Thử Trình Duyệt Hai Chế Độ (Dual-Mode Browser Testing)**:
     - **Bản Web**: Tự động manual test trực tiếp trên Web Browser ở độ phân giải Desktop (≥ 1280px), kiểm tra tính toàn vẹn bố cục, tương tác Drawer trượt xếp tầng, form mật độ cao và theme sáng/tối.

@@ -1,0 +1,39 @@
+{
+  "name": "open-erp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Open-ERP monorepo automation: Quarkus backend, Angular 22 web, Ionic 8 mobile, @open-erp/cli and Docker/K8s infra (cross-platform via Node)",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "npm@11.12.1",
+  "scripts": {
+    "help": "node scripts/run.mjs help",
+    "infra": "node scripts/run.mjs infra",
+    "infra:mail": "node scripts/run.mjs infra mail",
+    "infra:kafka": "node scripts/run.mjs infra kafka",
+    "infra:mongo": "node scripts/run.mjs infra mongo",
+    "infra:storage": "node scripts/run.mjs infra storage",
+    "infra:full": "node scripts/run.mjs infra full",
+    "infra:ps": "node scripts/run.mjs infra-ps",
+    "infra:down": "node scripts/run.mjs infra-down",
+    "keys:jwt": "node scripts/run.mjs keys",
+    "backend": "node scripts/run.mjs backend",
+    "backend:test": "mvn -f src/backend/pom.xml test",
+    "backend:build": "mvn -f src/backend/pom.xml -DskipTests package",
+    "web": "node scripts/run.mjs web",
+    "web:build": "npm --prefix src/frontend/web run build",
+    "mobile": "node scripts/run.mjs mobile",
+    "mobile:build": "npm --prefix src/frontend/mobile run build",
+    "cli": "node tools/open-erp-cli/bin/open-erp.js",
+    "cli:test": "npm --prefix tools/open-erp-cli test",
+    "dev": "node scripts/run.mjs dev",
+    "dev:stop": "node scripts/run.mjs stop",
+    "test": "npm run backend:test && npm run cli:test",
+    "build": "npm run backend:build && npm run web:build && npm run mobile:build",
+    "build:images": "node scripts/run.mjs build-images",
+    "deploy:staging": "node scripts/run.mjs deploy-docker",
+    "deploy:prod": "node scripts/run.mjs deploy-k8s",
+    "clean": "node scripts/run.mjs clean"
+  }
+}

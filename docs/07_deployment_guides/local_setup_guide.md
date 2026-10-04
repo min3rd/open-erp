@@ -21,12 +21,12 @@ Do tài nguyên máy trạm của lập trình viên có hạn, dự án cấu h
 
 | Chế Độ | Lệnh Khởi Chạy | Dịch Vụ Khởi Chạy | Mức Chiếm Dụng RAM | Trường Hợp Sử Dụng |
 | :--- | :--- | :--- | :--- | :--- |
-| **Tối Thiểu (Mặc Định)** | `make infra` | **PostgreSQL Primary + Redis** | **~300 MB** | Dev chức năng Core, nghiệp vụ cơ bản, Web và Mobile |
-| **Kafka Profile** | `make infra-kafka` | Tối thiểu + Kafka (KRaft) + Kafka UI | ~1.5 GB | Dev module giao tiếp bất đồng bộ, event-driven |
-| **MongoDB Profile** | `make infra-mongo` | Tối thiểu + MongoDB Replica-Set | ~800 MB | Dev module audit logs, dynamic schemas |
-| **Storage Profile** | `make infra-storage` | Tối thiểu + MinIO S3 Object Storage | ~600 MB | Dev tính năng upload, file attachments |
-| **Mail Profile** | `make infra-mail` | Tối thiểu + Mailpit SMTP Testing | ~350 MB | Dev/test gửi email thông báo, xác nhận tài khoản |
-| **Full Profile** | `make infra-full` | **Toàn bộ 8 dịch vụ** | **~6 - 8 GB** | Máy cấu hình mạnh, test tích hợp toàn diện |
+| **Tối Thiểu (Mặc Định)** | `npm run infra` | **PostgreSQL Primary + Redis** | **~300 MB** | Dev chức năng Core, nghiệp vụ cơ bản, Web và Mobile |
+| **Kafka Profile** | `npm run infra:kafka` | Tối thiểu + Kafka (KRaft) + Kafka UI | ~1.5 GB | Dev module giao tiếp bất đồng bộ, event-driven |
+| **MongoDB Profile** | `npm run infra:mongo` | Tối thiểu + MongoDB Replica-Set | ~800 MB | Dev module audit logs, dynamic schemas |
+| **Storage Profile** | `npm run infra:storage` | Tối thiểu + MinIO S3 Object Storage | ~600 MB | Dev tính năng upload, file attachments |
+| **Mail Profile** | `npm run infra:mail` | Tối thiểu + Mailpit SMTP Testing | ~350 MB | Dev/test gửi email thông báo, xác nhận tài khoản |
+| **Full Profile** | `npm run infra:full` | **Toàn bộ 8 dịch vụ** | **~6 - 8 GB** | Máy cấu hình mạnh, test tích hợp toàn diện |
 
 ---
 
@@ -34,27 +34,36 @@ Do tài nguyên máy trạm của lập trình viên có hạn, dự án cấu h
 
 ### 3.1. Chạy Dịch Vụ Tối Thiểu (Khuyến Nghị Mặc Định)
 ```bash
-# Sử dụng Makefile
+# Từ thư mục gốc dự án (đa nền tảng Windows/macOS/Linux)
+npm run infra
+
+# Hoặc dùng Makefile (Unix/Git Bash)
 make infra
 
-# Hoặc dùng script
-./scripts/dev/start_infra.sh          # Linux / macOS
-scripts\dev\start_infra.bat           # Windows CMD / PowerShell
+# Hoặc script shell
+./scripts/dev/start_infra.sh
 ```
 
 ### 3.2. Chạy Thêm Dịch Vụ Nặng Theo Nhu Cầu
 ```bash
 # Chỉ bật thêm Kafka khi dev sự kiện
-make infra-kafka
-# Hoặc: ./scripts/dev/start_infra.sh kafka
+npm run infra:kafka
 
 # Chỉ bật thêm MongoDB khi dev dynamic forms/audit logs
-make infra-mongo
-# Hoặc: ./scripts/dev/start_infra.sh mongo
+npm run infra:mongo
+
+# Chỉ bật thêm MinIO S3 khi dev upload/file
+npm run infra:storage
+
+# Chỉ bật thêm Mailpit SMTP khi dev email
+npm run infra:mail
 
 # Bật toàn bộ dịch vụ (chỉ khuyến nghị khi RAM >= 16GB)
-make infra-full
-# Hoặc: ./scripts/dev/start_infra.sh full
+npm run infra:full
+
+# Xem trạng thái / dừng toàn bộ
+npm run infra:ps
+npm run infra:down
 ```
 
 ### 3.3. Danh Mục Cổng & Tài Khoản Cục Bộ:
@@ -67,38 +76,40 @@ make infra-full
 - **MinIO S3 Console (On-demand)**: `http://localhost:9001` (User: `openerp_minio_admin`, Pass: `openerp_minio_password`)
 - **Mailpit SMTP Web (On-demand)**: `http://localhost:8025`
 
-### 3.4. Khởi Động Nhanh Từ Thư Mục Gốc (Windows CMD)
+### 3.4. Khởi Động Nhanh Từ Thư Mục Gốc (Đa Nền Tảng)
 Từ thư mục gốc dự án chỉ cần chạy 1 lệnh:
-```bat
-dev.bat
+```bash
+npm run dev
 ```
-Script sẽ:
+Script Node (`scripts/run.mjs`) sẽ:
 1. Khởi động Docker infra: PostgreSQL Primary + Redis + Mailpit (`docker compose --profile mail up -d`).
 2. Tự tạo database test `openerp_test` nếu chưa có (test **không** dùng chung `openerp_dev`).
-3. Mở 3 cửa sổ dev: Backend Quarkus (8088), Web Angular (4200), Mobile Ionic (8100).
+3. Khởi chạy 3 tiến trình nền: Backend Quarkus (8088), Web Angular (4200), Mobile Ionic (8100).
+4. Ghi log vào `logs/dev-backend.log`, `logs/dev-web.log`, `logs/dev-mobile.log`.
 
-Dừng toàn bộ:
-```bat
-stop-dev.bat
+Dừng 3 tiến trình dev (giữ hạ tầng Docker):
+```bash
+npm run dev:stop
 ```
 
 Hoặc chạy từng phần:
-```bat
-scripts\dev\start_infra.bat mail   # Docker infra + Mailpit
-scripts\dev\run_backend.bat        # Quarkus dev mode (port 8088)
-scripts\dev\run_web.bat            # Angular dev server (port 4200)
-scripts\dev\run_mobile.bat         # Ionic dev server (port 8100)
+```bash
+npm run infra          # Docker infra tối thiểu (PostgreSQL + Redis)
+npm run infra:mail     # Docker infra + Mailpit
+npm run backend        # Quarkus dev mode (port 8088)
+npm run web            # Angular dev server (port 4200)
+npm run mobile         # Ionic dev server (port 8100)
 ```
 
-> **Lưu ý Java 25**: Quarkus 3.15 + ByteBuddy cần flag `-Dnet.bytebuddy.experimental=true`. Flag đã được cấu hình sẵn trong `pom.xml` (`jvm.args`) cho `mvn quarkus:dev` và trong `run_backend.bat` (`JAVA_TOOL_OPTIONS`) — không cần set thủ công.
+> **Lưu ý Java 25**: Quarkus 3.15 + ByteBuddy cần flag `-Dnet.bytebuddy.experimental=true`. Flag đã được cấu hình sẵn trong `pom.xml` (`jvm.args`) cho `mvn quarkus:dev` và được `npm run backend` / `npm run dev` set qua `JAVA_TOOL_OPTIONS` — không cần set thủ công.
 
 ### 3.5. Bootstrap Khóa JWT (Bắt Buộc Cho Fresh Clone)
 Cặp khóa `privateKey.pem` / `publicKey.pem` **bị gitignore** (không bao giờ commit khóa bí mật), nên sau khi clone cần sinh khóa cho local:
-```bat
-node scripts\dev\generate_jwt_keys.js
+```bash
+npm run keys:jwt
 ```
 - Script sinh RSA 2048 (private PKCS#8 + public SPKI) vào `src/backend/src/main/resources/` và `src/backend/src/test/resources/`.
-- Tự động chạy khi thiếu khóa qua `scripts\dev\run_backend.bat` / `run_backend.sh` hoặc `dev.bat`.
+- Tự động chạy khi thiếu khóa qua `npm run backend` / `npm run dev`.
 - Tùy chọn: `--force` để ghi đè, `--out <dir>` để sinh vào thư mục khác.
 - Với Staging/Production, khóa phải được cấp qua Secret Manager và mount vào container (không dùng khóa dev).
 
@@ -108,33 +119,33 @@ node scripts\dev\generate_jwt_keys.js
 
 ### 4.1. Chạy Backend Quarkus (Java 21+)
 ```bash
-make backend
-# Hoặc: ./scripts/dev/run_backend.sh (Windows: scripts\dev\run_backend.bat)
+npm run backend
+# Hoặc: make backend / ./scripts/dev/run_backend.sh
 ```
 - Endpoint Backend: `http://localhost:8088`
 - Quarkus Dev UI: `http://localhost:8088/q/dev/`
 
 ### 4.2. Chạy Web Desktop (Angular 22)
 ```bash
-make web
-# Hoặc: ./scripts/dev/run_web.sh (Windows: scripts\dev\run_web.bat)
+npm run web
+# Hoặc: make web / ./scripts/dev/run_web.sh
 ```
 - Truy cập trình duyệt: `http://localhost:4200`
 
 ### 4.3. Chạy Mobile App (Ionic 8 + Angular)
 ```bash
-make mobile
-# Hoặc: ./scripts/dev/run_mobile.sh (Windows: scripts\dev\run_mobile.bat)
+npm run mobile
+# Hoặc: make mobile / ./scripts/dev/run_mobile.sh
 ```
 - Truy cập trình duyệt: `http://localhost:8100`
 
 ### 4.4. Chạy Automated Test Backend (DB riêng `openerp_test`)
-```bat
-cd src\backend
-mvn test
+```bash
+npm run backend:test
+# Hoặc: mvn -f src/backend/pom.xml test
 ```
 - Test chạy trên PostgreSQL thật + Redis thật (DB index 1), **không dùng H2**.
-- Database `openerp_test` được tạo tự động bởi `scripts\dev\start_infra.bat` (hoặc script `docker/postgres/init/01-create-test-database.sql` khi khởi tạo volume mới) — dữ liệu trên `openerp_dev` không bị ảnh hưởng.
+- Database `openerp_test` được tạo tự động bởi `npm run infra` / `npm run dev` (hoặc script `docker/postgres/init/01-create-test-database.sql` khi khởi tạo volume mới) — dữ liệu trên `openerp_dev` không bị ảnh hưởng.
 
 ---
 
@@ -176,13 +187,13 @@ Kiểm tra job chạy đúng: log tick đầu tiên phải xuất hiện trên `
 
 ### 6.3. Bootstrap Super Admin lần đầu (local)
 
-```bat
-:: 1) Đặt secret + email bootstrap (chỉ trong phiên shell, không commit)
-set OPENERP_ADMIN_BOOTSTRAP_SECRET=doi-secret-manh-tai-day
-set OPENERP_PLATFORM_BOOTSTRAP_EMAILS=admin@congty.vn
+```bash
+# 1) Đặt secret + email bootstrap (chỉ trong phiên shell, không commit)
+export OPENERP_ADMIN_BOOTSTRAP_SECRET=doi-secret-manh-tai-day   # Windows PowerShell: $env:OPENERP_ADMIN_BOOTSTRAP_SECRET="..."
+export OPENERP_PLATFORM_BOOTSTRAP_EMAILS=admin@congty.vn
 
-:: 2) Chạy backend (bootstrap tự chạy khi chưa có SUPER_ADMIN ACTIVE)
-scripts\dev\run_backend.bat
+# 2) Chạy backend (bootstrap tự chạy khi chưa có SUPER_ADMIN ACTIVE)
+npm run backend
 ```
 
 - Truy cập `http://localhost:8088/q/health` để xác nhận backend `UP`.

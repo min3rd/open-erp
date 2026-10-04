@@ -312,13 +312,14 @@ Mọi trạng thái quan trọng đều được lưu vào URL: có thể **F5, 
 | Nhập sai OTP 2FA quá 3 lần | Phiên xác thực tạm bị hủy - hãy đăng nhập lại từ đầu. |
 | Đang đăng nhập mà bị đẩy ra | Phiên hết hạn/ bị thu hồi; đăng nhập lại. Hệ thống tự làm mới token khi còn hiệu lực. |
 | Tài khoản bị xóa/không tồn tại | Đăng ký lại tài khoản mới (môi trường local có thể bị QA dọn dữ liệu). |
-| Backend không khởi động (Java 25) | Dùng `dev.bat`/`run_backend.bat` (đã cấu hình sẵn `net.bytebuddy.experimental`). |
+| Backend không khởi động (Java 25) | Dùng `npm run backend` / `npm run dev` (đã cấu hình sẵn `net.bytebuddy.experimental`). |
 | Test backend làm mất dữ liệu? | Không còn - từ 2026-09-18 `mvn test` dùng DB riêng `openerp_test`. |
 
-**Lệnh khởi chạy nhanh (từ thư mục gốc, Windows CMD):**
-```bat
-dev.bat        :: Docker (Postgres + Redis + Mailpit) + Backend + Web + Mobile
-stop-dev.bat   :: Dừng các cửa sổ dev
+**Lệnh khởi chạy nhanh (từ thư mục gốc, đa nền tảng Windows/macOS/Linux):**
+```bash
+npm run dev        # Docker (Postgres + Redis + Mailpit) + Backend + Web + Mobile
+npm run dev:stop   # Dừng 3 tiến trình dev
+npm run infra:down # Dừng toàn bộ hạ tầng Docker
 ```
 
 ---

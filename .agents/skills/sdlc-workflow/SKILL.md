@@ -304,20 +304,21 @@ Trước khi đóng bất kỳ Sprint nào, PM Agent bắt buộc phải thực 
 ### 6.1. Quy Trình Khởi Động Môi Trường Local Tối Giản Tài Nguyên (Minimal Baseline)
 Do tài nguyên máy tính cá nhân có hạn, Developer Agent bắt buộc áp dụng quy trình khởi chạy tối giản:
 1. **Khởi động hạ tầng tối thiểu (PostgreSQL Primary + Redis - ngốn chỉ ~300MB RAM)**:
-   - Chạy lệnh: `make infra` (hoặc `scripts/dev/start_infra.sh` / `start_infra.bat`).
+   - Chạy lệnh: `npm run infra` (đa nền tảng Windows/macOS/Linux; hoặc `make infra` / `scripts/dev/start_infra.sh`).
    - Mặc định chỉ khởi chạy 2 container thiết yếu: `postgres-primary` (limit 512MB) và `redis` (limit 256MB).
 2. **Kích hoạt thêm dịch vụ theo nhu cầu thực tế (On-Demand Profiles)**:
-   - Khi dev module gửi nhận sự kiện / Kafka: `make infra-kafka` (chỉ bật thêm Kafka & Kafka UI).
-   - Khi dev module lưu trữ audit logs / schema động: `make infra-mongo` (chỉ bật thêm MongoDB).
-   - Khi dev module lưu file đính kèm S3: `make infra-storage` (chỉ bật thêm MinIO).
-   - Khi test gửi email đăng ký: `make infra-mail` (chỉ bật thêm Mailpit).
-   - Khi máy cấu hình mạnh (>= 8GB RAM) hoặc test tích hợp toàn diện: `make infra-full`.
+   - Khi dev module gửi nhận sự kiện / Kafka: `npm run infra:kafka` (chỉ bật thêm Kafka & Kafka UI).
+   - Khi dev module lưu trữ audit logs / schema động: `npm run infra:mongo` (chỉ bật thêm MongoDB).
+   - Khi dev module lưu file đính kèm S3: `npm run infra:storage` (chỉ bật thêm MinIO).
+   - Khi test gửi email đăng ký: `npm run infra:mail` (chỉ bật thêm Mailpit).
+   - Khi máy cấu hình mạnh (>= 8GB RAM) hoặc test tích hợp toàn diện: `npm run infra:full`.
 3. **Khởi chạy ứng dụng**:
-   - `make backend`: Khởi chạy Quarkus dev mode (Java 21+, hot-reload tại port `8088`).
-   - `make web`: Khởi chạy Angular 22 dev server (tại port `4200`).
-   - `make mobile`: Khởi chạy Ionic 8 dev server (tại port `8100`).
+   - `npm run backend`: Khởi chạy Quarkus dev mode (Java 21+, hot-reload tại port `8088`).
+   - `npm run web`: Khởi chạy Angular 22 dev server (tại port `4200`).
+   - `npm run mobile`: Khởi chạy Ionic 8 dev server (tại port `8100`).
+   - `npm run dev`: Khởi chạy hạ tầng + cả 3 tiến trình nền (log tại `logs/`); dừng bằng `npm run dev:stop`.
 4. **Giải phóng tài nguyên sau phiên làm việc**:
-   - Chạy `make infra-down` để dừng và dọn dẹp các container không dùng đến.
+   - Chạy `npm run infra:down` để dừng và dọn dẹp các container không dùng đến.
 
 ### 6.2. Tiêu Chuẩn Bộ Ba Tài Liệu Bắt Buộc
 Khi phát triển bất kỳ tính năng mới nào, các Agent bắt buộc phải phối hợp hoàn thiện 3 bộ tài liệu:
