@@ -12,8 +12,4 @@ public class PluginOperationLogRepository implements PanacheRepositoryBase<Plugi
     public List<PluginOperationLog> listByOperation(UUID operationId) {
         return list("operationId = ?1 order by id asc", operationId);
     }
-
-    public List<PluginOperationLog> listByPlugin(String pluginKey, int limit) {
-        return find("pluginKey = ?1 order by id desc", pluginKey).page(0, limit).list();
-    }
 }

@@ -7,13 +7,13 @@ import {
   BadgeComponent,
   Branch,
   BranchAssignment,
-  DepartmentNode,
   FlatDepartmentNode,
   I18nService,
   Membership,
   TableColumn,
   TableComponent,
-  TranslatePipe
+  TranslatePipe,
+  flattenDepartments
 } from '@shared';
 
 import { OrganizationService } from '../../../core/services/organization.service';
@@ -118,7 +118,7 @@ export class MembersComponent implements OnInit {
       next: ({ memberships, branches, departments, assignments }) => {
         this.memberships.set(memberships.data.items);
         this.branches.set(branches.data.items);
-        this.departments.set(this.flatten(departments.data.items, 0, []));
+        this.departments.set(flattenDepartments(departments.data.items));
         this.assignments.set(assignments.data.items);
         this.loading.set(false);
         this.errorText.set('');
@@ -198,16 +198,6 @@ export class MembersComponent implements OnInit {
         this.showError(err);
       }
     });
-  }
-
-  private flatten(nodes: DepartmentNode[], depth: number, acc: FlatDepartmentNode[]): FlatDepartmentNode[] {
-    for (const node of nodes) {
-      acc.push({ ...node, depth });
-      if (node.children?.length) {
-        this.flatten(node.children, depth + 1, acc);
-      }
-    }
-    return acc;
   }
 
   private showError(err: unknown) {

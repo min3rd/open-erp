@@ -148,10 +148,10 @@
         />
 
         <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 divide-y divide-neutral-100 dark:divide-neutral-800">
-          @if (loadingUsers()) {
+          @if (usersList.loading()) {
             <p class="px-2.5 py-3 text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'COMMON_LOADING'"></p>
           } @else {
-            @for (user of users(); track user.id) {
+            @for (user of usersList.items(); track user.id) {
               <button
                 type="button"
                 class="w-full min-h-10 px-2.5 py-1.5 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800/60"
@@ -171,14 +171,14 @@
             } @empty {
               <p class="px-2.5 py-3 text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'IAM_ASSIGN_USERS_NO_USER'"></p>
             }
-            @if (hasMoreUsers()) {
+            @if (usersList.hasMore()) {
               <button
                 type="button"
                 class="w-full min-h-10 px-2.5 py-1.5 text-[11px] text-center text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800/60"
-                [disabled]="loadingMoreUsers()"
-                (click)="loadMoreUsers()"
+                [disabled]="usersList.loadingMore()"
+                (click)="usersList.load(false)"
               >
-                {{ (loadingMoreUsers() ? 'COMMON_LOADING' : 'COMMON_LOAD_MORE') | translate }}
+                {{ (usersList.loadingMore() ? 'COMMON_LOADING' : 'COMMON_LOAD_MORE') | translate }}
               </button>
             }
           }

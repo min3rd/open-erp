@@ -19,10 +19,7 @@ import java.util.UUID;
 @ApplicationScoped
 public class PluginNotificationService {
 
-    public static final String TYPE_PLUGIN_BLOCKED = "PLUGIN_BLOCKED";
     public static final String TYPE_PLUGIN_FORCE_UNINSTALLED = "PLUGIN_FORCE_UNINSTALLED";
-    public static final String TYPE_PLUGIN_UPDATE_AVAILABLE = "PLUGIN_UPDATE_AVAILABLE";
-    public static final String TYPE_PLUGIN_INSTALL_FAILED = "PLUGIN_INSTALL_FAILED";
 
     @Inject
     TenantNotificationRepository repository;

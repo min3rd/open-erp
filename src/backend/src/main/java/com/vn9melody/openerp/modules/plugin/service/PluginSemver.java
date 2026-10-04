@@ -1,8 +1,6 @@
 package com.vn9melody.openerp.modules.plugin.service;
 
 import com.vn9melody.openerp.modules.plugin.api.PluginSupport;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Minimal SemVer comparator and range matcher (SOL-01 section 5, decision 2).
@@ -76,19 +74,5 @@ public final class PluginSemver {
             return target.compareTo(base) >= 0 && target.major() == base.major() && target.minor() == base.minor();
         }
         return target.compareTo(Version.parse(condition)) == 0;
-    }
-
-    public static String highest(List<String> versions) {
-        List<Version> parsed = new ArrayList<>();
-        for (String version : versions) {
-            if (PluginSupport.isValidSemver(version)) {
-                parsed.add(Version.parse(version));
-            }
-        }
-        return parsed.stream().max(Version::compareTo).map(PluginSemver::format).orElse(null);
-    }
-
-    public static String format(Version version) {
-        return version.major() + "." + version.minor() + "." + version.patch();
     }
 }

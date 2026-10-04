@@ -61,7 +61,6 @@ public final class PluginErrorCode {
     public static final String PLUGIN_ARTIFACT_TOO_LARGE = "PLUGIN_ARTIFACT_TOO_LARGE";
     public static final String PLUGIN_ARTIFACT_NOT_OWNED = "PLUGIN_ARTIFACT_NOT_OWNED";
     public static final String PLUGIN_REGISTRY_NOT_ALLOWED = "PLUGIN_REGISTRY_NOT_ALLOWED";
-    public static final String PLUGIN_REGISTRY_AUTH_FAILED = "PLUGIN_REGISTRY_AUTH_FAILED";
     public static final String PLUGIN_IMAGE_BUILD_FAILED = "PLUGIN_IMAGE_BUILD_FAILED";
 
     // Errors - catalog / versions
@@ -69,9 +68,7 @@ public final class PluginErrorCode {
     public static final String PLUGIN_VERSION_ALREADY_EXISTS = "PLUGIN_VERSION_ALREADY_EXISTS";
     public static final String PLUGIN_VERSION_IN_USE = "PLUGIN_VERSION_IN_USE";
     public static final String PLUGIN_CORE_VERSION_INCOMPATIBLE = "PLUGIN_CORE_VERSION_INCOMPATIBLE";
-    public static final String PLUGIN_ENTITY_NOT_REGISTERED = "PLUGIN_ENTITY_NOT_REGISTERED";
     public static final String PLUGIN_UI_SLOT_NOT_FOUND = "PLUGIN_UI_SLOT_NOT_FOUND";
-    public static final String PLUGIN_UI_SLOT_CONTRACT_MISMATCH = "PLUGIN_UI_SLOT_CONTRACT_MISMATCH";
     public static final String PLUGIN_NOT_FOUND = "PLUGIN_NOT_FOUND";
     public static final String PLUGIN_VERSION_NOT_VERIFIED = "PLUGIN_VERSION_NOT_VERIFIED";
 
@@ -97,19 +94,11 @@ public final class PluginErrorCode {
     public static final String PLUGIN_RUNTIME_UNAVAILABLE = "PLUGIN_RUNTIME_UNAVAILABLE";
     public static final String PLUGIN_RUNTIME_REQUEST_TOO_LARGE = "PLUGIN_RUNTIME_REQUEST_TOO_LARGE";
     public static final String PLUGIN_RUNTIME_TOKEN_INVALID = "PLUGIN_RUNTIME_TOKEN_INVALID";
-    public static final String PLUGIN_RESOURCE_QUOTA_EXCEEDED = "PLUGIN_RESOURCE_QUOTA_EXCEEDED";
     public static final String PLUGIN_IN_USE_BY_TENANTS = "PLUGIN_IN_USE_BY_TENANTS";
     public static final String PLUGIN_SNAPSHOT_FAILED = "PLUGIN_SNAPSHOT_FAILED";
     public static final String PLUGIN_SNAPSHOT_REQUIRED = "PLUGIN_SNAPSHOT_REQUIRED";
     public static final String PLUGIN_SNAPSHOT_MISSING = "PLUGIN_SNAPSHOT_MISSING";
-    public static final String PLUGIN_SNAPSHOT_EXPIRED = "PLUGIN_SNAPSHOT_EXPIRED";
-    public static final String PLUGIN_SNAPSHOT_CORRUPT = "PLUGIN_SNAPSHOT_CORRUPT";
-    public static final String PLUGIN_SNAPSHOT_INCOMPATIBLE = "PLUGIN_SNAPSHOT_INCOMPATIBLE";
-    public static final String PLUGIN_PRESERVATION_SNAPSHOT_FAILED = "PLUGIN_PRESERVATION_SNAPSHOT_FAILED";
     public static final String PLUGIN_RESTORE_SNAPSHOT_FAILED = "PLUGIN_RESTORE_SNAPSHOT_FAILED";
-    public static final String PLUGIN_ROLLBACK_NOT_ALLOWED = "PLUGIN_ROLLBACK_NOT_ALLOWED";
-    public static final String PLUGIN_DOWN_MIGRATION_FAILED = "PLUGIN_DOWN_MIGRATION_FAILED";
-    public static final String PLUGIN_DOWN_MIGRATION_NOT_VERIFIED = "PLUGIN_DOWN_MIGRATION_NOT_VERIFIED";
 
     // Errors - credentials / notifications
     public static final String PLUGIN_CREDENTIAL_NOT_FOUND = "PLUGIN_CREDENTIAL_NOT_FOUND";

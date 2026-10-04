@@ -9,14 +9,6 @@ public enum DataOperation {
     SHARE;
 
     public static DataOperation fromString(String value) {
-        if (value == null) {
-            return READ;
-        }
-        for (DataOperation operation : values()) {
-            if (operation.name().equalsIgnoreCase(value.trim())) {
-                return operation;
-            }
-        }
-        return READ;
+        return EnumParser.parse(DataOperation.class, value, READ);
     }
 }

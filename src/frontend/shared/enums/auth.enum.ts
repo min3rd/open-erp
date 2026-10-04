@@ -1,22 +1,6 @@
-export enum AuthMode {
-  LOGIN = 'LOGIN',
-  REGISTER_PERSONAL = 'REGISTER_PERSONAL',
-  REGISTER_BUSINESS = 'REGISTER_BUSINESS',
-  FORGOT_PASSWORD = 'FORGOT_PASSWORD',
-  RESET_PASSWORD = 'RESET_PASSWORD'
-}
-
 export enum TenantType {
   PERSONAL = 'PERSONAL',
   BUSINESS = 'BUSINESS'
-}
-
-export enum UserRole {
-  TENANT_ADMIN = 'TENANT_ADMIN',
-  MEMBER = 'MEMBER',
-  VIEWER = 'VIEWER',
-  OWNER = 'OWNER',
-  ADMIN = 'ADMIN'
 }
 
 export enum CompanySize {

@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import {
   DrawerComponent,
   I18nService,
+  PluginCardComponent,
   PluginCatalogDetail,
-  PluginManagementListComponent,
+  PluginCatalogStatus,
   PluginMarketplaceItem,
   OperationProgressComponent,
   PluginNotification,
@@ -12,6 +13,7 @@ import {
   PluginVersionItem,
   SharpButtonComponent,
   SharpToggleComponent,
+  TenantPluginStatus,
   TranslatePipe,
   VersionTimelineComponent,
   apiMessage,
@@ -29,7 +31,7 @@ const TERMINAL_STATUSES = ['ACTIVE', 'INACTIVE', 'UNINSTALLED', 'INSTALL_FAILED'
   imports: [
     CommonModule,
     TranslatePipe,
-    PluginManagementListComponent,
+    PluginCardComponent,
     DrawerComponent,
     VersionTimelineComponent,
     OperationProgressComponent,
@@ -52,6 +54,27 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
   busyKey = signal<string | null>(null);
 
   selectedKey = signal<string | null>(null);
+  query = signal<string>('');
+
+  installedItems = computed<PluginMarketplaceItem[]>(() =>
+    this.matchesQuery(this.items().filter((item) => !item.is_custom && this.isInstalled(item)))
+  );
+
+  availableItems = computed<PluginMarketplaceItem[]>(() =>
+    this.matchesQuery(this.items().filter((item) => !item.is_custom && !this.isInstalled(item)))
+  );
+
+  customItems = computed<PluginMarketplaceItem[]>(() =>
+    this.matchesQuery(this.items().filter((item) => item.is_custom))
+  );
+
+  empty = computed<boolean>(
+    () =>
+      this.installedItems().length === 0
+      && this.availableItems().length === 0
+      && this.customItems().length === 0
+  );
+
   detailOpen = signal(false);
   detail = signal<PluginCatalogDetail | null>(null);
   detailLoading = signal(false);
@@ -162,6 +185,59 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
 
   blockedItems(): PluginMarketplaceItem[] {
     return this.items().filter((item) => item.catalog_status === 'BLOCKED');
+  }
+
+  onSearch(event: Event): void {
+    this.query.set((event.target as HTMLInputElement).value);
+  }
+
+  clearSearch(): void {
+    this.query.set('');
+  }
+
+  isInstalled(item: PluginMarketplaceItem): boolean {
+    switch (item.status) {
+      case TenantPluginStatus.ACTIVE:
+      case TenantPluginStatus.INACTIVE:
+      case TenantPluginStatus.INSTALLING:
+      case TenantPluginStatus.UPGRADING:
+      case TenantPluginStatus.INSTALL_FAILED:
+      case TenantPluginStatus.ROLLBACK_FAILED:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  canUpgrade(item: PluginMarketplaceItem): boolean {
+    return (
+      this.isInstalled(item)
+      && !!item.update_available
+      && item.status !== TenantPluginStatus.INSTALLING
+      && item.status !== TenantPluginStatus.UPGRADING
+    );
+  }
+
+  isBusy(item: PluginMarketplaceItem): boolean {
+    return this.busyKey() === item.plugin_key
+      || item.status === TenantPluginStatus.INSTALLING
+      || item.status === TenantPluginStatus.UPGRADING;
+  }
+
+  isBlocked(item: PluginMarketplaceItem): boolean {
+    return item.catalog_status === PluginCatalogStatus.BLOCKED;
+  }
+
+  actionsDisabled(item: PluginMarketplaceItem): boolean {
+    return this.isBusy(item) || this.isBlocked(item);
+  }
+
+  private matchesQuery(items: PluginMarketplaceItem[]): PluginMarketplaceItem[] {
+    const keyword = this.query().trim().toLowerCase();
+    if (!keyword) {
+      return items;
+    }
+    return items.filter((item) => item.plugin_key.toLowerCase().includes(keyword));
   }
 
   openDetail(item: PluginMarketplaceItem): void {

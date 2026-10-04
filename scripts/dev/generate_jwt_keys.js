@@ -3,7 +3,7 @@
  * Generates the RSA key pair used by Quarkus SmallRye JWT for local development.
  *
  * The *.pem files are gitignored on purpose (never commit private keys).
- * Run this once after cloning, or let `npm run backend` / `npm run dev` (or scripts/dev/run_backend.sh) do it automatically.
+ * Run this once after cloning, or let `npm run backend` / `npm run dev` do it automatically.
  *
  * Usage:
  *   node scripts/dev/generate_jwt_keys.js                 # generate into src/backend main + test resources

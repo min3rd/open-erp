@@ -18,6 +18,7 @@ import {
   TableColumn,
   TableComponent,
   TranslatePipe,
+  auditResultVariant,
   formatDateTime
 } from '@shared';
 import { PlatformService } from '../../../core/services/platform.service';
@@ -224,18 +225,7 @@ export class AuditLogListComponent implements OnInit {
     }
   }
 
-  resultVariant(result: AuditResult): ColorVariant {
-    switch (result) {
-      case AuditResult.SUCCESS:
-        return ColorVariant.SUCCESS;
-      case AuditResult.DENIED:
-        return ColorVariant.WARNING;
-      case AuditResult.FAILED:
-        return ColorVariant.DANGER;
-      default:
-        return ColorVariant.DEFAULT;
-    }
-  }
+  readonly resultVariant = auditResultVariant;
 
   shortCorrelation(correlationId: string): string {
     return correlationId ? correlationId.substring(0, 8) : '-';

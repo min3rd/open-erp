@@ -17,7 +17,8 @@ import {
   SharpToggleComponent,
   TenantUser,
   TranslatePipe,
-  UserStatus
+  userStatusLabelKey,
+  userStatusVariant
 } from '@shared';
 
 import { OrganizationService } from '../../../core/services/organization.service';
@@ -152,22 +153,8 @@ export class UserAssignmentDrawerComponent {
     this.loadUsers(true);
   }
 
-  statusVariant(status: string | null | undefined): ColorVariant {
-    switch (status) {
-      case UserStatus.ACTIVE:
-        return ColorVariant.SUCCESS;
-      case UserStatus.LOCKED:
-        return ColorVariant.WARNING;
-      case UserStatus.PENDING:
-        return ColorVariant.INFO;
-      default:
-        return ColorVariant.DEFAULT;
-    }
-  }
-
-  statusLabelKey(status: string | null | undefined): string {
-    return status ? `USER_STATUS_${status}` : 'COMMON_INACTIVE';
-  }
+  readonly statusVariant = userStatusVariant;
+  readonly statusLabelKey = userStatusLabelKey;
 
   onClose() {
     this.close.emit();

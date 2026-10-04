@@ -35,14 +35,6 @@ public enum DataScope {
     }
 
     public static DataScope fromString(String value) {
-        if (value == null) {
-            return NONE;
-        }
-        for (DataScope scope : values()) {
-            if (scope.name().equalsIgnoreCase(value.trim())) {
-                return scope;
-            }
-        }
-        return NONE;
+        return EnumParser.parse(DataScope.class, value, NONE);
     }
 }

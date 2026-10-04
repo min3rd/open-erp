@@ -25,7 +25,6 @@ public class AuditLogEntry {
     public AuditResult result = AuditResult.SUCCESS;
     public JsonNode details;
     public String reason;
-    public UUID correlationId;
     public String ipAddress = "unknown";
     public String userAgent;
 
@@ -77,11 +76,6 @@ public class AuditLogEntry {
             this.ipAddress = ip;
         }
         this.userAgent = userAgent;
-        return this;
-    }
-
-    public AuditLogEntry correlation(UUID id) {
-        this.correlationId = id;
         return this;
     }
 }

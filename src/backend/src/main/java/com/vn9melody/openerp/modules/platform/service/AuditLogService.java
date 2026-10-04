@@ -99,7 +99,7 @@ public class AuditLogService implements AuditRecorder {
             .setParameter("targetTenantId", entry.targetTenantId)
             .setParameter("targetUserId", entry.targetUserId)
             .setParameter("result", entry.result.name())
-            .setParameter("correlationId", entry.correlationId)
+            .setParameter("correlationId", (UUID) null)
             .setParameter("details", details.toString())
             .setParameter("ipAddress", entry.ipAddress != null ? entry.ipAddress : "unknown")
             .setParameter("userAgent", entry.userAgent)
@@ -122,7 +122,6 @@ public class AuditLogService implements AuditRecorder {
         log.targetTenantId = entry.targetTenantId;
         log.targetUserId = entry.targetUserId;
         log.result = entry.result;
-        log.correlationId = entry.correlationId;
         log.details = details;
         log.ipAddress = entry.ipAddress != null ? entry.ipAddress : "unknown";
         log.userAgent = entry.userAgent;

@@ -25,9 +25,11 @@ import {
   TenantUser,
   TranslateDirective,
   TranslatePipe,
-  UserStatus,
+  userStatusLabelKey,
+  userStatusVariant,
   apiMessage,
 } from '@shared';
+import { PagedList } from '../../../core/paged-list';
 
 @Component({
   selector: 'app-organization',
@@ -58,6 +60,9 @@ export class OrganizationPage implements OnInit {
   readonly badgeDefault = ColorVariant.DEFAULT;
   readonly buttonSecondary = ColorVariant.SECONDARY;
 
+  readonly userStatusVariant = userStatusVariant;
+  readonly userStatusLabelKey = userStatusLabelKey;
+
   activeTab = signal<'branches' | 'departments' | 'members'>('branches');
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
@@ -67,19 +72,18 @@ export class OrganizationPage implements OnInit {
   members = signal<Membership[]>([]);
   expandedIds = signal<Set<string>>(new Set<string>());
 
-  directoryUsers = signal<TenantUser[]>([]);
   memberSearch = signal<string>('');
-  directoryPage = signal<number>(1);
-  directoryTotalPages = signal<number>(1);
-  loadingDirectory = signal<boolean>(false);
-  loadingMoreDirectory = signal<boolean>(false);
-  directoryLoaded = signal<boolean>(false);
-
-  private searchTimer: ReturnType<typeof setTimeout> | null = null;
+  directoryList = new PagedList<TenantUser>(
+    (page) => this.iam.getUsers({ keyword: this.memberSearch().trim() || undefined, page, size: 20 }),
+    (err) => this.error.set(apiMessage(this.i18n, err))
+  );
 
   visibleDepartments = computed<FlatDepartmentNode[]>(() => {
     const out: FlatDepartmentNode[] = [];
-    this.walk(this.departments(), 0, out);
+    this.walk(this.departments(), (node, depth) => {
+      out.push({ ...node, depth });
+      return this.expandedIds().has(node.id);
+    });
     return out;
   });
 
@@ -112,48 +116,18 @@ export class OrganizationPage implements OnInit {
 
   setTab(tab: 'branches' | 'departments' | 'members') {
     this.activeTab.set(tab);
-    if (tab === 'members' && !this.directoryLoaded() && !this.loadingDirectory()) {
-      this.loadDirectory(true);
+    if (tab === 'members' && this.directoryList.page() === 0 && !this.directoryList.loading()) {
+      this.directoryList.load(true);
     }
   }
 
   onMemberSearchChange(value: string) {
     this.memberSearch.set(value);
-    if (this.searchTimer) {
-      clearTimeout(this.searchTimer);
-    }
-    this.searchTimer = setTimeout(() => this.loadDirectory(true), 300);
-  }
-
-  loadMoreDirectory() {
-    if (this.directoryPage() < this.directoryTotalPages() && !this.loadingMoreDirectory()) {
-      this.loadDirectory(false);
-    }
-  }
-
-  hasMoreDirectory(): boolean {
-    return this.directoryPage() < this.directoryTotalPages();
+    this.directoryList.debounce(() => this.directoryList.load(true));
   }
 
   membershipOf(userId: string): Membership | undefined {
     return this.members().find((member) => member.user_id === userId);
-  }
-
-  userStatusVariant(status: string | null | undefined): ColorVariant {
-    switch (status) {
-      case UserStatus.ACTIVE:
-        return ColorVariant.SUCCESS;
-      case UserStatus.LOCKED:
-        return ColorVariant.WARNING;
-      case UserStatus.PENDING:
-        return ColorVariant.INFO;
-      default:
-        return ColorVariant.DEFAULT;
-    }
-  }
-
-  userStatusLabelKey(status: string | null | undefined): string {
-    return status ? `USER_STATUS_${status}` : 'COMMON_INACTIVE';
   }
 
   toggleDepartment(node: DepartmentNode) {
@@ -185,68 +159,37 @@ export class OrganizationPage implements OnInit {
     if (!departmentId) {
       return '';
     }
-    const findRecursive = (nodes: DepartmentNode[]): DepartmentNode | null => {
-      for (const node of nodes) {
-        if (node.id === departmentId) {
-          return node;
-        }
-        const child = findRecursive(node.children || []);
-        if (child) {
-          return child;
-        }
+    let name = '';
+    this.walk(this.departments(), (node) => {
+      if (name) {
+        return false;
       }
-      return null;
-    };
-    return findRecursive(this.departments())?.name || '';
-  }
-
-  private loadDirectory(reset: boolean) {
-    if (reset) {
-      this.loadingDirectory.set(true);
-    } else {
-      this.loadingMoreDirectory.set(true);
-    }
-    const nextPage = reset ? 1 : this.directoryPage() + 1;
-    this.iam.getUsers({ keyword: this.memberSearch().trim() || undefined, page: nextPage, size: 20 }).subscribe({
-      next: (res) => {
-        const items = res.data?.items || [];
-        this.directoryUsers.set(reset ? items : [...this.directoryUsers(), ...items]);
-        this.directoryTotalPages.set(res.data?.total_pages || 1);
-        this.directoryPage.set(nextPage);
-        this.directoryLoaded.set(true);
-        this.loadingDirectory.set(false);
-        this.loadingMoreDirectory.set(false);
-      },
-      error: (err) => {
-        if (reset) {
-          this.directoryUsers.set([]);
-        }
-        this.loadingDirectory.set(false);
-        this.loadingMoreDirectory.set(false);
-        this.error.set(apiMessage(this.i18n, err));
+      if (node.id === departmentId) {
+        name = node.name;
       }
+      return true;
     });
+    return name;
   }
 
-  private walk(nodes: DepartmentNode[], depth: number, out: FlatDepartmentNode[]) {
+  private walk<T extends { children?: T[] }>(
+    nodes: T[],
+    visit: (node: T, depth: number) => boolean | void,
+    depth = 0
+  ): void {
     for (const node of nodes) {
-      const children = node.children || [];
-      out.push({ ...node, depth });
-      if (children.length && this.expandedIds().has(node.id)) {
-        this.walk(children, depth + 1, out);
+      if (visit(node, depth) === false) {
+        continue;
       }
+      this.walk(node.children || [], visit, depth + 1);
     }
   }
 
   private collectIds(nodes: DepartmentNode[]): Set<string> {
     const ids = new Set<string>();
-    const visit = (list: DepartmentNode[]) => {
-      for (const node of list) {
-        ids.add(node.id);
-        visit(node.children || []);
-      }
-    };
-    visit(nodes);
+    this.walk(nodes, (node) => {
+      ids.add(node.id);
+    });
     return ids;
   }
 }

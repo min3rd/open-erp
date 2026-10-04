@@ -78,9 +78,9 @@ public class AccountServiceTest {
     @DisplayName("TC-11: Lấy thông tin hồ sơ và cập nhật thông tin hồ sơ cá nhân")
     public void testGetAndUpdateProfile() {
         UserProfileResponse profile = accountService.getProfile(activeUser.id);
-        Assertions.assertEquals("account.test@example.com", profile.email);
-        Assertions.assertEquals("Đặng Quản Lý", profile.fullName);
-        Assertions.assertEquals("0988776655", profile.phone);
+        Assertions.assertEquals("account.test@example.com", profile.email());
+        Assertions.assertEquals("Đặng Quản Lý", profile.fullName());
+        Assertions.assertEquals("0988776655", profile.phone());
 
         ProfileUpdateRequest updateReq = new ProfileUpdateRequest();
         updateReq.fullName = "Đặng Quản Lý (Cập Nhật)";
@@ -90,10 +90,10 @@ public class AccountServiceTest {
         updateReq.timezone = "UTC";
 
         UserProfileResponse updated = accountService.updateProfile(activeUser.id, updateReq);
-        Assertions.assertEquals("Đặng Quản Lý (Cập Nhật)", updated.fullName);
-        Assertions.assertEquals("0911223344", updated.phone);
-        Assertions.assertEquals("en", updated.language);
-        Assertions.assertEquals("UTC", updated.timezone);
+        Assertions.assertEquals("Đặng Quản Lý (Cập Nhật)", updated.fullName());
+        Assertions.assertEquals("0911223344", updated.phone());
+        Assertions.assertEquals("en", updated.language());
+        Assertions.assertEquals("UTC", updated.timezone());
     }
 
     @Test
@@ -120,8 +120,8 @@ public class AccountServiceTest {
 
         List<UserSessionResponse> sessions = accountService.getSessions(activeUser.id, sessionId);
         Assertions.assertEquals(1, sessions.size());
-        Assertions.assertEquals("203.0.113.10", sessions.get(0).ipAddress);
-        Assertions.assertEquals(true, sessions.get(0).isCurrent);
+        Assertions.assertEquals("203.0.113.10", sessions.get(0).ipAddress());
+        Assertions.assertEquals(true, sessions.get(0).isCurrent());
 
         accountService.revokeSession(activeUser.id, sessionId);
         Assertions.assertFalse(sessionManager.isSessionActive(activeUser.id, sessionId));

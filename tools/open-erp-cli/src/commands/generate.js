@@ -80,7 +80,7 @@ function generateUiContribution(flags) {
   if (!slot) {
     throw new Error('--slot is required (e.g. core.dashboard.widgets)');
   }
-  const renderMode = normalizeRenderMode(flags.renderMode || 'IFRAME');
+  const renderMode = (flags.renderMode || 'IFRAME').toUpperCase().replaceAll('-', '_');
   if (!['WEB_COMPONENT', 'MODULE_FEDERATION', 'IFRAME'].includes(renderMode)) {
     throw new Error('--render-mode must be web-component, module-federation or iframe');
   }
@@ -182,10 +182,6 @@ function writeI18n(dir, key, value) {
     dict[key] = value;
     writeFile(path, `${JSON.stringify(dict, null, 2)}\n`);
   }
-}
-
-function normalizeRenderMode(value) {
-  return value.toUpperCase().replaceAll('-', '_');
 }
 
 function nextMigrationVersion(migrationDir) {

@@ -27,17 +27,11 @@ public enum PluginResponseKey {
     CORE_COMPATIBILITY("core_compatibility"),
     MIGRATION_POLICY("migration_policy"),
     ROLLBACK_STRATEGY("rollback_strategy"),
-    DEPENDENCIES("dependencies"),
-    PLATFORMS("platforms"),
-    PERMISSIONS("permissions"),
-    ENTITIES("entities"),
-    UI_MANIFEST("ui_manifest"),
     DISTRIBUTION_TYPE("distribution_type"),
     IMAGE_REF("image_ref"),
     DIGEST("digest"),
     CHECKSUM("checksum"),
     ARTIFACT_REF("artifact_ref"),
-    SNAPSHOT_REF("snapshot_ref"),
 
     // Tenant ledger / lifecycle
     STATUS("status"),
@@ -60,7 +54,6 @@ public enum PluginResponseKey {
     FAILED("failed"),
     ERRORS("errors"),
     TOTAL("total"),
-    STORAGE_MODEL("storage_model"),
     STORAGE_SCHEMA("storage_schema"),
     OPERATION_ID("operation_id"),
     STEPS("steps"),
@@ -94,7 +87,6 @@ public enum PluginResponseKey {
     NOTIFICATION_TYPE("type"),
     SEVERITY("severity"),
     READ_AT("read_at"),
-    UNREAD_COUNT("unread_count"),
 
     // Runtime session
     TOKEN("token"),
@@ -118,17 +110,11 @@ public enum PluginResponseKey {
         String CORE_COMPATIBILITY = "core_compatibility";
         String MIGRATION_POLICY = "migration_policy";
         String ROLLBACK_STRATEGY = "rollback_strategy";
-        String DEPENDENCIES = "dependencies";
-        String PLATFORMS = "platforms";
-        String PERMISSIONS = "permissions";
-        String ENTITIES = "entities";
-        String UI_MANIFEST = "ui_manifest";
         String DISTRIBUTION_TYPE = "distribution_type";
         String IMAGE_REF = "image_ref";
         String DIGEST = "digest";
         String CHECKSUM = "checksum";
         String ARTIFACT_REF = "artifact_ref";
-        String SNAPSHOT_REF = "snapshot_ref";
         String STATUS = "status";
         String INSTALLED_VERSION = "installed_version";
         String LATEST_VERSION = "latest_version";
@@ -149,7 +135,6 @@ public enum PluginResponseKey {
         String FAILED = "failed";
         String ERRORS = "errors";
         String TOTAL = "total";
-        String STORAGE_MODEL = "storage_model";
         String STORAGE_SCHEMA = "storage_schema";
         String OPERATION_ID = "operation_id";
         String STEPS = "steps";
@@ -179,7 +164,6 @@ public enum PluginResponseKey {
         String NOTIFICATION_TYPE = "type";
         String SEVERITY = "severity";
         String READ_AT = "read_at";
-        String UNREAD_COUNT = "unread_count";
         String TOKEN = "token";
         String EXPIRES_IN_SECONDS = "expires_in_seconds";
         String CREDENTIAL_ID = "credential_id";

@@ -111,13 +111,13 @@ public class AuthResource {
         String ipAddress = extractClientIp(request);
         AuthResponse data = authService.login(req, device, ipAddress);
 
-        if (Boolean.TRUE.equals(data.requires2Fa)) {
+        if (Boolean.TRUE.equals(data.requires2Fa())) {
             return Response.ok(
                 ApiResponse.success(ErrorCode.AUTH_2FA_REQUIRED, "Two-factor authentication code required.", data)
             ).build();
         }
 
-        if (Boolean.TRUE.equals(data.requiresTenantSelection)) {
+        if (Boolean.TRUE.equals(data.requiresTenantSelection())) {
             return Response.ok(
                 ApiResponse.success(ErrorCode.AUTH_SELECT_TENANT_REQUIRED, "Select workspace tenant to proceed.", data)
             ).build();
@@ -152,7 +152,7 @@ public class AuthResource {
 
         AuthResponse data = twoFactorService.verifyLogin2Fa(userId, preAuthJwt.getTokenID(), req.code, device, ipAddress);
 
-        if (Boolean.TRUE.equals(data.requiresTenantSelection)) {
+        if (Boolean.TRUE.equals(data.requiresTenantSelection())) {
             return Response.ok(
                 ApiResponse.success(ErrorCode.AUTH_SELECT_TENANT_REQUIRED, "Select workspace tenant to proceed.", data)
             ).build();

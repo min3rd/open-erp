@@ -36,15 +36,7 @@ public class ApiFieldError {
         return code;
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public Map<String, Object> getParams() {
         return params;
-    }
-
-    public void setParams(Map<String, Object> params) {
-        this.params = params != null ? params : new HashMap<>();
     }
 }

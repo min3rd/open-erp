@@ -13,7 +13,6 @@ import {
   BadgeComponent,
   TopbarComponent,
   ColorVariant,
-  SizeVariant,
 } from '@shared';
 
 @Component({
@@ -37,9 +36,6 @@ export class DashboardComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  readonly buttonVariantGhost = ColorVariant.GHOST;
-  readonly buttonSizeSm = SizeVariant.SM;
-  readonly badgeVariantInfo = ColorVariant.INFO;
   readonly badgeVariantSuccess = ColorVariant.SUCCESS;
 
   readonly deniedNotice = computed(() => {
@@ -56,10 +52,6 @@ export class DashboardComponent {
   );
 
   readonly isAccountDrawerOpen = computed(() => this.currentUrl().startsWith('/account'));
-
-  setLang(lang: 'vi' | 'en') {
-    this.i18n.setLanguage(lang);
-  }
 
   openAccount() {
     this.router.navigateByUrl('/account/detail');

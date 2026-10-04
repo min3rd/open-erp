@@ -11,14 +11,6 @@ public enum PluginRenderMode {
     IFRAME;
 
     public static PluginRenderMode fromString(String value) {
-        if (value == null) {
-            return IFRAME;
-        }
-        for (PluginRenderMode mode : values()) {
-            if (mode.name().equalsIgnoreCase(value.trim())) {
-                return mode;
-            }
-        }
-        return IFRAME;
+        return EnumParser.parse(PluginRenderMode.class, value, IFRAME);
     }
 }

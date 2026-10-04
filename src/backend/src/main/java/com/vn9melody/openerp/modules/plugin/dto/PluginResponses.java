@@ -48,31 +48,7 @@ public final class PluginResponses {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class CatalogDetail {
-        @JsonProperty(PluginResponseKey.Json.PLUGIN_KEY)
-        public String pluginKey;
-
-        @JsonProperty(PluginResponseKey.Json.NAME_KEY)
-        public String nameKey;
-
-        @JsonProperty(PluginResponseKey.Json.DESCRIPTION_KEY)
-        public String descriptionKey;
-
-        @JsonProperty(PluginResponseKey.Json.VISIBILITY)
-        public String visibility;
-
-        @JsonProperty(PluginResponseKey.Json.CATALOG_STATUS)
-        public String catalogStatus;
-
-        @JsonProperty(PluginResponseKey.Json.DEFAULT_INSTALL)
-        public Boolean defaultInstall;
-
-        @JsonProperty(PluginResponseKey.Json.LOCKED)
-        public Boolean locked;
-
-        @JsonProperty(PluginResponseKey.Json.OWNER_TENANT_ID)
-        public String ownerTenantId;
-
+    public static class CatalogDetail extends CatalogItem {
         @JsonProperty(PluginResponseKey.Json.ENTITLEMENT_PLANS)
         public List<String> entitlementPlans;
 
@@ -81,12 +57,6 @@ public final class PluginResponses {
 
         @JsonProperty(PluginResponseKey.Json.BLOCKED_AT)
         public Instant blockedAt;
-
-        @JsonProperty(PluginResponseKey.Json.CREATED_AT)
-        public Instant createdAt;
-
-        @JsonProperty(PluginResponseKey.Json.UPDATED_AT)
-        public Instant updatedAt;
 
         @JsonProperty(PluginResponseKey.Json.VERSION)
         public List<VersionItem> versions;

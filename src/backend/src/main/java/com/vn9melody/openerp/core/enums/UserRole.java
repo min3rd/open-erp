@@ -8,12 +8,6 @@ public enum UserRole {
     ADMIN;
 
     public static UserRole fromString(String value) {
-        if (value == null) return MEMBER;
-        for (UserRole r : values()) {
-            if (r.name().equalsIgnoreCase(value)) {
-                return r;
-            }
-        }
-        return MEMBER;
+        return EnumParser.parse(UserRole.class, value, MEMBER);
     }
 }

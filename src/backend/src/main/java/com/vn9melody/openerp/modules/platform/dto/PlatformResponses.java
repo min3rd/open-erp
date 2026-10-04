@@ -49,46 +49,12 @@ public final class PlatformResponses {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class TenantDetail {
-        @JsonProperty(PlatformResponseKey.Json.TENANT_ID)
-        public String tenantId;
-        public String slug;
-        public String name;
-        public String type;
-
-        @JsonProperty(PlatformResponseKey.Json.PLAN_TIER)
-        public String planTier;
-        public String status;
-
-        @JsonProperty(PlatformResponseKey.Json.MAX_USERS)
-        public Integer maxUsers;
-
-        @JsonProperty(PlatformResponseKey.Json.ACTIVE_USERS_COUNT)
-        public Long activeUsersCount;
-
-        @JsonProperty(PlatformResponseKey.Json.MAX_STORAGE_MB)
-        public Integer maxStorageMb;
-
-        @JsonProperty(PlatformResponseKey.Json.USED_STORAGE_MB)
-        public Long usedStorageMb;
-
-        @JsonProperty(PlatformResponseKey.Json.TRIAL_ENDS_AT)
-        public Instant trialEndsAt;
-
-        @JsonProperty(PlatformResponseKey.Json.IS_LOCKED)
-        public Boolean isLocked;
-
+    public static class TenantDetail extends TenantItem {
         @JsonProperty(PlatformResponseKey.Json.LOCK_REASON)
         public String lockReason;
 
         @JsonProperty(PlatformResponseKey.Json.LOCKED_AT)
         public Instant lockedAt;
-
-        @JsonProperty(PlatformResponseKey.Json.ALLOWED_PLUGINS)
-        public List<String> allowedPlugins;
-
-        @JsonProperty(PlatformResponseKey.Json.CREATED_AT)
-        public Instant createdAt;
     }
 
     public static class Quota {

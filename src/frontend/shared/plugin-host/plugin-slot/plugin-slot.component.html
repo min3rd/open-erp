@@ -1,7 +1,0 @@
-@if (loading()) {
-  <div class="h-6 w-full animate-pulse rounded-none bg-neutral-100 dark:bg-neutral-800"></div>
-} @else {
-  @for (contribution of contributions(); track trackContribution($index, contribution)) {
-    <app-contribution-outlet [contribution]="contribution" [host]="slotHost()" />
-  }
-}

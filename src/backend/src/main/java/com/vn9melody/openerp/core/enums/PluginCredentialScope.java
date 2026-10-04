@@ -9,14 +9,6 @@ public enum PluginCredentialScope {
     TENANT;
 
     public static PluginCredentialScope fromString(String value) {
-        if (value == null) {
-            return PLATFORM;
-        }
-        for (PluginCredentialScope scope : values()) {
-            if (scope.name().equalsIgnoreCase(value.trim())) {
-                return scope;
-            }
-        }
-        return PLATFORM;
+        return EnumParser.parse(PluginCredentialScope.class, value, PLATFORM);
     }
 }

@@ -49,32 +49,16 @@ public class ApiErrorResponse {
         return code;
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public String getMessage() {
         return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public Map<String, Object> getParams() {
         return params;
     }
 
-    public void setParams(Map<String, Object> params) {
-        this.params = params != null ? params : new HashMap<>();
-    }
-
     public List<ApiFieldError> getErrors() {
         return errors;
-    }
-
-    public void setErrors(List<ApiFieldError> errors) {
-        this.errors = errors != null ? errors : new ArrayList<>();
     }
 
     public Instant getTimestamp() {

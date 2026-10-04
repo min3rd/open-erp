@@ -80,14 +80,6 @@ public enum PlatformAction {
     }
 
     public static PlatformAction fromString(String value) {
-        if (value == null) {
-            return null;
-        }
-        for (PlatformAction action : values()) {
-            if (action.name().equalsIgnoreCase(value.trim())) {
-                return action;
-            }
-        }
-        return null;
+        return EnumParser.parse(PlatformAction.class, value, null);
     }
 }

@@ -9,14 +9,6 @@ public enum PluginVisibility {
     TENANT_PRIVATE;
 
     public static PluginVisibility fromString(String value) {
-        if (value == null) {
-            return PLATFORM;
-        }
-        for (PluginVisibility visibility : values()) {
-            if (visibility.name().equalsIgnoreCase(value.trim())) {
-                return visibility;
-            }
-        }
-        return PLATFORM;
+        return EnumParser.parse(PluginVisibility.class, value, PLATFORM);
     }
 }

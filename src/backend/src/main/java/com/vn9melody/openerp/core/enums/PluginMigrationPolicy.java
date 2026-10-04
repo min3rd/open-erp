@@ -10,14 +10,6 @@ public enum PluginMigrationPolicy {
     BREAKING;
 
     public static PluginMigrationPolicy fromString(String value) {
-        if (value == null) {
-            return COMPATIBLE;
-        }
-        for (PluginMigrationPolicy policy : values()) {
-            if (policy.name().equalsIgnoreCase(value.trim())) {
-                return policy;
-            }
-        }
-        return COMPATIBLE;
+        return EnumParser.parse(PluginMigrationPolicy.class, value, COMPATIBLE);
     }
 }

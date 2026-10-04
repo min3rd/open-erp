@@ -1,16 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ApiResponse } from '../models';
 import { ThemeService } from '../theme/theme.service';
 import { I18nService } from '../i18n/i18n.service';
-import {
-  PluginHostContribution,
-  PluginHostSlot,
-  PluginHostSlotHost,
-  PluginRuntimeSession,
-  PluginUiManifest,
-} from './plugin-host.model';
+import { PluginRuntimeSession, PluginUiManifest } from './plugin-host.model';
 
 const RUNTIME_PATH_PREFIX = '/plugins-runtime/';
 const GATEWAY_PATH_PREFIX = '/api/v1/plugins/runtime/';
@@ -30,8 +24,6 @@ export class PluginHostService {
   readonly loading = this.loadingSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
 
-  readonly slots = computed<PluginHostSlot[]>(() => this.manifestSignal()?.slots ?? []);
-
   async loadManifest(force = false): Promise<PluginUiManifest | null> {
     if (!force && this.manifestSignal()) {
       return this.manifestSignal();
@@ -42,7 +34,7 @@ export class PluginHostService {
       const response = await firstValueFrom(
         this.http.get<ApiResponse<PluginUiManifest>>('/api/v1/plugins/ui-manifest')
       );
-      this.manifestSignal.set(response?.data ?? { screens: [], slots: [] });
+      this.manifestSignal.set(response?.data ?? { screens: [] });
       return this.manifestSignal();
     } catch {
       this.errorSignal.set('PLUGIN_HOST_UNAVAILABLE');
@@ -50,10 +42,6 @@ export class PluginHostService {
     } finally {
       this.loadingSignal.set(false);
     }
-  }
-
-  slot(slotCode: string): PluginHostSlot | null {
-    return this.slots().find((slot) => slot.slot_code === slotCode) ?? null;
   }
 
   runtimeEntryUrl(entry: string): string {
@@ -77,18 +65,6 @@ export class PluginHostService {
     }
     const separator = mapped.includes('?') ? '&' : '?';
     return `${mapped}${separator}plugin_token=${encodeURIComponent(session.token)}`;
-  }
-
-  contractMatches(host: PluginHostSlotHost | undefined, contribution: PluginHostContribution): boolean {
-    if (!host || !contribution.contract_version) {
-      return true;
-    }
-    if (host.type === 'CORE') {
-      return !host.contract_version || host.contract_version === contribution.contract_version;
-    }
-    return host.installed_version !== undefined
-      && !!host.contract_version
-      && host.contract_version === contribution.contract_version;
   }
 
   async session(pluginKey: string): Promise<PluginRuntimeSession | null> {

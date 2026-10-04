@@ -30,12 +30,29 @@ export class MobileNavDrawerComponent {
   userName = input<string>('');
   userEmail = input<string>('');
   isOpen = input<boolean>(false);
+  zIndex = input<number>(70);
+
+  // Permission-gated tenant settings; each app computes these from its own auth
+  // state and passes them in, so the shared drawer stays framework-agnostic.
+  canManageRoles = input<boolean>(false);
+  canManageOrganization = input<boolean>(false);
+  canViewSampleRecords = input<boolean>(false);
+  canViewPlugins = input<boolean>(false);
+  isPlatformAdmin = input<boolean>(false);
 
   close = output<void>();
   logout = output<void>();
 
   readonly colorInfo = ColorVariant.INFO;
   readonly colorDanger = ColorVariant.DANGER;
+
+  readonly showTenantSettings = computed(
+    () =>
+      this.canManageRoles() ||
+      this.canManageOrganization() ||
+      this.canViewSampleRecords() ||
+      this.canViewPlugins()
+  );
 
   displayName = computed(() => this.userName() || this.userEmail());
 

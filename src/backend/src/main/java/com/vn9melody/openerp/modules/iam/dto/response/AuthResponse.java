@@ -5,58 +5,27 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AuthResponse {
-    @JsonProperty("access_token")
-    public String accessToken;
-
-    @JsonProperty("refresh_token")
-    public String refreshToken;
-
-    @JsonProperty("session_id")
-    public String sessionId;
-
-    @JsonProperty("expires_in")
-    public Integer expiresIn;
-
-    @JsonProperty("user")
-    public AuthUserInfo user;
-
-    @JsonProperty("pre_auth_token")
-    public String preAuthToken;
-
-    @JsonProperty("requires_2fa")
-    public Boolean requires2Fa;
-
-    @JsonProperty("requires_tenant_selection")
-    public Boolean requiresTenantSelection;
-
-    @JsonProperty("tenants")
-    public List<TenantItemResponse> tenants;
-
-    public AuthResponse() {}
+public record AuthResponse(
+    @JsonProperty("access_token") String accessToken,
+    @JsonProperty("refresh_token") String refreshToken,
+    @JsonProperty("session_id") String sessionId,
+    @JsonProperty("expires_in") Integer expiresIn,
+    @JsonProperty("user") AuthUserInfo user,
+    @JsonProperty("pre_auth_token") String preAuthToken,
+    @JsonProperty("requires_2fa") Boolean requires2Fa,
+    @JsonProperty("requires_tenant_selection") Boolean requiresTenantSelection,
+    @JsonProperty("tenants") List<TenantItemResponse> tenants
+) {
 
     public static AuthResponse forSuccess(String accessToken, String refreshToken, String sessionId, Integer expiresIn, AuthUserInfo user) {
-        AuthResponse resp = new AuthResponse();
-        resp.accessToken = accessToken;
-        resp.refreshToken = refreshToken;
-        resp.sessionId = sessionId;
-        resp.expiresIn = expiresIn;
-        resp.user = user;
-        return resp;
+        return new AuthResponse(accessToken, refreshToken, sessionId, expiresIn, user, null, null, null, null);
     }
 
     public static AuthResponse for2FaChallenge(String preAuthToken) {
-        AuthResponse resp = new AuthResponse();
-        resp.preAuthToken = preAuthToken;
-        resp.requires2Fa = true;
-        return resp;
+        return new AuthResponse(null, null, null, null, null, preAuthToken, true, null, null);
     }
 
     public static AuthResponse forTenantSelection(String preAuthToken, List<TenantItemResponse> tenants) {
-        AuthResponse resp = new AuthResponse();
-        resp.preAuthToken = preAuthToken;
-        resp.requiresTenantSelection = true;
-        resp.tenants = tenants;
-        return resp;
+        return new AuthResponse(null, null, null, null, null, preAuthToken, null, true, tenants);
     }
 }

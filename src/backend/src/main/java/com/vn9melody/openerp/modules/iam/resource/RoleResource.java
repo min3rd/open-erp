@@ -13,8 +13,8 @@ import com.vn9melody.openerp.modules.iam.service.IamRbacDtos.RoleUserItem;
 import com.vn9melody.openerp.modules.iam.service.IamRbacDtos.RoleUsersAssignedResponse;
 import com.vn9melody.openerp.modules.iam.service.IamRoleService;
 import com.vn9melody.openerp.modules.iam.service.IamRoleService.RoleListPage;
-import com.vn9melody.openerp.modules.iam.service.IamSecurityResolver;
-import com.vn9melody.openerp.modules.iam.service.IamSecurityResolver.IamPrincipal;
+import com.vn9melody.openerp.core.security.TenantPrincipalResolver;
+import com.vn9melody.openerp.core.security.TenantPrincipalResolver.TenantPrincipal;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -48,7 +48,7 @@ import java.util.UUID;
 public class RoleResource {
 
     @Inject
-    IamSecurityResolver securityResolver;
+    TenantPrincipalResolver securityResolver;
 
     @Inject
     IamRoleService roleService;
@@ -74,7 +74,7 @@ public class RoleResource {
     public Response roles(@QueryParam("page") @DefaultValue("0") int page,
                           @QueryParam("size") @DefaultValue("20") int size,
                           @QueryParam("keyword") String keyword) {
-        IamPrincipal principal = authenticate();
+        TenantPrincipal principal = authenticate();
         RoleListPage result = roleService.listRoles(principal.tenantId(), page, size, keyword);
         return Response.ok(ApiResponse.successPaged(
             IamErrorCodes.ROLE_LIST_SUCCESS,
@@ -86,7 +86,7 @@ public class RoleResource {
     @Path("/roles")
     @RequirePermission("core:role:manage")
     public Response createRole(@Valid RoleRequest request) {
-        IamPrincipal principal = authenticate();
+        TenantPrincipal principal = authenticate();
         RoleItem data = roleService.createRole(principal.tenantId(), request);
         return Response.status(Response.Status.CREATED).entity(ApiResponse.success(
             IamErrorCodes.ROLE_CREATED,
@@ -98,7 +98,7 @@ public class RoleResource {
     @Path("/roles/{id}")
     @RequirePermission("core:role:read")
     public Response roleDetail(@PathParam("id") UUID id) {
-        IamPrincipal principal = authenticate();
+        TenantPrincipal principal = authenticate();
         return Response.ok(ApiResponse.success(
             IamErrorCodes.ROLE_LIST_SUCCESS,
             "Role retrieved successfully.",
@@ -123,7 +123,7 @@ public class RoleResource {
     @Path("/roles/{id}")
     @RequirePermission("core:role:manage")
     public Response deleteRole(@PathParam("id") UUID id) {
-        IamPrincipal principal = authenticate();
+        TenantPrincipal principal = authenticate();
         roleService.deleteRole(principal.tenantId(), id);
         return Response.ok(ApiResponse.success(
             IamErrorCodes.ROLE_DELETED,
@@ -135,7 +135,7 @@ public class RoleResource {
     @Path("/roles/{id}/permissions")
     @RequirePermission("core:role:read")
     public Response rolePermissions(@PathParam("id") UUID id) {
-        IamPrincipal principal = authenticate();
+        TenantPrincipal principal = authenticate();
         return Response.ok(ApiResponse.successList(
             IamErrorCodes.PERMISSION_LIST_SUCCESS,
             "Role permissions retrieved successfully.",
@@ -146,7 +146,7 @@ public class RoleResource {
     @Path("/roles/{id}/permissions")
     @RequirePermission("core:role:manage")
     public Response updateRolePermissions(@PathParam("id") UUID id, @Valid RolePermissionUpdateRequest request) {
-        IamPrincipal principal = authenticate();
+        TenantPrincipal principal = authenticate();
         RolePermissionsUpdateResponse data = roleService.updateRolePermissions(
             principal.tenantId(), id, request != null ? request.permissionIds() : null);
         return Response.ok(ApiResponse.success(
@@ -159,7 +159,7 @@ public class RoleResource {
     @Path("/roles/{id}/users")
     @RequirePermission("core:user:read")
     public Response roleUsers(@PathParam("id") UUID id) {
-        IamPrincipal principal = authenticate();
+        TenantPrincipal principal = authenticate();
         List<RoleUserItem> items = roleService.roleUsers(principal.tenantId(), id);
         return Response.ok(ApiResponse.successList(
             IamErrorCodes.USER_ROLE_LIST_SUCCESS,
@@ -171,7 +171,7 @@ public class RoleResource {
     @Path("/roles/{id}/users")
     @RequirePermission("core:role:manage")
     public Response assignUsers(@PathParam("id") UUID id, @Valid RoleUserAssignRequest request) {
-        IamPrincipal principal = authenticate();
+        TenantPrincipal principal = authenticate();
         RoleUsersAssignedResponse data = roleService.assignUsersToRole(
             principal.tenantId(), id, request != null ? request.userIds() : null, principal.userId());
         return Response.ok(ApiResponse.success(
@@ -184,7 +184,7 @@ public class RoleResource {
     @Path("/roles/{id}/users/{userId}")
     @RequirePermission("core:role:manage")
     public Response removeUser(@PathParam("id") UUID id, @PathParam("userId") UUID userId) {
-        IamPrincipal principal = authenticate();
+        TenantPrincipal principal = authenticate();
         roleService.removeUserFromRole(principal.tenantId(), id, userId);
         return Response.ok(ApiResponse.success(
             IamErrorCodes.USER_ROLE_REMOVED,
@@ -193,7 +193,7 @@ public class RoleResource {
     }
 
     private Response doUpdateRole(UUID id, RoleRequest request) {
-        IamPrincipal principal = authenticate();
+        TenantPrincipal principal = authenticate();
         RoleItem data = roleService.updateRole(principal.tenantId(), id, request);
         return Response.ok(ApiResponse.success(
             IamErrorCodes.ROLE_UPDATED,
@@ -201,7 +201,7 @@ public class RoleResource {
             data)).build();
     }
 
-    private IamPrincipal authenticate() {
+    private TenantPrincipal authenticate() {
         return securityResolver.requireTenantPrincipal(
             httpHeaders != null ? httpHeaders.getHeaderString(HttpHeaders.AUTHORIZATION) : null);
     }

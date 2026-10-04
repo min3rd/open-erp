@@ -6,14 +6,6 @@ public enum AuditResult {
     FAILED;
 
     public static AuditResult fromString(String value) {
-        if (value == null) {
-            return SUCCESS;
-        }
-        for (AuditResult result : values()) {
-            if (result.name().equalsIgnoreCase(value.trim())) {
-                return result;
-            }
-        }
-        return SUCCESS;
+        return EnumParser.parse(AuditResult.class, value, SUCCESS);
     }
 }

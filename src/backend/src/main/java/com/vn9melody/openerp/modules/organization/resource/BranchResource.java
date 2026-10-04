@@ -7,8 +7,8 @@ import com.vn9melody.openerp.modules.organization.dto.BranchDtos.BranchRequest;
 import com.vn9melody.openerp.modules.organization.dto.BranchDtos.BranchResponse;
 import com.vn9melody.openerp.modules.organization.model.Branch;
 import com.vn9melody.openerp.modules.organization.service.BranchService;
-import com.vn9melody.openerp.modules.organization.service.OrganizationSecurityResolver;
-import com.vn9melody.openerp.modules.organization.service.OrganizationSecurityResolver.TenantPrincipal;
+import com.vn9melody.openerp.core.security.TenantPrincipalResolver;
+import com.vn9melody.openerp.core.security.TenantPrincipalResolver.TenantPrincipal;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -39,7 +39,7 @@ import java.util.UUID;
 public class BranchResource {
 
     @Inject
-    OrganizationSecurityResolver securityResolver;
+    TenantPrincipalResolver securityResolver;
 
     @Inject
     BranchService branchService;

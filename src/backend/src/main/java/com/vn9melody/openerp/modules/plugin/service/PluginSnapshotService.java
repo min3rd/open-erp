@@ -134,16 +134,6 @@ public class PluginSnapshotService {
         }
     }
 
-    public void assertSnapshotAvailable(String ref) {
-        try (InputStream ignored = artifactStorage.open(ref)) {
-            // reachable
-        } catch (ApiException e) {
-            throw new ApiException(409, PluginErrorCode.PLUGIN_SNAPSHOT_MISSING, "Snapshot artifact is missing");
-        } catch (IOException e) {
-            throw new ApiException(409, PluginErrorCode.PLUGIN_SNAPSHOT_MISSING, "Snapshot artifact is missing");
-        }
-    }
-
     private String truncate(String value) {
         if (value == null) {
             return "";

@@ -15,7 +15,8 @@ import {
   TenantUser,
   TranslatePipe,
   UserRoleItem,
-  UserStatus
+  userStatusLabelKey,
+  userStatusVariant
 } from '@shared';
 
 import { IamService } from '../../../core/services/iam.service';
@@ -96,22 +97,8 @@ export class AssignUsersDrawerComponent {
     return this.page() < this.totalPages();
   }
 
-  statusVariant(status: string | null | undefined): ColorVariant {
-    switch (status) {
-      case UserStatus.ACTIVE:
-        return ColorVariant.SUCCESS;
-      case UserStatus.LOCKED:
-        return ColorVariant.WARNING;
-      case UserStatus.PENDING:
-        return ColorVariant.INFO;
-      default:
-        return ColorVariant.DEFAULT;
-    }
-  }
-
-  statusLabelKey(status: string | null | undefined): string {
-    return status ? `USER_STATUS_${status}` : 'COMMON_INACTIVE';
-  }
+  readonly statusVariant = userStatusVariant;
+  readonly statusLabelKey = userStatusLabelKey;
 
   rolesForSaving(): { item: Role; checked: boolean }[] {
     const checked = this.checkedRoleIds();

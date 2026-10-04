@@ -8,7 +8,6 @@ import com.vn9melody.openerp.core.enums.ResponseKey;
 import com.vn9melody.openerp.modules.iam.model.Tenant;
 import io.quarkus.redis.datasource.RedisDataSource;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import java.util.HashMap;
@@ -41,7 +40,7 @@ public class TenantQuotaService {
     RedisDataSource redis;
 
     @Inject
-    Instance<AuditRecorder> auditRecorders;
+    AuditRecorder auditRecorder;
 
     /** Fails with {@code 409 PLATFORM_TENANT_QUOTA_EXCEEDED} when the tenant is full. */
     public void checkUserQuota(UUID tenantId) {
@@ -151,8 +150,6 @@ public class TenantQuotaService {
         Map<String, Object> details = new HashMap<>(params);
         AuditRecorder.AuditEvent event = new AuditRecorder.AuditEvent(
             tenantId, null, action, "TENANT_QUOTA", null, AuditResult.DENIED, details, null);
-        for (AuditRecorder recorder : auditRecorders) {
-            recorder.record(event);
-        }
+        auditRecorder.record(event);
     }
 }

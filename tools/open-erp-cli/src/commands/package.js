@@ -12,7 +12,7 @@ export async function packageCommand(flags) {
   const dist = join(dir, flags.out || 'dist');
   rmSync(dist, { recursive: true, force: true });
   mkdirSync(dist, { recursive: true });
-  if (flags.skipBuild !== true && flags.skipBuild !== 'true') {
+  if (!flags.skipBuild) {
     runOptional('mvn', ['-q', '-DskipTests', '-Dquarkus.package.type=uber-jar', 'package'], dir, 'maven build');
   }
   const artifacts = [];
@@ -25,9 +25,9 @@ export async function packageCommand(flags) {
     console.warn('runnable backend jar not found (target/*-runner.jar) — packaging manifest only');
   }
   let webDist = null;
-  if (flags.withWeb === true || flags.withWeb === 'true') {
+  if (flags.withWeb) {
     const webDir = join(dir, 'web');
-    if (existsSync(join(webDir, 'package.json')) && flags.skipBuild !== true && flags.skipBuild !== 'true') {
+    if (existsSync(join(webDir, 'package.json')) && !flags.skipBuild) {
       if (!existsSync(join(webDir, 'node_modules'))) {
         runOptional('npm', ['install', '--no-audit', '--no-fund'], webDir, 'web install');
       }
@@ -91,15 +91,11 @@ function findRunnableJar(dir) {
   if (!existsSync(target)) {
     return null;
   }
-  const runners = readdirSync(target)
+  return readdirSync(target)
     .filter((name) => name.endsWith('-runner.jar'))
     .map((name) => join(target, name))
-    .filter((path) => statSync(path).isFile());
-  if (runners.length > 0) {
-    return runners.sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs)[0];
-  }
-  const legacy = join(target, 'quarkus-app/quarkus-run.jar');
-  return existsSync(legacy) ? legacy : null;
+    .filter((path) => statSync(path).isFile())
+    .sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs)[0] ?? null;
 }
 
 function findWebDist(webDir) {

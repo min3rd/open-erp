@@ -89,8 +89,8 @@ public class AuthServiceTest {
         req.phone = "0901234567";
 
         PersonalRegisterResponse result = authService.registerPersonal(req);
-        Assertions.assertNotNull(result.userId);
-        Assertions.assertEquals(AccountStatus.PENDING_VERIFICATION, result.status);
+        Assertions.assertNotNull(result.userId());
+        Assertions.assertEquals(AccountStatus.PENDING_VERIFICATION, result.status());
 
         User user = User.findByEmail("test.user@example.com");
         Assertions.assertNotNull(user);
@@ -108,8 +108,8 @@ public class AuthServiceTest {
         successVerify.email = req.email;
         successVerify.otpCode = otp;
         VerifyEmailResponse verifyResult = authService.verifyEmail(successVerify);
-        Assertions.assertEquals(AccountStatus.ACTIVE, verifyResult.status);
-        Assertions.assertNotNull(verifyResult.personalTenantId);
+        Assertions.assertEquals(AccountStatus.ACTIVE, verifyResult.status());
+        Assertions.assertNotNull(verifyResult.personalTenantId());
 
         User.getEntityManager().clear();
         User updatedUser = User.findByEmail(req.email);
@@ -147,9 +147,9 @@ public class AuthServiceTest {
         req.admin.password = "AdminP@ss123";
 
         BusinessRegisterResponse result = authService.registerBusiness(req);
-        Assertions.assertNotNull(result.tenantId);
-        Assertions.assertEquals("giai-phap-moi", result.tenantSlug);
-        Assertions.assertEquals(UserRole.TENANT_ADMIN, result.role);
+        Assertions.assertNotNull(result.tenantId());
+        Assertions.assertEquals("giai-phap-moi", result.tenantSlug());
+        Assertions.assertEquals(UserRole.TENANT_ADMIN, result.role());
 
         Mockito.verify(emailNotificationService).sendBusinessWelcomeEmail(
             ArgumentMatchers.eq("admin@giaiphapmoi.vn"),
@@ -211,9 +211,9 @@ public class AuthServiceTest {
         correctReq.password = "Secret123!";
         AuthResponse loginResult = authService.login(correctReq, "Chrome Mac", "127.0.0.1");
 
-        Assertions.assertNotNull(loginResult.accessToken);
-        Assertions.assertNotNull(loginResult.refreshToken);
-        Assertions.assertNotNull(loginResult.sessionId);
+        Assertions.assertNotNull(loginResult.accessToken());
+        Assertions.assertNotNull(loginResult.refreshToken());
+        Assertions.assertNotNull(loginResult.sessionId());
 
         UserCredential.getEntityManager().clear();
         Assertions.assertEquals(0, UserCredential.findByUserId(user.id).failedLoginCount);
@@ -255,8 +255,8 @@ public class AuthServiceTest {
 
         Assertions.assertFalse(bruteForceService.isLocked(reg.email));
         AuthResponse loginResult = authService.login(correctReq, "Chrome", "127.0.0.1");
-        Assertions.assertNotNull(loginResult.accessToken);
-        Assertions.assertNotNull(loginResult.sessionId);
+        Assertions.assertNotNull(loginResult.accessToken());
+        Assertions.assertNotNull(loginResult.sessionId());
     }
 
     @Test
@@ -292,7 +292,7 @@ public class AuthServiceTest {
         loginReq.email = reg.email;
         loginReq.password = "NewPassword999!";
         AuthResponse loginRes = authService.login(loginReq, "Firefox", "127.0.0.1");
-        Assertions.assertNotNull(loginRes.accessToken);
+        Assertions.assertNotNull(loginRes.accessToken());
     }
 
     @Test
@@ -315,15 +315,15 @@ public class AuthServiceTest {
         loginReq.password = "RefreshPass123!";
         AuthResponse loginRes = authService.login(loginReq, "Chrome", "127.0.0.1");
 
-        RefreshTokenResponse refreshed = authService.refresh(loginRes.refreshToken);
-        Assertions.assertNotNull(refreshed.accessToken);
-        Assertions.assertEquals(900, refreshed.expiresIn);
+        RefreshTokenResponse refreshed = authService.refresh(loginRes.refreshToken());
+        Assertions.assertNotNull(refreshed.accessToken());
+        Assertions.assertEquals(900, refreshed.expiresIn());
 
         User user = User.findByEmail(reg.email);
-        var accessJwt = jwtTokenService.parseToken(loginRes.accessToken);
-        authService.logout(user.id, loginRes.sessionId, accessJwt.getTokenID(), 900);
+        var accessJwt = jwtTokenService.parseToken(loginRes.accessToken());
+        authService.logout(user.id, loginRes.sessionId(), accessJwt.getTokenID(), 900);
 
-        ApiException ex = Assertions.assertThrows(ApiException.class, () -> authService.refresh(loginRes.refreshToken));
+        ApiException ex = Assertions.assertThrows(ApiException.class, () -> authService.refresh(loginRes.refreshToken()));
         Assertions.assertEquals(ErrorCode.AUTH_REFRESH_TOKEN_INVALID_OR_REVOKED, ex.getErrorCode());
         Assertions.assertEquals(401, ex.getHttpStatus());
     }

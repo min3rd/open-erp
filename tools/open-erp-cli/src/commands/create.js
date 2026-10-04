@@ -4,11 +4,7 @@ import { basename, join, resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { writeFile } from '../lib/fsx.js';
 import { projectFiles } from '../lib/templates.js';
-import { validateManifest } from '../lib/manifest.js';
-import { isValidSemver } from '../lib/semver.js';
-
-const ID_PATTERN = /^[a-z][a-z0-9-]{2,49}$/;
-const RESERVED = new Set(['core', 'iam', 'platform', 'organization', 'plugins']);
+import { PLUGIN_KEY_PATTERN, RESERVED_KEYS, validateManifest } from '../lib/manifest.js';
 
 export async function createCommand(flags) {
   const interactive = !flags.nonInteractive && process.stdin.isTTY;
@@ -18,13 +14,13 @@ export async function createCommand(flags) {
     description: flags.description || (interactive ? await ask('Short description', '') : ''),
     packaging: flags.packaging || 'image',
     db: flags.db || 'postgres',
-    withWeb: flags.withWeb !== 'false',
+    withWeb: flags.withWeb !== false,
     platforms: flags.platforms || 'desktop',
     coreVersion: flags.coreVersion || '>=1.0.0 <2.0.0',
     target: flags.target || null,
     packageOverride: flags.package || null,
   };
-  if (!options.id || !ID_PATTERN.test(options.id) || RESERVED.has(options.id)) {
+  if (!options.id || !PLUGIN_KEY_PATTERN.test(options.id) || RESERVED_KEYS.has(options.id)) {
     throw new Error('A valid, non-reserved --id is required (lowercase kebab-case, 3-50 chars)');
   }
   if (!options.name) {
@@ -35,9 +31,6 @@ export async function createCommand(flags) {
   }
   if (!['postgres', 'mongodb'].includes(options.db)) {
     throw new Error('--db must be "postgres" or "mongodb"');
-  }
-  if (!isValidSemver('1.0.0')) {
-    throw new Error('template version is invalid');
   }
   const target = resolve(options.target || options.id);
   if (existsSync(target) && !flags.force) {
@@ -60,12 +53,8 @@ export async function createCommand(flags) {
   for (const [path, content] of Object.entries(files)) {
     writeFile(join(target, path), content);
   }
-  if (flags.gitInit !== 'false') {
+  if (flags.gitInit !== false) {
     gitInit(target);
-  }
-  const manifestCheck = validateManifest(JSON.parse(files['plugin.json']));
-  if (manifestCheck.length > 0) {
-    throw new Error(`manifest validation failed after generation: ${manifestCheck.join('; ')}`);
   }
   console.log(`Created plugin "${options.id}" at ${target}`);
   console.log(`Manifest: ${manifestPath}`);

@@ -5,14 +5,6 @@ public enum PlatformAdminRole {
     SUPPORT_ENGINEER;
 
     public static PlatformAdminRole fromString(String value) {
-        if (value == null) {
-            return SUPPORT_ENGINEER;
-        }
-        for (PlatformAdminRole role : values()) {
-            if (role.name().equalsIgnoreCase(value.trim())) {
-                return role;
-            }
-        }
-        return SUPPORT_ENGINEER;
+        return EnumParser.parse(PlatformAdminRole.class, value, SUPPORT_ENGINEER);
     }
 }

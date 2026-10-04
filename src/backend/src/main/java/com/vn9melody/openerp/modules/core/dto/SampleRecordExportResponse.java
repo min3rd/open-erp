@@ -21,9 +21,6 @@ public class SampleRecordExportResponse {
     @JsonProperty("total_records")
     public long totalRecords;
 
-    @JsonProperty("expires_at")
-    public String expiresAt;
-
     public SampleRecordExportResponse() {
     }
 

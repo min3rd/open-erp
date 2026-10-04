@@ -15,12 +15,12 @@
  *   npm run e2e:plugin -- --keep       # do not uninstall at the end
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
+import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-const IS_WINDOWS = process.platform === 'win32';
 const BASE_URL = process.env.OPENERP_E2E_BASE_URL || 'http://localhost:8088';
 const PG_CONTAINER = 'openerp-postgres-primary';
 const PG_DB = 'openerp_dev';
@@ -69,12 +69,8 @@ function writeEvidence(result) {
   console.log(`[E2E] Evidence: ${file}`);
 }
 
-function capture(tool, toolArgs, options = {}) {
-  return spawnSync(tool, toolArgs, { encoding: 'utf8', ...options });
-}
-
 function docker(dockerArgs, options = {}) {
-  return capture('docker', dockerArgs, options);
+  return spawnSync('docker', dockerArgs, { encoding: 'utf8', ...options });
 }
 
 function psql(sql) {
@@ -103,7 +99,7 @@ async function api(method, path, options = {}) {
       method,
       headers,
       body,
-      signal: AbortSignal.timeout(options.timeoutMs ?? 900_000),
+      signal: AbortSignal.timeout(900_000),
     });
   } catch (error) {
     fail(`HTTP ${method} ${path} lỗi kết nối: ${error.message}`);
@@ -133,10 +129,6 @@ async function waitForBackend() {
   return false;
 }
 
-function sleep(ms) {
-  return new Promise((done) => setTimeout(done, ms));
-}
-
 function ensureInfra() {
   step('Khởi động hạ tầng Docker (PostgreSQL + Redis)...');
   const up = docker(['compose', 'up', '-d', 'postgres-primary', 'redis'], { cwd: ROOT, stdio: 'inherit' });
@@ -159,9 +151,7 @@ async function ensureBackend() {
   step('Backend chưa chạy — khởi chạy "mvn quarkus:dev" nền (logs/e2e/backend.log)...');
   mkdirSync(join(ROOT, 'logs/e2e'), { recursive: true });
   const out = join(ROOT, 'logs/e2e/backend.log');
-  const command = IS_WINDOWS
-    ? `mvn -f src/backend/pom.xml quarkus:dev >> "${out}" 2>&1`
-    : `mvn -f src/backend/pom.xml quarkus:dev >> "${out}" 2>&1`;
+  const command = `mvn -f src/backend/pom.xml quarkus:dev >> "${out}" 2>&1`;
   const child = spawn(command, {
     cwd: ROOT,
     env: { ...process.env, JAVA_TOOL_OPTIONS: '-Dnet.bytebuddy.experimental=true' },
@@ -250,9 +240,8 @@ function createAndPackagePlugin() {
     fail(`Không tìm thấy ${bundle}`);
   }
   const jar = join(WORK_DIR, 'dist/plugin-backend.jar');
-  const size = existsSync(jar) ? readFileSync(jar).length : 0;
-  evidence.push(`BUNDLE_ZIP=${readFileSync(bundle).length} bytes`);
-  evidence.push(`PLUGIN_BACKEND_JAR=${size} bytes`);
+  evidence.push(`BUNDLE_ZIP=${statSync(bundle).size} bytes`);
+  evidence.push(`PLUGIN_BACKEND_JAR=${existsSync(jar) ? statSync(jar).size : 0} bytes`);
   return { bundle, manifest: JSON.parse(readFileSync(join(WORK_DIR, 'plugin.json'), 'utf8')) };
 }
 

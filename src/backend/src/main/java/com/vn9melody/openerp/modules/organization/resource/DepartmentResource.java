@@ -7,8 +7,8 @@ import com.vn9melody.openerp.modules.organization.dto.DepartmentDtos.DepartmentM
 import com.vn9melody.openerp.modules.organization.dto.DepartmentDtos.DepartmentNodeResponse;
 import com.vn9melody.openerp.modules.organization.dto.DepartmentDtos.DepartmentRequest;
 import com.vn9melody.openerp.modules.organization.service.DepartmentService;
-import com.vn9melody.openerp.modules.organization.service.OrganizationSecurityResolver;
-import com.vn9melody.openerp.modules.organization.service.OrganizationSecurityResolver.TenantPrincipal;
+import com.vn9melody.openerp.core.security.TenantPrincipalResolver;
+import com.vn9melody.openerp.core.security.TenantPrincipalResolver.TenantPrincipal;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -41,7 +41,7 @@ import java.util.UUID;
 public class DepartmentResource {
 
     @Inject
-    OrganizationSecurityResolver securityResolver;
+    TenantPrincipalResolver securityResolver;
 
     @Inject
     DepartmentService departmentService;

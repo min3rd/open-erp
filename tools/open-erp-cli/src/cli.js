@@ -66,9 +66,9 @@ export function parseFlags(args) {
       const [rawName, inline] = arg.slice(2).split('=');
       const name = camel(rawName);
       if (inline !== undefined) {
-        flags[name] = inline;
+        flags[name] = coerce(inline);
       } else if (args[index + 1] !== undefined && !args[index + 1].startsWith('--')) {
-        flags[name] = args[index + 1];
+        flags[name] = coerce(args[index + 1]);
         index += 1;
       } else {
         flags[name] = true;
@@ -78,6 +78,12 @@ export function parseFlags(args) {
     }
   }
   return flags;
+}
+
+function coerce(value) {
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  return value;
 }
 
 function camel(value) {

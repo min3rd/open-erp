@@ -10,7 +10,3 @@ export function sha256File(filePath) {
     stream.on('end', () => resolve(hash.digest('hex')));
   });
 }
-
-export function sha256Text(value) {
-  return createHash('sha256').update(value, 'utf8').digest('hex');
-}

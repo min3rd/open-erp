@@ -19,10 +19,14 @@ export interface UserQuery {
 }
 
 function toQueryString(params: Record<string, string | number | undefined>): string {
-  const entries = Object.entries(params)
-    .filter(([, value]) => value !== undefined && value !== null && value !== '')
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`);
-  return entries.length ? `?${entries.join('&')}` : '';
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') {
+      search.set(key, String(value));
+    }
+  }
+  const query = search.toString();
+  return query ? `?${query}` : '';
 }
 
 @Injectable({

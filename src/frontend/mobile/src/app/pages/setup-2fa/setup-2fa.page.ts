@@ -106,14 +106,7 @@ export class Setup2FaPage implements OnInit {
     try {
       await navigator.clipboard.writeText(text);
     } catch {
-      const area = document.createElement('textarea');
-      area.value = text;
-      area.style.position = 'fixed';
-      area.style.opacity = '0';
-      document.body.appendChild(area);
-      area.select();
-      document.execCommand('copy');
-      document.body.removeChild(area);
+      // clipboard unavailable (insecure context / permission denied)
     }
     this.copiedField.set(field);
     setTimeout(() => this.copiedField.set(null), 2000);

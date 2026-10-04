@@ -13,8 +13,6 @@ export * from './theme-switcher/theme-switcher.component';
 export * from './mobile-nav-drawer/mobile-nav-drawer.component';
 export * from './topbar/topbar.component';
 export * from './plugin-card/plugin-card.component';
-export * from './plugin-management/plugin-management-list.component';
 export * from './version-timeline/version-timeline.component';
 export * from './operation-progress/operation-progress.component';
 export * from './credential-form/credential-form.component';
-export * from './render-mode-badge/render-mode-badge.component';

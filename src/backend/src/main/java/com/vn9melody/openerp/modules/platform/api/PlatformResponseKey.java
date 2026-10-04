@@ -10,16 +10,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum PlatformResponseKey {
     // Shared
     TENANT_ID("tenant_id"),
-    TENANT_SLUG("tenant_slug"),
     TENANT_NAME("tenant_name"),
     USER_ID("user_id"),
-    EMAIL("email"),
     FULL_NAME("full_name"),
-    TYPE("type"),
-    STATUS("status"),
-    ROLE("role"),
     CREATED_AT("created_at"),
-    UPDATED_AT("updated_at"),
 
     // Tenant management
     PLAN_TIER("plan_tier"),
@@ -59,9 +53,6 @@ public enum PlatformResponseKey {
 
     // Health
     SYSTEM_STATUS("system_status"),
-    DATABASE("database"),
-    REDIS("redis"),
-    KAFKA("kafka"),
     PLATFORM_METRICS("platform_metrics"),
     TOTAL_TENANTS("total_tenants"),
     ACTIVE_TENANTS("active_tenants"),
@@ -71,24 +62,16 @@ public enum PlatformResponseKey {
 
     // Audit
     EVENT_ID("event_id"),
-    SCOPE("scope"),
     ACTOR_USER_ID("actor_user_id"),
     ACTOR_TYPE("actor_type"),
     ACTOR_EMAIL("actor_email"),
-    ACTION("action"),
-    RESULT("result"),
     RESOURCE_TYPE("resource_type"),
     RESOURCE_ID("resource_id"),
     CORRELATION_ID("correlation_id"),
-    DETAILS("details"),
     IP_ADDRESS("ip_address"),
     USER_AGENT("user_agent"),
     PREV_HASH("prev_hash"),
     ENTRY_HASH("entry_hash"),
-    CHAIN_STATUS("chain_status"),
-    CHECKED_COUNT("checked_count"),
-    BROKEN_AT_LOG_ID("broken_at_log_id"),
-    BROKEN_AT_EVENT_ID("broken_at_event_id"),
 
     // Platform admins
     ADMIN_ID("admin_id"),

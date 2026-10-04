@@ -479,6 +479,10 @@ function webFiles(options) {
   const titleKey = `PLUGIN_${options.id.toUpperCase().replaceAll('-', '_')}_MENU`;
   const emptyKey = `PLUGIN_${options.id.toUpperCase().replaceAll('-', '_')}_EMPTY`;
   const project = `plugin-${options.id}-web`;
+  const dictionaries = {
+    vi: { [titleKey]: options.name, [emptyKey]: 'Chưa có dữ liệu.' },
+    en: { [titleKey]: options.name, [emptyKey]: 'No data yet.' },
+  };
   return {
     'web/package.json': `{
   "name": "@open-erp/${project}",
@@ -642,16 +646,7 @@ bootstrapApplication(PluginScreenComponent)
 `,
     'web/src/app/translate.pipe.ts': `import { Pipe, PipeTransform } from '@angular/core';
 
-const DICTIONARIES: Record<string, Record<string, string>> = {
-  vi: {
-    '${titleKey}': '${options.name}',
-    '${emptyKey}': 'Chưa có dữ liệu.',
-  },
-  en: {
-    '${titleKey}': '${options.name}',
-    '${emptyKey}': 'No data yet.',
-  },
-};
+const DICTIONARIES: Record<string, Record<string, string>> = ${JSON.stringify(dictionaries, null, 2)};
 
 @Pipe({ name: 'translate', standalone: true })
 export class TranslatePipe implements PipeTransform {
@@ -677,15 +672,7 @@ export class PluginScreenComponent {}
   <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ '${emptyKey}' | translate }}</p>
 </section>
 `,
-    'web/public/i18n/vi.json': `{
-  "${titleKey}": "${options.name}",
-  "${emptyKey}": "Chưa có dữ liệu."
-}
-`,
-    'web/public/i18n/en.json': `{
-  "${titleKey}": "${options.name}",
-  "${emptyKey}": "No data yet."
-}
-`,
+    'web/public/i18n/vi.json': `${JSON.stringify(dictionaries.vi, null, 2)}\n`,
+    'web/public/i18n/en.json': `${JSON.stringify(dictionaries.en, null, 2)}\n`,
   };
 }

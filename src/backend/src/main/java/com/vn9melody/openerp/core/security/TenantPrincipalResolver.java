@@ -1,24 +1,18 @@
-package com.vn9melody.openerp.modules.organization.service;
+package com.vn9melody.openerp.core.security;
 
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.api.ErrorCode;
-import com.vn9melody.openerp.core.security.AccessTokenVerifier;
-import com.vn9melody.openerp.core.security.JwtTokenService;
-import com.vn9melody.openerp.core.security.SessionManager;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.UUID;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 /**
- * Resolves the authenticated tenant principal for every Organization API call.
- *
- * <p>TODO(wave-integration): replace the manual tenant-claim extraction with the shared
- * {@code SecurityContextFilter} / {@code UserSecurityContext} once the parallel security
- * wave publishes it, and attach {@code @RequirePermission("core:...:*")} to the resources.</p>
+ * Shared resolver for the authenticated tenant principal used by every
+ * {@code /api/v1/iam/*} and {@code /api/v1/organization/*} call.
  */
 @ApplicationScoped
-public class OrganizationSecurityResolver {
+public class TenantPrincipalResolver {
 
     @Inject
     AccessTokenVerifier accessTokenVerifier;
@@ -45,7 +39,6 @@ public class OrganizationSecurityResolver {
         if (tenantId == null) {
             throw new ApiException(403, ErrorCode.FORBIDDEN, "Tenant context is required for this operation");
         }
-
         return new TenantPrincipal(token.userId(), tenantId, token.role(), sessionId);
     }
 

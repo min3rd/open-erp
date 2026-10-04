@@ -6,7 +6,6 @@ import {
   ApiResponse,
   AuditLog,
   HealthSnapshot,
-  ImpersonationLog,
   ImpersonationSessionData,
   ListData,
   PagedData,
@@ -49,16 +48,6 @@ export interface AuditLogQuery {
   actor_user_id?: string;
   resource_type?: string;
   keyword?: string;
-}
-
-export interface ImpersonationLogQuery {
-  page?: number;
-  size?: number;
-  super_admin_user_id?: string;
-  tenant_id?: string;
-  status?: string;
-  from_date?: string;
-  to_date?: string;
 }
 
 export interface GrantAdminPayload {
@@ -170,10 +159,6 @@ export class PlatformService {
 
   getAuditLog(logId: string): Observable<ApiResponse<AuditLog>> {
     return this.api.get<AuditLog>(`/api/v1/platform/audit-logs/${logId}`);
-  }
-
-  getImpersonationLogs(query: ImpersonationLogQuery): Observable<ApiResponse<PagedData<ImpersonationLog>>> {
-    return this.api.get<PagedData<ImpersonationLog>>(`/api/v1/platform/impersonation-logs${buildQuery(query as Record<string, any>)}`);
   }
 
   getAdmins(): Observable<ApiResponse<ListData<PlatformAdmin>>> {

@@ -3,7 +3,6 @@ import {
   AuditResult,
   AuditScope,
   DataScope,
-  ImpersonationLogStatus,
   PlatformAdminRole,
   PlatformAdminStatus,
   SubsystemStatus,
@@ -231,18 +230,6 @@ export interface PlatformAdmin {
   last_login_at: string | null;
   disabled_at: string | null;
   created_at: string;
-}
-
-export interface ImpersonationLog {
-  log_id: string;
-  super_admin_user_id: string;
-  super_admin_email: string;
-  target_tenant_id: string;
-  target_user_id: string;
-  support_ticket: string;
-  status: ImpersonationLogStatus;
-  started_at: string;
-  ended_at: string | null;
 }
 
 export interface ImpersonationSessionData {

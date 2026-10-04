@@ -17,15 +17,7 @@ public enum TenantPluginStatus {
     UNINSTALLED;
 
     public static TenantPluginStatus fromString(String value) {
-        if (value == null) {
-            return NOT_INSTALLED;
-        }
-        for (TenantPluginStatus status : values()) {
-            if (status.name().equalsIgnoreCase(value.trim())) {
-                return status;
-            }
-        }
-        return NOT_INSTALLED;
+        return EnumParser.parse(TenantPluginStatus.class, value, NOT_INSTALLED);
     }
 
     public boolean isServing() {

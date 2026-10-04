@@ -10,14 +10,6 @@ public enum PluginRollbackStrategy {
     DOWN_MIGRATION;
 
     public static PluginRollbackStrategy fromString(String value) {
-        if (value == null) {
-            return SNAPSHOT_RESTORE;
-        }
-        for (PluginRollbackStrategy strategy : values()) {
-            if (strategy.name().equalsIgnoreCase(value.trim())) {
-                return strategy;
-            }
-        }
-        return SNAPSHOT_RESTORE;
+        return EnumParser.parse(PluginRollbackStrategy.class, value, SNAPSHOT_RESTORE);
     }
 }

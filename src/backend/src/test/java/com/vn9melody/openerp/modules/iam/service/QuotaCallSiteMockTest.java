@@ -53,7 +53,7 @@ public class QuotaCallSiteMockTest {
 
             ArgumentCaptor<UUID> tenantCaptor = ArgumentCaptor.forClass(UUID.class);
             Mockito.verify(quotaMock).checkUserQuota(tenantCaptor.capture());
-            assertEquals(response.tenantId, tenantCaptor.getValue().toString());
+            assertEquals(response.tenantId(), tenantCaptor.getValue().toString());
         } finally {
             QuarkusTransaction.requiringNew().run(S2IamFixtures::cleanup);
         }

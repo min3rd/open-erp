@@ -9,14 +9,6 @@ public enum PluginCatalogStatus {
     BLOCKED;
 
     public static PluginCatalogStatus fromString(String value) {
-        if (value == null) {
-            return ACTIVE;
-        }
-        for (PluginCatalogStatus status : values()) {
-            if (status.name().equalsIgnoreCase(value.trim())) {
-                return status;
-            }
-        }
-        return ACTIVE;
+        return EnumParser.parse(PluginCatalogStatus.class, value, ACTIVE);
     }
 }

@@ -32,11 +32,6 @@ export enum TenantPluginStatus {
   UNINSTALLED = 'UNINSTALLED',
 }
 
-export enum PluginStorageModel {
-  DEDICATED_SCHEMA = 'DEDICATED_SCHEMA',
-  DEDICATED_DATABASE = 'DEDICATED_DATABASE',
-}
-
 export enum PluginDistributionType {
   DOCKER_HUB = 'DOCKER_HUB',
   IMAGE_REGISTRY = 'IMAGE_REGISTRY',
@@ -62,18 +57,4 @@ export enum PluginMigrationPolicy {
 export enum PluginCredentialScope {
   PLATFORM = 'PLATFORM',
   TENANT = 'TENANT',
-}
-
-export enum PluginOperationType {
-  INSTALL = 'INSTALL',
-  UPGRADE = 'UPGRADE',
-  UNINSTALL = 'UNINSTALL',
-  ENABLE = 'ENABLE',
-  DISABLE = 'DISABLE',
-  BLOCK = 'BLOCK',
-  UNBLOCK = 'UNBLOCK',
-  FORCE_UNINSTALL = 'FORCE_UNINSTALL',
-  BULK_APPLY = 'BULK_APPLY',
-  REGISTER_VERSION = 'REGISTER_VERSION',
-  ROLLBACK = 'ROLLBACK',
 }

@@ -27,10 +27,6 @@ public class TenantPluginRepository implements PanacheRepositoryBase<TenantPlugi
         return list("pluginKey = ?1 order by tenantId asc", pluginKey);
     }
 
-    public List<TenantPlugin> listByPluginAndStatuses(String pluginKey, List<TenantPluginStatus> statuses) {
-        return list("pluginKey = ?1 and status in ?2 order by tenantId asc", pluginKey, statuses);
-    }
-
     public long countByPluginAndStatus(String pluginKey, TenantPluginStatus status) {
         return count("pluginKey = ?1 and status = ?2", pluginKey, status);
     }

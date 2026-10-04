@@ -6,8 +6,7 @@ import { ImpersonationBannerComponent } from './features/platform/impersonation-
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, ImpersonationBannerComponent],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  templateUrl: './app.html'
 })
 export class App {
   protected readonly title = signal('web');

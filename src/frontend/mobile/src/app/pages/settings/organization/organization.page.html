@@ -110,13 +110,13 @@
         (valueChange)="onMemberSearchChange($event)"
       />
 
-      @if (loadingDirectory()) {
+      @if (directoryList.loading()) {
         <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'COMMON_LOADING'"></p>
-      } @else if (!directoryUsers().length) {
+      } @else if (!directoryList.items().length) {
         <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'ORGANIZATION_MEMBER_EMPTY'"></p>
       } @else {
         <div class="space-y-1.5">
-          @for (user of directoryUsers(); track user.id) {
+          @for (user of directoryList.items(); track user.id) {
             <div class="min-h-10 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-2.5 space-y-1">
               <div class="flex items-start justify-between gap-2">
                 <span class="min-w-0 flex-1">
@@ -148,14 +148,14 @@
             </div>
           }
 
-          @if (hasMoreDirectory()) {
+          @if (directoryList.hasMore()) {
             <button
               type="button"
               class="w-full min-h-10 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 px-2.5 py-1.5 text-[11px] text-center text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800/60"
-              [disabled]="loadingMoreDirectory()"
-              (click)="loadMoreDirectory()"
+              [disabled]="directoryList.loadingMore()"
+              (click)="directoryList.load(false)"
             >
-              {{ (loadingMoreDirectory() ? 'COMMON_LOADING' : 'COMMON_LOAD_MORE') | translate }}
+              {{ (directoryList.loadingMore() ? 'COMMON_LOADING' : 'COMMON_LOAD_MORE') | translate }}
             </button>
           }
         </div>

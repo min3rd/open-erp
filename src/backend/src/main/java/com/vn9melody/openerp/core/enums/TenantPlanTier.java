@@ -6,14 +6,6 @@ public enum TenantPlanTier {
     ENTERPRISE;
 
     public static TenantPlanTier fromString(String value) {
-        if (value == null) {
-            return STANDARD;
-        }
-        for (TenantPlanTier tier : values()) {
-            if (tier.name().equalsIgnoreCase(value.trim())) {
-                return tier;
-            }
-        }
-        return STANDARD;
+        return EnumParser.parse(TenantPlanTier.class, value, STANDARD);
     }
 }

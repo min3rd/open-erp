@@ -110,7 +110,6 @@ public class PluginCredentialService {
         List<PluginCredential> rows = scope == PluginCredentialScope.PLATFORM
                 ? repository.listPlatform()
                 : repository.listByTenant(tenantId);
-        rows.forEach(row -> row.lastUsedAt = row.lastUsedAt);
         return rows.stream().map(this::toItem).toList();
     }
 

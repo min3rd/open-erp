@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 
 export function ensureDir(path) {
@@ -20,16 +20,4 @@ export function listFiles(root, current = root, acc = []) {
     }
   }
   return acc;
-}
-
-export function readText(path) {
-  return readFileSync(path, 'utf8');
-}
-
-export function exists(path) {
-  return existsSync(path);
-}
-
-export function removeDir(path) {
-  rmSync(path, { recursive: true, force: true });
 }

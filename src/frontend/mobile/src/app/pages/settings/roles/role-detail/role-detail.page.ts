@@ -30,11 +30,13 @@ import {
   TenantUser,
   TranslateDirective,
   TranslatePipe,
-  UserStatus,
+  userStatusLabelKey,
+  userStatusVariant,
   apiMessage,
   dataScopeAbbreviationKey,
   dataScopeLabelKey,
 } from '@shared';
+import { PagedList } from '../../../../core/paged-list';
 
 export type ScopeOperation =
   | 'create_scope'
@@ -84,6 +86,9 @@ export class RoleDetailPage implements OnInit {
   readonly badgeSystem = ColorVariant.DEFAULT;
   readonly buttonPrimary = ColorVariant.PRIMARY;
 
+  readonly userStatusVariant = userStatusVariant;
+  readonly userStatusLabelKey = userStatusLabelKey;
+
   readonly operations: OperationDef[] = [
     { key: 'read_scope', labelKey: 'IAM_OPERATION_READ' },
     { key: 'create_scope', labelKey: 'IAM_OPERATION_CREATE' },
@@ -119,18 +124,15 @@ export class RoleDetailPage implements OnInit {
   policies = signal<Record<string, DataPolicy>>({});
   savingPolicies = signal<boolean>(false);
 
-  users = signal<TenantUser[]>([]);
   userSearch = signal<string>('');
-  usersPage = signal<number>(1);
-  usersTotalPages = signal<number>(1);
-  loadingUsers = signal<boolean>(false);
-  loadingMoreUsers = signal<boolean>(false);
+  usersList = new PagedList<TenantUser>(
+    (page) => this.iam.getUsers({ keyword: this.userSearch().trim() || undefined, page, size: 20 }),
+    (err) => this.error.set(apiMessage(this.i18n, err))
+  );
   selectedUser = signal<TenantUser | null>(null);
   userHasRole = signal<boolean>(false);
   loadingUserRoles = signal<boolean>(false);
   savingUserRole = signal<boolean>(false);
-
-  private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
   permissionGroups = computed<PermissionGroup[]>(() => {
     const groups = new Map<string, Permission[]>();
@@ -177,44 +179,14 @@ export class RoleDetailPage implements OnInit {
 
   setTab(tab: 'permissions' | 'scopes' | 'users') {
     this.activeTab.set(tab);
-    if (tab === 'users' && !this.users().length && !this.loadingUsers()) {
-      this.loadUsers(true);
+    if (tab === 'users' && this.usersList.page() === 0 && !this.usersList.loading()) {
+      this.usersList.load(true);
     }
   }
 
   onUserSearchChange(value: string) {
     this.userSearch.set(value);
-    if (this.searchTimer) {
-      clearTimeout(this.searchTimer);
-    }
-    this.searchTimer = setTimeout(() => this.loadUsers(true), 300);
-  }
-
-  loadMoreUsers() {
-    if (this.usersPage() < this.usersTotalPages() && !this.loadingMoreUsers()) {
-      this.loadUsers(false);
-    }
-  }
-
-  hasMoreUsers(): boolean {
-    return this.usersPage() < this.usersTotalPages();
-  }
-
-  userStatusVariant(status: string | null | undefined): ColorVariant {
-    switch (status) {
-      case UserStatus.ACTIVE:
-        return ColorVariant.SUCCESS;
-      case UserStatus.LOCKED:
-        return ColorVariant.WARNING;
-      case UserStatus.PENDING:
-        return ColorVariant.INFO;
-      default:
-        return ColorVariant.DEFAULT;
-    }
-  }
-
-  userStatusLabelKey(status: string | null | undefined): string {
-    return status ? `USER_STATUS_${status}` : 'COMMON_INACTIVE';
+    this.usersList.debounce(() => this.usersList.load(true));
   }
 
   selectUser(user: TenantUser) {
@@ -261,33 +233,6 @@ export class RoleDetailPage implements OnInit {
     } else {
       this.iam.removeUserRole(user.id, this.roleId).subscribe(handlers);
     }
-  }
-
-  private loadUsers(reset: boolean) {
-    if (reset) {
-      this.loadingUsers.set(true);
-    } else {
-      this.loadingMoreUsers.set(true);
-    }
-    const nextPage = reset ? 1 : this.usersPage() + 1;
-    this.iam.getUsers({ keyword: this.userSearch().trim() || undefined, page: nextPage, size: 20 }).subscribe({
-      next: (res) => {
-        const items = res.data?.items || [];
-        this.users.set(reset ? items : [...this.users(), ...items]);
-        this.usersTotalPages.set(res.data?.total_pages || 1);
-        this.usersPage.set(nextPage);
-        this.loadingUsers.set(false);
-        this.loadingMoreUsers.set(false);
-      },
-      error: (err) => {
-        if (reset) {
-          this.users.set([]);
-        }
-        this.loadingUsers.set(false);
-        this.loadingMoreUsers.set(false);
-        this.error.set(apiMessage(this.i18n, err));
-      }
-    });
   }
 
   isGranted(permissionId: string): boolean {

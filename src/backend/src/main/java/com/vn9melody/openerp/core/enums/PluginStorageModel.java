@@ -9,14 +9,6 @@ public enum PluginStorageModel {
     DEDICATED_DATABASE;
 
     public static PluginStorageModel fromString(String value) {
-        if (value == null) {
-            return DEDICATED_SCHEMA;
-        }
-        for (PluginStorageModel model : values()) {
-            if (model.name().equalsIgnoreCase(value.trim())) {
-                return model;
-            }
-        }
-        return DEDICATED_SCHEMA;
+        return EnumParser.parse(PluginStorageModel.class, value, DEDICATED_SCHEMA);
     }
 }

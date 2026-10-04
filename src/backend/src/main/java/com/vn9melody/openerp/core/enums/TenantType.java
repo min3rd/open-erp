@@ -5,18 +5,9 @@ public enum TenantType {
     BUSINESS;
 
     public static TenantType fromString(String value) {
-        if (value == null) {
-            return PERSONAL;
-        }
-        String normalized = value.trim();
-        if ("ORGANIZATION".equalsIgnoreCase(normalized)) {
+        if (value != null && "ORGANIZATION".equalsIgnoreCase(value.trim())) {
             return BUSINESS;
         }
-        for (TenantType t : values()) {
-            if (t.name().equalsIgnoreCase(normalized)) {
-                return t;
-            }
-        }
-        return PERSONAL;
+        return EnumParser.parse(TenantType.class, value, PERSONAL);
     }
 }

@@ -11,6 +11,7 @@ import {
   IonMenuButton,
 } from '@ionic/angular/standalone';
 import { SampleRecordService } from '../../../core/iam.service';
+import { PagedList } from '../../../core/paged-list';
 import {
   BadgeComponent,
   ColorVariant,
@@ -48,15 +49,13 @@ import {
 export class SampleRecordsPage implements OnInit {
   private sampleRecords = inject(SampleRecordService);
   private i18n = inject(I18nService);
+  private readonly size = 20;
 
   readonly badgeSuccess = ColorVariant.SUCCESS;
   readonly badgeDefault = ColorVariant.DEFAULT;
   readonly buttonSecondary = ColorVariant.SECONDARY;
   readonly formatDateTime = formatDateTime;
 
-  records = signal<SampleRecord[]>([]);
-  loading = signal<boolean>(true);
-  loadingMore = signal<boolean>(false);
   error = signal<string | null>(null);
   success = signal<string | null>(null);
 
@@ -65,41 +64,13 @@ export class SampleRecordsPage implements OnInit {
   newTitle = '';
   newAmount = '';
 
-  page = 0;
-  private readonly size = 20;
-  totalPages = signal<number>(1);
+  recordsList = new PagedList<SampleRecord>(
+    (page) => this.sampleRecords.getRecords(page - 1, this.size),
+    (err) => this.error.set(apiMessage(this.i18n, err))
+  );
+
   ngOnInit() {
-    this.load(true);
-  }
-
-  load(reset: boolean) {
-    if (reset) {
-      this.page = 0;
-      this.loading.set(true);
-    } else {
-      if (this.page + 1 >= this.totalPages()) {
-        return;
-      }
-      this.loadingMore.set(true);
-    }
-    this.error.set(null);
-
-    const nextPage = reset ? 0 : this.page + 1;
-    this.sampleRecords.getRecords(nextPage, this.size).subscribe({
-      next: res => {
-        const items = res.data?.items || [];
-        this.records.set(reset ? items : [...this.records(), ...items]);
-        this.totalPages.set(res.data?.total_pages || 1);
-        this.page = nextPage;
-        this.loading.set(false);
-        this.loadingMore.set(false);
-      },
-      error: err => {
-        this.loading.set(false);
-        this.loadingMore.set(false);
-        this.error.set(apiMessage(this.i18n, err));
-      }
-    });
+    this.recordsList.load(true);
   }
 
   toggleForm() {
@@ -123,7 +94,7 @@ export class SampleRecordsPage implements OnInit {
         this.newTitle = '';
         this.newAmount = '';
         this.showForm.set(false);
-        this.load(true);
+        this.recordsList.load(true);
       },
       error: err => {
         this.creating.set(false);

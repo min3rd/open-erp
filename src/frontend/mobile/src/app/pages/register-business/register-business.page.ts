@@ -23,7 +23,8 @@ import {
   ThemeSwitcherComponent,
   ButtonType,
   CompanySize,
-  apiMessage
+  apiMessage,
+  generateSlug
 } from '@shared';
 
 type SlugCheckState = 'idle' | 'checking' | 'available' | 'taken' | 'error';
@@ -99,26 +100,16 @@ export class RegisterBusinessPage implements OnDestroy {
   }
 
   onTenantNameChange(val: string) {
-    if (!this.tenantSlug || this.tenantSlug === this.generateSlug(this.tenantName)) {
-      this.tenantSlug = this.generateSlug(val);
+    if (!this.tenantSlug || this.tenantSlug === generateSlug(this.tenantName)) {
+      this.tenantSlug = generateSlug(val);
       this.slugCheck$.next(this.tenantSlug);
     }
   }
 
   onSlugChange(val: string) {
-    this.tenantSlug = this.generateSlug(val);
+    this.tenantSlug = generateSlug(val);
     this.errorMessage.set(null);
     this.slugCheck$.next(this.tenantSlug);
-  }
-
-  generateSlug(str: string): string {
-    return str
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/đ/g, 'd')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
   }
 
   handleBusinessRegister() {

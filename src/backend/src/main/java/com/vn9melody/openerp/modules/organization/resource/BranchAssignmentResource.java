@@ -8,8 +8,8 @@ import com.vn9melody.openerp.modules.organization.dto.BranchAssignmentDtos.Branc
 import com.vn9melody.openerp.modules.organization.dto.BranchAssignmentDtos.BranchAssignmentUpdateRequest;
 import com.vn9melody.openerp.modules.organization.service.BranchAssignmentService;
 import com.vn9melody.openerp.modules.organization.service.OrganizationReferenceGuard;
-import com.vn9melody.openerp.modules.organization.service.OrganizationSecurityResolver;
-import com.vn9melody.openerp.modules.organization.service.OrganizationSecurityResolver.TenantPrincipal;
+import com.vn9melody.openerp.core.security.TenantPrincipalResolver;
+import com.vn9melody.openerp.core.security.TenantPrincipalResolver.TenantPrincipal;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -42,7 +42,7 @@ import java.util.UUID;
 public class BranchAssignmentResource {
 
     @Inject
-    OrganizationSecurityResolver securityResolver;
+    TenantPrincipalResolver securityResolver;
 
     @Inject
     OrganizationReferenceGuard referenceGuard;

@@ -1,4 +1,4 @@
-.PHONY: help infra infra-minimal infra-kafka infra-mongo infra-storage infra-mail infra-full infra-down backend web mobile dev build-images deploy-staging deploy-prod
+.PHONY: help infra infra-kafka infra-mongo infra-storage infra-mail infra-full infra-down backend web mobile build-images deploy-staging deploy-prod
 
 help:
 	@echo "Open-ERP CLI & Development Automation"
@@ -13,62 +13,46 @@ help:
 	@echo "make backend        - Chay Quarkus Java Backend Dev Mode (Live coding port 8088)"
 	@echo "make web            - Chay Angular 22 Web Desktop Dev Server (port 4200)"
 	@echo "make mobile         - Chay Ionic 8 Mobile App Dev Server (port 8100)"
-	@echo "make dev            - Khoi dong ha tang toi thieu va huong dan chay app"
 	@echo "make build-images   - Dong goi Docker images cho Backend va Web"
-	@echo "make deploy-staging - Trien khai len moi truong Staging (Docker / K8s)"
-	@echo "make deploy-prod    - Trien khai len moi truong Production (Kubernetes)"
+	@echo "make deploy-staging - Trien khai len moi truong Staging (Docker Compose)"
+	@echo "make deploy-prod    - Trien khai len Kubernetes"
 
 # Mặc định: Chạy hạ tầng tối thiểu (Postgres Primary + Redis) tiết kiệm RAM
 infra:
-	@echo "Starting MINIMAL infrastructure (PostgreSQL Primary + Redis)..."
-	docker compose up -d
-
-infra-minimal: infra
+	node scripts/run.mjs infra
 
 infra-kafka:
-	@echo "Starting MINIMAL + Apache Kafka & Kafka UI..."
-	docker compose --profile kafka up -d
+	node scripts/run.mjs infra kafka
 
 infra-mongo:
-	@echo "Starting MINIMAL + MongoDB Replica-Set..."
-	docker compose --profile mongo up -d
+	node scripts/run.mjs infra mongo
 
 infra-storage:
-	@echo "Starting MINIMAL + MinIO Object Storage..."
-	docker compose --profile storage up -d
+	node scripts/run.mjs infra storage
 
 infra-mail:
-	@echo "Starting MINIMAL + Mailpit SMTP..."
-	docker compose --profile mail up -d
+	node scripts/run.mjs infra mail
 
 infra-full:
-	@echo "Starting FULL infrastructure (All services, requires ~6-8GB RAM)..."
-	docker compose --profile full up -d
+	node scripts/run.mjs infra full
 
 infra-down:
-	@echo "Stopping all Docker infrastructure..."
-	docker compose down
+	node scripts/run.mjs infra-down
 
 backend:
-	@echo "Starting Quarkus Backend in Dev Mode (Java 21+)..."
-	./scripts/dev/run_backend.sh
+	node scripts/run.mjs backend
 
 web:
-	@echo "Starting Angular 22 Web Dev Server..."
-	./scripts/dev/run_web.sh
+	node scripts/run.mjs web
 
 mobile:
-	@echo "Starting Ionic 8 Mobile Dev Server..."
-	./scripts/dev/run_mobile.sh
-
-dev: infra
-	@echo "Minimal infrastructure ready. Starting applications..."
+	node scripts/run.mjs mobile
 
 build-images:
-	./scripts/deploy/build_images.sh
+	node scripts/run.mjs build-images
 
 deploy-staging:
-	./scripts/deploy/deploy_docker.sh
+	node scripts/run.mjs deploy-docker
 
 deploy-prod:
-	./scripts/deploy/deploy_k8s.sh
+	node scripts/run.mjs deploy-k8s

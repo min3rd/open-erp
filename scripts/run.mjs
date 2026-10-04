@@ -4,12 +4,11 @@
  * Single entry point for the root package.json scripts.
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { createWriteStream, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, openSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const RUNNER = fileURLToPath(import.meta.url);
 const IS_WINDOWS = process.platform === 'win32';
 const LOG_DIR = join(ROOT, 'logs');
 const PID_FILE = join(ROOT, '.dev-pids.json');
@@ -60,18 +59,26 @@ function runNode(relative) {
   execute(process.execPath, [join(ROOT, relative)]);
 }
 
-function runNpm(dir, args) {
-  execute('npm', args, { cwd: dir });
+function mavenBinary() {
+  return existsSync(join(BACKEND_DIR, IS_WINDOWS ? 'mvnw.cmd' : 'mvnw'))
+    ? (IS_WINDOWS ? 'mvnw.cmd' : './mvnw')
+    : 'mvn';
 }
 
-function mavenArgs() {
-  return existsSync(join(BACKEND_DIR, IS_WINDOWS ? 'mvnw.cmd' : 'mvnw')) ? 'wrapper' : 'mvn';
-}
-
-function runMaven(args, env = {}) {
-  const useWrapper = mavenArgs() === 'wrapper';
-  const tool = useWrapper ? (IS_WINDOWS ? 'mvnw.cmd' : './mvnw') : 'mvn';
-  execute(tool, args, { cwd: BACKEND_DIR, env: { ...process.env, ...env } });
+/** Launch spec shared by the foreground commands and the detached dev processes. */
+function appSpec(name) {
+  if (name === 'backend') {
+    return {
+      tool: mavenBinary(),
+      args: ['quarkus:dev'],
+      cwd: BACKEND_DIR,
+      env: { JAVA_TOOL_OPTIONS: '-Dnet.bytebuddy.experimental=true' },
+    };
+  }
+  if (name === 'web') {
+    return { tool: 'npm', args: ['run', 'start', '--', '--port', '4200'], cwd: WEB_DIR, env: {} };
+  }
+  return { tool: 'npm', args: ['run', 'serve'], cwd: MOBILE_DIR, env: {} };
 }
 
 function ensureJwtKeys() {
@@ -98,6 +105,30 @@ function ensureTestDatabase() {
   console.log("[Open-ERP] Đã tạo database 'openerp_test'.");
 }
 
+const INFRA_PROFILES = [
+  { name: 'infra', desc: 'PostgreSQL Primary + Redis (~300MB RAM)' },
+  { name: 'infra:mail', desc: 'Tối thiểu + Mailpit SMTP', heavy: true },
+  { name: 'infra:kafka', desc: 'Tối thiểu + Kafka & Kafka UI', heavy: true },
+  { name: 'infra:mongo', desc: 'Tối thiểu + MongoDB Replica-Set', heavy: true },
+  { name: 'infra:storage', desc: 'Tối thiểu + MinIO S3', heavy: true },
+  { name: 'infra:full', desc: 'Toàn bộ dịch vụ (RAM >= 8GB)', heavy: true },
+  { name: 'infra:ps', desc: 'Xem trạng thái containers' },
+  { name: 'infra:down', desc: 'Dừng toàn bộ hạ tầng' },
+];
+
+function infraProfileLines(predicate = () => true) {
+  return INFRA_PROFILES.filter(predicate)
+    .map(({ name, desc }) => `  npm run ${name.padEnd(15)}- ${desc}`);
+}
+
+function resolveProfile(profile) {
+  const flags = PROFILES[profile];
+  if (!flags) {
+    fail(`Profile không hợp lệ: "${profile}". Chọn: ${Object.keys(PROFILES).join(', ')}`);
+  }
+  return flags;
+}
+
 function printInfraInfo(profile) {
   console.log('');
   console.log('==========================================================');
@@ -110,19 +141,14 @@ function printInfraInfo(profile) {
   }
   console.log('');
   console.log('Bật thêm dịch vụ nặng theo nhu cầu:');
-  console.log('  npm run infra:mail      - Mailpit SMTP');
-  console.log('  npm run infra:kafka     - Kafka & Kafka UI');
-  console.log('  npm run infra:mongo     - MongoDB Replica-Set');
-  console.log('  npm run infra:storage   - MinIO S3');
-  console.log('  npm run infra:full      - Toàn bộ dịch vụ');
+  for (const line of infraProfileLines((entry) => entry.heavy)) {
+    console.log(line);
+  }
   console.log('==========================================================');
 }
 
 function infra(profile = 'minimal') {
-  const flags = PROFILES[profile];
-  if (!flags) {
-    fail(`Profile không hợp lệ: "${profile}". Chọn: ${Object.keys(PROFILES).join(', ')}`);
-  }
+  const flags = resolveProfile(profile);
   console.log(`[Open-ERP] Khởi động hạ tầng Docker (profile: ${profile})...`);
   execute('docker', ['compose', ...flags, 'up', '-d']);
   ensureTestDatabase();
@@ -139,26 +165,9 @@ function infraPs() {
   execute('docker', ['compose', 'ps']);
 }
 
-function spawnDetached(name, tool, args, options = {}) {
-  const spec = JSON.stringify({ tool, args, cwd: options.cwd ?? ROOT, env: options.env ?? {} });
-  const child = spawn(process.execPath, [RUNNER, '_supervise', name, spec], {
-    detached: true,
-    windowsHide: true,
-    stdio: 'ignore',
-  });
-  child.unref();
-  console.log(`[Open-ERP] ${name} đã khởi chạy (pid ${child.pid}) → logs/dev-${name}.log`);
-  return child.pid;
-}
-
-/**
- * Detached supervisor: runs the tool and streams stdout/stderr into
- * logs/dev-<name>.log. Avoids shell redirection quoting issues on Windows.
- */
-function supervise(name, specJson) {
-  const spec = JSON.parse(specJson);
+function spawnDetached(name, spec) {
   mkdirSync(LOG_DIR, { recursive: true });
-  const log = createWriteStream(join(LOG_DIR, `dev-${name}.log`), { flags: 'a' });
+  const log = openSync(join(LOG_DIR, `dev-${name}.log`), 'a');
   const needsShell = IS_WINDOWS && SHELL_TOOLS.has(spec.tool);
   const command = needsShell ? [spec.tool, ...spec.args].join(' ') : spec.tool;
   const commandArgs = needsShell ? [] : spec.args;
@@ -166,16 +175,13 @@ function supervise(name, specJson) {
     cwd: spec.cwd,
     env: { ...process.env, ...spec.env },
     shell: needsShell,
+    detached: true,
     windowsHide: true,
-    stdio: ['ignore', 'pipe', 'pipe'],
+    stdio: ['ignore', log, log],
   });
-  child.stdout.pipe(log);
-  child.stderr.pipe(log);
-  child.on('error', (error) => {
-    log.write(`[Open-ERP] Không chạy được "${spec.tool}": ${error.message}\n`);
-    log.end(() => process.exit(1));
-  });
-  child.on('exit', (code) => log.end(() => process.exit(code ?? 0)));
+  child.unref();
+  console.log(`[Open-ERP] ${name} đã khởi chạy (pid ${child.pid}) → logs/dev-${name}.log`);
+  return child.pid;
 }
 
 function killTree(pid) {
@@ -221,20 +227,23 @@ function stopProcesses(verbose = true) {
   rmSync(PID_FILE, { force: true });
 }
 
+function runApp(name, message) {
+  console.log(`[Open-ERP] ${message}`);
+  const spec = appSpec(name);
+  execute(spec.tool, spec.args, { cwd: spec.cwd, env: { ...process.env, ...spec.env } });
+}
+
 function backend() {
   ensureJwtKeys();
-  console.log('[Open-ERP] Khởi chạy Backend Quarkus Dev Mode (port 8088)...');
-  runMaven(['quarkus:dev'], { JAVA_TOOL_OPTIONS: '-Dnet.bytebuddy.experimental=true' });
+  runApp('backend', 'Khởi chạy Backend Quarkus Dev Mode (port 8088)...');
 }
 
 function web() {
-  console.log('[Open-ERP] Khởi chạy Web Angular 22 (port 4200)...');
-  runNpm(WEB_DIR, ['run', 'start', '--', '--port', '4200']);
+  runApp('web', 'Khởi chạy Web Angular 22 (port 4200)...');
 }
 
 function mobile() {
-  console.log('[Open-ERP] Khởi chạy Mobile Ionic 8 (port 8100)...');
-  runNpm(MOBILE_DIR, ['run', 'serve']);
+  runApp('mobile', 'Khởi chạy Mobile Ionic 8 (port 8100)...');
 }
 
 async function isUp(url) {
@@ -247,10 +256,7 @@ async function isUp(url) {
 }
 
 async function dev(profile = 'mail') {
-  const flags = PROFILES[profile];
-  if (!flags) {
-    fail(`Profile không hợp lệ: "${profile}". Chọn: ${Object.keys(PROFILES).join(', ')}`);
-  }
+  const flags = resolveProfile(profile);
   console.log(`[Open-ERP] Khởi động hạ tầng (${profile}) và 3 tiến trình dev...`);
   execute('docker', ['compose', ...flags, 'up', '-d']);
   ensureTestDatabase();
@@ -262,19 +268,17 @@ async function dev(profile = 'mail') {
     {
       name: 'backend',
       url: 'http://localhost:8088/q/health/live',
-      start: () => spawnDetached('backend', 'mvn', ['-f', 'src/backend/pom.xml', 'quarkus:dev'], {
-        env: { JAVA_TOOL_OPTIONS: '-Dnet.bytebuddy.experimental=true' },
-      }),
+      start: () => spawnDetached('backend', appSpec('backend')),
     },
     {
       name: 'web',
       url: 'http://localhost:4200',
-      start: () => spawnDetached('web', 'npm', ['run', 'start', '--', '--port', '4200'], { cwd: WEB_DIR }),
+      start: () => spawnDetached('web', appSpec('web')),
     },
     {
       name: 'mobile',
       url: 'http://localhost:8100',
-      start: () => spawnDetached('mobile', 'npm', ['run', 'serve'], { cwd: MOBILE_DIR }),
+      start: () => spawnDetached('mobile', appSpec('mobile')),
     },
   ];
   for (const service of services) {
@@ -358,14 +362,7 @@ function help() {
   console.log(`Open-ERP — npm scripts (đa nền tảng Windows/macOS/Linux)
 =========================================================
 Hạ tầng Docker:
-  npm run infra            - PostgreSQL Primary + Redis (~300MB RAM)
-  npm run infra:mail       - Tối thiểu + Mailpit SMTP
-  npm run infra:kafka      - Tối thiểu + Kafka & Kafka UI
-  npm run infra:mongo      - Tối thiểu + MongoDB Replica-Set
-  npm run infra:storage    - Tối thiểu + MinIO S3
-  npm run infra:full       - Toàn bộ dịch vụ (RAM >= 8GB)
-  npm run infra:ps         - Xem trạng thái containers
-  npm run infra:down       - Dừng toàn bộ hạ tầng
+${infraProfileLines().join('\n')}
 
 Ứng dụng (live-coding):
   npm run backend          - Quarkus dev mode (port 8088)
@@ -403,7 +400,6 @@ Triển khai:
 
 const handlers = {
   help: () => help(),
-  _supervise: () => supervise(process.argv[3], process.argv[4]),
   infra: () => infra(process.argv[3]),
   'infra-down': () => infraDown(),
   'infra-ps': () => infraPs(),

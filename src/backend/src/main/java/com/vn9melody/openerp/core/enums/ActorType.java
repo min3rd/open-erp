@@ -8,14 +8,6 @@ public enum ActorType {
     CLI;
 
     public static ActorType fromString(String value) {
-        if (value == null) {
-            return USER;
-        }
-        for (ActorType actorType : values()) {
-            if (actorType.name().equalsIgnoreCase(value.trim())) {
-                return actorType;
-            }
-        }
-        return USER;
+        return EnumParser.parse(ActorType.class, value, USER);
     }
 }

@@ -12,7 +12,8 @@ import {
   SharpButtonComponent,
   TableColumn,
   TableComponent,
-  TranslatePipe
+  TranslatePipe,
+  flattenDepartments
 } from '@shared';
 
 import { OrganizationService } from '../../../core/services/organization.service';
@@ -83,7 +84,7 @@ export class OrganizationComponent implements OnInit {
     { key: 'actions', labelKey: 'COMMON_ACTIONS', align: 'right' }
   ];
 
-  readonly flatDepartments = computed<FlatDepartmentNode[]>(() => this.flatten(this.departmentTree(), 0, []));
+  readonly flatDepartments = computed<FlatDepartmentNode[]>(() => flattenDepartments(this.departmentTree()));
 
   readonly visibleDepartments = computed<FlatDepartmentNode[]>(() => {
     const out: FlatDepartmentNode[] = [];
@@ -362,16 +363,6 @@ export class OrganizationComponent implements OnInit {
     } catch {
       return 'list';
     }
-  }
-
-  private flatten(nodes: DepartmentNode[], depth: number, acc: FlatDepartmentNode[]): FlatDepartmentNode[] {
-    for (const node of nodes) {
-      acc.push({ ...node, depth });
-      if (node.children?.length) {
-        this.flatten(node.children, depth + 1, acc);
-      }
-    }
-    return acc;
   }
 
   private walkVisible(nodes: DepartmentNode[], depth: number, acc: FlatDepartmentNode[]) {

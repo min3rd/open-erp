@@ -11,8 +11,8 @@ import com.vn9melody.openerp.modules.iam.service.IamRbacDtos.DataPolicyMatrixUpd
 import com.vn9melody.openerp.modules.iam.service.IamRbacDtos.DataPolicyUpdateRequest;
 import com.vn9melody.openerp.modules.iam.service.IamRbacDtos.DataResourceItem;
 import com.vn9melody.openerp.modules.iam.service.IamRbacDtos.RoleDataPoliciesUpdateResponse;
-import com.vn9melody.openerp.modules.iam.service.IamSecurityResolver;
-import com.vn9melody.openerp.modules.iam.service.IamSecurityResolver.IamPrincipal;
+import com.vn9melody.openerp.core.security.TenantPrincipalResolver;
+import com.vn9melody.openerp.core.security.TenantPrincipalResolver.TenantPrincipal;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -49,7 +49,7 @@ import java.util.UUID;
 public class DataPolicyResource {
 
     @Inject
-    IamSecurityResolver securityResolver;
+    TenantPrincipalResolver securityResolver;
 
     @Inject
     IamDataPolicyService dataPolicyService;
@@ -73,7 +73,7 @@ public class DataPolicyResource {
     @Path("/data-policies")
     @RequirePermission("core:role:read")
     public Response dataPolicies(@QueryParam("role_id") String roleId) {
-        IamPrincipal principal = authenticate();
+        TenantPrincipal principal = authenticate();
         UUID parsedRoleId = parseRoleId(roleId);
         List<DataPolicyItem> items = dataPolicyService.policies(principal.tenantId(), parsedRoleId);
         return Response.ok(ApiResponse.successList(
@@ -86,7 +86,7 @@ public class DataPolicyResource {
     @Path("/data-policies")
     @RequirePermission("core:role:manage")
     public Response updateDataPolicies(@Valid DataPolicyMatrixUpdateRequest request) {
-        IamPrincipal principal = authenticate();
+        TenantPrincipal principal = authenticate();
         if (request == null) {
             throw new ApiException(400, "VALIDATION_REQUIRED", "Request body is required");
         }
@@ -132,7 +132,7 @@ public class DataPolicyResource {
     @Path("/roles/{roleId}/data-policies")
     @RequirePermission("core:role:read")
     public Response roleDataPolicies(@PathParam("roleId") UUID roleId) {
-        IamPrincipal principal = authenticate();
+        TenantPrincipal principal = authenticate();
         List<DataPolicyItem> items = dataPolicyService.policies(principal.tenantId(), roleId);
         return Response.ok(ApiResponse.successList(
             IamErrorCodes.ROLE_DATA_POLICIES_SUCCESS,
@@ -145,7 +145,7 @@ public class DataPolicyResource {
     @RequirePermission("core:role:manage")
     public Response updateRoleDataPolicies(@PathParam("roleId") UUID roleId,
                                            @Valid DataPolicyUpdateRequest request) {
-        IamPrincipal principal = authenticate();
+        TenantPrincipal principal = authenticate();
         RoleDataPoliciesUpdateResponse data = dataPolicyService.updatePolicies(
             principal.tenantId(), roleId, request != null ? request.policies() : null);
         return Response.ok(ApiResponse.success(
@@ -159,7 +159,7 @@ public class DataPolicyResource {
     // Self-service endpoint: a user reads only their own effective scopes, so it stays
     // unannotated (self-allow) instead of requiring core:role:read (TASK-267 decision).
     public Response myDataScopes() {
-        IamPrincipal principal = authenticate();
+        TenantPrincipal principal = authenticate();
         List<DataPolicyItem> items = dataPolicyService.effectivePoliciesForUser(
             principal.tenantId(), principal.userId());
         return Response.ok(ApiResponse.successList(
@@ -179,7 +179,7 @@ public class DataPolicyResource {
         }
     }
 
-    private IamPrincipal authenticate() {
+    private TenantPrincipal authenticate() {
         return securityResolver.requireTenantPrincipal(
             httpHeaders != null ? httpHeaders.getHeaderString(HttpHeaders.AUTHORIZATION) : null);
     }

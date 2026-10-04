@@ -10,7 +10,6 @@ import com.vn9melody.openerp.core.enums.AuditResult;
 import com.vn9melody.openerp.core.enums.ResponseKey;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -51,7 +50,7 @@ public class PermissionEnforcementFilter implements ContainerRequestFilter {
     SecurityContextService securityContextService;
 
     @Inject
-    Instance<AuditRecorder> auditRecorders;
+    AuditRecorder auditRecorder;
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
@@ -133,9 +132,7 @@ public class PermissionEnforcementFilter implements ContainerRequestFilter {
                               String resourceType, Map<String, Object> details) {
         AuditRecorder.AuditEvent event = new AuditRecorder.AuditEvent(
             tenantId, actorUserId, action, resourceType, null, AuditResult.DENIED, details, null);
-        for (AuditRecorder recorder : auditRecorders) {
-            recorder.record(event);
-        }
+        auditRecorder.record(event);
     }
 
     private void abort(ContainerRequestContext requestContext, int status, String code, String message,

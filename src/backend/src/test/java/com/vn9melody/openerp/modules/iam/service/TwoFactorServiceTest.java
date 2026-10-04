@@ -85,19 +85,19 @@ public class TwoFactorServiceTest {
     @DisplayName("TC-08: Thiết lập 2FA chỉ trả secret/QR, enable mới trả backup codes và secret được mã hóa")
     public void testTwoFactorLifecycle() {
         TwoFactorSetupResponse setupResult = twoFactorService.setup2Fa(activeUser.id);
-        String secretKey = setupResult.secretKey;
+        String secretKey = setupResult.secretKey();
         Assertions.assertNotNull(secretKey);
-        Assertions.assertTrue(setupResult.qrCodeUri.contains("otpauth://totp/"));
+        Assertions.assertTrue(setupResult.qrCodeUri().contains("otpauth://totp/"));
 
         ApiException ex = Assertions.assertThrows(ApiException.class, () -> twoFactorService.enable2Fa(activeUser.id, "000000"));
         Assertions.assertEquals(ErrorCode.AUTH_2FA_CODE_INVALID, ex.getErrorCode());
 
         String validCode = totpService.generateCurrentCode(secretKey);
         TwoFactorEnableResponse enableResult = twoFactorService.enable2Fa(activeUser.id, validCode);
-        Assertions.assertEquals(true, enableResult.isEnabled);
-        Assertions.assertNotNull(enableResult.enabledAt);
+        Assertions.assertEquals(true, enableResult.isEnabled());
+        Assertions.assertNotNull(enableResult.enabledAt());
 
-        List<String> backupCodes = enableResult.backupCodes;
+        List<String> backupCodes = enableResult.backupCodes();
         Assertions.assertNotNull(backupCodes, "Backup codes chỉ được trả về ở bước enable");
         Assertions.assertEquals(8, backupCodes.size());
 
@@ -107,15 +107,15 @@ public class TwoFactorServiceTest {
         Assertions.assertEquals(secretKey, cryptoService.decrypt(twoFactor.secretKeyEnc));
 
         TwoFactorStatusResponse status = twoFactorService.getStatus(activeUser.id);
-        Assertions.assertEquals(true, status.isEnabled);
-        Assertions.assertEquals(8, status.backupCodesRemaining);
+        Assertions.assertEquals(true, status.isEnabled());
+        Assertions.assertEquals(8, status.backupCodesRemaining());
 
         String currentCode = totpService.generateCurrentCode(secretKey);
         Assertions.assertDoesNotThrow(() -> twoFactorService.disable2Fa(activeUser.id, "Mypassword123!", currentCode));
 
         UserTwoFactor.getEntityManager().clear();
         TwoFactorStatusResponse afterDisable = twoFactorService.getStatus(activeUser.id);
-        Assertions.assertEquals(false, afterDisable.isEnabled);
+        Assertions.assertEquals(false, afterDisable.isEnabled());
     }
 
     @Test
@@ -138,7 +138,7 @@ public class TwoFactorServiceTest {
     @DisplayName("TC-10: Verify-login sai 3 lần phải hủy pre-auth và trả AUTH_2FA_ATTEMPTS_EXCEEDED")
     public void testLogin2FaAttemptLockout() {
         TwoFactorSetupResponse setupResult = twoFactorService.setup2Fa(activeUser.id);
-        String validCode = totpService.generateCurrentCode(setupResult.secretKey);
+        String validCode = totpService.generateCurrentCode(setupResult.secretKey());
         twoFactorService.enable2Fa(activeUser.id, validCode);
 
         String jti = UUID.randomUUID().toString();

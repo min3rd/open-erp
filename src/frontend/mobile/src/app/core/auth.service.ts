@@ -4,12 +4,10 @@ import { Observable, tap, catchError, of, switchMap } from 'rxjs';
 import { ApiService } from './api.service';
 import { ApiResponse, AuthUser, LoginResult, TenantInfo } from '@shared';
 import { SlugAvailability, VerifyEmailResult } from './models';
-import { getJwtPermissions, getPlatformRole, isMustChangePassword, isPlatformAdmin, isPlatformSuperAdmin } from './jwt.util';
-import { STORAGE_KEY_PLATFORM_TOKEN } from './storage-keys';
+import { getJwtPermissions, isMustChangePassword, isPlatformAdmin, isPlatformSuperAdmin } from './jwt.util';
+import { STORAGE_KEY_PLATFORM_TOKEN, STORAGE_KEY_SESSION_ID, STORAGE_KEY_TENANT_TOKEN } from './storage-keys';
 
-const TOKEN_KEY = 'openerp_token';
 const REFRESH_TOKEN_KEY = 'openerp_refresh_token';
-const SESSION_ID_KEY = 'openerp_session_id';
 const USER_KEY = 'openerp_user';
 const PREAUTH_TOKEN_KEY = 'openerp_preauth_token';
 const PREAUTH_TENANTS_KEY = 'openerp_preauth_tenants';
@@ -23,21 +21,13 @@ export class AuthService {
   private navCtrl = inject(NavController);
 
   private userSignal = signal<AuthUser | null>(this.loadStoredUser());
-  private tokenSignal = signal<string | null>(localStorage.getItem(TOKEN_KEY));
-  private sessionIdSignal = signal<string | null>(localStorage.getItem(SESSION_ID_KEY));
+  private tokenSignal = signal<string | null>(localStorage.getItem(STORAGE_KEY_TENANT_TOKEN));
+  private sessionIdSignal = signal<string | null>(localStorage.getItem(STORAGE_KEY_SESSION_ID));
   private platformTokenSignal = signal<string | null>(localStorage.getItem(STORAGE_KEY_PLATFORM_TOKEN));
   private passwordChangedSignal = signal<boolean>(sessionStorage.getItem(PASSWORD_CHANGED_KEY) === '1');
 
   public user = computed(() => this.userSignal());
-  public token = computed(() => this.tokenSignal());
-  public sessionId = computed(() => this.sessionIdSignal());
-  public platformToken = computed(() => this.platformTokenSignal());
   public isAuthenticated = computed(() => !!this.tokenSignal());
-
-  /** Platform role claim (`SUPER_ADMIN` / `SUPPORT_ENGINEER`), preferring the platform token. */
-  public platformRole = computed(() =>
-    getPlatformRole(this.platformTokenSignal() ?? this.tokenSignal())
-  );
 
   /** Both platform portal roles may enter (SUPPORT_ENGINEER is read-only). */
   public isPlatformAdmin = computed(() =>
@@ -179,8 +169,8 @@ export class AuthService {
   }
 
   setSession(token: string, sessionId: string, user: AuthUser) {
-    localStorage.setItem(TOKEN_KEY, token);
-    localStorage.setItem(SESSION_ID_KEY, sessionId);
+    localStorage.setItem(STORAGE_KEY_TENANT_TOKEN, token);
+    localStorage.setItem(STORAGE_KEY_SESSION_ID, sessionId);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
     sessionStorage.removeItem(PASSWORD_CHANGED_KEY);
     this.passwordChangedSignal.set(false);
@@ -202,10 +192,6 @@ export class AuthService {
     this.platformTokenSignal.set(token);
   }
 
-  clearPlatformToken() {
-    this.setPlatformToken(null);
-  }
-
   logout() {
     this.api.post('/api/v1/auth/logout', {}).pipe(
       catchError(() => of(null))
@@ -213,9 +199,9 @@ export class AuthService {
   }
 
   clearSession() {
-    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(STORAGE_KEY_TENANT_TOKEN);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(SESSION_ID_KEY);
+    localStorage.removeItem(STORAGE_KEY_SESSION_ID);
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(STORAGE_KEY_PLATFORM_TOKEN);
     sessionStorage.removeItem(PASSWORD_CHANGED_KEY);

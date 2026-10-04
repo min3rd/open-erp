@@ -46,7 +46,7 @@ export async function devCommand(flags) {
   writeFile(join(dir, 'docker-compose.dev.yml'), compose);
   console.log(`Wrote docker-compose.dev.yml for ${manifest.id}`);
   console.log(`Core dev URL: ${coreUrl}`);
-  if (flags.run === true || flags.run === 'true') {
+  if (flags.run === true) {
     const result = spawnSync('docker', ['compose', '-f', 'docker-compose.dev.yml', 'up', '-d'], { cwd: dir, stdio: 'inherit', shell: process.platform === 'win32' });
     if (result.status !== 0) {
       throw new Error('docker compose up failed');

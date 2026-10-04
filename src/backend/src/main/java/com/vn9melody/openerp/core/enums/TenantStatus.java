@@ -9,14 +9,6 @@ public enum TenantStatus {
     DELETED;
 
     public static TenantStatus fromString(String value) {
-        if (value == null) {
-            return ACTIVE;
-        }
-        for (TenantStatus status : values()) {
-            if (status.name().equalsIgnoreCase(value.trim())) {
-                return status;
-            }
-        }
-        return ACTIVE;
+        return EnumParser.parse(TenantStatus.class, value, ACTIVE);
     }
 }

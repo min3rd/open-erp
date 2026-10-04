@@ -1,4 +1,5 @@
 import { Route, Routes } from '@angular/router';
+import { PluginCredentialScope } from '@shared';
 import { authGuard } from './core/guards/auth.guard';
 import { platformRoleGuard, platformSuperAdminGuard } from './core/guards/platform-role.guard';
 import { permissionGuard } from './core/guards/permission.guard';
@@ -8,7 +9,7 @@ import { mustChangePasswordGuard } from './core/guards/must-change-password.guar
  * Path-segment list state: /:filter/:sort/:pageSize/:page/:id/:mode
  * Progressive URLs are supported; short URLs redirect to the canonical form.
  */
-const listState = (loadComponent: Route['loadComponent']): Route[] => [
+const listState = (loadComponent: Route['loadComponent'], data: Route['data'] = {}): Route[] => [
   { path: '', pathMatch: 'full', redirectTo: 'all/-/20/1/-/list' },
   {
     path: ':filter',
@@ -30,7 +31,7 @@ const listState = (loadComponent: Route['loadComponent']): Route[] => [
                     path: ':id',
                     children: [
                       { path: '', pathMatch: 'full', redirectTo: 'list' },
-                      { path: ':mode', loadComponent },
+                      { path: ':mode', loadComponent, data },
                     ],
                   },
                 ],
@@ -160,7 +161,10 @@ export const routes: Routes = [
       },
       {
         path: 'plugin-credentials',
-        children: listState(() => import('./features/platform/plugins/platform-plugin-credentials.component').then(m => m.PlatformPluginCredentialsComponent))
+        children: listState(
+          () => import('./features/settings/plugins/plugin-credentials.component').then(m => m.PluginCredentialsComponent),
+          { scope: PluginCredentialScope.PLATFORM }
+        )
       },
       {
         path: 'tenant-private-plugins',
@@ -233,7 +237,10 @@ export const routes: Routes = [
       {
         path: 'plugin-credentials',
         canActivate: [permissionGuard('core:plugin:credential:manage')],
-        children: listState(() => import('./features/settings/plugins/tenant-plugin-credentials.component').then(m => m.TenantPluginCredentialsComponent))
+        children: listState(
+          () => import('./features/settings/plugins/plugin-credentials.component').then(m => m.PluginCredentialsComponent),
+          { scope: PluginCredentialScope.TENANT }
+        )
       }
     ]
   },

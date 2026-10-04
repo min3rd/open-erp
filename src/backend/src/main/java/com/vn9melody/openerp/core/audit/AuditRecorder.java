@@ -9,9 +9,7 @@ import java.util.UUID;
  * (SOL-02, TASK-267/284).
  *
  * <p>The single CDI implementation is the platform {@code AuditLogService}
- * bridge. Callers inject {@code Instance<AuditRecorder>} and iterate every
- * available bean, so registering an additional implementation stays
- * compatible.</p>
+ * bridge; callers inject {@link AuditRecorder} directly.</p>
  */
 public interface AuditRecorder {
 

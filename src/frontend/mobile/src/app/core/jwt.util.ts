@@ -1,4 +1,4 @@
-import { PlatformAdminRole, decodeJwtPayload } from '@shared';
+import { PlatformAdminRole, decodeJwtPayload, readBooleanClaim, readStringArrayClaim } from '@shared';
 
 /**
  * Returns the effective functional permission list, or `null` when the token
@@ -7,29 +7,15 @@ import { PlatformAdminRole, decodeJwtPayload } from '@shared';
  */
 export function getJwtPermissions(token: string | null | undefined): string[] | null {
   const claims = decodeJwtPayload(token);
-  if (!claims) {
-    return null;
-  }
-  const raw = claims.permissions ?? claims['functional_permissions'] ?? claims['perms'];
-  if (!Array.isArray(raw)) {
-    return null;
-  }
-  return raw.filter((value): value is string => typeof value === 'string');
+  return (
+    readStringArrayClaim(claims, 'permissions') ??
+    readStringArrayClaim(claims, 'functional_permissions') ??
+    readStringArrayClaim(claims, 'perms')
+  );
 }
 
 export function isMustChangePassword(token: string | null | undefined): boolean {
-  const claims = decodeJwtPayload(token);
-  if (!claims) {
-    return false;
-  }
-  const raw = claims['must_change_password'];
-  return raw === true || raw === 'true';
-}
-
-export function getPlatformRole(token: string | null | undefined): string | null {
-  const claims = decodeJwtPayload(token);
-  const role = claims?.platform_role;
-  return typeof role === 'string' ? role : null;
+  return readBooleanClaim(decodeJwtPayload(token), 'must_change_password') === true;
 }
 
 /**

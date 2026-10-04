@@ -28,8 +28,6 @@ public final class ErrorCode {
     public static final String AUTH_RESET_TOKEN_INVALID_OR_EXPIRED = "AUTH_RESET_TOKEN_INVALID_OR_EXPIRED";
     public static final String AUTH_REFRESH_TOKEN_INVALID_OR_REVOKED = "AUTH_REFRESH_TOKEN_INVALID_OR_REVOKED";
     public static final String AUTH_OTP_RESEND_TOO_SOON = "AUTH_OTP_RESEND_TOO_SOON";
-    public static final String AUTH_USER_NOT_FOUND = "AUTH_USER_NOT_FOUND";
-    public static final String AUTH_TENANT_NOT_FOUND = "AUTH_TENANT_NOT_FOUND";
 
     // Account Success
     public static final String ACCOUNT_PROFILE_FETCH_SUCCESS = "ACCOUNT_PROFILE_FETCH_SUCCESS";

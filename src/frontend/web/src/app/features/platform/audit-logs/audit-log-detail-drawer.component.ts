@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import {
   ApiErrorResponse,
   AuditLog,
-  AuditResult,
   BadgeComponent,
-  ColorVariant,
   DrawerComponent,
   I18nService,
   TranslatePipe,
+  auditResultVariant,
   formatDateTime
 } from '@shared';
 import { PlatformService } from '../../../core/services/platform.service';
@@ -75,18 +74,7 @@ export class AuditLogDetailDrawerComponent {
     return this.valueText(this.beforeValue(key)) !== this.valueText(this.afterValue(key));
   }
 
-  resultVariant(result: AuditResult): ColorVariant {
-    switch (result) {
-      case AuditResult.SUCCESS:
-        return ColorVariant.SUCCESS;
-      case AuditResult.DENIED:
-        return ColorVariant.WARNING;
-      case AuditResult.FAILED:
-        return ColorVariant.DANGER;
-      default:
-        return ColorVariant.DEFAULT;
-    }
-  }
+  readonly resultVariant = auditResultVariant;
 
   onClose() {
     this.close.emit();

@@ -11,14 +11,6 @@ public enum PluginReleaseStatus {
     BLOCKED;
 
     public static PluginReleaseStatus fromString(String value) {
-        if (value == null) {
-            return DRAFT;
-        }
-        for (PluginReleaseStatus status : values()) {
-            if (status.name().equalsIgnoreCase(value.trim())) {
-                return status;
-            }
-        }
-        return DRAFT;
+        return EnumParser.parse(PluginReleaseStatus.class, value, DRAFT);
     }
 }

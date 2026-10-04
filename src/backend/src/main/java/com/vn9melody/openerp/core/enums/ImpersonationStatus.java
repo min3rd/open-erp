@@ -6,14 +6,6 @@ public enum ImpersonationStatus {
     TIMEOUT;
 
     public static ImpersonationStatus fromString(String value) {
-        if (value == null) {
-            return STARTED;
-        }
-        for (ImpersonationStatus status : values()) {
-            if (status.name().equalsIgnoreCase(value.trim())) {
-                return status;
-            }
-        }
-        return STARTED;
+        return EnumParser.parse(ImpersonationStatus.class, value, STARTED);
     }
 }

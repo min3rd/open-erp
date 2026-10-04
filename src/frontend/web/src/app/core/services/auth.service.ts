@@ -22,8 +22,6 @@ export class AuthService {
 
   private userSignal = signal<AuthUser | null>(this.loadStoredUser());
   private tokenSignal = signal<string | null>(localStorage.getItem(TOKEN_KEY));
-  private refreshTokenSignal = signal<string | null>(localStorage.getItem(REFRESH_TOKEN_KEY));
-  private sessionIdSignal = signal<string | null>(localStorage.getItem(SESSION_ID_KEY));
   private passwordChangedSignal = signal<boolean>(sessionStorage.getItem(PASSWORD_CHANGED_KEY) === '1');
 
   public user = computed(() => this.userSignal());
@@ -230,8 +228,6 @@ export class AuthService {
     sessionStorage.removeItem(PASSWORD_CHANGED_KEY);
     this.passwordChangedSignal.set(false);
     this.tokenSignal.set(token);
-    this.sessionIdSignal.set(sessionId);
-    this.refreshTokenSignal.set(refreshToken || this.refreshTokenSignal());
     this.userSignal.set(user);
   }
 
@@ -239,8 +235,6 @@ export class AuthService {
     sessionStorage.removeItem(PASSWORD_CHANGED_KEY);
     this.passwordChangedSignal.set(false);
     this.tokenSignal.set(null);
-    this.refreshTokenSignal.set(null);
-    this.sessionIdSignal.set(null);
     this.userSignal.set(null);
   }
 

@@ -7,7 +7,6 @@ import {
   BadgeComponent,
   Branch,
   ColorVariant,
-  DepartmentNode,
   FlatDepartmentNode,
   I18nService,
   Membership,
@@ -17,6 +16,7 @@ import {
   TableColumn,
   TableComponent,
   TranslatePipe,
+  flattenDepartments,
   formatDateTime
 } from '@shared';
 
@@ -222,7 +222,7 @@ export class SampleRecordListComponent implements OnInit {
     }).subscribe({
       next: ({ branches, departments, members }) => {
         this.branches.set(branches.data.items);
-        this.departments.set(this.flatten(departments.data.items, 0, []));
+        this.departments.set(flattenDepartments(departments.data.items));
         this.members.set(members.data.items);
       },
       error: () => {
@@ -231,16 +231,6 @@ export class SampleRecordListComponent implements OnInit {
         this.members.set([]);
       }
     });
-  }
-
-  private flatten(nodes: DepartmentNode[], depth: number, acc: FlatDepartmentNode[]): FlatDepartmentNode[] {
-    for (const node of nodes) {
-      acc.push({ ...node, depth });
-      if (node.children?.length) {
-        this.flatten(node.children, depth + 1, acc);
-      }
-    }
-    return acc;
   }
 
   private showError(err: unknown) {

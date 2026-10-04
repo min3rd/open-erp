@@ -7,14 +7,6 @@ public enum PlatformAdminStatus {
     REVOKED;
 
     public static PlatformAdminStatus fromString(String value) {
-        if (value == null) {
-            return INVITED;
-        }
-        for (PlatformAdminStatus status : values()) {
-            if (status.name().equalsIgnoreCase(value.trim())) {
-                return status;
-            }
-        }
-        return INVITED;
+        return EnumParser.parse(PlatformAdminStatus.class, value, INVITED);
     }
 }

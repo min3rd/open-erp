@@ -2,7 +2,7 @@
   [isOpen]="isOpen()"
   [title]="'COMMON_MENU' | translate"
   width="w-[300px] max-w-[85vw]"
-  [zIndex]="70"
+  [zIndex]="zIndex()"
   (close)="close.emit()"
 >
   <div class="space-y-4">
@@ -82,6 +82,92 @@
         <span>{{ 'ACCOUNT_TAB_SESSIONS' | translate }}</span>
       </a>
     </nav>
+
+    <!-- Tenant settings (permission-gated) -->
+    @if (showTenantSettings()) {
+      <nav class="pt-2 space-y-0.5" [attr.aria-label]="'SETTINGS_SECTION_TITLE' | translate">
+        <p class="px-2 text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
+          {{ 'SETTINGS_SECTION_TITLE' | translate }}
+        </p>
+
+        @if (canManageRoles()) {
+          <a
+            routerLink="/settings/roles"
+            routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+            (click)="onNavigate()"
+            class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M15 7a4 4 0 1 1-3.9 5H10v2H8v2H4v-3.2l5.1-5.1A4 4 0 0 1 15 7z" />
+              <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M16 8h.01" />
+            </svg>
+            <span>{{ 'IAM_ROLE_MANAGEMENT' | translate }}</span>
+          </a>
+        }
+
+        @if (canManageOrganization()) {
+          <a
+            routerLink="/settings/organization"
+            routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+            (click)="onNavigate()"
+            class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 21V9h2a2 2 0 0 1 2 2v10M2 21h20M8 7h2M8 11h2M8 15h2" />
+            </svg>
+            <span>{{ 'ORGANIZATION_STRUCTURE' | translate }}</span>
+          </a>
+        }
+
+        @if (canViewSampleRecords()) {
+          <a
+            routerLink="/settings/sample-records"
+            routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+            (click)="onNavigate()"
+            class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M8 3h8l4 4v14H4V3h4zM14 3v6h6M8 13h8M8 17h5" />
+            </svg>
+            <span>{{ 'SAMPLE_RECORDS_TITLE' | translate }}</span>
+          </a>
+        }
+
+        @if (canViewPlugins()) {
+          <a
+            routerLink="/settings/plugins"
+            routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+            (click)="onNavigate()"
+            class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M10 3a2 2 0 0 1 4 0v1h4v4h1a2 2 0 0 1 0 4h-1v4h-4v1a2 2 0 0 1-4 0v-1H6v-4h1a2 2 0 0 0 0-4H6V4h4V3z" />
+            </svg>
+            <span>{{ 'PLUGIN_MARKETPLACE_TITLE' | translate }}</span>
+          </a>
+        }
+      </nav>
+    }
+
+    <!-- Platform portal (SUPER_ADMIN + read-only SUPPORT_ENGINEER) -->
+    @if (isPlatformAdmin()) {
+      <nav class="pt-2 space-y-0.5 border-t border-indigo-200 dark:border-indigo-900" [attr.aria-label]="'PLATFORM_SECTION_TITLE' | translate">
+        <p class="px-2 text-[10px] font-bold uppercase tracking-wider text-indigo-500 dark:text-indigo-400">
+          {{ 'PLATFORM_SECTION_TITLE' | translate }}
+        </p>
+        <a
+          routerLink="/platform/emergency"
+          routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+          (click)="onNavigate()"
+          class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+        >
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01" />
+          </svg>
+          <span>{{ 'PLATFORM_EMERGENCY_TITLE' | translate }}</span>
+        </a>
+      </nav>
+    }
 
     <!-- Preferences -->
     <div class="pt-3 border-t border-neutral-200 dark:border-neutral-800 space-y-2.5">

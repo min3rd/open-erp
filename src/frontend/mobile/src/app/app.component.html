@@ -1,9 +1,31 @@
 <ion-app>
-  <app-mobile-menu
+  <!--
+    ponytail: pages keep their Ionic `ion-menu-button` hamburgers, so the shell
+    hosts an empty `ion-menu` purely as the open/close trigger and shows the
+    shared drawer (raised above it) as the real navigation surface.
+  -->
+  <ion-menu
+    contentId="main-content"
+    side="start"
+    [swipeGesture]="false"
+    (ionWillOpen)="menuOpen.set(true)"
+    (ionWillClose)="menuOpen.set(false)"
+  ></ion-menu>
+
+  <app-mobile-nav-drawer
+    [isOpen]="menuOpen()"
+    [zIndex]="1100"
     [tenantName]="auth.user()?.tenant_name || ''"
     [role]="auth.user()?.role || 'MEMBER'"
     [userName]="auth.user()?.full_name || ''"
     [userEmail]="auth.user()?.email || ''"
+    [canManageRoles]="canManageRoles()"
+    [canManageOrganization]="canManageOrganization()"
+    [canViewSampleRecords]="canViewSampleRecords()"
+    [canViewPlugins]="canViewPlugins()"
+    [isPlatformAdmin]="auth.isPlatformAdmin()"
+    (close)="closeMenu()"
+    (logout)="auth.logout()"
   />
 
   <ion-router-outlet id="main-content"></ion-router-outlet>

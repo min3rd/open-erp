@@ -1,5 +1,7 @@
 package com.vn9melody.openerp.modules.core.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.api.ApiFieldError;
 import com.vn9melody.openerp.core.api.ErrorCode;
@@ -76,6 +78,9 @@ public class SampleRecordService {
 
     @Inject
     TenantPluginAllowlistService pluginAllowlistService;
+
+    @Inject
+    ObjectMapper objectMapper;
 
     @Transactional
     public SampleRecordResponse create(UserSecurityContext context, CreateSampleRecordRequest request) {
@@ -413,25 +418,25 @@ public class SampleRecordService {
     }
 
     private String toJson(List<CoreSampleRecord> records) {
-        StringBuilder builder = new StringBuilder("[");
-        for (int i = 0; i < records.size(); i++) {
-            CoreSampleRecord record = records.get(i);
-            if (i > 0) {
-                builder.append(',');
-            }
-            builder.append('{')
-                .append("\"id\":\"").append(record.id).append("\",")
-                .append("\"title\":\"").append(json(record.title)).append("\",")
-                .append("\"amount\":").append(record.amount != null ? record.amount.toPlainString() : "0").append(',')
-                .append("\"status\":\"").append(json(record.status)).append("\",")
-                .append("\"branch_id\":").append(record.branchId != null ? "\"" + record.branchId + "\"" : "null").append(',')
-                .append("\"department_id\":").append(record.departmentId != null ? "\"" + record.departmentId + "\"" : "null").append(',')
-                .append("\"created_by\":\"").append(record.createdBy).append("\",")
-                .append("\"assignee_id\":").append(record.assigneeId != null ? "\"" + record.assigneeId + "\"" : "null").append(',')
-                .append("\"created_at\":\"").append(record.createdAt).append("\"")
-                .append('}');
+        List<Map<String, Object>> rows = new ArrayList<>(records.size());
+        for (CoreSampleRecord record : records) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("id", record.id != null ? record.id.toString() : null);
+            row.put("title", record.title);
+            row.put("amount", record.amount != null ? record.amount : BigDecimal.ZERO);
+            row.put("status", record.status);
+            row.put("branch_id", record.branchId != null ? record.branchId.toString() : null);
+            row.put("department_id", record.departmentId != null ? record.departmentId.toString() : null);
+            row.put("created_by", record.createdBy != null ? record.createdBy.toString() : null);
+            row.put("assignee_id", record.assigneeId != null ? record.assigneeId.toString() : null);
+            row.put("created_at", record.createdAt != null ? record.createdAt.toString() : null);
+            rows.add(row);
         }
-        return builder.append(']').toString();
+        try {
+            return objectMapper.writeValueAsString(rows);
+        } catch (JsonProcessingException e) {
+            throw new ApiException(500, ErrorCode.INTERNAL_SERVER_ERROR, "Unable to serialize export");
+        }
     }
 
     private String csv(Object value) {
@@ -443,13 +448,6 @@ public class SampleRecordService {
             return "\"" + text.replace("\"", "\"\"") + "\"";
         }
         return text;
-    }
-
-    private String json(String value) {
-        if (value == null) {
-            return "";
-        }
-        return value.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
     private void recordAudit(UserSecurityContext context, CoreSampleRecord record, String action) {
