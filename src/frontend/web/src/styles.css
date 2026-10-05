@@ -343,11 +343,13 @@
 
 :root {
   --op-duration-fast: 120ms;
-  --op-duration-base: 160ms;
-  --op-duration-slow: 220ms;
+  --op-duration-base: 180ms;
+  --op-duration-slow: 260ms;
   --op-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --op-ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
   --op-ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+  /** Delay added per row in a staggered list (BUG-128). */
+  --op-stagger-step: 18ms;
 }
 
 @keyframes op-fade-in {
@@ -356,31 +358,65 @@
 }
 
 @keyframes op-pop-in {
-  from { opacity: 0; transform: translateY(-2px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes op-route-in {
-  from { opacity: 0; transform: translateY(2px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* M1: popup enter (user-menu, notification-bell, context menu). Exit is instant. */
-.op-pop {
-  animation: op-pop-in var(--op-duration-base) var(--op-ease-decelerate);
+@keyframes op-row-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* M3: list rows fade in; only the first 20 rows animate, no huge-list stagger. */
-.op-stagger > * {
-  animation: op-fade-in var(--op-duration-fast) var(--op-ease-decelerate);
+/* M1: popup enter (user-menu, notification-bell, context menu, menu flyout). */
+.op-pop {
+  animation: op-pop-in var(--op-duration-base) var(--op-ease-decelerate) both;
 }
+
+/* M3: list rows rise in one after another; the first rows are staggered and
+   nothing past row 20 animates, so a long list never turns into a slideshow. */
+.op-stagger > * {
+  animation: op-row-in var(--op-duration-base) var(--op-ease-decelerate) both;
+}
+.op-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.op-stagger > *:nth-child(2) { animation-delay: var(--op-stagger-step); }
+.op-stagger > *:nth-child(3) { animation-delay: calc(var(--op-stagger-step) * 2); }
+.op-stagger > *:nth-child(4) { animation-delay: calc(var(--op-stagger-step) * 3); }
+.op-stagger > *:nth-child(5) { animation-delay: calc(var(--op-stagger-step) * 4); }
+.op-stagger > *:nth-child(6) { animation-delay: calc(var(--op-stagger-step) * 5); }
+.op-stagger > *:nth-child(7) { animation-delay: calc(var(--op-stagger-step) * 6); }
+.op-stagger > *:nth-child(n + 8) { animation-delay: calc(var(--op-stagger-step) * 7); }
 .op-stagger > *:nth-child(n + 21) {
   animation: none;
 }
 
-/* M4: routed content enters with a light fade/translate (web only). */
+/* M4: routed content enters with a fade/rise (web only). */
 router-outlet + * {
-  animation: op-route-in var(--op-duration-slow) var(--op-ease-decelerate);
+  animation: op-route-in var(--op-duration-slow) var(--op-ease-decelerate) both;
+}
+
+/* M5: vertical menu groups expand with the same rise, flyouts pop in. */
+app-section-nav details[open] > div {
+  animation: op-row-in var(--op-duration-base) var(--op-ease-decelerate) both;
+}
+.op-flyout {
+  animation: op-pop-in var(--op-duration-base) var(--op-ease-decelerate) both;
+}
+
+/* M6: theme/shape/mode switch cross-fades the colours for one beat instead of
+   snapping (class toggled by ThemeService for ~260ms). */
+.op-theme-switching *,
+.op-theme-switching *::before,
+.op-theme-switching *::after {
+  transition:
+    background-color var(--op-duration-slow) var(--op-ease-standard),
+    border-color var(--op-duration-slow) var(--op-ease-standard),
+    color var(--op-duration-slow) var(--op-ease-standard),
+    fill var(--op-duration-slow) var(--op-ease-standard) !important;
 }
 
 /* M7: action feedback on press (colors + transform in one transition). */
@@ -442,8 +478,12 @@ router-outlet + * {
 @media (prefers-reduced-motion: reduce) {
   .op-pop,
   .op-stagger > *,
-  router-outlet + * {
+  .op-flyout,
+  app-section-nav details[open] > div,
+  router-outlet + *,
+  .op-theme-switching * {
     animation: none;
+    transition: none;
   }
   .op-press {
     transition: none;
@@ -497,5 +537,11 @@ router-outlet + * {
   app-theme-switcher .erp-switcher-label,
   app-language-switcher > div > span {
     display: none;
+  }
+
+  /* Labels are gone, so the two-column switcher grid collapses to one. */
+  app-theme-switcher > div,
+  app-language-switcher > div {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

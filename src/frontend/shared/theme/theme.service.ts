@@ -100,6 +100,7 @@ export class ThemeService {
     this.modeSignal.set(mode);
     localStorage.setItem(THEME_STORAGE_KEY, mode);
     this.applyTheme();
+    this.flashThemeTransition();
     this.persist();
   }
 
@@ -112,6 +113,7 @@ export class ThemeService {
     this.userThemeSignal.set(id);
     localStorage.setItem(USER_THEME_STORAGE_KEY, id);
     this.applyTheme();
+    this.flashThemeTransition();
     this.persist();
   }
 
@@ -121,6 +123,7 @@ export class ThemeService {
     this.userThemeSignal.set(null);
     localStorage.removeItem(USER_THEME_STORAGE_KEY);
     this.applyTheme();
+    this.flashThemeTransition();
     this.persist();
   }
 
@@ -133,6 +136,7 @@ export class ThemeService {
     this.tenantThemeSignal.set(id);
     localStorage.setItem(THEME_ID_STORAGE_KEY, id);
     this.applyTheme();
+    this.flashThemeTransition();
     if (this.api?.canManageTenant()) {
       this.api.updateTenantTheme(id).subscribe({ error: () => {} });
     }
@@ -148,6 +152,7 @@ export class ThemeService {
     this.shapeSignal.set(preference);
     this.writePreference(SHAPE_STORAGE_KEY, preference);
     this.applyTheme();
+    this.flashThemeTransition();
     this.persist();
   }
 
@@ -161,6 +166,7 @@ export class ThemeService {
     this.layoutSignal.set(preference);
     this.writePreference(LAYOUT_STORAGE_KEY, preference);
     this.applyTheme();
+    this.flashThemeTransition();
     this.persist();
   }
 
@@ -302,5 +308,18 @@ export class ThemeService {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(THEME_ID_STORAGE_KEY, effectiveTheme);
     }
+  }
+
+  /**
+   * Cross-fades colours for one beat when the user switches theme/shape/mode,
+   * so the change reads as a transition instead of a hard snap (BUG-130).
+   */
+  private flashThemeTransition(): void {
+    if (typeof document === 'undefined' || typeof window === 'undefined') {
+      return;
+    }
+    const root = document.documentElement;
+    root.classList.add('op-theme-switching');
+    window.setTimeout(() => root.classList.remove('op-theme-switching'), 300);
   }
 }

@@ -1,13 +1,17 @@
-<div class="inline-flex items-center gap-1.5 text-[11px] select-none">
-  <span class="text-muted font-semibold text-[10px] uppercase" [appTranslate]="'COMMON_LANGUAGE_SHORT'"></span>
+<div class="grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-x-2 text-[11px] select-none">
+  <span class="truncate text-muted font-semibold text-[10px] uppercase" [appTranslate]="'COMMON_LANGUAGE_SHORT'"></span>
   <select
-    [value]="i18n.currentLang()"
     (change)="onSelect($event)"
     [attr.aria-label]="'COMMON_LANGUAGE_SHORT' | translate"
-    class="min-h-10 max-sm:min-w-10 rounded-inline border border-default bg-surface px-1.5 py-0.5 text-[11px] text-ink cursor-pointer sm:min-h-0"
+    class="w-full min-w-0 min-h-10 max-sm:min-w-10 rounded-inline border border-default bg-surface px-1.5 py-0.5 text-[11px] text-ink cursor-pointer sm:min-h-0"
   >
+    <!-- `selected` on the option (not `[value]` on the select): the options are
+         rendered after the binding, so a select-level value fell back to the
+         first language (BUG-128). -->
     @for (language of languages; track language.code) {
-      <option [value]="language.code">{{ language.nativeName }}</option>
+      <option [value]="language.code" [selected]="language.code === i18n.currentLang()">
+        {{ language.nativeName }}
+      </option>
     }
   </select>
 </div>

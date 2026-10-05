@@ -73,6 +73,7 @@
           <h3 class="font-mono text-[10px] uppercase tracking-wider text-muted">
             {{ 'PLUGIN_MARKETPLACE_INSTALLED' | translate }} ({{ installedItems().length }})
           </h3>
+          <div class="op-stagger space-y-1">
           @for (item of installedItems(); track item.plugin_key) {
             <app-plugin-card
               [appContextMenuTrigger]="pluginContextMenu(item)"
@@ -108,6 +109,7 @@
               </app-sharp-button>
             </app-plugin-card>
           }
+          </div>
         </section>
       }
 
@@ -116,6 +118,7 @@
           <h3 class="font-mono text-[10px] uppercase tracking-wider text-muted">
             {{ 'PLUGIN_MARKETPLACE_AVAILABLE' | translate }} ({{ availableItems().length }})
           </h3>
+          <div class="op-stagger space-y-1">
           @for (item of availableItems(); track item.plugin_key) {
             <app-plugin-card
               [appContextMenuTrigger]="pluginContextMenu(item)"
@@ -133,6 +136,7 @@
               </app-sharp-button>
             </app-plugin-card>
           }
+          </div>
         </section>
       }
 
