@@ -93,6 +93,11 @@ public final class ErrorCode {
     public static final String TENANT_UI_PREFERENCES_UPDATE_SUCCESS = "TENANT_UI_PREFERENCES_UPDATE_SUCCESS";
     public static final String TENANT_UI_PREFERENCES_INVALID_THEME = "TENANT_UI_PREFERENCES_INVALID_THEME";
 
+    // User UI preferences (Sprint 04, TASK-369)
+    public static final String USER_UI_PREFERENCES_FETCH_SUCCESS = "USER_UI_PREFERENCES_FETCH_SUCCESS";
+    public static final String USER_UI_PREFERENCES_UPDATE_SUCCESS = "USER_UI_PREFERENCES_UPDATE_SUCCESS";
+    public static final String USER_UI_PREFERENCES_INVALID_VALUE = "USER_UI_PREFERENCES_INVALID_VALUE";
+
     // Account language preference (Sprint 04, FEAT-29)
     public static final String ACCOUNT_LANGUAGE_UNSUPPORTED = "ACCOUNT_LANGUAGE_UNSUPPORTED";
 

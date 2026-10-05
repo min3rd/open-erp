@@ -36,6 +36,19 @@ public class User extends PanacheEntityBase {
     @Column(name = "updated_at")
     public Instant updatedAt = Instant.now();
 
+    /** Per-user UI preference overrides (TASK-369); null follows the tenant/default. */
+    @Column(name = "ui_theme", length = 32)
+    public String uiTheme;
+
+    @Column(name = "ui_shape", length = 16)
+    public String uiShape;
+
+    @Column(name = "ui_layout", length = 16)
+    public String uiLayout;
+
+    @Column(name = "ui_mode", length = 16)
+    public String uiMode;
+
     public static User findByEmail(String email) {
         if (email == null) return null;
         return find("lower(email)", email.toLowerCase().trim()).firstResult();
