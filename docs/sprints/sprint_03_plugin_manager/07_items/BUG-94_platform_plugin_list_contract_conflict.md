@@ -6,7 +6,7 @@
 | **Mức độ** | Medium |
 | **Phát hiện bởi** | Dev Agent (TASK-315) |
 | **Ngày** | 2026-09-20 |
-| **Trạng thái** | In Review |
+| **Trạng thái** | Done (đóng 2026-10-05 theo xác nhận của chủ dự án — hồ sơ [QA-02](../08_testing/QA-02_sprint_03_requal_2026-10-05.md)) |
 | **Liên quan** | FEAT-20 `PlatformPluginResource`, DES-03-API P1, TASK-303, TASK-315, PlatformPluginApiTest |
 
 ## Mô tả

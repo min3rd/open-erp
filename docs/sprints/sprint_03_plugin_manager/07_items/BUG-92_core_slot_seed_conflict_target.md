@@ -2,7 +2,7 @@
 
 - **Loại**: Documentation / Design defect
 - **Severity**: High
-- **Trạng thái**: In Review
+- **Trạng thái**: Done (đóng 2026-10-05 theo xác nhận của chủ dự án — hồ sơ [QA-02](../08_testing/QA-02_sprint_03_requal_2026-10-05.md))
 - **Ngày phát hiện**: 2026-09-20 (review lần 2)
 - **Người xử lý**: Solution Architect Agent
 
@@ -31,6 +31,6 @@ Nguồn kiểm chứng quy tắc SQL: [PostgreSQL 16 INSERT — ON CONFLICT / in
 ## Xác Nhận Static Validation (2026-09-20 — Review Lần 3)
 
 - **Đã xác nhận tĩnh**: DDL ở mục 6 hiện đã khớp chính xác với partial unique index `uq_plugin_ui_slot_core` (dòng 209–210). Conflict target `ON CONFLICT (slot_code) WHERE host_type = 'CORE' DO NOTHING` suy ra được arbiter index đúng theo PostgreSQL 16 spec.
-- **Trạng thái**: In Review — chờ Reviewer xác nhận đóng. **Không claim runtime PASS**; kiểm chứng static đã hoàn tất qua đối chiếu tài liệu chính thức PostgreSQL.
+- **Trạng thái**: Done — đã Reviewer xác nhận đóng (2026-10-05, theo xác nhận của chủ dự án). Kiểm chứng static đã hoàn tất qua đối chiếu tài liệu chính thức PostgreSQL.
 - **Lưu ý**: Seed plugin slot cùng `slot_code` nhưng `host_type = 'PLUGIN'` vẫn hợp lệ nhờ composite index `uq_plugin_ui_slot_plugin (owner_plugin_key, slot_code, contract_version) WHERE host_type = 'PLUGIN'` — không xung đột với Core index.
 

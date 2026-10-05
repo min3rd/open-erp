@@ -3,9 +3,10 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint theo dõi | TASK-353 / Documentation reconciliation / Sprint 03 |
-| Severity / trạng thái | Medium / To Do |
+| Severity / trạng thái | Medium / Deferred → Sprint 04 |
 | Owner / reviewer / cập nhật | PM + QA (cần phân công agent cụ thể trước xử lý) / Khách hàng cho phần nghiệm thu / 2026-10-05 |
 | Nguồn / dependency | [REV-S03-004](../09_review/04_REV-S03-004_sdlc_workflow_review.md) / Không chặn TASK-349; không thay các gate sản phẩm |
+| Lý do hoãn | Housekeeping Medium, cần PM/QA phân công quyền ghi và đối soát nguồn nghiệm thu khách hàng Sprint 02 (có yếu tố con người/khảo cổ hồ sơ). Không phải lỗi sản phẩm; DoD cho phép hoãn Medium. Chuyển sang Sprint 04. |
 | Write scope | CONF/reading guides/item/QA/REV/task board bị tác động; quyền ghi từng file do điều phối cấp trước xử lý |
 | Baseline / đọc trước | Hồ sơ hiện hành 2026-10-05 / [chuẩn tài liệu](../../../../.agents/rules/documentation_standards.md) |
 

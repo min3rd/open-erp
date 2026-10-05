@@ -59,7 +59,7 @@ Bảng đọc là snapshot danh mục; khi thêm artifact phải cập nhật in
 - **Tên Sprint**: Sprint 03 - Plugin Manager, Plugin Scaffolding CLI & Cơ Chế Phân Phối/Cài Đặt Plugin Đa Kênh
 - **Mục Tiêu**: Biến cơ chế plugin tĩnh của Sprint 02 thành **Plugin Manager thực thụ**: danh mục plugin + phiên bản trong DB; vòng đời cài/gỡ/bật/tắt/nâng cấp theo từng Tenant; **mỗi plugin chạy container riêng cho từng tenant và được tự động deploy**; chợ plugin (Marketplace) cho Tenant; CLI Node/npm sinh khung dự án plugin chuẩn hóa; và cơ chế đưa plugin vào hệ thống qua 3 kênh: Docker Hub, Image Registry (link + credentials đa phạm vi) và tệp JAR backend + bản build Web (Core tự build image).
 - **Thời Gian Dự Kiến**: 2026-10-20 đến 2026-11-02 (2 tuần)
-- **Trạng Thái Hiện Tại**: [x] **BƯỚC 1-6 HOÀN TẤT**; 🔄 **BƯỚC 7 & 8 HOÀN TẤT PHẦN CODE + QA BROWSER** — FEAT-21/22/23 đã code xong; **backend 220/220 test PASS** trên PostgreSQL thật (211 cũ + `PlatformPluginGovernanceApiTest` + `PluginBundleImageApiTest`); **QA Bước 8 đã chạy trình duyệt thật** (tenant 18/18, route-state 8/8, platform 6/6, Ionic 390×844 8/8 — **0 console error**, ảnh tại `08_testing/evidence/screenshots/`); BUG-95→108 đã `Resolved`; **BUG-109/110/112/113/115/116/99 đã fix ngày 2026-10-04** (BUG-115 Critical route-shadowing, BUG-116 build ngoài transaction, BUG-112/113 CLI bundle+web, BUG-109 enum binding, BUG-110 NG01354, BUG-99 reason/confirm/S2 — bằng chứng tại `08_testing/evidence/BUG-109_116_fix_verification_2026-10-04.txt`); BUG-86/88→94 chờ Reviewer ký; BUG-98 (Medium) giữ hoãn Sprint 04 theo kế hoạch (TopBar shared + banner toàn cục); **E2E `npm run e2e:plugin` (CLI tạo plugin mẫu → cài lên dev local → container/schema/ledger ACTIVE) PASS ngày 2026-10-04**; còn **BƯỚC 9 (PM đóng Sprint theo DoD)**.
+- **Trạng Thái Hiện Tại**: [x] **BƯỚC 1-6 HOÀN TẤT**; 🔄 **BƯỚC 7 & 8 HOÀN TẤT PHẦN CODE + QA BROWSER** — FEAT-21/22/23 đã code xong; **backend 220/220 test PASS** trên PostgreSQL thật (211 cũ + `PlatformPluginGovernanceApiTest` + `PluginBundleImageApiTest`); **QA Bước 8 đã chạy trình duyệt thật** (tenant 18/18, route-state 8/8, platform 6/6, Ionic 390×844 8/8 — **0 console error**, ảnh tại `08_testing/evidence/screenshots/`); BUG-95→108 đã `Resolved`; **BUG-109/110/112/113/115/116/99 đã fix ngày 2026-10-04** (BUG-115 Critical route-shadowing, BUG-116 build ngoài transaction, BUG-112/113 CLI bundle+web, BUG-109 enum binding, BUG-110 NG01354, BUG-99 reason/confirm/S2 — bằng chứng tại `08_testing/evidence/BUG-109_116_fix_verification_2026-10-04.txt`); BUG-86/92/93/94 + TASK-348 đã `Done` (đóng 2026-10-05 theo xác nhận chủ dự án); BUG-98 (Medium) giữ hoãn Sprint 04 theo kế hoạch (TopBar shared + banner toàn cục); **E2E `npm run e2e:plugin` (CLI tạo plugin mẫu → cài lên dev local → container/schema/ledger ACTIVE) PASS ngày 2026-10-04**; **QA-02 re-qual 2026-10-05: backend 224/224 + dual-mode 1280×900/390×844 PASS, 0 console error**; **[x] BƯỚC 9 — SPRINT 03 ĐÃ ĐÓNG (2026-10-05)**.
 
 ---
 
@@ -138,7 +138,7 @@ flowchart LR
 | Thứ Tự Đọc | Thư Mục / File | Mục Đích Nội Dung | Người Phụ Trách | Trạng Thái |
 | :---: | :--- | :--- | :---: | :---: |
 | **8** | [08_testing/](08_testing/) | Kế hoạch & Báo cáo kiểm thử: vòng đời plugin đầy đủ (Cài → Nâng cấp → Tắt/Bật → Gỡ, giữ dữ liệu), **deploy container-per-tenant**, đa phiên bản, checksum mismatch, cưỡng chế gỡ + thông báo, cô lập Tenant, Dual-mode browser testing Web/Mobile. | QA/QC Agent | [x] Đã hoàn thành (2026-09-20) — 40/40 browser PASS, 0 console error, backend 211/211 PASS, ảnh tại `08_testing/evidence/screenshots/` |
-| **9** | [09_review/](09_review/) | Biên bản nghiệm thu và tiêu chuẩn đóng Sprint (DoD Gate: 0 bug Critical/High). | PM Agent | 🔄 Đang thực hiện — chờ Reviewer ký 4 BUG (BUG-86/92/93/94) + TASK-348 và Khách hàng sign-off |
+| **9** | [09_review/](09_review/) | Biên bản nghiệm thu và tiêu chuẩn đóng Sprint (DoD Gate: 0 bug Critical/High). | PM Agent | [x] Đã đóng (2026-10-05) — DoD PASS theo [QA-02](../08_testing/QA-02_sprint_03_requal_2026-10-05.md); đóng theo xác nhận chủ dự án |
 
 ---
 
@@ -159,7 +159,7 @@ Khách hàng review bộ thiết kế Bước 5-6 và yêu cầu bổ sung **6 �
 | 9 | High | (Vòng 2) Seed Core slot không khớp partial unique index → chặn migration | Sửa conflict target `ON CONFLICT (slot_code) WHERE host_type = 'CORE'` + kiểm chứng seed 2 lần | DES-03-DB mục 6 (BUG-92) |
 | 10 | High | (Vòng 2) Thiếu khóa cấp catalog & chặn publish/cài sau khóa | `catalog_status BLOCKED` + P7 scope CATALOG + **P25 unblock** + trigger publish guard + job re-check trước ACTIVATE | DES-03-DB 2.1/2.2/5; DES-03-API 3; DES-03-UI 3.1/3.2/4.1; ANL-01 BR-PLG-09; SOL-01 4.3 (BUG-93) |
 
-> **Theo dõi**: các điểm trên được quản lý dưới dạng file item tại [`07_items/`](07_items/): **BUG-84, BUG-85, BUG-87, BUG-88, BUG-89, BUG-90, BUG-91** (đã `Done`/xác nhận triển khai), **BUG-86, BUG-92, BUG-93, BUG-94 và TASK-348** (đang `In Review`, chờ Reviewer xác nhận đóng — BUG-94 là xung đột contract P1/FEAT-20). **QA Bước 8 (2026-09-20, chạy trình duyệt thật)**: phát hiện **BUG-102/103 (Critical)**, **BUG-95/96/101/104/105/106/107/108 (High)** — tất cả đã `Resolved` kèm bằng chứng browser; **BUG-97/99/100** Resolved; **BUG-98/109 (Medium) + TASK-346/347** đang theo dõi/hoãn Sprint 04 — xem [Báo cáo QA](08_testing/QA-01_sprint_03_test_report.md).
+> **Theo dõi**: các điểm trên được quản lý dưới dạng file item tại [`07_items/`](07_items/): **BUG-84, BUG-85, BUG-87, BUG-88, BUG-89, BUG-90, BUG-91** (đã `Done`/xác nhận triển khai), **BUG-86, BUG-92, BUG-93, BUG-94 và TASK-348** (đã `Done` ngày 2026-10-05 theo xác nhận chủ dự án — BUG-94 là xung đột contract P1/FEAT-20). **QA Bước 8 (2026-09-20, chạy trình duyệt thật)**: phát hiện **BUG-102/103 (Critical)**, **BUG-95/96/101/104/105/106/107/108 (High)** — tất cả đã `Resolved` kèm bằng chứng browser; **BUG-97/99/100** Resolved; **BUG-98/109 (Medium) + TASK-346/347** đang theo dõi/hoãn Sprint 04 — xem [Báo cáo QA](08_testing/QA-01_sprint_03_test_report.md).
 
 > **Kết luận**: bộ thiết kế DES-03-DB/API/UI + SOL-01/02/03 đủ điều kiện chuyển sang **Bước 7 (Lập trình)**.
 
@@ -184,8 +184,8 @@ Khách hàng review bộ thiết kế Bước 5-6 và yêu cầu bổ sung **6 �
 - [x] **Bước 2**: Đã xem tài liệu phân tích nghiệp vụ `02_analysis/` và hài lòng với mô hình Plugin Manager, CLI và cơ chế phân phối đề xuất.
 - [x] **Bước 3**: Đã xem tài liệu đối chuẩn `03_benchmarks/`.
 - [x] **Bước 4 (2026-09-19)**: **ĐÃ PHÊ DUYỆT BIÊN BẢN XÁC NHẬN PHẠM VI** `04_confirmation/CONF-01_sprint_03_scope.md` — 10/10 câu hỏi chốt cuối đã trả lời (2 điểm điều chỉnh: MinIO = lưu trữ chính toàn hệ thống; plugin riêng được nhúng WC/MF).
-- [ ] **Bước 7**: Cho phép triển khai lập trình mã nguồn (Implementation).
-- [ ] **Bước 8**: QA nghiệm thu cuối (báo cáo kiểm thử).
-- [ ] **Bước 9**: PM đóng Sprint theo DoD Gate; khách hàng ký duyệt nghiệm thu cuối.
+- [x] **Bước 7 (2026-10-05)**: Cho phép triển khai lập trình mã nguồn (Implementation).
+- [x] **Bước 8 (2026-10-05)**: QA nghiệm thu cuối — kỹ thuật ĐẠT theo [QA-02](../08_testing/QA-02_sprint_03_requal_2026-10-05.md); lưu ý đây là **self-run của agent**, không phải QA độc lập.
+- [x] **Bước 9 (2026-10-05)**: PM đóng Sprint theo DoD Gate; **khách hàng/chủ dự án xác nhận đóng** (xem [sprint_review](../09_review/sprint_review.md)).
 
 > **Ghi chú**: Confirmation Gate đã đóng ngày 2026-09-19. Các điều chỉnh sau Gate (nếu có) phải được ghi nhận tại `04_confirmation/` và cập nhật đồng bộ tài liệu Sprint-Pack.

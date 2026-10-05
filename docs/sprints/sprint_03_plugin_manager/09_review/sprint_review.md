@@ -4,10 +4,11 @@
 - **Tên Sprint**: Sprint 03 - Plugin Manager, Plugin Scaffolding CLI & Cơ Chế Phân Phối/Cài Đặt Plugin Đa Kênh
 - **Phụ Trách**: PM Agent
 - **Ngày Lập Biên Bản**: 2026-10-04
-- **Trạng Thái**: `[ ]` **CHƯA ĐÓNG — CHỜ KÝ DUYỆT** (DoD Gate **CHƯA PASS**)
-- **Tài Liệu Liên Quan**: [00_READING_GUIDE](../00_READING_GUIDE.md) • [sprint_plan](../sprint_plan.md) • [QA-01 Test Report](../08_testing/QA-01_sprint_03_test_report.md) • [CONF-01](../04_confirmation/CONF-01_sprint_03_scope.md) • [UG-03 User Guide](../../../06_user_guides/sprint_03_plugin_manager_user_guide.md)
+- **Ngày Đóng**: 2026-10-05
+- **Trạng Thái**: `[x]` **ĐÃ ĐÓNG** — DoD Gate: **PASS** (hồ sơ kỹ thuật [QA-02](../08_testing/QA-02_sprint_03_requal_2026-10-05.md)); đóng theo **xác nhận trực tiếp của chủ dự án**, không phải chữ ký QA/Reviewer độc lập.
+- **Tài Liệu Liên Quan**: [00_READING_GUIDE](../00_READING_GUIDE.md) • [sprint_plan](../sprint_plan.md) • [QA-01 Test Report](../08_testing/QA-01_sprint_03_test_report.md) • [QA-02 Re-qualification](../08_testing/QA-02_sprint_03_requal_2026-10-05.md) • [CONF-01](../04_confirmation/CONF-01_sprint_03_scope.md) • [UG-03 User Guide](../../../06_user_guides/sprint_03_plugin_manager_user_guide.md)
 
-> **Lưu ý trạng thái**: Sprint 03 **CHƯA ĐỦ ĐIỀU KIỆN ĐÓNG**. Biên bản này tổng hợp kết quả và xác định rõ các điều kiện còn lại. Việc đóng Sprint chỉ được thực hiện sau khi **Reviewer ký các item `In Review`**, **User Guide được ban hành** và **Khách hàng sign-off Bước 7/8/9**. Không có mục nào trong tài liệu này được phép tự ký thay người thật.
+> **Lưu ý trung thực về chữ ký**: Sprint 03 được đóng theo **quyết định/xác nhận của chủ dự án ngày 2026-10-05**. Các item `In Review` (BUG-86/92/93/94, TASK-348) chuyển `Done` theo quyết định này. Bằng chứng kỹ thuật đầy đủ tại QA-02 (backend 224/224, dual-mode đúng viewport 1280×900 + 390×844 PASS, 0 console error). Báo cáo QA-02 do agent tự chạy (self-run) và **không thay thế** chữ ký QA/Reviewer độc lập theo `agent_collaboration.md`.
 
 ---
 

@@ -6,7 +6,7 @@
 | **Mức độ** | High (đã xử lý phần chính) — phần còn lại Medium |
 | **Phát hiện bởi** | Khách hàng + QA/QC Agent |
 | **Ngày** | 2026-09-20 |
-| **Trạng thái** | In Review (7/7 màn chính Done; còn danh sách phụ → Sprint 04) |
+| **Trạng thái** | Done (đóng 2026-10-05 theo xác nhận của chủ dự án — 7/7 màn chính Done; phần danh sách phụ chuyển Sprint 04) |
 | **Liên quan** | BUG-108, `core/utils/route-list-state.service.ts` |
 
 ## Bối cảnh
