@@ -1,12 +1,12 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ThemeService, TopProgressBarComponent } from '@shared';
+import { ThemeService, TopProgressBarComponent, ContextMenuComponent } from '@shared';
 import { AuthService } from './core/services/auth.service';
 import { ImpersonationBannerComponent } from './features/platform/impersonation-banner/impersonation-banner.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ImpersonationBannerComponent, TopProgressBarComponent],
+  imports: [RouterOutlet, ImpersonationBannerComponent, TopProgressBarComponent, ContextMenuComponent],
   templateUrl: './app.html'
 })
 export class App {

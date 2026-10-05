@@ -7,8 +7,10 @@ import {
   BadgeComponent,
   Branch,
   ColorVariant,
+  ContextMenuItem,
   FlatDepartmentNode,
   I18nService,
+  IconName,
   Membership,
   PaginationComponent,
   RequirePermissionDirective,
@@ -239,6 +241,31 @@ export class SampleRecordListComponent implements OnInit {
       }
     });
   }
+
+  /** Right-click shortcut for a record row; each action reuses the inline handler. */
+  readonly recordContextMenu = (record: SampleRecord): ContextMenuItem[] => {
+    const canUpdate = this.auth.hasPermission('core:sample-record:update') !== false;
+    const canDelete = this.auth.hasPermission('core:sample-record:delete') !== false;
+    return [
+      {
+        id: 'edit',
+        labelKey: 'COMMON_EDIT',
+        icon: IconName.EDIT,
+        disabled: !canUpdate,
+        disabledReasonKey: canUpdate ? undefined : 'COMMON_PERMISSION_REQUIRED',
+        action: () => this.openEdit(record)
+      },
+      {
+        id: 'delete',
+        labelKey: 'COMMON_DELETE',
+        icon: IconName.TRASH,
+        danger: true,
+        disabled: !canDelete,
+        disabledReasonKey: canDelete ? undefined : 'COMMON_PERMISSION_REQUIRED',
+        action: () => this.askDelete(record)
+      }
+    ];
+  };
 
   private showError(err: unknown) {
     const apiError = err as ApiErrorResponse;

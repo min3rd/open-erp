@@ -1,0 +1,30 @@
+@if (state(); as menu) {
+  <div
+    #panel
+    role="menu"
+    [attr.aria-label]="menu.ariaLabelKey | translate"
+    class="fixed z-[90] min-w-[160px] max-w-[280px] rounded-none border border-default bg-surface-raised py-1 shadow-lg"
+  >
+    @for (item of menu.items; track item.id; let i = $index) {
+      <button
+        type="button"
+        role="menuitem"
+        [class]="itemClasses(item)"
+        [attr.aria-disabled]="item.disabled ? 'true' : null"
+        [attr.tabindex]="!item.disabled && i === activeIndex() ? 0 : -1"
+        (click)="onItemClick(item)"
+        (mouseenter)="onItemHover(i)"
+      >
+        @if (item.icon; as icon) {
+          <app-icon [name]="icon" [decorative]="true" class="mt-0.5" />
+        }
+        <span class="min-w-0 flex-1">
+          <span class="block truncate">{{ item.labelKey | translate }}</span>
+          @if (item.disabled && item.disabledReasonKey) {
+            <span class="block text-[10px] text-muted">{{ item.disabledReasonKey | translate }}</span>
+          }
+        </span>
+      </button>
+    }
+  </div>
+}

@@ -65,7 +65,7 @@
     </div>
   }
 
-  <app-table [columns]="columns" [rows]="records()" [loading]="loading()">
+  <app-table [columns]="columns" [rows]="records()" [loading]="loading()" [contextMenuItems]="recordContextMenu">
     <ng-template let-r>
       <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 align-top">
         <td class="px-2 py-1.5 font-medium">{{ r.title }}</td>

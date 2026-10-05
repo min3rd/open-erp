@@ -7,8 +7,10 @@ import {
   BadgeComponent,
   Branch,
   BranchAssignment,
+  ContextMenuItem,
   FlatDepartmentNode,
   I18nService,
+  IconName,
   Membership,
   RequirePermissionDirective,
   TableColumn,
@@ -17,6 +19,7 @@ import {
   flattenDepartments
 } from '@shared';
 
+import { AuthService } from '../../../core/services/auth.service';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
 import { UserAssignmentDrawerComponent } from './user-assignment-drawer.component';
@@ -41,6 +44,7 @@ import { BranchAssignmentDrawerComponent } from '../branch-assignments/branch-as
 export class MembersComponent implements OnInit {
   private organization = inject(OrganizationService);
   private i18n = inject(I18nService);
+  private auth = inject(AuthService);
   private listState = inject(PathListStateService);
 
   readonly memberships = signal<Membership[]>([]);
@@ -201,6 +205,34 @@ export class MembersComponent implements OnInit {
       }
     });
   }
+
+  /** Right-click shortcut for a membership row; each action reuses the inline handler. */
+  readonly memberContextMenu = (membership: Membership): ContextMenuItem[] => {
+    const canManage = this.auth.hasPermission('core:membership:manage') !== false;
+    return [
+      {
+        id: 'edit',
+        labelKey: 'COMMON_EDIT',
+        icon: IconName.EDIT,
+        disabled: !canManage,
+        disabledReasonKey: canManage ? undefined : 'COMMON_PERMISSION_REQUIRED',
+        action: () => this.openEditMembership(membership)
+      },
+      {
+        id: 'assign',
+        labelKey: 'ORGANIZATION_BRANCH_ASSIGNMENT_ASSIGN_BTN',
+        icon: IconName.USER,
+        action: () => this.openAssignmentDrawer(membership)
+      },
+      {
+        id: 'delete',
+        labelKey: 'COMMON_DELETE',
+        icon: IconName.TRASH,
+        danger: true,
+        action: () => this.askRemove(membership)
+      }
+    ];
+  };
 
   private showError(err: unknown) {
     const apiError = err as ApiErrorResponse;

@@ -1,4 +1,9 @@
 {
+  "COMMON_CONTEXT_MENU": "Thao tác nhanh",
+  "COMMON_MORE_ACTIONS": "Thao tác khác",
+  "COMMON_PERMISSION_REQUIRED": "Bạn không có quyền thực hiện thao tác này",
+  "COMMON_ACTION_IN_PROGRESS": "Thao tác đang được xử lý",
+  "COMMON_ACTION_BLOCKED": "Thao tác hiện bị tạm khóa",
   "COMMON_CLOSE": "Đóng (Esc)",
   "COMMON_SAVE": "Lưu thay đổi",
   "COMMON_CANCEL": "Hủy bỏ",

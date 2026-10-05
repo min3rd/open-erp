@@ -25,3 +25,5 @@ export * from './top-progress-bar/top-progress-bar.component';
 export * from './skeleton/skeleton.component';
 export * from './skeleton/skeleton-table.component';
 export * from './skeleton/skeleton-card.component';
+export * from './context-menu/context-menu.component';
+export * from './context-menu/context-menu.service';

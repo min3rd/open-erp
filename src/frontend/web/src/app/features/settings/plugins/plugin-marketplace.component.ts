@@ -1,8 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import {
+  ContextMenuItem,
+  ContextMenuTriggerDirective,
   DrawerComponent,
   I18nService,
+  IconName,
   PluginCardComponent,
   PluginCatalogDetail,
   PluginCatalogStatus,
@@ -38,6 +41,7 @@ const TERMINAL_STATUSES = ['ACTIVE', 'INACTIVE', 'UNINSTALLED', 'INSTALL_FAILED'
     SharpButtonComponent,
     SharpToggleComponent,
     TenantPluginRegisterDrawerComponent,
+    ContextMenuTriggerDirective,
   ],
   providers: [PathListStateService],
   templateUrl: './plugin-marketplace.component.html',
@@ -230,6 +234,76 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
 
   actionsDisabled(item: PluginMarketplaceItem): boolean {
     return this.isBusy(item) || this.isBlocked(item);
+  }
+
+  /** Right-click shortcut for a plugin card; each action reuses the inline handler. */
+  pluginContextMenu(item: PluginMarketplaceItem): ContextMenuItem[] {
+    const disabled = this.actionsDisabled(item);
+    const reason = disabled
+      ? this.isBlocked(item)
+        ? 'COMMON_ACTION_BLOCKED'
+        : 'COMMON_ACTION_IN_PROGRESS'
+      : undefined;
+    const items: ContextMenuItem[] = [
+      {
+        id: 'detail',
+        labelKey: 'COMMON_VIEW_DETAIL',
+        icon: IconName.EXTERNAL_LINK,
+        action: () => this.openDetail(item)
+      }
+    ];
+
+    if (this.isInstalled(item)) {
+      if (item.status === TenantPluginStatus.ACTIVE) {
+        items.push({
+          id: 'disable',
+          labelKey: 'PLUGIN_ACTION_DISABLE',
+          icon: IconName.X,
+          disabled,
+          disabledReasonKey: reason,
+          action: () => this.disable(item)
+        });
+      }
+      if (item.status === TenantPluginStatus.INACTIVE) {
+        items.push({
+          id: 'enable',
+          labelKey: 'PLUGIN_ACTION_ENABLE',
+          icon: IconName.CHECK,
+          disabled,
+          disabledReasonKey: reason,
+          action: () => this.enable(item)
+        });
+      }
+      if (this.canUpgrade(item)) {
+        items.push({
+          id: 'upgrade',
+          labelKey: 'PLUGIN_ACTION_UPGRADE',
+          icon: IconName.UPLOAD,
+          disabled,
+          disabledReasonKey: reason,
+          action: () => this.openUpgrade(item)
+        });
+      }
+      items.push({
+        id: 'uninstall',
+        labelKey: 'PLUGIN_ACTION_UNINSTALL',
+        icon: IconName.TRASH,
+        danger: true,
+        disabled,
+        disabledReasonKey: reason,
+        action: () => this.openUninstall(item)
+      });
+    } else {
+      items.push({
+        id: 'install',
+        labelKey: 'PLUGIN_ACTION_INSTALL',
+        icon: IconName.DOWNLOAD,
+        disabled,
+        disabledReasonKey: reason,
+        action: () => this.install(item)
+      });
+    }
+    return items;
   }
 
   private matchesQuery(items: PluginMarketplaceItem[]): PluginMarketplaceItem[] {

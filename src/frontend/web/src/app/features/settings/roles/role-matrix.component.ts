@@ -6,12 +6,15 @@ import {
   ApiErrorResponse,
   BadgeComponent,
   ColorVariant,
+  ContextMenuItem,
+  ContextMenuTriggerDirective,
   DATA_OPERATIONS,
   DataOperation,
   DataPolicy,
   DataResource,
   DataScope,
   I18nService,
+  IconName,
   Permission,
   RequirePermissionDirective,
   Role,
@@ -25,6 +28,7 @@ import {
   dataScopeLabelKey
 } from '@shared';
 
+import { AuthService } from '../../../core/services/auth.service';
 import { IamService } from '../../../core/services/iam.service';
 import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
 import { RoleFormDrawerComponent } from './role-form-drawer.component';
@@ -48,7 +52,8 @@ interface PermissionGroup {
     TranslatePipe,
     RoleFormDrawerComponent,
     AssignUsersDrawerComponent,
-    RequirePermissionDirective
+    RequirePermissionDirective,
+    ContextMenuTriggerDirective
   ],
   providers: [PathListStateService],
   templateUrl: './role-matrix.component.html'
@@ -56,6 +61,7 @@ interface PermissionGroup {
 export class RoleMatrixComponent implements OnInit {
   private iam = inject(IamService);
   private i18n = inject(I18nService);
+  private auth = inject(AuthService);
   private listState = inject(PathListStateService);
 
   private pendingState: PathListState | null = null;
@@ -382,6 +388,42 @@ export class RoleMatrixComponent implements OnInit {
     this.successText.set(this.i18n.t(code));
     this.errorText.set('');
     this.reloadRoles();
+  }
+
+  /** Right-click shortcut for a role row; each action reuses the inline handler. */
+  contextMenuItems(role: Role): ContextMenuItem[] {
+    const canManage = this.auth.hasPermission('core:role:manage') !== false;
+    const items: ContextMenuItem[] = [
+      {
+        id: 'edit',
+        labelKey: 'COMMON_EDIT',
+        icon: IconName.EDIT,
+        disabled: !canManage,
+        disabledReasonKey: canManage ? undefined : 'COMMON_PERMISSION_REQUIRED',
+        action: () => this.openEditRole(role)
+      },
+      {
+        id: 'assign',
+        labelKey: 'IAM_ASSIGN_USERS_BTN',
+        icon: IconName.USER,
+        action: () => {
+          this.selectRole(role, false);
+          this.openAssignUsers();
+        }
+      }
+    ];
+    if (!role.is_system) {
+      items.push({
+        id: 'delete',
+        labelKey: 'COMMON_DELETE',
+        icon: IconName.TRASH,
+        danger: true,
+        disabled: !canManage,
+        disabledReasonKey: canManage ? undefined : 'COMMON_PERMISSION_REQUIRED',
+        action: () => this.askDeleteRole(role)
+      });
+    }
+    return items;
   }
 
   private reloadRoles() {

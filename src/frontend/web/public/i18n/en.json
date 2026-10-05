@@ -1,4 +1,9 @@
 {
+  "COMMON_CONTEXT_MENU": "Quick actions",
+  "COMMON_MORE_ACTIONS": "More actions",
+  "COMMON_PERMISSION_REQUIRED": "You don't have permission to perform this action",
+  "COMMON_ACTION_IN_PROGRESS": "Action is in progress",
+  "COMMON_ACTION_BLOCKED": "This action is currently locked",
   "COMMON_CLOSE": "Close (Esc)",
   "COMMON_CANCEL": "Cancel",
   "COMMON_BACK": "Back",
