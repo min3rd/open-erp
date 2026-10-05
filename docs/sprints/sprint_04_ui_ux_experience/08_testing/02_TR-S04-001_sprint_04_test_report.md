@@ -28,7 +28,7 @@
 | TC-11 | AC-10 | **PASS** | `contextmenu` với `pointerType='touch'` ⇒ **không mở menu** (BUG-132 đã chặn long-press); mobile Ionic 390×844: 0 touch target < 40px |
 | TC-12 | AC-11 | **PASS** | Request chậm (latency 500ms): thanh progress hiện sau **950ms**, ẩn khi xong; thao tác không request: **không hiện** (không nhấp nháy < 150ms) |
 | TC-13 | AC-12 | **PASS** | Chặn endpoint memberships ⇒ **chỉ vùng bảng** hiện lỗi, vùng tra cứu (chi nhánh/phòng ban) vẫn chạy; bỏ chặn + bấm **Thử lại** ⇒ lỗi biến mất, dữ liệu về. Ảnh `tc13-region-error.png` |
-| TC-14 | AC-13 | **PASS** | Cùng lượt chạy TC-13: đúng **1 nút Thử lại** cho vùng lỗi, không nhảy layout, empty state vẫn đúng |
+| TC-14 | AC-13 | **PASS** | Cùng lượt chạy TC-13: đúng **1 nút Thử lại** cho vùng lỗi, không nhảy layout, empty state vẫn đúng. Thêm: luồng **Xóa chi nhánh qua UI** đã xác minh (DELETE 200 → dòng biến mất khỏi bảng; soft-delete `INACTIVE` được lọc khỏi danh sách/cây — BUG-121 follow-up) |
 | TC-15 | AC-14 | **PASS** | Đổi sang `en` áp ngay, `html lang=en`, **0 key thô `PERM_*`** (BUG-133 đã bổ sung 32 key × 13 locale), F5 vẫn `en`. Ảnh `tc15-english.png` |
 | TC-16 | AC-15 | **PASS** | `npm run i18n:check:strict`: 13/13 locale 100% (web 944 key, mobile 494 key) |
 | TC-17 | AC-16 | **PASS** | Web: `dir=rtl lang=ar`, overflow **0** tại 1440×900 và 390×844; sidebar/table/drawer/context-menu gương; toggle knob lật; icon hướng tự lật. **Mobile Ionic thật** (390×844, touch emulation): `dir=rtl lang=ar`, overflow **0** ở login + dashboard, 0 console error. Ảnh `%TEMP%/opencode/rtl/`, `mobile-ar-login.png`, `mobile-ar-dashboard.png` |

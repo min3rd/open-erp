@@ -45,8 +45,8 @@ Thêm `import com.vn9melody.openerp.core.enums.LanguageCode;` vào `AccountServi
 - **Không để backend dev ở trạng thái biên dịch lỗi** giữa các bước: chạy `mvn -o compile` sau mỗi cụm sửa Java trước khi trả lại phiên.
 - Khi thêm enum/class mới, kiểm tra import ngay (lỗi này lẽ ra bị bắt ở bước compile).
 
-## 6. Follow-up (chưa phải bug, cần chốt)
+## 6. Follow-up (đã xử lý 2026-10-05)
 
-1. **Chi nhánh không nằm trong sơ đồ phòng ban**: `POST /branches` thành công nhưng canvas/cây phòng ban không đổi (thiết kế hiện tại: chi nhánh ở bảng riêng bên phải). Cần chốt: có đưa chi nhánh thành nút gốc của sơ đồ không, hay thêm chỉ dấu để người dùng biết chi nhánh nằm ở bảng bên phải.
-2. **Luồng xoá qua UI chưa xác minh**: trong repro, bấm "Xoá" + xác nhận không xoá được (phải xoá bằng SQL). Cần kiểm tra `confirmDeleteAction` cho branch/department (có thể thiếu quyền hoặc lỗi gọi API). **Chưa kiểm chứng.**
-3. **Nút "+ Thêm phòng ban" hiển thị cả khi thiếu quyền?** Cần rà lại `PLUGIN_PERMISSION_CHECKER` sau thay đổi Sprint 04 (`isAuthenticated() && hasPermission(...) !== false`) — nếu quá dễ dãi sẽ hiện nút rồi 403. **Chưa kiểm chứng.**
+1. **Chi nhánh không nằm trong sơ đồ phòng ban** → đã xử lý ở [BUG-122](BUG-122_org_chart_missing_tenant_root_and_branches.md) (cây hiện tenant gốc → chi nhánh → phòng ban).
+2. **Luồng xoá qua UI** → **đã xác minh và sửa**: xoá là *soft delete* (status → `INACTIVE`) và bảng vẫn hiển thị dòng đã xoá nên trông như thất bại. Nay danh sách chi nhánh và cây phòng ban **lọc bỏ bản ghi `INACTIVE`**; đo lại: bấm Xóa → xác nhận → request `DELETE /api/v1/organization/branches/{id}` (200) → dòng **biến mất** khỏi bảng.
+3. **Nút "+ Thêm phòng ban" khi thiếu quyền**: `PLUGIN_PERMISSION_CHECKER` trả `false` khi claim có mặt và thiếu quyền ⇒ nút ẩn; chỉ khi JWT **không có** claim `permissions` mới hiện (fallback đã ghi ở Sprint 02). Không đổi.
