@@ -11,7 +11,6 @@ import {
   NotificationBannerComponent,
   PluginNotification,
   SectionNavComponent,
-  SectionNavItem,
   SectionNavVariant,
   ThemeService,
   TopbarComponent,
@@ -161,19 +160,6 @@ export class SettingsLayoutComponent implements OnInit {
   // Fallback: when the Sprint 02 `permissions` claim is absent from the JWT,
   // `hasPermission()` returns `null` and every menu item stays visible.
   readonly menuItems = computed(() => this.filterNodes(this.menuTree));
-
-  /** Leaves only, for the rail/compact/icon/drawer layouts. */
-  readonly flatMenuItems = computed<ReadonlyArray<SectionNavItem>>(() => {
-    const flat: SectionNavItem[] = [];
-    for (const node of this.menuItems()) {
-      if (node.children?.length) {
-        flat.push(...this.filterNodes(node.children));
-      } else {
-        flat.push(node);
-      }
-    }
-    return flat;
-  });
 
   private filterNodes(nodes: ReadonlyArray<SettingsMenuNode>): ReadonlyArray<SettingsMenuNode> {
     return nodes

@@ -5,7 +5,7 @@
     <select
       (change)="onThemeChange($event)"
       [attr.aria-label]="'THEME_LABEL' | translate"
-      class="border border-default bg-surface text-ink px-1.5 py-0.5 text-[11px] font-mono rounded-control cursor-pointer max-sm:min-h-10"
+      class="border border-default bg-surface text-ink px-1.5 py-0.5 text-[11px] font-mono rounded-inline cursor-pointer max-sm:min-h-10"
     >
       <option [value]="themeAutoValue" [selected]="themeValue() === themeAutoValue">
         {{ 'THEME_FOLLOW_TENANT' | translate }}
@@ -26,7 +26,7 @@
       type="button"
       (click)="setTenantDefault()"
       [disabled]="theme.themeId() === theme.tenantTheme()"
-      class="ml-auto shrink-0 rounded-control border border-default px-1.5 py-0.5 text-[10px] text-muted transition-colors hover:bg-surface-muted hover:text-ink disabled:opacity-40 disabled:cursor-default cursor-pointer max-sm:min-h-10"
+      class="ml-auto shrink-0 rounded-inline border border-default px-1.5 py-0.5 text-[10px] text-muted transition-colors hover:bg-surface-muted hover:text-ink disabled:opacity-40 disabled:cursor-default cursor-pointer max-sm:min-h-10"
     >
       {{ 'THEME_SET_TENANT_DEFAULT' | translate }}
     </button>
@@ -38,7 +38,7 @@
     <select
       (change)="onShapeChange($event)"
       [attr.aria-label]="'SHAPE_LABEL' | translate"
-      class="border border-default bg-surface text-ink px-1.5 py-0.5 text-[11px] font-mono rounded-control cursor-pointer max-sm:min-h-10"
+      class="border border-default bg-surface text-ink px-1.5 py-0.5 text-[11px] font-mono rounded-inline cursor-pointer max-sm:min-h-10"
     >
       @for (item of shapes; track item.id) {
         <option [value]="item.id" [selected]="shapeValue() === item.id">
@@ -54,7 +54,7 @@
     <select
       (change)="onLayoutChange($event)"
       [attr.aria-label]="'LAYOUT_LABEL' | translate"
-      class="border border-default bg-surface text-ink px-1.5 py-0.5 text-[11px] font-mono rounded-control cursor-pointer max-sm:min-h-10"
+      class="border border-default bg-surface text-ink px-1.5 py-0.5 text-[11px] font-mono rounded-inline cursor-pointer max-sm:min-h-10"
     >
       @for (item of layouts; track item.id) {
         <option [value]="item.id" [selected]="layoutValue() === item.id">
@@ -67,7 +67,7 @@
   <!-- Light/dark mode (always available, per user) -->
   <div class="inline-flex items-center gap-1.5">
     <span class="erp-switcher-label text-muted font-semibold text-[10px] uppercase" [appTranslate]="'COMMON_THEME'"></span>
-    <div class="inline-flex border border-default bg-surface-muted rounded-control overflow-hidden">
+    <div class="inline-flex border border-default bg-surface-muted rounded-inline overflow-hidden">
       @for (item of modes; track item.mode; let last = $last) {
         <button
           type="button"

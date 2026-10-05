@@ -3,7 +3,7 @@
   <div class="flex items-center gap-1">
     <button
       type="button"
-      class="px-2 py-0.5 border border-default rounded-control disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-muted"
+      class="px-2 py-0.5 border border-default rounded-inline disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-muted"
       [disabled]="!canPrev()"
       (click)="prev()"
     >
@@ -12,7 +12,7 @@
     <span class="font-mono px-1">{{ 'COMMON_PAGE_OF' | translate:{ page: displayPage(), total_pages: totalPages() || 1 } }}</span>
     <button
       type="button"
-      class="px-2 py-0.5 border border-default rounded-control disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-muted"
+      class="px-2 py-0.5 border border-default rounded-inline disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-muted"
       [disabled]="!canNext()"
       (click)="next()"
     >

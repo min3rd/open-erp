@@ -46,7 +46,7 @@
         [class]="'lg:shrink-0 border-b lg:border-b-0 border-default bg-sidebar p-1.5 ' + railWidth()
           + (navRight() ? ' lg:border-l' : ' lg:border-r')"
       >
-        <app-section-nav [variant]="navVariant()" [items]="flatMenuItems()" titleKey="SETTINGS_SECTION_TITLE" />
+        <app-section-nav [variant]="navVariant()" [items]="menuItems()" titleKey="SETTINGS_SECTION_TITLE" />
       </aside>
     }
 
@@ -67,7 +67,7 @@
       (close)="menuOpen.set(false)"
     >
       <div (click)="menuOpen.set(false)">
-        <app-section-nav [items]="flatMenuItems()" />
+        <app-section-nav [items]="menuItems()" />
       </div>
     </app-drawer>
   }

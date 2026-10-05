@@ -15,7 +15,7 @@ export class BadgeComponent {
 
   badgeClasses(): string {
     const shape = this.shape() as string;
-    const shapeCls = shape === ShapeVariant.SHARP || shape === 'sharp' ? 'rounded-none' : 'rounded-control';
+    const shapeCls = shape === ShapeVariant.SHARP || shape === 'sharp' ? 'rounded-none' : 'rounded-inline';
     const base = `inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono font-medium ${shapeCls} uppercase tracking-wider border`;
     const v = this.variant() as string;
     switch (v) {

@@ -8,8 +8,8 @@
       }
       @for (item of items(); track item.labelKey) {
         @if (item.children?.length) {
-          <!-- Level 1 with children: native <details> dropdown = keyboard accessible, no JS state -->
-          <details class="relative">
+          <!-- Level 1 with children: native <details> dropdown (keyboard accessible, no JS state) -->
+          <details class="relative" (toggle)="onToggle($event.target)">
             <summary
               class="inline-flex min-h-8 cursor-pointer list-none items-center gap-1.5 whitespace-nowrap rounded-control border-b-2 border-transparent px-2.5 py-1 text-xs text-sidebar-text transition-colors hover:bg-sidebar-active/60 [&::-webkit-details-marker]:hidden"
             >
@@ -55,40 +55,47 @@
 
   @case ('icons') {
     <nav class="flex flex-col gap-0.5" [attr.aria-label]="titleKey() ? (titleKey() | translate) : null">
-      @for (item of items(); track item.path) {
-        <a
-          [routerLink]="item.path"
-          routerLinkActive="bg-sidebar-active text-sidebar-active-text"
-          [attr.title]="item.labelKey | translate"
-          [attr.aria-label]="item.labelKey | translate"
-          class="inline-flex min-h-9 items-center justify-center rounded-control border-l-2 border-transparent px-1 py-1.5 text-sidebar-text transition-colors hover:bg-sidebar-active/60"
-        >
-          @if (item.icon) {
-            <app-icon [name]="item.icon" size="md" [decorative]="true" />
-          }
-        </a>
-      }
-    </nav>
-  }
-
-  @case ('compact') {
-    <nav class="flex flex-col gap-0.5" [attr.aria-label]="titleKey() ? (titleKey() | translate) : null">
-      @if (titleKey()) {
-        <p class="px-2 pb-0.5 pt-1 text-[10px] font-bold uppercase tracking-wider text-sidebar-text/80">
-          {{ titleKey() | translate }}
-        </p>
-      }
-      @for (item of items(); track item.path) {
-        <a
-          [routerLink]="item.path"
-          routerLinkActive="bg-sidebar-active text-sidebar-active-text font-semibold border-accent"
-          class="inline-flex min-h-8 items-center gap-1.5 rounded-control border-l-2 border-transparent px-2 py-1 text-[11px] text-sidebar-text transition-colors hover:bg-sidebar-active/60"
-        >
-          @if (item.icon) {
-            <app-icon [name]="item.icon" size="xs" [decorative]="true" />
-          }
-          <span class="truncate">{{ item.labelKey | translate }}</span>
-        </a>
+      @for (item of items(); track item.labelKey) {
+        @if (item.children?.length) {
+          <details class="group" [open]="groupActive(item)" (toggle)="onToggle($event.target)">
+            <summary
+              [attr.title]="item.labelKey | translate"
+              [attr.aria-label]="item.labelKey | translate"
+              class="inline-flex min-h-9 cursor-pointer list-none items-center justify-center rounded-control border-l-2 border-transparent px-1 py-1.5 text-sidebar-text transition-colors hover:bg-sidebar-active/60 [&::-webkit-details-marker]:hidden"
+            >
+              @if (item.icon) {
+                <app-icon [name]="item.icon" size="md" [decorative]="true" />
+              }
+            </summary>
+            <div class="mt-0.5 flex flex-col gap-0.5 ps-2">
+              @for (child of item.children; track child.path) {
+                <a
+                  [routerLink]="child.path"
+                  routerLinkActive="bg-sidebar-active text-sidebar-active-text"
+                  [attr.title]="child.labelKey | translate"
+                  [attr.aria-label]="child.labelKey | translate"
+                  class="inline-flex min-h-8 items-center justify-center rounded-control border-l-2 border-transparent px-1 py-1 text-sidebar-text transition-colors hover:bg-sidebar-active/60"
+                >
+                  @if (child.icon) {
+                    <app-icon [name]="child.icon" size="sm" [decorative]="true" />
+                  }
+                </a>
+              }
+            </div>
+          </details>
+        } @else {
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="bg-sidebar-active text-sidebar-active-text"
+            [attr.title]="item.labelKey | translate"
+            [attr.aria-label]="item.labelKey | translate"
+            class="inline-flex min-h-9 items-center justify-center rounded-control border-l-2 border-transparent px-1 py-1.5 text-sidebar-text transition-colors hover:bg-sidebar-active/60"
+          >
+            @if (item.icon) {
+              <app-icon [name]="item.icon" size="md" [decorative]="true" />
+            }
+          </a>
+        }
       }
     </nav>
   }
@@ -100,17 +107,54 @@
           {{ titleKey() | translate }}
         </p>
       }
-      @for (item of items(); track item.path) {
-        <a
-          [routerLink]="item.path"
-          routerLinkActive="bg-sidebar-active text-sidebar-active-text font-semibold border-accent"
-          class="inline-flex min-h-10 lg:min-h-8 items-center gap-2 rounded-control border-l-2 border-transparent px-2.5 py-1.5 text-xs text-sidebar-text transition-colors hover:bg-sidebar-active/60"
-        >
-          @if (item.icon) {
-            <app-icon [name]="item.icon" size="sm" [decorative]="true" />
-          }
-          {{ item.labelKey | translate }}
-        </a>
+      @for (item of items(); track item.labelKey) {
+        @if (item.children?.length) {
+          <!-- Group: expands in place, and starts open when it holds the active page -->
+          <details class="group" [open]="groupActive(item)" (toggle)="onToggle($event.target)">
+            <summary
+              [class]="'flex cursor-pointer list-none items-center rounded-control border-l-2 border-transparent text-sidebar-text transition-colors hover:bg-sidebar-active/60 [&::-webkit-details-marker]:hidden '
+                + railRow().row"
+            >
+              @if (item.icon) {
+                <app-icon [name]="item.icon" [size]="railRow().icon" [decorative]="true" />
+              }
+              <span class="flex-1 truncate">{{ item.labelKey | translate }}</span>
+              <app-icon
+                name="chevron-down"
+                size="xs"
+                [decorative]="true"
+                class="transition-transform group-open:rotate-180"
+              />
+            </summary>
+            <div [class]="'mt-0.5 flex flex-col gap-0.5 ' + railRow().indent">
+              @for (child of item.children; track child.path) {
+                <a
+                  [routerLink]="child.path"
+                  routerLinkActive="bg-sidebar-active text-sidebar-active-text font-semibold border-accent"
+                  [class]="'inline-flex items-center rounded-control border-l-2 border-transparent text-sidebar-text transition-colors hover:bg-sidebar-active/60 '
+                    + railRow().row"
+                >
+                  @if (child.icon) {
+                    <app-icon [name]="child.icon" [size]="railRow().icon" [decorative]="true" />
+                  }
+                  <span class="truncate">{{ child.labelKey | translate }}</span>
+                </a>
+              }
+            </div>
+          </details>
+        } @else {
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="bg-sidebar-active text-sidebar-active-text font-semibold border-accent"
+            [class]="'inline-flex items-center rounded-control border-l-2 border-transparent text-sidebar-text transition-colors hover:bg-sidebar-active/60 '
+              + railRow().row"
+          >
+            @if (item.icon) {
+              <app-icon [name]="item.icon" [size]="railRow().icon" [decorative]="true" />
+            }
+            {{ item.labelKey | translate }}
+          </a>
+        }
       }
     </nav>
   }
