@@ -1,5 +1,22 @@
 # Hệ Thống Tài Liệu Dự Án Open-ERP (Docs-driven Architecture)
 
+## 0. Bắt đầu theo vai trò
+
+| Người đọc | Thứ tự đọc | Kết quả cần đạt |
+| :--- | :--- | :--- |
+| Developer mới | [Developer Reading Guide](08_developer_guides/00_READING_GUIDE.md) → [Project walkthrough](08_developer_guides/01_project_walkthrough.md) → local setup/quy chuẩn → sprint mục tiêu | Hiểu hệ thống, tìm source, lần theo request, nhận việc và kiểm chứng đúng |
+| Khách hàng | Index sprint → 01–04 → QA/review 08–09 | Xác nhận đúng scope/AC và nghiệm thu có bằng chứng |
+| AI agent | [Master Index](../.agents/rules/sdlc_process.md) → [Core SDLC](../.agents/rules/core_sdlc.md) → [Phối hợp](../.agents/rules/agent_collaboration.md) → [Chuẩn tài liệu](../.agents/rules/documentation_standards.md) → role rules → item | Nhận input/version, write scope/dependency, bàn giao đúng người |
+| Tra lịch sử | [Sprint 01](sprints/sprint_01_core_iam/00_READING_GUIDE.md) → [Sprint 02](sprints/sprint_02_superadmin_rbac/00_READING_GUIDE.md) → [Sprint 03](sprints/sprint_03_plugin_manager/00_READING_GUIDE.md) | Đọc mỗi pack 00–09; đối chiếu scope/design/QA/closure riêng |
+
+Trạng thái sản phẩm lấy ở artifact gốc, không từ cây thư mục mô tả bên dưới. Sprint 01 có ghi xác nhận đóng; Sprint 02 ghi DoD/đóng nhưng phần chữ ký khách hàng trong review còn trống; Sprint 03 có code/QA và biên bản chưa đóng. Đây là đọc hồ sơ, không phải kiểm thử mới ngày 2026-10-04. Quyết định từng gate dẫn tại index sprint.
+
+## 0.1. Cách đọc mã và tìm bản hiện hành
+
+Thứ tự đọc, ID và version riêng biệt. Docs sprint mới: `<NN>_<TYPE>-S<XX>-<NNN>_<slug>.md`, ví dụ `01_DES-API-S04-001_inventory_api.md`; item giữ `TASK-349` theo số toàn dự án. File lịch sử giữ tên, alias xuyên sprint như `S03/RAW-01` có link đầy đủ. Quy tắc và tương thích tại [documentation_standards](../.agents/rules/documentation_standards.md).
+
+[Templates chuẩn](system/templates/READING_GUIDE_TEMPLATE.md) dẫn tới [document](system/templates/DOCUMENT_TEMPLATE.md), [handoff](system/templates/HANDOFF_TEMPLATE.md), [traceability](system/templates/TRACEABILITY_TEMPLATE.md) và templates item/review. Templates để Draft/Pending/Not Run; phải điền nguồn/baseline trước kết luận. Review workflow lần này tại [REV-S03-004](sprints/sprint_03_plugin_manager/09_review/04_REV-S03-004_sdlc_workflow_review.md).
+
 Thư mục này là trung tâm giao tiếp và bàn giao công việc giữa các Agent và Khách Hàng trong dự án theo quy trình SDLC chuẩn mực 9 bước với **Mô hình Sprint-Pack Tuần Tự (00 - 09)**.
 
 ## Cấu Trúc Thư Mục Chuẩn Mực
@@ -57,11 +74,11 @@ docs/
 5. **Quy Tắc Thư Viện Dùng Chung (Component-First Rule)**: Mọi component giao diện mới phải được đưa vào `shared-ui-lib` trước khi sử dụng trong Web hoặc Mobile. Hạn chế tối đa thư viện bên thứ 3.
 6. **Phân Định Nền Tảng (Desktop vs. Mobile)**: Mọi Plugin phải phân tách rõ chức năng hỗ trợ trên Desktop (đầy đủ) và Mobile (tối giản).
 7. **Đăng Ký Thực Thể (Entity Registry)**: Mọi entity CSDL của module/plugin bắt buộc phải đăng ký vào Entity Registry chung để các plugin khác có thể tham chiếu.
-8. **Cô lập dữ liệu Tenant**: Tuyệt đối không để rò rỉ dữ liệu chéo giữa các Tenant. Mọi thao tác CSDL phải có điều kiện `tenant_id`.
+8. **Cô lập dữ liệu Tenant**: Dữ liệu thuộc tenant phải có context `tenant_id` đã xác thực cho đọc/ghi/cache/message. Auth/platform toàn cục có scope/phân quyền riêng theo thiết kế; không được dùng để bỏ lọc dữ liệu tenant. Xem [Architect rules](../.agents/rules/agent_architect.md).
 9. **Quản lý Version & Data Migration**: Mỗi Plugin phải có phiên bản SemVer và kịch bản migration riêng biệt (`up`/`down`) cho từng Tenant khi cài đặt, nâng cấp hoặc gỡ bỏ.
 10. **Mỗi yêu cầu/lỗi là một file riêng**: Mọi task, bug, feature, refactor phát sinh phải được lập file độc lập trong thư mục `07_items/` của Sprint tương ứng để theo dõi trạng thái, tránh bỏ sót.
 11. **Điều kiện đóng Sprint (Sprint DoD Gate)**: Một Sprint **chỉ được phép đóng** khi không còn bất kỳ task, bug nào có mức độ ưu tiên **lớn hơn Medium (`Critical`, `High`)** chưa hoàn tất. Mọi item mức `Critical` và `High` bắt buộc phải `Done`.
-12. Mọi tài liệu mới cần được đặt tên theo quy ước: `<mã_tính_năng>_<tên_ngắn_gọn>.md` (Ví dụ: `FEAT-01_user_authentication.md`).
+12. Docs mới theo [chuẩn đánh số](../.agents/rules/documentation_standards.md); item dùng `<ID>_<slug>.md`, docs theo thứ tự đọc và namespace sprint. Giữ IDs/paths lịch sử, thêm alias có phạm vi tại index.
 13. **Tài liệu Hướng Dẫn Sử Dụng (User Guides)**: Phải đặt trong `docs/06_user_guides/` và **bắt buộc phải có hình ảnh trực quan** (screenshots, mockups, sơ đồ từ thư mục `assets/`). Nghiêm cấm hướng dẫn thuần văn bản thiếu minh họa. **Tên file bắt buộc có tiền tố thứ tự Sprint**: `sprint_XX_<tên_nghiệp_vụ>_user_guide.md` (ví dụ `sprint_01_core_iam_user_guide.md`) để người đọc biết thứ tự đọc.
 14. **Tài liệu Triển Khai & Phát Triển**: Mọi thay đổi về kiến trúc, plugin, quy trình build/run/deploy bắt buộc phải cập nhật đồng bộ vào `docs/07_deployment_guides/` (Local Docker Compose, Staging/Prod K8s) và `docs/08_developer_guides/` (Coding standards, Plugin guide, Shared UI guide).
 15. **Chính Sách Kiểm Thử Thực Dụng**: Unit Test chỉ viết cho logic nghiệp vụ backend (Quarkus Java). Tuyệt đối KHÔNG viết unit test cho frontend (Angular/Ionic). QA/QC bắt buộc thực hiện kiểm thử thủ công trực tiếp trên trình duyệt (Browser Manual Testing).

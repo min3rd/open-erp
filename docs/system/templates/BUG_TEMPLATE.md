@@ -1,39 +1,35 @@
-# [BUG-xxx] Tiêu Đề Lỗi Phát Hiện
+# [BUG-n] Lỗi phát hiện
 
-- **Mã Lỗi**: BUG-xxx
-- **Phân Loại**: Bug / Defect
-- **Mức Độ Ưu Tiên**: [ ] Critical / [ ] High / [ ] Medium / [ ] Low
-- **Người Báo Cáo (Reporter)**: [QA / BA / Dev Agent / Khách hàng]
-- **Người Xử Lý (Assignee)**: [Developer Agent]
-- **Thuộc Sprint**: Sprint XX
-- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+| Trường | Giá trị |
+| :--- | :--- |
+| ID / sprint theo dõi / sprint nguồn | BUG-n / Sprint XX / <nếu khác> |
+| Severity / trạng thái | <mức và lý do hệ quả> / To Do |
+| Reporter / owner-agent / reviewer | <cụ thể> / <cụ thể> / <QA> |
+| Cập nhật / baseline / môi trường | YYYY-MM-DD / <commit/working tree> / <môi trường> |
+| Input / dependency / write scope | <AC/DES link/version> / <ID> / <paths> |
 
----
+## 1. Hiện tượng và hệ quả
 
-## 1. Mô Tả Lỗi
-> Mô tả ngắn gọn hiện tượng lỗi xảy ra.
+Module bị ảnh hưởng, tính tái hiện, workaround nếu có. Phân biệt lỗi đã xác nhận và phần thiếu bằng chứng.
 
-- **Môi trường**: [Local / Dev / Staging]
-- **Tính năng / Module bị ảnh hưởng**: ...
+## 2. Tái hiện
 
-## 2. Các Bước Tái Hiện Lỗi (Steps to Reproduce)
-1. Truy cập vào trang `...`
-2. Thực hiện thao tác: `...`
-3. Nhập dữ liệu: `...`
-4. Bấm nút: `...`
+1. <điều kiện đầu vào, tài khoản/tenant test không có bí mật>
+2. <thao tác/request>
+3. <quan sát>
 
-## 3. Kết Quả Thực Tế (Actual Result)
-- Hệ thống báo lỗi: `...` (hoặc hiển thị sai `...`).
+## 3. Actual và expected
 
-## 4. Kết Quả Kỳ Vọng (Expected Result)
-- Theo tài liệu thiết kế/nghiệp vụ, hệ thống phải: `...`.
+Actual kèm log/ảnh; expected dẫn AC/contract. Bug sprint đã đóng theo dõi sprint hiện hành, giữ link nguồn.
 
-## 5. Log Lỗi / Hình Ảnh Đính Kèm (Stacktrace / Screenshots)
-```
-[Dán log lỗi hoặc stacktrace tại đây nếu có]
-```
+## 4. Sửa và re-test
 
-## 6. Xác Nhận Khắc Phục (QA Verification)
-- [ ] Developer đã sửa xong.
-- [ ] QA đã re-test và xác nhận không còn lỗi.
-- [ ] Không gây lỗi phát sinh (Regression test pass).
+| Lần / baseline / môi trường / lệnh-bước | Actual / expected | Kết quả | Evidence / QA / ngày |
+| :--- | :--- | :--- | :--- |
+| <lần 1> | <quan sát> | Not Run | Chưa có |
+
+Developer sửa xong chuyển In Review / Testing; Resolved/Fixed không tự là Done. QA re-test và regression liên quan xác nhận trước Done. Re-test Fail → In Progress; giữ kết quả cũ. Frontend không viết unit test; backend không H2.
+
+## 5. Bàn giao
+
+File đổi, người nhận, blockers và bước tiếp. Nếu Deferred: chỉ Medium/Low, ghi lý do/đích/owner nhận.

@@ -1,43 +1,47 @@
-# Biên Bản Đóng Sprint & Nghiệm Thu: [Sprint XX]
+# [REV-SXX-NNN] Review và quyết định đóng Sprint XX
 
-- **Thời Gian Đánh Giá**: YYYY-MM-DD
-- **Phụ trách**: PM Agent
-- **Đại diện tham gia**: BA Agent, Architect Agent, Developer Agent, QA Agent, Khách hàng
+| Trường | Giá trị |
+| :--- | :--- |
+| ID / scope / trạng thái / phiên bản | REV-SXX-NNN / Sprint XX / Draft / 0.1 |
+| Cập nhật / owner / reviewer | YYYY-MM-DD / <PM cụ thể> / Chưa review |
+| Input / đọc trước / đọc tiếp | <CONF+TR baseline> / <QA report> / <backlog hoặc sprint tiếp> |
 
----
+## 1. Mục tiêu và kết quả
 
-## 1. Đánh Giá Mục Tiêu Sprint (Sprint Goal Assessment)
-- **Mục tiêu đề ra**: ...
-- **Kết quả đạt được**: [ ] ĐẠT / [ ] MỘT PHẦN / [ ] KHÔNG ĐẠT
-- **Ghi chú đánh giá**: ...
+Đối chiếu scope/AC đã duyệt với traceability. Không dùng số test/build thay coverage AC.
 
----
+## 2. DoD có bằng chứng
 
-## 2. Kiểm Tra Điều Kiện Tiên Quyết Đóng Sprint (Closure Gate Verification)
+| Điều kiện | Số/kết quả thực tế | Bằng chứng/baseline | Đánh giá |
+| :--- | :--- | :--- | :--- |
+| Critical chưa Done | Chưa đối soát | Chưa có | Not Run |
+| High chưa Done (kể cả task con) | Chưa đối soát | Chưa có | Not Run |
+| Backend tests PostgreSQL/Redis thật | Chưa chạy | Chưa có | Not Run |
+| Browser Web Desktop / Mobile Ionic | Chưa chạy | Chưa có | Not Run |
+| AC coverage, guides có ảnh, docs/link | Chưa đối soát | Chưa có | Not Run |
+| Medium/Low chuyển tiếp có owner/đích | Chưa đối soát | Chưa có | Not Run |
 
-| Điều Kiện Tiên Quyết | Kết Quả Thực Tế | Đánh Giá (Pass / Fail) |
+N/A chỉ khi không áp dụng, có lý do/reviewer; không điền sẵn PASS hoặc 0 item.
+
+## 3. Backlog chuyển tiếp
+
+| ID/link nguồn | Severity | Lý do | Owner nhận | Đích cụ thể | Trạng thái |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| <item> | Medium/Low | <lý do> | <owner> | <sprint hoặc backlog trong review này> | Deferred |
+
+Giữ ID khi rollover, không tính bản sao/link là item thứ hai.
+
+## 4. Quyết định và xác nhận
+
+| Quyết định | Trạng thái | Người/ngày/nguồn |
 | :--- | :--- | :--- |
-| **Không còn task/bug mức `Critical` tồn đọng** | 0 item tồn đọng | **PASS** |
-| **Không còn task/bug mức `High` tồn đọng** | 0 item tồn đọng | **PASS** |
-| **Tất cả test cases tự động & nghiệp vụ đạt chuẩn** | 100% PASS | **PASS** |
-| **Tài liệu `docs/` đã hoàn thiện và đồng bộ** | Đầy đủ | **PASS** |
+| QA sign-off | Pending | Chưa có |
+| PM DoD | Pending | Chưa có |
+| Customer acceptance | Pending | Chưa có |
+| Sprint closure | Pending | Chưa có |
 
-> **KẾT LUẬN ĐÓNG SPRINT**:
-> [ ] **ĐỦ ĐIỀU KIỆN ĐÓNG SPRINT** (Tất cả item > Medium đã hoàn tất).
-> [ ] **CHƯA ĐỦ ĐIỀU KIỆN ĐÓNG SPRINT** (Vẫn còn item Critical hoặc High chưa xong).
+PM Ready for Closure khi đủ DoD; Closed sau xác nhận khách hàng. Chưa đủ ghi nguyên nhân và bước tiếp.
 
----
+## 5. Retrospective
 
-## 3. Danh Sách Hạng Mục Hoãn Sang Sprint Kế Tiếp (Deferred Items)
-> Chỉ áp dụng cho các item ở mức `Medium` hoặc `Low` đã được thống nhất hoãn lại.
-
-| Mã Định Danh | Tiêu Đề | Mức Độ Ưu Tiên | Lý Do Hoãn | Chuyển Sang Sprint |
-| :--- | :--- | :--- | :--- | :--- |
-| **TASK-xxx** | ... | Low | Ưu tiên tính năng chính | Sprint XX+1 |
-
----
-
-## 4. Bài Học Rút Ra (Retrospective)
-- **Điểm làm tốt (What went well)**: ...
-- **Điểm cần cải thiện (What can be improved)**: ...
-- **Hành động cụ thể cho Sprint sau**: ...
+Điểm tốt, vấn đề và hành động có owner.

@@ -15,3 +15,9 @@ PM Agent chịu trách nhiệm điều phối toàn diện tiến độ, quản 
 ## 2. Ràng Buộc Đóng Sprint (Sprint DoD Gate)
 - **1 Sprint CHỈ CÓ THỂ ĐÓNG khi KHÔNG CÒN BẤT KỲ task, bug, issue ở mức độ nghiêm trọng LỚN HƠN MEDIUM** (100% item mức `Critical` và `High` bắt buộc phải `Done`).
 - Các item mức `Medium` hoặc `Low` nếu chưa kịp hoàn thành phải được ghi rõ lý do và chuyển giao (rollover) sang backlog của Sprint tiếp theo.
+
+## 3. Điều phối và nguồn trạng thái
+
+PM reserve/cấp ID theo [documentation_standards.md](documentation_standards.md), kiểm cả inline lịch sử; một writer các index, owner/write scope/dependency theo [agent_collaboration.md](agent_collaboration.md). File item là nguồn trạng thái; index dẫn link, không ghi kết luận khác.
+
+DoD/QA/guides/backlog theo [core_sdlc.md](core_sdlc.md); chưa có sprint đích thì backlog có owner tại REV nguồn. Tách scope approval/design ready/QA sign-off/PM DoD/customer acceptance/closure. PM Ready for Closure trước khách hàng nghiệm thu, không mặc định PASS/suy chữ ký từ checkbox. Tách lịch dự kiến/thực tế; cập nhật summaries có nguồn, giữ lịch sử.

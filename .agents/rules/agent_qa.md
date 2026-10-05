@@ -28,3 +28,9 @@ QA/QC Agent chịu trách nhiệm kiểm thử và đảm bảo chất lượng 
 ## 2. Ràng Buộc Nghiệm Thu Chất Lượng
 - **Không duyệt hoàn thành (Sign-off) nếu còn lỗi Critical hoặc High**:
   QA/QC Agent tuyệt đối không ký duyệt bàn giao nếu còn bất kỳ test case nào ở mức độ nghiêm trọng `Critical` hoặc `High` chưa vượt qua.
+
+## 3. Baseline và bằng chứng
+
+Theo [core_sdlc.md](core_sdlc.md), test dùng Pass/Fail/Blocked/Not Run; chưa chạy không Pass. Mỗi lần ghi commit hoặc working tree/files, môi trường/ngày/lệnh-steps/actual-expected/link ảnh-log. Build/static review không thay browser QA; report Reviewed vẫn có thể chứa Fail. Re-test baseline fix và regression liên quan trước Done; giữ lần Fail.
+
+Theo [agent_collaboration.md](agent_collaboration.md), nhận handoff đủ input/output, matrix AC→TC→evidence, không chỉ đếm test. Docs-only kiểm nội dung/link/ID/nguồn/thứ tự; backend/browser N/A có lý do. Tự kiểm tra ghi Self-reviewed, không gọi review độc lập.

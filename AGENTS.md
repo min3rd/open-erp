@@ -6,6 +6,8 @@ Tất cả các Agent khi tham gia vào dự án này bắt buộc phải tuân 
 - Quy tắc cốt lõi & Master Index: [.agents/rules/sdlc_process.md](.agents/rules/sdlc_process.md)
 - Bộ quy tắc chuyên biệt theo vai trò & lĩnh vực:
   - Quy trình Agile & DoD Gate: [.agents/rules/core_sdlc.md](.agents/rules/core_sdlc.md)
+  - Phối hợp agent, quyền ghi & bàn giao: [.agents/rules/agent_collaboration.md](.agents/rules/agent_collaboration.md)
+  - Đánh số, phiên bản & cách viết tài liệu: [.agents/rules/documentation_standards.md](.agents/rules/documentation_standards.md)
   - BA Agent: [.agents/rules/agent_ba.md](.agents/rules/agent_ba.md)
   - Solution Architect: [.agents/rules/agent_architect.md](.agents/rules/agent_architect.md)
   - Developer Agent: [.agents/rules/agent_developer.md](.agents/rules/agent_developer.md)
@@ -15,6 +17,14 @@ Tất cả các Agent khi tham gia vào dự án này bắt buộc phải tuân 
   - Quy chuẩn API & i18n: [.agents/rules/api_standards.md](.agents/rules/api_standards.md)
 - Playbook kỹ năng: [.agents/skills/sdlc-workflow/SKILL.md](.agents/skills/sdlc-workflow/SKILL.md)
 - Cấu trúc tài liệu dự án: [docs/README.md](docs/README.md)
+
+## Điều Phối & Tài Liệu Cho Người Đọc
+- Agent điều phối cấp ID và cập nhật index; mỗi file chỉ có một writer tại một thời điểm. Phân công có input/version, owner, write scope, dependency, output và cách kiểm chứng.
+- Mỗi item quản lý độc lập có file; FEAT dẫn link task con. Task inline lịch sử không tự được tính là file item Done.
+- Thứ tự đọc, ID và phiên bản riêng biệt. Tài liệu sprint mới dùng `<NN>_<TYPE>-S<XX>-<NNN>_<slug>.md`; item giữ mã toàn dự án `FEAT/TASK/BUG/REFACTOR-<n>`. Giữ tên/ID lịch sử, dùng alias có sprint trong reading guide.
+- Review/chỉnh docs theo yêu cầu làm ngay; không tạo approval sản phẩm. Fix scope đã duyệt dùng gate hiện có; đổi scope/AC phải xác nhận phần thay đổi.
+- Resolved hoặc build PASS không thay QA Done. Template mặc định Draft/Pending/Not Run; gate có nguồn/baseline/người quyết định.
+- Developer mới bắt đầu tại [Developer Reading Guide](docs/08_developer_guides/00_READING_GUIDE.md), rồi đọc sprint mục tiêu theo index của sprint.
 
 ## Tóm Tắt Quy Trình Bắt Buộc & Cấu Trúc Tài Liệu Sprint-Pack:
 Mỗi Sprint được đóng gói trọn gói trong `docs/sprints/sprint_XX_<tên_sprint>/` với thứ tự đọc tuần tự từ 00 đến 09:
@@ -40,6 +50,7 @@ Mỗi Sprint được đóng gói trọn gói trong `docs/sprints/sprint_XX_<tê
   - Tên Package Backend chuẩn mực: `com.vn9melody.openerp`.
   - Tên miền chính thức của hệ thống: `openerp.9ms.io.vn`.
 - **Nền tảng Microservices & Multi-tenant (SaaS)**: Phục vụ nhiều khách thuê (tenants), bắt buộc phân lập dữ liệu triệt để (Tenant Data Isolation), không được phép rò rỉ dữ liệu chéo.
+  - Phạm vi `tenant_id` là dữ liệu thuộc tenant: truy vấn, mutation, cache và message phải lấy tenant context đã xác thực, không tin tenant ID do client tự gửi. Auth/onboarding trước khi chọn workspace và quản trị platform toàn cục có scope riêng theo thiết kế; phải kiểm tra danh tính/quyền platform, không dùng scope toàn cục để bỏ lọc dữ liệu tenant. Truy cập tenant qua platform phải có phân quyền và audit rõ ràng.
 - **Tech Stack Chuẩn Mực**:
   - **Backend**: **Quarkus** (ngôn ngữ chuẩn: **Java**, cloud-native microservices, package chuẩn `com.vn9melody.openerp`).
   - **Frontend Web/Desktop**: **Angular >= 22** + **Tailwind CSS v4**.
@@ -114,7 +125,7 @@ Mỗi Sprint được đóng gói trọn gói trong `docs/sprints/sprint_XX_<tê
 > **NGHIÊM CẤM**:
 > 1. Nhảy cóc trực tiếp sang bước Lập trình khi chưa có xác nhận từ khách hàng và tài liệu thiết kế chi tiết trong thư mục `docs/`.
 > 2. Đóng Sprint hoặc bàn giao release khi vẫn còn tồn đọng task/bug ở mức `Critical` hoặc `High`.
-> 3. Đưa mã nguồn nghiệp vụ chuyên biệt vào tầng Core hoặc viết câu truy vấn thiếu ngữ cảnh `tenant_id`.
+> 3. Đưa mã nguồn nghiệp vụ chuyên biệt vào tầng Core hoặc truy vấn dữ liệu thuộc Tenant thiếu ngữ cảnh `tenant_id` đã xác thực; luồng auth/platform toàn cục phải có scope và phân quyền đúng thiết kế.
 > 4. Cài đặt/Nâng cấp/Gỡ bỏ Plugin làm phá vỡ cấu trúc CSDL hoặc làm mất dữ liệu của Tenant mà không qua Migration/Backup an toàn.
 > 5. Viết UI component ad-hoc rải rác bên ngoài thư viện giao diện dùng chung hoặc tự ý cài đặt thư viện UI bên thứ 3.
 > 6. Khai báo Entity CSDL trong Plugin mà không đăng ký vào Entity Registry chung của hệ thống.

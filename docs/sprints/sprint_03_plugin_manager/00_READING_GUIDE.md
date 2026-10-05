@@ -1,5 +1,55 @@
 # [00] Bản Đồ Điều Hướng Đọc Tài Liệu Tuần Tự: Sprint 03 - Plugin Manager, Plugin CLI & Cơ Chế Phân Phối Plugin
 
+## Điều hướng chuẩn cho developer — 2026-10-04
+
+Bắt đầu với [Developer Reading Guide](../../08_developer_guides/00_READING_GUIDE.md). Trong sprint này đọc scope/AC → SOL → DES (DB → API → UI) → feature/item → test plan/report → review. Bảng dưới định thứ tự các file thật; index dùng alias legacy có sprint theo [chuẩn tài liệu](../../../.agents/rules/documentation_standards.md). File template trong pack chỉ là mẫu, không phải artifact hoàn thành.
+
+[CONF](04_confirmation/CONF-01_sprint_03_scope.md) ghi scope được duyệt. Có [QA report](08_testing/QA-01_sprint_03_test_report.md); [review đóng sprint](09_review/sprint_review.md) ghi chưa đóng/DoD chưa Pass. Code/QA một phần không tự đóng High item chờ reviewer hoặc tạo chữ ký.
+
+| Thứ tự | ID/alias và file | Mục đích |
+| :--- | :--- | :--- |
+| 01.01 | [S03/RAW-01](01_raw_notes/RAW-01_plugin_management_system_tenant.md) | Yêu cầu gốc |
+| 01.02 | [S03/RAW-02](01_raw_notes/RAW-02_plugin_scaffold_cli.md) | Yêu cầu gốc |
+| 01.03 | [S03/RAW-03](01_raw_notes/RAW-03_plugin_distribution_channels.md) | Yêu cầu gốc |
+| 02.01 | [S03/ANL-01](02_analysis/ANL-01_plugin_manager_lifecycle.md) | Phân tích nghiệp vụ |
+| 02.02 | [S03/ANL-02](02_analysis/ANL-02_plugin_scaffold_cli.md) | Phân tích nghiệp vụ |
+| 02.03 | [S03/ANL-03](02_analysis/ANL-03_plugin_distribution_and_installation.md) | Phân tích nghiệp vụ |
+| 03.01 | [S03/BENCH-01](03_benchmarks/BENCH-01_plugin_manager_catalog_and_tenant_lifecycle.md) | Đối chuẩn |
+| 03.02 | [S03/BENCH-02](03_benchmarks/BENCH-02_plugin_distribution_cli_ui_and_isolation.md) | Đối chuẩn |
+| 04.01 | [S03/CONF-01](04_confirmation/CONF-01_sprint_03_scope.md) | Scope/AC/approval |
+| 05.01 | [S03/SOL-01](05_solutions/SOL-01_plugin_manager_architecture_and_lifecycle.md) | Giải pháp và lý do |
+| 05.02 | [S03/SOL-02](05_solutions/SOL-02_plugin_distribution_runtime_and_isolation.md) | Giải pháp và lý do |
+| 05.03 | [S03/SOL-03](05_solutions/SOL-03_plugin_ui_extension_and_cli_dev_experience.md) | Giải pháp và lý do |
+| 06.01 | [S03/PLUGIN_MANAGER_DATABASE_SCHEMA](06_designs/database/PLUGIN_MANAGER_DATABASE_SCHEMA.md) | Thiết kế chi tiết |
+| 06.02 | [S03/PLUGIN_MANAGER_API_SPEC](06_designs/api/PLUGIN_MANAGER_API_SPEC.md) | Thiết kế chi tiết |
+| 06.03 | [S03/PLUGIN_MANAGER_UI_SPEC](06_designs/ui_ux/PLUGIN_MANAGER_UI_SPEC.md) | Thiết kế chi tiết |
+| 07.01 | [FEAT-21](07_items/FEAT-21_plugin_manager_lifecycle.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.02 | [FEAT-22](07_items/FEAT-22_plugin_scaffolding_cli.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.03 | [FEAT-23](07_items/FEAT-23_plugin_distribution_runtime_and_host.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 08.01 | [S03/QA-01 (plan)](08_testing/QA-01_sprint_03_test_plan.md) | Kế hoạch/kết quả QA theo từng baseline |
+| 08.02 | [S03/QA-01 (report)](08_testing/QA-01_sprint_03_test_report.md) | Kế hoạch/kết quả QA theo từng baseline |
+| 09.01 | [S03/REV-01](09_review/REV-01_document_review_2026-09-20.md) | Review/bằng chứng/quyết định |
+| 09.02 | [S03/REV-02](09_review/REV-02_document_rereview_2026-09-20.md) | Review/bằng chứng/quyết định |
+| 09.03 | [S03/REV-02-response](09_review/REV-02-response_document_rereview_2026-09-20.md) | Review/bằng chứng/quyết định |
+| 09.04 | [S03/OPENCODE_review3_fixes](09_review/OPENCODE_review3_fixes.md) | Review/bằng chứng/quyết định |
+| 09.05 | [S03/REV-03](09_review/REV-03_postgresql_seed_evidence.md) | Review/bằng chứng/quyết định |
+| 09.06 | [REV-S03-004](09_review/04_REV-S03-004_sdlc_workflow_review.md) | Review quy trình/tài liệu; không là QA sản phẩm |
+| 09.07 | [S03/sprint_review](09_review/sprint_review.md) | Review/bằng chứng/quyết định |
+
+Kế hoạch: [sprint_plan.md](sprint_plan.md). Bug/task đọc theo dependency và severity trong [07_items](07_items/); file item là nguồn trạng thái. Task inline lịch sử giữ dấu vết; việc mở phải tách file trước phân công mới. Không cấp theo dải 1xx/2xx/3xx; điều phối reserve ID toàn dự án trước giao song song.
+
+### Danh mục ID mới / reservation
+
+| ID | File hoặc reservation | Owner | Tình trạng |
+| :--- | :--- | :--- | :--- |
+| TASK-349 | [SDLC/docs](07_items/TASK-349_standardize_sdlc_and_developer_documentation.md) | Codex điều phối | Used |
+| REV-S03-004 | [Workflow review](09_review/04_REV-S03-004_sdlc_workflow_review.md) | Codex điều phối | Used |
+| TASK-351 | [Phạm vi tenant/auth/platform](07_items/TASK-351_clarify_tenant_scope_in_documentation.md) | Codex điều phối | Used |
+| TASK-352 | [Phạm vi route Web/Mobile](07_items/TASK-352_clarify_mobile_list_route_rollout.md) | Codex điều phối | Used |
+| TASK-353 | [Đối soát hồ sơ lịch sử](07_items/TASK-353_reconcile_legacy_sprint_records.md) | PM + QA | Used |
+
+Bảng đọc là snapshot danh mục; khi thêm artifact phải cập nhật index. Những bảng tiến độ, số test và checklist phía dưới lưu hồ sơ các mốc cũ; kiểm tra quyết định tại nguồn đã link trước khi nhận việc. Không quy đổi Resolved/Fixed thành Done chỉ từ summary.
+
 > **Quy ước mã tài liệu**: Mã SOL/DES/TEST/REV mang phạm vi cục bộ trong từng Sprint-Pack (ví dụ DES-03-API của Sprint 03 khác DES-02 của Sprint 02).
 
 > **Kết quả hiện hành — review lần 3 (2026-09-20)**: [REV-02](09_review/REV-02_document_rereview_2026-09-20.md) đóng 7/8 lỗi vòng 1 ở mức tài liệu; 3 High còn lại (**BUG-86, BUG-92, BUG-93**) **đã được xử lý** tại [REV-02-RESPONSE](09_review/REV-02-response_document_rereview_2026-09-20.md) + [OPENCODE_review3_fixes](09_review/OPENCODE_review3_fixes.md), kèm bằng chứng PostgreSQL cho BUG-92 ([REV-03](09_review/REV-03_postgresql_seed_evidence.md)). Các item đang `In Review`, chờ Reviewer xác nhận đóng. Các bảng review lần 1 bên dưới được giữ làm lịch sử.

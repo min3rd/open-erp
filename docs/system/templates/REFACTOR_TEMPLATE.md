@@ -1,25 +1,30 @@
-# [REFACTOR-xxx] Tiêu Đề Tái Cấu Trúc / Tối Ưu Mã Nguồn
+# [REFACTOR-n] Tái cấu trúc
 
-- **Mã Yêu Cầu**: REFACTOR-xxx
-- **Phân Loại**: Refactoring / Tech Debt
-- **Mức Độ Ưu Tiên**: [ ] Critical / [ ] High / [ ] Medium / [ ] Low
-- **Người Đề Xuất (Reporter)**: [Architect / Developer Agent]
-- **Người Xử Lý (Assignee)**: [Developer Agent]
-- **Thuộc Sprint**: Sprint XX
-- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+| Trường | Giá trị |
+| :--- | :--- |
+| ID / sprint / severity / trạng thái | REFACTOR-n / Sprint XX / <mức> / To Do |
+| Owner-agent / reviewer / cập nhật | <cụ thể> / Chưa phân công / YYYY-MM-DD |
+| Input / dependency / write scope | <design/version> / <ID> / <paths> |
+| Baseline / đọc tiếp | <commit/working tree> / <handoff hoặc QA report> |
 
----
+## 1. Hiện trạng và mục tiêu
 
-## 1. Lý Do Tái Cấu Trúc (Technical Debt Context)
-- Đoạn mã / Module cần tối ưu: `src/...`
-- Vấn đề gặp phải: [Code smell / Hiệu năng chậm / Khó mở rộng / Lặp code]
+Source/module, vấn đề có bằng chứng, phạm vi hành vi giữ nguyên. Nếu đổi contract/scope, cập nhật thiết kế/confirmation theo phần bị tác động trước code.
 
-## 2. Kế Hoạch Tái Cấu Trúc
-- Hiện trạng: ...
-- Đề xuất cấu trúc mới: ...
-- Không làm thay đổi hành vi nghiệp vụ bên ngoài (Behavior Preserved).
+## 2. Phương án và tác động
 
-## 3. Tiêu Chí Hoàn Thành
-- [ ] Code sạch hơn, tuân thủ nguyên tắc SOLID.
-- [ ] 100% Unit Test hiện có vẫn PASS mà không bị gãy (No regression).
-- [ ] Đã cập nhật lại tài liệu kiến trúc nếu có thay đổi cấu trúc module.
+Before/after, consumer, migration/backup nếu cần; dependency và thứ tự tích hợp.
+
+## 3. Kiểm chứng
+
+| Loại / lệnh-bước / baseline | Kết quả | Evidence |
+| :--- | :--- | :--- |
+| Backend: regression trên PostgreSQL/Redis thật | Not Run | Chưa có |
+| Frontend: build/browser Desktop/Mobile, không unit test | Not Run | Chưa có |
+| Docs/contract review nếu liên quan | Not Run | Chưa có |
+
+N/A có lý do cho phần không áp dụng; không mặc định tất cả Pass.
+
+## 4. Bàn giao
+
+Files, kiểm tra đã/chưa chạy, rủi ro, người nhận, step tiếp. In Review / Testing khi giao; Done sau reviewer/QA xác nhận.

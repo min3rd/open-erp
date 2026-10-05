@@ -1,5 +1,48 @@
 # [00] Bản Đồ Điều Hướng Đọc Tài Liệu Tuần Tự: Sprint 01 - Core IAM
 
+## Điều hướng chuẩn cho developer — 2026-10-04
+
+Bắt đầu với [Developer Reading Guide](../../08_developer_guides/00_READING_GUIDE.md). Trong sprint này đọc scope/AC → SOL → DES (DB → API → UI) → feature/item → test plan/report → review. Bảng dưới định thứ tự các file thật; index dùng alias legacy có sprint theo [chuẩn tài liệu](../../../.agents/rules/documentation_standards.md). File template trong pack chỉ là mẫu, không phải artifact hoàn thành.
+
+Có ghi xác nhận khách hàng đóng 2026-09-18 tại [review](09_review/sprint_review.md). Các kết quả QA là mốc lịch sử, không là re-test phiên này.
+
+| Thứ tự | ID/alias và file | Mục đích |
+| :--- | :--- | :--- |
+| 01.01 | [S01/RAW-01](01_raw_notes/RAW-01_sprint_01_core_identity.md) | Yêu cầu gốc |
+| 01.02 | [S01/RAW-02](01_raw_notes/RAW-02_account_2fa_management.md) | Yêu cầu gốc |
+| 02.01 | [S01/ANL-01](02_analysis/ANL-01_core_identity_access.md) | Phân tích nghiệp vụ |
+| 03.01 | [S01/BENCH-01](03_benchmarks/BENCH-01_auth_identity_saas.md) | Đối chuẩn |
+| 04.01 | [S01/CONF-01](04_confirmation/CONF-01_sprint_01_scope.md) | Scope/AC/approval |
+| 05.01 | [S01/SOL-01](05_solutions/SOL-01_core_identity_architecture.md) | Giải pháp và lý do |
+| 06.01 | [S01/CORE_IAM_DATABASE_SCHEMA](06_designs/database/CORE_IAM_DATABASE_SCHEMA.md) | Thiết kế chi tiết |
+| 06.02 | [S01/CORE_IAM_API_SPEC](06_designs/api/CORE_IAM_API_SPEC.md) | Thiết kế chi tiết |
+| 06.03 | [S01/CORE_IAM_UI_SPEC](06_designs/ui_ux/CORE_IAM_UI_SPEC.md) | Thiết kế chi tiết |
+| 07.01 | [FEAT-01](07_items/FEAT-01_personal_registration.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.02 | [FEAT-02](07_items/FEAT-02_business_registration.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.03 | [FEAT-03](07_items/FEAT-03_authentication_login.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.04 | [FEAT-04](07_items/FEAT-04_forgot_password.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.05 | [FEAT-05](07_items/FEAT-05_two_factor_auth.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.06 | [FEAT-06](07_items/FEAT-06_account_management.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.07 | [FEAT-07](07_items/FEAT-07_responsive_phone_and_mobile_nav.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.08 | [FEAT-08](07_items/FEAT-08_ionic_mobile_menu_theme.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.09 | [FEAT-09](07_items/FEAT-09_ionic_auth_ux_and_navigation.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 08.01 | [S01/test_plan](08_testing/test_plan.md) | Kế hoạch/kết quả QA theo từng baseline |
+| 08.02 | [S01/manual_test_guide](08_testing/manual_test_guide.md) | Kế hoạch/kết quả QA theo từng baseline |
+| 08.03 | [S01/test_report_sprint_01](08_testing/test_reports/test_report_sprint_01.md) | Kế hoạch/kết quả QA theo từng baseline |
+| 09.01 | [S01/CODE_REVIEW_SPRINT_01](09_review/CODE_REVIEW_SPRINT_01.md) | Review/bằng chứng/quyết định |
+| 09.02 | [S01/QA_RETEST_SPRINT_01](09_review/QA_RETEST_SPRINT_01.md) | Review/bằng chứng/quyết định |
+| 09.03 | [S01/sprint_review](09_review/sprint_review.md) | Review/bằng chứng/quyết định |
+
+Kế hoạch: [sprint_plan.md](sprint_plan.md). Bug/task đọc theo dependency và severity trong [07_items](07_items/); file item là nguồn trạng thái. Task inline lịch sử giữ dấu vết; việc mở phải tách file trước phân công mới. Không cấp theo dải 1xx/2xx/3xx; điều phối reserve ID toàn dự án trước giao song song.
+
+### Danh mục ID mới / reservation
+
+| ID | File hoặc reservation | Owner | Tình trạng |
+| :--- | :--- | :--- | :--- |
+| Chưa cấp ID mới trong phiên này | Giữ IDs lịch sử | Điều phối | — |
+
+Bảng đọc là snapshot danh mục; khi thêm artifact phải cập nhật index. Những bảng tiến độ, số test và checklist phía dưới lưu hồ sơ các mốc cũ; kiểm tra quyết định tại nguồn đã link trước khi nhận việc. Không quy đổi Resolved/Fixed thành Done chỉ từ summary.
+
 - **Tên Sprint**: Sprint 01 - Core Identity, Access & Account Management
 - **Mục Tiêu**: Xây dựng nền tảng định danh toàn cục, phân giải không gian Tenant SaaS, đăng ký, đăng nhập, quên mật khẩu, 2FA và quản lý tài khoản qua Drawer Anti-Modal.
 - **Thời Gian Dự Kiến**: 2026-09-18 đến 2026-10-02 (2 tuần)

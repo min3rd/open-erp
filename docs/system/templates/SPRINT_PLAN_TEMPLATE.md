@@ -1,23 +1,30 @@
-# Kế Hoạch Sprint: [Sprint XX]
+# [PLAN-SXX-NNN] Kế hoạch Sprint XX
 
-- **Thời Gian**: YYYY-MM-DD đến YYYY-MM-DD
-- **Mục Tiêu Sprint (Sprint Goal)**: [Mục tiêu cốt lõi mà Sprint này cần đạt được]
-- **Phụ trách điều phối**: PM Agent
+| Trường | Giá trị |
+| :--- | :--- |
+| ID / trạng thái / phiên bản | PLAN-SXX-NNN / Draft / 0.1 |
+| Ngày dự kiến / cập nhật | YYYY-MM-DD → YYYY-MM-DD / YYYY-MM-DD |
+| Owner / reviewer | <PM cụ thể> / Chưa review |
+| Input / đọc trước / đọc tiếp | <scope nguồn> / <reading guide> / <CONF> |
 
----
+## 1. Mục tiêu và giới hạn
 
-## 1. Danh Sách Hạng Mục Cam Kết Trong Sprint (Sprint Backlog)
+Mục tiêu, in/out-scope, dependency, nguồn xác nhận; tách lịch dự kiến và thời điểm thực tế.
 
-| Mã Định Danh | Tiêu Đề | Phân Loại | Mức Độ Ưu Tiên | Phụ Trách | Trạng Thái | Link File Chi Tiết |
+## 2. Backlog và phân công
+
+| ID/link file | AC/design | Severity | Owner/agent | depends_on | Write scope | Trạng thái |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **FEAT-001** | ... | Feature | High | BA / Dev | In Progress | [Chi tiết](07_items/FEAT-001.md) |
-| **TASK-001** | ... | Task | Medium | Dev | To Do | [Chi tiết](07_items/TASK-001.md) |
-| **BUG-001** | ... | Bug | Critical | Dev / QA | In Progress | [Chi tiết](07_items/BUG-001.md) |
+| <file item riêng> | <nguồn/version> | <mức> | <cụ thể> | <ID> | <paths> | To Do |
 
----
+FEAT liên kết task con có file; điều phối reservation ID trước giao song song. Không giao cùng file hai writer.
 
-## 2. Cam Kết Chất Lượng Đóng Sprint (Definition of Done)
-- [ ] **100% item mức `Critical` và `High` phải chuyển sang `Done`**.
-- [ ] Không có bug nghiêm trọng nào chưa giải quyết.
-- [ ] Toàn bộ tài liệu trong `docs/` được cập nhật tương ứng.
-- [ ] Lập biên bản nghiệm thu `sprint_review.md`.
+## 3. Điều kiện triển khai và hoàn thành
+
+- [ ] Scope/AC có xác nhận nguồn.
+- [ ] Thiết kế/contract đủ code, review kỹ thuật.
+- [ ] Bàn giao baseline, input/output và cách kiểm chứng.
+- [ ] 100% Critical/High Done có QA.
+- [ ] Test theo loại thay đổi; docs/guides đầy đủ.
+- [ ] Backlog Medium/Low có owner/đích.
+- [ ] Review DoD và nghiệm thu khách hàng riêng, không mặc định Pass.

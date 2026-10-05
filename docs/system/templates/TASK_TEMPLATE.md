@@ -1,27 +1,34 @@
-# [TASK-xxx] Tiêu Đề Công Việc Kỹ Thuật
+# [TASK-n] Công việc kỹ thuật
 
-- **Mã Công Việc**: TASK-xxx
-- **Phân Loại**: Technical Task
-- **Mức Độ Ưu Tiên**: [ ] Critical / [ ] High / [ ] Medium / [ ] Low
-- **Người Phụ Trách (Assignee)**: [Developer / Architect / QA / BA Agent]
-- **Thuộc Sprint**: Sprint XX
-- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+| Trường | Giá trị |
+| :--- | :--- |
+| ID / loại / sprint | TASK-n / Task / Sprint XX |
+| Severity / trạng thái | <Critical/High/Medium/Low> / To Do |
+| Owner/agent / reviewer | <cụ thể> / Chưa phân công |
+| Cập nhật / input version | YYYY-MM-DD / <CONF/DES hoặc yêu cầu docs-only> |
+| depends_on / blocks / parent | <ID hoặc không có> / <ID> / <FEAT link> |
+| Write scope / baseline | <file paths> / <commit hoặc working tree + files> |
 
----
+## 1. Mục tiêu và scope
 
-## 1. Mô Tả Công Việc
-> Mô tả chi tiết nội dung kỹ thuật cần thực hiện.
+Vấn đề, kết quả cần đạt, giới hạn; link AC/thiết kế đầu vào. Cấp ID toàn dự án qua điều phối.
 
-- Bối cảnh và mục tiêu: ...
-- Tài liệu thiết kế liên quan: [Đường dẫn đến docs/sprints/sprint_XX_<tên>/06_designs/...]
+## 2. Các thao tác
 
-## 2. Các Bước Kỹ Thuật Cần Triển Khai
-- [ ] Bước 1: ...
-- [ ] Bước 2: ...
-- [ ] Bước 3: ...
+- [ ] <bước thực hiện; không gán TASK khác chỉ trong checkbox>
 
-## 3. Tiêu Chí Hoàn Thành (Definition of Done)
-- [ ] Mã nguồn tuân thủ đúng thiết kế chi tiết.
-- [ ] Không có lỗi lint hoặc build.
-- [ ] Đã viết Unit Test bao phủ logic mới.
-- [ ] Đã được review và xác nhận.
+## 3. Tiêu chí và kiểm chứng theo loại thay đổi
+
+- [ ] Đáp ứng AC/thiết kế, có diff và docs liên quan.
+- [ ] Backend: tests nghiệp vụ/tenant trên PostgreSQL/Redis thật, không H2.
+- [ ] Frontend: build và browser QA Desktop/Mobile Ionic; không viết unit/component test.
+- [ ] Docs-only: kiểm tra nội dung/link/ID/thứ tự và document review.
+- [ ] Reviewer xác nhận; phần không áp dụng ghi N/A có lý do.
+
+| Kiểm tra / baseline / môi trường | Kết quả | Evidence |
+| :--- | :--- | :--- |
+| <lệnh/bước> | Not Run | Chưa có |
+
+## 4. Bàn giao và lịch sử
+
+Files đổi, kiểm tra đã/chưa chạy, rủi ro/blocker, người nhận, bước tiếp. Dev chuyển In Review / Testing; chỉ Done khi tiêu chí được review/QA xác nhận. Người nhận ghi Accepted/Returned kèm lý do.

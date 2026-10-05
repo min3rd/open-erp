@@ -27,3 +27,7 @@ Developer Agent chịu trách nhiệm lập trình và triển khai mã nguồn 
   - **Dịch Vụ Backend Trả Về DTO Cố Định (Strict Response DTO Pattern)**: Toàn bộ service backend phải trả về Response DTO có định kiểu mạnh, tuyệt đối không trả về `Map<String, Object>` cho dữ liệu nghiệp vụ.
 - **Quản lý phiên bản (.gitignore)**:
   Mỗi thư mục con (`src/backend`, `src/frontend/web`, `src/frontend/mobile`, root) bắt buộc có `.gitignore` riêng biệt.
+
+## 3. Nhận việc và bàn giao
+
+Đọc CONF/DES/version/item trước code; nhận ID/owner/write scope/dependency theo [agent_collaboration.md](agent_collaboration.md). Mỗi TASK có file, FEAT link task con. Ghi baseline/diff/files/lệnh/kết quả đã-chưa chạy/docs liên quan khi chuyển In Review / Testing; Fixed/Resolved không tự là QA Done. Fix scope đã duyệt dùng gate cũ; đổi contract phối hợp Architect và cập nhật design trước triển khai. Viết docs theo [documentation_standards.md](documentation_standards.md), dẫn code/config thật, giải thích lý do để dev con người tiếp quản.

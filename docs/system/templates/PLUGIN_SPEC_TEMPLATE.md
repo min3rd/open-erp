@@ -1,11 +1,19 @@
 # Đặc Tả Kỹ Thuật Plugin: [Tên Plugin]
 
+| Trường | Giá trị |
+| :--- | :--- |
+| ID / scope / trạng thái / version | DES-ARCH-SXX-NNN / Sprint XX / Draft / 0.1 |
+| Owner / reviewer / cập nhật | <Architect cụ thể> / Chưa review / YYYY-MM-DD |
+| Input / đọc trước / đọc tiếp | <CONF/AC + version và link thật> / <SOL> / <DB/API/UI designs> |
+
+Copy vào bước 06 theo [chuẩn tài liệu](../../../.agents/rules/documentation_standards.md). Contract manifest phải đối chiếu schema/CLI thật, template mô tả dưới đây không phải bundle có thể cài trực tiếp. Không dùng checkbox đã chọn làm bằng chứng hỗ trợ nền tảng/QA.
+
 - **Mã Plugin (ID)**: `open-erp-<module-name>`
 - **Phiên bản thiết kế**: `v1.0.0`
-- **Backend**: Quarkus (Java / Kotlin)
+- **Backend**: Quarkus Java, package `com.vn9melody.openerp`
 - **Frontend**: Angular >= 22 (Web) / Ionic + Angular (Mobile)
 - **Phụ trách thiết kế**: Solution Architect Agent
-- **Tài liệu căn cứ**: [Biên bản xác nhận yêu cầu](../../sprints/sprint_XX_<tên>/04_confirmation/)
+- **Tài liệu căn cứ**: <link thật tới confirmation và version đã duyệt>
 
 ---
 
@@ -14,13 +22,13 @@
 ### 1.1. Chức Năng Hỗ Trợ Trên Web Desktop (Angular >= 22 + Tailwind 4)
 > Đầy đủ chức năng quản trị, báo cáo, nhập liệu nâng cao và đối soát.
 
-- [x] Tính năng Desktop 1: [Mô tả chi tiết]
-- [x] Tính năng Desktop 2: [Mô tả chi tiết]
+- [ ] Tính năng Desktop 1: [Mô tả chi tiết]
+- [ ] Tính năng Desktop 2: [Mô tả chi tiết]
 
 ### 1.2. Chức Năng Hỗ Trợ Trên Mobile App (Ionic + Angular)
 > Tối giản, tập trung thao tác nhanh, hiện trường, phê duyệt.
 
-- [x] Tính năng Mobile 1: [Mô tả chi tiết]
+- [ ] Tính năng Mobile 1: [Mô tả chi tiết]
 - [ ] Các tính năng không đưa lên mobile: [Lý do không đưa]
 
 ---
@@ -29,7 +37,7 @@
 > **Quy tắc Component-First**: Nếu cần component mới, phải liệt kê để xây dựng trong `shared-ui-lib` trước.
 
 - **Các component có sẵn tái sử dụng**:
-  - `shared-button`, `shared-data-table`, `shared-modal`...
+  - Liệt kê component thực từ `src/frontend/shared/index.ts`; ưu tiên Drawer, nested routes, split-view theo UI standards.
 - **Các component mới cần thêm vào `shared-ui-lib`**:
   - [ ] `shared-<new-component-name>`: [Mô tả input/output, style Tailwind 4]
 

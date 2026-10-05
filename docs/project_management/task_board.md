@@ -2,9 +2,17 @@
 
 Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy trình SDLC 9 bước và mô hình Agile Sprint. Phụ trách quản lý: **PM Agent**.
 
+## Trạng thái điều hướng — cập nhật 2026-10-04
+
+Sprint đang theo dõi: [Sprint 03](../sprints/sprint_03_plugin_manager/00_READING_GUIDE.md); nguồn closure: [biên bản Sprint 03](../sprints/sprint_03_plugin_manager/09_review/sprint_review.md), chưa đóng. Các phần tiến độ bên dưới lưu mốc lịch sử, không thay trạng thái file item/QA/review hiện hành.
+
+[TASK-349](../sprints/sprint_03_plugin_manager/07_items/TASK-349_standardize_sdlc_and_developer_documentation.md) — chuẩn hóa phối hợp agent, đánh số/viết docs và onboarding dev; trạng thái xem tại item. [REV-S03-004](../sprints/sprint_03_plugin_manager/09_review/04_REV-S03-004_sdlc_workflow_review.md) chứa review/kiểm chứng của thay đổi tài liệu, không là QA sản phẩm.
+
+2026-10-05: TASK-349 và các finding [TASK-351](../sprints/sprint_03_plugin_manager/07_items/TASK-351_clarify_tenant_scope_in_documentation.md)/[TASK-352](../sprints/sprint_03_plugin_manager/07_items/TASK-352_clarify_mobile_list_route_rollout.md) Done sau document review độc lập. [TASK-353](../sprints/sprint_03_plugin_manager/07_items/TASK-353_reconcile_legacy_sprint_records.md) Medium/To Do ghi đối soát hồ sơ/coverage/sign-off còn lại; không thay trạng thái bug hoặc gate sản phẩm.
+
 ---
 
-## Sprint Hiện Tại: Sprint 02 - Super Admin & Phân Quyền Toàn Diện (RBAC & Multi-Scope Data Access)
+## Hồ Sơ Sprint 02 - Super Admin & Phân Quyền Toàn Diện (RBAC & Multi-Scope Data Access)
 - **Bản đồ đọc tuần tự**: [00_READING_GUIDE.md](../sprints/sprint_02_superadmin_rbac/00_READING_GUIDE.md)
 - Kế hoạch Sprint: [sprint_plan.md](../sprints/sprint_02_superadmin_rbac/sprint_plan.md)
 - Thời gian: 2026-10-05 đến 2026-10-19

@@ -1,0 +1,49 @@
+TASK-349 / TASK-351 / TASK-352 - document verification
+Client date: 2026-10-05 (Asia/Saigon)
+HEAD: 3e817c9f4c99e5cc458786f0977d59580ee8b19f
+Baseline includes working-tree document changes; this is not product QA.
+
+Command: node .agents/skills/sdlc-workflow/scripts/check-docs.mjs <document scope below>
+Exit: 0
+{
+  "markdownFiles": 41,
+  "checkedLinks": 629,
+  "checkedItems": 178,
+  "checkedDocumentIds": 9,
+  "errors": []
+}
+
+Command: python -X utf8 <skill-creator>/scripts/quick_validate.py .agents/skills/sdlc-workflow
+Exit: 0
+Skill is valid!
+
+Command: git diff --check -- <document scope below> .agents/skills/sdlc-workflow/scripts/check-docs.mjs
+Exit: 0
+No whitespace errors in tracked changes within the document scope.
+
+Negative validator checks: valid Vietnamese anchor exit 0; missing anchor, missing local file and duplicate metadata ID exit 1, exactly 3 errors. Temporary fixtures removed.
+
+Independent document review: Singer accepted TASK-351 and TASK-352 after re-review; no Critical/High workflow blockers found in four scenarios. Source/snippet review only; no build/browser/infra execution.
+
+Document scope:
+AGENTS.md
+.agents/rules
+.agents/skills/sdlc-workflow/SKILL.md
+docs/README.md
+docs/system/templates
+docs/08_developer_guides/00_READING_GUIDE.md
+docs/08_developer_guides/01_project_walkthrough.md
+docs/08_developer_guides/coding_standards.md
+docs/08_developer_guides/shared_ui_contribution_guide.md
+docs/sprints/sprint_01_core_iam/00_READING_GUIDE.md
+docs/sprints/sprint_02_superadmin_rbac/00_READING_GUIDE.md
+docs/sprints/sprint_03_plugin_manager/00_READING_GUIDE.md
+docs/sprints/sprint_03_plugin_manager/sprint_plan.md
+docs/sprints/sprint_03_plugin_manager/07_items/TASK-349_standardize_sdlc_and_developer_documentation.md
+docs/sprints/sprint_03_plugin_manager/07_items/TASK-351_clarify_tenant_scope_in_documentation.md
+docs/sprints/sprint_03_plugin_manager/07_items/TASK-352_clarify_mobile_list_route_rollout.md
+docs/sprints/sprint_03_plugin_manager/07_items/TASK-353_reconcile_legacy_sprint_records.md
+docs/sprints/sprint_03_plugin_manager/09_review/04_REV-S03-004_sdlc_workflow_review.md
+docs/project_management/task_board.md
+docs/project_management/work_log.md
+docs/project_management/changelog.md

@@ -28,7 +28,7 @@ Biến cơ chế plugin tĩnh (danh mục cấu hình + allowlist) của Sprint 
 | **FEAT-22** | Plugin Scaffolding CLI (Node/npm) | CLI npm/npx: `create`, `generate entity`, `generate menu`, `generate ui-contribution`, `validate`, `package`, `link`, `inspect`; **`dev` (đã chốt — hot reload + kết nối Core dev)**; template vertical slice; repo riêng + submodule; Dockerfile/K8s; tài liệu dev guide | High | Dev Tooling (Node) & Backend |
 | **FEAT-23** | Phân phối & Cài đặt Plugin đa kênh | 3 kênh artifact → container image (gồm **đăng ký plugin riêng của tenant — `TENANT_PRIVATE`**); **Deployer tự động container-per-tenant** (K8s + Docker); **Tenant Datasource Router (schema/database riêng tenant)**; **MinIO (lưu trữ chính toàn hệ thống)**; credentials đa phạm vi (mã hóa); **2 chế độ hiển thị Web — WC/MF cho nhúng trực tiếp (cả plugin riêng) + iframe sandbox dự phòng**; image build từ bundle; UI Drawer đăng ký | Critical | Dev Backend, DevOps & Web |
 
-> **Quy ước sub-task**: `TASK-301..350` là sub-task inline trong từng file FEAT; `TASK-351+` là task phát sinh có file riêng. BUG tiếp nối từ `BUG-84`. Không nhảy cóc mã giữa các sprint (Sprint 01: 101–149; Sprint 02: 201–298).
+> **Quy tắc hiện hành (2026-10-05)**: mọi TASK quản lý độc lập có file riêng, FEAT dẫn link; giữ TASK inline cũ làm lịch sử và tách file khi tiếp tục phân công. Cấp số toàn dự án qua danh mục ID trong [reading guide](00_READING_GUIDE.md), không tiếp tục dải ngầm theo sprint. Dải dự kiến `TASK-301..350` là kế hoạch lịch sử, không chứng minh từng task tồn tại/đã hoàn thành; giữ số 350 chưa dùng để tránh tái sử dụng reservation cũ. TASK-349 và TASK-351/352 đã có reservation/file rõ. Xem [chuẩn tài liệu](../../../.agents/rules/documentation_standards.md).
 
 ---
 

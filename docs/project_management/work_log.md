@@ -2,6 +2,14 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-05 — Chuẩn hóa workflow và tài liệu developer
+
+- **Item**: [TASK-349](../sprints/sprint_03_plugin_manager/07_items/TASK-349_standardize_sdlc_and_developer_documentation.md); khởi đầu 2026-10-04, kiểm tra tiếp theo yêu cầu user.
+- **Thay đổi**: nguồn chuẩn cho phối hợp/ownership/handoff, thứ tự đọc-ID-version, trạng thái/gates; skill gọn dẫn rules; templates mặc định Draft/Pending/Not Run và kiểm chứng theo loại thay đổi.
+- **Developer**: [Reading guide](../08_developer_guides/00_READING_GUIDE.md) và [walkthrough](../08_developer_guides/01_project_walkthrough.md) dẫn code/request thật; sửa coding/shared UI guide, chỉ mục từng file Sprint 01–03.
+- **Kiểm chứng**: validator UTF-8 hợp lệ; checker local links/anchors/ID file item; negative checks nhận biết link/anchor thiếu và metadata ID trùng. Kết quả và review độc lập tại [REV-S03-004](../sprints/sprint_03_plugin_manager/09_review/04_REV-S03-004_sdlc_workflow_review.md).
+- **Giới hạn**: review workflow/docs không thay QA sản phẩm, không tạo chữ ký khách hàng hoặc đóng sprint. Code/config được phiên khác cập nhật đồng thời được giữ ngoài write scope.
+
 ---
 
 ## 2026-09-17
@@ -125,7 +133,7 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 - **Code Review Sprint 01 (REV-02)**:
   - Chạy xác thực: `mvn test` backend **PASS 10/10** trên PostgreSQL thật (không dùng H2); `ng build` frontend **PASS**.
   - Phát hiện **9 lỗi `Critical`, 14 lỗi `High`, 8 lỗi `Medium`**; đã lập 31 file item `BUG-01` → `BUG-31` trong `docs/sprints/sprint_01_core_iam/07_items/` (mỗi lỗi một file theo quy trình quản lý dạng file).
-  - Ban hành báo cáo tổng hợp [CODE_REVIEW_SPRINT_01.md](sprints/sprint_01_core_iam/09_review/CODE_REVIEW_SPRINT_01.md) (REV-02) kèm danh sách lỗi `Low` chưa lập file và đánh giá DoD Gate.
+  - Ban hành báo cáo tổng hợp [CODE_REVIEW_SPRINT_01.md](../sprints/sprint_01_core_iam/09_review/CODE_REVIEW_SPRINT_01.md) (REV-02) kèm danh sách lỗi `Low` chưa lập file và đánh giá DoD Gate.
   - **Kết luận**: Sprint 01 **CHƯA ĐỦ ĐIỀU KIỆN ĐÓNG** (DoD Gate FAIL do toàn bộ item Critical/High đang `To Do`); chuyển danh sách BUG cho Developer Agent xử lý.
 
 - **Xử Lý BUG Critical/High & QA Re-test (2026-09-18)**:
@@ -133,7 +141,7 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
   - **Frontend Web**: sửa endpoint/payload/model theo API contract; QR thật cho Setup 2FA; backup codes chỉ hiển thị sau enable; environment config; Auth Guard + Interceptor refresh 401; i18n hóa toàn bộ + Anti-Modal (bỏ 15 chỗ `alert/prompt/confirm`).
   - **Mobile**: khởi tạo ứng dụng Ionic 8 + Angular đầy đủ màn hình Core IAM, tái sử dụng thư viện shared.
   - **QA phát sinh**: phát hiện và xử lý BUG-32 (hủy session chéo người dùng - High), BUG-33 (lỗi 4xx thành 500 - High); BUG-34 (401 body rỗng - Medium) chuyển Sprint 02.
-  - **Kết quả re-test**: `mvn test` **PASS 22/22** (PostgreSQL + Redis thật); Web `npm run build` PASS; Mobile `npm run build` + `ionic serve` PASS. Báo cáo [QA_RETEST_SPRINT_01.md](sprints/sprint_01_core_iam/09_review/QA_RETEST_SPRINT_01.md) (REV-03).
+  - **Kết quả re-test**: `mvn test` **PASS 22/22** (PostgreSQL + Redis thật); Web `npm run build` PASS; Mobile `npm run build` + `ionic serve` PASS. Báo cáo [QA_RETEST_SPRINT_01.md](../sprints/sprint_01_core_iam/09_review/QA_RETEST_SPRINT_01.md) (REV-03).
   - **Còn lại trước khi đóng Sprint**: QA Browser Manual Testing (Web + Mobile) và bổ sung `docs/06_user_guides/` kèm hình ảnh; các item Medium chuyển Sprint 02.
 
 - **Triển Khai Môi Trường Local Phục Vụ QA Manual Test (2026-09-18)**:
@@ -142,7 +150,7 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
   - Web Angular dev server: http://localhost:4200. Mobile Ionic 8 dev server: http://localhost:8100.
   - Bật CORS backend cho `localhost:4200/8100` (phục vụ QA gọi API trực tiếp trên local).
   - **Smoke test E2E PASS**: đăng ký cá nhân → nhận OTP qua Mailpit → xác thực email (Personal Workspace) → đăng nhập → lấy profile → liệt kê phiên → refresh token → logout và token cũ bị từ chối 401.
-  - Ban hành hướng dẫn QA thao tác từng bước: [manual_test_guide.md](sprints/sprint_01_core_iam/08_testing/manual_test_guide.md) kèm checklist regression BUG-02 → BUG-19.
+  - Ban hành hướng dẫn QA thao tác từng bước: [manual_test_guide.md](../sprints/sprint_01_core_iam/08_testing/manual_test_guide.md) kèm checklist regression BUG-02 → BUG-19.
 
 - **Sửa Lỗi Phát Hiện Từ Manual Test Khách Hàng (2026-09-18)**:
   - **BUG-35 (Critical)**: Tailwind v4 không quét `src/frontend/shared` (thiếu `@source`) làm mất các class chỉ dùng trong shared (`.fixed`, `.shadow-2xl`, nhiều `dark:*`) khiến Drawer không overlay. Đã thêm `@source '../../shared';` vào `web/src/styles.css` (CSS 23.801 → 34.713 bytes).

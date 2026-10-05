@@ -1,24 +1,29 @@
-# [FEAT-xxx] Tiêu Đề Tính Năng / Yêu Cầu Bổ Sung
+# [FEAT-n] Tính năng
 
-- **Mã Tính Năng**: FEAT-xxx
-- **Phân Loại**: Feature / Enhancement
-- **Mức Độ Ưu Tiên**: [ ] Critical / [ ] High / [ ] Medium / [ ] Low
-- **Người Đề Xuất**: [Khách hàng / BA Agent]
-- **Thuộc Sprint**: Sprint XX
-- **Trạng Thái**: [ ] To Do / [ ] In Progress / [ ] In Review / [ ] Done / [ ] Deferred
+| Trường | Giá trị |
+| :--- | :--- |
+| ID / sprint / severity / trạng thái | FEAT-n / Sprint XX / <mức> / To Do |
+| Owner / reviewer / cập nhật | <cụ thể> / Chưa phân công / YYYY-MM-DD |
+| Input / dependency | <ANL/CONF + version> / <ID> |
 
----
+## 1. Nhu cầu và phạm vi
 
-## 1. Tóm Tắt Nhu Cầu
-- **User Story**: Là `<vai trò>`, tôi muốn `<hành động>` để `<lợi ích>`.
-- **Tài liệu phân tích**: [Đường dẫn đến docs/sprints/sprint_XX_<tên>/02_analysis/...]
-- **Tài liệu xác nhận khách hàng**: [Đường dẫn đến docs/sprints/sprint_XX_<tên>/04_confirmation/...]
+Là <vai trò>, tôi muốn <hành động> để <lợi ích>. In/out-scope, Desktop/Mobile, nguồn khách hàng và link confirmation. Gate Pending tới khi có bằng chứng.
 
-## 2. Tiêu Chí Nghiệm Thu (Acceptance Criteria)
-- [ ] Kịch bản 1: Given ... When ... Then ...
-- [ ] Kịch bản 2: Given ... When ... Then ...
+## 2. AC và truy vết
 
-## 3. Danh Sách Công Việc Kỹ Thuật (Sub-Tasks)
-- [ ] TASK-xxx: Thiết kế CSDL và API
-- [ ] TASK-xxx: Triển khai Frontend Component
-- [ ] TASK-xxx: Viết Test Case và Kiểm thử
+| AC đầy đủ | Given/When/Then | Design/version | Test case/evidence |
+| :--- | :--- | :--- | :--- |
+| <CONF/AC-01> | <kịch bản> | <link> | Not Run |
+
+## 3. Task con có file riêng
+
+| ID/link file | Owner | depends_on | Write scope | Trạng thái |
+| :--- | :--- | :--- | :--- | :--- |
+| <TASK file> | <agent> | <ID> | <paths> | To Do |
+
+Không khai báo TASK quản lý độc lập chỉ trong checklist. FEAT Done khi task con cam kết và AC đã QA; không tính sub-task inline lịch sử là file mới.
+
+## 4. Bàn giao
+
+Baseline, output, test đã/chưa chạy, reviewer/người nhận, blockers. Link report/traceability thay vì sao chép kết quả.

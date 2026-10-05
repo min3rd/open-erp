@@ -6,6 +6,12 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
 
 ## [Unreleased]
 
+### Quy trình & tài liệu — 2026-10-05
+
+- [TASK-349](../sprints/sprint_03_plugin_manager/07_items/TASK-349_standardize_sdlc_and_developer_documentation.md): thống nhất phối hợp AI, quyền ghi, dependency/handoff, ID/phiên bản/thứ tự đọc và nguồn gate.
+- Bổ sung onboarding developer, sửa hướng dẫn coding/shared UI, bổ sung lộ trình đọc cho Sprint 01–03, chuẩn hóa templates và checker tài liệu.
+- [Review workflow](../sprints/sprint_03_plugin_manager/09_review/04_REV-S03-004_sdlc_workflow_review.md) ghi kiểm chứng/giới hạn; đây là thay đổi tài liệu, không công bố release hoặc nghiệm thu sản phẩm.
+
 ### Sprint 01 - ĐÃ ĐÓNG (2026-09-18)
 - Core IAM hoàn chỉnh: Đăng ký cá nhân/doanh nghiệp, Đăng nhập & chọn Workspace, Quên mật khẩu, 2FA TOTP, Quản lý tài khoản trên Web (Angular 22) + Mobile (Ionic 8).
 - Chất lượng: 46/46 BUG Done; backend 30/30 test PASS; Web/Mobile build PASS; Theme Sáng/Tối/Hệ thống; responsive điện thoại.

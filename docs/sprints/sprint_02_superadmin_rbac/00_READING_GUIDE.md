@@ -1,5 +1,49 @@
 # [00] Bản Đồ Điều Hướng Đọc Tài Liệu Tuần Tự: Sprint 02 - Super Admin & Phân Quyền Toàn Diện
 
+## Điều hướng chuẩn cho developer — 2026-10-04
+
+Bắt đầu với [Developer Reading Guide](../../08_developer_guides/00_READING_GUIDE.md). Trong sprint này đọc scope/AC → SOL → DES (DB → API → UI) → feature/item → test plan/report → review. Bảng dưới định thứ tự các file thật; index dùng alias legacy có sprint theo [chuẩn tài liệu](../../../.agents/rules/documentation_standards.md). File template trong pack chỉ là mẫu, không phải artifact hoàn thành.
+
+[Review](09_review/sprint_review.md) ghi PM đủ DoD và đóng sau khách hàng ký; mục chữ ký khách hàng còn trống. Chưa xác nhận được customer acceptance từ chữ ký trong file; giữ lịch sử, không tự ký hoặc sửa quyết định cũ.
+
+| Thứ tự | ID/alias và file | Mục đích |
+| :--- | :--- | :--- |
+| 01.01 | [S02/RAW-01](01_raw_notes/RAW-01_superadmin_platform_management.md) | Yêu cầu gốc |
+| 01.02 | [S02/RAW-02](01_raw_notes/RAW-02_functional_rbac_and_data_scopes.md) | Yêu cầu gốc |
+| 02.01 | [S02/ANL-01](02_analysis/ANL-01_superadmin_platform_management.md) | Phân tích nghiệp vụ |
+| 02.02 | [S02/ANL-02](02_analysis/ANL-02_functional_rbac_and_data_scope_permissions.md) | Phân tích nghiệp vụ |
+| 03.01 | [S02/BENCH-01](03_benchmarks/BENCH-01_superadmin_and_multi_scope_rbac.md) | Đối chuẩn |
+| 04.01 | [S02/CONF-01](04_confirmation/CONF-01_sprint_02_scope.md) | Scope/AC/approval |
+| 05.01 | [S02/SOL-01](05_solutions/SOL-01_superadmin_architecture_and_security.md) | Giải pháp và lý do |
+| 05.02 | [S02/SOL-02](05_solutions/SOL-02_rbac_and_data_scope_enforcement_engine.md) | Giải pháp và lý do |
+| 06.01 | [S02/SUPERADMIN_RBAC_DATABASE_SCHEMA](06_designs/database/SUPERADMIN_RBAC_DATABASE_SCHEMA.md) | Thiết kế chi tiết |
+| 06.02 | [S02/SUPERADMIN_RBAC_API_SPEC](06_designs/api/SUPERADMIN_RBAC_API_SPEC.md) | Thiết kế chi tiết |
+| 06.03 | [S02/SUPERADMIN_RBAC_UI_SPEC](06_designs/ui_ux/SUPERADMIN_RBAC_UI_SPEC.md) | Thiết kế chi tiết |
+| 07.01 | [FEAT-10](07_items/FEAT-10_superadmin_tenant_management.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.02 | [FEAT-11](07_items/FEAT-11_superadmin_global_user_and_impersonation.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.03 | [FEAT-12](07_items/FEAT-12_superadmin_system_health_and_audit.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.04 | [FEAT-13](07_items/FEAT-13_organization_hierarchy_structure.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.05 | [FEAT-14](07_items/FEAT-14_functional_rbac_matrix.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.06 | [FEAT-15](07_items/FEAT-15_multi_scope_data_access_control.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.07 | [FEAT-16](07_items/FEAT-16_data_permission_enforcement_engine.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.08 | [FEAT-17](07_items/FEAT-17_core_reference_entity.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.09 | [FEAT-18](07_items/FEAT-18_superadmin_account_lifecycle_and_cli.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.10 | [FEAT-19](07_items/FEAT-19_department_tree_dual_view.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 07.11 | [FEAT-20](07_items/FEAT-20_plugin_config_list_switches.md) | Feature; đọc task con theo dependency và file item nguồn |
+| 08.01 | [S02/test_plan](08_testing/test_plan.md) | Kế hoạch/kết quả QA theo từng baseline |
+| 08.02 | [S02/test_report](08_testing/test_report.md) | Kế hoạch/kết quả QA theo từng baseline |
+| 09.01 | [S02/sprint_review](09_review/sprint_review.md) | Review/bằng chứng/quyết định |
+
+Kế hoạch: [sprint_plan.md](sprint_plan.md). Bug/task đọc theo dependency và severity trong [07_items](07_items/); file item là nguồn trạng thái. Task inline lịch sử giữ dấu vết; việc mở phải tách file trước phân công mới. Không cấp theo dải 1xx/2xx/3xx; điều phối reserve ID toàn dự án trước giao song song.
+
+### Danh mục ID mới / reservation
+
+| ID | File hoặc reservation | Owner | Tình trạng |
+| :--- | :--- | :--- | :--- |
+| Chưa cấp ID mới trong phiên này | Giữ IDs lịch sử | Điều phối | — |
+
+Bảng đọc là snapshot danh mục; khi thêm artifact phải cập nhật index. Những bảng tiến độ, số test và checklist phía dưới lưu hồ sơ các mốc cũ; kiểm tra quyết định tại nguồn đã link trước khi nhận việc. Không quy đổi Resolved/Fixed thành Done chỉ từ summary.
+
 > **Quy ước mã tài liệu**: Mã SOL/DES/TEST/REV mang phạm vi cục bộ trong từng Sprint-Pack (ví dụ DES-02-API của Sprint 02 khác DES-02 của Sprint 01).
 
 - **Tên Sprint**: Sprint 02 - Super Admin Platform Management, Functional RBAC & Multi-Scope Data Access Control

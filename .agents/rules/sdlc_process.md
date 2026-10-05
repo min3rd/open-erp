@@ -9,6 +9,8 @@ Hệ thống quy tắc đã được phân rã thành các file chuyên biệt t
 | File Quy Tắc | Phạm Vi Áp Dụng | Nội Dung Trọng Tâm |
 | :--- | :--- | :--- |
 | [core_sdlc.md](core_sdlc.md) | **Toàn bộ Agent** | 3 nguyên tắc bất di bất dịch, mô hình Sprint-Pack (00-09), file-based item tracking, điều kiện đóng Sprint (DoD Gate). |
+| [agent_collaboration.md](agent_collaboration.md) | **Điều phối & mọi vai trò** | Owner/write scope, dependency, baseline, handoff và tích hợp song song. |
+| [documentation_standards.md](documentation_standards.md) | **Agent & dev con người** | Thứ tự đọc, namespace ID, version, aliases legacy, metadata và cách viết. |
 | [agent_ba.md](agent_ba.md) | **BA Agent** | Ghi chép yêu cầu thô (01), Phân tích User Story (02), Benchmarks Odoo/ERPNext (03), Chốt Confirmation Gate (04). |
 | [agent_architect.md](agent_architect.md) | **Solution Architect** | Nghiên cứu giải pháp (05), Thiết kế chi tiết DB/API/UI (06), Core minimal invariant, Tenant data isolation, Plugin architecture. |
 | [agent_developer.md](agent_developer.md) | **Developer Agent** | Lập trình Quarkus Java & Angular 22 / Ionic 8 (07), No H2 policy, Config-driven URL, Type-safe Enums, Zero .spec.ts frontend. |
@@ -19,7 +21,15 @@ Hệ thống quy tắc đã được phân rã thành các file chuyên biệt t
 
 ---
 
-## 2. Quy Trình 9 Bước Tuần Tự Trong Sprint-Pack
+## 2. Thứ Tự Đọc Quy Tắc & Nguồn Chính
+
+Master Index → core_sdlc → agent_collaboration → documentation_standards → rules vai trò/lĩnh vực → reading guide sprint. Skill là playbook, templates là khung điền; chúng dẫn tới nguồn chính sách chuẩn. AGENTS.md giữ guardrails; nếu mâu thuẫn phải ghi nhận/đồng bộ, không tự bỏ guardrail.
+
+Scope/approval tại CONF; contract tại DES; trạng thái item tại file riêng; QA tại report có baseline/evidence; closure tại REV. Task board/reading guide tổng hợp bằng link. Không suy ra approval từ checkbox/số test.
+
+Dev mới đọc [Developer Reading Guide](../../docs/08_developer_guides/00_READING_GUIDE.md). Rules phục vụ agent; guides giải thích hệ thống/code cho con người.
+
+## 3. Quy Trình 9 Bước Tuần Tự Trong Sprint-Pack
 Mỗi Sprint được đóng gói trọn gói trong `docs/sprints/sprint_XX_<tên_sprint>/`:
 - **00. Bản đồ đọc & Xác nhận** (`00_READING_GUIDE.md`) - Cổng giao tiếp bắt đầu duy nhất cho Khách hàng & Reviewer
 - **01. Nhận yêu cầu truyền miệng** (`01_raw_notes/`) - Phụ trách: BA Agent
@@ -34,10 +44,10 @@ Mỗi Sprint được đóng gói trọn gói trong `docs/sprints/sprint_XX_<tê
 
 ---
 
-## 3. Danh Mục Các Điều Nghiêm Cấm Tuyệt Đối (Immutable Prohibitions)
+## 4. Danh Mục Các Điều Nghiêm Cấm Tuyệt Đối (Immutable Prohibitions)
 1. Nhảy cóc trực tiếp sang bước Lập trình khi chưa có xác nhận từ khách hàng và tài liệu thiết kế chi tiết trong thư mục `docs/`.
 2. Đóng Sprint hoặc bàn giao release khi vẫn còn tồn đọng task/bug ở mức `Critical` hoặc `High`.
-3. Đưa mã nguồn nghiệp vụ chuyên biệt vào tầng Core hoặc viết câu truy vấn thiếu ngữ cảnh `tenant_id`.
+3. Đưa nghiệp vụ chuyên biệt vào Core hoặc truy vấn dữ liệu tenant thiếu context `tenant_id` đã xác thực; auth/platform toàn cục phải theo scope/phân quyền trong thiết kế, không làm lối bỏ tenant isolation.
 4. Cài đặt/Nâng cấp/Gỡ bỏ Plugin làm phá vỡ cấu trúc CSDL hoặc làm mất dữ liệu của Tenant mà không qua Migration/Backup an toàn.
 5. Viết UI component ad-hoc rải rác bên ngoài thư viện giao diện dùng chung hoặc tự ý cài đặt thư viện UI bên thứ 3.
 6. Khai báo Entity CSDL trong Plugin mà không đăng ký vào Entity Registry chung của hệ thống.
