@@ -36,3 +36,24 @@ export enum ThemeId {
   EMERALD = 'emerald',
   AMBER = 'amber'
 }
+
+/**
+ * Per-user shape (corner scale) preference. `AUTO` follows the colour theme's
+ * default shape, so the theme still looks the way it was designed unless the
+ * user explicitly overrides it.
+ */
+export enum ShapeId {
+  AUTO = 'auto',
+  SHARP = 'sharp',
+  SOFT = 'soft',
+  ROUNDED = 'rounded'
+}
+
+/** Per-user menu placement. `AUTO` follows the colour theme's default layout. */
+export enum LayoutId {
+  AUTO = 'auto',
+  SIDE = 'side',
+  TOP = 'top',
+  RIGHT = 'right',
+  DRAWER = 'drawer'
+}

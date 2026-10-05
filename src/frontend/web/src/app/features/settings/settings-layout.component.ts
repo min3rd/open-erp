@@ -2,7 +2,17 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { PluginService } from '../../core/services/plugin.service';
-import { TopbarComponent, SectionNavComponent, NotificationBannerComponent, PluginNotification, ThemeService } from '@shared';
+import { LayoutId } from '@shared';
+import {
+  DrawerComponent,
+  IconComponent,
+  NotificationBannerComponent,
+  PluginNotification,
+  SectionNavComponent,
+  ThemeService,
+  TopbarComponent,
+  TranslatePipe
+} from '@shared';
 
 interface SettingsMenuItem {
   path: string;
@@ -13,7 +23,15 @@ interface SettingsMenuItem {
 @Component({
   selector: 'app-settings-layout',
   standalone: true,
-  imports: [RouterOutlet, TopbarComponent, SectionNavComponent, NotificationBannerComponent],
+  imports: [
+    RouterOutlet,
+    TopbarComponent,
+    SectionNavComponent,
+    NotificationBannerComponent,
+    DrawerComponent,
+    IconComponent,
+    TranslatePipe
+  ],
   templateUrl: './settings-layout.component.html'
 })
 export class SettingsLayoutComponent implements OnInit {
@@ -21,6 +39,16 @@ export class SettingsLayoutComponent implements OnInit {
   theme = inject(ThemeService);
   private pluginService = inject(PluginService);
   private router = inject(Router);
+
+  /** Drawer layout: whether the section menu drawer is open. */
+  readonly menuOpen = signal(false);
+
+  /** Resolved menu placement (per-user preference, else the theme default). */
+  readonly navTop = computed(() => this.theme.navLayout() === LayoutId.TOP);
+  readonly navRight = computed(() => this.theme.navLayout() === LayoutId.RIGHT);
+  readonly navDrawer = computed(() => this.theme.navLayout() === LayoutId.DRAWER);
+  /** Side rail (left or right edge) instead of the bar/drawer. */
+  readonly navRail = computed(() => !this.navTop() && !this.navDrawer());
 
   readonly notifications = signal<PluginNotification[]>([]);
 

@@ -1,5 +1,5 @@
 <div class="flex flex-col gap-1.5 text-[11px] font-mono select-none">
-  <!-- Tenant theme (owner/admin only). Mode below stays per user. -->
+  <!-- Colour theme (tenant-wide, owner/admin only) -->
   <div *appRequirePermission="themePermission" class="inline-flex items-center gap-1.5">
     <span class="erp-switcher-label text-muted font-semibold text-[10px] uppercase" [appTranslate]="'THEME_LABEL'"></span>
     <select
@@ -9,6 +9,38 @@
     >
       @for (item of themes; track item.id) {
         <option [value]="item.id" [selected]="theme.themeId() === item.id">
+          {{ item.nameKey | translate }}
+        </option>
+      }
+    </select>
+  </div>
+
+  <!-- Shape / corner scale (per user; AUTO follows the colour theme) -->
+  <div class="inline-flex items-center gap-1.5">
+    <span class="erp-switcher-label text-muted font-semibold text-[10px] uppercase" [appTranslate]="'SHAPE_LABEL'"></span>
+    <select
+      (change)="onShapeChange($event)"
+      [attr.aria-label]="'SHAPE_LABEL' | translate"
+      class="border border-default bg-surface text-ink px-1.5 py-0.5 text-[11px] font-mono rounded-control cursor-pointer max-sm:min-h-10"
+    >
+      @for (item of shapes; track item.id) {
+        <option [value]="item.id" [selected]="shapeValue() === item.id">
+          {{ item.nameKey | translate }}
+        </option>
+      }
+    </select>
+  </div>
+
+  <!-- Menu layout (per user; AUTO follows the colour theme) -->
+  <div class="inline-flex items-center gap-1.5">
+    <span class="erp-switcher-label text-muted font-semibold text-[10px] uppercase" [appTranslate]="'LAYOUT_LABEL'"></span>
+    <select
+      (change)="onLayoutChange($event)"
+      [attr.aria-label]="'LAYOUT_LABEL' | translate"
+      class="border border-default bg-surface text-ink px-1.5 py-0.5 text-[11px] font-mono rounded-control cursor-pointer max-sm:min-h-10"
+    >
+      @for (item of layouts; track item.id) {
+        <option [value]="item.id" [selected]="layoutValue() === item.id">
           {{ item.nameKey | translate }}
         </option>
       }

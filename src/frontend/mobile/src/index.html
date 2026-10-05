@@ -13,9 +13,15 @@
         var root = document.documentElement;
         var mode = localStorage.getItem('openerp_theme');
         var theme = localStorage.getItem('openerp_theme_id') || 'industrial';
+        // Shape/layout are per-user overrides; when absent the theme's own
+        // default shape applies (see the shape layer in styles.css).
+        var shape = localStorage.getItem('openerp_shape');
+        var layout = localStorage.getItem('openerp_layout');
         var isDark = mode === 'DARK' || ((!mode || mode === 'SYSTEM') &&
           window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
         root.setAttribute('data-theme', theme);
+        if (shape) { root.setAttribute('data-shape', shape); }
+        if (layout) { root.setAttribute('data-layout', layout); }
         root.setAttribute('data-mode', isDark ? 'dark' : 'light');
         root.classList.toggle('dark', isDark);
         root.style.colorScheme = isDark ? 'dark' : 'light';

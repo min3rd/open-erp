@@ -49,8 +49,6 @@
   --op-danger: #dc2626;
   --op-warning: #d97706;
   --op-success: #059669;
-  --op-radius-control: 0px;
-  --op-radius-container: 0px;
 
   /* Ionic shell vars (kept, now sourced from the semantic tokens). */
   --erp-shell-border: var(--op-border);
@@ -71,8 +69,6 @@
   --op-danger: #dc2626;
   --op-warning: #d97706;
   --op-success: #059669;
-  --op-radius-control: 0px;
-  --op-radius-container: 0px;
 }
 
 [data-theme='slate-blue'] {
@@ -87,8 +83,6 @@
   --op-danger: #dc2626;
   --op-warning: #d97706;
   --op-success: #059669;
-  --op-radius-control: 4px;
-  --op-radius-container: 6px;
 }
 
 [data-theme='emerald'] {
@@ -103,8 +97,6 @@
   --op-danger: #dc2626;
   --op-warning: #b45309;
   --op-success: #047857;
-  --op-radius-control: 4px;
-  --op-radius-container: 6px;
 }
 
 [data-theme='amber'] {
@@ -119,8 +111,6 @@
   --op-danger: #dc2626;
   --op-warning: #b45309;
   --op-success: #047857;
-  --op-radius-control: 4px;
-  --op-radius-container: 6px;
 }
 
 .dark,
@@ -136,8 +126,6 @@
   --op-danger: #f87171;
   --op-warning: #fbbf24;
   --op-success: #34d399;
-  --op-radius-control: 0px;
-  --op-radius-container: 0px;
 }
 
 [data-theme='industrial'].dark {
@@ -152,8 +140,6 @@
   --op-danger: #f87171;
   --op-warning: #fbbf24;
   --op-success: #34d399;
-  --op-radius-control: 0px;
-  --op-radius-container: 0px;
 }
 
 [data-theme='slate-blue'].dark {
@@ -168,8 +154,6 @@
   --op-danger: #f87171;
   --op-warning: #fbbf24;
   --op-success: #34d399;
-  --op-radius-control: 4px;
-  --op-radius-container: 6px;
 }
 
 [data-theme='emerald'].dark {
@@ -184,8 +168,6 @@
   --op-danger: #f87171;
   --op-warning: #fbbf24;
   --op-success: #4ade80;
-  --op-radius-control: 4px;
-  --op-radius-container: 6px;
 }
 
 [data-theme='amber'].dark {
@@ -200,18 +182,49 @@
   --op-danger: #f87171;
   --op-warning: #fbbf24;
   --op-success: #34d399;
-  --op-radius-control: 4px;
-  --op-radius-container: 6px;
 }
 
-/* Theme style (FEAT-24): a theme owns its shape scale, surface treatment and
-   shell colours, so each one has a distinct identity. Industrial is the default
-   (flat + sharp + neutral shell); the others differ from each other too. */
+/* Shape layer (FEAT-24): the corner scale + panel lift are a per-user
+   preference (`[data-shape]` on <html>), independent of the colour theme.
+   Sharp is the default; before Angular boots the attribute is absent so the
+   theme's own default shape applies on first paint. */
 :root,
-[data-theme='industrial'] {
-  --op-panel-shadow: none;
+[data-shape='sharp'] {
   --op-radius-control: 0px;
   --op-radius-container: 0px;
+  --op-panel-shadow: none;
+}
+
+[data-shape='soft'],
+[data-theme='slate-blue']:not([data-shape]),
+[data-theme='emerald']:not([data-shape]) {
+  --op-radius-control: 6px;
+  --op-radius-container: 10px;
+  --op-panel-shadow: 0 1px 2px rgb(15 23 42 / 0.06), 0 2px 8px rgb(15 23 42 / 0.08);
+}
+
+[data-shape='rounded'],
+[data-theme='amber']:not([data-shape]) {
+  --op-radius-control: 12px;
+  --op-radius-container: 16px;
+  --op-panel-shadow: 0 2px 4px rgb(15 23 42 / 0.08), 0 6px 16px rgb(15 23 42 / 0.12);
+}
+
+.dark[data-shape='soft'],
+.dark[data-theme='slate-blue']:not([data-shape]),
+.dark[data-theme='emerald']:not([data-shape]) {
+  --op-panel-shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 2px 10px rgb(0 0 0 / 0.35);
+}
+
+.dark[data-shape='rounded'],
+.dark[data-theme='amber']:not([data-shape]) {
+  --op-panel-shadow: 0 2px 4px rgb(0 0 0 / 0.5), 0 6px 16px rgb(0 0 0 / 0.4);
+}
+
+/* Shell colours (FEAT-24): the topbar/sidebar tint is the colour theme's own
+   identity. Same values as Web. */
+:root,
+[data-theme='industrial'] {
   --op-topbar-bg: #ffffff;
   --op-topbar-text: #171717;
   --op-topbar-border: #e5e5e5;
@@ -223,9 +236,6 @@
 
 .dark,
 .dark[data-theme='industrial'] {
-  --op-panel-shadow: none;
-  --op-radius-control: 0px;
-  --op-radius-container: 0px;
   --op-topbar-bg: #171717;
   --op-topbar-text: #f5f5f5;
   --op-topbar-border: #262626;
@@ -236,9 +246,6 @@
 }
 
 [data-theme='slate-blue'] {
-  --op-panel-shadow: 0 1px 2px rgb(15 23 42 / 0.06), 0 2px 8px rgb(15 23 42 / 0.08);
-  --op-radius-control: 6px;
-  --op-radius-container: 10px;
   --op-topbar-bg: #0f172a;
   --op-topbar-text: #e2e8f0;
   --op-topbar-border: #1e293b;
@@ -249,9 +256,6 @@
 }
 
 .dark[data-theme='slate-blue'] {
-  --op-panel-shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 2px 10px rgb(0 0 0 / 0.35);
-  --op-radius-control: 6px;
-  --op-radius-container: 10px;
   --op-topbar-bg: #020617;
   --op-topbar-text: #cbd5e1;
   --op-topbar-border: #1e293b;
@@ -262,9 +266,6 @@
 }
 
 [data-theme='emerald'] {
-  --op-panel-shadow: none;
-  --op-radius-control: 2px;
-  --op-radius-container: 4px;
   --op-topbar-bg: #ffffff;
   --op-topbar-text: #111827;
   --op-topbar-border: #10b981;
@@ -275,9 +276,6 @@
 }
 
 .dark[data-theme='emerald'] {
-  --op-panel-shadow: none;
-  --op-radius-control: 2px;
-  --op-radius-container: 4px;
   --op-topbar-bg: #111827;
   --op-topbar-text: #f0fdf4;
   --op-topbar-border: #10b981;
@@ -288,9 +286,6 @@
 }
 
 [data-theme='amber'] {
-  --op-panel-shadow: 0 2px 4px rgb(120 53 15 / 0.08), 0 6px 16px rgb(120 53 15 / 0.12);
-  --op-radius-control: 10px;
-  --op-radius-container: 12px;
   --op-surface: #fffdf7;
   --op-surface-raised: #fffdf7;
   --op-topbar-bg: #fffbeb;
@@ -303,9 +298,6 @@
 }
 
 .dark[data-theme='amber'] {
-  --op-panel-shadow: 0 2px 4px rgb(0 0 0 / 0.5), 0 6px 16px rgb(0 0 0 / 0.4);
-  --op-radius-control: 10px;
-  --op-radius-container: 12px;
   --op-topbar-bg: #1c1917;
   --op-topbar-text: #fef3c7;
   --op-topbar-border: #78350f;
