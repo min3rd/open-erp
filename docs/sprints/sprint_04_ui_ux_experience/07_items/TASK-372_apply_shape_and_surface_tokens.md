@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-372 / Task / Sprint 04 |
-| Severity / trạng thái | High / **In Progress** |
+| Severity / trạng thái | High / **In Review** (đã áp 79 file, build PASS, đo trình duyệt PASS) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / CONF-S04-001 Approved + phản hồi chủ dự án ("theme mới chỉ đổi màu") |
 | depends_on / blocks / parent | TASK-355, TASK-358 / — / [FEAT-24](../07_items/FEAT-24_theme_system_and_design_tokens.md) |
@@ -32,9 +32,22 @@ Token hình dạng đã có (`--op-radius-control/container`: industrial 0px, 3 
 
 | Kiểm tra / baseline / môi trường | Kết quả | Evidence |
 | :--- | :--- | :--- |
-| `npm run build` (web/mobile) | Not Run | — |
-| QA browser 4 theme × 2 mode | Not Run | — |
+| `npm run build` (web/mobile) | **PASS**, 0 error | CSS sinh ra có `.rounded-control`, `.rounded-container`, `.shadow-panel`, `.rounded-t-container` |
+| Đo trình duyệt (computed style) | **PASS** | xem bảng dưới |
+| QA browser 4 theme × 2 mode | Not Run | chờ đợt QA (đã đo 2 theme) |
+
+| Phần tử | industrial (mặc định) | slate-blue |
+| :--- | :--- | :--- |
+| Nút primary | radius **0px** | **4px** |
+| Select ngôn ngữ | radius **0px** | **4px** |
+| Popup user-menu | radius **0px**, shadow **none** | **6px**, **có bóng** |
+
+Ảnh: `%TEMP%/opencode/themeqa/theme-{industrial,slate-blue}.png`.
 
 ## 4. Bàn giao và lịch sử
 
-Chưa xong. Đây là phần trực tiếp trả lời phản hồi "theme mới chỉ đổi màu thôi chưa hợp lý".
+Đã làm: 66 `rounded-none`→`rounded-control`; 226 `rounded-container`; 8 `rounded-t-container`; `shadow-panel` cho context-menu/user-menu/notification-bell/plugin-card; migrate nốt 95 token ở `organization` + các chỗ sót (`plugin-app`, `iframe-loader`) + class `.ts`.
+
+Giữ vuông có lý do: sidebar `<aside>` (sát mép viewport), backdrop, chrome platform, panel thương hiệu login.
+
+Trả lời trực tiếp phản hồi "theme mới chỉ đổi màu thôi chưa hợp lý": giờ đổi theme khác **màu + bo góc + bề mặt**, industrial giữ nguyên bản mặc định.
