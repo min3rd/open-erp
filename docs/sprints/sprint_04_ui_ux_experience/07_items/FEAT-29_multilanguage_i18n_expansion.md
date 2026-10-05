@@ -10,8 +10,8 @@
 
 Là người dùng quốc tế, tôi muốn dùng hệ thống bằng ngôn ngữ của mình, không chỉ tiếng Việt/Anh.
 
-- In-scope: `LangCode` + registry **13 locale** đã duyệt; lazy dictionary; fallback `en`; parity check; `Intl` cho ngày/số; **khung RTL** cho `ar`; lưu ngôn ngữ theo người dùng.
-- Out-scope: dịch đủ 100% mọi locale ngay bản đầu (chỉ phát hành locale đạt ngưỡng Q5).
+- In-scope: `LangCode` + registry **13 locale** đã duyệt; lazy dictionary; fallback `en`; parity check **100%**; `Intl` cho ngày/số; **RTL đầy đủ cho `ar` ngay Sprint 04**; lưu ngôn ngữ theo người dùng.
+- Out-scope: phát hành locale khi chưa đủ 100% key.
 - Ngôn ngữ đã duyệt: vi, en, zh-CN, ja, ko, es, fr, de, pt-BR, ru, ar, th, id.
 
 ## 2. AC và truy vết

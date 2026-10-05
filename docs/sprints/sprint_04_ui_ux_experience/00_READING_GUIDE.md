@@ -60,7 +60,7 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 
 | Gate | Trạng thái | Người quyết định | Nguồn/phiên bản/ngày |
 | :--- | :--- | :--- | :--- |
-| Scope approval (CONF-S04-001) | **Pending** | Khách hàng | Chưa có |
+| Scope approval (CONF-S04-001) | **Pending** (nội dung đã được khách trả lời đủ 20 câu ngày 2026-10-05; **chờ ký xác nhận**) | Khách hàng | Trả lời 2026-10-05, chưa có chữ ký |
 | Design ready (SOL/DES) | Pending | Architect/Reviewer | Chưa có |
 | QA sign-off | Pending | QA | Chưa có |
 | PM đánh giá DoD | Pending | PM | Chưa có |

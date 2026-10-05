@@ -10,8 +10,8 @@
 
 Là người dùng, tôi muốn các chức năng dễ hiểu/độc lập hiển thị bằng icon trực quan (Feather) để quét giao diện nhanh hơn.
 
-- In-scope: component `app-icon` chung; registry Feather vendored; enum `IconName`; thay thế SVG vẽ tay ở các màn trọng yếu; a11y (label/decorative); hỗ trợ RTL cho icon hướng.
-- Out-scope: thêm npm icon library; icon cho hành động đã có nhãn rõ và không cần thiết.
+- In-scope: component `app-icon` chung dùng npm **`feather-icons`** (MIT, dữ liệu SVG) qua adapter; enum `IconName`; thay thế SVG vẽ tay ở các màn trọng yếu; a11y (label/decorative); **RTL đầy đủ** cho icon hướng.
+- Out-scope: thêm UI component library bên thứ ba; icon cho hành động đã có nhãn rõ và không cần thiết.
 
 ## 2. AC và truy vết
 

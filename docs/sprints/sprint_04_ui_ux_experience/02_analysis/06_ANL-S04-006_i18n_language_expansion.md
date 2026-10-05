@@ -115,7 +115,7 @@ Ma trận tổ hợp: **locale × mode (Light/Dark) × theme (≥ 2) × platform
 | :--- | :--- | :--- |
 | Locale đủ 100% (vi, en) | Mọi theme × mode × Web/Mobile | Đầy đủ |
 | Locale P1 khác | 1 theme mặc định × Light/Dark × Web (smoke Mobile) | Smoke |
-| Locale RTL (`ar`) | 1 theme × Light/Dark × Web + Mobile, kiểm mirror/overflow | Trọng tâm |
+| Locale RTL (`ar`) | 1 theme × Light/Dark × Web + Mobile, kiểm mirror/overflow | **Bắt buộc — RTL đầy đủ ngay (Q4)** |
 | Ngôn ngữ dài (de) | Kiểm tràn/mật độ ở màn mật độ cao | Trọng tâm |
 
 QA vẫn theo `ui_ux_standards`: Web desktop ≥1280px; Mobile 390×844, không tràn ngang, touch target ≥40px, 0 lỗi console.
@@ -135,13 +135,13 @@ QA vẫn theo `ui_ux_standards`: Web desktop ≥1280px; Mobile 390×844, không 
 
 | # | Câu hỏi mở | Nguồn |
 | :---: | :--- | :--- |
-| Q1 | Danh sách ngôn ngữ và số lượng cho bản phát hành? | RAW §4 Q3 |
-| Q2 | Ngôn ngữ nguồn (source of truth): `vi`, `en`, hay khác? | Mới |
-| Q3 | Fallback chain chính thức: locale → `en` → key? | Mới |
-| Q4 | Ngưỡng dịch tối thiểu để phát hành một locale? | Mới |
-| Q5 | Có ngôn ngữ RTL trong scope đợt này hay chỉ dựng khung? | Mới — **✅ ĐÃ CHỐT 2026-10-05: `ar` trong scope ⇒ dựng khung RTL; thời điểm bật đầy đủ chờ chốt** |
-| Q6 | Múi giờ hiển thị theo người dùng, tenant hay UTC? | Mới |
-| Q7 | Bộ chuyển ngôn ngữ: dropdown tên bản ngữ thay 2 nút cứng? | Mới |
+| Q1 | Danh sách ngôn ngữ và số lượng cho bản phát hành? | RAW §4 Q3 — **✅ ĐÃ CHỐT 2026-10-05: 13 locale (vi, en, zh-CN, ja, ko, es, fr, de, pt-BR, ru, ar, th, id)** |
+| Q2 | Ngôn ngữ nguồn (source of truth): `vi`, `en`, hay khác? | Mới — *chưa hỏi riêng; đề xuất: `en` là tham chiếu parity, `vi` là ngôn ngữ nguồn* |
+| Q3 | Fallback chain chính thức: locale → `en` → key? | Mới — *chưa hỏi riêng; đề xuất: đúng như vậy* |
+| Q4 | Ngưỡng dịch tối thiểu để phát hành một locale? | Mới — **✅ ĐÃ CHỐT 2026-10-05: 100% key** |
+| Q5 | Có ngôn ngữ RTL trong scope đợt này hay chỉ dựng khung? | Mới — **✅ ĐÃ CHỐT 2026-10-05: bật RTL ĐẦY ĐỦ cho `ar` ngay trong Sprint 04** |
+| Q6 | Múi giờ hiển thị theo người dùng, tenant hay UTC? | Mới — **✅ ĐÃ CHỐT 2026-10-05: theo người dùng** |
+| Q7 | Bộ chuyển ngôn ngữ: dropdown tên bản ngữ thay 2 nút cứng? | Mới — *chưa hỏi riêng; đề xuất: dropdown tên bản ngữ* |
 
 ## 13. Chưa kiểm chứng
 

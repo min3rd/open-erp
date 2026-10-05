@@ -127,9 +127,9 @@ Stagger trên bảng ERP có thể có hàng nghìn dòng — đây là điểm 
 ### Câu hỏi mở (chốt tại Confirmation)
 
 - Q1: Mức độ animation mong muốn và ngưỡng FPS/thời lượng chấp nhận chính thức? — **✅ ĐÃ CHỐT 2026-10-05 (Q6/Q9): animation nhanh, ưu tiên hiệu năng cao** (giữ ngân sách ≤ 220ms cho chuyển động thường).
-- Q2: Có bắt buộc chuyển trang (route transition) không, hay chỉ fade ngắn?
-- Q3: Danh sách có cần stagger không, và ngưỡng số dòng tối đa là bao nhiêu?
-- Q4: Skeleton/loading theo vùng có thuộc phạm vi Sprint 04 (R5) hay tách riêng? (liên quan nhưng không thay thế phân tích loading).
+- Q2: Có bắt buộc chuyển trang (route transition) không, hay chỉ fade ngắn? — **✅ ĐÃ CHỐT 2026-10-05 (Q18): có, nhẹ**.
+- Q3: Danh sách có cần stagger không, và ngưỡng số dòng tối đa là bao nhiêu? — *chưa hỏi riêng; đề xuất: chỉ ≤ 20 hàng đầu*.
+- Q4: Skeleton/loading theo vùng có thuộc phạm vi Sprint 04 (R5) hay tách riêng? — **✅ ĐÃ CHỐT: thuộc Sprint 04** (xem ANL-S04-005).
 
 ## 13. Chưa kiểm chứng
 

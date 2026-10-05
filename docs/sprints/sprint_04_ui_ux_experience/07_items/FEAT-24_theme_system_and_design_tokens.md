@@ -10,7 +10,7 @@
 
 Là chủ workspace, tôi muốn đổi "bộ mặt" giao diện của tenant (màu sắc, layout, hình dạng component) để phù hợp nhận diện, nhưng **vẫn hiển thị nhiều thông tin nhất** và **mỗi theme đủ Light/Dark**.
 
-- In-scope: 3 tầng token; registry **≥ 3 theme**; theme **theo tenant**; mode theo người dùng; shape do theme quyết định (mặc định sharp).
+- In-scope: 3 tầng token; registry **4 theme** (industrial mặc định, slate-blue, emerald, amber); theme **theo tenant**; **mode Light/Dark theo người dùng**; shape do theme quyết định (mặc định sharp); plugin kế thừa token chung.
 - Out-scope: theme do plugin tự định nghĩa màu; tuỳ biến token tự do bởi người dùng cuối.
 - Web + Mobile cùng dùng token chung.
 

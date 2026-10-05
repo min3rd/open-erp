@@ -51,8 +51,11 @@ Nâng trải nghiệm giao diện Web **và** Mobile lên chuẩn sản phẩm t
 
 - [ ] CONF-S04-001 được khách hàng xác nhận (nguồn + ngày).
 - [ ] 100% AC trong CONF được kiểm chứng bởi QA browser (Web Desktop + Mobile 390×844), 0 console error, overflow = 0.
-- [ ] Mỗi theme × mode (Light/Dark) đạt tương phản WCAG AA cho text; **mọi theme giữ mật độ cao**; **chỉ theme mặc định bắt buộc vuông vắn** (theme khác theo token `ShapeVariant`).
-- [ ] Theme áp **theo tenant** và hiển thị đúng cho mọi người dùng của tenant (AC-17).
+- [ ] Mỗi theme × mode (Light/Dark) đạt tương phản WCAG AA cho text; **mọi theme giữ mật độ cao**; **chỉ theme mặc định bắt buộc vuông vắn** (theme khác theo token `ShapeVariant`). Registry **4 theme** (industrial, slate-blue, emerald, amber).
+- [ ] Theme áp **theo tenant** và hiển thị đúng cho mọi người dùng của tenant (AC-17); **mode theo từng người dùng**.
+- [ ] **RTL đầy đủ cho `ar`** (Web + Mobile), không tràn ngang 390px (AC-16).
+- [ ] Mỗi locale phát hành đạt **100% key** so với `en` (AC-15).
+- [ ] Icon lấy từ npm **`feather-icons`** qua adapter chung, không thêm UI framework.
 - [ ] `prefers-reduced-motion` tắt chuyển động không thiết yếu.
 - [ ] 0 item `Critical`/`High` mở.
 - [ ] User Guide Sprint 04 + cập nhật Developer Guide (shared UI, i18n) + deployment guide nếu có cấu hình mới.

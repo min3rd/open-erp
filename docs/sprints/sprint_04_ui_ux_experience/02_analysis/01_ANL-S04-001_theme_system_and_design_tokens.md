@@ -168,10 +168,10 @@ Cơ chế đề xuất: **CSS custom properties theo theme**, để Tailwind `@t
 
 ### Câu hỏi mở (chốt tại Confirmation)
 
-- Q1: Danh sách theme chính thức và nhận diện từng theme?
-- Q2: Theme áp theo tenant (toàn workspace) hay theo từng người dùng? Cái nào thắng?
-- Q3: Ngưỡng tương phản/kiểm thử chính thức (AA hay AAA cho một số cặp)?
-- Q4: Có cần đồng bộ theme qua backend/tài khoản không, hay chỉ cục bộ trên thiết bị?
+- Q1: Danh sách theme chính thức và nhận diện từng theme? — **✅ ĐÃ CHỐT 2026-10-05: 4 theme** (industrial mặc định, slate-blue, emerald, amber).
+- Q2: Theme áp theo tenant (toàn workspace) hay theo từng người dùng? Cái nào thắng? — **✅ ĐÃ CHỐT: theo tenant** (mode Light/Dark theo người dùng).
+- Q3: Ngưỡng tương phản/kiểm thử chính thức (AA hay AAA cho một số cặp)? — *chưa hỏi riêng; đề xuất: AA cho text, AAA cho cặp quan trọng*.
+- Q4: Có cần đồng bộ theme qua backend/tài khoản không, hay chỉ cục bộ trên thiết bị? — **✅ ĐÃ CHỐT: theme lưu ở backend theo tenant** (xem DES-API-S04-001); mode cục bộ theo người dùng.
 
 ## 13. Chưa kiểm chứng
 

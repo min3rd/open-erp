@@ -117,9 +117,9 @@ Với `organization`, branches/departments/memberships độc lập về dữ li
 | :---: | :--- | :--- |
 | Q1 | Thanh loading dạng **top progress bar** toàn cục và/hoặc trong từng vùng? | RAW §4 Q6 — **✅ ĐÃ CHỐT 2026-10-05: trên cùng của trang (top progress bar), skeleton theo vùng** |
 | Q2 | Danh sách màn ưu tiên tách vùng đợt đầu? | Mới |
-| Q3 | Ngưỡng trễ skeleton (150ms/200ms/khác)? | Mới |
-| Q4 | Có cho phép hiển thị skeleton ở Drawer detail không? | Mới |
-| Q5 | Có cần "Thử lại" theo vùng hay chỉ thông báo lỗi? | Mới |
+| Q3 | Ngưỡng trễ skeleton (150ms/200ms/khác)? | Mới — **✅ ĐÃ CHỐT 2026-10-05: 150ms** |
+| Q4 | Có cho phép hiển thị skeleton ở Drawer detail không? | Mới — *chưa hỏi riêng; đề xuất: có cho vùng dữ liệu nặng* |
+| Q5 | Có cần "Thử lại" theo vùng hay chỉ thông báo lỗi? | Mới — **✅ ĐÃ CHỐT 2026-10-05: có nút "Thử lại" theo vùng** |
 
 ## 13. Chưa kiểm chứng
 

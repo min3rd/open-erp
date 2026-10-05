@@ -95,7 +95,9 @@ Màu: kế thừa `currentColor` — **không** nhận màu trực tiếp, để
 | License | Feather là MIT — cần ghi nguồn | Tương tự |
 | Đa nền tảng Web + Mobile | Dùng chung một registry | Dùng chung được, nhưng tăng dependency cả hai |
 
-**Đề xuất**: **vendor bộ Feather như dữ liệu** (path data) trong shared, chỉ chứa **tập con icon cần dùng** khởi điểm, đủ để phủ các icon đã kiểm kê và các hành động chung. Điều này không thêm dependency runtime, kiểm soát kích thước bundle, và phù hợp quy định thư viện. Nếu sau này cần hàng trăm icon và nhu cầu cập nhật thường xuyên, mới cân nhắc package.
+**Đề xuất phân tích**: vendor bộ Feather như dữ liệu (path data) trong shared, chỉ chứa tập con icon cần dùng — không thêm dependency runtime, kiểm soát bundle, hợp quy định thư viện.
+
+> **✅ ĐÃ CHỐT 2026-10-05 (Q19): dùng npm package `feather-icons`** — khách chọn **khác** đề xuất phân tích. `feather-icons` là **gói dữ liệu SVG (MIT)**, không phải UI component library, nên vẫn không thêm framework; vẫn **bọc qua adapter** `icon-registry.ts` (không import trực tiếp trong template) và giữ attribution MIT. Ghi nhận đây là exception có chủ đích với chủ trương "hạn chế thư viện bên thứ ba".
 
 > **Ghi chú license**: khi vendor phải giữ thông báo bản quyền/nguồn Feather (MIT) trong repo (LICENSE/attribution).
 
@@ -150,7 +152,7 @@ Nguyên tắc: icon phải **dễ hiểu và độc lập** (đúng R3) — nế
 ### Câu hỏi mở (chốt tại Confirmation)
 
 - Q1: Bộ icon khởi điểm chính thức gồm những icon nào (danh mục `IconName`)?
-- Q2: Vendor dữ liệu Feather tập con hay chấp nhận cài npm package?
+- Q2: Vendor dữ liệu Feather tập con hay chấp nhận cài npm package? — **✅ ĐÃ CHỐT 2026-10-05: npm package `feather-icons`** (qua adapter).
 - Q3: Có bắt buộc icon cho mọi hành động ở context menu không, hay chỉ khuyến nghị?
 - Q4: Quy ước giữa `ionicons` (shell Ionic) và Feather ERP cần chốt tường minh?
 

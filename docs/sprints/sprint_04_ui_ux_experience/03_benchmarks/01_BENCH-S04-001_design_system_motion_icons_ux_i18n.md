@@ -98,12 +98,12 @@ Khảo sát cách các sản phẩm/design system hàng đầu giải sáu vấn
 
 | # | Yêu cầu | Cách tiếp cận đề xuất (tham chiếu bài học) | Câu hỏi mở cho Confirmation |
 | :---: | :--- | :--- | :--- |
-| R1 | Theme đa giao diện | Token 3 tầng + registry theme, mỗi theme đủ Light/Dark; **chỉ theme mặc định bắt buộc vuông vắn**, theme khác qua `ShapeVariant`, luôn giữ mật độ cao (Material/Radix/Ant/SLDS) | Số lượng & tên theme; đặt theme theo tenant hay người dùng |
-| R2 | Animation | Motion token + ngân sách hiệu năng, tắt theo `prefers-reduced-motion` (Material/Fluent/CSS) | Mức độ & ngưỡng FPS/thời lượng |
-| R3 | Icon Feather | Một component icon chung, Feather vendor dạng dữ liệu, không thêm runtime dep (Feather/Lucide) | Phạm vi icon-only vs icon+label |
-| R4 | Context menu | Component/service chung; menu là lối tắt, mở Drawer/router; phân quyền; bàn phím; render ngoài vùng cuộn (Excel/Notion/Linear/GitHub/Jira) | ~~Bắt buộc long-press Mobile?~~ **Đã chốt: không**; ẩn hay disable khi thiếu quyền? |
-| R5 | Loading + skeleton vùng độc lập | Top progress bar + skeleton theo hình dạng + mô hình trạng thái vùng; trễ tránh nháy (YouTube/Facebook/Slack/Notion) | Dạng thanh loading; màn ưu tiên; ngưỡng trễ |
-| R6 | Đa ngôn ngữ mở rộng | Language registry + `LangCode`, lazy dictionary, fallback, parity check, `Intl`; khung RTL trước (ICU/CLDR/Material/Apple) | ~~Danh sách & số ngôn ngữ~~ **Đã chốt: 13 locale (vi, en, zh-CN, ja, ko, es, fr, de, pt-BR, ru, ar, th, id)**; ~~RTL đợt này hay sau~~ **Đã chốt: dựng khung (ar trong scope)**; còn: source of truth, ngưỡng dịch, múi giờ |
+| R1 | Theme đa giao diện | Token 3 tầng + registry theme, mỗi theme đủ Light/Dark; **chỉ theme mặc định bắt buộc vuông vắn**, theme khác qua `ShapeVariant`, luôn giữ mật độ cao (Material/Radix/Ant/SLDS) | ~~Số lượng & tên theme; tenant hay người dùng~~ **Đã chốt: 4 theme; theo tenant (mode theo người dùng)** |
+| R2 | Animation | Motion token + ngân sách hiệu năng, tắt theo `prefers-reduced-motion` (Material/Fluent/CSS) | ~~Mức độ & ngưỡng FPS/thời lượng~~ **Đã chốt: nhanh, ưu tiên hiệu năng cao; route transition nhẹ** |
+| R3 | Icon Feather | Một component icon chung, Feather **npm package qua adapter**, không thêm UI framework (Feather/Lucide) | ~~Phạm vi icon-only vs icon+label~~ **Đã chốt: npm `feather-icons`; chính = icon+nhãn, hàng/menu = icon-only + aria** |
+| R4 | Context menu | Component/service chung; menu là lối tắt, mở Drawer/router; phân quyền; bàn phím; render ngoài vùng cuộn (Excel/Notion/Linear/GitHub/Jira) | ~~Bắt buộc long-press Mobile?~~ **Đã chốt: không**; ~~ẩn hay disable~~ **Đã chốt: disable kèm lý do; áp tất cả màn danh sách Desktop** |
+| R5 | Loading + skeleton vùng độc lập | Top progress bar + skeleton theo hình dạng + mô hình trạng thái vùng; trễ tránh nháy (YouTube/Facebook/Slack/Notion) | ~~Dạng thanh loading; ngưỡng trễ~~ **Đã chốt: top progress bar, trễ 150ms, thử lại theo vùng**; còn: màn ưu tiên tách vùng |
+| R6 | Đa ngôn ngữ mở rộng | Language registry + `LangCode`, lazy dictionary, fallback, parity check, `Intl`; RTL (ICU/CLDR/Material/Apple) | ~~Danh sách & số ngôn ngữ~~ **Đã chốt: 13 locale (vi, en, zh-CN, ja, ko, es, fr, de, pt-BR, ru, ar, th, id)**; ~~RTL đợt này hay sau~~ **Đã chốt: RTL đầy đủ ngay**; ~~ngưỡng dịch~~ **Đã chốt: 100%**; ~~múi giờ~~ **Đã chốt: theo người dùng**; còn: source of truth |
 
 ## 9. Chưa kiểm chứng
 

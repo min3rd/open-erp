@@ -34,16 +34,18 @@
 - **Ngân sách**: chỉ animate `transform`/`opacity`; không animate layout; danh sách dài không stagger toàn bộ (chỉ tối đa ~20 hàng đầu hoặc tắt).
 
 ### 2.3. Icon Feather (S3)
-- **Vendored**: trích path data của bộ Feather (MIT, 24×24, stroke 2) vào một registry TypeScript trong `src/frontend/shared/components/icon/`. Không cài npm package ⇒ không tăng bundle runtime phụ thuộc và không vi phạm "hạn chế thư viện".
-- `IconComponent` (standalone, `<svg>` inline) nhận `name: IconName`, `size: SizeVariant`, dùng `currentColor`; thuộc tính `decorative` (aria-hidden) vs `labelKey` (aria-label qua i18n).
+- **Dùng npm package `feather-icons`** (MIT, dữ liệu SVG 24×24 stroke 2) làm nguồn icon — khách chốt 2026-10-05 (Q19). Đây là **exception có chủ đích** với chủ trương "hạn chế thư viện bên thứ ba": `feather-icons` chỉ là **gói dữ liệu path**, không phải UI component library, không mang theo framework; `IconComponent` vẫn tự viết trong `src/frontend/shared/components/icon/`.
+- Bọc package trong một **registry adapter** (`icon-registry.ts`) để nếu sau này đổi nguồn (vendored/lucide) chỉ sửa một chỗ; cấm import trực tiếp `feather-icons` rải rác trong template.
+- `IconComponent` (standalone, `<svg>` inline) nhận `name: IconName`, `size: SizeVariant`, dùng `currentColor`; `decorative` (aria-hidden) vs `labelKey` (aria-label qua i18n).
 - `IconName` là enum dùng chung; **cấm** SVG vẽ tay rải rác trong template màn hình sau Sprint 04.
 
 ### 2.4. Context menu (S4)
 - **`ContextMenuComponent` + `ContextMenuService`** ở shared: mở tại `(x,y)`, tự lật khi sát biên, đóng khi click ngoài/Escape/scroll.
-- **`appContextMenuTrigger`** directive gắn vào hàng/danh sách, cấp `items` (data-driven, có `id`, `labelKey`, `icon`, `disabled`, `visible`).
+- **`appContextMenuTrigger`** directive gắn vào hàng/danh sách, cấp `items` (data-driven, có `id`, `labelKey`, `icon`, `disabled`, `disabledReasonKey`, `visible`).
 - Hành động là **shortcut** tới Drawer/route hiện có, không thay kiến trúc anti-modal.
-- Phân quyền: ẩn/disable theo `RequirePermission` hiện có.
-- Mobile: long-press qua directive cùng API.
+- Phân quyền: mục không đủ quyền **hiện mờ (disable) kèm lý do** (khách chốt 2026-10-05, Q14) — dùng `RequirePermission`/`AuthService` hiện có.
+- **Áp cho tất cả màn danh sách** (Desktop, khách chốt Q20).
+- **Mobile: KHÔNG dùng context menu** (khách chốt Q7); giữ nút thao tác hiển thị.
 - A11y: `role="menu"/"menuitem"`, roving focus, `Shift+F10`/ContextMenu key.
 
 ### 2.5. Loading & skeleton (S5)
@@ -56,15 +58,15 @@
 ### 2.6. Đa ngôn ngữ (S6)
 - **`LangCode`** (thay union `'vi' | 'en'`) + **registry** (code, nativeName, dir, ngưỡng phủ).
 - Nạp **lazy** `/i18n/<code>.json`; fallback `locale → en → key`; giữ `openerp_lang`.
-- **Parity check script** (Node) đối chiếu key giữa các locale; chỉ phát hành locale ≥ ngưỡng (Q5).
-- **RTL khung**: dùng thuộc tính logic (`ps-*`/`pe-*`, `ms-*`/`me-*`), set `dir="rtl"` trên `<html>`; icon hướng lật bằng `rtl:scale-x-[-1]`.
+- **Parity check script** (Node) đối chiếu key giữa các locale; **chỉ phát hành locale đủ 100% key** so với `en` (khách chốt Q5).
+- **RTL đầy đủ cho `ar` ngay trong Sprint 04** (khách chốt Q4): dùng thuộc tính logic (`ps-*`/`pe-*`, `ms-*`/`me-*`), set `dir="rtl"` trên `<html>`; icon hướng lật bằng `rtl:scale-x-[-1]`; kiểm gương cho Drawer/bảng/progress bar.
 - Format theo locale qua `Intl` (ngày/số/tiền), kế thừa xử lý timezone hiện có.
 
 ## 3. Phương Án Bị Loại
 
 | Phương án | Lý do loại |
 | :--- | :--- |
-| Dùng thư viện icon npm (lucide/feather) | Thêm dependency runtime; dự án ưu tiên vendor dữ liệu |
+| Dùng thư viện icon npm (lucide) | **Chọn `feather-icons`** (dữ liệu SVG, MIT) theo chốt Q19; vẫn **không** dùng UI component library bên thứ ba. Adapter hoá để đổi nguồn dễ. |
 | Angular Animations cho mọi chuyển động | Nặng, khó tắt theo reduced-motion toàn cục; CSS đủ đáp ứng |
 | Tailwind config nhiều theme bằng class | Trùng lặp utility, phình CSS; CSS custom property + `@theme` gọn hơn |
 | Skeleton bằng spinner trong mỗi vùng | Không giữ layout, trải nghiệm kém hơn skeleton |

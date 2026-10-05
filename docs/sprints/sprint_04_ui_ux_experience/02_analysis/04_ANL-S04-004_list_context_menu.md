@@ -133,12 +133,12 @@ Quyết định: dùng phương án **A** trên Mobile; long-press (B/C) **khôn
 
 | # | Câu hỏi mở | Nguồn |
 | :---: | :--- | :--- |
-| Q1 | Danh sách màn ưu tiên gắn context menu đợt đầu? | Mới |
-| Q2 | Thiếu quyền: **ẩn** hay **disable kèm lý do**? | Mới |
+| Q1 | Danh sách màn ưu tiên gắn context menu đợt đầu? | Mới — **✅ ĐÃ CHỐT 2026-10-05: TẤT CẢ màn danh sách (Desktop)** |
+| Q2 | Thiếu quyền: **ẩn** hay **disable kèm lý do**? | Mới — **✅ ĐÃ CHỐT 2026-10-05: disable kèm lý do** |
 | Q3 | Mobile có bắt buộc long-press không? | RAW §4 Q5 — **✅ ĐÃ CHỐT 2026-10-05: KHÔNG** |
-| Q4 | Menu dùng icon+nhãn hay icon-only? | Mới (liên quan ANL-S04-003) |
-| Q5 | "Xuất"/"Chia sẻ" đã có trong scope hay để sau? | Mới |
-| Q6 | Menu rỗng có mở không? | Mới |
+| Q4 | Menu dùng icon+nhãn hay icon-only? | Mới (liên quan ANL-S04-003) — **✅ ĐÃ CHỐT 2026-10-05: icon + nhãn chữ** |
+| Q5 | "Xuất"/"Chia sẻ" đã có trong scope hay để sau? | Mới — *chưa hỏi riêng; đề xuất: chỉ hành động đã có ở nút inline* |
+| Q6 | Menu rỗng có mở không? | Mới — *chưa hỏi riêng; đề xuất: không mở khi rỗng* |
 
 ## 13. Chưa kiểm chứng
 

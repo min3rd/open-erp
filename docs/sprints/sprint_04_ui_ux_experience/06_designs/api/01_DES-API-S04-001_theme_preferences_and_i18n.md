@@ -63,7 +63,7 @@
 ### 4.2. Từ điển
 - Tĩnh tại `public/i18n/<code>.json`; nạp **lazy**; fallback `locale → en → key`.
 - Có script kiểm **parity** giữa các locale (baseline hiện tại: web 884, mobile 475 key).
-- Ngưỡng phát hành: Q5 (đề xuất ≥ 95%).
+- Ngưỡng phát hành: **100% key** so với `en` (Q5). Script parity báo thiếu/thừa; locale chưa đủ 100% **không** được phát hành.
 
 ## 5. Chuẩn Hoá Bắt Buộc (api_standards)
 

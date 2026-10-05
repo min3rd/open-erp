@@ -10,7 +10,7 @@
 
 Là người dùng Desktop, tôi muốn chuột phải vào một dòng danh sách để mở menu hành động nhanh — trải nghiệm như phần mềm desktop.
 
-- In-scope: `ContextMenuService` + `ContextMenuComponent` + `appContextMenuTrigger` (shared); áp cho các bảng trọng yếu; phân quyền; bàn phím/a11y; **Desktop only**.
+- In-scope: `ContextMenuService` + `ContextMenuComponent` + `appContextMenuTrigger` (shared); áp cho **tất cả màn danh sách**; mục thiếu quyền **disable kèm lý do**; bàn phím/a11y; **Desktop only**.
 - Out-scope: context menu trên Mobile (khách chốt **không cần**); thay thế Drawer/route.
 - Không chặn menu chuột phải mặc định ngoài vùng danh sách.
 

@@ -38,6 +38,7 @@
 - Chỉ animate **`transform`/`opacity`** (và `background-color` cho feedback). Không animate `height/width/top/left`.
 - `@media (prefers-reduced-motion: reduce)` ⇒ tắt M1/M3/M4/M5/M6, giữ M7 tức thời.
 - Không stagger toàn bộ danh sách lớn (chặn ở ~20 hàng hoặc tắt khi > ngưỡng).
+- **Chuyển động đổi route có trong scope** (Q18): M4 bật cho route nhẹ; route dữ liệu nặng chỉ fade ngắn hoặc tắt.
 - API component: input `motion?: MotionVariant` (enum dùng chung), mặc định theo token; không rải class animation ad-hoc trong màn hình.
 
 ## 2. Icon Feather (AC-06, AC-07)
@@ -45,14 +46,13 @@
 ### 2.1. Component `app-icon` (shared)
 | Input | Kiểu | Ghi chú |
 | :--- | :--- | :--- |
-| `name` | `IconName` (enum) | Bắt buộc; tra trong registry Feather vendored |
+| `name` | `IconName` (enum) | Bắt buộc; tra qua adapter `feather-icons` (npm) trong `icon-registry.ts` |
 | `size` | `SizeVariant` | Mặc định `SM` (~16px); map `XS..XL` ⇒ 12/16/20/24/32 |
 | `decorative` | `boolean` | `true` ⇒ `aria-hidden="true"` (icon kèm nhãn chữ) |
 | `labelKey` | `string?` | Khi icon-only ⇒ `aria-label` qua i18n |
 
-- Render `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">` + path từ registry.
-- **Vendored**: path data Feather (MIT) trong `icon/icon-registry.ts`; **không** thêm npm runtime dependency.
-- Một số icon phải có `rtl-mirror: true` (mũi tên, chevron, back/next) ⇒ lật khi `dir="rtl"`.
+- Render `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">`; path lấy từ package **`feather-icons`** (MIT) qua một adapter tập trung — **không** import trực tiếp trong template, không thêm UI component library (`feather-icons` chỉ là dữ liệu SVG).
+- Một số icon phải có `rtl-mirror: true` (mũi tên, chevron, back/next) ⇒ lật khi `dir="rtl"` (đầy đủ trong Sprint 04 theo AC-16).
 
 ### 2.2. Quy tắc dùng
 | Ngữ cảnh | Quy tắc |
@@ -75,8 +75,9 @@
 | `id` | string | Định danh hành động |
 | `labelKey` | string | i18n |
 | `icon` | `IconName?` | Icon Feather |
-| `visible` | boolean | Ẩn theo phân quyền |
+| `visible` | boolean | Ẩn không áp dụng |
 | `disabled` | boolean | Ví dụ khi record đang khoá |
+| `disabledReasonKey` | string? | **Lý do hiển thị khi mục thiếu quyền/không áp dụng** (Q14) |
 | `danger` | boolean | Hành động phá huỷ ⇒ `ColorVariant.DANGER` |
 | `action` | callback/route | Là **shortcut** tới Drawer/route hiện có |
 
@@ -84,16 +85,17 @@
 - **Chỉ Desktop** (Q7). Mobile giữ nút/luồng hiện có — **không** long-press.
 - Không chặn menu chuột phải mặc định ngoài vùng danh sách.
 - Hành động phải trùng với hành động inline/route hiện có (không tạo đường nghiệp vụ mới).
-- Phân quyền: dùng `RequirePermission`/`AuthService.canX` hiện có.
+- Phân quyền: mục không đủ quyền **hiện mờ (disable) kèm lý do** (Q14), dùng `RequirePermission`/`AuthService` hiện có.
+- Mục hiển thị **icon + nhãn chữ** (Q15).
 
-### 3.4. Áp dụng bản đầu (đề xuất)
-role-matrix, members, plugin-marketplace, sample-record-list, và các bảng trong `shared/components/table`.
+### 3.4. Áp dụng bản đầu
+**Tất cả màn danh sách** (Q20): role-matrix, members, plugin-marketplace, sample-record-list, danh sách phiên/credential, và các bảng dùng `shared/components/table`.
 
 ## 4. Loading Progress & Skeleton (AC-11, AC-12, AC-13)
 
 ### 4.1. Thanh progress trên cùng
 - `LoadingService` (đếm request đang chạy) + **HTTP interceptor** toàn cục; component `TopProgressBar` gắn ở layout (Web: trên `<router-outlet>`; Mobile: đầu `ion-content` hoặc header).
-- Hiển thị khi có ≥1 request; ẩn khi về 0 (có trễ nhỏ để tránh nhấp nháy).
+- Hiển thị khi có ≥1 request; **chỉ hiện sau ~150ms** để tránh nhấp nháy với phản hồi nhanh (Q16); ẩn khi về 0.
 
 ### 4.2. Skeleton
 | Component | Input | Dùng cho |
