@@ -71,7 +71,69 @@
       </button>
     </div>
 
-    @for (item of items(); track item.labelKey) {
+    @if (collapsed()) {
+      <!-- Icon rail: level-1 icons only; a group opens its children as a flyout
+           (hover, click or keyboard) and leaves get an instant tooltip. -->
+      @for (item of items(); track item.labelKey) {
+        @if (item.children?.length) {
+          <div
+            class="relative"
+            data-flyout
+            [attr.data-open]="isFlyoutOpen(item)"
+          >
+            <button
+              type="button"
+              (click)="toggleFlyout(item)"
+              aria-haspopup="true"
+              [attr.aria-expanded]="isFlyoutOpen(item)"
+              [attr.title]="item.labelKey | translate"
+              [attr.aria-label]="item.labelKey | translate"
+              class="flex min-h-9 w-full cursor-pointer items-center justify-center rounded-control border-s-2 border-transparent px-1 py-1.5 text-sidebar-text transition-colors hover:bg-sidebar-active/60"
+            >
+              <app-icon [name]="item.icon || 'grid'" [size]="iconSize()" [decorative]="true" />
+            </button>
+            <div
+              class="op-flyout absolute top-0 z-50 ps-1"
+              [class.end-full]="flyoutAlign() === 'end'"
+              [class.start-full]="flyoutAlign() === 'start'"
+            >
+              <div class="min-w-56 rounded-container border border-default bg-surface p-1 shadow-panel">
+                <p class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted">
+                  {{ item.labelKey | translate }}
+                </p>
+                @for (child of item.children; track child.path) {
+                  <a
+                    [routerLink]="child.path"
+                    routerLinkActive="bg-sidebar-active text-sidebar-active-text font-semibold"
+                    (click)="closeOpenMenus()"
+                    class="flex min-h-8 items-center gap-2 rounded-control px-2 py-1 text-xs text-ink transition-colors hover:bg-surface-muted"
+                  >
+                    @if (child.icon) {
+                      <app-icon [name]="child.icon" size="sm" [decorative]="true" />
+                    }
+                    {{ child.labelKey | translate }}
+                  </a>
+                }
+              </div>
+            </div>
+          </div>
+        } @else {
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="bg-sidebar-active text-sidebar-active-text"
+            data-tip
+            [attr.data-tip-align]="flyoutAlign()"
+            class="relative inline-flex min-h-9 items-center justify-center rounded-control border-s-2 border-transparent px-1 py-1.5 text-sidebar-text transition-colors hover:bg-sidebar-active/60"
+          >
+            @if (item.icon) {
+              <app-icon [name]="item.icon" [size]="iconSize()" [decorative]="true" />
+            }
+            <span class="op-tip">{{ item.labelKey | translate }}</span>
+          </a>
+        }
+      }
+    } @else {
+      @for (item of items(); track item.labelKey) {
       @if (item.children?.length) {
         <details
           class="group"
@@ -94,21 +156,19 @@
               />
             }
           </summary>
-          <div [class]="'flex flex-col gap-0.5 ' + (collapsed() ? '' : 'pb-1 ps-1.5')">
+          <div class="flex flex-col gap-0.5 pb-1 ps-1.5">
             @for (child of item.children; track child.path) {
               <a
                 [routerLink]="child.path"
                 routerLinkActive="bg-sidebar-active text-sidebar-active-text font-semibold border-accent"
-                [attr.title]="collapsed() ? (child.labelKey | translate) : null"
+                [attr.title]="child.labelKey | translate"
                 [class]="'inline-flex items-center rounded-control border-s-2 border-transparent text-sidebar-text transition-colors hover:bg-sidebar-active/60 '
                   + rowClass()"
               >
                 @if (child.icon) {
                   <app-icon [name]="child.icon" [size]="iconSize()" [decorative]="true" />
                 }
-                @if (!collapsed()) {
-                  <span class="min-w-0 truncate">{{ child.labelKey | translate }}</span>
-                }
+                <span class="min-w-0 truncate">{{ child.labelKey | translate }}</span>
               </a>
             }
           </div>
@@ -117,17 +177,16 @@
         <a
           [routerLink]="item.path"
           routerLinkActive="bg-sidebar-active text-sidebar-active-text font-semibold border-accent"
-          [attr.title]="collapsed() ? (item.labelKey | translate) : null"
+          [attr.title]="item.labelKey | translate"
           [class]="'inline-flex items-center rounded-control border-s-2 border-transparent text-sidebar-text transition-colors hover:bg-sidebar-active/60 '
             + rowClass()"
         >
           @if (item.icon) {
             <app-icon [name]="item.icon" [size]="iconSize()" [decorative]="true" />
           }
-          @if (!collapsed()) {
-            <span class="min-w-0 truncate">{{ item.labelKey | translate }}</span>
-          }
+          <span class="min-w-0 truncate">{{ item.labelKey | translate }}</span>
         </a>
+      }
       }
     }
   </nav>

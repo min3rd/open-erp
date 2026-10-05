@@ -393,6 +393,52 @@ router-outlet + * {
   transform: scale(0.97);
 }
 
+/* --------------------------------------------------------------------------
+ * Collapsed vertical menu (BUG-127): level-1 icons only. A group reveals its
+ * children as a flyout on hover, click (native <details>) or keyboard focus;
+ * a leaf shows an instant tooltip. Only the collapsed rail uses these.
+ * -------------------------------------------------------------------------- */
+[data-flyout] > .op-flyout {
+  display: none;
+}
+[data-flyout]:hover > .op-flyout,
+[data-flyout]:focus-within > .op-flyout,
+[data-flyout][data-open='true'] > .op-flyout {
+  display: block;
+}
+
+.op-tip {
+  position: absolute;
+  inset-inline-start: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-inline-start: 0.375rem;
+  z-index: 60;
+  white-space: nowrap;
+  border-radius: var(--op-radius-control);
+  border: 1px solid var(--op-border);
+  background: var(--op-surface);
+  padding: 0.25rem 0.5rem;
+  font-size: 11px;
+  line-height: 1.25;
+  color: var(--op-text);
+  box-shadow: var(--op-panel-shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--op-duration-fast) var(--op-ease-standard);
+}
+[data-tip]:hover > .op-tip,
+[data-tip]:focus-visible > .op-tip {
+  opacity: 1;
+}
+/* Right-hand rail: tooltips open to the other side. */
+[data-tip][data-tip-align='end'] > .op-tip {
+  inset-inline-start: auto;
+  inset-inline-end: 100%;
+  margin-inline-start: 0;
+  margin-inline-end: 0.375rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .op-pop,
   .op-stagger > *,

@@ -51,6 +51,7 @@
           [variant]="navVariant()"
           [items]="menuItems()"
           [collapsed]="railCollapsed()"
+          [flyoutAlign]="navRight() ? 'end' : 'start'"
           (toggleCollapse)="toggleRail()"
           titleKey="SETTINGS_SECTION_TITLE"
         />

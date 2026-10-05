@@ -52,12 +52,20 @@ export class SectionNavComponent {
   variant = input<SectionNavVariant>('rail');
   /** Icon-only rail (controlled by the collapse action in the menu header). */
   collapsed = input<boolean>(false);
+  /**
+   * Which way the rail's flyouts/tooltips open: `start` when the rail sits at
+   * the inline start (left rail), `end` for a right-hand rail.
+   */
+  flyoutAlign = input<'start' | 'end'>('start');
 
   /** Emitted by the collapse action in the menu header. */
   toggleCollapse = output<void>();
 
   /** Groups the user collapsed by hand (everything else stays expanded). */
   private readonly closedGroups = signal<ReadonlySet<string>>(new Set());
+
+  /** Group whose flyout is pinned open on the icon rail (click, not hover). */
+  private readonly openFlyoutKey = signal<string | null>(null);
 
   readonly chevronsLeft = IconName.CHEVRONS_LEFT;
   readonly chevronsRight = IconName.CHEVRONS_RIGHT;
@@ -105,8 +113,18 @@ export class SectionNavComponent {
     });
   }
 
-  /** Closes every bar dropdown (navigation, outside click, Escape). */
+  /** Icon rail: click pins a group's flyout open (hover works without JS). */
+  isFlyoutOpen(item: SectionNavItem): boolean {
+    return this.openFlyoutKey() === item.labelKey;
+  }
+
+  toggleFlyout(item: SectionNavItem): void {
+    this.openFlyoutKey.set(this.isFlyoutOpen(item) ? null : item.labelKey);
+  }
+
+  /** Closes every bar dropdown, flyout and expanded group. */
   closeOpenMenus(): void {
+    this.openFlyoutKey.set(null);
     this.host.nativeElement
       .querySelectorAll('details[open]')
       .forEach((details: Element) => details.removeAttribute('open'));
@@ -114,8 +132,9 @@ export class SectionNavComponent {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    // Only the horizontal bar behaves like a dropdown; rail groups stay open.
-    if (this.variant() !== 'bar') {
+    // Dropdowns/flyouts close on an outside click; the expanded rail is an
+    // accordion and keeps its groups open.
+    if (this.variant() !== 'bar' && !this.collapsed()) {
       return;
     }
     const target = event.target as Node | null;
@@ -126,7 +145,7 @@ export class SectionNavComponent {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    if (this.variant() === 'bar') {
+    if (this.variant() === 'bar' || this.collapsed()) {
       this.closeOpenMenus();
     }
   }
