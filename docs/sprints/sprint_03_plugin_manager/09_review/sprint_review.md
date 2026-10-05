@@ -17,7 +17,7 @@
 | :--- | :---: | :--- |
 | **FEAT-21 — Plugin Manager & Vòng đời** | Đạt phần code + QA | Catalog + phiên bản trong DB; một bảng `tenant_plugins` (entitlement + vòng đời); cài/gỡ/bật/tắt/nâng cấp/rollback có bù trừ; soft uninstall giữ dữ liệu; cài mặc định hệ thống; plugin riêng tenant (`TENANT_PRIVATE`); khóa khẩn cấp 2 cấp + cưỡng chế gỡ + thông báo; Marketplace Web + Mobile read-only; audit. |
 | **FEAT-22 — Plugin Scaffolding CLI (`@open-erp/cli`)** | Đạt phần code + QA | CLI Node/npm zero-dependency: `create`, `generate entity/menu/ui-contribution`, `validate`, `package` (checksum SHA-256), `link`, `inspect`, `dev`; template vertical slice; smoke test `node --test` PASS. |
-| **FEAT-23 — Phân phối đa kênh & Plugin Host Runtime** | Đạt phần code + QA (còn 2 sub-task chờ hạ tầng) | 3 kênh (Docker Hub / Image Registry / JAR + Web bundle) → xác minh checksum → MinIO; build image; Deployer container-per-tenant (Docker local + K8s); Tenant Datasource Router (schema riêng, DB role least privilege); Plugin Host WC/MF/iframe. **TASK-331 và TASK-337 còn `In Progress`** (phần cần registry/hạ tầng thật để nghiệm thu). |
+| **FEAT-23 — Phân phối đa kênh & Plugin Host Runtime** | Đạt phần code + QA (còn 2 sub-task chờ hạ tầng) | 3 kênh (Docker Hub / Image Registry / JAR + Web bundle) → xác minh checksum → MinIO; build image; Deployer container-per-tenant (Docker local + K8s); Tenant Datasource Router (schema riêng, DB role least privilege); Plugin Host WC/MF/iframe. **TASK-331 và TASK-337 đã hoàn tất phần code, chuyển `In Review`** (TASK-331: `OciRegistryClient` resolve digest qua token auth + registry local `registry:2`; TASK-337: `PluginSnapshotService` + script `scripts/ops/tenant-schema-backup.mjs`), **chờ QA/Reviewer xác nhận**. |
 | **QA Dual-mode & Đo lường chất lượng** | Đạt | Browser QA thật **40/40 PASS, 0 console error**; backend suite trên PostgreSQL + Redis thật PASS; ảnh minh chứng lưu tại `08_testing/evidence/screenshots/`. |
 
 **Kết luận tạm thời**: 3 trụ cột tính năng đã hoàn tất phần code và vượt qua QA browser; tuy nhiên còn **4 BUG `In Review` chưa được Reviewer ký**, **TASK-348 `In Review`**, **User Guide Sprint 03 chưa ban hành** và **Khách hàng chưa sign-off** → Sprint 03 **chưa đóng**.
@@ -36,7 +36,7 @@
 | — Trong đó `In Review` (chờ Reviewer ký) | **4** | BUG-86, BUG-92, BUG-93, BUG-94. |
 | — Trong đó `Deferred → Sprint 04` | **3** | BUG-98, TASK-346, TASK-347. |
 
-> **Ghi chú bổ sung**: **TASK-348** đang `In Review` (7/7 màn chính `Done`, phần danh sách phụ chuyển Sprint 04). TASK-348 nằm cùng nhóm **cần Reviewer ký trước khi đóng Sprint**. Trong `FEAT-23`, **TASK-331** và **TASK-337** vẫn `In Progress` (phần OCI token auth / backup-restore cần hạ tầng registry thật để nghiệm thu).
+> **Ghi chú bổ sung**: **TASK-348** đang `In Review` (7/7 màn chính `Done`, phần danh sách phụ chuyển Sprint 04). TASK-348 nằm cùng nhóm **cần Reviewer ký trước khi đóng Sprint**. Trong `FEAT-23`, **TASK-331** và **TASK-337** đã chuyển `In Review` (đã code + developer self-verified, xem `08_testing/evidence/TASK-331_*` và `TASK-337_*`), chờ QA/Reviewer xác nhận.
 
 ### 2.2. Feature chính
 
@@ -44,7 +44,7 @@
 | :--- | :--- | :---: | :---: | :--- |
 | **FEAT-21** | Plugin Manager — Danh mục, Vòng đời & Marketplace | Critical | Hoàn tất (chờ ký nghiệm thu) | Browser: marketplace 3 nhóm, install→ACTIVE, upgrade BREAKING, disable/enable, soft uninstall giữ schema, detail versions, credentials — `18/18 PASS`. |
 | **FEAT-22** | Plugin Scaffolding CLI (`@open-erp/cli`) | High | Hoàn tất (chờ ký nghiệm thu) | CLI smoke `node --test` `3/3 PASS`; E2E `npm run e2e:plugin` (create → package → cài lên dev local) PASS 2026-10-04. |
-| **FEAT-23** | Phân phối đa kênh, Deployer & Plugin Host | Critical | Hoàn tất phần chính (TASK-331/337 `In Progress`) | Platform `6/6 PASS`, route-state `8/8 PASS`, Ionic 390×844 `8/8 PASS`; container-per-tenant thật đạt `ACTIVE`; schema tenant giữ nguyên sau soft uninstall. |
+| **FEAT-23** | Phân phối đa kênh, Deployer & Plugin Host | Critical | Hoàn tất phần chính (TASK-331/337 `In Review`, chờ QA) | Platform `6/6 PASS`, route-state `8/8 PASS`, Ionic 390×844 `8/8 PASS`; container-per-tenant thật đạt `ACTIVE`; schema tenant giữ nguyên sau soft uninstall. |
 
 ### 2.3. Item chưa hoàn tất (cần theo dõi để đóng Sprint)
 
@@ -145,8 +145,8 @@
 
 | Hạng Mục | Ghi Chú | Đề Xuất |
 | :--- | :--- | :--- |
-| **TASK-331 — OCI token auth khi pull manifest/digest** | `credential_id` đã nhận/lưu (BUG-96); phần pull manifest/digest bằng credential còn `In Progress`, cần registry thật để nghiệm thu. | Hoàn tất khi có hạ tầng Image Registry Sprint 04. |
-| **TASK-337 — script backup/restore theo tenant** | `ensureDatasource` + role/password + rotate đã code; script backup/restore còn lại. | Bổ sung cùng snapshot retention Sprint 04. |
+| **TASK-331 — OCI token auth khi pull manifest/digest** | Đã code `OciRegistryClient` (token auth 401→token→Bearer, HTTPS-only, chặn redirect, timeout/size) + tích hợp `registerVersion`; test `OciRegistryClientTest` 4/4 PASS trên `registry:2` thật. | Chờ QA/Reviewer xác nhận; bổ sung test với registry bật token auth (Harbor) nếu cần. |
+| **TASK-337 — script backup/restore theo tenant** | `ensureDatasource` + role/password + rotate đã code; `PluginSnapshotService` (pg_dump/psql) + script `scripts/ops/tenant-schema-backup.mjs` đã chạy thật (dump 4.1KB, restore dry-run OK). | Chờ QA/Reviewer xác nhận; nên chạy restore thật trên môi trường tách biệt. |
 | **Smoke K8s staging của Deployer** | Docker local PASS; K8s staging chưa chạy do thiếu hạ tầng. | Chạy khi có môi trường staging; không chặn DoD local. |
 | **BUG-83 (tồn đọng Sprint 02)** | QA re-measure runtime `resp2.mjs` (`sharedTopbarSmall=[]`, `navSmall=[]`). | Chốt trong đợt chỉnh shared TopBar Sprint 04 (cùng BUG-98). |
 
