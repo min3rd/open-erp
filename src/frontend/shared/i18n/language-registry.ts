@@ -19,10 +19,10 @@ export interface LanguageInfo {
 export const LANGUAGES: readonly LanguageInfo[] = [
   { code: LangCode.VI, nativeName: 'Tiếng Việt', dir: 'ltr', released: true },
   { code: LangCode.EN, nativeName: 'English', dir: 'ltr', released: true },
-  { code: LangCode.ZH_CN, nativeName: '简体中文', dir: 'ltr', released: false },
-  { code: LangCode.JA, nativeName: '日本語', dir: 'ltr', released: false },
+  { code: LangCode.ZH_CN, nativeName: '简体中文', dir: 'ltr', released: true },
+  { code: LangCode.JA, nativeName: '日本語', dir: 'ltr', released: true },
   { code: LangCode.KO, nativeName: '한국어', dir: 'ltr', released: false },
-  { code: LangCode.ES, nativeName: 'Español', dir: 'ltr', released: false },
+  { code: LangCode.ES, nativeName: 'Español', dir: 'ltr', released: true },
   { code: LangCode.FR, nativeName: 'Français', dir: 'ltr', released: false },
   { code: LangCode.DE, nativeName: 'Deutsch', dir: 'ltr', released: false },
   { code: LangCode.PT_BR, nativeName: 'Português (BR)', dir: 'ltr', released: false },
