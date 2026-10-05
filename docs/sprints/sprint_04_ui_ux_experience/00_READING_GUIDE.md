@@ -62,8 +62,8 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 | :--- | :--- | :--- | :--- |
 | Scope approval (CONF-S04-001) | **Approved** | Khách hàng (chủ dự án) | Chỉ đạo trực tiếp 2026-10-05 (đã trả lời đủ 20 câu; không ký tay) |
 | Design ready (SOL/DES) | Draft — chờ review kỹ thuật | Architect/Reviewer | SOL/DES 0.1 |
-| QA sign-off | Pending | QA | Chưa có |
-| PM đánh giá DoD | Pending | PM | Chưa có |
+| QA sign-off | **Pending** | QA | TR-S04-001 Draft: 15 PASS / 2 Not Run / 1 một phần |
+| PM đánh giá DoD | Pending | PM | REV-S04-001 Draft (bảng DoD) |
 | Customer acceptance | Pending | Khách hàng | Chưa có |
 | Closure | Pending | PM sau nghiệm thu | Chưa có |
 
@@ -100,7 +100,7 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 | TASK-373 | [Split appearance into 4 axes](07_items/TASK-373_split_appearance_axes.md) | Developer | Used (In Review) |
 | TASK-369 | [Per-user UI preferences API](07_items/TASK-369_user_ui_preferences_api.md) | Developer | Used (In Review) |
 | TASK-374 | [Menu icons + layout modes](07_items/TASK-374_menu_icons_and_layout_modes.md) | Developer | Used (In Review) |
-| TASK-371 | Chưa tạo | Developer | **Reserved** (RTL đầy đủ cho `ar`) |
+| TASK-371 | [RTL full support](07_items/TASK-371_rtl_full_support.md) | Developer | Used (In Review) |
 | BUG-121 | [Org tree empty during backend outage](07_items/BUG-121_org_tree_empty_during_backend_outage.md) | Developer | Used (Resolved) |
 | BUG-122 | [Org chart missing root + branches](07_items/BUG-122_org_chart_missing_tenant_root_and_branches.md) | Developer | Used (In Review) |
 | BUG-123 | [Rail menu missing levels](07_items/BUG-123_rail_menu_missing_levels.md) | Developer | Used (In Review) |
@@ -111,10 +111,14 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 | BUG-128 | [Language select shows wrong value](07_items/BUG-128_language_select_shows_wrong_value.md) | Developer | Used (In Review) |
 | BUG-129 | [Appearance panel alignment](07_items/BUG-129_appearance_panel_alignment.md) | Developer | Used (In Review) |
 | BUG-130 | [Motion not perceptible](07_items/BUG-130_motion_not_perceptible.md) | Developer | Used (In Review) |
+| BUG-131 | [Hand-written spinner SVG](07_items/BUG-131_handwritten_spinner_svg.md) | Developer | Used (Resolved) |
+| BUG-132 | [Touch context-menu gate](07_items/BUG-132_touch_context_menu_gate.md) | Developer | Used (Resolved) |
+| BUG-133 | [Permission keys missing](07_items/BUG-133_permission_keys_missing.md) | Developer | Used (Resolved) |
+| BUG-134 | [Context menu missing screens](07_items/BUG-134_context_menu_missing_screens.md) | Developer | Used (In Review) |
 | ADR-S04-* | Chưa tạo | Architect | Chưa dùng |
 | TP-S04-001 | [Test plan](08_testing/01_TP-S04-001_sprint_04_test_plan.md) | QA | Used (Draft) |
-| TR-S04-001 | Chưa tạo | QA | Chưa dùng |
-| REV-S04-001 | Chưa tạo | PM | Chưa dùng |
+| TR-S04-001 | [Test report](08_testing/02_TR-S04-001_sprint_04_test_report.md) | QA | Used (Draft — 15 PASS / 2 Not Run) |
+| REV-S04-001 | [Sprint review](09_review/01_REV-S04-001_sprint_04_review.md) | PM | Used (Draft — chờ ký) |
 
 ## 5. Việc chuyển tiếp từ Sprint 03
 
