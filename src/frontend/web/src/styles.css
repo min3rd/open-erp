@@ -185,11 +185,33 @@
   --op-radius-container: 6px;
 }
 
+/* --------------------------------------------------------------------------
+ * Theme style (FEAT-24): beyond colour, a theme also changes its surface
+ * treatment. Industrial stays flat + sharp (the ERP default); the alternative
+ * themes are softer (rounded controls) and lift raised panels with a shadow.
+ * -------------------------------------------------------------------------- */
+:root,
+[data-theme='industrial'] {
+  --op-panel-shadow: none;
+}
+
+[data-theme='slate-blue'],
+[data-theme='emerald'],
+[data-theme='amber'] {
+  --op-panel-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 2px 6px rgb(0 0 0 / 0.06);
+}
+
+.dark[data-theme='slate-blue'],
+.dark[data-theme='emerald'],
+.dark[data-theme='amber'] {
+  --op-panel-shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 2px 8px rgb(0 0 0 / 0.35);
+}
+
 /* Expose the semantic tokens as Tailwind utilities:
    bg-surface, bg-surface-muted, bg-surface-raised, text-ink, text-muted,
    border-default, bg-accent, text-accent, text-accent-contrast,
    bg-danger / text-danger, bg-warning / text-warning, bg-success / text-success,
-   rounded-control, rounded-container. */
+   rounded-control, rounded-container, shadow-panel. */
 @theme inline {
   --color-surface: var(--op-surface);
   --color-surface-muted: var(--op-surface-muted);
@@ -204,6 +226,7 @@
   --color-success: var(--op-success);
   --radius-control: var(--op-radius-control);
   --radius-container: var(--op-radius-container);
+  --shadow-panel: var(--op-panel-shadow);
 }
 
 /* ==========================================================================
