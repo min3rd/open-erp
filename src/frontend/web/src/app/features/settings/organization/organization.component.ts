@@ -1,7 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
 import {
   ApiErrorResponse,
   Branch,
@@ -11,6 +10,7 @@ import {
   Membership,
   RequirePermissionDirective,
   SharpButtonComponent,
+  SkeletonTableComponent,
   TableColumn,
   TableComponent,
   TranslatePipe,
@@ -61,6 +61,7 @@ const GRAPH_PADDING = 24;
     FormsModule,
     TableComponent,
     SharpButtonComponent,
+    SkeletonTableComponent,
     TranslatePipe,
     DepartmentFormDrawerComponent,
     BranchFormDrawerComponent,
@@ -80,7 +81,12 @@ export class OrganizationComponent implements OnInit {
   readonly branches = signal<Branch[]>([]);
   readonly departmentTree = signal<DepartmentNode[]>([]);
   readonly memberships = signal<Membership[]>([]);
-  readonly loading = signal<boolean>(false);
+  readonly branchesLoading = signal<boolean>(false);
+  readonly departmentsLoading = signal<boolean>(false);
+  readonly membershipsLoading = signal<boolean>(false);
+  readonly branchesError = signal<boolean>(false);
+  readonly departmentsError = signal<boolean>(false);
+  readonly membershipsError = signal<boolean>(false);
   readonly errorText = signal<string>('');
   readonly successText = signal<string>('');
 
@@ -359,31 +365,74 @@ export class OrganizationComponent implements OnInit {
     }
   }
 
+  /**
+   * Each region loads on its own so a slow/failed region never blocks the
+   * others (Sprint 04, TASK-367 / AC-12). Drawer state is applied when the
+   * branch + department regions settle.
+   */
   load() {
-    this.loading.set(true);
-    forkJoin({
-      branches: this.organization.getBranches(),
-      departments: this.organization.getDepartmentTree(),
-      memberships: this.organization.getMemberships()
-    }).subscribe({
-      next: ({ branches, departments, memberships }) => {
-        const tree = departments.data.items;
-        this.branches.set(branches.data.items);
-        this.departmentTree.set(tree);
-        this.memberships.set(memberships.data.items);
-        if (this.selectedId() && !this.findNode(tree, this.selectedId())) {
-          this.selectedId.set(null);
-        }
-        this.loading.set(false);
-        this.errorText.set('');
-        const state = this.pendingState ?? this.listState.current();
-        this.applyDrawerMode(state.mode ?? 'list', state.id ?? null);
+    this.loadBranches();
+    this.loadDepartments();
+    this.loadMemberships();
+  }
+
+  loadBranches() {
+    this.branchesLoading.set(true);
+    this.branchesError.set(false);
+    this.organization.getBranches().subscribe({
+      next: (res) => {
+        this.branches.set(res.data.items);
+        this.branchesLoading.set(false);
+        this.applyPendingDrawer();
       },
       error: (err) => {
-        this.loading.set(false);
+        this.branchesLoading.set(false);
+        this.branchesError.set(true);
         this.showError(err);
       }
     });
+  }
+
+  loadDepartments() {
+    this.departmentsLoading.set(true);
+    this.departmentsError.set(false);
+    this.organization.getDepartmentTree().subscribe({
+      next: (res) => {
+        const tree = res.data.items;
+        this.departmentTree.set(tree);
+        if (this.selectedId() && !this.findNode(tree, this.selectedId())) {
+          this.selectedId.set(null);
+        }
+        this.departmentsLoading.set(false);
+        this.applyPendingDrawer();
+      },
+      error: (err) => {
+        this.departmentsLoading.set(false);
+        this.departmentsError.set(true);
+        this.showError(err);
+      }
+    });
+  }
+
+  /** Member counts only decorate the chart; a failure must not block it. */
+  loadMemberships() {
+    this.membershipsLoading.set(true);
+    this.membershipsError.set(false);
+    this.organization.getMemberships().subscribe({
+      next: (res) => {
+        this.memberships.set(res.data.items);
+        this.membershipsLoading.set(false);
+      },
+      error: () => {
+        this.membershipsLoading.set(false);
+        this.membershipsError.set(true);
+      }
+    });
+  }
+
+  private applyPendingDrawer() {
+    const state = this.pendingState ?? this.listState.current();
+    this.applyDrawerMode(state.mode ?? 'list', state.id ?? null);
   }
 
   indentation(depth: number): string {

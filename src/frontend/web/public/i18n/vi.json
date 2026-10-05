@@ -6,6 +6,7 @@
   "COMMON_CONFIRM": "Xác nhận",
   "COMMON_LOADING": "Đang xử lý...",
   "COMMON_RETRY": "Thử lại",
+  "COMMON_LOAD_ERROR": "Không tải được dữ liệu.",
   "COMMON_ACTIVE": "Hoạt động",
   "COMMON_INACTIVE": "Ngừng hoạt động",
   "COMMON_ACCOUNT_SETTINGS": "Cài đặt tài khoản",

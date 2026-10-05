@@ -78,8 +78,13 @@
         </div>
       </div>
 
-      @if (loading()) {
-        <div class="px-2 py-3 text-center text-[11px] text-neutral-500">{{ 'COMMON_LOADING' | translate }}</div>
+      @if (departmentsError()) {
+        <div class="px-2 py-3 text-center text-[11px] text-neutral-500">
+          <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+          <button type="button" class="ml-2 underline" (click)="loadDepartments()">{{ 'COMMON_RETRY' | translate }}</button>
+        </div>
+      } @else if (departmentsLoading()) {
+        <app-skeleton-table [rows]="5" [columns]="2" />
       } @else if (viewMode() === 'list') {
         <div class="max-h-[540px] overflow-y-auto">
           @for (node of visibleOrgNodes(); track node.id) {
@@ -226,7 +231,13 @@
           {{ 'ORGANIZATION_BRANCHES' | translate }}
         </span>
       </div>
-      <app-table [columns]="branchColumns" [rows]="branches()" [loading]="loading()">
+      @if (branchesError()) {
+        <div class="border border-neutral-200 dark:border-neutral-800 border-t-0 px-2 py-3 text-center text-[11px] text-neutral-500">
+          <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+          <button type="button" class="ml-2 underline" (click)="loadBranches()">{{ 'COMMON_RETRY' | translate }}</button>
+        </div>
+      } @else {
+        <app-table [columns]="branchColumns" [rows]="branches()" [loading]="branchesLoading()">
         <ng-template let-b>
           <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50">
             <td class="px-2 py-1.5 font-mono text-[10px]">{{ b.code }}</td>
@@ -261,6 +272,7 @@
           </tr>
         </ng-template>
       </app-table>
+      }
     </section>
   </div>
 
