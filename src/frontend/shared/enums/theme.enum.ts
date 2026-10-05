@@ -28,3 +28,11 @@ export enum ThemeMode {
   LIGHT = 'LIGHT',
   DARK = 'DARK'
 }
+
+/** Tenant-wide theme id, synchronised with the backend theme registry. */
+export enum ThemeId {
+  INDUSTRIAL = 'industrial',
+  SLATE_BLUE = 'slate-blue',
+  EMERALD = 'emerald',
+  AMBER = 'amber'
+}

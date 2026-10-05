@@ -36,8 +36,6 @@ export class IconComponent {
 
   readonly pixels = computed(() => SIZE_PX[this.size()] ?? SIZE_PX[SizeVariant.SM]);
 
-  readonly ariaLabelKey = computed(() => (this.decorative() ? '' : this.labelKey()));
-
   readonly mirrorClass = computed(() => (this.rtlMirror() ? 'rtl:scale-x-[-1]' : ''));
 
   readonly markup = computed<SafeHtml>(() =>

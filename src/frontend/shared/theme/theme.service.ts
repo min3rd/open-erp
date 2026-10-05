@@ -1,7 +1,12 @@
-import { Injectable, signal } from '@angular/core';
-import { ThemeMode } from '../enums';
+import { Injectable, inject, signal } from '@angular/core';
+import { ThemeId, ThemeMode } from '../enums';
+import { DEFAULT_THEME_ID, isThemeId } from './theme-registry';
+import { TENANT_THEME_API } from './tenant-theme-api';
 
+/** Per-user light/dark MODE (back-compat key). */
 const THEME_STORAGE_KEY = 'openerp_theme';
+/** Per-tenant theme id cache. */
+const THEME_ID_STORAGE_KEY = 'openerp_theme_id';
 const DARK_MEDIA_QUERY = '(prefers-color-scheme: dark)';
 const IONIC_DARK_CLASS = 'ion-palette-dark';
 
@@ -9,8 +14,13 @@ const IONIC_DARK_CLASS = 'ion-palette-dark';
   providedIn: 'root'
 })
 export class ThemeService {
+  private api = inject(TENANT_THEME_API, { optional: true });
+
   private modeSignal = signal<ThemeMode>(ThemeMode.SYSTEM);
   public mode = this.modeSignal.asReadonly();
+
+  private themeIdSignal = signal<ThemeId>(this.readCachedThemeId());
+  public themeId = this.themeIdSignal.asReadonly();
 
   private initialized = false;
   private mediaQuery: MediaQueryList | null = null;
@@ -48,6 +58,52 @@ export class ThemeService {
     this.applyTheme();
   }
 
+  /**
+   * Selects the tenant theme. Applies + caches locally, then (when the user may
+   * manage tenant settings) persists it through the tenant UI-preferences API.
+   */
+  setTheme(id: ThemeId): void {
+    if (!this.initialized) {
+      this.init();
+    }
+    this.applyTenantTheme(id);
+    if (this.api?.canManage()) {
+      this.api.updateTheme(id).subscribe({ error: () => {} });
+    }
+  }
+
+  /**
+   * Fetches the tenant theme once after login and applies it. Safe to call on
+   * every authenticated transition; it does not overwrite on failure.
+   */
+  loadTenantTheme(): void {
+    if (!this.api) {
+      return;
+    }
+    this.api.fetchTheme().subscribe({
+      next: (id) => {
+        if (isThemeId(id)) {
+          this.applyTenantTheme(id);
+        }
+      },
+      error: () => {}
+    });
+  }
+
+  private applyTenantTheme(id: ThemeId): void {
+    this.themeIdSignal.set(id);
+    localStorage.setItem(THEME_ID_STORAGE_KEY, id);
+    this.applyTheme();
+  }
+
+  private readCachedThemeId(): ThemeId {
+    if (typeof localStorage === 'undefined') {
+      return DEFAULT_THEME_ID;
+    }
+    const cached = localStorage.getItem(THEME_ID_STORAGE_KEY);
+    return isThemeId(cached) ? cached : DEFAULT_THEME_ID;
+  }
+
   private isDark(): boolean {
     const mode = this.modeSignal();
     if (mode === ThemeMode.DARK) {
@@ -67,6 +123,8 @@ export class ThemeService {
     }
     const dark = this.isDark();
     const root = document.documentElement;
+    root.setAttribute('data-theme', this.themeIdSignal());
+    root.setAttribute('data-mode', dark ? 'dark' : 'light');
     root.classList.toggle('dark', dark);
     root.classList.toggle(IONIC_DARK_CLASS, dark);
     root.style.colorScheme = dark ? 'dark' : 'light';

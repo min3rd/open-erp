@@ -18,7 +18,7 @@ export class TableComponent {
   rowTemplate = contentChild.required(TemplateRef);
 
   headerClasses(column: TableColumn): string {
-    const base = 'px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 whitespace-nowrap border-b border-neutral-200 dark:border-neutral-800';
+    const base = 'px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted whitespace-nowrap border-b border-default';
     const align = column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left';
     const mono = column.mono ? ' font-mono' : '';
     return `${base} ${align}${mono}`;

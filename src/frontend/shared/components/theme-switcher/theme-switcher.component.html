@@ -1,25 +1,42 @@
-<div class="inline-flex items-center gap-1.5 text-[11px] font-mono select-none">
-  <span class="text-neutral-400 dark:text-neutral-500 font-semibold text-[10px] uppercase" [appTranslate]="'COMMON_THEME'"></span>
-  <div class="inline-flex border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800">
-    @for (item of modes; track item.mode; let last = $last) {
-      <button
-        type="button"
-        (click)="setMode(item.mode)"
-        [attr.aria-pressed]="theme.mode() === item.mode"
-        [attr.title]="item.label | translate"
-        [class.bg-neutral-900]="theme.mode() === item.mode"
-        [class.text-white]="theme.mode() === item.mode"
-        [class.dark:bg-white]="theme.mode() === item.mode"
-        [class.dark:text-neutral-900]="theme.mode() === item.mode"
-        [class.text-neutral-600]="theme.mode() !== item.mode"
-        [class.dark:text-neutral-400]="theme.mode() !== item.mode"
-        class="px-2 py-0.5 text-[11px] font-mono font-medium rounded-none hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer max-sm:min-h-10 max-sm:min-w-10 max-sm:inline-flex max-sm:items-center max-sm:justify-center"
-      >
-        {{ item.label | translate }}
-      </button>
-      @if (!last) {
-        <div class="w-[1px] bg-neutral-300 dark:bg-neutral-700"></div>
+<div class="flex flex-col gap-1.5 text-[11px] font-mono select-none">
+  <!-- Tenant theme (owner/admin only). Mode below stays per user. -->
+  <div *appRequirePermission="themePermission" class="inline-flex items-center gap-1.5">
+    <span class="erp-switcher-label text-muted font-semibold text-[10px] uppercase" [appTranslate]="'THEME_LABEL'"></span>
+    <select
+      (change)="onThemeChange($event)"
+      [attr.aria-label]="'THEME_LABEL' | translate"
+      class="border border-default bg-surface text-ink px-1.5 py-0.5 text-[11px] font-mono rounded-control cursor-pointer max-sm:min-h-10"
+    >
+      @for (item of themes; track item.id) {
+        <option [value]="item.id" [selected]="theme.themeId() === item.id">
+          {{ item.nameKey | translate }}
+        </option>
       }
-    }
+    </select>
+  </div>
+
+  <!-- Light/dark mode (always available, per user) -->
+  <div class="inline-flex items-center gap-1.5">
+    <span class="erp-switcher-label text-muted font-semibold text-[10px] uppercase" [appTranslate]="'COMMON_THEME'"></span>
+    <div class="inline-flex border border-default bg-surface-muted rounded-control overflow-hidden">
+      @for (item of modes; track item.mode; let last = $last) {
+        <button
+          type="button"
+          (click)="setMode(item.mode)"
+          [attr.aria-pressed]="theme.mode() === item.mode"
+          [attr.title]="item.label | translate"
+          [class.bg-accent]="theme.mode() === item.mode"
+          [class.text-accent-contrast]="theme.mode() === item.mode"
+          [class.text-muted]="theme.mode() !== item.mode"
+          [class.hover:bg-surface-raised]="theme.mode() !== item.mode"
+          class="px-2 py-0.5 text-[11px] font-mono font-medium transition-colors cursor-pointer max-sm:min-h-10 max-sm:min-w-10 max-sm:inline-flex max-sm:items-center max-sm:justify-center"
+        >
+          {{ item.label | translate }}
+        </button>
+        @if (!last) {
+          <div class="w-[1px] bg-default"></div>
+        }
+      }
+    </div>
   </div>
 </div>

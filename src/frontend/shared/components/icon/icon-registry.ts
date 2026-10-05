@@ -21,11 +21,9 @@ import { IconName, IconNameValue } from '../../enums';
 export interface IconDefinition {
   /** Inner SVG markup, rendered inside the shared `<svg>` shell. */
   contents: string;
-  /** Default attributes shipped with the upstream icon (viewBox, stroke, ...). */
-  attrs: Record<string, string>;
 }
 
 export function getIcon(name: IconName | IconNameValue): IconDefinition {
   const icon = featherIcons.icons[name];
-  return icon ? { contents: icon.contents, attrs: icon.attrs } : { contents: '', attrs: {} };
+  return icon ? { contents: icon.contents } : { contents: '' };
 }

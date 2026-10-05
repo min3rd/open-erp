@@ -9,7 +9,210 @@
    otherwise shared-only utilities (fixed/inset/shadow/dark:*) are never generated. */
 @source '../../shared';
 
+/* ==========================================================================
+ * Theme token layer (TASK-355)
+ *
+ * Convention: theme id -> `[data-theme="<id>"]`, mode -> `.dark` class, both on
+ * <html>. Light = `:root` / `[data-theme="<id>"]`; dark = `.dark` /
+ * `[data-theme="<id>"].dark`. Dark blocks come after the light ones so equal
+ * specificity resolves in dark's favour. All values meet WCAG AA for body text.
+ *
+ * ponytail: TASK-358 still needs to migrate the remaining screens off raw
+ * neutral / sky / rose / amber utilities (auth pages, settings feature pages,
+ * platform portal, account drawer, pagination, inputs/selects/toggles/drawer).
+ * Already on semantic tokens: topbar, section-nav, mobile-nav-drawer, table,
+ * sharp-button primary, badge, dashboard and settings-layout.
+ * ========================================================================== */
+
+:root {
+  /* Industrial = default look (neutral greys), kept identical to pre-theme UI. */
+  --op-surface: #ffffff;
+  --op-surface-muted: #f5f5f5;
+  --op-surface-raised: #ffffff;
+  --op-text: #171717;
+  --op-text-muted: #737373;
+  --op-border: #e5e5e5;
+  --op-accent: #171717;
+  --op-accent-contrast: #ffffff;
+  --op-danger: #dc2626;
+  --op-warning: #d97706;
+  --op-success: #059669;
+  --op-radius-control: 0px;
+  --op-radius-container: 0px;
+}
+
+[data-theme='industrial'] {
+  --op-surface: #ffffff;
+  --op-surface-muted: #f5f5f5;
+  --op-surface-raised: #ffffff;
+  --op-text: #171717;
+  --op-text-muted: #737373;
+  --op-border: #e5e5e5;
+  --op-accent: #171717;
+  --op-accent-contrast: #ffffff;
+  --op-danger: #dc2626;
+  --op-warning: #d97706;
+  --op-success: #059669;
+  --op-radius-control: 0px;
+  --op-radius-container: 0px;
+}
+
+[data-theme='slate-blue'] {
+  --op-surface: #ffffff;
+  --op-surface-muted: #f1f5f9;
+  --op-surface-raised: #ffffff;
+  --op-text: #0f172a;
+  --op-text-muted: #475569;
+  --op-border: #cbd5e1;
+  --op-accent: #2563eb;
+  --op-accent-contrast: #ffffff;
+  --op-danger: #dc2626;
+  --op-warning: #d97706;
+  --op-success: #059669;
+  --op-radius-control: 4px;
+  --op-radius-container: 6px;
+}
+
+[data-theme='emerald'] {
+  --op-surface: #ffffff;
+  --op-surface-muted: #ecfdf5;
+  --op-surface-raised: #ffffff;
+  --op-text: #111827;
+  --op-text-muted: #4b5563;
+  --op-border: #d1d5db;
+  --op-accent: #047857;
+  --op-accent-contrast: #ffffff;
+  --op-danger: #dc2626;
+  --op-warning: #b45309;
+  --op-success: #047857;
+  --op-radius-control: 4px;
+  --op-radius-container: 6px;
+}
+
+[data-theme='amber'] {
+  --op-surface: #ffffff;
+  --op-surface-muted: #fffbeb;
+  --op-surface-raised: #ffffff;
+  --op-text: #1c1917;
+  --op-text-muted: #57534e;
+  --op-border: #d6d3d1;
+  --op-accent: #b45309;
+  --op-accent-contrast: #ffffff;
+  --op-danger: #dc2626;
+  --op-warning: #b45309;
+  --op-success: #047857;
+  --op-radius-control: 4px;
+  --op-radius-container: 6px;
+}
+
+.dark {
+  --op-surface: #171717;
+  --op-surface-muted: #0a0a0a;
+  --op-surface-raised: #171717;
+  --op-text: #f5f5f5;
+  --op-text-muted: #a3a3a3;
+  --op-border: #262626;
+  --op-accent: #f5f5f5;
+  --op-accent-contrast: #171717;
+  --op-danger: #f87171;
+  --op-warning: #fbbf24;
+  --op-success: #34d399;
+  --op-radius-control: 0px;
+  --op-radius-container: 0px;
+}
+
+[data-theme='industrial'].dark {
+  --op-surface: #171717;
+  --op-surface-muted: #0a0a0a;
+  --op-surface-raised: #171717;
+  --op-text: #f5f5f5;
+  --op-text-muted: #a3a3a3;
+  --op-border: #262626;
+  --op-accent: #f5f5f5;
+  --op-accent-contrast: #171717;
+  --op-danger: #f87171;
+  --op-warning: #fbbf24;
+  --op-success: #34d399;
+  --op-radius-control: 0px;
+  --op-radius-container: 0px;
+}
+
+[data-theme='slate-blue'].dark {
+  --op-surface: #0f172a;
+  --op-surface-muted: #020617;
+  --op-surface-raised: #1e293b;
+  --op-text: #f1f5f9;
+  --op-text-muted: #94a3b8;
+  --op-border: #334155;
+  --op-accent: #60a5fa;
+  --op-accent-contrast: #0f172a;
+  --op-danger: #f87171;
+  --op-warning: #fbbf24;
+  --op-success: #34d399;
+  --op-radius-control: 4px;
+  --op-radius-container: 6px;
+}
+
+[data-theme='emerald'].dark {
+  --op-surface: #111827;
+  --op-surface-muted: #030712;
+  --op-surface-raised: #1f2937;
+  --op-text: #f9fafb;
+  --op-text-muted: #9ca3af;
+  --op-border: #374151;
+  --op-accent: #34d399;
+  --op-accent-contrast: #052e16;
+  --op-danger: #f87171;
+  --op-warning: #fbbf24;
+  --op-success: #4ade80;
+  --op-radius-control: 4px;
+  --op-radius-container: 6px;
+}
+
+[data-theme='amber'].dark {
+  --op-surface: #1c1917;
+  --op-surface-muted: #0c0a09;
+  --op-surface-raised: #292524;
+  --op-text: #fafaf9;
+  --op-text-muted: #a8a29e;
+  --op-border: #44403c;
+  --op-accent: #fbbf24;
+  --op-accent-contrast: #451a03;
+  --op-danger: #f87171;
+  --op-warning: #fbbf24;
+  --op-success: #34d399;
+  --op-radius-control: 4px;
+  --op-radius-container: 6px;
+}
+
+/* Expose the semantic tokens as Tailwind utilities:
+   bg-surface, bg-surface-muted, bg-surface-raised, text-ink, text-muted,
+   border-default, bg-accent, text-accent, text-accent-contrast,
+   bg-danger / text-danger, bg-warning / text-warning, bg-success / text-success,
+   rounded-control, rounded-container. */
+@theme inline {
+  --color-surface: var(--op-surface);
+  --color-surface-muted: var(--op-surface-muted);
+  --color-surface-raised: var(--op-surface-raised);
+  --color-ink: var(--op-text);
+  --color-muted: var(--op-text-muted);
+  --color-default: var(--op-border);
+  --color-accent: var(--op-accent);
+  --color-accent-contrast: var(--op-accent-contrast);
+  --color-danger: var(--op-danger);
+  --color-warning: var(--op-warning);
+  --color-success: var(--op-success);
+  --radius-control: var(--op-radius-control);
+  --radius-container: var(--op-radius-container);
+}
+
 @layer base {
+  html,
+  body {
+    background-color: var(--op-surface-muted);
+    color: var(--op-text);
+  }
+
   button:not(:disabled),
   [role='button']:not([aria-disabled='true']),
   summary,
@@ -44,7 +247,7 @@
     min-height: 40px;
   }
 
-  app-theme-switcher > div > span,
+  app-theme-switcher .erp-switcher-label,
   app-language-switcher > div > span {
     display: none;
   }

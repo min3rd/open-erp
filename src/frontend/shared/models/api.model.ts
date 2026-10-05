@@ -10,6 +10,7 @@ import {
   TenantPlanTier,
   TenantStatus,
   TenantType,
+  ThemeId,
   UserStatus
 } from '../enums';
 
@@ -433,4 +434,13 @@ export interface SampleRecordExportData {
 
 export interface FlatDepartmentNode extends DepartmentNode {
   depth: number;
+}
+
+// ---------------------------------------------------------------------------
+// Sprint 04: Tenant UI Preferences (theme)
+// ---------------------------------------------------------------------------
+
+export interface UiPreferencesData {
+  theme: ThemeId;
+  available_themes: ThemeId[];
 }

@@ -73,5 +73,9 @@ export enum ResponseKey {
   CONFIRM_TEXT = 'confirm_text',
   AFFECTED_TENANTS = 'affected_tenants',
   DIGEST = 'digest',
-  CREDENTIAL_ID = 'credential_id'
+  CREDENTIAL_ID = 'credential_id',
+
+  // Tenant UI Preferences (Sprint 04)
+  THEME = 'theme',
+  AVAILABLE_THEMES = 'available_themes'
 }

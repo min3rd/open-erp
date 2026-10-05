@@ -1,6 +1,6 @@
-<div class="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 overflow-x-auto">
+<div class="border border-default bg-surface overflow-x-auto">
   <table class="w-full text-xs border-collapse">
-    <thead class="bg-neutral-50 dark:bg-neutral-950">
+    <thead class="bg-surface-muted">
       <tr>
         @for (column of columns(); track column.key) {
           <th [class]="headerClasses(column)" [style.width]="column.width || 'auto'">
@@ -9,16 +9,16 @@
         }
       </tr>
     </thead>
-    <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+    <tbody class="divide-y divide-default">
       @if (loading()) {
         <tr>
-          <td [attr.colspan]="columns().length" class="px-2 py-6 text-center text-neutral-500 dark:text-neutral-400">
+          <td [attr.colspan]="columns().length" class="px-2 py-6 text-center text-muted">
             {{ 'COMMON_LOADING' | translate }}
           </td>
         </tr>
       } @else if (!rows().length) {
         <tr>
-          <td [attr.colspan]="columns().length" class="px-2 py-6 text-center text-neutral-500 dark:text-neutral-400">
+          <td [attr.colspan]="columns().length" class="px-2 py-6 text-center text-muted">
             {{ emptyKey() | translate }}
           </td>
         </tr>

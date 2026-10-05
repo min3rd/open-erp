@@ -7,21 +7,21 @@
 >
   <div class="space-y-4">
     <!-- Account summary -->
-    <div class="flex items-start gap-2.5 pb-3 border-b border-neutral-200 dark:border-neutral-800">
-      <div class="w-9 h-9 shrink-0 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center text-sm font-bold select-none">
+    <div class="flex items-start gap-2.5 pb-3 border-b border-default">
+      <div class="w-9 h-9 shrink-0 bg-accent text-accent-contrast flex items-center justify-center text-sm font-bold select-none">
         {{ userInitial() }}
       </div>
       <div class="min-w-0 flex-1">
-        <p class="text-xs font-semibold truncate text-neutral-900 dark:text-neutral-100">
+        <p class="text-xs font-semibold truncate text-ink">
           {{ displayName() }}
         </p>
         @if (userEmail()) {
-          <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
+          <p class="text-[11px] text-muted truncate">
             {{ userEmail() }}
           </p>
         }
         @if (tenantName()) {
-          <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
+          <p class="text-[11px] text-muted truncate mt-0.5">
             {{ 'DASHBOARD_ORGANIZATION' | translate:{ name: tenantName() } }}
           </p>
         }
@@ -35,10 +35,10 @@
     <nav class="space-y-0.5" [attr.aria-label]="'COMMON_MENU' | translate">
       <a
         routerLink="/dashboard"
-        routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+        routerLinkActive="bg-surface-muted text-ink font-semibold"
         [routerLinkActiveOptions]="{ exact: true }"
         (click)="onNavigate()"
-        class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+        class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-muted hover:bg-surface-muted transition-colors"
       >
         <app-icon name="grid" [decorative]="true" />
         <span>{{ 'COMMON_DASHBOARD' | translate }}</span>
@@ -46,9 +46,9 @@
 
       <a
         routerLink="/account/detail"
-        routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+        routerLinkActive="bg-surface-muted text-ink font-semibold"
         (click)="onNavigate()"
-        class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+        class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-muted hover:bg-surface-muted transition-colors"
       >
         <app-icon name="user" [decorative]="true" />
         <span>{{ 'ACCOUNT_TAB_PROFILE' | translate }}</span>
@@ -56,9 +56,9 @@
 
       <a
         routerLink="/account/security"
-        routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+        routerLinkActive="bg-surface-muted text-ink font-semibold"
         (click)="onNavigate()"
-        class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+        class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-muted hover:bg-surface-muted transition-colors"
       >
         <app-icon name="shield" [decorative]="true" />
         <span>{{ 'ACCOUNT_TAB_SECURITY' | translate }}</span>
@@ -66,9 +66,9 @@
 
       <a
         routerLink="/account/sessions"
-        routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+        routerLinkActive="bg-surface-muted text-ink font-semibold"
         (click)="onNavigate()"
-        class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+        class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-muted hover:bg-surface-muted transition-colors"
       >
         <app-icon name="monitor" [decorative]="true" />
         <span>{{ 'ACCOUNT_TAB_SESSIONS' | translate }}</span>
@@ -78,16 +78,16 @@
     <!-- Tenant settings (permission-gated) -->
     @if (showTenantSettings()) {
       <nav class="pt-2 space-y-0.5" [attr.aria-label]="'SETTINGS_SECTION_TITLE' | translate">
-        <p class="px-2 text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
+        <p class="px-2 text-[10px] font-bold uppercase tracking-wider text-muted">
           {{ 'SETTINGS_SECTION_TITLE' | translate }}
         </p>
 
         @if (canManageRoles()) {
           <a
             routerLink="/settings/roles"
-            routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+            routerLinkActive="bg-surface-muted text-ink font-semibold"
             (click)="onNavigate()"
-            class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-muted hover:bg-surface-muted transition-colors"
           >
             <app-icon name="key" [decorative]="true" />
             <span>{{ 'IAM_ROLE_MANAGEMENT' | translate }}</span>
@@ -97,9 +97,9 @@
         @if (canManageOrganization()) {
           <a
             routerLink="/settings/organization"
-            routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+            routerLinkActive="bg-surface-muted text-ink font-semibold"
             (click)="onNavigate()"
-            class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-muted hover:bg-surface-muted transition-colors"
           >
             <app-icon name="home" [decorative]="true" />
             <span>{{ 'ORGANIZATION_STRUCTURE' | translate }}</span>
@@ -109,9 +109,9 @@
         @if (canViewSampleRecords()) {
           <a
             routerLink="/settings/sample-records"
-            routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+            routerLinkActive="bg-surface-muted text-ink font-semibold"
             (click)="onNavigate()"
-            class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-muted hover:bg-surface-muted transition-colors"
           >
             <app-icon name="file-text" [decorative]="true" />
             <span>{{ 'SAMPLE_RECORDS_TITLE' | translate }}</span>
@@ -121,9 +121,9 @@
         @if (canViewPlugins()) {
           <a
             routerLink="/settings/plugins"
-            routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+            routerLinkActive="bg-surface-muted text-ink font-semibold"
             (click)="onNavigate()"
-            class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-muted hover:bg-surface-muted transition-colors"
           >
             <app-icon name="package" [decorative]="true" />
             <span>{{ 'PLUGIN_MARKETPLACE_TITLE' | translate }}</span>
@@ -140,9 +140,9 @@
         </p>
         <a
           routerLink="/platform/emergency"
-          routerLinkActive="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-semibold"
+          routerLinkActive="bg-surface-muted text-ink font-semibold"
           (click)="onNavigate()"
-          class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-muted hover:bg-surface-muted transition-colors"
         >
           <app-icon name="alert-triangle" [decorative]="true" />
           <span>{{ 'PLATFORM_EMERGENCY_TITLE' | translate }}</span>
@@ -151,7 +151,7 @@
     }
 
     <!-- Preferences -->
-    <div class="pt-3 border-t border-neutral-200 dark:border-neutral-800 space-y-2.5">
+    <div class="pt-3 border-t border-default space-y-2.5">
       <app-language-switcher />
       <app-theme-switcher />
     </div>

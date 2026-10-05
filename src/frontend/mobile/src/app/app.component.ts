@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { IonApp, IonMenu, IonRouterOutlet, MenuController } from '@ionic/angular/standalone';
 import { MobileNavDrawerComponent, ThemeService } from '@shared';
 import { AuthService } from './core/auth.service';
@@ -30,6 +30,12 @@ export class AppComponent {
 
   constructor() {
     this.theme.init();
+    // Apply the tenant theme once per authenticated transition.
+    effect(() => {
+      if (this.auth.isAuthenticated()) {
+        this.theme.loadTenantTheme();
+      }
+    });
   }
 
   closeMenu() {

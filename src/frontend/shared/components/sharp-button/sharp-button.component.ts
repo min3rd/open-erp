@@ -29,7 +29,7 @@ export class SharpButtonComponent {
     const base = 'inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors select-none focus:outline-none focus:ring-1 focus:ring-neutral-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
 
     const shape = this.shape() as string;
-    const shapeCls = shape === ShapeVariant.SOFT || shape === 'soft' ? 'rounded-sm' : 'rounded-none';
+    const shapeCls = shape === ShapeVariant.SOFT || shape === 'soft' ? 'rounded-control' : 'rounded-none';
 
     let sizeCls = 'px-3 py-1.5 text-xs';
     if (this.size() === SizeVariant.SM || (this.size() as string) === 'sm') {
@@ -43,7 +43,7 @@ export class SharpButtonComponent {
     switch (v) {
       case ColorVariant.PRIMARY:
       case 'primary':
-        variantCls = 'bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200 border border-transparent';
+        variantCls = 'bg-accent text-accent-contrast hover:bg-accent/90 border border-transparent';
         break;
       case ColorVariant.SECONDARY:
       case 'secondary':

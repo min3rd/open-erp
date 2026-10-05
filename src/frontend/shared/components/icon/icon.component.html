@@ -10,6 +10,6 @@
   [class]="mirrorClass()"
   [attr.aria-hidden]="decorative() ? 'true' : null"
   [attr.role]="decorative() ? null : 'img'"
-  [attr.aria-label]="ariaLabelKey() ? (ariaLabelKey() | translate) : null"
+  [attr.aria-label]="!decorative() && labelKey() ? (labelKey() | translate) : null"
   [innerHTML]="markup()"
 ></svg>

@@ -9,11 +9,15 @@
   <script>
     (function () {
       try {
-        var saved = localStorage.getItem('openerp_theme');
-        var isDark = saved === 'DARK' || ((!saved || saved === 'SYSTEM') &&
+        var root = document.documentElement;
+        var mode = localStorage.getItem('openerp_theme');
+        var theme = localStorage.getItem('openerp_theme_id') || 'industrial';
+        var isDark = mode === 'DARK' || ((!mode || mode === 'SYSTEM') &&
           window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        document.documentElement.classList.toggle('dark', isDark);
-        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+        root.setAttribute('data-theme', theme);
+        root.setAttribute('data-mode', isDark ? 'dark' : 'light');
+        root.classList.toggle('dark', isDark);
+        root.style.colorScheme = isDark ? 'dark' : 'light';
       } catch (e) { /* ignore */ }
     })();
   </script>
