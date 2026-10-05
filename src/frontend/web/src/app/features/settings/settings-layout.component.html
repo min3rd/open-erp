@@ -17,8 +17,9 @@
   />
 
   <!-- Menu placement is a per-user preference (AUTO = the colour theme's own
-       default): left rail, right rail, icon rail (narrow), compact rail,
-       horizontal bar with dropdown levels, or a drawer. -->
+       default): a vertical rail (left/right), a horizontal bar, or a drawer.
+       How the rail is displayed is controlled by the collapse action inside
+       the menu itself, not by the layout choice. -->
   @if (navTop()) {
     <div class="border-b border-default bg-sidebar px-2">
       <app-section-nav variant="bar" [items]="menuItems()" titleKey="SETTINGS_SECTION_TITLE" />
@@ -46,7 +47,13 @@
         [class]="'lg:shrink-0 border-b lg:border-b-0 border-default bg-sidebar p-1.5 ' + railWidth()
           + (navRight() ? ' lg:border-l' : ' lg:border-r')"
       >
-        <app-section-nav [variant]="navVariant()" [items]="menuItems()" titleKey="SETTINGS_SECTION_TITLE" />
+        <app-section-nav
+          [variant]="navVariant()"
+          [items]="menuItems()"
+          [collapsed]="railCollapsed()"
+          (toggleCollapse)="toggleRail()"
+          titleKey="SETTINGS_SECTION_TITLE"
+        />
       </aside>
     }
 

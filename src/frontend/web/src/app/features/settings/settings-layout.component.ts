@@ -17,6 +17,9 @@ import {
   TranslatePipe
 } from '@shared';
 
+/** Vertical rail display state (the in-menu collapse action). */
+const MENU_STORAGE_KEY = 'openerp_menu_collapsed';
+
 /** A settings menu entry: a leaf (path) or a group with children. */
 interface SettingsMenuNode {
   path?: string;
@@ -56,31 +59,14 @@ export class SettingsLayoutComponent implements OnInit {
   /** Side rail (left/right edge) instead of the bar/drawer. */
   readonly navRail = computed(() => !this.navTop() && !this.navDrawer());
 
-  /** Menu markup for the current layout: icon rail, compact rail or top bar. */
-  readonly navVariant = computed<SectionNavVariant>(() => {
-    switch (this.theme.navLayout()) {
-      case LayoutId.NARROW:
-        return 'icons';
-      case LayoutId.COMPACT:
-        return 'compact';
-      case LayoutId.TOP:
-        return 'bar';
-      default:
-        return 'rail';
-    }
-  });
+  /** Vertical rail display state, toggled by the action icon inside the menu. */
+  readonly railCollapsed = signal(this.readCollapsedState());
 
-  /** Rail width for the current layout (narrow = icon strip). */
-  readonly railWidth = computed(() => {
-    switch (this.theme.navLayout()) {
-      case LayoutId.NARROW:
-        return 'lg:w-12';
-      case LayoutId.COMPACT:
-        return 'lg:w-40';
-      default:
-        return 'lg:w-56';
-    }
-  });
+  /** Menu markup for the current placement: vertical rail or horizontal bar. */
+  readonly navVariant = computed<SectionNavVariant>(() => this.navTop() ? 'bar' : 'rail');
+
+  /** Rail width: full labels or the icon-only strip. */
+  readonly railWidth = computed(() => this.railCollapsed() ? 'lg:w-12' : 'lg:w-64');
 
   readonly notifications = signal<PluginNotification[]>([]);
 
@@ -174,6 +160,19 @@ export class SettingsLayoutComponent implements OnInit {
   /** No permission on the node = visible to everyone (claim-absent fallback). */
   private canSee(permission?: string): boolean {
     return !permission || this.auth.hasPermission(permission) !== false;
+  }
+
+  /** Toggles the vertical rail between labels and icons only. */
+  toggleRail(): void {
+    const collapsed = !this.railCollapsed();
+    this.railCollapsed.set(collapsed);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(MENU_STORAGE_KEY, collapsed ? '1' : '0');
+    }
+  }
+
+  private readCollapsedState(): boolean {
+    return typeof localStorage !== 'undefined' && localStorage.getItem(MENU_STORAGE_KEY) === '1';
   }
 
   openAccount() {

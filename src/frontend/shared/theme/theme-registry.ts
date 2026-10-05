@@ -75,8 +75,6 @@ export const LAYOUT_REGISTRY: readonly LayoutOption[] = [
   { id: LayoutId.AUTO, nameKey: 'LAYOUT_AUTO' },
   { id: LayoutId.SIDE, nameKey: 'LAYOUT_SIDE' },
   { id: LayoutId.RIGHT, nameKey: 'LAYOUT_RIGHT' },
-  { id: LayoutId.NARROW, nameKey: 'LAYOUT_NARROW' },
-  { id: LayoutId.COMPACT, nameKey: 'LAYOUT_COMPACT' },
   { id: LayoutId.TOP, nameKey: 'LAYOUT_TOP' },
   { id: LayoutId.DRAWER, nameKey: 'LAYOUT_DRAWER' }
 ];

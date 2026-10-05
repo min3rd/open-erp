@@ -1,8 +1,8 @@
-import { Component, ElementRef, HostListener, computed, inject, input } from '@angular/core';
+import { Component, ElementRef, HostListener, computed, inject, input, output, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
-import { IconNameValue, SizeVariant } from '../../enums';
+import { IconName, IconNameValue, SizeVariant } from '../../enums';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { IconComponent } from '../icon/icon.component';
 
@@ -12,26 +12,21 @@ export interface SectionNavItem {
   labelKey: string;
   /** Feather icon id; shown by every variant that has room for it. */
   icon?: IconNameValue;
-  /** Second level — an expandable group in the rail variants, a dropdown in `bar`. */
+  /** Second level — an expandable group in the rail, a dropdown in `bar`. */
   children?: ReadonlyArray<SectionNavItem>;
 }
 
-/** How the section menu is laid out (mirrors the user's menu-layout choice). */
-export type SectionNavVariant =
-  /** Full-width vertical rail with icon + label (left/right sidebar, drawer). */
-  | 'rail'
-  /** Narrow rail with icon + label and tighter rows. */
-  | 'compact'
-  /** Icon-only rail; the label becomes the tooltip/accessible name. */
-  | 'icons'
-  /** Horizontal bar under the topbar; groups open a dropdown (multi-level). */
-  | 'bar';
+/**
+ * Menu placement only: a vertical rail (`rail`) or a horizontal bar (`bar`).
+ * How the rail is *displayed* (expanded vs icon-only) is not a layout — it is the
+ * collapse action inside the menu itself.
+ */
+export type SectionNavVariant = 'rail' | 'bar';
 
 /**
  * Section navigation shared by the tenant settings area and the platform portal.
- * The variant is chosen by the user's menu-layout preference (see LayoutId).
- * Groups (items with `children`) expand in place on a rail and open a dropdown
- * on the bar; the group holding the current page starts expanded.
+ * Groups (items with `children`) are expanded by default and can be collapsed
+ * one by one; the group holding the current page is always shown expanded.
  */
 @Component({
   selector: 'app-section-nav',
@@ -43,7 +38,7 @@ export class SectionNavComponent {
   private host = inject(ElementRef<HTMLElement>);
   private router = inject(Router);
 
-  /** Current URL, so the group holding the active page can start expanded. */
+  /** Current URL, so the group holding the active page can stay expanded. */
   private currentUrl = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
@@ -55,11 +50,29 @@ export class SectionNavComponent {
   items = input<ReadonlyArray<SectionNavItem>>([]);
   titleKey = input<string>('');
   variant = input<SectionNavVariant>('rail');
+  /** Icon-only rail (controlled by the collapse action in the menu header). */
+  collapsed = input<boolean>(false);
 
-  /** Row sizing for the vertical variants (rail is roomier than compact). */
-  readonly railRow = computed(() => this.variant() === 'compact'
-    ? { row: 'min-h-8 gap-1.5 px-2 py-1 text-[11px]', icon: SizeVariant.XS, indent: 'ps-4' }
-    : { row: 'min-h-10 lg:min-h-8 gap-2 px-2.5 py-1.5 text-xs', icon: SizeVariant.SM, indent: 'ps-6' });
+  /** Emitted by the collapse action in the menu header. */
+  toggleCollapse = output<void>();
+
+  /** Groups the user collapsed by hand (everything else stays expanded). */
+  private readonly closedGroups = signal<ReadonlySet<string>>(new Set());
+
+  readonly chevronsLeft = IconName.CHEVRONS_LEFT;
+  readonly chevronsRight = IconName.CHEVRONS_RIGHT;
+
+  /** Row sizing; the collapsed rail centres a single icon per row. */
+  readonly rowClass = computed(() => this.collapsed()
+    ? 'min-h-9 justify-center px-1 py-1.5 text-xs'
+    : 'min-h-10 lg:min-h-8 gap-2 px-2.5 py-1.5 text-xs');
+
+  readonly iconSize = computed(() => this.collapsed() ? SizeVariant.MD : SizeVariant.SM);
+
+  /** A group stays open unless the user closed it (active group never hides). */
+  isGroupOpen(item: SectionNavItem): boolean {
+    return this.groupActive(item) || !this.closedGroups().has(item.labelKey);
+  }
 
   /** True when one of the group's children is the page currently open. */
   groupActive(item: SectionNavItem): boolean {
@@ -67,8 +80,20 @@ export class SectionNavComponent {
     return !!item.children?.some((child) => !!child.path && url.startsWith(child.path));
   }
 
+  /** Remembers the open/closed state of a group (rail variant). */
+  onGroupToggle(item: SectionNavItem, target: EventTarget | null): void {
+    const open = (target as HTMLDetailsElement | null)?.open ?? true;
+    const next = new Set(this.closedGroups());
+    if (open) {
+      next.delete(item.labelKey);
+    } else {
+      next.add(item.labelKey);
+    }
+    this.closedGroups.set(next);
+  }
+
   /** Keeps at most one dropdown open at a time (bar variant). */
-  onToggle(target: EventTarget | null): void {
+  onBarToggle(target: EventTarget | null): void {
     const details = target as HTMLDetailsElement | null;
     if (!details?.open) {
       return;
@@ -80,7 +105,7 @@ export class SectionNavComponent {
     });
   }
 
-  /** Closes every expanded group/dropdown (navigation, outside click, Escape). */
+  /** Closes every bar dropdown (navigation, outside click, Escape). */
   closeOpenMenus(): void {
     this.host.nativeElement
       .querySelectorAll('details[open]')
@@ -89,8 +114,7 @@ export class SectionNavComponent {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    // Only the horizontal bar behaves like a dropdown; rail groups stay
-    // expanded until the user collapses them.
+    // Only the horizontal bar behaves like a dropdown; rail groups stay open.
     if (this.variant() !== 'bar') {
       return;
     }

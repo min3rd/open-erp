@@ -10,6 +10,8 @@ export enum IconName {
   CHEVRON_DOWN = 'chevron-down',
   CHEVRON_LEFT = 'chevron-left',
   CHEVRON_RIGHT = 'chevron-right',
+  CHEVRONS_LEFT = 'chevrons-left',
+  CHEVRONS_RIGHT = 'chevrons-right',
   CHECK = 'check',
   PLUS = 'plus',
   EDIT = 'edit-2',

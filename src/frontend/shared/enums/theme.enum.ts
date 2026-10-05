@@ -52,12 +52,12 @@ export enum ShapeId {
 /** Per-user menu placement. `AUTO` follows the colour theme's default layout. */
 export enum LayoutId {
   AUTO = 'auto',
+  /** Vertical rail on the left. */
   SIDE = 'side',
+  /** Vertical rail on the right. */
   RIGHT = 'right',
-  /** Icon-only rail. */
-  NARROW = 'narrow',
-  /** Narrow rail with icon + label. */
-  COMPACT = 'compact',
+  /** Horizontal bar under the topbar. */
   TOP = 'top',
+  /** Menu inside a drawer opened from the content header. */
   DRAWER = 'drawer'
 }

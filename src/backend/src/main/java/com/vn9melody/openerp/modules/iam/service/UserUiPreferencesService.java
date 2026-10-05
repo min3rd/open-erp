@@ -28,8 +28,13 @@ public class UserUiPreferencesService {
     /** Registries of ids the frontend can render; themes reuse the tenant registry. */
     public static final List<String> AVAILABLE_SHAPES = List.of("sharp", "soft", "rounded");
 
+    /**
+     * Menu layouts: the axis is vertical vs horizontal placement only — how the
+     * menu is displayed (expanded/collapsed) is a control inside the menu, not a
+     * separate layout.
+     */
     public static final List<String> AVAILABLE_LAYOUTS =
-            List.of("side", "top", "right", "drawer", "narrow", "compact");
+            List.of("side", "top", "right", "drawer");
 
     public static final List<String> AVAILABLE_MODES = List.of("SYSTEM", "LIGHT", "DARK");
 

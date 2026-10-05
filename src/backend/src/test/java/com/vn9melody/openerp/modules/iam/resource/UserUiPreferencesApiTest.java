@@ -79,7 +79,7 @@ public class UserUiPreferencesApiTest {
                 .body("data.tenant_theme", equalTo("industrial"))
                 .body("data.available_themes", hasSize(4))
                 .body("data.available_shapes", hasSize(3))
-                .body("data.available_layouts", hasSize(6))
+                .body("data.available_layouts", hasSize(4))
                 .body("data.available_modes", hasSize(3));
     }
 
@@ -88,14 +88,14 @@ public class UserUiPreferencesApiTest {
     public void testUpdateAndPersist() {
         given().header("Authorization", "Bearer " + tokenA)
                 .contentType(ContentType.JSON)
-                .body(Map.of("theme", "amber", "shape", "rounded", "layout", "narrow", "mode", "DARK"))
+                .body(Map.of("theme", "amber", "shape", "rounded", "layout", "right", "mode", "DARK"))
                 .put(PATH)
                 .then()
                 .statusCode(200)
                 .body("code", equalTo(ErrorCode.USER_UI_PREFERENCES_UPDATE_SUCCESS))
                 .body("data.theme", equalTo("amber"))
                 .body("data.shape", equalTo("rounded"))
-                .body("data.layout", equalTo("narrow"))
+                .body("data.layout", equalTo("right"))
                 .body("data.mode", equalTo("DARK"));
 
         given().header("Authorization", "Bearer " + tokenA)
@@ -104,7 +104,7 @@ public class UserUiPreferencesApiTest {
                 .statusCode(200)
                 .body("data.theme", equalTo("amber"))
                 .body("data.shape", equalTo("rounded"))
-                .body("data.layout", equalTo("narrow"))
+                .body("data.layout", equalTo("right"))
                 .body("data.mode", equalTo("DARK"));
     }
 
@@ -113,7 +113,7 @@ public class UserUiPreferencesApiTest {
     public void testUpdateWithNullsClears() {
         given().header("Authorization", "Bearer " + tokenA)
                 .contentType(ContentType.JSON)
-                .body(Map.of("theme", "emerald", "shape", "soft", "layout", "compact", "mode", "LIGHT"))
+                .body(Map.of("theme", "emerald", "shape", "soft", "layout", "side", "mode", "LIGHT"))
                 .put(PATH)
                 .then().statusCode(200);
 
