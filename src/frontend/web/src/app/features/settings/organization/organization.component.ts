@@ -381,7 +381,10 @@ export class OrganizationComponent implements OnInit {
     this.branchesError.set(false);
     this.organization.getBranches().subscribe({
       next: (res) => {
-        this.branches.set(res.data.items);
+        // Deleting a branch is a soft delete (status INACTIVE); keep those rows
+        // out of the list, otherwise the deleted row stays and looks like the
+        // delete failed (BUG-121 follow-up).
+        this.branches.set(res.data.items.filter((branch) => branch.status !== 'INACTIVE'));
         this.branchesLoading.set(false);
         this.applyPendingDrawer();
       },
@@ -393,12 +396,21 @@ export class OrganizationComponent implements OnInit {
     });
   }
 
+  /** Drops soft-deleted (INACTIVE) departments from the tree, recursively. */
+  private withoutInactiveDepartments(nodes: DepartmentNode[]): DepartmentNode[] {
+    return nodes
+      .filter((node) => node.status !== 'INACTIVE')
+      .map((node) => ({ ...node, children: this.withoutInactiveDepartments(node.children ?? []) }));
+  }
+
   loadDepartments() {
     this.departmentsLoading.set(true);
     this.departmentsError.set(false);
     this.organization.getDepartmentTree().subscribe({
       next: (res) => {
-        const tree = res.data.items;
+        // Same soft-delete rule as branches: a deleted department is INACTIVE
+        // and must disappear from the tree (BUG-121 follow-up).
+        const tree = this.withoutInactiveDepartments(res.data.items);
         this.departmentTree.set(tree);
         if (this.selectedId() && !this.findNode(tree, this.selectedId())) {
           this.selectedId.set(null);
