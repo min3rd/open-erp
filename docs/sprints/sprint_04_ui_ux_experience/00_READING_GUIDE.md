@@ -107,6 +107,7 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 | BUG-124 | [Top dropdown stays open](07_items/BUG-124_top_menu_dropdown_stays_open.md) | Developer | Used (In Review) |
 | BUG-125 | [Rounded shape distorts UI](07_items/BUG-125_rounded_shape_distorts_ui.md) | Developer | Used (In Review) |
 | BUG-126 | [Vertical menu readability](07_items/BUG-126_vertical_menu_readability.md) | Developer | Used (In Review) |
+| BUG-127 | [Icon rail flyout + tooltip](07_items/BUG-127_icon_rail_flyout_and_tooltip.md) | Developer | Used (In Review) |
 | ADR-S04-* | Chưa tạo | Architect | Chưa dùng |
 | TP-S04-001 | [Test plan](08_testing/01_TP-S04-001_sprint_04_test_plan.md) | QA | Used (Draft) |
 | TR-S04-001 | Chưa tạo | QA | Chưa dùng |
