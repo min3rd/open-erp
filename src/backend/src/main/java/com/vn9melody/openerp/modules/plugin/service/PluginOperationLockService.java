@@ -42,6 +42,15 @@ public class PluginOperationLockService {
         }
     }
 
+    /**
+     * BUG/TASK-346: removes the lock regardless of the holder token. Used by the
+     * recovery sweeper to clear a lock left by a crashed process (the normal
+     * {@link #release} is token-safe and cannot do this).
+     */
+    public void forceRelease(UUID tenantId, String pluginKey) {
+        keyCommands().del(key(tenantId, pluginKey));
+    }
+
     private String key(UUID tenantId, String pluginKey) {
         return PREFIX + tenantId + ":" + pluginKey;
     }

@@ -74,6 +74,7 @@ public final class PluginErrorCode {
 
     // Errors - dependency
     public static final String PLUGIN_DEPENDENCY_MISSING = "PLUGIN_DEPENDENCY_MISSING";
+    public static final String PLUGIN_DEPENDENCY_CYCLE = "PLUGIN_DEPENDENCY_CYCLE";
     public static final String PLUGIN_HAS_DEPENDENTS = "PLUGIN_HAS_DEPENDENTS";
 
     // Errors - entitlement / lifecycle
@@ -84,6 +85,7 @@ public final class PluginErrorCode {
     public static final String PLUGIN_DISABLED_FOR_TENANT = "PLUGIN_DISABLED_FOR_TENANT";
     public static final String PLUGIN_LOCKED_DEFAULT = "PLUGIN_LOCKED_DEFAULT";
     public static final String PLUGIN_OPERATION_IN_PROGRESS = "PLUGIN_OPERATION_IN_PROGRESS";
+    public static final String PLUGIN_OPERATION_RECOVERY_ABANDONED = "PLUGIN_OPERATION_RECOVERY_ABANDONED";
     public static final String PLUGIN_BLOCKED_BY_PLATFORM = "PLUGIN_BLOCKED_BY_PLATFORM";
     public static final String PLUGIN_BLOCK_CONFIRMATION_REQUIRED = "PLUGIN_BLOCK_CONFIRMATION_REQUIRED";
 

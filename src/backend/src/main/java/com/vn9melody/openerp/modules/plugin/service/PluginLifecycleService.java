@@ -138,6 +138,7 @@ public class PluginLifecycleService {
             assertCoreCompatible(version);
             log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "PRE_FLIGHT", "OK", steps, null);
             dependencyResolver.validateDependencies(tenantId, version.dependencies);
+            dependencyResolver.assertNoCycles(tenantId, pluginKey, version.dependencies);
             ledger.status = TenantPluginStatus.INSTALLING;
             ledger.operationId = operationId;
             ledger.targetVersion = version.version;
@@ -404,6 +405,7 @@ public class PluginLifecycleService {
                         "Plugin is already on this version");
             }
             dependencyResolver.validateDependencies(tenantId, target.dependencies);
+            dependencyResolver.assertNoCycles(tenantId, pluginKey, target.dependencies);
             boolean breaking = target.migrationPolicy == PluginMigrationPolicy.BREAKING;
             if (breaking && Boolean.FALSE.equals(snapshotRequested)) {
                 throw new ApiException(409, PluginErrorCode.PLUGIN_SNAPSHOT_REQUIRED,
