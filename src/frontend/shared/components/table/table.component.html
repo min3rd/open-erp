@@ -9,7 +9,11 @@
         }
       </tr>
     </thead>
-    <tbody class="divide-y divide-default" (contextmenu)="onRowContextMenu($event)">
+    <tbody
+      class="divide-y divide-default"
+      [class.op-stagger]="!loading() && rows().length > 0"
+      (contextmenu)="onRowContextMenu($event)"
+    >
       @if (loading()) {
         <tr>
           <td [attr.colspan]="columns().length" class="px-2 py-6 text-center text-muted">

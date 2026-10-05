@@ -86,7 +86,7 @@
       } @else if (departmentsLoading()) {
         <app-skeleton-table [rows]="5" [columns]="2" />
       } @else if (viewMode() === 'list') {
-        <div class="max-h-[540px] overflow-y-auto">
+        <div class="op-stagger max-h-[540px] overflow-y-auto">
           @for (node of visibleOrgNodes(); track node.id) {
             <div
               class="flex items-center justify-between gap-2 px-2 py-1 border-b border-neutral-100 dark:border-neutral-800"

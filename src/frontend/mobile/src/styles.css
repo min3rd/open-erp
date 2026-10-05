@@ -221,6 +221,71 @@
   --radius-container: var(--op-radius-container);
 }
 
+/* ==========================================================================
+ * Motion layer (FEAT-25 / DES-UI-S04-002 §1)
+ *
+ * Approach: global classes on top of the `--op-*` motion tokens (no JS, no
+ * animation library). Only transform/opacity (+ background-color for feedback)
+ * are animated and no duration exceeds 220ms. `prefers-reduced-motion: reduce`
+ * turns the non-essential motion off and keeps state changes instant.
+ * Route transition (M4) is web-only; mobile keeps the native Ionic shell.
+ * ========================================================================== */
+
+:root {
+  --op-duration-fast: 120ms;
+  --op-duration-base: 160ms;
+  --op-duration-slow: 220ms;
+  --op-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --op-ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --op-ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+}
+
+@keyframes op-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes op-pop-in {
+  from { opacity: 0; transform: translateY(-2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* M1: popup enter (user-menu, notification-bell, context menu). Exit is instant. */
+.op-pop {
+  animation: op-pop-in var(--op-duration-base) var(--op-ease-decelerate);
+}
+
+/* M3: list rows fade in; only the first 20 rows animate, no huge-list stagger. */
+.op-stagger > * {
+  animation: op-fade-in var(--op-duration-fast) var(--op-ease-decelerate);
+}
+.op-stagger > *:nth-child(n + 21) {
+  animation: none;
+}
+
+/* M7: action feedback on press (colors + transform in one transition). */
+.op-press {
+  transition-property: color, background-color, border-color, transform;
+  transition-duration: var(--op-duration-fast);
+  transition-timing-function: var(--op-ease-standard);
+}
+.op-press:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .op-pop,
+  .op-stagger > * {
+    animation: none;
+  }
+  .op-press {
+    transition: none;
+  }
+  .op-press:active:not(:disabled) {
+    transform: none;
+  }
+}
+
 @layer base {
   button:not(:disabled),
   [role='button']:not([aria-disabled='true']),
