@@ -13,8 +13,9 @@
 
 ## 2. Thiết Kế Vuông Vắn & Hiện Đại (Sharp / Squared Aesthetic)
 - **Góc cạnh sắc nét**:
-  - Mặc định sử dụng `rounded-none` hoặc tối đa `rounded-sm` (1px - 2px).
+  - Mặc định (và **bắt buộc cho giao diện mặc định**) sử dụng `rounded-none` hoặc tối đa `rounded-sm` (1px - 2px).
   - Nghiêm cấm phong cách bo tròn lớn (`rounded-xl`, `rounded-full`).
+  - **Ngoại lệ theo theme**: từ Sprint 04, các theme thay thế (không phải mặc định) được phép dùng hình dạng bo góc khác qua bộ token dùng chung `ShapeVariant` (ví dụ `SOFT` với `rounded-md`), miễn **không dùng bo tròn lớn kiểu consumer** và **vẫn giữ mật độ thông tin cao**. Theme mặc định luôn là `SHARP`.
 - **Đường viền mỏng tinh tế**:
   - Sử dụng viền sắc nét: `border border-neutral-200 dark:border-neutral-800`.
   - Tương phản rõ ràng giữa nền và viền.
