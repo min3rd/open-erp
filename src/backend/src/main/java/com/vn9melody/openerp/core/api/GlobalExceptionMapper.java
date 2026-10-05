@@ -1,5 +1,6 @@
 package com.vn9melody.openerp.core.api;
 
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
@@ -15,7 +16,9 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
             LOG.debugf("ApiException handled: code=%s, status=%d, message=%s", 
                 apiEx.getCode(), apiEx.getStatusCode(), apiEx.getMessage());
             ApiErrorResponse error = new ApiErrorResponse(apiEx.getCode(), apiEx.getMessage(), apiEx.getParams(), apiEx.getErrors());
-            return Response.status(apiEx.getStatusCode()).entity(error).build();
+            // Error envelopes are always JSON even when the matched resource method
+            // declares a non-JSON @Produces (e.g. the avatar binary download).
+            return Response.status(apiEx.getStatusCode()).type(MediaType.APPLICATION_JSON).entity(error).build();
         }
 
         LOG.error("Unhandled exception caught by GlobalExceptionMapper", exception);
@@ -23,6 +26,6 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
             ErrorCode.INTERNAL_SERVER_ERROR, 
             "An unexpected internal error occurred"
         );
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(fallback).build();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).entity(fallback).build();
     }
 }
