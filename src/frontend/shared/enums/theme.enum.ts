@@ -53,7 +53,11 @@ export enum ShapeId {
 export enum LayoutId {
   AUTO = 'auto',
   SIDE = 'side',
-  TOP = 'top',
   RIGHT = 'right',
+  /** Icon-only rail. */
+  NARROW = 'narrow',
+  /** Narrow rail with icon + label. */
+  COMPACT = 'compact',
+  TOP = 'top',
   DRAWER = 'drawer'
 }

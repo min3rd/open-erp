@@ -1,18 +1,35 @@
 <div class="flex flex-col gap-1.5 text-[11px] font-mono select-none">
-  <!-- Colour theme (tenant-wide, owner/admin only) -->
-  <div *appRequirePermission="themePermission" class="inline-flex items-center gap-1.5">
+  <!-- Colour theme (per user; AUTO follows the tenant default) -->
+  <div class="inline-flex items-center gap-1.5">
     <span class="erp-switcher-label text-muted font-semibold text-[10px] uppercase" [appTranslate]="'THEME_LABEL'"></span>
     <select
       (change)="onThemeChange($event)"
       [attr.aria-label]="'THEME_LABEL' | translate"
       class="border border-default bg-surface text-ink px-1.5 py-0.5 text-[11px] font-mono rounded-control cursor-pointer max-sm:min-h-10"
     >
+      <option [value]="themeAutoValue" [selected]="themeValue() === themeAutoValue">
+        {{ 'THEME_FOLLOW_TENANT' | translate }}
+      </option>
       @for (item of themes; track item.id) {
-        <option [value]="item.id" [selected]="theme.themeId() === item.id">
+        <option [value]="item.id" [selected]="themeValue() === item.id">
           {{ item.nameKey | translate }}
         </option>
       }
     </select>
+  </div>
+
+  <!-- Owner/admin only: promote the applied theme to the tenant default -->
+  <div *appRequirePermission="themePermission" class="flex items-center gap-1.5">
+    <span class="erp-switcher-label text-muted font-semibold text-[10px] uppercase" [appTranslate]="'THEME_TENANT_DEFAULT'"></span>
+    <span class="truncate text-ink">{{ tenantThemeNameKey() | translate }}</span>
+    <button
+      type="button"
+      (click)="setTenantDefault()"
+      [disabled]="theme.themeId() === theme.tenantTheme()"
+      class="ml-auto shrink-0 rounded-control border border-default px-1.5 py-0.5 text-[10px] text-muted transition-colors hover:bg-surface-muted hover:text-ink disabled:opacity-40 disabled:cursor-default cursor-pointer max-sm:min-h-10"
+    >
+      {{ 'THEME_SET_TENANT_DEFAULT' | translate }}
+    </button>
   </div>
 
   <!-- Shape / corner scale (per user; AUTO follows the colour theme) -->

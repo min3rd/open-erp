@@ -17,10 +17,10 @@ export class App {
 
   constructor() {
     this.theme.init();
-    // Apply the tenant theme once per authenticated transition.
+    // Apply the saved appearance (user prefs + tenant default) once per auth transition.
     effect(() => {
       if (this.auth.isAuthenticated()) {
-        this.theme.loadTenantTheme();
+        this.theme.loadPreferences();
       }
     });
   }

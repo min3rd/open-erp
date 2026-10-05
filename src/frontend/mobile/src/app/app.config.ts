@@ -10,9 +10,9 @@ import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalo
 import { map } from 'rxjs';
 
 import { routes } from './app.routes';
-import { PLUGIN_PERMISSION_CHECKER, TENANT_THEME_API, ThemeId, loadingInterceptor } from '@shared';
+import { PLUGIN_PERMISSION_CHECKER, UI_PREFERENCES_API, loadingInterceptor, toUiPreferences } from '@shared';
 import { AuthService } from './core/auth.service';
-import { UiPreferencesService } from './core/ui-preferences.service';
+import { UiPreferencesService, UserUiPreferencesUpdate } from './core/ui-preferences.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -31,14 +31,17 @@ export const appConfig: ApplicationConfig = {
       }
     },
     {
-      provide: TENANT_THEME_API,
+      provide: UI_PREFERENCES_API,
       useFactory: () => {
         const prefs = inject(UiPreferencesService);
         const auth = inject(AuthService);
         return {
-          fetchTheme: () => prefs.getUiPreferences().pipe(map((res) => res.data?.theme ?? null)),
-          updateTheme: (theme: ThemeId) => prefs.updateUiPreferences(theme),
-          canManage: () => auth.isAuthenticated() && auth.hasPermission('core:tenant:settings-manage') !== false
+          fetch: () => prefs.getUserUiPreferences().pipe(map((res) => toUiPreferences(res.data))),
+          update: (preferences: UserUiPreferencesUpdate) => prefs.updateUserUiPreferences(preferences),
+          updateTenantTheme: (theme: Parameters<UiPreferencesService['updateUiPreferences']>[0]) =>
+            prefs.updateUiPreferences(theme),
+          canManageTenant: () =>
+            auth.isAuthenticated() && auth.hasPermission('core:tenant:settings-manage') !== false
         };
       }
     }

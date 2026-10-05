@@ -2,6 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LayoutId, ShapeId, ThemeId, ThemeMode } from '../../enums';
 import {
+  AUTO_OPTION,
   LAYOUT_REGISTRY,
   SHAPE_REGISTRY,
   THEME_REGISTRY,
@@ -15,9 +16,10 @@ import { TranslateDirective } from '../../i18n/translate.directive';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 
 /**
- * Appearance switcher: colour theme (tenant-wide, permission-gated), plus the
- * per-user shape, menu layout and light/dark mode. Shape and layout default to
- * `AUTO`, which keeps the colour theme's own look.
+ * Appearance switcher. Everything here is per user: colour theme (the tenant
+ * default applies while it is on AUTO), shape, menu layout and light/dark mode.
+ * Owners/admins additionally get a button that promotes the selected theme to
+ * the tenant-wide default.
  */
 @Component({
   selector: 'app-theme-switcher',
@@ -28,16 +30,25 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
 export class ThemeSwitcherComponent {
   theme = inject(ThemeService);
 
-  /** Only tenant owners/admins may change the tenant-wide theme. */
+  /** Only tenant owners/admins may change the tenant-wide default theme. */
   readonly themePermission = 'core:tenant:settings-manage';
 
   readonly themes = THEME_REGISTRY;
   readonly shapes = SHAPE_REGISTRY;
   readonly layouts = LAYOUT_REGISTRY;
 
-  /** Current select values; `AUTO` when the user has no explicit override. */
+  /** Select value meaning "follow the tenant default". */
+  readonly themeAutoValue = AUTO_OPTION;
+
+  /** Select values; AUTO when the user has no explicit choice. */
+  readonly themeValue = computed(() => this.theme.themePreference() ?? AUTO_OPTION);
   readonly shapeValue = computed(() => this.theme.shapePreference() ?? ShapeId.AUTO);
   readonly layoutValue = computed(() => this.theme.layoutPreference() ?? LayoutId.AUTO);
+
+  /** i18n key of the tenant default theme, shown next to the promote button. */
+  readonly tenantThemeNameKey = computed(() =>
+    THEME_REGISTRY.find((item) => item.id === this.theme.tenantTheme())?.nameKey ?? ''
+  );
 
   readonly modes: ReadonlyArray<{ mode: ThemeMode; label: string }> = [
     { mode: ThemeMode.SYSTEM, label: 'THEME_SYSTEM' },
@@ -51,7 +62,9 @@ export class ThemeSwitcherComponent {
 
   onThemeChange(event: Event) {
     const value = (event.target as HTMLSelectElement).value;
-    if (isThemeId(value)) {
+    if (value === AUTO_OPTION) {
+      this.theme.clearTheme();
+    } else if (isThemeId(value)) {
       this.theme.setTheme(value as ThemeId);
     }
   }
@@ -68,5 +81,10 @@ export class ThemeSwitcherComponent {
     if (isLayoutId(value)) {
       this.theme.setLayout(value as LayoutId);
     }
+  }
+
+  /** Promotes the currently applied theme to the tenant-wide default. */
+  setTenantDefault() {
+    this.theme.setTenantTheme(this.theme.themeId());
   }
 }

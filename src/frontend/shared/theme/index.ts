@@ -1,3 +1,3 @@
 export * from './theme.service';
 export * from './theme-registry';
-export * from './tenant-theme-api';
+export * from './ui-preferences-api';

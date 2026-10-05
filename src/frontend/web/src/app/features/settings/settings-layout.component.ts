@@ -2,22 +2,29 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { PluginService } from '../../core/services/plugin.service';
-import { LayoutId } from '@shared';
 import {
   DrawerComponent,
   IconComponent,
+  IconName,
+  IconNameValue,
+  LayoutId,
   NotificationBannerComponent,
   PluginNotification,
   SectionNavComponent,
+  SectionNavItem,
+  SectionNavVariant,
   ThemeService,
   TopbarComponent,
   TranslatePipe
 } from '@shared';
 
-interface SettingsMenuItem {
-  path: string;
+/** A settings menu entry: a leaf (path) or a group with children. */
+interface SettingsMenuNode {
+  path?: string;
   labelKey: string;
-  permission: string;
+  icon?: IconNameValue;
+  permission?: string;
+  children?: SettingsMenuNode[];
 }
 
 @Component({
@@ -47,8 +54,34 @@ export class SettingsLayoutComponent implements OnInit {
   readonly navTop = computed(() => this.theme.navLayout() === LayoutId.TOP);
   readonly navRight = computed(() => this.theme.navLayout() === LayoutId.RIGHT);
   readonly navDrawer = computed(() => this.theme.navLayout() === LayoutId.DRAWER);
-  /** Side rail (left or right edge) instead of the bar/drawer. */
+  /** Side rail (left/right edge) instead of the bar/drawer. */
   readonly navRail = computed(() => !this.navTop() && !this.navDrawer());
+
+  /** Menu markup for the current layout: icon rail, compact rail or top bar. */
+  readonly navVariant = computed<SectionNavVariant>(() => {
+    switch (this.theme.navLayout()) {
+      case LayoutId.NARROW:
+        return 'icons';
+      case LayoutId.COMPACT:
+        return 'compact';
+      case LayoutId.TOP:
+        return 'bar';
+      default:
+        return 'rail';
+    }
+  });
+
+  /** Rail width for the current layout (narrow = icon strip). */
+  readonly railWidth = computed(() => {
+    switch (this.theme.navLayout()) {
+      case LayoutId.NARROW:
+        return 'lg:w-12';
+      case LayoutId.COMPACT:
+        return 'lg:w-40';
+      default:
+        return 'lg:w-56';
+    }
+  });
 
   readonly notifications = signal<PluginNotification[]>([]);
 
@@ -92,21 +125,70 @@ export class SettingsLayoutComponent implements OnInit {
     }
   }
 
-  readonly allMenuItems: ReadonlyArray<SettingsMenuItem> = [
-    { path: '/settings/roles', labelKey: 'IAM_ROLE_MANAGEMENT', permission: 'core:role:manage' },
-    { path: '/settings/organization', labelKey: 'ORGANIZATION_STRUCTURE', permission: 'core:organization:manage' },
-    { path: '/settings/members', labelKey: 'ORGANIZATION_MEMBERSHIPS', permission: 'core:organization:manage' },
-    { path: '/settings/branch-assignments', labelKey: 'ORGANIZATION_BRANCH_ASSIGNMENT_TITLE', permission: 'core:organization:manage' },
-    { path: '/settings/sample-records', labelKey: 'SAMPLE_RECORDS_TITLE', permission: 'core:sample-record:read' },
-    { path: '/settings/plugins', labelKey: 'PLUGIN_MARKETPLACE_TITLE', permission: 'core:plugin:read' },
-    { path: '/settings/plugin-credentials', labelKey: 'PLUGIN_TENANT_CREDENTIALS_TITLE', permission: 'core:plugin:credential:manage' }
+  /**
+   * Menu tree: the top layout renders level 1 as dropdowns, every other layout
+   * flattens it. Icons come from the shared IconName set (menu items must be
+   * recognisable in the icon-only rail).
+   */
+  private readonly menuTree: ReadonlyArray<SettingsMenuNode> = [
+    { path: '/settings/roles', labelKey: 'IAM_ROLE_MANAGEMENT', icon: IconName.SHIELD, permission: 'core:role:manage' },
+    {
+      labelKey: 'SETTINGS_GROUP_ORGANIZATION',
+      icon: IconName.GRID,
+      children: [
+        { path: '/settings/organization', labelKey: 'ORGANIZATION_STRUCTURE', icon: IconName.GRID, permission: 'core:organization:manage' },
+        { path: '/settings/members', labelKey: 'ORGANIZATION_MEMBERSHIPS', icon: IconName.USER, permission: 'core:organization:manage' },
+        { path: '/settings/branch-assignments', labelKey: 'ORGANIZATION_BRANCH_ASSIGNMENT_TITLE', icon: IconName.HOME, permission: 'core:organization:manage' }
+      ]
+    },
+    {
+      labelKey: 'SETTINGS_GROUP_DATA',
+      icon: IconName.FILE_TEXT,
+      children: [
+        { path: '/settings/sample-records', labelKey: 'SAMPLE_RECORDS_TITLE', icon: IconName.FILE_TEXT, permission: 'core:sample-record:read' }
+      ]
+    },
+    {
+      labelKey: 'SETTINGS_GROUP_SYSTEM',
+      icon: IconName.PACKAGE,
+      children: [
+        { path: '/settings/plugins', labelKey: 'PLUGIN_MARKETPLACE_TITLE', icon: IconName.PACKAGE, permission: 'core:plugin:read' },
+        { path: '/settings/plugin-credentials', labelKey: 'PLUGIN_TENANT_CREDENTIALS_TITLE', icon: IconName.KEY, permission: 'core:plugin:credential:manage' }
+      ]
+    }
   ];
 
   // Fallback: when the Sprint 02 `permissions` claim is absent from the JWT,
   // `hasPermission()` returns `null` and every menu item stays visible.
-  readonly menuItems = computed(() =>
-    this.allMenuItems.filter((item) => this.auth.hasPermission(item.permission) !== false)
-  );
+  readonly menuItems = computed(() => this.filterNodes(this.menuTree));
+
+  /** Leaves only, for the rail/compact/icon/drawer layouts. */
+  readonly flatMenuItems = computed<ReadonlyArray<SectionNavItem>>(() => {
+    const flat: SectionNavItem[] = [];
+    for (const node of this.menuItems()) {
+      if (node.children?.length) {
+        flat.push(...this.filterNodes(node.children));
+      } else {
+        flat.push(node);
+      }
+    }
+    return flat;
+  });
+
+  private filterNodes(nodes: ReadonlyArray<SettingsMenuNode>): ReadonlyArray<SettingsMenuNode> {
+    return nodes
+      .map((node) => node.children
+        ? { ...node, children: [...this.filterNodes(node.children)] }
+        : node)
+      .filter((node) => node.children
+        ? node.children.length > 0
+        : this.canSee(node.permission));
+  }
+
+  /** No permission on the node = visible to everyone (claim-absent fallback). */
+  private canSee(permission?: string): boolean {
+    return !permission || this.auth.hasPermission(permission) !== false;
+  }
 
   openAccount() {
     this.router.navigate(['/account/detail']);

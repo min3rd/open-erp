@@ -3,14 +3,17 @@ import {
   AuditResult,
   AuditScope,
   DataScope,
+  LayoutId,
   PlatformAdminRole,
   PlatformAdminStatus,
+  ShapeId,
   SubsystemStatus,
   SystemHealthStatus,
   TenantPlanTier,
   TenantStatus,
   TenantType,
   ThemeId,
+  ThemeMode,
   UserStatus
 } from '../enums';
 
@@ -437,10 +440,23 @@ export interface FlatDepartmentNode extends DepartmentNode {
 }
 
 // ---------------------------------------------------------------------------
-// Sprint 04: Tenant UI Preferences (theme)
+// Sprint 04: UI Preferences (tenant default theme + per-user appearance)
 // ---------------------------------------------------------------------------
 
 export interface UiPreferencesData {
   theme: ThemeId;
   available_themes: ThemeId[];
+}
+
+/** Per-user appearance preferences (`/api/v1/account/ui-preferences`). */
+export interface UserUiPreferencesData {
+  theme: ThemeId | null;
+  shape: ShapeId | null;
+  layout: LayoutId | null;
+  mode: ThemeMode | null;
+  tenant_theme: ThemeId;
+  available_themes: ThemeId[];
+  available_shapes: ShapeId[];
+  available_layouts: LayoutId[];
+  available_modes: ThemeMode[];
 }

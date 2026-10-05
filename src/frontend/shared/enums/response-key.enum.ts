@@ -75,7 +75,14 @@ export enum ResponseKey {
   DIGEST = 'digest',
   CREDENTIAL_ID = 'credential_id',
 
-  // Tenant UI Preferences (Sprint 04)
+  // UI Preferences (Sprint 04)
   THEME = 'theme',
-  AVAILABLE_THEMES = 'available_themes'
+  AVAILABLE_THEMES = 'available_themes',
+  SHAPE = 'shape',
+  LAYOUT = 'layout',
+  MODE = 'mode',
+  TENANT_THEME = 'tenant_theme',
+  AVAILABLE_SHAPES = 'available_shapes',
+  AVAILABLE_LAYOUTS = 'available_layouts',
+  AVAILABLE_MODES = 'available_modes'
 }

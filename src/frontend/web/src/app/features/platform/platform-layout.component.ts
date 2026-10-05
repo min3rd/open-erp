@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { SectionNavComponent, SectionNavItem } from '@shared';
+import { IconName, SectionNavComponent, SectionNavItem } from '@shared';
 import { PlatformTopbarComponent } from './platform-topbar/platform-topbar.component';
 
 @Component({
@@ -14,14 +14,14 @@ export class PlatformLayoutComponent {
   private auth = inject(AuthService);
 
   private readonly allMenuItems: ReadonlyArray<SectionNavItem> = [
-    { path: '/platform/tenants', labelKey: 'PLATFORM_TENANT_MANAGEMENT' },
-    { path: '/platform/plugins', labelKey: 'PLUGIN_PORTAL_TITLE' },
-    { path: '/platform/plugin-credentials', labelKey: 'PLUGIN_CREDENTIALS_TITLE' },
-    { path: '/platform/tenant-private-plugins', labelKey: 'PLUGIN_TENANT_PRIVATE_TITLE' },
-    { path: '/platform/users', labelKey: 'PLATFORM_GLOBAL_USERS' },
-    { path: '/platform/health', labelKey: 'PLATFORM_SYSTEM_HEALTH' },
-    { path: '/platform/audit-logs', labelKey: 'PLATFORM_AUDIT_TRAIL' },
-    { path: '/platform/admins', labelKey: 'PLATFORM_ADMINS_TITLE' }
+    { path: '/platform/tenants', labelKey: 'PLATFORM_TENANT_MANAGEMENT', icon: IconName.HOME },
+    { path: '/platform/plugins', labelKey: 'PLUGIN_PORTAL_TITLE', icon: IconName.PACKAGE },
+    { path: '/platform/plugin-credentials', labelKey: 'PLUGIN_CREDENTIALS_TITLE', icon: IconName.KEY },
+    { path: '/platform/tenant-private-plugins', labelKey: 'PLUGIN_TENANT_PRIVATE_TITLE', icon: IconName.LOCK },
+    { path: '/platform/users', labelKey: 'PLATFORM_GLOBAL_USERS', icon: IconName.USER },
+    { path: '/platform/health', labelKey: 'PLATFORM_SYSTEM_HEALTH', icon: IconName.MONITOR },
+    { path: '/platform/audit-logs', labelKey: 'PLATFORM_AUDIT_TRAIL', icon: IconName.FILE_TEXT },
+    { path: '/platform/admins', labelKey: 'PLATFORM_ADMINS_TITLE', icon: IconName.SHIELD }
   ];
 
   private readonly superAdminOnlyPaths = new Set([
@@ -33,6 +33,6 @@ export class PlatformLayoutComponent {
   readonly menuItems = computed(() =>
     this.auth.isPlatformSuperAdmin()
       ? this.allMenuItems
-      : this.allMenuItems.filter((item) => !this.superAdminOnlyPaths.has(item.path))
+      : this.allMenuItems.filter((item) => !this.superAdminOnlyPaths.has(item.path ?? ''))
   );
 }

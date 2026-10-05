@@ -8,12 +8,14 @@ import {
   resolveLayout,
   resolveShape
 } from './theme-registry';
-import { TENANT_THEME_API } from './tenant-theme-api';
+import { UI_PREFERENCES_API } from './ui-preferences-api';
 
 /** Per-user light/dark MODE (back-compat key). */
 const THEME_STORAGE_KEY = 'openerp_theme';
-/** Per-tenant theme id cache. */
+/** Last effective colour theme (FOUC cache + tenant-default fallback). */
 const THEME_ID_STORAGE_KEY = 'openerp_theme_id';
+/** The user's own colour theme; absent = follow the tenant default. */
+const USER_THEME_STORAGE_KEY = 'openerp_theme_user';
 /** Per-user shape (corner scale) preference; absent = follow the theme. */
 const SHAPE_STORAGE_KEY = 'openerp_shape';
 /** Per-user menu placement preference; absent = follow the theme. */
@@ -21,17 +23,33 @@ const LAYOUT_STORAGE_KEY = 'openerp_layout';
 const DARK_MEDIA_QUERY = '(prefers-color-scheme: dark)';
 const IONIC_DARK_CLASS = 'ion-palette-dark';
 
+/**
+ * Appearance state (Sprint 04). Four independent axes:
+ *
+ *   theme   colour palette   user pick, else the TENANT default (owner-set)
+ *   shape   corner scale     user pick, else the theme's own default
+ *   layout  menu placement   user pick, else the theme's own default
+ *   mode    light/dark       user pick, else the OS preference
+ *
+ * Every user choice is cached in localStorage (instant paint, FOUC script) and
+ * persisted to the user's account through `UI_PREFERENCES_API`.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class ThemeService {
-  private api = inject(TENANT_THEME_API, { optional: true });
+  private api = inject(UI_PREFERENCES_API, { optional: true });
 
   private modeSignal = signal<ThemeMode>(ThemeMode.SYSTEM);
   public mode = this.modeSignal.asReadonly();
 
-  private themeIdSignal = signal<ThemeId>(this.readCachedThemeId());
-  public themeId = this.themeIdSignal.asReadonly();
+  /** Tenant-wide default theme (owner/admin sets it). */
+  private tenantThemeSignal = signal<ThemeId>(this.readCachedThemeId());
+  public tenantTheme = this.tenantThemeSignal.asReadonly();
+
+  /** The user's own colour theme; `null` = follow the tenant default. */
+  private userThemeSignal = signal<ThemeId | null>(this.readCachedUserTheme());
+  public themePreference = this.userThemeSignal.asReadonly();
 
   private shapeSignal = signal<ShapeId | null>(this.readCachedShape());
   /** Raw shape preference; `null`/`AUTO` means "follow the colour theme". */
@@ -41,11 +59,14 @@ export class ThemeService {
   /** Raw menu-placement preference; `null`/`AUTO` means "follow the theme". */
   public layoutPreference = this.layoutSignal.asReadonly();
 
+  /** Effective colour theme: the user's pick, else the tenant default. */
+  public themeId = computed(() => this.userThemeSignal() ?? this.tenantThemeSignal());
+
   /** Corner scale actually applied (user pick, else the theme default). */
-  public shape = computed(() => resolveShape(this.themeIdSignal(), this.shapeSignal()));
+  public shape = computed(() => resolveShape(this.themeId(), this.shapeSignal()));
 
   /** Menu placement actually applied (user pick, else the theme default). */
-  public navLayout = computed(() => resolveLayout(this.themeIdSignal(), this.layoutSignal()));
+  public navLayout = computed(() => resolveLayout(this.themeId(), this.layoutSignal()));
 
   private initialized = false;
   private mediaQuery: MediaQueryList | null = null;
@@ -75,12 +96,46 @@ export class ThemeService {
   }
 
   setMode(mode: ThemeMode): void {
-    if (!this.initialized) {
-      this.init();
-    }
+    this.ensureInitialized();
     this.modeSignal.set(mode);
     localStorage.setItem(THEME_STORAGE_KEY, mode);
     this.applyTheme();
+    this.persist();
+  }
+
+  /**
+   * Per-user colour theme. Applies + caches locally, then saves it on the
+   * user's account; the tenant default keeps applying to users without a pick.
+   */
+  setTheme(id: ThemeId): void {
+    this.ensureInitialized();
+    this.userThemeSignal.set(id);
+    localStorage.setItem(USER_THEME_STORAGE_KEY, id);
+    this.applyTheme();
+    this.persist();
+  }
+
+  /** Clears the user's own theme so the tenant default applies again. */
+  clearTheme(): void {
+    this.ensureInitialized();
+    this.userThemeSignal.set(null);
+    localStorage.removeItem(USER_THEME_STORAGE_KEY);
+    this.applyTheme();
+    this.persist();
+  }
+
+  /**
+   * Sets the TENANT-wide default theme (owner/admin only; the server enforces
+   * the permission). Users without their own pick follow it immediately.
+   */
+  setTenantTheme(id: ThemeId): void {
+    this.ensureInitialized();
+    this.tenantThemeSignal.set(id);
+    localStorage.setItem(THEME_ID_STORAGE_KEY, id);
+    this.applyTheme();
+    if (this.api?.canManageTenant()) {
+      this.api.updateTenantTheme(id).subscribe({ error: () => {} });
+    }
   }
 
   /**
@@ -88,13 +143,12 @@ export class ThemeService {
    * colour theme's own default applies again.
    */
   setShape(shape: ShapeId | null): void {
-    if (!this.initialized) {
-      this.init();
-    }
+    this.ensureInitialized();
     const preference = shape === ShapeId.AUTO ? null : shape;
     this.shapeSignal.set(preference);
     this.writePreference(SHAPE_STORAGE_KEY, preference);
     this.applyTheme();
+    this.persist();
   }
 
   /**
@@ -102,13 +156,77 @@ export class ThemeService {
    * theme's own default applies again.
    */
   setLayout(layout: LayoutId | null): void {
-    if (!this.initialized) {
-      this.init();
-    }
+    this.ensureInitialized();
     const preference = layout === LayoutId.AUTO ? null : layout;
     this.layoutSignal.set(preference);
     this.writePreference(LAYOUT_STORAGE_KEY, preference);
     this.applyTheme();
+    this.persist();
+  }
+
+  /**
+   * Fetches the user's saved preferences (plus the tenant default) once after
+   * login and applies them. Safe to call on every authenticated transition; a
+   * failure keeps the locally cached values.
+   */
+  loadPreferences(): void {
+    if (!this.api) {
+      return;
+    }
+    this.api.fetch().subscribe({
+      next: (preferences) => this.applyPreferences(preferences),
+      error: () => {}
+    });
+  }
+
+  /** Applies a preference payload (also used by tests). */
+  applyPreferences(preferences: {
+    theme: ThemeId | null;
+    shape: ShapeId | null;
+    layout: LayoutId | null;
+    mode: ThemeMode | null;
+    tenantTheme: ThemeId;
+  }): void {
+    this.ensureInitialized();
+    if (isThemeId(preferences.tenantTheme)) {
+      this.tenantThemeSignal.set(preferences.tenantTheme);
+      localStorage.setItem(THEME_ID_STORAGE_KEY, preferences.tenantTheme);
+    }
+    this.userThemeSignal.set(isThemeId(preferences.theme) ? preferences.theme : null);
+    this.writePreference(USER_THEME_STORAGE_KEY, this.userThemeSignal());
+
+    this.shapeSignal.set(isShapeId(preferences.shape) ? preferences.shape : null);
+    this.writePreference(SHAPE_STORAGE_KEY, this.shapeSignal());
+
+    this.layoutSignal.set(isLayoutId(preferences.layout) ? preferences.layout : null);
+    this.writePreference(LAYOUT_STORAGE_KEY, this.layoutSignal());
+
+    this.modeSignal.set(preferences.mode === ThemeMode.LIGHT || preferences.mode === ThemeMode.DARK
+      ? preferences.mode
+      : ThemeMode.SYSTEM);
+    localStorage.setItem(THEME_STORAGE_KEY, this.modeSignal());
+
+    this.applyTheme();
+  }
+
+  private ensureInitialized(): void {
+    if (!this.initialized) {
+      this.init();
+    }
+  }
+
+  /** Saves the user's four choices in one call (full replace, null = default). */
+  private persist(): void {
+    if (!this.api) {
+      return;
+    }
+    const mode = this.modeSignal();
+    this.api.update({
+      theme: this.userThemeSignal(),
+      shape: this.shapeSignal(),
+      layout: this.layoutSignal(),
+      mode: mode === ThemeMode.SYSTEM ? null : mode
+    }).subscribe({ error: () => {} });
   }
 
   private writePreference(key: string, value: string | null): void {
@@ -122,50 +240,20 @@ export class ThemeService {
     }
   }
 
-  /**
-   * Selects the tenant theme. Applies + caches locally, then (when the user may
-   * manage tenant settings) persists it through the tenant UI-preferences API.
-   */
-  setTheme(id: ThemeId): void {
-    if (!this.initialized) {
-      this.init();
-    }
-    this.applyTenantTheme(id);
-    if (this.api?.canManage()) {
-      this.api.updateTheme(id).subscribe({ error: () => {} });
-    }
-  }
-
-  /**
-   * Fetches the tenant theme once after login and applies it. Safe to call on
-   * every authenticated transition; it does not overwrite on failure.
-   */
-  loadTenantTheme(): void {
-    if (!this.api) {
-      return;
-    }
-    this.api.fetchTheme().subscribe({
-      next: (id) => {
-        if (isThemeId(id)) {
-          this.applyTenantTheme(id);
-        }
-      },
-      error: () => {}
-    });
-  }
-
-  private applyTenantTheme(id: ThemeId): void {
-    this.themeIdSignal.set(id);
-    localStorage.setItem(THEME_ID_STORAGE_KEY, id);
-    this.applyTheme();
-  }
-
   private readCachedThemeId(): ThemeId {
     if (typeof localStorage === 'undefined') {
       return DEFAULT_THEME_ID;
     }
     const cached = localStorage.getItem(THEME_ID_STORAGE_KEY);
     return isThemeId(cached) ? cached : DEFAULT_THEME_ID;
+  }
+
+  private readCachedUserTheme(): ThemeId | null {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+    const cached = localStorage.getItem(USER_THEME_STORAGE_KEY);
+    return isThemeId(cached) ? cached : null;
   }
 
   private readCachedShape(): ShapeId | null {
@@ -203,12 +291,16 @@ export class ThemeService {
     }
     const dark = this.isDark();
     const root = document.documentElement;
-    root.setAttribute('data-theme', this.themeIdSignal());
+    const effectiveTheme = this.themeId();
+    root.setAttribute('data-theme', effectiveTheme);
     root.setAttribute('data-shape', this.shape());
     root.setAttribute('data-layout', this.navLayout());
     root.setAttribute('data-mode', dark ? 'dark' : 'light');
     root.classList.toggle('dark', dark);
     root.classList.toggle(IONIC_DARK_CLASS, dark);
     root.style.colorScheme = dark ? 'dark' : 'light';
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(THEME_ID_STORAGE_KEY, effectiveTheme);
+    }
   }
 }
