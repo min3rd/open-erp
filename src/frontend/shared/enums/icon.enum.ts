@@ -40,7 +40,8 @@ export enum IconName {
 }
 
 /**
- * String-value form of {@link IconName}. Lets templates use plain static
- * attributes (`name="menu"`) while `IconName` stays the canonical enum.
+ * String-value form of {@link IconName}, for data models that carry an icon id
+ * (e.g. context-menu items). `<app-icon>` accepts a plain `string` so static
+ * template attributes work in every tool.
  */
 export type IconNameValue = `${IconName}`;

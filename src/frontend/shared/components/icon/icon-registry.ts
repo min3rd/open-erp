@@ -16,14 +16,13 @@
  *   WITHOUT WARRANTY OF ANY KIND.
  */
 import featherIcons from 'feather-icons';
-import { IconNameValue } from '../../enums';
 
 export interface IconDefinition {
   /** Inner SVG markup, rendered inside the shared `<svg>` shell. */
   contents: string;
 }
 
-export function getIcon(name: IconNameValue): IconDefinition {
+export function getIcon(name: string): IconDefinition {
   const icon = featherIcons.icons[name];
   return icon ? { contents: icon.contents } : { contents: '' };
 }

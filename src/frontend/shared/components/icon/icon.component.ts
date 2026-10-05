@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { IconNameValue, SizeVariant } from '../../enums';
+import { SizeVariant } from '../../enums';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { getIcon } from './icon-registry';
 
@@ -29,11 +29,11 @@ export class IconComponent {
   private sanitizer = inject(DomSanitizer);
 
   /**
-   * Icon identifier. Typed as the string-value union so templates can pass a
-   * plain attribute (`name="x"`) while `IconName` stays the canonical enum
-   * (enum members are assignable to these literals).
+   * Feather icon id (see `IconName` for the canonical set). Typed as `string`
+   * on purpose: static template attributes (`name="x"`) are plain strings, and
+   * the enum stays the source of truth for TS call sites.
    */
-  name = input.required<IconNameValue>();
+  name = input.required<string>();
   size = input<SizeVariant | `${SizeVariant}`>(SizeVariant.SM);
   decorative = input<boolean>(false);
   labelKey = input<string>('');
