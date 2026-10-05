@@ -103,6 +103,9 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 | TASK-371 | Chưa tạo | Developer | **Reserved** (RTL đầy đủ cho `ar`) |
 | BUG-121 | [Org tree empty during backend outage](07_items/BUG-121_org_tree_empty_during_backend_outage.md) | Developer | Used (Resolved) |
 | BUG-122 | [Org chart missing root + branches](07_items/BUG-122_org_chart_missing_tenant_root_and_branches.md) | Developer | Used (In Review) |
+| BUG-123 | [Rail menu missing levels](07_items/BUG-123_rail_menu_missing_levels.md) | Developer | Used (In Review) |
+| BUG-124 | [Top dropdown stays open](07_items/BUG-124_top_menu_dropdown_stays_open.md) | Developer | Used (In Review) |
+| BUG-125 | [Rounded shape distorts UI](07_items/BUG-125_rounded_shape_distorts_ui.md) | Developer | Used (In Review) |
 | ADR-S04-* | Chưa tạo | Architect | Chưa dùng |
 | TP-S04-001 | [Test plan](08_testing/01_TP-S04-001_sprint_04_test_plan.md) | QA | Used (Draft) |
 | TR-S04-001 | Chưa tạo | QA | Chưa dùng |
