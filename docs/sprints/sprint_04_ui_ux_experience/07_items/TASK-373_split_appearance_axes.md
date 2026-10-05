@@ -57,3 +57,8 @@ Commit `8048b15`. Script QA: `%TEMP%/opencode/qa-appearance-axes.mjs`, `qa-appea
 Ghi chú kỹ thuật: bóng panel gắn theo **shape** (sharp = phẳng, soft/rounded = có bóng) chứ không theo màu, vì đây là thuộc tính bề mặt; màu giữ phần nhận diện qua topbar/sidebar (TASK-372 bổ sung 1).
 
 Rủi ro/điểm mở: shape/layout chưa lưu server-side nên đổi máy/trình duyệt là mất lựa chọn — xử lý ở TASK-369 khi làm hồ sơ người dùng.
+
+### Cập nhật 2026-10-05 (sau TASK-369 + TASK-374)
+
+- **Mọi trục đều lưu theo người dùng** qua `GET/PUT /api/v1/account/ui-preferences`; `theme = lựa chọn người dùng ?? mặc định tenant` (chủ tenant đặt mặc định bằng nút "Đặt" trong switcher). localStorage chỉ còn là cache để vẽ ngay trước khi API trả về. Chi tiết: [TASK-369](TASK-369_user_ui_preferences_api.md).
+- **Bố cục menu mở rộng từ 4 lên 6**: thêm `narrow` (rail 48px chỉ icon) và `compact` (rail 160px); mọi mục menu đều có icon, `top` hỗ trợ 2 cấp bằng dropdown `<details>`. Chi tiết: [TASK-374](TASK-374_menu_icons_and_layout_modes.md).
