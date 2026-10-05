@@ -19,6 +19,10 @@ export class ApiService {
     return this.http.post<ApiResponse<T>>(`${this.baseUrl}${path}`, body).pipe(catchError(this.handleError));
   }
 
+  postForm<T>(path: string, form: FormData): Observable<ApiResponse<T>> {
+    return this.http.post<ApiResponse<T>>(`${this.baseUrl}${path}`, form).pipe(catchError(this.handleError));
+  }
+
   put<T>(path: string, body: any): Observable<ApiResponse<T>> {
     return this.http.put<ApiResponse<T>>(`${this.baseUrl}${path}`, body).pipe(catchError(this.handleError));
   }

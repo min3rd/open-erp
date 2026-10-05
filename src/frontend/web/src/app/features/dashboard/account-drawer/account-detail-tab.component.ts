@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AccountService } from '../../../core/services/account.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 import { 
   I18nService, 
   TranslateDirective, 
@@ -42,6 +43,41 @@ export class AccountDetailTabComponent implements OnInit {
   loadingProfileUpdate = signal<boolean>(false);
   profileSuccess = signal<string | null>(null);
   profileError = signal<string | null>(null);
+
+  uploadingAvatar = signal<boolean>(false);
+  avatarError = signal<string | null>(null);
+
+  /** Absolute URL for the stored avatar (relative path → API base). */
+  avatarPreview(): string {
+    const url = this.profileAvatarUrl;
+    if (!url) {
+      return '';
+    }
+    return url.startsWith('http') ? url : `${environment.apiBaseUrl}${url}`;
+  }
+
+  onAvatarSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+    this.avatarError.set(null);
+    this.uploadingAvatar.set(true);
+    this.accountService.uploadAvatar(file).subscribe({
+      next: (res) => {
+        this.uploadingAvatar.set(false);
+        this.profileAvatarUrl = res.data.avatar_url || '';
+        this.profile.set(res.data);
+        input.value = '';
+      },
+      error: (err) => {
+        this.uploadingAvatar.set(false);
+        this.avatarError.set(apiMessage(this.i18n, err));
+        input.value = '';
+      }
+    });
+  }
 
   ngOnInit() {
     this.loadProfile();

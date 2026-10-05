@@ -66,6 +66,18 @@ export class AuthService {
     return readBooleanClaim(decodeJwtPayload(this.tokenSignal()), 'must_change_password') === true;
   });
 
+  /** True when the user may open at least one tenant configuration section. */
+  public canAccessSettings = computed<boolean>(() => {
+    const required = [
+      'core:role:manage',
+      'core:organization:manage',
+      'core:sample-record:read',
+      'core:plugin:read',
+      'core:plugin:credential:manage'
+    ];
+    return required.some((permission) => this.hasPermission(permission) !== false);
+  });
+
   hasPermission(permission: string): boolean | null {
     const permissions = this.functionalPermissions();
     if (permissions === null) {

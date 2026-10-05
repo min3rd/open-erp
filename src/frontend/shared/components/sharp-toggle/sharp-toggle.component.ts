@@ -7,7 +7,8 @@ export type ToggleSize = 'sm' | 'touch';
   selector: 'app-sharp-toggle',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './sharp-toggle.component.html'
+  templateUrl: './sharp-toggle.component.html',
+  host: { class: 'block' }
 })
 export class SharpToggleComponent {
   checked = model<boolean>(false);

@@ -8,7 +8,8 @@ import { SelectOption } from '../../models/ui.model';
   selector: 'app-sharp-select',
   standalone: true,
   imports: [CommonModule, FormsModule, TranslatePipe],
-  templateUrl: './sharp-select.component.html'
+  templateUrl: './sharp-select.component.html',
+  host: { class: 'block' }
 })
 export class SharpSelectComponent {
   id = input<string>(`select-${Math.random().toString(36).substring(2, 7)}`);

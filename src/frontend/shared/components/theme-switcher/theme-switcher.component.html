@@ -13,7 +13,7 @@
         [class.dark:text-neutral-900]="theme.mode() === item.mode"
         [class.text-neutral-600]="theme.mode() !== item.mode"
         [class.dark:text-neutral-400]="theme.mode() !== item.mode"
-        class="px-2 py-0.5 text-[11px] font-mono font-medium rounded-none hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
+        class="px-2 py-0.5 text-[11px] font-mono font-medium rounded-none hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer max-sm:min-h-10 max-sm:min-w-10 max-sm:inline-flex max-sm:items-center max-sm:justify-center"
       >
         {{ item.label | translate }}
       </button>

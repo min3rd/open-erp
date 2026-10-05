@@ -1,14 +1,12 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import {
   BadgeComponent,
   ColorVariant,
-  LanguageSwitcherComponent,
   PlatformAdminRole,
-  ThemeSwitcherComponent,
-  TranslatePipe
+  TranslatePipe,
+  UserMenuComponent
 } from '@shared';
 
 @Component({
@@ -16,12 +14,9 @@ import {
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
-    RouterLinkActive,
     BadgeComponent,
-    LanguageSwitcherComponent,
-    ThemeSwitcherComponent,
-    TranslatePipe
+    TranslatePipe,
+    UserMenuComponent
   ],
   templateUrl: './platform-topbar.component.html'
 })
@@ -30,7 +25,6 @@ export class PlatformTopbarComponent {
 
   readonly badgeVariantInfo = ColorVariant.INFO;
   readonly userEmail = computed(() => this.auth.user()?.email || '');
-  readonly userInitial = computed(() => (this.userEmail() || 'S').charAt(0).toUpperCase());
 
   readonly platformRole = this.auth.platformRole;
   readonly isSuperAdmin = this.auth.isPlatformSuperAdmin;
@@ -38,29 +32,6 @@ export class PlatformTopbarComponent {
     this.platformRole() === PlatformAdminRole.SUPPORT_ENGINEER
       ? 'PLATFORM_ROLE_BADGE_SUPPORT_ENGINEER'
       : 'PLATFORM_ROLE_BADGE_SUPER_ADMIN'
-  );
-
-  private readonly allMenuItems: ReadonlyArray<{ path: string; labelKey: string }> = [
-    { path: '/platform/tenants', labelKey: 'PLATFORM_TENANT_MANAGEMENT' },
-    { path: '/platform/plugins', labelKey: 'PLUGIN_PORTAL_TITLE' },
-    { path: '/platform/plugin-credentials', labelKey: 'PLUGIN_CREDENTIALS_TITLE' },
-    { path: '/platform/tenant-private-plugins', labelKey: 'PLUGIN_TENANT_PRIVATE_TITLE' },
-    { path: '/platform/users', labelKey: 'PLATFORM_GLOBAL_USERS' },
-    { path: '/platform/health', labelKey: 'PLATFORM_SYSTEM_HEALTH' },
-    { path: '/platform/audit-logs', labelKey: 'PLATFORM_AUDIT_TRAIL' },
-    { path: '/platform/admins', labelKey: 'PLATFORM_ADMINS_TITLE' }
-  ];
-
-  private readonly superAdminOnlyPaths = new Set([
-    '/platform/admins',
-    '/platform/plugins',
-    '/platform/plugin-credentials'
-  ]);
-
-  readonly menuItems = computed(() =>
-    this.isSuperAdmin()
-      ? this.allMenuItems
-      : this.allMenuItems.filter((item) => !this.superAdminOnlyPaths.has(item.path))
   );
 
   logout() {

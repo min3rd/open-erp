@@ -9,6 +9,7 @@ import {
   FlatDepartmentNode,
   I18nService,
   Membership,
+  RequirePermissionDirective,
   SharpButtonComponent,
   TableColumn,
   TableComponent,
@@ -17,6 +18,7 @@ import {
 } from '@shared';
 
 import { OrganizationService } from '../../../core/services/organization.service';
+import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
 import { DepartmentFormDrawerComponent } from './department-form-drawer.component';
 import { BranchFormDrawerComponent } from './branch-form-drawer.component';
 import {
@@ -45,13 +47,17 @@ const GRAPH_PADDING = 24;
     TranslatePipe,
     DepartmentFormDrawerComponent,
     BranchFormDrawerComponent,
-    DepartmentGraphCanvasComponent
+    DepartmentGraphCanvasComponent,
+    RequirePermissionDirective
   ],
+  providers: [PathListStateService],
   templateUrl: './organization.component.html'
 })
 export class OrganizationComponent implements OnInit {
   private organization = inject(OrganizationService);
   private i18n = inject(I18nService);
+  private listState = inject(PathListStateService);
+  private pendingState: PathListState | null = null;
 
   readonly branches = signal<Branch[]>([]);
   readonly departmentTree = signal<DepartmentNode[]>([]);
@@ -168,7 +174,73 @@ export class OrganizationComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.listState.bind('/settings/organization', (state) => this.applyRouteState(state));
     this.load();
+  }
+
+  /** Deep-link / F5: restore the view, selected department and any open drawer. */
+  private applyRouteState(state: PathListState) {
+    this.pendingState = state;
+    this.viewMode.set(state.filter === 'graph' ? 'graph' : 'list');
+    const mode = state.mode || 'list';
+    if (!mode.startsWith('branch-')) {
+      this.selectedId.set(state.id);
+    }
+    this.applyDrawerMode(mode, state.id);
+  }
+
+  /** view = `filter` (list|graph), drawer = `mode`. */
+  private applyDrawerMode(mode: string, id: string | null) {
+    if (!this.branches().length && !this.departmentTree().length) {
+      return;
+    }
+    this.departmentDrawerOpen.set(false);
+    this.branchDrawerOpen.set(false);
+    this.confirmDelete.set(null);
+    switch (mode) {
+      case 'dept-create':
+        this.editingDepartment.set(null);
+        this.presetParentId.set(id);
+        this.departmentDrawerOpen.set(true);
+        break;
+      case 'dept-edit': {
+        const department = this.findNode(this.departmentTree(), id);
+        if (department) {
+          this.editingDepartment.set(department);
+          this.presetParentId.set(department.parent_id || null);
+          this.departmentDrawerOpen.set(true);
+        }
+        break;
+      }
+      case 'branch-create':
+        this.editingBranch.set(null);
+        this.branchDrawerOpen.set(true);
+        break;
+      case 'branch-edit': {
+        const branch = this.branches().find((item) => item.id === id) ?? null;
+        if (branch) {
+          this.editingBranch.set(branch);
+          this.branchDrawerOpen.set(true);
+        }
+        break;
+      }
+      case 'dept-delete': {
+        const department = this.findNode(this.departmentTree(), id);
+        if (department) {
+          this.confirmDelete.set({ type: 'DEPARTMENT', id: department.id, name: department.name });
+        }
+        break;
+      }
+      case 'branch-delete': {
+        const branch = this.branches().find((item) => item.id === id) ?? null;
+        if (branch) {
+          this.confirmDelete.set({ type: 'BRANCH', id: branch.id, name: branch.name });
+        }
+        break;
+      }
+      default:
+        break;
+    }
   }
 
   load() {
@@ -188,6 +260,7 @@ export class OrganizationComponent implements OnInit {
         }
         this.loading.set(false);
         this.errorText.set('');
+        this.applyDrawerMode(this.pendingState?.mode ?? 'list', this.pendingState?.id ?? null);
       },
       error: (err) => {
         this.loading.set(false);
@@ -207,18 +280,22 @@ export class OrganizationComponent implements OnInit {
     } catch {
       // localStorage unavailable (private mode) — view state is not persisted.
     }
+    this.listState.set({ filter: mode });
   }
 
   selectDepartment(department: DepartmentNode) {
     this.selectedId.set(department.id);
+    this.listState.set({ id: department.id, mode: 'list' });
   }
 
   selectDepartmentById(departmentId: string) {
     this.selectedId.set(departmentId);
+    this.listState.set({ id: departmentId, mode: 'list' });
   }
 
   clearSelection() {
     this.selectedId.set(null);
+    this.listState.set({ id: null, mode: 'list' });
   }
 
   toggleCollapse(departmentId: string) {
@@ -277,20 +354,24 @@ export class OrganizationComponent implements OnInit {
     this.editingDepartment.set(null);
     this.presetParentId.set(parentId);
     this.departmentDrawerOpen.set(true);
+    this.listState.set({ mode: 'dept-create', id: parentId });
   }
 
   openEditDepartment(department: DepartmentNode) {
     this.editingDepartment.set(department);
     this.presetParentId.set(department.parent_id || null);
     this.departmentDrawerOpen.set(true);
+    this.listState.set({ mode: 'dept-edit', id: department.id });
   }
 
   closeDepartmentDrawer() {
     this.departmentDrawerOpen.set(false);
+    this.listState.set({ mode: 'list' });
   }
 
   onDepartmentSaved(code: string) {
     this.departmentDrawerOpen.set(false);
+    this.listState.set({ mode: 'list' });
     this.successText.set(this.i18n.t(code));
     this.errorText.set('');
     this.load();
@@ -299,19 +380,23 @@ export class OrganizationComponent implements OnInit {
   openCreateBranch() {
     this.editingBranch.set(null);
     this.branchDrawerOpen.set(true);
+    this.listState.set({ mode: 'branch-create', id: null });
   }
 
   openEditBranch(branch: Branch) {
     this.editingBranch.set(branch);
     this.branchDrawerOpen.set(true);
+    this.listState.set({ mode: 'branch-edit', id: branch.id });
   }
 
   closeBranchDrawer() {
     this.branchDrawerOpen.set(false);
+    this.listState.set({ mode: 'list' });
   }
 
   onBranchSaved(code: string) {
     this.branchDrawerOpen.set(false);
+    this.listState.set({ mode: 'list' });
     this.successText.set(this.i18n.t(code));
     this.errorText.set('');
     this.load();
@@ -319,14 +404,17 @@ export class OrganizationComponent implements OnInit {
 
   askDeleteBranch(branch: Branch) {
     this.confirmDelete.set({ type: 'BRANCH', id: branch.id, name: branch.name });
+    this.listState.set({ mode: 'branch-delete', id: branch.id });
   }
 
   askDeleteDepartment(department: DepartmentNode) {
     this.confirmDelete.set({ type: 'DEPARTMENT', id: department.id, name: department.name });
+    this.listState.set({ mode: 'dept-delete', id: department.id });
   }
 
   cancelDelete() {
     this.confirmDelete.set(null);
+    this.listState.set({ mode: 'list' });
   }
 
   confirmDeleteAction() {
@@ -343,6 +431,7 @@ export class OrganizationComponent implements OnInit {
       next: (res) => {
         this.deleting.set(false);
         this.confirmDelete.set(null);
+        this.listState.set({ mode: 'list' });
         if (this.selectedId() === pending.id) {
           this.selectedId.set(null);
         }

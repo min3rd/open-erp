@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, HostListener, effect, inject, input, output, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, HostListener, effect, inject, input, output, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '../../i18n';
 
@@ -35,6 +35,8 @@ export class DrawerComponent {
   private panel = viewChild<ElementRef<HTMLElement>>('panel');
   private previouslyFocused: HTMLElement | null = null;
   private wasOpen = false;
+  /** Bumped whenever the open stack changes so `panelClasses()` re-evaluates. */
+  private readonly stackTick = signal(0);
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
@@ -52,9 +54,11 @@ export class DrawerComponent {
         this.previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
         DrawerComponent.openStack = DrawerComponent.openStack.filter(drawer => drawer !== this);
         DrawerComponent.openStack.push(this);
+        this.stackTick.update(value => value + 1);
         queueMicrotask(() => this.focusFirstElement());
       } else {
         DrawerComponent.openStack = DrawerComponent.openStack.filter(drawer => drawer !== this);
+        this.stackTick.update(value => value + 1);
         this.restoreFocus();
       }
     });
@@ -66,7 +70,11 @@ export class DrawerComponent {
 
   panelClasses(): string {
     const base = 'bg-white dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800 shadow-2xl flex flex-col transform transition-transform ease-in-out duration-300';
-    const shift = this.shiftLeft() ? '-translate-x-[30px]' : 'translate-x-0';
+    // Shift left only when another drawer is stacked ON TOP (so the lower drawer
+    // peeks out). A top-most drawer must stay flush to the right edge.
+    const hasDrawerAbove = this.stackTick() >= 0
+      && DrawerComponent.openStack[DrawerComponent.openStack.length - 1] !== this;
+    const shift = this.shiftLeft() && hasDrawerAbove ? '-translate-x-[30px]' : 'translate-x-0';
     return `${base} ${this.width()} ${shift}`.trim();
   }
 

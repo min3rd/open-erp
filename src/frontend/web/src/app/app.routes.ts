@@ -202,12 +202,12 @@ export const routes: Routes = [
       {
         path: 'roles',
         canActivate: [permissionGuard('core:role:manage')],
-        loadComponent: () => import('./features/settings/roles/role-matrix.component').then(m => m.RoleMatrixComponent)
+        children: listState(() => import('./features/settings/roles/role-matrix.component').then(m => m.RoleMatrixComponent))
       },
       {
         path: 'organization',
         canActivate: [permissionGuard('core:organization:manage')],
-        loadComponent: () => import('./features/settings/organization/organization.component').then(m => m.OrganizationComponent)
+        children: listState(() => import('./features/settings/organization/organization.component').then(m => m.OrganizationComponent))
       },
       {
         path: 'members',

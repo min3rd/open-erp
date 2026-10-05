@@ -5,14 +5,15 @@
       <button
         type="button"
         class="px-2 py-1 text-[11px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed"
-        [disabled]="exporting() || exportDenied()"
-        [title]="exportDenied() ? (exportDeniedKey() | translate) : ''"
+        [disabled]="exporting() || exportDenied() || !canExport()"
+        [title]="!canExport() ? ('IAM_PERMISSION_DENIED_EXPORT' | translate) : (exportDenied() ? (exportDeniedKey() | translate) : '')"
         (click)="exportRecords()"
       >
         {{ 'SAMPLE_RECORD_EXPORT_BTN' | translate }}
       </button>
       <button
         type="button"
+        *appRequirePermission="'core:sample-record:create'"
         class="px-2 py-1 text-[11px] bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 border border-transparent hover:bg-neutral-800 dark:hover:bg-neutral-200"
         (click)="openCreate()"
       >
@@ -80,6 +81,7 @@
           <div class="flex items-center justify-end gap-1">
             <button
               type="button"
+              *appRequirePermission="'core:sample-record:update'"
               class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
               (click)="openEdit(r)"
             >
@@ -87,6 +89,7 @@
             </button>
             <button
               type="button"
+              *appRequirePermission="'core:sample-record:delete'"
               class="px-1.5 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
               (click)="askDelete(r)"
             >

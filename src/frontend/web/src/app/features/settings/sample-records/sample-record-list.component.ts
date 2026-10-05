@@ -11,6 +11,7 @@ import {
   I18nService,
   Membership,
   PaginationComponent,
+  RequirePermissionDirective,
   SampleRecord,
   SampleRecordStatus,
   TableColumn,
@@ -20,6 +21,7 @@ import {
   formatDateTime
 } from '@shared';
 
+import { AuthService } from '../../../core/services/auth.service';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { SampleRecordService } from '../../../core/services/sample-record.service';
 import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
@@ -35,7 +37,8 @@ import { SampleRecordFormDrawerComponent } from './sample-record-form-drawer.com
     PaginationComponent,
     BadgeComponent,
     TranslatePipe,
-    SampleRecordFormDrawerComponent
+    SampleRecordFormDrawerComponent,
+    RequirePermissionDirective
   ],
   providers: [PathListStateService],
   templateUrl: './sample-record-list.component.html'
@@ -45,6 +48,10 @@ export class SampleRecordListComponent implements OnInit {
   private organization = inject(OrganizationService);
   private i18n = inject(I18nService);
   private listState = inject(PathListStateService);
+  private auth = inject(AuthService);
+
+  /** Export is denied up-front when the permission claim says so, not after a 403. */
+  readonly canExport = computed(() => this.auth.hasPermission('core:sample-record:export') !== false);
 
   readonly records = signal<SampleRecord[]>([]);
   readonly formatDateTime = formatDateTime;

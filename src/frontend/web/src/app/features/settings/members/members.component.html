@@ -3,6 +3,7 @@
     <h1 class="text-sm font-bold uppercase tracking-wider">{{ 'ORGANIZATION_MEMBERSHIPS' | translate }}</h1>
     <button
       type="button"
+      *appRequirePermission="'core:membership:manage'"
       class="px-2 py-1 text-[11px] bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 border border-transparent hover:bg-neutral-800 dark:hover:bg-neutral-200"
       (click)="openCreateMembership()"
     >
@@ -87,6 +88,7 @@
           <div class="flex items-center justify-end gap-1">
             <button
               type="button"
+              *appRequirePermission="'core:membership:manage'"
               class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
               (click)="openEditMembership(m)"
             >

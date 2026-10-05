@@ -25,6 +25,12 @@ export class AccountService {
     return this.api.put<UserProfileData>('/api/v1/account/profile', data);
   }
 
+  uploadAvatar(file: File): Observable<ApiResponse<UserProfileData>> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.api.postForm<UserProfileData>('/api/v1/account/avatar', form);
+  }
+
   changePassword(data: { current_password: string; new_password: string; logout_other_devices: boolean }): Observable<ApiResponse<any>> {
     return this.api.post('/api/v1/account/change-password', data);
   }

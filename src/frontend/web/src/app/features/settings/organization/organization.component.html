@@ -119,6 +119,7 @@
               <div class="flex items-center gap-1 shrink-0">
                 <button
                   type="button"
+                  *appRequirePermission="'core:department:manage'"
                   class="px-1 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                   (click)="openCreateDepartment(department.id)"
                 >
@@ -126,6 +127,7 @@
                 </button>
                 <button
                   type="button"
+                  *appRequirePermission="'core:department:manage'"
                   class="px-1 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                   (click)="openEditDepartment(department)"
                 >
@@ -133,6 +135,7 @@
                 </button>
                 <button
                   type="button"
+                  *appRequirePermission="'core:department:manage'"
                   class="px-1 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
                   (click)="askDeleteDepartment(department)"
                 >
@@ -215,6 +218,7 @@
               <div class="flex items-center justify-end gap-1">
                 <button
                   type="button"
+                  *appRequirePermission="'core:branch:manage'"
                   class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                   (click)="openEditBranch(b)"
                 >
@@ -222,6 +226,7 @@
                 </button>
                 <button
                   type="button"
+                  *appRequirePermission="'core:branch:manage'"
                   class="px-1.5 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
                   (click)="askDeleteBranch(b)"
                 >

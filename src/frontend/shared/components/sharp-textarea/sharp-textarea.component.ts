@@ -6,7 +6,8 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-sharp-textarea',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './sharp-textarea.component.html'
+  templateUrl: './sharp-textarea.component.html',
+  host: { class: 'block' }
 })
 export class SharpTextareaComponent {
   id = input<string>(`textarea-${Math.random().toString(36).substring(2, 7)}`);

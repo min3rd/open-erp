@@ -13,6 +13,7 @@ import {
   DataScope,
   I18nService,
   Permission,
+  RequirePermissionDirective,
   Role,
   SelectOption,
   SharpButtonComponent,
@@ -25,6 +26,7 @@ import {
 } from '@shared';
 
 import { IamService } from '../../../core/services/iam.service';
+import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
 import { RoleFormDrawerComponent } from './role-form-drawer.component';
 import { AssignUsersDrawerComponent } from './assign-users-drawer.component';
 
@@ -45,13 +47,18 @@ interface PermissionGroup {
     SharpToggleComponent,
     TranslatePipe,
     RoleFormDrawerComponent,
-    AssignUsersDrawerComponent
+    AssignUsersDrawerComponent,
+    RequirePermissionDirective
   ],
+  providers: [PathListStateService],
   templateUrl: './role-matrix.component.html'
 })
 export class RoleMatrixComponent implements OnInit {
   private iam = inject(IamService);
   private i18n = inject(I18nService);
+  private listState = inject(PathListStateService);
+
+  private pendingState: PathListState | null = null;
 
   readonly roles = signal<Role[]>([]);
   readonly permissions = signal<Permission[]>([]);
@@ -111,7 +118,52 @@ export class RoleMatrixComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.listState.bind('/settings/roles', (state) => this.applyRouteState(state));
     this.loadInitialData();
+  }
+
+  /** Deep-link / F5: restore the selected role and any open drawer from the route. */
+  private applyRouteState(state: PathListState) {
+    this.pendingState = state;
+    if (!this.roles().length) {
+      return;
+    }
+    const role = state.id ? this.roles().find((item) => item.id === state.id) : undefined;
+    if (role && role.id !== this.selectedRole()?.id) {
+      this.selectRole(role, false);
+    }
+    this.applyDrawerMode(state.mode);
+  }
+
+  /** `mode` drives the route-addressable drawers: list | create | edit | delete | assign. */
+  private applyDrawerMode(mode: string) {
+    this.roleFormOpen.set(false);
+    this.assignUsersOpen.set(false);
+    this.confirmDeleteRole.set(null);
+    switch (mode) {
+      case 'create':
+        this.editingRole.set(null);
+        this.roleFormOpen.set(true);
+        break;
+      case 'edit':
+        if (this.selectedRole()) {
+          this.editingRole.set(this.selectedRole());
+          this.roleFormOpen.set(true);
+        }
+        break;
+      case 'delete':
+        if (this.selectedRole()) {
+          this.confirmDeleteRole.set(this.selectedRole());
+        }
+        break;
+      case 'assign':
+        if (this.selectedRole()) {
+          this.assignUsersOpen.set(true);
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   loadInitialData() {
@@ -130,7 +182,11 @@ export class RoleMatrixComponent implements OnInit {
         this.loadingRoles.set(false);
         this.loadingPermissions.set(false);
         if (roles.data.items.length) {
-          this.selectRole(roles.data.items[0]);
+          const wanted = this.pendingState?.id
+            ? roles.data.items.find((item) => item.id === this.pendingState?.id)
+            : undefined;
+          this.selectRole(wanted ?? roles.data.items[0], false);
+          this.applyDrawerMode(this.pendingState?.mode ?? 'list');
         }
       },
       error: (err) => {
@@ -141,11 +197,14 @@ export class RoleMatrixComponent implements OnInit {
     });
   }
 
-  selectRole(role: Role) {
+  selectRole(role: Role, syncUrl = true) {
     this.selectedRole.set(role);
     this.successText.set('');
     this.loadRolePermissions(role);
     this.loadRolePolicies(role);
+    if (syncUrl) {
+      this.listState.set({ id: role.id, mode: 'list' });
+    }
   }
 
   isDomainExpanded(domain: string): boolean {
@@ -246,30 +305,38 @@ export class RoleMatrixComponent implements OnInit {
   openCreateRole() {
     this.editingRole.set(null);
     this.roleFormOpen.set(true);
+    this.listState.set({ id: null, mode: 'create' });
   }
 
   openEditRole(role: Role) {
+    this.selectRole(role, false);
     this.editingRole.set(role);
     this.roleFormOpen.set(true);
+    this.listState.set({ id: role.id, mode: 'edit' });
   }
 
   closeRoleForm() {
     this.roleFormOpen.set(false);
+    this.listState.set({ mode: 'list' });
   }
 
   onRoleSaved(code: string) {
     this.roleFormOpen.set(false);
+    this.listState.set({ mode: 'list' });
     this.successText.set(this.i18n.t(code));
     this.errorText.set('');
     this.reloadRoles();
   }
 
   askDeleteRole(role: Role) {
+    this.selectRole(role, false);
     this.confirmDeleteRole.set(role);
+    this.listState.set({ id: role.id, mode: 'delete' });
   }
 
   cancelDeleteRole() {
     this.confirmDeleteRole.set(null);
+    this.listState.set({ mode: 'list' });
   }
 
   confirmDelete() {
@@ -282,6 +349,7 @@ export class RoleMatrixComponent implements OnInit {
       next: (res) => {
         this.deletingRole.set(false);
         this.confirmDeleteRole.set(null);
+        this.listState.set({ id: null, mode: 'list' });
         this.successText.set(this.i18n.t(res.code, res.params));
         this.errorText.set('');
         if (this.selectedRole()?.id === role.id) {
@@ -299,15 +367,18 @@ export class RoleMatrixComponent implements OnInit {
   openAssignUsers() {
     if (this.selectedRole()) {
       this.assignUsersOpen.set(true);
+      this.listState.set({ id: this.selectedRole()?.id ?? null, mode: 'assign' });
     }
   }
 
   closeAssignUsers() {
     this.assignUsersOpen.set(false);
+    this.listState.set({ mode: 'list' });
   }
 
   onUsersAssigned(code: string) {
     this.assignUsersOpen.set(false);
+    this.listState.set({ mode: 'list' });
     this.successText.set(this.i18n.t(code));
     this.errorText.set('');
     this.reloadRoles();

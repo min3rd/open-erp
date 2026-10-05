@@ -1,10 +1,8 @@
-import { Component, input, output, computed, signal } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ColorVariant, SizeVariant } from '../../enums';
+import { ColorVariant } from '../../enums';
 import { BadgeComponent } from '../badge/badge.component';
-import { SharpButtonComponent } from '../sharp-button/sharp-button.component';
-import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
-import { ThemeSwitcherComponent } from '../theme-switcher/theme-switcher.component';
+import { UserMenuComponent } from '../user-menu/user-menu.component';
 import { MobileNavDrawerComponent } from '../mobile-nav-drawer/mobile-nav-drawer.component';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 
@@ -14,9 +12,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
   imports: [
     CommonModule,
     BadgeComponent,
-    SharpButtonComponent,
-    LanguageSwitcherComponent,
-    ThemeSwitcherComponent,
+    UserMenuComponent,
     MobileNavDrawerComponent,
     TranslatePipe
   ],
@@ -27,20 +23,15 @@ export class TopbarComponent {
   role = input<string>('MEMBER');
   userName = input<string>('');
   userEmail = input<string>('');
+  settingsPath = input<string | null>(null);
+  platformPath = input<string | null>(null);
 
   openAccount = output<void>();
   logout = output<void>();
 
   readonly colorInfo = ColorVariant.INFO;
-  readonly colorGhost = ColorVariant.GHOST;
-  readonly sizeSm = SizeVariant.SM;
 
   readonly mobileMenuOpen = signal<boolean>(false);
-
-  userInitial = computed(() => {
-    const name = this.userName() || this.userEmail() || 'U';
-    return name.charAt(0).toUpperCase();
-  });
 
   toggleMobileMenu() {
     this.mobileMenuOpen.update(open => !open);

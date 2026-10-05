@@ -1,6 +1,15 @@
 <div class="min-h-screen bg-neutral-100 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 flex flex-col">
   <app-platform-topbar />
-  <main class="flex-1 p-2 sm:p-3 w-full space-y-2">
-    <router-outlet />
-  </main>
+
+  <div class="flex-1 flex flex-col lg:flex-row">
+    <aside
+      class="lg:w-56 lg:shrink-0 border-b lg:border-b-0 lg:border-r border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-1.5"
+    >
+      <app-section-nav [items]="menuItems()" titleKey="PLATFORM_SECTION_TITLE" />
+    </aside>
+
+    <main class="flex-1 min-w-0 p-2 sm:p-3 space-y-2">
+      <router-outlet />
+    </main>
+  </div>
 </div>

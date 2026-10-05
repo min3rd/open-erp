@@ -26,7 +26,7 @@ export class SharpButtonComponent {
   }
 
   buttonClasses(): string {
-    const base = 'inline-flex items-center justify-center font-medium transition-colors select-none focus:outline-none focus:ring-1 focus:ring-neutral-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
+    const base = 'inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors select-none focus:outline-none focus:ring-1 focus:ring-neutral-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
 
     const shape = this.shape() as string;
     const shapeCls = shape === ShapeVariant.SOFT || shape === 'soft' ? 'rounded-sm' : 'rounded-none';

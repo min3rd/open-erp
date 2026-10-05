@@ -16,33 +16,13 @@
     </div>
 
     <div class="flex flex-1 flex-wrap items-center justify-end gap-x-1.5 gap-y-1 sm:gap-x-3 min-w-0">
-      <app-theme-switcher class="shrink-0" />
-      <app-language-switcher class="shrink-0" />
-      <div class="hidden md:flex items-center gap-1.5 text-[11px] text-neutral-300 min-w-0">
-        <span class="w-4 h-4 shrink-0 bg-indigo-500/30 border border-indigo-500/50 flex items-center justify-center text-[9px] font-bold text-indigo-200">
-          {{ userInitial() }}
-        </span>
-        <span class="truncate max-w-[180px]">{{ userEmail() }}</span>
-      </div>
-      <button
-        type="button"
-        class="px-2 py-0.5 min-h-10 sm:min-h-0 shrink-0 text-[11px] bg-neutral-800 text-neutral-200 border border-neutral-700 hover:bg-neutral-700 transition-colors cursor-pointer"
-        (click)="logout()"
-      >
-        {{ 'COMMON_LOGOUT' | translate }}
-      </button>
+      <app-user-menu
+        class="shrink-0"
+        [userName]="userEmail()"
+        [userEmail]="userEmail()"
+        [showAccount]="false"
+        (logout)="logout()"
+      />
     </div>
   </div>
-
-  <nav class="px-2 flex items-center gap-0.5 overflow-x-auto [scrollbar-width:thin] border-t border-neutral-800">
-    @for (item of menuItems(); track item.path) {
-      <a
-        [routerLink]="item.path"
-        routerLinkActive="bg-indigo-950 text-indigo-200 border-b-2 border-indigo-400"
-        class="inline-flex items-center px-2.5 py-1.5 min-h-10 sm:min-h-0 text-[11px] font-medium uppercase tracking-wider text-neutral-400 hover:text-neutral-100 hover:bg-neutral-800 border-b-2 border-transparent whitespace-nowrap transition-colors"
-      >
-        {{ item.labelKey | translate }}
-      </a>
-    }
-  </nav>
 </header>

@@ -31,10 +31,32 @@
       [(value)]="profilePhone"
     />
 
-    <app-sharp-input
-      [label]="'ACCOUNT_AVATAR_URL_LABEL' | translate"
-      [(value)]="profileAvatarUrl"
-    />
+    <div class="space-y-2">
+      <span class="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300">
+        {{ 'ACCOUNT_AVATAR_URL_LABEL' | translate }}
+      </span>
+      <div class="flex items-center gap-3">
+        @if (avatarPreview()) {
+          <img
+            [src]="avatarPreview()"
+            [alt]="'ACCOUNT_AVATAR_URL_LABEL' | translate"
+            class="h-12 w-12 shrink-0 border border-neutral-300 object-cover dark:border-neutral-700"
+          />
+        } @else {
+          <div class="h-12 w-12 shrink-0 border border-dashed border-neutral-300 dark:border-neutral-700"></div>
+        }
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          [disabled]="uploadingAvatar()"
+          (change)="onAvatarSelected($event)"
+          class="min-w-0 text-xs file:mr-2 file:cursor-pointer file:border file:border-neutral-300 file:bg-transparent file:px-2 file:py-1 file:text-[11px] dark:file:border-neutral-700"
+        />
+      </div>
+      @if (avatarError()) {
+        <p class="text-[11px] text-red-600 dark:text-red-400">{{ avatarError() }}</p>
+      }
+    </div>
 
     <div class="grid grid-cols-2 gap-3">
       <div class="space-y-1">

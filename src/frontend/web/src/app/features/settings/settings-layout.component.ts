@@ -1,8 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { TopbarComponent, TranslatePipe } from '@shared';
+import { TopbarComponent, SectionNavComponent } from '@shared';
 
 interface SettingsMenuItem {
   path: string;
@@ -13,7 +12,7 @@ interface SettingsMenuItem {
 @Component({
   selector: 'app-settings-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TopbarComponent, TranslatePipe],
+  imports: [RouterOutlet, TopbarComponent, SectionNavComponent],
   templateUrl: './settings-layout.component.html'
 })
 export class SettingsLayoutComponent {

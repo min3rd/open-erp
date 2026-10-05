@@ -5,6 +5,8 @@
     [role]="auth.user()?.role || 'MEMBER'"
     [userName]="auth.user()?.full_name || ''"
     [userEmail]="auth.user()?.email || ''"
+    [settingsPath]="auth.canAccessSettings() ? '/settings/roles' : null"
+    [platformPath]="auth.isPlatformAdmin() ? '/platform/tenants' : null"
     (openAccount)="openAccount()"
     (logout)="auth.logout()"
   />

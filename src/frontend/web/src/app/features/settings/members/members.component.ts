@@ -10,6 +10,7 @@ import {
   FlatDepartmentNode,
   I18nService,
   Membership,
+  RequirePermissionDirective,
   TableColumn,
   TableComponent,
   TranslatePipe,
@@ -31,7 +32,8 @@ import { BranchAssignmentDrawerComponent } from '../branch-assignments/branch-as
     BadgeComponent,
     TranslatePipe,
     UserAssignmentDrawerComponent,
-    BranchAssignmentDrawerComponent
+    BranchAssignmentDrawerComponent,
+    RequirePermissionDirective
   ],
   providers: [PathListStateService],
   templateUrl: './members.component.html'

@@ -6,7 +6,8 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-sharp-input',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './sharp-input.component.html'
+  templateUrl: './sharp-input.component.html',
+  host: { class: 'block' }
 })
 export class SharpInputComponent {
   id = input<string>(`input-${Math.random().toString(36).substring(2, 7)}`);

@@ -4,23 +4,21 @@
     [role]="auth.user()?.role || 'MEMBER'"
     [userName]="auth.user()?.full_name || ''"
     [userEmail]="auth.user()?.email || ''"
+    [settingsPath]="auth.canAccessSettings() ? '/settings/roles' : null"
+    [platformPath]="auth.isPlatformAdmin() ? '/platform/tenants' : null"
     (openAccount)="openAccount()"
     (logout)="logout()"
   />
 
-  <nav class="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 px-2 flex items-center gap-0.5 overflow-x-auto">
-    @for (item of menuItems(); track item.path) {
-      <a
-        [routerLink]="item.path"
-        routerLinkActive="border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100 font-bold"
-        class="inline-flex items-center min-h-10 sm:min-h-0 px-2.5 py-2 text-[11px] font-medium uppercase tracking-wider text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 border-b-2 border-transparent whitespace-nowrap transition-colors"
-      >
-        {{ item.labelKey | translate }}
-      </a>
-    }
-  </nav>
+  <div class="flex-1 flex flex-col lg:flex-row">
+    <aside
+      class="lg:w-56 lg:shrink-0 border-b lg:border-b-0 lg:border-r border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-1.5"
+    >
+      <app-section-nav [items]="menuItems()" titleKey="SETTINGS_SECTION_TITLE" />
+    </aside>
 
-  <main class="flex-1 p-2 sm:p-3 w-full space-y-2">
-    <router-outlet />
-  </main>
+    <main class="flex-1 min-w-0 p-2 sm:p-3 space-y-2">
+      <router-outlet />
+    </main>
+  </div>
 </div>
