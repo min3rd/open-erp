@@ -1,6 +1,6 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { ThemeId, ThemeMode } from '../enums';
-import { DEFAULT_THEME_ID, isThemeId } from './theme-registry';
+import { DEFAULT_THEME_ID, isThemeId, navLayoutFor } from './theme-registry';
 import { TENANT_THEME_API } from './tenant-theme-api';
 
 /** Per-user light/dark MODE (back-compat key). */
@@ -21,6 +21,9 @@ export class ThemeService {
 
   private themeIdSignal = signal<ThemeId>(this.readCachedThemeId());
   public themeId = this.themeIdSignal.asReadonly();
+
+  /** Where the section menu lives for the current theme (side | top | right). */
+  public navLayout = computed(() => navLayoutFor(this.themeIdSignal()));
 
   private initialized = false;
   private mediaQuery: MediaQueryList | null = null;

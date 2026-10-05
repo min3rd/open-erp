@@ -1,16 +1,35 @@
-<nav class="flex flex-col gap-0.5" [attr.aria-label]="titleKey() ? (titleKey() | translate) : null">
-  @if (titleKey()) {
-    <p class="px-2.5 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-wider text-sidebar-text/80">
-      {{ titleKey() | translate }}
-    </p>
-  }
-  @for (item of items(); track item.path) {
-    <a
-      [routerLink]="item.path"
-      routerLinkActive="bg-sidebar-active text-sidebar-active-text font-semibold border-accent"
-      class="inline-flex min-h-10 lg:min-h-8 items-center rounded-control border-l-2 border-transparent px-2.5 py-1.5 text-xs text-sidebar-text transition-colors hover:bg-sidebar-active/60"
-    >
-      {{ item.labelKey | translate }}
-    </a>
-  }
-</nav>
+@if (orientation() === 'horizontal') {
+  <nav class="flex flex-row items-center gap-1 overflow-x-auto" [attr.aria-label]="titleKey() ? (titleKey() | translate) : null">
+    @if (titleKey()) {
+      <span class="shrink-0 px-1 text-[10px] font-bold uppercase tracking-wider text-sidebar-text/70">
+        {{ titleKey() | translate }}
+      </span>
+    }
+    @for (item of items(); track item.path) {
+      <a
+        [routerLink]="item.path"
+        routerLinkActive="bg-sidebar-active text-sidebar-active-text font-semibold border-accent"
+        class="inline-flex min-h-8 shrink-0 items-center whitespace-nowrap rounded-control border-b-2 border-transparent px-2.5 py-1 text-xs text-sidebar-text transition-colors hover:bg-sidebar-active/60"
+      >
+        {{ item.labelKey | translate }}
+      </a>
+    }
+  </nav>
+} @else {
+  <nav class="flex flex-col gap-0.5" [attr.aria-label]="titleKey() ? (titleKey() | translate) : null">
+    @if (titleKey()) {
+      <p class="px-2.5 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-wider text-sidebar-text/80">
+        {{ titleKey() | translate }}
+      </p>
+    }
+    @for (item of items(); track item.path) {
+      <a
+        [routerLink]="item.path"
+        routerLinkActive="bg-sidebar-active text-sidebar-active-text font-semibold border-accent"
+        class="inline-flex min-h-10 lg:min-h-8 items-center rounded-control border-l-2 border-transparent px-2.5 py-1.5 text-xs text-sidebar-text transition-colors hover:bg-sidebar-active/60"
+      >
+        {{ item.labelKey | translate }}
+      </a>
+    }
+  </nav>
+}

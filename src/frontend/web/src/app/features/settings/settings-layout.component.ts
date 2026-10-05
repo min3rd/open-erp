@@ -2,7 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { PluginService } from '../../core/services/plugin.service';
-import { TopbarComponent, SectionNavComponent, NotificationBannerComponent, PluginNotification } from '@shared';
+import { TopbarComponent, SectionNavComponent, NotificationBannerComponent, PluginNotification, ThemeService } from '@shared';
 
 interface SettingsMenuItem {
   path: string;
@@ -18,6 +18,7 @@ interface SettingsMenuItem {
 })
 export class SettingsLayoutComponent implements OnInit {
   auth = inject(AuthService);
+  theme = inject(ThemeService);
   private pluginService = inject(PluginService);
   private router = inject(Router);
 

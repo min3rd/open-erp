@@ -8,9 +8,9 @@ export interface SectionNavItem {
 }
 
 /**
- * Vertical section navigation (left rail) shared by the tenant settings area and
- * the platform portal. Replaces the horizontal tab strips that overflowed and
- * clipped their last item at desktop widths.
+ * Section navigation shared by the tenant settings area and the platform portal.
+ * Rendered as a vertical rail by default; a theme whose menu lives under the
+ * topbar passes `orientation="horizontal"`.
  */
 @Component({
   selector: 'app-section-nav',
@@ -21,4 +21,5 @@ export interface SectionNavItem {
 export class SectionNavComponent {
   items = input<ReadonlyArray<SectionNavItem>>([]);
   titleKey = input<string>('');
+  orientation = input<'vertical' | 'horizontal'>('vertical');
 }
