@@ -8,6 +8,7 @@ import java.util.*;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.api.ErrorCode;
 import com.vn9melody.openerp.core.audit.AuditTrail;
+import com.vn9melody.openerp.core.enums.LanguageCode;
 import com.vn9melody.openerp.core.enums.PlatformAction;
 import com.vn9melody.openerp.core.enums.PlatformAdminStatus;
 import com.vn9melody.openerp.core.enums.ResponseKey;
@@ -88,7 +89,12 @@ public class AccountService {
         if (req.fullName != null) profile.fullName = req.fullName.trim();
         if (req.phone != null) profile.phone = req.phone.trim();
         if (req.avatarUrl != null) profile.avatarUrl = req.avatarUrl.trim();
-        if (req.language != null) profile.language = req.language.trim();
+        if (req.language != null) {
+            profile.language = LanguageCode.fromCode(req.language)
+                    .orElseThrow(() -> new ApiException(400, ErrorCode.ACCOUNT_LANGUAGE_UNSUPPORTED,
+                            "Unsupported language: " + req.language))
+                    .code();
+        }
         if (req.timezone != null) profile.timezone = req.timezone.trim();
         profile.updatedAt = Instant.now();
         profile.persist();

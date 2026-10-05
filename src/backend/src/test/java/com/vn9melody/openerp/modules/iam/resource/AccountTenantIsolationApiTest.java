@@ -214,4 +214,33 @@ public class AccountTenantIsolationApiTest {
             .body("success", equalTo(false))
             .body("code", equalTo(ErrorCode.ACCOUNT_SESSION_NOT_FOUND));
     }
+
+    @Test
+    @DisplayName("Sprint 04: language hồ sơ phải thuộc danh mục locale hỗ trợ")
+    public void testProfileLanguageValidation() {
+        UserSession user = createVerifiedUser("lang.user@example.com", "Lang User", "0907777777");
+
+        given()
+            .header("Authorization", "Bearer " + user.accessToken)
+            .header("X-Session-Id", user.sessionId)
+            .contentType(ContentType.JSON)
+            .body(Map.of("full_name", "Lang User", "language", "PT-br"))
+        .when()
+            .put(PROFILE_PATH)
+        .then()
+            .statusCode(200)
+            .body("data.language", equalTo("pt-BR"));
+
+        given()
+            .header("Authorization", "Bearer " + user.accessToken)
+            .header("X-Session-Id", user.sessionId)
+            .contentType(ContentType.JSON)
+            .body(Map.of("full_name", "Lang User", "language", "klingon"))
+        .when()
+            .put(PROFILE_PATH)
+        .then()
+            .statusCode(400)
+            .body("success", equalTo(false))
+            .body("code", equalTo(ErrorCode.ACCOUNT_LANGUAGE_UNSUPPORTED));
+    }
 }

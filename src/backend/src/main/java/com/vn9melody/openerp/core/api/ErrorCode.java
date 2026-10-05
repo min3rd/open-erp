@@ -93,6 +93,9 @@ public final class ErrorCode {
     public static final String TENANT_UI_PREFERENCES_UPDATE_SUCCESS = "TENANT_UI_PREFERENCES_UPDATE_SUCCESS";
     public static final String TENANT_UI_PREFERENCES_INVALID_THEME = "TENANT_UI_PREFERENCES_INVALID_THEME";
 
+    // Account language preference (Sprint 04, FEAT-29)
+    public static final String ACCOUNT_LANGUAGE_UNSUPPORTED = "ACCOUNT_LANGUAGE_UNSUPPORTED";
+
     // Tenant resource quota (TASK-269 / BUG-53)
     public static final String PLATFORM_TENANT_QUOTA_EXCEEDED = "PLATFORM_TENANT_QUOTA_EXCEEDED";
 
