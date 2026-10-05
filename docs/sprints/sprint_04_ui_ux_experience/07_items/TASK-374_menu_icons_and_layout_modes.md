@@ -39,3 +39,5 @@
 ## 3. Bàn giao và lịch sử
 
 Commit `7aa7213`. Chi tiết: mọi mục menu đều có icon (kể cả rail icon-only nên vẫn nhận diện được); `top` hỗ trợ 2 cấp qua `<details>` — nếu sau này cần 3 cấp thì phải chuyển sang component đệ quy (ghi chú để không hiểu nhầm là không giới hạn cấp).
+
+> **Cập nhật 2026-10-05 (BUG-126, phản hồi "menu dọc chưa đạt, tham khảo Fuse")**: hai bố cục `narrow`/`compact` đã **bị bỏ** — trục bố cục giờ chỉ còn **dọc** (`side`, `right`) và **ngang** (`top`) + `drawer`; hình thái hiển thị (thu gọn/mở rộng) chuyển thành **icon action ngay trong menu** (nút collapse ở header, kiểu Fuse). Menu dọc được làm lại cho dễ theo dõi: tiêu đề nhóm in hoa, nhóm **mở sẵn toàn bộ**, mục con thụt lề + icon, nhãn cắt gọn một dòng. Chi tiết: [BUG-126](BUG-126_vertical_menu_readability.md).
