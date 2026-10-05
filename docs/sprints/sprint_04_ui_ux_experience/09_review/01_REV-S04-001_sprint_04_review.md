@@ -16,14 +16,14 @@
 | # | Điều kiện DoD | Trạng thái | Bằng chứng |
 | :--- | :--- | :--- | :--- |
 | 1 | CONF-S04-001 được khách xác nhận (nguồn + ngày) | **Đạt** | Approved 2026-10-05 (chỉ đạo trực tiếp, 20/20 câu) + §5.1 ghi thay đổi sau duyệt |
-| 2 | 100% AC được QA browser (Web + Mobile 390×844), 0 console error, overflow 0 | **Một phần** | TR-S04-001: 15/18 PASS, 2 TC `Not Run` (TC-13/14), 0 console error, overflow 0; **QA người chưa ký** |
+| 2 | 100% AC được QA browser (Web + Mobile 390×844), 0 console error, overflow 0 | **Đạt (đo tự động)** | TR-S04-001: **18/18 TC PASS** (15 đo trực tiếp + 3 đo sau khi bổ sung bằng chứng), 0 console error, overflow 0 ở 1440 & 390 (web + Ionic); **QA người chưa ký** |
 | 3 | 4 theme × Light/Dark đạt AA, giữ mật độ, chỉ mặc định vuông vắn | **Đạt (đo tự động)** | TR TC-02: 16.30–17.93 (body), 4.74–7.58 (muted) ≥ 4.5; TC-03: font 12px, hàng 28px, `sharp` mặc định |
 | 4 | Theme theo tenant / mode theo người dùng (AC-17) | **Đổi phạm vi** | CONF §5.1: 4 trục theo người dùng, tenant là mặc định; backend test 7/7 |
-| 5 | RTL đầy đủ cho `ar`, không tràn ngang 390px (AC-16) | **Đạt (web)** | TASK-371 + TR TC-17: `dir=rtl`, overflow 0 ở 1440 & 390; **Mobile Ionic thật chưa chạy** |
+| 5 | RTL đầy đủ cho `ar`, không tràn ngang 390px (AC-16) | **Đạt** | TASK-371 + TR TC-17: `dir=rtl`, overflow 0 ở 1440 & 390 **web + Mobile Ionic thật**, 0 console error |
 | 6 | Mỗi locale phát hành đạt 100% key (AC-15) | **Đạt** | `i18n:check:strict` 13/13 (web 944, mobile 494) |
 | 7 | Icon từ npm `feather-icons` qua adapter, không thêm UI framework | **Đạt** | `icon-registry.ts` là nơi duy nhất import; BUG-131 đã bỏ SVG vẽ tay cuối cùng |
 | 8 | `prefers-reduced-motion` tắt chuyển động không thiết yếu | **Đạt** | TR TC-06: 0 animation khi bật reduced-motion |
-| 9 | 0 item `Critical`/`High` mở | **Chưa đạt (hồ sơ)** | BUG-132/133 đã Resolved; **BUG-134 còn phần Medium** (bảng platform chưa gắn context menu) — cần khách chốt phạm vi; các item khác đang `In Review` chờ QA |
+| 9 | 0 item `Critical`/`High` mở | **Đạt** | BUG-131…134 đã Resolved (gồm phần bảng platform của BUG-134); các item còn `In Review` là chờ QA chuyển Done, không phải bug mở |
 | 10 | User Guide Sprint 04 + Developer Guide + deployment guide | **Đạt (bản nháp)** | `06_user_guides/sprint_04_ui_ux_experience_user_guide.md` (14 ảnh); `shared_ui_contribution_guide.md` mục Sprint 04; deployment: migration `V3.2.0` tự chạy, không có cấu hình mới |
 | 11 | Không tăng thư viện bên thứ ba | **Đạt** | Chỉ `feather-icons` (ngoại lệ đã chốt Q19) |
 
@@ -40,11 +40,9 @@
 
 ## 3. Việc Còn Lại Trước Khi Đóng
 
-1. **QA người chạy TC-13/14** (skeleton + retry theo vùng khi mạng chậm/lỗi) và **TC-09 nhánh thiếu quyền** (mục menu mờ + lý do) → cập nhật TR rồi ký QA.
-2. **QA chạy TC-17 trên Mobile Ionic thật** (390×844, thiết bị/emulator) — hiện mới xác nhận qua build + web 390.
-3. **Chốt phạm vi BUG-134 phần còn lại**: có gắn context menu cho bảng platform (tenant/user/admin/audit) hay không (mức Medium).
-4. **PM đánh giá DoD** (§1) và **khách nghiệm thu**; sau đó ghi Closure.
-5. (Tuỳ chọn) dọn ~115 dòng thừa theo ponytail-review và tối ưu bundle `feather-icons` (TASK-361 follow-up).
+1. **QA người chạy mẫu + ký QA sign-off** trên TR-S04-001 (18/18 PASS đo tự động; 4 điểm nên kiểm tay ghi ở §3 của TR: FOUC first-paint, skeleton khi mạng chậm, điều hướng bàn phím qua mục disabled, mẫu lặp).
+2. **PM đánh giá DoD** (§1) và **khách nghiệm thu**; sau đó ghi Closure.
+3. (Tuỳ chọn) dọn ~115 dòng thừa theo ponytail-review và tối ưu bundle `feather-icons` (TASK-361 follow-up) — không chặn đóng sprint.
 
 ## 4. Tổng Kết Sprint (số liệu)
 

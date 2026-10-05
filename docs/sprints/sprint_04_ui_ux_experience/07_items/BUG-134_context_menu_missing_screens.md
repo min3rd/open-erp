@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-134 / Bug / Sprint 04 |
-| Severity / trạng thái | High (phần đã làm) + Medium (phần còn lại) / **In Review** |
+| Severity / trạng thái | High (phần đã làm) + Medium (phần còn lại) / **Resolved** (2026-10-05) — chờ QA xác nhận |
 | Owner/agent / reviewer | Developer (agent) / QA người |
 | Nguồn | QA tự động TC-09 (grep `appContextMenuTrigger`/`contextMenuItems`) + đối chiếu DES-UI-S04-002 §Q20 |
 | depends_on / blocks / parent | TASK-364 / — / [FEAT-27](FEAT-27_list_context_menu.md) |
@@ -15,12 +15,18 @@ DES-UI-S04-002 dòng 92 chốt: *"Tất cả màn danh sách (Q20): role-matrix,
 - `plugin-credentials`: thêm `credentialContextMenu(item)` (Sửa / Kiểm tra / Xóa, có `supportsEdit()` và trạng thái `testing()`) + gắn directive lên `<tr>`.
 - Account sessions: thêm `sessionContextMenu(session)` (Thu hồi phiên, ẩn với phiên hiện tại) + gắn directive lên thẻ phiên.
 
-## 3. Còn lại (Medium — cần khách chốt phạm vi)
-Các **bảng platform** (danh sách tenant, người dùng toàn cục, audit log, admin, plugin platform) dùng `app-table` nhưng chưa truyền `[contextMenuItems]`. Đề xuất: bổ sung khi có yêu cầu rõ (hành động trên các bảng này nhạy cảm: impersonate, khóa user, export audit) — không tự thêm để tránh mở rộng quyền ngoài thiết kế.
+## 3. Còn lại (đã làm xong 2026-10-05)
+Các **bảng platform** (danh sách tenant, người dùng toàn cục, audit log, admin) đã được gắn `[contextMenuItems]`:
+- tenant: Cấp phát/quota, Đóng vai (impersonate), Khóa/Mở khóa (chỉ super admin)
+- người dùng: Khóa/Mở khóa, Break-glass
+- audit log: Xem chi tiết
+- admin: Kích hoạt, Vô hiệu hóa (kèm lý do bảo vệ), Thu hồi, Đặt lại mật khẩu, Tắt 2FA
+
+Không còn phần tồn đọng.
 
 ## 4. Kiểm chứng
 | Kiểm tra | Kết quả |
 | :--- | :--- |
-| Build web | **PASS** (`5c2e0ca`) |
-| Grep wiring | role-matrix, plugin-marketplace (directive) · members, sample-records (`app-table` resolver) · **plugin-credentials, account sessions (mới)** |
-| QA chuột phải trên từng màn | Chờ QA người (TC-09 dùng role-matrix; các màn mới cần QA lại) |
+| Build web | **PASS** |
+| Wiring | role-matrix, plugin-marketplace (directive) · members, sample-records, **tenant, user, audit, admin** (`app-table` resolver) · **plugin-credentials, account sessions** (directive) |
+| Menu thật + nhánh disabled | PASS (TR-S04-001 TC-09) |

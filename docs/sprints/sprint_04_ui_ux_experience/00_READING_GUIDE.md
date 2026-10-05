@@ -114,7 +114,7 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 | BUG-131 | [Hand-written spinner SVG](07_items/BUG-131_handwritten_spinner_svg.md) | Developer | Used (Resolved) |
 | BUG-132 | [Touch context-menu gate](07_items/BUG-132_touch_context_menu_gate.md) | Developer | Used (Resolved) |
 | BUG-133 | [Permission keys missing](07_items/BUG-133_permission_keys_missing.md) | Developer | Used (Resolved) |
-| BUG-134 | [Context menu missing screens](07_items/BUG-134_context_menu_missing_screens.md) | Developer | Used (In Review) |
+| BUG-134 | [Context menu missing screens](07_items/BUG-134_context_menu_missing_screens.md) | Developer | Used (Resolved) |
 | ADR-S04-* | Chưa tạo | Architect | Chưa dùng |
 | TP-S04-001 | [Test plan](08_testing/01_TP-S04-001_sprint_04_test_plan.md) | QA | Used (Draft) |
 | TR-S04-001 | [Test report](08_testing/02_TR-S04-001_sprint_04_test_report.md) | QA | Used (Draft — 15 PASS / 2 Not Run) |
