@@ -12,6 +12,8 @@ public enum ResponseKey {
 
     // Tenant & Workspace
     IS_DEFAULT("is_default"),
+    THEME("theme"),
+    AVAILABLE_THEMES("available_themes"),
 
     // Validation, Rate Limit & Availability
     FIELD("field"),

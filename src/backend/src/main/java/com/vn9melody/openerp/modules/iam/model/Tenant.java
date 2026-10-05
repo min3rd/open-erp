@@ -72,6 +72,10 @@ public class Tenant extends PanacheEntityBase {
     @Column(name = "locked_at")
     public Instant lockedAt;
 
+    /** Tenant workspace UI theme (id | slate-blue | emerald | amber). */
+    @Column(name = "ui_theme", nullable = false, length = 32)
+    public String uiTheme = "industrial";
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "allowed_plugins", columnDefinition = "jsonb")
     public List<String> allowedPlugins = new ArrayList<>(List.of("core"));

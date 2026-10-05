@@ -88,6 +88,11 @@ public final class ErrorCode {
     public static final String TENANT_SUSPENDED = "TENANT_SUSPENDED";
     public static final String TENANT_NOT_FOUND = "TENANT_NOT_FOUND";
 
+    // Tenant UI preferences (Sprint 04, TASK-357)
+    public static final String TENANT_UI_PREFERENCES_FETCH_SUCCESS = "TENANT_UI_PREFERENCES_FETCH_SUCCESS";
+    public static final String TENANT_UI_PREFERENCES_UPDATE_SUCCESS = "TENANT_UI_PREFERENCES_UPDATE_SUCCESS";
+    public static final String TENANT_UI_PREFERENCES_INVALID_THEME = "TENANT_UI_PREFERENCES_INVALID_THEME";
+
     // Tenant resource quota (TASK-269 / BUG-53)
     public static final String PLATFORM_TENANT_QUOTA_EXCEEDED = "PLATFORM_TENANT_QUOTA_EXCEEDED";
 
