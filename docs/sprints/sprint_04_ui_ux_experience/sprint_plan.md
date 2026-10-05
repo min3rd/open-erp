@@ -52,7 +52,7 @@ Nâng trải nghiệm giao diện Web **và** Mobile lên chuẩn sản phẩm t
 - [ ] CONF-S04-001 được khách hàng xác nhận (nguồn + ngày).
 - [ ] 100% AC trong CONF được kiểm chứng bởi QA browser (Web Desktop + Mobile 390×844), 0 console error, overflow = 0.
 - [ ] Mỗi theme × mode (Light/Dark) đạt tương phản WCAG AA cho text; **mọi theme giữ mật độ cao**; **chỉ theme mặc định bắt buộc vuông vắn** (theme khác theo token `ShapeVariant`). Registry **4 theme** (industrial, slate-blue, emerald, amber).
-- [ ] Theme áp **theo tenant** và hiển thị đúng cho mọi người dùng của tenant (AC-17); **mode theo từng người dùng**.
+- [ ] Theme áp **theo tenant** và hiển thị đúng cho mọi người dùng của tenant (AC-17); **mode theo từng người dùng**. *(Đã đổi theo chỉ đạo 2026-10-05: **cả 4 trục theo người dùng**, tenant là mặc định — xem CONF-S04-001 §5.1.)*
 - [ ] **RTL đầy đủ cho `ar`** (Web + Mobile), không tràn ngang 390px (AC-16).
 - [ ] Mỗi locale phát hành đạt **100% key** so với `en` (AC-15).
 - [ ] Icon lấy từ npm **`feather-icons`** qua adapter chung, không thêm UI framework.
@@ -65,11 +65,11 @@ Nâng trải nghiệm giao diện Web **và** Mobile lên chuẩn sản phẩm t
 
 | Mốc | Nội dung | Trạng thái |
 | :--- | :--- | :--- |
-| M0 | 00–04 (RAW/ANL/BENCH/CONF) — **scope được duyệt** | Đang soạn |
-| M1 | 05–06 (SOL/DES) — design ready | Chưa bắt đầu |
-| M2 | 07 — code + dev self-check | Chưa bắt đầu |
-| M3 | 08 — QA browser theo AC | Chưa bắt đầu |
-| M4 | 09 — nghiệm thu & đóng | Chưa bắt đầu |
+| M0 | 00–04 (RAW/ANL/BENCH/CONF) — **scope được duyệt** | **Xong** (CONF Approved 2026-10-05) |
+| M1 | 05–06 (SOL/DES) — design ready | **Xong phần soạn** (SOL/DES 0.1); gate "Design ready" còn Draft chờ review kỹ thuật |
+| M2 | 07 — code + dev self-check | **Xong** (TASK-355…374 + BUG-121…130, build web/mobile PASS); TASK-371 RTL đang làm |
+| M3 | 08 — QA browser theo AC | **Đang chạy** (TP-S04-001; TR-S04-001 chưa có) |
+| M4 | 09 — nghiệm thu & đóng | Chưa bắt đầu (chờ QA + gate) |
 
 ## 6. Rủi ro chính
 

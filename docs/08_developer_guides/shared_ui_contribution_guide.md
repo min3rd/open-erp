@@ -181,3 +181,60 @@ Template ví dụ `account-actions-example.component.html`:
 ```
 
 Ví dụ consumer chỉ minh họa binding sau khi **đã tạo/export ActionBar ở Bước 1–2**; không thay luồng account thật hoặc tự thêm màn hình nghiệp vụ vào Core. `ACCOUNT_DRAWER_TITLE` có trong cả hai app vi/en. `DrawerComponent.title` nhận chuỗi đã dịch và event đóng tên `close`; `SharpButtonComponent` có event `clicked`. Khi tích hợp màn hình thật, state Drawer/loading, request và lỗi phải theo thiết kế route/API của item; QA cả Web lẫn Ionic trên baseline đã tích hợp.
+
+---
+
+## Sprint 04 — Bổ sung thư viện dùng chung (2026-10-05)
+
+Sprint 04 thêm các khối dưới đây vào `src/frontend/shared/`; Web và Mobile dùng chung, **không** tạo bản riêng ở từng app.
+
+### 1. Icon — `app-icon` + `IconName`
+
+```html
+<app-icon name="shield" size="sm" [decorative]="true" />          <!-- icon + nhãn chữ -->
+<app-icon name="x" labelKey="COMMON_CLOSE" />                     <!-- icon-only: bắt buộc có nhãn -->
+<app-icon name="chevron-right" [rtlMirror]="true" />              <!-- icon có hướng: lật theo RTL -->
+```
+
+- `IconName` (enum dùng chung) là nguồn duy nhất; registry `icon-registry.ts` là nơi **duy nhất** import `feather-icons`.
+- `name` nhận `string` để viết attribute tĩnh; icon-only phải có `labelKey`/`aria-label`; icon có hướng phải `rtlMirror`.
+- **Không** viết `<svg>` thủ công ngoài `icon.component.html` (kể cả spinner — dùng `name="loader"` + `class="animate-spin"`).
+
+### 2. Loading — `LoadingService`, `app-top-progress-bar`, skeleton
+
+- `LoadingService` (interceptor đẩy request vào) phát trạng thái cho `app-top-progress-bar`; thanh chỉ hiện sau **150ms** để request nhanh không nhấp nháy.
+- `app-skeleton`, `app-skeleton-table`, `app-skeleton-card` cho vùng đang tải. Mỗi vùng dữ liệu độc lập có signal `*Loading`/`*Error` riêng + nút **Thử lại** chỉ chạy lại vùng lỗi (xem `organization`, `role-matrix`, `members`).
+
+### 3. Context menu (Desktop) — service + directive
+
+```html
+<div [appContextMenuTrigger]="rowMenu(item)" tabindex="0">…</div>
+```
+
+- `ContextMenuService` + `ContextMenuTriggerDirective`; mở bằng chuột phải hoặc `Shift+F10`; `Escape` đóng và trả focus về hàng.
+- Mục thiếu quyền phải khai báo **disabled kèm lý do** (tooltip), không ẩn.
+- **Mobile không dùng** directive này (hành động qua nút/luồng sẵn có).
+
+### 4. Menu điều hướng — `app-section-nav`
+
+- `items` là cây (`path?`, `labelKey`, `icon?`, `children?`); `variant="rail"` (dọc) hoặc `"bar"` (ngang, nhóm mở dropdown).
+- `collapsed` + `(toggleCollapse)`: rail thu gọn chỉ hiện icon cấp 1, cấp con mở bằng flyout hover/click, icon có tooltip; `flyoutAlign` đặt `end` cho rail bên phải.
+- Nhóm mặc định mở; nhóm chứa trang đang mở luôn mở.
+
+### 5. Bốn trục giao diện (theme/shape/layout/mode)
+
+- Token trong `styles.css` của mỗi app: `[data-theme]` (màu + topbar/sidebar), `[data-shape]` (bo góc + bóng), `[data-layout]`, `.dark`. Dùng utility semantic: `bg-surface`, `text-ink`, `border-default`, `rounded-control/container/inline`, `shadow-panel`, `bg-topbar*`, `bg-sidebar*`.
+- **Không hardcode màu neutral/sky/rose** trong component; thêm token mới vào `styles.css` cả hai app.
+- Lựa chọn của người dùng lưu ở `GET/PUT /api/v1/account/ui-preferences` (`theme/shape/layout/mode`, null = theo mặc định); mặc định tenant ở `/api/v1/tenant/ui-preferences` (quyền `core:tenant:settings-manage`).
+- `ThemeService` là nơi duy nhất ghi `data-*` lên `<html>`; component đọc qua signal `theme.themeId()/shape()/navLayout()/mode()`.
+
+### 6. Motion — class dùng chung
+
+`.op-pop` (popup), `.op-stagger` (danh sách, delay 18ms/hàng, tắt từ hàng 21), `.op-press` (nút/toggle), `.op-flyout`, và cross-fade `.op-theme-switching` khi đổi theme. Chỉ animate transform/opacity, tối đa 260ms, và **bắt buộc** giữ nhánh `prefers-reduced-motion: reduce` tắt chúng.
+
+### 7. i18n — thêm key mới
+
+- 13 locale đã phát hành (`vi, en, zh-CN, ja, ko, es, fr, de, pt-BR, ru, ar, th, id`); từ điển nằm ở `web/public/i18n/*.json` và `mobile/public/i18n/*.json` (mobile là tập con).
+- Thêm key ⇒ cập nhật **tất cả** file của app dùng key đó (không chỉ `vi/en`) rồi chạy `npm run i18n:check:strict` (yêu cầu 100% key mới bật locale trong `language-registry.ts`).
+- Template dùng `[appTranslate]="'KEY'"` hoặc `{{ 'KEY' | translate }}`; **không** hardcode chuỗi. `<html lang/dir>` do `I18nService` cập nhật (`ar` ⇒ RTL).
+- Class hướng dùng **logical**: `ps-/pe-`, `ms-/me-`, `start-/end-`, `border-s-/border-e-`, `text-start/end` — không dùng `pl-/pr-/ml-/mr-/left-/right-/text-left/text-right`.

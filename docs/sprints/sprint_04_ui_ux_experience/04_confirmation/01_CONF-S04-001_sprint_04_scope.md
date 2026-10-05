@@ -111,6 +111,16 @@
 
 **Hệ quả đã áp vào tài liệu**: AC-01/AC-17 (theme theo tenant, 4 theme), AC-10 (bỏ context menu Mobile, chỉ Desktop, **disable kèm lý do**), AC-11 (progress bar trên cùng), AC-15 (**100% key**), AC-16 (**RTL đầy đủ ngay**), §3 (13 ngôn ngữ), §4 (4 theme; hình dạng theo theme), SOL §2.3 (icon = npm `feather-icons`).
 
+### 5.1. Thay đổi phạm vi sau xác nhận (2026-10-05, chỉ đạo trực tiếp của chủ dự án)
+
+| Nội dung | Trước (AC gốc) | Sau (đã làm theo chỉ đạo) |
+| :--- | :--- | :--- |
+| **AC-17** | Theme do quản trị tenant đổi ⇒ **mọi người dùng trong tenant** nhận theme đó | **Cả 4 trục giao diện lưu theo từng người dùng** (màu, kiểu dáng, bố cục menu, sáng/tối) qua `GET/PUT /api/v1/account/ui-preferences`; **giá trị tenant chỉ là mặc định** cho người chưa chọn. Chủ tenant có nút "Đặt làm mặc định tenant" |
+| **Bố cục menu** | Hình dạng theme quyết định (narrow/compact…) | Trục bố cục chỉ còn **dọc / ngang / drawer**; hình thái hiển thị (thu gọn) là **icon action trong menu** (tham khảo Fuse) |
+| **Menu** | — | Mọi mục menu có **icon**; menu dọc có nhiều cấp (nhóm mở sẵn, nhóm chứa trang đang mở luôn mở); rail thu gọn chỉ hiện **icon cấp 1**, cấp con mở bằng **flyout** hover/click + **tooltip** |
+
+Nguồn: các phản hồi trực tiếp của chủ dự án trong phiên 2026-10-05 ("lưu theo cả người dùng, tenant chỉ là giao diện mặc định", "nhiều chế độ layout", "menu cần có icon", "menu dọc chưa đạt… tham khảo fuse", "chưa thấy animation"). Việc triển khai: TASK-369, TASK-373, TASK-374, BUG-123…130.
+
 **Trạng thái chốt**: khách đã trả lời **đầy đủ 20 câu** ngày 2026-10-05. Việc còn lại chỉ là **ký xác nhận chính thức** tại mục 6 (gate vẫn `Pending` cho tới khi có chữ ký/nguồn).
 
 ## 6. Chữ Ký Xác Nhận (Customer Scope Approval)

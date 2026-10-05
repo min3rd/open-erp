@@ -95,7 +95,7 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 | TASK-366 | [Shared skeleton components](07_items/TASK-366_shared_skeleton_components.md) | Developer | Used (In Review) |
 | TASK-367 | [Per-region loading + retry](07_items/TASK-367_per_region_loading_and_retry.md) | Developer | Used (In Review) |
 | TASK-368 | [i18n infrastructure](07_items/TASK-368_i18n_infrastructure.md) | Developer | Used (In Review) |
-| TASK-370 | [Locale dictionaries](07_items/TASK-370_locale_dictionaries.md) | Developer | Used (In Progress) |
+| TASK-370 | [Locale dictionaries](07_items/TASK-370_locale_dictionaries.md) | Developer | Used (In Review) |
 | TASK-372 | [Apply shape/surface tokens](07_items/TASK-372_apply_shape_and_surface_tokens.md) | Developer | Used (In Review) |
 | TASK-373 | [Split appearance into 4 axes](07_items/TASK-373_split_appearance_axes.md) | Developer | Used (In Review) |
 | TASK-369 | [Per-user UI preferences API](07_items/TASK-369_user_ui_preferences_api.md) | Developer | Used (In Review) |
