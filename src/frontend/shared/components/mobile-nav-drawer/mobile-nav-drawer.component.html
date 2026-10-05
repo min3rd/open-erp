@@ -40,9 +40,7 @@
         (click)="onNavigate()"
         class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
       >
-        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" />
-        </svg>
+        <app-icon name="grid" [decorative]="true" />
         <span>{{ 'COMMON_DASHBOARD' | translate }}</span>
       </a>
 
@@ -52,9 +50,7 @@
         (click)="onNavigate()"
         class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
       >
-        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
-        </svg>
+        <app-icon name="user" [decorative]="true" />
         <span>{{ 'ACCOUNT_TAB_PROFILE' | translate }}</span>
       </a>
 
@@ -64,9 +60,7 @@
         (click)="onNavigate()"
         class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
       >
-        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
+        <app-icon name="shield" [decorative]="true" />
         <span>{{ 'ACCOUNT_TAB_SECURITY' | translate }}</span>
       </a>
 
@@ -76,9 +70,7 @@
         (click)="onNavigate()"
         class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
       >
-        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M2 4h20v12H2zM8 20h8M12 16v4" />
-        </svg>
+        <app-icon name="monitor" [decorative]="true" />
         <span>{{ 'ACCOUNT_TAB_SESSIONS' | translate }}</span>
       </a>
     </nav>
@@ -97,10 +89,7 @@
             (click)="onNavigate()"
             class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
           >
-            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M15 7a4 4 0 1 1-3.9 5H10v2H8v2H4v-3.2l5.1-5.1A4 4 0 0 1 15 7z" />
-              <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M16 8h.01" />
-            </svg>
+            <app-icon name="key" [decorative]="true" />
             <span>{{ 'IAM_ROLE_MANAGEMENT' | translate }}</span>
           </a>
         }
@@ -112,9 +101,7 @@
             (click)="onNavigate()"
             class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
           >
-            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 21V9h2a2 2 0 0 1 2 2v10M2 21h20M8 7h2M8 11h2M8 15h2" />
-            </svg>
+            <app-icon name="home" [decorative]="true" />
             <span>{{ 'ORGANIZATION_STRUCTURE' | translate }}</span>
           </a>
         }
@@ -126,9 +113,7 @@
             (click)="onNavigate()"
             class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
           >
-            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M8 3h8l4 4v14H4V3h4zM14 3v6h6M8 13h8M8 17h5" />
-            </svg>
+            <app-icon name="file-text" [decorative]="true" />
             <span>{{ 'SAMPLE_RECORDS_TITLE' | translate }}</span>
           </a>
         }
@@ -140,9 +125,7 @@
             (click)="onNavigate()"
             class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
           >
-            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M10 3a2 2 0 0 1 4 0v1h4v4h1a2 2 0 0 1 0 4h-1v4h-4v1a2 2 0 0 1-4 0v-1H6v-4h1a2 2 0 0 0 0-4H6V4h4V3z" />
-            </svg>
+            <app-icon name="package" [decorative]="true" />
             <span>{{ 'PLUGIN_MARKETPLACE_TITLE' | translate }}</span>
           </a>
         }
@@ -161,9 +144,7 @@
           (click)="onNavigate()"
           class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
         >
-          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01" />
-          </svg>
+          <app-icon name="alert-triangle" [decorative]="true" />
           <span>{{ 'PLATFORM_EMERGENCY_TITLE' | translate }}</span>
         </a>
       </nav>

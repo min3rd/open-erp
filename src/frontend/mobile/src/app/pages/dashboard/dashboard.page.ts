@@ -16,6 +16,7 @@ import {
   SharpButtonComponent,
   BadgeComponent,
   NotificationBannerComponent,
+  IconComponent,
   ColorVariant,
   PluginNotification,
 } from '@shared';
@@ -34,7 +35,8 @@ import {
     TranslatePipe,
     SharpButtonComponent,
     BadgeComponent,
-    NotificationBannerComponent
+    NotificationBannerComponent,
+    IconComponent
   ],
   templateUrl: './dashboard.page.html'
 })

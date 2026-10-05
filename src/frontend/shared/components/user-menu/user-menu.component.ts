@@ -2,6 +2,7 @@ import { Component, ElementRef, HostListener, computed, inject, input, output, s
 import { RouterLink } from '@angular/router';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 import { ThemeSwitcherComponent } from '../theme-switcher/theme-switcher.component';
+import { IconComponent } from '../icon/icon.component';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 
 /**
@@ -12,7 +13,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
 @Component({
   selector: 'app-user-menu',
   standalone: true,
-  imports: [RouterLink, LanguageSwitcherComponent, ThemeSwitcherComponent, TranslatePipe],
+  imports: [RouterLink, LanguageSwitcherComponent, ThemeSwitcherComponent, IconComponent, TranslatePipe],
   templateUrl: './user-menu.component.html'
 })
 export class UserMenuComponent {

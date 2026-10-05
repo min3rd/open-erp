@@ -1,3 +1,4 @@
+export * from './icon/icon.component';
 export * from './sharp-button/sharp-button.component';
 export * from './sharp-input/sharp-input.component';
 export * from './sharp-select/sharp-select.component';

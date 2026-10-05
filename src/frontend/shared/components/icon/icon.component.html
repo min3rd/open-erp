@@ -1,0 +1,15 @@
+<svg
+  [attr.width]="pixels()"
+  [attr.height]="pixels()"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  [class]="mirrorClass()"
+  [attr.aria-hidden]="decorative() ? 'true' : null"
+  [attr.role]="decorative() ? null : 'img'"
+  [attr.aria-label]="ariaLabelKey() ? (ariaLabelKey() | translate) : null"
+  [innerHTML]="markup()"
+></svg>

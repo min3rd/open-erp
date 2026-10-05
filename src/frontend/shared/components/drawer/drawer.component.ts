@@ -1,6 +1,7 @@
 import { Component, DestroyRef, ElementRef, HostListener, effect, inject, input, output, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '../../i18n';
+import { IconComponent } from '../icon/icon.component';
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -14,7 +15,7 @@ const FOCUSABLE_SELECTOR = [
 @Component({
   selector: 'app-drawer',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule, TranslatePipe, IconComponent],
   templateUrl: './drawer.component.html'
 })
 export class DrawerComponent {

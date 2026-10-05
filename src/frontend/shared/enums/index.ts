@@ -1,4 +1,5 @@
 export * from './theme.enum';
+export * from './icon.enum';
 export * from './button.enum';
 export * from './auth.enum';
 export * from './account.enum';

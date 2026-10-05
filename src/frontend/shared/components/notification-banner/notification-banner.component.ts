@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { NotificationSeverity } from '../../enums';
 import { PluginNotification } from '../../models';
 import { TranslatePipe } from '../../i18n/translate.pipe';
+import { IconComponent } from '../icon/icon.component';
 
 /**
  * Global amber/red strip for unread WARNING/CRITICAL plugin notifications.
@@ -12,7 +13,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
 @Component({
   selector: 'app-notification-banner',
   standalone: true,
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe, IconComponent],
   templateUrl: './notification-banner.component.html'
 })
 export class NotificationBannerComponent {

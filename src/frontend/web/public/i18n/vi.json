@@ -876,6 +876,7 @@
   "PERM_CORE_PLUGIN_MANAGE": "Quản lý vòng đời plugin (bật/tắt/nâng cấp/gỡ)",
   "PERM_CORE_PLUGIN_CREDENTIAL_MANAGE": "Quản lý credential registry",
   "PERM_CORE_PLUGIN_REGISTER_CUSTOM": "Đăng ký plugin riêng của tenant",
+  "PERM_CORE_TENANT_SETTINGS_MANAGE": "Quản lý cấu hình giao diện tenant (theme)",
   "NOTIFICATION_TITLE": "Thông báo",
   "NOTIFICATION_MARK_ALL_READ": "Đánh dấu tất cả đã đọc",
   "NOTIFICATION_EMPTY": "Không có thông báo.",

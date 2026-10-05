@@ -876,6 +876,7 @@
   "PERM_CORE_PLUGIN_MANAGE": "Manage plugin lifecycle (enable/disable/upgrade/uninstall)",
   "PERM_CORE_PLUGIN_CREDENTIAL_MANAGE": "Manage registry credentials",
   "PERM_CORE_PLUGIN_REGISTER_CUSTOM": "Register tenant private plugins",
+  "PERM_CORE_TENANT_SETTINGS_MANAGE": "Manage tenant UI settings (theme)",
   "NOTIFICATION_TITLE": "Notifications",
   "NOTIFICATION_MARK_ALL_READ": "Mark all as read",
   "NOTIFICATION_EMPTY": "No notifications.",

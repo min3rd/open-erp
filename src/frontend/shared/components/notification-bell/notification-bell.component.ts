@@ -4,6 +4,7 @@ import { ColorVariant, NotificationSeverity } from '../../enums';
 import { PluginNotification } from '../../models';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { BadgeComponent } from '../badge/badge.component';
+import { IconComponent } from '../icon/icon.component';
 
 /**
  * Topbar notification bell with an unread badge and a bottom-right popup list.
@@ -13,7 +14,7 @@ import { BadgeComponent } from '../badge/badge.component';
 @Component({
   selector: 'app-notification-bell',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, BadgeComponent],
+  imports: [RouterLink, TranslatePipe, BadgeComponent, IconComponent],
   templateUrl: './notification-bell.component.html'
 })
 export class NotificationBellComponent {

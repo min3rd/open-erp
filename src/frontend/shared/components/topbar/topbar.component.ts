@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ColorVariant } from '../../enums';
 import { PluginNotification } from '../../models';
 import { BadgeComponent } from '../badge/badge.component';
+import { IconComponent } from '../icon/icon.component';
 import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
 import { UserMenuComponent } from '../user-menu/user-menu.component';
 import { MobileNavDrawerComponent } from '../mobile-nav-drawer/mobile-nav-drawer.component';
@@ -14,6 +15,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
   imports: [
     CommonModule,
     BadgeComponent,
+    IconComponent,
     NotificationBellComponent,
     UserMenuComponent,
     MobileNavDrawerComponent,

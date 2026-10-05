@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { ColorVariant } from '../../enums';
 import { BadgeComponent } from '../badge/badge.component';
 import { DrawerComponent } from '../drawer/drawer.component';
+import { IconComponent } from '../icon/icon.component';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 import { ThemeSwitcherComponent } from '../theme-switcher/theme-switcher.component';
 import { SharpButtonComponent } from '../sharp-button/sharp-button.component';
@@ -17,6 +18,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
     RouterModule,
     BadgeComponent,
     DrawerComponent,
+    IconComponent,
     LanguageSwitcherComponent,
     ThemeSwitcherComponent,
     SharpButtonComponent,
