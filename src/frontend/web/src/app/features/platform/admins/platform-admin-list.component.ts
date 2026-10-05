@@ -5,7 +5,9 @@ import {
   ApiErrorResponse,
   BadgeComponent,
   ColorVariant,
+  ContextMenuItem,
   I18nService,
+  IconName,
   PlatformAdmin,
   PlatformAdminRole,
   PlatformAdminStatus,
@@ -220,6 +222,58 @@ export class PlatformAdminListComponent implements OnInit {
       default:
         return ColorVariant.DEFAULT;
     }
+  }
+
+  /** Right-click shortcut for a platform-admin row (Q20: every list screen). */
+  adminContextMenu(admin: PlatformAdmin): ContextMenuItem[] {
+    const items: ContextMenuItem[] = [];
+    if (admin.status === PlatformAdminStatus.DISABLED || admin.status === PlatformAdminStatus.INVITED) {
+      items.push({
+        id: 'enable',
+        labelKey: 'PLATFORM_ADMIN_ENABLE_BTN',
+        icon: IconName.CHECK,
+        action: () => this.enableAdmin(admin)
+      });
+    }
+    if (admin.status !== PlatformAdminStatus.REVOKED) {
+      const protectedKey = this.isSelf(admin)
+        ? 'PLATFORM_SELF_DISABLE_FORBIDDEN'
+        : 'PLATFORM_LAST_ADMIN_PROTECTED';
+      items.push(
+        {
+          id: 'disable',
+          labelKey: 'PLATFORM_ADMIN_DISABLE_BTN',
+          icon: IconName.LOCK,
+          disabled: !this.canDisable(admin),
+          disabledReasonKey: this.canDisable(admin) ? undefined : protectedKey,
+          action: () => this.askConfirm(admin, 'DISABLE')
+        },
+        {
+          id: 'revoke',
+          labelKey: 'PLATFORM_ADMIN_REVOKE_BTN',
+          icon: IconName.TRASH,
+          danger: true,
+          disabled: !this.canRevoke(admin),
+          disabledReasonKey: this.canRevoke(admin) ? undefined : protectedKey,
+          action: () => this.askConfirm(admin, 'REVOKE')
+        },
+        {
+          id: 'reset-password',
+          labelKey: 'PLATFORM_ADMIN_RESET_PASSWORD_BTN',
+          icon: IconName.REFRESH,
+          action: () => this.askConfirm(admin, 'RESET_PASSWORD')
+        }
+      );
+      if (admin.is_2fa_enabled) {
+        items.push({
+          id: 'disable-2fa',
+          labelKey: 'PLATFORM_ADMIN_DISABLE_2FA_BTN',
+          icon: IconName.SHIELD,
+          action: () => this.askConfirm(admin, 'DISABLE_2FA')
+        });
+      }
+    }
+    return items;
   }
 
   askConfirm(admin: PlatformAdmin, action: AdminConfirmAction) {

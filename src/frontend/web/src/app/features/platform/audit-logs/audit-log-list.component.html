@@ -51,7 +51,7 @@
     </div>
   }
 
-  <app-table [columns]="columns" [rows]="logs()" [loading]="loading()">
+  <app-table [columns]="columns" [rows]="logs()" [loading]="loading()" [contextMenuItems]="logContextMenu">
     <ng-template let-log>
       <tr class="hover:bg-surface-muted align-top">
         <td class="px-2 py-1.5 text-[10px] font-mono text-muted">{{ formatDateTime(log.created_at) }}</td>

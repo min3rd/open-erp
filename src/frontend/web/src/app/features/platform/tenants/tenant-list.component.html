@@ -37,7 +37,7 @@
     </div>
   }
 
-  <app-table [columns]="columns" [rows]="tenants()" [loading]="loading()">
+  <app-table [columns]="columns" [rows]="tenants()" [loading]="loading()" [contextMenuItems]="tenantContextMenu">
     <ng-template let-t>
       <tr class="hover:bg-surface-muted align-top">
         <td class="px-2 py-1.5">

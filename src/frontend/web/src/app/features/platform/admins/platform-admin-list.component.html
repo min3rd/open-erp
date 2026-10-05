@@ -17,7 +17,7 @@
     </div>
   }
 
-  <app-table [columns]="columns" [rows]="admins()" [loading]="loading()">
+  <app-table [columns]="columns" [rows]="admins()" [loading]="loading()" [contextMenuItems]="adminContextMenu">
     <ng-template let-a>
       <tr class="hover:bg-surface-muted align-top">
         <td class="px-2 py-1.5">

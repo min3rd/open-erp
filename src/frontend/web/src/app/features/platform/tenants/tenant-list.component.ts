@@ -6,7 +6,9 @@ import {
   ApiErrorResponse,
   BadgeComponent,
   ColorVariant,
+  ContextMenuItem,
   I18nService,
+  IconName,
   ImpersonationSessionData,
   PaginationComponent,
   PlatformTenant,
@@ -221,6 +223,41 @@ export class TenantListComponent implements OnInit {
       default:
         return ColorVariant.DEFAULT;
     }
+  }
+
+  /** Right-click shortcut for a tenant row (Q20: every list screen). */
+  tenantContextMenu(tenant: PlatformTenant): ContextMenuItem[] {
+    if (!this.isSuperAdmin()) {
+      return [];
+    }
+    return [
+      {
+        id: 'quota',
+        labelKey: 'PLATFORM_TENANT_QUOTA_BTN',
+        icon: IconName.GRID,
+        action: () => this.openQuota(tenant)
+      },
+      {
+        id: 'impersonate',
+        labelKey: 'PLATFORM_TENANT_IMPERSONATE_BTN',
+        icon: IconName.USER,
+        action: () => this.openImpersonate(tenant)
+      },
+      tenant.is_locked
+        ? {
+            id: 'unlock',
+            labelKey: 'PLATFORM_TENANT_UNLOCK_BTN',
+            icon: IconName.KEY,
+            action: () => this.askUnlock(tenant)
+          }
+        : {
+            id: 'lock',
+            labelKey: 'PLATFORM_TENANT_LOCK_BTN',
+            icon: IconName.LOCK,
+            danger: true,
+            action: () => this.askLock(tenant)
+          }
+    ];
   }
 
   askLock(tenant: PlatformTenant) {

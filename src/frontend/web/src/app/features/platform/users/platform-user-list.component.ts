@@ -5,7 +5,9 @@ import {
   ApiErrorResponse,
   BadgeComponent,
   ColorVariant,
+  ContextMenuItem,
   I18nService,
+  IconName,
   PaginationComponent,
   PlatformUser,
   SelectOption,
@@ -183,6 +185,30 @@ export class PlatformUserListComponent implements OnInit {
         return ColorVariant.DEFAULT;
     }
   }
+
+  /** Right-click shortcut for a platform-user row (Q20: every list screen). */
+  readonly userContextMenu = (user: PlatformUser): ContextMenuItem[] => [
+    ...(user.status === UserStatus.LOCKED
+      ? [{
+          id: 'unlock',
+          labelKey: 'PLATFORM_USER_UNLOCK_BTN',
+          icon: IconName.KEY,
+          action: () => this.askUnlock(user)
+        }]
+      : [{
+          id: 'lock',
+          labelKey: 'PLATFORM_USER_LOCK_BTN',
+          icon: IconName.LOCK,
+          danger: true,
+          action: () => this.askLock(user)
+        }]),
+    {
+      id: 'break-glass',
+      labelKey: 'PLATFORM_USER_BREAK_GLASS_BTN',
+      icon: IconName.ALERT_TRIANGLE,
+      action: () => this.openBreakGlass(user)
+    }
+  ];
 
   askLock(user: PlatformUser) {
     if (!this.isSuperAdmin()) {

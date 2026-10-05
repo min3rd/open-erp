@@ -9,7 +9,9 @@ import {
   AuditScope,
   BadgeComponent,
   ColorVariant,
+  ContextMenuItem,
   I18nService,
+  IconName,
   PaginationComponent,
   SelectOption,
   SharpButtonComponent,
@@ -205,6 +207,16 @@ export class AuditLogListComponent implements OnInit {
   changePage(nextPage: number) {
     this.updateState({ page: nextPage + 1 }, this.keyword(), this.currentQuery());
   }
+
+  /** Right-click shortcut for an audit row (Q20: every list screen). */
+  readonly logContextMenu = (log: AuditLog): ContextMenuItem[] => [
+    {
+      id: 'detail',
+      labelKey: 'COMMON_VIEW_DETAIL',
+      icon: IconName.FILE_TEXT,
+      action: () => this.openDetail(log)
+    }
+  ];
 
   openDetail(log: AuditLog) {
     this.updateState({ mode: 'detail', id: log.log_id }, this.keyword(), this.currentQuery());
