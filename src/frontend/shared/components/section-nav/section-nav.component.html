@@ -1,14 +1,14 @@
 <nav class="flex flex-col gap-0.5" [attr.aria-label]="titleKey() ? (titleKey() | translate) : null">
   @if (titleKey()) {
-    <p class="px-2.5 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-wider text-muted">
+    <p class="px-2.5 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-wider text-sidebar-text/80">
       {{ titleKey() | translate }}
     </p>
   }
   @for (item of items(); track item.path) {
     <a
       [routerLink]="item.path"
-      routerLinkActive="bg-surface-muted text-ink font-semibold border-accent"
-      class="inline-flex min-h-10 lg:min-h-8 items-center border-l-2 border-transparent px-2.5 py-1.5 text-xs text-muted transition-colors hover:bg-surface-muted"
+      routerLinkActive="bg-sidebar-active text-sidebar-active-text font-semibold border-accent"
+      class="inline-flex min-h-10 lg:min-h-8 items-center rounded-control border-l-2 border-transparent px-2.5 py-1.5 text-xs text-sidebar-text transition-colors hover:bg-sidebar-active/60"
     >
       {{ item.labelKey | translate }}
     </a>

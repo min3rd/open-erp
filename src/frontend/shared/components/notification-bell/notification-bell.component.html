@@ -5,7 +5,7 @@
     [attr.aria-expanded]="open()"
     aria-haspopup="menu"
     [attr.aria-label]="'NOTIFICATION_TITLE' | translate"
-    class="relative inline-flex items-center justify-center rounded-control min-h-10 min-w-10 p-1.5 text-ink hover:bg-surface-muted transition-colors cursor-pointer"
+    class="relative inline-flex items-center justify-center rounded-control min-h-10 min-w-10 p-1.5 text-topbar-text hover:bg-topbar-text/10 transition-colors cursor-pointer"
   >
     <app-icon name="bell" size="md" [decorative]="true" />
     @if (unreadCount() > 0) {

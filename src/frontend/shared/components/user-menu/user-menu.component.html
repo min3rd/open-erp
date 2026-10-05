@@ -5,18 +5,18 @@
     [attr.aria-expanded]="open()"
     aria-haspopup="menu"
     [attr.aria-label]="'COMMON_ACCOUNT_SETTINGS' | translate"
-    class="flex items-center gap-2 rounded-control px-2.5 py-1 text-xs border border-default bg-transparent hover:bg-surface-muted transition-colors cursor-pointer"
+    class="flex items-center gap-2 rounded-control px-2.5 py-1 text-xs border border-topbar-border bg-transparent hover:bg-topbar-text/10 transition-colors cursor-pointer"
   >
-    <span class="w-4 h-4 shrink-0 bg-default flex items-center justify-center text-[10px] font-bold text-ink">
+    <span class="w-4 h-4 shrink-0 bg-topbar-text/15 flex items-center justify-center text-[10px] font-bold text-topbar-text">
       {{ initial() }}
     </span>
-    <span class="font-medium truncate max-w-[140px] text-ink">
+    <span class="font-medium truncate max-w-[140px] text-topbar-text">
       {{ displayName() }}
     </span>
     <app-icon
       name="chevron-down"
       [decorative]="true"
-      class="text-muted transition-transform"
+      class="text-topbar-text/70 transition-transform"
       [class.rotate-180]="open()"
     />
   </button>

@@ -1,15 +1,15 @@
-<header class="h-11 lg:h-12 bg-surface border-b border-default px-3 sm:px-4 flex items-center justify-between gap-2 select-none">
+<header class="h-11 lg:h-12 bg-topbar text-topbar-text border-b border-topbar-border px-3 sm:px-4 flex items-center justify-between gap-2 select-none">
   <!-- Left section: Brand & Context (context hidden below lg) -->
   <div class="flex items-center gap-2 min-w-0">
     <div class="w-7 h-7 shrink-0 bg-accent text-accent-contrast flex items-center justify-center font-mono font-bold text-xs">
       ERP
     </div>
-    <span class="hidden sm:inline text-xs font-bold uppercase tracking-wider text-ink">
+    <span class="hidden sm:inline text-xs font-bold uppercase tracking-wider text-topbar-text">
       Open-ERP
     </span>
     <div class="hidden lg:flex items-center gap-2 min-w-0">
-      <span class="text-muted">/</span>
-      <span class="text-xs font-medium text-muted truncate max-w-[160px]">
+      <span class="text-topbar-text/50">/</span>
+      <span class="text-xs font-medium text-topbar-text/70 truncate max-w-[160px]">
         {{ tenantName() || ('AUTH_SELECT_TENANT_TITLE' | translate) }}
       </span>
       <app-badge [variant]="colorInfo">{{ role() || 'MEMBER' }}</app-badge>
@@ -41,7 +41,7 @@
     <button
       type="button"
       (click)="toggleMobileMenu()"
-      class="lg:hidden inline-flex items-center justify-center rounded-control min-h-10 min-w-10 p-1.5 text-ink hover:bg-surface-muted transition-colors cursor-pointer"
+      class="lg:hidden inline-flex items-center justify-center rounded-control min-h-10 min-w-10 p-1.5 text-topbar-text hover:bg-topbar-text/10 transition-colors cursor-pointer"
       [attr.aria-label]="'COMMON_MENU' | translate"
       [attr.aria-expanded]="mobileMenuOpen()"
       aria-controls="mobile-nav-drawer"

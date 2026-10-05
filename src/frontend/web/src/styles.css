@@ -186,31 +186,128 @@
 }
 
 /* --------------------------------------------------------------------------
- * Theme style (FEAT-24): beyond colour, a theme also changes its surface
- * treatment. Industrial stays flat + sharp (the ERP default); the alternative
- * themes are softer (rounded controls) and lift raised panels with a shadow.
+ * Theme style (FEAT-24): a theme changes more than colour — it owns its shape
+ * scale, surface treatment and shell (topbar/sidebar) so each one has a
+ * distinct identity. Industrial is the default (flat + sharp + neutral shell);
+ * the others are deliberately different from each other, not just tinted.
  * -------------------------------------------------------------------------- */
 :root,
 [data-theme='industrial'] {
   --op-panel-shadow: none;
+  --op-radius-control: 0px;
+  --op-radius-container: 0px;
+  --op-topbar-bg: #ffffff;
+  --op-topbar-text: #171717;
+  --op-topbar-border: #e5e5e5;
+  --op-sidebar-bg: #ffffff;
+  --op-sidebar-text: #737373;
+  --op-sidebar-active-bg: #f5f5f5;
+  --op-sidebar-active-text: #171717;
 }
 
-[data-theme='slate-blue'],
-[data-theme='emerald'],
+.dark,
+.dark[data-theme='industrial'] {
+  --op-panel-shadow: none;
+  --op-radius-control: 0px;
+  --op-radius-container: 0px;
+  --op-topbar-bg: #171717;
+  --op-topbar-text: #f5f5f5;
+  --op-topbar-border: #262626;
+  --op-sidebar-bg: #171717;
+  --op-sidebar-text: #a3a3a3;
+  --op-sidebar-active-bg: #262626;
+  --op-sidebar-active-text: #f5f5f5;
+}
+
+/* slate-blue — dark header band, soft corners, lifted panels. */
+[data-theme='slate-blue'] {
+  --op-panel-shadow: 0 1px 2px rgb(15 23 42 / 0.06), 0 2px 8px rgb(15 23 42 / 0.08);
+  --op-radius-control: 6px;
+  --op-radius-container: 10px;
+  --op-topbar-bg: #0f172a;
+  --op-topbar-text: #e2e8f0;
+  --op-topbar-border: #1e293b;
+  --op-sidebar-bg: #f8fafc;
+  --op-sidebar-text: #475569;
+  --op-sidebar-active-bg: #e0f2fe;
+  --op-sidebar-active-text: #0369a1;
+}
+
+.dark[data-theme='slate-blue'] {
+  --op-panel-shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 2px 10px rgb(0 0 0 / 0.35);
+  --op-radius-control: 6px;
+  --op-radius-container: 10px;
+  --op-topbar-bg: #020617;
+  --op-topbar-text: #cbd5e1;
+  --op-topbar-border: #1e293b;
+  --op-sidebar-bg: #0f172a;
+  --op-sidebar-text: #94a3b8;
+  --op-sidebar-active-bg: #1e293b;
+  --op-sidebar-active-text: #e0f2fe;
+}
+
+/* emerald — accent-lined flat shell with a tinted sidebar (no shadow). */
+[data-theme='emerald'] {
+  --op-panel-shadow: none;
+  --op-radius-control: 2px;
+  --op-radius-container: 4px;
+  --op-topbar-bg: #ffffff;
+  --op-topbar-text: #111827;
+  --op-topbar-border: #10b981;
+  --op-sidebar-bg: #ecfdf5;
+  --op-sidebar-text: #047857;
+  --op-sidebar-active-bg: #d1fae5;
+  --op-sidebar-active-text: #065f46;
+}
+
+.dark[data-theme='emerald'] {
+  --op-panel-shadow: none;
+  --op-radius-control: 2px;
+  --op-radius-container: 4px;
+  --op-topbar-bg: #111827;
+  --op-topbar-text: #f0fdf4;
+  --op-topbar-border: #10b981;
+  --op-sidebar-bg: #0b1f16;
+  --op-sidebar-text: #6ee7b7;
+  --op-sidebar-active-bg: #064e3b;
+  --op-sidebar-active-text: #a7f3d0;
+}
+
+/* amber — warm paper surfaces, the roundest corners, strong lift. */
 [data-theme='amber'] {
-  --op-panel-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 2px 6px rgb(0 0 0 / 0.06);
+  --op-panel-shadow: 0 2px 4px rgb(120 53 15 / 0.08), 0 6px 16px rgb(120 53 15 / 0.12);
+  --op-radius-control: 10px;
+  --op-radius-container: 12px;
+  --op-surface: #fffdf7;
+  --op-surface-raised: #fffdf7;
+  --op-topbar-bg: #fffbeb;
+  --op-topbar-text: #78350f;
+  --op-topbar-border: #fcd34d;
+  --op-sidebar-bg: #fef3c7;
+  --op-sidebar-text: #92400e;
+  --op-sidebar-active-bg: #fde68a;
+  --op-sidebar-active-text: #78350f;
 }
 
-.dark[data-theme='slate-blue'],
-.dark[data-theme='emerald'],
 .dark[data-theme='amber'] {
-  --op-panel-shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 2px 8px rgb(0 0 0 / 0.35);
+  --op-panel-shadow: 0 2px 4px rgb(0 0 0 / 0.5), 0 6px 16px rgb(0 0 0 / 0.4);
+  --op-radius-control: 10px;
+  --op-radius-container: 12px;
+  --op-topbar-bg: #1c1917;
+  --op-topbar-text: #fef3c7;
+  --op-topbar-border: #78350f;
+  --op-sidebar-bg: #292524;
+  --op-sidebar-text: #fcd34d;
+  --op-sidebar-active-bg: #78350f;
+  --op-sidebar-active-text: #fffbeb;
 }
 
 /* Expose the semantic tokens as Tailwind utilities:
    bg-surface, bg-surface-muted, bg-surface-raised, text-ink, text-muted,
    border-default, bg-accent, text-accent, text-accent-contrast,
    bg-danger / text-danger, bg-warning / text-warning, bg-success / text-success,
+   bg-topbar / text-topbar-text / border-topbar-border,
+   bg-sidebar / text-sidebar-text / bg-sidebar-active / text-sidebar-active-text,
    rounded-control, rounded-container, shadow-panel. */
 @theme inline {
   --color-surface: var(--op-surface);
@@ -224,6 +321,13 @@
   --color-danger: var(--op-danger);
   --color-warning: var(--op-warning);
   --color-success: var(--op-success);
+  --color-topbar: var(--op-topbar-bg);
+  --color-topbar-text: var(--op-topbar-text);
+  --color-topbar-border: var(--op-topbar-border);
+  --color-sidebar: var(--op-sidebar-bg);
+  --color-sidebar-text: var(--op-sidebar-text);
+  --color-sidebar-active: var(--op-sidebar-active-bg);
+  --color-sidebar-active-text: var(--op-sidebar-active-text);
   --radius-control: var(--op-radius-control);
   --radius-container: var(--op-radius-container);
   --shadow-panel: var(--op-panel-shadow);
