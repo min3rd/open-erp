@@ -93,11 +93,12 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 | TASK-364 | [Context menu per screen](07_items/TASK-364_context_menu_screen_integration.md) | Developer | Used (In Review) |
 | TASK-365 | [Loading service + top bar](07_items/TASK-365_loading_service_and_top_progress_bar.md) | Developer | Used (In Review) |
 | TASK-366 | [Shared skeleton components](07_items/TASK-366_shared_skeleton_components.md) | Developer | Used (In Review) |
-| TASK-367 | [Per-region loading + retry](07_items/TASK-367_per_region_loading_and_retry.md) | Developer | Used (In Progress) |
+| TASK-367 | [Per-region loading + retry](07_items/TASK-367_per_region_loading_and_retry.md) | Developer | Used (In Review) |
 | TASK-368 | [i18n infrastructure](07_items/TASK-368_i18n_infrastructure.md) | Developer | Used (In Review) |
 | TASK-370 | [Locale dictionaries](07_items/TASK-370_locale_dictionaries.md) | Developer | Used (In Progress) |
-| TASK-372 | [Apply shape/surface tokens](07_items/TASK-372_apply_shape_and_surface_tokens.md) | Developer | Used (In Progress) |
-| TASK-369, 371 | Chưa tạo | Developer | **Reserved** (lưu ngôn ngữ qua hồ sơ / RTL đầy đủ) |
+| TASK-372 | [Apply shape/surface tokens](07_items/TASK-372_apply_shape_and_surface_tokens.md) | Developer | Used (In Review) |
+| TASK-373 | [Split appearance into 4 axes](07_items/TASK-373_split_appearance_axes.md) | Developer | Used (In Review) |
+| TASK-369, 371 | Chưa tạo | Developer | **Reserved** (lưu ngôn ngữ/sở thích giao diện qua hồ sơ / RTL đầy đủ) |
 | BUG-121 | [Org tree empty during backend outage](07_items/BUG-121_org_tree_empty_during_backend_outage.md) | Developer | Used (Resolved) |
 | BUG-122 | [Org chart missing root + branches](07_items/BUG-122_org_chart_missing_tenant_root_and_branches.md) | Developer | Used (In Review) |
 | ADR-S04-* | Chưa tạo | Architect | Chưa dùng |

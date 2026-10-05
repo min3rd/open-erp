@@ -74,4 +74,6 @@ Token mới: `--op-topbar-{bg,text,border}`, `--op-sidebar-{bg,text,active-bg,ac
 
 `ThemeDefinition.navLayout` (`side|top|right`) + `ThemeService.navLayout`; `app-section-nav` thêm input `orientation` (dọc/ngang, active gạch chân accent); `settings-layout` render thanh ngang cho `top` và lật hàng cho `right`. Ảnh: `%TEMP%/opencode/navlayout/<theme>.png`. Commit `23e6bbe`.
 
+> **Cập nhật 2026-10-05 (TASK-373)**: bổ sung 1 & 2 ở trên là bước trung gian. Chủ dự án sau đó yêu cầu tách thành trục độc lập cho người dùng chọn, nên bo góc/bóng và bố cục menu đã được **rút khỏi theme** và chuyển sang shape layer (`[data-shape]`) + `LayoutId` per-user; theme chỉ giữ màu + topbar/sidebar và cung cấp giá trị mặc định (`defaultShape`/`defaultLayout`) khi người dùng để AUTO. Chi tiết: [TASK-373](TASK-373_split_appearance_axes.md).
+
 Giữ vuông có lý do: sidebar `<aside>` (sát mép viewport), backdrop, chrome platform, panel thương hiệu login.
