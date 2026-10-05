@@ -1,5 +1,6 @@
 package com.vn9melody.openerp.modules.plugin.artifact;
 
+
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
 import jakarta.enterprise.context.ApplicationScoped;

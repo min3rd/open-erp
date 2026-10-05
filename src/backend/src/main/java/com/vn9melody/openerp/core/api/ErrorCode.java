@@ -40,6 +40,7 @@ public final class ErrorCode {
     public static final String ACCOUNT_2FA_BACKUP_CODES_REGENERATED = "ACCOUNT_2FA_BACKUP_CODES_REGENERATED";
     public static final String ACCOUNT_SESSIONS_FETCH_SUCCESS = "ACCOUNT_SESSIONS_FETCH_SUCCESS";
     public static final String ACCOUNT_SESSION_REVOKED_SUCCESS = "ACCOUNT_SESSION_REVOKED_SUCCESS";
+    public static final String ACCOUNT_AVATAR_UPLOAD_SUCCESS = "ACCOUNT_AVATAR_UPLOAD_SUCCESS";
     public static final String ACCOUNT_OTHER_SESSIONS_REVOKED_SUCCESS = "ACCOUNT_OTHER_SESSIONS_REVOKED_SUCCESS";
 
     // Account Errors
@@ -48,6 +49,12 @@ public final class ErrorCode {
     public static final String ACCOUNT_2FA_NOT_ENABLED = "ACCOUNT_2FA_NOT_ENABLED";
     public static final String ACCOUNT_2FA_INVALID_PASSWORD_OR_CODE = "ACCOUNT_2FA_INVALID_PASSWORD_OR_CODE";
     public static final String ACCOUNT_SESSION_NOT_FOUND = "ACCOUNT_SESSION_NOT_FOUND";
+    public static final String ACCOUNT_AVATAR_INVALID_TYPE = "ACCOUNT_AVATAR_INVALID_TYPE";
+    public static final String ACCOUNT_AVATAR_TOO_LARGE = "ACCOUNT_AVATAR_TOO_LARGE";
+    public static final String ACCOUNT_AVATAR_NOT_FOUND = "ACCOUNT_AVATAR_NOT_FOUND";
+    public static final String STORAGE_WRITE_FAILED = "STORAGE_WRITE_FAILED";
+    public static final String STORAGE_OBJECT_NOT_FOUND = "STORAGE_OBJECT_NOT_FOUND";
+    public static final String STORAGE_INVALID_REF = "STORAGE_INVALID_REF";
 
     // General Validation & System
     public static final String VALIDATION_FAILED = "VALIDATION_FAILED";

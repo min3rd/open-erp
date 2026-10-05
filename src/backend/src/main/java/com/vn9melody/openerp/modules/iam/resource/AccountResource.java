@@ -9,11 +9,16 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.UUID;
+import java.io.IOException;
+import java.io.InputStream;
+import org.jboss.resteasy.reactive.server.multipart.FormValue;
+import org.jboss.resteasy.reactive.server.multipart.MultipartFormDataInput;
 import com.vn9melody.openerp.core.security.BlockDuringImpersonation;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.api.ApiResponse;
 import com.vn9melody.openerp.core.api.ErrorCode;
 import com.vn9melody.openerp.core.security.AccessTokenVerifier;
+import com.vn9melody.openerp.core.context.SecurityContextService;
 import com.vn9melody.openerp.core.security.SessionManager;
 import com.vn9melody.openerp.core.security.TokenBlacklistService;
 import com.vn9melody.openerp.modules.iam.dto.ChangePasswordRequest;
@@ -23,6 +28,7 @@ import com.vn9melody.openerp.modules.iam.dto.ProfileUpdateRequest;
 import com.vn9melody.openerp.modules.iam.dto.RegenerateBackupCodesRequest;
 import com.vn9melody.openerp.modules.iam.dto.response.*;
 import com.vn9melody.openerp.modules.iam.service.AccountService;
+import com.vn9melody.openerp.modules.iam.service.AvatarStorage;
 import com.vn9melody.openerp.modules.iam.service.TwoFactorService;
 
 @Path("/api/v1/account")
@@ -41,6 +47,12 @@ public class AccountResource {
 
     @Inject
     TwoFactorService twoFactorService;
+
+    @Inject
+    AvatarStorage avatarStorage;
+
+    @Inject
+    SecurityContextService securityContextService;
 
     @Inject
     SessionManager sessionManager;
@@ -69,6 +81,41 @@ public class AccountResource {
         return Response.ok(
             ApiResponse.success(ErrorCode.ACCOUNT_PROFILE_UPDATE_SUCCESS, "Profile updated successfully.", data)
         ).build();
+    }
+
+    /** Upload an avatar image (TASK-354) and store its URL on the profile. */
+    @POST
+    @Path("/avatar")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response uploadAvatar(MultipartFormDataInput input) {
+        UUID userId = authenticate().userId();
+        FormValue part = input.getValues().values().stream()
+            .flatMap(parts -> parts.stream())
+            .findFirst()
+            .orElseThrow(() -> new ApiException(400, ErrorCode.ACCOUNT_AVATAR_INVALID_TYPE,
+                "A file part is required"));
+        try (InputStream content = part.getFileItem().getInputStream()) {
+            java.util.UUID tenantId = securityContextService.getCurrentContext().tenantId();
+            String url = avatarStorage.storeUrl(tenantId, userId, part.getFileName(), content.readAllBytes());
+            ProfileUpdateRequest update = new ProfileUpdateRequest();
+            update.avatarUrl = url;
+            UserProfileResponse data = accountService.updateProfile(userId, update);
+            return Response.ok(
+                ApiResponse.success(ErrorCode.ACCOUNT_AVATAR_UPLOAD_SUCCESS, "Avatar uploaded.", data)
+            ).build();
+        } catch (IOException e) {
+            throw new ApiException(500, ErrorCode.ACCOUNT_AVATAR_INVALID_TYPE, "Cannot read the uploaded file");
+        }
+    }
+
+    @GET
+    @Path("/avatar")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    // Public on purpose: an <img> tag cannot send the Authorization header. The
+    // ref contains a random id + timestamp, so it is not enumerable.
+    public Response getAvatar(@QueryParam("ref") String ref) {
+        AvatarStorage.StoredAvatar avatar = avatarStorage.read(ref);
+        return Response.ok(avatar.bytes()).type(avatar.contentType()).build();
     }
 
     @POST

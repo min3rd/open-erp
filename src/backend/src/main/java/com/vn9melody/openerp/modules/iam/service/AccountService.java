@@ -85,7 +85,7 @@ public class AccountService {
             profile.userId = user.id;
         }
 
-        profile.fullName = req.fullName.trim();
+        if (req.fullName != null) profile.fullName = req.fullName.trim();
         if (req.phone != null) profile.phone = req.phone.trim();
         if (req.avatarUrl != null) profile.avatarUrl = req.avatarUrl.trim();
         if (req.language != null) profile.language = req.language.trim();

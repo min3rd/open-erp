@@ -1,10 +1,9 @@
-package com.vn9melody.openerp.modules.plugin.artifact;
+package com.vn9melody.openerp.core.storage;
 
 import com.vn9melody.openerp.core.api.ApiException;
-import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
+import com.vn9melody.openerp.core.api.ErrorCode;
 import io.quarkus.arc.properties.IfBuildProperty;
 import jakarta.enterprise.context.ApplicationScoped;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -16,22 +15,19 @@ import java.security.MessageDigest;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.HexFormat;
-import java.util.Locale;
-import java.util.UUID;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 /**
- * MinIO (S3-compatible) artifact storage using AWS Signature V4 (no SDK
- * dependency). Primary system storage per Gate decision; enabled with
+ * MinIO (S3-compatible) {@link ObjectStorage} using AWS Signature V4 (no SDK
+ * dependency). Primary system storage per the Confirmation Gate; enabled with
  * {@code openerp.storage.provider=minio}.
  */
 @ApplicationScoped
 @IfBuildProperty(name = "openerp.storage.provider", stringValue = "minio")
-public class MinioArtifactStorage implements ArtifactStorage {
+public class MinioObjectStorage implements ObjectStorage {
 
     private static final DateTimeFormatter AMZ_DATE =
             DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'").withZone(ZoneOffset.UTC);
@@ -45,37 +41,28 @@ public class MinioArtifactStorage implements ArtifactStorage {
     @ConfigProperty(name = "openerp.storage.minio.secret-key", defaultValue = "openerp_minio_secret")
     String secretKey;
 
-    @ConfigProperty(name = "openerp.storage.minio.bucket", defaultValue = "plugin-artifacts")
-    String bucket;
-
     @ConfigProperty(name = "openerp.storage.minio.region", defaultValue = "us-east-1")
     String region;
 
     @Override
-    public StoredArtifact store(String fileName, InputStream content) {
-        String safeName = sanitize(fileName);
-        String key = "plugins/" + UUID.randomUUID() + "/" + safeName;
+    public StoredObject put(String bucket, String key, InputStream content) {
         try {
             byte[] payload = content.readAllBytes();
             String checksum = sha256Hex(payload);
-            putObject(key, payload);
-            return new StoredArtifact("minio://" + bucket + "/" + key, checksum, payload.length);
+            putObject(bucket, key, payload);
+            return new StoredObject(bucket, key, checksum, payload.length);
         } catch (IOException e) {
-            throw new ApiException(500, PluginErrorCode.PLUGIN_ARTIFACT_DOWNLOAD_FAILED,
-                    "Cannot store artifact in MinIO: " + e.getMessage());
+            throw new ApiException(500, ErrorCode.STORAGE_WRITE_FAILED,
+                    "Cannot store object in MinIO: " + e.getMessage());
         }
     }
 
     @Override
-    public InputStream open(String ref) {
-        if (ref == null || !ref.startsWith("minio://")) {
-            throw new ApiException(400, PluginErrorCode.PLUGIN_ARTIFACT_SOURCE_INVALID, "Unknown artifact ref");
+    public InputStream get(String bucket, String key) {
+        if (bucket == null || key == null) {
+            throw new ApiException(400, ErrorCode.STORAGE_INVALID_REF, "bucket and key are required");
         }
-        String path = ref.substring("minio://".length());
-        int slash = path.indexOf('/');
-        String bucketName = path.substring(0, slash);
-        String objectKey = path.substring(slash + 1);
-        String canonicalUri = "/" + bucketName + "/" + urlEncodePath(objectKey);
+        String canonicalUri = "/" + bucket + "/" + urlEncodePath(key);
         String host = URI.create(endpoint).getHost();
         String amzDate = AMZ_DATE.format(Instant.now());
         String dateStamp = amzDate.substring(0, 8);
@@ -92,7 +79,7 @@ public class MinioArtifactStorage implements ArtifactStorage {
             HttpResponse<InputStream> response = HttpClient.newHttpClient()
                     .send(request, HttpResponse.BodyHandlers.ofInputStream());
             if (response.statusCode() >= 300) {
-                throw new ApiException(404, PluginErrorCode.PLUGIN_ARTIFACT_DOWNLOAD_FAILED,
+                throw new ApiException(404, ErrorCode.STORAGE_OBJECT_NOT_FOUND,
                         "MinIO returned " + response.statusCode());
             }
             return response.body();
@@ -100,12 +87,12 @@ public class MinioArtifactStorage implements ArtifactStorage {
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
-            throw new ApiException(502, PluginErrorCode.PLUGIN_ARTIFACT_DOWNLOAD_FAILED,
+            throw new ApiException(502, ErrorCode.STORAGE_OBJECT_NOT_FOUND,
                     "MinIO request failed: " + e.getMessage());
         }
     }
 
-    private void putObject(String key, byte[] payload) {
+    private void putObject(String bucket, String key, byte[] payload) {
         String canonicalUri = "/" + bucket + "/" + urlEncodePath(key);
         String host = URI.create(endpoint).getHost();
         String amzDate = AMZ_DATE.format(Instant.now());
@@ -124,14 +111,14 @@ public class MinioArtifactStorage implements ArtifactStorage {
             HttpResponse<Void> response = HttpClient.newHttpClient()
                     .send(request, HttpResponse.BodyHandlers.discarding());
             if (response.statusCode() >= 300) {
-                throw new ApiException(500, PluginErrorCode.PLUGIN_ARTIFACT_DOWNLOAD_FAILED,
+                throw new ApiException(500, ErrorCode.STORAGE_WRITE_FAILED,
                         "MinIO upload failed with status " + response.statusCode());
             }
         } catch (IOException | InterruptedException e) {
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
-            throw new ApiException(502, PluginErrorCode.PLUGIN_ARTIFACT_DOWNLOAD_FAILED,
+            throw new ApiException(502, ErrorCode.STORAGE_WRITE_FAILED,
                     "MinIO upload failed: " + e.getMessage());
         }
     }
@@ -189,10 +176,5 @@ public class MinioArtifactStorage implements ArtifactStorage {
             encoded.append(java.net.URLEncoder.encode(segment, StandardCharsets.UTF_8).replace("+", "%20"));
         }
         return encoded.toString();
-    }
-
-    private String sanitize(String fileName) {
-        String base = fileName == null || fileName.isBlank() ? "artifact.zip" : fileName;
-        return base.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9._-]", "_");
     }
 }
