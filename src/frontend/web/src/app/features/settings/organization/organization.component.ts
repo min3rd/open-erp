@@ -191,7 +191,10 @@ export class OrganizationComponent implements OnInit {
 
   /** view = `filter` (list|graph), drawer = `mode`. */
   private applyDrawerMode(mode: string, id: string | null) {
-    if (!this.branches().length && !this.departmentTree().length) {
+    // Create modes need no existing node, so they may open before data arrives;
+    // edit/delete modes need the loaded tree, so they wait for the reload.
+    const createMode = mode === 'dept-create' || mode === 'branch-create';
+    if (!createMode && !this.branches().length && !this.departmentTree().length) {
       return;
     }
     this.departmentDrawerOpen.set(false);
@@ -260,7 +263,8 @@ export class OrganizationComponent implements OnInit {
         }
         this.loading.set(false);
         this.errorText.set('');
-        this.applyDrawerMode(this.pendingState?.mode ?? 'list', this.pendingState?.id ?? null);
+        const state = this.pendingState ?? this.listState.current();
+        this.applyDrawerMode(state.mode ?? 'list', state.id ?? null);
       },
       error: (err) => {
         this.loading.set(false);

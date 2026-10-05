@@ -64,6 +64,11 @@ export class PathListStateService {
     });
   }
 
+  /** The current route state parsed from the active snapshot. */
+  current(): PathListState {
+    return parsePathListState(this.route.snapshot.params);
+  }
+
   set(patch: Partial<PathListState>, keyword?: string | null, extraQuery?: Record<string, string | null>): void {
     const current = parsePathListState(this.route.snapshot.params);
     const next: PathListState = { ...current, ...patch };
