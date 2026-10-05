@@ -1,0 +1,45 @@
+TASK-337 — Tenant schema backup/restore verification
+================================================================
+Ngày/giờ   : 2026-10-04 (giờ máy local)
+Người chạy : Developer Agent — SELF-VERIFIED, KHÔNG phải QA độc lập
+Baseline   : commit 3e817c9 + working tree (TASK-331/337/registry chưa commit)
+Môi trường : docker compose profile "registry"
+             - openerp-postgres-primary (postgres:16-alpine, db openerp_dev)
+             - openerp-redis (redis:7.2-alpine)
+             - openerp-registry (registry:2) — bật cho TASK-331
+Schema mẫu : tenant_aafea2fa_e2e_sample (tenant aafea2fa-953d-410a-a9d7-6489106f5c8d)
+
+Phạm vi kiểm chứng
+------------------
+1. PluginSnapshotService (pg_dump/psql) là đường backup/restore trong saga — đã có sẵn,
+   dùng cho upgrade/rollback (BUG-86). Không thay đổi trong lần này.
+2. Script vận hành ngoài luồng: scripts/ops/tenant-schema-backup.mjs (mới).
+
+Lệnh 1 — backup
+---------------
+$ node scripts/ops/tenant-schema-backup.mjs backup \
+    --tenant aafea2fa-953d-410a-a9d7-6489106f5c8d \
+    --out <temp>/tenant-backup
+
+Actual:
+  [tenant-schema] tenant_aafea2fa_e2e_sample -> <temp>/tenant-backup/tenant_aafea2fa_e2e_sample.dump (4103 bytes)
+Expected: tạo đúng 1 dump cho schema của tenant, kích thước > 0.
+Kết quả: PASS (developer-run)
+
+Lệnh 2 — restore (dry-run)
+--------------------------
+$ node scripts/ops/tenant-schema-backup.mjs restore \
+    --dir <temp>/tenant-backup --dry-run
+
+Actual:
+  [tenant-schema] would restore tenant_aafea2fa_e2e_sample.dump (schema tenant_aafea2fa_e2e_sample)
+Expected: liệt kê đúng file dump và schema đích.
+Kết quả: PASS (developer-run)
+
+Chưa chạy
+---------
+- restore thật (không --dry-run) chưa thực thi để tránh ghi đè schema đang có. QA cần
+  chạy trên môi trường tách biệt và xác nhận toàn vẹn dữ liệu sau restore.
+- Chưa kiểm chứng nhiều schema/tenant cùng lúc và trường hợp dump lỗi/hết dung lượng.
+
+Trạng thái: Awaiting QA/Reviewer xác nhận — KHÔNG được tính là QA Done.
