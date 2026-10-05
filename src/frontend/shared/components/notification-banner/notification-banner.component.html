@@ -1,0 +1,32 @@
+@if (alerts().length > 0) {
+  <div
+    class="flex items-start gap-2 border px-3 py-2 text-xs"
+    [class]="critical()
+      ? 'border-rose-300 bg-rose-50 text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200'
+      : 'border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200'"
+  >
+    <svg class="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" />
+    </svg>
+    <div class="min-w-0 flex-1">
+      <p class="font-medium">{{ 'NOTIFICATION_UNREAD_BANNER' | translate:{ count: alerts().length } }}</p>
+      @if (detailPath()) {
+        <a [routerLink]="detailPath()" class="mt-0.5 inline-block underline hover:no-underline">
+          {{ 'NOTIFICATION_VIEW_DETAILS' | translate }}
+        </a>
+      }
+    </div>
+    @if (dismissible()) {
+      <button
+        type="button"
+        (click)="dismiss.emit()"
+        [attr.aria-label]="'COMMON_CLOSE' | translate"
+        class="inline-flex shrink-0 items-center justify-center min-h-10 min-w-10 text-current cursor-pointer"
+      >
+        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+    }
+  </div>
+}

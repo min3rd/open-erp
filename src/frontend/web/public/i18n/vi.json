@@ -875,5 +875,12 @@
   "PERM_CORE_PLUGIN_INSTALL": "Cài đặt plugin",
   "PERM_CORE_PLUGIN_MANAGE": "Quản lý vòng đời plugin (bật/tắt/nâng cấp/gỡ)",
   "PERM_CORE_PLUGIN_CREDENTIAL_MANAGE": "Quản lý credential registry",
-  "PERM_CORE_PLUGIN_REGISTER_CUSTOM": "Đăng ký plugin riêng của tenant"
+  "PERM_CORE_PLUGIN_REGISTER_CUSTOM": "Đăng ký plugin riêng của tenant",
+  "NOTIFICATION_TITLE": "Thông báo",
+  "NOTIFICATION_MARK_ALL_READ": "Đánh dấu tất cả đã đọc",
+  "NOTIFICATION_EMPTY": "Không có thông báo.",
+  "NOTIFICATION_PLUGIN_OPERATION_ABANDONED": "Thao tác plugin \"{plugin_key}\" bị gián đoạn và đã được hệ thống khôi phục.",
+  "NOTIFICATION_MARK_READ": "Đánh dấu đã đọc",
+  "NOTIFICATION_VIEW_DETAILS": "Xem chi tiết",
+  "NOTIFICATION_UNREAD_BANNER": "Bạn có {count} cảnh báo plugin cần xử lý."
 }

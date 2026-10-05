@@ -1,7 +1,8 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { TopbarComponent, SectionNavComponent } from '@shared';
+import { PluginService } from '../../core/services/plugin.service';
+import { TopbarComponent, SectionNavComponent, NotificationBannerComponent, PluginNotification } from '@shared';
 
 interface SettingsMenuItem {
   path: string;
@@ -12,12 +13,55 @@ interface SettingsMenuItem {
 @Component({
   selector: 'app-settings-layout',
   standalone: true,
-  imports: [RouterOutlet, TopbarComponent, SectionNavComponent],
+  imports: [RouterOutlet, TopbarComponent, SectionNavComponent, NotificationBannerComponent],
   templateUrl: './settings-layout.component.html'
 })
-export class SettingsLayoutComponent {
+export class SettingsLayoutComponent implements OnInit {
   auth = inject(AuthService);
+  private pluginService = inject(PluginService);
   private router = inject(Router);
+
+  readonly notifications = signal<PluginNotification[]>([]);
+
+  readonly notificationUnreadCount = computed(() =>
+    this.notifications().filter(item => !item.read_at).length
+  );
+
+  readonly notificationDetailPath = computed(() =>
+    this.auth.hasPermission('core:plugin:read') !== false ? '/settings/plugins' : null
+  );
+
+  ngOnInit(): void {
+    this.loadNotifications();
+  }
+
+  loadNotifications(): void {
+    this.pluginService.notifications().subscribe({
+      next: response => this.notifications.set(response.data?.items ?? []),
+      error: () => this.notifications.set([]),
+    });
+  }
+
+  onMarkNotificationRead(id: string): void {
+    this.pluginService.markNotificationRead(id).subscribe({
+      next: () => this.loadNotifications(),
+      error: () => {},
+    });
+  }
+
+  onMarkAllNotificationsRead(): void {
+    this.pluginService.markAllNotificationsRead().subscribe({
+      next: () => this.loadNotifications(),
+      error: () => {},
+    });
+  }
+
+  onOpenNotificationDetail(): void {
+    const path = this.notificationDetailPath();
+    if (path) {
+      this.router.navigateByUrl(path);
+    }
+  }
 
   readonly allMenuItems: ReadonlyArray<SettingsMenuItem> = [
     { path: '/settings/roles', labelKey: 'IAM_ROLE_MANAGEMENT', permission: 'core:role:manage' },

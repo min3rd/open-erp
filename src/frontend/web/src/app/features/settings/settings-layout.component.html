@@ -6,8 +6,14 @@
     [userEmail]="auth.user()?.email || ''"
     [settingsPath]="auth.canAccessSettings() ? '/settings/roles' : null"
     [platformPath]="auth.isPlatformAdmin() ? '/platform/tenants' : null"
+    [notifications]="notifications()"
+    [notificationUnreadCount]="notificationUnreadCount()"
+    [notificationDetailPath]="notificationDetailPath()"
     (openAccount)="openAccount()"
     (logout)="logout()"
+    (markNotificationRead)="onMarkNotificationRead($event)"
+    (markAllNotificationsRead)="onMarkAllNotificationsRead()"
+    (openNotificationDetail)="onOpenNotificationDetail()"
   />
 
   <div class="flex-1 flex flex-col lg:flex-row">
@@ -18,6 +24,10 @@
     </aside>
 
     <main class="flex-1 min-w-0 p-2 sm:p-3 space-y-2">
+      <app-notification-banner
+        [items]="notifications()"
+        [detailPath]="notificationDetailPath()"
+      />
       <router-outlet />
     </main>
   </div>

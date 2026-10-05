@@ -466,5 +466,12 @@
   "PLUGIN_MARKETPLACE_TITLE": "Plugin management",
   "PLUGIN_MARKETPLACE_BLOCKED_NOTICE": "Some plugins were blocked by the platform and cannot be used.",
   "PLUGIN_MOBILE_READONLY_NOTE": "Mobile only shows plugin status. Use the Web app to install or upgrade.",
-  "PLUGIN_MOBILE_UPDATE_NOTICE": "Some plugins have updates available."
+  "PLUGIN_MOBILE_UPDATE_NOTICE": "Some plugins have updates available.",
+  "NOTIFICATION_TITLE": "Notifications",
+  "NOTIFICATION_MARK_ALL_READ": "Mark all as read",
+  "NOTIFICATION_EMPTY": "No notifications.",
+  "NOTIFICATION_PLUGIN_OPERATION_ABANDONED": "Plugin operation \"{plugin_key}\" was interrupted and has been recovered by the system.",
+  "NOTIFICATION_MARK_READ": "Mark as read",
+  "NOTIFICATION_VIEW_DETAILS": "View details",
+  "NOTIFICATION_UNREAD_BANNER": "You have {count} plugin alerts requiring attention."
 }

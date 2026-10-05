@@ -14,6 +14,8 @@ export * from './mobile-nav-drawer/mobile-nav-drawer.component';
 export * from './topbar/topbar.component';
 export * from './section-nav/section-nav.component';
 export * from './user-menu/user-menu.component';
+export * from './notification-bell/notification-bell.component';
+export * from './notification-banner/notification-banner.component';
 export * from './plugin-card/plugin-card.component';
 export * from './version-timeline/version-timeline.component';
 export * from './operation-progress/operation-progress.component';

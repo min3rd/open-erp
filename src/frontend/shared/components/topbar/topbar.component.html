@@ -18,7 +18,15 @@
 
   <!-- Right section: account menu (>= lg) + mobile hamburger -->
   <div class="flex items-center gap-2 lg:gap-3">
-    <div class="hidden lg:flex items-center">
+    <div class="hidden lg:flex items-center gap-2">
+      <app-notification-bell
+        [items]="notifications()"
+        [unreadCount]="notificationUnreadCount()"
+        [detailPath]="notificationDetailPath()"
+        (markRead)="markNotificationRead.emit($event)"
+        (markAllRead)="markAllNotificationsRead.emit()"
+        (openDetail)="openNotificationDetail.emit($event)"
+      />
       <app-user-menu
         [userName]="userName()"
         [userEmail]="userEmail()"

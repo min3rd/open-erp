@@ -466,5 +466,12 @@
   "PLUGIN_MARKETPLACE_TITLE": "Quản lý plugin",
   "PLUGIN_MARKETPLACE_BLOCKED_NOTICE": "Một số plugin đã bị nền tảng khóa và không thể sử dụng.",
   "PLUGIN_MOBILE_READONLY_NOTE": "Mobile chỉ hiển thị trạng thái plugin. Vui lòng dùng bản Web để cài đặt hoặc nâng cấp.",
-  "PLUGIN_MOBILE_UPDATE_NOTICE": "Có plugin có bản cập nhật mới."
+  "PLUGIN_MOBILE_UPDATE_NOTICE": "Có plugin có bản cập nhật mới.",
+  "NOTIFICATION_TITLE": "Thông báo",
+  "NOTIFICATION_MARK_ALL_READ": "Đánh dấu tất cả đã đọc",
+  "NOTIFICATION_EMPTY": "Không có thông báo.",
+  "NOTIFICATION_PLUGIN_OPERATION_ABANDONED": "Thao tác plugin \"{plugin_key}\" bị gián đoạn và đã được hệ thống khôi phục.",
+  "NOTIFICATION_MARK_READ": "Đánh dấu đã đọc",
+  "NOTIFICATION_VIEW_DETAILS": "Xem chi tiết",
+  "NOTIFICATION_UNREAD_BANNER": "Bạn có {count} cảnh báo plugin cần xử lý."
 }
