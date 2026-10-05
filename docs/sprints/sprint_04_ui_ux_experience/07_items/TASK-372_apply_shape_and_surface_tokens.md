@@ -63,4 +63,15 @@ Token mới: `--op-topbar-{bg,text,border}`, `--op-sidebar-{bg,text,active-bg,ac
 
 Đo computed style (light): industrial `#ffffff/#ffffff/0px` · slate-blue `#0f172a/#f8fafc/6px` · emerald `#ffffff/#ecfdf5/2px` · amber `#fffbeb/#fef3c7/10px`. Ảnh: `%TEMP%/opencode/themeqa2/<theme>-light.png`. Commit `cbf10f2`.
 
+### Bổ sung 2: layout menu riêng cho từng theme (2026-10-05, phản hồi "layout vẫn giống nhau")
+
+| Theme | Kiểu menu | Đo được (1440px) |
+| :--- | :--- | :--- |
+| industrial | sidebar **trái** (mặc định) | aside left=0, nav 211×263 dọc |
+| slate-blue | **menu ngang dưới topbar** | không aside, nav 1424×32 |
+| emerald | sidebar **phải** | aside left=**1216** |
+| amber | **menu ngang dưới topbar** | nav 1424×32 |
+
+`ThemeDefinition.navLayout` (`side|top|right`) + `ThemeService.navLayout`; `app-section-nav` thêm input `orientation` (dọc/ngang, active gạch chân accent); `settings-layout` render thanh ngang cho `top` và lật hàng cho `right`. Ảnh: `%TEMP%/opencode/navlayout/<theme>.png`. Commit `23e6bbe`.
+
 Giữ vuông có lý do: sidebar `<aside>` (sát mép viewport), backdrop, chrome platform, panel thương hiệu login.

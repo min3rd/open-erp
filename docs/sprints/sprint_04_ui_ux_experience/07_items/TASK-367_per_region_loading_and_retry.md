@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-367 / Task / Sprint 04 |
-| Severity / trạng thái | High / **In Progress** (organization xong; các màn khác còn lại) |
+| Severity / trạng thái | High / **In Review** (4 màn chính đã tách vùng; dashboard không có gì để tách) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / CONF-S04-001 Approved |
 | depends_on / blocks / parent | TASK-365, TASK-366 / — / [FEAT-28](../07_items/FEAT-28_loading_bar_and_skeletons.md) |
@@ -19,16 +19,20 @@ Mỗi vùng tải độc lập: vùng nhanh hiện nội dung trước, vùng ch
 ## 2. Các thao tác
 
 - [x] Organization: branches / departments / memberships độc lập.
-- [ ] Role-matrix, members, plugin-marketplace, sample-records, dashboard (thẻ số liệu).
-- [x] Mỗi vùng: skeleton khi tải, thông báo + Thử lại khi lỗi, empty state rõ (organization).
+- [x] Role-matrix (4 vùng), members (bảng vs lookups), plugin-marketplace (list/detail/notifications), sample-records (list vs lookups).
+- [x] Mỗi vùng: skeleton khi tải, thông báo + Thử lại khi lỗi, empty state rõ; `aria-busy` trên vùng đang tải.
+- [x] Dashboard: chỉ tải 1 thứ (notifications cho topbar) → không có gì để tách (ghi N/A có lý do).
 
 | Kiểm tra / baseline / môi trường | Kết quả | Evidence |
 | :--- | :--- | :--- |
-| `npm run build` (web) | PASS | dev server :4300 rebuild sạch |
+| `npm run build` (web/mobile) | PASS | 0 error |
 | QA browser organization (list + graph) | PASS | cây gốc→chi nhánh→phòng ban vẫn đúng sau khi tách vùng |
+| QA browser 4 màn còn lại (throttle mạng) | Not Run | chờ đợt QA |
 
 ## 4. Bàn giao và lịch sử
 
-Đã làm cho **organization**: tách `forkJoin` gộp thành `loadBranches()`/`loadDepartments()`/`loadMemberships()` với signal trạng thái riêng (`*Loading`/`*Error`); cây hiện `app-skeleton-table` khi tải + nút **Thử lại** khi lỗi; bảng chi nhánh dùng `branchesLoading` + retry; memberships lỗi không chặn cây. Drawer state áp khi vùng chi nhánh/phòng ban xong.
+Đã làm: tách `forkJoin` gộp thành loader theo vùng với signal `*Loading`/`*Error`; skeleton (`app-skeleton-table`/`app-skeleton-card`/`app-skeleton`); retry chỉ chạy lại vùng lỗi (`retryPermissions`/`retryDataScopes`/`retryDetail`/`loadNotifications`).
 
-Còn lại: role-matrix, members, plugin-marketplace, sample-records, dashboard. Phụ thuộc TASK-365/366 (đã xong).
+Giữ gộp có lý do: lookups của members/sample-records (phụ trợ, all-or-nothing cho select của drawer) và dashboard (1 nguồn dữ liệu).
+
+Phụ thuộc TASK-365/366 (đã xong). Commit `c2c8d1d` (8 file, frontend web).
