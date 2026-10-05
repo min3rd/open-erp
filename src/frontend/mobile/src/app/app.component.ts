@@ -1,12 +1,12 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { IonApp, IonMenu, IonRouterOutlet, MenuController } from '@ionic/angular/standalone';
-import { MobileNavDrawerComponent, ThemeService } from '@shared';
+import { MobileNavDrawerComponent, ThemeService, TopProgressBarComponent } from '@shared';
 import { AuthService } from './core/auth.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [IonApp, IonMenu, IonRouterOutlet, MobileNavDrawerComponent],
+  imports: [IonApp, IonMenu, IonRouterOutlet, MobileNavDrawerComponent, TopProgressBarComponent],
   templateUrl: './app.component.html'
 })
 export class AppComponent {

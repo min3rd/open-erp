@@ -5,7 +5,7 @@ import { map } from 'rxjs';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
-import { PLUGIN_PERMISSION_CHECKER, TENANT_THEME_API, ThemeId } from '@shared';
+import { PLUGIN_PERMISSION_CHECKER, TENANT_THEME_API, ThemeId, loadingInterceptor } from '@shared';
 import { AuthService } from './core/services/auth.service';
 import { UiPreferencesService } from './core/services/ui-preferences.service';
 
@@ -13,7 +13,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([loadingInterceptor, authInterceptor])),
     {
       provide: PLUGIN_PERMISSION_CHECKER,
       useFactory: () => {

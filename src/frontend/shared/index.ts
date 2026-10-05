@@ -1,5 +1,6 @@
 export * from './enums';
 export * from './models';
+export * from './services';
 export * from './i18n';
 export * from './utils';
 export * from './directives';

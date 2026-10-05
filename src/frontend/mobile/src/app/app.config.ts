@@ -5,12 +5,12 @@ import {
   provideZoneChangeDetection
 } from '@angular/core';
 import { provideRouter, RouteReuseStrategy } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { map } from 'rxjs';
 
 import { routes } from './app.routes';
-import { PLUGIN_PERMISSION_CHECKER, TENANT_THEME_API, ThemeId } from '@shared';
+import { PLUGIN_PERMISSION_CHECKER, TENANT_THEME_API, ThemeId, loadingInterceptor } from '@shared';
 import { AuthService } from './core/auth.service';
 import { UiPreferencesService } from './core/ui-preferences.service';
 
@@ -21,7 +21,7 @@ export const appConfig: ApplicationConfig = {
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([loadingInterceptor])),
     {
       provide: PLUGIN_PERMISSION_CHECKER,
       useFactory: () => {

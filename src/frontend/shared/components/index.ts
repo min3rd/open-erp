@@ -21,3 +21,7 @@ export * from './plugin-card/plugin-card.component';
 export * from './version-timeline/version-timeline.component';
 export * from './operation-progress/operation-progress.component';
 export * from './credential-form/credential-form.component';
+export * from './top-progress-bar/top-progress-bar.component';
+export * from './skeleton/skeleton.component';
+export * from './skeleton/skeleton-table.component';
+export * from './skeleton/skeleton-card.component';

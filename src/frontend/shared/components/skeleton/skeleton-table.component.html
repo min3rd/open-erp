@@ -1,0 +1,24 @@
+<div class="border border-default bg-surface overflow-x-auto" aria-hidden="true">
+  <table class="w-full text-xs border-collapse">
+    <thead class="bg-surface-muted">
+      <tr>
+        @for (column of columnIndexes(); track column) {
+          <th class="px-2 py-1.5 border-b border-default">
+            <app-skeleton variant="line" width="60%" height="0.625rem" />
+          </th>
+        }
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-default">
+      @for (row of rowIndexes(); track row) {
+        <tr>
+          @for (column of columnIndexes(); track column) {
+            <td class="px-2 py-1.5 h-8">
+              <app-skeleton variant="line" [width]="cellWidth(column)" height="0.625rem" />
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
