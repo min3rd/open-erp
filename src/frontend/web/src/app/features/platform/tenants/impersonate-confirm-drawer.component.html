@@ -7,11 +7,11 @@
 >
   @if (tenant(); as current) {
     <div class="space-y-3">
-      <div class="border border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-1.5 text-[11px] text-indigo-800 dark:text-indigo-200">
+      <div class="rounded-container border border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-1.5 text-[11px] text-indigo-800 dark:text-indigo-200">
         {{ 'PLATFORM_IMPERSONATE_NOTE' | translate }}
       </div>
 
-      <div class="text-[10px] font-mono text-neutral-500">
+      <div class="text-[10px] font-mono text-muted">
         {{ current.slug }} • {{ current.tenant_id }}
       </div>
 
@@ -42,12 +42,12 @@
       />
 
       <label class="flex items-start gap-1.5 text-[11px] cursor-pointer">
-        <input type="checkbox" class="mt-0.5 rounded-none" [checked]="agreed()" (change)="agreed.set($any($event.target).checked)" />
+        <input type="checkbox" class="mt-0.5 rounded-control" [checked]="agreed()" (change)="agreed.set($any($event.target).checked)" />
         <span>{{ 'PLATFORM_IMPERSONATE_AGREE' | translate }}</span>
       </label>
 
       @if (errorText()) {
-        <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+        <div class="rounded-container border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
           {{ errorText() }}
         </div>
       }

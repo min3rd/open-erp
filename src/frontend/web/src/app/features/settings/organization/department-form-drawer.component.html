@@ -14,7 +14,7 @@
     <app-sharp-select [label]="'ORGANIZATION_DEPARTMENT_MANAGER' | translate" [options]="managerOptions()" [(value)]="managerUserId" />
 
     @if (errorText()) {
-      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+      <div class="rounded-container border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
         {{ errorText() }}
       </div>
     }

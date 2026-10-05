@@ -9,27 +9,27 @@
   (close)="onClose()"
 >
   <!-- Navigation Tabs (URL driven) -->
-  <div class="flex border-b border-neutral-200 dark:border-neutral-800 -mx-4 px-4 bg-neutral-50 dark:bg-neutral-950">
+  <div class="flex border-b border-default -mx-4 px-4 bg-surface-muted">
     <a
       routerLink="/account/detail"
-      routerLinkActive="border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100 font-bold"
-      class="px-3 py-2 text-xs border-b-2 border-transparent text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors uppercase tracking-wider"
+      routerLinkActive="border-accent text-ink font-bold"
+      class="px-3 py-2 text-xs border-b-2 border-transparent text-muted hover:text-ink transition-colors uppercase tracking-wider"
     >
       {{ 'ACCOUNT_TAB_PROFILE' | translate }}
     </a>
 
     <a
       routerLink="/account/security"
-      routerLinkActive="border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100 font-bold"
-      class="px-3 py-2 text-xs border-b-2 border-transparent text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors uppercase tracking-wider"
+      routerLinkActive="border-accent text-ink font-bold"
+      class="px-3 py-2 text-xs border-b-2 border-transparent text-muted hover:text-ink transition-colors uppercase tracking-wider"
     >
       {{ 'ACCOUNT_TAB_SECURITY' | translate }}
     </a>
 
     <a
       routerLink="/account/sessions"
-      routerLinkActive="border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100 font-bold"
-      class="px-3 py-2 text-xs border-b-2 border-transparent text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors uppercase tracking-wider"
+      routerLinkActive="border-accent text-ink font-bold"
+      class="px-3 py-2 text-xs border-b-2 border-transparent text-muted hover:text-ink transition-colors uppercase tracking-wider"
     >
       {{ 'ACCOUNT_TAB_SESSIONS' | translate }}
     </a>

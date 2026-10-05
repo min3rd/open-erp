@@ -9,12 +9,12 @@
     <app-sharp-input [label]="'PLATFORM_ADMIN_FULL_NAME' | translate" [required]="true" [(value)]="fullName" />
     <app-sharp-select [label]="'PLATFORM_ADMIN_ROLE' | translate" [options]="roleOptions()" [(value)]="role" />
 
-    <div class="border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 px-2 py-1.5 text-[11px] text-neutral-600 dark:text-neutral-400">
+    <div class="rounded-container border border-default bg-surface-muted px-2 py-1.5 text-[11px] text-muted">
       {{ 'PLATFORM_ADMIN_INVITE_NOTE' | translate }}
     </div>
 
     @if (errorText()) {
-      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+      <div class="rounded-container border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
         {{ errorText() }}
       </div>
     }

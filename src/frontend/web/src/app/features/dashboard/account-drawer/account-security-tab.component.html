@@ -1,17 +1,17 @@
 <div class="space-y-5 pt-2">
   <!-- 1. Đổi mật khẩu -->
-  <div class="border border-neutral-200 dark:border-neutral-800 p-3 bg-neutral-50 dark:bg-neutral-950">
-    <h4 class="text-xs font-bold uppercase text-neutral-800 dark:text-neutral-200 mb-2" [appTranslate]="'ACCOUNT_CHANGE_PASSWORD_TITLE'">
+  <div class="rounded-container border border-default p-3 bg-surface-muted">
+    <h4 class="text-xs font-bold uppercase text-ink mb-2" [appTranslate]="'ACCOUNT_CHANGE_PASSWORD_TITLE'">
     </h4>
 
     @if (passwordSuccess()) {
-      <div class="mb-3 p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+      <div class="rounded-container mb-3 p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
         {{ passwordSuccess() }}
       </div>
     }
 
     @if (passwordError()) {
-      <div class="mb-3 p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+      <div class="rounded-container mb-3 p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
         {{ passwordError() }}
       </div>
     }
@@ -48,9 +48,9 @@
           type="checkbox"
           [(ngModel)]="logoutOtherDevices"
           name="logoutOtherDevices"
-          class="h-3.5 w-3.5 rounded-none border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-0"
+          class="h-3.5 w-3.5 rounded-control border-default text-ink focus:ring-0"
         />
-        <label for="logoutOthers" class="ml-2 text-xs text-neutral-600 dark:text-neutral-400" [appTranslate]="'ACCOUNT_REVOKE_OTHERS_BUTTON'">
+        <label for="logoutOthers" class="ml-2 text-xs text-muted" [appTranslate]="'ACCOUNT_REVOKE_OTHERS_BUTTON'">
         </label>
       </div>
 
@@ -66,9 +66,9 @@
   </div>
 
   <!-- 2. Quản lý 2FA -->
-  <div class="border border-neutral-200 dark:border-neutral-800 p-3 bg-neutral-50 dark:bg-neutral-950">
+  <div class="rounded-container border border-default p-3 bg-surface-muted">
     <div class="flex justify-between items-center mb-2">
-      <h4 class="text-xs font-bold uppercase text-neutral-800 dark:text-neutral-200" [appTranslate]="'ACCOUNT_2FA_SECTION_TITLE'">
+      <h4 class="text-xs font-bold uppercase text-ink" [appTranslate]="'ACCOUNT_2FA_SECTION_TITLE'">
       </h4>
       @if (twoFactorStatus()?.is_enabled) {
         <app-badge [variant]="badgeVariantSuccess">{{ 'COMMON_ACTIVE' | translate }}</app-badge>
@@ -78,24 +78,24 @@
     </div>
 
     @if (securitySuccess()) {
-      <div class="mb-3 p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+      <div class="rounded-container mb-3 p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
         {{ securitySuccess() }}
       </div>
     }
 
     @if (securityError()) {
-      <div class="mb-3 p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+      <div class="rounded-container mb-3 p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
         {{ securityError() }}
       </div>
     }
 
-    <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mb-3">
+    <p class="text-[11px] text-muted mb-3">
       {{ (twoFactorStatus()?.is_enabled ? 'ACCOUNT_2FA_DESC_ENABLED' : 'ACCOUNT_2FA_DESC_DISABLED') | translate }}
     </p>
 
     @if (twoFactorStatus()?.is_enabled) {
       <div class="space-y-2">
-        <div class="text-[11px] text-neutral-600 dark:text-neutral-400 font-mono">
+        <div class="text-[11px] text-muted font-mono">
           • {{ 'ACCOUNT_BACKUP_CODES_REMAINING' | translate:{ count: twoFactorStatus()?.backup_codes_remaining } }}
         </div>
 
@@ -121,8 +121,8 @@
 
         <!-- Inline: Tái tạo mã dự phòng (không dùng prompt/modal) -->
         @if (showRegenerateForm()) {
-          <div class="mt-2 border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-2.5 space-y-2">
-            <p class="text-[11px] text-neutral-600 dark:text-neutral-400" [appTranslate]="'ACCOUNT_REGENERATE_BACKUP_CODES_DESC'">
+          <div class="rounded-container mt-2 border border-default bg-surface p-2.5 space-y-2">
+            <p class="text-[11px] text-muted" [appTranslate]="'ACCOUNT_REGENERATE_BACKUP_CODES_DESC'">
             </p>
 
             <app-sharp-input
@@ -134,7 +134,7 @@
             />
 
             @if (regenerateError()) {
-              <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-[11px]">
+              <div class="rounded-container p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-[11px]">
                 {{ regenerateError() }}
               </div>
             }
@@ -176,7 +176,7 @@
             </p>
             <div class="grid grid-cols-2 gap-1.5 font-mono text-xs">
               @for (code of regeneratedCodes(); track $index) {
-                <div class="px-2 py-1 bg-white dark:bg-neutral-900 border border-amber-300 dark:border-amber-800 text-center select-all">
+                <div class="rounded-control px-2 py-1 bg-surface border border-amber-300 dark:border-amber-800 text-center select-all">
                   {{ code }}
                 </div>
               }

@@ -6,7 +6,7 @@
   (close)="onClose()"
 >
   <div class="space-y-3">
-    <div class="border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-2 py-1.5 text-[11px] text-amber-800 dark:text-amber-200">
+    <div class="rounded-container border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-2 py-1.5 text-[11px] text-amber-800 dark:text-amber-200">
       {{ 'PLATFORM_BREAK_GLASS_DESC' | translate }}
     </div>
 
@@ -14,12 +14,9 @@
       <button
         type="button"
         class="px-2 py-1.5 text-[11px] border text-left transition-colors"
-        [class.border-neutral-900]="mode() === breakGlassAction.FORCE_PASSWORD_RESET"
-        [class.dark:border-neutral-100]="mode() === breakGlassAction.FORCE_PASSWORD_RESET"
-        [class.bg-neutral-100]="mode() === breakGlassAction.FORCE_PASSWORD_RESET"
-        [class.dark:bg-neutral-800]="mode() === breakGlassAction.FORCE_PASSWORD_RESET"
-        [class.border-neutral-300]="mode() !== breakGlassAction.FORCE_PASSWORD_RESET"
-        [class.dark:border-neutral-700]="mode() !== breakGlassAction.FORCE_PASSWORD_RESET"
+        [class.border-accent]="mode() === breakGlassAction.FORCE_PASSWORD_RESET"
+        [class.bg-surface-muted]="mode() === breakGlassAction.FORCE_PASSWORD_RESET"
+        [class.border-default]="mode() !== breakGlassAction.FORCE_PASSWORD_RESET"
         (click)="selectMode(breakGlassAction.FORCE_PASSWORD_RESET)"
       >
         {{ 'PLATFORM_BREAK_GLASS_MODE_RESET' | translate }}
@@ -27,12 +24,9 @@
       <button
         type="button"
         class="px-2 py-1.5 text-[11px] border text-left transition-colors"
-        [class.border-neutral-900]="mode() === breakGlassAction.DISABLE_2FA"
-        [class.dark:border-neutral-100]="mode() === breakGlassAction.DISABLE_2FA"
-        [class.bg-neutral-100]="mode() === breakGlassAction.DISABLE_2FA"
-        [class.dark:bg-neutral-800]="mode() === breakGlassAction.DISABLE_2FA"
-        [class.border-neutral-300]="mode() !== breakGlassAction.DISABLE_2FA"
-        [class.dark:border-neutral-700]="mode() !== breakGlassAction.DISABLE_2FA"
+        [class.border-accent]="mode() === breakGlassAction.DISABLE_2FA"
+        [class.bg-surface-muted]="mode() === breakGlassAction.DISABLE_2FA"
+        [class.border-default]="mode() !== breakGlassAction.DISABLE_2FA"
         (click)="selectMode(breakGlassAction.DISABLE_2FA)"
       >
         {{ 'PLATFORM_BREAK_GLASS_MODE_2FA' | translate }}
@@ -58,13 +52,13 @@
         [(value)]="password"
       />
     } @else {
-      <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
+      <p class="text-[11px] text-muted">
         {{ 'PLATFORM_BREAK_GLASS_RESET_NOTE' | translate }}
       </p>
     }
 
     @if (errorText()) {
-      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+      <div class="rounded-container border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
         {{ errorText() }}
       </div>
     }

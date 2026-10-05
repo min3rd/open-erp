@@ -9,7 +9,7 @@
         type="button"
         (click)="openPlugins()"
         [attr.aria-label]="'NOTIFICATION_TITLE' | translate"
-        class="inline-flex items-center justify-center min-h-10 min-w-10 text-neutral-700 dark:text-neutral-300 cursor-pointer"
+        class="inline-flex items-center justify-center min-h-10 min-w-10 text-ink cursor-pointer"
       >
         <app-icon name="bell" size="md" [decorative]="true" />
       </button>
@@ -24,20 +24,20 @@
       [detailPath]="notificationDetailPath()"
     />
 
-    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3">
-      <h1 class="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100">
+    <div class="rounded-container bg-surface border border-default p-3">
+      <h1 class="text-xs font-bold uppercase tracking-wider text-ink">
         {{ 'DASHBOARD_WELCOME' | translate:{ name: auth.user()?.full_name || auth.user()?.email } }}
       </h1>
       <div class="flex items-center gap-2 mt-1.5">
         <app-badge [variant]="badgeInfo">{{ auth.user()?.role }}</app-badge>
-        <span class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
+        <span class="text-[11px] text-muted truncate">
           {{ auth.user()?.tenant_name }}
         </span>
       </div>
     </div>
 
     <div>
-      <h2 class="text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-2" [appTranslate]="'DASHBOARD_WORKSPACE_READY'"></h2>
+      <h2 class="text-xs font-bold uppercase tracking-wider text-ink mb-2" [appTranslate]="'DASHBOARD_WORKSPACE_READY'"></h2>
 
       <div class="mt-3">
         <app-sharp-button [fullWidth]="true" (clicked)="openAccount()">

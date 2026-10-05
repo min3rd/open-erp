@@ -12,7 +12,8 @@ export class SharpButtonComponent {
   type = input<ButtonType | 'button' | 'submit' | 'reset'>(ButtonType.BUTTON);
   variant = input<ColorVariant | 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline'>(ColorVariant.PRIMARY);
   size = input<SizeVariant | 'sm' | 'md' | 'lg'>(SizeVariant.MD);
-  shape = input<ShapeVariant | 'sharp' | 'soft'>(ShapeVariant.SHARP);
+  /** Explicit override; the default follows the theme control radius token. */
+  shape = input<ShapeVariant | 'sharp' | 'soft'>(ShapeVariant.SOFT);
   disabled = input<boolean>(false);
   loading = input<boolean>(false);
   fullWidth = input<boolean>(false);
@@ -26,10 +27,10 @@ export class SharpButtonComponent {
   }
 
   buttonClasses(): string {
-    const base = 'op-press inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors select-none focus:outline-none focus:ring-1 focus:ring-neutral-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
+    const base = 'op-press inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors select-none focus:outline-none focus:ring-1 focus:ring-muted disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
 
     const shape = this.shape() as string;
-    const shapeCls = shape === ShapeVariant.SOFT || shape === 'soft' ? 'rounded-control' : 'rounded-none';
+    const shapeCls = shape === ShapeVariant.SHARP || shape === 'sharp' ? 'rounded-none' : 'rounded-control';
 
     let sizeCls = 'px-3 py-1.5 text-xs';
     if (this.size() === SizeVariant.SM || (this.size() as string) === 'sm') {
@@ -47,11 +48,11 @@ export class SharpButtonComponent {
         break;
       case ColorVariant.SECONDARY:
       case 'secondary':
-        variantCls = 'bg-neutral-100 text-neutral-800 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 border border-neutral-300 dark:border-neutral-700';
+        variantCls = 'bg-surface-muted text-ink hover:bg-default border border-default';
         break;
       case ColorVariant.OUTLINE:
       case 'outline':
-        variantCls = 'bg-transparent text-neutral-900 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-300 dark:border-neutral-700';
+        variantCls = 'bg-transparent text-ink hover:bg-surface-muted border border-default';
         break;
       case ColorVariant.DANGER:
       case 'danger':
@@ -59,7 +60,7 @@ export class SharpButtonComponent {
         break;
       case ColorVariant.GHOST:
       case 'ghost':
-        variantCls = 'bg-transparent text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800 border border-transparent';
+        variantCls = 'bg-transparent text-ink hover:bg-surface-muted border border-transparent';
         break;
     }
 

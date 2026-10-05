@@ -10,25 +10,25 @@
 
 <ion-content>
   <div class="max-w-md mx-auto p-3 space-y-3">
-    <p class="text-[11px] text-neutral-500" [appTranslate]="'ACCOUNT_2FA_SETUP_SUBTITLE'"></p>
+    <p class="text-[11px] text-muted" [appTranslate]="'ACCOUNT_2FA_SETUP_SUBTITLE'"></p>
 
     @if (errorMessage()) {
-      <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+      <div class="rounded-container p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
         {{ errorMessage() }}
       </div>
     }
 
     @if (!enabledData()) {
-      <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 space-y-3">
+      <div class="rounded-container bg-surface border border-default p-3 space-y-3">
         @if (loadingSetup()) {
-          <p class="text-xs text-neutral-500" [appTranslate]="'COMMON_LOADING'"></p>
+          <p class="text-xs text-muted" [appTranslate]="'COMMON_LOADING'"></p>
         } @else if (setupData(); as data) {
-          <p class="text-[11px] text-neutral-600 dark:text-neutral-400" [appTranslate]="'ACCOUNT_2FA_SCAN_INSTRUCTION'"></p>
+          <p class="text-[11px] text-muted" [appTranslate]="'ACCOUNT_2FA_SCAN_INSTRUCTION'"></p>
 
           <!-- Secret key (mobile-first: copy to Authenticator) -->
           <div class="space-y-1">
-            <div class="text-[11px] font-medium text-neutral-700 dark:text-neutral-300" [appTranslate]="'ACCOUNT_2FA_STEP_2'"></div>
-            <div class="bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 p-2 font-mono text-xs select-all break-all">
+            <div class="text-[11px] font-medium text-ink" [appTranslate]="'ACCOUNT_2FA_STEP_2'"></div>
+            <div class="bg-surface-muted border border-default p-2 rounded-control font-mono text-xs select-all break-all">
               {{ data.secret_key }}
             </div>
             <app-sharp-button
@@ -41,7 +41,7 @@
 
           <!-- OTP Auth URI -->
           <div class="space-y-1">
-            <div class="bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 p-2 font-mono text-[10px] select-all break-all">
+            <div class="bg-surface-muted border border-default p-2 rounded-control font-mono text-[10px] select-all break-all">
               {{ 'ACCOUNT_2FA_URI_LABEL' | translate:{ uri: data.qr_code_uri } }}
             </div>
             <app-sharp-button
@@ -54,8 +54,8 @@
           </div>
 
           <!-- OTP confirmation -->
-          <div class="border-t border-neutral-200 dark:border-neutral-800 pt-3 space-y-2">
-            <div class="text-[11px] font-medium text-neutral-700 dark:text-neutral-300" [appTranslate]="'ACCOUNT_2FA_STEP_3'"></div>
+          <div class="border-t border-default pt-3 space-y-2">
+            <div class="text-[11px] font-medium text-ink" [appTranslate]="'ACCOUNT_2FA_STEP_3'"></div>
             <app-pin-input (changed)="otpCode.set($event)" [hasError]="!!errorMessage()" />
             <app-sharp-button
               [fullWidth]="true"
@@ -68,8 +68,8 @@
         }
       </div>
     } @else {
-      <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3 space-y-3">
-        <div class="p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+      <div class="rounded-container bg-surface border border-default p-3 space-y-3">
+        <div class="rounded-container p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
           {{ 'ACCOUNT_2FA_ENABLED_SUCCESS' | translate }}
         </div>
 
@@ -79,7 +79,7 @@
             <p class="text-[11px] text-amber-800 dark:text-amber-300" [appTranslate]="'ACCOUNT_2FA_BACKUP_WARNING'"></p>
             <div class="grid grid-cols-2 gap-1 font-mono text-xs">
               @for (code of enabledData()?.backup_codes; track code) {
-                <span class="border border-neutral-200 dark:border-neutral-800 p-1 text-center select-all">{{ code }}</span>
+                <span class="rounded-control border border-default p-1 text-center select-all">{{ code }}</span>
               }
             </div>
             <app-sharp-button
@@ -91,7 +91,7 @@
             </app-sharp-button>
           </div>
         } @else {
-          <p class="text-[11px] text-neutral-500" [appTranslate]="'ACCOUNT_2FA_ENABLED_NO_CODES'"></p>
+          <p class="text-[11px] text-muted" [appTranslate]="'ACCOUNT_2FA_ENABLED_NO_CODES'"></p>
         }
 
         <app-sharp-button [fullWidth]="true" (clicked)="finish()">

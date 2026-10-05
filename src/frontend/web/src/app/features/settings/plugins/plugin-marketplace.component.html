@@ -1,8 +1,8 @@
 <div class="space-y-2 p-3 text-xs">
   <div class="flex flex-wrap items-center justify-between gap-2">
     <div>
-      <h1 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{{ 'PLUGIN_MARKETPLACE_TITLE' | translate }}</h1>
-      <p class="text-[11px] text-neutral-500 dark:text-neutral-400">{{ 'PLUGIN_MARKETPLACE_SUBTITLE' | translate }}</p>
+      <h1 class="text-sm font-semibold text-ink">{{ 'PLUGIN_MARKETPLACE_TITLE' | translate }}</h1>
+      <p class="text-[11px] text-muted">{{ 'PLUGIN_MARKETPLACE_SUBTITLE' | translate }}</p>
     </div>
     <div class="flex items-center gap-1">
       <app-sharp-button size="sm" variant="secondary" (clicked)="openNotifications()">
@@ -15,16 +15,16 @@
   </div>
 
   @if (blockedItems().length) {
-    <div class="border border-rose-300 bg-rose-50 p-2 text-[11px] text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
+    <div class="rounded-container border border-rose-300 bg-rose-50 p-2 text-[11px] text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
       {{ 'PLUGIN_MARKETPLACE_BLOCKED_NOTICE' | translate }}
     </div>
   }
 
   @if (errorText()) {
-    <p class="border border-rose-300 bg-rose-50 p-2 text-[11px] text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300">{{ errorText() }}</p>
+    <p class="rounded-container border border-rose-300 bg-rose-50 p-2 text-[11px] text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300">{{ errorText() }}</p>
   }
   @if (successText()) {
-    <p class="border border-emerald-300 bg-emerald-50 p-2 text-[11px] text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">{{ successText() }}</p>
+    <p class="rounded-container border border-emerald-300 bg-emerald-50 p-2 text-[11px] text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">{{ successText() }}</p>
   }
 
   @if (operation()) {
@@ -32,7 +32,7 @@
   }
 
   @if (loading()) {
-    <div class="h-24 w-full animate-pulse bg-neutral-100 dark:bg-neutral-800"></div>
+    <div class="h-24 w-full animate-pulse bg-surface-muted"></div>
   } @else {
     <div class="space-y-3">
       <div class="flex items-center gap-1">
@@ -41,7 +41,7 @@
           [value]="query()"
           (input)="onSearch($event)"
           [placeholder]="'PLUGIN_MARKETPLACE_SEARCH_PLACEHOLDER' | translate"
-          class="w-full rounded-none border border-neutral-300 bg-white px-2 py-1 text-xs dark:border-neutral-700 dark:bg-neutral-900"
+          class="w-full rounded-control border border-default bg-surface px-2 py-1 text-xs"
         />
         @if (query()) {
           <app-sharp-button size="sm" variant="ghost" (clicked)="clearSearch()">
@@ -54,14 +54,14 @@
       </div>
 
       @if (empty()) {
-        <p class="border border-dashed border-neutral-300 p-3 text-center text-xs text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
+        <p class="rounded-container border border-dashed border-default p-3 text-center text-xs text-muted">
           {{ 'PLUGIN_MARKETPLACE_EMPTY' | translate }}
         </p>
       }
 
       @if (installedItems().length) {
         <section class="space-y-1">
-          <h3 class="font-mono text-[10px] uppercase tracking-wider text-neutral-400">
+          <h3 class="font-mono text-[10px] uppercase tracking-wider text-muted">
             {{ 'PLUGIN_MARKETPLACE_INSTALLED' | translate }} ({{ installedItems().length }})
           </h3>
           @for (item of installedItems(); track item.plugin_key) {
@@ -104,7 +104,7 @@
 
       @if (availableItems().length) {
         <section class="space-y-1">
-          <h3 class="font-mono text-[10px] uppercase tracking-wider text-neutral-400">
+          <h3 class="font-mono text-[10px] uppercase tracking-wider text-muted">
             {{ 'PLUGIN_MARKETPLACE_AVAILABLE' | translate }} ({{ availableItems().length }})
           </h3>
           @for (item of availableItems(); track item.plugin_key) {
@@ -129,7 +129,7 @@
 
       @if (customItems().length) {
         <section class="space-y-1">
-          <h3 class="font-mono text-[10px] uppercase tracking-wider text-neutral-400">
+          <h3 class="font-mono text-[10px] uppercase tracking-wider text-muted">
             {{ 'PLUGIN_MARKETPLACE_CUSTOM' | translate }} ({{ customItems().length }})
           </h3>
           <p class="text-[10px] text-amber-600 dark:text-amber-400">{{ 'PLUGIN_CUSTOM_LABEL' | translate }}</p>
@@ -184,16 +184,16 @@
   @if (detail(); as current) {
     <div class="space-y-3 p-3 text-xs">
       <div class="flex flex-wrap items-center gap-2">
-        <span class="text-sm font-medium text-neutral-900 dark:text-neutral-100">{{ current.name_key | translate }}</span>
-        <span class="font-mono text-[10px] text-neutral-400">{{ current.plugin_key }}</span>
+        <span class="text-sm font-medium text-ink">{{ current.name_key | translate }}</span>
+        <span class="font-mono text-[10px] text-muted">{{ current.plugin_key }}</span>
         @if (current.visibility === 'TENANT_PRIVATE') {
-          <span class="border border-amber-300 bg-amber-50 px-1 py-0.5 text-[10px] text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+          <span class="rounded-control border border-amber-300 bg-amber-50 px-1 py-0.5 text-[10px] text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
             {{ 'PLUGIN_CUSTOM_LABEL' | translate }}
           </span>
         }
       </div>
       @if (current.description_key) {
-        <p class="text-[11px] text-neutral-500 dark:text-neutral-400">{{ current.description_key | translate }}</p>
+        <p class="text-[11px] text-muted">{{ current.description_key | translate }}</p>
       }
       @if (isCustomDetail()) {
         <div class="flex flex-wrap items-center gap-1">
@@ -206,12 +206,12 @@
         </div>
       }
       <section>
-        <h3 class="mb-1 font-mono text-[10px] uppercase tracking-wider text-neutral-400">{{ 'PLUGIN_DETAIL_VERSIONS' | translate }}</h3>
+        <h3 class="mb-1 font-mono text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_DETAIL_VERSIONS' | translate }}</h3>
         <app-version-timeline [versions]="current.version" [currentVersion]="selectedInstalledVersion()" />
       </section>
     </div>
   } @else if (detailLoading()) {
-    <div class="h-24 animate-pulse bg-neutral-100 dark:bg-neutral-800"></div>
+    <div class="h-24 animate-pulse bg-surface-muted"></div>
   }
 </app-drawer>
 
@@ -223,9 +223,9 @@
 >
   <div class="space-y-3 p-3 text-xs">
     <label class="block">
-      <span class="mb-0.5 block text-[11px] text-neutral-600 dark:text-neutral-300">{{ 'PLUGIN_UPGRADE_TARGET_VERSION' | translate }}</span>
+      <span class="mb-0.5 block text-[11px] text-ink">{{ 'PLUGIN_UPGRADE_TARGET_VERSION' | translate }}</span>
       <select
-        class="w-full rounded-none border border-neutral-300 bg-white px-2 py-1 font-mono text-xs dark:border-neutral-700 dark:bg-neutral-900"
+        class="w-full rounded-control border border-default bg-surface px-2 py-1 font-mono text-xs"
         [value]="upgradeVersion()"
         (change)="upgradeVersion.set($any($event.target).value)"
       >
@@ -236,15 +236,15 @@
     </label>
 
     @if (upgradeRequiresSnapshot()) {
-      <p class="border border-amber-300 bg-amber-50 p-2 text-[11px] text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+      <p class="rounded-container border border-amber-300 bg-amber-50 p-2 text-[11px] text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
         {{ 'PLUGIN_UPGRADE_BREAKING_NOTICE' | translate }}
       </p>
     } @else {
       <label class="flex items-center gap-2">
         <app-sharp-toggle [checked]="upgradeSnapshot()" (checkedChange)="upgradeSnapshot.set($event)" />
-        <span class="text-[11px] text-neutral-600 dark:text-neutral-300">{{ 'PLUGIN_UPGRADE_SNAPSHOT_LABEL' | translate }}</span>
+        <span class="text-[11px] text-ink">{{ 'PLUGIN_UPGRADE_SNAPSHOT_LABEL' | translate }}</span>
       </label>
-      <p class="text-[10px] text-neutral-400">{{ 'PLUGIN_UPGRADE_SNAPSHOT_HINT' | translate }}</p>
+      <p class="text-[10px] text-muted">{{ 'PLUGIN_UPGRADE_SNAPSHOT_HINT' | translate }}</p>
     }
 
     <div class="flex justify-end gap-1">
@@ -265,11 +265,11 @@
   (close)="closeAllDrawers()"
 >
   <div class="space-y-3 p-3 text-xs">
-    <p class="border border-amber-300 bg-amber-50 p-2 text-[11px] text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+    <p class="rounded-container border border-amber-300 bg-amber-50 p-2 text-[11px] text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
       {{ 'PLUGIN_UNINSTALL_NOTICE' | translate }}
     </p>
     @if (uninstallItem(); as item) {
-      <p class="font-mono text-[11px] text-neutral-500 dark:text-neutral-400">
+      <p class="font-mono text-[11px] text-muted">
         {{ item.plugin_key }}
         @if (item.installed_version) {
           · {{ item.installed_version }}
@@ -297,15 +297,15 @@
       </div>
     }
     @if (notifications().length === 0) {
-      <p class="text-[11px] text-neutral-500 dark:text-neutral-400">{{ 'PLUGIN_NOTIFICATIONS_EMPTY' | translate }}</p>
+      <p class="text-[11px] text-muted">{{ 'PLUGIN_NOTIFICATIONS_EMPTY' | translate }}</p>
     }
     @for (item of notifications(); track item.id) {
-      <div class="border p-2" [class]="item.read_at ? 'border-neutral-200 dark:border-neutral-800' : 'border-sky-300 bg-sky-50 dark:border-sky-800 dark:bg-sky-950/40'">
+      <div class="rounded-container border p-2" [class]="item.read_at ? 'border-default' : 'border-sky-300 bg-sky-50 dark:border-sky-800 dark:bg-sky-950/40'">
         <div class="flex items-center justify-between gap-2">
-          <span class="font-medium text-neutral-800 dark:text-neutral-200">{{ item.title_key | translate }}</span>
-          <span class="font-mono text-[10px] text-neutral-400">{{ item.severity }}</span>
+          <span class="font-medium text-ink">{{ item.title_key | translate }}</span>
+          <span class="font-mono text-[10px] text-muted">{{ item.severity }}</span>
         </div>
-        <p class="mt-0.5 font-mono text-[10px] text-neutral-400">{{ item.type }} · {{ item.created_at | date: 'short' }}</p>
+        <p class="mt-0.5 font-mono text-[10px] text-muted">{{ item.type }} · {{ item.created_at | date: 'short' }}</p>
       </div>
     }
   </div>

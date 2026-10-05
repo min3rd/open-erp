@@ -70,7 +70,7 @@ export class DrawerComponent {
   }
 
   panelClasses(): string {
-    const base = 'bg-white dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800 shadow-2xl flex flex-col transform transition-transform ease-in-out duration-300';
+    const base = 'rounded-container bg-surface border-l border-default shadow-2xl flex flex-col transform transition-transform ease-in-out duration-300';
     // Shift left only when another drawer is stacked ON TOP (so the lower drawer
     // peeks out). A top-most drawer must stay flush to the right edge.
     const hasDrawerAbove = this.stackTick() >= 0

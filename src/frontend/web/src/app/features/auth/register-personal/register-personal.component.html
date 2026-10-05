@@ -1,16 +1,16 @@
-<div class="min-h-screen bg-neutral-100 dark:bg-neutral-950 flex flex-col justify-center px-4 py-6 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-surface-muted flex flex-col justify-center px-4 py-6 sm:px-6 lg:px-8">
   <div class="w-full max-w-md mx-auto">
-    <h2 class="text-center text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100" [appTranslate]="'AUTH_REGISTER_PERSONAL_TAB'">
+    <h2 class="text-center text-sm font-bold uppercase tracking-wider text-ink" [appTranslate]="'AUTH_REGISTER_PERSONAL_TAB'">
     </h2>
-    <p class="mt-1 text-center text-xs text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_REGISTER_SUBTITLE'">
+    <p class="mt-1 text-center text-xs text-muted" [appTranslate]="'AUTH_REGISTER_SUBTITLE'">
     </p>
   </div>
 
   <div class="mt-4 w-full max-w-md mx-auto">
-    <div class="bg-white dark:bg-neutral-900 p-4 sm:p-6 shadow-sm border border-neutral-200 dark:border-neutral-800 sm:px-8">
+    <div class="rounded-container bg-surface p-4 sm:p-6 shadow-sm border border-default sm:px-8">
 
       @if (errorMessage()) {
-        <div class="mb-4 p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        <div class="rounded-container mb-4 p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
           {{ errorMessage() }}
         </div>
       }
@@ -58,9 +58,9 @@
         </div>
       </form>
 
-      <div class="mt-4 border-t border-neutral-200 dark:border-neutral-800 pt-3 text-center">
-        <span class="text-xs text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_HAVE_ACCOUNT'"></span>
-        <a routerLink="/login" class="text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:underline ml-1" [appTranslate]="'AUTH_LOGIN_BUTTON'">
+      <div class="mt-4 border-t border-default pt-3 text-center">
+        <span class="text-xs text-muted" [appTranslate]="'AUTH_HAVE_ACCOUNT'"></span>
+        <a routerLink="/login" class="text-xs font-medium text-ink hover:underline ml-1" [appTranslate]="'AUTH_LOGIN_BUTTON'">
         </a>
       </div>
 

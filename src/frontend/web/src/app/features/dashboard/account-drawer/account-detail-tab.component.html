@@ -1,12 +1,12 @@
 <div class="space-y-4 pt-2">
   @if (profileSuccess()) {
-    <div class="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+    <div class="rounded-container p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
       {{ profileSuccess() }}
     </div>
   }
 
   @if (profileError()) {
-    <div class="p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+    <div class="rounded-container p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
       {{ profileError() }}
     </div>
   }
@@ -32,7 +32,7 @@
     />
 
     <div class="space-y-2">
-      <span class="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300">
+      <span class="block text-[11px] font-medium text-ink">
         {{ 'ACCOUNT_AVATAR_URL_LABEL' | translate }}
       </span>
       <div class="flex items-center gap-3">
@@ -40,17 +40,17 @@
           <img
             [src]="avatarPreview()"
             [alt]="'ACCOUNT_AVATAR_URL_LABEL' | translate"
-            class="h-12 w-12 shrink-0 border border-neutral-300 object-cover dark:border-neutral-700"
+            class="h-12 w-12 shrink-0 border border-default object-cover"
           />
         } @else {
-          <div class="h-12 w-12 shrink-0 border border-dashed border-neutral-300 dark:border-neutral-700"></div>
+          <div class="h-12 w-12 shrink-0 border border-dashed border-default"></div>
         }
         <input
           type="file"
           accept="image/png,image/jpeg,image/webp,image/gif"
           [disabled]="uploadingAvatar()"
           (change)="onAvatarSelected($event)"
-          class="min-w-0 text-xs file:mr-2 file:cursor-pointer file:border file:border-neutral-300 file:bg-transparent file:px-2 file:py-1 file:text-[11px] dark:file:border-neutral-700"
+          class="min-w-0 text-xs file:mr-2 file:cursor-pointer file:border file:border-default file:bg-transparent file:px-2 file:py-1 file:text-[11px]"
         />
       </div>
       @if (avatarError()) {
@@ -60,11 +60,11 @@
 
     <div class="grid grid-cols-2 gap-3">
       <div class="space-y-1">
-        <label class="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300" [appTranslate]="'ACCOUNT_LANGUAGE_LABEL'">
+        <label class="block text-[11px] font-medium text-ink" [appTranslate]="'ACCOUNT_LANGUAGE_LABEL'">
         </label>
         <select
           [(ngModel)]="profileLanguage"
-          class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-none text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-200"
+          class="w-full px-2.5 py-1.5 text-xs bg-surface border border-default rounded-control text-ink focus:outline-none focus:ring-1 focus:ring-accent"
         >
           <option value="vi">{{ 'COMMON_LANG_VI' | translate }} (vi)</option>
           <option value="en">{{ 'COMMON_LANG_EN' | translate }} (en)</option>
@@ -72,11 +72,11 @@
       </div>
 
       <div class="space-y-1">
-        <label class="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300" [appTranslate]="'ACCOUNT_TIMEZONE_LABEL'">
+        <label class="block text-[11px] font-medium text-ink" [appTranslate]="'ACCOUNT_TIMEZONE_LABEL'">
         </label>
         <select
           [(ngModel)]="profileTimezone"
-          class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-none text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-200"
+          class="w-full px-2.5 py-1.5 text-xs bg-surface border border-default rounded-control text-ink focus:outline-none focus:ring-1 focus:ring-accent"
         >
           <option value="Asia/Ho_Chi_Minh">{{ 'ACCOUNT_TIMEZONE_OPTION_HCM' | translate }}</option>
           <option value="UTC">{{ 'ACCOUNT_TIMEZONE_OPTION_UTC' | translate }}</option>

@@ -1,24 +1,24 @@
-<div class="min-h-screen bg-neutral-100 dark:bg-neutral-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-surface-muted flex flex-col justify-center py-12 sm:px-6 lg:px-8">
   <div class="absolute top-4 right-4">
     <app-language-switcher />
   </div>
 
   <div class="sm:mx-auto sm:w-full sm:max-w-md">
     <div class="flex justify-center">
-      <div class="w-10 h-10 bg-neutral-900 dark:bg-white flex items-center justify-center font-mono font-bold text-white dark:text-neutral-900 text-sm">
+      <div class="w-10 h-10 bg-accent flex items-center justify-center font-mono font-bold text-accent-contrast text-sm">
         ERP
       </div>
     </div>
-    <h2 class="mt-4 text-center text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100" [appTranslate]="'AUTH_SELECT_TENANT_TITLE'">
+    <h2 class="mt-4 text-center text-sm font-bold uppercase tracking-wider text-ink" [appTranslate]="'AUTH_SELECT_TENANT_TITLE'">
     </h2>
-    <p class="mt-1 text-center text-xs text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_SELECT_TENANT_INSTRUCTION'">
+    <p class="mt-1 text-center text-xs text-muted" [appTranslate]="'AUTH_SELECT_TENANT_INSTRUCTION'">
     </p>
   </div>
 
   <div class="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
-    <div class="bg-white dark:bg-neutral-900 py-6 px-4 shadow-sm border border-neutral-200 dark:border-neutral-800 sm:px-8">
+    <div class="rounded-container bg-surface py-6 px-4 shadow-sm border border-default sm:px-8">
       @if (errorMessage()) {
-        <div class="mb-4 p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+        <div class="rounded-container mb-4 p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
           {{ errorMessage() }}
         </div>
       }
@@ -29,13 +29,13 @@
             type="button"
             [disabled]="loading()"
             (click)="handleSelectTenant(tenant.tenant_id)"
-            class="w-full text-left p-3 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-900 dark:hover:border-neutral-100 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center justify-between"
+            class="w-full text-left rounded-control p-3 border border-default hover:border-accent hover:bg-surface-muted disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center justify-between"
           >
             <div>
-              <div class="font-medium text-xs text-neutral-900 dark:text-neutral-100">
+              <div class="font-medium text-xs text-ink">
                 {{ tenant.tenant_name }}
               </div>
-              <div class="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 mt-0.5">
+              <div class="text-[10px] font-mono text-muted mt-0.5">
                 {{ 'AUTH_TENANT_SLUG_ROLE' | translate:{ slug: tenant.tenant_slug, role: tenant.role } }}
               </div>
             </div>
@@ -47,7 +47,7 @@
       </div>
 
       @if (loading()) {
-        <p class="mt-4 text-center text-xs text-neutral-500 dark:text-neutral-400" [appTranslate]="'COMMON_LOADING'">
+        <p class="mt-4 text-center text-xs text-muted" [appTranslate]="'COMMON_LOADING'">
         </p>
       }
 
@@ -61,8 +61,8 @@
         </app-sharp-button>
       </div>
 
-      <div class="mt-4 border-t border-neutral-200 dark:border-neutral-800 pt-3 text-center">
-        <a routerLink="/login" class="text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:underline">
+      <div class="mt-4 border-t border-default pt-3 text-center">
+        <a routerLink="/login" class="text-xs font-medium text-ink hover:underline">
           ← {{ 'AUTH_BACK_TO_LOGIN' | translate }}
         </a>
       </div>

@@ -5,7 +5,7 @@
     [attr.aria-expanded]="open()"
     aria-haspopup="menu"
     [attr.aria-label]="'NOTIFICATION_TITLE' | translate"
-    class="relative inline-flex items-center justify-center min-h-10 min-w-10 p-1.5 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+    class="relative inline-flex items-center justify-center rounded-control min-h-10 min-w-10 p-1.5 text-ink hover:bg-surface-muted transition-colors cursor-pointer"
   >
     <app-icon name="bell" size="md" [decorative]="true" />
     @if (unreadCount() > 0) {
@@ -18,10 +18,10 @@
   @if (open()) {
     <div
       role="menu"
-      class="op-pop absolute right-0 top-full z-50 mt-1 w-72 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-lg"
+      class="op-pop absolute right-0 top-full z-50 mt-1 w-72 rounded-container border border-default bg-surface shadow-panel"
     >
-      <div class="flex items-center justify-between gap-2 border-b border-neutral-200 dark:border-neutral-800 px-2 py-1.5">
-        <span class="text-xs font-semibold text-neutral-900 dark:text-neutral-100">{{ 'NOTIFICATION_TITLE' | translate }}</span>
+      <div class="flex items-center justify-between gap-2 border-b border-default px-2 py-1.5">
+        <span class="text-xs font-semibold text-ink">{{ 'NOTIFICATION_TITLE' | translate }}</span>
         @if (unreadCount() > 0) {
           <button
             type="button"
@@ -35,11 +35,11 @@
 
       <div class="max-h-80 overflow-y-auto">
         @if (items().length === 0) {
-          <p class="px-2 py-3 text-[11px] text-neutral-500 dark:text-neutral-400">{{ 'NOTIFICATION_EMPTY' | translate }}</p>
+          <p class="px-2 py-3 text-[11px] text-muted">{{ 'NOTIFICATION_EMPTY' | translate }}</p>
         }
         @for (item of items(); track item.id) {
           <div
-            class="flex items-start gap-1.5 border-b border-neutral-100 px-2 py-1.5 last:border-b-0 dark:border-neutral-800"
+            class="flex items-start gap-1.5 border-b border-default px-2 py-1.5 last:border-b-0"
             [class]="item.read_at ? '' : 'bg-sky-50 dark:bg-sky-950/40'"
           >
             <button
@@ -47,15 +47,15 @@
               (click)="onOpenDetail(item.type)"
               class="min-w-0 flex-1 text-left cursor-pointer"
             >
-              <span class="block text-xs text-neutral-800 dark:text-neutral-200">{{ item.title_key | translate }}</span>
-              <span class="mt-0.5 block font-mono text-[10px] uppercase text-neutral-400">{{ item.severity }}</span>
+              <span class="block text-xs text-ink">{{ item.title_key | translate }}</span>
+              <span class="mt-0.5 block font-mono text-[10px] uppercase text-muted">{{ item.severity }}</span>
             </button>
             @if (!item.read_at) {
               <button
                 type="button"
                 (click)="onMarkRead(item.id, $event)"
                 [attr.aria-label]="'NOTIFICATION_MARK_READ' | translate"
-                class="inline-flex shrink-0 items-center justify-center min-h-10 min-w-10 text-neutral-500 hover:text-emerald-600 dark:text-neutral-400 dark:hover:text-emerald-400 cursor-pointer"
+                class="inline-flex shrink-0 items-center justify-center min-h-10 min-w-10 text-muted hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer"
               >
                 <app-icon name="check" [decorative]="true" />
               </button>
@@ -69,7 +69,7 @@
           role="menuitem"
           [routerLink]="detailPath()"
           (click)="open.set(false)"
-          class="block border-t border-neutral-200 dark:border-neutral-800 px-2 py-1.5 text-center text-[11px] text-sky-600 hover:bg-neutral-100 dark:text-sky-400 dark:hover:bg-neutral-800"
+          class="block rounded-control border-t border-default px-2 py-1.5 text-center text-[11px] text-sky-600 hover:bg-surface-muted dark:text-sky-400"
         >
           {{ 'NOTIFICATION_VIEW_DETAILS' | translate }}
         </a>

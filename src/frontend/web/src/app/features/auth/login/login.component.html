@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-neutral-100 dark:bg-neutral-950 flex flex-col lg:flex-row">
+<div class="min-h-screen bg-surface-muted flex flex-col lg:flex-row">
   <!-- Brand panel (desktop only) -->
   <div class="hidden lg:flex lg:w-2/5 xl:w-1/3 bg-neutral-900 dark:bg-black text-neutral-100 flex-col justify-between p-8 select-none">
     <div class="flex items-center gap-2">
@@ -23,27 +23,27 @@
 
     <div class="w-full max-w-md mx-auto">
       <div class="flex justify-center">
-        <div class="w-10 h-10 bg-neutral-900 dark:bg-white flex items-center justify-center font-mono font-bold text-white dark:text-neutral-900 text-lg">
+        <div class="w-10 h-10 bg-accent flex items-center justify-center font-mono font-bold text-accent-contrast text-lg">
           ERP
         </div>
       </div>
-      <h2 class="mt-3 text-center text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100" [appTranslate]="'AUTH_LOGIN_TITLE'">
+      <h2 class="mt-3 text-center text-sm font-bold uppercase tracking-wider text-ink" [appTranslate]="'AUTH_LOGIN_TITLE'">
       </h2>
-      <p class="mt-1 text-center text-xs text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_LOGIN_SUBTITLE'">
+      <p class="mt-1 text-center text-xs text-muted" [appTranslate]="'AUTH_LOGIN_SUBTITLE'">
       </p>
 
       <div class="mt-4">
-        <div class="bg-white dark:bg-neutral-900 p-4 sm:p-6 shadow-sm border border-neutral-200 dark:border-neutral-800 sm:px-8">
+        <div class="rounded-container bg-surface p-4 sm:p-6 shadow-sm border border-default sm:px-8">
 
           @if (verifiedNotice()) {
-            <div class="mb-4 p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
+            <div class="rounded-container mb-4 p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs">
               {{ 'AUTH_EMAIL_VERIFIED_NOTICE' | translate }}
             </div>
           }
 
           <!-- Thông báo lỗi chung -->
           @if (errorMessage()) {
-            <div class="mb-4 p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+            <div class="rounded-container mb-4 p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
               {{ errorMessage() }}
             </div>
           }
@@ -67,7 +67,7 @@
 
             <div class="flex items-center justify-end">
               <div class="text-xs">
-                <a routerLink="/forgot-password" class="text-neutral-900 dark:text-neutral-100 hover:underline font-medium" [appTranslate]="'AUTH_FORGOT_PASSWORD_LINK'"></a>
+                <a routerLink="/forgot-password" class="text-ink hover:underline font-medium" [appTranslate]="'AUTH_FORGOT_PASSWORD_LINK'"></a>
               </div>
             </div>
 
@@ -80,13 +80,13 @@
             </app-sharp-button>
           </form>
 
-          <div class="mt-5 border-t border-neutral-200 dark:border-neutral-800 pt-4 space-y-2">
-            <p class="text-xs text-center text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_NO_ACCOUNT'"></p>
+          <div class="mt-5 border-t border-default pt-4 space-y-2">
+            <p class="text-xs text-center text-muted" [appTranslate]="'AUTH_NO_ACCOUNT'"></p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <a routerLink="/register/personal" class="text-center py-1.5 border border-neutral-300 dark:border-neutral-700 text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+              <a routerLink="/register/personal" class="text-center rounded-control py-1.5 border border-default text-xs font-medium text-ink hover:bg-surface-muted">
                 {{ 'AUTH_REGISTER_PERSONAL_TAB' | translate }}
               </a>
-              <a routerLink="/register/business" class="text-center py-1.5 border border-neutral-300 dark:border-neutral-700 text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+              <a routerLink="/register/business" class="text-center rounded-control py-1.5 border border-default text-xs font-medium text-ink hover:bg-surface-muted">
                 {{ 'AUTH_REGISTER_BUSINESS_TAB' | translate }}
               </a>
             </div>

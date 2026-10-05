@@ -14,15 +14,15 @@
       <app-language-switcher />
     </div>
 
-    <p class="text-[11px] text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_REGISTER_SUBTITLE'"></p>
+    <p class="text-[11px] text-muted" [appTranslate]="'AUTH_REGISTER_SUBTITLE'"></p>
 
     @if (errorMessage()) {
-      <div class="p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
+      <div class="rounded-container p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
         {{ errorMessage() }}
       </div>
     }
 
-    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3">
+    <div class="rounded-container bg-surface border border-default p-3">
       <form (ngSubmit)="handleRegister()" class="space-y-3">
         <app-sharp-input
           [label]="'AUTH_FULL_NAME_LABEL' | translate"
@@ -66,8 +66,8 @@
     </div>
 
     <div class="text-center">
-      <span class="text-xs text-neutral-500 dark:text-neutral-400" [appTranslate]="'AUTH_HAVE_ACCOUNT'"></span>
-      <a routerLink="/login" class="text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:underline ml-1" [appTranslate]="'AUTH_LOGIN_BUTTON'"></a>
+      <span class="text-xs text-muted" [appTranslate]="'AUTH_HAVE_ACCOUNT'"></span>
+      <a routerLink="/login" class="text-xs font-medium text-ink hover:underline ml-1" [appTranslate]="'AUTH_LOGIN_BUTTON'"></a>
     </div>
   </div>
 </ion-content>

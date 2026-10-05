@@ -4,7 +4,7 @@
     [value]="i18n.currentLang()"
     (change)="onSelect($event)"
     [attr.aria-label]="'COMMON_LANGUAGE_SHORT' | translate"
-    class="min-h-10 max-sm:min-w-10 rounded-none border border-default bg-surface px-1.5 py-0.5 text-[11px] text-ink cursor-pointer sm:min-h-0"
+    class="min-h-10 max-sm:min-w-10 rounded-control border border-default bg-surface px-1.5 py-0.5 text-[11px] text-ink cursor-pointer sm:min-h-0"
   >
     @for (language of languages; track language.code) {
       <option [value]="language.code">{{ language.nativeName }}</option>

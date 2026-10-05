@@ -298,7 +298,7 @@ export class RoleDetailPage implements OnInit {
       case DataScope.OWN_AND_SUBORDINATES:
         return 'text-amber-600 dark:text-amber-400';
       case DataScope.OWN_ONLY:
-        return 'text-neutral-700 dark:text-neutral-300';
+        return 'text-ink';
       case DataScope.NONE:
       default:
         return 'text-rose-500 font-medium';

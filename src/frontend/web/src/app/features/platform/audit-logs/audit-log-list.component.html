@@ -3,7 +3,7 @@
     <h1 class="text-sm font-bold uppercase tracking-wider">{{ 'PLATFORM_AUDIT_TRAIL' | translate }}</h1>
   </div>
 
-  <div class="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-2 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-2 items-end">
+  <div class="rounded-container border border-default bg-surface p-2 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-2 items-end">
     <app-sharp-select
       [label]="'PLATFORM_AUDIT_SCOPE' | translate"
       [options]="scopeOptions"
@@ -46,15 +46,15 @@
   </div>
 
   @if (errorText()) {
-    <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
+    <div class="rounded-container border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300">
       {{ errorText() }}
     </div>
   }
 
   <app-table [columns]="columns" [rows]="logs()" [loading]="loading()">
     <ng-template let-log>
-      <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 align-top">
-        <td class="px-2 py-1.5 text-[10px] font-mono text-neutral-500">{{ formatDateTime(log.created_at) }}</td>
+      <tr class="hover:bg-surface-muted align-top">
+        <td class="px-2 py-1.5 text-[10px] font-mono text-muted">{{ formatDateTime(log.created_at) }}</td>
         <td class="px-2 py-1.5">
           <div class="font-mono text-[10px]">{{ log.actor_email || '-' }}</div>
           <app-badge variant="default">{{ log.actor_type }}</app-badge>
@@ -69,13 +69,13 @@
         <td class="px-2 py-1.5 font-mono text-[10px]" [title]="log.correlation_id">{{ shortCorrelation(log.correlation_id) }}</td>
         <td class="px-2 py-1.5 text-[10px]">
           <div>{{ log.target_tenant_name || '-' }}</div>
-          <div class="font-mono text-neutral-400">{{ log.resource_type || '-' }}{{ log.resource_id ? ':' + log.resource_id : '' }}</div>
+          <div class="font-mono text-muted">{{ log.resource_type || '-' }}{{ log.resource_id ? ':' + log.resource_id : '' }}</div>
         </td>
         <td class="px-2 py-1.5 font-mono text-[10px]">{{ log.ip_address || '-' }}</td>
         <td class="px-2 py-1.5 text-right">
           <button
             type="button"
-            class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            class="px-1.5 py-0.5 text-[10px] rounded-control border border-default hover:bg-surface-muted"
             (click)="openDetail(log)"
           >
             {{ 'COMMON_VIEW_DETAIL' | translate }}

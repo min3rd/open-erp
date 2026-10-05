@@ -15,20 +15,20 @@
   </div>
 
   @if (errorText()) {
-    <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300 flex justify-between items-center">
+    <div class="rounded-container border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300 flex justify-between items-center">
       <span>{{ errorText() }}</span>
       <button type="button" class="underline" (click)="errorText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
     </div>
   }
   @if (successText()) {
-    <div class="border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1.5 text-[11px] text-emerald-700 dark:text-emerald-300 flex justify-between items-center">
+    <div class="rounded-container border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1.5 text-[11px] text-emerald-700 dark:text-emerald-300 flex justify-between items-center">
       <span>{{ successText() }}</span>
       <button type="button" class="underline" (click)="successText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
     </div>
   }
 
   @if (confirmRemove(); as pending) {
-    <div class="border border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 px-2 py-1.5 flex flex-wrap items-center justify-between gap-2">
+    <div class="rounded-container border border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 px-2 py-1.5 flex flex-wrap items-center justify-between gap-2">
       <span class="text-[11px] text-rose-700 dark:text-rose-300">
         {{ 'ORGANIZATION_BRANCH_ASSIGNMENT_REMOVE_CONFIRM' | translate:{ branch: pending.branch_code || pending.branch_id } }}
       </span>
@@ -45,7 +45,7 @@
 
   <app-table [columns]="columns" [rows]="assignments()" [loading]="loading()">
     <ng-template let-a>
-      <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50">
+      <tr class="hover:bg-surface-muted">
         <td class="px-2 py-1.5">
           <div class="font-mono text-[10px]">{{ a.user_email || a.user_id }}</div>
         </td>
@@ -70,14 +70,14 @@
           <div class="flex items-center justify-end gap-1">
             <button
               type="button"
-              class="px-1.5 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              class="px-1.5 py-0.5 text-[10px] rounded-control border border-default hover:bg-surface-muted"
               (click)="openDrawer(a.user_id)"
             >
               {{ 'COMMON_EDIT' | translate }}
             </button>
             <button
               type="button"
-              class="px-1.5 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+              class="px-1.5 py-0.5 text-[10px] rounded-control border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
               (click)="askRemove(a)"
             >
               {{ 'COMMON_DELETE' | translate }}

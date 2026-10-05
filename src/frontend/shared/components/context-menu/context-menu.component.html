@@ -3,7 +3,7 @@
     #panel
     role="menu"
     [attr.aria-label]="menu.ariaLabelKey | translate"
-    class="op-pop fixed z-[90] min-w-[160px] max-w-[280px] rounded-none border border-default bg-surface-raised py-1 shadow-lg"
+    class="op-pop fixed z-[90] min-w-[160px] max-w-[280px] rounded-container border border-default bg-surface-raised py-1 shadow-panel"
   >
     @for (item of menu.items; track item.id; let i = $index) {
       <button
