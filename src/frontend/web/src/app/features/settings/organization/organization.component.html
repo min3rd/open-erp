@@ -40,7 +40,7 @@
     <section class="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
       <div class="px-2 py-1.5 border-b border-neutral-200 dark:border-neutral-800 flex flex-wrap items-center justify-between gap-2">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
-          {{ 'ORGANIZATION_DEPARTMENT_TREE' | translate }}
+          {{ 'ORGANIZATION_CHART' | translate }}
         </span>
         <div class="flex flex-wrap items-center gap-1">
           <div class="inline-flex border border-neutral-300 dark:border-neutral-700" role="group" [attr.aria-label]="'ORGANIZATION_VIEW_MODE' | translate">
@@ -82,65 +82,89 @@
         <div class="px-2 py-3 text-center text-[11px] text-neutral-500">{{ 'COMMON_LOADING' | translate }}</div>
       } @else if (viewMode() === 'list') {
         <div class="max-h-[540px] overflow-y-auto">
-          @for (department of visibleDepartments(); track department.id) {
+          @for (node of visibleOrgNodes(); track node.id) {
             <div
-              class="flex items-center justify-between gap-2 px-2 py-1 border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
-              [ngClass]="selectedId() === department.id ? 'bg-neutral-100 dark:bg-neutral-800' : ''"
+              class="flex items-center justify-between gap-2 px-2 py-1 border-b border-neutral-100 dark:border-neutral-800"
+              [ngClass]="node.kind === 'department'
+                ? (selectedId() === node.id ? 'bg-neutral-100 dark:bg-neutral-800' : 'hover:bg-neutral-50 dark:hover:bg-neutral-800/50')
+                : 'bg-neutral-50/70 dark:bg-neutral-800/40'"
             >
-              <div class="flex items-center gap-1 min-w-0" [style.padding-left]="indentation(department.depth)">
-                @if (department.children?.length) {
+              <div class="flex items-center gap-1 min-w-0" [style.padding-left]="indentation(node.depth)">
+                @if (node.hasChildren) {
                   <button
                     type="button"
                     class="w-5 h-5 shrink-0 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 text-[10px] leading-none text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                    [attr.aria-expanded]="!isCollapsed(department.id)"
-                    (click)="toggleCollapse(department.id)"
+                    [attr.aria-expanded]="!isCollapsed(node.id)"
+                    (click)="toggleCollapse(node.id)"
                   >
-                    {{ isCollapsed(department.id) ? '+' : '−' }}
+                    {{ isCollapsed(node.id) ? '+' : '−' }}
                   </button>
                 } @else {
                   <span class="w-5 h-5 shrink-0 flex items-center justify-center text-neutral-300 dark:text-neutral-600">•</span>
                 }
-                <button type="button" class="min-w-0 flex-1 text-left" (click)="selectDepartment(department)">
-                  <span class="block text-[11px] font-medium truncate">{{ department.name }}</span>
+                <button type="button" class="min-w-0 flex-1 text-left" (click)="selectOrgNode(node)">
+                  <span class="block text-[11px] font-medium truncate">{{ node.name }}</span>
                   <span class="block text-[10px] font-mono text-neutral-400 truncate">
-                    {{ department.code }}
-                    @if (department.branch_name) {
-                      <span> • {{ department.branch_name }}</span>
+                    @if (node.kind === 'branch') {
+                      <span>{{ 'ORGANIZATION_BRANCH_BADGE' | translate }} • </span>
                     }
-                    @if (department.manager_name) {
-                      <span> • {{ 'ORGANIZATION_DEPARTMENT_MANAGER' | translate }}: {{ department.manager_name }}</span>
+                    @if (node.code) {
+                      <span>{{ node.code }}</span>
                     }
                   </span>
                 </button>
                 <span class="shrink-0 text-[9px] font-mono px-1 border border-neutral-200 dark:border-neutral-700 text-neutral-500">
-                  {{ memberCount(department.id) }}
+                  {{ node.memberCount }}
                 </span>
               </div>
               <div class="flex items-center gap-1 shrink-0">
-                <button
-                  type="button"
-                  *appRequirePermission="'core:department:manage'"
-                  class="px-1 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                  (click)="openCreateDepartment(department.id)"
-                >
-                  +
-                </button>
-                <button
-                  type="button"
-                  *appRequirePermission="'core:department:manage'"
-                  class="px-1 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                  (click)="openEditDepartment(department)"
-                >
-                  {{ 'COMMON_EDIT' | translate }}
-                </button>
-                <button
-                  type="button"
-                  *appRequirePermission="'core:department:manage'"
-                  class="px-1 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
-                  (click)="askDeleteDepartment(department)"
-                >
-                  {{ 'COMMON_DELETE' | translate }}
-                </button>
+                @if (node.kind === 'branch') {
+                  @if (branchById(node.id); as branch) {
+                    <button
+                      type="button"
+                      *appRequirePermission="'core:branch:manage'"
+                      class="px-1 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                      (click)="openEditBranch(branch)"
+                    >
+                      {{ 'COMMON_EDIT' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      *appRequirePermission="'core:branch:manage'"
+                      class="px-1 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                      (click)="askDeleteBranch(branch)"
+                    >
+                      {{ 'COMMON_DELETE' | translate }}
+                    </button>
+                  }
+                } @else if (node.kind === 'department') {
+                  @if (departmentById(node.id); as department) {
+                    <button
+                      type="button"
+                      *appRequirePermission="'core:department:manage'"
+                      class="px-1 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                      (click)="openCreateDepartment(department.id)"
+                    >
+                      +
+                    </button>
+                    <button
+                      type="button"
+                      *appRequirePermission="'core:department:manage'"
+                      class="px-1 py-0.5 text-[10px] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                      (click)="openEditDepartment(department)"
+                    >
+                      {{ 'COMMON_EDIT' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      *appRequirePermission="'core:department:manage'"
+                      class="px-1 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                      (click)="askDeleteDepartment(department)"
+                    >
+                      {{ 'COMMON_DELETE' | translate }}
+                    </button>
+                  }
+                }
               </div>
             </div>
           } @empty {

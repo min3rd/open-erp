@@ -434,6 +434,8 @@
   "IAM_DATA_SCOPE_SHORT_OWN": "OWN",
   "IAM_DATA_SCOPE_SHORT_NONE": "NO",
   "ORGANIZATION_STRUCTURE": "Organizational Structure",
+  "ORGANIZATION_CHART": "Organization chart",
+  "ORGANIZATION_BRANCH_BADGE": "Branch",
   "ORGANIZATION_BRANCHES": "Branch List",
   "ORGANIZATION_DEPARTMENT_TREE": "Department Hierarchy Tree",
   "ORGANIZATION_MEMBERSHIPS": "Memberships & Reporting Lines",

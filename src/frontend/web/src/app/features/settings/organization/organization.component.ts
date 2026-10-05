@@ -18,6 +18,7 @@ import {
 } from '@shared';
 
 import { OrganizationService } from '../../../core/services/organization.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
 import { DepartmentFormDrawerComponent } from './department-form-drawer.component';
 import { BranchFormDrawerComponent } from './branch-form-drawer.component';
@@ -28,6 +29,22 @@ import {
 } from './department-graph-canvas.component';
 
 type OrganizationView = 'list' | 'graph';
+
+type OrgNodeKind = 'tenant' | 'branch' | 'department';
+
+/** Composed organization chart node: workspace root → branches → departments. */
+export interface OrgChartNode {
+  id: string;
+  kind: OrgNodeKind;
+  code: string;
+  name: string;
+  depth: number;
+  hasChildren: boolean;
+  collapsed: boolean;
+  memberCount: number;
+  branchId: string | null;
+  children: OrgChartNode[];
+}
 
 const VIEW_STORAGE_KEY = 'openerp_org_view';
 const GRAPH_NODE_WIDTH = 152;
@@ -55,6 +72,7 @@ const GRAPH_PADDING = 24;
 })
 export class OrganizationComponent implements OnInit {
   private organization = inject(OrganizationService);
+  private auth = inject(AuthService);
   private i18n = inject(I18nService);
   private listState = inject(PathListStateService);
   private pendingState: PathListState | null = null;
@@ -92,9 +110,106 @@ export class OrganizationComponent implements OnInit {
 
   readonly flatDepartments = computed<FlatDepartmentNode[]>(() => flattenDepartments(this.departmentTree()));
 
-  readonly visibleDepartments = computed<FlatDepartmentNode[]>(() => {
-    const out: FlatDepartmentNode[] = [];
-    this.walkVisible(this.departmentTree(), 0, out);
+  /** Departments nested by parent, as roots of per-branch forests. */
+  private readonly departmentForest = computed<OrgChartNode[]>(() => {
+    const counts = this.memberCounts();
+    const byId = new Map<string, OrgChartNode>();
+    for (const item of this.flatDepartments()) {
+      byId.set(item.id, {
+        id: item.id,
+        kind: 'department',
+        code: item.code,
+        name: item.name,
+        depth: 0,
+        hasChildren: false,
+        collapsed: false,
+        memberCount: counts.get(item.id) || 0,
+        branchId: item.branch_id ?? null,
+        children: []
+      });
+    }
+    const roots: OrgChartNode[] = [];
+    for (const item of this.flatDepartments()) {
+      const node = byId.get(item.id)!;
+      const parent = item.parent_id ? byId.get(item.parent_id) : undefined;
+      if (parent) {
+        parent.children.push(node);
+        parent.hasChildren = true;
+      } else {
+        roots.push(node);
+      }
+    }
+    return roots;
+  });
+
+  /**
+   * Full organization chart: the workspace root, each branch, then the branch's
+   * departments; departments without a branch hang directly under the root.
+   */
+  readonly orgChart = computed<OrgChartNode>(() => {
+    const collapsed = this.collapsedIds();
+    const branchMembers = new Map<string, number>();
+    for (const membership of this.memberships()) {
+      if (membership.branch_id) {
+        branchMembers.set(membership.branch_id, (branchMembers.get(membership.branch_id) || 0) + 1);
+      }
+    }
+
+    const root: OrgChartNode = {
+      id: 'tenant',
+      kind: 'tenant',
+      code: '',
+      name: this.auth.user()?.tenant_name || 'Open-ERP',
+      depth: 0,
+      hasChildren: false,
+      collapsed: collapsed.has('tenant'),
+      memberCount: this.memberships().length,
+      branchId: null,
+      children: []
+    };
+
+    const applyDepth = (node: OrgChartNode, depth: number): void => {
+      node.depth = depth;
+      node.collapsed = collapsed.has(node.id);
+      for (const child of node.children) {
+        applyDepth(child, depth + 1);
+      }
+    };
+
+    const forest = this.departmentForest();
+    for (const branch of [...this.branches()].sort((a, b) => a.code.localeCompare(b.code))) {
+      const branchNode: OrgChartNode = {
+        id: branch.id,
+        kind: 'branch',
+        code: branch.code,
+        name: branch.name,
+        depth: 1,
+        hasChildren: false,
+        collapsed: collapsed.has(branch.id),
+        memberCount: branchMembers.get(branch.id) || 0,
+        branchId: branch.id,
+        children: forest.filter((node) => node.branchId === branch.id)
+      };
+      branchNode.hasChildren = branchNode.children.length > 0;
+      branchNode.children.forEach((child) => applyDepth(child, 2));
+      root.children.push(branchNode);
+    }
+    const unassigned = forest.filter((node) => !node.branchId);
+    unassigned.forEach((child) => applyDepth(child, 1));
+    root.children.push(...unassigned);
+    root.hasChildren = root.children.length > 0;
+    return root;
+  });
+
+  readonly visibleOrgNodes = computed<OrgChartNode[]>(() => {
+    const out: OrgChartNode[] = [];
+    const walk = (node: OrgChartNode): void => {
+      out.push(node);
+      if (node.hasChildren && !this.isCollapsed(node.id)) {
+        node.children.forEach(walk);
+      }
+    };
+    walk(this.orgChart());
     return out;
   });
 
@@ -116,11 +231,10 @@ export class OrganizationComponent implements OnInit {
     const nodes: CanvasGraphNode[] = [];
     const positions = new Map<string, { x: number; y: number }>();
     const collapsed = this.collapsedIds();
-    const counts = this.memberCounts();
     let cursor = 0;
 
-    const walk = (node: DepartmentNode, depth: number, parentId: string | null): number => {
-      const children = collapsed.has(node.id) ? [] : (node.children || []);
+    const walk = (node: OrgChartNode, depth: number, parentId: string | null): number => {
+      const children = collapsed.has(node.id) ? [] : node.children;
       let x: number;
       if (!children.length) {
         x = GRAPH_PADDING + cursor;
@@ -134,21 +248,20 @@ export class OrganizationComponent implements OnInit {
       nodes.push({
         id: node.id,
         parentId,
+        kind: node.kind,
         code: node.code,
         name: node.name,
         depth,
         x,
         y,
-        hasChildren: (node.children?.length || 0) > 0,
+        hasChildren: node.children.length > 0,
         collapsed: collapsed.has(node.id),
-        memberCount: counts.get(node.id) || 0
+        memberCount: node.memberCount
       });
       return x;
     };
 
-    for (const root of this.departmentTree()) {
-      walk(root, 0, null);
-    }
+    walk(this.orgChart(), 0, null);
 
     const edges: CanvasGraphEdge[] = [];
     for (const node of nodes) {
@@ -290,6 +403,25 @@ export class OrganizationComponent implements OnInit {
   selectDepartment(department: DepartmentNode) {
     this.selectedId.set(department.id);
     this.listState.set({ id: department.id, mode: 'list' });
+  }
+
+  /** Chart row click: only departments open the detail panel. */
+  selectOrgNode(node: OrgChartNode) {
+    if (node.kind !== 'department') {
+      return;
+    }
+    const department = this.findNode(this.departmentTree(), node.id);
+    if (department) {
+      this.selectDepartment(department);
+    }
+  }
+
+  branchById(id: string): Branch | undefined {
+    return this.branches().find((branch) => branch.id === id);
+  }
+
+  departmentById(id: string): DepartmentNode | null {
+    return this.findNode(this.departmentTree(), id);
   }
 
   selectDepartmentById(departmentId: string) {
@@ -455,15 +587,6 @@ export class OrganizationComponent implements OnInit {
       return localStorage.getItem(VIEW_STORAGE_KEY) === 'graph' ? 'graph' : 'list';
     } catch {
       return 'list';
-    }
-  }
-
-  private walkVisible(nodes: DepartmentNode[], depth: number, acc: FlatDepartmentNode[]) {
-    for (const node of nodes) {
-      acc.push({ ...node, depth });
-      if (node.children?.length && !this.collapsedIds().has(node.id)) {
-        this.walkVisible(node.children, depth + 1, acc);
-      }
     }
   }
 

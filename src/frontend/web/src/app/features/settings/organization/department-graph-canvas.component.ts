@@ -16,6 +16,8 @@ import { TranslatePipe } from '@shared';
 export interface CanvasGraphNode {
   id: string;
   parentId: string | null;
+  /** tenant (workspace root) | branch | department — drives the group styling. */
+  kind: CanvasNodeKind;
   code: string;
   name: string;
   depth: number;
@@ -25,6 +27,8 @@ export interface CanvasGraphNode {
   collapsed: boolean;
   memberCount: number;
 }
+
+export type CanvasNodeKind = 'tenant' | 'branch' | 'department';
 
 export interface CanvasGraphEdge {
   id: string;
@@ -48,6 +52,9 @@ interface Palette {
   background: string;
   nodeFill: string;
   nodeFillSelected: string;
+  /** Fill/border for the tenant root and branch nodes. */
+  nodeFillGroup: string;
+  nodeBorderGroup: string;
   nodeBorder: string;
   nodeBorderHover: string;
   nodeBorderSelected: string;
@@ -80,6 +87,8 @@ const LIGHT_PALETTE: Palette = {
   background: '#fafafa',
   nodeFill: '#ffffff',
   nodeFillSelected: '#f5f5f5',
+  nodeFillGroup: '#f0f0f0',
+  nodeBorderGroup: '#737373',
   nodeBorder: '#d4d4d4',
   nodeBorderHover: '#a3a3a3',
   nodeBorderSelected: '#171717',
@@ -99,6 +108,8 @@ const DARK_PALETTE: Palette = {
   background: '#0a0a0a',
   nodeFill: '#171717',
   nodeFillSelected: '#262626',
+  nodeFillGroup: '#262626',
+  nodeBorderGroup: '#a3a3a3',
   nodeBorder: '#404040',
   nodeBorderHover: '#737373',
   nodeBorderSelected: '#f5f5f5',
@@ -612,15 +623,22 @@ export class DepartmentGraphCanvasComponent implements AfterViewInit, OnDestroy 
     const nw = this.nodeWidth();
     const nh = this.nodeHeight();
     const pad = 6;
+    const isGroup = node.kind !== 'department';
     this.roundedRect(ctx, node.x, node.y, nw, nh, 2);
-    ctx.fillStyle = state.selected ? palette.nodeFillSelected : palette.nodeFill;
+    ctx.fillStyle = state.selected
+      ? palette.nodeFillSelected
+      : isGroup
+        ? palette.nodeFillGroup
+        : palette.nodeFill;
     ctx.fill();
     ctx.lineWidth = Math.max(0.75 / zoom, 0.4);
     ctx.strokeStyle = state.selected
       ? palette.nodeBorderSelected
       : state.hovered
         ? palette.nodeBorderHover
-        : palette.nodeBorder;
+        : isGroup
+          ? palette.nodeBorderGroup
+          : palette.nodeBorder;
     ctx.stroke();
 
     const controlInset = node.hasChildren ? COLLAPSE_SIZE + 4 : 0;
