@@ -4,7 +4,7 @@
 - **Tên Sprint**: Sprint 02 - Super Admin Platform Management, Functional RBAC & Multi-Scope Data Access Control
 - **Phụ Trách**: PM Agent
 - **Ngày Lập Biên Bản**: 2026-09-19
-- **Trạng Thái**: [x] **ĐÃ NGHIỆM THU & ĐÓNG SPRINT** — DoD Gate PASS (0 Critical, 0 High)
+- **Trạng Thái**: [x] **ĐÃ NGHIỆM THU & ĐÓNG SPRINT** — DoD Gate PASS (0 Critical, 0 High). **Chữ ký nghiệm thu của khách hàng: PENDING** (mục 8 còn trống; không có nguồn xác nhận nghiệm thu trong hồ sơ — xem ghi chú mục 8).
 - **Tài Liệu Liên Quan**: [00_READING_GUIDE](../00_READING_GUIDE.md) • [sprint_plan](../sprint_plan.md) • [TR-02 Test Report](../08_testing/test_report.md) • [test_plan](../08_testing/test_plan.md) • [UG-02](../../../06_user_guides/sprint_02_superadmin_rbac_user_guide.md)
 
 ---
@@ -174,11 +174,15 @@
 - Không còn item `Critical`/`High` mở; 77/78 item `Done`, 1 item `Deferred` (Medium, hợp lệ).
 - Backend `mvn test` **193/193 PASS**; Web/Mobile build PASS; QA dual-mode **0 console error**, **overflow 0**.
 - Tài liệu Hướng dẫn sử dụng UG-02 ban hành kèm 27 ảnh minh họa; deployment guide đã cập nhật đầy đủ.
-- **[x] Sprint 02 chính thức được đóng theo DoD Gate sau khi khách hàng ký duyệt bên dưới.**
+- **[x] Sprint 02 đạt DoD Gate kỹ thuật.** Việc đóng chính thức chỉ hoàn tất sau khi khách hàng ký duyệt mục 8 — **hiện PENDING** (chưa có nguồn xác nhận).
 
 ---
 
 ## 8. Chữ Ký Phê Duyệt Nghiệm Thu Của Khách Hàng (Customer Acceptance Sign-Off)
 
-- **Đại Diện Khách Hàng (Product Owner)**: ........................................ (Ngày ký: ..../..../2026)
-- **Đại Diện Quản Trị Dự Án (PM Agent)**: ........................................ (Ngày ký: ..../..../2026)
+> **Trạng thái: PENDING — chưa có nguồn xác nhận nghiệm thu.** [TASK-353](../07_items/TASK-353_reconcile_legacy_sprint_records.md) đã đối soát hồ sơ Sprint 02 ngày 2026-10-05: [CONF-01](../../04_confirmation/CONF-01_sprint_02_scope.md) (2026-09-18) là xác nhận **phạm vi** (Confirmation Gate), **không** phải nghiệm thu đóng sprint. Không tìm thấy chữ ký/biên bản nghiệm thu khách hàng cho Sprint 02. Giữ nguyên ngày đóng lịch sử; **không tự ký, không hồi tố**.
+>
+> Việc ký duyệt nghiệm thu (nếu thực hiện) phải do người thật thực hiện và ghi rõ nguồn/ngày; khi đó cập nhật lại dòng này từ PENDING sang ngày ký thực tế.
+
+- **Đại Diện Khách Hàng (Product Owner)**: ........................................ (Ngày ký: ..../..../2026) — **PENDING**
+- **Đại Diện Quản Trị Dự Án (PM Agent)**: ........................................ (Ngày ký: ..../..../2026) — **PENDING**

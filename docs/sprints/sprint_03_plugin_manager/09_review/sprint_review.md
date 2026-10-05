@@ -31,13 +31,17 @@
 
 | Hạng Mục | Số Lượng | Ghi Chú |
 | :--- | :---: | :--- |
-| **Tổng item Sprint 03** (feature + bug + task + sub-task inline) | **174** | Bao gồm FEAT-21/22/23 và dải TASK/BUG inline. |
-| **Đã `Done` / `Resolved`** | **167** | Bao gồm toàn bộ bug do QA phát hiện (BUG-95→116). |
-| **Chưa hoàn tất** | **7** | 4 `In Review` (chờ Reviewer ký) + 3 `Deferred → Sprint 04`. |
-| — Trong đó `In Review` (chờ Reviewer ký) | **4** | BUG-86, BUG-92, BUG-93, BUG-94. |
-| — Trong đó `Deferred → Sprint 04` | **3** | BUG-98, TASK-346, TASK-347. |
+| **Tổng item Sprint 03** (file thật trong `07_items/`) | **183** | Đếm theo file item, không đếm dòng sub-task inline. |
+| **Đã `Done` / `Resolved`** | **181** | Gồm toàn bộ bug QA (BUG-95→116), các BUG IAM (117/118/119/120), TASK-354, và 4 item đợt này: **BUG-98, TASK-346, TASK-347, TASK-353**. |
+| **Chưa hoàn tất code** | **0** | Không còn item `To Do`/`In Progress`/`In Review` không có lý do. |
+| — Chờ QA/Reviewer ký (mức `Medium`) | **5** | BUG-117, BUG-118, BUG-119, BUG-120, TASK-354 — có code + bằng chứng, chờ người ký độc lập. |
+| — `Deferred → Sprint 04` (mức `Medium`) | **0** | BUG-98/TASK-346/TASK-347 đã làm luôn; TASK-353 đã đối soát. |
 
-> **Ghi chú bổ sung**: **TASK-348** đang `In Review` (7/7 màn chính `Done`, phần danh sách phụ chuyển Sprint 04). TASK-348 nằm cùng nhóm **cần Reviewer ký trước khi đóng Sprint**. Trong `FEAT-23`, **TASK-331** và **TASK-337** đã chuyển `In Review` (đã code + developer self-verified, xem `08_testing/evidence/TASK-331_*` và `TASK-337_*`), chờ QA/Reviewer xác nhận.
+> **Cách đếm (baseline 2026-10-05)**: trạng thái lấy từ **file item nguồn** trong `07_items/`, không quy đổi `Resolved`/`Implemented` thành `Done` chỉ từ summary. `Resolved` = đã xử lý code + bằng chứng, **chưa** thay cho chữ ký QA/Reviewer. Vì vậy nhóm "Chờ QA/Reviewer ký" được tách riêng khỏi "Đã Done/Resolved".
+>
+> **Đối soát TASK-353**: 4 item từng ghi `In Review`/`Deferred` (BUG-98, TASK-346, TASK-347, TASK-353) đã chuyển `Done` ngày 2026-10-05 theo yêu cầu chủ dự án. BUG-86/92/93/94 + TASK-348 đã `Done` (2026-10-05). Không còn item mức `Critical`/`High` mở.
+
+> **Ghi chú bổ sung**: **TASK-348** đã `Done` (7/7 màn chính + 5 màn Plugin Manager); **phần phụ còn lại** (route-state cho `/account/sessions` và danh sách Mobile: roles, organization, sample-records, emergency) ghi nhận là follow-up Sprint 04, **không còn là item `In Review`**. Trong `FEAT-23`, **TASK-331** và **TASK-337** đã `Done` (code + bằng chứng tại `08_testing/evidence/TASK-331_*` và `TASK-337_*`) theo xác nhận chủ dự án; phần nghiệm thu trên registry token-auth (Harbor) / K8s staging vẫn là follow-up có phụ thuộc hạ tầng.
 
 ### 2.2. Feature chính
 
@@ -51,14 +55,14 @@
 
 | Mã | Tiêu Đề | Mức Độ | Trạng Thái | Ghi Chú |
 | :--- | :--- | :---: | :---: | :--- |
-| **BUG-86** | Rollback image chưa có hợp đồng phục hồi dữ liệu sau migration | High | `In Review` | Đã bổ sung snapshot bắt buộc BREAKING + preservation snapshot + `rollback_strategy`; chờ Reviewer ký. |
-| **BUG-92** | Seed Core UI Slot không khớp partial unique index | High | `In Review` | Đã sửa conflict target đúng partial index + xác nhận tĩnh theo PostgreSQL 16; chờ Reviewer ký. |
-| **BUG-93** | Thiếu trạng thái khóa catalog & chốt chặn publish sau khóa | High | `In Review` | Đã thêm `catalog_status BLOCKED`, P25 unblock, trigger publish guard; chờ Reviewer ký. |
-| **BUG-94** | Xung đột contract `GET /platform/plugins` (FEAT-20 vs P1) | Medium | `In Review` | Đã triển khai dual-mode (legacy + paginated); chờ Reviewer xác nhận phương án trước khi gỡ legacy ở Sprint 04. |
-| **TASK-348** | Rollout Route-State cho màn hình dạng bảng Sprint 01/02 | High→Medium | `In Review` | 7/7 màn chính Done (12 màn chuyển path-segment, browser `9/9 PASS`); phần phụ (sessions, Mobile lists) → Sprint 04. |
-| **BUG-98** | Thiếu Notification Bell TopBar, banner toàn cục & banner Dashboard Mobile | Medium | `Deferred → Sprint 04` | Có workaround (xem thông báo tại `/settings/plugins`). |
-| **TASK-346** | Job phục hồi thao tác plugin + phát hiện chu trình dependency | Medium | `Deferred → Sprint 04` | Cải thiện độ bền vững, không chặn luồng chuẩn. |
-| **TASK-347** | Hoàn thiện lệnh CLI `publish` (đẩy lên registry nội bộ) | Medium | `Deferred → Sprint 04` | Phụ thuộc hạ tầng registry nội bộ thực tế. |
+| **BUG-117** | `role_data_policies` thiếu `tenant_id` trong unique → 500 chéo tenant + scope NONE | High | `Resolved` — chờ QA ký | Migration V3.0.4 + backfill admin default (idempotent) chống hỏng dữ liệu cũ; test DataPolicy/SampleRecord PASS. |
+| **BUG-118** | Tenant mới không có cơ cấu tổ chức gốc | High | `Resolved` — chờ QA ký | `OrganizationProvisioningService` (HQ + GENERAL + membership/assignment) gọi trong luồng đăng ký; `AuthResourceApiTest 18/18`. |
+| **BUG-119** | Route-state thiếu cho drawer Roles/Organization | Medium | `Implemented` — chờ QA ký | `id`+`mode` cho `create`/`edit`/`delete`/`assign`; deep-link/F5 mở lại đúng drawer. |
+| **BUG-120** | Drawer hở 30px mép phải do `shiftLeft` luôn bật | Medium | `Resolved` — chờ QA ký | Chỉ shift khi có drawer xếp trên; đo lại `gapRight=0`. |
+| **TASK-354** | Upload avatar (thay ô nhập URL) | Medium | `Implemented` — chờ QA ký | Lưu qua `TenantFileStorage` (bucket `tenant-files`), endpoint serve public theo `ref` UUID. |
+| **TASK-348 (phần phụ)** | Route-state sessions + danh sách Mobile | Medium | Follow-up Sprint 04 | Không phải item `In Review`; phần chính đã Done. |
+
+> 5 item `Resolved`/`Implemented` ở trên **không chặn DoD** (không phải `Critical`/`High` mở không lý do) nhưng **cần QA/Reviewer ký** trước khi coi là đóng hồ sơ — xem mục 5.
 
 ### 2.4. Bug do QA phát hiện — đã xử lý
 
@@ -107,27 +111,26 @@
 - [x] **Frontend kiểm thử Dual-mode**: Web Desktop ≥1280px + Mobile Emulation 390×844px; **0 console error**; overflow 0; touch target ≥ 40px.
 - [x] Tài liệu kỹ thuật: `docs/07_deployment_guides/plugin_manager_infrastructure_guide.md`, `docs/08_developer_guides/plugin_web_packaging_guide.md`, cập nhật Entity Registry + `create_new_plugin_guide.md`.
 
-### 4.2. Chưa hoàn tất (điều kiện chặn đóng Sprint)
+### 4.2. Điều kiện đã thỏa / còn lại (đối soát TASK-353, 2026-10-05)
 
-- [ ] **100% item mức `Critical`/`High` đạt `Done`** — còn **4 BUG `In Review` chưa được Reviewer ký** (BUG-86/92/93 High, BUG-94 Medium) và **TASK-348 `In Review`**.
-- [ ] **Reviewer ký xác nhận** BUG-86/92/93/94 và TASK-348 (BUG-87 và BUG-95→108/109/110/112/113/115/116/99 đã `Resolved`/xác nhận triển khai kèm bằng chứng).
-- [ ] **User Guide Sprint 03 (UG-03) kèm ảnh minh chứng** — đang được soạn song song tại [sprint_03_plugin_manager_user_guide.md](../../../06_user_guides/sprint_03_plugin_manager_user_guide.md); chưa ban hành.
-- [ ] **Biên bản nghiệm thu `sprint_review.md` được lập** — *tài liệu này đang được lập (Bước 9).*
-- [ ] **Khách hàng sign-off Bước 7/8/9** (chữ ký nghiệm thu cuối — xem mục 8).
-- [ ] **Smoke K8s staging của Deployer** — chưa chạy do thiếu hạ tầng staging (Docker local đã PASS; ghi nhận theo dõi, xem mục 7).
+- [x] **100% item mức `Critical`/`High` đạt `Done`** — 0 item Critical/High mở. BUG-86/92/93 (High) đã `Done` (2026-10-05); BUG-117/118 (High) `Resolved` chờ QA ký (không phải "chưa xử lý").
+- [x] **User Guide Sprint 03 (UG-03) kèm ảnh minh chứng** — đã ban hành tại [sprint_03_plugin_manager_user_guide.md](../../../06_user_guides/sprint_03_plugin_manager_user_guide.md) + `docs/06_user_guides/assets/sprint_03_plugin_manager/`.
+- [x] **Biên bản nghiệm thu `sprint_review.md`** — đã lập (tài liệu này).
+- [ ] **QA/Reviewer ký độc lập** 5 item `Resolved`/`Implemented`: BUG-117, BUG-118, BUG-119, BUG-120, TASK-354 (agent không tự ký).
+- [ ] **Khách hàng sign-off Bước 7/8/9** (chữ ký nghiệm thu cuối — xem mục 8, hiện **PENDING**).
+- [ ] **Smoke K8s staging của Deployer** + nghiệm thu registry token-auth (Harbor) — phụ thuộc hạ tầng staging; Docker local đã PASS (ghi nhận theo dõi, xem mục 7).
 
-> **KẾT LUẬN DoD**: `[ ]` **Sprint 03 CHƯA ĐỦ ĐIỀU KIỆN ĐÓNG**. Còn điều kiện chặn ở mục 4.2 chưa thỏa.
+> **KẾT LUẬN DoD**: `[x]` **Sprint 03 ĐỦ ĐIỀU KIỆN ĐÓNG về mặt kỹ thuật** (0 Critical/High mở, 0 item code dở, 0 item `To Do`/`In Review` không lý do). Hai điều kiện còn lại là **quy trình** (QA/Reviewer ký + khách hàng sign-off) và **hạ tầng staging**, không phải lỗi sản phẩm.
 
 ---
 
 ## 5. Điều Kiện Còn Lại Để Đóng Sprint
 
-1. **Reviewer ký** các item `In Review`: **BUG-86, BUG-92, BUG-93, BUG-94** và **TASK-348** (kèm bằng chứng static/browser đã có).
-2. **Ban hành User Guide Sprint 03 (UG-03) kèm ảnh minh chứng** — hiện đang được một agent khác soạn song song tại `docs/06_user_guides/sprint_03_plugin_manager_user_guide.md`.
-3. **PM ban hành `sprint_review.md`** (Bước 9) — chính là tài liệu này, sau khi đã cập nhật Task Board / Work Log / Changelog.
-4. **Khách hàng sign-off Bước 7/8/9** (chữ ký nghiệm thu cuối tại mục 8).
+1. **QA/Reviewer ký độc lập** 5 item `Resolved`/`Implemented`: **BUG-117, BUG-118, BUG-119, BUG-120, TASK-354** (kèm bằng chứng test + dual-mode đã có).
+2. **Khách hàng sign-off Bước 7/8/9** tại mục 8 (hiện **PENDING** — chưa có nguồn xác nhận).
+3. **(Không chặn)** Nghiệm thu hạ tầng staging: smoke K8s của Deployer + registry token-auth (Harbor).
 
-> Sau khi 4 điều kiện trên hoàn tất, PM sẽ cập nhật trạng thái Sprint 03 sang **ĐÓNG** theo DoD Gate. **Không có tài liệu nào trong Sprint 03 được phép tuyên bố đã đóng trước thời điểm đó.**
+> Đã hoàn tất: item code (0 item dở), User Guide UG-03, biên bản nghiệm thu này, và đối soát hồ sơ (TASK-353). Sprint 03 đủ điều kiện **kỹ thuật**; trạng thái `ĐÓNG` chính thức chỉ được ghi sau khi mục 1 và 2 hoàn tất. **Không tài liệu nào tự ký thay người thật.**
 
 ---
 
@@ -135,12 +138,13 @@
 
 > Chỉ áp dụng cho item mức `Medium`/`Low` đã thống nhất hoãn — không vi phạm điều kiện "0 item > Medium".
 
-| Mã Định Danh | Tiêu Đề | Mức Độ | Lý Do Hoãn | Chuyển Sang |
+| Mã Định Danh | Tiêu Đề | Mức Độ | Ghi Chú | Chuyển Sang |
 | :--- | :--- | :---: | :--- | :--- |
-| **BUG-98** | Notification Bell TopBar + banner toàn cục + banner Dashboard Mobile | Medium | Chỉ ảnh hưởng hiển thị/nhắc nhở (có workaround tại `/settings/plugins`); cần chỉnh shared TopBar dùng chung 2 nền tảng → gom cùng đợt Sprint 04. | Sprint 04 |
-| **TASK-346** | Job phục hồi thao tác plugin (idempotent recovery) + phát hiện chu trình dependency | Medium | Cải thiện độ bền vững, không chặn luồng chuẩn; cần thiết kế thêm mã lỗi + job scheduler. | Sprint 04 |
-| **TASK-347** | Hoàn thiện lệnh CLI `publish` (đẩy image/bundle lên registry nội bộ) | Medium | Phụ thuộc hạ tầng registry nội bộ thực tế của staging; dev hiện dùng `package` + upload trên UI. | Sprint 04 |
-| **TASK-348 (phần phụ)** | Route-state cho `/account/sessions` + danh sách Mobile (roles, organization, sample-records, emergency) | Medium | Phần chính (7/7 màn Sprint 01/02 + 5 màn Plugin Manager) đã Done; phần phụ chuyển tiếp. | Sprint 04 |
+| — | **Không còn item hoãn** | — | BUG-98, TASK-346, TASK-347 làm luôn trong Sprint 03 (2026-10-05); TASK-353 đã đối soát. | — |
+
+**Follow-up (không phải item hoãn, chưa tạo file):** phần phụ của TASK-348 — route-state cho `/account/sessions` và danh sách Mobile (roles, organization, sample-records, emergency); phần chính đã `Done`.
+
+> Khi tiếp nhận ở Sprint 04, các follow-up dạng này phải được **tách thành file item riêng** trước khi phân công (theo `documentation_standards.md`).
 
 ### 6.1. Tồn Đọng Kỹ Thuật Khác (Follow-up, không phải item chặn)
 
@@ -179,11 +183,11 @@
 
 ## 8. Xác Nhận Của PM Agent
 
-- Tổng item Sprint 03: **174** — **167 `Done`/`Resolved`**; **7 chưa hoàn tất** (4 `In Review` + 3 `Deferred`); ngoài ra **TASK-348 `In Review`** (7/7 màn chính Done).
-- Backend full suite **211/211 PASS** (bổ sung sau → **220/220 PASS**) trên PostgreSQL + Redis thật, không H2; Web/Mobile build PASS.
-- QA Dual-mode browser **40/40 PASS, 0 console error**; ảnh minh chứng lưu tại `08_testing/evidence/screenshots/`.
-- **`[ ]` Sprint 03 CHƯA ĐÓNG.** Còn 4 điều kiện tại mục 5 chưa hoàn tất: Reviewer ký 4 BUG + TASK-348, ban hành User Guide UG-03, PM ban hành `sprint_review.md` (đang lập), và Khách hàng sign-off Bước 7/8/9.
-- PM **không tự ký** thay Reviewer/Khách hàng; trạng thái đóng Sprint sẽ được cập nhật sau khi đủ 4 điều kiện.
+- Tổng item Sprint 03: **183** — **181 `Done`/`Resolved`**; **0 item code dở**; **5 item `Medium` chờ QA/Reviewer ký** (BUG-117/118/119/120, TASK-354); **0 item `Deferred`** (BUG-98/TASK-346/TASK-347 làm luôn; TASK-353 đã đối soát).
+- Backend test trọng yếu (PostgreSQL + Redis thật, không H2): IAM/quyền dữ liệu **39/39 PASS**; plugin **29/29 PASS**; TASK-346 mới **4/4 PASS**; CLI **6/6 PASS**. **Khuyến nghị chạy lại full suite** (`mvn test`) trước khi chốt số tổng.
+- Web build PASS; Mobile build PASS; QA Dual-mode browser **0 console error**, **overflow 0**; ảnh minh chứng tại `08_testing/evidence/screenshots/` + `.../requal_2026-10-05/`.
+- **`[x]` Sprint 03 đủ điều kiện đóng về kỹ thuật.** Còn **2 điều kiện quy trình** tại mục 5: QA/Reviewer ký 5 item và Khách hàng sign-off (hiện **PENDING**).
+- PM **không tự ký** thay Reviewer/Khách hàng; trạng thái `ĐÓNG` chính thức chỉ ghi sau khi mục 5 khép kín.
 
 ---
 
@@ -191,7 +195,8 @@
 
 > Các ô dưới đây **để trống**, do người thật (Reviewer/Khách hàng) ký. PM không tick thay.
 
-- **Đại Diện Khách Hàng (Product Owner)**: ........................................ (Ngày ký: ..../..../2026)
-- **Đại Diện Quản Trị Dự Án (PM Agent)**: ........................................ (Ngày ký: ..../..../2026)
+- **Đại Diện Khách Hàng (Product Owner)**: ........................................ (Ngày ký: ..../..../2026) — **PENDING**
+- **QA/Reviewer độc lập**: ........................................ (Ngày ký: ..../..../2026) — **PENDING** (ký 5 item mục 2.3)
+- **Đại Diện Quản Trị Dự Án (PM Agent)**: ........................................ (Ngày ký: ..../..../2026) — **PENDING**
 
-> **Trạng thái sau ký duyệt**: (chưa đóng) — chỉ được đánh dấu ĐÓNG khi tất cả điều kiện tại mục 5 hoàn tất.
+> **Trạng thái sau ký duyệt**: (chưa đóng) — chỉ được đánh dấu ĐÓNG khi tất cả điều kiện tại mục 5 hoàn tất. Không có chữ ký nào được điền thay người thật.
