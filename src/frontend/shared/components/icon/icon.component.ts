@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { IconName, IconNameValue, SizeVariant } from '../../enums';
+import { IconNameValue, SizeVariant } from '../../enums';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { getIcon } from './icon-registry';
 
@@ -28,7 +28,12 @@ const SIZE_PX: Record<string, number> = {
 export class IconComponent {
   private sanitizer = inject(DomSanitizer);
 
-  name = input.required<IconName | IconNameValue>();
+  /**
+   * Icon identifier. Typed as the string-value union so templates can pass a
+   * plain attribute (`name="x"`) while `IconName` stays the canonical enum
+   * (enum members are assignable to these literals).
+   */
+  name = input.required<IconNameValue>();
   size = input<SizeVariant | `${SizeVariant}`>(SizeVariant.SM);
   decorative = input<boolean>(false);
   labelKey = input<string>('');
