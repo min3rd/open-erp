@@ -6,7 +6,7 @@
 | **Mức độ** | Medium |
 | **Phát hiện bởi** | Chủ dự án (báo cáo trực tiếp) |
 | **Ngày** | 2026-10-05 |
-| **Trạng thái** | Implemented (chờ QA/Reviewer xác nhận) |
+| **Trạng thái** | Done (QA-03 verified 2026-10-05 — browser deep-link; hồi quy drawer organization đã sửa) |
 | **Liên quan** | BUG-108, TASK-348, `PathListStateService` |
 
 ## Triệu chứng

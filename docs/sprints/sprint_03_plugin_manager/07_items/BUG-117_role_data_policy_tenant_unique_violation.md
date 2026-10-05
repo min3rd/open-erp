@@ -6,7 +6,7 @@
 | **Mức độ** | **High** |
 | **Phát hiện bởi** | Chủ dự án (báo cáo trực tiếp) + QA Agent điều tra |
 | **Ngày** | 2026-10-05 |
-| **Trạng thái** | Resolved (chờ Reviewer/QA xác nhận) |
+| **Trạng thái** | Done (QA-03 verified 2026-10-05) |
 | **Loại** | Database schema / Multi-tenant defect |
 
 ## Triệu chứng

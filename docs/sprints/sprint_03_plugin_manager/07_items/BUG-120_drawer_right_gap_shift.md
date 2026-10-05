@@ -6,7 +6,7 @@
 | **Mức độ** | Medium |
 | **Phát hiện bởi** | Chủ dự án (báo cáo trực tiếp) |
 | **Ngày** | 2026-10-05 |
-| **Trạng thái** | Resolved (chờ QA xác nhận) |
+| **Trạng thái** | Done (QA-03 verified 2026-10-05 — gapRight=0) |
 | **Liên quan** | `DrawerComponent`, BUG-119 |
 
 ## Triệu chứng

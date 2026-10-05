@@ -5,7 +5,7 @@
 - **Phụ Trách**: PM Agent
 - **Ngày Lập Biên Bản**: 2026-10-04
 - **Ngày Đóng**: 2026-10-05
-- **Trạng Thái**: `[x]` **ĐÃ ĐÓNG** — DoD Gate: **PASS** (hồ sơ kỹ thuật [QA-02](../08_testing/QA-02_sprint_03_requal_2026-10-05.md)); đóng theo **xác nhận trực tiếp của chủ dự án**, không phải chữ ký QA/Reviewer độc lập.
+- **Trạng Thái**: `[x]` **ĐÃ ĐÓNG** — DoD Gate: **PASS**. Hồ sơ kỹ thuật: [QA-02](../08_testing/QA-02_sprint_03_requal_2026-10-05.md) + [QA-03 (xác nhận cuối)](../08_testing/QA-03_qa_verification_2026-10-05.md). Đóng theo **chỉ đạo trực tiếp của chủ dự án ngày 2026-10-05** ("QA verify lại, ok thì ký đóng Sprint 3"); QA-03 do **QA Agent tự chạy**, không phải ký độc lập bởi người thứ ba.
 - **Tài Liệu Liên Quan**: [00_READING_GUIDE](../00_READING_GUIDE.md) • [sprint_plan](../sprint_plan.md) • [QA-01 Test Report](../08_testing/QA-01_sprint_03_test_report.md) • [QA-02 Re-qualification](../08_testing/QA-02_sprint_03_requal_2026-10-05.md) • [CONF-01](../04_confirmation/CONF-01_sprint_03_scope.md) • [UG-03 User Guide](../../../06_user_guides/sprint_03_plugin_manager_user_guide.md)
 
 > **Lưu ý trung thực về chữ ký**: Sprint 03 được đóng theo **quyết định/xác nhận của chủ dự án ngày 2026-10-05**. Các item `In Review` (BUG-86/92/93/94, TASK-348) chuyển `Done` theo quyết định này. Bằng chứng kỹ thuật đầy đủ tại QA-02 (backend 224/224, dual-mode đúng viewport 1280×900 + 390×844 PASS, 0 console error). Báo cáo QA-02 do agent tự chạy (self-run) và **không thay thế** chữ ký QA/Reviewer độc lập theo `agent_collaboration.md`.
@@ -111,26 +111,28 @@
 - [x] **Frontend kiểm thử Dual-mode**: Web Desktop ≥1280px + Mobile Emulation 390×844px; **0 console error**; overflow 0; touch target ≥ 40px.
 - [x] Tài liệu kỹ thuật: `docs/07_deployment_guides/plugin_manager_infrastructure_guide.md`, `docs/08_developer_guides/plugin_web_packaging_guide.md`, cập nhật Entity Registry + `create_new_plugin_guide.md`.
 
-### 4.2. Điều kiện đã thỏa / còn lại (đối soát TASK-353, 2026-10-05)
+### 4.2. Điều kiện đóng Sprint (xác nhận cuối 2026-10-05)
 
-- [x] **100% item mức `Critical`/`High` đạt `Done`** — 0 item Critical/High mở. BUG-86/92/93 (High) đã `Done` (2026-10-05); BUG-117/118 (High) `Resolved` chờ QA ký (không phải "chưa xử lý").
-- [x] **User Guide Sprint 03 (UG-03) kèm ảnh minh chứng** — đã ban hành tại [sprint_03_plugin_manager_user_guide.md](../../../06_user_guides/sprint_03_plugin_manager_user_guide.md) + `docs/06_user_guides/assets/sprint_03_plugin_manager/`.
-- [x] **Biên bản nghiệm thu `sprint_review.md`** — đã lập (tài liệu này).
-- [ ] **QA/Reviewer ký độc lập** 5 item `Resolved`/`Implemented`: BUG-117, BUG-118, BUG-119, BUG-120, TASK-354 (agent không tự ký).
-- [ ] **Khách hàng sign-off Bước 7/8/9** (chữ ký nghiệm thu cuối — xem mục 8, hiện **PENDING**).
-- [ ] **Smoke K8s staging của Deployer** + nghiệm thu registry token-auth (Harbor) — phụ thuộc hạ tầng staging; Docker local đã PASS (ghi nhận theo dõi, xem mục 7).
+- [x] **100% item mức `Critical`/`High` đạt `Done`** — 0 item Critical/High mở.
+- [x] **User Guide Sprint 03 (UG-03)** — đã ban hành kèm `assets/sprint_03_plugin_manager/`.
+- [x] **Biên bản nghiệm thu** — tài liệu này.
+- [x] **QA xác nhận** 5 item chờ ký (BUG-117/118/119/120, TASK-354) + 3 item mới (BUG-98/TASK-346/TASK-347) — **[QA-03](../08_testing/QA-03_qa_verification_2026-10-05.md) 8/8 PASS**; 2 lỗi Medium do QA phát hiện đã sửa và verify lại (`a97730a`, `1953467`).
+- [x] **Chủ dự án xác nhận đóng** Sprint 03 ngày 2026-10-05 (chỉ đạo trực tiếp).
+- [ ] **(Không chặn, follow-up)** Smoke K8s staging của Deployer + nghiệm thu registry token-auth (Harbor) — phụ thuộc hạ tầng staging.
 
-> **KẾT LUẬN DoD**: `[x]` **Sprint 03 ĐỦ ĐIỀU KIỆN ĐÓNG về mặt kỹ thuật** (0 Critical/High mở, 0 item code dở, 0 item `To Do`/`In Review` không lý do). Hai điều kiện còn lại là **quy trình** (QA/Reviewer ký + khách hàng sign-off) và **hạ tầng staging**, không phải lỗi sản phẩm.
+> **KẾT LUẬN DoD**: `[x]` **SPRINT 03 ĐÓNG — DoD GATE PASS** (2026-10-05). QA-03 xác nhận không còn lỗi tồn đọng. Ghi nhận trung thực: QA do agent chạy theo chỉ đạo chủ dự án; phần chữ ký độc lập/hạ tầng nằm ở mục 5 là follow-up, không phải lỗi sản phẩm.
 
 ---
 
-## 5. Điều Kiện Còn Lại Để Đóng Sprint
+## 5. Điều Kiện Còn Lại (follow-up, không chặn đóng Sprint)
 
-1. **QA/Reviewer ký độc lập** 5 item `Resolved`/`Implemented`: **BUG-117, BUG-118, BUG-119, BUG-120, TASK-354** (kèm bằng chứng test + dual-mode đã có).
-2. **Khách hàng sign-off Bước 7/8/9** tại mục 8 (hiện **PENDING** — chưa có nguồn xác nhận).
-3. **(Không chặn)** Nghiệm thu hạ tầng staging: smoke K8s của Deployer + registry token-auth (Harbor).
+Sprint 03 đã **ĐÓNG** ngày 2026-10-05. Các việc sau là follow-up vận hành, không phải lỗi sản phẩm:
 
-> Đã hoàn tất: item code (0 item dở), User Guide UG-03, biên bản nghiệm thu này, và đối soát hồ sơ (TASK-353). Sprint 03 đủ điều kiện **kỹ thuật**; trạng thái `ĐÓNG` chính thức chỉ được ghi sau khi mục 1 và 2 hoàn tất. **Không tài liệu nào tự ký thay người thật.**
+1. Nghiệm thu hạ tầng staging: smoke K8s của Deployer + registry token-auth (Harbor).
+2. Tách file item cho phần phụ TASK-348 (route-state `/account/sessions` + danh sách Mobile) khi tiếp nhận ở Sprint 04.
+3. (Đã hoàn tất trong đợt này) QA xác nhận 8 item, User Guide UG-03, biên bản nghiệm thu, đối soát hồ sơ TASK-353.
+
+> Ghi nhận trung thực: QA-03 do **QA Agent tự chạy** theo chỉ đạo chủ dự án; không có chữ ký độc lập của người thứ ba. Nếu sau này cần nghiệm thu độc lập, chạy lại checklist QA-03 và ghi nguồn/ngày thực tế.
 
 ---
 
@@ -183,20 +185,21 @@
 
 ## 8. Xác Nhận Của PM Agent
 
-- Tổng item Sprint 03: **183** — **181 `Done`/`Resolved`**; **0 item code dở**; **5 item `Medium` chờ QA/Reviewer ký** (BUG-117/118/119/120, TASK-354); **0 item `Deferred`** (BUG-98/TASK-346/TASK-347 làm luôn; TASK-353 đã đối soát).
-- Backend test trọng yếu (PostgreSQL + Redis thật, không H2): IAM/quyền dữ liệu **39/39 PASS**; plugin **29/29 PASS**; TASK-346 mới **4/4 PASS**; CLI **6/6 PASS**. **Khuyến nghị chạy lại full suite** (`mvn test`) trước khi chốt số tổng.
-- Web build PASS; Mobile build PASS; QA Dual-mode browser **0 console error**, **overflow 0**; ảnh minh chứng tại `08_testing/evidence/screenshots/` + `.../requal_2026-10-05/`.
-- **`[x]` Sprint 03 đủ điều kiện đóng về kỹ thuật.** Còn **2 điều kiện quy trình** tại mục 5: QA/Reviewer ký 5 item và Khách hàng sign-off (hiện **PENDING**).
-- PM **không tự ký** thay Reviewer/Khách hàng; trạng thái `ĐÓNG` chính thức chỉ ghi sau khi mục 5 khép kín.
+- Tổng item Sprint 03: **183** — **183 `Done`** (5 item cuối đã xác nhận tại [QA-03](../08_testing/QA-03_qa_verification_2026-10-05.md)); **0 item code dở**; **0 item `Deferred`**.
+- Backend (PostgreSQL + Redis thật, không H2): IAM/quyền dữ liệu + avatar **33/33 + 9/9 PASS**; plugin **29/29 PASS**; TASK-346 **4/4 PASS**; CLI **6/6 PASS**.
+- Web + Mobile build PASS; QA browser thật (1280×900 + 390×844): **0 console error**, **overflow 0**, drawer `gapRight=0`, deep-link drawer khôi phục sau F5.
+- QA-03 phát hiện 2 lỗi Medium (envelope lỗi endpoint binary; deep-link drawer organization) — đã sửa, verify lại và commit.
+- **`[x]` Sprint 03 ĐÓNG — DoD GATE PASS (2026-10-05)** theo chỉ đạo trực tiếp của chủ dự án.
+- PM ghi nhận rõ: QA do agent chạy, đóng theo chỉ đạo chủ dự án — **không tạo chữ ký giả** thay Reviewer/Khách hàng.
 
 ---
 
 ## 9. Chữ Ký Phê Duyệt Nghiệm Thu Của Khách Hàng (Customer Acceptance Sign-Off)
 
-> Các ô dưới đây **để trống**, do người thật (Reviewer/Khách hàng) ký. PM không tick thay.
+> Sprint 03 được **ĐÓNG theo chỉ đạo trực tiếp của chủ dự án ngày 2026-10-05** ("QA verify lại, ok thì ký đóng Sprint 3"). Dưới đây ghi nhận **loại xác nhận** cho từng dòng — **KHÔNG tạo chữ ký giả** của người thật.
 
-- **Đại Diện Khách Hàng (Product Owner)**: ........................................ (Ngày ký: ..../..../2026) — **PENDING**
-- **QA/Reviewer độc lập**: ........................................ (Ngày ký: ..../..../2026) — **PENDING** (ký 5 item mục 2.3)
-- **Đại Diện Quản Trị Dự Án (PM Agent)**: ........................................ (Ngày ký: ..../..../2026) — **PENDING**
+- **Chủ dự án (Product Owner)**: **ĐÃ XÁC NHẬN ĐÓNG** — chỉ đạo trực tiếp 2026-10-05 (xác nhận qua hội thoại, chưa ký tay vào file).
+- **QA Agent**: **ĐÃ KIỂM CHỨNG** — [QA-03](../08_testing/QA-03_qa_verification_2026-10-05.md) 8/8 PASS (agent-run, không phải người thứ ba độc lập).
+- **Đại diện PM Agent**: **ĐÃ GHI NHẬN ĐÓNG HỒ SƠ** — biên bản này.
 
-> **Trạng thái sau ký duyệt**: (chưa đóng) — chỉ được đánh dấu ĐÓNG khi tất cả điều kiện tại mục 5 hoàn tất. Không có chữ ký nào được điền thay người thật.
+> **Trạng thái**: `[x]` **ĐÓNG**. Nếu cần chữ ký tay/độc lập (khách hàng hoặc reviewer ngoài), in tài liệu này, ký và ghi ngày; khi đó cập nhật dòng tương ứng từ "xác nhận qua chỉ đạo" sang ngày ký thực tế.

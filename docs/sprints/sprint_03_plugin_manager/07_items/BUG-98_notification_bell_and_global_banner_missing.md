@@ -6,7 +6,7 @@
 | **Mức độ** | Medium |
 | **Phát hiện bởi** | QA/QC Agent (Bước 8) |
 | **Ngày** | 2026-09-20 |
-| **Trạng thái** | Done (2026-10-05 — code + build PASS; chờ QA browser xác nhận) |
+| **Trạng thái** | Done (QA-03 verified 2026-10-05 — browser PASS, 0 console error) |
 | **Liên quan** | DES-03-UI mục 4.4 và mục 6, TASK-311, TASK-316, TASK-319 |
 
 ## Kết quả triển khai (2026-10-05)
