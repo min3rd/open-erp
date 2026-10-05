@@ -1,58 +1,51 @@
 import { Injectable, signal, computed } from '@angular/core';
+import { LangCode } from '../enums/lang.enum';
+import { DEFAULT_LANG, FALLBACK_LANG, findLanguage, isLangCode } from './language-registry';
+
+const LANG_STORAGE_KEY = 'openerp_lang';
 
 @Injectable({
   providedIn: 'root'
 })
 export class I18nService {
-  private currentLangSignal = signal<'vi' | 'en'>('vi');
+  private currentLangSignal = signal<LangCode>(this.readStoredLang());
   public currentLang = computed(() => this.currentLangSignal());
   private dictVersionSignal = signal<number>(0);
 
-  private viDictionary: Record<string, string> = {};
-  private enDictionary: Record<string, string> = {};
+  private dictionaries = new Map<LangCode, Record<string, string>>();
+  private loading = new Map<LangCode, Promise<void>>();
   public isLoaded = signal<boolean>(false);
 
   constructor() {
-    const saved = localStorage.getItem('openerp_lang') as 'vi' | 'en' | null;
-    if (saved === 'vi' || saved === 'en') {
-      this.currentLangSignal.set(saved);
-    }
+    this.applyDocumentLanguage();
     this.loadDictionaries();
   }
 
+  /** Loads the fallback + current locale; other locales load lazily on switch. */
   async loadDictionaries() {
-    try {
-      const [viRes, enRes] = await Promise.all([
-        fetch('/i18n/vi.json'),
-        fetch('/i18n/en.json')
-      ]);
-      if (viRes.ok) this.viDictionary = await viRes.json();
-      if (enRes.ok) this.enDictionary = await enRes.json();
-      this.isLoaded.set(true);
-      this.dictVersionSignal.update((v: number) => v + 1);
-    } catch (e) {
-      console.warn('Could not load i18n JSON files, using fallback defaults', e);
-    }
-  }
-
-  setLanguage(lang: 'vi' | 'en') {
-    this.currentLangSignal.set(lang);
-    localStorage.setItem('openerp_lang', lang);
+    await Promise.all([this.ensureDictionary(FALLBACK_LANG), this.ensureDictionary(this.currentLangSignal())]);
+    this.isLoaded.set(true);
     this.dictVersionSignal.update((v: number) => v + 1);
   }
 
+  setLanguage(lang: LangCode) {
+    this.currentLangSignal.set(lang);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(LANG_STORAGE_KEY, lang);
+    }
+    this.applyDocumentLanguage();
+    this.dictVersionSignal.update((v: number) => v + 1);
+    void this.ensureDictionary(lang).then(() => this.dictVersionSignal.update((v: number) => v + 1));
+  }
+
   t(code: string, params?: Record<string, any>): string {
-    // Read reactive signal to track dependency in effects and computed values
+    // Read reactive signals to track dependency in effects and computed values
     this.currentLangSignal();
     this.dictVersionSignal();
 
-    const lang = this.currentLangSignal();
-    const dict = lang === 'vi' ? this.viDictionary : this.enDictionary;
-
-    let text = dict[code];
-    if (!text) {
-      text = this.viDictionary[code] || this.enDictionary[code] || code;
-    }
+    const current = this.dictionaries.get(this.currentLangSignal());
+    const fallback = this.dictionaries.get(FALLBACK_LANG);
+    let text = current?.[code] || fallback?.[code] || this.dictionaries.get(DEFAULT_LANG)?.[code] || code;
 
     if (params) {
       for (const [key, val] of Object.entries(params)) {
@@ -61,5 +54,47 @@ export class I18nService {
     }
 
     return text;
+  }
+
+  private async ensureDictionary(lang: LangCode): Promise<void> {
+    if (this.dictionaries.has(lang)) {
+      return;
+    }
+    const inFlight = this.loading.get(lang);
+    if (inFlight) {
+      return inFlight;
+    }
+    const request = (async () => {
+      try {
+        const response = await fetch(`/i18n/${lang}.json`);
+        if (response.ok) {
+          this.dictionaries.set(lang, await response.json());
+        }
+      } catch (e) {
+        console.warn(`Could not load i18n dictionary for ${lang}`, e);
+      } finally {
+        this.loading.delete(lang);
+      }
+    })();
+    this.loading.set(lang, request);
+    return request;
+  }
+
+  private applyDocumentLanguage(): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+    const lang = this.currentLangSignal();
+    const info = findLanguage(lang);
+    document.documentElement.setAttribute('lang', lang);
+    document.documentElement.setAttribute('dir', info?.dir ?? 'ltr');
+  }
+
+  private readStoredLang(): LangCode {
+    if (typeof localStorage === 'undefined') {
+      return DEFAULT_LANG;
+    }
+    const saved = localStorage.getItem(LANG_STORAGE_KEY);
+    return isLangCode(saved) ? saved : DEFAULT_LANG;
   }
 }
