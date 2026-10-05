@@ -6,6 +6,18 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
 
 ## [Unreleased]
 
+### Sprint 03 — ĐÃ ĐÓNG (2026-10-05)
+
+- Code: BUG-117 (data policy tenant-unique + backfill admin), BUG-118 (org mặc định khi đăng ký), BUG-119/120 (route-state + drawer flush), TASK-354 (avatar qua `TenantFileStorage`), BUG-98 (notification bell + banner), TASK-346 (cycle detection + recovery job), TASK-347 (CLI `publish`).
+- [QA-03](../sprints/sprint_03_plugin_manager/08_testing/QA-03_qa_verification_2026-10-05.md) xác nhận **8/8 item PASS**; phát hiện + sửa 2 lỗi Medium (envelope lỗi endpoint binary; deep-link drawer organization).
+- Đóng theo chỉ đạo chủ dự án; chữ ký độc lập/khách hàng ghi rõ tại mục 5/9 [biên bản Sprint 03](../sprints/sprint_03_plugin_manager/09_review/sprint_review.md).
+
+### Sprint 04 — KHỞI TẠO TÀI LIỆU (Discovery, 2026-10-05)
+
+- Tạo Sprint-Pack `sprint_04_ui_ux_experience` bước 00–07 cho 6 mảng: theme/design tokens, motion & animation, icon Feather, context menu danh sách, loading bar & skeleton theo vùng, mở rộng đa ngôn ngữ.
+- Trạng thái: RAW/ANL/BENCH/CONF/SOL/DES/FEAT đều **Draft/To Do**; **CONF-S04-001 Pending** (scope chờ khách xác nhận). Chưa có mã nguồn Sprint 04.
+- Quyết định khách đã chốt: theme **theo tenant** (≥3 theme), context menu **chỉ Desktop**, **top progress bar** + skeleton theo vùng, **13 locale** (gồm `ar` ⇒ cần khung RTL), animation nhanh/ưu tiên hiệu năng; **vuông vắn chỉ bắt buộc theme mặc định** (đã cập nhật [ui_ux_standards](../.agents/rules/ui_ux_standards.md) + [AGENTS.md](../AGENTS.md)).
+
 ### Quy trình & tài liệu — 2026-10-05
 
 - [TASK-349](../sprints/sprint_03_plugin_manager/07_items/TASK-349_standardize_sdlc_and_developer_documentation.md): thống nhất phối hợp AI, quyền ghi, dependency/handoff, ID/phiên bản/thứ tự đọc và nguồn gate.

@@ -2,6 +2,14 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-05 — Sprint 03 đóng & khởi tạo tài liệu Sprint 04
+
+- **Sprint 03 đóng**: [QA-03](../sprints/sprint_03_plugin_manager/08_testing/QA-03_qa_verification_2026-10-05.md) xác nhận 8/8 item PASS (backend PostgreSQL/Redis thật + browser headless 1280×900 & 390×844); 2 lỗi Medium do QA phát hiện đã sửa. Biên bản: [sprint_review](../sprints/sprint_03_plugin_manager/09_review/sprint_review.md) — `[x]` ĐÓNG, DoD PASS (theo chỉ đạo chủ dự án; không tạo chữ ký giả).
+- **Sprint 04 tài liệu**: tạo `docs/sprints/sprint_04_ui_ux_experience/` gồm reading guide, sprint plan, [RAW-S04-001](../sprints/sprint_04_ui_ux_experience/01_raw_notes/01_RAW-S04-001_ui_theming_motion_icons_ux.md), 6 ANL, BENCH, [CONF-S04-001](../sprints/sprint_04_ui_ux_experience/04_confirmation/01_CONF-S04-001_sprint_04_scope.md) (Pending), SOL, DES-UI/API, FEAT-24…29.
+- **Quyết định khách (2026-10-05)**: theme theo tenant, ≥3 theme; context menu chỉ Desktop; top progress bar + skeleton vùng; 13 locale (gồm `ar` RTL); animation nhanh; vuông vắn chỉ theme mặc định.
+- **Kiểm chứng**: `check-docs.mjs` trên sprint_04 → **0 lỗi** (link/anchor/ID).
+- **Giới hạn**: mới là tài liệu Draft; chưa có code, chưa có QA sản phẩm Sprint 04, scope chưa được ký.
+
 ## 2026-10-05 — Chuẩn hóa workflow và tài liệu developer
 
 - **Item**: [TASK-349](../sprints/sprint_03_plugin_manager/07_items/TASK-349_standardize_sdlc_and_developer_documentation.md); khởi đầu 2026-10-04, kiểm tra tiếp theo yêu cầu user.

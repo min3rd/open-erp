@@ -142,7 +142,7 @@ flowchart LR
 | Thứ Tự Đọc | Thư Mục / File | Mục Đích Nội Dung | Người Phụ Trách | Trạng Thái |
 | :---: | :--- | :--- | :---: | :---: |
 | **8** | [08_testing/](08_testing/) | Kế hoạch & Báo cáo kiểm thử: vòng đời plugin đầy đủ (Cài → Nâng cấp → Tắt/Bật → Gỡ, giữ dữ liệu), **deploy container-per-tenant**, đa phiên bản, checksum mismatch, cưỡng chế gỡ + thông báo, cô lập Tenant, Dual-mode browser testing Web/Mobile. | QA/QC Agent | [x] Đã hoàn thành (2026-09-20) — 40/40 browser PASS, 0 console error, backend 211/211 PASS, ảnh tại `08_testing/evidence/screenshots/` |
-| **9** | [09_review/](09_review/) | Biên bản nghiệm thu và tiêu chuẩn đóng Sprint (DoD Gate: 0 bug Critical/High). | PM Agent | [x] Đã đóng (2026-10-05) — DoD PASS theo [QA-02](../08_testing/QA-02_sprint_03_requal_2026-10-05.md); đóng theo xác nhận chủ dự án |
+| **9** | [09_review/](09_review/) | Biên bản nghiệm thu và tiêu chuẩn đóng Sprint (DoD Gate: 0 bug Critical/High). | PM Agent | [x] Đã đóng (2026-10-05) — DoD PASS theo [QA-03](08_testing/QA-03_qa_verification_2026-10-05.md); đóng theo xác nhận chủ dự án |
 
 ---
 
@@ -189,7 +189,7 @@ Khách hàng review bộ thiết kế Bước 5-6 và yêu cầu bổ sung **6 �
 - [x] **Bước 3**: Đã xem tài liệu đối chuẩn `03_benchmarks/`.
 - [x] **Bước 4 (2026-09-19)**: **ĐÃ PHÊ DUYỆT BIÊN BẢN XÁC NHẬN PHẠM VI** `04_confirmation/CONF-01_sprint_03_scope.md` — 10/10 câu hỏi chốt cuối đã trả lời (2 điểm điều chỉnh: MinIO = lưu trữ chính toàn hệ thống; plugin riêng được nhúng WC/MF).
 - [x] **Bước 7 (2026-10-05)**: Cho phép triển khai lập trình mã nguồn (Implementation).
-- [x] **Bước 8 (2026-10-05)**: QA nghiệm thu cuối — kỹ thuật ĐẠT theo [QA-02](../08_testing/QA-02_sprint_03_requal_2026-10-05.md); lưu ý đây là **self-run của agent**, không phải QA độc lập.
-- [x] **Bước 9 (2026-10-05)**: PM đóng Sprint theo DoD Gate; **khách hàng/chủ dự án xác nhận đóng** (xem [sprint_review](../09_review/sprint_review.md)).
+- [x] **Bước 8 (2026-10-05)**: QA nghiệm thu cuối — kỹ thuật ĐẠT theo [QA-02](08_testing/QA-02_sprint_03_requal_2026-10-05.md) và [QA-03](08_testing/QA-03_qa_verification_2026-10-05.md); lưu ý đây là **self-run của agent**, không phải QA độc lập.
+- [x] **Bước 9 (2026-10-05)**: PM đóng Sprint theo DoD Gate; **khách hàng/chủ dự án xác nhận đóng** (xem [sprint_review](09_review/sprint_review.md)).
 
 > **Ghi chú**: Confirmation Gate đã đóng ngày 2026-09-19. Các điều chỉnh sau Gate (nếu có) phải được ghi nhận tại `04_confirmation/` và cập nhật đồng bộ tài liệu Sprint-Pack.
