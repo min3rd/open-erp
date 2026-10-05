@@ -1,0 +1,46 @@
+TASK-331 — OCI Registry v2 digest resolution (token auth) verification
+================================================================
+Ngày/giờ   : 2026-10-04 (giờ máy local)
+Người chạy : Developer Agent — SELF-VERIFIED, KHÔNG phải QA độc lập
+Baseline   : commit 3e817c9 + working tree (OciRegistryClient + integration chưa commit)
+Môi trường : docker compose profile "registry"
+             - openerp-registry (registry:2) tại http://127.0.0.1:5001  ← registry THẬT
+             - openerp-postgres-primary, openerp-redis
+
+Đã triển khai
+-------------
+- OciRegistryClient (modules/plugin/artifact): resolve manifest digest qua Registry v2.
+  * Token auth: 401 `WWW-Authenticate: Bearer realm=…,service=…,scope=…` → GET token
+    endpoint (+ Basic nếu có credential) → retry với `Authorization: Bearer`.
+  * Guardrails: HTTPS-only (HTTP chỉ cho host loopback khi `openerp.plugin.oci.allow-http`
+    bật), chặn redirect, timeout, size cap, đọc `Docker-Content-Digest` (fallback tự băm).
+  * Lỗi đóng (fail closed): auth sai → PLUGIN_CREDENTIAL_AUTH_FAILED; 404 → …DOWNLOAD_FAILED.
+- Tích hợp `PluginAdminService.registerVersion`: nguồn DOCKER_HUB/IMAGE_REGISTRY resolve
+  digest, đối chiếu `digest` khai báo (409 nếu lệch), lưu `distribution.digest`.
+  Config-gated `openerp.plugin.oci.resolve-digest` (default true; tắt ở `%test`).
+- Hạ tầng local: service `registry` (registry:2) profile `registry`, `npm run infra:registry`.
+
+Bằng chứng — unit/integration (không cần app chạy)
+--------------------------------------------------
+$ cd src/backend && mvn -o test -Dtest=OciRegistryClientTest
+
+Actual:
+  OciRegistryClientTest — Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+    - parsesImageReferences            (parse ref Docker Hub/registry:5000)
+    - resolvesDigestThroughTokenFlow   (401 → token → Bearer retry, JDK HttpServer)
+    - rejectsUnauthenticatedRegistry   (scheme Basic → fail closed)
+    - resolvesDigestFromLocalRegistry  (registry:2 THẬT: upload blob → PUT manifest →
+                                        GET digest khớp sha256 manifest)
+  BUILD SUCCESS
+
+Kết quả: PASS (developer-run, self-verified)
+
+Chưa kiểm chứng
+---------------
+- Chưa chạy token auth với credential thật trên registry yêu cầu xác thực (chỉ có flow
+  token qua HTTP server stub + registry:2 không auth). Cần chạy thêm với Harbor/registry
+  bật token auth trước khi coi là đầy đủ.
+- Chưa đo timeout/redirect/size-cap bằng test tự động (mới có logic).
+- Chưa QA browser liên quan (TASK-331 thuần backend).
+
+Trạng thái: Awaiting QA/Reviewer xác nhận — KHÔNG được tính là QA Done.

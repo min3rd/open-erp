@@ -15,6 +15,7 @@ import com.vn9melody.openerp.core.enums.TenantPluginStatus;
 import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
 import com.vn9melody.openerp.modules.plugin.api.PluginResponseKey;
 import com.vn9melody.openerp.modules.plugin.api.PluginSupport;
+import com.vn9melody.openerp.modules.plugin.artifact.OciRegistryClient;
 import com.vn9melody.openerp.modules.plugin.artifact.PluginArtifactVerifier;
 import com.vn9melody.openerp.modules.plugin.dto.PluginRequests;
 import com.vn9melody.openerp.modules.plugin.dto.PluginResponses;
@@ -32,8 +33,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 /**
  * Catalog + version administration for the Plugin Manager (TASK-303).
@@ -68,6 +71,12 @@ public class PluginAdminService {
 
     @Inject
     PluginCredentialService credentialService;
+
+    @Inject
+    OciRegistryClient ociRegistryClient;
+
+    @ConfigProperty(name = "openerp.plugin.oci.resolve-digest", defaultValue = "true")
+    boolean resolveOciDigest;
 
     @Inject
     ObjectMapper objectMapper;
@@ -244,6 +253,7 @@ public class PluginAdminService {
         artifactVerifier.verifyRegistry(request.source, request.imageRef, request.registryUrl);
         artifactVerifier.verifyBundleChecksum(request.artifactRef, request.checksum);
         validateCredentialReference(request.credentialId, null);
+        String resolvedDigest = resolveRegistryDigest(request);
 
         PluginVersion entity = new PluginVersion();
         entity.catalogId = catalog.id;
@@ -257,7 +267,7 @@ public class PluginAdminService {
         entity.entities = manifest.path("entities").isMissingNode()
                 ? objectMapper.createArrayNode() : manifest.path("entities");
         entity.uiManifest = uiManifest.isMissingNode() ? objectMapper.createObjectNode() : uiManifest;
-        entity.distribution = buildDistribution(request);
+        entity.distribution = buildDistribution(request, resolvedDigest);
         entity.manifest = manifest;
         entity.migrationPolicy = PluginMigrationPolicy.fromString(text(manifest, "migration_policy", "COMPATIBLE"));
         entity.rollbackStrategy = PluginRollbackStrategy.fromString(text(manifest, "rollback_strategy", "SNAPSHOT_RESTORE"));
@@ -605,7 +615,37 @@ public class PluginAdminService {
         }
     }
 
-    private JsonNode buildDistribution(PluginRequests.RegisterVersion request) {
+    private String resolveRegistryDigest(PluginRequests.RegisterVersion request) {
+        if (!resolveOciDigest) {
+            return null;
+        }
+        String type = request.source == null ? "" : request.source.trim().toUpperCase(Locale.ROOT);
+        boolean dockerHub = "DOCKER_HUB".equals(type);
+        boolean imageRegistry = "IMAGE_REGISTRY".equals(type);
+        if (!dockerHub && !imageRegistry) {
+            return null;
+        }
+        OciRegistryClient.RegistryRef ref = dockerHub
+                ? OciRegistryClient.parseDockerHubRef(request.imageRef, request.tag)
+                : new OciRegistryClient.RegistryRef(OciRegistryClient.hostFromRegistryUrl(request.registryUrl),
+                        request.repository == null ? null : request.repository.trim(),
+                        request.tag == null ? null : request.tag.trim());
+        OciRegistryClient.Credential credential = null;
+        PluginCredentialService.ResolvedCredential resolved = credentialService.resolve(null, ref.host());
+        if (resolved != null) {
+            credential = new OciRegistryClient.Credential(resolved.username(), resolved.secret());
+        }
+        String digest = ociRegistryClient.resolveDigest(ref, credential);
+        if (request.digest != null && !request.digest.isBlank()
+                && !request.digest.trim().equalsIgnoreCase(digest)) {
+            throw new ApiException(409, PluginErrorCode.PLUGIN_ARTIFACT_CHECKSUM_MISMATCH,
+                    "Declared digest does not match the registry manifest digest");
+        }
+        return digest;
+    }
+
+    private JsonNode buildDistribution(PluginRequests.RegisterVersion request, String resolvedDigest) {
+        String digest = resolvedDigest != null ? resolvedDigest : request.digest;
         PluginDistributionType type;
         try {
             type = PluginDistributionType.valueOf(request.source == null ? "" : request.source.trim().toUpperCase());
@@ -621,7 +661,7 @@ public class PluginAdminService {
                 }
                 distribution.put("image_ref", request.imageRef.trim());
                 putIfPresent(distribution, "tag", request.tag);
-                putIfPresent(distribution, "digest", request.digest);
+                putIfPresent(distribution, "digest", digest);
             }
             case IMAGE_REGISTRY -> {
                 if (request.registryUrl == null || request.repository == null || request.tag == null) {
@@ -631,7 +671,7 @@ public class PluginAdminService {
                 distribution.put("registry_url", request.registryUrl.trim());
                 distribution.put("repository", request.repository.trim());
                 distribution.put("tag", request.tag.trim());
-                putIfPresent(distribution, "digest", request.digest);
+                putIfPresent(distribution, "digest", digest);
             }
             case JAR_BUNDLE -> {
                 if (request.artifactRef == null || request.artifactRef.isBlank()

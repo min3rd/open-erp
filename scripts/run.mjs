@@ -22,6 +22,7 @@ const PROFILES = {
   mongo: ['--profile', 'mongo'],
   storage: ['--profile', 'storage'],
   mail: ['--profile', 'mail'],
+  registry: ['--profile', 'registry'],
   full: ['--profile', 'full'],
 };
 
@@ -111,6 +112,7 @@ const INFRA_PROFILES = [
   { name: 'infra:kafka', desc: 'Tối thiểu + Kafka & Kafka UI', heavy: true },
   { name: 'infra:mongo', desc: 'Tối thiểu + MongoDB Replica-Set', heavy: true },
   { name: 'infra:storage', desc: 'Tối thiểu + MinIO S3', heavy: true },
+  { name: 'infra:registry', desc: 'Tối thiểu + Registry v2 (OCI local)', heavy: true },
   { name: 'infra:full', desc: 'Toàn bộ dịch vụ (RAM >= 8GB)', heavy: true },
   { name: 'infra:ps', desc: 'Xem trạng thái containers' },
   { name: 'infra:down', desc: 'Dừng toàn bộ hạ tầng' },

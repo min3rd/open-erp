@@ -14,6 +14,7 @@
     "infra:kafka": "node scripts/run.mjs infra kafka",
     "infra:mongo": "node scripts/run.mjs infra mongo",
     "infra:storage": "node scripts/run.mjs infra storage",
+    "infra:registry": "node scripts/run.mjs infra registry",
     "infra:full": "node scripts/run.mjs infra full",
     "infra:ps": "node scripts/run.mjs infra-ps",
     "infra:down": "node scripts/run.mjs infra-down",
