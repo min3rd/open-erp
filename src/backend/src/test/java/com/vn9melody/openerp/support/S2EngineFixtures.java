@@ -96,7 +96,7 @@ public final class S2EngineFixtures {
         em.createNativeQuery("INSERT INTO role_data_policies "
                 + "(tenant_id, role_id, resource, create_scope, read_scope, update_scope, delete_scope, export_scope, share_scope) "
                 + "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9) "
-                + "ON CONFLICT (role_id, resource) DO UPDATE SET "
+                + "ON CONFLICT (tenant_id, role_id, resource) DO UPDATE SET "
                 + "create_scope = EXCLUDED.create_scope, read_scope = EXCLUDED.read_scope, "
                 + "update_scope = EXCLUDED.update_scope, delete_scope = EXCLUDED.delete_scope, "
                 + "export_scope = EXCLUDED.export_scope, share_scope = EXCLUDED.share_scope")

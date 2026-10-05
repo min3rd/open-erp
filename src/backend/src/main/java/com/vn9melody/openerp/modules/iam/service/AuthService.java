@@ -24,6 +24,7 @@ import com.vn9melody.openerp.modules.iam.dto.*;
 import com.vn9melody.openerp.modules.iam.dto.response.*;
 import com.vn9melody.openerp.modules.iam.model.*;
 import com.vn9melody.openerp.modules.platform.service.PlatformLoginService;
+import com.vn9melody.openerp.modules.organization.service.OrganizationProvisioningService;
 import com.vn9melody.openerp.modules.plugin.service.PluginProvisioningService;
 
 @ApplicationScoped
@@ -71,6 +72,12 @@ public class AuthService {
 
     @Inject
     AccountService accountService;
+
+    @Inject
+    OrganizationProvisioningService organizationProvisioningService;
+
+    @Inject
+    RoleDataPolicyProvisioningService roleDataPolicyProvisioningService;
 
     @Inject
     SystemRoleAssigner systemRoleAssigner;
@@ -148,6 +155,8 @@ public class AuthService {
 
         // TASK-271: user_roles is the single source of truth for the enforcement engine.
         systemRoleAssigner.assignSystemRole(personalTenant.id, user.id, SystemRoleAssigner.TENANT_ADMIN);
+        organizationProvisioningService.provisionDefaults(personalTenant.id, user.id);
+        roleDataPolicyProvisioningService.provisionAdminDefaults(personalTenant.id);
 
         return new VerifyEmailResponse(AccountStatus.ACTIVE, personalTenant.id.toString());
     }
@@ -214,6 +223,8 @@ public class AuthService {
 
         // TASK-271: user_roles is the single source of truth for the enforcement engine.
         systemRoleAssigner.assignSystemRole(tenant.id, user.id, SystemRoleAssigner.TENANT_ADMIN);
+        organizationProvisioningService.provisionDefaults(tenant.id, user.id);
+        roleDataPolicyProvisioningService.provisionAdminDefaults(tenant.id);
 
         // TASK-307 / Gate Q5: apply system-default plugins to the new tenant.
         pluginProvisioningService.provisionDefaults(tenant.id);
@@ -292,6 +303,8 @@ public class AuthService {
             ut.isDefault = true;
             ut.persist();
             systemRoleAssigner.assignSystemRole(personalTenant.id, user.id, SystemRoleAssigner.TENANT_ADMIN);
+        organizationProvisioningService.provisionDefaults(personalTenant.id, user.id);
+        roleDataPolicyProvisioningService.provisionAdminDefaults(personalTenant.id);
             userTenants = List.of(ut);
         }
 
