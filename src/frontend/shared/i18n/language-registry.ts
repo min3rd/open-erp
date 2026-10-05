@@ -28,8 +28,8 @@ export const LANGUAGES: readonly LanguageInfo[] = [
   { code: LangCode.PT_BR, nativeName: 'Português (BR)', dir: 'ltr', released: true },
   { code: LangCode.RU, nativeName: 'Русский', dir: 'ltr', released: true },
   { code: LangCode.AR, nativeName: 'العربية', dir: 'rtl', released: true },
-  { code: LangCode.TH, nativeName: 'ไทย', dir: 'ltr', released: false },
-  { code: LangCode.ID, nativeName: 'Bahasa Indonesia', dir: 'ltr', released: false }
+  { code: LangCode.TH, nativeName: 'ไทย', dir: 'ltr', released: true },
+  { code: LangCode.ID, nativeName: 'Bahasa Indonesia', dir: 'ltr', released: true }
 ];
 
 export const DEFAULT_LANG: LangCode = LangCode.VI;
