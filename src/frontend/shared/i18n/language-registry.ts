@@ -24,7 +24,7 @@ export const LANGUAGES: readonly LanguageInfo[] = [
   { code: LangCode.KO, nativeName: '한국어', dir: 'ltr', released: false },
   { code: LangCode.ES, nativeName: 'Español', dir: 'ltr', released: true },
   { code: LangCode.FR, nativeName: 'Français', dir: 'ltr', released: false },
-  { code: LangCode.DE, nativeName: 'Deutsch', dir: 'ltr', released: false },
+  { code: LangCode.DE, nativeName: 'Deutsch', dir: 'ltr', released: true },
   { code: LangCode.PT_BR, nativeName: 'Português (BR)', dir: 'ltr', released: false },
   { code: LangCode.RU, nativeName: 'Русский', dir: 'ltr', released: false },
   { code: LangCode.AR, nativeName: 'العربية', dir: 'rtl', released: false },
