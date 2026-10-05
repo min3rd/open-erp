@@ -13,6 +13,7 @@ import {
   IconName,
   Membership,
   RequirePermissionDirective,
+  SkeletonTableComponent,
   TableColumn,
   TableComponent,
   TranslatePipe,
@@ -32,6 +33,7 @@ import { BranchAssignmentDrawerComponent } from '../branch-assignments/branch-as
     CommonModule,
     FormsModule,
     TableComponent,
+    SkeletonTableComponent,
     BadgeComponent,
     TranslatePipe,
     UserAssignmentDrawerComponent,
@@ -52,6 +54,8 @@ export class MembersComponent implements OnInit {
   readonly departments = signal<FlatDepartmentNode[]>([]);
   readonly assignments = signal<BranchAssignment[]>([]);
   readonly loading = signal<boolean>(false);
+  readonly listError = signal<boolean>(false);
+  readonly lookupsError = signal<boolean>(false);
   readonly errorText = signal<string>('');
   readonly successText = signal<string>('');
 
@@ -113,19 +117,21 @@ export class MembersComponent implements OnInit {
     this.listState.set(patch);
   }
 
+  /**
+   * Primary list and auxiliary lookups load independently so a slow/failed
+   * lookup never blanks the membership table (Sprint 04, TASK-367 / AC-12).
+   */
   load() {
+    this.loadMemberships();
+    this.loadLookups();
+  }
+
+  loadMemberships() {
     this.loading.set(true);
-    forkJoin({
-      memberships: this.organization.getMemberships(),
-      branches: this.organization.getBranches(),
-      departments: this.organization.getDepartmentTree(),
-      assignments: this.organization.getBranchAssignments()
-    }).subscribe({
-      next: ({ memberships, branches, departments, assignments }) => {
-        this.memberships.set(memberships.data.items);
-        this.branches.set(branches.data.items);
-        this.departments.set(flattenDepartments(departments.data.items));
-        this.assignments.set(assignments.data.items);
+    this.listError.set(false);
+    this.organization.getMemberships().subscribe({
+      next: (res) => {
+        this.memberships.set(res.data.items);
         this.loading.set(false);
         this.errorText.set('');
         if (this.currentState) {
@@ -134,6 +140,27 @@ export class MembersComponent implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
+        this.listError.set(true);
+        this.showError(err);
+      }
+    });
+  }
+
+  /** Branches/departments feed the drawers, assignments only decorate the table. */
+  loadLookups() {
+    this.lookupsError.set(false);
+    forkJoin({
+      branches: this.organization.getBranches(),
+      departments: this.organization.getDepartmentTree(),
+      assignments: this.organization.getBranchAssignments()
+    }).subscribe({
+      next: ({ branches, departments, assignments }) => {
+        this.branches.set(branches.data.items);
+        this.departments.set(flattenDepartments(departments.data.items));
+        this.assignments.set(assignments.data.items);
+      },
+      error: (err) => {
+        this.lookupsError.set(true);
         this.showError(err);
       }
     });

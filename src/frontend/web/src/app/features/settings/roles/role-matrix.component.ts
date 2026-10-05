@@ -1,7 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
 import {
   ApiErrorResponse,
   BadgeComponent,
@@ -22,6 +21,7 @@ import {
   SharpButtonComponent,
   SharpInputComponent,
   SharpToggleComponent,
+  SkeletonTableComponent,
   TranslatePipe,
   dataScopeFieldKey,
   dataOperationLabelKey,
@@ -49,6 +49,7 @@ interface PermissionGroup {
     SharpButtonComponent,
     SharpInputComponent,
     SharpToggleComponent,
+    SkeletonTableComponent,
     TranslatePipe,
     RoleFormDrawerComponent,
     AssignUsersDrawerComponent,
@@ -76,8 +77,15 @@ export class RoleMatrixComponent implements OnInit {
   readonly policyMap = signal<Record<string, DataPolicy>>({});
 
   readonly loadingRoles = signal<boolean>(false);
+  readonly rolesError = signal<boolean>(false);
+  readonly loadingCatalog = signal<boolean>(false);
+  readonly catalogError = signal<boolean>(false);
+  readonly loadingResources = signal<boolean>(false);
+  readonly resourcesError = signal<boolean>(false);
   readonly loadingPermissions = signal<boolean>(false);
+  readonly permissionsError = signal<boolean>(false);
   readonly loadingPolicies = signal<boolean>(false);
+  readonly policiesError = signal<boolean>(false);
   readonly savingPermissions = signal<boolean>(false);
   readonly savingPolicies = signal<boolean>(false);
   readonly errorText = signal<string>('');
@@ -172,35 +180,94 @@ export class RoleMatrixComponent implements OnInit {
     }
   }
 
+  /**
+   * Each region loads on its own so a slow/failed region never blocks the
+   * others (Sprint 04, TASK-367 / AC-12): roles list, permission catalogue,
+   * data-resource catalogue, and the selected role's grants/policies.
+   */
   loadInitialData() {
+    this.loadRoles();
+    this.loadPermissionCatalog();
+    this.loadResources();
+  }
+
+  loadRoles() {
     this.loadingRoles.set(true);
-    this.loadingPermissions.set(true);
-    forkJoin({
-      roles: this.iam.getRoles(),
-      permissions: this.iam.getPermissions(),
-      resources: this.iam.getDataResources()
-    }).subscribe({
-      next: ({ roles, permissions, resources }) => {
-        this.roles.set(roles.data.items);
-        this.permissions.set(permissions.data.items);
-        this.resources.set(resources.data.items);
-        this.expandedDomains.set(new Set(this.permissionGroups().map((group) => group.domain)));
+    this.rolesError.set(false);
+    this.iam.getRoles().subscribe({
+      next: (res) => {
+        this.roles.set(res.data.items);
         this.loadingRoles.set(false);
-        this.loadingPermissions.set(false);
-        if (roles.data.items.length) {
+        if (res.data.items.length) {
           const wanted = this.pendingState?.id
-            ? roles.data.items.find((item) => item.id === this.pendingState?.id)
+            ? res.data.items.find((item) => item.id === this.pendingState?.id)
             : undefined;
-          this.selectRole(wanted ?? roles.data.items[0], false);
+          this.selectRole(wanted ?? res.data.items[0], false);
           this.applyDrawerMode(this.pendingState?.mode ?? 'list');
         }
       },
       error: (err) => {
         this.loadingRoles.set(false);
-        this.loadingPermissions.set(false);
+        this.rolesError.set(true);
         this.showError(err);
       }
     });
+  }
+
+  loadPermissionCatalog() {
+    this.loadingCatalog.set(true);
+    this.catalogError.set(false);
+    this.iam.getPermissions().subscribe({
+      next: (res) => {
+        this.permissions.set(res.data.items);
+        this.expandedDomains.set(new Set(this.permissionGroups().map((group) => group.domain)));
+        this.loadingCatalog.set(false);
+      },
+      error: (err) => {
+        this.loadingCatalog.set(false);
+        this.catalogError.set(true);
+        this.showError(err);
+      }
+    });
+  }
+
+  /** The data-resource catalogue only feeds the scope matrix; it must not block permissions. */
+  loadResources() {
+    this.loadingResources.set(true);
+    this.resourcesError.set(false);
+    this.iam.getDataResources().subscribe({
+      next: (res) => {
+        this.resources.set(res.data.items);
+        this.loadingResources.set(false);
+      },
+      error: (err) => {
+        this.loadingResources.set(false);
+        this.resourcesError.set(true);
+        this.showError(err);
+      }
+    });
+  }
+
+  /** Retry only the failed half of the permissions column. */
+  retryPermissions() {
+    if (this.catalogError()) {
+      this.loadPermissionCatalog();
+    }
+    const role = this.selectedRole();
+    if (this.permissionsError() && role) {
+      this.loadRolePermissions(role);
+    }
+  }
+
+  /** Retry only the failed half of the data-scopes column. */
+  retryDataScopes() {
+    if (this.resourcesError()) {
+      this.loadResources();
+    }
+    const role = this.selectedRole();
+    if (this.policiesError() && role) {
+      this.loadRolePolicies(role);
+    }
   }
 
   selectRole(role: Role, syncUrl = true) {
@@ -442,6 +509,7 @@ export class RoleMatrixComponent implements OnInit {
 
   private loadRolePermissions(role: Role) {
     this.loadingPermissions.set(true);
+    this.permissionsError.set(false);
     this.iam.getRolePermissions(role.id).subscribe({
       next: (res) => {
         this.grantedIds.set(new Set(res.data.items.map((permission) => permission.id)));
@@ -450,6 +518,7 @@ export class RoleMatrixComponent implements OnInit {
       error: (err) => {
         this.grantedIds.set(new Set());
         this.loadingPermissions.set(false);
+        this.permissionsError.set(true);
         this.showError(err);
       }
     });
@@ -457,6 +526,7 @@ export class RoleMatrixComponent implements OnInit {
 
   private loadRolePolicies(role: Role) {
     this.loadingPolicies.set(true);
+    this.policiesError.set(false);
     this.iam.getDataPolicies(role.id).subscribe({
       next: (res) => {
         const map: Record<string, DataPolicy> = {};
@@ -469,6 +539,7 @@ export class RoleMatrixComponent implements OnInit {
       error: () => {
         this.policyMap.set({});
         this.loadingPolicies.set(false);
+        this.policiesError.set(true);
       }
     });
   }

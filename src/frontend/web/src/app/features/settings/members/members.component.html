@@ -49,8 +49,24 @@
     </div>
   }
 
-  <app-table [columns]="columns" [rows]="memberships()" [loading]="loading()" [contextMenuItems]="memberContextMenu">
-    <ng-template let-m>
+  @if (lookupsError()) {
+    <div class="rounded-container border border-default px-2 py-1.5 text-[11px] text-muted" role="status" aria-live="polite">
+      <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+      <button type="button" class="ml-2 underline" (click)="loadLookups()">{{ 'COMMON_RETRY' | translate }}</button>
+    </div>
+  }
+
+  <div [attr.aria-busy]="loading()">
+    @if (listError()) {
+      <div class="rounded-container border border-default px-2 py-3 text-center text-[11px] text-muted" role="status" aria-live="polite">
+        <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+        <button type="button" class="ml-2 underline" (click)="loadMemberships()">{{ 'COMMON_RETRY' | translate }}</button>
+      </div>
+    } @else if (loading()) {
+      <app-skeleton-table [rows]="6" [columns]="columns.length" />
+    } @else {
+      <app-table [columns]="columns" [rows]="memberships()" [contextMenuItems]="memberContextMenu">
+        <ng-template let-m>
       <tr class="hover:bg-surface-muted align-top">
         <td class="px-2 py-1.5">
           <div class="font-medium">{{ m.user_full_name || m.user_email }}</div>
@@ -104,8 +120,10 @@
           </div>
         </td>
       </tr>
-    </ng-template>
-  </app-table>
+        </ng-template>
+      </app-table>
+    }
+  </div>
 
   <app-user-assignment-drawer
     [isOpen]="userDrawerOpen()"

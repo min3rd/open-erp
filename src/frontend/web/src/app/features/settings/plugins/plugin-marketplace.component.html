@@ -31,8 +31,17 @@
     <app-operation-progress [operation]="operation()" />
   }
 
-  @if (loading()) {
-    <div class="h-24 w-full animate-pulse bg-surface-muted"></div>
+  @if (listError()) {
+    <div class="rounded-container border border-default p-3 text-center text-xs text-muted" role="status" aria-live="polite">
+      <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+      <button type="button" class="ml-2 underline" (click)="refresh()">{{ 'COMMON_RETRY' | translate }}</button>
+    </div>
+  } @else if (loading()) {
+    <div class="space-y-1" [attr.aria-busy]="loading()">
+      <app-skeleton-card />
+      <app-skeleton-card />
+      <app-skeleton-card />
+    </div>
   } @else {
     <div class="space-y-3">
       <div class="flex items-center gap-1">
@@ -211,7 +220,16 @@
       </section>
     </div>
   } @else if (detailLoading()) {
-    <div class="h-24 animate-pulse bg-surface-muted"></div>
+    <div class="space-y-3 p-3" [attr.aria-busy]="detailLoading()">
+      <app-skeleton variant="line" width="50%" height="0.75rem" />
+      <app-skeleton variant="line" width="80%" />
+      <app-skeleton variant="block" height="7rem" />
+    </div>
+  } @else if (detailError()) {
+    <div class="p-3 text-center text-xs text-muted" role="status" aria-live="polite">
+      <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+      <button type="button" class="ml-2 underline" (click)="retryDetail()">{{ 'COMMON_RETRY' | translate }}</button>
+    </div>
   }
 </app-drawer>
 
@@ -288,18 +306,27 @@
 </app-drawer>
 
 <app-drawer [isOpen]="notificationsOpen()" [title]="'PLUGIN_NOTIFICATIONS_TITLE' | translate" (close)="closeAllDrawers()">
-  <div class="space-y-2 p-3 text-xs">
-    @if (unreadCount() > 0) {
-      <div class="flex justify-end">
-        <app-sharp-button size="sm" variant="ghost" (clicked)="markAllRead()">
-          {{ 'PLUGIN_NOTIFICATIONS_MARK_ALL' | translate }}
-        </app-sharp-button>
+  <div class="space-y-2 p-3 text-xs" [attr.aria-busy]="notificationsLoading()">
+    @if (notificationsError()) {
+      <div class="py-3 text-center text-[11px] text-muted" role="status" aria-live="polite">
+        <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+        <button type="button" class="ml-2 underline" (click)="loadNotifications()">{{ 'COMMON_RETRY' | translate }}</button>
       </div>
-    }
-    @if (notifications().length === 0) {
-      <p class="text-[11px] text-muted">{{ 'PLUGIN_NOTIFICATIONS_EMPTY' | translate }}</p>
-    }
-    @for (item of notifications(); track item.id) {
+    } @else if (notificationsLoading()) {
+      <app-skeleton variant="block" height="3rem" />
+      <app-skeleton variant="block" height="3rem" />
+    } @else {
+      @if (unreadCount() > 0) {
+        <div class="flex justify-end">
+          <app-sharp-button size="sm" variant="ghost" (clicked)="markAllRead()">
+            {{ 'PLUGIN_NOTIFICATIONS_MARK_ALL' | translate }}
+          </app-sharp-button>
+        </div>
+      }
+      @if (notifications().length === 0) {
+        <p class="text-[11px] text-muted">{{ 'PLUGIN_NOTIFICATIONS_EMPTY' | translate }}</p>
+      }
+      @for (item of notifications(); track item.id) {
       <div class="rounded-container border p-2" [class]="item.read_at ? 'border-default' : 'border-sky-300 bg-sky-50 dark:border-sky-800 dark:bg-sky-950/40'">
         <div class="flex items-center justify-between gap-2">
           <span class="font-medium text-ink">{{ item.title_key | translate }}</span>
@@ -307,6 +334,7 @@
         </div>
         <p class="mt-0.5 font-mono text-[10px] text-muted">{{ item.type }} · {{ item.created_at | date: 'short' }}</p>
       </div>
+      }
     }
   </div>
 </app-drawer>

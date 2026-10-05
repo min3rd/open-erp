@@ -16,6 +16,8 @@ import {
   PluginVersionItem,
   SharpButtonComponent,
   SharpToggleComponent,
+  SkeletonCardComponent,
+  SkeletonComponent,
   TenantPluginStatus,
   TranslatePipe,
   VersionTimelineComponent,
@@ -40,6 +42,8 @@ const TERMINAL_STATUSES = ['ACTIVE', 'INACTIVE', 'UNINSTALLED', 'INSTALL_FAILED'
     OperationProgressComponent,
     SharpButtonComponent,
     SharpToggleComponent,
+    SkeletonCardComponent,
+    SkeletonComponent,
     TenantPluginRegisterDrawerComponent,
     ContextMenuTriggerDirective,
   ],
@@ -53,6 +57,7 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
 
   items = signal<PluginMarketplaceItem[]>([]);
   loading = signal(false);
+  listError = signal(false);
   errorText = signal('');
   successText = signal('');
   busyKey = signal<string | null>(null);
@@ -82,6 +87,7 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
   detailOpen = signal(false);
   detail = signal<PluginCatalogDetail | null>(null);
   detailLoading = signal(false);
+  detailError = signal(false);
 
   operation = signal<PluginOperationStatus | null>(null);
   private pollHandle: ReturnType<typeof setInterval> | null = null;
@@ -96,6 +102,8 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
 
   notificationsOpen = signal(false);
   notifications = signal<PluginNotification[]>([]);
+  notificationsLoading = signal(false);
+  notificationsError = signal(false);
 
   registerOpen = signal(false);
   manageKey = signal<string | null>(null);
@@ -159,8 +167,10 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
     this.updateState({ mode: 'list' });
   }
 
+  /** Marketplace list region; notifications and versions load independently. */
   refresh(): void {
     this.loading.set(true);
+    this.listError.set(false);
     this.pluginService.marketplace().subscribe({
       next: (response) => {
         this.items.set(response.data?.items ?? []);
@@ -172,14 +182,24 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
       error: (error: ApiErrorResponse) => {
         this.errorText.set(apiMessage(this.i18n, error));
         this.loading.set(false);
+        this.listError.set(true);
       },
     });
   }
 
   loadNotifications(): void {
+    this.notificationsLoading.set(true);
+    this.notificationsError.set(false);
     this.pluginService.notifications().subscribe({
-      next: (response) => this.notifications.set(response.data?.items ?? []),
-      error: () => this.notifications.set([]),
+      next: (response) => {
+        this.notifications.set(response.data?.items ?? []);
+        this.notificationsLoading.set(false);
+      },
+      error: () => {
+        this.notifications.set([]);
+        this.notificationsLoading.set(false);
+        this.notificationsError.set(true);
+      },
     });
   }
 
@@ -320,6 +340,7 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
 
   loadDetail(pluginKey: string): void {
     this.detailLoading.set(true);
+    this.detailError.set(false);
     this.pluginService.detail(pluginKey).subscribe({
       next: (response) => {
         this.detail.set(response.data ?? null);
@@ -328,8 +349,17 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
       error: (error: ApiErrorResponse) => {
         this.errorText.set(apiMessage(this.i18n, error));
         this.detailLoading.set(false);
+        this.detailError.set(true);
       },
     });
+  }
+
+  /** Retry only the detail/versions region. */
+  retryDetail(): void {
+    const key = this.selectedKey();
+    if (key) {
+      this.loadDetail(key);
+    }
   }
 
   install(item: PluginMarketplaceItem): void {

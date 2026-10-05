@@ -16,6 +16,7 @@ import {
   RequirePermissionDirective,
   SampleRecord,
   SampleRecordStatus,
+  SkeletonTableComponent,
   TableColumn,
   TableComponent,
   TranslatePipe,
@@ -36,6 +37,7 @@ import { SampleRecordFormDrawerComponent } from './sample-record-form-drawer.com
     CommonModule,
     FormsModule,
     TableComponent,
+    SkeletonTableComponent,
     PaginationComponent,
     BadgeComponent,
     TranslatePipe,
@@ -61,6 +63,8 @@ export class SampleRecordListComponent implements OnInit {
   readonly departments = signal<FlatDepartmentNode[]>([]);
   readonly members = signal<Membership[]>([]);
   readonly loading = signal<boolean>(false);
+  readonly listError = signal<boolean>(false);
+  readonly lookupsError = signal<boolean>(false);
   readonly page = signal<number>(0);
   readonly size = signal<number>(20);
   readonly totalItems = signal<number>(0);
@@ -127,6 +131,7 @@ export class SampleRecordListComponent implements OnInit {
 
   load() {
     this.loading.set(true);
+    this.listError.set(false);
     this.sampleRecords.getSampleRecords({ page: this.page(), size: this.size() }).subscribe({
       next: (res) => {
         this.records.set(res.data.items);
@@ -140,6 +145,7 @@ export class SampleRecordListComponent implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
+        this.listError.set(true);
         this.showError(err);
       }
     });
@@ -223,7 +229,9 @@ export class SampleRecordListComponent implements OnInit {
     });
   }
 
-  private loadReferenceData() {
+  /** Departments/branches/assignees only feed the form drawer, never the table. */
+  loadReferenceData() {
+    this.lookupsError.set(false);
     forkJoin({
       branches: this.organization.getBranches(),
       departments: this.organization.getDepartmentTree(),
@@ -238,6 +246,7 @@ export class SampleRecordListComponent implements OnInit {
         this.branches.set([]);
         this.departments.set([]);
         this.members.set([]);
+        this.lookupsError.set(true);
       }
     });
   }

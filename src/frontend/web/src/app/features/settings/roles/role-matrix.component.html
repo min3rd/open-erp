@@ -38,9 +38,14 @@
         </div>
       }
 
-      <div class="max-h-[520px] overflow-y-auto divide-y divide-default">
-        @if (loadingRoles()) {
-          <div class="px-2 py-3 text-center text-[11px] text-muted">{{ 'COMMON_LOADING' | translate }}</div>
+      <div class="max-h-[520px] overflow-y-auto divide-y divide-default" [attr.aria-busy]="loadingRoles()">
+        @if (rolesError()) {
+          <div class="px-2 py-3 text-center text-[11px] text-muted" role="status" aria-live="polite">
+            <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+            <button type="button" class="ml-2 underline" (click)="loadRoles()">{{ 'COMMON_RETRY' | translate }}</button>
+          </div>
+        } @else if (loadingRoles()) {
+          <app-skeleton-table [rows]="6" [columns]="1" />
         } @else {
           @for (role of filteredRoles(); track role.id) {
             <div
@@ -106,8 +111,15 @@
           </div>
         </div>
 
-        @if (loadingPermissions()) {
-          <div class="px-2 py-3 text-center text-[11px] text-muted">{{ 'COMMON_LOADING' | translate }}</div>
+        @if (catalogError() || permissionsError()) {
+          <div class="px-2 py-3 text-center text-[11px] text-muted" role="status" aria-live="polite">
+            <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+            <button type="button" class="ml-2 underline" (click)="retryPermissions()">{{ 'COMMON_RETRY' | translate }}</button>
+          </div>
+        } @else if (loadingCatalog() || loadingPermissions()) {
+          <div [attr.aria-busy]="loadingCatalog() || loadingPermissions()">
+            <app-skeleton-table [rows]="5" [columns]="2" />
+          </div>
         } @else {
           <div class="max-h-[460px] overflow-y-auto">
             @for (group of permissionGroups(); track group.domain) {
@@ -168,8 +180,15 @@
           </app-sharp-button>
         </div>
 
-        @if (loadingPolicies()) {
-          <div class="px-2 py-3 text-center text-[11px] text-muted">{{ 'COMMON_LOADING' | translate }}</div>
+        @if (resourcesError() || policiesError()) {
+          <div class="px-2 py-3 text-center text-[11px] text-muted" role="status" aria-live="polite">
+            <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+            <button type="button" class="ml-2 underline" (click)="retryDataScopes()">{{ 'COMMON_RETRY' | translate }}</button>
+          </div>
+        } @else if (loadingResources() || loadingPolicies()) {
+          <div [attr.aria-busy]="loadingResources() || loadingPolicies()">
+            <app-skeleton-table [rows]="5" [columns]="3" />
+          </div>
         } @else {
           <div class="overflow-x-auto">
             <table class="w-full text-xs border-collapse">
