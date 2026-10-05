@@ -20,6 +20,7 @@ npx @open-erp/cli help
 | `generate ui-contribution` | Đăng ký UI Contribution vào slot (`web-component` / `module-federation` / `iframe`) |
 | `validate` | Kiểm tra `plugin.json` theo chuẩn nền tảng |
 | `package` | Build backend (uber-jar) + Web + `dist/bundle.zip` (layout ImageBuilder) + checksum SHA-256 + release manifest |
+| `publish` | Upload bundle (`--source bundle`) hoặc image (`--source image`) lên registry nội bộ, in payload đăng ký version |
 | `link` | Thêm repo plugin làm git submodule |
 | `inspect` | In tóm tắt manifest + kết quả validate |
 | `dev` | Sinh `docker-compose.dev.yml` chạy plugin local |
@@ -33,6 +34,7 @@ npx @open-erp/cli generate entity --name Employee --fields "code:string,title:st
 npx @open-erp/cli generate ui-contribution --slot core.dashboard.widgets --render-mode web-component
 npx @open-erp/cli validate
 npx @open-erp/cli package --with-web
+npx @open-erp/cli publish --registry http://localhost:8088 --credential OPENERP_TOKEN
 npx @open-erp/cli dev --core-url http://localhost:8088
 ```
 

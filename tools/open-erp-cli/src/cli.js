@@ -3,6 +3,7 @@ import { generateCommand } from './commands/generate.js';
 import { validateCommand } from './commands/validate.js';
 import { packageCommand } from './commands/package.js';
 import { devCommand, inspectCommand, linkCommand } from './commands/misc.js';
+import { publishCommand } from './commands/publish.js';
 
 const HELP = `@open-erp/cli - Open-ERP plugin developer CLI
 
@@ -15,6 +16,7 @@ Commands:
   generate ui-contribution  Register an embedded UI slot contribution
   validate               Validate plugin.json structure and rules
   package                Build backend/web artifacts + SHA-256 checksums
+  publish                Upload bundle/image to the registry and print a registration payload
   link                   Add the plugin repo as a git submodule
   inspect                Print manifest + validation summary
   dev                    Generate docker-compose.dev.yml for local runtime
@@ -24,6 +26,7 @@ Examples:
   npx @open-erp/cli generate entity --name Invoice --fields "code:string,total:decimal"
   npx @open-erp/cli generate ui-contribution --slot core.dashboard.widgets --render-mode web-component
   npx @open-erp/cli package --with-web
+  npx @open-erp/cli publish --source bundle --registry http://localhost:8088 --credential OPENERP_TOKEN
   npx @open-erp/cli dev --core-url http://localhost:8088
 `;
 
@@ -47,6 +50,8 @@ export async function run(argv) {
       return validateCommand(flags);
     case 'package':
       return packageCommand(flags);
+    case 'publish':
+      return publishCommand(flags);
     case 'link':
       return linkCommand(flags);
     case 'inspect':

@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
+import { createServer } from 'node:http';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -10,6 +11,18 @@ const bin = fileURLToPath(new URL('../bin/open-erp.js', import.meta.url));
 
 function runCli(args, cwd) {
   return execFileSync(process.execPath, [bin, ...args], { cwd, encoding: 'utf8' });
+}
+
+function runCliAsync(args, cwd) {
+  return new Promise((resolve, reject) => {
+    execFile(process.execPath, [bin, ...args], { cwd, encoding: 'utf8' }, (error, stdout, stderr) => {
+      if (error) {
+        reject(new Error(`${error.message}\n${stderr}`));
+      } else {
+        resolve(stdout);
+      }
+    });
+  });
 }
 
 test('create scaffolds a valid plugin project', () => {
@@ -112,4 +125,55 @@ test('package --skip-build emits an ImageBuilder bundle.zip with app.jar first (
   assert.equal(bundle.subarray(30, 30 + firstNameLength).toString('utf8'), 'app.jar');
   const manifest = JSON.parse(readFileSync(join(target, 'dist/release-manifest.json'), 'utf8'));
   assert.ok(manifest.artifacts.some((artifact) => artifact.file === 'bundle.zip'));
+});
+
+test('publish uploads a bundle and prints a registration payload', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'openerp-cli-pub-'));
+  const target = join(root, 'plugin');
+  runCli([
+    'create', '--non-interactive', '--id', 's3cli-publish', '--name', 'S3 CLI Publish',
+    '--target', target, '--git-init', 'false',
+  ], root);
+  const artifact = join(target, 'dist/bundle.zip');
+  mkdirSync(join(target, 'dist'), { recursive: true });
+  writeFileSync(artifact, Buffer.from('bundle-bytes'));
+
+  let seen = null;
+  const server = createServer((req, res) => {
+    const chunks = [];
+    req.on('data', (chunk) => chunks.push(chunk));
+    req.on('end', () => {
+      seen = {
+        method: req.method,
+        url: req.url,
+        authorization: req.headers.authorization,
+        body: Buffer.concat(chunks).toString('utf8'),
+      };
+      res.writeHead(201, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: true,
+        code: 'PLUGIN_ARTIFACT_UPLOAD_SUCCESS',
+        message: 'uploaded',
+        params: {},
+        data: { artifact_ref: 'ref-123', checksum: 'abc123', size_bytes: 12, file_name: 'bundle.zip' },
+      }));
+    });
+  });
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const port = server.address().port;
+  try {
+    const output = await runCliAsync([
+      'publish', '--source', 'bundle', '--artifact', artifact,
+      '--registry', `http://127.0.0.1:${port}`, '--credential', 'test-token',
+    ], target);
+    assert.ok(seen, 'server received a request');
+    assert.equal(seen.method, 'POST');
+    assert.equal(seen.url, '/api/v1/tenant/plugins/artifacts/upload');
+    assert.equal(seen.authorization, 'Bearer test-token');
+    assert.match(seen.body, /bundle\.zip/);
+    assert.match(output, /ref-123/);
+    assert.match(output, /abc123/);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
 });
