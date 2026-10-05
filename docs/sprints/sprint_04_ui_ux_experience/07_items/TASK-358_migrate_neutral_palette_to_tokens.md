@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-358 / Task / Sprint 04 |
-| Severity / trạng thái | High / **In Progress** (đang migrate) |
+| Severity / trạng thái | High / **In Review** (đã migrate 74 template, build PASS; chờ QA browser) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / CONF-S04-001 Approved |
 | depends_on / blocks / parent | TASK-355 / — / [FEAT-24](../07_items/FEAT-24_theme_system_and_design_tokens.md) |
@@ -30,9 +30,14 @@
 
 | Kiểm tra / baseline / môi trường | Kết quả | Evidence |
 | :--- | :--- | :--- |
-| `npm run build` (web/mobile) | Not Run | — |
-| QA browser theme × mode | Not Run | — |
+| `npm run build` (web/mobile) | **PASS**, 0 error | bundle generation complete; CSS sinh ra có `.bg-surface`, `.text-ink`, `.border-default`, `.divide-default`, `.bg-accent`… |
+| Số chỗ đã đổi | **1.940** (1.849 `neutral-*` + 91 `bg-white*`) trên **74 template** | — |
+| QA browser theme × mode | Not Run | chờ đợt QA |
 
 ## 4. Bàn giao và lịch sử
 
-Chưa xong. Bước tiếp: QA đổi theme trên các màn vừa migrate.
+Đã migrate: auth, settings (trừ organization), platform, dashboard, và shared (pagination, sharp-input/select/textarea/toggle, drawer, pin-input, plugin-card, credential-form, version-timeline, operation-progress, section-nav, mobile-nav-drawer, notification-*, user-menu, topbar, table, context-menu, skeleton, top-progress-bar) + template mobile.
+
+Giữ nguyên có lý do: panel thương hiệu ở login (nền tối cố định), chrome platform + banner impersonation, backdrop `bg-neutral-950/*`, màu trạng thái.
+
+Còn lại: `organization.component.html` (43 chỗ) + 6 class string trong `.ts` → chuyển sang **TASK-372** (làm cùng đợt áp shape/shadow).

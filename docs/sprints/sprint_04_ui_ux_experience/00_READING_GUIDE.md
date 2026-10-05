@@ -48,7 +48,7 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 | 07.04 | FEAT-27 | [Context menu danh sách](07_items/FEAT-27_list_context_menu.md) | Feature + task con | Developer |
 | 07.05 | FEAT-28 | [Loading bar & skeleton](07_items/FEAT-28_loading_bar_and_skeletons.md) | Feature + task con | Developer |
 | 07.06 | FEAT-29 | [Đa ngôn ngữ mở rộng](07_items/FEAT-29_multilanguage_i18n_expansion.md) | Feature + task con | Developer |
-| 08.01 | TP-S04-001 | Chưa tạo | Test plan theo AC | QA |
+| 08.01 | TP-S04-001 | [Test plan Sprint 04](08_testing/01_TP-S04-001_sprint_04_test_plan.md) | 18 test case theo AC + ma trận theme×mode×locale×nền tảng | QA |
 | 08.02 | TR-S04-001 | Chưa tạo | Test report có baseline/evidence | QA |
 | 09.01 | REV-S04-001 | Chưa tạo | DoD/backlog/closure | PM |
 
@@ -81,14 +81,28 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 | DES-UI-S04-001…002 | [06_designs/ui_ux/](06_designs/ui_ux/) | Architect | Used |
 | DES-API-S04-001 | [06_designs/api/](06_designs/api/) | Architect | Used |
 | FEAT-24…29 | [07_items/](07_items/) | Developer | Used |
-| TASK-355 | [Theme token layer](07_items/TASK-355_theme_token_layer.md) | Developer | Used (To Do) |
-| TASK-356 | [Theme registry + switcher](07_items/TASK-356_theme_registry_and_tenant_apply.md) | Developer | Used (To Do) |
+| TASK-355 | [Theme token layer](07_items/TASK-355_theme_token_layer.md) | Developer | Used (In Review) |
+| TASK-356 | [Theme registry + switcher](07_items/TASK-356_theme_registry_and_tenant_apply.md) | Developer | Used (In Review) |
 | TASK-357 | [Tenant UI theme backend](07_items/TASK-357_tenant_ui_theme_backend.md) | Developer | Used (In Review) |
-| TASK-361 | [Icon component + Feather adapter](07_items/TASK-361_icon_component_and_feather_adapter.md) | Developer | Used (In Progress) |
-| TASK-362 | [Replace hand-rolled SVGs](07_items/TASK-362_replace_handrolled_svgs_with_icon.md) | Developer | Used (In Progress) |
-| TASK-358…360, 363…371 | Chưa tạo | Developer | **Reserved** (motion/context menu/loading/i18n — tạo file khi bắt đầu) |
+| TASK-358 | [Palette → token migration](07_items/TASK-358_migrate_neutral_palette_to_tokens.md) | Developer | Used (In Review) |
+| TASK-359 | [Motion tokens + popup/list](07_items/TASK-359_motion_tokens_popup_and_list.md) | Developer | Used (In Review) |
+| TASK-360 | [Motion route/feedback/reduced](07_items/TASK-360_motion_route_feedback_reduced_motion.md) | Developer | Used (In Review) |
+| TASK-361 | [Icon component + Feather adapter](07_items/TASK-361_icon_component_and_feather_adapter.md) | Developer | Used (In Review) |
+| TASK-362 | [Replace hand-rolled SVGs](07_items/TASK-362_replace_handrolled_svgs_with_icon.md) | Developer | Used (In Review) |
+| TASK-363 | [Shared context menu](07_items/TASK-363_shared_context_menu.md) | Developer | Used (In Review) |
+| TASK-364 | [Context menu per screen](07_items/TASK-364_context_menu_screen_integration.md) | Developer | Used (In Review) |
+| TASK-365 | [Loading service + top bar](07_items/TASK-365_loading_service_and_top_progress_bar.md) | Developer | Used (In Review) |
+| TASK-366 | [Shared skeleton components](07_items/TASK-366_shared_skeleton_components.md) | Developer | Used (In Review) |
+| TASK-367 | [Per-region loading + retry](07_items/TASK-367_per_region_loading_and_retry.md) | Developer | Used (In Progress) |
+| TASK-368 | [i18n infrastructure](07_items/TASK-368_i18n_infrastructure.md) | Developer | Used (In Review) |
+| TASK-370 | [Locale dictionaries](07_items/TASK-370_locale_dictionaries.md) | Developer | Used (In Progress) |
+| TASK-372 | [Apply shape/surface tokens](07_items/TASK-372_apply_shape_and_surface_tokens.md) | Developer | Used (In Progress) |
+| TASK-369, 371 | Chưa tạo | Developer | **Reserved** (lưu ngôn ngữ qua hồ sơ / RTL đầy đủ) |
+| BUG-121 | [Org tree empty during backend outage](07_items/BUG-121_org_tree_empty_during_backend_outage.md) | Developer | Used (Resolved) |
+| BUG-122 | [Org chart missing root + branches](07_items/BUG-122_org_chart_missing_tenant_root_and_branches.md) | Developer | Used (In Review) |
 | ADR-S04-* | Chưa tạo | Architect | Chưa dùng |
-| TP-S04-001 / TR-S04-001 | Chưa tạo | QA | Chưa dùng |
+| TP-S04-001 | [Test plan](08_testing/01_TP-S04-001_sprint_04_test_plan.md) | QA | Used (Draft) |
+| TR-S04-001 | Chưa tạo | QA | Chưa dùng |
 | REV-S04-001 | Chưa tạo | PM | Chưa dùng |
 
 ## 5. Việc chuyển tiếp từ Sprint 03
