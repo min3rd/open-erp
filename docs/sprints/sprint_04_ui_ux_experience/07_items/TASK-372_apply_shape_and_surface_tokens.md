@@ -48,6 +48,19 @@ Token hình dạng đã có (`--op-radius-control/container`: industrial 0px, 3 
 
 Đã làm: 66 `rounded-none`→`rounded-control`; 226 `rounded-container`; 8 `rounded-t-container`; `shadow-panel` cho context-menu/user-menu/notification-bell/plugin-card; migrate nốt 95 token ở `organization` + các chỗ sót (`plugin-app`, `iframe-loader`) + class `.ts`.
 
-Giữ vuông có lý do: sidebar `<aside>` (sát mép viewport), backdrop, chrome platform, panel thương hiệu login.
+### Bổ sung: bộ mặt riêng cho từng theme (2026-10-05, theo phản hồi "vẫn quá giống nhau")
 
-Trả lời trực tiếp phản hồi "theme mới chỉ đổi màu thôi chưa hợp lý": giờ đổi theme khác **màu + bo góc + bề mặt**, industrial giữ nguyên bản mặc định.
+Sau phản hồi thứ hai của chủ dự án, mỗi theme được cấp **bộ mặt riêng** (không chỉ bo góc):
+
+| Theme | Bo góc | Bề mặt | Topbar | Sidebar |
+| :--- | :--- | :--- | :--- | :--- |
+| industrial (mặc định) | 0/0 | phẳng | trắng | trắng |
+| slate-blue | 6/10px | bóng mềm | **xanh đậm** | xám xanh |
+| emerald | 2/4px | phẳng | trắng, **viền accent xanh lá** | **xanh lá nhạt** |
+| amber | 10/12px | bóng mạnh | **kem ấm** | **hổ phách** |
+
+Token mới: `--op-topbar-{bg,text,border}`, `--op-sidebar-{bg,text,active-bg,active-text}` → utility `bg-topbar`/`text-topbar-text`/`border-topbar-border`/`bg-sidebar`/`text-sidebar-text`/`bg-sidebar-active`/`text-sidebar-active-text`. Áp cho shared topbar (kể cả bell/user-menu — dùng `text-topbar-text` để đọc được trên nền tối), section-nav và sidebar settings.
+
+Đo computed style (light): industrial `#ffffff/#ffffff/0px` · slate-blue `#0f172a/#f8fafc/6px` · emerald `#ffffff/#ecfdf5/2px` · amber `#fffbeb/#fef3c7/10px`. Ảnh: `%TEMP%/opencode/themeqa2/<theme>-light.png`. Commit `cbf10f2`.
+
+Giữ vuông có lý do: sidebar `<aside>` (sát mép viewport), backdrop, chrome platform, panel thương hiệu login.
