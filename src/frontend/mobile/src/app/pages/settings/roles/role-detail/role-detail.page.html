@@ -25,7 +25,7 @@
     <div class="rounded-container grid grid-cols-3 border border-default bg-surface">
       <button
         type="button"
-        class="min-h-10 py-1.5 text-center text-[11px] font-medium border-r border-default"
+        class="min-h-10 py-1.5 text-center text-[11px] font-medium border-e border-default"
         [ngClass]="activeTab() === 'permissions'
           ? 'bg-accent text-accent-contrast'
           : 'text-muted'"
@@ -35,7 +35,7 @@
       </button>
       <button
         type="button"
-        class="min-h-10 py-1.5 text-center text-[11px] font-medium border-r border-default"
+        class="min-h-10 py-1.5 text-center text-[11px] font-medium border-e border-default"
         [ngClass]="activeTab() === 'scopes'
           ? 'bg-accent text-accent-contrast'
           : 'text-muted'"
@@ -80,7 +80,7 @@
                 <div class="min-h-10 rounded-control px-2.5 flex items-center justify-between gap-2 hover:bg-surface-muted">
                   <button
                     type="button"
-                    class="min-w-0 flex-1 min-h-10 py-1.5 text-left flex flex-col justify-center"
+                    class="min-w-0 flex-1 min-h-10 py-1.5 text-start flex flex-col justify-center"
                     (click)="togglePermission(permission.id)"
                   >
                     <span class="block text-[11px] font-mono text-ink truncate">{{ permission.code }}</span>
@@ -122,7 +122,7 @@
               @for (operation of operations; track operation.key) {
                 <button
                   type="button"
-                  class="min-h-10 rounded-control px-2 py-1.5 text-left hover:bg-surface-muted"
+                  class="min-h-10 rounded-control px-2 py-1.5 text-start hover:bg-surface-muted"
                   (click)="openScopeSheet(resource, operation.key)"
                 >
                   <span class="block text-[10px] text-muted truncate" [appTranslate]="operation.labelKey"></span>
@@ -154,7 +154,7 @@
             @for (user of usersList.items(); track user.id) {
               <button
                 type="button"
-                class="w-full min-h-10 rounded-control px-2.5 py-1.5 text-left hover:bg-surface-muted"
+                class="w-full min-h-10 rounded-control px-2.5 py-1.5 text-start hover:bg-surface-muted"
                 [ngClass]="selectedUser()?.id === user.id ? 'bg-surface-muted' : ''"
                 (click)="selectUser(user)"
               >

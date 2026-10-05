@@ -54,15 +54,15 @@
             }
           </div>
         </td>
-        <td class="px-2 py-1.5 text-right">
+        <td class="px-2 py-1.5 text-end">
           <div class="font-mono text-[10px]">{{ t.active_users_count }}/{{ t.max_users }}</div>
-          <div class="mt-0.5 h-1 w-20 ml-auto bg-default">
+          <div class="mt-0.5 h-1 w-20 ms-auto bg-default">
             <div class="h-1 bg-blue-500" [style.width.%]="userQuotaPercent(t)"></div>
           </div>
         </td>
-        <td class="px-2 py-1.5 text-right">
+        <td class="px-2 py-1.5 text-end">
           <div class="font-mono text-[10px]">{{ t.used_storage_mb }}/{{ t.max_storage_mb }} MB</div>
-          <div class="mt-0.5 h-1 w-20 ml-auto bg-default">
+          <div class="mt-0.5 h-1 w-20 ms-auto bg-default">
             <div
               class="h-1"
               [class.bg-emerald-500]="storagePercent(t) < 80"

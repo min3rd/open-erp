@@ -24,11 +24,11 @@
     <table class="rounded-container w-full border border-default text-[11px]">
       <thead class="rounded-t-container bg-surface-muted">
         <tr>
-          <th class="border-b border-default px-2 py-1 text-left">{{ 'PLUGIN_FIELD_KEY' | translate }}</th>
-          <th class="border-b border-default px-2 py-1 text-left">{{ 'PLUGIN_OWNER_TENANT' | translate }}</th>
-          <th class="border-b border-default px-2 py-1 text-left">{{ 'PLUGIN_VERSION_LATEST' | translate }}</th>
-          <th class="border-b border-default px-2 py-1 text-left">{{ 'PLUGIN_COLUMN_STATUS' | translate }}</th>
-          <th class="border-b border-default px-2 py-1 text-right"></th>
+          <th class="border-b border-default px-2 py-1 text-start">{{ 'PLUGIN_FIELD_KEY' | translate }}</th>
+          <th class="border-b border-default px-2 py-1 text-start">{{ 'PLUGIN_OWNER_TENANT' | translate }}</th>
+          <th class="border-b border-default px-2 py-1 text-start">{{ 'PLUGIN_VERSION_LATEST' | translate }}</th>
+          <th class="border-b border-default px-2 py-1 text-start">{{ 'PLUGIN_COLUMN_STATUS' | translate }}</th>
+          <th class="border-b border-default px-2 py-1 text-end"></th>
         </tr>
       </thead>
       <tbody>
@@ -36,14 +36,14 @@
           <tr class="hover:bg-surface-muted">
             <td class="border-b border-default px-2 py-1">
               <span class="text-ink">{{ item.name_key | translate }}</span>
-              <span class="ml-1 font-mono text-[10px] text-muted">{{ item.plugin_key }}</span>
+              <span class="ms-1 font-mono text-[10px] text-muted">{{ item.plugin_key }}</span>
             </td>
             <td class="border-b border-default px-2 py-1 font-mono text-[10px]">{{ item.owner_tenant_id || '—' }}</td>
             <td class="border-b border-default px-2 py-1 font-mono text-[10px]">{{ item.latest_version || '—' }}</td>
             <td class="border-b border-default px-2 py-1">
               {{ 'PLUGIN_STATUS_' + item.catalog_status | translate }}
             </td>
-            <td class="border-b border-default px-2 py-1 text-right">
+            <td class="border-b border-default px-2 py-1 text-end">
               @if (isSuperAdmin() && item.catalog_status !== 'BLOCKED') {
                 <app-sharp-button size="sm" variant="danger" (clicked)="openBlock(item)">{{ 'PLUGIN_ACTION_BLOCK' | translate }}</app-sharp-button>
               }

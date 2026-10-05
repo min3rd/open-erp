@@ -42,7 +42,7 @@
         @if (rolesError()) {
           <div class="px-2 py-3 text-center text-[11px] text-muted" role="status" aria-live="polite">
             <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
-            <button type="button" class="ml-2 underline" (click)="loadRoles()">{{ 'COMMON_RETRY' | translate }}</button>
+            <button type="button" class="ms-2 underline" (click)="loadRoles()">{{ 'COMMON_RETRY' | translate }}</button>
           </div>
         } @else if (loadingRoles()) {
           <app-skeleton-table [rows]="6" [columns]="1" />
@@ -114,7 +114,7 @@
         @if (catalogError() || permissionsError()) {
           <div class="px-2 py-3 text-center text-[11px] text-muted" role="status" aria-live="polite">
             <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
-            <button type="button" class="ml-2 underline" (click)="retryPermissions()">{{ 'COMMON_RETRY' | translate }}</button>
+            <button type="button" class="ms-2 underline" (click)="retryPermissions()">{{ 'COMMON_RETRY' | translate }}</button>
           </div>
         } @else if (loadingCatalog() || loadingPermissions()) {
           <div [attr.aria-busy]="loadingCatalog() || loadingPermissions()">
@@ -126,7 +126,7 @@
               <div class="border-b border-default">
                 <button
                   type="button"
-                  class="w-full rounded-control px-2 py-1.5 flex items-center justify-between text-left hover:bg-surface-muted"
+                  class="w-full rounded-control px-2 py-1.5 flex items-center justify-between text-start hover:bg-surface-muted"
                   (click)="toggleDomain(group.domain)"
                 >
                   <span class="text-[10px] font-semibold uppercase tracking-wider text-ink">
@@ -183,7 +183,7 @@
         @if (resourcesError() || policiesError()) {
           <div class="px-2 py-3 text-center text-[11px] text-muted" role="status" aria-live="polite">
             <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
-            <button type="button" class="ml-2 underline" (click)="retryDataScopes()">{{ 'COMMON_RETRY' | translate }}</button>
+            <button type="button" class="ms-2 underline" (click)="retryDataScopes()">{{ 'COMMON_RETRY' | translate }}</button>
           </div>
         } @else if (loadingResources() || loadingPolicies()) {
           <div [attr.aria-busy]="loadingResources() || loadingPolicies()">
@@ -194,7 +194,7 @@
             <table class="w-full text-xs border-collapse">
               <thead>
                 <tr class="bg-surface-muted">
-                  <th class="px-2 py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-muted border-b border-default">
+                  <th class="px-2 py-1.5 text-start text-[10px] font-semibold uppercase tracking-wider text-muted border-b border-default">
                     {{ 'IAM_DATA_MATRIX_RESOURCE' | translate }}
                   </th>
                   @for (operation of operations; track operation) {

@@ -1,5 +1,5 @@
 <div class="min-h-screen bg-surface-muted flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-  <div class="absolute top-4 right-4">
+  <div class="absolute top-4 end-4">
     <app-language-switcher />
   </div>
 
@@ -29,7 +29,7 @@
             type="button"
             [disabled]="loading()"
             (click)="handleSelectTenant(tenant.tenant_id)"
-            class="w-full text-left rounded-control p-3 border border-default hover:border-accent hover:bg-surface-muted disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center justify-between"
+            class="w-full text-start rounded-control p-3 border border-default hover:border-accent hover:bg-surface-muted disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center justify-between"
           >
             <div>
               <div class="font-medium text-xs text-ink">

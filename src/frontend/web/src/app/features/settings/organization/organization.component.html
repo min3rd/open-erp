@@ -46,7 +46,7 @@
           <div class="inline-flex rounded-control overflow-hidden border border-default" role="group" [attr.aria-label]="'ORGANIZATION_VIEW_MODE' | translate">
             <button
               type="button"
-              class="px-2 py-0.5 text-[10px] font-medium border-r border-default"
+              class="px-2 py-0.5 text-[10px] font-medium border-e border-default"
               [ngClass]="viewMode() === 'list' ? 'bg-accent text-accent-contrast' : 'text-ink hover:bg-surface-muted'"
               (click)="setViewMode('list')"
             >
@@ -81,7 +81,7 @@
       @if (departmentsError()) {
         <div class="px-2 py-3 text-center text-[11px] text-muted">
           <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
-          <button type="button" class="ml-2 underline" (click)="loadDepartments()">{{ 'COMMON_RETRY' | translate }}</button>
+          <button type="button" class="ms-2 underline" (click)="loadDepartments()">{{ 'COMMON_RETRY' | translate }}</button>
         </div>
       } @else if (departmentsLoading()) {
         <app-skeleton-table [rows]="5" [columns]="2" />
@@ -107,7 +107,7 @@
                 } @else {
                   <span class="w-5 h-5 shrink-0 flex items-center justify-center text-muted">•</span>
                 }
-                <button type="button" class="min-w-0 flex-1 text-left" (click)="selectOrgNode(node)">
+                <button type="button" class="min-w-0 flex-1 text-start" (click)="selectOrgNode(node)">
                   <span class="block text-[11px] font-medium truncate">{{ node.name }}</span>
                   <span class="block text-[10px] font-mono text-muted truncate">
                     @if (node.kind === 'branch') {
@@ -234,7 +234,7 @@
       @if (branchesError()) {
         <div class="rounded-container border border-default border-t-0 px-2 py-3 text-center text-[11px] text-muted">
           <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
-          <button type="button" class="ml-2 underline" (click)="loadBranches()">{{ 'COMMON_RETRY' | translate }}</button>
+          <button type="button" class="ms-2 underline" (click)="loadBranches()">{{ 'COMMON_RETRY' | translate }}</button>
         </div>
       } @else {
         <app-table [columns]="branchColumns" [rows]="branches()" [loading]="branchesLoading()">

@@ -39,9 +39,9 @@
           <table class="rounded-container w-full border border-default text-[11px]">
             <thead class="rounded-t-container bg-surface-muted">
               <tr>
-                <th class="border-b border-default px-1 py-1 text-left">{{ 'PLUGIN_FIELD_VERSION' | translate }}</th>
-                <th class="border-b border-default px-1 py-1 text-left">{{ 'PLUGIN_COLUMN_STATUS' | translate }}</th>
-                <th class="border-b border-default px-1 py-1 text-right"></th>
+                <th class="border-b border-default px-1 py-1 text-start">{{ 'PLUGIN_FIELD_VERSION' | translate }}</th>
+                <th class="border-b border-default px-1 py-1 text-start">{{ 'PLUGIN_COLUMN_STATUS' | translate }}</th>
+                <th class="border-b border-default px-1 py-1 text-end"></th>
               </tr>
             </thead>
             <tbody>
@@ -51,7 +51,7 @@
                   <td class="border-b border-default px-1 py-1">
                     {{ 'PLUGIN_RELEASE_STATUS_' + version.release_status | translate }}
                   </td>
-                  <td class="border-b border-default px-1 py-1 text-right">
+                  <td class="border-b border-default px-1 py-1 text-end">
                     <span class="flex justify-end gap-1">
                       @if (version.release_status === 'DRAFT') {
                         <app-sharp-button size="sm" variant="primary" (clicked)="versionAction(version, 'PUBLISH')">

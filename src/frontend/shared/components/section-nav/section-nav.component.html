@@ -19,7 +19,7 @@
             <app-icon name="chevron-down" size="xs" [decorative]="true" />
           </summary>
           <div
-            class="absolute left-0 top-full z-40 mt-0.5 min-w-56 rounded-container border border-default bg-surface p-1 shadow-panel"
+            class="absolute start-0 top-full z-40 mt-0.5 min-w-56 rounded-container border border-default bg-surface p-1 shadow-panel"
           >
             @for (child of item.children; track child.path) {
               <a
@@ -67,7 +67,7 @@
         [attr.aria-expanded]="!collapsed()"
         class="ms-auto inline-flex min-h-7 min-w-7 shrink-0 cursor-pointer items-center justify-center rounded-control text-sidebar-text/70 transition-colors hover:bg-sidebar-active/60 hover:text-sidebar-text"
       >
-        <app-icon [name]="collapsed() ? chevronsRight : chevronsLeft" size="xs" [decorative]="true" />
+        <app-icon [name]="collapsed() ? chevronsRight : chevronsLeft" size="xs" [decorative]="true" [rtlMirror]="true" />
       </button>
     </div>
 

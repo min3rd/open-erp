@@ -53,6 +53,7 @@
   >
     <canvas
       #graphCanvas
+      dir="ltr"
       class="absolute inset-0 h-full w-full touch-none"
       (pointerdown)="onPointerDown($event)"
       (pointermove)="onPointerMove($event)"
@@ -69,7 +70,7 @@
     }
 
     <div
-      class="pointer-events-none absolute bottom-1 left-1 flex flex-wrap items-center gap-2 border border-default bg-surface/85 px-1.5 py-0.5 text-[9px] font-mono text-muted"
+      class="pointer-events-none absolute bottom-1 start-1 flex flex-wrap items-center gap-2 border border-default bg-surface/85 px-1.5 py-0.5 text-[9px] font-mono text-muted"
     >
       @if (cursorPosition(); as position) {
         <span>{{ 'ORGANIZATION_GRAPH_COORDINATES' | translate: { x: position.x, y: position.y } }}</span>

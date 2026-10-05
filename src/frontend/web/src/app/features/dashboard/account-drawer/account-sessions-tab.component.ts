@@ -8,6 +8,9 @@ import {
   SharpButtonComponent,
   BadgeComponent,
   ColorVariant,
+  ContextMenuItem,
+  ContextMenuTriggerDirective,
+  IconName,
   SizeVariant,
   UserSessionData,
   apiMessage,
@@ -22,7 +25,8 @@ import {
     TranslateDirective,
     TranslatePipe,
     SharpButtonComponent,
-    BadgeComponent
+    BadgeComponent,
+    ContextMenuTriggerDirective
   ],
   templateUrl: './account-sessions-tab.component.html'
 })
@@ -57,6 +61,22 @@ export class AccountSessionsTabComponent implements OnInit {
         this.sessionsError.set(apiMessage(this.i18n, err));
       }
     });
+  }
+
+  /** Right-click shortcut for a session card (Q20: every list screen). */
+  sessionContextMenu(session: UserSessionData): ContextMenuItem[] {
+    if (session.is_current) {
+      return [];
+    }
+    return [
+      {
+        id: 'revoke',
+        labelKey: 'ACCOUNT_REVOKE_BUTTON',
+        icon: IconName.LOG_OUT,
+        danger: true,
+        action: () => this.requestRevokeSession(session.session_id)
+      }
+    ];
   }
 
   requestRevokeSession(sessionId: string) {

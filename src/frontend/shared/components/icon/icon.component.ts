@@ -29,6 +29,16 @@ export class IconComponent {
   private sanitizer = inject(DomSanitizer);
 
   /**
+   * Directional icons mirror in RTL by default (the renderer is often generic,
+   * e.g. context-menu items); pass `false` to opt out or `true` to force it.
+   */
+  private static readonly RTL_MIRRORED_ICONS = new Set([
+    'chevron-left', 'chevron-right', 'chevrons-left', 'chevrons-right',
+    'arrow-left', 'arrow-right', 'arrow-up-left', 'arrow-up-right',
+    'arrow-down-left', 'arrow-down-right', 'external-link', 'log-out'
+  ]);
+
+  /**
    * Feather icon id (see `IconName` for the canonical set). Typed as `string`
    * on purpose: static template attributes (`name="x"`) are plain strings, and
    * the enum stays the source of truth for TS call sites.
@@ -37,11 +47,13 @@ export class IconComponent {
   size = input<SizeVariant | `${SizeVariant}`>(SizeVariant.SM);
   decorative = input<boolean>(false);
   labelKey = input<string>('');
-  rtlMirror = input<boolean>(false);
+  rtlMirror = input<boolean | null>(null);
 
   readonly pixels = computed(() => SIZE_PX[this.size()] ?? SIZE_PX[SizeVariant.SM]);
 
-  readonly mirrorClass = computed(() => (this.rtlMirror() ? 'rtl:scale-x-[-1]' : ''));
+  readonly mirrorClass = computed(() =>
+    (this.rtlMirror() ?? IconComponent.RTL_MIRRORED_ICONS.has(this.name())) ? 'rtl:scale-x-[-1]' : ''
+  );
 
   readonly markup = computed<SafeHtml>(() =>
     this.sanitizer.bypassSecurityTrustHtml(getIcon(this.name()).contents)

@@ -13,7 +13,7 @@
     <div class="grid grid-cols-2 gap-1.5">
       <button
         type="button"
-        class="px-2 py-1.5 text-[11px] border text-left transition-colors"
+        class="px-2 py-1.5 text-[11px] border text-start transition-colors"
         [class.border-accent]="mode() === breakGlassAction.FORCE_PASSWORD_RESET"
         [class.bg-surface-muted]="mode() === breakGlassAction.FORCE_PASSWORD_RESET"
         [class.border-default]="mode() !== breakGlassAction.FORCE_PASSWORD_RESET"
@@ -23,7 +23,7 @@
       </button>
       <button
         type="button"
-        class="px-2 py-1.5 text-[11px] border text-left transition-colors"
+        class="px-2 py-1.5 text-[11px] border text-start transition-colors"
         [class.border-accent]="mode() === breakGlassAction.DISABLE_2FA"
         [class.bg-surface-muted]="mode() === breakGlassAction.DISABLE_2FA"
         [class.border-default]="mode() !== breakGlassAction.DISABLE_2FA"

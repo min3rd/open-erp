@@ -24,7 +24,7 @@
   @if (open()) {
     <div
       role="menu"
-      class="op-pop absolute right-0 top-full z-50 mt-1 w-80 rounded-container border border-default bg-surface shadow-panel p-2 space-y-2"
+      class="op-pop absolute end-0 top-full z-50 mt-1 w-80 rounded-container border border-default bg-surface shadow-panel p-2 space-y-2"
     >
       <div class="border-b border-default pb-2">
         <p class="truncate text-xs font-semibold text-ink">{{ displayName() }}</p>
@@ -44,7 +44,7 @@
             role="menuitem"
             [routerLink]="settingsPath()"
             (click)="open.set(false)"
-            class="block w-full min-h-10 rounded-control px-2 py-1.5 text-left text-xs text-ink transition-colors hover:bg-surface-muted"
+            class="block w-full min-h-10 rounded-control px-2 py-1.5 text-start text-xs text-ink transition-colors hover:bg-surface-muted"
           >
             {{ 'SETTINGS_SECTION_TITLE' | translate }}
           </a>
@@ -54,7 +54,7 @@
             role="menuitem"
             [routerLink]="platformPath()"
             (click)="open.set(false)"
-            class="block w-full min-h-10 rounded-control px-2 py-1.5 text-left text-xs text-indigo-600 transition-colors hover:bg-surface-muted dark:text-indigo-400"
+            class="block w-full min-h-10 rounded-control px-2 py-1.5 text-start text-xs text-indigo-600 transition-colors hover:bg-surface-muted dark:text-indigo-400"
           >
             {{ 'PLATFORM_SECTION_TITLE' | translate }}
           </a>
@@ -64,7 +64,7 @@
             type="button"
             role="menuitem"
             (click)="onAccount()"
-            class="w-full min-h-10 rounded-control px-2 py-1.5 text-left text-xs text-ink transition-colors hover:bg-surface-muted cursor-pointer"
+            class="w-full min-h-10 rounded-control px-2 py-1.5 text-start text-xs text-ink transition-colors hover:bg-surface-muted cursor-pointer"
           >
             {{ 'COMMON_ACCOUNT_SETTINGS' | translate }}
           </button>
@@ -73,7 +73,7 @@
           type="button"
           role="menuitem"
           (click)="onLogout()"
-          class="w-full min-h-10 rounded-control px-2 py-1.5 text-left text-xs text-red-600 transition-colors hover:bg-surface-muted dark:text-red-400 cursor-pointer"
+          class="w-full min-h-10 rounded-control px-2 py-1.5 text-start text-xs text-red-600 transition-colors hover:bg-surface-muted dark:text-red-400 cursor-pointer"
         >
           {{ 'COMMON_LOGOUT' | translate }}
         </button>

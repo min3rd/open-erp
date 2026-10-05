@@ -30,6 +30,11 @@ export class ContextMenuTriggerDirective {
     if (!this.appContextMenuTrigger().length) {
       return;
     }
+    // AC-10: desktop only — a long-press on a touch device must not open the
+    // menu (mobile keeps its buttons/flows). Mouse and pen still open it.
+    if ((event as PointerEvent).pointerType === 'touch') {
+      return;
+    }
     event.preventDefault();
     this.open(event.clientX, event.clientY);
   }

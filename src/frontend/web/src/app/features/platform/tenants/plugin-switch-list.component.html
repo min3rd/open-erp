@@ -3,7 +3,7 @@
     <div class="relative flex-1 min-w-0">
       <input
         type="text"
-        class="w-full rounded-control border border-default bg-surface px-2 py-1 pr-6 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-muted"
+        class="w-full rounded-control border border-default bg-surface px-2 py-1 pe-6 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-muted"
         [value]="query()"
         [placeholder]="'PLATFORM_TENANT_QUOTA_PLUGIN_SEARCH_PLACEHOLDER' | translate"
         [attr.aria-label]="'PLATFORM_TENANT_QUOTA_PLUGIN_SEARCH_PLACEHOLDER' | translate"
@@ -12,7 +12,7 @@
       @if (searching()) {
         <button
           type="button"
-          class="absolute right-1 top-1/2 -translate-y-1/2 flex h-4 w-4 items-center justify-center text-[11px] leading-none text-muted hover:text-ink"
+          class="absolute end-1 top-1/2 -translate-y-1/2 flex h-4 w-4 items-center justify-center text-[11px] leading-none text-muted hover:text-ink"
           [attr.aria-label]="'PLATFORM_TENANT_QUOTA_PLUGIN_CLEAR_SEARCH' | translate"
           [title]="'PLATFORM_TENANT_QUOTA_PLUGIN_CLEAR_SEARCH' | translate"
           (click)="clearSearch()"

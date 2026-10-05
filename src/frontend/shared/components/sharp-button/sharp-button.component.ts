@@ -1,11 +1,12 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ColorVariant, SizeVariant, ShapeVariant, ButtonType } from '../../enums';
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'app-sharp-button',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IconComponent],
   templateUrl: './sharp-button.component.html'
 })
 export class SharpButtonComponent {

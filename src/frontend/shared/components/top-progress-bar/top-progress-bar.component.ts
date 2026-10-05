@@ -38,6 +38,11 @@ import { LoadingService } from '../../services/loading.service';
         width: 100%;
       }
     }
+
+    /* RTL: sweep from the inline-start (right) instead of left. */
+    :host-context([dir='rtl']) .top-progress-indeterminate {
+      animation-direction: reverse;
+    }
   `]
 })
 export class TopProgressBarComponent {

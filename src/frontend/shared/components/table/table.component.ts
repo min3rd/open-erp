@@ -25,7 +25,7 @@ export class TableComponent {
 
   headerClasses(column: TableColumn): string {
     const base = 'px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted whitespace-nowrap border-b border-default';
-    const align = column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left';
+    const align = column.align === 'right' ? 'text-end' : column.align === 'center' ? 'text-center' : 'text-start';
     const mono = column.mono ? ' font-mono' : '';
     return `${base} ${align}${mono}`;
   }

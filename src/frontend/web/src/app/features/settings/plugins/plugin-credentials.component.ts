@@ -5,9 +5,12 @@ import { Observable } from 'rxjs';
 import {
   ApiErrorResponse,
   ApiResponse,
+  ContextMenuItem,
+  ContextMenuTriggerDirective,
   CredentialFormComponent,
   DrawerComponent,
   I18nService,
+  IconName,
   PluginCredentialItem,
   PluginCredentialPayload,
   PluginCredentialScope,
@@ -26,7 +29,7 @@ import { PathListState, PathListStateService } from '../../../core/utils/path-li
 @Component({
   selector: 'app-plugin-credentials',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, DrawerComponent, CredentialFormComponent, SharpButtonComponent],
+  imports: [CommonModule, TranslatePipe, DrawerComponent, CredentialFormComponent, SharpButtonComponent, ContextMenuTriggerDirective],
   providers: [PathListStateService],
   templateUrl: './plugin-credentials.component.html',
 })
@@ -121,6 +124,34 @@ export class PluginCredentialsComponent implements OnInit {
     this.editing.set(item);
     this.saving.set(false);
     this.updateState({ mode: 'edit', id: item.id });
+  }
+
+  /** Right-click shortcut for a credential row (Q20: every list screen). */
+  credentialContextMenu(item: PluginCredentialItem): ContextMenuItem[] {
+    const items: ContextMenuItem[] = [];
+    if (this.supportsEdit()) {
+      items.push({
+        id: 'edit',
+        labelKey: 'PLUGIN_ACTION_EDIT',
+        icon: IconName.EDIT,
+        action: () => this.openEdit(item)
+      });
+    }
+    items.push({
+      id: 'test',
+      labelKey: 'PLUGIN_ACTION_TEST',
+      icon: IconName.REFRESH,
+      disabled: this.testing(),
+      action: () => this.test(item)
+    });
+    items.push({
+      id: 'delete',
+      labelKey: 'PLUGIN_ACTION_DELETE',
+      icon: IconName.TRASH,
+      danger: true,
+      action: () => this.updateState({ mode: 'delete', id: item.id })
+    });
+    return items;
   }
 
   submit(payload: PluginCredentialPayload): void {

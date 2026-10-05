@@ -143,7 +143,7 @@ export class ContextMenuComponent {
   }
 
   itemClasses(item: ContextMenuItem): string {
-    const base = 'flex w-full items-start gap-2 rounded-control px-2 py-1 text-left text-xs transition-colors';
+    const base = 'flex w-full items-start gap-2 rounded-control px-2 py-1 text-start text-xs transition-colors';
     if (item.disabled) {
       return `${base} cursor-not-allowed text-muted opacity-60`;
     }

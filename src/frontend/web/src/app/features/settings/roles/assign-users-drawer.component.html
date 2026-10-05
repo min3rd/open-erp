@@ -22,7 +22,7 @@
         @for (user of users(); track user.id) {
           <button
             type="button"
-            class="w-full text-left rounded-control px-2 py-1.5 text-[11px] hover:bg-surface-muted transition-colors"
+            class="w-full text-start rounded-control px-2 py-1.5 text-[11px] hover:bg-surface-muted transition-colors"
             [class.bg-surface-muted]="selectedUser()?.id === user.id"
             (click)="selectUser(user)"
           >

@@ -20,9 +20,8 @@
     [class.border-default]="!checked()"
   >
     <span
-      class="inline-block h-3 w-3 transform transition-transform rounded-inline"
-      [class.translate-x-3.5]="checked()"
-      [class.translate-x-0.5]="!checked()"
+      class="inline-block h-3 w-3 transition-[margin] rounded-inline"
+      [class]="checked() ? 'ms-3.5' : 'ms-0.5'"
       [class.bg-accent-contrast]="checked()"
       [class.bg-muted]="!checked()"
     ></span>

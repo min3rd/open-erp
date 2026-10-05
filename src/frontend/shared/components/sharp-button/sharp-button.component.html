@@ -5,10 +5,8 @@
   [class]="buttonClasses()"
 >
   @if (loading()) {
-    <svg class="animate-spin -ml-1 mr-2 h-3.5 w-3.5 text-current" fill="none" viewBox="0 0 24 24">
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-    </svg>
+    <!-- Shared icon set (AC-07/AC-08): no hand-written <svg> outside app-icon. -->
+    <app-icon name="loader" [decorative]="true" class="me-2 -ms-1 h-3.5 w-3.5 animate-spin" />
   }
   <ng-content></ng-content>
 </button>

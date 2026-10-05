@@ -18,6 +18,7 @@ export enum IconName {
   TRASH = 'trash-2',
   SEARCH = 'search',
   REFRESH = 'refresh-cw',
+  LOADER = 'loader',
   DOWNLOAD = 'download',
   UPLOAD = 'upload',
   SETTINGS = 'settings',

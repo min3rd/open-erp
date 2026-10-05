@@ -70,12 +70,13 @@ export class DrawerComponent {
   }
 
   panelClasses(): string {
-    const base = 'rounded-container bg-surface border-l border-default shadow-2xl flex flex-col transform transition-transform ease-in-out duration-300';
-    // Shift left only when another drawer is stacked ON TOP (so the lower drawer
-    // peeks out). A top-most drawer must stay flush to the right edge.
+    const base = 'rounded-container bg-surface border-s border-default shadow-2xl flex flex-col transform transition-transform ease-in-out duration-300';
+    // Shift towards the inline-start only when another drawer is stacked ON TOP
+    // (so the lower drawer peeks out). A top-most drawer stays flush to the
+    // inline-end edge. `rtl:` flips the physical translate for RTL.
     const hasDrawerAbove = this.stackTick() >= 0
       && DrawerComponent.openStack[DrawerComponent.openStack.length - 1] !== this;
-    const shift = this.shiftLeft() && hasDrawerAbove ? '-translate-x-[30px]' : 'translate-x-0';
+    const shift = this.shiftLeft() && hasDrawerAbove ? '-translate-x-[30px] rtl:translate-x-[30px]' : 'translate-x-0';
     return `${base} ${this.width()} ${shift}`.trim();
   }
 

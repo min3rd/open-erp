@@ -11,12 +11,12 @@
   </div>
 
   @if (errorText()) {
-    <button type="button" class="rounded-container border border-rose-300 bg-rose-50 p-2 text-left text-[11px] text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300" (click)="dismissMessages()">
+    <button type="button" class="rounded-container border border-rose-300 bg-rose-50 p-2 text-start text-[11px] text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300" (click)="dismissMessages()">
       {{ errorText() }}
     </button>
   }
   @if (successText()) {
-    <button type="button" class="rounded-container border border-emerald-300 bg-emerald-50 p-2 text-left text-[11px] text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300" (click)="dismissMessages()">
+    <button type="button" class="rounded-container border border-emerald-300 bg-emerald-50 p-2 text-start text-[11px] text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300" (click)="dismissMessages()">
       {{ successText() }}
     </button>
   }
@@ -59,7 +59,7 @@
             <li>
               <button
                 type="button"
-                class="flex w-full flex-col gap-0.5 rounded-control p-2 text-left hover:bg-surface-muted"
+                class="flex w-full flex-col gap-0.5 rounded-control p-2 text-start hover:bg-surface-muted"
                 [class]="selectedKey() === item.plugin_key ? 'bg-surface-muted' : ''"
                 (click)="select(item)"
               >
@@ -163,10 +163,10 @@
               <table class="rounded-container w-full border border-default text-[11px]">
                 <thead class="rounded-t-container bg-surface-muted">
                   <tr>
-                    <th class="border-b border-default px-1 py-1 text-left">{{ 'PLUGIN_TENANT' | translate }}</th>
-                    <th class="border-b border-default px-1 py-1 text-left">{{ 'PLUGIN_COLUMN_STATUS' | translate }}</th>
-                    <th class="border-b border-default px-1 py-1 text-left">{{ 'PLUGIN_VERSION_LATEST' | translate }}</th>
-                    <th class="border-b border-default px-1 py-1 text-right"></th>
+                    <th class="border-b border-default px-1 py-1 text-start">{{ 'PLUGIN_TENANT' | translate }}</th>
+                    <th class="border-b border-default px-1 py-1 text-start">{{ 'PLUGIN_COLUMN_STATUS' | translate }}</th>
+                    <th class="border-b border-default px-1 py-1 text-start">{{ 'PLUGIN_VERSION_LATEST' | translate }}</th>
+                    <th class="border-b border-default px-1 py-1 text-end"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -177,7 +177,7 @@
                       </td>
                       <td class="border-b border-default px-1 py-1 font-mono text-[10px]">{{ installation.status }}</td>
                       <td class="border-b border-default px-1 py-1 font-mono text-[10px]">{{ installation.installed_version || '—' }}</td>
-                      <td class="border-b border-default px-1 py-1 text-right">
+                      <td class="border-b border-default px-1 py-1 text-end">
                         <span class="flex justify-end gap-1">
                           @if (installation.status === 'NOT_INSTALLED') {
                             <app-sharp-button size="sm" variant="ghost" (clicked)="grantEntitlement(installation)">{{ 'PLUGIN_ACTION_GRANT' | translate }}</app-sharp-button>
