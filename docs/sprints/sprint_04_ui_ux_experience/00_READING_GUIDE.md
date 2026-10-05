@@ -60,8 +60,8 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 
 | Gate | Trạng thái | Người quyết định | Nguồn/phiên bản/ngày |
 | :--- | :--- | :--- | :--- |
-| Scope approval (CONF-S04-001) | **Pending** (nội dung đã được khách trả lời đủ 20 câu ngày 2026-10-05; **chờ ký xác nhận**) | Khách hàng | Trả lời 2026-10-05, chưa có chữ ký |
-| Design ready (SOL/DES) | Pending | Architect/Reviewer | Chưa có |
+| Scope approval (CONF-S04-001) | **Approved** | Khách hàng (chủ dự án) | Chỉ đạo trực tiếp 2026-10-05 (đã trả lời đủ 20 câu; không ký tay) |
+| Design ready (SOL/DES) | Draft — chờ review kỹ thuật | Architect/Reviewer | SOL/DES 0.1 |
 | QA sign-off | Pending | QA | Chưa có |
 | PM đánh giá DoD | Pending | PM | Chưa có |
 | Customer acceptance | Pending | Khách hàng | Chưa có |
@@ -81,7 +81,12 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 | DES-UI-S04-001…002 | [06_designs/ui_ux/](06_designs/ui_ux/) | Architect | Used |
 | DES-API-S04-001 | [06_designs/api/](06_designs/api/) | Architect | Used |
 | FEAT-24…29 | [07_items/](07_items/) | Developer | Used |
-| TASK-355… | Chưa tạo | Developer | **Reserved** (cấp khi tách task ở bước 07) |
+| TASK-355 | [Theme token layer](07_items/TASK-355_theme_token_layer.md) | Developer | Used (To Do) |
+| TASK-356 | [Theme registry + switcher](07_items/TASK-356_theme_registry_and_tenant_apply.md) | Developer | Used (To Do) |
+| TASK-357 | [Tenant UI theme backend](07_items/TASK-357_tenant_ui_theme_backend.md) | Developer | Used (In Review) |
+| TASK-361 | [Icon component + Feather adapter](07_items/TASK-361_icon_component_and_feather_adapter.md) | Developer | Used (In Progress) |
+| TASK-362 | [Replace hand-rolled SVGs](07_items/TASK-362_replace_handrolled_svgs_with_icon.md) | Developer | Used (In Progress) |
+| TASK-358…360, 363…371 | Chưa tạo | Developer | **Reserved** (motion/context menu/loading/i18n — tạo file khi bắt đầu) |
 | ADR-S04-* | Chưa tạo | Architect | Chưa dùng |
 | TP-S04-001 / TR-S04-001 | Chưa tạo | QA | Chưa dùng |
 | REV-S04-001 | Chưa tạo | PM | Chưa dùng |

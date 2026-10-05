@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | CONF-S04-001 / Scope & AC / Sprint 04 |
-| Trạng thái / phiên bản / cập nhật | **Draft — PENDING khách hàng xác nhận** / 0.1 / 2026-10-05 |
+| Trạng thái / phiên bản / cập nhật | **Approved — chủ dự án xác nhận 2026-10-05** / 1.0 / 2026-10-05 |
 | Owner / reviewer | BA Agent / **Khách hàng (Product Owner)** |
 | Đầu vào | [RAW-S04-001](../01_raw_notes/01_RAW-S04-001_ui_theming_motion_icons_ux.md), [ANL-S04-001…006](../02_analysis/), [BENCH-S04-001](../03_benchmarks/), [sprint_plan](../sprint_plan.md) |
 | Đọc trước / đọc tiếp | [sprint_plan](../sprint_plan.md) / [SOL-S04-001](../05_solutions/01_SOL-S04-001_ui_platform_architecture.md) |
@@ -115,9 +115,9 @@
 
 ## 6. Chữ Ký Xác Nhận (Customer Scope Approval)
 
-> **Trạng thái: PENDING.** Không tự ký. Người có quyền xác nhận scope/AC ghi nguồn + phiên bản + ngày.
+> **Trạng thái: APPROVED (2026-10-05).** Chủ dự án xác nhận scope/AC bằng chỉ đạo trực tiếp trong phiên làm việc ("ok ký duyệt và bắt đầu làm") sau khi đã trả lời đầy đủ 20 câu hỏi ở mục 5. **Không tạo chữ ký tay giả**; dòng dưới ghi loại xác nhận thực tế.
 
-- **Đại diện Khách hàng (Product Owner)**: ........................................ (Ngày: ..../..../2026)
-- **BA Agent (người lập)**: ........................................ (Ngày: ..../..../2026)
+- **Đại diện Khách hàng (Product Owner)**: **ĐÃ DUYỆT** qua chỉ đạo trực tiếp 2026-10-05 (xác nhận qua hội thoại, chưa ký tay vào file).
+- **BA Agent (người lập)**: BA Agent — lập và ghi nhận 2026-10-05.
 
-> Sau khi ký: cập nhật trạng thái tài liệu sang `Approved`, ghi nguồn/ngày, rồi mới chuyển bước 05–06 (SOL/DES).
+> Gate **đóng** ⇒ cho phép chuyển bước 07 (tạo file TASK + triển khai). Nếu sau này cần bản ký tay/độc lập, in tài liệu và ký, ghi ngày thực tế.
