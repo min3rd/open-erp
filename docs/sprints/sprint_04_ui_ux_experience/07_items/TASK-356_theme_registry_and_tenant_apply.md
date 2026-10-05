@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-356 / Task / Sprint 04 |
-| Severity / trạng thái | High / To Do |
+| Severity / trạng thái | High / **In Review** (code + build PASS, chờ QA browser) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / CONF-S04-001 Approved |
 | depends_on / blocks / parent | TASK-355, TASK-357 / — / [FEAT-24](../07_items/FEAT-24_theme_system_and_design_tokens.md) |
@@ -31,9 +31,12 @@
 
 | Kiểm tra / baseline / môi trường | Kết quả | Evidence |
 | :--- | :--- | :--- |
-| `npm run build` (web/mobile) | Not Run | — |
-| QA browser đổi theme + F5 | Not Run | — |
+| `npm run build` (web/mobile) | PASS | bundle generation complete |
+| QA browser đổi theme + F5 | Not Run | chờ đợt QA |
+| i18n parity | PASS | web 890/890, mobile 480/480 |
 
 ## 4. Bàn giao và lịch sử
 
-Chưa triển khai. Phụ thuộc TASK-355 (token) + TASK-357 (API). Bước tiếp: QA dual-mode.
+Đã làm: `ThemeId` + `THEME_REGISTRY`; `ThemeService` (theme id + mode, cache `openerp_theme_id`, áp `data-theme`/`data-mode`/`.dark`/`ion-palette-dark`); `TENANT_THEME_API` token + service web/mobile; switcher có `<select>` theme (gate `core:tenant:settings-manage`) + mode; `loadTenantTheme()` chạy khi chuyển sang trạng thái đã đăng nhập; script chống FOUC trong `index.html` cả 2 app; 5 key `THEME_*` × 4 từ điển.
+
+Phụ thuộc TASK-355 (token) + TASK-357 (API) — đã xong. Bước tiếp: QA dual-mode + TASK-358.

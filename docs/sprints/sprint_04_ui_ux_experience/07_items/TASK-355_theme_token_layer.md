@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-355 / Task / Sprint 04 |
-| Severity / trạng thái | High / To Do |
+| Severity / trạng thái | High / **In Review** (code + build PASS + đo AA, chờ QA browser) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / CONF-S04-001 Approved |
 | depends_on / blocks / parent | — / TASK-356 / [FEAT-24](../07_items/FEAT-24_theme_system_and_design_tokens.md) |
@@ -27,8 +27,10 @@
 
 | Kiểm tra / baseline / môi trường | Kết quả | Evidence |
 | :--- | :--- | :--- |
-| `npm run build` (web/mobile) | Not Run | — |
+| `npm run build` (web/mobile) | PASS | bundle generation complete |
+| WCAG AA text/surface, text-muted/surface, accent-contrast/accent × 4 theme × 2 mode | **PASS** (thấp nhất 4.74) | script đo một lần của dev |
 
 ## 4. Bàn giao và lịch sử
 
-Chưa triển khai. Bước tiếp: TASK-356.
+Đã làm: token 3 tầng (`--op-*`) cho 4 theme × light/dark trong `web/src/styles.css` + `mobile/src/styles.css`, map `@theme inline` ⇒ utility `bg-surface`/`text-muted`/`border-default`/`bg-accent`/`rounded-control`…; shell (topbar, section-nav, mobile-nav-drawer, table, sharp-button primary, badge, dashboard/settings layout) đã dùng token. Industrial khớp giao diện cũ.
+Còn lại (TASK-358): auth pages, settings feature pages, platform portal, account drawer, pagination, inputs/selects/toggles/drawer vẫn dùng palette thô.
