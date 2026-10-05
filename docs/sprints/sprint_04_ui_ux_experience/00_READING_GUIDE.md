@@ -108,6 +108,9 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 | BUG-125 | [Rounded shape distorts UI](07_items/BUG-125_rounded_shape_distorts_ui.md) | Developer | Used (In Review) |
 | BUG-126 | [Vertical menu readability](07_items/BUG-126_vertical_menu_readability.md) | Developer | Used (In Review) |
 | BUG-127 | [Icon rail flyout + tooltip](07_items/BUG-127_icon_rail_flyout_and_tooltip.md) | Developer | Used (In Review) |
+| BUG-128 | [Language select shows wrong value](07_items/BUG-128_language_select_shows_wrong_value.md) | Developer | Used (In Review) |
+| BUG-129 | [Appearance panel alignment](07_items/BUG-129_appearance_panel_alignment.md) | Developer | Used (In Review) |
+| BUG-130 | [Motion not perceptible](07_items/BUG-130_motion_not_perceptible.md) | Developer | Used (In Review) |
 | ADR-S04-* | Chưa tạo | Architect | Chưa dùng |
 | TP-S04-001 | [Test plan](08_testing/01_TP-S04-001_sprint_04_test_plan.md) | QA | Used (Draft) |
 | TR-S04-001 | Chưa tạo | QA | Chưa dùng |
