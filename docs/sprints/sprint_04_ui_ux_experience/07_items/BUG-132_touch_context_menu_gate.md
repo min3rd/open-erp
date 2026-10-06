@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-132 / Bug / Sprint 04 |
-| Severity / trạng thái | High / **Resolved** (2026-10-05) — chờ QA xác nhận |
+| Severity / trạng thái | High / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / QA người |
 | Nguồn | QA tự động TC-11 (dispatch `contextmenu` với `pointerType='touch'`) |
 | depends_on / blocks / parent | TASK-363, TASK-364 / — / [FEAT-27](FEAT-27_list_context_menu.md) |

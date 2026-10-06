@@ -2,9 +2,9 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S04-001 / 0.1 / 2026-10-05 |
-| Trạng thái tài liệu / sprint | Draft / Discovery (bước 1–6 đang soạn) |
-| Owner / reviewer | PM Agent / Chưa review |
+| ID / phiên bản / cập nhật | READ-S04-001 / 1.0 / 2026-10-06 |
+| Trạng thái tài liệu / sprint | **Reviewed / `[x]` ĐÓNG (2026-10-06)** — DoD GATE PASS, baseline `772a211` |
+| Owner / reviewer | PM Agent / Chủ dự án (chỉ đạo đóng 2026-10-06) |
 | Đầu vào | [RAW-S04-001](01_raw_notes/01_RAW-S04-001_ui_theming_motion_icons_ux.md) — yêu cầu trực tiếp của chủ dự án |
 | Đọc trước / đọc tiếp | [Developer Reading Guide](../../08_developer_guides/00_READING_GUIDE.md), [Sprint 03](../sprint_03_plugin_manager/00_READING_GUIDE.md) / [RAW-S04-001](01_raw_notes/01_RAW-S04-001_ui_theming_motion_icons_ux.md) |
 
@@ -60,12 +60,12 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 
 | Gate | Trạng thái | Người quyết định | Nguồn/phiên bản/ngày |
 | :--- | :--- | :--- | :--- |
-| Scope approval (CONF-S04-001) | **Approved** | Khách hàng (chủ dự án) | Chỉ đạo trực tiếp 2026-10-05 (đã trả lời đủ 20 câu; không ký tay) |
-| Design ready (SOL/DES) | Draft — chờ review kỹ thuật | Architect/Reviewer | SOL/DES 0.1 |
-| QA sign-off | **Pending** | QA | TR-S04-001 v0.3: **18/18 TC PASS** (đo tự động), chờ QA người ký |
-| PM đánh giá DoD | Pending | PM | REV-S04-001 Draft (bảng DoD + §3.1 đề nghị duyệt) |
-| Customer acceptance | Pending | Khách hàng | Chưa có |
-| Closure | Pending | PM sau nghiệm thu | Chưa có |
+| Scope approval (CONF-S04-001) | **Approved** | Khách hàng (chủ dự án) | Chỉ đạo trực tiếp 2026-10-05 (đã trả lời đủ 20 câu; không ký tay) + §5.1 |
+| Design ready (SOL/DES) | Draft — chờ review kỹ thuật | Architect/Reviewer | SOL/DES 0.1 (follow-up, không chặn) |
+| QA sign-off | **Approved** | Chủ dự án (thay QA) | TR-S04-001 v0.3: **18/18 TC PASS** + backend 7/7 (agent-run) — chấp nhận theo chỉ đạo 2026-10-06 |
+| PM đánh giá DoD | **Approved** | PM Agent | [REV-S04-001](09_review/01_REV-S04-001_sprint_04_review.md) §1 — 11/11 Đạt |
+| Customer acceptance | **Approved** | Khách hàng (chủ dự án) | Chỉ đạo trực tiếp 2026-10-06 ("à đóng sprint 4") |
+| Closure | **Closed** | PM sau nghiệm thu | REV-S04-001 §5, baseline `772a211` |
 
 ## 4. Danh mục ID và cấp số
 
@@ -81,40 +81,40 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 | DES-UI-S04-001…002 | [06_designs/ui_ux/](06_designs/ui_ux/) | Architect | Used |
 | DES-API-S04-001 | [06_designs/api/](06_designs/api/) | Architect | Used |
 | FEAT-24…29 | [07_items/](07_items/) | Developer | Used |
-| TASK-355 | [Theme token layer](07_items/TASK-355_theme_token_layer.md) | Developer | Used (In Review) |
-| TASK-356 | [Theme registry + switcher](07_items/TASK-356_theme_registry_and_tenant_apply.md) | Developer | Used (In Review) |
-| TASK-357 | [Tenant UI theme backend](07_items/TASK-357_tenant_ui_theme_backend.md) | Developer | Used (In Review) |
-| TASK-358 | [Palette → token migration](07_items/TASK-358_migrate_neutral_palette_to_tokens.md) | Developer | Used (In Review) |
-| TASK-359 | [Motion tokens + popup/list](07_items/TASK-359_motion_tokens_popup_and_list.md) | Developer | Used (In Review) |
-| TASK-360 | [Motion route/feedback/reduced](07_items/TASK-360_motion_route_feedback_reduced_motion.md) | Developer | Used (In Review) |
-| TASK-361 | [Icon component + Feather adapter](07_items/TASK-361_icon_component_and_feather_adapter.md) | Developer | Used (In Review) |
-| TASK-362 | [Replace hand-rolled SVGs](07_items/TASK-362_replace_handrolled_svgs_with_icon.md) | Developer | Used (In Review) |
-| TASK-363 | [Shared context menu](07_items/TASK-363_shared_context_menu.md) | Developer | Used (In Review) |
-| TASK-364 | [Context menu per screen](07_items/TASK-364_context_menu_screen_integration.md) | Developer | Used (In Review) |
-| TASK-365 | [Loading service + top bar](07_items/TASK-365_loading_service_and_top_progress_bar.md) | Developer | Used (In Review) |
-| TASK-366 | [Shared skeleton components](07_items/TASK-366_shared_skeleton_components.md) | Developer | Used (In Review) |
-| TASK-367 | [Per-region loading + retry](07_items/TASK-367_per_region_loading_and_retry.md) | Developer | Used (In Review) |
-| TASK-368 | [i18n infrastructure](07_items/TASK-368_i18n_infrastructure.md) | Developer | Used (In Review) |
-| TASK-370 | [Locale dictionaries](07_items/TASK-370_locale_dictionaries.md) | Developer | Used (In Review) |
-| TASK-372 | [Apply shape/surface tokens](07_items/TASK-372_apply_shape_and_surface_tokens.md) | Developer | Used (In Review) |
-| TASK-373 | [Split appearance into 4 axes](07_items/TASK-373_split_appearance_axes.md) | Developer | Used (In Review) |
-| TASK-369 | [Per-user UI preferences API](07_items/TASK-369_user_ui_preferences_api.md) | Developer | Used (In Review) |
-| TASK-374 | [Menu icons + layout modes](07_items/TASK-374_menu_icons_and_layout_modes.md) | Developer | Used (In Review) |
-| TASK-371 | [RTL full support](07_items/TASK-371_rtl_full_support.md) | Developer | Used (In Review) |
-| BUG-121 | [Org tree empty during backend outage](07_items/BUG-121_org_tree_empty_during_backend_outage.md) | Developer | Used (Resolved) |
-| BUG-122 | [Org chart missing root + branches](07_items/BUG-122_org_chart_missing_tenant_root_and_branches.md) | Developer | Used (In Review) |
-| BUG-123 | [Rail menu missing levels](07_items/BUG-123_rail_menu_missing_levels.md) | Developer | Used (In Review) |
-| BUG-124 | [Top dropdown stays open](07_items/BUG-124_top_menu_dropdown_stays_open.md) | Developer | Used (In Review) |
-| BUG-125 | [Rounded shape distorts UI](07_items/BUG-125_rounded_shape_distorts_ui.md) | Developer | Used (In Review) |
-| BUG-126 | [Vertical menu readability](07_items/BUG-126_vertical_menu_readability.md) | Developer | Used (In Review) |
-| BUG-127 | [Icon rail flyout + tooltip](07_items/BUG-127_icon_rail_flyout_and_tooltip.md) | Developer | Used (In Review) |
-| BUG-128 | [Language select shows wrong value](07_items/BUG-128_language_select_shows_wrong_value.md) | Developer | Used (In Review) |
-| BUG-129 | [Appearance panel alignment](07_items/BUG-129_appearance_panel_alignment.md) | Developer | Used (In Review) |
-| BUG-130 | [Motion not perceptible](07_items/BUG-130_motion_not_perceptible.md) | Developer | Used (In Review) |
-| BUG-131 | [Hand-written spinner SVG](07_items/BUG-131_handwritten_spinner_svg.md) | Developer | Used (Resolved) |
-| BUG-132 | [Touch context-menu gate](07_items/BUG-132_touch_context_menu_gate.md) | Developer | Used (Resolved) |
-| BUG-133 | [Permission keys missing](07_items/BUG-133_permission_keys_missing.md) | Developer | Used (Resolved) |
-| BUG-134 | [Context menu missing screens](07_items/BUG-134_context_menu_missing_screens.md) | Developer | Used (Resolved) |
+| TASK-355 | [Theme token layer](07_items/TASK-355_theme_token_layer.md) | Developer | Used (Done) |
+| TASK-356 | [Theme registry + switcher](07_items/TASK-356_theme_registry_and_tenant_apply.md) | Developer | Used (Done) |
+| TASK-357 | [Tenant UI theme backend](07_items/TASK-357_tenant_ui_theme_backend.md) | Developer | Used (Done) |
+| TASK-358 | [Palette → token migration](07_items/TASK-358_migrate_neutral_palette_to_tokens.md) | Developer | Used (Done) |
+| TASK-359 | [Motion tokens + popup/list](07_items/TASK-359_motion_tokens_popup_and_list.md) | Developer | Used (Done) |
+| TASK-360 | [Motion route/feedback/reduced](07_items/TASK-360_motion_route_feedback_reduced_motion.md) | Developer | Used (Done) |
+| TASK-361 | [Icon component + Feather adapter](07_items/TASK-361_icon_component_and_feather_adapter.md) | Developer | Used (Done) |
+| TASK-362 | [Replace hand-rolled SVGs](07_items/TASK-362_replace_handrolled_svgs_with_icon.md) | Developer | Used (Done) |
+| TASK-363 | [Shared context menu](07_items/TASK-363_shared_context_menu.md) | Developer | Used (Done) |
+| TASK-364 | [Context menu per screen](07_items/TASK-364_context_menu_screen_integration.md) | Developer | Used (Done) |
+| TASK-365 | [Loading service + top bar](07_items/TASK-365_loading_service_and_top_progress_bar.md) | Developer | Used (Done) |
+| TASK-366 | [Shared skeleton components](07_items/TASK-366_shared_skeleton_components.md) | Developer | Used (Done) |
+| TASK-367 | [Per-region loading + retry](07_items/TASK-367_per_region_loading_and_retry.md) | Developer | Used (Done) |
+| TASK-368 | [i18n infrastructure](07_items/TASK-368_i18n_infrastructure.md) | Developer | Used (Done) |
+| TASK-370 | [Locale dictionaries](07_items/TASK-370_locale_dictionaries.md) | Developer | Used (Done) |
+| TASK-372 | [Apply shape/surface tokens](07_items/TASK-372_apply_shape_and_surface_tokens.md) | Developer | Used (Done) |
+| TASK-373 | [Split appearance into 4 axes](07_items/TASK-373_split_appearance_axes.md) | Developer | Used (Done) |
+| TASK-369 | [Per-user UI preferences API](07_items/TASK-369_user_ui_preferences_api.md) | Developer | Used (Done) |
+| TASK-374 | [Menu icons + layout modes](07_items/TASK-374_menu_icons_and_layout_modes.md) | Developer | Used (Done) |
+| TASK-371 | [RTL full support](07_items/TASK-371_rtl_full_support.md) | Developer | Used (Done) |
+| BUG-121 | [Org tree empty during backend outage](07_items/BUG-121_org_tree_empty_during_backend_outage.md) | Developer | Used (Done) |
+| BUG-122 | [Org chart missing root + branches](07_items/BUG-122_org_chart_missing_tenant_root_and_branches.md) | Developer | Used (Done) |
+| BUG-123 | [Rail menu missing levels](07_items/BUG-123_rail_menu_missing_levels.md) | Developer | Used (Done) |
+| BUG-124 | [Top dropdown stays open](07_items/BUG-124_top_menu_dropdown_stays_open.md) | Developer | Used (Done) |
+| BUG-125 | [Rounded shape distorts UI](07_items/BUG-125_rounded_shape_distorts_ui.md) | Developer | Used (Done) |
+| BUG-126 | [Vertical menu readability](07_items/BUG-126_vertical_menu_readability.md) | Developer | Used (Done) |
+| BUG-127 | [Icon rail flyout + tooltip](07_items/BUG-127_icon_rail_flyout_and_tooltip.md) | Developer | Used (Done) |
+| BUG-128 | [Language select shows wrong value](07_items/BUG-128_language_select_shows_wrong_value.md) | Developer | Used (Done) |
+| BUG-129 | [Appearance panel alignment](07_items/BUG-129_appearance_panel_alignment.md) | Developer | Used (Done) |
+| BUG-130 | [Motion not perceptible](07_items/BUG-130_motion_not_perceptible.md) | Developer | Used (Done) |
+| BUG-131 | [Hand-written spinner SVG](07_items/BUG-131_handwritten_spinner_svg.md) | Developer | Used (Done) |
+| BUG-132 | [Touch context-menu gate](07_items/BUG-132_touch_context_menu_gate.md) | Developer | Used (Done) |
+| BUG-133 | [Permission keys missing](07_items/BUG-133_permission_keys_missing.md) | Developer | Used (Done) |
+| BUG-134 | [Context menu missing screens](07_items/BUG-134_context_menu_missing_screens.md) | Developer | Used (Done) |
 | ADR-S04-* | Chưa tạo | Architect | Chưa dùng |
 | TP-S04-001 | [Test plan](08_testing/01_TP-S04-001_sprint_04_test_plan.md) | QA | Used (Draft) |
 | TR-S04-001 | [Test report](08_testing/02_TR-S04-001_sprint_04_test_report.md) | QA | Used (Draft v0.3 — 18/18 PASS, chờ ký) |

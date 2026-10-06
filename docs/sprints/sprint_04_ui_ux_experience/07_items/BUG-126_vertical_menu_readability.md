@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-126 / Bug / Sprint 04 |
-| Severity / trạng thái | High / **In Review** (đã làm lại, đo trình duyệt PASS) |
+| Severity / trạng thái | High / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / phản hồi chủ dự án: "các cách hiển thị menu dọc chưa đạt, rất khó nhìn và theo dõi… chỉ phân biệt layout menu dọc, ngang, còn hình thái hiển thị của menu thì nên để các icon action ở menu cho dễ thao tác. tham khảo fuse của angular" |
 | depends_on / blocks / parent | TASK-374, BUG-123 / — / [FEAT-24](FEAT-24_theme_system_and_design_tokens.md) |

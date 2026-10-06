@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-134 / Bug / Sprint 04 |
-| Severity / trạng thái | High (phần đã làm) + Medium (phần còn lại) / **Resolved** (2026-10-05) — chờ QA xác nhận |
+| Severity / trạng thái | High (phần đã làm) + Medium (phần còn lại) / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / QA người |
 | Nguồn | QA tự động TC-09 (grep `appContextMenuTrigger`/`contextMenuItems`) + đối chiếu DES-UI-S04-002 §Q20 |
 | depends_on / blocks / parent | TASK-364 / — / [FEAT-27](FEAT-27_list_context_menu.md) |

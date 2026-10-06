@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-371 / Task / Sprint 04 |
-| Severity / trạng thái | High / **In Review** (đã chuyển sang logical + đo trình duyệt PASS) |
+| Severity / trạng thái | High / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / QA người |
 | Cập nhật / input version | 2026-10-05 / CONF-S04-001 AC-16 ("RTL đầy đủ ngay") |
 | depends_on / blocks / parent | TASK-368, TASK-370 / — / [FEAT-29](FEAT-29_multilanguage_i18n_expansion.md) |

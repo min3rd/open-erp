@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-374 / Task / Sprint 04 |
-| Severity / trạng thái | High / **In Review** (đo trình duyệt 6 bố cục, build PASS) |
+| Severity / trạng thái | High / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân phối |
 | Cập nhật / input version | 2026-10-05 / chỉ đạo chủ dự án: "menu cần có icon, các menu còn có chế độ narrow với menu trái, phải, compact, top với nhiều level nữa" |
 | depends_on / blocks / parent | TASK-372, TASK-373 / — / [FEAT-24](FEAT-24_theme_system_and_design_tokens.md) |

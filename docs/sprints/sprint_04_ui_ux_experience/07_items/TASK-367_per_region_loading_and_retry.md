@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-367 / Task / Sprint 04 |
-| Severity / trạng thái | High / **In Review** (4 màn chính đã tách vùng; dashboard không có gì để tách) |
+| Severity / trạng thái | High / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / CONF-S04-001 Approved |
 | depends_on / blocks / parent | TASK-365, TASK-366 / — / [FEAT-28](../07_items/FEAT-28_loading_bar_and_skeletons.md) |

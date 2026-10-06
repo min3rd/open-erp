@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-127 / Bug / Sprint 04 |
-| Severity / trạng thái | High / **In Review** (đo trình duyệt PASS) |
+| Severity / trạng thái | High / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / phản hồi chủ dự án: "menu dọc ở dạng narrow thì nên hiển thị icon level 1, các level tiếp theo thì cần hover hoặc click để thành popover… dạng icon phải có tooltip chứ" |
 | depends_on / blocks / parent | BUG-126 / — / [FEAT-24](FEAT-24_theme_system_and_design_tokens.md) |

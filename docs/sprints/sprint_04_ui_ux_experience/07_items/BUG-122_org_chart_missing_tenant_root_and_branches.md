@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-122 / Bug (thiếu sót thiết kế/hiển thị) / Sprint 04 |
-| Severity / trạng thái | High / **In Review** (đã sửa, chờ QA browser) |
+| Severity / trạng thái | High / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / báo cáo trực tiếp của chủ dự án |
 | depends_on / blocks | Không / Không |

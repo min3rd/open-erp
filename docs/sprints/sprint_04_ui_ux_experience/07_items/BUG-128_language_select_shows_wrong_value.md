@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-128 / Bug / Sprint 04 |
-| Severity / trạng thái | High / **In Review** (đã sửa, đo trình duyệt PASS) |
+| Severity / trạng thái | High / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / phản hồi chủ dự án: "cả chỗ chọn ngôn ngữ, đang không hiển thị đúng ngôn ngữ đang chọn" |
 | depends_on / blocks / parent | TASK-368, FEAT-29 / — / [FEAT-29](FEAT-29_multilanguage_i18n_expansion.md) |

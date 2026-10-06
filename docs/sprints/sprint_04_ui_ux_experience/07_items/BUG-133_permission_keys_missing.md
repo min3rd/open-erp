@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-133 / Bug / Sprint 04 |
-| Severity / trạng thái | High / **Resolved** (2026-10-05) — chờ QA xác nhận |
+| Severity / trạng thái | High / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / QA người |
 | Nguồn | QA tự động TC-15 (đếm key thô `PERM_*` trong DOM) |
 | depends_on / blocks / parent | TASK-368, TASK-370 / — / [FEAT-29](FEAT-29_multilanguage_i18n_expansion.md) |

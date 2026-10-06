@@ -66,10 +66,10 @@ Nâng trải nghiệm giao diện Web **và** Mobile lên chuẩn sản phẩm t
 | Mốc | Nội dung | Trạng thái |
 | :--- | :--- | :--- |
 | M0 | 00–04 (RAW/ANL/BENCH/CONF) — **scope được duyệt** | **Xong** (CONF Approved 2026-10-05) |
-| M1 | 05–06 (SOL/DES) — design ready | **Xong phần soạn** (SOL/DES 0.1); gate "Design ready" còn Draft chờ review kỹ thuật |
-| M2 | 07 — code + dev self-check | **Xong** (TASK-355…374 + BUG-121…130, build web/mobile PASS); TASK-371 RTL đang làm |
-| M3 | 08 — QA browser theo AC | **Đang chạy** (TP-S04-001; TR-S04-001 chưa có) |
-| M4 | 09 — nghiệm thu & đóng | Chưa bắt đầu (chờ QA + gate) |
+| M1 | 05–06 (SOL/DES) — design ready | **Xong phần soạn** (SOL/DES 0.1); review kỹ thuật độc lập là follow-up |
+| M2 | 07 — code + dev self-check | **Xong** (TASK-355…374 + BUG-121…134, build web/mobile PASS 0 cảnh báo) |
+| M3 | 08 — QA browser theo AC | **Xong** — TR-S04-001 v0.3: 18/18 TC PASS (baseline `772a211`) |
+| M4 | 09 — nghiệm thu & đóng | **Xong** — REV-S04-001: **ĐÓNG 2026-10-06** (DoD 11/11 Đạt) |
 
 ## 6. Rủi ro chính
 

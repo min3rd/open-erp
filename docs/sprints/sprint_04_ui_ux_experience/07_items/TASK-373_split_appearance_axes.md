@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-373 / Task / Sprint 04 |
-| Severity / trạng thái | High / **In Review** (đã đo trình duyệt đủ 4 trục, build PASS) |
+| Severity / trạng thái | High / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / CONF-S04-001 Approved + chỉ đạo trực tiếp chủ dự án ("nhiều chế độ layout, tách cho người dùng chọn layout/kiểu dáng/màu sắc") |
 | depends_on / blocks / parent | TASK-355, TASK-356, TASK-372 / — / [FEAT-24](FEAT-24_theme_system_and_design_tokens.md) |

@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-360 / Task / Sprint 04 |
-| Severity / trạng thái | Medium / **In Review** (code + build PASS, chờ QA browser) |
+| Severity / trạng thái | Medium / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / CONF-S04-001 Approved |
 | depends_on / blocks / parent | TASK-359 / — / [FEAT-25](../07_items/FEAT-25_motion_and_animation_system.md) |

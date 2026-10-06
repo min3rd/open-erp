@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-131 / Bug / Sprint 04 |
-| Severity / trạng thái | Medium / **Resolved** (2026-10-05) — chờ QA xác nhận |
+| Severity / trạng thái | Medium / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / QA người |
 | Nguồn | QA tự động TC-08 (grep `<svg>` ngoài component icon) |
 | depends_on / blocks / parent | TASK-361, TASK-362 / — / [FEAT-26](FEAT-26_feather_icon_system.md) |

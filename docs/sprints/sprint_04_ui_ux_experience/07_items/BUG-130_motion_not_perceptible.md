@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-130 / Bug / Sprint 04 |
-| Severity / trạng thái | High / **In Review** (đã làm đậm, đo trình duyệt PASS) |
+| Severity / trạng thái | High / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / phản hồi chủ dự án: "còn chưa thấy tý animation nào luôn ý" |
 | depends_on / blocks / parent | TASK-359, TASK-360 / — / [FEAT-25](FEAT-25_motion_and_animation_system.md) |

@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-129 / Bug / Sprint 04 |
-| Severity / trạng thái | Medium / **In Review** (đã sửa, đo trình duyệt PASS) |
+| Severity / trạng thái | Medium / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / phản hồi chủ dự án: "bạn nhìn xem cách căn lề các cài đặt có hợp lý không" (kèm ảnh) |
 | depends_on / blocks / parent | TASK-373, TASK-374 / — / [FEAT-24](FEAT-24_theme_system_and_design_tokens.md) |

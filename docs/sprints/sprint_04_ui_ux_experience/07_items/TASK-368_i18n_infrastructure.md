@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-368 / Task / Sprint 04 |
-| Severity / trạng thái | High / **In Review** (code + build PASS, chờ QA browser) |
+| Severity / trạng thái | High / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / CONF-S04-001 Approved |
 | depends_on / blocks / parent | — / TASK-369/370/371 / [FEAT-29](../07_items/FEAT-29_multilanguage_i18n_expansion.md) |

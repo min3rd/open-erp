@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-121 / Bug / Sprint 04 (sự cố môi trường dev) |
-| Severity / trạng thái | Medium / **Resolved** (2026-10-05) — chờ QA xác nhận |
+| Severity / trạng thái | Medium / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / báo cáo trực tiếp của chủ dự án |
 | depends_on / blocks | Không / Không |

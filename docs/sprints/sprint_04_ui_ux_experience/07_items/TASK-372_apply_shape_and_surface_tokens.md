@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-372 / Task / Sprint 04 |
-| Severity / trạng thái | High / **In Review** (đã áp 79 file, build PASS, đo trình duyệt PASS) |
+| Severity / trạng thái | High / **Done** (TR-S04-001 v0.3 verified 2026-10-06) |
 | Owner/agent / reviewer | Developer (agent) / Chưa phân công |
 | Cập nhật / input version | 2026-10-05 / CONF-S04-001 Approved + phản hồi chủ dự án ("theme mới chỉ đổi màu") |
 | depends_on / blocks / parent | TASK-355, TASK-358 / — / [FEAT-24](../07_items/FEAT-24_theme_system_and_design_tokens.md) |
