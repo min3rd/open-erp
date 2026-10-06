@@ -96,7 +96,16 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | 6 | **`name_en`**: chỉ hiển thị ở form quản trị (không tự đổi theo ngôn ngữ UI)? | Scope nhỏ | Mặc định như vậy; đa ngôn ngữ tên danh mục để sprint sau (Q9) |
 
 **Ba điểm Architect đã tự chốt theo hướng an toàn hơn (ghi để review biết)**:
-
 1. `allowed_parent_types` **NULL = chỉ cùng loại** (trước đó ghi "mọi loại" — nay đổi để tránh cấu trúc sai).
 2. **Grant mặc định** cho `TENANT_OWNER`/`TENANT_ADMIN` trên mọi loại tenant (tránh "cài xong không ai sửa được").
 3. **Tenant import trùng `code` với mục hệ thống ⇒ tạo bản ghi ghi đè của tenant** (nhất quán Q1/Q2), không sửa bản hệ thống.
+
+**Cập nhật 2026-10-06 (lập trình)**: điểm 5 đã **chốt xây** (màn tra cứu Mobile read-only, TASK-387); điểm 6 giữ mặc định; điểm 2 (design review) đang xử lý bằng chính các lượt verify + ghi sai lệch ở DES-DB §6.1.
+
+## 7. Tài liệu ngoài Sprint-Pack
+
+| Tài liệu | Vị trí | Ghi chú |
+| :--- | :--- | :--- |
+| Hướng dẫn sử dụng | [UG-S05-001](../../06_user_guides/sprint_05_catalog_plugin_user_guide.md) | 13 mục; ảnh minh hoạ bổ sung sau QA (TASK-389) |
+| Triển khai (Docker/K8s) | [docker_deployment_guide.md](../../07_deployment_guides/docker_deployment_guide.md) mục 5, [k8s_production_guide.md](../../07_deployment_guides/k8s_production_guide.md) | Extension `btree_gist`/`pg_trgm`, seed địa giới trong JAR, `OPENERP_CATALOG_IMPORT_MAX_ROWS` |
+| Kỹ thuật tạo plugin | [create_new_plugin_guide.md](../../08_developer_guides/create_new_plugin_guide.md) | Plugin core đầu tiên làm mẫu (in-process, locked, Entity Registry) |

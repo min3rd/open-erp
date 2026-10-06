@@ -1,0 +1,141 @@
+# Hướng Dẫn Sử Dụng — Sprint 05: Plugin Danh Mục (Danh mục & quản trị danh mục)
+
+| Thuộc tính | Giá trị |
+| :--- | :--- |
+| ID | UG-S05-001 |
+| Trạng thái | Draft — ảnh minh hoạ bổ sung sau QA (TASK-389) |
+| Phiên bản / cập nhật | 0.1 / 2026-10-06 |
+| Phạm vi | Quản trị danh mục (loại, bản ghi, quan hệ đa cha, phiên bản, quyền theo loại), nhập tự do, import/export, danh mục hệ thống & ghi đè, tra cứu trên Mobile |
+| Đầu vào | [CONF-S05-001](../sprints/sprint_05_catalog_plugin/04_confirmation/01_CONF-S05-001_sprint_05_scope.md), [DES-UI-S05-001](../sprints/sprint_05_catalog_plugin/06_designs/ui/01_DES-UI-S05-001_catalog_admin_ui.md), [DES-API-S05-001](../sprints/sprint_05_catalog_plugin/06_designs/api/01_DES-API-S05-001_catalog_api.md) |
+
+> **Ảnh minh hoạ**: các vị trí đánh dấu `📷` sẽ được chụp bổ sung trong QA (TASK-389) và lưu tại `assets/sprint_05/`.
+
+## 1. Danh mục là gì và ai dùng?
+
+**Danh mục** là plugin core đầu tiên của hệ thống: hạ tầng dữ liệu tra cứu dùng chung cho mọi plugin khác (chức danh, phòng ban, loại hợp đồng, ca làm việc, trình độ học vấn, tỉnh/xã, ngành, nghề…). Plugin **luôn bật cho mọi tenant**, không cài/gỡ được.
+
+Hai nhóm người dùng:
+
+| Vai trò | Làm được gì |
+| :--- | :--- |
+| **Quản trị viên tenant** | Tạo/sửa loại danh mục của tenant, thêm/sửa bản ghi, thiết lập quan hệ cha–con, cấp quyền theo loại, import/export |
+| **Người dùng thường** | Chọn giá trị danh mục trong form (kèm nhập tự do nếu loại cho phép); xem tra cứu read-only trên Mobile |
+| **Super admin platform** | Quản trị **danh mục hệ thống** (tỉnh/xã, ngành, nghề) ở cổng Platform |
+
+## 2. Mở màn quản trị danh mục
+
+Vào **Cài đặt → Dữ liệu → Danh mục**. Màn hình chia **3 cột** giữ nguyên ngữ cảnh làm việc:
+
+| Cột | Nội dung |
+| :--- | :--- |
+| Trái | Danh sách **loại danh mục** (hệ thống + của tenant); nhãn `Hệ thống`/`Ghi đè` |
+| Giữa | **Bản ghi** của loại đang chọn: tìm kiếm, lọc, phân trang, menu chuột phải từng dòng |
+| Phải | **Chi tiết** bản ghi: thuộc tính, **lịch sử phiên bản (chỉ đọc)**, quan hệ cha/con, nút thao tác |
+
+📷 *Màn quản trị danh mục — 3 cột (desktop).*
+
+Mọi biểu mẫu mở dạng **Drawer trượt từ phải** (có thể xếp chồng nhiều tầng), **không dùng popup che màn hình**.
+
+## 3. Loại danh mục
+
+Nhấn **Thêm loại** (hoặc chọn loại rồi **Sửa**) để mở drawer:
+
+| Trường | Ý nghĩa |
+| :--- | :--- |
+| Mã (`code`) | Định danh không đổi sau khi tạo (vd `JOB_TITLE`) |
+| Nhãn | Khoá đa ngôn ngữ hiển thị tên loại |
+| Chế độ phân cấp | **TREE** (một cha), **DAG** (nhiều cha), **FLAT** (phẳng) |
+| Quan hệ cho phép | `HIERARCHY` / `CLASSIFICATION` / `ALLOCATION` |
+| Loại cha cho phép | Chỉ khai báo khi muốn cho phép **cha khác loại** (bỏ trống = chỉ cùng loại) |
+| Cho nhập tự do | Bật ⇒ người dùng được gõ giá trị ngoài danh mục |
+| Schema thuộc tính | JSON mô tả trường động của bản ghi (tuỳ chọn) |
+
+📷 *Drawer thêm/sửa loại danh mục.*
+
+> **Loại hệ thống** (tỉnh/xã, ngành, nghề) hiển thị chỉ đọc với tenant — muốn "đổi" thì tạo bản ghi **ghi đè** cùng mã (mục 8).
+
+## 4. Bản ghi: thêm, sửa (phiên bản mới), ngừng dùng
+
+- **Thêm bản ghi**: nhấn **Thêm bản ghi** → drawer với các trường tĩnh + trường động theo schema của loại.
+- **Sửa**: lưu sẽ **tạo phiên bản mới** và **đóng hiệu lực bản cũ** — dữ liệu lịch sử không bị ghi đè. Cột phải hiển thị **lịch sử phiên bản chỉ đọc** (số phiên bản, hiệu lực, người sửa).
+- **Ngừng dùng** (biểu tượng thùng rác): **đóng hiệu lực** (`valid_to = hiện tại`), **không xoá cứng** — bản ghi vẫn còn trong lịch sử và các chứng từ cũ vẫn tra cứu được theo mốc thời gian.
+- **Đọc theo mốc thời gian**: API và form hỗ trợ tham số `as_of` để xem đúng trạng thái tại một thời điểm.
+
+📷 *Drawer bản ghi + lịch sử phiên bản ở cột phải.*
+
+## 5. Quan hệ cha–con (đa cha, nhảy cấp)
+
+- **Đa cha (DAG)**: một bản ghi có thể có nhiều cha (vd "Lập trình viên" thuộc cả "Công nghệ thông tin" và "Khoa học dữ liệu").
+- **Nhảy cấp**: được phép nối thẳng tỉnh → xã mà không cần huyện.
+- **Thêm quan hệ**: nút **Thêm quan hệ** trong drawer chi tiết → chọn cha bằng ô tra cứu danh mục (picker), chọn loại quan hệ và thứ tự.
+- **Chống lỗi**: hệ thống chặn **chu trình** (A là cha của B và B là cha của A), chặn quan hệ không nằm trong "quan hệ cho phép", chặn cha khác loại khi loại đó không khai báo.
+
+📷 *Drawer thêm quan hệ (chọn cha bằng picker).*
+
+## 6. Quyền theo từng loại danh mục
+
+Ngoài quyền module (`catalog:type:manage`, `catalog:item:read`, `catalog:item:manage`, `catalog:item:inline-create`), mỗi loại có **ma trận quyền theo vai trò**:
+
+1. Chọn loại → **Quyền** → drawer ma trận **vai trò × (Đọc / Ghi)**.
+2. Lưu là **ghi đè toàn bộ** danh sách quyền của loại đó.
+3. Không có quyền **Ghi** ⇒ người dùng chỉ xem, các nút thao tác bị ẩn.
+
+> Khi cài plugin, **Chủ tenant** và **Quản trị tenant** mặc định có toàn quyền trên mọi loại của tenant để tránh tình trạng "cài xong không ai sửa được".
+
+📷 *Drawer ma trận quyền theo vai trò.*
+
+## 7. Nhập tự do và "Lưu vào danh mục"
+
+Với loại bật **cho nhập tự do** (vd Chức danh):
+
+1. Gõ giá trị không có trong danh sách ⇒ hiện dòng **"Dùng giá trị tự do: …"** — giá trị vẫn được lưu vào chứng từ.
+2. Nếu có quyền `catalog:item:inline-create`, hiện nút **"Lưu vào danh mục"** ⇒ tạo mục mới và gán luôn vào trường.
+3. Giá trị tự do được giữ nguyên văn bản đã gõ, kể cả sau này danh mục đổi tên.
+
+📷 *Ô tra cứu danh mục với giá trị tự do + nút lưu.*
+
+## 8. Danh mục hệ thống và ghi đè của tenant
+
+| Tình huống | Hành vi |
+| :--- | :--- |
+| Tenant tạo bản ghi **cùng mã** với mục hệ thống | Tạo bản ghi **của tenant**; form hiển thị bản tenant (nhãn **Ghi đè**) |
+| Tenant **ngừng dùng** bản ghi cùng mã đó | Mục hệ thống **biến mất khỏi lựa chọn của tenant đó** (tenant khác không đổi) |
+| Tenant sửa/xoá trực tiếp bản hệ thống | Bị chặn (`CATALOG_SYSTEM_ITEM_READONLY`) — phải tạo bản ghi của mình |
+
+## 9. Import / Export
+
+Mở **Import/Export** trong màn quản trị:
+
+1. **Tải tệp mẫu** (CSV, UTF-8) — cột `code, name, parent_code` (`parent_code` tuỳ chọn để tạo quan hệ cha–con).
+2. Chọn tệp **CSV hoặc `.xlsx`** → nhấn **Kiểm tra trước** (dry-run) — **chưa ghi gì**.
+3. Xem **báo cáo theo dòng** (Tạo mới / Cập nhật / Bỏ qua / Lỗi + mã lỗi) → nhấn **Ghi vào danh mục** để áp dụng.
+4. **Export**: xuất CSV theo loại đang chọn hoặc toàn bộ, kèm cột cha/con, hiệu lực, trạng thái, phiên bản.
+
+Quy tắc an toàn: tệp sai cấu trúc bị **từ chối trước khi ghi**; lỗi theo dòng **không** chặn các dòng hợp lệ; giới hạn **20.000 dòng**/lần (cấu hình được); bản ghi trùng mã ⇒ **tạo phiên bản mới**; tenant nhập mã trùng mục hệ thống ⇒ tạo **bản ghi ghi đè của tenant**.
+
+📷 *Drawer Import: kiểm tra trước + báo cáo theo dòng.*
+
+## 10. Cổng Platform — quản trị danh mục hệ thống
+
+Super admin vào **Platform → Danh mục hệ thống**: cùng bố cục 3 cột nhưng thao tác trên **dữ liệu hệ thống** (`tenant_id IS NULL`): tỉnh/xã, ngành, nghề… Tenant không thấy màn này và gọi API hệ thống sẽ bị **403**.
+
+📷 *Màn quản trị danh mục hệ thống ở cổng Platform.*
+
+## 11. Mobile (Ionic)
+
+- **Tra cứu danh mục** (read-only): chọn loại, tìm kiếm, xem cây/breadcrumb, xem chi tiết — **không có nút sửa/xoá** (quản trị làm trên bản Web).
+- **Ô chọn danh mục trong form** hoạt động trên mobile: danh sách dạng panel trong trang (không modal), vùng chạm ≥ 40px, không tràn ngang ở 390×844.
+
+📷 *Mobile: tra cứu danh mục (390×844).*
+
+## 12. Dữ liệu địa giới có sẵn
+
+Sau khi cài plugin, hệ thống đã có sẵn **34 tỉnh/thành** và **3.321 xã/phường** (dữ liệu sau sáp nhập hành chính 2025: **xã thuộc trực tiếp tỉnh, không có huyện**). Loại `DISTRICT` vẫn có sẵn nếu tenant muốn dùng sau này.
+
+## 13. Ghi chú kỹ thuật cho người vận hành
+
+- Plugin `catalog` là **plugin core**: luôn bật, không gỡ; tenant mới nhận tự động khi đăng ký, tenant cũ được **backfill** khi nâng cấp.
+- Migration `V4.0.0__catalog_core_plugin.sql` cần extension PostgreSQL `btree_gist` và `pg_trgm` (trusted, không cần superuser) — chi tiết ở [docker_deployment_guide.md](../07_deployment_guides/docker_deployment_guide.md) mục 5.
+- Giới hạn import: `OPENERP_CATALOG_IMPORT_MAX_ROWS` (mặc định `20000`).
+- Cập nhật dữ liệu địa giới khi sáp nhập: `npm run data:admin-units` → `npm run data:admin-units:check` trước khi build image (runtime **không** gọi mạng).
+- Tra cứu danh mục trong form là **lazy + phân trang** (mặc định 20, tối đa 100) — không tải toàn bộ danh mục.

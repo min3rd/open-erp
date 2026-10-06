@@ -30,7 +30,7 @@ graph LR
 1. Đăng nhập vào hệ thống tại `https://<tenant-slug>.openerp.vn`.
 2. Trên thanh điều hướng chính bên trái, bấm chọn **[Tên Menu]**.
 
-![Hình 1: Vị trí menu chức năng](assets/example_step1_menu.png)
+> 📷 *Chèn ảnh tại đây (đường dẫn thật sau khi chụp), ví dụ:* `assets/<sprint>_<tên_ảnh>.png` — **không** để link mẫu không tồn tại vì `check-docs` sẽ báo lỗi.
 *(Hình 1: Bấm vào biểu tượng menu trên thanh điều hướng)*
 
 ---
@@ -41,7 +41,7 @@ graph LR
    - **Tên**: Nhập tên bản ghi.
    - **Mã**: Nhập mã hoặc để hệ thống tự sinh tự động.
 
-![Hình 2: Màn hình form nhập liệu](assets/example_step2_form.png)
+> 📷 *Chèn ảnh minh hoạ form (đường dẫn thật sau khi chụp).*
 *(Hình 2: Điền thông tin vào các trường bắt buộc và nhấn Lưu)*
 
 ---
@@ -50,7 +50,7 @@ graph LR
 1. Bấm nút **"Lưu & Xác nhận"**.
 2. Hệ thống sẽ hiển thị thông báo màu xanh *"Tạo mới thành công"* ở góc phải màn hình.
 
-![Hình 3: Kết quả thông báo thành công](assets/example_step3_success.png)
+> 📷 *Chèn ảnh minh hoạ kết quả (đường dẫn thật sau khi chụp).*
 *(Hình 3: Thông báo thành công và bản ghi xuất hiện trong danh sách)*
 
 ---
