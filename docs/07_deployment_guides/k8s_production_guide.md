@@ -61,6 +61,8 @@ kubectl create secret generic openerp-platform-secrets \
 | `OPENERP_FRONTEND_URL` | ConfigMap | URL frontend cho email (prod: `https://openerp.9ms.io.vn`). |
 | `OPENERP_PLATFORM_IMPERSONATION_TTL_SECONDS` | ConfigMap | TTL phiên Impersonation (mặc định `1800`). |
 
+**CSDL cho plugin Danh mục (Sprint 05)** — xem [docker_deployment_guide.md](docker_deployment_guide.md) mục 5: migration `V4.0.0` cần extension `btree_gist` + `pg_trgm` (trusted, không cần superuser) và seed dữ liệu địa giới đóng gói trong JAR; giới hạn import qua `OPENERP_CATALOG_IMPORT_MAX_ROWS` (mặc định `20000`).
+
 - Jobs nền chạy trong pod backend (`audit partition/retention`, `tenant lifecycle`, `impersonation timeout` interval `300s`); với deployment nhiều replica (HPA), Quarkus đảm bảo timer chạy trên từng node nhưng job dùng transaction/row-lock an toàn — theo dõi log `Impersonation timeout` trên `vert.x-worker-thread-*`.
 - **Lưu ý timezone**: lưu UTC trong CSDL; hiển thị theo timezone người dùng ở frontend. Không cấu hình TZ địa phương cho container.
 - Vận hành khẩn cấp khi mất toàn bộ admin: mở shell vào pod backend và chạy Offline CLI:

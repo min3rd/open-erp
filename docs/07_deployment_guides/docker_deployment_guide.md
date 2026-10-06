@@ -63,3 +63,18 @@ Các biến môi trường bắt buộc/khuyến nghị cho container Backend kh
     java -jar quarkus-run.jar admin-cli list-admins
   ```
   Danh sách lệnh: `bootstrap`, `list-admins`, `grant-admin --email X --role R`, `revoke-admin --email X`; audit ghi `actor_type = CLI`.
+
+## 5. Yêu Cầu CSDL Cho Plugin Danh Mục (Sprint 05)
+
+Migration `V4.0.0__catalog_core_plugin.sql` chạy tự động khi backend khởi động và cần:
+
+| Yêu cầu | Chi tiết | Ghi chú |
+| :--- | :--- | :--- |
+| Extension `btree_gist` | Dùng cho ràng buộc `EXCLUDE` chống chồng lấn hiệu lực | Là **trusted extension** từ PostgreSQL 13 ⇒ user sở hữu CSDL cài được, không cần superuser |
+| Extension `pg_trgm` | Index trigram cho tìm kiếm tên danh mục | Như trên |
+| Dữ liệu địa giới | `src/backend/src/main/resources/db/seed/provinces-communes.csv` (**34 tỉnh / 3.321 xã-phường**) nằm trong JAR | Seeder nạp một lần, **idempotent**; thiếu tệp chỉ ghi cảnh báo, không chặn khởi động |
+| Backfill tenant | Migration cấp plugin `catalog` + 5 loại danh mục + grant mặc định cho **mọi tenant hiện có** và có **kiểm tra fail-fast** (raise nếu thiếu) | Tenant mới nhận qua provisioning khi đăng ký |
+
+- Kiểm chứng sau triển khai: `select count(*) from tenant_plugins where plugin_key = 'catalog' and status = 'ACTIVE';` phải bằng số tenant.
+- Cập nhật dữ liệu địa giới (khi sáp nhập): `npm run data:admin-units` rồi `npm run data:admin-units:check` **trước khi** build image; runtime không gọi mạng.
+- Cấu hình giới hạn import: `openerp.catalog.import.max-rows` (biến môi trường `OPENERP_CATALOG_IMPORT_MAX_ROWS`, mặc định 20.000).
