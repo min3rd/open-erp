@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | EVD-S05-001 / Evidence index / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | Draft — QA đang chạy / 0.1 / 2026-10-06 |
+| Trạng thái / phiên bản / cập nhật | Draft — QA đã chạy (12 ảnh) / 0.2 / 2026-10-06 |
 | Owner / reviewer | QA/QC Agent / PM + Architect |
 | Đầu vào | [TP-S05-001](../01_TP-S05-001_sprint_05_test_plan.md) (25 TC), [UG-S05-001](../../../../06_user_guides/sprint_05_catalog_plugin_user_guide.md) |
 
@@ -25,7 +25,8 @@
 | 10 | `desktop-tenant-override.png` | TC-22 | Badge "Ghi đè" trên bản ghi tenant cùng mã với mục hệ thống |
 | 11 | `desktop-platform-system-catalog.png` | TC-25 | Màn quản trị danh mục **hệ thống** ở cổng Platform |
 | 12 | `desktop-dark-theme.png` | TC-19 | Giao diện chế độ tối của màn danh mục |
-| 13 | `desktop-provinces-communes.png` | TC-24 | Loại `PROVINCE` (34 mục) và `COMMUNE` lọc theo tỉnh (xã là con trực tiếp) |
+| 13 | `desktop-provinces-communes.png` | TC-24 | Loại `PROVINCE` (34 mục) và `COMMUNE` lọc theo tỉnh (xã là con trực tiếp) — xác minh qua API/DB; ảnh UI dùng chung với ảnh #1 |
+| 13b | `desktop-catalog-1400px.png` | TC-17 | Màn 3 cột ở viewport thật **1400×900** (≥1280px) — cột rộng, không wrap |
 
 ## 2. Mobile (Ionic, 390×844)
 
@@ -34,7 +35,8 @@
 | 14 | `mobile-catalog-browse.png` | TC-16 | Trang tra cứu read-only (không nút sửa/xoá), không tràn ngang |
 | 15 | `mobile-catalog-detail.png` | TC-16 | Panel chi tiết inline + breadcrumb |
 | 16 | `mobile-menu-entry.png` | TC-16 | Mục "Danh mục" trong menu điều hướng (drawer dùng chung) |
-| 17 | `mobile-picker-in-form.png` | TC-12 | Ô chọn danh mục trong form (touch ≥40px) |
+| 17 | `mobile-picker-in-form.png` | TC-12 | Ô chọn danh mục trong form (touch ≥40px) — chờ bổ sung |
+| 18 | `mobile-390x844.png` | TC-17 | Trang Mobile ở viewport thật **390×844**: không tràn ngang, 23/23 touch target ≥40px |
 
 ## 3. Ghi chú kiểm chứng phi giao diện
 

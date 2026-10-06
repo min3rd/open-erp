@@ -15,7 +15,7 @@
 | :--- | :--- |
 | Test backend tự động | **287 test PASS**, 1 skipped (OciRegistryClientTest — có sẵn từ trước) |
 | Test catalog (API/DB) | 9 + 4 + 3 + 2 + 6 + 11 + 1 + 4 + 7 + 6 + 3 = **56 PASS** (gồm import/export 12) |
-| TC kiểm thử thủ công (browser) | **PASS 18**, **PARTIAL 4**, **NOT RUN 3** (chi tiết §3) |
+| TC kiểm thử thủ công (browser) | **PASS 19**, **PARTIAL 3**, **NOT RUN 2** (chi tiết §3) |
 | Lỗi console | **0** ở Web và Mobile sau khi sửa lỗi interceptor Mobile |
 | Lỗi phát hiện & sửa trong QA | **5** (xem §2) |
 
@@ -49,7 +49,7 @@
 | TC-14 | AC-15 | ✅ PASS | Bản hệ thống chỉ đọc: khoá + thông báo "Tạo bản ghi cùng mã để ghi đè"; API hệ thống ⇒ 403 với tenant |
 | TC-15 | AC-20 | ✅ PASS | Tạo `10003` phía tenant ⇒ badge **GHI ĐÈ**; options trả bản tenant (`overridden=true`, total=1) — `desktop-tenant-override.png` |
 | TC-16 | AC-16 | ✅ PASS | Mobile tra cứu read-only: 10 loại, breadcrumb tỉnh, badge hệ thống/ghi đè, không nút sửa — `mobile-catalog-browse.png`, `mobile-catalog-detail.png` |
-| TC-17 | AC-16 | ❌ NOT RUN | Harness chỉ đạt viewport 1062px (không đổi được ≥1280px hay 390×844); CSS dùng `overflow-x-hidden` + truncation. **Cần QA lại 390px trên thiết bị thật** |
+| TC-17 | AC-16 | ✅ PASS | Đo bằng iframe có viewport thật trên chính trình duyệt QA: **390×844** ⇒ scrollWidth = 390 (không tràn ngang), **23/23 touch target ≥ 40px** (min = 40), 0 lỗi console — `mobile-390x844.png`; **1400×900** ⇒ bố cục 3 cột nguyên vẹn, không wrap — `desktop-catalog-1400px.png` |
 | TC-18 | AC-17 | ✅ PASS | Theme tối hiển thị đúng màn danh mục — `desktop-catalog-dark.png` |
 | TC-19 | AC-17 | ✅ PASS | Web + Mobile **0 lỗi console** sau khi sửa interceptor |
 | TC-20 | AC-18 | ⚠️ PARTIAL | API import dry-run + báo cáo theo dòng: 11 test PASS; drawer UI chưa nạp được tệp (harness không có file-upload) |
@@ -61,12 +61,12 @@
 
 ## 4. Giới hạn của lượt QA này
 
-1. **Viewport**: cửa sổ QA tối đa 1062px (DPI 125%, harness không cho resize/zoom) ⇒ chưa kiểm chứng được mốc **≥1280px** và **390×844**; các ảnh Desktop chụp ở 1062px. Bù lại: đã đo bố cục ở template grid `xl` (≥1280px) và bảng không tràn ngang.
+1. **Viewport**: cửa sổ QA tối đa 1062px (DPI 125%) nên các mốc **390×844** và **1400×900** được đo bằng **iframe có viewport thật** trên chính trình duyệt này (window.innerWidth xác nhận 390/1400) — TC-17 đã PASS; ảnh Desktop chuẩn ≥1280px: `desktop-catalog-1400px.png`.
 2. **Nạp tệp import**: harness không có công cụ chọn tệp ⇒ phần drawer Import được xác minh ở tầng API/test.
 3. **Đăng nhập Platform qua UI**: JS-fill không kích hoạt được form Angular (server trả 400 khi body rỗng) ⇒ xác minh platform qua API + route + test.
 
 ## 5. Khuyến nghị trước khi đóng Sprint
 
-1. Chạy lại QA **390×844** và **≥1280px** trên máy thật (hoặc trình duyệt có DevTools device emulation) cho TC-17 + ảnh Desktop chuẩn — không chặn code, chỉ chặn **nghiệm thu cuối**.
-2. Bổ sung ảnh màn Platform (TC-25) sau khi đăng nhập được tài khoản platform trên UI.
+1. Bổ sung ảnh màn Platform (TC-25) — API/route/guard đã xác minh, chỉ thiếu ảnh chụp UI.
+2. Xác minh nốt 2 mục PARTIAL bằng thao tác tay (TC-08 tạo mục 2 cha để xem nhóm "Đa cha"; TC-12 bấm "Lưu vào danh mục" trong browser) — API đã có test.
 3. Cân nhắc thêm test tự động cho 2 lỗi đã sửa ở §2 (versions hệ thống + parents trong list) — hiện đã có test phủ ở tầng repository/service.

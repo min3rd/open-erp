@@ -146,6 +146,10 @@ Super admin vào **Platform → Danh mục hệ thống**: cùng bố cục 3 c�
 
 *Ảnh: trang tra cứu read-only trên Mobile — breadcrumb theo tỉnh, badge hệ thống/ghi đè, không nút sửa.*
 
+![Mobile 390x844 — không tràn ngang](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/mobile-390x844.png)
+
+*Ảnh: đo ở viewport thật **390×844** — không tràn ngang (scrollWidth = 390), 23/23 vùng chạm ≥ 40px.*
+
 ## 12. Dữ liệu địa giới có sẵn
 
 Sau khi cài plugin, hệ thống đã có sẵn **34 tỉnh/thành** và **3.321 xã/phường** (dữ liệu sau sáp nhập hành chính 2025: **xã thuộc trực tiếp tỉnh, không có huyện**). Loại `DISTRICT` vẫn có sẵn nếu tenant muốn dùng sau này.
