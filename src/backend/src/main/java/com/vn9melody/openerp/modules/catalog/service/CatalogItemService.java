@@ -75,9 +75,32 @@ public class CatalogItemService {
         }
         Set<String> systemCodes = tenantId == null ? Set.of()
             : itemRepository.findSystemCodes(type.code, asOf, codes);
+        // Batch-load the page's parents (one extra query per page) so the admin list
+        // can show the "CHA" column without an N+1 per row.
+        Map<UUID, List<ItemParentResponse>> parentsByItem = new HashMap<>();
+        List<CatalogItemEdge> edges = edgeRepository.listActiveByChildIds(
+            items.stream().map(item -> item.id).toList(), tenantId, asOf);
+        if (!edges.isEmpty()) {
+            Map<UUID, CatalogItem> parentsById = new HashMap<>();
+            for (CatalogItem parent : itemRepository.listVisibleByIds(tenantId,
+                    edges.stream().map(edge -> edge.parentItemId).distinct().toList())) {
+                parentsById.put(parent.id, parent);
+            }
+            for (CatalogItemEdge edge : edges) {
+                CatalogItem parent = parentsById.get(edge.parentItemId);
+                if (parent == null) {
+                    continue;
+                }
+                parentsByItem.computeIfAbsent(edge.childItemId, key -> new ArrayList<>())
+                    .add(new ItemParentResponse(edge.id, parent.id, parent.code, parent.name,
+                        edge.relationType.name(), edge.sortOrder, edge.validFrom, edge.validTo,
+                        parent.tenantId == null));
+            }
+        }
         return items.stream()
             .map(item -> toResponse(item, type.code,
-                item.tenantId != null && systemCodes.contains(item.code)))
+                item.tenantId != null && systemCodes.contains(item.code),
+                parentsByItem.getOrDefault(item.id, List.of()), List.of()))
             .toList();
     }
 
@@ -193,7 +216,8 @@ public class CatalogItemService {
         CatalogItem item = requireReadableItem(tenantId, itemId);
         CatalogType type = requireType(item.typeId);
         boolean overridden = isOverridden(tenantId, item, type.code, Instant.now());
-        return itemRepository.listVersions(tenantId, item.versionGroupId).stream()
+        // System rows carry tenant_id NULL: list their own version group, not the caller's.
+        return itemRepository.listVersions(item.tenantId, item.versionGroupId).stream()
             .map(version -> toResponse(version, type.code, overridden))
             .toList();
     }
