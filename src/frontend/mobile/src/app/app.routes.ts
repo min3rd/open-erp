@@ -111,6 +111,11 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/settings/sample-records/sample-records.page').then(m => m.SampleRecordsPage)
       },
       {
+        path: 'catalog',
+        canActivate: [permissionGuard('catalog:item:read')],
+        loadComponent: () => import('./pages/settings/catalog/catalog.page').then(m => m.CatalogBrowsePage)
+      },
+      {
         path: 'plugins',
         canActivate: [permissionGuard('core:plugin:read')],
         loadComponent: () => import('./pages/settings/plugins/plugins.page').then(m => m.MobilePluginsPage)

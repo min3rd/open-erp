@@ -39,7 +39,12 @@
     <div>
       <h2 class="text-xs font-bold uppercase tracking-wider text-ink mb-2" [appTranslate]="'DASHBOARD_WORKSPACE_READY'"></h2>
 
-      <div class="mt-3">
+      <div class="mt-3 space-y-2">
+        @if (canBrowseCatalog()) {
+          <app-sharp-button [fullWidth]="true" [variant]="buttonSecondary" (clicked)="openCatalog()">
+            {{ 'CATALOG_BROWSE_TITLE' | translate }}
+          </app-sharp-button>
+        }
         <app-sharp-button [fullWidth]="true" (clicked)="openAccount()">
           {{ 'ACCOUNT_DRAWER_TITLE' | translate }}
         </app-sharp-button>

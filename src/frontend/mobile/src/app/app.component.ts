@@ -27,6 +27,8 @@ export class AppComponent {
     this.auth.isAuthenticated() && this.auth.hasPermission('core:sample-record:read') !== false;
   readonly canViewPlugins = () =>
     this.auth.isAuthenticated() && this.auth.hasPermission('core:plugin:read') !== false;
+  readonly canBrowseCatalog = () =>
+    this.auth.isAuthenticated() && this.auth.hasPermission('catalog:item:read') !== false;
 
   constructor() {
     this.theme.init();

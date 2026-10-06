@@ -118,6 +118,18 @@
           </a>
         }
 
+        @if (canBrowseCatalog()) {
+          <a
+            routerLink="/settings/catalog"
+            routerLinkActive="bg-surface-muted text-ink font-semibold"
+            (click)="onNavigate()"
+            class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-muted hover:bg-surface-muted transition-colors"
+          >
+            <app-icon name="grid" [decorative]="true" />
+            <span>{{ 'CATALOG_SECTION_TITLE' | translate }}</span>
+          </a>
+        }
+
         @if (canViewPlugins()) {
           <a
             routerLink="/settings/plugins"

@@ -40,6 +40,7 @@ export class MobileNavDrawerComponent {
   canManageOrganization = input<boolean>(false);
   canViewSampleRecords = input<boolean>(false);
   canViewPlugins = input<boolean>(false);
+  canBrowseCatalog = input<boolean>(false);
   isPlatformAdmin = input<boolean>(false);
 
   close = output<void>();
@@ -53,7 +54,8 @@ export class MobileNavDrawerComponent {
       this.canManageRoles() ||
       this.canManageOrganization() ||
       this.canViewSampleRecords() ||
-      this.canViewPlugins()
+      this.canViewPlugins() ||
+      this.canBrowseCatalog()
   );
 
   displayName = computed(() => this.userName() || this.userEmail());

@@ -46,12 +46,14 @@ export class DashboardPage implements OnInit {
   private pluginService = inject(PluginService);
 
   readonly badgeInfo = ColorVariant.INFO;
+  readonly buttonSecondary = ColorVariant.SECONDARY;
   readonly notifications = signal<PluginNotification[]>([]);
 
   // Only link to the plugin settings page when the user may open it.
   readonly notificationDetailPath = computed(() =>
     this.auth.hasPermission('core:plugin:read') !== false ? '/settings/plugins' : null
   );
+  readonly canBrowseCatalog = computed(() => this.auth.hasPermission('catalog:item:read') !== false);
 
   ngOnInit(): void {
     this.loadNotifications();
@@ -66,6 +68,10 @@ export class DashboardPage implements OnInit {
 
   openPlugins() {
     this.navCtrl.navigateForward(['/settings/plugins']);
+  }
+
+  openCatalog() {
+    this.navCtrl.navigateForward(['/settings/catalog']);
   }
 
   openAccount() {
