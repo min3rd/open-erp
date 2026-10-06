@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-385 / Task / Sprint 05 |
-| Severity / trạng thái | High / **To Do — sẵn sàng (gate APPROVED 2026-10-06)** |
+| Severity / trạng thái | High / **In Progress — code xong, build PASS (2026-10-06); chờ commit + QA** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 (Pending), SOL-S05-001, DES-S05-001 |
 | depends_on / blocks / parent | TASK-381 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |
@@ -31,5 +31,7 @@ Màn quản trị đúng DES-UI: split 3 cột, không modal, mật độ cao, t
 | — | Not Run | Chưa triển khai (gate đã duyệt 2026-10-06) |
 
 ## 4. Bàn giao và lịch sử
+
+**Tiến độ 2026-10-06**: màn 3 cột `features/settings/catalog/` (loại | bản ghi | chi tiết) + 5 drawer (loại, bản ghi, quan hệ dùng `catalog-picker`, quyền theo vai trò, import/export) — **không modal**; route `/settings/catalog/:filter/:sort/:pageSize/:page/:id/:mode` (guard `catalog:item:read`); service `core/services/catalog-admin.service.ts`; **+190 khoá i18n × 13 locale** (gồm `PERM_CATALOG_*`); `npm run web:build` **0 lỗi/0 cảnh báo**, `i18n:check:strict` PASS, `mobile:build` PASS. Trạng thái: **code xong, build PASS — chờ commit + QA browser (TASK-389)**.
 
 Gate [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) **APPROVED 2026-10-06** — sẵn sàng triển khai. Khi hoàn thành: ghi commit, số liệu đo và ảnh minh chứng.

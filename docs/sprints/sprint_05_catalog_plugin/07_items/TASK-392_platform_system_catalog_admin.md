@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-392 / Task / Sprint 05 |
-| Severity / trạng thái | High / **To Do — sẵn sàng (gate APPROVED 2026-10-06)** |
+| Severity / trạng thái | High / **In Progress — code xong, build PASS (2026-10-06); chờ commit + QA** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 1.0 (Approved 2026-10-06), DES-DB/API/UI |
 | depends_on / blocks / parent | TASK-385, TASK-390 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |
@@ -31,5 +31,7 @@ Super admin quản trị danh mục hệ thống (tỉnh/huyện/xã, ngành, ch
 | — | Not Run | Chưa triển khai (gate đã duyệt 2026-10-06) |
 
 ## 4. Bàn giao và lịch sử
+
+**Tiến độ 2026-10-06**: route `/platform/catalog/...` (guard `platformSuperAdminGuard`, ẩn với support engineer) **dùng lại chính component** với route data `catalogScope: "system"`; service gọi `/api/v1/catalog/system/*` (đã chốt vào DES-API §2.1); hệ thống chỉ đọc với tenant (ẩn nút sửa/xoá + gợi ý "tạo cùng mã để ghi đè"). Build PASS. Trạng thái: **code xong, build PASS — chờ commit + QA**; backend `/system/*` đang được agent API triển khai (TASK-378…383) — cần đối chiếu đường dẫn khi xong.
 
 Gate [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) **APPROVED 2026-10-06** — sẵn sàng triển khai. Khi hoàn thành: ghi commit, số liệu đo và ảnh minh chứng.

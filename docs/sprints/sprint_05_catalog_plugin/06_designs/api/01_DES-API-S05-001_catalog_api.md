@@ -27,6 +27,22 @@
 | GET | `/api/v1/catalog/types/{code}/grants` | `catalog:type:manage` | Quyền theo vai trò cho loại |
 | PUT | `/api/v1/catalog/types/{code}/grants` | `catalog:type:manage` | Ghi đè danh sách grant `{role_id, can_read, can_write}` |
 
+## 2.1. Nhóm A2 — Quản trị **danh mục hệ thống** (cổng Platform, TASK-392)
+
+Cùng hình dạng resource như Nhóm A/B nhưng thêm tiền tố **`/system`** và chỉ super admin platform gọi được (`catalog:system:manage` theo vai trò — xem §1). UI Web (`catalog-admin.service.ts`, `CatalogScope.SYSTEM`) đã dựng theo hợp đồng này:
+
+| Method | Path | Quyền | Mô tả |
+| :--- | :--- | :--- | :--- |
+| GET | `/api/v1/catalog/system/types` | `catalog:system:manage` | Danh sách loại **hệ thống** (`tenant_id IS NULL`) |
+| POST/PUT | `/api/v1/catalog/system/types[/{id}]` | `catalog:system:manage` | Tạo/sửa loại hệ thống |
+| GET/PUT | `/api/v1/catalog/system/types/{code}/grants` | `catalog:system:manage` | Grant của loại hệ thống (body PUT: `{ "grants": [{role_id, can_read, can_write}] }`) |
+| GET/POST | `/api/v1/catalog/system/types/{code}/items` | `catalog:system:manage` | Bản ghi hệ thống (paginated; tạo v1) |
+| GET/PUT/DELETE | `/api/v1/catalog/system/items/{id}` | `catalog:system:manage` | Chi tiết (`?with_relations=true`), sửa (tạo version mới), đóng hiệu lực |
+| GET | `/api/v1/catalog/system/items/{id}/{versions,parents,descendants}` | `catalog:system:manage` | Như Nhóm B |
+| POST/DELETE | `/api/v1/catalog/system/edges[/{id}]` | `catalog:system:manage` | Quan hệ của bản ghi hệ thống |
+
+**Hình dạng quan hệ trả về** (`?with_relations=true` / `parents` / `children`): `{ edge_id, item_id, code, name, relation_type }`.
+
 ## 3. Nhóm B — Quản trị bản ghi & quan hệ
 
 | Method | Path | Quyền | Mô tả |
