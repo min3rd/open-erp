@@ -204,10 +204,27 @@ VALUES
   (NULL, 'JOB',      'CATALOG_TYPE_JOB',      'DAG',  '{CLASSIFICATION,ALLOCATION}', NULL, TRUE, 'PLUGIN')
 ON CONFLICT (tenant_id, code) DO NOTHING;
 -- Loại tenant (seed theo tenant khi cài đặt): JOB_TITLE (cho phép nhập tự do),
--- CONTRACT_TYPE, SHIFT, EDUCATION_LEVEL, và DEPARTMENT (source = 'SYSTEM_BACKED', source_ref = 'departments').
+-- CONTRACT_TYPE, SHIFT, EDUCATION_LEVEL, EMPLOYMENT_TYPE, JOB_LEVEL, LEAVE_TYPE,
+-- ETHNICITY, NATIONALITY, CUSTOMER_TYPE, LEAD_SOURCE, PAYMENT_METHOD, PAYMENT_TERM,
+-- PRODUCT_GROUP, UOM, PRIORITY (13 danh mục cố định — CONF §1.1), và
+-- DEPARTMENT (danh mục riêng, KHÔNG system-backed; seed một chiều từ departments).
 
 -- 5.4 Backfill tenant đã tồn tại: cấp quyền + cài ACTIVE + seed danh mục tenant
 --     (cùng mẫu với V3.0.2: cập nhật tenants.allowed_plugins rồi chèn tenant_plugins)
+--     Seed danh mục cố định: idempotent theo (tenant_id, type_id, code); KHÔNG ghi đè
+--     bản ghi tenant đã sửa (chỉ chèn khi chưa có).
+--     Seed DEPARTMENT một chiều từ departments hiện có:
+INSERT INTO catalog_items (tenant_id, type_id, version_group_id, version, code, name, status, valid_from)
+SELECT d.tenant_id, t.id, gen_random_uuid(), 1,
+       COALESCE(NULLIF(d.code, ''), 'DEP-' || substr(d.id::text, 1, 8)), d.name, 'ACTIVE', now()
+FROM departments d
+JOIN catalog_types t ON t.tenant_id = d.tenant_id AND t.code = 'DEPARTMENT'
+WHERE NOT EXISTS (
+    SELECT 1 FROM catalog_items i
+    WHERE i.tenant_id = d.tenant_id AND i.type_id = t.id AND i.code = d.code AND i.valid_to IS NULL
+);
+-- Lưu ý: đây là seed MỘT CHIỀU (không đồng bộ hai chiều). Cây tổ chức vẫn là nguồn
+-- cấu trúc; danh mục Phòng ban chỉ phục vụ tra cứu form (CONF Q3, ANL-S05-002 §4.1).
 UPDATE tenants
    SET allowed_plugins = CASE WHEN allowed_plugins @> '["catalog"]'::jsonb
                               THEN allowed_plugins ELSE allowed_plugins || '["catalog"]'::jsonb END;

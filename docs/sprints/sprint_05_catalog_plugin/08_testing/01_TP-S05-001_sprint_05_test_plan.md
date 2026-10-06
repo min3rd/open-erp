@@ -48,6 +48,9 @@
 | TC-17 | AC-17 | Màn quản trị: chế độ Đa cha, danh sách cha, breadcrumb; không modal | Browser 1440 | Not Run |
 | TC-18 | — | Backend: bộ test `modules/catalog` (DAG/version/chồng lấn/quyền/cách ly) | `mvn test` | Not Run |
 | TC-19 | — | Mobile 390: picker + tra cứu, touch target ≥40px, overflow 0, 0 console error | Browser 390 | Not Run |
+| TC-20 | AC-18 | Import CSV: tệp mẫu đúng ⇒ tạo/cập nhật theo `code` + báo cáo dòng; `dry_run` không ghi; tệp sai cột/tệp > 5.000 dòng ⇒ từ chối (`CATALOG_IMPORT_VALIDATION_FAILED`/`TOO_LARGE`) | API + browser | Not Run |
+| TC-21 | AC-19 | Export CSV theo loại + tất cả (13 danh mục seed); mở bằng Excel đúng tiếng Việt (UTF-8 BOM); cột cha/con + hiệu lực đúng | API + browser | Not Run |
+| TC-22 | AC-20 | Tenant tạo bản ghi cùng `code` ⇒ form hiển thị bản tenant (badge "Ghi đè"); bản `INACTIVE` cùng `code` ⇒ mục hệ thống biến mất khỏi options của tenant đó, tenant khác **không** đổi | API + browser (2 tenant) | Not Run |
 
 ## 4. Tiêu Chí Đạt (Exit Criteria)
 

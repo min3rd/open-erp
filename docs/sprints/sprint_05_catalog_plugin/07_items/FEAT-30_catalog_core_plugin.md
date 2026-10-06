@@ -17,9 +17,9 @@ Nguồn: [RAW-S05-001](../01_raw_notes/01_RAW-S05-001_catalog_plugin_requirement
 
 ## 2. Phạm vi
 
-**Trong**: 4 bảng CSDL (loại/bản ghi/cạnh/grant) + ràng buộc EXCLUDE; truy vấn DAG (recursive CTE); version + as-of; CRUD + quyền 2 tầng; API lookup (types/options/resolve/path/inline); seed danh mục cố định + cầu nối phòng ban; component `catalog-picker` dùng chung; màn quản trị Desktop; tra cứu Mobile; đăng ký plugin core + backfill tenant.
+**Trong**: 4 bảng CSDL (loại/bản ghi/cạnh/grant) + ràng buộc EXCLUDE; truy vấn DAG (recursive CTE); version + as-of; CRUD + quyền 2 tầng; API lookup (types/options/resolve/path/inline); **import/export CSV** (Q7); **ghi đè/ẩn danh mục hệ thống theo tenant** (Q1/Q2); seed **13 danh mục cố định** (gồm Phòng ban là danh mục riêng — Q3); component `catalog-picker` dùng chung; màn quản trị Desktop; tra cứu Mobile; đăng ký plugin core + backfill tenant.
 
-**Ngoài (v1)**: quy trình duyệt, import/export, đồng bộ địa giới bên ngoài, bitemporal đầy đủ, đa ngôn ngữ tên danh mục, di trú cây phòng ban khỏi Core (xem CONF §1).
+**Ngoài (v1)**: quy trình duyệt (Q8), đồng bộ địa giới bên ngoài, bitemporal đầy đủ, đa ngôn ngữ tên danh mục (Q9), phân quyền dữ liệu theo chi nhánh/phòng ban (Q17) — xem CONF §1.
 
 ## 3. Task con
 
@@ -40,10 +40,12 @@ Nguồn: [RAW-S05-001](../01_raw_notes/01_RAW-S05-001_catalog_plugin_requirement
 | [TASK-387](TASK-387_catalog_picker_integration_and_mobile_browse.md) | Tích hợp picker + tra cứu Mobile | Medium | TASK-386 |
 | [TASK-388](TASK-388_catalog_i18n_and_docs.md) | i18n 13 locale + User/Developer Guide | Medium | TASK-385, TASK-386 |
 | [TASK-389](TASK-389_catalog_qa_browser.md) | QA browser Desktop + Mobile | High | TASK-385…387 |
+| [TASK-390](TASK-390_catalog_import_export_csv.md) | Import/Export CSV danh mục (khách chốt Q7) | High | TASK-381 |
+| [TASK-391](TASK-391_catalog_tenant_override_system_items.md) | Ghi đè/ẩn danh mục hệ thống theo tenant (khách chốt Q1/Q2) | High | TASK-379, TASK-381 |
 
 ## 4. Tiêu chí hoàn thành
 
-- 17 AC của [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) §2 được kiểm chứng (backend test + QA browser).
+- **20 AC** của [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) §2 được kiểm chứng (backend test + QA browser).
 - Plugin `catalog` **ACTIVE** cho mọi tenant (mới + backfill), không gỡ được; entity đã đăng ký Registry.
 - Build web + mobile PASS; i18n 13/13 100%; 0 console error; overflow 0 ở 390px.
 - User Guide + Developer Guide cập nhật; TR-S05-001 có baseline/evidence.

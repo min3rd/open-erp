@@ -26,12 +26,14 @@ Chốt các quyết định kiến trúc cho plugin `catalog` trước khi viế
 | **D8** | Truy vấn cây v1 dùng **recursive CTE** + index `(parent_item_id)`, `(child_item_id)`; **closure table** là phương án dự phòng khi có số đo | YAGNI: không thêm bảng bảo trì khi chưa đo | Đề xuất (ANL §3) |
 | **D9** | **Hai tầng phân quyền**: quyền module (`catalog:type:manage`, `catalog:item:read/manage`, `catalog:item:inline-create`) + grant theo loại (`catalog_type_grants`) | Đúng yêu cầu R5; không dùng data-scope cho v1 | Đề xuất |
 | **D10** | Danh mục **hệ thống** (`tenant_id IS NULL`) vs **tenant**; hợp nhất options theo `code`, **tenant thắng** | Một nguồn seed chung + cho phép ghi đè/ẩn cục bộ | Cần khách chốt (Q1, Q2) |
-| **D11** | "Phòng ban" là loại danh mục **system-backed** đọc từ `departments` (cầu nối), cho nhập tự do | Tránh hai nguồn sự thật | Cần khách chốt (Q3) |
+| **D11** | "Phòng ban" là **danh mục riêng của plugin** (khách chốt Q3 2026-10-06); seed **một chiều** từ `departments` khi cài/backfill; cây tổ chức vẫn là nguồn cấu trúc | Theo yêu cầu R7 (cho nhập tự do); giảm thiểu lệch dữ liệu bằng seed một chiều + ghi rõ vai trò từng nguồn | **Đã chốt (khách)** |
 | **D12** | Trường danh mục trong form lưu `{catalog_item_id, text}`; `text` luôn giữ để hiển thị ổn định | Hỗ trợ autocomplete **hoặc** nhập tự do (R7, AC-12) | Đề xuất |
 | **D13** | API form động gồm 4 nhóm: **schema / options (lazy, phân trang) / resolve theo lô / inline-create**; options gộp tenant + hệ thống | Đúng R6; tránh N+1 và tải cả danh mục | Đề xuất |
 | **D14** | Plugin **always-on**: khai báo definition core trong `PluginCatalogService` + seed `plugin_catalog (is_core, default_install, locked)` + **backfill** tenant cũ + dùng hook `PluginProvisioningService.provisionDefaults` cho tenant mới | Tận dụng hạ tầng Sprint 03, không viết cơ chế mới | Đã triển khai (hook) + Đề xuất (seed/backfill) |
 | **D15** | Đăng ký **Entity Registry** cho `CatalogType`, `CatalogItem`, `CatalogItemEdge`; manifest khai báo **ma trận Desktop/Mobile** (CRUD = Desktop, tra cứu = cả hai) | Ràng buộc dự án (AC-16) | Đề xuất |
 | **D16** | UI: màn quản trị trong Settings (Desktop, Drawer/Router — **không modal**); trường danh mục là **component dùng chung** `@shared` cho Web + Mobile | Quy chuẩn UI/UX + tái sử dụng (AC-17) | Đề xuất |
+| **D17** | **Import/Export CSV** nằm trong Sprint 5 (khách chốt Q7): import theo `code` (tạo/cập nhật, báo cáo theo dòng), export theo loại kèm cha/con + hiệu lực; validate toàn tệp trước khi ghi, giới hạn kích thước | Yêu cầu mới của khách; giữ an toàn dữ liệu bằng validate + báo cáo lỗi | **Đã chốt (khách)** |
+| **D18** | **Tenant ghi đè/ẩn danh mục hệ thống** theo `code` (khách chốt Q1/Q2): bản ghi tenant thắng khi hợp nhất; ẩn = bản ghi tenant `status = INACTIVE` cùng `code` | Đáp ứng yêu cầu; UI đánh dấu "ghi đè" để không nhầm | **Đã chốt (khách)** |
 
 ## 3. Thành phần
 

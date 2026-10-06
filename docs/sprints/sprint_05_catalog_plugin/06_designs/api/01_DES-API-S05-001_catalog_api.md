@@ -50,6 +50,16 @@
 | GET | `/api/v1/catalog/lookup/{typeCode}/path` | `catalog:item:read` | Tổ tiên/breadcrumb của một mục (`?id=`) |
 | POST | `/api/v1/catalog/lookup/{typeCode}/inline` | `catalog:item:inline-create` | Tạo nhanh từ nhập tự do `{name, code?}` → item mới (chống trùng theo `code`/`name`) |
 
+### 4.1. Nhóm D — Import / Export (khách chốt Q7: trong phạm vi Sprint 5)
+
+| Method | Path | Quyền | Mô tả |
+| :--- | :--- | :--- | :--- |
+| POST | `/api/v1/catalog/types/{code}/import` | `catalog:item:manage` + `can_write` | Upload CSV (multipart), `?dry_run=true` để kiểm tra trước; validate **toàn tệp** rồi mới ghi; trả báo cáo `created/updated/skipped/errors[{row, code, params}]` |
+| GET | `/api/v1/catalog/types/{code}/import/template` | `catalog:item:read` | Tải tệp mẫu CSV (UTF-8 BOM) đúng cột cho loại đó |
+| GET | `/api/v1/catalog/export` | `catalog:item:read` | Xuất CSV: `?type_code=` (hoặc `all=true`), `as_of`, kèm cột cha/con + hiệu lực + trạng thái |
+
+Quy tắc: tối đa **5.000 dòng**/lần import (vượt ⇒ `CATALOG_IMPORT_TOO_LARGE`); mã `code` là khoá khớp (có ⇒ cập nhật tạo phiên bản mới, chưa có ⇒ tạo); lỗi theo dòng **không** chặn các dòng hợp lệ nhưng báo cáo đầy đủ; export dùng cùng bộ lọc với danh sách.
+
 ## 5. Contract mẫu
 
 **5.1 Schema cho form renderer** — `GET /catalog/lookup/types` (non-paginated)
@@ -102,6 +112,7 @@ Chồng lấn hiệu lực: `409` + `code = CATALOG_ITEM_WINDOW_OVERLAP`.
 | Quan hệ | `CATALOG_EDGE_CREATED_SUCCESS`, `CATALOG_EDGE_CLOSED_SUCCESS`, `CATALOG_EDGE_CYCLE`, `CATALOG_EDGE_DUPLICATE`, `CATALOG_EDGE_NOT_FOUND`, `CATALOG_EDGE_SELF_REFERENCE` |
 | Quyền theo loại | `CATALOG_GRANT_FETCH_SUCCESS`, `CATALOG_GRANT_UPDATED_SUCCESS` |
 | Lookup | `CATALOG_LOOKUP_TYPES_SUCCESS`, `CATALOG_LOOKUP_OPTIONS_SUCCESS`, `CATALOG_LOOKUP_RESOLVE_SUCCESS`, `CATALOG_LOOKUP_INLINE_SUCCESS`, `CATALOG_LOOKUP_INLINE_DUPLICATE` |
+| Import/Export | `CATALOG_IMPORT_SUCCESS`, `CATALOG_IMPORT_VALIDATION_FAILED`, `CATALOG_IMPORT_TOO_LARGE`, `CATALOG_IMPORT_TEMPLATE_SUCCESS`, `CATALOG_EXPORT_SUCCESS` |
 
 Mọi mã trên phải có key i18n tương ứng ở **13 locale** của app dùng (web; mobile dùng tập con).
 
@@ -116,6 +127,9 @@ Mọi mã trên phải có key i18n tương ứng ở **13 locale** của app d�
 | AC-09 | `GET /types/{code}/grants`, `PUT …/grants`, lỗi `CATALOG_TYPE_FORBIDDEN` |
 | AC-10, AC-11 | `GET /lookup/{typeCode}/options`, `POST /lookup/{typeCode}/resolve` |
 | AC-12 | `POST /lookup/{typeCode}/inline` |
+| AC-18 | `POST /types/{code}/import` (+ `dry_run`, báo cáo theo dòng) |
+| AC-19 | `GET /export` (+ `/import/template`) |
+| AC-20 | Quy tắc hợp nhất tenant thắng ở options + bản ghi tenant cùng `code` |
 | AC-15 | Mọi endpoint lấy tenant từ context |
 
 ## 8. Lịch sử

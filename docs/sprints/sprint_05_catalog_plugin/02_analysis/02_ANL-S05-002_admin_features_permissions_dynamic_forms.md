@@ -62,11 +62,15 @@ Module tổ chức (Sprint 01/02) đã có `branches`/`departments` (cây phòng
 
 | Phương án | Mô tả | Đánh giá |
 | :--- | :--- | :--- |
-| **A. Cầu nối (khuyến nghị)** | Loại danh mục `DEPARTMENT` là loại **system-backed**: options đọc từ `departments`, không có bảng riêng; cho phép nhập tự do khi phòng ban chưa có trong cây | Một nguồn sự thật; form vẫn autocomplete; đúng tinh thần R7 |
-| B. Danh mục riêng | Plugin seed danh mục phòng ban độc lập | Trùng lặp, lệch dữ liệu — không nên |
-| C. Chuyển hẳn cây phòng ban sang plugin | Bỏ `departments` khỏi Core | Phá vỡ Sprint 01/02, ngoài phạm vi Sprint 05 |
+| A. Cầu nối | Loại danh mục `DEPARTMENT` là loại **system-backed** đọc từ `departments` | Một nguồn sự thật; nhưng không cho phép danh mục có mục tự do ngoài cây |
+| **B. Danh mục riêng (khách đã chọn 2026-10-06)** | Plugin seed danh mục phòng ban **độc lập**, cho nhập tự do | ✅ Cho phép mục ngoài cây + autocomplete tự do; ⚠️ **hai nguồn sự thật** — cần kỷ luật dữ liệu |
+| C. Di trú hẳn cây phòng ban sang plugin | Bỏ `departments` khỏi Core | Phá vỡ Sprint 01/02, ngoài phạm vi Sprint 05 |
 
-⇒ Đề xuất **A**, cần khách xác nhận (Q2 trong `04_confirmation/`).
+⇒ **Chốt B** (theo trả lời Q3). Giảm thiểu rủi ro lệch dữ liệu:
+
+1. Khi cài plugin/backfill: **seed một chiều** danh mục `DEPARTMENT` từ `departments` hiện có của tenant (không để danh mục rỗng).
+2. Ghi rõ trong UI + tài liệu: **cây tổ chức** là nguồn cấu trúc (báo cáo, phân quyền dữ liệu); **danh mục Phòng ban** chỉ phục vụ tra cứu form (autocomplete hoặc nhập tự do).
+3. Không tự đồng bộ hai chiều; nếu sau này cần, làm **task riêng** (lệnh đồng bộ có kiểm soát + báo cáo lệch).
 
 ## 5. R8 — Plugin "luôn bật", cài cho mọi tenant
 
