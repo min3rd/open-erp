@@ -177,13 +177,13 @@ export class CatalogAdminComponent implements OnInit {
   readonly successText = signal<string>('');
 
   readonly columns: TableColumn[] = [
-    { key: 'code', labelKey: 'CATALOG_COL_CODE', mono: true },
+    { key: 'code', labelKey: 'CATALOG_COL_CODE', mono: true, width: '5.5rem' },
     { key: 'name', labelKey: 'CATALOG_COL_NAME' },
-    { key: 'parents', labelKey: 'CATALOG_COL_PARENTS' },
-    { key: 'version', labelKey: 'CATALOG_COL_VERSION' },
-    { key: 'valid', labelKey: 'CATALOG_COL_VALID' },
-    { key: 'status', labelKey: 'CATALOG_COL_STATUS' },
-    { key: 'actions', labelKey: 'COMMON_ACTIONS', align: 'right' }
+    { key: 'parents', labelKey: 'CATALOG_COL_PARENTS', width: '4rem' },
+    { key: 'version', labelKey: 'CATALOG_COL_VERSION', width: '4rem' },
+    { key: 'valid', labelKey: 'CATALOG_COL_VALID', width: '8rem' },
+    { key: 'status', labelKey: 'CATALOG_COL_STATUS', width: '5.5rem' },
+    { key: 'actions', labelKey: 'COMMON_ACTIONS', align: 'right', width: '4rem' }
   ];
 
   readonly canManageItems = computed(() =>

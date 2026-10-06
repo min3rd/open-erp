@@ -12,6 +12,7 @@ import { map } from 'rxjs';
 import { routes } from './app.routes';
 import { PLUGIN_PERMISSION_CHECKER, UI_PREFERENCES_API, ThemeId, loadingInterceptor, toUiPreferences } from '@shared';
 import { AuthService } from './core/auth.service';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { UiPreferencesService, UserUiPreferencesUpdate } from './core/ui-preferences.service';
 
 export const appConfig: ApplicationConfig = {
@@ -21,7 +22,7 @@ export const appConfig: ApplicationConfig = {
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([loadingInterceptor])),
+    provideHttpClient(withInterceptors([loadingInterceptor, authInterceptor])),
     {
       provide: PLUGIN_PERMISSION_CHECKER,
       useFactory: () => {
