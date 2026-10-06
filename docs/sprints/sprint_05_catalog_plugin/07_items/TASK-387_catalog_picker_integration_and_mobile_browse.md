@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-387 / Task / Sprint 05 |
-| Severity / trạng thái | Medium / **Blocked — chờ CONF-S05-001 được duyệt** |
+| Severity / trạng thái | Medium / **To Do — sẵn sàng (gate APPROVED 2026-10-06)** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 (Pending), SOL-S05-001, DES-S05-001 |
 | depends_on / blocks / parent | TASK-386 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |
@@ -27,8 +27,8 @@ Chứng minh picker chạy end-to-end trong một form thật và có màn tra c
 
 | Kiểm tra / baseline / môi trường | Kết quả | Evidence |
 | :--- | :--- | :--- |
-| — | Not Run | Chưa triển khai (chờ gate scope) |
+| — | Not Run | Chưa triển khai (gate đã duyệt 2026-10-06) |
 
 ## 4. Bàn giao và lịch sử
 
-Chưa bắt đầu — phụ thuộc gate [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) và thiết kế đã review. Khi triển khai: ghi commit, số liệu đo và ảnh minh chứng.
+Gate [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) **APPROVED 2026-10-06** — sẵn sàng triển khai. Khi hoàn thành: ghi commit, số liệu đo và ảnh minh chứng.

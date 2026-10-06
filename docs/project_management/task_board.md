@@ -4,7 +4,7 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 
 ## Trạng thái điều hướng — cập nhật 2026-10-06
 
-Sprint đang theo dõi: [Sprint 05 — Plugin core Danh mục](../sprints/sprint_05_catalog_plugin/00_READING_GUIDE.md) — **Discovery (bước 1–6 đã soạn)**, chủ dự án đã **trả lời 18/18 câu hỏi** (2026-10-06) nhưng **chưa duyệt scope** ([CONF-S05-001](../sprints/sprint_05_catalog_plugin/04_confirmation/01_CONF-S05-001_sprint_05_scope.md) 0.2 — 20 AC). Chốt đáng chú ý: **Phòng ban = danh mục riêng** (không cầu nối cây tổ chức), **import/export CSV vào ngay Sprint 5**, **tenant được ghi đè/ẩn danh mục hệ thống**, seed **13 danh mục cố định**. Sprint 04 **đã đóng 2026-10-06** (18/18 TC PASS, theo chỉ đạo chủ dự án): [biên bản REV-S04-001](../sprints/sprint_04_ui_ux_experience/09_review/01_REV-S04-001_sprint_04_review.md) + [TR-S04-001](../sprints/sprint_04_ui_ux_experience/08_testing/02_TR-S04-001_sprint_04_test_report.md). Các phần tiến độ bên dưới lưu mốc lịch sử, không thay trạng thái file item/QA/review hiện hành.
+Sprint đang theo dõi: [Sprint 05 — Plugin core Danh mục](../sprints/sprint_05_catalog_plugin/00_READING_GUIDE.md) — ✅ **GATE APPROVED 2026-10-06**, **đang lập trình** ([CONF-S05-001](../sprints/sprint_05_catalog_plugin/04_confirmation/01_CONF-S05-001_sprint_05_scope.md) 1.0 — 22 AC, 25/25 câu hỏi đã trả lời; 19 task TASK-375…393 To Do). Chốt đáng chú ý: **Phòng ban = danh mục riêng** (không cầu nối cây tổ chức), **import/export CSV + `.xlsx` vào ngay Sprint 5**, **tenant được ghi đè/ẩn danh mục hệ thống**, seed **5 danh mục cố định** + **dữ liệu địa giới thật 2 cấp tỉnh→xã**, **màn quản trị danh mục hệ thống** ở cổng Platform. Sprint 04 **đã đóng 2026-10-06** (18/18 TC PASS, theo chỉ đạo chủ dự án): [biên bản REV-S04-001](../sprints/sprint_04_ui_ux_experience/09_review/01_REV-S04-001_sprint_04_review.md) + [TR-S04-001](../sprints/sprint_04_ui_ux_experience/08_testing/02_TR-S04-001_sprint_04_test_report.md). Các phần tiến độ bên dưới lưu mốc lịch sử, không thay trạng thái file item/QA/review hiện hành.
 
 [TASK-349](../sprints/sprint_03_plugin_manager/07_items/TASK-349_standardize_sdlc_and_developer_documentation.md) — chuẩn hóa phối hợp agent, đánh số/viết docs và onboarding dev; trạng thái xem tại item. [REV-S03-004](../sprints/sprint_03_plugin_manager/09_review/04_REV-S03-004_sdlc_workflow_review.md) chứa review/kiểm chứng của thay đổi tài liệu, không là QA sản phẩm.
 
@@ -14,7 +14,8 @@ Sprint đang theo dõi: [Sprint 05 — Plugin core Danh mục](../sprints/sprint
 
 2026-10-06: Sprint 04 **đóng** (DoD 11/11 Đạt; 34/34 item Done; baseline `772a211`; dọn code theo ponytail-review + vendor icon: bundle web 640→558 kB, build 0 cảnh báo). Khởi tạo tài liệu Sprint 05 (plugin core Danh mục): RAW-S05-001 → ANL-S05-001…002 → BENCH-S05-001 → CONF-S05-001 (Pending) → SOL-S05-001 → DES-DB/API/UI-S05-001 → FEAT-30 + TASK-375…389 (Blocked — chờ gate scope) → TP-S05-001. `check-docs` 0 lỗi.
 
-2026-10-06 (bổ sung 3): chốt tiếp **N6** (fetch một lần từ `provinces.open-api.vn` → CSV commit, runtime không gọi mạng) và **N7** (Apache POI cho `.xlsx`, ngoại lệ có kiểm soát) ⇒ **25/25 câu đã trả lời**, không còn câu hỏi mở. Gate scope **vẫn Pending** (Q18 = "chưa duyệt") — Sprint 05 chờ duyệt để bắt đầu code 19 task.
+2026-10-06 (bổ sung 3): chốt tiếp **N6** (fetch một lần từ `provinces.open-api.vn` → CSV commit, runtime không gọi mạng) và **N7** (Apache POI cho `.xlsx`, ngoại lệ có kiểm soát) ⇒ **25/25 câu đã trả lời**, không còn câu hỏi mở.
+2026-10-06 (GATE): chủ dự án **chốt scope** ("ok chốt scope và lập trình đi nhé") — CONF-S05-001 lên **1.0 Approved** (22 AC); **19 task TASK-375…393 + FEAT-30 chuyển Blocked → To Do**; **bắt đầu lập trình Sprint 05** (migration V4.0.0 trước).
 
 ---
 

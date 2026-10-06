@@ -3,9 +3,9 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-393 / Task / Sprint 05 |
-| Severity / trạng thái | High / **Blocked — chờ CONF-S05-001 được duyệt** |
+| Severity / trạng thái | High / **To Do — sẵn sàng (gate APPROVED 2026-10-06)** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
-| Cập nhật / input version | 2026-10-06 / CONF-S05-001 0.3 (N1–N5 đã trả lời; N6/N7 đang mở), DES-DB/API/UI |
+| Cập nhật / input version | 2026-10-06 / CONF-S05-001 1.0 (Approved 2026-10-06), DES-DB/API/UI |
 | depends_on / blocks / parent | TASK-375, TASK-377 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |
 | Write scope / baseline | `src/backend/src/main/resources/db/seed/provinces-communes.csv`, seed script/service, `scripts/gen-admin-units.mjs` (dev-time, một lần) |
 
@@ -28,8 +28,8 @@ Có sẵn 63 tỉnh và các xã là con **trực tiếp** của tỉnh (không 
 
 | Kiểm tra / baseline / môi trường | Kết quả | Evidence |
 | :--- | :--- | :--- |
-| — | Not Run | Chưa triển khai (chờ gate scope) |
+| — | Not Run | Chưa triển khai (gate đã duyệt 2026-10-06) |
 
 ## 4. Bàn giao và lịch sử
 
-Chưa bắt đầu — phụ thuộc gate [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md). Khi triển khai: ghi commit, số liệu đo và ảnh minh chứng.
+Gate [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) **APPROVED 2026-10-06** — sẵn sàng triển khai. Khi hoàn thành: ghi commit, số liệu đo và ảnh minh chứng.

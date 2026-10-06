@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-391 / Task / Sprint 05 |
-| Severity / trạng thái | High / **Blocked — chờ CONF-S05-001 được duyệt** |
+| Severity / trạng thái | High / **To Do — sẵn sàng (gate APPROVED 2026-10-06)** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 0.2 (câu trả lời Q1/Q2/Q7; gate Pending), DES-API/DES-UI |
 | depends_on / blocks / parent | TASK-379, TASK-381 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |
@@ -28,8 +28,8 @@ Tenant tạo bản ghi cùng `code` để ghi đè nhãn/thuộc tính, hoặc �
 
 | Kiểm tra / baseline / môi trường | Kết quả | Evidence |
 | :--- | :--- | :--- |
-| — | Not Run | Chưa triển khai (chờ gate scope) |
+| — | Not Run | Chưa triển khai (gate đã duyệt 2026-10-06) |
 
 ## 4. Bàn giao và lịch sử
 
-Chưa bắt đầu — phụ thuộc gate [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md). Khi triển khai: ghi commit, số liệu đo và ảnh minh chứng.
+Gate [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) **APPROVED 2026-10-06** — sẵn sàng triển khai. Khi hoàn thành: ghi commit, số liệu đo và ảnh minh chứng.

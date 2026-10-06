@@ -3,12 +3,12 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | CONF-S05-001 / Scope & AC / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | **Pending — 25/25 câu đã trả lời (18 gốc + N1–N7); chờ duyệt scope** / 0.4 / 2026-10-06 |
+| Trạng thái / phiên bản / cập nhật | **Approved — chủ dự án chốt scope 2026-10-06** / 1.0 / 2026-10-06 |
 | Owner / reviewer | BA Agent / **Khách hàng (Product Owner)** |
 | Đầu vào | [RAW-S05-001](../01_raw_notes/01_RAW-S05-001_catalog_plugin_requirements.md), [ANL-S05-001](../02_analysis/01_ANL-S05-001_catalog_data_model_problems.md), [ANL-S05-002](../02_analysis/02_ANL-S05-002_admin_features_permissions_dynamic_forms.md), [BENCH-S05-001](../03_benchmarks/01_BENCH-S05-001_catalog_patterns_in_erp.md) |
 | Đọc trước / đọc tiếp | [00_READING_GUIDE](../00_READING_GUIDE.md) / [SOL-S05-001](../05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) |
 
-> **Gate**: chủ dự án đã trả lời **đủ 18 câu hỏi** ngày 2026-10-06 (mục 3) nhưng chọn **"chưa duyệt — xem lại tài liệu trước"**. Vì vậy **scope/AC vẫn chưa được duyệt** và **chưa viết mã Sprint 05**.
+> **Gate: APPROVED (2026-10-06)** — chủ dự án chốt scope/AC bằng chỉ đạo trực tiếp trong phiên làm việc ("ok chốt scope và lập trình đi nhé") sau khi trả lời đầy đủ **25 câu hỏi** (18 gốc + N1–N7). Không tạo chữ ký tay giả; §5 ghi loại xác nhận thực tế. **Sprint 05 được phép lập trình.**
 
 ## 1. Phạm Vi Đề Xuất (đã cập nhật theo câu trả lời)
 
@@ -94,9 +94,9 @@ Xây **plugin core đầu tiên**: `catalog` (Danh mục & quản trị danh m�
 | Q15 | Ẩn plugin core | **Không — chỉ hiện trạng thái core** | Theo đề xuất |
 | Q16 | Backfill mục seed | **Backfill mọi tenant khi migration** | Theo đề xuất |
 | Q17 | Data scope theo item | **Không — chỉ phân quyền theo loại** | Theo đề xuất |
-| Q18 | Duyệt scope + AC | **Chưa duyệt — xem lại tài liệu trước** | **Gate vẫn Pending**; chưa viết code |
+| Q18 | Duyệt scope + AC | **ĐÃ DUYỆT toàn bộ (2026-10-06)** — "ok chốt scope và lập trình đi nhé" | **Gate APPROVED**; 19 task TASK-375…393 mở khoá |
 
-### 3.1. Câu hỏi phát sinh sau khi trả lời (cần chốt trước khi code)
+### 3.1. Câu hỏi phát sinh (đã trả lời 2026-10-06)
 
 | # | Câu hỏi | Trả lời của chủ dự án (2026-10-06) | Hệ quả đã cập nhật |
 | :--- | :--- | :--- | :--- |
@@ -131,11 +131,11 @@ Xây **plugin core đầu tiên**: `catalog` (Danh mục & quản trị danh m�
 
 ## 5. Chữ Ký Xác Nhận (Customer Scope Approval)
 
-> **Trạng thái: PENDING.** 18/18 câu hỏi đã được trả lời (mục 3) nhưng chủ dự án **chưa duyệt** scope/AC (Q18). Không viết mã Sprint 05 cho tới khi dòng dưới được cập nhật.
+> **Trạng thái: APPROVED (2026-10-06).** Chủ dự án đã trả lời đủ 25 câu hỏi (mục 3, §3.1, §3.2) và **chốt scope/AC bằng chỉ đạo trực tiếp** trong phiên làm việc. Không có chữ ký tay giả.
 
 | Vai trò | Xác nhận | Nguồn/ngày |
 | :--- | :--- | :--- |
-| Khách hàng (Product Owner) | ⏳ **Chưa duyệt** (đã trả lời câu hỏi) | Hội thoại 2026-10-06 |
+| Khách hàng (Product Owner) | ✅ **ĐÃ CHỐT SCOPE** — 22 AC + 19 task | Chỉ đạo trực tiếp 2026-10-06 ("ok chốt scope và lập trình đi nhé") |
 | BA Agent (soạn thảo) | Đã cập nhật theo câu trả lời | 2026-10-06 |
 
 ## 6. Lịch sử
@@ -146,3 +146,4 @@ Xây **plugin core đầu tiên**: `catalog` (Danh mục & quản trị danh m�
 | 0.2 | 2026-10-06 | Ghi nhận 18 câu trả lời; thêm AC-18/19/20 (import/export, ghi đè hệ thống); mở rộng seed §1.1; cập nhật rủi ro; gate vẫn Pending | BA Agent; nguồn: hội thoại chủ dự án |
 | 0.3 | 2026-10-06 | Chốt N1–N5 (seed 5 mục, seed địa giới 2 cấp, CSV+`.xlsx`, seed một chiều, màn hệ thống Platform); thêm AC-21/AC-22; mở N6 (nguồn dữ liệu) + N7 (thư viện `.xlsx`); gate vẫn Pending | BA Agent; nguồn: hội thoại chủ dự án |
 | 0.4 | 2026-10-06 | Chốt N6 (fetch một lần từ `provinces.open-api.vn`) và N7 (Apache POI); **hết câu hỏi**; gate vẫn Pending | BA Agent; nguồn: hội thoại chủ dự án |
+| **1.0** | 2026-10-06 | **Gate APPROVED** — chủ dự án chốt scope/AC + 22 AC và cho phép lập trình; 19 task mở khoá | BA Agent; nguồn: chỉ đạo trực tiếp chủ dự án |

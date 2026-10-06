@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | FEAT-30 / Feature / Sprint 05 |
-| Severity / trạng thái | High / **Planned — chờ CONF-S05-001 được duyệt** |
+| Severity / trạng thái | High / **In Progress — gate APPROVED 2026-10-06** |
 | Owner/agent / reviewer | Developer (agent) / Architect + QA |
 | Cập nhật / input version | 2026-10-06 / [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) (Pending), [SOL-S05-001](../05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) |
 | depends_on / blocks / parent | Sprint 03 (plugin manager), Sprint 01/02 (RBAC, tổ chức) / các plugin nghiệp vụ sau / — |
