@@ -3,9 +3,9 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TR-S04-001 / Test report / Sprint 04 |
-| Trạng thái / phiên bản / cập nhật | **Draft — QA tự chạy, chờ QA người ký** / 0.2 / 2026-10-05 |
+| Trạng thái / phiên bản / cập nhật | **Draft — QA tự chạy, chờ QA người ký** / 0.3 / 2026-10-06 |
 | Owner / reviewer | QA Agent (agent chạy tự động) / **QA người — chưa ký** |
-| Baseline | `888198a` (web + mobile build PASS, 0 cảnh báo), backend dev `:8088` + PostgreSQL/Redis thật, web `:4200`, mobile `:8100` |
+| Baseline | `772a211` (web + mobile build PASS, 0 cảnh báo; bundle web 558 kB), backend dev `:8088` + PostgreSQL/Redis thật, web `:4200`, mobile `:8100` |
 | Đầu vào | [TP-S04-001](01_TP-S04-001_sprint_04_test_plan.md) (18 TC), [CONF-S04-001](../04_confirmation/01_CONF-S04-001_sprint_04_scope.md) (Approved, §5.1 thay đổi AC-17) |
 | Đọc trước / đọc tiếp | [TP-S04-001](01_TP-S04-001_sprint_04_test_plan.md) / [09_review](../09_review/) |
 
@@ -37,6 +37,28 @@
 **0 console.error** trên mọi lượt chạy (web 1440, web 390, mobile 390).
 
 **Sau khi dọn code + vendor icon (`888198a`)**: `UserUiPreferencesApiTest` **7/7 PASS** (payload bỏ 4 trường `available_*`); icon render trên trình duyệt **14/14 `app-icon` có markup, 0 rỗng**, 0 console error; bundle web **640.25 → 558.11 kB** và build 0 cảnh báo.
+
+## 1.1. Chạy lại toàn bộ trên baseline cuối (`772a211`, 2026-10-06)
+
+| TC | Kết quả lần chạy cuối | Số liệu |
+| :--- | :--- | :--- |
+| TC-02 | PASS | 4 theme × 2 mode: body 16.30–17.93, muted 4.74–7.58 (≥ 4.5) |
+| TC-03 | PASS | `sharp` mặc định, font 12px, hàng 28px, overflow 390px = **0** |
+| TC-05 | PASS | Animation đang chạy khi mở menu: `op-pop-in`, `op-route-in` |
+| TC-06 | PASS | reduced-motion ⇒ **0** animation |
+| TC-07 | PASS | 14 icon, 0 rỗng, 0 nút icon-only thiếu nhãn |
+| TC-09 | PASS | Menu mở tại con trỏ (309,159), 2 mục |
+| TC-10 | PASS | `Escape` đóng + focus về hàng; `Shift+F10` mở lại |
+| TC-11 | PASS | touch `contextmenu` ⇒ không mở menu; Ionic 390: 0 touch target < 40px |
+| TC-12 | PASS | **Chạy lại tập trung**: click menu "Thành viên" + latency 500ms ⇒ thanh progress hiện ở **1125ms**, ẩn khi xong; thao tác không request: không hiện. (Lần chạy trong bộ có lúc không thấy do thứ tự thao tác của harness, không phải lỗi app.) |
+| TC-13/14 | PASS | Chặn endpoint ⇒ chỉ vùng bảng lỗi + 1 nút Thử lại, vùng tra cứu vẫn chạy; bỏ chặn + Thử lại ⇒ dữ liệu về |
+| TC-15 | PASS | `html lang=en`, 0 key thô `PERM_*`, F5 giữ `en` |
+| TC-16 | PASS | `i18n:check:strict`: 13/13 locale 100% (web 944, mobile 494) |
+| TC-17 | PASS | Web: `dir=rtl`, overflow 0 ở 1440 & 390 · **Ionic 390**: `dir=rtl lang=ar`, overflow 0, 0 console error |
+| TC-18 | PASS | Backend `UserUiPreferencesApiTest` **7/7** trên PostgreSQL thật |
+| Icon data | PASS | 36/36 `IconName` có markup (không rỗng) |
+
+**Ghi nhận nhỏ (Medium, không chặn)**: tại web 390px còn **1 nút cao 27px** (< 40px touch target) — nút phụ trong vùng lọc; đề xuất chỉnh ở sprint sau hoặc khi có yêu cầu.
 
 ## 2. Bug Phát Hiện Trong Đợt Này
 

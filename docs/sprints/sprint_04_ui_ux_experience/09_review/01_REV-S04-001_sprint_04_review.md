@@ -16,7 +16,7 @@
 | # | Điều kiện DoD | Trạng thái | Bằng chứng |
 | :--- | :--- | :--- | :--- |
 | 1 | CONF-S04-001 được khách xác nhận (nguồn + ngày) | **Đạt** | Approved 2026-10-05 (chỉ đạo trực tiếp, 20/20 câu) + §5.1 ghi thay đổi sau duyệt |
-| 2 | 100% AC được QA browser (Web + Mobile 390×844), 0 console error, overflow 0 | **Đạt (đo tự động)** | TR-S04-001: **18/18 TC PASS** (15 đo trực tiếp + 3 đo sau khi bổ sung bằng chứng), 0 console error, overflow 0 ở 1440 & 390 (web + Ionic); **QA người chưa ký** |
+| 2 | 100% AC được QA browser (Web + Mobile 390×844), 0 console error, overflow 0 | **Đạt (đo tự động)** | TR-S04-001 v0.3 (baseline `772a211`): **18/18 TC PASS**, 0 console error, overflow 0 ở 1440 & 390 (web + Ionic); còn 1 nút 27px < 40px ở web 390 (Medium, không chặn) — **QA người chưa ký** |
 | 3 | 4 theme × Light/Dark đạt AA, giữ mật độ, chỉ mặc định vuông vắn | **Đạt (đo tự động)** | TR TC-02: 16.30–17.93 (body), 4.74–7.58 (muted) ≥ 4.5; TC-03: font 12px, hàng 28px, `sharp` mặc định |
 | 4 | Theme theo tenant / mode theo người dùng (AC-17) | **Đổi phạm vi** | CONF §5.1: 4 trục theo người dùng, tenant là mặc định; backend test 7/7 |
 | 5 | RTL đầy đủ cho `ar`, không tràn ngang 390px (AC-16) | **Đạt** | TASK-371 + TR TC-17: `dir=rtl`, overflow 0 ở 1440 & 390 **web + Mobile Ionic thật**, 0 console error |
@@ -40,9 +40,20 @@
 
 ## 3. Việc Còn Lại Trước Khi Đóng
 
-1. **QA người chạy mẫu + ký QA sign-off** trên TR-S04-001 (18/18 PASS đo tự động; 4 điểm nên kiểm tay ghi ở §3 của TR: FOUC first-paint, skeleton khi mạng chậm, điều hướng bàn phím qua mục disabled, mẫu lặp).
+1. **QA người chạy mẫu + ký QA sign-off** trên TR-S04-001 v0.3 (18/18 PASS đo tự động; 4 điểm nên kiểm tay ghi ở §3 của TR: FOUC first-paint, skeleton khi mạng chậm, điều hướng bàn phím qua mục disabled, mẫu lặp).
 2. **PM đánh giá DoD** (§1) và **khách nghiệm thu**; sau đó ghi Closure.
-3. (Tuỳ chọn) dọn ~115 dòng thừa theo ponytail-review và tối ưu bundle `feather-icons` (TASK-361 follow-up) — không chặn đóng sprint.
+3. (Tuỳ chọn, không chặn) 1 nút 27px < 40px tại web 390px; dọn tiếp nếu muốn.
+
+## 3.1. Đề nghị duyệt (2026-10-06)
+
+| Nội dung cần duyệt | Trạng thái sẵn sàng |
+| :--- | :--- |
+| Phạm vi & AC (CONF-S04-001 + §5.1) | Đã Approved 2026-10-05 |
+| 18/18 TC theo TP-S04-001 | TR-S04-001 v0.3 — **PASS** trên baseline `772a211` |
+| 0 bug `Critical`/`High` mở | BUG-121…134: 6 Resolved, 8 In Review (đã sửa, chờ QA chuyển Done) |
+| Tài liệu bàn giao | User guide (14 ảnh) + Developer guide + TR/REV + 14 item |
+| Build & chất lượng | Web + mobile PASS, **0 cảnh báo**; bundle web 558 kB; i18n 13/13 100% |
+| Rủi ro còn lại | 1 touch target 27px (Medium); skeleton khi mạng chậm nên kiểm tay; RTL canvas sơ đồ cố định LTR (có chủ đích) |
 
 ## 4. Tổng Kết Sprint (số liệu)
 

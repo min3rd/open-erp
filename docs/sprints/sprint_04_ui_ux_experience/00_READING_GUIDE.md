@@ -62,8 +62,8 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 | :--- | :--- | :--- | :--- |
 | Scope approval (CONF-S04-001) | **Approved** | Khách hàng (chủ dự án) | Chỉ đạo trực tiếp 2026-10-05 (đã trả lời đủ 20 câu; không ký tay) |
 | Design ready (SOL/DES) | Draft — chờ review kỹ thuật | Architect/Reviewer | SOL/DES 0.1 |
-| QA sign-off | **Pending** | QA | TR-S04-001 Draft: 15 PASS / 2 Not Run / 1 một phần |
-| PM đánh giá DoD | Pending | PM | REV-S04-001 Draft (bảng DoD) |
+| QA sign-off | **Pending** | QA | TR-S04-001 v0.3: **18/18 TC PASS** (đo tự động), chờ QA người ký |
+| PM đánh giá DoD | Pending | PM | REV-S04-001 Draft (bảng DoD + §3.1 đề nghị duyệt) |
 | Customer acceptance | Pending | Khách hàng | Chưa có |
 | Closure | Pending | PM sau nghiệm thu | Chưa có |
 
@@ -117,7 +117,7 @@ Khách hàng đọc **01 → 04** rồi **08–09** (khi có). Developer đọc 
 | BUG-134 | [Context menu missing screens](07_items/BUG-134_context_menu_missing_screens.md) | Developer | Used (Resolved) |
 | ADR-S04-* | Chưa tạo | Architect | Chưa dùng |
 | TP-S04-001 | [Test plan](08_testing/01_TP-S04-001_sprint_04_test_plan.md) | QA | Used (Draft) |
-| TR-S04-001 | [Test report](08_testing/02_TR-S04-001_sprint_04_test_report.md) | QA | Used (Draft — 15 PASS / 2 Not Run) |
+| TR-S04-001 | [Test report](08_testing/02_TR-S04-001_sprint_04_test_report.md) | QA | Used (Draft v0.3 — 18/18 PASS, chờ ký) |
 | REV-S04-001 | [Sprint review](09_review/01_REV-S04-001_sprint_04_review.md) | PM | Used (Draft — chờ ký) |
 
 ## 5. Việc chuyển tiếp từ Sprint 03
