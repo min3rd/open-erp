@@ -10,9 +10,11 @@ public final class CatalogErrorCode {
     private CatalogErrorCode() {
     }
 
+    // Success - plugin descriptor
+    public static final String CATALOG_PLUGIN_MANIFEST_SUCCESS = "CATALOG_PLUGIN_MANIFEST_SUCCESS";
+
     // Success - types
-    public static final String CATALOG_TYPE_FETCH_SUCCESS = "CATALOG_TYPE_FETCH_SUCCESS";
-    public static final String CATALOG_TYPE_CREATED_SUCCESS = "CATALOG_TYPE_CREATED_SUCCESS";
+    public static final String CATALOG_TYPE_FETCH_SUCCESS = "CATALOG_TYPE_FETCH_SUCCESS";    public static final String CATALOG_TYPE_CREATED_SUCCESS = "CATALOG_TYPE_CREATED_SUCCESS";
     public static final String CATALOG_TYPE_UPDATED_SUCCESS = "CATALOG_TYPE_UPDATED_SUCCESS";
 
     // Errors - types

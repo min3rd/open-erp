@@ -24,8 +24,6 @@ public enum CatalogResponseKey {
     ALLOW_FREE_TEXT("allow_free_text"),
     VERSIONED("versioned"),
     EFFECTIVE_DATED("effective_dated"),
-    SOURCE("source"),
-    SOURCE_REF("source_ref"),
     ATTRIBUTES_SCHEMA("attributes_schema"),
 
     // Items
@@ -85,8 +83,6 @@ public enum CatalogResponseKey {
         String ALLOW_FREE_TEXT = "allow_free_text";
         String VERSIONED = "versioned";
         String EFFECTIVE_DATED = "effective_dated";
-        String SOURCE = "source";
-        String SOURCE_REF = "source_ref";
         String ATTRIBUTES_SCHEMA = "attributes_schema";
         String VERSION_GROUP_ID = "version_group_id";
         String VERSION = "version";

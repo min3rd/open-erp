@@ -36,8 +36,6 @@ CREATE TABLE catalog_types (
     allow_free_text   BOOLEAN      NOT NULL DEFAULT FALSE,
     versioned         BOOLEAN      NOT NULL DEFAULT TRUE,
     effective_dated   BOOLEAN      NOT NULL DEFAULT TRUE,
-    source            VARCHAR(16)  NOT NULL DEFAULT 'PLUGIN',         -- PLUGIN | SYSTEM_BACKED
-    source_ref        VARCHAR(64),                                    -- vd 'departments'
     attributes_schema JSONB,                                          -- định nghĩa trường động của loại
     status            VARCHAR(16)  NOT NULL DEFAULT 'ACTIVE',
     created_at        TIMESTAMPTZ  NOT NULL DEFAULT now(),
@@ -284,6 +282,9 @@ Ghi nhận trong lúc viết migration `V4.0.0__catalog_core_plugin.sql` (TASK-3
 | 6 | Mode của 5 loại tenant không ghi rõ | **JOB_TITLE = DAG, DEPARTMENT = TREE, CONTRACT_TYPE/SHIFT/EDUCATION_LEVEL = FLAT** | Chốt khi seed; `JOB_TITLE` cho phép nhập tự do (`allow_free_text = TRUE`) |
 | 7 | `tenant_plugins.storage_model` cho plugin core | **`DEDICATED_SCHEMA`** (giá trị duy nhất hợp lệ) | Ràng buộc `chk_tenant_plugin_storage` chỉ cho `DEDICATED_SCHEMA`/`DEDICATED_DATABASE`; mô hình "core dùng chung schema" (SHARED_SCHEMA_RLS) **nằm ngoài enum** theo quyết định Sprint 03, nên cột này không dùng cho plugin in-process |
 | 8 | `uq_catalog_item_version` dùng `UNIQUE (tenant_id, type_id, code, version)` | giữ nguyên (nit nhỏ) | Với `tenant_id NULL`, UNIQUE cho phép trùng số version ở các cửa sổ **không chồng lấn** — `ex_catalog_item_window` đã chặn chồng lấn nên không hỏng dữ liệu; **không sửa migration đã apply** (checksum Flyway); nếu cần siết thì thêm `V4.0.1` với `UNIQUE NULLS NOT DISTINCT` |
+| 9 | `source` / `source_ref` trên `catalog_types` | **đã bỏ** bằng `V4.0.1__drop_catalog_type_source.sql` | Quyết định CONF-S05-001 §3.1 (phương án "bridge" bị loại cùng Q3): cột luôn mang giá trị `PLUGIN`, `source_ref` chưa bao giờ được ghi ⇒ cột chết, làm lệch descriptor plugin + Entity Registry. Dọn cả entity (`CatalogType`), enum `CatalogTypeSource`, DTO `TypeResponse`, `CatalogResponseKey` và key `SOURCE_REF` ở FE |
+
+**Bằng chứng đã kiểm chứng trên PostgreSQL dev (2026-10-06 — bổ sung)**: `V4.0.1` apply sạch; `CatalogPluginManifestTest` PASS (descriptor `plugins/catalog/plugin.json` khớp 5 quyền seed + 4 entity đã đăng ký + `plugin_catalog` row `catalog`); `GET /api/v1/catalog/plugin/manifest` → HTTP 200 với `code = CATALOG_PLUGIN_MANIFEST_SUCCESS`.
 
 **Bằng chứng đã kiểm chứng trên PostgreSQL dev (2026-10-06)**: migration apply sạch; **60/60 tenant** nhận plugin `ACTIVE` + 5 loại + **600 grant mặc định**; `sys_entity_registry` có **4** dòng (`CatalogType/CatalogItem/CatalogItemEdge/CatalogTypeGrant`, `plugin_id = 'catalog'`); EXCLUDE bắn `23P01 ex_catalog_item_window`; seeder địa giới idempotent (34 tỉnh / 3.321 xã / 3.321 cạnh sau nhiều lần chạy); **49 test** liên quan PASS (gồm bộ catalog + các lớp bị ảnh hưởng).
 
@@ -293,3 +294,4 @@ Ghi nhận trong lúc viết migration `V4.0.0__catalog_core_plugin.sql` (TASK-3
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-06 | Bản nháp DDL + truy vấn mẫu + seed | Architect; chưa review |
 | 0.2 | 2026-10-06 | Ghi 6 điều chỉnh khi triển khai (mục 6.1) + bằng chứng kiểm chứng trên PostgreSQL dev | Architect; nguồn: migration V4.0.0 + test catalog |
+| 0.3 | 2026-10-06 | Bỏ `source`/`source_ref` khỏi DDL (mục 6.1 #9) + bằng chứng `V4.0.1` + manifest plugin | Architect; nguồn: migration V4.0.1 + `CatalogPluginManifestTest` |

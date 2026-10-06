@@ -68,6 +68,14 @@ Cùng hình dạng resource như Nhóm A/B nhưng thêm tiền tố **`/system`*
 | GET | `/api/v1/catalog/lookup/{typeCode}/path` | `catalog:item:read` | Tổ tiên/breadcrumb của một mục (`?id=`) |
 | POST | `/api/v1/catalog/lookup/{typeCode}/inline` | `catalog:item:inline-create` | Tạo nhanh từ nhập tự do `{name, code?}` → item mới (chống trùng theo `code`/`name`) |
 
+### 4.0. Nhóm E — Descriptor plugin (bổ sung 2026-10-06, AC-16)
+
+| Method | Path | Quyền | Mô tả |
+| :--- | :--- | :--- | :--- |
+| GET | `/api/v1/catalog/plugin/manifest` | `catalog:item:read` | Trả descriptor của chính plugin `catalog` đọc từ `plugins/catalog/plugin.json` (`id`, `version`, `platforms.desktop/mobile.features`, `permissions`, `entities`, `ui_manifest`) — để dev/plugin khác biết plugin này dùng được gì mà không phải đọc code. `code = CATALOG_PLUGIN_MANIFEST_SUCCESS` |
+
+Ghi chú: root class riêng `/api/v1/catalog/plugin` (không đặt `/api/v1/catalog` vì sẽ che mất cây `/types/**` — §2.1). Descriptor là **nguồn khai báo duy nhất** cho ma trận Desktop/Mobile; `CatalogPluginManifestTest` đối chiếu descriptor với DB (5 quyền seed, 4 entity đã đăng ký, row `plugin_catalog`).
+
 ### 4.1. Nhóm D — Import / Export (khách chốt Q7: trong phạm vi Sprint 5)
 
 | Method | Path | Quyền | Mô tả |
@@ -149,9 +157,11 @@ Mọi mã trên phải có key i18n tương ứng ở **13 locale** của app d�
 | AC-19 | `GET /export` (+ `/import/template`) |
 | AC-20 | Quy tắc hợp nhất tenant thắng ở options + bản ghi tenant cùng `code` |
 | AC-15 | Mọi endpoint lấy tenant từ context |
+| AC-16 | `GET /plugin/manifest` (descriptor khai báo ma trận Desktop/Mobile) |
 
 ## 8. Lịch sử
 
 | Phiên bản | Ngày | Thay đổi | Người review/phê duyệt và nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-06 | Bản nháp 3 nhóm API + contract + mã lỗi | Architect; chưa review |
+| 0.2 | 2026-10-06 | Thêm §4.0 descriptor plugin (`GET /catalog/plugin/manifest`, `CATALOG_PLUGIN_MANIFEST_SUCCESS`) + truy vết AC-16 | Architect; nguồn: `CatalogPluginResource` + `CatalogPluginManifestTest` PASS |

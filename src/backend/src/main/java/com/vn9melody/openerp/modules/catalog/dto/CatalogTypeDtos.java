@@ -27,8 +27,6 @@ public final class CatalogTypeDtos {
         @JsonProperty(CatalogResponseKey.Json.ALLOW_FREE_TEXT) boolean allowFreeText,
         @JsonProperty(CatalogResponseKey.Json.VERSIONED) boolean versioned,
         @JsonProperty(CatalogResponseKey.Json.EFFECTIVE_DATED) boolean effectiveDated,
-        @JsonProperty(CatalogResponseKey.Json.SOURCE) String source,
-        @JsonProperty(CatalogResponseKey.Json.SOURCE_REF) String sourceRef,
         @JsonProperty(CatalogResponseKey.Json.ATTRIBUTES_SCHEMA) JsonNode attributesSchema,
         @JsonProperty(ResponseKey.Json.STATUS) String status,
         @JsonProperty(ResponseKey.Json.IS_SYSTEM) boolean isSystem,

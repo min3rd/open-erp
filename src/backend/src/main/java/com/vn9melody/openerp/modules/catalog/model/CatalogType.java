@@ -3,7 +3,6 @@ package com.vn9melody.openerp.modules.catalog.model;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vn9melody.openerp.core.enums.CatalogHierarchyMode;
 import com.vn9melody.openerp.core.enums.CatalogStatus;
-import com.vn9melody.openerp.core.enums.CatalogTypeSource;
 import com.vn9melody.openerp.core.registry.RegisterEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
@@ -31,7 +30,7 @@ import org.hibernate.type.SqlTypes;
     table = "catalog_types",
     publicFields = {"id", "tenant_id", "code", "name_key", "description_key", "hierarchy_mode",
         "allowed_relations", "allowed_parent_types", "max_depth", "min_parents", "allow_free_text",
-        "versioned", "effective_dated", "source", "source_ref", "status", "created_at", "updated_at"},
+        "versioned", "effective_dated", "status", "created_at", "updated_at"},
     relations = {"tenants", "catalog_types"}
 )
 public class CatalogType extends PanacheEntityBase {
@@ -80,13 +79,6 @@ public class CatalogType extends PanacheEntityBase {
 
     @Column(name = "effective_dated", nullable = false)
     public boolean effectiveDated = true;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "source", nullable = false, length = 16)
-    public CatalogTypeSource source = CatalogTypeSource.PLUGIN;
-
-    @Column(name = "source_ref", length = 64)
-    public String sourceRef;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "attributes_schema", columnDefinition = "jsonb")

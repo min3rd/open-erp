@@ -6,7 +6,6 @@ import com.vn9melody.openerp.core.audit.AuditTrail;
 import com.vn9melody.openerp.core.enums.CatalogHierarchyMode;
 import com.vn9melody.openerp.core.enums.CatalogRelationType;
 import com.vn9melody.openerp.core.enums.CatalogStatus;
-import com.vn9melody.openerp.core.enums.CatalogTypeSource;
 import com.vn9melody.openerp.core.enums.PlatformAction;
 import com.vn9melody.openerp.core.enums.ResponseKey;
 import com.vn9melody.openerp.modules.catalog.api.CatalogErrorCode;
@@ -92,7 +91,6 @@ public class CatalogTypeService {
         type.tenantId = tenantId;
         type.code = code;
         applyCreate(type, request);
-        type.source = CatalogTypeSource.PLUGIN;
         type.createdAt = Instant.now();
         type.updatedAt = type.createdAt;
         type.persist();
@@ -330,8 +328,6 @@ public class CatalogTypeService {
             type.allowFreeText,
             type.versioned,
             type.effectiveDated,
-            type.source.name(),
-            type.sourceRef,
             type.attributesSchema,
             type.status.name(),
             type.tenantId == null,
