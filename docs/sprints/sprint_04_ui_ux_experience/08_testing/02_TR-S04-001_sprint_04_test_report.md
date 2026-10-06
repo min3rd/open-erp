@@ -5,7 +5,7 @@
 | ID / loại / sprint | TR-S04-001 / Test report / Sprint 04 |
 | Trạng thái / phiên bản / cập nhật | **Draft — QA tự chạy, chờ QA người ký** / 0.2 / 2026-10-05 |
 | Owner / reviewer | QA Agent (agent chạy tự động) / **QA người — chưa ký** |
-| Baseline | `5c2e0ca` (web + mobile build PASS), backend dev `:8088` + PostgreSQL/Redis thật, web `:4200`, mobile `:8100` |
+| Baseline | `888198a` (web + mobile build PASS, 0 cảnh báo), backend dev `:8088` + PostgreSQL/Redis thật, web `:4200`, mobile `:8100` |
 | Đầu vào | [TP-S04-001](01_TP-S04-001_sprint_04_test_plan.md) (18 TC), [CONF-S04-001](../04_confirmation/01_CONF-S04-001_sprint_04_scope.md) (Approved, §5.1 thay đổi AC-17) |
 | Đọc trước / đọc tiếp | [TP-S04-001](01_TP-S04-001_sprint_04_test_plan.md) / [09_review](../09_review/) |
 
@@ -35,6 +35,8 @@
 | TC-18 | — | **PASS** | `UserUiPreferencesApiTest` 7/7, `TenantUiPreferencesApiTest` 4/4 (PostgreSQL thật, không H2) |
 
 **0 console.error** trên mọi lượt chạy (web 1440, web 390, mobile 390).
+
+**Sau khi dọn code + vendor icon (`888198a`)**: `UserUiPreferencesApiTest` **7/7 PASS** (payload bỏ 4 trường `available_*`); icon render trên trình duyệt **14/14 `app-icon` có markup, 0 rỗng**, 0 console error; bundle web **640.25 → 558.11 kB** và build 0 cảnh báo.
 
 ## 2. Bug Phát Hiện Trong Đợt Này
 

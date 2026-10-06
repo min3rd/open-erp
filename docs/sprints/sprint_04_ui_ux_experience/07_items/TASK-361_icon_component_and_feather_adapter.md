@@ -36,7 +36,7 @@ Tạo **một** component icon dùng chung cho Web + Mobile, lấy dữ liệu t
 | `npm run build` (web) | PASS | bundle generation complete; **warning**: initial bundle 603.48 kB > budget 500 kB (do `feather-icons` UMD/CommonJS ~100 kB) |
 | `npm run build` (mobile) | PASS | bundle generation complete |
 
-> **Ghi nhận hạn chế**: `feather-icons` phát hành dạng UMD/CommonJS (không ESM) ⇒ esbuild không tree-shake, kéo cả bộ icon (~100 kB) và vượt ngân sách bundle. Đây là hệ quả của lựa chọn npm (Q19). Follow-up tối ưu (không chặn): sinh tập con icon tại build từ `feather-icons/dist/icons/*.svg` hoặc nâng ngân sách bundle có ghi chú.
+> **Đã xử lý (2026-10-06, commit `888198a`)**: `scripts/gen-icons.mjs` (`npm run icons:gen`) vendor **36 icon đang dùng** thành dữ liệu trong `icon-data.generated.ts`; registry không còn import `feather-icons` lúc chạy (chuyển thành devDependency của web). Kết quả: bundle web **640.25 → 558.11 kB**, **hết cảnh báo CommonJS**, build 0 cảnh báo (ngân sách đặt lại 600 kB warn / 800 kB error cho web, 1.1/1.5 MB cho mobile). Kiểm chứng: 36/36 `IconName` có markup; render trình duyệt 14/14 `app-icon` không rỗng, 0 console error.
 
 ## 4. Bàn giao và lịch sử
 
