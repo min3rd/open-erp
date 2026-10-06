@@ -203,11 +203,17 @@ VALUES
   (NULL, 'INDUSTRY', 'CATALOG_TYPE_INDUSTRY', 'DAG',  '{CLASSIFICATION}', NULL, FALSE, 'PLUGIN'),
   (NULL, 'JOB',      'CATALOG_TYPE_JOB',      'DAG',  '{CLASSIFICATION,ALLOCATION}', NULL, TRUE, 'PLUGIN')
 ON CONFLICT (tenant_id, code) DO NOTHING;
--- Loại tenant (seed theo tenant khi cài đặt): JOB_TITLE (cho phép nhập tự do),
--- CONTRACT_TYPE, SHIFT, EDUCATION_LEVEL, EMPLOYMENT_TYPE, JOB_LEVEL, LEAVE_TYPE,
--- ETHNICITY, NATIONALITY, CUSTOMER_TYPE, LEAD_SOURCE, PAYMENT_METHOD, PAYMENT_TERM,
--- PRODUCT_GROUP, UOM, PRIORITY (13 danh mục cố định — CONF §1.1), và
--- DEPARTMENT (danh mục riêng, KHÔNG system-backed; seed một chiều từ departments).
+-- Loại tenant (seed theo tenant khi cài đặt) — **chốt 5 mục (N1)**: JOB_TITLE (cho phép nhập tự do),
+-- DEPARTMENT (danh mục riêng, seed một chiều từ departments), CONTRACT_TYPE, SHIFT, EDUCATION_LEVEL.
+-- 8 mục gợi ý thêm đã bị cắt theo N1 (tenant tự tạo khi cần).
+
+-- 5.3.1 Seed dữ liệu địa giới 2 cấp tỉnh→xã (N2) — chạy một lần trong seed script
+--       từ tệp commit trong repo (nguồn ghi ở header tệp, chốt tại N6):
+--       src/backend/src/main/resources/db/seed/provinces-communes.csv
+--       Mỗi dòng: province_code,province_name,commune_code,commune_name
+--       ⇒ chèn item hệ thống cho PROVINCE và COMMUNE + cạnh trực tiếp tỉnh→xã
+--       (KHÔNG seed huyện; loại DISTRICT vẫn có sẵn cho tenant dùng sau).
+--       Idempotent theo (tenant_id IS NULL, type_id, code).
 
 -- 5.4 Backfill tenant đã tồn tại: cấp quyền + cài ACTIVE + seed danh mục tenant
 --     (cùng mẫu với V3.0.2: cập nhật tenants.allowed_plugins rồi chèn tenant_plugins)

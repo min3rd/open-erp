@@ -30,14 +30,14 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | 02.01 | ANL-S05-001 | [Bài toán dữ liệu](02_analysis/01_ANL-S05-001_catalog_data_model_problems.md) | Cây/DAG, nhảy cấp, version, hiệu lực, trường hợp biên | BA |
 | 02.02 | ANL-S05-002 | [Chức năng, phân quyền, form động](02_analysis/02_ANL-S05-002_admin_features_permissions_dynamic_forms.md) | CRUD, quyền 2 tầng, API form, danh mục cố định, always-on | BA |
 | 03.01 | BENCH-S05-001 | [Đối chuẩn danh mục ERP](03_benchmarks/01_BENCH-S05-001_catalog_patterns_in_erp.md) | Odoo/ERPNext/Drupal/ServiceNow… làm thế nào; bài học | BA |
-| 04.01 | CONF-S05-001 | [Scope & AC Sprint 05](04_confirmation/01_CONF-S05-001_sprint_05_scope.md) | **CONFIRMATION GATE** — 20 AC, **18/18 câu hỏi đã trả lời**, chờ duyệt scope | BA + Khách hàng |
+| 04.01 | CONF-S05-001 | [Scope & AC Sprint 05](04_confirmation/01_CONF-S05-001_sprint_05_scope.md) | **CONFIRMATION GATE** — **22 AC**, 18/18 câu gốc + N1–N5 đã trả lời, còn **N6/N7**; chờ duyệt scope | BA + Khách hàng |
 | 05.01 | SOL-S05-001 | [Kiến trúc plugin](05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) | 16 quyết định kiến trúc + luồng + rủi ro | Architect |
 | 06.01 | DES-DB-S05-001 | [Thiết kế CSDL](06_designs/db/01_DES-DB-S05-001_catalog_schema.md) | DDL 4 bảng, EXCLUDE, index, seed/backfill, truy vấn mẫu | Architect |
 | 06.02 | DES-API-S05-001 | [Thiết kế API](06_designs/api/01_DES-API-S05-001_catalog_api.md) | 3 nhóm API + contract + mã lỗi | Architect |
 | 06.03 | DES-UI-S05-001 | [Thiết kế UI](06_designs/ui/01_DES-UI-S05-001_catalog_admin_ui.md) | Màn 3 cột + component picker + ma trận Desktop/Mobile | Architect |
-| 07.01 | FEAT-30 | [Plugin core Danh mục](07_items/FEAT-30_catalog_core_plugin.md) | Feature + **17 task con** | Developer |
-| 07.02 | TASK-375…391 | [07_items/](07_items/) | Scope code từng task (đang `Blocked — chờ gate scope`) | Developer |
-| 08.01 | TP-S05-001 | [Test plan Sprint 05](08_testing/01_TP-S05-001_sprint_05_test_plan.md) | **22 TC** theo AC + ma trận lấy mẫu | QA |
+| 07.01 | FEAT-30 | [Plugin core Danh mục](07_items/FEAT-30_catalog_core_plugin.md) | Feature + **19 task con** | Developer |
+| 07.02 | TASK-375…393 | [07_items/](07_items/) | Scope code từng task (đang `Blocked — chờ gate scope`) | Developer |
+| 08.01 | TP-S05-001 | [Test plan Sprint 05](08_testing/01_TP-S05-001_sprint_05_test_plan.md) | **25 TC** theo AC + ma trận lấy mẫu | QA |
 | 08.02 | TR-S05-001 | Chưa tạo | Kết quả có baseline/evidence | QA |
 | 09.01 | REV-S05-001 | Chưa tạo | DoD/backlog/closure | PM |
 
@@ -68,6 +68,7 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | FEAT-30 | [07_items/FEAT-30](07_items/FEAT-30_catalog_core_plugin.md) | Developer | Used (Planned) |
 | TASK-375…389 | [07_items/](07_items/) | Developer | Used (Blocked — chờ scope) |
 | TASK-390…391 | [07_items/](07_items/) | Developer | Used (Blocked — chờ scope; import/export + ghi đè hệ thống) |
+| TASK-392…393 | [07_items/](07_items/) | Developer | Used (Blocked — chờ scope; màn hệ thống + seed địa giới) |
 | TP-S05-001 | [08_testing/](08_testing/) | QA | Used (Draft) |
 | TR-S05-001 | Chưa tạo | QA | Reserved |
 | REV-S05-001 | Chưa tạo | PM | Reserved |

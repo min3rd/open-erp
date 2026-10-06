@@ -32,8 +32,11 @@ Chốt các quyết định kiến trúc cho plugin `catalog` trước khi viế
 | **D14** | Plugin **always-on**: khai báo definition core trong `PluginCatalogService` + seed `plugin_catalog (is_core, default_install, locked)` + **backfill** tenant cũ + dùng hook `PluginProvisioningService.provisionDefaults` cho tenant mới | Tận dụng hạ tầng Sprint 03, không viết cơ chế mới | Đã triển khai (hook) + Đề xuất (seed/backfill) |
 | **D15** | Đăng ký **Entity Registry** cho `CatalogType`, `CatalogItem`, `CatalogItemEdge`; manifest khai báo **ma trận Desktop/Mobile** (CRUD = Desktop, tra cứu = cả hai) | Ràng buộc dự án (AC-16) | Đề xuất |
 | **D16** | UI: màn quản trị trong Settings (Desktop, Drawer/Router — **không modal**); trường danh mục là **component dùng chung** `@shared` cho Web + Mobile | Quy chuẩn UI/UX + tái sử dụng (AC-17) | Đề xuất |
-| **D17** | **Import/Export CSV** nằm trong Sprint 5 (khách chốt Q7): import theo `code` (tạo/cập nhật, báo cáo theo dòng), export theo loại kèm cha/con + hiệu lực; validate toàn tệp trước khi ghi, giới hạn kích thước | Yêu cầu mới của khách; giữ an toàn dữ liệu bằng validate + báo cáo lỗi | **Đã chốt (khách)** |
+| **D17** | **Import/Export CSV + `.xlsx`** nằm trong Sprint 5 (khách chốt Q7, N3): import theo `code` (tạo/cập nhật + tạo quan hệ qua `parent_code`), export theo loại kèm cha/con + hiệu lực; validate toàn tệp trước khi ghi, giới hạn 20.000 dòng (cấu hình được) | Yêu cầu mới của khách; giữ an toàn dữ liệu bằng validate + báo cáo lỗi | **Đã chốt (khách)** |
 | **D18** | **Tenant ghi đè/ẩn danh mục hệ thống** theo `code` (khách chốt Q1/Q2): bản ghi tenant thắng khi hợp nhất; ẩn = bản ghi tenant `status = INACTIVE` cùng `code` | Đáp ứng yêu cầu; UI đánh dấu "ghi đè" để không nhầm | **Đã chốt (khách)** |
+| **D19** | Import `.xlsx` đọc bằng **Apache POI (`poi-ooxml`)** ở backend — **ngoại lệ thư viện có kiểm soát** (chuẩn Java, không thay thế được bằng stdlib; chỉ dùng ở luồng import) | Khách chốt N3 = "CSV + .xlsx ngay"; chốt thư viện tại N7 | Cần khách xác nhận (N7) |
+| **D20** | Seed **dữ liệu địa giới thật 2 cấp tỉnh→xã** từ tệp CSV commit trong repo (`db/seed/provinces-communes.csv`), sinh một lần ở dev-time, **không** gọi API ngoài lúc chạy; cạnh trực tiếp tỉnh→xã | Khách chốt N2; nguồn dữ liệu chốt tại N6 | Cần khách xác nhận (N6) |
+| **D21** | **Màn quản trị danh mục hệ thống** trong cổng Platform (super admin), dùng lại UI quản trị với cờ "hệ thống" | Khách chốt N5 | **Đã chốt (khách)** |
 
 ## 3. Thành phần
 

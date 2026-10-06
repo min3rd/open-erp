@@ -37,7 +37,8 @@ Bố cục **split 3 cột** (không modal), mỗi cột tải độc lập:
 | **Cột 1 — Loại** | Danh sách loại (hệ thống trước, tenant sau) + badge `TREE/DAG`, `nhập tự do`, `SYSTEM_BACKED`. Chọn loại ⇒ cột 2 tải. Nút **Thêm loại** chỉ hiện khi có `catalog:type:manage`. Bấm vào badge quyền ⇒ mở drawer **Quyền theo loại** (ma trận vai trò × [xem/ghi], tái dùng bố cục `role-matrix`). |
 | **Cột 2 — Bản ghi** | 3 chế độ xem: **Danh sách** (bảng, mặc định), **Cây** (theo đường đang chọn), **Đa cha** (nhóm theo số cha, cột "cha" hiện chip). Bộ lọc `q` (mã/tên), trạng thái, `as_of` (chỉ hiện khi loại có version). Phân trang server-side. Hàng có **context menu chuột phải** (Sửa, Thêm quan hệ, Thêm cha, Đóng hiệu lực, Xem lịch sử) theo mẫu Sprint 04. |
 | **Drawer chi tiết** | 3 khối: **Thông tin** (mã, tên, mô tả, thuộc tính động theo `attributes_schema`, thứ tự), **Quan hệ** (danh sách cha kèm `relation_type` + nút "Thêm cha" mở drawer chọn; danh sách con), **Lịch sử** (read-only: phiên bản, hiệu lực, ai sửa). Sửa ⇒ cảnh báo rõ "Lưu sẽ tạo **phiên bản mới**". |
-| **Drawer Import/Export** (Q7) | Nút **Import** (chỉ khi có `catalog:item:manage`): chọn tệp CSV → **kiểm tra trước** (`dry_run`) hiện bảng kết quả theo dòng (tạo/cập nhật/bỏ qua/lỗi + mã lỗi) → nút "Ghi vào danh mục" → báo cáo cuối. Nút **Tải tệp mẫu**. Nút **Export**: xuất theo loại đang chọn hoặc tất cả (kèm cha/con, hiệu lực). |
+| **Drawer Import/Export** (Q7, N3) | Nút **Import** (chỉ khi có `catalog:item:manage`): chọn tệp **CSV hoặc `.xlsx`** → **kiểm tra trước** (`dry_run`) hiện bảng kết quả theo dòng (tạo/cập nhật/bỏ qua/lỗi + mã lỗi) → nút "Ghi vào danh mục" → báo cáo cuối (gồm số quan hệ cha–con đã tạo). Nút **Tải tệp mẫu** (CSV). Nút **Export**: xuất theo loại đang chọn hoặc tất cả (kèm cha/con, hiệu lực). |
+| **Màn quản trị hệ thống (cổng Platform)** (N5) | Dùng lại bố cục 3 cột với cờ **"hệ thống"**: chỉ super admin thấy; quản trị loại + bản ghi hệ thống (`tenant_id IS NULL`) + quan hệ + import/export. Tenant không có màn này. |
 | **Ghi đè danh mục hệ thống** (Q1/Q2) | Bản ghi tenant trùng `code` với mục hệ thống hiển thị badge **"Ghi đè"**; bản ghi tenant `INACTIVE` cùng `code` = **ẩn** mục hệ thống khỏi options của tenant (không ảnh hưởng tenant khác). |
 | **Drawer thêm quan hệ** | Chọn cha (picker cùng component `catalog-picker`), chọn `relation_type` (chỉ các loại được phép của loại danh mục), `sort_order`. Lỗi chu trình hiển thị inline theo `code`. |
 
@@ -83,8 +84,9 @@ Bố cục **split 3 cột** (không modal), mỗi cột tải độc lập:
 | AC-10/AC-11/AC-12 | Component `catalog-picker` (lazy, resolve theo lô, nhập tự do, inline-create) |
 | AC-16 | Ma trận Desktop/Mobile (§4) khai báo trong manifest plugin |
 | AC-17 | Chế độ xem **Đa cha** + danh sách cha trong drawer + breadcrumb theo đường đang chọn; không modal |
-| AC-18/AC-19 | Drawer Import (dry-run + báo cáo theo dòng) và Export/Tải mẫu |
+| AC-18/AC-19 | Drawer Import (dry-run + báo cáo theo dòng, CSV/`.xlsx`) và Export/Tải mẫu |
 | AC-20 | Badge "Ghi đè" + trạng thái ẩn cục bộ trong danh sách và options |
+| AC-22 | Màn quản trị hệ thống trong cổng Platform (cờ "hệ thống") |
 
 ## 7. Lịch sử
 

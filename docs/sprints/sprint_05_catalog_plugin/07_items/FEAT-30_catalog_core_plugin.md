@@ -40,12 +40,14 @@ Nguồn: [RAW-S05-001](../01_raw_notes/01_RAW-S05-001_catalog_plugin_requirement
 | [TASK-387](TASK-387_catalog_picker_integration_and_mobile_browse.md) | Tích hợp picker + tra cứu Mobile | Medium | TASK-386 |
 | [TASK-388](TASK-388_catalog_i18n_and_docs.md) | i18n 13 locale + User/Developer Guide | Medium | TASK-385, TASK-386 |
 | [TASK-389](TASK-389_catalog_qa_browser.md) | QA browser Desktop + Mobile | High | TASK-385…387 |
-| [TASK-390](TASK-390_catalog_import_export_csv.md) | Import/Export CSV danh mục (khách chốt Q7) | High | TASK-381 |
+| [TASK-390](TASK-390_catalog_import_export_csv.md) | Import/Export CSV + `.xlsx` danh mục (khách chốt Q7/N3) | High | TASK-381 |
 | [TASK-391](TASK-391_catalog_tenant_override_system_items.md) | Ghi đè/ẩn danh mục hệ thống theo tenant (khách chốt Q1/Q2) | High | TASK-379, TASK-381 |
+| [TASK-392](TASK-392_platform_system_catalog_admin.md) | Màn quản trị danh mục hệ thống (cổng Platform — N5) | High | TASK-385, TASK-390 |
+| [TASK-393](TASK-393_seed_admin_units_two_levels.md) | Seed dữ liệu địa giới thật 2 cấp tỉnh→xã (N2) | High | TASK-375, TASK-377 |
 
 ## 4. Tiêu chí hoàn thành
 
-- **20 AC** của [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) §2 được kiểm chứng (backend test + QA browser).
+- **22 AC** của [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) §2 được kiểm chứng (backend test + QA browser).
 - Plugin `catalog` **ACTIVE** cho mọi tenant (mới + backfill), không gỡ được; entity đã đăng ký Registry.
 - Build web + mobile PASS; i18n 13/13 100%; 0 console error; overflow 0 ở 390px.
 - User Guide + Developer Guide cập nhật; TR-S05-001 có baseline/evidence.

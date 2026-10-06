@@ -54,11 +54,11 @@
 
 | Method | Path | Quyền | Mô tả |
 | :--- | :--- | :--- | :--- |
-| POST | `/api/v1/catalog/types/{code}/import` | `catalog:item:manage` + `can_write` | Upload CSV (multipart), `?dry_run=true` để kiểm tra trước; validate **toàn tệp** rồi mới ghi; trả báo cáo `created/updated/skipped/errors[{row, code, params}]` |
+| POST | `/api/v1/catalog/types/{code}/import` | `catalog:item:manage` + `can_write` | Upload **CSV hoặc `.xlsx`** (multipart), `?dry_run=true` để kiểm tra trước; cột `parent_code` tuỳ chọn để tạo quan hệ cha–con; validate **toàn tệp** rồi mới ghi; trả báo cáo `created/updated/skipped/edges_created/errors[{row, code, params}]` |
 | GET | `/api/v1/catalog/types/{code}/import/template` | `catalog:item:read` | Tải tệp mẫu CSV (UTF-8 BOM) đúng cột cho loại đó |
 | GET | `/api/v1/catalog/export` | `catalog:item:read` | Xuất CSV: `?type_code=` (hoặc `all=true`), `as_of`, kèm cột cha/con + hiệu lực + trạng thái |
 
-Quy tắc: tối đa **5.000 dòng**/lần import (vượt ⇒ `CATALOG_IMPORT_TOO_LARGE`); mã `code` là khoá khớp (có ⇒ cập nhật tạo phiên bản mới, chưa có ⇒ tạo); lỗi theo dòng **không** chặn các dòng hợp lệ nhưng báo cáo đầy đủ; export dùng cùng bộ lọc với danh sách.
+Quy tắc: tối đa **20.000 dòng**/lần import (cấu hình được; vượt ⇒ `CATALOG_IMPORT_TOO_LARGE`); mã `code` là khoá khớp (có ⇒ cập nhật tạo phiên bản mới, chưa có ⇒ tạo); `parent_code` (nếu có) tạo cạnh cha–con sau khi tạo item, **kiểm tra chu trình** như API thường; lỗi theo dòng **không** chặn các dòng hợp lệ nhưng báo cáo đầy đủ; export dùng cùng bộ lọc với danh sách. **`.xlsx`** đọc bằng Apache POI ở backend (ngoại lệ thư viện — SOL D19, chốt tại N7).
 
 ## 5. Contract mẫu
 

@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | CONF-S05-001 / Scope & AC / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | **Pending — đã trả lời 18/18 câu hỏi, chờ duyệt scope** / 0.2 / 2026-10-06 |
+| Trạng thái / phiên bản / cập nhật | **Pending — 23/25 câu đã trả lời (18 gốc + N1–N5), còn N6/N7; chờ duyệt scope** / 0.3 / 2026-10-06 |
 | Owner / reviewer | BA Agent / **Khách hàng (Product Owner)** |
 | Đầu vào | [RAW-S05-001](../01_raw_notes/01_RAW-S05-001_catalog_plugin_requirements.md), [ANL-S05-001](../02_analysis/01_ANL-S05-001_catalog_data_model_problems.md), [ANL-S05-002](../02_analysis/02_ANL-S05-002_admin_features_permissions_dynamic_forms.md), [BENCH-S05-001](../03_benchmarks/01_BENCH-S05-001_catalog_patterns_in_erp.md) |
 | Đọc trước / đọc tiếp | [00_READING_GUIDE](../00_READING_GUIDE.md) / [SOL-S05-001](../05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) |
@@ -28,25 +28,23 @@ Xây **plugin core đầu tiên**: `catalog` (Danh mục & quản trị danh m�
 
 **Ngoài phạm vi (v1)**: quy trình duyệt thay đổi danh mục (Q8); đồng bộ địa giới hành chính từ API bên ngoài; bitemporal đầy đủ; đa ngôn ngữ **tên** danh mục (chỉ `name` + `name_en`, Q9); phân quyền dữ liệu theo chi nhánh/phòng ban (Q17).
 
-### 1.1. Danh mục cố định seed cho tenant (Q10)
+### 1.1. Danh mục cố định seed cho tenant (Q10 + N1: **chốt 5 mục**)
 
-| # | Danh mục | Trạng thái |
-| :--- | :--- | :--- |
-| 1 | **Chức danh** | Chốt (yêu cầu gốc) |
-| 2 | **Phòng ban** | Chốt — **danh mục riêng độc lập** (Q3), seed từ cây tổ chức hiện có khi cài đặt để tránh rỗng |
-| 3 | Loại hợp đồng | Chốt (Q10) |
-| 4 | Ca làm việc | Chốt (Q10) |
-| 5 | Trình độ học vấn | Chốt (Q10) |
-| 6 | **Hình thức làm việc** (toàn thời gian/bán thời gian/thời vụ) | Đề xuất thêm |
-| 7 | **Cấp bậc / Chức vụ** | Đề xuất thêm |
-| 8 | **Loại nghỉ phép** | Đề xuất thêm |
-| 9 | **Dân tộc / Quốc tịch** | Đề xuất thêm (hồ sơ nhân sự) |
-| 10 | **Loại khách hàng / Nguồn khách hàng** | Đề xuất thêm (CRM) |
-| 11 | **Phương thức thanh toán / Điều khoản thanh toán** | Đề xuất thêm (bán hàng) |
-| 12 | **Nhóm sản phẩm / Đơn vị tính** | Đề xuất thêm (kho) |
-| 13 | **Mức ưu tiên** (công việc) | Đề xuất thêm (quản trị công việc) |
+| # | Danh mục | Loại quan hệ | Ghi chú |
+| :--- | :--- | :--- | :--- |
+| 1 | **Chức danh** | phẳng (DAG, cho nhập tự do) | Yêu cầu gốc; autocomplete hoặc nhập tự do |
+| 2 | **Phòng ban** | phẳng | **Danh mục riêng độc lập** (Q3); seed một chiều từ cây tổ chức khi cài/backfill |
+| 3 | Loại hợp đồng | phẳng | Q10 |
+| 4 | Ca làm việc | phẳng | Q10 |
+| 5 | Trình độ học vấn | phẳng | Q10 |
 
-> Seed **idempotent theo `code`**, không ghi đè chỉnh sửa của tenant; tenant có thể ngừng dùng mục không cần (đóng hiệu lực) nhưng không mất dữ liệu.
+> **N1 (2026-10-06)**: chủ dự án chốt **chỉ 5 mục** — 8 mục gợi ý thêm (Hình thức làm việc, Cấp bậc/Chức vụ, Loại nghỉ phép, Dân tộc/Quốc tịch, Loại/Nguồn khách hàng, Phương thức/Điều khoản thanh toán, Nhóm sản phẩm/Đơn vị tính, Mức ưu tiên) **không seed**; tenant tự tạo loại + mục khi cần.
+
+### 1.2. Dữ liệu địa giới hành chính (N2: **seed thật 2 cấp tỉnh→xã**)
+
+- Seed trong migration/seed script từ tệp CSV commit trong repo (`src/backend/src/main/resources/db/seed/provinces-communes.csv`), **không** gọi API bên ngoài lúc chạy.
+- Mỗi xã là **con trực tiếp của tỉnh** (cạnh `tỉnh→xã`, đúng kịch bản nhảy cấp R2); loại `DISTRICT` vẫn có sẵn nhưng **không seed** dữ liệu huyện ở v1.
+- Nguồn dữ liệu chốt tại **N6** (đang mở); tệp ghi rõ nguồn + ngày + số dòng ở header.
 
 ## 2. Tiêu Chí Nghiệm Thu (Given/When/Then)
 
@@ -64,14 +62,16 @@ Xây **plugin core đầu tiên**: `catalog` (Danh mục & quản trị danh m�
 | **AC-10** | Options phân trang (20/tối đa 100), lọc `q`/`parent_id`/`as_of`, gộp **tenant + hệ thống** | R6 |
 | **AC-11** | Form đã lưu chỉ có `catalog_item_id` ⇒ resolve **theo lô** khi mở lại (không N+1) | R6 |
 | **AC-12** | Nhập tự do ⇒ lưu `{text}`; có quyền `inline-create` ⇒ lưu được thành mục mới | R7 |
-| **AC-13** | Tenant mới: plugin **ACTIVE** + **13 danh mục cố định** (§1.1) sẵn dùng; tenant cũ: migration **backfill** cả plugin lẫn seed | R8 |
+| **AC-13** | Tenant mới: plugin **ACTIVE** + **5 danh mục cố định** (§1.1) sẵn dùng; tenant cũ: migration **backfill** cả plugin lẫn seed (idempotent, không ghi đè bản ghi tenant đã sửa) | R8, N1 |
 | **AC-14** | Plugin core/locked: thao tác gỡ bị **chặn** với mã lỗi rõ ràng | R8 |
 | **AC-15** | Hai tenant cùng mã: **không rò rỉ chéo**; danh mục hệ thống hiển thị cho cả hai | Ràng buộc dự án |
 | **AC-16** | Entity Registry có 3 entity; manifest khai báo ma trận **Desktop/Mobile** | Ràng buộc dự án |
 | **AC-17** | Màn quản trị: chế độ **Đa cha**, danh sách cha, breadcrumb theo đường đang chọn; **không modal** | R5 |
-| **AC-18** | **Import CSV**: tệp đúng mẫu ⇒ tạo/cập nhật bản ghi (theo `code`), trả báo cáo `created/updated/skipped/errors[]` có dòng + mã lỗi; tệp sai mẫu ⇒ từ chối trước khi ghi | Q7 |
+| **AC-18** | **Import CSV/`.xlsx`**: tệp đúng mẫu (có cột `parent_code` tuỳ chọn để nhập cây) ⇒ tạo/cập nhật bản ghi theo `code` + tạo quan hệ cha–con, trả báo cáo `created/updated/skipped/errors[]` theo dòng; tệp sai mẫu ⇒ từ chối trước khi ghi | Q7, N3 |
 | **AC-19** | **Export CSV**: xuất theo loại (kèm cha/con, hiệu lực, trạng thái); tệp tải về mở đúng bằng Excel (UTF-8 BOM), đủ 13 danh mục seed khi chọn "tất cả" | Q7 |
 | **AC-20** | **Ghi đè/ẩn danh mục hệ thống**: tenant tạo bản ghi cùng `code` ⇒ form hiển thị bản tenant; đánh dấu ẩn ⇒ mục hệ thống không xuất hiện trong options của tenant đó, tenant khác không đổi | Q1, Q2 |
+| **AC-21** | **Dữ liệu địa giới 2 cấp**: sau seed, options của loại `PROVINCE` có 63 tỉnh và của `COMMUNE` có các xã là **con trực tiếp của tỉnh** (cạnh tỉnh→xã, không có huyện); tra cứu theo `parent_id` (tỉnh) trả đúng xã thuộc tỉnh đó | N2 |
+| **AC-22** | **Cổng Platform**: super admin có màn quản trị danh mục **hệ thống** (danh sách loại hệ thống + bản ghi + quan hệ + import/export), dùng lại UI quản trị với cờ "hệ thống"; tenant không thấy màn này | N5 |
 
 ## 3. Câu Hỏi Đã Chốt (18/18 — trả lời 2026-10-06)
 
@@ -98,19 +98,27 @@ Xây **plugin core đầu tiên**: `catalog` (Danh mục & quản trị danh m�
 
 ### 3.1. Câu hỏi phát sinh sau khi trả lời (cần chốt trước khi code)
 
+| # | Câu hỏi | Trả lời của chủ dự án (2026-10-06) | Hệ quả đã cập nhật |
+| :--- | :--- | :--- | :--- |
+| **N1** | Danh sách danh mục seed | **Chỉ giữ 5 mục đã chốt** | Bỏ 8 mục gợi ý (Hình thức làm việc, Cấp bậc, Loại nghỉ phép, Dân tộc/Quốc tịch, Loại/Nguồn KH, Thanh toán, Nhóm SP/ĐVT, Mức ưu tiên) — §1.1 rút còn 5 |
+| **N2** | Dữ liệu địa giới thật | **Seed thật 2 cấp tỉnh→xã** (bỏ huyện) | Thêm **TASK-393**: sinh + seed dữ liệu (cạnh trực tiếp tỉnh→xã) từ tệp CSV commit trong repo; **cần chốt nguồn dữ liệu (N6)** |
+| **N3** | Định dạng import | **CSV + `.xlsx` ngay** | Import nhận cả hai; **cần chốt thư viện đọc Excel (N7)** |
+| **N4** | Đồng bộ Phòng ban | **Seed một chiều, không đồng bộ lại** | Giữ thiết kế hiện tại (ANL-S05-002 §4.1) |
+| **N5** | Quản trị danh mục hệ thống | **Có màn trong cổng Platform** | Thêm **TASK-392**: màn quản trị danh mục hệ thống (dùng lại UI với cờ "hệ thống") |
+
+### 3.2. Hai câu chốt tiếp (chặn triển khai 2 task mới)
+
 | # | Câu hỏi | Đề xuất của BA | Trả lời |
 | :--- | :--- | :--- | :--- |
-| **N1** | **Danh sách 13 danh mục seed** (§1.1): giữ đủ 13 hay cắt mục nào? | Giữ đủ 13 — tenant có thể ngừng dùng mục không cần (đóng hiệu lực), không mất dữ liệu | ⏳ |
-| **N2** | **Dữ liệu địa giới thật** (tỉnh/huyện/xã): Sprint 5 có seed dữ liệu thật không, hay chỉ dựng loại + nhập sau? Nếu có: nguồn dữ liệu và mức chi tiết (tỉnh→xã 2 cấp hay đủ 3 cấp)? | Chỉ dựng **loại** + API import; dữ liệu thật nhập sau bằng CSV (tránh phụ thuộc nguồn ngoài + việc sáp nhập địa giới) | ⏳ |
-| **N3** | **Import có kèm quan hệ cha–con** (cột `parent_code`) hay chỉ bản ghi phẳng? Định dạng chỉ CSV hay cần cả `.xlsx`? | CSV **có** cột `parent_code` (tuỳ chọn) để nhập được cây; `.xlsx` để sau | ⏳ |
-| **N4** | **Đồng bộ Phòng ban**: chấp nhận seed **một chiều** từ cây tổ chức (đề xuất) và có cần lệnh "đồng bộ lại" khi cây tổ chức đổi không? | Seed một chiều; nếu cần lệnh đồng bộ lại thì tách task riêng (có kiểm soát + báo cáo lệch) | ⏳ |
-| **N5** | **Quản trị danh mục hệ thống trên UI**: cần màn riêng trong cổng Platform (super admin) hay chỉ nhập bằng API/import? | Có màn trong cổng Platform, dùng lại UI quản trị với cờ "hệ thống" | ⏳ |
+| **N6** | **Nguồn dữ liệu địa giới** cho TASK-393: em fetch một lần từ nguồn mở rồi sinh CSV commit vào repo (ghi rõ nguồn/ngày, có thể phải cập nhật khi sáp nhập), hay bạn cung cấp tệp CSV? | Em fetch **một lần** từ `provinces.open-api.vn` → sinh `db/seed/provinces-communes.csv` (63 tỉnh + ~10k xã, cạnh trực tiếp tỉnh→xã), ghi nguồn + ngày trong header tệp | ⏳ |
+| **N7** | **Thư viện đọc `.xlsx`**: dùng **Apache POI** (chuẩn Java, thêm dependency backend — ghi nhận ngoại lệ có kiểm soát), hay chỉ CSV? | Dùng Apache POI (`poi-ooxml`) **chỉ ở backend** cho import; ghi ngoại lệ trong SOL §2 | ⏳ |
 
 **Quyết định kỹ thuật nội bộ (Architect tự chốt, không cần khách)**:
 
 1. Bỏ `source`/`source_ref` khỏi `catalog_types` — phương án cầu nối không còn dùng (Q3), giữ lại là YAGNI.
-2. Giới hạn import: mặc định 5.000 dòng nhưng **cấu hình được** (liên quan N2/N3 nếu nhập dữ liệu địa giới ~11k xã).
+2. Giới hạn import: mặc định **20.000 dòng** (đủ cho dữ liệu địa giới ~10k xã) và **cấu hình được**; vượt ⇒ `CATALOG_IMPORT_TOO_LARGE`.
 3. `catalog_types` **không** versioned ở v1 (chỉ bản ghi danh mục có version); ghi nhận để mở rộng sau nếu cần.
+4. Dữ liệu địa giới seed **trong migration/seed script**, không gọi API bên ngoài lúc chạy (runtime độc lập).
 
 ## 4. Rủi Ro & Giảm Thiểu (cập nhật)| Rủi ro | Mức | Giảm thiểu |
 | :--- | :--- | :--- |
@@ -136,3 +144,4 @@ Xây **plugin core đầu tiên**: `catalog` (Danh mục & quản trị danh m�
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-06 | Đề xuất scope + 17 AC + 16 câu hỏi | BA Agent; chờ khách |
 | 0.2 | 2026-10-06 | Ghi nhận 18 câu trả lời; thêm AC-18/19/20 (import/export, ghi đè hệ thống); mở rộng seed §1.1; cập nhật rủi ro; gate vẫn Pending | BA Agent; nguồn: hội thoại chủ dự án |
+| 0.3 | 2026-10-06 | Chốt N1–N5 (seed 5 mục, seed địa giới 2 cấp, CSV+`.xlsx`, seed một chiều, màn hệ thống Platform); thêm AC-21/AC-22; mở N6 (nguồn dữ liệu) + N7 (thư viện `.xlsx`); gate vẫn Pending | BA Agent; nguồn: hội thoại chủ dự án |

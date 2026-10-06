@@ -14,7 +14,7 @@ Sprint đang theo dõi: [Sprint 05 — Plugin core Danh mục](../sprints/sprint
 
 2026-10-06: Sprint 04 **đóng** (DoD 11/11 Đạt; 34/34 item Done; baseline `772a211`; dọn code theo ponytail-review + vendor icon: bundle web 640→558 kB, build 0 cảnh báo). Khởi tạo tài liệu Sprint 05 (plugin core Danh mục): RAW-S05-001 → ANL-S05-001…002 → BENCH-S05-001 → CONF-S05-001 (Pending) → SOL-S05-001 → DES-DB/API/UI-S05-001 → FEAT-30 + TASK-375…389 (Blocked — chờ gate scope) → TP-S05-001. `check-docs` 0 lỗi.
 
-2026-10-06 (bổ sung): chủ dự án trả lời **18/18 câu hỏi** Sprint 05; CONF-S05-001 lên 0.2 với **20 AC** (thêm AC-18/19 import–export, AC-20 ghi đè/ẩn danh mục hệ thống), seed mở rộng **13 danh mục cố định**, thêm **TASK-390** (import/export CSV) và **TASK-391** (ghi đè hệ thống), TP-S05-001 lên **22 TC**. Gate scope **vẫn Pending** (Q18 = "chưa duyệt — xem lại tài liệu trước") ⇒ **chưa viết mã Sprint 05**.
+2026-10-06 (bổ sung 2): chủ dự án chốt tiếp **N1–N5** — seed rút còn **5 danh mục**, **seed dữ liệu địa giới thật 2 cấp tỉnh→xã**, import **CSV + `.xlsx`**, Phòng ban **seed một chiều** (không đồng bộ lại), **có màn quản trị danh mục hệ thống** trong cổng Platform. CONF lên 0.3 (**22 AC**), thêm **TASK-392** (màn hệ thống) + **TASK-393** (seed địa giới), TP lên **25 TC**; còn **N6** (nguồn dữ liệu địa giới) và **N7** (thư viện đọc `.xlsx`) đang mở. Gate scope **vẫn Pending** (Q18 = "chưa duyệt").
 
 ---
 
