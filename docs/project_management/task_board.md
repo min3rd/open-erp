@@ -2,15 +2,17 @@
 
 Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy trình SDLC 9 bước và mô hình Agile Sprint. Phụ trách quản lý: **PM Agent**.
 
-## Trạng thái điều hướng — cập nhật 2026-10-05
+## Trạng thái điều hướng — cập nhật 2026-10-06
 
-Sprint đang theo dõi: [Sprint 04 — UI/UX Experience](../sprints/sprint_04_ui_ux_experience/00_READING_GUIDE.md) — **Discovery (bước 1–6)**, scope chờ khách xác nhận tại [CONF-S04-001](../sprints/sprint_04_ui_ux_experience/04_confirmation/01_CONF-S04-001_sprint_04_scope.md). Sprint 03 **đã đóng 2026-10-05**: [biên bản Sprint 03](../sprints/sprint_03_plugin_manager/09_review/sprint_review.md) + [QA-03 xác nhận cuối](../sprints/sprint_03_plugin_manager/08_testing/QA-03_qa_verification_2026-10-05.md). Các phần tiến độ bên dưới lưu mốc lịch sử, không thay trạng thái file item/QA/review hiện hành.
+Sprint đang theo dõi: [Sprint 05 — Plugin core Danh mục](../sprints/sprint_05_catalog_plugin/00_READING_GUIDE.md) — **Discovery (bước 1–6 đã soạn)**, scope/AC chờ khách xác nhận tại [CONF-S05-001](../sprints/sprint_05_catalog_plugin/04_confirmation/01_CONF-S05-001_sprint_05_scope.md) (17 AC + 16 câu hỏi). Sprint 04 **đã đóng 2026-10-06** (18/18 TC PASS, theo chỉ đạo chủ dự án): [biên bản REV-S04-001](../sprints/sprint_04_ui_ux_experience/09_review/01_REV-S04-001_sprint_04_review.md) + [TR-S04-001](../sprints/sprint_04_ui_ux_experience/08_testing/02_TR-S04-001_sprint_04_test_report.md). Các phần tiến độ bên dưới lưu mốc lịch sử, không thay trạng thái file item/QA/review hiện hành.
 
 [TASK-349](../sprints/sprint_03_plugin_manager/07_items/TASK-349_standardize_sdlc_and_developer_documentation.md) — chuẩn hóa phối hợp agent, đánh số/viết docs và onboarding dev; trạng thái xem tại item. [REV-S03-004](../sprints/sprint_03_plugin_manager/09_review/04_REV-S03-004_sdlc_workflow_review.md) chứa review/kiểm chứng của thay đổi tài liệu, không là QA sản phẩm.
 
 2026-10-05: TASK-349 và các finding [TASK-351](../sprints/sprint_03_plugin_manager/07_items/TASK-351_clarify_tenant_scope_in_documentation.md)/[TASK-352](../sprints/sprint_03_plugin_manager/07_items/TASK-352_clarify_mobile_list_route_rollout.md) Done sau document review độc lập.
 
 2026-10-05 (bổ sung): Sprint 03 **đóng** (QA-03 8/8 PASS; BUG-98/TASK-346/TASK-347 làm luôn; TASK-353 đối soát Done). Khởi tạo tài liệu Sprint 04: RAW → ANL-S04-001…006 → BENCH-S04-001 → CONF-S04-001 → SOL-S04-001 → DES-UI/API → FEAT-24…29 (tất cả **Draft/To Do**, scope Pending).
+
+2026-10-06: Sprint 04 **đóng** (DoD 11/11 Đạt; 34/34 item Done; baseline `772a211`; dọn code theo ponytail-review + vendor icon: bundle web 640→558 kB, build 0 cảnh báo). Khởi tạo tài liệu Sprint 05 (plugin core Danh mục): RAW-S05-001 → ANL-S05-001…002 → BENCH-S05-001 → CONF-S05-001 (Pending) → SOL-S05-001 → DES-DB/API/UI-S05-001 → FEAT-30 + TASK-375…389 (Blocked — chờ gate scope) → TP-S05-001. `check-docs` 0 lỗi.
 
 ---
 
