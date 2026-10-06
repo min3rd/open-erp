@@ -196,7 +196,7 @@ Sprint 04 thêm các khối dưới đây vào `src/frontend/shared/`; Web và M
 <app-icon name="chevron-right" [rtlMirror]="true" />              <!-- icon có hướng: lật theo RTL -->
 ```
 
-- `IconName` (enum dùng chung) là nguồn duy nhất; registry `icon-registry.ts` là nơi **duy nhất** import `feather-icons`.
+- `IconName` (enum dùng chung) là nguồn duy nhất; `icon-registry.ts` chỉ đọc dữ liệu từ `icon-data.generated.ts` — **file sinh tự động** bằng `npm run icons:gen` (lấy từ package `feather-icons` lúc build, chỉ những icon đang dùng nên bundle không kéo cả bộ icon). Thêm icon mới: khai báo trong `IconName` (hoặc dùng literal trong template) rồi chạy `npm run icons:gen`.
 - `name` nhận `string` để viết attribute tĩnh; icon-only phải có `labelKey`/`aria-label`; icon có hướng phải `rtlMirror`.
 - **Không** viết `<svg>` thủ công ngoài `icon.component.html` (kể cả spinner — dùng `name="loader"` + `class="animate-spin"`).
 
