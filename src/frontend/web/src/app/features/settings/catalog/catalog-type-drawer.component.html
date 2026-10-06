@@ -1,0 +1,120 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="titleKey() | translate"
+  [width]="'w-screen max-w-lg'"
+  [zIndex]="60"
+  [shiftLeft]="true"
+  (close)="close.emit()"
+>
+  <div class="space-y-3">
+    @if (errorText()) {
+      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300" role="alert">
+        {{ errorText() }}
+      </div>
+    }
+
+    <div class="grid grid-cols-2 gap-2">
+      <app-sharp-input
+        [label]="'CATALOG_TYPE_FIELD_CODE' | translate"
+        [value]="code()"
+        [disabled]="isEdit()"
+        [required]="true"
+        (valueChange)="code.set($event)"
+      />
+      <app-sharp-input
+        [label]="'CATALOG_TYPE_FIELD_NAME_KEY' | translate"
+        [hint]="'CATALOG_TYPE_FIELD_NAME_KEY_HINT' | translate"
+        [value]="nameKey()"
+        [required]="true"
+        (valueChange)="nameKey.set($event)"
+      />
+      <app-sharp-input
+        [label]="'CATALOG_TYPE_FIELD_DESCRIPTION_KEY' | translate"
+        [value]="descriptionKey()"
+        (valueChange)="descriptionKey.set($event)"
+      />
+      <app-sharp-select
+        [label]="'CATALOG_TYPE_FIELD_HIERARCHY_MODE' | translate"
+        [options]="hierarchyOptions"
+        [value]="hierarchyMode()"
+        (valueChange)="hierarchyMode.set($any($event))"
+      />
+      <app-sharp-input
+        [label]="'CATALOG_TYPE_FIELD_MAX_DEPTH' | translate"
+        type="number"
+        [value]="maxDepth()"
+        (valueChange)="maxDepth.set($event)"
+      />
+      <app-sharp-input
+        [label]="'CATALOG_TYPE_FIELD_MIN_PARENTS' | translate"
+        type="number"
+        [value]="minParents()"
+        (valueChange)="minParents.set($event)"
+      />
+    </div>
+
+    <div class="space-y-1">
+      <p class="text-[11px] font-medium">{{ 'CATALOG_TYPE_FIELD_ALLOWED_RELATIONS' | translate }}</p>
+      <div class="grid grid-cols-2 gap-1">
+        @for (relation of relationTypes; track relation) {
+          <label class="flex items-center gap-1.5 px-1.5 py-1 border border-default text-[11px] cursor-pointer hover:bg-surface-muted">
+            <app-sharp-toggle
+              [checked]="hasRelation(relation)"
+              [ariaLabel]="('CATALOG_RELATION_' + relation) | translate"
+              (checkedChange)="toggleRelation(relation, $event)"
+            />
+            {{ ('CATALOG_RELATION_' + relation) | translate }}
+          </label>
+        }
+      </div>
+    </div>
+
+    <app-sharp-input
+      [label]="'CATALOG_TYPE_FIELD_ALLOWED_PARENT_TYPES' | translate"
+      [hint]="'CATALOG_TYPE_FIELD_ALLOWED_PARENT_TYPES_HINT' | translate"
+      [value]="allowedParentTypes()"
+      (valueChange)="allowedParentTypes.set($event)"
+    />
+
+    <div class="grid grid-cols-3 gap-2">
+      <label class="flex items-center gap-1.5 text-[11px]">
+        <app-sharp-toggle [checked]="allowFreeText()" (checkedChange)="allowFreeText.set($event)" />
+        {{ 'CATALOG_TYPE_FIELD_ALLOW_FREE_TEXT' | translate }}
+      </label>
+      <label class="flex items-center gap-1.5 text-[11px]">
+        <app-sharp-toggle [checked]="versioned()" (checkedChange)="versioned.set($event)" />
+        {{ 'CATALOG_TYPE_FIELD_VERSIONED' | translate }}
+      </label>
+      <label class="flex items-center gap-1.5 text-[11px]">
+        <app-sharp-toggle [checked]="effectiveDated()" (checkedChange)="effectiveDated.set($event)" />
+        {{ 'CATALOG_TYPE_FIELD_EFFECTIVE_DATED' | translate }}
+      </label>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <app-sharp-select
+        [label]="'CATALOG_TYPE_FIELD_STATUS' | translate"
+        [options]="statusOptions"
+        [value]="status()"
+        (valueChange)="status.set($any($event))"
+      />
+    </div>
+
+    <app-sharp-textarea
+      [label]="'CATALOG_TYPE_FIELD_ATTRIBUTES_SCHEMA' | translate"
+      [rows]="6"
+      [value]="attributesSchema()"
+      (valueChange)="attributesSchema.set($event)"
+    />
+    <p class="text-[10px] text-muted font-mono break-all">{{ 'CATALOG_TYPE_FIELD_ATTRIBUTES_SCHEMA_HINT' | translate }}</p>
+  </div>
+
+  <div drawer-footer class="flex items-center gap-2">
+    <app-sharp-button variant="secondary" size="sm" (clicked)="close.emit()">
+      {{ 'COMMON_CANCEL' | translate }}
+    </app-sharp-button>
+    <app-sharp-button size="sm" [loading]="saving()" (clicked)="save()">
+      {{ 'COMMON_SAVE' | translate }}
+    </app-sharp-button>
+  </div>
+</app-drawer>

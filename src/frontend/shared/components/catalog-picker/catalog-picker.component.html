@@ -1,0 +1,209 @@
+<div class="relative block">
+  <!-- Field: chips + inline search input + clear/toggle (anti-modal: the option
+       list is an inline dropdown anchored to this field). -->
+  <div
+    class="flex flex-wrap items-center gap-1 border border-default bg-surface px-1 py-1 rounded-control transition-colors"
+    [class.opacity-60]="disabled()"
+    [class.border-danger]="!!optionsError()"
+    (click)="openDropdown()"
+  >
+    @for (ref of selected(); track ref.catalog_item_id || ref.text) {
+      <span class="inline-flex max-w-full items-center gap-1 border border-default bg-surface-muted px-1.5 py-0.5 rounded-none">
+        <span class="truncate text-[11px] text-ink" [title]="titleFor(ref)">{{ ref.text }}</span>
+        @if (!ref.catalog_item_id) {
+          <span class="shrink-0 text-[9px] uppercase tracking-wider text-muted">
+            {{ 'CATALOG_PICKER_FREE_TEXT_BADGE' | translate }}
+          </span>
+        }
+        <button
+          type="button"
+          class="inline-flex min-h-10 min-w-10 items-center justify-center text-muted hover:text-danger sm:min-h-5 sm:min-w-5"
+          [attr.aria-label]="'CATALOG_PICKER_REMOVE' | translate"
+          [title]="'CATALOG_PICKER_REMOVE' | translate"
+          (click)="remove(ref, $event)"
+        >
+          <app-icon name="x" [decorative]="true" class="h-3 w-3" />
+        </button>
+      </span>
+    }
+
+    <input
+      #search
+      type="text"
+      role="combobox"
+      aria-autocomplete="list"
+      aria-haspopup="listbox"
+      autocomplete="off"
+      [id]="inputId"
+      [value]="query()"
+      [disabled]="disabled()"
+      [attr.placeholder]="placeholderKey() | translate"
+      [attr.aria-label]="placeholderKey() | translate"
+      [attr.aria-expanded]="open() ? 'true' : 'false'"
+      [attr.aria-controls]="listId"
+      [attr.aria-activedescendant]="activeIndex() >= 0 ? optionId(activeIndex()) : null"
+      [class]="inputClass()"
+      (input)="onInput($event)"
+      (focus)="openDropdown()"
+    />
+
+    @if (multiple() && selected().length > 0) {
+      <span class="whitespace-nowrap text-[10px] text-muted">
+        {{ 'CATALOG_PICKER_SELECTED_COUNT' | translate:{ count: selected().length } }}
+      </span>
+    }
+
+    @if (selected().length > 0 && !disabled()) {
+      <button
+        type="button"
+        class="inline-flex min-h-10 min-w-10 items-center justify-center text-muted hover:text-ink sm:min-h-6 sm:min-w-6"
+        [attr.aria-label]="'CATALOG_PICKER_CLEAR' | translate"
+        [title]="'CATALOG_PICKER_CLEAR' | translate"
+        (click)="clear($event)"
+      >
+        <app-icon name="x" [decorative]="true" class="h-3.5 w-3.5" />
+      </button>
+    }
+
+    <button
+      type="button"
+      class="inline-flex min-h-10 min-w-10 items-center justify-center text-muted hover:text-ink disabled:opacity-50 sm:min-h-6 sm:min-w-6"
+      [disabled]="disabled()"
+      [attr.aria-label]="'CATALOG_PICKER_OPTIONS_LABEL' | translate"
+      [attr.aria-expanded]="open() ? 'true' : 'false'"
+      (click)="toggle($event)"
+    >
+      <app-icon name="chevron-down" [decorative]="true" class="h-3.5 w-3.5 transition-transform" [class.rotate-180]="open()" />
+    </button>
+  </div>
+
+  @if (inlineSaved()) {
+    <p class="mt-0.5 text-[10px] text-success">{{ 'CATALOG_PICKER_INLINE_SUCCESS' | translate }}</p>
+  }
+
+  <!-- Option list: inline dropdown with independent loading/error/empty regions. -->
+  @if (open()) {
+    <div
+      class="op-pop absolute z-30 mt-1 w-full min-w-[14rem] overflow-hidden border border-default bg-surface rounded-container shadow-panel"
+      [attr.aria-busy]="loading() ? 'true' : null"
+    >
+      <div class="max-h-64 overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)]">
+        @if (loading()) {
+          <div class="space-y-1.5 p-2" aria-hidden="true">
+            <app-skeleton variant="line" height="0.9rem" />
+            <app-skeleton variant="line" height="0.9rem" />
+            <app-skeleton variant="line" height="0.9rem" />
+          </div>
+        } @else if (optionsError()) {
+          <div class="space-y-1.5 p-2 text-center">
+            <p class="text-[11px] text-danger">{{ 'CATALOG_PICKER_ERROR' | translate }}</p>
+            <button
+              type="button"
+              class="op-press inline-flex min-h-10 items-center gap-1 border border-default bg-surface px-2 py-1 text-[11px] text-ink rounded-control hover:bg-surface-muted sm:min-h-7"
+              (click)="retry()"
+            >
+              <app-icon name="refresh-cw" [decorative]="true" class="h-3 w-3" />
+              {{ 'CATALOG_PICKER_RETRY' | translate }}
+            </button>
+          </div>
+        } @else {
+          <div
+            [id]="listId"
+            role="listbox"
+            [attr.aria-label]="'CATALOG_PICKER_OPTIONS_LABEL' | translate"
+            [attr.aria-multiselectable]="multiple() ? 'true' : null"
+          >
+            @if (items().length === 0) {
+              <p class="px-2 py-3 text-center text-[11px] text-muted">{{ 'CATALOG_PICKER_EMPTY' | translate }}</p>
+            }
+
+            @for (item of items(); track item.id; let i = $index) {
+              <button
+                type="button"
+                role="option"
+                tabindex="-1"
+                [id]="optionId(i)"
+                [attr.aria-selected]="isSelected(item) ? 'true' : 'false'"
+                class="flex min-h-10 w-full items-center gap-2 border-b border-default/60 px-2 py-1.5 text-start last:border-b-0 sm:min-h-0"
+                [class.bg-surface-muted]="activeIndex() === i"
+                (mousedown)="$event.preventDefault()"
+                (mouseenter)="activeIndex.set(i)"
+                (click)="selectOption(item)"
+              >
+                <span class="min-w-0 flex-1">
+                  <span class="block truncate" [class]="textClass()">{{ item.name }}</span>
+                  @if (item.path) {
+                    <span class="block truncate text-[10px] text-muted">{{ item.path }}</span>
+                  }
+                </span>
+                <span class="shrink-0 font-mono text-[10px] text-muted">{{ item.code }}</span>
+                @if (isSelected(item)) {
+                  <app-icon name="check" [decorative]="true" class="h-3.5 w-3.5 text-accent" />
+                }
+              </button>
+            }
+
+            @if (showFreeTextRow()) {
+              <button
+                type="button"
+                role="option"
+                tabindex="-1"
+                [id]="optionId(items().length)"
+                aria-selected="false"
+                class="flex min-h-10 w-full items-center gap-2 border-t border-default px-2 py-1.5 text-start sm:min-h-0"
+                [class.bg-surface-muted]="activeIndex() === items().length"
+                (mousedown)="$event.preventDefault()"
+                (mouseenter)="activeIndex.set(items().length)"
+                (click)="commitFreeText()"
+              >
+                <app-icon name="edit-2" [decorative]="true" class="h-3.5 w-3.5 text-muted" />
+                <span class="min-w-0 flex-1 truncate" [class]="textClass()">
+                  {{ 'CATALOG_PICKER_FREE_TEXT_USE' | translate:{ text: freeText() } }}
+                </span>
+              </button>
+            }
+          </div>
+
+          @if (hasMore()) {
+            <button
+              type="button"
+              class="flex min-h-10 w-full items-center justify-center gap-1 border-t border-default px-2 py-1.5 text-[11px] text-accent hover:bg-surface-muted sm:min-h-0"
+              [disabled]="loadingMore()"
+              (click)="loadNextPage()"
+            >
+              @if (loadingMore()) {
+                <app-icon name="loader" [decorative]="true" class="h-3 w-3 animate-spin" />
+              }
+              {{ 'CATALOG_PICKER_LOAD_MORE' | translate }}
+            </button>
+          }
+
+          @if (showInlineSave()) {
+            <div class="flex items-center gap-2 border-t border-default p-1">
+              <button
+                type="button"
+                class="op-press inline-flex min-h-10 flex-1 items-center justify-center gap-1 border border-default bg-surface-muted px-2 py-1 text-[11px] text-ink rounded-control hover:bg-default disabled:opacity-50 sm:min-h-7"
+                [disabled]="inlineSaving()"
+                (click)="saveToCatalog()"
+              >
+                @if (inlineSaving()) {
+                  <app-icon name="loader" [decorative]="true" class="h-3 w-3 animate-spin" />
+                  {{ 'CATALOG_PICKER_INLINE_SAVING' | translate }}
+                } @else {
+                  <app-icon name="plus" [decorative]="true" class="h-3 w-3" />
+                  {{ 'CATALOG_PICKER_INLINE_SAVE' | translate }}
+                }
+              </button>
+            </div>
+          }
+
+          @if (inlineErrorMessage()) {
+            <p class="border-t border-default px-2 py-1 text-[11px] text-danger">
+              {{ inlineErrorMessage() | translate }}
+            </p>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>

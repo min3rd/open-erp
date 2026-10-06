@@ -1,0 +1,99 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="titleKey() | translate"
+  [subtitle]="type()?.name_key ? (type()!.name_key | translate) : ''"
+  [width]="'w-screen max-w-lg'"
+  [zIndex]="60"
+  [shiftLeft]="true"
+  (close)="close.emit()"
+>
+  <div class="space-y-3">
+    @if (versionWarning()) {
+      <div class="border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300" role="status">
+        {{ 'CATALOG_DETAIL_EDIT_WARNING' | translate }}
+      </div>
+    }
+    @if (errorText()) {
+      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300" role="alert">
+        {{ errorText() }}
+      </div>
+    }
+
+    <div class="grid grid-cols-2 gap-2">
+      <app-sharp-input
+        [label]="'CATALOG_ITEM_FIELD_CODE' | translate"
+        [value]="code()"
+        [disabled]="isEdit()"
+        [required]="true"
+        (valueChange)="code.set($event)"
+      />
+      <app-sharp-input
+        [label]="'CATALOG_ITEM_FIELD_NAME' | translate"
+        [value]="name()"
+        [required]="true"
+        (valueChange)="name.set($event)"
+      />
+      <app-sharp-input
+        [label]="'CATALOG_ITEM_FIELD_NAME_EN' | translate"
+        [value]="nameEn()"
+        (valueChange)="nameEn.set($event)"
+      />
+      <app-sharp-input
+        [label]="'CATALOG_ITEM_FIELD_SORT_ORDER' | translate"
+        type="number"
+        [value]="sortOrder()"
+        (valueChange)="sortOrder.set($event)"
+      />
+      <app-sharp-select
+        [label]="'CATALOG_ITEM_FIELD_STATUS' | translate"
+        [options]="statusOptions"
+        [value]="status()"
+        (valueChange)="status.set($any($event))"
+      />
+    </div>
+
+    <app-sharp-textarea
+      [label]="'CATALOG_ITEM_FIELD_DESCRIPTION' | translate"
+      [rows]="3"
+      [value]="description()"
+      (valueChange)="description.set($event)"
+    />
+
+    @if (fields().length) {
+      <div class="space-y-2 border-t border-default pt-2">
+        <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_ITEM_ATTRIBUTES_TITLE' | translate }}</h3>
+        <div class="grid grid-cols-2 gap-2">
+          @for (field of fields(); track field.key) {
+            @if (field.type === 'BOOLEAN') {
+              <label class="flex items-center gap-1.5 px-1.5 py-1 border border-default text-[11px]">
+                <app-sharp-toggle
+                  [checked]="attrBoolean(field.key)"
+                  [ariaLabel]="field.label_key | translate"
+                  (checkedChange)="setAttrBoolean(field.key, $event)"
+                />
+                {{ field.label_key | translate }}
+              </label>
+            } @else {
+              <app-sharp-input
+                [label]="field.label_key | translate"
+                [type]="field.type === 'NUMBER' ? 'number' : field.type === 'DATE' ? 'date' : 'text'"
+                [required]="!!field.required"
+                [value]="attrText(field.key)"
+                (valueChange)="setAttr(field, $event)"
+              />
+            }
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <div drawer-footer class="flex items-center gap-2">
+    <app-sharp-button variant="secondary" size="sm" (clicked)="close.emit()">
+      {{ 'COMMON_CANCEL' | translate }}
+    </app-sharp-button>
+    <app-sharp-button size="sm" [loading]="saving()" (clicked)="save()">
+      {{ 'COMMON_SAVE' | translate }}
+    </app-sharp-button>
+  </div>
+</app-drawer>

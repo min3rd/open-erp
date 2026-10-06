@@ -1,0 +1,142 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="'CATALOG_IMPORT_EXPORT_TITLE' | translate"
+  [subtitle]="type()?.name_key ? (type()!.name_key | translate) : ''"
+  [width]="'w-screen max-w-3xl'"
+  [zIndex]="60"
+  [shiftLeft]="true"
+  (close)="close.emit()"
+>
+  <div class="space-y-3">
+    @if (errorText()) {
+      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300" role="alert">
+        {{ errorText() }}
+      </div>
+    }
+
+    <!-- Import -->
+    <section class="space-y-2">
+      <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_IMPORT_TITLE' | translate }}</h3>
+      <p class="text-[11px] text-muted">{{ 'CATALOG_IMPORT_HINT' | translate }}</p>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <input
+          type="file"
+          accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          class="text-[11px] file:me-2 file:px-2 file:py-1 file:text-[11px] file:border file:border-default file:bg-surface-muted file:text-ink file:cursor-pointer"
+          (change)="onFileSelected($event)"
+        />
+        <span class="text-[11px] text-muted font-mono">{{ file()?.name || ('CATALOG_IMPORT_NO_FILE' | translate) }}</span>
+        <app-sharp-button size="sm" variant="secondary" [disabled]="!file()" [loading]="busy()" (clicked)="runDryRun()">
+          {{ 'CATALOG_IMPORT_DRY_RUN' | translate }}
+        </app-sharp-button>
+        <app-sharp-button size="sm" [disabled]="!dryRunReport() || !!writeReport()" [loading]="busy()" (clicked)="askWrite()">
+          {{ 'CATALOG_IMPORT_RUN' | translate }}
+        </app-sharp-button>
+        <app-sharp-button size="sm" variant="outline" [disabled]="!type()" [loading]="exporting()" (clicked)="downloadTemplate()">
+          {{ 'CATALOG_IMPORT_TEMPLATE_BTN' | translate }}
+        </app-sharp-button>
+      </div>
+
+      @if (confirmWrite()) {
+        <div class="border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-2 py-1.5 flex flex-wrap items-center justify-between gap-2">
+          <span class="text-[11px] text-amber-700 dark:text-amber-300">{{ 'CATALOG_IMPORT_WRITE_CONFIRM' | translate }}</span>
+          <span class="flex gap-1">
+            <app-sharp-button size="sm" [loading]="busy()" (clicked)="runWrite()">
+              {{ 'CATALOG_IMPORT_RUN' | translate }}
+            </app-sharp-button>
+            <app-sharp-button size="sm" variant="secondary" (clicked)="cancelWrite()">
+              {{ 'COMMON_CANCEL' | translate }}
+            </app-sharp-button>
+          </span>
+        </div>
+      }
+
+      @if (dryRunReport(); as report) {
+        <div class="border border-default bg-surface-muted px-2 py-1.5 text-[11px]">
+          <span class="font-semibold">{{ 'CATALOG_IMPORT_DRY_RUN_DONE' | translate }}</span>
+          <span class="ms-2">{{ summaryText(report) }}</span>
+        </div>
+        @if (previewRows().length) {
+          <div class="max-h-64 overflow-y-auto border border-default">
+            <table class="w-full text-[10px] border-collapse">
+              <thead class="bg-surface-muted text-muted sticky top-0">
+                <tr>
+                  <th class="px-1.5 py-1 text-start font-semibold">{{ 'CATALOG_IMPORT_COL_ROW' | translate }}</th>
+                  <th class="px-1.5 py-1 text-start font-semibold">{{ 'CATALOG_IMPORT_COL_ACTION' | translate }}</th>
+                  <th class="px-1.5 py-1 text-start font-semibold">{{ 'CATALOG_IMPORT_COL_CODE' | translate }}</th>
+                  <th class="px-1.5 py-1 text-start font-semibold">{{ 'CATALOG_IMPORT_COL_MESSAGE' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-default">
+                @for (row of previewRows(); track row.row) {
+                  <tr>
+                    <td class="px-1.5 py-1 font-mono">{{ row.row }}</td>
+                    <td class="px-1.5 py-1">
+                      <app-badge [variant]="actionVariant(row.actionKey)">{{ row.actionKey | translate }}</app-badge>
+                    </td>
+                    <td class="px-1.5 py-1 font-mono">{{ row.code }}</td>
+                    <td class="px-1.5 py-1 text-red-700 dark:text-red-300">{{ row.message }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+
+      @if (writeReport(); as report) {
+        <div class="border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1.5 text-[11px] text-emerald-700 dark:text-emerald-300">
+          <span class="font-semibold">{{ 'CATALOG_IMPORT_WRITE_DONE' | translate }}</span>
+          <span class="ms-2">{{ summaryText(report) }}</span>
+        </div>
+        @if (writeRows().length) {
+          <div class="max-h-64 overflow-y-auto border border-default">
+            <table class="w-full text-[10px] border-collapse">
+              <thead class="bg-surface-muted text-muted sticky top-0">
+                <tr>
+                  <th class="px-1.5 py-1 text-start font-semibold">{{ 'CATALOG_IMPORT_COL_ROW' | translate }}</th>
+                  <th class="px-1.5 py-1 text-start font-semibold">{{ 'CATALOG_IMPORT_COL_ACTION' | translate }}</th>
+                  <th class="px-1.5 py-1 text-start font-semibold">{{ 'CATALOG_IMPORT_COL_CODE' | translate }}</th>
+                  <th class="px-1.5 py-1 text-start font-semibold">{{ 'CATALOG_IMPORT_COL_MESSAGE' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-default">
+                @for (row of writeRows(); track row.row) {
+                  <tr>
+                    <td class="px-1.5 py-1 font-mono">{{ row.row }}</td>
+                    <td class="px-1.5 py-1">
+                      <app-badge [variant]="actionVariant(row.actionKey)">{{ row.actionKey | translate }}</app-badge>
+                    </td>
+                    <td class="px-1.5 py-1 font-mono">{{ row.code }}</td>
+                    <td class="px-1.5 py-1 text-red-700 dark:text-red-300">{{ row.message }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+    </section>
+
+    <!-- Export -->
+    <section class="space-y-2 border-t border-default pt-2">
+      <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_EXPORT_TITLE' | translate }}</h3>
+      <p class="text-[11px] text-muted">{{ 'CATALOG_EXPORT_HINT' | translate }}</p>
+      <div class="flex flex-wrap items-center gap-2">
+        <app-sharp-button size="sm" variant="secondary" [disabled]="!type()" [loading]="exporting()" (clicked)="exportType()">
+          {{ 'CATALOG_EXPORT_TYPE_BTN' | translate }}
+        </app-sharp-button>
+        <app-sharp-button size="sm" variant="outline" [loading]="exporting()" (clicked)="exportAll()">
+          {{ 'CATALOG_EXPORT_ALL_BTN' | translate }}
+        </app-sharp-button>
+      </div>
+    </section>
+  </div>
+
+  <div drawer-footer class="flex items-center gap-2">
+    <app-sharp-button variant="secondary" size="sm" (clicked)="close.emit()">
+      {{ 'COMMON_CLOSE' | translate }}
+    </app-sharp-button>
+  </div>
+</app-drawer>

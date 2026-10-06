@@ -27,3 +27,4 @@ export * from './skeleton/skeleton-table.component';
 export * from './skeleton/skeleton-card.component';
 export * from './context-menu/context-menu.component';
 export * from './context-menu/context-menu.service';
+export * from './catalog-picker/catalog-picker.component';

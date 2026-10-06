@@ -1,0 +1,600 @@
+<div class="space-y-2">
+  <!-- Header -->
+  <div class="flex flex-wrap items-start justify-between gap-2">
+    <div>
+      <h1 class="text-sm font-bold uppercase tracking-wider">
+        {{ (isSystemScope() ? 'PLATFORM_CATALOG_TITLE' : 'CATALOG_SECTION_TITLE') | translate }}
+      </h1>
+      @if (isSystemScope()) {
+        <p class="text-[11px] text-muted">{{ 'CATALOG_SYSTEM_NOTICE' | translate }}</p>
+      }
+    </div>
+    <div class="flex flex-wrap items-center gap-1">
+      <button
+        type="button"
+        class="px-2 py-1 text-[11px] border border-default hover:bg-surface-muted disabled:opacity-40 disabled:cursor-not-allowed"
+        [disabled]="!selectedType() && !items().length"
+        (click)="openImportExport()"
+      >
+        {{ 'CATALOG_IMPORT_EXPORT_TITLE' | translate }}
+      </button>
+      <button
+        type="button"
+        *appRequirePermission="typePermission()"
+        class="px-2 py-1 text-[11px] border border-default hover:bg-surface-muted"
+        (click)="openTypeCreate()"
+      >
+        + {{ 'CATALOG_TYPE_ADD' | translate }}
+      </button>
+      <button
+        type="button"
+        *appRequirePermission="itemPermission()"
+        class="px-2 py-1 text-[11px] bg-accent text-accent-contrast border border-transparent hover:bg-accent/90 disabled:opacity-40 disabled:cursor-not-allowed"
+        [disabled]="!selectedType()"
+        (click)="openCreateItem()"
+      >
+        + {{ 'CATALOG_ITEM_ADD' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Feedback banners -->
+  @if (errorText()) {
+    <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300 flex justify-between items-center" role="alert">
+      <span>{{ errorText() }}</span>
+      <button type="button" class="underline" (click)="errorText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+  @if (successText()) {
+    <div class="border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1.5 text-[11px] text-emerald-700 dark:text-emerald-300 flex justify-between items-center" role="status" aria-live="polite">
+      <span>{{ successText() }}</span>
+      <button type="button" class="underline" (click)="successText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+  @if (confirmClose(); as pending) {
+    <div class="border border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 px-2 py-1.5 flex flex-wrap items-center justify-between gap-2">
+      <span class="text-[11px] text-rose-700 dark:text-rose-300">
+        {{ 'CATALOG_ITEM_CLOSE_CONFIRM' | translate:{ name: pending.name } }}
+      </span>
+      <span class="flex gap-1">
+        <button
+          type="button"
+          class="px-2 py-0.5 text-[11px] bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+          [disabled]="closingItem()"
+          (click)="confirmCloseItem()"
+        >
+          {{ 'CATALOG_ITEM_CLOSE_ACTION' | translate }}
+        </button>
+        <button type="button" class="px-2 py-0.5 text-[11px] border border-default hover:bg-surface-muted" (click)="cancelCloseItem()">
+          {{ 'COMMON_CANCEL' | translate }}
+        </button>
+      </span>
+    </div>
+  }
+
+  <!-- 3-column split: types | items | detail -->
+  <div class="grid gap-2 lg:grid-cols-[14rem_minmax(0,1fr)_20rem] xl:grid-cols-[16rem_minmax(0,1fr)_22rem] items-start">
+    <!-- Column 1: catalogue types -->
+    <aside class="border border-default bg-surface p-1.5 space-y-1.5 min-w-0" aria-labelledby="catalog-types-title">
+      <h2 id="catalog-types-title" class="text-[10px] font-semibold uppercase tracking-wider text-muted">
+        {{ 'CATALOG_TYPE_LIST_TITLE' | translate }}
+      </h2>
+      <app-sharp-input
+        [placeholder]="'CATALOG_TYPE_SEARCH_PLACEHOLDER' | translate"
+        [value]="typeSearch()"
+        (valueChange)="typeSearch.set($event)"
+      />
+
+      @if (typesError()) {
+        <div class="px-1 py-2 text-[11px] text-muted" role="status">
+          <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+          <button type="button" class="ms-2 underline" (click)="loadTypes()">{{ 'COMMON_RETRY' | translate }}</button>
+        </div>
+      } @else if (typesLoading()) {
+        <div class="space-y-1" aria-busy="true">
+          @for (row of [1, 2, 3, 4, 5, 6]; track row) {
+            <app-skeleton variant="line" height="1.25rem" />
+          }
+        </div>
+      } @else if (!filteredTypes().length) {
+        <p class="px-1 py-2 text-[11px] text-muted">{{ 'CATALOG_TYPE_EMPTY' | translate }}</p>
+      } @else {
+        <ul class="space-y-0.5">
+          @for (type of filteredTypes(); track type.id) {
+            <li>
+              <button
+                type="button"
+                class="w-full text-start px-1.5 py-1 border transition-colors"
+                [class]="selectedType()?.id === type.id ? 'bg-accent/10 border-accent/60' : 'border-transparent hover:bg-surface-muted'"
+                (click)="selectType(type)"
+              >
+                <span class="flex items-center justify-between gap-1">
+                  <span class="text-xs font-medium truncate">{{ type.name_key | translate }}</span>
+                  <span class="text-[10px] text-muted font-mono shrink-0">{{ type.code }}</span>
+                </span>
+                <span class="flex flex-wrap items-center gap-1 mt-0.5">
+                  <app-badge variant="neutral">{{ 'CATALOG_MODE_' + type.hierarchy_mode | translate }}</app-badge>
+                  @if (isSystemType(type)) {
+                    <app-badge variant="info">{{ 'CATALOG_BADGE_SYSTEM' | translate }}</app-badge>
+                  }
+                  @if (type.overridden) {
+                    <app-badge variant="warning">{{ 'CATALOG_BADGE_OVERRIDE' | translate }}</app-badge>
+                  }
+                  @if (type.allow_free_text) {
+                    <app-badge variant="neutral">{{ 'CATALOG_BADGE_FREE_TEXT' | translate }}</app-badge>
+                  }
+                  @if (type.source === 'SYSTEM_BACKED') {
+                    <app-badge variant="neutral">{{ 'CATALOG_BADGE_SYSTEM_BACKED' | translate }}</app-badge>
+                  }
+                </span>
+              </button>
+              @if (selectedType()?.id === type.id && canMutateType(type)) {
+                <div class="flex flex-wrap gap-1 px-1 pb-1">
+                  <button
+                    type="button"
+                    class="px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
+                    (click)="openTypeEdit()"
+                  >
+                    {{ 'COMMON_EDIT' | translate }}
+                  </button>
+                  <button
+                    type="button"
+                    class="px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
+                    (click)="openGrants()"
+                  >
+                    {{ 'CATALOG_TYPE_GRANTS_BTN' | translate }}
+                  </button>
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </aside>
+
+    <!-- Column 2: items of the selected type -->
+    <section class="border border-default bg-surface p-1.5 space-y-1.5 min-w-0" aria-labelledby="catalog-items-title">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 id="catalog-items-title" class="text-[10px] font-semibold uppercase tracking-wider text-muted">
+          {{ 'CATALOG_ITEM_LIST_TITLE' | translate }}
+          @if (selectedType(); as type) {
+            <span class="text-ink normal-case">· {{ type.name_key | translate }}</span>
+          }
+        </h2>
+        <div class="flex items-center gap-1" role="group" [attr.aria-label]="'CATALOG_VIEW_MODE_LABEL' | translate">
+          @for (mode of viewModes; track mode) {
+            <button
+              type="button"
+              class="px-1.5 py-0.5 text-[10px] border"
+              [class]="viewMode() === mode ? 'bg-accent/10 border-accent/60 text-ink' : 'border-default text-muted hover:bg-surface-muted'"
+              [attr.aria-pressed]="viewMode() === mode"
+              (click)="setViewMode(mode)"
+            >
+              {{ ('CATALOG_VIEW_' + mode.toUpperCase()) | translate }}
+            </button>
+          }
+          <button type="button" class="px-1.5 py-0.5 text-[10px] border border-default text-muted hover:bg-surface-muted" (click)="refreshItems()">
+            {{ 'COMMON_RETRY' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+        <app-sharp-input
+          [placeholder]="'CATALOG_ITEM_SEARCH_PLACEHOLDER' | translate"
+          [value]="q()"
+          (valueChange)="onSearchInput($event)"
+        />
+        <app-sharp-select
+          [label]="'CATALOG_FILTER_STATUS' | translate"
+          [options]="statusOptions"
+          [value]="statusFilter()"
+          (valueChange)="onStatusChange($event)"
+        />
+        @if (selectedType()?.effective_dated) {
+          <app-sharp-input
+            type="date"
+            [label]="'CATALOG_FILTER_AS_OF' | translate"
+            [value]="asOf()"
+            (valueChange)="onAsOfChange($event)"
+          />
+        }
+        @if (relationOptions().length > 1) {
+          <app-sharp-select
+            [label]="'CATALOG_FILTER_RELATION' | translate"
+            [options]="relationOptions()"
+            [value]="relationFilter()"
+            (valueChange)="onRelationChange($event)"
+          />
+        }
+      </div>
+
+      @if (!selectedType()) {
+        <p class="px-1 py-4 text-center text-[11px] text-muted">{{ 'CATALOG_ITEM_SELECT_TYPE' | translate }}</p>
+      } @else if (itemsError()) {
+        <div class="px-1 py-4 text-center text-[11px] text-muted" role="status">
+          <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+          <button type="button" class="ms-2 underline" (click)="refreshItems()">{{ 'COMMON_RETRY' | translate }}</button>
+        </div>
+      } @else if (itemsLoading()) {
+        <app-skeleton-table [rows]="6" [columns]="columns.length" />
+      } @else if (!items().length) {
+        <p class="px-1 py-4 text-center text-[11px] text-muted">{{ 'CATALOG_ITEM_EMPTY' | translate }}</p>
+      } @else if (viewMode() === 'list') {
+        <app-table [columns]="columns" [rows]="items()" [contextMenuItems]="itemContextMenu">
+          <ng-template let-r>
+            <tr
+              class="hover:bg-surface-muted cursor-pointer align-top"
+              [class.bg-accent/5]="selectedItem()?.id === r.id"
+              (click)="selectItem(r)"
+            >
+              <td class="px-2 py-1 font-mono text-[10px]">{{ r.code }}</td>
+              <td class="px-2 py-1">
+                {{ r.name }}
+                @if (r.overridden) {
+                  <app-badge variant="warning">{{ 'CATALOG_BADGE_OVERRIDE' | translate }}</app-badge>
+                }
+              </td>
+              <td class="px-2 py-1 text-[10px] text-muted">{{ parentLabel(r) }}</td>
+              <td class="px-2 py-1 text-[10px] font-mono">v{{ r.version }}</td>
+              <td class="px-2 py-1 text-[10px] text-muted whitespace-nowrap">{{ validityLabel(r) }}</td>
+              <td class="px-2 py-1">
+                <app-badge [variant]="statusVariant(r.status)">{{ 'CATALOG_STATUS_' + r.status | translate }}</app-badge>
+              </td>
+              <td class="px-2 py-1 text-end" (click)="$event.stopPropagation()">
+                @if (canMutateItem(r)) {
+                  <span class="inline-flex items-center gap-1">
+                    <button
+                      type="button"
+                      class="px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
+                      (click)="openEditItem(r)"
+                    >
+                      {{ 'COMMON_EDIT' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      class="px-1.5 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                      (click)="askCloseItem(r)"
+                    >
+                      {{ 'CATALOG_ITEM_CLOSE_ACTION' | translate }}
+                    </button>
+                  </span>
+                } @else if (isSystemItem(r)) {
+                  <app-icon name="lock" [labelKey]="'CATALOG_SYSTEM_READONLY'" />
+                }
+              </td>
+            </tr>
+          </ng-template>
+        </app-table>
+        <app-pagination
+          [page]="page()"
+          [size]="size()"
+          [totalItems]="totalItems()"
+          [totalPages]="totalPages()"
+          (pageChange)="changePage($event)"
+        />
+      } @else if (viewMode() === 'tree') {
+        @if (!selectedItem()) {
+          <p class="px-1 py-4 text-center text-[11px] text-muted">{{ 'CATALOG_TREE_SELECT_HINT' | translate }}</p>
+        } @else {
+          <div class="border border-default divide-y divide-default">
+            <div class="flex flex-wrap items-center gap-1 bg-surface-muted px-2 py-1 text-[10px] text-muted">
+              <span class="font-semibold uppercase tracking-wider">{{ 'CATALOG_TREE_PATH' | translate }}</span>
+              @if (selectedItem()?.parents?.length) {
+                @for (parent of selectedItem()?.parents ?? []; track parent.edge_id) {
+                  <span class="font-mono">{{ parent.code || parent.item_id }}</span>
+                  @if (!$last) {
+                    <span>›</span>
+                  }
+                }
+              } @else {
+                <span>{{ 'CATALOG_MULTI_PARENT_NONE' | translate }}</span>
+              }
+              <span>›</span>
+              <span class="font-mono text-ink">{{ selectedItem()?.code }}</span>
+            </div>
+            <div class="px-2 py-1 text-xs font-medium">{{ selectedItem()?.name }}</div>
+            @if (treeLoading()) {
+              <div class="p-2 space-y-1" aria-busy="true">
+                @for (row of [1, 2, 3]; track row) {
+                  <app-skeleton variant="line" height="1rem" />
+                }
+              </div>
+            } @else if (!descendants().length) {
+              <p class="px-2 py-3 text-center text-[11px] text-muted">{{ 'CATALOG_TREE_EMPTY' | translate }}</p>
+            } @else {
+              <ul class="divide-y divide-default">
+                @for (node of descendants(); track node.id) {
+                  <li>
+                    <button
+                      type="button"
+                      class="w-full text-start flex items-center gap-1.5 px-2 py-1 text-xs hover:bg-surface-muted"
+                      [style.padding-inline-start.px]="(node.depth ?? 1) * 14"
+                      (click)="selectItem(node)"
+                    >
+                      <span class="text-muted">↳</span>
+                      <span class="font-mono text-[10px]">{{ node.code }}</span>
+                      <span class="truncate">{{ node.name }}</span>
+                      <app-badge [variant]="statusVariant(node.status)">{{ 'CATALOG_STATUS_' + node.status | translate }}</app-badge>
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        }
+      } @else {
+        <!-- Multi-parent grouping -->
+        <div class="space-y-1.5">
+          @for (group of parentGroups(); track group.count) {
+            <section class="border border-default">
+              <header class="bg-surface-muted px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted">
+                {{ group.labelKey | translate:{ count: group.count } }}
+              </header>
+              <ul class="divide-y divide-default">
+                @for (item of group.items; track item.id) {
+                  <li>
+                    <button
+                      type="button"
+                      class="w-full text-start flex flex-wrap items-center gap-1.5 px-2 py-1 text-xs hover:bg-surface-muted"
+                      (click)="selectItem(item)"
+                    >
+                      <span class="font-mono text-[10px]">{{ item.code }}</span>
+                      <span class="truncate">{{ item.name }}</span>
+                      <app-badge [variant]="statusVariant(item.status)">{{ 'CATALOG_STATUS_' + item.status | translate }}</app-badge>
+                      @if (item.overridden) {
+                        <app-badge variant="warning">{{ 'CATALOG_BADGE_OVERRIDE' | translate }}</app-badge>
+                      }
+                      @if (item.parents?.length) {
+                        <span class="ms-auto flex flex-wrap gap-1">
+                          @for (parent of item.parents ?? []; track parent.edge_id) {
+                            <app-badge variant="neutral">{{ parent.name || parent.code || parent.item_id }}</app-badge>
+                          }
+                        </span>
+                      }
+                    </button>
+                  </li>
+                }
+              </ul>
+            </section>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- Column 3: item detail + relations + version history -->
+    <aside class="border border-default bg-surface p-1.5 space-y-2 min-w-0" aria-labelledby="catalog-detail-title">
+      <h2 id="catalog-detail-title" class="text-[10px] font-semibold uppercase tracking-wider text-muted">
+        {{ 'CATALOG_DETAIL_TITLE' | translate }}
+      </h2>
+
+      @if (!selectedItem()) {
+        <p class="py-4 text-center text-[11px] text-muted">{{ 'CATALOG_DETAIL_EMPTY' | translate }}</p>
+      } @else {
+        <div>
+          <p class="text-xs font-semibold">{{ selectedItem()?.name }}</p>
+          <p class="text-[10px] font-mono text-muted">
+            {{ selectedItem()?.code }} · v{{ selectedItem()?.version }}
+          </p>
+          <div class="flex flex-wrap items-center gap-1 mt-1">
+            <app-badge [variant]="statusVariant(selectedItem()!.status)">
+              {{ 'CATALOG_STATUS_' + selectedItem()!.status | translate }}
+            </app-badge>
+            @if (selectedItem()?.is_system) {
+              <app-badge variant="info">{{ 'CATALOG_BADGE_SYSTEM' | translate }}</app-badge>
+            }
+            @if (selectedItem()?.overridden) {
+              <app-badge variant="warning">{{ 'CATALOG_BADGE_OVERRIDE' | translate }}</app-badge>
+            }
+          </div>
+          @if (canMutateItem(selectedItem())) {
+            <div class="flex flex-wrap gap-1 mt-1.5">
+              <button
+                type="button"
+                class="px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
+                (click)="openEditItem(selectedItem()!)"
+              >
+                {{ 'COMMON_EDIT' | translate }}
+              </button>
+              <button
+                type="button"
+                class="px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
+                (click)="openEdgeDrawer(selectedItem()!)"
+              >
+                {{ 'CATALOG_DETAIL_ADD_PARENT' | translate }}
+              </button>
+              <button
+                type="button"
+                class="px-1.5 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                (click)="askCloseItem(selectedItem()!)"
+              >
+                {{ 'CATALOG_ITEM_CLOSE_ACTION' | translate }}
+              </button>
+            </div>
+          } @else if (isSystemItem(selectedItem())) {
+            <p class="mt-1.5 text-[10px] text-muted">{{ 'CATALOG_SYSTEM_READONLY' | translate }}</p>
+          }
+        </div>
+
+        @if (detailLoading()) {
+          <div class="space-y-1" aria-busy="true">
+            @for (row of [1, 2, 3, 4]; track row) {
+              <app-skeleton variant="line" height="1rem" />
+            }
+          </div>
+        } @else if (detailError()) {
+          <div class="py-2 text-[11px] text-muted" role="status">
+            <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+            <button type="button" class="ms-2 underline" (click)="retryDetail()">{{ 'COMMON_RETRY' | translate }}</button>
+          </div>
+        } @else {
+          <!-- Information -->
+          <section class="space-y-1">
+            <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_DETAIL_INFO' | translate }}</h3>
+            <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-2 gap-y-0.5 text-[11px]">
+              <dt class="text-muted">{{ 'CATALOG_DETAIL_FIELD_NAME_EN' | translate }}</dt>
+              <dd>{{ selectedItem()?.name_en || '—' }}</dd>
+              <dt class="text-muted">{{ 'CATALOG_DETAIL_FIELD_DESCRIPTION' | translate }}</dt>
+              <dd class="break-words">{{ selectedItem()?.description || '—' }}</dd>
+              <dt class="text-muted">{{ 'CATALOG_DETAIL_FIELD_SORT' | translate }}</dt>
+              <dd class="font-mono">{{ selectedItem()?.sort_order }}</dd>
+              <dt class="text-muted">{{ 'CATALOG_DETAIL_VALID_FROM' | translate }}</dt>
+              <dd class="font-mono text-[10px]">{{ selectedItem()?.valid_from ? validityLabel(selectedItem()!) : '—' }}</dd>
+              <dt class="text-muted">{{ 'CATALOG_DETAIL_UPDATED_AT' | translate }}</dt>
+              <dd class="font-mono text-[10px]">{{ formatDateTime(selectedItem()?.updated_at) }}</dd>
+            </dl>
+          </section>
+
+          <!-- Dynamic attributes -->
+          <section class="space-y-1">
+            <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_DETAIL_ATTRIBUTES' | translate }}</h3>
+            @if (detailAttributeFields().length) {
+              <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-2 gap-y-0.5 text-[11px]">
+                @for (field of detailAttributeFields(); track field.key) {
+                  <dt class="text-muted">{{ field.label_key | translate }}</dt>
+                  <dd class="font-mono">{{ attributeValue(field.key) || '—' }}</dd>
+                }
+              </dl>
+            } @else if (rawAttributes().length) {
+              <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-2 gap-y-0.5 text-[11px]">
+                @for (attribute of rawAttributes(); track attribute.key) {
+                  <dt class="text-muted">{{ attribute.key }}</dt>
+                  <dd class="font-mono">{{ attribute.value || '—' }}</dd>
+                }
+              </dl>
+            } @else {
+              <p class="text-[11px] text-muted">{{ 'CATALOG_DETAIL_NO_ATTRIBUTES' | translate }}</p>
+            }
+          </section>
+
+          <!-- Relations -->
+          <section class="space-y-1">
+            <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_DETAIL_RELATIONS' | translate }}</h3>
+            <p class="text-[10px] font-semibold text-muted">{{ 'CATALOG_DETAIL_PARENTS' | translate }}</p>
+            @if (selectedItem()?.parents?.length) {
+              <ul class="divide-y divide-default border border-default">
+                @for (parent of selectedItem()?.parents ?? []; track parent.edge_id) {
+                  <li class="px-1.5 py-1 text-[11px]">
+                    <span class="flex items-center gap-1">
+                      <span class="font-mono text-[10px]">{{ parent.code }}</span>
+                      <span class="truncate">{{ parent.name }}</span>
+                      <app-badge variant="neutral">{{ relationLabelKey(parent.relation_type) | translate }}</app-badge>
+                      @if (confirmEdgeId() === parent.edge_id) {
+                        <span class="ms-auto flex items-center gap-1">
+                          <button type="button" class="px-1 py-0.5 text-[10px] bg-red-600 text-white" (click)="confirmRemoveEdge(parent.edge_id)">
+                            {{ 'COMMON_DELETE' | translate }}
+                          </button>
+                          <button type="button" class="px-1 py-0.5 text-[10px] border border-default" (click)="cancelRemoveEdge()">
+                            {{ 'COMMON_CANCEL' | translate }}
+                          </button>
+                        </span>
+                      } @else {
+                        @if (canMutateItem(selectedItem())) {
+                          <button
+                            type="button"
+                            class="ms-auto px-1 py-0.5 text-[10px] text-rose-700 dark:text-rose-300 hover:underline"
+                            [title]="'CATALOG_DETAIL_REMOVE_RELATION' | translate"
+                            (click)="askRemoveEdge(parent.edge_id)"
+                          >
+                            ×
+                          </button>
+                        }
+                      }
+                    </span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="text-[11px] text-muted">{{ 'CATALOG_DETAIL_NO_PARENTS' | translate }}</p>
+            }
+
+            <p class="text-[10px] font-semibold text-muted">{{ 'CATALOG_DETAIL_CHILDREN' | translate }}</p>
+            @if (selectedItem()?.children?.length) {
+              <ul class="divide-y divide-default border border-default">
+                @for (child of selectedItem()?.children ?? []; track child.edge_id) {
+                  <li class="px-1.5 py-1 text-[11px] flex items-center gap-1">
+                    <span class="font-mono text-[10px]">{{ child.code }}</span>
+                    <span class="truncate">{{ child.name }}</span>
+                    <app-badge variant="neutral">{{ relationLabelKey(child.relation_type) | translate }}</app-badge>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="text-[11px] text-muted">{{ 'CATALOG_DETAIL_NO_CHILDREN' | translate }}</p>
+            }
+          </section>
+
+          <!-- Version history (read-only) -->
+          <section class="space-y-1">
+            <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_DETAIL_HISTORY' | translate }}</h3>
+            @if (!versions().length) {
+              <p class="text-[11px] text-muted">{{ 'CATALOG_HISTORY_EMPTY' | translate }}</p>
+            } @else {
+              <table class="w-full text-[10px] border-collapse border border-default">
+                <thead class="bg-surface-muted text-muted">
+                  <tr>
+                    <th class="px-1.5 py-1 text-start font-semibold">{{ 'CATALOG_HISTORY_COL_VERSION' | translate }}</th>
+                    <th class="px-1.5 py-1 text-start font-semibold">{{ 'CATALOG_HISTORY_COL_VALID' | translate }}</th>
+                    <th class="px-1.5 py-1 text-start font-semibold">{{ 'CATALOG_HISTORY_COL_STATUS' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-default">
+                  @for (version of versions(); track version.id) {
+                    <tr [class.bg-accent/5]="version.id === selectedItem()?.id">
+                      <td class="px-1.5 py-1 font-mono">v{{ version.version }}</td>
+                      <td class="px-1.5 py-1 font-mono">{{ historyValidity(version) }}</td>
+                      <td class="px-1.5 py-1">
+                        <app-badge [variant]="version.valid_to ? 'neutral' : 'success'">
+                          {{ (version.valid_to ? 'CATALOG_HISTORY_CLOSED' : 'CATALOG_HISTORY_CURRENT') | translate }}
+                        </app-badge>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          </section>
+        }
+      }
+    </aside>
+  </div>
+
+  <!-- Stacked drawers (never modals) -->
+  <app-catalog-type-drawer
+    [isOpen]="typeDrawerOpen()"
+    [type]="editingType()"
+    [scope]="scope()"
+    (close)="closeDrawer()"
+    (saved)="onTypeSaved($event)"
+  />
+  <app-catalog-item-drawer
+    [isOpen]="itemDrawerOpen()"
+    [item]="editingItem()"
+    [type]="selectedType()"
+    [scope]="scope()"
+    (close)="closeDrawer()"
+    (saved)="onItemSaved($event)"
+  />
+  <app-catalog-edge-drawer
+    [isOpen]="edgeDrawerOpen()"
+    [child]="selectedItem()"
+    [type]="selectedType()"
+    [scope]="scope()"
+    (close)="closeDrawer()"
+    (created)="onEdgeCreated($event)"
+  />
+  <app-catalog-grants-drawer
+    [isOpen]="grantsDrawerOpen()"
+    [type]="selectedType()"
+    (close)="closeDrawer()"
+    (saved)="onGrantsSaved($event)"
+  />
+  <app-catalog-import-export-drawer
+    [isOpen]="importDrawerOpen()"
+    [type]="selectedType()"
+    [scope]="scope()"
+    (close)="closeDrawer()"
+    (imported)="onImported($event)"
+  />
+</div>

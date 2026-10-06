@@ -130,7 +130,8 @@ export class SettingsLayoutComponent implements OnInit {
       labelKey: 'SETTINGS_GROUP_DATA',
       icon: IconName.FILE_TEXT,
       children: [
-        { path: '/settings/sample-records', labelKey: 'SAMPLE_RECORDS_TITLE', icon: IconName.FILE_TEXT, permission: 'core:sample-record:read' }
+        { path: '/settings/sample-records', labelKey: 'SAMPLE_RECORDS_TITLE', icon: IconName.FILE_TEXT, permission: 'core:sample-record:read' },
+        { path: '/settings/catalog', labelKey: 'CATALOG_SECTION_TITLE', icon: IconName.GRID, permission: 'catalog:item:read' }
       ]
     },
     {

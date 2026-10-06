@@ -1,0 +1,75 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="'CATALOG_GRANT_TITLE' | translate"
+  [subtitle]="type()?.name_key ? (type()!.name_key | translate) : ''"
+  [width]="'w-screen max-w-lg'"
+  [zIndex]="70"
+  [shiftLeft]="true"
+  (close)="close.emit()"
+>
+  <div class="space-y-3">
+    @if (errorText()) {
+      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300" role="alert">
+        {{ errorText() }}
+      </div>
+    }
+
+    @if (loading()) {
+      <p class="py-4 text-center text-[11px] text-muted">{{ 'COMMON_LOADING' | translate }}</p>
+    } @else if (loadError()) {
+      <div class="py-4 text-center text-[11px] text-muted" role="status">
+        <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+        <button type="button" class="ms-2 underline" (click)="retry()">{{ 'COMMON_RETRY' | translate }}</button>
+      </div>
+    } @else if (!rows().length) {
+      <p class="py-4 text-center text-[11px] text-muted">{{ 'CATALOG_GRANT_EMPTY' | translate }}</p>
+    } @else {
+      <table class="w-full text-xs border-collapse border border-default">
+        <thead class="bg-surface-muted text-muted">
+          <tr>
+            <th class="px-2 py-1 text-start text-[10px] font-semibold uppercase tracking-wider">{{ 'CATALOG_GRANT_COL_ROLE' | translate }}</th>
+            <th class="px-2 py-1 text-center text-[10px] font-semibold uppercase tracking-wider">{{ 'CATALOG_GRANT_COL_READ' | translate }}</th>
+            <th class="px-2 py-1 text-center text-[10px] font-semibold uppercase tracking-wider">{{ 'CATALOG_GRANT_COL_WRITE' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-default">
+          @for (row of rows(); track row.role.id) {
+            <tr>
+              <td class="px-2 py-1">
+                <span class="font-medium">{{ row.role.name }}</span>
+                <span class="ms-1 font-mono text-[10px] text-muted">{{ row.role.code }}</span>
+              </td>
+              <td class="px-2 py-1 text-center">
+                <span class="inline-flex justify-center">
+                  <app-sharp-toggle
+                    [checked]="row.can_read"
+                    [ariaLabel]="('CATALOG_GRANT_COL_READ' | translate) + ' — ' + row.role.name"
+                    (checkedChange)="setRead(row.role.id, $event)"
+                  />
+                </span>
+              </td>
+              <td class="px-2 py-1 text-center">
+                <span class="inline-flex justify-center">
+                  <app-sharp-toggle
+                    [checked]="row.can_write"
+                    [ariaLabel]="('CATALOG_GRANT_COL_WRITE' | translate) + ' — ' + row.role.name"
+                    (checkedChange)="setWrite(row.role.id, $event)"
+                  />
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+
+  <div drawer-footer class="flex items-center gap-2">
+    <app-sharp-button variant="secondary" size="sm" (clicked)="close.emit()">
+      {{ 'COMMON_CANCEL' | translate }}
+    </app-sharp-button>
+    <app-sharp-button size="sm" [loading]="saving()" [disabled]="loading() || loadError()" (clicked)="save()">
+      {{ 'COMMON_SAVE' | translate }}
+    </app-sharp-button>
+  </div>
+</app-drawer>
