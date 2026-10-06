@@ -17,11 +17,6 @@ public class CatalogItemEdgeRepository implements PanacheRepositoryBase<CatalogI
     /** Sentinel bound instead of a null tenant id in native queries. */
     static final UUID NO_TENANT = new UUID(0L, 0L);
 
-    public List<CatalogItemEdge> listActiveByParent(UUID parentItemId) {
-        return list("parentItemId = ?1 and validTo is null and status = ?2 order by sortOrder asc",
-                parentItemId, CatalogStatus.ACTIVE);
-    }
-
     /** Active parent edges of one child (direct parents, as-of). */
     public List<CatalogItemEdge> listActiveByChild(UUID childItemId, UUID tenantId, Instant asOf) {
         return listActiveByChildIds(List.of(childItemId), tenantId, asOf);
@@ -139,37 +134,6 @@ public class CatalogItemEdgeRepository implements PanacheRepositoryBase<CatalogI
                 """;
         return getEntityManager().createNativeQuery(sql, CatalogItem.class)
                 .setParameter("rootId", rootId)
-                .setParameter("tenantId", tenantId != null ? tenantId : NO_TENANT)
-                .setParameter("asOf", asOf)
-                .setParameter("maxDepth", maxDepth)
-                .getResultList();
-    }
-
-    /** Ancestors of {@code itemId} at {@code asOf}, bounded by maxDepth (breadcrumb/path). */
-    public List<CatalogItem> findAncestors(UUID itemId, UUID tenantId, Instant asOf, int maxDepth) {
-        String sql = """
-                WITH RECURSIVE ancestors AS (
-                    SELECT e.parent_item_id AS id, 1 AS depth
-                    FROM catalog_item_edges e
-                    WHERE e.child_item_id = :itemId
-                      AND tstzrange(e.valid_from, e.valid_to) @> CAST(:asOf AS timestamptz)
-                      AND e.status = 'ACTIVE'
-                    UNION ALL
-                    SELECT e.parent_item_id, a.depth + 1
-                    FROM catalog_item_edges e
-                    JOIN ancestors a ON e.child_item_id = a.id
-                    WHERE tstzrange(e.valid_from, e.valid_to) @> CAST(:asOf AS timestamptz)
-                      AND e.status = 'ACTIVE'
-                      AND a.depth < :maxDepth
-                )
-                SELECT DISTINCT i.*
-                FROM catalog_items i
-                JOIN ancestors a ON a.id = i.id
-                WHERE i.tenant_id = :tenantId OR i.tenant_id IS NULL
-                ORDER BY i.code asc
-                """;
-        return getEntityManager().createNativeQuery(sql, CatalogItem.class)
-                .setParameter("itemId", itemId)
                 .setParameter("tenantId", tenantId != null ? tenantId : NO_TENANT)
                 .setParameter("asOf", asOf)
                 .setParameter("maxDepth", maxDepth)

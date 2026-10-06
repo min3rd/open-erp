@@ -71,6 +71,7 @@
 | `GET /api/v1/catalog/plugin/manifest` (descriptor plugin, AC-16) | ✅ PASS (test + live) | `CatalogPluginManifestTest` (2 test) PASS; live `:8088` trả 200 `CATALOG_PLUGIN_MANIFEST_SUCCESS` |
 | Bỏ `catalog_types.source` / `source_ref` (`V4.0.1`) | ✅ PASS | `mvn test` xanh; descriptor + entity registry khớp sau khi dọn |
 | `npm run web:build` / `i18n:check:strict` | ✅ PASS | 0 lỗi/0 cảnh báo; web 100% (13 locale), mobile 100% |
+| Dọn theo ponytail review (7 mục) | ✅ PASS | `listActiveByParent` + `findAncestors`(+test) + alias `CatalogItemStatus` đã xoá; service mobile gộp vào shared; `CatalogItemLink` thống nhất 1 bản; 3 nhánh map edge→link gộp thành `visibleByIds`/`toLinks`/`link`. `mvn test -Dtest=Catalog*Test` xanh |
 
 ## 4. Giới hạn của lượt QA này
 

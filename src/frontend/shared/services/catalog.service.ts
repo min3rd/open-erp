@@ -2,10 +2,12 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { Injectable, InjectionToken, inject, isDevMode } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
 import { ResponseKey } from '../enums/response-key.enum';
-import { ApiErrorResponse, ApiResponse, PagedData } from '../models/api.model';
+import { ApiErrorResponse, ApiResponse, ListData, PagedData } from '../models/api.model';
 import {
   CatalogInlineCreateRequest,
+  CatalogItemDetail,
   CatalogLookupOptionsQuery,
+  CatalogLookupType,
   CatalogOptionItem
 } from '../models/catalog.model';
 
@@ -21,6 +23,7 @@ export const CATALOG_API_BASE_URL = new InjectionToken<string>('CATALOG_API_BASE
 });
 
 const LOOKUP_PATH = '/api/v1/catalog/lookup';
+const ITEMS_PATH = '/api/v1/catalog/items';
 const DEFAULT_PAGE_SIZE = 20;
 
 /**
@@ -52,6 +55,21 @@ export class CatalogService {
     }
     return this.http
       .get<ApiResponse<PagedData<CatalogOptionItem>>>(`${this.lookupUrl(typeCode)}/options`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  /** `GET /api/v1/catalog/lookup/types` — types usable by forms (non-paginated). */
+  getTypes(): Observable<ApiResponse<ListData<CatalogLookupType>>> {
+    return this.http
+      .get<ApiResponse<ListData<CatalogLookupType>>>(`${this.baseUrl}${LOOKUP_PATH}/types`)
+      .pipe(catchError(this.handleError));
+  }
+
+  /** `GET /api/v1/catalog/items/{id}?with_relations=true` — item detail with parents/children. */
+  getItem(id: string): Observable<ApiResponse<CatalogItemDetail>> {
+    const path = `${ITEMS_PATH}/${encodeURIComponent(id)}?${ResponseKey.WITH_RELATIONS}=true`;
+    return this.http
+      .get<ApiResponse<CatalogItemDetail>>(this.baseUrl + path)
       .pipe(catchError(this.handleError));
   }
 

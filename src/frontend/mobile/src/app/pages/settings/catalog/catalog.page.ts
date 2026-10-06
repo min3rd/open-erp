@@ -9,11 +9,11 @@ import {
   IonBackButton,
   IonMenuButton,
 } from '@ionic/angular/standalone';
-import { CatalogBrowseService, CatalogItemDetail, CatalogLookupType } from '../../../core/catalog-browse.service';
-import { PagedList } from '../../../core/paged-list';
 import {
   BadgeComponent,
   CatalogHierarchyMode,
+  CatalogItemDetail,
+  CatalogLookupType,
   CatalogOptionItem,
   CatalogService,
   ColorVariant,
@@ -26,8 +26,9 @@ import {
   SkeletonComponent,
   TranslateDirective,
   TranslatePipe,
-  apiMessage,
+  apiMessage
 } from '@shared';
+import { PagedList } from '../../../core/paged-list';
 
 const PAGE_SIZE = 20;
 const SEARCH_DEBOUNCE_MS = 250;
@@ -63,7 +64,6 @@ const SEARCH_DEBOUNCE_MS = 250;
 })
 export class CatalogBrowsePage implements OnInit {
   private catalog = inject(CatalogService);
-  private browse = inject(CatalogBrowseService);
   private i18n = inject(I18nService);
 
   readonly badgeInfo = ColorVariant.INFO;
@@ -110,7 +110,7 @@ export class CatalogBrowsePage implements OnInit {
   loadTypes() {
     this.typesLoading.set(true);
     this.typesError.set(null);
-    this.browse.getTypes().subscribe({
+    this.catalog.getTypes().subscribe({
       next: (res) => {
         const items = res.data?.items || [];
         this.types.set(items);
@@ -162,7 +162,7 @@ export class CatalogBrowsePage implements OnInit {
     this.detail.set(null);
     this.detailError.set(null);
     this.detailLoading.set(true);
-    this.browse.getItem(id).subscribe({
+    this.catalog.getItem(id).subscribe({
       next: (res) => {
         this.detail.set(res.data ?? null);
         this.detailLoading.set(false);

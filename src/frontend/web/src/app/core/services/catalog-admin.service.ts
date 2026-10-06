@@ -9,6 +9,7 @@ import {
   ApiFieldError,
   ApiResponse,
   CatalogHierarchyMode,
+  CatalogItemLink,
   CatalogRelationType,
   CatalogStatus,
   ListData,
@@ -82,18 +83,6 @@ export interface CatalogTypePayload {
   effective_dated?: boolean;
   attributes_schema?: CatalogAttributesSchema | null;
   status?: CatalogStatus;
-}
-
-/** Parent/child link of an item (edge + resolved item summary). */
-export interface CatalogItemLink {
-  edge_id: string;
-  item_id: string;
-  code?: string;
-  name?: string;
-  relation_type: CatalogRelationType;
-  sort_order?: number;
-  valid_from?: string | null;
-  valid_to?: string | null;
 }
 
 /** `GET /catalog/types/{code}/items` row and `GET /catalog/items/{id}` detail. */

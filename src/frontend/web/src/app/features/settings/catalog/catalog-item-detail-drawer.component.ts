@@ -15,10 +15,10 @@ import {
   formatDate,
   formatDateTime
 } from '@shared';
+import { CatalogItemLink } from '@shared';
 import {
   CatalogAdminService,
   CatalogItemDto,
-  CatalogItemLink,
   CatalogScope,
   CatalogTypeDto,
   CatalogVersionDto

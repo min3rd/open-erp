@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 
 /**
  * Catalog record administration with version + validity semantics
@@ -81,20 +82,14 @@ public class CatalogItemService {
         List<CatalogItemEdge> edges = edgeRepository.listActiveByChildIds(
             items.stream().map(item -> item.id).toList(), tenantId, asOf);
         if (!edges.isEmpty()) {
-            Map<UUID, CatalogItem> parentsById = new HashMap<>();
-            for (CatalogItem parent : itemRepository.listVisibleByIds(tenantId,
-                    edges.stream().map(edge -> edge.parentItemId).distinct().toList())) {
-                parentsById.put(parent.id, parent);
-            }
+            Map<UUID, CatalogItem> parentsById = visibleByIds(tenantId, edges, edge -> edge.parentItemId);
             for (CatalogItemEdge edge : edges) {
                 CatalogItem parent = parentsById.get(edge.parentItemId);
                 if (parent == null) {
                     continue;
                 }
                 parentsByItem.computeIfAbsent(edge.childItemId, key -> new ArrayList<>())
-                    .add(new ItemParentResponse(edge.id, parent.id, parent.code, parent.name,
-                        edge.relationType.name(), edge.sortOrder, edge.validFrom, edge.validTo,
-                        parent.tenantId == null));
+                    .add(link(edge, parent));
             }
         }
         return items.stream()
@@ -226,21 +221,7 @@ public class CatalogItemService {
         CatalogItem item = requireReadableItem(tenantId, itemId);
         Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
         List<CatalogItemEdge> edges = edgeRepository.listActiveByChild(itemId, tenantId, asOf);
-        Map<UUID, CatalogItem> itemsById = new HashMap<>();
-        for (CatalogItem parent : itemRepository.listVisibleByIds(tenantId, edgeChildIds(edges))) {
-            itemsById.put(parent.id, parent);
-        }
-        List<ItemParentResponse> result = new ArrayList<>();
-        for (CatalogItemEdge edge : edges) {
-            CatalogItem parent = itemsById.get(edge.parentItemId);
-            if (parent == null) {
-                continue;
-            }
-            result.add(new ItemParentResponse(edge.id, parent.id, parent.code, parent.name,
-                edge.relationType.name(), edge.sortOrder, edge.validFrom, edge.validTo,
-                parent.tenantId == null));
-        }
-        return result;
+        return toLinks(edges, tenantId, edge -> edge.parentItemId);
     }
 
     public List<ItemResponse> descendants(UUID tenantId, UUID itemId, String asOfText, Integer depth) {
@@ -259,23 +240,7 @@ public class CatalogItemService {
 
     private List<ItemParentResponse> directChildren(UUID tenantId, CatalogItem item, Instant asOf) {
         List<CatalogItemEdge> edges = edgeRepository.listActiveByParentId(item.id, tenantId, asOf);
-        Map<UUID, CatalogItem> children = new HashMap<>();
-        for (CatalogItem child : itemRepository.listVisibleByIds(tenantId,
-                edges.stream().map(edge -> edge.childItemId).distinct().toList())) {
-            children.put(child.id, child);
-        }
-        List<ItemParentResponse> result = new ArrayList<>();
-        Set<UUID> seen = new HashSet<>();
-        for (CatalogItemEdge edge : edges) {
-            CatalogItem child = children.get(edge.childItemId);
-            if (child == null || !seen.add(edge.childItemId)) {
-                continue;
-            }
-            result.add(new ItemParentResponse(edge.id, child.id, child.code, child.name,
-                edge.relationType.name(), edge.sortOrder, edge.validFrom, edge.validTo,
-                child.tenantId == null));
-        }
-        return result;
+        return toLinks(edges, tenantId, edge -> edge.childItemId);
     }
 
     private CatalogItem requireReadableItem(UUID tenantId, UUID itemId) {
@@ -335,6 +300,46 @@ public class CatalogItemService {
             ids.add(edge.parentItemId);
         }
         return new ArrayList<>(ids);
+    }
+
+    /** One query for the related items of a batch of edges (no N+1). */
+    private Map<UUID, CatalogItem> visibleByIds(UUID tenantId, List<CatalogItemEdge> edges,
+            Function<CatalogItemEdge, UUID> relatedId) {
+        Map<UUID, CatalogItem> byId = new HashMap<>();
+        for (CatalogItem item : itemRepository.listVisibleByIds(tenantId,
+                edges.stream().map(relatedId).distinct().toList())) {
+            byId.put(item.id, item);
+        }
+        return byId;
+    }
+
+    private static ItemParentResponse link(CatalogItemEdge edge, CatalogItem related) {
+        return new ItemParentResponse(edge.id, related.id, related.code, related.name,
+            edge.relationType.name(), edge.sortOrder, edge.validFrom, edge.validTo,
+            related.tenantId == null);
+    }
+
+    /**
+     * Maps edges to parent/child links; the first edge wins when the same related
+     * item appears twice (no unique constraint on the edge table).
+     */
+    private List<ItemParentResponse> toLinks(List<CatalogItemEdge> edges, UUID tenantId,
+            Function<CatalogItemEdge, UUID> relatedId) {
+        if (edges.isEmpty()) {
+            return List.of();
+        }
+        Map<UUID, CatalogItem> relatedById = visibleByIds(tenantId, edges, relatedId);
+        List<ItemParentResponse> result = new ArrayList<>();
+        Set<UUID> seen = new HashSet<>();
+        for (CatalogItemEdge edge : edges) {
+            UUID id = relatedId.apply(edge);
+            CatalogItem related = relatedById.get(id);
+            if (related == null || !seen.add(id)) {
+                continue;
+            }
+            result.add(link(edge, related));
+        }
+        return result;
     }
 
     private static int resolveMaxDepth(CatalogType type, Integer depth) {

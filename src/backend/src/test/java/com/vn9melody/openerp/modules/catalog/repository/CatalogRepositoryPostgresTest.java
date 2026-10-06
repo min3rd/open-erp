@@ -126,9 +126,6 @@ public class CatalogRepositoryPostgresTest {
 
         List<CatalogItem> depthOne = edgeRepository.findDescendants(root.id, tenant.id, Instant.now(), 1);
         assertEquals(Set.of(mid.id), ids(depthOne), "maxDepth limits the recursion");
-
-        List<CatalogItem> ancestors = edgeRepository.findAncestors(leaf.id, tenant.id, Instant.now(), 20);
-        assertEquals(Set.of(root.id, mid.id), ids(ancestors), "all transitive parents are returned");
     }
 
     @Test

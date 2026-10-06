@@ -24,10 +24,6 @@ export enum CatalogStatus {
   INACTIVE = 'INACTIVE'
 }
 
-/** Alias kept for the TASK-386 wording; identical values to {@link CatalogStatus}. */
-export const CatalogItemStatus = CatalogStatus;
-export type CatalogItemStatus = CatalogStatus;
-
 /** Selection mode of the shared `catalog-picker`. */
 export enum CatalogPickerMode {
   SINGLE = 'single',
@@ -75,4 +71,41 @@ export interface CatalogLookupOptionsQuery {
 export interface CatalogInlineCreateRequest {
   name: string;
   code?: string | null;
+}
+
+/** One row of `GET /catalog/lookup/types` (form renderer / type selector). */
+export interface CatalogLookupType {
+  code: string;
+  name_key: string;
+  hierarchy_mode: CatalogHierarchyMode;
+}
+
+/**
+ * Parent/child link of an item (backend `ItemParentResponse`, returned by both
+ * `GET /catalog/items/{id}?with_relations=true` and `GET /catalog/items/{id}/parents`).
+ */
+export interface CatalogItemLink {
+  edge_id: string;
+  item_id: string;
+  code?: string | null;
+  name?: string | null;
+  relation_type: CatalogRelationType;
+  sort_order?: number;
+  valid_from?: string | null;
+  valid_to?: string | null;
+  is_system?: boolean;
+}
+
+/** `GET /catalog/items/{id}` detail (fields the mobile browse panel uses). */
+export interface CatalogItemDetail {
+  id: string;
+  code: string;
+  name: string;
+  description?: string | null;
+  status: string;
+  version?: number;
+  is_system?: boolean;
+  overridden?: boolean;
+  parents?: CatalogItemLink[];
+  children?: CatalogItemLink[];
 }
