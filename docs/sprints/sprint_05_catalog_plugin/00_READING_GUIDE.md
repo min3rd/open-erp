@@ -36,7 +36,7 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | 06.02 | DES-API-S05-001 | [Thiết kế API](06_designs/api/01_DES-API-S05-001_catalog_api.md) | 3 nhóm API + contract + mã lỗi | Architect |
 | 06.03 | DES-UI-S05-001 | [Thiết kế UI](06_designs/ui/01_DES-UI-S05-001_catalog_admin_ui.md) | Màn 3 cột + component picker + ma trận Desktop/Mobile | Architect |
 | 07.01 | FEAT-30 | [Plugin core Danh mục](07_items/FEAT-30_catalog_core_plugin.md) | Feature + **19 task con** | Developer |
-| 07.02 | TASK-375…393 | [07_items/](07_items/) | Scope code từng task (đang `Blocked — chờ gate scope`) | Developer |
+| 07.02 | TASK-375…393 | [07_items/](07_items/) | Scope code từng task — **đang triển khai** (xong: 375/376/377/386/393 phần code+test; còn API 378–383/391, UI 385/392, import 390) | Developer |
 | 08.01 | TP-S05-001 | [Test plan Sprint 05](08_testing/01_TP-S05-001_sprint_05_test_plan.md) | **25 TC** theo AC + ma trận lấy mẫu | QA |
 | 08.02 | TR-S05-001 | Chưa tạo | Kết quả có baseline/evidence | QA |
 | 09.01 | REV-S05-001 | Chưa tạo | DoD/backlog/closure | PM |
@@ -66,9 +66,9 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | SOL-S05-001 | [05_solutions/](05_solutions/) | Architect | Used |
 | DES-DB/API/UI-S05-001 | [06_designs/](06_designs/) | Architect | Used |
 | FEAT-30 | [07_items/FEAT-30](07_items/FEAT-30_catalog_core_plugin.md) | Developer | Used (Planned) |
-| TASK-375…389 | [07_items/](07_items/) | Developer | Used (Blocked — chờ scope) |
-| TASK-390…391 | [07_items/](07_items/) | Developer | Used (Blocked — chờ scope; import/export + ghi đè hệ thống) |
-| TASK-392…393 | [07_items/](07_items/) | Developer | Used (Blocked — chờ scope; màn hệ thống + seed địa giới) |
+| TASK-375…389 | [07_items/](07_items/) | Developer | Used (gate APPROVED; 375/376/377/386 xong code+test, còn 378–383/385/387–389) |
+| TASK-390…391 | [07_items/](07_items/) | Developer | Used (gate APPROVED; import/export + ghi đè hệ thống — chờ API) |
+| TASK-392…393 | [07_items/](07_items/) | Developer | Used (gate APPROVED; 393 phần dữ liệu+seeder xong, 392 chờ UI/API) |
 | TP-S05-001 | [08_testing/](08_testing/) | QA | Used (Draft) |
 | TR-S05-001 | Chưa tạo | QA | Reserved |
 | REV-S05-001 | Chưa tạo | PM | Reserved |

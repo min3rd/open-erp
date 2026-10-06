@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-386 / Task / Sprint 05 |
-| Severity / trạng thái | High / **To Do — sẵn sàng (gate APPROVED 2026-10-06)** |
+| Severity / trạng thái | High / **In Progress — code xong, test PASS (2026-10-06); chờ commit** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 (Pending), SOL-S05-001, DES-S05-001 |
 | depends_on / blocks / parent | TASK-381 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |
@@ -31,5 +31,7 @@ Một component duy nhất cho Web + Mobile: lazy options, resolve theo lô, nh�
 | — | Not Run | Chưa triển khai (gate đã duyệt 2026-10-06) |
 
 ## 4. Bàn giao và lịch sử
+
+**Tiến độ 2026-10-06**: component dùng chung `@shared/components/catalog-picker` (+ `.html` riêng) + `models/catalog.model.ts` + `services/catalog.service.ts` + 16 khoá i18n × 13 locale × 2 app. Kiểm chứng: `npm run i18n:check:strict` PASS (web 960/960, mobile 510/510), `npm run web:build` PASS (0 lỗi/0 cảnh báo), `npm run mobile:build` PASS. Hợp đồng input/output ghi ở DES-UI §3 (bản 0.2). Trạng thái: **code xong, build PASS — chờ commit**.
 
 Gate [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) **APPROVED 2026-10-06** — sẵn sàng triển khai. Khi hoàn thành: ghi commit, số liệu đo và ảnh minh chứng.

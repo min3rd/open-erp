@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-376 / Task / Sprint 05 |
-| Severity / trạng thái | High / **To Do — sẵn sàng (gate APPROVED 2026-10-06)** |
+| Severity / trạng thái | High / **In Progress — code xong, test PASS (2026-10-06); chờ commit** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 (Pending), SOL-S05-001, DES-S05-001 |
 | depends_on / blocks / parent | TASK-375 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |
@@ -31,5 +31,7 @@ Plugin `catalog` được nhận diện là core (luôn bật, không gỡ), ent
 | — | Not Run | Chưa triển khai (gate đã duyệt 2026-10-06) |
 
 ## 4. Bàn giao và lịch sử
+
+**Tiến độ 2026-10-06**: 4 entity `CatalogType/CatalogItem/CatalogItemEdge/CatalogTypeGrant` có `@RegisterEntity(pluginId = "catalog")` và **đã đăng ký thật** — `sys_entity_registry` có 4 dòng; `PluginProvisioningService` cập nhật (+60/−1) để kích hoạt plugin locked không có bản cài trong tiến trình và đồng bộ `tenants.allowed_plugins`; test `CatalogPluginRegistrationTest` PASS. Trạng thái: **code xong, test PASS — chờ commit**.
 
 Gate [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) **APPROVED 2026-10-06** — sẵn sàng triển khai. Khi hoàn thành: ghi commit, số liệu đo và ảnh minh chứng.

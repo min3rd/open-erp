@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-393 / Task / Sprint 05 |
-| Severity / trạng thái | High / **To Do — sẵn sàng (gate APPROVED 2026-10-06)** |
+| Severity / trạng thái | High / **In Progress — code xong, test PASS (2026-10-06); chờ commit** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 1.0 (Approved 2026-10-06), DES-DB/API/UI |
 | depends_on / blocks / parent | TASK-375, TASK-377 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |
@@ -31,5 +31,7 @@ Có sẵn **34 tỉnh/thành** và **3.321 xã/phường** là con **trực ti�
 | — | Not Run | Chưa triển khai (gate đã duyệt 2026-10-06) |
 
 ## 4. Bàn giao và lịch sử
+
+**Tiến độ 2026-10-06**: tệp `provinces-communes.csv` sinh một lần (**34 tỉnh / 3.321 xã-phường**) + script `npm run data:admin-units` / `data:admin-units:check` (PASS) — đã commit `a11b8fc`; seeder `CatalogAdminUnitSeeder` (đọc CSV, idempotent, không lỗi khi thiếu tệp) + test PASS; kiểm chứng DB: 34/3.321/3.321 cạnh sau nhiều lần chạy. Trạng thái: **code xong, test PASS — chờ commit phần seeder**.
 
 Gate [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) **APPROVED 2026-10-06** — sẵn sàng triển khai. Khi hoàn thành: ghi commit, số liệu đo và ảnh minh chứng.

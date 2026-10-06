@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-375 / Task / Sprint 05 |
-| Severity / trạng thái | High / **To Do — sẵn sàng (gate APPROVED 2026-10-06)** |
+| Severity / trạng thái | High / **In Progress — code xong, test PASS (2026-10-06); chờ commit** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 (Pending), SOL-S05-001, DES-S05-001 |
 | depends_on / blocks / parent | — / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |
@@ -31,5 +31,7 @@ Dựng toàn bộ CSDL danh mục (loại, bản ghi, cạnh, grant) với ràng
 | — | Not Run | Chưa triển khai (gate đã duyệt 2026-10-06) |
 
 ## 4. Bàn giao và lịch sử
+
+**Tiến độ 2026-10-06**: migration `V4.0.0__catalog_core_plugin.sql` viết xong + **apply sạch** trên PostgreSQL dev (4 bảng, EXCLUDE, plugin row, 5 quyền, 5 loại hệ thống, 5 loại tenant/tenant, grant mặc định, backfill `allowed_plugins`/`tenant_plugins`); **60/60 tenant** nhận plugin `ACTIVE` + 5 loại + **600 grant**; EXCLUDE bắn `23P01 ex_catalog_item_window`. 6 điều chỉnh so với thiết kế ghi ở DES-DB §6.1. Trạng thái: **code xong, test PASS — chờ commit**.
 
 Gate [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) **APPROVED 2026-10-06** — sẵn sàng triển khai. Khi hoàn thành: ghi commit, số liệu đo và ảnh minh chứng.

@@ -16,6 +16,7 @@ Sprint đang theo dõi: [Sprint 05 — Plugin core Danh mục](../sprints/sprint
 
 2026-10-06 (bổ sung 3): chốt tiếp **N6** (fetch một lần từ `provinces.open-api.vn` → CSV commit, runtime không gọi mạng) và **N7** (Apache POI cho `.xlsx`, ngoại lệ có kiểm soát) ⇒ **25/25 câu đã trả lời**, không còn câu hỏi mở.
 2026-10-06 (GATE): chủ dự án **chốt scope** ("ok chốt scope và lập trình đi nhé") — CONF-S05-001 lên **1.0 Approved** (22 AC); **19 task TASK-375…393 + FEAT-30 chuyển Blocked → To Do**; **bắt đầu lập trình Sprint 05** (migration V4.0.0 trước).
+2026-10-06 (CODE 1): lập trình Sprint 05 chạy — dữ liệu địa giới thật **34 tỉnh / 3.321 xã-phường** sinh một lần + script kiểm tra (`a11b8fc`); migration `V4.0.0` apply sạch (**60/60 tenant** backfill, **600 grant mặc định**, 4 entity vào registry, EXCLUDE bắn `23P01`); recursive CTE + options gộp tenant thắng; seeder idempotent; `catalog-picker` dùng chung (i18n 13×2 = 100%, build web/mobile 0 lỗi) — **49 test backend PASS**; `btree_gist`/`pg_trgm` kiểm chứng trên PostgreSQL dev. Đang làm: API/service (378–383, 391) + màn quản trị Web (385, 392).
 
 ---
 

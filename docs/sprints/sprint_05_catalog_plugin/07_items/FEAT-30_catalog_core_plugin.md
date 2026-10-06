@@ -65,3 +65,5 @@ Nguồn: [RAW-S05-001](../01_raw_notes/01_RAW-S05-001_catalog_plugin_requirement
 | Phiên bản | Ngày | Thay đổi | Người review/phê duyệt và nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-06 | Tạo feature + 15 task con (chưa triển khai) | Developer Agent; chờ gate scope |
+| 0.2 | 2026-10-06 | Gate APPROVED; mở rộng lên **19 task con** (392 màn hệ thống, 393 seed địa giới) | Developer Agent; chỉ đạo chủ dự án |
+| 0.3 | 2026-10-06 | **Triển khai**: migration V4.0.0 apply sạch (60/60 tenant backfill, 600 grant), 4 entity vào registry, recursive CTE + options gộp tenant thắng, seeder địa giới (34 tỉnh/3.321 xã), `catalog-picker` dùng chung — 49 test + build web/mobile PASS; đang làm API + UI | Developer Agent; nguồn: test + build log |
