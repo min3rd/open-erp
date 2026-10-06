@@ -50,7 +50,7 @@
 | :--- | :--- |
 | Phạm vi & AC (CONF-S04-001 + §5.1) | Đã Approved 2026-10-05 |
 | 18/18 TC theo TP-S04-001 | TR-S04-001 v0.3 — **PASS** trên baseline `772a211` |
-| 0 bug `Critical`/`High` mở | BUG-121…134: 6 Resolved, 8 In Review (đã sửa, chờ QA chuyển Done) |
+| 0 bug `Critical`/`High` mở | BUG-121…134: **5 Resolved** (121/131/132/133/134), **9 In Review** (đã sửa, chờ QA chuyển Done) |
 | Tài liệu bàn giao | User guide (14 ảnh) + Developer guide + TR/REV + 14 item |
 | Build & chất lượng | Web + mobile PASS, **0 cảnh báo**; bundle web 558 kB; i18n 13/13 100% |
 | Rủi ro còn lại | 1 touch target 27px (Medium); skeleton khi mạng chậm nên kiểm tay; RTL canvas sơ đồ cố định LTR (có chủ đích) |
@@ -62,6 +62,6 @@
 | Feature | 6 (FEAT-24…29) |
 | Task | 20 (TASK-355…374) — 19 In Review, TASK-371 In Review |
 | Bug trong sprint | 14 (BUG-121…134): 5 Resolved, 9 In Review |
-| Test case | 18 (15 PASS, 2 Not Run, 1 PASS-một-phần) |
+| Test case | 18 — **18 PASS** (TR v0.3, baseline `772a211`) |
 | i18n | 13 locale × 2 app, web 944 key, mobile 494 key, parity 100% |
 | Build | web + mobile PASS (baseline `5c2e0ca`) |
