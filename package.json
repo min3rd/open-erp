@@ -31,6 +31,8 @@
     "i18n:check": "node scripts/check-i18n-parity.mjs",
     "i18n:check:strict": "node scripts/check-i18n-parity.mjs --strict",
     "icons:gen": "node scripts/gen-icons.mjs",
+    "data:admin-units": "node scripts/gen-admin-units.mjs",
+    "data:admin-units:check": "node scripts/check-admin-units.mjs",
     "e2e:plugin": "node scripts/e2e/plugin-cli-e2e.mjs",
     "dev": "node scripts/run.mjs dev",
     "dev:full": "node scripts/run.mjs dev full",

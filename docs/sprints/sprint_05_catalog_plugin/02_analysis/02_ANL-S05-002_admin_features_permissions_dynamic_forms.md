@@ -46,7 +46,7 @@ Form động cần 4 nhóm API (chi tiết contract ở `06_designs/api/`):
 - Nhập tự do ⇒ chỉ có `text`.
 - Bắt buộc ít nhất một trong hai (ràng buộc ở tầng validate form).
 
-**Hiệu năng**: options phải **không** trả toàn bộ danh mục (tỉnh/huyện/xã ~11k dòng); mặc định `size=20`, tối đa 100; cache phía client theo khóa `(type, parent, q, as_of)`; debounce 250ms.
+**Hiệu năng**: options phải **không** trả toàn bộ danh mục (địa giới thật ~3.3k dòng); mặc định `size=20`, tối đa 100; cache phía client theo khóa `(type, parent, q, as_of)`; debounce 250ms.
 
 ## 4. R7 — Danh mục cố định cho doanh nghiệp
 

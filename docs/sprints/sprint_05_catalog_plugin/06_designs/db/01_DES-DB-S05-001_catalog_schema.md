@@ -221,8 +221,9 @@ ON CONFLICT (tenant_id, type_id, role_id) DO NOTHING;
 --       muốn cho phép liên loại phải khai báo (vd JOB: {INDUSTRY, ALLOCATION}).
 
 -- 5.3.4 Seed dữ liệu địa giới 2 cấp tỉnh→xã (N2, N6) — chạy một lần trong seed script
---       từ tệp commit trong repo (nguồn: provinces.open-api.vn, sinh một lần ở dev-time
---       bằng `scripts/gen-admin-units.mjs`; header tệp ghi nguồn + ngày + số dòng):
+--       từ tệp commit trong repo (nguồn: provinces.open-api.vn api/v2, sinh một lần ở dev-time
+--       bằng `scripts/gen-admin-units.mjs`; header tệp ghi nguồn + ngày + số dòng:
+--       34 tỉnh / 3.321 xã-phường, dữ liệu sau sáp nhập 2025 — tỉnh→xã trực tiếp):
 --       src/backend/src/main/resources/db/seed/provinces-communes.csv
 --       Mỗi dòng: province_code,province_name,commune_code,commune_name
 --       ⇒ chèn item hệ thống cho PROVINCE và COMMUNE + cạnh trực tiếp tỉnh→xã

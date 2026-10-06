@@ -70,7 +70,7 @@ Xây **plugin core đầu tiên**: `catalog` (Danh mục & quản trị danh m�
 | **AC-18** | **Import CSV/`.xlsx`**: tệp đúng mẫu (có cột `parent_code` tuỳ chọn để nhập cây) ⇒ tạo/cập nhật bản ghi theo `code` + tạo quan hệ cha–con, trả báo cáo `created/updated/skipped/errors[]` theo dòng; tệp sai mẫu ⇒ từ chối trước khi ghi | Q7, N3 |
 | **AC-19** | **Export CSV**: xuất theo loại (kèm cha/con, hiệu lực, trạng thái); tệp tải về mở đúng bằng Excel (UTF-8 BOM), đủ 13 danh mục seed khi chọn "tất cả" | Q7 |
 | **AC-20** | **Ghi đè/ẩn danh mục hệ thống**: tenant tạo bản ghi cùng `code` ⇒ form hiển thị bản tenant; đánh dấu ẩn ⇒ mục hệ thống không xuất hiện trong options của tenant đó, tenant khác không đổi | Q1, Q2 |
-| **AC-21** | **Dữ liệu địa giới 2 cấp**: sau seed, options của loại `PROVINCE` có 63 tỉnh và của `COMMUNE` có các xã là **con trực tiếp của tỉnh** (cạnh tỉnh→xã, không có huyện); tra cứu theo `parent_id` (tỉnh) trả đúng xã thuộc tỉnh đó | N2 |
+| **AC-21** | **Dữ liệu địa giới 2 cấp**: sau seed, options của loại `PROVINCE` có **34** tỉnh/thành và của `COMMUNE` có **3.321** xã/phường là **con trực tiếp của tỉnh** (cạnh tỉnh→xã, không có huyện, đúng cấu trúc sau sáp nhập 2025); tra cứu theo `parent_id` (tỉnh) trả đúng xã thuộc tỉnh đó | N2 |
 | **AC-22** | **Cổng Platform**: super admin có màn quản trị danh mục **hệ thống** (danh sách loại hệ thống + bản ghi + quan hệ + import/export), dùng lại UI quản trị với cờ "hệ thống"; tenant không thấy màn này | N5 |
 
 ## 3. Câu Hỏi Đã Chốt (18/18 — trả lời 2026-10-06)
@@ -110,13 +110,13 @@ Xây **plugin core đầu tiên**: `catalog` (Danh mục & quản trị danh m�
 
 | # | Câu hỏi | Đề xuất của BA | Trả lời |
 | :--- | :--- | :--- | :--- |
-| **N6** | **Nguồn dữ liệu địa giới** cho TASK-393 | **Em fetch một lần từ nguồn mở** (`provinces.open-api.vn`) ở dev-time → sinh `src/backend/src/main/resources/db/seed/provinces-communes.csv` (63 tỉnh + ~10k xã, cạnh trực tiếp tỉnh→xã); header tệp ghi nguồn/ngày/số dòng; **runtime không gọi mạng** | **Đã chốt (khách 2026-10-06)** |
+| **N6** | **Nguồn dữ liệu địa giới** cho TASK-393 | **Em fetch một lần từ nguồn mở** (`provinces.open-api.vn`, api/v2) ở dev-time → sinh `src/backend/src/main/resources/db/seed/provinces-communes.csv` (**34 tỉnh + 3.321 xã/phường**, cạnh trực tiếp tỉnh→xã, dữ liệu sau sáp nhập 2025); header tệp ghi nguồn/ngày/số dòng; **runtime không gọi mạng** | **Đã chốt (khách 2026-10-06) — đã sinh tệp 2026-10-06** |
 | **N7** | **Thư viện đọc `.xlsx`** | **Apache POI** (`poi-ooxml`) ở backend, chỉ dùng cho luồng import — ghi nhận **ngoại lệ thư viện có kiểm soát** (SOL D19) | **Đã chốt (khách 2026-10-06)** |
 
 **Quyết định kỹ thuật nội bộ (Architect tự chốt, không cần khách)**:
 
 1. Bỏ `source`/`source_ref` khỏi `catalog_types` — phương án cầu nối không còn dùng (Q3), giữ lại là YAGNI.
-2. Giới hạn import: mặc định **20.000 dòng** (đủ cho dữ liệu địa giới ~10k xã) và **cấu hình được**; vượt ⇒ `CATALOG_IMPORT_TOO_LARGE`.
+2. Giới hạn import: mặc định **20.000 dòng** (đủ cho dữ liệu địa giới 3.321 xã/phường) và **cấu hình được**; vượt ⇒ `CATALOG_IMPORT_TOO_LARGE`.
 3. `catalog_types` **không** versioned ở v1 (chỉ bản ghi danh mục có version); ghi nhận để mở rộng sau nếu cần.
 4. Dữ liệu địa giới seed **trong migration/seed script**, không gọi API bên ngoài lúc chạy (runtime độc lập).
 

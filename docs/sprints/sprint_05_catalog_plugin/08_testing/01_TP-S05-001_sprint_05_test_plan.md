@@ -52,7 +52,7 @@
 | TC-21 | AC-19 | Export CSV theo loại + tất cả (13 danh mục seed); mở bằng Excel đúng tiếng Việt (UTF-8 BOM); cột cha/con + hiệu lực đúng | API + browser | Not Run |
 | TC-22 | AC-20 | Tenant tạo bản ghi cùng `code` ⇒ form hiển thị bản tenant (badge "Ghi đè"); bản `INACTIVE` cùng `code` ⇒ mục hệ thống biến mất khỏi options của tenant đó, tenant khác **không** đổi | API + browser (2 tenant) | Not Run |
 | TC-23 | AC-18 | Import **`.xlsx`** (tương đương CSV): cùng kết quả như TC-20; tệp `.xlsx` hỏng/thiếu cột ⇒ từ chối `CATALOG_IMPORT_VALIDATION_FAILED`; cột `parent_code` tạo đúng quan hệ cha–con | API + browser | Not Run |
-| TC-24 | AC-21 | Sau seed: `PROVINCE` có **63** mục; `COMMUNE` có xã là **con trực tiếp của tỉnh** (không qua huyện); lọc `parent_id=<tỉnh>` trả đúng xã thuộc tỉnh; `DISTRICT` không có dữ liệu | API + DB | Not Run |
+| TC-24 | AC-21 | Sau seed: `PROVINCE` có **34** mục và `COMMUNE` có **3.321** mục (khớp header tệp `provinces-communes.csv`); xã là **con trực tiếp của tỉnh** (không qua huyện); lọc `parent_id=<tỉnh>` trả đúng xã thuộc tỉnh; `DISTRICT` không có dữ liệu | API + DB | Not Run |
 | TC-25 | AC-22 | Cổng Platform: super admin thấy màn quản trị danh mục **hệ thống**, sửa/import được bản ghi hệ thống; tenant **không** thấy màn này (và API trả 403 nếu gọi) | Browser + API | Not Run |
 
 ## 4. Tiêu Chí Đạt (Exit Criteria)

@@ -90,7 +90,7 @@ DB (migration V4.0.0)
 | :--- | :--- | :--- |
 | DAG + version sai logic (chu trình, mồ côi, chồng lấn) | High | Test case riêng cho từng AC-01…AC-08; ràng buộc ở CSDL thay vì chỉ code |
 | `btree_gist` không có trên môi trường | Medium | Migration tạo extension (`CREATE EXTENSION IF NOT EXISTS btree_gist`); nếu bị chặn, fallback kiểm tra ở service + ghi rõ |
-| Hiệu năng cây lớn | Medium | Đo bằng dữ liệu mẫu (≥5k mục, ≥10k cạnh) trước khi cân nhắc closure table |
+| Hiệu năng cây lớn | Medium | Đo bằng chính dữ liệu địa giới (3.321 mục + 3.321 cạnh tỉnh→xã) trước khi cân nhắc closure table |
 | Trùng nguồn "Phòng ban" | High | Chốt Q3 trước khi code (D11) |
 | Phạm vi phình | Medium | Danh sách ngoài phạm vi v1 đã chốt ở CONF §1 |
 

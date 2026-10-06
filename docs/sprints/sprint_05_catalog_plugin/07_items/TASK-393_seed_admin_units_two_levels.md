@@ -11,14 +11,14 @@
 
 ## 1. Mục tiêu
 
-Có sẵn 63 tỉnh và các xã là con **trực tiếp** của tỉnh (không qua huyện) để form địa chỉ dùng ngay.
+Có sẵn **34 tỉnh/thành** và **3.321 xã/phường** là con **trực tiếp** của tỉnh (không qua huyện, đúng cấu trúc sau sáp nhập 2025) để form địa chỉ dùng ngay.
 
 ## 2. Các thao tác
 
 - [ ] Sinh CSV một lần ở dev-time (nguồn + ngày + số dòng ghi ở header tệp; chốt nguồn tại N6) — runtime KHÔNG gọi API ngoài
 - [ ] Seed item hệ thống cho `PROVINCE` + `COMMUNE` và cạnh trực tiếp `tỉnh→xã`; idempotent theo `code`
 - [ ] Không seed huyện; loại `DISTRICT` vẫn sẵn cho tenant dùng sau
-- [ ] Kiểm chứng: 63 tỉnh; lọc `parent_id=<tỉnh>` trả đúng xã thuộc tỉnh; tổng số xã khớp header tệp
+- [ ] Kiểm chứng: **34** tỉnh, **3.321** xã/phường (khớp header tệp); lọc `parent_id=<tỉnh>` trả đúng xã thuộc tỉnh; `node scripts/check-admin-units.mjs` PASS
 
 ## 3. Tiêu chí và kiểm chứng
 
