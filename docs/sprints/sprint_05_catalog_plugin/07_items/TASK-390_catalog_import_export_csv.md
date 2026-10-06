@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-390 / Task / Sprint 05 |
-| Severity / trạng thái | High / **To Do — sẵn sàng (gate APPROVED 2026-10-06)** |
+| Severity / trạng thái | High / **In Progress — code xong, test PASS (2026-10-06); chờ commit + QA** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 0.2 (câu trả lời Q1/Q2/Q7; gate Pending), DES-API/DES-UI |
 | depends_on / blocks / parent | TASK-381 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |
@@ -32,5 +32,11 @@ Nạp/xuất danh mục bằng CSV an toàn: validate toàn tệp trước khi g
 | — | Not Run | Chưa triển khai (gate đã duyệt 2026-10-06) |
 
 ## 4. Bàn giao và lịch sử
+
+**Tiến độ 2026-10-06**: `CatalogImportExportService` (CSV + `.xlsx` qua **Apache POI 5.5.1** — ngoại lệ thư viện có kiểm soát) + DTO báo cáo khớp hợp đồng frontend; endpoint `POST /types/{code}/import?dry_run=` (multipart `file`), `GET /types/{code}/import/template`, `GET /catalog/export` — **và cả nhánh `/system/*`**; giới hạn `openerp.catalog.import.max-rows=20000`; mã lỗi mới `CATALOG_IMPORT_ROW_INVALID`.
+
+Đặc tính đã kiểm chứng: tệp sai cấu trúc bị từ chối trước khi ghi; lỗi theo dòng không chặn dòng hợp lệ; `dry_run` không ghi gì; `parent_code` tạo cạnh + chặn chu trình theo dòng; **export → import round-trip idempotent** (đổi tên ⇒ `SKIPPED`, không sinh version rác); tenant nhập mã hệ thống ⇒ tạo bản ghi ghi đè (không đụng bản hệ thống).
+
+Kiểm chứng: **12/12 test mới PASS** + **45/45 regression PASS** trên PostgreSQL 16 + Redis thật (không H2). Khoá i18n còn thiếu (`CATALOG_IMPORT_ROW_INVALID`, `CATALOG_EDGE_RELATION_NOT_ALLOWED`) đã bổ sung đủ 13 locale web.
 
 Gate [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) **APPROVED 2026-10-06** — sẵn sàng triển khai. Khi hoàn thành: ghi commit, số liệu đo và ảnh minh chứng.

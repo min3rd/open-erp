@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-384 / Task / Sprint 05 |
-| Severity / trạng thái | High / **To Do — sẵn sàng (gate APPROVED 2026-10-06)** |
+| Severity / trạng thái | High / **In Progress — bộ test đã xanh (2026-10-06); chờ commit** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 (Pending), SOL-S05-001, DES-S05-001 |
 | depends_on / blocks / parent | TASK-378, TASK-379, TASK-380, TASK-381, TASK-382 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |
@@ -31,5 +31,7 @@ Chứng minh AC-01…AC-15 ở tầng API trên CSDL thật (không H2).
 | — | Not Run | Chưa triển khai (gate đã duyệt 2026-10-06) |
 
 ## 4. Bàn giao và lịch sử
+
+**Tiến độ 2026-10-06**: bộ test backend của plugin đã dựng và xanh trên PostgreSQL 16 + Redis thật (**không H2**): `CatalogRepositoryPostgresTest` (EXCLUDE chồng lấn, chu trình, options gộp tenant thắng, `as_of`), `CatalogAdminUnitSeederTest` (34 tỉnh / 3.321 xã / cạnh trực tiếp, idempotent), `CatalogPluginRegistrationTest` (4 entity vào registry), `CatalogTypeApiTest`, `CatalogItemVersioningApiTest` (sửa ⇒ version mới + đóng bản cũ), `CatalogEdgeApiTest` (allowlist cha khác loại + chu trình), `CatalogLookupApiTest` (phân trang, nhập tự do, inline), `CatalogImportExportApiTest` (11), `CatalogImportMaxRowsApiTest` (giới hạn cấu hình). Tổng các lượt: **49 + 34 + 12 + regression 45** test PASS; đang chạy **toàn bộ suite** để chốt trước commit.
 
 Gate [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) **APPROVED 2026-10-06** — sẵn sàng triển khai. Khi hoàn thành: ghi commit, số liệu đo và ảnh minh chứng.
