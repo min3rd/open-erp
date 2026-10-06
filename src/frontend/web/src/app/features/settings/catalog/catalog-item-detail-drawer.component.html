@@ -1,0 +1,220 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="'CATALOG_DETAIL_TITLE' | translate"
+  [subtitle]="subtitle()"
+  [width]="'w-screen max-w-lg'"
+  [zIndex]="55"
+  [shiftLeft]="true"
+  (close)="close.emit()"
+>
+  <div class="space-y-2">
+    @if (actionError()) {
+      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300" role="alert">
+        {{ actionError() }}
+      </div>
+    }
+    @if (actionSuccess()) {
+      <div class="border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1.5 text-[11px] text-emerald-700 dark:text-emerald-300" role="status">
+        {{ actionSuccess() }}
+      </div>
+    }
+
+    @if (!item()) {
+      <div class="space-y-1" aria-busy="true">
+        @for (row of [1, 2, 3, 4]; track row) {
+          <app-skeleton variant="line" height="1rem" />
+        }
+      </div>
+    } @else {
+      <div>
+        <p class="text-xs font-semibold">{{ item()!.name }}</p>
+        <p class="text-[10px] font-mono text-muted">{{ item()!.code }} · v{{ item()!.version }}</p>
+        <div class="flex flex-wrap items-center gap-1 mt-1">
+          <app-badge [variant]="statusVariant(item()!.status)">
+            {{ 'CATALOG_STATUS_' + item()!.status | translate }}
+          </app-badge>
+          @if (isSystemItem()) {
+            <app-badge variant="info">{{ 'CATALOG_BADGE_SYSTEM' | translate }}</app-badge>
+          }
+          @if (item()!.overridden) {
+            <app-badge variant="warning">{{ 'CATALOG_BADGE_OVERRIDE' | translate }}</app-badge>
+          }
+        </div>
+        @if (canMutate()) {
+          <div class="flex flex-wrap gap-1 mt-1.5">
+            <button
+              type="button"
+              class="px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
+              (click)="edit.emit(item()!)"
+            >
+              {{ 'COMMON_EDIT' | translate }}
+            </button>
+            <button
+              type="button"
+              class="px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
+              (click)="addParent.emit(item()!)"
+            >
+              {{ 'CATALOG_DETAIL_ADD_PARENT' | translate }}
+            </button>
+            <button
+              type="button"
+              class="px-1.5 py-0.5 text-[10px] border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+              (click)="closeValidity.emit(item()!)"
+            >
+              {{ 'CATALOG_ITEM_CLOSE_ACTION' | translate }}
+            </button>
+          </div>
+        } @else if (isSystemItem()) {
+          <p class="mt-1.5 text-[10px] text-muted">{{ 'CATALOG_SYSTEM_READONLY' | translate }}</p>
+        }
+      </div>
+
+      @if (loading()) {
+        <div class="space-y-1" aria-busy="true">
+          @for (row of [1, 2, 3, 4]; track row) {
+            <app-skeleton variant="line" height="1rem" />
+          }
+        </div>
+      } @else if (error()) {
+        <div class="py-2 text-[11px] text-muted" role="status">
+          <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+          <button type="button" class="ms-2 underline" (click)="retry.emit()">{{ 'COMMON_RETRY' | translate }}</button>
+        </div>
+      } @else {
+        <!-- Information -->
+        <section class="space-y-1">
+          <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_DETAIL_INFO' | translate }}</h3>
+          <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-2 gap-y-0.5 text-[11px]">
+            <dt class="text-muted">{{ 'CATALOG_DETAIL_FIELD_NAME_EN' | translate }}</dt>
+            <dd>{{ item()!.name_en || '—' }}</dd>
+            <dt class="text-muted">{{ 'CATALOG_DETAIL_FIELD_DESCRIPTION' | translate }}</dt>
+            <dd class="break-words">{{ item()!.description || '—' }}</dd>
+            <dt class="text-muted">{{ 'CATALOG_DETAIL_FIELD_SORT' | translate }}</dt>
+            <dd class="font-mono">{{ item()!.sort_order }}</dd>
+            <dt class="text-muted">{{ 'CATALOG_DETAIL_VALID_FROM' | translate }}</dt>
+            <dd class="font-mono text-[10px]">{{ item()!.valid_from ? validityLabel(item()!) : '—' }}</dd>
+            <dt class="text-muted">{{ 'CATALOG_DETAIL_UPDATED_AT' | translate }}</dt>
+            <dd class="font-mono text-[10px]">{{ formatDateTime(item()!.updated_at) }}</dd>
+          </dl>
+        </section>
+
+        <!-- Dynamic attributes -->
+        <section class="space-y-1">
+          <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_DETAIL_ATTRIBUTES' | translate }}</h3>
+          @if (fields().length) {
+            <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-2 gap-y-0.5 text-[11px]">
+              @for (field of fields(); track field.key) {
+                <dt class="text-muted">{{ field.label_key | translate }}</dt>
+                <dd class="font-mono">{{ attributeValue(field.key) || '—' }}</dd>
+              }
+            </dl>
+          } @else if (rawAttributes().length) {
+            <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-2 gap-y-0.5 text-[11px]">
+              @for (attribute of rawAttributes(); track attribute.key) {
+                <dt class="text-muted">{{ attribute.key }}</dt>
+                <dd class="font-mono">{{ attribute.value || '—' }}</dd>
+              }
+            </dl>
+          } @else {
+            <p class="text-[11px] text-muted">{{ 'CATALOG_DETAIL_NO_ATTRIBUTES' | translate }}</p>
+          }
+        </section>
+
+        <!-- Relations -->
+        <section class="space-y-1">
+          <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_DETAIL_RELATIONS' | translate }}</h3>
+          <p class="text-[10px] font-semibold text-muted">{{ 'CATALOG_DETAIL_PARENTS' | translate }}</p>
+          @if (item()!.parents?.length) {
+            <ul class="divide-y divide-default border border-default">
+              @for (parent of item()!.parents ?? []; track parent.edge_id) {
+                <li class="px-1.5 py-1 text-[11px]">
+                  <span class="flex items-center gap-1">
+                    <span class="font-mono text-[10px]">{{ parent.code }}</span>
+                    <span class="truncate">{{ parent.name }}</span>
+                    <app-badge variant="neutral">{{ relationLabelKey(parent.relation_type) | translate }}</app-badge>
+                    @if (confirmEdgeId() === parent.edge_id) {
+                      <span class="ms-auto flex items-center gap-1">
+                        <button type="button" class="px-1 py-0.5 text-[10px] bg-red-600 text-white" (click)="confirmRemoveEdge(parent)">
+                          {{ 'COMMON_DELETE' | translate }}
+                        </button>
+                        <button type="button" class="px-1 py-0.5 text-[10px] border border-default" (click)="cancelRemoveEdge()">
+                          {{ 'COMMON_CANCEL' | translate }}
+                        </button>
+                      </span>
+                    } @else if (canMutate()) {
+                      <button
+                        type="button"
+                        class="ms-auto px-1 py-0.5 text-[10px] text-rose-700 dark:text-rose-300 hover:underline"
+                        [title]="'CATALOG_DETAIL_REMOVE_RELATION' | translate"
+                        (click)="askRemoveEdge(parent.edge_id)"
+                      >
+                        ×
+                      </button>
+                    }
+                  </span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="text-[11px] text-muted">{{ 'CATALOG_DETAIL_NO_PARENTS' | translate }}</p>
+          }
+
+          <p class="text-[10px] font-semibold text-muted">{{ 'CATALOG_DETAIL_CHILDREN' | translate }}</p>
+          @if (children().length) {
+            <ul class="divide-y divide-default border border-default">
+              @for (child of pagedChildren(); track child.edge_id) {
+                <li class="px-1.5 py-1 text-[11px] flex items-center gap-1">
+                  <span class="font-mono text-[10px]">{{ child.code }}</span>
+                  <span class="truncate">{{ child.name }}</span>
+                  <app-badge variant="neutral">{{ relationLabelKey(child.relation_type) | translate }}</app-badge>
+                </li>
+              }
+            </ul>
+            @if (childrenTotalPages() > 1) {
+              <app-pagination
+                [page]="childrenPage()"
+                [size]="childrenPageSize"
+                [totalItems]="children().length"
+                [totalPages]="childrenTotalPages()"
+                (pageChange)="childrenPage.set($event)"
+              />
+            }
+          } @else {
+            <p class="text-[11px] text-muted">{{ 'CATALOG_DETAIL_NO_CHILDREN' | translate }}</p>
+          }
+        </section>
+
+        <!-- Version history (read-only) -->
+        <section class="space-y-1">
+          <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_DETAIL_HISTORY' | translate }}</h3>
+          @if (!versions().length) {
+            <p class="text-[11px] text-muted">{{ 'CATALOG_HISTORY_EMPTY' | translate }}</p>
+          } @else {
+            <table class="w-full text-[10px] border-collapse border border-default">
+              <thead class="bg-surface-muted text-muted">
+                <tr>
+                  <th class="px-1.5 py-1 text-start font-semibold">{{ 'CATALOG_HISTORY_COL_VERSION' | translate }}</th>
+                  <th class="px-1.5 py-1 text-start font-semibold">{{ 'CATALOG_HISTORY_COL_VALID' | translate }}</th>
+                  <th class="px-1.5 py-1 text-start font-semibold">{{ 'CATALOG_HISTORY_COL_STATUS' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-default">
+                @for (version of versions(); track version.id) {
+                  <tr [class.bg-accent/5]="version.id === item()!.id">
+                    <td class="px-1.5 py-1 font-mono">v{{ version.version }}</td>
+                    <td class="px-1.5 py-1 font-mono">{{ historyValidity(version) }}</td>
+                    <td class="px-1.5 py-1">
+                      <app-badge [variant]="version.valid_to ? 'neutral' : 'success'">
+                        {{ (version.valid_to ? 'CATALOG_HISTORY_CLOSED' : 'CATALOG_HISTORY_CURRENT') | translate }}
+                      </app-badge>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </section>
+      }
+    }
+  </div>
+</app-drawer>

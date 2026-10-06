@@ -58,8 +58,6 @@ export interface CatalogTypeDto {
   allow_free_text: boolean;
   versioned: boolean;
   effective_dated: boolean;
-  source?: string;
-  source_ref?: string | null;
   attributes_schema?: CatalogAttributesSchema | null;
   status: CatalogStatus;
   /** System type (`tenant_id IS NULL`) — read-only for tenants. */

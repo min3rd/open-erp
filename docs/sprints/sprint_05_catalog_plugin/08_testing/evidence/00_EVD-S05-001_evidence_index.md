@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | EVD-S05-001 / Evidence index / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | Draft — QA đã chạy (12 ảnh) / 0.2 / 2026-10-06 |
+| Trạng thái / phiên bản / cập nhật | Draft — QA đã chạy (15 ảnh) / 0.3 / 2026-10-06 |
 | Owner / reviewer | QA/QC Agent / PM + Architect |
 | Đầu vào | [TP-S05-001](../01_TP-S05-001_sprint_05_test_plan.md) (25 TC), [UG-S05-001](../../../../06_user_guides/sprint_05_catalog_plugin_user_guide.md) |
 
@@ -27,6 +27,9 @@
 | 12 | `desktop-dark-theme.png` | TC-19 | Giao diện chế độ tối của màn danh mục |
 | 13 | `desktop-provinces-communes.png` | TC-24 | Loại `PROVINCE` (34 mục) và `COMMUNE` lọc theo tỉnh (xã là con trực tiếp) — xác minh qua API/DB; ảnh UI dùng chung với ảnh #1 |
 | 13b | `desktop-catalog-1400px.png` | TC-17 | Màn 3 cột ở viewport thật **1400×900** (≥1280px) — cột rộng, không wrap |
+| 13c | `desktop-catalog-two-column.png` | TC-02, TC-08 | **Khung 2 cột** sau điều chỉnh §2.1 #1 — không cột chi tiết trống khi chưa chọn bản ghi; bảng chiếm hết bề rộng còn lại, nút **API** cạnh tên loại |
+| 13d | `desktop-item-detail-drawer.png` | TC-02, TC-08 | **Drawer chi tiết** phải (mở khi bấm hàng): thông tin, thuộc tính, cha/con — **danh sách con phân trang 10/trang** (Hà Nội: 126 con ⇒ 13 trang), lịch sử phiên bản read-only |
+| 13e | `desktop-catalog-api-panel.png` | — | **Panel "API"** của loại `PROVINCE`: endpoint options + phản hồi mẫu, inline (kèm quyền), resolve, path, ghi chú mode, shape giá trị form; nút **Sao chép** mỗi đoạn |
 
 ## 2. Mobile (Ionic, 390×844)
 
@@ -42,7 +45,7 @@
 
 | Hạng mục | Cách kiểm chứng | Kết quả |
 | :--- | :--- | :--- |
-| 0 lỗi console | DevTools console ở cả hai chế độ | ⏳ |
+| 0 lỗi console | DevTools console ở cả hai chế độ | ✅ web (0 error sau khi mở khung 2 cột, drawer chi tiết, panel API); mobile xem TR-S05-001 |
 | API tenant không thấy dữ liệu tenant khác | Test `TenantIsolationOrgTest` + bộ catalog (đã xanh) | ✅ (test) |
 | Ghi vào danh mục hệ thống bị chặn | `CatalogTypeApiTest` + platform guard test | ✅ (test) |
 | EXCLUDE chặn chồng lấn hiệu lực | `CatalogRepositoryPostgresTest` (`23P01`) | ✅ (test) |

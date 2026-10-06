@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import {
   ApiErrorResponse,
+  ApiResponse,
   BadgeComponent,
   CatalogRelationType,
   CatalogStatus,
@@ -22,8 +23,7 @@ import {
   TableColumn,
   TableComponent,
   TranslatePipe,
-  formatDate,
-  formatDateTime
+  formatDate
 } from '@shared';
 import { AuthService } from '../../../core/services/auth.service';
 import {
@@ -37,6 +37,8 @@ import {
 import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
 import { CatalogTypeDrawerComponent } from './catalog-type-drawer.component';
 import { CatalogItemDrawerComponent } from './catalog-item-drawer.component';
+import { CatalogItemDetailDrawerComponent } from './catalog-item-detail-drawer.component';
+import { CatalogApiDrawerComponent } from './catalog-api-drawer.component';
 import { CatalogEdgeDrawerComponent } from './catalog-edge-drawer.component';
 import { CatalogGrantsDrawerComponent } from './catalog-grants-drawer.component';
 import { CatalogImportExportDrawerComponent } from './catalog-import-export-drawer.component';
@@ -51,12 +53,14 @@ export enum CatalogViewMode {
 /** Route-addressable drawers/confirm states (no modal anywhere). */
 export enum CatalogDrawerMode {
   LIST = 'list',
+  DETAIL = 'detail',
   CREATE = 'create',
   EDIT = 'edit',
   EDGE = 'edge',
   GRANTS = 'grants',
   IMPORT = 'import',
   CLOSE = 'close',
+  API = 'api',
   TYPE_CREATE = 'type-create',
   TYPE_EDIT = 'type-edit'
 }
@@ -72,10 +76,10 @@ interface ParentGroup {
 }
 
 /**
- * Catalogue admin screen (TASK-385 / TASK-392): three independent columns —
- * types, items, detail — plus stacked drawers for type/item/edge/grants and
- * import/export. Reused for the platform system catalogue via route data
- * `catalogScope: 'system'` (no duplicated component).
+ * Catalogue admin screen (TASK-385 / TASK-392): two independent columns —
+ * types and items — with stacked drawers for the item detail, type/item/edge/
+ * grants, import/export and the API usage panel. Reused for the platform system
+ * catalogue via route data `catalogScope: 'system'` (no duplicated component).
  */
 @Component({
   selector: 'app-catalog-admin',
@@ -95,6 +99,8 @@ interface ParentGroup {
     IconComponent,
     CatalogTypeDrawerComponent,
     CatalogItemDrawerComponent,
+    CatalogItemDetailDrawerComponent,
+    CatalogApiDrawerComponent,
     CatalogEdgeDrawerComponent,
     CatalogGrantsDrawerComponent,
     CatalogImportExportDrawerComponent
@@ -117,7 +123,6 @@ export class CatalogAdminComponent implements OnInit {
   private readonly basePath = this.scope() === CatalogScope.SYSTEM ? '/platform/catalog' : '/settings/catalog';
 
   readonly viewModes = [CatalogViewMode.LIST, CatalogViewMode.TREE, CatalogViewMode.MULTI];
-  readonly formatDateTime = formatDateTime;
   readonly statusOptions = [
     { value: '', labelKey: 'CATALOG_FILTER_STATUS_ALL' },
     { value: CatalogStatus.ACTIVE, labelKey: 'CATALOG_STATUS_ACTIVE' },
@@ -152,13 +157,13 @@ export class CatalogAdminComponent implements OnInit {
   readonly treeLoading = signal<boolean>(false);
 
   // ---------------------------------------------------------------------
-  // Column 3 — detail (read-only info + relations + version history)
+  // Detail drawer (read-only info + relations + version history)
   // ---------------------------------------------------------------------
   readonly selectedItem = signal<CatalogItemDto | null>(null);
   readonly versions = signal<CatalogVersionDto[]>([]);
   readonly detailLoading = signal<boolean>(false);
   readonly detailError = signal<boolean>(false);
-  readonly confirmEdgeId = signal<string | null>(null);
+  readonly detailDrawerOpen = signal<boolean>(false);
 
   // ---------------------------------------------------------------------
   // Drawers + inline confirmations
@@ -170,6 +175,7 @@ export class CatalogAdminComponent implements OnInit {
   readonly edgeDrawerOpen = signal<boolean>(false);
   readonly grantsDrawerOpen = signal<boolean>(false);
   readonly importDrawerOpen = signal<boolean>(false);
+  readonly apiDrawerOpen = signal<boolean>(false);
   readonly confirmClose = signal<CatalogItemDto | null>(null);
   readonly closingItem = signal<boolean>(false);
 
@@ -288,14 +294,13 @@ export class CatalogAdminComponent implements OnInit {
       this.versions.set([]);
       this.descendants.set([]);
       this.detailError.set(false);
-      this.confirmEdgeId.set(null);
       this.confirmClose.set(null);
     }
     this.loadItemsIfNeeded();
     if (!TYPE_MODES.has(state.mode)) {
       this.applyItemSelection(state);
     }
-    this.applyDrawerMode(state.mode);
+    this.applyDrawerMode(state);
   }
 
   private applyItemSelection(state: PathListState): void {
@@ -313,15 +318,27 @@ export class CatalogAdminComponent implements OnInit {
     }
   }
 
-  private applyDrawerMode(mode: string): void {
+  private applyDrawerMode(state: PathListState): void {
     this.typeDrawerOpen.set(false);
     this.itemDrawerOpen.set(false);
     this.edgeDrawerOpen.set(false);
     this.grantsDrawerOpen.set(false);
     this.importDrawerOpen.set(false);
+    this.detailDrawerOpen.set(false);
+    this.apiDrawerOpen.set(false);
     this.confirmClose.set(null);
 
-    switch (mode) {
+    switch (state.mode) {
+      case CatalogDrawerMode.DETAIL:
+        if (state.id || this.selectedItem()) {
+          this.detailDrawerOpen.set(true);
+        }
+        break;
+      case CatalogDrawerMode.API:
+        if (this.selectedType()) {
+          this.apiDrawerOpen.set(true);
+        }
+        break;
       case CatalogDrawerMode.TYPE_CREATE:
         this.editingType.set(null);
         this.typeDrawerOpen.set(true);
@@ -441,6 +458,12 @@ export class CatalogAdminComponent implements OnInit {
   openGrants(): void {
     if (this.selectedType()) {
       this.syncState({ mode: CatalogDrawerMode.GRANTS });
+    }
+  }
+
+  openApiDrawer(): void {
+    if (this.selectedType()) {
+      this.syncState({ mode: CatalogDrawerMode.API });
     }
   }
 
@@ -597,8 +620,8 @@ export class CatalogAdminComponent implements OnInit {
         action: () => this.openEdgeDrawer(item)
       },
       {
-        id: 'history',
-        labelKey: 'CATALOG_DETAIL_HISTORY',
+        id: 'detail',
+        labelKey: 'COMMON_VIEW_DETAIL',
         icon: IconName.FILE_TEXT,
         action: () => this.selectItem(item)
       },
@@ -675,15 +698,14 @@ export class CatalogAdminComponent implements OnInit {
   }
 
   // ---------------------------------------------------------------------
-  // Column 3 — detail + version history
+  // Detail drawer selection + version history
   // ---------------------------------------------------------------------
 
   selectItem(item: CatalogItemDto, syncUrl = true): void {
     this.selectedItem.set(item);
-    this.confirmEdgeId.set(null);
     this.loadDetail(item.id);
     if (syncUrl) {
-      this.syncState({ id: item.id, mode: CatalogDrawerMode.LIST });
+      this.syncState({ id: item.id, mode: CatalogDrawerMode.DETAIL });
     }
     this.loadTreeIfNeeded();
   }
@@ -717,27 +739,25 @@ export class CatalogAdminComponent implements OnInit {
     }
   }
 
-  attributeValue(key: string): string {
-    const value = this.selectedItem()?.attributes?.[key];
-    return value === null || value === undefined ? '' : String(value);
+  // ---------------------------------------------------------------------
+  // Detail drawer actions (stacked drawers, never modals)
+  // ---------------------------------------------------------------------
+
+  onDetailEdit(item: CatalogItemDto): void {
+    this.openEditItem(item);
   }
 
-  rawAttributes(): Array<{ key: string; value: string }> {
-    const attributes = this.selectedItem()?.attributes;
-    if (!attributes) {
-      return [];
-    }
-    return Object.entries(attributes).map(([key, value]) => ({ key, value: value === null || value === undefined ? '' : String(value) }));
+  onDetailAddParent(item: CatalogItemDto): void {
+    this.openEdgeDrawer(item);
   }
 
-  historyValidity(version: CatalogVersionDto): string {
-    const from = formatDateTime(version.valid_from);
-    const to = version.valid_to ? formatDateTime(version.valid_to) : this.i18n.t('CATALOG_VALID_TO_NOW');
-    return `${from} → ${to}`;
+  onDetailCloseValidity(item: CatalogItemDto): void {
+    this.askCloseItem(item);
   }
 
-  relationLabelKey(relation: CatalogRelationType): string {
-    return `CATALOG_RELATION_${relation}`;
+  onDetailEdgeRemoved(res: ApiResponse<null>): void {
+    this.showSuccess(res.code, res.params);
+    this.refreshItems();
   }
 
   // ---------------------------------------------------------------------
@@ -768,27 +788,8 @@ export class CatalogAdminComponent implements OnInit {
   }
 
   // ---------------------------------------------------------------------
-  // Relations + close validity
+  // Close validity (relation removal lives in the detail drawer)
   // ---------------------------------------------------------------------
-
-  askRemoveEdge(edgeId: string): void {
-    this.confirmEdgeId.set(edgeId);
-  }
-
-  cancelRemoveEdge(): void {
-    this.confirmEdgeId.set(null);
-  }
-
-  confirmRemoveEdge(edgeId: string): void {
-    this.catalog.deleteEdge(edgeId, this.scope()).subscribe({
-      next: (res) => {
-        this.confirmEdgeId.set(null);
-        this.showSuccess(res.code, res.params);
-        this.refreshItems();
-      },
-      error: (err) => this.showError(err)
-    });
-  }
 
   askCloseItem(item: CatalogItemDto): void {
     if (!this.canMutateItem(item)) {

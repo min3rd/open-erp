@@ -24,19 +24,42 @@ Hai nhóm người dùng:
 
 ## 2. Mở màn quản trị danh mục
 
-Vào **Cài đặt → Dữ liệu → Danh mục**. Màn hình chia **3 cột** giữ nguyên ngữ cảnh làm việc:
+Vào **Cài đặt → Dữ liệu → Danh mục**. Màn hình chia **2 cột** — cột chi tiết **không chiếm chỗ** khi bạn chưa chọn bản ghi nào:
 
 | Cột | Nội dung |
 | :--- | :--- |
 | Trái | Danh sách **loại danh mục** (hệ thống + của tenant); nhãn `Hệ thống`/`Ghi đè` |
-| Giữa | **Bản ghi** của loại đang chọn: tìm kiếm, lọc, phân trang, menu chuột phải từng dòng |
-| Phải | **Chi tiết** bản ghi: thuộc tính, **lịch sử phiên bản (chỉ đọc)**, quan hệ cha/con, nút thao tác |
+| Giữa | **Bản ghi** của loại đang chọn: tìm kiếm, lọc, phân trang, menu chuột phải từng dòng, nút **Nhập / Xuất danh mục** và nút **API** |
 
-![Màn quản trị danh mục — 3 cột](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/desktop-catalog-dark.png)
+![Màn quản trị danh mục — 2 cột](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/desktop-catalog-two-column.png)
 
-*Ảnh: màn 3 cột ở chế độ tối (loại danh mục | bản ghi | chi tiết), có bản ghi ghi đè.*
+*Ảnh: khung 2 cột (loại danh mục | bản ghi) — cột chi tiết chỉ xuất hiện khi đã chọn bản ghi.*
+
+**Xem chi tiết bản ghi**: bấm vào một dòng (hoặc chuột phải → **Xem chi tiết**) để mở **drawer trượt từ phải** chứa thông tin, thuộc tính động, quan hệ cha/con, **lịch sử phiên bản (chỉ đọc)** và các nút thao tác. Đóng drawer ⇒ bảng chiếm lại toàn bộ bề rộng, dòng vẫn được chọn.
+
+![Drawer chi tiết bản ghi](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/desktop-item-detail-drawer.png)
+
+*Ảnh: drawer chi tiết "Thành phố Hà Nội" — danh sách **con phân trang 10/trang** (126 con ⇒ 13 trang), bản ghi hệ thống hiện thông báo chỉ đọc.*
 
 Mọi biểu mẫu mở dạng **Drawer trượt từ phải** (có thể xếp chồng nhiều tầng), **không dùng popup che màn hình**.
+
+### 2.1. Xem API dùng danh mục (nút "API")
+
+Nhấn nút **API** cạnh tên loại đang chọn để xem đúng endpoint mà plugin khác / biểu mẫu động sẽ gọi cho loại đó (mã loại được điền sẵn, kèm nút **Sao chép** cho từng đoạn):
+
+| Đoạn | Dùng để |
+| :--- | :--- |
+| `GET /api/v1/catalog/lookup/{CODE}/options?q=&parent_id=&as_of=&page=&size=` | Lấy danh sách tuỳ chọn (tìm, lọc theo cha, theo thời điểm, phân trang) — kèm **phản hồi mẫu** |
+| `POST /api/v1/catalog/lookup/{CODE}/inline` | Lưu nhanh giá trị người dùng tự gõ (cần quyền `catalog:item:inline-create`) |
+| `POST /api/v1/catalog/lookup/{CODE}/resolve` | Đổi danh sách **id** đã lưu thành tên hiển thị (1 lần gọi, tránh N+1) |
+| `GET /api/v1/catalog/lookup/{CODE}/path?id=…` | Breadcrumb tổ tiên của một mục |
+| Shape giá trị form | `{ "catalog_item_id": "…|null", "text": "…" }` — lưu cả id (để tra cứu lại) và text (để in/báo cáo) |
+
+Ghi chú theo loại: `TREE`/`DAG` có phân cấp (truyền `parent_id` để lọc con, đọc `path`/`has_children`); `FLAT` không có phân cấp; loại bật **nhập tự do** thì picker cho gõ giá trị mới và có thể lưu nhanh.
+
+![Panel API của loại PROVINCE](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/desktop-catalog-api-panel.png)
+
+*Ảnh: panel "Sử dụng API" cho loại `PROVINCE`.*
 
 ## 3. Loại danh mục
 

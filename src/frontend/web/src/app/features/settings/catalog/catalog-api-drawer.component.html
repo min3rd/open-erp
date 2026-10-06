@@ -1,0 +1,113 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="'CATALOG_API_TITLE' | translate"
+  [subtitle]="code()"
+  [width]="'w-screen max-w-xl'"
+  [zIndex]="60"
+  [shiftLeft]="true"
+  (close)="close.emit()"
+>
+  <div class="space-y-3">
+    <p class="text-[11px] text-muted">{{ 'CATALOG_API_INTRO' | translate:{ code: code() } }}</p>
+
+    <!-- 1. Options -->
+    <section class="space-y-1 border border-default p-2">
+      <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_API_OPTIONS_TITLE' | translate }}</h3>
+      <p class="text-[11px] text-muted">{{ 'CATALOG_API_OPTIONS_DESC' | translate }}</p>
+      <div class="flex items-start gap-1">
+        <pre class="flex-1 min-w-0 overflow-x-auto bg-surface-muted border border-default p-1.5 text-[10px] font-mono">{{ optionsSnippet() }}</pre>
+        <button
+          type="button"
+          class="shrink-0 px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
+          (click)="copy('options', optionsSnippet())"
+        >
+          {{ (isCopied('options') ? 'COMMON_COPIED' : 'COMMON_COPY') | translate }}
+        </button>
+      </div>
+      <p class="text-[10px] font-semibold text-muted">{{ 'CATALOG_API_OPTIONS_SAMPLE' | translate }}</p>
+      <div class="flex items-start gap-1">
+        <pre class="flex-1 min-w-0 overflow-x-auto bg-surface-muted border border-default p-1.5 text-[10px] font-mono">{{ optionsSample() }}</pre>
+        <button
+          type="button"
+          class="shrink-0 px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
+          (click)="copy('sample', optionsSample())"
+        >
+          {{ (isCopied('sample') ? 'COMMON_COPIED' : 'COMMON_COPY') | translate }}
+        </button>
+      </div>
+    </section>
+
+    <!-- 2. Inline create -->
+    <section class="space-y-1 border border-default p-2">
+      <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_API_INLINE_TITLE' | translate }}</h3>
+      <p class="text-[11px] text-muted">{{ 'CATALOG_API_INLINE_DESC' | translate }}</p>
+      <div class="flex items-start gap-1">
+        <pre class="flex-1 min-w-0 overflow-x-auto bg-surface-muted border border-default p-1.5 text-[10px] font-mono">{{ inlineSnippet() }}</pre>
+        <button
+          type="button"
+          class="shrink-0 px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
+          (click)="copy('inline', inlineSnippet())"
+        >
+          {{ (isCopied('inline') ? 'COMMON_COPIED' : 'COMMON_COPY') | translate }}
+        </button>
+      </div>
+      <p class="text-[10px] text-muted">{{ 'CATALOG_API_INLINE_PERMISSION' | translate }}</p>
+    </section>
+
+    <!-- 3. Resolve -->
+    <section class="space-y-1 border border-default p-2">
+      <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_API_RESOLVE_TITLE' | translate }}</h3>
+      <p class="text-[11px] text-muted">{{ 'CATALOG_API_RESOLVE_DESC' | translate }}</p>
+      <div class="flex items-start gap-1">
+        <pre class="flex-1 min-w-0 overflow-x-auto bg-surface-muted border border-default p-1.5 text-[10px] font-mono">{{ resolveSnippet() }}</pre>
+        <button
+          type="button"
+          class="shrink-0 px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
+          (click)="copy('resolve', resolveSnippet())"
+        >
+          {{ (isCopied('resolve') ? 'COMMON_COPIED' : 'COMMON_COPY') | translate }}
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. Path -->
+    <section class="space-y-1 border border-default p-2">
+      <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_API_PATH_TITLE' | translate }}</h3>
+      <p class="text-[11px] text-muted">{{ 'CATALOG_API_PATH_DESC' | translate }}</p>
+      <div class="flex items-start gap-1">
+        <pre class="flex-1 min-w-0 overflow-x-auto bg-surface-muted border border-default p-1.5 text-[10px] font-mono">{{ pathSnippet() }}</pre>
+        <button
+          type="button"
+          class="shrink-0 px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
+          (click)="copy('path', pathSnippet())"
+        >
+          {{ (isCopied('path') ? 'COMMON_COPIED' : 'COMMON_COPY') | translate }}
+        </button>
+      </div>
+    </section>
+
+    <!-- Type mode notes -->
+    <section class="space-y-1 border border-default p-2">
+      <p class="text-[11px]">{{ (isTree() ? 'CATALOG_API_MODE_TREE_DAG' : 'CATALOG_API_MODE_FLAT') | translate }}</p>
+      @if (allowFreeText()) {
+        <p class="text-[11px]">{{ 'CATALOG_API_FREE_TEXT_NOTE' | translate }}</p>
+      }
+    </section>
+
+    <!-- Form value shape -->
+    <section class="space-y-1 border border-default p-2">
+      <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_API_VALUE_TITLE' | translate }}</h3>
+      <p class="text-[11px] text-muted">{{ 'CATALOG_API_VALUE_DESC' | translate }}</p>
+      <div class="flex items-start gap-1">
+        <pre class="flex-1 min-w-0 overflow-x-auto bg-surface-muted border border-default p-1.5 text-[10px] font-mono">{{ valueShape }}</pre>
+        <button
+          type="button"
+          class="shrink-0 px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
+          (click)="copy('value', valueShape)"
+        >
+          {{ (isCopied('value') ? 'COMMON_COPIED' : 'COMMON_COPY') | translate }}
+        </button>
+      </div>
+    </section>
+  </div>
+</app-drawer>

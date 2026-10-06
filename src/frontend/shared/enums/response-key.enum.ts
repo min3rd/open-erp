@@ -99,7 +99,6 @@ export enum ResponseKey {
   ALLOW_FREE_TEXT = 'allow_free_text',
   VERSIONED = 'versioned',
   EFFECTIVE_DATED = 'effective_dated',
-  SOURCE_REF = 'source_ref',
   ATTRIBUTES = 'attributes',
   ATTRIBUTES_SCHEMA = 'attributes_schema',
   SORT_ORDER = 'sort_order',

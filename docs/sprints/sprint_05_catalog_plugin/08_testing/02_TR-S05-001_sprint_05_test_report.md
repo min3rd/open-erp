@@ -13,8 +13,8 @@
 
 | Chỉ số | Kết quả |
 | :--- | :--- |
-| Test backend tự động | **287 test PASS**, 1 skipped (OciRegistryClientTest — có sẵn từ trước) |
-| Test catalog (API/DB) | 9 + 4 + 3 + 2 + 6 + 11 + 1 + 4 + 7 + 6 + 3 = **56 PASS** (gồm import/export 12) |
+| Test backend tự động | **289 test PASS**, 1 skipped (OciRegistryClientTest — có sẵn từ trước) |
+| Test catalog (API/DB) | 9 + 4 + 3 + 2 + 6 + 11 + 1 + 4 + 7 + 6 + 3 + **2** (manifest plugin) = **58 PASS** (gồm import/export 12) |
 | TC kiểm thử thủ công (browser) | **PASS 21**, **PARTIAL 4**, **NOT RUN 0** (chi tiết §3; 4 mục PARTIAL là thao tác UI chưa bấm nhưng API đã có test) |
 | Lỗi console | **0** ở Web và Mobile sau khi sửa lỗi interceptor Mobile |
 | Lỗi phát hiện & sửa trong QA | **5** (xem §2) |
@@ -59,9 +59,22 @@
 | TC-24 | AC-21 | ✅ PASS | `PROVINCE` 34 mục, `COMMUNE` 3.321 mục, xã là con trực tiếp của tỉnh (lọc `parent_id` trả đúng 126 xã của Hà Nội) |
 | TC-25 | AC-22 | ⚠️ PARTIAL | API hệ thống đã xác minh (platform token: 5 loại + 34 tỉnh; tenant: 403); route/guard + tái sử dụng component đã QA. Chưa chụp được ảnh do form đăng nhập platform không điều khiển được trong harness |
 
+## 3.1. Lượt kiểm thử bổ sung sau review chủ sản phẩm (2026-10-06)
+
+| Hạng mục | Kết quả | Bằng chứng |
+| :--- | :--- | :--- |
+| Khung **2 cột**, không cột chi tiết trống khi chưa chọn bản ghi | ✅ PASS | `desktop-catalog-two-column.png`; `document.scrollWidth - clientWidth = 0` (không tràn ngang), bảng tự cuộn ngang trong wrapper |
+| **Drawer chi tiết** mở khi bấm hàng / "Xem chi tiết"; đóng ⇒ bảng chiếm lại bề rộng, hàng vẫn chọn | ✅ PASS | `desktop-item-detail-drawer.png` |
+| Danh sách **con phân trang 10/trang** | ✅ PASS | Hà Nội: `Tổng: 126 bản ghi · Trang 1/13` (13 trang × 10) |
+| **Panel "API"** từng loại (options/inline/resolve/path + mẫu JSON + shape giá trị form + sao chép) | ✅ PASS | `desktop-catalog-api-panel.png` — nội dung đúng `PROVINCE` |
+| 0 lỗi console sau các thay đổi | ✅ PASS | `browser.console(level=error)` → `messages: []` |
+| `GET /api/v1/catalog/plugin/manifest` (descriptor plugin, AC-16) | ✅ PASS (test + live) | `CatalogPluginManifestTest` (2 test) PASS; live `:8088` trả 200 `CATALOG_PLUGIN_MANIFEST_SUCCESS` |
+| Bỏ `catalog_types.source` / `source_ref` (`V4.0.1`) | ✅ PASS | `mvn test` xanh; descriptor + entity registry khớp sau khi dọn |
+| `npm run web:build` / `i18n:check:strict` | ✅ PASS | 0 lỗi/0 cảnh báo; web 100% (13 locale), mobile 100% |
+
 ## 4. Giới hạn của lượt QA này
 
-1. **Viewport**: cửa sổ QA tối đa 1062px (DPI 125%) nên các mốc **390×844** và **1400×900** được đo bằng **iframe có viewport thật** trên chính trình duyệt này (window.innerWidth xác nhận 390/1400) — TC-17 đã PASS; ảnh Desktop chuẩn ≥1280px: `desktop-catalog-1400px.png`.
+1. **Viewport**: cửa sổ QA tối đa 1062px (DPI 125%) nên các mốc **390×844** và **1400×900** được đo bằng **iframe có viewport thật** trên chính trình duyệt này (window.innerWidth xác nhận 390/1400) — TC-17 đã PASS; ảnh Desktop chuẩn ≥1280px: `desktop-catalog-1400px.png`. Lượt bổ sung §3.1 chụp ở 1062px (vẫn ≥ lg ⇒ 2 cột) — nên xem cùng ảnh 1400px cho bố cục xl.
 2. **Nạp tệp import**: harness không có công cụ chọn tệp ⇒ phần drawer Import được xác minh ở tầng API/test.
 3. **Đăng nhập Platform qua UI**: JS-fill không kích hoạt được form Angular (server trả 400 khi body rỗng) ⇒ xác minh platform qua API + route + test.
 

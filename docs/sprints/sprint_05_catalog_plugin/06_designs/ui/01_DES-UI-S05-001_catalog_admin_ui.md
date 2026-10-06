@@ -44,6 +44,16 @@ Bố cục **split 3 cột** (không modal), mỗi cột tải độc lập:
 
 **Trạng thái**: mỗi cột có skeleton + thông báo lỗi + **Thử lại** riêng; empty state rõ ("Loại này chưa có bản ghi").
 
+## 2.1. Điều chỉnh sau review chủ sản phẩm (2026-10-06)
+
+| # | Điều chỉnh | Lý do / thực hiện |
+| :--- | :--- | :--- |
+| 1 | **Khung 2 cột** (`loại` \| `bản ghi`); cột chi tiết **không chiếm chỗ khi chưa chọn bản ghi** | Bản cài đầu để cột 3 trống hiện "Chọn một bản ghi để xem chi tiết" — lãng phí 1/4 màn hình. Bấm hàng (hoặc **Xem chi tiết** trong context menu) ⇒ mở **drawer chi tiết** phải (đúng như §2 gốc), đóng drawer ⇒ bảng chiếm lại toàn bộ bề rộng, hàng vẫn được chọn |
+| 2 | **Danh sách con trong drawer phân trang 10/trang** (`app-pagination`) | Một nút trong DAG có thể có hàng chục–hàng trăm con; danh sách phẳng làm drawer quá dài. Phân trang **client-side** trên `item.children` (`GET .../descendants` chưa có tham số phân trang — chưa cần đổi API). Danh sách cha giữ nguyên (số lượng ít) |
+| 3 | **Panel "API" cho loại danh mục** (drawer, mở từ nút **API** cạnh tên loại) | Chủ sản phẩm cần thấy ngay cách dùng từng danh mục: `GET .../lookup/{CODE}/options`, `POST .../inline`, `POST .../resolve`, `GET .../path`, JSON mẫu, shape giá trị form `{catalog_item_id, text}`, ghi chú theo `TREE/DAG` vs `FLAT` + nhập tự do; mỗi đoạn có nút **Sao chép**. Nhãn qua i18n (18 key × 13 locale), đoạn code giữ nguyên dạng literal |
+| 4 | **Descriptor plugin** `src/backend/src/main/resources/plugins/catalog/plugin.json` + `GET /api/v1/catalog/plugin/manifest` | AC-16 cần manifest khai báo ma trận Desktop/Mobile; plugin core in-process không đóng gói JAR nên không có manifest riêng. Descriptor theo đúng định dạng CLI (`platforms`/`permissions`/`entities`/`ui_manifest`) + `packaging: CORE_IN_PROCESS`; `CatalogPluginManifestTest` chống lệch với DB |
+| 5 | Bỏ badge `SYSTEM_BACKED` khỏi cột loại | Cột `catalog_types.source` bị bỏ ở `V4.0.1` (DES-DB §6.1 #9) ⇒ nhánh template và key i18n `CATALOG_BADGE_SYSTEM_BACKED` không còn dữ liệu |
+
 ## 3. Component dùng chung — `catalog-picker` (`src/frontend/shared/components/`)
 
 **Hợp đồng đã dựng (TASK-386, 2026-10-06 — dùng tên này khi lập trình):**
@@ -101,3 +111,4 @@ Bố cục **split 3 cột** (không modal), mỗi cột tải độc lập:
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-06 | Bản nháp bố cục 3 cột + component picker + ma trận nền tảng | Architect; chưa review |
 | 0.2 | 2026-10-06 | Cập nhật §3 theo hợp đồng `catalog-picker` **đã dựng** (TASK-386): `mode`/`selectionChange`/`freeTextChange`, base URL token `CATALOG_API_BASE_URL`; ghi rõ 2 phần chưa dựng (`value` hai chiều, resolve theo lô) | Architect; nguồn: code shared + build web/mobile PASS |
+| 0.3 | 2026-10-06 | Thêm §2.1: khung 2 cột + drawer chi tiết, phân trang danh sách con, panel "API" cho từng loại, descriptor plugin + endpoint manifest, bỏ badge `SYSTEM_BACKED` | Architect; nguồn: review chủ sản phẩm 2026-10-06 + build web PASS + i18n 100% |

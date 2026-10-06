@@ -89,7 +89,34 @@ npx @open-erp/cli link --repo git@github.com:org/open-erp-sales.git --id open-er
 
 ---
 
-## 6. Tham chiếu kỹ thuật
+## 6. Plugin **core in-process** (không đóng gói) — bản mẫu: plugin `catalog`
+
+Plugin chạy ngay trong tiến trình core **không** đi qua CLI/registry: mã nằm trong `modules/<plugin>/` của backend, không có `plugin.json` ở gốc repo. Descriptor vẫn được khai báo theo **cùng định dạng** (để sau này tách ra đóng gói không phải sửa gì), đặt tại `src/backend/src/main/resources/plugins/<id>/plugin.json`, khác 2 điểm:
+
+| Khác biệt | Plugin đóng gói | Plugin core in-process |
+| :--- | :--- | :--- |
+| Vị trí manifest | gốc repo plugin | `src/backend/src/main/resources/plugins/<id>/plugin.json` |
+| `packaging` / `distribution.type` | theo cờ `--packaging` | `CORE_IN_PROCESS` (không chạy `npx @open-erp/cli validate` cho file này) |
+| Migration | `db/plugin-migration/` do container chạy | `db/migration/V*.sql` của core (chung Flyway) |
+| Cách xem descriptor | đọc file trong repo plugin | `GET /api/v1/catalog/plugin/manifest` (endpoint riêng của plugin) |
+
+**Bản mẫu tham chiếu — plugin `catalog` (Sprint 05):**
+
+| Phần | Vị trí |
+| :--- | :--- |
+| Descriptor | `src/backend/src/main/resources/plugins/catalog/plugin.json` (`platforms.desktop/mobile.features`, `permissions`, `entities`, `ui_manifest`) |
+| Mã backend | `src/backend/src/main/java/com/vn9melody/openerp/modules/catalog/` (`model/`, `repository/`, `service/`, `resource/`, `dto/`, `api/`) |
+| Migration + seed | `db/migration/V4.0.0__catalog_core_plugin.sql`, `V4.0.1__drop_catalog_type_source.sql`; seeder địa giới `db/seed/provinces-communes.csv` (`npm run data:admin-units`) |
+| UI dùng chung | `src/frontend/shared/components/catalog-picker/`, `src/frontend/shared/services/catalog.service.ts`, `src/frontend/shared/models/catalog.model.ts` |
+| UI Desktop | `src/frontend/web/src/app/features/settings/catalog/` + `core/services/catalog-admin.service.ts` |
+| UI Mobile (read-only) | `src/frontend/mobile/src/app/features/settings/catalog/` + menu ở `shared/components/mobile-nav-drawer` |
+| Test chống lệch descriptor | `src/backend/src/test/java/com/vn9melody/openerp/modules/catalog/resource/CatalogPluginManifestTest.java` (5 quyền seed + 4 entity đã đăng ký + row `plugin_catalog`) |
+
+Quy ước bắt buộc khi thêm plugin core: descriptor là **nguồn khai báo duy nhất** cho ma trận Desktop/Mobile; khai báo phải có test đối chiếu với DB (như `CatalogPluginManifestTest`), entity phải `@RegisterEntity` (Entity Registry), và mỗi loại chức năng phải ghi rõ chạy được ở Desktop / Mobile / cả hai.
+
+---
+
+## 7. Tham chiếu kỹ thuật
 
 - Manifest & API: `docs/sprints/sprint_03_plugin_manager/06_designs/`.
 - Vòng đời & deploy: `docs/sprints/sprint_03_plugin_manager/05_solutions/SOL-02...`.
