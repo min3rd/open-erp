@@ -207,8 +207,9 @@ ON CONFLICT (tenant_id, code) DO NOTHING;
 -- DEPARTMENT (danh mục riêng, seed một chiều từ departments), CONTRACT_TYPE, SHIFT, EDUCATION_LEVEL.
 -- 8 mục gợi ý thêm đã bị cắt theo N1 (tenant tự tạo khi cần).
 
--- 5.3.1 Seed dữ liệu địa giới 2 cấp tỉnh→xã (N2) — chạy một lần trong seed script
---       từ tệp commit trong repo (nguồn ghi ở header tệp, chốt tại N6):
+-- 5.3.1 Seed dữ liệu địa giới 2 cấp tỉnh→xã (N2, N6) — chạy một lần trong seed script
+--       từ tệp commit trong repo (nguồn: provinces.open-api.vn, sinh một lần ở dev-time
+--       bằng `scripts/gen-admin-units.mjs`; header tệp ghi nguồn + ngày + số dòng):
 --       src/backend/src/main/resources/db/seed/provinces-communes.csv
 --       Mỗi dòng: province_code,province_name,commune_code,commune_name
 --       ⇒ chèn item hệ thống cho PROVINCE và COMMUNE + cạnh trực tiếp tỉnh→xã

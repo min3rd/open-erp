@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | CONF-S05-001 / Scope & AC / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | **Pending — 23/25 câu đã trả lời (18 gốc + N1–N5), còn N6/N7; chờ duyệt scope** / 0.3 / 2026-10-06 |
+| Trạng thái / phiên bản / cập nhật | **Pending — 25/25 câu đã trả lời (18 gốc + N1–N7); chờ duyệt scope** / 0.4 / 2026-10-06 |
 | Owner / reviewer | BA Agent / **Khách hàng (Product Owner)** |
 | Đầu vào | [RAW-S05-001](../01_raw_notes/01_RAW-S05-001_catalog_plugin_requirements.md), [ANL-S05-001](../02_analysis/01_ANL-S05-001_catalog_data_model_problems.md), [ANL-S05-002](../02_analysis/02_ANL-S05-002_admin_features_permissions_dynamic_forms.md), [BENCH-S05-001](../03_benchmarks/01_BENCH-S05-001_catalog_patterns_in_erp.md) |
 | Đọc trước / đọc tiếp | [00_READING_GUIDE](../00_READING_GUIDE.md) / [SOL-S05-001](../05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) |
@@ -106,12 +106,12 @@ Xây **plugin core đầu tiên**: `catalog` (Danh mục & quản trị danh m�
 | **N4** | Đồng bộ Phòng ban | **Seed một chiều, không đồng bộ lại** | Giữ thiết kế hiện tại (ANL-S05-002 §4.1) |
 | **N5** | Quản trị danh mục hệ thống | **Có màn trong cổng Platform** | Thêm **TASK-392**: màn quản trị danh mục hệ thống (dùng lại UI với cờ "hệ thống") |
 
-### 3.2. Hai câu chốt tiếp (chặn triển khai 2 task mới)
+### 3.2. Câu hỏi chốt tiếp (đã trả lời 2026-10-06)
 
 | # | Câu hỏi | Đề xuất của BA | Trả lời |
 | :--- | :--- | :--- | :--- |
-| **N6** | **Nguồn dữ liệu địa giới** cho TASK-393: em fetch một lần từ nguồn mở rồi sinh CSV commit vào repo (ghi rõ nguồn/ngày, có thể phải cập nhật khi sáp nhập), hay bạn cung cấp tệp CSV? | Em fetch **một lần** từ `provinces.open-api.vn` → sinh `db/seed/provinces-communes.csv` (63 tỉnh + ~10k xã, cạnh trực tiếp tỉnh→xã), ghi nguồn + ngày trong header tệp | ⏳ |
-| **N7** | **Thư viện đọc `.xlsx`**: dùng **Apache POI** (chuẩn Java, thêm dependency backend — ghi nhận ngoại lệ có kiểm soát), hay chỉ CSV? | Dùng Apache POI (`poi-ooxml`) **chỉ ở backend** cho import; ghi ngoại lệ trong SOL §2 | ⏳ |
+| **N6** | **Nguồn dữ liệu địa giới** cho TASK-393 | **Em fetch một lần từ nguồn mở** (`provinces.open-api.vn`) ở dev-time → sinh `src/backend/src/main/resources/db/seed/provinces-communes.csv` (63 tỉnh + ~10k xã, cạnh trực tiếp tỉnh→xã); header tệp ghi nguồn/ngày/số dòng; **runtime không gọi mạng** | **Đã chốt (khách 2026-10-06)** |
+| **N7** | **Thư viện đọc `.xlsx`** | **Apache POI** (`poi-ooxml`) ở backend, chỉ dùng cho luồng import — ghi nhận **ngoại lệ thư viện có kiểm soát** (SOL D19) | **Đã chốt (khách 2026-10-06)** |
 
 **Quyết định kỹ thuật nội bộ (Architect tự chốt, không cần khách)**:
 
@@ -145,3 +145,4 @@ Xây **plugin core đầu tiên**: `catalog` (Danh mục & quản trị danh m�
 | 0.1 | 2026-10-06 | Đề xuất scope + 17 AC + 16 câu hỏi | BA Agent; chờ khách |
 | 0.2 | 2026-10-06 | Ghi nhận 18 câu trả lời; thêm AC-18/19/20 (import/export, ghi đè hệ thống); mở rộng seed §1.1; cập nhật rủi ro; gate vẫn Pending | BA Agent; nguồn: hội thoại chủ dự án |
 | 0.3 | 2026-10-06 | Chốt N1–N5 (seed 5 mục, seed địa giới 2 cấp, CSV+`.xlsx`, seed một chiều, màn hệ thống Platform); thêm AC-21/AC-22; mở N6 (nguồn dữ liệu) + N7 (thư viện `.xlsx`); gate vẫn Pending | BA Agent; nguồn: hội thoại chủ dự án |
+| 0.4 | 2026-10-06 | Chốt N6 (fetch một lần từ `provinces.open-api.vn`) và N7 (Apache POI); **hết câu hỏi**; gate vẫn Pending | BA Agent; nguồn: hội thoại chủ dự án |

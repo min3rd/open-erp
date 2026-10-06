@@ -30,7 +30,7 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | 02.01 | ANL-S05-001 | [Bài toán dữ liệu](02_analysis/01_ANL-S05-001_catalog_data_model_problems.md) | Cây/DAG, nhảy cấp, version, hiệu lực, trường hợp biên | BA |
 | 02.02 | ANL-S05-002 | [Chức năng, phân quyền, form động](02_analysis/02_ANL-S05-002_admin_features_permissions_dynamic_forms.md) | CRUD, quyền 2 tầng, API form, danh mục cố định, always-on | BA |
 | 03.01 | BENCH-S05-001 | [Đối chuẩn danh mục ERP](03_benchmarks/01_BENCH-S05-001_catalog_patterns_in_erp.md) | Odoo/ERPNext/Drupal/ServiceNow… làm thế nào; bài học | BA |
-| 04.01 | CONF-S05-001 | [Scope & AC Sprint 05](04_confirmation/01_CONF-S05-001_sprint_05_scope.md) | **CONFIRMATION GATE** — **22 AC**, 18/18 câu gốc + N1–N5 đã trả lời, còn **N6/N7**; chờ duyệt scope | BA + Khách hàng |
+| 04.01 | CONF-S05-001 | [Scope & AC Sprint 05](04_confirmation/01_CONF-S05-001_sprint_05_scope.md) | **CONFIRMATION GATE** — **22 AC**, **25/25 câu đã trả lời**, chờ duyệt scope | BA + Khách hàng |
 | 05.01 | SOL-S05-001 | [Kiến trúc plugin](05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) | 16 quyết định kiến trúc + luồng + rủi ro | Architect |
 | 06.01 | DES-DB-S05-001 | [Thiết kế CSDL](06_designs/db/01_DES-DB-S05-001_catalog_schema.md) | DDL 4 bảng, EXCLUDE, index, seed/backfill, truy vấn mẫu | Architect |
 | 06.02 | DES-API-S05-001 | [Thiết kế API](06_designs/api/01_DES-API-S05-001_catalog_api.md) | 3 nhóm API + contract + mã lỗi | Architect |
@@ -47,7 +47,7 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 
 | Gate | Trạng thái | Người quyết định | Nguồn/phiên bản/ngày |
 | :--- | :--- | :--- | :--- |
-| Scope approval (CONF-S05-001) | **Pending — đã trả lời 18/18 câu, chờ duyệt scope** | Khách hàng (chủ dự án) | CONF 0.2 ngày 2026-10-06 (Q18 = "chưa duyệt — xem lại tài liệu") |
+| Scope approval (CONF-S05-001) | **Pending — 25/25 câu đã trả lời, chờ duyệt scope** | Khách hàng (chủ dự án) | CONF 0.4 ngày 2026-10-06 (Q18 = "chưa duyệt") |
 | Design ready (SOL/DES) | Draft | Architect/Reviewer | SOL/DES 0.1, chưa review kỹ thuật |
 | QA sign-off | Pending | QA | Chưa có |
 | PM đánh giá DoD | Pending | PM | Chưa có |
