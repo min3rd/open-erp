@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-376 / Task / Sprint 05 |
-| Severity / trạng thái | High / **In Progress — code xong, test PASS (2026-10-06); chờ commit** |
+| Severity / trạng thái | High / **Done (dev) — `fde4f03`; QA: TR-S05-001** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 (Pending), SOL-S05-001, DES-S05-001 |
 | depends_on / blocks / parent | TASK-375 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |

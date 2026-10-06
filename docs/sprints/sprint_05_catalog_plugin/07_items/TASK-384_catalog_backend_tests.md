@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-384 / Task / Sprint 05 |
-| Severity / trạng thái | High / **In Progress — bộ test đã xanh (2026-10-06); chờ commit** |
+| Severity / trạng thái | High / **Done (dev) — `fde4f03`; full suite 287 PASS** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 (Pending), SOL-S05-001, DES-S05-001 |
 | depends_on / blocks / parent | TASK-378, TASK-379, TASK-380, TASK-381, TASK-382 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |

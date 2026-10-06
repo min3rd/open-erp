@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-387 / Task / Sprint 05 |
-| Severity / trạng thái | Medium / **Done (dev) — 503029c; chờ QA browser (TASK-389)** |
+| Severity / trạng thái | Medium / **Done (dev) — `503029c` + sửa `050a3bc`; QA TC-16** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 1.0 (Approved 2026-10-06), SOL-S05-001, DES-UI-S05-001 |
 | depends_on / blocks / parent | TASK-386 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |

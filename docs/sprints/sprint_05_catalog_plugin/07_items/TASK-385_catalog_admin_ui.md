@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-385 / Task / Sprint 05 |
-| Severity / trạng thái | High / **In Progress — code xong, build PASS (2026-10-06); chờ commit + QA** |
+| Severity / trạng thái | High / **Done (dev) — `f6b5131` + sửa `050a3bc`; QA TC-01…09, 18** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 (Pending), SOL-S05-001, DES-S05-001 |
 | depends_on / blocks / parent | TASK-381 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |

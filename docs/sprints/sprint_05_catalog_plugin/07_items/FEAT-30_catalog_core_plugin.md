@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | FEAT-30 / Feature / Sprint 05 |
-| Severity / trạng thái | High / **In Progress — gate APPROVED 2026-10-06** |
+| Severity / trạng thái | High / **Done (dev) — 19/19 task code xong; QA: TR-S05-001 (18 PASS/4 PARTIAL/3 NOT RUN, TC-17 chờ QA lại 390px)** |
 | Owner/agent / reviewer | Developer (agent) / Architect + QA |
 | Cập nhật / input version | 2026-10-06 / [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) (Pending), [SOL-S05-001](../05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) |
 | depends_on / blocks / parent | Sprint 03 (plugin manager), Sprint 01/02 (RBAC, tổ chức) / các plugin nghiệp vụ sau / — |
@@ -66,4 +66,5 @@ Nguồn: [RAW-S05-001](../01_raw_notes/01_RAW-S05-001_catalog_plugin_requirement
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-06 | Tạo feature + 15 task con (chưa triển khai) | Developer Agent; chờ gate scope |
 | 0.2 | 2026-10-06 | Gate APPROVED; mở rộng lên **19 task con** (392 màn hệ thống, 393 seed địa giới) | Developer Agent; chỉ đạo chủ dự án |
+| 0.4 | 2026-10-06 | **QA**: TR-S05-001 (18 PASS/4 PARTIAL/3 NOT RUN) + 10 ảnh minh chứng; phát hiện & sửa 5 lỗi (`d507e07`, `050a3bc`) gồm 1 lỗi Critical (Mobile thiếu auth interceptor) | QA Agent; nguồn: chạy thật trên dev |
 | 0.3 | 2026-10-06 | **Triển khai**: migration V4.0.0 apply sạch (60/60 tenant backfill, 600 grant), 4 entity vào registry, recursive CTE + options gộp tenant thắng, seeder địa giới (34 tỉnh/3.321 xã), `catalog-picker` dùng chung — 49 test + build web/mobile PASS; đang làm API + UI | Developer Agent; nguồn: test + build log |

@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-388 / Task / Sprint 05 |
-| Severity / trạng thái | Medium / **To Do — sẵn sàng (gate APPROVED 2026-10-06)** |
+| Severity / trạng thái | Medium / **Done (dev) — i18n 100% (web 1152, mobile 543) + UG-S05-001 (10 ảnh); còn 3 ảnh QA** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 (Pending), SOL-S05-001, DES-S05-001 |
 | depends_on / blocks / parent | TASK-385, TASK-386 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |

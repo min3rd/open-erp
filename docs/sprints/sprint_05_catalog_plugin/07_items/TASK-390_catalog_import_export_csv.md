@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-390 / Task / Sprint 05 |
-| Severity / trạng thái | High / **In Progress — code xong, test PASS (2026-10-06); chờ commit + QA** |
+| Severity / trạng thái | High / **Done (dev) — `fde4f03`; 12 test PASS (QA TC-20…23: PARTIAL/PASS test)** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 0.2 (câu trả lời Q1/Q2/Q7; gate Pending), DES-API/DES-UI |
 | depends_on / blocks / parent | TASK-381 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |

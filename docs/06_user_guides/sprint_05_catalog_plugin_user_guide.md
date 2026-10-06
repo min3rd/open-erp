@@ -3,7 +3,7 @@
 | Thuộc tính | Giá trị |
 | :--- | :--- |
 | ID | UG-S05-001 |
-| Trạng thái | Draft — ảnh minh hoạ bổ sung sau QA (TASK-389) |
+| Trạng thái | Draft — đã có 10 ảnh minh chứng từ QA (TASK-389); 3 ảnh còn lại chờ QA bổ sung (xem TR-S05-001 §4) |
 | Phiên bản / cập nhật | 0.1 / 2026-10-06 |
 | Phạm vi | Quản trị danh mục (loại, bản ghi, quan hệ đa cha, phiên bản, quyền theo loại), nhập tự do, import/export, danh mục hệ thống & ghi đè, tra cứu trên Mobile |
 | Đầu vào | [CONF-S05-001](../sprints/sprint_05_catalog_plugin/04_confirmation/01_CONF-S05-001_sprint_05_scope.md), [DES-UI-S05-001](../sprints/sprint_05_catalog_plugin/06_designs/ui/01_DES-UI-S05-001_catalog_admin_ui.md), [DES-API-S05-001](../sprints/sprint_05_catalog_plugin/06_designs/api/01_DES-API-S05-001_catalog_api.md) |
@@ -32,7 +32,9 @@ Vào **Cài đặt → Dữ liệu → Danh mục**. Màn hình chia **3 cột**
 | Giữa | **Bản ghi** của loại đang chọn: tìm kiếm, lọc, phân trang, menu chuột phải từng dòng |
 | Phải | **Chi tiết** bản ghi: thuộc tính, **lịch sử phiên bản (chỉ đọc)**, quan hệ cha/con, nút thao tác |
 
-📷 *Màn quản trị danh mục — 3 cột (desktop).*
+![Màn quản trị danh mục — 3 cột](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/desktop-catalog-dark.png)
+
+*Ảnh: màn 3 cột ở chế độ tối (loại danh mục | bản ghi | chi tiết), có bản ghi ghi đè.*
 
 Mọi biểu mẫu mở dạng **Drawer trượt từ phải** (có thể xếp chồng nhiều tầng), **không dùng popup che màn hình**.
 
@@ -50,7 +52,9 @@ Nhấn **Thêm loại** (hoặc chọn loại rồi **Sửa**) để mở drawer
 | Cho nhập tự do | Bật ⇒ người dùng được gõ giá trị ngoài danh mục |
 | Schema thuộc tính | JSON mô tả trường động của bản ghi (tuỳ chọn) |
 
-📷 *Drawer thêm/sửa loại danh mục.*
+![Drawer thêm loại danh mục](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/desktop-type-drawer.png)
+
+*Ảnh: drawer trượt phải "Thêm loại danh mục" — không dùng modal.*
 
 > **Loại hệ thống** (tỉnh/xã, ngành, nghề) hiển thị chỉ đọc với tenant — muốn "đổi" thì tạo bản ghi **ghi đè** cùng mã (mục 8).
 
@@ -61,7 +65,11 @@ Nhấn **Thêm loại** (hoặc chọn loại rồi **Sửa**) để mở drawer
 - **Ngừng dùng** (biểu tượng thùng rác): **đóng hiệu lực** (`valid_to = hiện tại`), **không xoá cứng** — bản ghi vẫn còn trong lịch sử và các chứng từ cũ vẫn tra cứu được theo mốc thời gian.
 - **Đọc theo mốc thời gian**: API và form hỗ trợ tham số `as_of` để xem đúng trạng thái tại một thời điểm.
 
-📷 *Drawer bản ghi + lịch sử phiên bản ở cột phải.*
+![Drawer sửa bản ghi](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/desktop-item-edit-drawer.png)
+
+![Lịch sử phiên bản](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/desktop-item-version-history.png)
+
+*Ảnh: drawer sửa có cảnh báo "Lưu sẽ tạo phiên bản mới" và lịch sử v2 HIỆN HÀNH / v1 ĐÃ ĐÓNG.*
 
 ## 5. Quan hệ cha–con (đa cha, nhảy cấp)
 
@@ -70,7 +78,11 @@ Nhấn **Thêm loại** (hoặc chọn loại rồi **Sửa**) để mở drawer
 - **Thêm quan hệ**: nút **Thêm quan hệ** trong drawer chi tiết → chọn cha bằng ô tra cứu danh mục (picker), chọn loại quan hệ và thứ tự.
 - **Chống lỗi**: hệ thống chặn **chu trình** (A là cha của B và B là cha của A), chặn quan hệ không nằm trong "quan hệ cho phép", chặn cha khác loại khi loại đó không khai báo.
 
-📷 *Drawer thêm quan hệ (chọn cha bằng picker).*
+![Drawer thêm quan hệ cha](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/desktop-edge-drawer.png)
+
+![Picker chọn cha](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/desktop-picker-dropdown.png)
+
+*Ảnh: drawer "Thêm quan hệ cha" và ô tra cứu cha (lazy, hiện tên + mã).*
 
 ## 6. Quyền theo từng loại danh mục
 
@@ -82,7 +94,9 @@ Ngoài quyền module (`catalog:type:manage`, `catalog:item:read`, `catalog:item
 
 > Khi cài plugin, **Chủ tenant** và **Quản trị tenant** mặc định có toàn quyền trên mọi loại của tenant để tránh tình trạng "cài xong không ai sửa được".
 
-📷 *Drawer ma trận quyền theo vai trò.*
+![Ma trận quyền theo vai trò](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/desktop-grants-matrix.png)
+
+*Ảnh: ma trận vai trò × XEM/GHI; Chủ tenant và Quản trị tenant mặc định có cả hai.*
 
 ## 7. Nhập tự do và "Lưu vào danh mục"
 
@@ -126,7 +140,11 @@ Super admin vào **Platform → Danh mục hệ thống**: cùng bố cục 3 c�
 - **Tra cứu danh mục** (read-only): chọn loại, tìm kiếm, xem cây/breadcrumb, xem chi tiết — **không có nút sửa/xoá** (quản trị làm trên bản Web).
 - **Ô chọn danh mục trong form** hoạt động trên mobile: danh sách dạng panel trong trang (không modal), vùng chạm ≥ 40px, không tràn ngang ở 390×844.
 
-📷 *Mobile: tra cứu danh mục (390×844).*
+![Mobile — tra cứu danh mục](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/mobile-catalog-browse.png)
+
+![Mobile — chi tiết](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/mobile-catalog-detail.png)
+
+*Ảnh: trang tra cứu read-only trên Mobile — breadcrumb theo tỉnh, badge hệ thống/ghi đè, không nút sửa.*
 
 ## 12. Dữ liệu địa giới có sẵn
 

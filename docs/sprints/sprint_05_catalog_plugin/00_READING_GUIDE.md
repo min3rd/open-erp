@@ -36,8 +36,10 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | 06.02 | DES-API-S05-001 | [Thiết kế API](06_designs/api/01_DES-API-S05-001_catalog_api.md) | 3 nhóm API + contract + mã lỗi | Architect |
 | 06.03 | DES-UI-S05-001 | [Thiết kế UI](06_designs/ui/01_DES-UI-S05-001_catalog_admin_ui.md) | Màn 3 cột + component picker + ma trận Desktop/Mobile | Architect |
 | 07.01 | FEAT-30 | [Plugin core Danh mục](07_items/FEAT-30_catalog_core_plugin.md) | Feature + **19 task con** | Developer |
-| 07.02 | TASK-375…393 | [07_items/](07_items/) | Scope code từng task — **đang triển khai** (xong: 375/376/377/386/393 phần code+test; còn API 378–383/391, UI 385/392, import 390) | Developer |
+| 07.02 | TASK-375…393 | [07_items/](07_items/) | Scope code từng task — **18/19 task Done (dev)**; TASK-389 (QA) còn TC-17 (390px/≥1280px) + ảnh Platform | Developer |
 | 08.01 | TP-S05-001 | [Test plan Sprint 05](08_testing/01_TP-S05-001_sprint_05_test_plan.md) | **25 TC** theo AC + ma trận lấy mẫu | QA |
+| 08.02 | TR-S05-001 | [Test report Sprint 05](08_testing/02_TR-S05-001_sprint_05_test_report.md) | **18 PASS / 4 PARTIAL / 3 NOT RUN**; 5 lỗi QA đã sửa; 287 test backend PASS | QA |
+| 08.03 | EVD-S05-001 | [Evidence index](08_testing/evidence/00_EVD-S05-001_evidence_index.md) | **10 ảnh minh chứng** (Desktop + Mobile) | QA |
 | 08.02 | TR-S05-001 | Chưa tạo | Kết quả có baseline/evidence | QA |
 | 09.01 | REV-S05-001 | Chưa tạo | DoD/backlog/closure | PM |
 
