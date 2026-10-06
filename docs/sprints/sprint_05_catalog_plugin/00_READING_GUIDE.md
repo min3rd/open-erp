@@ -91,7 +91,7 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | 1 | **Duyệt scope** (Q18 = "chưa duyệt" ×3) | Cổng — **chặn code** | Cần một câu xác nhận; có thể duyệt **toàn bộ** hoặc **theo giai đoạn** (lõi TASK-375…389 trước) |
 | 2 | **Design ready gate**: SOL/DES chưa review kỹ thuật, đặc biệt **D1** (plugin core chạy in-process thay vì đóng gói JAR như Sprint 03) | Nội bộ | Cần 1 lượt review trước khi code; nếu muốn đóng gói riêng thì D1 phải đổi |
 | 3 | ~~**Giấy phép dữ liệu địa giới** (`provinces.open-api.vn`)~~ | Kỹ thuật/pháp lý | ✅ **Đã xử lý 2026-10-06**: tệp `provinces-communes.csv` sinh một lần (34 tỉnh / 3.321 xã-phường, dữ liệu sau sáp nhập 2025), header ghi **nguồn + ngày + số dòng**; runtime không gọi mạng; cập nhật bằng `node scripts/gen-admin-units.mjs` + kiểm tra `node scripts/check-admin-units.mjs` |
-| 4 | **Extension PostgreSQL** `btree_gist`, `pg_trgm` có sẵn trên dev/staging/prod? | Kỹ thuật | Migration `CREATE EXTENSION IF NOT EXISTS`; nếu môi trường chặn ⇒ fallback kiểm tra ở service (ghi rõ trong migration) |
+| 4 | **Extension PostgreSQL** `btree_gist`, `pg_trgm` có sẵn trên dev/staging/prod? | Kỹ thuật | ✅ **Dev đã kiểm chứng 2026-10-06**: `btree_gist` 1.7 + `pg_trgm` 1.6 cài đặt thành công trên `openerp-postgres-primary` (PostgreSQL 16, cả hai là trusted extension từ PG 13+); migration `CREATE EXTENSION IF NOT EXISTS` là no-op an toàn. Staging/prod chạy cùng migration |
 | 5 | **Mobile**: cần màn **tra cứu danh mục** read-only hay chỉ cần `catalog-picker` trong form? | Scope nhỏ | TASK-387 đang gồm màn browse; cắt được để giảm phạm vi nếu bạn muốn |
 | 6 | **`name_en`**: chỉ hiển thị ở form quản trị (không tự đổi theo ngôn ngữ UI)? | Scope nhỏ | Mặc định như vậy; đa ngôn ngữ tên danh mục để sprint sau (Q9) |
 
