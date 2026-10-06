@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | FEAT-30 / Feature / Sprint 05 |
-| Severity / trạng thái | High / **Done (dev) — 19/19 task code xong; QA: TR-S05-001 (18 PASS/4 PARTIAL/3 NOT RUN, TC-17 chờ QA lại 390px)** |
+| Severity / trạng thái | High / **Done (dev) — 19/19 task code xong; QA: TR-S05-001 (21 PASS/4 PARTIAL/0 NOT RUN, TC-17 đạt ở viewport thật 390×844 + 1400×900)** |
 | Owner/agent / reviewer | Developer (agent) / Architect + QA |
 | Cập nhật / input version | 2026-10-06 / [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) (Pending), [SOL-S05-001](../05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) |
 | depends_on / blocks / parent | Sprint 03 (plugin manager), Sprint 01/02 (RBAC, tổ chức) / các plugin nghiệp vụ sau / — |

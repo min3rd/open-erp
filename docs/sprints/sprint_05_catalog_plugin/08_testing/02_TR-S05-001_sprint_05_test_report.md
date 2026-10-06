@@ -15,7 +15,7 @@
 | :--- | :--- |
 | Test backend tự động | **287 test PASS**, 1 skipped (OciRegistryClientTest — có sẵn từ trước) |
 | Test catalog (API/DB) | 9 + 4 + 3 + 2 + 6 + 11 + 1 + 4 + 7 + 6 + 3 = **56 PASS** (gồm import/export 12) |
-| TC kiểm thử thủ công (browser) | **PASS 19**, **PARTIAL 3**, **NOT RUN 2** (chi tiết §3) |
+| TC kiểm thử thủ công (browser) | **PASS 21**, **PARTIAL 4**, **NOT RUN 0** (chi tiết §3; 4 mục PARTIAL là thao tác UI chưa bấm nhưng API đã có test) |
 | Lỗi console | **0** ở Web và Mobile sau khi sửa lỗi interceptor Mobile |
 | Lỗi phát hiện & sửa trong QA | **5** (xem §2) |
 

@@ -38,8 +38,8 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | 07.01 | FEAT-30 | [Plugin core Danh mục](07_items/FEAT-30_catalog_core_plugin.md) | Feature + **19 task con** | Developer |
 | 07.02 | TASK-375…393 | [07_items/](07_items/) | Scope code từng task — **18/19 task Done (dev)**; TASK-389 (QA) còn TC-17 (390px/≥1280px) + ảnh Platform | Developer |
 | 08.01 | TP-S05-001 | [Test plan Sprint 05](08_testing/01_TP-S05-001_sprint_05_test_plan.md) | **25 TC** theo AC + ma trận lấy mẫu | QA |
-| 08.02 | TR-S05-001 | [Test report Sprint 05](08_testing/02_TR-S05-001_sprint_05_test_report.md) | **18 PASS / 4 PARTIAL / 3 NOT RUN**; 5 lỗi QA đã sửa; 287 test backend PASS | QA |
-| 08.03 | EVD-S05-001 | [Evidence index](08_testing/evidence/00_EVD-S05-001_evidence_index.md) | **10 ảnh minh chứng** (Desktop + Mobile) | QA |
+| 08.02 | TR-S05-001 | [Test report Sprint 05](08_testing/02_TR-S05-001_sprint_05_test_report.md) | **21 PASS / 4 PARTIAL / 0 NOT RUN**; 5 lỗi QA đã sửa; 287 test backend PASS | QA |
+| 08.03 | EVD-S05-001 | [Evidence index](08_testing/evidence/00_EVD-S05-001_evidence_index.md) | **12 ảnh minh chứng** (Desktop ≥1280px, drawers, picker, quyền, ghi đè, dark, Mobile 390×844) | QA |
 | 08.02 | TR-S05-001 | Chưa tạo | Kết quả có baseline/evidence | QA |
 | 09.01 | REV-S05-001 | Chưa tạo | DoD/backlog/closure | PM |
 

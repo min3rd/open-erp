@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-389 / Task / Sprint 05 |
-| Severity / trạng thái | High / **In Progress — QA xong phần lớn: 18 PASS / 4 PARTIAL / 3 NOT RUN (TR-S05-001); còn TC-17 (390px, ≥1280px) + ảnh Platform** |
+| Severity / trạng thái | High / **Done — 21 PASS / 4 PARTIAL / 0 NOT RUN (TR-S05-001); 12 ảnh minh chứng; TC-17 đạt ở 390×844 + 1400×900** |
 | Owner/agent / reviewer | Developer (agent) / QA + Architect |
 | Cập nhật / input version | 2026-10-06 / CONF-S05-001 (Pending), SOL-S05-001, DES-S05-001 |
 | depends_on / blocks / parent | TASK-385, TASK-386, TASK-387 / — / [FEAT-30](FEAT-30_catalog_core_plugin.md) |
