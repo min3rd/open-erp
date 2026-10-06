@@ -18,6 +18,7 @@ import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.ext.Provider;
@@ -45,6 +46,8 @@ public class PlatformRoleRequiredFilter implements ContainerRequestFilter {
     private static final Logger LOG = Logger.getLogger(PlatformRoleRequiredFilter.class);
 
     private static final String PREFIX = "api/v1/platform";
+    /** TASK-392: the platform system-catalogue admin lives on the catalog API surface. */
+    private static final String SYSTEM_CATALOG_PREFIX = "api/v1/catalog/system";
     private static final String IMPERSONATION_EXIT = PREFIX + "/impersonate/exit";
     private static final String IMPERSONATION_EXIT_ALIAS = PREFIX + "/impersonation/exit";
     // TASK-294: account self-service paths reachable by a confined platform admin.
@@ -75,7 +78,9 @@ public class PlatformRoleRequiredFilter implements ContainerRequestFilter {
         if (path.startsWith("/")) {
             path = path.substring(1);
         }
-        if (!path.startsWith(PREFIX)) {
+        if (!path.startsWith(PREFIX)
+                && !path.equals(SYSTEM_CATALOG_PREFIX)
+                && !path.startsWith(SYSTEM_CATALOG_PREFIX + "/")) {
             // TASK-294: a platform admin confined by must_change_password is also
             // guarded on the account self-service surface, with an explicit allowlist.
             if (path.startsWith(ACCOUNT_PREFIX)) {
@@ -238,6 +243,11 @@ public class PlatformRoleRequiredFilter implements ContainerRequestFilter {
     }
 
     private void abort(ContainerRequestContext ctx, int status, String code, String message) {
-        ctx.abortWith(Response.status(status).entity(new ApiErrorResponse(code, message)).build());
+        // Explicit JSON type: resource methods that produce files (e.g. CSV export)
+        // would otherwise serialise the error envelope with the method's @Produces.
+        ctx.abortWith(Response.status(status)
+            .type(MediaType.APPLICATION_JSON)
+            .entity(new ApiErrorResponse(code, message))
+            .build());
     }
 }

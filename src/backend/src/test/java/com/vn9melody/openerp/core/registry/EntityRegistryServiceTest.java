@@ -30,10 +30,10 @@ public class EntityRegistryServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("BUG-26 + TASK-276 + TASK-302: 25 entity IAM/Platform/Organization/Core/Plugin được đăng ký tự động và upsert idempotent")
+    @DisplayName("BUG-26 + TASK-276 + TASK-302 + TASK-376: 29 entity IAM/Platform/Organization/Core/Plugin/Catalog được đăng ký tự động và upsert idempotent")
     public void testAllEntitiesRegisteredOnStartup() {
         List<Object[]> rows = registryRows();
-        Assertions.assertEquals(25, rows.size(), "Phải đăng ký đúng 25 entity (20 entity Sprint 01/02 + 5 entity Plugin Manager Sprint 03)");
+        Assertions.assertEquals(29, rows.size(), "Phải đăng ký đúng 29 entity (20 entity Sprint 01/02 + 5 entity Plugin Manager Sprint 03 + 4 entity Catalog Sprint 05)");
 
         Map<String, List<Object[]>> byPlugin = rows.stream()
             .collect(Collectors.groupingBy(row -> (String) row[0]));
@@ -61,6 +61,16 @@ public class EntityRegistryServiceTest {
         Map<String, Object[]> core = byEntityName(byPlugin, "core");
         Assertions.assertEquals(1, core.size(), "plugin core phải chứa entity reference CoreSampleRecord");
 
+        Map<String, Object[]> catalog = byEntityName(byPlugin, "catalog");
+        Assertions.assertEquals(4, catalog.size(), "plugin catalog phải chứa 4 entity (Sprint 05)");
+        Assertions.assertTrue(catalog.keySet().containsAll(List.of(
+            "CatalogType", "CatalogItem", "CatalogItemEdge", "CatalogTypeGrant"
+        )), "Thiếu entity catalog trong registry: " + catalog.keySet());
+        assertEntity(catalog, "CatalogType", "catalog_types");
+        assertEntity(catalog, "CatalogItem", "catalog_items");
+        assertEntity(catalog, "CatalogItemEdge", "catalog_item_edges");
+        assertEntity(catalog, "CatalogTypeGrant", "catalog_type_grants");
+
         assertEntity(coreIam, "User", "users");
         assertEntity(coreIam, "Tenant", "tenants");
         assertEntity(coreIam, "Role", "roles");
@@ -75,7 +85,7 @@ public class EntityRegistryServiceTest {
             "exported_relations phải chứa quan hệ users");
 
         entityRegistryService.registerAnnotatedEntities();
-        Assertions.assertEquals(25, registryRows().size(), "Upsert phải idempotent, không nhân bản bản ghi");
+        Assertions.assertEquals(29, registryRows().size(), "Upsert phải idempotent, không nhân bản bản ghi");
     }
 
     private Map<String, Object[]> byEntityName(Map<String, List<Object[]>> byPlugin, String pluginId) {

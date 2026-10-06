@@ -20,6 +20,7 @@
         <quarkus.platform.version>3.15.1</quarkus.platform.version>
         <surefire-plugin.version>3.5.0</surefire-plugin.version>
         <argon2.version>2.11</argon2.version>
+        <poi.version>5.5.1</poi.version>
         <!-- Java 25 workaround: ByteBuddy in Quarkus 3.15 needs the experimental flag for
              Hibernate proxy generation in BOTH quarkus:dev (jvm.args) and tests (surefire). -->
         <jvm.args>-Dnet.bytebuddy.experimental=true</jvm.args>
@@ -101,6 +102,14 @@
             <groupId>de.mkammerer</groupId>
             <artifactId>argon2-jvm</artifactId>
             <version>${argon2.version}</version>
+        </dependency>
+
+        <!-- Import .xlsx (TASK-390; controlled library exception per SOL D19).
+             Only the catalog import flow touches POI; keep it out of hot paths. -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi.version}</version>
         </dependency>
 
         <!-- Test Dependencies -->

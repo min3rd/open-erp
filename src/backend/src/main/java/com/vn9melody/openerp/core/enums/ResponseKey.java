@@ -139,6 +139,7 @@ public enum ResponseKey {
         String REASSIGN_MEMBERS_TO = "reassign_members_to";
         String RESOURCE = "resource";
         String ROLE_ID = "role_id";
+        String ROLE_CODE = "role_code";
         String ROLE_IDS = "role_ids";
         String SCOPE = "scope";
         String SCOPE_FIELDS = "scope_fields";
