@@ -30,7 +30,7 @@ CREATE TABLE catalog_types (
     description_key   VARCHAR(128),
     hierarchy_mode    VARCHAR(16)  NOT NULL DEFAULT 'TREE',           -- TREE | DAG
     allowed_relations VARCHAR(32)[] NOT NULL DEFAULT '{HIERARCHY}',   -- HIERARCHY|CLASSIFICATION|ALLOCATION|CUSTOM
-    allowed_parent_types VARCHAR(64)[],                              -- NULL = mọi loại (vd JOB cho phép INDUSTRY, ALLOCATION)
+    allowed_parent_types VARCHAR(64)[],                              -- NULL = **chỉ cùng loại** (an toàn mặc định); khai báo để cho phép khác loại
     max_depth         SMALLINT,                                       -- NULL = không giới hạn
     min_parents       SMALLINT     NOT NULL DEFAULT 0,
     allow_free_text   BOOLEAN      NOT NULL DEFAULT FALSE,
@@ -195,19 +195,32 @@ ON CONFLICT (code) DO NOTHING;
 -- 4 quyền đầu ⇒ TENANT_OWNER/TENANT_ADMIN; catalog:system:manage ⇒ platform admin.
 
 -- 5.3 Loại danh mục hệ thống + tenant mặc định (mẫu)
-INSERT INTO catalog_types (tenant_id, code, name_key, hierarchy_mode, allowed_relations, max_depth, allow_free_text, source)
+INSERT INTO catalog_types (tenant_id, code, name_key, hierarchy_mode, allowed_relations, allowed_parent_types, max_depth, allow_free_text)
 VALUES
-  (NULL, 'PROVINCE', 'CATALOG_TYPE_PROVINCE', 'TREE', '{HIERARCHY}', NULL, FALSE, 'PLUGIN'),
-  (NULL, 'DISTRICT', 'CATALOG_TYPE_DISTRICT', 'TREE', '{HIERARCHY}', NULL, FALSE, 'PLUGIN'),
-  (NULL, 'COMMUNE',  'CATALOG_TYPE_COMMUNE',  'TREE', '{HIERARCHY}', NULL, FALSE, 'PLUGIN'),
-  (NULL, 'INDUSTRY', 'CATALOG_TYPE_INDUSTRY', 'DAG',  '{CLASSIFICATION}', NULL, FALSE, 'PLUGIN'),
-  (NULL, 'JOB',      'CATALOG_TYPE_JOB',      'DAG',  '{CLASSIFICATION,ALLOCATION}', NULL, TRUE, 'PLUGIN')
+  (NULL, 'PROVINCE', 'CATALOG_TYPE_PROVINCE', 'TREE', '{HIERARCHY}', NULL, NULL, FALSE),
+  (NULL, 'DISTRICT', 'CATALOG_TYPE_DISTRICT', 'TREE', '{HIERARCHY}', '{PROVINCE}', NULL, FALSE),
+  (NULL, 'COMMUNE',  'CATALOG_TYPE_COMMUNE',  'TREE', '{HIERARCHY}', '{PROVINCE,DISTRICT}', NULL, FALSE),
+  (NULL, 'INDUSTRY', 'CATALOG_TYPE_INDUSTRY', 'DAG',  '{CLASSIFICATION}', NULL, NULL, FALSE),
+  (NULL, 'JOB',      'CATALOG_TYPE_JOB',      'DAG',  '{CLASSIFICATION,ALLOCATION}', '{INDUSTRY}', NULL, TRUE)
 ON CONFLICT (tenant_id, code) DO NOTHING;
 -- Loại tenant (seed theo tenant khi cài đặt) — **chốt 5 mục (N1)**: JOB_TITLE (cho phép nhập tự do),
 -- DEPARTMENT (danh mục riêng, seed một chiều từ departments), CONTRACT_TYPE, SHIFT, EDUCATION_LEVEL.
 -- 8 mục gợi ý thêm đã bị cắt theo N1 (tenant tự tạo khi cần).
 
--- 5.3.1 Seed dữ liệu địa giới 2 cấp tỉnh→xã (N2, N6) — chạy một lần trong seed script
+-- 5.3.2 Grant mặc định (tránh "cài xong không ai sửa được"): mọi loại của tenant
+--       mặc định cho TENANT_OWNER/TENANT_ADMIN quyền ghi; loại tạo mới sau này
+--       cũng tự nhận grant mặc định này khi tạo.
+INSERT INTO catalog_type_grants (tenant_id, type_id, role_id, can_read, can_write)
+SELECT t.tenant_id, t.id, r.id, TRUE, TRUE
+FROM catalog_types t
+JOIN roles r ON r.tenant_id IS NULL AND r.code IN ('TENANT_OWNER', 'TENANT_ADMIN')
+WHERE t.tenant_id IS NOT NULL
+ON CONFLICT (tenant_id, type_id, role_id) DO NOTHING;
+
+-- 5.3.3 Quy tắc khác loại: `allowed_parent_types` NULL = **chỉ cùng loại**;
+--       muốn cho phép liên loại phải khai báo (vd JOB: {INDUSTRY, ALLOCATION}).
+
+-- 5.3.4 Seed dữ liệu địa giới 2 cấp tỉnh→xã (N2, N6) — chạy một lần trong seed script
 --       từ tệp commit trong repo (nguồn: provinces.open-api.vn, sinh một lần ở dev-time
 --       bằng `scripts/gen-admin-units.mjs`; header tệp ghi nguồn + ngày + số dòng):
 --       src/backend/src/main/resources/db/seed/provinces-communes.csv

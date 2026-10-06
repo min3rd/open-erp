@@ -58,7 +58,7 @@
 | GET | `/api/v1/catalog/types/{code}/import/template` | `catalog:item:read` | Tải tệp mẫu CSV (UTF-8 BOM) đúng cột cho loại đó |
 | GET | `/api/v1/catalog/export` | `catalog:item:read` | Xuất CSV: `?type_code=` (hoặc `all=true`), `as_of`, kèm cột cha/con + hiệu lực + trạng thái |
 
-Quy tắc: tối đa **20.000 dòng**/lần import (cấu hình được; vượt ⇒ `CATALOG_IMPORT_TOO_LARGE`); mã `code` là khoá khớp (có ⇒ cập nhật tạo phiên bản mới, chưa có ⇒ tạo); `parent_code` (nếu có) tạo cạnh cha–con sau khi tạo item, **kiểm tra chu trình** như API thường; lỗi theo dòng **không** chặn các dòng hợp lệ nhưng báo cáo đầy đủ; export dùng cùng bộ lọc với danh sách. **`.xlsx`** đọc bằng Apache POI ở backend (ngoại lệ thư viện — SOL D19, chốt tại N7).
+Quy tắc: tối đa **20.000 dòng**/lần import (cấu hình được; vượt ⇒ `CATALOG_IMPORT_TOO_LARGE`); mã `code` là khoá khớp (có ⇒ cập nhật tạo phiên bản mới, chưa có ⇒ tạo); `parent_code` (nếu có) tạo cạnh cha–con sau khi tạo item, **kiểm tra chu trình** như API thường; **tenant import trùng `code` với mục hệ thống ⇒ tạo bản ghi ghi đè của tenant** (nhất quán Q1/Q2), không sửa bản hệ thống; lỗi theo dòng **không** chặn các dòng hợp lệ nhưng báo cáo đầy đủ; export dùng cùng bộ lọc với danh sách. **`.xlsx`** đọc bằng Apache POI ở backend (ngoại lệ thư viện — SOL D19).
 
 ## 5. Contract mẫu
 

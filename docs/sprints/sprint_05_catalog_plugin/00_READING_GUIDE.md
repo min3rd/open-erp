@@ -83,3 +83,20 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | Review kỹ thuật độc lập SOL/DES + smoke K8s staging | Sprint 03/04 follow-up | Ngoài phạm vi Sprint 05 (theo dõi ở review) |
 
 > Trạng thái sản phẩm lấy ở artifact gốc trong `07_items/` và review, không lấy từ bảng này khi chưa có bằng chứng.
+
+## 6. Điểm còn phân vân / cần kiểm chứng (2026-10-06)
+
+| # | Điểm | Loại | Đề xuất / trạng thái |
+| :--- | :--- | :--- | :--- |
+| 1 | **Duyệt scope** (Q18 = "chưa duyệt" ×3) | Cổng — **chặn code** | Cần một câu xác nhận; có thể duyệt **toàn bộ** hoặc **theo giai đoạn** (lõi TASK-375…389 trước) |
+| 2 | **Design ready gate**: SOL/DES chưa review kỹ thuật, đặc biệt **D1** (plugin core chạy in-process thay vì đóng gói JAR như Sprint 03) | Nội bộ | Cần 1 lượt review trước khi code; nếu muốn đóng gói riêng thì D1 phải đổi |
+| 3 | **Giấy phép dữ liệu địa giới** (`provinces.open-api.vn`) | Kỹ thuật/pháp lý | Ghi nguồn + ngày + số dòng vào header CSV; kiểm tra điều khoản sử dụng trước khi commit; nếu không rõ thì chuyển sang phương án "bạn cung cấp tệp" |
+| 4 | **Extension PostgreSQL** `btree_gist`, `pg_trgm` có sẵn trên dev/staging/prod? | Kỹ thuật | Migration `CREATE EXTENSION IF NOT EXISTS`; nếu môi trường chặn ⇒ fallback kiểm tra ở service (ghi rõ trong migration) |
+| 5 | **Mobile**: cần màn **tra cứu danh mục** read-only hay chỉ cần `catalog-picker` trong form? | Scope nhỏ | TASK-387 đang gồm màn browse; cắt được để giảm phạm vi nếu bạn muốn |
+| 6 | **`name_en`**: chỉ hiển thị ở form quản trị (không tự đổi theo ngôn ngữ UI)? | Scope nhỏ | Mặc định như vậy; đa ngôn ngữ tên danh mục để sprint sau (Q9) |
+
+**Ba điểm Architect đã tự chốt theo hướng an toàn hơn (ghi để review biết)**:
+
+1. `allowed_parent_types` **NULL = chỉ cùng loại** (trước đó ghi "mọi loại" — nay đổi để tránh cấu trúc sai).
+2. **Grant mặc định** cho `TENANT_OWNER`/`TENANT_ADMIN` trên mọi loại tenant (tránh "cài xong không ai sửa được").
+3. **Tenant import trùng `code` với mục hệ thống ⇒ tạo bản ghi ghi đè của tenant** (nhất quán Q1/Q2), không sửa bản hệ thống.
