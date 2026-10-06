@@ -248,24 +248,20 @@ export class RoleMatrixComponent implements OnInit {
     });
   }
 
-  /** Retry only the failed half of the permissions column. */
+  /** Retry the permissions column (catalogue + grants). */
   retryPermissions() {
-    if (this.catalogError()) {
-      this.loadPermissionCatalog();
-    }
+    this.loadPermissionCatalog();
     const role = this.selectedRole();
-    if (this.permissionsError() && role) {
+    if (role) {
       this.loadRolePermissions(role);
     }
   }
 
-  /** Retry only the failed half of the data-scopes column. */
+  /** Retry the data-scopes column (resources + policies). */
   retryDataScopes() {
-    if (this.resourcesError()) {
-      this.loadResources();
-    }
+    this.loadResources();
     const role = this.selectedRole();
-    if (this.policiesError() && role) {
+    if (role) {
       this.loadRolePolicies(role);
     }
   }

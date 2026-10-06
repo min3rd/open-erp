@@ -135,11 +135,7 @@
     } @else {
       @for (item of items(); track item.labelKey) {
       @if (item.children?.length) {
-        <details
-          class="group"
-          [open]="isGroupOpen(item)"
-          (toggle)="onGroupToggle(item, $event.target)"
-        >
+        <details class="group" [open]="groupActive(item)">
           <summary
             [attr.title]="collapsed() ? (item.labelKey | translate) : null"
             class="flex cursor-pointer list-none items-center gap-2 rounded-control px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-sidebar-text/60 transition-colors hover:bg-sidebar-active/40 [&::-webkit-details-marker]:hidden"
@@ -162,8 +158,7 @@
                 [routerLink]="child.path"
                 routerLinkActive="bg-sidebar-active text-sidebar-active-text font-semibold border-accent"
                 [attr.title]="child.labelKey | translate"
-                [class]="'inline-flex items-center rounded-control border-s-2 border-transparent text-sidebar-text transition-colors hover:bg-sidebar-active/60 '
-                  + rowClass()"
+                class="inline-flex min-h-10 items-center gap-2 rounded-control border-s-2 border-transparent px-2.5 py-1.5 text-xs text-sidebar-text transition-colors hover:bg-sidebar-active/60 lg:min-h-8"
               >
                 @if (child.icon) {
                   <app-icon [name]="child.icon" [size]="iconSize()" [decorative]="true" />
@@ -178,8 +173,7 @@
           [routerLink]="item.path"
           routerLinkActive="bg-sidebar-active text-sidebar-active-text font-semibold border-accent"
           [attr.title]="item.labelKey | translate"
-          [class]="'inline-flex items-center rounded-control border-s-2 border-transparent text-sidebar-text transition-colors hover:bg-sidebar-active/60 '
-            + rowClass()"
+          class="inline-flex min-h-10 items-center gap-2 rounded-control border-s-2 border-transparent px-2.5 py-1.5 text-xs text-sidebar-text transition-colors hover:bg-sidebar-active/60 lg:min-h-8"
         >
           @if (item.icon) {
             <app-icon [name]="item.icon" [size]="iconSize()" [decorative]="true" />

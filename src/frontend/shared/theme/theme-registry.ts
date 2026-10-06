@@ -21,12 +21,7 @@ export interface ThemeDefinition {
 }
 
 export interface ShapeOption {
-  id: ShapeId;
-  nameKey: string;
-}
-
-export interface LayoutOption {
-  id: LayoutId;
+  id: ShapeId | LayoutId;
   nameKey: string;
 }
 
@@ -71,7 +66,7 @@ export const SHAPE_REGISTRY: readonly ShapeOption[] = [
 ];
 
 /** Menu-placement choices for the appearance switcher (AUTO first). */
-export const LAYOUT_REGISTRY: readonly LayoutOption[] = [
+export const LAYOUT_REGISTRY: readonly ShapeOption[] = [
   { id: LayoutId.AUTO, nameKey: 'LAYOUT_AUTO' },
   { id: LayoutId.SIDE, nameKey: 'LAYOUT_SIDE' },
   { id: LayoutId.RIGHT, nameKey: 'LAYOUT_RIGHT' },
@@ -93,16 +88,10 @@ export function isLayoutId(value: unknown): value is LayoutId {
 
 /** Shape to apply: the user's explicit pick, otherwise the theme default. */
 export function resolveShape(theme: ThemeId, preference: ShapeId | null): ShapeId {
-  if (preference && preference !== ShapeId.AUTO) {
-    return preference;
-  }
-  return THEME_REGISTRY.find((item) => item.id === theme)?.defaultShape ?? ShapeId.SHARP;
+  return preference ?? THEME_REGISTRY.find((item) => item.id === theme)?.defaultShape ?? ShapeId.SHARP;
 }
 
 /** Menu placement to apply: the user's explicit pick, otherwise the theme default. */
 export function resolveLayout(theme: ThemeId, preference: LayoutId | null): LayoutId {
-  if (preference && preference !== LayoutId.AUTO) {
-    return preference;
-  }
-  return THEME_REGISTRY.find((item) => item.id === theme)?.defaultLayout ?? LayoutId.SIDE;
+  return preference ?? THEME_REGISTRY.find((item) => item.id === theme)?.defaultLayout ?? LayoutId.SIDE;
 }

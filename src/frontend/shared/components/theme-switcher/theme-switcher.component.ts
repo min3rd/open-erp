@@ -6,11 +6,8 @@ import {
   LAYOUT_REGISTRY,
   SHAPE_REGISTRY,
   THEME_REGISTRY,
-  isLayoutId,
-  isShapeId,
   isThemeId
-} from '../../theme/theme-registry';
-import { ThemeService } from '../../theme/theme.service';
+} from '../../theme/theme-registry';import { ThemeService } from '../../theme/theme.service';
 import { RequirePermissionDirective } from '../../directives/require-permission.directive';
 import { TranslateDirective } from '../../i18n/translate.directive';
 import { TranslatePipe } from '../../i18n/translate.pipe';
@@ -70,16 +67,18 @@ export class ThemeSwitcherComponent {
   }
 
   onShapeChange(event: Event) {
-    const value = (event.target as HTMLSelectElement).value;
-    if (isShapeId(value)) {
-      this.theme.setShape(value as ShapeId);
-    }
+    this.applyPreference(event, (value) => this.theme.setShape(value as ShapeId));
   }
 
   onLayoutChange(event: Event) {
+    this.applyPreference(event, (value) => this.theme.setLayout(value as LayoutId));
+  }
+
+  /** Reads the select value and hands it to the matching preference setter. */
+  private applyPreference(event: Event, apply: (value: string) => void): void {
     const value = (event.target as HTMLSelectElement).value;
-    if (isLayoutId(value)) {
-      this.theme.setLayout(value as LayoutId);
+    if (value) {
+      apply(value);
     }
   }
 

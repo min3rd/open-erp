@@ -15,10 +15,6 @@ export interface UiPreferences {
   mode: ThemeMode | null;
   /** Tenant-wide default theme, used whenever `theme` is null. */
   tenantTheme: ThemeId;
-  availableThemes: readonly string[];
-  availableShapes: readonly string[];
-  availableLayouts: readonly string[];
-  availableModes: readonly string[];
 }
 
 /** Payload the client persists (full replace; null clears back to the default). */
@@ -41,8 +37,6 @@ export interface UiPreferencesApi {
   update(preferences: UiPreferencesUpdate): Observable<unknown>;
   /** `PUT /api/v1/tenant/ui-preferences` — tenant default (owner/admin only server-side). */
   updateTenantTheme(theme: ThemeId): Observable<unknown>;
-  /** Whether the current user may change the tenant-wide default theme. */
-  canManageTenant(): boolean;
 }
 
 export const UI_PREFERENCES_API = new InjectionToken<UiPreferencesApi>('UI_PREFERENCES_API');
@@ -54,10 +48,6 @@ export function toUiPreferences(data: UserUiPreferencesData | null | undefined):
     shape: data?.shape ?? null,
     layout: data?.layout ?? null,
     mode: data?.mode ?? null,
-    tenantTheme: data?.tenant_theme ?? ThemeId.INDUSTRIAL,
-    availableThemes: data?.available_themes ?? [],
-    availableShapes: data?.available_shapes ?? [],
-    availableLayouts: data?.available_layouts ?? [],
-    availableModes: data?.available_modes ?? []
+    tenantTheme: data?.tenant_theme ?? ThemeId.INDUSTRIAL
   };
 }

@@ -455,8 +455,4 @@ export interface UserUiPreferencesData {
   layout: LayoutId | null;
   mode: ThemeMode | null;
   tenant_theme: ThemeId;
-  available_themes: ThemeId[];
-  available_shapes: ShapeId[];
-  available_layouts: LayoutId[];
-  available_modes: ThemeMode[];
 }

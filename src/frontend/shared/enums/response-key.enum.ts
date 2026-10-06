@@ -80,9 +80,5 @@ export enum ResponseKey {
   AVAILABLE_THEMES = 'available_themes',
   SHAPE = 'shape',
   LAYOUT = 'layout',
-  MODE = 'mode',
-  TENANT_THEME = 'tenant_theme',
-  AVAILABLE_SHAPES = 'available_shapes',
-  AVAILABLE_LAYOUTS = 'available_layouts',
-  AVAILABLE_MODES = 'available_modes'
+  MODE = 'mode'
 }

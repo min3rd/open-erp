@@ -30,6 +30,7 @@
     "cli:test": "npm --prefix tools/open-erp-cli test",
     "i18n:check": "node scripts/check-i18n-parity.mjs",
     "i18n:check:strict": "node scripts/check-i18n-parity.mjs --strict",
+    "icons:gen": "node scripts/gen-icons.mjs",
     "e2e:plugin": "node scripts/e2e/plugin-cli-e2e.mjs",
     "dev": "node scripts/run.mjs dev",
     "dev:full": "node scripts/run.mjs dev full",

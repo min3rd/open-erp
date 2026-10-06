@@ -101,7 +101,6 @@ public class UserUiPreferencesService {
     }
 
     private UserUiPreferencesResponse response(User user, String tenantTheme) {
-        return new UserUiPreferencesResponse(user.uiTheme, user.uiShape, user.uiLayout, user.uiMode, tenantTheme,
-                TenantUiPreferencesService.AVAILABLE_THEMES, AVAILABLE_SHAPES, AVAILABLE_LAYOUTS, AVAILABLE_MODES);
+        return new UserUiPreferencesResponse(user.uiTheme, user.uiShape, user.uiLayout, user.uiMode, tenantTheme);
     }
 }

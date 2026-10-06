@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, WritableSignal } from '@angular/core';
 import { LayoutId, ShapeId, ThemeId, ThemeMode } from '../enums';
 import {
   DEFAULT_THEME_ID,
@@ -44,18 +44,18 @@ export class ThemeService {
   public mode = this.modeSignal.asReadonly();
 
   /** Tenant-wide default theme (owner/admin sets it). */
-  private tenantThemeSignal = signal<ThemeId>(this.readCachedThemeId());
+  private tenantThemeSignal = signal<ThemeId>(this.readCached(THEME_ID_STORAGE_KEY, isThemeId) ?? DEFAULT_THEME_ID);
   public tenantTheme = this.tenantThemeSignal.asReadonly();
 
   /** The user's own colour theme; `null` = follow the tenant default. */
-  private userThemeSignal = signal<ThemeId | null>(this.readCachedUserTheme());
+  private userThemeSignal = signal<ThemeId | null>(this.readCached(USER_THEME_STORAGE_KEY, isThemeId));
   public themePreference = this.userThemeSignal.asReadonly();
 
-  private shapeSignal = signal<ShapeId | null>(this.readCachedShape());
+  private shapeSignal = signal<ShapeId | null>(this.readCached(SHAPE_STORAGE_KEY, isShapeId));
   /** Raw shape preference; `null`/`AUTO` means "follow the colour theme". */
   public shapePreference = this.shapeSignal.asReadonly();
 
-  private layoutSignal = signal<LayoutId | null>(this.readCachedLayout());
+  private layoutSignal = signal<LayoutId | null>(this.readCached(LAYOUT_STORAGE_KEY, isLayoutId));
   /** Raw menu-placement preference; `null`/`AUTO` means "follow the theme". */
   public layoutPreference = this.layoutSignal.asReadonly();
 
@@ -137,9 +137,7 @@ export class ThemeService {
     localStorage.setItem(THEME_ID_STORAGE_KEY, id);
     this.applyTheme();
     this.flashThemeTransition();
-    if (this.api?.canManageTenant()) {
-      this.api.updateTenantTheme(id).subscribe({ error: () => {} });
-    }
+    this.api?.updateTenantTheme(id).subscribe({ error: () => {} });
   }
 
   /**
@@ -147,13 +145,7 @@ export class ThemeService {
    * colour theme's own default applies again.
    */
   setShape(shape: ShapeId | null): void {
-    this.ensureInitialized();
-    const preference = shape === ShapeId.AUTO ? null : shape;
-    this.shapeSignal.set(preference);
-    this.writePreference(SHAPE_STORAGE_KEY, preference);
-    this.applyTheme();
-    this.flashThemeTransition();
-    this.persist();
+    this.setPreference(this.shapeSignal, SHAPE_STORAGE_KEY, shape === ShapeId.AUTO ? null : shape);
   }
 
   /**
@@ -161,10 +153,18 @@ export class ThemeService {
    * theme's own default applies again.
    */
   setLayout(layout: LayoutId | null): void {
+    this.setPreference(this.layoutSignal, LAYOUT_STORAGE_KEY, layout === LayoutId.AUTO ? null : layout);
+  }
+
+  /** Applies + caches a nullable preference and saves it on the account. */
+  private setPreference<T extends string>(
+    target: WritableSignal<T | null>,
+    key: string,
+    value: T | null
+  ): void {
     this.ensureInitialized();
-    const preference = layout === LayoutId.AUTO ? null : layout;
-    this.layoutSignal.set(preference);
-    this.writePreference(LAYOUT_STORAGE_KEY, preference);
+    target.set(value);
+    this.writePreference(key, value);
     this.applyTheme();
     this.flashThemeTransition();
     this.persist();
@@ -246,36 +246,12 @@ export class ThemeService {
     }
   }
 
-  private readCachedThemeId(): ThemeId {
-    if (typeof localStorage === 'undefined') {
-      return DEFAULT_THEME_ID;
-    }
-    const cached = localStorage.getItem(THEME_ID_STORAGE_KEY);
-    return isThemeId(cached) ? cached : DEFAULT_THEME_ID;
-  }
-
-  private readCachedUserTheme(): ThemeId | null {
+  private readCached<T extends string>(key: string, isValid: (value: unknown) => value is T): T | null {
     if (typeof localStorage === 'undefined') {
       return null;
     }
-    const cached = localStorage.getItem(USER_THEME_STORAGE_KEY);
-    return isThemeId(cached) ? cached : null;
-  }
-
-  private readCachedShape(): ShapeId | null {
-    if (typeof localStorage === 'undefined') {
-      return null;
-    }
-    const cached = localStorage.getItem(SHAPE_STORAGE_KEY);
-    return isShapeId(cached) && cached !== ShapeId.AUTO ? cached : null;
-  }
-
-  private readCachedLayout(): LayoutId | null {
-    if (typeof localStorage === 'undefined') {
-      return null;
-    }
-    const cached = localStorage.getItem(LAYOUT_STORAGE_KEY);
-    return isLayoutId(cached) && cached !== LayoutId.AUTO ? cached : null;
+    const cached = localStorage.getItem(key);
+    return isValid(cached) ? cached : null;
   }
 
   private isDark(): boolean {

@@ -60,7 +60,7 @@ export class SettingsLayoutComponent implements OnInit {
   readonly navRail = computed(() => !this.navTop() && !this.navDrawer());
 
   /** Vertical rail display state, toggled by the action icon inside the menu. */
-  readonly railCollapsed = signal(this.readCollapsedState());
+  readonly railCollapsed = signal(localStorage.getItem(MENU_STORAGE_KEY) === '1');
 
   /** Menu markup for the current placement: vertical rail or horizontal bar. */
   readonly navVariant = computed<SectionNavVariant>(() => this.navTop() ? 'bar' : 'rail');
@@ -164,15 +164,8 @@ export class SettingsLayoutComponent implements OnInit {
 
   /** Toggles the vertical rail between labels and icons only. */
   toggleRail(): void {
-    const collapsed = !this.railCollapsed();
-    this.railCollapsed.set(collapsed);
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(MENU_STORAGE_KEY, collapsed ? '1' : '0');
-    }
-  }
-
-  private readCollapsedState(): boolean {
-    return typeof localStorage !== 'undefined' && localStorage.getItem(MENU_STORAGE_KEY) === '1';
+    this.railCollapsed.update((collapsed) => !collapsed);
+    localStorage.setItem(MENU_STORAGE_KEY, this.railCollapsed() ? '1' : '0');
   }
 
   openAccount() {

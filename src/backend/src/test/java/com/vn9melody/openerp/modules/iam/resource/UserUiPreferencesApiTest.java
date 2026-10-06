@@ -2,7 +2,6 @@ package com.vn9melody.openerp.modules.iam.resource;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 
 import com.vn9melody.openerp.core.api.ErrorCode;
@@ -65,7 +64,7 @@ public class UserUiPreferencesApiTest {
     }
 
     @Test
-    @DisplayName("TASK-369: GET trả giá trị null + tenant_theme 'industrial' + danh mục hợp lệ")
+    @DisplayName("TASK-369: GET trả giá trị null + tenant_theme 'industrial'")
     public void testFetchDefaults() {
         given().header("Authorization", "Bearer " + tokenA)
                 .get(PATH)
@@ -76,11 +75,7 @@ public class UserUiPreferencesApiTest {
                 .body("data.shape", nullValue())
                 .body("data.layout", nullValue())
                 .body("data.mode", nullValue())
-                .body("data.tenant_theme", equalTo("industrial"))
-                .body("data.available_themes", hasSize(4))
-                .body("data.available_shapes", hasSize(3))
-                .body("data.available_layouts", hasSize(4))
-                .body("data.available_modes", hasSize(3));
+                .body("data.tenant_theme", equalTo("industrial"));
     }
 
     @Test

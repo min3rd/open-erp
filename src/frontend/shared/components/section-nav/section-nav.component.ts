@@ -61,26 +61,14 @@ export class SectionNavComponent {
   /** Emitted by the collapse action in the menu header. */
   toggleCollapse = output<void>();
 
-  /** Groups the user collapsed by hand (everything else stays expanded). */
-  private readonly closedGroups = signal<ReadonlySet<string>>(new Set());
-
   /** Group whose flyout is pinned open on the icon rail (click, not hover). */
   private readonly openFlyoutKey = signal<string | null>(null);
 
   readonly chevronsLeft = IconName.CHEVRONS_LEFT;
   readonly chevronsRight = IconName.CHEVRONS_RIGHT;
 
-  /** Row sizing; the collapsed rail centres a single icon per row. */
-  readonly rowClass = computed(() => this.collapsed()
-    ? 'min-h-9 justify-center px-1 py-1.5 text-xs'
-    : 'min-h-10 lg:min-h-8 gap-2 px-2.5 py-1.5 text-xs');
-
+  /** Icon size: the collapsed rail shows a single, slightly larger icon. */
   readonly iconSize = computed(() => this.collapsed() ? SizeVariant.MD : SizeVariant.SM);
-
-  /** A group stays open unless the user closed it (active group never hides). */
-  isGroupOpen(item: SectionNavItem): boolean {
-    return this.groupActive(item) || !this.closedGroups().has(item.labelKey);
-  }
 
   /** True when one of the group's children is the page currently open. */
   groupActive(item: SectionNavItem): boolean {
@@ -88,29 +76,12 @@ export class SectionNavComponent {
     return !!item.children?.some((child) => !!child.path && url.startsWith(child.path));
   }
 
-  /** Remembers the open/closed state of a group (rail variant). */
-  onGroupToggle(item: SectionNavItem, target: EventTarget | null): void {
-    const open = (target as HTMLDetailsElement | null)?.open ?? true;
-    const next = new Set(this.closedGroups());
-    if (open) {
-      next.delete(item.labelKey);
-    } else {
-      next.add(item.labelKey);
-    }
-    this.closedGroups.set(next);
-  }
-
   /** Keeps at most one dropdown open at a time (bar variant). */
   onBarToggle(target: EventTarget | null): void {
     const details = target as HTMLDetailsElement | null;
-    if (!details?.open) {
-      return;
+    if (details?.open) {
+      this.closeOpenMenus(details);
     }
-    this.host.nativeElement.querySelectorAll('details[open]').forEach((other: Element) => {
-      if (other !== details) {
-        other.removeAttribute('open');
-      }
-    });
   }
 
   /** Icon rail: click pins a group's flyout open (hover works without JS). */
@@ -122,12 +93,16 @@ export class SectionNavComponent {
     this.openFlyoutKey.set(this.isFlyoutOpen(item) ? null : item.labelKey);
   }
 
-  /** Closes every bar dropdown, flyout and expanded group. */
-  closeOpenMenus(): void {
+  /** Closes every open dropdown/flyout; `except` keeps the one being opened. */
+  closeOpenMenus(except?: Element | null): void {
     this.openFlyoutKey.set(null);
     this.host.nativeElement
       .querySelectorAll('details[open]')
-      .forEach((details: Element) => details.removeAttribute('open'));
+      .forEach((details: Element) => {
+        if (details !== except) {
+          details.removeAttribute('open');
+        }
+      });
   }
 
   @HostListener('document:click', ['$event'])
