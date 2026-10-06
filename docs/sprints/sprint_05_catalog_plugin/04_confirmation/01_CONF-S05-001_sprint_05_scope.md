@@ -96,9 +96,23 @@ Xây **plugin core đầu tiên**: `catalog` (Danh mục & quản trị danh m�
 | Q17 | Data scope theo item | **Không — chỉ phân quyền theo loại** | Theo đề xuất |
 | Q18 | Duyệt scope + AC | **Chưa duyệt — xem lại tài liệu trước** | **Gate vẫn Pending**; chưa viết code |
 
-## 4. Rủi Ro & Giảm Thiểu (cập nhật)
+### 3.1. Câu hỏi phát sinh sau khi trả lời (cần chốt trước khi code)
 
-| Rủi ro | Mức | Giảm thiểu |
+| # | Câu hỏi | Đề xuất của BA | Trả lời |
+| :--- | :--- | :--- | :--- |
+| **N1** | **Danh sách 13 danh mục seed** (§1.1): giữ đủ 13 hay cắt mục nào? | Giữ đủ 13 — tenant có thể ngừng dùng mục không cần (đóng hiệu lực), không mất dữ liệu | ⏳ |
+| **N2** | **Dữ liệu địa giới thật** (tỉnh/huyện/xã): Sprint 5 có seed dữ liệu thật không, hay chỉ dựng loại + nhập sau? Nếu có: nguồn dữ liệu và mức chi tiết (tỉnh→xã 2 cấp hay đủ 3 cấp)? | Chỉ dựng **loại** + API import; dữ liệu thật nhập sau bằng CSV (tránh phụ thuộc nguồn ngoài + việc sáp nhập địa giới) | ⏳ |
+| **N3** | **Import có kèm quan hệ cha–con** (cột `parent_code`) hay chỉ bản ghi phẳng? Định dạng chỉ CSV hay cần cả `.xlsx`? | CSV **có** cột `parent_code` (tuỳ chọn) để nhập được cây; `.xlsx` để sau | ⏳ |
+| **N4** | **Đồng bộ Phòng ban**: chấp nhận seed **một chiều** từ cây tổ chức (đề xuất) và có cần lệnh "đồng bộ lại" khi cây tổ chức đổi không? | Seed một chiều; nếu cần lệnh đồng bộ lại thì tách task riêng (có kiểm soát + báo cáo lệch) | ⏳ |
+| **N5** | **Quản trị danh mục hệ thống trên UI**: cần màn riêng trong cổng Platform (super admin) hay chỉ nhập bằng API/import? | Có màn trong cổng Platform, dùng lại UI quản trị với cờ "hệ thống" | ⏳ |
+
+**Quyết định kỹ thuật nội bộ (Architect tự chốt, không cần khách)**:
+
+1. Bỏ `source`/`source_ref` khỏi `catalog_types` — phương án cầu nối không còn dùng (Q3), giữ lại là YAGNI.
+2. Giới hạn import: mặc định 5.000 dòng nhưng **cấu hình được** (liên quan N2/N3 nếu nhập dữ liệu địa giới ~11k xã).
+3. `catalog_types` **không** versioned ở v1 (chỉ bản ghi danh mục có version); ghi nhận để mở rộng sau nếu cần.
+
+## 4. Rủi Ro & Giảm Thiểu (cập nhật)| Rủi ro | Mức | Giảm thiểu |
 | :--- | :--- | :--- |
 | DAG + version sai logic | High | Test riêng cho AC-01…AC-08; ràng buộc ở CSDL |
 | **Phòng ban thành 2 nguồn sự thật** (Q3 chọn danh mục riêng) | High | Seed **một chiều** từ `departments` khi cài/backfill; ghi rõ danh mục chỉ phục vụ tra cứu form (cho nhập tự do), cây tổ chức vẫn là nguồn cấu trúc; thêm cảnh báo trong màn quản trị + cân nhắc lệnh đồng bộ lại (task riêng nếu cần) |

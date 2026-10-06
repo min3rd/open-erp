@@ -25,7 +25,7 @@ Chốt các quyết định kiến trúc cho plugin `catalog` trước khi viế
 | **D7** | **Xoá = đóng hiệu lực** (`valid_to = now()`), không xoá cứng | Không phá tham chiếu nghiệp vụ; giữ lịch sử (AC-08) | Đề xuất |
 | **D8** | Truy vấn cây v1 dùng **recursive CTE** + index `(parent_item_id)`, `(child_item_id)`; **closure table** là phương án dự phòng khi có số đo | YAGNI: không thêm bảng bảo trì khi chưa đo | Đề xuất (ANL §3) |
 | **D9** | **Hai tầng phân quyền**: quyền module (`catalog:type:manage`, `catalog:item:read/manage`, `catalog:item:inline-create`) + grant theo loại (`catalog_type_grants`) | Đúng yêu cầu R5; không dùng data-scope cho v1 | Đề xuất |
-| **D10** | Danh mục **hệ thống** (`tenant_id IS NULL`) vs **tenant**; hợp nhất options theo `code`, **tenant thắng** | Một nguồn seed chung + cho phép ghi đè/ẩn cục bộ | Cần khách chốt (Q1, Q2) |
+| **D10** | Danh mục **hệ thống** (`tenant_id IS NULL`) vs **tenant**; hợp nhất options theo `code`, **tenant thắng** (kể cả ẩn cục bộ) | Một nguồn seed chung + cho phép ghi đè/ẩn cục bộ | **Đã chốt (khách Q1/Q2)** |
 | **D11** | "Phòng ban" là **danh mục riêng của plugin** (khách chốt Q3 2026-10-06); seed **một chiều** từ `departments` khi cài/backfill; cây tổ chức vẫn là nguồn cấu trúc | Theo yêu cầu R7 (cho nhập tự do); giảm thiểu lệch dữ liệu bằng seed một chiều + ghi rõ vai trò từng nguồn | **Đã chốt (khách)** |
 | **D12** | Trường danh mục trong form lưu `{catalog_item_id, text}`; `text` luôn giữ để hiển thị ổn định | Hỗ trợ autocomplete **hoặc** nhập tự do (R7, AC-12) | Đề xuất |
 | **D13** | API form động gồm 4 nhóm: **schema / options (lazy, phân trang) / resolve theo lô / inline-create**; options gộp tenant + hệ thống | Đúng R6; tránh N+1 và tải cả danh mục | Đề xuất |

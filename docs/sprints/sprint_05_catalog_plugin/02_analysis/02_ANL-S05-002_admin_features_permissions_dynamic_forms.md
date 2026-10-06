@@ -23,7 +23,7 @@ Yêu cầu "quản trị phân quyền chức năng, dữ liệu cho từng lo�
 
 Quy tắc hiệu lực: **cần cả hai** — có quyền module **và** có grant trên loại đó (trừ platform admin với loại hệ thống). Điều này cho phép ví dụ: nhân sự được sửa *Chức danh* nhưng chỉ được **xem** *Ngành*.
 
-Bổ sung cần khách chốt: có cần tái dùng `role_data_policies` (ALL/TENANT/BRANCH/DEPARTMENT/OWN_ONLY) cho danh mục không? Danh mục thường ở cấp tenant ⇒ đề xuất **không** dùng data-scope cho v1, chỉ grant theo loại (đơn giản, đủ dùng).
+**Đã chốt (Q17, 2026-10-06)**: **không** dùng `role_data_policies` cho danh mục ở v1 — chỉ grant theo loại (đơn giản, đủ dùng).
 
 ## 3. R6 — API cho **form động** (lazy load)
 

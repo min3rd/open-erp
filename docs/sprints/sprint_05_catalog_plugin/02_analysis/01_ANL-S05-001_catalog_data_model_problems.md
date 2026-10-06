@@ -72,7 +72,7 @@ Hai trục thời gian khác nhau, cần tách bạch:
 | **Hệ thống** (tỉnh/huyện/xã, ngành, chuyên ngành) | `NULL` | Platform admin | Mọi tenant đọc |
 | **Tenant** (chức danh, phòng ban, danh mục riêng) | tenant | Tenant có quyền | Chỉ tenant đó |
 
-Quy tắc hợp nhất khi trả options cho form: **tenant thắng** theo `code` (tenant có thể ghi đè tên/ẩn mục hệ thống bằng cách tạo bản ghi cùng `code`); danh mục hệ thống bị ẩn cục bộ ghi bằng `status = INACTIVE` ở bản ghi tenant. Cần khách chốt: có cho phép ghi đè/ẩn không (xem `04_confirmation/` Q2).
+Quy tắc hợp nhất khi trả options cho form: **tenant thắng** theo `code` (tenant có thể ghi đè tên/ẩn mục hệ thống bằng cách tạo bản ghi cùng `code`); danh mục hệ thống bị ẩn cục bộ ghi bằng `status = INACTIVE` ở bản ghi tenant. **Đã chốt 2026-10-06 (Q1/Q2): cho phép ghi đè và ẩn cục bộ.**
 
 ## 6. Trường hợp biên phải xử lý
 
@@ -83,7 +83,7 @@ Quy tắc hợp nhất khi trả options cho form: **tenant thắng** theo `code
 | E3 | Cạnh trùng (cùng cha–con–loại, chồng hiệu lực) | Unique + EXCLUDE trên cạnh |
 | E4 | Gỡ cạnh làm mục mồ côi | Cảnh báo/Chặn tuỳ `min_parents` của loại |
 | E5 | Xoá mục đang được dữ liệu nghiệp vụ tham chiếu | Không xoá cứng; đóng hiệu lực; kiểm tra tham chiếu nếu cần |
-| E6 | Tenant tạo mục trùng `code` với hệ thống | Cho phép (ghi đè) hoặc từ chối — **cần khách chốt** |
+| E6 | Tenant tạo mục trùng `code` với hệ thống | **Đã chốt: cho phép ghi đè** (bản tenant thắng khi hợp nhất) |
 | E7 | Danh mục rất lớn (chục nghìn mục) cho autocomplete | Phân trang + tìm kiếm theo `code`/`name`; index trigram cho tìm gần đúng |
 | E8 | Đổi cấp bậc (di chuyển nhánh) | Gỡ cạnh cũ + thêm cạnh mới, có hiệu lực; kiểm tra chu trình |
 | E9 | Đa ngôn ngữ tên danh mục | `name` + bảng dịch theo locale (khách chốt có cần không) |
@@ -94,7 +94,7 @@ Quy tắc hợp nhất khi trả options cho form: **tenant thắng** theo `code
 2. **Bản ghi versioned + valid time** + ràng buộc EXCLUDE ⇒ thoả R4, không cần bitemporal.
 3. **As-of** ở mọi API đọc; xoá là đóng hiệu lực.
 4. **Recursive CTE** cho truy vấn cây ở v1; closure table là phương án dự phòng khi có số đo.
-5. Bốn điểm cần khách chốt: ghi đè danh mục hệ thống (E6/Q2), phạm vi version hiển thị (Q3), nhập tự do (Q4), đa ngôn ngữ tên danh mục (E9).
+5. Bốn điểm đã được khách chốt 2026-10-06: ghi đè danh mục hệ thống (Q1/Q2 — **có**), phạm vi version hiển thị (Q5 — API đầy đủ, UI read-only), nhập tự do (Q4 — lưu text + nút lưu vào danh mục), đa ngôn ngữ tên danh mục (Q9 — chỉ `name` + `name_en`).
 
 ## 8. Lịch sử
 
