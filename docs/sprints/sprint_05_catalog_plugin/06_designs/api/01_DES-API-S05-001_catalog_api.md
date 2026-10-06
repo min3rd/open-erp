@@ -12,6 +12,8 @@
 
 - Đúng 4 khuôn mẫu phản hồi của dự án; mọi response có `code` UPPER_SNAKE_CASE; **không** message tiếng Việt trong payload (FE dịch theo `code` + `params`).
 - `tenant_id` **không bao giờ** nhận từ client — lấy từ security context.
+- **Quyền `catalog:system:manage` là theo VAI TRÒ platform** (`PlatformRoleRequiredFilter`), không qua RBAC tenant: quyền này được seed `is_system = FALSE` và không gán cho vai trò tenant (xem DES-DB §6.1 mục 3); tenant gọi API ghi danh mục hệ thống ⇒ 403.
+- **Hợp đồng đã chốt với frontend** (`catalog-picker`, TASK-386): `GET /catalog/lookup/{typeCode}/options` trả **paginated** với tham số `q`, `parent_id`, `as_of`, `page` (0-based), `size` (mặc định 20, tối đa 100) và mỗi phần tử `items[]` gồm `id, code, name, parent_id, path, has_children, is_system, overridden, allow_free_text`; `POST /catalog/lookup/{typeCode}/inline` nhận `{name, code?}` và trả single-resource `data` = mục vừa tạo (cùng hình dạng).
 - Mọi API đọc nhận `as_of` (ISO-8601, mặc định `now()`).
 - Danh mục hệ thống chỉ đọc với tenant; ghi loại hệ thống cần quyền `catalog:system:manage` (platform).
 

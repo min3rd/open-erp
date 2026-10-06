@@ -270,8 +270,24 @@ ON CONFLICT (tenant_id, plugin_key) DO NOTHING;
 | AC-13/AC-14 | Seed 5.1–5.4 + `locked`/`is_core` |
 | AC-15 | `tenant_id` trên mọi bảng + lọc theo context |
 
+## 6.1. Điều chỉnh khi triển khai — schema thật thắng thiết kế (2026-10-06)
+
+Ghi nhận trong lúc viết migration `V4.0.0__catalog_core_plugin.sql` (TASK-375); các điểm dưới đây **đã áp dụng trong code**, thiết kế gốc ở trên giữ nguyên để đối chiếu:
+
+| # | Thiết kế gốc | Thực tế schema | Lý do |
+| :--- | :--- | :--- | :--- |
+| 1 | `plugin_catalog.is_core = TRUE` | **`is_core = FALSE`, `locked = TRUE`, `default_install = TRUE`** | Ràng buộc `chk_plugin_visibility` (V3.0.0) buộc `is_core = FALSE` — module core không nằm trong bảng này (Sprint 03 Q4). "Luôn bật" đến từ **locked + backfill + hook provisioning**, không phải `is_core` |
+| 2 | `chk_catalog_type_mode` chỉ `TREE`/`DAG` | thêm **`FLAT`** | Enum Java có FLAT (loại phẳng như Chức danh) — giữ DB và Java đồng bộ 1-1 |
+| 3 | `catalog:system:manage` là quyền hệ thống (`is_system = TRUE`) | **`is_system = FALSE`**, không gán cho vai trò tenant | Giữ `SchemaFoundationTest` (mọi `is_system = TRUE` là domain `core` + gán TENANT_OWNER); phân quyền platform là **theo vai trò** (`PlatformRoleRequiredFilter`), không qua RBAC |
+| 4 | §5.4 backfill `allowed_plugins` dùng `NULL \|\| '["catalog"]'` | **`COALESCE(allowed_plugins, '[]'::jsonb)`** | `NULL \|\| jsonb` = `NULL` ⇒ câu backfill là no-op với tenant chưa có allowlist |
+| 5 | T4.2 kiểm tra chu trình không giới hạn độ sâu | thêm **guard độ sâu 1000** | Chặn đệ quy vô hạn nếu dữ liệu cũ đã hỏng; ngữ nghĩa không đổi với DAG hợp lệ |
+| 6 | Mode của 5 loại tenant không ghi rõ | **JOB_TITLE = DAG, DEPARTMENT = TREE, CONTRACT_TYPE/SHIFT/EDUCATION_LEVEL = FLAT** | Chốt khi seed; `JOB_TITLE` cho phép nhập tự do (`allow_free_text = TRUE`) |
+
+**Bằng chứng đã kiểm chứng trên PostgreSQL dev (2026-10-06)**: migration apply sạch; **60/60 tenant** nhận plugin `ACTIVE` + 5 loại + **600 grant mặc định**; `sys_entity_registry` có **4** dòng (`CatalogType/CatalogItem/CatalogItemEdge/CatalogTypeGrant`, `plugin_id = 'catalog'`); EXCLUDE bắn `23P01 ex_catalog_item_window`; seeder địa giới idempotent (34 tỉnh / 3.321 xã / 3.321 cạnh sau nhiều lần chạy); **49 test** liên quan PASS (gồm bộ catalog + các lớp bị ảnh hưởng).
+
 ## 7. Lịch sử
 
 | Phiên bản | Ngày | Thay đổi | Người review/phê duyệt và nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-06 | Bản nháp DDL + truy vấn mẫu + seed | Architect; chưa review |
+| 0.2 | 2026-10-06 | Ghi 6 điều chỉnh khi triển khai (mục 6.1) + bằng chứng kiểm chứng trên PostgreSQL dev | Architect; nguồn: migration V4.0.0 + test catalog |

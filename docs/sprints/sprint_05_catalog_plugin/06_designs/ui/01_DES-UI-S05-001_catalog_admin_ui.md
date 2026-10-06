@@ -46,23 +46,30 @@ Bố cục **split 3 cột** (không modal), mỗi cột tải độc lập:
 
 ## 3. Component dùng chung — `catalog-picker` (`src/frontend/shared/components/`)
 
+**Hợp đồng đã dựng (TASK-386, 2026-10-06 — dùng tên này khi lập trình):**
+
 | Input/Output | Kiểu | Ghi chú |
 | :--- | :--- | :--- |
 | `typeCode` | `string` | Loại danh mục (bắt buộc) |
+| `mode` | `CatalogPickerMode` (`single`/`multi`) | Thay cho `multiple` ở bản nháp |
+| `parentId` | `string \| null` | Lọc phụ thuộc (ví dụ xã theo tỉnh) |
+| `asOf` | `string \| null` | Đọc theo mốc hiệu lực |
+| `placeholderKey` | `string \| null` | Khoá i18n cho placeholder |
 | `allowFreeText` | `boolean` | Cho nhập giá trị tự do (mặc định theo schema loại) |
-| `parentId` | `string \| null` | Lọc phụ thuộc (ví dụ xã theo huyện) |
-| `multiple` | `boolean` | Chọn nhiều |
-| `value` | `CatalogItemRef \| CatalogItemRef[] \| null` | Model hai chiều |
-| `(valueChange)` | event | Phát khi chọn/nhập/xoá |
-| `(inlineCreated)` | event | Khi người dùng lưu giá trị tự do thành mục mới |
+| `canInlineCreate` | `boolean` | Hiện nút "Lưu vào danh mục" (theo quyền `catalog:item:inline-create`) |
+| `disabled` | `boolean` | Khoá trường |
+| `size` | `SizeVariant` | Token kích thước dùng chung (mặc định `SM`) |
+| `(selectionChange)` | `CatalogItemRef \| CatalogItemRef[] \| null` | Chọn/xoá (single = ref/null, multi = mảng) |
+| `(freeTextChange)` | `string \| null` | Giá trị tự do người dùng gõ |
 
-**Hành vi**:
-1. Khởi tạo: nếu `value` chỉ có `catalog_item_id` ⇒ gọi **resolve theo lô** để hiện tên (không N+1).
-2. Gõ tìm: debounce 250ms, gọi options (`page=0,size=20`), cuộn tới đáy ⇒ tải trang tiếp.
-3. Không có kết quả + `allowFreeText` ⇒ hiện dòng **"Dùng giá trị tự do: <text>"**.
-4. Có quyền `catalog:item:inline-create` ⇒ hiện nút **"Lưu vào danh mục"** (tạo mục rồi gán id).
-5. Hiển thị: chip có tên + nút xoá; tooltip hiện mã; giữ `text` để không đổi hiển thị khi danh mục đổi tên.
-6. Mobile (Ionic): touch target ≥40px, không phụ thuộc hover, danh sách option dạng sheet nội bộ (không modal che toàn màn hình — dùng `ion-popover`/panel trong trang).
+**Hành vi đã kiểm chứng (build web + mobile PASS, i18n 13 locale × 2 app 100%):**
+1. Gõ tìm: debounce 250ms, gọi options (`page=0,size=20`), nút "tải thêm" ở cuối danh sách.
+2. Không có kết quả + `allowFreeText` ⇒ dòng **"Dùng giá trị tự do: <text>"**.
+3. `canInlineCreate` ⇒ nút **"Lưu vào danh mục"** (gọi `POST /catalog/lookup/{typeCode}/inline`, chọn mục mới; trùng mã/tên có thông báo riêng).
+4. Bàn phím (↑/↓/Enter/Esc), click ngoài đóng, nút xoá, chip nhiều lựa chọn kèm tooltip mã, skeleton/trống/lỗi + thử lại.
+5. Mobile: touch target ≥40px, không phụ thuộc hover, không tràn ngang ở 390px, padding safe-area.
+
+**Chưa dựng (bổ sung khi màn hình cần)**: input hai chiều `value` + output `(inlineCreated)`; khởi tạo từ `catalog_item_id` đơn lẻ gọi **resolve theo lô** (endpoint `POST /catalog/lookup/{typeCode}/resolve` — dùng khi form lưu id thay vì text).
 
 ## 4. Mobile (Ionic) — phạm vi
 
@@ -93,3 +100,4 @@ Bố cục **split 3 cột** (không modal), mỗi cột tải độc lập:
 | Phiên bản | Ngày | Thay đổi | Người review/phê duyệt và nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-06 | Bản nháp bố cục 3 cột + component picker + ma trận nền tảng | Architect; chưa review |
+| 0.2 | 2026-10-06 | Cập nhật §3 theo hợp đồng `catalog-picker` **đã dựng** (TASK-386): `mode`/`selectionChange`/`freeTextChange`, base URL token `CATALOG_API_BASE_URL`; ghi rõ 2 phần chưa dựng (`value` hai chiều, resolve theo lô) | Architect; nguồn: code shared + build web/mobile PASS |
