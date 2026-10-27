@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
-import { ApiService } from './api.service';
+import { ApiService } from '@shared';
 import { ApiResponse, AuthUser, LoginResult, PlatformAdminRole, RefreshTokenData, SlugCheckData, TenantInfo, decodeJwtPayload, readBooleanClaim, readNumberClaim, readStringArrayClaim } from '@shared';
 
 const TOKEN_KEY = 'openerp_token';

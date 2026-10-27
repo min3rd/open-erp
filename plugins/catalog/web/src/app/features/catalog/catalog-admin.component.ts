@@ -35,7 +35,7 @@ import {
   CatalogTypeDto,
   CatalogVersionDto
 } from '../../core/services/catalog-admin.service';
-import { PathListState, PathListStateService } from '../../core/utils/path-list-state';
+import { PathListState, PathListStateService } from '@shared';
 import { CatalogTypeDrawerComponent } from './catalog-type-drawer.component';
 import { CatalogItemDrawerComponent } from './catalog-item-drawer.component';
 import { CatalogItemDetailDrawerComponent } from './catalog-item-detail-drawer.component';

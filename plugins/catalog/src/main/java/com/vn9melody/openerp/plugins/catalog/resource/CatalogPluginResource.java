@@ -1,7 +1,7 @@
 package com.vn9melody.openerp.plugins.catalog.resource;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.vn9melody.openerp.plugins.catalog.api.ApiResponse;
+import com.vn9melody.openerp.plugin.sdk.api.ApiResponse;
 import com.vn9melody.openerp.plugins.catalog.runtime.RequirePermission;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogErrorCode;
 import com.vn9melody.openerp.plugins.catalog.service.CatalogPluginManifestService;

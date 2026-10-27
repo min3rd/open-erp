@@ -1,9 +1,9 @@
 package com.vn9melody.openerp.plugins.catalog.runtime;
 
-import com.vn9melody.openerp.plugins.catalog.api.ApiErrorResponse;
-import com.vn9melody.openerp.plugins.catalog.api.ApiException;
-import com.vn9melody.openerp.plugins.catalog.api.ErrorCode;
-import com.vn9melody.openerp.plugins.catalog.api.ResponseKey;
+import com.vn9melody.openerp.plugin.sdk.api.ApiErrorResponse;
+import com.vn9melody.openerp.plugin.sdk.api.ApiException;
+import com.vn9melody.openerp.plugin.sdk.api.ErrorCode;
+import com.vn9melody.openerp.plugin.sdk.api.ResponseKey;
 import jakarta.annotation.Priority;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Priorities;

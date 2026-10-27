@@ -30,7 +30,7 @@ import {
 
 import { AuthService } from '../../../core/services/auth.service';
 import { IamService } from '../../../core/services/iam.service';
-import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
+import { PathListState, PathListStateService } from '@shared';
 import { RoleFormDrawerComponent } from './role-form-drawer.component';
 import { AssignUsersDrawerComponent } from './assign-users-drawer.component';
 

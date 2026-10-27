@@ -1,8 +1,8 @@
 package com.vn9melody.openerp.plugins.catalog.resource;
 
-import com.vn9melody.openerp.plugins.catalog.api.ApiException;
-import com.vn9melody.openerp.plugins.catalog.api.ApiResponse;
-import com.vn9melody.openerp.plugins.catalog.api.ResponseKey;
+import com.vn9melody.openerp.plugin.sdk.api.ApiException;
+import com.vn9melody.openerp.plugin.sdk.api.ApiResponse;
+import com.vn9melody.openerp.plugin.sdk.api.ResponseKey;
 import com.vn9melody.openerp.plugins.catalog.runtime.RequirePermission;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogErrorCode;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogSupport;

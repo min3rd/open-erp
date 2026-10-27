@@ -9,11 +9,6 @@
    otherwise shared-only utilities (fixed/inset/shadow/dark:*) are never generated. */
 @source '../../shared';
 
-/* Plugin UI source is built from the same Tailwind entry (the catalog plugin
-   Angular project reuses this stylesheet), so its layout utilities must be
-   scanned here as well. */
-@source '../../../../plugins/catalog/web/src';
-
 /* ==========================================================================
  * Theme token layer (TASK-355)
  *

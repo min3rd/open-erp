@@ -19,7 +19,7 @@ import {
 
 import { OrganizationService } from '../../../core/services/organization.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
+import { PathListState, PathListStateService } from '@shared';
 import { DepartmentFormDrawerComponent } from './department-form-drawer.component';
 import { BranchFormDrawerComponent } from './branch-form-drawer.component';
 import {

@@ -26,7 +26,7 @@ import {
 import { PlatformService } from '../../../core/services/platform.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ImpersonationService } from '../../../core/services/impersonation.service';
-import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
+import { PathListState, PathListStateService } from '@shared';
 import { TenantQuotaDrawerComponent } from './tenant-quota-drawer.component';
 import { ImpersonateConfirmDrawerComponent } from './impersonate-confirm-drawer.component';
 

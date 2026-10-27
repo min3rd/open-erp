@@ -1,8 +1,8 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
-import { buildQuery } from '../utils/query.util';
-import { ApiService } from './api.service';
+import { buildQuery } from '@shared';
+import { ApiService } from '@shared';
 import {
   ApiErrorResponse,
   ApiFieldError,

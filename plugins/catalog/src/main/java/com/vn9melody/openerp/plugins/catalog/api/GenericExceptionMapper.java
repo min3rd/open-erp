@@ -1,5 +1,8 @@
 package com.vn9melody.openerp.plugins.catalog.api;
 
+import com.vn9melody.openerp.plugin.sdk.api.ApiErrorResponse;
+import com.vn9melody.openerp.plugin.sdk.api.ApiException;
+import com.vn9melody.openerp.plugin.sdk.api.ErrorCode;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;

@@ -11,21 +11,25 @@ RUN ln -s /app/src/frontend/web/node_modules /app/node_modules
 RUN ln -s /app/src/frontend/web/node_modules /app/plugins/catalog/web/node_modules
 RUN cd src/frontend/web && npx ng build catalog-plugin
 
+# Shared plugin SDK (API envelope, runtime context, filters) + catalog plugin.
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
-COPY plugins/catalog/pom.xml .
-RUN mvn -q -B dependency:go-offline || true
-COPY plugins/catalog/src/ src/
-COPY --from=ui /app/plugins/catalog/src/main/resources/META-INF/resources/ src/main/resources/META-INF/resources/
-RUN mvn -q -B package -DskipTests
+COPY plugins/pom.xml .
+COPY plugins/sdk/pom.xml sdk/pom.xml
+COPY plugins/catalog/pom.xml catalog/pom.xml
+RUN mvn -q -B -pl catalog -am dependency:go-offline || true
+COPY plugins/sdk/src/ sdk/src/
+COPY plugins/catalog/src/ catalog/src/
+COPY --from=ui /app/plugins/catalog/src/main/resources/META-INF/resources/ catalog/src/main/resources/META-INF/resources/
+RUN mvn -q -B -pl catalog -am package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 RUN addgroup -S openerp && adduser -S openerp -G openerp
-COPY --from=build --chown=openerp:openerp /build/target/quarkus-app/lib/ /app/lib/
-COPY --from=build --chown=openerp:openerp /build/target/quarkus-app/*.jar /app/
-COPY --from=build --chown=openerp:openerp /build/target/quarkus-app/app/ /app/app/
-COPY --from=build --chown=openerp:openerp /build/target/quarkus-app/quarkus/ /app/quarkus/
+COPY --from=build --chown=openerp:openerp /build/catalog/target/quarkus-app/lib/ /app/lib/
+COPY --from=build --chown=openerp:openerp /build/catalog/target/quarkus-app/*.jar /app/
+COPY --from=build --chown=openerp:openerp /build/catalog/target/quarkus-app/app/ /app/app/
+COPY --from=build --chown=openerp:openerp /build/catalog/target/quarkus-app/quarkus/ /app/quarkus/
 USER openerp
 EXPOSE 8080
 ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0"

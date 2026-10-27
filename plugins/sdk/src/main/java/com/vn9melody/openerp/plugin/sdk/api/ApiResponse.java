@@ -1,4 +1,4 @@
-package com.vn9melody.openerp.plugins.catalog.api;
+package com.vn9melody.openerp.plugin.sdk.api;
 
 import java.util.HashMap;
 import java.util.List;

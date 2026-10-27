@@ -1,5 +1,7 @@
 package com.vn9melody.openerp.plugins.catalog.api;
 
+
+import com.vn9melody.openerp.plugin.sdk.api.EnumParser;
 /**
  * Audit/platform action catalog union of DES-02-API section 2.3 and the coverage
  * matrix in SOL-01 section 3.6. Every value maps to its default audit scope.

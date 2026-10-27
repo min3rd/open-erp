@@ -22,7 +22,7 @@ import {
 } from '@shared';
 import { PlatformService } from '../../../core/services/platform.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
+import { PathListState, PathListStateService } from '@shared';
 import { GrantAdminDrawerComponent } from './grant-admin-drawer.component';
 
 type AdminConfirmAction = 'DISABLE' | 'REVOKE' | 'DISABLE_2FA' | 'RESET_PASSWORD';

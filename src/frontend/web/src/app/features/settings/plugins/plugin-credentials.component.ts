@@ -20,7 +20,7 @@ import {
 } from '@shared';
 import { PluginService } from '../../../core/services/plugin.service';
 import { PlatformPluginService } from '../../../core/services/platform-plugin.service';
-import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
+import { PathListState, PathListStateService } from '@shared';
 
 /**
  * One screen for both platform- and tenant-scoped plugin credentials.

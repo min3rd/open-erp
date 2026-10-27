@@ -16,7 +16,7 @@ import {
   CatalogGrantPayload,
   CatalogTypeDto
 } from '../../core/services/catalog-admin.service';
-import { ApiService } from '../../core/services/api.service';
+import { ApiService } from '@shared';
 
 interface GrantRow {
   role: Role;

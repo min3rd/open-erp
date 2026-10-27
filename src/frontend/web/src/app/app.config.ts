@@ -5,15 +5,20 @@ import { map } from 'rxjs';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
-import { PLUGIN_PERMISSION_CHECKER, UI_PREFERENCES_API, ThemeId, loadingInterceptor, toUiPreferences } from '@shared';
+import { PLUGIN_PERMISSION_CHECKER, UI_PREFERENCES_API, ThemeId, loadingInterceptor, toUiPreferences, API_BASE_URL } from '@shared';
 import { AuthService } from './core/services/auth.service';
 import { UiPreferencesService, UserUiPreferencesUpdate } from './core/services/ui-preferences.service';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([loadingInterceptor, authInterceptor])),
+    {
+      provide: API_BASE_URL,
+      useValue: environment.apiBaseUrl
+    },
     {
       provide: PLUGIN_PERMISSION_CHECKER,
       useFactory: () => {

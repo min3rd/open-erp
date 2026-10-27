@@ -1,21 +1,28 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, InjectionToken, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError, catchError } from 'rxjs';
-import { ApiResponse, ApiErrorResponse } from '@shared';
-import { environment } from '../../../environments/environment';
+import { Observable, catchError, throwError } from 'rxjs';
+import { ApiErrorResponse, ApiResponse } from '../models';
 
-@Injectable({
-  providedIn: 'root'
-})
+/**
+ * Base URL for core/plugin API calls. Core provides the environment URL;
+ * embedded plugins provide an empty string because the core gateway already
+ * routes `/api/...`.
+ */
+export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL', {
+  providedIn: 'root',
+  factory: () => ''
+});
+
+@Injectable({ providedIn: 'root' })
 export class ApiService {
   private http = inject(HttpClient);
-  private baseUrl = environment.apiBaseUrl;
+  private baseUrl = inject(API_BASE_URL);
 
   get<T>(path: string): Observable<ApiResponse<T>> {
     return this.http.get<ApiResponse<T>>(`${this.baseUrl}${path}`).pipe(catchError(this.handleError));
   }
 
-  post<T>(path: string, body: any): Observable<ApiResponse<T>> {
+  post<T>(path: string, body: unknown): Observable<ApiResponse<T>> {
     return this.http.post<ApiResponse<T>>(`${this.baseUrl}${path}`, body).pipe(catchError(this.handleError));
   }
 
@@ -23,28 +30,24 @@ export class ApiService {
     return this.http.post<ApiResponse<T>>(`${this.baseUrl}${path}`, form).pipe(catchError(this.handleError));
   }
 
-  put<T>(path: string, body: any): Observable<ApiResponse<T>> {
+  put<T>(path: string, body: unknown): Observable<ApiResponse<T>> {
     return this.http.put<ApiResponse<T>>(`${this.baseUrl}${path}`, body).pipe(catchError(this.handleError));
   }
 
-  patch<T>(path: string, body: any): Observable<ApiResponse<T>> {
+  patch<T>(path: string, body: unknown): Observable<ApiResponse<T>> {
     return this.http.patch<ApiResponse<T>>(`${this.baseUrl}${path}`, body).pipe(catchError(this.handleError));
   }
 
-  delete<T>(path: string, body?: any): Observable<ApiResponse<T>> {
+  delete<T>(path: string, body?: unknown): Observable<ApiResponse<T>> {
     const options = body !== undefined ? { body } : {};
     return this.http.delete<ApiResponse<T>>(`${this.baseUrl}${path}`, options).pipe(catchError(this.handleError));
   }
 
   private handleError(error: unknown) {
     if (error instanceof HttpErrorResponse) {
-      // Prefer the standardized backend envelope { success, code, message, params }.
       if (error.error && typeof error.error === 'object' && (error.error as ApiErrorResponse).code) {
         return throwError(() => error.error as ApiErrorResponse);
       }
-
-      // Fallback for empty/non-JSON responses (e.g. security-layer 401): map by HTTP status
-      // so the UI never shows a misleading INTERNAL_SERVER_ERROR for a 4xx.
       const codeByStatus: Record<number, string> = {
         0: 'NETWORK_ERROR',
         400: 'VALIDATION_FAILED',
@@ -55,11 +58,8 @@ export class ApiService {
         423: 'AUTH_ACCOUNT_LOCKED',
         429: 'TOO_MANY_REQUESTS'
       };
-      const code = codeByStatus[error.status] ?? (error.status >= 500 ? 'INTERNAL_SERVER_ERROR' : 'INTERNAL_SERVER_ERROR');
-      return throwError(() => ({
-        code,
-        message: error.message
-      } as ApiErrorResponse));
+      const code = codeByStatus[error.status] ?? 'INTERNAL_SERVER_ERROR';
+      return throwError(() => ({ code, message: error.message } as ApiErrorResponse));
     }
     return throwError(() => error);
   }

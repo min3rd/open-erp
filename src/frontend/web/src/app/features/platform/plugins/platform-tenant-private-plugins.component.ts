@@ -12,7 +12,7 @@ import {
 } from '@shared';
 import { PlatformPluginService } from '../../../core/services/platform-plugin.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
+import { PathListState, PathListStateService } from '@shared';
 
 @Component({
   selector: 'app-platform-tenant-private-plugins',

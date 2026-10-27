@@ -22,7 +22,7 @@ import {
   apiMessage,
 } from '@shared';
 import { PlatformPluginService } from '../../../core/services/platform-plugin.service';
-import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
+import { PathListState, PathListStateService } from '@shared';
 
 const TERMINAL_STATUSES = ['ACTIVE', 'INACTIVE', 'UNINSTALLED', 'INSTALL_FAILED', 'ROLLBACK_FAILED'];
 

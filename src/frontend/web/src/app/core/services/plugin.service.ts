@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from './api.service';
-import { buildQuery } from '../utils/query.util';
+import { ApiService } from '@shared';
+import { buildQuery } from '@shared';
 import {
   ApiResponse,
   ListData,

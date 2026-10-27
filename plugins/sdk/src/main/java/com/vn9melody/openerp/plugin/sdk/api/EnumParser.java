@@ -1,4 +1,4 @@
-package com.vn9melody.openerp.plugins.catalog.api;
+package com.vn9melody.openerp.plugin.sdk.api;
 
 /**
  * Shared case-insensitive enum lookup used by every {@code fromString} helper.

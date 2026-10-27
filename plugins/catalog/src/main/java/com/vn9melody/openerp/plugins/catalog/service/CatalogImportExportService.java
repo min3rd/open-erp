@@ -1,10 +1,10 @@
 package com.vn9melody.openerp.plugins.catalog.service;
 
-import com.vn9melody.openerp.plugins.catalog.api.ApiException;
-import com.vn9melody.openerp.plugins.catalog.api.ApiFieldError;
-import com.vn9melody.openerp.plugins.catalog.api.ErrorCode;
+import com.vn9melody.openerp.plugin.sdk.api.ApiException;
+import com.vn9melody.openerp.plugin.sdk.api.ApiFieldError;
+import com.vn9melody.openerp.plugin.sdk.api.ErrorCode;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogRelationType;
-import com.vn9melody.openerp.plugins.catalog.api.ResponseKey;
+import com.vn9melody.openerp.plugin.sdk.api.ResponseKey;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogErrorCode;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogResponseKey;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogSupport;

@@ -18,8 +18,9 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 - **BUG-140 (High)**: plugin shell thiếu `<app-context-menu />` nên nút `⋮`/chuột phải không render menu. Mount host, đổi key `CATALOG_ITEM_ADD`; browser click + right-click PASS.
 - **BUG-141 (High)**: host full-screen làm mất layout core; chuyển vào `/settings/apps/:pluginKey`, menu manifest trỏ vào settings, redirect `/apps/**`; grid plugin đổi `lg:`→`md:`; chuẩn hóa input/select `h-8`; mở drawer type `max-w-3xl`. Browser topbar 48 + sidebar 256, grid 208/935, drawer 768.
 - **BUG-142 (Medium)**: mobile drawer luôn bên phải; thêm `side` cho `DrawerComponent`, map `LayoutId.SIDE → start`.
-- **TASK-401 (Refactor, To Do)**: ghi nợ plugin còn copy `ApiService`/`PathListState`/query/interceptor và dùng chung Tailwind entry của core; hướng gom runtime vào `@shared`, plugin tự sở hữu styles entry.
-- **Kiểm chứng**: `npm run web:build`, `mobile:build` PASS; plugin image rebuild; browser route-state/reload, context menu, grid, drawer side PASS.
+- **TASK-401 (Refactor)**: gom `ApiService` + `API_BASE_URL`, `PathListState`, `buildQuery`, `authHeaderInterceptor` vào `@shared`; plugin có Tailwind entry riêng (`plugins/catalog/web/src/styles.css`), core không scan plugin. Backend tạo module `plugins/sdk` (`plugin-sdk`) chứa API envelope/error codes/response keys/enums; catalog dùng dependency, build reactor `mvn -f plugins/pom.xml -pl catalog -am`. Runtime filters giữ plugin-local (provider discovery từ dependency cần cấu hình riêng).
+- **Layout cố định**: settings layout `h-screen overflow-hidden`, sidebar/main `overflow-y-auto`; topbar/menu không bị đẩy khi scroll; plugin host cao theo vùng content.
+- **Kiểm chứng**: `web:build`, `mobile:build`, `mvn -f plugins/pom.xml -pl catalog -am clean package` PASS; plugin image build PASS; direct API catalog types 200; grid 208/935; context menu + route-state PASS.
 
 ## 2026-10-27 — Re-check Sprint 05: catalog chưa phải plugin độc lập
 

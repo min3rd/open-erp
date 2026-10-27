@@ -1,8 +1,8 @@
 package com.vn9melody.openerp.plugins.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vn9melody.openerp.plugins.catalog.api.ApiFieldError;
-import com.vn9melody.openerp.plugins.catalog.api.ResponseKey;
+import com.vn9melody.openerp.plugin.sdk.api.ApiFieldError;
+import com.vn9melody.openerp.plugin.sdk.api.ResponseKey;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogResponseKey;
 import java.util.List;
 import java.util.Map;

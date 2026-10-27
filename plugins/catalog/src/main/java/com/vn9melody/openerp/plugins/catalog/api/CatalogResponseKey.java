@@ -1,5 +1,7 @@
 package com.vn9melody.openerp.plugins.catalog.api;
 
+
+import com.vn9melody.openerp.plugin.sdk.api.ResponseKey;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**

@@ -6,9 +6,8 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { CatalogPluginShellComponent } from './app/catalog-plugin-shell.component';
 import { CatalogAdminComponent } from './app/features/catalog/catalog-admin.component';
 import { CatalogScope } from './app/core/services/catalog-admin.service';
-import { authInterceptor } from './app/core/interceptors/auth.interceptor';
+import { authHeaderInterceptor, PLUGIN_PERMISSION_CHECKER, API_BASE_URL } from '@shared';
 import { pluginPermissionChecker } from './app/core/plugin-permission-checker';
-import { PLUGIN_PERMISSION_CHECKER } from '@shared';
 
 const scope = new URLSearchParams(window.location.search).get('scope') === 'system'
   ? CatalogScope.SYSTEM
@@ -34,7 +33,11 @@ bootstrapApplication(CatalogPluginShellComponent, {
         data: { catalogScope: scope },
       },
     ], withHashLocation()),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authHeaderInterceptor])),
+    {
+      provide: API_BASE_URL,
+      useValue: ''
+    },
     {
       provide: PLUGIN_PERMISSION_CHECKER,
       useValue: pluginPermissionChecker,

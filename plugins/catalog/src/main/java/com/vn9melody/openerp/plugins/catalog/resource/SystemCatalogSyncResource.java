@@ -1,8 +1,8 @@
 package com.vn9melody.openerp.plugins.catalog.resource;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.vn9melody.openerp.plugins.catalog.api.ApiException;
-import com.vn9melody.openerp.plugins.catalog.api.ApiResponse;
+import com.vn9melody.openerp.plugin.sdk.api.ApiException;
+import com.vn9melody.openerp.plugin.sdk.api.ApiResponse;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogErrorCode;
 import com.vn9melody.openerp.plugins.catalog.service.SystemCatalogSyncService;
 import jakarta.inject.Inject;

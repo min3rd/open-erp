@@ -1,0 +1,5 @@
+@import '../../../../src/frontend/web/src/styles.css';
+
+/* Plugin-owned Tailwind entry: scan this plugin's sources only. Shared UI is
+   scanned by the imported core entry; the core never scans plugin paths. */
+@source './';

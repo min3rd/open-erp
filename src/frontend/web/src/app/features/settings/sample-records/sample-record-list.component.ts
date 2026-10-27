@@ -27,7 +27,7 @@ import {
 import { AuthService } from '../../../core/services/auth.service';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { SampleRecordService } from '../../../core/services/sample-record.service';
-import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
+import { PathListState, PathListStateService } from '@shared';
 import { SampleRecordFormDrawerComponent } from './sample-record-form-drawer.component';
 
 @Component({

@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-surface-muted text-ink flex flex-col">
+<div class="h-screen overflow-hidden bg-surface-muted text-ink flex flex-col">
   <app-topbar
     [tenantName]="auth.user()?.tenant_name || ''"
     [role]="auth.user()?.role || 'MEMBER'"
@@ -44,7 +44,7 @@
   <div [class]="'flex-1 flex flex-col min-h-0 ' + (navRight() ? 'lg:flex-row-reverse' : 'lg:flex-row')">
     @if (navRail()) {
       <aside
-        [class]="'lg:shrink-0 border-b lg:border-b-0 border-default bg-sidebar p-1.5 ' + railWidth()
+        [class]="'lg:shrink-0 border-b lg:border-b-0 border-default bg-sidebar p-1.5 overflow-y-auto ' + railWidth()
           + (navRight() ? ' lg:border-s' : ' lg:border-e')"
       >
         <app-section-nav
@@ -58,7 +58,7 @@
       </aside>
     }
 
-    <main class="flex-1 min-w-0 p-2 sm:p-3 space-y-2">
+    <main class="flex-1 min-w-0 p-2 sm:p-3 space-y-2 overflow-y-auto">
       <app-notification-banner
         [items]="notifications()"
         [detailPath]="notificationDetailPath()"

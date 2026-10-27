@@ -26,7 +26,7 @@ import {
 } from '@shared';
 import { ApiErrorResponse } from '@shared';
 import { PluginService } from '../../../core/services/plugin.service';
-import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
+import { PathListState, PathListStateService } from '@shared';
 import { TenantPluginRegisterDrawerComponent } from './tenant-plugin-register-drawer.component';
 
 const TERMINAL_STATUSES = ['ACTIVE', 'INACTIVE', 'UNINSTALLED', 'INSTALL_FAILED', 'ROLLBACK_FAILED'];

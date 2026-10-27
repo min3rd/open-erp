@@ -18,7 +18,7 @@ import {
 } from '@shared';
 
 import { OrganizationService } from '../../../core/services/organization.service';
-import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
+import { PathListState, PathListStateService } from '@shared';
 import { BranchAssignmentDrawerComponent } from './branch-assignment-drawer.component';
 
 interface AssignmentUser {

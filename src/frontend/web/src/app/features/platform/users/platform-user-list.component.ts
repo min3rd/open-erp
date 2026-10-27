@@ -23,7 +23,7 @@ import {
 
 import { PlatformService } from '../../../core/services/platform.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
+import { PathListState, PathListStateService } from '@shared';
 import { BreakGlassDrawerComponent } from './break-glass-drawer.component';
 
 @Component({

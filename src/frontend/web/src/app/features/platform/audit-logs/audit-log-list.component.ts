@@ -24,7 +24,7 @@ import {
   formatDateTime
 } from '@shared';
 import { PlatformService } from '../../../core/services/platform.service';
-import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
+import { PathListState, PathListStateService } from '@shared';
 import { AuditLogDetailDrawerComponent } from './audit-log-detail-drawer.component';
 
 @Component({

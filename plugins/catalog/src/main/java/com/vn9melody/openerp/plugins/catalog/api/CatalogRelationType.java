@@ -1,5 +1,7 @@
 package com.vn9melody.openerp.plugins.catalog.api;
 
+
+import com.vn9melody.openerp.plugin.sdk.api.EnumParser;
 /**
  * Kind of relation carried by a catalog edge (SOL-S05-001 D3 / DES-DB-S05-001
  * section 2.3). HIERARCHY = parent/child structure, CLASSIFICATION = "belongs

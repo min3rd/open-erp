@@ -123,7 +123,7 @@
             ],
             "assets": [],
             "styles": [
-              "src/styles.css"
+              "../../../plugins/catalog/web/src/styles.css"
             ],
             "outputPath": {
               "base": "../../../plugins/catalog/src/main/resources/META-INF/resources",

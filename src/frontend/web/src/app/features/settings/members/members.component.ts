@@ -22,7 +22,7 @@ import {
 
 import { AuthService } from '../../../core/services/auth.service';
 import { OrganizationService } from '../../../core/services/organization.service';
-import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
+import { PathListState, PathListStateService } from '@shared';
 import { UserAssignmentDrawerComponent } from './user-assignment-drawer.component';
 import { BranchAssignmentDrawerComponent } from '../branch-assignments/branch-assignment-drawer.component';
 
