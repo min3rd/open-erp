@@ -33,7 +33,11 @@ export class PluginIframeLoaderComponent implements AfterViewInit, OnDestroy {
   private frame = viewChild<ElementRef<HTMLIFrameElement>>('frame');
 
   src = signal<SafeResourceUrl>(this.sanitizer.bypassSecurityTrustResourceUrl('about:blank'));
-  height = signal<number>(this.minHeightPx());
+  height = signal<number>(Math.max(240, window.innerHeight - 150));
+
+  private readonly resizeHandler = (): void => {
+    this.height.set(Math.max(this.minHeightPx(), window.innerHeight - 150));
+  };
   loading = signal(true);
 
   private bridge = (event: MessageEvent): void => {
@@ -45,13 +49,15 @@ export class PluginIframeLoaderComponent implements AfterViewInit, OnDestroy {
     if (data?.source === 'open-erp-plugin' && data.type === 'resize' && Number.isFinite(data.height)) {
       const height = Number(data.height);
       if (height > 0) {
-        this.height.set(height);
+        this.height.set(Math.max(height, window.innerHeight - 150));
       }
     }
   };
 
   async ngAfterViewInit(): Promise<void> {
     window.addEventListener('message', this.bridge);
+    window.addEventListener('resize', this.resizeHandler);
+    this.resizeHandler();
     const session = await this.hostService.session(this.pluginKey());
     const base = this.entry() || session?.entry;
     if (!session || !base) {
@@ -66,6 +72,7 @@ export class PluginIframeLoaderComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     window.removeEventListener('message', this.bridge);
+    window.removeEventListener('resize', this.resizeHandler);
   }
 
   onLoad(): void {
