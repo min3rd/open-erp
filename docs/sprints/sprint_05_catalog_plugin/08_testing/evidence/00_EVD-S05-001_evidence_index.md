@@ -3,11 +3,17 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | EVD-S05-001 / Evidence index / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | Draft — QA đã chạy (15 ảnh) / 0.3 / 2026-10-06 |
+| Trạng thái / phiên bản / cập nhật | Draft — thêm ảnh P4 iframe / 0.4 / 2026-10-27 |
 | Owner / reviewer | QA/QC Agent / PM + Architect |
 | Đầu vào | [TP-S05-001](../01_TP-S05-001_sprint_05_test_plan.md) (25 TC), [UG-S05-001](../../../../06_user_guides/sprint_05_catalog_plugin_user_guide.md) |
 
 Ảnh chụp lưu tại `evidence/screenshots/`; mỗi ảnh gắn với TC tương ứng trong test plan. Báo cáo kết quả ở `02_TR-S05-001_sprint_05_test_report.md`.
+
+## 0. P4 — Plugin iframe bundle (2026-10-27)
+
+| Ảnh | Nội dung | Trạng thái |
+| :--- | :--- | :--- |
+| `plugin-iframe-catalog.png` | Màn danh mục render trong iframe plugin tại `/apps/catalog`: cột loại, bảng bản ghi, badge `HỆ THỐNG`/`GHI ĐÈ`, nút thêm/sửa | ✅ Dev (browser, tenant `e2e-tenant`; API types/items 200) |
 
 ## 1. Desktop (≥1280px)
 
