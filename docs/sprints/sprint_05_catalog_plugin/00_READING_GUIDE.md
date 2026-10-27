@@ -36,6 +36,7 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | 05.01 | SOL-S05-001 | [Kiến trúc plugin](05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) | 16 quyết định kiến trúc + luồng + rủi ro — **D1 bị bác** | Architect |
 | 05.02 | ADR-S05-001 | [Catalog plugin package độc lập](05_solutions/02_ADR-S05-001_catalog_independent_plugin.md) | Hướng B: package trong monorepo, container/schema/gateway/UI riêng; **plugin sở hữu system catalog + fan-out**; 12 quyết định + 5 phase | Architect |
 | 05.03 | ADR-S05-002 | [Backend plugin tối giản](05_solutions/03_ADR-S05-002_thin_plugin_backend.md) | Plugin khai báo entity/relations/repository/API/WS; core cấp datasource/security/SDK runtime | Architect |
+| 05.04 | SOL-S05-002 | [Plugin Data Gateway gRPC](05_solutions/04_SOL-S05-002_plugin_data_gateway_grpc.md) | Plugin zero DB; core validate/execute query template; câu hỏi chờ chủ dự án | Architect |
 | 06.01 | DES-DB-S05-001 | [Thiết kế CSDL](06_designs/db/01_DES-DB-S05-001_catalog_schema.md) | DDL 4 bảng, EXCLUDE, index, seed/backfill, truy vấn mẫu | Architect |
 | 06.02 | DES-API-S05-001 | [Thiết kế API](06_designs/api/01_DES-API-S05-001_catalog_api.md) | 3 nhóm API + contract + mã lỗi | Architect |
 | 06.03 | DES-UI-S05-001 | [Thiết kế UI](06_designs/ui/01_DES-UI-S05-001_catalog_admin_ui.md) | Màn 3 cột + component picker + ma trận Desktop/Mobile | Architect |
