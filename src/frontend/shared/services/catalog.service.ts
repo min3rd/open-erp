@@ -22,8 +22,8 @@ export const CATALOG_API_BASE_URL = new InjectionToken<string>('CATALOG_API_BASE
   factory: () => (isDevMode() ? 'http://localhost:8088' : '')
 });
 
-const LOOKUP_PATH = '/api/v1/catalog/lookup';
-const ITEMS_PATH = '/api/v1/catalog/items';
+const LOOKUP_PATH = '/api/v1/plugins/runtime/catalog/api/v1/catalog/lookup';
+const ITEMS_PATH = '/api/v1/plugins/runtime/catalog/api/v1/catalog/items';
 const DEFAULT_PAGE_SIZE = 20;
 
 /**

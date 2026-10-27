@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CatalogHierarchyMode, DrawerComponent, TranslatePipe } from '@shared';
 import { CatalogTypeDto } from '../../../core/services/catalog-admin.service';
 
-const LOOKUP_API = '/api/v1/catalog/lookup';
+const LOOKUP_API = '/api/v1/plugins/runtime/catalog/api/v1/catalog/lookup';
 const COPY_FEEDBACK_MS = 1500;
 
 /**

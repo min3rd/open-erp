@@ -51,6 +51,13 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 - **Kiểm chứng thật**: snapshot **5 types / 3.355 items / 3.321 edges**; sync sang tenant `minhvv` → **types=5, items=3355, edges=3321, skipped=0**.
 - **Còn**: platform endpoint cần QA với platform token; UI iframe (P4).
 
+## 2026-10-27 — P4 (một phần): frontend trỏ runtime gateway
+
+- `catalog.service` (shared picker): lookup/items → `/api/v1/plugins/runtime/catalog/api/v1/catalog/**`.
+- `catalog-admin.service` + API drawer: cùng gateway prefix.
+- **Kiểm chứng**: `npm run web:build` PASS (bundle 580.89 kB, catalog chunk 92.79 kB).
+- **Còn**: iframe bundle + route/menu động từ UI Manifest; QA dual-mode.
+
 ## 2026-10-05 — Sprint 03 đóng & khởi tạo tài liệu Sprint 04
 
 - **Sprint 03 đóng**: [QA-03](../sprints/sprint_03_plugin_manager/08_testing/QA-03_qa_verification_2026-10-05.md) xác nhận 8/8 item PASS (backend PostgreSQL/Redis thật + browser headless 1280×900 & 390×844); 2 lỗi Medium do QA phát hiện đã sửa. Biên bản: [sprint_review](../sprints/sprint_03_plugin_manager/09_review/sprint_review.md) — `[x]` ĐÓNG, DoD PASS (theo chỉ đạo chủ dự án; không tạo chữ ký giả).

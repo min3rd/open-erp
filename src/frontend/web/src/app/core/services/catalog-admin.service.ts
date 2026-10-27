@@ -28,7 +28,7 @@ export enum CatalogScope {
   SYSTEM = 'system'
 }
 
-const CATALOG_API = '/api/v1/catalog';
+const CATALOG_API = '/api/v1/plugins/runtime/catalog/api/v1/catalog';
 const SYSTEM_SEGMENT = '/system';
 const DEFAULT_PAGE_SIZE = 20;
 

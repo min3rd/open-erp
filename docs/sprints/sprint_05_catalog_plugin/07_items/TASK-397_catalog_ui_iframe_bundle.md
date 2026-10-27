@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-397 / Task / Sprint 05 |
-| Severity / trạng thái | High / **To Do** — chặn bởi TASK-396 |
+| Severity / trạng thái | High / **In Progress** — shared picker + web admin service đã trỏ runtime gateway; iframe bundle/route động còn lại |
 | Owner / reviewer | Developer / Architect |
 | depends_on / blocks | TASK-396 / TASK-398 |
 | Write scope | `plugins/catalog/web/**`, `src/frontend/shared/services/catalog.service.ts`, `src/frontend/web/src/app/app.routes.ts`, `src/frontend/mobile/src/app/app.routes.ts`, menu/settings |
@@ -34,3 +34,4 @@
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-27 | Tạo task; chốt A10/A11 | Agent; ADR-S05-001 |
+| 0.2 | 2026-10-27 | **Gateway path**: `catalog.service` + `catalog-admin.service` + API drawer dùng `/api/v1/plugins/runtime/catalog/api/v1/catalog/**`; `npm run web:build` PASS. Iframe bundle/route động còn P4. | Developer Agent; web build |
