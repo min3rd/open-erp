@@ -81,32 +81,38 @@ Từ thư mục gốc dự án chỉ cần chạy 1 lệnh:
 ```bash
 npm run dev
 ```
-Script Node (`scripts/run.mjs`) sẽ:
-1. Khởi động Docker infra: PostgreSQL Primary + Redis + Mailpit (`docker compose --profile mail up -d`).
-2. Tự tạo database test `openerp_test` nếu chưa có (test **không** dùng chung `openerp_dev`).
-3. Khởi chạy 3 tiến trình nền: Backend Quarkus (8088), Web Angular (4200), Mobile Ionic (8100).
-4. Ghi log vào `logs/dev-backend.log`, `logs/dev-web.log`, `logs/dev-mobile.log`.
+Lệnh này **build và chạy toàn bộ môi trường dev trong Docker** (không chạy Java/Angular dev server trên host):
+1. `predev` sinh khóa JWT dev nếu chưa có.
+2. Docker Compose profile `dev` build + chạy: PostgreSQL Primary, Redis, core backend (`backend-dev`, :8088), web Angular (`web-dev`, :4200), catalog plugin (`catalog-plugin-dev`) và các fixture tenant/system/e2e.
+3. Plugin UI bundle được build **trong image** plugin (Node stage), không phụ thuộc `ng build` trên host.
+4. Web container dùng `proxy.docker.conf.json` để gọi backend qua `http://backend-dev:8080`.
 
-Dừng 3 tiến trình dev (giữ hạ tầng Docker):
+Dừng toàn bộ môi trường dev:
 ```bash
 npm run dev:stop
 ```
 
-Chạy TOÀN BỘ hạ tầng dev (Kafka, MongoDB, MinIO, PostgreSQL replica, Mailpit — cần RAM ≥ 8GB) kèm 3 ứng dụng:
+Xem log:
+```bash
+npm run dev:docker:logs          # backend + web + plugin containers
+docker compose --profile dev ps  # trạng thái
+```
+
+Chạy TOÀN BỘ hạ tầng dev (Kafka, MongoDB, MinIO, PostgreSQL replica, Mailpit — cần RAM ≥ 8GB) kèm ứng dụng:
 ```bash
 npm run dev:full
 ```
 
-Hoặc chạy từng phần:
+Hoặc chạy từng phần (đều qua Docker):
 ```bash
 npm run infra          # Docker infra tối thiểu (PostgreSQL + Redis)
 npm run infra:mail     # Docker infra + Mailpit
-npm run backend        # Quarkus dev mode (port 8088)
-npm run web            # Angular dev server (port 4200)
-npm run mobile         # Ionic dev server (port 8100)
+npm run backend        # core backend container (port 8088)
+npm run web            # web Angular container (port 4200)
+npm run mobile         # Ionic dev server (port 8100) — chưa chuyển vào Compose
 ```
 
-> **Lưu ý Java 25**: Quarkus 3.15 + ByteBuddy cần flag `-Dnet.bytebuddy.experimental=true`. Flag đã được cấu hình sẵn trong `pom.xml` (`jvm.args`) cho `mvn quarkus:dev` và được `npm run backend` / `npm run dev` set qua `JAVA_TOOL_OPTIONS` — không cần set thủ công.
+> **Lưu ý Java 25**: Quarkus 3.15 + ByteBuddy cần flag `-Dnet.bytebuddy.experimental=true`. Với Docker-only, flag nằm trong image/backend container; không cần set thủ công trên host.
 
 ### 3.5. Bootstrap Khóa JWT (Bắt Buộc Cho Fresh Clone)
 Cặp khóa `privateKey.pem` / `publicKey.pem` **bị gitignore** (không bao giờ commit khóa bí mật), nên sau khi clone cần sinh khóa cho local:
@@ -122,20 +128,23 @@ npm run keys:jwt
 
 ## 4. Chạy Ứng Dụng Trong Chế Độ Phát Triển (Live-Coding)
 
-### 4.1. Chạy Backend Quarkus (Java 21+)
+### 4.1. Chạy Backend Quarkus (Docker, Java 21+)
 ```bash
 npm run backend
-# Hoặc: make backend / node scripts/run.mjs backend
+# Hoặc: docker compose --profile dev up -d backend-dev
 ```
 - Endpoint Backend: `http://localhost:8088`
 - Quarkus Dev UI: `http://localhost:8088/q/dev/`
+- Log: `docker compose --profile dev logs -f backend-dev`
 
-### 4.2. Chạy Web Desktop (Angular 22)
+### 4.2. Chạy Web Desktop (Angular 22, Docker)
 ```bash
 npm run web
-# Hoặc: make web / node scripts/run.mjs web
+# Hoặc: docker compose --profile dev up -d web-dev
 ```
 - Truy cập trình duyệt: `http://localhost:4200`
+- Log: `docker compose --profile dev logs -f web-dev`
+- Source web + shared được mount vào container; sửa file sẽ tự rebuild (polling 2s).
 
 ### 4.3. Chạy Mobile App (Ionic 8 + Angular)
 ```bash
@@ -177,7 +186,9 @@ log chi tiết: `logs/e2e-run.log`, backend: `logs/e2e/backend.log`.
 ## 5. Dừng & Giải Phóng Tài Nguyên
 Sau khi hoàn thành phiên làm việc, luôn chạy lệnh sau để giải phóng RAM cho máy trạm:
 ```bash
-make infra-down
+npm run dev:stop
+# Hoặc chỉ dừng hạ tầng tối thiểu:
+npm run infra:down
 ```
 
 ---

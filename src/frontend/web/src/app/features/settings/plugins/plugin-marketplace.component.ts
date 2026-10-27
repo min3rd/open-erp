@@ -13,6 +13,7 @@ import {
   OperationProgressComponent,
   PluginNotification,
   PluginOperationStatus,
+  PluginHostService,
   PluginVersionItem,
   SharpButtonComponent,
   SharpToggleComponent,
@@ -52,6 +53,7 @@ const TERMINAL_STATUSES = ['ACTIVE', 'INACTIVE', 'UNINSTALLED', 'INSTALL_FAILED'
 })
 export class PluginMarketplaceComponent implements OnInit, OnDestroy {
   private pluginService = inject(PluginService);
+  private pluginHost = inject(PluginHostService);
   private i18n = inject(I18nService);
   private listState = inject(PathListStateService);
 
@@ -512,6 +514,7 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
         }
         this.refresh();
         this.loadNotifications();
+        void this.pluginHost.loadManifest(true);
       },
       error: (error: ApiErrorResponse) => {
         this.busyKey.set(null);
@@ -530,6 +533,7 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
           if (operation && TERMINAL_STATUSES.includes(operation.status)) {
             this.stopPolling();
             this.refresh();
+            void this.pluginHost.loadManifest(true);
             const key = this.detailKey();
             if (key) {
               this.loadDetail(key);

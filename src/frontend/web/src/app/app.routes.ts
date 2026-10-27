@@ -127,11 +127,11 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./features/apps/plugin-app.component').then(m => m.PluginAppComponent)
+        loadComponent: () => import('./features/apps/plugin-screen-host.component').then(m => m.PluginScreenHostComponent)
       },
       {
         path: '**',
-        loadComponent: () => import('./features/apps/plugin-app.component').then(m => m.PluginAppComponent)
+        loadComponent: () => import('./features/apps/plugin-screen-host.component').then(m => m.PluginScreenHostComponent)
       }
     ]
   },
@@ -186,14 +186,6 @@ export const routes: Routes = [
         path: 'admins',
         canActivate: [platformSuperAdminGuard],
         children: listState(() => import('./features/platform/admins/platform-admin-list.component').then(m => m.PlatformAdminListComponent))
-      },
-      {
-        path: 'catalog',
-        canActivate: [platformSuperAdminGuard],
-        children: listState(
-          () => import('@catalog-plugin/features/catalog/catalog-admin.component').then(m => m.CatalogAdminComponent),
-          { catalogScope: 'system' }
-        )
       }
     ]
   },
@@ -236,14 +228,6 @@ export const routes: Routes = [
         path: 'sample-records',
         canActivate: [permissionGuard('core:sample-record:read')],
         children: listState(() => import('./features/settings/sample-records/sample-record-list.component').then(m => m.SampleRecordListComponent))
-      },
-      {
-        path: 'catalog',
-        canActivate: [permissionGuard('catalog:item:read')],
-        children: listState(
-          () => import('@catalog-plugin/features/catalog/catalog-admin.component').then(m => m.CatalogAdminComponent),
-          { catalogScope: 'tenant' }
-        )
       },
       {
         path: 'plugins',

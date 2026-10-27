@@ -19,7 +19,6 @@ export class PlatformLayoutComponent {
     { path: '/platform/plugin-credentials', labelKey: 'PLUGIN_CREDENTIALS_TITLE', icon: IconName.KEY },
     { path: '/platform/tenant-private-plugins', labelKey: 'PLUGIN_TENANT_PRIVATE_TITLE', icon: IconName.LOCK },
     { path: '/platform/users', labelKey: 'PLATFORM_GLOBAL_USERS', icon: IconName.USER },
-    { path: '/platform/catalog', labelKey: 'PLATFORM_CATALOG_TITLE', icon: IconName.GRID },
     { path: '/platform/health', labelKey: 'PLATFORM_SYSTEM_HEALTH', icon: IconName.MONITOR },
     { path: '/platform/audit-logs', labelKey: 'PLATFORM_AUDIT_TRAIL', icon: IconName.FILE_TEXT },
     { path: '/platform/admins', labelKey: 'PLATFORM_ADMINS_TITLE', icon: IconName.SHIELD }
@@ -28,8 +27,7 @@ export class PlatformLayoutComponent {
   private readonly superAdminOnlyPaths = new Set([
     '/platform/admins',
     '/platform/plugins',
-    '/platform/plugin-credentials',
-    '/platform/catalog'
+    '/platform/plugin-credentials'
   ]);
 
   readonly menuItems = computed(() =>

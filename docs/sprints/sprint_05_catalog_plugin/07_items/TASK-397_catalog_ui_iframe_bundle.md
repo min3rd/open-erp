@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-397 / Task / Sprint 05 |
-| Severity / trạng thái | High / **Done (dev)** — UI source trong `plugins/catalog/web`; mount native `/settings/catalog`; context menu + URL route-state; iframe bundle giữ fallback |
+| Severity / trạng thái | High / **Done (dev)** — UI bundle build trong plugin image; host động `/apps/:pluginKey`; menu từ UI Manifest (TASK-399) |
 | Owner / reviewer | Developer / Architect |
 | depends_on / blocks | TASK-396 / TASK-398 |
 | Write scope | `plugins/catalog/web/**`, `src/frontend/shared/services/catalog.service.ts`, `src/frontend/web/src/app/app.routes.ts`, `src/frontend/mobile/src/app/app.routes.ts`, menu/settings |
@@ -37,3 +37,4 @@
 | 0.2 | 2026-10-27 | **Gateway path**: `catalog.service` + `catalog-admin.service` + API drawer dùng `/api/v1/plugins/runtime/catalog/api/v1/catalog/**`; `npm run web:build` PASS. Iframe bundle/route động còn P4. | Developer Agent; web build |
 | 0.3 | 2026-10-27 | **Iframe UI done (dev)**: Angular project `catalog-plugin` build vào plugin `META-INF/resources`; `/settings/catalog` redirect `/apps/catalog`; gateway nhận token qua query/header/referer/cookie cho asset; iframe auto-height; UI render bảng danh mục + API 200. | Developer Agent; Docker dev + browser |
 | 0.4 | 2026-10-27 | **Chuyển native**: move toàn bộ UI source sang `plugins/catalog/web/src`; core route `/settings/catalog` mount trực tiếp (không iframe); thêm context menu type/item + URL path-state; web/plugin build PASS; browser click type + menu PASS | Chủ dự án chỉ đạo trực tiếp |
+| 0.5 | 2026-10-27 | **Chốt host động**: bỏ native route/import `@catalog-plugin`; `/apps/catalog` do `PluginScreenHostComponent` mount iframe; UI bundle build trong plugin Docker image; menu từ UI Manifest (TASK-399) | Chủ dự án chỉ đạo trực tiếp |

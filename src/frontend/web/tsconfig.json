@@ -15,8 +15,7 @@
     "module": "preserve",
     "paths": {
       "@shared": ["../shared/index.ts"],
-      "@shared/*": ["../shared/*"],
-      "@catalog-plugin/*": ["../../../plugins/catalog/web/src/app/*"]
+      "@shared/*": ["../shared/*"]
     }
   },
   "angularCompilerOptions": {

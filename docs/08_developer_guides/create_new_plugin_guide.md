@@ -62,6 +62,7 @@ npx @open-erp/cli generate ui-contribution --slot core.dashboard.widgets --rende
 - Quy ước ID: lowercase kebab-case, 3–50 ký tự, không trùng `core`, `iam`, `platform`, `organization`, `plugins`.
 - `generate` merge an toàn vào `plugin.json`; file mã nguồn đã tồn tại cần `--force`.
 - `--render-mode` nhận `web-component`, `module-federation` hoặc `iframe` (mặc định iframe khi không hỗ trợ WC/MF).
+- Core **không hardcode menu plugin**: nó đọc `ui_manifest.screens` từ `/api/v1/plugins/ui-manifest`, map `route`/`title_key`/`permission` thành menu và mount qua host cố định `/apps/:pluginKey`. Screen chỉ xuất hiện khi tenant đang bật plugin (ACTIVE) và user có quyền. Đặt `route` theo quy ước `/apps/{pluginKey}` (hoặc sub-path) để host resolve đúng.
 
 ---
 

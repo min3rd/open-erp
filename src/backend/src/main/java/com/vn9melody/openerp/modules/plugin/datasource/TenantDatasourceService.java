@@ -57,6 +57,17 @@ public class TenantDatasourceService {
                     .executeUpdate();
             entityManager.createNativeQuery("GRANT USAGE, CREATE ON SCHEMA " + schema + " TO " + role)
                     .executeUpdate();
+            // Core migrations seed the tenant schema before the plugin container
+            // starts, so the runtime role must also get privileges on existing
+            // tables/sequences (and on future ones created by the owner).
+            entityManager.createNativeQuery("GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA " + schema + " TO " + role)
+                    .executeUpdate();
+            entityManager.createNativeQuery("GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA " + schema + " TO " + role)
+                    .executeUpdate();
+            entityManager.createNativeQuery("ALTER DEFAULT PRIVILEGES IN SCHEMA " + schema
+                    + " GRANT ALL PRIVILEGES ON TABLES TO " + role).executeUpdate();
+            entityManager.createNativeQuery("ALTER DEFAULT PRIVILEGES IN SCHEMA " + schema
+                    + " GRANT ALL PRIVILEGES ON SEQUENCES TO " + role).executeUpdate();
             entityManager.createNativeQuery("REVOKE ALL ON SCHEMA public FROM " + role).executeUpdate();
         } catch (Exception e) {
             LOG.errorf("Plugin datasource provisioning failed for tenant %s plugin %s: %s",

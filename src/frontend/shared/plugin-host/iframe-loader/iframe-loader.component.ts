@@ -27,6 +27,10 @@ export class PluginIframeLoaderComponent implements AfterViewInit, OnDestroy {
   pluginKey = input.required<string>();
   entry = input<string>('');
   minHeightPx = input<number>(240);
+  /** Fill the viewport instead of using the measured/message height. */
+  fill = input<boolean>(false);
+  /** Height reserved for the host chrome (header) when `fill` is on. */
+  viewportOffsetPx = input<number>(0);
   failed = output<string>();
 
   private host = viewChild<ElementRef<HTMLElement>>('host');

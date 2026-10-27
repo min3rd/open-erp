@@ -10,6 +10,7 @@ import {
   LayoutId,
   NotificationBannerComponent,
   PluginNotification,
+  PluginHostService,
   SectionNavComponent,
   SectionNavVariant,
   ThemeService,
@@ -26,7 +27,7 @@ interface SettingsMenuNode {
   labelKey: string;
   icon?: IconNameValue;
   permission?: string;
-  children?: SettingsMenuNode[];
+  children?: ReadonlyArray<SettingsMenuNode>;
 }
 
 @Component({
@@ -47,6 +48,7 @@ export class SettingsLayoutComponent implements OnInit {
   auth = inject(AuthService);
   theme = inject(ThemeService);
   private pluginService = inject(PluginService);
+  private pluginHost = inject(PluginHostService);
   private router = inject(Router);
 
   /** Drawer layout: whether the section menu drawer is open. */
@@ -79,6 +81,7 @@ export class SettingsLayoutComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    void this.pluginHost.loadManifest(true);
     this.loadNotifications();
   }
 
@@ -130,8 +133,7 @@ export class SettingsLayoutComponent implements OnInit {
       labelKey: 'SETTINGS_GROUP_DATA',
       icon: IconName.FILE_TEXT,
       children: [
-        { path: '/settings/sample-records', labelKey: 'SAMPLE_RECORDS_TITLE', icon: IconName.FILE_TEXT, permission: 'core:sample-record:read' },
-        { path: '/settings/catalog', labelKey: 'CATALOG_SECTION_TITLE', icon: IconName.GRID, permission: 'catalog:item:read' }
+        { path: '/settings/sample-records', labelKey: 'SAMPLE_RECORDS_TITLE', icon: IconName.FILE_TEXT, permission: 'core:sample-record:read' }
       ]
     },
     {
@@ -146,7 +148,35 @@ export class SettingsLayoutComponent implements OnInit {
 
   // Fallback: when the Sprint 02 `permissions` claim is absent from the JWT,
   // `hasPermission()` returns `null` and every menu item stays visible.
-  readonly menuItems = computed(() => this.filterNodes(this.menuTree));
+  readonly menuItems = computed(() => [
+    ...this.filterNodes(this.menuTree),
+    ...this.pluginMenuScreens()
+  ]);
+
+  /**
+   * Plugin screens come from `/api/v1/plugins/ui-manifest`, which only returns
+   * screens of ACTIVE tenant installations the caller may use. The core never
+   * hardcodes a plugin menu entry.
+   */
+  private readonly pluginMenuScreens = computed<ReadonlyArray<SettingsMenuNode>>(() => {
+    const seen = new Set<string>();
+    return this.pluginHost.screens()
+      .filter((screen) => screen.route?.startsWith('/apps/') && this.canSee(screen.permission))
+      .sort((left, right) => (left.order ?? 0) - (right.order ?? 0))
+      .filter((screen) => {
+        if (seen.has(screen.route)) {
+          return false;
+        }
+        seen.add(screen.route);
+        return true;
+      })
+      .map((screen) => ({
+        path: screen.route,
+        labelKey: screen.title_key,
+        icon: IconName.GRID,
+        permission: screen.permission
+      }));
+  });
 
   private filterNodes(nodes: ReadonlyArray<SettingsMenuNode>): ReadonlyArray<SettingsMenuNode> {
     return nodes

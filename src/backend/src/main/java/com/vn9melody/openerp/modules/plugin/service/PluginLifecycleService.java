@@ -88,6 +88,12 @@ public class PluginLifecycleService {
     @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.datasource.runtime-url")
     java.util.Optional<String> runtimeJdbcUrl;
 
+    @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.fanout.token", defaultValue = "")
+    String fanoutToken;
+
+    @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.runtime.scope", defaultValue = "tenant")
+    String runtimeScope;
+
     @Inject
     TenantDatasourceService datasourceService;
 
@@ -744,6 +750,8 @@ public class PluginLifecycleService {
         env.put("DB_SCHEMA", datasource.schema());
         env.put("DB_USER", datasource.role());
         env.put("DB_PASSWORD", datasource.password());
+        env.put("PLUGIN_FANOUT_TOKEN", fanoutToken);
+        env.put("PLUGIN_SCOPE", runtimeScope);
         return env;
     }
 

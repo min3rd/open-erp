@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ApiResponse } from '../models';
 import { ThemeService } from '../theme/theme.service';
@@ -21,6 +21,7 @@ export class PluginHostService {
   private sessionSignal = signal<PluginRuntimeSession | null>(null);
 
   readonly manifest = this.manifestSignal.asReadonly();
+  readonly screens = computed(() => this.manifestSignal()?.screens ?? []);
   readonly loading = this.loadingSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
 

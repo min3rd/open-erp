@@ -120,15 +120,16 @@ Hai app có dependency/lockfile riêng; root không cài thay cả hai bằng m�
 ### Chạy từng phần với footprint tối thiểu
 
 ```powershell
-npm run infra
-npm run backend
-npm run web
-npm run mobile
+npm run dev          # Docker: Postgres + Redis + backend + web + catalog plugin
+# hoặc từng phần, đều qua Docker:
+npm run backend      # backend-dev :8088
+npm run web          # web-dev :4200
+npm run mobile       # Ionic host :8100 (chưa Docker hóa)
 ```
 
-Chạy ba app ở terminal riêng. `infra` bật PostgreSQL primary + Redis, tạo `openerp_test` nếu thiếu và hiển thị trạng thái Compose. Backend/Web/Mobile lần lượt ở cổng **8088/4200/8100**. `npm run mobile` dùng `npm run serve` trong package mobile (`ng serve --port 8100`); không phải script `start` gọi Ionic CLI.
+Web/backend/plugin chạy trong Docker Compose profile `dev`; không cần mở terminal `mvn quarkus:dev` hay `ng serve` trên host. `npm run dev` tự sinh khóa JWT dev nếu thiếu, build web/plugin images và mount source web/shared để live-reload. Web container proxy `/api` sang `backend-dev:8080` qua `proxy.docker.conf.json`.
 
-Khi cần email thật trong local, dùng `npm run infra:mail` và Mailpit UI cổng 8025. Có thể dùng `npm run dev` để chạy ba tiến trình nền và ghi log trong `logs/`, nhưng mặc định runner chọn **profile mail** (PostgreSQL + Redis + Mailpit). Nó khác `infra` tối thiểu. Dừng app bằng `npm run dev:stop`; dừng containers bằng `npm run infra:down`.
+Khi cần email thật trong local, dùng `npm run infra:mail` và Mailpit UI cổng 8025. Dừng app bằng `npm run dev:stop`; dừng containers bằng `npm run infra:down`.
 
 Kafka, MongoDB, MinIO chỉ bật theo nhu cầu bằng `infra:kafka`, `infra:mongo`, `infra:storage`; `infra:full`/`dev:full` bật các dịch vụ nặng. Compose cũng khai báo profile `replica`, còn root không có script `infra:replica`. Con số khoảng 300 MB trong guide là ước tính sử dụng, không phải tổng memory limits: [Compose hiện tại](../../docker-compose.yml) đặt primary 512M và Redis 256M.
 

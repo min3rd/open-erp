@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   PluginHostScreen,
@@ -8,55 +8,64 @@ import {
   PluginModuleFederationLoaderComponent,
   PluginRenderMode,
   PluginWebComponentLoaderComponent,
-  SharpButtonComponent,
-  TranslatePipe,
   PLUGIN_PERMISSION_CHECKER,
+  TranslatePipe,
 } from '@shared';
 
+/**
+ * Fixed host for plugin screens. The screen itself (route, title, permission,
+ * render mode) comes from `/api/v1/plugins/ui-manifest`; the core never imports
+ * plugin UI source and never hardcodes a plugin route.
+ */
 @Component({
-  selector: 'app-plugin-app',
+  selector: 'app-plugin-screen-host',
   standalone: true,
   imports: [
     CommonModule,
     RouterLink,
     TranslatePipe,
-    SharpButtonComponent,
     PluginWebComponentLoaderComponent,
     PluginModuleFederationLoaderComponent,
     PluginIframeLoaderComponent,
   ],
-  templateUrl: './plugin-app.component.html',
+  templateUrl: './plugin-screen-host.component.html',
 })
-export class PluginAppComponent implements OnInit, OnDestroy {
+export class PluginScreenHostComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private hostService = inject(PluginHostService);
   private permissionChecker = inject(PLUGIN_PERMISSION_CHECKER);
 
   pluginKey = signal<string>('');
-  subPath = signal<string>('');
+  screenId = signal<string>('');
   screen = signal<PluginHostScreen | null>(null);
   loading = signal<boolean>(true);
   failed = signal<boolean>(false);
   forbidden = signal<boolean>(false);
 
   readonly renderMode = PluginRenderMode;
+  readonly frameOffsetPx = 40;
 
-  private mounted = false;
+  ngOnInit(): void {
+    this.route.params.subscribe((params) => {
+      const key = (params['pluginKey'] ?? '').toString();
+      this.pluginKey.set(key);
+      void this.resolveScreen(key);
+    });
+  }
 
-  async ngOnInit(): Promise<void> {
-    const params = this.route.snapshot.params;
-    const parentParams = this.route.parent?.snapshot.params ?? {};
-    const key = (params['pluginKey'] ?? parentParams['pluginKey'] ?? '').toString();
-    this.pluginKey.set(key);
-    const url = this.router.url;
-    const marker = `/apps/${key}`;
-    const rest = url.startsWith(marker) ? url.substring(marker.length) : '';
-    this.subPath.set(rest.replace(/^\//, ''));
+  private async resolveScreen(key: string): Promise<void> {
+    this.loading.set(true);
+    this.failed.set(false);
+    this.forbidden.set(false);
 
-    const manifest = await this.hostService.loadManifest();
+    const manifest = await this.hostService.loadManifest(true);
     const screens = manifest?.screens ?? [];
-    const match = screens.find((item) => item.plugin_key === key) ?? null;
+    const path = this.currentPath();
+    const match = screens.find((item) => this.matches(item, key, path))
+      ?? screens.find((item) => item.plugin_key === key)
+      ?? null;
+
     if (!match) {
       this.failed.set(true);
       this.loading.set(false);
@@ -67,13 +76,20 @@ export class PluginAppComponent implements OnInit, OnDestroy {
       this.loading.set(false);
       return;
     }
+    this.screenId.set(match.route);
     this.screen.set(match);
     this.loading.set(false);
-    this.mounted = true;
   }
 
-  ngOnDestroy(): void {
-    this.mounted = false;
+  private currentPath(): string {
+    return this.router.url.split('?')[0];
+  }
+
+  private matches(screen: PluginHostScreen, key: string, path: string): boolean {
+    if (screen.plugin_key !== key || !screen.route) {
+      return false;
+    }
+    return path === screen.route || path.startsWith(`${screen.route}/`);
   }
 
   entryUrl(): string {
@@ -91,9 +107,5 @@ export class PluginAppComponent implements OnInit, OnDestroy {
 
   onFailed(): void {
     this.failed.set(true);
-  }
-
-  backToMarketplace(): void {
-    void this.router.navigate(['/settings/plugins']);
   }
 }

@@ -2,6 +2,14 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-27 — P4.1: UI Manifest + host động, local chạy 100% Docker
+
+- **Chủ dự án chỉ đạo**: (1) local dùng toàn bộ Docker, không chạy Java/Angular trên terminal; (2) plugin phải tự đăng ký menu qua `/api/v1/plugins/ui-manifest`, map screen → menu, mount bằng host cố định.
+- **TASK-399 — UI Registry**: `PluginHostService` expose `screens`; `SettingsLayoutComponent` map screen `/apps/*` thành menu (title_key, permission, order), không còn node `/settings/catalog` hardcode. Xoá `@catalog-plugin/*` khỏi core; `/apps/:pluginKey` dùng `PluginScreenHostComponent` resolve screen theo `route`, mount IFRAME/MF/WEB_COMPONENT full viewport. Marketplace invalidate manifest khi lifecycle xong.
+- **TASK-400 — Docker-only**: thêm `web-dev` (Node 22 + `ng serve`, volume source, proxy `backend-dev:8080`); plugin Dockerfile build UI trong image; `npm run dev/web/backend/dev:stop` chuyển sang Compose; `group_add: ["0"]` cho Docker socket; `TenantDatasourceService` grant bảng/sequence; deployer truyền `PLUGIN_FANOUT_TOKEN`/`PLUGIN_SCOPE`.
+- **Kiểm chứng**: `docker compose --profile dev build web-dev catalog-plugin-dev backend-dev` PASS; web container phục vụ `:4200`; `PluginLifecycleApiTest` 10/10 PASS; browser tenant `e2e-tenant` thấy menu `Danh mục` từ manifest, `/apps/catalog` render iframe 854px + API types/items 200. Tắt plugin → manifest 0 screen; bật lại → 2 screen và container mới healthy.
+- **Còn**: platform system screen `/platform/apps/catalog` cần platform manifest (TASK-392); QA dual-mode/closure (TASK-398).
+
 ## 2026-10-27 — Re-check Sprint 05: catalog chưa phải plugin độc lập
 
 - **Kết luận**: `catalog` đang được triển khai như module core in-process (`modules/catalog`), migration core trong schema `public`, API core `/api/v1/catalog/**`, UI native trong Web/Mobile — trái mô hình plugin độc lập đã chốt ở Sprint 03 (repo/artifact riêng, container-per-tenant, schema tenant riêng, API gateway, UI manifest WC/MF/iframe).

@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | EVD-S05-001 / Evidence index / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | Draft — thêm ảnh P4 iframe / 0.4 / 2026-10-27 |
+| Trạng thái / phiên bản / cập nhật | Draft — thêm xác nhận host động/menu manifest / 0.5 / 2026-10-27 |
 | Owner / reviewer | QA/QC Agent / PM + Architect |
 | Đầu vào | [TP-S05-001](../01_TP-S05-001_sprint_05_test_plan.md) (25 TC), [UG-S05-001](../../../../06_user_guides/sprint_05_catalog_plugin_user_guide.md) |
 
@@ -14,7 +14,16 @@
 | Ảnh | Nội dung | Trạng thái |
 | :--- | :--- | :--- |
 | `plugin-iframe-catalog.png` | Màn danh mục render trong iframe plugin tại `/apps/catalog`: cột loại, bảng bản ghi, badge `HỆ THỐNG`/`GHI ĐÈ`, nút thêm/sửa | ✅ Dev (browser, tenant `e2e-tenant`; API types/items 200) |
-| `desktop-native-catalog-context-menu.png` | **Native route** `/settings/catalog` (không iframe), full màn hình; loại + bản ghi có nút `Thao tác khác` (context menu), URL path-state `/settings/catalog/DISTRICT/-/20/1/-/list?view=list` | ✅ Dev (browser, tenant `e2e-tenant`; click type + menu PASS) |
+| `desktop-native-catalog-context-menu.png` | **Native route** `/settings/catalog` (không iframe), full màn hình; loại + bản ghi có nút `Thao tác khác` (context menu), URL path-state `/settings/catalog/DISTRICT/-/20/1/-/list?view=list` | ⚠️ Lịch sử — thay bởi host động 0.1 |
+
+## 0.1. P4.1 — UI Manifest + host động (2026-10-27)
+
+| Hạng mục | Cách kiểm chứng | Kết quả |
+| :--- | :--- | :--- |
+| Menu plugin từ manifest | `/api/v1/plugins/ui-manifest` → screen `/apps/catalog`; settings menu render link `Danh mục` (không hardcode) | ✅ Browser tenant `e2e-tenant` |
+| Host động | `/apps/catalog` mount `PluginScreenHostComponent`; iframe full viewport 854px; API types/items 200 | ✅ Browser |
+| Điều kiện ACTIVE | Disable catalog → manifest `screens: 0`, menu mất; enable → `screens: 2`, container mới healthy | ✅ Browser + Docker |
+| Core không import UI plugin | `grep @catalog-plugin` trong `src/frontend/web` = 0; `npm run web:build` PASS | ✅ Build |
 
 ## 1. Desktop (≥1280px)
 

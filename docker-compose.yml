@@ -209,7 +209,7 @@ services:
       - openerp-net
 
   # ============================================================================
-  # 4. Core backend + catalog plugin image (DEV: profiles: ["dev"])
+  # 5. Core backend + catalog plugin image (DEV: profiles: ["dev"])
   #    Backend mounts the host Docker socket so the plugin deployer can spawn
   #    one catalog container per tenant on openerp-net.
   # ============================================================================
@@ -236,6 +236,10 @@ services:
       - "8088:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    # The socket is root:root 0660 on Docker Desktop; grant the dev user the
+    # socket group so the deployer can spawn per-tenant plugin containers.
+    group_add:
+      - "0"
     depends_on:
       postgres-primary:
         condition: service_healthy
@@ -250,8 +254,8 @@ services:
 
   catalog-plugin-dev:
     build:
-      context: ./plugins/catalog
-      dockerfile: deploy/Dockerfile
+      context: .
+      dockerfile: plugins/catalog/deploy/Dockerfile
     image: open-erp/catalog:1.0.0
     container_name: openerp-catalog-dev
     profiles: ["dev"]
@@ -326,6 +330,31 @@ services:
     networks:
       - openerp-net
 
+  web-dev:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile.dev
+    image: open-erp/web:dev
+    container_name: openerp-web-dev
+    profiles: ["dev"]
+    environment:
+      NG_CLI_ANALYTICS: "false"
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./src/frontend/web:/app/src/frontend/web
+      - ./src/frontend/shared:/app/src/frontend/shared
+      - web_node_modules:/app/src/frontend/web/node_modules
+      - web_angular_cache:/app/src/frontend/web/.angular
+    depends_on:
+      - backend-dev
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    networks:
+      - openerp-net
+
   catalog-dev-bootstrap:
     image: postgres:16-alpine
     profiles: ["dev"]
@@ -355,3 +384,5 @@ volumes:
   kafka_data:
   minio_data:
   registry_data:
+  web_node_modules:
+  web_angular_cache:

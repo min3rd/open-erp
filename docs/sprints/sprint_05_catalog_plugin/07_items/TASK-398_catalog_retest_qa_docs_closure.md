@@ -3,9 +3,9 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-398 / Task / Sprint 05 |
-| Severity / trạng thái | High / **To Do** — chặn bởi TASK-397 |
+| Severity / trạng thái | High / **To Do** — chờ QA sau TASK-397/399/400 |
 | Owner / reviewer | QA + Developer / PM |
-| depends_on / blocks | TASK-394…397 / đóng Sprint 05 |
+| depends_on / blocks | TASK-394…400 / đóng Sprint 05 |
 | Write scope | `plugins/catalog/src/test/**`, `docs/sprints/sprint_05_catalog_plugin/08_testing/**`, `09_review/**`, guides |
 
 ## 1. Mục tiêu

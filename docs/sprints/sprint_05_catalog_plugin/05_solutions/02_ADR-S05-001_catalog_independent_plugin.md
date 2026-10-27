@@ -30,7 +30,7 @@ Sprint 05 đã triển khai `catalog` như module core in-process (D1), trái m�
 | **A7** | Tenant override system item theo `code` trong schema tenant; lookup merge **system rows + tenant rows trong cùng schema**, tenant thắng | Giữ AC-20/AC-22; không đọc chéo schema | Accepted |
 | **A8** | Quyền `catalog:*` do `PluginPermissionSeeder` seed khi cài; `catalog:system:manage` do platform role guard | Đúng lifecycle; không seed bằng migration core | Accepted |
 | **A9** | Entity Registry: plugin khai báo `entities` trong manifest; core registrar ghi `sys_entity_registry` khi cài/publish version | Plugin container không scan annotation core | Accepted |
-| **A10** | **UI source đặt trong `plugins/catalog/web`**, dùng chung `@shared`; core shell mount **native route** `/settings/catalog` (không iframe) để giữ click/URL route-state; iframe bundle vẫn build được và giữ làm fallback | UX native + plugin sở hữu source; đổi so với iframe ban đầu theo phản hồi chủ dự án 2026-10-27 | Accepted (2026-10-27) |
+| **A10** | **UI source đặt trong `plugins/catalog/web`** và build trong image plugin; core đọc `ui_manifest.screens` từ `/api/v1/plugins/ui-manifest`, map thành menu động và mount qua **host cố định** `/apps/:pluginKey` (IFRAME/MF/WEB_COMPONENT). Core không import source UI plugin. | Plugin tự đăng ký menu; tenant chỉ thấy screen khi plugin ACTIVE; đổi theo chỉ đạo 2026-10-27 | Accepted (2026-10-27) |
 | **A11** | API nội bộ plugin giữ path `/api/v1/catalog/**`; client gọi qua `/api/v1/plugins/runtime/catalog/api/v1/catalog/**` | Không đổi contract endpoint; gateway là cổng duy nhất | Accepted |
 | **A12** | Migration di trú: V5 copy dữ liệu `public.catalog_*` vào schema tenant (system rows → system tenant, tenant rows → từng tenant), verify, rồi drop bảng public | Không mất dữ liệu dev/tenant hiện có | Accepted |
 | **A13** | `catalog_type_grants` lưu **`role_code`** (không `role_id`) trong schema tenant; gateway forward `X-User-Roles`; plugin so khớp mã vai trò. V5 map `role_id` cũ → `roles.code` khi di trú; grant mặc định dùng `TENANT_OWNER`/`TENANT_ADMIN` | Tránh FK xuyên schema; RBAC vẫn là nguồn sự thật của core; role code unique theo tenant | Accepted |
@@ -146,7 +146,7 @@ Tenant admin gọi uninstall/disable → lifecycle dừng container (hoặc gi�
 
 1. **A6.1**: cần chốt UUID/seed của system tenant và cách loại khỏi mọi danh sách/quota/auth tenant. Đề xuất fixed UUID `00000000-0000-0000-0000-000000000001`, `TenantType.SYSTEM`, status ACTIVE, không user.
 2. **A6.3**: `PluginFanoutService` là hạ tầng generic của plugin manager; cần contract internal sync versioned (`contract_version`) để plugin khác dùng lại.
-3. **A10**: native route mount UI source từ plugin; iframe bundle là fallback. Cần giữ đồng bộ `@shared` khi plugin UI đổi.
+3. **A10**: host động mount screen theo manifest; plugin UI bundle build trong image. Cần giữ contract `route`/`title_key`/`permission`/`render_mode` ổn định.
 4. **Multi-version**: plugin `1.0.0` là baseline; upgrade/rollback dùng hạ tầng Sprint 03, cần test riêng.
 
 ## 10. Lịch sử
@@ -157,3 +157,4 @@ Tenant admin gọi uninstall/disable → lifecycle dừng container (hoặc gi�
 | 0.2 | 2026-10-27 | **Đổi A6**: bỏ `catalog_system` core; plugin sở hữu system catalog qua system tenant + fan-out `PluginFanoutService` tới từng tenant schema | Chủ dự án chỉ đạo trực tiếp |
 | 0.3 | 2026-10-27 | **A4.1**: catalog default_install, unlocked; tenant bật/tắt/gỡ trong quản lý plugin; V5.0.1 bỏ locked | Chủ dự án chỉ đạo trực tiếp |
 | 0.4 | 2026-10-27 | **A10 đổi**: UI source trong `plugins/catalog/web`, mount native route `/settings/catalog`; bỏ iframe khỏi luồng chính; thêm context menu + URL route-state | Chủ dự án chỉ đạo trực tiếp |
+| 0.5 | 2026-10-27 | **A10 chốt**: bỏ native route/import; menu từ UI Manifest; host cố định `/apps/:pluginKey` mount iframe; UI bundle build trong Docker image | Chủ dự án chỉ đạo trực tiếp |

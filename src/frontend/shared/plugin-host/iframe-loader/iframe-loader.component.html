@@ -8,9 +8,8 @@
     #frame
     class="block w-full border-0"
     sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-    loading="lazy"
     [src]="src()"
-    [style.height.px]="height()"
+    [style.height]="fill() ? 'calc(100vh - ' + viewportOffsetPx() + 'px)' : height() + 'px'"
     [title]="'PLUGIN_HOST_IFRAME_TITLE' | translate"
     (load)="onLoad()"
   ></iframe>
