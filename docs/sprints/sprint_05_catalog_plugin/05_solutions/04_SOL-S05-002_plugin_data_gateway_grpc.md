@@ -3,22 +3,16 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | SOL-S05-002 / Giải pháp kiến trúc / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | **Draft — chờ chủ dự án trả lời câu hỏi §10** / 0.1 / 2026-10-27 |
+| Trạng thái / phiên bản / cập nhật | **Approved — chủ dự án chốt 2026-10-27** / 1.0 / 2026-10-27 |
 | Owner / reviewer | Solution Architect / Chủ dự án + PM + QA |
 | Đầu vào | [ADR-S05-001](02_ADR-S05-001_catalog_independent_plugin.md), [ADR-S05-002](03_ADR-S05-002_thin_plugin_backend.md), [BUG-135](../07_items/BUG-135_catalog_not_independent_plugin.md) |
-| Đọc trước / đọc tiếp | ADR-S05-002 / DES-API-S05-001 (cập nhật), TASK-401, TASK-402 (dự kiến) |
+| Đọc trước / đọc tiếp | ADR-S05-002 / DES-API-S05-001 (cập nhật), TASK-402 (triển khai) |
 
 ## 1. Bối cảnh
 
-Sprint 05 đã tách catalog thành plugin container riêng. Tuy nhiên backend plugin vẫn:
+Catalog plugin hiện vẫn có repository Panache, nhận `QUARKUS_DATASOURCE_*` từ core và mở kết nối PostgreSQL trực tiếp. Điều này vi phạm yêu cầu **plugin không được can thiệp trực tiếp vào DB**, đặc biệt khi plugin có system scope.
 
-- có repository Panache;
-- nhận `QUARKUS_DATASOURCE_*` từ core;
-- mở kết nối PostgreSQL và chạy SQL trực tiếp.
-
-Điều này vi phạm yêu cầu: **plugin không được can thiệp trực tiếp vào DB**, đặc biệt khi plugin có system scope. Nếu container plugin bị compromise, nó có thể đọc/ghi dữ liệu tenant hoặc system catalog.
-
-Giải pháp này thay direct DB bằng **Plugin Data Gateway** nội bộ:
+Giải pháp thay direct DB bằng **Plugin Data Gateway** nội bộ:
 
 ```text
 Plugin business logic
@@ -30,17 +24,12 @@ Plugin business logic
 Core **không ôm logic catalog**. Core chỉ:
 
 - xác thực plugin/tenant/scope;
-- kiểm tra query template;
+- kiểm tra query descriptor;
 - cấp connection và thực thi SQL;
 - trả kết quả;
 - audit.
 
-Plugin giữ:
-
-- business logic;
-- query template/query descriptor;
-- REST API cho frontend;
-- event handling.
+Plugin giữ business logic, query descriptor, REST API cho frontend, cache và event handling.
 
 ## 2. Mục tiêu và phạm vi
 
@@ -48,33 +37,38 @@ Plugin giữ:
 
 1. Plugin container **không có DB credential**, không có `DataSource`, `EntityManager`, repository DB.
 2. Core là **chủ sở hữu duy nhất** connection PostgreSQL.
-3. Plugin khai báo entity, relation, repository, query template, API, WebSocket trong manifest.
+3. Plugin khai báo entity, relation, repository, query descriptor, API, WebSocket trong manifest.
 4. Core thực thi migration do plugin khai báo.
 5. Tenant A không đọc/ghi được dữ liệu tenant B.
 6. Tenant plugin không truy cập được system schema.
 7. Core scale ngang độc lập; plugin chỉ là client gRPC.
+8. Plugin được cache read-only qua Redis để giảm tải core gateway.
 
 ### 2.2. Ngoài phạm vi
 
-- Thay toàn bộ REST gateway FE → plugin (giữ nguyên).
-- RabbitMQ/event bus trong phase 1 (xem §8).
-- Query DSL low-code đầy đủ (phase 1 dùng SQL template có kiểm duyệt).
+- Thay REST API FE → plugin (giữ nguyên).
+- RabbitMQ/event bus trong phase 1 — để phase sau.
+- Query DSL cho mọi loại truy vấn phức tạp ngay từ đầu; phase 1 hỗ trợ các operation chuẩn + mở rộng có kiểm duyệt.
 - Module Federation/UI host (đã có ở TASK-399).
 
 ## 3. Quyết định kiến trúc
 
 | # | Quyết định | Lý do | Trạng thái |
 | :--- | :--- | :--- | :--- |
-| D1 | Plugin gọi core qua **gRPC nội bộ** (`PluginDataService`), không gọi REST per plugin | Contract chặt, typed, deadline, ít payload | Proposed |
-| D2 | Core **không chứa logic catalog**; chỉ validate/execute template | Tránh core phình, giữ plugin sở hữu nghiệp vụ | Proposed |
-| D3 | Plugin khai báo **query template có tên**; không gửi raw SQL mỗi request | Core kiểm tra một lần lúc publish; runtime chỉ `template_id + params` | Proposed |
-| D4 | Core chạy migration do plugin khai báo; plugin không có Flyway/DDL runtime | Core kiểm soát schema, thứ tự, checksum, rollback | Proposed |
-| D5 | Tenant/scope lấy từ **service token/mTLS**, không lấy từ payload | Plugin không thể giả tenant/system | Proposed |
-| D6 | PostgreSQL RLS + `search_path` + AST/table allowlist | Phòng thủ nhiều lớp, kể cả template sai | Proposed |
-| D7 | Một gRPC call = một transaction; thêm `ExecuteBatch` cho nhiều bước | Giữ atomicity mà không mở transaction xuyên RPC | Proposed |
-| D8 | Read đi read-replica; write đi primary; cờ `consistency` | Scale đọc, tránh read-after-write sai | Proposed |
-| D9 | RabbitMQ chỉ dùng cho event/command async, không dùng cho query/CRUD sync | Tránh request-response qua MQ | Proposed |
-| D10 | System scope có service identity/port riêng; tenant plugin không truy cập | Cách ly system catalog tuyệt đối | Proposed |
+| D1 | Plugin gọi core qua **gRPC nội bộ** (`PluginDataService`) | Contract chặt, typed, deadline, ít payload | Approved |
+| D2 | Core **không chứa logic catalog**; chỉ compile/validate/execute descriptor | Tránh core phình, giữ plugin sở hữu nghiệp vụ | Approved |
+| D3 | Plugin khai báo **query descriptor/DSL có tên**; core compile sang SQL | Không gửi raw SQL; core kiểm tra cấu trúc, table/field allowlist | Approved |
+| D4 | Core chạy migration do plugin khai báo; plugin không có Flyway/DDL runtime | Core kiểm soát schema, thứ tự, checksum | Approved |
+| D5 | Tenant/scope lấy từ **mTLS identity + service token**, không lấy từ payload | Plugin không thể giả tenant/system | Approved |
+| D6 | PostgreSQL RLS + `search_path` + query compiler allowlist | Phòng thủ nhiều lớp | Approved |
+| D7 | Một gRPC call = một transaction; thêm `ExecuteBatch` | Giữ atomicity mà không mở transaction xuyên RPC | Approved |
+| D8 | READ đi read-replica; WRITE đi primary; cờ `consistency` | Scale đọc, tránh read-after-write sai | Approved |
+| D9 | RabbitMQ chỉ dùng cho event/command async, để phase sau | Tránh request-response qua MQ | Approved |
+| D10 | System scope dùng **cùng gRPC server, service identity/port riêng** | Cách ly system catalog, không tách quá nhiều hạ tầng | Approved |
+| D11 | **mTLS bắt buộc cả dev/prod**; service token ngắn hạn mang scope/template ACL | Bảo vệ transport + claims | Approved |
+| D12 | Plugin cache read-only qua **Redis namespace riêng**, TTL ngắn | Giảm latency; không cache write/system | Approved |
+| D13 | Giữ **thin container plugin**; không chuyển core-hosted JAR | Bảo toàn isolation | Approved |
+| D14 | Cho phép **join trực tiếp có allowlist** qua query descriptor | Đáp ứng nghiệp vụ; core compiler giới hạn bảng/relation | Approved |
 
 ## 4. Kiến trúc thành phần
 
@@ -87,22 +81,25 @@ Plugin giữ:
 │      ▼                                                           │
 │  Business Service                                                │
 │      │                                                           │
+│      ├── Redis cache (read-only, namespace riêng)                │
+│      │                                                           │
 │      ▼                                                           │
 │  PluginDataClient (SDK)                                          │
-│      │ gRPC + service token/mTLS                                 │
+│      │ gRPC + mTLS + service token                               │
 └──────┼───────────────────────────────────────────────────────────┘
        │
        ▼
 ┌──────────────────────────────────────────────────────────────────┐
 │ Core Data Gateway (gRPC :9090)                                   │
 │                                                                  │
-│  1. AuthN: mTLS/JWT service token                                │
-│  2. AuthZ: plugin ACTIVE + tenant + scope + template ACL         │
-│  3. TemplateRegistry: SQL, mode, entity, hash, version           │
-│  4. SqlPolicy: AST allowlist, table allowlist, no DDL/DCL        │
-│  5. TenantSession: SET LOCAL search_path + app.tenant_id + RLS   │
-│  6. Execute: bind params, timeout, row limit                     │
-│  7. Audit + metrics + trace                                      │
+│  1. AuthN: mTLS + service token                                  │
+│  2. AuthZ: plugin ACTIVE + tenant + scope + descriptor ACL       │
+│  3. DescriptorRegistry: operation/entity/fields/joins            │
+│  4. QueryCompiler: DSL → SQL parameterized                       │
+│  5. SqlPolicy: allowlist table/field/join/function               │
+│  6. TenantSession: SET LOCAL search_path + app.tenant_id + RLS   │
+│  7. Execute: bind params, timeout, row limit                     │
+│  8. Audit + metrics + trace                                      │
 └──────┬───────────────────────────────────────────────────────────┘
        │
        ├── read-replica (READ)
@@ -118,23 +115,25 @@ Plugin giữ:
 | Thành phần | Trách nhiệm |
 | :--- | :--- |
 | `PluginDataGrpcService` | Nhận `Execute`, `ExecuteBatch`; map lỗi gRPC |
-| `PluginServiceIdentity` | Verify mTLS/JWT; trả `pluginKey`, `tenantId`, `scope` |
-| `PluginTemplateRegistry` | Load/validate/cache query template từ manifest |
-| `PluginSqlPolicy` | Parse AST, chặn DDL/DCL/system schema/hàm nguy hiểm |
+| `PluginServiceIdentity` | Verify mTLS + token; trả `pluginKey`, `tenantId`, `scope` |
+| `PluginDescriptorRegistry` | Load/validate/cache query descriptor từ manifest |
+| `PluginQueryCompiler` | Compile DSL → SQL parameterized; không nhận SQL thô |
+| `PluginSqlPolicy` | Allowlist entity/field/join/function; chặn system schema |
 | `PluginTenantSession` | Set `search_path`, `app.tenant_id`, RLS, statement timeout |
 | `PluginMigrationExecutor` | Chạy migration plugin khai báo trước khi start container |
-| `PluginDataAudit` | Ghi audit: plugin, tenant, template, actor, rows, duration |
+| `PluginDataAudit` | Ghi audit: plugin, tenant, descriptor, actor, rows, duration |
 | `PluginDataMetrics` | Latency, error rate, rows, timeouts, rate limit |
 
 ### 4.2. Thành phần plugin
 
 | Thành phần | Trách nhiệm |
 | :--- | :--- |
-| `plugin-data-client` (SDK) | gRPC stub, token, retry idempotent, error mapping |
-| Business service | Logic catalog; gọi client theo template |
+| `plugin-data-client` (SDK) | gRPC stub, mTLS, token, retry idempotent, error mapping |
+| Business service | Logic catalog; gọi client theo descriptor |
 | REST resource | API cho FE; không truy cập DB |
-| Query templates | Khai báo trong `plugin.json` |
-| Migration files | Khai báo trong `plugin.json`/artifact, core thực thi |
+| Redis cache client | Cache read-only, namespace `plugin:{tenant}:{plugin}` |
+| Query descriptors | Khai báo trong `plugin.json` |
+| Migration files | Khai báo trong bundle + checksum; core thực thi |
 
 ## 5. gRPC contract
 
@@ -150,8 +149,8 @@ service PluginDataService {
 }
 
 message ExecuteRequest {
-  string template_id = 1;          // ví dụ catalog.items.page
-  string request_id = 2;           // trace
+  string query_id = 1;             // descriptor id, ví dụ catalog.items.page
+  string request_id = 2;
   string idempotency_key = 3;      // bắt buộc với WRITE
   Consistency consistency = 4;     // DEFAULT | PRIMARY
   map<string, Value> params = 5;
@@ -167,6 +166,7 @@ message ExecuteResponse {
   repeated Row rows = 3;
   int64 affected_rows = 4;
   string request_id = 5;
+  int64 schema_version = 6;
 }
 
 message Row {
@@ -179,37 +179,27 @@ enum Consistency {
 }
 ```
 
-Ghi chú:
+- Không có `tenant_id` trong request; core lấy từ mTLS/token.
+- `query_id` thuộc plugin/version đã publish.
+- `ExecuteBatch` chỉ cho phép descriptor đã duyệt, cùng transaction.
 
-- `Value` dùng `google.protobuf.Value` hoặc `oneof` typed.
-- Không có `tenant_id` trong request; core lấy từ token.
-- `template_id` thuộc plugin/version đã publish.
-- `ExecuteBatch` chỉ cho phép các template đã duyệt, cùng transaction.
+### 5.2. mTLS và service token
 
-### 5.2. Metadata xác thực
+- mTLS bắt buộc ở **dev, staging, production**.
+- Client cert chứa identity `plugin:<pluginKey>:<tenantId>` (hoặc SAN/SPIFFE).
+- Service token ngắn hạn mang `scope`, `allowed_queries`, `exp`.
+- Core map cert + token với `tenant_plugins`; không tin payload.
 
 ```text
 authorization: Bearer <plugin-service-token>
 x-request-id: <uuid>
 ```
 
-Production bổ sung mTLS. Token chứa:
+Dev cần script sinh CA/cert và mount vào container core/plugin; K8s dùng cert-manager/Secret.
 
-```json
-{
-  "iss": "openerp-core",
-  "aud": "plugin-data",
-  "plugin_key": "catalog",
-  "tenant_id": "aafea2fa-...",
-  "scope": "TENANT",
-  "allowed_templates": ["catalog.items.page", "catalog.item.insert"],
-  "exp": 1793099999
-}
-```
+## 6. Query descriptor (DSL)
 
-## 6. Query template
-
-### 6.1. Khai báo trong `plugin.json`
+### 6.1. Khai báo
 
 ```json
 {
@@ -217,45 +207,103 @@ Production bổ sung mTLS. Token chứa:
     {
       "id": "catalog.items.page",
       "mode": "READ",
+      "operation": "LIST",
       "entity": "CatalogItem",
-      "sql": "SELECT id, code, name, status FROM catalog_items WHERE type_id = :type_id AND (:q IS NULL OR name ILIKE :q) ORDER BY sort_order LIMIT :limit OFFSET :offset",
-      "max_rows": 100,
-      "timeout_ms": 3000
+      "select": ["id", "code", "name", "status"],
+      "filters": [
+        { "field": "type_id", "op": "EQ", "param": "type_id" },
+        { "field": "name", "op": "ILIKE", "param": "q" },
+        { "field": "status", "op": "IN", "param": "statuses" }
+      ],
+      "sort": [{ "field": "sort_order", "direction": "ASC" }],
+      "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 100 },
+      "maxRows": 100
     },
     {
       "id": "catalog.item.insert",
       "mode": "WRITE",
+      "operation": "INSERT",
       "entity": "CatalogItem",
-      "sql": "INSERT INTO catalog_items (id, tenant_id, type_id, code, name) VALUES (gen_random_uuid(), current_setting('app.tenant_id')::uuid, :type_id, :code, :name) RETURNING id",
-      "timeout_ms": 3000
+      "values": {
+        "type_id": { "param": "type_id" },
+        "code": { "param": "code" },
+        "name": { "param": "name" }
+      },
+      "returning": ["id", "code", "version"]
+    },
+    {
+      "id": "catalog.tree",
+      "mode": "READ",
+      "operation": "TREE",
+      "entity": "CatalogItem",
+      "rootParam": "root_id",
+      "maxDepth": 20
+    },
+    {
+      "id": "catalog.lookup",
+      "mode": "READ",
+      "operation": "LOOKUP",
+      "entity": "CatalogItem",
+      "codeParam": "code",
+      "includeSystem": true
     }
   ]
 }
 ```
 
-Quy ước:
+### 6.2. Operation phase 1
 
-- `mode`: `READ` hoặc `WRITE`.
-- `entity`: phải có trong `entities`.
-- `sql`: một statement, named parameters `:param`, không nội suy.
-- Không tự truyền `tenant_id`; core set qua RLS/`app.tenant_id`.
-- `max_rows`, `timeout_ms` do core enforce, không tin plugin.
+| Operation | Mục đích |
+| :--- | :--- |
+| `LIST` | filter/sort/page |
+| `GET` | theo id |
+| `INSERT` | tạo mới + returning |
+| `UPDATE` | theo id + optimistic version |
+| `DELETE` | soft/hard theo descriptor |
+| `TREE` | recursive CTE cho cây |
+| `GRAPH` | cha/con, kiểm tra chu trình |
+| `LOOKUP` | options/resolve cho form động |
+| `AGGREGATE` | count/sum/group an toàn |
+| `BATCH` | nhiều operation trong transaction |
 
-### 6.2. Kiểm tra template
+Operation đặc thù catalog (DAG, version, effective) được core compiler hỗ trợ như **operation generic**, không phải logic catalog hardcode.
+
+### 6.3. Join allowlist
+
+- `joins` chỉ được dùng relation đã khai báo trong `entities[].relations`.
+- Chỉ join trong cùng tenant schema; cross-plugin join chỉ khi:
+  - plugin đích ACTIVE,
+  - relation được khai báo hai phía,
+  - join là read-only,
+  - core compiler kiểm tra allowlist.
+- Không cho join `public`, system schema, `pg_catalog`.
+
+Ví dụ:
+
+```json
+{
+  "id": "catalog.items.with.type",
+  "operation": "LIST",
+  "entity": "CatalogItem",
+  "joins": [
+    { "relation": "type", "select": ["code", "name_key"] }
+  ]
+}
+```
+
+### 6.4. Validate descriptor
 
 Lúc publish/install:
 
-- parse SQL AST;
-- chỉ cho `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `WITH` (read/write tương ứng);
-- chặn `CREATE`, `ALTER`, `DROP`, `TRUNCATE`, `COPY`, `CALL`, `DO`, `SET`, `RESET`, `GRANT`, `REVOKE`;
-- chặn `pg_catalog`, `information_schema`, `public`, schema khác tenant;
-- bảng phải thuộc `entities` của plugin;
-- chặn function ngoài allowlist;
-- một statement duy nhất;
-- kiểm tra `tenant_id` có được bảo vệ bởi RLS (không bắt buộc viết tay);
-- lưu hash + plugin version để audit.
+- operation/entity/field/relation phải tồn tại trong manifest;
+- filter op chỉ trong allowlist (`EQ`, `IN`, `ILIKE`, `BETWEEN`, `IS_NULL`...);
+- sort field thuộc entity/join;
+- page size ≤ max;
+- join relation được khai báo;
+- write descriptor có `idempotency`;
+- lưu hash + plugin version.
 
-Runtime không parse lại toàn bộ SQL; chỉ kiểm tra `template_id`, `mode`, token, params count/type, timeout.
+Runtime không nhận SQL thô; chỉ `query_id + params`.
 
 ## 7. Tenant, scope và system DB
 
@@ -278,49 +326,38 @@ CREATE POLICY tenant_isolation ON catalog_items
 
 - Tenant plugin chỉ thấy row của tenant.
 - System rows (`tenant_id IS NULL`) không thấy trong tenant scope.
-- System scope dùng role/policy riêng.
 
 ### 7.2. System scope
 
 - `scope=SYSTEM` chỉ cấp cho system plugin/core system runtime.
-- Service identity riêng, port/endpoint riêng hoặc token audience riêng.
-- Không cho tenant plugin gửi `scope=SYSTEM`; core từ chối theo token, không theo payload.
+- Cùng gRPC server nhưng **service identity/port riêng**; tenant plugin không thể truy cập.
 - Audit system command tách riêng.
 
-### 7.3. Bảng core / plugin khác
+### 7.3. Cache Redis
 
-- Phase 1: plugin chỉ đọc/ghi entity của chính plugin trong schema tenant.
-- Quan hệ với core (ví dụ `tenant_id → core.Tenant`) khai báo trong manifest nhưng **không join SQL trực tiếp**.
-- Nếu cần join core, core cung cấp **view/read model** đã kiểm soát; không cho plugin query `public` tùy ý.
+- Namespace: `plugin:{tenantId}:{pluginKey}:...`.
+- Chỉ cache kết quả `READ`, TTL ngắn (30–60 giây), key gồm query id + params hash + schema version.
+- Không cache dữ liệu system hoặc kết quả write.
+- Sau write, plugin xoá cache liên quan; khi có RabbitMQ sẽ invalidate qua event.
+- Redis credential do core cấp, ACL giới hạn namespace.
 
 ## 8. Migration do core thực thi
 
 ### 8.1. Khai báo
 
-```json
-{
-  "migrations": [
-    {
-      "version": "1.0.0",
-      "description": "initial catalog schema",
-      "checksum": "sha256:...",
-      "sql": "CREATE TABLE ...;"
-    }
-  ]
-}
+Plugin bundle có:
+
+```text
+migrations/
+  V1.0.0__initial_schema.sql
+manifest:
+  migrations:
+    - version: 1.0.0
+      file: migrations/V1.0.0__initial_schema.sql
+      checksum: sha256:...
 ```
 
-Với plugin đóng gói dạng bundle, có thể dùng:
-
-```json
-{
-  "migrations": [
-    { "version": "1.0.0", "file": "db/plugin-migration/V1.0.0__initial_schema.sql", "checksum": "sha256:..." }
-  ]
-}
-```
-
-Core đọc từ artifact bundle; nếu chỉ có OCI image, SQL phải nằm trong manifest/artifact metadata (xem câu hỏi Q2).
+Core đọc từ artifact bundle. Nếu chỉ có OCI image, SQL phải nằm trong artifact metadata/manifest.
 
 ### 8.2. Thực thi
 
@@ -331,11 +368,7 @@ Core đọc từ artifact bundle; nếu chỉ có OCI image, SQL phải nằm tr
 5. Chỉ start plugin container khi migration thành công.
 6. Migration fail → install/enable fail, không start container.
 
-Plugin không còn:
-
-- `quarkus-flyway`;
-- `quarkus.flyway.*`;
-- quyền DDL.
+Plugin không còn `quarkus-flyway`, `quarkus.flyway.*`, quyền DDL.
 
 ## 9. Giao tiếp và vận hành
 
@@ -349,8 +382,10 @@ services:
     # gRPC :9090 nội bộ, HTTP :8080
   catalog-dev:
     environment:
-      PLUGIN_DATA_GATEWAY_URL: http://backend-dev:9090
+      PLUGIN_DATA_GATEWAY_URL: https://backend-dev:9090
       PLUGIN_SERVICE_TOKEN: ...
+    volumes:
+      - ./docker/certs/plugin-catalog:/certs:ro
 ```
 
 K8s:
@@ -361,7 +396,7 @@ openerp-core.openerp.svc.cluster.local:9090
 
 - Không expose gRPC qua ingress.
 - NetworkPolicy chỉ cho plugin pods gọi core gateway.
-- mTLS ở staging/prod.
+- mTLS cert do cert-manager/Secret cấp.
 
 ### 9.2. Timeout, retry, rate limit
 
@@ -377,9 +412,9 @@ gRPC status + `ErrorDetail`:
 
 ```json
 {
-  "code": "PLUGIN_DATA_TEMPLATE_NOT_ALLOWED",
-  "message": "Template is not registered for this plugin version",
-  "params": {"template_id": "..."},
+  "code": "PLUGIN_DATA_QUERY_NOT_ALLOWED",
+  "message": "Query descriptor is not registered for this plugin version",
+  "params": {"query_id": "..."},
   "retryable": false
 }
 ```
@@ -389,85 +424,65 @@ Plugin map sang API envelope 4 khuôn mẫu; không trả message tiếng Việt
 ### 9.4. Audit và observability
 
 - OpenTelemetry trace xuyên plugin → core → DB.
-- Metrics: latency, error, rows, timeout, pool wait.
-- Audit: request_id, plugin, tenant, template, actor, mode, rows, duration.
+- Metrics: latency, error, rows, timeout, pool wait, cache hit.
+- Audit: request_id, plugin, tenant, query_id, actor, mode, rows, duration.
 - Log không chứa param nhạy cảm.
 
-## 10. Câu hỏi cần chủ dự án trả lời
+## 10. Quyết định đã chốt
 
-> Trả lời theo số thứ tự; nếu đồng ý với đề xuất thì ghi “OK”.
-
-**Q1. Xác thực gRPC trong local/dev và production?**
-Đề xuất: dev dùng service JWT ngắn hạn; staging/prod dùng **mTLS + JWT**. Bạn muốn dùng mTLS ngay từ dev hay chỉ production?
-
-**Q2. Migration SQL nằm ở đâu?**
-Đề xuất: plugin package/bundle có thư mục `migrations/` + manifest khai báo file + checksum; core đọc từ artifact bundle. Nếu plugin chỉ là OCI image, có chấp nhận nhúng SQL vào `plugin.json` không?
-
-**Q3. Query template dùng SQL template hay DSL?**
-Đề xuất: **SQL template có tên**, core validate AST lúc publish. Chấp nhận SQL template hay muốn DSL/query descriptor hoàn toàn?
-
-**Q4. Transaction nhiều bước?**
-Đề xuất: thêm `ExecuteBatch` để chạy nhiều template trong một transaction. Có cần không, hay mỗi RPC một statement là đủ?
-
-**Q5. Read consistency?**
-Đề xuất: READ mặc định đi read-replica; sau WRITE, plugin truyền `consistency=PRIMARY` cho lần đọc kế tiếp. Chấp nhận eventual consistency mặc định không?
-
-**Q6. System scope dùng chung gRPC service hay tách riêng?**
-Đề xuất: cùng server nhưng **service identity/port riêng** cho system; tenant plugin không thể truy cập. Bạn muốn tách hẳn service/port hay chỉ tách token?
-
-**Q7. RabbitMQ làm ngay hay sau?**
-Đề xuất: phase 1 chỉ gRPC data gateway; RabbitMQ cho event/command async ở phase sau. Có cần RabbitMQ ngay trong Sprint 05 không?
-
-**Q8. Ai duyệt query template?**
-Đề xuất: core tự validate AST + table allowlist, audit; không cần platform admin duyệt từng template. Có cần bước duyệt thủ công cho plugin bên thứ ba không?
-
-**Q9. Quan hệ liên plugin/core?**
-Đề xuất: phase 1 không cho SQL join trực tiếp sang core/plugin khác; chỉ dùng read model/view do core cung cấp. Bạn có cần join trực tiếp không?
-
-**Q10. Plugin có còn giữ REST API cho FE không?**
-Đề xuất: giữ nguyên REST API trong plugin; chỉ thay DB access bằng gRPC. Xác nhận?
-
-**Q11. Có giữ container plugin hay chuyển core-hosted JAR?**
-Đề xuất: giữ **thin container** để bảo toàn isolation; gRPC data gateway là đường duy nhất tới DB. Xác nhận?
-
-**Q12. Có cần cache read model trong plugin không?**
-Đề xuất: phase 1 không cache; plugin gọi core mỗi lần đọc. Nếu cần giảm latency, phase sau thêm Redis/cache do core cấp. Bạn muốn cache ngay không?
+| # | Câu hỏi | Quyết định |
+| :--- | :--- | :--- |
+| Q1 | Xác thực gRPC | **mTLS cả dev/prod**; service token ngắn hạn cho scope/ACL |
+| Q2 | Migration SQL | **Bundle + checksum**, core đọc artifact |
+| Q3 | Query format | **Query DSL/descriptor**, core compile SQL |
+| Q4 | Transaction | **Có `ExecuteBatch`** |
+| Q5 | Read consistency | **Replica mặc định + `PRIMARY` flag** |
+| Q6 | System scope | **Cùng server, identity/port riêng** |
+| Q7 | RabbitMQ | **Để phase sau** |
+| Q8 | Duyệt descriptor | **Core auto-validate + audit** |
+| Q9 | Join core/plugin khác | **Join trực tiếp có allowlist** |
+| Q10 | REST API plugin | **Giữ REST trong plugin** |
+| Q11 | Runtime model | **Giữ thin container** |
+| Q12 | Cache | **Redis ngay**, namespace riêng, TTL ngắn |
 
 ## 11. Lộ trình triển khai
 
 | Phase | Nội dung | Tiêu chí xong |
 | :--- | :--- | :--- |
-| P0 | Chốt SOL/ADR, trả lời câu hỏi §10 | Doc Approved |
-| P1 | Proto + SDK client + gRPC server skeleton + service token | Plugin gọi `ping` qua gRPC |
-| P2 | Template registry + AST validator + migration executor | Publish/validate/migrate PASS |
-| P3 | Read path catalog qua gRPC | Catalog reads không còn DB trong plugin |
-| P4 | Write path + transaction + idempotency + outbox | CRUD qua gRPC; audit đầy đủ |
+| P0 | ADR/SOL approve, tạo TASK-402 | Doc Approved |
+| P1 | Proto + SDK client + gRPC server skeleton + mTLS | Plugin gọi `ping` qua mTLS |
+| P2 | Descriptor registry + query compiler + migration executor | Publish/validate/migrate PASS |
+| P3 | Read path catalog qua gRPC + Redis cache | Catalog reads không còn DB trong plugin |
+| P4 | Write path + `ExecuteBatch` + idempotency + outbox | CRUD qua gRPC; audit đầy đủ |
 | P5 | System scope + remove DB env/credentials | Tenant plugin không truy cập system |
-| P6 | RabbitMQ event/command (nếu chốt) | Event fan-out/DLQ PASS |
+| P6 | RabbitMQ event/command (nếu cần) | Event fan-out/DLQ PASS |
 
 ## 12. Tiêu chí nghiệm thu
 
 - [ ] Plugin container không còn `QUARKUS_DATASOURCE_*`, `DB_URL`, `DB_SCHEMA`.
 - [ ] Plugin code không còn `DataSource`, `EntityManager`, Panache repository.
-- [ ] 100% đọc/ghi catalog đi qua gRPC template.
+- [ ] 100% đọc/ghi catalog đi qua gRPC descriptor.
 - [ ] Tenant A không đọc/ghi được dữ liệu tenant B.
 - [ ] Tenant plugin không truy cập system schema.
 - [ ] Migration do core chạy; plugin chỉ khai báo file/checksum.
-- [ ] Query template sai bị từ chối lúc publish, không chờ runtime.
+- [ ] Descriptor sai bị từ chối lúc publish, không chờ runtime.
+- [ ] mTLS hoạt động ở dev/staging/prod.
 - [ ] gRPC timeout/error trả envelope chuẩn, không lộ SQL/DB.
-- [ ] Audit đủ plugin/tenant/template/rows/duration.
+- [ ] Audit đủ plugin/tenant/query/rows/duration.
 - [ ] Core gateway scale ngang; DB pool không bị cạn.
+- [ ] Redis cache có namespace riêng, TTL, invalidation sau write.
 
 ## 13. Rủi ro và biện pháp
 
 | Rủi ro | Biện pháp |
 | :--- | :--- |
-| SQL template chứa truy vấn nguy hiểm | AST + table/function allowlist; test bypass |
-| Plugin giả tenant/scope | Token/mTLS; core derive từ identity |
-| RLS bị bypass do role owner | Dùng role riêng không phải owner/superuser |
+| Query descriptor bị lạm dụng | Compiler allowlist; test bypass |
+| Plugin giả tenant/scope | mTLS + token; core derive từ identity |
+| RLS bị bypass do role owner | Role riêng không phải owner/superuser |
 | Query nặng làm treo DB | timeout, row limit, rate limit, explain cost |
 | Core gateway thành bottleneck | scale ngang, pool, read replica |
 | Migration fail giữa chừng | transaction + history + rollback/restore |
+| Cache stale | TTL ngắn + xoá sau write; event invalidation phase sau |
 | Plugin vẫn giữ code DB cũ | xoá repository/entity manager; CI grep cấm |
 
 ## 14. Tài liệu tham chiếu
@@ -482,4 +497,5 @@ Plugin map sang API envelope 4 khuôn mẫu; không trả message tiếng Việt
 
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
-| 0.1 | 2026-10-27 | Tạo giải pháp gRPC Plugin Data Gateway; plugin zero DB; câu hỏi §10 | Chủ dự án chỉ đạo |
+| 0.1 | 2026-10-27 | Draft giải pháp gRPC data gateway; 12 câu hỏi | Chủ dự án chỉ đạo |
+| 1.0 | 2026-10-27 | Chốt Q1–Q12: mTLS dev/prod, bundle migration, query DSL, ExecuteBatch, replica+primary, system identity riêng, RabbitMQ sau, auto-validate, join allowlist, REST plugin, thin container, Redis cache | Chủ dự án trả lời interact |

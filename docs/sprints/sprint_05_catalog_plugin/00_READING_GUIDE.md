@@ -36,13 +36,13 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | 05.01 | SOL-S05-001 | [Kiến trúc plugin](05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) | 16 quyết định kiến trúc + luồng + rủi ro — **D1 bị bác** | Architect |
 | 05.02 | ADR-S05-001 | [Catalog plugin package độc lập](05_solutions/02_ADR-S05-001_catalog_independent_plugin.md) | Hướng B: package trong monorepo, container/schema/gateway/UI riêng; **plugin sở hữu system catalog + fan-out**; 12 quyết định + 5 phase | Architect |
 | 05.03 | ADR-S05-002 | [Backend plugin tối giản](05_solutions/03_ADR-S05-002_thin_plugin_backend.md) | Plugin khai báo entity/relations/repository/API/WS; core cấp datasource/security/SDK runtime | Architect |
-| 05.04 | SOL-S05-002 | [Plugin Data Gateway gRPC](05_solutions/04_SOL-S05-002_plugin_data_gateway_grpc.md) | Plugin zero DB; core validate/execute query template; câu hỏi chờ chủ dự án | Architect |
+| 05.04 | SOL-S05-002 | [Plugin Data Gateway gRPC](05_solutions/04_SOL-S05-002_plugin_data_gateway_grpc.md) | Plugin zero DB; core validate/execute query DSL; mTLS, migration core, Redis cache; **Approved** | Architect |
 | 06.01 | DES-DB-S05-001 | [Thiết kế CSDL](06_designs/db/01_DES-DB-S05-001_catalog_schema.md) | DDL 4 bảng, EXCLUDE, index, seed/backfill, truy vấn mẫu | Architect |
 | 06.02 | DES-API-S05-001 | [Thiết kế API](06_designs/api/01_DES-API-S05-001_catalog_api.md) | 3 nhóm API + contract + mã lỗi | Architect |
 | 06.03 | DES-UI-S05-001 | [Thiết kế UI](06_designs/ui/01_DES-UI-S05-001_catalog_admin_ui.md) | Màn 3 cột + component picker + ma trận Desktop/Mobile | Architect |
 | 07.01 | FEAT-30 | [Plugin Danh mục](07_items/FEAT-30_catalog_core_plugin.md) | Feature + **19 task con** — **Blocked bởi BUG-135** | Developer |
 | 07.02 | TASK-375…393 | [07_items/](07_items/) | Baseline code lịch sử (19/19 code) — **không còn hiệu lực kiến trúc**; phải làm lại theo plugin độc lập | Developer |
-| 07.03 | TASK-394…401 | [07_items/](07_items/) | Kế hoạch tái triển khai: package plugin → schema/migration → lifecycle/gateway → UI host động → Docker-only dev → gom shared runtime → QA | Developer/QA |
+| 07.03 | TASK-394…402 | [07_items/](07_items/) | Kế hoạch tái triển khai: package plugin → schema/migration → lifecycle/gateway → UI host động → Docker-only dev → gom shared runtime → gRPC data gateway → QA | Developer/QA |
 | 08.01 | TP-S05-001 | [Test plan Sprint 05](08_testing/01_TP-S05-001_sprint_05_test_plan.md) | **25 TC** theo AC + ma trận lấy mẫu | QA |
 | 08.02 | TR-S05-001 | [Test report Sprint 05](08_testing/02_TR-S05-001_sprint_05_test_report.md) | Baseline cũ **21 PASS / 4 PARTIAL** — **withdrawn**, phải chạy lại sau khi đổi kiến trúc | QA |
 | 08.03 | EVD-S05-001 | [Evidence index](08_testing/evidence/00_EVD-S05-001_evidence_index.md) | **12 ảnh minh chứng** (baseline cũ; dùng lại sau khi UI chuyển sang plugin) | QA |
@@ -79,7 +79,7 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | BUG-135 | [BUG-135](07_items/BUG-135_catalog_not_independent_plugin.md) | Architect → Developer | Used — **Open (High)**; chặn DoD |
 | BUG-136 | [BUG-136](07_items/BUG-136_locked_plugin_uninstall_not_blocked.md) | Developer | Used — **Open (High)**; chặn DoD |
 | BUG-137…142 | [07_items/](07_items/) | Developer/QA | Used — **Resolved (dev)**: plugin host/CSS/context menu/route-state, mobile auth + drawer |
-| TASK-394…401 | [07_items/](07_items/) | Developer/QA | Used — **In Progress/Done (dev)**; 394→398 theo ADR-S05-001, 399 UI Manifest + host động, 400 Docker-only dev, 401 gom shared runtime |
+| TASK-394…402 | [07_items/](07_items/) | Developer/QA | Used — **In Progress/Done (dev)**; 394→398 theo ADR-S05-001, 399 UI Manifest + host động, 400 Docker-only dev, 401 shared runtime, 402 gRPC data gateway (To Do) |
 | TP-S05-001 | [08_testing/](08_testing/) | QA | Used (Draft) |
 | TR-S05-001 | [08_testing/](08_testing/) | QA | Used (baseline cũ — withdrawn) |
 | REV-S05-001 | Chưa tạo | PM | Reserved |
