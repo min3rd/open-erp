@@ -1,0 +1,43 @@
+package com.vn9melody.openerp.modules.plugin.data;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
+import org.junit.jupiter.api.Test;
+
+/**
+ * TASK-402 P2.1: the seeded catalog manifest must validate against the query
+ * compiler contract (entities, public fields, scopes, filters).
+ */
+@QuarkusTest
+public class CatalogQueryDescriptorManifestTest {
+
+    @Inject
+    PluginDescriptorRegistry registry;
+
+    @Test
+    void seededCatalogDescriptorsAreValid() {
+        PluginManifest manifest = registry.manifest("catalog", "1.0.0");
+
+        assertEquals(18, manifest.queries().size());
+        assertTrue(manifest.entities().get("CatalogType").fields().contains("attributes_schema"));
+        assertTrue(manifest.entities().get("CatalogItem").fields().contains("attributes"));
+
+        PluginQueryDescriptor types = manifest.requireQuery("catalog.types.visible");
+        assertEquals(PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM, types.scope());
+
+        PluginQueryDescriptor items = manifest.requireQuery("catalog.items.by.type");
+        assertEquals(PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM, items.scope());
+        assertNotNull(items.search());
+        assertEquals(1, items.search().size());
+
+        PluginQueryDescriptor grants = manifest.requireQuery("catalog.grants.by.type");
+        assertEquals(PluginQueryDescriptor.Scope.TENANT, grants.scope());
+
+        PluginQueryDescriptor systemItems = manifest.requireQuery("catalog.items.system.by.type");
+        assertEquals(PluginQueryDescriptor.Scope.SYSTEM, systemItems.scope());
+    }
+}

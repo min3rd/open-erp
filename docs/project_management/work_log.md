@@ -2,6 +2,14 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-27 — TASK-402 P2.1: catalog query descriptors
+
+- **Manifest**: `plugins/catalog/plugin.json` (+ resource copy) khai báo 18 query read-path (types/items/edges/grants), thêm public fields `attributes_schema`, `attributes`, `created_by`, `updated_by`.
+- **Compiler**: hỗ trợ `tenant_scope=TENANT|TENANT_OR_SYSTEM|SYSTEM`, filter `EFFECTIVE_AT`, `search` nhiều cột OR ILIKE.
+- **Seed**: core migration `V5.0.2__catalog_query_descriptors.sql` cập nhật `plugin_versions.entities` + `manifest.entities/queries` cho `catalog@1.0.0`.
+- **Kiểm chứng**: `CatalogQueryDescriptorManifestTest` PASS (18 descriptors validate); `PluginDataGatewayTest` 11/11 PASS.
+- **Chưa làm**: Redis cache do plugin quản lý (P3), SDK client/read path gRPC, mTLS.
+
 ## 2026-10-27 — TASK-402 P1/P2: gRPC plugin data gateway (core)
 
 - **P1**: `plugin_data.proto` (`Ping`, `Execute`, `ExecuteBatch`, `Row`, `Value`, `total_rows`); Quarkus gRPC server cổng nội bộ `:9090`; `PluginServiceIdentityResolver` + token `PLUGIN_SERVICE` audience `plugin-data`; metadata interceptor.

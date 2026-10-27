@@ -75,10 +75,16 @@ public class PluginDataExecutor {
                               String queryId, String requestId, Map<String, Value> params) {
         PluginManifest manifest = registry.manifest(identity.pluginKey(), resolved.version());
         PluginQueryDescriptor query = manifest.requireQuery(queryId);
+        if (!identity.system() && query.scope() == PluginQueryDescriptor.Scope.SYSTEM) {
+            throw new PluginDataException(PluginDataException.Code.QUERY_NOT_FOUND,
+                    "PLUGIN_DATA_QUERY_SYSTEM_SCOPE_DENIED");
+        }
         Map<String, Value> safeParams = params == null ? Map.of() : params;
-        boolean tenantScoped = identity.scope() == PluginServiceIdentity.Scope.TENANT;
+        PluginQueryDescriptor.Scope scope = identity.system()
+                ? PluginQueryDescriptor.Scope.SYSTEM
+                : query.scope();
         PluginQueryCompiler.CompiledQuery compiled = compiler.compile(
-                manifest, query, safeParams, resolved.schema(), tenantScoped);
+                manifest, query, safeParams, resolved.schema(), scope);
         int timeout = query.timeoutMs() > 0 ? query.timeoutMs() : defaultTimeoutMs;
         try (Connection connection = dataSource.getConnection()) {
             configureSession(connection, resolved, timeout);

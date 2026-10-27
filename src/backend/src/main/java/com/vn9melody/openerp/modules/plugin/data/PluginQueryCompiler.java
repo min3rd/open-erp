@@ -24,26 +24,28 @@ public final class PluginQueryCompiler {
 
     private static final Set<String> FILTER_OPS = Set.of(
             "EQ", "NE", "GT", "GTE", "LT", "LTE", "IN", "ILIKE", "LIKE",
-            "BETWEEN", "IS_NULL", "IS_NOT_NULL");
+            "BETWEEN", "IS_NULL", "IS_NOT_NULL", "EFFECTIVE_AT");
 
     public record CompiledQuery(String sql, List<Object> params,
                                 String countSql, List<Object> countParams) {}
 
     public CompiledQuery compile(PluginManifest manifest, PluginQueryDescriptor query,
-                                 Map<String, Value> params, String schema, boolean tenantScoped) {
+                                 Map<String, Value> params, String schema,
+                                 PluginQueryDescriptor.Scope scope) {
         return switch (query.operation()) {
-            case LIST -> list(manifest, query, params, schema, tenantScoped);
-            case GET -> get(manifest, query, params, schema, tenantScoped);
-            case INSERT -> insert(manifest, query, params, schema, tenantScoped);
-            case UPDATE -> update(manifest, query, params, schema, tenantScoped);
-            case DELETE -> delete(manifest, query, params, schema, tenantScoped);
+            case LIST -> list(manifest, query, params, schema, scope);
+            case GET -> get(manifest, query, params, schema, scope);
+            case INSERT -> insert(manifest, query, params, schema, scope);
+            case UPDATE -> update(manifest, query, params, schema, scope);
+            case DELETE -> delete(manifest, query, params, schema, scope);
         };
     }
 
     private CompiledQuery list(PluginManifest manifest, PluginQueryDescriptor query,
-                               Map<String, Value> params, String schema, boolean tenantScoped) {
+                               Map<String, Value> params, String schema,
+                               PluginQueryDescriptor.Scope scope) {
         PluginManifest.Entity entity = manifest.requireEntity(query.entity());
-        Source source = source(manifest, query, entity, schema, tenantScoped, params);
+        Source source = source(manifest, query, entity, schema, scope, params);
         String where = source.where.isEmpty() ? "" : " WHERE " + String.join(" AND ", source.where);
 
         List<Object> sqlParams = new ArrayList<>(source.params);
@@ -76,22 +78,30 @@ public final class PluginQueryCompiler {
     }
 
     private CompiledQuery get(PluginManifest manifest, PluginQueryDescriptor query,
-                              Map<String, Value> params, String schema, boolean tenantScoped) {
+                              Map<String, Value> params, String schema,
+                              PluginQueryDescriptor.Scope scope) {
         PluginManifest.Entity entity = manifest.requireEntity(query.entity());
-        Source source = source(manifest, query, entity, schema, tenantScoped, params);
+        Source source = source(manifest, query, entity, schema, scope, params);
         String where = source.where.isEmpty() ? "" : " WHERE " + String.join(" AND ", source.where);
         String sql = "SELECT " + selectList(entity, query) + source.from + where + " LIMIT 1";
         return new CompiledQuery(sql, new ArrayList<>(source.params), null, List.of());
     }
 
     private CompiledQuery insert(PluginManifest manifest, PluginQueryDescriptor query,
-                                 Map<String, Value> params, String schema, boolean tenantScoped) {
+                                 Map<String, Value> params, String schema,
+                                 PluginQueryDescriptor.Scope scope) {
         PluginManifest.Entity entity = manifest.requireEntity(query.entity());
+        if (scope == PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM) {
+            throw invalid(query, "write descriptor cannot use TENANT_OR_SYSTEM");
+        }
         if (query.values().isEmpty()) {
             throw invalid(query, "INSERT descriptor has no values");
         }
-        if (tenantScoped && query.values().containsKey("tenant_id")) {
+        if (query.values().containsKey("tenant_id")) {
             throw invalid(query, "tenant_id is managed by the gateway");
+        }
+        if (scope != PluginQueryDescriptor.Scope.SYSTEM && !entity.fields().contains("tenant_id")) {
+            throw invalid(query, "tenant-scoped entity has no tenant_id");
         }
         List<String> columns = new ArrayList<>();
         List<String> placeholders = new ArrayList<>();
@@ -102,12 +112,11 @@ public final class PluginQueryCompiler {
             placeholders.add("?");
             values.add(required(params, query, entry.getValue()));
         }
-        if (tenantScoped) {
-            if (!entity.fields().contains("tenant_id")) {
-                throw invalid(query, "tenant-scoped entity has no tenant_id");
-            }
+        if (entity.fields().contains("tenant_id")) {
             columns.add(quote("tenant_id"));
-            placeholders.add("current_setting('app.tenant_id')::uuid");
+            placeholders.add(scope == PluginQueryDescriptor.Scope.TENANT
+                    ? "current_setting('app.tenant_id')::uuid"
+                    : "NULL");
         }
         List<String> returning = returning(entity, query);
         String sql = "INSERT INTO " + qualified(schema, entity.table())
@@ -118,8 +127,12 @@ public final class PluginQueryCompiler {
     }
 
     private CompiledQuery update(PluginManifest manifest, PluginQueryDescriptor query,
-                                 Map<String, Value> params, String schema, boolean tenantScoped) {
+                                 Map<String, Value> params, String schema,
+                                 PluginQueryDescriptor.Scope scope) {
         PluginManifest.Entity entity = manifest.requireEntity(query.entity());
+        if (scope == PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM) {
+            throw invalid(query, "write descriptor cannot use TENANT_OR_SYSTEM");
+        }
         if (query.values().isEmpty()) {
             throw invalid(query, "UPDATE descriptor has no values");
         }
@@ -129,7 +142,7 @@ public final class PluginQueryCompiler {
         if (query.filters().isEmpty()) {
             throw invalid(query, "UPDATE descriptor must declare a filter");
         }
-        Source source = source(manifest, query, entity, schema, tenantScoped, params);
+        Source source = source(manifest, query, entity, schema, scope, params);
         List<String> assignments = new ArrayList<>();
         List<Object> values = new ArrayList<>();
         for (Map.Entry<String, String> entry : query.values().entrySet()) {
@@ -146,12 +159,13 @@ public final class PluginQueryCompiler {
     }
 
     private CompiledQuery delete(PluginManifest manifest, PluginQueryDescriptor query,
-                                 Map<String, Value> params, String schema, boolean tenantScoped) {
+                                 Map<String, Value> params, String schema,
+                                 PluginQueryDescriptor.Scope scope) {
         PluginManifest.Entity entity = manifest.requireEntity(query.entity());
         if (query.filters().isEmpty()) {
             throw invalid(query, "DELETE descriptor must declare a filter");
         }
-        Source source = source(manifest, query, entity, schema, tenantScoped, params);
+        Source source = source(manifest, query, entity, schema, scope, params);
         String where = source.where.isEmpty() ? "" : " WHERE " + String.join(" AND ", source.where);
         String sql = "DELETE FROM " + qualified(schema, entity.table()) + " t" + where
                 + " RETURNING " + String.join(", ", returning(entity, query));
@@ -161,17 +175,18 @@ public final class PluginQueryCompiler {
     private record Source(String from, List<String> where, List<Object> params) {}
 
     private Source source(PluginManifest manifest, PluginQueryDescriptor query,
-                          PluginManifest.Entity entity, String schema, boolean tenantScoped,
+                          PluginManifest.Entity entity, String schema,
+                          PluginQueryDescriptor.Scope scope,
                           Map<String, Value> params) {
         StringBuilder from = new StringBuilder(" FROM ")
                 .append(qualified(schema, entity.table())).append(" t");
         List<String> where = new ArrayList<>();
         List<Object> values = new ArrayList<>();
-        if (tenantScoped) {
+        if (scope != PluginQueryDescriptor.Scope.SYSTEM) {
             if (!entity.fields().contains("tenant_id")) {
                 throw invalid(query, "tenant-scoped entity has no tenant_id");
             }
-            where.add("t." + quote("tenant_id") + " = current_setting('app.tenant_id')::uuid");
+            where.add(tenantPredicate("t", scope));
         }
 
         int joinIndex = 0;
@@ -191,12 +206,11 @@ public final class PluginQueryCompiler {
             StringBuilder on = new StringBuilder(" ON t.")
                     .append(quote(relation.localField()))
                     .append(" = ").append(alias).append('.').append(quote(relation.targetField()));
-            if (tenantScoped) {
+            if (scope != PluginQueryDescriptor.Scope.SYSTEM) {
                 if (!target.fields().contains("tenant_id")) {
                     throw invalid(query, "tenant-scoped join target has no tenant_id");
                 }
-                on.append(" AND ").append(alias).append('.').append(quote("tenant_id"))
-                        .append(" = current_setting('app.tenant_id')::uuid");
+                on.append(" AND ").append(tenantPredicate(alias, scope));
             }
             from.append(" LEFT JOIN ").append(qualified(schema, target.table())).append(' ').append(alias)
                     .append(on);
@@ -206,6 +220,25 @@ public final class PluginQueryCompiler {
             requireField(entity, query, filter.field());
             if (!FILTER_OPS.contains(filter.op())) {
                 throw invalid(query, "unsupported filter operator " + filter.op());
+            }
+            if ("EFFECTIVE_AT".equals(filter.op())) {
+                if (!entity.fields().contains("valid_from") || !entity.fields().contains("valid_to")) {
+                    throw invalid(query, "entity has no validity range");
+                }
+                Value value = params.get(filter.param());
+                if (value == null || value.hasNullValue()
+                        || value.getKindCase() == Value.KindCase.KIND_NOT_SET) {
+                    if (filter.required()) {
+                        throw missing(query, filter.param());
+                    }
+                    continue;
+                }
+                Object at = toJava(value);
+                where.add("(t." + quote("valid_from") + " <= ? AND (t." + quote("valid_to")
+                        + " IS NULL OR t." + quote("valid_to") + " > ?))");
+                values.add(at);
+                values.add(at);
+                continue;
             }
             String column = "t." + quote(filter.field());
             Value value = params.get(filter.param());
@@ -281,6 +314,26 @@ public final class PluginQueryCompiler {
                     values.add(toJava(value));
                 }
                 default -> throw invalid(query, "unsupported filter operator " + filter.op());
+            }
+        }
+        for (PluginQueryDescriptor.Search search : query.search()) {
+            Value value = params.get(search.param());
+            if (value == null || value.hasNullValue()
+                    || value.getKindCase() == Value.KindCase.KIND_NOT_SET) {
+                continue;
+            }
+            String text = scalarText(value);
+            if (text.isEmpty()) {
+                continue;
+            }
+            List<String> parts = new ArrayList<>();
+            for (String field : search.fields()) {
+                requireField(entity, query, field);
+                parts.add("t." + quote(field) + " ILIKE ?");
+                values.add("%" + text + "%");
+            }
+            if (!parts.isEmpty()) {
+                where.add("(" + String.join(" OR ", parts) + ")");
             }
         }
         return new Source(from.toString(), where, values);
@@ -411,6 +464,18 @@ public final class PluginQueryCompiler {
 
     private static String qualified(String schema, String table) {
         return quote(schema) + "." + quote(table);
+    }
+
+    private static String tenantPredicate(String alias, PluginQueryDescriptor.Scope scope) {
+        String column = alias + "." + quote("tenant_id");
+        if (scope == PluginQueryDescriptor.Scope.TENANT) {
+            return column + " = current_setting('app.tenant_id')::uuid";
+        }
+        if (scope == PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM) {
+            return "(" + column + " = current_setting('app.tenant_id')::uuid OR "
+                    + column + " IS NULL)";
+        }
+        return "TRUE";
     }
 
     private static String quote(String identifier) {

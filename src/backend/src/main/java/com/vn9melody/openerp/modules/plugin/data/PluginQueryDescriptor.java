@@ -18,8 +18,10 @@ public record PluginQueryDescriptor(
         Mode mode,
         Operation operation,
         String entity,
+        Scope scope,
         List<String> select,
         List<Filter> filters,
+        List<Search> search,
         List<Sort> sort,
         Map<String, String> values,
         List<String> returning,
@@ -32,7 +34,13 @@ public record PluginQueryDescriptor(
 
     public enum Operation { LIST, GET, INSERT, UPDATE, DELETE }
 
+    /** Tenant isolation applied by the compiler; metadata never comes from the payload. */
+    public enum Scope { TENANT, TENANT_OR_SYSTEM, SYSTEM }
+
     public record Filter(String field, String op, String param, boolean required, boolean contains) {}
+
+    /** Optional multi-column contains search (OR across the declared fields). */
+    public record Search(String param, List<String> fields) {}
 
     public record Sort(String field, String direction) {}
 
@@ -56,6 +64,7 @@ public record PluginQueryDescriptor(
         if (entity == null || entity.isBlank()) {
             throw new IllegalArgumentException("Query " + id + " is missing entity");
         }
+        Scope scope = Scope.valueOf(text(node, "tenant_scope", "TENANT").toUpperCase(Locale.ROOT));
         List<String> select = strings(node.path("select"));
         List<Filter> filters = new ArrayList<>();
         for (JsonNode filter : node.path("filters")) {
@@ -74,6 +83,14 @@ public record PluginQueryDescriptor(
             String field = text(item, "field", null);
             if (field != null && !field.isBlank()) {
                 sort.add(new Sort(field, text(item, "direction", "ASC").toUpperCase(Locale.ROOT)));
+            }
+        }
+        List<Search> search = new ArrayList<>();
+        for (JsonNode item : node.path("search")) {
+            String param = text(item, "param", null);
+            List<String> fields = strings(item.path("fields"));
+            if (param != null && !param.isBlank() && !fields.isEmpty()) {
+                search.add(new Search(param, fields));
             }
         }
         Map<String, String> values = new LinkedHashMap<>();
@@ -99,7 +116,7 @@ public record PluginQueryDescriptor(
                 : null;
         int maxRows = node.path("maxRows").asInt(0);
         int timeoutMs = node.path("timeoutMs").asInt(0);
-        return new PluginQueryDescriptor(id, mode, operation, entity, select, filters, sort,
+        return new PluginQueryDescriptor(id, mode, operation, entity, scope, select, filters, search, sort,
                 values, returning, joins, page, maxRows, timeoutMs);
     }
 

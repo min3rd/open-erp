@@ -80,8 +80,14 @@ public class PluginDescriptorRegistry {
                     || query.operation() == PluginQueryDescriptor.Operation.GET)) {
                 fail(query, "read operation on WRITE descriptor");
             }
+            if (query.mode() == PluginQueryDescriptor.Mode.WRITE
+                    && query.scope() == PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM) {
+                fail(query, "write descriptor cannot use TENANT_OR_SYSTEM");
+            }
             query.select().forEach(field -> field(entity, query, field));
             query.filters().forEach(filter -> field(entity, query, filter.field()));
+            query.search().forEach(search -> search.fields()
+                    .forEach(field -> field(entity, query, field)));
             query.sort().forEach(sort -> field(entity, query, sort.field()));
             query.values().keySet().forEach(field -> field(entity, query, field));
             query.returning().forEach(field -> field(entity, query, field));

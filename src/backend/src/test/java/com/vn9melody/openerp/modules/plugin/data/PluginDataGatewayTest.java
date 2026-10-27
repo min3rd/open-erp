@@ -79,7 +79,7 @@ public class PluginDataGatewayTest {
                 {
                   "entities": [
                     {"name":"Thing","table":"things","storage_scope":"TENANT",
-                     "public_fields":["id","tenant_id","code","name","status","kind_id"],
+                     "public_fields":["id","tenant_id","code","name","status","kind_id","valid_from","valid_to"],
                      "relations":[{"name":"kind","target_entity":"Kind","type":"many_to_one",
                                    "local_field":"kind_id","target_field":"id"}]},
                     {"name":"Kind","table":"kinds","storage_scope":"TENANT",
@@ -90,8 +90,9 @@ public class PluginDataGatewayTest {
                      "select":["id","code","name","status"],
                      "filters":[
                        {"field":"status","op":"EQ","param":"status"},
-                       {"field":"name","op":"ILIKE","param":"q","match":"CONTAINS"}
+                       {"field":"valid_to","op":"IS_NULL"}
                      ],
+                     "search":[{"param":"q","fields":["code","name"]}],
                      "sort":[{"field":"code","direction":"ASC"}],
                      "page":{"pageParam":"page","sizeParam":"size","maxSize":50,"defaultSize":10},
                      "maxRows":50,"timeoutMs":2000},
@@ -111,10 +112,22 @@ public class PluginDataGatewayTest {
                     {"id":"test.things.with.kind","mode":"READ","operation":"LIST","entity":"Thing",
                      "select":["id","code"],
                      "joins":[{"relation":"kind","select":["code","name"]}],
+                     "filters":[{"field":"valid_to","op":"IS_NULL"}],
                      "page":{"pageParam":"page","sizeParam":"size","maxSize":50,"defaultSize":10}},
                     {"id":"test.things.by.status","mode":"READ","operation":"LIST","entity":"Thing",
                      "select":["id","code"],
                      "filters":[{"field":"status","op":"IN","param":"statuses","required":true}],
+                     "page":{"pageParam":"page","sizeParam":"size","maxSize":50,"defaultSize":10}},
+                    {"id":"test.things.visible","mode":"READ","operation":"LIST","entity":"Thing",
+                     "tenant_scope":"TENANT_OR_SYSTEM",
+                     "select":["id","code","name"],
+                     "filters":[{"field":"valid_to","op":"IS_NULL"}],
+                     "sort":[{"field":"code","direction":"ASC"}],
+                     "page":{"pageParam":"page","sizeParam":"size","maxSize":50,"defaultSize":10}},
+                    {"id":"test.things.effective","mode":"READ","operation":"LIST","entity":"Thing",
+                     "select":["id","code"],
+                     "filters":[{"field":"valid_from","op":"EFFECTIVE_AT","param":"as_of","required":true}],
+                     "sort":[{"field":"code","direction":"ASC"}],
                      "page":{"pageParam":"page","sizeParam":"size","maxSize":50,"defaultSize":10}}
                   ]
                 }
@@ -147,8 +160,9 @@ public class PluginDataGatewayTest {
                 + "id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL,"
                 + "code text NOT NULL, name text NOT NULL)").executeUpdate();
         em.createNativeQuery("CREATE TABLE " + schema + ".things ("
-                + "id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL,"
-                + "code text NOT NULL, name text NOT NULL, status text NOT NULL, kind_id uuid)").executeUpdate();
+                + "id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid,"
+                + "code text NOT NULL, name text NOT NULL, status text NOT NULL, kind_id uuid,"
+                + "valid_from timestamptz NOT NULL DEFAULT now(), valid_to timestamptz)").executeUpdate();
 
         UUID kindId = UUID.randomUUID();
         em.createNativeQuery("INSERT INTO " + schema + ".kinds (id, tenant_id, code, name) VALUES (?1, ?2, 'K1', 'Kind one')")
@@ -162,6 +176,11 @@ public class PluginDataGatewayTest {
         em.createNativeQuery("INSERT INTO " + schema + ".things (tenant_id, code, name, status) "
                         + "VALUES (?1, 'X', 'Other tenant', 'ACTIVE')")
                 .setParameter(1, otherTenantId).executeUpdate();
+        em.createNativeQuery("INSERT INTO " + schema + ".things (tenant_id, code, name, status) "
+                        + "VALUES (NULL, 'S', 'System row', 'ACTIVE')").executeUpdate();
+        em.createNativeQuery("INSERT INTO " + schema + ".things (tenant_id, code, name, status, valid_from, valid_to) "
+                        + "VALUES (?1, 'E', 'Expired', 'ACTIVE', now() - interval '10 days', now() - interval '1 day')")
+                .setParameter(1, tenantId).executeUpdate();
     }
 
     @AfterEach
@@ -194,6 +213,11 @@ public class PluginDataGatewayTest {
                 Map.of("status", string("ACTIVE"), "q", string("Bet")));
         assertEquals(1, result.rows().size());
         assertEquals("B", result.rows().get(0).get("code"));
+
+        PluginDataExecutor.Result byCode = executor.execute(identity(), "test.things.page", "req-2b",
+                Map.of("q", string("Alp")));
+        assertEquals(1, byCode.rows().size());
+        assertEquals("A", byCode.rows().get(0).get("code"));
     }
 
     @Test
@@ -240,6 +264,29 @@ public class PluginDataGatewayTest {
                 .filter(item -> "B".equals(item.get("code"))).findFirst().orElseThrow();
         assertEquals("K1", row.get("kind_code"));
         assertEquals("Kind one", row.get("kind_name"));
+    }
+
+    @Test
+    void tenantOrSystemIncludesSystemRowsOnly() {
+        PluginDataExecutor.Result result = executor.execute(identity(), "test.things.visible", "req-11",
+                Map.of());
+        assertEquals(3, result.rows().size());
+        assertEquals(List.of("A", "B", "S"), result.rows().stream()
+                .map(row -> row.get("code")).toList());
+    }
+
+    @Test
+    void effectiveAtExcludesClosedVersions() {
+        PluginDataExecutor.Result current = executor.execute(identity(), "test.things.effective", "req-12",
+                Map.of("as_of", string(java.time.Instant.now().toString())));
+        assertEquals(2, current.rows().size());
+        assertEquals(List.of("A", "B"), current.rows().stream()
+                .map(row -> row.get("code")).toList());
+
+        PluginDataExecutor.Result past = executor.execute(identity(), "test.things.effective", "req-13",
+                Map.of("as_of", string(java.time.Instant.now().minusSeconds(5 * 86400).toString())));
+        assertEquals(1, past.rows().size());
+        assertEquals("E", past.rows().get(0).get("code"));
     }
 
     @Test
