@@ -59,7 +59,7 @@ public class PluginRuntimeSessionResource {
         PluginResponses.RuntimeSession session = new PluginResponses.RuntimeSession();
         session.pluginKey = pluginKey;
         session.token = jwtTokenService.generatePluginRuntimeToken(context.userId(), context.tenantId(),
-                pluginKey, tokenMinutes);
+                pluginKey, tokenMinutes, context.functionalPermissions(), context.roleCodes());
         session.expiresInSeconds = tokenMinutes * 60;
         session.entry = "/api/v1/plugins/runtime/" + pluginKey;
         return Response.ok(ApiResponse.success(PluginErrorCode.PLUGIN_RUNTIME_SESSION_ISSUED,

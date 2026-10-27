@@ -39,4 +39,5 @@ Cài `catalog` qua đúng saga Sprint 03; platform admin quản trị system cat
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-27 | Tạo task; gộp BUG-136 | Agent; ADR-S05-001 |
-| 0.2 | 2026-10-27 | **Done phần lifecycle**: bỏ `activateInProcess`; provisioning dùng install saga; thêm `PluginEntityRegistrar` (manifest entities → `sys_entity_registry`); `uninstall` chặn locked; test `PluginLifecycleApiTest` 10/10 PASS (gồm BUG-136). Gateway header/fan-out còn P3. | Developer Agent; PostgreSQL/Redis thật |
+| 0.2 | 2026-10-27 | **Done phần lifecycle**: bỏ `activateInProcess`; provisioning dùng install saga; thêm `PluginEntityRegistrar` (manifest entities → `sys_entity_registry`); `uninstall` chặn locked; test `PluginLifecycleApiTest` 10/10 PASS (gồm BUG-136). Gateway header/fan-out còn P3. |
+| 0.3 | 2026-10-27 | **Gateway headers**: forward `X-User-Permissions`/`X-User-Roles` từ security context; plugin token mang permissions/roles; `PluginLifecycleApiTest` 10/10 PASS. Còn platform route + fan-out. | Developer Agent; PostgreSQL/Redis thật | Developer Agent; PostgreSQL/Redis thật |

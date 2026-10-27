@@ -51,14 +51,18 @@ public class PluginRuntimeGatewayService {
 
     public record GatewayResponse(int status, String contentType, byte[] body) {}
 
-    private record PluginTokenPrincipal(UUID tenantId, UUID userId) {}
+    private record PluginTokenPrincipal(UUID tenantId, UUID userId, java.util.Set<String> permissions,
+                                        java.util.Set<String> roles) {}
 
-    public GatewayResponse forward(UUID tenantId, UUID userId, String pluginKey, String pluginToken,
+    public GatewayResponse forward(UUID tenantId, UUID userId, java.util.Set<String> permissions,
+                                   java.util.Set<String> roles, String pluginKey, String pluginToken,
                                    String method, String path, String query, String contentType, byte[] body) {
         if (pluginToken != null && !pluginToken.isBlank()) {
             PluginTokenPrincipal principal = verifyPluginToken(pluginToken, pluginKey);
             tenantId = principal.tenantId();
             userId = principal.userId();
+            permissions = principal.permissions();
+            roles = principal.roles();
         }
         TenantPlugin ledger = tenantPluginRepository.findByTenantAndKey(tenantId, pluginKey)
                 .orElseThrow(() -> new ApiException(403, PluginErrorCode.PLUGIN_DISABLED_FOR_TENANT,
@@ -77,6 +81,8 @@ public class PluginRuntimeGatewayService {
                 .timeout(Duration.ofSeconds(timeoutSeconds))
                 .header("X-Tenant-Id", tenantId.toString())
                 .header("X-User-Id", userId == null ? "" : userId.toString())
+                .header("X-User-Permissions", String.join(",", permissions))
+                .header("X-User-Roles", String.join(",", roles))
                 .header("X-Plugin-Key", pluginKey);
         if (contentType != null && !contentType.isBlank()) {
             builder.header("Content-Type", contentType);
@@ -113,11 +119,26 @@ public class PluginRuntimeGatewayService {
             }
             String subject = jwt.getSubject();
             UUID userId = subject == null || subject.isBlank() ? null : UUID.fromString(subject);
-            return new PluginTokenPrincipal(UUID.fromString(tenantId), userId);
+            return new PluginTokenPrincipal(UUID.fromString(tenantId), userId,
+                    stringSet(jwt.getClaim("permissions")), stringSet(jwt.getClaim("roles")));
         } catch (ParseException e) {
             throw new ApiException(401, PluginErrorCode.PLUGIN_RUNTIME_TOKEN_INVALID,
                     "Plugin runtime token is expired or invalid");
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private java.util.Set<String> stringSet(Object claim) {
+        if (claim instanceof java.util.Collection<?> values) {
+            return values.stream().map(String::valueOf).collect(java.util.stream.Collectors.toUnmodifiableSet());
+        }
+        if (claim instanceof String text && !text.isBlank()) {
+            return java.util.Arrays.stream(text.split(","))
+                    .map(String::trim)
+                    .filter(item -> !item.isEmpty())
+                    .collect(java.util.stream.Collectors.toUnmodifiableSet());
+        }
+        return java.util.Set.of();
     }
 
     private String runtimeBaseUrl(TenantPlugin ledger) {

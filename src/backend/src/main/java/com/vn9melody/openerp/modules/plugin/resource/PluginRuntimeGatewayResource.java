@@ -80,13 +80,17 @@ public class PluginRuntimeGatewayResource {
         }
         UUID tenantId = null;
         UUID userId = null;
+        java.util.Set<String> permissions = java.util.Set.of();
+        java.util.Set<String> roles = java.util.Set.of();
         if (pluginToken == null || pluginToken.isBlank()) {
             UserSecurityContext context = securityContextService.getCurrentContext();
             tenantId = context.tenantId();
             userId = context.userId();
+            permissions = context.functionalPermissions();
+            roles = context.roleCodes();
         }
         PluginRuntimeGatewayService.GatewayResponse result = gatewayService.forward(
-                tenantId, userId, pluginKey, pluginToken, method, path,
+                tenantId, userId, permissions, roles, pluginKey, pluginToken, method, path,
                 UriBuilder.fromUri(uriInfo.getRequestUri()).replaceQueryParam("plugin_token")
                         .build().getRawQuery(),
                 contentType, body);

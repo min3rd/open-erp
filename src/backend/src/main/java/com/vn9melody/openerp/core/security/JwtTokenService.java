@@ -83,12 +83,19 @@ public class JwtTokenService {
      * one (tenant, plugin) pair and unusable for core APIs because of its type.
      */
     public String generatePluginRuntimeToken(UUID userId, UUID tenantId, String pluginKey, long minutes) {
+        return generatePluginRuntimeToken(userId, tenantId, pluginKey, minutes, java.util.Set.of(), java.util.Set.of());
+    }
+
+    public String generatePluginRuntimeToken(UUID userId, UUID tenantId, String pluginKey, long minutes,
+                                             java.util.Set<String> permissions, java.util.Set<String> roles) {
         return Jwt.issuer(issuer)
                 .subject(userId != null ? userId.toString() : "")
                 .claim("jti", UUID.randomUUID().toString())
                 .claim("type", TYPE_PLUGIN_RUNTIME)
                 .claim("tenant_id", tenantId != null ? tenantId.toString() : null)
                 .claim("plugin_key", pluginKey)
+                .claim("permissions", permissions == null ? java.util.List.of() : java.util.List.copyOf(permissions))
+                .claim("roles", roles == null ? java.util.List.of() : java.util.List.copyOf(roles))
                 .expiresIn(Duration.ofMinutes(minutes))
                 .sign();
     }
