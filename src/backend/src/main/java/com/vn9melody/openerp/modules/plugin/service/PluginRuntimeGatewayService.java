@@ -75,7 +75,7 @@ public class PluginRuntimeGatewayService {
             throw new ApiException(413, PluginErrorCode.PLUGIN_RUNTIME_REQUEST_TOO_LARGE,
                     "Request body exceeds the gateway limit");
         }
-        String target = runtimeBaseUrl(ledger) + normalizePath(path)
+        String target = baseUrl(ledger) + normalizePath(path)
                 + (query == null || query.isBlank() ? "" : "?" + query);
         HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(target))
                 .timeout(Duration.ofSeconds(timeoutSeconds))
@@ -141,7 +141,7 @@ public class PluginRuntimeGatewayService {
         return java.util.Set.of();
     }
 
-    private String runtimeBaseUrl(TenantPlugin ledger) {
+    public String baseUrl(TenantPlugin ledger) {
         JsonNode ref = ledger.deployRef;
         if (ref == null || ref.isMissingNode() || ref.path("deployment").asText("").isBlank()) {
             throw new ApiException(503, PluginErrorCode.PLUGIN_RUNTIME_UNAVAILABLE,

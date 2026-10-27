@@ -23,6 +23,7 @@ public final class PluginErrorCode {
     public static final String PLUGIN_VERSION_DELETE_SUCCESS = "PLUGIN_VERSION_DELETE_SUCCESS";
     public static final String PLUGIN_CATALOG_DELETE_SUCCESS = "PLUGIN_CATALOG_DELETE_SUCCESS";
     public static final String PLUGIN_METADATA_UPDATE_SUCCESS = "PLUGIN_METADATA_UPDATE_SUCCESS";
+    public static final String PLUGIN_CATALOG_FANOUT_SUCCESS = "PLUGIN_CATALOG_FANOUT_SUCCESS";
 
     // Success - entitlements / lifecycle
     public static final String PLUGIN_ENTITLEMENT_GRANT_SUCCESS = "PLUGIN_ENTITLEMENT_GRANT_SUCCESS";

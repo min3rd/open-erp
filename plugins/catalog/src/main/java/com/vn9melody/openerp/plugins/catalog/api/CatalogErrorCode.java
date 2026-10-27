@@ -73,4 +73,9 @@ public final class CatalogErrorCode {
     public static final String CATALOG_EXPORT_SUCCESS = "CATALOG_EXPORT_SUCCESS";
     /** One import row is malformed; {@code params.field} carries the offending column. */
     public static final String CATALOG_IMPORT_ROW_INVALID = "CATALOG_IMPORT_ROW_INVALID";
+
+    // Internal fan-out (ADR-S05-001 A6.3)
+    public static final String SYSTEM_CATALOG_SNAPSHOT_SUCCESS = "SYSTEM_CATALOG_SNAPSHOT_SUCCESS";
+    public static final String SYSTEM_CATALOG_SYNC_SUCCESS = "SYSTEM_CATALOG_SYNC_SUCCESS";
+    public static final String SYSTEM_CATALOG_FORBIDDEN = "SYSTEM_CATALOG_FORBIDDEN";
 }

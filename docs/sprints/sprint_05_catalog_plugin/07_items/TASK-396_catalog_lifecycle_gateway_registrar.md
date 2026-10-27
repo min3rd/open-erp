@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-396 / Task / Sprint 05 |
-| Severity / trạng thái | High / **In Progress (dev)** — lifecycle/entity registrar/BUG-136 done; gateway + fan-out chờ P3 |
+| Severity / trạng thái | High / **Done (dev)** — lifecycle, gateway, entity registrar, BUG-136, fan-out + platform route; QA verify ở TASK-398 |
 | Owner / reviewer | Developer / Architect |
 | depends_on / blocks | TASK-394, TASK-395 / TASK-397, TASK-398 |
 | Write scope | `modules/plugin/service/PluginLifecycleService.java`, `PluginProvisioningService.java`, `PluginRuntimeGatewayService.java`, `PluginPermissionSeeder.java`, `EntityRegistryService.java`, `PluginFanoutService.java`, `TenantType.java`, `PlatformPluginRuntimeResource.java`, seed `plugin_versions` |
@@ -40,4 +40,5 @@ Cài `catalog` qua đúng saga Sprint 03; platform admin quản trị system cat
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-27 | Tạo task; gộp BUG-136 | Agent; ADR-S05-001 |
 | 0.2 | 2026-10-27 | **Done phần lifecycle**: bỏ `activateInProcess`; provisioning dùng install saga; thêm `PluginEntityRegistrar` (manifest entities → `sys_entity_registry`); `uninstall` chặn locked; test `PluginLifecycleApiTest` 10/10 PASS (gồm BUG-136). Gateway header/fan-out còn P3. |
-| 0.3 | 2026-10-27 | **Gateway headers**: forward `X-User-Permissions`/`X-User-Roles` từ security context; plugin token mang permissions/roles; `PluginLifecycleApiTest` 10/10 PASS. Còn platform route + fan-out. | Developer Agent; PostgreSQL/Redis thật | Developer Agent; PostgreSQL/Redis thật |
+| 0.3 | 2026-10-27 | **Gateway headers**: forward `X-User-Permissions`/`X-User-Roles` từ security context; plugin token mang permissions/roles; `PluginLifecycleApiTest` 10/10 PASS. Còn platform route + fan-out. | Developer Agent; PostgreSQL/Redis thật |
+| 0.4 | 2026-10-27 | **Fan-out done (dev)**: plugin `SystemCatalogSyncService` snapshot/apply; core `PluginFanoutService` + `POST /api/v1/platform/plugins/catalog/fanout`; dev Docker system tenant + tenant plugin. Test thật: snapshot 5 types/3355 items/3321 edges → sync **0 skipped**. | Developer Agent; Docker dev | Developer Agent; PostgreSQL/Redis thật |

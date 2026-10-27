@@ -43,6 +43,14 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 - **Docs**: AC-13/AC-14, ADR A4.1, FEAT-30 cập nhật.
 - **Kiểm chứng**: `PluginLifecycleApiTest` + `EntityRegistryServiceTest` 12/12 PASS; Docker backend apply V5.0.1 (`catalog locked=false`).
 
+## 2026-10-27 — P3: fan-out system catalog + platform route
+
+- **Plugin**: `SystemCatalogSyncService` xuất snapshot theo `code` (5 system types, 3.355 items, 3.321 edges) và apply idempotent vào schema tenant; `GET /internal/system-catalog/snapshot`, `POST /internal/system-catalog/sync` bảo vệ bằng `X-Plugin-Fanout-Token`.
+- **Core**: `PluginFanoutService` đọc snapshot từ system tenant rồi gọi sync trên từng tenant `catalog` ACTIVE; `POST /api/v1/platform/plugins/catalog/fanout` (platform role).
+- **Dev Docker**: thêm `openerp-catalog-system-dev` (schema `tenant_00000000_catalog`, scope platform); bootstrap gắn deploy_ref cho tenant + system tenant; token `dev-fanout-token`.
+- **Kiểm chứng thật**: snapshot **5 types / 3.355 items / 3.321 edges**; sync sang tenant `minhvv` → **types=5, items=3355, edges=3321, skipped=0**.
+- **Còn**: platform endpoint cần QA với platform token; UI iframe (P4).
+
 ## 2026-10-05 — Sprint 03 đóng & khởi tạo tài liệu Sprint 04
 
 - **Sprint 03 đóng**: [QA-03](../sprints/sprint_03_plugin_manager/08_testing/QA-03_qa_verification_2026-10-05.md) xác nhận 8/8 item PASS (backend PostgreSQL/Redis thật + browser headless 1280×900 & 390×844); 2 lỗi Medium do QA phát hiện đã sửa. Biên bản: [sprint_review](../sprints/sprint_03_plugin_manager/09_review/sprint_review.md) — `[x]` ĐÓNG, DoD PASS (theo chỉ đạo chủ dự án; không tạo chữ ký giả).
