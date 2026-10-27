@@ -122,7 +122,7 @@ export class CatalogAdminComponent implements OnInit {
   readonly scope = signal<CatalogScope>(
     this.route.snapshot.data['catalogScope'] === CatalogScope.SYSTEM ? CatalogScope.SYSTEM : CatalogScope.TENANT
   );
-  private readonly basePath = this.scope() === CatalogScope.SYSTEM ? '/platform/catalog' : '/settings/catalog';
+  private readonly basePath = '';
 
   readonly viewModes = [CatalogViewMode.LIST, CatalogViewMode.TREE, CatalogViewMode.MULTI];
   readonly statusOptions = [

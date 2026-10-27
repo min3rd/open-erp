@@ -118,6 +118,10 @@ public class PluginRuntimeGatewayResource {
         if (result.contentType() != null && !result.contentType().isBlank()) {
             builder.type(result.contentType());
         }
+        if (result.contentType() != null && result.contentType().toLowerCase().startsWith("text/html")) {
+            builder.header("Cache-Control", "no-store, no-cache, must-revalidate");
+            builder.header("Pragma", "no-cache");
+        }
         return builder.entity(result.body() == null ? new byte[0] : result.body()).build();
     }
 }

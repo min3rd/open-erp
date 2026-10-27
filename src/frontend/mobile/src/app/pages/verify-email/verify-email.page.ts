@@ -16,7 +16,6 @@ import {
   TranslatePipe,
   PinInputComponent,
   LanguageSwitcherComponent,
-  ThemeSwitcherComponent,
   apiMessage
 } from '@shared';
 
@@ -35,7 +34,6 @@ import {
     TranslatePipe,
     PinInputComponent,
     LanguageSwitcherComponent,
-    ThemeSwitcherComponent
   ],
   templateUrl: './verify-email.page.html'
 })

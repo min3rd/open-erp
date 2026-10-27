@@ -40,3 +40,4 @@ Sau khi UI source chuyển sang `plugins/catalog/web/src`, plugin build dùng ch
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-27 | Tạo bug từ ảnh chụp desktop; fix Tailwind `@source`; browser computed grid PASS | Chủ dự án báo lỗi |
+| 0.2 | 2026-10-27 | Bổ sung cache-buster iframe + `Cache-Control: no-store` cho HTML để tránh HTML/CSS cũ sau rebuild; browser grid PASS | Developer Agent |

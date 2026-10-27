@@ -20,6 +20,11 @@ bootstrapApplication(CatalogPluginShellComponent, {
     provideRouter([
       {
         path: '',
+        pathMatch: 'full',
+        redirectTo: 'all/-/20/1/-/list',
+      },
+      {
+        path: ':filter/:sort/:pageSize/:page/:id/:mode',
         component: CatalogAdminComponent,
         data: { catalogScope: scope },
       },

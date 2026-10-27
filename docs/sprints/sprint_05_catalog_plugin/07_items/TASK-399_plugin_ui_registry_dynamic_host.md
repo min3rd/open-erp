@@ -19,6 +19,8 @@ Plugin tự đăng ký menu/screen qua UI Manifest; core chỉ giữ một host 
 - [x] Bỏ menu/route native `/settings/catalog`, `/platform/catalog` và path alias `@catalog-plugin/*`.
 - [x] Thay `PluginAppComponent` bằng `PluginScreenHostComponent`: nhận `pluginKey`, resolve screen theo `route`, mount IFRAME/MF/WEB_COMPONENT.
 - [x] Host full viewport, giữ header mỏng + quay lại plugin marketplace.
+- [x] Đồng bộ route-state hai chiều: hash plugin ↔ URL core `/apps/:pluginKey/...`; reload/bookmark giữ filter/type/page.
+- [x] Gateway HTML `no-store` + cache-buster iframe để tránh bundle cũ sau rebuild.
 - [x] Invalid cache manifest khi marketplace install/enable/disable/uninstall hoàn tất.
 - [x] Đổi plugin sang INACTIVE ⇒ manifest không trả screen ⇒ menu mất; bật lại ⇒ menu trở lại.
 
@@ -35,3 +37,4 @@ Plugin tự đăng ký menu/screen qua UI Manifest; core chỉ giữ một host 
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-27 | Tạo task; chuyển sang UI Manifest + host động; xoá native catalog route; browser xác nhận menu/host; disable⇒0 screen, enable⇒2 screen | Chủ dự án chỉ đạo trực tiếp |
+| 0.2 | 2026-10-27 | Bổ sung route-state hai chiều core ↔ iframe; reload/bookmark `/apps/catalog/DISTRICT/-/20/1/-/list` PASS; cache HTML no-store | Developer Agent; browser |

@@ -18,7 +18,6 @@ import {
   SharpButtonComponent,
   SharpInputComponent,
   LanguageSwitcherComponent,
-  ThemeSwitcherComponent,
   ButtonType,
   apiMessage
 } from '@shared';
@@ -41,7 +40,6 @@ import {
     SharpButtonComponent,
     SharpInputComponent,
     LanguageSwitcherComponent,
-    ThemeSwitcherComponent
   ],
   templateUrl: './forgot-password.page.html'
 })

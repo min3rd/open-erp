@@ -27,11 +27,15 @@ export class PluginIframeLoaderComponent implements AfterViewInit, OnDestroy {
   pluginKey = input.required<string>();
   entry = input<string>('');
   minHeightPx = input<number>(240);
+  /** Initial plugin-internal route (without the leading `#/`). */
+  route = input<string>('');
   /** Fill the viewport instead of using the measured/message height. */
   fill = input<boolean>(false);
   /** Height reserved for the host chrome (header) when `fill` is on. */
   viewportOffsetPx = input<number>(0);
   failed = output<string>();
+  /** Plugin route changed; the host mirrors it into the core browser URL. */
+  routeChange = output<string>();
 
   private host = viewChild<ElementRef<HTMLElement>>('host');
   private frame = viewChild<ElementRef<HTMLIFrameElement>>('frame');
@@ -49,12 +53,15 @@ export class PluginIframeLoaderComponent implements AfterViewInit, OnDestroy {
     if (!frame || event.source !== frame.contentWindow) {
       return;
     }
-    const data = event.data as { source?: string; type?: string; height?: number };
+    const data = event.data as { source?: string; type?: string; height?: number; path?: string };
     if (data?.source === 'open-erp-plugin' && data.type === 'resize' && Number.isFinite(data.height)) {
       const height = Number(data.height);
       if (height > 0) {
         this.height.set(Math.max(height, window.innerHeight - 150));
       }
+    }
+    if (data?.source === 'open-erp-plugin' && data.type === 'route' && typeof data.path === 'string') {
+      this.routeChange.emit(data.path);
     }
   };
 
@@ -70,7 +77,9 @@ export class PluginIframeLoaderComponent implements AfterViewInit, OnDestroy {
       return;
     }
     const separator = base.includes('?') ? '&' : '?';
-    const url = `${base}${separator}plugin_token=${encodeURIComponent(session.token)}`;
+    const route = this.route();
+    const hash = route ? `#${route.startsWith('/') ? '' : '/'}${route}` : '';
+    const url = `${base}${separator}plugin_token=${encodeURIComponent(session.token)}&_v=${Date.now()}${hash}`;
     this.src.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
   }
 
@@ -82,6 +91,11 @@ export class PluginIframeLoaderComponent implements AfterViewInit, OnDestroy {
   onLoad(): void {
     this.loading.set(false);
     this.bridgeContext();
+  }
+
+  /** Ask the plugin router to navigate (browser back/forward on the host). */
+  navigate(path: string): void {
+    this.postMessage({ type: 'navigate', path });
   }
 
   private bridgeContext(): void {

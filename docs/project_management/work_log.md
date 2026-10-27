@@ -14,7 +14,8 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 
 - **BUG-137 (High)**: `/apps/catalog` xếp dọc trên desktop vì Tailwind không scan `plugins/catalog/web/src`; class `lg:grid-cols-[13rem_minmax(0,1fr)]` không được sinh. Thêm `@source` plugin vào `src/frontend/web/src/styles.css`; rebuild web/plugin image; browser computed `240px 1048px`, aside/section đúng 2 cột.
 - **BUG-138 (Medium)**: login mobile hiện raw key `SHAPE_LABEL`/`LAYOUT_LABEL` + option shape/layout. Bổ sung 11 key từ web sang 13 locale mobile; căn giữa form dọc. `i18n:check` 100%, `mobile:build` PASS.
-- **Kiểm chứng**: `npm run web:build` PASS; plugin image CSS 63.28 kB; mobile build PASS.
+- **BUG-139 (High)**: host động không mirror route-state ra URL core. Thêm route list-state trong plugin app; shell post route, host mirror `/apps/catalog/DISTRICT/...`; iframe nhận navigate khi back/forward; gateway HTML `no-store` + cache-buster. Reload/bookmark đúng `DISTRICT`.
+- **Kiểm chứng**: `npm run web:build` PASS; plugin image CSS 63.28 kB; mobile build PASS; browser grid `240px 1048px`, core URL + iframe hash khớp, reload giữ state.
 
 ## 2026-10-27 — Re-check Sprint 05: catalog chưa phải plugin độc lập
 

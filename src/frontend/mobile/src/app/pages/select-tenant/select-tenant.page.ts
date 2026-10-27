@@ -18,7 +18,6 @@ import {
   SharpButtonComponent,
   BadgeComponent,
   LanguageSwitcherComponent,
-  ThemeSwitcherComponent,
   ColorVariant,
   TenantInfo,
   apiMessage,
@@ -41,7 +40,6 @@ import {
     SharpButtonComponent,
     BadgeComponent,
     LanguageSwitcherComponent,
-    ThemeSwitcherComponent
   ],
   templateUrl: './select-tenant.page.html'
 })

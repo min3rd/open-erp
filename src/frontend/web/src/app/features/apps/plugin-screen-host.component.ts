@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Component, DestroyRef, OnInit, inject, signal, viewChild } from '@angular/core';
+import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 import {
   PluginHostScreen,
   PluginHostService,
@@ -33,25 +35,66 @@ import {
 export class PluginScreenHostComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
   private hostService = inject(PluginHostService);
   private permissionChecker = inject(PLUGIN_PERMISSION_CHECKER);
+  private iframeLoader = viewChild(PluginIframeLoaderComponent);
 
   pluginKey = signal<string>('');
   screenId = signal<string>('');
   screen = signal<PluginHostScreen | null>(null);
+  /** Route handed to the iframe once, before it boots. */
+  initialRoute = signal<string>('');
   loading = signal<boolean>(true);
   failed = signal<boolean>(false);
   forbidden = signal<boolean>(false);
+
+  private lastSyncedUrl = '';
 
   readonly renderMode = PluginRenderMode;
   readonly frameOffsetPx = 40;
 
   ngOnInit(): void {
+    this.lastSyncedUrl = this.router.url;
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        if (this.sameUrl(event.urlAfterRedirects, this.lastSyncedUrl)) {
+          return;
+        }
+        this.lastSyncedUrl = event.urlAfterRedirects;
+        this.iframeLoader()?.navigate(this.iframeRouteFrom(event.urlAfterRedirects));
+      });
+
     this.route.params.subscribe((params) => {
       const key = (params['pluginKey'] ?? '').toString();
       this.pluginKey.set(key);
+      this.initialRoute.set(this.iframeRouteFrom(this.router.url));
       void this.resolveScreen(key);
     });
+  }
+
+  /** Mirror a plugin-internal route into the core browser URL. */
+  onIframeRoute(path: string): void {
+    const normalized = path.startsWith('/') ? path : `/${path}`;
+    const target = `/apps/${this.pluginKey()}${normalized}`;
+    if (this.sameUrl(target, this.router.url)) {
+      return;
+    }
+    this.lastSyncedUrl = target;
+    void this.router.navigateByUrl(target, { replaceUrl: true });
+  }
+
+  private iframeRouteFrom(url: string): string {
+    const base = `/apps/${this.pluginKey()}`;
+    const [path, query] = url.split('?');
+    const subPath = path.startsWith(base) ? path.slice(base.length) : '';
+    return `${subPath}${query ? `?${query}` : ''}`;
+  }
+
+  private sameUrl(left: string, right: string): boolean {
+    return left === right;
   }
 
   private async resolveScreen(key: string): Promise<void> {

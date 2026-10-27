@@ -45,8 +45,10 @@
           <app-plugin-iframe-loader
             [pluginKey]="pluginKey()"
             [entry]="iframeEntry()"
+            [route]="initialRoute()"
             [fill]="true"
             [viewportOffsetPx]="frameOffsetPx"
+            (routeChange)="onIframeRoute($event)"
             (failed)="onFailed()"
           />
         }

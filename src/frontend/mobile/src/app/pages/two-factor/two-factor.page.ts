@@ -20,7 +20,6 @@ import {
   SharpInputComponent,
   PinInputComponent,
   LanguageSwitcherComponent,
-  ThemeSwitcherComponent,
   ColorVariant,
   apiMessage,
 } from '@shared';
@@ -44,7 +43,6 @@ import {
     SharpInputComponent,
     PinInputComponent,
     LanguageSwitcherComponent,
-    ThemeSwitcherComponent
   ],
   templateUrl: './two-factor.page.html'
 })

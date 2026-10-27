@@ -76,7 +76,7 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | TASK-392…393 | [07_items/](07_items/) | Developer | Used (gate APPROVED; 393 phần dữ liệu+seeder xong, 392 chờ UI/API) |
 | BUG-135 | [BUG-135](07_items/BUG-135_catalog_not_independent_plugin.md) | Architect → Developer | Used — **Open (High)**; chặn DoD |
 | BUG-136 | [BUG-136](07_items/BUG-136_locked_plugin_uninstall_not_blocked.md) | Developer | Used — **Open (High)**; chặn DoD |
-| BUG-137…138 | [07_items/](07_items/) | Developer/QA | Used — **Resolved (dev)**: desktop grid Tailwind source + mobile login i18n |
+| BUG-137…139 | [07_items/](07_items/) | Developer/QA | Used — **Resolved (dev)**: desktop grid Tailwind source, mobile login i18n, plugin route-state |
 | TASK-394…400 | [07_items/](07_items/) | Developer/QA | Used — **In Progress/Done (dev)**; 394→398 theo ADR-S05-001, 399 UI Manifest + host động, 400 Docker-only dev |
 | TP-S05-001 | [08_testing/](08_testing/) | QA | Used (Draft) |
 | TR-S05-001 | [08_testing/](08_testing/) | QA | Used (baseline cũ — withdrawn) |

@@ -20,7 +20,6 @@ import {
   SharpButtonComponent,
   SharpInputComponent,
   LanguageSwitcherComponent,
-  ThemeSwitcherComponent,
   ButtonType,
   CompanySize,
   apiMessage,
@@ -47,7 +46,6 @@ type SlugCheckState = 'idle' | 'checking' | 'available' | 'taken' | 'error';
     SharpButtonComponent,
     SharpInputComponent,
     LanguageSwitcherComponent,
-    ThemeSwitcherComponent
   ],
   templateUrl: './register-business.page.html'
 })

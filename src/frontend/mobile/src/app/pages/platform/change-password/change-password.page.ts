@@ -18,7 +18,6 @@ import {
   LanguageSwitcherComponent,
   SharpButtonComponent,
   SharpInputComponent,
-  ThemeSwitcherComponent,
   TranslatePipe
 } from '@shared';
 
@@ -37,7 +36,6 @@ import {
     SharpButtonComponent,
     SharpInputComponent,
     LanguageSwitcherComponent,
-    ThemeSwitcherComponent,
     TranslatePipe
   ],
   templateUrl: './change-password.page.html'

@@ -23,6 +23,7 @@
 | Menu plugin từ manifest | `/api/v1/plugins/ui-manifest` → screen `/apps/catalog`; settings menu render link `Danh mục` (không hardcode) | ✅ Browser tenant `e2e-tenant` |
 | Host động | `/apps/catalog` mount `PluginScreenHostComponent`; iframe full viewport 854px; API types/items 200 | ✅ Browser |
 | Điều kiện ACTIVE | Disable catalog → manifest `screens: 0`, menu mất; enable → `screens: 2`, container mới healthy | ✅ Browser + Docker |
+| Route-state | Click `Quận/Huyện` → core URL `/apps/catalog/DISTRICT/-/20/1/-/list?view=list`; iframe hash khớp; reload giữ đúng loại | ✅ Browser |
 | Core không import UI plugin | `grep @catalog-plugin` trong `src/frontend/web` = 0; `npm run web:build` PASS | ✅ Build |
 
 ## 1. Desktop (≥1280px)
