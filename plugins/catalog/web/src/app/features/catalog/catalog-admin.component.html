@@ -73,7 +73,7 @@
   }
 
   <!-- 2-column split: types | items (detail + API open as right-side drawers) -->
-  <div class="grid gap-2 lg:grid-cols-[13rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)] items-start">
+  <div class="grid gap-2 md:grid-cols-[13rem_minmax(0,1fr)] items-start">
     <!-- Column 1: catalogue types -->
     <aside class="border border-default bg-surface p-1.5 space-y-1.5 min-w-0" aria-labelledby="catalog-types-title">
       <h2 id="catalog-types-title" class="text-[10px] font-semibold uppercase tracking-wider text-muted">
@@ -199,6 +199,7 @@
       <!-- Filters -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
         <app-sharp-input
+          [label]="'COMMON_SEARCH' | translate"
           [placeholder]="'CATALOG_ITEM_SEARCH_PLACEHOLDER' | translate"
           [value]="q()"
           (valueChange)="onSearchInput($event)"

@@ -1,7 +1,8 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { ColorVariant } from '../../enums';
+import { ColorVariant, LayoutId } from '../../enums';
+import { ThemeService } from '../../theme/theme.service';
 import { BadgeComponent } from '../badge/badge.component';
 import { DrawerComponent } from '../drawer/drawer.component';
 import { IconComponent } from '../icon/icon.component';
@@ -27,6 +28,8 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
   templateUrl: './mobile-nav-drawer.component.html'
 })
 export class MobileNavDrawerComponent {
+  private theme = inject(ThemeService);
+
   tenantName = input<string>('');
   role = input<string>('MEMBER');
   userName = input<string>('');
@@ -48,6 +51,11 @@ export class MobileNavDrawerComponent {
 
   readonly colorInfo = ColorVariant.INFO;
   readonly colorDanger = ColorVariant.DANGER;
+
+  /** Mobile has one drawer; honour the user's left/right menu preference. */
+  readonly drawerSide = computed<'start' | 'end'>(() =>
+    this.theme.navLayout() === LayoutId.SIDE ? 'start' : 'end'
+  );
 
   readonly showTenantSettings = computed(
     () =>

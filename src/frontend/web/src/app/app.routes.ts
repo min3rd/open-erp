@@ -3,6 +3,7 @@ import { PluginCredentialScope } from '@shared';
 import { authGuard } from './core/guards/auth.guard';
 import { platformRoleGuard, platformSuperAdminGuard } from './core/guards/platform-role.guard';
 import { permissionGuard } from './core/guards/permission.guard';
+import { legacyPluginRedirectGuard } from './core/guards/legacy-plugin-redirect.guard';
 import { mustChangePasswordGuard } from './core/guards/must-change-password.guard';
 
 /**
@@ -126,12 +127,9 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       {
-        path: '',
-        loadComponent: () => import('./features/apps/plugin-screen-host.component').then(m => m.PluginScreenHostComponent)
-      },
-      {
         path: '**',
-        loadComponent: () => import('./features/apps/plugin-screen-host.component').then(m => m.PluginScreenHostComponent)
+        canActivate: [legacyPluginRedirectGuard],
+        children: []
       }
     ]
   },
@@ -233,6 +231,19 @@ export const routes: Routes = [
         path: 'plugins',
         canActivate: [permissionGuard('core:plugin:read')],
         children: listState(() => import('./features/settings/plugins/plugin-marketplace.component').then(m => m.PluginMarketplaceComponent))
+      },
+      {
+        path: 'apps/:pluginKey',
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./features/apps/plugin-screen-host.component').then(m => m.PluginScreenHostComponent)
+          },
+          {
+            path: '**',
+            loadComponent: () => import('./features/apps/plugin-screen-host.component').then(m => m.PluginScreenHostComponent)
+          }
+        ]
       },
       {
         path: 'plugin-credentials',

@@ -2,6 +2,7 @@ import { AfterViewInit, Component, OnDestroy, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
+import { ContextMenuComponent } from '@shared';
 
 /**
  * Plugin shell. It owns the iframe height bridge and mirrors the plugin router
@@ -11,7 +12,7 @@ import { filter } from 'rxjs';
 @Component({
   selector: 'app-catalog-plugin-shell',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ContextMenuComponent],
   templateUrl: './catalog-plugin-shell.component.html',
 })
 export class CatalogPluginShellComponent implements AfterViewInit, OnDestroy {

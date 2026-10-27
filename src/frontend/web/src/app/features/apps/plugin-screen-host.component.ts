@@ -52,7 +52,7 @@ export class PluginScreenHostComponent implements OnInit {
   private lastSyncedUrl = '';
 
   readonly renderMode = PluginRenderMode;
-  readonly frameOffsetPx = 40;
+  readonly frameOffsetPx = 96;
 
   ngOnInit(): void {
     this.lastSyncedUrl = this.router.url;
@@ -78,7 +78,7 @@ export class PluginScreenHostComponent implements OnInit {
   /** Mirror a plugin-internal route into the core browser URL. */
   onIframeRoute(path: string): void {
     const normalized = path.startsWith('/') ? path : `/${path}`;
-    const target = `/apps/${this.pluginKey()}${normalized}`;
+    const target = `/settings/apps/${this.pluginKey()}${normalized}`;
     if (this.sameUrl(target, this.router.url)) {
       return;
     }
@@ -87,7 +87,7 @@ export class PluginScreenHostComponent implements OnInit {
   }
 
   private iframeRouteFrom(url: string): string {
-    const base = `/apps/${this.pluginKey()}`;
+    const base = `/settings/apps/${this.pluginKey()}`;
     const [path, query] = url.split('?');
     const subPath = path.startsWith(base) ? path.slice(base.length) : '';
     return `${subPath}${query ? `?${query}` : ''}`;

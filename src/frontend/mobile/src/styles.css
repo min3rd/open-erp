@@ -490,6 +490,7 @@ ion-content {
  * Scoped to the shared components as used by the mobile app only.
  * ------------------------------------------------------------------ */
 app-sharp-input input,
+app-sharp-select select,
 app-register-business select {
   min-height: 40px;
   font-size: 13px;

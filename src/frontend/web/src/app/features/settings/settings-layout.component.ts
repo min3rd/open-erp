@@ -164,14 +164,14 @@ export class SettingsLayoutComponent implements OnInit {
       .filter((screen) => screen.route?.startsWith('/apps/') && this.canSee(screen.permission))
       .sort((left, right) => (left.order ?? 0) - (right.order ?? 0))
       .filter((screen) => {
-        if (seen.has(screen.route)) {
+        if (seen.has(screen.plugin_key)) {
           return false;
         }
-        seen.add(screen.route);
+        seen.add(screen.plugin_key);
         return true;
       })
       .map((screen) => ({
-        path: screen.route,
+        path: `/settings/apps/${screen.plugin_key}`,
         labelKey: screen.title_key,
         icon: IconName.GRID,
         permission: screen.permission

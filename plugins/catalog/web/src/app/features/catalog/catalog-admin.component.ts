@@ -635,7 +635,7 @@ export class CatalogAdminComponent implements OnInit {
       },
       {
         id: 'type-create-item',
-        labelKey: 'CATALOG_ITEM_CREATE_ACTION',
+        labelKey: 'CATALOG_ITEM_ADD',
         icon: IconName.PLUS,
         action: () => {
           this.selectType(type);

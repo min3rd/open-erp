@@ -28,6 +28,8 @@ export class DrawerComponent {
   zIndex = input<number>(50);
   closeOnEscape = input<boolean>(true);
   shiftLeft = input<boolean>(false);
+  /** Which edge the panel slides from. Defaults to the inline end (right in LTR). */
+  side = input<'start' | 'end'>('end');
 
   close = output<void>();
 
@@ -70,14 +72,18 @@ export class DrawerComponent {
   }
 
   panelClasses(): string {
-    const base = 'rounded-container bg-surface border-s border-default shadow-2xl flex flex-col transform transition-transform ease-in-out duration-300';
+    const base = 'rounded-container bg-surface border-default shadow-2xl flex flex-col transform transition-transform ease-in-out duration-300';
     // Shift towards the inline-start only when another drawer is stacked ON TOP
-    // (so the lower drawer peeks out). A top-most drawer stays flush to the
-    // inline-end edge. `rtl:` flips the physical translate for RTL.
+    // (so the lower drawer peeks out). A top-most drawer stays flush to its edge.
     const hasDrawerAbove = this.stackTick() >= 0
       && DrawerComponent.openStack[DrawerComponent.openStack.length - 1] !== this;
-    const shift = this.shiftLeft() && hasDrawerAbove ? '-translate-x-[30px] rtl:translate-x-[30px]' : 'translate-x-0';
-    return `${base} ${this.width()} ${shift}`.trim();
+    const shift = this.shiftLeft() && hasDrawerAbove
+      ? (this.side() === 'start'
+          ? 'translate-x-[30px] rtl:-translate-x-[30px]'
+          : '-translate-x-[30px] rtl:translate-x-[30px]')
+      : 'translate-x-0';
+    const border = this.side() === 'start' ? 'border-e' : 'border-s';
+    return `${base} ${border} ${this.width()} ${shift}`.trim();
   }
 
   onClose() {

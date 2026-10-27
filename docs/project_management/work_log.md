@@ -15,7 +15,11 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 - **BUG-137 (High)**: `/apps/catalog` xếp dọc trên desktop vì Tailwind không scan `plugins/catalog/web/src`; class `lg:grid-cols-[13rem_minmax(0,1fr)]` không được sinh. Thêm `@source` plugin vào `src/frontend/web/src/styles.css`; rebuild web/plugin image; browser computed `240px 1048px`, aside/section đúng 2 cột.
 - **BUG-138 (Medium)**: login mobile hiện raw key `SHAPE_LABEL`/`LAYOUT_LABEL` + option shape/layout. Bổ sung 11 key từ web sang 13 locale mobile; căn giữa form dọc. `i18n:check` 100%, `mobile:build` PASS.
 - **BUG-139 (High)**: host động không mirror route-state ra URL core. Thêm route list-state trong plugin app; shell post route, host mirror `/apps/catalog/DISTRICT/...`; iframe nhận navigate khi back/forward; gateway HTML `no-store` + cache-buster. Reload/bookmark đúng `DISTRICT`.
-- **Kiểm chứng**: `npm run web:build` PASS; plugin image CSS 63.28 kB; mobile build PASS; browser grid `240px 1048px`, core URL + iframe hash khớp, reload giữ state.
+- **BUG-140 (High)**: plugin shell thiếu `<app-context-menu />` nên nút `⋮`/chuột phải không render menu. Mount host, đổi key `CATALOG_ITEM_ADD`; browser click + right-click PASS.
+- **BUG-141 (High)**: host full-screen làm mất layout core; chuyển vào `/settings/apps/:pluginKey`, menu manifest trỏ vào settings, redirect `/apps/**`; grid plugin đổi `lg:`→`md:`; chuẩn hóa input/select `h-8`; mở drawer type `max-w-3xl`. Browser topbar 48 + sidebar 256, grid 208/935, drawer 768.
+- **BUG-142 (Medium)**: mobile drawer luôn bên phải; thêm `side` cho `DrawerComponent`, map `LayoutId.SIDE → start`.
+- **TASK-401 (Refactor, To Do)**: ghi nợ plugin còn copy `ApiService`/`PathListState`/query/interceptor và dùng chung Tailwind entry của core; hướng gom runtime vào `@shared`, plugin tự sở hữu styles entry.
+- **Kiểm chứng**: `npm run web:build`, `mobile:build` PASS; plugin image rebuild; browser route-state/reload, context menu, grid, drawer side PASS.
 
 ## 2026-10-27 — Re-check Sprint 05: catalog chưa phải plugin độc lập
 
