@@ -2,6 +2,15 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-27 — Re-check Sprint 05: catalog chưa phải plugin độc lập
+
+- **Kết luận**: `catalog` đang được triển khai như module core in-process (`modules/catalog`), migration core trong schema `public`, API core `/api/v1/catalog/**`, UI native trong Web/Mobile — trái mô hình plugin độc lập đã chốt ở Sprint 03 (repo/artifact riêng, container-per-tenant, schema tenant riêng, API gateway, UI manifest WC/MF/iframe).
+- **Item**: [BUG-135](../sprints/sprint_05_catalog_plugin/07_items/BUG-135_catalog_not_independent_plugin.md) (High — chặn DoD), [BUG-136](../sprints/sprint_05_catalog_plugin/07_items/BUG-136_locked_plugin_uninstall_not_blocked.md) (High — AC-14).
+- **Tài liệu cập nhật**: [SOL-S05-001](../sprints/sprint_05_catalog_plugin/05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) D1 → bị bác; [FEAT-30](../sprints/sprint_05_catalog_plugin/07_items/FEAT-30_catalog_core_plugin.md) → Blocked; [reading guide](../sprints/sprint_05_catalog_plugin/00_READING_GUIDE.md) → gates Design/QA/Closure bị chặn; `create_new_plugin_guide` mục 6 → cảnh báo không dùng làm mẫu.
+- **Hướng đã chọn**: **B — plugin package trong monorepo** (chủ dự án chốt 2026-10-27). [ADR-S05-001](../sprints/sprint_05_catalog_plugin/05_solutions/02_ADR-S05-001_catalog_independent_plugin.md) + 5 task [TASK-394…398](../sprints/sprint_05_catalog_plugin/07_items/) (scaffold → schema/migration → lifecycle/gateway → UI iframe → QA/closure).
+- **System catalog (2026-10-27)**: chủ dự án yêu cầu **plugin sở hữu**, không đặt ở core. ADR 0.2: system tenant ẩn + schema canonical; platform admin qua plugin UI/API; `PluginFanoutService` fan-out bản sao system catalog tới từng tenant schema, có operation log/retry.
+- **Chưa làm**: chưa code lại; QA cũ không còn hiệu lực. P1 (TASK-394) sẵn sàng bắt đầu sau khi chốt UUID system tenant (ADR §9).
+
 ## 2026-10-05 — Sprint 03 đóng & khởi tạo tài liệu Sprint 04
 
 - **Sprint 03 đóng**: [QA-03](../sprints/sprint_03_plugin_manager/08_testing/QA-03_qa_verification_2026-10-05.md) xác nhận 8/8 item PASS (backend PostgreSQL/Redis thật + browser headless 1280×900 & 390×844); 2 lỗi Medium do QA phát hiện đã sửa. Biên bản: [sprint_review](../sprints/sprint_03_plugin_manager/09_review/sprint_review.md) — `[x]` ĐÓNG, DoD PASS (theo chỉ đạo chủ dự án; không tạo chữ ký giả).

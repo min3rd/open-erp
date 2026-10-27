@@ -9,6 +9,8 @@
 | Đầu vào | [TP-S05-001](../08_testing/01_TP-S05-001_sprint_05_test_plan.md) (25 TC), [EVD-S05-001](../08_testing/evidence/00_EVD-S05-001_evidence_index.md) |
 | Môi trường | Backend Quarkus `:8088` + Web `:4200` + Mobile `:8100`; PostgreSQL 16 + Redis thật (không H2); tenant `e2e-tenant@example.com`, platform `e2e-platform@example.com` |
 
+> **⚠️ 2026-10-27 — WITHDRAWN:** Báo cáo này là baseline của kiến trúc **catalog in-process** đã bị bác tại [BUG-135](../07_items/BUG-135_catalog_not_independent_plugin.md). Không dùng để nghiệm thu; phải chạy lại toàn bộ sau khi hoàn tất [ADR-S05-001](../05_solutions/02_ADR-S05-001_catalog_independent_plugin.md) và TASK-394…398.
+
 ## 1. Tổng hợp
 
 | Chỉ số | Kết quả |

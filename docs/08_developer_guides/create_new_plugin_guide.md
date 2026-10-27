@@ -91,6 +91,8 @@ npx @open-erp/cli link --repo git@github.com:org/open-erp-sales.git --id open-er
 
 ## 6. Plugin **core in-process** (không đóng gói) — bản mẫu: plugin `catalog`
 
+> **⚠️ 2026-10-27 — KHÔNG DÙNG LÀM MẪU:** Mô hình `CORE_IN_PROCESS` dưới đây đang bị bác theo [BUG-135](../../docs/sprints/sprint_05_catalog_plugin/07_items/BUG-135_catalog_not_independent_plugin.md). Plugin nghiệp vụ (kể cả `catalog`) phải là plugin độc lập theo mục 1–5 (artifact/container riêng, schema tenant riêng, API gateway, UI manifest). Mục này giữ làm lịch sử cho đến khi ADR-S05-001 ban hành.
+
 Plugin chạy ngay trong tiến trình core **không** đi qua CLI/registry: mã nằm trong `modules/<plugin>/` của backend, không có `plugin.json` ở gốc repo. Descriptor vẫn được khai báo theo **cùng định dạng** (để sau này tách ra đóng gói không phải sửa gì), đặt tại `src/backend/src/main/resources/plugins/<id>/plugin.json`, khác 2 điểm:
 
 | Khác biệt | Plugin đóng gói | Plugin core in-process |

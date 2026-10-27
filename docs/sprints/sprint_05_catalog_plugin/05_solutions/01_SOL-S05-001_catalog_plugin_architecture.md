@@ -3,12 +3,14 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | SOL-S05-001 / Giải pháp kiến trúc / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.1 / 2026-10-06 |
+| Trạng thái / phiên bản / cập nhật | **Superseded (D1 bị bác)** / 0.2 / 2026-10-27 |
 | Owner / reviewer | Solution Architect / Chưa review |
 | Đầu vào | [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) (Pending), [ANL-S05-001](../02_analysis/01_ANL-S05-001_catalog_data_model_problems.md), [ANL-S05-002](../02_analysis/02_ANL-S05-002_admin_features_permissions_dynamic_forms.md), [BENCH-S05-001](../03_benchmarks/01_BENCH-S05-001_catalog_patterns_in_erp.md) |
 | Đọc trước / đọc tiếp | CONF-S05-001 / [DES-DB-S05-001](../06_designs/db/01_DES-DB-S05-001_catalog_schema.md), [DES-API-S05-001](../06_designs/api/01_DES-API-S05-001_catalog_api.md), [DES-UI-S05-001](../06_designs/ui/01_DES-UI-S05-001_catalog_admin_ui.md) |
 
 ## 1. Mục đích
+
+> **⚠️ 2026-10-27:** Tài liệu này bị **superseded** ở quyết định D1. `catalog` phải là plugin độc lập theo Sprint 03, không phải module core in-process. Xem [BUG-135](../07_items/BUG-135_catalog_not_independent_plugin.md) và ADR-S05-001 (chờ soạn). Các quyết định D2–D21 vẫn có thể tái sử dụng sau khi đổi mô hình đóng gói.
 
 Chốt các quyết định kiến trúc cho plugin `catalog` trước khi viết thiết kế chi tiết (DB/API/UI) và phân rã task. Mọi quyết định dưới đây có nhãn: **Đã triển khai** (hạ tầng có sẵn), **Đề xuất** (chờ review), **Cần khách chốt**.
 
@@ -16,7 +18,7 @@ Chốt các quyết định kiến trúc cho plugin `catalog` trước khi viế
 
 | # | Quyết định | Lý do | Trạng thái |
 | :--- | :--- | :--- | :--- |
-| **D1** | Plugin `catalog` là **core plugin chạy in-process** trong backend monolith (module `modules/catalog`), không đóng gói JAR/container riêng | Core plugin đi kèm nền tảng như plugin `core` hiện tại; cơ chế đóng gói/MF của Sprint 03 dành cho plugin bên thứ ba. Module vẫn tách package/entity/API để có thể tách ra sau này | Đề xuất |
+| **D1** | ~~Plugin `catalog` là **core plugin chạy in-process** trong backend monolith (module `modules/catalog`), không đóng gói JAR/container riêng~~ | ~~Core plugin đi kèm nền tảng như plugin `core` hiện tại; cơ chế đóng gói/MF của Sprint 03 dành cho plugin bên thứ ba. Module vẫn tách package/entity/API để có thể tách ra sau này~~ | ❌ **BỊ BÁC 2026-10-27 (BUG-135)** — trái mô hình plugin độc lập Sprint 03; phải thay bằng ADR-S05-001 (artifact/container riêng, schema tenant, API gateway, UI manifest) |
 | **D2** | Quan hệ cha–con lưu bằng **bảng cạnh tường minh** `catalog_item_edges(parent, child, relation_type, valid_from, valid_to)`; `catalog_items` **không** có `parent_id` | Hỗ trợ đa cha (R3) + nhảy cấp (R2); quan hệ có thuộc tính riêng (loại, thứ tự, hiệu lực) | Đề xuất (ANL-S05-001 §2–3) |
 | **D3** | `relation_type` là enum: `HIERARCHY`, `CLASSIFICATION`, `ALLOCATION`, `CUSTOM`; **cha có thể khác loại** với con (JOB ⊂ INDUSTRY), giới hạn bằng `allowed_parent_types` của loại con | Phân biệt "công việc ⊂ ngành" và "công việc ⊂ phân bổ" (AC-04); cho phép quan hệ liên loại theo yêu cầu | Đề xuất (bổ sung sau BENCH-S05-001) |
 | **D4** | **Chống chu trình** bằng truy vấn đệ quy khi thêm cạnh; lỗi `CATALOG_EDGE_CYCLE` | DAG cấm chu trình (AC-05) | Đề xuất |
@@ -106,3 +108,4 @@ DB (migration V4.0.0)
 | Phiên bản | Ngày | Thay đổi | Người review/phê duyệt và nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-06 | Bản nháp 16 quyết định kiến trúc | Architect; chưa review |
+| 0.2 | 2026-10-27 | **Superseded D1** — bác mô hình in-process; chuyển sang thiết kế plugin độc lập (BUG-135) | Agent rà soát; chỉ đạo chủ dự án |
