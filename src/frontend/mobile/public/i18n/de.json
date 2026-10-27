@@ -541,5 +541,16 @@
   "CATALOG_RELATION_CUSTOM": "Benutzerdefiniert",
   "CATALOG_BROWSE_TITLE": "Katalog durchsuchen",
   "CATALOG_SECTION_TITLE": "Katalog",
-  "CATALOG_MOBILE_READONLY_NOTE": "In der mobilen App ist der Katalog nur lesbar. Zum Hinzufügen oder Bearbeiten die Web-App verwenden."
+  "CATALOG_MOBILE_READONLY_NOTE": "In der mobilen App ist der Katalog nur lesbar. Zum Hinzufügen oder Bearbeiten die Web-App verwenden.",
+  "SHAPE_LABEL": "FORM:",
+  "SHAPE_AUTO": "Auto (Theme)",
+  "LAYOUT_LABEL": "LAYOUT:",
+  "LAYOUT_AUTO": "Auto (Theme)",
+  "SHAPE_SHARP": "Eckig",
+  "SHAPE_SOFT": "Weich",
+  "SHAPE_ROUNDED": "Rund",
+  "LAYOUT_SIDE": "Linke Seitenleiste",
+  "LAYOUT_RIGHT": "Rechte Seitenleiste",
+  "LAYOUT_TOP": "Obere Leiste",
+  "LAYOUT_DRAWER": "Schublade"
 }

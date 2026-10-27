@@ -541,5 +541,16 @@
   "CATALOG_RELATION_CUSTOM": "Personnalisé",
   "CATALOG_BROWSE_TITLE": "Consulter le catalogue",
   "CATALOG_SECTION_TITLE": "Référentiel",
-  "CATALOG_MOBILE_READONLY_NOTE": "L'application mobile permet uniquement de consulter le catalogue. Utilisez la version web pour ajouter ou modifier des enregistrements."
+  "CATALOG_MOBILE_READONLY_NOTE": "L'application mobile permet uniquement de consulter le catalogue. Utilisez la version web pour ajouter ou modifier des enregistrements.",
+  "SHAPE_LABEL": "FORME :",
+  "SHAPE_AUTO": "Auto (thème)",
+  "LAYOUT_LABEL": "DISPOSITION :",
+  "LAYOUT_AUTO": "Auto (thème)",
+  "SHAPE_SHARP": "Net",
+  "SHAPE_SOFT": "Doux",
+  "SHAPE_ROUNDED": "Arrondi",
+  "LAYOUT_SIDE": "Barre latérale gauche",
+  "LAYOUT_RIGHT": "Barre latérale droite",
+  "LAYOUT_TOP": "Barre supérieure",
+  "LAYOUT_DRAWER": "Panneau"
 }

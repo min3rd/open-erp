@@ -541,5 +541,16 @@
   "CATALOG_RELATION_CUSTOM": "Personalizado",
   "CATALOG_BROWSE_TITLE": "Consultar catálogo",
   "CATALOG_SECTION_TITLE": "Catálogo",
-  "CATALOG_MOBILE_READONLY_NOTE": "O aplicativo móvel apenas consulta o catálogo. Use a versão web para adicionar ou editar registros."
+  "CATALOG_MOBILE_READONLY_NOTE": "O aplicativo móvel apenas consulta o catálogo. Use a versão web para adicionar ou editar registros.",
+  "SHAPE_LABEL": "FORMATO:",
+  "SHAPE_AUTO": "Auto (tema)",
+  "LAYOUT_LABEL": "LAYOUT:",
+  "LAYOUT_AUTO": "Auto (tema)",
+  "SHAPE_SHARP": "Reto",
+  "SHAPE_SOFT": "Suave",
+  "SHAPE_ROUNDED": "Arredondado",
+  "LAYOUT_SIDE": "Barra lateral esquerda",
+  "LAYOUT_RIGHT": "Barra lateral direita",
+  "LAYOUT_TOP": "Barra superior",
+  "LAYOUT_DRAWER": "Painel"
 }

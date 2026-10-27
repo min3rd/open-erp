@@ -10,6 +10,12 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 - **Kiểm chứng**: `docker compose --profile dev build web-dev mobile-dev catalog-plugin-dev backend-dev` PASS; web container phục vụ `:4200`, mobile `:8100`; `PluginLifecycleApiTest` 10/10 PASS; browser tenant `e2e-tenant` thấy menu `Danh mục` từ manifest, `/apps/catalog` render iframe 854px + API types/items 200. Tắt plugin → manifest 0 screen; bật lại → 2 screen và container mới healthy.
 - **Còn**: platform system screen `/platform/apps/catalog` cần platform manifest (TASK-392); QA dual-mode/closure (TASK-398).
 
+## 2026-10-27 — Fix layout desktop catalog + i18n login mobile
+
+- **BUG-137 (High)**: `/apps/catalog` xếp dọc trên desktop vì Tailwind không scan `plugins/catalog/web/src`; class `lg:grid-cols-[13rem_minmax(0,1fr)]` không được sinh. Thêm `@source` plugin vào `src/frontend/web/src/styles.css`; rebuild web/plugin image; browser computed `240px 1048px`, aside/section đúng 2 cột.
+- **BUG-138 (Medium)**: login mobile hiện raw key `SHAPE_LABEL`/`LAYOUT_LABEL` + option shape/layout. Bổ sung 11 key từ web sang 13 locale mobile; căn giữa form dọc. `i18n:check` 100%, `mobile:build` PASS.
+- **Kiểm chứng**: `npm run web:build` PASS; plugin image CSS 63.28 kB; mobile build PASS.
+
 ## 2026-10-27 — Re-check Sprint 05: catalog chưa phải plugin độc lập
 
 - **Kết luận**: `catalog` đang được triển khai như module core in-process (`modules/catalog`), migration core trong schema `public`, API core `/api/v1/catalog/**`, UI native trong Web/Mobile — trái mô hình plugin độc lập đã chốt ở Sprint 03 (repo/artifact riêng, container-per-tenant, schema tenant riêng, API gateway, UI manifest WC/MF/iframe).

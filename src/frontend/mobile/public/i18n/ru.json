@@ -541,5 +541,16 @@
   "CATALOG_RELATION_CUSTOM": "Пользовательская",
   "CATALOG_BROWSE_TITLE": "Просмотр каталога",
   "CATALOG_SECTION_TITLE": "Справочник",
-  "CATALOG_MOBILE_READONLY_NOTE": "В мобильном приложении каталог доступен только для просмотра. Для добавления и изменения записей используйте веб-версию."
+  "CATALOG_MOBILE_READONLY_NOTE": "В мобильном приложении каталог доступен только для просмотра. Для добавления и изменения записей используйте веб-версию.",
+  "SHAPE_LABEL": "ФОРМА:",
+  "SHAPE_AUTO": "Как в теме",
+  "LAYOUT_LABEL": "РАСКЛАДКА:",
+  "LAYOUT_AUTO": "Как в теме",
+  "SHAPE_SHARP": "Острые",
+  "SHAPE_SOFT": "Мягкие",
+  "SHAPE_ROUNDED": "Скруглённые",
+  "LAYOUT_SIDE": "Левый сайдбар",
+  "LAYOUT_RIGHT": "Правый сайдбар",
+  "LAYOUT_TOP": "Верхняя панель",
+  "LAYOUT_DRAWER": "Панель"
 }

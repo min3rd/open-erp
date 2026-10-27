@@ -541,5 +541,16 @@
   "CATALOG_RELATION_CUSTOM": "Custom",
   "CATALOG_BROWSE_TITLE": "Catalogue browse",
   "CATALOG_SECTION_TITLE": "Catalogue",
-  "CATALOG_MOBILE_READONLY_NOTE": "Mobile only browses the catalogue. Use the Web app to add or edit records."
+  "CATALOG_MOBILE_READONLY_NOTE": "Mobile only browses the catalogue. Use the Web app to add or edit records.",
+  "SHAPE_LABEL": "SHAPE:",
+  "SHAPE_AUTO": "Auto (theme)",
+  "LAYOUT_LABEL": "LAYOUT:",
+  "LAYOUT_AUTO": "Auto (theme)",
+  "SHAPE_SHARP": "Sharp",
+  "SHAPE_SOFT": "Soft",
+  "SHAPE_ROUNDED": "Rounded",
+  "LAYOUT_SIDE": "Left sidebar",
+  "LAYOUT_RIGHT": "Right sidebar",
+  "LAYOUT_TOP": "Top bar",
+  "LAYOUT_DRAWER": "Drawer"
 }

@@ -541,5 +541,16 @@
   "CATALOG_RELATION_CUSTOM": "사용자 지정",
   "CATALOG_BROWSE_TITLE": "카탈로그 조회",
   "CATALOG_SECTION_TITLE": "카탈로그",
-  "CATALOG_MOBILE_READONLY_NOTE": "모바일에서는 카탈로그 조회만 가능합니다. 추가 및 수정은 웹 버전을 이용하세요."
+  "CATALOG_MOBILE_READONLY_NOTE": "모바일에서는 카탈로그 조회만 가능합니다. 추가 및 수정은 웹 버전을 이용하세요.",
+  "SHAPE_LABEL": "모양:",
+  "SHAPE_AUTO": "테마 따름",
+  "LAYOUT_LABEL": "레이아웃:",
+  "LAYOUT_AUTO": "테마 따름",
+  "SHAPE_SHARP": "각진",
+  "SHAPE_SOFT": "부드러움",
+  "SHAPE_ROUNDED": "둥근",
+  "LAYOUT_SIDE": "왼쪽 사이드바",
+  "LAYOUT_RIGHT": "오른쪽 사이드바",
+  "LAYOUT_TOP": "상단 바",
+  "LAYOUT_DRAWER": "드로어"
 }

@@ -541,5 +541,16 @@
   "CATALOG_RELATION_CUSTOM": "مخصص",
   "CATALOG_BROWSE_TITLE": "تصفح الكتالوج",
   "CATALOG_SECTION_TITLE": "الكتالوج",
-  "CATALOG_MOBILE_READONLY_NOTE": "تطبيق الجوال للتصفح فقط. استخدم نسخة الويب لإضافة السجلات أو تعديلها."
+  "CATALOG_MOBILE_READONLY_NOTE": "تطبيق الجوال للتصفح فقط. استخدم نسخة الويب لإضافة السجلات أو تعديلها.",
+  "SHAPE_LABEL": "الشكل:",
+  "SHAPE_AUTO": "حسب السمة",
+  "LAYOUT_LABEL": "التخطيط:",
+  "LAYOUT_AUTO": "حسب السمة",
+  "SHAPE_SHARP": "حاد",
+  "SHAPE_SOFT": "ناعم",
+  "SHAPE_ROUNDED": "مستدير",
+  "LAYOUT_SIDE": "شريط جانبي أيسر",
+  "LAYOUT_RIGHT": "شريط جانبي أيمن",
+  "LAYOUT_TOP": "شريط علوي",
+  "LAYOUT_DRAWER": "درج"
 }

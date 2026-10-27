@@ -541,5 +541,16 @@
   "CATALOG_RELATION_CUSTOM": "カスタム",
   "CATALOG_BROWSE_TITLE": "カタログ閲覧",
   "CATALOG_SECTION_TITLE": "カタログ",
-  "CATALOG_MOBILE_READONLY_NOTE": "モバイルではカタログの閲覧のみ可能です。追加・編集はWeb版をご利用ください。"
+  "CATALOG_MOBILE_READONLY_NOTE": "モバイルではカタログの閲覧のみ可能です。追加・編集はWeb版をご利用ください。",
+  "SHAPE_LABEL": "形状：",
+  "SHAPE_AUTO": "テーマに従う",
+  "LAYOUT_LABEL": "レイアウト：",
+  "LAYOUT_AUTO": "テーマに従う",
+  "SHAPE_SHARP": "シャープ",
+  "SHAPE_SOFT": "ソフト",
+  "SHAPE_ROUNDED": "丸み",
+  "LAYOUT_SIDE": "左サイドバー",
+  "LAYOUT_RIGHT": "右サイドバー",
+  "LAYOUT_TOP": "トップバー",
+  "LAYOUT_DRAWER": "ドロワー"
 }

@@ -541,5 +541,16 @@
   "CATALOG_RELATION_CUSTOM": "自定义",
   "CATALOG_BROWSE_TITLE": "目录浏览",
   "CATALOG_SECTION_TITLE": "目录",
-  "CATALOG_MOBILE_READONLY_NOTE": "移动端仅支持浏览目录。新增或编辑请使用网页版。"
+  "CATALOG_MOBILE_READONLY_NOTE": "移动端仅支持浏览目录。新增或编辑请使用网页版。",
+  "SHAPE_LABEL": "形状：",
+  "SHAPE_AUTO": "跟随主题",
+  "LAYOUT_LABEL": "布局：",
+  "LAYOUT_AUTO": "跟随主题",
+  "SHAPE_SHARP": "直角",
+  "SHAPE_SOFT": "柔和",
+  "SHAPE_ROUNDED": "圆角",
+  "LAYOUT_SIDE": "左侧栏",
+  "LAYOUT_RIGHT": "右侧栏",
+  "LAYOUT_TOP": "顶部栏",
+  "LAYOUT_DRAWER": "抽屉"
 }

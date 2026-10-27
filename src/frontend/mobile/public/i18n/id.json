@@ -541,5 +541,16 @@
   "CATALOG_RELATION_CUSTOM": "Kustom",
   "CATALOG_BROWSE_TITLE": "Telusuri katalog",
   "CATALOG_SECTION_TITLE": "Katalog",
-  "CATALOG_MOBILE_READONLY_NOTE": "Aplikasi mobile hanya dapat menelusuri katalog. Gunakan versi Web untuk menambah atau mengubah data."
+  "CATALOG_MOBILE_READONLY_NOTE": "Aplikasi mobile hanya dapat menelusuri katalog. Gunakan versi Web untuk menambah atau mengubah data.",
+  "SHAPE_LABEL": "BENTUK:",
+  "SHAPE_AUTO": "Ikut tema",
+  "LAYOUT_LABEL": "TATA LETAK:",
+  "LAYOUT_AUTO": "Ikut tema",
+  "SHAPE_SHARP": "Tajam",
+  "SHAPE_SOFT": "Lembut",
+  "SHAPE_ROUNDED": "Membulat",
+  "LAYOUT_SIDE": "Bilah kiri",
+  "LAYOUT_RIGHT": "Bilah kanan",
+  "LAYOUT_TOP": "Bilah atas",
+  "LAYOUT_DRAWER": "Laci"
 }

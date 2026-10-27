@@ -14,6 +14,8 @@ Sprint đang theo dõi: [Sprint 05 — Plugin Danh mục](../sprints/sprint_05_c
 
 2026-10-27 (P4.1): thêm [TASK-399](../sprints/sprint_05_catalog_plugin/07_items/TASK-399_plugin_ui_registry_dynamic_host.md) — menu lấy từ `/api/v1/plugins/ui-manifest`, host cố định `/apps/:pluginKey`, bỏ import/native route catalog khỏi core; [TASK-400](../sprints/sprint_05_catalog_plugin/07_items/TASK-400_docker_only_local_environment.md) — web/backend/plugin/UI build chạy 100% Docker. Browser xác nhận menu + iframe; tắt plugin ⇒ menu mất, bật lại ⇒ trở lại. QA/closure vẫn chờ TASK-398.
 
+2026-10-27 (UI fix): [BUG-137](../sprints/sprint_05_catalog_plugin/07_items/BUG-137_catalog_desktop_grid_missing.md) — Tailwind không scan plugin source làm mất grid 2 cột desktop; thêm `@source`, computed grid PASS. [BUG-138](../sprints/sprint_05_catalog_plugin/07_items/BUG-138_mobile_login_shape_layout_i18n.md) — mobile login thiếu key shape/layout; bổ sung 13 locale + căn giữa form.
+
 2026-10-05 (bổ sung): Sprint 03 **đóng** (QA-03 8/8 PASS; BUG-98/TASK-346/TASK-347 làm luôn; TASK-353 đối soát Done). Khởi tạo tài liệu Sprint 04: RAW → ANL-S04-001…006 → BENCH-S04-001 → CONF-S04-001 → SOL-S04-001 → DES-UI/API → FEAT-24…29 (tất cả **Draft/To Do**, scope Pending).
 
 2026-10-06: Sprint 04 **đóng** (DoD 11/11 Đạt; 34/34 item Done; baseline `772a211`; dọn code theo ponytail-review + vendor icon: bundle web 640→558 kB, build 0 cảnh báo). Khởi tạo tài liệu Sprint 05 (plugin core Danh mục): RAW-S05-001 → ANL-S05-001…002 → BENCH-S05-001 → CONF-S05-001 (Pending) → SOL-S05-001 → DES-DB/API/UI-S05-001 → FEAT-30 + TASK-375…389 (Blocked — chờ gate scope) → TP-S05-001. `check-docs` 0 lỗi.

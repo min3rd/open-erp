@@ -541,5 +541,16 @@
   "CATALOG_RELATION_CUSTOM": "Tùy chỉnh",
   "CATALOG_BROWSE_TITLE": "Tra cứu danh mục",
   "CATALOG_SECTION_TITLE": "Danh mục",
-  "CATALOG_MOBILE_READONLY_NOTE": "Mobile chỉ tra cứu danh mục. Vui lòng dùng bản Web để thêm hoặc sửa bản ghi."
+  "CATALOG_MOBILE_READONLY_NOTE": "Mobile chỉ tra cứu danh mục. Vui lòng dùng bản Web để thêm hoặc sửa bản ghi.",
+  "SHAPE_LABEL": "Kiểu dáng:",
+  "SHAPE_AUTO": "Theo chủ đề",
+  "LAYOUT_LABEL": "Bố cục:",
+  "LAYOUT_AUTO": "Theo chủ đề",
+  "SHAPE_SHARP": "Vuông vắn",
+  "SHAPE_SOFT": "Mềm mại",
+  "SHAPE_ROUNDED": "Bo tròn",
+  "LAYOUT_SIDE": "Menu trái",
+  "LAYOUT_RIGHT": "Menu phải",
+  "LAYOUT_TOP": "Menu ngang",
+  "LAYOUT_DRAWER": "Ngăn kéo"
 }

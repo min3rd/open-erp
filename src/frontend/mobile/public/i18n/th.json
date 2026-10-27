@@ -541,5 +541,16 @@
   "CATALOG_RELATION_CUSTOM": "กำหนดเอง",
   "CATALOG_BROWSE_TITLE": "เรียกดูแค็ตตาล็อก",
   "CATALOG_SECTION_TITLE": "แคตตาล็อก",
-  "CATALOG_MOBILE_READONLY_NOTE": "แอปมือถือใช้เรียกดูแค็ตตาล็อกได้เท่านั้น กรุณาใช้เว็บเพื่อเพิ่มหรือแก้ไขรายการ"
+  "CATALOG_MOBILE_READONLY_NOTE": "แอปมือถือใช้เรียกดูแค็ตตาล็อกได้เท่านั้น กรุณาใช้เว็บเพื่อเพิ่มหรือแก้ไขรายการ",
+  "SHAPE_LABEL": "รูปทรง:",
+  "SHAPE_AUTO": "ตามธีม",
+  "LAYOUT_LABEL": "เลย์เอาต์:",
+  "LAYOUT_AUTO": "ตามธีม",
+  "SHAPE_SHARP": "คม",
+  "SHAPE_SOFT": "นุ่มนวล",
+  "SHAPE_ROUNDED": "มน",
+  "LAYOUT_SIDE": "แถบข้างซ้าย",
+  "LAYOUT_RIGHT": "แถบข้างขวา",
+  "LAYOUT_TOP": "แถบด้านบน",
+  "LAYOUT_DRAWER": "ลิ้นชัก"
 }
