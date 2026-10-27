@@ -22,6 +22,8 @@
     "backend": "node scripts/run.mjs backend",
     "backend:test": "mvn -f src/backend/pom.xml test",
     "backend:build": "mvn -f src/backend/pom.xml -DskipTests package",
+    "plugin:catalog:test": "mvn -f plugins/catalog/pom.xml test",
+    "plugin:catalog:build": "mvn -f plugins/catalog/pom.xml -DskipTests package",
     "web": "node scripts/run.mjs web",
     "web:build": "npm --prefix src/frontend/web run build",
     "mobile": "node scripts/run.mjs mobile",

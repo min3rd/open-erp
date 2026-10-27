@@ -1,0 +1,113 @@
+{
+  "id": "catalog",
+  "name": "Danh mục & quản trị danh mục",
+  "description": "Plugin độc lập: hạ tầng danh mục dùng chung (quan hệ đa cha, phiên bản + hiệu lực, tra cứu cho form động, import/export, system catalog fan-out).",
+  "version": "1.0.0",
+  "author": "Open-ERP Core Team",
+  "core_version_compatibility": ">=1.0.0 <2.0.0",
+  "packaging": "image",
+  "migration_policy": "COMPATIBLE",
+  "rollback_strategy": "SNAPSHOT_RESTORE",
+  "template_version": "0.1.0",
+  "dependencies": [],
+  "platforms": {
+    "desktop": {
+      "supported": true,
+      "features": [
+        "catalog_type_admin",
+        "catalog_item_admin",
+        "catalog_edge_admin",
+        "catalog_grants_admin",
+        "catalog_import_export",
+        "catalog_system_admin"
+      ]
+    },
+    "mobile": {
+      "supported": true,
+      "features": ["catalog_browse", "catalog_picker"]
+    }
+  },
+  "permissions": [
+    { "code": "catalog:type:manage", "name": "Quản lý loại danh mục của tenant" },
+    { "code": "catalog:item:read", "name": "Xem bản ghi danh mục" },
+    { "code": "catalog:item:manage", "name": "Thêm/sửa/ngừng dùng bản ghi danh mục" },
+    { "code": "catalog:item:inline-create", "name": "Lưu nhanh giá trị nhập tự do vào danh mục" },
+    { "code": "catalog:system:manage", "name": "Quản trị danh mục hệ thống (cổng Platform)" }
+  ],
+  "entities": [
+    {
+      "name": "CatalogType",
+      "storage": "postgres",
+      "table": "catalog_types",
+      "public_fields": [
+        "id", "tenant_id", "code", "name_key", "description_key", "hierarchy_mode",
+        "allowed_relations", "allowed_parent_types", "max_depth", "min_parents",
+        "allow_free_text", "versioned", "effective_dated", "status", "created_at", "updated_at"
+      ]
+    },
+    {
+      "name": "CatalogItem",
+      "storage": "postgres",
+      "table": "catalog_items",
+      "public_fields": [
+        "id", "tenant_id", "type_id", "version_group_id", "version", "code", "name",
+        "name_en", "description", "sort_order", "status", "valid_from", "valid_to",
+        "supersedes_item_id", "created_at", "updated_at"
+      ]
+    },
+    {
+      "name": "CatalogItemEdge",
+      "storage": "postgres",
+      "table": "catalog_item_edges",
+      "public_fields": [
+        "id", "tenant_id", "parent_item_id", "child_item_id", "relation_type",
+        "sort_order", "status", "valid_from", "valid_to", "created_at"
+      ]
+    },
+    {
+      "name": "CatalogTypeGrant",
+      "storage": "postgres",
+      "table": "catalog_type_grants",
+      "public_fields": ["id", "tenant_id", "type_id", "role_code", "can_read", "can_write", "created_at", "updated_at"]
+    }
+  ],
+  "kafka_events": { "publishes": [], "subscribes": [] },
+  "ui_manifest": {
+    "contract_version": "1.0",
+    "screens": [
+      {
+        "route": "/apps/catalog",
+        "title_key": "CATALOG_SECTION_TITLE",
+        "permission": "catalog:item:read",
+        "render_mode": "IFRAME",
+        "order": 150,
+        "platforms": ["desktop"]
+      },
+      {
+        "route": "/apps/catalog",
+        "title_key": "CATALOG_SECTION_TITLE",
+        "permission": "catalog:item:read",
+        "render_mode": "IFRAME",
+        "order": 150,
+        "platforms": ["mobile"],
+        "read_only": true
+      },
+      {
+        "route": "/platform/apps/catalog",
+        "title_key": "CATALOG_SECTION_TITLE",
+        "permission": "catalog:system:manage",
+        "render_mode": "IFRAME",
+        "order": 200,
+        "platforms": ["desktop"]
+      }
+    ],
+    "contributions": [],
+    "slots": []
+  },
+  "distribution": {
+    "type": "IMAGE_REGISTRY",
+    "registry_url": "",
+    "repository": "open-erp/catalog",
+    "tag": "1.0.0"
+  }
+}

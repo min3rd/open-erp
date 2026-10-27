@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-394 / Task / Sprint 05 |
-| Severity / trạng thái | High / **To Do** — chặn bởi [BUG-135](BUG-135_catalog_not_independent_plugin.md) |
+| Severity / trạng thái | High / **In Progress** — scaffold compile/package PASS; chờ TASK-395 (schema test) |
 | Owner / reviewer | Developer / Architect |
 | depends_on / blocks | BUG-135, [ADR-S05-001](../05_solutions/02_ADR-S05-001_catalog_independent_plugin.md) / TASK-395…398 |
 | Write scope | `plugins/catalog/**`, `package.json` (script build), docs liên quan |
@@ -34,3 +34,4 @@ Tạo Maven/Quarkus project độc lập `plugins/catalog`, chuyển mã backend
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-27 | Tạo task theo ADR-S05-001 hướng B | Agent; chủ dự án chọn B |
+| 0.2 | 2026-10-27 | **Scaffold xong**: `plugins/catalog` standalone Quarkus project; 53 file biên dịch; `mvn -f plugins/catalog/pom.xml -DskipTests package` PASS; thêm script `npm run plugin:catalog:build/test`; contract local (`ApiResponse`, `ApiException`, `TenantContext`, `RequirePermission`); bỏ phụ thuộc core; grants chuyển `role_code`; audit local log (P1) | Developer Agent; baseline `447a2f9` + working tree |
