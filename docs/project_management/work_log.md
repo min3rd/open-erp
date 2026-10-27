@@ -18,6 +18,15 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 - **Kiểm chứng**: `mvn -f plugins/catalog/pom.xml -DskipTests compile` PASS (53 file); `... package` PASS (Quarkus augmentation 18.6s); migration `1.0.0` apply sạch trên schema `tenant_test_catalog`; seed **5 system types + 34 tỉnh + 3.321 xã + 3.321 cạnh + 5 tenant types + 10 grant**.
 - **Giới hạn**: chưa chạy API qua gateway; chưa nối core lifecycle; UI iframe chưa làm; `catalog_audit` mới log, chưa ghi DB.
 
+## 2026-10-27 — P2: V5 di trú, system tenant, bỏ catalog khỏi core
+
+- **V5.0.0**: seed system tenant ẩn `00000000-...-0001`; publish `catalog` 1.0.0; tạo schema `tenant_<suffix>_catalog` cho 3 tenant + system; copy system rows vào mọi schema + tenant rows vào schema tương ứng; map grant `role_id` → `role_code`; verify row count; drop 4 bảng public. **Apply trên PostgreSQL dev PASS (11.3s)**.
+- **Kết quả DB**: public catalog tables = **0**; **5** schema catalog; `plugin_versions` 1.0.0 PUBLISHED = **1**; ledger catalog ACTIVE = **4**; system tenant = **1**.
+- **Plugin trên schema V5**: Flyway baseline 1.0.0 (không chạy lại DDL), seeder idempotent (`new: 0`), API `GET /api/v1/catalog/types` → **200**, 10 loại.
+- **Core**: xoá `modules/catalog` + test cũ + descriptor/CSV; thêm `PluginEntityRegistrar`; `PluginProvisioningService` bỏ `activateInProcess`; `uninstall` chặn locked (BUG-136); `TenantType.SYSTEM` ẩn khỏi list/health; script seed địa giới trỏ plugin.
+- **Test**: `EntityRegistryServiceTest` 2/2 PASS; `PluginLifecycleApiTest` 10/10 PASS (gồm locked uninstall).
+- **Giới hạn**: frontend vẫn gọi `/api/v1/catalog/**` (sẽ 404) cho đến P3/P4; chưa tạo DB role/container cho tenant cũ; fan-out chưa nối; test catalog cũ đã xoá, sẽ tái tạo trong plugin (TASK-398).
+
 ## 2026-10-05 — Sprint 03 đóng & khởi tạo tài liệu Sprint 04
 
 - **Sprint 03 đóng**: [QA-03](../sprints/sprint_03_plugin_manager/08_testing/QA-03_qa_verification_2026-10-05.md) xác nhận 8/8 item PASS (backend PostgreSQL/Redis thật + browser headless 1280×900 & 390×844); 2 lỗi Medium do QA phát hiện đã sửa. Biên bản: [sprint_review](../sprints/sprint_03_plugin_manager/09_review/sprint_review.md) — `[x]` ĐÓNG, DoD PASS (theo chỉ đạo chủ dự án; không tạo chữ ký giả).

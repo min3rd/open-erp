@@ -1,5 +1,9 @@
 package com.vn9melody.openerp.core.registry;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vn9melody.openerp.modules.plugin.service.PluginEntityRegistrar;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -20,6 +24,12 @@ public class EntityRegistryServiceTest {
     @Inject
     EntityRegistryService entityRegistryService;
 
+    @Inject
+    PluginEntityRegistrar pluginEntityRegistrar;
+
+    @Inject
+    ObjectMapper objectMapper;
+
     @SuppressWarnings("unchecked")
     private List<Object[]> registryRows() {
         return entityManager.createNativeQuery(
@@ -30,10 +40,15 @@ public class EntityRegistryServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("BUG-26 + TASK-276 + TASK-302 + TASK-376: 29 entity IAM/Platform/Organization/Core/Plugin/Catalog được đăng ký tự động và upsert idempotent")
+    @DisplayName("BUG-26 + TASK-276 + TASK-302: 25 entity IAM/Platform/Organization/Core/Plugin được đăng ký tự động và upsert idempotent")
     public void testAllEntitiesRegisteredOnStartup() {
+        // Catalog entities are registered by PluginEntityRegistrar at install time,
+        // not by the core Jandex scan. Clear stale rows from earlier runs.
+        entityManager.createNativeQuery(
+                "DELETE FROM sys_entity_registry WHERE plugin_id = 'catalog'")
+            .executeUpdate();
         List<Object[]> rows = registryRows();
-        Assertions.assertEquals(29, rows.size(), "Phải đăng ký đúng 29 entity (20 entity Sprint 01/02 + 5 entity Plugin Manager Sprint 03 + 4 entity Catalog Sprint 05)");
+        Assertions.assertEquals(25, rows.size(), "Phải đăng ký đúng 25 entity (20 entity Sprint 01/02 + 5 entity Plugin Manager Sprint 03); catalog do plugin tự đăng ký khi cài");
 
         Map<String, List<Object[]>> byPlugin = rows.stream()
             .collect(Collectors.groupingBy(row -> (String) row[0]));
@@ -61,16 +76,6 @@ public class EntityRegistryServiceTest {
         Map<String, Object[]> core = byEntityName(byPlugin, "core");
         Assertions.assertEquals(1, core.size(), "plugin core phải chứa entity reference CoreSampleRecord");
 
-        Map<String, Object[]> catalog = byEntityName(byPlugin, "catalog");
-        Assertions.assertEquals(4, catalog.size(), "plugin catalog phải chứa 4 entity (Sprint 05)");
-        Assertions.assertTrue(catalog.keySet().containsAll(List.of(
-            "CatalogType", "CatalogItem", "CatalogItemEdge", "CatalogTypeGrant"
-        )), "Thiếu entity catalog trong registry: " + catalog.keySet());
-        assertEntity(catalog, "CatalogType", "catalog_types");
-        assertEntity(catalog, "CatalogItem", "catalog_items");
-        assertEntity(catalog, "CatalogItemEdge", "catalog_item_edges");
-        assertEntity(catalog, "CatalogTypeGrant", "catalog_type_grants");
-
         assertEntity(coreIam, "User", "users");
         assertEntity(coreIam, "Tenant", "tenants");
         assertEntity(coreIam, "Role", "roles");
@@ -85,7 +90,7 @@ public class EntityRegistryServiceTest {
             "exported_relations phải chứa quan hệ users");
 
         entityRegistryService.registerAnnotatedEntities();
-        Assertions.assertEquals(29, registryRows().size(), "Upsert phải idempotent, không nhân bản bản ghi");
+        Assertions.assertEquals(25, registryRows().size(), "Upsert phải idempotent, không nhân bản bản ghi");
     }
 
     private Map<String, Object[]> byEntityName(Map<String, List<Object[]>> byPlugin, String pluginId) {
@@ -99,5 +104,29 @@ public class EntityRegistryServiceTest {
         Assertions.assertNotNull(row, "Không tìm thấy entity " + entityName);
         Assertions.assertEquals(table, row[2], entityName + " phải trỏ đúng bảng");
         Assertions.assertEquals("postgres", row[3], entityName + " phải dùng storage postgres");
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("ADR-S05-001 A9: packaged plugin entities are registered from the manifest")
+    public void testPackagedPluginEntityRegistration() {
+        ObjectNode entity = objectMapper.createObjectNode();
+        entity.put("name", "PackagedEntity");
+        entity.put("table", "packaged_entities");
+        entity.putArray("public_fields").add("id").add("code");
+        ArrayNode entities = objectMapper.createArrayNode().add(entity);
+
+        Assertions.assertEquals(1, pluginEntityRegistrar.register("test-packaged-plugin", entities));
+
+        Object[] row = (Object[]) entityManager.createNativeQuery(
+                "SELECT plugin_id, table_or_collection, schema_definition::text FROM sys_entity_registry "
+                    + "WHERE plugin_id = 'test-packaged-plugin' AND entity_name = 'PackagedEntity'")
+            .getSingleResult();
+        Assertions.assertEquals("packaged_entities", row[1]);
+        Assertions.assertTrue(((String) row[2]).contains("\"fields\""));
+
+        entityManager.createNativeQuery(
+                "DELETE FROM sys_entity_registry WHERE plugin_id = 'test-packaged-plugin'")
+            .executeUpdate();
     }
 }

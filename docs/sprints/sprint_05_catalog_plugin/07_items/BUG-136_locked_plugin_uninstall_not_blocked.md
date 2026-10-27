@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-136 / Bug chức năng / Sprint 05 |
-| Mức độ / trạng thái | **High — chặn đóng Sprint 05** / Open (2026-10-27) |
+| Mức độ / trạng thái | **High** / Resolved (dev) 2026-10-27 — test PASS; QA verify lại |
 | Phát hiện bởi / ngày | Agent rà soát (re-check Sprint 05) / 2026-10-27 |
 | Owner / reviewer | Developer / QA |
 | Liên quan | [BUG-135](BUG-135_catalog_not_independent_plugin.md), [TASK-376](TASK-376_plugin_registration_entity_registry.md), AC-13/AC-14, `PluginLifecycleService` |
@@ -45,3 +45,4 @@ Hệ quả: plugin “locked” bị gỡ khỏi tenant; marketplace/UI có th�
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-27 | Tạo bug sau re-check Sprint 05 | Agent rà soát; đối chiếu `PluginLifecycleService` + AC-14 |
+| 0.2 | 2026-10-27 | **Fixed (dev)**: `uninstall` đọc `PluginCatalog.locked`, trả 403 `PLUGIN_LOCKED_DEFAULT`; test `testLockedPluginCannotBeUninstalled` PASS | Developer Agent; `PluginLifecycleApiTest` 10/10 |

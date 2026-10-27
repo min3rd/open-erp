@@ -68,6 +68,9 @@ public class PluginLifecycleService {
     PluginPermissionSeeder permissionSeeder;
 
     @Inject
+    PluginEntityRegistrar entityRegistrar;
+
+    @Inject
     PluginSnapshotService snapshotService;
 
     @Inject
@@ -163,6 +166,7 @@ public class PluginLifecycleService {
             log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "HEALTH", "OK", steps, null);
 
             permissionSeeder.seed(tenantId, version.permissions);
+            entityRegistrar.register(pluginKey, version.entities);
             log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "SEED_PERMISSIONS", "OK", steps, null);
 
             ledger.status = TenantPluginStatus.ACTIVE;
@@ -234,6 +238,11 @@ public class PluginLifecycleService {
         List<PluginResponses.OperationStep> steps = new ArrayList<>();
         try {
             TenantPlugin ledger = requireLedger(tenantId, pluginKey);
+            PluginCatalog catalog = requireCatalog(ledger.catalogId);
+            if (catalog.locked) {
+                throw new ApiException(403, PluginErrorCode.PLUGIN_LOCKED_DEFAULT,
+                        "Default mandatory plugins cannot be uninstalled");
+            }
             dependencyResolver.assertNoDependents(tenantId, pluginKey);
             log(operationId, tenantId, pluginKey, PluginOperationType.UNINSTALL, "PRE_FLIGHT", "OK", steps, null);
             ledger.status = TenantPluginStatus.UNINSTALLING;

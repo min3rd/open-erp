@@ -5,7 +5,7 @@
  * Nguồn: https://provinces.open-api.vn (api/v2 — dữ liệu sau sáp nhập 2025:
  * tỉnh → phường/xã trực tiếp, không có huyện).
  *
- * Kết quả: src/backend/src/main/resources/db/seed/provinces-communes.csv
+ * Kết quả: plugins/catalog/src/main/resources/db/seed/provinces-communes.csv
  *   # source: ...
  *   # generated: <ISO date>
  *   # provinces: N
@@ -21,7 +21,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 const API = 'https://provinces.open-api.vn/api/v2';
-const OUT = join('src', 'backend', 'src', 'main', 'resources', 'db', 'seed', 'provinces-communes.csv');
+const OUT = join('plugins', 'catalog', 'src', 'main', 'resources', 'db', 'seed', 'provinces-communes.csv');
 const DELAY_MS = 250;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

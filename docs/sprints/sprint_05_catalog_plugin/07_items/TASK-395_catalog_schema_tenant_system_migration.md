@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-395 / Task / Sprint 05 |
-| Severity / trạng thái | High / **To Do** — chặn bởi TASK-394 |
+| Severity / trạng thái | High / **In Progress (dev)** — V5 migration + system tenant + plugin version + core removal done; plugin baseline/API verified; deployment roles + fan-out ở P3 |
 | Owner / reviewer | Developer / Architect |
 | depends_on / blocks | TASK-394 / TASK-396…398 |
 | Write scope | `plugins/catalog/src/main/resources/db/plugin-migration/**`, `src/backend/src/main/resources/db/migration/V5.0.0__*.sql`, `V5.0.1__*.sql` |
@@ -34,3 +34,4 @@ Chuyển 4 bảng catalog khỏi schema `public` sang mô hình: plugin sở h�
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-27 | Tạo task; chốt A5/A6/A12 | Agent; ADR-S05-001 |
+| 0.2 | 2026-10-27 | **V5 applied (dev)**: system tenant ẩn + 4 schema catalog; public catalog tables = 0; plugin_versions 1.0.0 PUBLISHED; ledger ACTIVE có `storage_schema`; plugin start trên schema V5 với Flyway baseline 1.0.0; API `/types` trả 10 loại. Chưa tạo DB role (P3 deploy). | Developer Agent; PostgreSQL dev |

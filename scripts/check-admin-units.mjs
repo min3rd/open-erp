@@ -7,7 +7,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const FILE = join('src', 'backend', 'src', 'main', 'resources', 'db', 'seed', 'provinces-communes.csv');
+const FILE = join('plugins', 'catalog', 'src', 'main', 'resources', 'db', 'seed', 'provinces-communes.csv');
 const lines = readFileSync(FILE, 'utf8').split('\n').filter((l) => l.trim().length > 0);
 
 const meta = {};

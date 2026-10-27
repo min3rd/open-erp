@@ -1,17 +1,12 @@
 package com.vn9melody.openerp.modules.plugin.service;
 
 import com.vn9melody.openerp.core.enums.PluginCatalogStatus;
-import com.vn9melody.openerp.core.enums.TenantPluginStatus;
 import com.vn9melody.openerp.modules.plugin.model.PluginCatalog;
-import com.vn9melody.openerp.modules.plugin.model.TenantPlugin;
 import com.vn9melody.openerp.modules.plugin.repository.PluginCatalogRepository;
-import com.vn9melody.openerp.modules.plugin.repository.PluginVersionRepository;
-import com.vn9melody.openerp.modules.plugin.repository.TenantPluginRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import java.time.Instant;
 import java.util.UUID;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -19,12 +14,9 @@ import org.jboss.logging.Logger;
 /**
  * Tenant provisioning hook for system-default plugins (TASK-307 / Gate Q5):
  * new tenants automatically receive every catalog entry marked
- * {@code default_install}. Locked defaults are activated immediately; optional
- * defaults are only entitled (NOT_INSTALLED) for the tenant admin to enable.
- *
- * <p>Locked defaults without a published version are in-process core plugins
- * (SOL-S05-001 D1: the {@code catalog} plugin) and are activated directly on
- * the ledger instead of going through the container deploy saga.</p>
+ * {@code default_install}. Locked defaults go through the normal install saga
+ * (datasource, deploy, health, permissions, entities), including {@code catalog}
+ * (ADR-S05-001 A3/A6).
  */
 @ApplicationScoped
 public class PluginProvisioningService {
@@ -35,12 +27,6 @@ public class PluginProvisioningService {
     PluginCatalogRepository catalogRepository;
 
     @Inject
-    TenantPluginRepository tenantPluginRepository;
-
-    @Inject
-    PluginVersionRepository versionRepository;
-
-    @Inject
     PluginEntitlementService entitlementService;
 
     @Inject
@@ -49,12 +35,13 @@ public class PluginProvisioningService {
     @Inject
     EntityManager entityManager;
 
-    @ConfigProperty(name = "openerp.core.version", defaultValue = "1.0.0")
-    String coreVersion;
+    @ConfigProperty(name = "openerp.platform.system-tenant-id",
+            defaultValue = "00000000-0000-0000-0000-000000000001")
+    String systemTenantId;
 
     @Transactional
     public int provisionDefaults(UUID tenantId) {
-        if (tenantId == null) {
+        if (tenantId == null || tenantId.toString().equals(systemTenantId)) {
             return 0;
         }
         int provisioned = 0;
@@ -68,11 +55,7 @@ public class PluginProvisioningService {
                 }
                 ensureAllowedPlugin(tenantId, catalog.pluginKey);
                 if (catalog.locked) {
-                    if (versionRepository.listInstallable(catalog.id).isEmpty()) {
-                        activateInProcess(tenantId, catalog);
-                    } else {
-                        lifecycleService.install(tenantId, catalog.pluginKey, null, null);
-                    }
+                    lifecycleService.install(tenantId, catalog.pluginKey, null, null);
                 }
                 provisioned++;
             } catch (RuntimeException e) {
@@ -99,18 +82,5 @@ public class PluginProvisioningService {
             .setParameter(1, tenantId)
             .setParameter(2, pluginKey)
             .executeUpdate();
-    }
-
-    private void activateInProcess(UUID tenantId, PluginCatalog catalog) {
-        TenantPlugin ledger = tenantPluginRepository.findByTenantAndKey(tenantId, catalog.pluginKey).orElse(null);
-        if (ledger == null || ledger.status == TenantPluginStatus.ACTIVE) {
-            return;
-        }
-        Instant now = Instant.now();
-        ledger.status = TenantPluginStatus.ACTIVE;
-        ledger.installedVersion = coreVersion;
-        ledger.installedAt = now;
-        ledger.activatedAt = now;
-        ledger.updatedAt = now;
     }
 }

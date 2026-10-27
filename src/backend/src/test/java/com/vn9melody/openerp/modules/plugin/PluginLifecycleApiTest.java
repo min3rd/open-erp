@@ -407,6 +407,29 @@ public class PluginLifecycleApiTest {
                 .body("code", equalTo("PLUGIN_CATALOG_DELETE_SUCCESS"));
     }
 
+    @Test
+    @DisplayName("BUG-136: locked plugin cannot be uninstalled")
+    public void testLockedPluginCannotBeUninstalled() {
+        registerAndPublish(pluginKey, "1.0.0", "COMPATIBLE", false);
+        QuarkusTransaction.requiringNew().run(() -> {
+            PluginRequests.UpdateCatalog update = new PluginRequests.UpdateCatalog();
+            update.locked = true;
+            adminService.updateCatalog(pluginKey, update, userId);
+        });
+
+        given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
+                .body(Map.of("version", "1.0.0"))
+                .post(TENANT_PLUGINS_PATH + "/" + pluginKey + "/install")
+                .then().statusCode(200).body("data.status", equalTo("ACTIVE"));
+
+        given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
+                .post(TENANT_PLUGINS_PATH + "/" + pluginKey + "/uninstall")
+                .then().statusCode(403).body("code", equalTo("PLUGIN_LOCKED_DEFAULT"));
+
+        TenantPlugin ledger = tenantPluginRepository.findByTenantAndKey(tenantId, pluginKey).orElseThrow();
+        assertEquals(TenantPluginStatus.ACTIVE, ledger.status);
+    }
+
     private void registerAndPublish(String key, String version, String migrationPolicy, boolean withUi) {
         QuarkusTransaction.requiringNew().run(() -> {
             if (!adminService.existsByKey(key)) {

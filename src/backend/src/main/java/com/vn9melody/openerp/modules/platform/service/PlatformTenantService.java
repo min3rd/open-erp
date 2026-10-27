@@ -10,6 +10,7 @@ import com.vn9melody.openerp.core.enums.ImpersonationStatus;
 import com.vn9melody.openerp.core.enums.PlatformAction;
 import com.vn9melody.openerp.core.enums.TenantPlanTier;
 import com.vn9melody.openerp.core.enums.TenantStatus;
+import com.vn9melody.openerp.core.enums.TenantType;
 import com.vn9melody.openerp.modules.iam.model.Tenant;
 import com.vn9melody.openerp.modules.iam.model.UserTenant;
 import com.vn9melody.openerp.modules.platform.api.PlatformErrorCode;
@@ -66,8 +67,9 @@ public class PlatformTenantService {
 
     public PlatformPage<PlatformResponses.TenantItem> listTenants(String status, String keyword,
                                                                   int page, int size) {
-        StringBuilder query = new StringBuilder("1=1");
+        StringBuilder query = new StringBuilder("type <> :systemType");
         Map<String, Object> params = new HashMap<>();
+        params.put("systemType", TenantType.SYSTEM);
         if (status != null && !status.isBlank()) {
             TenantStatus tenantStatus = parseStatus(status);
             query.append(" and status = :status");

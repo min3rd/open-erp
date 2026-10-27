@@ -1,6 +1,7 @@
 package com.vn9melody.openerp.modules.platform.service;
 
 import com.vn9melody.openerp.core.enums.TenantStatus;
+import com.vn9melody.openerp.core.enums.TenantType;
 import com.vn9melody.openerp.modules.iam.model.Tenant;
 import com.vn9melody.openerp.modules.iam.model.User;
 import com.vn9melody.openerp.modules.platform.dto.PlatformResponses;
@@ -136,9 +137,9 @@ public class PlatformHealthService {
 
     public PlatformResponses.PlatformMetrics metrics() {
         PlatformResponses.PlatformMetrics metrics = new PlatformResponses.PlatformMetrics();
-        metrics.totalTenants = Tenant.count();
-        metrics.activeTenants = Tenant.count("status = ?1", TenantStatus.ACTIVE);
-        metrics.suspendedTenants = Tenant.count("status = ?1", TenantStatus.SUSPENDED);
+        metrics.totalTenants = Tenant.count("type <> ?1", TenantType.SYSTEM);
+        metrics.activeTenants = Tenant.count("status = ?1 and type <> ?2", TenantStatus.ACTIVE, TenantType.SYSTEM);
+        metrics.suspendedTenants = Tenant.count("status = ?1 and type <> ?2", TenantStatus.SUSPENDED, TenantType.SYSTEM);
         metrics.totalUsers = User.count();
         try {
             List<String> sessions = redis.key(String.class).keys("session:*");
