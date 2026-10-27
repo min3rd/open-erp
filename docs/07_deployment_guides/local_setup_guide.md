@@ -83,7 +83,7 @@ npm run dev
 ```
 Lệnh này **build và chạy toàn bộ môi trường dev trong Docker** (không chạy Java/Angular dev server trên host):
 1. `predev` sinh khóa JWT dev nếu chưa có.
-2. Docker Compose profile `dev` build + chạy: PostgreSQL Primary, Redis, core backend (`backend-dev`, :8088), web Angular (`web-dev`, :4200), catalog plugin (`catalog-plugin-dev`) và các fixture tenant/system/e2e.
+2. Docker Compose profile `dev` build + chạy: PostgreSQL Primary, Redis, core backend (`backend-dev`, :8088), web Angular (`web-dev`, :4200), mobile Ionic (`mobile-dev`, :8100), catalog plugin (`catalog-plugin-dev`) và các fixture tenant/system/e2e.
 3. Plugin UI bundle được build **trong image** plugin (Node stage), không phụ thuộc `ng build` trên host.
 4. Web container dùng `proxy.docker.conf.json` để gọi backend qua `http://backend-dev:8080`.
 
@@ -109,7 +109,7 @@ npm run infra          # Docker infra tối thiểu (PostgreSQL + Redis)
 npm run infra:mail     # Docker infra + Mailpit
 npm run backend        # core backend container (port 8088)
 npm run web            # web Angular container (port 4200)
-npm run mobile         # Ionic dev server (port 8100) — chưa chuyển vào Compose
+npm run mobile         # Ionic dev server container (port 8100)
 ```
 
 > **Lưu ý Java 25**: Quarkus 3.15 + ByteBuddy cần flag `-Dnet.bytebuddy.experimental=true`. Với Docker-only, flag nằm trong image/backend container; không cần set thủ công trên host.
@@ -146,12 +146,13 @@ npm run web
 - Log: `docker compose --profile dev logs -f web-dev`
 - Source web + shared được mount vào container; sửa file sẽ tự rebuild (polling 2s).
 
-### 4.3. Chạy Mobile App (Ionic 8 + Angular)
+### 4.3. Chạy Mobile App (Ionic 8 + Angular, Docker)
 ```bash
 npm run mobile
-# Hoặc: make mobile / node scripts/run.mjs mobile
+# Hoặc: docker compose --profile dev up -d mobile-dev
 ```
 - Truy cập trình duyệt: `http://localhost:8100`
+- Log: `docker compose --profile dev logs -f mobile-dev`
 
 ### 4.4. Chạy Automated Test Backend (DB riêng `openerp_test`)
 ```bash

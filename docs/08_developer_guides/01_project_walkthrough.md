@@ -120,11 +120,11 @@ Hai app có dependency/lockfile riêng; root không cài thay cả hai bằng m�
 ### Chạy từng phần với footprint tối thiểu
 
 ```powershell
-npm run dev          # Docker: Postgres + Redis + backend + web + catalog plugin
+npm run dev          # Docker: Postgres + Redis + backend + web + mobile + catalog plugin
 # hoặc từng phần, đều qua Docker:
 npm run backend      # backend-dev :8088
 npm run web          # web-dev :4200
-npm run mobile       # Ionic host :8100 (chưa Docker hóa)
+npm run mobile       # mobile-dev :8100
 ```
 
 Web/backend/plugin chạy trong Docker Compose profile `dev`; không cần mở terminal `mvn quarkus:dev` hay `ng serve` trên host. `npm run dev` tự sinh khóa JWT dev nếu thiếu, build web/plugin images và mount source web/shared để live-reload. Web container proxy `/api` sang `backend-dev:8080` qua `proxy.docker.conf.json`.

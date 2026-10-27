@@ -355,6 +355,31 @@ services:
     networks:
       - openerp-net
 
+  mobile-dev:
+    build:
+      context: .
+      dockerfile: docker/mobile/Dockerfile.dev
+    image: open-erp/mobile:dev
+    container_name: openerp-mobile-dev
+    profiles: ["dev"]
+    environment:
+      NG_CLI_ANALYTICS: "false"
+    ports:
+      - "8100:8100"
+    volumes:
+      - ./src/frontend/mobile:/app/src/frontend/mobile
+      - ./src/frontend/shared:/app/src/frontend/shared
+      - mobile_node_modules:/app/src/frontend/mobile/node_modules
+      - mobile_angular_cache:/app/src/frontend/mobile/.angular
+    depends_on:
+      - backend-dev
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    networks:
+      - openerp-net
+
   catalog-dev-bootstrap:
     image: postgres:16-alpine
     profiles: ["dev"]
@@ -386,3 +411,5 @@ volumes:
   registry_data:
   web_node_modules:
   web_angular_cache:
+  mobile_node_modules:
+  mobile_angular_cache:

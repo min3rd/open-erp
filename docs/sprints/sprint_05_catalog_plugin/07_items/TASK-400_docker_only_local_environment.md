@@ -6,7 +6,7 @@
 | Severity / trạng thái | High / **Done (dev)** — Web, Backend, plugin và plugin UI build đều chạy trong Docker |
 | Owner / reviewer | Developer / Architect |
 | depends_on / blocks | TASK-394, TASK-397 / TASK-398 |
-| Write scope | `docker-compose.yml`, `docker/web/**`, `plugins/catalog/deploy/Dockerfile`, `src/frontend/web/proxy.docker.conf.json`, `package.json`, `.dockerignore` |
+| Write scope | `docker-compose.yml`, `docker/web/**`, `docker/mobile/**`, `plugins/catalog/deploy/Dockerfile`, `src/frontend/web/proxy.docker.conf.json`, `package.json`, `.dockerignore` |
 
 ## 1. Mục tiêu
 
@@ -14,7 +14,7 @@ Môi trường local chạy sát production: một lệnh Docker Compose dựng 
 
 ## 2. Việc phải làm
 
-- [x] Thêm `web-dev` (Node 22 + `ng serve --host 0.0.0.0 --poll 2000`) vào profile `dev`, volume source + node_modules.
+- [x] Thêm `web-dev` (Node 22 + `ng serve --host 0.0.0.0 --poll 2000`) và `mobile-dev` (:8100) vào profile `dev`, volume source + node_modules.
 - [x] Proxy Docker `proxy.docker.conf.json` trỏ `backend-dev:8080`.
 - [x] `npm run dev` / `npm run web` / `npm run backend` / `npm run dev:stop` dùng Docker Compose.
 - [x] Build UI bundle trong plugin image (Node stage → `META-INF/resources`) thay vì dùng bundle build trên host.
@@ -25,7 +25,7 @@ Môi trường local chạy sát production: một lệnh Docker Compose dựng 
 
 ## 3. Tiêu chí nghiệm thu
 
-- `npm run dev` dựng `openerp-web-dev` tại `http://localhost:4200`; proxy `/api` sang backend container.
+- `npm run dev` dựng `openerp-web-dev` tại `http://localhost:4200` và `openerp-mobile-dev` tại `http://localhost:8100`; proxy `/api` sang backend container.
 - `docker compose --profile dev build web-dev catalog-plugin-dev backend-dev` PASS.
 - Plugin image chứa bundle UI build trong image; không cần `npm run catalog:ui:build` trên host.
 - Backend container gọi được Docker API (`docker ps` trong container) cho deployer.
