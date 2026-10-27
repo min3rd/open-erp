@@ -239,11 +239,8 @@ export const routes: Routes = [
       },
       {
         path: 'catalog',
-        canActivate: [permissionGuard('catalog:item:read')],
-        children: listState(
-          () => import('./features/settings/catalog/catalog-admin.component').then(m => m.CatalogAdminComponent),
-          { catalogScope: 'tenant' }
-        )
+        pathMatch: 'full',
+        redirectTo: '/apps/catalog'
       },
       {
         path: 'plugins',

@@ -59,6 +59,16 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 - **Gateway smoke test**: plugin token (RS256) → `GET :8088/api/v1/plugins/runtime/catalog/api/v1/catalog/types` → **200** `CATALOG_TYPE_FETCH_SUCCESS` (5 system + 5 tenant types). Fixed JSON-array claim decoding in plugin tokens.
 - **Còn**: iframe bundle + route/menu động từ UI Manifest; QA dual-mode.
 
+## 2026-10-27 — P4: iframe UI bundle
+
+- **Angular project `catalog-plugin`** trong workspace web, build vào `plugins/catalog/src/main/resources/META-INF/resources`; shell render `CatalogAdminComponent` với hash router, scope tenant/system qua query.
+- **Core route**: `/settings/catalog` redirect `/apps/catalog`; menu Settings trỏ `/apps/catalog`; plugin host iframe tải `/api/v1/plugins/runtime/catalog/`.
+- **Gateway asset auth**: `PluginIframeLoader` gắn `plugin_token`; gateway nhận token qua query/header/Referer/cookie; plugin index set cookie path; asset JS/CSS trả 200.
+- **Auto-height**: shell postMessage `resize`; iframe loader cập nhật chiều cao.
+- **Dev proxy**: `/api` -> `localhost:8088` cho web dev server.
+- **Kiểm chứng browser**: đăng nhập tenant `e2e-tenant`, `/apps/catalog` render bảng danh mục trong iframe; API types/items 200, 0 console error sau khi fix.
+- **Còn**: QA dual-mode + ảnh nghiệm thu; platform route `/platform/apps/catalog` cho system tenant.
+
 ## 2026-10-05 — Sprint 03 đóng & khởi tạo tài liệu Sprint 04
 
 - **Sprint 03 đóng**: [QA-03](../sprints/sprint_03_plugin_manager/08_testing/QA-03_qa_verification_2026-10-05.md) xác nhận 8/8 item PASS (backend PostgreSQL/Redis thật + browser headless 1280×900 & 390×844); 2 lỗi Medium do QA phát hiện đã sửa. Biên bản: [sprint_review](../sprints/sprint_03_plugin_manager/09_review/sprint_review.md) — `[x]` ĐÓNG, DoD PASS (theo chỉ đạo chủ dự án; không tạo chữ ký giả).

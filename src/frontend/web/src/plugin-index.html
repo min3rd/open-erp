@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Open-ERP · Catalog Plugin</title>
+  <base href="./">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    (function () {
+      try {
+        var token = new URLSearchParams(window.location.search).get('plugin_token');
+        if (token) {
+          document.cookie = 'plugin_token=' + token + '; path=/api/v1/plugins/runtime/catalog; SameSite=Strict';
+        }
+      } catch (e) { /* ignore */ }
+    })();
+  </script>
+  <script>
+    (function () {
+      try {
+        var root = document.documentElement;
+        var mode = localStorage.getItem('openerp_theme');
+        var theme = localStorage.getItem('openerp_theme_id') || 'industrial';
+        var shape = localStorage.getItem('openerp_shape');
+        var layout = localStorage.getItem('openerp_layout');
+        var isDark = mode === 'DARK' || ((!mode || mode === 'SYSTEM') &&
+          window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        root.setAttribute('data-theme', theme);
+        if (shape) { root.setAttribute('data-shape', shape); }
+        if (layout) { root.setAttribute('data-layout', layout); }
+        root.setAttribute('data-mode', isDark ? 'dark' : 'light');
+        root.classList.toggle('dark', isDark);
+        root.style.colorScheme = isDark ? 'dark' : 'light';
+      } catch (e) { /* ignore */ }
+    })();
+  </script>
+</head>
+<body>
+  <app-catalog-plugin-shell></app-catalog-plugin-shell>
+</body>
+</html>

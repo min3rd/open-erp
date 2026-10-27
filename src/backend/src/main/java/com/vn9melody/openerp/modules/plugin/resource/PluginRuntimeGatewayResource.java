@@ -78,6 +78,26 @@ public class PluginRuntimeGatewayResource {
         if (pluginToken == null || pluginToken.isBlank()) {
             pluginToken = httpHeaders.getHeaderString("X-Plugin-Token");
         }
+        if (pluginToken == null || pluginToken.isBlank()) {
+            String referer = httpHeaders.getHeaderString("Referer");
+            if (referer != null) {
+                int index = referer.indexOf("plugin_token=");
+                if (index >= 0) {
+                    String value = referer.substring(index + "plugin_token=".length());
+                    int amp = value.indexOf('&');
+                    if (amp >= 0) {
+                        value = value.substring(0, amp);
+                    }
+                    pluginToken = java.net.URLDecoder.decode(value, java.nio.charset.StandardCharsets.UTF_8);
+                }
+            }
+        }
+        if (pluginToken == null || pluginToken.isBlank()) {
+            var cookie = httpHeaders.getCookies().get("plugin_token");
+            if (cookie != null) {
+                pluginToken = cookie.getValue();
+            }
+        }
         UUID tenantId = null;
         UUID userId = null;
         java.util.Set<String> permissions = java.util.Set.of();

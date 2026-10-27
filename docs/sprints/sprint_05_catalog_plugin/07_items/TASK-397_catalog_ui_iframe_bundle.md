@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-397 / Task / Sprint 05 |
-| Severity / trạng thái | High / **In Progress** — shared picker + web admin service đã trỏ runtime gateway; iframe bundle/route động còn lại |
+| Severity / trạng thái | High / **Done (dev)** — iframe bundle + `/apps/catalog` + gateway asset token + auto-height; QA dual-mode ở TASK-398 |
 | Owner / reviewer | Developer / Architect |
 | depends_on / blocks | TASK-396 / TASK-398 |
 | Write scope | `plugins/catalog/web/**`, `src/frontend/shared/services/catalog.service.ts`, `src/frontend/web/src/app/app.routes.ts`, `src/frontend/mobile/src/app/app.routes.ts`, menu/settings |
@@ -35,3 +35,4 @@
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-27 | Tạo task; chốt A10/A11 | Agent; ADR-S05-001 |
 | 0.2 | 2026-10-27 | **Gateway path**: `catalog.service` + `catalog-admin.service` + API drawer dùng `/api/v1/plugins/runtime/catalog/api/v1/catalog/**`; `npm run web:build` PASS. Iframe bundle/route động còn P4. | Developer Agent; web build |
+| 0.3 | 2026-10-27 | **Iframe UI done (dev)**: Angular project `catalog-plugin` build vào plugin `META-INF/resources`; `/settings/catalog` redirect `/apps/catalog`; gateway nhận token qua query/header/referer/cookie cho asset; iframe auto-height; UI render bảng danh mục + API 200. | Developer Agent; Docker dev + browser |

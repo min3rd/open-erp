@@ -10,6 +10,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { PluginHostService } from '../plugin-host.service';
 
@@ -21,6 +22,7 @@ import { PluginHostService } from '../plugin-host.service';
 })
 export class PluginIframeLoaderComponent implements AfterViewInit, OnDestroy {
   private hostService = inject(PluginHostService);
+  private sanitizer = inject(DomSanitizer);
 
   pluginKey = input.required<string>();
   entry = input<string>('');
@@ -30,7 +32,8 @@ export class PluginIframeLoaderComponent implements AfterViewInit, OnDestroy {
   private host = viewChild<ElementRef<HTMLElement>>('host');
   private frame = viewChild<ElementRef<HTMLIFrameElement>>('frame');
 
-  src = signal<string>('');
+  src = signal<SafeResourceUrl>(this.sanitizer.bypassSecurityTrustResourceUrl('about:blank'));
+  height = signal<number>(this.minHeightPx());
   loading = signal(true);
 
   private bridge = (event: MessageEvent): void => {
@@ -42,7 +45,7 @@ export class PluginIframeLoaderComponent implements AfterViewInit, OnDestroy {
     if (data?.source === 'open-erp-plugin' && data.type === 'resize' && Number.isFinite(data.height)) {
       const height = Number(data.height);
       if (height > 0) {
-        this.host()?.nativeElement.style.setProperty('min-height', `${height}px`);
+        this.height.set(height);
       }
     }
   };
@@ -50,14 +53,15 @@ export class PluginIframeLoaderComponent implements AfterViewInit, OnDestroy {
   async ngAfterViewInit(): Promise<void> {
     window.addEventListener('message', this.bridge);
     const session = await this.hostService.session(this.pluginKey());
-    if (!session) {
+    const base = this.entry() || session?.entry;
+    if (!session || !base) {
       this.loading.set(false);
       this.failed.emit('PLUGIN_HOST_UNAVAILABLE');
       return;
     }
-    const base = this.entry() || session.entry;
     const separator = base.includes('?') ? '&' : '?';
-    this.src.set(`${base}${separator}plugin_token=${encodeURIComponent(session.token)}`);
+    const url = `${base}${separator}plugin_token=${encodeURIComponent(session.token)}`;
+    this.src.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
   }
 
   ngOnDestroy(): void {

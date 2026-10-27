@@ -88,6 +88,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "web:build:production"
@@ -97,6 +100,59 @@
             }
           },
           "defaultConfiguration": "development"
+        }
+      }
+    },
+    "catalog-plugin": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/plugin-main.ts",
+            "index": {
+              "input": "src/plugin-index.html",
+              "output": "index.html"
+            },
+            "tsConfig": "tsconfig.app.json",
+            "allowedCommonJsDependencies": [
+              "qrcode"
+            ],
+            "assets": [],
+            "styles": [
+              "src/styles.css"
+            ],
+            "outputPath": {
+              "base": "../../../plugins/catalog/src/main/resources/META-INF/resources",
+              "browser": ""
+            }
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "700kB",
+                  "maximumError": "900kB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
         }
       }
     }
