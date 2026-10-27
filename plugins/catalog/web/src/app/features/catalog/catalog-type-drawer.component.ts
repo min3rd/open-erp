@@ -21,7 +21,7 @@ import {
   CatalogScope,
   CatalogTypeDto,
   CatalogTypePayload
-} from '../../../core/services/catalog-admin.service';
+} from '../../core/services/catalog-admin.service';
 
 const RELATION_TYPES: CatalogRelationType[] = [
   CatalogRelationType.HIERARCHY,

@@ -5,6 +5,7 @@ import {
   ApiErrorResponse,
   DrawerComponent,
   I18nService,
+  ListData,
   Role,
   SharpButtonComponent,
   SharpToggleComponent,
@@ -14,8 +15,8 @@ import {
   CatalogAdminService,
   CatalogGrantPayload,
   CatalogTypeDto
-} from '../../../core/services/catalog-admin.service';
-import { IamService } from '../../../core/services/iam.service';
+} from '../../core/services/catalog-admin.service';
+import { ApiService } from '../../core/services/api.service';
 
 interface GrantRow {
   role: Role;
@@ -37,7 +38,7 @@ interface GrantRow {
 })
 export class CatalogGrantsDrawerComponent {
   private catalog = inject(CatalogAdminService);
-  private iam = inject(IamService);
+  private api = inject(ApiService);
   private i18n = inject(I18nService);
 
   isOpen = input<boolean>(false);
@@ -76,7 +77,7 @@ export class CatalogGrantsDrawerComponent {
   private load(typeCode: string): void {
     this.loading.set(true);
     this.loadError.set(false);
-    this.iam.getRoles().subscribe({
+    this.api.get<ListData<Role>>('/api/v1/iam/roles').subscribe({
       next: (rolesRes) => {
         this.roles.set(rolesRes.data?.items ?? []);
         this.catalog.getGrants(typeCode).subscribe({

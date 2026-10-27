@@ -106,18 +106,18 @@
     "catalog-plugin": {
       "projectType": "application",
       "root": "",
-      "sourceRoot": "src",
+      "sourceRoot": "../../../plugins/catalog/web/src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "browser": "src/plugin-main.ts",
+            "browser": "../../../plugins/catalog/web/src/plugin-main.ts",
             "index": {
-              "input": "src/plugin-index.html",
+              "input": "../../../plugins/catalog/web/src/plugin-index.html",
               "output": "index.html"
             },
-            "tsConfig": "tsconfig.app.json",
+            "tsConfig": "../../../plugins/catalog/web/tsconfig.json",
             "allowedCommonJsDependencies": [
               "qrcode"
             ],

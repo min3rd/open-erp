@@ -1,7 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import { buildQuery } from '../utils/query.util';
 import { ApiService } from './api.service';
 import {
@@ -402,7 +401,7 @@ export class CatalogAdminService {
 
   private download(path: string): Observable<Blob> {
     return this.http
-      .get(`${environment.apiBaseUrl}${path}`, { responseType: 'blob' })
+      .get(path, { responseType: 'blob' })
       .pipe(catchError(this.handleBlobError));
   }
 

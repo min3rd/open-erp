@@ -18,7 +18,7 @@ import {
   CatalogItemDto,
   CatalogScope,
   CatalogTypeDto
-} from '../../../core/services/catalog-admin.service';
+} from '../../core/services/catalog-admin.service';
 
 /**
  * Add a parent edge to an item (multi-parent DAG, DES-UI-S05-001 §2 "Drawer

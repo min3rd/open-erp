@@ -15,7 +15,7 @@ import {
   CatalogImportReport,
   CatalogScope,
   CatalogTypeDto
-} from '../../../core/services/catalog-admin.service';
+} from '../../core/services/catalog-admin.service';
 
 interface ImportPreviewRow {
   row: number;

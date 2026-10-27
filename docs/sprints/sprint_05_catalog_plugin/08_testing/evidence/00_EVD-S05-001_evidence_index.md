@@ -14,6 +14,7 @@
 | Ảnh | Nội dung | Trạng thái |
 | :--- | :--- | :--- |
 | `plugin-iframe-catalog.png` | Màn danh mục render trong iframe plugin tại `/apps/catalog`: cột loại, bảng bản ghi, badge `HỆ THỐNG`/`GHI ĐÈ`, nút thêm/sửa | ✅ Dev (browser, tenant `e2e-tenant`; API types/items 200) |
+| `desktop-native-catalog-context-menu.png` | **Native route** `/settings/catalog` (không iframe), full màn hình; loại + bản ghi có nút `Thao tác khác` (context menu), URL path-state `/settings/catalog/DISTRICT/-/20/1/-/list?view=list` | ✅ Dev (browser, tenant `e2e-tenant`; click type + menu PASS) |
 
 ## 1. Desktop (≥1280px)
 

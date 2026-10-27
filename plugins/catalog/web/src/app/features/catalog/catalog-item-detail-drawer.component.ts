@@ -22,7 +22,7 @@ import {
   CatalogScope,
   CatalogTypeDto,
   CatalogVersionDto
-} from '../../../core/services/catalog-admin.service';
+} from '../../core/services/catalog-admin.service';
 
 /** A DAG node can have many children; the drawer pages them 10 at a time. */
 const CHILDREN_PAGE_SIZE = 10;

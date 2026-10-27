@@ -69,6 +69,15 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 - **Kiểm chứng browser**: đăng nhập tenant `e2e-tenant`, `/apps/catalog` render bảng danh mục trong iframe; API types/items 200, 0 console error sau khi fix.
 - **Còn**: QA dual-mode + ảnh nghiệm thu; platform route `/platform/apps/catalog` cho system tenant.
 
+## 2026-10-27 — P4 native: UI source trong plugin, bỏ iframe khỏi luồng chính
+
+- **Source**: move 15 component HTML/TS + `catalog-admin.service` + `path-list-state` + shell/main sang `plugins/catalog/web/src`; core không còn `features/settings/catalog`.
+- **Mount**: `/settings/catalog` native route import `@catalog-plugin/features/catalog/catalog-admin.component`; iframe `/apps/catalog` giữ làm fallback.
+- **Context menu**: thêm menu cho **loại danh mục** và **bản ghi** (nút `Thao tác khác` + right-click), dùng `ContextMenuService`.
+- **Route-state**: click loại đổi URL `/settings/catalog/DISTRICT/-/20/1/-/list?view=list`; user trace/bookmark được.
+- **Build**: `npm run catalog:ui:build` PASS (plugin source); `npm run web:build` PASS; plugin image rebuilt.
+- **Browser**: tenant `e2e-tenant` — full màn hình, click `Quận/Huyện` PASS, menu `Sửa/Quyền/Bản ghi` mở PASS; ảnh `desktop-native-catalog-context-menu.png`.
+
 ## 2026-10-05 — Sprint 03 đóng & khởi tạo tài liệu Sprint 04
 
 - **Sprint 03 đóng**: [QA-03](../sprints/sprint_03_plugin_manager/08_testing/QA-03_qa_verification_2026-10-05.md) xác nhận 8/8 item PASS (backend PostgreSQL/Redis thật + browser headless 1280×900 & 390×844); 2 lỗi Medium do QA phát hiện đã sửa. Biên bản: [sprint_review](../sprints/sprint_03_plugin_manager/09_review/sprint_review.md) — `[x]` ĐÓNG, DoD PASS (theo chỉ đạo chủ dự án; không tạo chữ ký giả).

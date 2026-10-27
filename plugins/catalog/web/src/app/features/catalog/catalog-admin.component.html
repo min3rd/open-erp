@@ -102,15 +102,29 @@
         <ul class="space-y-0.5">
           @for (type of filteredTypes(); track type.id) {
             <li>
-              <button
-                type="button"
-                class="w-full text-start px-1.5 py-1 border transition-colors"
+              <div
+                role="button"
+                tabindex="0"
+                class="w-full text-start px-1.5 py-1 border transition-colors cursor-pointer"
                 [class]="selectedType()?.id === type.id ? 'bg-accent/10 border-accent/60' : 'border-transparent hover:bg-surface-muted'"
                 (click)="selectType(type)"
+                (keydown.enter)="selectType(type)"
+                (keydown.space)="selectType(type); $event.preventDefault()"
+                (contextmenu)="openTypeMenuAt($event, type)"
               >
                 <span class="flex items-center justify-between gap-1">
                   <span class="text-xs font-medium truncate">{{ type.name_key | translate }}</span>
-                  <span class="text-[10px] text-muted font-mono shrink-0">{{ type.code }}</span>
+                  <span class="flex items-center gap-1 shrink-0">
+                    <span class="text-[10px] text-muted font-mono">{{ type.code }}</span>
+                    <button
+                      type="button"
+                      class="p-0.5 text-muted hover:text-ink"
+                      [attr.aria-label]="'COMMON_MORE_ACTIONS' | translate"
+                      (click)="openTypeMenuAt($event, type)"
+                    >
+                      <app-icon name="more-vertical" size="xs" />
+                    </button>
+                  </span>
                 </span>
                 <span class="flex flex-wrap items-center gap-1 mt-0.5">
                   <app-badge variant="neutral">{{ 'CATALOG_MODE_' + type.hierarchy_mode | translate }}</app-badge>
@@ -124,7 +138,7 @@
                     <app-badge variant="neutral">{{ 'CATALOG_BADGE_FREE_TEXT' | translate }}</app-badge>
                   }
                 </span>
-              </button>
+              </div>
               @if (selectedType()?.id === type.id && canMutateType(type)) {
                 <div class="flex flex-wrap gap-1 px-1 pb-1">
                   <button
@@ -251,6 +265,14 @@
                 @if (isSystemItem(r)) {
                   <app-icon name="lock" [labelKey]="'CATALOG_SYSTEM_READONLY'" />
                 }
+                <button
+                  type="button"
+                  class="p-0.5 text-muted hover:text-ink"
+                  [attr.aria-label]="'COMMON_MORE_ACTIONS' | translate"
+                  (click)="openItemMenuAt($event, r)"
+                >
+                  <app-icon name="more-vertical" size="xs" />
+                </button>
               </td>
             </tr>
           </ng-template>

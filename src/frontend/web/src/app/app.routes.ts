@@ -191,7 +191,7 @@ export const routes: Routes = [
         path: 'catalog',
         canActivate: [platformSuperAdminGuard],
         children: listState(
-          () => import('./features/settings/catalog/catalog-admin.component').then(m => m.CatalogAdminComponent),
+          () => import('@catalog-plugin/features/catalog/catalog-admin.component').then(m => m.CatalogAdminComponent),
           { catalogScope: 'system' }
         )
       }
@@ -239,8 +239,11 @@ export const routes: Routes = [
       },
       {
         path: 'catalog',
-        pathMatch: 'full',
-        redirectTo: '/apps/catalog'
+        canActivate: [permissionGuard('catalog:item:read')],
+        children: listState(
+          () => import('@catalog-plugin/features/catalog/catalog-admin.component').then(m => m.CatalogAdminComponent),
+          { catalogScope: 'tenant' }
+        )
       },
       {
         path: 'plugins',

@@ -15,6 +15,7 @@ import {
   IconComponent,
   IconName,
   PaginationComponent,
+  PLUGIN_PERMISSION_CHECKER,
   RequirePermissionDirective,
   SharpInputComponent,
   SharpSelectComponent,
@@ -25,7 +26,7 @@ import {
   TranslatePipe,
   formatDate
 } from '@shared';
-import { AuthService } from '../../../core/services/auth.service';
+import { ContextMenuService } from '@shared/components/context-menu/context-menu.service';
 import {
   CatalogAdminService,
   CatalogDescendantDto,
@@ -33,8 +34,8 @@ import {
   CatalogScope,
   CatalogTypeDto,
   CatalogVersionDto
-} from '../../../core/services/catalog-admin.service';
-import { PathListState, PathListStateService } from '../../../core/utils/path-list-state';
+} from '../../core/services/catalog-admin.service';
+import { PathListState, PathListStateService } from '../../core/utils/path-list-state';
 import { CatalogTypeDrawerComponent } from './catalog-type-drawer.component';
 import { CatalogItemDrawerComponent } from './catalog-item-drawer.component';
 import { CatalogItemDetailDrawerComponent } from './catalog-item-detail-drawer.component';
@@ -112,9 +113,10 @@ interface ParentGroup {
 export class CatalogAdminComponent implements OnInit {
   private catalog = inject(CatalogAdminService);
   private i18n = inject(I18nService);
-  private auth = inject(AuthService);
+  private permissionChecker = inject(PLUGIN_PERMISSION_CHECKER);
   private route = inject(ActivatedRoute);
   private listState = inject(PathListStateService);
+  private contextMenu = inject(ContextMenuService);
 
   /** `tenant` (settings) or `system` (platform portal, TASK-392). */
   readonly scope = signal<CatalogScope>(
@@ -194,13 +196,13 @@ export class CatalogAdminComponent implements OnInit {
 
   readonly canManageItems = computed(() =>
     this.scope() === CatalogScope.SYSTEM
-      ? this.auth.hasPermission('catalog:system:manage') !== false
-      : this.auth.hasPermission('catalog:item:manage') !== false
+      ? this.permissionChecker('catalog:system:manage')
+      : this.permissionChecker('catalog:item:manage')
   );
   readonly canManageTypes = computed(() =>
     this.scope() === CatalogScope.SYSTEM
-      ? this.auth.hasPermission('catalog:system:manage') !== false
-      : this.auth.hasPermission('catalog:type:manage') !== false
+      ? this.permissionChecker('catalog:system:manage')
+      : this.permissionChecker('catalog:type:manage')
   );
   readonly itemPermission = computed(() =>
     this.scope() === CatalogScope.SYSTEM ? 'catalog:system:manage' : 'catalog:item:manage'
@@ -598,9 +600,77 @@ export class CatalogAdminComponent implements OnInit {
     return status === CatalogStatus.ACTIVE ? ColorVariant.SUCCESS : ColorVariant.DEFAULT;
   }
 
+  /** Right-click / ellipsis shortcut for a catalog type. */
+  readonly typeContextMenu = (type: CatalogTypeDto): ContextMenuItem[] => {
+    const canMutate = this.canMutateType(type);
+    const disabledReasonKey = this.isSystemType(type) ? 'CATALOG_SYSTEM_READONLY' : 'COMMON_PERMISSION_REQUIRED';
+    return [
+      {
+        id: 'type-edit',
+        labelKey: 'COMMON_EDIT',
+        icon: IconName.EDIT,
+        disabled: !canMutate,
+        disabledReasonKey: canMutate ? undefined : disabledReasonKey,
+        action: () => {
+          this.selectType(type);
+          this.openTypeEdit();
+        }
+      },
+      {
+        id: 'type-grants',
+        labelKey: 'CATALOG_TYPE_GRANTS_BTN',
+        icon: IconName.SHIELD,
+        disabled: !canMutate,
+        disabledReasonKey: canMutate ? undefined : disabledReasonKey,
+        action: () => {
+          this.selectType(type);
+          this.openGrants();
+        }
+      },
+      {
+        id: 'type-items',
+        labelKey: 'CATALOG_ITEM_LIST_TITLE',
+        icon: IconName.GRID,
+        action: () => this.selectType(type)
+      },
+      {
+        id: 'type-create-item',
+        labelKey: 'CATALOG_ITEM_CREATE_ACTION',
+        icon: IconName.PLUS,
+        action: () => {
+          this.selectType(type);
+          this.openCreateItem();
+        }
+      }
+    ];
+  };
+
+  openTypeMenuAt(event: MouseEvent, type: CatalogTypeDto): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const target = event.currentTarget as HTMLElement | null;
+    const rect = target?.getBoundingClientRect();
+    this.contextMenu.open({
+      x: rect ? rect.left : event.clientX,
+      y: rect ? rect.bottom : event.clientY,
+      items: this.typeContextMenu(type)
+    });
+  }
+
+  openItemMenuAt(event: MouseEvent, item: CatalogItemDto): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const target = event.currentTarget as HTMLElement | null;
+    const rect = target?.getBoundingClientRect();
+    this.contextMenu.open({
+      x: rect ? rect.left : event.clientX,
+      y: rect ? rect.bottom : event.clientY,
+      items: this.itemContextMenu(item)
+    });
+  }
+
   /** Right-click shortcut for an item row (each action reuses the inline handler). */
-  readonly itemContextMenu = (item: CatalogItemDto): ContextMenuItem[] => {
-    const canMutate = this.canMutateItem(item);
+  readonly itemContextMenu = (item: CatalogItemDto): ContextMenuItem[] => {    const canMutate = this.canMutateItem(item);
     const disabledReasonKey = this.itemDisabledReason(item);
     return [
       {

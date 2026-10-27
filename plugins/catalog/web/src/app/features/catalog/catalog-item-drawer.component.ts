@@ -20,7 +20,7 @@ import {
   CatalogItemPayload,
   CatalogScope,
   CatalogTypeDto
-} from '../../../core/services/catalog-admin.service';
+} from '../../core/services/catalog-admin.service';
 
 /**
  * Create/edit a catalogue item in a right-side drawer (DES-UI-S05-001 §2).
