@@ -35,3 +35,4 @@ Chuyển 4 bảng catalog khỏi schema `public` sang mô hình: plugin sở h�
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-27 | Tạo task; chốt A5/A6/A12 | Agent; ADR-S05-001 |
 | 0.2 | 2026-10-27 | **V5 applied (dev)**: system tenant ẩn + 4 schema catalog; public catalog tables = 0; plugin_versions 1.0.0 PUBLISHED; ledger ACTIVE có `storage_schema`; plugin start trên schema V5 với Flyway baseline 1.0.0; API `/types` trả 10 loại. Chưa tạo DB role (P3 deploy). | Developer Agent; PostgreSQL dev |
+| 0.3 | 2026-10-27 | **V5.0.1**: catalog `default_install=TRUE`, `locked=FALSE`; tenant mới nhận entitlement, tự bật trong quản lý plugin | Chủ dự án chỉ đạo trực tiếp |

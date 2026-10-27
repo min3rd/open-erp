@@ -51,7 +51,7 @@ D1 mới ở trạng thái **Đề xuất**, Design ready gate vẫn `Draft`; Re
 Tách `catalog` thành plugin độc lập thực sự:
 
 1. Repo/module plugin riêng (`plugins/catalog` hoặc repo ngoài + submodule) với `plugin.json` ở gốc, build Quarkus, Dockerfile/K8s, migration `db/plugin-migration/`.
-2. Đăng ký artifact + publish `plugin_versions` (image hoặc JAR bundle), seed `plugin_catalog` với `default_install = TRUE`, `locked = TRUE`.
+2. Đăng ký artifact + publish `plugin_versions` (image hoặc JAR bundle), seed `plugin_catalog` với `default_install = TRUE`, `locked = FALSE`; tenant bật/tắt/gỡ trong quản lý plugin.
 3. Cài qua `PluginLifecycleService` (không còn `activateInProcess`); tenant mới provisioning dùng đúng hook; backfill tenant cũ bằng job cài đặt.
 4. Dữ liệu vào schema `tenant_<short>_catalog`; bỏ 4 bảng khỏi `public`; chuyển dữ liệu hiện có (nếu có) sang schema tenant trước khi drop.
 5. API plugin qua gateway `/api/v1/plugins/runtime/catalog/**`; core không còn `/api/v1/catalog/**`.

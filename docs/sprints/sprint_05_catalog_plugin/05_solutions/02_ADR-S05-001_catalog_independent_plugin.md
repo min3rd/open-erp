@@ -19,7 +19,8 @@ Sprint 05 đã triển khai `catalog` như module core in-process (D1), trái m�
 | **A1** | Source plugin tại `plugins/catalog/` — **Maven project Quarkus độc lập**, không là module của `src/backend` | Build/deploy độc lập; core không compile catalog | Accepted |
 | **A2** | Manifest `plugins/catalog/plugin.json` ở gốc package; `packaging: image`; `distribution.type: IMAGE_REGISTRY`; `render_mode: IFRAME` (nâng WC/MF sau) | Đúng schema Sprint 03; iframe là fallback được duyệt | Accepted |
 | **A3** | Core **xoá** `modules/catalog`, `resources/plugins/catalog/plugin.json`, route/menu UI native; không còn `/api/v1/catalog/**` | Core tối giản; hết bypass lifecycle | Accepted |
-| **A4** | Dữ liệu tenant trong schema `tenant_<short>_catalog`; plugin tự chạy Flyway `db/plugin-migration/` khi container start; DB role least privilege | Cách ly tenant theo Sprint 03 | Accepted |
+| 1 | **A4** | Dữ liệu tenant trong schema `tenant_<short>_catalog`; plugin tự chạy Flyway `db/plugin-migration/` khi container start; DB role least privilege | Cách ly tenant theo Sprint 03 | Accepted |
+| **A4.1** | Catalog là **default_install nhưng unlocked**: tenant mới nhận entitlement (`NOT_INSTALLED`) và bật trong quản lý plugin; tenant cũ giữ trạng thái ledger; gỡ giữ schema | Yêu cầu chủ dự án 2026-10-27 | Accepted |
 | **A5** | Bỏ `tenant_id` khỏi bảng tenant (schema đã là tenant); `catalog_type_grants.role_id` là UUID **không FK** sang `roles` core | Không thể FK xuyên schema; tenant context lấy từ `X-Tenant-Id` do gateway ký/forward | Accepted |
 | **A6** | **System catalog do plugin sở hữu**, không có schema `catalog_system` trong core. Plugin có một **platform-scoped instance** (cùng image, `PLUGIN_SCOPE=platform`) quản lý canonical system catalog trong schema `tenant_<systemShort>_catalog` của **system tenant** | Chủ dự án chốt: tách khỏi core để plugin quản lý; core không đọc/ghi dữ liệu catalog | Accepted (2026-10-27) |
 | **A6.1** | Thêm `TenantType.SYSTEM` + seed **system tenant ẩn** (fixed UUID, không user, không quota, loại khỏi danh sách tenant) làm workspace platform-scoped cho plugin dùng chung | Cần một tenant thật để lifecycle/deployer/schema hiện có dùng lại, không phát minh thêm bảng deployment | Accepted |
@@ -154,3 +155,4 @@ Tenant admin gọi uninstall/disable → lifecycle dừng container (hoặc gi�
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-27 | Chốt hướng B; 12 quyết định; kế hoạch 5 phase | Chủ dự án chọn B; Agent soạn |
 | 0.2 | 2026-10-27 | **Đổi A6**: bỏ `catalog_system` core; plugin sở hữu system catalog qua system tenant + fan-out `PluginFanoutService` tới từng tenant schema | Chủ dự án chỉ đạo trực tiếp |
+| 0.3 | 2026-10-27 | **A4.1**: catalog default_install, unlocked; tenant bật/tắt/gỡ trong quản lý plugin; V5.0.1 bỏ locked | Chủ dự án chỉ đạo trực tiếp |

@@ -15,8 +15,9 @@ import org.jboss.logging.Logger;
  * Tenant provisioning hook for system-default plugins (TASK-307 / Gate Q5):
  * new tenants automatically receive every catalog entry marked
  * {@code default_install}. Locked defaults go through the normal install saga
- * (datasource, deploy, health, permissions, entities), including {@code catalog}
- * (ADR-S05-001 A3/A6).
+ * (datasource, deploy, health, permissions, entities); optional defaults are
+ * only entitled (NOT_INSTALLED) for the tenant admin to enable. Catalog is a
+ * default but unlocked plugin, so new tenants receive an entitlement only.
  */
 @ApplicationScoped
 public class PluginProvisioningService {

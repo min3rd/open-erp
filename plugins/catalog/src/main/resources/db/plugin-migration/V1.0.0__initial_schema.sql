@@ -1,11 +1,9 @@
 -- Catalog plugin schema (runs inside DB_SCHEMA = tenant_<short>_catalog).
 -- No FK to core tables: tenant_id is a soft discriminator (NULL = system row),
 -- role_code references core roles by code. ADR-S05-001 A4/A5/A13.
--- Extensions are normally installed by the platform prerequisite migration;
--- the IF NOT EXISTS calls are a no-op when the plugin role can see them.
-
-CREATE EXTENSION IF NOT EXISTS btree_gist;
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
+-- Platform prerequisite: btree_gist + pg_trgm are installed by the core
+-- migration (V4/V5) in public. The tenant plugin role has no CREATE EXTENSION
+-- privilege and must not need it.
 
 CREATE TABLE IF NOT EXISTS catalog_types (
     id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),

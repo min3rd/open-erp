@@ -11,7 +11,7 @@
 
 ## 1. Mục tiêu
 
-Hạ tầng **danh mục dùng chung** cho mọi plugin nghiệp vụ: phân cấp nhiều cấp, **đa cha (DAG)**, **version + hiệu lực thời gian**, quản trị CRUD + phân quyền hai tầng, API lookup cho form động, danh mục cố định cho doanh nghiệp; plugin **luôn bật** cho mọi tenant.
+Hạ tầng **danh mục dùng chung** cho mọi plugin nghiệp vụ: phân cấp nhiều cấp, **đa cha (DAG)**, **version + hiệu lực thời gian**, quản trị CRUD + phân quyền hai tầng, API lookup cho form động, danh mục cố định cho doanh nghiệp; plugin **default_install nhưng không locked** — tenant bật/tắt/gỡ trong quản lý plugin.
 
 Nguồn: [RAW-S05-001](../01_raw_notes/01_RAW-S05-001_catalog_plugin_requirements.md) (R1–R8).
 
@@ -48,7 +48,7 @@ Nguồn: [RAW-S05-001](../01_raw_notes/01_RAW-S05-001_catalog_plugin_requirement
 ## 4. Tiêu chí hoàn thành
 
 - **22 AC** của [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) §2 được kiểm chứng (backend test + QA browser).
-- Plugin `catalog` **ACTIVE** cho mọi tenant (mới + backfill), không gỡ được; entity đã đăng ký Registry.
+- Plugin `catalog` là **default_install, unlocked**: tenant mới nhận entitlement, bật trong quản lý plugin; tenant cũ giữ trạng thái ledger hiện có; entity đã đăng ký Registry.
 - Build web + mobile PASS; i18n 13/13 100%; 0 console error; overflow 0 ở 390px.
 - User Guide + Developer Guide cập nhật; TR-S05-001 có baseline/evidence.
 
@@ -69,4 +69,5 @@ Nguồn: [RAW-S05-001](../01_raw_notes/01_RAW-S05-001_catalog_plugin_requirement
 | 0.4 | 2026-10-06 | **QA**: TR-S05-001 (18 PASS/4 PARTIAL/3 NOT RUN) + 10 ảnh minh chứng; phát hiện & sửa 5 lỗi (`d507e07`, `050a3bc`) gồm 1 lỗi Critical (Mobile thiếu auth interceptor) | QA Agent; nguồn: chạy thật trên dev |
 | 0.5 | 2026-10-27 | **BLOCKED — BUG-135**: catalog đang là module core in-process, trái mô hình plugin độc lập Sprint 03; D1 bị bác; phải thiết kế lại + di trú | Agent rà soát; chỉ đạo chủ dự án |
 | 0.6 | 2026-10-27 | **P2**: đã bỏ `modules/catalog` khỏi core; V5 di trú dữ liệu sang schema tenant + system tenant; publish plugin version 1.0.0; BUG-136 fixed. Còn P3/P4 (gateway/fan-out/UI iframe) | Developer Agent; PostgreSQL dev |
+| 0.7 | 2026-10-27 | **Catalog = default_install, unlocked**: V5.0.1 bỏ locked; tenant mới nhận entitlement và bật trong quản lý plugin; AC-13/14 cập nhật | Chủ dự án chỉ đạo trực tiếp |
 | 0.3 | 2026-10-06 | **Triển khai**: migration V4.0.0 apply sạch (60/60 tenant backfill, 600 grant), 4 entity vào registry, recursive CTE + options gộp tenant thắng, seeder địa giới (34 tỉnh/3.321 xã), `catalog-picker` dùng chung — 49 test + build web/mobile PASS; đang làm API + UI | Developer Agent; nguồn: test + build log |

@@ -62,8 +62,8 @@ Xây **plugin core đầu tiên**: `catalog` (Danh mục & quản trị danh m�
 | **AC-10** | Options phân trang (20/tối đa 100), lọc `q`/`parent_id`/`as_of`, gộp **tenant + hệ thống** | R6 |
 | **AC-11** | Form đã lưu chỉ có `catalog_item_id` ⇒ resolve **theo lô** khi mở lại (không N+1) | R6 |
 | **AC-12** | Nhập tự do ⇒ lưu `{text}`; có quyền `inline-create` ⇒ lưu được thành mục mới | R7 |
-| **AC-13** | Tenant mới: plugin **ACTIVE** + **5 danh mục cố định** (§1.1) sẵn dùng; tenant cũ: migration **backfill** cả plugin lẫn seed (idempotent, không ghi đè bản ghi tenant đã sửa) | R8, N1 |
-| **AC-14** | Plugin core/locked: thao tác gỡ bị **chặn** với mã lỗi rõ ràng | R8 |
+| **AC-13** | Tenant mới: plugin catalog là **default_install nhưng không locked**, xuất hiện trong **quản lý plugin** để tenant bật; khi bật seed **5 danh mục cố định** (§1.1). Tenant cũ: migration **backfill** dữ liệu (idempotent, không ghi đè bản ghi tenant đã sửa), trạng thái ledger hiện có được giữ | R8, N1 |
+| **AC-14** | Plugin **locked** (nếu có): thao tác gỡ bị **chặn** với mã lỗi rõ ràng. Catalog là default **unlocked**: tenant được bật/tắt/gỡ; dữ liệu schema giữ lại sau gỡ | R8 |
 | **AC-15** | Hai tenant cùng mã: **không rò rỉ chéo**; danh mục hệ thống hiển thị cho cả hai | Ràng buộc dự án |
 | **AC-16** | Entity Registry có 3 entity; manifest khai báo ma trận **Desktop/Mobile** | Ràng buộc dự án |
 | **AC-17** | Màn quản trị: chế độ **Đa cha**, danh sách cha, breadcrumb theo đường đang chọn; **không modal** | R5 |
@@ -146,4 +146,5 @@ Xây **plugin core đầu tiên**: `catalog` (Danh mục & quản trị danh m�
 | 0.2 | 2026-10-06 | Ghi nhận 18 câu trả lời; thêm AC-18/19/20 (import/export, ghi đè hệ thống); mở rộng seed §1.1; cập nhật rủi ro; gate vẫn Pending | BA Agent; nguồn: hội thoại chủ dự án |
 | 0.3 | 2026-10-06 | Chốt N1–N5 (seed 5 mục, seed địa giới 2 cấp, CSV+`.xlsx`, seed một chiều, màn hệ thống Platform); thêm AC-21/AC-22; mở N6 (nguồn dữ liệu) + N7 (thư viện `.xlsx`); gate vẫn Pending | BA Agent; nguồn: hội thoại chủ dự án |
 | 0.4 | 2026-10-06 | Chốt N6 (fetch một lần từ `provinces.open-api.vn`) và N7 (Apache POI); **hết câu hỏi**; gate vẫn Pending | BA Agent; nguồn: hội thoại chủ dự án |
+| 0.5 | 2026-10-27 | **Đổi AC-13/AC-14**: catalog là **default_install, unlocked**; tenant bật/tắt/gỡ trong quản lý plugin; dữ liệu giữ lại | Chủ dự án chỉ đạo trực tiếp |
 | **1.0** | 2026-10-06 | **Gate APPROVED** — chủ dự án chốt scope/AC + 22 AC và cho phép lập trình; 19 task mở khoá | BA Agent; nguồn: chỉ đạo trực tiếp chủ dự án |
