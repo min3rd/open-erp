@@ -11,15 +11,16 @@ Plugin độc lập của Open-ERP: hạ tầng danh mục dùng chung.
 Chạy local (sau khi core tạo schema/role):
 
 ```bash
-# SDK dùng chung (ApiResponse/ApiException/ResponseKey/ErrorCode) — cài một lần
+# SDK dùng chung (API envelope + security filters)
 mvn -f plugins/sdk/pom.xml install -DskipTests
 
-mvn -f plugins/catalog/pom.xml quarkus:dev \
-  -Dquarkus.datasource.jdbc.url=jdbc:postgresql://localhost:5432/openerp_dev \
-  -Dquarkus.datasource.username=openerp \
-  -Dquarkus.datasource.password=openerp_dev_password \
-  -Dquarkus.hibernate-orm.database.default-schema=tenant_demo_catalog \
-  -Dquarkus.flyway.schemas=tenant_demo_catalog
+# Core cấp datasource/schema qua env; plugin không cấu hình DB trong app.
+QUARKUS_DATASOURCE_JDBC_URL='jdbc:postgresql://localhost:5432/openerp_dev?currentSchema=tenant_demo_catalog' \
+QUARKUS_DATASOURCE_USERNAME=openerp \
+QUARKUS_DATASOURCE_PASSWORD=openerp_dev_password \
+QUARKUS_HIBERNATE_ORM_DATABASE_DEFAULT_SCHEMA=tenant_demo_catalog \
+QUARKUS_FLYWAY_SCHEMAS=tenant_demo_catalog \
+mvn -f plugins/catalog/pom.xml quarkus:dev
 ```
 
 Hoặc build cả reactor: `mvn -f plugins/pom.xml -pl catalog -am package -DskipTests`.

@@ -1,6 +1,6 @@
 package com.vn9melody.openerp.plugins.catalog.resource;
 
-import com.vn9melody.openerp.plugins.catalog.runtime.RequirePermission;
+import com.vn9melody.openerp.plugin.sdk.runtime.RequirePermission;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogImportExportDtos.CsvFile;
 import com.vn9melody.openerp.plugins.catalog.service.CatalogImportExportService;
 import com.vn9melody.openerp.plugins.catalog.service.CatalogPermissionGuard;

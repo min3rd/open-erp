@@ -41,7 +41,7 @@ open-erp-sales/
 └── README.md
 ```
 
-> **Migration chạy theo tenant**: plugin tự chạy migration trong **schema riêng của tenant** khi container khởi động (`DB_SCHEMA` do Deployer cấp). Không bao giờ tạo bảng trong schema `public`.
+> **DB/security do core quản trị**: core deployer cấp `QUARKUS_DATASOURCE_*`, schema và Flyway runtime qua env. Plugin **không** khai báo URL/user/password trong `application.properties`. `plugin.json` khai báo `entities[].storage_scope` (`TENANT`/`CORE`), `relations` (core/plugin khác), `repositories`, `apis`, `websockets`. Migration DDL vẫn nằm trong plugin (`db/plugin-migration`) và chạy trong schema riêng của tenant; không tạo bảng trong `public`.
 > **Quyền**: đăng ký mã `domain:resource:action` trong `plugin.json`; khi cài, TENANT_OWNER nhận quyền tự động.
 
 ---
@@ -76,7 +76,7 @@ npx @open-erp/cli link --repo git@github.com:org/open-erp-sales.git --id open-er
 ```
 
 - `package` tạo `dist/plugin-backend.jar`, `dist/web/`, `dist/checksums.txt`, `dist/release-manifest.json` để đăng ký với Plugin Manager (kênh Docker/registry hoặc JAR bundle upload).
-- `dev` sinh `docker-compose.dev.yml` (Postgres dev + container plugin + biến `TENANT_ID`, `DB_SCHEMA`, `CORE_DEV_URL`) — chạy `docker compose -f docker-compose.dev.yml up -d` hoặc thêm `--run`.
+- `dev` sinh `docker-compose.dev.yml` (Postgres dev + container plugin + biến `TENANT_ID`, `QUARKUS_DATASOURCE_*`, `QUARKUS_FLYWAY_SCHEMAS`, `CORE_DEV_URL`) — chạy `docker compose -f docker-compose.dev.yml up -d` hoặc thêm `--run`.
 
 ---
 

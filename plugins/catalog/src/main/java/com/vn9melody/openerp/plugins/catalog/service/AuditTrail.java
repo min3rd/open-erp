@@ -1,7 +1,7 @@
 package com.vn9melody.openerp.plugins.catalog.service;
 
 import com.vn9melody.openerp.plugins.catalog.api.PlatformAction;
-import com.vn9melody.openerp.plugins.catalog.runtime.TenantContext;
+import com.vn9melody.openerp.plugin.sdk.runtime.TenantContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Map;

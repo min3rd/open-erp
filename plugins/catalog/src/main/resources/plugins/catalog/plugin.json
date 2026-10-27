@@ -24,15 +24,33 @@
     },
     "mobile": {
       "supported": true,
-      "features": ["catalog_browse", "catalog_picker"]
+      "features": [
+        "catalog_browse",
+        "catalog_picker"
+      ]
     }
   },
   "permissions": [
-    { "code": "catalog:type:manage", "name": "Quản lý loại danh mục của tenant" },
-    { "code": "catalog:item:read", "name": "Xem bản ghi danh mục" },
-    { "code": "catalog:item:manage", "name": "Thêm/sửa/ngừng dùng bản ghi danh mục" },
-    { "code": "catalog:item:inline-create", "name": "Lưu nhanh giá trị nhập tự do vào danh mục" },
-    { "code": "catalog:system:manage", "name": "Quản trị danh mục hệ thống (cổng Platform)" }
+    {
+      "code": "catalog:type:manage",
+      "name": "Quản lý loại danh mục của tenant"
+    },
+    {
+      "code": "catalog:item:read",
+      "name": "Xem bản ghi danh mục"
+    },
+    {
+      "code": "catalog:item:manage",
+      "name": "Thêm/sửa/ngừng dùng bản ghi danh mục"
+    },
+    {
+      "code": "catalog:item:inline-create",
+      "name": "Lưu nhanh giá trị nhập tự do vào danh mục"
+    },
+    {
+      "code": "catalog:system:manage",
+      "name": "Quản trị danh mục hệ thống (cổng Platform)"
+    }
   ],
   "entities": [
     {
@@ -40,9 +58,33 @@
       "storage": "postgres",
       "table": "catalog_types",
       "public_fields": [
-        "id", "tenant_id", "code", "name_key", "description_key", "hierarchy_mode",
-        "allowed_relations", "allowed_parent_types", "max_depth", "min_parents",
-        "allow_free_text", "versioned", "effective_dated", "status", "created_at", "updated_at"
+        "id",
+        "tenant_id",
+        "code",
+        "name_key",
+        "description_key",
+        "hierarchy_mode",
+        "allowed_relations",
+        "allowed_parent_types",
+        "max_depth",
+        "min_parents",
+        "allow_free_text",
+        "versioned",
+        "effective_dated",
+        "status",
+        "created_at",
+        "updated_at"
+      ],
+      "storage_scope": "TENANT",
+      "relations": [
+        {
+          "name": "tenant",
+          "target_plugin": "core",
+          "target_entity": "Tenant",
+          "type": "many_to_one",
+          "local_field": "tenant_id",
+          "target_field": "id"
+        }
       ]
     },
     {
@@ -50,9 +92,47 @@
       "storage": "postgres",
       "table": "catalog_items",
       "public_fields": [
-        "id", "tenant_id", "type_id", "version_group_id", "version", "code", "name",
-        "name_en", "description", "sort_order", "status", "valid_from", "valid_to",
-        "supersedes_item_id", "created_at", "updated_at"
+        "id",
+        "tenant_id",
+        "type_id",
+        "version_group_id",
+        "version",
+        "code",
+        "name",
+        "name_en",
+        "description",
+        "sort_order",
+        "status",
+        "valid_from",
+        "valid_to",
+        "supersedes_item_id",
+        "created_at",
+        "updated_at"
+      ],
+      "storage_scope": "TENANT",
+      "relations": [
+        {
+          "name": "tenant",
+          "target_plugin": "core",
+          "target_entity": "Tenant",
+          "type": "many_to_one",
+          "local_field": "tenant_id",
+          "target_field": "id"
+        },
+        {
+          "name": "type",
+          "target_entity": "CatalogType",
+          "type": "many_to_one",
+          "local_field": "type_id",
+          "target_field": "id"
+        },
+        {
+          "name": "supersedes",
+          "target_entity": "CatalogItem",
+          "type": "many_to_one",
+          "local_field": "supersedes_item_id",
+          "target_field": "id"
+        }
       ]
     },
     {
@@ -60,18 +140,81 @@
       "storage": "postgres",
       "table": "catalog_item_edges",
       "public_fields": [
-        "id", "tenant_id", "parent_item_id", "child_item_id", "relation_type",
-        "sort_order", "status", "valid_from", "valid_to", "created_at"
+        "id",
+        "tenant_id",
+        "parent_item_id",
+        "child_item_id",
+        "relation_type",
+        "sort_order",
+        "status",
+        "valid_from",
+        "valid_to",
+        "created_at"
+      ],
+      "storage_scope": "TENANT",
+      "relations": [
+        {
+          "name": "tenant",
+          "target_plugin": "core",
+          "target_entity": "Tenant",
+          "type": "many_to_one",
+          "local_field": "tenant_id",
+          "target_field": "id"
+        },
+        {
+          "name": "parent",
+          "target_entity": "CatalogItem",
+          "type": "many_to_one",
+          "local_field": "parent_item_id",
+          "target_field": "id"
+        },
+        {
+          "name": "child",
+          "target_entity": "CatalogItem",
+          "type": "many_to_one",
+          "local_field": "child_item_id",
+          "target_field": "id"
+        }
       ]
     },
     {
       "name": "CatalogTypeGrant",
       "storage": "postgres",
       "table": "catalog_type_grants",
-      "public_fields": ["id", "tenant_id", "type_id", "role_code", "can_read", "can_write", "created_at", "updated_at"]
+      "public_fields": [
+        "id",
+        "tenant_id",
+        "type_id",
+        "role_code",
+        "can_read",
+        "can_write",
+        "created_at",
+        "updated_at"
+      ],
+      "storage_scope": "TENANT",
+      "relations": [
+        {
+          "name": "tenant",
+          "target_plugin": "core",
+          "target_entity": "Tenant",
+          "type": "many_to_one",
+          "local_field": "tenant_id",
+          "target_field": "id"
+        },
+        {
+          "name": "type",
+          "target_entity": "CatalogType",
+          "type": "many_to_one",
+          "local_field": "type_id",
+          "target_field": "id"
+        }
+      ]
     }
   ],
-  "kafka_events": { "publishes": [], "subscribes": [] },
+  "kafka_events": {
+    "publishes": [],
+    "subscribes": []
+  },
   "ui_manifest": {
     "contract_version": "1.0",
     "screens": [
@@ -81,7 +224,9 @@
         "permission": "catalog:item:read",
         "render_mode": "IFRAME",
         "order": 150,
-        "platforms": ["desktop"]
+        "platforms": [
+          "desktop"
+        ]
       },
       {
         "route": "/apps/catalog",
@@ -89,7 +234,9 @@
         "permission": "catalog:item:read",
         "render_mode": "IFRAME",
         "order": 150,
-        "platforms": ["mobile"],
+        "platforms": [
+          "mobile"
+        ],
         "read_only": true
       },
       {
@@ -98,7 +245,9 @@
         "permission": "catalog:system:manage",
         "render_mode": "IFRAME",
         "order": 200,
-        "platforms": ["desktop"]
+        "platforms": [
+          "desktop"
+        ]
       }
     ],
     "contributions": [],
@@ -109,5 +258,74 @@
     "registry_url": "",
     "repository": "open-erp/catalog",
     "tag": "1.0.0"
-  }
+  },
+  "repositories": [
+    {
+      "name": "CatalogTypeRepository",
+      "entity": "CatalogType",
+      "storage_scope": "TENANT",
+      "tenant_scoped": true,
+      "primary_key": "id"
+    },
+    {
+      "name": "CatalogItemRepository",
+      "entity": "CatalogItem",
+      "storage_scope": "TENANT",
+      "tenant_scoped": true,
+      "primary_key": "id"
+    },
+    {
+      "name": "CatalogItemEdgeRepository",
+      "entity": "CatalogItemEdge",
+      "storage_scope": "TENANT",
+      "tenant_scoped": true,
+      "primary_key": "id"
+    },
+    {
+      "name": "CatalogTypeGrantRepository",
+      "entity": "CatalogTypeGrant",
+      "storage_scope": "TENANT",
+      "tenant_scoped": true,
+      "primary_key": "id"
+    }
+  ],
+  "apis": [
+    {
+      "method": "GET",
+      "path": "/api/v1/catalog/types",
+      "permission": "catalog:item:read",
+      "repository": "CatalogTypeRepository"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/catalog/types",
+      "permission": "catalog:type:manage",
+      "repository": "CatalogTypeRepository"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/catalog/types/{code}/items",
+      "permission": "catalog:item:read",
+      "repository": "CatalogItemRepository"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/catalog/types/{code}/items",
+      "permission": "catalog:item:manage",
+      "repository": "CatalogItemRepository"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/catalog/lookup/{typeCode}",
+      "permission": "catalog:item:read",
+      "repository": "CatalogItemRepository"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/catalog/types/{code}/grants",
+      "permission": "catalog:type:manage",
+      "repository": "CatalogTypeGrantRepository"
+    }
+  ],
+  "websockets": []
 }

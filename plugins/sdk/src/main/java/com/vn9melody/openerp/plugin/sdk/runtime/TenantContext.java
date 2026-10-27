@@ -1,4 +1,4 @@
-package com.vn9melody.openerp.plugins.catalog.runtime;
+package com.vn9melody.openerp.plugin.sdk.runtime;
 
 import jakarta.enterprise.context.RequestScoped;
 import java.util.Set;

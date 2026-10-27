@@ -1,4 +1,4 @@
-package com.vn9melody.openerp.plugins.catalog.runtime;
+package com.vn9melody.openerp.plugin.sdk.runtime;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

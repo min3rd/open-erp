@@ -33,22 +33,27 @@ public class PluginEntityRegistrar {
             }
             JsonNode publicFields = entity.path("public_fields");
             String fieldsJson = publicFields.isArray() ? publicFields.toString() : "[]";
-            String schemaJson = "{\"fields\":" + fieldsJson + "}";
+            String storageScope = entity.path("storage_scope").asText("TENANT");
+            JsonNode relationsNode = entity.path("relations");
+            String relationsJson = relationsNode.isArray() ? relationsNode.toString() : "[]";
+            String schemaJson = "{\"storage_scope\":\"" + storageScope + "\",\"fields\":" + fieldsJson + "}";
             entityManager.createNativeQuery("""
                     INSERT INTO sys_entity_registry
                         (id, plugin_id, entity_name, storage_type, table_or_collection,
                          schema_definition, exported_relations)
                     VALUES (gen_random_uuid(), ?1, ?2, 'postgres', ?3,
-                            CAST(?4 AS jsonb), '[]'::jsonb)
+                            CAST(?4 AS jsonb), CAST(?5 AS jsonb))
                     ON CONFLICT (plugin_id, entity_name) DO UPDATE
                     SET storage_type = EXCLUDED.storage_type,
                         table_or_collection = EXCLUDED.table_or_collection,
-                        schema_definition = EXCLUDED.schema_definition
+                        schema_definition = EXCLUDED.schema_definition,
+                        exported_relations = EXCLUDED.exported_relations
                     """)
                 .setParameter(1, pluginKey)
                 .setParameter(2, name)
                 .setParameter(3, table)
                 .setParameter(4, schemaJson)
+                .setParameter(5, relationsJson)
                 .executeUpdate();
             registered++;
         }
