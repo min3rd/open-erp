@@ -56,6 +56,7 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 - `catalog.service` (shared picker): lookup/items → `/api/v1/plugins/runtime/catalog/api/v1/catalog/**`.
 - `catalog-admin.service` + API drawer: cùng gateway prefix.
 - **Kiểm chứng**: `npm run web:build` PASS (bundle 580.89 kB, catalog chunk 92.79 kB).
+- **Gateway smoke test**: plugin token (RS256) → `GET :8088/api/v1/plugins/runtime/catalog/api/v1/catalog/types` → **200** `CATALOG_TYPE_FETCH_SUCCESS` (5 system + 5 tenant types). Fixed JSON-array claim decoding in plugin tokens.
 - **Còn**: iframe bundle + route/menu động từ UI Manifest; QA dual-mode.
 
 ## 2026-10-05 — Sprint 03 đóng & khởi tạo tài liệu Sprint 04
