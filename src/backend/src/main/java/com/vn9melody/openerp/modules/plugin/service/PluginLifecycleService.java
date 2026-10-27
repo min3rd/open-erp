@@ -15,6 +15,7 @@ import com.vn9melody.openerp.core.enums.TenantPluginStatus;
 import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
 import com.vn9melody.openerp.modules.plugin.api.PluginResponseKey;
 import com.vn9melody.openerp.modules.plugin.artifact.PluginImageBuilder;
+import com.vn9melody.openerp.modules.plugin.data.PluginMigrationExecutor;
 import com.vn9melody.openerp.modules.plugin.datasource.TenantDatasourceService;
 import com.vn9melody.openerp.modules.plugin.deployer.ProcessPluginRuntimeDeployer;
 import com.vn9melody.openerp.modules.plugin.dto.PluginResponses;
@@ -98,6 +99,9 @@ public class PluginLifecycleService {
     TenantDatasourceService datasourceService;
 
     @Inject
+    PluginMigrationExecutor migrationExecutor;
+
+    @Inject
     ProcessPluginRuntimeDeployer deployer;
 
     @Inject
@@ -159,6 +163,9 @@ public class PluginLifecycleService {
             TenantDatasourceService.TenantDatasource datasource =
                     datasourceService.ensureDatasource(tenantId, pluginKey);
             log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "PROVISION_DATASOURCE", "OK", steps, null);
+            migrationExecutor.migrate(pluginKey, version.version, version.manifest, version.distribution,
+                    datasource.schema());
+            log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "MIGRATE", "OK", steps, null);
 
             String imageRef = resolveImageRef(pluginKey, version);
             deployed = deployer.deploy(new ProcessPluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, version.version,
@@ -436,6 +443,9 @@ public class PluginLifecycleService {
 
             TenantDatasourceService.TenantDatasource datasource =
                     datasourceService.ensureDatasource(tenantId, pluginKey);
+            migrationExecutor.migrate(pluginKey, target.version, target.manifest, target.distribution,
+                    datasource.schema());
+            log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "MIGRATE", "OK", steps, null);
             if (breaking || Boolean.TRUE.equals(snapshotRequested)) {
                 snapshotRef = snapshotService.snapshot(tenantId, pluginKey, ledger.installedVersion,
                         datasource.schema(), "pre-upgrade").ref();

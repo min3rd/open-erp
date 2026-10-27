@@ -39,4 +39,4 @@ bin/
 Thumbs.db
 
 # Local object/artifact storage leftovers (dev runtime)
-data/
+/data/

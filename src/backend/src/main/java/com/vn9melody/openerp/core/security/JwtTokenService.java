@@ -18,6 +18,7 @@ public class JwtTokenService {
     public static final String TYPE_PRE_AUTH = "PRE_AUTH";
     public static final String TYPE_REFRESH = "REFRESH";
     public static final String TYPE_PLUGIN_RUNTIME = "PLUGIN_RUNTIME";
+    public static final String TYPE_PLUGIN_SERVICE = "PLUGIN_SERVICE";
 
     @Inject
     JWTParser jwtParser;
@@ -102,5 +103,23 @@ public class JwtTokenService {
 
     public JsonWebToken parseToken(String token) throws ParseException {
         return jwtParser.parse(token);
+    }
+
+    /**
+     * Short-lived identity for the plugin data gateway (SOL-S05-002 D5/D11).
+     * It is not a user token: subject is the plugin, and the only authority is
+     * the tenant/scope pair bound to the plugin deployment.
+     */
+    public String generatePluginServiceToken(UUID tenantId, String pluginKey, String scope, Duration ttl) {
+        return Jwt.issuer(issuer)
+                .subject("plugin:" + pluginKey)
+                .claim("jti", UUID.randomUUID().toString())
+                .claim("type", TYPE_PLUGIN_SERVICE)
+                .claim("tenant_id", tenantId != null ? tenantId.toString() : null)
+                .claim("plugin_key", pluginKey)
+                .claim("scope", scope != null ? scope : "TENANT")
+                .claim("aud", "plugin-data")
+                .expiresIn(ttl != null ? ttl : Duration.ofHours(24))
+                .sign();
     }
 }

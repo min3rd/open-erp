@@ -2,6 +2,14 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-27 — TASK-402 P1/P2: gRPC plugin data gateway (core)
+
+- **P1**: `plugin_data.proto` (`Ping`, `Execute`, `ExecuteBatch`, `Row`, `Value`, `total_rows`); Quarkus gRPC server cổng nội bộ `:9090`; `PluginServiceIdentityResolver` + token `PLUGIN_SERVICE` audience `plugin-data`; metadata interceptor.
+- **P2**: `PluginDescriptorRegistry` validate manifest/entity/field/relation; `PluginQueryCompiler` compile query DSL sang SQL parameterized (LIST/GET/INSERT/UPDATE/DELETE, filter/sort/page/join allowlist, tenant predicate); `PluginDataExecutor` set `search_path`/`app.tenant_id`/timeout, check ledger ACTIVE, row limit, count, batch một transaction; `PluginMigrationExecutor` đọc bundle zip + checksum SHA-256 + `plugin_schema_history`, lifecycle gọi trước deploy (no-op nếu không khai báo).
+- **Sửa phụ**: `src/backend/.gitignore` đổi `data/` → `/data/` để không bỏ sót package Java `.../plugin/data`.
+- **Kiểm chứng**: `PluginDataGatewayTest` 9/9 PASS; `PluginMigrationExecutorTest` 2/2 PASS; `PluginLifecycleApiTest` 10/10 PASS; `mvn -f src/backend/pom.xml -DskipTests package` PASS.
+- **Còn**: mTLS dev/prod, catalog `queries` descriptors, SDK client + read path, Redis, system scope, xoá DB env plugin (P3–P5).
+
 ## 2026-10-27 — P4.1: UI Manifest + host động, local chạy 100% Docker
 
 - **Chủ dự án chỉ đạo**: (1) local dùng toàn bộ Docker, không chạy Java/Angular trên terminal; (2) plugin phải tự đăng ký menu qua `/api/v1/plugins/ui-manifest`, map screen → menu, mount bằng host cố định.
