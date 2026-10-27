@@ -22,17 +22,21 @@ public record PluginQueryDescriptor(
         List<String> select,
         List<Filter> filters,
         List<Search> search,
+        List<Exists> exists,
+        List<PostFilter> postFilters,
+        String mergeKey,
         List<Sort> sort,
         Map<String, String> values,
         List<String> returning,
         List<Join> joins,
         Page page,
+        boolean distinct,
         int maxRows,
         int timeoutMs) {
 
     public enum Mode { READ, WRITE }
 
-    public enum Operation { LIST, GET, INSERT, UPDATE, DELETE }
+    public enum Operation { LIST, GET, INSERT, UPDATE, DELETE, MERGED_LIST }
 
     /** Tenant isolation applied by the compiler; metadata never comes from the payload. */
     public enum Scope { TENANT, TENANT_OR_SYSTEM, SYSTEM }
@@ -42,13 +46,21 @@ public record PluginQueryDescriptor(
     /** Optional multi-column contains search (OR across the declared fields). */
     public record Search(String param, List<String> fields) {}
 
+    /** Correlated EXISTS filter (parent/relation guard) with an optional validity range. */
+    public record Exists(String entity, String localField, String remoteField,
+                         String filterField, String param, String effectiveParam,
+                         String status, Scope tenantScope) {}
+
+    /** Filter applied after tenant/system merge, e.g. hide rows whose tenant override is INACTIVE. */
+    public record PostFilter(String field, String op, String value) {}
+
     public record Sort(String field, String direction) {}
 
     public record Join(String relation, List<String> select) {}
 
     public record Page(String pageParam, String sizeParam, int maxSize, int defaultSize) {}
 
-    private static final Set<String> OPERATIONS = Set.of("LIST", "GET", "INSERT", "UPDATE", "DELETE");
+    private static final Set<String> OPERATIONS = Set.of("LIST", "GET", "INSERT", "UPDATE", "DELETE", "MERGED_LIST");
 
     public static PluginQueryDescriptor parse(JsonNode node) {
         String id = text(node, "id", null);
@@ -93,6 +105,33 @@ public record PluginQueryDescriptor(
                 search.add(new Search(param, fields));
             }
         }
+        List<Exists> exists = new ArrayList<>();
+        for (JsonNode item : node.path("exists")) {
+            String target = text(item, "entity", null);
+            String localField = text(item, "local_field", null);
+            String remoteField = text(item, "remote_field", null);
+            String filterField = text(item, "filter_field", null);
+            String param = text(item, "param", null);
+            if (target == null || localField == null || remoteField == null
+                    || filterField == null || param == null) {
+                throw new IllegalArgumentException("Query " + id + " has an incomplete exists filter");
+            }
+            exists.add(new Exists(target, localField, remoteField, filterField, param,
+                    text(item, "effective_param", null),
+                    text(item, "status", null),
+                    Scope.valueOf(text(item, "tenant_scope", "TENANT_OR_SYSTEM")
+                            .toUpperCase(Locale.ROOT))));
+        }
+        List<PostFilter> postFilters = new ArrayList<>();
+        for (JsonNode item : node.path("post_filters")) {
+            String field = text(item, "field", null);
+            String op = text(item, "op", "EQ").toUpperCase(Locale.ROOT);
+            String value = text(item, "value", null);
+            if (field != null && value != null) {
+                postFilters.add(new PostFilter(field, op, value));
+            }
+        }
+        String mergeKey = text(node, "merge_key", null);
         Map<String, String> values = new LinkedHashMap<>();
         JsonNode valuesNode = node.path("values");
         if (valuesNode.isObject()) {
@@ -116,8 +155,9 @@ public record PluginQueryDescriptor(
                 : null;
         int maxRows = node.path("maxRows").asInt(0);
         int timeoutMs = node.path("timeoutMs").asInt(0);
-        return new PluginQueryDescriptor(id, mode, operation, entity, scope, select, filters, search, sort,
-                values, returning, joins, page, maxRows, timeoutMs);
+        boolean distinct = node.path("distinct").asBoolean(false);
+        return new PluginQueryDescriptor(id, mode, operation, entity, scope, select, filters, search,
+                exists, postFilters, mergeKey, sort, values, returning, joins, page, distinct, maxRows, timeoutMs);
     }
 
     private static String text(JsonNode node, String field, String defaultValue) {

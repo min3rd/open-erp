@@ -183,7 +183,32 @@ public class PluginDataExecutor {
         }
         if (value instanceof java.sql.Array array) {
             Object content = array.getArray();
+            if (content instanceof Object[] items) {
+                List<String> values = new ArrayList<>(items.length);
+                for (Object item : items) {
+                    values.add(item == null ? null : String.valueOf(item));
+                }
+                return values;
+            }
             return content == null ? null : String.valueOf(content);
+        }
+        if (value instanceof java.time.OffsetDateTime dateTime) {
+            return dateTime.toInstant().toString();
+        }
+        if (value instanceof java.time.LocalDateTime dateTime) {
+            return dateTime.toInstant(java.time.ZoneOffset.UTC).toString();
+        }
+        if (value instanceof java.sql.Timestamp timestamp) {
+            return timestamp.toInstant().toString();
+        }
+        if (value instanceof java.time.Instant instant) {
+            return instant.toString();
+        }
+        if (value instanceof java.time.LocalDate date) {
+            return date.toString();
+        }
+        if (value instanceof java.time.OffsetTime time) {
+            return time.toString();
         }
         if (value instanceof byte[] bytes) {
             return Base64.getEncoder().encodeToString(bytes);

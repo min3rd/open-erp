@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package openerp.plugin.data.v1;
+
+import "google/protobuf/struct.proto";
+
+option java_multiple_files = true;
+option java_package = "com.vn9melody.openerp.plugin.data.v1";
+option java_outer_classname = "PluginDataProto";
+
+service PluginDataService {
+  rpc Ping(PingRequest) returns (PingResponse);
+  rpc Execute(ExecuteRequest) returns (ExecuteResponse);
+  rpc ExecuteBatch(ExecuteBatchRequest) returns (ExecuteBatchResponse);
+}
+
+message PingRequest {
+  string request_id = 1;
+}
+
+message PingResponse {
+  string service = 1;
+  string version = 2;
+}
+
+message ExecuteRequest {
+  string query_id = 1;
+  string request_id = 2;
+  string idempotency_key = 3;
+  bool primary = 4;
+  map<string, google.protobuf.Value> params = 5;
+}
+
+message ExecuteBatchRequest {
+  repeated ExecuteRequest statements = 1;
+}
+
+message ExecuteResponse {
+  bool success = 1;
+  string code = 2;
+  repeated Row rows = 3;
+  int64 affected_rows = 4;
+  string request_id = 5;
+  int64 schema_version = 6;
+  int64 total_rows = 7;
+}
+
+message ExecuteBatchResponse {
+  bool success = 1;
+  string code = 2;
+  repeated ExecuteResponse statements = 3;
+  string request_id = 4;
+}
+
+message Row {
+  map<string, google.protobuf.Value> values = 1;
+}

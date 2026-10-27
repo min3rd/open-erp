@@ -128,6 +128,18 @@ public class PluginDataGatewayTest {
                      "select":["id","code"],
                      "filters":[{"field":"valid_from","op":"EFFECTIVE_AT","param":"as_of","required":true}],
                      "sort":[{"field":"code","direction":"ASC"}],
+                     "page":{"pageParam":"page","sizeParam":"size","maxSize":50,"defaultSize":10}},
+                    {"id":"test.things.merged","mode":"READ","operation":"MERGED_LIST","entity":"Thing",
+                     "tenant_scope":"TENANT_OR_SYSTEM",
+                     "merge_key":"code",
+                     "select":["id","code","name","status"],
+                     "filters":[{"field":"valid_from","op":"EFFECTIVE_AT","param":"as_of","required":true}],
+                     "post_filters":[{"field":"status","op":"EQ","value":"ACTIVE"}],
+                     "page":{"pageParam":"page","sizeParam":"size","maxSize":50,"defaultSize":10}},
+                    {"id":"test.things.by.kind.code","mode":"READ","operation":"LIST","entity":"Thing",
+                     "select":["id","code","kind_id"],
+                     "exists":[{"entity":"Kind","local_field":"kind_id","remote_field":"id",
+                                "filter_field":"code","param":"kind_code","tenant_scope":"TENANT_OR_SYSTEM"}],
                      "page":{"pageParam":"page","sizeParam":"size","maxSize":50,"defaultSize":10}}
                   ]
                 }
@@ -287,6 +299,29 @@ public class PluginDataGatewayTest {
                 Map.of("as_of", string(java.time.Instant.now().minusSeconds(5 * 86400).toString())));
         assertEquals(1, past.rows().size());
         assertEquals("E", past.rows().get(0).get("code"));
+    }
+
+    @Test
+    @Transactional
+    void mergedListPrefersTenantRowEvenWhenInactive() {
+        em.createNativeQuery("INSERT INTO " + schema + ".things (tenant_id, code, name, status, valid_from) "
+                        + "VALUES (?1, 'S', 'Tenant hides system', 'INACTIVE', now() - interval '1 minute')")
+                .setParameter(1, tenantId).executeUpdate();
+
+        PluginDataExecutor.Result result = executor.execute(identity(), "test.things.merged", "req-14",
+                Map.of("as_of", string(java.time.Instant.now().toString())));
+        assertEquals(2, result.rows().size());
+        assertEquals(2, result.totalRows());
+        assertEquals(List.of("A", "B"), result.rows().stream()
+                .map(row -> row.get("code")).toList());
+    }
+
+    @Test
+    void existsFilterUsesDeclaredRelation() {
+        PluginDataExecutor.Result result = executor.execute(identity(), "test.things.by.kind.code", "req-15",
+                Map.of("kind_code", string("K1")));
+        assertEquals(1, result.rows().size());
+        assertEquals("B", result.rows().get(0).get("code"));
     }
 
     @Test

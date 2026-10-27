@@ -114,11 +114,11 @@ public class PlatformCatalogResource {
                               @QueryParam("status") String status,
                               @QueryParam("page") @DefaultValue("0") int page,
                               @QueryParam("size") @DefaultValue("20") int size) {
-        List<ItemResponse> items = itemService.list(null, code, q, parentId, relationType, asOf, status, page, size);
-        long total = itemService.count(null, code, q, parentId, relationType, asOf, status);
+        CatalogItemService.ItemPage result = itemService.page(null, code, q, parentId, relationType, asOf,
+            status, page, size);
         return Response.ok(ApiResponse.successPaged(CatalogErrorCode.CATALOG_ITEM_FETCH_SUCCESS,
-            "System catalog items retrieved successfully.", items, Math.max(page, 0),
-            CatalogSupport.size(size), total)).build();
+            "System catalog items retrieved successfully.", result.items(), Math.max(page, 0),
+            CatalogSupport.size(size), result.total())).build();
     }
 
     @POST

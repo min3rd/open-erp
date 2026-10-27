@@ -12,12 +12,12 @@ import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.ItemCreateReque
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.ItemParentResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.ItemResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.ItemUpdateRequest;
+import com.vn9melody.openerp.plugins.catalog.gateway.CatalogGateway;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogItem;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogItemEdge;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
 import com.vn9melody.openerp.plugins.catalog.repository.CatalogItemEdgeRepository;
 import com.vn9melody.openerp.plugins.catalog.repository.CatalogItemRepository;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogTypeRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -51,7 +51,7 @@ public class CatalogItemService {
     CatalogItemEdgeRepository edgeRepository;
 
     @Inject
-    CatalogTypeRepository typeRepository;
+    CatalogGateway gateway;
 
     @Inject
     CatalogPermissionGuard guard;
@@ -62,25 +62,38 @@ public class CatalogItemService {
     @Inject
     EntityManager entityManager;
 
+    public record ItemPage(List<ItemResponse> items, long total) {}
+
     public List<ItemResponse> list(UUID tenantId, String typeCode, String q, String parentIdText,
                                    String relationType, String asOfText, String status, int page, int size) {
+        return page(tenantId, typeCode, q, parentIdText, relationType, asOfText, status, page, size).items();
+    }
+
+    public long count(UUID tenantId, String typeCode, String q, String parentIdText, String relationType,
+                      String asOfText, String status) {
+        return page(tenantId, typeCode, q, parentIdText, relationType, asOfText, status, 0, 1).total();
+    }
+
+    public ItemPage page(UUID tenantId, String typeCode, String q, String parentIdText, String relationType,
+                         String asOfText, String status, int page, int size) {
         CatalogType type = guard.requireTypeAccess(tenantId, typeCode, CatalogPermissionGuard.Access.READ);
-        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
+        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
         UUID parentId = CatalogSupport.parseUuid(parentIdText, "parent_id");
-        int offset = CatalogSupport.page(page) * CatalogSupport.size(size);
-        List<CatalogItem> items = itemRepository.findItemsForAdmin(tenantId, type.id, asOf, q, status,
-            parentId, relationType, offset, CatalogSupport.size(size));
+        int resolvedPage = CatalogSupport.page(page);
+        int resolvedSize = CatalogSupport.size(size);
+        CatalogGateway.Page<CatalogItem> result = gateway.adminPage(tenantId, type.id, asOf, q, status,
+                parentId, relationType, resolvedPage, resolvedSize);
+
         Set<String> codes = new LinkedHashSet<>();
-        for (CatalogItem item : items) {
+        for (CatalogItem item : result.items()) {
             codes.add(item.code);
         }
-        Set<String> systemCodes = tenantId == null ? Set.of()
-            : itemRepository.findSystemCodes(type.code, asOf, codes);
-        // Batch-load the page's parents (one extra query per page) so the admin list
-        // can show the "CHA" column without an N+1 per row.
+        UUID systemTypeId = type.tenantId == null ? type.id : gateway.systemTypeId(type.code);
+        Set<String> systemCodes = systemTypeId == null ? Set.of()
+                : gateway.systemCodes(tenantId, systemTypeId, asOf, codes);
         Map<UUID, List<ItemParentResponse>> parentsByItem = new HashMap<>();
-        List<CatalogItemEdge> edges = edgeRepository.listActiveByChildIds(
-            items.stream().map(item -> item.id).toList(), tenantId, asOf);
+        List<CatalogItemEdge> edges = gateway.edgesByChildren(tenantId,
+                result.items().stream().map(item -> item.id).toList(), asOf);
         if (!edges.isEmpty()) {
             Map<UUID, CatalogItem> parentsById = visibleByIds(tenantId, edges, edge -> edge.parentItemId);
             for (CatalogItemEdge edge : edges) {
@@ -92,19 +105,12 @@ public class CatalogItemService {
                     .add(link(edge, parent));
             }
         }
-        return items.stream()
+        List<ItemResponse> items = result.items().stream()
             .map(item -> toResponse(item, type.code,
                 item.tenantId != null && systemCodes.contains(item.code),
                 parentsByItem.getOrDefault(item.id, List.of()), List.of()))
             .toList();
-    }
-
-    public long count(UUID tenantId, String typeCode, String q, String parentIdText, String relationType,
-                      String asOfText, String status) {
-        CatalogType type = guard.requireTypeAccess(tenantId, typeCode, CatalogPermissionGuard.Access.READ);
-        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
-        UUID parentId = CatalogSupport.parseUuid(parentIdText, "parent_id");
-        return itemRepository.countItemsForAdmin(tenantId, type.id, asOf, q, status, parentId, relationType);
+        return new ItemPage(items, result.total());
     }
 
     @Transactional
@@ -145,13 +151,13 @@ public class CatalogItemService {
 
         auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_ITEM_CREATE, "CATALOG_ITEM", item.id,
             Map.of(ResponseKey.CODE.getKey(), item.code));
-        return toResponse(item, type.code, isOverridden(tenantId, item, type.code, item.validFrom));
+        return toResponse(item, type.code, isOverridden(tenantId, item, type, item.validFrom));
     }
 
     @Transactional
     public ItemResponse update(UUID tenantId, UUID itemId, ItemUpdateRequest request) {
         CatalogItem item = requireWritableItem(tenantId, itemId);
-        CatalogType type = requireType(item.typeId);
+        CatalogType type = requireType(tenantId, item.typeId);
         requireItemWriteGrant(tenantId, type);
 
         Instant now = Instant.now();
@@ -179,13 +185,13 @@ public class CatalogItemService {
 
         auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_ITEM_UPDATE, "CATALOG_ITEM", next.id,
             Map.of(ResponseKey.CODE.getKey(), next.code));
-        return toResponse(next, type.code, isOverridden(tenantId, next, type.code, now));
+        return toResponse(next, type.code, isOverridden(tenantId, next, type, now));
     }
 
     @Transactional
     public void close(UUID tenantId, UUID itemId) {
         CatalogItem item = requireWritableItem(tenantId, itemId);
-        CatalogType type = requireType(item.typeId);
+        CatalogType type = requireType(tenantId, item.typeId);
         requireItemWriteGrant(tenantId, type);
 
         item.validTo = Instant.now();
@@ -197,9 +203,9 @@ public class CatalogItemService {
 
     public ItemResponse get(UUID tenantId, UUID itemId, String asOfText, boolean withRelations) {
         CatalogItem item = requireReadableItem(tenantId, itemId);
-        CatalogType type = requireType(item.typeId);
-        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
-        boolean overridden = isOverridden(tenantId, item, type.code, asOf);
+        CatalogType type = requireType(tenantId, item.typeId);
+        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
+        boolean overridden = isOverridden(tenantId, item, type, asOf);
         if (!withRelations) {
             return toResponse(item, type.code, overridden);
         }
@@ -209,25 +215,24 @@ public class CatalogItemService {
 
     public List<ItemResponse> versions(UUID tenantId, UUID itemId) {
         CatalogItem item = requireReadableItem(tenantId, itemId);
-        CatalogType type = requireType(item.typeId);
-        boolean overridden = isOverridden(tenantId, item, type.code, Instant.now());
-        // System rows carry tenant_id NULL: list their own version group, not the caller's.
-        return itemRepository.listVersions(item.tenantId, item.versionGroupId).stream()
+        CatalogType type = requireType(tenantId, item.typeId);
+        boolean overridden = isOverridden(tenantId, item, type, Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
+        return gateway.itemVersions(tenantId, item.versionGroupId).stream()
             .map(version -> toResponse(version, type.code, overridden))
             .toList();
     }
 
     public List<ItemParentResponse> parents(UUID tenantId, UUID itemId, String asOfText) {
-        CatalogItem item = requireReadableItem(tenantId, itemId);
-        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
-        List<CatalogItemEdge> edges = edgeRepository.listActiveByChild(itemId, tenantId, asOf);
+        requireReadableItem(tenantId, itemId);
+        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
+        List<CatalogItemEdge> edges = gateway.edgesByChild(tenantId, itemId, asOf);
         return toLinks(edges, tenantId, edge -> edge.parentItemId);
     }
 
     public List<ItemResponse> descendants(UUID tenantId, UUID itemId, String asOfText, Integer depth) {
         CatalogItem item = requireReadableItem(tenantId, itemId);
-        CatalogType type = requireType(item.typeId);
-        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
+        CatalogType type = requireType(tenantId, item.typeId);
+        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
         int maxDepth = resolveMaxDepth(type, depth);
         return edgeRepository.findDescendants(itemId, tenantId, asOf, maxDepth).stream()
             .map(descendant -> toResponse(descendant, type.code))
@@ -239,17 +244,17 @@ public class CatalogItemService {
     // ------------------------------------------------------------------
 
     private List<ItemParentResponse> directChildren(UUID tenantId, CatalogItem item, Instant asOf) {
-        List<CatalogItemEdge> edges = edgeRepository.listActiveByParentId(item.id, tenantId, asOf);
+        List<CatalogItemEdge> edges = gateway.edgesByParent(tenantId, item.id, asOf);
         return toLinks(edges, tenantId, edge -> edge.childItemId);
     }
 
     private CatalogItem requireReadableItem(UUID tenantId, UUID itemId) {
-        CatalogItem item = itemRepository.findVisibleById(tenantId, itemId);
+        CatalogItem item = gateway.itemById(tenantId, itemId);
         if (item == null) {
             throw CatalogSupport.notFound(CatalogErrorCode.CATALOG_ITEM_NOT_FOUND,
                 ResponseKey.ID.getKey(), itemId);
         }
-        CatalogType type = requireType(item.typeId);
+        CatalogType type = requireType(tenantId, item.typeId);
         guard.requireTypeAccess(tenantId, type, CatalogPermissionGuard.Access.READ);
         return item;
     }
@@ -278,8 +283,8 @@ public class CatalogItemService {
         }
     }
 
-    private CatalogType requireType(UUID typeId) {
-        CatalogType type = typeRepository.findById(typeId);
+    private CatalogType requireType(UUID tenantId, UUID typeId) {
+        CatalogType type = gateway.typeById(tenantId, typeId);
         if (type == null) {
             throw CatalogTypeService.notFound(ResponseKey.ID.getKey(), typeId);
         }
@@ -287,11 +292,13 @@ public class CatalogItemService {
     }
 
     /** True when the tenant row shadows an active system row with the same code. */
-    private boolean isOverridden(UUID tenantId, CatalogItem item, String typeCode, Instant asOf) {
+    private boolean isOverridden(UUID tenantId, CatalogItem item, CatalogType type, Instant asOf) {
         if (tenantId == null || item.tenantId == null) {
             return false;
         }
-        return itemRepository.findSystemCodes(typeCode, asOf, Set.of(item.code)).contains(item.code);
+        UUID systemTypeId = type.tenantId == null ? type.id : gateway.systemTypeId(type.code);
+        return systemTypeId != null
+                && gateway.systemCodes(tenantId, systemTypeId, asOf, Set.of(item.code)).contains(item.code);
     }
 
     private static List<UUID> edgeChildIds(List<CatalogItemEdge> edges) {
@@ -306,7 +313,7 @@ public class CatalogItemService {
     private Map<UUID, CatalogItem> visibleByIds(UUID tenantId, List<CatalogItemEdge> edges,
             Function<CatalogItemEdge, UUID> relatedId) {
         Map<UUID, CatalogItem> byId = new HashMap<>();
-        for (CatalogItem item : itemRepository.listVisibleByIds(tenantId,
+        for (CatalogItem item : gateway.itemsByIds(tenantId,
                 edges.stream().map(relatedId).distinct().toList())) {
             byId.put(item.id, item);
         }

@@ -276,11 +276,16 @@ services:
       TENANT_ID: cd2729d8-aec0-423c-b2b0-2649a97d822f
       PLUGIN_SCOPE: tenant
       PLUGIN_FANOUT_TOKEN: dev-fanout-token
+      PLUGIN_KEY: catalog
+      PLUGIN_DATA_GATEWAY_URL: http://backend-dev:9090
+      QUARKUS_REDIS_HOSTS: redis://:openerp_redis_password@redis:6379
       QUARKUS_HTTP_PORT: "8080"
     ports:
       - "18082:8080"
     depends_on:
       postgres-primary:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     deploy:
       resources:
@@ -301,11 +306,16 @@ services:
       TENANT_ID: 00000000-0000-0000-0000-000000000001
       PLUGIN_SCOPE: platform
       PLUGIN_FANOUT_TOKEN: dev-fanout-token
+      PLUGIN_KEY: catalog
+      PLUGIN_DATA_GATEWAY_URL: http://backend-dev:9090
+      QUARKUS_REDIS_HOSTS: redis://:openerp_redis_password@redis:6379
       QUARKUS_HTTP_PORT: "8080"
     ports:
       - "18083:8080"
     depends_on:
       postgres-primary:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     deploy:
       resources:
@@ -326,11 +336,16 @@ services:
       TENANT_ID: aafea2fa-953d-410a-a9d7-6489106f5c8d
       PLUGIN_SCOPE: tenant
       PLUGIN_FANOUT_TOKEN: dev-fanout-token
+      PLUGIN_KEY: catalog
+      PLUGIN_DATA_GATEWAY_URL: http://backend-dev:9090
+      QUARKUS_REDIS_HOSTS: redis://:openerp_redis_password@redis:6379
       QUARKUS_HTTP_PORT: "8080"
     ports:
       - "18084:8080"
     depends_on:
       postgres-primary:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     deploy:
       resources:

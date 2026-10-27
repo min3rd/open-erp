@@ -1083,6 +1083,44 @@
       "maxRows": 500
     },
     {
+      "id": "catalog.edges.parents.with.children",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "CatalogItemEdge",
+      "tenant_scope": "TENANT_OR_SYSTEM",
+      "select": [
+        "parent_item_id"
+      ],
+      "filters": [
+        {
+          "field": "parent_item_id",
+          "op": "IN",
+          "param": "parent_item_ids",
+          "required": true
+        },
+        {
+          "field": "status",
+          "op": "EQ",
+          "param": "status",
+          "required": true
+        },
+        {
+          "field": "valid_from",
+          "op": "EFFECTIVE_AT",
+          "param": "as_of",
+          "required": true
+        }
+      ],
+      "distinct": true,
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 1000,
+        "defaultSize": 1000
+      },
+      "maxRows": 1000
+    },
+    {
       "id": "catalog.grants.by.type",
       "mode": "READ",
       "operation": "LIST",
@@ -1182,6 +1220,226 @@
         "defaultSize": 10
       },
       "maxRows": 10
+    },
+    {
+      "id": "catalog.items.admin",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "CatalogItem",
+      "tenant_scope": "TENANT_OR_SYSTEM",
+      "select": [
+        "id",
+        "tenant_id",
+        "type_id",
+        "version_group_id",
+        "version",
+        "code",
+        "name",
+        "name_en",
+        "description",
+        "sort_order",
+        "status",
+        "valid_from",
+        "valid_to",
+        "supersedes_item_id",
+        "created_at",
+        "updated_at",
+        "attributes",
+        "created_by",
+        "updated_by"
+      ],
+      "filters": [
+        {
+          "field": "type_id",
+          "op": "EQ",
+          "param": "type_id",
+          "required": true
+        },
+        {
+          "field": "status",
+          "op": "EQ",
+          "param": "status"
+        },
+        {
+          "field": "valid_from",
+          "op": "EFFECTIVE_AT",
+          "param": "as_of",
+          "required": true
+        }
+      ],
+      "search": [
+        {
+          "param": "q",
+          "fields": [
+            "code",
+            "name"
+          ]
+        }
+      ],
+      "exists": [
+        {
+          "entity": "CatalogItemEdge",
+          "local_field": "id",
+          "remote_field": "child_item_id",
+          "filter_field": "parent_item_id",
+          "param": "parent_id",
+          "effective_param": "as_of",
+          "status": "ACTIVE",
+          "tenant_scope": "TENANT_OR_SYSTEM"
+        },
+        {
+          "entity": "CatalogItemEdge",
+          "local_field": "id",
+          "remote_field": "child_item_id",
+          "filter_field": "relation_type",
+          "param": "relation_type",
+          "effective_param": "as_of",
+          "status": "ACTIVE",
+          "tenant_scope": "TENANT_OR_SYSTEM"
+        }
+      ],
+      "sort": [
+        {
+          "field": "code",
+          "direction": "ASC"
+        },
+        {
+          "field": "version",
+          "direction": "DESC"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 200,
+        "defaultSize": 50
+      },
+      "maxRows": 200
+    },
+    {
+      "id": "catalog.items.merged.options",
+      "mode": "READ",
+      "operation": "MERGED_LIST",
+      "entity": "CatalogItem",
+      "tenant_scope": "TENANT_OR_SYSTEM",
+      "merge_key": "code",
+      "select": [
+        "id",
+        "tenant_id",
+        "type_id",
+        "version_group_id",
+        "version",
+        "code",
+        "name",
+        "name_en",
+        "description",
+        "sort_order",
+        "status",
+        "valid_from",
+        "valid_to",
+        "supersedes_item_id",
+        "created_at",
+        "updated_at",
+        "attributes",
+        "created_by",
+        "updated_by"
+      ],
+      "filters": [
+        {
+          "field": "type_id",
+          "op": "EQ",
+          "param": "type_id",
+          "required": true
+        },
+        {
+          "field": "valid_from",
+          "op": "EFFECTIVE_AT",
+          "param": "as_of",
+          "required": true
+        }
+      ],
+      "search": [
+        {
+          "param": "q",
+          "fields": [
+            "code",
+            "name"
+          ]
+        }
+      ],
+      "exists": [
+        {
+          "entity": "CatalogItemEdge",
+          "local_field": "id",
+          "remote_field": "child_item_id",
+          "filter_field": "parent_item_id",
+          "param": "parent_id",
+          "effective_param": "as_of",
+          "status": "ACTIVE",
+          "tenant_scope": "TENANT_OR_SYSTEM"
+        }
+      ],
+      "post_filters": [
+        {
+          "field": "status",
+          "op": "EQ",
+          "value": "ACTIVE"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 100,
+        "defaultSize": 20
+      },
+      "maxRows": 100
+    },
+    {
+      "id": "catalog.items.system.codes",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "CatalogItem",
+      "tenant_scope": "TENANT_OR_SYSTEM",
+      "select": [
+        "code"
+      ],
+      "filters": [
+        {
+          "field": "type_id",
+          "op": "EQ",
+          "param": "type_id",
+          "required": true
+        },
+        {
+          "field": "code",
+          "op": "IN",
+          "param": "codes",
+          "required": true
+        },
+        {
+          "field": "tenant_id",
+          "op": "IS_NULL"
+        },
+        {
+          "field": "valid_from",
+          "op": "EFFECTIVE_AT",
+          "param": "as_of",
+          "required": true
+        },
+        {
+          "field": "status",
+          "op": "EQ",
+          "param": "status",
+          "required": true
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 1000,
+        "defaultSize": 1000
+      },
+      "maxRows": 1000
     }
   ]
 }

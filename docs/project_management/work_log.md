@@ -2,6 +2,16 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-27 — TASK-402 P3: catalog read path qua gRPC + Redis cache do plugin quản lý
+
+- **SDK**: `plugins/sdk` thêm proto/stub gRPC (`PluginDataClient`, `PluginQueryResult`), deadline, service token; mTLS đọc từ PEM khi gateway URL `https`.
+- **Core DSL**: thêm `MERGED_LIST` (tenant/system merge, tenant thắng kể cả INACTIVE, post-filter), `exists` filter (parent/relation), `post_filters`; array/temporal trả ISO từ executor.
+- **Manifest/seed**: 22 descriptors; `V5.0.3__catalog_read_descriptors.sql` cập nhật `plugin_versions.entities/manifest`; DSL có `distinct` cho tập parent ids.
+- **Catalog read**: `CatalogGateway` map row → entity; guard, types, grants, item list/get/versions/parents, lookup types/options/resolve/path, edges đọc qua gateway. `descendants` recursive và export tạm giữ DB.
+- **Cache**: `CatalogCache` plugin-owned namespace `plugin:catalog:{tenant}:g{gen}:{key}`, TTL 60s, fail-open; generation tăng bởi `CatalogCacheInvalidationFilter` sau write. Không core nào biết key catalog.
+- **Runtime/compose**: `PluginLifecycleService` inject `PLUGIN_DATA_GATEWAY_URL`, `QUARKUS_REDIS_HOSTS`, `PLUGIN_SERVICE_TOKEN`; compose dev set gateway :9090 + Redis; `%dev` metadata fallback.
+- **Kiểm chứng**: tenant + system API 200; cache hit 358→59ms, 100→52ms; write type invalidates cache; web catalog 10 types/20 rows, mobile catalog overflow 0, 0 console error cả hai.
+
 ## 2026-10-27 — TASK-402 P2.1: catalog query descriptors
 
 - **Manifest**: `plugins/catalog/plugin.json` (+ resource copy) khai báo 18 query read-path (types/items/edges/grants), thêm public fields `attributes_schema`, `attributes`, `created_by`, `updated_by`.

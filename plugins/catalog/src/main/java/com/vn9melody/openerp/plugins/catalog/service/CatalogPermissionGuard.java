@@ -6,9 +6,8 @@ import com.vn9melody.openerp.plugin.sdk.runtime.UserContext;
 import com.vn9melody.openerp.plugin.sdk.api.ResponseKey;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogErrorCode;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogSupport;
+import com.vn9melody.openerp.plugins.catalog.gateway.CatalogGateway;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogTypeGrantRepository;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogTypeRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Map;
@@ -36,10 +35,7 @@ public class CatalogPermissionGuard {
     TenantContext tenantContext;
 
     @Inject
-    CatalogTypeRepository typeRepository;
-
-    @Inject
-    CatalogTypeGrantRepository grantRepository;
+    CatalogGateway gateway;
 
     /** Resolved security context of the caller (tenant users only). */
     public UserContext context() {
@@ -47,7 +43,7 @@ public class CatalogPermissionGuard {
     }
 
     public CatalogType requireVisibleType(UUID tenantId, String code) {
-        CatalogType type = typeRepository.findVisibleByCode(tenantId, code);
+        CatalogType type = gateway.visibleTypeByCode(tenantId, code);
         if (type == null) {
             throw CatalogSupport.notFound(CatalogErrorCode.CATALOG_TYPE_NOT_FOUND, ResponseKey.CODE.getKey(), code);
         }
@@ -80,7 +76,7 @@ public class CatalogPermissionGuard {
                 ResponseKey.CODE.getKey(), type.code);
         }
         UserContext context = context();
-        boolean allowed = grantRepository.listByTenantAndType(tenantId, type.id).stream()
+        boolean allowed = gateway.grantsByType(tenantId, type.id).stream()
             .filter(grant -> context.roleCodes().contains(grant.roleCode))
             .anyMatch(grant -> access == Access.WRITE ? grant.canWrite : grant.canRead);
         if (!allowed) {

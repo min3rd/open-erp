@@ -58,6 +58,11 @@ public final class ErrorCode {
 
     // General Validation & System
     public static final String VALIDATION_FAILED = "VALIDATION_FAILED";
+
+    // Plugin Data Gateway (SOL-S05-002)
+    public static final String PLUGIN_DATA_GATEWAY_UNAVAILABLE = "PLUGIN_DATA_GATEWAY_UNAVAILABLE";
+    public static final String PLUGIN_DATA_REQUEST_FAILED = "PLUGIN_DATA_REQUEST_FAILED";
+    public static final String PLUGIN_DATA_FORBIDDEN = "PLUGIN_DATA_FORBIDDEN";
     public static final String VALIDATION_REQUIRED = "VALIDATION_REQUIRED";
     public static final String VALIDATION_EMAIL = "VALIDATION_EMAIL";
     public static final String VALIDATION_SIZE = "VALIDATION_SIZE";

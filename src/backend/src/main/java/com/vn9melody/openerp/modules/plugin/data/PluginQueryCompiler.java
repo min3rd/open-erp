@@ -38,19 +38,73 @@ public final class PluginQueryCompiler {
             case INSERT -> insert(manifest, query, params, schema, scope);
             case UPDATE -> update(manifest, query, params, schema, scope);
             case DELETE -> delete(manifest, query, params, schema, scope);
+            case MERGED_LIST -> mergedList(manifest, query, params, schema, scope);
         };
+    }
+
+    private CompiledQuery mergedList(PluginManifest manifest, PluginQueryDescriptor query,
+                                     Map<String, Value> params, String schema,
+                                     PluginQueryDescriptor.Scope scope) {
+        PluginManifest.Entity entity = manifest.requireEntity(query.entity());
+        String mergeKey = query.mergeKey();
+        if (mergeKey == null || mergeKey.isBlank() || !entity.fields().contains(mergeKey)) {
+            throw invalid(query, "MERGED_LIST requires a public merge_key");
+        }
+        if (!entity.fields().contains("tenant_id")) {
+            throw invalid(query, "MERGED_LIST requires a tenant-scoped entity");
+        }
+        if (!query.joins().isEmpty()) {
+            throw invalid(query, "MERGED_LIST does not support joins");
+        }
+        PluginQueryDescriptor.Scope mergeScope = scope == PluginQueryDescriptor.Scope.SYSTEM
+                ? PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM
+                : scope;
+        Source source = source(manifest, query, entity, schema, mergeScope, params, false);
+        String innerWhere = source.where.isEmpty() ? "" : " WHERE " + String.join(" AND ", source.where);
+        String inner = "SELECT DISTINCT ON (t." + quote(mergeKey) + ") t.*"
+                + source.from + innerWhere
+                + " ORDER BY t." + quote(mergeKey) + " ASC,"
+                + " (t." + quote("tenant_id") + " IS NULL) ASC";
+
+        List<String> post = new ArrayList<>();
+        List<Object> postParams = new ArrayList<>();
+        for (PluginQueryDescriptor.PostFilter filter : query.postFilters()) {
+            post.add(postPredicate("merged", entity, query, filter));
+        }
+        for (PluginQueryDescriptor.Exists exists : query.exists()) {
+            String predicate = existsPredicate("merged", manifest, query, exists, params, postParams, schema);
+            if (predicate != null) {
+                post.add(predicate);
+            }
+        }
+        String outerWhere = post.isEmpty() ? "" : " WHERE " + String.join(" AND ", post);
+
+        PageSlice slice = pageSlice(query, params);
+        List<Object> sqlParams = new ArrayList<>(source.params);
+        sqlParams.addAll(postParams);
+        sqlParams.add(slice.size());
+        sqlParams.add(slice.offset());
+        String sql = "SELECT " + plainSelectList("merged", entity, query)
+                + " FROM (" + inner + ") merged" + outerWhere
+                + " ORDER BY merged." + quote(mergeKey) + " ASC LIMIT ? OFFSET ?";
+
+        List<Object> countParams = new ArrayList<>(source.params);
+        countParams.addAll(postParams);
+        String countSql = "SELECT count(*) AS \"total\" FROM (" + inner + ") merged" + outerWhere;
+        return new CompiledQuery(sql, sqlParams, countSql, countParams);
     }
 
     private CompiledQuery list(PluginManifest manifest, PluginQueryDescriptor query,
                                Map<String, Value> params, String schema,
                                PluginQueryDescriptor.Scope scope) {
         PluginManifest.Entity entity = manifest.requireEntity(query.entity());
-        Source source = source(manifest, query, entity, schema, scope, params);
+        Source source = source(manifest, query, entity, schema, scope, params, true);
         String where = source.where.isEmpty() ? "" : " WHERE " + String.join(" AND ", source.where);
 
         List<Object> sqlParams = new ArrayList<>(source.params);
-        StringBuilder sql = new StringBuilder("SELECT ").append(selectList(entity, query))
-                .append(source.from).append(where);
+        String select = selectList(entity, query);
+        StringBuilder sql = new StringBuilder(query.distinct() ? "SELECT DISTINCT " : "SELECT ")
+                .append(select).append(source.from).append(where);
 
         if (!query.sort().isEmpty()) {
             List<String> order = new ArrayList<>();
@@ -59,21 +113,19 @@ public final class PluginQueryCompiler {
                 order.add("t." + quote(sort.field()) + " " + direction(sort.direction()));
             }
             sql.append(" ORDER BY ").append(String.join(", ", order));
-        } else {
+        } else if (!query.distinct()) {
             sql.append(" ORDER BY t.").append(quote(primaryKey(entity))).append(" ASC");
         }
 
-        PluginQueryDescriptor.Page page = query.page();
-        int defaultSize = page != null ? page.defaultSize() : 20;
-        int maxSize = query.maxRows() > 0 ? query.maxRows() : (page != null ? page.maxSize() : 100);
-        int size = page != null ? intParam(params, page.sizeParam(), defaultSize) : defaultSize;
-        size = Math.max(1, Math.min(size, Math.max(1, maxSize)));
-        int pageNumber = page != null ? Math.max(1, intParam(params, page.pageParam(), 1)) : 1;
+        PageSlice slice = pageSlice(query, params);
         sql.append(" LIMIT ? OFFSET ?");
-        sqlParams.add(size);
-        sqlParams.add((pageNumber - 1) * size);
+        sqlParams.add(slice.size());
+        sqlParams.add(slice.offset());
 
-        String countSql = "SELECT count(*) AS \"total\"" + source.from + where;
+        String countSql = query.distinct()
+                ? "SELECT count(*) AS \"total\" FROM (SELECT DISTINCT " + select
+                        + source.from + where + ") d"
+                : "SELECT count(*) AS \"total\"" + source.from + where;
         return new CompiledQuery(sql.toString(), sqlParams, countSql, new ArrayList<>(source.params));
     }
 
@@ -81,7 +133,7 @@ public final class PluginQueryCompiler {
                               Map<String, Value> params, String schema,
                               PluginQueryDescriptor.Scope scope) {
         PluginManifest.Entity entity = manifest.requireEntity(query.entity());
-        Source source = source(manifest, query, entity, schema, scope, params);
+        Source source = source(manifest, query, entity, schema, scope, params, true);
         String where = source.where.isEmpty() ? "" : " WHERE " + String.join(" AND ", source.where);
         String sql = "SELECT " + selectList(entity, query) + source.from + where + " LIMIT 1";
         return new CompiledQuery(sql, new ArrayList<>(source.params), null, List.of());
@@ -142,7 +194,7 @@ public final class PluginQueryCompiler {
         if (query.filters().isEmpty()) {
             throw invalid(query, "UPDATE descriptor must declare a filter");
         }
-        Source source = source(manifest, query, entity, schema, scope, params);
+        Source source = source(manifest, query, entity, schema, scope, params, true);
         List<String> assignments = new ArrayList<>();
         List<Object> values = new ArrayList<>();
         for (Map.Entry<String, String> entry : query.values().entrySet()) {
@@ -165,7 +217,7 @@ public final class PluginQueryCompiler {
         if (query.filters().isEmpty()) {
             throw invalid(query, "DELETE descriptor must declare a filter");
         }
-        Source source = source(manifest, query, entity, schema, scope, params);
+        Source source = source(manifest, query, entity, schema, scope, params, true);
         String where = source.where.isEmpty() ? "" : " WHERE " + String.join(" AND ", source.where);
         String sql = "DELETE FROM " + qualified(schema, entity.table()) + " t" + where
                 + " RETURNING " + String.join(", ", returning(entity, query));
@@ -174,10 +226,22 @@ public final class PluginQueryCompiler {
 
     private record Source(String from, List<String> where, List<Object> params) {}
 
+    private record PageSlice(int size, int offset) {}
+
+    private PageSlice pageSlice(PluginQueryDescriptor query, Map<String, Value> params) {
+        PluginQueryDescriptor.Page page = query.page();
+        int defaultSize = page != null ? page.defaultSize() : 20;
+        int maxSize = query.maxRows() > 0 ? query.maxRows() : (page != null ? page.maxSize() : 100);
+        int size = page != null ? intParam(params, page.sizeParam(), defaultSize) : defaultSize;
+        size = Math.max(1, Math.min(size, Math.max(1, maxSize)));
+        int pageNumber = page != null ? Math.max(1, intParam(params, page.pageParam(), 1)) : 1;
+        return new PageSlice(size, (pageNumber - 1) * size);
+    }
+
     private Source source(PluginManifest manifest, PluginQueryDescriptor query,
                           PluginManifest.Entity entity, String schema,
                           PluginQueryDescriptor.Scope scope,
-                          Map<String, Value> params) {
+                          Map<String, Value> params, boolean withExists) {
         StringBuilder from = new StringBuilder(" FROM ")
                 .append(qualified(schema, entity.table())).append(" t");
         List<String> where = new ArrayList<>();
@@ -336,6 +400,14 @@ public final class PluginQueryCompiler {
                 where.add("(" + String.join(" OR ", parts) + ")");
             }
         }
+        if (withExists) {
+            for (PluginQueryDescriptor.Exists exists : query.exists()) {
+                String predicate = existsPredicate("t", manifest, query, exists, params, values, schema);
+                if (predicate != null) {
+                    where.add(predicate);
+                }
+            }
+        }
         return new Source(from.toString(), where, values);
     }
 
@@ -358,6 +430,87 @@ public final class PluginQueryCompiler {
             throw invalid(query, "no selectable fields");
         }
         return String.join(", ", columns);
+    }
+
+    private String plainSelectList(String alias, PluginManifest.Entity entity,
+                                   PluginQueryDescriptor query) {
+        List<String> columns = new ArrayList<>();
+        List<String> fields = query.select().isEmpty() ? List.copyOf(entity.fields()) : query.select();
+        for (String field : fields) {
+            requireField(entity, query, field);
+            columns.add(alias + "." + quote(field) + " AS " + quote(field));
+        }
+        if (columns.isEmpty()) {
+            throw invalid(query, "no selectable fields");
+        }
+        return String.join(", ", columns);
+    }
+
+    private String existsPredicate(String alias, PluginManifest manifest,
+                                   PluginQueryDescriptor query, PluginQueryDescriptor.Exists exists,
+                                   Map<String, Value> params, List<Object> values, String schema) {
+        Value value = params.get(exists.param());
+        if (value == null || value.hasNullValue()
+                || value.getKindCase() == Value.KindCase.KIND_NOT_SET) {
+            return null;
+        }
+        PluginManifest.Entity target = manifest.entities().get(exists.entity());
+        if (target == null) {
+            throw invalid(query, "unknown exists entity " + exists.entity());
+        }
+        if (!target.fields().contains(exists.remoteField())
+                || !target.fields().contains(exists.filterField())) {
+            throw invalid(query, "exists field is not public on " + exists.entity());
+        }
+        StringBuilder sql = new StringBuilder("EXISTS (SELECT 1 FROM ")
+                .append(qualified(schema, target.table())).append(" e WHERE e.")
+                .append(quote(exists.remoteField())).append(" = ")
+                .append(alias).append('.').append(quote(exists.localField()))
+                .append(" AND e.").append(quote(exists.filterField())).append(" = ?");
+        values.add(toJava(value));
+        if (exists.effectiveParam() != null) {
+            Value effective = params.get(exists.effectiveParam());
+            if (effective == null || effective.hasNullValue()
+                    || effective.getKindCase() == Value.KindCase.KIND_NOT_SET) {
+                throw missing(query, exists.effectiveParam());
+            }
+            Object at = toJava(effective);
+            sql.append(" AND e.").append(quote("valid_from")).append(" <= ?")
+                    .append(" AND (e.").append(quote("valid_to")).append(" IS NULL OR e.")
+                    .append(quote("valid_to")).append(" > ?)");
+            values.add(at);
+            values.add(at);
+        }
+        if (exists.status() != null) {
+            sql.append(" AND e.").append(quote("status")).append(" = ").append(literal(exists.status()));
+        }
+        if (exists.tenantScope() != PluginQueryDescriptor.Scope.SYSTEM) {
+            sql.append(" AND ").append(tenantPredicate("e", exists.tenantScope()));
+        }
+        return sql.append(")").toString();
+    }
+
+    private String postPredicate(String alias, PluginManifest.Entity entity,
+                                 PluginQueryDescriptor query, PluginQueryDescriptor.PostFilter filter) {
+        requireField(entity, query, filter.field());
+        String column = alias + "." + quote(filter.field());
+        return switch (filter.op()) {
+            case "EQ" -> column + " = " + literal(filter.value());
+            case "NE" -> column + " <> " + literal(filter.value());
+            case "IS_NULL" -> column + " IS NULL";
+            case "IS_NOT_NULL" -> column + " IS NOT NULL";
+            default -> throw invalid(query, "unsupported post filter operator " + filter.op());
+        };
+    }
+
+    private static String literal(String value) {
+        if ("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value)) {
+            return value.toLowerCase();
+        }
+        if (value.matches("-?\\d+(\\.\\d+)?")) {
+            return value;
+        }
+        return "'" + value.replace("'", "''") + "'";
     }
 
     private List<String> returning(PluginManifest.Entity entity, PluginQueryDescriptor query) {

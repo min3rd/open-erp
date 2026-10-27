@@ -43,6 +43,7 @@ open-erp-sales/
 
 > **DB/security do core quản trị**: core deployer cấp `QUARKUS_DATASOURCE_*`, schema và Flyway runtime qua env. Plugin **không** khai báo URL/user/password trong `application.properties`. `plugin.json` khai báo `entities[].storage_scope` (`TENANT`/`CORE`), `relations` (core/plugin khác), `repositories`, `apis`, `websockets`. Migration DDL vẫn nằm trong plugin (`db/plugin-migration`) và chạy trong schema riêng của tenant; không tạo bảng trong `public`.
 > **Quyền**: đăng ký mã `domain:resource:action` trong `plugin.json`; khi cài, TENANT_OWNER nhận quyền tự động.
+> **Read path P3 (2026-10-27)**: plugin đọc qua `PluginDataClient` bằng `queries` descriptor trong `plugin.json` (không gửi SQL); cache Redis do **plugin tự quản lý** với namespace riêng, TTL ngắn và generation invalidation sau write. Write path vẫn DB cho đến P4; xem [TASK-402](../sprints/sprint_05_catalog_plugin/07_items/TASK-402_plugin_data_gateway_grpc.md).
 
 ---
 

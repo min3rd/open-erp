@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-402 / Task / Sprint 05 |
-| Severity / trạng thái | High / **In Progress** — P1/P2/P2.1 done, P3 next |
+| Severity / trạng thái | High / **In Progress** — P1/P2/P2.1/P3 hot read paths done; P4 writes next |
 | Owner / reviewer | Developer / Architect |
 | depends_on / blocks | TASK-401, SOL-S05-002 / QA TASK-398 |
 | Write scope | `plugins/sdk/**`, `plugins/catalog/**`, `src/backend/src/main/java/**/plugin/**`, `docker-compose.yml`, `deployments/k8s/**` |
@@ -17,7 +17,8 @@ Chuyển toàn bộ đọc/ghi DB của catalog sang core gRPC data gateway; plu
 - [x] **P1 (core)**: proto `PluginDataService`, core gRPC server `:9090`, service identity + token ngắn hạn (`PLUGIN_SERVICE`), Ping/Execute/ExecuteBatch; mTLS dev/prod **còn pending**.
 - [x] **P2 (core)**: descriptor registry + query DSL compiler + tenant-scoped executor + migration bundle executor (checksum/history); test PostgreSQL thật PASS.
 - [x] **P2.1**: khai báo 18 `queries` read-path cho catalog trong manifest + migration seed `plugin_versions.manifest` (V5.0.2); compiler hỗ trợ `TENANT_OR_SYSTEM`, `SYSTEM`, `EFFECTIVE_AT`, multi-field `search`.
-- [ ] **P3**: SDK client + read path catalog + Redis cache namespace do plugin quản lý.
+- [x] **P3**: SDK client + read path catalog + Redis cache namespace do plugin quản lý. Hot paths (types, admin items, lookup options/resolve/path, edges, grants) qua gRPC; `descendants`/export tạm giữ DB.
+- [ ] **P3.1**: `descendants` recursive + export read qua gateway (cần `TREE`/bulk descriptor).
 - [ ] **P4**: write path + `ExecuteBatch` + idempotency + outbox.
 - [ ] **P5**: system scope identity/port riêng; xoá DB env khỏi plugin.
 - [ ] **P6**: RabbitMQ event/command (khi cần).
@@ -39,6 +40,15 @@ Chuyển toàn bộ đọc/ghi DB của catalog sang core gRPC data gateway; plu
   - `PluginQueryCompiler`: thêm `tenant_scope` (`TENANT`, `TENANT_OR_SYSTEM`, `SYSTEM`), filter `EFFECTIVE_AT` (`valid_from <= ? AND (valid_to IS NULL OR valid_to > ?)`), multi-field `search` (OR ILIKE).
   - Core migration `V5.0.2__catalog_query_descriptors.sql`: cập nhật `plugin_versions.entities` + `manifest.entities/queries` cho `catalog@1.0.0`.
   - Test: `CatalogQueryDescriptorManifestTest` PASS (18 queries load/validate); `PluginDataGatewayTest` 11/11 PASS.
+- **2026-10-27 — P3 SDK + read path + Redis cache**:
+  - `plugin-sdk`: thêm `PluginDataClient` (gRPC, deadline, service token/mTLS optional), `PluginQueryResult`; generated proto stubs từ `plugins/sdk/src/main/proto`.
+  - Core DSL: `MERGED_LIST` (tenant/system merge, tenant thắng, post-filter), `exists` filter (parent/relation guard), `post_filters`; executor trả array/temporal ISO chuẩn.
+  - Manifest: thêm `catalog.items.admin`, `catalog.items.merged.options`, `catalog.items.system.codes`, `catalog.edges.parents.with.children`; migration `V5.0.3__catalog_read_descriptors.sql` (22 descriptors); DSL thêm `distinct`.
+  - Catalog: `CatalogGateway` map row → entity; `CatalogPermissionGuard`, type list/grants, item list/get/versions/parents, lookup types/options/resolve/path, edges/grant reads chuyển sang gateway.
+  - Redis cache do **plugin** quản lý: `CatalogCache` namespace `plugin:catalog:{tenant}:g{generation}:{key}`, TTL 60s, fail-open; `CatalogCacheInvalidationFilter` tăng generation sau mọi write thành công.
+  - Runtime: `PluginLifecycleService` inject `PLUGIN_DATA_GATEWAY_URL`, `QUARKUS_REDIS_HOSTS`, `PLUGIN_SERVICE_TOKEN` (7 ngày) vào container; compose dev set gateway/Redis; `%dev` cho phép metadata fallback (không dùng ở prod).
+  - Kiểm chứng: API tenant types/lookup PROVINCE/COMMUNE options/items 200; cache hit 358ms → 59ms và 100ms → 52ms; system catalog types/items 200; write type invalidates cache; web + mobile catalog 0 console error, mobile overflow 0.
+  - Còn: `descendants` recursive + export vẫn DB; write path P4; mTLS P5.
 
 ## 4. Tiêu chí nghiệm thu
 
@@ -58,3 +68,4 @@ Chuyển toàn bộ đọc/ghi DB của catalog sang core gRPC data gateway; plu
 | 0.1 | 2026-10-27 | Tạo task sau khi SOL-S05-002 được Approved | Chủ dự án |
 | 0.2 | 2026-10-27 | P1/P2 core done: proto, identity/token, registry, compiler, executor, migration executor, test PASS | Developer Agent |
 | 0.3 | 2026-10-27 | P2.1 done: 18 catalog query descriptors, V5.0.2 seed, tenant scope/effective/search compiler support | Developer Agent |
+| 0.4 | 2026-10-27 | P3 done: SDK client, merged/exists DSL, read paths via gRPC, plugin-owned Redis cache + invalidation, compose/runtime env; web/mobile smoke PASS | Developer Agent |

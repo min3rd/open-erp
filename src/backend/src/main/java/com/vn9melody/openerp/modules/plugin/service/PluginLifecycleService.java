@@ -12,6 +12,7 @@ import com.vn9melody.openerp.core.enums.PlatformAction;
 import com.vn9melody.openerp.core.enums.PluginReleaseStatus;
 import com.vn9melody.openerp.core.enums.PluginVisibility;
 import com.vn9melody.openerp.core.enums.TenantPluginStatus;
+import com.vn9melody.openerp.core.security.JwtTokenService;
 import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
 import com.vn9melody.openerp.modules.plugin.api.PluginResponseKey;
 import com.vn9melody.openerp.modules.plugin.artifact.PluginImageBuilder;
@@ -94,6 +95,21 @@ public class PluginLifecycleService {
 
     @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.runtime.scope", defaultValue = "tenant")
     String runtimeScope;
+
+    @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.runtime.gateway-url",
+            defaultValue = "http://backend-dev:9090")
+    String runtimeGatewayUrl;
+
+    @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.runtime.redis-hosts",
+            defaultValue = "redis://:openerp_redis_password@redis:6379")
+    String runtimeRedisHosts;
+
+    @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.data.service-token-hours",
+            defaultValue = "168")
+    long serviceTokenHours;
+
+    @Inject
+    JwtTokenService jwtTokenService;
 
     @Inject
     TenantDatasourceService datasourceService;
@@ -769,6 +785,11 @@ public class PluginLifecycleService {
         env.put("QUARKUS_FLYWAY_CREATE_SCHEMAS", "true");
         env.put("PLUGIN_FANOUT_TOKEN", fanoutToken);
         env.put("PLUGIN_SCOPE", runtimeScope);
+        env.put("PLUGIN_DATA_GATEWAY_URL", runtimeGatewayUrl);
+        env.put("QUARKUS_REDIS_HOSTS", runtimeRedisHosts);
+        String scope = "platform".equalsIgnoreCase(runtimeScope) ? "SYSTEM" : "TENANT";
+        env.put("PLUGIN_SERVICE_TOKEN", jwtTokenService.generatePluginServiceToken(
+                tenantId, pluginKey, scope, java.time.Duration.ofHours(Math.max(1, serviceTokenHours))));
         return env;
     }
 

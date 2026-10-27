@@ -1,8 +1,10 @@
 package com.vn9melody.openerp.plugins.catalog.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.vn9melody.openerp.plugin.sdk.api.ApiException;
 import com.vn9melody.openerp.plugin.sdk.api.ErrorCode;
 import com.vn9melody.openerp.plugin.sdk.api.PagedData;
+import com.vn9melody.openerp.plugins.catalog.cache.CatalogCache;
 import com.vn9melody.openerp.plugins.catalog.service.AuditTrail;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogHierarchyMode;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogStatus;
@@ -15,12 +17,11 @@ import com.vn9melody.openerp.plugins.catalog.dto.CatalogLookupDtos.InlineCreateR
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogLookupDtos.LookupTypeResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogLookupDtos.OptionResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogLookupDtos.ResolveRequest;
+import com.vn9melody.openerp.plugins.catalog.gateway.CatalogGateway;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogItem;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogItemEdge;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogItemEdgeRepository;
 import com.vn9melody.openerp.plugins.catalog.repository.CatalogItemRepository;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogTypeRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -48,13 +49,13 @@ public class CatalogLookupService {
     private static final int MAX_PATH_DEPTH = 32;
 
     @Inject
-    CatalogTypeRepository typeRepository;
-
-    @Inject
     CatalogItemRepository itemRepository;
 
     @Inject
-    CatalogItemEdgeRepository edgeRepository;
+    CatalogGateway gateway;
+
+    @Inject
+    CatalogCache cache;
 
     @Inject
     CatalogPermissionGuard guard;
@@ -64,8 +65,14 @@ public class CatalogLookupService {
 
     /** Types usable by the form renderer: tenant override wins per code (DES-API section 5.1). */
     public List<LookupTypeResponse> types(UUID tenantId) {
+        return cache.getOrLoad(tenantId, "lookup:types",
+                new TypeReference<List<LookupTypeResponse>>() {},
+                () -> loadTypes(tenantId));
+    }
+
+    private List<LookupTypeResponse> loadTypes(UUID tenantId) {
         Map<String, CatalogType> byCode = new TreeMap<>();
-        for (CatalogType type : typeRepository.listVisible(tenantId)) {
+        for (CatalogType type : gateway.visibleTypes(tenantId)) {
             if (type.status != CatalogStatus.ACTIVE) {
                 continue;
             }
@@ -81,22 +88,26 @@ public class CatalogLookupService {
     public PagedData<OptionResponse> options(UUID tenantId, String typeCode, String q, String parentIdText,
                                              String asOfText, int page, int size) {
         CatalogType type = guard.requireVisibleType(tenantId, typeCode);
-        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
-        UUID parentId = CatalogSupport.parseUuid(parentIdText, "parent_id");
         int resolvedPage = CatalogSupport.page(page);
         int resolvedSize = CatalogSupport.size(size);
-        int offset = resolvedPage * resolvedSize;
+        String key = "lookup:options:" + CatalogCache.hash(typeCode, q, parentIdText, asOfText,
+                resolvedPage, resolvedSize);
+        return cache.getOrLoad(tenantId, key, new TypeReference<PagedData<OptionResponse>>() {},
+                () -> loadOptions(tenantId, type, q, parentIdText, asOfText, resolvedPage, resolvedSize));
+    }
 
-        List<CatalogItem> items = itemRepository.findMergedOptions(typeCode, tenantId, asOf, q, parentId,
-            offset, resolvedSize);
-        long total = itemRepository.countMergedOptions(typeCode, tenantId, asOf, q, parentId);
-        return PagedData.of(enrich(items, type, tenantId, asOf), resolvedPage, resolvedSize, total);
+    private PagedData<OptionResponse> loadOptions(UUID tenantId, CatalogType type, String q, String parentIdText,
+                                                  String asOfText, int page, int size) {
+        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
+        UUID parentId = CatalogSupport.parseUuid(parentIdText, "parent_id");
+        CatalogGateway.Page<CatalogItem> merged = gateway.mergedOptions(tenantId, type.id, asOf, q, parentId,
+                page, size);
+        return PagedData.of(enrich(merged.items(), type, tenantId, asOf), page, size, merged.total());
     }
 
     /** Batch resolve of stored form values; no N+1. */
     public List<OptionResponse> resolve(UUID tenantId, String typeCode, ResolveRequest request, String asOfText) {
         CatalogType type = guard.requireVisibleType(tenantId, typeCode);
-        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
         List<UUID> ids = new ArrayList<>();
         if (request != null && request.ids() != null) {
             for (String raw : request.ids()) {
@@ -109,16 +120,17 @@ public class CatalogLookupService {
         if (ids.isEmpty()) {
             return List.of();
         }
-        List<CatalogItem> items = itemRepository.listVisibleByIds(tenantId, ids);
-        Set<UUID> typeIds = new LinkedHashSet<>(items.stream().map(item -> item.typeId).toList());
-        Map<UUID, String> typeCodes = new HashMap<>();
-        for (CatalogType row : typeRepository.list("id in ?1", typeIds)) {
-            typeCodes.put(row.id, row.code);
-        }
-        List<CatalogItem> filtered = items.stream()
-            .filter(item -> typeCode.equals(typeCodes.get(item.typeId)))
-            .toList();
-        return enrich(filtered, type, tenantId, asOf);
+        List<UUID> sorted = ids.stream().distinct().sorted().toList();
+        String key = "lookup:resolve:" + CatalogCache.hash(typeCode, sorted, asOfText);
+        return cache.getOrLoad(tenantId, key, new TypeReference<List<OptionResponse>>() {},
+                () -> {
+                    Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
+                    List<CatalogItem> items = gateway.itemsByIds(tenantId, sorted);
+                    List<CatalogItem> filtered = items.stream()
+                            .filter(item -> type.id.equals(item.typeId))
+                            .toList();
+                    return enrich(filtered, type, tenantId, asOf);
+                });
     }
 
     /** Ancestor breadcrumb of one item, root first and ending with the item itself. */
@@ -128,9 +140,15 @@ public class CatalogLookupService {
         if (itemId == null) {
             throw CatalogSupport.validation(ResponseKey.ID.getKey(), ErrorCode.VALIDATION_REQUIRED, Map.of());
         }
-        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
+        String key = "lookup:path:" + CatalogCache.hash(typeCode, itemId, asOfText);
+        return cache.getOrLoad(tenantId, key, new TypeReference<List<OptionResponse>>() {},
+                () -> loadPath(tenantId, type, itemId, asOfText));
+    }
+
+    private List<OptionResponse> loadPath(UUID tenantId, CatalogType type, UUID itemId, String asOfText) {
+        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
         CatalogItem item = requireVisibleItem(tenantId, itemId);
-        CatalogType itemType = typeRepository.findById(item.typeId);
+        CatalogType itemType = gateway.typeById(tenantId, item.typeId);
         if (itemType == null || !itemType.code.equals(type.code)) {
             throw CatalogSupport.notFound(CatalogErrorCode.CATALOG_ITEM_NOT_FOUND,
                 ResponseKey.ID.getKey(), itemId);
@@ -142,7 +160,7 @@ public class CatalogLookupService {
         CatalogItem current = item;
         int guardDepth = 0;
         while (current != null && guardDepth++ < MAX_PATH_DEPTH) {
-            List<CatalogItemEdge> edges = edgeRepository.listActiveByChild(current.id, tenantId, asOf);
+            List<CatalogItemEdge> edges = gateway.edgesByChild(tenantId, current.id, asOf);
             if (edges.isEmpty()) {
                 break;
             }
@@ -150,7 +168,7 @@ public class CatalogLookupService {
             if (!visited.add(parentId)) {
                 break;
             }
-            CatalogItem parent = itemRepository.findVisibleById(tenantId, parentId);
+            CatalogItem parent = gateway.itemById(tenantId, parentId);
             if (parent == null) {
                 break;
             }
@@ -214,12 +232,13 @@ public class CatalogLookupService {
         }
         List<UUID> ids = items.stream().map(item -> item.id).toList();
         Set<String> codes = new LinkedHashSet<>(items.stream().map(item -> item.code).toList());
-        Set<String> systemCodes = itemRepository.findSystemCodes(type.code, asOf, codes);
-        Set<UUID> withChildren = new HashSet<>(
-            edgeRepository.findParentIdsWithActiveChildren(ids, tenantId, asOf));
+        UUID systemTypeId = type.tenantId == null ? type.id : gateway.systemTypeId(type.code);
+        Set<String> systemCodes = systemTypeId == null ? Set.of()
+            : gateway.systemCodes(tenantId, systemTypeId, asOf, codes);
+        Set<UUID> withChildren = new HashSet<>(gateway.parentIdsWithChildren(tenantId, ids, asOf));
         Map<UUID, UUID> firstParent = new HashMap<>();
         if (type.hierarchyMode != CatalogHierarchyMode.FLAT) {
-            for (CatalogItemEdge edge : edgeRepository.listActiveByChildIds(ids, tenantId, asOf)) {
+            for (CatalogItemEdge edge : gateway.edgesByChildren(tenantId, ids, asOf)) {
                 firstParent.putIfAbsent(edge.childItemId, edge.parentItemId);
             }
         }
@@ -251,7 +270,7 @@ public class CatalogLookupService {
         Set<UUID> pending = new LinkedHashSet<>(known.keySet());
         int guardDepth = 0;
         while (!pending.isEmpty() && guardDepth++ < MAX_PATH_DEPTH) {
-            List<CatalogItemEdge> edges = edgeRepository.listActiveByChildIds(pending, tenantId, asOf);
+            List<CatalogItemEdge> edges = gateway.edgesByChildren(tenantId, pending, asOf);
             Set<UUID> missing = new LinkedHashSet<>();
             for (CatalogItemEdge edge : edges) {
                 parentsByChild.computeIfAbsent(edge.childItemId, key -> new ArrayList<>())
@@ -263,7 +282,7 @@ public class CatalogLookupService {
             if (missing.isEmpty()) {
                 break;
             }
-            for (CatalogItem parent : itemRepository.listVisibleByIds(tenantId, missing)) {
+            for (CatalogItem parent : gateway.itemsByIds(tenantId, missing)) {
                 known.put(parent.id, parent);
             }
             pending = missing;
@@ -299,7 +318,7 @@ public class CatalogLookupService {
     }
 
     private CatalogItem requireVisibleItem(UUID tenantId, UUID itemId) {
-        CatalogItem item = itemRepository.findVisibleById(tenantId, itemId);
+        CatalogItem item = gateway.itemById(tenantId, itemId);
         if (item == null) {
             throw CatalogSupport.notFound(CatalogErrorCode.CATALOG_ITEM_NOT_FOUND,
                 ResponseKey.ID.getKey(), itemId);

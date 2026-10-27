@@ -8,6 +8,7 @@ import com.vn9melody.openerp.modules.plugin.repository.PluginVersionRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jboss.logging.Logger;
@@ -83,6 +84,47 @@ public class PluginDescriptorRegistry {
             if (query.mode() == PluginQueryDescriptor.Mode.WRITE
                     && query.scope() == PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM) {
                 fail(query, "write descriptor cannot use TENANT_OR_SYSTEM");
+            }
+            if (query.operation() == PluginQueryDescriptor.Operation.MERGED_LIST) {
+                if (query.mode() != PluginQueryDescriptor.Mode.READ) {
+                    fail(query, "MERGED_LIST must be READ");
+                }
+                if (query.scope() != PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM) {
+                    fail(query, "MERGED_LIST requires TENANT_OR_SYSTEM");
+                }
+                if (query.mergeKey() == null || !entity.fields().contains(query.mergeKey())) {
+                    fail(query, "MERGED_LIST requires a public merge_key");
+                }
+                if (!query.joins().isEmpty()) {
+                    fail(query, "MERGED_LIST does not support joins");
+                }
+            } else if (!query.postFilters().isEmpty()) {
+                fail(query, "post_filters are only valid on MERGED_LIST");
+            }
+            if (query.distinct() && query.operation() != PluginQueryDescriptor.Operation.LIST) {
+                fail(query, "distinct is only valid on LIST");
+            }
+            for (PluginQueryDescriptor.PostFilter post : query.postFilters()) {
+                field(entity, query, post.field());
+                if (!List.of("EQ", "NE", "IS_NULL", "IS_NOT_NULL").contains(post.op())) {
+                    fail(query, "unsupported post filter operator " + post.op());
+                }
+            }
+            for (PluginQueryDescriptor.Exists exists : query.exists()) {
+                field(entity, query, exists.localField());
+                PluginManifest.Entity target = manifest.entities().get(exists.entity());
+                if (target == null) {
+                    fail(query, "unknown exists entity " + exists.entity());
+                }
+                field(target, query, exists.remoteField());
+                field(target, query, exists.filterField());
+                if (exists.effectiveParam() != null) {
+                    field(target, query, "valid_from");
+                    field(target, query, "valid_to");
+                }
+                if (exists.status() != null) {
+                    field(target, query, "status");
+                }
             }
             query.select().forEach(field -> field(entity, query, field));
             query.filters().forEach(filter -> field(entity, query, filter.field()));

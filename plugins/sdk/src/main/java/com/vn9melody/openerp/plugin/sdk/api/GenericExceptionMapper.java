@@ -5,12 +5,16 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import java.util.Map;
+import org.jboss.logging.Logger;
 
 @Provider
 public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 
+    private static final Logger LOG = Logger.getLogger(GenericExceptionMapper.class);
+
     @Override
     public Response toResponse(Throwable exception) {
+        LOG.error("Unhandled plugin exception", exception);
         ApiException error = new ApiException(500, ErrorCode.INTERNAL_ERROR,
             "Unexpected catalog plugin error", Map.of());
         return Response.status(500)

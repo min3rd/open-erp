@@ -16,6 +16,7 @@ import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.GrantResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeCreateRequest;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeUpdateRequest;
+import com.vn9melody.openerp.plugins.catalog.gateway.CatalogGateway;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogTypeGrant;
 import com.vn9melody.openerp.plugins.catalog.repository.CatalogTypeGrantRepository;
@@ -52,6 +53,9 @@ public class CatalogTypeService {
     CatalogTypeGrantRepository grantRepository;
 
     @Inject
+    CatalogGateway gateway;
+
+    @Inject
     CatalogPermissionGuard guard;
 
     @Inject
@@ -59,12 +63,12 @@ public class CatalogTypeService {
 
     /** Tenant view: system + own types (both rows; {@code is_system} distinguishes them). */
     public List<TypeResponse> list(UUID tenantId) {
-        return typeRepository.listVisible(tenantId).stream().map(CatalogTypeService::toResponse).toList();
+        return gateway.visibleTypes(tenantId).stream().map(CatalogTypeService::toResponse).toList();
     }
 
     /** Platform view: system types only. */
     public List<TypeResponse> listSystem() {
-        return typeRepository.list("tenantId is null order by code asc").stream()
+        return gateway.systemTypes().stream()
             .map(CatalogTypeService::toResponse).toList();
     }
 
@@ -114,7 +118,7 @@ public class CatalogTypeService {
 
     public List<GrantResponse> grants(UUID tenantId, String code) {
         CatalogType type = requireTenantManagedType(tenantId, code);
-        List<CatalogTypeGrant> grants = grantRepository.listByTenantAndType(tenantId, type.id);
+        List<CatalogTypeGrant> grants = gateway.grantsByType(tenantId, type.id);
         return grants.stream()
             .map(grant -> new GrantResponse(grant.id, grant.roleCode, grant.canRead, grant.canWrite))
             .toList();

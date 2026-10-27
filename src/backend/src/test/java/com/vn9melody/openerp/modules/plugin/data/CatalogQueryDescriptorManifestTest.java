@@ -22,7 +22,7 @@ public class CatalogQueryDescriptorManifestTest {
     void seededCatalogDescriptorsAreValid() {
         PluginManifest manifest = registry.manifest("catalog", "1.0.0");
 
-        assertEquals(18, manifest.queries().size());
+        assertEquals(22, manifest.queries().size());
         assertTrue(manifest.entities().get("CatalogType").fields().contains("attributes_schema"));
         assertTrue(manifest.entities().get("CatalogItem").fields().contains("attributes"));
 
@@ -34,8 +34,20 @@ public class CatalogQueryDescriptorManifestTest {
         assertNotNull(items.search());
         assertEquals(1, items.search().size());
 
+        PluginQueryDescriptor admin = manifest.requireQuery("catalog.items.admin");
+        assertEquals(2, admin.exists().size());
+        assertEquals(2, admin.sort().size());
+
+        PluginQueryDescriptor merged = manifest.requireQuery("catalog.items.merged.options");
+        assertEquals(PluginQueryDescriptor.Operation.MERGED_LIST, merged.operation());
+        assertEquals("code", merged.mergeKey());
+        assertEquals(1, merged.postFilters().size());
+
         PluginQueryDescriptor grants = manifest.requireQuery("catalog.grants.by.type");
         assertEquals(PluginQueryDescriptor.Scope.TENANT, grants.scope());
+
+        PluginQueryDescriptor systemCodes = manifest.requireQuery("catalog.items.system.codes");
+        assertEquals(PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM, systemCodes.scope());
 
         PluginQueryDescriptor systemItems = manifest.requireQuery("catalog.items.system.by.type");
         assertEquals(PluginQueryDescriptor.Scope.SYSTEM, systemItems.scope());
