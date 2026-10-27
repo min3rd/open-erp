@@ -20,3 +20,5 @@ mvn -f plugins/catalog/pom.xml quarkus:dev \
 ```
 
 Contract: mọi request từ core gateway mang `X-Tenant-Id`, `X-User-Id`, `X-User-Permissions`, `X-User-Roles`.
+
+> Lưu ý: native query dùng tên bảng không qualify, nên JDBC phải đặt `currentSchema=${DB_SCHEMA}` (đã cấu hình trong `application.properties`). `quarkus.hibernate-orm.database.default-schema` một mình không đủ cho native SQL.

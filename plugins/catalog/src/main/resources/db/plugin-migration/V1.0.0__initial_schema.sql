@@ -1,6 +1,11 @@
 -- Catalog plugin schema (runs inside DB_SCHEMA = tenant_<short>_catalog).
 -- No FK to core tables: tenant_id is a soft discriminator (NULL = system row),
 -- role_code references core roles by code. ADR-S05-001 A4/A5/A13.
+-- Extensions are normally installed by the platform prerequisite migration;
+-- the IF NOT EXISTS calls are a no-op when the plugin role can see them.
+
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE TABLE IF NOT EXISTS catalog_types (
     id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -107,7 +112,7 @@ CREATE INDEX IF NOT EXISTS idx_catalog_edges_child  ON catalog_item_edges (child
 CREATE INDEX IF NOT EXISTS idx_catalog_edges_tenant ON catalog_item_edges (tenant_id, relation_type);
 CREATE INDEX IF NOT EXISTS idx_catalog_items_lookup ON catalog_items (tenant_id, type_id, code) WHERE valid_to IS NULL;
 CREATE INDEX IF NOT EXISTS idx_catalog_items_group  ON catalog_items (version_group_id, version DESC);
-CREATE INDEX IF NOT EXISTS idx_catalog_items_name_trgm ON catalog_items USING gin (name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_catalog_items_name_trgm ON catalog_items USING gin (name public.gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS idx_catalog_types_tenant ON catalog_types (tenant_id, status);
 CREATE INDEX IF NOT EXISTS idx_catalog_audit_tenant ON catalog_audit (tenant_id, created_at DESC);
 

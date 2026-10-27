@@ -29,6 +29,17 @@ Tạo Maven/Quarkus project độc lập `plugins/catalog`, chuyển mã backend
 - `grep` không còn import core trong plugin.
 - Core build không còn compile `modules/catalog` (sau TASK-395).
 
+## 3.1. Kiểm chứng P1 (2026-10-27)
+
+| Hạng mục | Kết quả | Bằng chứng |
+| :--- | :--- | :--- |
+| Compile/package standalone | ✅ PASS | `mvn -f plugins/catalog/pom.xml -DskipTests package` — 53 file, Quarkus augmentation PASS |
+| Flyway trên schema thật | ✅ PASS | PostgreSQL 16 dev; schema `tenant_test_catalog`, migration `1.0.0` |
+| Seed system catalog | ✅ PASS | 5 system types + 34 tỉnh + 3.321 xã/phường + 3.321 cạnh |
+| Seed tenant catalog | ✅ PASS | 5 tenant types + 10 grant (`TENANT_OWNER`, `TENANT_ADMIN`) |
+| Native SQL đúng schema | ✅ PASS | thêm `quarkus.datasource.jdbc.additional-jdbc-properties.currentSchema=${DB_SCHEMA}`; index trigram qualify `public.gin_trgm_ops` |
+| API/gateway + UI | ⏳ Chưa | P3/P4 |
+
 ## 4. Lịch sử
 
 | Phiên bản | Ngày | Thay đổi | Nguồn |

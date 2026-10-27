@@ -15,8 +15,8 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 
 - **Baseline**: commit `447a2f9` (docs) + working tree.
 - **Đã làm**: tạo standalone Quarkus project `plugins/catalog` (pom, plugin.json, application.properties, Dockerfile, README, migration V1.0.0, seed CSV); move 30 file backend khỏi `modules/catalog`; thay core contract bằng local (`ApiResponse`, `ApiException`, `TenantContext`, `PermissionEnforcementFilter`, `RequirePermission`, `AuditTrail`); bỏ `Role`/`RegisterEntity`; grants dùng `role_code`; thêm `CatalogTenantSeeder`; script `npm run plugin:catalog:build/test`.
-- **Kiểm chứng**: `mvn -f plugins/catalog/pom.xml -DskipTests compile` PASS (53 file); `... package` PASS (Quarkus augmentation 18.6s).
-- **Giới hạn**: chưa chạy migration trên PostgreSQL schema thật; chưa nối core lifecycle/gateway; UI iframe chưa làm; `catalog_audit` mới log, chưa ghi DB.
+- **Kiểm chứng**: `mvn -f plugins/catalog/pom.xml -DskipTests compile` PASS (53 file); `... package` PASS (Quarkus augmentation 18.6s); migration `1.0.0` apply sạch trên schema `tenant_test_catalog`; seed **5 system types + 34 tỉnh + 3.321 xã + 3.321 cạnh + 5 tenant types + 10 grant**.
+- **Giới hạn**: chưa chạy API qua gateway; chưa nối core lifecycle; UI iframe chưa làm; `catalog_audit` mới log, chưa ghi DB.
 
 ## 2026-10-05 — Sprint 03 đóng & khởi tạo tài liệu Sprint 04
 
