@@ -19,6 +19,21 @@ Quá trình này sẽ build:
 1. `Dockerfile.backend`: Multi-stage build Quarkus Java (JRE 21 Alpine).
 2. `Dockerfile.web`: Multi-stage build Angular 22 với Nginx Alpine.
 
+### 1.1. Môi trường dev chạy hoàn toàn bằng Docker
+
+Không chạy `java -jar`/`mvn quarkus:dev` trên terminal cho core hoặc plugin. Dùng:
+
+```bash
+npm run dev:docker        # build backend + catalog plugin, up backend-dev + plugin + bootstrap
+npm run dev:docker:logs   # log backend + plugin
+npm run dev:docker:down   # dừng
+```
+
+- `backend-dev`: core Quarkus tại `http://localhost:8088`, mount `/var/run/docker.sock` để deployer tạo container plugin.
+- `catalog-plugin-dev`: plugin catalog tĩnh cho tenant `minhvv` (dev shortcut; production dùng deployer).
+- `catalog-dev-bootstrap`: gắn `tenant_plugins.deploy_ref` của tenant dev vào container plugin.
+- Redis/PostgreSQL dùng chung `npm run infra`.
+
 ---
 
 ## 2. Triển Khai Môi Trường Staging

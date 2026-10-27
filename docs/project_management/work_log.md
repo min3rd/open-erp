@@ -27,6 +27,14 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 - **Test**: `EntityRegistryServiceTest` 2/2 PASS; `PluginLifecycleApiTest` 10/10 PASS (gồm locked uninstall).
 - **Giới hạn**: frontend vẫn gọi `/api/v1/catalog/**` (sẽ 404) cho đến P3/P4; chưa tạo DB role/container cho tenant cũ; fan-out chưa nối; test catalog cũ đã xoá, sẽ tái tạo trong plugin (TASK-398).
 
+## 2026-10-27 — Dev Docker cho core + catalog plugin
+
+- **Quy ước mới**: từ nay core/plugin dev chạy bằng Docker Compose, không chạy `java -jar`/`mvn quarkus:dev` trên terminal.
+- **Compose `dev` profile**: `backend-dev` (core :8088, mount Docker socket), `catalog-plugin-dev` (plugin tĩnh tenant `minhvv`, :18082), `catalog-dev-bootstrap` (gắn `deploy_ref`), dùng chung Postgres/Redis.
+- **Image**: `src/backend/Dockerfile` (Maven build + Docker CLI), `plugins/catalog/deploy/Dockerfile` (Maven build); `docker compose --profile dev build` PASS.
+- **Kiểm chứng**: cả 3 container Up; backend Flyway 5.0.0 up-to-date; plugin baseline 1.0.0 + seed idempotent; `GET :18082/api/v1/catalog/types` → 200; backend gọi `http://openerp-catalog-dev:8080/q/health/ready` → UP.
+- **Lệnh**: `npm run dev:docker`, `npm run dev:docker:logs`, `npm run dev:docker:down`.
+
 ## 2026-10-05 — Sprint 03 đóng & khởi tạo tài liệu Sprint 04
 
 - **Sprint 03 đóng**: [QA-03](../sprints/sprint_03_plugin_manager/08_testing/QA-03_qa_verification_2026-10-05.md) xác nhận 8/8 item PASS (backend PostgreSQL/Redis thật + browser headless 1280×900 & 390×844); 2 lỗi Medium do QA phát hiện đã sửa. Biên bản: [sprint_review](../sprints/sprint_03_plugin_manager/09_review/sprint_review.md) — `[x]` ĐÓNG, DoD PASS (theo chỉ đạo chủ dự án; không tạo chữ ký giả).

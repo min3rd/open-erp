@@ -706,9 +706,12 @@ public class PluginLifecycleService {
                     String tag = distribution.path("tag").asText(null);
                     yield tag == null || tag.isBlank() ? image : image + ":" + tag;
                 }
-                case IMAGE_REGISTRY -> distribution.path("registry_url").asText()
-                        + "/" + distribution.path("repository").asText()
-                        + ":" + distribution.path("tag").asText();
+                case IMAGE_REGISTRY -> {
+                    String registry = distribution.path("registry_url").asText("").trim();
+                    String repository = distribution.path("repository").asText();
+                    String tag = distribution.path("tag").asText();
+                    yield (registry.isEmpty() ? "" : registry + "/") + repository + ":" + tag;
+                }
                 case JAR_BUNDLE -> resolveBundleImage(pluginKey, version, distribution);
             };
         } catch (IllegalArgumentException e) {

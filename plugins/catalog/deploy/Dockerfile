@@ -1,14 +1,18 @@
-FROM eclipse-temurin:21-jdk-alpine AS build
-WORKDIR /workspace
-COPY . .
-RUN ./mvnw -q -DskipTests package 2>/dev/null || mvn -q -DskipTests package
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /build
+COPY pom.xml .
+RUN mvn -q -B dependency:go-offline || true
+COPY src/ src/
+RUN mvn -q -B package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /workspace/target/quarkus-app/lib/ /app/lib/
-COPY --from=build /workspace/target/quarkus-app/*.jar /app/
-COPY --from=build /workspace/target/quarkus-app/app/ /app/app/
-COPY --from=build /workspace/target/quarkus-app/quarkus/ /app/quarkus/
+RUN addgroup -S openerp && adduser -S openerp -G openerp
+COPY --from=build --chown=openerp:openerp /build/target/quarkus-app/lib/ /app/lib/
+COPY --from=build --chown=openerp:openerp /build/target/quarkus-app/*.jar /app/
+COPY --from=build --chown=openerp:openerp /build/target/quarkus-app/app/ /app/app/
+COPY --from=build --chown=openerp:openerp /build/target/quarkus-app/quarkus/ /app/quarkus/
+USER openerp
 EXPOSE 8080
 ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0"
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/quarkus-run.jar"]
