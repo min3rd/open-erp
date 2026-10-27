@@ -129,8 +129,16 @@ public class PluginRuntimeGatewayService {
 
     @SuppressWarnings("unchecked")
     private java.util.Set<String> stringSet(Object claim) {
+        if (claim instanceof jakarta.json.JsonString json) {
+            return java.util.Set.of(json.getString());
+        }
         if (claim instanceof java.util.Collection<?> values) {
-            return values.stream().map(String::valueOf).collect(java.util.stream.Collectors.toUnmodifiableSet());
+            return values.stream()
+                    .map(value -> value instanceof jakarta.json.JsonString json
+                            ? json.getString() : String.valueOf(value))
+                    .map(String::trim)
+                    .filter(item -> !item.isEmpty())
+                    .collect(java.util.stream.Collectors.toUnmodifiableSet());
         }
         if (claim instanceof String text && !text.isBlank()) {
             return java.util.Arrays.stream(text.split(","))
