@@ -2,6 +2,12 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-28 — FEAT-32: chốt cơ chế clone/sync system type
+
+- Chốt: clone tự động khi Lưu; clone cả metadata + item/edge; sync tất cả; preview xung đột với `OVERRIDE/SKIP/MERGE`; sync item/edge mới; platform sync hộ tenant.
+- Ghi quy tắc clone item/edge, `system_type_id`/`system_item_id`, trạng thái `CLONING/READY`, batch 500.
+- Chưa code: cần DES-DB/API/UI (conflict model, endpoint, drawer preview).
+
 ## 2026-10-28 — Backlog: sort, page size, fixed header/footer, tenant type clone
 
 - Tạo [BUG-146](../sprints/sprint_05_catalog_plugin/07_items/BUG-146_catalog_column_sort_missing.md) — sort cột bảng danh mục.
