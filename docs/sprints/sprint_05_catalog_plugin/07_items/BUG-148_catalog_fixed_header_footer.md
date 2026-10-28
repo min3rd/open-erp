@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-148 / Bug giao diện / Sprint 05 |
-| Mức độ / trạng thái | **Medium** / To Do (2026-10-28) |
+| Mức độ / trạng thái | **Medium** / Resolved (dev+QA) 2026-10-28 |
 | Phát hiện bởi / ngày | Chủ dự án / 2026-10-28 |
 | Owner / reviewer | Developer / QA |
 | Liên quan | `CatalogAdminComponent`, plugin iframe host, [BUG-141](BUG-141_catalog_host_layout_and_sizing.md) |
@@ -37,3 +37,4 @@ Khi danh sách dài, cuộn trang làm **header** (tiêu đề, nút Nhập/Xu�
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-28 | Tạo bug từ yêu cầu chủ dự án | Chủ dự án |
+| 0.2 | 2026-10-28 | Sticky header/pagination; QA scroll 400px: header top 0, footer bottom = viewport | Developer/QA |

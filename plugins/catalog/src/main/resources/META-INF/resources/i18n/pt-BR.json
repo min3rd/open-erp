@@ -249,6 +249,7 @@
   "COMMON_REFRESH": "Atualizar",
   "COMMON_NEXT_PAGE": "Próxima",
   "COMMON_PREV": "Anterior",
+  "COMMON_PAGE_SIZE": "Rows per page",
   "COMMON_PAGE_OF": "Página {page}/{total_pages}",
   "COMMON_TOTAL_ITEMS": "Total: {total} registros",
   "COMMON_NO_DATA": "Sem dados",

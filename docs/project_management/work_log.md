@@ -2,6 +2,13 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-28 — BUG-147/148: page size + sticky header/footer
+
+- `PaginationComponent`: thêm select `10/20/50/100`, emit `pageSizeChange`; i18n `COMMON_PAGE_SIZE` 13 locale web/mobile.
+- Catalog: đổi size reset trang 1, URL `/50/1/`; QA 50 → 34 dòng.
+- Sticky header + pagination: scroll 400px vẫn thấy header top 0, footer đáy viewport.
+- Còn [BUG-146](../sprints/sprint_05_catalog_plugin/07_items/BUG-146_catalog_column_sort_missing.md) sort cột + FEAT-32.
+
 ## 2026-10-28 — FEAT-32: chốt cơ chế clone/sync system type
 
 - Chốt: clone tự động khi Lưu; clone **toàn bộ cụm quan hệ** (connected component) gồm metadata + item/edge; sync tất cả; preview xung đột với `OVERRIDE/SKIP/MERGE`; sync item/edge mới; platform sync hộ tenant.

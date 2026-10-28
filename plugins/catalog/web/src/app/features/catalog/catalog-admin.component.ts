@@ -151,6 +151,7 @@ export class CatalogAdminComponent implements OnInit {
   readonly itemsError = signal<boolean>(false);
   readonly page = signal<number>(0);
   readonly size = signal<number>(20);
+  readonly pageSizeOptions = [10, 20, 50, 100];
   readonly totalItems = signal<number>(0);
   readonly totalPages = signal<number>(0);
   readonly q = signal<string>('');
@@ -553,6 +554,10 @@ export class CatalogAdminComponent implements OnInit {
 
   changePage(nextPage: number): void {
     this.syncState({ page: nextPage + 1 });
+  }
+
+  changePageSize(size: number): void {
+    this.syncState({ pageSize: size, page: 1 });
   }
 
   onSearchInput(value: string): void {

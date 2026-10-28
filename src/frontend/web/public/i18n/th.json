@@ -249,6 +249,7 @@
   "COMMON_REFRESH": "รีเฟรช",
   "COMMON_NEXT_PAGE": "ถัดไป",
   "COMMON_PREV": "ก่อนหน้า",
+  "COMMON_PAGE_SIZE": "Rows per page",
   "COMMON_PAGE_OF": "หน้า {page}/{total_pages}",
   "COMMON_TOTAL_ITEMS": "รวม: {total} รายการ",
   "COMMON_NO_DATA": "ไม่มีข้อมูล",

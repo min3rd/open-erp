@@ -249,6 +249,7 @@
   "COMMON_REFRESH": "Muat ulang",
   "COMMON_NEXT_PAGE": "Berikutnya",
   "COMMON_PREV": "Sebelumnya",
+  "COMMON_PAGE_SIZE": "Rows per page",
   "COMMON_PAGE_OF": "Halaman {page}/{total_pages}",
   "COMMON_TOTAL_ITEMS": "Total: {total} catatan",
   "COMMON_NO_DATA": "Tidak ada data",

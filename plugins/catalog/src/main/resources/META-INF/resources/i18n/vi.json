@@ -249,6 +249,7 @@
   "COMMON_REFRESH": "Làm mới",
   "COMMON_NEXT_PAGE": "Sau",
   "COMMON_PREV": "Trước",
+  "COMMON_PAGE_SIZE": "Số dòng/trang",
   "COMMON_PAGE_OF": "Trang {page}/{total_pages}",
   "COMMON_TOTAL_ITEMS": "Tổng: {total} bản ghi",
   "COMMON_NO_DATA": "Không có dữ liệu",

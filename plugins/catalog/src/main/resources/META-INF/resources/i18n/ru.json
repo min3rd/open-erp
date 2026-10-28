@@ -249,6 +249,7 @@
   "COMMON_REFRESH": "Обновить",
   "COMMON_NEXT_PAGE": "Далее",
   "COMMON_PREV": "Назад",
+  "COMMON_PAGE_SIZE": "Rows per page",
   "COMMON_PAGE_OF": "Стр. {page}/{total_pages}",
   "COMMON_TOTAL_ITEMS": "Всего: {total} записей",
   "COMMON_NO_DATA": "Нет данных",

@@ -249,6 +249,7 @@
   "COMMON_REFRESH": "更新",
   "COMMON_NEXT_PAGE": "次へ",
   "COMMON_PREV": "前へ",
+  "COMMON_PAGE_SIZE": "Rows per page",
   "COMMON_PAGE_OF": "{page}/{total_pages} ページ",
   "COMMON_TOTAL_ITEMS": "合計: {total} 件",
   "COMMON_NO_DATA": "データなし",

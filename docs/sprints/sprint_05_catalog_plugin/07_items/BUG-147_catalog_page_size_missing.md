@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-147 / Bug chức năng / Sprint 05 |
-| Mức độ / trạng thái | **Medium** / To Do (2026-10-28) |
+| Mức độ / trạng thái | **Medium** / Resolved (dev+QA) 2026-10-28 |
 | Phát hiện bởi / ngày | Chủ dự án / 2026-10-28 |
 | Owner / reviewer | Developer / QA |
 | Liên quan | `CatalogAdminComponent`, `PaginationComponent`, route-state `/:pageSize/`, [BUG-145](BUG-145_catalog_pagination_page2_repeats.md) |
@@ -38,3 +38,4 @@ Danh sách bản ghi chỉ dùng cố định 20 dòng/trang; không có dropdow
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-28 | Tạo bug từ yêu cầu chủ dự án | Chủ dự án |
+| 0.2 | 2026-10-28 | Thêm select 10/20/50/100 vào `PaginationComponent`; QA 50 → 34 dòng, URL `/50/1/` | Developer/QA |

@@ -249,6 +249,7 @@
   "COMMON_REFRESH": "새로 고침",
   "COMMON_NEXT_PAGE": "다음",
   "COMMON_PREV": "이전",
+  "COMMON_PAGE_SIZE": "Rows per page",
   "COMMON_PAGE_OF": "페이지 {page}/{total_pages}",
   "COMMON_TOTAL_ITEMS": "전체: {total}건",
   "COMMON_NO_DATA": "데이터 없음",

@@ -13,8 +13,10 @@ export class PaginationComponent {
   size = input<number>(20);
   totalItems = input<number>(0);
   totalPages = input<number>(0);
+  pageSizeOptions = input<number[]>([10, 20, 50, 100]);
 
   pageChange = output<number>();
+  pageSizeChange = output<number>();
 
   readonly canPrev = computed(() => this.page() > 0);
   readonly canNext = computed(() => this.page() + 1 < Math.max(this.totalPages(), 1));
@@ -29,6 +31,13 @@ export class PaginationComponent {
   next() {
     if (this.canNext()) {
       this.pageChange.emit(this.page() + 1);
+    }
+  }
+
+  changePageSize(event: Event): void {
+    const value = Number((event.target as HTMLSelectElement).value);
+    if (Number.isFinite(value) && value > 0 && value !== this.size()) {
+      this.pageSizeChange.emit(value);
     }
   }
 }

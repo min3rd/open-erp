@@ -249,6 +249,7 @@
   "COMMON_REFRESH": "تحديث",
   "COMMON_NEXT_PAGE": "التالي",
   "COMMON_PREV": "السابق",
+  "COMMON_PAGE_SIZE": "Rows per page",
   "COMMON_PAGE_OF": "صفحة {page}/{total_pages}",
   "COMMON_TOTAL_ITEMS": "الإجمالي: {total} سجل",
   "COMMON_NO_DATA": "لا توجد بيانات",

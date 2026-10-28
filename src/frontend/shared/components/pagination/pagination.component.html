@@ -1,5 +1,20 @@
 <div class="flex flex-wrap items-center justify-between gap-2 border border-t-0 border-default bg-surface-muted px-2 py-1.5 text-[11px] text-muted">
-  <span>{{ 'COMMON_TOTAL_ITEMS' | translate:{ total: totalItems() } }}</span>
+  <div class="flex flex-wrap items-center gap-2">
+    <span>{{ 'COMMON_TOTAL_ITEMS' | translate:{ total: totalItems() } }}</span>
+    <label class="flex items-center gap-1">
+      <span>{{ 'COMMON_PAGE_SIZE' | translate }}</span>
+      <select
+        class="min-h-7 border border-default bg-surface px-1 py-0.5 text-[11px]"
+        [value]="size()"
+        [attr.aria-label]="'COMMON_PAGE_SIZE' | translate"
+        (change)="changePageSize($event)"
+      >
+        @for (option of pageSizeOptions(); track option) {
+          <option [value]="option" [selected]="option === size()">{{ option }}</option>
+        }
+      </select>
+    </label>
+  </div>
   <div class="flex items-center gap-1">
     <button
       type="button"

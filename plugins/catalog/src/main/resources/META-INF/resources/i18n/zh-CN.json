@@ -249,6 +249,7 @@
   "COMMON_REFRESH": "刷新",
   "COMMON_NEXT_PAGE": "下一页",
   "COMMON_PREV": "上一页",
+  "COMMON_PAGE_SIZE": "Rows per page",
   "COMMON_PAGE_OF": "第 {page}/{total_pages} 页",
   "COMMON_TOTAL_ITEMS": "共 {total} 条记录",
   "COMMON_NO_DATA": "暂无数据",
