@@ -9,6 +9,9 @@ import com.vn9melody.openerp.plugins.catalog.api.CatalogSupport;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogImportExportDtos.CsvFile;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogImportExportDtos.ImportReport;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogCloneDtos.CloneResult;
+import com.vn9melody.openerp.plugins.catalog.dto.CatalogCloneDtos.SyncApplyRequest;
+import com.vn9melody.openerp.plugins.catalog.dto.CatalogCloneDtos.SyncApplyResult;
+import com.vn9melody.openerp.plugins.catalog.dto.CatalogCloneDtos.SyncPreview;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.ItemCreateRequest;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.ItemResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.GrantReplaceRequest;
@@ -20,6 +23,7 @@ import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeUpdateRequest;
 import com.vn9melody.openerp.plugins.catalog.service.CatalogImportExportService;
 import com.vn9melody.openerp.plugins.catalog.service.CatalogCloneService;
+import com.vn9melody.openerp.plugins.catalog.service.CatalogSyncService;
 import com.vn9melody.openerp.plugins.catalog.service.CatalogItemService;
 import com.vn9melody.openerp.plugins.catalog.service.CatalogPermissionGuard;
 import com.vn9melody.openerp.plugins.catalog.service.CatalogTypeService;
@@ -68,6 +72,9 @@ public class CatalogTypeResource {
 
     @Inject
     CatalogCloneService cloneService;
+
+    @Inject
+    CatalogSyncService syncService;
 
     @GET
     @RequirePermission("catalog:item:read")
@@ -130,6 +137,24 @@ public class CatalogTypeResource {
         CloneResult data = cloneService.deleteClone(guard.context().tenantId(), code);
         return Response.ok(ApiResponse.success(CatalogErrorCode.CATALOG_TYPE_CLONE_DELETED_SUCCESS,
             "Catalog type clone deleted successfully.", data)).build();
+    }
+
+    @GET
+    @Path("/{code}/sync/preview")
+    @RequirePermission("catalog:type:manage")
+    public Response syncPreview(@PathParam("code") String code) {
+        SyncPreview data = syncService.preview(guard.context().tenantId(), code);
+        return Response.ok(ApiResponse.success(CatalogErrorCode.CATALOG_TYPE_SYNC_PREVIEW_SUCCESS,
+            "Catalog type sync preview retrieved successfully.", data)).build();
+    }
+
+    @POST
+    @Path("/{code}/sync")
+    @RequirePermission("catalog:type:manage")
+    public Response sync(@PathParam("code") String code, SyncApplyRequest request) {
+        SyncApplyResult data = syncService.apply(guard.context().tenantId(), code, request);
+        return Response.ok(ApiResponse.success(CatalogErrorCode.CATALOG_TYPE_SYNC_SUCCESS,
+            "Catalog type sync applied successfully.", data)).build();
     }
 
     @GET

@@ -1,0 +1,64 @@
+<app-drawer
+  [isOpen]="isOpen()"
+  [title]="'CATALOG_SYNC_TITLE' | translate"
+  [subtitle]="type()?.code ?? ''"
+  [width]="'w-screen max-w-2xl'"
+  [zIndex]="75"
+  [shiftLeft]="true"
+  (close)="close.emit()"
+>
+  <div class="space-y-2">
+    @if (errorText()) {
+      <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300" role="alert">
+        {{ errorText() }}
+      </div>
+    }
+    @if (loading()) {
+      <div class="h-24 animate-pulse bg-surface-muted"></div>
+    } @else if (!conflicts().length) {
+      <p class="px-1 py-4 text-center text-[11px] text-muted">{{ 'CATALOG_SYNC_EMPTY' | translate }}</p>
+    } @else {
+      <div class="max-h-[65vh] overflow-auto border border-default">
+        <table class="w-full text-[11px]">
+          <thead class="sticky top-0 bg-surface-muted">
+            <tr>
+              <th class="px-1.5 py-1 text-start">{{ 'CATALOG_SYNC_SCOPE' | translate }}</th>
+              <th class="px-1.5 py-1 text-start">{{ 'CATALOG_SYNC_KEY' | translate }}</th>
+              <th class="px-1.5 py-1 text-start">{{ 'CATALOG_SYNC_FIELD' | translate }}</th>
+              <th class="px-1.5 py-1 text-start">{{ 'CATALOG_SYNC_TENANT' | translate }}</th>
+              <th class="px-1.5 py-1 text-start">{{ 'CATALOG_SYNC_SYSTEM' | translate }}</th>
+              <th class="px-1.5 py-1 text-start">{{ 'CATALOG_SYNC_ACTION' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (conflict of conflicts(); track key(conflict)) {
+              <tr class="border-t border-default">
+                <td class="px-1.5 py-1 whitespace-nowrap">{{ ('CATALOG_SYNC_SCOPE_' + conflict.scope) | translate }}</td>
+                <td class="px-1.5 py-1 font-mono">{{ conflict.key }}</td>
+                <td class="px-1.5 py-1 font-mono">{{ conflict.field || '—' }}</td>
+                <td class="px-1.5 py-1 text-muted">{{ value(conflict.tenant) }}</td>
+                <td class="px-1.5 py-1">{{ value(conflict.system) }}</td>
+                <td class="px-1.5 py-1">
+                  <app-sharp-select
+                    [options]="actionOptions"
+                    [value]="actionFor(conflict)"
+                    (valueChange)="setAction(conflict, $event)"
+                  />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <div drawer-footer class="flex items-center gap-2">
+    <app-sharp-button variant="secondary" size="sm" (clicked)="close.emit()">
+      {{ 'COMMON_CANCEL' | translate }}
+    </app-sharp-button>
+    <app-sharp-button size="sm" [loading]="saving()" [disabled]="loading() || !conflicts().length" (clicked)="apply()">
+      {{ 'CATALOG_SYNC_APPLY' | translate }}
+    </app-sharp-button>
+  </div>
+</app-drawer>

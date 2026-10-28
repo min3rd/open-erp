@@ -30,6 +30,8 @@ public final class CatalogErrorCode {
     public static final String CATALOG_TYPE_CLONE_DELETED_SUCCESS = "CATALOG_TYPE_CLONE_DELETED_SUCCESS";
     public static final String CATALOG_TYPE_NOT_SYSTEM = "CATALOG_TYPE_NOT_SYSTEM";
     public static final String CATALOG_TYPE_NOT_CLONED = "CATALOG_TYPE_NOT_CLONED";
+    public static final String CATALOG_TYPE_SYNC_PREVIEW_SUCCESS = "CATALOG_TYPE_SYNC_PREVIEW_SUCCESS";
+    public static final String CATALOG_TYPE_SYNC_SUCCESS = "CATALOG_TYPE_SYNC_SUCCESS";
 
     // Success - items
     public static final String CATALOG_ITEM_FETCH_SUCCESS = "CATALOG_ITEM_FETCH_SUCCESS";

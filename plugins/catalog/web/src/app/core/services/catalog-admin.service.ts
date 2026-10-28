@@ -195,6 +195,32 @@ export interface CatalogCloneResult {
   tenant_type_id?: string | null;
 }
 
+export interface CatalogSyncConflict {
+  scope: 'TYPE' | 'ITEM' | 'EDGE' | 'RELATION' | string;
+  key: string;
+  field?: string | null;
+  tenant?: unknown;
+  system?: unknown;
+  default_action?: string;
+}
+
+export interface CatalogSyncPreview {
+  conflicts: CatalogSyncConflict[];
+}
+
+export interface CatalogSyncAction {
+  scope: string;
+  key: string;
+  field?: string | null;
+  action: 'OVERRIDE' | 'SKIP' | 'MERGE';
+}
+
+export interface CatalogSyncResult {
+  applied: number;
+  skipped: number;
+  conflicts: CatalogSyncConflict[];
+}
+
 /** Body of `PUT /catalog/types/{code}/relations`. */
 export interface CatalogTypeRelationPayload {
   relation_type: CatalogRelationType;
@@ -320,6 +346,25 @@ export class CatalogAdminService {
 
   deleteTypeClone(typeCode: string, scope: CatalogScope = CatalogScope.TENANT): Observable<ApiResponse<CatalogCloneResult>> {
     return this.api.delete<CatalogCloneResult>(`${this.base(scope)}/types/${encodeURIComponent(typeCode)}/clone`);
+  }
+
+  syncPreview(typeCode: string, scope: CatalogScope = CatalogScope.TENANT): Observable<ApiResponse<CatalogSyncPreview>> {
+    return this.api.get<CatalogSyncPreview>(`${this.base(scope)}/types/${encodeURIComponent(typeCode)}/sync/preview`);
+  }
+
+  applySync(
+    typeCode: string,
+    conflicts: CatalogSyncAction[],
+    scope: CatalogScope = CatalogScope.TENANT
+  ): Observable<ApiResponse<CatalogSyncResult>> {
+    return this.api.post<CatalogSyncResult>(`${this.base(scope)}/types/${encodeURIComponent(typeCode)}/sync`, {
+      [ResponseKey.CONFLICTS]: conflicts.map((conflict) => ({
+        [ResponseKey.SCOPE]: conflict.scope,
+        [ResponseKey.KEY]: conflict.key,
+        [ResponseKey.FIELD]: conflict.field ?? null,
+        [ResponseKey.ACTION]: conflict.action
+      }))
+    });
   }
 
   // ---------------------------------------------------------------------

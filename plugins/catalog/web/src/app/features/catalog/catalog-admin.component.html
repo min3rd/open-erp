@@ -164,6 +164,15 @@
                       {{ 'CATALOG_TYPE_GRANTS_BTN' | translate }}
                     </button>
                   }
+                  @if (type.is_clone) {
+                    <button
+                      type="button"
+                      class="px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
+                      (click)="openSyncDrawer()"
+                    >
+                      {{ 'CATALOG_SYNC_BTN' | translate }}
+                    </button>
+                  }
                 </div>
               }
             </li>
@@ -447,6 +456,13 @@
     [scope]="scope()"
     (close)="closeDrawer()"
     (created)="onEdgeCreated($event)"
+  />
+  <app-catalog-sync-drawer
+    [isOpen]="syncDrawerOpen()"
+    [type]="selectedType()"
+    [scope]="scope()"
+    (close)="syncDrawerOpen.set(false)"
+    (applied)="onSynced()"
   />
   <app-catalog-grants-drawer
     [isOpen]="grantsDrawerOpen()"

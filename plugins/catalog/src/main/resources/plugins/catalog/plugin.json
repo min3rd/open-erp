@@ -4143,6 +4143,80 @@
       "returning": [
         "id"
       ]
+    },
+    {
+      "id": "catalog.sync.item.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "CatalogItem",
+      "tenant_scope": "TENANT",
+      "values": {
+        "name": {
+          "param": "name"
+        },
+        "name_en": {
+          "param": "name_en",
+          "optional": true,
+          "allow_null": true
+        },
+        "description": {
+          "param": "description",
+          "optional": true,
+          "allow_null": true
+        },
+        "attributes": {
+          "param": "attributes",
+          "type": "jsonb",
+          "optional": true,
+          "allow_null": true
+        },
+        "sort_order": {
+          "param": "sort_order"
+        },
+        "status": {
+          "param": "status"
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id"
+      ]
+    },
+    {
+      "id": "catalog.sync.edge.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "CatalogItemEdge",
+      "tenant_scope": "TENANT",
+      "values": {
+        "sort_order": {
+          "param": "sort_order"
+        },
+        "status": {
+          "param": "status"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id"
+      ]
     }
   ],
   "migrations": [

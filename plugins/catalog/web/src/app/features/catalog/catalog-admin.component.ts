@@ -42,6 +42,7 @@ import { CatalogItemDrawerComponent } from './catalog-item-drawer.component';
 import { CatalogItemDetailDrawerComponent } from './catalog-item-detail-drawer.component';
 import { CatalogApiDrawerComponent } from './catalog-api-drawer.component';
 import { CatalogEdgeDrawerComponent } from './catalog-edge-drawer.component';
+import { CatalogSyncDrawerComponent } from './catalog-sync-drawer.component';
 import { CatalogGrantsDrawerComponent } from './catalog-grants-drawer.component';
 import { CatalogImportExportDrawerComponent } from './catalog-import-export-drawer.component';
 
@@ -104,6 +105,7 @@ interface ParentGroup {
     CatalogItemDetailDrawerComponent,
     CatalogApiDrawerComponent,
     CatalogEdgeDrawerComponent,
+    CatalogSyncDrawerComponent,
     CatalogGrantsDrawerComponent,
     CatalogImportExportDrawerComponent
   ],
@@ -183,6 +185,7 @@ export class CatalogAdminComponent implements OnInit {
   readonly edgeDrawerOpen = signal<boolean>(false);
   readonly edgeMode = signal<'parent' | 'child'>('parent');
   readonly edgeParent = signal<CatalogItemDto | null>(null);
+  readonly syncDrawerOpen = signal<boolean>(false);
   readonly grantsDrawerOpen = signal<boolean>(false);
   readonly importDrawerOpen = signal<boolean>(false);
   readonly apiDrawerOpen = signal<boolean>(false);
@@ -787,6 +790,20 @@ export class CatalogAdminComponent implements OnInit {
     this.edgeParent.set(item);
     this.selectedItem.set(item);
     this.syncState({ id: item.id, mode: CatalogDrawerMode.EDGE });
+  }
+
+  openSyncDrawer(): void {
+    if (!this.selectedType()?.is_clone) {
+      return;
+    }
+    this.syncDrawerOpen.set(true);
+  }
+
+  onSynced(): void {
+    this.syncDrawerOpen.set(false);
+    this.showSuccess('CATALOG_SYNC_SUCCESS');
+    this.refreshItems();
+    this.loadTypes();
   }
 
   openImportExport(): void {

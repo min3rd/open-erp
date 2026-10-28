@@ -22,7 +22,7 @@ public class CatalogQueryDescriptorManifestTest {
     void seededCatalogDescriptorsAreValid() {
         PluginManifest manifest = registry.manifest("catalog", "1.0.0");
 
-        assertEquals(75, manifest.queries().size());
+        assertEquals(77, manifest.queries().size());
         assertTrue(manifest.entities().get("CatalogType").fields().contains("attributes_schema"));
         assertTrue(manifest.entities().get("CatalogItem").fields().contains("attributes"));
         assertTrue(manifest.entities().get("CatalogTypeRelation").fields().contains("parent_type_id"));

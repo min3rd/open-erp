@@ -64,6 +64,15 @@ public enum CatalogResponseKey {
     ITEMS("items"),
     EDGES("edges"),
     TENANT_TYPE_ID("tenant_type_id"),
+    SCOPE("scope"),
+    KEY("key"),
+    FIELD("field"),
+    TENANT("tenant"),
+    SYSTEM("system"),
+    DEFAULT_ACTION("default_action"),
+    CONFLICTS("conflicts"),
+    ACTION("action"),
+    APPLIED("applied"),
 
     // Grants
     CAN_READ("can_read"),
@@ -126,6 +135,15 @@ public enum CatalogResponseKey {
         String ITEMS = "items";
         String EDGES = "edges";
         String TENANT_TYPE_ID = "tenant_type_id";
+        String SCOPE = "scope";
+        String KEY = "key";
+        String FIELD = "field";
+        String TENANT = "tenant";
+        String SYSTEM = "system";
+        String DEFAULT_ACTION = "default_action";
+        String CONFLICTS = "conflicts";
+        String ACTION = "action";
+        String APPLIED = "applied";
         String CAN_READ = "can_read";
         String CAN_WRITE = "can_write";
         String GRANTS = "grants";

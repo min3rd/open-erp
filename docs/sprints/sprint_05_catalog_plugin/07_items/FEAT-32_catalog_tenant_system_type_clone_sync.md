@@ -77,8 +77,8 @@ Hiện tại system type (`tenant_id IS NULL`) bị chặn sửa ở tenant:
 - [x] Clone `PROVINCE`/`COMMUNE` tạo đủ `PROVINCE`, `COMMUNE`, `DISTRICT` + item/edge/relation tương ứng; override hiện có được chuyển sang loại clone.
 - [x] Clone độc lập: sửa/xoá item clone không ảnh hưởng system/tenant khác; reload giữ dữ liệu.
 - [x] Lookup/options dùng clone; item system + override hiển thị đúng; không lẫn tenant khác.
-- [ ] Sync preview hiển thị đủ xung đột type/item/edge/relation; chọn `OVERRIDE/SKIP/MERGE` cho từng mục; apply đúng, không silent overwrite.
-- [ ] Sync lấy item/edge mới từ system ngoài fan-out.
+- [x] Sync preview hiển thị đủ xung đột type/item/edge/relation; chọn `OVERRIDE/SKIP/MERGE` cho từng mục; apply đúng, không silent overwrite.
+- [x] Sync lấy item/edge mới từ system ngoài fan-out (preview tạo dòng mới, apply chèn).
 - [ ] Platform sync hộ tenant có audit + quyền platform.
 - [ ] Clone/sync dữ liệu lớn (COMMUNE 3.321) hoàn tất idempotent, có thể resume khi lỗi.
 - [ ] Test tenant isolation, permission, migration, web/mobile 0 console error; docs API/DB/UI + user guide cập nhật.
@@ -91,3 +91,4 @@ Hiện tại system type (`tenant_id IS NULL`) bị chặn sửa ở tenant:
 | 0.2 | 2026-10-28 | Chốt: clone khi Lưu, clone cả item/edge, sync tất cả + preview conflict (override/skip/merge), sync item mới, platform sync hộ tenant | Chủ dự án trả lời |
 | 0.3 | 2026-10-28 | Chốt clone **toàn bộ cụm quan hệ** (connected component) để mọi edge trong cụm đều được clone; edge ra ngoài cụm giữ system | Chủ dự án xác nhận |
 | 0.4 | 2026-10-28 | Implement clone/xoá clone: `system_*_id`, bảng quan hệ, API `POST/DELETE /types/{code}/clone`, tự clone khi tenant Lưu system type; sync còn lại | Developer |
+| 0.5 | 2026-10-28 | Implement sync preview/apply: `GET /types/{code}/sync/preview`, `POST /types/{code}/sync` với `OVERRIDE/SKIP/MERGE` cho TYPE/ITEM/EDGE/RELATION; drawer sync; platform sync còn lại | Developer |
