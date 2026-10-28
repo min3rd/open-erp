@@ -152,9 +152,13 @@ public final class PluginQueryCompiler {
         sqlParams.addAll(postParams);
         sqlParams.add(slice.size());
         sqlParams.add(slice.offset());
+        String order = dynamicOrder(entity, query, "merged", params);
+        if (order == null) {
+            order = "merged." + quote(mergeKey) + " ASC";
+        }
         String sql = "SELECT " + plainSelectList("merged", entity, query)
                 + " FROM (" + inner + ") merged" + outerWhere
-                + " ORDER BY merged." + quote(mergeKey) + " ASC LIMIT ? OFFSET ?";
+                + " ORDER BY " + order + " LIMIT ? OFFSET ?";
 
         List<Object> countParams = new ArrayList<>(source.params);
         countParams.addAll(postParams);
@@ -174,7 +178,10 @@ public final class PluginQueryCompiler {
         StringBuilder sql = new StringBuilder(query.distinct() ? "SELECT DISTINCT " : "SELECT ")
                 .append(select).append(source.from).append(where);
 
-        if (!query.sort().isEmpty()) {
+        String dynamicOrder = dynamicOrder(entity, query, "t", params);
+        if (dynamicOrder != null) {
+            sql.append(" ORDER BY ").append(dynamicOrder);
+        } else if (!query.sort().isEmpty()) {
             List<String> order = new ArrayList<>();
             for (PluginQueryDescriptor.Sort sort : query.sort()) {
                 requireField(entity, query, sort.field());
@@ -352,6 +359,33 @@ public final class PluginQueryCompiler {
             return "?";
         }
         return "CAST(? AS " + spec.type() + ")";
+    }
+
+    /** Optional request-driven sort, restricted to the descriptor allowlist. */
+    private String dynamicOrder(PluginManifest.Entity entity, PluginQueryDescriptor query,
+                                String alias, Map<String, Value> params) {
+        if (query.sortParam() == null || query.sortParam().isBlank()) {
+            return null;
+        }
+        Value fieldValue = params.get(query.sortParam());
+        if (fieldValue == null || !fieldValue.hasStringValue() || fieldValue.getStringValue().isBlank()) {
+            return null;
+        }
+        String field = fieldValue.getStringValue().trim();
+        if (!query.sortFields().contains(field)) {
+            throw invalid(query, "sort field is not allowed: " + field);
+        }
+        requireField(entity, query, field);
+        String direction = "ASC";
+        if (query.directionParam() != null) {
+            Value directionValue = params.get(query.directionParam());
+            if (directionValue != null && directionValue.hasStringValue()
+                    && "desc".equalsIgnoreCase(directionValue.getStringValue().trim())) {
+                direction = "DESC";
+            }
+        }
+        return alias + "." + quote(field) + " " + direction
+                + ", " + alias + "." + quote(primaryKey(entity)) + " ASC";
     }
 
     private PageSlice pageSlice(PluginQueryDescriptor query, Map<String, Value> params) {

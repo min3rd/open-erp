@@ -118,6 +118,14 @@ public class PluginDescriptorRegistry {
             if (query.distinct() && query.operation() != PluginQueryDescriptor.Operation.LIST) {
                 fail(query, "distinct is only valid on LIST");
             }
+            if (query.sortParam() != null && !query.sortParam().isBlank()) {
+                if (query.sortFields().isEmpty()) {
+                    fail(query, "sort_param requires sort_fields");
+                }
+                for (String sortField : query.sortFields()) {
+                    field(entity, query, sortField);
+                }
+            }
             if (query.operation() == PluginQueryDescriptor.Operation.TREE) {
                 if (query.mode() != PluginQueryDescriptor.Mode.READ || query.tree() == null) {
                     fail(query, "TREE requires READ and a tree block");

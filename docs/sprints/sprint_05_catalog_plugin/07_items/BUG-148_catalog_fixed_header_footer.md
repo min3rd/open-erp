@@ -38,3 +38,4 @@ Khi danh sách dài, cuộn trang làm **header** (tiêu đề, nút Nhập/Xu�
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-28 | Tạo bug từ yêu cầu chủ dự án | Chủ dự án |
 | 0.2 | 2026-10-28 | Sticky header/pagination; QA scroll 400px: header top 0, footer bottom = viewport | Developer/QA |
+| 0.3 | 2026-10-28 | Chuyển sang layout flex cố định: sidebar + table header + footer cố định, chỉ vùng bảng cuộn; bỏ gap do drawer host | Developer/QA |

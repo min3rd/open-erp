@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-146 / Bug chức năng / Sprint 05 |
-| Mức độ / trạng thái | **Medium** / To Do (2026-10-28) |
+| Mức độ / trạng thái | **Medium** / Resolved (dev+QA) 2026-10-28 |
 | Phát hiện bởi / ngày | Chủ dự án / 2026-10-28 |
 | Owner / reviewer | Developer / QA |
 | Liên quan | `TableComponent`, `CatalogAdminComponent`, `catalog.items.admin`, [DES-API-S05-001](../06_designs/api/01_DES-API-S05-001_catalog_api.md) |
@@ -39,3 +39,4 @@ Bảng bản ghi danh mục không có sort: bấm vào tiêu đề cột (`Mã`
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-28 | Tạo bug từ yêu cầu chủ dự án | Chủ dự án |
+| 0.2 | 2026-10-28 | Gateway sort động (allowlist), API `sort/direction`, header click + mũi tên, URL `name-asc`; QA PASS | Developer/QA |

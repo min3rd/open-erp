@@ -321,7 +321,9 @@ public class CatalogGateway {
     }
 
     public Page<CatalogItem> adminPage(UUID tenantId, UUID typeId, Instant asOf, String q, String status,
-                                       UUID parentId, String relationType, int page, int size) {        Map<String, Object> params = new java.util.LinkedHashMap<>();
+                                       UUID parentId, String relationType, int page, int size,
+                                       String sort, String direction) {
+        Map<String, Object> params = new java.util.LinkedHashMap<>();
         params.put("type_id", typeId);
         params.put("as_of", asOf);
         params.put("page", page);
@@ -332,7 +334,10 @@ public class CatalogGateway {
             params.put("parent_id", parentId);
         }
         putIfPresent(params, "relation_type", relationType);
-        String key = "items:admin:" + CatalogCache.hash(typeId, cacheInstant(asOf), q, status, parentId, relationType, page, size);
+        putIfPresent(params, "sort", sort);
+        putIfPresent(params, "direction", direction);
+        String key = "items:admin:" + CatalogCache.hash(typeId, cacheInstant(asOf), q, status, parentId,
+                relationType, page, size, sort, direction);
         return cache.getOrLoad(tenantId, key, new TypeReference<Page<CatalogItem>>() {},
                 () -> pageResult(query("catalog.items.admin", params), this::toItem));
     }

@@ -121,11 +121,13 @@ public class CatalogTypeResource {
                               @QueryParam("relation_type") String relationType,
                               @QueryParam("as_of") String asOf,
                               @QueryParam("status") String status,
+                              @QueryParam("sort") String sort,
+                              @QueryParam("direction") String direction,
                               @QueryParam("page") @DefaultValue("0") int page,
                               @QueryParam("size") @DefaultValue("20") int size) {
         UUID tenantId = guard.context().tenantId();
         CatalogItemService.ItemPage result = itemService.page(tenantId, code, q, parentId, relationType, asOf,
-            status, page, size);
+            status, page, size, sort, direction);
         return Response.ok(ApiResponse.successPaged(CatalogErrorCode.CATALOG_ITEM_FETCH_SUCCESS,
             "Catalog items retrieved successfully.", result.items(), Math.max(page, 0),
             CatalogSupport.size(size), result.total())).build();

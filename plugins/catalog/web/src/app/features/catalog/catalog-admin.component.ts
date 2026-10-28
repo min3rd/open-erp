@@ -152,6 +152,8 @@ export class CatalogAdminComponent implements OnInit {
   readonly page = signal<number>(0);
   readonly size = signal<number>(20);
   readonly pageSizeOptions = [10, 20, 50, 100];
+  readonly sortField = signal<string>('');
+  readonly sortDirection = signal<'asc' | 'desc'>('asc');
   readonly totalItems = signal<number>(0);
   readonly totalPages = signal<number>(0);
   readonly q = signal<string>('');
@@ -189,12 +191,12 @@ export class CatalogAdminComponent implements OnInit {
   readonly successText = signal<string>('');
 
   readonly columns: TableColumn[] = [
-    { key: 'code', labelKey: 'CATALOG_COL_CODE', mono: true, width: '5.5rem' },
-    { key: 'name', labelKey: 'CATALOG_COL_NAME' },
+    { key: 'code', labelKey: 'CATALOG_COL_CODE', mono: true, width: '5.5rem', sortable: true },
+    { key: 'name', labelKey: 'CATALOG_COL_NAME', sortable: true },
     { key: 'parents', labelKey: 'CATALOG_COL_PARENTS', width: '4rem' },
-    { key: 'version', labelKey: 'CATALOG_COL_VERSION', width: '4rem' },
-    { key: 'valid', labelKey: 'CATALOG_COL_VALID', width: '8rem' },
-    { key: 'status', labelKey: 'CATALOG_COL_STATUS', width: '5.5rem' },
+    { key: 'version', labelKey: 'CATALOG_COL_VERSION', width: '4rem', sortable: true },
+    { key: 'valid_from', labelKey: 'CATALOG_COL_VALID', width: '8rem', sortable: true },
+    { key: 'status', labelKey: 'CATALOG_COL_STATUS', width: '5.5rem', sortable: true },
     { key: 'actions', labelKey: 'COMMON_ACTIONS', align: 'right', width: '4rem' }
   ];
 
@@ -273,6 +275,10 @@ export class CatalogAdminComponent implements OnInit {
     this.q.set(keyword);
     this.page.set(state.page - 1);
     this.size.set(state.pageSize);
+    const sort = state.sort && state.sort !== '-' ? state.sort : '';
+    const [sortField, sortDirection] = sort.split('-');
+    this.sortField.set(sortField ?? '');
+    this.sortDirection.set(sortDirection === 'desc' ? 'desc' : 'asc');
     this.applyQueryParams();
     if (this.types().length) {
       this.applySelection(state);
@@ -509,6 +515,8 @@ export class CatalogAdminComponent implements OnInit {
         status: this.statusFilter() || undefined,
         as_of: this.asOf() || undefined,
         relation_type: this.relationFilter() || undefined,
+        sort: this.sortField() || undefined,
+        direction: this.sortField() ? this.sortDirection() : undefined,
         page: this.page(),
         size: this.size()
       }, this.scope())
@@ -558,6 +566,10 @@ export class CatalogAdminComponent implements OnInit {
 
   changePageSize(size: number): void {
     this.syncState({ pageSize: size, page: 1 });
+  }
+
+  onSortChange(event: { field: string; direction: 'asc' | 'desc' }): void {
+    this.syncState({ sort: `${event.field}-${event.direction}`, page: 1 });
   }
 
   onSearchInput(value: string): void {

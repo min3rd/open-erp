@@ -94,6 +94,8 @@ public class PluginDataGatewayTest {
                      ],
                      "search":[{"param":"q","fields":["code","name"]}],
                      "sort":[{"field":"code","direction":"ASC"}],
+                     "sort_param":"sort","direction_param":"direction",
+                     "sort_fields":["code","name","status"],
                      "page":{"pageParam":"page","sizeParam":"size","maxSize":50,"defaultSize":10},
                      "maxRows":50,"timeoutMs":2000},
                     {"id":"test.things.get","mode":"READ","operation":"GET","entity":"Thing",
@@ -314,8 +316,14 @@ public class PluginDataGatewayTest {
     }
 
     @Test
-    void paginationUsesZeroBasedPages() {
-        Map<String, Value> firstPage = Map.of(
+    void dynamicSortUsesAllowlistedField() {
+        PluginDataExecutor.Result result = executor.execute(identity(), "test.things.page", "sort-1",
+                Map.of("status", string("ACTIVE"), "sort", string("name"), "direction", string("desc")));
+        assertEquals(List.of("B", "A"), result.rows().stream().map(row -> row.get("code")).toList());
+    }
+
+    @Test
+    void paginationUsesZeroBasedPages() {        Map<String, Value> firstPage = Map.of(
                 "status", string("ACTIVE"),
                 "page", Value.newBuilder().setNumberValue(0).build(),
                 "size", Value.newBuilder().setNumberValue(1).build());

@@ -27,6 +27,10 @@ public record PluginQueryDescriptor(
         String mergeKey,
         Tree tree,
         List<Sort> sort,
+        /** Optional request params that override the fixed sort (allowlisted fields). */
+        String sortParam,
+        String directionParam,
+        List<String> sortFields,
         Map<String, ValueSpec> values,
         List<String> returning,
         List<Join> joins,
@@ -110,6 +114,9 @@ public record PluginQueryDescriptor(
                 sort.add(new Sort(field, text(item, "direction", "ASC").toUpperCase(Locale.ROOT)));
             }
         }
+        String sortParam = text(node, "sort_param", null);
+        String directionParam = text(node, "direction_param", "direction");
+        List<String> sortFields = strings(node.path("sort_fields"));
         List<Search> search = new ArrayList<>();
         for (JsonNode item : node.path("search")) {
             String param = text(item, "param", null);
@@ -196,8 +203,8 @@ public record PluginQueryDescriptor(
         boolean bulk = node.path("bulk").asBoolean(false);
         boolean systemRow = node.path("system_row").asBoolean(false);
         return new PluginQueryDescriptor(id, mode, operation, entity, scope, select, filters, search,
-                exists, postFilters, mergeKey, tree, sort, values, returning, joins, page, distinct, bulk,
-                systemRow, maxRows, timeoutMs);
+                exists, postFilters, mergeKey, tree, sort, sortParam, directionParam, sortFields,
+                values, returning, joins, page, distinct, bulk, systemRow, maxRows, timeoutMs);
     }
 
     private static String text(JsonNode node, String field, String defaultValue) {

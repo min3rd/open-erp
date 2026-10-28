@@ -1,10 +1,20 @@
-<div class="rounded-container border border-default bg-surface overflow-x-auto">
+<div class="rounded-container border border-default bg-surface">
   <table class="w-full text-xs border-collapse">
-    <thead class="rounded-t-container bg-surface-muted">
+    <thead class="sticky top-0 z-10 rounded-t-container bg-surface-muted">
       <tr>
         @for (column of columns(); track column.key) {
-          <th [class]="headerClasses(column)" [style.width]="column.width || 'auto'">
+          <th
+            [class]="headerClasses(column) + (column.sortable ? ' cursor-pointer select-none hover:text-ink' : '')"
+            [style.width]="column.width || 'auto'"
+            [attr.aria-sort]="column.sortable && sortField() === column.key
+              ? (sortDirection() === 'asc' ? 'ascending' : 'descending')
+              : null"
+            (click)="sortColumn(column)"
+          >
             {{ column.labelKey | translate }}
+            @if (sortIndicator(column); as indicator) {
+              <span class="ms-1 font-mono">{{ indicator }}</span>
+            }
           </th>
         }
       </tr>

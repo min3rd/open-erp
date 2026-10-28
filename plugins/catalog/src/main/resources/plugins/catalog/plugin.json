@@ -1325,7 +1325,18 @@
         "maxSize": 200,
         "defaultSize": 50
       },
-      "maxRows": 200
+      "maxRows": 200,
+      "sort_param": "sort",
+      "direction_param": "direction",
+      "sort_fields": [
+        "code",
+        "name",
+        "sort_order",
+        "status",
+        "valid_from",
+        "version",
+        "created_at"
+      ]
     },
     {
       "id": "catalog.items.merged.options",

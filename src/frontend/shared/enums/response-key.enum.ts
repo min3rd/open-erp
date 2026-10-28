@@ -102,6 +102,8 @@ export enum ResponseKey {
   ATTRIBUTES = 'attributes',
   ATTRIBUTES_SCHEMA = 'attributes_schema',
   SORT_ORDER = 'sort_order',
+  SORT = 'sort',
+  DIRECTION = 'direction',
   PARENT_ITEM_ID = 'parent_item_id',
   CHILD_ITEM_ID = 'child_item_id',
   RELATION_TYPE = 'relation_type',

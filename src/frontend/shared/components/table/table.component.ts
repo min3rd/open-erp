@@ -1,4 +1,4 @@
-import { Component, TemplateRef, contentChild, inject, input } from '@angular/core';
+import { Component, TemplateRef, contentChild, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { ContextMenuItem } from '../../models/context-menu.model';
@@ -20,6 +20,9 @@ export class TableComponent {
   emptyKey = input<string>('COMMON_NO_DATA');
   /** Opt-in: resolve context-menu items for a row, or leave null to disable. */
   contextMenuItems = input<((row: any, index: number) => ContextMenuItem[]) | null>(null);
+  sortField = input<string | null>(null);
+  sortDirection = input<'asc' | 'desc'>('asc');
+  sortChange = output<{ field: string; direction: 'asc' | 'desc' }>();
 
   rowTemplate = contentChild.required(TemplateRef);
 
@@ -30,8 +33,22 @@ export class TableComponent {
     return `${base} ${align}${mono}`;
   }
 
-  onRowContextMenu(event: MouseEvent): void {
-    const resolver = this.contextMenuItems();
+  sortIndicator(column: TableColumn): string {
+    if (!column.sortable || this.sortField() !== column.key) {
+      return '';
+    }
+    return this.sortDirection() === 'asc' ? '↑' : '↓';
+  }
+
+  sortColumn(column: TableColumn): void {
+    if (!column.sortable) {
+      return;
+    }
+    const direction = this.sortField() === column.key && this.sortDirection() === 'asc' ? 'desc' : 'asc';
+    this.sortChange.emit({ field: column.key, direction });
+  }
+
+  onRowContextMenu(event: MouseEvent): void {    const resolver = this.contextMenuItems();
     if (!resolver) {
       return;
     }

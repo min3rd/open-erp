@@ -9,6 +9,9 @@ public enum ResponseKey {
     FULL_NAME("full_name"),
     PHONE("phone"),
     STATUS("status"),
+    SORT_ORDER("sort_order"),
+    SORT("sort"),
+    DIRECTION("direction"),
 
     // Tenant & Workspace
     IS_DEFAULT("is_default"),
@@ -145,6 +148,9 @@ public enum ResponseKey {
         String SCOPE_FIELDS = "scope_fields";
         String SHARE_SCOPE = "share_scope";
         String STATUS = "status";
+        String SORT_ORDER = "sort_order";
+        String SORT = "sort";
+        String DIRECTION = "direction";
         String SUPPORTS_ASSIGNEE = "supports_assignee";
         String TABLE_NAME = "table_name";
         String TITLE = "title";

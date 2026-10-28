@@ -52,23 +52,25 @@ public class CatalogItemService {
 
     public List<ItemResponse> list(UUID tenantId, String typeCode, String q, String parentIdText,
                                    String relationType, String asOfText, String status, int page, int size) {
-        return page(tenantId, typeCode, q, parentIdText, relationType, asOfText, status, page, size).items();
+        return page(tenantId, typeCode, q, parentIdText, relationType, asOfText, status, page, size, null, null)
+                .items();
     }
 
     public long count(UUID tenantId, String typeCode, String q, String parentIdText, String relationType,
                       String asOfText, String status) {
-        return page(tenantId, typeCode, q, parentIdText, relationType, asOfText, status, 0, 1).total();
+        return page(tenantId, typeCode, q, parentIdText, relationType, asOfText, status, 0, 1, null, null)
+                .total();
     }
 
     public ItemPage page(UUID tenantId, String typeCode, String q, String parentIdText, String relationType,
-                         String asOfText, String status, int page, int size) {
+                         String asOfText, String status, int page, int size, String sort, String direction) {
         CatalogType type = guard.requireTypeAccess(tenantId, typeCode, CatalogPermissionGuard.Access.READ);
         Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
         UUID parentId = CatalogSupport.parseUuid(parentIdText, "parent_id");
         int resolvedPage = CatalogSupport.page(page);
         int resolvedSize = CatalogSupport.size(size);
         CatalogGateway.Page<CatalogItem> result = gateway.adminPage(tenantId, type.id, asOf, q, status,
-                parentId, relationType, resolvedPage, resolvedSize);
+                parentId, relationType, resolvedPage, resolvedSize, sort, direction);
 
         Set<String> codes = new LinkedHashSet<>();
         for (CatalogItem item : result.items()) {

@@ -179,6 +179,8 @@ export interface CatalogItemsQuery {
   relation_type?: CatalogRelationType | '';
   as_of?: string | null;
   status?: CatalogStatus | '';
+  sort?: string;
+  direction?: 'asc' | 'desc';
   page?: number;
   size?: number;
 }
@@ -271,6 +273,8 @@ export class CatalogAdminService {
       [ResponseKey.RELATION_TYPE]: query.relation_type,
       [ResponseKey.AS_OF]: query.as_of,
       [ResponseKey.STATUS]: query.status,
+      [ResponseKey.SORT]: query.sort,
+      [ResponseKey.DIRECTION]: query.direction,
       [ResponseKey.PAGE]: query.page ?? 0,
       [ResponseKey.SIZE]: query.size ?? DEFAULT_PAGE_SIZE
     });

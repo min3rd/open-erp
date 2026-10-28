@@ -4,6 +4,7 @@ export interface TableColumn {
   align?: 'left' | 'center' | 'right';
   width?: string;
   mono?: boolean;
+  sortable?: boolean;
 }
 
 export interface SelectOption {
