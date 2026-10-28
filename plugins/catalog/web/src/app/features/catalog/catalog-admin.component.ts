@@ -658,6 +658,17 @@ export class CatalogAdminComponent implements OnInit {
           this.openGrants();
         }
       },
+      ...(type.is_clone ? [{
+        id: 'type-sync',
+        labelKey: 'CATALOG_SYNC_BTN',
+        icon: IconName.REFRESH,
+        disabled: !this.canEditType(type),
+        disabledReasonKey: this.canEditType(type) ? undefined : 'COMMON_PERMISSION_REQUIRED',
+        action: () => {
+          this.selectType(type);
+          this.openSyncDrawer();
+        }
+      }] : []),
       {
         id: 'type-items',
         labelKey: 'CATALOG_ITEM_LIST_TITLE',

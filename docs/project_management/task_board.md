@@ -18,7 +18,9 @@ Sprint đang theo dõi: [Sprint 05 — Plugin Danh mục](../sprints/sprint_05_c
 
 2026-10-28 (BUG-150): [BUG-150](../sprints/sprint_05_catalog_plugin/07_items/BUG-150_plugin_enable_runtime_not_ready.md) Resolved — Docker health poll `/q/health/ready`; disable 2s, enable 23s rồi runtime trả 200 ngay, không còn 503.
 
-2026-10-28 (UX backlog): thêm [TASK-404](../sprints/sprint_05_catalog_plugin/07_items/TASK-404_catalog_item_relation_workspace_ux.md) — màn thêm/sửa bản ghi danh mục cho phép tạo quan hệ cha/con với loại khác và khai báo con theo từng loại/quan hệ; tab theo relation, tách vùng Là cha/Là con, thêm loại con + bản ghi con ngay trong ngữ cảnh. High, Sprint 06.
+2026-10-28 (TASK-405): [TASK-405](../sprints/sprint_05_catalog_plugin/07_items/TASK-405_catalog_type_list_remove_inline_actions.md) Done (dev) — bỏ cụm nút Sửa/Quyền/Sync inline dưới loại đang chọn; thao tác qua menu ⋮/context menu, thêm `Sync từ hệ thống` cho loại clone.
+
+2026-10-28 (UX backlog): thêm [TASK-404](../sprints/sprint_05_catalog_plugin/07_items/TASK-404_catalog_item_relation_workspace_ux.md) — **Approved scope**: màn thêm/sửa bản ghi danh mục cho phép tạo quan hệ cha/con với loại khác và khai báo con theo từng loại/quan hệ; 1 tab/quan hệ + nhóm loại con có badge/filter, tách vùng Là cha/Là con, + tạo loại con, + tạo nhanh con, cập nhật tại chỗ, lỗi inline, unsaved-item disabled. High, Sprint 06.
 
 2026-10-28 (QA FEAT-31/32): [TR-S05-003](../sprints/sprint_05_catalog_plugin/08_testing/04_TR-S05-003_feat31_32_test_report.md) **PASS** — [FEAT-31](../sprints/sprint_05_catalog_plugin/07_items/FEAT-31_catalog_type_relations_child_picker.md) Done (QA): relations + backfill + cycle + type/edge drawer. [FEAT-32](../sprints/sprint_05_catalog_plugin/07_items/FEAT-32_catalog_tenant_system_type_clone_sync.md) Done (QA): clone 3.355 item/3.319 edge, preview 0, sync OVERRIDE, platform sync + audit. BUG-152/153 fixed. Còn User Guide + PM DoD.
 

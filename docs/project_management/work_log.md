@@ -2,10 +2,15 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-28 — TASK-405: bỏ action inline dưới loại
+
+- Xoá block `Sửa / Quyền theo loại / Sync` inline khi chọn loại; giữ menu ⋮ + context menu.
+- Thêm `Sync từ hệ thống` vào `typeContextMenu` cho loại clone để không mất lối vào sync.
+
 ## 2026-10-28 — TASK-404: UX workspace quan hệ trong item drawer
 
 - Tạo task từ luồng ví dụ: `PROVINCE` → `Hà Nội` → thêm loại `COMMUNE` là con → tab `Xã/Phường` → thêm `Hoàn Kiếm` làm con.
-- Phạm vi: tab theo relation, tách vùng Là cha/Là con, bảng con theo loại + tìm kiếm/phân trang, thêm nhanh loại con/bản ghi con, không modal, mobile read-only. High, Sprint 06.
+- Phạm vi **Approved**: tab theo relation, tách vùng Là cha/Là con, bảng con nhóm theo loại + header `Quan hệ · Loại con` + filter, + tạo loại con, + tạo nhanh con, cập nhật tại chỗ, không modal, lỗi inline, mobile read-only, unsaved-item disabled. High, Sprint 06.
 
 ## 2026-10-28 — QA FEAT-31/32 (TR-S05-003)
 

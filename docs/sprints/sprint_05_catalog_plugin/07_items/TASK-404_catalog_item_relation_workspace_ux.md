@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-404 / Task UX / Sprint 06 (change request từ Sprint 05) |
-| Mức độ / trạng thái | **High** / To Do (2026-10-28) — chờ thiết kế UI chi tiết |
+| Mức độ / trạng thái | **High** / **Approved scope** 2026-10-28 — chờ triển khai (Sprint 06) |
 | Owner / reviewer | Solution Architect (UI) → Developer / QA + chủ dự án |
 | Liên quan | [FEAT-31](FEAT-31_catalog_type_relations_child_picker.md) (Done), [FEAT-32](FEAT-32_catalog_tenant_system_type_clone_sync.md) (Done), [TASK-385](TASK-385_catalog_admin_ui.md), [BUG-151](BUG-151_plugin_host_duplicate_header.md) |
 
@@ -51,19 +51,29 @@ Màn **Thêm/Sửa bản ghi danh mục** phải là nơi khai báo quan hệ ng
 - [ ] Thêm `Phường Hoàn Kiếm` (tạo mới hoặc chọn sẵn) làm con của `Hà Nội`; bảng con cập nhật ngay, reload vẫn giữ.
 - [ ] Tạo mới bản ghi: tab quan hệ disabled đến khi Lưu; sau Lưu vẫn ở drawer và thao tác con được ngay.
 - [ ] Thêm/bớt cha cho bản ghi; cycle/loại không được phép bị chặn với mã lỗi rõ ràng.
-- [ ] Nhiều relation + nhiều loại con: tab/nhóm đúng, không lẫn loại; phân trang/tìm kiếm hoạt động.
+- [ ] Nhiều relation + nhiều loại con: header nhóm `Quan hệ · Loại con` + badge, filter loại con trong tab, không lẫn loại; phân trang/tìm kiếm hoạt động.
 - [ ] Không mất dữ liệu form khi thêm con; 0 console error; i18n 13 locale; mobile read-only/overflow 0.
 - [ ] Test backend: edge/type-relation qua API thật PostgreSQL; browser desktop + mobile; cập nhật user guide + TR.
 
-## 4. Ghi chú thiết kế
+## 4. Quyết định đã chốt (2026-10-28)
+
+1. **Một tab = một quan hệ**, bên trong nhóm theo loại con. Mỗi nhóm có header rõ `Quan hệ · Loại con` + badge (ví dụ `Phân cấp · Xã/Phường`), không tạo tab riêng cho từng loại con. Khi có nhiều nhóm, thêm segmented filter theo loại con trong tab để chuyển nhanh; bảng vẫn tách nhóm để không lẫn loại.
+2. **`+ Tạo loại con`** ngay trong tab: mở type drawer prefill loại cha hiện tại + relation đang xem; lưu xong tự thêm nhóm mới và focus ô thêm bản ghi con.
+3. **`+ Tạo nhanh con`**: chỉ mã/tên (các field khác lấy default của loại), lưu xong tạo edge ngay; có link mở form đầy đủ để sửa sau.
+4. **Cập nhật tại chỗ**: thêm/xoá con hoặc cha chỉ refresh vùng bảng, không đóng drawer, không mất dữ liệu form đang nhập.
+5. **Lỗi inline theo mã i18n**: cycle, loại không được phép, trùng edge; mobile read-only ẩn toàn bộ thao tác ghi.
+6. **Bản ghi mới chưa lưu**: tab quan hệ disabled + hint “Lưu bản ghi trước”; sau khi Lưu giữ drawer ở chế độ sửa và bật tab (không auto-save ngầm).
+
+## 5. Ghi chú thiết kế
 
 - Ưu tiên **một tab = một relation type**, bên trong nhóm theo loại con; tránh n tab cho n loại con (dễ quá tải khi nhiều loại).
 - Bảng con dùng component `app-table` + `app-pagination` sẵn có; picker dùng `catalog-picker` (multi) đã có.
 - Tái dùng API hiện tại: `GET /items/{id}` (parents/children), `POST/DELETE /edges`, `GET/PUT /types/{code}/relations`; chỉ thêm endpoint nếu cần batch children theo relation.
 - Không thay đổi mô hình dữ liệu; đây là task UI/UX + tối ưu API đọc.
 
-## 5. Lịch sử
+## 6. Lịch sử
 
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-28 | Tạo task từ luồng ví dụ của chủ dự án (Tỉnh → Hà Nội → Xã/Phường → Hoàn Kiếm) | Chủ dự án |
+| 0.2 | 2026-10-28 | Chốt: 1 tab/quan hệ + nhóm theo loại con có badge; + tạo loại con; + tạo nhanh con; cập nhật tại chỗ; lỗi inline; unsaved-item disabled | Chủ dự án xác nhận |

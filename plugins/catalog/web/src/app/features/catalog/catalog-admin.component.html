@@ -146,35 +146,6 @@
                   }
                 </span>
               </div>
-              @if (selectedType()?.id === type.id && canEditType(type)) {
-                <div class="flex flex-wrap gap-1 px-1 pb-1">
-                  <button
-                    type="button"
-                    class="px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
-                    (click)="openTypeEdit()"
-                  >
-                    {{ 'COMMON_EDIT' | translate }}
-                  </button>
-                  @if (canMutateType(type)) {
-                    <button
-                      type="button"
-                      class="px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
-                      (click)="openGrants()"
-                    >
-                      {{ 'CATALOG_TYPE_GRANTS_BTN' | translate }}
-                    </button>
-                  }
-                  @if (type.is_clone) {
-                    <button
-                      type="button"
-                      class="px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
-                      (click)="openSyncDrawer()"
-                    >
-                      {{ 'CATALOG_SYNC_BTN' | translate }}
-                    </button>
-                  }
-                </div>
-              }
             </li>
           }
         </ul>
