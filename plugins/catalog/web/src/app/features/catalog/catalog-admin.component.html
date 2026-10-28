@@ -135,6 +135,9 @@
                   @if (isSystemType(type)) {
                     <app-badge variant="info">{{ 'CATALOG_BADGE_SYSTEM' | translate }}</app-badge>
                   }
+                  @if (type.is_clone) {
+                    <app-badge variant="warning">{{ 'CATALOG_BADGE_CLONE' | translate }}</app-badge>
+                  }
                   @if (type.overridden) {
                     <app-badge variant="warning">{{ 'CATALOG_BADGE_OVERRIDE' | translate }}</app-badge>
                   }
@@ -143,7 +146,7 @@
                   }
                 </span>
               </div>
-              @if (selectedType()?.id === type.id && canMutateType(type)) {
+              @if (selectedType()?.id === type.id && canEditType(type)) {
                 <div class="flex flex-wrap gap-1 px-1 pb-1">
                   <button
                     type="button"
@@ -152,13 +155,15 @@
                   >
                     {{ 'COMMON_EDIT' | translate }}
                   </button>
-                  <button
-                    type="button"
-                    class="px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
-                    (click)="openGrants()"
-                  >
-                    {{ 'CATALOG_TYPE_GRANTS_BTN' | translate }}
-                  </button>
+                  @if (canMutateType(type)) {
+                    <button
+                      type="button"
+                      class="px-1.5 py-0.5 text-[10px] border border-default hover:bg-surface-muted"
+                      (click)="openGrants()"
+                    >
+                      {{ 'CATALOG_TYPE_GRANTS_BTN' | translate }}
+                    </button>
+                  }
                 </div>
               }
             </li>
@@ -262,7 +267,7 @@
               <td class="px-2 py-1 font-mono text-[10px] whitespace-nowrap">{{ r.code }}</td>
               <td class="px-2 py-1 min-w-[9rem]">
                 {{ r.name }}
-                @if (r.overridden) {
+                @if (r.overridden && !selectedType()?.is_clone) {
                   <app-badge variant="warning">{{ 'CATALOG_BADGE_OVERRIDE' | translate }}</app-badge>
                 }
               </td>
@@ -361,7 +366,7 @@
                       <span class="font-mono text-[10px]">{{ item.code }}</span>
                       <span class="truncate">{{ item.name }}</span>
                       <app-badge [variant]="statusVariant(item.status)">{{ 'CATALOG_STATUS_' + item.status | translate }}</app-badge>
-                      @if (item.overridden) {
+                      @if (item.overridden && !selectedType()?.is_clone) {
                         <app-badge variant="warning">{{ 'CATALOG_BADGE_OVERRIDE' | translate }}</app-badge>
                       }
                       @if (item.parents?.length) {
@@ -420,6 +425,7 @@
   <app-catalog-type-drawer
     [isOpen]="typeDrawerOpen()"
     [type]="editingType()"
+    [types]="types()"
     [scope]="scope()"
     (close)="closeDrawer()"
     (saved)="onTypeSaved($event)"
@@ -435,6 +441,8 @@
   <app-catalog-edge-drawer
     [isOpen]="edgeDrawerOpen()"
     [child]="selectedItem()"
+    [parent]="edgeParent()"
+    [mode]="edgeMode()"
     [type]="selectedType()"
     [scope]="scope()"
     (close)="closeDrawer()"

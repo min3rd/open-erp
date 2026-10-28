@@ -13,6 +13,7 @@ import com.vn9melody.openerp.plugins.catalog.model.CatalogItem;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogItemEdge;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogTypeGrant;
+import com.vn9melody.openerp.plugins.catalog.model.CatalogTypeRelation;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Instant;
@@ -166,6 +167,101 @@ public class CatalogGateway {
     }
 
     // ------------------------------------------------------------------
+    // Type relations (FEAT-31)
+    // ------------------------------------------------------------------
+
+    public List<CatalogTypeRelation> typeRelationsParents(UUID tenantId, UUID typeId) {
+        return cache.getOrLoad(tenantId, "type-relations:parents:" + typeId,
+                new TypeReference<List<CatalogTypeRelation>>() {},
+                () -> query("catalog.type.relations.parents", Map.of("type_id", typeId))
+                        .rows().stream().map(this::toTypeRelation).toList());
+    }
+
+    public List<CatalogTypeRelation> typeRelationsChildren(UUID tenantId, UUID typeId) {
+        return cache.getOrLoad(tenantId, "type-relations:children:" + typeId,
+                new TypeReference<List<CatalogTypeRelation>>() {},
+                () -> query("catalog.type.relations.children", Map.of("type_id", typeId))
+                        .rows().stream().map(this::toTypeRelation).toList());
+    }
+
+    public List<CatalogTypeRelation> typeRelationsParentsFresh(UUID tenantId, UUID typeId) {
+        return query("catalog.type.relations.parents", Map.of("type_id", typeId))
+                .rows().stream().map(this::toTypeRelation).toList();
+    }
+
+    public List<CatalogTypeRelation> typeRelationsChildrenFresh(UUID tenantId, UUID typeId) {
+        return query("catalog.type.relations.children", Map.of("type_id", typeId))
+                .rows().stream().map(this::toTypeRelation).toList();
+    }
+
+    /** All visible relations of one tenant, used for type-level cycle checks. */
+    public List<CatalogTypeRelation> allTypeRelations(UUID tenantId) {
+        return cache.getOrLoad(tenantId, "type-relations:all",
+                new TypeReference<List<CatalogTypeRelation>>() {},
+                () -> query("catalog.type.relations.all", Map.of())
+                        .rows().stream().map(this::toTypeRelation).toList());
+    }
+
+    /** All item versions of a type, used by clone/sync (system or tenant scope). */
+    public List<CatalogItem> cloneItems(UUID tenantId, UUID typeId, boolean system) {
+        return pageThrough(system ? "catalog.clone.items.system" : "catalog.clone.items.tenant",
+                Map.of("type_id", typeId), 500, this::toItem);
+    }
+
+    /** All edges (current and closed) for clone/sync; {@code system} selects system rows. */
+    public List<CatalogItemEdge> cloneEdges(UUID tenantId, boolean system) {
+        return pageThrough(system ? "catalog.clone.edges.system" : "catalog.clone.edges.tenant",
+                Map.of(), 500, this::toEdge);
+    }
+
+    /** Moves tenant item overrides from the system type to its tenant clone. */
+    public void moveItemsToType(UUID tenantId, UUID fromTypeId, UUID toTypeId) {
+        Map<String, Object> params = Map.of("from_type_id", fromTypeId, "to_type_id", toTypeId);
+        client.write("catalog.clone.item.move.type", params);
+    }
+
+    /**
+     * Replaces the type's links for one relation: {@code parentIds} are types
+     * that become parents of this type, {@code childIds} become children.
+     */
+    public void replaceTypeRelations(UUID tenantId, UUID typeId, String relationType,
+                                     Collection<UUID> parentIds, Collection<UUID> childIds, boolean system) {
+        List<PluginDataClient.BatchStatement> statements = new ArrayList<>();
+        statements.add(new PluginDataClient.BatchStatement(
+                system ? "catalog.type.relation.delete.parents.system" : "catalog.type.relation.delete.parents",
+                Map.of("type_id", typeId, "relation_type", relationType)));
+        statements.add(new PluginDataClient.BatchStatement(
+                system ? "catalog.type.relation.delete.children.system" : "catalog.type.relation.delete.children",
+                Map.of("type_id", typeId, "relation_type", relationType)));
+        Instant now = Instant.now();
+        int order = 0;
+        for (UUID parentId : parentIds) {
+            statements.add(relationInsert(system, parentId, typeId, relationType, order++, now));
+        }
+        order = 0;
+        for (UUID childId : childIds) {
+            statements.add(relationInsert(system, typeId, childId, relationType, order++, now));
+        }
+        client.executeBatch(statements);
+        cache.invalidate(tenantId);
+    }
+
+    private static PluginDataClient.BatchStatement relationInsert(boolean system, UUID parentId, UUID childId,
+                                                                  String relationType, int sortOrder, Instant now) {
+        Map<String, Object> params = new java.util.LinkedHashMap<>();
+        params.put("parent_type_id", parentId);
+        params.put("child_type_id", childId);
+        params.put("relation_type", relationType);
+        params.put("sort_order", sortOrder);
+        params.put("status", CatalogStatus.ACTIVE.name());
+        params.put("created_at", now);
+        params.put("updated_at", now);
+        return new PluginDataClient.BatchStatement(
+                system ? "catalog.type.relation.insert.system" : "catalog.type.relation.insert", params);
+    }
+
+
+    // ------------------------------------------------------------------
     // Items
     // ------------------------------------------------------------------
 
@@ -230,6 +326,23 @@ public class CatalogGateway {
         return insertItem(tenantId, itemParams(item), system);
     }
 
+    /** Batch clone inserts; returns saved rows in the same order as {@code items}. */
+    public List<CatalogItem> insertItems(UUID tenantId, List<CatalogItem> items) {
+        List<PluginDataClient.BatchStatement> statements = new ArrayList<>();
+        for (CatalogItem item : items) {
+            statements.add(new PluginDataClient.BatchStatement("catalog.item.insert", itemParams(item)));
+        }
+        List<CatalogItem> saved = new ArrayList<>();
+        for (int start = 0; start < statements.size(); start += 500) {
+            List<PluginQueryResult> results = client.executeBatch(
+                    statements.subList(start, Math.min(statements.size(), start + 500)));
+            for (PluginQueryResult result : results) {
+                saved.add(toItem(result.first()));
+            }
+        }
+        return saved;
+    }
+
     public CatalogItem updateItemVersioned(UUID tenantId, CatalogItem current, CatalogItem next,
                                            Instant now, UUID actor) {
         boolean system = current.tenantId == null;
@@ -259,6 +372,7 @@ public class CatalogGateway {
     private static Map<String, Object> itemParams(CatalogItem item) {
         Map<String, Object> params = new java.util.LinkedHashMap<>();
         params.put("type_id", item.typeId);
+        params.put("system_item_id", item.systemItemId);
         params.put("version_group_id", item.versionGroupId);
         params.put("version", item.version);
         params.put("code", item.code);
@@ -450,10 +564,12 @@ public class CatalogGateway {
         Map<String, Object> params = new java.util.LinkedHashMap<>();
         params.put("parent_item_id", edge.parentItemId);
         params.put("child_item_id", edge.childItemId);
+        params.put("system_edge_id", edge.systemEdgeId);
         params.put("relation_type", edge.relationType == null ? null : edge.relationType.name());
         params.put("sort_order", edge.sortOrder);
         params.put("status", edge.status == null ? null : edge.status.name());
         params.put("valid_from", edge.validFrom);
+        params.put("valid_to", edge.validTo);
         params.put("created_by", edge.createdBy);
         params.put("created_at", edge.createdAt);
         return insertEdge(tenantId, params, system);
@@ -581,6 +697,7 @@ public class CatalogGateway {
         CatalogType type = new CatalogType();
         type.id = uuid(row, "id");
         type.tenantId = uuid(row, "tenant_id");
+        type.systemTypeId = uuid(row, "system_type_id");
         type.code = text(row, "code");
         type.nameKey = text(row, "name_key");
         type.descriptionKey = text(row, "description_key");
@@ -605,6 +722,7 @@ public class CatalogGateway {
         item.id = uuid(row, "id");
         item.tenantId = uuid(row, "tenant_id");
         item.typeId = uuid(row, "type_id");
+        item.systemItemId = uuid(row, "system_item_id");
         item.versionGroupId = uuid(row, "version_group_id");
         item.version = intValue(row, "version");
         item.code = text(row, "code");
@@ -630,6 +748,7 @@ public class CatalogGateway {
         edge.tenantId = uuid(row, "tenant_id");
         edge.parentItemId = uuid(row, "parent_item_id");
         edge.childItemId = uuid(row, "child_item_id");
+        edge.systemEdgeId = uuid(row, "system_edge_id");
         edge.relationType = enumValue(CatalogRelationType.class, text(row, "relation_type"),
                 CatalogRelationType.HIERARCHY);
         edge.sortOrder = intValue(row, "sort_order");
@@ -641,8 +760,23 @@ public class CatalogGateway {
         return edge;
     }
 
-    private CatalogTypeGrant toGrant(Map<String, Object> row) {
-        CatalogTypeGrant grant = new CatalogTypeGrant();
+    private CatalogTypeRelation toTypeRelation(Map<String, Object> row) {
+        CatalogTypeRelation relation = new CatalogTypeRelation();
+        relation.id = uuid(row, "id");
+        relation.tenantId = uuid(row, "tenant_id");
+        relation.parentTypeId = uuid(row, "parent_type_id");
+        relation.childTypeId = uuid(row, "child_type_id");
+        relation.systemRelationId = uuid(row, "system_relation_id");
+        relation.relationType = enumValue(CatalogRelationType.class, text(row, "relation_type"),
+                CatalogRelationType.HIERARCHY);
+        relation.sortOrder = intValue(row, "sort_order");
+        relation.status = enumValue(CatalogStatus.class, text(row, "status"), CatalogStatus.ACTIVE);
+        relation.createdAt = instant(row, "created_at");
+        relation.updatedAt = instant(row, "updated_at");
+        return relation;
+    }
+
+    private CatalogTypeGrant toGrant(Map<String, Object> row) {        CatalogTypeGrant grant = new CatalogTypeGrant();
         grant.id = uuid(row, "id");
         grant.tenantId = uuid(row, "tenant_id");
         grant.typeId = uuid(row, "type_id");

@@ -14,11 +14,16 @@ import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.GrantItem;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.GrantReplaceRequest;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.GrantResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeCreateRequest;
+import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeRelationGroup;
+import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeRelationItem;
+import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeRelationUpdateRequest;
+import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeRelationsResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeUpdateRequest;
 import com.vn9melody.openerp.plugins.catalog.gateway.CatalogGateway;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogTypeGrant;
+import com.vn9melody.openerp.plugins.catalog.model.CatalogTypeRelation;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Instant;
@@ -52,9 +57,16 @@ public class CatalogTypeService {
     @Inject
     AuditTrail auditTrail;
 
-    /** Tenant view: system + own types (both rows; {@code is_system} distinguishes them). */
+    /** Tenant view: system + own types, hiding a system row replaced by a tenant clone. */
     public List<TypeResponse> list(UUID tenantId) {
-        return gateway.visibleTypes(tenantId).stream().map(CatalogTypeService::toResponse).toList();
+        List<CatalogType> visible = gateway.visibleTypes(tenantId);
+        Set<String> tenantCodes = visible.stream()
+            .filter(type -> Objects.equals(type.tenantId, tenantId))
+            .map(type -> type.code)
+            .collect(java.util.stream.Collectors.toSet());
+        return visible.stream()
+            .filter(type -> !(type.tenantId == null && tenantCodes.contains(type.code)))
+            .map(CatalogTypeService::toResponse).toList();
     }
 
     /** Platform view: system types only. */
@@ -147,8 +159,194 @@ public class CatalogTypeService {
             .toList();
     }
 
-    private CatalogType requireOwnedType(UUID tenantId, UUID typeId) {
-        CatalogType type = typeId != null ? gateway.typeById(tenantId, typeId) : null;
+    // ------------------------------------------------------------------
+    // Type relations (FEAT-31)
+    // ------------------------------------------------------------------
+
+    public TypeRelationsResponse relations(UUID tenantId, String code, boolean system) {
+        CatalogType type = system ? requireSystemType(code) : guard.requireVisibleType(tenantId, code);
+        List<CatalogTypeRelation> parents = gateway.typeRelationsParents(tenantId, type.id);
+        List<CatalogTypeRelation> children = gateway.typeRelationsChildren(tenantId, type.id);
+
+        Set<UUID> relatedIds = new java.util.LinkedHashSet<>();
+        parents.forEach(relation -> relatedIds.add(relation.parentTypeId));
+        children.forEach(relation -> relatedIds.add(relation.childTypeId));
+        Map<UUID, CatalogType> related = new HashMap<>();
+        gateway.typesByIds(tenantId, relatedIds).forEach(relatedType -> related.put(relatedType.id, relatedType));
+
+        Set<String> relationTypes = new java.util.LinkedHashSet<>();
+        if (type.allowedRelations != null) {
+            relationTypes.addAll(Arrays.asList(type.allowedRelations));
+        }
+        parents.forEach(relation -> relationTypes.add(relation.relationType.name()));
+        children.forEach(relation -> relationTypes.add(relation.relationType.name()));
+
+        List<TypeRelationGroup> groups = new ArrayList<>();
+        for (String relationType : relationTypes) {
+            List<TypeRelationItem> parentItems = parents.stream()
+                .filter(relation -> relationType.equals(relation.relationType.name()))
+                .map(relation -> related.get(relation.parentTypeId))
+                .filter(Objects::nonNull)
+                .sorted(java.util.Comparator.comparing(relatedType -> relatedType.code))
+                .map(CatalogTypeService::toRelationItem)
+                .toList();
+            List<TypeRelationItem> childItems = children.stream()
+                .filter(relation -> relationType.equals(relation.relationType.name()))
+                .map(relation -> related.get(relation.childTypeId))
+                .filter(Objects::nonNull)
+                .sorted(java.util.Comparator.comparing(relatedType -> relatedType.code))
+                .map(CatalogTypeService::toRelationItem)
+                .toList();
+            groups.add(new TypeRelationGroup(relationType, parentItems, childItems));
+        }
+        return new TypeRelationsResponse(groups);
+    }
+
+    public TypeRelationsResponse replaceRelations(UUID tenantId, String code,
+                                                  TypeRelationUpdateRequest request, boolean system) {
+        CatalogType type = requireTypeForScope(tenantId, code, system);
+        if (request == null) {
+            throw CatalogSupport.validation("relation_type", ErrorCode.VALIDATION_REQUIRED, Map.of());
+        }
+        CatalogRelationType relation = CatalogSupport.parseEnum(CatalogRelationType.class,
+            request.relationType(), "relation_type", null);
+        if (relation == null) {
+            throw CatalogSupport.validation("relation_type", ErrorCode.VALIDATION_REQUIRED, Map.of());
+        }
+        if (type.allowedRelations == null || !Arrays.asList(type.allowedRelations).contains(relation.name())) {
+            throw CatalogSupport.validation("relation_type", ErrorCode.VALIDATION_INVALID,
+                Map.of("relation_type", relation.name()));
+        }
+
+        Map<String, CatalogType> visibleByCode = new HashMap<>();
+        for (CatalogType visible : gateway.visibleTypes(tenantId)) {
+            CatalogType current = visibleByCode.get(visible.code);
+            if (current == null || (current.tenantId == null && visible.tenantId != null)) {
+                visibleByCode.put(visible.code, visible);
+            }
+        }
+        List<UUID> parentIds = resolveRelationTypes(request.parentCodes(), visibleByCode, relation, type);
+        List<UUID> childIds = resolveRelationTypes(request.childCodes(), visibleByCode, relation, type);
+
+        assertNoTypeCycle(tenantId, type.id, relation.name(), parentIds, childIds);
+        gateway.replaceTypeRelations(tenantId, type.id, relation.name(), parentIds, childIds, system);
+        syncLegacyParentTypes(tenantId, type, system);
+        auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_TYPE_RELATION_UPDATE, "CATALOG_TYPE", type.id,
+            Map.of(ResponseKey.CODE.getKey(), type.code, "relation_type", relation.name()));
+        return relations(tenantId, code, system);
+    }
+
+    private CatalogType requireSystemType(String code) {
+        CatalogType type = gateway.systemTypeByCode(code);
+        if (type == null) {
+            throw CatalogSupport.notFound(CatalogErrorCode.CATALOG_TYPE_NOT_FOUND, "code", code);
+        }
+        return type;
+    }
+
+    private CatalogType requireTypeForScope(UUID tenantId, String code, boolean system) {
+        if (system) {
+            return requireSystemType(code);
+        }
+        CatalogType type = guard.requireVisibleType(tenantId, code);
+        if (!Objects.equals(type.tenantId, tenantId)) {
+            throw CatalogPermissionGuard.typeForbidden(type.code);
+        }
+        return type;
+    }
+
+    private static TypeRelationItem toRelationItem(CatalogType type) {
+        return new TypeRelationItem(type.code, type.nameKey, type.tenantId == null);
+    }
+
+    private List<UUID> resolveRelationTypes(List<String> codes, Map<String, CatalogType> visibleByCode,
+                                            CatalogRelationType relation, CatalogType self) {
+        if (codes == null || codes.isEmpty()) {
+            return List.of();
+        }
+        List<UUID> ids = new ArrayList<>();
+        for (String raw : codes) {
+            String code = CatalogSupport.normalizeCode(raw);
+            if (code == null) {
+                throw CatalogSupport.validation("code", ErrorCode.VALIDATION_REQUIRED, Map.of());
+            }
+            CatalogType target = visibleByCode.get(code);
+            if (target == null) {
+                throw CatalogSupport.validation("code", ErrorCode.VALIDATION_INVALID, Map.of("code", code));
+            }
+            if (target.id.equals(self.id)) {
+                throw CatalogSupport.conflict(CatalogErrorCode.CATALOG_TYPE_RELATION_SELF, Map.of("code", code));
+            }
+            if (target.allowedRelations == null
+                    || !Arrays.asList(target.allowedRelations).contains(relation.name())) {
+                throw CatalogSupport.validation("code", ErrorCode.VALIDATION_INVALID,
+                    Map.of("code", code, "relation_type", relation.name()));
+            }
+            if (!ids.contains(target.id)) {
+                ids.add(target.id);
+            }
+        }
+        return ids;
+    }
+
+    /** Type-level cycle guard for the same relation type (parent -> child). */
+    private void assertNoTypeCycle(UUID tenantId, UUID typeId, String relationType,
+                                   List<UUID> parentIds, List<UUID> childIds) {
+        Map<UUID, Set<UUID>> edges = new HashMap<>();
+        for (CatalogTypeRelation relation : gateway.allTypeRelations(tenantId)) {
+            if (!relationType.equals(relation.relationType.name())) {
+                continue;
+            }
+            edges.computeIfAbsent(relation.parentTypeId, key -> new HashSet<>()).add(relation.childTypeId);
+        }
+        edges.values().forEach(children -> children.remove(typeId));
+        edges.remove(typeId);
+        for (UUID parentId : parentIds) {
+            edges.computeIfAbsent(parentId, key -> new HashSet<>()).add(typeId);
+        }
+        for (UUID childId : childIds) {
+            edges.computeIfAbsent(typeId, key -> new HashSet<>()).add(childId);
+        }
+        Map<UUID, Integer> state = new HashMap<>();
+        for (UUID node : edges.keySet()) {
+            if (hasCycle(node, edges, state)) {
+                throw CatalogSupport.conflict(CatalogErrorCode.CATALOG_TYPE_RELATION_CYCLE,
+                    Map.of("relation_type", relationType));
+            }
+        }
+    }
+
+    private static boolean hasCycle(UUID node, Map<UUID, Set<UUID>> edges, Map<UUID, Integer> state) {
+        Integer current = state.get(node);
+        if (current != null) {
+            return current == 1;
+        }
+        state.put(node, 1);
+        for (UUID next : edges.getOrDefault(node, Set.of())) {
+            if (hasCycle(next, edges, state)) {
+                return true;
+            }
+        }
+        state.put(node, 2);
+        return false;
+    }
+
+    /** Keeps the legacy {@code allowed_parent_types} array aligned with the relation rows. */
+    private void syncLegacyParentTypes(UUID tenantId, CatalogType type, boolean system) {
+        Set<UUID> parentIds = new HashSet<>();
+        gateway.typeRelationsParentsFresh(tenantId, type.id)
+            .forEach(relation -> parentIds.add(relation.parentTypeId));
+        List<String> codes = gateway.typesByIds(tenantId, parentIds).stream()
+            .map(parent -> parent.code)
+            .sorted()
+            .toList();
+        Map<String, Object> params = typeParams(type);
+        params.put("allowed_parent_types", codes.isEmpty() ? null : codes);
+        params.put("updated_at", Instant.now());
+        gateway.updateType(tenantId, params, system);
+    }
+
+    private CatalogType requireOwnedType(UUID tenantId, UUID typeId) {        CatalogType type = typeId != null ? gateway.typeById(tenantId, typeId) : null;
         if (type == null) {
             throw CatalogSupport.notFound(CatalogErrorCode.CATALOG_TYPE_NOT_FOUND, ResponseKey.ID.getKey(), typeId);
         }
@@ -171,7 +369,7 @@ public class CatalogTypeService {
         return type;
     }
 
-    private void createDefaultGrants(UUID tenantId, UUID typeId) {
+    void createDefaultGrants(UUID tenantId, UUID typeId) {
         Instant now = Instant.now();
         List<Map<String, Object>> grants = new ArrayList<>();
         for (String roleCode : DEFAULT_GRANT_ROLE_CODES) {
@@ -191,6 +389,7 @@ public class CatalogTypeService {
         Map<String, Object> params = new java.util.LinkedHashMap<>();
         params.put("id", type.id);
         params.put("code", type.code);
+        params.put("system_type_id", type.systemTypeId);
         params.put("name_key", type.nameKey);
         params.put("description_key", type.descriptionKey);
         params.put("hierarchy_mode", type.hierarchyMode == null ? null : type.hierarchyMode.name());
@@ -323,6 +522,7 @@ public class CatalogTypeService {
             type.attributesSchema,
             type.status.name(),
             type.tenantId == null,
+            type.systemTypeId != null,
             type.createdAt,
             type.updatedAt);
     }

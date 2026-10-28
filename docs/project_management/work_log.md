@@ -2,6 +2,12 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-28 — FEAT-31/32: type relations + tenant clone
+
+- **FEAT-31**: `catalog_type_relations` (migration plugin `V1.0.1` + core `V5.4.0`), backfill `allowed_parent_types`; API `GET/PUT /types/{code}/relations` (validate relation/self/cycle); type drawer chip chọn loại cha/con; edge drawer thêm con. Đã test API: COMMUNE → DISTRICT/PROVINCE; cycle trả `CATALOG_TYPE_RELATION_CYCLE`.
+- **FEAT-32**: cột `system_*_id` (plugin `V1.1.0` + core `V5.5.0`); `POST/DELETE /types/{code}/clone` clone cả cụm PROVINCE+COMMUNE+DISTRICT + item/edge/relation; tenant sửa system type tự clone khi Lưu; list ẩn system row khi có clone, badge `BẢN TENANT`. Clone COMMUNE: 3.354 item, 3.318 edge, 20s; xoá clone + sync preview/apply còn lại.
+- **V5.5.1**: sửa array `[Ljava.lang.String;@...` do fan-out cũ + backfill lại relation; **V5.5.2**: move item override sang loại clone + timeout batch 30s.
+
 ## 2026-10-28 — BUG-151: bỏ header host lặp cho iframe
 
 - `PluginScreenHostComponent`: ẩn header host khi `render_mode = IFRAME`, `frameOffsetPx` 112 → 72 để iframe lấp đúng vùng nội dung; plugin web-component/module-federation vẫn giữ header.

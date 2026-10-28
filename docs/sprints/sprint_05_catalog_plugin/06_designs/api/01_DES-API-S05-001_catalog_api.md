@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | DES-API-S05-001 / Thiết kế API / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.1 / 2026-10-06 |
+| Trạng thái / phiên bản / cập nhật | Draft / 0.3 / 2026-10-28 (bổ sung FEAT-31/32) |
 | Owner / reviewer | Solution Architect / Chưa review |
 | Đầu vào | [SOL-S05-001](../../05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) (D9–D13), [DES-DB-S05-001](../db/01_DES-DB-S05-001_catalog_schema.md) |
 | Đọc trước / đọc tiếp | DES-DB-S05-001 / [DES-UI-S05-001](../ui/01_DES-UI-S05-001_catalog_admin_ui.md) |
@@ -159,7 +159,34 @@ Mọi mã trên phải có key i18n tương ứng ở **13 locale** của app d�
 | AC-15 | Mọi endpoint lấy tenant từ context |
 | AC-16 | `GET /plugin/manifest` (descriptor khai báo ma trận Desktop/Mobile) |
 
-## 8. Lịch sử
+## 8. Bổ sung FEAT-31/32 (2026-10-28)
+
+### 8.1. Quan hệ loại (FEAT-31)
+
+| Method / path | Body / query | Trả về |
+| :--- | :--- | :--- |
+| `GET /types/{code}/relations` | — | `data.relations: [{ relation_type, parents:[{code,name_key,is_system}], children:[...] }]` |
+| `PUT /types/{code}/relations` | `{ relation_type, parent_codes[], child_codes[] }` | Cùng shape; thay toàn bộ liên kết của loại cho relation đó |
+| `GET/PUT /catalog/system/types/{code}/relations` | như trên (platform) | Quan hệ system; platform-only |
+
+- Validate: relation thuộc `allowed_relations` của cả hai đầu; loại đích tồn tại và nhìn thấy được; không tự tham chiếu; **cycle theo relation_type** → `CATALOG_TYPE_RELATION_CYCLE`.
+- Lưu xong đồng bộ cột tương thích `allowed_parent_types` = hợp các mã loại cha.
+- Mã: `CATALOG_TYPE_RELATION_FETCH_SUCCESS`, `CATALOG_TYPE_RELATION_UPDATED_SUCCESS`, `CATALOG_TYPE_RELATION_INVALID`, `CATALOG_TYPE_RELATION_SELF`, `CATALOG_TYPE_RELATION_CYCLE`.
+
+### 8.2. Clone/sync loại system (FEAT-32)
+
+| Method / path | Body | Trả về |
+| :--- | :--- | :--- |
+| `POST /types/{code}/clone` | `{}` | `{ types, items, edges, relations, created }` cho toàn bộ cụm liên thông |
+| `GET /types/{code}/sync/preview` | — | `{ conflicts: [{scope,key,field,tenant,system,default_action}] }` |
+| `POST /types/{code}/sync` | `{ conflicts:[{scope,key,field,action}] }` | `{ applied, skipped, conflicts }` |
+| `DELETE /types/{code}/clone` | — | Xoá cụm clone tenant, quay lại system |
+| `POST /api/v1/catalog/system/types/{code}/sync` | `{ tenant_id, conflicts[] }` | Platform sync hộ tenant + audit |
+
+- Mọi endpoint tenant lấy `tenant_id` từ context; platform kiểm tra role platform và ghi audit.
+- Hành động: `OVERRIDE` (system thắng), `SKIP` (tenant giữ), `MERGE` (JSON/array hợp nhất, tenant thắng khóa trùng).
+
+## 9. Lịch sử
 
 | Phiên bản | Ngày | Thay đổi | Người review/phê duyệt và nguồn |
 | :--- | :--- | :--- | :--- |

@@ -62,6 +62,8 @@ export interface CatalogTypeDto {
   status: CatalogStatus;
   /** System type (`tenant_id IS NULL`) — read-only for tenants. */
   is_system?: boolean;
+  /** Tenant clone of a system type (FEAT-32). */
+  is_clone?: boolean;
   /** Tenant type with the same `code` as a system type (Q1/Q2). */
   overridden?: boolean;
   items_count?: number;
@@ -165,8 +167,42 @@ export interface CatalogGrantPayload {
   can_write: boolean;
 }
 
-/** `POST /catalog/edges` body (DES-API-S05-001 §5.4). */
-export interface CatalogEdgePayload {
+/** One type node in a type-relation group (FEAT-31). */
+export interface CatalogTypeRelationItem {
+  code: string;
+  name_key: string;
+  is_system: boolean;
+}
+
+/** Parents/children of one relation type. */
+export interface CatalogTypeRelationGroup {
+  relation_type: CatalogRelationType;
+  parents: CatalogTypeRelationItem[];
+  children: CatalogTypeRelationItem[];
+}
+
+export interface CatalogTypeRelations {
+  relations: CatalogTypeRelationGroup[];
+}
+
+/** Result of `POST /catalog/types/{code}/clone` (FEAT-32). */
+export interface CatalogCloneResult {
+  types: number;
+  items: number;
+  edges: number;
+  relations: number;
+  skipped: number;
+  tenant_type_id?: string | null;
+}
+
+/** Body of `PUT /catalog/types/{code}/relations`. */
+export interface CatalogTypeRelationPayload {
+  relation_type: CatalogRelationType;
+  parent_codes: string[];
+  child_codes: string[];
+}
+
+/** `POST /catalog/edges` body (DES-API-S05-001 §5.4). */export interface CatalogEdgePayload {
   parent_item_id: string;
   child_item_id: string;
   relation_type: CatalogRelationType;
@@ -260,6 +296,30 @@ export class CatalogAdminService {
         [ResponseKey.CAN_WRITE]: grant.can_write
       }))
     });
+  }
+
+  getTypeRelations(typeCode: string, scope: CatalogScope = CatalogScope.TENANT): Observable<ApiResponse<CatalogTypeRelations>> {
+    return this.api.get<CatalogTypeRelations>(`${this.base(scope)}/types/${encodeURIComponent(typeCode)}/relations`);
+  }
+
+  replaceTypeRelations(
+    typeCode: string,
+    payload: CatalogTypeRelationPayload,
+    scope: CatalogScope = CatalogScope.TENANT
+  ): Observable<ApiResponse<CatalogTypeRelations>> {
+    return this.api.put<CatalogTypeRelations>(`${this.base(scope)}/types/${encodeURIComponent(typeCode)}/relations`, {
+      [ResponseKey.RELATION_TYPE]: payload.relation_type,
+      [ResponseKey.PARENT_CODES]: payload.parent_codes,
+      [ResponseKey.CHILD_CODES]: payload.child_codes
+    });
+  }
+
+  cloneType(typeCode: string, scope: CatalogScope = CatalogScope.TENANT): Observable<ApiResponse<CatalogCloneResult>> {
+    return this.api.post<CatalogCloneResult>(`${this.base(scope)}/types/${encodeURIComponent(typeCode)}/clone`, {});
+  }
+
+  deleteTypeClone(typeCode: string, scope: CatalogScope = CatalogScope.TENANT): Observable<ApiResponse<CatalogCloneResult>> {
+    return this.api.delete<CatalogCloneResult>(`${this.base(scope)}/types/${encodeURIComponent(typeCode)}/clone`);
   }
 
   // ---------------------------------------------------------------------

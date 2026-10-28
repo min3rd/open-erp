@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import {
   ApiErrorResponse,
   CatalogHierarchyMode,
@@ -20,7 +21,8 @@ import {
   CatalogAttributesSchema,
   CatalogScope,
   CatalogTypeDto,
-  CatalogTypePayload
+  CatalogTypePayload,
+  CatalogTypeRelationPayload
 } from '../../core/services/catalog-admin.service';
 
 const RELATION_TYPES: CatalogRelationType[] = [
@@ -57,6 +59,7 @@ export class CatalogTypeDrawerComponent {
 
   isOpen = input<boolean>(false);
   type = input<CatalogTypeDto | null>(null);
+  types = input<CatalogTypeDto[]>([]);
   scope = input<CatalogScope>(CatalogScope.TENANT);
 
   close = output<void>();
@@ -78,7 +81,9 @@ export class CatalogTypeDrawerComponent {
   readonly descriptionKey = signal('');
   readonly hierarchyMode = signal<CatalogHierarchyMode>(CatalogHierarchyMode.TREE);
   readonly allowedRelations = signal<CatalogRelationType[]>([CatalogRelationType.HIERARCHY]);
-  readonly allowedParentTypes = signal('');
+  readonly parentSelections = signal<Record<string, string[]>>({});
+  readonly childSelections = signal<Record<string, string[]>>({});
+  readonly relationsLoading = signal(false);
   readonly maxDepth = signal('');
   readonly minParents = signal('0');
   readonly allowFreeText = signal(false);
@@ -91,7 +96,14 @@ export class CatalogTypeDrawerComponent {
   readonly errorText = signal('');
 
   readonly isEdit = computed(() => !!this.type()?.id);
+  readonly isSystemSource = computed(() => this.scope() === CatalogScope.TENANT && !!this.type()?.is_system);
   readonly titleKey = computed(() => (this.isEdit() ? 'CATALOG_TYPE_FORM_EDIT_TITLE' : 'CATALOG_TYPE_FORM_CREATE_TITLE'));
+  readonly selectableTypes = computed(() =>
+    this.types()
+      .filter((entry) => entry.code !== this.code())
+      .slice()
+      .sort((left, right) => left.code.localeCompare(right.code))
+  );
 
   constructor() {
     effect(() => {
@@ -110,7 +122,9 @@ export class CatalogTypeDrawerComponent {
     this.descriptionKey.set(type?.description_key ?? '');
     this.hierarchyMode.set(type?.hierarchy_mode ?? CatalogHierarchyMode.TREE);
     this.allowedRelations.set(type?.allowed_relations?.length ? [...type.allowed_relations] : [CatalogRelationType.HIERARCHY]);
-    this.allowedParentTypes.set(type?.allowed_parent_types?.join(', ') ?? '');
+    this.parentSelections.set({});
+    this.childSelections.set({});
+    this.loadRelations(type);
     this.maxDepth.set(type?.max_depth !== null && type?.max_depth !== undefined ? String(type.max_depth) : '');
     this.minParents.set(String(type?.min_parents ?? 0));
     this.allowFreeText.set(type?.allow_free_text ?? false);
@@ -135,6 +149,50 @@ export class CatalogTypeDrawerComponent {
     this.allowedRelations.set([...next]);
   }
 
+  isParentSelected(relation: CatalogRelationType, code: string): boolean {
+    return (this.parentSelections()[relation] ?? []).includes(code);
+  }
+
+  isChildSelected(relation: CatalogRelationType, code: string): boolean {
+    return (this.childSelections()[relation] ?? []).includes(code);
+  }
+
+  toggleParent(relation: CatalogRelationType, code: string): void {
+    this.parentSelections.update((selections) => ({
+      ...selections,
+      [relation]: toggleCode(selections[relation] ?? [], code)
+    }));
+  }
+
+  toggleChild(relation: CatalogRelationType, code: string): void {
+    this.childSelections.update((selections) => ({
+      ...selections,
+      [relation]: toggleCode(selections[relation] ?? [], code)
+    }));
+  }
+
+  private loadRelations(type: CatalogTypeDto | null): void {
+    if (!type?.code) {
+      this.relationsLoading.set(false);
+      return;
+    }
+    this.relationsLoading.set(true);
+    this.catalog.getTypeRelations(type.code, this.scope()).subscribe({
+      next: (res) => {
+        const parents: Record<string, string[]> = {};
+        const children: Record<string, string[]> = {};
+        for (const group of res?.data?.relations ?? []) {
+          parents[group.relation_type] = (group.parents ?? []).map((item) => item.code);
+          children[group.relation_type] = (group.children ?? []).map((item) => item.code);
+        }
+        this.parentSelections.set(parents);
+        this.childSelections.set(children);
+        this.relationsLoading.set(false);
+      },
+      error: () => this.relationsLoading.set(false)
+    });
+  }
+
   save(): void {
     if (this.saving()) {
       return;
@@ -157,10 +215,9 @@ export class CatalogTypeDrawerComponent {
       }
     }
 
-    const parentTypes = this.allowedParentTypes()
-      .split(',')
-      .map((entry) => entry.trim())
-      .filter((entry) => entry.length > 0);
+    const parentTypes = [
+      ...new Set(Object.values(this.parentSelections()).flat())
+    ].sort();
 
     const payload: CatalogTypePayload = {
       code: this.code().trim().toUpperCase(),
@@ -180,13 +237,37 @@ export class CatalogTypeDrawerComponent {
 
     this.saving.set(true);
     this.errorText.set('');
+    if (this.isSystemSource()) {
+      this.catalog.cloneType(this.type()!.code, this.scope()).subscribe({
+        next: (res) => {
+          const tenantTypeId = res?.data?.tenant_type_id;
+          if (!tenantTypeId) {
+            this.saving.set(false);
+            this.errorText.set(this.i18n.t('INTERNAL_SERVER_ERROR'));
+            return;
+          }
+          this.persistType(tenantTypeId, payload);
+        },
+        error: (err) => {
+          this.saving.set(false);
+          const apiError = err as ApiErrorResponse;
+          this.errorText.set(this.i18n.t(apiError?.code || 'INTERNAL_SERVER_ERROR', apiError?.params));
+        }
+      });
+      return;
+    }
+    this.persistType(this.type()?.id ?? '', payload);
+  }
+
+  /** Saves the type row (create when no id) and then the per-relation links. */
+  private persistType(typeId: string, payload: CatalogTypePayload): void {
     const request = this.isEdit()
-      ? this.catalog.updateType(this.type()!.id, payload, this.scope())
+      ? this.catalog.updateType(typeId, payload, this.scope())
       : this.catalog.createType(payload, this.scope());
     request.subscribe({
       next: (res) => {
-        this.saving.set(false);
-        this.saved.emit(res.code);
+        const savedCode = res?.data?.code ?? payload.code;
+        this.persistRelations(savedCode);
       },
       error: (err) => {
         this.saving.set(false);
@@ -195,4 +276,41 @@ export class CatalogTypeDrawerComponent {
       }
     });
   }
+
+  /** Relations are saved per relation type after the type row itself succeeds. */
+  private persistRelations(typeCode: string): void {
+    const requests = this.allowedRelations()
+      .filter((relation) =>
+        this.isEdit() || (this.parentSelections()[relation]?.length ?? 0) > 0 || (this.childSelections()[relation]?.length ?? 0) > 0
+      )
+      .map((relation) => {
+        const payload: CatalogTypeRelationPayload = {
+          relation_type: relation,
+          parent_codes: this.parentSelections()[relation] ?? [],
+          child_codes: this.childSelections()[relation] ?? []
+        };
+        return this.catalog.replaceTypeRelations(typeCode, payload, this.scope());
+      });
+    if (!requests.length) {
+      this.finishSave(typeCode);
+      return;
+    }
+    forkJoin(requests).subscribe({
+      next: () => this.finishSave(typeCode),
+      error: (err) => {
+        this.saving.set(false);
+        const apiError = err as ApiErrorResponse;
+        this.errorText.set(this.i18n.t(apiError?.code || 'INTERNAL_SERVER_ERROR', apiError?.params));
+      }
+    });
+  }
+
+  private finishSave(typeCode: string): void {
+    this.saving.set(false);
+    this.saved.emit(typeCode);
+  }
+}
+
+function toggleCode(list: string[], code: string): string[] {
+  return list.includes(code) ? list.filter((entry) => entry !== code) : [...list, code];
 }

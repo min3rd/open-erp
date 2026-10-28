@@ -17,6 +17,7 @@ public enum CatalogResponseKey {
     // Types
     TYPE_ID("type_id"),
     TYPE_CODE("type_code"),
+    IS_CLONE("is_clone"),
     NAME_KEY("name_key"),
     HIERARCHY_MODE("hierarchy_mode"),
     ALLOWED_RELATIONS("allowed_relations"),
@@ -55,6 +56,14 @@ public enum CatalogResponseKey {
     CHILD_ITEM_ID("child_item_id"),
     RELATION_TYPE("relation_type"),
     PARENTS("parents"),
+    CHILDREN("children"),
+    PARENT_CODES("parent_codes"),
+    CHILD_CODES("child_codes"),
+    RELATIONS("relations"),
+    TYPES("types"),
+    ITEMS("items"),
+    EDGES("edges"),
+    TENANT_TYPE_ID("tenant_type_id"),
 
     // Grants
     CAN_READ("can_read"),
@@ -76,6 +85,7 @@ public enum CatalogResponseKey {
     public interface Json {
         String TYPE_ID = "type_id";
         String TYPE_CODE = "type_code";
+        String IS_CLONE = "is_clone";
         String NAME_KEY = "name_key";
         String HIERARCHY_MODE = "hierarchy_mode";
         String ALLOWED_RELATIONS = "allowed_relations";
@@ -108,6 +118,14 @@ public enum CatalogResponseKey {
         String CHILD_ITEM_ID = "child_item_id";
         String RELATION_TYPE = "relation_type";
         String PARENTS = "parents";
+        String CHILDREN = "children";
+        String PARENT_CODES = "parent_codes";
+        String CHILD_CODES = "child_codes";
+        String RELATIONS = "relations";
+        String TYPES = "types";
+        String ITEMS = "items";
+        String EDGES = "edges";
+        String TENANT_TYPE_ID = "tenant_type_id";
         String CAN_READ = "can_read";
         String CAN_WRITE = "can_write";
         String GRANTS = "grants";

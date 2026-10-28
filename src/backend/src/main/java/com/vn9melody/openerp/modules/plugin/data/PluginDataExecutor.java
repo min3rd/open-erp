@@ -107,7 +107,7 @@ public class PluginDataExecutor {
                                      String idempotencyKey) {
         Resolved resolved = resolve(identity);
         try (Connection connection = dataSource.getConnection()) {
-            configureSession(connection, resolved, defaultTimeoutMs);
+            configureSession(connection, resolved, batchTimeout(identity, resolved, statements));
             String hash = hash("__batch__@" + resolved.version(), statements);
             Idempotency idempotency = beginBatchIdempotency(connection, identity, idempotencyKey, hash);
             if (idempotency.replay() != null) {
@@ -131,10 +131,22 @@ public class PluginDataExecutor {
 
     public record BatchStatement(String queryId, String requestId, Map<String, Value> params) {}
 
+    /** A batch runs with the largest timeout declared by its statements. */
+    private int batchTimeout(PluginServiceIdentity identity, Resolved resolved, List<BatchStatement> statements) {
+        PluginManifest manifest = registry.manifest(identity.pluginKey(), resolved.version());
+        int timeout = defaultTimeoutMs;
+        for (BatchStatement statement : statements) {
+            PluginQueryDescriptor query = manifest.requireQuery(statement.queryId());
+            if (query.timeoutMs() > timeout) {
+                timeout = query.timeoutMs();
+            }
+        }
+        return timeout;
+    }
+
     private Result executeOne(PluginServiceIdentity identity, Resolved resolved,
                               String queryId, String requestId, Map<String, Value> params,
-                              Connection connection) {
-        PluginManifest manifest = registry.manifest(identity.pluginKey(), resolved.version());
+                              Connection connection) {        PluginManifest manifest = registry.manifest(identity.pluginKey(), resolved.version());
         PluginQueryDescriptor query = manifest.requireQuery(queryId);
         if (!identity.system() && query.scope() == PluginQueryDescriptor.Scope.SYSTEM) {
             throw new PluginDataException(PluginDataException.Code.QUERY_NOT_FOUND,

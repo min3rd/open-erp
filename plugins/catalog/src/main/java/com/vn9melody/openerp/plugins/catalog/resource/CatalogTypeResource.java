@@ -8,19 +8,24 @@ import com.vn9melody.openerp.plugins.catalog.api.CatalogErrorCode;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogSupport;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogImportExportDtos.CsvFile;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogImportExportDtos.ImportReport;
+import com.vn9melody.openerp.plugins.catalog.dto.CatalogCloneDtos.CloneResult;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.ItemCreateRequest;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.ItemResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.GrantReplaceRequest;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.GrantResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeCreateRequest;
+import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeRelationUpdateRequest;
+import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeRelationsResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeUpdateRequest;
 import com.vn9melody.openerp.plugins.catalog.service.CatalogImportExportService;
+import com.vn9melody.openerp.plugins.catalog.service.CatalogCloneService;
 import com.vn9melody.openerp.plugins.catalog.service.CatalogItemService;
 import com.vn9melody.openerp.plugins.catalog.service.CatalogPermissionGuard;
 import com.vn9melody.openerp.plugins.catalog.service.CatalogTypeService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -61,6 +66,9 @@ public class CatalogTypeResource {
     @Inject
     CatalogImportExportService importExportService;
 
+    @Inject
+    CatalogCloneService cloneService;
+
     @GET
     @RequirePermission("catalog:item:read")
     public Response list() {
@@ -85,6 +93,43 @@ public class CatalogTypeResource {
         TypeResponse data = typeService.update(guard.context().tenantId(), id, request);
         return Response.ok(ApiResponse.success(CatalogErrorCode.CATALOG_TYPE_UPDATED_SUCCESS,
             "Catalog type updated successfully.", data)).build();
+    }
+
+    @GET
+    @Path("/{code}/relations")
+    @RequirePermission("catalog:item:read")
+    public Response relations(@PathParam("code") String code) {
+        TypeRelationsResponse data = typeService.relations(guard.context().tenantId(), code, false);
+        return Response.ok(ApiResponse.success(CatalogErrorCode.CATALOG_TYPE_RELATION_FETCH_SUCCESS,
+            "Catalog type relations retrieved successfully.", data)).build();
+    }
+
+    @PUT
+    @Path("/{code}/relations")
+    @RequirePermission("catalog:type:manage")
+    public Response replaceRelations(@PathParam("code") String code, TypeRelationUpdateRequest request) {
+        TypeRelationsResponse data = typeService.replaceRelations(guard.context().tenantId(), code, request, false);
+        return Response.ok(ApiResponse.success(CatalogErrorCode.CATALOG_TYPE_RELATION_UPDATED_SUCCESS,
+            "Catalog type relations updated successfully.", data)).build();
+    }
+
+    @POST
+    @Path("/{code}/clone")
+    @RequirePermission("catalog:type:manage")
+    public Response clone(@PathParam("code") String code) {
+        CloneResult data = cloneService.clone(guard.context().tenantId(), code);
+        return Response.status(Response.Status.CREATED).entity(ApiResponse.success(
+            CatalogErrorCode.CATALOG_TYPE_CLONE_SUCCESS,
+            "System catalog type cloned successfully.", data)).build();
+    }
+
+    @DELETE
+    @Path("/{code}/clone")
+    @RequirePermission("catalog:type:manage")
+    public Response deleteClone(@PathParam("code") String code) {
+        CloneResult data = cloneService.deleteClone(guard.context().tenantId(), code);
+        return Response.ok(ApiResponse.success(CatalogErrorCode.CATALOG_TYPE_CLONE_DELETED_SUCCESS,
+            "Catalog type clone deleted successfully.", data)).build();
     }
 
     @GET

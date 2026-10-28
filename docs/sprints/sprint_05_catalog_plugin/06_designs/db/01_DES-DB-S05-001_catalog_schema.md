@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | DES-DB-S05-001 / Thiết kế CSDL / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.1 / 2026-10-06 |
+| Trạng thái / phiên bản / cập nhật | Draft / 0.4 / 2026-10-28 (bổ sung FEAT-31/32) |
 | Owner / reviewer | Solution Architect / Chưa review |
 | Đầu vào | [SOL-S05-001](../../05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) (D2–D14), [ANL-S05-001](../../02_analysis/01_ANL-S05-001_catalog_data_model_problems.md) |
 | Đọc trước / đọc tiếp | SOL-S05-001 / [DES-API-S05-001](../api/01_DES-API-S05-001_catalog_api.md) |
@@ -288,7 +288,39 @@ Ghi nhận trong lúc viết migration `V4.0.0__catalog_core_plugin.sql` (TASK-3
 
 **Bằng chứng đã kiểm chứng trên PostgreSQL dev (2026-10-06)**: migration apply sạch; **60/60 tenant** nhận plugin `ACTIVE` + 5 loại + **600 grant mặc định**; `sys_entity_registry` có **4** dòng (`CatalogType/CatalogItem/CatalogItemEdge/CatalogTypeGrant`, `plugin_id = 'catalog'`); EXCLUDE bắn `23P01 ex_catalog_item_window`; seeder địa giới idempotent (34 tỉnh / 3.321 xã / 3.321 cạnh sau nhiều lần chạy); **49 test** liên quan PASS (gồm bộ catalog + các lớp bị ảnh hưởng).
 
-## 7. Lịch sử
+## 8. Bổ sung FEAT-31/32 (2026-10-28)
+
+### 8.1. `catalog_type_relations` (FEAT-31)
+
+| Cột | Kiểu | Ghi chú |
+| :--- | :--- | :--- |
+| `id` | UUID PK | `gen_random_uuid()` |
+| `tenant_id` | UUID NULL | NULL = quan hệ system |
+| `parent_type_id` | UUID NOT NULL | FK `catalog_types(id)` ON DELETE CASCADE |
+| `child_type_id` | UUID NOT NULL | FK `catalog_types(id)` ON DELETE CASCADE |
+| `relation_type` | VARCHAR(32) | HIERARCHY/CLASSIFICATION/ALLOCATION/CUSTOM |
+| `sort_order` | INT | thứ tự hiển thị |
+| `status` | VARCHAR(16) | ACTIVE/INACTIVE |
+| `created_at`, `updated_at` | TIMESTAMPTZ | |
+
+- UNIQUE `(tenant_id, parent_type_id, child_type_id, relation_type)` NULLS NOT DISTINCT; CHECK self-reference; index `(tenant_id, parent_type_id)` và `(tenant_id, child_type_id)`.
+- Backfill: mỗi mã trong `allowed_parent_types` → một dòng; `relation_type` = phần tử đầu của `allowed_relations`; ưu tiên loại tenant cùng schema, fallback system.
+- `allowed_parent_types` giữ lại làm cột tương thích (edge drawer/import CSV) và được service đồng bộ lại sau mỗi lần lưu quan hệ.
+
+### 8.2. Cột clone/sync (FEAT-32)
+
+| Bảng | Cột thêm | Ý nghĩa |
+| :--- | :--- | :--- |
+| `catalog_types` | `system_type_id UUID` | Loại system gốc của bản clone tenant |
+| `catalog_items` | `system_item_id UUID` | Item system gốc của bản clone/override |
+| `catalog_item_edges` | `system_edge_id UUID` | Cạnh system gốc |
+| `catalog_type_relations` | `system_relation_id UUID` | Quan hệ loại system gốc |
+
+- UNIQUE một chiều: `(tenant_id, system_type_id)`, `(tenant_id, system_item_id)`, `(tenant_id, system_edge_id)`, `(tenant_id, system_relation_id)` (bỏ qua NULL).
+- Clone dùng `system_*_id` để map; sync so sánh theo các id này, không theo UUID tenant.
+- Xoá clone: xoá type/cụm tenant (CASCADE item theo type) rồi trả về system; `system_*_id` của system row không đổi.
+
+## 9. Lịch sử (bổ sung)
 
 | Phiên bản | Ngày | Thay đổi | Người review/phê duyệt và nguồn |
 | :--- | :--- | :--- | :--- |

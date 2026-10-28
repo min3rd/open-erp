@@ -181,6 +181,8 @@ export class CatalogAdminComponent implements OnInit {
   readonly itemDrawerOpen = signal<boolean>(false);
   readonly editingItem = signal<CatalogItemDto | null>(null);
   readonly edgeDrawerOpen = signal<boolean>(false);
+  readonly edgeMode = signal<'parent' | 'child'>('parent');
+  readonly edgeParent = signal<CatalogItemDto | null>(null);
   readonly grantsDrawerOpen = signal<boolean>(false);
   readonly importDrawerOpen = signal<boolean>(false);
   readonly apiDrawerOpen = signal<boolean>(false);
@@ -452,6 +454,11 @@ export class CatalogAdminComponent implements OnInit {
     return !(this.scope() === CatalogScope.TENANT && this.isSystemType(type));
   }
 
+  /** Editing a system type in tenant scope clones it on save (FEAT-32). */
+  canEditType(type: CatalogTypeDto | null | undefined): boolean {
+    return !!type && this.canManageTypes();
+  }
+
   selectType(type: CatalogTypeDto): void {
     this.typeSearch.set('');
     this.syncState({ filter: type.code, id: null, mode: CatalogDrawerMode.LIST, page: 1 });
@@ -630,8 +637,8 @@ export class CatalogAdminComponent implements OnInit {
         id: 'type-edit',
         labelKey: 'COMMON_EDIT',
         icon: IconName.EDIT,
-        disabled: !canMutate,
-        disabledReasonKey: canMutate ? undefined : disabledReasonKey,
+        disabled: !this.canEditType(type),
+        disabledReasonKey: this.canEditType(type) ? undefined : 'COMMON_PERMISSION_REQUIRED',
         action: () => {
           this.selectType(type);
           this.openTypeEdit();
@@ -719,6 +726,14 @@ export class CatalogAdminComponent implements OnInit {
         action: () => this.openEdgeDrawer(item)
       },
       {
+        id: 'child-edge',
+        labelKey: 'CATALOG_EDGE_ADD_CHILD',
+        icon: IconName.PLUS,
+        disabled: !canMutate,
+        disabledReasonKey: canMutate ? undefined : disabledReasonKey,
+        action: () => this.openChildEdgeDrawer(item)
+      },
+      {
         id: 'detail',
         labelKey: 'COMMON_VIEW_DETAIL',
         icon: IconName.FILE_TEXT,
@@ -758,6 +773,18 @@ export class CatalogAdminComponent implements OnInit {
     if (!this.canMutateItem(item)) {
       return;
     }
+    this.edgeMode.set('parent');
+    this.edgeParent.set(null);
+    this.selectedItem.set(item);
+    this.syncState({ id: item.id, mode: CatalogDrawerMode.EDGE });
+  }
+
+  openChildEdgeDrawer(item: CatalogItemDto): void {
+    if (!this.canMutateItem(item)) {
+      return;
+    }
+    this.edgeMode.set('child');
+    this.edgeParent.set(item);
     this.selectedItem.set(item);
     this.syncState({ id: item.id, mode: CatalogDrawerMode.EDGE });
   }

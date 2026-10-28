@@ -69,12 +69,60 @@
       </div>
     </div>
 
-    <app-sharp-input
-      [label]="'CATALOG_TYPE_FIELD_ALLOWED_PARENT_TYPES' | translate"
-      [hint]="'CATALOG_TYPE_FIELD_ALLOWED_PARENT_TYPES_HINT' | translate"
-      [value]="allowedParentTypes()"
-      (valueChange)="allowedParentTypes.set($event)"
-    />
+    <div class="space-y-2">
+      <p class="text-[11px] font-medium">{{ 'CATALOG_TYPE_RELATION_HINT' | translate }}</p>
+      @if (relationsLoading()) {
+        <div class="h-16 animate-pulse bg-surface-muted"></div>
+      } @else {
+        @for (relation of allowedRelations(); track relation) {
+          <div class="border border-default">
+            <div class="bg-surface-muted px-1.5 py-1 text-[11px] font-semibold">
+              {{ ('CATALOG_RELATION_' + relation) | translate }}
+            </div>
+            <div class="space-y-1.5 p-1.5">
+              <div>
+                <p class="text-[10px] uppercase tracking-wide text-muted">{{ 'CATALOG_TYPE_RELATION_PARENTS' | translate }}</p>
+                <div class="flex flex-wrap gap-1">
+                  @for (entry of selectableTypes(); track entry.code) {
+                    <button
+                      type="button"
+                      class="border px-1.5 py-0.5 text-[10px]"
+                      [class.border-transparent]="isParentSelected(relation, entry.code)"
+                      [class.bg-accent]="isParentSelected(relation, entry.code)"
+                      [class.text-accent-contrast]="isParentSelected(relation, entry.code)"
+                      [class.border-default]="!isParentSelected(relation, entry.code)"
+                      [class.hover:bg-surface-muted]="!isParentSelected(relation, entry.code)"
+                      (click)="toggleParent(relation, entry.code)"
+                    >
+                      {{ entry.code }}
+                    </button>
+                  }
+                </div>
+              </div>
+              <div>
+                <p class="text-[10px] uppercase tracking-wide text-muted">{{ 'CATALOG_TYPE_RELATION_CHILDREN' | translate }}</p>
+                <div class="flex flex-wrap gap-1">
+                  @for (entry of selectableTypes(); track entry.code) {
+                    <button
+                      type="button"
+                      class="border px-1.5 py-0.5 text-[10px]"
+                      [class.border-transparent]="isChildSelected(relation, entry.code)"
+                      [class.bg-accent]="isChildSelected(relation, entry.code)"
+                      [class.text-accent-contrast]="isChildSelected(relation, entry.code)"
+                      [class.border-default]="!isChildSelected(relation, entry.code)"
+                      [class.hover:bg-surface-muted]="!isChildSelected(relation, entry.code)"
+                      (click)="toggleChild(relation, entry.code)"
+                    >
+                      {{ entry.code }}
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
 
     <div class="grid grid-cols-3 gap-2">
       <label class="flex items-center gap-1.5 text-[11px]">

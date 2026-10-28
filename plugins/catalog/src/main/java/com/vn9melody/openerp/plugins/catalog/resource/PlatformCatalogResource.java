@@ -15,6 +15,8 @@ import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.ItemParentRespo
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.ItemResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.ItemUpdateRequest;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeCreateRequest;
+import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeRelationUpdateRequest;
+import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeRelationsResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeUpdateRequest;
 import com.vn9melody.openerp.plugins.catalog.service.CatalogEdgeService;
@@ -98,6 +100,22 @@ public class PlatformCatalogResource {
         TypeResponse data = typeService.update(null, id, request);
         return Response.ok(ApiResponse.success(CatalogErrorCode.CATALOG_TYPE_UPDATED_SUCCESS,
             "System catalog type updated successfully.", data)).build();
+    }
+
+    @GET
+    @Path("/types/{code}/relations")
+    public Response relations(@PathParam("code") String code) {
+        TypeRelationsResponse data = typeService.relations(null, code, true);
+        return Response.ok(ApiResponse.success(CatalogErrorCode.CATALOG_TYPE_RELATION_FETCH_SUCCESS,
+            "System catalog type relations retrieved successfully.", data)).build();
+    }
+
+    @PUT
+    @Path("/types/{code}/relations")
+    public Response replaceRelations(@PathParam("code") String code, TypeRelationUpdateRequest request) {
+        TypeRelationsResponse data = typeService.replaceRelations(null, code, request, true);
+        return Response.ok(ApiResponse.success(CatalogErrorCode.CATALOG_TYPE_RELATION_UPDATED_SUCCESS,
+            "System catalog type relations updated successfully.", data)).build();
     }
 
     // ------------------------------------------------------------------

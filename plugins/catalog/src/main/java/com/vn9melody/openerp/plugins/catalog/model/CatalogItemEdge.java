@@ -20,6 +20,9 @@ public class CatalogItemEdge {
 
     public UUID childItemId;
 
+    /** System edge this tenant edge was cloned from (FEAT-32). */
+    public UUID systemEdgeId;
+
     public CatalogRelationType relationType = CatalogRelationType.HIERARCHY;
 
     public int sortOrder = 0;

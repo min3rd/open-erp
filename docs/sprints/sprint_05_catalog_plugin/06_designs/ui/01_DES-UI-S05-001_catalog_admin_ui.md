@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | DES-UI-S05-001 / Thiết kế UI / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.1 / 2026-10-06 |
+| Trạng thái / phiên bản / cập nhật | Draft / 0.4 / 2026-10-28 (bổ sung FEAT-31/32) |
 | Owner / reviewer | Solution Architect / Chưa review |
 | Đầu vào | [SOL-S05-001](../../05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) (D15, D16), [DES-API-S05-001](../api/01_DES-API-S05-001_catalog_api.md) |
 | Đọc trước / đọc tiếp | DES-API-S05-001 / [TP-S05-001](../../08_testing/01_TP-S05-001_sprint_05_test_plan.md) |
@@ -105,7 +105,15 @@ Bố cục **split 3 cột** (không modal), mỗi cột tải độc lập:
 | AC-20 | Badge "Ghi đè" + trạng thái ẩn cục bộ trong danh sách và options |
 | AC-22 | Màn quản trị hệ thống trong cổng Platform (cờ "hệ thống") |
 
-## 7. Lịch sử
+## 8. Bổ sung FEAT-31/32 (2026-10-28)
+
+- **Type drawer**: bỏ ô nhập `allowed_parent_types`; mỗi relation bật trong `allowed_relations` có 2 dải chip chọn nhanh **Loại cha** / **Loại con** (đọc từ `GET /types/{code}/relations`). Lưu loại trước, sau đó `PUT /types/{code}/relations` cho từng relation (forkJoin); lỗi hiển thị inline theo mã.
+- **Item drawer**: với loại đang sửa, hiển thị section theo từng quan hệ có loại con; picker nhiều bản ghi con (shared `catalog-picker`, lọc theo loại con), lưu edge riêng từng quan hệ.
+- **Clone/sync**: nút `Sync từ hệ thống` trên loại clone; drawer preview xung đột nhóm theo `TYPE|ITEM|EDGE|RELATION`, mỗi dòng chọn `OVERRIDE|SKIP|MERGE` (mặc định SKIP), nút Áp dụng; không modal.
+- **Tenant sửa loại system**: mở drawer sửa → bấm Lưu → gọi `POST /types/{code}/clone` (cụm liên thông) rồi mở lại drawer trên bản clone tenant. System row chỉ đọc.
+- Mobile: chỉ đọc, không hiện nút clone/sync/picker sửa.
+
+## 9. Lịch sử
 
 | Phiên bản | Ngày | Thay đổi | Người review/phê duyệt và nguồn |
 | :--- | :--- | :--- | :--- |

@@ -18,6 +18,9 @@ public class CatalogItem {
 
     public UUID typeId;
 
+    /** System item this tenant row was cloned from/overrides (FEAT-32). */
+    public UUID systemItemId;
+
     public UUID versionGroupId;
 
     public int version = 1;

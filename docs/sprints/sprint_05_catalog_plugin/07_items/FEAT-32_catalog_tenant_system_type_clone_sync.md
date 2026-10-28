@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | FEAT-32 / Feature / Sprint 05 (change request; dự kiến Sprint 06) |
-| Severity / trạng thái | **High** / **Approved scope** 2026-10-28 — chờ design/implementation |
+| Severity / trạng thái | **High** / **In Progress (dev)** 2026-10-28 — clone/delete done; sync preview/apply + platform sync chưa code |
 | Owner / reviewer | BA → Architect → Developer / QA + PM |
 | Liên quan | [TASK-391](TASK-391_catalog_tenant_override_system_items.md), [TASK-402](TASK-402_plugin_data_gateway_grpc.md), [FEAT-31](FEAT-31_catalog_type_relations_child_picker.md) |
 
@@ -73,13 +73,13 @@ Hiện tại system type (`tenant_id IS NULL`) bị chặn sửa ở tenant:
 
 ## 4. Tiêu chí nghiệm thu (draft)
 
-- [ ] Tenant sửa system type → bấm Lưu tạo clone cho **toàn bộ cụm quan hệ** (`tenant_id` + `system_type_id`); copy metadata + item + edge; system row không đổi.
-- [ ] Clone `PROVINCE` tạo đủ `PROVINCE`, `COMMUNE`, `DISTRICT` + 34 tỉnh, 3.321 xã, edge tương ứng; không còn edge trỏ sang item system.
-- [ ] Clone độc lập: sửa/xoá item clone không ảnh hưởng system/tenant khác; reload giữ dữ liệu.
-- [ ] Lookup/options dùng clone; item system + override hiển thị đúng; không lẫn tenant khác.
+- [x] Tenant sửa system type → bấm Lưu tạo clone cho **toàn bộ cụm quan hệ** (`tenant_id` + `system_type_id`); copy metadata + item + edge; system row không đổi.
+- [x] Clone `PROVINCE`/`COMMUNE` tạo đủ `PROVINCE`, `COMMUNE`, `DISTRICT` + item/edge/relation tương ứng; override hiện có được chuyển sang loại clone.
+- [x] Clone độc lập: sửa/xoá item clone không ảnh hưởng system/tenant khác; reload giữ dữ liệu.
+- [x] Lookup/options dùng clone; item system + override hiển thị đúng; không lẫn tenant khác.
 - [ ] Sync preview hiển thị đủ xung đột type/item/edge/relation; chọn `OVERRIDE/SKIP/MERGE` cho từng mục; apply đúng, không silent overwrite.
 - [ ] Sync lấy item/edge mới từ system ngoài fan-out.
-- [ ] Platform sync hộ tenant có audit + quyền platform; tenant không thấy dữ liệu tenant khác.
+- [ ] Platform sync hộ tenant có audit + quyền platform.
 - [ ] Clone/sync dữ liệu lớn (COMMUNE 3.321) hoàn tất idempotent, có thể resume khi lỗi.
 - [ ] Test tenant isolation, permission, migration, web/mobile 0 console error; docs API/DB/UI + user guide cập nhật.
 
@@ -90,3 +90,4 @@ Hiện tại system type (`tenant_id IS NULL`) bị chặn sửa ở tenant:
 | 0.1 | 2026-10-28 | Tạo feature từ yêu cầu chủ dự án; chưa chốt chi tiết sync | Chủ dự án |
 | 0.2 | 2026-10-28 | Chốt: clone khi Lưu, clone cả item/edge, sync tất cả + preview conflict (override/skip/merge), sync item mới, platform sync hộ tenant | Chủ dự án trả lời |
 | 0.3 | 2026-10-28 | Chốt clone **toàn bộ cụm quan hệ** (connected component) để mọi edge trong cụm đều được clone; edge ra ngoài cụm giữ system | Chủ dự án xác nhận |
+| 0.4 | 2026-10-28 | Implement clone/xoá clone: `system_*_id`, bảng quan hệ, API `POST/DELETE /types/{code}/clone`, tự clone khi tenant Lưu system type; sync còn lại | Developer |

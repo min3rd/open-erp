@@ -1,7 +1,7 @@
 <app-drawer
   [isOpen]="isOpen()"
-  [title]="'CATALOG_EDGE_FORM_TITLE' | translate"
-  [subtitle]="child()?.name ?? ''"
+  [title]="(isChildMode() ? 'CATALOG_EDGE_FORM_TITLE_CHILD' : 'CATALOG_EDGE_FORM_TITLE') | translate"
+  [subtitle]="(isChildMode() ? parent()?.name : child()?.name) ?? ''"
   [width]="'w-screen max-w-md'"
   [zIndex]="70"
   [shiftLeft]="true"
@@ -14,39 +14,71 @@
       </div>
     }
 
-    @if (parentTypeOptions().length > 1) {
-      <app-sharp-select
-        [label]="'CATALOG_EDGE_FIELD_PARENT_TYPE' | translate"
-        [options]="parentTypeOptions()"
-        [value]="parentTypeCode()"
-        (valueChange)="parentTypeCode.set($event); parentRef.set(null)"
-      />
-    }
-
-    <div class="space-y-1">
-      <p class="text-[11px] font-medium">{{ 'CATALOG_EDGE_FIELD_PARENT' | translate }}</p>
-      <app-catalog-picker
-        [typeCode]="parentTypeCode()"
-        [mode]="'single'"
-        [placeholderKey]="'CATALOG_EDGE_SELECT_PARENT'"
-        (selectionChange)="onParentSelected($event)"
-      />
-    </div>
-
-    <div class="grid grid-cols-2 gap-2">
+    @if (isChildMode()) {
       <app-sharp-select
         [label]="'CATALOG_EDGE_FIELD_RELATION_TYPE' | translate"
         [options]="relationOptions()"
         [value]="relationType()"
-        (valueChange)="relationType.set($any($event))"
+        (valueChange)="onRelationChanged($any($event))"
       />
+      @if (childTypeOptions().length > 1) {
+        <app-sharp-select
+          [label]="'CATALOG_EDGE_FIELD_CHILD_TYPE' | translate"
+          [options]="childTypeOptions()"
+          [value]="childTypeCode()"
+          (valueChange)="childTypeCode.set($event); childRef.set(null)"
+        />
+      }
+      <div class="space-y-1">
+        <p class="text-[11px] font-medium">{{ 'CATALOG_EDGE_FIELD_CHILD' | translate }}</p>
+        <app-catalog-picker
+          [typeCode]="childTypeCode()"
+          [mode]="'single'"
+          [placeholderKey]="'CATALOG_EDGE_SELECT_CHILD'"
+          (selectionChange)="onChildSelected($event)"
+        />
+      </div>
       <app-sharp-input
         [label]="'CATALOG_EDGE_FIELD_SORT_ORDER' | translate"
         type="number"
         [value]="sortOrder()"
         (valueChange)="sortOrder.set($event)"
       />
-    </div>
+    } @else {
+      @if (parentTypeOptions().length > 1) {
+        <app-sharp-select
+          [label]="'CATALOG_EDGE_FIELD_PARENT_TYPE' | translate"
+          [options]="parentTypeOptions()"
+          [value]="parentTypeCode()"
+          (valueChange)="parentTypeCode.set($event); parentRef.set(null)"
+        />
+      }
+
+      <div class="space-y-1">
+        <p class="text-[11px] font-medium">{{ 'CATALOG_EDGE_FIELD_PARENT' | translate }}</p>
+        <app-catalog-picker
+          [typeCode]="parentTypeCode()"
+          [mode]="'single'"
+          [placeholderKey]="'CATALOG_EDGE_SELECT_PARENT'"
+          (selectionChange)="onParentSelected($event)"
+        />
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <app-sharp-select
+          [label]="'CATALOG_EDGE_FIELD_RELATION_TYPE' | translate"
+          [options]="relationOptions()"
+          [value]="relationType()"
+          (valueChange)="relationType.set($any($event))"
+        />
+        <app-sharp-input
+          [label]="'CATALOG_EDGE_FIELD_SORT_ORDER' | translate"
+          type="number"
+          [value]="sortOrder()"
+          (valueChange)="sortOrder.set($event)"
+        />
+      </div>
+    }
   </div>
 
   <div drawer-footer class="flex items-center gap-2">
@@ -54,7 +86,7 @@
       {{ 'COMMON_CANCEL' | translate }}
     </app-sharp-button>
     <app-sharp-button size="sm" [loading]="saving()" (clicked)="save()">
-      {{ 'CATALOG_DETAIL_ADD_PARENT' | translate }}
+      {{ (isChildMode() ? 'CATALOG_EDGE_ADD_CHILD' : 'CATALOG_DETAIL_ADD_PARENT') | translate }}
     </app-sharp-button>
   </div>
 </app-drawer>

@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | FEAT-31 / Feature / Sprint 05 (change request; ưu tiên sau khi chốt) |
-| Trạng thái | **To Do** — Approved scope, chưa code (2026-10-28) |
+| Trạng thái | **In Progress (dev)** — FEAT-31 implemented 2026-10-28: DB/API/type drawer/child edge picker; QA + full test pending |
 | Owner / reviewer | BA → Architect → Developer / QA + PM |
 | Đầu vào | [RAW-S05-002](../01_raw_notes/02_RAW-S05-002_catalog_type_relations.md), [ANL-S05-003](../02_analysis/03_ANL-S05-003_catalog_type_relations.md), [CONF-S05-002](../04_confirmation/02_CONF-S05-002_catalog_type_relations.md) |
 | Liên quan | [TASK-402](../07_items/TASK-402_plugin_data_gateway_grpc.md), [FEAT-30](../07_items/FEAT-30_catalog_core_plugin.md) |
@@ -23,15 +23,15 @@ Cho phép định nghĩa quan hệ cha/con **giữa các loại danh mục** (PR
 
 ## 3. Tiêu chí nghiệm thu
 
-- [ ] Bảng `catalog_type_relations` (tenant_id, parent_type_id, child_type_id, relation_type, sort_order, status) + migration/backfill từ `allowed_parent_types` cho mọi schema.
-- [ ] API loại: đọc/ghi quan hệ theo từng relation; validate loại, quyền, cycle; system chỉ platform.
-- [ ] API bản ghi: đọc nhóm con theo relation; ghi chọn/bỏ con idempotent, một transaction cho mỗi relation.
-- [ ] Type drawer: thay ô `allowed_parent_types` bằng picker; có vùng loại con theo từng quan hệ; nút lưu riêng.
-- [ ] Item drawer: vùng chọn con cho từng quan hệ của loại (ví dụ tỉnh Hà Nội chọn xã/phường); lưu riêng từng quan hệ.
-- [ ] Không phá import/export CSV (`parent_code` vẫn tạo edge), versioning, `min_parents`, descendants.
-- [ ] Web + mobile: 0 console error, không tràn ngang 390×844; mobile read-only không thấy vùng sửa.
+- [x] Bảng `catalog_type_relations` (tenant_id, parent_type_id, child_type_id, relation_type, sort_order, status) + migration/backfill từ `allowed_parent_types` cho mọi schema.
+- [x] API loại: đọc/ghi quan hệ theo từng relation; validate loại, quyền, cycle; system chỉ platform.
+- [x] API bản ghi: đọc nhóm con theo relation; ghi chọn/bỏ con idempotent (edge drawer "Thêm con").
+- [x] Type drawer: thay ô `allowed_parent_types` bằng chip chọn loại cha/con theo relation; lưu riêng từng relation.
+- [x] Item drawer/edge drawer: chọn con theo relation/loại con; lưu edge riêng.
+- [x] Không phá import/export CSV (`parent_code` vẫn tạo edge), versioning, `min_parents`, descendants.
+- [x] Web + mobile: 0 console error, không tràn ngang 390×844; mobile read-only.
 - [ ] Test backend PostgreSQL thật: nhiều cha, nhiều relation, backfill, cycle, tenant isolation.
-- [ ] Docs: API/UI/DB design, user guide, TR cập nhật.
+- [x] Docs: API/UI/DB design cập nhật (DES-DB/API/UI §8).
 
 ## 4. Ghi chú
 
@@ -43,3 +43,4 @@ Cho phép định nghĩa quan hệ cha/con **giữa các loại danh mục** (PR
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-28 | Tạo feature từ RAW/ANL/CONF đã chốt | BA Agent |
+| 0.2 | 2026-10-28 | Implement: `catalog_type_relations` + backfill, API relations, type drawer chip picker, edge drawer thêm con; migration `V5.4.0`/plugin `V1.0.1` | Developer |

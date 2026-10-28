@@ -30,6 +30,7 @@ public final class CatalogTypeDtos {
         @JsonProperty(CatalogResponseKey.Json.ATTRIBUTES_SCHEMA) JsonNode attributesSchema,
         @JsonProperty(ResponseKey.Json.STATUS) String status,
         @JsonProperty(ResponseKey.Json.IS_SYSTEM) boolean isSystem,
+        @JsonProperty(CatalogResponseKey.Json.IS_CLONE) boolean isClone,
         @JsonProperty(CatalogResponseKey.Json.CREATED_AT) Instant createdAt,
         @JsonProperty(CatalogResponseKey.Json.UPDATED_AT) Instant updatedAt
     ) {
@@ -86,6 +87,36 @@ public final class CatalogTypeDtos {
         @JsonProperty(ResponseKey.Json.ROLE_CODE) String roleCode,
         @JsonProperty(CatalogResponseKey.Json.CAN_READ) boolean canRead,
         @JsonProperty(CatalogResponseKey.Json.CAN_WRITE) boolean canWrite
+    ) {
+    }
+
+    // ------------------------------------------------------------------
+    // Type relations (FEAT-31)
+    // ------------------------------------------------------------------
+
+    public record TypeRelationItem(
+        @JsonProperty(ResponseKey.Json.CODE) String code,
+        @JsonProperty(CatalogResponseKey.Json.NAME_KEY) String nameKey,
+        @JsonProperty(ResponseKey.Json.IS_SYSTEM) boolean isSystem
+    ) {
+    }
+
+    public record TypeRelationGroup(
+        @JsonProperty(CatalogResponseKey.Json.RELATION_TYPE) String relationType,
+        @JsonProperty(CatalogResponseKey.Json.PARENTS) List<TypeRelationItem> parents,
+        @JsonProperty(CatalogResponseKey.Json.CHILDREN) List<TypeRelationItem> children
+    ) {
+    }
+
+    public record TypeRelationsResponse(
+        @JsonProperty(CatalogResponseKey.Json.RELATIONS) List<TypeRelationGroup> relations
+    ) {
+    }
+
+    public record TypeRelationUpdateRequest(
+        @JsonProperty(CatalogResponseKey.Json.RELATION_TYPE) String relationType,
+        @JsonProperty(CatalogResponseKey.Json.PARENT_CODES) List<String> parentCodes,
+        @JsonProperty(CatalogResponseKey.Json.CHILD_CODES) List<String> childCodes
     ) {
     }
 }

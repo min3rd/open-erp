@@ -328,13 +328,13 @@ public class SystemCatalogSyncService {
         return parentId + "|" + childId + "|" + relation.name();
     }
 
-    private static String[] array(JsonNode node, String fallback) {
+    private static List<String> array(JsonNode node, String fallback) {
         if (!node.isArray() || node.isEmpty()) {
-            return fallback == null ? null : new String[] {fallback};
+            return fallback == null ? null : List.of(fallback);
         }
-        String[] values = new String[node.size()];
+        List<String> values = new ArrayList<>();
         for (int i = 0; i < node.size(); i++) {
-            values[i] = node.get(i).asText();
+            values.add(node.get(i).asText());
         }
         return values;
     }

@@ -22,9 +22,10 @@ public class CatalogQueryDescriptorManifestTest {
     void seededCatalogDescriptorsAreValid() {
         PluginManifest manifest = registry.manifest("catalog", "1.0.0");
 
-        assertEquals(57, manifest.queries().size());
+        assertEquals(75, manifest.queries().size());
         assertTrue(manifest.entities().get("CatalogType").fields().contains("attributes_schema"));
         assertTrue(manifest.entities().get("CatalogItem").fields().contains("attributes"));
+        assertTrue(manifest.entities().get("CatalogTypeRelation").fields().contains("parent_type_id"));
 
         PluginQueryDescriptor types = manifest.requireQuery("catalog.types.visible");
         assertEquals(PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM, types.scope());
@@ -68,5 +69,24 @@ public class CatalogQueryDescriptorManifestTest {
 
         PluginQueryDescriptor edgeActive = manifest.requireQuery("catalog.edge.active");
         assertEquals(PluginQueryDescriptor.Operation.LIST, edgeActive.operation());
+
+        PluginQueryDescriptor parents = manifest.requireQuery("catalog.type.relations.parents");
+        assertEquals(PluginQueryDescriptor.Operation.LIST, parents.operation());
+        assertEquals(PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM, parents.scope());
+        PluginQueryDescriptor children = manifest.requireQuery("catalog.type.relations.children");
+        assertEquals("parent_type_id", children.filters().get(0).field());
+        PluginQueryDescriptor relationInsert = manifest.requireQuery("catalog.type.relation.insert");
+        assertEquals(PluginQueryDescriptor.Scope.TENANT, relationInsert.scope());
+        PluginQueryDescriptor relationDelete = manifest.requireQuery("catalog.type.relation.delete.children");
+        assertEquals(PluginQueryDescriptor.Operation.DELETE, relationDelete.operation());
+
+        assertTrue(manifest.entities().get("CatalogType").fields().contains("system_type_id"));
+        assertTrue(manifest.entities().get("CatalogItem").fields().contains("system_item_id"));
+        PluginQueryDescriptor cloneItems = manifest.requireQuery("catalog.clone.items.system");
+        assertEquals(PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM, cloneItems.scope());
+        PluginQueryDescriptor cloneEdges = manifest.requireQuery("catalog.clone.edges.tenant");
+        assertEquals(PluginQueryDescriptor.Scope.TENANT, cloneEdges.scope());
+        PluginQueryDescriptor cloneTypeDelete = manifest.requireQuery("catalog.clone.type.delete");
+        assertEquals(PluginQueryDescriptor.Operation.DELETE, cloneTypeDelete.operation());
     }
 }

@@ -17,6 +17,9 @@ public class CatalogType {
 
     public UUID tenantId;
 
+    /** System type this tenant row was cloned from (FEAT-32); NULL for system rows. */
+    public UUID systemTypeId;
+
     public String code;
 
     public String nameKey;

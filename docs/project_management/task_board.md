@@ -18,6 +18,8 @@ Sprint đang theo dõi: [Sprint 05 — Plugin Danh mục](../sprints/sprint_05_c
 
 2026-10-28 (BUG-150): [BUG-150](../sprints/sprint_05_catalog_plugin/07_items/BUG-150_plugin_enable_runtime_not_ready.md) Resolved — Docker health poll `/q/health/ready`; disable 2s, enable 23s rồi runtime trả 200 ngay, không còn 503.
 
+2026-10-28 (FEAT-31/32 dev): [FEAT-31](../sprints/sprint_05_catalog_plugin/07_items/FEAT-31_catalog_type_relations_child_picker.md) — bảng `catalog_type_relations`, API `GET/PUT /types/{code}/relations`, type drawer chọn loại cha/con, edge drawer thêm con; migration `V5.4.0` + plugin `V1.0.1`. [FEAT-32](../sprints/sprint_05_catalog_plugin/07_items/FEAT-32_catalog_tenant_system_type_clone_sync.md) — cột `system_*_id`, clone cụm loại system + item/edge/relation, xoá clone, tenant sửa system type tự clone khi Lưu; migration `V5.5.0` + plugin `V1.1.0`. Sync preview/apply còn lại.
+
 2026-10-28 (BUG-151): [BUG-151](../sprints/sprint_05_catalog_plugin/07_items/BUG-151_plugin_host_duplicate_header.md) Resolved — ẩn header host khi plugin dùng iframe (hết lặp tiêu đề), iframe lấp đúng chiều cao; tiêu đề plugin có margin.
 
 2026-10-28 (UI fixes): [BUG-146](../sprints/sprint_05_catalog_plugin/07_items/BUG-146_catalog_column_sort_missing.md) Resolved — sort động allowlist, header click + URL; [BUG-147](../sprints/sprint_05_catalog_plugin/07_items/BUG-147_catalog_page_size_missing.md) Resolved; [BUG-148](../sprints/sprint_05_catalog_plugin/07_items/BUG-148_catalog_fixed_header_footer.md) Resolved — flex layout cố định header/sidebar/footer, chỉ bảng cuộn.
