@@ -23,6 +23,7 @@
 | mTLS | PASS — plaintext bị từ chối; tenant cert OK; tenant cert + SYSTEM scope → `PLUGIN_DATA_MTLS_IDENTITY_MISMATCH`; system cert + SYSTEM scope → rows |
 | BUG-136 locked uninstall | PASS — `PluginLifecycleApiTest` 403 `PLUGIN_LOCKED_DEFAULT`; plugin không locked vẫn uninstall |
 | Web plugin host | PASS — `/settings/apps/catalog`, 20 rows, overflow 0, 0 console error; token hết hạn tự refresh (BUG-143) |
+| Pagination danh sách | PASS — `page=0` → `1..48`, `page=1` → `51..96`; browser `Trang 2/2` dòng đầu `51` ([BUG-145](../07_items/BUG-145_catalog_pagination_page2_repeats.md)) |
 | Mobile plugin host | PASS — iframe + `readonly=1`; 390×844: 20 rows, overflow 0, touch min 40px, 0 console error; token refresh PASS |
 | Docs check | PASS — 0 lỗi link/ID |
 

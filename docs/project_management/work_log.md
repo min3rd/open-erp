@@ -2,6 +2,11 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-28 — BUG-145 pagination + FEAT-31 requirement
+
+- **BUG-145**: gateway compiler tính page 1-based trong khi API/UI dùng 0-based → trang 2 lặp trang 1. Sửa `pageSlice`/`pageThrough` về 0-based; thêm test `paginationUsesZeroBasedPages`; browser `Trang 2/2` dòng đầu `51`.
+- **FEAT-31**: chốt yêu cầu quan hệ cha/con giữa loại + chọn dữ liệu con (Q1–Q8 Approved): cả hai cấp, nhiều relation, nhiều cha, lưu riêng từng quan hệ, system + tenant, backfill. Chưa code.
+
 ## 2026-10-28 — TASK-403 mobile plugin host + read-only
 
 - Mobile `/settings/catalog` chuyển từ page native sang iframe plugin (`PluginRuntimeSession` + refresh token, fallback logout).

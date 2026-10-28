@@ -314,6 +314,24 @@ public class PluginDataGatewayTest {
     }
 
     @Test
+    void paginationUsesZeroBasedPages() {
+        Map<String, Value> firstPage = Map.of(
+                "status", string("ACTIVE"),
+                "page", Value.newBuilder().setNumberValue(0).build(),
+                "size", Value.newBuilder().setNumberValue(1).build());
+        Map<String, Value> secondPage = Map.of(
+                "status", string("ACTIVE"),
+                "page", Value.newBuilder().setNumberValue(1).build(),
+                "size", Value.newBuilder().setNumberValue(1).build());
+
+        PluginDataExecutor.Result first = executor.execute(identity(), "test.things.page", "page-0", firstPage);
+        PluginDataExecutor.Result second = executor.execute(identity(), "test.things.page", "page-1", secondPage);
+
+        assertEquals("A", first.rows().get(0).get("code"));
+        assertEquals("B", second.rows().get(0).get("code"));
+    }
+
+    @Test
     void joinsDeclaredRelation() {
         PluginDataExecutor.Result result = executor.execute(identity(), "test.things.with.kind", "req-8",
                 Map.of());

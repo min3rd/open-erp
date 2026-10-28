@@ -99,7 +99,7 @@ public class CatalogGateway {
     private <T> List<T> pageThrough(String queryId, Map<String, ?> base, int size,
                                     java.util.function.Function<Map<String, Object>, T> mapper) {
         List<T> all = new ArrayList<>();
-        int page = 1;
+        int page = 0;
         while (true) {
             Map<String, Object> params = new java.util.LinkedHashMap<>(base);
             params.put("page", page);

@@ -360,8 +360,9 @@ public final class PluginQueryCompiler {
         int maxSize = query.maxRows() > 0 ? query.maxRows() : (page != null ? page.maxSize() : 100);
         int size = page != null ? intParam(params, page.sizeParam(), defaultSize) : defaultSize;
         size = Math.max(1, Math.min(size, Math.max(1, maxSize)));
-        int pageNumber = page != null ? Math.max(1, intParam(params, page.pageParam(), 1)) : 1;
-        return new PageSlice(size, (pageNumber - 1) * size);
+        // Catalog/list APIs use 0-based pages; page 0 and 1 must not both map to offset 0.
+        int pageNumber = page != null ? Math.max(0, intParam(params, page.pageParam(), 0)) : 0;
+        return new PageSlice(size, pageNumber * size);
     }
 
     private Source source(PluginManifest manifest, PluginQueryDescriptor query,
