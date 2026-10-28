@@ -13,6 +13,7 @@ import {
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { PluginHostService } from '../plugin-host.service';
+import { PluginRuntimeSession } from '../plugin-host.model';
 
 @Component({
   selector: 'app-plugin-iframe-loader',
@@ -48,6 +49,10 @@ export class PluginIframeLoaderComponent implements AfterViewInit, OnDestroy {
   };
   loading = signal(true);
 
+  /** Last route reported by the plugin; kept so a token reload lands where the user was. */
+  private currentRoute = '';
+  private lastSessionRefreshAt = 0;
+
   private bridge = (event: MessageEvent): void => {
     const frame = this.frame()?.nativeElement;
     if (!frame || event.source !== frame.contentWindow) {
@@ -61,7 +66,11 @@ export class PluginIframeLoaderComponent implements AfterViewInit, OnDestroy {
       }
     }
     if (data?.source === 'open-erp-plugin' && data.type === 'route' && typeof data.path === 'string') {
+      this.currentRoute = data.path;
       this.routeChange.emit(data.path);
+    }
+    if (data?.source === 'open-erp-plugin' && data.type === 'session-expired') {
+      void this.renewSession();
     }
   };
 
@@ -70,14 +79,43 @@ export class PluginIframeLoaderComponent implements AfterViewInit, OnDestroy {
     window.addEventListener('resize', this.resizeHandler);
     this.resizeHandler();
     const session = await this.hostService.session(this.pluginKey());
-    const base = this.entry() || session?.entry;
-    if (!session || !base) {
+    if (!session) {
+      this.loading.set(false);
+      this.failed.emit('PLUGIN_HOST_UNAVAILABLE');
+      return;
+    }
+    this.currentRoute = this.route();
+    this.applySession(session);
+  }
+
+  /**
+   * The plugin reported `PLUGIN_RUNTIME_TOKEN_INVALID`: mint a new runtime token
+   * and reload the frame. A token that is rejected right after reissue is a real
+   * auth failure, so hand it to the host (which logs the user out).
+   */
+  private async renewSession(): Promise<void> {
+    if (Date.now() - this.lastSessionRefreshAt < 5_000) {
+      this.failed.emit('PLUGIN_RUNTIME_TOKEN_INVALID');
+      return;
+    }
+    this.lastSessionRefreshAt = Date.now();
+    const session = await this.hostService.session(this.pluginKey(), true);
+    if (!session?.token) {
+      this.failed.emit('PLUGIN_RUNTIME_TOKEN_INVALID');
+      return;
+    }
+    this.applySession(session);
+  }
+
+  private applySession(session: PluginRuntimeSession): void {
+    const base = this.entry() || session.entry;
+    if (!base) {
       this.loading.set(false);
       this.failed.emit('PLUGIN_HOST_UNAVAILABLE');
       return;
     }
     const separator = base.includes('?') ? '&' : '?';
-    const route = this.route();
+    const route = this.currentRoute;
     const hash = route ? `#${route.startsWith('/') ? '' : '/'}${route}` : '';
     const url = `${base}${separator}plugin_token=${encodeURIComponent(session.token)}&_v=${Date.now()}${hash}`;
     this.src.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));

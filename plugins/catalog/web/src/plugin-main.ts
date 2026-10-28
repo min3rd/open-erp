@@ -1,13 +1,37 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter, withHashLocation } from '@angular/router';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { catchError, throwError } from 'rxjs';
 
 import { CatalogPluginShellComponent } from './app/catalog-plugin-shell.component';
 import { CatalogAdminComponent } from './app/features/catalog/catalog-admin.component';
 import { CatalogScope } from './app/core/services/catalog-admin.service';
 import { authHeaderInterceptor, PLUGIN_PERMISSION_CHECKER, API_BASE_URL } from '@shared';
 import { pluginPermissionChecker } from './app/core/plugin-permission-checker';
+
+/**
+ * The core gateway rejects the iframe cookie once the short-lived runtime token
+ * expires. Tell the host so it can mint a new token and reload the frame; the
+ * plugin itself has no way to refresh it.
+ */
+let sessionExpiryReported = false;
+
+const sessionExpiredInterceptor: HttpInterceptorFn = (req, next) =>
+  next(req).pipe(
+    catchError((error: unknown) => {
+      if (
+        !sessionExpiryReported &&
+        error instanceof HttpErrorResponse &&
+        error.status === 401 &&
+        (error.error as { code?: string } | null)?.code === 'PLUGIN_RUNTIME_TOKEN_INVALID'
+      ) {
+        sessionExpiryReported = true;
+        window.parent?.postMessage({ source: 'open-erp-plugin', type: 'session-expired' }, '*');
+      }
+      return throwError(() => error);
+    })
+  );
 
 const scope = new URLSearchParams(window.location.search).get('scope') === 'system'
   ? CatalogScope.SYSTEM
@@ -33,7 +57,7 @@ bootstrapApplication(CatalogPluginShellComponent, {
         data: { catalogScope: scope },
       },
     ], withHashLocation()),
-    provideHttpClient(withInterceptors([authHeaderInterceptor])),
+    provideHttpClient(withInterceptors([authHeaderInterceptor, sessionExpiredInterceptor])),
     {
       provide: API_BASE_URL,
       useValue: ''

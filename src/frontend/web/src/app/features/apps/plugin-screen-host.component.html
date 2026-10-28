@@ -31,14 +31,14 @@
           <app-plugin-web-component-loader
             [entry]="entryUrl()"
             [pluginKey]="pluginKey()"
-            (failed)="onFailed()"
+            (failed)="onFailed($event)"
           />
         }
         @case (renderMode.MODULE_FEDERATION) {
           <app-plugin-module-federation-loader
             [entry]="entryUrl()"
             [pluginKey]="pluginKey()"
-            (failed)="onFailed()"
+            (failed)="onFailed($event)"
           />
         }
         @case (renderMode.IFRAME) {
@@ -49,7 +49,7 @@
             [fill]="true"
             [viewportOffsetPx]="frameOffsetPx"
             (routeChange)="onIframeRoute($event)"
-            (failed)="onFailed()"
+            (failed)="onFailed($event)"
           />
         }
       }

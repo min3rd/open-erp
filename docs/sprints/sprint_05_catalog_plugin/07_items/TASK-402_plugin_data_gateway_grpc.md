@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-402 / Task / Sprint 05 |
-| Severity / trạng thái | High / **In Progress** — P1/P2/P2.1/P3/P3.1/P4 done; P4.1 + P5 next |
+| Severity / trạng thái | High / **In Progress** — P1/P2/P2.1/P3/P3.1/P4 done; P4.1 import done; P4.1 system + P5 next |
 | Owner / reviewer | Developer / Architect |
 | depends_on / blocks | TASK-401, SOL-S05-002 / QA TASK-398 |
 | Write scope | `plugins/sdk/**`, `plugins/catalog/**`, `src/backend/src/main/java/**/plugin/**`, `docker-compose.yml`, `deployments/k8s/**` |
@@ -20,7 +20,8 @@ Chuyển toàn bộ đọc/ghi DB của catalog sang core gRPC data gateway; plu
 - [x] **P3**: SDK client + read path catalog + Redis cache do plugin quản lý. Hot paths + `descendants`/export qua gateway.
 - [x] **P3.1**: `TREE` recursive descendants + bulk export descriptors (items/edges/parent lookups) qua gateway.
 - [x] **P4**: main write path (types, items, edges, grants, inline) qua gRPC; `ExecuteBatch` cho version update/grant replace; idempotency key + DB response replay.
-- [ ] **P4.1**: import writes, system catalog sync, seeders chuyển khỏi DB (P5 khi xoá datasource).
+- [x] **P4.1 (import)**: import đọc/ghi qua gateway (`currentItemByCode`, `activeEdge`, `wouldCreateCycle`, export reads); dry-run/re-import PASS.
+- [ ] **P4.1 (system)**: system catalog sync + seeders chuyển khỏi DB (P5 khi xoá datasource).
 - [ ] **P5**: system scope identity/port riêng; xoá DB env khỏi plugin.
 - [ ] **P6**: RabbitMQ event/command (khi cần).
 
@@ -58,6 +59,10 @@ Chuyển toàn bộ đọc/ghi DB của catalog sang core gRPC data gateway; plu
   - Compiler value spec: optional/allow_null, `jsonb`, `varchar[]`, `text[]`, `LOWER_EQ`; executor bind array + row limit bulk.
   - Kiểm chứng: tạo/sửa type, tạo/sửa/đóng item, tạo edge + parents, inline, descendants, export CSV, read cache; V5.1.1 seed 49 descriptors.
   - Còn: import/system sync/seeders vẫn DB (P4.1/P5); outbox để P6; mTLS P5.
+- **2026-10-28 — P4.1 import + token hết hạn**:
+  - `CatalogImportExportService`: import dùng `gateway.currentItemByCode`, `gateway.activeEdge`, `gateway.wouldCreateCycle`; bỏ `CatalogItemRepository`/`CatalogItemEdgeRepository` khỏi service.
+  - Import e2e: dry-run `created=2, edges=1`; import thật `created=2, edges=1`; import lại `skipped=2, edges=0`; export có `parent_code`.
+  - [BUG-143](BUG-143_plugin_runtime_token_expiry_stuck.md): host cache token theo `expires_in_seconds`, plugin báo `session-expired` khi 401, iframe reload token mới giữ route, refresh thất bại thì `clearSession()` về login.
 
 ## 4. Tiêu chí nghiệm thu
 
@@ -79,3 +84,4 @@ Chuyển toàn bộ đọc/ghi DB của catalog sang core gRPC data gateway; plu
 | 0.3 | 2026-10-27 | P2.1 done: 18 catalog query descriptors, V5.0.2 seed, tenant scope/effective/search compiler support | Developer Agent |
 | 0.4 | 2026-10-27 | P3 done: SDK client, merged/exists DSL, read paths via gRPC, plugin-owned Redis cache + invalidation, compose/runtime env; web/mobile smoke PASS | Developer Agent |
 | 0.5 | 2026-10-28 | P3.1 + P4 done: TREE/bulk export, write descriptors, ExecuteBatch, DB idempotency; type/item/edge/grant/inline writes via gateway, integration PASS | Developer Agent |
+| 0.6 | 2026-10-28 | P4.1 import done (reads/writes via gateway, e2e dry-run/import/re-import PASS); BUG-143 token expiry auto-renew + logout fallback | Developer Agent |

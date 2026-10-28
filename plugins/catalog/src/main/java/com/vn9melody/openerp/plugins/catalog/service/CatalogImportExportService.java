@@ -21,8 +21,6 @@ import com.vn9melody.openerp.plugins.catalog.gateway.CatalogGateway;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogItem;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogItemEdge;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogItemEdgeRepository;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogItemRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -87,12 +85,6 @@ public class CatalogImportExportService {
     CatalogEdgeService edgeService;
 
     @Inject
-    CatalogItemRepository itemRepository;
-
-    @Inject
-    CatalogItemEdgeRepository edgeRepository;
-
-    @Inject
     CatalogGateway gateway;
 
     @Inject
@@ -146,7 +138,7 @@ public class CatalogImportExportService {
                 outcomes.add(outcome);
                 continue;
             }
-            CatalogItem current = itemRepository.findCurrentByCode(tenantId, type.id, input.code());
+            CatalogItem current = gateway.currentItemByCode(tenantId, type.id, input.code(), tenantId == null);
             if (current == null) {
                 try {
                     ItemResponse created = itemService.create(tenantId, type.code,
@@ -192,7 +184,7 @@ public class CatalogImportExportService {
             if (knownName != null) {
                 outcome.action = knownName.equals(input.name()) ? ImportAction.SKIPPED : ImportAction.UPDATED;
             } else {
-                CatalogItem current = itemRepository.findCurrentByCode(tenantId, type.id, input.code());
+                CatalogItem current = gateway.currentItemByCode(tenantId, type.id, input.code(), tenantId == null);
                 if (current == null) {
                     outcome.action = ImportAction.CREATED;
                 } else {
@@ -217,7 +209,7 @@ public class CatalogImportExportService {
                 outcome.errors.add(issue);
                 continue;
             }
-            CatalogItem parent = itemRepository.findCurrentByCode(tenantId, type.id, outcome.input.parentCode());
+            CatalogItem parent = gateway.currentItemByCode(tenantId, type.id, outcome.input.parentCode(), tenantId == null);
             if (parent == null) {
                 outcome.errors.add(rowInvalid(COL_PARENT_CODE));
                 continue;
@@ -225,11 +217,11 @@ public class CatalogImportExportService {
             if (outcome.itemId == null) {
                 continue;
             }
-            if (edgeRepository.findActiveEdge(tenantId, parent.id, outcome.itemId,
-                    CatalogRelationType.HIERARCHY) != null) {
+            if (gateway.activeEdge(tenantId, parent.id, outcome.itemId,
+                    CatalogRelationType.HIERARCHY.name(), tenantId == null) != null) {
                 continue; // already linked: re-import is idempotent
             }
-            if (edgeRepository.wouldCreateCycle(parent.id, outcome.itemId)) {
+            if (gateway.wouldCreateCycle(tenantId, parent.id, outcome.itemId)) {
                 outcome.errors.add(new ApiFieldError(COL_PARENT_CODE, CatalogErrorCode.CATALOG_EDGE_CYCLE,
                     Map.of(ResponseKey.PARENT_ID.getKey(), parent.id.toString(),
                         ResponseKey.ID.getKey(), outcome.itemId.toString())));
@@ -265,7 +257,7 @@ public class CatalogImportExportService {
                 outcome.errors.add(issue);
                 continue;
             }
-            CatalogItem parent = itemRepository.findCurrentByCode(tenantId, type.id, outcome.input.parentCode());
+            CatalogItem parent = gateway.currentItemByCode(tenantId, type.id, outcome.input.parentCode(), tenantId == null);
             if (parent == null) {
                 if (!fileCodes.contains(outcome.input.parentCode())) {
                     outcome.errors.add(rowInvalid(COL_PARENT_CODE));
@@ -278,11 +270,11 @@ public class CatalogImportExportService {
                 continue;
             }
             if (outcome.itemId != null) {
-                if (edgeRepository.findActiveEdge(tenantId, parent.id, outcome.itemId,
-                        CatalogRelationType.HIERARCHY) != null) {
+                if (gateway.activeEdge(tenantId, parent.id, outcome.itemId,
+                        CatalogRelationType.HIERARCHY.name(), tenantId == null) != null) {
                     continue;
                 }
-                if (edgeRepository.wouldCreateCycle(parent.id, outcome.itemId)) {
+                if (gateway.wouldCreateCycle(tenantId, parent.id, outcome.itemId)) {
                     outcome.errors.add(new ApiFieldError(COL_PARENT_CODE, CatalogErrorCode.CATALOG_EDGE_CYCLE,
                         Map.of(ResponseKey.PARENT_ID.getKey(), parent.id.toString(),
                             ResponseKey.ID.getKey(), outcome.itemId.toString())));

@@ -64,6 +64,7 @@ npx @open-erp/cli generate ui-contribution --slot core.dashboard.widgets --rende
 - `generate` merge an toàn vào `plugin.json`; file mã nguồn đã tồn tại cần `--force`.
 - `--render-mode` nhận `web-component`, `module-federation` hoặc `iframe` (mặc định iframe khi không hỗ trợ WC/MF).
 - Core **không hardcode menu plugin**: nó đọc `ui_manifest.screens` từ `/api/v1/plugins/ui-manifest`, map `route`/`title_key`/`permission` thành menu và mount qua host cố định `/apps/:pluginKey`. Screen chỉ xuất hiện khi tenant đang bật plugin (ACTIVE) và user có quyền. Đặt `route` theo quy ước `/apps/{pluginKey}` (hoặc sub-path) để host resolve đúng.
+- Plugin iframe gọi API qua `/api/v1/plugins/runtime/{pluginKey}/...`. Runtime token chỉ sống vài phút: khi nhận `401` + `code = PLUGIN_RUNTIME_TOKEN_INVALID`, UI plugin post `{source:'open-erp-plugin', type:'session-expired'}` để host xin token mới và reload iframe; nếu refresh thất bại host tự kết thúc phiên về `/login`. Xem mẫu ở `plugins/catalog/web/src/plugin-main.ts`.
 
 ---
 

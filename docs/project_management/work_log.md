@@ -2,6 +2,14 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-28 — TASK-402 P4.1 import + BUG-143 token hết hạn
+
+- **Import**: `CatalogImportExportService` dùng `gateway.currentItemByCode`, `gateway.activeEdge`, `gateway.wouldCreateCycle`; bỏ 2 repository khỏi service.
+- **Kiểm chứng**: dry-run `created=2, edges=1`; import thật `created=2, edges=1`; import lại `skipped=2`; export CSV có `parent_code`.
+- **BUG-143**: `PluginHostService` cache token theo `expires_in_seconds` (refresh sớm 30s, `force`); plugin web bắt 401 `PLUGIN_RUNTIME_TOKEN_INVALID` → post `session-expired`; iframe xin token mới, reload giữ route; thất bại → `AuthService.clearSession()` về `/login`.
+- **Browser**: làm hỏng cookie token → chọn `COMMUNE` → token mới + reload đúng route + 20 dòng; xoá phiên core → về `/login`, không kẹt iframe.
+- **Còn**: system sync/seeders vẫn DB (P4.1 system/P5); mTLS P5; outbox P6.
+
 ## 2026-10-28 — TASK-402 P3.1 + P4: write path gRPC, batch, idempotency
 
 - **P3.1**: core `TREE` recursive descriptor + bulk LIST (20k) cho export; catalog `descendants`, export items/edges/parent lookup qua gateway, bỏ DB read tương ứng.

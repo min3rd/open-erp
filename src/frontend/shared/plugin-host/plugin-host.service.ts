@@ -8,6 +8,8 @@ import { PluginRuntimeSession, PluginUiManifest } from './plugin-host.model';
 
 const RUNTIME_PATH_PREFIX = '/plugins-runtime/';
 const GATEWAY_PATH_PREFIX = '/api/v1/plugins/runtime/';
+/** Refresh ahead of expiry so a request never races the token TTL. */
+const SESSION_SKEW_MS = 30_000;
 
 @Injectable({ providedIn: 'root' })
 export class PluginHostService {
@@ -19,6 +21,7 @@ export class PluginHostService {
   private loadingSignal = signal<boolean>(false);
   private errorSignal = signal<string | null>(null);
   private sessionSignal = signal<PluginRuntimeSession | null>(null);
+  private sessionExpiresAt = 0;
 
   readonly manifest = this.manifestSignal.asReadonly();
   readonly screens = computed(() => this.manifestSignal()?.screens ?? []);
@@ -68,9 +71,9 @@ export class PluginHostService {
     return `${mapped}${separator}plugin_token=${encodeURIComponent(session.token)}`;
   }
 
-  async session(pluginKey: string): Promise<PluginRuntimeSession | null> {
+  async session(pluginKey: string, force = false): Promise<PluginRuntimeSession | null> {
     const cached = this.sessionSignal();
-    if (cached && cached.plugin_key === pluginKey) {
+    if (!force && cached && cached.plugin_key === pluginKey && Date.now() + SESSION_SKEW_MS < this.sessionExpiresAt) {
       return cached;
     }
     try {
@@ -79,9 +82,15 @@ export class PluginHostService {
           plugin_key: pluginKey,
         })
       );
-      this.sessionSignal.set(response?.data ?? null);
-      return response?.data ?? null;
+      const session = response?.data ?? null;
+      this.sessionSignal.set(session);
+      this.sessionExpiresAt = session?.expires_in_seconds
+        ? Date.now() + session.expires_in_seconds * 1000
+        : 0;
+      return session;
     } catch {
+      this.sessionSignal.set(null);
+      this.sessionExpiresAt = 0;
       return null;
     }
   }

@@ -13,6 +13,7 @@ import {
   PLUGIN_PERMISSION_CHECKER,
   TranslatePipe,
 } from '@shared';
+import { AuthService } from '../../core/services/auth.service';
 
 /**
  * Fixed host for plugin screens. The screen itself (route, title, permission,
@@ -37,6 +38,7 @@ export class PluginScreenHostComponent implements OnInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private hostService = inject(PluginHostService);
+  private auth = inject(AuthService);
   private permissionChecker = inject(PLUGIN_PERMISSION_CHECKER);
   private iframeLoader = viewChild(PluginIframeLoaderComponent);
 
@@ -148,7 +150,14 @@ export class PluginScreenHostComponent implements OnInit {
     return `/api/v1/plugins/runtime/${this.pluginKey()}/`;
   }
 
-  onFailed(): void {
+  onFailed(code?: string): void {
+    // The plugin session could not be renewed; the core session is the only way
+    // to mint a new one, so ending it returns the user to login instead of a
+    // dead iframe.
+    if (code === 'PLUGIN_RUNTIME_TOKEN_INVALID') {
+      this.auth.clearSession();
+      return;
+    }
     this.failed.set(true);
   }
 }
