@@ -32,6 +32,7 @@ public final class CatalogErrorCode {
     public static final String CATALOG_TYPE_NOT_CLONED = "CATALOG_TYPE_NOT_CLONED";
     public static final String CATALOG_TYPE_SYNC_PREVIEW_SUCCESS = "CATALOG_TYPE_SYNC_PREVIEW_SUCCESS";
     public static final String CATALOG_TYPE_SYNC_SUCCESS = "CATALOG_TYPE_SYNC_SUCCESS";
+    public static final String CATALOG_TYPE_SYNC_INVALID = "CATALOG_TYPE_SYNC_INVALID";
 
     // Success - items
     public static final String CATALOG_ITEM_FETCH_SUCCESS = "CATALOG_ITEM_FETCH_SUCCESS";

@@ -1,6 +1,7 @@
 package com.vn9melody.openerp.plugins.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vn9melody.openerp.plugin.sdk.api.ResponseKey;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogResponseKey;
 import java.util.List;
 import java.util.UUID;
@@ -53,6 +54,13 @@ public final class CatalogCloneDtos {
         @JsonProperty(CatalogResponseKey.Json.APPLIED) int applied,
         @JsonProperty(CatalogResponseKey.Json.SKIPPED) int skipped,
         @JsonProperty(CatalogResponseKey.Json.CONFLICTS) List<SyncConflict> conflicts
+    ) {
+    }
+
+    public record PlatformSyncRequest(
+        @JsonProperty(CatalogResponseKey.Json.TENANT_ID) UUID tenantId,
+        @JsonProperty(ResponseKey.Json.CODE) String code,
+        @JsonProperty(CatalogResponseKey.Json.CONFLICTS) List<SyncAction> conflicts
     ) {
     }
 }

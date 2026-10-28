@@ -4,6 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.vn9melody.openerp.plugin.sdk.api.ApiException;
 import com.vn9melody.openerp.plugin.sdk.api.ApiResponse;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogErrorCode;
+import com.vn9melody.openerp.plugins.catalog.dto.CatalogCloneDtos.PlatformSyncRequest;
+import com.vn9melody.openerp.plugins.catalog.dto.CatalogCloneDtos.SyncApplyRequest;
+import com.vn9melody.openerp.plugins.catalog.dto.CatalogCloneDtos.SyncApplyResult;
+import com.vn9melody.openerp.plugins.catalog.service.CatalogSyncService;
 import com.vn9melody.openerp.plugins.catalog.service.SystemCatalogSyncService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -28,6 +32,9 @@ public class SystemCatalogSyncResource {
     @Inject
     SystemCatalogSyncService syncService;
 
+    @Inject
+    CatalogSyncService catalogSyncService;
+
     @ConfigProperty(name = "plugin.fanout-token", defaultValue = "")
     String fanoutToken;
 
@@ -45,6 +52,20 @@ public class SystemCatalogSyncResource {
         requireToken(token);
         return Response.ok(ApiResponse.success(CatalogErrorCode.SYSTEM_CATALOG_SYNC_SUCCESS,
             "System catalog synchronized.", syncService.apply(snapshot))).build();
+    }
+
+    @POST
+    @Path("/tenant-sync")
+    public Response tenantSync(@HeaderParam("X-Plugin-Fanout-Token") String token, PlatformSyncRequest request) {
+        requireToken(token);
+        if (request == null || request.tenantId() == null || request.code() == null) {
+            throw new ApiException(400, CatalogErrorCode.CATALOG_TYPE_SYNC_INVALID,
+                "tenant_id and code are required", java.util.Map.of());
+        }
+        SyncApplyResult data = catalogSyncService.apply(request.tenantId(), request.code(),
+            new SyncApplyRequest(request.conflicts()));
+        return Response.ok(ApiResponse.success(CatalogErrorCode.CATALOG_TYPE_SYNC_SUCCESS,
+            "Tenant catalog synchronized.", data)).build();
     }
 
     private void requireToken(String token) {

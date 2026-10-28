@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vn9melody.openerp.core.api.ApiException;
+import com.vn9melody.openerp.core.audit.AuditTrail;
+import com.vn9melody.openerp.core.enums.PlatformAction;
 import com.vn9melody.openerp.core.enums.TenantPluginStatus;
 import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
 import com.vn9melody.openerp.modules.plugin.model.TenantPlugin;
@@ -18,6 +20,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -41,6 +44,12 @@ public class PluginFanoutService {
     @Inject
     ObjectMapper objectMapper;
 
+    @Inject
+    AuditTrail auditTrail;
+
+    @Inject
+    PluginAuditService pluginAuditService;
+
     @ConfigProperty(name = "openerp.platform.system-tenant-id",
         defaultValue = "00000000-0000-0000-0000-000000000001")
     String systemTenantId;
@@ -55,8 +64,26 @@ public class PluginFanoutService {
         .connectTimeout(Duration.ofSeconds(5))
         .build();
 
-    public JsonNode fanoutCatalog() {
-        UUID systemTenant = UUID.fromString(systemTenantId);
+    /** Platform-assisted sync for one tenant; audited in the platform log. */
+    public JsonNode syncTenantCatalog(UUID tenantId, String code, JsonNode conflicts) {
+        TenantPlugin target = tenantPluginRepository.findByTenantAndKey(tenantId, "catalog")
+            .orElseThrow(() -> new ApiException(404, PluginErrorCode.PLUGIN_NOT_INSTALLED,
+                "Catalog plugin is not installed for this tenant"));
+        if (target.status != TenantPluginStatus.ACTIVE) {
+            throw new ApiException(409, PluginErrorCode.PLUGIN_NOT_INSTALLED,
+                "Catalog plugin is not active for this tenant");
+        }
+        ObjectNode body = objectMapper.createObjectNode();
+        body.put("tenant_id", tenantId.toString());
+        body.put("code", code);
+        body.set("conflicts", conflicts == null ? objectMapper.createArrayNode() : conflicts);
+        JsonNode result = post(target, "/internal/system-catalog/tenant-sync", body).path("data");
+        pluginAuditService.platform(auditTrail.currentActorUserId(), PlatformAction.CATALOG_TENANT_SYNC,
+            "catalog", tenantId, null, Map.of("code", code));
+        return result;
+    }
+
+    public JsonNode fanoutCatalog() {        UUID systemTenant = UUID.fromString(systemTenantId);
         TenantPlugin system = tenantPluginRepository.findByTenantAndKey(systemTenant, "catalog")
             .orElseThrow(() -> new ApiException(404, PluginErrorCode.PLUGIN_NOT_INSTALLED,
                 "System tenant catalog plugin is not installed"));

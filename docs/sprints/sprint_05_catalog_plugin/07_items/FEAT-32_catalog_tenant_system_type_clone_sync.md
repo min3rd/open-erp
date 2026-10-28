@@ -79,7 +79,7 @@ Hiện tại system type (`tenant_id IS NULL`) bị chặn sửa ở tenant:
 - [x] Lookup/options dùng clone; item system + override hiển thị đúng; không lẫn tenant khác.
 - [x] Sync preview hiển thị đủ xung đột type/item/edge/relation; chọn `OVERRIDE/SKIP/MERGE` cho từng mục; apply đúng, không silent overwrite.
 - [x] Sync lấy item/edge mới từ system ngoài fan-out (preview tạo dòng mới, apply chèn).
-- [ ] Platform sync hộ tenant có audit + quyền platform.
+- [x] Platform sync hộ tenant có audit + quyền platform (`POST /api/v1/platform/plugins/catalog/tenants/{tenantId}/sync`, audit `CATALOG_TENANT_SYNC`).
 - [ ] Clone/sync dữ liệu lớn (COMMUNE 3.321) hoàn tất idempotent, có thể resume khi lỗi.
 - [ ] Test tenant isolation, permission, migration, web/mobile 0 console error; docs API/DB/UI + user guide cập nhật.
 
@@ -92,3 +92,4 @@ Hiện tại system type (`tenant_id IS NULL`) bị chặn sửa ở tenant:
 | 0.3 | 2026-10-28 | Chốt clone **toàn bộ cụm quan hệ** (connected component) để mọi edge trong cụm đều được clone; edge ra ngoài cụm giữ system | Chủ dự án xác nhận |
 | 0.4 | 2026-10-28 | Implement clone/xoá clone: `system_*_id`, bảng quan hệ, API `POST/DELETE /types/{code}/clone`, tự clone khi tenant Lưu system type; sync còn lại | Developer |
 | 0.5 | 2026-10-28 | Implement sync preview/apply: `GET /types/{code}/sync/preview`, `POST /types/{code}/sync` với `OVERRIDE/SKIP/MERGE` cho TYPE/ITEM/EDGE/RELATION; drawer sync; platform sync còn lại | Developer |
+| 0.6 | 2026-10-28 | Platform sync hộ tenant: `POST /api/v1/platform/plugins/catalog/tenants/{tenantId}/sync`, internal plugin endpoint + audit `CATALOG_TENANT_SYNC` | Developer |

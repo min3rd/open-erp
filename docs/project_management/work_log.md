@@ -7,7 +7,7 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 - **FEAT-31**: `catalog_type_relations` (migration plugin `V1.0.1` + core `V5.4.0`), backfill `allowed_parent_types`; API `GET/PUT /types/{code}/relations` (validate relation/self/cycle); type drawer chip chọn loại cha/con; edge drawer thêm con. Đã test API: COMMUNE → DISTRICT/PROVINCE; cycle trả `CATALOG_TYPE_RELATION_CYCLE`.
 - **FEAT-32**: cột `system_*_id` (plugin `V1.1.0` + core `V5.5.0`); `POST/DELETE /types/{code}/clone` clone cả cụm PROVINCE+COMMUNE+DISTRICT + item/edge/relation; tenant sửa system type tự clone khi Lưu; list ẩn system row khi có clone, badge `BẢN TENANT`. Clone COMMUNE: 3.354 item, 3.318 edge, 20s; xoá clone + sync preview/apply còn lại.
 - **V5.5.1**: sửa array `[Ljava.lang.String;@...` do fan-out cũ + backfill lại relation; **V5.5.2**: move item override sang loại clone + timeout batch 30s.
-- **Sync (V5.5.4)**: `GET /types/{code}/sync/preview` + `POST /types/{code}/sync`; conflict TYPE/ITEM/EDGE/RELATION, `OVERRIDE/SKIP/MERGE` (JSON gộp, tenant thắng khóa trùng); drawer sync trên loại clone. Platform sync hộ tenant còn lại.
+- **Sync (V5.5.4)**: `GET /types/{code}/sync/preview` + `POST /types/{code}/sync`; conflict TYPE/ITEM/EDGE/RELATION, `OVERRIDE/SKIP/MERGE` (JSON gộp, tenant thắng khóa trùng); drawer sync trên loại clone. Platform sync hộ tenant: `POST /api/v1/platform/plugins/catalog/tenants/{tenantId}/sync` + audit `CATALOG_TENANT_SYNC`.
 
 ## 2026-10-28 — BUG-151: bỏ header host lặp cho iframe
 

@@ -16,6 +16,7 @@ public enum CatalogResponseKey {
 
     // Types
     TYPE_ID("type_id"),
+    TENANT_ID("tenant_id"),
     TYPE_CODE("type_code"),
     IS_CLONE("is_clone"),
     NAME_KEY("name_key"),
@@ -93,6 +94,7 @@ public enum CatalogResponseKey {
 
     public interface Json {
         String TYPE_ID = "type_id";
+        String TENANT_ID = "tenant_id";
         String TYPE_CODE = "type_code";
         String IS_CLONE = "is_clone";
         String NAME_KEY = "name_key";
