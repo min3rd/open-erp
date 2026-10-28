@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | EVD-S05-001 / Evidence index / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | Draft — thêm evidence zero-DB/mTLS + mobile plugin host + merge override/enable readiness / 0.7 / 2026-10-28 |
+| Trạng thái / phiên bản / cập nhật | Draft — thêm evidence zero-DB/mTLS + mobile plugin host + merge override/enable readiness + FEAT-31/32 / 0.8 / 2026-10-28 |
 | Owner / reviewer | QA/QC Agent / PM + Architect |
 | Đầu vào | [TP-S05-001](../01_TP-S05-001_sprint_05_test_plan.md) (25 TC), [UG-S05-001](../../../../06_user_guides/sprint_05_catalog_plugin_user_guide.md) |
 
@@ -45,6 +45,19 @@
 | `desktop-catalog-merged-override-10003.png` | COMMUNE lọc `10003`: chỉ 1 dòng `Xã Tây Phương (tenant)` + badge `GHI ĐÈ`; header/sidebar/pagination cố định | ✅ Browser tenant `e2e-tenant` |
 | Merge API | `q=10003` → 1 item `overridden=true`, `is_system=false`; không còn dòng system cùng mã | ✅ HTTP |
 | Enable readiness | disable 2s → INACTIVE; enable 23s → ACTIVE chờ `/q/health/ready`; request runtime ngay sau enable 200 | ✅ HTTP + Docker |
+
+## 0.4. FEAT-31/32 — quan hệ loại + clone/sync (2026-10-28)
+
+| Ảnh / bằng chứng | Nội dung | Trạng thái |
+| :--- | :--- | :--- |
+| `desktop-feat32-clone-list.png` | Type list: COMMUNE/DISTRICT/PROVINCE badge `Bản tenant`; system INDUSTRY/JOB; 3.321 item; header/sidebar/footer cố định | ✅ Web 1400px |
+| `desktop-feat31-type-relations.png` | Drawer sửa COMMUNE: chip **Loại cha** PROVINCE/DISTRICT active, **Loại con** trống | ✅ Web |
+| `desktop-feat31-edge-child.png` | Drawer **Thêm bản ghi con** trên PROVINCE: relation HIERARCHY, loại con COMMUNE/DISTRICT, picker | ✅ Web |
+| `desktop-feat32-sync-empty.png` | Sync preview sau clone sạch: `Không có xung đột` | ✅ Web |
+| `desktop-feat32-sync-conflict.png` | Sync preview 1 conflict `TYPE/COMMUNE/name_key`, chọn `Ghi đè` | ✅ Web |
+| `mobile-feat32-readonly.png` | Mobile `:8100/settings/catalog`: không nút ghi/sync/clone, 20 dòng, overflow 0 | ✅ Mobile |
+| API/DB | Clone 3 type/3.355 item/3.319 edge; preview 0; sync OVERRIDE; platform sync + audit target tenant; cycle 409; 403 system write/platform | ✅ Terminal/PostgreSQL |
+| Backend suite | `mvn clean test` | ✅ 268 PASS/0 fail/1 skip |
 
 ## 1. Desktop (≥1280px)
 

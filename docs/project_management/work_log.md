@@ -2,6 +2,13 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-28 — QA FEAT-31/32 (TR-S05-003)
+
+- **PASS**: quan hệ loại (4 relation system, cycle 409, type drawer, edge child drawer); clone mới 3 type/3.355 item/3.319 edge/3 relation (~23s), preview 0 conflict; sync TYPE/ITEM OVERRIDE qua UI; platform sync 200 + audit `CATALOG_TENANT_SYNC` target tenant; tenant gọi platform 403, PUT system type 403.
+- **BUG-152** (preview lẫn relation ngoài cụm) và **BUG-153** (thiếu edge tới override) đã fix + retest.
+- Full backend 268 PASS/0 fail/1 skip; web/mobile 0 console error, mobile read-only/overflow 0.
+- Ghi chú: browser QA không có device emulation 390×844; mobile đo ở 1000×700, ảnh 390 baseline từ TASK-403.
+
 ## 2026-10-28 — FEAT-31/32: type relations + tenant clone
 
 - **FEAT-31**: `catalog_type_relations` (migration plugin `V1.0.1` + core `V5.4.0`), backfill `allowed_parent_types`; API `GET/PUT /types/{code}/relations` (validate relation/self/cycle); type drawer chip chọn loại cha/con; edge drawer thêm con. Đã test API: COMMUNE → DISTRICT/PROVINCE; cycle trả `CATALOG_TYPE_RELATION_CYCLE`.

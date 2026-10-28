@@ -480,6 +480,10 @@ public class CatalogSyncService {
         List<CatalogTypeRelation> systemRelations = allRelations.stream()
                 .filter(relation -> relation.tenantId == null).toList();
         Set<UUID> component = CatalogCloneService.component(root.systemTypeId, systemRelations);
+        List<CatalogTypeRelation> clusterRelations = systemRelations.stream()
+                .filter(relation -> component.contains(relation.parentTypeId)
+                        && component.contains(relation.childTypeId))
+                .toList();
         Map<UUID, CatalogType> tenantBySystem = new HashMap<>();
         for (CatalogType type : gateway.visibleTypes(tenantId)) {
             if (Objects.equals(type.tenantId, tenantId)
@@ -502,7 +506,7 @@ public class CatalogSyncService {
         List<CatalogTypeRelation> tenantRelations = allRelations.stream()
                 .filter(relation -> Objects.equals(relation.tenantId, tenantId)).toList();
         return new Cluster(tenantId, root, systemById, tenantBySystem, systemItems, tenantItems,
-                systemEdges, tenantEdges, systemRelations, tenantRelations);
+                systemEdges, tenantEdges, clusterRelations, tenantRelations);
     }
 
     private List<CatalogItemEdge> currentTenantEdges(Cluster cluster) {

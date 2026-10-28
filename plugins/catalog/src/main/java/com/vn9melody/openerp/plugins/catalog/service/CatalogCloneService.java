@@ -125,6 +125,18 @@ public class CatalogCloneService {
                     tenantItemBySystem.put(item.systemItemId, item.id);
                 }
             }
+            Map<String, CatalogItem> systemByCode = new HashMap<>();
+            for (CatalogItem systemItem : systemItems) {
+                systemByCode.put(systemItem.code, systemItem);
+            }
+            for (CatalogItem item : tenantItems) {
+                if (item.systemItemId == null) {
+                    CatalogItem systemItem = systemByCode.get(item.code);
+                    if (systemItem != null) {
+                        tenantItemBySystem.put(systemItem.id, item.id);
+                    }
+                }
+            }
             for (CatalogItem item : tenantOverrides) {
                 overriddenCodes.add(item.code);
             }

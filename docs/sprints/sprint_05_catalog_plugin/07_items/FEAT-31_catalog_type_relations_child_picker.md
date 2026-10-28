@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | FEAT-31 / Feature / Sprint 05 (change request; ưu tiên sau khi chốt) |
-| Trạng thái | **In Progress (dev)** — FEAT-31 implemented 2026-10-28: DB/API/type drawer/child edge picker; QA + full test pending |
+| Trạng thái | **Done (QA)** 2026-10-28 — TR-S05-003 PASS; QA retest sau BUG-152/153 |
 | Owner / reviewer | BA → Architect → Developer / QA + PM |
 | Đầu vào | [RAW-S05-002](../01_raw_notes/02_RAW-S05-002_catalog_type_relations.md), [ANL-S05-003](../02_analysis/03_ANL-S05-003_catalog_type_relations.md), [CONF-S05-002](../04_confirmation/02_CONF-S05-002_catalog_type_relations.md) |
 | Liên quan | [TASK-402](../07_items/TASK-402_plugin_data_gateway_grpc.md), [FEAT-30](../07_items/FEAT-30_catalog_core_plugin.md) |
@@ -30,7 +30,7 @@ Cho phép định nghĩa quan hệ cha/con **giữa các loại danh mục** (PR
 - [x] Item drawer/edge drawer: chọn con theo relation/loại con; lưu edge riêng.
 - [x] Không phá import/export CSV (`parent_code` vẫn tạo edge), versioning, `min_parents`, descendants.
 - [x] Web + mobile: 0 console error, không tràn ngang 390×844; mobile read-only.
-- [ ] Test backend PostgreSQL thật: nhiều cha, nhiều relation, backfill, cycle, tenant isolation.
+- [x] Test backend PostgreSQL thật: nhiều cha, nhiều relation, backfill, cycle, tenant isolation.
 - [x] Docs: API/UI/DB design cập nhật (DES-DB/API/UI §8).
 
 ## 4. Ghi chú
@@ -44,3 +44,4 @@ Cho phép định nghĩa quan hệ cha/con **giữa các loại danh mục** (PR
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-28 | Tạo feature từ RAW/ANL/CONF đã chốt | BA Agent |
 | 0.2 | 2026-10-28 | Implement: `catalog_type_relations` + backfill, API relations, type drawer chip picker, edge drawer thêm con; migration `V5.4.0`/plugin `V1.0.1` | Developer |
+| 0.3 | 2026-10-28 | QA PASS (TR-S05-003): API/backfill/cycle/type drawer/edge drawer; full backend 268 PASS | QA/QC |

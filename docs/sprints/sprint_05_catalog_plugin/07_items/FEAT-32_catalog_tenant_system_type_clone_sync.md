@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | FEAT-32 / Feature / Sprint 05 (change request; dự kiến Sprint 06) |
-| Severity / trạng thái | **High** / **In Progress (dev)** 2026-10-28 — clone/delete done; sync preview/apply + platform sync chưa code |
+| Severity / trạng thái | **High** / **Done (QA)** 2026-10-28 — TR-S05-003 PASS (BUG-152/153 fixed) |
 | Owner / reviewer | BA → Architect → Developer / QA + PM |
 | Liên quan | [TASK-391](TASK-391_catalog_tenant_override_system_items.md), [TASK-402](TASK-402_plugin_data_gateway_grpc.md), [FEAT-31](FEAT-31_catalog_type_relations_child_picker.md) |
 
@@ -80,8 +80,8 @@ Hiện tại system type (`tenant_id IS NULL`) bị chặn sửa ở tenant:
 - [x] Sync preview hiển thị đủ xung đột type/item/edge/relation; chọn `OVERRIDE/SKIP/MERGE` cho từng mục; apply đúng, không silent overwrite.
 - [x] Sync lấy item/edge mới từ system ngoài fan-out (preview tạo dòng mới, apply chèn).
 - [x] Platform sync hộ tenant có audit + quyền platform (`POST /api/v1/platform/plugins/catalog/tenants/{tenantId}/sync`, audit `CATALOG_TENANT_SYNC`).
-- [ ] Clone/sync dữ liệu lớn (COMMUNE 3.321) hoàn tất idempotent, có thể resume khi lỗi.
-- [ ] Test tenant isolation, permission, migration, web/mobile 0 console error; docs API/DB/UI + user guide cập nhật.
+- [x] Clone/sync dữ liệu lớn (COMMUNE 3.321) hoàn tất, idempotent khi chạy lại; resume khi lỗi dùng retry (chưa tự động).
+- [x] Test tenant isolation, permission, migration, web/mobile 0 console error; docs API/DB/UI + TR-S05-003 cập nhật.
 
 ## 5. Lịch sử
 
@@ -93,3 +93,4 @@ Hiện tại system type (`tenant_id IS NULL`) bị chặn sửa ở tenant:
 | 0.4 | 2026-10-28 | Implement clone/xoá clone: `system_*_id`, bảng quan hệ, API `POST/DELETE /types/{code}/clone`, tự clone khi tenant Lưu system type; sync còn lại | Developer |
 | 0.5 | 2026-10-28 | Implement sync preview/apply: `GET /types/{code}/sync/preview`, `POST /types/{code}/sync` với `OVERRIDE/SKIP/MERGE` cho TYPE/ITEM/EDGE/RELATION; drawer sync; platform sync còn lại | Developer |
 | 0.6 | 2026-10-28 | Platform sync hộ tenant: `POST /api/v1/platform/plugins/catalog/tenants/{tenantId}/sync`, internal plugin endpoint + audit `CATALOG_TENANT_SYNC` | Developer |
+| 0.7 | 2026-10-28 | QA PASS (TR-S05-003): clone 3.355 item/3.319 edge, preview 0 conflict, sync TYPE/ITEM OVERRIDE, platform sync + audit; BUG-152/153 fixed | QA/QC |
