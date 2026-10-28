@@ -28,39 +28,39 @@ Hiện tại system type (`tenant_id IS NULL`) bị chặn sửa ở tenant:
 ### 2.2. Dữ liệu hệ thống tham chiếu
 
 - Item system thuộc system type vẫn là read-only; tenant có thể tạo item override như hiện tại.
-- Clone cần tham chiếu `system_type_id` để:
-  - Merge item system + tenant override khi tra cứu.
-  - Biết loại gốc khi sync.
-- Cần chốt: item/edge system có tự động hiển thị dưới clone không (đề xuất: có, qua `system_type_id`), hay clone bắt đầu rỗng.
+- Clone cần tham chiếu `system_type_id`/`system_item_id` để map và sync.
+- **Đã chốt**: clone **toàn bộ cụm quan hệ** của type (không chỉ một type) — xem §3.1; vì vậy dữ liệu clone không phụ thuộc item system khi tra cứu.
 
 ### 2.3. Sync từ system → tenant
 
 - API/UI nút `Sync từ hệ thống` trên type clone.
-- Đồng bộ metadata loại từ system row (các field cấu hình), giữ `system_type_id`.
-- Chính sách xung đột (đề xuất): preview diff; tenant chọn field ghi đè hoặc giữ; không tự overwrite khi system thay đổi (tránh mất cấu hình tenant).
-- Có thể sync item/edge system đã fan-out? Fan-out hiện có đã cập nhật system rows trong schema tenant; sync type chỉ metadata.
+- Sync **toàn bộ** cụm clone: metadata type, item (mọi version), edge, type relation.
+- Preview diff; tenant chọn `OVERRIDE/SKIP/MERGE` cho từng xung đột; không silent overwrite.
+- Sync lấy cả item/edge mới từ system chưa có trong tenant (ngoài fan-out).
 
 ### 2.4. Xoá / fallback
 
-- Xoá clone → tenant quay lại dùng system type (read-only) hoặc giữ item override.
+- Xoá clone → xoá toàn bộ cụm clone của tenant (type + item/edge/relation clone) và quay lại dùng system type (read-only).
 - Không xoá được system type từ tenant.
+- Nếu chỉ muốn bỏ một type trong cụm, phải xử lý riêng (chưa hỗ trợ ở phạm vi này).
 
 ## 3. Quyết định đã chốt (2026-10-28)
 
 1. **Clone khi lưu**: tenant mở sửa system type, bấm **Lưu** → tự tạo clone tenant (không cần nút “Tạo bản tenant” riêng). Nếu clone đã tồn tại thì lần lưu sau cập nhật clone.
-2. **Clone cả dữ liệu**: clone metadata type **và** toàn bộ item/edge thuộc type (không chỉ metadata). Dữ liệu clone độc lập; system row không đổi.
+2. **Clone cả dữ liệu**: clone metadata type **và toàn bộ item/edge thuộc cụm quan hệ** của type (không chỉ metadata). Dữ liệu clone độc lập; system row không đổi.
 3. **Sync tất cả**: preview các xung đột (type field, item field/version, edge) và cho chọn cách xử lý từng xung đột: `OVERRIDE` (system thắng), `SKIP` (giữ tenant), `MERGE` (gộp field/giá trị).
 4. **Sync item/edge mới ngoài fan-out**: có; sync lấy cả item/edge system mới chưa có trong tenant clone.
 5. **Platform sync hộ tenant**: có; platform có thể chạy preview/apply cho một tenant để hỗ trợ kỹ thuật, có audit và không cần quyền tenant.
 
 ### 3.1. Quy tắc clone dữ liệu
 
-- Type: tạo row `tenant_id = tenant`, cùng `code`, `system_type_id` trỏ type gốc; copy toàn bộ field cấu hình.
-- Item: copy **tất cả version** (kể cả `valid_to` đã đóng) của type system sang item tenant với UUID mới; giữ `version_group_id` mới theo nhóm, `code`, `version`, `valid_from/valid_to`, `attributes`, trạng thái. Thêm `system_item_id` để map sync.
-- Edge: copy các edge mà **cả cha và con đều thuộc type được clone**; edge bắc cầu sang type khác giữ nguyên phía system (không clone), tránh tạo edge trỏ chéo sang dữ liệu system không thuộc clone.
-- Type relations (FEAT-31): clone các relation của type; `system_relation_id` để sync.
+- **Phạm vi cụm clone**: bắt đầu từ type được sửa, duyệt **tất cả type relation** (cha + con, đệ quy) để lấy **connected component**; clone toàn bộ type trong cụm. Ví dụ sửa `PROVINCE` → clone `PROVINCE + COMMUNE + DISTRICT` (và các type liên quan nếu có).
+- Type: mỗi type tạo row `tenant_id = tenant`, cùng `code`, `system_type_id` trỏ type gốc; copy toàn bộ field cấu hình.
+- Item: copy **tất cả version** (kể cả `valid_to` đã đóng) của từng type system sang item tenant với UUID mới; giữ `code`, `version`, `valid_from/valid_to`, `attributes`, trạng thái; thêm `system_item_id` để map sync.
+- Edge: copy **tất cả edge** mà cả cha và con thuộc cụm clone; edge bắc sang type ngoài cụm giữ phía system (không clone) — đúng giả định đã xác nhận.
+- Type relations (FEAT-31): clone toàn bộ relation trong cụm; `system_relation_id` để sync.
 - Idempotent: chạy lại clone/sync không tạo trùng (unique theo `system_type_id`/`system_item_id`/cặp code-version).
-- Dữ liệu lớn (COMMUNE 3.321 item): batch 500 qua gateway, có thể resume; trạng thái `clone_state = CLONING|READY`, `synced_at`.
+- Dữ liệu lớn: batch 500 qua gateway, có thể resume; trạng thái `clone_state = CLONING|READY`, `synced_at`.
 
 ### 3.2. Quy tắc sync & xung đột
 
@@ -73,7 +73,8 @@ Hiện tại system type (`tenant_id IS NULL`) bị chặn sửa ở tenant:
 
 ## 4. Tiêu chí nghiệm thu (draft)
 
-- [ ] Tenant sửa system type → bấm Lưu tạo clone `tenant_id` + `system_type_id`; copy metadata + item + edge; system row không đổi.
+- [ ] Tenant sửa system type → bấm Lưu tạo clone cho **toàn bộ cụm quan hệ** (`tenant_id` + `system_type_id`); copy metadata + item + edge; system row không đổi.
+- [ ] Clone `PROVINCE` tạo đủ `PROVINCE`, `COMMUNE`, `DISTRICT` + 34 tỉnh, 3.321 xã, edge tương ứng; không còn edge trỏ sang item system.
 - [ ] Clone độc lập: sửa/xoá item clone không ảnh hưởng system/tenant khác; reload giữ dữ liệu.
 - [ ] Lookup/options dùng clone; item system + override hiển thị đúng; không lẫn tenant khác.
 - [ ] Sync preview hiển thị đủ xung đột type/item/edge/relation; chọn `OVERRIDE/SKIP/MERGE` cho từng mục; apply đúng, không silent overwrite.
@@ -88,3 +89,4 @@ Hiện tại system type (`tenant_id IS NULL`) bị chặn sửa ở tenant:
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-28 | Tạo feature từ yêu cầu chủ dự án; chưa chốt chi tiết sync | Chủ dự án |
 | 0.2 | 2026-10-28 | Chốt: clone khi Lưu, clone cả item/edge, sync tất cả + preview conflict (override/skip/merge), sync item mới, platform sync hộ tenant | Chủ dự án trả lời |
+| 0.3 | 2026-10-28 | Chốt clone **toàn bộ cụm quan hệ** (connected component) để mọi edge trong cụm đều được clone; edge ra ngoài cụm giữ system | Chủ dự án xác nhận |

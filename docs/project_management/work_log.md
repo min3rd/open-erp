@@ -4,8 +4,8 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 
 ## 2026-10-28 — FEAT-32: chốt cơ chế clone/sync system type
 
-- Chốt: clone tự động khi Lưu; clone cả metadata + item/edge; sync tất cả; preview xung đột với `OVERRIDE/SKIP/MERGE`; sync item/edge mới; platform sync hộ tenant.
-- Ghi quy tắc clone item/edge, `system_type_id`/`system_item_id`, trạng thái `CLONING/READY`, batch 500.
+- Chốt: clone tự động khi Lưu; clone **toàn bộ cụm quan hệ** (connected component) gồm metadata + item/edge; sync tất cả; preview xung đột với `OVERRIDE/SKIP/MERGE`; sync item/edge mới; platform sync hộ tenant.
+- Ghi quy tắc clone item/edge (edge trong cụm được clone, edge ra ngoài giữ system), `system_type_id`/`system_item_id`, trạng thái `CLONING/READY`, batch 500.
 - Chưa code: cần DES-DB/API/UI (conflict model, endpoint, drawer preview).
 
 ## 2026-10-28 — Backlog: sort, page size, fixed header/footer, tenant type clone
