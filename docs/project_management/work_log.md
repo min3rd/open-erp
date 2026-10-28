@@ -2,6 +2,13 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-28 — Backlog: sort, page size, fixed header/footer, tenant type clone
+
+- Tạo [BUG-146](../sprints/sprint_05_catalog_plugin/07_items/BUG-146_catalog_column_sort_missing.md) — sort cột bảng danh mục.
+- Tạo [BUG-147](../sprints/sprint_05_catalog_plugin/07_items/BUG-147_catalog_page_size_missing.md) — chọn số bản ghi/trang.
+- Tạo [BUG-148](../sprints/sprint_05_catalog_plugin/07_items/BUG-148_catalog_fixed_header_footer.md) — header/footer cố định, chỉ content scroll.
+- Tạo [FEAT-32](../sprints/sprint_05_catalog_plugin/07_items/FEAT-32_catalog_tenant_system_type_clone_sync.md) — tenant clone/sync system type; High, cần design + chốt sync policy. Chưa code.
+
 ## 2026-10-28 — BUG-145 pagination + FEAT-31 requirement
 
 - **BUG-145**: gateway compiler tính page 1-based trong khi API/UI dùng 0-based → trang 2 lặp trang 1. Sửa `pageSlice`/`pageThrough` về 0-based; thêm test `paginationUsesZeroBasedPages`; browser `Trang 2/2` dòng đầu `51`.
