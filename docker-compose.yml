@@ -216,7 +216,7 @@ services:
   plugin-certs:
     image: eclipse-temurin:21-jdk-alpine
     container_name: openerp-plugin-certs
-    profiles: ["dev"]
+    profiles: ["dev", "test"]
     volumes:
       - plugin_certs:/certs
       - ./docker/certs/generate.sh:/gen.sh:ro
@@ -281,7 +281,7 @@ services:
       dockerfile: plugins/catalog/deploy/Dockerfile
     image: open-erp/catalog:1.0.0
     container_name: openerp-catalog-dev
-    profiles: ["dev"]
+    profiles: ["test"]
     environment:
       TENANT_ID: cd2729d8-aec0-423c-b2b0-2649a97d822f
       PLUGIN_SCOPE: tenant
@@ -345,7 +345,7 @@ services:
   catalog-e2e-dev:
     image: open-erp/catalog:1.0.0
     container_name: openerp-catalog-e2e-dev
-    profiles: ["dev"]
+    profiles: ["test"]
     environment:
       TENANT_ID: aafea2fa-953d-410a-a9d7-6489106f5c8d
       PLUGIN_SCOPE: tenant

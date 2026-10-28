@@ -171,6 +171,11 @@ public class PluginDataClient {
 
     private Metadata metadata() {
         Metadata metadata = new Metadata();
+        String requestToken = currentServiceToken();
+        if (requestToken != null && !requestToken.isBlank()) {
+            metadata.put(SERVICE_TOKEN, requestToken);
+            return metadata;
+        }
         if (serviceToken.isPresent() && !serviceToken.get().isBlank()) {
             metadata.put(SERVICE_TOKEN, serviceToken.get());
             return metadata;
@@ -193,6 +198,14 @@ public class PluginDataClient {
     private UUID currentTenant() {
         try {
             return tenantContext.tenantId();
+        } catch (ContextNotActiveException e) {
+            return null;
+        }
+    }
+
+    private String currentServiceToken() {
+        try {
+            return tenantContext.serviceToken();
         } catch (ContextNotActiveException e) {
             return null;
         }

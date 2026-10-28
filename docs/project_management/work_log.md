@@ -4,6 +4,15 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 
 - **Implement core TASK-404**: item links trả `type_code`; item drawer tab quan hệ, vùng Cha/Con nhóm theo loại, thêm/gỡ edge, tạo nhanh con, tạo loại con inline; lưu xong giữ drawer. Test Hà Nội: 126 con COMMUNE + nhóm DISTRICT; tạo/gỡ QA404; tạo QA404TYPE; tạo mới QA404NEW → lưu vẫn mở tab quan hệ.
 
+## 2026-10-28 — TASK-406: runtime plugin dùng chung theo version
+
+- Bỏ mô hình container/tenant: deployer đặt tên `openerp-plugin-<key>-<version>` (version chuẩn hoá `1-0-0` cho hostname/K8s), tái sử dụng container đang chạy.
+- Core mint service token theo request (`X-Plugin-Service-Token`); SDK dùng token request thay token env cố định.
+- Bỏ `TENANT_ID`/`PLUGIN_SERVICE_TOKEN` khỏi env container; seed tenant qua `/internal/tenant/bootstrap` **sau khi transaction commit** (gateway chỉ phục vụ ledger ACTIVE đã commit).
+- Disable không undeploy; uninstall/upgrade xoá container khi không còn tenant **cùng scope** dùng version (ref-count); compensate/rollback cũng không xoá container dùng chung.
+- Dừng `catalog-dev`, `catalog-e2e-dev`; chuyển profile compose sang `test`; bỏ pin deploy_ref tenant trong SQL bootstrap dev.
+- Kiểm chứng dev: 2 tenant dùng chung `openerp-plugin-catalog-1-0-0` (cùng container ID), runtime 200; disable/tenant này không ảnh hưởng tenant kia; uninstall tenant cuối cùng xoá container, system scope không bị tính lẫn.
+
 ## 2026-10-28 — TASK-405: bỏ action inline dưới loại
 
 - Xoá block `Sửa / Quyền theo loại / Sync` inline khi chọn loại; giữ menu ⋮ + context menu.

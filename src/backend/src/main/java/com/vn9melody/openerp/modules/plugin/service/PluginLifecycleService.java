@@ -12,7 +12,6 @@ import com.vn9melody.openerp.core.enums.PlatformAction;
 import com.vn9melody.openerp.core.enums.PluginReleaseStatus;
 import com.vn9melody.openerp.core.enums.PluginVisibility;
 import com.vn9melody.openerp.core.enums.TenantPluginStatus;
-import com.vn9melody.openerp.core.security.JwtTokenService;
 import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
 import com.vn9melody.openerp.modules.plugin.api.PluginResponseKey;
 import com.vn9melody.openerp.modules.plugin.artifact.PluginImageBuilder;
@@ -109,13 +108,6 @@ public class PluginLifecycleService {
     @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.runtime.tls-dir")
     java.util.Optional<String> runtimeTlsDir;
 
-    @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.data.service-token-hours",
-            defaultValue = "168")
-    long serviceTokenHours;
-
-    @Inject
-    JwtTokenService jwtTokenService;
-
     @Inject
     TenantDatasourceService datasourceService;
 
@@ -124,6 +116,9 @@ public class PluginLifecycleService {
 
     @Inject
     ProcessPluginRuntimeDeployer deployer;
+
+    @Inject
+    PluginTenantBootstrapService tenantBootstrapService;
 
     @Inject
     ObjectMapper objectMapper;
@@ -140,6 +135,7 @@ public class PluginLifecycleService {
         List<PluginResponses.OperationStep> steps = new ArrayList<>();
         ProcessPluginRuntimeDeployer.DeploymentRef deployed = null;
         TenantPlugin ledger = null;
+        PluginVersion version = null;
         boolean started = false;
         try {
             ledger = tenantPluginRepository.findByTenantAndKey(tenantId, pluginKey).orElse(null);
@@ -168,7 +164,7 @@ public class PluginLifecycleService {
             if (catalog.catalogStatus == PluginCatalogStatus.BLOCKED) {
                 throw new ApiException(403, PluginErrorCode.PLUGIN_BLOCKED_BY_PLATFORM, "Catalog is blocked");
             }
-            PluginVersion version = resolveInstallableVersion(catalog, requestedVersion);
+            version = resolveInstallableVersion(catalog, requestedVersion);
             assertCoreCompatible(version);
             log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "PRE_FLIGHT", "OK", steps, null);
             dependencyResolver.validateDependencies(tenantId, version.dependencies);
@@ -198,6 +194,8 @@ public class PluginLifecycleService {
                 throw new ApiException(503, PluginErrorCode.PLUGIN_SERVICE_UNHEALTHY, health.detail());
             }
             log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "HEALTH", "OK", steps, null);
+            tenantBootstrapService.bootstrap(deployed, tenantId, pluginKey, isSystem(tenantId));
+            log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "TENANT_BOOTSTRAP", "OK", steps, null);
 
             permissionSeeder.seed(tenantId, version.permissions);
             entityRegistrar.register(pluginKey, version.entities);
@@ -221,7 +219,7 @@ public class PluginLifecycleService {
             if (!started) {
                 throw e;
             }
-            compensate(ledger, deployed, operationId, tenantId, pluginKey, steps, e);
+            compensate(ledger, deployed, version.version, operationId, tenantId, pluginKey, steps, e);
             return operation(operationId, pluginKey, PluginOperationType.INSTALL,
                     TenantPluginStatus.INSTALL_FAILED, null, steps);
         } finally {
@@ -283,10 +281,7 @@ public class PluginLifecycleService {
             ledger.operationId = operationId;
             ledger.updatedAt = Instant.now();
             ProcessPluginRuntimeDeployer.DeploymentRef ref = fromJson(ledger.deployRef);
-            if (ref != null) {
-                deployer.undeploy(ref);
-            }
-            log(operationId, tenantId, pluginKey, PluginOperationType.UNINSTALL, "UNDEPLOY", "OK", steps, null);
+            String version = ledger.installedVersion;
             ledger.deployRef = objectMapper.createObjectNode();
             ledger.status = TenantPluginStatus.UNINSTALLED;
             ledger.installedVersion = null;
@@ -294,6 +289,10 @@ public class PluginLifecycleService {
             ledger.uninstalledAt = Instant.now();
             ledger.operationId = null;
             ledger.updatedAt = ledger.uninstalledAt;
+            if (ref != null && countOtherTenantsOnVersion(pluginKey, version, tenantId) == 0) {
+                deployer.undeploy(ref);
+            }
+            log(operationId, tenantId, pluginKey, PluginOperationType.UNINSTALL, "UNDEPLOY", "OK", steps, null);
             log(operationId, tenantId, pluginKey, PluginOperationType.UNINSTALL, "ACTIVATE", "OK", steps, null);
             auditService.tenant(tenantId, PlatformAction.TENANT_PLUGIN_UNINSTALLED, pluginKey, null);
             return operation(operationId, pluginKey, PluginOperationType.UNINSTALL,
@@ -387,16 +386,13 @@ public class PluginLifecycleService {
                                 runtimeEnv(tenantId, pluginKey, version.version)));
                 ProcessPluginRuntimeDeployer.DeploymentHealth health = deployer.health(ref);
                 if (!health.healthy()) {
-                    deployer.undeploy(ref);
                     throw new ApiException(503, PluginErrorCode.PLUGIN_SERVICE_UNHEALTHY, health.detail());
                 }
+                tenantBootstrapService.bootstrap(ref, tenantId, pluginKey, isSystem(tenantId));
                 ledger.deployRef = toJson(ref);
             } else {
-                ProcessPluginRuntimeDeployer.DeploymentRef ref = fromJson(ledger.deployRef);
-                if (ref != null) {
-                    deployer.undeploy(ref);
-                }
-                ledger.deployRef = objectMapper.createObjectNode();
+                // The runtime container is shared by every tenant on this plugin
+                // version; disabling one tenant must not stop it for the others.
             }
             ledger.status = deployOnEnable ? TenantPluginStatus.ACTIVE : TenantPluginStatus.INACTIVE;
             ledger.operationId = null;
@@ -423,7 +419,10 @@ public class PluginLifecycleService {
         List<PluginResponses.OperationStep> steps = new ArrayList<>();
         TenantPlugin ledger = null;
         PluginVersion previousVersion = null;
+        PluginVersion target = null;
         ProcessPluginRuntimeDeployer.DeploymentRef newRef = null;
+        ProcessPluginRuntimeDeployer.DeploymentRef previousRef = null;
+        String previousVersionString = null;
         String snapshotRef = null;
         boolean started = false;
         try {
@@ -439,10 +438,12 @@ public class PluginLifecycleService {
             if (targetVersion == null || targetVersion.isBlank()) {
                 throw new ApiException(400, PluginErrorCode.PLUGIN_NOT_FOUND, "target_version is required");
             }
-            PluginVersion target = resolveInstallableVersion(catalog, targetVersion);
+            target = resolveInstallableVersion(catalog, targetVersion);
             assertCoreCompatible(target);
             previousVersion = versionRepository.findByCatalogAndVersion(catalog.id, ledger.installedVersion)
                     .orElse(null);
+            previousRef = fromJson(ledger.deployRef);
+            previousVersionString = ledger.installedVersion;
             if (target.version.equals(ledger.installedVersion)) {
                 throw new ApiException(409, PluginErrorCode.PLUGIN_ALREADY_INSTALLED,
                         "Plugin is already on this version");
@@ -481,6 +482,8 @@ public class PluginLifecycleService {
                 throw new ApiException(503, PluginErrorCode.PLUGIN_SERVICE_UNHEALTHY, health.detail());
             }
             log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "HEALTH", "OK", steps, null);
+            tenantBootstrapService.bootstrap(newRef, tenantId, pluginKey, isSystem(tenantId));
+            log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "TENANT_BOOTSTRAP", "OK", steps, null);
 
             ledger.status = TenantPluginStatus.ACTIVE;
             ledger.installedVersion = target.version;
@@ -492,6 +495,10 @@ public class PluginLifecycleService {
             ledger.lastErrorCode = null;
             ledger.updatedAt = ledger.activatedAt;
             log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "ACTIVATE", "OK", steps, null);
+            if (previousRef != null
+                    && countOtherTenantsOnVersion(pluginKey, previousVersionString, tenantId) == 0) {
+                deployer.undeploy(previousRef);
+            }
             auditService.tenant(tenantId, PlatformAction.TENANT_PLUGIN_UPGRADED, pluginKey,
                     Map.of("to_version", target.version));
             return operation(operationId, pluginKey, PluginOperationType.UPGRADE,
@@ -502,7 +509,7 @@ public class PluginLifecycleService {
             }
             if (newRef != null) {
                 try {
-                    deployer.undeploy(newRef);
+                    undeployIfUnused(pluginKey, target == null ? null : target.version, tenantId, newRef);
                 } catch (RuntimeException cleanupError) {
                     LOG.warnf("Upgrade compensation undeploy failed for %s/%s: %s", tenantId, pluginKey,
                             cleanupError.getMessage());
@@ -603,10 +610,7 @@ public class PluginLifecycleService {
                         steps, null);
             }
             ProcessPluginRuntimeDeployer.DeploymentRef currentRef = fromJson(ledger.deployRef);
-            if (currentRef != null) {
-                deployer.undeploy(currentRef);
-                log(operationId, tenantId, pluginKey, PluginOperationType.ROLLBACK, "QUIESCE", "OK", steps, null);
-            }
+            String previousVersionString = ledger.installedVersion;
             if (snapshotRef != null) {
                 snapshotService.restore(snapshotRef);
                 log(operationId, tenantId, pluginKey, PluginOperationType.ROLLBACK, "RESTORE_SNAPSHOT", "OK", steps, null);
@@ -619,7 +623,7 @@ public class PluginLifecycleService {
                             runtimeEnv(tenantId, pluginKey, target.version)));
             ProcessPluginRuntimeDeployer.DeploymentHealth health = deployer.health(ref);
             if (!health.healthy()) {
-                deployer.undeploy(ref);
+                undeployIfUnused(pluginKey, target.version, tenantId, ref);
                 throw new ApiException(503, PluginErrorCode.PLUGIN_SERVICE_UNHEALTHY, health.detail());
             }
             ledger.status = TenantPluginStatus.ACTIVE;
@@ -630,6 +634,7 @@ public class PluginLifecycleService {
             ledger.lastErrorCode = null;
             ledger.updatedAt = Instant.now();
             log(operationId, tenantId, pluginKey, PluginOperationType.ROLLBACK, "ACTIVATE", "OK", steps, null);
+            undeployIfUnused(pluginKey, previousVersionString, tenantId, currentRef);
             auditService.tenant(tenantId, PlatformAction.TENANT_PLUGIN_ROLLED_BACK, pluginKey,
                     Map.of("target_version", target.version));
             return operation(operationId, pluginKey, PluginOperationType.ROLLBACK,
@@ -675,13 +680,42 @@ public class PluginLifecycleService {
         return node;
     }
 
-    private void compensate(TenantPlugin ledger, ProcessPluginRuntimeDeployer.DeploymentRef deployed, UUID operationId,
+    /**
+     * Containers are shared by every tenant on the same plugin version and
+     * scope, so a failed or removed tenant may only undeploy when no other
+     * tenant of the same scope still uses that version.
+     */
+    private long countOtherTenantsOnVersion(String pluginKey, String version, UUID tenantId) {
+        if (version == null) {
+            return 0;
+        }
+        boolean system = isSystem(tenantId);
+        return tenantPluginRepository
+                .list("pluginKey = ?1 and installedVersion = ?2 and status <> ?3",
+                        pluginKey, version, TenantPluginStatus.UNINSTALLED)
+                .stream()
+                .filter(row -> !row.tenantId.equals(tenantId))
+                .filter(row -> isSystem(row.tenantId) == system)
+                .count();
+    }
+
+    private void undeployIfUnused(String pluginKey, String version, UUID tenantId,
+                                  ProcessPluginRuntimeDeployer.DeploymentRef ref) {
+        if (ref == null) {
+            return;
+        }
+        if (countOtherTenantsOnVersion(pluginKey, version, tenantId) > 0) {
+            return;
+        }
+        deployer.undeploy(ref);
+    }
+
+    private void compensate(TenantPlugin ledger, ProcessPluginRuntimeDeployer.DeploymentRef deployed,
+                            String version, UUID operationId,
                             UUID tenantId, String pluginKey, List<PluginResponses.OperationStep> steps,
                             ApiException error) {
         try {
-            if (deployed != null) {
-                deployer.undeploy(deployed);
-            }
+            undeployIfUnused(pluginKey, version, tenantId, deployed);
         } catch (RuntimeException cleanupError) {
             LOG.warnf("Plugin compensation undeploy failed for %s/%s: %s", tenantId, pluginKey,
                     cleanupError.getMessage());
@@ -773,12 +807,10 @@ public class PluginLifecycleService {
 
     private Map<String, String> runtimeEnv(UUID tenantId, String pluginKey, String version) {
         Map<String, String> env = new HashMap<>();
-        env.put("TENANT_ID", tenantId.toString());
         env.put("PLUGIN_KEY", pluginKey);
         env.put("PLUGIN_VERSION", version);
         env.put("PLUGIN_FANOUT_TOKEN", fanoutToken);
-        boolean system = "platform".equalsIgnoreCase(runtimeScope)
-                || tenantId.toString().equals(systemTenantId);
+        boolean system = isSystem(tenantId);
         env.put("PLUGIN_SCOPE", system ? "platform" : "tenant");
         env.put("PLUGIN_DATA_GATEWAY_URL", runtimeGatewayUrl);
         env.put("QUARKUS_REDIS_HOSTS", runtimeRedisHosts);
@@ -789,10 +821,12 @@ public class PluginLifecycleService {
             env.put("PLUGIN_DATA_TLS_CERT", tlsDir + "/" + role + "-client.crt");
             env.put("PLUGIN_DATA_TLS_KEY", tlsDir + "/" + role + "-client.key");
         }
-        env.put("PLUGIN_SERVICE_TOKEN", jwtTokenService.generatePluginServiceToken(
-                tenantId, pluginKey, system ? "SYSTEM" : "TENANT",
-                java.time.Duration.ofHours(Math.max(1, serviceTokenHours))));
         return env;
+    }
+
+    private boolean isSystem(UUID tenantId) {
+        return "platform".equalsIgnoreCase(runtimeScope)
+                || tenantId.toString().equals(systemTenantId);
     }
 
     private JsonNode toJson(ProcessPluginRuntimeDeployer.DeploymentRef ref) {

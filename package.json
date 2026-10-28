@@ -47,7 +47,7 @@
     "dev:docker:build": "docker compose --profile dev build",
     "dev:docker": "docker compose --profile dev up -d --build",
     "predev:docker": "npm run keys:jwt",
-    "dev:docker:logs": "docker compose --profile dev logs -f backend-dev web-dev mobile-dev catalog-plugin-dev catalog-e2e-dev catalog-system-dev",
+    "dev:docker:logs": "docker compose --profile dev logs -f backend-dev web-dev mobile-dev catalog-system-dev",
     "dev:docker:down": "docker compose --profile dev down",
     "test": "npm run backend:test && npm run cli:test",
     "build": "npm run backend:build && npm run web:build && npm run mobile:build",

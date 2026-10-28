@@ -17,8 +17,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 /**
- * Runtime deployer (SOL-02 section 4.1). One container per (tenant, plugin);
- * deployments keep data when undeployed.
+ * Runtime deployer (SOL-02 section 4.1). One container per (plugin, version),
+ * shared by every tenant on that version; deployments keep data when undeployed.
  *
  * <p>Process-based: Docker CLI for local dev, kubectl for Kubernetes
  * staging/production, and a no-op runtime for %test.</p>
@@ -88,6 +88,9 @@ public class ProcessPluginRuntimeDeployer {
 
     private DeploymentRef deployDocker(DeployRequest request) {
         String name = resourceName(request);
+        if (isRunning(name)) {
+            return new DeploymentRef("docker", name, name, true);
+        }
         runCommand(List.of(binary, "rm", "-f", name), true);
         List<String> command = new ArrayList<>(List.of(binary, "run", "-d", "--name", name,
                 "--network", network,
@@ -308,10 +311,18 @@ public class ProcessPluginRuntimeDeployer {
     }
 
     private String resourceName(DeployRequest request) {
-        String tenantShort = request.tenantId().toString().replace("-", "").substring(0, 8);
         String key = request.pluginKey().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9-]", "-");
-        String name = "openerp-plugin-" + key + "-" + tenantShort;
+        String version = request.version() == null ? "latest"
+                : request.version().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9-]", "-");
+        boolean system = request.env() != null
+                && "platform".equalsIgnoreCase(request.env().get("PLUGIN_SCOPE"));
+        String name = "openerp-plugin-" + key + "-" + version + (system ? "-system" : "");
         return name.length() > 63 ? name.substring(0, 63) : name;
+    }
+
+    private boolean isRunning(String name) {
+        String output = runCommand(List.of(binary, "inspect", "--format", "{{.State.Running}}", name), true);
+        return output != null && output.trim().equalsIgnoreCase("true");
     }
 
     private String runCommand(List<String> command, boolean allowFailure) {

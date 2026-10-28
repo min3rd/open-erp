@@ -44,6 +44,10 @@ public class PluginRuntimeGatewayService {
     @ConfigProperty(name = "openerp.plugin.gateway.timeout-seconds", defaultValue = "30")
     int timeoutSeconds;
 
+    @ConfigProperty(name = "openerp.platform.system-tenant-id",
+            defaultValue = "00000000-0000-0000-0000-000000000001")
+    String systemTenantId;
+
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(5))
             .followRedirects(HttpClient.Redirect.NEVER)
@@ -83,7 +87,11 @@ public class PluginRuntimeGatewayService {
                 .header("X-User-Id", userId == null ? "" : userId.toString())
                 .header("X-User-Permissions", String.join(",", permissions))
                 .header("X-User-Roles", String.join(",", roles))
-                .header("X-Plugin-Key", pluginKey);
+                .header("X-Plugin-Key", pluginKey)
+                .header("X-Plugin-Service-Token", jwtTokenService.generatePluginServiceToken(
+                        tenantId, pluginKey,
+                        tenantId.toString().equals(systemTenantId) ? "SYSTEM" : "TENANT",
+                        Duration.ofMinutes(5)));
         if (contentType != null && !contentType.isBlank()) {
             builder.header("Content-Type", contentType);
         }

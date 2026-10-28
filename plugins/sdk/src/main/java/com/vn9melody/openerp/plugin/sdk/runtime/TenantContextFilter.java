@@ -31,6 +31,7 @@ public class TenantContextFilter implements ContainerRequestFilter {
         Set<String> permissions = csv(requestContext.getHeaderString("X-User-Permissions"));
         boolean platform = "true".equalsIgnoreCase(requestContext.getHeaderString("X-Platform"));
         tenantContext.set(tenantId, userId, roles, permissions, platform);
+        tenantContext.setServiceToken(requestContext.getHeaderString("X-Plugin-Service-Token"));
     }
 
     private UUID uuid(String value) {

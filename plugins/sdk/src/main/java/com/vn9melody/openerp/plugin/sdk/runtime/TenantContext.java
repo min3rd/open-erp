@@ -12,6 +12,7 @@ public class TenantContext {
     private UUID userId;
     private Set<String> roleCodes = Set.of();
     private Set<String> permissions = Set.of();
+    private String serviceToken;
     private boolean platform;
 
     public UUID tenantId() {
@@ -34,6 +35,11 @@ public class TenantContext {
         return platform;
     }
 
+    /** Short-lived data-gateway token minted per request by the core gateway. */
+    public String serviceToken() {
+        return serviceToken;
+    }
+
     public UserContext user() {
         return new UserContext(tenantId, userId, roleCodes, permissions, platform);
     }
@@ -44,5 +50,9 @@ public class TenantContext {
         this.roleCodes = roleCodes;
         this.permissions = permissions;
         this.platform = platform;
+    }
+
+    void setServiceToken(String serviceToken) {
+        this.serviceToken = serviceToken;
     }
 }

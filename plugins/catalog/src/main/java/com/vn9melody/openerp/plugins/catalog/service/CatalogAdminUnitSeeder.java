@@ -73,6 +73,10 @@ public class CatalogAdminUnitSeeder {
     java.util.Optional<String> tenantIdConfig;
 
     void onStart(@Observes StartupEvent event) {
+        if (tenantIdConfig.isEmpty()) {
+            LOG.infof("Catalog admin-unit seed skipped: shared runtime container is bootstrapped per tenant");
+            return;
+        }
         for (int attempt = 1; attempt <= GATEWAY_ATTEMPTS; attempt++) {
             try {
                 seed();
