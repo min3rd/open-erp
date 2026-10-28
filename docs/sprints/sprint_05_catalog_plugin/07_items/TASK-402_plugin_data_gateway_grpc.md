@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-402 / Task / Sprint 05 |
-| Severity / trạng thái | High / **In Progress** — P1/P2/P2.1/P3/P3.1/P4/P4.1 done; P5 next |
+| Severity / trạng thái | High / **Done (dev)** 2026-10-28 — P1→P5; QA TASK-398 verify |
 | Owner / reviewer | Developer / Architect |
 | depends_on / blocks | TASK-401, SOL-S05-002 / QA TASK-398 |
 | Write scope | `plugins/sdk/**`, `plugins/catalog/**`, `src/backend/src/main/java/**/plugin/**`, `docker-compose.yml`, `deployments/k8s/**` |
@@ -22,7 +22,7 @@ Chuyển toàn bộ đọc/ghi DB của catalog sang core gRPC data gateway; plu
 - [x] **P4**: main write path (types, items, edges, grants, inline) qua gRPC; `ExecuteBatch` cho version update/grant replace; idempotency key + DB response replay.
 - [x] **P4.1 (import)**: import đọc/ghi qua gateway (`currentItemByCode`, `activeEdge`, `wouldCreateCycle`, export reads); dry-run/re-import PASS.
 - [x] **P4.1 (system)**: admin-unit seeder, tenant seeder, system snapshot/fan-out apply qua gateway; bỏ toàn bộ EntityManager/repository khỏi service nghiệp vụ.
-- [ ] **P5**: system scope identity/port riêng; xoá DB env khỏi plugin.
+- [x] **P5**: zero DB (bỏ datasource/Flyway/Panache/repository, model thành POJO), core tạo schema + chạy migration bundle (`plugin.json.migrations` + checksum), mTLS dev/prod (server REQUIRED + client cert CN `tenant`/`system` khớp token scope), system identity/secret riêng.
 - [ ] **P6**: RabbitMQ event/command (khi cần).
 
 ## 3. Tiến độ
@@ -71,6 +71,13 @@ Chuyển toàn bộ đọc/ghi DB của catalog sang core gRPC data gateway; plu
   - `PluginDataClient`: fallback tenant config khi `TenantContext` không active (startup).
   - [BUG-144](BUG-144_catalog_fanout_empty_snapshot.md): fan-out gửi envelope thay vì `data` → luôn sync 0; sửa + e2e counts `5/3355/3321`.
   - Còn: repository/entity/Flyway/datasource + mTLS thuộc P5.
+- **2026-10-28 — P5 zero-DB + mTLS**:
+  - Plugin: bỏ `quarkus-jdbc-postgresql`/`hibernate-orm-panache`/`flyway`, xoá repository package, model thành POJO, bỏ datasource/Flyway env khỏi compose.
+  - Migration: `plugins/catalog/migrations/V1.0.0__initial_schema.sql` + `migrations` (SHA-256) trong manifest; `PluginMigrationExecutor` đọc bundle hoặc thư mục mount; `PluginSchemaBootstrap` tạo schema + migrate mọi ledger active lúc khởi động (áp dụng cho cả tenant `cdba7d62` chưa có bảng).
+  - Lifecycle: runtime env chỉ còn tenant/plugin/scope/gateway/token/Redis/TLS; system tenant nhận scope `SYSTEM` + cert `system` theo tenant id cấu hình.
+  - mTLS: dev cert service (`docker/certs/generate.sh`) sinh CA/server/client + truststore; core `client-auth=REQUIRED`; `PluginMtlsInterceptor` đọc CN và resolver chặn lệch scope (`PLUGIN_DATA_MTLS_IDENTITY_MISMATCH`).
+  - K8s: backend mount secret `plugin-gateway-tls`, service thêm port 9090; deployer mount secret `plugin-gateway-client` vào plugin pod.
+  - Kiểm chứng: plaintext bị từ chối; tenant cert OK; tenant cert + SYSTEM scope bị chặn; system cert + SYSTEM scope trả rows; catalog API/browser PASS; full backend test PASS (thêm test manifest K8s).
 
 ## 4. Tiêu chí nghiệm thu
 
@@ -94,3 +101,4 @@ Chuyển toàn bộ đọc/ghi DB của catalog sang core gRPC data gateway; plu
 | 0.5 | 2026-10-28 | P3.1 + P4 done: TREE/bulk export, write descriptors, ExecuteBatch, DB idempotency; type/item/edge/grant/inline writes via gateway, integration PASS | Developer Agent |
 | 0.6 | 2026-10-28 | P4.1 import done (reads/writes via gateway, e2e dry-run/import/re-import PASS); BUG-143 token expiry auto-renew + logout fallback | Developer Agent |
 | 0.7 | 2026-10-28 | P4.1 system done: `system_row` mirror writes, 57 descriptors, seeders/snapshot/fan-out qua gateway, BUG-144 fixed; full backend test PASS | Developer Agent |
+| 0.8 | 2026-10-28 | P5 done (dev): zero DB, core-owned migrations, mTLS + cert/scope identity, K8s secrets; plaintext/mismatch e2e PASS | Developer Agent |

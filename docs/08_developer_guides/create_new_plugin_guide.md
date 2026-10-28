@@ -41,7 +41,7 @@ open-erp-sales/
 └── README.md
 ```
 
-> **DB/security do core quản trị**: core deployer cấp `QUARKUS_DATASOURCE_*`, schema và Flyway runtime qua env. Plugin **không** khai báo URL/user/password trong `application.properties`. `plugin.json` khai báo `entities[].storage_scope` (`TENANT`/`CORE`), `relations` (core/plugin khác), `repositories`, `apis`, `websockets`. Migration DDL vẫn nằm trong plugin (`db/plugin-migration`) và chạy trong schema riêng của tenant; không tạo bảng trong `public`.
+> **DB/security do core quản trị (zero-DB plugin)**: core deployer cấp schema, chạy migration bundle và inject `PLUGIN_DATA_GATEWAY_URL`, `PLUGIN_SERVICE_TOKEN`, `PLUGIN_DATA_TLS_*` qua env. Plugin **không** khai báo URL/user/password, không dùng datasource/EntityManager/Flyway. `plugin.json` khai báo `entities[].storage_scope` (`TENANT`/`CORE`), `relations`, `repositories`, `apis`, `websockets`, và `migrations` (file + SHA-256); DDL đặt trong `migrations/` của plugin và được core chạy trong schema riêng của tenant.
 > **Quyền**: đăng ký mã `domain:resource:action` trong `plugin.json`; khi cài, TENANT_OWNER nhận quyền tự động.
 > **Read/write path P3–P4.1 (2026-10-28)**: plugin đọc/ghi qua `PluginDataClient` bằng `queries` descriptor trong `plugin.json` (không gửi SQL); cache Redis do **plugin tự quản lý** với namespace riêng, TTL ngắn và generation invalidation sau write. Write dùng idempotency key + `ExecuteBatch`; import, seeder và system fan-out cũng đã qua gateway. Descriptor WRITE scope `TENANT` có thể khai báo `"system_row": true` để ghi/đọc đúng các row `tenant_id IS NULL` trong schema của chính plugin (dùng cho seeding/fan-out system data; core từ chối nếu có join hoặc scope khác TENANT). Xem [TASK-402](../sprints/sprint_05_catalog_plugin/07_items/TASK-402_plugin_data_gateway_grpc.md).
 
@@ -78,7 +78,7 @@ npx @open-erp/cli link --repo git@github.com:org/open-erp-sales.git --id open-er
 ```
 
 - `package` tạo `dist/plugin-backend.jar`, `dist/web/`, `dist/checksums.txt`, `dist/release-manifest.json` để đăng ký với Plugin Manager (kênh Docker/registry hoặc JAR bundle upload).
-- `dev` sinh `docker-compose.dev.yml` (Postgres dev + container plugin + biến `TENANT_ID`, `QUARKUS_DATASOURCE_*`, `QUARKUS_FLYWAY_SCHEMAS`, `CORE_DEV_URL`) — chạy `docker compose -f docker-compose.dev.yml up -d` hoặc thêm `--run`.
+- `dev` sinh `docker-compose.dev.yml` (Postgres dev + container plugin + biến `TENANT_ID`, `PLUGIN_DATA_GATEWAY_URL`, `PLUGIN_SERVICE_TOKEN`, `PLUGIN_DATA_TLS_CA/CERT/KEY`, `CORE_DEV_URL`) — chạy `docker compose -f docker-compose.dev.yml up -d` hoặc thêm `--run`.
 
 ---
 
@@ -102,7 +102,7 @@ Plugin chạy ngay trong tiến trình core **không** đi qua CLI/registry: mã
 | :--- | :--- | :--- |
 | Vị trí manifest | gốc repo plugin | `src/backend/src/main/resources/plugins/<id>/plugin.json` |
 | `packaging` / `distribution.type` | theo cờ `--packaging` | `CORE_IN_PROCESS` (không chạy `npx @open-erp/cli validate` cho file này) |
-| Migration | `db/plugin-migration/` do container chạy | `db/migration/V*.sql` của core (chung Flyway) |
+| Migration | `migrations/` + `plugin.json.migrations` (core chạy) | `db/migration/V*.sql` của core (chung Flyway) |
 | Cách xem descriptor | đọc file trong repo plugin | `GET /api/v1/catalog/plugin/manifest` (endpoint riêng của plugin) |
 
 **Bản mẫu tham chiếu — plugin `catalog` (Sprint 05):**

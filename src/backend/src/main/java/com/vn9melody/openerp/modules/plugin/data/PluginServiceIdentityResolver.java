@@ -62,7 +62,9 @@ public class PluginServiceIdentityResolver {
                     "PLUGIN_DATA_SYSTEM_SCOPE_DENIED");
         }
         try {
-            return new PluginServiceIdentity(pluginKey, UUID.fromString(tenant), scope);
+            PluginServiceIdentity identity = new PluginServiceIdentity(pluginKey, UUID.fromString(tenant), scope);
+            requireCertRole(identity);
+            return identity;
         } catch (IllegalArgumentException e) {
             throw new PluginDataException(PluginDataException.Code.INVALID_IDENTITY,
                     "PLUGIN_DATA_TENANT_INVALID");
@@ -92,11 +94,26 @@ public class PluginServiceIdentityResolver {
                     "PLUGIN_DATA_SERVICE_TOKEN_INCOMPLETE");
         }
         try {
-            return new PluginServiceIdentity(pluginKey, UUID.fromString(tenant),
+            PluginServiceIdentity identity = new PluginServiceIdentity(pluginKey, UUID.fromString(tenant),
                     scope((String) jwt.getClaim("scope")));
+            requireCertRole(identity);
+            return identity;
         } catch (IllegalArgumentException e) {
             throw new PluginDataException(PluginDataException.Code.INVALID_IDENTITY,
                     "PLUGIN_DATA_SERVICE_TOKEN_INVALID");
+        }
+    }
+
+    /** mTLS role and token scope must agree when a client certificate is present. */
+    private void requireCertRole(PluginServiceIdentity identity) {
+        String role = PluginMtlsInterceptor.clientRole();
+        if (role == null) {
+            return;
+        }
+        boolean matches = identity.system() ? "system".equals(role) : "tenant".equals(role);
+        if (!matches) {
+            throw new PluginDataException(PluginDataException.Code.INVALID_IDENTITY,
+                    "PLUGIN_DATA_MTLS_IDENTITY_MISMATCH");
         }
     }
 

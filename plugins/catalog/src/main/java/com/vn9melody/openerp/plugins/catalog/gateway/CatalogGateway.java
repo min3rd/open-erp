@@ -30,9 +30,9 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Read side of the catalog on top of the core Plugin Data Gateway. All methods
- * are cached in the catalog's own Redis namespace; writes still go through the
- * existing Panache path until P4.
+ * Read/write side of the catalog on top of the core Plugin Data Gateway. All
+ * reads are cached in the catalog's own Redis namespace; the plugin owns no
+ * datasource, entity manager or repository.
  */
 @ApplicationScoped
 public class CatalogGateway {

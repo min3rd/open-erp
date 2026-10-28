@@ -64,6 +64,14 @@ public class ProcessPluginRuntimeDeployer {
     @ConfigProperty(name = "openerp.plugin.deployer.timeout-seconds", defaultValue = "90")
     int timeoutSeconds;
 
+    /** Host directory with plugin mTLS material, bind-mounted into Docker containers. */
+    @ConfigProperty(name = "openerp.plugin.deployer.tls-host-dir")
+    java.util.Optional<String> tlsHostDir;
+
+    /** Kubernetes secret with plugin client certificates, mounted into plugin pods. */
+    @ConfigProperty(name = "openerp.plugin.deployer.tls-secret")
+    java.util.Optional<String> tlsSecret;
+
     public DeploymentRef deploy(DeployRequest request) {
         if (isNoop()) {
             return new DeploymentRef("noop", resourceName(request), resourceName(request), true);
@@ -89,6 +97,11 @@ public class ProcessPluginRuntimeDeployer {
                 "--label", "plugin_version=" + request.version(),
                 "--memory", defaultMemoryMb + "m",
                 "--cpus", defaultCpus));
+        String tlsMount = tlsHostDir.orElse("").trim();
+        if (!tlsMount.isEmpty()) {
+            command.add("-v");
+            command.add(tlsMount + ":/deploy/certs:ro");
+        }
         appendEnv(command, request);
         command.add(request.imageRef());
         runCommand(command, false);
@@ -178,6 +191,19 @@ public class ProcessPluginRuntimeDeployer {
                         .append("              value: \"").append(entry.getValue().replace("\"", "")).append("\"\n");
             }
         }
+        String secret = tlsSecret.orElse("").trim();
+        String volumeMounts = secret.isEmpty() ? "" : """
+                          volumeMounts:
+                            - name: plugin-gateway-tls
+                              mountPath: /deploy/certs
+                              readOnly: true
+                """;
+        String volumes = secret.isEmpty() ? "" : """
+                      volumes:
+                        - name: plugin-gateway-tls
+                          secret:
+                            secretName: %s
+                """.formatted(secret);
         return """
                 apiVersion: apps/v1
                 kind: Deployment
@@ -209,7 +235,7 @@ public class ProcessPluginRuntimeDeployer {
                           ports:
                             - containerPort: 8080
                           env:
-                %s          readinessProbe:
+                %s%s          readinessProbe:
                             httpGet:
                               path: /q/health/ready
                               port: 8080
@@ -222,6 +248,7 @@ public class ProcessPluginRuntimeDeployer {
                             limits:
                               cpu: "%s"
                               memory: "%sMi"
+                %s
                 ---
                 apiVersion: v1
                 kind: Service
@@ -242,7 +269,7 @@ public class ProcessPluginRuntimeDeployer {
                 request.tenantId(), request.pluginKey(),
                 request.tenantId(), request.pluginKey(), request.version(),
                 request.imageRef(), env.toString().isBlank() ? "            []\n" : env.toString(),
-                defaultCpus, defaultMemoryMb,
+                volumeMounts, defaultCpus, defaultMemoryMb, volumes,
                 name, request.pluginKey(), request.tenantId(), request.pluginKey());
     }
 

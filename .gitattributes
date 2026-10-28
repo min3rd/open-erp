@@ -1,0 +1,4 @@
+# Keep SQL migration and shell scripts byte-stable on Windows checkouts.
+plugins/catalog/migrations/*.sql -text
+docker/certs/generate.sh text eol=lf
+*.sh text eol=lf

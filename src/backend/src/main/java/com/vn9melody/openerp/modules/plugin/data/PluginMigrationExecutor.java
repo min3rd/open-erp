@@ -10,6 +10,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -26,6 +28,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.sql.DataSource;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 /**
@@ -46,6 +49,10 @@ public class PluginMigrationExecutor {
     @Inject
     ArtifactStorage artifactStorage;
 
+    /** Mounted directory with {@code <pluginKey>/<file>} when no artifact bundle is uploaded. */
+    @ConfigProperty(name = "openerp.plugin.migrations.dir")
+    java.util.Optional<String> migrationsDir;
+
     @Transactional
     public int migrate(String pluginKey, String pluginVersion, JsonNode manifest,
                        JsonNode distribution, String schema) {
@@ -54,16 +61,16 @@ public class PluginMigrationExecutor {
             return 0;
         }
         String artifactRef = distribution != null ? distribution.path("artifact_ref").asText("") : "";
-        if (artifactRef.isBlank()) {
-            throw new PluginDataException(PluginDataException.Code.INVALID_QUERY,
-                    "PLUGIN_DATA_MIGRATION_BUNDLE_MISSING");
-        }
         Map<String, byte[]> files;
-        try (InputStream bundle = artifactStorage.open(artifactRef)) {
-            files = readBundle(bundle, migrations.stream().map(Migration::file).toList());
-        } catch (IOException e) {
-            throw new PluginDataException(PluginDataException.Code.EXECUTION_FAILED,
-                    "PLUGIN_DATA_MIGRATION_BUNDLE_INVALID", e);
+        if (!artifactRef.isBlank()) {
+            try (InputStream bundle = artifactStorage.open(artifactRef)) {
+                files = readBundle(bundle, migrations.stream().map(Migration::file).toList());
+            } catch (IOException e) {
+                throw new PluginDataException(PluginDataException.Code.EXECUTION_FAILED,
+                        "PLUGIN_DATA_MIGRATION_BUNDLE_INVALID", e);
+            }
+        } else {
+            files = readDirectory(pluginKey, migrations.stream().map(Migration::file).toList());
         }
         migrations.sort(Comparator.comparing(item -> PluginSemver.Version.parse(item.version())));
         try (Connection connection = dataSource.getConnection()) {
@@ -174,8 +181,36 @@ public class PluginMigrationExecutor {
         return migrations;
     }
 
-    static Map<String, byte[]> readBundle(InputStream bundle, List<String> wanted) throws IOException {
+    /** Reads the declared migration files from the mounted plugin migration directory. */
+    private Map<String, byte[]> readDirectory(String pluginKey, List<String> wanted) {
+        String root = migrationsDir.orElse("").trim();
+        if (root.isEmpty()) {
+            throw new PluginDataException(PluginDataException.Code.INVALID_QUERY,
+                    "PLUGIN_DATA_MIGRATION_BUNDLE_MISSING");
+        }
+        Path base = Path.of(root, pluginKey).toAbsolutePath().normalize();
         Map<String, byte[]> files = new HashMap<>();
+        for (String name : wanted) {
+            Path file = base.resolve(name).normalize();
+            if (!file.startsWith(base)) {
+                throw new PluginDataException(PluginDataException.Code.INVALID_QUERY,
+                        "PLUGIN_DATA_MIGRATION_FILE_INVALID:" + name);
+            }
+            try {
+                if (!Files.isRegularFile(file) || Files.size(file) > MAX_MIGRATION_BYTES) {
+                    throw new PluginDataException(PluginDataException.Code.INVALID_QUERY,
+                            "PLUGIN_DATA_MIGRATION_FILE_MISSING:" + name);
+                }
+                files.put(name, Files.readAllBytes(file));
+            } catch (IOException e) {
+                throw new PluginDataException(PluginDataException.Code.EXECUTION_FAILED,
+                        "PLUGIN_DATA_MIGRATION_BUNDLE_INVALID", e);
+            }
+        }
+        return files;
+    }
+
+    static Map<String, byte[]> readBundle(InputStream bundle, List<String> wanted) throws IOException {        Map<String, byte[]> files = new HashMap<>();
         try (ZipInputStream zip = new ZipInputStream(bundle)) {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
@@ -203,7 +238,9 @@ public class PluginMigrationExecutor {
     static String checksum(byte[] content) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return "sha256:" + HexFormat.of().formatHex(digest.digest(content));
+            String normalized = new String(content, StandardCharsets.UTF_8).replace("\r\n", "\n");
+            return "sha256:" + HexFormat.of().formatHex(
+                    digest.digest(normalized.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
         }

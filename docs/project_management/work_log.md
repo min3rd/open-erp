@@ -2,6 +2,14 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-28 — TASK-402 P5: zero DB + mTLS + core-owned migrations
+
+- **Zero DB**: plugin bỏ JDBC/Hibernate/Flyway, xoá repository, model thành POJO; container không còn `QUARKUS_DATASOURCE_*`/`QUARKUS_FLYWAY_*` (đã kiểm tra `docker inspect`).
+- **Migration**: DDL chuyển sang `plugins/catalog/migrations`, manifest khai báo file + SHA-256; core `PluginSchemaBootstrap` tạo schema + apply migration cho 4 ledger active (kể cả schema `tenant_cdba7d62_catalog` trước đó chưa có bảng).
+- **mTLS**: dev cert service sinh CA/server/client + truststore; core `client-auth=REQUIRED`; CN `tenant`/`system` phải khớp scope token.
+- **System identity**: system tenant (config `openerp.platform.system-tenant-id`) nhận token `SYSTEM`, cert `system-client`, secret K8s riêng.
+- **Kiểm chứng**: plaintext gRPC bị từ chối; tenant cert OK; tenant cert + SYSTEM scope → `PLUGIN_DATA_MTLS_IDENTITY_MISMATCH`; system cert + SYSTEM scope trả rows; catalog API/browser PASS; full backend test PASS.
+
 ## 2026-10-28 — TASK-402 P4.1 system: seeders + fan-out qua gateway
 
 - **DSL**: `system_row` write descriptor (TENANT scope) ghi `tenant_id NULL`, update/delete chỉ chạm row system; validate WRITE + không join.

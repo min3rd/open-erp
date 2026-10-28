@@ -20,6 +20,32 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
+            - containerPort: 9090
+              name: grpc
+          env:
+            - name: QUARKUS_GRPC_SERVER_SSL_CERTIFICATE
+              value: /deploy/certs/server.crt
+            - name: QUARKUS_GRPC_SERVER_SSL_KEY
+              value: /deploy/certs/server.key
+            - name: QUARKUS_GRPC_SERVER_SSL_TRUST_STORE
+              value: /deploy/certs/truststore.jks
+            - name: QUARKUS_GRPC_SERVER_SSL_TRUST_STORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: plugin-gateway-tls
+                  key: truststore-password
+            - name: QUARKUS_GRPC_SERVER_SSL_CLIENT_AUTH
+              value: REQUIRED
+            - name: OPENERP_PLUGIN_RUNTIME_GATEWAY_URL
+              value: https://openerp-backend-svc:9090
+            - name: OPENERP_PLUGIN_RUNTIME_TLS_DIR
+              value: /deploy/certs
+            - name: OPENERP_PLUGIN_DEPLOYER_TLS_SECRET
+              value: plugin-gateway-client
+          volumeMounts:
+            - name: plugin-gateway-tls
+              mountPath: /deploy/certs
+              readOnly: true
           resources:
             requests:
               cpu: "250m"
@@ -39,6 +65,10 @@ spec:
               port: 8080
             initialDelaySeconds: 10
             periodSeconds: 15
+      volumes:
+        - name: plugin-gateway-tls
+          secret:
+            secretName: plugin-gateway-tls
 ---
 apiVersion: v1
 kind: Service
@@ -51,3 +81,7 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
+    - protocol: TCP
+      name: grpc
+      port: 9090
+      targetPort: 9090

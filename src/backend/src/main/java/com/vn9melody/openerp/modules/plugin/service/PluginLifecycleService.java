@@ -87,11 +87,12 @@ public class PluginLifecycleService {
     @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.core.version", defaultValue = "1.0.0")
     String coreVersion;
 
-    @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.datasource.runtime-url")
-    java.util.Optional<String> runtimeJdbcUrl;
-
     @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.fanout.token", defaultValue = "")
     String fanoutToken;
+
+    @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.platform.system-tenant-id",
+            defaultValue = "00000000-0000-0000-0000-000000000001")
+    String systemTenantId;
 
     @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.runtime.scope", defaultValue = "tenant")
     String runtimeScope;
@@ -103,6 +104,10 @@ public class PluginLifecycleService {
     @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.runtime.redis-hosts",
             defaultValue = "redis://:openerp_redis_password@redis:6379")
     String runtimeRedisHosts;
+
+    /** Path inside plugin containers that holds ca.crt + <role>-client.crt/.key. */
+    @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.runtime.tls-dir")
+    java.util.Optional<String> runtimeTlsDir;
 
     @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.data.service-token-hours",
             defaultValue = "168")
@@ -185,7 +190,7 @@ public class PluginLifecycleService {
 
             String imageRef = resolveImageRef(pluginKey, version);
             deployed = deployer.deploy(new ProcessPluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, version.version,
-                    imageRef, datasource.schema(), runtimeEnv(tenantId, pluginKey, version.version, datasource)));
+                    imageRef, datasource.schema(), runtimeEnv(tenantId, pluginKey, version.version)));
             log(operationId, tenantId, pluginKey, PluginOperationType.INSTALL, "DEPLOY", "OK", steps, null);
 
             ProcessPluginRuntimeDeployer.DeploymentHealth health = deployer.health(deployed);
@@ -379,7 +384,7 @@ public class PluginLifecycleService {
                 ProcessPluginRuntimeDeployer.DeploymentRef ref = deployer.deploy(
                         new ProcessPluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, version.version,
                                 resolveImageRef(pluginKey, version), datasource.schema(),
-                                runtimeEnv(tenantId, pluginKey, version.version, datasource)));
+                                runtimeEnv(tenantId, pluginKey, version.version)));
                 ProcessPluginRuntimeDeployer.DeploymentHealth health = deployer.health(ref);
                 if (!health.healthy()) {
                     deployer.undeploy(ref);
@@ -469,7 +474,7 @@ public class PluginLifecycleService {
             }
             newRef = deployer.deploy(new ProcessPluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, target.version,
                     resolveImageRef(pluginKey, target), datasource.schema(),
-                    runtimeEnv(tenantId, pluginKey, target.version, datasource)));
+                    runtimeEnv(tenantId, pluginKey, target.version)));
             log(operationId, tenantId, pluginKey, PluginOperationType.UPGRADE, "DEPLOY", "OK", steps, null);
             ProcessPluginRuntimeDeployer.DeploymentHealth health = deployer.health(newRef);
             if (!health.healthy()) {
@@ -522,7 +527,7 @@ public class PluginLifecycleService {
                     ProcessPluginRuntimeDeployer.DeploymentRef oldRef = deployer.deploy(
                             new ProcessPluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, previousVersion.version,
                                     resolveImageRef(pluginKey, previousVersion), datasource.schema(),
-                                    runtimeEnv(tenantId, pluginKey, previousVersion.version, datasource)));
+                                    runtimeEnv(tenantId, pluginKey, previousVersion.version)));
                     ProcessPluginRuntimeDeployer.DeploymentHealth oldHealth = deployer.health(oldRef);
                     if (!oldHealth.healthy()) {
                         throw new ApiException(503, PluginErrorCode.PLUGIN_SERVICE_UNHEALTHY, oldHealth.detail());
@@ -611,7 +616,7 @@ public class PluginLifecycleService {
             ProcessPluginRuntimeDeployer.DeploymentRef ref = deployer.deploy(
                     new ProcessPluginRuntimeDeployer.DeployRequest(tenantId, pluginKey, target.version,
                     resolveImageRef(pluginKey, target), datasource.schema(),
-                            runtimeEnv(tenantId, pluginKey, target.version, datasource)));
+                            runtimeEnv(tenantId, pluginKey, target.version)));
             ProcessPluginRuntimeDeployer.DeploymentHealth health = deployer.health(ref);
             if (!health.healthy()) {
                 deployer.undeploy(ref);
@@ -766,30 +771,27 @@ public class PluginLifecycleService {
         return imageRef;
     }
 
-    private Map<String, String> runtimeEnv(UUID tenantId, String pluginKey, String version,
-                                           TenantDatasourceService.TenantDatasource datasource) {
+    private Map<String, String> runtimeEnv(UUID tenantId, String pluginKey, String version) {
         Map<String, String> env = new HashMap<>();
         env.put("TENANT_ID", tenantId.toString());
         env.put("PLUGIN_KEY", pluginKey);
         env.put("PLUGIN_VERSION", version);
-        String jdbcUrl = runtimeJdbcUrl.filter(value -> !value.isBlank()).orElseGet(datasource::jdbcUrl);
-        String separator = jdbcUrl.contains("?") ? "&" : "?";
-        env.put("QUARKUS_DATASOURCE_JDBC_URL", jdbcUrl + separator + "currentSchema=" + datasource.schema());
-        env.put("QUARKUS_DATASOURCE_USERNAME", datasource.role());
-        env.put("QUARKUS_DATASOURCE_PASSWORD", datasource.password());
-        env.put("QUARKUS_HIBERNATE_ORM_DATABASE_DEFAULT_SCHEMA", datasource.schema());
-        env.put("QUARKUS_FLYWAY_SCHEMAS", datasource.schema());
-        env.put("QUARKUS_FLYWAY_MIGRATE_AT_START", "true");
-        env.put("QUARKUS_FLYWAY_BASELINE_ON_MIGRATE", "true");
-        env.put("QUARKUS_FLYWAY_BASELINE_VERSION", "1.0.0");
-        env.put("QUARKUS_FLYWAY_CREATE_SCHEMAS", "true");
         env.put("PLUGIN_FANOUT_TOKEN", fanoutToken);
-        env.put("PLUGIN_SCOPE", runtimeScope);
+        boolean system = "platform".equalsIgnoreCase(runtimeScope)
+                || tenantId.toString().equals(systemTenantId);
+        env.put("PLUGIN_SCOPE", system ? "platform" : "tenant");
         env.put("PLUGIN_DATA_GATEWAY_URL", runtimeGatewayUrl);
         env.put("QUARKUS_REDIS_HOSTS", runtimeRedisHosts);
-        String scope = "platform".equalsIgnoreCase(runtimeScope) ? "SYSTEM" : "TENANT";
+        String tlsDir = runtimeTlsDir.orElse("").trim();
+        if (!tlsDir.isEmpty()) {
+            String role = system ? "system" : "tenant";
+            env.put("PLUGIN_DATA_TLS_CA", tlsDir + "/ca.crt");
+            env.put("PLUGIN_DATA_TLS_CERT", tlsDir + "/" + role + "-client.crt");
+            env.put("PLUGIN_DATA_TLS_KEY", tlsDir + "/" + role + "-client.key");
+        }
         env.put("PLUGIN_SERVICE_TOKEN", jwtTokenService.generatePluginServiceToken(
-                tenantId, pluginKey, scope, java.time.Duration.ofHours(Math.max(1, serviceTokenHours))));
+                tenantId, pluginKey, system ? "SYSTEM" : "TENANT",
+                java.time.Duration.ofHours(Math.max(1, serviceTokenHours))));
         return env;
     }
 

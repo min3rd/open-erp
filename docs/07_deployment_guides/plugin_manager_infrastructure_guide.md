@@ -109,7 +109,31 @@ docker ps --filter label=app=open-erp-plugin
 | Triệu chứng | Nguyên nhân thường gặp | Cách xử lý |
 | :--- | :--- | :--- |
 | `PLUGIN_DEPLOY_FAILED` | Docker/kubectl không có trong PATH, hết tài nguyên | Kiểm tra binary, quota CPU/RAM, log deployer |
-| `PLUGIN_SERVICE_UNHEALTHY` | Container không lên, thiếu env DB | `docker logs <name>` / `kubectl logs`; kiểm tra schema/role |
+| `PLUGIN_SERVICE_UNHEALTHY` | Container không lên, thiếu env gateway/mTLS | `docker logs <name>` / `kubectl logs`; kiểm tra token, cert và URL gateway |
 | `PLUGIN_RUNTIME_UNAVAILABLE` (gateway) | Ledger không ACTIVE hoặc runtime `noop` | Kiểm tra trạng thái cài trong `/settings/plugins` |
 | `PLUGIN_ARTIFACT_NOT_OWNED` | Artifact thuộc tenant khác | Upload lại bundle ở tenant hiện tại |
 | `PLUGIN_REGISTRY_AUTH_FAILED` | Credential sai/hết hạn | Cập nhật credential và bấm "Kiểm tra kết nối" |
+
+## 9. Plugin Data Gateway: Zero-DB & mTLS
+
+Plugin không còn datasource/Flyway/EntityManager. Core sở hữu schema và thực thi mọi truy vấn qua gRPC `:9090`.
+
+**Core (backend)**
+
+```properties
+quarkus.grpc.server.ssl.certificate=/deploy/certs/server.crt
+quarkus.grpc.server.ssl.key=/deploy/certs/server.key
+quarkus.grpc.server.ssl.trust-store=/deploy/certs/truststore.jks
+quarkus.grpc.server.ssl.trust-store-password=${PLUGIN_GATEWAY_TRUSTSTORE_PASSWORD}
+quarkus.grpc.server.ssl.client-auth=REQUIRED
+openerp.plugin.migrations.dir=/deploy/plugin-migrations
+```
+
+- Dev: `docker compose --profile dev up plugin-certs` sinh CA/server/client cert vào `docker/certs` (gitignored) bằng `docker/certs/generate.sh`; backend + catalog mount thư mục này.
+- Prod: tạo Secret `plugin-gateway-tls` (server.crt/server.key/truststore.jks/truststore-password) cho backend và Secret `plugin-gateway-client` (ca.crt, tenant-client.*, system-client.*) cho plugin deployment; deployer tự mount secret này vào `/deploy/certs`.
+- Chứng chỉ client có CN `tenant` hoặc `system`; core đối chiếu CN với scope trong service token (`PLUGIN_DATA_MTLS_IDENTITY_MISMATCH` nếu lệch) nên system và tenant dùng chung server nhưng tách identity.
+
+**Plugin**
+
+- Env do core inject: `PLUGIN_DATA_GATEWAY_URL=https://...`, `PLUGIN_SERVICE_TOKEN`, `PLUGIN_DATA_TLS_CA/CERT/KEY`, `PLUGIN_SCOPE`, `TENANT_ID`.
+- Schema do core tạo + migrate lúc khởi động/install từ `plugins/catalog/migrations` hoặc artifact bundle; plugin chỉ khai báo `migrations` (file + SHA-256) trong `plugin.json`.
